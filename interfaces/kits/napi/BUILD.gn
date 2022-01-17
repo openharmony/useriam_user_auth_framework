@@ -1,0 +1,59 @@
+# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//base/useriam/userauth/userauth.gni")
+import("//build/lite/config/component/lite_component.gni")
+
+## Build userauth.so {{{
+config("userauth_public_config") {
+ visibility = [ ":*" ]
+  include_dirs = [
+   "include"
+  ]
+  cflags = [ ]
+}
+
+ohos_shared_library("userauthnorth") {
+  sources = [
+   "src/auth_native_module.cpp",
+   "src/user_auth_helper_north.cpp",
+  ]
+
+  include_dirs=[
+    "third_party/node/src"
+  ]
+
+  deps = [
+    "//foundation/ace/napi:ace_napi",
+    "//base/useriam/userauth/interfaces/innerkits/napi:userauth",
+    "${userauth_innerkits_path}/native:userauth_framework"
+  ]
+
+  public_configs = [ ":userauth_public_config" ]
+
+  external_deps = [
+    "ipc:ipc_core",
+  ]
+  if (is_standard_system) {
+    external_deps += [ "hiviewdfx_hilog_native:libhilog" ]
+  } else {
+    external_deps += [ "hilog:libhilog" ]
+  }
+
+  public_deps = []
+  relative_install_dir = "module"
+  part_name = "userauth"
+  subsystem_name = "userauth"
+}
+## Build userauth.so }}}
