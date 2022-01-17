@@ -1,0 +1,65 @@
+# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+import("//build/ohos.gni")
+import("//build/test.gni")
+import("//base/useriam/userauth/userauth.gni")
+
+
+module_output_path = "${userauth_native_part_name}/UserAuth_test"
+
+###############################################################################
+config("module_private_config") {
+  visibility = [ ":*" ]
+
+  include_dirs = [
+    "include",
+    "//utils/system/safwk/native/include",
+    #"//base/distributeddatamgr/distributeddatamgr/frameworks/innerkitsimpl/distributeddatafwk/include",
+  ]
+}
+
+##############################unittest##########################################
+ohos_unittest("unittest_test") {
+  module_out_path = module_output_path
+
+  sources = [ "src/userauth_test.cpp" ]
+
+ include_dirs = [
+    "include",
+    #"//base/useriam/useridm/unittest/include",
+    "//out/hi3516dv300/innerkits/ohos-arm/ipc/ipc_single/include",
+    "//base/useriam/userauth/interfaces/innerkits/include",
+    #"//base/useriam/useridm/services/include",
+  ]
+
+  configs = [
+    #"${userauth_utils_path}:utils_config",
+    ":module_private_config",
+  ]
+
+  deps = [
+    "${userauth_innerkits_path}/native:userauth_framework",
+    "//drivers/peripheral/display/hal:hdi_display_device",
+    "//third_party/googletest:gtest_main",
+    "//utils/native/base:utils",
+    #"//base/useriam/userauth/interfaces/innerkits/userauth:userauth_inner",
+    #"//base/useriam/userauth/services/userauthservice/adapter:userauth_adapter",
+  ]
+
+  external_deps = [
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr_standard:samgr_proxy",
+  ]
+}
