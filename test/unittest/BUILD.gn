@@ -12,7 +12,7 @@
 # limitations under the License.
 import("//build/ohos.gni")
 import("//build/test.gni")
-import("//base/useriam/userauth/userauth.gni")
+import("//base/user_iam/user_auth/userauth.gni")
 
 
 module_output_path = "${userauth_native_part_name}/UserAuth_test"
@@ -24,7 +24,6 @@ config("module_private_config") {
   include_dirs = [
     "include",
     "//utils/system/safwk/native/include",
-    #"//base/distributeddatamgr/distributeddatamgr/frameworks/innerkitsimpl/distributeddatafwk/include",
   ]
 }
 
@@ -36,10 +35,10 @@ ohos_unittest("unittest_test") {
 
  include_dirs = [
     "include",
-    #"//base/useriam/useridm/unittest/include",
+    #"//base/user_iam/user_idm/unittest/include",
     "//out/hi3516dv300/innerkits/ohos-arm/ipc/ipc_single/include",
-    "//base/useriam/userauth/interfaces/innerkits/include",
-    #"//base/useriam/useridm/services/include",
+    "//base/user_iam/user_auth/interfaces/innerkits/include",
+    #"//base/user_iam/user_idm/services/include",
   ]
 
   configs = [
@@ -52,8 +51,6 @@ ohos_unittest("unittest_test") {
     "//drivers/peripheral/display/hal:hdi_display_device",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
-    #"//base/useriam/userauth/interfaces/innerkits/userauth:userauth_inner",
-    #"//base/useriam/userauth/services/userauthservice/adapter:userauth_adapter",
   ]
 
   external_deps = [

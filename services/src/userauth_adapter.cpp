@@ -26,7 +26,7 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-const int32_t cUserId = 12345;
+const int32_t cUserId = 0;
 const uint64_t cCallerUID = 0;
 
 UserAuthAdapter &UserAuthAdapter::GetInstance()
@@ -83,9 +83,9 @@ void UserAuthAdapter::SetPropAuthInfo(uint64_t callerUID, std::string pkgName, i
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth SetPropAuthInfo is end!");
 }
 int32_t UserAuthAdapter::SetProPropAuthInfo(OHOS::UserIAM::AuthResPool::AuthAttributes &authAttributes,
-                                                uint64_t callerUID, std::string pkgName,
-                                                SetPropertyRequest requset, std::vector<uint64_t> templateIds,
-                                                std::shared_ptr<CoAuth::SetPropCallback> &setPropCallback)
+                                            uint64_t callerUID, std::string pkgName,
+                                            SetPropertyRequest requset, std::vector<uint64_t> templateIds,
+                                            std::shared_ptr<CoAuth::SetPropCallback> &setPropCallback)
 {
     uint32_t value;
     int32_t ret = authAttributes.SetUint32Value(AUTH_TYPE, requset.authType);
@@ -140,7 +140,7 @@ void UserAuthAdapter::GetPropAuthInfoCoauth(uint64_t callerUID, std::string pkgN
                                             sptr<IUserAuthCallback>& callback)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth GetPropAuthInfoCoauth is start!");
-    USERAUTH_HILOGD(MODULE_SERVICE, "GetPropertyRequest requset key is %{public}u!", requset.keys.front());
+
     std::shared_ptr<UserIDM::GetInfoCallback> getInfoCallback =
         std::make_shared<UserAuthCallbackImplIDMGetPorpCoauth>(callback, callerUID, pkgName, resultCode,
                                                                authToken, requset);
@@ -287,7 +287,6 @@ int32_t UserAuthAdapter::GetExecutorProp(uint64_t callerUID, std::string pkgName
         result.result = ret;
         return ret;
     }
-    USERAUTH_HILOGD(MODULE_SERVICE, "GetPropertyRequest requset key is %{public}u!", requset.keys.front());
     if (GetEachExecutorProp(requset, result, value, pAuthAttributes) != SUCCESS) {
         return ret;
     }
@@ -300,10 +299,8 @@ int32_t UserAuthAdapter::GetEachExecutorProp(GetPropertyRequest &requset, Execut
 {
     uint64_t tmpValue;
     int32_t ret = SUCCESS;
-    for (size_t i = 0; i < requset.keys.size(); i++) {
-    //for (std::vector<uint32_t>::const_iterator iter = requset.keys.begin(); iter != requset.keys.end(); ++iter) {
-        USERAUTH_HILOGD(MODULE_SERVICE, "GetPropertyRequest *iter is %{public}u!", requset.keys[i]);
-        switch (requset.keys[i]) {
+    for (std::vector<uint32_t>::const_iterator iter = requset.keys.begin(); iter != requset.keys.end(); ++iter) {
+        switch (*iter) {
             case AUTH_SUB_TYPE:
                 ret = pAuthAttributes->GetUint64Value(AUTH_SUBTYPE, tmpValue);
                 if (ret != SUCCESS) {
@@ -314,7 +311,7 @@ int32_t UserAuthAdapter::GetEachExecutorProp(GetPropertyRequest &requset, Execut
                 value = static_cast<uint32_t>(tmpValue);
                 result.authSubType = static_cast<AuthSubType>(value);
                 break;
-            case AUTH_REMAIN_COUNT:
+            case REMAIN_TIMES:
                 ret = pAuthAttributes->GetUint32Value(AUTH_REMAIN_COUNT, result.remainTimes);
                 if (ret != SUCCESS) {
                     USERAUTH_HILOGE(MODULE_SERVICE, "GetUint32Value->AUTH_REMAIN_COUNT ERROR!");
@@ -322,7 +319,7 @@ int32_t UserAuthAdapter::GetEachExecutorProp(GetPropertyRequest &requset, Execut
                     return ret;
                 }
                 break;
-            case AUTH_REMAIN_TIME:
+            case FREEZING_TIME:
                 ret = pAuthAttributes->GetUint32Value(AUTH_REMAIN_TIME, result.freezingTime);
                 if (ret != SUCCESS) {
                     USERAUTH_HILOGE(MODULE_SERVICE, "GetUint32Value->AUTH_REMAIN_TIME ERROR!");
@@ -332,10 +329,11 @@ int32_t UserAuthAdapter::GetEachExecutorProp(GetPropertyRequest &requset, Execut
                 break;
             default:
                 USERAUTH_HILOGE(MODULE_SERVICE, "The key to get ExecutorProp is invalid.");
-                result.result = INVALID_PARAMETERS;
-                return INVALID_PARAMETERS;
+                break;
         }
     }
+    USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthAdapter::GetEachExecutorProp %{public}ull:%{public}u:%{public}u",
+        result.authSubType, result.remainTimes, result.freezingTime);
     return ret;
 }
 
