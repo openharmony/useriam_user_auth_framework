@@ -15,7 +15,7 @@
 <info>
     <process>useriam</process>
     <systemability>
-        <name>5201</name>
+        <name>922</name>
         <libpath>libuserauthservice.z.so</libpath>
         <run-on-create>true</run-on-create>
         <distributed>false</distributed>

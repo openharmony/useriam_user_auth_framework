@@ -22,7 +22,7 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-REGISTER_SYSTEM_ABILITY_BY_ID(UserAuthService, USERAUTH_SERVICE_SA_ID, true);
+REGISTER_SYSTEM_ABILITY_BY_ID(UserAuthService, SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true);
 
 UserAuthService::UserAuthService(int32_t systemAbilityId, bool runOnCreate)
     : SystemAbility(systemAbilityId, runOnCreate)
