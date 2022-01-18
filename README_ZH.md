@@ -33,7 +33,7 @@
 ├── sa_profile			# Service Ability 配置文件
 ├── services			# Service Ability 服务实现
 ├── test				# 测试代码存放目录
-└── utils				# 测试代码存放目录
+└── utils				# 工具代码存放目录
 ```
 
 
