@@ -52,6 +52,7 @@ private:
     void SetPropertyBigint(napi_env env, napi_value &jsObject, uint64_t value, std::string key);
     std::string NapiGetValueString(napi_env env, napi_value value);
     napi_value GetNapiValue(napi_env env, const std::string keyChar, napi_value object);
+    std::vector<uint32_t> GetCppArrayUint32(napi_env env, napi_value value);
 };
 } // namespace UserAuth
 } // namespace UserIAM

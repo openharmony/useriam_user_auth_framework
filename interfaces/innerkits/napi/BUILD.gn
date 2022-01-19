@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//base/useriam/userauth/userauth.gni")
+import("//base/user_iam/user_auth/userauth.gni")
 
 config("userauth_public_config") {
   include_dirs = [ 
@@ -21,14 +21,6 @@ config("userauth_public_config") {
 }
 
 ohos_shared_library("userauth") {
-  include_dirs = [
-    # "common/include",
-    # "//third_party/node/src",
-    # "//foundation/ace/napi/interfaces/kits",
-    # "//foundation/distributeddatamgr/distributeddatamgr/frameworks/innerkitsimpl/distributeddatafwk/include",
-  ]
-
-
   cflags = [
     "-fPIC",
     "-g3",
@@ -64,6 +56,6 @@ ohos_shared_library("userauth") {
 
   relative_install_dir = "module"
 
-  part_name = "userauth"
-  subsystem_name = "userauth"
+  part_name = "user_auth"
+  subsystem_name = "user_iam"
 }

@@ -140,6 +140,7 @@ void AuthApiCallback::onAcquireInfo(const int32_t module, const uint32_t acquire
 
 void AuthApiCallback::onResult(const int32_t result, const AuthResult extraInfo)
 {
+    HILOG_INFO("AuthApiCallback onResult enter");
     napi_status status;
     if (userInfo_ != nullptr) {
         HILOG_INFO("AuthApiCallback onResult userInfo_");

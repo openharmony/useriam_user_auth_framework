@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//base/useriam/userauth/userauth.gni")
+import("//base/user_iam/user_auth/userauth.gni")
 import("//build/lite/config/component/lite_component.gni")
 
 ## Build userauth.so {{{
@@ -36,7 +36,7 @@ ohos_shared_library("userauthnorth") {
 
   deps = [
     "//foundation/ace/napi:ace_napi",
-    "//base/useriam/userauth/interfaces/innerkits/napi:userauth",
+    "//base/user_iam/user_auth/interfaces/innerkits/napi:userauth",
     "${userauth_innerkits_path}/native:userauth_framework"
   ]
 
@@ -53,7 +53,6 @@ ohos_shared_library("userauthnorth") {
 
   public_deps = []
   relative_install_dir = "module"
-  part_name = "userauth"
-  subsystem_name = "userauth"
+  part_name = "user_auth"
+  subsystem_name = "useriam"
 }
-## Build userauth.so }}}

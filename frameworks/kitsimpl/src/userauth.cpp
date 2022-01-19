@@ -39,7 +39,7 @@ sptr<IUserAuth> UserAuth::GetProxy()
         USERAUTH_HILOGE(MODULE_INNERKIT, "userauth Failed to get system manager");
         return nullptr;
     }
-    sptr<IRemoteObject> obj = sam->CheckSystemAbility(USERAUTH_SERVICE_SA_ID);
+    sptr<IRemoteObject> obj = sam->CheckSystemAbility(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH);
     if (obj == nullptr) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "userauth Failed to get userauth manager service");
         return nullptr;

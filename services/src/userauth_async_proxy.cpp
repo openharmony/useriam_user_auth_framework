@@ -207,6 +207,7 @@ bool UserAuthAsyncProxy::SendRequest(uint32_t code, MessageParcel &data, Message
         USERAUTH_HILOGE(MODULE_SERVICE, "userauth failed to SendRequest.result = %{public}d", result);
         return false;
     }
+    USERAUTH_HILOGD(MODULE_SERVICE, "userauthAsyncProxy SendRequest end");
     return true;
 }
 }  // namespace UserAuth
