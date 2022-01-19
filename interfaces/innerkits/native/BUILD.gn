@@ -15,7 +15,7 @@ import("//base/user_iam/user_auth/userauth.gni")
 
 config("userauth_private_config") {
   include_dirs = [
-    "//utils/system/safwk/native/include",
+    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
     "//foundation/distributeddatamgr/distributeddatamgr/frameworks/innerkitsimpl/distributeddatafwk/include",
   ]
 }
@@ -26,22 +26,22 @@ config("userauth_public_config") {
 
 ohos_shared_library("userauth_framework") {
   sources = [
-    "../../../frameworks/kitsimpl/src/userauth_proxy.cpp",
     "../../../frameworks/kitsimpl/src/userauth.cpp",
     "../../../frameworks/kitsimpl/src/userauth_async_stub.cpp",
+    "../../../frameworks/kitsimpl/src/userauth_proxy.cpp",
   ]
 
   configs = [
     "${userauth_utils_path}:utils_config",
-    ":userauth_private_config"
+    ":userauth_private_config",
   ]
 
   public_configs = [ ":userauth_public_config" ]
 
   deps = [
-    "//utils/native/base:utils",
     "//base/user_iam/auth_executor_mgr/interfaces/innerkits:coauth_framework",
-   ]
+    "//utils/native/base:utils",
+  ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",

@@ -17,20 +17,20 @@ config("userauth_private_config") {
   include_dirs = [
     "include",
     "//base/user_iam/auth_executor_mgr/common/interface",
-    "//utils/system/safwk/native/include",
+    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
   ]
 }
 
 ohos_shared_library("userauthservice") {
   sources = [
-    "src/userauth_service.cpp",
-    "src/userauth_adapter.cpp",
-    "src/userauth_controller.cpp",
-    "src/userauth_stub.cpp",
-    "src/userauth_excallback_impl.cpp",
-    "src/userauth_async_proxy.cpp",
-    "src/userauth_datamgr.cpp",
     "src/context_thread_pool.cpp",
+    "src/userauth_adapter.cpp",
+    "src/userauth_async_proxy.cpp",
+    "src/userauth_controller.cpp",
+    "src/userauth_datamgr.cpp",
+    "src/userauth_excallback_impl.cpp",
+    "src/userauth_service.cpp",
+    "src/userauth_stub.cpp",
   ]
 
   configs = [
@@ -39,14 +39,14 @@ ohos_shared_library("userauthservice") {
   ]
 
   deps = [
-    "//base/user_iam/auth_executor_mgr/interfaces/innerkits:coauth_framework",
-    "//base/user_iam/user_idm/interfaces/innerkits:useridm_framework",
-    "//third_party/openssl:libcrypto_static",
     "${userauth_innerkits_path}/native:userauth_framework",
-    "//drivers/peripheral/display/hal:hdi_display_device",
-    "//utils/native/base:utils",
     "//base/startup/syspara_lite/interfaces/innerkits/native/syspara:syspara",
     "//base/user_iam/auth_executor_mgr/common:useriam_common_lib",
+    "//base/user_iam/auth_executor_mgr/interfaces/innerkits:coauth_framework",
+    "//base/user_iam/user_idm/interfaces/innerkits:useridm_framework",
+    "//drivers/peripheral/display/hal:hdi_display_device",
+    "//third_party/openssl:libcrypto_static",
+    "//utils/native/base:utils",
   ]
 
   external_deps = [
