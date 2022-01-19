@@ -246,47 +246,52 @@ int32_t ResultConvert::GetInt32ValueByKey(napi_env env, napi_value jsObject, std
     return NapiGetValueInt32(env, value);
 }
 
+std::vector<uint32_t> ResultConvert::GetCppArrayUint32(napi_env env, napi_value value)
+{
+    uint32_t arrayLength = 0;
+    napi_get_array_length(env, value, &arrayLength);
+    if (arrayLength == 0) {
+        HILOG_ERROR("%{public}s The array is empty.", __func__);
+        return std::vector<uint32_t>();
+    }
+    std::vector<uint32_t> paramArrays;
+    for (size_t i = 0; i < arrayLength; i++) {
+        napi_value napiElement = nullptr;
+        napi_get_element(env, value, i, &napiElement);
+
+        napi_valuetype napiValueType = napi_undefined;
+        napi_typeof(env, napiElement, &napiValueType);
+        if (napiValueType != napi_number) {
+            HILOG_ERROR("%{public}s Wrong argument type. Numbers expected.", __func__);
+            return std::vector<uint32_t>();
+        }
+        uint32_t napiValue = 0;
+        napi_get_value_uint32(env, napiElement, &napiValue);
+        paramArrays.push_back(napiValue);
+    }
+    return paramArrays;
+}
+
 std::vector<uint32_t> ResultConvert::GetInt32ArrayValueByKey(napi_env env, napi_value jsObject, std::string key)
 {
     napi_status status;
     napi_value array = GetNapiValue(env, key.c_str(), jsObject);
-    std::vector<uint32_t> values;
     if (array == nullptr) {
-        return values;
+        return std::vector<uint32_t>();
     }
-    std::vector<uint32_t>RetNull = {0};
-    napi_typedarray_type arraytype;
-    size_t length = 0;
-    napi_value buffer = nullptr;
-    size_t offset = 0;
-    uint8_t *data = nullptr;
-    bool isTypedArray = false;
-    status = napi_is_typedarray(env, array, &isTypedArray);
+    bool isArray = false;
+    status = napi_is_array(env, array, &isArray);
     if (status != napi_ok) {
-        HILOG_INFO("napi_is_typedarray is failed");
+        HILOG_INFO("napi_is_array is failed");
+        return std::vector<uint32_t>();
     }
-    if (isTypedArray) {
+    if (isArray) {
         HILOG_INFO("args[PIN_PARAMS_ONE]  is a array");
     } else {
-        HILOG_INFO("args[PIN_PARAMS_ONE]  is not a uint8array");
-        return RetNull;
+        HILOG_INFO("args[PIN_PARAMS_ONE]  is not a array");
+        return std::vector<uint32_t>();
     }
-    status = napi_get_typedarray_info(env, array, &arraytype, &length, reinterpret_cast<void **>(&data), &buffer, &offset);
-    if (status != napi_ok) {
-        HILOG_INFO("napi_get_typedarray_info is failed");
-    }
-    if (arraytype == napi_uint32_array) {
-        HILOG_INFO("InputerImpl, OnSetData get uint8 array ");
-    } else {
-        HILOG_ERROR("InputerImpl, OnSetData get uint8 array error");
-        return RetNull;
-    }
-    if (offset != 0) {
-        HILOG_INFO(" offset is =============>%{public}d",offset);
-        return RetNull;
-    }
-    std::vector<uint32_t>result(data, data + length);
-    return result;
+    return GetCppArrayUint32(env, array);
 }
 
 std::string ResultConvert::NapiGetValueString(napi_env env, napi_value value)

@@ -1,0 +1,83 @@
+{
+    "name": "@openharmony/user_auth",
+    "version": "3.1.0",
+    "description": "User Authentication capability",
+    "homePage": "https://gitee.com/openharmony",
+    "author": {},
+    "repository": "",
+    "license": "Apache License 2.0",
+    "publishAs": "code-segment",
+    "segment": {
+      "destPath" : "base/user_iam/user_auth"
+    },
+    "dirs": {},
+    "scripts": {},
+    "component": {
+      "name": "user_auth",
+      "subsystem": "useriam",
+      "adapted_system_type": [ "standard" ],
+      "syscap": ["SystemCapability.UserIAM.UserAuth"],
+      "features": [],
+      "rom": "200KB",
+      "ram": "1500KB",
+      "deps": {
+        "components": [
+            "hiviewdfx_hilog_native",
+            "ipc",
+            "safwk",
+            "samgr_standard",
+            "hilog",
+            "auth_executor_mgr"
+        ],
+        "third_party": [
+            "openssl",
+            "googletest"
+        ]
+      },
+      "build": {
+        "sub_component": [
+            "//base/user_iam/user_auth/sa_profile:userauth_sa_profile",
+            "//base/user_iam/user_auth/services:userauthservice",
+            "//base/user_iam/user_auth/interfaces/kits/napi:userauthnorth"	  
+        ],
+        "inner_kits": [
+		  {
+            "type": "so",
+            "name": "//base/user_iam/user_auth/interfaces/innerkits/native:userauth_framework",
+            "header": {
+              "header_files": [
+                "iuser_auth.h",
+                "iuserauth_callback.h",
+                "user_auth.h",
+                "userauth_async_stub.h",
+                "userauth_callback.h",
+                "userauth_info.h",
+                "userauth_proxy.h"
+              ],
+              "header_base": "//base/user_iam/user_auth/interfaces/innerkits/native/include"
+            }
+          },
+		  {
+            "type": "so",
+            "name": "//base/user_iam/user_auth/interfaces/innerkits/napi:userauth",
+            "header": {
+              "header_files": [
+                "auth_build.h",
+                "auth_common.h",
+                "auth_hilog_wrapper.h",
+                "auth_object.h",
+                "authapi_callback.h",
+                "result_convert.h",
+                "user_auth_helper.h",
+                "user_auth_impl.h"
+              ],
+              "header_base": "//base/user_iam/user_auth/interfaces/innerkits/napi/include"
+            }
+          }		  
+        ],
+        "test": [
+            "//base/user_iam/user_auth/test:userauth_native_test"
+        ]
+      }
+    }
+  }

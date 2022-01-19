@@ -72,8 +72,9 @@ void UserAuthCallbackImplSetPropFreez::OnResult(uint32_t result, std::vector<uin
     }
 
     getPropertyRequest.authType = authType_;
-    getPropertyRequest.keys.push_back(AuthAttributeType::AUTH_REMAIN_COUNT);
-    getPropertyRequest.keys.push_back(AuthAttributeType::AUTH_REMAIN_TIME);
+    getPropertyRequest.keys.push_back(AUTH_SUB_TYPE);
+    getPropertyRequest.keys.push_back(REMAIN_TIMES);
+    getPropertyRequest.keys.push_back(FREEZING_TIME);
     if (callback_ == nullptr) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthCallbackImplSetPropFreez callback_ is Null");
         return;
@@ -355,7 +356,6 @@ void UserAuthCallbackImplIDMGetPorpCoauth::OnGetInfo(std::vector<UserIDM::Creden
         return;
     }
     uint64_t tmp = info.begin()->templateId;
-    USERAUTH_HILOGD(MODULE_SERVICE, "GetPropertyRequest requset key is %{public}u!", requset_.keys.front());
     ret = UserAuthAdapter::GetInstance().GetExecutorProp(callerUid_, pkgName_, tmp, requset_, executorProperty);
     if (ret != SUCCESS) {
         executorProperty.freezingTime = 0;

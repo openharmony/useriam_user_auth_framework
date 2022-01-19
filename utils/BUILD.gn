@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/useriam/userauth/userauth.gni")
+import("//base/user_iam/user_auth/userauth.gni")
 
 config("utils_config") {
   include_dirs = [

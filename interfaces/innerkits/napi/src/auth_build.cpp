@@ -15,6 +15,7 @@
 
 #include "auth_build.h"
 
+#include "securec.h"
 #include "auth_common.h"
 #include "auth_hilog_wrapper.h"
 #include "auth_object.h"
@@ -247,7 +248,6 @@ void AuthBuild::AuthCallBackResult(napi_env env, AuthInfo *authInfo)
 uint64_t AuthBuild::GetUint8ArrayTo64(napi_env env, napi_value value)
 {
     napi_typedarray_type arraytype;
-    std::string challenge;
     size_t length = 0;
     napi_value buffer = nullptr;
     size_t offset = 0;
@@ -270,9 +270,13 @@ uint64_t AuthBuild::GetUint8ArrayTo64(napi_env env, napi_value value)
         HILOG_INFO(" offset is =============>%{public}d", offset);
         return 0;
     }
-    std::vector<uint8_t> result(data, data+length);
-    challenge.assign(result.begin(), result.end());
-    uint64_t resultUint64 = atol(challenge.c_str());
+    uint64_t resultUint64;
+    HILOG_INFO("data len = %{public}u", length);
+    if (memcpy_s(&resultUint64, sizeof(resultUint64), data, length) != EOK) {
+        HILOG_INFO("memcpy_s fail");
+        return 0;
+    }
+    HILOG_INFO("resultUint64 = %{public}llu", resultUint64);
     return resultUint64;
 }
 
