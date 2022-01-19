@@ -10,10 +10,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import("//base/user_iam/user_auth/userauth.gni")
 import("//build/ohos.gni")
 import("//build/test.gni")
-import("//base/user_iam/user_auth/userauth.gni")
-
 
 module_output_path = "${userauth_native_part_name}/UserAuth_test"
 
@@ -23,7 +22,7 @@ config("module_private_config") {
 
   include_dirs = [
     "include",
-    "//utils/system/safwk/native/include",
+    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
   ]
 }
 
@@ -33,11 +32,13 @@ ohos_unittest("unittest_test") {
 
   sources = [ "src/userauth_test.cpp" ]
 
- include_dirs = [
+  include_dirs = [
     "include",
+
     #"//base/user_iam/user_idm/unittest/include",
     "//out/hi3516dv300/innerkits/ohos-arm/ipc/ipc_single/include",
     "//base/user_iam/user_auth/interfaces/innerkits/include",
+
     #"//base/user_iam/user_idm/services/include",
   ]
 
