@@ -11,40 +11,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/ohos.gni")
 import("//base/user_iam/user_auth/userauth.gni")
 import("//build/lite/config/component/lite_component.gni")
+import("//build/ohos.gni")
 
 ## Build userauth.so {{{
 config("userauth_public_config") {
- visibility = [ ":*" ]
-  include_dirs = [
-   "include"
-  ]
-  cflags = [ ]
+  visibility = [ ":*" ]
+  include_dirs = [ "include" ]
+  cflags = []
 }
 
 ohos_shared_library("userauthnorth") {
   sources = [
-   "src/auth_native_module.cpp",
-   "src/user_auth_helper_north.cpp",
+    "src/auth_native_module.cpp",
+    "src/user_auth_helper_north.cpp",
   ]
 
-  include_dirs=[
-    "third_party/node/src"
-  ]
+  include_dirs = [ "third_party/node/src" ]
 
   deps = [
-    "//foundation/ace/napi:ace_napi",
+    "${userauth_innerkits_path}/native:userauth_framework",
     "//base/user_iam/user_auth/interfaces/innerkits/napi:userauth",
-    "${userauth_innerkits_path}/native:userauth_framework"
+    "//foundation/ace/napi:ace_napi",
   ]
 
   public_configs = [ ":userauth_public_config" ]
 
-  external_deps = [
-    "ipc:ipc_core",
-  ]
+  external_deps = [ "ipc:ipc_core" ]
   if (is_standard_system) {
     external_deps += [ "hiviewdfx_hilog_native:libhilog" ]
   } else {

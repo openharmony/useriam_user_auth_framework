@@ -11,13 +11,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/ohos.gni")
 import("//base/user_iam/user_auth/userauth.gni")
+import("//build/ohos.gni")
 
 config("userauth_public_config") {
-  include_dirs = [ 
-    "include"
-   ]
+  include_dirs = [ "include" ]
 }
 
 ohos_shared_library("userauth") {
@@ -27,23 +25,21 @@ ohos_shared_library("userauth") {
   ]
 
   sources = [
-     "src/auth_native_module.cpp",
-     "src/user_auth_impl.cpp",
-     "src/auth_build.cpp",
-     "src/result_convert.cpp", 
-     "src/user_auth_helper.cpp",
-     "src/authapi_callback.cpp",
+    "src/auth_build.cpp",
+    "src/auth_native_module.cpp",
+    "src/authapi_callback.cpp",
+    "src/result_convert.cpp",
+    "src/user_auth_helper.cpp",
+    "src/user_auth_impl.cpp",
   ]
 
   deps = [
-    "//utils/native/base:utils",
     "${userauth_innerkits_path}/native:userauth_framework",
-    "//foundation/ace/napi:ace_napi"
+    "//foundation/ace/napi:ace_napi",
+    "//utils/native/base:utils",
   ]
 
-  configs = [
-    "${userauth_utils_path}:utils_config",
-  ]
+  configs = [ "${userauth_utils_path}:utils_config" ]
 
   public_configs = [ ":userauth_public_config" ]
 
