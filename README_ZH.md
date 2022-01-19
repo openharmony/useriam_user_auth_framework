@@ -24,8 +24,6 @@
 
 ```undefined
 //base/user_iam/user_auth
-├── ohos.build			# 组件描述文件
-├── userauth.gni		# 构建配置
 ├── frameworks			# 框架代码
 ├── interfaces			# 对外接口存放目录
 │   ├── innerkits		# 对内部子系统暴露的头文件，供系统服务使用
@@ -33,7 +31,9 @@
 ├── sa_profile			# Service Ability 配置文件
 ├── services			# Service Ability 服务实现
 ├── test				# 测试代码存放目录
-└── utils				# 测试代码存放目录
+├── utils				# 工具代码存放目录
+├── bundle.json			# 组件描述文件
+└── userauth.gni		# 构建配置
 ```
 
 
@@ -55,7 +55,7 @@
 1. 认证方案生成：根据目标用户录入的认证凭据和目标认证安全等级，决策用户身份认证方案。
 2. 认证结果评估：根据执行器返回的身份认证结果，评估是否达到目标认证安全等级。
 
-- 需在可信执行环境内实现头文件```common\hal\interface\userauth_interface.h``` 中定义的接口，保证用户身份认证方案决策和结果评估过程的安全性。
+- 需在可信执行环境内实现[useriam_auth_executor_mgr](https://gitee.com/openharmony-sig/useriam_coauth)仓内，头文件```common\interface\userauth_interface.h``` 中定义的接口，保证用户身份认证方案决策和结果评估过程的安全性。
 
 
 
