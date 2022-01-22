@@ -16,7 +16,6 @@
 #define FACERECOGNITION_USER_AUTH_H
 
 #include "napi/native_common.h"
-#include "napi/native_node_api.h"
 
 #include "auth_build.h"
 #include "auth_common.h"

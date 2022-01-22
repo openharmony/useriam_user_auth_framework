@@ -16,8 +16,8 @@
 #ifndef AUTHAPI_CALLBACK_H
 #define AUTHAPI_CALLBACK_H
 
+#include "napi/native_api.h"
 #include "napi/native_common.h"
-#include "napi/native_node_api.h"
 
 #include "userauth_callback.h"
 #include "userauth_info.h"
