@@ -16,7 +16,7 @@
 #ifndef AUTH_OBJECT_H
 #define AUTH_OBJECT_H
 
-#include <string>
+#include <vector>
 
 namespace OHOS {
 namespace UserIAM {
@@ -24,7 +24,7 @@ namespace UserAuth {
 class Napi_ExecutorProperty {
 public:
     int32_t result_ = 0;
-    int32_t authSubType_ = 0;
+    uint64_t authSubType_ = 0;
     uint32_t remainTimes_ = 0;
     uint32_t freezingTime_ = 0;
 };

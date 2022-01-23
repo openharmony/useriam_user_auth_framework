@@ -13,9 +13,11 @@
  * limitations under the License.
  */
 
-#include "securec.h"
-#include "auth_hilog_wrapper.h"
 #include "result_convert.h"
+
+#include "securec.h"
+
+#include "auth_hilog_wrapper.h"
 
 namespace OHOS {
 namespace UserIAM {
@@ -28,164 +30,21 @@ ResultConvert::~ResultConvert()
 {
 }
 
-napi_value ResultConvert::BuildArrayExecutorProperty(napi_env env, Napi_ExecutorProperty property)
+napi_value ResultConvert::Uint64ToUint8Napi(napi_env env, uint64_t value)
 {
-    napi_value jsObject = nullptr;
-    napi_create_object(env, &jsObject);
-    SetPropertyInt(env, jsObject, property.result_, "result");
-    SetPropertyInt(env, jsObject, property.authSubType_, "authSubType");
-    SetPropertyUint(env, jsObject, property.remainTimes_, "remainTimes");
-    SetPropertyUint(env, jsObject, property.freezingTime_, "freezingTime");
-    return jsObject;
-}
-
-std::vector<uint8_t> ResultConvert::ConvertUint8(uint64_t value)
-{
-    std::string number = std::to_string(value); // trimmed to fit
-    int length = number.length();
-    HILOG_INFO("ResultConvert ConvertUint8 strat result %{public}d", length);
-    std::vector<uint8_t> uint8Array;
-    for (int i = 0; i < length; i++) {
-        char charVlaue = number.at(i);
-        uint8_t result = (uint8_t)atoi(&charVlaue);
-        HILOG_INFO("ResultConvert ConvertUint8 strat result %{public}u", result);
-        uint8Array.push_back(result);
-    }
-    return uint8Array;
-}
-
-napi_value ResultConvert::BuildNapiUint8Array(napi_env env, std::vector<uint8_t> value)
-{
-    HILOG_INFO("ResultConvert SetPropertyUint8ArrayTest strat ");
+    HILOG_INFO("ResultConvert Uint64ToUint8Napi uint64_t %{public}llu", value);
+    size_t length = sizeof(value);
     void *data = nullptr;
-    napi_value buffer = nullptr;
-    NAPI_CALL(env, napi_create_arraybuffer(env, value.size(), &data, &buffer));
-    if (memcpy_s(data, value.size(), value.data(), value.size()) != 0) {
-        HILOG_INFO("ResultConvert SetPropertyUint8ArrayTest error");
-        return nullptr;
-    }
-    napi_value keyValue = nullptr;
-    NAPI_CALL(env, napi_create_typedarray(env, napi_uint8_array, value.size(), buffer, 0, &keyValue));
-    return keyValue;
-}
-
-void ResultConvert::SetPropertyUint8ArrayTest(
-    napi_env env, napi_value &jsObject, std::vector<uint8_t> value, std::string key)
-{
-    napi_status status;
-    napi_value keyValue = BuildNapiUint8Array(env, value);
-    if (keyValue == nullptr) {
-        status = napi_create_int64(env, -1, &keyValue);
-        if (status != napi_ok) {
-            HILOG_ERROR("napi_create_int64 faild");
-        }
-    }
-    napi_value resultKey = nullptr;
-    status = napi_create_string_utf8(env, key.c_str(), NAPI_AUTO_LENGTH, &resultKey);
-    if (status != napi_ok) {
-            HILOG_ERROR("napi_create_string_utf8 faild");
-    }
-    status = napi_set_property(env, jsObject, resultKey, keyValue);
-    if (status != napi_ok) {
-            HILOG_ERROR("napi_set_property faild");
-    }
-    HILOG_INFO("ResultConvert SetPropertyUint8ArrayTest end");
-}
-
-void ResultConvert::SetPropertyUint8Array(napi_env env, napi_value &jsObject, uint64_t value, std::string key)
-{
-    HILOG_INFO("BuildArrayExecutorProperty SetPropertyUint8Array strat");
-    napi_status status;
-    napi_value keyValue = GetAuthInfoRet(env, value);
-    napi_value resultKey = nullptr;
-    status = napi_create_string_utf8(env, key.c_str(), NAPI_AUTO_LENGTH, &resultKey);
-    if (status != napi_ok) {
-            HILOG_ERROR("napi_create_string_utf8 faild");
-    }
-    status = napi_set_property(env, jsObject, resultKey, keyValue);
-    if (status != napi_ok) {
-            HILOG_ERROR("napi_set_property faild");
-    }
-    HILOG_INFO("BuildArrayExecutorProperty SetPropertyUint8Array end");
-}
-
-napi_value ResultConvert::GetAuthInfoRet(napi_env env, uint64_t Ret)
-{
-    HILOG_INFO("GetAuthInfoRet  strat");
-    std::string RetCode = std::to_string(Ret);
-    size_t bufefersize;
-    void *cdata = nullptr;
     napi_value arrayBuffer = nullptr;
-    const char *CCrets = RetCode.c_str();
-    bufefersize = RetCode.size();
+    size_t bufferSize = length;
+    NAPI_CALL(env, napi_create_arraybuffer(env, bufferSize, &data, &arrayBuffer));
+    memcpy_s(data, bufferSize, reinterpret_cast<const void *>(&value), bufferSize);
     napi_value result = nullptr;
-    NAPI_CALL(env, napi_create_arraybuffer(env, bufefersize, &cdata, &arrayBuffer));
-    if (memcpy_s(cdata, bufefersize, reinterpret_cast<const void *>(CCrets), bufefersize) != EOK) {
-        HILOG_INFO("memcpy_s failed");
-    }
-    NAPI_CALL(env, napi_create_typedarray(env, napi_uint8_array, bufefersize, arrayBuffer, 0, &result));
-    HILOG_INFO("GetAuthInfoRet  end");
+    NAPI_CALL(env, napi_create_typedarray(env, napi_uint8_array, bufferSize, arrayBuffer, 0, &result));
     return result;
 }
 
-void ResultConvert::SetPropertyInt(napi_env env, napi_value &jsObject, int32_t value, std::string key)
-{
-    napi_status status;
-    napi_value keyValue = 0;
-    status = napi_create_int32(env, value, &keyValue);
-    if (status != napi_ok) {
-        HILOG_ERROR("napi_create_int32 faild");
-    }
-    napi_value resultKey = nullptr;
-    status = napi_create_string_utf8(env, key.c_str(), NAPI_AUTO_LENGTH, &resultKey);
-    if (status != napi_ok) {
-        HILOG_ERROR("napi_create_string_utf8 faild");
-    }
-    status = napi_set_property(env, jsObject, resultKey, keyValue);
-    if (status != napi_ok) {
-        HILOG_ERROR("napi_set_property faild");
-    }
-}
-
-void ResultConvert::SetPropertyUint(napi_env env, napi_value &jsObject, uint32_t value, std::string key)
-{
-    napi_status status;
-    napi_value keyValue = 0;
-    status = napi_create_uint32(env, value, &keyValue);
-    if (status != napi_ok) {
-        HILOG_ERROR("napi_create_uint32 faild");
-    }
-    napi_value resultKey = nullptr;
-    status = napi_create_string_utf8(env, key.c_str(), NAPI_AUTO_LENGTH, &resultKey);
-    if (status != napi_ok) {
-        HILOG_ERROR("napi_create_string_utf8 faild");
-    }
-    status = napi_set_property(env, jsObject, resultKey, keyValue);
-    if (status != napi_ok) {
-        HILOG_ERROR("napi_set_property faild");
-    }
-}
-
-void ResultConvert::SetPropertyBigint(napi_env env, napi_value &jsObject, uint64_t value, std::string key)
-{
-    napi_status status;
-    napi_value keyValue = 0;
-    status = napi_create_bigint_uint64(env, value, &keyValue);
-    if (status != napi_ok) {
-        HILOG_ERROR("napi_create_bigint_uint64 faild");
-    }
-    napi_value resultKey = nullptr;
-    status = napi_create_string_utf8(env, key.c_str(), NAPI_AUTO_LENGTH, &resultKey);
-    if (status != napi_ok) {
-        HILOG_ERROR("napi_create_string_utf8 faild");
-    }
-    status = napi_set_property(env, jsObject, resultKey, keyValue);
-    if (status != napi_ok) {
-        HILOG_ERROR("napi_set_property faild");
-    }
-}
-
-std::vector<std::uint8_t> ResultConvert::NapiGetValueUint8Array(napi_env env, napi_value jsObject, std::string key)
+std::vector<uint8_t> ResultConvert::NapiGetValueUint8Array(napi_env env, napi_value jsObject, std::string key)
 {
     napi_value jsValue = GetNapiValue(env, key.c_str(), jsObject);
     std::vector<uint8_t> RetNull;
@@ -199,23 +58,20 @@ std::vector<std::uint8_t> ResultConvert::NapiGetValueUint8Array(napi_env env, na
     uint8_t *data = nullptr;
     bool isTypedArray = false;
     napi_is_typedarray(env, jsValue, &isTypedArray);
-    if (isTypedArray) {
-        HILOG_INFO("args[PIN_PARAMS_ONE]  is a array");
-    } else {
-        HILOG_INFO("args[PIN_PARAMS_ONE]  is not a uint8array");
+    if (!isTypedArray) {
+        HILOG_ERROR("NapiGetValueUint8Array jsValue is not typedarray");
+        return RetNull;
     }
     napi_get_typedarray_info(env, jsValue, &arraytype, &length, reinterpret_cast<void **>(&data), &buffer, &offset);
-    if (arraytype == napi_uint8_array) {
-        HILOG_INFO("InputerImpl, OnSetData get uint8 array ");
-    } else {
-        HILOG_ERROR("InputerImpl, OnSetData get uint8 array error");
-        return RetNull;
-        }
-    if (offset != 0) {
-        HILOG_INFO(" offset is =============>%{public}d", offset);
+    if (arraytype != napi_uint8_array) {
+        HILOG_ERROR("NapiGetValueUint8Array js jsValue is not uint8Array");
         return RetNull;
     }
-    std::vector<uint8_t> result(data, data+length);
+    if (offset != 0) {
+        HILOG_ERROR("offset is %{public}d", offset);
+        return RetNull;
+    }
+    std::vector<uint8_t> result(data, data + length);
     return result;
 }
 
@@ -248,9 +104,10 @@ int32_t ResultConvert::GetInt32ValueByKey(napi_env env, napi_value jsObject, std
 
 std::vector<uint32_t> ResultConvert::GetCppArrayUint32(napi_env env, napi_value value)
 {
+    napi_status status;
     uint32_t arrayLength = 0;
     napi_get_array_length(env, value, &arrayLength);
-    if (arrayLength == 0) {
+    if (arrayLength <= 0) {
         HILOG_ERROR("%{public}s The array is empty.", __func__);
         return std::vector<uint32_t>();
     }
@@ -258,7 +115,6 @@ std::vector<uint32_t> ResultConvert::GetCppArrayUint32(napi_env env, napi_value 
     for (size_t i = 0; i < arrayLength; i++) {
         napi_value napiElement = nullptr;
         napi_get_element(env, value, i, &napiElement);
-
         napi_valuetype napiValueType = napi_undefined;
         napi_typeof(env, napiElement, &napiValueType);
         if (napiValueType != napi_number) {
@@ -266,7 +122,10 @@ std::vector<uint32_t> ResultConvert::GetCppArrayUint32(napi_env env, napi_value 
             return std::vector<uint32_t>();
         }
         uint32_t napiValue = 0;
-        napi_get_value_uint32(env, napiElement, &napiValue);
+        status = napi_get_value_uint32(env, napiElement, &napiValue);
+        if (status != napi_ok) {
+            return std::vector<uint32_t>();
+        }
         paramArrays.push_back(napiValue);
     }
     return paramArrays;
@@ -305,7 +164,7 @@ std::string ResultConvert::NapiGetValueString(napi_env env, napi_value value)
     char valueString[NAPI_GET_STRING_SIZE];
     size_t valueSize = NAPI_GET_STRING_SIZE;
     size_t resultSize = 0;
-    status =napi_get_value_string_utf8(env, value, valueString, valueSize, &resultSize);
+    status = napi_get_value_string_utf8(env, value, valueString, valueSize, &resultSize);
     if (status != napi_ok) {
         HILOG_ERROR("napi_get_value_string_utf8 faild");
     }

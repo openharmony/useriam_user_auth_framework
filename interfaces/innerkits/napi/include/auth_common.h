@@ -15,17 +15,10 @@
 #ifndef OHOS_USERAUTH_COMMON_H
 #define OHOS_USERAUTH_COMMON_H
 
-#include "napi/native_common.h"
-#include "napi/native_node_api.h"
-
-#include <cstdint>
-#include <cstring>
-#include <iostream>
-#include <string>
 #include <vector>
 
-#include "auth_object.h"
-#include "userauth_info.h"
+#include "napi/native_common.h"
+#include "napi/native_node_api.h"
 
 namespace OHOS {
 namespace UserIAM {
@@ -64,19 +57,12 @@ struct CallBackInfo {
     napi_deferred deferred;
 };
 
-struct GetVersionInfo {
-    GetVersionInfo() : asyncWork(nullptr) {};
-    CallBackInfo callBackInfo;
-    napi_async_work asyncWork;
-};
-
 struct GetPropertyInfo {
     GetPropertyInfo() : asyncWork(nullptr), result(nullptr) {};
     CallBackInfo callBackInfo;
     napi_async_work asyncWork;
     napi_value result;
     int32_t authType;
-    UserIAM::UserAuth::ExecutorProperty property;
     std::vector<uint32_t> keys;
 };
 
@@ -85,7 +71,7 @@ struct SetPropertyInfo {
     CallBackInfo callBackInfo;
     napi_async_work asyncWork;
     napi_value result;
-    int authType;
+    int32_t authType;
     int32_t key;
     std::vector<uint8_t> setInfo;
 };
@@ -96,19 +82,15 @@ struct AuthInfo {
     napi_callback_info info;
     napi_async_work asyncWork;
     napi_value jsFunction;
-    napi_ref onResultCallBack;
-    napi_ref onAcquireInfoCallBack;
+    napi_value onResultCallBack;
+    napi_value onAcquireInfoCallBack;
+    napi_ref onResult;
+    napi_ref onAcquireInfo;
     napi_value onResultData[ARGS_TWO];
     napi_value onAcquireInfoData[ARGS_THREE];
     uint64_t challenge;
     int32_t authType;
     int32_t authTrustLevel;
-
-    int32_t module;
-    uint32_t acquireInfo;
-    bool extraInfoIsNull;
-    int32_t result;
-    Napi_AuthResult authResult;
 };
 
 struct AuthUserInfo {
@@ -117,6 +99,8 @@ struct AuthUserInfo {
     napi_callback_info info;
     napi_async_work asyncWork;
     napi_value jsFunction;
+    napi_ref onResult;
+    napi_ref onAcquireInfo;
     napi_value onResultCallBack;
     napi_value onAcquireInfoCallBack;
     napi_value onResultData[ARGS_TWO];
@@ -125,12 +109,6 @@ struct AuthUserInfo {
     uint64_t challenge;
     int32_t authType;
     int32_t authTrustLevel;
-
-    int32_t module;
-    uint32_t acquireInfo;
-    bool extraInfoIsNull;
-    int32_t result;
-    Napi_AuthResult authResult;
 };
 } // namespace UserAuth
 } // namespace UserIAM

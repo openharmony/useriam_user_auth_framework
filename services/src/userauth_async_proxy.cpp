@@ -14,7 +14,7 @@
  */
 
 #include "userauth_async_proxy.h"
-#include "userauth_common.h"
+#include "userauth_hilog_wrapper.h"
 #include "iuser_auth.h"
 
 namespace OHOS {
@@ -32,15 +32,15 @@ void UserAuthAsyncProxy::onAcquireInfo(const int32_t module, const uint32_t acqu
         return ;
     }
     if (!data.WriteInt32(module)) {
-        USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteInt32(module).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteInt32(module).");
         return;
     }
     if (!data.WriteUint32(acquireInfo)) {
-        USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUint32(acquireInfo).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(acquireInfo).");
         return;
     }
     if (!data.WriteInt32(extraInfo)) {
-        USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteInt32(extraInfo).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteInt32(extraInfo).");
         return;
     }
 
@@ -51,52 +51,31 @@ void UserAuthAsyncProxy::onAcquireInfo(const int32_t module, const uint32_t acqu
     }
     return;
 }
+
 void UserAuthAsyncProxy::onResult(const int32_t result, const AuthResult extraInfo)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "userauthAsyncProxy onResult enter");
     MessageParcel data;
     MessageParcel reply;
-    AuthResult extraInfoFail;
     if (!data.WriteInterfaceToken(UserAuthAsyncProxy::GetDescriptor())) {
         USERAUTH_HILOGI(MODULE_SERVICE, "userauth write descriptor failed!");
         return ;
     }
-    if (result != SUCCESS) {
-        extraInfoFail.freezingTime = 0;
-        extraInfoFail.remainTimes = 0;
-        if (!data.WriteInt32(result)) {
-            USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteInt32(result).");
-            return;
-        }
-        if (!data.WriteUInt8Vector(extraInfoFail.token)) {
-            USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUInt8Vector(extraInfoFail.token).");
-            return;
-        }
-        if (!data.WriteUint32(extraInfoFail.remainTimes)) {
-            USERAUTH_HILOGE(MODULE_SERVICE,"failed to extraInfoFail.remainTimes.");
-            return;
-        }
-        if (!data.WriteUint32(extraInfoFail.freezingTime)) {
-            USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUint32(extraInfoFail.freezingTime).");
-            return;
-        }
-    } else {
-        if (!data.WriteInt32(result)) {
-            USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteInt32(result).");
-            return;
-        }
-        if (!data.WriteUInt8Vector(extraInfo.token)) {
-            USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUInt8Vector(extraInfo.token).");
-            return;
-        }
-        if (!data.WriteUint32(extraInfo.remainTimes)) {
-            USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUint32(extraInfo.remainTimes).");
-            return;
-        }
-        if (!data.WriteUint32(extraInfo.freezingTime)) {
-            USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUint32(extraInfo.freezingTime).");
-            return;
-        }
+    if (!data.WriteInt32(result)) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteInt32(result).");
+        return;
+    }
+    if (!data.WriteUInt8Vector(extraInfo.token)) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUInt8Vector(extraInfo.token).");
+        return;
+    }
+    if (!data.WriteUint32(extraInfo.remainTimes)) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(extraInfo.remainTimes).");
+        return;
+    }
+    if (!data.WriteUint32(extraInfo.freezingTime)) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(extraInfo.freezingTime).");
+        return;
     }
     bool ret = SendRequest(IUserAuth::USER_AUTH_ONRESULT, data, reply);
     if (ret) {
@@ -120,19 +99,19 @@ void UserAuthAsyncProxy::onExecutorPropertyInfo(const ExecutorProperty result)
         WriteFailResult(result, resultFail, data);
     } else {
         if (!data.WriteInt32(result.result)) {
-            USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteInt32(result.result).");
+            USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteInt32(result.result).");
             return;
         }
-        if (!data.WriteUint32(result.authSubType)) {
-            USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUint32(result.authSubType).");
+        if (!data.WriteUint64(result.authSubType)) {
+            USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint64(result.authSubType).");
             return;
         }
         if (!data.WriteUint32(result.remainTimes)) {
-            USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUint32(result.remainTimes).");
+            USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(result.remainTimes).");
             return;
         }
         if (!data.WriteUint32(result.freezingTime)) {
-            USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUint32(result.freezingTime).");
+            USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(result.freezingTime).");
             return;
         }
     }
@@ -151,19 +130,19 @@ void UserAuthAsyncProxy::WriteFailResult(const ExecutorProperty &result, Executo
     resultFail.freezingTime = 0;
     resultFail.remainTimes = 0;
     if (!data.WriteInt32(result.result)) {
-        USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteInt32(result.result).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteInt32(result.result).");
         return;
     }
-    if (!data.WriteUint32(resultFail.authSubType)) {
-        USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUint32(resultFail.authSubType).");
+    if (!data.WriteUint64(resultFail.authSubType)) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint64(resultFail.authSubType).");
         return;
     }
     if (!data.WriteUint32(resultFail.remainTimes)) {
-        USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUint32(resultFail.remainTimes).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(resultFail.remainTimes).");
         return;
     }
     if (!data.WriteUint32(resultFail.freezingTime)) {
-        USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUint32(resultFail.freezingTime).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(resultFail.freezingTime).");
         return;
     }
 }
@@ -179,7 +158,7 @@ void UserAuthAsyncProxy::onSetExecutorProperty(const int32_t result)
         return ;
     }
     if (!data.WriteInt32(result)) {
-        USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteInt32(result).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteInt32(result).");
         return;
     }
 

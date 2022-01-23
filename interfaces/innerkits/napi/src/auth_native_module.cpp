@@ -14,6 +14,7 @@
  */
 
 #include <napi/native_api.h>
+
 #include "user_auth_helper.h"
 
 namespace OHOS {

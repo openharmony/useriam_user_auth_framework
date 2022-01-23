@@ -14,7 +14,7 @@
  */
 
 #include "userauth_adapter.h"
-#include "userauth_common.h"
+#include "userauth_hilog_wrapper.h"
 #include "userauth_info.h"
 #include "auth_attributes.h"
 #include "co_auth.h"
@@ -27,7 +27,6 @@ namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
 const int32_t cUserId = 0;
-const uint64_t cCallerUID = 0;
 
 UserAuthAdapter &UserAuthAdapter::GetInstance()
 {
@@ -176,22 +175,6 @@ int32_t UserAuthAdapter::GetUserID(int32_t &userID)
     return SUCCESS;
 }
 
-int32_t UserAuthAdapter::GetCallerUid(uint64_t &callerUID)
-{
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth GetCallerUid is start!");
-    // 打桩 IAMTA
-    callerUID = cCallerUID;
-    return SUCCESS;
-}
-
-int32_t UserAuthAdapter::GetPkgName(std::string &pkgName)
-{
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth GetPkgName is start!");
-    // 打桩 IAMTA
-    pkgName = "CallerIsTest";
-    return SUCCESS;
-}
-
 int32_t UserAuthAdapter::GenerateSolution(AuthSolution param, std::vector<uint64_t> &sessionIds)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth GenerateSolution is start!");
@@ -299,17 +282,20 @@ int32_t UserAuthAdapter::GetEachExecutorProp(GetPropertyRequest &requset, Execut
 {
     uint64_t tmpValue;
     int32_t ret = SUCCESS;
+
+    result.freezingTime = 0;
+    result.remainTimes = 0;
+    result.authSubType = UserAuth::PIN_SIX;
     for (std::vector<uint32_t>::const_iterator iter = requset.keys.begin(); iter != requset.keys.end(); ++iter) {
         switch (*iter) {
             case AUTH_SUB_TYPE:
                 ret = pAuthAttributes->GetUint64Value(AUTH_SUBTYPE, tmpValue);
                 if (ret != SUCCESS) {
-                    USERAUTH_HILOGE(MODULE_SERVICE, "GetUint32Value->AUTH_SUBTYPE ERROR!");
+                    USERAUTH_HILOGE(MODULE_SERVICE, "GetUint64Value->AUTH_SUBTYPE ERROR!");
                     result.result = ret;
                     return ret;
                 }
-                value = static_cast<uint32_t>(tmpValue);
-                result.authSubType = static_cast<AuthSubType>(value);
+                result.authSubType = static_cast<AuthSubType>(tmpValue);
                 break;
             case REMAIN_TIMES:
                 ret = pAuthAttributes->GetUint32Value(AUTH_REMAIN_COUNT, result.remainTimes);
@@ -329,10 +315,11 @@ int32_t UserAuthAdapter::GetEachExecutorProp(GetPropertyRequest &requset, Execut
                 break;
             default:
                 USERAUTH_HILOGE(MODULE_SERVICE, "The key to get ExecutorProp is invalid.");
-                break;
+                result.result = INVALID_PARAMETERS;
+                return INVALID_PARAMETERS;
         }
     }
-    USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthAdapter::GetEachExecutorProp %{public}ull:%{public}u:%{public}u",
+    USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthAdapter::GetEachExecutorProp %{public}llu:%{public}u:%{public}u",
         result.authSubType, result.remainTimes, result.freezingTime);
     return ret;
 }

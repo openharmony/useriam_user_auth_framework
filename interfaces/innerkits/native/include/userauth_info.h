@@ -29,7 +29,7 @@ enum AuthType: uint32_t {
     FACE = 2,
 };
 // 认证子类型(2D人脸,3D人脸...)
-enum AuthSubType: uint32_t {
+enum AuthSubType: uint64_t {
     /**
      * Authentication sub type six number pin.
      */

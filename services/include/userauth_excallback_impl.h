@@ -53,6 +53,8 @@ private:
     std::mutex mutex_;
     static std::mutex coauthCallbackmutex_;
     static std::map<uint64_t, std::shared_ptr<CoAuth::CoAuthCallback>> saveCoauthCallback_;
+    void OnFinishHandleExtend(SetPropertyRequest setPropertyRequest, AuthResult authResult, int32_t ret,
+    UserAuthToken authToken);
 };
 
 class UserAuthCallbackImplSetProp : public CoAuth::SetPropCallback {
