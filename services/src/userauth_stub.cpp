@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 #include <message_parcel.h>
-#include "userauth_common.h"
+#include "userauth_hilog_wrapper.h"
 #include "userauth_stub.h"
 
 namespace OHOS {
@@ -60,11 +60,11 @@ int32_t UserAuthStub::GetAvailableStatusStub(MessageParcel& data, MessageParcel&
     int32_t ret = GENERAL_ERROR;
 
     if (!data.ReadUint32(authType)) {
-        USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUint32(authType).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(authType).");
         return E_READ_PARCEL_ERROR;
     }
     if (!data.ReadUint32(authTurstLevel)) {
-        USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUint32(authTurstLevel).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(authTurstLevel).");
         return E_READ_PARCEL_ERROR;
     }
 
@@ -85,11 +85,11 @@ int32_t UserAuthStub::GetPropertyStub(MessageParcel& data, MessageParcel& reply)
     std::vector<uint32_t> keys;
 
     if (!data.ReadUint32(authType)) {
-        USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUint32(authType).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(authType).");
         return E_READ_PARCEL_ERROR;
     }
     if (!data.ReadUInt32Vector(&keys)) {
-        USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUInt32Vector(&keys).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUInt32Vector(&keys).");
         return E_READ_PARCEL_ERROR;
     }
 
@@ -119,15 +119,15 @@ int32_t UserAuthStub::SetPropertyStub(MessageParcel& data, MessageParcel& reply)
     std::vector<uint8_t> setInfo;
 
     if (!data.ReadUint32(authType)) {
-        USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUint32(authType).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(authType).");
         return E_READ_PARCEL_ERROR;
     }
     if (!data.ReadUint32(key)) {
-        USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUint32(key).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(key).");
         return E_READ_PARCEL_ERROR;
     }
     if (!data.ReadUInt8Vector(&setInfo)) {
-        USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUInt8Vector(&setInfo).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUInt8Vector(&setInfo).");
         return E_READ_PARCEL_ERROR;
     }
 
@@ -158,15 +158,15 @@ int32_t UserAuthStub::AuthStub(MessageParcel& data, MessageParcel& reply)
     uint64_t ret = SUCCESS;
 
     if (!data.ReadUint64(challenge)) {
-        USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUint64(challenge).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint64(challenge).");
         return E_READ_PARCEL_ERROR;
     }
     if (!data.ReadUint32(authType)) {
-        USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUint32(authType).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(authType).");
         return E_READ_PARCEL_ERROR;
     }
     if (!data.ReadUint32(authTurstLevel)) {
-        USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUint32(authTurstLevel).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(authTurstLevel).");
         return E_READ_PARCEL_ERROR;
     }
 
@@ -198,19 +198,19 @@ int32_t UserAuthStub::AuthUserStub(MessageParcel& data, MessageParcel& reply)
     uint64_t ret = SUCCESS;
 
     if (!data.ReadInt32(userID)) {
-        USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteInt32(userID).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteInt32(userID).");
         return E_READ_PARCEL_ERROR;
     }
     if (!data.ReadUint64(challenge)) {
-        USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUint64(challenge).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint64(challenge).");
         return E_READ_PARCEL_ERROR;
     }
     if (!data.ReadUint32(authType)) {
-        USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUint32(authType).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(authType).");
         return E_READ_PARCEL_ERROR;
     }
     if (!data.ReadUint32(authTurstLevel)) {
-        USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUint32(authTurstLevel).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(authTurstLevel).");
         return E_READ_PARCEL_ERROR;
     }
 
@@ -252,7 +252,7 @@ int32_t UserAuthStub::CancelAuthStub(MessageParcel& data, MessageParcel& reply)
     int32_t ret = GENERAL_ERROR;
 
     if (!data.ReadUint64(contextID)) {
-        USERAUTH_HILOGE(MODULE_SERVICE,"failed to WriteUint64(contextID).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint64(contextID).");
         return E_READ_PARCEL_ERROR;
     }
 

@@ -19,7 +19,6 @@
 #include "userauth_callback.h"
 #include "userauth_info.h"
 
-#include "auth_build.h"
 #include "auth_hilog_wrapper.h"
 #include "authapi_callback.h"
 
@@ -36,7 +35,6 @@ UserAuthImpl::~UserAuthImpl()
 
 napi_value UserAuthImpl::GetVersion(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("GetVersion start");
     int32_t result = UserAuth::GetInstance().GetVersion();
     HILOG_INFO("GetVersion result = %{public}d ", result);
     napi_value version = 0;
@@ -46,7 +44,6 @@ napi_value UserAuthImpl::GetVersion(napi_env env, napi_callback_info info)
 
 napi_value UserAuthImpl::GetAvailabeStatus(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("%{public}s, start", __func__);
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     size_t argc = ARGS_MAX_COUNT;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
@@ -54,12 +51,20 @@ napi_value UserAuthImpl::GetAvailabeStatus(napi_env env, napi_callback_info info
         HILOG_ERROR("%{public}s, parms error.", __func__);
         return nullptr;
     }
-    AuthBuild authBuild;
-    AuthType authType = AuthType(authBuild.NapiGetValueInt(env, argv[0]));
-    HILOG_INFO("GetAvailabeStatus authType");
-    AuthTurstLevel authTurstLevel = AuthTurstLevel(authBuild.NapiGetValueInt(env, argv[1]));
-    HILOG_INFO("GetAvailabeStatus authTrustLevel");
+    int type = authBuild.NapiGetValueInt(env, argv[PARAM0]);
+    if (type == GET_VALUE_ERROR) {
+        HILOG_ERROR("%{public}s, argv[PARAM0] error.", __func__);
+        return nullptr;
+    }
+    int level = authBuild.NapiGetValueInt(env, argv[PARAM1]);
+    if (level == GET_VALUE_ERROR) {
+        HILOG_ERROR("%{public}s, argv[PARAM1] error.", __func__);
+        return nullptr;
+    }
+    AuthType authType = AuthType(type);
+    AuthTurstLevel authTurstLevel = AuthTurstLevel(level);
     int32_t result = UserAuth::GetInstance().GetAvailableStatus(authType, authTurstLevel);
+    HILOG_INFO("GetAvailabeStatus result = %{public}d", result);
     napi_value ret = 0;
     NAPI_CALL(env, napi_create_int32(env, result, &ret));
     return ret;
@@ -92,9 +97,7 @@ napi_value UserAuthImpl::GetPropertyWrap(napi_env env, napi_callback_info info, 
         }
     }
 
-    // C++ need js parms get
-    AuthBuild authBuild;
-    if (authBuild.NapiTypeObject(env, args[0])) {
+    if (authBuild.NapiTypeObject(env, args[PARAM0])) {
         Napi_GetPropertyRequest request = authBuild.GetPropertyRequestBuild(env, args[0]);
         getPropertyInfo->authType = request.authType_;
         getPropertyInfo->keys = request.keys_;
@@ -115,8 +118,6 @@ void UserAuthImpl::GetPropertyExecute(napi_env env, void *data)
     HILOG_INFO("GetPropertyExecute, worker pool thread execute.");
     GetPropertyInfo *getPropertyInfo = static_cast<GetPropertyInfo *>(data);
     if (getPropertyInfo != nullptr) {
-        // do something C++
-        AuthBuild authBuild;
         AuthType authTypeGet = AuthType(getPropertyInfo->authType);
 
         GetPropertyRequest request;
@@ -137,10 +138,6 @@ void UserAuthImpl::GetPropertyExecute(napi_env env, void *data)
 void UserAuthImpl::GetPropertyPromiseExecuteDone(napi_env env, napi_status status, void *data)
 {
     HILOG_INFO("GetPropertyPromiseExecuteDone, start");
-    if (status != napi_ok) {
-        HILOG_ERROR("GetPropertyPromiseExecuteDone status is not ok===>");
-        return;
-    }
     GetPropertyInfo *getPropertyInfo = static_cast<GetPropertyInfo *>(data);
     napi_delete_async_work(env, getPropertyInfo->asyncWork);
     HILOG_INFO("GetPropertyPromiseExecuteDone, end");
@@ -148,13 +145,10 @@ void UserAuthImpl::GetPropertyPromiseExecuteDone(napi_env env, napi_status statu
 
 void UserAuthImpl::GetPropertyAsyncExecuteDone(napi_env env, napi_status status, void *data)
 {
-    if (status != napi_ok) {
-        HILOG_ERROR("SetPropertyAsyncExecuteDone status is not ok===>");
-        return;
-    }
+    HILOG_INFO("GetPropertyAsyncExecuteDone, start");
     GetPropertyInfo *getPropertyInfo = static_cast<GetPropertyInfo *>(data);
     napi_delete_async_work(env, getPropertyInfo->asyncWork);
-    HILOG_INFO("GetPropertyPromiseExecuteDone, end");
+    HILOG_INFO("GetPropertyAsyncExecuteDone, end");
 }
 
 napi_value UserAuthImpl::GetPropertyAsync(napi_env env, GetPropertyInfo *getPropertyInfo)
@@ -185,7 +179,7 @@ napi_value UserAuthImpl::GetPropertyPromise(napi_env env, GetPropertyInfo *getPr
     napi_value resourceName = 0;
     NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     napi_deferred deferred;
-    napi_value promise = 0;
+    napi_value promise = nullptr;
     NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
     getPropertyInfo->callBackInfo.callBack = nullptr;
     getPropertyInfo->callBackInfo.deferred = deferred;
@@ -224,9 +218,7 @@ napi_value UserAuthImpl::SetPropertyWrap(napi_env env, napi_callback_info info, 
         }
     }
 
-    // C++ need js parms get
-    AuthBuild authBuild;
-    if (authBuild.NapiTypeObject(env, args[0])) {
+    if (authBuild.NapiTypeObject(env, args[PARAM0])) {
         Napi_SetPropertyRequest request = authBuild.SetPropertyRequestBuild(env, args[0]);
         setPropertyInfo->authType = request.authType_;
         setPropertyInfo->key = request.key_;
@@ -248,20 +240,16 @@ void UserAuthImpl::SetPropertyExecute(napi_env env, void *data)
     HILOG_INFO("setPropertyExecute, worker pool thread execute.");
     SetPropertyInfo *setPropertyInfo = static_cast<SetPropertyInfo *>(data);
     if (setPropertyInfo != nullptr) {
-        // do something C++
-        AuthBuild authBuild;
         AuthType authTypeGet = AuthType(setPropertyInfo->authType);
 
         SetPropertyRequest request;
         request.authType = authTypeGet;
         request.key = SetPropertyType(setPropertyInfo->key);
         request.setInfo = setPropertyInfo->setInfo;
-        HILOG_INFO("SetPropertyExecute start 1");
         AuthApiCallback *object = new AuthApiCallback();
         object->setPropertyInfo_ = setPropertyInfo;
         std::shared_ptr<AuthApiCallback> callback;
         callback.reset(object);
-        callback->setPropertyInfo_ = setPropertyInfo;
         UserAuth::GetInstance().SetProperty(request, callback);
     } else {
         HILOG_ERROR("setPropertyExecute, asynccallBackInfo == nullptr");
@@ -272,30 +260,17 @@ void UserAuthImpl::SetPropertyExecute(napi_env env, void *data)
 void UserAuthImpl::SetPropertyPromiseExecuteDone(napi_env env, napi_status status, void *data)
 {
     HILOG_INFO("SetPropertyPromiseExecuteDone, start");
-    if (status != napi_ok) {
-        HILOG_ERROR("SetPropertyPromiseExecuteDone status is not ok===>");
-        return;
-    }
     SetPropertyInfo *setPropertyInfo = static_cast<SetPropertyInfo *>(data);
     napi_delete_async_work(env, setPropertyInfo->asyncWork);
-    delete setPropertyInfo;
-    setPropertyInfo = nullptr;
-    HILOG_INFO("SetPropertyPromiseExecuteDone, start");
+    HILOG_INFO("SetPropertyPromiseExecuteDone, end");
 }
 
 void UserAuthImpl::SetPropertyAsyncExecuteDone(napi_env env, napi_status status, void *data)
 {
-    if (status != napi_ok) {
-        HILOG_ERROR("setPropertyAsyncExecuteDone status is not ok===>");
-        return;
-    }
-    if (data != nullptr) {
-        SetPropertyInfo *setPropertyInfo = static_cast<SetPropertyInfo *>(data);
-        if (setPropertyInfo->asyncWork != nullptr) {
-            napi_delete_async_work(env, setPropertyInfo->asyncWork);
-        }
-        delete setPropertyInfo;
-    }
+    HILOG_INFO("SetPropertyAsyncExecuteDone, start");
+    SetPropertyInfo *setPropertyInfo = static_cast<SetPropertyInfo *>(data);
+    napi_delete_async_work(env, setPropertyInfo->asyncWork);
+    HILOG_INFO("SetPropertyAsyncExecuteDone, end");
 }
 
 napi_value UserAuthImpl::SetPropertyAsync(napi_env env, SetPropertyInfo *setPropertyInfo)
@@ -351,29 +326,26 @@ napi_value UserAuthImpl::Auth(napi_env env, napi_callback_info info)
         HILOG_ERROR("%{public}s, parms error.", __func__);
         return nullptr;
     }
-    AuthBuild authBuild;
     authInfo->challenge = authBuild.GetUint8ArrayTo64(env, argv[0]);
 
-    if (authBuild.NapiTypeNumber(env, argv[1])) {
+    if (authBuild.NapiTypeNumber(env, argv[PARAM1])) {
         int64_t type;
-        NAPI_CALL(env, napi_get_value_int64(env, argv[1], &type));
+        NAPI_CALL(env, napi_get_value_int64(env, argv[PARAM1], &type));
         authInfo->authType = type;
     }
 
-    if (authBuild.NapiTypeNumber(env, argv[ARGS_TWO])) {
+    if (authBuild.NapiTypeNumber(env, argv[PARAM2])) {
         int64_t level;
-        NAPI_CALL(env, napi_get_value_int64(env, argv[ARGS_TWO], &level));
+        NAPI_CALL(env, napi_get_value_int64(env, argv[PARAM2], &level));
         authInfo->authTrustLevel = level;
     }
 
-    if (authBuild.NapiTypeObject(env, argv[ARGS_THREE])) {
-        HILOG_INFO("%{public}s, get callback function start.", __func__);
-        authInfo->jsFunction = argv[ARGS_THREE];
-        napi_value value;
-        NAPI_CALL(env, napi_get_named_property(env, argv[ARGS_THREE], "onResult", &value));
-        NAPI_CALL(env, napi_create_reference(env, value, 1, &authInfo->onResultCallBack));
-        NAPI_CALL(env, napi_get_named_property(env, argv[ARGS_THREE], "onAcquireInfo", &value));
-        NAPI_CALL(env, napi_create_reference(env, value, 1, &authInfo->onAcquireInfoCallBack));
+    if (authBuild.NapiTypeObject(env, argv[PARAM3])) {
+        authInfo->jsFunction = argv[PARAM3];
+        NAPI_CALL(env, napi_get_named_property(env, argv[PARAM3], "onResult", &authInfo->onResultCallBack));
+        NAPI_CALL(env, napi_create_reference(env, authInfo->onResultCallBack, PARAM1, &authInfo->onResult));
+        NAPI_CALL(env, napi_get_named_property(env, argv[PARAM3], "onAcquireInfo", &authInfo->onAcquireInfoCallBack));
+        NAPI_CALL(env, napi_create_reference(env, authInfo->onAcquireInfoCallBack, PARAM1, &authInfo->onAcquireInfo));
     }
     return AuthWrap(env, authInfo);
 }
@@ -385,7 +357,6 @@ napi_value UserAuthImpl::AuthWrap(napi_env env, AuthInfo *authInfo)
         HILOG_ERROR("%{public}s, param == nullptr.", __func__);
         return nullptr;
     }
-    AuthBuild authBuild;
     AuthApiCallback *object = new AuthApiCallback();
     object->authInfo_ = authInfo;
     object->userInfo_ = nullptr;
@@ -394,12 +365,8 @@ napi_value UserAuthImpl::AuthWrap(napi_env env, AuthInfo *authInfo)
     uint64_t result = UserAuth::GetInstance().Auth(
         authInfo->challenge, AuthType(authInfo->authType), AuthTurstLevel(authInfo->authTrustLevel), callback);
     HILOG_INFO("UserAuth::GetInstance().Auth.result =  %{public}llu", result);
-
-    // auth BigInt
     napi_value key = authBuild.Uint64ToUint8Array(env, result);
     HILOG_INFO("%{public}s, end.", __func__);
-//    callback->authInfo_ = nullptr;
-//    delete authInfo;
     return key;
 }
 
@@ -416,32 +383,29 @@ napi_value UserAuthImpl::AuthUser(napi_env env, napi_callback_info info)
         HILOG_ERROR("%{public}s, parms error.", __func__);
         return nullptr;
     }
-    AuthBuild authBuild;
-    if (authBuild.NapiTypeNumber(env, argv[0])) {
+    if (authBuild.NapiTypeNumber(env, argv[PARAM0])) {
         int32_t id = 0;
-        NAPI_CALL(env, napi_get_value_int32(env, argv[0], &id));
+        NAPI_CALL(env, napi_get_value_int32(env, argv[PARAM0], &id));
         userInfo->userId = id;
     }
-
-    userInfo->challenge = authBuild.GetUint8ArrayTo64(env, argv[1]);
-
-    if (authBuild.NapiTypeNumber(env, argv[ARGS_TWO])) {
+    userInfo->challenge = authBuild.GetUint8ArrayTo64(env, argv[PARAM1]);
+    if (authBuild.NapiTypeNumber(env, argv[PARAM2])) {
         int32_t type = 0;
-        napi_get_value_int32(env, argv[ARGS_TWO], &type);
+        napi_get_value_int32(env, argv[PARAM2], &type);
         userInfo->authType = type;
     }
-
-    if (authBuild.NapiTypeNumber(env, argv[ARGS_THREE])) {
+    if (authBuild.NapiTypeNumber(env, argv[PARAM3])) {
         int32_t level = 0;
-        NAPI_CALL(env, napi_get_value_int32(env, argv[ARGS_THREE], &level));
+        NAPI_CALL(env, napi_get_value_int32(env, argv[PARAM3], &level));
         userInfo->authTrustLevel = level;
     }
-
-    if (authBuild.NapiTypeObject(env, argv[ARGS_FOUR])) {
-        userInfo->jsFunction = argv[ARGS_FOUR];
-        NAPI_CALL(env, napi_get_named_property(env, argv[ARGS_FOUR], "onResult", &userInfo->onResultCallBack));
-        NAPI_CALL(env, napi_get_named_property(env, argv[ARGS_FOUR], "onAcquireInfo",
-            &userInfo->onAcquireInfoCallBack));
+    if (authBuild.NapiTypeObject(env, argv[PARAM4])) {
+        HILOG_INFO("AuthUser is Object");
+        userInfo->jsFunction = argv[PARAM4];
+        NAPI_CALL(env, napi_get_named_property(env, argv[PARAM4], "onResult", &userInfo->onResultCallBack));
+        NAPI_CALL(env, napi_create_reference(env, userInfo->onResultCallBack, PARAM1, &userInfo->onResult));
+        NAPI_CALL(env, napi_get_named_property(env, argv[PARAM4], "onAcquireInfo", &userInfo->onAcquireInfoCallBack));
+        NAPI_CALL(env, napi_create_reference(env, userInfo->onAcquireInfoCallBack, PARAM1, &userInfo->onAcquireInfo));
     }
     return AuthUserWrap(env, userInfo);
 }
@@ -461,11 +425,8 @@ napi_value UserAuthImpl::AuthUserWrap(napi_env env, AuthUserInfo *userInfo)
     uint64_t result = UserAuth::GetInstance().AuthUser(userInfo->userId, userInfo->challenge,
         AuthType(userInfo->authType), AuthTurstLevel(userInfo->authTrustLevel), callback);
     HILOG_INFO("UserAuth::GetInstance().AuthUser. result =  %{public}llu", result);
-    AuthBuild authBuild;
     napi_value key = authBuild.Uint64ToUint8Array(env, result);
     HILOG_INFO("%{public}s, end.", __func__);
-    callback->userInfo_ = nullptr;
-    delete userInfo;
     return key;
 }
 
@@ -475,10 +436,11 @@ napi_value UserAuthImpl::CancelAuth(napi_env env, napi_callback_info info)
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
 
-    AuthBuild authBuild;
     uint64_t contextId = authBuild.GetUint8ArrayTo64(env, argv[0]);
     HILOG_INFO("CancelAuth contextId = %{public}llu", contextId);
-
+    if (contextId == 0) {
+        return nullptr;
+    }
     int32_t result = UserAuth::GetInstance().CancelAuth(contextId);
     HILOG_INFO("CancelAuth result = %{public}d", result);
     napi_value key = 0;

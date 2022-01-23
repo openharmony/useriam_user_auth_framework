@@ -19,9 +19,8 @@
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
 
-#include "userauth_info.h"
-
 #include "auth_common.h"
+#include "result_convert.h"
 
 namespace OHOS {
 namespace UserIAM {
@@ -30,18 +29,12 @@ class AuthBuild {
 public:
     AuthBuild();
     ~AuthBuild();
+    ResultConvert convert;
     Napi_SetPropertyRequest SetPropertyRequestBuild(napi_env env, napi_value object);
     Napi_GetPropertyRequest GetPropertyRequestBuild(napi_env env, napi_value object);
-    napi_value GetNapiExecutorProperty(napi_env env, Napi_ExecutorProperty property);
-    napi_value BuildAuthResult(napi_env env, Napi_AuthResult authResult);
     bool NapiTypeObject(napi_env env, napi_value value);
-    bool NapiTypeBitInt(napi_env env, napi_value value);
     bool NapiTypeNumber(napi_env env, napi_value value);
 
-    void AuthUserCallBackResult(napi_env env, AuthUserInfo *userInfo);
-    void AuthUserCallBackAcquireInfo(napi_env env, AuthUserInfo *userInfo);
-    void AuthCallBackAcquireInfo(napi_env env, AuthInfo *authInfo);
-    void AuthCallBackResult(napi_env env, AuthInfo *authInfo);
     uint64_t GetUint8ArrayTo64(napi_env env, napi_value value);
     int NapiGetValueInt(napi_env env, napi_value value);
     napi_value Uint64ToUint8Array(napi_env env, uint64_t value);

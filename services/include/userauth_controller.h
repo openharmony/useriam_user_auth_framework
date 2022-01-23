@@ -32,8 +32,6 @@ public:
     int32_t SetExecutorProp(uint64_t callerUID, std::string pkgName, SetPropertyRequest setPropertyrequest,
                             sptr<IUserAuthCallback>& callback);
     int32_t GetUserID(int32_t &userID);
-    int32_t GetCallerUid(uint64_t &callerUID);
-    int32_t GetPkgName(std::string &pkgName);
     int32_t AddContextID(uint64_t contextID);
     int32_t IsContextIDExist(uint64_t contextID);
     int32_t GenerateContextID(uint64_t &contextID);

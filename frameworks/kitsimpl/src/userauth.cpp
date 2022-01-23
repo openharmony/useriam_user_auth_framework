@@ -17,7 +17,7 @@
 #include <system_ability_definition.h>
 
 #include "system_ability_definition.h"
-#include "userauth_common.h"
+#include "userauth_hilog_wrapper.h"
 #include "user_auth.h"
 
 namespace OHOS {
@@ -60,7 +60,9 @@ void UserAuth::ResetProxy(const wptr<IRemoteObject>& remote)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauth ResetProxy is start");
     std::lock_guard<std::mutex> lock(mutex_);
-    RETURN_IF(proxy_ == nullptr);
+    if (proxy_ == nullptr) {
+        return;
+    }
 
     auto serviceRemote = proxy_->AsObject();
     if ((serviceRemote != nullptr) && (serviceRemote == remote.promote())) {
