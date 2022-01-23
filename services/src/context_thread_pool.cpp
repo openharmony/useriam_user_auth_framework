@@ -14,7 +14,7 @@
  */
 
 #include "context_thread_pool.h"
-#include "userauth_common.h"
+#include "userauth_hilog_wrapper.h"
 
 namespace OHOS {
 namespace UserIAM {

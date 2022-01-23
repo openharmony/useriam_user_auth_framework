@@ -39,14 +39,6 @@ int32_t UserAuthController::GetUserID(int32_t &userID)
 {
     return UserAuthAdapter::GetInstance().GetUserID(userID);
 }
-int32_t UserAuthController::GetCallerUid(uint64_t &callerUID)
-{
-    return UserAuthAdapter::GetInstance().GetCallerUid(callerUID);
-}
-int32_t UserAuthController::GetPkgName(std::string &pkgName)
-{
-    return UserAuthAdapter::GetInstance().GetPkgName(pkgName);
-}
 int32_t UserAuthController::GenerateSolution(AuthSolution param, std::vector<uint64_t> &sessionIds)
 {
     return UserAuthAdapter::GetInstance().GenerateSolution(param, sessionIds);

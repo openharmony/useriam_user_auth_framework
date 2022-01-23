@@ -22,19 +22,19 @@
 #include "userauth_adapter.h"
 #include "singleton.h"
 
+#define OPENSSLSUCCESS 1
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
 class UserAuthDataMgr : public Singleton<UserAuthDataMgr> {
 public:
-	static UserAuthDataMgr &GetInstance();
+    static UserAuthDataMgr &GetInstance();
     int32_t AddContextID(uint64_t contextID);
     int32_t IsContextIDExist(uint64_t contextID);
     int32_t GenerateContextID(uint64_t &contextID);
     int32_t DeleteContextID(uint64_t contextID);
 
 private:
-    const int USERAUTH_RAND_BITS = 64;
     UserAuthDataMgr() = default;
     ~UserAuthDataMgr() = default;
     std::mutex mutex_;

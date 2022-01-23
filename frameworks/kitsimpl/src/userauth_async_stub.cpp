@@ -15,7 +15,7 @@
 
 #include <message_parcel.h>
 
-#include "userauth_common.h"
+#include "userauth_hilog_wrapper.h"
 #include "iuser_auth.h"
 #include "userauth_async_stub.h"
 
@@ -130,7 +130,7 @@ int32_t UserAuthAsyncStub::onExecutorPropertyInfoStub(MessageParcel& data, Messa
 
     int32_t ret = SUCCESS;
     int32_t result;
-    uint32_t authSubType;
+    uint64_t authSubType;
     uint32_t remainTimes;
     uint32_t freezingTime;
     ExecutorProperty executorProperty;
@@ -139,8 +139,8 @@ int32_t UserAuthAsyncStub::onExecutorPropertyInfoStub(MessageParcel& data, Messa
         USERAUTH_HILOGE(MODULE_INNERKIT, "failed to ReadInt32(result).");
         return E_READ_PARCEL_ERROR;
     }
-    if (!data.ReadUint32(authSubType)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to ReadUint32(authSubType).");
+    if (!data.ReadUint64(authSubType)) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to ReadUint64(authSubType).");
         return E_READ_PARCEL_ERROR;
     }
     if (!data.ReadUint32(remainTimes)) {
@@ -223,7 +223,7 @@ void UserAuthAsyncStub::onExecutorPropertyInfo(const ExecutorProperty result)
         return ;
     }
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub  result:%{public}d", result.result);
-    USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub  authSubType:%{public}d", result.authSubType);
+    USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub  authSubType:%{public}llu", result.authSubType);
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub  remainTimes:%{public}d", result.freezingTime);
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub  freezingTime:%{public}d", result.freezingTime);
     callback_->onExecutorPropertyInfo(result);

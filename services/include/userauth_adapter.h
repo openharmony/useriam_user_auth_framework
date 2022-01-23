@@ -52,8 +52,6 @@ public:
     void GetPropAuthInfoCoauth(uint64_t callerUID, std::string pkgName, int32_t resultCode, UserAuthToken authToken,
                          GetPropertyRequest requset, sptr<IUserAuthCallback>& callback);
     int32_t GetUserID(int32_t &userID);
-    int32_t GetCallerUid(uint64_t &callerUID);
-    int32_t GetPkgName(std::string &pkgName);
     int32_t GenerateSolution(AuthSolution param, std::vector<uint64_t> &sessionIds);
     int32_t RequestAuthResult(uint64_t contextId, std::vector<uint8_t> scheduleToken,
                               UserAuthToken &authToken, std::vector<uint64_t> &sessionIds);

@@ -31,7 +31,6 @@ class AuthApiCallback : public UserAuthCallback {
 public:
     AuthApiCallback();
     virtual ~AuthApiCallback();
-    Napi_ExecutorProperty peoperty_;
     GetPropertyInfo *getPropertyInfo_;
     SetPropertyInfo *setPropertyInfo_;
     AuthInfo *authInfo_;
@@ -40,6 +39,13 @@ public:
     void onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo) override;
     void onResult(const int32_t result, const AuthResult extraInfo) override;
     void onSetExecutorProperty(const int32_t result) override;
+
+private:
+    napi_value BuildExecutorProperty(
+        napi_env env, int32_t result, uint32_t remainTimes, uint32_t freezingTime, uint64_t authSubType);
+    napi_value Uint64ToNapi(napi_env env, uint64_t value);
+    napi_value BuildOnResult(napi_env env, uint32_t remainTimes, uint32_t freezingTime, std::vector<uint8_t> token);
+    napi_value Uint8ArrayToNapi(napi_env env, std::vector<uint8_t> value);
 };
 } // namespace UserAuth
 } // namespace UserIAM
