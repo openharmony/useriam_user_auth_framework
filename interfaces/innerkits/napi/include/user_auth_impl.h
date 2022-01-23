@@ -15,9 +15,11 @@
 #ifndef FACERECOGNITION_USER_AUTH_H
 #define FACERECOGNITION_USER_AUTH_H
 
-#include "auth_common.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
+
+#include "auth_build.h"
+#include "auth_common.h"
 
 namespace OHOS {
 namespace UserIAM {
@@ -26,9 +28,8 @@ class UserAuthImpl {
 public:
     UserAuthImpl();
     ~UserAuthImpl();
-
+    AuthBuild authBuild;
     napi_value GetVersion(napi_env env, napi_callback_info info);
-    napi_value GetVersion(napi_env env, GetVersionInfo *getVersionInfo);
     napi_value GetAvailabeStatus(napi_env env, napi_callback_info info);
     napi_value GetProperty(napi_env env, napi_callback_info info);
     napi_value SetProperty(napi_env env, napi_callback_info info);
@@ -46,13 +47,7 @@ private:
     napi_value SetPropertyPromise(napi_env env, SetPropertyInfo *setPropertyInfo);
 
     napi_value AuthWrap(napi_env env, AuthInfo *authInfo);
-    static void AuthExecute(napi_env env, void *data);
-    static void AuthExecuteDone(napi_env env, napi_status status, void *data);
     napi_value AuthUserWrap(napi_env env, AuthUserInfo *userInfo);
-    static void AuthUserExecute(napi_env env, void *data);
-    static void AuthUserExecuteDone(napi_env env, napi_status status, void *data);
-    static void AuthCallBack(napi_env env, AuthInfo *authInfo);
-    static void AuthUserCallBack(napi_env env, AuthUserInfo *userInfo);
 
     static void SetPropertyExecute(napi_env env, void *data);
     static void SetPropertyPromiseExecuteDone(napi_env env, napi_status status, void *data);

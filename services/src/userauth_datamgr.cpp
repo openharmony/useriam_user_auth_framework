@@ -12,10 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "userauth_datamgr.h"
-#include "userauth_common.h"
+#include <openssl/rand.h>
 
-#include <openssl/bn.h>
+#include "userauth_hilog_wrapper.h"
+#include "userauth_datamgr.h"
 
 namespace OHOS {
 namespace UserIAM {
@@ -27,7 +27,6 @@ UserAuthDataMgr &UserAuthDataMgr::GetInstance()
 }
 int32_t UserAuthDataMgr::AddContextID(uint64_t contextID)
 {
-    int32_t ret = SUCCESS;
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth AddContextID is start");
     std::lock_guard<std::mutex> lock(mutex_);
     if (contextIDs_.count(contextID) == 1) {
@@ -35,8 +34,8 @@ int32_t UserAuthDataMgr::AddContextID(uint64_t contextID)
         return GENERAL_ERROR;
     }
     contextIDs_.insert(contextID);
-
-    return ret;
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth AddContextID is end");
+    return SUCCESS;
 }
 int32_t UserAuthDataMgr::IsContextIDExist(uint64_t contextID)
 {
@@ -45,30 +44,25 @@ int32_t UserAuthDataMgr::IsContextIDExist(uint64_t contextID)
     if (contextIDs_.count(contextID) == 1) {
         return SUCCESS;
     }
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth IsContextIDExist is end");
     return GENERAL_ERROR;
 }
+
 int32_t UserAuthDataMgr::GenerateContextID(uint64_t &contextID)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth GenerateContextID is start");
-    BIGNUM *btmp = BN_new();
-    if (btmp == nullptr) {
-        return GENERAL_ERROR;
-    }
 
     std::lock_guard<std::mutex> lock(mutex_);
     do {
-        if (!BN_rand(btmp, USERAUTH_RAND_BITS, BN_RAND_TOP_ANY, BN_RAND_BOTTOM_ANY)) {
-            BN_free(btmp);
-            USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth GenerateContextID fail");
-            return GENERAL_ERROR;
+        if (RAND_bytes(reinterpret_cast<uint8_t *>(&contextID), (int)sizeof(contextID)) != OPENSSLSUCCESS) {
+            USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth GenerateContextID Error");
+            continue;
         }
-        char *tmprand = BN_bn2dec(btmp);
-        contextID = std::atoll(tmprand);
-    } while ((contextIDs_.count(contextID) == 1) || (contextID == 0));
-    BN_free(btmp);
-
+    } while ((contextIDs_.count(contextID) > 0) || (contextID == 0));
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth GenerateContextID is end");
     return SUCCESS;
 }
+
 int32_t UserAuthDataMgr::DeleteContextID(uint64_t contextID)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth DeleteContextID is start");

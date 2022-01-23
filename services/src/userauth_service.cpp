@@ -15,7 +15,7 @@
 
 #include <file_ex.h>
 #include <string_ex.h>
-#include "userauth_common.h"
+#include "userauth_hilog_wrapper.h"
 #include "useriam_common.h"
 #include "userauth_service.h"
 
@@ -93,28 +93,16 @@ int32_t UserAuthService::GetAvailableStatus(const AuthType authType, const AuthT
 void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAuthCallback>& callback)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthService GetProperty is start");
-    int ret = GENERAL_ERROR;
     uint64_t callerID = 0;
     std::string callerName;
-    ExecutorProperty executorProperty;
     if (callback == nullptr) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService GetProperty IUserAuthCallback is NULL!");
         return ;
     }
 
-    ret = userauthController_.GetCallerUid(callerID);
-    if (ret != SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService GetProperty getUserID is ERROR!");
-        callback->onSetExecutorProperty(ret);
-        return ;
-    }
-    ret = userauthController_.GetPkgName(callerName);
-    if (ret != SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService Auth GetPkgName is ERROR!");
-        executorProperty.result = ret;
-        callback->onExecutorPropertyInfo(executorProperty);
-        return ;
-    }
+    callerID = this->GetCallingUid();
+    callerName = std::to_string(callerID);
+
     sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
     if ((!callback->AsObject()->AddDeathRecipient(dr))) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
@@ -134,18 +122,9 @@ void UserAuthService::SetProperty(const SetPropertyRequest request, sptr<IUserAu
         return ;
     }
 
-    ret = userauthController_.GetCallerUid(callerID);
-    if (ret != SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService GetProperty getUserID is ERROR!");
-        callback->onSetExecutorProperty(ret);
-        return ;
-    }
-    ret = userauthController_.GetPkgName(callerName);
-    if (ret != SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService Auth GetPkgName is ERROR!");
-        callback->onSetExecutorProperty(ret);
-        return ;
-    }
+    callerID = this->GetCallingUid();
+    callerName = std::to_string(callerID);
+
     sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
     if ((!callback->AsObject()->AddDeathRecipient(dr))) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
@@ -274,20 +253,9 @@ int32_t UserAuthService::GetControllerData(sptr<IUserAuthCallback>& callback, Au
         return ret;
     }
 
-    result = userauthController_.GetCallerUid(callerID);
-    if (result != SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService AuthUser GetCallerUid is ERROR!");
-        callback->onResult(FAIL, extraInfo);
-        ret = FAIL;
-        return ret;
-    }
-    result = userauthController_.GetPkgName(callerName);
-    if (result != SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService AuthUser GetPkgName is ERROR!");
-        callback->onResult(FAIL, extraInfo);
-        ret = FAIL;
-        return ret;
-    }
+    callerID = this->GetCallingUid();
+    callerName = std::to_string(callerID);
+
     result = userauthController_.GenerateContextID(contextID);
     if (result != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService AuthUser GenerateContextID is ERROR!");
@@ -319,7 +287,7 @@ int32_t UserAuthService::CancelAuth(const uint64_t contextId)
 
     result = userauthController_.CancelContext(contextId, sessionIds);
     if (result == SUCCESS) {
-        for (std::vector<uint64_t>::iterator iter = sessionIds.begin(); iter != sessionIds.end(); ++iter) {
+        for (std::vector<uint64_t>::iterator iter = sessionIds.begin(); iter != sessionIds.end(); iter++) {
             result = userauthController_.Cancel(*iter);
             if (result != SUCCESS) {
                 USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService CancelAuth Cancel is ERROR!");

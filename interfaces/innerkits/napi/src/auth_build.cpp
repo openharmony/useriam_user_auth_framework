@@ -15,11 +15,9 @@
 
 #include "auth_build.h"
 
-#include "securec.h"
 #include "auth_common.h"
 #include "auth_hilog_wrapper.h"
 #include "auth_object.h"
-#include "result_convert.h"
 
 namespace OHOS {
 namespace UserIAM {
@@ -38,7 +36,6 @@ Napi_SetPropertyRequest AuthBuild::SetPropertyRequestBuild(napi_env env, napi_va
         HILOG_ERROR("SetPropertyRequestBuild object is null ");
         return request;
     }
-    UserAuth::ResultConvert convert;
     request.authType_ = convert.GetInt32ValueByKey(env, object, "authType");
     request.key_ = convert.GetInt32ValueByKey(env, object, "key");
     request.setInfo_ = convert.NapiGetValueUint8Array(env, object, "setInfo");
@@ -54,17 +51,10 @@ Napi_GetPropertyRequest AuthBuild::GetPropertyRequestBuild(napi_env env, napi_va
         HILOG_ERROR("GetPropertyRequestBuild object is null ");
         return request;
     }
-    UserAuth::ResultConvert convert;
     request.authType_ = convert.GetInt32ValueByKey(env, object, "authType");
     request.keys_ = convert.GetInt32ArrayValueByKey(env, object, "keys");
     HILOG_INFO(" AuthBuild::GetPropertyRequestBuild authType = %{public}d", request.authType_);
     return request;
-}
-
-napi_value AuthBuild::GetNapiExecutorProperty(napi_env env, Napi_ExecutorProperty property)
-{
-    ResultConvert convert;
-    return convert.BuildArrayExecutorProperty(env, property);
 }
 
 bool AuthBuild::NapiTypeObject(napi_env env, napi_value value)
@@ -72,22 +62,8 @@ bool AuthBuild::NapiTypeObject(napi_env env, napi_value value)
     if (value == nullptr) {
         return false;
     }
-    ResultConvert convert;
     napi_valuetype isObject = convert.GetType(env, value);
     if (isObject == napi_object) {
-        return true;
-    }
-    return false;
-}
-
-bool AuthBuild::NapiTypeBitInt(napi_env env, napi_value value)
-{
-    if (value == nullptr) {
-        return false;
-    }
-    ResultConvert convert;
-    napi_valuetype isBigInt = convert.GetType(env, value);
-    if (isBigInt == napi_bigint) {
         return true;
     }
     return false;
@@ -98,151 +74,11 @@ bool AuthBuild::NapiTypeNumber(napi_env env, napi_value value)
     if (value == nullptr) {
         return false;
     }
-    ResultConvert convert;
     napi_valuetype isNumber = convert.GetType(env, value);
     if (isNumber == napi_number) {
         return true;
     }
     return false;
-}
-
-napi_value AuthBuild::BuildAuthResult(napi_env env, Napi_AuthResult authResult)
-{
-    HILOG_INFO("BuildAuthResult start");
-    napi_value object = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &object));
-
-    napi_value keyToken = nullptr;
-    NAPI_CALL(env, napi_create_string_utf8(env, "token", NAPI_AUTO_LENGTH, &keyToken));
-
-    ResultConvert convert;
-    napi_value token = convert.BuildNapiUint8Array(env, authResult.token_);
-    NAPI_CALL(env, napi_set_property(env, object, keyToken, token));
-
-    napi_value keyRemainTimes = nullptr;
-    NAPI_CALL(env, napi_create_string_utf8(env, "remainTimes", NAPI_AUTO_LENGTH, &keyRemainTimes));
-    uint32_t remainTimes = authResult.remainTimes_;
-    napi_value remainTimesValue = nullptr;
-    NAPI_CALL(env, napi_create_uint32(env, remainTimes, &remainTimesValue));
-    NAPI_CALL(env, napi_set_property(env, object, keyRemainTimes, remainTimesValue));
-
-    napi_value keyFreezingTime = nullptr;
-    NAPI_CALL(env, napi_create_string_utf8(env, "freezingTime", NAPI_AUTO_LENGTH, &keyFreezingTime));
-    uint32_t freezingTime = authResult.freezingTime_;
-    napi_value freezingTimeValue = nullptr;
-    NAPI_CALL(env, napi_create_uint32(env, freezingTime, &freezingTimeValue));
-    NAPI_CALL(env, napi_set_property(env, object, keyFreezingTime, freezingTimeValue));
-    HILOG_INFO("BuildAuthResult end");
-    return object;
-}
-
-void AuthBuild::AuthUserCallBackResult(napi_env env, AuthUserInfo *userInfo)
-{
-    HILOG_INFO("%{public}s, start ", __func__);
-    napi_status status;
-    int32_t result = userInfo->result;
-    napi_value dataResult = 0;
-    status = napi_create_int32(env, result, &dataResult);
-    if (status != napi_ok) {
-        HILOG_ERROR("napi_create_int32 faild");
-    }
-    userInfo->onResultData[0] = dataResult;
-
-    napi_value resultExtraInfo = BuildAuthResult(env, userInfo->authResult);
-    userInfo->onResultData[1] = resultExtraInfo;
-    HILOG_INFO("%{public}s,  end", __func__);
-}
-
-void AuthBuild::AuthUserCallBackAcquireInfo(napi_env env, AuthUserInfo *userInfo)
-{
-    HILOG_INFO("%{public}s, start ", __func__);
-    napi_value jsModule = 0;
-    napi_status status;
-    int32_t jsModeValue = userInfo->module;
-    status = napi_create_int32(env, jsModeValue, &jsModule);
-    if (status != napi_ok) {
-        HILOG_ERROR("napi_create_int32 faild");
-    }
-    userInfo->onAcquireInfoData[0] = jsModule;
-    napi_value acquire = 0;
-    uint32_t acquireValue = userInfo->acquireInfo;
-    status = napi_create_uint32(env, acquireValue, &acquire);
-    if (status != napi_ok) {
-        HILOG_ERROR("napi_create_uint32 faild");
-    }
-    userInfo->onAcquireInfoData[1] = acquire;
-
-    if (userInfo->extraInfoIsNull) {
-        napi_value result = 0;
-        status = napi_get_null(env, &result);
-        if (status != napi_ok) {
-            HILOG_ERROR("napi_get_null faild");
-        }
-        userInfo->onAcquireInfoData[ARGS_TWO] = result;
-    } else {
-        HILOG_INFO("%{public}s, extraInfo Is not Null ", __func__);
-        napi_value result = 0;
-        status = napi_get_null(env, &result);
-        if (status != napi_ok) {
-            HILOG_ERROR("napi_get_null faild");
-        }
-        userInfo->onAcquireInfoData[ARGS_TWO] = result;
-    }
-}
-
-void AuthBuild::AuthCallBackAcquireInfo(napi_env env, AuthInfo *authInfo)
-{
-    HILOG_INFO("%{public}s, start ", __func__);
-    napi_status status;
-    napi_value jsModule = 0;
-    int32_t jsModeValue = authInfo->module;
-    status = napi_create_int32(env, jsModeValue, &jsModule);
-    if (status != napi_ok) {
-        HILOG_ERROR("napi_create_int32 faild");
-    }
-    authInfo->onAcquireInfoData[0] = jsModule;
-    napi_value acquire = 0;
-    uint32_t acquireValue = authInfo->acquireInfo;
-    status = napi_create_uint32(env, acquireValue, &acquire);
-    if (status != napi_ok) {
-        HILOG_ERROR("napi_create_uint32 faild");
-    }
-    authInfo->onAcquireInfoData[1] = acquire;
-
-    if (authInfo->extraInfoIsNull) {
-        napi_value result = 0;
-        status = napi_get_null(env, &result);
-        if (status != napi_ok) {
-            HILOG_ERROR("napi_get_null faild");
-        }
-        authInfo->onAcquireInfoData[ARGS_TWO] = result;
-    } else {
-        HILOG_INFO("%{public}s, extraInfo Is not Null ", __func__);
-        napi_value result = 0;
-        status = napi_get_null(env, &result);
-        if (status != napi_ok) {
-            HILOG_ERROR("napi_get_null faild");
-        }
-        authInfo->onAcquireInfoData[ARGS_TWO] = result;
-    }
-    HILOG_INFO("%{public}s,  end", __func__);
-}
-
-void AuthBuild::AuthCallBackResult(napi_env env, AuthInfo *authInfo)
-{
-    HILOG_INFO("%{public}s, start ", __func__);
-    napi_status status;
-    int32_t result = authInfo->result;
-    napi_value dataResult = 0;
-    status = napi_create_int32(env, result, &dataResult);
-    if (status != napi_ok) {
-        HILOG_ERROR("napi_get_null faild");
-    }
-    authInfo->onResultData[0] = dataResult;
-
-    napi_value resultExtraInfo = BuildAuthResult(env, authInfo->authResult);
-    authInfo->onResultData[1] = resultExtraInfo;
-    HILOG_INFO("%{public}s,  end", __func__);
 }
 
 uint64_t AuthBuild::GetUint8ArrayTo64(napi_env env, napi_value value)
@@ -254,41 +90,38 @@ uint64_t AuthBuild::GetUint8ArrayTo64(napi_env env, napi_value value)
     uint8_t *data = nullptr;
     bool isTypedArray = false;
     napi_is_typedarray(env, value, &isTypedArray);
-    if (isTypedArray) {
-        HILOG_INFO("args[PIN_PARAMS_ONE]  is a array");
-    } else {
-        HILOG_INFO("args[PIN_PARAMS_ONE]  is not a uint8array");
+    if (!isTypedArray) {
+        HILOG_ERROR("GetUint8ArrayTo64 value is not typedarray");
+        return 0;
     }
     napi_get_typedarray_info(env, value, &arraytype, &length, reinterpret_cast<void **>(&data), &buffer, &offset);
-    if (arraytype == napi_uint8_array) {
-        HILOG_INFO("InputerImpl, OnSetData get uint8 array ");
-    } else {
-        HILOG_ERROR("InputerImpl, OnSetData get uint8 array error");
+    if (arraytype != napi_uint8_array) {
+        HILOG_ERROR("GetUint8ArrayTo64 js value is not uint8Array");
         return 0;
-        }
+    }
     if (offset != 0) {
-        HILOG_INFO(" offset is =============>%{public}d", offset);
+        HILOG_ERROR("offset is %{public}d", offset);
         return 0;
     }
-    uint64_t resultUint64;
-    HILOG_INFO("data len = %{public}u", length);
-    if (memcpy_s(&resultUint64, sizeof(resultUint64), data, length) != EOK) {
-        HILOG_INFO("memcpy_s fail");
-        return 0;
+    std::vector<uint8_t> result(data, data + length);
+    uint8_t tmp[sizeof(uint64_t)];
+    for (uint32_t i = 0; i < sizeof(uint64_t); i++) {
+        tmp[i] = result[i];
+        HILOG_INFO("GetUint8ArrayTo64 result is %{public}d", (unsigned)result[i]);
     }
-    HILOG_INFO("resultUint64 = %{public}llu", resultUint64);
-    return resultUint64;
+    uint64_t *re = static_cast<uint64_t *>(static_cast<void *>(tmp));
+    HILOG_INFO("GetUint8ArrayTo64 resultUint64 is %{public}llu", *re);
+    return *re;
 }
 
 int AuthBuild::NapiGetValueInt(napi_env env, napi_value value)
 {
-    ResultConvert convert;
     return convert.NapiGetValueInt(env, value);
 }
+
 napi_value AuthBuild::Uint64ToUint8Array(napi_env env, uint64_t value)
 {
-    ResultConvert convert;
-    return convert.BuildNapiUint8Array(env, convert.ConvertUint8(value));
+    return convert.Uint64ToUint8Napi(env, value);
 }
 } // namespace UserAuth
 } // namespace UserIAM

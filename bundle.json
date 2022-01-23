@@ -38,7 +38,7 @@
         "sub_component": [
             "//base/user_iam/user_auth/sa_profile:userauth_sa_profile",
             "//base/user_iam/user_auth/services:userauthservice",
-            "//base/user_iam/user_auth/interfaces/kits/napi:userauthnorth"	  
+            "//base/user_iam/user_auth/interfaces/kits/napi:userauthnorth"
         ],
         "inner_kits": [
 		  {
@@ -73,7 +73,7 @@
               ],
               "header_base": "//base/user_iam/user_auth/interfaces/innerkits/napi/include"
             }
-          }		  
+          }
         ],
         "test": [
             "//base/user_iam/user_auth/test:userauth_native_test"

@@ -33,11 +33,10 @@ napi_value UserAuthServiceConstructor(napi_env env, napi_callback_info info)
     std::shared_ptr<UserAuthImpl> userAuthImpl;
     userAuthImpl.reset(new UserAuthImpl());
     napi_value thisVar = nullptr;
-    size_t argc = 1;
-    napi_value argv[1] = {nullptr};
+    size_t argc = ARGS_ONE;
+    napi_value argv[ARGS_ONE] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
-    NAPI_CALL(env, napi_wrap(
-        env, thisVar, userAuthImpl.get(),
+    NAPI_CALL(env, napi_wrap(env, thisVar, userAuthImpl.get(),
         [](napi_env env, void *data, void *hint) {
             UserAuthImpl *userAuthImpl = static_cast<UserAuthImpl *>(data);
             if (userAuthImpl != nullptr) {
