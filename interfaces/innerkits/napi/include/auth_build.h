@@ -16,8 +16,8 @@
 #ifndef FACERECOGNITION_AUTH_BUILD_H
 #define FACERECOGNITION_AUTH_BUILD_H
 
+#include "napi/native_api.h"
 #include "napi/native_common.h"
-#include "napi/native_node_api.h"
 
 #include "auth_common.h"
 #include "result_convert.h"
