@@ -23,6 +23,12 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
+typedef struct AsyncHolder {
+    AsyncHolder() : data(nullptr), asyncWork(nullptr) {};
+    void *data;
+    napi_async_work asyncWork;
+} AsyncHolder;
+
 class UserAuthImpl {
 public:
     UserAuthImpl();
@@ -37,16 +43,18 @@ public:
     napi_value CancelAuth(napi_env env, napi_callback_info info);
 
 private:
-    napi_value GetPropertyWrap(napi_env env, napi_callback_info info, GetPropertyInfo *getPropertyInfo);
-    napi_value GetPropertyAsync(napi_env env, GetPropertyInfo *getPropertyInfo);
-    napi_value GetPropertyPromise(napi_env env, GetPropertyInfo *getPropertyInfo);
+    napi_value GetPropertyWrap(napi_env env, napi_callback_info info, AsyncHolder *asyncHolder);
+    napi_value GetPropertyAsync(napi_env env, AsyncHolder *asyncHolder);
+    napi_value GetPropertyPromise(napi_env env, AsyncHolder *asyncHolder);
 
-    napi_value SetPropertyWrap(napi_env env, napi_callback_info info, SetPropertyInfo *setPropertyInfo);
-    napi_value SetPropertyAsync(napi_env env, SetPropertyInfo *setPropertyInfo);
-    napi_value SetPropertyPromise(napi_env env, SetPropertyInfo *setPropertyInfo);
+    napi_value SetPropertyWrap(napi_env env, napi_callback_info info, AsyncHolder *asyncHolder);
+    napi_value SetPropertyAsync(napi_env env, AsyncHolder *asyncHolder);
+    napi_value SetPropertyPromise(napi_env env, AsyncHolder *asyncHolder);
 
     napi_value AuthWrap(napi_env env, AuthInfo *authInfo);
+    napi_value BuildAuthInfo(napi_env env, AuthInfo *authInfo);
     napi_value AuthUserWrap(napi_env env, AuthUserInfo *userInfo);
+    napi_value BuildAuthUserInfo(napi_env env, AuthUserInfo *userInfo);
 
     static void SetPropertyExecute(napi_env env, void *data);
     static void SetPropertyPromiseExecuteDone(napi_env env, napi_status status, void *data);
