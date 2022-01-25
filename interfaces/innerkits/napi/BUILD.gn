@@ -15,7 +15,10 @@ import("//base/user_iam/user_auth/userauth.gni")
 import("//build/ohos.gni")
 
 config("userauth_public_config") {
-  include_dirs = [ "include" ]
+  include_dirs = [
+    "include",
+    "//third_party/libuv/include",
+  ]
 }
 
 ohos_shared_library("userauth") {

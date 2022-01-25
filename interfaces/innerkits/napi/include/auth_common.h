@@ -64,6 +64,10 @@ struct GetPropertyInfo {
     napi_value result;
     int32_t authType;
     std::vector<uint32_t> keys;
+    int32_t getResult;
+    uint64_t authSubType;
+    uint32_t remainTimes;
+    uint32_t freezingTime;
 };
 
 struct SetPropertyInfo {
@@ -74,6 +78,7 @@ struct SetPropertyInfo {
     int32_t authType;
     int32_t key;
     std::vector<uint8_t> setInfo;
+    int32_t setResult;
 };
 
 struct AuthInfo {
@@ -91,6 +96,10 @@ struct AuthInfo {
     uint64_t challenge;
     int32_t authType;
     int32_t authTrustLevel;
+    int32_t result;
+    std::vector<uint8_t> token;
+    uint32_t remainTimes;
+    uint32_t freezingTime;
 };
 
 struct AuthUserInfo {
@@ -109,6 +118,10 @@ struct AuthUserInfo {
     uint64_t challenge;
     int32_t authType;
     int32_t authTrustLevel;
+    int32_t result;
+    std::vector<uint8_t> token;
+    uint32_t remainTimes;
+    uint32_t freezingTime;
 };
 } // namespace UserAuth
 } // namespace UserIAM
