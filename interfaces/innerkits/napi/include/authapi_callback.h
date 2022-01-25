@@ -27,6 +27,14 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
+typedef struct AcquireInfoInner {
+    napi_env env;
+    napi_ref onAcquireInfo;
+    napi_value jsFunction;
+    int32_t module;
+    uint32_t acquireInfo;
+    int32_t extraInfo;
+} AcquireInfoInner;
 class AuthApiCallback : public UserAuthCallback {
 public:
     AuthApiCallback();
@@ -40,12 +48,17 @@ public:
     void onResult(const int32_t result, const AuthResult extraInfo) override;
     void onSetExecutorProperty(const int32_t result) override;
 
-private:
-    napi_value BuildExecutorProperty(
+    static napi_value BuildExecutorProperty(
         napi_env env, int32_t result, uint32_t remainTimes, uint32_t freezingTime, uint64_t authSubType);
-    napi_value Uint64ToNapi(napi_env env, uint64_t value);
-    napi_value BuildOnResult(napi_env env, uint32_t remainTimes, uint32_t freezingTime, std::vector<uint8_t> token);
-    napi_value Uint8ArrayToNapi(napi_env env, std::vector<uint8_t> value);
+    static napi_value Uint64ToNapi(napi_env env, uint64_t value);
+    static napi_value BuildOnResult(
+        napi_env env, uint32_t remainTimes, uint32_t freezingTime, std::vector<uint8_t> token);
+    static napi_value Uint8ArrayToNapi(napi_env env, std::vector<uint8_t> value);
+
+private:
+    void OnAuthAcquireInfo(AcquireInfoInner *acquireInfoInner);
+    void OnUserAuthResult(const int32_t result, const AuthResult extraInfo);
+    void OnAuthResult(const int32_t result, const AuthResult extraInfo);
 };
 } // namespace UserAuth
 } // namespace UserIAM

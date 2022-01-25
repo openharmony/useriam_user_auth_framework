@@ -15,6 +15,7 @@
 
 #include "authapi_callback.h"
 
+#include <uv.h>
 #include "securec.h"
 
 #include "auth_hilog_wrapper.h"
@@ -100,96 +101,283 @@ napi_value AuthApiCallback::BuildOnResult(
     return jsObject;
 }
 
+static void GetPropertyInfoCallback(uv_work_t* work, int status)
+{
+    HILOG_INFO("Do OnAuthAcquireInfo work");
+    GetPropertyInfo *getPropertyInfo = reinterpret_cast<GetPropertyInfo *>(work->data);
+    if (getPropertyInfo == nullptr) {
+        HILOG_ERROR("getPropertyInfo is null");
+        delete work;
+        return;
+    }
+    napi_env env = getPropertyInfo->callBackInfo.env;
+    napi_value resultData[PARAM1];
+    resultData[PARAM0] = AuthApiCallback::BuildExecutorProperty(env, getPropertyInfo->getResult,
+        getPropertyInfo->remainTimes, getPropertyInfo->freezingTime, getPropertyInfo->authSubType);
+    if (getPropertyInfo->callBackInfo.callBack != nullptr) {
+        HILOG_INFO("onExecutorPropertyInfo async");
+        napi_value global = nullptr;
+        napi_status napiStatus = napi_get_global(env, &global);
+        if (napiStatus != napi_ok) {
+            HILOG_INFO("napi_get_global faild ");
+            goto EXIT;
+        }
+        napi_value resultValue = nullptr;
+        napi_value callBack = nullptr;
+        napiStatus = napi_get_reference_value(env, getPropertyInfo->callBackInfo.callBack, &callBack);
+        if (napiStatus != napi_ok) {
+            HILOG_INFO("napi_get_reference_value faild ");
+            goto EXIT;
+        }
+        napiStatus = napi_call_function(env, global, callBack, PARAM1, resultData, &resultValue);
+        if (napiStatus != napi_ok) {
+            HILOG_INFO("napi_call_function faild ");
+            goto EXIT;
+        }
+    } else {
+        HILOG_INFO("onExecutorPropertyInfo promise");
+        napi_value resultValue = resultData[PARAM0];
+        napi_deferred deferred = getPropertyInfo->callBackInfo.deferred;
+        napi_status napiStatus = napi_resolve_deferred(env, deferred, resultValue);
+        if (napiStatus != napi_ok) {
+            HILOG_INFO("napi_resolve_deferred faild ");
+            goto EXIT;
+        }
+    }
+EXIT:
+    delete getPropertyInfo;
+    delete work;
+}
+
 void AuthApiCallback::onExecutorPropertyInfo(const ExecutorProperty result)
 {
-    napi_status status;
     HILOG_INFO("AuthApiCallback onExecutorPropertyInfo 1 = %{public}d", result.result);
     HILOG_INFO("AuthApiCallback onExecutorPropertyInfo 2 = %{public}llu", result.authSubType);
     HILOG_INFO("AuthApiCallback onExecutorPropertyInfo 3 = %{public}u", result.remainTimes);
     HILOG_INFO("AuthApiCallback onExecutorPropertyInfo 4 = %{public}u", result.freezingTime);
-    if (getPropertyInfo_ != nullptr) {
-        napi_env env = getPropertyInfo_->callBackInfo.env;
-        HILOG_INFO("AuthApiCallback onExecutorPropertyInfo 5 ");
-        napi_value resultData[PARAM1];
-        resultData[PARAM0] = BuildExecutorProperty(
-            env, result.result, result.remainTimes, result.freezingTime, static_cast<uint64_t>(result.authSubType));
-        if (getPropertyInfo_->callBackInfo.callBack != nullptr) {
-            HILOG_INFO("AuthApiCallback onExecutorPropertyInfo async 6");
-            napi_value global = nullptr;
-            status = napi_get_global(env, &global);
-            if (status != napi_ok) {
-                HILOG_INFO("napi_get_global faild ");
-            }
-            napi_value resultValue = nullptr;
-            napi_value callBack = nullptr;
-            status = napi_get_reference_value(env, getPropertyInfo_->callBackInfo.callBack, &callBack);
-            if (status != napi_ok) {
-                HILOG_INFO("napi_get_reference_value faild ");
-            }
-            status = napi_call_function(env, global, callBack, PARAM1, resultData, &resultValue);
-            if (status != napi_ok) {
-                HILOG_INFO("napi_call_function faild ");
-            }
-        } else {
-            HILOG_INFO("AuthApiCallback onExecutorPropertyInfo promise 6");
-            napi_value resultValue = resultData[PARAM0];
-            napi_deferred deferred = getPropertyInfo_->callBackInfo.deferred;
-            status = napi_resolve_deferred(env, deferred, resultValue);
-            if (status != napi_ok) {
-                HILOG_INFO("napi_resolve_deferred faild ");
-            }
-        }
+    if (getPropertyInfo_ == nullptr) {
+        HILOG_ERROR("AuthApiCallback onExecutorPropertyInfo getPropertyInfo_ is nullptr");
+        return;
+    }
+    uv_loop_s *loop(nullptr);
+    napi_get_uv_event_loop(getPropertyInfo_->callBackInfo.env, &loop);
+    if (loop == nullptr) {
+        HILOG_ERROR("loop is null");
         delete getPropertyInfo_;
         getPropertyInfo_ = nullptr;
-    } else {
-        HILOG_ERROR("AuthApiCallback onExecutorPropertyInfo getPropertyInfo_ is nullptr");
+        return;
     }
+    uv_work_t *work = new (std::nothrow) uv_work_t;
+    if (work == nullptr) {
+        HILOG_ERROR("work is null");
+        delete getPropertyInfo_;
+        getPropertyInfo_ = nullptr;
+        return;
+    }
+    getPropertyInfo_->getResult = result.result;
+    getPropertyInfo_->authSubType = static_cast<uint64_t>(result.authSubType);
+    getPropertyInfo_->remainTimes = result.remainTimes;
+    getPropertyInfo_->freezingTime = result.freezingTime;
+    work->data = reinterpret_cast<void *>(getPropertyInfo_);
+    getPropertyInfo_ = nullptr;
+    HILOG_INFO("Before GetPropertyInfoCallback");
+    uv_queue_work(loop, work, [] (uv_work_t *work) {}, GetPropertyInfoCallback);
+}
+
+void AuthApiCallback::OnAuthAcquireInfo(AcquireInfoInner *acquireInfoInner)
+{
+    HILOG_INFO("AuthApiCallback OnAuthAcquireInfo start");
+    uv_loop_s *loop(nullptr);
+    napi_get_uv_event_loop(authInfo_->callBackInfo.env, &loop);
+    if (loop == nullptr) {
+        HILOG_ERROR("loop is null");
+        delete acquireInfoInner;
+        return;
+    }
+    uv_work_t *work = new (std::nothrow) uv_work_t;
+    if (work == nullptr) {
+        HILOG_ERROR("work is null");
+        delete acquireInfoInner;
+        return;
+    }
+    work->data = reinterpret_cast<void *>(acquireInfoInner);
+    uv_queue_work(loop, work, [] (uv_work_t *work) {}, [] (uv_work_t *work, int status) {
+        HILOG_INFO("Do OnAuthAcquireInfo work");
+        AcquireInfoInner *acquireInfoInner = reinterpret_cast<AcquireInfoInner *>(work->data);
+        if (acquireInfoInner == nullptr) {
+            HILOG_ERROR("authInfo is null");
+            delete work;
+            return;
+        }
+        napi_env env = acquireInfoInner->env;
+        napi_value returnOnAcquire = nullptr;
+        napi_value callback;
+        napi_status napiStatus = napi_get_reference_value(env, acquireInfoInner->onAcquireInfo, &callback);
+        if (napiStatus != napi_ok) {
+            HILOG_INFO("napi_get_reference_value faild ");
+            delete acquireInfoInner;
+            delete work;
+            return;
+        }
+        napi_value params[PARAM3];
+        napi_create_int32(env, acquireInfoInner->module, &params[PARAM0]);
+        napi_create_uint32(env, acquireInfoInner->acquireInfo, &params[PARAM1]);
+        napi_create_int32(env, acquireInfoInner->extraInfo, &params[PARAM2]);
+        napiStatus = napi_call_function(env, acquireInfoInner->jsFunction, callback, PARAM3, params, &returnOnAcquire);
+        if (napiStatus != napi_ok) {
+            HILOG_ERROR("napi_call_function faild");
+        }
+        delete acquireInfoInner;
+        delete work;
+    });
 }
 
 void AuthApiCallback::onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo)
 {
-    napi_status status;
-    napi_value callback;
-    napi_value params[PARAM3];
     if (userInfo_ != nullptr) {
-        napi_env env = userInfo_->callBackInfo.env;
-        HILOG_INFO("AuthApiCallback onAcquireInfo userInfo_ start 1");
-        napi_value returnOnAcquire = nullptr;
-        status = napi_get_reference_value(env, userInfo_->onAcquireInfo, &callback);
-        if (status != napi_ok) {
-            HILOG_INFO("napi_get_reference_value faild ");
+        AcquireInfoInner *acquireInfoInner = new (std::nothrow) AcquireInfoInner();
+        if (acquireInfoInner == nullptr) {
+            HILOG_ERROR("acquireInfoInner is null");
+            return;
         }
-        napi_create_int32(env, module, &params[PARAM0]);
-        napi_create_uint32(env, acquireInfo, &params[PARAM1]);
-        napi_create_int32(env, extraInfo, &params[PARAM2]);
-        status = napi_call_function(env, userInfo_->jsFunction, callback, PARAM3, params, &returnOnAcquire);
-        if (status != napi_ok) {
-            HILOG_ERROR("napi_call_function faild");
-        }
-        HILOG_INFO("AuthApiCallback onAcquireInfo userInfo_ start 4");
+        acquireInfoInner->env = userInfo_->callBackInfo.env;
+        acquireInfoInner->onAcquireInfo = userInfo_->onAcquireInfo;
+        acquireInfoInner->jsFunction = userInfo_->jsFunction;
+        acquireInfoInner->module = module;
+        acquireInfoInner->acquireInfo = acquireInfo;
+        acquireInfoInner->extraInfo = extraInfo;
+        OnAuthAcquireInfo(acquireInfoInner);
     } else {
         HILOG_INFO("AuthApiCallback onAcquireInfo userInfo_ is nullptr ");
     }
 
     if (authInfo_ != nullptr) {
-        napi_env env = authInfo_->callBackInfo.env;
-        napi_value returnOnAcquire = nullptr;
-        status = napi_get_reference_value(env, authInfo_->onAcquireInfo, &callback);
-        if (status != napi_ok) {
-            HILOG_INFO("napi_get_reference_value faild ");
+        AcquireInfoInner *acquireInfoInner = new (std::nothrow) AcquireInfoInner();
+        if (acquireInfoInner == nullptr) {
+            HILOG_ERROR("acquireInfoInner is null");
+            return;
         }
-        napi_create_int32(env, module, &params[PARAM0]);
-        napi_create_uint32(env, acquireInfo, &params[PARAM1]);
-        napi_create_int32(env, extraInfo, &params[PARAM2]);
-        status = napi_call_function(env, authInfo_->jsFunction, callback, PARAM3, params, &returnOnAcquire);
-        if (status != napi_ok) {
-            HILOG_ERROR("napi_call_function faild");
-        }
-        HILOG_INFO("AuthApiCallback onAcquireInfo authInfo_ start 4");
+        acquireInfoInner->env = authInfo_->callBackInfo.env;
+        acquireInfoInner->onAcquireInfo = authInfo_->onAcquireInfo;
+        acquireInfoInner->jsFunction = authInfo_->jsFunction;
+        acquireInfoInner->module = module;
+        acquireInfoInner->acquireInfo = acquireInfo;
+        acquireInfoInner->extraInfo = extraInfo;
+        OnAuthAcquireInfo(acquireInfoInner);
     } else {
         HILOG_INFO("AuthApiCallback onAcquireInfo authInfo_ is nullptr ");
     }
     HILOG_INFO("AuthApiCallback onAcquireInfo end");
+}
+
+static void OnUserAuthResultWork(uv_work_t *work, int status)
+{
+    HILOG_INFO("Do OnUserAuthResult work");
+    AuthUserInfo *userInfo = reinterpret_cast<AuthUserInfo *>(work->data);
+    if (userInfo == nullptr) {
+        HILOG_ERROR("authInfo is null");
+        delete work;
+        return;
+    }
+    napi_env env = userInfo->callBackInfo.env;
+    napi_value callback;
+    napi_status napiStatus = napi_get_reference_value(env, userInfo->onResult, &callback);
+    if (napiStatus != napi_ok) {
+        HILOG_INFO("napi_get_reference_value faild ");
+        delete userInfo;
+        delete work;
+        return;
+    }
+    napi_value params[PARAM2];
+    napi_create_int32(env, userInfo->result, &params[PARAM0]);
+    params[PARAM1] = AuthApiCallback::BuildOnResult(
+        env, userInfo->remainTimes, userInfo->freezingTime, userInfo->token);
+    napi_value return_val = nullptr;
+    napi_call_function(env, userInfo->jsFunction, callback, PARAM2, params, &return_val);
+    delete userInfo;
+    delete work;
+}
+
+void AuthApiCallback::OnUserAuthResult(const int32_t result, const AuthResult extraInfo)
+{
+    HILOG_INFO("AuthApiCallback OnUserAuthResult start");
+    uv_loop_s *loop(nullptr);
+    napi_get_uv_event_loop(userInfo_->callBackInfo.env, &loop);
+    if (loop == nullptr) {
+        HILOG_ERROR("loop is null");
+        delete userInfo_;
+        userInfo_ = nullptr;
+        return;
+    }
+    uv_work_t *work = new (std::nothrow) uv_work_t;
+    if (work == nullptr) {
+        HILOG_ERROR("work is null");
+        delete userInfo_;
+        userInfo_ = nullptr;
+        return;
+    }
+    userInfo_->result = result;
+    userInfo_->token = extraInfo.token;
+    userInfo_->freezingTime = extraInfo.freezingTime;
+    userInfo_->remainTimes = extraInfo.remainTimes;
+    work->data = reinterpret_cast<void *>(userInfo_);
+    userInfo_ = nullptr;
+    uv_queue_work(loop, work, [] (uv_work_t *work) {}, OnUserAuthResultWork);
+}
+
+static void OnAuthResultWork(uv_work_t *work, int status)
+{
+    HILOG_INFO("Do OnAuthResult work");
+    AuthInfo *authInfo = reinterpret_cast<AuthInfo *>(work->data);
+    if (authInfo == nullptr) {
+        HILOG_ERROR("authInfo is null");
+        delete work;
+        return;
+    }
+    napi_env env = authInfo->callBackInfo.env;
+    napi_value callback;
+    napi_status napiStatus = napi_get_reference_value(env, authInfo->onResult, &callback);
+    if (napiStatus != napi_ok) {
+        HILOG_INFO("napi_get_reference_value faild ");
+        delete authInfo;
+        delete work;
+        return;
+    }
+    napi_value params[PARAM2];
+    napi_create_int32(env, authInfo->result, &params[PARAM0]);
+    params[PARAM1] = AuthApiCallback::BuildOnResult(
+        env, authInfo->remainTimes, authInfo->freezingTime, authInfo->token);
+    napi_value return_val = nullptr;
+    napi_call_function(env, authInfo->jsFunction, callback, PARAM2, params, &return_val);
+    delete authInfo;
+    delete work;
+}
+
+void AuthApiCallback::OnAuthResult(const int32_t result, const AuthResult extraInfo)
+{
+    HILOG_INFO("AuthApiCallback OnAuthResult start");
+    uv_loop_s *loop(nullptr);
+    napi_get_uv_event_loop(authInfo_->callBackInfo.env, &loop);
+    if (loop == nullptr) {
+        HILOG_ERROR("loop is null");
+        delete authInfo_;
+        authInfo_ = nullptr;
+        return;
+    }
+    uv_work_t *work = new (std::nothrow) uv_work_t;
+    if (work == nullptr) {
+        HILOG_ERROR("work is null");
+        delete authInfo_;
+        authInfo_ = nullptr;
+        return;
+    }
+    authInfo_->result = result;
+    authInfo_->token = extraInfo.token;
+    authInfo_->freezingTime = extraInfo.freezingTime;
+    authInfo_->remainTimes = extraInfo.remainTimes;
+    work->data = reinterpret_cast<void *>(authInfo_);
+    authInfo_ = nullptr;
+    uv_queue_work(loop, work, [] (uv_work_t *work) {}, OnAuthResultWork);
 }
 
 void AuthApiCallback::onResult(const int32_t result, const AuthResult extraInfo)
@@ -198,89 +386,96 @@ void AuthApiCallback::onResult(const int32_t result, const AuthResult extraInfo)
     HILOG_INFO("AuthApiCallback onResult start token.length = %{public}d", extraInfo.token.size());
     HILOG_INFO("AuthApiCallback onResult start extraInfo.remainTimes = %{public}u", extraInfo.remainTimes);
     HILOG_INFO("AuthApiCallback onResult start extraInfo.freezingTime = %{public}u", extraInfo.freezingTime);
-    napi_status status;
-    napi_value callback;
     if (userInfo_ != nullptr) {
-        napi_env env = userInfo_->callBackInfo.env;
-        status = napi_get_reference_value(env, userInfo_->onResult, &callback);
-        if (status != napi_ok) {
-            HILOG_INFO("napi_get_reference_value faild ");
-        }
-        napi_value params[PARAM2];
-        napi_create_int32(env, result, &params[PARAM0]);
-        params[PARAM1] = BuildOnResult(env, extraInfo.remainTimes, extraInfo.freezingTime, extraInfo.token);
-        napi_value return_val = nullptr;
-        HILOG_INFO("AuthApiCallback onResult userInfo_ 5");
-        napi_call_function(env, userInfo_->jsFunction, callback, PARAM2, params, &return_val);
-        delete userInfo_;
-        userInfo_ = nullptr;
+        OnUserAuthResult(result, extraInfo);
     } else {
         HILOG_ERROR("AuthApiCallback onResult userInfo_ is nullptr ");
     }
     if (authInfo_ != nullptr) {
-        HILOG_INFO("AuthApiCallback onResult authInfo_ 1");
-        napi_env env = authInfo_->callBackInfo.env;
-        HILOG_INFO("AuthApiCallback onResult authInfo_ 2");
-        status = napi_get_reference_value(authInfo_->callBackInfo.env, authInfo_->onResult, &callback);
-        if (status != napi_ok) {
-            HILOG_INFO("napi_get_reference_value faild ");
-        }
-        napi_value params[PARAM2];
-        napi_create_int32(env, result, &params[PARAM0]);
-        params[PARAM1] = BuildOnResult(env, extraInfo.remainTimes, extraInfo.freezingTime, extraInfo.token);
-        napi_value return_val = nullptr;
-        HILOG_INFO("AuthApiCallback onResult userInfo_ 5");
-        napi_call_function(env, authInfo_->jsFunction, callback, PARAM2, params, &return_val);
-        HILOG_INFO("AuthApiCallback onResult authInfo_ 6");
-        delete authInfo_;
-        authInfo_ = nullptr;
+        OnAuthResult(result, extraInfo);
     } else {
         HILOG_ERROR("AuthApiCallback onResult authInfo_ is nullptr ");
     }
     HILOG_INFO("AuthApiCallback onResult end");
 }
 
+static void SetExecutorPropertyCallback(uv_work_t *work, int status)
+{
+    HILOG_INFO("Do SetExecutorPropertyCallback work");
+    SetPropertyInfo *setPropertyInfo = reinterpret_cast<SetPropertyInfo *>(work->data);
+    if (setPropertyInfo == nullptr) {
+        HILOG_ERROR("authInfo is null");
+        delete work;
+        return;
+    }
+    napi_env env = setPropertyInfo->callBackInfo.env;
+    napi_status napiStatus = napi_create_int32(env, setPropertyInfo->setResult, &setPropertyInfo->result);
+    if (napiStatus != napi_ok) {
+        HILOG_ERROR("napi_create_int32 faild");
+        goto EXIT;
+    }
+    if (setPropertyInfo->callBackInfo.callBack != nullptr) {
+        napi_value global = nullptr;
+        napiStatus = napi_get_global(env, &global);
+        if (napiStatus != napi_ok) {
+            HILOG_ERROR("napi_get_global faild");
+            goto EXIT;
+        }
+        napi_value resultData[PARAM1];
+        resultData[PARAM0] = setPropertyInfo->result;
+        setPropertyInfo->result = nullptr;
+        napi_value result = nullptr;
+        napi_value callBack = nullptr;
+        napiStatus = napi_get_reference_value(env, setPropertyInfo->callBackInfo.callBack, &callBack);
+        if (napiStatus != napi_ok) {
+            HILOG_ERROR("napi_get_reference_value faild");
+            goto EXIT;
+        }
+        napiStatus = napi_call_function(env, global, callBack, PARAM1, resultData, &result);
+        if (napiStatus != napi_ok) {
+            HILOG_ERROR("napi_call_function faild");
+            goto EXIT;
+        }
+    } else {
+        napi_value result = setPropertyInfo->result;
+        napi_deferred deferred = setPropertyInfo->callBackInfo.deferred;
+        napiStatus = napi_resolve_deferred(env, deferred, result);
+        if (napiStatus != napi_ok) {
+            HILOG_ERROR("napi_call_function faild");
+            goto EXIT;
+        }
+    }
+EXIT:
+    delete setPropertyInfo;
+    delete work;
+}
+
 void AuthApiCallback::onSetExecutorProperty(const int32_t result)
 {
     HILOG_INFO("onSetExecutorProperty start = %{public}d", result);
-    napi_status status;
     if (setPropertyInfo_ != nullptr) {
-        napi_env env = setPropertyInfo_->callBackInfo.env;
-        status = napi_create_int32(env, result, &setPropertyInfo_->result);
-        if (status != napi_ok) {
-            HILOG_ERROR("napi_create_int32 faild");
-        }
-        if (setPropertyInfo_->callBackInfo.callBack != nullptr) {
-            napi_value global = nullptr;
-            status = napi_get_global(env, &global);
-            if (status != napi_ok) {
-                HILOG_ERROR("napi_get_global faild");
-            }
-            napi_value resultData[PARAM1];
-            resultData[PARAM0] = setPropertyInfo_->result;
-            setPropertyInfo_->result = nullptr;
-            napi_value result = nullptr;
-            napi_value callBack = nullptr;
-            status = napi_get_reference_value(env, setPropertyInfo_->callBackInfo.callBack, &callBack);
-            if (status != napi_ok) {
-                HILOG_ERROR("napi_get_reference_value faild");
-            }
-            status = napi_call_function(env, global, callBack, PARAM1, resultData, &result);
-            if (status != napi_ok) {
-                HILOG_ERROR("napi_call_function faild");
-            }
-        } else {
-            napi_value result = setPropertyInfo_->result;
-            napi_deferred deferred = setPropertyInfo_->callBackInfo.deferred;
-            status = napi_resolve_deferred(env, deferred, result);
-            if (status != napi_ok) {
-                HILOG_ERROR("napi_call_function faild");
-            }
-        }
+        HILOG_ERROR("setPropertyInfo is null");
+        return;
+    }
+    uv_loop_s *loop(nullptr);
+    napi_get_uv_event_loop(setPropertyInfo_->callBackInfo.env, &loop);
+    if (loop == nullptr) {
+        HILOG_ERROR("loop is null");
         delete setPropertyInfo_;
         setPropertyInfo_ = nullptr;
+        return;
     }
-    HILOG_INFO("onSetExecutorProperty end");
+    uv_work_t *work = new (std::nothrow) uv_work_t;
+    if (work == nullptr) {
+        HILOG_ERROR("work is null");
+        delete setPropertyInfo_;
+        setPropertyInfo_ = nullptr;
+        return;
+    }
+    setPropertyInfo_->setResult = result;
+    work->data = reinterpret_cast<void *>(setPropertyInfo_);
+    setPropertyInfo_ = nullptr;
+    uv_queue_work(loop, work, [] (uv_work_t *work) {}, SetExecutorPropertyCallback);
 }
 } // namespace UserAuth
 } // namespace UserIAM
