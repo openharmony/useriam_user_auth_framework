@@ -278,7 +278,7 @@ UserAuthCallbackImplIDMGetPorp::UserAuthCallbackImplIDMGetPorp(const sptr<IUserA
 void UserAuthCallbackImplIDMGetPorp::OnGetInfo(std::vector<UserIDM::CredentialInfo>& info)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthCallbackImplIDMGetPorp  OnGetInfo enter");
-    ExecutorProperty executorProperty;
+    ExecutorProperty executorProperty = {};
     if (info.size() == 0) {
         executorProperty.result = GENERAL_ERROR;
         callback_->onExecutorPropertyInfo(executorProperty);

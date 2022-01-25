@@ -49,8 +49,9 @@ napi_value AuthApiCallback::BuildExecutorProperty(
     NAPI_CALL(env, napi_create_uint32(env, freezingTime, &freezingTimeValue));
     NAPI_CALL(env, napi_set_named_property(env, jsObject, "freezingTime", freezingTimeValue));
 
-    napi_value jsType = Uint64ToNapi(env, authSubType);
-    NAPI_CALL(env, napi_set_named_property(env, jsObject, "authSubType", jsType));
+    napi_value authSubTypeValue = nullptr;
+    NAPI_CALL(env, napi_create_uint32(env, static_cast<int32_t>(authSubType), &authSubTypeValue));
+    NAPI_CALL(env, napi_set_named_property(env, jsObject, "authSubType", authSubTypeValue));
     return jsObject;
 }
 
