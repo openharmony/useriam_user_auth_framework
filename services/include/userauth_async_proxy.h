@@ -37,8 +37,6 @@ public:
 
 private:
     bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply);
-    void WriteFailResult(const ExecutorProperty &result, ExecutorProperty &resultFail,
-                         MessageParcel &data);
 
 private:
     static inline BrokerDelegator<UserAuthAsyncProxy> delegator_;
