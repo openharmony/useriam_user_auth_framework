@@ -58,9 +58,8 @@ struct CallBackInfo {
 };
 
 struct GetPropertyInfo {
-    GetPropertyInfo() : asyncWork(nullptr), result(nullptr) {};
+    GetPropertyInfo() : result(nullptr) {};
     CallBackInfo callBackInfo;
-    napi_async_work asyncWork;
     napi_value result;
     int32_t authType;
     std::vector<uint32_t> keys;

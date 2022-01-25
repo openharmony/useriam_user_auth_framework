@@ -90,30 +90,25 @@ void UserAuthAsyncProxy::onExecutorPropertyInfo(const ExecutorProperty result)
     USERAUTH_HILOGD(MODULE_SERVICE, "userauthAsyncProxy onExecutorPropertyInfo enter");
     MessageParcel data;
     MessageParcel reply;
-    ExecutorProperty resultFail;
     if (!data.WriteInterfaceToken(UserAuthAsyncProxy::GetDescriptor())) {
         USERAUTH_HILOGI(MODULE_SERVICE, "userauth write descriptor failed!");
         return ;
     }
-    if (result.result != SUCCESS) {
-        WriteFailResult(result, resultFail, data);
-    } else {
-        if (!data.WriteInt32(result.result)) {
-            USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteInt32(result.result).");
-            return;
-        }
-        if (!data.WriteUint64(result.authSubType)) {
-            USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint64(result.authSubType).");
-            return;
-        }
-        if (!data.WriteUint32(result.remainTimes)) {
-            USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(result.remainTimes).");
-            return;
-        }
-        if (!data.WriteUint32(result.freezingTime)) {
-            USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(result.freezingTime).");
-            return;
-        }
+    if (!data.WriteInt32(result.result)) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteInt32(result.result).");
+        return;
+    }
+    if (!data.WriteUint64(result.authSubType)) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint64(result.authSubType).");
+        return;
+    }
+    if (!data.WriteUint32(result.remainTimes)) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(result.remainTimes).");
+        return;
+    }
+    if (!data.WriteUint32(result.freezingTime)) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(result.freezingTime).");
+        return;
     }
     bool ret = SendRequest(IUserAuth::USER_AUTH_GETEXPORP, data, reply);
     if (ret) {
@@ -121,30 +116,6 @@ void UserAuthAsyncProxy::onExecutorPropertyInfo(const ExecutorProperty result)
         USERAUTH_HILOGE(MODULE_SERVICE, "userauth result = %{public}d", result);
     }
     return;
-}
-
-void UserAuthAsyncProxy::WriteFailResult(const ExecutorProperty &result, ExecutorProperty &resultFail,
-                                         MessageParcel &data)
-{
-    resultFail.authSubType = PIN_SIX;
-    resultFail.freezingTime = 0;
-    resultFail.remainTimes = 0;
-    if (!data.WriteInt32(result.result)) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteInt32(result.result).");
-        return;
-    }
-    if (!data.WriteUint64(resultFail.authSubType)) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint64(resultFail.authSubType).");
-        return;
-    }
-    if (!data.WriteUint32(resultFail.remainTimes)) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(resultFail.remainTimes).");
-        return;
-    }
-    if (!data.WriteUint32(resultFail.freezingTime)) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(resultFail.freezingTime).");
-        return;
-    }
 }
 
 void UserAuthAsyncProxy::onSetExecutorProperty(const int32_t result)

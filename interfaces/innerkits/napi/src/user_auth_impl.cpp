@@ -72,14 +72,35 @@ napi_value UserAuthImpl::GetAvailabeStatus(napi_env env, napi_callback_info info
 
 napi_value UserAuthImpl::GetProperty(napi_env env, napi_callback_info info)
 {
+    AsyncHolder *asyncHolder = new (std::nothrow) AsyncHolder();
+    if (asyncHolder == nullptr) {
+        HILOG_ERROR("%{public}s asyncHolder nullptr", __func__);
+        return nullptr;
+    }
     GetPropertyInfo *getPropertyInfo = new (std::nothrow) GetPropertyInfo();
+    if (getPropertyInfo == nullptr) {
+        delete asyncHolder;
+        HILOG_ERROR("%{public}s getPropertyInfo nullptr", __func__);
+        return nullptr;
+    }
     getPropertyInfo->callBackInfo.env = env;
-    return GetPropertyWrap(env, info, getPropertyInfo);
+    asyncHolder->data = getPropertyInfo;
+    napi_value ret = GetPropertyWrap(env, info, asyncHolder);
+    if (ret == nullptr) {
+        HILOG_ERROR("%{public}s GetPropertyWrap fail", __func__);
+        delete getPropertyInfo;
+        delete asyncHolder;
+        if (asyncHolder->asyncWork != nullptr) {
+            napi_delete_async_work(env, asyncHolder->asyncWork);
+        }
+    }
+    return ret;
 }
 
-napi_value UserAuthImpl::GetPropertyWrap(napi_env env, napi_callback_info info, GetPropertyInfo *getPropertyInfo)
+napi_value UserAuthImpl::GetPropertyWrap(napi_env env, napi_callback_info info, AsyncHolder *asyncHolder)
 {
     HILOG_INFO("%{public}s, called", __func__);
+    GetPropertyInfo *getPropertyInfo = reinterpret_cast<GetPropertyInfo *>(asyncHolder->data);
     size_t argcAsync = ARGS_TWO;
     const size_t argcPromise = ARGS_ONE;
     const size_t argCountWithAsync = argcPromise + ARGS_ASYNC_COUNT;
@@ -96,18 +117,16 @@ napi_value UserAuthImpl::GetPropertyWrap(napi_env env, napi_callback_info info, 
             NAPI_CALL(env, napi_create_reference(env, args[PARAM1], 1, &(getPropertyInfo->callBackInfo.callBack)));
         }
     }
-
     if (authBuild.NapiTypeObject(env, args[PARAM0])) {
         Napi_GetPropertyRequest request = authBuild.GetPropertyRequestBuild(env, args[0]);
         getPropertyInfo->authType = request.authType_;
         getPropertyInfo->keys = request.keys_;
     }
-
-    napi_value ret = 0;
+    napi_value ret = nullptr;
     if (argcAsync > argcPromise) {
-        ret = GetPropertyAsync(env, getPropertyInfo);
+        ret = GetPropertyAsync(env, asyncHolder);
     } else {
-        ret = GetPropertyPromise(env, getPropertyInfo);
+        ret = GetPropertyPromise(env, asyncHolder);
     }
     HILOG_INFO("%{public}s,end.", __func__);
     return ret;
@@ -116,66 +135,66 @@ napi_value UserAuthImpl::GetPropertyWrap(napi_env env, napi_callback_info info, 
 void UserAuthImpl::GetPropertyExecute(napi_env env, void *data)
 {
     HILOG_INFO("GetPropertyExecute, worker pool thread execute.");
-    GetPropertyInfo *getPropertyInfo = static_cast<GetPropertyInfo *>(data);
-    if (getPropertyInfo != nullptr) {
-        AuthType authTypeGet = AuthType(getPropertyInfo->authType);
-
-        GetPropertyRequest request;
-        request.authType = authTypeGet;
-        request.keys = getPropertyInfo->keys;
-        HILOG_INFO("GetPropertyExecute start 1");
-        AuthApiCallback *object = new AuthApiCallback();
-        object->getPropertyInfo_ = getPropertyInfo;
-        std::shared_ptr<AuthApiCallback> callback;
-        callback.reset(object);
-        UserAuth::GetInstance().GetProperty(request, callback);
-    } else {
-        HILOG_ERROR("GetPropertyExecute, asynccallBackInfo == nullptr");
+    AsyncHolder *asyncHolder = reinterpret_cast<AsyncHolder *>(data);
+    if (asyncHolder == nullptr) {
+        HILOG_ERROR("GetPropertyExecute, asyncHolder == nullptr");
+        return;
     }
+    GetPropertyInfo *getPropertyInfo = reinterpret_cast<GetPropertyInfo *>(asyncHolder->data);
+    if (getPropertyInfo == nullptr) {
+        HILOG_ERROR("GetPropertyExecute, getPropertyInfo == nullptr");
+        return;
+    }
+    AuthType authTypeGet = AuthType(getPropertyInfo->authType);
+
+    GetPropertyRequest request;
+    request.authType = authTypeGet;
+    request.keys = getPropertyInfo->keys;
+    HILOG_INFO("GetPropertyExecute start 1");
+    AuthApiCallback *object = new AuthApiCallback();
+    object->getPropertyInfo_ = getPropertyInfo;
+    std::shared_ptr<AuthApiCallback> callback;
+    callback.reset(object);
+    UserAuth::GetInstance().GetProperty(request, callback);
     HILOG_INFO("GetPropertyExecute, worker pool thread execute end.");
 }
 
 void UserAuthImpl::GetPropertyPromiseExecuteDone(napi_env env, napi_status status, void *data)
 {
     HILOG_INFO("GetPropertyPromiseExecuteDone, start");
-    GetPropertyInfo *getPropertyInfo = static_cast<GetPropertyInfo *>(data);
-    napi_delete_async_work(env, getPropertyInfo->asyncWork);
+    AsyncHolder *asyncHolder = reinterpret_cast<AsyncHolder *>(data);
+    napi_delete_async_work(env, asyncHolder->asyncWork);
+    delete asyncHolder;
     HILOG_INFO("GetPropertyPromiseExecuteDone, end");
 }
 
 void UserAuthImpl::GetPropertyAsyncExecuteDone(napi_env env, napi_status status, void *data)
 {
     HILOG_INFO("GetPropertyAsyncExecuteDone, start");
-    GetPropertyInfo *getPropertyInfo = static_cast<GetPropertyInfo *>(data);
-    napi_delete_async_work(env, getPropertyInfo->asyncWork);
+    AsyncHolder *asyncHolder = reinterpret_cast<AsyncHolder *>(data);
+    napi_delete_async_work(env, asyncHolder->asyncWork);
+    delete asyncHolder;
     HILOG_INFO("GetPropertyAsyncExecuteDone, end");
 }
 
-napi_value UserAuthImpl::GetPropertyAsync(napi_env env, GetPropertyInfo *getPropertyInfo)
+napi_value UserAuthImpl::GetPropertyAsync(napi_env env, AsyncHolder *asyncHolder)
 {
     HILOG_INFO("%{public}s, asyncCallback.", __func__);
-    if (getPropertyInfo == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
-        return nullptr;
-    }
-    napi_value resourceName = 0;
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_get_null(env, &result));
+    napi_value resourceName = nullptr;
     NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, GetPropertyExecute, GetPropertyAsyncExecuteDone,
-        (void *)getPropertyInfo, &getPropertyInfo->asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, getPropertyInfo->asyncWork));
-    napi_value result = 0;
-    NAPI_CALL(env, napi_get_null(env, &result));
+        (void *)asyncHolder, &asyncHolder->asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, asyncHolder->asyncWork));
     HILOG_INFO("%{public}s, asyncCallback end.", __func__);
     return result;
 }
 
-napi_value UserAuthImpl::GetPropertyPromise(napi_env env, GetPropertyInfo *getPropertyInfo)
+napi_value UserAuthImpl::GetPropertyPromise(napi_env env, AsyncHolder *asyncHolder)
 {
     HILOG_INFO("%{public}s, promise.", __func__);
-    if (getPropertyInfo == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
-        return nullptr;
-    }
+    GetPropertyInfo *getPropertyInfo = reinterpret_cast<GetPropertyInfo *>(asyncHolder->data);
     napi_value resourceName = 0;
     NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     napi_deferred deferred;
@@ -183,24 +202,44 @@ napi_value UserAuthImpl::GetPropertyPromise(napi_env env, GetPropertyInfo *getPr
     NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
     getPropertyInfo->callBackInfo.callBack = nullptr;
     getPropertyInfo->callBackInfo.deferred = deferred;
-
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, GetPropertyExecute, GetPropertyPromiseExecuteDone,
-        (void *)getPropertyInfo, &getPropertyInfo->asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, getPropertyInfo->asyncWork));
+        (void *)asyncHolder, &asyncHolder->asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, asyncHolder->asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }
 
 napi_value UserAuthImpl::SetProperty(napi_env env, napi_callback_info info)
 {
+    AsyncHolder *asyncHolder = new (std::nothrow) AsyncHolder();
+    if (asyncHolder == nullptr) {
+        HILOG_ERROR("%{public}s asyncHolder nullptr", __func__);
+        return nullptr;
+    }
     SetPropertyInfo *setPropertyInfo = new (std::nothrow) SetPropertyInfo();
+    if (setPropertyInfo == nullptr) {
+        delete asyncHolder;
+        HILOG_ERROR("%{public}s setPropertyInfo nullptr", __func__);
+        return nullptr;
+    }
     setPropertyInfo->callBackInfo.env = env;
-    return SetPropertyWrap(env, info, setPropertyInfo);
+    asyncHolder->data = setPropertyInfo;
+    napi_value ret = SetPropertyWrap(env, info, asyncHolder);
+    if (ret == nullptr) {
+        HILOG_ERROR("%{public}s SetPropertyWrap fail", __func__);
+        delete setPropertyInfo;
+        delete asyncHolder;
+        if (asyncHolder->asyncWork != nullptr) {
+            napi_delete_async_work(env, asyncHolder->asyncWork);
+        }
+    }
+    return ret;
 }
 
-napi_value UserAuthImpl::SetPropertyWrap(napi_env env, napi_callback_info info, SetPropertyInfo *setPropertyInfo)
+napi_value UserAuthImpl::SetPropertyWrap(napi_env env, napi_callback_info info, AsyncHolder *asyncHolder)
 {
     HILOG_INFO("%{public}s, called", __func__);
+    SetPropertyInfo *setPropertyInfo = reinterpret_cast<SetPropertyInfo *>(asyncHolder->data);
     size_t argcAsync = ARGS_TWO;
     const size_t argcPromise = ARGS_ONE;
     const size_t argCountWithAsync = argcPromise + ARGS_ASYNC_COUNT;
@@ -227,9 +266,9 @@ napi_value UserAuthImpl::SetPropertyWrap(napi_env env, napi_callback_info info, 
 
     napi_value ret = 0;
     if (argcAsync > argcPromise) {
-        ret = SetPropertyAsync(env, setPropertyInfo);
+        ret = SetPropertyAsync(env, asyncHolder);
     } else {
-        ret = SetPropertyPromise(env, setPropertyInfo);
+        ret = SetPropertyPromise(env, asyncHolder);
     }
     HILOG_INFO("%{public}s,end.", __func__);
     return ret;
@@ -238,86 +277,83 @@ napi_value UserAuthImpl::SetPropertyWrap(napi_env env, napi_callback_info info, 
 void UserAuthImpl::SetPropertyExecute(napi_env env, void *data)
 {
     HILOG_INFO("setPropertyExecute, worker pool thread execute.");
-    SetPropertyInfo *setPropertyInfo = static_cast<SetPropertyInfo *>(data);
-    if (setPropertyInfo != nullptr) {
-        AuthType authTypeGet = AuthType(setPropertyInfo->authType);
-
-        SetPropertyRequest request;
-        request.authType = authTypeGet;
-        request.key = SetPropertyType(setPropertyInfo->key);
-        request.setInfo = setPropertyInfo->setInfo;
-        AuthApiCallback *object = new AuthApiCallback();
-        object->setPropertyInfo_ = setPropertyInfo;
-        std::shared_ptr<AuthApiCallback> callback;
-        callback.reset(object);
-        UserAuth::GetInstance().SetProperty(request, callback);
-    } else {
-        HILOG_ERROR("setPropertyExecute, asynccallBackInfo == nullptr");
+    AsyncHolder *asyncHolder = reinterpret_cast<AsyncHolder *>(data);
+    if (asyncHolder == nullptr) {
+        HILOG_ERROR("SetPropertyExecute, asyncHolder == nullptr");
+        return;
     }
+    SetPropertyInfo *setPropertyInfo = reinterpret_cast<SetPropertyInfo *>(asyncHolder->data);
+    if (setPropertyInfo == nullptr) {
+        HILOG_ERROR("SetPropertyExecute, setPropertyInfo == nullptr");
+        return;
+    }
+    AuthType authTypeGet = AuthType(setPropertyInfo->authType);
+    SetPropertyRequest request;
+    request.authType = authTypeGet;
+    request.key = SetPropertyType(setPropertyInfo->key);
+    request.setInfo = setPropertyInfo->setInfo;
+    AuthApiCallback *object = new AuthApiCallback();
+    object->setPropertyInfo_ = setPropertyInfo;
+    std::shared_ptr<AuthApiCallback> callback;
+    callback.reset(object);
+    UserAuth::GetInstance().SetProperty(request, callback);
     HILOG_INFO("setPropertyExecute, worker pool thread execute end.");
 }
 
 void UserAuthImpl::SetPropertyPromiseExecuteDone(napi_env env, napi_status status, void *data)
 {
     HILOG_INFO("SetPropertyPromiseExecuteDone, start");
-    SetPropertyInfo *setPropertyInfo = static_cast<SetPropertyInfo *>(data);
-    napi_delete_async_work(env, setPropertyInfo->asyncWork);
+    AsyncHolder *asyncHolder = reinterpret_cast<AsyncHolder *>(data);
+    napi_delete_async_work(env, asyncHolder->asyncWork);
+    delete asyncHolder;
     HILOG_INFO("SetPropertyPromiseExecuteDone, end");
 }
 
 void UserAuthImpl::SetPropertyAsyncExecuteDone(napi_env env, napi_status status, void *data)
 {
     HILOG_INFO("SetPropertyAsyncExecuteDone, start");
-    SetPropertyInfo *setPropertyInfo = static_cast<SetPropertyInfo *>(data);
-    napi_delete_async_work(env, setPropertyInfo->asyncWork);
+    AsyncHolder *asyncHolder = reinterpret_cast<AsyncHolder *>(data);
+    napi_delete_async_work(env, asyncHolder->asyncWork);
+    delete asyncHolder;
     HILOG_INFO("SetPropertyAsyncExecuteDone, end");
 }
 
-napi_value UserAuthImpl::SetPropertyAsync(napi_env env, SetPropertyInfo *setPropertyInfo)
+napi_value UserAuthImpl::SetPropertyAsync(napi_env env, AsyncHolder *asyncHolder)
 {
     HILOG_INFO("%{public}s, asyncCallback.", __func__);
-    if (setPropertyInfo == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
-        return nullptr;
-    }
-    napi_value resourceName = 0;
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_get_null(env, &result));
+    napi_value resourceName = nullptr;
     NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, SetPropertyExecute, SetPropertyAsyncExecuteDone,
-        (void *)setPropertyInfo, &setPropertyInfo->asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, setPropertyInfo->asyncWork));
-    napi_value result = 0;
-    NAPI_CALL(env, napi_get_null(env, &result));
+        (void *)asyncHolder, &asyncHolder->asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, asyncHolder->asyncWork));
     HILOG_INFO("%{public}s, asyncCallback end.", __func__);
     return result;
 }
 
-napi_value UserAuthImpl::SetPropertyPromise(napi_env env, SetPropertyInfo *setPropertyInfo)
+napi_value UserAuthImpl::SetPropertyPromise(napi_env env, AsyncHolder *asyncHolder)
 {
     HILOG_INFO("%{public}s, promise.", __func__);
-    if (setPropertyInfo == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
-        return nullptr;
-    }
+    SetPropertyInfo *setPropertyInfo = reinterpret_cast<SetPropertyInfo *>(asyncHolder->data);
     napi_value resourceName = 0;
     NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     napi_deferred deferred;
-    napi_value promise = 0;
+    napi_value promise = nullptr;
     NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
     setPropertyInfo->callBackInfo.callBack = nullptr;
     setPropertyInfo->callBackInfo.deferred = deferred;
-
-    NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, SetPropertyExecute, SetPropertyPromiseExecuteDone,
-        (void *)setPropertyInfo, &setPropertyInfo->asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, setPropertyInfo->asyncWork));
+    NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName,
+        SetPropertyExecute, SetPropertyPromiseExecuteDone, (void *)asyncHolder, &asyncHolder->asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, asyncHolder->asyncWork));
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }
 
-napi_value UserAuthImpl::Auth(napi_env env, napi_callback_info info)
+napi_value UserAuthImpl::BuildAuthInfo(napi_env env, AuthInfo *authInfo)
 {
-    HILOG_INFO("%{public}s, start", __func__);
-    AuthInfo *authInfo = new (std::nothrow) AuthInfo();
-    authInfo->info = info;
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_get_null(env, &result));
     authInfo->callBackInfo.env = env;
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
@@ -347,16 +383,30 @@ napi_value UserAuthImpl::Auth(napi_env env, napi_callback_info info)
         NAPI_CALL(env, napi_get_named_property(env, argv[PARAM3], "onAcquireInfo", &authInfo->onAcquireInfoCallBack));
         NAPI_CALL(env, napi_create_reference(env, authInfo->onAcquireInfoCallBack, PARAM1, &authInfo->onAcquireInfo));
     }
+    return result;
+}
+
+napi_value UserAuthImpl::Auth(napi_env env, napi_callback_info info)
+{
+    HILOG_INFO("%{public}s, start", __func__);
+    AuthInfo *authInfo = new (std::nothrow) AuthInfo();
+    if (authInfo == nullptr) {
+        HILOG_INFO("%{public}s authInfo nullptr", __func__);
+        return nullptr;
+    }
+    authInfo->info = info;
+    napi_value ret = BuildAuthInfo(env, authInfo);
+    if (ret == nullptr) {
+        HILOG_INFO("%{public}s BuildAuthInfo fail", __func__);
+        delete authInfo;
+        return ret;
+    }
     return AuthWrap(env, authInfo);
 }
 
 napi_value UserAuthImpl::AuthWrap(napi_env env, AuthInfo *authInfo)
 {
     HILOG_INFO("%{public}s, start.", __func__);
-    if (authInfo == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
-        return nullptr;
-    }
     AuthApiCallback *object = new AuthApiCallback();
     object->authInfo_ = authInfo;
     object->userInfo_ = nullptr;
@@ -374,8 +424,25 @@ napi_value UserAuthImpl::AuthUser(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s, start.", __func__);
     AuthUserInfo *userInfo = new (std::nothrow) AuthUserInfo();
+    if (userInfo == nullptr) {
+        HILOG_INFO("%{public}s userInfo nullptr", __func__);
+        return nullptr;
+    }
     userInfo->callBackInfo.env = env;
     userInfo->info = info;
+    napi_value ret = BuildAuthUserInfo(env, userInfo);
+    if (ret == nullptr) {
+        HILOG_INFO("%{public}s BuildAuthUserInfo fail", __func__);
+        delete userInfo;
+        return ret;
+    }
+    return AuthUserWrap(env, userInfo);
+}
+
+napi_value UserAuthImpl::BuildAuthUserInfo(napi_env env, AuthUserInfo *userInfo)
+{
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_get_null(env, &result));
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, userInfo->info, &argc, argv, nullptr, nullptr));
@@ -407,16 +474,12 @@ napi_value UserAuthImpl::AuthUser(napi_env env, napi_callback_info info)
         NAPI_CALL(env, napi_get_named_property(env, argv[PARAM4], "onAcquireInfo", &userInfo->onAcquireInfoCallBack));
         NAPI_CALL(env, napi_create_reference(env, userInfo->onAcquireInfoCallBack, PARAM1, &userInfo->onAcquireInfo));
     }
-    return AuthUserWrap(env, userInfo);
+    return result;
 }
 
 napi_value UserAuthImpl::AuthUserWrap(napi_env env, AuthUserInfo *userInfo)
 {
     HILOG_INFO("%{public}s, start.", __func__);
-    if (userInfo == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
-        return nullptr;
-    }
     AuthApiCallback *object = new AuthApiCallback();
     object->authInfo_ = nullptr;
     object->userInfo_ = userInfo;
