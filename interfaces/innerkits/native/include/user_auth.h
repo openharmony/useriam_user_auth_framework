@@ -44,9 +44,9 @@ public:
 private:
     class UserAuthDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
-            UserAuthDeathRecipient() = default;
-            ~UserAuthDeathRecipient() = default;
-            void OnRemoteDied(const wptr<IRemoteObject>& remote) override;
+        UserAuthDeathRecipient() = default;
+        ~UserAuthDeathRecipient() = default;
+        void OnRemoteDied(const wptr<IRemoteObject>& remote) override;
 
     private:
         DISALLOW_COPY_AND_MOVE(UserAuthDeathRecipient);
