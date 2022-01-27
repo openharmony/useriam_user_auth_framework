@@ -23,12 +23,12 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-// 认证的类型(口令,人脸)
+// Type of authentication (password, face)
 enum AuthType: uint32_t {
     PIN = 1,
     FACE = 2,
 };
-// 认证子类型(2D人脸,3D人脸...)
+// Authentication subtype (2D face, 3D face...)
 enum AuthSubType: uint64_t {
     /**
      * Authentication sub type six number pin.
@@ -51,7 +51,7 @@ enum AuthSubType: uint64_t {
      */
     FACE_3D = 20001
 };
-// 认证结果可信等级
+// Certification result confidence level
 enum AuthTurstLevel: uint32_t {
     // level 1-4
     ATL1 = 10000,
@@ -59,48 +59,50 @@ enum AuthTurstLevel: uint32_t {
     ATL3 = 30000,
     ATL4 = 40000
 };
-// 执行器属性列表
+// Actuator get property list
 enum GetPropertyType: uint32_t {
-    // 认证子类型(此时认证类型已确认)
+    // Authentication subtype (at this point the authentication type has been confirmed)
     AUTH_SUB_TYPE = 1,
-    // 剩余认证次数
+    // Remaining authentication times
     REMAIN_TIMES = 2,
-    // 冻结时间
+    // Freeze time
     FREEZING_TIME = 3,
 };
-// 获得属性请求
+// get attribute request
 struct GetPropertyRequest {
     AuthType authType;
     // GetPropertyType
     std::vector<uint32_t> keys;
 };
-// 执行器属性
+// Actuator properties
 struct ExecutorProperty {
     int32_t result;
     AuthSubType authSubType;
     uint32_t remainTimes;
     uint32_t freezingTime;
 };
-// 执行器属性列表
+// Actuator property mode list
 enum AuthPropertyMode: uint32_t {
-        PROPERMODE_DELETE = 0,
-        PROPERMODE_GET = 1,
-        PROPERMODE_SET = 2,
-        PROPERMODE_FREEZE = 3,
-        PROPERMODE_UNFREEZE = 4,
+    PROPERMODE_DELETE = 0,
+    PROPERMODE_GET = 1,
+    PROPERMODE_SET = 2,
+    PROPERMODE_FREEZE = 3,
+    PROPERMODE_UNFREEZE = 4,
+    PROPERMODE_INIT_ALGORITHM = 5,
+    PROPERMODE_RELEASE_ALGORITHM = 6,
 };
-// 执行器属性列表
+// Actuator property list
 enum SetPropertyType: uint32_t {
-        INIT_ALGORITHM = 1,
-        FREEZE_TEMPLATE = 2,
-        THAW_TEMPLATE = 3,
+    INIT_ALGORITHM = 1,
+    FREEZE_TEMPLATE = 2,
+    THAW_TEMPLATE = 3,
 };
 struct SetPropertyRequest {
     AuthType authType;
     SetPropertyType key;
     std::vector<uint8_t> setInfo;
 };
-// 认证结果
+// Authentication Result
 struct AuthResult {
     std::vector<uint8_t> token;
     uint32_t remainTimes;
@@ -121,7 +123,7 @@ struct FreezInfo {
     AuthType authType;
 };
 
-// 结果码
+// Result Code
 enum ResultCode: int32_t {
     /**
      * Indicates that authentication is success or ability is supported.

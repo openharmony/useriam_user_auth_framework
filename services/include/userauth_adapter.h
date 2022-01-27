@@ -45,20 +45,24 @@ public:
     void CoauthSetPropAuthInfo(int32_t resultCode, uint64_t callerUID, std::string pkgName, UserAuthToken authToken,
                                SetPropertyRequest requset, sptr<IUserAuthCallback>& callback);
 
-    /* Set the executor authentication properties */
+    /* Set the executor authentication properties for freez or unfreez */
     void SetPropAuthInfo(uint64_t callerUID, std::string pkgName, int32_t resultCode, UserAuthToken authToken,
                          SetPropertyRequest requset, std::vector<uint64_t> templateIds,
                          sptr<IUserAuthCallback>& callback);
+    /* get the executor authentication properties for Coauth */
     void GetPropAuthInfoCoauth(uint64_t callerUID, std::string pkgName, int32_t resultCode, UserAuthToken authToken,
                          GetPropertyRequest requset, sptr<IUserAuthCallback>& callback);
+    /* get userID */
     int32_t GetUserID(int32_t &userID);
     int32_t GenerateSolution(AuthSolution param, std::vector<uint64_t> &sessionIds);
     int32_t RequestAuthResult(uint64_t contextId, std::vector<uint8_t> scheduleToken,
                               UserAuthToken &authToken, std::vector<uint64_t> &sessionIds);
     int32_t CancelContext(uint64_t contextId, std::vector<uint64_t> &sessionIds);
     int32_t Cancel(uint64_t sessionId);
+    /* get the executor authentication properties */
     int32_t GetExecutorProp(uint64_t callerUID, std::string pkgName, uint64_t templateId, GetPropertyRequest requset,
                             ExecutorProperty &result);
+    /* Set the executor authentication properties */
     int32_t SetExecutorProp(uint64_t callerUID, std::string pkgName, SetPropertyRequest requset,
                             sptr<IUserAuthCallback>& callback);
     int32_t GetVersion();
