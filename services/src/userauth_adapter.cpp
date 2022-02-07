@@ -94,7 +94,7 @@ int32_t UserAuthAdapter::SetProPropAuthInfo(OHOS::UserIAM::AuthResPool::AuthAttr
         setPropCallback->OnResult(ret, extraInfo);
         return ret;
     }
-    value = requset.key ==SetPropertyType::FREEZE_TEMPLATE ?
+    value = requset.key == SetPropertyType::FREEZE_TEMPLATE ?
         static_cast<uint32_t>(AuthPropertyMode::PROPERMODE_FREEZE)
         : static_cast<uint32_t>(AuthPropertyMode::PROPERMODE_UNFREEZE);
     ret = authAttributes.SetUint32Value(AUTH_PROPERTY_MODE, value);
@@ -331,7 +331,10 @@ int32_t UserAuthAdapter::SetExecutorProp(uint64_t callerUID, std::string pkgName
 
     std::shared_ptr<CoAuth::SetPropCallback> setPropCallback = std::make_shared<UserAuthCallbackImplSetProp>(callback);
     OHOS::UserIAM::AuthResPool::AuthAttributes pAuthAttributes;
-    int32_t ret = pAuthAttributes.SetUint32Value(AUTH_PROPERTY_MODE, PROPERMODE_SET);
+    uint32_t value = requset.key == SetPropertyType::INIT_ALGORITHM ?
+        static_cast<uint32_t>(AuthPropertyMode::PROPERMODE_INIT_ALGORITHM)
+        : static_cast<uint32_t>(AuthPropertyMode::PROPERMODE_RELEASE_ALGORITHM);
+    int32_t ret = pAuthAttributes.SetUint32Value(AUTH_PROPERTY_MODE, value);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth SetUint32Value SET_AUTH_PROPERTY_MODE ERROR!");
         return ret;
@@ -355,7 +358,7 @@ int32_t UserAuthAdapter::SetExecutorProp(uint64_t callerUID, std::string pkgName
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth SetUint32Value AUTH_TYPE ERROR!");
         return ret;
     }
-    ret = pAuthAttributes.SetUint8ArrayValue(AUTH_SIGNATURE, requset.setInfo);
+    ret = pAuthAttributes.SetUint8ArrayValue(ALGORITHM_INFO, requset.setInfo);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth SetUint8ArrayValue init ERROR!");
         return ret;
