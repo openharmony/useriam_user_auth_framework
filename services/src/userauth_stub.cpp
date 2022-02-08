@@ -103,7 +103,7 @@ int32_t UserAuthStub::GetPropertyStub(MessageParcel& data, MessageParcel& reply)
 
     sptr<IUserAuthCallback> callback = iface_cast<IUserAuthCallback>(obj);
     if (callback == nullptr) {
-        return E_READ_PARCEL_ERROR;
+        return FAIL;
     }
 
     GetProperty(getPropertyRequest, callback);
@@ -142,7 +142,7 @@ int32_t UserAuthStub::SetPropertyStub(MessageParcel& data, MessageParcel& reply)
 
     sptr<IUserAuthCallback> callback = iface_cast<IUserAuthCallback>(obj);
     if (callback == nullptr) {
-        return E_READ_PARCEL_ERROR;
+        return FAIL;
     }
 
     SetProperty(setPropertyRequest, callback);
@@ -177,7 +177,7 @@ int32_t UserAuthStub::AuthStub(MessageParcel& data, MessageParcel& reply)
 
     sptr<IUserAuthCallback> callback = iface_cast<IUserAuthCallback>(obj);
     if (callback == nullptr) {
-        return E_READ_PARCEL_ERROR;
+        return FAIL;
     }
 
     ret = Auth(challenge, static_cast<AuthType>(authType), static_cast<AuthTurstLevel>(authTurstLevel), callback);
@@ -221,7 +221,7 @@ int32_t UserAuthStub::AuthUserStub(MessageParcel& data, MessageParcel& reply)
 
     sptr<IUserAuthCallback> callback = iface_cast<IUserAuthCallback>(obj);
     if (callback == nullptr) {
-        return E_READ_PARCEL_ERROR;
+        return FAIL;
     }
 
     ret = AuthUser(userID, challenge, static_cast<AuthType>(authType),

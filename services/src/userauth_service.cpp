@@ -77,6 +77,7 @@ int32_t UserAuthService::GetAvailableStatus(const AuthType authType, const AuthT
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService GetAvailableStatus GetUserID is ERROR!");
         return result;
     }
+
     ret = userauthController_.GetAuthTrustLevel(userID, authType, authTurstLevelFromSys);
     if (ret == SUCCESS) {
         USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthService  iAuthTurstLevel_:%{public}d", authTurstLevelFromSys);
@@ -100,13 +101,13 @@ void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAu
         return ;
     }
 
-    callerID = this->GetCallingUid();
-    callerName = std::to_string(callerID);
-
     sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
     if ((!callback->AsObject()->AddDeathRecipient(dr))) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
     }
+
+    callerID = this->GetCallingUid();
+    callerName = std::to_string(callerID);
 
     userauthController_.GetPropAuthInfo(callerName, callerID, request, callback);
 }
@@ -122,13 +123,14 @@ void UserAuthService::SetProperty(const SetPropertyRequest request, sptr<IUserAu
         return ;
     }
 
-    callerID = this->GetCallingUid();
-    callerName = std::to_string(callerID);
-
     sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
     if ((!callback->AsObject()->AddDeathRecipient(dr))) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
     }
+
+    callerID = this->GetCallingUid();
+    callerName = std::to_string(callerID);
+
     ret = userauthController_.SetExecutorProp(callerID, callerName, request, callback);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService SetExecutorProp getUserID is ERROR!");
@@ -151,15 +153,23 @@ uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType
     AuthSolution authSolutionParam;
     CoAuthInfo coAuthInfo;
     AuthResult extraInfo;
+
+    sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
+    if ((!callback->AsObject()->AddDeathRecipient(dr))) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
+    }
+
     if (GetControllerData(callback, extraInfo, authTurstLevel, callerID, callerName, contextID) == FAIL) {
         return ret;
     }
+
     result = userauthController_.GetUserID(userID);
     if (result != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService Auth GetUserID is ERROR!");
         callback->onResult(FAIL, extraInfo);
         return ret;
     }
+
     authSolutionParam.contextId = contextID;
     authSolutionParam.userId = userID;
     authSolutionParam.authTrustLevel = authTurstLevel;
@@ -171,14 +181,11 @@ uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType
         callback->onResult(result, extraInfo);
         return ret;
     }
+
     coAuthInfo.authType = authType;
     coAuthInfo.callerID = callerID;
     coAuthInfo.contextID = contextID;
     coAuthInfo.pkgName = callerName;
-    sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
-    if ((!callback->AsObject()->AddDeathRecipient(dr))) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
-    }
     result = userauthController_.coAuth(coAuthInfo, callback);
     if (result != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService Auth coAuth is ERROR!");
@@ -201,9 +208,16 @@ uint64_t UserAuthService::AuthUser(const int32_t userId, const uint64_t challeng
     AuthSolution authSolutionParam;
     CoAuthInfo coAuthInfo;
     AuthResult extraInfo;
+
+    sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
+    if ((!callback->AsObject()->AddDeathRecipient(dr))) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
+    }
+
     if (GetControllerData(callback, extraInfo, authTurstLevel, callerID, callerName, contextID) == FAIL) {
         return ret;
     }
+
     authSolutionParam.contextId = contextID;
     authSolutionParam.userId = userId;
     authSolutionParam.authTrustLevel = authTurstLevel;
@@ -216,14 +230,11 @@ uint64_t UserAuthService::AuthUser(const int32_t userId, const uint64_t challeng
         callback->onResult(result, extraInfo);
         return ret;
     }
+
     coAuthInfo.authType = authType;
     coAuthInfo.callerID = callerID;
     coAuthInfo.contextID = contextID;
     coAuthInfo.pkgName = callerName;
-    sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
-    if ((!callback->AsObject()->AddDeathRecipient(dr))) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
-    }
     result = userauthController_.coAuth(coAuthInfo, callback);
     if (result != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService AuthUser coAuth is ERROR!");
@@ -287,8 +298,8 @@ int32_t UserAuthService::CancelAuth(const uint64_t contextId)
 
     result = userauthController_.CancelContext(contextId, sessionIds);
     if (result == SUCCESS) {
-        for (std::vector<uint64_t>::iterator iter = sessionIds.begin(); iter != sessionIds.end(); iter++) {
-            result = userauthController_.Cancel(*iter);
+        for (auto const &item : sessionIds) {
+            result = userauthController_.Cancel(item);
             if (result != SUCCESS) {
                 USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService CancelAuth Cancel is ERROR!");
                 return result;
