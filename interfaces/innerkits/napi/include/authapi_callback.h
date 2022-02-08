@@ -37,20 +37,12 @@ typedef struct AcquireInfoInner {
 } AcquireInfoInner;
 class AuthApiCallback : public UserAuthCallback {
 public:
-    AuthApiCallback();
+    AuthApiCallback(AuthInfo *authInfo);
+    AuthApiCallback(AuthUserInfo *userInfo);
     virtual ~AuthApiCallback();
-    GetPropertyInfo *getPropertyInfo_;
-    SetPropertyInfo *setPropertyInfo_;
-    AuthInfo *authInfo_;
-    AuthUserInfo *userInfo_;
-    void onExecutorPropertyInfo(const ExecutorProperty result) override;
     void onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo) override;
     void onResult(const int32_t result, const AuthResult extraInfo) override;
-    void onSetExecutorProperty(const int32_t result) override;
 
-    static napi_value BuildExecutorProperty(
-        napi_env env, int32_t result, uint32_t remainTimes, uint32_t freezingTime, uint64_t authSubType);
-    static napi_value Uint64ToNapi(napi_env env, uint64_t value);
     static napi_value BuildOnResult(
         napi_env env, uint32_t remainTimes, uint32_t freezingTime, std::vector<uint8_t> token);
     static napi_value Uint8ArrayToNapi(napi_env env, std::vector<uint8_t> value);
@@ -59,6 +51,32 @@ private:
     void OnAuthAcquireInfo(AcquireInfoInner *acquireInfoInner);
     void OnUserAuthResult(const int32_t result, const AuthResult extraInfo);
     void OnAuthResult(const int32_t result, const AuthResult extraInfo);
+
+    AuthInfo *authInfo_;
+    AuthUserInfo *userInfo_;
+};
+
+class GetPropApiCallback : public GetPropCallback {
+public:
+    GetPropApiCallback(GetPropertyInfo *getPropertyInfo);
+    virtual ~GetPropApiCallback();
+    void onGetProperty(const ExecutorProperty result) override;
+
+    static napi_value BuildExecutorProperty(
+        napi_env env, int32_t result, uint32_t remainTimes, uint32_t freezingTime, uint64_t authSubType);
+
+private:
+    GetPropertyInfo *getPropertyInfo_;
+};
+
+class SetPropApiCallback : public SetPropCallback {
+public:
+    SetPropApiCallback(SetPropertyInfo *setPropertyInfo);
+    virtual ~SetPropApiCallback();
+    void onSetProperty(const int32_t result) override;
+
+private:
+    SetPropertyInfo *setPropertyInfo_;
 };
 } // namespace UserAuth
 } // namespace UserIAM

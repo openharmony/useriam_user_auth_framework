@@ -95,35 +95,35 @@ int32_t UserAuth::GetAvailableStatus(const AuthType authType, const AuthTurstLev
     return ret;
 }
 
-void UserAuth::GetProperty(const GetPropertyRequest request, std::shared_ptr<UserAuthCallback> callback)
+void UserAuth::GetProperty(const GetPropertyRequest request, std::shared_ptr<GetPropCallback> callback)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauth GetProperty is start");
-    auto proxy = GetProxy();
-    if (proxy == nullptr) {
-        callback->onSetExecutorProperty(E_RET_NOSERVER);
-        return ;
-    }
     if (callback == nullptr) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "userauth GetProperty callback is Null");
+        return;
     }
-
+    auto proxy = GetProxy();
+    if (proxy == nullptr) {
+        ExecutorProperty result = {};
+        result.result = E_RET_NOSERVER;
+        callback->onGetProperty(result);
+        return ;
+    }
     sptr<IUserAuthCallback> asyncStub = new UserAuthAsyncStub(callback);
     proxy_->GetProperty(request, asyncStub);
 }
-void UserAuth::SetProperty(const SetPropertyRequest request, std::shared_ptr<UserAuthCallback> callback)
+void UserAuth::SetProperty(const SetPropertyRequest request, std::shared_ptr<SetPropCallback> callback)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauth SetProperty is start");
-    auto proxy = GetProxy();
-    if (proxy == nullptr) {
-        ExecutorProperty result;
-        result.result = E_RET_NOSERVER;
-        callback->onExecutorPropertyInfo(result);
-        return ;
-    }
     if (callback == nullptr) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "userauth SetProperty callback is Null");
+        return;
     }
-
+    auto proxy = GetProxy();
+    if (proxy == nullptr) {
+        callback->onSetProperty(E_RET_NOSERVER);
+        return ;
+    }
     sptr<IUserAuthCallback> asyncStub = new UserAuthAsyncStub(callback);
     proxy_->SetProperty(request, asyncStub);
 }
@@ -131,13 +131,13 @@ uint64_t UserAuth::Auth(const uint64_t challenge, const AuthType authType, const
                         std::shared_ptr<UserAuthCallback> callback)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauth Auth is start");
-    auto proxy = GetProxy();
-    if (proxy == nullptr) {
-        return E_RET_NOSERVER;
-    }
     if (callback == nullptr) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "userauth Auth callback is Null");
         return INVALID_PARAMETERS;
+    }
+    auto proxy = GetProxy();
+    if (proxy == nullptr) {
+        return E_RET_NOSERVER;
     }
     sptr<IUserAuthCallback> asyncStub = new UserAuthAsyncStub(callback);
     uint64_t ret = proxy_->Auth(challenge, authType, authTurstLevel, asyncStub);
@@ -147,15 +147,14 @@ uint64_t UserAuth::AuthUser(const int32_t userId, const uint64_t challenge, cons
                             const AuthTurstLevel authTurstLevel, std::shared_ptr<UserAuthCallback> callback)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauth AuthUser is start");
-    auto proxy = GetProxy();
-    if (proxy == nullptr) {
-        return E_RET_NOSERVER;
-    }
     if (callback == nullptr) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "userauth AuthUser callback is Null");
         return INVALID_PARAMETERS;
     }
-
+    auto proxy = GetProxy();
+    if (proxy == nullptr) {
+        return E_RET_NOSERVER;
+    }
     sptr<IUserAuthCallback> asyncStub = new UserAuthAsyncStub(callback);
     uint64_t ret = proxy_->AuthUser(userId, challenge, authType, authTurstLevel, asyncStub);
     return ret;

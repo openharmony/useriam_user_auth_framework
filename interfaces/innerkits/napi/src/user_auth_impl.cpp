@@ -151,9 +151,8 @@ void UserAuthImpl::GetPropertyExecute(napi_env env, void *data)
     request.authType = authTypeGet;
     request.keys = getPropertyInfo->keys;
     HILOG_INFO("GetPropertyExecute start 1");
-    AuthApiCallback *object = new AuthApiCallback();
-    object->getPropertyInfo_ = getPropertyInfo;
-    std::shared_ptr<AuthApiCallback> callback;
+    GetPropApiCallback *object = new GetPropApiCallback(getPropertyInfo);
+    std::shared_ptr<GetPropApiCallback> callback;
     callback.reset(object);
     UserAuth::GetInstance().GetProperty(request, callback);
     HILOG_INFO("GetPropertyExecute, worker pool thread execute end.");
@@ -292,9 +291,8 @@ void UserAuthImpl::SetPropertyExecute(napi_env env, void *data)
     request.authType = authTypeGet;
     request.key = SetPropertyType(setPropertyInfo->key);
     request.setInfo = setPropertyInfo->setInfo;
-    AuthApiCallback *object = new AuthApiCallback();
-    object->setPropertyInfo_ = setPropertyInfo;
-    std::shared_ptr<AuthApiCallback> callback;
+    SetPropApiCallback *object = new SetPropApiCallback(setPropertyInfo);
+    std::shared_ptr<SetPropApiCallback> callback;
     callback.reset(object);
     UserAuth::GetInstance().SetProperty(request, callback);
     HILOG_INFO("setPropertyExecute, worker pool thread execute end.");
@@ -407,9 +405,7 @@ napi_value UserAuthImpl::Auth(napi_env env, napi_callback_info info)
 napi_value UserAuthImpl::AuthWrap(napi_env env, AuthInfo *authInfo)
 {
     HILOG_INFO("%{public}s, start.", __func__);
-    AuthApiCallback *object = new AuthApiCallback();
-    object->authInfo_ = authInfo;
-    object->userInfo_ = nullptr;
+    AuthApiCallback *object = new AuthApiCallback(authInfo);
     std::shared_ptr<AuthApiCallback> callback;
     callback.reset(object);
     uint64_t result = UserAuth::GetInstance().Auth(
@@ -480,9 +476,7 @@ napi_value UserAuthImpl::BuildAuthUserInfo(napi_env env, AuthUserInfo *userInfo)
 napi_value UserAuthImpl::AuthUserWrap(napi_env env, AuthUserInfo *userInfo)
 {
     HILOG_INFO("%{public}s, start.", __func__);
-    AuthApiCallback *object = new AuthApiCallback();
-    object->authInfo_ = nullptr;
-    object->userInfo_ = userInfo;
+    AuthApiCallback *object = new AuthApiCallback(userInfo);
     std::shared_ptr<AuthApiCallback> callback;
     callback.reset(object);
     uint64_t result = UserAuth::GetInstance().AuthUser(userInfo->userId, userInfo->challenge,
