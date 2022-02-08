@@ -23,11 +23,16 @@ namespace UserIAM {
 namespace UserAuth {
 class UserAuthCallback {
 public:
-
     virtual void onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo) = 0;
     virtual void onResult(const int32_t result, const AuthResult extraInfo) = 0;
-    virtual void onExecutorPropertyInfo(const ExecutorProperty result) = 0;
-    virtual void onSetExecutorProperty(const int32_t result) = 0;
+};
+class GetPropCallback {
+public:
+    virtual void onGetProperty(const ExecutorProperty result) = 0;
+};
+class SetPropCallback {
+public:
+    virtual void onSetProperty(const int32_t result) = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam

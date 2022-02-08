@@ -26,6 +26,8 @@ namespace UserAuth {
 class UserAuthAsyncStub : public IRemoteStub<IUserAuthCallback> {
 public:
     explicit UserAuthAsyncStub(std::shared_ptr<UserAuthCallback>& impl);
+    explicit UserAuthAsyncStub(std::shared_ptr<SetPropCallback>& impl);
+    explicit UserAuthAsyncStub(std::shared_ptr<GetPropCallback>& impl);
     ~UserAuthAsyncStub() = default;
 
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
@@ -39,7 +41,9 @@ private:
     int32_t onResultStub(MessageParcel& data, MessageParcel& reply);
     int32_t onExecutorPropertyInfoStub(MessageParcel& data, MessageParcel& reply);
     int32_t onSetExecutorPropertyStub(MessageParcel& data, MessageParcel& reply);
-    std::shared_ptr<UserAuthCallback> callback_ {nullptr};
+    std::shared_ptr<UserAuthCallback> authCallback_ {nullptr};
+    std::shared_ptr<SetPropCallback> setPropCallback_ {nullptr};
+    std::shared_ptr<GetPropCallback> getPropCallback_ {nullptr};
 };
 }  // namespace UserAuth
 }  // namespace UserIAM

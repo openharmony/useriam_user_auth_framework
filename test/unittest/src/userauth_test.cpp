@@ -58,8 +58,22 @@ public:
 
     void onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo) override;
     void onResult(const int32_t result, const AuthResult extraInfo) override;
-    void onExecutorPropertyInfo(const ExecutorProperty result) override;
-    void onSetExecutorProperty(const int32_t result) override;
+};
+
+class TestGetPropCallback : public GetPropCallback {
+public:
+    TestGetPropCallback() = default;
+    virtual ~TestGetPropCallback() = default;
+
+    void onGetProperty(const ExecutorProperty result) override;
+};
+
+class TestSetPropCallback : public SetPropCallback {
+public:
+    TestSetPropCallback() = default;
+    virtual ~TestSetPropCallback() = default;
+
+    void onSetProperty(const int32_t result) override;
 };
 
 void TestUserAuthCallback::onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo)
@@ -70,13 +84,13 @@ void TestUserAuthCallback::onResult(const int32_t result, const AuthResult extra
 {
     std::cout << "onResult callback" << std::endl;
 }
-void TestUserAuthCallback::onExecutorPropertyInfo(const ExecutorProperty result)
+void TestGetPropCallback::onGetProperty(const ExecutorProperty result)
 {
-    std::cout << "onExecutorPropertyInfo callback" << std::endl;
+    std::cout << "onGetProperty callback" << std::endl;
 }
-void TestUserAuthCallback::onSetExecutorProperty(const int32_t result)
+void TestSetPropCallback::onSetProperty(const int32_t result)
 {
-    std::cout << "onSetExecutorProperty callback" << std::endl;
+    std::cout << "onSetProperty callback" << std::endl;
 }
 
 HWTEST_F(UseriamUtTest, UseriamUtTest_001, TestSize.Level1)
@@ -92,7 +106,7 @@ HWTEST_F(UseriamUtTest, UseriamUtTest_002, TestSize.Level1)
     request.authType = FACE;
     request.keys.push_back(1);
     request.keys.push_back(3);
-    std::shared_ptr<UserAuthCallback> callback = std::make_shared<TestUserAuthCallback>();
+    std::shared_ptr<TestGetPropCallback> callback = std::make_shared<TestGetPropCallback>();
     UserAuth::GetInstance().GetProperty(request, callback);
 }
 
@@ -103,7 +117,7 @@ HWTEST_F(UseriamUtTest, UseriamUtTest_003, TestSize.Level1)
     request.key = INIT_ALGORITHM;
     uint8_t i = 123;
     request.setInfo.push_back(i);
-    std::shared_ptr<UserAuthCallback> callback = std::make_shared<TestUserAuthCallback>();
+    std::shared_ptr<TestSetPropCallback> callback = std::make_shared<TestSetPropCallback>();
     UserAuth::GetInstance().SetProperty(request, callback);
 }
 

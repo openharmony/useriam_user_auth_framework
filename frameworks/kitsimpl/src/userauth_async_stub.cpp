@@ -24,7 +24,15 @@ namespace UserIAM {
 namespace UserAuth {
 UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<UserAuthCallback>& impl)
 {
-    callback_ = impl;
+    authCallback_ = impl;
+}
+UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<GetPropCallback>& impl)
+{
+    getPropCallback_ = impl;
+}
+UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<SetPropCallback>& impl)
+{
+    setPropCallback_ = impl;
 }
 int32_t UserAuthAsyncStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
                                            MessageOption &option)
@@ -193,11 +201,11 @@ void UserAuthAsyncStub::onAcquireInfo(const int32_t module, const uint32_t acqui
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub  module:%{public}d", module);
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub  acquireInfo:%{public}d", acquireInfo);
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub  extraInfo:%{public}d", extraInfo);
-    if (callback_ == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "userauthAsyncStub  onAcquireInfo callback_ is Null");
+    if (authCallback_ == nullptr) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "userauthAsyncStub  onAcquireInfo callback is Null");
         return ;
     }
-    callback_->onAcquireInfo(module, acquireInfo, extraInfo);
+    authCallback_->onAcquireInfo(module, acquireInfo, extraInfo);
 }
 
 void UserAuthAsyncStub::onResult(const int32_t result, const AuthResult extraInfot)
@@ -207,38 +215,38 @@ void UserAuthAsyncStub::onResult(const int32_t result, const AuthResult extraInf
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub  remainTimes:%{public}d", extraInfot.remainTimes);
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub  freezingTime:%{public}d", extraInfot.freezingTime);
 
-    if (callback_ == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "userauthAsyncStub  onResult callback_ is Null");
+    if (authCallback_ == nullptr) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "userauthAsyncStub  onResult callback is Null");
         return ;
     }
-    callback_->onResult(result, extraInfot);
+    authCallback_->onResult(result, extraInfot);
 }
 
 void UserAuthAsyncStub::onExecutorPropertyInfo(const ExecutorProperty result)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthAsyncStub onExecutorPropertyInfo enter");
 
-    if (callback_ == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "UserAuthAsyncStub onExecutorPropertyInfo callback_ is Null");
+    if (getPropCallback_ == nullptr) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "UserAuthAsyncStub onExecutorPropertyInfo callback is Null");
         return ;
     }
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub  result:%{public}d", result.result);
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub  authSubType:%{public}llu", result.authSubType);
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub  remainTimes:%{public}d", result.freezingTime);
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub  freezingTime:%{public}d", result.freezingTime);
-    callback_->onExecutorPropertyInfo(result);
+    getPropCallback_->onGetProperty(result);
 }
 
 void UserAuthAsyncStub::onSetExecutorProperty(const int32_t result)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthAsyncStub onSetExecutorProperty enter");
 
-    if (callback_ == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "UserAuthAsyncStub onSetExecutorProperty callback_ is Null");
+    if (setPropCallback_ == nullptr) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "UserAuthAsyncStub onSetExecutorProperty callback is Null");
         return ;
     }
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub  result:%{public}d", result);
-    callback_->onSetExecutorProperty(result);
+    setPropCallback_->onSetProperty(result);
 }
 }  // namespace UserAuth
 }  // namespace UserIAM
