@@ -59,7 +59,7 @@ void UserAuthAsyncProxy::onResult(const int32_t result, const AuthResult extraIn
     MessageParcel reply;
     if (!data.WriteInterfaceToken(UserAuthAsyncProxy::GetDescriptor())) {
         USERAUTH_HILOGI(MODULE_SERVICE, "userauth write descriptor failed!");
-        return ;
+        return;
     }
     if (!data.WriteInt32(result)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteInt32(result).");

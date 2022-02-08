@@ -26,7 +26,7 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-class UserAuthDataMgr : public Singleton<UserAuthDataMgr> {
+class UserAuthDataMgr {
 public:
     static UserAuthDataMgr &GetInstance();
     int32_t AddContextID(uint64_t contextID);

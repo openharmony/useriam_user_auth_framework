@@ -47,7 +47,7 @@ private:
     uint64_t callbackContextID_ = 0;
     std::string pkgName_ = "";
     uint64_t callerUid_ = 0;
-    bool callbackResultFlag_ = false;
+    bool isResultDoneFlag_ = false;
     sptr<IUserAuthCallback> callback_ { nullptr };
     AuthType authType_;
     std::mutex mutex_;

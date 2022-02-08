@@ -49,10 +49,10 @@ void UserAuthAdapter::GetPropAuthInfo(uint64_t callerUID, std::string pkgName, G
                                       sptr<IUserAuthCallback>& callback)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth GetPropAuthInfo is start!");
-
-    std::shared_ptr<UserIDM::GetInfoCallback> getInfoCallback =
+    using namespace UserIDM;
+    std::shared_ptr<GetInfoCallback> getInfoCallback =
         std::make_shared<UserAuthCallbackImplIDMGetPorp>(callback, requset, callerUID, pkgName);
-    int32_t ret = UserIDM::UserIDMClient::GetInstance().GetAuthInfo(static_cast<UserIDM::AuthType>(requset.authType),
+    int32_t ret = UserIDMClient::GetInstance().GetAuthInfo(static_cast<UserIDM::AuthType>(requset.authType),
         getInfoCallback);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth GetPropAuthInfo ERROR!");
@@ -66,14 +66,16 @@ void UserAuthAdapter::SetPropAuthInfo(uint64_t callerUID, std::string pkgName, i
                                       sptr<IUserAuthCallback>& callback)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth SetPropAuthInfo is start!");
+    using namespace AuthResPool;
     FreezInfo freezInfo;
     freezInfo.callerID = callerUID;
     freezInfo.authType = requset.authType;
     freezInfo.pkgName = pkgName;
     freezInfo.resultCode = resultCode;
+
     std::shared_ptr<CoAuth::SetPropCallback> setPropCallback =
         std::make_shared<UserAuthCallbackImplSetPropFreez>(callback, templateIds, authToken, freezInfo);
-    OHOS::UserIAM::AuthResPool::AuthAttributes authAttributes;
+    AuthAttributes authAttributes;
     int32_t ret = SetProPropAuthInfo(authAttributes, callerUID, pkgName, requset, templateIds, setPropCallback);
     if (ret != SUCCESS) {
         return;
@@ -139,11 +141,11 @@ void UserAuthAdapter::GetPropAuthInfoCoauth(uint64_t callerUID, std::string pkgN
                                             sptr<IUserAuthCallback>& callback)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth GetPropAuthInfoCoauth is start!");
-
-    std::shared_ptr<UserIDM::GetInfoCallback> getInfoCallback =
+    using namespace UserIDM;
+    std::shared_ptr<GetInfoCallback> getInfoCallback =
         std::make_shared<UserAuthCallbackImplIDMGetPorpCoauth>(callback, callerUID, pkgName, resultCode,
                                                                authToken, requset);
-    int32_t ret = UserIDM::UserIDMClient::GetInstance().GetAuthInfo(static_cast<UserIDM::AuthType>(requset.authType),
+    int32_t ret = UserIDMClient::GetInstance().GetAuthInfo(static_cast<UserIDM::AuthType>(requset.authType),
         getInfoCallback);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth GetPropAuthInfoCoauth ERROR!");
@@ -156,10 +158,11 @@ void UserAuthAdapter::CoauthSetPropAuthInfo(int32_t resultCode, uint64_t callerU
                                             sptr<IUserAuthCallback>& callback)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth CoauthSetPropAuthInfo is start!");
-    std::shared_ptr<UserIDM::GetInfoCallback> setPropCallback =
+    using namespace UserIDM;
+    std::shared_ptr<GetInfoCallback> setPropCallback =
         std::make_shared<UserAuthCallbackImplIDMCothGetPorpFreez>(callback, callerUID, pkgName, resultCode,
                                                                   authToken, requset);
-    int32_t ret = UserIDM::UserIDMClient::GetInstance().GetAuthInfo(static_cast<UserIDM::AuthType>(requset.authType),
+    int32_t ret = UserIDMClient::GetInstance().GetAuthInfo(static_cast<UserIDM::AuthType>(requset.authType),
         setPropCallback);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth CoauthSetPropAuthInfo ERROR!");
@@ -228,10 +231,11 @@ int32_t UserAuthAdapter::GetExecutorProp(uint64_t callerUID, std::string pkgName
                                          GetPropertyRequest requset, ExecutorProperty &result)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth GetExecutorProp is start!");
+    using namespace AuthResPool;
     uint32_t value;
 
-    auto pAuthAttributes (std::make_shared<OHOS::UserIAM::AuthResPool::AuthAttributes>());
-    OHOS::UserIAM::AuthResPool::AuthAttributes cAuthAttributes;
+    auto pAuthAttributes (std::make_shared<AuthAttributes>());
+    AuthAttributes cAuthAttributes;
     int32_t ret = cAuthAttributes.SetUint32Value(AUTH_TYPE, requset.authType);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth SetUint32Value AUTH_TYPE ERROR!");
@@ -286,8 +290,8 @@ int32_t UserAuthAdapter::GetEachExecutorProp(GetPropertyRequest &requset, Execut
     result.freezingTime = 0;
     result.remainTimes = 0;
     result.authSubType = UserAuth::PIN_SIX;
-    for (std::vector<uint32_t>::const_iterator iter = requset.keys.begin(); iter != requset.keys.end(); ++iter) {
-        switch (*iter) {
+    for (auto const &item : requset.keys) {
+        switch (item) {
             case AUTH_SUB_TYPE:
                 ret = pAuthAttributes->GetUint64Value(AUTH_SUBTYPE, tmpValue);
                 if (ret != SUCCESS) {
@@ -328,10 +332,12 @@ int32_t UserAuthAdapter::SetExecutorProp(uint64_t callerUID, std::string pkgName
                                          sptr<IUserAuthCallback>& callback)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth SetExecutorProp is start!");
+    using namespace AuthResPool;
+    uint32_t value;
 
     std::shared_ptr<CoAuth::SetPropCallback> setPropCallback = std::make_shared<UserAuthCallbackImplSetProp>(callback);
-    OHOS::UserIAM::AuthResPool::AuthAttributes pAuthAttributes;
-    uint32_t value = requset.key == SetPropertyType::INIT_ALGORITHM ?
+    AuthAttributes pAuthAttributes;
+    value = requset.key == SetPropertyType::INIT_ALGORITHM ?
         static_cast<uint32_t>(AuthPropertyMode::PROPERMODE_INIT_ALGORITHM)
         : static_cast<uint32_t>(AuthPropertyMode::PROPERMODE_RELEASE_ALGORITHM);
     int32_t ret = pAuthAttributes.SetUint32Value(AUTH_PROPERTY_MODE, value);
@@ -389,9 +395,8 @@ int32_t UserAuthAdapter::coAuth(CoAuthInfo coAuthInfo, sptr<IUserAuthCallback>& 
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth SaveCoauthCallback ERROR!");
         return ret;
     }
-    for (std::vector<uint64_t>::iterator iter = coAuthInfo.sessionIds.begin();
-            iter != coAuthInfo.sessionIds.end(); ++iter) {
-        CoAuth::CoAuth::GetInstance().coAuth(*iter, authInfo, coAuthCallback);
+    for (auto const &item : coAuthInfo.sessionIds) {
+        CoAuth::CoAuth::GetInstance().coAuth(item, authInfo, coAuthCallback);
     }
 
     return SUCCESS;
