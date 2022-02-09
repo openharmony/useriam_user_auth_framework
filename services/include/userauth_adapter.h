@@ -35,25 +35,23 @@ public:
     int32_t GetAuthTrustLevel(int32_t userId, uint32_t authType, uint32_t &authTrustLevel);
 
     /* Get the executor authentication properties */
-    void GetPropAuthInfo(uint64_t callerUID, std::string pkgName, GetPropertyRequest requset,
+    void GetPropAuthInfo(int32_t userID, uint64_t callerUID, std::string pkgName, GetPropertyRequest requset,
                          sptr<IUserAuthCallback>& callback);
 
     /** This method is called to set the executor properties
      *  after the callback of the coAuth is called to obtain the scheduling token
      *  and the authentication result is successful.
      * */
-    void CoauthSetPropAuthInfo(int32_t resultCode, uint64_t callerUID, std::string pkgName, UserAuthToken authToken,
-                               SetPropertyRequest requset, sptr<IUserAuthCallback>& callback);
+    void CoauthSetPropAuthInfo(int32_t userID, int32_t resultCode, uint64_t callerUID, std::string pkgName,
+        UserAuthToken authToken, SetPropertyRequest requset, sptr<IUserAuthCallback>& callback);
 
     /* Set the executor authentication properties for freez or unfreez */
     void SetPropAuthInfo(uint64_t callerUID, std::string pkgName, int32_t resultCode, UserAuthToken authToken,
                          SetPropertyRequest requset, std::vector<uint64_t> templateIds,
                          sptr<IUserAuthCallback>& callback);
     /* get the executor authentication properties for Coauth */
-    void GetPropAuthInfoCoauth(uint64_t callerUID, std::string pkgName, int32_t resultCode, UserAuthToken authToken,
-                         GetPropertyRequest requset, sptr<IUserAuthCallback>& callback);
-    /* get userID */
-    int32_t GetUserID(int32_t &userID);
+    void GetPropAuthInfoCoauth(int32_t userID, uint64_t callerUID, std::string pkgName, int32_t resultCode,
+        UserAuthToken authToken, GetPropertyRequest requset, sptr<IUserAuthCallback>& callback);
     int32_t GenerateSolution(AuthSolution param, std::vector<uint64_t> &sessionIds);
     int32_t RequestAuthResult(uint64_t contextId, std::vector<uint8_t> scheduleToken,
                               UserAuthToken &authToken, std::vector<uint64_t> &sessionIds);

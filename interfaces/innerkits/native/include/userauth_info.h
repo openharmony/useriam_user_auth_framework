@@ -112,6 +112,7 @@ struct CoAuthInfo {
     AuthType authType;
     uint64_t callerID;
     uint64_t contextID;
+    int32_t userID;
     std::string pkgName;
     std::vector<uint64_t> sessionIds;
 };
