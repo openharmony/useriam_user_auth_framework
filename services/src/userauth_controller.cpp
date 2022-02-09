@@ -29,15 +29,11 @@ int32_t UserAuthController::SetExecutorProp(uint64_t callerUID, std::string pkgN
 {
     return UserAuthAdapter::GetInstance().SetExecutorProp(callerUID, pkgName, setPropertyrequest, callback);
 }
-void UserAuthController::GetPropAuthInfo(std::string pkgName, uint64_t callerUID,
+void UserAuthController::GetPropAuthInfo(int32_t userID, std::string pkgName, uint64_t callerUID,
                                          GetPropertyRequest getPropertyRequest,
                                          sptr<IUserAuthCallback>& callback)
 {
-    UserAuthAdapter::GetInstance().GetPropAuthInfo(callerUID, pkgName, getPropertyRequest, callback);
-}
-int32_t UserAuthController::GetUserID(int32_t &userID)
-{
-    return UserAuthAdapter::GetInstance().GetUserID(userID);
+    UserAuthAdapter::GetInstance().GetPropAuthInfo(userID, callerUID, pkgName, getPropertyRequest, callback);
 }
 int32_t UserAuthController::GenerateSolution(AuthSolution param, std::vector<uint64_t> &sessionIds)
 {

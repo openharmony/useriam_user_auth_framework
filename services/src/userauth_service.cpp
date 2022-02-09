@@ -17,6 +17,7 @@
 #include <string_ex.h>
 #include "userauth_hilog_wrapper.h"
 #include "useriam_common.h"
+#include "accesstoken_kit.h"
 #include "userauth_service.h"
 
 namespace OHOS {
@@ -72,7 +73,7 @@ int32_t UserAuthService::GetAvailableStatus(const AuthType authType, const AuthT
         return result;
     }
 
-    ret = userauthController_.GetUserID(userID);
+    ret = this->GetCallingUserID(userID);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService GetAvailableStatus GetUserID is ERROR!");
         return result;
@@ -100,6 +101,14 @@ void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAu
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService GetProperty IUserAuthCallback is NULL!");
         return ;
     }
+    int32_t userID = 0;
+
+    int32_t ret = this->GetCallingUserID(userID);
+    if (ret != SUCCESS) {
+        AuthResult extraInfo;
+        callback->onResult(ret, extraInfo);
+        return;
+    }
 
     sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
     if ((!callback->AsObject()->AddDeathRecipient(dr))) {
@@ -109,7 +118,7 @@ void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAu
     callerID = this->GetCallingUid();
     callerName = std::to_string(callerID);
 
-    userauthController_.GetPropAuthInfo(callerName, callerID, request, callback);
+    userauthController_.GetPropAuthInfo(userID, callerName, callerID, request, callback);
 }
 
 void UserAuthService::SetProperty(const SetPropertyRequest request, sptr<IUserAuthCallback>& callback)
@@ -139,6 +148,28 @@ void UserAuthService::SetProperty(const SetPropertyRequest request, sptr<IUserAu
     }
 }
 
+int32_t UserAuthService::GetCallingUserID(int32_t &userID)
+{
+    uint32_t tokenID = this->GetFirstTokenID();
+    if (tokenID == 0) {
+        tokenID = this->GetCallingTokenID();
+    }
+    Security::AccessToken::ATokenTypeEnum callingType = Security::AccessToken::AccessTokenKit::GetTokenType(tokenID);
+    if (callingType != Security::AccessToken::TOKEN_HAP) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "CallingType is not hap.");
+        return TYPE_NOT_SUPPORT;
+    }
+    Security::AccessToken::HapTokenInfo hapTokenInfo;
+    int result = Security::AccessToken::AccessTokenKit::GetHapTokenInfo(tokenID, hapTokenInfo);
+    if (result != SUCCESS) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "Get hap token info failed.");
+        return TYPE_NOT_SUPPORT;
+    }
+    userID = (int32_t)hapTokenInfo.userID;
+    USERAUTH_HILOGE(MODULE_SERVICE, "GetCallingUserID is %{public}d", userID);
+    return SUCCESS;
+}
+
 uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType,
                                const AuthTurstLevel authTurstLevel,
                                sptr<IUserAuthCallback>& callback)
@@ -162,8 +193,7 @@ uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType
     if (GetControllerData(callback, extraInfo, authTurstLevel, callerID, callerName, contextID) == FAIL) {
         return ret;
     }
-
-    result = userauthController_.GetUserID(userID);
+    result = this->GetCallingUserID(userID);
     if (result != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService Auth GetUserID is ERROR!");
         callback->onResult(FAIL, extraInfo);
@@ -186,6 +216,7 @@ uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType
     coAuthInfo.callerID = callerID;
     coAuthInfo.contextID = contextID;
     coAuthInfo.pkgName = callerName;
+    coAuthInfo.userID = userID;
     result = userauthController_.coAuth(coAuthInfo, callback);
     if (result != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService Auth coAuth is ERROR!");

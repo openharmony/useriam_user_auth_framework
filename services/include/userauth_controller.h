@@ -27,11 +27,10 @@ namespace UserAuth {
 class UserAuthController {
 public:
     int32_t GetAuthTrustLevel(int32_t userId, uint32_t authType, uint32_t &authTrustLevel);
-    void GetPropAuthInfo(std::string pkgName, uint64_t callerUID, GetPropertyRequest getPropertyRequest,
+    void GetPropAuthInfo(int32_t userID, std::string pkgName, uint64_t callerUID, GetPropertyRequest getPropertyRequest,
                          sptr<IUserAuthCallback>& callback);
     int32_t SetExecutorProp(uint64_t callerUID, std::string pkgName, SetPropertyRequest setPropertyrequest,
                             sptr<IUserAuthCallback>& callback);
-    int32_t GetUserID(int32_t &userID);
     int32_t AddContextID(uint64_t contextID);
     int32_t IsContextIDExist(uint64_t contextID);
     int32_t GenerateContextID(uint64_t &contextID);

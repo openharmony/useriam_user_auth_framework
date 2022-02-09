@@ -118,6 +118,7 @@ UserAuthCallbackImplCoAuth::UserAuthCallbackImplCoAuth(const sptr<IUserAuthCallb
     pkgName_ = coAuthInfo.pkgName;
     isResultDoneFlag_ = resultFlag;
     callerUid_ = coAuthInfo.callerID;
+    userID_ = coAuthInfo.userID;
 }
 void UserAuthCallbackImplCoAuth::OnFinish(uint32_t resultCode, std::vector<uint8_t> &scheduleToken)
 {
@@ -146,14 +147,14 @@ void UserAuthCallbackImplCoAuth::OnAcquireInfo(uint32_t acquire)
         return;
     }
 }
-void UserAuthCallbackImplCoAuth::OnFinishHandleExtend(SetPropertyRequest setPropertyRequest, AuthResult authResult,
-                                                      int32_t ret, UserAuthToken authToken)
+void UserAuthCallbackImplCoAuth::OnFinishHandleExtend(int32_t userID, SetPropertyRequest setPropertyRequest,
+    AuthResult authResult, int32_t ret, UserAuthToken authToken)
 {
     if (authType_ == UserAuth::PIN) {
         USERAUTH_HILOGD(MODULE_SERVICE, "RequestAuthResult SUCCESS");
         setPropertyRequest.authType = authType_;
         setPropertyRequest.key = SetPropertyType::THAW_TEMPLATE;
-        UserAuthAdapter::GetInstance().CoauthSetPropAuthInfo(ret, callerUid_, pkgName_,
+        UserAuthAdapter::GetInstance().CoauthSetPropAuthInfo(userID, ret, callerUid_, pkgName_,
             authToken, setPropertyRequest, callback_);
     } else {
         USERAUTH_HILOGD(MODULE_SERVICE, "RequestAuthResult SUCCESS NOT INFO");
@@ -194,21 +195,21 @@ void UserAuthCallbackImplCoAuth::OnFinishHandle(uint32_t resultCode, std::vector
     }
     if (resultCode != LOCKED) {
         if (ret == SUCCESS) {
-            OnFinishHandleExtend(setPropertyRequest, authResult, ret, authToken);
+            OnFinishHandleExtend(userID_, setPropertyRequest, authResult, ret, authToken);
         } else {
             USERAUTH_HILOGD(MODULE_SERVICE, "RequestAuthResult NOT SUCCESS");
             getPropertyRequest.authType = authType_;
             getPropertyRequest.keys.push_back(UserAuth::REMAIN_TIMES);
             getPropertyRequest.keys.push_back(UserAuth::FREEZING_TIME);
-            UserAuthAdapter::GetInstance().GetPropAuthInfoCoauth(callerUid_, pkgName_, ret,
+            UserAuthAdapter::GetInstance().GetPropAuthInfoCoauth(userID_, callerUid_, pkgName_, ret,
                 authToken, getPropertyRequest, callback_);
         }
     } else {
         USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthCallbackImplCoAuth resultCode == LOCKED");
         setPropertyRequest.authType = authType_;
         setPropertyRequest.key = SetPropertyType::FREEZE_TEMPLATE;
-        UserAuthAdapter::GetInstance().CoauthSetPropAuthInfo(ret, callerUid_, pkgName_, authToken, setPropertyRequest,
-                                                             callback_);
+        UserAuthAdapter::GetInstance().CoauthSetPropAuthInfo(userID_, ret, callerUid_, pkgName_, authToken,
+            setPropertyRequest, callback_);
     }
     if (sessionIds.size() != 0) {
         for (auto const &item : sessionIds) {

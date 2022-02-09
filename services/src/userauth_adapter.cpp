@@ -26,8 +26,6 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-const int32_t cUserId = 0;
-
 UserAuthAdapter &UserAuthAdapter::GetInstance()
 {
     static UserAuthAdapter instance;
@@ -45,15 +43,15 @@ int32_t UserAuthAdapter::GetAuthTrustLevel(int32_t userId, uint32_t authType, ui
     return ret;
 }
 
-void UserAuthAdapter::GetPropAuthInfo(uint64_t callerUID, std::string pkgName, GetPropertyRequest requset,
-                                      sptr<IUserAuthCallback>& callback)
+void UserAuthAdapter::GetPropAuthInfo(int32_t userID, uint64_t callerUID, std::string pkgName,
+    GetPropertyRequest requset, sptr<IUserAuthCallback>& callback)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth GetPropAuthInfo is start!");
     using namespace UserIDM;
     std::shared_ptr<GetInfoCallback> getInfoCallback =
         std::make_shared<UserAuthCallbackImplIDMGetPorp>(callback, requset, callerUID, pkgName);
-    int32_t ret = UserIDMClient::GetInstance().GetAuthInfo(static_cast<UserIDM::AuthType>(requset.authType),
-        getInfoCallback);
+    int32_t ret = UserIDMClient::GetInstance().GetAuthInfo(userID,
+        static_cast<UserIDM::AuthType>(requset.authType), getInfoCallback);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth GetPropAuthInfo ERROR!");
     }
@@ -136,7 +134,7 @@ int32_t UserAuthAdapter::SetProPropAuthInfo(OHOS::UserIAM::AuthResPool::AuthAttr
     }
     return ret;
 }
-void UserAuthAdapter::GetPropAuthInfoCoauth(uint64_t callerUID, std::string pkgName, int32_t resultCode,
+void UserAuthAdapter::GetPropAuthInfoCoauth(int32_t userID, uint64_t callerUID, std::string pkgName, int32_t resultCode,
                                             UserAuthToken authToken, GetPropertyRequest requset,
                                             sptr<IUserAuthCallback>& callback)
 {
@@ -145,15 +143,15 @@ void UserAuthAdapter::GetPropAuthInfoCoauth(uint64_t callerUID, std::string pkgN
     std::shared_ptr<GetInfoCallback> getInfoCallback =
         std::make_shared<UserAuthCallbackImplIDMGetPorpCoauth>(callback, callerUID, pkgName, resultCode,
                                                                authToken, requset);
-    int32_t ret = UserIDMClient::GetInstance().GetAuthInfo(static_cast<UserIDM::AuthType>(requset.authType),
-        getInfoCallback);
+    int32_t ret = UserIDMClient::GetInstance().GetAuthInfo(userID,
+        static_cast<UserIDM::AuthType>(requset.authType), getInfoCallback);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth GetPropAuthInfoCoauth ERROR!");
     }
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth GetPropAuthInfoCoauth is end!");
 }
 
-void UserAuthAdapter::CoauthSetPropAuthInfo(int32_t resultCode, uint64_t callerUID, std::string pkgName,
+void UserAuthAdapter::CoauthSetPropAuthInfo(int32_t userID, int32_t resultCode, uint64_t callerUID, std::string pkgName,
                                             UserAuthToken authToken, SetPropertyRequest requset,
                                             sptr<IUserAuthCallback>& callback)
 {
@@ -162,20 +160,12 @@ void UserAuthAdapter::CoauthSetPropAuthInfo(int32_t resultCode, uint64_t callerU
     std::shared_ptr<GetInfoCallback> setPropCallback =
         std::make_shared<UserAuthCallbackImplIDMCothGetPorpFreez>(callback, callerUID, pkgName, resultCode,
                                                                   authToken, requset);
-    int32_t ret = UserIDMClient::GetInstance().GetAuthInfo(static_cast<UserIDM::AuthType>(requset.authType),
-        setPropCallback);
+    int32_t ret = UserIDMClient::GetInstance().GetAuthInfo(userID,
+        static_cast<UserIDM::AuthType>(requset.authType), setPropCallback);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth CoauthSetPropAuthInfo ERROR!");
     }
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth CoauthSetPropAuthInfo is end!");
-}
-
-int32_t UserAuthAdapter::GetUserID(int32_t &userID)
-{
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth GetUserID is start!");
-    // 打桩 IAMTA
-    userID = cUserId;
-    return SUCCESS;
 }
 
 int32_t UserAuthAdapter::GenerateSolution(AuthSolution param, std::vector<uint64_t> &sessionIds)
