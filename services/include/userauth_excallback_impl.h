@@ -46,6 +46,7 @@ private:
     int32_t callbackNowCount_ = 0;
     uint64_t callbackContextID_ = 0;
     std::string pkgName_ = "";
+    int32_t userID_ = 0;
     uint64_t callerUid_ = 0;
     bool isResultDoneFlag_ = false;
     sptr<IUserAuthCallback> callback_ { nullptr };
@@ -53,7 +54,7 @@ private:
     std::mutex mutex_;
     static std::mutex coauthCallbackmutex_;
     static std::map<uint64_t, std::shared_ptr<CoAuth::CoAuthCallback>> saveCoauthCallback_;
-    void OnFinishHandleExtend(SetPropertyRequest setPropertyRequest, AuthResult authResult, int32_t ret,
+    void OnFinishHandleExtend(int32_t userID, SetPropertyRequest setPropertyRequest, AuthResult authResult, int32_t ret,
     UserAuthToken authToken);
 };
 

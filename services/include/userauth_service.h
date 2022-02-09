@@ -45,6 +45,7 @@ public:
     int32_t GetVersion() override;
 
 private:
+    int32_t GetCallingUserID(int32_t &userID);
     int32_t GetControllerData(sptr<IUserAuthCallback>& callback, AuthResult &extraInfo,
                               const AuthTurstLevel authTurstLevel, uint64_t &callerID,
                               std::string &callerName, uint64_t &contextID);
