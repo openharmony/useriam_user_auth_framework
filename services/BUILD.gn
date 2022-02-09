@@ -18,6 +18,7 @@ config("userauth_private_config") {
     "include",
     "//base/user_iam/auth_executor_mgr/common/interface",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
+    "//base/security/access_token/interfaces/innerkits/accesstoken/include",
   ]
 }
 
@@ -40,6 +41,7 @@ ohos_shared_library("userauthservice") {
 
   deps = [
     "${userauth_innerkits_path}/native:userauth_framework",
+    "//base/security/access_token/interfaces/innerkits/accesstoken:libaccesstoken_sdk",
     "//base/startup/syspara_lite/interfaces/innerkits/native/syspara:syspara",
     "//base/user_iam/auth_executor_mgr/common:useriam_common_lib",
     "//base/user_iam/auth_executor_mgr/interfaces/innerkits:coauth_framework",
