@@ -39,6 +39,7 @@ class AuthApiCallback : public UserAuthCallback {
 public:
     AuthApiCallback(AuthInfo *authInfo);
     AuthApiCallback(AuthUserInfo *userInfo);
+    AuthApiCallback(ExecuteInfo *executeInfo);
     virtual ~AuthApiCallback();
     void onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo) override;
     void onResult(const int32_t result, const AuthResult extraInfo) override;
@@ -51,9 +52,11 @@ private:
     void OnAuthAcquireInfo(AcquireInfoInner *acquireInfoInner);
     void OnUserAuthResult(const int32_t result, const AuthResult extraInfo);
     void OnAuthResult(const int32_t result, const AuthResult extraInfo);
+    void OnExecuteResult(const int32_t result);
 
     AuthInfo *authInfo_;
     AuthUserInfo *userInfo_;
+    ExecuteInfo *executeInfo_;
 };
 
 class GetPropApiCallback : public GetPropCallback {

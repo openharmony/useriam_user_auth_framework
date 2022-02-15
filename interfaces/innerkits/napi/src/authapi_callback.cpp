@@ -27,12 +27,21 @@ AuthApiCallback::AuthApiCallback(AuthInfo *authInfo)
 {
     authInfo_ = authInfo;
     userInfo_ = nullptr;
+    executeInfo_ = nullptr;
 }
 
 AuthApiCallback::AuthApiCallback(AuthUserInfo *userInfo)
 {
     authInfo_ = nullptr;
     userInfo_ = userInfo;
+    executeInfo_ = nullptr;
+}
+
+AuthApiCallback::AuthApiCallback(ExecuteInfo *executeInfo)
+{
+    authInfo_ = nullptr;
+    userInfo_ = nullptr;
+    executeInfo_ = executeInfo;
 }
 
 AuthApiCallback::~AuthApiCallback()
@@ -269,6 +278,61 @@ void AuthApiCallback::OnAuthResult(const int32_t result, const AuthResult extraI
     uv_queue_work(loop, work, [] (uv_work_t *work) {}, OnAuthResultWork);
 }
 
+static void OnExecuteResultWork(uv_work_t *work, int status)
+{
+    HILOG_INFO("Do OnExecuteResultWork");
+    ExecuteInfo *executeInfo = reinterpret_cast<ExecuteInfo *>(work->data);
+    if (executeInfo == nullptr) {
+        HILOG_ERROR("executeInfo is null");
+        delete work;
+        return;
+    }
+    napi_env env = executeInfo->env;
+    napi_value result;
+    if (napi_create_int32(env, executeInfo->result, &result) != napi_ok) {
+        HILOG_ERROR("napi_create_int32 faild");
+        delete work;
+        delete executeInfo;
+        return;
+    }
+    napi_value undefined;
+    napi_get_undefined(env, &undefined);
+    if (executeInfo->isPromise) {
+        HILOG_INFO("do promise %{public}d", napi_resolve_deferred(env, executeInfo->deferred, result));
+    } else {
+        napi_value callback;
+        napi_get_reference_value(env, executeInfo->callbackRef, &callback);
+        napi_value callResult = nullptr;
+        HILOG_INFO("do callback %{public}d", napi_call_function(env, undefined, callback, 1, &result, &callResult));
+    }
+    delete executeInfo;
+    delete work;
+}
+
+void AuthApiCallback::OnExecuteResult(const int32_t result)
+{
+    HILOG_INFO("AuthApiCallback OnExecuteResult start");
+    uv_loop_s *loop(nullptr);
+    napi_get_uv_event_loop(executeInfo_->env, &loop);
+    if (loop == nullptr) {
+        HILOG_ERROR("loop is null");
+        delete executeInfo_;
+        executeInfo_ = nullptr;
+        return;
+    }
+    uv_work_t *work = new (std::nothrow) uv_work_t;
+    if (work == nullptr) {
+        HILOG_ERROR("work is null");
+        delete executeInfo_;
+        executeInfo_ = nullptr;
+        return;
+    }
+    executeInfo_->result = result;
+    work->data = reinterpret_cast<void *>(executeInfo_);
+    executeInfo_ = nullptr;
+    uv_queue_work(loop, work, [] (uv_work_t *work) {}, OnExecuteResultWork);
+}
+
 void AuthApiCallback::onResult(const int32_t result, const AuthResult extraInfo)
 {
     HILOG_INFO("AuthApiCallback onResult start result = %{public}d", result);
@@ -284,6 +348,11 @@ void AuthApiCallback::onResult(const int32_t result, const AuthResult extraInfo)
         OnAuthResult(result, extraInfo);
     } else {
         HILOG_ERROR("AuthApiCallback onResult authInfo_ is nullptr ");
+    }
+    if (executeInfo_ != nullptr) {
+        OnExecuteResult(result);
+    } else {
+        HILOG_ERROR("AuthApiCallback onResult executeInfo_ is nullptr ");
     }
     HILOG_INFO("AuthApiCallback onResult end");
 }
