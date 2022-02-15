@@ -100,6 +100,8 @@ napi_value SetProperty(napi_env env, napi_callback_info info);
  */
 napi_value Auth(napi_env env, napi_callback_info info);
 
+napi_value Execute(napi_env env, napi_callback_info info);
+
 /**
  * @brief user authentication
  *
