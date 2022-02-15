@@ -41,7 +41,7 @@
             "//base/user_iam/user_auth/interfaces/kits/napi:userauthnorth"
         ],
         "inner_kits": [
-		  {
+      	  {
             "type": "so",
             "name": "//base/user_iam/user_auth/interfaces/innerkits/native:userauth_framework",
             "header": {
@@ -57,9 +57,26 @@
               "header_base": "//base/user_iam/user_auth/interfaces/innerkits/native/include"
             }
           },
-		  {
+          {
             "type": "so",
             "name": "//base/user_iam/user_auth/interfaces/innerkits/napi:userauth",
+            "header": {
+              "header_files": [
+                "auth_build.h",
+                "auth_common.h",
+                "auth_hilog_wrapper.h",
+                "auth_object.h",
+                "authapi_callback.h",
+                "result_convert.h",
+                "user_auth_helper.h",
+                "user_auth_impl.h"
+              ],
+              "header_base": "//base/user_iam/user_auth/interfaces/innerkits/napi/include"
+            }
+          },
+          {
+            "type": "so",
+            "name": "//base/user_iam/user_auth/interfaces/innerkits/napi:userauth_napi",
             "header": {
               "header_files": [
                 "auth_build.h",
