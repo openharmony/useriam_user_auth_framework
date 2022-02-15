@@ -58,3 +58,43 @@ ohos_shared_library("userauth") {
   part_name = "user_auth"
   subsystem_name = "user_iam"
 }
+
+ohos_shared_library("userauth_napi") {
+  cflags = [
+    "-fPIC",
+    "-g3",
+  ]
+
+  defines = [ "USER_AUTH_FOR_API6" ]
+
+  sources = [
+    "src/auth_build.cpp",
+    "src/auth_native_module.cpp",
+    "src/authapi_callback.cpp",
+    "src/result_convert.cpp",
+    "src/user_auth_helper.cpp",
+    "src/user_auth_impl.cpp",
+  ]
+
+  deps = [
+    "${userauth_innerkits_path}/native:userauth_framework",
+    "//foundation/ace/napi:ace_napi",
+    "//utils/native/base:utils",
+  ]
+
+  configs = [ "${userauth_utils_path}:utils_config" ]
+
+  public_configs = [ ":userauth_public_config" ]
+
+  external_deps = [
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr_standard:samgr_proxy",
+  ]
+
+  relative_install_dir = "module/useriam"
+
+  part_name = "user_auth"
+  subsystem_name = "user_iam"
+}

@@ -39,6 +39,7 @@ public:
     napi_value GetProperty(napi_env env, napi_callback_info info);
     napi_value SetProperty(napi_env env, napi_callback_info info);
     napi_value Auth(napi_env env, napi_callback_info info);
+    napi_value Execute(napi_env env, napi_callback_info info);
     napi_value AuthUser(napi_env env, napi_callback_info info);
     napi_value CancelAuth(napi_env env, napi_callback_info info);
 
@@ -55,6 +56,9 @@ private:
     napi_value BuildAuthInfo(napi_env env, AuthInfo *authInfo);
     napi_value AuthUserWrap(napi_env env, AuthUserInfo *userInfo);
     napi_value BuildAuthUserInfo(napi_env env, AuthUserInfo *userInfo);
+
+    bool GetExecuteInfo(napi_env env, napi_value* argv, ExecuteInfo* executeInfo);
+    napi_value DoExecute(ExecuteInfo* executeInfo);
 
     static void SetPropertyExecute(napi_env env, void *data);
     static void SetPropertyPromiseExecuteDone(napi_env env, napi_status status, void *data);

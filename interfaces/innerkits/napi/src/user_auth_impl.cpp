@@ -15,6 +15,8 @@
 
 #include "user_auth_impl.h"
 
+#include <map>
+
 #include "user_auth.h"
 #include "userauth_callback.h"
 #include "userauth_info.h"
@@ -382,6 +384,107 @@ napi_value UserAuthImpl::BuildAuthInfo(napi_env env, AuthInfo *authInfo)
         NAPI_CALL(env, napi_create_reference(env, authInfo->onAcquireInfoCallBack, PARAM1, &authInfo->onAcquireInfo));
     }
     return result;
+}
+
+napi_value UserAuthImpl::DoExecute(ExecuteInfo* executeInfo)
+{
+    AuthApiCallback *object = new (std::nothrow) AuthApiCallback(executeInfo);
+    if (object == nullptr) {
+        delete executeInfo;
+        return nullptr;
+    }
+    std::shared_ptr<AuthApiCallback> callback;
+    callback.reset(object);
+    std::map<std::string, AuthTurstLevel> convertAuthTurstLevel = {
+        { "S1", ATL1 },
+        { "S2", ATL2 },
+        { "S3", ATL3 },
+        { "S4", ATL4 },
+    };
+    if (convertAuthTurstLevel.count(executeInfo->level) == 0) {
+        HILOG_ERROR("execute convertAuthTurstLevel is 0");
+        delete executeInfo;
+        return nullptr;
+    }
+    UserAuth::GetInstance().Auth(0, FACE, convertAuthTurstLevel[executeInfo->level], callback);
+    if (executeInfo->isPromise) {
+        return executeInfo->promise;
+    } else {
+        napi_value result = nullptr;
+        NAPI_CALL(executeInfo->env, napi_get_null(executeInfo->env, &result));
+        return result;
+    }
+}
+
+napi_value UserAuthImpl::Execute(napi_env env, napi_callback_info info)
+{
+    HILOG_INFO("%{public}s, start", __func__);
+    ExecuteInfo *executeInfo = new (std::nothrow) ExecuteInfo();
+    if (executeInfo == nullptr) {
+        HILOG_ERROR("%{public}s executeInfo nullptr", __func__);
+        return nullptr;
+    }
+    executeInfo->env = env;
+    size_t argc = ARGS_MAX_COUNT;
+    size_t callbackIndex = 0;
+    napi_value argv[ARGS_MAX_COUNT] = {nullptr};
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
+    if (argc < PARAM2) {
+        HILOG_ERROR("%{public}s argc check fail", __func__);
+        delete executeInfo;
+        return nullptr;
+    }
+    if (!GetExecuteInfo(env, argv, executeInfo)) {
+        HILOG_ERROR("%{public}s GetExecuteInfo fail", __func__);
+        delete executeInfo;
+        return nullptr;
+    }
+    callbackIndex = argc - 1;
+    napi_valuetype valuetype;
+    NAPI_CALL(env, napi_typeof(env, argv[callbackIndex], &valuetype));
+    if (valuetype == napi_function) {
+        executeInfo->isPromise = false;
+        NAPI_CALL(env, napi_create_reference(env, argv[callbackIndex], 1, &executeInfo->callbackRef));
+    } else {
+        executeInfo->isPromise = true;
+        NAPI_CALL(env, napi_create_promise(env, &executeInfo->deferred, &executeInfo->promise));
+    }
+    return DoExecute(executeInfo);
+}
+
+bool UserAuthImpl::GetExecuteInfo(napi_env env, napi_value* argv, ExecuteInfo* executeInfo)
+{
+    HILOG_INFO("%{public}s, start.", __func__);
+    napi_valuetype valuetype;
+    napi_typeof(env, argv[PARAM0], &valuetype);
+    if (valuetype != napi_string) {
+        return false;
+    }
+    char *str = nullptr;
+    size_t len = 0;
+    napi_get_value_string_utf8(env, argv[PARAM0], nullptr, 0, &len);
+    if (len > 0) {
+        str = new char[len + 1]();
+        napi_get_value_string_utf8(env, argv[PARAM0], str, len + 1, &len);
+        executeInfo->type = str;
+        delete[] str;
+    }
+    napi_typeof(env, argv[PARAM1], &valuetype);
+    if (valuetype != napi_string) {
+        return false;
+    }
+    napi_get_value_string_utf8(env, argv[PARAM1], nullptr, 0, &len);
+    if (len > 0) {
+        str = new char[len + 1]();
+        napi_get_value_string_utf8(env, argv[PARAM1], str, len + 1, &len);
+        executeInfo->level = str;
+        delete[] str;
+    }
+    if (executeInfo->type.compare("FACE_ONLY") != 0) {
+        HILOG_ERROR("%{public}s check type fail.", __func__);
+        return false;
+    }
+    return true;
 }
 
 napi_value UserAuthImpl::Auth(napi_env env, napi_callback_info info)

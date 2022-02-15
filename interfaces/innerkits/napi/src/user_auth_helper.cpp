@@ -144,6 +144,18 @@ napi_value Auth(napi_env env, napi_callback_info info)
     return userAuthImpl->Auth(env, info);
 }
 
+napi_value Execute(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    size_t argcAsync = 0;
+    napi_value args[ARGS_MAX_COUNT] = {nullptr};
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
+    UserAuthImpl *userAuthImpl = nullptr;
+    NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
+    HILOG_INFO("UserAuthHelper, Execute");
+    return userAuthImpl->Execute(env, info);
+}
+
 /**
  * @brief user authentication
  *
@@ -194,6 +206,7 @@ void Init(napi_env env, napi_value exports)
     napi_status status;
     napi_property_descriptor exportFuncs[] = {
         DECLARE_NAPI_FUNCTION("constructor", UserAuth::Constructor),
+        DECLARE_NAPI_FUNCTION("getAuthenticator", UserAuth::Constructor),
     };
     status = napi_define_properties(env, exports, sizeof(exportFuncs) / sizeof(*exportFuncs), exportFuncs);
     if (status != napi_ok) {
@@ -221,6 +234,7 @@ napi_value GetCtor(napi_env env)
         DECLARE_NAPI_FUNCTION("auth", UserAuth::Auth),
         DECLARE_NAPI_FUNCTION("authUser", UserAuth::AuthUser),
         DECLARE_NAPI_FUNCTION("cancelAuth", UserAuth::CancelAuth),
+        DECLARE_NAPI_FUNCTION("execute", UserAuth::Execute),
     };
     NAPI_CALL(env, napi_define_class(env, "UserAuth", NAPI_AUTO_LENGTH, UserAuthServiceConstructor, nullptr,
         sizeof(clzDes) / sizeof(napi_property_descriptor), clzDes, &cons));

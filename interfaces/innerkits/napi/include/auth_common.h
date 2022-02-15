@@ -15,6 +15,7 @@
 #ifndef OHOS_USERAUTH_COMMON_H
 #define OHOS_USERAUTH_COMMON_H
 
+#include <string>
 #include <vector>
 
 #include "napi/native_api.h"
@@ -78,6 +79,17 @@ struct SetPropertyInfo {
     int32_t key;
     std::vector<uint8_t> setInfo;
     int32_t setResult;
+};
+
+struct ExecuteInfo {
+    bool isPromise;
+    napi_env env;
+    std::string type;
+    std::string level;
+    napi_ref callbackRef;
+    napi_deferred deferred;
+    napi_value promise;
+    int32_t result;
 };
 
 struct AuthInfo {
