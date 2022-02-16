@@ -49,9 +49,9 @@ declare namespace userIAM
          * <p>Permissions required: {@code ohos.permission.ACCESS_USER_AUTH_INTERNAL}  
          * @param authType Credential type for authentication.
          * @param authTrustLevel Credibility level of certification results.
-         * @return Returns a check result, which is specified by getAvailabeStatus.
+         * @return Returns a check result, which is specified by getAvailableStatus.
          */
-        getAvailabeStatus(authType : AuthType, authTrustLevel : AuthTrustLevel) : number;
+        getAvailableStatus(authType : AuthType, authTrustLevel : AuthTrustLevel) : number;
 
         /**
          * Get the attribute, pass in the credential type and the key to get, and return the value corresponding to the key.
