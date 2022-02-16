@@ -35,7 +35,7 @@ public:
     ~UserAuthImpl();
     AuthBuild authBuild;
     napi_value GetVersion(napi_env env, napi_callback_info info);
-    napi_value GetAvailabeStatus(napi_env env, napi_callback_info info);
+    napi_value GetAvailableStatus(napi_env env, napi_callback_info info);
     napi_value GetProperty(napi_env env, napi_callback_info info);
     napi_value SetProperty(napi_env env, napi_callback_info info);
     napi_value Auth(napi_env env, napi_callback_info info);
