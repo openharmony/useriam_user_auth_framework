@@ -30,8 +30,7 @@
             "auth_executor_mgr"
         ],
         "third_party": [
-            "openssl",
-            "googletest"
+            "openssl"
         ]
       },
       "build": {
