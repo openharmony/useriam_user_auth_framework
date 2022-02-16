@@ -16,7 +16,7 @@
       "name": "user_auth",
       "subsystem": "useriam",
       "adapted_system_type": [ "standard" ],
-      "syscap": ["SystemCapability.UserIAM.UserAuth"],
+      "syscap": ["SystemCapability.UserIAM.UserAuth.Core"],
       "features": [],
       "rom": "2400KB",
       "ram": "1500KB",

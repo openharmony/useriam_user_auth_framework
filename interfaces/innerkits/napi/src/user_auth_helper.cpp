@@ -74,7 +74,7 @@ napi_value GetVersion(napi_env env, napi_callback_info info)
  * @param info
  * @return napi_value Verify that the certification capability is available
  */
-napi_value GetAvailabeStatus(napi_env env, napi_callback_info info)
+napi_value GetAvailableStatus(napi_env env, napi_callback_info info)
 {
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
@@ -82,8 +82,8 @@ napi_value GetAvailabeStatus(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
-    HILOG_INFO("UserAuthHelper, getAvailabeStatus");
-    return userAuthImpl->GetAvailabeStatus(env, info);
+    HILOG_INFO("UserAuthHelper, getAvailableStatus");
+    return userAuthImpl->GetAvailableStatus(env, info);
 }
 
 /**
@@ -228,7 +228,7 @@ napi_value GetCtor(napi_env env)
     napi_value cons = nullptr;
     napi_property_descriptor clzDes[] = {
         DECLARE_NAPI_FUNCTION("getVersion", UserAuth::GetVersion),
-        DECLARE_NAPI_FUNCTION("getAvailabeStatus", UserAuth::GetAvailabeStatus),
+        DECLARE_NAPI_FUNCTION("getAvailableStatus", UserAuth::GetAvailableStatus),
         DECLARE_NAPI_FUNCTION("getProperty", UserAuth::GetProperty),
         DECLARE_NAPI_FUNCTION("setProperty", UserAuth::SetProperty),
         DECLARE_NAPI_FUNCTION("auth", UserAuth::Auth),
