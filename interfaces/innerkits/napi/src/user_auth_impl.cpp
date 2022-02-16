@@ -44,7 +44,7 @@ napi_value UserAuthImpl::GetVersion(napi_env env, napi_callback_info info)
     return version;
 }
 
-napi_value UserAuthImpl::GetAvailabeStatus(napi_env env, napi_callback_info info)
+napi_value UserAuthImpl::GetAvailableStatus(napi_env env, napi_callback_info info)
 {
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     size_t argc = ARGS_MAX_COUNT;
@@ -66,7 +66,7 @@ napi_value UserAuthImpl::GetAvailabeStatus(napi_env env, napi_callback_info info
     AuthType authType = AuthType(type);
     AuthTurstLevel authTurstLevel = AuthTurstLevel(level);
     int32_t result = UserAuth::GetInstance().GetAvailableStatus(authType, authTurstLevel);
-    HILOG_INFO("GetAvailabeStatus result = %{public}d", result);
+    HILOG_INFO("GetAvailableStatus result = %{public}d", result);
     napi_value ret = 0;
     NAPI_CALL(env, napi_create_int32(env, result, &ret));
     return ret;

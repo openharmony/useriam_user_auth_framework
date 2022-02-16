@@ -70,7 +70,7 @@ napi_value GetVersion(napi_env env, napi_callback_info info);
  * @param info
  * @return napi_value Verify that the certification capability is available
  */
-napi_value GetAvailabeStatus(napi_env env, napi_callback_info info);
+napi_value GetAvailableStatus(napi_env env, napi_callback_info info);
 
 /**
  * @brief Get the Property object

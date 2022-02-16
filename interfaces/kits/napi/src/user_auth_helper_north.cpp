@@ -36,7 +36,7 @@ napi_value GetCtor(napi_env env)
     napi_value cons = nullptr;
     napi_property_descriptor clzDes[] = {
         DECLARE_NAPI_FUNCTION("getVersion", UserIAM::UserAuth::GetVersion),
-        DECLARE_NAPI_FUNCTION("getAvailabeStatus", UserIAM::UserAuth::GetAvailabeStatus),
+        DECLARE_NAPI_FUNCTION("getAvailableStatus", UserIAM::UserAuth::GetAvailableStatus),
         DECLARE_NAPI_FUNCTION("auth", UserIAM::UserAuth::Auth),
     };
     NAPI_CALL(env, napi_define_class(env, "UserAuthNorth", NAPI_AUTO_LENGTH,
