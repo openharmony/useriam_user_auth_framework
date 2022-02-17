@@ -29,7 +29,7 @@ void UserAuthAsyncProxy::onAcquireInfo(const int32_t module, const uint32_t acqu
 
     if (!data.WriteInterfaceToken(UserAuthAsyncProxy::GetDescriptor())) {
         USERAUTH_HILOGE(MODULE_SERVICE, "userauth write descriptor failed!");
-        return ;
+        return;
     }
     if (!data.WriteInt32(module)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteInt32(module).");
@@ -92,7 +92,7 @@ void UserAuthAsyncProxy::onExecutorPropertyInfo(const ExecutorProperty result)
     MessageParcel reply;
     if (!data.WriteInterfaceToken(UserAuthAsyncProxy::GetDescriptor())) {
         USERAUTH_HILOGI(MODULE_SERVICE, "userauth write descriptor failed!");
-        return ;
+        return;
     }
     if (!data.WriteInt32(result.result)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteInt32(result.result).");
@@ -126,7 +126,7 @@ void UserAuthAsyncProxy::onSetExecutorProperty(const int32_t result)
     MessageParcel reply;
     if (!data.WriteInterfaceToken(UserAuthAsyncProxy::GetDescriptor())) {
         USERAUTH_HILOGE(MODULE_SERVICE, "userauth write descriptor failed!");
-        return ;
+        return;
     }
     if (!data.WriteInt32(result)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteInt32(result).");

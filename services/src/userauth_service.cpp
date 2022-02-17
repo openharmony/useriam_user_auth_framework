@@ -23,6 +23,8 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
+const static int AUTHTURSTLEVEL_SYS = 1;
+
 REGISTER_SYSTEM_ABILITY_BY_ID(UserAuthService, SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true);
 
 UserAuthService::UserAuthService(int32_t systemAbilityId, bool runOnCreate)
@@ -67,7 +69,7 @@ int32_t UserAuthService::GetAvailableStatus(const AuthType authType, const AuthT
     int ret = GENERAL_ERROR;
     int result = TRUST_LEVEL_NOT_SUPPORT;
     int32_t userID = 0;
-    uint32_t authTurstLevelFromSys = 1;
+    uint32_t authTurstLevelFromSys = AUTHTURSTLEVEL_SYS;
     if (authTurstLevel > ATL4 || authTurstLevel < ATL1) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService GetAvailableStatus AuthTurstLevel is NOT SUPPORT!");
         return result;
@@ -81,8 +83,8 @@ int32_t UserAuthService::GetAvailableStatus(const AuthType authType, const AuthT
 
     ret = userauthController_.GetAuthTrustLevel(userID, authType, authTurstLevelFromSys);
     if (ret == SUCCESS) {
-        USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthService  iAuthTurstLevel_:%{public}d", authTurstLevelFromSys);
-        USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthService  authTurstLevel:%{public}d", authTurstLevel);
+        USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthService  iAuthTurstLevel_:%{public}u", authTurstLevelFromSys);
+        USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthService  authTurstLevel:%{public}u", authTurstLevel);
         if (authTurstLevelFromSys < authTurstLevel) {
             USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService authTurstLevel is ERROR!");
             return result;
@@ -99,7 +101,7 @@ void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAu
     std::string callerName;
     if (callback == nullptr) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService GetProperty IUserAuthCallback is NULL!");
-        return ;
+        return;
     }
     int32_t userID = 0;
 
@@ -129,7 +131,7 @@ void UserAuthService::SetProperty(const SetPropertyRequest request, sptr<IUserAu
     std::string callerName = "";
     if (callback == nullptr) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService SetProperty IUserAuthCallback is NULL!");
-        return ;
+        return;
     }
 
     sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
@@ -144,7 +146,7 @@ void UserAuthService::SetProperty(const SetPropertyRequest request, sptr<IUserAu
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService SetExecutorProp getUserID is ERROR!");
         callback->onSetExecutorProperty(ret);
-        return ;
+        return;
     }
 }
 
@@ -284,7 +286,6 @@ int32_t UserAuthService::GetControllerData(sptr<IUserAuthCallback>& callback, Au
     int result = SUCCESS;
     if (callback == nullptr) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService AuthUser IUserAuthCallback is NULL!");
-        callback->onResult(INVALID_PARAMETERS, extraInfo);
         ret = FAIL;
         return ret;
     }
@@ -333,7 +334,6 @@ int32_t UserAuthService::CancelAuth(const uint64_t contextId)
             result = userauthController_.Cancel(item);
             if (result != SUCCESS) {
                 USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService CancelAuth Cancel is ERROR!");
-                return result;
             }
         }
         userauthController_.DeleteContextID(contextId);
