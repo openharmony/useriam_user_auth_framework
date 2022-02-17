@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <inttypes.h>
 
 #include "userauth_adapter.h"
 #include "userauth_hilog_wrapper.h"
@@ -26,6 +27,7 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
+const int g_userAuthVersion = 1235;
 UserAuthAdapter &UserAuthAdapter::GetInstance()
 {
     static UserAuthAdapter instance;
@@ -122,9 +124,6 @@ int32_t UserAuthAdapter::SetProPropAuthInfo(OHOS::UserIAM::AuthResPool::AuthAttr
         setPropCallback->OnResult(ret, extraInfo);
         return ret;
     }
-    if (ret != SUCCESS) {
-        return ret;
-    }
     ret = authAttributes.SetUint64ArrayValue(AUTH_TEMPLATE_ID_LIST, templateIds);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth SetUint64ArrayValue AUTH_TEMPLATE_ID_LIST ERROR!");
@@ -186,6 +185,7 @@ int32_t UserAuthAdapter::RequestAuthResult(uint64_t contextId, std::vector<uint8
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth RequestAuthResult ERROR!");
     }
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth RequestAuthResult is end!");
     return ret;
 }
 
@@ -212,7 +212,7 @@ int32_t UserAuthAdapter::Cancel(uint64_t sessionId)
 int32_t UserAuthAdapter::GetVersion()
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth GetVersion is start!");
-    int32_t version = 1235;
+    int32_t version = g_userAuthVersion;
 
     return version;
 }
@@ -313,7 +313,7 @@ int32_t UserAuthAdapter::GetEachExecutorProp(GetPropertyRequest &requset, Execut
                 return INVALID_PARAMETERS;
         }
     }
-    USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthAdapter::GetEachExecutorProp %{public}llu:%{public}u:%{public}u",
+    USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthAdapter::GetEachExecutorProp %{public}" PRIu64 ":%{public}u:%{public}u",
         result.authSubType, result.remainTimes, result.freezingTime);
     return ret;
 }
@@ -365,28 +365,29 @@ int32_t UserAuthAdapter::SetExecutorProp(uint64_t callerUID, std::string pkgName
 
 int32_t UserAuthAdapter::coAuth(CoAuthInfo coAuthInfo, sptr<IUserAuthCallback>& callback)
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth coAuthHandle is start!");
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth coAuth is start!");
 
     std::shared_ptr<CoAuth::CoAuthCallback> coAuthCallback =
         std::make_shared<UserAuthCallbackImplCoAuth>(callback, coAuthInfo, false);
     OHOS::UserIAM::CoAuth::AuthInfo authInfo;
     int32_t ret = authInfo.SetPkgName(coAuthInfo.pkgName);
     if (ret != SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth pAuthInfo_ SetPkgName ERROR!");
+        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth authInfo SetPkgName ERROR!");
         return ret;
     }
     ret = authInfo.SetCallerUid(coAuthInfo.callerID);
     if (ret != SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth pAuthInfo_ SetCallerUid ERROR!");
+        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth authInfo SetCallerUid ERROR!");
         return ret;
     }
+
     ret = UserAuthCallbackImplCoAuth::SaveCoauthCallback(coAuthInfo.contextID, coAuthCallback);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth SaveCoauthCallback ERROR!");
         return ret;
     }
     for (auto const &item : coAuthInfo.sessionIds) {
-        CoAuth::CoAuth::GetInstance().coAuth(item, authInfo, coAuthCallback);
+        CoAuth::CoAuth::GetInstance().BeginSchedule(item, authInfo, coAuthCallback);
     }
 
     return SUCCESS;
