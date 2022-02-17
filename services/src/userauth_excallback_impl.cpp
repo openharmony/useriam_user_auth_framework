@@ -20,6 +20,7 @@
 #include "userauth_async_proxy.h"
 #include "securec.h"
 
+#include <inttypes.h>
 #include <iservice_registry.h>
 #include <system_ability_definition.h>
 
@@ -32,7 +33,7 @@ UserAuthCallbackImplSetProp::UserAuthCallbackImplSetProp(const sptr<IUserAuthCal
 {
     if (impl == nullptr) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthCallbackImplSetProp impl callback is Null");
-        return ;
+        return;
     }
     callback_ = impl;
 }
@@ -109,7 +110,7 @@ UserAuthCallbackImplCoAuth::UserAuthCallbackImplCoAuth(const sptr<IUserAuthCallb
 {
     if (impl == nullptr) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthCallbackImplCoAuth impl callback is Null");
-        return ;
+        return;
     }
     callback_ = impl;
     authType_ = coAuthInfo.authType;
@@ -175,7 +176,7 @@ void UserAuthCallbackImplCoAuth::OnFinishHandle(uint32_t resultCode, std::vector
     GetPropertyRequest getPropertyRequest;
     AuthResult authResult;
     std::lock_guard<std::mutex> lock(mutex_);
-    USERAUTH_HILOGD(MODULE_SERVICE, "OnFinishHandle scheduleTokensize:%{public}d, resultCode:%{public}d",
+    USERAUTH_HILOGD(MODULE_SERVICE, "OnFinishHandle scheduleTokensize:%{public}d, resultCode:%{public}u",
         scheduleToken.size(), resultCode);
     callbackNowCount_++;
     if (isResultDoneFlag_) {
@@ -183,6 +184,7 @@ void UserAuthCallbackImplCoAuth::OnFinishHandle(uint32_t resultCode, std::vector
     }
     int32_t ret = UserAuthAdapter::GetInstance().RequestAuthResult(callbackContextID_,
         scheduleToken, authToken, sessionIds);
+    USERAUTH_HILOGD(MODULE_SERVICE, "RequestAuthResult ret:%{public}d", ret);
     if (ret == E_RET_UNDONE) {
         if (callbackNowCount_ == callbackCount_) {
             USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthCallbackImplCoAuth E_RET_UNDONE");
@@ -258,7 +260,7 @@ int32_t UserAuthCallbackImplCoAuth::DeleteCoauthCallback(uint64_t contextId)
     if (iter != saveCoauthCallback_.end()) {
         saveCoauthCallback_.erase(iter);
         resultCode = SUCCESS;
-        USERAUTH_HILOGD(MODULE_SERVICE, "contextId XXXX%{public}04llx is deleted", contextId);
+        USERAUTH_HILOGD(MODULE_SERVICE, "contextId XXXX%{public}04" PRIx64 " is deleted", contextId);
     } else {
         resultCode = FAIL;
         USERAUTH_HILOGE(MODULE_SERVICE, "contextId is not found and do not delete callback");
@@ -271,8 +273,8 @@ UserAuthCallbackImplIDMGetPorp::UserAuthCallbackImplIDMGetPorp(const sptr<IUserA
                                                                std::string pkgName)
 {
     if (impl == nullptr) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthCallbackImplIDMGetPorp  impl callback is Null");
-        return ;
+        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthCallbackImplIDMGetPorp impl callback is Null");
+        return;
     }
     callback_ = impl;
     requst_.authType = requst.authType;
@@ -283,7 +285,7 @@ UserAuthCallbackImplIDMGetPorp::UserAuthCallbackImplIDMGetPorp(const sptr<IUserA
 }
 void UserAuthCallbackImplIDMGetPorp::OnGetInfo(std::vector<UserIDM::CredentialInfo>& info)
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthCallbackImplIDMGetPorp  OnGetInfo enter");
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthCallbackImplIDMGetPorp OnGetInfo enter");
     ExecutorProperty executorProperty = {};
     if (info.size() == 0) {
         executorProperty.result = GENERAL_ERROR;
@@ -304,7 +306,7 @@ UserAuthCallbackImplIDMCothGetPorpFreez::UserAuthCallbackImplIDMCothGetPorpFreez
 {
     if (impl == nullptr) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthCallbackImplIDMCothGetPorpFreez impl callback is Null");
-        return ;
+        return;
     }
     callback_ = impl;
     authToken_ = authToken;
@@ -315,7 +317,7 @@ UserAuthCallbackImplIDMCothGetPorpFreez::UserAuthCallbackImplIDMCothGetPorpFreez
 }
 void UserAuthCallbackImplIDMCothGetPorpFreez::OnGetInfo(std::vector<UserIDM::CredentialInfo>& info)
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthCallbackImplIDMCothGetPorpFreez  OnGetInfo enter");
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthCallbackImplIDMCothGetPorpFreez OnGetInfo enter");
     std::vector<uint64_t> templateIds;
     AuthResult authResult;
     if (info.size() == 0) {
@@ -343,7 +345,7 @@ UserAuthCallbackImplIDMGetPorpCoauth::UserAuthCallbackImplIDMGetPorpCoauth(
 {
     if (impl == nullptr) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthCallbackImplIDMGetPorpCoauth impl callback is Null");
-        return ;
+        return;
     }
     callback_ = impl;
     authToken_ = authToken;
