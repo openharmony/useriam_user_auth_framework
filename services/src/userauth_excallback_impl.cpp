@@ -20,7 +20,7 @@
 #include "userauth_async_proxy.h"
 #include "securec.h"
 
-#include <inttypes.h>
+#include <cinttypes>
 #include <iservice_registry.h>
 #include <system_ability_definition.h>
 
@@ -184,7 +184,6 @@ void UserAuthCallbackImplCoAuth::OnFinishHandle(uint32_t resultCode, std::vector
     }
     int32_t ret = UserAuthAdapter::GetInstance().RequestAuthResult(callbackContextID_,
         scheduleToken, authToken, sessionIds);
-    USERAUTH_HILOGD(MODULE_SERVICE, "RequestAuthResult ret:%{public}d", ret);
     if (ret == E_RET_UNDONE) {
         if (callbackNowCount_ == callbackCount_) {
             USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthCallbackImplCoAuth E_RET_UNDONE");

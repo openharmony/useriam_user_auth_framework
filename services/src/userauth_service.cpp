@@ -20,10 +20,11 @@
 #include "accesstoken_kit.h"
 #include "userauth_service.h"
 
-#define AUTHTURSTLEVEL_SYS 1
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
+const static int AUTHTURSTLEVEL_SYS = 1;
+
 REGISTER_SYSTEM_ABILITY_BY_ID(UserAuthService, SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true);
 
 UserAuthService::UserAuthService(int32_t systemAbilityId, bool runOnCreate)
