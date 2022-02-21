@@ -121,7 +121,7 @@ void AuthApiCallback::OnAuthAcquireInfo(AcquireInfoInner *acquireInfoInner)
         napi_create_int32(env, acquireInfoInner->module, &params[PARAM0]);
         napi_create_uint32(env, acquireInfoInner->acquireInfo, &params[PARAM1]);
         napi_create_int32(env, acquireInfoInner->extraInfo, &params[PARAM2]);
-        napiStatus = napi_call_function(env, acquireInfoInner->jsFunction, callback, PARAM3, params, &returnOnAcquire);
+        napiStatus = napi_call_function(env, nullptr, callback, PARAM3, params, &returnOnAcquire);
         if (napiStatus != napi_ok) {
             HILOG_ERROR("napi_call_function faild");
         }
@@ -140,7 +140,6 @@ void AuthApiCallback::onAcquireInfo(const int32_t module, const uint32_t acquire
         }
         acquireInfoInner->env = userInfo_->callBackInfo.env;
         acquireInfoInner->onAcquireInfo = userInfo_->onAcquireInfo;
-        acquireInfoInner->jsFunction = userInfo_->jsFunction;
         acquireInfoInner->module = module;
         acquireInfoInner->acquireInfo = acquireInfo;
         acquireInfoInner->extraInfo = extraInfo;
@@ -157,7 +156,6 @@ void AuthApiCallback::onAcquireInfo(const int32_t module, const uint32_t acquire
         }
         acquireInfoInner->env = authInfo_->callBackInfo.env;
         acquireInfoInner->onAcquireInfo = authInfo_->onAcquireInfo;
-        acquireInfoInner->jsFunction = authInfo_->jsFunction;
         acquireInfoInner->module = module;
         acquireInfoInner->acquireInfo = acquireInfo;
         acquireInfoInner->extraInfo = extraInfo;
@@ -191,7 +189,7 @@ static void OnUserAuthResultWork(uv_work_t *work, int status)
     params[PARAM1] = AuthApiCallback::BuildOnResult(
         env, userInfo->remainTimes, userInfo->freezingTime, userInfo->token);
     napi_value return_val = nullptr;
-    napi_call_function(env, userInfo->jsFunction, callback, PARAM2, params, &return_val);
+    napi_call_function(env, nullptr, callback, PARAM2, params, &return_val);
     delete userInfo;
     delete work;
 }
@@ -246,7 +244,7 @@ static void OnAuthResultWork(uv_work_t *work, int status)
     params[PARAM1] = AuthApiCallback::BuildOnResult(
         env, authInfo->remainTimes, authInfo->freezingTime, authInfo->token);
     napi_value return_val = nullptr;
-    napi_call_function(env, authInfo->jsFunction, callback, PARAM2, params, &return_val);
+    napi_call_function(env, nullptr, callback, PARAM2, params, &return_val);
     delete authInfo;
     delete work;
 }
