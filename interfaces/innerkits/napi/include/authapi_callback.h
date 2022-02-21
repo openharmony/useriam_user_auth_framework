@@ -30,7 +30,6 @@ namespace UserAuth {
 typedef struct AcquireInfoInner {
     napi_env env;
     napi_ref onAcquireInfo;
-    napi_value jsFunction;
     int32_t module;
     uint32_t acquireInfo;
     int32_t extraInfo;
