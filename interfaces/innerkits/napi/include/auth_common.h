@@ -97,7 +97,6 @@ struct AuthInfo {
     CallBackInfo callBackInfo;
     napi_callback_info info;
     napi_async_work asyncWork;
-    napi_value jsFunction;
     napi_value onResultCallBack;
     napi_value onAcquireInfoCallBack;
     napi_ref onResult;
@@ -118,7 +117,6 @@ struct AuthUserInfo {
     CallBackInfo callBackInfo;
     napi_callback_info info;
     napi_async_work asyncWork;
-    napi_value jsFunction;
     napi_ref onResult;
     napi_ref onAcquireInfo;
     napi_value onResultCallBack;

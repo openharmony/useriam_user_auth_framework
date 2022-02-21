@@ -377,7 +377,6 @@ napi_value UserAuthImpl::BuildAuthInfo(napi_env env, AuthInfo *authInfo)
     }
 
     if (authBuild.NapiTypeObject(env, argv[PARAM3])) {
-        authInfo->jsFunction = argv[PARAM3];
         NAPI_CALL(env, napi_get_named_property(env, argv[PARAM3], "onResult", &authInfo->onResultCallBack));
         NAPI_CALL(env, napi_create_reference(env, authInfo->onResultCallBack, PARAM1, &authInfo->onResult));
         NAPI_CALL(env, napi_get_named_property(env, argv[PARAM3], "onAcquireInfo", &authInfo->onAcquireInfoCallBack));
@@ -567,7 +566,6 @@ napi_value UserAuthImpl::BuildAuthUserInfo(napi_env env, AuthUserInfo *userInfo)
     }
     if (authBuild.NapiTypeObject(env, argv[PARAM4])) {
         HILOG_INFO("AuthUser is Object");
-        userInfo->jsFunction = argv[PARAM4];
         NAPI_CALL(env, napi_get_named_property(env, argv[PARAM4], "onResult", &userInfo->onResultCallBack));
         NAPI_CALL(env, napi_create_reference(env, userInfo->onResultCallBack, PARAM1, &userInfo->onResult));
         NAPI_CALL(env, napi_get_named_property(env, argv[PARAM4], "onAcquireInfo", &userInfo->onAcquireInfoCallBack));
