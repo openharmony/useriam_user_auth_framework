@@ -268,6 +268,7 @@ uint64_t UserAuthService::AuthUser(const int32_t userId, const uint64_t challeng
     coAuthInfo.callerID = callerID;
     coAuthInfo.contextID = contextID;
     coAuthInfo.pkgName = callerName;
+    coAuthInfo.userID = userId;
     result = userauthController_.coAuth(coAuthInfo, callback);
     if (result != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService AuthUser coAuth is ERROR!");
