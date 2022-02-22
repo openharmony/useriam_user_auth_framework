@@ -36,6 +36,7 @@ void Init(napi_env env, napi_value exports);
  * @return napi_value UserAuth Instance
  */
 napi_value GetCtor(napi_env env);
+
 /**
  * @brief Construction method
  *
@@ -44,6 +45,23 @@ napi_value GetCtor(napi_env env);
  * @return napi_value UserAuth Instance
  */
 napi_value Constructor(napi_env env, napi_callback_info info);
+
+/**
+ * @brief Get the Ctor object for API6
+ *
+ * @param env
+ * @return napi_value UserAuth Instance
+ */
+napi_value GetCtorForAPI6(napi_env env);
+
+/**
+ * @brief Construction method for API6
+ *
+ * @param env
+ * @param info
+ * @return napi_value UserAuth Instance
+ */
+napi_value ConstructorForAPI6(napi_env env, napi_callback_info info);
 
 /**
  * @brief Instance passed to context
@@ -100,6 +118,13 @@ napi_value SetProperty(napi_env env, napi_callback_info info);
  */
 napi_value Auth(napi_env env, napi_callback_info info);
 
+/**
+ * @brief Execute authentication
+ *
+ * @param env
+ * @param info
+ * @return Returns the result of successful authentication
+ */
 napi_value Execute(napi_env env, napi_callback_info info);
 
 /**
