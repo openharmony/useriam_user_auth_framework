@@ -206,7 +206,7 @@ void Init(napi_env env, napi_value exports)
     napi_status status;
     napi_property_descriptor exportFuncs[] = {
         DECLARE_NAPI_FUNCTION("constructor", UserAuth::Constructor),
-        DECLARE_NAPI_FUNCTION("getAuthenticator", UserAuth::Constructor),
+        DECLARE_NAPI_FUNCTION("getAuthenticator", UserAuth::ConstructorForAPI6),
     };
     status = napi_define_properties(env, exports, sizeof(exportFuncs) / sizeof(*exportFuncs), exportFuncs);
     if (status != napi_ok) {
@@ -223,6 +223,15 @@ napi_value Constructor(napi_env env, napi_callback_info info)
     return userAuth;
 }
 
+napi_value ConstructorForAPI6(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    napi_value userAuthForAPI6 = nullptr;
+    NAPI_CALL(env, napi_new_instance(env, GetCtorForAPI6(env), 0, nullptr, &userAuthForAPI6));
+    NAPI_CALL(env, napi_get_cb_info(env, info, nullptr, nullptr, &thisVar, nullptr));
+    return userAuthForAPI6;
+}
+
 napi_value GetCtor(napi_env env)
 {
     napi_value cons = nullptr;
@@ -234,9 +243,19 @@ napi_value GetCtor(napi_env env)
         DECLARE_NAPI_FUNCTION("auth", UserAuth::Auth),
         DECLARE_NAPI_FUNCTION("authUser", UserAuth::AuthUser),
         DECLARE_NAPI_FUNCTION("cancelAuth", UserAuth::CancelAuth),
-        DECLARE_NAPI_FUNCTION("execute", UserAuth::Execute),
     };
     NAPI_CALL(env, napi_define_class(env, "UserAuth", NAPI_AUTO_LENGTH, UserAuthServiceConstructor, nullptr,
+        sizeof(clzDes) / sizeof(napi_property_descriptor), clzDes, &cons));
+    return cons;
+}
+
+napi_value GetCtorForAPI6(napi_env env)
+{
+    napi_value cons = nullptr;
+    napi_property_descriptor clzDes[] = {
+        DECLARE_NAPI_FUNCTION("execute", UserAuth::Execute),
+    };
+    NAPI_CALL(env, napi_define_class(env, "FaceAuthAbility", NAPI_AUTO_LENGTH, UserAuthServiceConstructor, nullptr,
         sizeof(clzDes) / sizeof(napi_property_descriptor), clzDes, &cons));
     return cons;
 }
