@@ -14,10 +14,10 @@
  */
 #include <cinttypes>
 
-#include "auth_build.h"
 #include "auth_common.h"
 #include "userauth_hilog_wrapper.h"
 #include "auth_object.h"
+#include "auth_build.h"
 
 namespace OHOS {
 namespace UserIAM {
