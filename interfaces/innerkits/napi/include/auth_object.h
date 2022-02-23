@@ -32,7 +32,7 @@ public:
 class Napi_SetPropertyRequest {
 public:
     int32_t authType_ = 0;
-    int32_t key_ = 0;
+    uint32_t key_ = 0;
     std::vector<std::uint8_t> setInfo_;
 };
 

@@ -23,10 +23,7 @@ config("userauth_public_config") {
 }
 
 ohos_shared_library("userauthnorth") {
-  sources = [
-    "src/auth_native_module.cpp",
-    "src/user_auth_helper_north.cpp",
-  ]
+  sources = [ "src/user_auth_helper_north.cpp" ]
 
   include_dirs = [ "third_party/node/src" ]
 
@@ -36,6 +33,7 @@ ohos_shared_library("userauthnorth") {
     "//foundation/ace/napi:ace_napi",
   ]
 
+  configs = [ "${userauth_utils_path}:utils_config" ]
   public_configs = [ ":userauth_public_config" ]
 
   external_deps = [ "ipc:ipc_core" ]
@@ -48,5 +46,5 @@ ohos_shared_library("userauthnorth") {
   public_deps = []
   relative_install_dir = "module"
   part_name = "user_auth"
-  subsystem_name = "useriam"
+  subsystem_name = "user_iam"
 }

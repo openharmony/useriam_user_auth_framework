@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include <cinttypes>
 #include <message_parcel.h>
 
 #include "userauth_hilog_wrapper.h"
@@ -201,7 +202,7 @@ void UserAuthAsyncStub::onAcquireInfo(const int32_t module, const uint32_t acqui
 
     if (authCallback_ == nullptr) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "userauthAsyncStub onAcquireInfo callback is Null");
-        return ;
+        return;
     }
 
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub module:%{public}d, acquireInfo:%{public}u",
@@ -216,7 +217,7 @@ void UserAuthAsyncStub::onResult(const int32_t result, const AuthResult extraInf
 
     if (authCallback_ == nullptr) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "userauthAsyncStub onResult callback is Null");
-        return ;
+        return;
     }
 
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub result:%{public}d, remain:%{public}u, freeze:%{public}u",
@@ -230,12 +231,12 @@ void UserAuthAsyncStub::onExecutorPropertyInfo(const ExecutorProperty result)
 
     if (getPropCallback_ == nullptr) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "UserAuthAsyncStub onExecutorPropertyInfo callback is Null");
-        return ;
+        return;
     }
 
     USERAUTH_HILOGD(MODULE_INNERKIT,
-                    "userauthAsyncStub result:%{public}d, sub:%{public}llu, remain:%{public}u, freeze:%{public}u",
-                    result.result, result.authSubType, result.remainTimes, result.freezingTime);
+        "userauthAsyncStub result:%{public}d, sub:%{public}" PRIu64 ", remain:%{public}u, freeze:%{public}u",
+        result.result, result.authSubType, result.remainTimes, result.freezingTime);
     getPropCallback_->onGetProperty(result);
 }
 
@@ -245,7 +246,7 @@ void UserAuthAsyncStub::onSetExecutorProperty(const int32_t result)
 
     if (setPropCallback_ == nullptr) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "UserAuthAsyncStub onSetExecutorProperty callback is Null");
-        return ;
+        return;
     }
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub result:%{public}d", result);
     setPropCallback_->onSetProperty(result);

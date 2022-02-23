@@ -63,7 +63,6 @@
               "header_files": [
                 "auth_build.h",
                 "auth_common.h",
-                "auth_hilog_wrapper.h",
                 "auth_object.h",
                 "authapi_callback.h",
                 "result_convert.h",
@@ -80,7 +79,6 @@
               "header_files": [
                 "auth_build.h",
                 "auth_common.h",
-                "auth_hilog_wrapper.h",
                 "auth_object.h",
                 "authapi_callback.h",
                 "result_convert.h",
