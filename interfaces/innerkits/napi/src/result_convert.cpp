@@ -12,12 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#include "result_convert.h"
+#include <cinttypes>
 
 #include "securec.h"
-
-#include "auth_hilog_wrapper.h"
+#include "userauth_hilog_wrapper.h"
+#include "result_convert.h"
 
 namespace OHOS {
 namespace UserIAM {
@@ -32,7 +31,7 @@ ResultConvert::~ResultConvert()
 
 napi_value ResultConvert::Uint64ToUint8Napi(napi_env env, uint64_t value)
 {
-    HILOG_INFO("ResultConvert Uint64ToUint8Napi uint64_t %{public}llu", value);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "ResultConvert Uint64ToUint8Napi uint64_t %{public}" PRIu64 "", value);
     size_t length = sizeof(value);
     void *data = nullptr;
     napi_value arrayBuffer = nullptr;
@@ -59,16 +58,16 @@ std::vector<uint8_t> ResultConvert::NapiGetValueUint8Array(napi_env env, napi_va
     bool isTypedArray = false;
     napi_is_typedarray(env, jsValue, &isTypedArray);
     if (!isTypedArray) {
-        HILOG_ERROR("NapiGetValueUint8Array jsValue is not typedarray");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "NapiGetValueUint8Array jsValue is not typedarray");
         return RetNull;
     }
     napi_get_typedarray_info(env, jsValue, &arraytype, &length, reinterpret_cast<void **>(&data), &buffer, &offset);
     if (arraytype != napi_uint8_array) {
-        HILOG_ERROR("NapiGetValueUint8Array js jsValue is not uint8Array");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "NapiGetValueUint8Array js jsValue is not uint8Array");
         return RetNull;
     }
     if (offset != 0) {
-        HILOG_ERROR("offset is %{public}d", offset);
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "offset is %{public}zu", offset);
         return RetNull;
     }
     std::vector<uint8_t> result(data, data + length);
@@ -84,7 +83,7 @@ napi_valuetype ResultConvert::GetType(napi_env env, napi_value value)
     napi_valuetype type;
     status = napi_typeof(env, value, &type);
     if (status != napi_ok) {
-        HILOG_ERROR("napi_typeof faild");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_typeof faild");
     }
     return type;
 }
@@ -108,7 +107,7 @@ std::vector<uint32_t> ResultConvert::GetCppArrayUint32(napi_env env, napi_value 
     uint32_t arrayLength = 0;
     napi_get_array_length(env, value, &arrayLength);
     if (arrayLength <= 0) {
-        HILOG_ERROR("%{public}s The array is empty.", __func__);
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s The array is empty.", __func__);
         return std::vector<uint32_t>();
     }
     std::vector<uint32_t> paramArrays;
@@ -118,7 +117,7 @@ std::vector<uint32_t> ResultConvert::GetCppArrayUint32(napi_env env, napi_value 
         napi_valuetype napiValueType = napi_undefined;
         napi_typeof(env, napiElement, &napiValueType);
         if (napiValueType != napi_number) {
-            HILOG_ERROR("%{public}s Wrong argument type. Numbers expected.", __func__);
+            USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s Wrong argument type. Numbers expected.", __func__);
             return std::vector<uint32_t>();
         }
         uint32_t napiValue = 0;
@@ -141,13 +140,13 @@ std::vector<uint32_t> ResultConvert::GetInt32ArrayValueByKey(napi_env env, napi_
     bool isArray = false;
     status = napi_is_array(env, array, &isArray);
     if (status != napi_ok) {
-        HILOG_INFO("napi_is_array is failed");
+        USERAUTH_HILOGI(MODULE_JS_NAPI, "napi_is_array is failed");
         return std::vector<uint32_t>();
     }
     if (isArray) {
-        HILOG_INFO("args[PIN_PARAMS_ONE]  is a array");
+        USERAUTH_HILOGI(MODULE_JS_NAPI, "args[PIN_PARAMS_ONE] is a array");
     } else {
-        HILOG_INFO("args[PIN_PARAMS_ONE]  is not a array");
+        USERAUTH_HILOGI(MODULE_JS_NAPI, "args[PIN_PARAMS_ONE] is not a array");
         return std::vector<uint32_t>();
     }
     return GetCppArrayUint32(env, array);
@@ -157,7 +156,7 @@ std::string ResultConvert::NapiGetValueString(napi_env env, napi_value value)
 {
     napi_status status;
     if (value == nullptr) {
-        HILOG_ERROR("AuthBuild NapiGetValueString value is nullptr");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "AuthBuild NapiGetValueString value is nullptr");
         return "";
     }
     std::string resultValue = "";
@@ -166,11 +165,11 @@ std::string ResultConvert::NapiGetValueString(napi_env env, napi_value value)
     size_t resultSize = 0;
     status = napi_get_value_string_utf8(env, value, valueString, valueSize, &resultSize);
     if (status != napi_ok) {
-        HILOG_ERROR("napi_get_value_string_utf8 faild");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_value_string_utf8 faild");
     }
     resultValue = valueString;
     if (resultValue == "") {
-        HILOG_ERROR("ContactsBuild NapiGetValueString Data error");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "ContactsBuild NapiGetValueString Data error");
         return "";
     }
     return resultValue;
@@ -181,8 +180,8 @@ int32_t ResultConvert::NapiGetValueInt32(napi_env env, napi_value value)
     if (value == nullptr) {
         return GET_VALUE_ERROR;
     }
-    int32_t result;
-    napi_status status = napi_get_value_int32(env, value, &result);
+    uint32_t result;
+    napi_status status = napi_get_value_uint32(env, value, &result);
     if (status != napi_ok) {
         return GET_VALUE_ERROR;
     }
@@ -206,7 +205,7 @@ int ResultConvert::NapiGetValueInt(napi_env env, napi_value value)
 napi_value ResultConvert::GetNapiValue(napi_env env, const std::string keyChar, napi_value object)
 {
     if (object == nullptr) {
-        HILOG_ERROR("ResultConvert::GetNapiValue object is nullptr");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "ResultConvert::GetNapiValue object is nullptr");
         return nullptr;
     }
     napi_value key = nullptr;

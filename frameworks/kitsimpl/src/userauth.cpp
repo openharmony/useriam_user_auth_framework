@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <new>
+
 #include <if_system_ability_manager.h>
 #include <iservice_registry.h>
 #include <system_ability_definition.h>
@@ -107,9 +109,13 @@ void UserAuth::GetProperty(const GetPropertyRequest request, std::shared_ptr<Get
         ExecutorProperty result = {};
         result.result = E_RET_NOSERVER;
         callback->onGetProperty(result);
-        return ;
+        return;
     }
-    sptr<IUserAuthCallback> asyncStub = new UserAuthAsyncStub(callback);
+    sptr<IUserAuthCallback> asyncStub = new (std::nothrow) UserAuthAsyncStub(callback);
+    if (asyncStub == nullptr) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "UserAuthAsyncStub failed, GetProperty IUserAuthCallback is nullptr");
+        return;
+    }
     proxy_->GetProperty(request, asyncStub);
 }
 void UserAuth::SetProperty(const SetPropertyRequest request, std::shared_ptr<SetPropCallback> callback)
@@ -122,9 +128,13 @@ void UserAuth::SetProperty(const SetPropertyRequest request, std::shared_ptr<Set
     auto proxy = GetProxy();
     if (proxy == nullptr) {
         callback->onSetProperty(E_RET_NOSERVER);
-        return ;
+        return;
     }
-    sptr<IUserAuthCallback> asyncStub = new UserAuthAsyncStub(callback);
+    sptr<IUserAuthCallback> asyncStub = new (std::nothrow) UserAuthAsyncStub(callback);
+    if (asyncStub == nullptr) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "UserAuthAsyncStub failed, SetProperty IUserAuthCallback is nullptr");
+        return;
+    }
     proxy_->SetProperty(request, asyncStub);
 }
 uint64_t UserAuth::Auth(const uint64_t challenge, const AuthType authType, const AuthTurstLevel authTurstLevel,
@@ -139,7 +149,11 @@ uint64_t UserAuth::Auth(const uint64_t challenge, const AuthType authType, const
     if (proxy == nullptr) {
         return E_RET_NOSERVER;
     }
-    sptr<IUserAuthCallback> asyncStub = new UserAuthAsyncStub(callback);
+    sptr<IUserAuthCallback> asyncStub = new (std::nothrow) UserAuthAsyncStub(callback);
+    if (asyncStub == nullptr) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "UserAuthAsyncStub failed, Auth IUserAuthCallback is nullptr");
+        return GENERAL_ERROR;
+    }
     uint64_t ret = proxy_->Auth(challenge, authType, authTurstLevel, asyncStub);
     return ret;
 }
@@ -155,7 +169,11 @@ uint64_t UserAuth::AuthUser(const int32_t userId, const uint64_t challenge, cons
     if (proxy == nullptr) {
         return E_RET_NOSERVER;
     }
-    sptr<IUserAuthCallback> asyncStub = new UserAuthAsyncStub(callback);
+    sptr<IUserAuthCallback> asyncStub = new (std::nothrow) UserAuthAsyncStub(callback);
+    if (asyncStub == nullptr) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "UserAuthAsyncStub failed, AuthUser IUserAuthCallback is nullptr");
+        return GENERAL_ERROR;
+    }
     uint64_t ret = proxy_->AuthUser(userId, challenge, authType, authTurstLevel, asyncStub);
     return ret;
 }

@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <cinttypes>
 
 #include "auth_build.h"
-
 #include "auth_common.h"
-#include "auth_hilog_wrapper.h"
+#include "userauth_hilog_wrapper.h"
 #include "auth_object.h"
 
 namespace OHOS {
@@ -33,14 +33,14 @@ Napi_SetPropertyRequest AuthBuild::SetPropertyRequestBuild(napi_env env, napi_va
 {
     Napi_SetPropertyRequest request;
     if (object == nullptr) {
-        HILOG_ERROR("SetPropertyRequestBuild object is null ");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "SetPropertyRequestBuild object is null");
         return request;
     }
     request.authType_ = convert.GetInt32ValueByKey(env, object, "authType");
     request.key_ = convert.GetInt32ValueByKey(env, object, "key");
     request.setInfo_ = convert.NapiGetValueUint8Array(env, object, "setInfo");
-    HILOG_INFO(" AuthBuild::SetPropertyRequestBuild authType = %{public}d", request.authType_);
-    HILOG_INFO(" AuthBuild::SetPropertyRequestBuild key = %{public}d", request.key_);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthBuild::SetPropertyRequestBuild authType = %{public}d, key = %{public}d",
+                    request.authType_, request.key_);
     return request;
 }
 
@@ -48,12 +48,12 @@ Napi_GetPropertyRequest AuthBuild::GetPropertyRequestBuild(napi_env env, napi_va
 {
     Napi_GetPropertyRequest request;
     if (object == nullptr) {
-        HILOG_ERROR("GetPropertyRequestBuild object is null ");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "GetPropertyRequestBuild object is null");
         return request;
     }
     request.authType_ = convert.GetInt32ValueByKey(env, object, "authType");
     request.keys_ = convert.GetInt32ArrayValueByKey(env, object, "keys");
-    HILOG_INFO(" AuthBuild::GetPropertyRequestBuild authType = %{public}d", request.authType_);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthBuild::GetPropertyRequestBuild authType = %{public}d", request.authType_);
     return request;
 }
 
@@ -91,26 +91,26 @@ uint64_t AuthBuild::GetUint8ArrayTo64(napi_env env, napi_value value)
     bool isTypedArray = false;
     napi_is_typedarray(env, value, &isTypedArray);
     if (!isTypedArray) {
-        HILOG_ERROR("GetUint8ArrayTo64 value is not typedarray");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "GetUint8ArrayTo64 value is not typedarray");
         return 0;
     }
     napi_get_typedarray_info(env, value, &arraytype, &length, reinterpret_cast<void **>(&data), &buffer, &offset);
     if (arraytype != napi_uint8_array) {
-        HILOG_ERROR("GetUint8ArrayTo64 js value is not uint8Array");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "GetUint8ArrayTo64 js value is not uint8Array");
         return 0;
     }
     if (offset != 0) {
-        HILOG_ERROR("offset is %{public}d", offset);
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "offset is %{public}zu", offset);
         return 0;
     }
     std::vector<uint8_t> result(data, data + length);
     uint8_t tmp[sizeof(uint64_t)];
     for (uint32_t i = 0; i < sizeof(uint64_t); i++) {
         tmp[i] = result[i];
-        HILOG_INFO("GetUint8ArrayTo64 result is %{public}d", (unsigned)result[i]);
+        USERAUTH_HILOGI(MODULE_JS_NAPI, "GetUint8ArrayTo64 result is %{public}u", (unsigned)result[i]);
     }
     uint64_t *re = static_cast<uint64_t *>(static_cast<void *>(tmp));
-    HILOG_INFO("GetUint8ArrayTo64 resultUint64 is %{public}llu", *re);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "GetUint8ArrayTo64 resultUint64 is %{public}" PRIu64 "", *re);
     return *re;
 }
 
