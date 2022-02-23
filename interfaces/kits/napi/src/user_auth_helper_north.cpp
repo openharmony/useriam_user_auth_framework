@@ -15,10 +15,11 @@
 
 #include "user_auth_helper_north.h"
 
-#include "auth_hilog_wrapper.h"
 #include "user_auth_impl.h"
 #include "user_auth_helper.h"
+#include "userauth_hilog_wrapper.h"
 
+using namespace OHOS::UserIAM::UserAuth;
 namespace OHOS {
 namespace UserAuthNorth {
 napi_value Constructor(napi_env env, napi_callback_info info)
@@ -27,7 +28,7 @@ napi_value Constructor(napi_env env, napi_callback_info info)
     napi_value userAuth = nullptr;
     NAPI_CALL(env, napi_new_instance(env, GetCtor(env), 0, nullptr, &userAuth));
     NAPI_CALL(env, napi_get_cb_info(env, info, nullptr, nullptr, &thisVar, nullptr));
-    HILOG_INFO("UserAuthNorth, Constructor start");
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthNorth, Constructor start");
     return userAuth;
 }
 
@@ -53,8 +54,27 @@ void Init(napi_env env, napi_value exports)
     };
     status = napi_define_properties(env, exports, sizeof(exportFuncs) / sizeof(*exportFuncs), exportFuncs);
     if (status != napi_ok) {
-        HILOG_ERROR("napi_define_properties faild");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_define_properties faild");
     }
+}
+
+static napi_value ModuleInit(napi_env env, napi_value exports)
+{
+    OHOS::UserAuthNorth::Init(env, exports);
+    return exports;
+}
+extern "C" __attribute__((constructor)) void RegisterModule(void)
+{
+    napi_module module = {
+        .nm_version = 1,
+        .nm_flags = 0,
+        .nm_filename = nullptr,
+        .nm_register_func = ModuleInit,
+        .nm_modname = "UserAuthNorth",
+        .nm_priv = nullptr,
+        .reserved = {}
+    };
+    napi_module_register(&module);
 }
 } // namespace UserAuthNorth
 } // namespace OHOS

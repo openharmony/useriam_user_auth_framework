@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <cinttypes>
 
-#include "user_auth_helper.h"
-
-#include "auth_hilog_wrapper.h"
+#include "userauth_hilog_wrapper.h"
 #include "user_auth_impl.h"
+#include "user_auth_helper.h"
 
 namespace OHOS {
 namespace UserIAM {
@@ -30,6 +30,7 @@ namespace UserAuth {
  */
 napi_value UserAuthServiceConstructor(napi_env env, napi_callback_info info)
 {
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, start.", __func__);
     std::shared_ptr<UserAuthImpl> userAuthImpl;
     userAuthImpl.reset(new UserAuthImpl());
     napi_value thisVar = nullptr;
@@ -63,7 +64,7 @@ napi_value GetVersion(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
-    HILOG_INFO("UserAuthHelper, GetVersion");
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, GetVersion");
     return userAuthImpl->GetVersion(env, info);
 }
 
@@ -82,7 +83,7 @@ napi_value GetAvailableStatus(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
-    HILOG_INFO("UserAuthHelper, getAvailableStatus");
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, getAvailableStatus");
     return userAuthImpl->GetAvailableStatus(env, info);
 }
 
@@ -101,7 +102,7 @@ napi_value GetProperty(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
-    HILOG_INFO("UserAuthHelper, GetProperty");
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, GetProperty");
     return userAuthImpl->GetProperty(env, info);
 }
 
@@ -120,7 +121,7 @@ napi_value SetProperty(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
-    HILOG_INFO("UserAuthHelper, SetProperty");
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, SetProperty");
     return userAuthImpl->SetProperty(env, info);
 }
 
@@ -140,7 +141,7 @@ napi_value Auth(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
-    HILOG_INFO("UserAuthHelper, Auth");
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, Auth");
     return userAuthImpl->Auth(env, info);
 }
 
@@ -152,7 +153,7 @@ napi_value Execute(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
-    HILOG_INFO("UserAuthHelper, Execute");
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, Execute");
     return userAuthImpl->Execute(env, info);
 }
 
@@ -172,7 +173,7 @@ napi_value AuthUser(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
-    HILOG_INFO("UserAuthHelper, AuthUser");
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, AuthUser");
     return userAuthImpl->AuthUser(env, info);
 }
 
@@ -191,7 +192,7 @@ napi_value CancelAuth(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
-    HILOG_INFO("UserAuthHelper, CancelAuth");
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, CancelAuth");
     return userAuthImpl->CancelAuth(env, info);
 }
 
@@ -203,6 +204,7 @@ napi_value CancelAuth(napi_env env, napi_callback_info info)
  */
 void Init(napi_env env, napi_value exports)
 {
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, start.", __func__);
     napi_status status;
     napi_property_descriptor exportFuncs[] = {
         DECLARE_NAPI_FUNCTION("constructor", UserAuth::Constructor),
@@ -210,12 +212,13 @@ void Init(napi_env env, napi_value exports)
     };
     status = napi_define_properties(env, exports, sizeof(exportFuncs) / sizeof(*exportFuncs), exportFuncs);
     if (status != napi_ok) {
-        HILOG_ERROR("napi_define_properties faild");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_define_properties faild");
     }
 }
 
 napi_value Constructor(napi_env env, napi_callback_info info)
 {
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, start.", __func__);
     napi_value thisVar = nullptr;
     napi_value userAuth = nullptr;
     NAPI_CALL(env, napi_new_instance(env, GetCtor(env), 0, nullptr, &userAuth));
@@ -234,6 +237,7 @@ napi_value ConstructorForAPI6(napi_env env, napi_callback_info info)
 
 napi_value GetCtor(napi_env env)
 {
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, start.", __func__);
     napi_value cons = nullptr;
     napi_property_descriptor clzDes[] = {
         DECLARE_NAPI_FUNCTION("getVersion", UserAuth::GetVersion),
@@ -255,7 +259,7 @@ napi_value GetCtorForAPI6(napi_env env)
     napi_property_descriptor clzDes[] = {
         DECLARE_NAPI_FUNCTION("execute", UserAuth::Execute),
     };
-    NAPI_CALL(env, napi_define_class(env, "FaceAuthAbility", NAPI_AUTO_LENGTH, UserAuthServiceConstructor, nullptr,
+    NAPI_CALL(env, napi_define_class(env, "UserAuth", NAPI_AUTO_LENGTH, UserAuthServiceConstructor, nullptr,
         sizeof(clzDes) / sizeof(napi_property_descriptor), clzDes, &cons));
     return cons;
 }

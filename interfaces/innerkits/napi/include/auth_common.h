@@ -76,7 +76,7 @@ struct SetPropertyInfo {
     napi_async_work asyncWork;
     napi_value result;
     int32_t authType;
-    int32_t key;
+    uint32_t key;
     std::vector<uint8_t> setInfo;
     int32_t setResult;
 };

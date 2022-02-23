@@ -68,7 +68,7 @@ napi_value ConstructorForAPI6(napi_env env, napi_callback_info info);
  *
  * @param env
  * @param info
- * @return napi_value Instance
+ * @return napi_value UserAuth Instance
  */
 napi_value UserAuthServiceConstructor(napi_env env, napi_callback_info info);
 
