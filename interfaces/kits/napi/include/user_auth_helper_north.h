@@ -17,6 +17,7 @@
 
 #include "napi/native_api.h"
 #include "napi/native_common.h"
+#include "napi/native_node_api.h"
 
 namespace OHOS {
 namespace UserAuthNorth {
