@@ -213,6 +213,12 @@ void Init(napi_env env, napi_value exports)
     status = napi_define_properties(env, exports, sizeof(exportFuncs) / sizeof(*exportFuncs), exportFuncs);
     if (status != napi_ok) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_define_properties faild");
+        return;
+    }
+
+    status = napi_set_named_property(env, exports, "UserAuth", GetCtor(env));
+    if (status != napi_ok) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_set_named_property faild");
     }
 }
 
