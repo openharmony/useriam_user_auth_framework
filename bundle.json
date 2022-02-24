@@ -36,8 +36,7 @@
       "build": {
         "sub_component": [
             "//base/user_iam/user_auth/sa_profile:userauth_sa_profile",
-            "//base/user_iam/user_auth/services:userauthservice",
-            "//base/user_iam/user_auth/interfaces/kits/napi:userauthnorth"
+            "//base/user_iam/user_auth/services:userauthservice"
         ],
         "inner_kits": [
       	  {
