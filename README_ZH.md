@@ -26,8 +26,7 @@
 //base/user_iam/user_auth
 ├── frameworks			# 框架代码
 ├── interfaces			# 对外接口存放目录
-│   ├── innerkits		# 对内部子系统暴露的头文件，供系统服务使用
-│   └── kits			# 对三方应用暴露的头文件
+│   └── innerkits		# 对内部子系统暴露的头文件，供系统服务使用
 ├── sa_profile			# Service Ability 配置文件
 ├── services			# Service Ability 服务实现
 ├── test				# 测试代码存放目录
