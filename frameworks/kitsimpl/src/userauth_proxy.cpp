@@ -26,30 +26,31 @@ UserAuthProxy::UserAuthProxy(const sptr<IRemoteObject> &object) : IRemoteProxy<I
 int32_t UserAuthProxy::GetAvailableStatus(const AuthType authType, const AuthTurstLevel authTurstLevel)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy GetAvailableStatus is start");
-    int32_t result = GENERAL_ERROR;
+    int32_t result = SUCCESS;
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
 
     if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "userauth write descriptor failed!");
-        return result;
+        return GENERAL_ERROR;
     }
     if (!data.WriteUint32(static_cast<uint32_t>(authType))) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "failed to WriteUint32(static_cast<uint32_t>(authType)).");
-        return E_READ_PARCEL_ERROR;
+        return GENERAL_ERROR;
     }
     if (!data.WriteUint32(static_cast<uint32_t>(authTurstLevel))) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "failed to WriteUint32(static_cast<uint32_t>(authTurstLevel)).");
-        return E_READ_PARCEL_ERROR;
+        return GENERAL_ERROR;
     }
     bool ret = SendRequest(static_cast<int32_t>(IUserAuth::USER_AUTH_GET_AVAILABLE_STATUS), data, reply, option);
     if (!ret) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "userauth SendRequest is failed, error code: %{public}d", ret);
-        return IPC_ERROR;
+        return GENERAL_ERROR;
     }
     if (!reply.ReadInt32(result)) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "userauth Readback fail!");
+        return GENERAL_ERROR;
     }
 
     return result;
@@ -127,36 +128,37 @@ uint64_t UserAuthProxy::Auth(const uint64_t challenge, const AuthType authType,
                              const AuthTurstLevel authTurstLevel, sptr<IUserAuthCallback>& callback)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy Auth is start");
-    u_int64_t result = SUCCESS;
+    const uint64_t invalidContextID = 0;
+    uint64_t result = invalidContextID;
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
 
     if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "userauth write descriptor failed!");
-        return result;
+        return invalidContextID;
     }
     USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthProxy::Auth challenge = %{public}" PRIu64 "", challenge);
     if (!data.WriteUint64(challenge)) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "failed to WriteUint64(challenge).");
-        return E_READ_PARCEL_ERROR;
+        return invalidContextID;
     }
     if (!data.WriteUint32(static_cast<uint32_t>(authType))) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "failed to WriteUint32(static_cast<uint32_t>(authType)).");
-        return E_READ_PARCEL_ERROR;
+        return invalidContextID;
     }
     if (!data.WriteUint32(static_cast<uint32_t>(authTurstLevel))) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "failed to WriteUint32(static_cast<uint32_t>(authTurstLevel)).");
-        return E_READ_PARCEL_ERROR;
+        return invalidContextID;
     }
     if (!data.WriteRemoteObject(callback->AsObject())) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "failed to WriteRemoteObject(callback->AsObject()).");
-        return E_READ_PARCEL_ERROR;
+        return invalidContextID;
     }
     bool ret = SendRequest(IUserAuth::USER_AUTH_AUTH, data, reply, option);
     if (!ret) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "userauth SendRequest is failed, error code: %{public}d", ret);
-        return result;
+        return invalidContextID;
     }
     if (!reply.ReadUint64(result)) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "userauth Readback fail!");
@@ -169,39 +171,40 @@ uint64_t UserAuthProxy::AuthUser(const int32_t userId, const uint64_t challenge,
                                  const AuthTurstLevel authTurstLevel, sptr<IUserAuthCallback>& callback)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy AuthUser is start");
-    u_int64_t result = SUCCESS;
+    const uint64_t invalidContextID = 0;
+    uint64_t result = invalidContextID;
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
 
     if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "write descriptor failed!");
-        return result;
+        return invalidContextID;
     }
     if (!data.WriteInt32(userId)) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "failed to WriteInt32(userId).");
-        return E_READ_PARCEL_ERROR;
+        return invalidContextID;
     }
     if (!data.WriteUint64(challenge)) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "failed to WriteUint64(challenge).");
-        return E_READ_PARCEL_ERROR;
+        return invalidContextID;
     }
     if (!data.WriteUint32(static_cast<uint32_t>(authType))) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "failed to WriteUint32(static_cast<uint32_t>(authType)).");
-        return E_READ_PARCEL_ERROR;
+        return invalidContextID;
     }
     if (!data.WriteUint32(static_cast<uint32_t>(authTurstLevel))) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "failed to WriteUint32(static_cast<uint32_t>(authTurstLevel)).");
-        return E_READ_PARCEL_ERROR;
+        return invalidContextID;
     }
     if (!data.WriteRemoteObject(callback->AsObject())) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "failed to WriteRemoteObject(callback->AsObject()).");
-        return E_READ_PARCEL_ERROR;
+        return invalidContextID;
     }
     bool ret = SendRequest(IUserAuth::USER_AUTH_AUTH_USER, data, reply, option);
     if (!ret) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "SendRequest is failed, error code: %{public}d", ret);
-        return result;
+        return invalidContextID;
     }
     if (!reply.ReadUint64(result)) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "userauth Readback fail!");
@@ -220,11 +223,11 @@ int32_t UserAuthProxy::CancelAuth(const uint64_t contextId)
 
     if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "write descriptor failed!");
-        return result;
+        return E_WRITE_PARCEL_ERROR;
     }
     if (!data.WriteUint64(contextId)) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "failed to WriteUint64(contextId).");
-        return E_READ_PARCEL_ERROR;
+        return E_WRITE_PARCEL_ERROR;
     }
     bool ret = SendRequest(IUserAuth::USER_AUTH_CANCEL_AUTH, data, reply, option);
     if (!ret) {
