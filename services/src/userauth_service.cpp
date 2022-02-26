@@ -78,7 +78,7 @@ int32_t UserAuthService::GetAvailableStatus(const AuthType authType, const AuthT
     ret = this->GetCallingUserID(userID);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService GetAvailableStatus GetUserID is ERROR!");
-        return result;
+        return ret;
     }
 
     ret = userauthController_.GetAuthTrustLevel(userID, authType, authTurstLevelFromSys);
@@ -177,8 +177,7 @@ uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType
                                sptr<IUserAuthCallback>& callback)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthService Auth is start");
-    int ret = SUCCESS;
-    int result = SUCCESS;
+    const uint64_t invalidContextID = 0;
     int32_t userID = 0;
     uint64_t callerID = 0;
     std::string callerName = "";
@@ -193,13 +192,13 @@ uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType
     }
 
     if (GetControllerData(callback, extraInfo, authTurstLevel, callerID, callerName, contextID) == FAIL) {
-        return ret;
+        return invalidContextID;
     }
-    result = this->GetCallingUserID(userID);
+    int32_t result = this->GetCallingUserID(userID);
     if (result != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService Auth GetUserID is ERROR!");
         callback->onResult(FAIL, extraInfo);
-        return ret;
+        return invalidContextID;
     }
 
     authSolutionParam.contextId = contextID;
@@ -211,7 +210,7 @@ uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType
     if (result != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService Auth GenerateSolution is ERROR!");
         callback->onResult(result, extraInfo);
-        return ret;
+        return invalidContextID;
     }
 
     coAuthInfo.authType = authType;
@@ -223,7 +222,7 @@ uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType
     if (result != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService Auth coAuth is ERROR!");
         callback->onResult(result, extraInfo);
-        return ret;
+        return invalidContextID;
     }
     return contextID;
 }
@@ -233,8 +232,7 @@ uint64_t UserAuthService::AuthUser(const int32_t userId, const uint64_t challeng
                                    sptr<IUserAuthCallback>& callback)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthService AuthUser is start");
-    int ret = SUCCESS;
-    int result = SUCCESS;
+    const uint64_t invalidContextID = 0;
     uint64_t callerID = 0;
     std::string callerName = "";
     uint64_t contextID = 0;
@@ -248,7 +246,7 @@ uint64_t UserAuthService::AuthUser(const int32_t userId, const uint64_t challeng
     }
 
     if (GetControllerData(callback, extraInfo, authTurstLevel, callerID, callerName, contextID) == FAIL) {
-        return ret;
+        return invalidContextID;
     }
 
     authSolutionParam.contextId = contextID;
@@ -256,12 +254,12 @@ uint64_t UserAuthService::AuthUser(const int32_t userId, const uint64_t challeng
     authSolutionParam.authTrustLevel = authTurstLevel;
     authSolutionParam.challenge = challenge;
     authSolutionParam.authType = authType;
-    result = userauthController_.GenerateSolution(authSolutionParam, coAuthInfo.sessionIds);
+    int32_t result = userauthController_.GenerateSolution(authSolutionParam, coAuthInfo.sessionIds);
     if (result != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService AuthUser GenerateSolution is ERROR!");
         userauthController_.DeleteContextID(contextID);
         callback->onResult(result, extraInfo);
-        return ret;
+        return invalidContextID;
     }
 
     coAuthInfo.authType = authType;
@@ -274,7 +272,7 @@ uint64_t UserAuthService::AuthUser(const int32_t userId, const uint64_t challeng
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService AuthUser coAuth is ERROR!");
         userauthController_.DeleteContextID(contextID);
         callback->onResult(result, extraInfo);
-        return ret;
+        return invalidContextID;
     }
     return contextID;
 }
