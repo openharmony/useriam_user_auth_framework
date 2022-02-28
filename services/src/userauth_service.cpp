@@ -121,8 +121,7 @@ void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAu
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService GetProperty IUserAuthCallback is NULL!");
         return;
     }
-    if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
-        (request.authType == PIN || !CheckPermission(ACCESS_BIOMETRIC_PERMISSION))) {
+    if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Permission check failed");
         AuthResult extraInfo;
         callback->onResult(E_CHECK_PERMISSION_FAILED, extraInfo);
@@ -158,8 +157,7 @@ void UserAuthService::SetProperty(const SetPropertyRequest request, sptr<IUserAu
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService SetProperty IUserAuthCallback is NULL!");
         return;
     }
-    if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
-        (request.authType == PIN || !CheckPermission(ACCESS_BIOMETRIC_PERMISSION))) {
+    if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Permission check failed");
         AuthResult extraInfo;
         callback->onResult(E_CHECK_PERMISSION_FAILED, extraInfo);
@@ -279,8 +277,7 @@ uint64_t UserAuthService::AuthUser(const int32_t userId, const uint64_t challeng
     if ((!callback->AsObject()->AddDeathRecipient(dr))) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
     }
-    if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
-        (authType == PIN || !CheckPermission(ACCESS_BIOMETRIC_PERMISSION))) {
+    if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Permission check failed");
         callback->onResult(E_CHECK_PERMISSION_FAILED, extraInfo);
         return invalidContextID;
