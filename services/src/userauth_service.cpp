@@ -221,13 +221,12 @@ uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType
     if ((!callback->AsObject()->AddDeathRecipient(dr))) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
     }
-    if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
-        (authType == PIN || !CheckPermission(ACCESS_BIOMETRIC_PERMISSION))) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "Permission check failed");
-        callback->onResult(E_CHECK_PERMISSION_FAILED, extraInfo);
+    if (GetControllerData(callback, extraInfo, authTurstLevel, callerID, callerName, contextID) == FAIL) {
         return invalidContextID;
     }
-    if (GetControllerData(callback, extraInfo, authTurstLevel, callerID, callerName, contextID) == FAIL) {
+    if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
+        (authType == PIN || !CheckPermission(ACCESS_BIOMETRIC_PERMISSION))) {
+        callback->onResult(E_CHECK_PERMISSION_FAILED, extraInfo);
         return invalidContextID;
     }
     int32_t result = this->GetCallingUserID(userID);
