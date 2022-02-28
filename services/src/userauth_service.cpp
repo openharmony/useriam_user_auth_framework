@@ -25,6 +25,9 @@ namespace UserIAM {
 namespace UserAuth {
 const static int AUTHTURSTLEVEL_SYS = 1;
 
+static const std::string ACCESS_USER_AUTH_INTERNAL_PERMISSION = "ohos.permission.ACCESS_USER_AUTH_INTERNAL";
+static const std::string ACCESS_BIOMETRIC_PERMISSION = "ohos.permission.ACCESS_BIOMETRIC";
+
 REGISTER_SYSTEM_ABILITY_BY_ID(UserAuthService, SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true);
 
 UserAuthService::UserAuthService(int32_t systemAbilityId, bool runOnCreate)
@@ -63,9 +66,24 @@ void UserAuthService::OnStop()
     }
 }
 
+bool UserAuthService::CheckPermission(const std::string &permission)
+{
+    using namespace Security::AccessToken;
+    uint32_t tokenID = this->GetFirstTokenID();
+    if (tokenID == 0) {
+        tokenID = this->GetCallingTokenID();
+    }
+    return AccessTokenKit::VerifyAccessToken(tokenID, permission) == RET_SUCCESS;
+}
+
 int32_t UserAuthService::GetAvailableStatus(const AuthType authType, const AuthTurstLevel authTurstLevel)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthService GetAvailableStatus is start");
+    if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
+        (authType == PIN || !CheckPermission(ACCESS_BIOMETRIC_PERMISSION))) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "Permission check failed");
+        return E_CHECK_PERMISSION_FAILED;
+    }
     int ret = GENERAL_ERROR;
     int result = TRUST_LEVEL_NOT_SUPPORT;
     int32_t userID = 0;
@@ -103,6 +121,13 @@ void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAu
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService GetProperty IUserAuthCallback is NULL!");
         return;
     }
+    if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
+        (request.authType == PIN || !CheckPermission(ACCESS_BIOMETRIC_PERMISSION))) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "Permission check failed");
+        AuthResult extraInfo;
+        callback->onResult(E_CHECK_PERMISSION_FAILED, extraInfo);
+        return;
+    }
     int32_t userID = 0;
 
     int32_t ret = this->GetCallingUserID(userID);
@@ -133,7 +158,13 @@ void UserAuthService::SetProperty(const SetPropertyRequest request, sptr<IUserAu
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService SetProperty IUserAuthCallback is NULL!");
         return;
     }
-
+    if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
+        (request.authType == PIN || !CheckPermission(ACCESS_BIOMETRIC_PERMISSION))) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "Permission check failed");
+        AuthResult extraInfo;
+        callback->onResult(E_CHECK_PERMISSION_FAILED, extraInfo);
+        return;
+    }
     sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
     if ((!callback->AsObject()->AddDeathRecipient(dr))) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
@@ -190,7 +221,12 @@ uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType
     if ((!callback->AsObject()->AddDeathRecipient(dr))) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
     }
-
+    if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
+        (authType == PIN || !CheckPermission(ACCESS_BIOMETRIC_PERMISSION))) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "Permission check failed");
+        callback->onResult(E_CHECK_PERMISSION_FAILED, extraInfo);
+        return invalidContextID;
+    }
     if (GetControllerData(callback, extraInfo, authTurstLevel, callerID, callerName, contextID) == FAIL) {
         return invalidContextID;
     }
@@ -244,7 +280,12 @@ uint64_t UserAuthService::AuthUser(const int32_t userId, const uint64_t challeng
     if ((!callback->AsObject()->AddDeathRecipient(dr))) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
     }
-
+    if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
+        (authType == PIN || !CheckPermission(ACCESS_BIOMETRIC_PERMISSION))) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "Permission check failed");
+        callback->onResult(E_CHECK_PERMISSION_FAILED, extraInfo);
+        return invalidContextID;
+    }
     if (GetControllerData(callback, extraInfo, authTurstLevel, callerID, callerName, contextID) == FAIL) {
         return invalidContextID;
     }
@@ -320,7 +361,10 @@ int32_t UserAuthService::CancelAuth(const uint64_t contextId)
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthService CancelAuth is start");
     int result = INVALID_CONTEXTID;
     std::vector<uint64_t>  sessionIds;
-
+    if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION) && !CheckPermission(ACCESS_BIOMETRIC_PERMISSION)) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "Permission check failed");
+        return E_CHECK_PERMISSION_FAILED;
+    }
     int ret = userauthController_.IsContextIDExist(contextId);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService CancelAuth IsContextIDExist is ERROR!");
@@ -344,6 +388,10 @@ int32_t UserAuthService::CancelAuth(const uint64_t contextId)
 int32_t UserAuthService::GetVersion()
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthService GetVersion is start");
+    if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION) && !CheckPermission(ACCESS_BIOMETRIC_PERMISSION)) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "Permission check failed");
+        return E_CHECK_PERMISSION_FAILED;
+    }
     return userauthController_.GetVersion();
 }
 UserAuthService::UserAuthServiceCallbackDeathRecipient::UserAuthServiceCallbackDeathRecipient(

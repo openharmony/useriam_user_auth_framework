@@ -199,9 +199,13 @@ enum ResultCode: int32_t {
     */
     E_RET_NOSERVER = 17,
     /**
+    * Check permission failed.
+    */
+    E_CHECK_PERMISSION_FAILED = 18,
+    /**
     * ERRORCODE_MAX.
     */
-    ERRORCODE_MAX = 18
+    ERRORCODE_MAX = 19
 };
 } // namespace UserAuth
 } // namespace UserIam
