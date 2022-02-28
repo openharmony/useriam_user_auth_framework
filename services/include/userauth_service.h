@@ -19,6 +19,7 @@
 #include <iremote_stub.h>
 #include <system_ability.h>
 #include <system_ability_definition.h>
+#include <string>
 
 #include "userauth_stub.h"
 #include "userauth_controller.h"
@@ -46,6 +47,7 @@ public:
 
 private:
     int32_t GetCallingUserID(int32_t &userID);
+    bool CheckPermission(const std::string &permission);
     int32_t GetControllerData(sptr<IUserAuthCallback>& callback, AuthResult &extraInfo,
                               const AuthTurstLevel authTurstLevel, uint64_t &callerID,
                               std::string &callerName, uint64_t &contextID);
