@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FACERECOGNITION_PIN_AUTH_HELPER_H
-#define FACERECOGNITION_PIN_AUTH_HELPER_H
+#ifndef FACERECOGNITION_USER_AUTH_HELPER_H
+#define FACERECOGNITION_USER_AUTH_HELPER_H
 
 #include "napi/native_api.h"
 #include "napi/native_common.h"
@@ -192,4 +192,4 @@ napi_value CancelAuth(napi_env env, napi_callback_info info);
 } // namespace UserAuth
 } // namespace UserIAM
 } // namespace OHOS
-#endif // FACERECOGNITION_PIN_AUTH_HELPER_H
+#endif // FACERECOGNITION_USER_AUTH_HELPER_H
