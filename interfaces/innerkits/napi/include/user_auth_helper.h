@@ -21,13 +21,57 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
+enum AuthMethod {
+    PIN_ONLY = 0xF,
+    FACE_ONLY = 0xF0
+};
+
+enum Module {
+    FACE_AUTH = 1
+};
+
+enum FaceTipsCode {
+    FACE_AUTH_TIP_TOO_BRIGHT = 1,
+    FACE_AUTH_TIP_TOO_DARK = 2,
+    FACE_AUTH_TIP_TOO_CLOSE = 3,
+    FACE_AUTH_TIP_TOO_FAR = 4,
+    FACE_AUTH_TIP_TOO_HIGH = 5,
+    FACE_AUTH_TIP_TOO_LOW = 6,
+    FACE_AUTH_TIP_TOO_RIGHT = 7,
+    FACE_AUTH_TIP_TOO_LEFT = 8,
+    FACE_AUTH_TIP_TOO_MUCH_MOTION = 9,
+    FACE_AUTH_TIP_POOR_GAZE = 10,
+    FACE_AUTH_TIP_NOT_DETECTED = 11,
+};
+
+enum FingerprintTips {
+    FINGERPRINT_TIP_GOOD = 0,
+    FINGERPRINT_TIP_IMAGER_DIRTY = 1,
+    FINGERPRINT_TIP_INSUFFICIENT = 2,
+    FINGERPRINT_TIP_PARTIAL = 3,
+    FINGERPRINT_TIP_TOO_FAST = 4,
+    FINGERPRINT_TIP_TOO_SLOW = 5
+};
+
+napi_value AuthTypeConstructor(napi_env env);
+napi_value AuthSubTypeConstructor(napi_env env);
+napi_value AuthTrustLevelConstructor(napi_env env);
+napi_value GetPropertyTypeConstructor(napi_env env);
+napi_value SetPropertyTypeConstructor(napi_env env);
+napi_value AuthMethodConstructor(napi_env env);
+napi_value ModuleConstructor(napi_env env);
+napi_value ResultCodeConstructor(napi_env env);
+napi_value FaceTipsCodeConstructor(napi_env env);
+napi_value FingerprintTipsConstructor(napi_env env);
 /**
  * @brief Napi initialization
  *
  * @param env
  * @param exports
  */
-void Init(napi_env env, napi_value exports);
+napi_value UserAuthInit(napi_env env, napi_value exports);
+
+napi_value EnumExport(napi_env env, napi_value exports);
 
 /**
  * @brief Get the Ctor object

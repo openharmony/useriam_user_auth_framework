@@ -610,8 +610,9 @@ napi_value UserAuthImpl::CancelAuth(napi_env env, napi_callback_info info)
 
 static napi_value ModuleInit(napi_env env, napi_value exports)
 {
-    OHOS::UserIAM::UserAuth::Init(env, exports);
-    return exports;
+    napi_value val = UserAuthInit(env, exports);
+    val = EnumExport(env, val);
+    return val;
 }
 extern "C" __attribute__((constructor)) void RegisterModule(void)
 {
