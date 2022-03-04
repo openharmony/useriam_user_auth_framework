@@ -528,7 +528,7 @@ EXIT:
 void SetPropApiCallback::onSetProperty(const int32_t result)
 {
     USERAUTH_HILOGI(MODULE_JS_NAPI, "onSetProperty start = %{public}d", result);
-    if (setPropertyInfo_ != nullptr) {
+    if (setPropertyInfo_ == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "setPropertyInfo is null");
         return;
     }
