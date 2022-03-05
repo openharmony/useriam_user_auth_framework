@@ -18,17 +18,19 @@
 
 #include <iremote_proxy.h>
 
-#include "useridm_callback.h"
 #include "iuserauth_callback.h"
+#include "useridm_callback.h"
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
 class UserAuthAsyncProxy : public IRemoteProxy<IUserAuthCallback> {
 public:
-    explicit UserAuthAsyncProxy(const sptr<IRemoteObject> &object)
-        : IRemoteProxy<IUserAuthCallback>(object) {}
-    ~UserAuthAsyncProxy() = default;
+    DISALLOW_COPY_AND_MOVE(UserAuthAsyncProxy);
+    explicit UserAuthAsyncProxy(const sptr<IRemoteObject> &object) : IRemoteProxy<IUserAuthCallback>(object)
+    {
+    }
+    ~UserAuthAsyncProxy() override = default;
 
     void onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo) override;
     void onResult(const int32_t result, const AuthResult extraInfo) override;
@@ -37,11 +39,9 @@ public:
 
 private:
     bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply);
-
-private:
     static inline BrokerDelegator<UserAuthAsyncProxy> delegator_;
 };
-}  // namespace UserAuth
-}  // namespace UserIAM
-}  // namespace OHOS
+} // namespace UserAuth
+} // namespace UserIAM
+} // namespace OHOS
 #endif // USERAUTH_ASYNC_PROXY_H

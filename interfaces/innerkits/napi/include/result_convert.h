@@ -21,6 +21,7 @@
 
 #include "napi/native_api.h"
 #include "napi/native_common.h"
+#include "nocopyable.h"
 
 #include "userauth_info.h"
 
@@ -32,8 +33,9 @@ namespace UserIAM {
 namespace UserAuth {
 class ResultConvert {
 public:
+    DISALLOW_COPY_AND_MOVE(ResultConvert);
     ResultConvert();
-    ~ResultConvert();
+    virtual ~ResultConvert();
     napi_value Uint64ToUint8Napi(napi_env env, uint64_t value);
     std::vector<uint8_t> NapiGetValueUint8Array(napi_env env, napi_value jsObject, std::string key);
     napi_valuetype GetType(napi_env env, napi_value value);

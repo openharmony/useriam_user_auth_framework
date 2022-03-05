@@ -19,6 +19,8 @@
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 
+#include "nocopyable.h"
+
 #include "auth_common.h"
 #include "result_convert.h"
 
@@ -27,9 +29,9 @@ namespace UserIAM {
 namespace UserAuth {
 class AuthBuild {
 public:
+    DISALLOW_COPY_AND_MOVE(AuthBuild);
     AuthBuild();
-    ~AuthBuild();
-    ResultConvert convert;
+    virtual ~AuthBuild();
     Napi_SetPropertyRequest SetPropertyRequestBuild(napi_env env, napi_value object);
     Napi_GetPropertyRequest GetPropertyRequestBuild(napi_env env, napi_value object);
     bool NapiTypeObject(napi_env env, napi_value value);
@@ -38,6 +40,9 @@ public:
     uint64_t GetUint8ArrayTo64(napi_env env, napi_value value);
     int NapiGetValueInt(napi_env env, napi_value value);
     napi_value Uint64ToUint8Array(napi_env env, uint64_t value);
+
+private:
+    ResultConvert convert_;
 };
 } // namespace UserAuth
 } // namespace UserIAM
