@@ -15,23 +15,24 @@
 
 #ifndef USERAUTH_THREADPOOL_H
 #define USERAUTH_THREADPOOL_H
-#include <stdint.h>
+#include <cstdint>
 #include <map>
-#include <vector>
 #include <mutex>
+#include <vector>
 
+#include "nocopyable.h"
 #include "thread_pool.h"
-
-#define THREADPOOLNAME          "userauthThreadPool"
-#define THREADPOOLMAXSTART      3
-#define THREADPOOLMAXTASK       6
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
+static constexpr char THREADPOOLNAME[] = "userauthThreadPool";
+static constexpr uint64_t THREADPOOLMAXSTART = 3;
+static constexpr uint64_t THREADPOOLMAXTASK = 6;
+
 class ContextThreadPool : ThreadPool {
 public:
-
+    DISALLOW_COPY_AND_MOVE(ContextThreadPool);
     static ContextThreadPool &GetInstance();
     uint32_t Start(int threadsNum)
     {
@@ -61,9 +62,9 @@ public:
         return ThreadPool::GetThreadsNum();
     }
 
-    bool AddTask(const uint64_t context, const ThreadPool::Task& f);
+    bool AddTask(const uint64_t context, const ThreadPool::Task &f);
 
-    void TaskFunction(const uint64_t context, const ThreadPool::Task& f);
+    void TaskFunction(const uint64_t context, const ThreadPool::Task &f);
 
 private:
     class ContextTask {
@@ -73,18 +74,18 @@ private:
 
         ThreadPool::Task GetTask();
 
-        void AddTask(const ThreadPool::Task& f);
+        void AddTask(const ThreadPool::Task &f);
+
     private:
         std::vector<ThreadPool::Task> tasks;
     };
     explicit ContextThreadPool(const std::string &name);
-    ~ContextThreadPool();
-private:
+    ~ContextThreadPool() override;
     ThreadPool::Task CheckTask(const uint64_t context);
     std::map<uint64_t, ContextTask> ctMap_;
     std::mutex taskMutex_;
 };
 } // namespace UserAuth
-} // namespace UserIam
+} // namespace UserIAM
 } // namespace OHOS
 #endif

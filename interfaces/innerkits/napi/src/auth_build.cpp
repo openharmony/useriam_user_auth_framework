@@ -22,12 +22,8 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-AuthBuild::AuthBuild(void)
-{
-}
-AuthBuild::~AuthBuild()
-{
-}
+AuthBuild::AuthBuild() = default;
+AuthBuild::~AuthBuild() = default;
 
 Napi_SetPropertyRequest AuthBuild::SetPropertyRequestBuild(napi_env env, napi_value object)
 {
@@ -36,9 +32,9 @@ Napi_SetPropertyRequest AuthBuild::SetPropertyRequestBuild(napi_env env, napi_va
         USERAUTH_HILOGE(MODULE_JS_NAPI, "SetPropertyRequestBuild object is null");
         return request;
     }
-    request.authType_ = convert.GetInt32ValueByKey(env, object, "authType");
-    request.key_ = convert.GetInt32ValueByKey(env, object, "key");
-    request.setInfo_ = convert.NapiGetValueUint8Array(env, object, "setInfo");
+    request.authType_ = convert_.GetInt32ValueByKey(env, object, "authType");
+    request.key_ = convert_.GetInt32ValueByKey(env, object, "key");
+    request.setInfo_ = convert_.NapiGetValueUint8Array(env, object, "setInfo");
     USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthBuild::SetPropertyRequestBuild authType = %{public}d, key = %{public}d",
                     request.authType_, request.key_);
     return request;
@@ -51,8 +47,8 @@ Napi_GetPropertyRequest AuthBuild::GetPropertyRequestBuild(napi_env env, napi_va
         USERAUTH_HILOGE(MODULE_JS_NAPI, "GetPropertyRequestBuild object is null");
         return request;
     }
-    request.authType_ = convert.GetInt32ValueByKey(env, object, "authType");
-    request.keys_ = convert.GetInt32ArrayValueByKey(env, object, "keys");
+    request.authType_ = convert_.GetInt32ValueByKey(env, object, "authType");
+    request.keys_ = convert_.GetInt32ArrayValueByKey(env, object, "keys");
     USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthBuild::GetPropertyRequestBuild authType = %{public}d", request.authType_);
     return request;
 }
@@ -62,7 +58,7 @@ bool AuthBuild::NapiTypeObject(napi_env env, napi_value value)
     if (value == nullptr) {
         return false;
     }
-    napi_valuetype isObject = convert.GetType(env, value);
+    napi_valuetype isObject = convert_.GetType(env, value);
     if (isObject == napi_object) {
         return true;
     }
@@ -74,7 +70,7 @@ bool AuthBuild::NapiTypeNumber(napi_env env, napi_value value)
     if (value == nullptr) {
         return false;
     }
-    napi_valuetype isNumber = convert.GetType(env, value);
+    napi_valuetype isNumber = convert_.GetType(env, value);
     if (isNumber == napi_number) {
         return true;
     }
@@ -116,12 +112,12 @@ uint64_t AuthBuild::GetUint8ArrayTo64(napi_env env, napi_value value)
 
 int AuthBuild::NapiGetValueInt(napi_env env, napi_value value)
 {
-    return convert.NapiGetValueInt(env, value);
+    return convert_.NapiGetValueInt(env, value);
 }
 
 napi_value AuthBuild::Uint64ToUint8Array(napi_env env, uint64_t value)
 {
-    return convert.Uint64ToUint8Napi(env, value);
+    return convert_.Uint64ToUint8Napi(env, value);
 }
 } // namespace UserAuth
 } // namespace UserIAM

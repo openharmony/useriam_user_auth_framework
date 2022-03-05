@@ -12,23 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <message_parcel.h>
-#include "userauth_hilog_wrapper.h"
 #include "userauth_stub.h"
+
+#include <message_parcel.h>
+
+#include "userauth_hilog_wrapper.h"
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
-                                      MessageParcel &reply, MessageOption &option)
+int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthStub::OnRemoteRequest, cmd = %d, flags= %d",
-                    code, option.GetFlags());
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthStub::OnRemoteRequest, cmd = %{public}d, flags= %{public}d", code,
+        option.GetFlags());
     std::u16string descripter = UserAuthStub::GetDescriptor();
     std::u16string remoteDescripter = data.ReadInterfaceToken();
     if (descripter != remoteDescripter) {
-        USERAUTH_HILOGD(MODULE_SERVICE,
-                        "DisplayMgrStub::OnRemoteRequest failed, descriptor is not matched!");
+        USERAUTH_HILOGD(MODULE_SERVICE, "DisplayMgrStub::OnRemoteRequest failed, descriptor is not matched!");
         return E_GET_POWER_SERVICE_FAILED;
     }
 
@@ -52,7 +52,7 @@ int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
     }
 }
 
-int32_t UserAuthStub::GetAvailableStatusStub(MessageParcel& data, MessageParcel& reply)
+int32_t UserAuthStub::GetAvailableStatusStub(MessageParcel &data, MessageParcel &reply)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthStub GetAvailableStatusStub is start");
     uint32_t authType;
@@ -77,7 +77,7 @@ int32_t UserAuthStub::GetAvailableStatusStub(MessageParcel& data, MessageParcel&
     return SUCCESS;
 }
 
-int32_t UserAuthStub::GetPropertyStub(MessageParcel& data, MessageParcel& reply)
+int32_t UserAuthStub::GetPropertyStub(MessageParcel &data, MessageParcel &reply)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthStub GetPropertyStub is start");
     GetPropertyRequest getPropertyRequest;
@@ -110,7 +110,7 @@ int32_t UserAuthStub::GetPropertyStub(MessageParcel& data, MessageParcel& reply)
     return SUCCESS;
 }
 
-int32_t UserAuthStub::SetPropertyStub(MessageParcel& data, MessageParcel& reply)
+int32_t UserAuthStub::SetPropertyStub(MessageParcel &data, MessageParcel &reply)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthStub SetPropertyStub is start");
     SetPropertyRequest setPropertyRequest;
@@ -131,7 +131,7 @@ int32_t UserAuthStub::SetPropertyStub(MessageParcel& data, MessageParcel& reply)
         return E_READ_PARCEL_ERROR;
     }
 
-    setPropertyRequest.authType =  static_cast<AuthType>(authType);
+    setPropertyRequest.authType = static_cast<AuthType>(authType);
     setPropertyRequest.key = static_cast<SetPropertyType>(key);
     setPropertyRequest.setInfo.assign(setInfo.begin(), setInfo.end());
 
@@ -149,7 +149,7 @@ int32_t UserAuthStub::SetPropertyStub(MessageParcel& data, MessageParcel& reply)
 
     return SUCCESS;
 }
-int32_t UserAuthStub::AuthStub(MessageParcel& data, MessageParcel& reply)
+int32_t UserAuthStub::AuthStub(MessageParcel &data, MessageParcel &reply)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthStub AuthStub is start");
     uint64_t challenge;
@@ -188,7 +188,7 @@ int32_t UserAuthStub::AuthStub(MessageParcel& data, MessageParcel& reply)
 
     return SUCCESS;
 }
-int32_t UserAuthStub::AuthUserStub(MessageParcel& data, MessageParcel& reply)
+int32_t UserAuthStub::AuthUserStub(MessageParcel &data, MessageParcel &reply)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthStub AuthUserStub is start");
     int32_t userID;
@@ -224,8 +224,8 @@ int32_t UserAuthStub::AuthUserStub(MessageParcel& data, MessageParcel& reply)
         return FAIL;
     }
 
-    ret = AuthUser(userID, challenge, static_cast<AuthType>(authType),
-                   static_cast<AuthTurstLevel>(authTurstLevel), callback);
+    ret = AuthUser(userID, challenge, static_cast<AuthType>(authType), static_cast<AuthTurstLevel>(authTurstLevel),
+        callback);
     if (!reply.WriteUint64(ret)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Failed to write AuthUser return value");
         return E_WRITE_PARCEL_ERROR;
@@ -233,7 +233,7 @@ int32_t UserAuthStub::AuthUserStub(MessageParcel& data, MessageParcel& reply)
 
     return SUCCESS;
 }
-int32_t UserAuthStub::GetVersionStub(MessageParcel& data, MessageParcel& reply)
+int32_t UserAuthStub::GetVersionStub(MessageParcel &data, MessageParcel &reply)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthStub GetVersionStub is start");
 
@@ -245,7 +245,7 @@ int32_t UserAuthStub::GetVersionStub(MessageParcel& data, MessageParcel& reply)
 
     return SUCCESS;
 }
-int32_t UserAuthStub::CancelAuthStub(MessageParcel& data, MessageParcel& reply)
+int32_t UserAuthStub::CancelAuthStub(MessageParcel &data, MessageParcel &reply)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthStub CancelAuthStub is start");
     uint64_t contextID;
@@ -265,5 +265,5 @@ int32_t UserAuthStub::CancelAuthStub(MessageParcel& data, MessageParcel& reply)
     return SUCCESS;
 }
 } // namespace UserAuth
-} // namespace UserIam
+} // namespace UserIAM
 } // namespace OHOS

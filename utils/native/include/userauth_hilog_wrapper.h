@@ -79,7 +79,7 @@ static constexpr OHOS::HiviewDFX::HiLogLabel USERAUTH_LABEL[USERAUTHS_MODULE_BUT
 #define USERAUTH_HILOGI(module, ...) (void)OHOS::HiviewDFX::HiLog::Info(USERAUTH_LABEL[module], FORMATED(__VA_ARGS__))
 #define USERAUTH_HILOGD(module, ...) (void)OHOS::HiviewDFX::HiLog::Debug(USERAUTH_LABEL[module], FORMATED(__VA_ARGS__))
 } // namespace UserAuth
-} // namespace UserIam
+} // namespace UserIAM
 } // namespace OHOS
 
 #else
