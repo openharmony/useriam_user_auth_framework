@@ -31,13 +31,16 @@ namespace UserAuth {
 napi_value UserAuthServiceConstructor(napi_env env, napi_callback_info info)
 {
     USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, start.", __func__);
-    std::shared_ptr<UserAuthImpl> userAuthImpl;
-    userAuthImpl.reset(new UserAuthImpl());
+    UserAuthImpl *userAuthImpl = new (std::nothrow) UserAuthImpl();
+    if (userAuthImpl == nullptr) {
+        USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, get nullptr", __func__);
+        return nullptr;
+    }
     napi_value thisVar = nullptr;
     size_t argc = ARGS_ONE;
     napi_value argv[ARGS_ONE] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
-    NAPI_CALL(env, napi_wrap(env, thisVar, userAuthImpl.get(),
+    NAPI_CALL(env, napi_wrap(env, thisVar, userAuthImpl,
         [](napi_env env, void *data, void *hint) {
             UserAuthImpl *userAuthImpl = static_cast<UserAuthImpl *>(data);
             if (userAuthImpl != nullptr) {
@@ -58,13 +61,17 @@ napi_value UserAuthServiceConstructor(napi_env env, napi_callback_info info)
  */
 napi_value GetVersion(napi_env env, napi_callback_info info)
 {
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, GetVersion");
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, GetVersion");
+    if (userAuthImpl == nullptr) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "UserAuthHelper, GetVersion get nullptr");
+        return nullptr;
+    }
     return userAuthImpl->GetVersion(env, info);
 }
 
@@ -77,13 +84,17 @@ napi_value GetVersion(napi_env env, napi_callback_info info)
  */
 napi_value GetAvailableStatus(napi_env env, napi_callback_info info)
 {
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, getAvailableStatus");
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, getAvailableStatus");
+    if (userAuthImpl == nullptr) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "UserAuthHelper, getAvailableStatus get nullptr");
+        return nullptr;
+    }
     return userAuthImpl->GetAvailableStatus(env, info);
 }
 
@@ -96,13 +107,17 @@ napi_value GetAvailableStatus(napi_env env, napi_callback_info info)
  */
 napi_value GetProperty(napi_env env, napi_callback_info info)
 {
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, GetProperty");
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, GetProperty");
+    if (userAuthImpl == nullptr) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "UserAuthHelper, GetProperty get nullptr");
+        return nullptr;
+    }
     return userAuthImpl->GetProperty(env, info);
 }
 
@@ -115,13 +130,17 @@ napi_value GetProperty(napi_env env, napi_callback_info info)
  */
 napi_value SetProperty(napi_env env, napi_callback_info info)
 {
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, SetProperty");
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, SetProperty");
+    if (userAuthImpl == nullptr) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "UserAuthHelper, SetProperty get nullptr");
+        return nullptr;
+    }
     return userAuthImpl->SetProperty(env, info);
 }
 
@@ -135,25 +154,33 @@ napi_value SetProperty(napi_env env, napi_callback_info info)
  */
 napi_value Auth(napi_env env, napi_callback_info info)
 {
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, Auth");
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, Auth");
+    if (userAuthImpl == nullptr) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "UserAuthHelper, Auth get nullptr");
+        return nullptr;
+    }
     return userAuthImpl->Auth(env, info);
 }
 
 napi_value Execute(napi_env env, napi_callback_info info)
 {
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, Execute");
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, Execute");
+    if (userAuthImpl == nullptr) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "UserAuthHelper, Execute get nullptr");
+        return nullptr;
+    }
     return userAuthImpl->Execute(env, info);
 }
 
@@ -167,13 +194,17 @@ napi_value Execute(napi_env env, napi_callback_info info)
  */
 napi_value AuthUser(napi_env env, napi_callback_info info)
 {
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, AuthUser");
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, AuthUser");
+    if (userAuthImpl == nullptr) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "UserAuthHelper, AuthUser get nullptr");
+        return nullptr;
+    }
     return userAuthImpl->AuthUser(env, info);
 }
 
@@ -186,13 +217,17 @@ napi_value AuthUser(napi_env env, napi_callback_info info)
  */
 napi_value CancelAuth(napi_env env, napi_callback_info info)
 {
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, CancelAuth");
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, CancelAuth");
+    if (userAuthImpl == nullptr) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "UserAuthHelper, CancelAuth get nullptr");
+        return nullptr;
+    }
     return userAuthImpl->CancelAuth(env, info);
 }
 
@@ -421,7 +456,8 @@ napi_value UserAuthInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("constructor", UserAuth::Constructor),
         DECLARE_NAPI_FUNCTION("getAuthenticator", UserAuth::ConstructorForAPI6),
     };
-    status = napi_define_properties(env, exports, sizeof(exportFuncs) / sizeof(*exportFuncs), exportFuncs);
+    status = napi_define_properties(env, exports,
+        sizeof(exportFuncs) / sizeof(napi_property_descriptor), exportFuncs);
     if (status != napi_ok) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_define_properties faild");
     }
@@ -446,7 +482,7 @@ napi_value EnumExport(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("FaceTipsCode", FaceTipsCodeConstructor(env)),
         DECLARE_NAPI_PROPERTY("FingerprintTips", FingerprintTipsConstructor(env)),
     };
-    napi_define_properties(env, exports, sizeof(descriptors) / sizeof(*descriptors), descriptors);
+    napi_define_properties(env, exports, sizeof(descriptors) / sizeof(napi_property_descriptor), descriptors);
     return exports;
 }
 
