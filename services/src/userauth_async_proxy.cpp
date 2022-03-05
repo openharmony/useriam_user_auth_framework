@@ -49,7 +49,6 @@ void UserAuthAsyncProxy::onAcquireInfo(const int32_t module, const uint32_t acqu
         int32_t result = reply.ReadInt32();
         USERAUTH_HILOGE(MODULE_SERVICE, "userauth result = %{public}d", result);
     }
-    return;
 }
 
 void UserAuthAsyncProxy::onResult(const int32_t result, const AuthResult extraInfo)
@@ -82,7 +81,6 @@ void UserAuthAsyncProxy::onResult(const int32_t result, const AuthResult extraIn
         int32_t result = reply.ReadInt32();
         USERAUTH_HILOGE(MODULE_SERVICE, "userauth result = %{public}d", result);
     }
-    return;
 }
 
 void UserAuthAsyncProxy::onExecutorPropertyInfo(const ExecutorProperty result)
@@ -115,7 +113,6 @@ void UserAuthAsyncProxy::onExecutorPropertyInfo(const ExecutorProperty result)
         int32_t result = reply.ReadInt32();
         USERAUTH_HILOGE(MODULE_SERVICE, "userauth result = %{public}d", result);
     }
-    return;
 }
 
 void UserAuthAsyncProxy::onSetExecutorProperty(const int32_t result)
@@ -138,8 +135,6 @@ void UserAuthAsyncProxy::onSetExecutorProperty(const int32_t result)
         int32_t result = reply.ReadInt32();
         USERAUTH_HILOGE(MODULE_SERVICE, "userauth result = %{public}d", result);
     }
-
-    return;
 }
 
 bool UserAuthAsyncProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply)

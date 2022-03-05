@@ -53,15 +53,14 @@ namespace UserAuth {
 #define PARAM10 10
 
 struct CallBackInfo {
-    napi_env env;
-    napi_ref callBack = 0;
-    napi_deferred deferred;
+    napi_env env {nullptr};
+    napi_ref callBack {nullptr};
+    napi_deferred deferred {nullptr};
 };
 
 struct GetPropertyInfo {
-    GetPropertyInfo() : result(nullptr) {};
     CallBackInfo callBackInfo;
-    napi_value result;
+    napi_value result {nullptr};
     int32_t authType;
     std::vector<uint32_t> keys;
     int32_t getResult;
@@ -71,10 +70,9 @@ struct GetPropertyInfo {
 };
 
 struct SetPropertyInfo {
-    SetPropertyInfo() : asyncWork(nullptr), result(nullptr) {};
     CallBackInfo callBackInfo;
-    napi_async_work asyncWork;
-    napi_value result;
+    napi_async_work asyncWork {nullptr};
+    napi_value result {nullptr};
     int32_t authType;
     uint32_t key;
     std::vector<uint8_t> setInfo;
@@ -93,10 +91,9 @@ struct ExecuteInfo {
 };
 
 struct AuthInfo {
-    AuthInfo() : asyncWork(nullptr) {};
     CallBackInfo callBackInfo;
     napi_callback_info info;
-    napi_async_work asyncWork;
+    napi_async_work asyncWork {nullptr};
     napi_value onResultCallBack;
     napi_value onAcquireInfoCallBack;
     napi_ref onResult;
@@ -113,10 +110,9 @@ struct AuthInfo {
 };
 
 struct AuthUserInfo {
-    AuthUserInfo() : asyncWork(nullptr) {};
     CallBackInfo callBackInfo;
     napi_callback_info info;
-    napi_async_work asyncWork;
+    napi_async_work asyncWork {nullptr};
     napi_ref onResult;
     napi_ref onAcquireInfo;
     napi_value onResultCallBack;

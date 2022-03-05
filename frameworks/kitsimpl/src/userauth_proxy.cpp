@@ -12,16 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "userauth_proxy.h"
+#include "userauth_hilog_wrapper.h"
 #include <cinttypes>
 #include <message_parcel.h>
 #include <string_ex.h>
-#include "userauth_hilog_wrapper.h"
-#include "userauth_proxy.h"
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-UserAuthProxy::UserAuthProxy(const sptr<IRemoteObject> &object) : IRemoteProxy<IUserAuth>(object) {}
+UserAuthProxy::UserAuthProxy(const sptr<IRemoteObject> &object) : IRemoteProxy<IUserAuth>(object)
+{
+}
 
 int32_t UserAuthProxy::GetAvailableStatus(const AuthType authType, const AuthTurstLevel authTurstLevel)
 {
@@ -56,7 +58,7 @@ int32_t UserAuthProxy::GetAvailableStatus(const AuthType authType, const AuthTur
     return result;
 }
 
-void UserAuthProxy::GetProperty(const GetPropertyRequest request, sptr<IUserAuthCallback>& callback)
+void UserAuthProxy::GetProperty(const GetPropertyRequest request, sptr<IUserAuthCallback> &callback)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy GetProperty is start");
     MessageParcel data;
@@ -81,14 +83,14 @@ void UserAuthProxy::GetProperty(const GetPropertyRequest request, sptr<IUserAuth
     }
     bool ret = SendRequest(static_cast<int32_t>(IUserAuth::USER_AUTH_GET_PROPERTY), data, reply, option);
     if (!ret) {
-        ExecutorProperty result;
+        ExecutorProperty result = {};
         result.result = IPC_ERROR;
         callback->onExecutorPropertyInfo(result);
         USERAUTH_HILOGE(MODULE_INNERKIT, "userauth SendRequest is failed, error code: %{public}d", ret);
         return;
     }
 }
-void UserAuthProxy::SetProperty(const SetPropertyRequest request, sptr<IUserAuthCallback>& callback)
+void UserAuthProxy::SetProperty(const SetPropertyRequest request, sptr<IUserAuthCallback> &callback)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy SetProperty is start");
     MessageParcel data;
@@ -124,8 +126,8 @@ void UserAuthProxy::SetProperty(const SetPropertyRequest request, sptr<IUserAuth
     }
 }
 
-uint64_t UserAuthProxy::Auth(const uint64_t challenge, const AuthType authType,
-                             const AuthTurstLevel authTurstLevel, sptr<IUserAuthCallback>& callback)
+uint64_t UserAuthProxy::Auth(const uint64_t challenge, const AuthType authType, const AuthTurstLevel authTurstLevel,
+    sptr<IUserAuthCallback> &callback)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy Auth is start");
     const uint64_t invalidContextID = 0;
@@ -168,7 +170,7 @@ uint64_t UserAuthProxy::Auth(const uint64_t challenge, const AuthType authType,
 }
 
 uint64_t UserAuthProxy::AuthUser(const int32_t userId, const uint64_t challenge, const AuthType authType,
-                                 const AuthTurstLevel authTurstLevel, sptr<IUserAuthCallback>& callback)
+    const AuthTurstLevel authTurstLevel, sptr<IUserAuthCallback> &callback)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy AuthUser is start");
     const uint64_t invalidContextID = 0;
@@ -273,7 +275,7 @@ bool UserAuthProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParce
     if (remote == nullptr) {
         return false;
     }
-    
+
     int32_t result = remote->SendRequest(code, data, reply, option);
     if (result != OHOS::UserIAM::UserAuth::SUCCESS) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "UserAuthProxy SendRequest fail");
@@ -282,5 +284,5 @@ bool UserAuthProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParce
     return true;
 }
 } // namespace UserAuth
-} // namespace UserIam
+} // namespace UserIAM
 } // namespace OHOS

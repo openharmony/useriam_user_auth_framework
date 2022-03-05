@@ -17,6 +17,8 @@
 #define USERAUTH_PROXY_H
 
 #include <iremote_proxy.h>
+#include <nocopyable.h>
+
 #include "iuser_auth.h"
 
 namespace OHOS {
@@ -24,16 +26,17 @@ namespace UserIAM {
 namespace UserAuth {
 class UserAuthProxy : public IRemoteProxy<IUserAuth> {
 public:
-    explicit UserAuthProxy(const sptr<IRemoteObject> &impl);
-    ~UserAuthProxy() = default;
+    DISALLOW_COPY_AND_MOVE(UserAuthProxy);
+    explicit UserAuthProxy(const sptr<IRemoteObject> &object);
+    ~UserAuthProxy() override = default;
 
     int32_t GetAvailableStatus(const AuthType authType, const AuthTurstLevel authTurstLevel) override;
-    void GetProperty(const GetPropertyRequest request, sptr<IUserAuthCallback>& callback) override;
-    void SetProperty(const SetPropertyRequest request, sptr<IUserAuthCallback>& callback) override;
+    void GetProperty(const GetPropertyRequest request, sptr<IUserAuthCallback> &callback) override;
+    void SetProperty(const SetPropertyRequest request, sptr<IUserAuthCallback> &callback) override;
     uint64_t Auth(const uint64_t challenge, const AuthType authType, const AuthTurstLevel authTurstLevel,
-                  sptr<IUserAuthCallback>& callback) override;
+        sptr<IUserAuthCallback> &callback) override;
     uint64_t AuthUser(const int32_t userId, const uint64_t challenge, const AuthType authType,
-                      const AuthTurstLevel authTurstLevel, sptr<IUserAuthCallback>& callback) override;
+        const AuthTurstLevel authTurstLevel, sptr<IUserAuthCallback> &callback) override;
     int32_t CancelAuth(const uint64_t contextId) override;
     int32_t GetVersion() override;
 
@@ -42,6 +45,6 @@ private:
     static inline BrokerDelegator<UserAuthProxy> delegator_;
 };
 } // namespace UserAuth
-} // namespace UserIam
+} // namespace UserIAM
 } // namespace OHOS
 #endif // USERAUTH_PROXY_H
