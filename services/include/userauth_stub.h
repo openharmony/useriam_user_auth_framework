@@ -16,8 +16,9 @@
 #ifndef USERAUTH_STUB_H
 #define USERAUTH_STUB_H
 
-#include "iuser_auth.h"
 #include <iremote_stub.h>
+
+#include "iuser_auth.h"
 
 namespace OHOS {
 namespace UserIAM {

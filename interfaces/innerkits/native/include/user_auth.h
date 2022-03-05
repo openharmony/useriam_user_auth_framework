@@ -33,8 +33,8 @@ public:
     DISALLOW_COPY_AND_MOVE(UserAuth);
 
     int32_t GetAvailableStatus(const AuthType authType, const AuthTurstLevel authTurstLevel);
-    void GetProperty(const GetPropertyRequest request, std::shared_ptr<GetPropCallback> callback);
-    void SetProperty(const SetPropertyRequest request, std::shared_ptr<SetPropCallback> callback);
+    void GetProperty(const GetPropertyRequest &request, std::shared_ptr<GetPropCallback> callback);
+    void SetProperty(const SetPropertyRequest &request, std::shared_ptr<SetPropCallback> callback);
     uint64_t Auth(const uint64_t challenge, const AuthType authType, const AuthTurstLevel authTurstLevel,
         std::shared_ptr<UserAuthCallback> callback);
     uint64_t AuthUser(const int32_t userId, const uint64_t challenge, const AuthType authType,
