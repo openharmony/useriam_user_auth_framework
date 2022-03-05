@@ -159,7 +159,7 @@ void UserAuthService::SetProperty(const SetPropertyRequest request, sptr<IUserAu
     }
     if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Permission check failed");
-        AuthResult extraInfo;
+        AuthResult extraInfo = {};
         callback->onResult(E_CHECK_PERMISSION_FAILED, extraInfo);
         return;
     }
@@ -271,7 +271,7 @@ uint64_t UserAuthService::AuthUser(const int32_t userId, const uint64_t challeng
     uint64_t contextID = 0;
     AuthSolution authSolutionParam;
     CoAuthInfo coAuthInfo;
-    AuthResult extraInfo;
+    AuthResult extraInfo = {};
 
     sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
     if ((!callback->AsObject()->AddDeathRecipient(dr))) {
@@ -318,38 +318,30 @@ int32_t UserAuthService::GetControllerData(sptr<IUserAuthCallback>& callback, Au
                                            const AuthTurstLevel authTurstLevel, uint64_t &callerID,
                                            std::string &callerName, uint64_t &contextID)
 {
-    int ret = SUCCESS;
-    int result = SUCCESS;
     if (callback == nullptr) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService AuthUser IUserAuthCallback is NULL!");
-        ret = FAIL;
-        return ret;
+        return FAIL;
     }
     if (ATL4 < authTurstLevel || authTurstLevel < ATL1) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService AuthUser AuthTurstLevel is NOT SUPPORT!");
         callback->onResult(TRUST_LEVEL_NOT_SUPPORT, extraInfo);
-        ret = FAIL;
-        return ret;
+        return FAIL;
     }
 
     callerID = this->GetCallingUid();
     callerName = std::to_string(callerID);
 
-    result = userauthController_.GenerateContextID(contextID);
-    if (result != SUCCESS) {
+    if (userauthController_.GenerateContextID(contextID) != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService AuthUser GenerateContextID is ERROR!");
         callback->onResult(GENERAL_ERROR, extraInfo);
-        ret = FAIL;
-        return ret;
+        return FAIL;
     }
-    result = userauthController_.AddContextID(contextID);
-    if (result != SUCCESS) {
+    if (userauthController_.AddContextID(contextID) != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService AuthUser AddContextID is ERROR!");
         callback->onResult(GENERAL_ERROR, extraInfo);
-        ret = FAIL;
-        return ret;
+        return FAIL;
     }
-    return ret;
+    return SUCCESS;
 }
 
 int32_t UserAuthService::CancelAuth(const uint64_t contextId)

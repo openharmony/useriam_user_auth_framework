@@ -93,10 +93,10 @@ napi_value UserAuthImpl::GetProperty(napi_env env, napi_callback_info info)
     if (ret == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s GetPropertyWrap fail", __func__);
         delete getPropertyInfo;
-        delete asyncHolder;
         if (asyncHolder->asyncWork != nullptr) {
             napi_delete_async_work(env, asyncHolder->asyncWork);
         }
+        delete asyncHolder;
     }
     return ret;
 }
@@ -231,10 +231,10 @@ napi_value UserAuthImpl::SetProperty(napi_env env, napi_callback_info info)
     if (ret == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s SetPropertyWrap fail", __func__);
         delete setPropertyInfo;
-        delete asyncHolder;
         if (asyncHolder->asyncWork != nullptr) {
             napi_delete_async_work(env, asyncHolder->asyncWork);
         }
+        delete asyncHolder;
     }
     return ret;
 }
@@ -389,6 +389,14 @@ napi_value UserAuthImpl::BuildAuthInfo(napi_env env, AuthInfo *authInfo)
 
 napi_value UserAuthImpl::DoExecute(ExecuteInfo* executeInfo)
 {
+    bool isPromise = executeInfo->isPromise;
+    napi_value result = nullptr;
+    if (isPromise) {
+        result = executeInfo->promise;
+    } else {
+        napi_get_null(executeInfo->env, &result);
+    }
+     
     AuthApiCallback *object = new (std::nothrow) AuthApiCallback(executeInfo);
     if (object == nullptr) {
         delete executeInfo;
@@ -407,14 +415,9 @@ napi_value UserAuthImpl::DoExecute(ExecuteInfo* executeInfo)
         delete executeInfo;
         return nullptr;
     }
+    
     UserAuth::GetInstance().Auth(0, FACE, convertAuthTurstLevel[executeInfo->level], callback);
-    if (executeInfo->isPromise) {
-        return executeInfo->promise;
-    } else {
-        napi_value result = nullptr;
-        NAPI_CALL(executeInfo->env, napi_get_null(executeInfo->env, &result));
-        return result;
-    }
+    return result;
 }
 
 napi_value UserAuthImpl::Execute(napi_env env, napi_callback_info info)
