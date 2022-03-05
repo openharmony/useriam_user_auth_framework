@@ -19,8 +19,8 @@
 #include <system_ability_definition.h>
 
 #include "system_ability_definition.h"
-#include "userauth_hilog_wrapper.h"
 #include "user_auth.h"
+#include "userauth_hilog_wrapper.h"
 
 namespace OHOS {
 namespace UserIAM {
@@ -58,7 +58,7 @@ sptr<IUserAuth> UserAuth::GetProxy()
     return proxy_;
 }
 
-void UserAuth::ResetProxy(const wptr<IRemoteObject>& remote)
+void UserAuth::ResetProxy(const wptr<IRemoteObject> &remote)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauth ResetProxy is start");
     std::lock_guard<std::mutex> lock(mutex_);
@@ -73,7 +73,7 @@ void UserAuth::ResetProxy(const wptr<IRemoteObject>& remote)
     }
 }
 
-void UserAuth::UserAuthDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
+void UserAuth::UserAuthDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "OnRemoteDied is start");
     if (remote == nullptr) {
@@ -138,7 +138,7 @@ void UserAuth::SetProperty(const SetPropertyRequest request, std::shared_ptr<Set
     proxy_->SetProperty(request, asyncStub);
 }
 uint64_t UserAuth::Auth(const uint64_t challenge, const AuthType authType, const AuthTurstLevel authTurstLevel,
-                        std::shared_ptr<UserAuthCallback> callback)
+    std::shared_ptr<UserAuthCallback> callback)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauth Auth is start");
     if (callback == nullptr) {
@@ -158,7 +158,7 @@ uint64_t UserAuth::Auth(const uint64_t challenge, const AuthType authType, const
     return ret;
 }
 uint64_t UserAuth::AuthUser(const int32_t userId, const uint64_t challenge, const AuthType authType,
-                            const AuthTurstLevel authTurstLevel, std::shared_ptr<UserAuthCallback> callback)
+    const AuthTurstLevel authTurstLevel, std::shared_ptr<UserAuthCallback> callback)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauth AuthUser is start");
     if (callback == nullptr) {
@@ -199,6 +199,6 @@ int32_t UserAuth::GetVersion()
     int32_t ret = proxy_->GetVersion();
     return ret;
 }
-}  // namespace UserAuth
-}  // namespace UserIam
-}  // namespace OHOS
+} // namespace UserAuth
+} // namespace UserIAM
+} // namespace OHOS

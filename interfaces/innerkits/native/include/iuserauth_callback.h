@@ -26,7 +26,6 @@ namespace UserIAM {
 namespace UserAuth {
 class IUserAuthCallback : public IRemoteBroker {
 public:
-
     virtual void onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo) = 0;
     virtual void onResult(const int32_t result, const AuthResult extraInfo) = 0;
     virtual void onExecutorPropertyInfo(const ExecutorProperty result) = 0;
@@ -35,6 +34,6 @@ public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIAM.UserAuth.IUserAuthCallback");
 };
 } // namespace UserAuth
-} // namespace UserIam
+} // namespace UserIAM
 } // namespace OHOS
 #endif // IUSERAUTH_CALLBACK_H
