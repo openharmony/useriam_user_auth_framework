@@ -23,7 +23,8 @@ namespace UserIAM {
 namespace UserAuth {
 int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthStub::OnRemoteRequest, cmd = %d, flags= %d", code, option.GetFlags());
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthStub::OnRemoteRequest, cmd = %{public}d, flags= %{public}d", code,
+        option.GetFlags());
     std::u16string descripter = UserAuthStub::GetDescriptor();
     std::u16string remoteDescripter = data.ReadInterfaceToken();
     if (descripter != remoteDescripter) {
