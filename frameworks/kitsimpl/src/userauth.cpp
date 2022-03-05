@@ -97,7 +97,7 @@ int32_t UserAuth::GetAvailableStatus(const AuthType authType, const AuthTurstLev
     return ret;
 }
 
-void UserAuth::GetProperty(const GetPropertyRequest request, std::shared_ptr<GetPropCallback> callback)
+void UserAuth::GetProperty(const GetPropertyRequest &request, std::shared_ptr<GetPropCallback> callback)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauth GetProperty is start");
     if (callback == nullptr) {
@@ -118,7 +118,7 @@ void UserAuth::GetProperty(const GetPropertyRequest request, std::shared_ptr<Get
     }
     proxy_->GetProperty(request, asyncStub);
 }
-void UserAuth::SetProperty(const SetPropertyRequest request, std::shared_ptr<SetPropCallback> callback)
+void UserAuth::SetProperty(const SetPropertyRequest &request, std::shared_ptr<SetPropCallback> callback)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauth SetProperty is start");
     if (callback == nullptr) {

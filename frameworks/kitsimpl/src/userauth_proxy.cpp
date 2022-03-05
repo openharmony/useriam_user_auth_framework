@@ -12,11 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "userauth_proxy.h"
-#include "userauth_hilog_wrapper.h"
+
 #include <cinttypes>
 #include <message_parcel.h>
 #include <string_ex.h>
+
+#include "userauth_hilog_wrapper.h"
+#include "userauth_proxy.h"
 
 namespace OHOS {
 namespace UserIAM {

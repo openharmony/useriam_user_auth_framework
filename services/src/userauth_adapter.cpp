@@ -12,11 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include "userauth_adapter.h"
+
 #include <cinttypes>
 
 #include "auth_attributes.h"
 #include "co_auth.h"
-#include "userauth_adapter.h"
 #include "userauth_datamgr.h"
 #include "userauth_excallback_impl.h"
 #include "userauth_hilog_wrapper.h"

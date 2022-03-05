@@ -12,13 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "userauth_service.h"
 
 #include <file_ex.h>
 #include <string_ex.h>
 
 #include "accesstoken_kit.h"
 #include "userauth_hilog_wrapper.h"
-#include "userauth_service.h"
 #include "useriam_common.h"
 
 namespace OHOS {

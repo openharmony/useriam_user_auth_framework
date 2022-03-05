@@ -27,7 +27,6 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-
 constexpr int32_t OPENSSLSUCCESS = 1;
 class UserAuthDataMgr {
 public:
