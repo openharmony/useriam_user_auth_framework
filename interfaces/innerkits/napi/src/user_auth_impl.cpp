@@ -396,7 +396,7 @@ napi_value UserAuthImpl::DoExecute(ExecuteInfo* executeInfo)
     } else {
         napi_get_null(executeInfo->env, &result);
     }
-     
+
     AuthApiCallback *object = new (std::nothrow) AuthApiCallback(executeInfo);
     if (object == nullptr) {
         delete executeInfo;
@@ -415,7 +415,7 @@ napi_value UserAuthImpl::DoExecute(ExecuteInfo* executeInfo)
         delete executeInfo;
         return nullptr;
     }
-    
+
     UserAuth::GetInstance().Auth(0, FACE, convertAuthTurstLevel[executeInfo->level], callback);
     return result;
 }
