@@ -168,6 +168,20 @@ void UserAuthCallbackImplCoAuth::OnFinishHandleExtend(int32_t userID, SetPropert
         callback_->onResult(ret, authResult);
     }
 }
+
+void UserAuthCallbackImplCoAuth::DealFinishData(std::vector<uint64_t> sessionIds)
+{
+    if (sessionIds.size() != 0) {
+        for (auto const &item : sessionIds) {
+            UserAuthAdapter::GetInstance().Cancel(item);
+        }
+    }
+    UserAuthDataMgr::GetInstance().DeleteContextID(callbackContextID_);
+    UserAuthCallbackImplCoAuth::DeleteCoauthCallback(callbackContextID_);
+    isResultDoneFlag_ = true;
+    return;
+}
+
 void UserAuthCallbackImplCoAuth::OnFinishHandle(uint32_t resultCode, std::vector<uint8_t> scheduleToken)
 {
     UserAuthToken authToken = {};
@@ -215,14 +229,7 @@ void UserAuthCallbackImplCoAuth::OnFinishHandle(uint32_t resultCode, std::vector
         UserAuthAdapter::GetInstance().CoauthSetPropAuthInfo(userID_, resultCode, callerUid_, pkgName_, authToken,
             setPropertyRequest, callback_);
     }
-    if (sessionIds.size() != 0) {
-        for (auto const &item : sessionIds) {
-            UserAuthAdapter::GetInstance().Cancel(item);
-        }
-    }
-    UserAuthDataMgr::GetInstance().DeleteContextID(callbackContextID_);
-    UserAuthCallbackImplCoAuth::DeleteCoauthCallback(callbackContextID_);
-    isResultDoneFlag_ = true;
+    DealFinishData(sessionIds);
 }
 
 void UserAuthCallbackImplCoAuth::OnAcquireInfoHandle(uint32_t acquire)
