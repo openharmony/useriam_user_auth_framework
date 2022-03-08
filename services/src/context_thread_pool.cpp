@@ -33,7 +33,6 @@ ContextThreadPool &ContextThreadPool::GetInstance()
 
 bool ContextThreadPool::AddTask(const uint64_t context, const ThreadPool::Task& f)
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "userauth AddTask is start!");
     std::lock_guard<std::mutex> taskMutexGuard(taskMutex_);
     if (ThreadPool::GetCurTaskNum() >= ThreadPool::GetMaxTaskNum()) {
         return false;
@@ -65,7 +64,6 @@ void ContextThreadPool::TaskFunction(const uint64_t context, const ThreadPool::T
 
 ThreadPool::Task ContextThreadPool::CheckTask(const uint64_t context)
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "userauth CheckTask is start!");
     std::lock_guard<std::mutex> taskMutexGuard(taskMutex_);
     if (ctMap_.count(context) != 0) {
         ContextTask contextTask = ctMap_[context];

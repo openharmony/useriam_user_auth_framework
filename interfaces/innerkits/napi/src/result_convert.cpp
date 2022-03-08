@@ -32,14 +32,12 @@ ResultConvert::~ResultConvert()
 napi_value ResultConvert::Uint64ToUint8Napi(napi_env env, uint64_t value)
 {
     USERAUTH_HILOGI(MODULE_JS_NAPI, "ResultConvert Uint64ToUint8Napi uint64_t %{public}" PRIu64 "", value);
-    size_t length = sizeof(value);
     void *data = nullptr;
     napi_value arrayBuffer = nullptr;
-    size_t bufferSize = length;
-    NAPI_CALL(env, napi_create_arraybuffer(env, bufferSize, &data, &arrayBuffer));
-    memcpy_s(data, bufferSize, reinterpret_cast<const void *>(&value), bufferSize);
+    NAPI_CALL(env, napi_create_arraybuffer(env, sizeof(value), &data, &arrayBuffer));
+    (void)memcpy_s(data, sizeof(value), reinterpret_cast<const void *>(&value), sizeof(value));
     napi_value result = nullptr;
-    NAPI_CALL(env, napi_create_typedarray(env, napi_uint8_array, bufferSize, arrayBuffer, 0, &result));
+    NAPI_CALL(env, napi_create_typedarray(env, napi_uint8_array, sizeof(value), arrayBuffer, 0, &result));
     return result;
 }
 
