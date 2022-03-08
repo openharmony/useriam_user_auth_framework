@@ -35,6 +35,6 @@ public:
     virtual void onSetProperty(const int32_t result) = 0;
 };
 } // namespace UserAuth
-} // namespace UserIam
+} // namespace UserIAM
 } // namespace OHOS
 #endif // IUSERAUTH_CALLBACK_H

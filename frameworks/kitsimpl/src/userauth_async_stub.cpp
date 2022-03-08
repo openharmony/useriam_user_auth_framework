@@ -23,17 +23,14 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<UserAuthCallback>& impl)
+UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<UserAuthCallback> &impl) : authCallback_(impl)
 {
-    authCallback_ = impl;
 }
-UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<GetPropCallback>& impl)
+UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<GetPropCallback> &impl) : getPropCallback_(impl)
 {
-    getPropCallback_ = impl;
 }
-UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<SetPropCallback>& impl)
+UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<SetPropCallback> &impl) : setPropCallback_(impl)
 {
-    setPropCallback_ = impl;
 }
 int32_t UserAuthAsyncStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
                                            MessageOption &option)
@@ -142,7 +139,7 @@ int32_t UserAuthAsyncStub::onExecutorPropertyInfoStub(MessageParcel& data, Messa
     uint64_t authSubType;
     uint32_t remainTimes;
     uint32_t freezingTime;
-    ExecutorProperty executorProperty;
+    ExecutorProperty executorProperty = {};
 
     if (!data.ReadInt32(result)) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "failed to ReadInt32(result).");

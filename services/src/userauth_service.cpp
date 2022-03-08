@@ -12,13 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "userauth_service.h"
 
 #include <file_ex.h>
 #include <string_ex.h>
+
+#include "accesstoken_kit.h"
 #include "userauth_hilog_wrapper.h"
 #include "useriam_common.h"
-#include "accesstoken_kit.h"
-#include "userauth_service.h"
 
 namespace OHOS {
 namespace UserIAM {
@@ -35,9 +36,7 @@ UserAuthService::UserAuthService(int32_t systemAbilityId, bool runOnCreate)
 {
 }
 
-UserAuthService::~UserAuthService()
-{
-}
+UserAuthService::~UserAuthService() = default;
 
 void UserAuthService::OnStart()
 {
@@ -112,7 +111,7 @@ int32_t UserAuthService::GetAvailableStatus(const AuthType authType, const AuthT
     return ret;
 }
 
-void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAuthCallback>& callback)
+void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAuthCallback> &callback)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthService GetProperty is start");
     uint64_t callerID = 0;
@@ -147,19 +146,19 @@ void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAu
     userauthController_.GetPropAuthInfo(userID, callerName, callerID, request, callback);
 }
 
-void UserAuthService::SetProperty(const SetPropertyRequest request, sptr<IUserAuthCallback>& callback)
+void UserAuthService::SetProperty(const SetPropertyRequest request, sptr<IUserAuthCallback> &callback)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthService SetProperty is start");
     int ret = GENERAL_ERROR;
     uint64_t callerID = 0;
-    std::string callerName = "";
+    std::string callerName;
     if (callback == nullptr) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService SetProperty IUserAuthCallback is NULL!");
         return;
     }
     if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Permission check failed");
-        AuthResult extraInfo;
+        AuthResult extraInfo = {};
         callback->onResult(E_CHECK_PERMISSION_FAILED, extraInfo);
         return;
     }
@@ -196,20 +195,19 @@ int32_t UserAuthService::GetCallingUserID(int32_t &userID)
         USERAUTH_HILOGE(MODULE_SERVICE, "Get hap token info failed.");
         return TYPE_NOT_SUPPORT;
     }
-    userID = (int32_t)hapTokenInfo.userID;
+    userID = static_cast<int32_t>(hapTokenInfo.userID);
     USERAUTH_HILOGE(MODULE_SERVICE, "GetCallingUserID is %{public}d", userID);
     return SUCCESS;
 }
 
-uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType,
-                               const AuthTurstLevel authTurstLevel,
-                               sptr<IUserAuthCallback>& callback)
+uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType, const AuthTurstLevel authTurstLevel,
+    sptr<IUserAuthCallback> &callback)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthService Auth is start");
     const uint64_t invalidContextID = 0;
     int32_t userID = 0;
     uint64_t callerID = 0;
-    std::string callerName = "";
+    std::string callerName;
     uint64_t contextID = 0;
     AuthSolution authSolutionParam;
     CoAuthInfo coAuthInfo;
@@ -260,18 +258,17 @@ uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType
     return contextID;
 }
 
-uint64_t UserAuthService::AuthUser(const int32_t userId, const uint64_t challenge,
-                                   const AuthType authType, const AuthTurstLevel authTurstLevel,
-                                   sptr<IUserAuthCallback>& callback)
+uint64_t UserAuthService::AuthUser(const int32_t userId, const uint64_t challenge, const AuthType authType,
+    const AuthTurstLevel authTurstLevel, sptr<IUserAuthCallback> &callback)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthService AuthUser is start");
     const uint64_t invalidContextID = 0;
     uint64_t callerID = 0;
-    std::string callerName = "";
+    std::string callerName;
     uint64_t contextID = 0;
     AuthSolution authSolutionParam;
     CoAuthInfo coAuthInfo;
-    AuthResult extraInfo;
+    AuthResult extraInfo = {};
 
     sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
     if ((!callback->AsObject()->AddDeathRecipient(dr))) {
@@ -314,49 +311,40 @@ uint64_t UserAuthService::AuthUser(const int32_t userId, const uint64_t challeng
     return contextID;
 }
 
-int32_t UserAuthService::GetControllerData(sptr<IUserAuthCallback>& callback, AuthResult &extraInfo,
-                                           const AuthTurstLevel authTurstLevel, uint64_t &callerID,
-                                           std::string &callerName, uint64_t &contextID)
+int32_t UserAuthService::GetControllerData(sptr<IUserAuthCallback> &callback, AuthResult &extraInfo,
+    const AuthTurstLevel authTurstLevel, uint64_t &callerID, std::string &callerName, uint64_t &contextID)
 {
-    int ret = SUCCESS;
-    int result = SUCCESS;
     if (callback == nullptr) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService AuthUser IUserAuthCallback is NULL!");
-        ret = FAIL;
-        return ret;
+        return FAIL;
     }
     if (ATL4 < authTurstLevel || authTurstLevel < ATL1) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService AuthUser AuthTurstLevel is NOT SUPPORT!");
         callback->onResult(TRUST_LEVEL_NOT_SUPPORT, extraInfo);
-        ret = FAIL;
-        return ret;
+        return FAIL;
     }
 
     callerID = this->GetCallingUid();
     callerName = std::to_string(callerID);
 
-    result = userauthController_.GenerateContextID(contextID);
-    if (result != SUCCESS) {
+    if (userauthController_.GenerateContextID(contextID) != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService AuthUser GenerateContextID is ERROR!");
         callback->onResult(GENERAL_ERROR, extraInfo);
-        ret = FAIL;
-        return ret;
+        return FAIL;
     }
-    result = userauthController_.AddContextID(contextID);
-    if (result != SUCCESS) {
+    if (userauthController_.AddContextID(contextID) != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService AuthUser AddContextID is ERROR!");
         callback->onResult(GENERAL_ERROR, extraInfo);
-        ret = FAIL;
-        return ret;
+        return FAIL;
     }
-    return ret;
+    return SUCCESS;
 }
 
 int32_t UserAuthService::CancelAuth(const uint64_t contextId)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthService CancelAuth is start");
     int result = INVALID_CONTEXTID;
-    std::vector<uint64_t>  sessionIds;
+    std::vector<uint64_t> sessionIds;
     if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION) && !CheckPermission(ACCESS_BIOMETRIC_PERMISSION)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Permission check failed");
         return E_CHECK_PERMISSION_FAILED;
@@ -391,7 +379,7 @@ int32_t UserAuthService::GetVersion()
     return userauthController_.GetVersion();
 }
 UserAuthService::UserAuthServiceCallbackDeathRecipient::UserAuthServiceCallbackDeathRecipient(
-    sptr<IUserAuthCallback>& impl)
+    sptr<IUserAuthCallback> &impl)
 {
     if (impl != nullptr) {
         callback_ = impl;
@@ -399,11 +387,10 @@ UserAuthService::UserAuthServiceCallbackDeathRecipient::UserAuthServiceCallbackD
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthServiceCallbackDeathRecipient is error");
     }
 }
-void UserAuthService::UserAuthServiceCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
+void UserAuthService::UserAuthServiceCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     if (remote == nullptr) {
-        USERAUTH_HILOGE(MODULE_SERVICE,
-            "UserAuthServiceCallbackDeathRecipient OnRemoteDied failed, remote is nullptr");
+        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthServiceCallbackDeathRecipient OnRemoteDied failed, remote is nullptr");
         return;
     }
     callback_ = nullptr;
@@ -411,5 +398,5 @@ void UserAuthService::UserAuthServiceCallbackDeathRecipient::OnRemoteDied(const 
     USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthServiceCallbackDeathRecipient::Recv death notice.");
 }
 } // namespace UserAuth
-} // namespace UserIam
+} // namespace UserIAM
 } // namespace OHOS

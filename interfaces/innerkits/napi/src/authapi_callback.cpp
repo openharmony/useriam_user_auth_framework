@@ -45,6 +45,15 @@ AuthApiCallback::AuthApiCallback(ExecuteInfo *executeInfo)
 
 AuthApiCallback::~AuthApiCallback()
 {
+    if (authInfo_ != nullptr) {
+        delete authInfo_;
+    }
+    if (userInfo_ != nullptr) {
+        delete userInfo_;
+    }
+    if (executeInfo_ != nullptr) {
+        delete executeInfo_;
+    }
 }
 
 napi_value AuthApiCallback::Uint8ArrayToNapi(napi_env env, std::vector<uint8_t> value)
@@ -528,7 +537,7 @@ EXIT:
 void SetPropApiCallback::onSetProperty(const int32_t result)
 {
     USERAUTH_HILOGI(MODULE_JS_NAPI, "onSetProperty start = %{public}d", result);
-    if (setPropertyInfo_ != nullptr) {
+    if (setPropertyInfo_ == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "setPropertyInfo is null");
         return;
     }

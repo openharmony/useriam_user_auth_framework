@@ -17,6 +17,7 @@
 #define USERAUTH_STUB_H
 
 #include <iremote_stub.h>
+
 #include "iuser_auth.h"
 
 namespace OHOS {
@@ -27,15 +28,15 @@ public:
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
 private:
-    int32_t GetAvailableStatusStub(MessageParcel& data, MessageParcel& reply);
-    int32_t GetPropertyStub(MessageParcel& data, MessageParcel& reply);
-    int32_t SetPropertyStub(MessageParcel& data, MessageParcel& reply);
-    int32_t AuthStub(MessageParcel& data, MessageParcel& reply);
-    int32_t AuthUserStub(MessageParcel& data, MessageParcel& reply);
-    int32_t CancelAuthStub(MessageParcel& data, MessageParcel& reply);
-    int32_t GetVersionStub(MessageParcel& data, MessageParcel& reply);
+    int32_t GetAvailableStatusStub(MessageParcel &data, MessageParcel &reply);
+    int32_t GetPropertyStub(MessageParcel &data, MessageParcel &reply);
+    int32_t SetPropertyStub(MessageParcel &data, MessageParcel &reply);
+    int32_t AuthStub(MessageParcel &data, MessageParcel &reply);
+    int32_t AuthUserStub(MessageParcel &data, MessageParcel &reply);
+    int32_t CancelAuthStub(MessageParcel &data, MessageParcel &reply);
+    int32_t GetVersionStub(MessageParcel &data, MessageParcel &reply);
 };
 } // namespace UserAuth
-} // namespace UserIam
+} // namespace UserIAM
 } // namespace OHOS
 #endif // USERAUTH_STUB_H

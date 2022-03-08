@@ -46,7 +46,7 @@ declare namespace userIAM
          * Check whether the certification capability is available.
          * @since 8
          * @SysCap SystemCapability.UserIAM.UserAuth.BiometricAuth
-         * <p>Permissions required: {@code ohos.permission.ACCESS_USER_AUTH_INTERNAL}  
+         * <p>Permissions required: {@code ohos.permission.ACCESS_USER_AUTH_INTERNAL}
          * @param authType Credential type for authentication.
          * @param authTrustLevel Credibility level of certification results.
          * @return Returns a check result, which is specified by getAvailableStatus.
