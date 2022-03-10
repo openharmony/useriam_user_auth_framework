@@ -67,42 +67,7 @@ UserAuthCallbackImplSetPropFreez::UserAuthCallbackImplSetPropFreez(const sptr<IU
 }
 void UserAuthCallbackImplSetPropFreez::OnResult(uint32_t result, std::vector<uint8_t> &extraInfo)
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthCallbackImplSetPropFreez OnResult enter");
-    int32_t ret = SUCCESS;
-    AuthResult authResult;
-    ExecutorProperty executorProperty;
-    GetPropertyRequest getPropertyRequest;
-    if (result != SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthCallbackImplSetPropFreez is fail");
-    }
-
-    getPropertyRequest.authType = authType_;
-    getPropertyRequest.keys.push_back(AUTH_SUB_TYPE);
-    getPropertyRequest.keys.push_back(REMAIN_TIMES);
-    getPropertyRequest.keys.push_back(FREEZING_TIME);
-    if (callback_ == nullptr) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthCallbackImplSetPropFreez callback_ is Null");
-        return;
-    } else {
-        if (templateIds_.size() == 0) {
-            callback_->onResult(GENERAL_ERROR, authResult);
-            return;
-        }
-        ret = UserAuthAdapter::GetInstance().GetExecutorProp(callerUid_, pkgName_, templateIds_.front(),
-            getPropertyRequest, executorProperty);
-        if (ret != SUCCESS) {
-            executorProperty.freezingTime = 0;
-            executorProperty.remainTimes = 0;
-        }
-
-        authResult.freezingTime = executorProperty.freezingTime;
-        authResult.remainTimes = executorProperty.remainTimes;
-        authResult.token.resize(sizeof(UserAuthToken));
-        if (memcpy_s(&authResult.token[0], authResult.token.size(), &authToken_, sizeof(UserAuthToken)) != EOK) {
-            USERAUTH_HILOGE(MODULE_SERVICE, "copy authToken_ error");
-        }
-        callback_->onResult(resultCode_, authResult);
-    }
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthCallbackImplSetPropFreez result is %{public}u", result);
 }
 
 UserAuthCallbackImplCoAuth::UserAuthCallbackImplCoAuth(const sptr<IUserAuthCallback>& impl,
@@ -153,7 +118,7 @@ void UserAuthCallbackImplCoAuth::OnFinishHandleExtend(int32_t userID, SetPropert
 {
     if (authType_ == UserAuth::PIN) {
         USERAUTH_HILOGD(MODULE_SERVICE, "RequestAuthResult SUCCESS");
-        setPropertyRequest.authType = authType_;
+        setPropertyRequest.authType = UserAuth::FACE;
         setPropertyRequest.key = SetPropertyType::THAW_TEMPLATE;
         UserAuthAdapter::GetInstance().CoauthSetPropAuthInfo(userID, ret, callerUid_, pkgName_,
             authToken, setPropertyRequest, callback_);
@@ -165,7 +130,6 @@ void UserAuthCallbackImplCoAuth::OnFinishHandleExtend(int32_t userID, SetPropert
         }
         authResult.remainTimes = 0;
         authResult.freezingTime = 0;
-        callback_->onResult(ret, authResult);
     }
 }
 
@@ -212,15 +176,13 @@ void UserAuthCallbackImplCoAuth::OnFinishHandle(uint32_t resultCode, std::vector
         return;
     }
     if (resultCode != LOCKED) {
+        getPropertyRequest.authType = authType_;
+        getPropertyRequest.keys.push_back(UserAuth::REMAIN_TIMES);
+        getPropertyRequest.keys.push_back(UserAuth::FREEZING_TIME);
+        UserAuthAdapter::GetInstance().GetPropAuthInfoCoauth(userID_, callerUid_, pkgName_, resultCode,
+            authToken, getPropertyRequest, callback_);
         if (ret == SUCCESS) {
             OnFinishHandleExtend(userID_, setPropertyRequest, authResult, ret, authToken);
-        } else {
-            USERAUTH_HILOGD(MODULE_SERVICE, "RequestAuthResult NOT SUCCESS");
-            getPropertyRequest.authType = authType_;
-            getPropertyRequest.keys.push_back(UserAuth::REMAIN_TIMES);
-            getPropertyRequest.keys.push_back(UserAuth::FREEZING_TIME);
-            UserAuthAdapter::GetInstance().GetPropAuthInfoCoauth(userID_, callerUid_, pkgName_, resultCode,
-                authToken, getPropertyRequest, callback_);
         }
     } else {
         USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthCallbackImplCoAuth resultCode == LOCKED");
@@ -335,9 +297,6 @@ void UserAuthCallbackImplIDMCothGetPorpFreez::OnGetInfo(std::vector<UserIDM::Cre
         if (memcpy_s(&authResult.token[0], authResult.token.size(), &authToken_, sizeof(UserAuthToken)) != EOK) {
             USERAUTH_HILOGE(MODULE_SERVICE, "copy authToken_ error");
         }
-        authResult.freezingTime = 0;
-        authResult.remainTimes = 0;
-        callback_->onResult(resultCode_, authResult);
         return;
     }
     templateIds.clear();
