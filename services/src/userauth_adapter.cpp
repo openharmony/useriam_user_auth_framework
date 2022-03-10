@@ -63,8 +63,7 @@ void UserAuthAdapter::GetPropAuthInfo(int32_t userID, uint64_t callerUID, std::s
 }
 
 void UserAuthAdapter::SetPropAuthInfo(uint64_t callerUID, std::string pkgName, int32_t resultCode,
-    UserAuthToken authToken, SetPropertyRequest requset, std::vector<uint64_t> templateIds,
-    sptr<IUserAuthCallback> &callback)
+    UserAuthToken authToken, SetPropertyRequest requset, std::vector<uint64_t> templateIds)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth SetPropAuthInfo is start!");
     using namespace AuthResPool;
@@ -75,7 +74,7 @@ void UserAuthAdapter::SetPropAuthInfo(uint64_t callerUID, std::string pkgName, i
     freezInfo.resultCode = resultCode;
 
     std::shared_ptr<CoAuth::SetPropCallback> setPropCallback =
-        std::make_shared<UserAuthCallbackImplSetPropFreez>(callback, templateIds, authToken, freezInfo);
+        std::make_shared<UserAuthCallbackImplSetPropFreez>(templateIds, authToken, freezInfo);
     AuthAttributes authAttributes;
     int32_t ret = SetProPropAuthInfo(authAttributes, callerUID, pkgName, requset, templateIds, setPropCallback);
     if (ret != SUCCESS) {
@@ -149,12 +148,12 @@ void UserAuthAdapter::GetPropAuthInfoCoauth(int32_t userID, uint64_t callerUID, 
 }
 
 void UserAuthAdapter::CoauthSetPropAuthInfo(int32_t userID, int32_t resultCode, uint64_t callerUID, std::string pkgName,
-    UserAuthToken authToken, SetPropertyRequest requset, sptr<IUserAuthCallback> &callback)
+    UserAuthToken authToken, SetPropertyRequest requset)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth CoauthSetPropAuthInfo is start!");
     using namespace UserIDM;
     std::shared_ptr<GetInfoCallback> setPropCallback = std::make_shared<UserAuthCallbackImplIDMCothGetPorpFreez>(
-        callback, callerUID, pkgName, resultCode, authToken, requset);
+        callerUID, pkgName, resultCode, authToken, requset);
     int32_t ret = UserIDMClient::GetInstance().GetAuthInfo(userID, static_cast<UserIDM::AuthType>(requset.authType),
         setPropCallback);
     if (ret != SUCCESS) {
