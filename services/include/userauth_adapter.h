@@ -43,11 +43,11 @@ public:
      *  and the authentication result is successful.
      * */
     void CoauthSetPropAuthInfo(int32_t userID, int32_t resultCode, uint64_t callerUID, std::string pkgName,
-        UserAuthToken authToken, SetPropertyRequest requset, sptr<IUserAuthCallback> &callback);
+        UserAuthToken authToken, SetPropertyRequest requset);
 
     /* Set the executor authentication properties for freez or unfreez */
     void SetPropAuthInfo(uint64_t callerUID, std::string pkgName, int32_t resultCode, UserAuthToken authToken,
-        SetPropertyRequest requset, std::vector<uint64_t> templateIds, sptr<IUserAuthCallback> &callback);
+        SetPropertyRequest requset, std::vector<uint64_t> templateIds);
     /* get the executor authentication properties for Coauth */
     void GetPropAuthInfoCoauth(int32_t userID, uint64_t callerUID, std::string pkgName, int32_t resultCode,
         UserAuthToken authToken, GetPropertyRequest requset, sptr<IUserAuthCallback> &callback);

@@ -72,14 +72,13 @@ private:
 
 class UserAuthCallbackImplSetPropFreez : public CoAuth::SetPropCallback {
 public:
-    explicit UserAuthCallbackImplSetPropFreez(const sptr<IUserAuthCallback>& impl,
-        std::vector<uint64_t> templateIds, UserAuthToken authToken, FreezInfo freezInfo);
+    explicit UserAuthCallbackImplSetPropFreez(std::vector<uint64_t> templateIds,
+        UserAuthToken authToken, FreezInfo freezInfo);
     virtual ~UserAuthCallbackImplSetPropFreez() = default;
 
     void OnResult(uint32_t result, std::vector<uint8_t> &extraInfo)  override;
 
 private:
-    sptr<IUserAuthCallback> callback_ { nullptr };
     std::vector<uint64_t> templateIds_;
     int32_t resultCode_;
     UserAuthToken authToken_;
@@ -105,7 +104,7 @@ private:
 
 class UserAuthCallbackImplIDMCothGetPorpFreez : public UserIDM::GetInfoCallback {
 public:
-    explicit UserAuthCallbackImplIDMCothGetPorpFreez(const sptr<IUserAuthCallback>& impl,
+    explicit UserAuthCallbackImplIDMCothGetPorpFreez(
         uint64_t callerUid, std::string pkgName, int32_t resultCode,
         UserAuthToken authToken, SetPropertyRequest requset);
     virtual ~UserAuthCallbackImplIDMCothGetPorpFreez() = default;
@@ -113,7 +112,6 @@ public:
     void OnGetInfo(std::vector<UserIDM::CredentialInfo>& info) override;
 
 private:
-    sptr<IUserAuthCallback> callback_ { nullptr };
     UserAuthToken authToken_;
     int32_t resultCode_;
     SetPropertyRequest requset_;
