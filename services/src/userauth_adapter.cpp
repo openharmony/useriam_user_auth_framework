@@ -29,7 +29,7 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-const int g_userAuthVersion = 1235;
+const int g_userAuthVersion = 0;
 UserAuthAdapter &UserAuthAdapter::GetInstance()
 {
     static UserAuthAdapter instance;
