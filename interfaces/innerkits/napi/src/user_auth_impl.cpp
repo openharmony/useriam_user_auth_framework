@@ -50,26 +50,30 @@ napi_value UserAuthImpl::GetAvailableStatus(napi_env env, napi_callback_info inf
 {
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     size_t argc = ARGS_MAX_COUNT;
+    int32_t result = INVALID_PARAMETERS;
+    napi_value ret = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
     if (argc != ARGS_TWO) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s, parms error.", __func__);
-        return nullptr;
+        NAPI_CALL(env, napi_create_int32(env, result, &ret));
+        return ret;
     }
     int type = authBuild.NapiGetValueInt(env, argv[PARAM0]);
     if (type == GET_VALUE_ERROR) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s, argv[PARAM0] error.", __func__);
-        return nullptr;
+        NAPI_CALL(env, napi_create_int32(env, result, &ret));
+        return ret;
     }
     int level = authBuild.NapiGetValueInt(env, argv[PARAM1]);
     if (level == GET_VALUE_ERROR) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s, argv[PARAM1] error.", __func__);
-        return nullptr;
+        NAPI_CALL(env, napi_create_int32(env, result, &ret));
+        return ret;
     }
     AuthType authType = AuthType(type);
     AuthTurstLevel authTurstLevel = AuthTurstLevel(level);
-    int32_t result = UserAuth::GetInstance().GetAvailableStatus(authType, authTurstLevel);
+    result = UserAuth::GetInstance().GetAvailableStatus(authType, authTurstLevel);
     USERAUTH_HILOGI(MODULE_JS_NAPI, "GetAvailabeStatus result = %{public}d", result);
-    napi_value ret = 0;
     NAPI_CALL(env, napi_create_int32(env, result, &ret));
     return ret;
 }
