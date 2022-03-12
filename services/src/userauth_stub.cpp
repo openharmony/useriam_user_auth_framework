@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,7 +23,7 @@ namespace UserIAM {
 namespace UserAuth {
 int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthStub::OnRemoteRequest, cmd = %{public}d, flags= %{public}d", code,
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthStub::OnRemoteRequest, cmd = %{public}u, flags= %{public}d", code,
         option.GetFlags());
     std::u16string descripter = UserAuthStub::GetDescriptor();
     std::u16string remoteDescripter = data.ReadInterfaceToken();
@@ -33,19 +33,19 @@ int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Messag
     }
 
     switch (code) {
-        case static_cast<int32_t>(IUserAuth::USER_AUTH_GET_AVAILABLE_STATUS):
+        case static_cast<uint32_t>(IUserAuth::USER_AUTH_GET_AVAILABLE_STATUS):
             return GetAvailableStatusStub(data, reply);
-        case static_cast<int32_t>(IUserAuth::USER_AUTH_GET_PROPERTY):
+        case static_cast<uint32_t>(IUserAuth::USER_AUTH_GET_PROPERTY):
             return GetPropertyStub(data, reply);
-        case static_cast<int32_t>(IUserAuth::USER_AUTH_SET_PROPERTY):
+        case static_cast<uint32_t>(IUserAuth::USER_AUTH_SET_PROPERTY):
             return SetPropertyStub(data, reply);
-        case static_cast<int32_t>(IUserAuth::USER_AUTH_AUTH):
+        case static_cast<uint32_t>(IUserAuth::USER_AUTH_AUTH):
             return AuthStub(data, reply);
-        case static_cast<int32_t>(IUserAuth::USER_AUTH_AUTH_USER):
+        case static_cast<uint32_t>(IUserAuth::USER_AUTH_AUTH_USER):
             return AuthUserStub(data, reply);
-        case static_cast<int32_t>(IUserAuth::USER_AUTH_CANCEL_AUTH):
+        case static_cast<uint32_t>(IUserAuth::USER_AUTH_CANCEL_AUTH):
             return CancelAuthStub(data, reply);
-        case static_cast<int32_t>(IUserAuth::USER_AUTH_GET_VERSION):
+        case static_cast<uint32_t>(IUserAuth::USER_AUTH_GET_VERSION):
             return GetVersionStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
