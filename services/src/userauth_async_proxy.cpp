@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -57,7 +57,7 @@ void UserAuthAsyncProxy::onResult(const int32_t result, const AuthResult extraIn
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(UserAuthAsyncProxy::GetDescriptor())) {
-        USERAUTH_HILOGI(MODULE_SERVICE, "userauth write descriptor failed!");
+        USERAUTH_HILOGE(MODULE_SERVICE, "userauth write descriptor failed!");
         return;
     }
     if (!data.WriteInt32(result)) {
@@ -89,7 +89,7 @@ void UserAuthAsyncProxy::onExecutorPropertyInfo(const ExecutorProperty result)
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(UserAuthAsyncProxy::GetDescriptor())) {
-        USERAUTH_HILOGI(MODULE_SERVICE, "userauth write descriptor failed!");
+        USERAUTH_HILOGE(MODULE_SERVICE, "userauth write descriptor failed!");
         return;
     }
     if (!data.WriteInt32(result.result)) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -76,7 +76,7 @@ napi_value GetVersion(napi_env env, napi_callback_info info)
 }
 
 /**
- * @brief Get the Availabe Status object
+ * @brief Get the available Status object
  *
  * @param env
  * @param info
@@ -459,11 +459,11 @@ napi_value UserAuthInit(napi_env env, napi_value exports)
     status = napi_define_properties(env, exports,
         sizeof(exportFuncs) / sizeof(napi_property_descriptor), exportFuncs);
     if (status != napi_ok) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_define_properties faild");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_define_properties failed");
     }
     status = napi_set_named_property(env, exports, "UserAuth", GetCtor(env));
     if (status != napi_ok) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_set_named_property faild");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_set_named_property failed");
     }
     return exports;
 }
