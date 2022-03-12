@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -40,7 +40,7 @@ UserAuthService::~UserAuthService() = default;
 
 void UserAuthService::OnStart()
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "Start service");
+    USERAUTH_HILOGI(MODULE_SERVICE, "Start service");
     if (!Publish(this)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Failed to publish service");
     }
@@ -54,7 +54,7 @@ void UserAuthService::OnStart()
 
 void UserAuthService::OnStop()
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "Stop service");
+    USERAUTH_HILOGI(MODULE_SERVICE, "Stop service");
     ContextThreadPool::GetInstance().Stop();
     bool ret = OHOS::UserIAM::Common::IsIAMInited();
     if (ret) {
@@ -77,7 +77,7 @@ bool UserAuthService::CheckPermission(const std::string &permission)
 
 int32_t UserAuthService::GetAvailableStatus(const AuthType authType, const AuthTurstLevel authTurstLevel)
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthService GetAvailableStatus is start");
+    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService GetAvailableStatus is start");
     if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
         (authType == PIN || !CheckPermission(ACCESS_BIOMETRIC_PERMISSION))) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Permission check failed");
@@ -100,8 +100,9 @@ int32_t UserAuthService::GetAvailableStatus(const AuthType authType, const AuthT
 
     ret = userauthController_.GetAuthTrustLevel(userID, authType, authTurstLevelFromSys);
     if (ret == SUCCESS) {
-        USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthService  iAuthTurstLevel_:%{public}u", authTurstLevelFromSys);
-        USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthService  authTurstLevel:%{public}u", authTurstLevel);
+        USERAUTH_HILOGD(MODULE_SERVICE,
+            "UserAuthService  iAuthTurstLevel_:%{public}u, authTurstLevel:%{public}u",
+            authTurstLevelFromSys, authTurstLevel);
         if (authTurstLevelFromSys < authTurstLevel) {
             USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService authTurstLevel is ERROR!");
             return result;
@@ -113,7 +114,7 @@ int32_t UserAuthService::GetAvailableStatus(const AuthType authType, const AuthT
 
 void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAuthCallback> &callback)
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthService GetProperty is start");
+    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService GetProperty is start");
     uint64_t callerID = 0;
     std::string callerName;
     if (callback == nullptr) {
@@ -148,7 +149,7 @@ void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAu
 
 void UserAuthService::SetProperty(const SetPropertyRequest request, sptr<IUserAuthCallback> &callback)
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthService SetProperty is start");
+    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService SetProperty is start");
     int ret = GENERAL_ERROR;
     uint64_t callerID = 0;
     std::string callerName;
@@ -196,14 +197,14 @@ int32_t UserAuthService::GetCallingUserID(int32_t &userID)
         return TYPE_NOT_SUPPORT;
     }
     userID = static_cast<int32_t>(hapTokenInfo.userID);
-    USERAUTH_HILOGE(MODULE_SERVICE, "GetCallingUserID is %{public}d", userID);
+    USERAUTH_HILOGI(MODULE_SERVICE, "GetCallingUserID is %{public}d", userID);
     return SUCCESS;
 }
 
 uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType, const AuthTurstLevel authTurstLevel,
     sptr<IUserAuthCallback> &callback)
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthService Auth is start");
+    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService Auth is start");
     const uint64_t invalidContextID = 0;
     int32_t userID = 0;
     uint64_t callerID = 0;
@@ -261,7 +262,7 @@ uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType
 uint64_t UserAuthService::AuthUser(const int32_t userId, const uint64_t challenge, const AuthType authType,
     const AuthTurstLevel authTurstLevel, sptr<IUserAuthCallback> &callback)
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthService AuthUser is start");
+    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService AuthUser is start");
     const uint64_t invalidContextID = 0;
     uint64_t callerID = 0;
     std::string callerName;
@@ -342,7 +343,7 @@ int32_t UserAuthService::GetControllerData(sptr<IUserAuthCallback> &callback, Au
 
 int32_t UserAuthService::CancelAuth(const uint64_t contextId)
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthService CancelAuth is start");
+    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService CancelAuth is start");
     int result = INVALID_CONTEXTID;
     std::vector<uint64_t> sessionIds;
     if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION) && !CheckPermission(ACCESS_BIOMETRIC_PERMISSION)) {
@@ -371,7 +372,7 @@ int32_t UserAuthService::CancelAuth(const uint64_t contextId)
 
 int32_t UserAuthService::GetVersion()
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthService GetVersion is start");
+    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService GetVersion is start");
     if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION) && !CheckPermission(ACCESS_BIOMETRIC_PERMISSION)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Permission check failed");
         return E_CHECK_PERMISSION_FAILED;
@@ -395,7 +396,7 @@ void UserAuthService::UserAuthServiceCallbackDeathRecipient::OnRemoteDied(const 
     }
     callback_ = nullptr;
 
-    USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthServiceCallbackDeathRecipient::Recv death notice.");
+    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthServiceCallbackDeathRecipient::Recv death notice.");
 }
 } // namespace UserAuth
 } // namespace UserIAM

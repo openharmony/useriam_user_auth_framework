@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -120,7 +120,7 @@ void AuthApiCallback::OnAuthAcquireInfo(AcquireInfoInner *acquireInfoInner)
         napi_value callback;
         napi_status napiStatus = napi_get_reference_value(env, acquireInfoInner->onAcquireInfo, &callback);
         if (napiStatus != napi_ok) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value faild");
+            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value failed");
             delete acquireInfoInner;
             delete work;
             return;
@@ -131,7 +131,7 @@ void AuthApiCallback::OnAuthAcquireInfo(AcquireInfoInner *acquireInfoInner)
         napi_create_int32(env, acquireInfoInner->extraInfo, &params[PARAM2]);
         napiStatus = napi_call_function(env, nullptr, callback, PARAM3, params, &returnOnAcquire);
         if (napiStatus != napi_ok) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_call_function faild");
+            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_call_function failed");
         }
         delete acquireInfoInner;
         delete work;
@@ -187,7 +187,7 @@ static void OnUserAuthResultWork(uv_work_t *work, int status)
     napi_value callback;
     napi_status napiStatus = napi_get_reference_value(env, userInfo->onResult, &callback);
     if (napiStatus != napi_ok) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value faild");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value failed");
         delete userInfo;
         delete work;
         return;
@@ -242,7 +242,7 @@ static void OnAuthResultWork(uv_work_t *work, int status)
     napi_value callback;
     napi_status napiStatus = napi_get_reference_value(env, authInfo->onResult, &callback);
     if (napiStatus != napi_ok) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value faild");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value failed");
         delete authInfo;
         delete work;
         return;
@@ -296,7 +296,7 @@ static void OnExecuteResultWork(uv_work_t *work, int status)
     napi_env env = executeInfo->env;
     napi_value result;
     if (napi_create_int32(env, executeInfo->result, &result) != napi_ok) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_create_int32 faild");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_create_int32 failed");
         delete work;
         delete executeInfo;
         return;
@@ -389,19 +389,19 @@ static void GetPropertyInfoCallback(uv_work_t* work, int status)
         napi_value global = nullptr;
         napi_status napiStatus = napi_get_global(env, &global);
         if (napiStatus != napi_ok) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_global faild");
+            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_global failed");
             goto EXIT;
         }
         napi_value resultValue = nullptr;
         napi_value callBack = nullptr;
         napiStatus = napi_get_reference_value(env, getPropertyInfo->callBackInfo.callBack, &callBack);
         if (napiStatus != napi_ok) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value faild");
+            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value failed");
             goto EXIT;
         }
         napiStatus = napi_call_function(env, global, callBack, PARAM1, resultData, &resultValue);
         if (napiStatus != napi_ok) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_call_function faild");
+            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_call_function failed");
             goto EXIT;
         }
     } else {
@@ -410,7 +410,7 @@ static void GetPropertyInfoCallback(uv_work_t* work, int status)
         napi_deferred deferred = getPropertyInfo->callBackInfo.deferred;
         napi_status napiStatus = napi_resolve_deferred(env, deferred, resultValue);
         if (napiStatus != napi_ok) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_resolve_deferred faild");
+            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_resolve_deferred failed");
             goto EXIT;
         }
     }
@@ -495,14 +495,14 @@ static void SetExecutorPropertyCallback(uv_work_t *work, int status)
     napi_env env = setPropertyInfo->callBackInfo.env;
     napi_status napiStatus = napi_create_int32(env, setPropertyInfo->setResult, &setPropertyInfo->result);
     if (napiStatus != napi_ok) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_create_int32 faild");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_create_int32 failed");
         goto EXIT;
     }
     if (setPropertyInfo->callBackInfo.callBack != nullptr) {
         napi_value global = nullptr;
         napiStatus = napi_get_global(env, &global);
         if (napiStatus != napi_ok) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_global faild");
+            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_global failed");
             goto EXIT;
         }
         napi_value resultData[PARAM1];
@@ -512,12 +512,12 @@ static void SetExecutorPropertyCallback(uv_work_t *work, int status)
         napi_value callBack = nullptr;
         napiStatus = napi_get_reference_value(env, setPropertyInfo->callBackInfo.callBack, &callBack);
         if (napiStatus != napi_ok) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value faild");
+            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value failed");
             goto EXIT;
         }
         napiStatus = napi_call_function(env, global, callBack, PARAM1, resultData, &result);
         if (napiStatus != napi_ok) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_call_function faild");
+            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_call_function failed");
             goto EXIT;
         }
     } else {
@@ -525,7 +525,7 @@ static void SetExecutorPropertyCallback(uv_work_t *work, int status)
         napi_deferred deferred = setPropertyInfo->callBackInfo.deferred;
         napiStatus = napi_resolve_deferred(env, deferred, result);
         if (napiStatus != napi_ok) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_call_function faild");
+            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_call_function failed");
             goto EXIT;
         }
     }
