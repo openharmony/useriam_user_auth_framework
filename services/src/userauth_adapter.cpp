@@ -144,8 +144,8 @@ void UserAuthAdapter::GetPropAuthInfoCoauth(UserInfo userInfo, int32_t resultCod
     using namespace UserIDM;
     std::shared_ptr<GetInfoCallback> getInfoCallback = std::make_shared<UserAuthCallbackImplIDMGetPorpCoauth>(callback,
         userInfo.callerUID, userInfo.pkgName, resultCode, authToken, requset);
-    int32_t ret = UserIDMClient::GetInstance().GetAuthInfo(userInfo.userID, static_cast<UserIDM::AuthType>(requset.authType),
-        getInfoCallback);
+    int32_t ret = UserIDMClient::GetInstance().GetAuthInfo(userInfo.userID,
+        static_cast<UserIDM::AuthType>(requset.authType), getInfoCallback);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth GetPropAuthInfoCoauth ERROR!");
     }
@@ -159,8 +159,8 @@ void UserAuthAdapter::CoauthSetPropAuthInfo(UserInfo userInfo, int32_t resultCod
     using namespace UserIDM;
     std::shared_ptr<GetInfoCallback> setPropCallback = std::make_shared<UserAuthCallbackImplIDMCothGetPorpFreez>(
         userInfo.callerUID, userInfo.pkgName, resultCode, authToken, requset);
-    int32_t ret = UserIDMClient::GetInstance().GetAuthInfo(userInfo.userID, static_cast<UserIDM::AuthType>(requset.authType),
-        setPropCallback);
+    int32_t ret = UserIDMClient::GetInstance().GetAuthInfo(userInfo.userID,
+        static_cast<UserIDM::AuthType>(requset.authType), setPropCallback);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth CoauthSetPropAuthInfo ERROR!");
     }
