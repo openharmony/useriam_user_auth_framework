@@ -120,11 +120,11 @@ void UserAuthCallbackImplCoAuth::OnFinishHandleExtend(int32_t userID, SetPropert
         USERAUTH_HILOGD(MODULE_SERVICE, "RequestAuthResult SUCCESS");
         setPropertyRequest.authType = UserAuth::FACE;
         setPropertyRequest.key = SetPropertyType::THAW_TEMPLATE;
-        UserInfo userInfo;
-        userInfo.callerUID = callerUid_;
-        userInfo.userID = userID;
-        userInfo.pkgName = pkgName_;
-        UserAuthAdapter::GetInstance().CoauthSetPropAuthInfo(userInfo, ret, authToken, setPropertyRequest);
+        CallerInfo callerInfo;
+        callerInfo.callerUID = callerUid_;
+        callerInfo.userID = userID;
+        callerInfo.pkgName = pkgName_;
+        UserAuthAdapter::GetInstance().CoauthSetPropAuthInfo(callerInfo, ret, authToken, setPropertyRequest);
     }
 }
 
@@ -148,12 +148,12 @@ void UserAuthCallbackImplCoAuth::OnFinishHandle(uint32_t resultCode, std::vector
     SetPropertyRequest setPropertyRequest;
     GetPropertyRequest getPropertyRequest;
     AuthResult authResult;
-    UserInfo userInfo;
+    CallerInfo callerInfo;
     int32_t ret = GENERAL_ERROR;
     std::lock_guard<std::mutex> lock(mutex_);
-    userInfo.callerUID = callerUid_;
-    userInfo.userID = userID_;
-    userInfo.pkgName = pkgName_;
+    callerInfo.callerUID = callerUid_;
+    callerInfo.userID = userID_;
+    callerInfo.pkgName = pkgName_;
     USERAUTH_HILOGD(MODULE_SERVICE, "OnFinishHandle scheduleTokensize:%{public}d, resultCode:%{public}u",
         scheduleToken.size(), resultCode);
     callbackNowCount_++;
@@ -178,7 +178,7 @@ void UserAuthCallbackImplCoAuth::OnFinishHandle(uint32_t resultCode, std::vector
         USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthCallbackImplCoAuth resultCode == LOCKED");
         setPropertyRequest.authType = FACE;
         setPropertyRequest.key = SetPropertyType::FREEZE_TEMPLATE;
-        UserAuthAdapter::GetInstance().CoauthSetPropAuthInfo(userInfo, resultCode, authToken,
+        UserAuthAdapter::GetInstance().CoauthSetPropAuthInfo(callerInfo, resultCode, authToken,
             setPropertyRequest);
     }
     if (ret == SUCCESS) {
@@ -187,7 +187,7 @@ void UserAuthCallbackImplCoAuth::OnFinishHandle(uint32_t resultCode, std::vector
     getPropertyRequest.authType = authType_;
     getPropertyRequest.keys.push_back(UserAuth::REMAIN_TIMES);
     getPropertyRequest.keys.push_back(UserAuth::FREEZING_TIME);
-    UserAuthAdapter::GetInstance().GetPropAuthInfoCoauth(userInfo, resultCode,
+    UserAuthAdapter::GetInstance().GetPropAuthInfoCoauth(callerInfo, resultCode,
         authToken, getPropertyRequest, callback_);
     DealFinishData(sessionIds);
 }
@@ -283,10 +283,10 @@ UserAuthCallbackImplIDMCothGetPorpFreez::UserAuthCallbackImplIDMCothGetPorpFreez
 
 void UserAuthCallbackImplIDMCothGetPorpFreez::OnGetInfo(std::vector<UserIDM::CredentialInfo>& info)
 {
-    UserInfo userInfo;
-    userInfo.callerUID = callerUid_;
-    userInfo.userID = 0;
-    userInfo.pkgName = pkgName_;
+    CallerInfo callerInfo;
+    callerInfo.callerUID = callerUid_;
+    callerInfo.userID = 0;
+    callerInfo.pkgName = pkgName_;
 
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthCallbackImplIDMCothGetPorpFreez OnGetInfo enter");
     std::vector<uint64_t> templateIds;
@@ -303,7 +303,7 @@ void UserAuthCallbackImplIDMCothGetPorpFreez::OnGetInfo(std::vector<UserIDM::Cre
     for (auto const &item : info) {
         templateIds.push_back(item.templateId);
     }
-    UserAuthAdapter::GetInstance().SetPropAuthInfo(userInfo, resultCode_, authToken_, requset_,
+    UserAuthAdapter::GetInstance().SetPropAuthInfo(callerInfo, resultCode_, authToken_, requset_,
         templateIds);
 }
 

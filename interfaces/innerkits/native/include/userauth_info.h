@@ -132,7 +132,7 @@ struct FreezInfo {
     AuthType authType;
 };
 
-struct UserInfo {
+struct CallerInfo {
     uint64_t callerUID;
     int32_t userID {0};
     std::string pkgName;
