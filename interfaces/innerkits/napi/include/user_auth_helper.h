@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -126,7 +126,7 @@ napi_value UserAuthServiceConstructor(napi_env env, napi_callback_info info);
 napi_value GetVersion(napi_env env, napi_callback_info info);
 
 /**
- * @brief Get the Availabe Status object
+ * @brief Get the available Status object
  *
  * @param env
  * @param info
