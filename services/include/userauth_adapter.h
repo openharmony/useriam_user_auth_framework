@@ -42,14 +42,14 @@ public:
      *  after the callback of the coAuth is called to obtain the scheduling token
      *  and the authentication result is successful.
      * */
-    void CoauthSetPropAuthInfo(UserInfo userInfo, int32_t resultCode,
+    void CoauthSetPropAuthInfo(CallerInfo callerInfo, int32_t resultCode,
         UserAuthToken authToken, SetPropertyRequest requset);
 
     /* Set the executor authentication properties for freez or unfreez */
-    void SetPropAuthInfo(UserInfo userInfo, int32_t resultCode, UserAuthToken authToken,
+    void SetPropAuthInfo(CallerInfo callerInfo, int32_t resultCode, UserAuthToken authToken,
         SetPropertyRequest requset, std::vector<uint64_t> templateIds);
     /* get the executor authentication properties for Coauth */
-    void GetPropAuthInfoCoauth(UserInfo userInfo, int32_t resultCode,
+    void GetPropAuthInfoCoauth(CallerInfo callerInfo, int32_t resultCode,
         UserAuthToken authToken, GetPropertyRequest requset, sptr<IUserAuthCallback> &callback);
     int32_t GenerateSolution(AuthSolution param, std::vector<uint64_t> &sessionIds);
     int32_t RequestAuthResult(uint64_t contextId, std::vector<uint8_t> scheduleToken, UserAuthToken &authToken,
@@ -70,7 +70,7 @@ private:
     ~UserAuthAdapter() = default;
     int32_t GetEachExecutorProp(GetPropertyRequest &requset, ExecutorProperty &result, uint32_t &value,
         std::shared_ptr<OHOS::UserIAM::AuthResPool::AuthAttributes> pAuthAttributes);
-    int32_t SetProPropAuthInfo(OHOS::UserIAM::AuthResPool::AuthAttributes &authAttributes, UserInfo userInfo,
+    int32_t SetProPropAuthInfo(OHOS::UserIAM::AuthResPool::AuthAttributes &authAttributes, CallerInfo callerInfo,
         SetPropertyRequest requset, std::vector<uint64_t> templateIds,
         std::shared_ptr<CoAuth::SetPropCallback> &setPropCallback);
 };
