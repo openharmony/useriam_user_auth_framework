@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -81,7 +81,7 @@ napi_valuetype ResultConvert::GetType(napi_env env, napi_value value)
     napi_valuetype type;
     status = napi_typeof(env, value, &type);
     if (status != napi_ok) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_typeof faild");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_typeof failed");
     }
     return type;
 }
@@ -138,13 +138,13 @@ std::vector<uint32_t> ResultConvert::GetInt32ArrayValueByKey(napi_env env, napi_
     bool isArray = false;
     status = napi_is_array(env, array, &isArray);
     if (status != napi_ok) {
-        USERAUTH_HILOGI(MODULE_JS_NAPI, "napi_is_array is failed");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_is_array is failed");
         return std::vector<uint32_t>();
     }
     if (isArray) {
         USERAUTH_HILOGI(MODULE_JS_NAPI, "args[PIN_PARAMS_ONE] is a array");
     } else {
-        USERAUTH_HILOGI(MODULE_JS_NAPI, "args[PIN_PARAMS_ONE] is not a array");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "args[PIN_PARAMS_ONE] is not a array");
         return std::vector<uint32_t>();
     }
     return GetCppArrayUint32(env, array);
@@ -163,7 +163,7 @@ std::string ResultConvert::NapiGetValueString(napi_env env, napi_value value)
     size_t resultSize = 0;
     status = napi_get_value_string_utf8(env, value, valueString, valueSize, &resultSize);
     if (status != napi_ok) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_value_string_utf8 faild");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_value_string_utf8 failed");
     }
     resultValue = valueString;
     if (resultValue == "") {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include <new>
 
 #include <if_system_ability_manager.h>
@@ -54,7 +55,7 @@ sptr<IUserAuth> UserAuth::GetProxy()
 
     proxy_ = iface_cast<IUserAuth>(obj);
     deathRecipient_ = dr;
-    USERAUTH_HILOGE(MODULE_INNERKIT, "userauth Succeed to connect userauth manager service");
+    USERAUTH_HILOGI(MODULE_INNERKIT, "userauth Succeed to connect userauth manager service");
     return proxy_;
 }
 
@@ -82,7 +83,7 @@ void UserAuth::UserAuthDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &r
     }
 
     UserAuth::GetInstance().ResetProxy(remote);
-    USERAUTH_HILOGE(MODULE_INNERKIT, "userauth UserAuthDeathRecipient::Recv death notice.");
+    USERAUTH_HILOGI(MODULE_INNERKIT, "userauth UserAuthDeathRecipient::Recv death notice.");
 }
 
 int32_t UserAuth::GetAvailableStatus(const AuthType authType, const AuthTurstLevel authTurstLevel)
@@ -118,6 +119,7 @@ void UserAuth::GetProperty(const GetPropertyRequest &request, std::shared_ptr<Ge
     }
     proxy_->GetProperty(request, asyncStub);
 }
+
 void UserAuth::SetProperty(const SetPropertyRequest &request, std::shared_ptr<SetPropCallback> callback)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauth SetProperty is start");
@@ -137,6 +139,7 @@ void UserAuth::SetProperty(const SetPropertyRequest &request, std::shared_ptr<Se
     }
     proxy_->SetProperty(request, asyncStub);
 }
+
 uint64_t UserAuth::Auth(const uint64_t challenge, const AuthType authType, const AuthTurstLevel authTurstLevel,
     std::shared_ptr<UserAuthCallback> callback)
 {
@@ -157,6 +160,7 @@ uint64_t UserAuth::Auth(const uint64_t challenge, const AuthType authType, const
     uint64_t ret = proxy_->Auth(challenge, authType, authTurstLevel, asyncStub);
     return ret;
 }
+
 uint64_t UserAuth::AuthUser(const int32_t userId, const uint64_t challenge, const AuthType authType,
     const AuthTurstLevel authTurstLevel, std::shared_ptr<UserAuthCallback> callback)
 {
@@ -177,6 +181,7 @@ uint64_t UserAuth::AuthUser(const int32_t userId, const uint64_t challenge, cons
     uint64_t ret = proxy_->AuthUser(userId, challenge, authType, authTurstLevel, asyncStub);
     return ret;
 }
+
 int32_t UserAuth::CancelAuth(const uint64_t contextId)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauth CancelAuth is start");
@@ -188,6 +193,7 @@ int32_t UserAuth::CancelAuth(const uint64_t contextId)
     int32_t ret = proxy_->CancelAuth(contextId);
     return ret;
 }
+
 int32_t UserAuth::GetVersion()
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauth GetVersion is start");
