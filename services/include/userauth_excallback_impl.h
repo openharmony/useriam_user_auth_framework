@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -90,14 +90,14 @@ private:
 class UserAuthCallbackImplIDMGetPorp : public UserIDM::GetInfoCallback {
 public:
     explicit UserAuthCallbackImplIDMGetPorp(const sptr<IUserAuthCallback>& impl,
-        GetPropertyRequest requst, uint64_t callerUID, std::string pkgName);
+        GetPropertyRequest request, uint64_t callerUID, std::string pkgName);
     virtual ~UserAuthCallbackImplIDMGetPorp() = default;
 
     void OnGetInfo(std::vector<UserIDM::CredentialInfo>& info) override;
 
 private:
     sptr<IUserAuthCallback> callback_ { nullptr };
-    GetPropertyRequest requst_;
+    GetPropertyRequest request_;
     std::string pkgName_;
     uint64_t callerUid_;
 };

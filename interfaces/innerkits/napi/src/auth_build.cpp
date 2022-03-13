@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -35,8 +35,8 @@ Napi_SetPropertyRequest AuthBuild::SetPropertyRequestBuild(napi_env env, napi_va
     request.authType_ = convert_.GetInt32ValueByKey(env, object, "authType");
     request.key_ = convert_.GetInt32ValueByKey(env, object, "key");
     request.setInfo_ = convert_.NapiGetValueUint8Array(env, object, "setInfo");
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthBuild::SetPropertyRequestBuild authType = %{public}d, key = %{public}d",
-                    request.authType_, request.key_);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthBuild::SetPropertyRequestBuild authType = %{public}d",
+                    request.authType_);
     return request;
 }
 

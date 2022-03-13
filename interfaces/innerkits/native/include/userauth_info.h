@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,6 +26,7 @@ enum AuthType : uint32_t {
     PIN = 1,
     FACE = 2,
 };
+
 // Authentication subtype (2D face, 3D face...)
 enum AuthSubType : uint64_t {
     /**
@@ -49,6 +50,7 @@ enum AuthSubType : uint64_t {
      */
     FACE_3D = 20001
 };
+
 // Certification result confidence level
 enum AuthTurstLevel : uint32_t {
     // level 1-4
@@ -57,6 +59,7 @@ enum AuthTurstLevel : uint32_t {
     ATL3 = 30000,
     ATL4 = 40000
 };
+
 // Actuator get property list
 enum GetPropertyType : uint32_t {
     // Authentication subtype (at this point the authentication type has been confirmed)
@@ -66,12 +69,14 @@ enum GetPropertyType : uint32_t {
     // Freeze time
     FREEZING_TIME = 3,
 };
+
 // get attribute request
 struct GetPropertyRequest {
     AuthType authType {0};
     // GetPropertyType
     std::vector<uint32_t> keys {};
 };
+
 // Actuator properties
 struct ExecutorProperty {
     int32_t result;
@@ -79,6 +84,7 @@ struct ExecutorProperty {
     uint32_t remainTimes;
     uint32_t freezingTime;
 };
+
 // Actuator property mode list
 enum AuthPropertyMode : uint32_t {
     PROPERMODE_DELETE = 0,
@@ -89,23 +95,27 @@ enum AuthPropertyMode : uint32_t {
     PROPERMODE_INIT_ALGORITHM = 5,
     PROPERMODE_RELEASE_ALGORITHM = 6,
 };
+
 // Actuator property list
 enum SetPropertyType : uint32_t {
     INIT_ALGORITHM = 1,
     FREEZE_TEMPLATE = 2,
     THAW_TEMPLATE = 3,
 };
+
 struct SetPropertyRequest {
     AuthType authType {0};
     SetPropertyType key {0};
     std::vector<uint8_t> setInfo {};
 };
+
 // Authentication Result
 struct AuthResult {
     std::vector<uint8_t> token {};
     uint32_t remainTimes {0};
     uint32_t freezingTime {0};
 };
+
 struct CoAuthInfo {
     AuthType authType {0};
     uint64_t callerID {0};
@@ -120,6 +130,12 @@ struct FreezInfo {
     std::string pkgName;
     int32_t resultCode;
     AuthType authType;
+};
+
+struct CallerInfo {
+    uint64_t callerUID;
+    int32_t userID {0};
+    std::string pkgName;
 };
 
 // Result Code
