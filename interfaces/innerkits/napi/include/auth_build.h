@@ -18,9 +18,7 @@
 
 #include "napi/native_api.h"
 #include "napi/native_common.h"
-
 #include "nocopyable.h"
-
 #include "auth_common.h"
 #include "result_convert.h"
 

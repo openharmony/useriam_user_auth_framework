@@ -15,10 +15,10 @@
 
 #ifndef USERAUTH_EXCALLBACK_IMPL_H
 #define USERAUTH_EXCALLBACK_IMPL_H
+
 #include <mutex>
 #include <map>
 #include <vector>
-
 #include "iuserauth_callback.h"
 #include "userauth_controller.h"
 #include "coauth_callback.h"

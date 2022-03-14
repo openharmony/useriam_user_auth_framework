@@ -48,8 +48,6 @@ ohos_shared_library("userauth") {
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
   ]
 
   relative_install_dir = "module"
@@ -87,8 +85,6 @@ ohos_shared_library("userauth_napi") {
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
   ]
 
   relative_install_dir = "module/useriam"

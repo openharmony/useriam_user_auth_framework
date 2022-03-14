@@ -18,13 +18,10 @@
 
 #include <string>
 #include <vector>
-
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "nocopyable.h"
-
 #include "userauth_info.h"
-
 #include "auth_common.h"
 #include "auth_object.h"
 

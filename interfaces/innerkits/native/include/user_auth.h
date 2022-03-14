@@ -19,7 +19,6 @@
 #include <iremote_object.h>
 #include <mutex>
 #include <singleton.h>
-
 #include "iuser_auth.h"
 #include "userauth_async_stub.h"
 

@@ -14,15 +14,14 @@
  */
 
 #include "userauth_excallback_impl.h"
-#include "userauth_hilog_wrapper.h"
-#include "userauth_datamgr.h"
-#include "coauth_info_define.h"
-#include "userauth_async_proxy.h"
-#include "securec.h"
-
 #include <cinttypes>
 #include <iservice_registry.h>
 #include <system_ability_definition.h>
+#include "securec.h"
+#include "coauth_info_define.h"
+#include "userauth_hilog_wrapper.h"
+#include "userauth_datamgr.h"
+#include "userauth_async_proxy.h"
 
 namespace OHOS {
 namespace UserIAM {

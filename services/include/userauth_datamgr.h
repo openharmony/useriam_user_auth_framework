@@ -18,9 +18,7 @@
 
 #include <mutex>
 #include <set>
-
 #include "nocopyable.h"
-
 #include "iuserauth_callback.h"
 #include "userauth_adapter.h"
 

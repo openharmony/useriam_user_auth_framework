@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
+#include "authapi_callback.h"
 #include <cinttypes>
 #include <uv.h>
 #include "securec.h"
 #include "userauth_hilog_wrapper.h"
-#include "authapi_callback.h"
 
 namespace OHOS {
 namespace UserIAM {
