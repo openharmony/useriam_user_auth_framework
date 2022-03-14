@@ -15,11 +15,11 @@
 
 #ifndef USERAUTH_THREADPOOL_H
 #define USERAUTH_THREADPOOL_H
+
 #include <cstdint>
 #include <map>
 #include <mutex>
 #include <vector>
-
 #include "nocopyable.h"
 #include "thread_pool.h"
 

@@ -21,7 +21,6 @@
 #include <string>
 #include <system_ability.h>
 #include <system_ability_definition.h>
-
 #include "iuser_auth.h"
 #include "userauth_controller.h"
 #include "userauth_stub.h"

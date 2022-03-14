@@ -12,10 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "userauth_stub.h"
-
 #include <message_parcel.h>
-
 #include "userauth_hilog_wrapper.h"
 
 namespace OHOS {

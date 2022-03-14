@@ -14,9 +14,7 @@
  */
 
 #include "userauth_adapter.h"
-
 #include <cinttypes>
-
 #include "auth_attributes.h"
 #include "co_auth.h"
 #include "userauth_datamgr.h"

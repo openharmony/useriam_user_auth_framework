@@ -16,6 +16,7 @@
 #ifndef USERAUTH_ADAPTER_H
 #define USERAUTH_ADAPTER_H
 
+#include <mutex>
 #include "auth_attributes.h"
 #include "co_auth.h"
 #include "context_thread_pool.h"
@@ -23,8 +24,6 @@
 #include "set_prop_callback.h"
 #include "userauth_info.h"
 #include "userauth_interface.h"
-
-#include <mutex>
 
 namespace OHOS {
 namespace UserIAM {

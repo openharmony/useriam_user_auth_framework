@@ -13,12 +13,11 @@
  * limitations under the License.
  */
 
+#include "userauth_async_stub.h"
 #include <cinttypes>
 #include <message_parcel.h>
-
 #include "userauth_hilog_wrapper.h"
 #include "iuser_auth.h"
-#include "userauth_async_stub.h"
 
 namespace OHOS {
 namespace UserIAM {
