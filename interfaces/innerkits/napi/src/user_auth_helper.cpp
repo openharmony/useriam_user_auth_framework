@@ -468,8 +468,10 @@ napi_value FingerprintTipsConstructor(napi_env env)
     napi_value fingerprintTipTooSlow = nullptr;
     NAPI_CALL(env, napi_create_object(env, &fingerprintTips));
     NAPI_CALL(env, napi_create_int32(env, FingerprintTips::FINGERPRINT_AUTH_TIP_GOOD, &fingerprintTipGood));
-    NAPI_CALL(env, napi_create_int32(env, FingerprintTips::FINGERPRINT_AUTH_TIP_IMAGER_DIRTY, &fingerprintTipImagerDirty));
-    NAPI_CALL(env, napi_create_int32(env, FingerprintTips::FINGERPRINT_AUTH_TIP_INSUFFICIENT, &fingerprintTipInsufficient));
+    NAPI_CALL(env, napi_create_int32(env, FingerprintTips::FINGERPRINT_AUTH_TIP_IMAGER_DIRTY,
+        &fingerprintTipImagerDirty));
+    NAPI_CALL(env, napi_create_int32(env, FingerprintTips::FINGERPRINT_AUTH_TIP_INSUFFICIENT,
+        &fingerprintTipInsufficient));
     NAPI_CALL(env, napi_create_int32(env, FingerprintTips::FINGERPRINT_AUTH_TIP_PARTIAL, &fingerprintTipPartial));
     NAPI_CALL(env, napi_create_int32(env, FingerprintTips::FINGERPRINT_AUTH_TIP_TOO_FAST, &fingerprintTipTooFast));
     NAPI_CALL(env, napi_create_int32(env, FingerprintTips::FINGERPRINT_AUTH_TIP_TOO_SLOW, &fingerprintTipTooSlow));
@@ -478,9 +480,12 @@ napi_value FingerprintTipsConstructor(napi_env env)
         "FINGERPRINT_AUTH_TIP_DIRTY", fingerprintTipImagerDirty));
     NAPI_CALL(env, napi_set_named_property(env, fingerprintTips,
         "FINGERPRINT_AUTH_TIP_INSUFFICIENT", fingerprintTipInsufficient));
-    NAPI_CALL(env, napi_set_named_property(env, fingerprintTips, "FINGERPRINT_AUTH_TIP_PARTIAL", fingerprintTipPartial));
-    NAPI_CALL(env, napi_set_named_property(env, fingerprintTips, "FINGERPRINT_AUTH_TIP_TOO_FAST", fingerprintTipTooFast));
-    NAPI_CALL(env, napi_set_named_property(env, fingerprintTips, "FINGERPRINT_AUTH_TIP_TOO_SLOW", fingerprintTipTooSlow));
+    NAPI_CALL(env, napi_set_named_property(env, fingerprintTips,
+        "FINGERPRINT_AUTH_TIP_PARTIAL",fingerprintTipPartial));
+    NAPI_CALL(env, napi_set_named_property(env, fingerprintTips,
+        "FINGERPRINT_AUTH_TIP_TOO_FAST", fingerprintTipTooFast));
+    NAPI_CALL(env, napi_set_named_property(env, fingerprintTips,
+        "FINGERPRINT_AUTH_TIP_TOO_SLOW", fingerprintTipTooSlow));
     return fingerprintTips;
 }
 
