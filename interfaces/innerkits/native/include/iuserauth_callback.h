@@ -18,7 +18,6 @@
 
 #include <iremote_broker.h>
 #include <iremote_object.h>
-
 #include "userauth_info.h"
 
 namespace OHOS {

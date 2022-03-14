@@ -46,7 +46,6 @@ ohos_shared_library("userauthservice") {
     "//base/user_iam/auth_executor_mgr/common:useriam_common_lib",
     "//base/user_iam/auth_executor_mgr/interfaces/innerkits:coauth_framework",
     "//base/user_iam/user_idm/interfaces/innerkits:useridm_framework",
-    "//drivers/peripheral/display/hal:hdi_display_device",
     "//third_party/openssl:libcrypto_static",
     "//utils/native/base:utils",
   ]

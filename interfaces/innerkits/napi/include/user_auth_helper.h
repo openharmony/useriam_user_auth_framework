@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #ifndef FACERECOGNITION_USER_AUTH_HELPER_H
 #define FACERECOGNITION_USER_AUTH_HELPER_H
 

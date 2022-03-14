@@ -18,7 +18,6 @@
 
 #include <iremote_proxy.h>
 #include <nocopyable.h>
-
 #include "iuser_auth.h"
 
 namespace OHOS {

@@ -18,10 +18,8 @@
 
 #include "napi/native_api.h"
 #include "napi/native_common.h"
-
 #include "userauth_callback.h"
 #include "userauth_info.h"
-
 #include "auth_common.h"
 
 namespace OHOS {
