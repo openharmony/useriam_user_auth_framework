@@ -467,21 +467,34 @@ napi_value FingerprintTipsConstructor(napi_env env)
     napi_value fingerprintTipTooFast = nullptr;
     napi_value fingerprintTipTooSlow = nullptr;
     NAPI_CALL(env, napi_create_object(env, &fingerprintTips));
-    NAPI_CALL(env, napi_create_int32(env, FingerprintTips::FINGERPRINT_TIP_GOOD, &fingerprintTipGood));
-    NAPI_CALL(env, napi_create_int32(env, FingerprintTips::FINGERPRINT_TIP_IMAGER_DIRTY, &fingerprintTipImagerDirty));
-    NAPI_CALL(env, napi_create_int32(env, FingerprintTips::FINGERPRINT_TIP_INSUFFICIENT, &fingerprintTipInsufficient));
-    NAPI_CALL(env, napi_create_int32(env, FingerprintTips::FINGERPRINT_TIP_PARTIAL, &fingerprintTipPartial));
-    NAPI_CALL(env, napi_create_int32(env, FingerprintTips::FINGERPRINT_TIP_TOO_FAST, &fingerprintTipTooFast));
-    NAPI_CALL(env, napi_create_int32(env, FingerprintTips::FINGERPRINT_TIP_TOO_SLOW, &fingerprintTipTooSlow));
-    NAPI_CALL(env, napi_set_named_property(env, fingerprintTips, "FINGERPRINT_TIP_GOOD", fingerprintTipGood));
+    NAPI_CALL(env, napi_create_int32(env, FingerprintTips::FINGERPRINT_AUTH_TIP_GOOD, &fingerprintTipGood));
+    NAPI_CALL(env, napi_create_int32(env, FingerprintTips::FINGERPRINT_AUTH_TIP_IMAGER_DIRTY, &fingerprintTipImagerDirty));
+    NAPI_CALL(env, napi_create_int32(env, FingerprintTips::FINGERPRINT_AUTH_TIP_INSUFFICIENT, &fingerprintTipInsufficient));
+    NAPI_CALL(env, napi_create_int32(env, FingerprintTips::FINGERPRINT_AUTH_TIP_PARTIAL, &fingerprintTipPartial));
+    NAPI_CALL(env, napi_create_int32(env, FingerprintTips::FINGERPRINT_AUTH_TIP_TOO_FAST, &fingerprintTipTooFast));
+    NAPI_CALL(env, napi_create_int32(env, FingerprintTips::FINGERPRINT_AUTH_TIP_TOO_SLOW, &fingerprintTipTooSlow));
+    NAPI_CALL(env, napi_set_named_property(env, fingerprintTips, "FINGERPRINT_AUTH_TIP_GOOD", fingerprintTipGood));
     NAPI_CALL(env, napi_set_named_property(env, fingerprintTips,
-        "FINGERPRINT_TIP_IMAGER_DIRTY", fingerprintTipImagerDirty));
+        "FINGERPRINT_AUTH_TIP_DIRTY", fingerprintTipImagerDirty));
     NAPI_CALL(env, napi_set_named_property(env, fingerprintTips,
-        "FINGERPRINT_TIP_INSUFFICIENT", fingerprintTipInsufficient));
-    NAPI_CALL(env, napi_set_named_property(env, fingerprintTips, "FINGERPRINT_TIP_PARTIAL", fingerprintTipPartial));
-    NAPI_CALL(env, napi_set_named_property(env, fingerprintTips, "FINGERPRINT_TIP_TOO_FAST", fingerprintTipTooFast));
-    NAPI_CALL(env, napi_set_named_property(env, fingerprintTips, "FINGERPRINT_TIP_TOO_SLOW", fingerprintTipTooSlow));
+        "FINGERPRINT_AUTH_TIP_INSUFFICIENT", fingerprintTipInsufficient));
+    NAPI_CALL(env, napi_set_named_property(env, fingerprintTips, "FINGERPRINT_AUTH_TIP_PARTIAL", fingerprintTipPartial));
+    NAPI_CALL(env, napi_set_named_property(env, fingerprintTips, "FINGERPRINT_AUTH_TIP_TOO_FAST", fingerprintTipTooFast));
+    NAPI_CALL(env, napi_set_named_property(env, fingerprintTips, "FINGERPRINT_AUTH_TIP_TOO_SLOW", fingerprintTipTooSlow));
     return fingerprintTips;
+}
+
+napi_value UserAuthTypeConstructor(napi_env env)
+{
+    napi_value userAuthType = nullptr;
+    napi_value face = nullptr;
+    napi_value fingerprint = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &userAuthType));
+    NAPI_CALL(env, napi_create_int32(env, (int32_t)UserAuthType::FACE, &face));
+    NAPI_CALL(env, napi_create_int32(env, (int32_t)UserAuthType::FINGERPRINT, &fingerprint));
+    NAPI_CALL(env, napi_set_named_property(env, userAuthType, "FACE", face));
+    NAPI_CALL(env, napi_set_named_property(env, userAuthType, "FINGERPRINT", fingerprint));
+    return userAuthType;
 }
 
 /**
@@ -512,6 +525,8 @@ napi_value UserAuthInit(napi_env env, napi_value exports)
 
 napi_value EnumExport(napi_env env, napi_value exports)
 {
+#ifndef USER_AUTH_FOR_API6
+    // API8 ENUM
     napi_property_descriptor descriptors[] = {
         DECLARE_NAPI_PROPERTY("AuthType", AuthTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("AuthSubType", AuthSubTypeConstructor(env)),
@@ -521,10 +536,17 @@ napi_value EnumExport(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("AuthMethod", AuthMethodConstructor(env)),
         DECLARE_NAPI_PROPERTY("Module", ModuleConstructor(env)),
         DECLARE_NAPI_PROPERTY("ResultCode", ResultCodeConstructor(env)),
-        DECLARE_NAPI_PROPERTY("AuthenticationResult", AuthenticationResultConstructor(env)),
         DECLARE_NAPI_PROPERTY("FaceTipsCode", FaceTipsCodeConstructor(env)),
         DECLARE_NAPI_PROPERTY("FingerprintTips", FingerprintTipsConstructor(env)),
+        DECLARE_NAPI_PROPERTY("UserAuthType", UserAuthTypeConstructor(env)),
+        DECLARE_NAPI_PROPERTY("FaceTips", FaceTipsCodeConstructor(env)),
     };
+#else
+    // API6 ENUM
+    napi_property_descriptor descriptors[] = {
+        DECLARE_NAPI_PROPERTY("AuthenticationResult", AuthenticationResultConstructor(env)),
+    };
+#endif
     napi_define_properties(env, exports, sizeof(descriptors) / sizeof(napi_property_descriptor), descriptors);
     return exports;
 }
