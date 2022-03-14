@@ -14,9 +14,7 @@
 import("//base/user_iam/user_auth/userauth.gni")
 
 config("userauth_private_config") {
-  include_dirs = [
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
-  ]
+  include_dirs = [ "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include" ]
 }
 
 config("userauth_public_config") {
