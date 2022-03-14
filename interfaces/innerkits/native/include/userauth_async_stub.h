@@ -18,7 +18,6 @@
 
 #include <iremote_stub.h>
 #include <nocopyable.h>
-
 #include "iuserauth_callback.h"
 #include "userauth_callback.h"
 

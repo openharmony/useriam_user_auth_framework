@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <cinttypes>
 
+#include "result_convert.h"
+#include <cinttypes>
 #include "securec.h"
 #include "userauth_hilog_wrapper.h"
-#include "result_convert.h"
 
 namespace OHOS {
 namespace UserIAM {

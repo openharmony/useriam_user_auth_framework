@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
+#include "userauth_test.h"
 #include <memory>
 #include <iostream>
 #include <gtest/gtest.h>
 #include "user_auth.h"
 #include "userauth_callback.h"
 #include "userauth_info.h"
-#include "userauth_test.h"
 
 using namespace testing::ext;
 namespace OHOS {

@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #ifndef FACERECOGNITION_USER_AUTH_H
 #define FACERECOGNITION_USER_AUTH_H
 
 #include "napi/native_common.h"
-
 #include "auth_build.h"
 #include "auth_common.h"
 

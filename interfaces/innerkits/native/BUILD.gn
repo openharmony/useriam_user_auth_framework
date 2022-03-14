@@ -16,7 +16,6 @@ import("//base/user_iam/user_auth/userauth.gni")
 config("userauth_private_config") {
   include_dirs = [
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
-    "//foundation/distributeddatamgr/distributeddatamgr/frameworks/innerkitsimpl/distributeddatafwk/include",
   ]
 }
 
@@ -46,7 +45,6 @@ ohos_shared_library("userauth_framework") {
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
   ]
 
