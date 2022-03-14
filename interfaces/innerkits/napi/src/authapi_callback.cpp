@@ -304,8 +304,13 @@ static void OnExecuteResultWork(uv_work_t *work, int status)
     napi_value undefined;
     napi_get_undefined(env, &undefined);
     if (executeInfo->isPromise) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI,
-            "do promise %{public}d", napi_resolve_deferred(env, executeInfo->deferred, result));
+        if (executeInfo->result == static_cast<int32_t>(AuthenticationResult::SUCCESS)) {
+            USERAUTH_HILOGE(MODULE_JS_NAPI,
+                "resolve promise1 %{public}d", napi_resolve_deferred(env, executeInfo->deferred, result));
+        } else {
+            USERAUTH_HILOGE(MODULE_JS_NAPI,
+                "reject promise1. %{public}d", napi_reject_deferred(env, executeInfo->deferred, result));
+        }
     } else {
         napi_value callback;
         napi_get_reference_value(env, executeInfo->callbackRef, &callback);
@@ -335,7 +340,18 @@ void AuthApiCallback::OnExecuteResult(const int32_t result)
         executeInfo_ = nullptr;
         return;
     }
-    executeInfo_->result = result;
+
+    auto res = result2ExecuteResult.find(result);
+    if (res == result2ExecuteResult.end()) {
+        executeInfo_->result = static_cast<int32_t>(AuthenticationResult::GENERAL_ERROR);
+        USERAUTH_HILOGI(MODULE_JS_NAPI, "result %{public}d not found, set execute result GENERAL_ERROR",
+            result);
+    } else {
+        executeInfo_->result = static_cast<int32_t>(res->second);
+        USERAUTH_HILOGI(MODULE_JS_NAPI, "convert result %{public}d to execute result %{public}d",
+            result, executeInfo_->result);
+    }
+
     work->data = reinterpret_cast<void *>(executeInfo_);
     executeInfo_ = nullptr;
     uv_queue_work(loop, work, [] (uv_work_t *work) {}, OnExecuteResultWork);
