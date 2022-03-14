@@ -25,7 +25,7 @@ config("userauth_public_config") {
 
 ohos_shared_library("userauth_framework") {
   sources = [
-    "../../../frameworks/kitsimpl/src/userauth.cpp",
+    "../../../frameworks/kitsimpl/src/user_auth.cpp",
     "../../../frameworks/kitsimpl/src/userauth_async_stub.cpp",
     "../../../frameworks/kitsimpl/src/userauth_proxy.cpp",
   ]
