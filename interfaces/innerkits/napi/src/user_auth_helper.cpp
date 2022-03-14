@@ -237,8 +237,8 @@ napi_value AuthTypeConstructor(napi_env env)
     napi_value pin = nullptr;
     napi_value face = nullptr;
     NAPI_CALL(env, napi_create_object(env, &authType));
-    NAPI_CALL(env, napi_create_int32(env, (int32_t)AuthType::PIN, &pin));
-    NAPI_CALL(env, napi_create_int32(env, (int32_t)AuthType::FACE, &face));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthType::PIN), &pin));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthType::FACE), &face));
     NAPI_CALL(env, napi_set_named_property(env, authType, "PIN", pin));
     NAPI_CALL(env, napi_set_named_property(env, authType, "FACE", face));
     return authType;
@@ -253,9 +253,9 @@ napi_value AuthSubTypeConstructor(napi_env env)
     napi_value face2d = nullptr;
     napi_value face3d = nullptr;
     NAPI_CALL(env, napi_create_object(env, &authSubType));
-    NAPI_CALL(env, napi_create_int32(env, (int32_t)AuthSubType::PIN_SIX, &pinSix));
-    NAPI_CALL(env, napi_create_int32(env, (int32_t)AuthSubType::PIN_NUMBER, &pinNumber));
-    NAPI_CALL(env, napi_create_int32(env, (int32_t)AuthSubType::PIN_MIXED, &pinMixed));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthSubType::PIN_SIX), &pinSix));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthSubType::PIN_NUMBER), &pinNumber));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthSubType::PIN_MIXED), &pinMixed));
     NAPI_CALL(env, napi_create_int32(env, (int32_t)AuthSubType::FACE_2D, &face2d));
     NAPI_CALL(env, napi_create_int32(env, (int32_t)AuthSubType::FACE_3D, &face3d));
     NAPI_CALL(env, napi_set_named_property(env, authSubType, "PIN_SIX", pinSix));
@@ -292,9 +292,9 @@ napi_value GetPropertyTypeConstructor(napi_env env)
     napi_value remainTimes = nullptr;
     napi_value freezingTime = nullptr;
     NAPI_CALL(env, napi_create_object(env, &getPropertyType));
-    NAPI_CALL(env, napi_create_int32(env, (int32_t)GetPropertyType::AUTH_SUB_TYPE, &authSubType));
-    NAPI_CALL(env, napi_create_int32(env, (int32_t)GetPropertyType::REMAIN_TIMES, &remainTimes));
-    NAPI_CALL(env, napi_create_int32(env, (int32_t)GetPropertyType::FREEZING_TIME, &freezingTime));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(GetPropertyType::AUTH_SUB_TYPE), &authSubType));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(GetPropertyType::REMAIN_TIMES), &remainTimes));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(GetPropertyType::FREEZING_TIME), &freezingTime));
     NAPI_CALL(env, napi_set_named_property(env, getPropertyType, "AUTH_SUB_TYPE", authSubType));
     NAPI_CALL(env, napi_set_named_property(env, getPropertyType, "REMAIN_TIMES", remainTimes));
     NAPI_CALL(env, napi_set_named_property(env, getPropertyType, "FREEZING_TIME", freezingTime));
@@ -306,7 +306,7 @@ napi_value SetPropertyTypeConstructor(napi_env env)
     napi_value setPropertyType = nullptr;
     napi_value initAlgorithm = nullptr;
     NAPI_CALL(env, napi_create_object(env, &setPropertyType));
-    NAPI_CALL(env, napi_create_int32(env, (int32_t)SetPropertyType::INIT_ALGORITHM, &initAlgorithm));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(SetPropertyType::INIT_ALGORITHM), &initAlgorithm));
     NAPI_CALL(env, napi_set_named_property(env, setPropertyType, "INIT_ALGORITHM", initAlgorithm));
     return setPropertyType;
 }
@@ -371,6 +371,48 @@ napi_value ResultCodeConstructor(napi_env env)
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "INVALID_PARAMETERS", invalidParameters));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "LOCKED", locked));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "NOT_ENROLLED", notEnrolled));
+    return resultCode;
+}
+
+napi_value AuthenticationResultConstructor(napi_env env)
+{
+    napi_value resultCode = nullptr;
+    napi_value no_support = nullptr;
+    napi_value success = nullptr;
+    napi_value compare_failure = nullptr;
+    napi_value canceled = nullptr;
+    napi_value timeout = nullptr;
+    napi_value camera_fail = nullptr;
+    napi_value busy = nullptr;
+    napi_value invalid_parameters = nullptr;
+    napi_value locked = nullptr;
+    napi_value not_enrolled = nullptr;
+    napi_value general_error = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &resultCode));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::NO_SUPPORT), &no_support));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::SUCCESS), &success));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::COMPARE_FAILURE),
+        &compare_failure));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::CANCELED), &canceled));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::TIMEOUT), &timeout));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::CAMERA_FAIL), &camera_fail));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::BUSY), &busy));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::INVALID_PARAMETERS),
+        &invalid_parameters));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::LOCKED), &locked));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::NOT_ENROLLED), &not_enrolled));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::GENERAL_ERROR), &general_error));
+    NAPI_CALL(env, napi_set_named_property(env, resultCode, "NO_SUPPORT", no_support));
+    NAPI_CALL(env, napi_set_named_property(env, resultCode, "SUCCESS", success));
+    NAPI_CALL(env, napi_set_named_property(env, resultCode, "COMPARE_FAILURE", compare_failure));
+    NAPI_CALL(env, napi_set_named_property(env, resultCode, "CANCELED", canceled));
+    NAPI_CALL(env, napi_set_named_property(env, resultCode, "TIMEOUT", timeout));
+    NAPI_CALL(env, napi_set_named_property(env, resultCode, "CAMERA_FAIL", camera_fail));
+    NAPI_CALL(env, napi_set_named_property(env, resultCode, "BUSY", busy));
+    NAPI_CALL(env, napi_set_named_property(env, resultCode, "INVALID_PARAMETERS", invalid_parameters));
+    NAPI_CALL(env, napi_set_named_property(env, resultCode, "LOCKED", locked));
+    NAPI_CALL(env, napi_set_named_property(env, resultCode, "NOT_ENROLLED", not_enrolled));
+    NAPI_CALL(env, napi_set_named_property(env, resultCode, "GENERAL_ERROR", general_error));
     return resultCode;
 }
 
@@ -479,6 +521,7 @@ napi_value EnumExport(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("AuthMethod", AuthMethodConstructor(env)),
         DECLARE_NAPI_PROPERTY("Module", ModuleConstructor(env)),
         DECLARE_NAPI_PROPERTY("ResultCode", ResultCodeConstructor(env)),
+        DECLARE_NAPI_PROPERTY("AuthenticationResult", AuthenticationResultConstructor(env)),
         DECLARE_NAPI_PROPERTY("FaceTipsCode", FaceTipsCodeConstructor(env)),
         DECLARE_NAPI_PROPERTY("FingerprintTips", FingerprintTipsConstructor(env)),
     };
