@@ -33,7 +33,7 @@ Napi_SetPropertyRequest AuthBuild::SetPropertyRequestBuild(napi_env env, napi_va
         return request;
     }
     request.authType_ = convert_.GetInt32ValueByKey(env, object, "authType");
-    request.key_ = convert_.GetInt32ValueByKey(env, object, "key");
+    request.key_ = (uint32_t)convert_.GetInt32ValueByKey(env, object, "key");
     request.setInfo_ = convert_.NapiGetValueUint8Array(env, object, "setInfo");
     USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthBuild::SetPropertyRequestBuild authType = %{public}d",
                     request.authType_);

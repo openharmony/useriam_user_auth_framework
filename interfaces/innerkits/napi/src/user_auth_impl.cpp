@@ -447,7 +447,7 @@ napi_value UserAuthImpl::Execute(napi_env env, napi_callback_info info)
         delete executeInfo;
         return nullptr;
     }
-    if (!GetExecuteInfo(env, argv, executeInfo)) {
+    if (!GetExecuteInfo(env, argv, argc, executeInfo)) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s GetExecuteInfo fail", __func__);
         delete executeInfo;
         return nullptr;
@@ -465,9 +465,13 @@ napi_value UserAuthImpl::Execute(napi_env env, napi_callback_info info)
     return DoExecute(executeInfo);
 }
 
-bool UserAuthImpl::GetExecuteInfo(napi_env env, napi_value* argv, ExecuteInfo* executeInfo)
+bool UserAuthImpl::GetExecuteInfo(napi_env env, napi_value* argv, uint32_t argvSize, ExecuteInfo* executeInfo)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, start.", __func__);
+    USERAUTH_HILOGD(MODULE_JS_NAPI, "%{public}s, start.", __func__);
+    if (argvSize < PARAM2) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s argvSize check fail", __func__);
+        return false;
+    }
     napi_valuetype valuetype;
     napi_typeof(env, argv[PARAM0], &valuetype);
     if (valuetype != napi_string) {
