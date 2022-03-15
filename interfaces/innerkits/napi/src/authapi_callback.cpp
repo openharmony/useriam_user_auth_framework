@@ -58,7 +58,7 @@ AuthApiCallback::~AuthApiCallback()
 
 napi_value AuthApiCallback::Uint8ArrayToNapi(napi_env env, std::vector<uint8_t> value)
 {
-    uint32_t size = value.size();
+    size_t size = value.size();
     USERAUTH_HILOGI(MODULE_JS_NAPI, "Uint8ArrayToNapi size = %{public}u", size);
     napi_value out = nullptr;
     void *data = nullptr;
