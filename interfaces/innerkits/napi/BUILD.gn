@@ -62,7 +62,7 @@ ohos_shared_library("userauth_napi") {
     "-g3",
   ]
 
-  defines = [ "USER_AUTH_FOR_API6" ]
+  defines = [ "USER_AUTH_FOR_KITS" ]
 
   sources = [
     "src/auth_build.cpp",

@@ -647,7 +647,11 @@ extern "C" __attribute__((constructor)) void RegisterModule(void)
         .nm_flags = 0,
         .nm_filename = nullptr,
         .nm_register_func = ModuleInit,
+#ifdef USER_AUTH_FOR_KITS
+        .nm_modname = "userIAM.userAuth",
+#else
         .nm_modname = "UserAuth",
+#endif
         .nm_priv = nullptr,
         .reserved = {}
     };
