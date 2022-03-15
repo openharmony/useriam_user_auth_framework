@@ -138,7 +138,7 @@ void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAu
         USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
     }
 
-    callerID = (uint64_t)this->GetCallingUid();
+    callerID = static_cast<uint64_t>(this->GetCallingUid());
     callerName = std::to_string(callerID);
 
     userauthController_.GetPropAuthInfo(userID, callerName, callerID, request, callback);
@@ -165,7 +165,7 @@ void UserAuthService::SetProperty(const SetPropertyRequest request, sptr<IUserAu
         USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
     }
 
-    callerID = (uint64_t)this->GetCallingUid();
+    callerID = static_cast<uint64_t>(this->GetCallingUid());
     callerName = std::to_string(callerID);
 
     ret = userauthController_.SetExecutorProp(callerID, callerName, request, callback);
@@ -322,7 +322,7 @@ int32_t UserAuthService::GetControllerData(sptr<IUserAuthCallback> &callback, Au
         return FAIL;
     }
 
-    callerID = (uint64_t)this->GetCallingUid();
+    callerID = static_cast<uint64_t>(this->GetCallingUid());
     callerName = std::to_string(callerID);
 
     if (userauthController_.GenerateContextID(contextID) != SUCCESS) {
