@@ -17,7 +17,6 @@
 #define IUSERAUTH_H
 
 #include <iremote_broker.h>
-
 #include "iuserauth_callback.h"
 
 namespace OHOS {

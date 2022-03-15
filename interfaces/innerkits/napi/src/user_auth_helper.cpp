@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <cinttypes>
 
+#include "user_auth_helper.h"
+#include <cinttypes>
 #include "userauth_hilog_wrapper.h"
 #include "user_auth_impl.h"
-#include "user_auth_helper.h"
 
 namespace OHOS {
 namespace UserIAM {

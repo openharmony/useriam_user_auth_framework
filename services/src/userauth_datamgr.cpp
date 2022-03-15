@@ -12,10 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <openssl/rand.h>
 
-#include "userauth_hilog_wrapper.h"
 #include "userauth_datamgr.h"
+#include <openssl/rand.h>
+#include "userauth_hilog_wrapper.h"
 
 namespace OHOS {
 namespace UserIAM {

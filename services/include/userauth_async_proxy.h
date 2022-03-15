@@ -17,7 +17,6 @@
 #define USERAUTH_ASYNC_PROXY_H
 
 #include <iremote_proxy.h>
-
 #include "iuserauth_callback.h"
 #include "useridm_callback.h"
 

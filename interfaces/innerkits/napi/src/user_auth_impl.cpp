@@ -13,12 +13,9 @@
  * limitations under the License.
  */
 
-#include <cinttypes>
-
 #include "user_auth_impl.h"
-
+#include <cinttypes>
 #include <map>
-
 #include "user_auth.h"
 #include "userauth_callback.h"
 #include "userauth_info.h"

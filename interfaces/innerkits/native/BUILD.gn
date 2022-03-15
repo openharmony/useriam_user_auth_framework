@@ -14,10 +14,7 @@
 import("//base/user_iam/user_auth/userauth.gni")
 
 config("userauth_private_config") {
-  include_dirs = [
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
-    "//foundation/distributeddatamgr/distributeddatamgr/frameworks/innerkitsimpl/distributeddatafwk/include",
-  ]
+  include_dirs = [ "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include" ]
 }
 
 config("userauth_public_config") {
@@ -26,7 +23,7 @@ config("userauth_public_config") {
 
 ohos_shared_library("userauth_framework") {
   sources = [
-    "../../../frameworks/kitsimpl/src/userauth.cpp",
+    "../../../frameworks/kitsimpl/src/user_auth.cpp",
     "../../../frameworks/kitsimpl/src/userauth_async_stub.cpp",
     "../../../frameworks/kitsimpl/src/userauth_proxy.cpp",
   ]
@@ -46,7 +43,6 @@ ohos_shared_library("userauth_framework") {
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
   ]
 
