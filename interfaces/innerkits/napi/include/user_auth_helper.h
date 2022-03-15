@@ -62,6 +62,7 @@ napi_value SetPropertyTypeConstructor(napi_env env);
 napi_value AuthMethodConstructor(napi_env env);
 napi_value ModuleConstructor(napi_env env);
 napi_value ResultCodeConstructor(napi_env env);
+napi_value AuthenticationResultConstructor(napi_env env);
 napi_value FaceTipsCodeConstructor(napi_env env);
 napi_value FingerprintTipsConstructor(napi_env env);
 /**
