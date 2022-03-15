@@ -28,6 +28,11 @@ enum AuthType : uint32_t {
     FACE = 2,
 };
 
+enum class UserAuthType {
+    FACE = 2,
+    FINGERPRINT = 4,
+};
+
 // Authentication subtype (2D face, 3D face...)
 enum AuthSubType : uint64_t {
     /**
@@ -223,7 +228,7 @@ enum ResultCode : int32_t {
     ERRORCODE_MAX = 19
 };
 
-// AuthenticationResult
+// For API6
 enum class AuthenticationResult {
     /**
      * Indicates that the device does not support authentication.
