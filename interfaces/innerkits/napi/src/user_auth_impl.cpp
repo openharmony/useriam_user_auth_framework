@@ -465,7 +465,7 @@ napi_value UserAuthImpl::Execute(napi_env env, napi_callback_info info)
     return DoExecute(executeInfo);
 }
 
-bool UserAuthImpl::GetExecuteInfo(napi_env env, napi_value* argv, uint32_t argvSize, ExecuteInfo* executeInfo)
+bool UserAuthImpl::GetExecuteInfo(napi_env env, napi_value* argv, size_t argvSize, ExecuteInfo* executeInfo)
 {
     USERAUTH_HILOGD(MODULE_JS_NAPI, "%{public}s, start.", __func__);
     if (argvSize < PARAM2) {
