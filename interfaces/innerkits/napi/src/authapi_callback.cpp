@@ -58,16 +58,16 @@ AuthApiCallback::~AuthApiCallback()
 
 napi_value AuthApiCallback::Uint8ArrayToNapi(napi_env env, std::vector<uint8_t> value)
 {
-    int size = value.size();
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "Uint8ArrayToNapi size = %{public}d", size);
+    uint32_t size = value.size();
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "Uint8ArrayToNapi size = %{public}u", size);
     napi_value out = nullptr;
     void *data = nullptr;
     napi_value buffer = nullptr;
-    NAPI_CALL(env, napi_create_arraybuffer(env, value.size(), &data, &buffer));
-    if (memcpy_s(data, value.size(), value.data(), value.size()) != 0) {
+    NAPI_CALL(env, napi_create_arraybuffer(env, size, &data, &buffer));
+    if (memcpy_s(data, size, value.data(), value.size()) != 0) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "AuthApiCallback Uint8ArrayToNapi error");
     }
-    NAPI_CALL(env, napi_create_typedarray(env, napi_uint8_array, value.size(), buffer, 0, &out));
+    NAPI_CALL(env, napi_create_typedarray(env, napi_uint8_array, size, buffer, 0, &out));
     return out;
 }
 
