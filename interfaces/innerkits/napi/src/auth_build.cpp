@@ -12,12 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <cinttypes>
 
+#include "auth_build.h"
+#include <cinttypes>
 #include "auth_common.h"
 #include "userauth_hilog_wrapper.h"
 #include "auth_object.h"
-#include "auth_build.h"
 
 namespace OHOS {
 namespace UserIAM {

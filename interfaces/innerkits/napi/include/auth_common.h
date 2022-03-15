@@ -12,12 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #ifndef OHOS_USERAUTH_COMMON_H
 #define OHOS_USERAUTH_COMMON_H
 
 #include <string>
 #include <vector>
-
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 
