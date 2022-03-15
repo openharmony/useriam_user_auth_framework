@@ -133,7 +133,7 @@ void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAu
         return;
     }
 
-    sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
+    sptr<IRemoteObject::DeathRecipient> dr = new (std::nothrow) UserAuthServiceCallbackDeathRecipient(callback);
     if ((!callback->AsObject()->AddDeathRecipient(dr))) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
     }
@@ -160,7 +160,7 @@ void UserAuthService::SetProperty(const SetPropertyRequest request, sptr<IUserAu
         callback->onResult(E_CHECK_PERMISSION_FAILED, extraInfo);
         return;
     }
-    sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
+    sptr<IRemoteObject::DeathRecipient> dr = new (std::nothrow) UserAuthServiceCallbackDeathRecipient(callback);
     if ((!callback->AsObject()->AddDeathRecipient(dr))) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
     }
@@ -211,7 +211,7 @@ uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType
     CoAuthInfo coAuthInfo;
     AuthResult extraInfo;
 
-    sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
+    sptr<IRemoteObject::DeathRecipient> dr = new (std::nothrow) UserAuthServiceCallbackDeathRecipient(callback);
     if ((!callback->AsObject()->AddDeathRecipient(dr))) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
     }
@@ -268,7 +268,7 @@ uint64_t UserAuthService::AuthUser(const int32_t userId, const uint64_t challeng
     CoAuthInfo coAuthInfo;
     AuthResult extraInfo = {};
 
-    sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
+    sptr<IRemoteObject::DeathRecipient> dr = new (std::nothrow) UserAuthServiceCallbackDeathRecipient(callback);
     if ((!callback->AsObject()->AddDeathRecipient(dr))) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
     }
