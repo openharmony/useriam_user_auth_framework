@@ -481,7 +481,7 @@ napi_value FingerprintTipsConstructor(napi_env env)
     NAPI_CALL(env, napi_set_named_property(env, fingerprintTips,
         "FINGERPRINT_AUTH_TIP_INSUFFICIENT", fingerprintTipInsufficient));
     NAPI_CALL(env, napi_set_named_property(env, fingerprintTips,
-        "FINGERPRINT_AUTH_TIP_PARTIAL",fingerprintTipPartial));
+        "FINGERPRINT_AUTH_TIP_PARTIAL", fingerprintTipPartial));
     NAPI_CALL(env, napi_set_named_property(env, fingerprintTips,
         "FINGERPRINT_AUTH_TIP_TOO_FAST", fingerprintTipTooFast));
     NAPI_CALL(env, napi_set_named_property(env, fingerprintTips,
