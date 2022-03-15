@@ -306,10 +306,10 @@ static void OnExecuteResultWork(uv_work_t *work, int status)
     if (executeInfo->isPromise) {
         if (executeInfo->result == static_cast<int32_t>(AuthenticationResult::SUCCESS)) {
             USERAUTH_HILOGE(MODULE_JS_NAPI,
-                "resolve promise1 %{public}d", napi_resolve_deferred(env, executeInfo->deferred, result));
+                "resolve promise %{public}d", napi_resolve_deferred(env, executeInfo->deferred, result));
         } else {
             USERAUTH_HILOGE(MODULE_JS_NAPI,
-                "reject promise1. %{public}d", napi_reject_deferred(env, executeInfo->deferred, result));
+                "reject promise %{public}d", napi_reject_deferred(env, executeInfo->deferred, result));
         }
     } else {
         napi_value callback;
