@@ -509,7 +509,7 @@ napi_value FingerprintTipsConstructorForInnerkits(napi_env env)
     NAPI_CALL(env, napi_create_int32(env, FingerprintTips::FINGERPRINT_AUTH_TIP_TOO_SLOW, &fingerprintTipTooSlow));
     NAPI_CALL(env, napi_set_named_property(env, fingerprintTips, "FINGERPRINT_TIP_GOOD", fingerprintTipGood));
     NAPI_CALL(env, napi_set_named_property(env, fingerprintTips,
-        "FINGERPRINT_TIP_DIRTY", fingerprintTipImagerDirty));
+        "FINGERPRINT_TIP_IMAGER_DIRTY", fingerprintTipImagerDirty));
     NAPI_CALL(env, napi_set_named_property(env, fingerprintTips,
         "FINGERPRINT_TIP_INSUFFICIENT", fingerprintTipInsufficient));
     NAPI_CALL(env, napi_set_named_property(env, fingerprintTips,
