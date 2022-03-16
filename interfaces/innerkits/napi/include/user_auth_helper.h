@@ -64,7 +64,8 @@ napi_value ModuleConstructor(napi_env env);
 napi_value ResultCodeConstructor(napi_env env);
 napi_value AuthenticationResultConstructor(napi_env env);
 napi_value FaceTipsCodeConstructor(napi_env env);
-napi_value FingerprintTipsConstructor(napi_env env);
+napi_value FingerprintTipsConstructorForKits(napi_env env);
+napi_value FingerprintTipsConstructorForInnerkits(napi_env env);
 napi_value UserAuthTypeConstructor(napi_env env);
 
 /**
