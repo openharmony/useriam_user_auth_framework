@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,26 +13,23 @@
  * limitations under the License.
  */
 
+#include "userauth_async_stub.h"
+#include <cinttypes>
 #include <message_parcel.h>
-
 #include "userauth_hilog_wrapper.h"
 #include "iuser_auth.h"
-#include "userauth_async_stub.h"
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<UserAuthCallback>& impl)
+UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<UserAuthCallback> &impl) : authCallback_(impl)
 {
-    authCallback_ = impl;
 }
-UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<GetPropCallback>& impl)
+UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<GetPropCallback> &impl) : getPropCallback_(impl)
 {
-    getPropCallback_ = impl;
 }
-UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<SetPropCallback>& impl)
+UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<SetPropCallback> &impl) : setPropCallback_(impl)
 {
-    setPropCallback_ = impl;
 }
 int32_t UserAuthAsyncStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
                                            MessageOption &option)
@@ -141,7 +138,7 @@ int32_t UserAuthAsyncStub::onExecutorPropertyInfoStub(MessageParcel& data, Messa
     uint64_t authSubType;
     uint32_t remainTimes;
     uint32_t freezingTime;
-    ExecutorProperty executorProperty;
+    ExecutorProperty executorProperty = {};
 
     if (!data.ReadInt32(result)) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "failed to ReadInt32(result).");
@@ -201,7 +198,7 @@ void UserAuthAsyncStub::onAcquireInfo(const int32_t module, const uint32_t acqui
 
     if (authCallback_ == nullptr) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "userauthAsyncStub onAcquireInfo callback is Null");
-        return ;
+        return;
     }
 
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub module:%{public}d, acquireInfo:%{public}u",
@@ -216,7 +213,7 @@ void UserAuthAsyncStub::onResult(const int32_t result, const AuthResult extraInf
 
     if (authCallback_ == nullptr) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "userauthAsyncStub onResult callback is Null");
-        return ;
+        return;
     }
 
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub result:%{public}d, remain:%{public}u, freeze:%{public}u",
@@ -230,12 +227,12 @@ void UserAuthAsyncStub::onExecutorPropertyInfo(const ExecutorProperty result)
 
     if (getPropCallback_ == nullptr) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "UserAuthAsyncStub onExecutorPropertyInfo callback is Null");
-        return ;
+        return;
     }
 
     USERAUTH_HILOGD(MODULE_INNERKIT,
-                    "userauthAsyncStub result:%{public}d, sub:%{public}llu, remain:%{public}u, freeze:%{public}u",
-                    result.result, result.authSubType, result.remainTimes, result.freezingTime);
+        "userauthAsyncStub result:%{public}d, sub:%{public}" PRIu64 ", remain:%{public}u, freeze:%{public}u",
+        result.result, result.authSubType, result.remainTimes, result.freezingTime);
     getPropCallback_->onGetProperty(result);
 }
 
@@ -245,7 +242,7 @@ void UserAuthAsyncStub::onSetExecutorProperty(const int32_t result)
 
     if (setPropCallback_ == nullptr) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "UserAuthAsyncStub onSetExecutorProperty callback is Null");
-        return ;
+        return;
     }
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub result:%{public}d", result);
     setPropCallback_->onSetProperty(result);

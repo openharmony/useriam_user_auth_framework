@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,10 +18,8 @@
 
 #include "napi/native_api.h"
 #include "napi/native_common.h"
-
 #include "userauth_callback.h"
 #include "userauth_info.h"
-
 #include "auth_common.h"
 
 namespace OHOS {
@@ -30,7 +28,6 @@ namespace UserAuth {
 typedef struct AcquireInfoInner {
     napi_env env;
     napi_ref onAcquireInfo;
-    napi_value jsFunction;
     int32_t module;
     uint32_t acquireInfo;
     int32_t extraInfo;
@@ -39,6 +36,7 @@ class AuthApiCallback : public UserAuthCallback {
 public:
     AuthApiCallback(AuthInfo *authInfo);
     AuthApiCallback(AuthUserInfo *userInfo);
+    AuthApiCallback(ExecuteInfo *executeInfo);
     virtual ~AuthApiCallback();
     void onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo) override;
     void onResult(const int32_t result, const AuthResult extraInfo) override;
@@ -51,9 +49,11 @@ private:
     void OnAuthAcquireInfo(AcquireInfoInner *acquireInfoInner);
     void OnUserAuthResult(const int32_t result, const AuthResult extraInfo);
     void OnAuthResult(const int32_t result, const AuthResult extraInfo);
+    void OnExecuteResult(const int32_t result);
 
     AuthInfo *authInfo_;
     AuthUserInfo *userInfo_;
+    ExecuteInfo *executeInfo_;
 };
 
 class GetPropApiCallback : public GetPropCallback {

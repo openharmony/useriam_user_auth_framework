@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,20 +16,25 @@
 #ifndef USERAUTH_INFO_H
 #define USERAUTH_INFO_H
 
+#include <map>
 #include "parcel.h"
-
-#define SIGN_LEN 32
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
 // Type of authentication (password, face)
-enum AuthType: uint32_t {
+enum AuthType : uint32_t {
     PIN = 1,
     FACE = 2,
 };
+
+enum class UserAuthType {
+    FACE = 2,
+    FINGERPRINT = 4,
+};
+
 // Authentication subtype (2D face, 3D face...)
-enum AuthSubType: uint64_t {
+enum AuthSubType : uint64_t {
     /**
      * Authentication sub type six number pin.
      */
@@ -51,16 +56,18 @@ enum AuthSubType: uint64_t {
      */
     FACE_3D = 20001
 };
+
 // Certification result confidence level
-enum AuthTurstLevel: uint32_t {
+enum AuthTurstLevel : uint32_t {
     // level 1-4
     ATL1 = 10000,
     ATL2 = 20000,
     ATL3 = 30000,
     ATL4 = 40000
 };
+
 // Actuator get property list
-enum GetPropertyType: uint32_t {
+enum GetPropertyType : uint32_t {
     // Authentication subtype (at this point the authentication type has been confirmed)
     AUTH_SUB_TYPE = 1,
     // Remaining authentication times
@@ -68,12 +75,14 @@ enum GetPropertyType: uint32_t {
     // Freeze time
     FREEZING_TIME = 3,
 };
+
 // get attribute request
 struct GetPropertyRequest {
-    AuthType authType;
+    AuthType authType {0};
     // GetPropertyType
-    std::vector<uint32_t> keys;
+    std::vector<uint32_t> keys {};
 };
+
 // Actuator properties
 struct ExecutorProperty {
     int32_t result;
@@ -81,8 +90,9 @@ struct ExecutorProperty {
     uint32_t remainTimes;
     uint32_t freezingTime;
 };
+
 // Actuator property mode list
-enum AuthPropertyMode: uint32_t {
+enum AuthPropertyMode : uint32_t {
     PROPERMODE_DELETE = 0,
     PROPERMODE_GET = 1,
     PROPERMODE_SET = 2,
@@ -91,28 +101,32 @@ enum AuthPropertyMode: uint32_t {
     PROPERMODE_INIT_ALGORITHM = 5,
     PROPERMODE_RELEASE_ALGORITHM = 6,
 };
+
 // Actuator property list
-enum SetPropertyType: uint32_t {
+enum SetPropertyType : uint32_t {
     INIT_ALGORITHM = 1,
     FREEZE_TEMPLATE = 2,
     THAW_TEMPLATE = 3,
 };
+
 struct SetPropertyRequest {
-    AuthType authType;
-    SetPropertyType key;
-    std::vector<uint8_t> setInfo;
+    AuthType authType {0};
+    SetPropertyType key {0};
+    std::vector<uint8_t> setInfo {};
 };
+
 // Authentication Result
 struct AuthResult {
-    std::vector<uint8_t> token;
-    uint32_t remainTimes;
-    uint32_t freezingTime;
+    std::vector<uint8_t> token {};
+    uint32_t remainTimes {0};
+    uint32_t freezingTime {0};
 };
+
 struct CoAuthInfo {
-    AuthType authType;
-    uint64_t callerID;
-    uint64_t contextID;
-    int32_t userID;
+    AuthType authType {0};
+    uint64_t callerID {0};
+    uint64_t contextID {0};
+    int32_t userID {0};
     std::string pkgName;
     std::vector<uint64_t> sessionIds;
 };
@@ -124,86 +138,176 @@ struct FreezInfo {
     AuthType authType;
 };
 
+struct CallerInfo {
+    uint64_t callerUID;
+    int32_t userID {0};
+    std::string pkgName;
+};
+
 // Result Code
-enum ResultCode: int32_t {
+enum ResultCode : int32_t {
     /**
      * Indicates that authentication is success or ability is supported.
      */
     SUCCESS = 0,
     /**
-    * Indicates the authenticator fails to identify user.
-    */
+     * Indicates the authenticator fails to identify user.
+     */
     FAIL = 1,
     /**
-    * Indicates other errors.
-    */
+     * Indicates other errors.
+     */
     GENERAL_ERROR = 2,
     /**
-    * Indicates that authentication has been canceled.
-    */
+     * Indicates that authentication has been canceled.
+     */
     CANCELED = 3,
     /**
-    * Indicates that authentication has timed out.
-    */
+     * Indicates that authentication has timed out.
+     */
     TIMEOUT = 4,
     /**
-    * Indicates that this authentication type is not supported.
-    */
+     * Indicates that this authentication type is not supported.
+     */
     TYPE_NOT_SUPPORT = 5,
     /**
-    * Indicates that the authentication trust level is not supported.
-    */
+     * Indicates that the authentication trust level is not supported.
+     */
     TRUST_LEVEL_NOT_SUPPORT = 6,
     /**
-    * Indicates that the authentication task is busy. Wait for a few seconds and try again.
-    */
+     * Indicates that the authentication task is busy. Wait for a few seconds and try again.
+     */
     BUSY = 7,
     /**
-    * Indicates incorrect parameters.
-    */
+     * Indicates incorrect parameters.
+     */
     INVALID_PARAMETERS = 8,
     /**
-    * Indicates that the authenticator is locked.
-    */
+     * Indicates that the authenticator is locked.
+     */
     LOCKED = 9,
     /**
-    * Indicates that the user has not enrolled the authenticator.
-    */
+     * Indicates that the user has not enrolled the authenticator.
+     */
     NOT_ENROLLED = 10,
     /**
-    * Indicates that IPC communication error.
-    */
+     * Indicates that IPC communication error.
+     */
     IPC_ERROR = 11,
     /**
-    * Indicates that invalid contextId.
-    */
+     * Indicates that invalid contextId.
+     */
     INVALID_CONTEXTID = 12,
     /**
-    * Indicates that WRITE PARCEL ERROR.
-    */
+     * Indicates that WRITE PARCEL ERROR.
+     */
     E_WRITE_PARCEL_ERROR = 13,
     /**
-    * Indicates that READ PARCEL ERROR
-    */
+     * Indicates that READ PARCEL ERROR
+     */
     E_READ_PARCEL_ERROR = 14,
     /**
-    * Indicates that POWER SERVICE FAILED
-    */
+     * Indicates that POWER SERVICE FAILED
+     */
     E_GET_POWER_SERVICE_FAILED = 15,
     /**
-    * Indicates that executor schudle undone
-    */
+     * Indicates that executor schudle undone
+     */
     E_RET_UNDONE = 16,
     /**
-    * Indicates that executor schudle undone
-    */
+     * Indicates that executor schudle undone
+     */
     E_RET_NOSERVER = 17,
     /**
-    * ERRORCODE_MAX.
-    */
-    ERRORCODE_MAX = 18
+     * Check permission failed.
+     */
+    E_CHECK_PERMISSION_FAILED = 18,
+    /**
+     * ERRORCODE_MAX.
+     */
+    ERRORCODE_MAX = 19
+};
+
+// For API6
+enum class AuthenticationResult {
+    /**
+     * Indicates that the device does not support authentication.
+     */
+    NO_SUPPORT = -1,
+
+    /**
+     * Indicates that authentication is success.
+     */
+    SUCCESS = 0,
+
+    /**
+     * Indicates the authenticator fails to identify user.
+     */
+    COMPARE_FAILURE = 1,
+
+    /**
+     * Indicates that authentication has been canceled.
+     */
+    CANCELED = 2,
+
+    /**
+     * Indicates that authentication has timed out.
+     */
+    TIMEOUT = 3,
+
+    /**
+     * Indicates a failure to open the camera.
+     */
+    CAMERA_FAIL = 4,
+
+    /**
+     * Indicates that the authentication task is busy. Wait for a few seconds and try again.
+     */
+    BUSY = 5,
+
+    /**
+     * Indicates incorrect parameters.
+     */
+    INVALID_PARAMETERS = 6,
+
+    /**
+     * Indicates that the authenticator is locked.
+     */
+    LOCKED = 7,
+
+    /**
+     * Indicates that the user has not enrolled the authenticator.
+     */
+    NOT_ENROLLED = 8,
+
+    /**
+     * Indicates other errors.
+     */
+    GENERAL_ERROR = 100,
+};
+
+const std::map<int32_t, AuthenticationResult> result2ExecuteResult = {
+    {ResultCode::SUCCESS, AuthenticationResult::SUCCESS},
+    {ResultCode::FAIL, AuthenticationResult::COMPARE_FAILURE},
+    {ResultCode::GENERAL_ERROR, AuthenticationResult::GENERAL_ERROR},
+    {ResultCode::CANCELED, AuthenticationResult::CANCELED},
+    {ResultCode::TIMEOUT, AuthenticationResult::TIMEOUT},
+    {ResultCode::TYPE_NOT_SUPPORT, AuthenticationResult::NO_SUPPORT},
+    {ResultCode::TRUST_LEVEL_NOT_SUPPORT, AuthenticationResult::NO_SUPPORT},
+    {ResultCode::BUSY, AuthenticationResult::BUSY},
+    {ResultCode::INVALID_PARAMETERS, AuthenticationResult::INVALID_PARAMETERS},
+    {ResultCode::LOCKED, AuthenticationResult::LOCKED},
+    {ResultCode::NOT_ENROLLED, AuthenticationResult::NOT_ENROLLED},
+    {ResultCode::IPC_ERROR, AuthenticationResult::GENERAL_ERROR},
+    {ResultCode::INVALID_CONTEXTID, AuthenticationResult::GENERAL_ERROR},
+    {ResultCode::E_WRITE_PARCEL_ERROR, AuthenticationResult::GENERAL_ERROR},
+    {ResultCode::E_READ_PARCEL_ERROR, AuthenticationResult::GENERAL_ERROR},
+    {ResultCode::E_GET_POWER_SERVICE_FAILED, AuthenticationResult::GENERAL_ERROR},
+    {ResultCode::E_RET_UNDONE, AuthenticationResult::GENERAL_ERROR},
+    {ResultCode::E_RET_NOSERVER, AuthenticationResult::GENERAL_ERROR},
+    {ResultCode::E_CHECK_PERMISSION_FAILED, AuthenticationResult::GENERAL_ERROR},
 };
 } // namespace UserAuth
-} // namespace UserIam
+} // namespace UserIAM
 } // namespace OHOS
 #endif // USERAUTH_INFO_H

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,10 +15,10 @@
 
 #ifndef USERAUTH_EXCALLBACK_IMPL_H
 #define USERAUTH_EXCALLBACK_IMPL_H
+
 #include <mutex>
 #include <map>
 #include <vector>
-
 #include "iuserauth_callback.h"
 #include "userauth_controller.h"
 #include "coauth_callback.h"
@@ -42,8 +42,8 @@ public:
     static int32_t SaveCoauthCallback(uint64_t contextId, std::shared_ptr<CoAuth::CoAuthCallback> coauthCallback);
     static int32_t DeleteCoauthCallback(uint64_t contextId);
 private:
-    int32_t callbackCount_ = 0;
-    int32_t callbackNowCount_ = 0;
+    uint32_t callbackCount_ = 0;
+    uint32_t callbackNowCount_ = 0;
     uint64_t callbackContextID_ = 0;
     std::string pkgName_ = "";
     int32_t userID_ = 0;
@@ -54,8 +54,9 @@ private:
     std::mutex mutex_;
     static std::mutex coauthCallbackmutex_;
     static std::map<uint64_t, std::shared_ptr<CoAuth::CoAuthCallback>> saveCoauthCallback_;
-    void OnFinishHandleExtend(int32_t userID, SetPropertyRequest setPropertyRequest, AuthResult authResult, int32_t ret,
-    UserAuthToken authToken);
+    void OnFinishHandleExtend(int32_t userID, SetPropertyRequest setPropertyRequest, AuthResult authResult,
+        int32_t ret, UserAuthToken authToken);
+    void DealFinishData(std::vector<uint64_t> sessionIds);
 };
 
 class UserAuthCallbackImplSetProp : public CoAuth::SetPropCallback {
@@ -71,14 +72,13 @@ private:
 
 class UserAuthCallbackImplSetPropFreez : public CoAuth::SetPropCallback {
 public:
-    explicit UserAuthCallbackImplSetPropFreez(const sptr<IUserAuthCallback>& impl,
-        std::vector<uint64_t> templateIds, UserAuthToken authToken, FreezInfo freezInfo);
+    explicit UserAuthCallbackImplSetPropFreez(std::vector<uint64_t> templateIds,
+        UserAuthToken authToken, FreezInfo freezInfo);
     virtual ~UserAuthCallbackImplSetPropFreez() = default;
 
     void OnResult(uint32_t result, std::vector<uint8_t> &extraInfo)  override;
 
 private:
-    sptr<IUserAuthCallback> callback_ { nullptr };
     std::vector<uint64_t> templateIds_;
     int32_t resultCode_;
     UserAuthToken authToken_;
@@ -90,21 +90,21 @@ private:
 class UserAuthCallbackImplIDMGetPorp : public UserIDM::GetInfoCallback {
 public:
     explicit UserAuthCallbackImplIDMGetPorp(const sptr<IUserAuthCallback>& impl,
-        GetPropertyRequest requst, uint64_t callerUID, std::string pkgName);
+        GetPropertyRequest request, uint64_t callerUID, std::string pkgName);
     virtual ~UserAuthCallbackImplIDMGetPorp() = default;
 
     void OnGetInfo(std::vector<UserIDM::CredentialInfo>& info) override;
 
 private:
     sptr<IUserAuthCallback> callback_ { nullptr };
-    GetPropertyRequest requst_;
+    GetPropertyRequest request_;
     std::string pkgName_;
     uint64_t callerUid_;
 };
 
 class UserAuthCallbackImplIDMCothGetPorpFreez : public UserIDM::GetInfoCallback {
 public:
-    explicit UserAuthCallbackImplIDMCothGetPorpFreez(const sptr<IUserAuthCallback>& impl,
+    explicit UserAuthCallbackImplIDMCothGetPorpFreez(
         uint64_t callerUid, std::string pkgName, int32_t resultCode,
         UserAuthToken authToken, SetPropertyRequest requset);
     virtual ~UserAuthCallbackImplIDMCothGetPorpFreez() = default;
@@ -112,7 +112,6 @@ public:
     void OnGetInfo(std::vector<UserIDM::CredentialInfo>& info) override;
 
 private:
-    sptr<IUserAuthCallback> callback_ { nullptr };
     UserAuthToken authToken_;
     int32_t resultCode_;
     SetPropertyRequest requset_;

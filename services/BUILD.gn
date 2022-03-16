@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Copyright (c) 2022 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -46,7 +46,6 @@ ohos_shared_library("userauthservice") {
     "//base/user_iam/auth_executor_mgr/common:useriam_common_lib",
     "//base/user_iam/auth_executor_mgr/interfaces/innerkits:coauth_framework",
     "//base/user_iam/user_idm/interfaces/innerkits:useridm_framework",
-    "//drivers/peripheral/display/hal:hdi_display_device",
     "//third_party/openssl:libcrypto_static",
     "//utils/native/base:utils",
   ]

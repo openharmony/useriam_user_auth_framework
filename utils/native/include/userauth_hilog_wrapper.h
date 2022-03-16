@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -79,7 +79,7 @@ static constexpr OHOS::HiviewDFX::HiLogLabel USERAUTH_LABEL[USERAUTHS_MODULE_BUT
 #define USERAUTH_HILOGI(module, ...) (void)OHOS::HiviewDFX::HiLog::Info(USERAUTH_LABEL[module], FORMATED(__VA_ARGS__))
 #define USERAUTH_HILOGD(module, ...) (void)OHOS::HiviewDFX::HiLog::Debug(USERAUTH_LABEL[module], FORMATED(__VA_ARGS__))
 } // namespace UserAuth
-} // namespace UserIam
+} // namespace UserIAM
 } // namespace OHOS
 
 #else

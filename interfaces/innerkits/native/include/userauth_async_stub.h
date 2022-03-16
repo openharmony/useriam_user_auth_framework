@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 #define USERAUTH_ASYNC_STUB_H
 
 #include <iremote_stub.h>
+#include <nocopyable.h>
 #include "iuserauth_callback.h"
 #include "userauth_callback.h"
 
@@ -25,10 +26,11 @@ namespace UserIAM {
 namespace UserAuth {
 class UserAuthAsyncStub : public IRemoteStub<IUserAuthCallback> {
 public:
+    DISALLOW_COPY_AND_MOVE(UserAuthAsyncStub);
     explicit UserAuthAsyncStub(std::shared_ptr<UserAuthCallback>& impl);
     explicit UserAuthAsyncStub(std::shared_ptr<SetPropCallback>& impl);
     explicit UserAuthAsyncStub(std::shared_ptr<GetPropCallback>& impl);
-    ~UserAuthAsyncStub() = default;
+    ~UserAuthAsyncStub() override = default;
 
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
     void onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo) override;

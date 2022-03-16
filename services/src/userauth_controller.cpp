@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,14 +24,12 @@ int32_t UserAuthController::GetAuthTrustLevel(int32_t userId, uint32_t authType,
     return UserAuthAdapter::GetInstance().GetAuthTrustLevel(userId, authType, authTrustLevel);
 }
 int32_t UserAuthController::SetExecutorProp(uint64_t callerUID, std::string pkgName,
-                                            SetPropertyRequest setPropertyrequest,
-                                            sptr<IUserAuthCallback>& callback)
+    SetPropertyRequest setPropertyrequest, sptr<IUserAuthCallback> &callback)
 {
     return UserAuthAdapter::GetInstance().SetExecutorProp(callerUID, pkgName, setPropertyrequest, callback);
 }
 void UserAuthController::GetPropAuthInfo(int32_t userID, std::string pkgName, uint64_t callerUID,
-                                         GetPropertyRequest getPropertyRequest,
-                                         sptr<IUserAuthCallback>& callback)
+    GetPropertyRequest getPropertyRequest, sptr<IUserAuthCallback> &callback)
 {
     UserAuthAdapter::GetInstance().GetPropAuthInfo(userID, callerUID, pkgName, getPropertyRequest, callback);
 }
@@ -39,7 +37,7 @@ int32_t UserAuthController::GenerateSolution(AuthSolution param, std::vector<uin
 {
     return UserAuthAdapter::GetInstance().GenerateSolution(param, sessionIds);
 }
-int32_t UserAuthController::coAuth(CoAuthInfo coAuthInfo, sptr<IUserAuthCallback>& callback)
+int32_t UserAuthController::coAuth(CoAuthInfo coAuthInfo, sptr<IUserAuthCallback> &callback)
 {
     return UserAuthAdapter::GetInstance().coAuth(coAuthInfo, callback);
 }
@@ -72,5 +70,5 @@ int32_t UserAuthController::GetVersion()
     return UserAuthAdapter::GetInstance().GetVersion();
 }
 } // namespace UserAuth
-} // namespace UserIam
+} // namespace UserIAM
 } // namespace OHOS

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,16 +18,17 @@
 
 #include <mutex>
 #include <set>
+#include "nocopyable.h"
 #include "iuserauth_callback.h"
 #include "userauth_adapter.h"
-#include "singleton.h"
 
-#define OPENSSLSUCCESS 1
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
+constexpr int32_t OPENSSLSUCCESS = 1;
 class UserAuthDataMgr {
 public:
+    DISALLOW_COPY_AND_MOVE(UserAuthDataMgr);
     static UserAuthDataMgr &GetInstance();
     int32_t AddContextID(uint64_t contextID);
     int32_t IsContextIDExist(uint64_t contextID);
@@ -41,6 +42,6 @@ private:
     std::set<uint64_t> contextIDs_;
 };
 } // namespace UserAuth
-} // namespace UserIam
+} // namespace UserIAM
 } // namespace OHOS
 #endif // USERAUTH_DATAMGR_H

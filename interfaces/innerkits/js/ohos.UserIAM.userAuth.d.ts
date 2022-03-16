@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -46,12 +46,12 @@ declare namespace userIAM
          * Check whether the certification capability is available.
          * @since 8
          * @SysCap SystemCapability.UserIAM.UserAuth.BiometricAuth
-         * <p>Permissions required: {@code ohos.permission.ACCESS_USER_AUTH_INTERNAL}  
+         * <p>Permissions required: {@code ohos.permission.ACCESS_USER_AUTH_INTERNAL}
          * @param authType Credential type for authentication.
          * @param authTrustLevel Credibility level of certification results.
-         * @return Returns a check result, which is specified by getAvailabeStatus.
+         * @return Returns a check result, which is specified by getAvailableStatus.
          */
-        getAvailabeStatus(authType : AuthType, authTrustLevel : AuthTrustLevel) : number;
+        getAvailableStatus(authType : AuthType, authTrustLevel : AuthTrustLevel) : number;
 
         /**
          * Get the attribute, pass in the credential type and the key to get, and return the value corresponding to the key.

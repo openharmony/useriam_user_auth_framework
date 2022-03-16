@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Copyright (c) 2022 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -20,10 +20,7 @@ module_output_path = "${userauth_native_part_name}/UserAuth_test"
 config("module_private_config") {
   visibility = [ ":*" ]
 
-  include_dirs = [
-    "include",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
-  ]
+  include_dirs = [ "include" ]
 }
 
 ##############################unittest##########################################
@@ -34,30 +31,15 @@ ohos_unittest("unittest_test") {
 
   include_dirs = [
     "include",
-
-    #"//base/user_iam/user_idm/unittest/include",
-    "//out/hi3516dv300/innerkits/ohos-arm/ipc/ipc_single/include",
     "//base/user_iam/user_auth/interfaces/innerkits/include",
-
-    #"//base/user_iam/user_idm/services/include",
   ]
 
-  configs = [
-    #"${userauth_utils_path}:utils_config",
-    ":module_private_config",
-  ]
+  configs = [ ":module_private_config" ]
 
   deps = [
     "${userauth_innerkits_path}/native:userauth_framework",
-    "//drivers/peripheral/display/hal:hdi_display_device",
-    "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
   ]
 
-  external_deps = [
-    "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
-    "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
-  ]
+  external_deps = [ "ipc:ipc_core" ]
 }
