@@ -45,9 +45,9 @@ The userauth APIs support user authentication of the target Authentication Trust
 ### Usage Guidelines
 
 - Vendors must implement the following in a Trusted Execution Environment (TEE):
+  - Authentication scheme: Determine the user authentication scheme based on the user credentials entered and the target ATL.
+  - Authentication result evaluation: Evaluate whether the authentication reaches the target ATL based on the authentication result returned by the executor.
 
-1. Authentication scheme: Determine the user authentication scheme based on the user credentials entered and the target ATL.
-2. Authentication result evaluation: Evaluate whether the authentication reaches the target ATL based on the authentication result returned by the executor.
 
 - The APIs defined in the header file ```common\interface\userauth_interface.h``` in the [useriam_auth_executor_mgr](https://gitee.com/openharmony-sig/useriam_coauth) repository must be implemented in a TEE, and the security of user authentication solution and result evaluation must be ensured.
 
