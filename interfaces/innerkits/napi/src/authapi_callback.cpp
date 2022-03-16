@@ -98,12 +98,14 @@ void AuthApiCallback::OnAuthAcquireInfo(AcquireInfoInner *acquireInfoInner)
     if (loop == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "loop is null");
         delete acquireInfoInner;
+        acquireInfoInner = nullptr;
         return;
     }
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "work is null");
         delete acquireInfoInner;
+        acquireInfoInner = nullptr;
         return;
     }
     work->data = reinterpret_cast<void *>(acquireInfoInner);
@@ -122,6 +124,7 @@ void AuthApiCallback::OnAuthAcquireInfo(AcquireInfoInner *acquireInfoInner)
         if (napiStatus != napi_ok) {
             USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value failed");
             delete acquireInfoInner;
+            acquireInfoInner = nullptr;
             delete work;
             return;
         }
@@ -134,6 +137,7 @@ void AuthApiCallback::OnAuthAcquireInfo(AcquireInfoInner *acquireInfoInner)
             USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_call_function failed");
         }
         delete acquireInfoInner;
+        acquireInfoInner = nullptr;
         delete work;
     });
 }
@@ -181,6 +185,7 @@ static void OnUserAuthResultWork(uv_work_t *work, int status)
     if (userInfo == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "authInfo is null");
         delete work;
+        work = nullptr;
         return;
     }
     napi_env env = userInfo->callBackInfo.env;
@@ -190,6 +195,7 @@ static void OnUserAuthResultWork(uv_work_t *work, int status)
         USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value failed");
         delete userInfo;
         delete work;
+        work = nullptr;
         return;
     }
     napi_value params[PARAM2];
@@ -200,6 +206,7 @@ static void OnUserAuthResultWork(uv_work_t *work, int status)
     napi_call_function(env, nullptr, callback, PARAM2, params, &return_val);
     delete userInfo;
     delete work;
+    work = nullptr;
 }
 
 void AuthApiCallback::OnUserAuthResult(const int32_t result, const AuthResult extraInfo)
@@ -236,6 +243,7 @@ static void OnAuthResultWork(uv_work_t *work, int status)
     if (authInfo == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "authInfo is null");
         delete work;
+        work = nullptr;
         return;
     }
     napi_env env = authInfo->callBackInfo.env;
@@ -245,6 +253,7 @@ static void OnAuthResultWork(uv_work_t *work, int status)
         USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value failed");
         delete authInfo;
         delete work;
+        work = nullptr;
         return;
     }
     napi_value params[PARAM2];
@@ -255,6 +264,7 @@ static void OnAuthResultWork(uv_work_t *work, int status)
     napi_call_function(env, nullptr, callback, PARAM2, params, &return_val);
     delete authInfo;
     delete work;
+    work = nullptr;
 }
 
 void AuthApiCallback::OnAuthResult(const int32_t result, const AuthResult extraInfo)
@@ -291,14 +301,16 @@ static void OnExecuteResultWork(uv_work_t *work, int status)
     if (executeInfo == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "executeInfo is null");
         delete work;
+        work = nullptr;
         return;
     }
     napi_env env = executeInfo->env;
     napi_value result;
     if (napi_create_int32(env, executeInfo->result, &result) != napi_ok) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_create_int32 failed");
-        delete work;
         delete executeInfo;
+        delete work;
+        work = nullptr;
         return;
     }
     napi_value undefined;
@@ -320,6 +332,7 @@ static void OnExecuteResultWork(uv_work_t *work, int status)
     }
     delete executeInfo;
     delete work;
+    work = nullptr;
 }
 
 void AuthApiCallback::OnExecuteResult(const int32_t result)
@@ -394,6 +407,7 @@ static void GetPropertyInfoCallback(uv_work_t* work, int status)
     if (getPropertyInfo == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "getPropertyInfo is null");
         delete work;
+        work = nullptr;
         return;
     }
     napi_env env = getPropertyInfo->callBackInfo.env;
@@ -433,6 +447,7 @@ static void GetPropertyInfoCallback(uv_work_t* work, int status)
 EXIT:
     delete getPropertyInfo;
     delete work;
+    work = nullptr;
 }
 
 napi_value GetPropApiCallback::BuildExecutorProperty(
@@ -506,6 +521,7 @@ static void SetExecutorPropertyCallback(uv_work_t *work, int status)
     if (setPropertyInfo == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "authInfo is null");
         delete work;
+        work = nullptr;
         return;
     }
     napi_env env = setPropertyInfo->callBackInfo.env;
@@ -548,6 +564,7 @@ static void SetExecutorPropertyCallback(uv_work_t *work, int status)
 EXIT:
     delete setPropertyInfo;
     delete work;
+    work = nullptr;
 }
 
 void SetPropApiCallback::onSetProperty(const int32_t result)
