@@ -45,9 +45,9 @@ The userauth APIs support user authentication of the target Authentication Trust
 ### Usage Guidelines
 
 - Vendors must implement the following in a Trusted Execution Environment (TEE):
-  - Authentication scheme: Determine the user authentication scheme based on the user credentials entered and the target ATL.
-  - Authentication result evaluation: Evaluate whether the authentication reaches the target ATL based on the authentication result returned by the executor.
 
+1. Authentication scheme: Determine the user authentication scheme based on the user credentials entered and the target ATL.
+2. Authentication result evaluation: Evaluate whether the authentication reaches the target ATL based on the authentication result returned by the executor.
 
 - The APIs defined in the header file ```common\interface\userauth_interface.h``` in the [useriam_auth_executor_mgr](https://gitee.com/openharmony-sig/useriam_coauth) repository must be implemented in a TEE, and the security of user authentication solution and result evaluation must be ensured.
 
@@ -55,12 +55,12 @@ The userauth APIs support user authentication of the target Authentication Trust
 
 ## Repositories Involved
 
-[useriam_auth_executor_mgr](https://gitee.com/openharmony-sig/useriam_coauth)
+[useriam_auth_executor_mgr](https://gitee.com/openharmony/useriam_auth_executor_mgr/blob/master/README.md)
 
-[useriam_user_idm](https://gitee.com/openharmony-sig/useriam_useridm)
+[useriam_user_idm](https://gitee.com/openharmony/useriam_user_idm/blob/master/README.md)
 
-**[useriam_user_auth](https://gitee.com/openharmony-sig/useriam_userauth)**
+**[useriam_user_auth](https://gitee.com/openharmony/useriam_user_auth/blob/master/README.md)**
 
-[useriam_pin_auth](https://gitee.com/openharmony-sig/useriam_pinauth)
+[useriam_pin_auth](https://gitee.com/openharmony/useriam_pin_auth/blob/master/README.md)
 
-[useriam_faceauth](https://gitee.com/openharmony/useriam_faceauth)
+useriam_faceauth
