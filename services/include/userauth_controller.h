@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,9 +16,9 @@
 #ifndef USERAUTH_CONTROLLER_H
 #define USERAUTH_CONTROLLER_H
 
-#include "userauth_info.h"
-#include "userauth_adapter.h"
 #include "iuserauth_callback.h"
+#include "userauth_adapter.h"
+#include "userauth_info.h"
 #include "userauth_interface.h"
 
 namespace OHOS {
@@ -28,20 +28,20 @@ class UserAuthController {
 public:
     int32_t GetAuthTrustLevel(int32_t userId, uint32_t authType, uint32_t &authTrustLevel);
     void GetPropAuthInfo(int32_t userID, std::string pkgName, uint64_t callerUID, GetPropertyRequest getPropertyRequest,
-                         sptr<IUserAuthCallback>& callback);
+        sptr<IUserAuthCallback> &callback);
     int32_t SetExecutorProp(uint64_t callerUID, std::string pkgName, SetPropertyRequest setPropertyrequest,
-                            sptr<IUserAuthCallback>& callback);
+        sptr<IUserAuthCallback> &callback);
     int32_t AddContextID(uint64_t contextID);
     int32_t IsContextIDExist(uint64_t contextID);
     int32_t GenerateContextID(uint64_t &contextID);
     int32_t DeleteContextID(uint64_t contextID);
     int32_t GenerateSolution(AuthSolution param, std::vector<uint64_t> &sessionIds);
-    int32_t coAuth(CoAuthInfo coAuthInfo, sptr<IUserAuthCallback>& callback);
+    int32_t coAuth(CoAuthInfo coAuthInfo, sptr<IUserAuthCallback> &callback);
     int32_t CancelContext(uint64_t contextId, std::vector<uint64_t> &sessionIds);
     int32_t Cancel(uint64_t sessionId);
     int32_t GetVersion();
 };
 } // namespace UserAuth
-} // namespace UserIam
+} // namespace UserIAM
 } // namespace OHOS
 #endif // USERAUTH_CONTROLLER_H

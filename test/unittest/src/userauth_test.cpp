@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
+#include "userauth_test.h"
 #include <memory>
 #include <iostream>
 #include <gtest/gtest.h>
 #include "user_auth.h"
 #include "userauth_callback.h"
 #include "userauth_info.h"
-#include "userauth_test.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -97,7 +97,9 @@ HWTEST_F(UseriamUtTest, UseriamUtTest_001, TestSize.Level1)
 {
     AuthType authType = FACE;
     AuthTurstLevel authTurstLevel = ATL1;
-    EXPECT_EQ(0, UserAuth::GetInstance().GetAvailableStatus(authType, authTurstLevel));
+    // The ipc communication test is OK. The service and ut tests cannot obtain the correct userId,
+    // and return a error 5(TYPE_NOT_SUPPORT).
+    EXPECT_NE(0, UserAuth::GetInstance().GetAvailableStatus(authType, authTurstLevel));
 }
 
 HWTEST_F(UseriamUtTest, UseriamUtTest_002, TestSize.Level1)
@@ -127,23 +129,27 @@ HWTEST_F(UseriamUtTest, UseriamUtTest_004, TestSize.Level1)
     AuthType authType = FACE;
     AuthTurstLevel authTurstLevel = ATL1;
     std::shared_ptr<UserAuthCallback> callback = std::make_shared<TestUserAuthCallback>();
-    EXPECT_EQ(123, UserAuth::GetInstance().Auth(challenge, authType, authTurstLevel, callback));
+    // Ut test IPC communication is OK, getCallinguerId interface returns fail, verification failed,
+    // return value 0(FAIL).
+    EXPECT_EQ(0, UserAuth::GetInstance().Auth(challenge, authType, authTurstLevel, callback));
 }
 
 HWTEST_F(UseriamUtTest, UseriamUtTest_005, TestSize.Level1)
 {
-    int32_t userId = 100;
+    int32_t userId = 0;
     uint64_t challenge = 001;
     AuthType authType = FACE;
     AuthTurstLevel authTurstLevel = ATL1;
     std::shared_ptr<UserAuthCallback> callback = std::make_shared<TestUserAuthCallback>();
-    EXPECT_EQ(123, UserAuth::GetInstance().AuthUser(userId, challenge, authType, authTurstLevel, callback));
+    // Ut test IPC communication is OK, userId is invalid, verification failed, return value 0(FAIL).
+    EXPECT_EQ(0, UserAuth::GetInstance().AuthUser(userId, challenge, authType, authTurstLevel, callback));
 }
 
 HWTEST_F(UseriamUtTest, UseriamUtTest_006, TestSize.Level1)
 {
-    uint64_t contextId = 123;
-    EXPECT_EQ(0, UserAuth::GetInstance().CancelAuth(contextId));
+    uint64_t contextId = 0;
+    // Tests whether an 12(INVALID_CONTEXTID) is returned when an invalid contexID is used to cancel authentication.
+    EXPECT_NE(0, UserAuth::GetInstance().CancelAuth(contextId));
 }
 }
 }

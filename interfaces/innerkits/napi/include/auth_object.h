@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,7 +32,7 @@ public:
 class Napi_SetPropertyRequest {
 public:
     int32_t authType_ = 0;
-    int32_t key_ = 0;
+    uint32_t key_ = 0;
     std::vector<std::uint8_t> setInfo_;
 };
 

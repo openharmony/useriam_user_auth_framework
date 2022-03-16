@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,51 +17,53 @@
 #define USERAUTH_SERVICE_H
 
 #include <iremote_stub.h>
+#include <nocopyable.h>
+#include <string>
 #include <system_ability.h>
 #include <system_ability_definition.h>
-
-#include "userauth_stub.h"
-#include "userauth_controller.h"
 #include "iuser_auth.h"
+#include "userauth_controller.h"
+#include "userauth_stub.h"
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
 class UserAuthService : public UserAuthStub, public SystemAbility {
 public:
+    DISALLOW_COPY_AND_MOVE(UserAuthService);
     DECLARE_SYSTEM_ABILITY(UserAuthService);
     explicit UserAuthService(int32_t systemAbilityId, bool runOnCreate = false);
     ~UserAuthService() override;
     void OnStart() override;
     void OnStop() override;
     int32_t GetAvailableStatus(const AuthType authType, const AuthTurstLevel authTurstLevel) override;
-    void GetProperty(const GetPropertyRequest request, sptr<IUserAuthCallback>& callback) override;
-    void SetProperty(const SetPropertyRequest request, sptr<IUserAuthCallback>& callback) override;
+    void GetProperty(const GetPropertyRequest request, sptr<IUserAuthCallback> &callback) override;
+    void SetProperty(const SetPropertyRequest request, sptr<IUserAuthCallback> &callback) override;
     uint64_t Auth(const uint64_t challenge, const AuthType authType, const AuthTurstLevel authTurstLevel,
-                  sptr<IUserAuthCallback>& callback) override;
+        sptr<IUserAuthCallback> &callback) override;
     uint64_t AuthUser(const int32_t userId, const uint64_t challenge, const AuthType authType,
-                      const AuthTurstLevel authTurstLevel, sptr<IUserAuthCallback>& callback) override;
+        const AuthTurstLevel authTurstLevel, sptr<IUserAuthCallback> &callback) override;
     int32_t CancelAuth(const uint64_t contextId) override;
     int32_t GetVersion() override;
 
 private:
     int32_t GetCallingUserID(int32_t &userID);
-    int32_t GetControllerData(sptr<IUserAuthCallback>& callback, AuthResult &extraInfo,
-                              const AuthTurstLevel authTurstLevel, uint64_t &callerID,
-                              std::string &callerName, uint64_t &contextID);
+    bool CheckPermission(const std::string &permission);
+    int32_t GetControllerData(sptr<IUserAuthCallback> &callback, AuthResult &extraInfo,
+        const AuthTurstLevel authTurstLevel, uint64_t &callerID, std::string &callerName, uint64_t &contextID);
     class UserAuthServiceCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
-        UserAuthServiceCallbackDeathRecipient(sptr<IUserAuthCallback>& impl);
-        ~UserAuthServiceCallbackDeathRecipient() = default;
-        void OnRemoteDied(const wptr<IRemoteObject>& remote) override;
+        explicit UserAuthServiceCallbackDeathRecipient(sptr<IUserAuthCallback> &impl);
+        ~UserAuthServiceCallbackDeathRecipient() override = default;
+        void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
 
     private:
-        sptr<IUserAuthCallback> callback_ { nullptr };
+        sptr<IUserAuthCallback> callback_ {nullptr};
         DISALLOW_COPY_AND_MOVE(UserAuthServiceCallbackDeathRecipient);
     };
     UserAuthController userauthController_;
 };
 } // namespace UserAuth
-} // namespace UserIam
+} // namespace UserIAM
 } // namespace OHOS
 #endif // USERAUTH_SERVICE_H

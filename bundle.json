@@ -16,7 +16,7 @@
       "name": "user_auth",
       "subsystem": "useriam",
       "adapted_system_type": [ "standard" ],
-      "syscap": ["SystemCapability.UserIAM.UserAuth"],
+      "syscap": ["SystemCapability.UserIAM.UserAuth.Core"],
       "features": [],
       "rom": "2400KB",
       "ram": "1500KB",
@@ -30,18 +30,16 @@
             "auth_executor_mgr"
         ],
         "third_party": [
-            "openssl",
-            "googletest"
+            "openssl"
         ]
       },
       "build": {
         "sub_component": [
             "//base/user_iam/user_auth/sa_profile:userauth_sa_profile",
-            "//base/user_iam/user_auth/services:userauthservice",
-            "//base/user_iam/user_auth/interfaces/kits/napi:userauthnorth"
+            "//base/user_iam/user_auth/services:userauthservice"
         ],
         "inner_kits": [
-		  {
+      	  {
             "type": "so",
             "name": "//base/user_iam/user_auth/interfaces/innerkits/native:userauth_framework",
             "header": {
@@ -57,14 +55,29 @@
               "header_base": "//base/user_iam/user_auth/interfaces/innerkits/native/include"
             }
           },
-		  {
+          {
             "type": "so",
             "name": "//base/user_iam/user_auth/interfaces/innerkits/napi:userauth",
             "header": {
               "header_files": [
                 "auth_build.h",
                 "auth_common.h",
-                "auth_hilog_wrapper.h",
+                "auth_object.h",
+                "authapi_callback.h",
+                "result_convert.h",
+                "user_auth_helper.h",
+                "user_auth_impl.h"
+              ],
+              "header_base": "//base/user_iam/user_auth/interfaces/innerkits/napi/include"
+            }
+          },
+          {
+            "type": "so",
+            "name": "//base/user_iam/user_auth/interfaces/innerkits/napi:userauth_napi",
+            "header": {
+              "header_files": [
+                "auth_build.h",
+                "auth_common.h",
                 "auth_object.h",
                 "authapi_callback.h",
                 "result_convert.h",

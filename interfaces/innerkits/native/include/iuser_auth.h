@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,7 +17,6 @@
 #define IUSERAUTH_H
 
 #include <iremote_broker.h>
-
 #include "iuserauth_callback.h"
 
 namespace OHOS {
@@ -43,15 +42,15 @@ public:
     virtual void GetProperty(const GetPropertyRequest request, sptr<IUserAuthCallback> &callback) = 0;
     virtual void SetProperty(const SetPropertyRequest request, sptr<IUserAuthCallback> &callback) = 0;
     virtual uint64_t Auth(const uint64_t challenge, const AuthType authType, const AuthTurstLevel authTurstLevel,
-                          sptr<IUserAuthCallback> &callback) = 0;
+        sptr<IUserAuthCallback> &callback) = 0;
     virtual uint64_t AuthUser(const int32_t userId, const uint64_t challenge, const AuthType authType,
-                              const AuthTurstLevel authTurstLevel, sptr<IUserAuthCallback> &callback) = 0;
+        const AuthTurstLevel authTurstLevel, sptr<IUserAuthCallback> &callback) = 0;
     virtual int32_t CancelAuth(const uint64_t contextId) = 0;
     virtual int32_t GetVersion() = 0;
 
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIAM.UserAuth.IUserAuth");
 };
 } // namespace UserAuth
-} // namespace UserIam
+} // namespace UserIAM
 } // namespace OHOS
 #endif // IUSERAUTH_H

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,11 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #ifndef OHOS_USERAUTH_COMMON_H
 #define OHOS_USERAUTH_COMMON_H
 
+#include <string>
 #include <vector>
-
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 
@@ -52,15 +53,14 @@ namespace UserAuth {
 #define PARAM10 10
 
 struct CallBackInfo {
-    napi_env env;
-    napi_ref callBack = 0;
-    napi_deferred deferred;
+    napi_env env {nullptr};
+    napi_ref callBack {nullptr};
+    napi_deferred deferred {nullptr};
 };
 
 struct GetPropertyInfo {
-    GetPropertyInfo() : result(nullptr) {};
     CallBackInfo callBackInfo;
-    napi_value result;
+    napi_value result {nullptr};
     int32_t authType;
     std::vector<uint32_t> keys;
     int32_t getResult;
@@ -70,22 +70,30 @@ struct GetPropertyInfo {
 };
 
 struct SetPropertyInfo {
-    SetPropertyInfo() : asyncWork(nullptr), result(nullptr) {};
     CallBackInfo callBackInfo;
-    napi_async_work asyncWork;
-    napi_value result;
+    napi_async_work asyncWork {nullptr};
+    napi_value result {nullptr};
     int32_t authType;
-    int32_t key;
+    uint32_t key;
     std::vector<uint8_t> setInfo;
     int32_t setResult;
 };
 
+struct ExecuteInfo {
+    bool isPromise;
+    napi_env env;
+    std::string type;
+    std::string level;
+    napi_ref callbackRef;
+    napi_deferred deferred;
+    napi_value promise;
+    int32_t result;
+};
+
 struct AuthInfo {
-    AuthInfo() : asyncWork(nullptr) {};
     CallBackInfo callBackInfo;
     napi_callback_info info;
-    napi_async_work asyncWork;
-    napi_value jsFunction;
+    napi_async_work asyncWork {nullptr};
     napi_value onResultCallBack;
     napi_value onAcquireInfoCallBack;
     napi_ref onResult;
@@ -102,11 +110,9 @@ struct AuthInfo {
 };
 
 struct AuthUserInfo {
-    AuthUserInfo() : asyncWork(nullptr) {};
     CallBackInfo callBackInfo;
     napi_callback_info info;
-    napi_async_work asyncWork;
-    napi_value jsFunction;
+    napi_async_work asyncWork {nullptr};
     napi_ref onResult;
     napi_ref onAcquireInfo;
     napi_value onResultCallBack;

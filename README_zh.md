@@ -26,8 +26,7 @@
 //base/user_iam/user_auth
 ├── frameworks			# 框架代码
 ├── interfaces			# 对外接口存放目录
-│   ├── innerkits		# 对内部子系统暴露的头文件，供系统服务使用
-│   └── kits			# 对三方应用暴露的头文件
+│   └── innerkits		# 对内部子系统暴露的头文件，供系统服务使用
 ├── sa_profile			# Service Ability 配置文件
 ├── services			# Service Ability 服务实现
 ├── test				# 测试代码存放目录
@@ -45,7 +44,7 @@
 
 | 接口名  | 描述                             |
 | ------ | -------------------------------- |
-| getAvailabeStatus(authType : AuthType, authTrustLevel : AuthTurstLevel) : number; | 指定ATL，查询是否支持目标认证方式 |
+| getAvailableStatus(authType : AuthType, authTrustLevel : AuthTurstLevel) : number; | 指定ATL，查询是否支持目标认证方式 |
 | auth(challenge: BigInt, authType : AuthType, authTrustLevel: AuthTurstLevel, callback: IUserAuthCallback): BigInt; | 指定ATL和认证方式，完成用户身份认证 |
 
 ### 使用说明
