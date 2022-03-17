@@ -57,7 +57,7 @@ private:
     napi_value AuthUserWrap(napi_env env, AuthUserInfo *userInfo);
     napi_value BuildAuthUserInfo(napi_env env, AuthUserInfo *userInfo);
 
-    bool GetExecuteInfo(napi_env env, napi_value* argv, ExecuteInfo* executeInfo);
+    bool GetExecuteInfo(napi_env env, napi_value* argv, size_t argvSize, ExecuteInfo* executeInfo);
     napi_value DoExecute(ExecuteInfo* executeInfo);
 
     static void SetPropertyExecute(napi_env env, void *data);

@@ -442,32 +442,32 @@ declare namespace userIAM
          * Indicates that the image acquired is good.
          * @since 8
          */
-        FINGERPRINT_AUTH_TIP_GOOD = 0,
+        FINGERPRINT_TIP_GOOD = 0,
         /**
          * Indicates that the fingerprint image is too noisy due to suspected or detected dirt on the sensor.
          * @since 8
          */
-        FINGERPRINT_AUTH_TIP_IMAGER_DIRTY = 1,
+        FINGERPRINT_TIP_IMAGER_DIRTY = 1,
         /**
          * Indicates that the fingerprint image is too noisy to process due to a detected condition.
          * @since 8
          */
-        FINGERPRINT_AUTH_TIP_INSUFFICIENT = 2,
+        FINGERPRINT_TIP_INSUFFICIENT = 2,
         /**
          * Indicates that only a partial fingerprint image is detected.
          * @since 8
          */
-        FINGERPRINT_AUTH_TIP_PARTIAL = 3,
+        FINGERPRINT_TIP_PARTIAL = 3,
         /**
          * Indicates that the fingerprint image is incomplete due to quick motion.
          * @since 8
          */
-        FINGERPRINT_AUTH_TIP_TOO_FAST = 4,
+        FINGERPRINT_TIP_TOO_FAST = 4,
         /**
          * Indicates that the fingerprint image is unreadable due to lack of motion.
          * @since 8
          */
-        FINGERPRINT_AUTH_TIP_TOO_SLOW = 5
+        FINGERPRINT_TIP_TOO_SLOW = 5
     }
 }
 export default userIAM;
