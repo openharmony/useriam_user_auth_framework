@@ -140,7 +140,7 @@ void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAu
 
     callerID = static_cast<uint64_t>(this->GetCallingUid());
     callerName = std::to_string(callerID);
-    const int32_t firstAccountIndex = 0;
+    const size_t firstAccountIndex = 0;
     USERAUTH_HILOGI(MODULE_SERVICE, "Query active account %{public}d", ids[firstAccountIndex]);
     userauthController_.GetPropAuthInfo(ids[firstAccountIndex], callerName, callerID, request, callback);
 }
