@@ -15,6 +15,7 @@
 
 #include "userauth_service.h"
 #include "accesstoken_kit.h"
+#include "os_account_manager.h"
 #include "userauth_hilog_wrapper.h"
 #include "useriam_common.h"
 
@@ -124,15 +125,14 @@ void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAu
         callback->onResult(E_CHECK_PERMISSION_FAILED, extraInfo);
         return;
     }
-    int32_t userID = 0;
-
-    int32_t ret = this->GetCallingUserID(userID);
-    if (ret != SUCCESS) {
+    std::vector<int32_t> ids;
+    ErrCode queryRet = AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
+    if (queryRet != ERR_OK || ids.empty()) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "Query active account error:%{public}zu", ids.size());
         AuthResult extraInfo;
-        callback->onResult(ret, extraInfo);
+        callback->onResult(FAIL, extraInfo);
         return;
     }
-
     sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
     if ((!callback->AsObject()->AddDeathRecipient(dr))) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
@@ -140,8 +140,9 @@ void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAu
 
     callerID = static_cast<uint64_t>(this->GetCallingUid());
     callerName = std::to_string(callerID);
-
-    userauthController_.GetPropAuthInfo(userID, callerName, callerID, request, callback);
+    const int32_t firstAccountIndex = 0;
+    USERAUTH_HILOGI(MODULE_SERVICE, "Query active account %{public}d", ids[firstAccountIndex]);
+    userauthController_.GetPropAuthInfo(ids[firstAccountIndex], callerName, callerID, request, callback);
 }
 
 void UserAuthService::SetProperty(const SetPropertyRequest request, sptr<IUserAuthCallback> &callback)
