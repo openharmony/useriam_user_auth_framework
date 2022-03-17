@@ -545,7 +545,6 @@ napi_value UserAuthInit(napi_env env, napi_value exports)
     USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, start.", __func__);
     napi_status status;
     napi_property_descriptor exportFuncs[] = {
-        DECLARE_NAPI_FUNCTION("constructor", UserAuth::Constructor),
         DECLARE_NAPI_FUNCTION("getAuthenticator", UserAuth::ConstructorForAPI6),
     };
     status = napi_define_properties(env, exports,
@@ -587,16 +586,6 @@ napi_value EnumExport(napi_env env, napi_value exports)
 #endif
     napi_define_properties(env, exports, sizeof(descriptors) / sizeof(napi_property_descriptor), descriptors);
     return exports;
-}
-
-napi_value Constructor(napi_env env, napi_callback_info info)
-{
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, start.", __func__);
-    napi_value thisVar = nullptr;
-    napi_value userAuth = nullptr;
-    NAPI_CALL(env, napi_new_instance(env, GetCtor(env), 0, nullptr, &userAuth));
-    NAPI_CALL(env, napi_get_cb_info(env, info, nullptr, nullptr, &thisVar, nullptr));
-    return userAuth;
 }
 
 napi_value ConstructorForAPI6(napi_env env, napi_callback_info info)
