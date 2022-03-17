@@ -16,6 +16,7 @@
 #ifndef USERAUTH_INFO_H
 #define USERAUTH_INFO_H
 
+#include <map>
 #include "parcel.h"
 
 namespace OHOS {
@@ -25,6 +26,11 @@ namespace UserAuth {
 enum AuthType : uint32_t {
     PIN = 1,
     FACE = 2,
+};
+
+enum class UserAuthType {
+    FACE = 2,
+    FINGERPRINT = 4,
 };
 
 // Authentication subtype (2D face, 3D face...)
@@ -220,6 +226,86 @@ enum ResultCode : int32_t {
      * ERRORCODE_MAX.
      */
     ERRORCODE_MAX = 19
+};
+
+// For API6
+enum class AuthenticationResult {
+    /**
+     * Indicates that the device does not support authentication.
+     */
+    NO_SUPPORT = -1,
+
+    /**
+     * Indicates that authentication is success.
+     */
+    SUCCESS = 0,
+
+    /**
+     * Indicates the authenticator fails to identify user.
+     */
+    COMPARE_FAILURE = 1,
+
+    /**
+     * Indicates that authentication has been canceled.
+     */
+    CANCELED = 2,
+
+    /**
+     * Indicates that authentication has timed out.
+     */
+    TIMEOUT = 3,
+
+    /**
+     * Indicates a failure to open the camera.
+     */
+    CAMERA_FAIL = 4,
+
+    /**
+     * Indicates that the authentication task is busy. Wait for a few seconds and try again.
+     */
+    BUSY = 5,
+
+    /**
+     * Indicates incorrect parameters.
+     */
+    INVALID_PARAMETERS = 6,
+
+    /**
+     * Indicates that the authenticator is locked.
+     */
+    LOCKED = 7,
+
+    /**
+     * Indicates that the user has not enrolled the authenticator.
+     */
+    NOT_ENROLLED = 8,
+
+    /**
+     * Indicates other errors.
+     */
+    GENERAL_ERROR = 100,
+};
+
+const std::map<int32_t, AuthenticationResult> result2ExecuteResult = {
+    {ResultCode::SUCCESS, AuthenticationResult::SUCCESS},
+    {ResultCode::FAIL, AuthenticationResult::COMPARE_FAILURE},
+    {ResultCode::GENERAL_ERROR, AuthenticationResult::GENERAL_ERROR},
+    {ResultCode::CANCELED, AuthenticationResult::CANCELED},
+    {ResultCode::TIMEOUT, AuthenticationResult::TIMEOUT},
+    {ResultCode::TYPE_NOT_SUPPORT, AuthenticationResult::NO_SUPPORT},
+    {ResultCode::TRUST_LEVEL_NOT_SUPPORT, AuthenticationResult::NO_SUPPORT},
+    {ResultCode::BUSY, AuthenticationResult::BUSY},
+    {ResultCode::INVALID_PARAMETERS, AuthenticationResult::INVALID_PARAMETERS},
+    {ResultCode::LOCKED, AuthenticationResult::LOCKED},
+    {ResultCode::NOT_ENROLLED, AuthenticationResult::NOT_ENROLLED},
+    {ResultCode::IPC_ERROR, AuthenticationResult::GENERAL_ERROR},
+    {ResultCode::INVALID_CONTEXTID, AuthenticationResult::GENERAL_ERROR},
+    {ResultCode::E_WRITE_PARCEL_ERROR, AuthenticationResult::GENERAL_ERROR},
+    {ResultCode::E_READ_PARCEL_ERROR, AuthenticationResult::GENERAL_ERROR},
+    {ResultCode::E_GET_POWER_SERVICE_FAILED, AuthenticationResult::GENERAL_ERROR},
+    {ResultCode::E_RET_UNDONE, AuthenticationResult::GENERAL_ERROR},
+    {ResultCode::E_RET_NOSERVER, AuthenticationResult::GENERAL_ERROR},
+    {ResultCode::E_CHECK_PERMISSION_FAILED, AuthenticationResult::GENERAL_ERROR},
 };
 } // namespace UserAuth
 } // namespace UserIAM

@@ -46,12 +46,12 @@ enum FaceTipsCode {
 };
 
 enum FingerprintTips {
-    FINGERPRINT_TIP_GOOD = 0,
-    FINGERPRINT_TIP_IMAGER_DIRTY = 1,
-    FINGERPRINT_TIP_INSUFFICIENT = 2,
-    FINGERPRINT_TIP_PARTIAL = 3,
-    FINGERPRINT_TIP_TOO_FAST = 4,
-    FINGERPRINT_TIP_TOO_SLOW = 5
+    FINGERPRINT_AUTH_TIP_GOOD = 0,
+    FINGERPRINT_AUTH_TIP_IMAGER_DIRTY = 1,
+    FINGERPRINT_AUTH_TIP_INSUFFICIENT = 2,
+    FINGERPRINT_AUTH_TIP_PARTIAL = 3,
+    FINGERPRINT_AUTH_TIP_TOO_FAST = 4,
+    FINGERPRINT_AUTH_TIP_TOO_SLOW = 5
 };
 
 napi_value AuthTypeConstructor(napi_env env);
@@ -62,8 +62,12 @@ napi_value SetPropertyTypeConstructor(napi_env env);
 napi_value AuthMethodConstructor(napi_env env);
 napi_value ModuleConstructor(napi_env env);
 napi_value ResultCodeConstructor(napi_env env);
+napi_value AuthenticationResultConstructor(napi_env env);
 napi_value FaceTipsCodeConstructor(napi_env env);
-napi_value FingerprintTipsConstructor(napi_env env);
+napi_value FingerprintTipsConstructorForKits(napi_env env);
+napi_value FingerprintTipsConstructorForInnerkits(napi_env env);
+napi_value UserAuthTypeConstructor(napi_env env);
+
 /**
  * @brief Napi initialization
  *
