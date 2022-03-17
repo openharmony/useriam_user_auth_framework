@@ -87,15 +87,6 @@ napi_value EnumExport(napi_env env, napi_value exports);
 napi_value GetCtor(napi_env env);
 
 /**
- * @brief Construction method
- *
- * @param env
- * @param info
- * @return napi_value UserAuth Instance
- */
-napi_value Constructor(napi_env env, napi_callback_info info);
-
-/**
  * @brief Get the Ctor object for API6
  *
  * @param env
