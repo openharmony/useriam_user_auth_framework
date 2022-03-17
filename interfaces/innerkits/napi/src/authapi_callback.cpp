@@ -92,7 +92,7 @@ void AuthApiCallback::OnAuthAcquireInfo(AcquireInfoInner *acquireInfoInner)
 {
     USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthApiCallback OnAuthAcquireInfo start");
     uv_loop_s *loop(nullptr);
-    napi_get_uv_event_loop(authInfo_->callBackInfo.env, &loop);
+    napi_get_uv_event_loop(acquireInfoInner->env, &loop);
     if (loop == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "loop is null");
         delete acquireInfoInner;
@@ -391,7 +391,7 @@ GetPropApiCallback::~GetPropApiCallback()
 
 static void GetPropertyInfoCallback(uv_work_t* work, int status)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "Do OnAuthAcquireInfo work");
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "Do GetPropertyInfo work");
     GetPropertyInfo *getPropertyInfo = reinterpret_cast<GetPropertyInfo *>(work->data);
     if (getPropertyInfo == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "getPropertyInfo is null");
