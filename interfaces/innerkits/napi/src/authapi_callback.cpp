@@ -58,16 +58,14 @@ AuthApiCallback::~AuthApiCallback()
 
 napi_value AuthApiCallback::Uint8ArrayToNapi(napi_env env, std::vector<uint8_t> value)
 {
-    int size = value.size();
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "Uint8ArrayToNapi size = %{public}d", size);
+    size_t size = value.size();
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "Uint8ArrayToNapi size = %{public}zu", size);
     napi_value out = nullptr;
     void *data = nullptr;
     napi_value buffer = nullptr;
-    NAPI_CALL(env, napi_create_arraybuffer(env, value.size(), &data, &buffer));
-    if (memcpy_s(data, value.size(), value.data(), value.size()) != 0) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "AuthApiCallback Uint8ArrayToNapi error");
-    }
-    NAPI_CALL(env, napi_create_typedarray(env, napi_uint8_array, value.size(), buffer, 0, &out));
+    NAPI_CALL(env, napi_create_arraybuffer(env, size, &data, &buffer));
+    (void)memcpy_s(data, size, value.data(), value.size());
+    NAPI_CALL(env, napi_create_typedarray(env, napi_uint8_array, size, buffer, 0, &out));
     return out;
 }
 
@@ -184,20 +182,21 @@ static void OnUserAuthResultWork(uv_work_t *work, int status)
         return;
     }
     napi_env env = userInfo->callBackInfo.env;
-    napi_value callback;
+    napi_value callback = nullptr;
+    napi_value params[PARAM2] = {nullptr};
+    napi_value return_val = nullptr;
     napi_status napiStatus = napi_get_reference_value(env, userInfo->onResult, &callback);
     if (napiStatus != napi_ok) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value failed");
-        delete userInfo;
-        delete work;
-        return;
+        goto EXIT;
     }
-    napi_value params[PARAM2];
     napi_create_int32(env, userInfo->result, &params[PARAM0]);
     params[PARAM1] = AuthApiCallback::BuildOnResult(
         env, userInfo->remainTimes, userInfo->freezingTime, userInfo->token);
-    napi_value return_val = nullptr;
     napi_call_function(env, nullptr, callback, PARAM2, params, &return_val);
+EXIT:
+    napi_delete_reference(env, userInfo->onResult);
+    napi_delete_reference(env, userInfo->onAcquireInfo);
     delete userInfo;
     delete work;
 }
@@ -239,20 +238,21 @@ static void OnAuthResultWork(uv_work_t *work, int status)
         return;
     }
     napi_env env = authInfo->callBackInfo.env;
-    napi_value callback;
+    napi_value callback = nullptr;
+    napi_value params[PARAM2] = {nullptr};
+    napi_value return_val = nullptr;
     napi_status napiStatus = napi_get_reference_value(env, authInfo->onResult, &callback);
     if (napiStatus != napi_ok) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value failed");
-        delete authInfo;
-        delete work;
-        return;
+        goto EXIT;
     }
-    napi_value params[PARAM2];
     napi_create_int32(env, authInfo->result, &params[PARAM0]);
     params[PARAM1] = AuthApiCallback::BuildOnResult(
         env, authInfo->remainTimes, authInfo->freezingTime, authInfo->token);
-    napi_value return_val = nullptr;
     napi_call_function(env, nullptr, callback, PARAM2, params, &return_val);
+EXIT:
+    napi_delete_reference(env, authInfo->onResult);
+    napi_delete_reference(env, authInfo->onAcquireInfo);
     delete authInfo;
     delete work;
 }
@@ -297,21 +297,28 @@ static void OnExecuteResultWork(uv_work_t *work, int status)
     napi_value result;
     if (napi_create_int32(env, executeInfo->result, &result) != napi_ok) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_create_int32 failed");
-        delete work;
-        delete executeInfo;
-        return;
+        goto EXIT;
     }
     napi_value undefined;
     napi_get_undefined(env, &undefined);
     if (executeInfo->isPromise) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI,
-            "do promise %{public}d", napi_resolve_deferred(env, executeInfo->deferred, result));
+        if (executeInfo->result == static_cast<int32_t>(AuthenticationResult::SUCCESS)) {
+            USERAUTH_HILOGE(MODULE_JS_NAPI,
+                "resolve promise %{public}d", napi_resolve_deferred(env, executeInfo->deferred, result));
+        } else {
+            USERAUTH_HILOGE(MODULE_JS_NAPI,
+                "reject promise %{public}d", napi_reject_deferred(env, executeInfo->deferred, result));
+        }
     } else {
         napi_value callback;
         napi_get_reference_value(env, executeInfo->callbackRef, &callback);
         napi_value callResult = nullptr;
         USERAUTH_HILOGI(MODULE_JS_NAPI,
             "do callback %{public}d", napi_call_function(env, undefined, callback, 1, &result, &callResult));
+    }
+EXIT:
+    if (!executeInfo->isPromise) {
+        napi_delete_reference(env, executeInfo->callbackRef);
     }
     delete executeInfo;
     delete work;
@@ -335,7 +342,18 @@ void AuthApiCallback::OnExecuteResult(const int32_t result)
         executeInfo_ = nullptr;
         return;
     }
-    executeInfo_->result = result;
+
+    auto res = result2ExecuteResult.find(result);
+    if (res == result2ExecuteResult.end()) {
+        executeInfo_->result = static_cast<int32_t>(AuthenticationResult::GENERAL_ERROR);
+        USERAUTH_HILOGI(MODULE_JS_NAPI, "result %{public}d not found, set execute result GENERAL_ERROR",
+            result);
+    } else {
+        executeInfo_->result = static_cast<int32_t>(res->second);
+        USERAUTH_HILOGI(MODULE_JS_NAPI, "convert result %{public}d to execute result %{public}d",
+            result, executeInfo_->result);
+    }
+
     work->data = reinterpret_cast<void *>(executeInfo_);
     executeInfo_ = nullptr;
     uv_queue_work(loop, work, [] (uv_work_t *work) {}, OnExecuteResultWork);
@@ -415,6 +433,7 @@ static void GetPropertyInfoCallback(uv_work_t* work, int status)
         }
     }
 EXIT:
+    napi_delete_reference(env, getPropertyInfo->callBackInfo.callBack);
     delete getPropertyInfo;
     delete work;
 }
@@ -530,6 +549,7 @@ static void SetExecutorPropertyCallback(uv_work_t *work, int status)
         }
     }
 EXIT:
+    napi_delete_reference(env, setPropertyInfo->callBackInfo.callBack);
     delete setPropertyInfo;
     delete work;
 }

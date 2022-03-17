@@ -447,7 +447,7 @@ napi_value UserAuthImpl::Execute(napi_env env, napi_callback_info info)
         delete executeInfo;
         return nullptr;
     }
-    if (!GetExecuteInfo(env, argv, executeInfo)) {
+    if (!GetExecuteInfo(env, argv, argc, executeInfo)) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s GetExecuteInfo fail", __func__);
         delete executeInfo;
         return nullptr;
@@ -465,9 +465,13 @@ napi_value UserAuthImpl::Execute(napi_env env, napi_callback_info info)
     return DoExecute(executeInfo);
 }
 
-bool UserAuthImpl::GetExecuteInfo(napi_env env, napi_value* argv, ExecuteInfo* executeInfo)
+bool UserAuthImpl::GetExecuteInfo(napi_env env, napi_value* argv, size_t argvSize, ExecuteInfo* executeInfo)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, start.", __func__);
+    USERAUTH_HILOGD(MODULE_JS_NAPI, "%{public}s, start.", __func__);
+    if (argvSize < PARAM2) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s argvSize check fail", __func__);
+        return false;
+    }
     napi_valuetype valuetype;
     napi_typeof(env, argv[PARAM0], &valuetype);
     if (valuetype != napi_string) {
@@ -647,7 +651,11 @@ extern "C" __attribute__((constructor)) void RegisterModule(void)
         .nm_flags = 0,
         .nm_filename = nullptr,
         .nm_register_func = ModuleInit,
+#ifdef USER_AUTH_FOR_KITS
+        .nm_modname = "userIAM.userAuth",
+#else
         .nm_modname = "UserAuth",
+#endif
         .nm_priv = nullptr,
         .reserved = {}
     };
