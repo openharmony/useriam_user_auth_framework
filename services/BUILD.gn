@@ -55,6 +55,7 @@ ohos_shared_library("userauthservice") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
+    "os_account_standard:os_account_innerkits",
   ]
 
   part_name = "${userauth_native_part_name}"
