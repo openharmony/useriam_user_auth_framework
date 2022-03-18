@@ -133,9 +133,14 @@ void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAu
         callback->onResult(FAIL, extraInfo);
         return;
     }
-    sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
-    if ((!callback->AsObject()->AddDeathRecipient(dr))) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
+    try {
+        sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
+        if ((!callback->AsObject()->AddDeathRecipient(dr))) {
+            USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
+        }
+    } catch (const std::bad_alloc &e) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "bad_alloc");
+        return;
     }
 
     callerID = static_cast<uint64_t>(this->GetCallingUid());
@@ -161,11 +166,15 @@ void UserAuthService::SetProperty(const SetPropertyRequest request, sptr<IUserAu
         callback->onResult(E_CHECK_PERMISSION_FAILED, extraInfo);
         return;
     }
-    sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
-    if ((!callback->AsObject()->AddDeathRecipient(dr))) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
+    try {
+        sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
+        if ((!callback->AsObject()->AddDeathRecipient(dr))) {
+            USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
+        }
+    } catch (const std::bad_alloc &e) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "bad_alloc");
+        return;
     }
-
     callerID = static_cast<uint64_t>(this->GetCallingUid());
     callerName = std::to_string(callerID);
 
@@ -212,9 +221,14 @@ uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType
     CoAuthInfo coAuthInfo;
     AuthResult extraInfo;
 
-    sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
-    if ((!callback->AsObject()->AddDeathRecipient(dr))) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
+    try {
+        sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
+        if ((!callback->AsObject()->AddDeathRecipient(dr))) {
+            USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
+        }
+    } catch (const std::bad_alloc &e) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "bad_alloc");
+        return invalidContextID;
     }
     if (GetControllerData(callback, extraInfo, authTurstLevel, callerID, callerName, contextID) == FAIL) {
         return invalidContextID;
@@ -269,9 +283,14 @@ uint64_t UserAuthService::AuthUser(const int32_t userId, const uint64_t challeng
     CoAuthInfo coAuthInfo;
     AuthResult extraInfo = {};
 
-    sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
-    if ((!callback->AsObject()->AddDeathRecipient(dr))) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
+    try {
+        sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
+        if ((!callback->AsObject()->AddDeathRecipient(dr))) {
+            USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
+        }
+    } catch (const std::bad_alloc &e) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "bad_alloc");
+        return invalidContextID;
     }
     if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Permission check failed");
