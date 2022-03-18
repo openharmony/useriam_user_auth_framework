@@ -208,6 +208,18 @@ int32_t UserAuthService::GetCallingUserID(int32_t &userID)
     return SUCCESS;
 }
 
+static AuthSolution GetSolutionParam(uint64_t contextId, int32_t userId, uint64_t challenge, uint32_t authType,
+    uint32_t authTrustLevel)
+{
+    AuthSolution authSolutionParam;
+    authSolutionParam.contextId = contextId;
+    authSolutionParam.userId = userId;
+    authSolutionParam.authTrustLevel = authTrustLevel;
+    authSolutionParam.challenge = challenge;
+    authSolutionParam.authType = authType;
+    return authSolutionParam;
+}
+
 uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType, const AuthTurstLevel authTurstLevel,
     sptr<IUserAuthCallback> &callback)
 {
@@ -217,7 +229,6 @@ uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType
     uint64_t callerID = 0;
     std::string callerName;
     uint64_t contextID = 0;
-    AuthSolution authSolutionParam;
     CoAuthInfo coAuthInfo;
     AuthResult extraInfo;
 
@@ -245,11 +256,7 @@ uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType
         return invalidContextID;
     }
 
-    authSolutionParam.contextId = contextID;
-    authSolutionParam.userId = userID;
-    authSolutionParam.authTrustLevel = authTurstLevel;
-    authSolutionParam.challenge = challenge;
-    authSolutionParam.authType = authType;
+    AuthSolution authSolutionParam = GetSolutionParam(contextID, userID, challenge, authType, authTurstLevel);
     result = userauthController_.GenerateSolution(authSolutionParam, coAuthInfo.sessionIds);
     if (result != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService Auth GenerateSolution is ERROR!");
