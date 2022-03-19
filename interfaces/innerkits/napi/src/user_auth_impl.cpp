@@ -396,39 +396,6 @@ napi_value UserAuthImpl::BuildAuthInfo(napi_env env, AuthInfo *authInfo)
     return result;
 }
 
-napi_value UserAuthImpl::DoExecute(ExecuteInfo* executeInfo)
-{
-    bool isPromise = executeInfo->isPromise;
-    napi_value result = nullptr;
-    if (isPromise) {
-        result = executeInfo->promise;
-    } else {
-        napi_get_null(executeInfo->env, &result);
-    }
-
-    AuthApiCallback *object = new (std::nothrow) AuthApiCallback(executeInfo);
-    if (object == nullptr) {
-        delete executeInfo;
-        return nullptr;
-    }
-    std::shared_ptr<AuthApiCallback> callback;
-    callback.reset(object);
-    std::map<std::string, AuthTurstLevel> convertAuthTurstLevel = {
-        { "S1", ATL1 },
-        { "S2", ATL2 },
-        { "S3", ATL3 },
-        { "S4", ATL4 },
-    };
-    if (convertAuthTurstLevel.count(executeInfo->level) == 0) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "execute convertAuthTurstLevel is 0");
-        delete executeInfo;
-        return nullptr;
-    }
-
-    UserAuth::GetInstance().Auth(0, FACE, convertAuthTurstLevel[executeInfo->level], callback);
-    return result;
-}
-
 napi_value UserAuthImpl::Execute(napi_env env, napi_callback_info info)
 {
     USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
@@ -437,77 +404,148 @@ napi_value UserAuthImpl::Execute(napi_env env, napi_callback_info info)
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s executeInfo nullptr", __func__);
         return nullptr;
     }
+
     executeInfo->env = env;
     size_t argc = ARGS_MAX_COUNT;
-    size_t callbackIndex = 0;
-    napi_value argv[ARGS_MAX_COUNT] = {nullptr};
+    napi_value argv[ARGS_MAX_COUNT] = {};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
-    if (argc < PARAM2) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s argc check fail", __func__);
-        delete executeInfo;
-        return nullptr;
+
+    executeInfo->isPromise = true;
+    if (argc > 0) {
+        size_t callbackIndex = argc - 1;
+        napi_valuetype valuetype;
+        NAPI_CALL(env, napi_typeof(env, argv[callbackIndex], &valuetype));
+        if (valuetype == napi_function) {
+            executeInfo->isPromise = false;
+            NAPI_CALL(env, napi_create_reference(env, argv[callbackIndex], 1, &executeInfo->callbackRef));
+        } else {
+            executeInfo->isPromise = true;
+        }
     }
-    if (!GetExecuteInfo(env, argv, argc, executeInfo)) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s GetExecuteInfo fail", __func__);
-        delete executeInfo;
-        return nullptr;
-    }
-    callbackIndex = argc - 1;
-    napi_valuetype valuetype;
-    NAPI_CALL(env, napi_typeof(env, argv[callbackIndex], &valuetype));
-    if (valuetype == napi_function) {
-        executeInfo->isPromise = false;
-        NAPI_CALL(env, napi_create_reference(env, argv[callbackIndex], 1, &executeInfo->callbackRef));
-    } else {
-        executeInfo->isPromise = true;
+
+    if (executeInfo->isPromise) {
         NAPI_CALL(env, napi_create_promise(env, &executeInfo->deferred, &executeInfo->promise));
     }
-    return DoExecute(executeInfo);
+
+    std::shared_ptr<AuthApiCallback> callback = std::make_shared<AuthApiCallback>(executeInfo);
+    napi_value retPromise = nullptr;
+    if (executeInfo->isPromise) {
+        retPromise = executeInfo->promise;
+    } else {
+        napi_get_null(executeInfo->env, &retPromise);
+    }
+
+    ResultCode ret = ParseExecuteParameters(env, argc, argv, (*executeInfo));
+    if (ret != ResultCode::SUCCESS) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s ParseExecuteParameters fail", __func__);
+        AuthResult authResult = {};
+        callback->onResult(ret, authResult);
+        return retPromise;
+    }
+
+    UserAuth::GetInstance().Auth(0, FACE, executeInfo->trustLevel, callback);
+    return retPromise;
 }
 
-bool UserAuthImpl::GetExecuteInfo(napi_env env, napi_value* argv, size_t argvSize, ExecuteInfo* executeInfo)
+ResultCode UserAuthImpl::ParseExecuteParametersZero(napi_env env, size_t argc, napi_value* argv,
+    ExecuteInfo& executeInfo)
 {
-    USERAUTH_HILOGD(MODULE_JS_NAPI, "%{public}s, start.", __func__);
-    if (argvSize < PARAM2) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s argvSize check fail", __func__);
-        return false;
-    }
-    napi_valuetype valuetype;
+    napi_valuetype valuetype = napi_undefined;
     napi_typeof(env, argv[PARAM0], &valuetype);
     if (valuetype != napi_string) {
-        return false;
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s argv[0] is not string", __func__);
+        return ResultCode::INVALID_PARAMETERS;
     }
-    char *str = nullptr;
+
     size_t len = 0;
     napi_get_value_string_utf8(env, argv[PARAM0], nullptr, 0, &len);
-    if (len > 0) {
-        str = new (std::nothrow) char[len + 1]();
-        if (str == nullptr) {
-            return false;
-        }
-        napi_get_value_string_utf8(env, argv[PARAM0], str, len + 1, &len);
-        executeInfo->type = str;
-        delete[] str;
+
+    if (len == 0) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s string length is 0", __func__);
+        return ResultCode::INVALID_PARAMETERS;
     }
+
+    char *str = new (std::nothrow) char[len + 1]();
+    if (str == nullptr) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s str is null", __func__);
+        return ResultCode::INVALID_PARAMETERS;
+    }
+    napi_get_value_string_utf8(env, argv[PARAM0], str, len + 1, &len);
+    executeInfo.type = str;
+    delete[] str;
+
+    if (executeInfo.type.compare("ALL") == 0) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s type is ALL", __func__);
+        return ResultCode::TYPE_NOT_SUPPORT;
+    }
+
+    if (executeInfo.type.compare("FACE_ONLY") != 0) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s type is invalid", __func__);
+        return ResultCode::INVALID_PARAMETERS;
+    }
+
+    return ResultCode::SUCCESS;
+}
+
+ResultCode UserAuthImpl::ParseExecuteParametersOne(napi_env env, size_t argc, napi_value* argv,
+    ExecuteInfo& executeInfo)
+{
+    napi_valuetype valuetype = napi_undefined;
     napi_typeof(env, argv[PARAM1], &valuetype);
     if (valuetype != napi_string) {
-        return false;
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s argv[1] is not string", __func__);
+        return ResultCode::INVALID_PARAMETERS;
     }
+    std::map<std::string, AuthTurstLevel> convertAuthTurstLevel = {
+        { "S1", ATL1 },
+        { "S2", ATL2 },
+        { "S3", ATL3 },
+        { "S4", ATL4 },
+    };
+    size_t len = 0;
     napi_get_value_string_utf8(env, argv[PARAM1], nullptr, 0, &len);
-    if (len > 0) {
-        str = new (std::nothrow) char[len + 1]();
-        if (str == nullptr) {
-            return false;
-        }
-        napi_get_value_string_utf8(env, argv[PARAM1], str, len + 1, &len);
-        executeInfo->level = str;
+    if (len == 0) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s string length is 0", __func__);
+        return ResultCode::INVALID_PARAMETERS;
+    }
+
+    char *str = new (std::nothrow) char[len + 1]();
+    if (str == nullptr) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s str is null", __func__);
+        return ResultCode::INVALID_PARAMETERS;
+    }
+    napi_get_value_string_utf8(env, argv[PARAM1], str, len + 1, &len);
+    if (convertAuthTurstLevel.count(str) == 0) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s trust level invalid", __func__);
         delete[] str;
+        return ResultCode::INVALID_PARAMETERS;
     }
-    if (executeInfo->type.compare("FACE_ONLY") != 0) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s check type fail.", __func__);
-        return false;
+    executeInfo.trustLevel = convertAuthTurstLevel[str];
+    delete[] str;
+
+    return ResultCode::SUCCESS;
+}
+
+ResultCode UserAuthImpl::ParseExecuteParameters(napi_env env, size_t argc, napi_value* argv, ExecuteInfo& executeInfo)
+{
+    if (argc < PARAM2) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s argc check fail", __func__);
+        return ResultCode::INVALID_PARAMETERS;
     }
-    return true;
+
+    ResultCode ret = ParseExecuteParametersZero(env, argc, argv, executeInfo);
+    if (ret != ResultCode::SUCCESS) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s ParseExecuteParametersZero fail", __func__);
+        return ret;
+    }
+
+    ret = ParseExecuteParametersOne(env, argc, argv, executeInfo);
+    if (ret != ResultCode::SUCCESS) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s ParseExecuteParametersOne fail", __func__);
+        return ret;
+    }
+
+    return ResultCode::SUCCESS;
 }
 
 napi_value UserAuthImpl::Auth(napi_env env, napi_callback_info info)
