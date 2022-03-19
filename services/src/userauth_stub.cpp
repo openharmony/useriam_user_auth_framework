@@ -223,8 +223,8 @@ int32_t UserAuthStub::AuthUserStub(MessageParcel &data, MessageParcel &reply)
         return FAIL;
     }
 
-    uint64_t ret = AuthUser(userId, challenge, static_cast<AuthType>(authType), static_cast<AuthTurstLevel>(authTurstLevel),
-        callback);
+    uint64_t ret = AuthUser(userId, challenge,
+        static_cast<AuthType>(authType), static_cast<AuthTurstLevel>(authTurstLevel), callback);
     if (!reply.WriteUint64(ret)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "failed to write AuthUser result");
         return E_WRITE_PARCEL_ERROR;
