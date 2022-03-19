@@ -28,37 +28,36 @@ UserAuth::~UserAuth() = default;
 
 sptr<IUserAuth> UserAuth::GetProxy()
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "userauth GetProxy is start");
+    USERAUTH_HILOGD(MODULE_INNERKIT, "GetProxy start");
     std::lock_guard lock(mutex_);
     if (proxy_ != nullptr) {
         return proxy_;
     }
-
     sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (sam == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "userauth Failed to get system manager");
+        USERAUTH_HILOGE(MODULE_INNERKIT, "Failed to get system manager");
         return nullptr;
     }
     sptr<IRemoteObject> obj = sam->CheckSystemAbility(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH);
     if (obj == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "userauth Failed to get userauth manager service");
+        USERAUTH_HILOGE(MODULE_INNERKIT, "Failed to get userauth service");
         return nullptr;
     }
     sptr<IRemoteObject::DeathRecipient> dr = new UserAuthDeathRecipient();
     if ((obj->IsProxyObject()) && (!obj->AddDeathRecipient(dr))) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "userauth Failed to add death recipient");
+        USERAUTH_HILOGE(MODULE_INNERKIT, "Failed to add death recipient");
         return nullptr;
     }
 
     proxy_ = iface_cast<IUserAuth>(obj);
     deathRecipient_ = dr;
-    USERAUTH_HILOGI(MODULE_INNERKIT, "userauth Succeed to connect userauth manager service");
+    USERAUTH_HILOGI(MODULE_INNERKIT, "Succeed to connect userauth service");
     return proxy_;
 }
 
 void UserAuth::ResetProxy(const wptr<IRemoteObject> &remote)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "userauth ResetProxy is start");
+    USERAUTH_HILOGD(MODULE_INNERKIT, "ResetProxy start");
     std::lock_guard<std::mutex> lock(mutex_);
     if (proxy_ == nullptr) {
         return;
@@ -73,33 +72,31 @@ void UserAuth::ResetProxy(const wptr<IRemoteObject> &remote)
 
 void UserAuth::UserAuthDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "OnRemoteDied is start");
+    USERAUTH_HILOGD(MODULE_INNERKIT, "OnRemoteDied start");
     if (remote == nullptr) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "OnRemoteDied failed, remote is nullptr");
         return;
     }
 
     UserAuth::GetInstance().ResetProxy(remote);
-    USERAUTH_HILOGI(MODULE_INNERKIT, "userauth UserAuthDeathRecipient::Recv death notice.");
 }
 
 int32_t UserAuth::GetAvailableStatus(const AuthType authType, const AuthTurstLevel authTurstLevel)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "userauth GetAvailableStatus is start");
+    USERAUTH_HILOGD(MODULE_INNERKIT, "GetAvailableStatus start");
     auto proxy = GetProxy();
     if (proxy == nullptr) {
         return E_RET_NOSERVER;
     }
 
-    int32_t ret = proxy_->GetAvailableStatus(authType, authTurstLevel);
-    return ret;
+    return proxy_->GetAvailableStatus(authType, authTurstLevel);
 }
 
 void UserAuth::GetProperty(const GetPropertyRequest &request, std::shared_ptr<GetPropCallback> callback)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "userauth GetProperty is start");
+    USERAUTH_HILOGD(MODULE_INNERKIT, "GetProperty start");
     if (callback == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "userauth GetProperty callback is Null");
+        USERAUTH_HILOGE(MODULE_INNERKIT, "GetProperty callback is nullptr");
         return;
     }
     auto proxy = GetProxy();
@@ -111,7 +108,7 @@ void UserAuth::GetProperty(const GetPropertyRequest &request, std::shared_ptr<Ge
     }
     sptr<IUserAuthCallback> asyncStub = new (std::nothrow) UserAuthAsyncStub(callback);
     if (asyncStub == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "UserAuthAsyncStub failed, GetProperty IUserAuthCallback is nullptr");
+        USERAUTH_HILOGE(MODULE_INNERKIT, "GetProperty asyncStub is nullptr");
         return;
     }
     proxy_->GetProperty(request, asyncStub);
@@ -119,9 +116,9 @@ void UserAuth::GetProperty(const GetPropertyRequest &request, std::shared_ptr<Ge
 
 void UserAuth::SetProperty(const SetPropertyRequest &request, std::shared_ptr<SetPropCallback> callback)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "userauth SetProperty is start");
+    USERAUTH_HILOGD(MODULE_INNERKIT, "SetProperty start");
     if (callback == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "userauth SetProperty callback is Null");
+        USERAUTH_HILOGE(MODULE_INNERKIT, "SetProperty callback is nullptr");
         return;
     }
     auto proxy = GetProxy();
@@ -131,7 +128,7 @@ void UserAuth::SetProperty(const SetPropertyRequest &request, std::shared_ptr<Se
     }
     sptr<IUserAuthCallback> asyncStub = new (std::nothrow) UserAuthAsyncStub(callback);
     if (asyncStub == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "UserAuthAsyncStub failed, SetProperty IUserAuthCallback is nullptr");
+        USERAUTH_HILOGE(MODULE_INNERKIT, "SetProperty asyncStub is nullptr");
         return;
     }
     proxy_->SetProperty(request, asyncStub);
@@ -140,9 +137,9 @@ void UserAuth::SetProperty(const SetPropertyRequest &request, std::shared_ptr<Se
 uint64_t UserAuth::Auth(const uint64_t challenge, const AuthType authType, const AuthTurstLevel authTurstLevel,
     std::shared_ptr<UserAuthCallback> callback)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "userauth Auth is start");
+    USERAUTH_HILOGD(MODULE_INNERKIT, "Auth start");
     if (callback == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "userauth Auth callback is Null");
+        USERAUTH_HILOGE(MODULE_INNERKIT, "Auth callback is nullptr");
         return INVALID_PARAMETERS;
     }
     auto proxy = GetProxy();
@@ -151,19 +148,18 @@ uint64_t UserAuth::Auth(const uint64_t challenge, const AuthType authType, const
     }
     sptr<IUserAuthCallback> asyncStub = new (std::nothrow) UserAuthAsyncStub(callback);
     if (asyncStub == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "UserAuthAsyncStub failed, Auth IUserAuthCallback is nullptr");
+        USERAUTH_HILOGE(MODULE_INNERKIT, "Auth asyncStub is nullptr");
         return GENERAL_ERROR;
     }
-    uint64_t ret = proxy_->Auth(challenge, authType, authTurstLevel, asyncStub);
-    return ret;
+    return proxy_->Auth(challenge, authType, authTurstLevel, asyncStub);
 }
 
 uint64_t UserAuth::AuthUser(const int32_t userId, const uint64_t challenge, const AuthType authType,
     const AuthTurstLevel authTurstLevel, std::shared_ptr<UserAuthCallback> callback)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "userauth AuthUser is start");
+    USERAUTH_HILOGD(MODULE_INNERKIT, "AuthUser start");
     if (callback == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "userauth AuthUser callback is Null");
+        USERAUTH_HILOGE(MODULE_INNERKIT, "AuthUser callback is nullptr");
         return INVALID_PARAMETERS;
     }
     auto proxy = GetProxy();
@@ -172,35 +168,32 @@ uint64_t UserAuth::AuthUser(const int32_t userId, const uint64_t challenge, cons
     }
     sptr<IUserAuthCallback> asyncStub = new (std::nothrow) UserAuthAsyncStub(callback);
     if (asyncStub == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "UserAuthAsyncStub failed, AuthUser IUserAuthCallback is nullptr");
+        USERAUTH_HILOGE(MODULE_INNERKIT, "AuthUser asyncStub is nullptr");
         return GENERAL_ERROR;
     }
-    uint64_t ret = proxy_->AuthUser(userId, challenge, authType, authTurstLevel, asyncStub);
-    return ret;
+    return proxy_->AuthUser(userId, challenge, authType, authTurstLevel, asyncStub);
 }
 
 int32_t UserAuth::CancelAuth(const uint64_t contextId)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "userauth CancelAuth is start");
+    USERAUTH_HILOGD(MODULE_INNERKIT, "CancelAuth start");
     auto proxy = GetProxy();
     if (proxy == nullptr) {
         return E_RET_NOSERVER;
     }
 
-    int32_t ret = proxy_->CancelAuth(contextId);
-    return ret;
+    return proxy_->CancelAuth(contextId);
 }
 
 int32_t UserAuth::GetVersion()
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "userauth GetVersion is start");
+    USERAUTH_HILOGD(MODULE_INNERKIT, "GetVersion start");
     auto proxy = GetProxy();
     if (proxy == nullptr) {
         return INVALID_PARAMETERS;
     }
 
-    int32_t ret = proxy_->GetVersion();
-    return ret;
+    return proxy_->GetVersion();
 }
 } // namespace UserAuth
 } // namespace UserIAM

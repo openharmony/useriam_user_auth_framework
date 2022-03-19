@@ -66,44 +66,42 @@ void UserAuthService::OnStop()
 bool UserAuthService::CheckPermission(const std::string &permission)
 {
     using namespace Security::AccessToken;
-    uint32_t tokenID = this->GetFirstTokenID();
-    if (tokenID == 0) {
-        tokenID = this->GetCallingTokenID();
+    uint32_t tokenId = this->GetFirstTokenID();
+    if (tokenId == 0) {
+        tokenId = this->GetCallingTokenID();
     }
-    return AccessTokenKit::VerifyAccessToken(tokenID, permission) == RET_SUCCESS;
+    return AccessTokenKit::VerifyAccessToken(tokenId, permission) == RET_SUCCESS;
 }
 
 int32_t UserAuthService::GetAvailableStatus(const AuthType authType, const AuthTurstLevel authTurstLevel)
 {
-    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService GetAvailableStatus is start");
+    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService GetAvailableStatus start");
     if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
         (authType == PIN || !CheckPermission(ACCESS_BIOMETRIC_PERMISSION))) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Permission check failed");
         return E_CHECK_PERMISSION_FAILED;
     }
-    int ret = GENERAL_ERROR;
-    int result = TRUST_LEVEL_NOT_SUPPORT;
-    int32_t userID = 0;
+    int32_t userId = 0;
     uint32_t authTurstLevelFromSys = AUTHTURSTLEVEL_SYS;
     if (authTurstLevel > ATL4 || authTurstLevel < ATL1) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService GetAvailableStatus AuthTurstLevel is NOT SUPPORT!");
-        return result;
+        USERAUTH_HILOGE(MODULE_SERVICE, "authTurstLevel not right");
+        return TRUST_LEVEL_NOT_SUPPORT;
     }
 
-    ret = this->GetCallingUserID(userID);
+    int32_t ret = this->GetCallingUserId(userId);
     if (ret != SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService GetAvailableStatus GetUserID is ERROR!");
+        USERAUTH_HILOGE(MODULE_SERVICE, "GetCallingUserId failed");
         return ret;
     }
 
-    ret = userauthController_.GetAuthTrustLevel(userID, authType, authTurstLevelFromSys);
+    ret = userAuthController_.GetAuthTrustLevel(userId, authType, authTurstLevelFromSys);
     if (ret == SUCCESS) {
         USERAUTH_HILOGD(MODULE_SERVICE,
-            "UserAuthService  iAuthTurstLevel_:%{public}u, authTurstLevel:%{public}u",
+            "authTurstLevelFromSys:%{public}u, authTurstLevel:%{public}u",
             authTurstLevelFromSys, authTurstLevel);
         if (authTurstLevelFromSys < authTurstLevel) {
-            USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService authTurstLevel is ERROR!");
-            return result;
+            USERAUTH_HILOGE(MODULE_SERVICE, "authTurstLevel not support");
+            return TRUST_LEVEL_NOT_SUPPORT;
         }
     }
 
@@ -112,11 +110,10 @@ int32_t UserAuthService::GetAvailableStatus(const AuthType authType, const AuthT
 
 void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAuthCallback> &callback)
 {
-    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService GetProperty is start");
-    uint64_t callerID = 0;
+    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService GetProperty start");
     std::string callerName;
     if (callback == nullptr) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService GetProperty IUserAuthCallback is NULL!");
+        USERAUTH_HILOGE(MODULE_SERVICE, "callback is nullptr");
         return;
     }
     if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
@@ -143,21 +140,19 @@ void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAu
         return;
     }
 
-    callerID = static_cast<uint64_t>(this->GetCallingUid());
-    callerName = std::to_string(callerID);
+    uint64_t callerId = static_cast<uint64_t>(this->GetCallingUid());
+    callerName = std::to_string(callerId);
     const size_t firstAccountIndex = 0;
     USERAUTH_HILOGI(MODULE_SERVICE, "Query active account %{public}d", ids[firstAccountIndex]);
-    userauthController_.GetPropAuthInfo(ids[firstAccountIndex], callerName, callerID, request, callback);
+    userAuthController_.GetPropAuthInfo(ids[firstAccountIndex], callerName, callerId, request, callback);
 }
 
 void UserAuthService::SetProperty(const SetPropertyRequest request, sptr<IUserAuthCallback> &callback)
 {
-    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService SetProperty is start");
-    int ret = GENERAL_ERROR;
-    uint64_t callerID = 0;
+    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService SetProperty start");
     std::string callerName;
     if (callback == nullptr) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService SetProperty IUserAuthCallback is NULL!");
+        USERAUTH_HILOGE(MODULE_SERVICE, "callback is nullptr");
         return;
     }
     if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
@@ -175,36 +170,36 @@ void UserAuthService::SetProperty(const SetPropertyRequest request, sptr<IUserAu
         USERAUTH_HILOGE(MODULE_SERVICE, "bad_alloc");
         return;
     }
-    callerID = static_cast<uint64_t>(this->GetCallingUid());
-    callerName = std::to_string(callerID);
+    uint64_t callerId = static_cast<uint64_t>(this->GetCallingUid());
+    callerName = std::to_string(callerId);
 
-    ret = userauthController_.SetExecutorProp(callerID, callerName, request, callback);
+    int32_t ret = userAuthController_.SetExecutorProp(callerId, callerName, request, callback);
     if (ret != SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService SetExecutorProp getUserID is ERROR!");
+        USERAUTH_HILOGE(MODULE_SERVICE, "SetExecutorProp failed");
         callback->onSetExecutorProperty(ret);
         return;
     }
 }
 
-int32_t UserAuthService::GetCallingUserID(int32_t &userID)
+int32_t UserAuthService::GetCallingUserId(int32_t &userId)
 {
-    uint32_t tokenID = this->GetFirstTokenID();
-    if (tokenID == 0) {
-        tokenID = this->GetCallingTokenID();
+    uint32_t tokenId = this->GetFirstTokenID();
+    if (tokenId == 0) {
+        tokenId = this->GetCallingTokenID();
     }
-    Security::AccessToken::ATokenTypeEnum callingType = Security::AccessToken::AccessTokenKit::GetTokenType(tokenID);
+    Security::AccessToken::ATokenTypeEnum callingType = Security::AccessToken::AccessTokenKit::GetTokenType(tokenId);
     if (callingType != Security::AccessToken::TOKEN_HAP) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "CallingType is not hap.");
+        USERAUTH_HILOGE(MODULE_SERVICE, "CallingType is not hap");
         return TYPE_NOT_SUPPORT;
     }
     Security::AccessToken::HapTokenInfo hapTokenInfo;
-    int result = Security::AccessToken::AccessTokenKit::GetHapTokenInfo(tokenID, hapTokenInfo);
+    int result = Security::AccessToken::AccessTokenKit::GetHapTokenInfo(tokenId, hapTokenInfo);
     if (result != SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "Get hap token info failed.");
+        USERAUTH_HILOGE(MODULE_SERVICE, "Get hap token info failed");
         return TYPE_NOT_SUPPORT;
     }
-    userID = static_cast<int32_t>(hapTokenInfo.userID);
-    USERAUTH_HILOGI(MODULE_SERVICE, "GetCallingUserID is %{public}d", userID);
+    userId = static_cast<int32_t>(hapTokenInfo.userID);
+    USERAUTH_HILOGI(MODULE_SERVICE, "GetCallingUserId is %{public}d", userId);
     return SUCCESS;
 }
 
@@ -223,12 +218,12 @@ static AuthSolution GetSolutionParam(uint64_t contextId, int32_t userId, uint64_
 uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType, const AuthTurstLevel authTurstLevel,
     sptr<IUserAuthCallback> &callback)
 {
-    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService Auth is start");
-    const uint64_t invalidContextID = 0;
-    int32_t userID = 0;
-    uint64_t callerID = 0;
+    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService Auth start");
+    const uint64_t invalidContextId = 0;
+    int32_t userId = 0;
+    uint64_t callerId = 0;
     std::string callerName;
-    uint64_t contextID = 0;
+    uint64_t contextId = 0;
     CoAuthInfo coAuthInfo;
     AuthResult extraInfo;
 
@@ -239,53 +234,53 @@ uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType
         }
     } catch (const std::bad_alloc &e) {
         USERAUTH_HILOGE(MODULE_SERVICE, "bad_alloc");
-        return invalidContextID;
+        return invalidContextId;
     }
-    if (GetControllerData(callback, extraInfo, authTurstLevel, callerID, callerName, contextID) == FAIL) {
-        return invalidContextID;
+    if (GetControllerData(callback, extraInfo, authTurstLevel, callerId, callerName, contextId) == FAIL) {
+        return invalidContextId;
     }
     if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
         (authType == PIN || !CheckPermission(ACCESS_BIOMETRIC_PERMISSION))) {
         callback->onResult(E_CHECK_PERMISSION_FAILED, extraInfo);
-        return invalidContextID;
+        return invalidContextId;
     }
-    int32_t result = this->GetCallingUserID(userID);
+    int32_t result = this->GetCallingUserId(userId);
     if (result != SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService Auth GetUserID is ERROR!");
+        USERAUTH_HILOGE(MODULE_SERVICE, "GetCallingUserId failed");
         callback->onResult(FAIL, extraInfo);
-        return invalidContextID;
+        return invalidContextId;
     }
 
-    AuthSolution authSolutionParam = GetSolutionParam(contextID, userID, challenge, authType, authTurstLevel);
-    result = userauthController_.GenerateSolution(authSolutionParam, coAuthInfo.sessionIds);
+    AuthSolution authSolutionParam = GetSolutionParam(contextId, userId, challenge, authType, authTurstLevel);
+    result = userAuthController_.GenerateSolution(authSolutionParam, coAuthInfo.sessionIds);
     if (result != SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService Auth GenerateSolution is ERROR!");
+        USERAUTH_HILOGE(MODULE_SERVICE, "GenerateSolution failed");
         callback->onResult(result, extraInfo);
-        return invalidContextID;
+        return invalidContextId;
     }
 
     coAuthInfo.authType = authType;
-    coAuthInfo.callerID = callerID;
-    coAuthInfo.contextID = contextID;
+    coAuthInfo.callerID = callerId;
+    coAuthInfo.contextID = contextId;
     coAuthInfo.pkgName = callerName;
-    coAuthInfo.userID = userID;
-    result = userauthController_.coAuth(coAuthInfo, callback);
+    coAuthInfo.userID = userId;
+    result = userAuthController_.CoAuth(coAuthInfo, callback);
     if (result != SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService Auth coAuth is ERROR!");
+        USERAUTH_HILOGE(MODULE_SERVICE, "CoAuth failed");
         callback->onResult(result, extraInfo);
-        return invalidContextID;
+        return invalidContextId;
     }
-    return contextID;
+    return contextId;
 }
 
 uint64_t UserAuthService::AuthUser(const int32_t userId, const uint64_t challenge, const AuthType authType,
     const AuthTurstLevel authTurstLevel, sptr<IUserAuthCallback> &callback)
 {
-    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService AuthUser is start");
-    const uint64_t invalidContextID = 0;
-    uint64_t callerID = 0;
+    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService AuthUser start");
+    const uint64_t invalidContextId = 0;
+    uint64_t callerId = 0;
     std::string callerName;
-    uint64_t contextID = 0;
+    uint64_t contextId = 0;
     AuthSolution authSolutionParam;
     CoAuthInfo coAuthInfo;
     AuthResult extraInfo = {};
@@ -297,68 +292,68 @@ uint64_t UserAuthService::AuthUser(const int32_t userId, const uint64_t challeng
         }
     } catch (const std::bad_alloc &e) {
         USERAUTH_HILOGE(MODULE_SERVICE, "bad_alloc");
-        return invalidContextID;
+        return invalidContextId;
     }
     if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Permission check failed");
         callback->onResult(E_CHECK_PERMISSION_FAILED, extraInfo);
-        return invalidContextID;
+        return invalidContextId;
     }
-    if (GetControllerData(callback, extraInfo, authTurstLevel, callerID, callerName, contextID) == FAIL) {
-        return invalidContextID;
+    if (GetControllerData(callback, extraInfo, authTurstLevel, callerId, callerName, contextId) == FAIL) {
+        return invalidContextId;
     }
 
-    authSolutionParam.contextId = contextID;
+    authSolutionParam.contextId = contextId;
     authSolutionParam.userId = userId;
     authSolutionParam.authTrustLevel = authTurstLevel;
     authSolutionParam.challenge = challenge;
     authSolutionParam.authType = authType;
-    int32_t result = userauthController_.GenerateSolution(authSolutionParam, coAuthInfo.sessionIds);
+    int32_t result = userAuthController_.GenerateSolution(authSolutionParam, coAuthInfo.sessionIds);
     if (result != SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService AuthUser GenerateSolution is ERROR!");
-        userauthController_.DeleteContextID(contextID);
+        USERAUTH_HILOGE(MODULE_SERVICE, "GenerateSolution failed");
+        userAuthController_.DeleteContextId(contextId);
         callback->onResult(result, extraInfo);
-        return invalidContextID;
+        return invalidContextId;
     }
 
     coAuthInfo.authType = authType;
-    coAuthInfo.callerID = callerID;
-    coAuthInfo.contextID = contextID;
+    coAuthInfo.callerID = callerId;
+    coAuthInfo.contextID = contextId;
     coAuthInfo.pkgName = callerName;
     coAuthInfo.userID = userId;
-    result = userauthController_.coAuth(coAuthInfo, callback);
+    result = userAuthController_.CoAuth(coAuthInfo, callback);
     if (result != SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService AuthUser coAuth is ERROR!");
-        userauthController_.DeleteContextID(contextID);
+        USERAUTH_HILOGE(MODULE_SERVICE, "CoAuth failed");
+        userAuthController_.DeleteContextId(contextId);
         callback->onResult(result, extraInfo);
-        return invalidContextID;
+        return invalidContextId;
     }
-    return contextID;
+    return contextId;
 }
 
 int32_t UserAuthService::GetControllerData(sptr<IUserAuthCallback> &callback, AuthResult &extraInfo,
-    const AuthTurstLevel authTurstLevel, uint64_t &callerID, std::string &callerName, uint64_t &contextID)
+    const AuthTurstLevel authTurstLevel, uint64_t &callerId, std::string &callerName, uint64_t &contextId)
 {
     if (callback == nullptr) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService AuthUser IUserAuthCallback is NULL!");
+        USERAUTH_HILOGE(MODULE_SERVICE, "callback is nullptr");
         return FAIL;
     }
     if (ATL4 < authTurstLevel || authTurstLevel < ATL1) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService AuthUser AuthTurstLevel is NOT SUPPORT!");
+        USERAUTH_HILOGE(MODULE_SERVICE, "authTurstLevel is not right");
         callback->onResult(TRUST_LEVEL_NOT_SUPPORT, extraInfo);
         return FAIL;
     }
 
-    callerID = static_cast<uint64_t>(this->GetCallingUid());
-    callerName = std::to_string(callerID);
+    callerId = static_cast<uint64_t>(this->GetCallingUid());
+    callerName = std::to_string(callerId);
 
-    if (userauthController_.GenerateContextID(contextID) != SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService AuthUser GenerateContextID is ERROR!");
+    if (userAuthController_.GenerateContextId(contextId) != SUCCESS) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "GenerateContextId failed");
         callback->onResult(GENERAL_ERROR, extraInfo);
         return FAIL;
     }
-    if (userauthController_.AddContextID(contextID) != SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService AuthUser AddContextID is ERROR!");
+    if (userAuthController_.AddContextId(contextId) != SUCCESS) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "AddContextId failed");
         callback->onResult(GENERAL_ERROR, extraInfo);
         return FAIL;
     }
@@ -367,28 +362,28 @@ int32_t UserAuthService::GetControllerData(sptr<IUserAuthCallback> &callback, Au
 
 int32_t UserAuthService::CancelAuth(const uint64_t contextId)
 {
-    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService CancelAuth is start");
+    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService CancelAuth start");
     int result = INVALID_CONTEXTID;
     std::vector<uint64_t> sessionIds;
     if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION) && !CheckPermission(ACCESS_BIOMETRIC_PERMISSION)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Permission check failed");
         return E_CHECK_PERMISSION_FAILED;
     }
-    int ret = userauthController_.IsContextIDExist(contextId);
+    int ret = userAuthController_.IsContextIdExist(contextId);
     if (ret != SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService CancelAuth IsContextIDExist is ERROR!");
+        USERAUTH_HILOGE(MODULE_SERVICE, "IsContextIdExist failed");
         return result;
     }
 
-    result = userauthController_.CancelContext(contextId, sessionIds);
+    result = userAuthController_.CancelContext(contextId, sessionIds);
     if (result == SUCCESS) {
         for (auto const &item : sessionIds) {
-            result = userauthController_.Cancel(item);
+            result = userAuthController_.Cancel(item);
             if (result != SUCCESS) {
-                USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthService CancelAuth Cancel is ERROR!");
+                USERAUTH_HILOGE(MODULE_SERVICE, "Cancel failed");
             }
         }
-        userauthController_.DeleteContextID(contextId);
+        userAuthController_.DeleteContextId(contextId);
     }
 
     return result;
@@ -396,21 +391,21 @@ int32_t UserAuthService::CancelAuth(const uint64_t contextId)
 
 int32_t UserAuthService::GetVersion()
 {
-    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService GetVersion is start");
+    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService GetVersion start");
     if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION) && !CheckPermission(ACCESS_BIOMETRIC_PERMISSION)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Permission check failed");
-        return E_CHECK_PERMISSION_FAILED;
+        return 0;
     }
-    return userauthController_.GetVersion();
+    return userAuthController_.GetVersion();
 }
 UserAuthService::UserAuthServiceCallbackDeathRecipient::UserAuthServiceCallbackDeathRecipient(
     sptr<IUserAuthCallback> &impl)
 {
-    if (impl != nullptr) {
-        callback_ = impl;
-    } else {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthServiceCallbackDeathRecipient is error");
+    if (impl == nullptr) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthServiceCallbackDeathRecipient impl is nullptr");
+        return;
     }
+    callback_ = impl;
 }
 void UserAuthService::UserAuthServiceCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
@@ -420,7 +415,7 @@ void UserAuthService::UserAuthServiceCallbackDeathRecipient::OnRemoteDied(const 
     }
     callback_ = nullptr;
 
-    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthServiceCallbackDeathRecipient::Recv death notice.");
+    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthServiceCallbackDeathRecipient Recv death notice");
 }
 } // namespace UserAuth
 } // namespace UserIAM

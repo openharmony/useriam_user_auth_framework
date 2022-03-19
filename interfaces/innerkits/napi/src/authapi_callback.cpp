@@ -138,6 +138,7 @@ void AuthApiCallback::OnAuthAcquireInfo(AcquireInfoInner *acquireInfoInner)
 
 void AuthApiCallback::onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo)
 {
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthApiCallback onAcquireInfo start");
     if (userInfo_ != nullptr) {
         AcquireInfoInner *acquireInfoInner = new (std::nothrow) AcquireInfoInner();
         if (acquireInfoInner == nullptr) {

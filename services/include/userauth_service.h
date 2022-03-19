@@ -47,10 +47,10 @@ public:
     int32_t GetVersion() override;
 
 private:
-    int32_t GetCallingUserID(int32_t &userID);
+    int32_t GetCallingUserId(int32_t &userId);
     bool CheckPermission(const std::string &permission);
     int32_t GetControllerData(sptr<IUserAuthCallback> &callback, AuthResult &extraInfo,
-        const AuthTurstLevel authTurstLevel, uint64_t &callerID, std::string &callerName, uint64_t &contextID);
+        const AuthTurstLevel authTurstLevel, uint64_t &callerId, std::string &callerName, uint64_t &contextId);
     class UserAuthServiceCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
         explicit UserAuthServiceCallbackDeathRecipient(sptr<IUserAuthCallback> &impl);
@@ -61,7 +61,7 @@ private:
         sptr<IUserAuthCallback> callback_ {nullptr};
         DISALLOW_COPY_AND_MOVE(UserAuthServiceCallbackDeathRecipient);
     };
-    UserAuthController userauthController_;
+    UserAuthController userAuthController_;
 };
 } // namespace UserAuth
 } // namespace UserIAM
