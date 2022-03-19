@@ -32,22 +32,12 @@ class UserAuthAdapter {
 public:
     static UserAuthAdapter &GetInstance();
     int32_t GetAuthTrustLevel(int32_t userId, uint32_t authType, uint32_t &authTrustLevel);
-
-    /* Get the executor authentication properties */
-    void GetPropAuthInfo(int32_t userID, uint64_t callerUID, std::string pkgName, GetPropertyRequest requset,
+    void GetPropAuthInfo(int32_t userId, uint64_t callerUid, std::string pkgName, GetPropertyRequest requset,
         sptr<IUserAuthCallback> &callback);
-
-    /** This method is called to set the executor properties
-     *  after the callback of the coAuth is called to obtain the scheduling token
-     *  and the authentication result is successful.
-     * */
     void CoauthSetPropAuthInfo(CallerInfo callerInfo, int32_t resultCode,
         UserAuthToken authToken, SetPropertyRequest requset);
-
-    /* Set the executor authentication properties for freez or unfreez */
     void SetPropAuthInfo(CallerInfo callerInfo, int32_t resultCode, UserAuthToken authToken,
         SetPropertyRequest requset, std::vector<uint64_t> templateIds);
-    /* get the executor authentication properties for Coauth */
     void GetPropAuthInfoCoauth(CallerInfo callerInfo, int32_t resultCode,
         UserAuthToken authToken, GetPropertyRequest requset, sptr<IUserAuthCallback> &callback);
     int32_t GenerateSolution(AuthSolution param, std::vector<uint64_t> &sessionIds);
@@ -55,14 +45,12 @@ public:
         std::vector<uint64_t> &sessionIds);
     int32_t CancelContext(uint64_t contextId, std::vector<uint64_t> &sessionIds);
     int32_t Cancel(uint64_t sessionId);
-    /* get the executor authentication properties */
-    int32_t GetExecutorProp(uint64_t callerUID, std::string pkgName, uint64_t templateId, GetPropertyRequest requset,
+    int32_t GetExecutorProp(uint64_t callerUid, std::string pkgName, uint64_t templateId, GetPropertyRequest requset,
         ExecutorProperty &result);
-    /* Set the executor authentication properties */
-    int32_t SetExecutorProp(uint64_t callerUID, std::string pkgName, SetPropertyRequest requset,
+    int32_t SetExecutorProp(uint64_t callerUid, std::string pkgName, SetPropertyRequest requset,
         sptr<IUserAuthCallback> &callback);
     int32_t GetVersion();
-    int32_t coAuth(CoAuthInfo coAuthInfo, sptr<IUserAuthCallback> &callback);
+    int32_t CoAuth(CoAuthInfo coAuthInfo, sptr<IUserAuthCallback> &callback);
 
 private:
     UserAuthAdapter() = default;

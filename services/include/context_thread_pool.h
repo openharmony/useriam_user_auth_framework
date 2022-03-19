@@ -38,6 +38,7 @@ public:
     {
         return ThreadPool::Start(threadsNum);
     }
+
     void Stop()
     {
         ThreadPool::Stop();
@@ -48,15 +49,16 @@ public:
         ThreadPool::SetMaxTaskNum(maxSize);
     }
 
-    // for testability
     size_t GetMaxTaskNum() const
     {
         return ThreadPool::GetMaxTaskNum();
     }
+
     size_t GetCurTaskNum()
     {
         return ThreadPool::GetCurTaskNum();
     }
+
     size_t GetThreadsNum() const
     {
         return ThreadPool::GetThreadsNum();

@@ -145,7 +145,7 @@ declare namespace userIAM
          */
         PIN_NUMBER = 10001,
         /**
-         * Authentication sub type 2D face.
+         * Authentication sub type mixed pin.
          * @since 8
          */
         PIN_MIXED = 10002,
@@ -192,7 +192,7 @@ declare namespace userIAM
      */
     enum GetPropertyType {
         /**
-         * Authentication remain times.
+         * Authentication sub type.
          * @since 8
          */
         AUTH_SUB_TYPE = 1,
@@ -209,7 +209,7 @@ declare namespace userIAM
     }
 
     /**
-     * Get attribute request: the attribute field list, authentication credential type, and credential subclass
+     * Get attribute request: the attribute field list, authentication credential type, and credential subtype
      * requested to be obtained
      * @since 8
      */
@@ -219,7 +219,7 @@ declare namespace userIAM
     }
 
     /**
-     * Actuator attribute: subclass, remaining authentication times, freezing time
+     * Actuator attribute: subtype, remaining authentication times, freezing time
      * @since 8
      */
     interface ExecutorProperty {
@@ -250,6 +250,7 @@ declare namespace userIAM
         key : SetPropertyType;
         setInfo : Uint8Array;
     }
+
     /**
      * Actuator attribute: subclass, remaining authentication times, freezing time
      * @since 8
@@ -260,8 +261,9 @@ declare namespace userIAM
         remainTimes ?: number;
         freezingTime ?: number;
     }
+
     /**
-     * Authentication method and priority: currently only faces are supported
+     * Authentication method and priority: currently only face supported
      * @since 8
      */
     enum AuthMethod {
