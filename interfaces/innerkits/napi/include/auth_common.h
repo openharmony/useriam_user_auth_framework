@@ -20,6 +20,7 @@
 #include <vector>
 #include "napi/native_api.h"
 #include "napi/native_common.h"
+#include "userauth_info.h"
 
 namespace OHOS {
 namespace UserIAM {
@@ -83,7 +84,7 @@ struct ExecuteInfo {
     bool isPromise;
     napi_env env;
     std::string type;
-    std::string level;
+    AuthTurstLevel trustLevel;
     napi_ref callbackRef;
     napi_deferred deferred;
     napi_value promise;
