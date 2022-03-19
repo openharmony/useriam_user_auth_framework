@@ -22,137 +22,137 @@ namespace UserIAM {
 namespace UserAuth {
 void UserAuthAsyncProxy::onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo)
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "userauthAsyncProxy onAcquireInfo enter");
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthAsyncProxy onAcquireInfo start");
 
     MessageParcel data;
     MessageParcel reply;
 
     if (!data.WriteInterfaceToken(UserAuthAsyncProxy::GetDescriptor())) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "userauth write descriptor failed!");
+        USERAUTH_HILOGE(MODULE_SERVICE, "write descriptor failed");
         return;
     }
     if (!data.WriteInt32(module)) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteInt32(module).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to write module");
         return;
     }
     if (!data.WriteUint32(acquireInfo)) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(acquireInfo).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to write acquireInfo");
         return;
     }
     if (!data.WriteInt32(extraInfo)) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteInt32(extraInfo).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to write extraInfo");
         return;
     }
 
     bool ret = SendRequest(IUserAuth::USER_AUTH_ACQUIRENFO, data, reply);
     if (ret) {
         int32_t result = reply.ReadInt32();
-        USERAUTH_HILOGE(MODULE_SERVICE, "userauth result = %{public}d", result);
+        USERAUTH_HILOGE(MODULE_SERVICE, "result = %{public}d", result);
     }
 }
 
 void UserAuthAsyncProxy::onResult(const int32_t result, const AuthResult extraInfo)
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "userauthAsyncProxy onResult enter");
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthAsyncProxy onResult start");
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(UserAuthAsyncProxy::GetDescriptor())) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "userauth write descriptor failed!");
+        USERAUTH_HILOGE(MODULE_SERVICE, "write descriptor failed");
         return;
     }
     if (!data.WriteInt32(result)) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteInt32(result).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to write result");
         return;
     }
     if (!data.WriteUInt8Vector(extraInfo.token)) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUInt8Vector(extraInfo.token).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to write token");
         return;
     }
     if (!data.WriteUint32(extraInfo.remainTimes)) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(extraInfo.remainTimes).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to write remainTimes");
         return;
     }
     if (!data.WriteUint32(extraInfo.freezingTime)) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(extraInfo.freezingTime).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to write freezingTime");
         return;
     }
     bool ret = SendRequest(IUserAuth::USER_AUTH_ONRESULT, data, reply);
     if (ret) {
         int32_t result = reply.ReadInt32();
-        USERAUTH_HILOGE(MODULE_SERVICE, "userauth result = %{public}d", result);
+        USERAUTH_HILOGE(MODULE_SERVICE, "result = %{public}d", result);
     }
 }
 
 void UserAuthAsyncProxy::onExecutorPropertyInfo(const ExecutorProperty result)
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "userauthAsyncProxy onExecutorPropertyInfo enter");
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthAsyncProxy onExecutorPropertyInfo start");
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(UserAuthAsyncProxy::GetDescriptor())) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "userauth write descriptor failed!");
+        USERAUTH_HILOGE(MODULE_SERVICE, "write descriptor failed");
         return;
     }
     if (!data.WriteInt32(result.result)) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteInt32(result.result).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to write result");
         return;
     }
     if (!data.WriteUint64(result.authSubType)) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint64(result.authSubType).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to write authSubType");
         return;
     }
     if (!data.WriteUint32(result.remainTimes)) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(result.remainTimes).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to write remainTimes");
         return;
     }
     if (!data.WriteUint32(result.freezingTime)) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteUint32(result.freezingTime).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to write freezingTime");
         return;
     }
     bool ret = SendRequest(IUserAuth::USER_AUTH_GETEXPORP, data, reply);
     if (ret) {
         int32_t result = reply.ReadInt32();
-        USERAUTH_HILOGE(MODULE_SERVICE, "userauth result = %{public}d", result);
+        USERAUTH_HILOGE(MODULE_SERVICE, "result = %{public}d", result);
     }
 }
 
 void UserAuthAsyncProxy::onSetExecutorProperty(const int32_t result)
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "userauthAsyncProxy onSetExecutorProperty enter");
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthAsyncProxy onSetExecutorProperty start");
 
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(UserAuthAsyncProxy::GetDescriptor())) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "userauth write descriptor failed!");
+        USERAUTH_HILOGE(MODULE_SERVICE, "write descriptor failed");
         return;
     }
     if (!data.WriteInt32(result)) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "failed to WriteInt32(result).");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to write result");
         return;
     }
 
     bool ret = SendRequest(IUserAuth::USER_AUTH_SETEXPORP, data, reply);
     if (ret) {
         int32_t result = reply.ReadInt32();
-        USERAUTH_HILOGE(MODULE_SERVICE, "userauth result = %{public}d", result);
+        USERAUTH_HILOGE(MODULE_SERVICE, "result = %{public}d", result);
     }
 }
 
 bool UserAuthAsyncProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply)
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "userauthAsyncProxy SendRequest enter");
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthAsyncProxy SendRequest start");
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "userauth failed to get remote.");
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to get remote");
         return false;
     }
     MessageOption option(MessageOption::TF_SYNC);
     int32_t result = remote->SendRequest(code, data, reply, option);
     if (result != OHOS::UserIAM::UserAuth::SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "userauth failed to SendRequest.result = %{public}d", result);
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to SendRequest result = %{public}d", result);
         return false;
     }
-    USERAUTH_HILOGD(MODULE_SERVICE, "userauthAsyncProxy SendRequest end");
+    USERAUTH_HILOGD(MODULE_SERVICE, "SendRequest end");
     return true;
 }
 }  // namespace UserAuth

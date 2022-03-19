@@ -35,8 +35,7 @@ Napi_SetPropertyRequest AuthBuild::SetPropertyRequestBuild(napi_env env, napi_va
     request.authType_ = convert_.GetInt32ValueByKey(env, object, "authType");
     request.key_ = static_cast<uint32_t>(convert_.GetInt32ValueByKey(env, object, "key"));
     request.setInfo_ = convert_.NapiGetValueUint8Array(env, object, "setInfo");
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthBuild::SetPropertyRequestBuild authType = %{public}d",
-                    request.authType_);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthBuild::SetPropertyRequestBuild authType = %{public}d", request.authType_);
     return request;
 }
 
@@ -106,7 +105,7 @@ uint64_t AuthBuild::GetUint8ArrayTo64(napi_env env, napi_value value)
         USERAUTH_HILOGI(MODULE_JS_NAPI, "GetUint8ArrayTo64 result is %{public}u", (unsigned)result[i]);
     }
     uint64_t *re = static_cast<uint64_t *>(static_cast<void *>(tmp));
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "GetUint8ArrayTo64 resultUint64 is %{public}" PRIu64 "", *re);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "GetUint8ArrayTo64 resultUint64 is %{public}04" PRIx64 "", *re);
     return *re;
 }
 

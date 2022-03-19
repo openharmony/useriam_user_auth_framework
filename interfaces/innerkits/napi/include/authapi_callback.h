@@ -32,6 +32,7 @@ typedef struct AcquireInfoInner {
     uint32_t acquireInfo;
     int32_t extraInfo;
 } AcquireInfoInner;
+
 class AuthApiCallback : public UserAuthCallback {
 public:
     AuthApiCallback(AuthInfo *authInfo);
