@@ -42,11 +42,15 @@ public:
     static int32_t SaveCoauthCallback(uint64_t contextId, std::shared_ptr<CoAuth::CoAuthCallback> coauthCallback);
     static int32_t DeleteCoauthCallback(uint64_t contextId);
 private:
+    void OnFinishHandleExtend(int32_t userId, SetPropertyRequest setPropertyRequest, AuthResult authResult,
+        int32_t ret, UserAuthToken authToken);
+    void DealFinishData(std::vector<uint64_t> sessionIds);
+
     uint32_t callbackCount_ = 0;
     uint32_t callbackNowCount_ = 0;
-    uint64_t callbackContextID_ = 0;
+    uint64_t callbackContextId_ = 0;
     std::string pkgName_ = "";
-    int32_t userID_ = 0;
+    int32_t userId_ = 0;
     uint64_t callerUid_ = 0;
     bool isResultDoneFlag_ = false;
     sptr<IUserAuthCallback> callback_ { nullptr };
@@ -54,9 +58,6 @@ private:
     std::mutex mutex_;
     static std::mutex coauthCallbackmutex_;
     static std::map<uint64_t, std::shared_ptr<CoAuth::CoAuthCallback>> saveCoauthCallback_;
-    void OnFinishHandleExtend(int32_t userID, SetPropertyRequest setPropertyRequest, AuthResult authResult,
-        int32_t ret, UserAuthToken authToken);
-    void DealFinishData(std::vector<uint64_t> sessionIds);
 };
 
 class UserAuthCallbackImplSetProp : public CoAuth::SetPropCallback {
@@ -90,7 +91,7 @@ private:
 class UserAuthCallbackImplIDMGetPorp : public UserIDM::GetInfoCallback {
 public:
     explicit UserAuthCallbackImplIDMGetPorp(const sptr<IUserAuthCallback>& impl,
-        GetPropertyRequest request, uint64_t callerUID, std::string pkgName);
+        GetPropertyRequest request, uint64_t callerUid, std::string pkgName);
     virtual ~UserAuthCallbackImplIDMGetPorp() = default;
 
     void OnGetInfo(std::vector<UserIDM::CredentialInfo>& info) override;

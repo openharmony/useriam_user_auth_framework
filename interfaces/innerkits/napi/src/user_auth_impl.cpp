@@ -51,19 +51,19 @@ napi_value UserAuthImpl::GetAvailableStatus(napi_env env, napi_callback_info inf
     napi_value ret = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
     if (argc != ARGS_TWO) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s, parms error.", __func__);
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s parms error", __func__);
         NAPI_CALL(env, napi_create_int32(env, result, &ret));
         return ret;
     }
     int type = authBuild.NapiGetValueInt(env, argv[PARAM0]);
     if (type == GET_VALUE_ERROR) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s, argv[PARAM0] error.", __func__);
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s argv[PARAM0] error", __func__);
         NAPI_CALL(env, napi_create_int32(env, result, &ret));
         return ret;
     }
     int level = authBuild.NapiGetValueInt(env, argv[PARAM1]);
     if (level == GET_VALUE_ERROR) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s, argv[PARAM1] error.", __func__);
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s argv[PARAM1] error", __func__);
         NAPI_CALL(env, napi_create_int32(env, result, &ret));
         return ret;
     }
@@ -104,7 +104,7 @@ napi_value UserAuthImpl::GetProperty(napi_env env, napi_callback_info info)
 
 napi_value UserAuthImpl::GetPropertyWrap(napi_env env, napi_callback_info info, AsyncHolder *asyncHolder)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, called", __func__);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s start", __func__);
     GetPropertyInfo *getPropertyInfo = reinterpret_cast<GetPropertyInfo *>(asyncHolder->data);
     size_t argcAsync = ARGS_TWO;
     const size_t argcPromise = ARGS_ONE;
@@ -112,7 +112,7 @@ napi_value UserAuthImpl::GetPropertyWrap(napi_env env, napi_callback_info info, 
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s, Wrong argument count.", __func__);
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s wrong argument count", __func__);
         return nullptr;
     }
     if (argcAsync > PARAM1) {
@@ -133,21 +133,21 @@ napi_value UserAuthImpl::GetPropertyWrap(napi_env env, napi_callback_info info, 
     } else {
         ret = GetPropertyPromise(env, asyncHolder);
     }
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s,end.", __func__);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s end", __func__);
     return ret;
 }
 
 void UserAuthImpl::GetPropertyExecute(napi_env env, void *data)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "GetPropertyExecute, worker pool thread execute.");
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "GetPropertyExecute start");
     AsyncHolder *asyncHolder = reinterpret_cast<AsyncHolder *>(data);
     if (asyncHolder == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "GetPropertyExecute, asyncHolder == nullptr");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "GetPropertyExecute asyncHolder is nullptr");
         return;
     }
     GetPropertyInfo *getPropertyInfo = reinterpret_cast<GetPropertyInfo *>(asyncHolder->data);
     if (getPropertyInfo == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "GetPropertyExecute, getPropertyInfo == nullptr");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "GetPropertyExecute getPropertyInfo is nullptr");
         return;
     }
     AuthType authTypeGet = AuthType(getPropertyInfo->authType);
@@ -155,7 +155,6 @@ void UserAuthImpl::GetPropertyExecute(napi_env env, void *data)
     GetPropertyRequest request;
     request.authType = authTypeGet;
     request.keys = getPropertyInfo->keys;
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "GetPropertyExecute start 1");
     GetPropApiCallback *object = new (std::nothrow) GetPropApiCallback(getPropertyInfo);
     if (object == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s object nullptr", __func__);
@@ -164,30 +163,30 @@ void UserAuthImpl::GetPropertyExecute(napi_env env, void *data)
     std::shared_ptr<GetPropApiCallback> callback;
     callback.reset(object);
     UserAuth::GetInstance().GetProperty(request, callback);
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "GetPropertyExecute, worker pool thread execute end.");
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "GetPropertyExecute end");
 }
 
 void UserAuthImpl::GetPropertyPromiseExecuteDone(napi_env env, napi_status status, void *data)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "GetPropertyPromiseExecuteDone, start");
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "GetPropertyPromiseExecuteDone start");
     AsyncHolder *asyncHolder = reinterpret_cast<AsyncHolder *>(data);
     napi_delete_async_work(env, asyncHolder->asyncWork);
     delete asyncHolder;
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "GetPropertyPromiseExecuteDone, end");
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "GetPropertyPromiseExecuteDone end");
 }
 
 void UserAuthImpl::GetPropertyAsyncExecuteDone(napi_env env, napi_status status, void *data)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "GetPropertyAsyncExecuteDone, start");
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "GetPropertyAsyncExecuteDone start");
     AsyncHolder *asyncHolder = reinterpret_cast<AsyncHolder *>(data);
     napi_delete_async_work(env, asyncHolder->asyncWork);
     delete asyncHolder;
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "GetPropertyAsyncExecuteDone, end");
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "GetPropertyAsyncExecuteDone end");
 }
 
 napi_value UserAuthImpl::GetPropertyAsync(napi_env env, AsyncHolder *asyncHolder)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, asyncCallback.", __func__);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s start", __func__);
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
     napi_value resourceName = nullptr;
@@ -195,13 +194,13 @@ napi_value UserAuthImpl::GetPropertyAsync(napi_env env, AsyncHolder *asyncHolder
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, GetPropertyExecute, GetPropertyAsyncExecuteDone,
         (void *)asyncHolder, &asyncHolder->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, asyncHolder->asyncWork));
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, asyncCallback end.", __func__);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s end", __func__);
     return result;
 }
 
 napi_value UserAuthImpl::GetPropertyPromise(napi_env env, AsyncHolder *asyncHolder)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, promise.", __func__);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s start", __func__);
     GetPropertyInfo *getPropertyInfo = reinterpret_cast<GetPropertyInfo *>(asyncHolder->data);
     napi_value resourceName = 0;
     NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
@@ -213,7 +212,7 @@ napi_value UserAuthImpl::GetPropertyPromise(napi_env env, AsyncHolder *asyncHold
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, GetPropertyExecute, GetPropertyPromiseExecuteDone,
         (void *)asyncHolder, &asyncHolder->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, asyncHolder->asyncWork));
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, promise end.", __func__);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s end", __func__);
     return promise;
 }
 
@@ -246,7 +245,7 @@ napi_value UserAuthImpl::SetProperty(napi_env env, napi_callback_info info)
 
 napi_value UserAuthImpl::SetPropertyWrap(napi_env env, napi_callback_info info, AsyncHolder *asyncHolder)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, called", __func__);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s start", __func__);
     SetPropertyInfo *setPropertyInfo = reinterpret_cast<SetPropertyInfo *>(asyncHolder->data);
     size_t argcAsync = ARGS_TWO;
     const size_t argcPromise = ARGS_ONE;
@@ -254,7 +253,7 @@ napi_value UserAuthImpl::SetPropertyWrap(napi_env env, napi_callback_info info, 
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s, Wrong argument count.", __func__);
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s wrong argument count", __func__);
         return nullptr;
     }
     if (argcAsync > PARAM1) {
@@ -278,21 +277,21 @@ napi_value UserAuthImpl::SetPropertyWrap(napi_env env, napi_callback_info info, 
     } else {
         ret = SetPropertyPromise(env, asyncHolder);
     }
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s,end.", __func__);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s end", __func__);
     return ret;
 }
 
 void UserAuthImpl::SetPropertyExecute(napi_env env, void *data)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "setPropertyExecute, worker pool thread execute.");
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "SetPropertyExecute start");
     AsyncHolder *asyncHolder = reinterpret_cast<AsyncHolder *>(data);
     if (asyncHolder == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "SetPropertyExecute, asyncHolder == nullptr");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "SetPropertyExecute asyncHolder is nullptr");
         return;
     }
     SetPropertyInfo *setPropertyInfo = reinterpret_cast<SetPropertyInfo *>(asyncHolder->data);
     if (setPropertyInfo == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "SetPropertyExecute, setPropertyInfo == nullptr");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "SetPropertyExecute setPropertyInfo is nullptr");
         return;
     }
     AuthType authTypeGet = AuthType(setPropertyInfo->authType);
@@ -308,30 +307,30 @@ void UserAuthImpl::SetPropertyExecute(napi_env env, void *data)
     std::shared_ptr<SetPropApiCallback> callback;
     callback.reset(object);
     UserAuth::GetInstance().SetProperty(request, callback);
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "setPropertyExecute, worker pool thread execute end.");
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "SetPropertyExecute end");
 }
 
 void UserAuthImpl::SetPropertyPromiseExecuteDone(napi_env env, napi_status status, void *data)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "SetPropertyPromiseExecuteDone, start");
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "SetPropertyPromiseExecuteDone start");
     AsyncHolder *asyncHolder = reinterpret_cast<AsyncHolder *>(data);
     napi_delete_async_work(env, asyncHolder->asyncWork);
     delete asyncHolder;
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "SetPropertyPromiseExecuteDone, end");
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "SetPropertyPromiseExecuteDone end");
 }
 
 void UserAuthImpl::SetPropertyAsyncExecuteDone(napi_env env, napi_status status, void *data)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "SetPropertyAsyncExecuteDone, start");
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "SetPropertyAsyncExecuteDone start");
     AsyncHolder *asyncHolder = reinterpret_cast<AsyncHolder *>(data);
     napi_delete_async_work(env, asyncHolder->asyncWork);
     delete asyncHolder;
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "SetPropertyAsyncExecuteDone, end");
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "SetPropertyAsyncExecuteDone end");
 }
 
 napi_value UserAuthImpl::SetPropertyAsync(napi_env env, AsyncHolder *asyncHolder)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, asyncCallback.", __func__);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s start", __func__);
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
     napi_value resourceName = nullptr;
@@ -339,13 +338,13 @@ napi_value UserAuthImpl::SetPropertyAsync(napi_env env, AsyncHolder *asyncHolder
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, SetPropertyExecute, SetPropertyAsyncExecuteDone,
         (void *)asyncHolder, &asyncHolder->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, asyncHolder->asyncWork));
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, asyncCallback end.", __func__);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s end", __func__);
     return result;
 }
 
 napi_value UserAuthImpl::SetPropertyPromise(napi_env env, AsyncHolder *asyncHolder)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, promise.", __func__);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s start", __func__);
     SetPropertyInfo *setPropertyInfo = reinterpret_cast<SetPropertyInfo *>(asyncHolder->data);
     napi_value resourceName = 0;
     NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
@@ -357,7 +356,7 @@ napi_value UserAuthImpl::SetPropertyPromise(napi_env env, AsyncHolder *asyncHold
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName,
         SetPropertyExecute, SetPropertyPromiseExecuteDone, (void *)asyncHolder, &asyncHolder->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, asyncHolder->asyncWork));
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, promise end.", __func__);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s end", __func__);
     return promise;
 }
 
@@ -370,7 +369,7 @@ napi_value UserAuthImpl::BuildAuthInfo(napi_env env, AuthInfo *authInfo)
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, authInfo->info, &argc, argv, nullptr, nullptr));
     if (argc != ARGS_FOUR) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s, parms error.", __func__);
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s parms error", __func__);
         return nullptr;
     }
     authInfo->challenge = authBuild.GetUint8ArrayTo64(env, argv[0]);
@@ -398,7 +397,7 @@ napi_value UserAuthImpl::BuildAuthInfo(napi_env env, AuthInfo *authInfo)
 
 napi_value UserAuthImpl::Execute(napi_env env, napi_callback_info info)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s start", __func__);
     ExecuteInfo *executeInfo = new (std::nothrow) ExecuteInfo();
     if (executeInfo == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s executeInfo nullptr", __func__);
@@ -453,7 +452,7 @@ ResultCode UserAuthImpl::ParseExecuteParametersZero(napi_env env, size_t argc, n
     napi_valuetype valuetype = napi_undefined;
     napi_typeof(env, argv[PARAM0], &valuetype);
     if (valuetype != napi_string) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s argv[0] is not string", __func__);
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s argv[PARAM0] is not string", __func__);
         return ResultCode::INVALID_PARAMETERS;
     }
 
@@ -493,7 +492,7 @@ ResultCode UserAuthImpl::ParseExecuteParametersOne(napi_env env, size_t argc, na
     napi_valuetype valuetype = napi_undefined;
     napi_typeof(env, argv[PARAM1], &valuetype);
     if (valuetype != napi_string) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s argv[1] is not string", __func__);
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s argv[PARAM1] is not string", __func__);
         return ResultCode::INVALID_PARAMETERS;
     }
     std::map<std::string, AuthTurstLevel> convertAuthTurstLevel = {
@@ -550,7 +549,7 @@ ResultCode UserAuthImpl::ParseExecuteParameters(napi_env env, size_t argc, napi_
 
 napi_value UserAuthImpl::Auth(napi_env env, napi_callback_info info)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s start", __func__);
     AuthInfo *authInfo = new (std::nothrow) AuthInfo();
     if (authInfo == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s authInfo nullptr", __func__);
@@ -568,7 +567,7 @@ napi_value UserAuthImpl::Auth(napi_env env, napi_callback_info info)
 
 napi_value UserAuthImpl::AuthWrap(napi_env env, AuthInfo *authInfo)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, start.", __func__);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s start", __func__);
     AuthApiCallback *object = new (std::nothrow) AuthApiCallback(authInfo);
     if (object == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s object nullptr", __func__);
@@ -578,15 +577,15 @@ napi_value UserAuthImpl::AuthWrap(napi_env env, AuthInfo *authInfo)
     callback.reset(object);
     uint64_t result = UserAuth::GetInstance().Auth(
         authInfo->challenge, AuthType(authInfo->authType), AuthTurstLevel(authInfo->authTrustLevel), callback);
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuth::GetInstance().Auth.result =  %{public}" PRIu64 "", result);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuth::GetInstance().Auth result = %{public}04" PRIx64 "", result);
     napi_value key = authBuild.Uint64ToUint8Array(env, result);
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, end.", __func__);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s end", __func__);
     return key;
 }
 
 napi_value UserAuthImpl::AuthUser(napi_env env, napi_callback_info info)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, start.", __func__);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s start", __func__);
     AuthUserInfo *userInfo = new (std::nothrow) AuthUserInfo();
     if (userInfo == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s userInfo nullptr", __func__);
@@ -611,7 +610,7 @@ napi_value UserAuthImpl::BuildAuthUserInfo(napi_env env, AuthUserInfo *userInfo)
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, userInfo->info, &argc, argv, nullptr, nullptr));
     if (argc != ARGS_FIVE) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s, parms error.", __func__);
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s parms error", __func__);
         return nullptr;
     }
     if (authBuild.NapiTypeNumber(env, argv[PARAM0])) {
@@ -631,7 +630,6 @@ napi_value UserAuthImpl::BuildAuthUserInfo(napi_env env, AuthUserInfo *userInfo)
         userInfo->authTrustLevel = level;
     }
     if (authBuild.NapiTypeObject(env, argv[PARAM4])) {
-        USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthUser is Object");
         NAPI_CALL(env, napi_get_named_property(env, argv[PARAM4], "onResult", &userInfo->onResultCallBack));
         NAPI_CALL(env, napi_create_reference(env, userInfo->onResultCallBack, PARAM1, &userInfo->onResult));
         NAPI_CALL(env, napi_get_named_property(env, argv[PARAM4], "onAcquireInfo", &userInfo->onAcquireInfoCallBack));
@@ -642,7 +640,7 @@ napi_value UserAuthImpl::BuildAuthUserInfo(napi_env env, AuthUserInfo *userInfo)
 
 napi_value UserAuthImpl::AuthUserWrap(napi_env env, AuthUserInfo *userInfo)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, start.", __func__);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s start", __func__);
     AuthApiCallback *object = new (std::nothrow) AuthApiCallback(userInfo);
     if (object == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s object nullptr", __func__);
@@ -652,7 +650,7 @@ napi_value UserAuthImpl::AuthUserWrap(napi_env env, AuthUserInfo *userInfo)
     callback.reset(object);
     uint64_t result = UserAuth::GetInstance().AuthUser(userInfo->userId, userInfo->challenge,
         AuthType(userInfo->authType), AuthTurstLevel(userInfo->authTrustLevel), callback);
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuth::GetInstance().AuthUser. result =  %{public}" PRIu64 "", result);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuth::GetInstance().AuthUser result = %{public}04" PRIx64 "", result);
     napi_value key = authBuild.Uint64ToUint8Array(env, result);
     USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, end.", __func__);
     return key;
@@ -665,7 +663,7 @@ napi_value UserAuthImpl::CancelAuth(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
 
     uint64_t contextId = authBuild.GetUint8ArrayTo64(env, argv[0]);
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "CancelAuth contextId = %{public}" PRIu64 "", contextId);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "CancelAuth contextId = %{public}04" PRIx64 "", contextId);
     if (contextId == 0) {
         return nullptr;
     }
