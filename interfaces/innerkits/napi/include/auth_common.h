@@ -25,33 +25,33 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-#define ARGS_MAX_COUNT 10
-#define ARGS_ASYNC_COUNT 1
-#define GET_VALUE_ERROR (-1)
-#define NAPI_GET_STRING_SIZE 128
+constexpr size_t ARGS_MAX_COUNT = 10;
+constexpr size_t ARGS_ASYNC_COUNT = 1;
+constexpr size_t GET_VALUE_ERROR = -1;
+constexpr size_t NAPI_GET_STRING_SIZE = 128;
 
-#define ARGS_ONE 1
-#define ARGS_TWO 2
-#define ARGS_THREE 3
-#define ARGS_FOUR 4
-#define ARGS_FIVE 5
-#define ARGS_SIX 6
-#define ARGS_SEVEN 7
-#define ARGS_EIGHT 8
-#define ARGS_NINE 9
-#define ARGS_TEN 10
+constexpr size_t ARGS_ONE = 1;
+constexpr size_t ARGS_TWO = 2;
+constexpr size_t ARGS_THREE = 3;
+constexpr size_t ARGS_FOUR = 4;
+constexpr size_t ARGS_FIVE = 5;
+constexpr size_t ARGS_SIX = 6;
+constexpr size_t ARGS_SEVEN = 7;
+constexpr size_t ARGS_EIGHT = 8;
+constexpr size_t ARGS_NINE = 9;
+constexpr size_t ARGS_TEN = 10;
 
-#define PARAM0 0
-#define PARAM1 1
-#define PARAM2 2
-#define PARAM3 3
-#define PARAM4 4
-#define PARAM5 5
-#define PARAM6 6
-#define PARAM7 7
-#define PARAM8 8
-#define PARAM9 9
-#define PARAM10 10
+constexpr size_t PARAM0 = 0;
+constexpr size_t PARAM1 = 1;
+constexpr size_t PARAM2 = 2;
+constexpr size_t PARAM3 = 3;
+constexpr size_t PARAM4 = 4;
+constexpr size_t PARAM5 = 5;
+constexpr size_t PARAM6 = 6;
+constexpr size_t PARAM7 = 7;
+constexpr size_t PARAM8 = 8;
+constexpr size_t PARAM9 = 9;
+constexpr size_t PARAM10 = 10;
 
 struct CallBackInfo {
     napi_env env {nullptr};

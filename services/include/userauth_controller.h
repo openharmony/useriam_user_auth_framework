@@ -27,16 +27,16 @@ namespace UserAuth {
 class UserAuthController {
 public:
     int32_t GetAuthTrustLevel(int32_t userId, uint32_t authType, uint32_t &authTrustLevel);
-    void GetPropAuthInfo(int32_t userID, std::string pkgName, uint64_t callerUID, GetPropertyRequest getPropertyRequest,
+    void GetPropAuthInfo(int32_t userId, std::string pkgName, uint64_t callerUid, GetPropertyRequest getPropertyRequest,
         sptr<IUserAuthCallback> &callback);
-    int32_t SetExecutorProp(uint64_t callerUID, std::string pkgName, SetPropertyRequest setPropertyrequest,
+    int32_t SetExecutorProp(uint64_t callerUid, std::string pkgName, SetPropertyRequest setPropertyrequest,
         sptr<IUserAuthCallback> &callback);
-    int32_t AddContextID(uint64_t contextID);
-    int32_t IsContextIDExist(uint64_t contextID);
-    int32_t GenerateContextID(uint64_t &contextID);
-    int32_t DeleteContextID(uint64_t contextID);
+    int32_t AddContextId(uint64_t contextId);
+    int32_t IsContextIdExist(uint64_t contextId);
+    int32_t GenerateContextId(uint64_t &contextId);
+    int32_t DeleteContextId(uint64_t contextId);
     int32_t GenerateSolution(AuthSolution param, std::vector<uint64_t> &sessionIds);
-    int32_t coAuth(CoAuthInfo coAuthInfo, sptr<IUserAuthCallback> &callback);
+    int32_t CoAuth(CoAuthInfo coAuthInfo, sptr<IUserAuthCallback> &callback);
     int32_t CancelContext(uint64_t contextId, std::vector<uint64_t> &sessionIds);
     int32_t Cancel(uint64_t sessionId);
     int32_t GetVersion();

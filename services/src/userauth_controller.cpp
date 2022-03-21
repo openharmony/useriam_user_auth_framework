@@ -23,48 +23,59 @@ int32_t UserAuthController::GetAuthTrustLevel(int32_t userId, uint32_t authType,
 {
     return UserAuthAdapter::GetInstance().GetAuthTrustLevel(userId, authType, authTrustLevel);
 }
-int32_t UserAuthController::SetExecutorProp(uint64_t callerUID, std::string pkgName,
+
+int32_t UserAuthController::SetExecutorProp(uint64_t callerUid, std::string pkgName,
     SetPropertyRequest setPropertyrequest, sptr<IUserAuthCallback> &callback)
 {
-    return UserAuthAdapter::GetInstance().SetExecutorProp(callerUID, pkgName, setPropertyrequest, callback);
+    return UserAuthAdapter::GetInstance().SetExecutorProp(callerUid, pkgName, setPropertyrequest, callback);
 }
-void UserAuthController::GetPropAuthInfo(int32_t userID, std::string pkgName, uint64_t callerUID,
+
+void UserAuthController::GetPropAuthInfo(int32_t userId, std::string pkgName, uint64_t callerUid,
     GetPropertyRequest getPropertyRequest, sptr<IUserAuthCallback> &callback)
 {
-    UserAuthAdapter::GetInstance().GetPropAuthInfo(userID, callerUID, pkgName, getPropertyRequest, callback);
+    UserAuthAdapter::GetInstance().GetPropAuthInfo(userId, callerUid, pkgName, getPropertyRequest, callback);
 }
+
 int32_t UserAuthController::GenerateSolution(AuthSolution param, std::vector<uint64_t> &sessionIds)
 {
     return UserAuthAdapter::GetInstance().GenerateSolution(param, sessionIds);
 }
-int32_t UserAuthController::coAuth(CoAuthInfo coAuthInfo, sptr<IUserAuthCallback> &callback)
+
+int32_t UserAuthController::CoAuth(CoAuthInfo coAuthInfo, sptr<IUserAuthCallback> &callback)
 {
-    return UserAuthAdapter::GetInstance().coAuth(coAuthInfo, callback);
+    return UserAuthAdapter::GetInstance().CoAuth(coAuthInfo, callback);
 }
+
 int32_t UserAuthController::CancelContext(uint64_t contextId, std::vector<uint64_t> &sessionIds)
 {
     return UserAuthAdapter::GetInstance().CancelContext(contextId, sessionIds);
 }
+
 int32_t UserAuthController::Cancel(uint64_t sessionId)
 {
     return UserAuthAdapter::GetInstance().Cancel(sessionId);
 }
-int32_t UserAuthController::AddContextID(uint64_t contextID)
+
+int32_t UserAuthController::AddContextId(uint64_t contextId)
 {
-    return UserAuthDataMgr::GetInstance().AddContextID(contextID);
+    return UserAuthDataMgr::GetInstance().AddContextId(contextId);
 }
-int32_t UserAuthController::IsContextIDExist(uint64_t contextID)
+
+int32_t UserAuthController::IsContextIdExist(uint64_t contextId)
 {
-    return UserAuthDataMgr::GetInstance().IsContextIDExist(contextID);
+    return UserAuthDataMgr::GetInstance().IsContextIdExist(contextId);
 }
-int32_t UserAuthController::GenerateContextID(uint64_t &contextID)
+
+int32_t UserAuthController::GenerateContextId(uint64_t &contextId)
 {
-    return UserAuthDataMgr::GetInstance().GenerateContextID(contextID);
+    return UserAuthDataMgr::GetInstance().GenerateContextId(contextId);
 }
-int32_t UserAuthController::DeleteContextID(uint64_t contextID)
+
+int32_t UserAuthController::DeleteContextId(uint64_t contextId)
 {
-    return UserAuthDataMgr::GetInstance().DeleteContextID(contextID);
+    return UserAuthDataMgr::GetInstance().DeleteContextId(contextId);
 }
+
 int32_t UserAuthController::GetVersion()
 {
     return UserAuthAdapter::GetInstance().GetVersion();

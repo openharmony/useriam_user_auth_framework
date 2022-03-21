@@ -45,7 +45,6 @@ namespace UserAuth {
 #undef USERAUTH_HILOGD
 #endif
 
-// param of log interface, such as DISTRIBUTED_GALLERY_HILOGF.
 enum UserAuthSubModule {
     MODULE_INNERKIT = 0,
     MODULE_SERVICE,
@@ -54,7 +53,6 @@ enum UserAuthSubModule {
     USERAUTHS_MODULE_BUTT,
 };
 
-// 0xD002900: subsystem:distributeddatamgr module:distributedgallery, 8 bits reserved.
 static constexpr unsigned int BASE_USERAUTH_DOMAIN_ID = 0xD002910;
 
 enum UserAuthDomainId {
@@ -72,7 +70,7 @@ static constexpr OHOS::HiviewDFX::HiLogLabel USERAUTH_LABEL[USERAUTHS_MODULE_BUT
 };
 
 // In order to improve performance, do not check the module range.
-// Besides, make sure module is less than DISTRIBUTED_GALLERY_MODULE_BUTT.
+// Besides, make sure module is less than USERAUTHS_MODULE_BUTT.
 #define USERAUTH_HILOGF(module, ...) (void)OHOS::HiviewDFX::HiLog::Fatal(USERAUTH_LABEL[module], FORMATED(__VA_ARGS__))
 #define USERAUTH_HILOGE(module, ...) (void)OHOS::HiviewDFX::HiLog::Error(USERAUTH_LABEL[module], FORMATED(__VA_ARGS__))
 #define USERAUTH_HILOGW(module, ...) (void)OHOS::HiviewDFX::HiLog::Warn(USERAUTH_LABEL[module], FORMATED(__VA_ARGS__))

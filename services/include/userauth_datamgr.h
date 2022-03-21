@@ -30,16 +30,16 @@ class UserAuthDataMgr {
 public:
     DISALLOW_COPY_AND_MOVE(UserAuthDataMgr);
     static UserAuthDataMgr &GetInstance();
-    int32_t AddContextID(uint64_t contextID);
-    int32_t IsContextIDExist(uint64_t contextID);
-    int32_t GenerateContextID(uint64_t &contextID);
-    int32_t DeleteContextID(uint64_t contextID);
+    int32_t AddContextId(uint64_t contextId);
+    int32_t IsContextIdExist(uint64_t contextId);
+    int32_t GenerateContextId(uint64_t &contextId);
+    int32_t DeleteContextId(uint64_t contextId);
 
 private:
     UserAuthDataMgr() = default;
     ~UserAuthDataMgr() = default;
     std::mutex mutex_;
-    std::set<uint64_t> contextIDs_;
+    std::set<uint64_t> contextIds_;
 };
 } // namespace UserAuth
 } // namespace UserIAM

@@ -31,7 +31,7 @@ ResultConvert::~ResultConvert()
 
 napi_value ResultConvert::Uint64ToUint8Napi(napi_env env, uint64_t value)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "ResultConvert Uint64ToUint8Napi uint64_t %{public}" PRIu64 "", value);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "ResultConvert Uint64ToUint8Napi uint64_t %{public}04" PRIx64 "", value);
     void *data = nullptr;
     napi_value arrayBuffer = nullptr;
     NAPI_CALL(env, napi_create_arraybuffer(env, sizeof(value), &data, &arrayBuffer));
@@ -44,9 +44,9 @@ napi_value ResultConvert::Uint64ToUint8Napi(napi_env env, uint64_t value)
 std::vector<uint8_t> ResultConvert::NapiGetValueUint8Array(napi_env env, napi_value jsObject, std::string key)
 {
     napi_value jsValue = GetNapiValue(env, key.c_str(), jsObject);
-    std::vector<uint8_t> RetNull;
+    std::vector<uint8_t> retNull;
     if (jsValue == nullptr) {
-        return RetNull;
+        return retNull;
     }
     napi_typedarray_type arraytype;
     size_t length = 0;
@@ -57,16 +57,16 @@ std::vector<uint8_t> ResultConvert::NapiGetValueUint8Array(napi_env env, napi_va
     napi_is_typedarray(env, jsValue, &isTypedArray);
     if (!isTypedArray) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "NapiGetValueUint8Array jsValue is not typedarray");
-        return RetNull;
+        return retNull;
     }
     napi_get_typedarray_info(env, jsValue, &arraytype, &length, reinterpret_cast<void **>(&data), &buffer, &offset);
     if (arraytype != napi_uint8_array) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "NapiGetValueUint8Array js jsValue is not uint8Array");
-        return RetNull;
+        return retNull;
     }
     if (offset != 0) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "offset is %{public}zu", offset);
-        return RetNull;
+        return retNull;
     }
     std::vector<uint8_t> result(data, data + length);
     return result;
@@ -78,7 +78,7 @@ napi_valuetype ResultConvert::GetType(napi_env env, napi_value value)
     if (value == nullptr) {
         return napi_null;
     }
-    napi_valuetype type;
+    napi_valuetype type = napi_undefined;
     status = napi_typeof(env, value, &type);
     if (status != napi_ok) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_typeof failed");
@@ -115,7 +115,7 @@ std::vector<uint32_t> ResultConvert::GetCppArrayUint32(napi_env env, napi_value 
         napi_valuetype napiValueType = napi_undefined;
         napi_typeof(env, napiElement, &napiValueType);
         if (napiValueType != napi_number) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s Wrong argument type. Numbers expected.", __func__);
+            USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s wrong argument type", __func__);
             return std::vector<uint32_t>();
         }
         uint32_t napiValue = 0;
@@ -141,10 +141,8 @@ std::vector<uint32_t> ResultConvert::GetInt32ArrayValueByKey(napi_env env, napi_
         USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_is_array is failed");
         return std::vector<uint32_t>();
     }
-    if (isArray) {
-        USERAUTH_HILOGI(MODULE_JS_NAPI, "args[PIN_PARAMS_ONE] is a array");
-    } else {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "args[PIN_PARAMS_ONE] is not a array");
+    if (!isArray) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "not a array");
         return std::vector<uint32_t>();
     }
     return GetCppArrayUint32(env, array);
@@ -167,7 +165,7 @@ std::string ResultConvert::NapiGetValueString(napi_env env, napi_value value)
     }
     resultValue = valueString;
     if (resultValue == "") {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "ContactsBuild NapiGetValueString Data error");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "NapiGetValueString resultValue error");
         return "";
     }
     return resultValue;
