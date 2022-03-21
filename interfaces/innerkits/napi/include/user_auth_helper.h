@@ -67,123 +67,19 @@ napi_value FaceTipsCodeConstructor(napi_env env);
 napi_value FingerprintTipsConstructorForKits(napi_env env);
 napi_value FingerprintTipsConstructorForInnerkits(napi_env env);
 napi_value UserAuthTypeConstructor(napi_env env);
-
-/**
- * @brief Napi initialization
- *
- * @param env
- * @param exports
- */
 napi_value UserAuthInit(napi_env env, napi_value exports);
-
 napi_value EnumExport(napi_env env, napi_value exports);
-
-/**
- * @brief Get the Ctor object
- *
- * @param env
- * @return napi_value UserAuth Instance
- */
 napi_value GetCtor(napi_env env);
-
-/**
- * @brief Get the Ctor object for API6
- *
- * @param env
- * @return napi_value UserAuth Instance
- */
 napi_value GetCtorForAPI6(napi_env env);
-
-/**
- * @brief Construction method for API6
- *
- * @param env
- * @param info
- * @return napi_value UserAuth Instance
- */
 napi_value ConstructorForAPI6(napi_env env, napi_callback_info info);
-
-/**
- * @brief Instance passed to context
- *
- * @param env
- * @param info
- * @return napi_value UserAuth Instance
- */
 napi_value UserAuthServiceConstructor(napi_env env, napi_callback_info info);
-
-/**
- * @brief Get the Version object
- *
- * @param env
- * @param info
- * @return napi_value Specific version number results
- */
 napi_value GetVersion(napi_env env, napi_callback_info info);
-
-/**
- * @brief Get the available Status object
- *
- * @param env
- * @param info
- * @return napi_value Verify that the certification capability is available
- */
 napi_value GetAvailableStatus(napi_env env, napi_callback_info info);
-
-/**
- * @brief Get the Property object
- *
- * @param env
- * @param info
- * @return napi_value It supports querying subclasses / remaining authentication times / freezing time
- */
 napi_value GetProperty(napi_env env, napi_callback_info info);
-
-/**
- * @brief Set the Property object
- *
- * @param env
- * @param info
- * @return napi_value Set properties: can be used to initialize algorithms
- */
 napi_value SetProperty(napi_env env, napi_callback_info info);
-
-/**
- * @brief user authentication
- *
- * @param env
- * @param info
- * @return napi_value Enter the challenge value, authentication method, trust level and callback, and return the result
- * and acquireinfo through the callback
- */
 napi_value Auth(napi_env env, napi_callback_info info);
-
-/**
- * @brief Execute authentication
- *
- * @param env
- * @param info
- * @return Returns the result of successful authentication
- */
 napi_value Execute(napi_env env, napi_callback_info info);
-
-/**
- * @brief user authentication
- *
- * @param env
- * @param info
- * @return napi_value Pass in the user ID, challenge value, authentication method, trust level and callback, and return
- * the result acquireinfo through the callback
- */
 napi_value AuthUser(napi_env env, napi_callback_info info);
-
-/**
- * @brief Cancel authentication
- *
- * @param env
- * @param info
- * @return napi_value success or fail
- */
 napi_value CancelAuth(napi_env env, napi_callback_info info);
 } // namespace UserAuth
 } // namespace UserIAM

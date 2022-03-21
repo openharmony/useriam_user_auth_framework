@@ -80,14 +80,17 @@ void TestUserAuthCallback::onAcquireInfo(const int32_t module, const uint32_t ac
 {
     std::cout << "onAcquireInfo callback" << std::endl;
 }
+
 void TestUserAuthCallback::onResult(const int32_t result, const AuthResult extraInfo)
 {
     std::cout << "onResult callback" << std::endl;
 }
+
 void TestGetPropCallback::onGetProperty(const ExecutorProperty result)
 {
     std::cout << "onGetProperty callback" << std::endl;
 }
+
 void TestSetPropCallback::onSetProperty(const int32_t result)
 {
     std::cout << "onSetProperty callback" << std::endl;
@@ -97,8 +100,6 @@ HWTEST_F(UseriamUtTest, UseriamUtTest_001, TestSize.Level1)
 {
     AuthType authType = FACE;
     AuthTurstLevel authTurstLevel = ATL1;
-    // The ipc communication test is OK. The service and ut tests cannot obtain the correct userId,
-    // and return a error 5(TYPE_NOT_SUPPORT).
     EXPECT_NE(0, UserAuth::GetInstance().GetAvailableStatus(authType, authTurstLevel));
 }
 
@@ -129,8 +130,6 @@ HWTEST_F(UseriamUtTest, UseriamUtTest_004, TestSize.Level1)
     AuthType authType = FACE;
     AuthTurstLevel authTurstLevel = ATL1;
     std::shared_ptr<UserAuthCallback> callback = std::make_shared<TestUserAuthCallback>();
-    // Ut test IPC communication is OK, getCallinguerId interface returns fail, verification failed,
-    // return value 0(FAIL).
     EXPECT_EQ(0, UserAuth::GetInstance().Auth(challenge, authType, authTurstLevel, callback));
 }
 
@@ -141,14 +140,12 @@ HWTEST_F(UseriamUtTest, UseriamUtTest_005, TestSize.Level1)
     AuthType authType = FACE;
     AuthTurstLevel authTurstLevel = ATL1;
     std::shared_ptr<UserAuthCallback> callback = std::make_shared<TestUserAuthCallback>();
-    // Ut test IPC communication is OK, userId is invalid, verification failed, return value 0(FAIL).
     EXPECT_EQ(0, UserAuth::GetInstance().AuthUser(userId, challenge, authType, authTurstLevel, callback));
 }
 
 HWTEST_F(UseriamUtTest, UseriamUtTest_006, TestSize.Level1)
 {
     uint64_t contextId = 0;
-    // Tests whether an 12(INVALID_CONTEXTID) is returned when an invalid contexID is used to cancel authentication.
     EXPECT_NE(0, UserAuth::GetInstance().CancelAuth(contextId));
 }
 }

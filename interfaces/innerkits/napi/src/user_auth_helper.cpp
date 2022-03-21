@@ -21,16 +21,9 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-/**
- * @brief Instance passed to context
- *
- * @param env
- * @param info
- * @return napi_value Instance
- */
 napi_value UserAuthServiceConstructor(napi_env env, napi_callback_info info)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, start.", __func__);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
     UserAuthImpl *userAuthImpl = new (std::nothrow) UserAuthImpl();
     if (userAuthImpl == nullptr) {
         USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, get nullptr", __func__);
@@ -48,17 +41,9 @@ napi_value UserAuthServiceConstructor(napi_env env, napi_callback_info info)
             }
         },
         nullptr, nullptr));
-    // Pull up the face service process
     return thisVar;
 }
 
-/**
- * @brief Get the Version object
- *
- * @param env
- * @param info
- * @return napi_value Specific version number results
- */
 napi_value GetVersion(napi_env env, napi_callback_info info)
 {
     USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, GetVersion");
@@ -75,13 +60,6 @@ napi_value GetVersion(napi_env env, napi_callback_info info)
     return userAuthImpl->GetVersion(env, info);
 }
 
-/**
- * @brief Get the available Status object
- *
- * @param env
- * @param info
- * @return napi_value Verify that the certification capability is available
- */
 napi_value GetAvailableStatus(napi_env env, napi_callback_info info)
 {
     USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, getAvailableStatus");
@@ -98,13 +76,6 @@ napi_value GetAvailableStatus(napi_env env, napi_callback_info info)
     return userAuthImpl->GetAvailableStatus(env, info);
 }
 
-/**
- * @brief Get the Property object
- *
- * @param env
- * @param info
- * @return napi_value It supports querying subclasses / remaining authentication times / freezing time
- */
 napi_value GetProperty(napi_env env, napi_callback_info info)
 {
     USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, GetProperty");
@@ -121,13 +92,6 @@ napi_value GetProperty(napi_env env, napi_callback_info info)
     return userAuthImpl->GetProperty(env, info);
 }
 
-/**
- * @brief Set the Property object
- *
- * @param env
- * @param info
- * @return napi_value Set properties: can be used to initialize algorithms
- */
 napi_value SetProperty(napi_env env, napi_callback_info info)
 {
     USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, SetProperty");
@@ -144,14 +108,6 @@ napi_value SetProperty(napi_env env, napi_callback_info info)
     return userAuthImpl->SetProperty(env, info);
 }
 
-/**
- * @brief user authentication
- *
- * @param env
- * @param info
- * @return napi_value Enter the challenge value, authentication method, trust level and callback, and return the result
- * and acquireinfo through the callback
- */
 napi_value Auth(napi_env env, napi_callback_info info)
 {
     USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, Auth");
@@ -184,14 +140,6 @@ napi_value Execute(napi_env env, napi_callback_info info)
     return userAuthImpl->Execute(env, info);
 }
 
-/**
- * @brief user authentication
- *
- * @param env
- * @param info
- * @return napi_value Pass in the user ID, challenge value, authentication method, trust level and callback, and return
- * the result acquireinfo through the callback
- */
 napi_value AuthUser(napi_env env, napi_callback_info info)
 {
     USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, AuthUser");
@@ -208,13 +156,6 @@ napi_value AuthUser(napi_env env, napi_callback_info info)
     return userAuthImpl->AuthUser(env, info);
 }
 
-/**
- * @brief Cancel authentication
- *
- * @param env
- * @param info
- * @return napi_value success or fail
- */
 napi_value CancelAuth(napi_env env, napi_callback_info info)
 {
     USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, CancelAuth");
@@ -534,12 +475,6 @@ napi_value UserAuthTypeConstructor(napi_env env)
     return userAuthType;
 }
 
-/**
- * @brief Napi initialization
- *
- * @param env
- * @param exports
- */
 napi_value UserAuthInit(napi_env env, napi_value exports)
 {
     USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, start.", __func__);
@@ -599,7 +534,7 @@ napi_value ConstructorForAPI6(napi_env env, napi_callback_info info)
 
 napi_value GetCtor(napi_env env)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, start.", __func__);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
     napi_value cons = nullptr;
     napi_property_descriptor clzDes[] = {
         DECLARE_NAPI_FUNCTION("getVersion", UserAuth::GetVersion),

@@ -25,53 +25,55 @@ UserAuthDataMgr &UserAuthDataMgr::GetInstance()
     static UserAuthDataMgr instance;
     return instance;
 }
-int32_t UserAuthDataMgr::AddContextID(uint64_t contextID)
+
+int32_t UserAuthDataMgr::AddContextId(uint64_t contextId)
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth AddContextID is start");
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthDataMgr AddContextId start");
     std::lock_guard<std::mutex> lock(mutex_);
-    if (contextIDs_.count(contextID) == 1) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth AddContextID error, because contextID is exist");
+    if (contextIds_.count(contextId) == 1) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "contextId is exist");
         return GENERAL_ERROR;
     }
-    contextIDs_.insert(contextID);
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth AddContextID is end");
+    contextIds_.insert(contextId);
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthDataMgr AddContextId end");
     return SUCCESS;
 }
-int32_t UserAuthDataMgr::IsContextIDExist(uint64_t contextID)
+
+int32_t UserAuthDataMgr::IsContextIdExist(uint64_t contextId)
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth IsContextIDExist is start");
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthDataMgr IsContextIdExist start");
     std::lock_guard<std::mutex> lock(mutex_);
-    if (contextIDs_.count(contextID) == 1) {
+    if (contextIds_.count(contextId) == 1) {
         return SUCCESS;
     }
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth IsContextIDExist is end");
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthDataMgr IsContextIdExist end");
     return GENERAL_ERROR;
 }
 
-int32_t UserAuthDataMgr::GenerateContextID(uint64_t &contextID)
+int32_t UserAuthDataMgr::GenerateContextId(uint64_t &contextId)
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth GenerateContextID is start");
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthDataMgr GenerateContextId start");
 
     std::lock_guard<std::mutex> lock(mutex_);
     do {
-        if (RAND_bytes(reinterpret_cast<uint8_t *>(&contextID), (int)sizeof(contextID)) != OPENSSLSUCCESS) {
-            USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth GenerateContextID Error");
+        if (RAND_bytes(reinterpret_cast<uint8_t *>(&contextId), (int)sizeof(contextId)) != OPENSSLSUCCESS) {
+            USERAUTH_HILOGE(MODULE_SERVICE, "GenerateContextId failed");
             continue;
         }
-    } while ((contextIDs_.count(contextID) > 0) || (contextID == 0));
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth GenerateContextID is end");
+    } while ((contextIds_.count(contextId) > 0) || (contextId == 0));
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthDataMgr GenerateContextId end");
     return SUCCESS;
 }
 
-int32_t UserAuthDataMgr::DeleteContextID(uint64_t contextID)
+int32_t UserAuthDataMgr::DeleteContextId(uint64_t contextId)
 {
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuth DeleteContextID is start");
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthDataMgr DeleteContextId start");
     std::lock_guard<std::mutex> lock(mutex_);
-    if (contextIDs_.count(contextID) == 0) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "UserAuth ContextID invalid");
+    if (contextIds_.count(contextId) == 0) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "contextId invalid");
         return GENERAL_ERROR;
     }
-    contextIDs_.erase(contextID);
+    contextIds_.erase(contextId);
     return SUCCESS;
 }
 } // namespace UserAuth
