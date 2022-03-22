@@ -55,13 +55,13 @@ napi_value UserAuthImpl::GetAvailableStatus(napi_env env, napi_callback_info inf
         NAPI_CALL(env, napi_create_int32(env, result, &ret));
         return ret;
     }
-    int type = authBuild.NapiGetValueInt(env, argv[PARAM0]);
+    int32_t type = authBuild.NapiGetValueInt32(env, argv[PARAM0]);
     if (type == GET_VALUE_ERROR) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s argv[PARAM0] error", __func__);
         NAPI_CALL(env, napi_create_int32(env, result, &ret));
         return ret;
     }
-    int level = authBuild.NapiGetValueInt(env, argv[PARAM1]);
+    int32_t level = authBuild.NapiGetValueInt32(env, argv[PARAM1]);
     if (level == GET_VALUE_ERROR) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s argv[PARAM1] error", __func__);
         NAPI_CALL(env, napi_create_int32(env, result, &ret));
