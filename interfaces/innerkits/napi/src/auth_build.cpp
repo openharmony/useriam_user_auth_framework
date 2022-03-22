@@ -109,9 +109,9 @@ uint64_t AuthBuild::GetUint8ArrayTo64(napi_env env, napi_value value)
     return *re;
 }
 
-int AuthBuild::NapiGetValueInt(napi_env env, napi_value value)
+int32_t AuthBuild::NapiGetValueInt32(napi_env env, napi_value value)
 {
-    return convert_.NapiGetValueInt(env, value);
+    return convert_.NapiGetValueInt32(env, value);
 }
 
 napi_value AuthBuild::Uint64ToUint8Array(napi_env env, uint64_t value)

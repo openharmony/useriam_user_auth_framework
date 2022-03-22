@@ -40,7 +40,6 @@ public:
     int32_t GetInt32ValueByKey(napi_env env, napi_value jsObject, std::string key);
     int32_t NapiGetValueInt32(napi_env env, napi_value value);
     std::vector<uint32_t> GetInt32ArrayValueByKey(napi_env env, napi_value jsObject, std::string key);
-    int NapiGetValueInt(napi_env env, napi_value value);
 
 private:
     std::vector<uint32_t> GetCppArrayUint32(napi_env env, napi_value value);
