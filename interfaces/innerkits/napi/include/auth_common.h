@@ -27,7 +27,6 @@ namespace UserIAM {
 namespace UserAuth {
 constexpr size_t ARGS_MAX_COUNT = 10;
 constexpr size_t ARGS_ASYNC_COUNT = 1;
-constexpr size_t GET_VALUE_ERROR = -1;
 constexpr size_t NAPI_GET_STRING_SIZE = 128;
 
 constexpr size_t ARGS_ONE = 1;
@@ -52,6 +51,7 @@ constexpr size_t PARAM7 = 7;
 constexpr size_t PARAM8 = 8;
 constexpr size_t PARAM9 = 9;
 constexpr size_t PARAM10 = 10;
+constexpr int32_t GET_VALUE_ERROR = -1;
 
 struct CallBackInfo {
     napi_env env {nullptr};
