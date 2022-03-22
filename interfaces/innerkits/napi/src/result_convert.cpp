@@ -176,26 +176,12 @@ int32_t ResultConvert::NapiGetValueInt32(napi_env env, napi_value value)
     if (value == nullptr) {
         return GET_VALUE_ERROR;
     }
-    uint32_t result;
-    napi_status status = napi_get_value_uint32(env, value, &result);
-    if (status != napi_ok) {
-        return GET_VALUE_ERROR;
-    }
-    return result;
-}
-
-int ResultConvert::NapiGetValueInt(napi_env env, napi_value value)
-{
-    if (value == nullptr) {
-        return GET_VALUE_ERROR;
-    }
     int32_t result;
     napi_status status = napi_get_value_int32(env, value, &result);
     if (status != napi_ok) {
         return GET_VALUE_ERROR;
     }
-    int ret = result;
-    return ret;
+    return result;
 }
 
 napi_value ResultConvert::GetNapiValue(napi_env env, const std::string keyChar, napi_value object)
