@@ -36,7 +36,7 @@ public:
     bool NapiTypeNumber(napi_env env, napi_value value);
 
     uint64_t GetUint8ArrayTo64(napi_env env, napi_value value);
-    int NapiGetValueInt(napi_env env, napi_value value);
+    int32_t NapiGetValueInt32(napi_env env, napi_value value);
     napi_value Uint64ToUint8Array(napi_env env, uint64_t value);
 
 private:
