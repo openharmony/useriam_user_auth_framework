@@ -58,5 +58,7 @@ ohos_shared_library("userauthservice") {
     "samgr_standard:samgr_proxy",
   ]
 
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
   part_name = "${userauth_native_part_name}"
 }
