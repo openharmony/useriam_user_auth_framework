@@ -156,7 +156,7 @@ void UserAuthAdapter::CoAuthSetPropAuthInfo(CallerInfo callerInfo, int32_t resul
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "CoAuthSetPropAuthInfo start");
     using namespace UserIDM;
-    std::shared_ptr<GetInfoCallback> setPropCallback = std::make_shared<UserAuthCallbackImpldmCothGetPropFreeze>(
+    std::shared_ptr<GetInfoCallback> setPropCallback = std::make_shared<UserAuthCallbackImplIdmCothGetPropFreeze>(
         callerInfo.callerUID, callerInfo.pkgName, resultCode, authToken, request);
     int32_t ret = UserIDMClient::GetInstance().GetAuthInfo(callerInfo.userID,
         static_cast<UserIDM::AuthType>(request.authType), setPropCallback);
