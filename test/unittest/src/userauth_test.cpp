@@ -100,8 +100,8 @@ void TestSetPropCallback::onSetProperty(const int32_t result)
 HWTEST_F(UseriamUtTest, UseriamUtTest_001, TestSize.Level1)
 {
     AuthType authType = FACE;
-    AuthTurstLevel authTurstLevel = ATL1;
-    EXPECT_NE(0, UserAuth::GetInstance().GetAvailableStatus(authType, authTurstLevel));
+    AuthTrustLevel authTrustLevel = ATL1;
+    EXPECT_NE(0, UserAuth::GetInstance().GetAvailableStatus(authType, authTrustLevel));
 }
 
 HWTEST_F(UseriamUtTest, UseriamUtTest_002, TestSize.Level1)
@@ -129,9 +129,9 @@ HWTEST_F(UseriamUtTest, UseriamUtTest_004, TestSize.Level1)
 {
     uint64_t challenge = 001;
     AuthType authType = FACE;
-    AuthTurstLevel authTurstLevel = ATL1;
+    AuthTrustLevel authTrustLevel = ATL1;
     std::shared_ptr<UserAuthCallback> callback = std::make_shared<TestUserAuthCallback>();
-    EXPECT_EQ(0, UserAuth::GetInstance().Auth(challenge, authType, authTurstLevel, callback));
+    EXPECT_EQ(0, UserAuth::GetInstance().Auth(challenge, authType, authTrustLevel, callback));
 }
 
 HWTEST_F(UseriamUtTest, UseriamUtTest_005, TestSize.Level1)
@@ -139,9 +139,9 @@ HWTEST_F(UseriamUtTest, UseriamUtTest_005, TestSize.Level1)
     int32_t userId = 0;
     uint64_t challenge = 001;
     AuthType authType = FACE;
-    AuthTurstLevel authTurstLevel = ATL1;
+    AuthTrustLevel authTrustLevel = ATL1;
     std::shared_ptr<UserAuthCallback> callback = std::make_shared<TestUserAuthCallback>();
-    EXPECT_EQ(0, UserAuth::GetInstance().AuthUser(userId, challenge, authType, authTurstLevel, callback));
+    EXPECT_EQ(0, UserAuth::GetInstance().AuthUser(userId, challenge, authType, authTrustLevel, callback));
 }
 
 HWTEST_F(UseriamUtTest, UseriamUtTest_006, TestSize.Level1)

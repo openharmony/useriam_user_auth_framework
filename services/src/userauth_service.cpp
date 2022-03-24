@@ -22,7 +22,7 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-const static int AUTHTURSTLEVEL_SYS = 1;
+const static int AUTH_TRUST_LEVEL_SYS = 1;
 
 static const std::string ACCESS_USER_AUTH_INTERNAL_PERMISSION = "ohos.permission.ACCESS_USER_AUTH_INTERNAL";
 static const std::string ACCESS_BIOMETRIC_PERMISSION = "ohos.permission.ACCESS_BIOMETRIC";
@@ -54,12 +54,13 @@ void UserAuthService::OnStop()
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "Stop service");
     ContextThreadPool::GetInstance().Stop();
-    bool ret = OHOS::UserIAM::Common::IsIAMInited();
-    if (ret) {
-        int32_t iret = OHOS::UserIAM::Common::Close();
-        if (iret != SUCCESS) {
-            USERAUTH_HILOGE(MODULE_SERVICE, "Failed to Stop service");
-        }
+    bool init = OHOS::UserIAM::Common::IsIAMInited();
+    if (!init) {
+        return;
+    }
+    int32_t ret = OHOS::UserIAM::Common::Close();
+    if (ret != SUCCESS) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "Failed to Stop service");
     }
 }
 
@@ -73,7 +74,7 @@ bool UserAuthService::CheckPermission(const std::string &permission)
     return AccessTokenKit::VerifyAccessToken(tokenId, permission) == RET_SUCCESS;
 }
 
-int32_t UserAuthService::GetAvailableStatus(const AuthType authType, const AuthTurstLevel authTurstLevel)
+int32_t UserAuthService::GetAvailableStatus(const AuthType authType, const AuthTrustLevel authTrustLevel)
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService GetAvailableStatus start");
     if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
@@ -82,9 +83,9 @@ int32_t UserAuthService::GetAvailableStatus(const AuthType authType, const AuthT
         return E_CHECK_PERMISSION_FAILED;
     }
     int32_t userId = 0;
-    uint32_t authTurstLevelFromSys = AUTHTURSTLEVEL_SYS;
-    if (authTurstLevel > ATL4 || authTurstLevel < ATL1) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "authTurstLevel not right");
+    uint32_t authTrustLevelFromSys = AUTH_TRUST_LEVEL_SYS;
+    if (authTrustLevel > ATL4 || authTrustLevel < ATL1) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "authTrustLevel not right");
         return TRUST_LEVEL_NOT_SUPPORT;
     }
 
@@ -94,13 +95,12 @@ int32_t UserAuthService::GetAvailableStatus(const AuthType authType, const AuthT
         return ret;
     }
 
-    ret = userAuthController_.GetAuthTrustLevel(userId, authType, authTurstLevelFromSys);
+    ret = userAuthController_.GetAuthTrustLevel(userId, authType, authTrustLevelFromSys);
     if (ret == SUCCESS) {
-        USERAUTH_HILOGD(MODULE_SERVICE,
-            "authTurstLevelFromSys:%{public}u, authTurstLevel:%{public}u",
-            authTurstLevelFromSys, authTurstLevel);
-        if (authTurstLevelFromSys < authTurstLevel) {
-            USERAUTH_HILOGE(MODULE_SERVICE, "authTurstLevel not support");
+        USERAUTH_HILOGD(MODULE_SERVICE, "authTrustLevelFromSys:%{public}u, authTrustLevel:%{public}u",
+            authTrustLevelFromSys, authTrustLevel);
+        if (authTrustLevelFromSys < authTrustLevel) {
+            USERAUTH_HILOGE(MODULE_SERVICE, "authTrustLevel not support");
             return TRUST_LEVEL_NOT_SUPPORT;
         }
     }
@@ -207,7 +207,7 @@ static AuthSolution GetSolutionParam(uint64_t contextId, int32_t userId, uint64_
     return authSolutionParam;
 }
 
-uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType, const AuthTurstLevel authTurstLevel,
+uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType, const AuthTrustLevel authTrustLevel,
     sptr<IUserAuthCallback> &callback)
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService Auth start");
@@ -224,7 +224,7 @@ uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType
         USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
     }
 
-    if (GetControllerData(callback, extraInfo, authTurstLevel, callerId, callerName, contextId) == FAIL) {
+    if (GetControllerData(callback, extraInfo, authTrustLevel, callerId, callerName, contextId) == FAIL) {
         return invalidContextId;
     }
     if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
@@ -239,7 +239,7 @@ uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType
         return invalidContextId;
     }
 
-    AuthSolution authSolutionParam = GetSolutionParam(contextId, userId, challenge, authType, authTurstLevel);
+    AuthSolution authSolutionParam = GetSolutionParam(contextId, userId, challenge, authType, authTrustLevel);
     result = userAuthController_.GenerateSolution(authSolutionParam, coAuthInfo.sessionIds);
     if (result != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "GenerateSolution failed");
@@ -262,7 +262,7 @@ uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType
 }
 
 uint64_t UserAuthService::AuthUser(const int32_t userId, const uint64_t challenge, const AuthType authType,
-    const AuthTurstLevel authTurstLevel, sptr<IUserAuthCallback> &callback)
+    const AuthTrustLevel authTrustLevel, sptr<IUserAuthCallback> &callback)
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService AuthUser start");
     const uint64_t invalidContextId = 0;
@@ -283,13 +283,13 @@ uint64_t UserAuthService::AuthUser(const int32_t userId, const uint64_t challeng
         callback->onResult(E_CHECK_PERMISSION_FAILED, extraInfo);
         return invalidContextId;
     }
-    if (GetControllerData(callback, extraInfo, authTurstLevel, callerId, callerName, contextId) == FAIL) {
+    if (GetControllerData(callback, extraInfo, authTrustLevel, callerId, callerName, contextId) == FAIL) {
         return invalidContextId;
     }
 
     authSolutionParam.contextId = contextId;
     authSolutionParam.userId = userId;
-    authSolutionParam.authTrustLevel = authTurstLevel;
+    authSolutionParam.authTrustLevel = authTrustLevel;
     authSolutionParam.challenge = challenge;
     authSolutionParam.authType = authType;
     int32_t result = userAuthController_.GenerateSolution(authSolutionParam, coAuthInfo.sessionIds);
@@ -316,14 +316,14 @@ uint64_t UserAuthService::AuthUser(const int32_t userId, const uint64_t challeng
 }
 
 int32_t UserAuthService::GetControllerData(sptr<IUserAuthCallback> &callback, AuthResult &extraInfo,
-    const AuthTurstLevel authTurstLevel, uint64_t &callerId, std::string &callerName, uint64_t &contextId)
+    const AuthTrustLevel authTrustLevel, uint64_t &callerId, std::string &callerName, uint64_t &contextId)
 {
     if (callback == nullptr) {
         USERAUTH_HILOGE(MODULE_SERVICE, "callback is nullptr");
         return FAIL;
     }
-    if (ATL4 < authTurstLevel || authTurstLevel < ATL1) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "authTurstLevel is not right");
+    if (ATL4 < authTrustLevel || authTrustLevel < ATL1) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "authTrustLevel is not right");
         callback->onResult(TRUST_LEVEL_NOT_SUPPORT, extraInfo);
         return FAIL;
     }
@@ -347,7 +347,7 @@ int32_t UserAuthService::GetControllerData(sptr<IUserAuthCallback> &callback, Au
 int32_t UserAuthService::CancelAuth(const uint64_t contextId)
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService CancelAuth start");
-    int result = INVALID_CONTEXTID;
+    int result = INVALID_CONTEXT_ID;
     std::vector<uint64_t> sessionIds;
     if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION) && !CheckPermission(ACCESS_BIOMETRIC_PERMISSION)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Permission check failed");

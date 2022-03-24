@@ -47,13 +47,13 @@ int32_t UserAuthAsyncStub::OnRemoteRequest(uint32_t code, MessageParcel &data, M
     }
 
     switch (code) {
-        case static_cast<int32_t>(IUserAuth::USER_AUTH_ACQUIRENFO):
+        case static_cast<int32_t>(IUserAuth::USER_AUTH_ACQUIRE_INFO):
             return onAcquireInfoStub(data, reply);
-        case static_cast<int32_t>(IUserAuth::USER_AUTH_ONRESULT):
+        case static_cast<int32_t>(IUserAuth::USER_AUTH_ON_RESULT):
             return onResultStub(data, reply);
-        case static_cast<int32_t>(IUserAuth::USER_AUTH_GETEXPORP):
+        case static_cast<int32_t>(IUserAuth::USER_AUTH_GET_EX_PROP):
             return onExecutorPropertyInfoStub(data, reply);
-        case static_cast<int32_t>(IUserAuth::USER_AUTH_SETEXPORP):
+        case static_cast<int32_t>(IUserAuth::USER_AUTH_SET_EX_PROP):
             return onSetExecutorPropertyStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);

@@ -40,12 +40,7 @@ enum AuthSubType : uint64_t {
     FACE_3D = 20001
 };
 
-enum AuthTurstLevel : uint32_t {
-    ATL1 = 10000,
-    ATL2 = 20000,
-    ATL3 = 30000,
-    ATL4 = 40000
-};
+enum AuthTrustLevel : uint32_t { ATL1 = 10000, ATL2 = 20000, ATL3 = 30000, ATL4 = 40000 };
 
 enum GetPropertyType : uint32_t {
     AUTH_SUB_TYPE = 1,
@@ -102,7 +97,7 @@ struct CoAuthInfo {
     std::vector<uint64_t> sessionIds;
 };
 
-struct FreezInfo {
+struct FreezeInfo {
     uint64_t callerID;
     std::string pkgName;
     int32_t resultCode;
@@ -128,7 +123,7 @@ enum ResultCode : int32_t {
     LOCKED = 9,
     NOT_ENROLLED = 10,
     IPC_ERROR = 11,
-    INVALID_CONTEXTID = 12,
+    INVALID_CONTEXT_ID = 12,
     E_WRITE_PARCEL_ERROR = 13,
     E_READ_PARCEL_ERROR = 14,
     E_GET_POWER_SERVICE_FAILED = 15,
@@ -166,7 +161,7 @@ const std::map<int32_t, AuthenticationResult> result2ExecuteResult = {
     {ResultCode::LOCKED, AuthenticationResult::LOCKED},
     {ResultCode::NOT_ENROLLED, AuthenticationResult::NOT_ENROLLED},
     {ResultCode::IPC_ERROR, AuthenticationResult::GENERAL_ERROR},
-    {ResultCode::INVALID_CONTEXTID, AuthenticationResult::GENERAL_ERROR},
+    {ResultCode::INVALID_CONTEXT_ID, AuthenticationResult::GENERAL_ERROR},
     {ResultCode::E_WRITE_PARCEL_ERROR, AuthenticationResult::GENERAL_ERROR},
     {ResultCode::E_READ_PARCEL_ERROR, AuthenticationResult::GENERAL_ERROR},
     {ResultCode::E_GET_POWER_SERVICE_FAILED, AuthenticationResult::GENERAL_ERROR},

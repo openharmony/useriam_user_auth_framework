@@ -68,8 +68,8 @@ napi_value UserAuthImpl::GetAvailableStatus(napi_env env, napi_callback_info inf
         return ret;
     }
     AuthType authType = AuthType(type);
-    AuthTurstLevel authTurstLevel = AuthTurstLevel(level);
-    result = UserAuth::GetInstance().GetAvailableStatus(authType, authTurstLevel);
+    AuthTrustLevel authTrustLevel = AuthTrustLevel(level);
+    result = UserAuth::GetInstance().GetAvailableStatus(authType, authTrustLevel);
     USERAUTH_HILOGI(MODULE_JS_NAPI, "GetAvailabeStatus result = %{public}d", result);
     NAPI_CALL(env, napi_create_int32(env, result, &ret));
     return ret;
@@ -496,11 +496,11 @@ ResultCode UserAuthImpl::ParseExecuteParametersOne(napi_env env, size_t argc, na
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s argv[PARAM1] is not string", __func__);
         return ResultCode::INVALID_PARAMETERS;
     }
-    std::map<std::string, AuthTurstLevel> convertAuthTurstLevel = {
-        { "S1", ATL1 },
-        { "S2", ATL2 },
-        { "S3", ATL3 },
-        { "S4", ATL4 },
+    std::map<std::string, AuthTrustLevel> convertAuthTrustLevel = {
+        {"S1", ATL1},
+        {"S2", ATL2},
+        {"S3", ATL3},
+        {"S4", ATL4},
     };
     size_t len = 0;
     napi_get_value_string_utf8(env, argv[PARAM1], nullptr, 0, &len);
@@ -515,12 +515,12 @@ ResultCode UserAuthImpl::ParseExecuteParametersOne(napi_env env, size_t argc, na
         return ResultCode::INVALID_PARAMETERS;
     }
     napi_get_value_string_utf8(env, argv[PARAM1], str, len + 1, &len);
-    if (convertAuthTurstLevel.count(str) == 0) {
+    if (convertAuthTrustLevel.count(str) == 0) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s trust level invalid", __func__);
         delete[] str;
         return ResultCode::INVALID_PARAMETERS;
     }
-    executeInfo.trustLevel = convertAuthTurstLevel[str];
+    executeInfo.trustLevel = convertAuthTrustLevel[str];
     delete[] str;
 
     return ResultCode::SUCCESS;
@@ -576,8 +576,8 @@ napi_value UserAuthImpl::AuthWrap(napi_env env, AuthInfo *authInfo)
     }
     std::shared_ptr<AuthApiCallback> callback;
     callback.reset(object);
-    uint64_t result = UserAuth::GetInstance().Auth(
-        authInfo->challenge, AuthType(authInfo->authType), AuthTurstLevel(authInfo->authTrustLevel), callback);
+    uint64_t result = UserAuth::GetInstance().Auth(authInfo->challenge, AuthType(authInfo->authType),
+        AuthTrustLevel(authInfo->authTrustLevel), callback);
     USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuth::GetInstance().Auth result = %{public}04" PRIx64 "", result);
     napi_value key = authBuild.Uint64ToUint8Array(env, result);
     USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s end", __func__);
@@ -650,7 +650,7 @@ napi_value UserAuthImpl::AuthUserWrap(napi_env env, AuthUserInfo *userInfo)
     std::shared_ptr<AuthApiCallback> callback;
     callback.reset(object);
     uint64_t result = UserAuth::GetInstance().AuthUser(userInfo->userId, userInfo->challenge,
-        AuthType(userInfo->authType), AuthTurstLevel(userInfo->authTrustLevel), callback);
+        AuthType(userInfo->authType), AuthTrustLevel(userInfo->authTrustLevel), callback);
     USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuth::GetInstance().AuthUser result = %{public}04" PRIx64 "", result);
     napi_value key = authBuild.Uint64ToUint8Array(env, result);
     USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, end.", __func__);
