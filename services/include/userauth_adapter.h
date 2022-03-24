@@ -16,8 +16,10 @@
 #ifndef USERAUTH_ADAPTER_H
 #define USERAUTH_ADAPTER_H
 
-#include <mutex>
 #include "auth_attributes.h"
+
+#include <mutex>
+
 #include "co_auth.h"
 #include "context_thread_pool.h"
 #include "iuserauth_callback.h"
@@ -32,22 +34,22 @@ class UserAuthAdapter {
 public:
     static UserAuthAdapter &GetInstance();
     int32_t GetAuthTrustLevel(int32_t userId, uint32_t authType, uint32_t &authTrustLevel);
-    void GetPropAuthInfo(int32_t userId, uint64_t callerUid, std::string pkgName, GetPropertyRequest requset,
+    void GetPropAuthInfo(int32_t userId, uint64_t callerUid, std::string pkgName, GetPropertyRequest request,
         sptr<IUserAuthCallback> &callback);
-    void CoauthSetPropAuthInfo(CallerInfo callerInfo, int32_t resultCode,
-        UserAuthToken authToken, SetPropertyRequest requset);
-    void SetPropAuthInfo(CallerInfo callerInfo, int32_t resultCode, UserAuthToken authToken,
-        SetPropertyRequest requset, std::vector<uint64_t> templateIds);
-    void GetPropAuthInfoCoauth(CallerInfo callerInfo, int32_t resultCode,
-        UserAuthToken authToken, GetPropertyRequest requset, sptr<IUserAuthCallback> &callback);
+    void CoAuthSetPropAuthInfo(CallerInfo callerInfo, int32_t resultCode, UserAuthToken authToken,
+        SetPropertyRequest request);
+    void SetPropAuthInfo(CallerInfo callerInfo, int32_t resultCode, UserAuthToken authToken, SetPropertyRequest request,
+        std::vector<uint64_t> templateIds);
+    void GetPropAuthInfoCoAuth(CallerInfo callerInfo, int32_t resultCode, UserAuthToken authToken,
+        GetPropertyRequest request, sptr<IUserAuthCallback> &callback);
     int32_t GenerateSolution(AuthSolution param, std::vector<uint64_t> &sessionIds);
     int32_t RequestAuthResult(uint64_t contextId, std::vector<uint8_t> scheduleToken, UserAuthToken &authToken,
         std::vector<uint64_t> &sessionIds);
     int32_t CancelContext(uint64_t contextId, std::vector<uint64_t> &sessionIds);
     int32_t Cancel(uint64_t sessionId);
-    int32_t GetExecutorProp(uint64_t callerUid, std::string pkgName, uint64_t templateId, GetPropertyRequest requset,
+    int32_t GetExecutorProp(uint64_t callerUid, std::string pkgName, uint64_t templateId, GetPropertyRequest request,
         ExecutorProperty &result);
-    int32_t SetExecutorProp(uint64_t callerUid, std::string pkgName, SetPropertyRequest requset,
+    int32_t SetExecutorProp(uint64_t callerUid, std::string pkgName, SetPropertyRequest request,
         sptr<IUserAuthCallback> &callback);
     int32_t GetVersion();
     int32_t CoAuth(CoAuthInfo coAuthInfo, sptr<IUserAuthCallback> &callback);
@@ -55,10 +57,10 @@ public:
 private:
     UserAuthAdapter() = default;
     ~UserAuthAdapter() = default;
-    int32_t GetEachExecutorProp(GetPropertyRequest &requset, ExecutorProperty &result, uint32_t &value,
+    int32_t GetEachExecutorProp(GetPropertyRequest &request, ExecutorProperty &result, uint32_t &value,
         std::shared_ptr<OHOS::UserIAM::AuthResPool::AuthAttributes> pAuthAttributes);
     int32_t SetProPropAuthInfo(OHOS::UserIAM::AuthResPool::AuthAttributes &authAttributes, CallerInfo callerInfo,
-        SetPropertyRequest requset, std::vector<uint64_t> templateIds,
+        SetPropertyRequest request, std::vector<uint64_t> templateIds,
         std::shared_ptr<CoAuth::SetPropCallback> &setPropCallback);
 };
 } // namespace UserAuth

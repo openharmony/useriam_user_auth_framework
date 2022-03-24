@@ -84,7 +84,7 @@ struct ExecuteInfo {
     bool isPromise;
     napi_env env;
     std::string type;
-    AuthTurstLevel trustLevel;
+    AuthTrustLevel trustLevel;
     napi_ref callbackRef;
     napi_deferred deferred;
     napi_value promise;

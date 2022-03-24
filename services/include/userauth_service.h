@@ -36,13 +36,13 @@ public:
     ~UserAuthService() override;
     void OnStart() override;
     void OnStop() override;
-    int32_t GetAvailableStatus(const AuthType authType, const AuthTurstLevel authTurstLevel) override;
+    int32_t GetAvailableStatus(const AuthType authType, const AuthTrustLevel authTrustLevel) override;
     void GetProperty(const GetPropertyRequest request, sptr<IUserAuthCallback> &callback) override;
     void SetProperty(const SetPropertyRequest request, sptr<IUserAuthCallback> &callback) override;
-    uint64_t Auth(const uint64_t challenge, const AuthType authType, const AuthTurstLevel authTurstLevel,
+    uint64_t Auth(const uint64_t challenge, const AuthType authType, const AuthTrustLevel authTrustLevel,
         sptr<IUserAuthCallback> &callback) override;
     uint64_t AuthUser(const int32_t userId, const uint64_t challenge, const AuthType authType,
-        const AuthTurstLevel authTurstLevel, sptr<IUserAuthCallback> &callback) override;
+        const AuthTrustLevel authTrustLevel, sptr<IUserAuthCallback> &callback) override;
     int32_t CancelAuth(const uint64_t contextId) override;
     int32_t GetVersion() override;
 
@@ -50,7 +50,7 @@ private:
     int32_t GetCallingUserId(int32_t &userId);
     bool CheckPermission(const std::string &permission);
     int32_t GetControllerData(sptr<IUserAuthCallback> &callback, AuthResult &extraInfo,
-        const AuthTurstLevel authTurstLevel, uint64_t &callerId, std::string &callerName, uint64_t &contextId);
+        const AuthTrustLevel authTrustLevel, uint64_t &callerId, std::string &callerName, uint64_t &contextId);
     class UserAuthServiceCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
         explicit UserAuthServiceCallbackDeathRecipient(sptr<IUserAuthCallback> &impl);

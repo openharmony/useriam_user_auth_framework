@@ -39,8 +39,9 @@ public:
     void OnAcquireInfo(uint32_t acquire) override;
     void OnFinishHandle(uint32_t resultCode, std::vector<uint8_t> scheduleToken);
     void OnAcquireInfoHandle(uint32_t acquire);
-    static int32_t SaveCoauthCallback(uint64_t contextId, std::shared_ptr<CoAuth::CoAuthCallback> coauthCallback);
-    static int32_t DeleteCoauthCallback(uint64_t contextId);
+    static int32_t SaveCoAuthCallback(uint64_t contextId, std::shared_ptr<CoAuth::CoAuthCallback> coauthCallback);
+    static int32_t DeleteCoAuthCallback(uint64_t contextId);
+
 private:
     void OnFinishHandleExtend(int32_t userId, SetPropertyRequest setPropertyRequest, AuthResult authResult,
         int32_t ret, UserAuthToken authToken);
@@ -56,8 +57,8 @@ private:
     sptr<IUserAuthCallback> callback_ { nullptr };
     AuthType authType_;
     std::mutex mutex_;
-    static std::mutex coauthCallbackmutex_;
-    static std::map<uint64_t, std::shared_ptr<CoAuth::CoAuthCallback>> saveCoauthCallback_;
+    static std::mutex coAuthCallbackMutex_;
+    static std::map<uint64_t, std::shared_ptr<CoAuth::CoAuthCallback>> saveCoAuthCallback_;
 };
 
 class UserAuthCallbackImplSetProp : public CoAuth::SetPropCallback {
@@ -71,11 +72,11 @@ private:
     sptr<IUserAuthCallback> callback_ { nullptr };
 };
 
-class UserAuthCallbackImplSetPropFreez : public CoAuth::SetPropCallback {
+class UserAuthCallbackImplSetPropFreeze : public CoAuth::SetPropCallback {
 public:
-    explicit UserAuthCallbackImplSetPropFreez(std::vector<uint64_t> templateIds,
-        UserAuthToken authToken, FreezInfo freezInfo);
-    virtual ~UserAuthCallbackImplSetPropFreez() = default;
+    explicit UserAuthCallbackImplSetPropFreeze(std::vector<uint64_t> templateIds, UserAuthToken authToken,
+        FreezeInfo freezeInfo);
+    virtual ~UserAuthCallbackImplSetPropFreeze() = default;
 
     void OnResult(uint32_t result, std::vector<uint8_t> &extraInfo)  override;
 
@@ -88,11 +89,11 @@ private:
     uint64_t callerUid_;
 };
 
-class UserAuthCallbackImplIDMGetPorp : public UserIDM::GetInfoCallback {
+class UserAuthCallbackImplIdmGetProp : public UserIDM::GetInfoCallback {
 public:
-    explicit UserAuthCallbackImplIDMGetPorp(const sptr<IUserAuthCallback>& impl,
-        GetPropertyRequest request, uint64_t callerUid, std::string pkgName);
-    virtual ~UserAuthCallbackImplIDMGetPorp() = default;
+    explicit UserAuthCallbackImplIdmGetProp(const sptr<IUserAuthCallback> &impl, GetPropertyRequest request,
+        uint64_t callerUid, std::string pkgName);
+    virtual ~UserAuthCallbackImplIdmGetProp() = default;
 
     void OnGetInfo(std::vector<UserIDM::CredentialInfo>& info) override;
 
@@ -103,29 +104,27 @@ private:
     uint64_t callerUid_;
 };
 
-class UserAuthCallbackImplIDMCothGetPorpFreez : public UserIDM::GetInfoCallback {
+class UserAuthCallbackImpldmCothGetPropFreeze : public UserIDM::GetInfoCallback {
 public:
-    explicit UserAuthCallbackImplIDMCothGetPorpFreez(
-        uint64_t callerUid, std::string pkgName, int32_t resultCode,
-        UserAuthToken authToken, SetPropertyRequest requset);
-    virtual ~UserAuthCallbackImplIDMCothGetPorpFreez() = default;
+    explicit UserAuthCallbackImpldmCothGetPropFreeze(uint64_t callerUid, std::string pkgName, int32_t resultCode,
+        UserAuthToken authToken, SetPropertyRequest request);
+    virtual ~UserAuthCallbackImpldmCothGetPropFreeze() = default;
 
     void OnGetInfo(std::vector<UserIDM::CredentialInfo>& info) override;
 
 private:
     UserAuthToken authToken_;
     int32_t resultCode_;
-    SetPropertyRequest requset_;
+    SetPropertyRequest request_;
     std::string pkgName_;
     uint64_t callerUid_;
 };
 
-class UserAuthCallbackImplIDMGetPorpCoauth : public UserIDM::GetInfoCallback {
+class UserAuthCallbackImplIdmGetPropCoAuth : public UserIDM::GetInfoCallback {
 public:
-    explicit UserAuthCallbackImplIDMGetPorpCoauth(const sptr<IUserAuthCallback>& impl,
-        uint64_t callerUid, std::string pkgName, int32_t resultCode, UserAuthToken authToken,
-        GetPropertyRequest requset);
-    virtual ~UserAuthCallbackImplIDMGetPorpCoauth() = default;
+    explicit UserAuthCallbackImplIdmGetPropCoAuth(const sptr<IUserAuthCallback> &impl, uint64_t callerUid,
+        std::string pkgName, int32_t resultCode, UserAuthToken authToken, GetPropertyRequest request);
+    virtual ~UserAuthCallbackImplIdmGetPropCoAuth() = default;
 
     void OnGetInfo(std::vector<UserIDM::CredentialInfo>& info) override;
 
@@ -133,7 +132,7 @@ private:
     sptr<IUserAuthCallback> callback_ { nullptr };
     UserAuthToken authToken_;
     int32_t resultCode_;
-    GetPropertyRequest requset_;
+    GetPropertyRequest request_;
     std::string pkgName_;
     uint64_t callerUid_;
 };
