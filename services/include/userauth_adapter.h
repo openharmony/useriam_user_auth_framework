@@ -16,10 +16,9 @@
 #ifndef USERAUTH_ADAPTER_H
 #define USERAUTH_ADAPTER_H
 
-#include "auth_attributes.h"
-
 #include <mutex>
 
+#include "auth_attributes.h"
 #include "co_auth.h"
 #include "context_thread_pool.h"
 #include "iuserauth_callback.h"
