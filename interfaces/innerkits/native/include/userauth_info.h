@@ -73,6 +73,7 @@ enum AuthPropertyMode : uint32_t {
     PROPERMODE_UNFREEZE = 4,
     PROPERMODE_INIT_ALGORITHM = 5,
     PROPERMODE_RELEASE_ALGORITHM = 6,
+    PROPERMODE_SET_SURFACE_ID = 100,
 };
 
 enum SetPropertyType : uint32_t {

@@ -14,9 +14,16 @@
  */
 
 #include "user_auth.h"
+#include <cinttypes>
 #include <if_system_ability_manager.h>
 #include <iservice_registry.h>
+#include <sstream>
 #include <system_ability_definition.h>
+#ifdef SUPPORT_SURFACE
+#include "face_auth_innerkit.h"
+#include "surface.h"
+#include "surface_utils.h"
+#endif
 #include "system_ability_definition.h"
 #include "userauth_hilog_wrapper.h"
 
@@ -114,6 +121,45 @@ void UserAuth::GetProperty(const GetPropertyRequest &request, std::shared_ptr<Ge
     proxy_->GetProperty(request, asyncStub);
 }
 
+#ifdef SUPPORT_SURFACE
+int32_t UserAuth::SetSurfaceId(const SetPropertyRequest &request)
+{
+    std::string surfaceIdString(request.setInfo.begin(), request.setInfo.end());
+    std::istringstream surfaceIdStream(surfaceIdString);
+    uint64_t surfaceId = 0;
+    surfaceIdStream >> surfaceId;
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "SetSurfaceId string %{public}s converted int %{public}" PRIu64,
+        surfaceIdString.c_str(), surfaceId);
+    if (surfaceId == 0) {
+        int32_t ret = FaceAuth::FaceAuthInnerKit::SetBufferProducer(nullptr);
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "SetBufferProducer null result %{public}d", ret);
+        return ret;
+    }
+
+    sptr<Surface> previewSurface = SurfaceUtils::GetInstance()->GetSurface(surfaceId);
+    if (previewSurface == nullptr) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "GetXComponentSurfaceById Failed!");
+        return GENERAL_ERROR;
+    }
+
+    sptr<IBufferProducer> bufferProducer = previewSurface->GetProducer();
+    if (bufferProducer == nullptr) {
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "GetProducer Failed!");
+        return GENERAL_ERROR;
+    }
+
+    int32_t ret = FaceAuth::FaceAuthInnerKit::SetBufferProducer(bufferProducer);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "SetBufferProducer result %{public}d", ret);
+    return ret;
+}
+#else
+int32_t UserAuth::SetSurfaceId(const SetPropertyRequest &request)
+{
+    USERAUTH_HILOGE(MODULE_JS_NAPI, "surface is not supported!");
+    return GENERAL_ERROR;
+}
+#endif
+
 void UserAuth::SetProperty(const SetPropertyRequest &request, std::shared_ptr<SetPropCallback> callback)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "SetProperty start");
@@ -131,7 +177,13 @@ void UserAuth::SetProperty(const SetPropertyRequest &request, std::shared_ptr<Se
         USERAUTH_HILOGE(MODULE_INNERKIT, "SetProperty asyncStub is nullptr");
         return;
     }
-    proxy_->SetProperty(request, asyncStub);
+    if (request.key == static_cast<uint32_t>(AuthPropertyMode::PROPERMODE_SET_SURFACE_ID)
+        && request.authType == FACE) {
+        asyncStub->onSetExecutorProperty(SetSurfaceId(request));
+    } else {
+        proxy_->SetProperty(request, asyncStub);
+    }
+    USERAUTH_HILOGD(MODULE_INNERKIT, "SetProperty end");
 }
 
 uint64_t UserAuth::Auth(const uint64_t challenge, const AuthType authType, const AuthTrustLevel authTrustLevel,
