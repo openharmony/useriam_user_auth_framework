@@ -495,7 +495,7 @@ ResultCode UserAuthImpl::ParseExecuteParametersOne(napi_env env, size_t argc, na
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s argv[PARAM1] is not string", __func__);
         return ResultCode::INVALID_PARAMETERS;
     }
-    std::map<std::string, AuthTrustLevel> convertAuthTurstLevel = {
+    std::map<std::string, AuthTrustLevel> convertAuthTrustLevel = {
         {"S1", ATL1},
         {"S2", ATL2},
         {"S3", ATL3},
@@ -514,12 +514,12 @@ ResultCode UserAuthImpl::ParseExecuteParametersOne(napi_env env, size_t argc, na
         return ResultCode::INVALID_PARAMETERS;
     }
     napi_get_value_string_utf8(env, argv[PARAM1], str, len + 1, &len);
-    if (convertAuthTurstLevel.count(str) == 0) {
+    if (convertAuthTrustLevel.count(str) == 0) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s trust level invalid", __func__);
         delete[] str;
         return ResultCode::INVALID_PARAMETERS;
     }
-    executeInfo.trustLevel = convertAuthTurstLevel[str];
+    executeInfo.trustLevel = convertAuthTrustLevel[str];
     delete[] str;
 
     return ResultCode::SUCCESS;
