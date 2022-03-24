@@ -35,9 +35,9 @@ typedef struct AcquireInfoInner {
 
 class AuthApiCallback : public UserAuthCallback {
 public:
-    AuthApiCallback(AuthInfo *authInfo);
-    AuthApiCallback(AuthUserInfo *userInfo);
-    AuthApiCallback(ExecuteInfo *executeInfo);
+    explicit AuthApiCallback(AuthInfo *authInfo);
+    explicit AuthApiCallback(AuthUserInfo *userInfo);
+    explicit AuthApiCallback(ExecuteInfo *executeInfo);
     virtual ~AuthApiCallback();
     void onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo) override;
     void onResult(const int32_t result, const AuthResult extraInfo) override;
@@ -59,7 +59,7 @@ private:
 
 class GetPropApiCallback : public GetPropCallback {
 public:
-    GetPropApiCallback(GetPropertyInfo *getPropertyInfo);
+    explicit GetPropApiCallback(GetPropertyInfo *getPropertyInfo);
     virtual ~GetPropApiCallback();
     void onGetProperty(const ExecutorProperty result) override;
 
@@ -72,7 +72,7 @@ private:
 
 class SetPropApiCallback : public SetPropCallback {
 public:
-    SetPropApiCallback(SetPropertyInfo *setPropertyInfo);
+    explicit SetPropApiCallback(SetPropertyInfo *setPropertyInfo);
     virtual ~SetPropApiCallback();
     void onSetProperty(const int32_t result) override;
 

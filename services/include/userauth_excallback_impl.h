@@ -41,6 +41,7 @@ public:
     void OnAcquireInfoHandle(uint32_t acquire);
     static int32_t SaveCoauthCallback(uint64_t contextId, std::shared_ptr<CoAuth::CoAuthCallback> coauthCallback);
     static int32_t DeleteCoauthCallback(uint64_t contextId);
+
 private:
     void OnFinishHandleExtend(int32_t userId, SetPropertyRequest setPropertyRequest, AuthResult authResult,
         int32_t ret, UserAuthToken authToken);
