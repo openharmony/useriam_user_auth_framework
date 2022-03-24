@@ -261,7 +261,7 @@ void UserAuthCallbackImplIdmGetProp::OnGetInfo(std::vector<UserIDM::CredentialIn
     callback_->onExecutorPropertyInfo(executorProperty);
 }
 
-UserAuthCallbackImplIdmCothGetPropFreeze::UserAuthCallbackImplIdmCothGetPropFreeze(uint64_t callerUid,
+UserAuthCallbackImplIdmCoAuthGetPropFreeze::UserAuthCallbackImplIdmCoAuthGetPropFreeze(uint64_t callerUid,
     std::string pkgName, int32_t resultCode, UserAuthToken authToken, SetPropertyRequest request)
 {
     authToken_ = authToken;
@@ -271,18 +271,18 @@ UserAuthCallbackImplIdmCothGetPropFreeze::UserAuthCallbackImplIdmCothGetPropFree
     callerUid_ = callerUid;
 }
 
-void UserAuthCallbackImplIdmCothGetPropFreeze::OnGetInfo(std::vector<UserIDM::CredentialInfo> &info)
+void UserAuthCallbackImplIdmCoAuthGetPropFreeze::OnGetInfo(std::vector<UserIDM::CredentialInfo> &info)
 {
     CallerInfo callerInfo;
     callerInfo.callerUID = callerUid_;
     callerInfo.userID = 0;
     callerInfo.pkgName = pkgName_;
 
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthCallbackImplIdmCothGetPropFreeze OnGetInfo start");
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthCallbackImplIdmCoAuthGetPropFreeze OnGetInfo start");
     std::vector<uint64_t> templateIds;
     AuthResult authResult;
     if (info.size() == 0) {
-        USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthCallbackImplIdmCothGetPropFreeze OnGetInfo no data");
+        USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthCallbackImplIdmCoAuthGetPropFreeze OnGetInfo no data");
         authResult.token.resize(sizeof(UserAuthToken));
         if (memcpy_s(&authResult.token[0], authResult.token.size(), &authToken_, sizeof(UserAuthToken)) != EOK) {
             USERAUTH_HILOGE(MODULE_SERVICE, "copy authToken_ error");

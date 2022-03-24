@@ -104,11 +104,11 @@ private:
     uint64_t callerUid_;
 };
 
-class UserAuthCallbackImplIdmCothGetPropFreeze : public UserIDM::GetInfoCallback {
+class UserAuthCallbackImplIdmCoAuthGetPropFreeze : public UserIDM::GetInfoCallback {
 public:
-    explicit UserAuthCallbackImplIdmCothGetPropFreeze(uint64_t callerUid, std::string pkgName, int32_t resultCode,
+    explicit UserAuthCallbackImplIdmCoAuthGetPropFreeze(uint64_t callerUid, std::string pkgName, int32_t resultCode,
         UserAuthToken authToken, SetPropertyRequest request);
-    virtual ~UserAuthCallbackImplIdmCothGetPropFreeze() = default;
+    virtual ~UserAuthCallbackImplIdmCoAuthGetPropFreeze() = default;
 
     void OnGetInfo(std::vector<UserIDM::CredentialInfo>& info) override;
 
