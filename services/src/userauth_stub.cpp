@@ -55,19 +55,19 @@ int32_t UserAuthStub::GetAvailableStatusStub(MessageParcel &data, MessageParcel 
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthStub GetAvailableStatusStub start");
     uint32_t authType;
-    uint32_t authTurstLevel;
+    uint32_t authTrustLevel;
     int32_t ret = GENERAL_ERROR;
 
     if (!data.ReadUint32(authType)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "failed to read authType");
         return E_READ_PARCEL_ERROR;
     }
-    if (!data.ReadUint32(authTurstLevel)) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "failed to read authTurstLevel");
+    if (!data.ReadUint32(authTrustLevel)) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to read authTrustLevel");
         return E_READ_PARCEL_ERROR;
     }
 
-    ret = GetAvailableStatus(static_cast<AuthType>(authType), static_cast<AuthTurstLevel>(authTurstLevel));
+    ret = GetAvailableStatus(static_cast<AuthType>(authType), static_cast<AuthTrustLevel>(authTrustLevel));
     if (!reply.WriteInt32(ret)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "failed to write GetAvailableStatus result");
         return E_WRITE_PARCEL_ERROR;
@@ -153,7 +153,7 @@ int32_t UserAuthStub::AuthStub(MessageParcel &data, MessageParcel &reply)
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthStub AuthStub start");
     uint64_t challenge;
     uint32_t authType;
-    uint32_t authTurstLevel;
+    uint32_t authTrustLevel;
     uint64_t ret = SUCCESS;
 
     if (!data.ReadUint64(challenge)) {
@@ -164,8 +164,8 @@ int32_t UserAuthStub::AuthStub(MessageParcel &data, MessageParcel &reply)
         USERAUTH_HILOGE(MODULE_SERVICE, "failed to read authType");
         return E_READ_PARCEL_ERROR;
     }
-    if (!data.ReadUint32(authTurstLevel)) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "failed to read authTurstLevel");
+    if (!data.ReadUint32(authTrustLevel)) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to read authTrustLevel");
         return E_READ_PARCEL_ERROR;
     }
 
@@ -179,7 +179,7 @@ int32_t UserAuthStub::AuthStub(MessageParcel &data, MessageParcel &reply)
         return FAIL;
     }
 
-    ret = Auth(challenge, static_cast<AuthType>(authType), static_cast<AuthTurstLevel>(authTurstLevel), callback);
+    ret = Auth(challenge, static_cast<AuthType>(authType), static_cast<AuthTrustLevel>(authTrustLevel), callback);
     if (!reply.WriteUint64(ret)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "failed to write Auth result");
         return E_WRITE_PARCEL_ERROR;
@@ -194,7 +194,7 @@ int32_t UserAuthStub::AuthUserStub(MessageParcel &data, MessageParcel &reply)
     int32_t userId;
     uint64_t challenge;
     uint32_t authType;
-    uint32_t authTurstLevel;
+    uint32_t authTrustLevel;
 
     if (!data.ReadInt32(userId)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "failed to read userId");
@@ -208,8 +208,8 @@ int32_t UserAuthStub::AuthUserStub(MessageParcel &data, MessageParcel &reply)
         USERAUTH_HILOGE(MODULE_SERVICE, "failed to read authType");
         return E_READ_PARCEL_ERROR;
     }
-    if (!data.ReadUint32(authTurstLevel)) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "failed to read authTurstLevel");
+    if (!data.ReadUint32(authTrustLevel)) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to read authTrustLevel");
         return E_READ_PARCEL_ERROR;
     }
 
@@ -223,8 +223,8 @@ int32_t UserAuthStub::AuthUserStub(MessageParcel &data, MessageParcel &reply)
         return FAIL;
     }
 
-    uint64_t ret = AuthUser(userId, challenge,
-        static_cast<AuthType>(authType), static_cast<AuthTurstLevel>(authTurstLevel), callback);
+    uint64_t ret = AuthUser(userId, challenge, static_cast<AuthType>(authType),
+        static_cast<AuthTrustLevel>(authTrustLevel), callback);
     if (!reply.WriteUint64(ret)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "failed to write AuthUser result");
         return E_WRITE_PARCEL_ERROR;

@@ -215,10 +215,10 @@ napi_value AuthTrustLevelConstructor(napi_env env)
     napi_value atl3 = nullptr;
     napi_value atl4 = nullptr;
     NAPI_CALL(env, napi_create_object(env, &authTrustLevel));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthTurstLevel::ATL1), &atl1));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthTurstLevel::ATL2), &atl2));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthTurstLevel::ATL3), &atl3));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthTurstLevel::ATL4), &atl4));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthTrustLevel::ATL1), &atl1));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthTrustLevel::ATL2), &atl2));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthTrustLevel::ATL3), &atl3));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthTrustLevel::ATL4), &atl4));
     NAPI_CALL(env, napi_set_named_property(env, authTrustLevel, "ATL1", atl1));
     NAPI_CALL(env, napi_set_named_property(env, authTrustLevel, "ATL2", atl2));
     NAPI_CALL(env, napi_set_named_property(env, authTrustLevel, "ATL3", atl3));

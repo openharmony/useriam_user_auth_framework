@@ -29,13 +29,13 @@ public:
     explicit UserAuthProxy(const sptr<IRemoteObject> &object);
     ~UserAuthProxy() override = default;
 
-    int32_t GetAvailableStatus(const AuthType authType, const AuthTurstLevel authTurstLevel) override;
+    int32_t GetAvailableStatus(const AuthType authType, const AuthTrustLevel authTrustLevel) override;
     void GetProperty(const GetPropertyRequest request, sptr<IUserAuthCallback> &callback) override;
     void SetProperty(const SetPropertyRequest request, sptr<IUserAuthCallback> &callback) override;
-    uint64_t Auth(const uint64_t challenge, const AuthType authType, const AuthTurstLevel authTurstLevel,
+    uint64_t Auth(const uint64_t challenge, const AuthType authType, const AuthTrustLevel authTrustLevel,
         sptr<IUserAuthCallback> &callback) override;
     uint64_t AuthUser(const int32_t userId, const uint64_t challenge, const AuthType authType,
-        const AuthTurstLevel authTurstLevel, sptr<IUserAuthCallback> &callback) override;
+        const AuthTrustLevel authTrustLevel, sptr<IUserAuthCallback> &callback) override;
     int32_t CancelAuth(const uint64_t contextId) override;
     int32_t GetVersion() override;
 
