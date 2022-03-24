@@ -44,8 +44,8 @@
 
 | 接口名  | 描述                             |
 | ------ | -------------------------------- |
-| getAvailableStatus(authType : AuthType, authTrustLevel : AuthTurstLevel) : number; | 指定ATL，查询是否支持目标认证方式 |
-| auth(challenge: BigInt, authType : AuthType, authTrustLevel: AuthTurstLevel, callback: IUserAuthCallback): BigInt; | 指定ATL和认证方式，完成用户身份认证 |
+| getAvailableStatus(authType : AuthType, authTrustLevel : AuthTrustLevel) : number; | 指定ATL，查询是否支持目标认证方式 |
+| auth(challenge: BigInt, authType : AuthType, authTrustLevel: AuthTrustLevel, callback: IUserAuthCallback): BigInt; | 指定ATL和认证方式，完成用户身份认证 |
 
 ### 使用说明
 

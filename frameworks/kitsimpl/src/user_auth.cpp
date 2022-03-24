@@ -81,7 +81,7 @@ void UserAuth::UserAuthDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &r
     UserAuth::GetInstance().ResetProxy(remote);
 }
 
-int32_t UserAuth::GetAvailableStatus(const AuthType authType, const AuthTurstLevel authTurstLevel)
+int32_t UserAuth::GetAvailableStatus(const AuthType authType, const AuthTrustLevel authTrustLevel)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "GetAvailableStatus start");
     auto proxy = GetProxy();
@@ -89,7 +89,7 @@ int32_t UserAuth::GetAvailableStatus(const AuthType authType, const AuthTurstLev
         return E_RET_NOSERVER;
     }
 
-    return proxy_->GetAvailableStatus(authType, authTurstLevel);
+    return proxy_->GetAvailableStatus(authType, authTrustLevel);
 }
 
 void UserAuth::GetProperty(const GetPropertyRequest &request, std::shared_ptr<GetPropCallback> callback)
@@ -134,7 +134,7 @@ void UserAuth::SetProperty(const SetPropertyRequest &request, std::shared_ptr<Se
     proxy_->SetProperty(request, asyncStub);
 }
 
-uint64_t UserAuth::Auth(const uint64_t challenge, const AuthType authType, const AuthTurstLevel authTurstLevel,
+uint64_t UserAuth::Auth(const uint64_t challenge, const AuthType authType, const AuthTrustLevel authTrustLevel,
     std::shared_ptr<UserAuthCallback> callback)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "Auth start");
@@ -151,11 +151,11 @@ uint64_t UserAuth::Auth(const uint64_t challenge, const AuthType authType, const
         USERAUTH_HILOGE(MODULE_INNERKIT, "Auth asyncStub is nullptr");
         return GENERAL_ERROR;
     }
-    return proxy_->Auth(challenge, authType, authTurstLevel, asyncStub);
+    return proxy_->Auth(challenge, authType, authTrustLevel, asyncStub);
 }
 
 uint64_t UserAuth::AuthUser(const int32_t userId, const uint64_t challenge, const AuthType authType,
-    const AuthTurstLevel authTurstLevel, std::shared_ptr<UserAuthCallback> callback)
+    const AuthTrustLevel authTrustLevel, std::shared_ptr<UserAuthCallback> callback)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "AuthUser start");
     if (callback == nullptr) {
@@ -171,7 +171,7 @@ uint64_t UserAuth::AuthUser(const int32_t userId, const uint64_t challenge, cons
         USERAUTH_HILOGE(MODULE_INNERKIT, "AuthUser asyncStub is nullptr");
         return GENERAL_ERROR;
     }
-    return proxy_->AuthUser(userId, challenge, authType, authTurstLevel, asyncStub);
+    return proxy_->AuthUser(userId, challenge, authType, authTrustLevel, asyncStub);
 }
 
 int32_t UserAuth::CancelAuth(const uint64_t contextId)
