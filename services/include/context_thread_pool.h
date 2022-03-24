@@ -71,7 +71,7 @@ public:
 private:
     class ContextTask {
     public:
-        explicit ContextTask();
+        ContextTask();
         ~ContextTask();
 
         ThreadPool::Task GetTask();

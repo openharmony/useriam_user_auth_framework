@@ -142,7 +142,7 @@ std::vector<uint32_t> ResultConvert::GetInt32ArrayValueByKey(napi_env env, napi_
         return std::vector<uint32_t>();
     }
     if (!isArray) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "not a array");
+        USERAUTH_HILOGE(MODULE_JS_NAPI, "not an array");
         return std::vector<uint32_t>();
     }
     return GetCppArrayUint32(env, array);
@@ -155,7 +155,6 @@ std::string ResultConvert::NapiGetValueString(napi_env env, napi_value value)
         USERAUTH_HILOGE(MODULE_JS_NAPI, "AuthBuild NapiGetValueString value is nullptr");
         return "";
     }
-    std::string resultValue = "";
     char valueString[NAPI_GET_STRING_SIZE];
     size_t valueSize = NAPI_GET_STRING_SIZE;
     size_t resultSize = 0;
@@ -163,7 +162,7 @@ std::string ResultConvert::NapiGetValueString(napi_env env, napi_value value)
     if (status != napi_ok) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_value_string_utf8 failed");
     }
-    resultValue = valueString;
+    std::string resultValue = valueString;
     if (resultValue == "") {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "NapiGetValueString resultValue error");
         return "";

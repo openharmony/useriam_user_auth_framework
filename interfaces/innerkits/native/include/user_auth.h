@@ -51,6 +51,7 @@ private:
     private:
         DISALLOW_COPY_AND_MOVE(UserAuthDeathRecipient);
     };
+
     void ResetProxy(const wptr<IRemoteObject> &remote);
     sptr<IUserAuth> GetProxy();
 

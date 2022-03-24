@@ -47,6 +47,7 @@ void UseriamUtTest::TearDownTestCase(void)
 void UseriamUtTest::SetUp()
 {
 }
+
 void UseriamUtTest::TearDown()
 {
 }
