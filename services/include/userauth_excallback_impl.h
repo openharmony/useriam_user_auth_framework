@@ -39,7 +39,7 @@ public:
     void OnAcquireInfo(uint32_t acquire) override;
     void OnFinishHandle(uint32_t resultCode, std::vector<uint8_t> scheduleToken);
     void OnAcquireInfoHandle(uint32_t acquire);
-    static int32_t SaveCoAuthCallback(uint64_t contextId, std::shared_ptr<CoAuth::CoAuthCallback> coauthCallback);
+    static int32_t SaveCoAuthCallback(uint64_t contextId, std::shared_ptr<CoAuth::CoAuthCallback> coAuthCallback);
     static int32_t DeleteCoAuthCallback(uint64_t contextId);
 
 private:
