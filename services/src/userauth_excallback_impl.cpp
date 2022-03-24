@@ -204,15 +204,15 @@ void UserAuthCallbackImplCoAuth::OnAcquireInfoHandle(uint32_t acquire)
 }
 
 int32_t UserAuthCallbackImplCoAuth::SaveCoAuthCallback(uint64_t contextId,
-    std::shared_ptr<CoAuth::CoAuthCallback> coauthCallback)
+    std::shared_ptr<CoAuth::CoAuthCallback> coAuthCallback)
 {
     std::lock_guard<std::mutex> lock(coAuthCallbackMutex_);
-    saveCoAuthCallback_.insert(std::make_pair(contextId, coauthCallback));
+    saveCoAuthCallback_.insert(std::make_pair(contextId, coAuthCallback));
     if (saveCoAuthCallback_.begin() != saveCoAuthCallback_.end()) {
-        USERAUTH_HILOGD(MODULE_SERVICE, "Save coauth callback success");
+        USERAUTH_HILOGD(MODULE_SERVICE, "Save coAuth callback success");
         return SUCCESS;
     }
-    USERAUTH_HILOGE(MODULE_SERVICE, "Save coauth callback failed");
+    USERAUTH_HILOGE(MODULE_SERVICE, "Save coAuth callback failed");
     return FAIL;
 }
 

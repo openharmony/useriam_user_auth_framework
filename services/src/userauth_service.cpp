@@ -54,12 +54,13 @@ void UserAuthService::OnStop()
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "Stop service");
     ContextThreadPool::GetInstance().Stop();
-    bool ret = OHOS::UserIAM::Common::IsIAMInited();
-    if (ret) {
-        int32_t iret = OHOS::UserIAM::Common::Close();
-        if (iret != SUCCESS) {
-            USERAUTH_HILOGE(MODULE_SERVICE, "Failed to Stop service");
-        }
+    bool init = OHOS::UserIAM::Common::IsIAMInited();
+    if (!init) {
+        return;
+    }
+    int32_t ret = OHOS::UserIAM::Common::Close();
+    if (ret != SUCCESS) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "Failed to Stop service");
     }
 }
 
