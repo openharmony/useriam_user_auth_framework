@@ -44,7 +44,7 @@ void UserAuthAsyncProxy::onAcquireInfo(const int32_t module, const uint32_t acqu
         return;
     }
 
-    bool ret = SendRequest(IUserAuth::USER_AUTH_ACQUIRENFO, data, reply);
+    bool ret = SendRequest(IUserAuth::USER_AUTH_ACQUIRE_INFO, data, reply);
     if (ret) {
         int32_t result = reply.ReadInt32();
         USERAUTH_HILOGE(MODULE_SERVICE, "result = %{public}d", result);
@@ -76,7 +76,7 @@ void UserAuthAsyncProxy::onResult(const int32_t result, const AuthResult extraIn
         USERAUTH_HILOGE(MODULE_SERVICE, "failed to write freezingTime");
         return;
     }
-    bool ret = SendRequest(IUserAuth::USER_AUTH_ONRESULT, data, reply);
+    bool ret = SendRequest(IUserAuth::USER_AUTH_ON_RESULT, data, reply);
     if (ret) {
         int32_t result = reply.ReadInt32();
         USERAUTH_HILOGE(MODULE_SERVICE, "result = %{public}d", result);
@@ -108,7 +108,7 @@ void UserAuthAsyncProxy::onExecutorPropertyInfo(const ExecutorProperty result)
         USERAUTH_HILOGE(MODULE_SERVICE, "failed to write freezingTime");
         return;
     }
-    bool ret = SendRequest(IUserAuth::USER_AUTH_GETEXPORP, data, reply);
+    bool ret = SendRequest(IUserAuth::USER_AUTH_GET_EX_PROP, data, reply);
     if (ret) {
         int32_t result = reply.ReadInt32();
         USERAUTH_HILOGE(MODULE_SERVICE, "result = %{public}d", result);
@@ -130,7 +130,7 @@ void UserAuthAsyncProxy::onSetExecutorProperty(const int32_t result)
         return;
     }
 
-    bool ret = SendRequest(IUserAuth::USER_AUTH_SETEXPORP, data, reply);
+    bool ret = SendRequest(IUserAuth::USER_AUTH_SET_EX_PROP, data, reply);
     if (ret) {
         int32_t result = reply.ReadInt32();
         USERAUTH_HILOGE(MODULE_SERVICE, "result = %{public}d", result);
