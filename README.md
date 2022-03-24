@@ -38,8 +38,8 @@ The userauth APIs support user authentication of the target Authentication Trust
 
 | API | Description                            |
 | ------ | -------------------------------- |
-| getAvailableStatus(authType : AuthType, authTrustLevel : AuthTurstLevel) : number; | Obtains the available authentication status.|
-| auth(challenge: BigInt, authType : AuthType, authTrustLevel: AuthTurstLevel, callback: IUserAuthCallback): BigInt; | Performs user authentication. |
+| getAvailableStatus(authType : AuthType, authTrustLevel : AuthTrustLevel) : number; | Obtains the available authentication status.|
+| auth(challenge: BigInt, authType : AuthType, authTrustLevel: AuthTrustLevel, callback: IUserAuthCallback): BigInt; | Performs user authentication. |
 
 ### Usage Guidelines
 

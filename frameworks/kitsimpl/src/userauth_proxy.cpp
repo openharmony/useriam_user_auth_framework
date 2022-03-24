@@ -25,7 +25,7 @@ UserAuthProxy::UserAuthProxy(const sptr<IRemoteObject> &object) : IRemoteProxy<I
 {
 }
 
-int32_t UserAuthProxy::GetAvailableStatus(const AuthType authType, const AuthTurstLevel authTurstLevel)
+int32_t UserAuthProxy::GetAvailableStatus(const AuthType authType, const AuthTrustLevel authTrustLevel)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy GetAvailableStatus start");
     int32_t result = SUCCESS;
@@ -41,8 +41,8 @@ int32_t UserAuthProxy::GetAvailableStatus(const AuthType authType, const AuthTur
         USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write authType");
         return GENERAL_ERROR;
     }
-    if (!data.WriteUint32(static_cast<uint32_t>(authTurstLevel))) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write authTurstLevel");
+    if (!data.WriteUint32(static_cast<uint32_t>(authTrustLevel))) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write authTrustLevel");
         return GENERAL_ERROR;
     }
     bool ret = SendRequest(static_cast<int32_t>(IUserAuth::USER_AUTH_GET_AVAILABLE_STATUS), data, reply, option);
@@ -125,7 +125,7 @@ void UserAuthProxy::SetProperty(const SetPropertyRequest request, sptr<IUserAuth
     }
 }
 
-uint64_t UserAuthProxy::Auth(const uint64_t challenge, const AuthType authType, const AuthTurstLevel authTurstLevel,
+uint64_t UserAuthProxy::Auth(const uint64_t challenge, const AuthType authType, const AuthTrustLevel authTrustLevel,
     sptr<IUserAuthCallback> &callback)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy Auth start");
@@ -148,8 +148,8 @@ uint64_t UserAuthProxy::Auth(const uint64_t challenge, const AuthType authType, 
         USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write authType");
         return invalidContextID;
     }
-    if (!data.WriteUint32(static_cast<uint32_t>(authTurstLevel))) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write authTurstLevel");
+    if (!data.WriteUint32(static_cast<uint32_t>(authTrustLevel))) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write authTrustLevel");
         return invalidContextID;
     }
     if (!data.WriteRemoteObject(callback->AsObject())) {
@@ -169,7 +169,7 @@ uint64_t UserAuthProxy::Auth(const uint64_t challenge, const AuthType authType, 
 }
 
 uint64_t UserAuthProxy::AuthUser(const int32_t userId, const uint64_t challenge, const AuthType authType,
-    const AuthTurstLevel authTurstLevel, sptr<IUserAuthCallback> &callback)
+    const AuthTrustLevel authTrustLevel, sptr<IUserAuthCallback> &callback)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy AuthUser start");
     const uint64_t invalidContextID = 0;
@@ -194,8 +194,8 @@ uint64_t UserAuthProxy::AuthUser(const int32_t userId, const uint64_t challenge,
         USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write authType");
         return invalidContextID;
     }
-    if (!data.WriteUint32(static_cast<uint32_t>(authTurstLevel))) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write authTurstLevel");
+    if (!data.WriteUint32(static_cast<uint32_t>(authTrustLevel))) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write authTrustLevel");
         return invalidContextID;
     }
     if (!data.WriteRemoteObject(callback->AsObject())) {

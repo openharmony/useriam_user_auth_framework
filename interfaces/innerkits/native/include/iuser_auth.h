@@ -32,19 +32,19 @@ public:
         USER_AUTH_AUTH_USER,
         USER_AUTH_CANCEL_AUTH,
         USER_AUTH_GET_VERSION,
-        USER_AUTH_ONRESULT,
-        USER_AUTH_GETEXPORP,
-        USER_AUTH_SETEXPORP,
-        USER_AUTH_ACQUIRENFO
+        USER_AUTH_ON_RESULT,
+        USER_AUTH_GET_EX_PROP,
+        USER_AUTH_SET_EX_PROP,
+        USER_AUTH_ACQUIRE_INFO
     };
 
-    virtual int32_t GetAvailableStatus(const AuthType authType, AuthTurstLevel authTurstLevel) = 0;
+    virtual int32_t GetAvailableStatus(const AuthType authType, AuthTrustLevel authTrustLevel) = 0;
     virtual void GetProperty(const GetPropertyRequest request, sptr<IUserAuthCallback> &callback) = 0;
     virtual void SetProperty(const SetPropertyRequest request, sptr<IUserAuthCallback> &callback) = 0;
-    virtual uint64_t Auth(const uint64_t challenge, const AuthType authType, const AuthTurstLevel authTurstLevel,
+    virtual uint64_t Auth(const uint64_t challenge, const AuthType authType, const AuthTrustLevel authTrustLevel,
         sptr<IUserAuthCallback> &callback) = 0;
     virtual uint64_t AuthUser(const int32_t userId, const uint64_t challenge, const AuthType authType,
-        const AuthTurstLevel authTurstLevel, sptr<IUserAuthCallback> &callback) = 0;
+        const AuthTrustLevel authTrustLevel, sptr<IUserAuthCallback> &callback) = 0;
     virtual int32_t CancelAuth(const uint64_t contextId) = 0;
     virtual int32_t GetVersion() = 0;
 
