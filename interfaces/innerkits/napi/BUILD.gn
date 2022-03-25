@@ -53,7 +53,7 @@ ohos_shared_library("userauth") {
   relative_install_dir = "module"
 
   part_name = "user_auth"
-  subsystem_name = "user_iam"
+  subsystem_name = "useriam"
 }
 
 ohos_shared_library("userauth_napi") {
@@ -90,5 +90,5 @@ ohos_shared_library("userauth_napi") {
   relative_install_dir = "module/useriam"
 
   part_name = "user_auth"
-  subsystem_name = "user_iam"
+  subsystem_name = "useriam"
 }
