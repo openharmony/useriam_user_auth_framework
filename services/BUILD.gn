@@ -24,7 +24,7 @@ config("userauth_private_config") {
 
 ohos_shared_library("userauthservice") {
   sources = [
-    "src/context_thread_pool.cpp",
+    "src/thread_groups.cpp",
     "src/userauth_adapter.cpp",
     "src/userauth_async_proxy.cpp",
     "src/userauth_controller.cpp",

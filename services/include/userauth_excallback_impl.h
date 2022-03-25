@@ -30,11 +30,12 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-class UserAuthCallbackImplCoAuth : public CoAuth::CoAuthCallback {
+class UserAuthCallbackImplCoAuth : public std::enable_shared_from_this<UserAuthCallbackImplCoAuth>,
+                                   public CoAuth::CoAuthCallback {
 public:
-    explicit UserAuthCallbackImplCoAuth(const sptr<IUserAuthCallback>& impl, CoAuthInfo coAuthInfo, bool resultFlag);
+    explicit UserAuthCallbackImplCoAuth(const sptr<IUserAuthCallback> &impl, const CoAuthInfo &coAuthInfo,
+        bool resultFlag);
     virtual ~UserAuthCallbackImplCoAuth() = default;
-
     void OnFinish(uint32_t resultCode, std::vector<uint8_t> &scheduleToken) override;
     void OnAcquireInfo(uint32_t acquire) override;
     void OnFinishHandle(uint32_t resultCode, std::vector<uint8_t> scheduleToken);

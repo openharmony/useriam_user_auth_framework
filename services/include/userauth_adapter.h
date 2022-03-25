@@ -20,7 +20,6 @@
 
 #include "auth_attributes.h"
 #include "co_auth.h"
-#include "context_thread_pool.h"
 #include "iuserauth_callback.h"
 #include "set_prop_callback.h"
 #include "userauth_info.h"
