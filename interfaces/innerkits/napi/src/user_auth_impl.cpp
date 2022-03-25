@@ -192,7 +192,7 @@ napi_value UserAuthImpl::GetPropertyAsync(napi_env env, AsyncHolder *asyncHolder
     napi_value resourceName = nullptr;
     NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, GetPropertyExecute, GetPropertyAsyncExecuteDone,
-        (void *)asyncHolder, &asyncHolder->asyncWork));
+        reinterpret_cast<void *>(asyncHolder), &asyncHolder->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, asyncHolder->asyncWork));
     USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s end", __func__);
     return result;
@@ -210,7 +210,7 @@ napi_value UserAuthImpl::GetPropertyPromise(napi_env env, AsyncHolder *asyncHold
     getPropertyInfo->callBackInfo.callBack = nullptr;
     getPropertyInfo->callBackInfo.deferred = deferred;
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, GetPropertyExecute, GetPropertyPromiseExecuteDone,
-        (void *)asyncHolder, &asyncHolder->asyncWork));
+        reinterpret_cast<void *>(asyncHolder), &asyncHolder->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, asyncHolder->asyncWork));
     USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s end", __func__);
     return promise;
@@ -336,7 +336,7 @@ napi_value UserAuthImpl::SetPropertyAsync(napi_env env, AsyncHolder *asyncHolder
     napi_value resourceName = nullptr;
     NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, SetPropertyExecute, SetPropertyAsyncExecuteDone,
-        (void *)asyncHolder, &asyncHolder->asyncWork));
+        reinterpret_cast<void *>(asyncHolder), &asyncHolder->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, asyncHolder->asyncWork));
     USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s end", __func__);
     return result;
@@ -354,7 +354,8 @@ napi_value UserAuthImpl::SetPropertyPromise(napi_env env, AsyncHolder *asyncHold
     setPropertyInfo->callBackInfo.callBack = nullptr;
     setPropertyInfo->callBackInfo.deferred = deferred;
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName,
-        SetPropertyExecute, SetPropertyPromiseExecuteDone, (void *)asyncHolder, &asyncHolder->asyncWork));
+        SetPropertyExecute, SetPropertyPromiseExecuteDone, reinterpret_cast<void *>(asyncHolder),
+        &asyncHolder->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, asyncHolder->asyncWork));
     USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s end", __func__);
     return promise;

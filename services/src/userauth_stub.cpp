@@ -148,6 +148,7 @@ int32_t UserAuthStub::SetPropertyStub(MessageParcel &data, MessageParcel &reply)
 
     return SUCCESS;
 }
+
 int32_t UserAuthStub::AuthStub(MessageParcel &data, MessageParcel &reply)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthStub AuthStub start");
@@ -232,6 +233,7 @@ int32_t UserAuthStub::AuthUserStub(MessageParcel &data, MessageParcel &reply)
 
     return SUCCESS;
 }
+
 int32_t UserAuthStub::GetVersionStub(MessageParcel &data, MessageParcel &reply)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthStub GetVersionStub start");
@@ -244,6 +246,7 @@ int32_t UserAuthStub::GetVersionStub(MessageParcel &data, MessageParcel &reply)
 
     return SUCCESS;
 }
+
 int32_t UserAuthStub::CancelAuthStub(MessageParcel &data, MessageParcel &reply)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthStub CancelAuthStub start");

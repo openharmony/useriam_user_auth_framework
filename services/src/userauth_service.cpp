@@ -131,8 +131,8 @@ void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAu
         return;
     }
 
-    sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
-    if ((!callback->AsObject()->AddDeathRecipient(dr))) {
+    sptr<IRemoteObject::DeathRecipient> dr = new (std::nothrow) UserAuthServiceCallbackDeathRecipient(callback);
+    if ((dr == nullptr) || (!callback->AsObject()->AddDeathRecipient(dr))) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
     }
 
@@ -146,7 +146,6 @@ void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAu
 void UserAuthService::SetProperty(const SetPropertyRequest request, sptr<IUserAuthCallback> &callback)
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService SetProperty start");
-    std::string callerName;
     if (callback == nullptr) {
         USERAUTH_HILOGE(MODULE_SERVICE, "callback is nullptr");
         return;
@@ -158,13 +157,13 @@ void UserAuthService::SetProperty(const SetPropertyRequest request, sptr<IUserAu
         return;
     }
 
-    sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
-    if ((!callback->AsObject()->AddDeathRecipient(dr))) {
+    sptr<IRemoteObject::DeathRecipient> dr = new (std::nothrow) UserAuthServiceCallbackDeathRecipient(callback);
+    if ((dr == nullptr) || (!callback->AsObject()->AddDeathRecipient(dr))) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
     }
 
     uint64_t callerId = static_cast<uint64_t>(this->GetCallingUid());
-    callerName = std::to_string(callerId);
+    std::string callerName = std::to_string(callerId);
 
     int32_t ret = userAuthController_.SetExecutorProp(callerId, callerName, request, callback);
     if (ret != SUCCESS) {
