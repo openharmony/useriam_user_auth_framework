@@ -52,7 +52,7 @@ napi_value GetVersion(napi_env env, napi_callback_info info)
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
-    NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
+    NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userAuthImpl)));
     if (userAuthImpl == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "UserAuthHelper, GetVersion get nullptr");
         return nullptr;
@@ -68,7 +68,7 @@ napi_value GetAvailableStatus(napi_env env, napi_callback_info info)
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
-    NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
+    NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userAuthImpl)));
     if (userAuthImpl == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "UserAuthHelper, getAvailableStatus get nullptr");
         return nullptr;
@@ -84,7 +84,7 @@ napi_value GetProperty(napi_env env, napi_callback_info info)
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
-    NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
+    NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userAuthImpl)));
     if (userAuthImpl == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "UserAuthHelper, GetProperty get nullptr");
         return nullptr;
@@ -100,7 +100,7 @@ napi_value SetProperty(napi_env env, napi_callback_info info)
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
-    NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
+    NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userAuthImpl)));
     if (userAuthImpl == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "UserAuthHelper, SetProperty get nullptr");
         return nullptr;
@@ -116,7 +116,7 @@ napi_value Auth(napi_env env, napi_callback_info info)
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
-    NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
+    NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userAuthImpl)));
     if (userAuthImpl == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "UserAuthHelper, Auth get nullptr");
         return nullptr;
@@ -132,7 +132,7 @@ napi_value Execute(napi_env env, napi_callback_info info)
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
-    NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
+    NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userAuthImpl)));
     if (userAuthImpl == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "UserAuthHelper, Execute get nullptr");
         return nullptr;
@@ -148,7 +148,7 @@ napi_value AuthUser(napi_env env, napi_callback_info info)
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
-    NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
+    NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userAuthImpl)));
     if (userAuthImpl == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "UserAuthHelper, AuthUser get nullptr");
         return nullptr;
@@ -164,7 +164,7 @@ napi_value CancelAuth(napi_env env, napi_callback_info info)
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     UserAuthImpl *userAuthImpl = nullptr;
-    NAPI_CALL(env, napi_unwrap(env, thisVar, (void **)&userAuthImpl));
+    NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userAuthImpl)));
     if (userAuthImpl == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "UserAuthHelper, CancelAuth get nullptr");
         return nullptr;
