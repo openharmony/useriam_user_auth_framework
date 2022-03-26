@@ -58,7 +58,7 @@ public:
     virtual ~TestUserAuthCallback() = default;
 
     void onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo) override;
-    void onResult(const int32_t result, const AuthResult extraInfo) override;
+    void onResult(const int32_t result, const AuthResult &extraInfo) override;
 };
 
 class TestGetPropCallback : public GetPropCallback {
@@ -82,7 +82,7 @@ void TestUserAuthCallback::onAcquireInfo(const int32_t module, const uint32_t ac
     std::cout << "onAcquireInfo callback" << std::endl;
 }
 
-void TestUserAuthCallback::onResult(const int32_t result, const AuthResult extraInfo)
+void TestUserAuthCallback::onResult(const int32_t result, const AuthResult &extraInfo)
 {
     std::cout << "onResult callback" << std::endl;
 }

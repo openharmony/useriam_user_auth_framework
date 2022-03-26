@@ -40,7 +40,7 @@ public:
     explicit AuthApiCallback(ExecuteInfo *executeInfo);
     virtual ~AuthApiCallback();
     void onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo) override;
-    void onResult(const int32_t result, const AuthResult extraInfo) override;
+    void onResult(const int32_t result, const AuthResult &extraInfo) override;
 
     static napi_value BuildOnResult(
         napi_env env, uint32_t remainTimes, uint32_t freezingTime, std::vector<uint8_t> token);

@@ -45,8 +45,8 @@ int32_t UserAuthAdapter::GetAuthTrustLevel(int32_t userId, uint32_t authType, ui
     return ret;
 }
 
-void UserAuthAdapter::GetPropAuthInfo(int32_t userId, uint64_t callerUid, std::string pkgName,
-    GetPropertyRequest request, sptr<IUserAuthCallback> &callback)
+void UserAuthAdapter::GetPropAuthInfo(int32_t userId, uint64_t callerUid, const std::string &pkgName,
+    const GetPropertyRequest &request, sptr<IUserAuthCallback> &callback)
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "GetPropAuthInfo start");
     using namespace UserIDM;
@@ -98,9 +98,9 @@ int32_t UserAuthAdapter::SetProPropAuthInfo(OHOS::UserIAM::AuthResPool::AuthAttr
         setPropCallback->OnResult(ret, extraInfo);
         return ret;
     }
-    value = request.key == SetPropertyType::FREEZE_TEMPLATE
+    value = (request.key == SetPropertyType::FREEZE_TEMPLATE
                 ? static_cast<uint32_t>(AuthPropertyMode::PROPERMODE_FREEZE)
-                : static_cast<uint32_t>(AuthPropertyMode::PROPERMODE_UNFREEZE);
+                : static_cast<uint32_t>(AuthPropertyMode::PROPERMODE_UNFREEZE));
     ret = authAttributes.SetUint32Value(AUTH_PROPERTY_MODE, value);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Set AUTH_PROPERTY_MODE failed");
@@ -326,9 +326,9 @@ int32_t UserAuthAdapter::SetExecutorProp(uint64_t callerUid, std::string pkgName
 
     std::shared_ptr<CoAuth::SetPropCallback> setPropCallback = std::make_shared<UserAuthCallbackImplSetProp>(callback);
     AuthAttributes authAttributes;
-    value = request.key == SetPropertyType::INIT_ALGORITHM
+    value = (request.key == SetPropertyType::INIT_ALGORITHM
                 ? static_cast<uint32_t>(AuthPropertyMode::PROPERMODE_INIT_ALGORITHM)
-                : static_cast<uint32_t>(AuthPropertyMode::PROPERMODE_RELEASE_ALGORITHM);
+                : static_cast<uint32_t>(AuthPropertyMode::PROPERMODE_RELEASE_ALGORITHM));
     int32_t ret = authAttributes.SetUint32Value(AUTH_PROPERTY_MODE, value);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Set SET_AUTH_PROPERTY_MODE failed");

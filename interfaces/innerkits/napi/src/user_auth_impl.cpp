@@ -93,6 +93,9 @@ napi_value UserAuthImpl::GetProperty(napi_env env, napi_callback_info info)
     napi_value ret = GetPropertyWrap(env, info, asyncHolder);
     if (ret == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s GetPropertyWrap fail", __func__);
+        if (getPropertyInfo->callBackInfo.callBack != nullptr) {
+            napi_delete_reference(env, getPropertyInfo->callBackInfo.callBack);
+        }
         delete getPropertyInfo;
         if (asyncHolder->asyncWork != nullptr) {
             napi_delete_async_work(env, asyncHolder->asyncWork);
@@ -234,6 +237,9 @@ napi_value UserAuthImpl::SetProperty(napi_env env, napi_callback_info info)
     napi_value ret = SetPropertyWrap(env, info, asyncHolder);
     if (ret == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s SetPropertyWrap fail", __func__);
+        if (setPropertyInfo->callBackInfo.callBack != nullptr) {
+            napi_delete_reference(env, setPropertyInfo->callBackInfo.callBack);
+        }
         delete setPropertyInfo;
         if (asyncHolder->asyncWork != nullptr) {
             napi_delete_async_work(env, asyncHolder->asyncWork);
