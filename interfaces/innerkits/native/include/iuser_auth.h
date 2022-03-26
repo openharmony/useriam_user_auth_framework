@@ -93,7 +93,7 @@ public:
     /*
      * cancel authentication and pass in context id.
      *
-     * param contextId cancel authentication and pass in ContextID.
+     * param contextId cancel authentication and pass in context id.
      * return returns a number value indicating whether Cancel authentication was successful.
      */
     virtual int32_t CancelAuth(const uint64_t contextId) = 0;
