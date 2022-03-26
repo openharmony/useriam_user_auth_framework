@@ -53,7 +53,6 @@ public:
      *
      * param request the attribute field list, authentication credential type, and credential information.
      * param callback the authentication result code is returned through the callback.
-     * return returns a support to query subclasses / remaining authentication times / remaining freezing time.
      */
     virtual void GetProperty(const GetPropertyRequest request, sptr<IUserAuthCallback> &callback) = 0;
 
@@ -62,7 +61,6 @@ public:
      *
      * param request pass in the credential type and the key value to be set.
      * param callback the authentication result code is returned through the callback.
-     * return returns a number value indicating whether the property setting was successful.
      */
     virtual void SetProperty(const SetPropertyRequest request, sptr<IUserAuthCallback> &callback) = 0;
 
@@ -73,27 +71,27 @@ public:
      * param authType authentication type.
      * param authTrustLevel credibility level of certification results.
      * param callback return results and acquireinfo through callback.
-     * return returns results and acquireinfo through callback.
+     * return returns context id.
      */
     virtual uint64_t Auth(const uint64_t challenge, const AuthType authType, const AuthTrustLevel authTrustLevel,
         sptr<IUserAuthCallback> &callback) = 0;
 
     /*
-     * specify user authentication: pass in the user ID, challenge value,
+     * specify user authentication: pass in the user id, challenge value,
      * authentication method, trust level and callback.
      *
-     * param userId incoming user ID.
+     * param userId incoming user id.
      * param challenge pass in challenge value.
      * param authType authentication type.
      * param authTrustLevel credibility level of certification results.
      * param callback return results and acquireinfo through callback.
-     * return returns the result and acquireinfo through the callback.
+     * return returns context id.
      */
     virtual uint64_t AuthUser(const int32_t userId, const uint64_t challenge, const AuthType authType,
         const AuthTrustLevel authTrustLevel, sptr<IUserAuthCallback> &callback) = 0;
 
     /*
-     * cancel authentication and pass in ContextID.
+     * cancel authentication and pass in context id.
      *
      * param contextId cancel authentication and pass in ContextID.
      * return returns a number value indicating whether Cancel authentication was successful.

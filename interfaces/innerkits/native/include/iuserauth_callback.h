@@ -26,17 +26,17 @@ namespace UserAuth {
 class IUserAuthCallback : public IRemoteBroker {
 public:
     /*
-     * returns the result and acquireinfo.
+     * returns the acquireinfo.
      */
     virtual void onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo) = 0;
 
     /*
-     * returns the result and acquireinfo.
+     * returns the result.
      */
     virtual void onResult(const int32_t result, const AuthResult &extraInfo) = 0;
 
     /*
-     * returns a support to query subclasses / remaining authentication times / remaining freezing time.
+     * returns executor property information, such as remaining authentication times and remaining freezing time.
      */
     virtual void onExecutorPropertyInfo(const ExecutorProperty &result) = 0;
 
