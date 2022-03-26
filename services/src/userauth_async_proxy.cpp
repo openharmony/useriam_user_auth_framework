@@ -51,7 +51,7 @@ void UserAuthAsyncProxy::onAcquireInfo(const int32_t module, const uint32_t acqu
     }
 }
 
-void UserAuthAsyncProxy::onResult(const int32_t result, const AuthResult extraInfo)
+void UserAuthAsyncProxy::onResult(const int32_t result, const AuthResult &extraInfo)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthAsyncProxy onResult start");
     MessageParcel data;
@@ -83,7 +83,7 @@ void UserAuthAsyncProxy::onResult(const int32_t result, const AuthResult extraIn
     }
 }
 
-void UserAuthAsyncProxy::onExecutorPropertyInfo(const ExecutorProperty result)
+void UserAuthAsyncProxy::onExecutorPropertyInfo(const ExecutorProperty &result)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthAsyncProxy onExecutorPropertyInfo start");
     MessageParcel data;

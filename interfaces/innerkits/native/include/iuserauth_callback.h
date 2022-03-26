@@ -25,9 +25,24 @@ namespace UserIAM {
 namespace UserAuth {
 class IUserAuthCallback : public IRemoteBroker {
 public:
+    /*
+     * returns the result and acquireinfo.
+     */
     virtual void onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo) = 0;
-    virtual void onResult(const int32_t result, const AuthResult extraInfo) = 0;
-    virtual void onExecutorPropertyInfo(const ExecutorProperty result) = 0;
+
+    /*
+     * returns the result and acquireinfo.
+     */
+    virtual void onResult(const int32_t result, const AuthResult &extraInfo) = 0;
+
+    /*
+     * returns a support to query subclasses / remaining authentication times / remaining freezing time.
+     */
+    virtual void onExecutorPropertyInfo(const ExecutorProperty &result) = 0;
+
+    /*
+     * returns a number value indicating whether the property setting was successful.
+     */
     virtual void onSetExecutorProperty(const int32_t result) = 0;
 
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIAM.UserAuth.IUserAuthCallback");

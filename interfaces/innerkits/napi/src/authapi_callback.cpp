@@ -360,7 +360,7 @@ void AuthApiCallback::OnExecuteResult(const int32_t result)
     uv_queue_work(loop, work, [] (uv_work_t *work) {}, OnExecuteResultWork);
 }
 
-void AuthApiCallback::onResult(const int32_t result, const AuthResult extraInfo)
+void AuthApiCallback::onResult(const int32_t result, const AuthResult &extraInfo)
 {
     USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthApiCallback onResult start result = %{public}d", result);
     if (userInfo_ != nullptr) {

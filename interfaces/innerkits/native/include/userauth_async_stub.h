@@ -34,8 +34,8 @@ public:
 
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
     void onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo) override;
-    void onResult(const int32_t result, const AuthResult extraInfo) override;
-    void onExecutorPropertyInfo(const ExecutorProperty result) override;
+    void onResult(const int32_t result, const AuthResult &extraInfo) override;
+    void onExecutorPropertyInfo(const ExecutorProperty &result) override;
     void onSetExecutorProperty(const int32_t result) override;
 
 private:
