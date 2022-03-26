@@ -81,7 +81,7 @@ declare namespace userIAM
          * @SysCap SystemCapability.UserIAM.UserAuth.BiometricAuth
          * <p>Permissions required: {@code ohos.permission.ACCESS_USER_AUTH_INTERNAL}
          * @param challenge pass in challenge value.
-         * @param authMethod authentication method.
+         * @param authType authentication type.
          * @param authTrustLevel Credibility level of certification results.
          * @param callback Return results and acquireinfo through callback.
          * @return Returns and return results and acquireinfo through callback.
@@ -95,7 +95,7 @@ declare namespace userIAM
          * <p>Permissions required: {@code ohos.permission.ACCESS_USER_AUTH_INTERNAL}
          * @param userId Incoming user ID.
          * @param challenge pass in challenge value.
-         * @param authMethod authentication method.
+         * @param authType authentication type.
          * @param authTrustLevel Credibility level of certification results.
          * @param callback Return results and acquireinfo through callback.
          * @return Returns the result and acquireinfo through the callback.

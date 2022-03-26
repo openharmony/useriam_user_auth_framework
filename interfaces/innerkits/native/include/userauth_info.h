@@ -40,7 +40,12 @@ enum AuthSubType : uint64_t {
     FACE_3D = 20001
 };
 
-enum AuthTrustLevel : uint32_t { ATL1 = 10000, ATL2 = 20000, ATL3 = 30000, ATL4 = 40000 };
+enum AuthTrustLevel : uint32_t {
+    ATL1 = 10000,
+    ATL2 = 20000,
+    ATL3 = 30000,
+    ATL4 = 40000
+};
 
 enum GetPropertyType : uint32_t {
     AUTH_SUB_TYPE = 1,
