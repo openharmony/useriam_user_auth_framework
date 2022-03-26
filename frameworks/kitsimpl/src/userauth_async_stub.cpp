@@ -201,7 +201,7 @@ void UserAuthAsyncStub::onAcquireInfo(const int32_t module, const uint32_t acqui
     authCallback_->onAcquireInfo(module, acquireInfo, extraInfo);
 }
 
-void UserAuthAsyncStub::onResult(const int32_t result, const AuthResult extraInfo)
+void UserAuthAsyncStub::onResult(const int32_t result, const AuthResult &extraInfo)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthAsyncStub onResult start");
 
@@ -215,7 +215,7 @@ void UserAuthAsyncStub::onResult(const int32_t result, const AuthResult extraInf
     authCallback_->onResult(result, extraInfo);
 }
 
-void UserAuthAsyncStub::onExecutorPropertyInfo(const ExecutorProperty result)
+void UserAuthAsyncStub::onExecutorPropertyInfo(const ExecutorProperty &result)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthAsyncStub onExecutorPropertyInfo start");
 

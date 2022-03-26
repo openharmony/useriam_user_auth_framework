@@ -33,8 +33,8 @@ class UserAuthAdapter {
 public:
     static UserAuthAdapter &GetInstance();
     int32_t GetAuthTrustLevel(int32_t userId, uint32_t authType, uint32_t &authTrustLevel);
-    void GetPropAuthInfo(int32_t userId, uint64_t callerUid, std::string pkgName, GetPropertyRequest request,
-        sptr<IUserAuthCallback> &callback);
+    void GetPropAuthInfo(int32_t userId, uint64_t callerUid, const std::string &pkgName,
+        const GetPropertyRequest &request, sptr<IUserAuthCallback> &callback);
     void CoAuthSetPropAuthInfo(CallerInfo callerInfo, int32_t resultCode, UserAuthToken authToken,
         SetPropertyRequest request);
     void SetPropAuthInfo(CallerInfo callerInfo, int32_t resultCode, UserAuthToken authToken, SetPropertyRequest request,
