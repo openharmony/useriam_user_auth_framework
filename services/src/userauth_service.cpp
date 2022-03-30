@@ -14,16 +14,21 @@
  */
 
 #include "userauth_service.h"
+
 #include "accesstoken_kit.h"
 #include "os_account_manager.h"
+
+#include "thread_groups.h"
 #include "userauth_hilog_wrapper.h"
 #include "useriam_common.h"
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-const static int AUTH_TRUST_LEVEL_SYS = 1;
+using namespace OHOS::UserIAM::Utils;
 
+const static int AUTH_TRUST_LEVEL_SYS = 1;
+const static std::string GROUP_AUTH = "GROUP_AUTH";
 static const std::string ACCESS_USER_AUTH_INTERNAL_PERMISSION = "ohos.permission.ACCESS_USER_AUTH_INTERNAL";
 static const std::string ACCESS_BIOMETRIC_PERMISSION = "ohos.permission.ACCESS_BIOMETRIC";
 
@@ -42,8 +47,9 @@ void UserAuthService::OnStart()
     if (!Publish(this)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Failed to publish service");
     }
-    ContextThreadPool::GetInstance().Start(THREADPOOLMAXSTART);
-    ContextThreadPool::GetInstance().SetMaxTaskNum(THREADPOOLMAXSTART);
+
+    IamThreadGroups::GetInstance()->CreateThreadGroup(GROUP_AUTH);
+
     bool ret = OHOS::UserIAM::Common::IsIAMInited();
     if (!ret) {
         OHOS::UserIAM::Common::Init();
@@ -53,7 +59,7 @@ void UserAuthService::OnStart()
 void UserAuthService::OnStop()
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "Stop service");
-    ContextThreadPool::GetInstance().Stop();
+    IamThreadGroups::GetInstance()->DestroyThreadGroup(GROUP_AUTH);
     bool init = OHOS::UserIAM::Common::IsIAMInited();
     if (!init) {
         return;

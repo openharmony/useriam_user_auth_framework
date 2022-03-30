@@ -14,22 +14,28 @@
  */
 
 #include "userauth_excallback_impl.h"
+
 #include <cinttypes>
+
 #include <iservice_registry.h>
+#include <securec.h>
 #include <system_ability_definition.h>
-#include "securec.h"
+
 #include "coauth_info_define.h"
-#include "userauth_hilog_wrapper.h"
-#include "userauth_datamgr.h"
+#include "thread_groups.h"
 #include "userauth_async_proxy.h"
+#include "userauth_datamgr.h"
+#include "userauth_hilog_wrapper.h"
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
+using namespace OHOS::UserIAM::Utils;
+const static std::string GROUP_AUTH = "GROUP_AUTH";
 std::mutex UserAuthCallbackImplCoAuth::coAuthCallbackMutex_;
 std::map<uint64_t, std::shared_ptr<CoAuth::CoAuthCallback>> UserAuthCallbackImplCoAuth::saveCoAuthCallback_;
 
-UserAuthCallbackImplSetProp::UserAuthCallbackImplSetProp(const sptr<IUserAuthCallback>& impl)
+UserAuthCallbackImplSetProp::UserAuthCallbackImplSetProp(const sptr<IUserAuthCallback> &impl)
 {
     if (impl == nullptr) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthCallbackImplSetProp impl callback is nullptr");
@@ -66,8 +72,8 @@ void UserAuthCallbackImplSetPropFreeze::OnResult(uint32_t result, std::vector<ui
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthCallbackImplSetPropFreeze result is %{public}u", result);
 }
 
-UserAuthCallbackImplCoAuth::UserAuthCallbackImplCoAuth(const sptr<IUserAuthCallback>& impl,
-    CoAuthInfo coAuthInfo, bool resultFlag)
+UserAuthCallbackImplCoAuth::UserAuthCallbackImplCoAuth(const sptr<IUserAuthCallback> &impl,
+    const CoAuthInfo &coAuthInfo, bool resultFlag)
 {
     if (impl == nullptr) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthCallbackImplCoAuth impl callback is nullptr");
@@ -89,8 +95,12 @@ void UserAuthCallbackImplCoAuth::OnFinish(uint32_t resultCode, std::vector<uint8
     AuthResult authResult;
     std::vector<uint8_t> scheduleToken_;
     scheduleToken_.assign(scheduleToken.begin(), scheduleToken.end());
-    auto task = std::bind(&UserAuthCallbackImplCoAuth::OnFinishHandle, this, resultCode, scheduleToken_);
-    bool ret = ContextThreadPool::GetInstance().AddTask(callbackContextId_, task);
+
+    auto task = [self = shared_from_this(), resultCode, scheduleToken_]() {
+        self->OnFinishHandle(resultCode, scheduleToken_);
+    };
+
+    bool ret = IamThreadGroups::GetInstance()->PostTask(GROUP_AUTH, callbackContextId_, task);
     if (!ret) {
         USERAUTH_HILOGE(MODULE_SERVICE, "OnFinish ContextThreadPool AddTask failed");
         callback_->onResult(BUSY, authResult);
@@ -103,8 +113,9 @@ void UserAuthCallbackImplCoAuth::OnAcquireInfo(uint32_t acquire)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthCallbackImplCoAuth OnAcquireInfo start");
 
-    auto task = std::bind(&UserAuthCallbackImplCoAuth::OnAcquireInfoHandle, this, acquire);
-    bool ret = ContextThreadPool::GetInstance().AddTask(callbackContextId_, task);
+    auto task = [self = shared_from_this(), acquire]() { self->OnAcquireInfoHandle(acquire); };
+
+    bool ret = IamThreadGroups::GetInstance()->PostTask(GROUP_AUTH, callbackContextId_, task);
     if (!ret) {
         USERAUTH_HILOGE(MODULE_SERVICE, "OnAcquireInfoHandle ContextThreadPool AddTask failed");
         isResultDoneFlag_ = true;
@@ -160,8 +171,8 @@ void UserAuthCallbackImplCoAuth::OnFinishHandle(uint32_t resultCode, std::vector
         return;
     }
     if (resultCode != CANCELED) {
-        ret = UserAuthAdapter::GetInstance().RequestAuthResult(callbackContextId_,
-        scheduleToken, authToken, sessionIds);
+        ret =
+            UserAuthAdapter::GetInstance().RequestAuthResult(callbackContextId_, scheduleToken, authToken, sessionIds);
     }
     if (ret == E_RET_UNDONE) {
         if (callbackNowCount_ == callbackCount_) {
@@ -207,18 +218,24 @@ int32_t UserAuthCallbackImplCoAuth::SaveCoAuthCallback(uint64_t contextId,
     std::shared_ptr<CoAuth::CoAuthCallback> coAuthCallback)
 {
     std::lock_guard<std::mutex> lock(coAuthCallbackMutex_);
-    saveCoAuthCallback_.insert(std::make_pair(contextId, coAuthCallback));
-    if (saveCoAuthCallback_.begin() != saveCoAuthCallback_.end()) {
-        USERAUTH_HILOGD(MODULE_SERVICE, "Save coAuth callback success");
-        return SUCCESS;
+    auto retain = IamThreadGroups::GetInstance()->RetainTaskThread(GROUP_AUTH, contextId);
+    if (!retain) {
+        USERAUTH_HILOGD(MODULE_SERVICE, "Retain coAuth thread failed");
+        return FAIL;
     }
-    USERAUTH_HILOGE(MODULE_SERVICE, "Save coAuth callback failed");
-    return FAIL;
+    auto result = saveCoAuthCallback_.try_emplace(contextId, coAuthCallback);
+    if (!result.second) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "Save coAuth callback failed");
+        return FAIL;
+    }
+    return SUCCESS;
 }
 
 int32_t UserAuthCallbackImplCoAuth::DeleteCoAuthCallback(uint64_t contextId)
 {
     std::lock_guard<std::mutex> lock(coAuthCallbackMutex_);
+
+    (void)IamThreadGroups::GetInstance()->ReleaseTaskThread(GROUP_AUTH, contextId);
     std::map<uint64_t, std::shared_ptr<CoAuth::CoAuthCallback>>::iterator iter = saveCoAuthCallback_.find(contextId);
     if (iter != saveCoAuthCallback_.end()) {
         saveCoAuthCallback_.erase(iter);
@@ -343,5 +360,5 @@ void UserAuthCallbackImplIdmGetPropCoAuth::OnGetInfo(std::vector<UserIDM::Creden
     callback_->onResult(resultCode_, authResult);
 }
 } // namespace UserAuth
-} // namespace UserIam
+} // namespace UserIAM
 } // namespace OHOS
