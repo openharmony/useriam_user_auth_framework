@@ -31,7 +31,8 @@ ResultConvert::~ResultConvert()
 
 napi_value ResultConvert::Uint64ToUint8Napi(napi_env env, uint64_t value)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "ResultConvert Uint64ToUint8Napi uint64_t %{public}04" PRIx64 "", value);
+    USERAUTH_HILOGI(MODULE_JS_NAPI,
+        "ResultConvert Uint64ToUint8Napi uint64_t 0xXXXX%{public}04" PRIx64 "", MASK & value);
     void *data = nullptr;
     napi_value arrayBuffer = nullptr;
     NAPI_CALL(env, napi_create_arraybuffer(env, sizeof(value), &data, &arrayBuffer));

@@ -102,10 +102,9 @@ uint64_t AuthBuild::GetUint8ArrayTo64(napi_env env, napi_value value)
     uint8_t tmp[sizeof(uint64_t)];
     for (uint32_t i = 0; i < sizeof(uint64_t); i++) {
         tmp[i] = result[i];
-        USERAUTH_HILOGI(MODULE_JS_NAPI, "GetUint8ArrayTo64 result is %{public}u", (unsigned)result[i]);
     }
     uint64_t *re = static_cast<uint64_t *>(static_cast<void *>(tmp));
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "GetUint8ArrayTo64 resultUint64 is %{public}04" PRIx64 "", *re);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "GetUint8ArrayTo64 resultUint64 is 0xXXXX%{public}04" PRIx64 "", MASK & *re);
     return *re;
 }
 
