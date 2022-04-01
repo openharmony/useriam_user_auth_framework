@@ -239,7 +239,7 @@ int32_t UserAuthCallbackImplCoAuth::DeleteCoAuthCallback(uint64_t contextId)
     std::map<uint64_t, std::shared_ptr<CoAuth::CoAuthCallback>>::iterator iter = saveCoAuthCallback_.find(contextId);
     if (iter != saveCoAuthCallback_.end()) {
         saveCoAuthCallback_.erase(iter);
-        USERAUTH_HILOGD(MODULE_SERVICE, "contextId XXXX%{public}04" PRIx64 " is deleted", contextId);
+        USERAUTH_HILOGD(MODULE_SERVICE, "contextId 0xXXXX%{public}04" PRIx64 " is deleted", MASK & contextId);
         return SUCCESS;
     }
     USERAUTH_HILOGE(MODULE_SERVICE, "contextId is not found");
