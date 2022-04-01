@@ -584,7 +584,7 @@ napi_value UserAuthImpl::AuthWrap(napi_env env, AuthInfo *authInfo)
     callback.reset(object);
     uint64_t result = UserAuth::GetInstance().Auth(authInfo->challenge, AuthType(authInfo->authType),
         AuthTrustLevel(authInfo->authTrustLevel), callback);
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuth::GetInstance().Auth result = %{public}04" PRIx64 "", result);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuth::GetInstance().Auth result = 0xXXXX%{public}04" PRIx64 "", MASK & result);
     napi_value key = authBuild.Uint64ToUint8Array(env, result);
     USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s end", __func__);
     return key;
@@ -657,7 +657,8 @@ napi_value UserAuthImpl::AuthUserWrap(napi_env env, AuthUserInfo *userInfo)
     callback.reset(object);
     uint64_t result = UserAuth::GetInstance().AuthUser(userInfo->userId, userInfo->challenge,
         AuthType(userInfo->authType), AuthTrustLevel(userInfo->authTrustLevel), callback);
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuth::GetInstance().AuthUser result = %{public}04" PRIx64 "", result);
+    USERAUTH_HILOGI(MODULE_JS_NAPI,
+        "UserAuth::GetInstance().AuthUser result = 0xXXXX%{public}04" PRIx64 "", MASK & result);
     napi_value key = authBuild.Uint64ToUint8Array(env, result);
     USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, end.", __func__);
     return key;
@@ -670,7 +671,7 @@ napi_value UserAuthImpl::CancelAuth(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
 
     uint64_t contextId = authBuild.GetUint8ArrayTo64(env, argv[0]);
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "CancelAuth contextId = %{public}04" PRIx64 "", contextId);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "CancelAuth contextId = 0xXXXX%{public}04" PRIx64 "", MASK & contextId);
     if (contextId == 0) {
         return nullptr;
     }

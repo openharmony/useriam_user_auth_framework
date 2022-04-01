@@ -16,8 +16,6 @@
 #ifndef USERAUTH_HILOG_WRAPPER_H
 #define USERAUTH_HILOG_WRAPPER_H
 
-#define CONFIG_HILOG
-#ifdef CONFIG_HILOG
 #include "hilog/log.h"
 namespace OHOS {
 namespace UserIAM {
@@ -54,6 +52,7 @@ enum UserAuthSubModule {
 };
 
 static constexpr unsigned int BASE_USERAUTH_DOMAIN_ID = 0xD002910;
+constexpr uint64_t MASK = 0x0000FFFF;
 
 enum UserAuthDomainId {
     USERAUTH_INNERKIT_DOMAIN = BASE_USERAUTH_DOMAIN_ID + MODULE_INNERKIT,
@@ -79,15 +78,5 @@ static constexpr OHOS::HiviewDFX::HiLogLabel USERAUTH_LABEL[USERAUTHS_MODULE_BUT
 } // namespace UserAuth
 } // namespace UserIAM
 } // namespace OHOS
-
-#else
-
-#define USERAUTH_HILOGF(...)
-#define USERAUTH_HILOGE(...)
-#define USERAUTH_HILOGW(...)
-#define USERAUTH_HILOGI(...)
-#define USERAUTH_HILOGD(...)
-
-#endif // CONFIG_HILOG
 
 #endif // USERAUTH_HILOG_WRAPPER_H
