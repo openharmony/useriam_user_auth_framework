@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//base/user_iam/user_auth/userauth.gni")
+import("//foundation/aafwk/standard/feature.gni")
 
 config("userauth_private_config") {
   include_dirs = [ "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include" ]
@@ -39,6 +40,14 @@ ohos_shared_library("userauth_framework") {
     "//base/user_iam/auth_executor_mgr/interfaces/innerkits:coauth_framework",
     "//utils/native/base:utils",
   ]
+
+  if (ability_runtime_graphics) {
+    deps += [
+      "//base/user_iam/face_auth/interfaces/innerkits/faceauth:faceauth_framework",
+      "//foundation/graphic/standard:libsurface",
+    ]
+    defines = [ "SUPPORT_SURFACE" ]
+  }
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
