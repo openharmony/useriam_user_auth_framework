@@ -16,8 +16,9 @@
 #include "userauth_service.h"
 
 #include "accesstoken_kit.h"
+#ifdef HAS_OS_ACCOUNT_PART
 #include "os_account_manager.h"
-
+#endif // HAS_OS_ACCOUNT_PART
 #include "thread_groups.h"
 #include "userauth_hilog_wrapper.h"
 #include "useriam_common.h"
@@ -31,6 +32,9 @@ const static int AUTH_TRUST_LEVEL_SYS = 1;
 const static std::string GROUP_AUTH = "GROUP_AUTH";
 static const std::string ACCESS_USER_AUTH_INTERNAL_PERMISSION = "ohos.permission.ACCESS_USER_AUTH_INTERNAL";
 static const std::string ACCESS_BIOMETRIC_PERMISSION = "ohos.permission.ACCESS_BIOMETRIC";
+#ifndef HAS_OS_ACCOUNT_PART
+const int DEFAULT_OS_ACCOUNT_ID = 100; // 100 is the default id when there is no os_account part
+#endif // HAS_OS_ACCOUNT_PART
 
 REGISTER_SYSTEM_ABILITY_BY_ID(UserAuthService, SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true);
 
@@ -129,6 +133,7 @@ void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAu
         return;
     }
     std::vector<int32_t> ids;
+#ifdef HAS_OS_ACCOUNT_PART
     ErrCode queryRet = AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
     if (queryRet != ERR_OK || ids.empty()) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Query active account error:%{public}zu", ids.size());
@@ -136,6 +141,10 @@ void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAu
         callback->onResult(FAIL, extraInfo);
         return;
     }
+#else // HAS_OS_ACCOUNT_PART
+    ids.push_back(DEFAULT_OS_ACCOUNT_ID);
+    USERAUTH_HILOGI(MODULE_SERVICE, "There is no os account part, use default id.");
+#endif // HAS_OS_ACCOUNT_PART
 
     sptr<IRemoteObject::DeathRecipient> dr = new (std::nothrow) UserAuthServiceCallbackDeathRecipient(callback);
     if ((dr == nullptr) || (!callback->AsObject()->AddDeathRecipient(dr))) {
