@@ -185,7 +185,7 @@ int32_t UserAuthService::GetCallingUserId(int32_t &userId)
     if (tokenId == 0) {
         tokenId = this->GetCallingTokenID();
     }
-    Security::AccessToken::ATokenTypeEnum callingType = Security::AccessToken::AccessTokenKit::GetTokenType(tokenId);
+    Security::AccessToken::ATokenTypeEnum callingType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(tokenId);
     if (callingType != Security::AccessToken::TOKEN_HAP) {
         USERAUTH_HILOGE(MODULE_SERVICE, "CallingType is not hap");
         return TYPE_NOT_SUPPORT;
