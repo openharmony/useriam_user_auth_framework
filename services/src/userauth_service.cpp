@@ -33,7 +33,7 @@ const static std::string GROUP_AUTH = "GROUP_AUTH";
 static const std::string ACCESS_USER_AUTH_INTERNAL_PERMISSION = "ohos.permission.ACCESS_USER_AUTH_INTERNAL";
 static const std::string ACCESS_BIOMETRIC_PERMISSION = "ohos.permission.ACCESS_BIOMETRIC";
 #ifndef HAS_OS_ACCOUNT_PART
-const int DEFAULT_OS_ACCOUNT_ID = 100; // 100 is the default id when there is no os_account part
+const int DEFAULT_OS_ACCOUNT_ID = 0; // 0 is the default id when there is no os_account part
 #endif // HAS_OS_ACCOUNT_PART
 
 REGISTER_SYSTEM_ABILITY_BY_ID(UserAuthService, SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true);
