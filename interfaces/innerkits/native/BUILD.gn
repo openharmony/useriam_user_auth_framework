@@ -19,7 +19,13 @@ config("userauth_private_config") {
 }
 
 config("userauth_public_config") {
-  include_dirs = [ "include" ]
+  include_dirs = [ 
+    "include" ,
+    "../../inner_api/include/common",
+    "../../inner_api/include/userauth",
+    "../../inner_api/include/useridm",
+    "../../inner_api/include/authrespool",
+  ]
 }
 
 ohos_shared_library("userauth_framework") {
@@ -27,6 +33,7 @@ ohos_shared_library("userauth_framework") {
     "../../../frameworks/kitsimpl/src/user_auth.cpp",
     "../../../frameworks/kitsimpl/src/userauth_async_stub.cpp",
     "../../../frameworks/kitsimpl/src/userauth_proxy.cpp",
+    "../../../frameworks/native/userauth/userauth.cpp",
   ]
 
   configs = [

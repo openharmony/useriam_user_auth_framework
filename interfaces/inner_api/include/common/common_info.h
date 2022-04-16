@@ -13,28 +13,40 @@
  * limitations under the License.
  */
 
-#ifndef USERAUTH_CALLBACK_H
-#define USERAUTH_CALLBACK_H
+#ifndef COMMON_INFO_H
+#define COMMON_INFO_H
 
-#include "userauth_info.h"
+#include <map>
+#include "parcel.h"
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-class UserAuthCallback {
-public:
-    virtual void onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo) = 0;
-    virtual void onResult(const int32_t result, const AuthResult &extraInfo) = 0;
+enum ResultCode : int32_t {
+    SUCCESS = 0,
+    FAIL = 1,
+    GENERAL_ERROR = 2,
+    CANCELED = 3,
+    TIMEOUT = 4,
+    TYPE_NOT_SUPPORT = 5,
+    TRUST_LEVEL_NOT_SUPPORT = 6,
+    BUSY = 7,
+    INVALID_PARAMETERS = 8,
+    LOCKED = 9,
+    NOT_ENROLLED = 10,
+    IPC_ERROR = 11,
+    INVALID_CONTEXT_ID = 12,
+    E_WRITE_PARCEL_ERROR = 13,
+    E_READ_PARCEL_ERROR = 14,
+    E_GET_POWER_SERVICE_FAILED = 15,
+    E_RET_UNDONE = 16,
+    E_RET_NOSERVER = 17,
+    E_CHECK_PERMISSION_FAILED = 18,
+    ERRORCODE_MAX = 19
 };
-class GetPropCallback {
-public:
-    virtual void onGetProperty(const ExecutorProperty result) = 0;
-};
-class SetPropCallback {
-public:
-    virtual void onSetProperty(const int32_t result) = 0;
-};
+
+
 } // namespace UserAuth
 } // namespace UserIAM
 } // namespace OHOS
-#endif // IUSERAUTH_CALLBACK_H
+#endif // COMMON_INFO_H

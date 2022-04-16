@@ -36,6 +36,8 @@ int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Messag
             return GetAvailableStatusStub(data, reply);
         case static_cast<uint32_t>(IUserAuth::USER_AUTH_GET_PROPERTY):
             return GetPropertyStub(data, reply);
+        case static_cast<uint32_t>(IUserAuth::USER_AUTH_GET_PROPERTY_BY_ID):
+            return GetPropertyByIdStub(data, reply);
         case static_cast<uint32_t>(IUserAuth::USER_AUTH_SET_PROPERTY):
             return SetPropertyStub(data, reply);
         case static_cast<uint32_t>(IUserAuth::USER_AUTH_AUTH):
@@ -106,6 +108,44 @@ int32_t UserAuthStub::GetPropertyStub(MessageParcel &data, MessageParcel &reply)
     }
 
     GetProperty(getPropertyRequest, callback);
+    return SUCCESS;
+}
+
+int32_t UserAuthStub::GetPropertyByIdStub(MessageParcel &data, MessageParcel &reply)
+{
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthStub GetPropertyStub start");
+    GetPropertyRequest getPropertyRequest;
+    int32_t userId;
+    uint32_t authType;
+    std::vector<uint32_t> keys;
+
+    if (!data.ReadInt32(userId)) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to read userId");
+        return E_READ_PARCEL_ERROR;
+    }
+    if (!data.ReadUint32(authType)) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to read authType");
+        return E_READ_PARCEL_ERROR;
+    }
+    if (!data.ReadUInt32Vector(&keys)) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "failed to read keys");
+        return E_READ_PARCEL_ERROR;
+    }
+
+    getPropertyRequest.authType = static_cast<AuthType>(authType);
+    getPropertyRequest.keys = keys;
+
+    sptr<IRemoteObject> obj = data.ReadRemoteObject();
+    if (obj == nullptr) {
+        return E_READ_PARCEL_ERROR;
+    }
+
+    sptr<IUserAuthCallback> callback = iface_cast<IUserAuthCallback>(obj);
+    if (callback == nullptr) {
+        return FAIL;
+    }
+
+    GetProperty(userId, getPropertyRequest, callback);
     return SUCCESS;
 }
 

@@ -13,23 +13,29 @@
  * limitations under the License.
  */
 
-#ifndef USERAUTH_TEST_H
-#define USERAUTH_TEST_H
+#ifndef USERAUTH_CALLBACK_H
+#define USERAUTH_CALLBACK_H
+
+#include "common_info.h"
+#include "userauth_defines.h"
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-void UseriamUtTest_001();
-void UseriamUtTest_002();
-void UseriamUtTest_003();
-void UseriamUtTest_004();
-void UseriamUtTest_005();
-void UseriamUtTest_006();
-void UseriamUtTest_007();
-void UseriamUtTest_008();
-void UseriamUtTest_009();
-void UseriamUtTest_010();
-}
-}
-}
-#endif // USERAUTH_TEST_H
+class UserAuthCallback {
+public:
+    virtual void onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo) = 0;
+    virtual void onResult(const int32_t result, const AuthResult &extraInfo) = 0;
+};
+class GetPropCallback {
+public:
+    virtual void onGetProperty(const ExecutorProperty result) = 0;
+};
+class SetPropCallback {
+public:
+    virtual void onSetProperty(const int32_t result) = 0;
+};
+} // namespace UserAuth
+} // namespace UserIAM
+} // namespace OHOS
+#endif // IUSERAUTH_CALLBACK_H
