@@ -19,7 +19,7 @@ config("userauth_private_config") {
 }
 
 config("userauth_public_config") {
-  include_dirs = [ 
+  include_dirs = [
     "include" ,
     "../../inner_api/include/common",
     "../../inner_api/include/userauth",
