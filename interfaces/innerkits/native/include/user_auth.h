@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef USERAUTH_CLIENT_H
-#define USERAUTH_CLIENT_H
+#ifndef USER_AUTH_H
+#define USER_AUTH_H
 
 #include <iremote_object.h>
 #include <mutex>
@@ -25,14 +25,15 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-class UserAuth : public DelayedRefSingleton<UserAuth> {
-    DECLARE_DELAYED_REF_SINGLETON(UserAuth);
+class UserAuthNative : public DelayedRefSingleton<UserAuthNative> {
+    DECLARE_DELAYED_REF_SINGLETON(UserAuthNative);
 
 public:
-    DISALLOW_COPY_AND_MOVE(UserAuth);
+    DISALLOW_COPY_AND_MOVE(UserAuthNative);
 
     int32_t GetAvailableStatus(const AuthType authType, const AuthTrustLevel authTrustLevel);
     void GetProperty(const GetPropertyRequest &request, std::shared_ptr<GetPropCallback> callback);
+    void GetProperty(const int32_t userId, const GetPropertyRequest &request, std::shared_ptr<GetPropCallback> callback);
     void SetProperty(const SetPropertyRequest &request, std::shared_ptr<SetPropCallback> callback);
     uint64_t Auth(const uint64_t challenge, const AuthType authType, const AuthTrustLevel authTrustLevel,
         std::shared_ptr<UserAuthCallback> callback);
@@ -63,4 +64,4 @@ private:
 } // namespace UserAuth
 } // namespace UserIAM
 } // namespace OHOS
-#endif // USERAUTH_CLIENT_H
+#endif // USER_AUTH_H
