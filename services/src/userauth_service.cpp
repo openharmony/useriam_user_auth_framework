@@ -158,7 +158,8 @@ void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAu
     userAuthController_.GetPropAuthInfo(ids[firstAccountIndex], callerName, callerId, request, callback);
 }
 
-void UserAuthService::GetProperty(const int32_t userId, const GetPropertyRequest request, sptr<IUserAuthCallback> &callback)
+void UserAuthService::GetProperty(const int32_t userId, const GetPropertyRequest request,
+    sptr<IUserAuthCallback> &callback)
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService GetProperty start");
     std::string callerName;

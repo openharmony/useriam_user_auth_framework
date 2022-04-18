@@ -90,7 +90,8 @@ void UserAuthProxy::GetProperty(const GetPropertyRequest request, sptr<IUserAuth
     }
 }
 
-void UserAuthProxy::GetProperty(const int32_t userId, const GetPropertyRequest request, sptr<IUserAuthCallback> &callback)
+void UserAuthProxy::GetProperty(const int32_t userId, const GetPropertyRequest request,
+    sptr<IUserAuthCallback> &callback)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy GetProperty start");
     MessageParcel data;

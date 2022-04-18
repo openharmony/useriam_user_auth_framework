@@ -44,8 +44,6 @@ enum ResultCode : int32_t {
     E_CHECK_PERMISSION_FAILED = 18,
     ERRORCODE_MAX = 19
 };
-
-
 } // namespace UserAuth
 } // namespace UserIAM
 } // namespace OHOS

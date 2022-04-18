@@ -121,7 +121,8 @@ void UserAuthNative::GetProperty(const GetPropertyRequest &request, std::shared_
     proxy->GetProperty(request, asyncStub);
 }
 
-void UserAuthNative::GetProperty(const int32_t userId, const GetPropertyRequest &request, std::shared_ptr<GetPropCallback> callback)
+void UserAuthNative::GetProperty(const int32_t userId, const GetPropertyRequest &request,
+    std::shared_ptr<GetPropCallback> callback)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "GetProperty start");
     if (callback == nullptr) {
