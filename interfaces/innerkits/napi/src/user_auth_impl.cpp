@@ -584,7 +584,8 @@ napi_value UserAuthImpl::AuthWrap(napi_env env, AuthInfo *authInfo)
     callback.reset(object);
     uint64_t result = UserAuthNative::GetInstance().Auth(authInfo->challenge, AuthType(authInfo->authType),
         AuthTrustLevel(authInfo->authTrustLevel), callback);
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthNative::GetInstance().Auth result = 0xXXXX%{public}04" PRIx64 "", MASK & result);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthNative::GetInstance().Auth result = 0xXXXX%{public}04" PRIx64 "",
+        MASK & result);
     napi_value key = authBuild.Uint64ToUint8Array(env, result);
     USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s end", __func__);
     return key;

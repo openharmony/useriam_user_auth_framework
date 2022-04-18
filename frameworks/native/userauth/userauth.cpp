@@ -14,12 +14,10 @@
  */
 
 #include "userauth.h"
-#include "user_auth.h"
-#include <cinttypes>
 #include <if_system_ability_manager.h>
 #include <iservice_registry.h>
-#include <sstream>
 #include <system_ability_definition.h>
+#include "user_auth.h"
 #include "system_ability_definition.h"
 #include "userauth_hilog_wrapper.h"
 
@@ -29,7 +27,8 @@ namespace UserAuth {
 UserAuth::UserAuth() = default;
 UserAuth::~UserAuth() = default;
 
-void UserAuth::GetProperty(const int32_t userId, const GetPropertyRequest &request, std::shared_ptr<GetPropCallback> callback)
+void UserAuth::GetProperty(const int32_t userId, const GetPropertyRequest &request,
+    std::shared_ptr<GetPropCallback> callback)
 {
     USERAUTH_HILOGD(MODULE_INNERAPI, "GetProperty start");
     if (callback == nullptr) {
@@ -40,7 +39,8 @@ void UserAuth::GetProperty(const int32_t userId, const GetPropertyRequest &reque
     UserAuthNative::GetInstance().GetProperty(userId, request, callback);
 }
 
-void UserAuth::SetProperty(const int32_t userId, const SetPropertyRequest &request, std::shared_ptr<SetPropCallback> callback)
+void UserAuth::SetProperty(const int32_t userId, const SetPropertyRequest &request,
+    std::shared_ptr<SetPropCallback> callback)
 {
     static_cast<void>(userId);
     USERAUTH_HILOGD(MODULE_INNERAPI, "SetProperty start");
@@ -61,7 +61,6 @@ uint64_t UserAuth::AuthUser(const int32_t userId, const uint64_t challenge, cons
         return INVALID_PARAMETERS;
     }
     uint64_t ret = UserAuthNative::GetInstance().AuthUser(userId, challenge, authType, authTrustLevel, callback);
-    USERAUTH_HILOGI(MODULE_INNERAPI, "AuthUser result %{public}llu", ret);
     return ret;
 }
 
@@ -69,10 +68,8 @@ int32_t UserAuth::CancelAuth(const uint64_t contextId)
 {
     USERAUTH_HILOGD(MODULE_INNERAPI, "CancelAuth start");
     uint32_t ret = UserAuthNative::GetInstance().CancelAuth(contextId);
-    USERAUTH_HILOGI(MODULE_INNERAPI, "CancelAuth result %{public}u", ret);
     return ret;
 }
-
 } // namespace UserAuth
 } // namespace UserIAM
 } // namespace OHOS

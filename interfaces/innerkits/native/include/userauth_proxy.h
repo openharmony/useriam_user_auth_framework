@@ -31,7 +31,8 @@ public:
 
     int32_t GetAvailableStatus(const AuthType authType, const AuthTrustLevel authTrustLevel) override;
     void GetProperty(const GetPropertyRequest request, sptr<IUserAuthCallback> &callback) override;
-    void GetProperty(const int32_t userId, const GetPropertyRequest request, sptr<IUserAuthCallback> &callback) override;
+    void GetProperty(const int32_t userId, const GetPropertyRequest request,
+        sptr<IUserAuthCallback> &callback) override;
     void SetProperty(const SetPropertyRequest request, sptr<IUserAuthCallback> &callback) override;
     uint64_t Auth(const uint64_t challenge, const AuthType authType, const AuthTrustLevel authTrustLevel,
         sptr<IUserAuthCallback> &callback) override;

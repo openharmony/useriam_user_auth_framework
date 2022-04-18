@@ -64,7 +64,8 @@ public:
      * param request the attribute field list, authentication credential type, and credential information.
      * param callback the authentication result code is returned through the callback.
      */
-    virtual void GetProperty(const int32_t userId, const GetPropertyRequest request, sptr<IUserAuthCallback> &callback) = 0;
+    virtual void GetProperty(const int32_t userId, const GetPropertyRequest request,
+        sptr<IUserAuthCallback> &callback) = 0;
 
     /*
      * set properties: can be used to initialize algorithms.
