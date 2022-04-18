@@ -33,7 +33,8 @@ public:
 
     int32_t GetAvailableStatus(const AuthType authType, const AuthTrustLevel authTrustLevel);
     void GetProperty(const GetPropertyRequest &request, std::shared_ptr<GetPropCallback> callback);
-    void GetProperty(const int32_t userId, const GetPropertyRequest &request, std::shared_ptr<GetPropCallback> callback);
+    void GetProperty(const int32_t userId, const GetPropertyRequest &request,
+        std::shared_ptr<GetPropCallback> callback);
     void SetProperty(const SetPropertyRequest &request, std::shared_ptr<SetPropCallback> callback);
     uint64_t Auth(const uint64_t challenge, const AuthType authType, const AuthTrustLevel authTrustLevel,
         std::shared_ptr<UserAuthCallback> callback);
