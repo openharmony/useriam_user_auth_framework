@@ -20,7 +20,7 @@ config("userauth_private_config") {
 
 config("userauth_public_config") {
   include_dirs = [
-    "./inc",
+    "inc",
     "//base/user_iam/user_auth/interfaces/inner_api/common",
     "//base/user_iam/user_auth/interfaces/inner_api/user_auth",
     "//base/user_iam/user_auth/common/logs/user_auth/inc",

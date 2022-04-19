@@ -27,7 +27,7 @@ ohos_shared_library("userauthservice") {
   ]
 
   include_dirs = [
-    "./inc",
+    "inc",
     "//base/user_iam/user_auth/common/logs/user_auth/inc",
     "//base/user_iam/user_auth/frameworks/user_auth/inc",
     "//base/user_iam/auth_executor_mgr/common/interface",
