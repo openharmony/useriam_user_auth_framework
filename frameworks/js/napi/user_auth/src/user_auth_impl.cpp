@@ -16,7 +16,7 @@
 #include "user_auth_impl.h"
 #include <cinttypes>
 #include <map>
-#include "user_auth.h"
+#include "user_auth_native.h"
 #include "userauth_callback.h"
 #include "userauth_info.h"
 #include "userauth_hilog_wrapper.h"

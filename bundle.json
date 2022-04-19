@@ -36,25 +36,25 @@
       "build": {
         "sub_component": [
             "//base/user_iam/user_auth/sa_profile:userauth_sa_profile",
-            "//base/user_iam/user_auth/services:userauthservice"
+            "//base/user_iam/user_auth/services/user_auth:userauthservice"
         ],
         "inner_kits": [
       	  {
             "type": "so",
-            "name": "//base/user_iam/user_auth/interfaces/innerkits/native:userauth_framework",
+            "name": "//base/user_iam/user_auth/frameworks/user_auth:userauth_framework",
             "header": {
               "header_files": [
-                "userauth/userauth.h",
-                "userauth/userauth_callback.h",
-                "userauth/userauth_defines.h",
+                "user_auth/user_auth.h",
+                "user_auth/userauth_callback.h",
+                "user_auth/userauth_defines.h",
                 "common/common_info.h"
               ],
-              "header_base": "//base/user_iam/user_auth/interfaces/inner_api/include"
+              "header_base": "//base/user_iam/user_auth/interfaces/inner_api/"
             }
           },
           {
             "type": "so",
-            "name": "//base/user_iam/user_auth/interfaces/innerkits/napi:userauth",
+            "name": "//base/user_iam/user_auth/frameworks/js/napi/user_auth:userauth",
             "header": {
               "header_files": [
                 "auth_build.h",
@@ -65,12 +65,12 @@
                 "user_auth_helper.h",
                 "user_auth_impl.h"
               ],
-              "header_base": "//base/user_iam/user_auth/interfaces/innerkits/napi/include"
+              "header_base": "//base/user_iam/user_auth/frameworks/js/napi/user_auth/inc/"
             }
           },
           {
             "type": "so",
-            "name": "//base/user_iam/user_auth/interfaces/innerkits/napi:userauth_napi",
+            "name": "//base/user_iam/user_auth/frameworks/js/napi/user_auth:userauth_napi",
             "header": {
               "header_files": [
                 "auth_build.h",
@@ -81,7 +81,7 @@
                 "user_auth_helper.h",
                 "user_auth_impl.h"
               ],
-              "header_base": "//base/user_iam/user_auth/interfaces/innerkits/napi/include"
+              "header_base": "//base/user_iam/user_auth/frameworks/js/napi/user_auth/inc/"
             }
           }
         ],

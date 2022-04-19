@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-#include "userauth.h"
+#include "user_auth.h"
 #include <if_system_ability_manager.h>
 #include <iservice_registry.h>
 #include <system_ability_definition.h>
-#include "user_auth.h"
+#include "user_auth_native.h"
 #include "system_ability_definition.h"
 #include "userauth_hilog_wrapper.h"
 

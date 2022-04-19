@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "user_auth.h"
+#include "user_auth_native.h"
 #include <cinttypes>
 #include <if_system_ability_manager.h>
 #include <iservice_registry.h>
