@@ -15,7 +15,7 @@ import("//base/user_iam/user_auth/userauth.gni")
 
 config("utils_config") {
   include_dirs = [
-    "./inc",
+    "inc",
     "//utils/native/base/include",
   ]
 }

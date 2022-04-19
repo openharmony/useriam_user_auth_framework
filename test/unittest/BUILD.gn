@@ -20,7 +20,7 @@ module_output_path = "${userauth_native_part_name}/UserAuth_test"
 config("module_private_config") {
   visibility = [ ":*" ]
 
-  include_dirs = [ "./inc" ]
+  include_dirs = [ "inc" ]
 }
 
 ##############################unittest##########################################
@@ -30,7 +30,7 @@ ohos_unittest("unittest_test") {
   sources = [ "src/userauth_test.cpp" ]
 
   include_dirs = [
-    "./inc",
+    "inc",
     "//base/user_iam/user_auth/interfaces/inner_api/common",
     "//base/user_iam/user_auth/interfaces/inner_api/user_auth",
   ]
