@@ -44,15 +44,12 @@
             "name": "//base/user_iam/user_auth/interfaces/innerkits/native:userauth_framework",
             "header": {
               "header_files": [
-                "iuser_auth.h",
-                "iuserauth_callback.h",
-                "user_auth.h",
-                "userauth_async_stub.h",
-                "userauth_callback.h",
-                "userauth_info.h",
-                "userauth_proxy.h"
+                "userauth/userauth.h",
+                "userauth/userauth_callback.h",
+                "userauth/userauth_defines.h",
+                "common/common_info.h"
               ],
-              "header_base": "//base/user_iam/user_auth/interfaces/innerkits/native/include"
+              "header_base": "//base/user_iam/user_auth/interfaces/inner_api/include"
             }
           },
           {

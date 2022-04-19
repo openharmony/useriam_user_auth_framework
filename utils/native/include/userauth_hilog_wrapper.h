@@ -48,6 +48,7 @@ enum UserAuthSubModule {
     MODULE_SERVICE,
     MODULE_COMMON,
     MODULE_JS_NAPI,
+    MODULE_INNERAPI,
     USERAUTHS_MODULE_BUTT,
 };
 
@@ -58,7 +59,8 @@ enum UserAuthDomainId {
     USERAUTH_INNERKIT_DOMAIN = BASE_USERAUTH_DOMAIN_ID + MODULE_INNERKIT,
     USERAUTH_SERVICE_DOMAIN,
     COMMON_DOMAIN,
-    USERAUTH_JS_NAPI
+    USERAUTH_JS_NAPI,
+    USERAUTH_INNERAPI_DOMAIN,
 };
 
 static constexpr OHOS::HiviewDFX::HiLogLabel USERAUTH_LABEL[USERAUTHS_MODULE_BUTT] = {
@@ -66,6 +68,7 @@ static constexpr OHOS::HiviewDFX::HiLogLabel USERAUTH_LABEL[USERAUTHS_MODULE_BUT
     {LOG_CORE, USERAUTH_SERVICE_DOMAIN, "UserAuthService"},
     {LOG_CORE, COMMON_DOMAIN, "UserAuthCommon"},
     {LOG_CORE, USERAUTH_JS_NAPI, "UserAuthJSNAPI"},
+    {LOG_CORE, USERAUTH_INNERAPI_DOMAIN, "UserAuthInnerAPI"},
 };
 
 // In order to improve performance, do not check the module range.

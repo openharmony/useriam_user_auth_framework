@@ -18,82 +18,12 @@
 
 #include <map>
 #include "parcel.h"
+#include "common_info.h"
+#include "userauth_defines.h"
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-enum AuthType : uint32_t {
-    PIN = 1,
-    FACE = 2,
-};
-
-enum class UserAuthType {
-    FACE = 2,
-    FINGERPRINT = 4,
-};
-
-enum AuthSubType : uint64_t {
-    PIN_SIX = 10000,
-    PIN_NUMBER = 10001,
-    PIN_MIXED = 10002,
-    FACE_2D = 20000,
-    FACE_3D = 20001
-};
-
-enum AuthTrustLevel : uint32_t {
-    ATL1 = 10000,
-    ATL2 = 20000,
-    ATL3 = 30000,
-    ATL4 = 40000
-};
-
-enum GetPropertyType : uint32_t {
-    AUTH_SUB_TYPE = 1,
-    REMAIN_TIMES = 2,
-    FREEZING_TIME = 3,
-};
-
-struct GetPropertyRequest {
-    AuthType authType {0};
-    std::vector<uint32_t> keys {};
-};
-
-struct ExecutorProperty {
-    int32_t result;
-    AuthSubType authSubType;
-    uint32_t remainTimes;
-    uint32_t freezingTime;
-};
-
-enum AuthPropertyMode : uint32_t {
-    PROPERMODE_DELETE = 0,
-    PROPERMODE_GET = 1,
-    PROPERMODE_SET = 2,
-    PROPERMODE_FREEZE = 3,
-    PROPERMODE_UNFREEZE = 4,
-    PROPERMODE_INIT_ALGORITHM = 5,
-    PROPERMODE_RELEASE_ALGORITHM = 6,
-    PROPERMODE_SET_SURFACE_ID = 100,
-};
-
-enum SetPropertyType : uint32_t {
-    INIT_ALGORITHM = 1,
-    FREEZE_TEMPLATE = 2,
-    THAW_TEMPLATE = 3,
-};
-
-struct SetPropertyRequest {
-    AuthType authType {0};
-    SetPropertyType key {0};
-    std::vector<uint8_t> setInfo {};
-};
-
-struct AuthResult {
-    std::vector<uint8_t> token {};
-    uint32_t remainTimes {0};
-    uint32_t freezingTime {0};
-};
-
 struct CoAuthInfo {
     AuthType authType {0};
     uint64_t callerID {0};
@@ -101,42 +31,6 @@ struct CoAuthInfo {
     int32_t userID {0};
     std::string pkgName;
     std::vector<uint64_t> sessionIds;
-};
-
-struct FreezeInfo {
-    uint64_t callerID;
-    std::string pkgName;
-    int32_t resultCode;
-    AuthType authType;
-};
-
-struct CallerInfo {
-    uint64_t callerUID;
-    int32_t userID {0};
-    std::string pkgName;
-};
-
-enum ResultCode : int32_t {
-    SUCCESS = 0,
-    FAIL = 1,
-    GENERAL_ERROR = 2,
-    CANCELED = 3,
-    TIMEOUT = 4,
-    TYPE_NOT_SUPPORT = 5,
-    TRUST_LEVEL_NOT_SUPPORT = 6,
-    BUSY = 7,
-    INVALID_PARAMETERS = 8,
-    LOCKED = 9,
-    NOT_ENROLLED = 10,
-    IPC_ERROR = 11,
-    INVALID_CONTEXT_ID = 12,
-    E_WRITE_PARCEL_ERROR = 13,
-    E_READ_PARCEL_ERROR = 14,
-    E_GET_POWER_SERVICE_FAILED = 15,
-    E_RET_UNDONE = 16,
-    E_RET_NOSERVER = 17,
-    E_CHECK_PERMISSION_FAILED = 18,
-    ERRORCODE_MAX = 19
 };
 
 // For API6

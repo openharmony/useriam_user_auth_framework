@@ -16,7 +16,8 @@
 #ifndef USERAUTH_CALLBACK_H
 #define USERAUTH_CALLBACK_H
 
-#include "userauth_info.h"
+#include "common_info.h"
+#include "userauth_defines.h"
 
 namespace OHOS {
 namespace UserIAM {

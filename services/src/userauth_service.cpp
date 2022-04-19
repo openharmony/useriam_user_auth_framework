@@ -158,6 +158,33 @@ void UserAuthService::GetProperty(const GetPropertyRequest request, sptr<IUserAu
     userAuthController_.GetPropAuthInfo(ids[firstAccountIndex], callerName, callerId, request, callback);
 }
 
+void UserAuthService::GetProperty(const int32_t userId, const GetPropertyRequest request,
+    sptr<IUserAuthCallback> &callback)
+{
+    USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService GetProperty start");
+    std::string callerName;
+    if (callback == nullptr) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "callback is nullptr");
+        return;
+    }
+    if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "Permission check failed");
+        AuthResult extraInfo;
+        callback->onResult(E_CHECK_PERMISSION_FAILED, extraInfo);
+        return;
+    }
+
+    sptr<IRemoteObject::DeathRecipient> dr = new (std::nothrow) UserAuthServiceCallbackDeathRecipient(callback);
+    if ((dr == nullptr) || (!callback->AsObject()->AddDeathRecipient(dr))) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
+    }
+
+    uint64_t callerId = static_cast<uint64_t>(this->GetCallingUid());
+    callerName = std::to_string(callerId);
+    
+    userAuthController_.GetPropAuthInfo(userId, callerName, callerId, request, callback);
+}
+
 void UserAuthService::SetProperty(const SetPropertyRequest request, sptr<IUserAuthCallback> &callback)
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService SetProperty start");
