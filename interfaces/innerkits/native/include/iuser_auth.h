@@ -27,6 +27,7 @@ public:
     enum {
         USER_AUTH_GET_AVAILABLE_STATUS = 0,
         USER_AUTH_GET_PROPERTY,
+        USER_AUTH_GET_PROPERTY_BY_ID,
         USER_AUTH_SET_PROPERTY,
         USER_AUTH_AUTH,
         USER_AUTH_AUTH_USER,
@@ -55,6 +56,16 @@ public:
      * param callback the authentication result code is returned through the callback.
      */
     virtual void GetProperty(const GetPropertyRequest request, sptr<IUserAuthCallback> &callback) = 0;
+
+    /*
+     * get the attribute, pass in the user id, the credential type and the key to get,
+     * and return the value corresponding to the key.
+     *
+     * param request the attribute field list, authentication credential type, and credential information.
+     * param callback the authentication result code is returned through the callback.
+     */
+    virtual void GetProperty(const int32_t userId, const GetPropertyRequest request,
+        sptr<IUserAuthCallback> &callback) = 0;
 
     /*
      * set properties: can be used to initialize algorithms.

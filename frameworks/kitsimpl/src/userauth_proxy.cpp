@@ -89,6 +89,44 @@ void UserAuthProxy::GetProperty(const GetPropertyRequest request, sptr<IUserAuth
         callback->onExecutorPropertyInfo(result);
     }
 }
+
+void UserAuthProxy::GetProperty(const int32_t userId, const GetPropertyRequest request,
+    sptr<IUserAuthCallback> &callback)
+{
+    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy GetProperty start");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+
+    if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "write descriptor failed!");
+        return;
+    }
+    if (!data.WriteInt32(userId)) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write userId");
+        return;
+    }
+    if (!data.WriteUint32(static_cast<uint32_t>(request.authType))) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write request.authType");
+        return;
+    }
+    if (!data.WriteUInt32Vector(request.keys)) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write request.keys");
+        return;
+    }
+    if (!data.WriteRemoteObject(callback->AsObject())) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write callback");
+        return;
+    }
+    bool ret = SendRequest(static_cast<int32_t>(IUserAuth::USER_AUTH_GET_PROPERTY_BY_ID), data, reply, option);
+    if (!ret) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "SendRequest failed");
+        ExecutorProperty result = {};
+        result.result = IPC_ERROR;
+        callback->onExecutorPropertyInfo(result);
+    }
+}
+
 void UserAuthProxy::SetProperty(const SetPropertyRequest request, sptr<IUserAuthCallback> &callback)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy SetProperty start");

@@ -36,7 +36,7 @@ UserAuthImpl::~UserAuthImpl()
 
 napi_value UserAuthImpl::GetVersion(napi_env env, napi_callback_info info)
 {
-    int32_t result = UserAuth::GetInstance().GetVersion();
+    int32_t result = UserAuthNative::GetInstance().GetVersion();
     USERAUTH_HILOGI(MODULE_JS_NAPI, "GetVersion result = %{public}d", result);
     napi_value version = 0;
     NAPI_CALL(env, napi_create_int32(env, result, &version));
@@ -69,7 +69,7 @@ napi_value UserAuthImpl::GetAvailableStatus(napi_env env, napi_callback_info inf
     }
     AuthType authType = AuthType(type);
     AuthTrustLevel authTrustLevel = AuthTrustLevel(level);
-    result = UserAuth::GetInstance().GetAvailableStatus(authType, authTrustLevel);
+    result = UserAuthNative::GetInstance().GetAvailableStatus(authType, authTrustLevel);
     USERAUTH_HILOGI(MODULE_JS_NAPI, "GetAvailabeStatus result = %{public}d", result);
     NAPI_CALL(env, napi_create_int32(env, result, &ret));
     return ret;
@@ -165,7 +165,7 @@ void UserAuthImpl::GetPropertyExecute(napi_env env, void *data)
     }
     std::shared_ptr<GetPropApiCallback> callback;
     callback.reset(object);
-    UserAuth::GetInstance().GetProperty(request, callback);
+    UserAuthNative::GetInstance().GetProperty(request, callback);
     USERAUTH_HILOGI(MODULE_JS_NAPI, "GetPropertyExecute end");
 }
 
@@ -312,7 +312,7 @@ void UserAuthImpl::SetPropertyExecute(napi_env env, void *data)
     }
     std::shared_ptr<SetPropApiCallback> callback;
     callback.reset(object);
-    UserAuth::GetInstance().SetProperty(request, callback);
+    UserAuthNative::GetInstance().SetProperty(request, callback);
     USERAUTH_HILOGI(MODULE_JS_NAPI, "SetPropertyExecute end");
 }
 
@@ -449,7 +449,7 @@ napi_value UserAuthImpl::Execute(napi_env env, napi_callback_info info)
         return retPromise;
     }
 
-    UserAuth::GetInstance().Auth(0, FACE, executeInfo->trustLevel, callback);
+    UserAuthNative::GetInstance().Auth(0, FACE, executeInfo->trustLevel, callback);
     return retPromise;
 }
 
@@ -582,9 +582,10 @@ napi_value UserAuthImpl::AuthWrap(napi_env env, AuthInfo *authInfo)
     }
     std::shared_ptr<AuthApiCallback> callback;
     callback.reset(object);
-    uint64_t result = UserAuth::GetInstance().Auth(authInfo->challenge, AuthType(authInfo->authType),
+    uint64_t result = UserAuthNative::GetInstance().Auth(authInfo->challenge, AuthType(authInfo->authType),
         AuthTrustLevel(authInfo->authTrustLevel), callback);
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuth::GetInstance().Auth result = 0xXXXX%{public}04" PRIx64 "", MASK & result);
+    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthNative::GetInstance().Auth result = 0xXXXX%{public}04" PRIx64 "",
+        MASK & result);
     napi_value key = authBuild.Uint64ToUint8Array(env, result);
     USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s end", __func__);
     return key;
@@ -655,10 +656,10 @@ napi_value UserAuthImpl::AuthUserWrap(napi_env env, AuthUserInfo *userInfo)
     }
     std::shared_ptr<AuthApiCallback> callback;
     callback.reset(object);
-    uint64_t result = UserAuth::GetInstance().AuthUser(userInfo->userId, userInfo->challenge,
+    uint64_t result = UserAuthNative::GetInstance().AuthUser(userInfo->userId, userInfo->challenge,
         AuthType(userInfo->authType), AuthTrustLevel(userInfo->authTrustLevel), callback);
     USERAUTH_HILOGI(MODULE_JS_NAPI,
-        "UserAuth::GetInstance().AuthUser result = 0xXXXX%{public}04" PRIx64 "", MASK & result);
+        "UserAuthNative::GetInstance().AuthUser result = 0xXXXX%{public}04" PRIx64 "", MASK & result);
     napi_value key = authBuild.Uint64ToUint8Array(env, result);
     USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, end.", __func__);
     return key;
@@ -675,7 +676,7 @@ napi_value UserAuthImpl::CancelAuth(napi_env env, napi_callback_info info)
     if (contextId == 0) {
         return nullptr;
     }
-    int32_t result = UserAuth::GetInstance().CancelAuth(contextId);
+    int32_t result = UserAuthNative::GetInstance().CancelAuth(contextId);
     USERAUTH_HILOGI(MODULE_JS_NAPI, "CancelAuth result = %{public}d", result);
     napi_value key = 0;
     NAPI_CALL(env, napi_create_int32(env, result, &key));

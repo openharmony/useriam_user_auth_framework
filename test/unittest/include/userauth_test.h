@@ -25,6 +25,10 @@ void UseriamUtTest_003();
 void UseriamUtTest_004();
 void UseriamUtTest_005();
 void UseriamUtTest_006();
+void UseriamUtTest_007();
+void UseriamUtTest_008();
+void UseriamUtTest_009();
+void UseriamUtTest_010();
 }
 }
 }

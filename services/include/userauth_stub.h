@@ -29,6 +29,7 @@ public:
 private:
     int32_t GetAvailableStatusStub(MessageParcel &data, MessageParcel &reply);
     int32_t GetPropertyStub(MessageParcel &data, MessageParcel &reply);
+    int32_t GetPropertyByIdStub(MessageParcel &data, MessageParcel &reply);
     int32_t SetPropertyStub(MessageParcel &data, MessageParcel &reply);
     int32_t AuthStub(MessageParcel &data, MessageParcel &reply);
     int32_t AuthUserStub(MessageParcel &data, MessageParcel &reply);

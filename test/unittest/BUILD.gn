@@ -32,6 +32,10 @@ ohos_unittest("unittest_test") {
   include_dirs = [
     "include",
     "//base/user_iam/user_auth/interfaces/innerkits/include",
+    "//base/user_iam/user_auth/interfaces/inner_api/include/common",
+    "//base/user_iam/user_auth/interfaces/inner_api/include/userauth",
+    "//base/user_iam/user_auth/interfaces/inner_api/include/useridm",
+    "//base/user_iam/user_auth/interfaces/inner_api/include/authrespool",
   ]
 
   configs = [ ":module_private_config" ]
