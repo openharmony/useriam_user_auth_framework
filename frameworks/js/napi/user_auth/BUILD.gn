@@ -16,7 +16,10 @@ import("//build/ohos.gni")
 
 config("userauth_public_config") {
   include_dirs = [
-    "include",
+    "./inc",
+    "//base/user_iam/user_auth/frameworks/user_auth/inc",
+    "//base/user_iam/user_auth/interfaces/inner_api/common",
+    "//base/user_iam/user_auth/interfaces/inner_api/user_auth",
     "//third_party/libuv/include",
   ]
 }
@@ -36,12 +39,12 @@ ohos_shared_library("userauth") {
   ]
 
   deps = [
-    "${userauth_innerkits_path}/native:userauth_framework",
+    "//base/user_iam/user_auth/frameworks/user_auth:userauth_framework",
     "//foundation/ace/napi:ace_napi",
     "//utils/native/base:utils",
   ]
 
-  configs = [ "${userauth_utils_path}:utils_config" ]
+  configs = [ "//base/user_iam/user_auth/common/logs/user_auth:utils_config" ]
 
   public_configs = [ ":userauth_public_config" ]
 
@@ -73,12 +76,12 @@ ohos_shared_library("userauth_napi") {
   ]
 
   deps = [
-    "${userauth_innerkits_path}/native:userauth_framework",
+    "//base/user_iam/user_auth/frameworks/user_auth:userauth_framework",
     "//foundation/ace/napi:ace_napi",
     "//utils/native/base:utils",
   ]
 
-  configs = [ "${userauth_utils_path}:utils_config" ]
+  configs = [ "//base/user_iam/user_auth/common/logs/user_auth:utils_config" ]
 
   public_configs = [ ":userauth_public_config" ]
 
