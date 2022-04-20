@@ -20,7 +20,7 @@ module_output_path = "${userauth_native_part_name}/UserAuth_test"
 config("module_private_config") {
   visibility = [ ":*" ]
 
-  include_dirs = [ "include" ]
+  include_dirs = [ "inc" ]
 }
 
 ##############################unittest##########################################
@@ -30,18 +30,15 @@ ohos_unittest("unittest_test") {
   sources = [ "src/userauth_test.cpp" ]
 
   include_dirs = [
-    "include",
-    "//base/user_iam/user_auth/interfaces/innerkits/include",
-    "//base/user_iam/user_auth/interfaces/inner_api/include/common",
-    "//base/user_iam/user_auth/interfaces/inner_api/include/userauth",
-    "//base/user_iam/user_auth/interfaces/inner_api/include/useridm",
-    "//base/user_iam/user_auth/interfaces/inner_api/include/authrespool",
+    "inc",
+    "//base/user_iam/user_auth/interfaces/inner_api/common",
+    "//base/user_iam/user_auth/interfaces/inner_api/user_auth",
   ]
 
   configs = [ ":module_private_config" ]
 
   deps = [
-    "${userauth_innerkits_path}/native:userauth_framework",
+    "//base/user_iam/user_auth/frameworks/user_auth:userauth_framework",
     "//utils/native/base:utils",
   ]
 

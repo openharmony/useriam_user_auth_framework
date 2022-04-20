@@ -17,11 +17,11 @@
 #include <memory>
 #include <iostream>
 #include <gtest/gtest.h>
-#include "user_auth.h"
+#include "user_auth_native.h"
 #include "userauth_callback.h"
 #include "userauth_info.h"
 #include "common_info.h"
-#include "userauth.h"
+#include "user_auth.h"
 #include "userauth_defines.h"
 
 using namespace testing::ext;

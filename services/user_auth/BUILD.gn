@@ -13,15 +13,6 @@
 
 import("//base/user_iam/user_auth/userauth.gni")
 
-config("userauth_private_config") {
-  include_dirs = [
-    "include",
-    "//base/user_iam/auth_executor_mgr/common/interface",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
-    "//base/security/access_token/interfaces/innerkits/accesstoken/include",
-  ]
-}
-
 ohos_shared_library("userauthservice") {
   cflags_cc = []
   sources = [
@@ -35,13 +26,17 @@ ohos_shared_library("userauthservice") {
     "src/userauth_stub.cpp",
   ]
 
-  configs = [
-    "${userauth_utils_path}:utils_config",
-    ":userauth_private_config",
+  include_dirs = [
+    "inc",
+    "//base/user_iam/user_auth/common/logs/user_auth/inc",
+    "//base/user_iam/user_auth/frameworks/user_auth/inc",
+    "//base/user_iam/auth_executor_mgr/common/interface",
+    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
+    "//base/security/access_token/interfaces/innerkits/accesstoken/include",
   ]
 
   deps = [
-    "${userauth_innerkits_path}/native:userauth_framework",
+    "//base/user_iam/user_auth/frameworks/user_auth:userauth_framework",
     "//base/security/access_token/interfaces/innerkits/accesstoken:libaccesstoken_sdk",
     "//base/startup/syspara_lite/interfaces/innerkits/native/syspara:syspara",
     "//base/user_iam/auth_executor_mgr/common:useriam_common_lib",
