@@ -43,7 +43,7 @@ ohos_shared_library("userauth_framework") {
   public_configs = [ ":userauth_public_config" ]
 
   deps = [
-    "//base/user_iam/auth_executor_mgr/interfaces/innerkits:coauth_framework",
+    "//base/user_iam/user_auth/frameworks/co_auth:coauth_framework",
     "//utils/native/base:utils",
   ]
 

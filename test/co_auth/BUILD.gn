@@ -11,25 +11,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/ohos.gni")
+import("//base/user_iam/user_auth/userauth.gni")
+import("//build/test.gni")
 
-userauth_native_part_name = "user_auth"
-
-userauth_root_path = "//base/user_iam/user_auth"
-
-userauth_frameworks_path = "${userauth_root_path}/frameworks"
-
-userauth_interfaces_path = "${userauth_root_path}/interfaces"
-
-coauth_native_part_name = "user_auth"
-
-coauth_root_path = "//base/user_iam/user_auth/"
-
-coauth_service_path = "${coauth_root_path}/services/co_auth"
-
-if (!defined(global_parts_info) ||
-    defined(global_parts_info.account_os_account_standard)) {
-  has_os_account_part = true
-} else {
-  has_os_account_part = false
+group("coauth_unittest_test") {
+  testonly = true
+  deps = [ "unittest:coauth_UT_test" ]
 }
