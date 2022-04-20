@@ -17,17 +17,9 @@ userauth_native_part_name = "user_auth"
 
 userauth_root_path = "//base/user_iam/user_auth"
 
-userauth_service_path = "${userauth_root_path}/services"
-
 userauth_frameworks_path = "${userauth_root_path}/frameworks"
 
 userauth_interfaces_path = "${userauth_root_path}/interfaces"
-
-userauth_kits_path = "${userauth_interfaces_path}/kits"
-
-userauth_innerkits_path = "${userauth_interfaces_path}/innerkits"
-
-userauth_utils_path = "${userauth_root_path}/utils"
 
 if (!defined(global_parts_info) ||
     defined(global_parts_info.account_os_account_standard)) {

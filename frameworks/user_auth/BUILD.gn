@@ -20,24 +20,23 @@ config("userauth_private_config") {
 
 config("userauth_public_config") {
   include_dirs = [
-    "include",
-    "../../inner_api/include/common",
-    "../../inner_api/include/userauth",
-    "../../inner_api/include/useridm",
-    "../../inner_api/include/authrespool",
+    "inc",
+    "//base/user_iam/user_auth/interfaces/inner_api/common",
+    "//base/user_iam/user_auth/interfaces/inner_api/user_auth",
+    "//base/user_iam/user_auth/common/logs/user_auth/inc",
   ]
 }
 
 ohos_shared_library("userauth_framework") {
   sources = [
-    "../../../frameworks/kitsimpl/src/user_auth.cpp",
-    "../../../frameworks/kitsimpl/src/userauth_async_stub.cpp",
-    "../../../frameworks/kitsimpl/src/userauth_proxy.cpp",
-    "../../../frameworks/native/userauth/userauth.cpp",
+    "${userauth_frameworks_path}/user_auth/src/user_auth_native.cpp",
+    "${userauth_frameworks_path}/user_auth/src/userauth_async_stub.cpp",
+    "${userauth_frameworks_path}/user_auth/src/userauth_proxy.cpp",
+    "${userauth_frameworks_path}/user_auth/src/user_auth.cpp",
   ]
 
   configs = [
-    "${userauth_utils_path}:utils_config",
+    "//base/user_iam/user_auth/common/logs/user_auth:utils_config",
     ":userauth_private_config",
   ]
 
