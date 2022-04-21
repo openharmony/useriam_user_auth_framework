@@ -32,7 +32,6 @@ namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {
 namespace Hal {
-
 int32_t OpenSession(int32_t userId, uint64_t &challenge)
 {
     GlobalLock();
