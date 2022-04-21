@@ -17,7 +17,7 @@ import("//build/ohos.gni")
 import("//build/ohos_var.gni")
 
 ohos_shared_library("useriam_common_lib") {
-  part_name = "useriam_common"
+  part_name = "user_auth"
   subsystem_name = "useriam"
 
   sources = [
