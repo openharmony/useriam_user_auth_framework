@@ -20,7 +20,8 @@ module_output_path = "user_auth/coauth_UT_test"
 ohos_unittest("coauth_UT_test") {
   module_out_path = module_output_path
 
-  sources = [ "//base/user_iam/user_auth/test/co_auth/unittest/src/coauth_test.cpp" ]
+  sources =
+      [ "//base/user_iam/user_auth/test/co_auth/unittest/src/coauth_test.cpp" ]
 
   include_dirs = [
     "//base/user_iam/user_auth/test/co_auth/unittest/inc",
@@ -28,7 +29,7 @@ ohos_unittest("coauth_UT_test") {
     "//base/user_iam/user_auth/services/co_auth/inc",
     "//base/user_iam/user_auth/frameworks/co_auth/inc",
   ]
-  
+
   deps = [
     "//base/user_iam/user_auth/frameworks/co_auth:coauth_framework",
     "//utils/native/base:utils",
