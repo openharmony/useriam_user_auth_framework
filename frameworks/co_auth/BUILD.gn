@@ -1,0 +1,68 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//base/user_iam/user_auth/userauth.gni")
+
+config("coauth_private_config") {
+  include_dirs = [ "//base/user_iam/user_auth/services/co_auth/inc" ]
+}
+
+config("coauth_public_config") {
+  include_dirs = [
+    "inc",
+    "//base/user_iam/user_auth/services/co_auth/inc",
+    "//base/user_iam/user_auth/interfaces/inner_api/co_auth",
+  ]
+}
+
+ohos_shared_library("coauth_framework") {
+  sources = [
+    "src/auth_attributes.cpp",
+    "src/auth_executor.cpp",
+    "src/auth_executor_registry.cpp",
+    "src/auth_info.cpp",
+    "src/auth_message.cpp",
+    "src/co_auth.cpp",
+    "src/coauth_callback_proxy.cpp",
+    "src/coauth_callback_stub.cpp",
+    "src/coauth_proxy.cpp",
+    "src/executor_callback_proxy.cpp",
+    "src/executor_callback_stub.cpp",
+    "src/executor_messenger_proxy.cpp",
+    "src/executor_messenger_stub.cpp",
+    "src/query_callback_proxy.cpp",
+    "src/query_callback_stub.cpp",
+    "src/set_prop_callback_proxy.cpp",
+    "src/set_prop_callback_stub.cpp",
+  ]
+
+  configs = [
+    "//base/user_iam/user_auth/common/logs/co_auth:utils_config",
+    ":coauth_private_config",
+  ]
+
+  public_configs = [
+    ":coauth_public_config",
+    "//base/user_iam/user_auth/common/logs/co_auth:utils_config",
+  ]
+
+  deps = [ "//utils/native/base:utils" ]
+
+  external_deps = [
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "samgr_standard:samgr_proxy",
+  ]
+
+  part_name = "${coauth_native_part_name}"
+}
