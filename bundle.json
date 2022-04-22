@@ -27,7 +27,7 @@
             "safwk",
             "samgr_standard",
             "hilog",
-            "auth_executor_mgr"
+            "user_auth"
         ],
         "third_party": [
             "openssl"
@@ -35,8 +35,12 @@
       },
       "build": {
         "sub_component": [
-            "//base/user_iam/user_auth/sa_profile:userauth_sa_profile",
-            "//base/user_iam/user_auth/services/user_auth:userauthservice"
+            "//base/user_iam/user_auth/sa_profile/user_auth:userauth_sa_profile",
+            "//base/user_iam/user_auth/services/user_auth:userauthservice",
+            "//base/user_iam/user_auth/sa_profile/co_auth:coauth_sa_profile",
+            "//base/user_iam/user_auth/services/co_auth:coauthservice",
+            "//base/user_iam/user_auth/sa_profile/co_auth:useriam.init",
+            "//base/user_iam/user_auth/services/co_auth/common:useriam_common_lib"
         ],
         "inner_kits": [
       	  {
@@ -83,10 +87,32 @@
               ],
               "header_base": "//base/user_iam/user_auth/frameworks/js/napi/user_auth/inc/"
             }
+          },
+          {
+            "type": "so",
+            "name": "//base/user_iam/user_auth/frameworks/co_auth:coauth_framework",
+            "header": {
+              "header_files": [
+                "interfaces/inner_api/co_auth/auth_attributes.h",
+                "interfaces/inner_api/co_auth/auth_executor.h",
+                "frameworks/co_auth/inc/auth_executor_registry.h",
+                "interfaces/inner_api/co_auth/auth_info.h",
+                "frameworks/co_auth/inc/auth_message.h",
+                "frameworks/co_auth/inc/co_auth.h",
+                "interfaces/inner_api/co_auth/coauth_callback.h",
+                "interfaces/inner_api/co_auth/coauth_info_define.h",
+                "interfaces/inner_api/co_auth/executor_callback.h",
+                "services/co_auth/inc/executor_messenger.h",
+                "interfaces/inner_api/co_auth/query_callback.h",
+                "interfaces/inner_api/co_auth/set_prop_callback.h"
+              ],
+              "header_base": "//base/user_iam/user_auth/"
+            }
           }
         ],
         "test": [
-            "//base/user_iam/user_auth/test:userauth_native_test"
+            "//base/user_iam/user_auth/test/user_auth:userauth_native_test",
+            "//base/user_iam/user_auth/test/co_auth:coauth_unittest_test"
         ]
       }
     }
