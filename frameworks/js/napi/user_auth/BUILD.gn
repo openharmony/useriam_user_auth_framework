@@ -11,24 +11,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/user_iam/user_auth/userauth.gni")
 import("//build/ohos.gni")
 
 config("userauth_public_config") {
-  include_dirs = [
-    "inc",
-    "//base/user_iam/user_auth/frameworks/user_auth/inc",
-    "//base/user_iam/user_auth/interfaces/inner_api/common",
-    "//base/user_iam/user_auth/interfaces/inner_api/user_auth",
-    "//third_party/libuv/include",
-  ]
+  include_dirs = [ "inc" ]
 }
 
 ohos_shared_library("userauth") {
-  cflags = [
-    "-fPIC",
-    "-g3",
-  ]
+  include_dirs = [ "inc" ]
 
   sources = [
     "src/auth_build.cpp",
@@ -38,34 +28,32 @@ ohos_shared_library("userauth") {
     "src/user_auth_impl.cpp",
   ]
 
-  deps = [
-    "//base/user_iam/user_auth/frameworks/user_auth:userauth_framework",
-    "//foundation/ace/napi:ace_napi",
-    "//utils/native/base:utils",
-  ]
-
-  configs = [ "//base/user_iam/user_auth/common/logs/user_auth:utils_config" ]
-
-  public_configs = [ ":userauth_public_config" ]
+  deps = [ "//base/user_iam/user_auth/frameworks/user_auth:userauth_framework" ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
+    "utils_base:utils",
   ]
 
-  relative_install_dir = "module"
+  cflags = [
+    "-fPIC",
+    "-g3",
+  ]
 
+  configs = [ "//base/user_iam/user_auth/common:iam_log_config" ]
+  public_configs = [ ":userauth_public_config" ]
+
+  relative_install_dir = "module"
   part_name = "user_auth"
   subsystem_name = "useriam"
 }
 
 ohos_shared_library("userauth_napi") {
-  cflags = [
-    "-fPIC",
-    "-g3",
-  ]
-
   defines = [ "USER_AUTH_FOR_KITS" ]
+
+  include_dirs = [ "inc" ]
 
   sources = [
     "src/auth_build.cpp",
@@ -75,19 +63,21 @@ ohos_shared_library("userauth_napi") {
     "src/user_auth_impl.cpp",
   ]
 
-  deps = [
-    "//base/user_iam/user_auth/frameworks/user_auth:userauth_framework",
-    "//foundation/ace/napi:ace_napi",
-    "//utils/native/base:utils",
-  ]
-
-  configs = [ "//base/user_iam/user_auth/common/logs/user_auth:utils_config" ]
-
-  public_configs = [ ":userauth_public_config" ]
+  deps = [ "//base/user_iam/user_auth/frameworks/user_auth:userauth_framework" ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
+    "utils_base:utils",
+  ]
+
+  configs = [ "//base/user_iam/user_auth/common:iam_log_config" ]
+  public_configs = [ ":userauth_public_config" ]
+
+  cflags = [
+    "-fPIC",
+    "-g3",
   ]
 
   relative_install_dir = "module/useriam"

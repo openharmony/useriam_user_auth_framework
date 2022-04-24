@@ -10,8 +10,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import("//base/user_iam/user_auth/userauth.gni")
-import("//build/lite/config/component/lite_component.gni")
+
 import("//build/ohos.gni")
 
 config("useridm_public_config") {
@@ -26,6 +25,12 @@ config("useridm_public_config") {
 }
 
 ohos_shared_library("useridm") {
+  include_dirs = [
+    "inc",
+    "//third_party/libuv/include",
+    "//base/user_iam/user_auth/frameworks/user_idm:ohosuseridm",
+  ]
+
   sources = [
     "src/auth_common.cpp",
     "src/authface_userIDM_helper.cpp",
@@ -33,31 +38,19 @@ ohos_shared_library("useridm") {
     "src/useridentity_manager.cpp",
   ]
 
-  include_dirs = [
-    "inc",
-    "//third_party/libuv/include",
-    "//base/user_iam/user_auth/frameworks/user_idm:ohosuseridm",
-  ]
+  deps = [ "//base/user_iam/user_auth/frameworks/user_idm:useridm_framework" ]
 
-  deps = [
-    "//base/user_iam/user_auth/frameworks/user_idm:useridm_framework",
-    "//foundation/ace/napi:ace_napi",
-    "//utils/native/base:utils",
-  ]
-
-  public_configs = [ ":useridm_public_config" ]
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
+    "utils_base:utils",
   ]
-  if (is_standard_system) {
-    external_deps += [ "hiviewdfx_hilog_native:libhilog" ]
-  } else {
-    external_deps += [ "hilog:libhilog" ]
-  }
 
-  public_deps = []
+  public_configs = [ ":useridm_public_config" ]
+
   relative_install_dir = "module"
-  part_name = "${useridm_native_part_name}"
+
   subsystem_name = "useriam"
+  part_name = "user_auth"
 }
