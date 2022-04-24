@@ -16,7 +16,6 @@ import("//base/user_iam/user_auth/userauth.gni")
 ohos_shared_library("userauthservice") {
   cflags_cc = []
   sources = [
-    "src/thread_groups.cpp",
     "src/userauth_adapter.cpp",
     "src/userauth_async_proxy.cpp",
     "src/userauth_controller.cpp",
@@ -29,28 +28,28 @@ ohos_shared_library("userauthservice") {
   include_dirs = [
     "inc",
     "//base/user_iam/user_auth/common/logs/user_auth/inc",
+    "//base/user_iam/user_auth/common/logs",
     "//base/user_iam/user_auth/frameworks/user_auth/inc",
     "//base/user_iam/user_auth/services/co_auth/common/interface",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
-    "//base/security/access_token/interfaces/innerkits/accesstoken/include",
   ]
 
   deps = [
-    "//base/security/access_token/interfaces/innerkits/accesstoken:libaccesstoken_sdk",
-    "//base/startup/syspara_lite/interfaces/innerkits/native/syspara:syspara",
+    "//base/user_iam/user_auth/common:iam_thread_pool",
     "//base/user_iam/user_auth/frameworks/co_auth:coauth_framework",
     "//base/user_iam/user_auth/frameworks/user_auth:userauth_framework",
     "//base/user_iam/user_auth/services/co_auth/common:useriam_common_lib",
     "//base/user_iam/user_idm/interfaces/innerkits:useridm_framework",
     "//third_party/openssl:libcrypto_static",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
+    "access_token:libaccesstoken_sdk",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
+    "startup_l2:syspara",
+    "utils_base:utils",
   ]
 
   if (has_os_account_part) {
