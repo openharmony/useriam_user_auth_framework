@@ -22,6 +22,44 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
+enum AuthType : uint32_t {
+    /**
+     * Authentication type all.
+     */
+    ALL = 0,
+    /**
+     * Authentication type pin.
+     */
+    PIN = 1,
+    /**
+     * Authentication type face.
+     */
+    FACE = 2,
+};
+
+enum AuthSubType : uint64_t {
+    /**
+     * Authentication sub type six number pin.
+     */
+    PIN_SIX = 10000,
+    /**
+     * Authentication sub type self defined number pin.
+     */
+    PIN_NUMBER = 10001,
+    /**
+     * Authentication sub type mixed pin.
+     */
+    PIN_MIXED = 10002,
+    /**
+     * Authentication sub type 2D face.
+     */
+    FACE_2D = 20000,
+    /**
+     * Authentication sub type 3D face.
+     */
+    FACE_3D = 20001,
+};
+
 enum ResultCode : int32_t {
     SUCCESS = 0,
     FAIL = 1,
