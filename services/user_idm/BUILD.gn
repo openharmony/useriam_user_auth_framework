@@ -12,37 +12,47 @@
 # limitations under the License.
 
 import("//base/user_iam/user_auth/userauth.gni")
+import("//build/ohos.gni")
 
-ohos_shared_library("userauthservice") {
-  cflags_cc = []
-  sources = [
-    "src/thread_groups.cpp",
-    "src/userauth_adapter.cpp",
-    "src/userauth_async_proxy.cpp",
-    "src/userauth_controller.cpp",
-    "src/userauth_datamgr.cpp",
-    "src/userauth_excallback_impl.cpp",
-    "src/userauth_service.cpp",
-    "src/userauth_stub.cpp",
-  ]
-
+config("useridm_private_config") {
   include_dirs = [
-    "inc",
-    "//base/user_iam/user_auth/common/logs/user_auth/inc",
-    "//base/user_iam/user_auth/frameworks/user_auth/inc",
+    "//base/user_iam/user_auth/common/logs/user_idm",
+    "//base/user_iam/user_auth/services/user_idm/inc",
+    "//base/user_iam/user_auth/frameworks/user_idm/inc",
+    "//base/user_iam/user_auth/interfaces/inner_api/user_idm",
     "//base/user_iam/user_auth/services/co_auth/common/interface",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
     "//base/security/access_token/interfaces/innerkits/accesstoken/include",
   ]
+}
+
+config("useridm_public_config") {
+  include_dirs = [ "inc" ]
+}
+
+ohos_shared_library("useridmservice") {
+  sources = [
+    "${useridm_services_path}/src/useridm_adapter.cpp",
+    "${useridm_services_path}/src/useridm_callback_proxy.cpp",
+    "${useridm_services_path}/src/useridm_coauth_handler.cpp",
+    "${useridm_services_path}/src/useridm_controller.cpp",
+    "${useridm_services_path}/src/useridm_getinfo_callback_proxy.cpp",
+    "${useridm_services_path}/src/useridm_getsecinfo_callback_proxy.cpp",
+    "${useridm_services_path}/src/useridm_module.cpp",
+    "${useridm_services_path}/src/useridm_service.cpp",
+    "${useridm_services_path}/src/useridm_setprop_handler.cpp",
+    "${useridm_services_path}/src/useridm_stub.cpp",
+  ]
+
+  configs = [ ":useridm_private_config" ]
+
+  public_configs = [ ":useridm_public_config" ]
 
   deps = [
     "//base/security/access_token/interfaces/innerkits/accesstoken:libaccesstoken_sdk",
-    "//base/startup/syspara_lite/interfaces/innerkits/native/syspara:syspara",
     "//base/user_iam/user_auth/frameworks/co_auth:coauth_framework",
-    "//base/user_iam/user_auth/frameworks/user_auth:userauth_framework",
     "//base/user_iam/user_auth/frameworks/user_idm:useridm_framework",
     "//base/user_iam/user_auth/services/co_auth/common:useriam_common_lib",
-    "//third_party/openssl:libcrypto_static",
     "//utils/native/base:utils",
   ]
 
@@ -53,12 +63,5 @@ ohos_shared_library("userauthservice") {
     "samgr_standard:samgr_proxy",
   ]
 
-  if (has_os_account_part) {
-    cflags_cc += [ "-DHAS_OS_ACCOUNT_PART" ]
-    external_deps += [ "os_account_standard:os_account_innerkits" ]
-  }
-
-  remove_configs = [ "//build/config/compiler:no_exceptions" ]
-
-  part_name = "${userauth_native_part_name}"
+  part_name = "${useridm_native_part_name}"
 }
