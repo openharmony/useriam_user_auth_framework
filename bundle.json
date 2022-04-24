@@ -18,8 +18,8 @@
       "adapted_system_type": [ "standard" ],
       "syscap": ["SystemCapability.UserIAM.UserAuth.Core"],
       "features": [],
-      "rom": "2400KB",
-      "ram": "1500KB",
+      "rom": "3924KB",
+      "ram": "5000KB",
       "deps": {
         "components": [
             "hiviewdfx_hilog_native",
@@ -40,7 +40,10 @@
             "//base/user_iam/user_auth/sa_profile/co_auth:coauth_sa_profile",
             "//base/user_iam/user_auth/services/co_auth:coauthservice",
             "//base/user_iam/user_auth/sa_profile/co_auth:useriam.init",
-            "//base/user_iam/user_auth/services/co_auth/common:useriam_common_lib"
+            "//base/user_iam/user_auth/services/co_auth/common:useriam_common_lib",
+            "//base/user_iam/user_auth/services/user_idm:useridmservice",
+            "//base/user_iam/user_auth/sa_profile/user_idm:useridm_sa_profile",
+            "//base/user_iam/user_auth/frameworks/js/napi/user_idm:useridm"
         ],
         "inner_kits": [
       	  {
@@ -108,11 +111,31 @@
               ],
               "header_base": "//base/user_iam/user_auth/"
             }
+          },
+          {
+            "type": "so",
+            "name": "//base/user_iam/user_auth/frameworks/user_idm:useridm_framework",
+            "header": {
+              "header_files": [
+                "interfaces/inner_api/user_idm/iuser_idm.h",
+                "interfaces/inner_api/user_idm/iuseridm_callback.h",
+                "interfaces/inner_api/user_idm/useridm_callback.h",
+                "frameworks/user_idm/inc/useridm_callback_stub.h",
+                "frameworks/user_idm/inc/useridm_client.h",
+                "frameworks/user_idm/inc/useridm_getinfo_callback_stub.h",
+                "frameworks/user_idm/inc/useridm_getsecinfo_callback_stub.h",
+                "common/logs/user_idm/useridm_hilog_wrapper.h",
+                "interfaces/inner_api/user_idm/useridm_info.h",
+                "frameworks/user_idm/inc/useridm_proxy.h"
+              ],
+              "header_base": "//base/user_iam/user_auth/"
+            }
           }
         ],
         "test": [
             "//base/user_iam/user_auth/test/user_auth:userauth_native_test",
-            "//base/user_iam/user_auth/test/co_auth:coauth_unittest_test"
+            "//base/user_iam/user_auth/test/co_auth:coauth_unittest_test",
+            "//base/user_iam/user_auth/test/user_idm/unittest:UserIDM_UT_test"
         ]
       }
     }
