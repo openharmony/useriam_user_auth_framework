@@ -37,4 +37,6 @@
 *.out
 *.app
 
-
+# Hidden
+.*
+!/.gitignore
