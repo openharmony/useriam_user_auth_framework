@@ -27,12 +27,17 @@ config("module_private_config") {
 ohos_unittest("unittest_test") {
   module_out_path = module_output_path
 
-  sources = [ "src/userauth_test.cpp" ]
+  sources = [
+    "src/user_idm_callback_test.cpp",
+    "src/user_idm_ut_test.cpp",
+    "src/userauth_test.cpp",
+  ]
 
   include_dirs = [
     "inc",
     "//base/user_iam/user_auth/interfaces/inner_api/common",
     "//base/user_iam/user_auth/interfaces/inner_api/user_auth",
+    "//base/user_iam/user_auth/interfaces/inner_api/useridm",
   ]
 
   configs = [ ":module_private_config" ]
