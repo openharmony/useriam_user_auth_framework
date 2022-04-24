@@ -17,7 +17,6 @@
 #define USERIDM_INFO_H
 
 #include <vector>
-#include <cstdint>
 
 namespace OHOS {
 namespace UserIAM {
