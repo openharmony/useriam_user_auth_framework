@@ -23,22 +23,9 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-enum AuthType : uint32_t {
-    PIN = 1,
-    FACE = 2,
-};
-
 enum class UserAuthType {
     FACE = 2,
     FINGERPRINT = 4,
-};
-
-enum AuthSubType : uint64_t {
-    PIN_SIX = 10000,
-    PIN_NUMBER = 10001,
-    PIN_MIXED = 10002,
-    FACE_2D = 20000,
-    FACE_3D = 20001
 };
 
 enum AuthTrustLevel : uint32_t {
