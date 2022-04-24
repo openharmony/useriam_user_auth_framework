@@ -11,46 +11,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/user_iam/user_auth/userauth.gni")
+import("//build/ohos.gni")
 import("//foundation/aafwk/standard/feature.gni")
 
-config("userauth_private_config") {
-  include_dirs = [ "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include" ]
-}
-
-config("userauth_public_config") {
+config("userauth_framework_public_config") {
   include_dirs = [
     "inc",
-    "//base/user_iam/user_auth/interfaces/inner_api/common",
     "//base/user_iam/user_auth/interfaces/inner_api/user_auth",
-    "//base/user_iam/user_auth/interfaces/inner_api/user_idm",
-    "//base/user_iam/user_auth/common/logs/user_auth/inc",
-    "//base/user_iam/user_idm/interfaces/innerkits/include",
+    "//base/user_iam/user_auth/interfaces/inner_api/common",
   ]
 }
 
 ohos_shared_library("userauth_framework") {
+  include_dirs = [ "inc" ]
+
   sources = [
-    "${userauth_frameworks_path}/user_auth/src/user_auth.cpp",
-    "${userauth_frameworks_path}/user_auth/src/user_auth_native.cpp",
-    "${userauth_frameworks_path}/user_auth/src/userauth_async_stub.cpp",
-    "${userauth_frameworks_path}/user_auth/src/userauth_proxy.cpp",
-    "${userauth_frameworks_path}/user_idm/user_idm.cpp",
+    "src/user_auth.cpp",
+    "src/user_auth_native.cpp",
+    "src/userauth_async_stub.cpp",
+    "src/userauth_proxy.cpp",
   ]
 
-  configs = [
-    "//base/user_iam/user_auth/common/logs/user_auth:utils_config",
-    ":userauth_private_config",
+  deps = [ "//base/user_iam/user_auth/frameworks/co_auth:coauth_framework" ]
+
+  external_deps = [
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "samgr_standard:samgr_proxy",
+    "utils_base:utils",
   ]
 
-  public_configs = [ ":userauth_public_config" ]
-
-  deps = [
-    "//base/user_iam/user_auth/frameworks/co_auth:coauth_framework",
-    "//utils/native/base:utils",
-  ]
-
-  if (ability_runtime_graphics) {
+  if (defined(ability_runtime_graphics) && ability_runtime_graphics) {
     deps += [
       "//base/user_iam/face_auth/interfaces/innerkits/faceauth:faceauth_framework",
       "//foundation/graphic/standard:libsurface",
@@ -58,11 +49,12 @@ ohos_shared_library("userauth_framework") {
     defines = [ "SUPPORT_SURFACE" ]
   }
 
-  external_deps = [
-    "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
-    "samgr_standard:samgr_proxy",
+  configs = [ "//base/user_iam/user_auth/common:iam_log_config" ]
+  public_configs = [
+    ":userauth_framework_public_config",
+    "//base/user_iam/user_auth/common:iam_log_config",
   ]
 
-  part_name = "${userauth_native_part_name}"
+  part_name = "user_auth"
+  subsystem_name = "useriam"
 }
