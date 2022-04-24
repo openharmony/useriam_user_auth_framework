@@ -19,16 +19,16 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-void UseriamUtTest_001();
-void UseriamUtTest_002();
-void UseriamUtTest_003();
-void UseriamUtTest_004();
-void UseriamUtTest_005();
-void UseriamUtTest_006();
-void UseriamUtTest_007();
-void UseriamUtTest_008();
-void UseriamUtTest_009();
-void UseriamUtTest_010();
+void UserAuthUtTest_001();
+void UserAuthUtTest_002();
+void UserAuthUtTest_003();
+void UserAuthUtTest_004();
+void UserAuthUtTest_005();
+void UserAuthUtTest_006();
+void UserAuthUtTest_007();
+void UserAuthUtTest_008();
+void UserAuthUtTest_009();
+void UserAuthUtTest_010();
 }
 }
 }
