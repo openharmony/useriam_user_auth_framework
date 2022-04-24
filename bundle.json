@@ -104,7 +104,10 @@
                 "interfaces/inner_api/co_auth/executor_callback.h",
                 "services/co_auth/inc/executor_messenger.h",
                 "interfaces/inner_api/co_auth/query_callback.h",
-                "interfaces/inner_api/co_auth/set_prop_callback.h"
+                "interfaces/inner_api/co_auth/set_prop_callback.h",
+                "interfaces/inner_api/co_auth/co_auth_defines.h",
+                "interfaces/inner_api/co_auth/executor_callback.h",
+                "interfaces/inner_api/co_auth/executor_mgr.h"
               ],
               "header_base": "//base/user_iam/user_auth/"
             }

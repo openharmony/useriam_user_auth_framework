@@ -38,7 +38,7 @@ int32_t AuthExecutor::GetAuthType(AuthType &value)
     return 0;
 }
 
-int32_t AuthExecutor::SetAuthType(AuthType value)
+int32_t AuthExecutor::SetAuthType(const AuthType value)
 {
     authTypeValue_ = value;
     return 0;
@@ -50,7 +50,7 @@ int32_t AuthExecutor::GetAuthAbility(uint64_t &value)
     return 0;
 }
 
-int32_t AuthExecutor::SetAuthAbility(uint64_t value)
+int32_t AuthExecutor::SetAuthAbility(const uint64_t value)
 {
     authAbilityValue_ = value;
     return 0;
@@ -62,7 +62,7 @@ int32_t AuthExecutor::GetExecutorSecLevel(ExecutorSecureLevel &value)
     return 0;
 }
 
-int32_t AuthExecutor::SetExecutorSecLevel(ExecutorSecureLevel value)
+int32_t AuthExecutor::SetExecutorSecLevel(const ExecutorSecureLevel value)
 {
     executorSecLevelValue_ = value;
     return 0;
@@ -74,7 +74,7 @@ int32_t AuthExecutor::GetExecutorType(ExecutorType &value)
     return 0;
 }
 
-int32_t AuthExecutor::SetExecutorType(ExecutorType value)
+int32_t AuthExecutor::SetExecutorType(const ExecutorType value)
 {
     executorTypeValue_ = value;
     return 0;
@@ -86,7 +86,7 @@ int32_t AuthExecutor::GetPublicKey(std::vector<uint8_t> &value)
     return 0;
 }
 
-int32_t AuthExecutor::SetPublicKey(std::vector<uint8_t> &value)
+int32_t AuthExecutor::SetPublicKey(const std::vector<uint8_t> &value)
 {
     publicKeyValue_ = value;
     return 0;
@@ -98,7 +98,7 @@ int32_t AuthExecutor::GetDeviceId(std::vector<uint8_t> &value)
     return 0;
 }
 
-int32_t AuthExecutor::SetDeviceId(std::vector<uint8_t> &value)
+int32_t AuthExecutor::SetDeviceId(const std::vector<uint8_t> &value)
 {
     deviceIdValue_ = value;
     return 0;
