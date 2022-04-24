@@ -13,23 +13,18 @@
  * limitations under the License.
  */
 
-#ifndef USERAUTH_TEST_H
-#define USERAUTH_TEST_H
+#ifndef USER_IDM_UT_TEST_H
+#define USER_IDM_UT_TEST_H
 
-namespace OHOS {
-namespace UserIAM {
-namespace UserAuth {
-void UserAuthUtTest_001();
-void UserAuthUtTest_002();
-void UserAuthUtTest_003();
-void UserAuthUtTest_004();
-void UserAuthUtTest_005();
-void UserAuthUtTest_006();
-void UserAuthUtTest_007();
-void UserAuthUtTest_008();
-void UserAuthUtTest_009();
-void UserAuthUtTest_010();
-}
-}
-}
-#endif // USERAUTH_TEST_H
+void UserIDMUtTest_001(void);
+void UserIDMUtTest_002(void);
+void UserIDMUtTest_003(void);
+void UserIDMUtTest_004(void);
+void UserIDMUtTest_005(void);
+void UserIDMUtTest_006(void);
+void UserIDMUtTest_007(void);
+void UserIDMUtTest_008(void);
+void UserIDMUtTest_009(void);
+void UserIDMUtTest_010(void);
+
+#endif

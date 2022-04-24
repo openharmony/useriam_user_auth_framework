@@ -13,23 +13,32 @@
  * limitations under the License.
  */
 
-#ifndef USERAUTH_TEST_H
-#define USERAUTH_TEST_H
+#ifndef USER_IDM_CALLBACK_H
+#define USER_IDM_CALLBACK_H
+
+#include "common_info.h"
+#include "user_idm_defines.h"
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-void UserAuthUtTest_001();
-void UserAuthUtTest_002();
-void UserAuthUtTest_003();
-void UserAuthUtTest_004();
-void UserAuthUtTest_005();
-void UserAuthUtTest_006();
-void UserAuthUtTest_007();
-void UserAuthUtTest_008();
-void UserAuthUtTest_009();
-void UserAuthUtTest_010();
-}
-}
-}
-#endif // USERAUTH_TEST_H
+class GetInfoCallback {
+public:
+    virtual void OnGetInfo(std::vector<CredentialInfo> &info) = 0;
+};
+
+class GetSecInfoCallback {
+public:
+    virtual void OnGetSecInfo(SecInfo &info) = 0;
+};
+
+class IDMCallback {
+public:
+    virtual void OnResult(int32_t result, RequestResult reqRet) = 0;
+    virtual void OnAcquireInfo(int32_t module, int32_t acquire, RequestResult reqRet) = 0;
+};
+}  // namespace UserAuth
+}  // namespace UserIAM
+}  // namespace OHOS
+
+#endif // USER_IDM_CALLBACK_H
