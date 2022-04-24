@@ -46,6 +46,8 @@ static constexpr unsigned int IAM_DOMAIN_ID_USER = 0xD002421;
 static constexpr OHOS::HiviewDFX::HiLogLabel LABEL_USER_AUTH_NAPI = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_NAPI"};
 static constexpr OHOS::HiviewDFX::HiLogLabel LABEL_USER_AUTH_SDK = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_SDK"};
 static constexpr OHOS::HiviewDFX::HiLogLabel LABEL_USER_AUTH_SA = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_SA"};
+static constexpr OHOS::HiviewDFX::HiLogLabel LABEL_USER_AUTH_EXECUTOR = {
+    LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_EXECUTOR"};
 
 // pin
 static constexpr unsigned int IAM_DOMAIN_ID_PIN = 0xD002432;
