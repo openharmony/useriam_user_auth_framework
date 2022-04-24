@@ -16,6 +16,8 @@
 #ifndef USERIDM_MODULE_H
 #define USERIDM_MODULE_H
 
+#include <mutex>
+
 namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {
