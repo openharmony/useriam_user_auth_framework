@@ -58,6 +58,6 @@ ohos_shared_library("useridm") {
 
   public_deps = []
   relative_install_dir = "module"
-  part_name = "user_idm"
+  part_name = "${useridm_native_part_name}"
   subsystem_name = "useriam"
 }
