@@ -37,8 +37,8 @@ ohos_shared_library("userauthservice") {
     "//base/user_iam/user_auth/common:iam_thread_pool",
     "//base/user_iam/user_auth/frameworks/co_auth:coauth_framework",
     "//base/user_iam/user_auth/frameworks/user_auth:userauth_framework",
+    "//base/user_iam/user_auth/frameworks/user_idm:useridm_framework",
     "//base/user_iam/user_auth/services/co_auth/common:useriam_common_lib",
-    "//base/user_iam/user_idm/interfaces/innerkits:useridm_framework",
     "//third_party/openssl:libcrypto_static",
   ]
 
