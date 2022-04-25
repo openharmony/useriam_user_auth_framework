@@ -67,7 +67,7 @@ uint64_t UserAuth::AuthUser(const int32_t userId, const uint64_t challenge, cons
 int32_t UserAuth::CancelAuth(const uint64_t contextId)
 {
     USERAUTH_HILOGD(MODULE_INNERAPI, "CancelAuth start");
-    uint32_t ret = UserAuthNative::GetInstance().CancelAuth(contextId);
+    int32_t ret = UserAuthNative::GetInstance().CancelAuth(contextId);
     return ret;
 }
 } // namespace UserAuth
