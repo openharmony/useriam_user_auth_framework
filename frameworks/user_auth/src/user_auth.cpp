@@ -60,15 +60,13 @@ uint64_t UserAuth::AuthUser(const int32_t userId, const uint64_t challenge, cons
         USERAUTH_HILOGE(MODULE_INNERAPI, "AuthUser callback is nullptr");
         return INVALID_PARAMETERS;
     }
-    uint64_t ret = UserAuthNative::GetInstance().AuthUser(userId, challenge, authType, authTrustLevel, callback);
-    return ret;
+    return UserAuthNative::GetInstance().AuthUser(userId, challenge, authType, authTrustLevel, callback);
 }
 
 int32_t UserAuth::CancelAuth(const uint64_t contextId)
 {
     USERAUTH_HILOGD(MODULE_INNERAPI, "CancelAuth start");
-    int32_t ret = UserAuthNative::GetInstance().CancelAuth(contextId);
-    return ret;
+    return UserAuthNative::GetInstance().CancelAuth(contextId);
 }
 } // namespace UserAuth
 } // namespace UserIAM
