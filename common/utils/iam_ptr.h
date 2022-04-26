@@ -28,6 +28,26 @@ static inline std::shared_ptr<T> SptrToStdSharedPtr(sptr<T> &other)
 {
     return std::shared_ptr<T>(other.GetRefPtr(), [other](T *) mutable { other = nullptr; });
 }
+
+template <typename T, typename... Args>
+static inline std::shared_ptr<T> MakeShared(Args &&...args)
+{
+    try {
+        return std::make_shared<T>(std::forward<Args>(args)...);
+    } catch (...) {
+        return nullptr;
+    }
+}
+
+template <typename T, typename... Args>
+static inline std::unique_ptr<T> MakeUnique(Args &&...args)
+{
+    try {
+        return std::make_unique<T>(std::forward<Args>(args)...);
+    } catch (...) {
+        return nullptr;
+    }
+}
 } // namespace Common
 } // namespace UserIAM
 } // namespace OHOS
