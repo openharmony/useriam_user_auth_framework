@@ -17,9 +17,18 @@ import("//build/ohos.gni")
 import("//build/ohos_var.gni")
 
 ohos_shared_library("useriam_common_lib") {
-  part_name = "user_auth"
-  subsystem_name = "useriam"
-
+  include_dirs = [
+    "lock/inc",
+    "adaptor/inc",
+    "coauth/inc",
+    "database/inc",
+    "common/inc",
+    "interface",
+    "idm/inc",
+    "key_mgr/inc",
+    "user_auth/inc",
+    "//third_party/openssl/include",
+  ]
   sources = [
     "adaptor/src/adaptor_algorithm.c",
     "adaptor/src/adaptor_file.c",
@@ -52,23 +61,13 @@ ohos_shared_library("useriam_common_lib") {
     "user_auth/src/user_sign_centre.c",
   ]
 
-  include_dirs = [
-    "lock/inc",
-    "adaptor/inc",
-    "coauth/inc",
-    "database/inc",
-    "common/inc",
-    "interface",
-    "idm/inc",
-    "key_mgr/inc",
-    "user_auth/inc",
-    "//third_party/openssl/include",
+  deps = [ "//third_party/openssl:libcrypto_static" ]
+
+  external_deps = [
+    "hiviewdfx_hilog_native:libhilog",
+    "utils_base:utils",
   ]
 
-  deps = [
-    "//third_party/openssl:libcrypto_static",
-    "//utils/native/base:utils",
-  ]
-
-  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
+  part_name = "user_auth"
+  subsystem_name = "useriam"
 }
