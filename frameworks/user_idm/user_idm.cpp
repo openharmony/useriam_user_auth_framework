@@ -14,10 +14,6 @@
  */
 
 #include "user_idm.h"
-#include <if_system_ability_manager.h>
-#include <iservice_registry.h>
-#include <system_ability_definition.h>
-#include "useridm_client.h"
 #include "userauth_hilog_wrapper.h"
 
 namespace OHOS {

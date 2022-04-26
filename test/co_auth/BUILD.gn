@@ -11,10 +11,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/user_iam/user_auth/userauth.gni")
+import("//build/ohos.gni")
 import("//build/test.gni")
 
-group("coauth_unittest_test") {
+group("co_auth_unittest") {
   testonly = true
-  deps = [ "unittest:coauth_UT_test" ]
+  deps = [ "unittest:co_auth_test" ]
 }

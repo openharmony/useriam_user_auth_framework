@@ -13,6 +13,14 @@
 
 import("//build/ohos.gni")
 
+config("iam_log_config") {
+  include_dirs = [
+    "logs",
+    "logs/co_auth/inc",
+    "logs/user_auth/inc",
+  ]
+}
+
 config("iam_thread_pool_config") {
   include_dirs = [ "thread_pool" ]
 }
@@ -25,11 +33,11 @@ ohos_source_set("iam_thread_pool") {
 
   sources = [ "thread_pool/thread_groups.cpp" ]
 
-  deps = []
   external_deps = [
     "hilog_native:libhilog",
     "utils_base:utils",
   ]
+
   public_configs = [ ":iam_thread_pool_config" ]
 
   part_name = "user_auth"
