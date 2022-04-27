@@ -25,7 +25,7 @@ ohos_shared_library("useridm_framework") {
     "inc",
     "//base/user_iam/user_auth/services/user_idm/inc",
     "//base/user_iam/user_auth/common/logs/user_idm",
-    "//base/user_iam/user_auth/interfaces/inner_api/user_idm",
+    "//base/user_iam/user_auth/frameworks/user_idm/inc",
   ]
 
   sources = [
@@ -34,6 +34,7 @@ ohos_shared_library("useridm_framework") {
     "src/useridm_getinfo_callback_stub.cpp",
     "src/useridm_getsecinfo_callback_stub.cpp",
     "src/useridm_proxy.cpp",
+    "src/user_idm.cpp",
   ]
 
   public_configs = [ ":useridm_public_config" ]
