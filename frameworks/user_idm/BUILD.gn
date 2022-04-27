@@ -29,12 +29,12 @@ ohos_shared_library("useridm_framework") {
   ]
 
   sources = [
+    "src/user_idm.cpp",
     "src/useridm_callback_stub.cpp",
     "src/useridm_client.cpp",
     "src/useridm_getinfo_callback_stub.cpp",
     "src/useridm_getsecinfo_callback_stub.cpp",
     "src/useridm_proxy.cpp",
-    "src/user_idm.cpp",
   ]
 
   public_configs = [ ":useridm_public_config" ]
