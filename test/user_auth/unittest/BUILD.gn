@@ -20,6 +20,7 @@ ohos_unittest("user_auth_test") {
   ]
 
   sources = [
+    "//base/user_iam/user_auth/frameworks/user_idm/src/user_idm.cpp",
     "src/user_idm_callback_test.cpp",
     "src/user_idm_ut_test.cpp",
     "src/userauth_test.cpp",
