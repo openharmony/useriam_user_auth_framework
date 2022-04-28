@@ -34,16 +34,16 @@ ohos_shared_library("coauth_framework") {
     "src/coauth_callback_proxy.cpp",
     "src/coauth_callback_stub.cpp",
     "src/coauth_proxy.cpp",
+    "src/executor_callback.cpp",
     "src/executor_callback_proxy.cpp",
     "src/executor_callback_stub.cpp",
     "src/executor_messenger_proxy.cpp",
     "src/executor_messenger_stub.cpp",
+    "src/executor_mgr.cpp",
     "src/query_callback_proxy.cpp",
     "src/query_callback_stub.cpp",
     "src/set_prop_callback_proxy.cpp",
     "src/set_prop_callback_stub.cpp",
-    "src/executor_mgr.cpp",
-    "src/executor_callback.cpp",
   ]
 
   external_deps = [
