@@ -32,7 +32,6 @@ void ExecutorCallback::OnMessengerReady(const sptr<IExecutorMessenger> &messenge
     static_cast<void>(templateIds);
     return;
 }
-
 } // namespace AuthResPool
 } // namespace UserIAM
 } // namespace OHOS

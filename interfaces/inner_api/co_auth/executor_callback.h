@@ -23,9 +23,8 @@ namespace UserIAM {
 namespace AuthResPool {
 class ExecutorCallback {
 public:
-    //删除
+    // delete
     virtual void OnMessengerReady(const sptr<IExecutorMessenger> &messenger);
-
     virtual void OnMessengerReady(const sptr<IExecutorMessenger> &messenger, std::vector<uint8_t> &publicKey,
         std::vector<uint64_t> &templateIds);
     virtual int32_t OnBeginExecute(uint64_t scheduleId, std::vector<uint8_t> &publicKey,
