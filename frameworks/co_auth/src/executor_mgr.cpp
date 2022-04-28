@@ -19,6 +19,9 @@
 namespace OHOS {
 namespace UserIAM {
 namespace AuthResPool {
+ExecutorMgr::ExecutorMgr() = default;
+ExecutorMgr::~ExecutorMgr() = default;
+
 void ExecutorMgr::Register(const ExecutorInfo &info, std::shared_ptr<ExecutorCallback> callback)
 {
     std::shared_ptr<AuthResPool::AuthExecutor> executorInfo = std::make_shared<AuthResPool::AuthExecutor>();
