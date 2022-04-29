@@ -28,7 +28,6 @@ class ExecutorMgr : public DelayedRefSingleton<ExecutorMgr> {
 
 public:
     DISALLOW_COPY_AND_MOVE(ExecutorMgr);
-    /* InnerKit */
     void Register(const ExecutorInfo &info, std::shared_ptr<ExecutorCallback> callback);
 };
 } // namespace AuthResPool
