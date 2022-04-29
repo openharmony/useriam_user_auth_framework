@@ -16,7 +16,7 @@
 #ifndef EXECUTOR_MESSENGER_H
 #define EXECUTOR_MESSENGER_H
 
-#include "coauth_info_define.h"
+#include "co_auth_info_define.h"
 #include "executor_messenger_stub.h"
 #include "auth_res_pool.h"
 

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef COAUTH_DEFINE_H
-#define COAUTH_DEFINE_H
+#ifndef CO_AUTH_DEFINES_H
+#define CO_AUTH_DEFINES_H
 
 #include "parcel.h"
 
@@ -160,4 +160,4 @@ struct ExecutorInfo {
 };
 } // namespace UserIAM
 } // namespace OHOS
-#endif // COAUTH_DEFINE_H
+#endif // CO_AUTH_DEFINES_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef COAUTH_INFO_DEFINE_H
-#define COAUTH_INFO_DEFINE_H
+#ifndef CO_AUTH_INFO_DEFINE_H
+#define CO_AUTH_INFO_DEFINE_H
 
 #include "co_auth_defines.h"
 #include "parcel.h"
@@ -46,4 +46,4 @@ enum ExecutorType {
 };
 } // namespace UserIAM
 } // namespace OHOS
-#endif // COAUTH_INFO_DEFINE_H
+#endif // CO_AUTH_INFO_DEFINE_H

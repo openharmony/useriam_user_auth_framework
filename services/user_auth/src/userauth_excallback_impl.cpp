@@ -21,7 +21,7 @@
 #include <securec.h>
 #include <system_ability_definition.h>
 
-#include "coauth_info_define.h"
+#include "co_auth_info_define.h"
 #include "thread_groups.h"
 #include "userauth_async_proxy.h"
 #include "userauth_datamgr.h"

@@ -20,7 +20,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <iremote_broker.h>
-#include "coauth_info_define.h"
+#include "co_auth_info_define.h"
 
 namespace OHOS {
 namespace UserIAM {

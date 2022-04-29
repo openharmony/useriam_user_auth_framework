@@ -21,7 +21,7 @@
 #include "coauth_stub.h"
 #include "iset_prop_callback.h"
 #include "auth_attributes.h"
-#include "coauth_info_define.h"
+#include "co_auth_info_define.h"
 #include "auth_res_manager.h"
 #include "coauth_manager.h"
 #include "auth_info.h"
