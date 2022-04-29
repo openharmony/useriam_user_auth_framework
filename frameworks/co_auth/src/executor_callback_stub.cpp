@@ -147,6 +147,9 @@ void ExecutorCallbackStub::OnMessengerReady(const sptr<IExecutorMessenger> &mess
         return;
     } else {
         callback_->OnMessengerReady(messenger);
+        std::vector<uint8_t> pubKey;
+        std::vector<uint64_t> templateIds;
+        callback_->OnMessengerReady(messenger, pubKey, templateIds);
     }
 }
 

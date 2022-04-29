@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef COAUTH_INFO_DEFINE_H
-#define COAUTH_INFO_DEFINE_H
+#ifndef CO_AUTH_DEFINES_H
+#define CO_AUTH_DEFINES_H
 
 #include "parcel.h"
 
@@ -79,19 +79,6 @@ enum AuthType {
     FACE = 2
 };
 
-enum AuthAbility {
-    /* Executor authentication ability six number pin */
-    PIN_SIX = 1,
-    /* Executor authentication ability self defined number pin */
-    PIN_NUMBER = 2,
-    /* Executor authentication ability mixed pin */
-    PIN_MIXED = 4,
-    /* Executor authentication ability 2D face */
-    FACE_2D = 1,
-    /* Executor authentication ability 3D face */
-    FACE_3D = 2
-};
-
 /* Safety level of actuator */
 enum ExecutorSecureLevel {
     /* Executor without access control */
@@ -104,15 +91,13 @@ enum ExecutorSecureLevel {
     ESL3 = 3
 };
 
-enum ExecutorType {
-    /* Type of coauth */
-    TYPE_CO_AUTH = 0,
+enum ExecutorRole {
     /* Type of executor collector */
-    TYPE_COLLECTOR = 1,
+    COLLECTOR = 1,
     /* Type of executor verifier */
-    TYPE_VERIFIER = 2,
+    VERIFIER = 2,
     /* Type of executor all in one */
-    TYPE_ALL_IN_ONE = 3
+    ALL_IN_ONE = 3
 };
 
 enum ResultCode {
@@ -163,6 +148,16 @@ enum ResultCode {
 };
 
 const uint64_t INVALID_EXECUTOR_ID = 0;
+
+struct ExecutorInfo {
+    int32_t executorId;
+    AuthType authType;
+    ExecutorRole role;
+    int32_t executorType;
+    ExecutorSecureLevel esl;
+    std::vector<uint8_t> publicKey;
+    std::vector<uint8_t> deviceId;
+};
 } // namespace UserIAM
 } // namespace OHOS
-#endif // COAUTH_INFO_DEFINE_H
+#endif // CO_AUTH_DEFINES_H
