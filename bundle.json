@@ -96,20 +96,16 @@
             "name": "//base/user_iam/user_auth/frameworks/co_auth:coauth_framework",
             "header": {
               "header_files": [
-                "interfaces/inner_api/co_auth/auth_attributes.h",
-                "interfaces/inner_api/co_auth/auth_executor.h",
-                "frameworks/co_auth/inc/auth_executor_registry.h",
-                "interfaces/inner_api/co_auth/auth_info.h",
-                "frameworks/co_auth/inc/auth_message.h",
-                "frameworks/co_auth/inc/co_auth.h",
-                "interfaces/inner_api/co_auth/coauth_callback.h",
-                "interfaces/inner_api/co_auth/coauth_info_define.h",
-                "interfaces/inner_api/co_auth/executor_callback.h",
-                "services/co_auth/inc/executor_messenger.h",
-                "interfaces/inner_api/co_auth/query_callback.h",
-                "interfaces/inner_api/co_auth/set_prop_callback.h"
+                "auth_attributes.h",
+                "auth_executor.h",
+                "auth_info.h",
+                "co_auth.h",
+                "executor_callback.h",
+                "co_auth_defines.h",
+                "executor_callback.h",
+                "executor_mgr.h"
               ],
-              "header_base": "//base/user_iam/user_auth/"
+              "header_base": "//base/user_iam/user_auth/interfaces/inner_api/co_auth/"
             }
           },
           {

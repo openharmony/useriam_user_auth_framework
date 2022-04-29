@@ -16,7 +16,7 @@
 #include "query_callback_stub.h"
 #include <message_parcel.h>
 #include "coauth_hilog_wrapper.h"
-#include "coauth_info_define.h"
+#include "co_auth_info_define.h"
 
 namespace OHOS {
 namespace UserIAM {

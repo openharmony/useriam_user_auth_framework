@@ -20,7 +20,7 @@
 #include <singleton.h>
 #include "coauth_callback.h"
 #include "set_prop_callback.h"
-#include "coauth_info_define.h"
+#include "co_auth_info_define.h"
 #include "i_coauth.h"
 #include "auth_attributes.h"
 

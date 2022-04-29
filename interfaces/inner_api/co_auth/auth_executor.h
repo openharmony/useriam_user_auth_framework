@@ -20,7 +20,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <iremote_broker.h>
-#include "coauth_info_define.h"
+#include "co_auth_info_define.h"
 
 namespace OHOS {
 namespace UserIAM {
@@ -39,12 +39,12 @@ public:
     int32_t GetDeviceId(std::vector<uint8_t> &value);         // Device ID
 
     /* Actuator information setting */
-    int32_t SetAuthType(AuthType value);                     // Credential type
-    int32_t SetAuthAbility(uint64_t value);                  // Actuator capability
-    int32_t SetExecutorSecLevel(ExecutorSecureLevel value);  // Safety level
-    int32_t SetExecutorType(ExecutorType value);             // Actuator type
-    int32_t SetPublicKey(std::vector<uint8_t> &value);       // Public key
-    int32_t SetDeviceId(std::vector<uint8_t> &value);        // Device ID
+    int32_t SetAuthType(const AuthType value);                     // Credential type
+    int32_t SetAuthAbility(const uint64_t value);                  // Actuator capability
+    int32_t SetExecutorSecLevel(const ExecutorSecureLevel value);  // Safety level
+    int32_t SetExecutorType(const ExecutorType value);             // Actuator type
+    int32_t SetPublicKey(const std::vector<uint8_t> &value);       // Public key
+    int32_t SetDeviceId(const std::vector<uint8_t> &value);        // Device ID
 
 private:
     AuthType authTypeValue_;

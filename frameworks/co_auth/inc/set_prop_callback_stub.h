@@ -19,7 +19,7 @@
 #include <iremote_stub.h>
 #include "iset_prop_callback.h"
 #include "set_prop_callback.h"
-#include "coauth_info_define.h"
+#include "co_auth_info_define.h"
 
 namespace OHOS {
 namespace UserIAM {

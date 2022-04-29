@@ -15,7 +15,7 @@
 
 #include "auth_res_pool.h"
 #include <cinttypes>
-#include "coauth_info_define.h"
+#include "co_auth_info_define.h"
 
 namespace OHOS {
 namespace UserIAM {

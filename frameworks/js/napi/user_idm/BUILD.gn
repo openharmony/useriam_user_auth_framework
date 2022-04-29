@@ -28,7 +28,6 @@ ohos_shared_library("useridm") {
   include_dirs = [
     "inc",
     "//third_party/libuv/include",
-    "//base/user_iam/user_auth/frameworks/user_idm:ohosuseridm",
   ]
 
   sources = [
