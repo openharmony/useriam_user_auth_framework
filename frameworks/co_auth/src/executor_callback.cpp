@@ -20,6 +20,7 @@ namespace UserIAM {
 namespace AuthResPool {
 void ExecutorCallback::OnMessengerReady(const sptr<IExecutorMessenger> &messenger)
 {
+    COAUTH_HILOGD(MODULE_INNERKIT, "ExecutorCallback OnMessengerReady");
     static_cast<void>(messenger);
     return;
 }
@@ -27,6 +28,7 @@ void ExecutorCallback::OnMessengerReady(const sptr<IExecutorMessenger> &messenge
 void ExecutorCallback::OnMessengerReady(const sptr<IExecutorMessenger> &messenger, std::vector<uint8_t> &publicKey,
     std::vector<uint64_t> &templateIds)
 {
+    COAUTH_HILOGD(MODULE_INNERKIT, "ExecutorCallback OnMessengerReady Overloading");
     static_cast<void>(messenger);
     static_cast<void>(publicKey);
     static_cast<void>(templateIds);

@@ -96,23 +96,16 @@
             "name": "//base/user_iam/user_auth/frameworks/co_auth:coauth_framework",
             "header": {
               "header_files": [
-                "frameworks/co_auth/inc/auth_executor_registry.h",
-                "frameworks/co_auth/inc/auth_message.h",
-                "frameworks/co_auth/inc/coauth_callback.h",
-                "frameworks/co_auth/inc/coauth_info_define.h",
-                "frameworks/co_auth/inc/query_callback.h",
-                "frameworks/co_auth/inc/set_prop_callback.h",
-                "interfaces/inner_api/co_auth/auth_attributes.h",
-                "interfaces/inner_api/co_auth/auth_executor.h",
-                "interfaces/inner_api/co_auth/auth_info.h",
-                "interfaces/inner_api/co_auth/co_auth.h",
-                "interfaces/inner_api/co_auth/executor_callback.h",
-                "interfaces/inner_api/co_auth/co_auth_defines.h",
-                "interfaces/inner_api/co_auth/executor_callback.h",
-                "interfaces/inner_api/co_auth/executor_mgr.h",
-                "services/co_auth/inc/executor_messenger.h"
+                "auth_attributes.h",
+                "auth_executor.h",
+                "auth_info.h",
+                "co_auth.h",
+                "executor_callback.h",
+                "co_auth_defines.h",
+                "executor_callback.h",
+                "executor_mgr.h"
               ],
-              "header_base": "//base/user_iam/user_auth/"
+              "header_base": "//base/user_iam/user_auth/interfaces/inner_api/co_auth/"
             }
           },
           {
@@ -120,18 +113,12 @@
             "name": "//base/user_iam/user_auth/frameworks/user_idm:useridm_framework",
             "header": {
               "header_files": [
-                "interfaces/inner_api/user_idm/iuser_idm.h",
-                "interfaces/inner_api/user_idm/iuseridm_callback.h",
-                "interfaces/inner_api/user_idm/useridm_callback.h",
-                "frameworks/user_idm/inc/useridm_callback_stub.h",
-                "frameworks/user_idm/inc/useridm_client.h",
-                "frameworks/user_idm/inc/useridm_getinfo_callback_stub.h",
-                "frameworks/user_idm/inc/useridm_getsecinfo_callback_stub.h",
-                "common/logs/user_idm/useridm_hilog_wrapper.h",
-                "interfaces/inner_api/user_idm/useridm_info.h",
-                "frameworks/user_idm/inc/useridm_proxy.h"
+                "iuser_idm.h",
+                "useridm_info.h",
+                "iuseridm_callback.h",
+                "useridm_callback.h"
               ],
-              "header_base": "//base/user_iam/user_auth/"
+              "header_base": "//base/user_iam/user_auth/interfaces/inner_api/user_idm/"
             }
           }
         ],
