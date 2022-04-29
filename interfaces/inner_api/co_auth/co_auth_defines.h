@@ -92,8 +92,6 @@ enum ExecutorSecureLevel {
 };
 
 enum ExecutorRole {
-    /* Type of coauth */
-    CO_AUTH = 0,
     /* Type of executor collector */
     COLLECTOR = 1,
     /* Type of executor verifier */

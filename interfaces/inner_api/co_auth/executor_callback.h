@@ -23,7 +23,6 @@ namespace UserIAM {
 namespace AuthResPool {
 class ExecutorCallback {
 public:
-    // delete
     virtual void OnMessengerReady(const sptr<IExecutorMessenger> &messenger);
     virtual void OnMessengerReady(const sptr<IExecutorMessenger> &messenger, std::vector<uint8_t> &publicKey,
         std::vector<uint64_t> &templateIds);
