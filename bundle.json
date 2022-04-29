@@ -113,12 +113,14 @@
             "name": "//base/user_iam/user_auth/frameworks/user_idm:useridm_framework",
             "header": {
               "header_files": [
-                "iuser_idm.h",
+                "user_idm_callback.h",
+                "user_idm_defines.h",
+                "user_idm.h",
+                "useridm_callback.h",
                 "useridm_info.h",
-                "iuseridm_callback.h",
-                "useridm_callback.h"
+                "useridm_client.h"
               ],
-              "header_base": "//base/user_iam/user_auth/interfaces/inner_api/user_idm/"
+              "header_base": "//base/user_iam/user_auth/interfaces/inner_api/user_idm"
             }
           }
         ],
