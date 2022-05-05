@@ -35,12 +35,10 @@
       },
       "build": {
         "sub_component": [
-            "//base/user_iam/user_auth/sa_profile/user_auth:userauth_sa_profile",
+            "//base/user_iam/user_auth/sa_profile:userauth_sa_profile",
+            "//base/user_iam/user_auth/sa_profile:useriam.init",
             "//base/user_iam/user_auth/services:userauthservice",
-            "//base/user_iam/user_auth/sa_profile/co_auth:coauth_sa_profile",
-            "//base/user_iam/user_auth/sa_profile/co_auth:useriam.init",
             "//base/user_iam/user_auth/services/co_auth/common:useriam_common_lib",
-            "//base/user_iam/user_auth/sa_profile/user_idm:useridm_sa_profile",
             "//base/user_iam/user_auth/frameworks/js/napi/user_idm:useridm"
         ],
         "inner_kits": [
