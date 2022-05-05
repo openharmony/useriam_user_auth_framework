@@ -14,7 +14,7 @@
 import("//build/ohos.gni")
 
 if (!defined(global_parts_info) ||
-    defined(global_parts_info.account_os_account_standard)) {
+    defined(global_parts_info.account_os_account)) {
   has_os_account_part = true
 } else {
   has_os_account_part = false
@@ -81,7 +81,7 @@ ohos_shared_library("userauthservice") {
 
   if (has_os_account_part) {
     cflags_cc = [ "-DHAS_OS_ACCOUNT_PART" ]
-    external_deps += [ "os_account_standard:os_account_innerkits" ]
+    external_deps += [ "os_account:os_account_innerkits" ]
   }
 
   configs = [ "//base/user_iam/user_auth/common:iam_log_config" ]
