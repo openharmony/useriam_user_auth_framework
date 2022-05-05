@@ -22,19 +22,41 @@ if (!defined(global_parts_info) ||
 
 ohos_shared_library("userauthservice") {
   include_dirs = [
-    "inc",
+    "//base/user_iam/user_auth/services/user_auth/inc",
     "//base/user_iam/user_auth/services/co_auth/inc",
     "//base/user_iam/user_auth/services/co_auth/common/interface",
+    "//base/user_iam/user_auth/common/logs/user_idm",
+    "//base/user_iam/user_auth/services/user_idm/inc",
+    "//base/user_iam/user_auth/frameworks/user_idm/inc",
+    "//base/user_iam/user_auth/interfaces/inner_api/user_idm",
   ]
 
   sources = [
-    "src/userauth_adapter.cpp",
-    "src/userauth_async_proxy.cpp",
-    "src/userauth_controller.cpp",
-    "src/userauth_datamgr.cpp",
-    "src/userauth_excallback_impl.cpp",
-    "src/userauth_service.cpp",
-    "src/userauth_stub.cpp",
+    "co_auth/src/auth_res_manager.cpp",
+    "co_auth/src/auth_res_pool.cpp",
+    "co_auth/src/call_monitor.cpp",
+    "co_auth/src/coauth_manager.cpp",
+    "co_auth/src/coauth_service.cpp",
+    "co_auth/src/coauth_stub.cpp",
+    "co_auth/src/coauth_thread_pool.cpp",
+    "co_auth/src/executor_messenger.cpp",
+    "user_auth/src/userauth_adapter.cpp",
+    "user_auth/src/userauth_async_proxy.cpp",
+    "user_auth/src/userauth_controller.cpp",
+    "user_auth/src/userauth_datamgr.cpp",
+    "user_auth/src/userauth_excallback_impl.cpp",
+    "user_auth/src/userauth_service.cpp",
+    "user_auth/src/userauth_stub.cpp",
+    "user_idm/src/useridm_adapter.cpp",
+    "user_idm/src/useridm_callback_proxy.cpp",
+    "user_idm/src/useridm_coauth_handler.cpp",
+    "user_idm/src/useridm_controller.cpp",
+    "user_idm/src/useridm_getinfo_callback_proxy.cpp",
+    "user_idm/src/useridm_getsecinfo_callback_proxy.cpp",
+    "user_idm/src/useridm_module.cpp",
+    "user_idm/src/useridm_service.cpp",
+    "user_idm/src/useridm_setprop_handler.cpp",
+    "user_idm/src/useridm_stub.cpp",
   ]
 
   deps = [
@@ -48,6 +70,7 @@ ohos_shared_library("userauthservice") {
 
   external_deps = [
     "access_token:libaccesstoken_sdk",
+    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
