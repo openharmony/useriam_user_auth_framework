@@ -37,11 +37,6 @@ ohos_shared_library("userauth") {
     "utils_base:utils",
   ]
 
-  cflags = [
-    "-fPIC",
-    "-g3",
-  ]
-
   configs = [ "//base/user_iam/user_auth/common:iam_log_config" ]
   public_configs = [ ":userauth_public_config" ]
 
@@ -74,11 +69,6 @@ ohos_shared_library("userauth_napi") {
 
   configs = [ "//base/user_iam/user_auth/common:iam_log_config" ]
   public_configs = [ ":userauth_public_config" ]
-
-  cflags = [
-    "-fPIC",
-    "-g3",
-  ]
 
   relative_install_dir = "module/useriam"
 

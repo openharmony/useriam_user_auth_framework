@@ -21,7 +21,6 @@ config("useridm_public_config") {
     "//base/user_iam/user_auth/interfaces/inner_api/user_idm",
     "//third_party/libuv/include",
   ]
-  cflags = []
 }
 
 ohos_shared_library("useridm") {
