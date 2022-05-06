@@ -15,7 +15,7 @@ import("//build/ohos.gni")
 import("//build/ohos/sa_profile/sa_profile.gni")
 
 ohos_sa_profile("userauth_sa_profile") {
-  sources = [ 
+  sources = [
     "901.xml",
     "921.xml",
     "931.xml",

@@ -16,7 +16,7 @@
     <process>useriam</process>
     <systemability>
         <name>931</name>
-        <libpath>libcoauthservice.z.so</libpath>
+        <libpath>libuserauthservice.z.so</libpath>
         <run-on-create>true</run-on-create>
         <distributed>false</distributed>
         <dump-level>1</dump-level>
