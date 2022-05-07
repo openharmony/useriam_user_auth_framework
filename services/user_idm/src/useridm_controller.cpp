@@ -207,10 +207,8 @@ int32_t UserIDMController::UpdateCredentialCtrl(int32_t userId, uint64_t callerI
         sptr<IRemoteObject::DeathRecipient> dr = new (std::nothrow) CoAuthCallbackDeathRecipient(coAuthCallback);
         if (dr == nullptr) {
             COAUTH_HILOGE(MODULE_SERVICE, "dr is nullptr");
-        } else {
-            if (!innerkitsCallback->AsObject()->AddDeathRecipient(dr)) {
-                USERIDM_HILOGE(MODULE_SERVICE, "Failed to add death recipient CoAuthCallbackDeathRecipient");
-            }
+        } else if (!innerkitsCallback->AsObject()->AddDeathRecipient(dr)) {
+            USERIDM_HILOGE(MODULE_SERVICE, "Failed to add death recipient CoAuthCallbackDeathRecipient");
         }
         CoAuth::AuthInfo paramInfo;
         paramInfo.SetPkgName(callerName);
@@ -261,10 +259,8 @@ int32_t UserIDMController::DelFaceCredentialCtrl(AuthType authType, AuthSubType 
     sptr<IRemoteObject::DeathRecipient> dr = new (std::nothrow) SetPropCallbackDeathRecipient(setPropCallback);
     if (dr == nullptr) {
         COAUTH_HILOGE(MODULE_SERVICE, "dr is nullptr");
-    } else {
-        if (!innerCallback->AsObject()->AddDeathRecipient(dr)) {
-            USERIDM_HILOGE(MODULE_SERVICE, "Failed to add death recipient SetPropCallbackDeathRecipient");
-        }
+    } else if (!innerCallback->AsObject()->AddDeathRecipient(dr)) {
+        USERIDM_HILOGE(MODULE_SERVICE, "Failed to add death recipient SetPropCallbackDeathRecipient");
     }
     AuthResPool::AuthAttributes condition;
     condition.SetUint32Value(AuthAttributeType::AUTH_PROPERTY_MODE, 0);
