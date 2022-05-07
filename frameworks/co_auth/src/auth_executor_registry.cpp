@@ -23,9 +23,6 @@
 namespace OHOS {
 namespace UserIAM {
 namespace AuthResPool {
-AuthExecutorRegistry::AuthExecutorRegistry() = default;
-AuthExecutorRegistry::~AuthExecutorRegistry() = default;
-
 sptr<CoAuth::ICoAuth> AuthExecutorRegistry::GetProxy()
 {
     std::lock_guard<std::mutex> lock(mutex_);
