@@ -26,8 +26,6 @@
 #include "singleton.h"
 #include "thread_pool.h"
 
-#include "iam_logger.h"
-#define LOG_LABEL LABEL_IAM_UTILS
 namespace OHOS {
 namespace UserIAM {
 namespace Utils {
