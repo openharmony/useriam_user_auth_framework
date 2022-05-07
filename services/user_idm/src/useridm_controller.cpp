@@ -204,9 +204,13 @@ int32_t UserIDMController::UpdateCredentialCtrl(int32_t userId, uint64_t callerI
         data_->InsertScheduleId(scheduleId);
         std::shared_ptr<UserIDMCoAuthHandler> coAuthCallback =
             std::make_shared<UserIDMCoAuthHandler>(MODIFY_CRED, challenge, scheduleId, data_, innerkitsCallback);
-        sptr<IRemoteObject::DeathRecipient> dr = new CoAuthCallbackDeathRecipient(coAuthCallback);
-        if (!innerkitsCallback->AsObject()->AddDeathRecipient(dr)) {
-            USERIDM_HILOGE(MODULE_SERVICE, "Failed to add death recipient CoAuthCallbackDeathRecipient");
+        sptr<IRemoteObject::DeathRecipient> dr = new (std::nothrow) CoAuthCallbackDeathRecipient(coAuthCallback);
+        if (dr == nullptr) {
+            COAUTH_HILOGE(MODULE_SERVICE, "dr is nullptr");
+        } else {
+            if (!innerkitsCallback->AsObject()->AddDeathRecipient(dr)) {
+                USERIDM_HILOGE(MODULE_SERVICE, "Failed to add death recipient CoAuthCallbackDeathRecipient");
+            }
         }
         CoAuth::AuthInfo paramInfo;
         paramInfo.SetPkgName(callerName);
@@ -254,9 +258,13 @@ int32_t UserIDMController::DelFaceCredentialCtrl(AuthType authType, AuthSubType 
     }
     std::shared_ptr<UserIDMSetPropHandler> setPropCallback =
         std::make_shared<UserIDMSetPropHandler>(FACE, 0, 0, credentialId, data_, innerCallback);
-    sptr<IRemoteObject::DeathRecipient> dr = new SetPropCallbackDeathRecipient(setPropCallback);
-    if (!innerCallback->AsObject()->AddDeathRecipient(dr)) {
-        USERIDM_HILOGE(MODULE_SERVICE, "Failed to add death recipient SetPropCallbackDeathRecipient");
+    sptr<IRemoteObject::DeathRecipient> dr = new (std::nothrow) SetPropCallbackDeathRecipient(setPropCallback);
+    if (dr == nullptr) {
+        COAUTH_HILOGE(MODULE_SERVICE, "dr is nullptr");
+    } else {
+        if (!innerCallback->AsObject()->AddDeathRecipient(dr)) {
+            USERIDM_HILOGE(MODULE_SERVICE, "Failed to add death recipient SetPropCallbackDeathRecipient");
+        }
     }
     AuthResPool::AuthAttributes condition;
     condition.SetUint32Value(AuthAttributeType::AUTH_PROPERTY_MODE, 0);
