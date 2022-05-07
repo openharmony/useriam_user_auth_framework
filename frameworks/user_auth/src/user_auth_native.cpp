@@ -30,9 +30,6 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-UserAuthNative::UserAuthNative() = default;
-UserAuthNative::~UserAuthNative() = default;
-
 sptr<IUserAuth> UserAuthNative::GetProxy()
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "GetProxy start");

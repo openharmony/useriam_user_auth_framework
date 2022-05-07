@@ -26,11 +26,7 @@ namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
 class UserAuthNative : public DelayedRefSingleton<UserAuthNative> {
-    DECLARE_DELAYED_REF_SINGLETON(UserAuthNative);
-
 public:
-    DISALLOW_COPY_AND_MOVE(UserAuthNative);
-
     int32_t GetAvailableStatus(const AuthType authType, const AuthTrustLevel authTrustLevel);
     void GetProperty(const GetPropertyRequest &request, std::shared_ptr<GetPropCallback> callback);
     void GetProperty(const int32_t userId, const GetPropertyRequest &request,

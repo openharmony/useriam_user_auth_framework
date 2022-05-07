@@ -24,10 +24,7 @@ namespace OHOS {
 namespace UserIAM {
 namespace AuthResPool {
 class AuthExecutorRegistry : public DelayedRefSingleton<AuthExecutorRegistry> {
-    DECLARE_DELAYED_REF_SINGLETON(AuthExecutorRegistry);
-
 public:
-    DISALLOW_COPY_AND_MOVE(AuthExecutorRegistry);
     /* InnerKit */
     uint64_t Register(std::shared_ptr<AuthExecutor> executorInfo, std::shared_ptr<ExecutorCallback> callback);
     void QueryStatus(AuthExecutor &executorInfo, std::shared_ptr<QueryCallback> callback);

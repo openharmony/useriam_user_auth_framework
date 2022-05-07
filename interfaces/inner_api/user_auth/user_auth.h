@@ -26,11 +26,7 @@ namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
 class UserAuth : public DelayedRefSingleton<UserAuth> {
-    DECLARE_DELAYED_REF_SINGLETON(UserAuth);
-
 public:
-    DISALLOW_COPY_AND_MOVE(UserAuth);
-
     void GetProperty(const int32_t userId, const GetPropertyRequest &request,
         std::shared_ptr<GetPropCallback> callback);
     void SetProperty(const int32_t userId, const SetPropertyRequest &request,
