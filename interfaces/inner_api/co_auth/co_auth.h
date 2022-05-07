@@ -18,6 +18,7 @@
 
 #include <iremote_object.h>
 #include <singleton.h>
+
 #include "coauth_callback.h"
 #include "set_prop_callback.h"
 #include "co_auth_info_define.h"
@@ -28,10 +29,7 @@ namespace OHOS {
 namespace UserIAM {
 namespace CoAuth {
 class CoAuth : public DelayedRefSingleton<CoAuth> {
-    DECLARE_DELAYED_REF_SINGLETON(CoAuth);
-
 public:
-    DISALLOW_COPY_AND_MOVE(CoAuth);
     void BeginSchedule(uint64_t scheduleId, AuthInfo &authInfo, std::shared_ptr<CoAuthCallback> callback);
     int32_t Cancel(uint64_t scheduleId);
     int32_t GetExecutorProp(AuthResPool::AuthAttributes &conditions,

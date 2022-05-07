@@ -24,12 +24,8 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {
-class UserIDMClient : public DelayedRefSingleton<UserIDM::UserIDMClient> {
-    DECLARE_DELAYED_REF_SINGLETON(UserIDMClient);
-
+class UserIDMClient : public DelayedRefSingleton<UserIDMClient> {
 public:
-    DISALLOW_COPY_AND_MOVE(UserIDMClient);
-
     /**
      * the user id that can be used for getting all credential info
      */
