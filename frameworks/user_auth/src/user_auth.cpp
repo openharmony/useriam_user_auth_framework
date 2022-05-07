@@ -24,9 +24,6 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-UserAuth::UserAuth() = default;
-UserAuth::~UserAuth() = default;
-
 void UserAuth::GetProperty(const int32_t userId, const GetPropertyRequest &request,
     std::shared_ptr<GetPropCallback> callback)
 {

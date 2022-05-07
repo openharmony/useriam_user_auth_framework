@@ -19,9 +19,6 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-UserIDM::UserIDM() = default;
-UserIDM::~UserIDM() = default;
-
 uint64_t UserIDM::OpenSession(const int32_t userId)
 {
     USERAUTH_HILOGD(MODULE_INNERAPI, "OpenSession start with userid: %{public}d", userId);
@@ -81,6 +78,6 @@ int32_t UserIDM::EnforceDelUser(const int32_t userId, const std::shared_ptr<IDMC
     USERAUTH_HILOGD(MODULE_INNERAPI, "EnforceDelUser start with userid: %{public}d", userId);
     return 0;
 }
-}  // namespace UserIDM
+} // namespace UserAuth
 }  // namespace UserIAM
 }  // namespace OHOS

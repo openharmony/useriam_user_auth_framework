@@ -25,14 +25,10 @@ namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
 class UserIDM : public DelayedRefSingleton<UserAuth::UserIDM> {
-    DECLARE_DELAYED_REF_SINGLETON(UserIDM);
-
 public:
-    DISALLOW_COPY_AND_MOVE(UserIDM);
-
     uint64_t OpenSession(const int32_t userId);
     void CloseSession(const int32_t userId);
-    
+
     void AddCredential(const int32_t userId, const AddCredInfo& credInfo, const std::shared_ptr<IDMCallback>& callback);
     void UpdateCredential(const int32_t userId, const AddCredInfo& credInfo,
         const std::shared_ptr<IDMCallback>& callback);
