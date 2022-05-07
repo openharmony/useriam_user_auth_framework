@@ -28,15 +28,13 @@
 
 namespace OHOS {
 namespace UserIAM {
-namespace Utils {
+namespace Common {
 using namespace OHOS;
 
 constexpr uint32_t GROUP_MAX_THREAD_NUM = 4;
 constexpr uint32_t THREAD_MAX_TASK_NUM = 128;
 
-class ThreadGroups final {
-    DECLARE_DELAYED_SINGLETON(ThreadGroups);
-    DISALLOW_COPY_AND_MOVE(ThreadGroups);
+class ThreadGroups final : public Singleton<ThreadGroups> {
     using Task = ThreadPool::Task;
     using ThreadPoolPtr = std::unique_ptr<ThreadPool>;
 
@@ -91,9 +89,7 @@ private:
         std::map<uint64_t, ThreadPoolPtr> retains_;
     };
 };
-
-using IamThreadGroups = DelayedSingleton<ThreadGroups>;
-} // namespace Utils
+} // namespace Common
 } // namespace UserIAM
 } // namespace OHOS
 

@@ -26,14 +26,11 @@
 
 namespace OHOS {
 namespace UserIAM {
-namespace Utils {
+namespace Common {
 using namespace OHOS;
 
 static constexpr uint32_t THREAD_NUM_KEEP = 5;
 static constexpr uint32_t THREAD_NUM_SINGLE = 1;
-
-ThreadGroups::ThreadGroups() = default;
-ThreadGroups::~ThreadGroups() = default;
 
 bool ThreadGroups::CreateThreadGroup(const std::string &name, uint32_t threadNum)
 {
@@ -236,6 +233,6 @@ void ThreadGroups::ThreadGroup::EnsureTransaction(const ThreadPoolPtr &poolPtr, 
 }
 
 thread_local uint64_t ThreadGroups::ThreadGroup::transactionCurr_ = 0;
-} // namespace Utils
+} // namespace Common
 } // namespace UserIAM
 } // namespace OHOS
