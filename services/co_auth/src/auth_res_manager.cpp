@@ -68,7 +68,11 @@ uint64_t AuthResManager::Register(std::shared_ptr<ResAuthExecutor> executorInfo,
 
     // Assign messenger
     sptr<UserIAM::AuthResPool::IExecutorMessenger> messenger =
-        new UserIAM::AuthResPool::ExecutorMessenger(&coAuthResPool_);
+        new (std::nothrow) UserIAM::AuthResPool::ExecutorMessenger(&coAuthResPool_);
+    if (messenger == nullptr) {
+        COAUTH_HILOGE(MODULE_SERVICE, "messenger is nullptr");
+        return INVALID_EXECUTOR_ID;
+    }
     callback->OnMessengerReady(messenger);
     COAUTH_HILOGD(MODULE_SERVICE, "register is successfull, exeID is 0xXXXX%{public}04" PRIx64, MASK & executorId);
     return executorId;
