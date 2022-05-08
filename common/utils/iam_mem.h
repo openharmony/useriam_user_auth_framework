@@ -13,43 +13,30 @@
  * limitations under the License.
  */
 
-#ifndef IAM_PTR_H
-#define IAM_PTR_H
+#ifndef IAM_MEM_H
+#define IAM_MEM_H
 
-#include <memory>
-
-#include "refbase.h"
+#include <cstdint>
+#include <vector>
 
 namespace OHOS {
 namespace UserIAM {
 namespace Common {
 template <typename T>
-static inline std::shared_ptr<T> SptrToStdSharedPtr(sptr<T> &other)
+inline void Pack(std::vector<uint8_t> &dst, const T &data)
 {
-    return std::shared_ptr<T>(other.GetRefPtr(), [other](T *) mutable { other = nullptr; });
+    const uint8_t *src = static_cast<const uint8_t *>(static_cast<const void *>(&data));
+    dst.insert(dst.end(), src, src + sizeof(T));
 }
 
-template <typename T, typename... Args>
-static inline std::shared_ptr<T> MakeShared(Args &&... args)
-{
-    try {
-        return std::make_shared<T>(std::forward<Args>(args)...);
-    } catch (...) {
-        return nullptr;
-    }
-}
+int32_t UnpackUint64(const std::vector<uint8_t> &src, size_t index, uint64_t &data);
 
-template <typename T, typename... Args>
-static inline std::unique_ptr<T> MakeUnique(Args &&... args)
+inline int32_t CombineShortToInt(int16_t upper, int16_t lower)
 {
-    try {
-        return std::make_unique<T>(std::forward<Args>(args)...);
-    } catch (...) {
-        return nullptr;
-    }
+    return (static_cast<int32_t>(upper) << 16) | lower;
 }
 } // namespace Common
 } // namespace UserIAM
 } // namespace OHOS
 
-#endif // IAM_PTR_H
+#endif // IAM_MEM_H

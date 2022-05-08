@@ -214,8 +214,8 @@ bool ThreadGroups::ThreadGroup::PostTask(uint64_t transaction, const Task &task)
     return true;
 }
 
-void ThreadGroups::ThreadGroup::EnsureTransaction(const ThreadPoolPtr &poolPtr, uint64_t transaction,
-    const std::string &name)
+void ThreadGroups::ThreadGroup::EnsureTransaction(
+    const ThreadPoolPtr &poolPtr, uint64_t transaction, const std::string &name)
 {
     auto task = [transaction, name]() {
         std::stringstream sstream;
