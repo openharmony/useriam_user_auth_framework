@@ -15,6 +15,7 @@
 
 #include "driver.h"
 #include <mutex>
+#include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
 #include "iauth_driver_hdi.h"
@@ -35,6 +36,7 @@ void Driver::OnHdiConnect()
     OnHdiDisconnect();
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     std::vector<std::shared_ptr<IAuthExecutorHdi>> executorHdiList;
+    IF_FALSE_LOGE_AND_RETURN(hdiConfig_.driver != nullptr);
     hdiConfig_.driver->GetExecutorList(executorHdiList);
     IAM_LOGI("executorHdiList length is %{public}zu", executorHdiList.size());
     for (const auto &executorHdi : executorHdiList) {
