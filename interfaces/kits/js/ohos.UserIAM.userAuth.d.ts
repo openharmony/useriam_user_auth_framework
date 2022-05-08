@@ -27,88 +27,88 @@ declare namespace userIAM
     class UserAuth
     {
         /**
-         * Constructor to get the userauth class instance
+         * Constructor used to get a UserAuth instance.
          * @since 8
          * @SysCap SystemCapability.UserIAM.UserAuth.BiometricAuth
-         * @return Returns the userauth class instance
+         * @return Returns a UserAuth instance.
          */
         constructor();
 
         /**
-         * Get version information.
+         * Gets version information.
          * @since 8
          * @SysCap SystemCapability.UserIAM.UserAuth.BiometricAuth
-         * @return Returns version information
+         * @return Returns version information.
          */
         getVersion() : number;
 
         /**
-         * Check whether the certification capability is available.
+         * Checks whether the authentication capability is available.
          * @since 8
          * @SysCap SystemCapability.UserIAM.UserAuth.BiometricAuth
          * <p>Permissions required: {@code ohos.permission.ACCESS_USER_AUTH_INTERNAL}
          * @param authType Credential type for authentication.
-         * @param authTrustLevel Credibility level of certification results.
-         * @return Returns a check result, which is specified by getAvailableStatus.
+         * @param authTrustLevel Credibility level of the authentication result.
+         * @return Returns the check result, which is specified by getAvailableStatus.
          */
         getAvailableStatus(authType : AuthType, authTrustLevel : AuthTrustLevel) : number;
 
         /**
-         * Get the attribute, pass in the credential type and the key to get, and return the value corresponding to the key.
+         * Gets the properties used to initialize algorithms.
          * @since 8
          * @SysCap SystemCapability.UserIAM.UserAuth.BiometricAuth
          * <p>Permissions required: {@code ohos.permission.ACCESS_USER_AUTH_INTERNAL}
-         * @param request the attribute field list, authentication credential type, and credential information.
-         * @return Returns a support to query subclasses / remaining authentication times / remaining freezing time.
+         * @param request Credential type and the key value.
+         * @return Returns the properties used to initialize algorithms.
          */
         getProperty(request : GetPropertyRequest) : Promise<ExecutorProperty>;
         getProperty(request: GetPropertyRequest, callback: AsyncCallback<ExecutorProperty>): void
 
         /**
-         * Set properties: can be used to initialize algorithms.
+         * Sets properties used to initialize algorithms.
          * @since 8
          * @SysCap SystemCapability.UserIAM.UserAuth.BiometricAuth
          * <p>Permissions required: {@code ohos.permission.ACCESS_USER_AUTH_INTERNAL}
-         * @param request pass in the credential type and the key value to be set.
-         * @return Returns a number value indicating whether the property setting was successful.
+         * @param request Credential type and the key value.
+         * @return Returns a number indicating whether the property setting was successful.
          */
         setProperty(request: SetPropertyRequest): Promise<number>;
         setProperty(request: SetPropertyRequest, callback: AsyncCallback<number>): void
 
         /**
-         * Authentication: pass in challenge value, authentication method, trust level and callback
+         * Performs authentication based on the specified challenge value, authentication type, trust level and callback.
          * @since 8
          * @SysCap SystemCapability.UserIAM.UserAuth.BiometricAuth
          * <p>Permissions required: {@code ohos.permission.ACCESS_USER_AUTH_INTERNAL}
-         * @param challenge pass in challenge value.
-         * @param authType authentication type.
+         * @param challenge Challenge value.
+         * @param authType Authentication type.
          * @param authTrustLevel Credibility level of certification results.
-         * @param callback Return results and acquireinfo through callback.
-         * @return Returns and return results and acquireinfo through callback.
+         * @param callback Callback used to return results and acquireinfo.
+         * @return Returns the authentication result and acquireinfo through callback.
          */
         auth(challenge: Uint8Array, authType: AuthType, authTrustLevel: AuthTrustLevel, callback: IUserAuthCallback): Uint8Array;
 
         /**
-         * Specify user authentication: pass in the user ID, challenge value, authentication method, trust level and callback
+         * Performs user authentication based on the specified user ID, challenge value, authentication type, trust level and callback.
          * @since 8
          * @SysCap SystemCapability.UserIAM.UserAuth.BiometricAuth
          * <p>Permissions required: {@code ohos.permission.ACCESS_USER_AUTH_INTERNAL}
-         * @param userId Incoming user ID.
-         * @param challenge pass in challenge value.
-         * @param authType authentication type.
-         * @param authTrustLevel Credibility level of certification results.
-         * @param callback Return results and acquireinfo through callback.
+         * @param userId User ID.
+         * @param challenge Challenge value.
+         * @param authType Authentication type.
+         * @param authTrustLevel Credibility level of the authentication result.
+         * @param callback Callback used to return the result and acquireinfo.
          * @return Returns the result and acquireinfo through the callback.
          */
         authUser(userId: number, challenge: Uint8Array, authType: AuthType, authTrustLevel: AuthTrustLevel, callback : IUserAuthCallback): Uint8Array;
 
         /**
-         * Cancel authentication and pass in ContextID.
+         * Cancels authentication based on the specified ContextID.
          * @since 8
          * @SysCap SystemCapability.UserIAM.UserAuth.BiometricAuth
          * <p>Permissions required: {@code ohos.permission.ACCESS_USER_AUTH_INTERNAL}
-         * @param contextID Cancel authentication and pass in ContextID.
-         * @return Returns a number value indicating whether Cancel authentication was successful.
+         * @param contextID Context ID.
+         * @return Returns a number indicating whether authentication was cancelled successfully.
          */
         cancelAuth(contextID : Uint8Array) : number;
     }
@@ -118,12 +118,12 @@ declare namespace userIAM
      */
     enum AuthType {
         /**
-         * Authentication type pin.
+         * Authentication type: pin.
          * @since 8
          */
         PIN = 1,
         /**
-         * Authentication type face.
+         * Authentication type: face.
          * @since 8
          */
         FACE = 2
@@ -135,22 +135,22 @@ declare namespace userIAM
      */
     enum AuthSubType{
         /**
-         * Authentication sub type six number pin.
+         * Authentication sub type: 6-digit pin.
          * @since 8
          */
         PIN_SIX = 10000,
         /**
-         * Authentication sub type self defined number pin.
+         * Authentication sub type: self defined number pin.
          * @since 8
          */
         PIN_NUMBER = 10001,
         /**
-         * Authentication sub type mixed pin.
+         * Authentication sub type: mixed pin.
          * @since 8
          */
         PIN_MIXED = 10002,
         /**
-         * Authentication sub type 2D face.
+         * Authentication sub type: 2D face.
          * @since 8
          */
         FACE_2D = 20000,
@@ -162,54 +162,54 @@ declare namespace userIAM
     }
 
     /**
-     * Credibility level of certification results
+     * Credibility level of authentication results
      */
     enum AuthTrustLevel {
         /**
-         * Authentication result trusted level 1.
+         * Authentication result trust level 1
          * @since 8
          */
         ATL1 = 10000,
         /**
-         * Authentication result trusted level 2.
+         * Authentication result trust level 2
          * @since 8
          */
         ATL2 = 20000,
         /**
-         * Authentication result trusted level 3.
+         * Authentication result trust level 3
          * @since 8
          */
         ATL3 = 30000,
         /**
-         * Authentication result trusted level 4.
+         * Authentication result trust level 4
          * @since 8
          */
         ATL4 = 40000
     }
 
     /**
-     * Actuator attribute list
+     * Authentication properties
      */
     enum GetPropertyType {
         /**
-         * Authentication sub type.
+         * Authentication sub type
          * @since 8
          */
         AUTH_SUB_TYPE = 1,
         /**
-         * Authentication remain times.
+         * Authentication remaining time
          * @since 8
          */
         REMAIN_TIMES = 2,
         /**
-         * Authentication freezing time.
+         * Authentication freezing time
          * @since 8
          */
         FREEZING_TIME = 3
     }
 
     /**
-     * Get attribute request: the attribute field list, authentication credential type, and credential subtype
+     * Gets authentication properties based on the credential type and credential keys.
      * requested to be obtained
      * @since 8
      */
@@ -219,7 +219,7 @@ declare namespace userIAM
     }
 
     /**
-     * Actuator attribute: subtype, remaining authentication times, freezing time
+     * Executor properties: subtype, remaining authentication times, freezing time.
      * @since 8
      */
     interface ExecutorProperty {
@@ -230,19 +230,19 @@ declare namespace userIAM
     }
 
     /**
-     * Actuator attribute list
+     * Authentication property list
      * @since 8
      */
     enum SetPropertyType {
         /**
-         * init algorithm.
+         * init algorithm
          * @since 8
          */
         INIT_ALGORITHM = 1,
     }
 
     /**
-     * Set attribute request: pass in the credential type and the key value to be set
+     * Sets authentication properties based on the specified authenticaiton type, credential type, and key.
      * @since 8
      */
     interface SetPropertyRequest {
@@ -252,7 +252,7 @@ declare namespace userIAM
     }
 
     /**
-     * Actuator attribute: subclass, remaining authentication times, freezing time
+     * Executor properties: subclass, remaining authentication time, freezing time.
      * @since 8
      */
     interface ExecutorProperty {
@@ -268,21 +268,21 @@ declare namespace userIAM
      */
     enum AuthMethod {
         /**
-         * Authentication method PIN.
+         * Authentication method: PIN
          * @since 8
          */
         PIN_ONLY = 0xF,
         /**
-         * Authentication method face.
+         * Authentication method: face
          * @since 8
          */
         FACE_ONLY = 0xF0
     }
 
     /**
-     * The authentication result code is returned through the callback, the authentication is passed, the authentication
-     * token is returned in extrainfo, the authentication fails, the remaining authentication times are returned in
-     * extrainfo, the authentication actuator is locked, and the freezing time / acquireinfo is returned in extrainfo
+     * Callback used to return the authentication result. If the authentication is passed, the authentication
+     * token is returned in extrainfo. If the authentication fails, the remaining authentication time is returned in extrainfo.
+     * If the authentication actuator is locked, the freezing time / acquireinfo is returned in extrainfo.
      * @since 8
      */
     interface IUserAuthCallback {
@@ -291,12 +291,12 @@ declare namespace userIAM
     }
 
     /**
-     * Returns the module of acquireinfo
+     * Module returning acquireinfo.
      * @since 8
      */
     enum Module {
         /**
-         * Acquire information from FaceAuth.
+         * FaceAuth
          * @since 8
          */
         FACE_AUTH = 1
@@ -318,12 +318,12 @@ declare namespace userIAM
      */
     enum ResultCode {
         /**
-         * Indicates that authentication is success or ability is supported.
+         * Indicates that authentication is successful or ability is supported.
          * @since 8
          */
         SUCCESS = 0,
         /**
-         * Indicates the authenticator fails to identify user.
+         * Indicates that the authentication fails to identify user.
          * @since 8
          */
         FAIL = 1,
@@ -342,7 +342,7 @@ declare namespace userIAM
          */
         TIMEOUT = 4,
         /**
-         * Indicates that this authentication type is not supported.
+         * Indicates that the authentication type is not supported.
          * @since 8
          */
         TYPE_NOT_SUPPORT = 5,
@@ -374,7 +374,7 @@ declare namespace userIAM
     }
 
     /**
-     * Enumeration of prompt codes during authentication
+     * Enumeration of prompt codes during authentication.
      * @since 8
      */
     enum FaceTipsCode {
