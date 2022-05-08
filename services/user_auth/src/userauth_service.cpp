@@ -26,7 +26,7 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-using namespace OHOS::UserIAM::Utils;
+using namespace OHOS::UserIAM::Common;
 
 const static int AUTH_TRUST_LEVEL_SYS = 1;
 const static std::string GROUP_AUTH = "GROUP_AUTH";
@@ -52,7 +52,7 @@ void UserAuthService::OnStart()
         USERAUTH_HILOGE(MODULE_SERVICE, "Failed to publish service");
     }
 
-    IamThreadGroups::GetInstance()->CreateThreadGroup(GROUP_AUTH);
+    ThreadGroups::GetInstance().CreateThreadGroup(GROUP_AUTH);
 
     bool ret = OHOS::UserIAM::Common::IsIAMInited();
     if (!ret) {
@@ -63,7 +63,7 @@ void UserAuthService::OnStart()
 void UserAuthService::OnStop()
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "Stop service");
-    IamThreadGroups::GetInstance()->DestroyThreadGroup(GROUP_AUTH);
+    ThreadGroups::GetInstance().DestroyThreadGroup(GROUP_AUTH);
     bool init = OHOS::UserIAM::Common::IsIAMInited();
     if (!init) {
         return;
@@ -181,7 +181,7 @@ void UserAuthService::GetProperty(const int32_t userId, const GetPropertyRequest
 
     uint64_t callerId = static_cast<uint64_t>(this->GetCallingUid());
     callerName = std::to_string(callerId);
-    
+
     userAuthController_.GetPropAuthInfo(userId, callerName, callerId, request, callback);
 }
 

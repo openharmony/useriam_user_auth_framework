@@ -19,7 +19,7 @@
 #include "hilog/log.h"
 namespace OHOS {
 namespace UserIAM {
-namespace Utils {
+namespace Common {
 #ifdef __FILE_NAME__
 #define FILE __FILE_NAME__
 #else
@@ -62,7 +62,7 @@ static constexpr OHOS::HiviewDFX::HiLogLabel LABEL_FACE_AUTH_SDK = {LOG_CORE, IA
 static constexpr OHOS::HiviewDFX::HiLogLabel LABEL_FACE_AUTH_SA = {LOG_CORE, IAM_DOMAIN_ID_FACE, "FACE_AUTH_SA"};
 static constexpr OHOS::HiviewDFX::HiLogLabel LABEL_FACE_AUTH_HDI = {LOG_CORE, IAM_DOMAIN_ID_FACE, "FACE_AUTH_HDI"};
 static constexpr OHOS::HiviewDFX::HiLogLabel LABEL_FACE_AUTH_IMPL = {LOG_CORE, IAM_DOMAIN_ID_FACE, "FACE_AUTH_IMPL"};
-} // namespace Utils
+} // namespace Common
 } // namespace UserIAM
 } // namespace OHOS
 
