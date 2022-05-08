@@ -47,12 +47,12 @@ public:
 
     bool PostTask(const std::string &name, uint64_t transaction, const Task &task);
     template <typename T, typename... Args, typename = std::enable_if_t<std::is_function_v<T> && !std::is_class_v<T>>>
-    bool PostTask(const std::string &name, uint64_t transaction, const T &task, Args &&...args)
+    bool PostTask(const std::string &name, uint64_t transaction, const T &task, Args &&... args)
     {
         static_assert(std::is_invocable<typename std::decay<T>::type, typename std::decay<Args>::type...>::value,
             "arguments cannot invocable");
         auto invoker = [task, tuple = std::make_tuple(std::forward<Args>(args)...)]() mutable {
-            std::apply([task](auto &&...args) { std::invoke(task, std::forward<Args>(args)...); }, tuple);
+            std::apply([task](auto &&... args) { std::invoke(task, std::forward<Args>(args)...); }, tuple);
         };
         return PostTask(name, transaction, invoker);
     }
