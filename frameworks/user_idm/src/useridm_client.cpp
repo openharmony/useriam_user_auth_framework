@@ -25,9 +25,6 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {
-UserIDMClient::UserIDMClient() = default;
-UserIDMClient::~UserIDMClient() = default;
-
 sptr<IUserIDM> UserIDMClient::GetUserIDMProxy()
 {
     USERIDM_HILOGD(MODULE_CLIENT, "GetUserIDMProxy start");

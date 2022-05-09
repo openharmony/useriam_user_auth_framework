@@ -27,9 +27,9 @@ namespace UserIAM {
 namespace UserIDM {
 const int64_t delay_time = 30 * 1000;
 class UserIDMController : public DelayedRefSingleton<UserIDM::UserIDMController> {
-    DECLARE_DELAYED_REF_SINGLETON(UserIDMController);
-
 public:
+    UserIDMController();
+    ~UserIDMController();
     void OpenEditSessionCtrl(int32_t userId, uint64_t& challenge);
     void CloseEditSessionCtrl();
     int32_t GetAuthInfoCtrl(int32_t userId, AuthType authType, std::vector<CredentialInfo>& credInfos);
