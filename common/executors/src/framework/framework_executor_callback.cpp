@@ -82,7 +82,8 @@ ResultCode FrameworkExecutorCallback::OnEndExecuteInner(
     ResultCode ret = ResultCode::GENERAL_ERROR;
     switch (commandId) {
         case SCHEDULE_MODE_AUTH:
-            __attribute__((fallthrough));
+            ret = ProcessCancelCommand(scheduleId);
+            break;
         case SCHEDULE_MODE_ENROLL:
             ret = ProcessCancelCommand(scheduleId);
             break;
