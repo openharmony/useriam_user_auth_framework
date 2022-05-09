@@ -44,7 +44,7 @@ ohos_shared_library("userauth_framework") {
   if (defined(ability_runtime_graphics) && ability_runtime_graphics) {
     deps += [
       "//base/user_iam/face_auth/interfaces/innerkits/faceauth:faceauth_framework",
-      "//foundation/graphic/standard:libsurface",
+      "//foundation/graphic/graphic:libsurface",
     ]
     defines = [ "SUPPORT_SURFACE" ]
   }
