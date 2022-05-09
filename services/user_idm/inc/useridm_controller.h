@@ -26,11 +26,10 @@ namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {
 const int64_t delay_time = 30 * 1000;
-class UserIDMController {
-public:
-    explicit UserIDMController();
-    ~UserIDMController();
+class UserIDMController : public DelayedRefSingleton<UserIDM::UserIDMController> {
+    DECLARE_DELAYED_REF_SINGLETON(UserIDMController);
 
+public:
     void OpenEditSessionCtrl(int32_t userId, uint64_t& challenge);
     void CloseEditSessionCtrl();
     int32_t GetAuthInfoCtrl(int32_t userId, AuthType authType, std::vector<CredentialInfo>& credInfos);
@@ -51,24 +50,22 @@ public:
     int32_t DelExecutorPinInfoCtrl(const sptr<IIDMCallback>& innerCallback, std::vector<CredentialInfo>& info);
 
 private:
-    class CoAuthCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
+    class CoAuthCallbackDeathRecipient : public IRemoteObject::DeathRecipient, public NoCopyable {
     public:
         explicit CoAuthCallbackDeathRecipient(std::shared_ptr<UserIDMCoAuthHandler> callback);
         ~CoAuthCallbackDeathRecipient() = default;
         void OnRemoteDied(const wptr<IRemoteObject>& remote) override;
     private:
         std::shared_ptr<UserIDMCoAuthHandler> callback_;
-        DISALLOW_COPY_AND_MOVE(CoAuthCallbackDeathRecipient);
     };
 
-    class SetPropCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
+    class SetPropCallbackDeathRecipient : public IRemoteObject::DeathRecipient, public NoCopyable {
     public:
         explicit SetPropCallbackDeathRecipient(std::shared_ptr<UserIDMSetPropHandler> callback);
         ~SetPropCallbackDeathRecipient() = default;
         void OnRemoteDied(const wptr<IRemoteObject>& remote) override;
     private:
         std::shared_ptr<UserIDMSetPropHandler> callback_;
-        DISALLOW_COPY_AND_MOVE(SetPropCallbackDeathRecipient);
     };
 
     std::shared_ptr<UserIDMModule> data_;
