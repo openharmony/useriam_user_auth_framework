@@ -25,12 +25,12 @@ namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {
 class UserIDMClient : public DelayedRefSingleton<UserIDM::UserIDMClient> {
-    DECLARE_DELAYED_REF_SINGLETON(UserIDMClient);
-
 public:
     /**
      * the user id that can be used for getting all credential info
      */
+    UserIDMClient() = default;
+    ~UserIDMClient() = default;
     static const int32_t ALL_INFO_GET_USER_ID = -1;
     uint64_t OpenSession();
     void CloseSession();
