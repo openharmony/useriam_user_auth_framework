@@ -67,6 +67,10 @@ bool DriverManager::HdiConfigIsValid(const std::map<std::string, HdiConfig> &hdi
             IAM_LOGE("duplicate hdi id %{public}d", id);
             return false;
         }
+        if (pair.second.driver == nullptr) {
+            IAM_LOGE("driver is nullptr");
+            return false;
+        }
         idSet.insert(id);
     }
     return true;
