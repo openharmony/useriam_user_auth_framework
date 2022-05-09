@@ -37,33 +37,34 @@ namespace Common {
 #define IAM_LOGE(...) OHOS::HiviewDFX::HiLog::Error(LOG_LABEL, ARGS(__VA_ARGS__))
 #define IAM_LOGF(...) OHOS::HiviewDFX::HiLog::Fatal(LOG_LABEL, ARGS(__VA_ARGS__))
 
+using HiLogLabel = OHOS::HiviewDFX::HiLogLabel;
+
 // common
 static constexpr unsigned int IAM_DOMAIN_ID_COMMON = 0xD002400;
-static constexpr OHOS::HiviewDFX::HiLogLabel LABEL_IAM_COMMON = {LOG_CORE, IAM_DOMAIN_ID_COMMON, "IAM_COMMON"};
+static constexpr HiLogLabel LABEL_IAM_COMMON = {LOG_CORE, IAM_DOMAIN_ID_COMMON, "IAM_COMMON"};
 
 // user auth
 static constexpr unsigned int IAM_DOMAIN_ID_USER = 0xD002421;
-static constexpr OHOS::HiviewDFX::HiLogLabel LABEL_USER_AUTH_NAPI = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_NAPI"};
-static constexpr OHOS::HiviewDFX::HiLogLabel LABEL_USER_AUTH_SDK = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_SDK"};
-static constexpr OHOS::HiviewDFX::HiLogLabel LABEL_USER_AUTH_SA = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_SA"};
-static constexpr OHOS::HiviewDFX::HiLogLabel LABEL_USER_AUTH_EXECUTOR = {
-    LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_EXECUTOR"};
+static constexpr HiLogLabel LABEL_USER_AUTH_NAPI = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_NAPI"};
+static constexpr HiLogLabel LABEL_USER_AUTH_SDK = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_SDK"};
+static constexpr HiLogLabel LABEL_USER_AUTH_SA = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_SA"};
+static constexpr HiLogLabel LABEL_USER_AUTH_EXECUTOR = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_EXECUTOR"};
 
 // pin
 static constexpr unsigned int IAM_DOMAIN_ID_PIN = 0xD002432;
-static constexpr OHOS::HiviewDFX::HiLogLabel LABEL_PIN_AUTH_NAPI = {LOG_CORE, IAM_DOMAIN_ID_PIN, "PIN_AUTH_NAPI"};
-static constexpr OHOS::HiviewDFX::HiLogLabel LABEL_PIN_AUTH_SDK = {LOG_CORE, IAM_DOMAIN_ID_PIN, "PIN_AUTH_SDK"};
-static constexpr OHOS::HiviewDFX::HiLogLabel LABEL_PIN_AUTH_SA = {LOG_CORE, IAM_DOMAIN_ID_PIN, "PIN_AUTH_SA"};
-static constexpr OHOS::HiviewDFX::HiLogLabel LABEL_PIN_AUTH_HDI = {LOG_CORE, IAM_DOMAIN_ID_PIN, "PIN_AUTH_HDI"};
-static constexpr OHOS::HiviewDFX::HiLogLabel LABEL_PIN_AUTH_IMPL = {LOG_CORE, IAM_DOMAIN_ID_PIN, "PIN_AUTH_IMPL"};
+static constexpr HiLogLabel LABEL_PIN_AUTH_NAPI = {LOG_CORE, IAM_DOMAIN_ID_PIN, "PIN_AUTH_NAPI"};
+static constexpr HiLogLabel LABEL_PIN_AUTH_SDK = {LOG_CORE, IAM_DOMAIN_ID_PIN, "PIN_AUTH_SDK"};
+static constexpr HiLogLabel LABEL_PIN_AUTH_SA = {LOG_CORE, IAM_DOMAIN_ID_PIN, "PIN_AUTH_SA"};
+static constexpr HiLogLabel LABEL_PIN_AUTH_HDI = {LOG_CORE, IAM_DOMAIN_ID_PIN, "PIN_AUTH_HDI"};
+static constexpr HiLogLabel LABEL_PIN_AUTH_IMPL = {LOG_CORE, IAM_DOMAIN_ID_PIN, "PIN_AUTH_IMPL"};
 
 // face
 static constexpr unsigned int IAM_DOMAIN_ID_FACE = 0xD002422;
-static constexpr OHOS::HiviewDFX::HiLogLabel LABEL_FACE_AUTH_NAPI = {LOG_CORE, IAM_DOMAIN_ID_FACE, "FACE_AUTH_NAPI"};
-static constexpr OHOS::HiviewDFX::HiLogLabel LABEL_FACE_AUTH_SDK = {LOG_CORE, IAM_DOMAIN_ID_FACE, "FACE_AUTH_SDK"};
-static constexpr OHOS::HiviewDFX::HiLogLabel LABEL_FACE_AUTH_SA = {LOG_CORE, IAM_DOMAIN_ID_FACE, "FACE_AUTH_SA"};
-static constexpr OHOS::HiviewDFX::HiLogLabel LABEL_FACE_AUTH_HDI = {LOG_CORE, IAM_DOMAIN_ID_FACE, "FACE_AUTH_HDI"};
-static constexpr OHOS::HiviewDFX::HiLogLabel LABEL_FACE_AUTH_IMPL = {LOG_CORE, IAM_DOMAIN_ID_FACE, "FACE_AUTH_IMPL"};
+static constexpr HiLogLabel LABEL_FACE_AUTH_NAPI = {LOG_CORE, IAM_DOMAIN_ID_FACE, "FACE_AUTH_NAPI"};
+static constexpr HiLogLabel LABEL_FACE_AUTH_SDK = {LOG_CORE, IAM_DOMAIN_ID_FACE, "FACE_AUTH_SDK"};
+static constexpr HiLogLabel LABEL_FACE_AUTH_SA = {LOG_CORE, IAM_DOMAIN_ID_FACE, "FACE_AUTH_SA"};
+static constexpr HiLogLabel LABEL_FACE_AUTH_HDI = {LOG_CORE, IAM_DOMAIN_ID_FACE, "FACE_AUTH_HDI"};
+static constexpr HiLogLabel LABEL_FACE_AUTH_IMPL = {LOG_CORE, IAM_DOMAIN_ID_FACE, "FACE_AUTH_IMPL"};
 } // namespace Common
 } // namespace UserIAM
 } // namespace OHOS
