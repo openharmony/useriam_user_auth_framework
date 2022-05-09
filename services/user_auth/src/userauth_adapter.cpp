@@ -21,7 +21,6 @@
 #include "userauth_excallback_impl.h"
 #include "userauth_hilog_wrapper.h"
 #include "userauth_info.h"
-// #include "useridm_client.h"
 #include "useridm_info.h"
 #include "useridm_controller.h"
 
