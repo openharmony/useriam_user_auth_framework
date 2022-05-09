@@ -21,8 +21,9 @@
 #include "userauth_excallback_impl.h"
 #include "userauth_hilog_wrapper.h"
 #include "userauth_info.h"
-#include "useridm_client.h"
+// #include "useridm_client.h"
 #include "useridm_info.h"
+#include "useridm_controller.h"
 
 namespace OHOS {
 namespace UserIAM {
@@ -52,12 +53,14 @@ void UserAuthAdapter::GetPropAuthInfo(int32_t userId, uint64_t callerUid, const 
     using namespace UserIDM;
     std::shared_ptr<GetInfoCallback> getInfoCallback =
         std::make_shared<UserAuthCallbackImplIdmGetProp>(callback, request, callerUid, pkgName);
-    int32_t ret = UserIDMClient::GetInstance().GetAuthInfo(userId, static_cast<UserIDM::AuthType>(request.authType),
-        getInfoCallback);
+    std::vector<CredentialInfo> credInfos;
+    int32_t ret = UserIDMController::GetInstance().GetAuthInfoCtrl(userId,
+        static_cast<UserIDM::AuthType>(request.authType), credInfos);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "GetAuthInfo failed");
     }
     USERAUTH_HILOGI(MODULE_SERVICE, "GetPropAuthInfo end");
+    getInfoCallback->OnGetInfo(credInfos);
 }
 
 void UserAuthAdapter::SetPropAuthInfo(CallerInfo callerInfo, int32_t resultCode, UserAuthToken authToken,
@@ -143,12 +146,14 @@ void UserAuthAdapter::GetPropAuthInfoCoAuth(CallerInfo callerInfo, int32_t resul
     using namespace UserIDM;
     std::shared_ptr<GetInfoCallback> getInfoCallback = std::make_shared<UserAuthCallbackImplIdmGetPropCoAuth>(callback,
         callerInfo.callerUID, callerInfo.pkgName, resultCode, authToken, request);
-    int32_t ret = UserIDMClient::GetInstance().GetAuthInfo(callerInfo.userID,
-        static_cast<UserIDM::AuthType>(request.authType), getInfoCallback);
+    std::vector<CredentialInfo> credInfos;
+    int32_t ret = UserIDMController::GetInstance().GetAuthInfoCtrl(callerInfo.userID,
+        static_cast<UserIDM::AuthType>(request.authType), credInfos);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "GetAuthInfo failed");
     }
     USERAUTH_HILOGI(MODULE_SERVICE, "GetPropAuthInfoCoAuth end");
+    getInfoCallback->OnGetInfo(credInfos);
 }
 
 void UserAuthAdapter::CoAuthSetPropAuthInfo(CallerInfo callerInfo, int32_t resultCode, UserAuthToken authToken,
@@ -158,12 +163,14 @@ void UserAuthAdapter::CoAuthSetPropAuthInfo(CallerInfo callerInfo, int32_t resul
     using namespace UserIDM;
     std::shared_ptr<GetInfoCallback> setPropCallback = std::make_shared<UserAuthCallbackImplIdmCoAuthGetPropFreeze>(
         callerInfo.callerUID, callerInfo.pkgName, resultCode, authToken, request);
-    int32_t ret = UserIDMClient::GetInstance().GetAuthInfo(callerInfo.userID,
-        static_cast<UserIDM::AuthType>(request.authType), setPropCallback);
+    std::vector<CredentialInfo> credInfos;
+    int32_t ret = UserIDMController::GetInstance().GetAuthInfoCtrl(callerInfo.userID,
+        static_cast<UserIDM::AuthType>(request.authType), credInfos);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "GetAuthInfo failed");
     }
     USERAUTH_HILOGI(MODULE_SERVICE, "CoAuthSetPropAuthInfo end");
+    setPropCallback->OnGetInfo(credInfos);
 }
 
 int32_t UserAuthAdapter::GenerateSolution(AuthSolution param, std::vector<uint64_t> &sessionIds)

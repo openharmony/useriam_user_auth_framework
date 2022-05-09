@@ -27,8 +27,9 @@ ohos_shared_library("userauthservice") {
     "//base/user_iam/user_auth/services/co_auth/common/interface",
     "//base/user_iam/user_auth/common/logs/user_idm",
     "//base/user_iam/user_auth/services/user_idm/inc",
-    "//base/user_iam/user_auth/frameworks/user_idm/inc",
+    "//base/user_iam/user_auth/frameworks/common",
     "//base/user_iam/user_auth/interfaces/inner_api/user_idm",
+    "//base/user_iam/user_auth/interfaces/inner_api/user_auth",
   ]
 
   sources = [
@@ -62,8 +63,6 @@ ohos_shared_library("userauthservice") {
   deps = [
     "//base/user_iam/user_auth/common:iam_thread_pool",
     "//base/user_iam/user_auth/frameworks/co_auth:coauth_framework",
-    "//base/user_iam/user_auth/frameworks/user_auth:userauth_framework",
-    "//base/user_iam/user_auth/frameworks/user_idm:useridm_framework",
     "//base/user_iam/user_auth/services/co_auth/common:useriam_common_lib",
     "//third_party/openssl:libcrypto_static",
   ]
