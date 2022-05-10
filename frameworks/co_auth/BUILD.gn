@@ -61,5 +61,4 @@ ohos_shared_library("coauth_framework") {
   ]
 
   part_name = "user_auth"
-  subsystem_name = "useriam"
 }

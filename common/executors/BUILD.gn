@@ -31,6 +31,7 @@ ohos_shared_library("userauth_executors") {
     "src/idriver_manager.cpp",
     "src/system_ability_status_listener.cpp",
   ]
+
   include_dirs = [
     "include",
     "include/async_command",
