@@ -24,7 +24,7 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {
-class UserIDMClient : public DelayedRefSingleton<UserIDMClient> {
+class UserIDMClient : public Singleton<UserIDMClient> {
 public:
     /**
      * the user id that can be used for getting all credential info
@@ -43,14 +43,11 @@ public:
     void DelCred(uint64_t credentialId, std::vector<uint8_t> authToken, const std::shared_ptr<IDMCallback>& callback);
 
 private:
-    class UserIDMDeathRecipient : public IRemoteObject::DeathRecipient {
+    class UserIDMDeathRecipient : public IRemoteObject::DeathRecipient, public NoCopyable {
     public:
         UserIDMDeathRecipient() = default;
         ~UserIDMDeathRecipient() = default;
         void OnRemoteDied(const wptr<IRemoteObject>& remote) override;
-
-    private:
-        DISALLOW_COPY_AND_MOVE(UserIDMDeathRecipient);
     };
 
     void ResetUserIDMProxy(const wptr<IRemoteObject>& remote);
