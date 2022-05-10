@@ -16,7 +16,6 @@ import("//build/ohos.gni")
 config("useridm_public_config") {
   include_dirs = [
     "inc",
-    "//base/user_iam/user_auth/frameworks/common",
     "//base/user_iam/user_auth/interfaces/inner_api/user_idm",
   ]
 }
@@ -29,7 +28,6 @@ ohos_shared_library("useridm_framework") {
     "//base/user_iam/user_auth/services/user_idm/inc",
     "//base/user_iam/user_auth/common/logs/user_idm",
     "//base/user_iam/user_auth/interfaces/inner_api/user_idm",
-    "//base/user_iam/user_auth/frameworks/common",
   ]
 
   sources = [
