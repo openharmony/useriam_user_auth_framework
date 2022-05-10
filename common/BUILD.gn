@@ -41,7 +41,6 @@ ohos_source_set("iam_thread_pool") {
   public_configs = [ ":iam_thread_pool_config" ]
 
   part_name = "user_auth"
-  subsystem_name = "useriam"
 }
 
 config("iam_utils_config") {
@@ -64,5 +63,4 @@ ohos_source_set("iam_utils") {
   public_configs = [ ":iam_utils_config" ]
 
   part_name = "user_auth"
-  subsystem_name = "useriam"
 }
