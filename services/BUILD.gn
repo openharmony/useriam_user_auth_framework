@@ -27,7 +27,8 @@ ohos_shared_library("userauthservice") {
     "//base/user_iam/user_auth/services/co_auth/common/interface",
     "//base/user_iam/user_auth/common/logs/user_idm",
     "//base/user_iam/user_auth/services/user_idm/inc",
-    "//base/user_iam/user_auth/frameworks/common",
+    "//base/user_iam/user_auth/frameworks/user_idm/inc",
+    "//base/user_iam/user_auth/frameworks/user_auth/inc",
     "//base/user_iam/user_auth/interfaces/inner_api/user_idm",
     "//base/user_iam/user_auth/interfaces/inner_api/user_auth",
   ]

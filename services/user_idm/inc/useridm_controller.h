@@ -26,7 +26,7 @@ namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {
 const int64_t delay_time = 30 * 1000;
-class UserIDMController : public DelayedRefSingleton<UserIDM::UserIDMController> {
+class UserIDMController : public Singleton<UserIDMController> {
 public:
     UserIDMController();
     ~UserIDMController();
