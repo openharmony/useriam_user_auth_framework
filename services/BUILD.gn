@@ -86,8 +86,5 @@ ohos_shared_library("userauthservice") {
 
   configs = [ "//base/user_iam/user_auth/common:iam_log_config" ]
 
-  remove_configs = [ "//build/config/compiler:no_exceptions" ]
-
   part_name = "user_auth"
-  subsystem_name = "useriam"
 }
