@@ -23,7 +23,6 @@
 #include <string>
 #include "useridm_stub.h"
 #include "useridm_hilog_wrapper.h"
-#include "useridm_controller.h"
 #include "iuser_idm.h"
 
 namespace OHOS {
@@ -51,8 +50,6 @@ public:
 private:
     int32_t GetCallingUserId(int32_t &userId);
     bool CheckPermission(const std::string &permission);
-
-    UserIDMController idmController_;
 };
 }  // namespace UserIDM
 }  // namespace UserIAM
