@@ -26,19 +26,15 @@
 #include "singleton.h"
 #include "thread_pool.h"
 
-#include "iam_logger.h"
-#define LOG_LABEL LABEL_IAM_UTILS
 namespace OHOS {
 namespace UserIAM {
-namespace Utils {
+namespace Common {
 using namespace OHOS;
 
 constexpr uint32_t GROUP_MAX_THREAD_NUM = 4;
 constexpr uint32_t THREAD_MAX_TASK_NUM = 128;
 
-class ThreadGroups final {
-    DECLARE_DELAYED_SINGLETON(ThreadGroups);
-    DISALLOW_COPY_AND_MOVE(ThreadGroups);
+class ThreadGroups final : public Singleton<ThreadGroups> {
     using Task = ThreadPool::Task;
     using ThreadPoolPtr = std::unique_ptr<ThreadPool>;
 
@@ -51,12 +47,12 @@ public:
 
     bool PostTask(const std::string &name, uint64_t transaction, const Task &task);
     template <typename T, typename... Args, typename = std::enable_if_t<std::is_function_v<T> && !std::is_class_v<T>>>
-    bool PostTask(const std::string &name, uint64_t transaction, const T &task, Args &&...args)
+    bool PostTask(const std::string &name, uint64_t transaction, const T &task, Args &&... args)
     {
         static_assert(std::is_invocable<typename std::decay<T>::type, typename std::decay<Args>::type...>::value,
             "arguments cannot invocable");
         auto invoker = [task, tuple = std::make_tuple(std::forward<Args>(args)...)]() mutable {
-            std::apply([task](auto &&...args) { std::invoke(task, std::forward<Args>(args)...); }, tuple);
+            std::apply([task](auto &&... args) { std::invoke(task, std::forward<Args>(args)...); }, tuple);
         };
         return PostTask(name, transaction, invoker);
     }
@@ -93,9 +89,7 @@ private:
         std::map<uint64_t, ThreadPoolPtr> retains_;
     };
 };
-
-using IamThreadGroups = DelayedSingleton<ThreadGroups>;
-} // namespace Utils
+} // namespace Common
 } // namespace UserIAM
 } // namespace OHOS
 

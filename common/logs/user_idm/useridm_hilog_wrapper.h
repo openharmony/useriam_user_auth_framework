@@ -21,8 +21,8 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {
-#define filename__            (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
-#define formated__(fmt, ...)    "[%{public}s] %{public}s# " fmt, filename__, __FUNCTION__, ##__VA_ARGS__
+#define filename__ (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
+#define formated__(fmt, ...) "[%{public}s] %{public}s# " fmt, filename__, __FUNCTION__, ##__VA_ARGS__
 
 #ifdef USERIDM_HILOGF
 #undef USERIDM_HILOGF

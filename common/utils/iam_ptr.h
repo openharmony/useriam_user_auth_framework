@@ -30,7 +30,7 @@ static inline std::shared_ptr<T> SptrToStdSharedPtr(sptr<T> &other)
 }
 
 template <typename T, typename... Args>
-static inline std::shared_ptr<T> MakeShared(Args &&...args)
+static inline std::shared_ptr<T> MakeShared(Args &&... args)
 {
     try {
         return std::make_shared<T>(std::forward<Args>(args)...);
@@ -40,7 +40,7 @@ static inline std::shared_ptr<T> MakeShared(Args &&...args)
 }
 
 template <typename T, typename... Args>
-static inline std::unique_ptr<T> MakeUnique(Args &&...args)
+static inline std::unique_ptr<T> MakeUnique(Args &&... args)
 {
     try {
         return std::make_unique<T>(std::forward<Args>(args)...);

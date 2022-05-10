@@ -24,9 +24,6 @@
 namespace OHOS {
 namespace UserIAM {
 namespace CoAuth {
-CoAuth::CoAuth() = default;
-CoAuth::~CoAuth() = default;
-
 sptr<ICoAuth> CoAuth::GetProxy()
 {
     std::lock_guard<std::mutex> lock(mutex_);

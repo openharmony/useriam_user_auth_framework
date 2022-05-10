@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,41 +13,59 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef IAM_LOGGER_H
 #define IAM_LOGGER_H
 
 #include "hilog/log.h"
-
 namespace OHOS {
 namespace UserIAM {
-namespace Utils {
-using namespace OHOS::HiviewDFX;
-
+namespace Common {
 #ifdef __FILE_NAME__
-#define FILE __FILE_NAME__
+#define IAM_LOG_FILE __FILE_NAME__
 #else
-#define FILE (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
+#define IAM_LOG_FILE (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
 #endif
 
 #ifdef LOG_LABEL
 #undef LOG_LABEL
 #endif
 
-#define ARGS(fmt, ...) "[%{public}s@%{public}s:%{public}d] " fmt, __FUNCTION__, FILE, __LINE__, ##__VA_ARGS__
-#define IAM_LOGD(...) HiLog::Debug(LOG_LABEL, ARGS(__VA_ARGS__))
-#define IAM_LOGI(...) HiLog::Info(LOG_LABEL, ARGS(__VA_ARGS__))
-#define IAM_LOGW(...) HiLog::Warn(LOG_LABEL, ARGS(__VA_ARGS__))
-#define IAM_LOGE(...) HiLog::Error(LOG_LABEL, ARGS(__VA_ARGS__))
-#define IAM_LOGF(...) HiLog::Fatal(LOG_LABEL, ARGS(__VA_ARGS__))
+#define ARGS(fmt, ...) "[%{public}s@%{public}s:%{public}d] " fmt, __FUNCTION__, IAM_LOG_FILE, __LINE__, ##__VA_ARGS__
+#define IAM_LOGD(...) OHOS::HiviewDFX::HiLog::Debug(LOG_LABEL, ARGS(__VA_ARGS__))
+#define IAM_LOGI(...) OHOS::HiviewDFX::HiLog::Info(LOG_LABEL, ARGS(__VA_ARGS__))
+#define IAM_LOGW(...) OHOS::HiviewDFX::HiLog::Warn(LOG_LABEL, ARGS(__VA_ARGS__))
+#define IAM_LOGE(...) OHOS::HiviewDFX::HiLog::Error(LOG_LABEL, ARGS(__VA_ARGS__))
+#define IAM_LOGF(...) OHOS::HiviewDFX::HiLog::Fatal(LOG_LABEL, ARGS(__VA_ARGS__))
 
-static constexpr unsigned int IAM_DOMAIN_ID = 0xD002910;
+using HiLogLabel = OHOS::HiviewDFX::HiLogLabel;
 
-static constexpr HiLogLabel LABEL_IAM_UTILS = {LOG_CORE, IAM_DOMAIN_ID, "IAM_UTILS"};
-static constexpr HiLogLabel LABEL_IAM_BASE = {LOG_CORE, IAM_DOMAIN_ID, "IAM_BASE"};
-static constexpr HiLogLabel LABEL_IAM_PIN_AUTH = {LOG_CORE, IAM_DOMAIN_ID, "IAM_PINAUTH"};
-static constexpr HiLogLabel LABEL_IAM_FACE_AUTH = {LOG_CORE, IAM_DOMAIN_ID, "IAM_FACEAUTH"};
-} // namespace Utils
+// common
+static constexpr unsigned int IAM_DOMAIN_ID_COMMON = 0xD002400;
+static constexpr HiLogLabel LABEL_IAM_COMMON = {LOG_CORE, IAM_DOMAIN_ID_COMMON, "IAM_COMMON"};
+
+// user auth
+static constexpr unsigned int IAM_DOMAIN_ID_USER = 0xD002421;
+static constexpr HiLogLabel LABEL_USER_AUTH_NAPI = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_NAPI"};
+static constexpr HiLogLabel LABEL_USER_AUTH_SDK = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_SDK"};
+static constexpr HiLogLabel LABEL_USER_AUTH_SA = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_SA"};
+static constexpr HiLogLabel LABEL_USER_AUTH_EXECUTOR = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_EXECUTOR"};
+
+// pin
+static constexpr unsigned int IAM_DOMAIN_ID_PIN = 0xD002432;
+static constexpr HiLogLabel LABEL_PIN_AUTH_NAPI = {LOG_CORE, IAM_DOMAIN_ID_PIN, "PIN_AUTH_NAPI"};
+static constexpr HiLogLabel LABEL_PIN_AUTH_SDK = {LOG_CORE, IAM_DOMAIN_ID_PIN, "PIN_AUTH_SDK"};
+static constexpr HiLogLabel LABEL_PIN_AUTH_SA = {LOG_CORE, IAM_DOMAIN_ID_PIN, "PIN_AUTH_SA"};
+static constexpr HiLogLabel LABEL_PIN_AUTH_HDI = {LOG_CORE, IAM_DOMAIN_ID_PIN, "PIN_AUTH_HDI"};
+static constexpr HiLogLabel LABEL_PIN_AUTH_IMPL = {LOG_CORE, IAM_DOMAIN_ID_PIN, "PIN_AUTH_IMPL"};
+
+// face
+static constexpr unsigned int IAM_DOMAIN_ID_FACE = 0xD002422;
+static constexpr HiLogLabel LABEL_FACE_AUTH_NAPI = {LOG_CORE, IAM_DOMAIN_ID_FACE, "FACE_AUTH_NAPI"};
+static constexpr HiLogLabel LABEL_FACE_AUTH_SDK = {LOG_CORE, IAM_DOMAIN_ID_FACE, "FACE_AUTH_SDK"};
+static constexpr HiLogLabel LABEL_FACE_AUTH_SA = {LOG_CORE, IAM_DOMAIN_ID_FACE, "FACE_AUTH_SA"};
+static constexpr HiLogLabel LABEL_FACE_AUTH_HDI = {LOG_CORE, IAM_DOMAIN_ID_FACE, "FACE_AUTH_HDI"};
+static constexpr HiLogLabel LABEL_FACE_AUTH_IMPL = {LOG_CORE, IAM_DOMAIN_ID_FACE, "FACE_AUTH_IMPL"};
+} // namespace Common
 } // namespace UserIAM
 } // namespace OHOS
 

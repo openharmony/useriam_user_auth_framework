@@ -27,10 +27,9 @@ namespace CoAuth {
 using Callback = OHOS::AppExecFwk::EventHandler::Callback;
 
 class CallMonitor : public DelayedRefSingleton<CallMonitor> {
-    DECLARE_DELAYED_REF_SINGLETON(CallMonitor);
 public:
-    DISALLOW_COPY_AND_MOVE(CallMonitor);
-
+    CallMonitor();
+    virtual ~CallMonitor();
     void MonitorCall(int64_t waitTime, uint64_t scheduleId, Callback &timeoutFun);
     void MonitorRemoveCall(uint64_t scheduleId);
 
