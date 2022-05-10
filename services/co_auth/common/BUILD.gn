@@ -61,7 +61,7 @@ ohos_shared_library("useriam_common_lib") {
     "user_auth/src/user_sign_centre.c",
   ]
 
-  deps = [ "//third_party/openssl:libcrypto_static" ]
+  deps = [ "//third_party/openssl:libcrypto_shared" ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
@@ -69,5 +69,4 @@ ohos_shared_library("useriam_common_lib") {
   ]
 
   part_name = "user_auth"
-  subsystem_name = "useriam"
 }

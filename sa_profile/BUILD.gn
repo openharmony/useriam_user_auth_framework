@@ -31,5 +31,4 @@ ohos_prebuilt_etc("useriam.init") {
   }
   relative_install_dir = "init"
   part_name = "user_auth"
-  subsystem_name = "useriam"
 }

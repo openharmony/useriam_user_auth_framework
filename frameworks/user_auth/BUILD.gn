@@ -50,11 +50,8 @@ ohos_shared_library("userauth_framework") {
   }
 
   configs = [ "//base/user_iam/user_auth/common:iam_log_config" ]
-  public_configs = [
-    ":userauth_framework_public_config",
-    "//base/user_iam/user_auth/common:iam_log_config",
-  ]
+
+  public_configs = [ ":userauth_framework_public_config" ]
 
   part_name = "user_auth"
-  subsystem_name = "useriam"
 }

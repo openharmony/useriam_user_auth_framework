@@ -49,6 +49,5 @@ ohos_shared_library("useridm") {
 
   relative_install_dir = "module"
 
-  subsystem_name = "useriam"
   part_name = "user_auth"
 }
