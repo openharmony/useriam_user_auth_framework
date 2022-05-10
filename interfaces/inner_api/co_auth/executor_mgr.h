@@ -24,10 +24,7 @@ namespace OHOS {
 namespace UserIAM {
 namespace AuthResPool {
 class ExecutorMgr : public DelayedRefSingleton<ExecutorMgr> {
-    DECLARE_DELAYED_REF_SINGLETON(ExecutorMgr);
-
 public:
-    DISALLOW_COPY_AND_MOVE(ExecutorMgr);
     void Register(const ExecutorInfo &info, std::shared_ptr<ExecutorCallback> callback);
 };
 } // namespace AuthResPool

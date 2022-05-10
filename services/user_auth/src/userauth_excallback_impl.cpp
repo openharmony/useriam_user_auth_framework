@@ -30,7 +30,7 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-using namespace OHOS::UserIAM::Utils;
+using namespace OHOS::UserIAM::Common;
 const static std::string GROUP_AUTH = "GROUP_AUTH";
 std::mutex UserAuthCallbackImplCoAuth::coAuthCallbackMutex_;
 std::map<uint64_t, std::shared_ptr<CoAuth::CoAuthCallback>> UserAuthCallbackImplCoAuth::saveCoAuthCallback_;
@@ -100,7 +100,7 @@ void UserAuthCallbackImplCoAuth::OnFinish(uint32_t resultCode, std::vector<uint8
         self->OnFinishHandle(resultCode, scheduleToken_);
     };
 
-    bool ret = IamThreadGroups::GetInstance()->PostTask(GROUP_AUTH, callbackContextId_, task);
+    bool ret = ThreadGroups::GetInstance().PostTask(GROUP_AUTH, callbackContextId_, task);
     if (!ret) {
         USERAUTH_HILOGE(MODULE_SERVICE, "OnFinish ContextThreadPool AddTask failed");
         callback_->onResult(BUSY, authResult);
@@ -115,7 +115,7 @@ void UserAuthCallbackImplCoAuth::OnAcquireInfo(uint32_t acquire)
 
     auto task = [self = shared_from_this(), acquire]() { self->OnAcquireInfoHandle(acquire); };
 
-    bool ret = IamThreadGroups::GetInstance()->PostTask(GROUP_AUTH, callbackContextId_, task);
+    bool ret = ThreadGroups::GetInstance().PostTask(GROUP_AUTH, callbackContextId_, task);
     if (!ret) {
         USERAUTH_HILOGE(MODULE_SERVICE, "OnAcquireInfoHandle ContextThreadPool AddTask failed");
         isResultDoneFlag_ = true;
@@ -218,7 +218,7 @@ int32_t UserAuthCallbackImplCoAuth::SaveCoAuthCallback(uint64_t contextId,
     std::shared_ptr<CoAuth::CoAuthCallback> coAuthCallback)
 {
     std::lock_guard<std::mutex> lock(coAuthCallbackMutex_);
-    auto retain = IamThreadGroups::GetInstance()->RetainTaskThread(GROUP_AUTH, contextId);
+    auto retain = ThreadGroups::GetInstance().RetainTaskThread(GROUP_AUTH, contextId);
     if (!retain) {
         USERAUTH_HILOGD(MODULE_SERVICE, "Retain coAuth thread failed");
         return FAIL;
@@ -235,7 +235,7 @@ int32_t UserAuthCallbackImplCoAuth::DeleteCoAuthCallback(uint64_t contextId)
 {
     std::lock_guard<std::mutex> lock(coAuthCallbackMutex_);
 
-    (void)IamThreadGroups::GetInstance()->ReleaseTaskThread(GROUP_AUTH, contextId);
+    (void)ThreadGroups::GetInstance().ReleaseTaskThread(GROUP_AUTH, contextId);
     std::map<uint64_t, std::shared_ptr<CoAuth::CoAuthCallback>>::iterator iter = saveCoAuthCallback_.find(contextId);
     if (iter != saveCoAuthCallback_.end()) {
         saveCoAuthCallback_.erase(iter);

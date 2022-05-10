@@ -279,6 +279,6 @@ void UserIDMClient::DelCred(uint64_t credentialId, std::vector<uint8_t> authToke
     sptr<IIDMCallback> callbackStub = new UserIDMCallbackStub(napiCallback);
     proxy->DelCred(credentialId, authToken, callbackStub);
 }
-}  // namespace UserIDM
+} // namespace UserIDM
 }  // namespace UserIAM
 }  // namespace OHOS

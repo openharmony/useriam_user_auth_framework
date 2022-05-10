@@ -22,18 +22,15 @@
 #include "iam_logger.h"
 #include "thread_pool.h"
 
-#define LOG_LABEL LABEL_IAM_UTILS
+#define LOG_LABEL LABEL_IAM_COMMON
 
 namespace OHOS {
 namespace UserIAM {
-namespace Utils {
+namespace Common {
 using namespace OHOS;
 
 static constexpr uint32_t THREAD_NUM_KEEP = 5;
 static constexpr uint32_t THREAD_NUM_SINGLE = 1;
-
-ThreadGroups::ThreadGroups() = default;
-ThreadGroups::~ThreadGroups() = default;
 
 bool ThreadGroups::CreateThreadGroup(const std::string &name, uint32_t threadNum)
 {
@@ -217,8 +214,8 @@ bool ThreadGroups::ThreadGroup::PostTask(uint64_t transaction, const Task &task)
     return true;
 }
 
-void ThreadGroups::ThreadGroup::EnsureTransaction(const ThreadPoolPtr &poolPtr, uint64_t transaction,
-    const std::string &name)
+void ThreadGroups::ThreadGroup::EnsureTransaction(
+    const ThreadPoolPtr &poolPtr, uint64_t transaction, const std::string &name)
 {
     auto task = [transaction, name]() {
         std::stringstream sstream;
@@ -236,6 +233,6 @@ void ThreadGroups::ThreadGroup::EnsureTransaction(const ThreadPoolPtr &poolPtr, 
 }
 
 thread_local uint64_t ThreadGroups::ThreadGroup::transactionCurr_ = 0;
-} // namespace Utils
+} // namespace Common
 } // namespace UserIAM
 } // namespace OHOS
