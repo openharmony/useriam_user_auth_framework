@@ -19,15 +19,11 @@ config("userauth_framework_public_config") {
     "inc",
     "//base/user_iam/user_auth/interfaces/inner_api/user_auth",
     "//base/user_iam/user_auth/interfaces/inner_api/common",
-    "//base/user_iam/user_auth/frameworks/common",
   ]
 }
 
 ohos_shared_library("userauth_framework") {
-  include_dirs = [
-    "inc",
-    "//base/user_iam/user_auth/frameworks/common",
-  ]
+  include_dirs = [ "inc" ]
 
   sources = [
     "src/user_auth.cpp",
