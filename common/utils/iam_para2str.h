@@ -18,6 +18,8 @@
 
 #include <cinttypes>
 #include <cstdint>
+#include <iomanip>
+#include <sstream>
 #include <string>
 
 namespace OHOS {
@@ -25,15 +27,16 @@ namespace UserIAM {
 namespace Common {
 using namespace std;
 const uint64_t UINT64_MASK = 0xffff;
-const size_t MASKED_STRING_LEN = 11;
-static inline std::string GetMaskedString(uint64_t val)
+const int32_t MASK_WIDTH = 4;
+static inline std::string GetMaskedString(uint16_t val)
 {
-    char bytes[MASKED_STRING_LEN] = {0};
-    if (std::snprintf(bytes, sizeof(bytes), "0xXXXX%04" PRIx64, val & UINT64_MASK) == 0) {
-        return "(snprintf fail)";
-    }
-    return std::string(bytes);
+    std::ostringstream ss;
+    ss << "0xXXXX" << std::setfill('0') << std::setw(MASK_WIDTH) << std::hex << (val & UINT64_MASK);
+    return ss.str();
 }
+
+#define GET_MASKED_STRING(val) \
+    OHOS::UserIAM::Common::GetMaskedString(static_cast<uint16_t>(val))
 
 static inline std::string GetPointerNullStateString(void *p)
 {
