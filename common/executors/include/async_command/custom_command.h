@@ -36,7 +36,7 @@ protected:
 
 private:
     std::shared_ptr<AuthResPool::AuthAttributes> attributes_;
-    ResultCode result_;
+    ResultCode result_ = ResultCode::GENERAL_ERROR;
     std::promise<void> promise_;
     std::future<void> future_;
 };
