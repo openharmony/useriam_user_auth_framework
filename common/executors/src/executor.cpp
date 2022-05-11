@@ -72,12 +72,13 @@ void Executor::OnFrameworkReady()
 void Executor::RegisterExecutorCallback(ExecutorInfo &executorInfo)
 {
     IAM_LOGI("%{public}s start", GetDescription());
-    executorInfo.executorId = Common::CombineShortToInt(hdiId_, executorInfo.executorId);
+    auto combineResult = Common::CombineShortToInt(hdiId_, static_cast<uint16_t>(executorInfo.executorId));
+    executorInfo.executorId = static_cast<int32_t>(combineResult);
     auto executorCallback = Common::MakeShared<FrameworkExecutorCallback>(shared_from_this());
     IF_FALSE_LOGE_AND_RETURN(executorCallback != nullptr);
     UserIAM::AuthResPool::ExecutorMgr::GetInstance().Register(executorInfo, executorCallback);
     IAM_LOGI("register executor callback ok, executor id=%{public}s",
-        Common::GetMaskedString(executorInfo.executorId).c_str());
+        GET_MASKED_STRING(executorInfo.executorId).c_str());
 }
 
 void Executor::SetExecutorMessenger(const sptr<AuthResPool::IExecutorMessenger> &messenger)

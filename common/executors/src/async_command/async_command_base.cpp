@@ -33,7 +33,7 @@ AsyncCommandBase::AsyncCommandBase(std::string type, uint64_t scheduleId, std::s
 {
     commandId_ = GenerateCommandId();
     std::ostringstream ss;
-    ss << "Command(type:" << type << ", id:" << commandId_ << ", scheduleId:" << Common::GetMaskedString(scheduleId_)
+    ss << "Command(type:" << type << ", id:" << commandId_ << ", scheduleId:" << GET_MASKED_STRING(scheduleId_)
        << ")";
     str_ = ss.str();
 }
@@ -83,7 +83,7 @@ const char *AsyncCommandBase::GetDescription()
     return str_.c_str();
 }
 
-int32_t AsyncCommandBase::GenerateCommandId()
+uint32_t AsyncCommandBase::GenerateCommandId()
 {
     static std::mutex mutex;
     static uint32_t commandId = 0;

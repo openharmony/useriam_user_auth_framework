@@ -40,7 +40,7 @@ public:
     virtual void OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo) override = 0;
 
 protected:
-    static int32_t GenerateCommandId();
+    static uint32_t GenerateCommandId();
     virtual ResultCode SendRequest() = 0;
     virtual void OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo) = 0;
     const char *GetDescription();
