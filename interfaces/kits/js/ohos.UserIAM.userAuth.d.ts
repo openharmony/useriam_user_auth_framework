@@ -209,7 +209,7 @@ declare namespace userIAM
     }
 
     /**
-     * Gets authentication properties based on the credential type and credential keys.
+     * Gets authentication properties based on the specified authenticaiton type and key.
      * requested to be obtained
      * @since 8
      */
@@ -242,7 +242,7 @@ declare namespace userIAM
     }
 
     /**
-     * Sets authentication properties based on the specified authenticaiton type, credential type, and key.
+     * Sets authentication properties based on the specified authenticaiton type and key.
      * @since 8
      */
     interface SetPropertyRequest {
