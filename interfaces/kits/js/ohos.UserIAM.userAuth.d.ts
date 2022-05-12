@@ -54,18 +54,18 @@ declare namespace userIAM
         getAvailableStatus(authType : AuthType, authTrustLevel : AuthTrustLevel) : number;
 
         /**
-         * Gets the properties used to initialize algorithms.
+         * Gets properties by passing in the credential type and key.
          * @since 8
          * @SysCap SystemCapability.UserIAM.UserAuth.BiometricAuth
          * <p>Permissions required: {@code ohos.permission.ACCESS_USER_AUTH_INTERNAL}
          * @param request Credential type and the key value.
-         * @return Returns the properties used to initialize algorithms.
+         * @return Returns properties corresponding to the specified key.
          */
         getProperty(request : GetPropertyRequest) : Promise<ExecutorProperty>;
         getProperty(request: GetPropertyRequest, callback: AsyncCallback<ExecutorProperty>): void
 
         /**
-         * Sets properties used to initialize algorithms.
+         * Sets properties that can be used to initialize algorithms.
          * @since 8
          * @SysCap SystemCapability.UserIAM.UserAuth.BiometricAuth
          * <p>Permissions required: {@code ohos.permission.ACCESS_USER_AUTH_INTERNAL}
@@ -197,7 +197,7 @@ declare namespace userIAM
          */
         AUTH_SUB_TYPE = 1,
         /**
-         * Authentication remaining time
+         * Remaining authentication times
          * @since 8
          */
         REMAIN_TIMES = 2,
@@ -219,7 +219,7 @@ declare namespace userIAM
     }
 
     /**
-     * Executor properties: subtype, remaining authentication times, freezing time.
+     * Executor properties: subtype, remaining authentication times, and authentication freezing time.
      * @since 8
      */
     interface ExecutorProperty {
@@ -252,7 +252,7 @@ declare namespace userIAM
     }
 
     /**
-     * Executor properties: subclass, remaining authentication time, freezing time.
+     * Executor properties: subclass, remaining authentication times, and authentication freezing time.
      * @since 8
      */
     interface ExecutorProperty {
@@ -281,8 +281,8 @@ declare namespace userIAM
 
     /**
      * Callback used to return the authentication result. If the authentication is passed, the authentication
-     * token is returned in extrainfo. If the authentication fails, the remaining authentication time is returned in extrainfo.
-     * If the authentication actuator is locked, the freezing time / acquireinfo is returned in extrainfo.
+     * token is returned in extrainfo. If the authentication fails, the number of remaining authentication times is returned in extrainfo.
+     * If the authentication executor is locked, the authentication freezing time or acquireinfo is returned in extrainfo.
      * @since 8
      */
     interface IUserAuthCallback {
@@ -303,7 +303,7 @@ declare namespace userIAM
     }
 
     /**
-     * Authentication result: authentication token, remaining authentication times, freezing time
+     * Authentication result: authentication token, remaining authentication times, and authentication freezing time
      * @since 8
      */
     interface AuthResult {
