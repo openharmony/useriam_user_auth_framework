@@ -21,48 +21,36 @@ namespace OHOS {
 namespace UserIAM {
 namespace CoAuth {
 /* Apply for collaborative scheduling */
-void CoAuthManager::BeginSchedule(uint64_t scheduleId, AuthInfo &authInfo, sptr<ICoAuthCallback> callback)
+void CoAuthManager::BeginSchedule(const ScheduleInfo &scheduleInfo, AuthInfo &authInfo,
+    std::shared_ptr<CoAuthCallback> callback)
 {
-    CoAuthHandle(scheduleId, authInfo, callback);
+    CoAuthHandle(scheduleInfo, authInfo, callback);
 }
 
-void CoAuthManager::CoAuthHandle(uint64_t scheduleId, AuthInfo &authInfo, sptr<ICoAuthCallback> callback)
+void CoAuthManager::CoAuthHandle(const ScheduleInfo &scheduleInfo, AuthInfo &authInfo,
+    std::shared_ptr<CoAuthCallback> callback)
 {
     if (callback == nullptr) {
         COAUTH_HILOGE(MODULE_SERVICE, "schedule callback is null");
         return;
     }
     int32_t executeRet = SUCCESS;
-    ScheduleInfo scheduleInfo;
-    std::vector<uint8_t> scheduleToken;
-    int32_t ret = GetScheduleInfo(scheduleId, scheduleInfo);
-    if (ret != SUCCESS) {
-        COAUTH_HILOGE(MODULE_SERVICE, "get schedule info failed");
-        return callback->OnFinish(ret, scheduleToken);
-    }
+    uint64_t scheduleId = scheduleInfo.scheduleId;
+    std::vector<uint8_t> scheduleResult;
     std::size_t executorNum = scheduleInfo.executors.size();
     if (executorNum == 0) {
         COAUTH_HILOGE(MODULE_SERVICE, "executorId does not exist");
-        return callback->OnFinish(FAIL, scheduleToken);
-    }
-    sptr<IRemoteObject::DeathRecipient> dr =
-        new (std::nothrow) ResICoAuthCallbackDeathRecipient(scheduleId, this);
-    if (dr == nullptr || callback->AsObject() == nullptr) {
-        COAUTH_HILOGE(MODULE_SERVICE, "dr or callback->AsObject is nullptr");
-    } else {
-        if (!callback->AsObject()->AddDeathRecipient(dr)) {
-            COAUTH_HILOGE(MODULE_SERVICE, "add death recipient ResICoAuthCallbackDeathRecipient failed");
-        }
+        return callback->OnFinish(FAIL, scheduleResult);
     }
 
     if (coAuthResMgrPtr_ == nullptr) {
         COAUTH_HILOGE(MODULE_SERVICE, "coAuthResMgrPtr_ is nullptr");
-        return callback->OnFinish(FAIL, scheduleToken);
+        return callback->OnFinish(FAIL, scheduleResult);
     }
-    int32_t saveRet = coAuthResMgrPtr_->SaveScheduleCallback(scheduleId, executorNum, callback);
+    int32_t saveRet = coAuthResMgrPtr_->SaveScheduleCallback(scheduleId, scheduleInfo, callback);
     if (saveRet != SUCCESS) {
         COAUTH_HILOGW(MODULE_SERVICE, "save schedule callback failed");
-        return callback->OnFinish(saveRet, scheduleToken);
+        return callback->OnFinish(saveRet, scheduleResult);
     }
     OHOS::AppExecFwk::InnerEvent::Callback task = std::bind(&CoAuthManager::TimeOut, this, scheduleId);
     CallMonitor::GetInstance().MonitorCall(delay_time, scheduleId, task);
@@ -70,13 +58,13 @@ void CoAuthManager::CoAuthHandle(uint64_t scheduleId, AuthInfo &authInfo, sptr<I
 
     if (executeRet != SUCCESS) {
         COAUTH_HILOGW(MODULE_SERVICE, "there are one or more failures in execution");
-        callback->OnFinish(executeRet, scheduleToken);
+        callback->OnFinish(executeRet, scheduleResult);
         coAuthResMgrPtr_->DeleteScheduleCallback(scheduleId);
         CallMonitor::GetInstance().MonitorRemoveCall(scheduleId);
     }
 }
 
-void CoAuthManager::BeginExecute(ScheduleInfo &scheduleInfo, std::size_t executorNum, uint64_t scheduleId,
+void CoAuthManager::BeginExecute(const ScheduleInfo &scheduleInfo, std::size_t executorNum, uint64_t scheduleId,
                                  AuthInfo &authInfo, int32_t &executeRet)
 {
     executeRet = SUCCESS;
@@ -102,7 +90,7 @@ void CoAuthManager::BeginExecute(ScheduleInfo &scheduleInfo, std::size_t executo
 }
 
 void CoAuthManager::SetAuthAttributes(std::shared_ptr<ResAuthAttributes> commandAttrs,
-                                      ScheduleInfo &scheduleInfo, AuthInfo &authInfo)
+    const ScheduleInfo &scheduleInfo, AuthInfo &authInfo)
 {
     if (commandAttrs == nullptr) {
         COAUTH_HILOGE(MODULE_SERVICE, "commandAttrs is nullptr");
@@ -125,10 +113,13 @@ void CoAuthManager::SetAuthAttributes(std::shared_ptr<ResAuthAttributes> command
 int32_t CoAuthManager::Cancel(uint64_t scheduleId)
 {
     int32_t executeRet = SUCCESS;
+    if (coAuthResMgrPtr_ == nullptr) {
+        COAUTH_HILOGE(MODULE_SERVICE, "coAuthResMgrPtr_ is nullptr");
+        return FAIL;
+    }
     ScheduleInfo scheduleInfo;
-    sptr<ResIExecutorCallback> callback = nullptr;
-    int32_t getRet = GetScheduleInfo(scheduleId, scheduleInfo); // call TA
-    if (getRet != SUCCESS) {
+    int32_t ret = coAuthResMgrPtr_->FindScheduleInfo(scheduleId, scheduleInfo);
+    if (ret != SUCCESS) {
         COAUTH_HILOGE(MODULE_SERVICE, "get schedule info filed");
         return FAIL;
     }
@@ -161,15 +152,11 @@ int32_t CoAuthManager::Cancel(uint64_t scheduleId)
         COAUTH_HILOGW(MODULE_SERVICE, "there are one or more failures when canceling");
         return executeRet;
     }
-    int32_t deleteRet = DeleteScheduleInfo(scheduleId, scheduleInfo); // call TA
-    if (deleteRet != SUCCESS) {
-        COAUTH_HILOGW(MODULE_SERVICE, "delete schedule info failed, ret = %{public}d", deleteRet);
-    }
     return executeRet;
 }
 
 /* Set executor properties */
-void CoAuthManager::SetExecutorProp(ResAuthAttributes &conditions, sptr<ISetPropCallback> callback)
+void CoAuthManager::SetExecutorProp(ResAuthAttributes &conditions, std::shared_ptr<SetPropCallback> callback)
 {
     /*
      * To delete user credential information, the caller must be userauth,
@@ -236,26 +223,9 @@ void CoAuthManager::RegistResourceManager(AuthResManager* resMgr)
     coAuthResMgrPtr_ = resMgr;
 }
 
-CoAuthManager::ResICoAuthCallbackDeathRecipient::ResICoAuthCallbackDeathRecipient(
-    uint64_t scheduleId, CoAuthManager* parent) : scheduleId(scheduleId), parent_(parent)
-{
-}
-
-void CoAuthManager::ResICoAuthCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
-{
-    if (remote == nullptr) {
-        COAUTH_HILOGE(MODULE_SERVICE, "remote is nullptr");
-        return;
-    }
-    if (parent_ != nullptr && parent_->coAuthResMgrPtr_ != nullptr) {
-        parent_->coAuthResMgrPtr_->DeleteScheduleCallback(scheduleId);
-    }
-    COAUTH_HILOGW(MODULE_SERVICE, "ResICoAuthCallbackDeathRecipient::Recv death notice.");
-}
-
 void CoAuthManager::TimeOut(uint64_t scheduleId)
 {
-    sptr<UserIAM::CoAuth::ICoAuthCallback> callback;
+    std::shared_ptr<UserIAM::CoAuth::CoAuthCallback> callback;
     if (coAuthResMgrPtr_ == nullptr) {
         COAUTH_HILOGE(MODULE_SERVICE, "coAuthResMgrPtr_ is nullptr");
         return;
@@ -265,8 +235,8 @@ void CoAuthManager::TimeOut(uint64_t scheduleId)
         COAUTH_HILOGD(MODULE_SERVICE, "Schedule has ended");
         return;
     }
-    std::vector<uint8_t> scheduleToken;
-    callback->OnFinish(TIMEOUT, scheduleToken);
+    std::vector<uint8_t> scheduleResult;
+    callback->OnFinish(TIMEOUT, scheduleResult);
     Cancel(scheduleId);
     COAUTH_HILOGW(MODULE_SERVICE, "Schedule timeout");
     coAuthResMgrPtr_->DeleteScheduleCallback(scheduleId);

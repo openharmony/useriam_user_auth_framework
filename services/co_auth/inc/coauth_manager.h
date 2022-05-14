@@ -16,46 +16,39 @@
 #ifndef COAUTH_MANAGER_H
 #define COAUTH_MANAGER_H
 
+#include <singleton.h>
+#include "auth_info.h"
 #include "auth_res_pool.h"
 #include "auth_executor.h"
 #include "iexecutor_callback.h"
 #include "call_monitor.h"
 #include "iquery_callback.h"
 #include "auth_res_manager.h"
+#include "set_prop_callback.h"
+#include "coauth_callback.h"
 
 namespace OHOS {
 namespace UserIAM {
 namespace CoAuth {
 const int64_t delay_time = 300 * 1000;
-class CoAuthManager {
+class CoAuthManager : public Singleton<CoAuthManager> {
 public:
-    void BeginSchedule(uint64_t scheduleId, AuthInfo &authInfo, sptr<ICoAuthCallback> callback);
+    void BeginSchedule(const ScheduleInfo &scheduleInfo, AuthInfo &authInfo, std::shared_ptr<CoAuthCallback> callback);
     int32_t Cancel(uint64_t scheduleId);
     int32_t GetExecutorProp(ResAuthAttributes &conditions, std::shared_ptr<ResAuthAttributes> values);
-    void SetExecutorProp(ResAuthAttributes &conditions, sptr<ISetPropCallback> callback);
+    void SetExecutorProp(ResAuthAttributes &conditions, std::shared_ptr<SetPropCallback> callback);
     void RegistResourceManager(AuthResManager* resMgr);
 
-    void CoAuthHandle(uint64_t scheduleId, AuthInfo &authInfo, sptr<ICoAuthCallback> callback);
+    void CoAuthHandle(const ScheduleInfo &scheduleInfo, AuthInfo &authInfo, std::shared_ptr<CoAuthCallback> callback);
     void TimeOut(uint64_t scheduleId);
 
 private:
     void SetAuthAttributes(std::shared_ptr<ResAuthAttributes> commandAttrs,
-        ScheduleInfo &scheduleInfo, AuthInfo &authInfo);
-    void BeginExecute(ScheduleInfo &scheduleInfo, std::size_t executorNum, uint64_t scheduleId,
+        const ScheduleInfo &scheduleInfo, AuthInfo &authInfo);
+    void BeginExecute(const ScheduleInfo &scheduleInfo, std::size_t executorNum, uint64_t scheduleId,
         AuthInfo &authInfo, int32_t &executeRet);
-    class ResICoAuthCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
-    public:
-        ResICoAuthCallbackDeathRecipient(uint64_t scheduleId, CoAuthManager* parent);
-        ~ResICoAuthCallbackDeathRecipient() = default;
-        void OnRemoteDied(const wptr<IRemoteObject>& remote) override;
 
-    private:
-        uint64_t scheduleId;
-        CoAuthManager* parent_;
-        DISALLOW_COPY_AND_MOVE(ResICoAuthCallbackDeathRecipient);
-    };
-
-    AuthResManager* coAuthResMgrPtr_;
+    AuthResManager* coAuthResMgrPtr_ = nullptr;
     std::shared_ptr<CallMonitor> monitor_ = nullptr;
 };
 } // namespace CoAuth

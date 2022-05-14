@@ -21,7 +21,6 @@
 #include <iservice_registry.h>
 #include <unistd.h>
 #include <thread>
-#include "useriam_common.h"
 #include "parameter.h"
 
 namespace OHOS {
@@ -37,7 +36,7 @@ REGISTER_SYSTEM_ABILITY_BY_ID(CoAuthService, SUBSYS_USERIAM_SYS_ABILITY_AUTHEXEC
 CoAuthService::CoAuthService(int32_t systemAbilityId, bool runOnCreate)
     : SystemAbility(systemAbilityId, runOnCreate)
 {
-    coAuthMgr_.RegistResourceManager(&authResMgr_);
+    CoAuthManager::GetInstance().RegistResourceManager(&authResMgr_);
 }
 
 CoAuthService::~CoAuthService()
@@ -56,16 +55,6 @@ void CoAuthService::OnStart()
         return;
     }
     state_ = CoAuthRunningState::STATE_RUNNING;
-
-    if (!Common::IsIAMInited()) {
-        if (Common::Init() != SUCCESS) {
-            COAUTH_HILOGE(MODULE_SERVICE, " IAM CA init failed");
-            return;
-        }
-        COAUTH_HILOGI(MODULE_SERVICE, " IAM CA init success");
-    } else {
-        COAUTH_HILOGI(MODULE_SERVICE, " IAM CA is inited");
-    }
     // Start other service
     std::thread checkThread(OHOS::UserIAM::CoAuth::SendBootEvent);
     checkThread.join();
@@ -78,16 +67,6 @@ void CoAuthService::OnStop()
         return;
     }
     state_ = CoAuthRunningState::STATE_STOPPED;
-
-    if (Common::IsIAMInited()) {
-        if (Common::Close() != SUCCESS) {
-            COAUTH_HILOGE(MODULE_SERVICE, " IAM CA Close failed");
-            return;
-        }
-        COAUTH_HILOGI(MODULE_SERVICE, " IAM CA close success");
-    } else {
-        COAUTH_HILOGI(MODULE_SERVICE, " IAM CA is closed");
-    }
     COAUTH_HILOGI(MODULE_SERVICE, "Stop service");
 }
 
@@ -118,42 +97,6 @@ void CoAuthService::QueryStatus(ResAuthExecutor &executorInfo, const sptr<ResIQu
         return;
     }
     return authResMgr_.QueryStatus(executorInfo, callback);
-}
-
-/* Apply for collaborative scheduling */
-void CoAuthService::BeginSchedule(uint64_t scheduleId, AuthInfo &authInfo, const sptr<ICoAuthCallback> &callback)
-{
-    if (callback == nullptr) {
-        COAUTH_HILOGE(MODULE_SERVICE, "callback is nullptr");
-        return;
-    }
-    return coAuthMgr_.BeginSchedule(scheduleId, authInfo, callback);
-}
-
-/* Cancel collaborative schedule */
-int32_t CoAuthService::Cancel(uint64_t scheduleId)
-{
-    return coAuthMgr_.Cancel(scheduleId);
-}
-
-/* Set executor properties */
-void CoAuthService::SetExecutorProp(ResAuthAttributes &conditions, const sptr<ISetPropCallback> &callback)
-{
-    if (callback == nullptr) {
-        COAUTH_HILOGE(MODULE_SERVICE, "callback is nullptr");
-        return;
-    }
-    return coAuthMgr_.SetExecutorProp(conditions, callback);
-}
-
-/* Get executor properties */
-int32_t CoAuthService::GetExecutorProp(ResAuthAttributes &conditions, std::shared_ptr<ResAuthAttributes> values)
-{
-    if (values == nullptr) {
-        COAUTH_HILOGE(MODULE_SERVICE, "values pointer is nullptr");
-        return FAIL;
-    }
-    return coAuthMgr_.GetExecutorProp(conditions, values);
 }
 } // namespace CoAu
 } // namespace UserIAM

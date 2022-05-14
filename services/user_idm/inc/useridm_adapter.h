@@ -16,8 +16,9 @@
 #ifndef USERAUTH_ADAPTER_H
 #define USERAUTH_ADAPTER_H
 
+#include "v1_0/user_auth_interface_proxy.h"
+#include "coauth_manager.h"
 #include "useridm_info.h"
-#include "useridm_interface.h"
 
 namespace OHOS {
 namespace UserIAM {
@@ -30,10 +31,10 @@ public:
     int32_t QueryCredential(int32_t userId, AuthType authType, std::vector<CredentialInfo>& credInfos);
     int32_t GetSecureUid(int32_t userId, uint64_t& secureUid, std::vector<EnrolledInfo>& enrolledInfos);
     int32_t InitSchedule(std::vector<uint8_t> autoToken, int32_t userId, AuthType authType,
-        AuthSubType authSubType, uint64_t& sessionId);
-    int32_t DeleteCredential(int32_t userId, uint64_t credentialId, std::vector<uint8_t> authToken,
+        AuthSubType authSubType, CoAuth::ScheduleInfo& info);
+    int32_t DeleteCredential(int32_t userId, uint64_t credentialId, std::vector<uint8_t>& authToken,
         CredentialInfo& credInfo);
-    int32_t DeleteUser(int32_t userId, std::vector<uint8_t> authToken, std::vector<CredentialInfo>& credInfo);
+    int32_t DeleteUser(int32_t userId, std::vector<uint8_t>& authToken, std::vector<CredentialInfo>& credInfo);
     int32_t DeleteUserEnforce(int32_t userId, std::vector<CredentialInfo>& credInfo);
     int32_t AddCredential(std::vector<uint8_t>& enrollToken, uint64_t& credentialId);
     int32_t UpdateCredential(std::vector<uint8_t> enrollToken, uint64_t &credentialId,
@@ -42,6 +43,8 @@ public:
 private:
     UserIDMAdapter() = default;
     ~UserIDMAdapter() = default;
+    bool CopyScheduleInfo(const HDI::UserAuth::V1_0::ScheduleInfo& in, CoAuth::ScheduleInfo& out);
+    void CopyCredentialFromHdi(const HDI::UserAuth::V1_0::CredentialInfo& in, UserIDM::CredentialInfo& out);
 };
 } // namespace UserIDM
 } // namespace UserIam

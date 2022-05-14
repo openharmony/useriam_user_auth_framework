@@ -39,14 +39,6 @@ int32_t CoAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
             return RegisterStub(data, reply);
         case static_cast<int32_t>(ICoAuth::COAUTH_QUERY_STATUS):
             return QueryStatusStub(data, reply);
-        case static_cast<int32_t>(ICoAuth::COAUTH_SCHEDULE_REQUEST):
-            return BeginScheduleStub(data, reply);
-        case static_cast<int32_t>(ICoAuth::COAUTH_SCHEDULE_CANCEL):
-            return CancelStub(data, reply);
-        case static_cast<int32_t>(ICoAuth::COAUTH_GET_PROPERTY):
-            return GetExecutorPropStub(data, reply);
-        case static_cast<int32_t>(ICoAuth::COAUTH_SET_PROPERTY):
-            return SetExecutorPropStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -107,93 +99,6 @@ int32_t CoAuthStub::QueryStatusStub(MessageParcel& data, MessageParcel& reply)
     }
 
     QueryStatus(executorInfo, callback);
-    return SUCCESS;
-}
-
-int32_t CoAuthStub::BeginScheduleStub(MessageParcel& data, MessageParcel& reply)
-{
-    AuthInfo authInfo;
-
-    std::string GetPkgName = data.ReadString();
-    authInfo.SetPkgName(GetPkgName);
-    uint64_t GetCallerUid = data.ReadUint64();
-    authInfo.SetCallerUid(GetCallerUid);
-    COAUTH_HILOGD(MODULE_SERVICE, "ReadUint64,GetCallerUid:0xXXXX%{public}04" PRIx64, MASK & GetCallerUid);
-
-    uint64_t scheduleId = data.ReadUint64();
-    COAUTH_HILOGD(MODULE_SERVICE, "ReadUint64,scheduleId:0xXXXX%{public}04" PRIx64, MASK & scheduleId);
-
-    sptr<ICoAuthCallback> callback = iface_cast<ICoAuthCallback>(data.ReadRemoteObject());
-    if (callback == nullptr) {
-        COAUTH_HILOGE(MODULE_SERVICE, "read ICoAuthCallback is nullptr");
-        return FAIL;
-    }
-
-    BeginSchedule(scheduleId, authInfo, callback);
-
-    return SUCCESS;
-}
-
-int32_t CoAuthStub::CancelStub(MessageParcel& data, MessageParcel& reply)
-{
-    COAUTH_HILOGI(MODULE_SERVICE, "CoAuthStub: CancelStub start");
-
-    uint64_t scheduleId = data.ReadUint64();
-    COAUTH_HILOGD(MODULE_SERVICE, "ReadUint64 scheduleId:0xXXXX%{public}04" PRIx64, MASK & scheduleId);
-
-    int ret = Cancel(scheduleId);
-    if (!reply.WriteInt32(ret)) {
-        COAUTH_HILOGE(MODULE_SERVICE, "failed to WriteInt32(ret)");
-        return FAIL;
-    }
-    return SUCCESS;
-}
-
-int32_t CoAuthStub::GetExecutorPropStub(MessageParcel& data, MessageParcel& reply)
-{
-    COAUTH_HILOGI(MODULE_SERVICE, "CoAuthStub: GetExecutorPropStub start");
-    std::vector<uint8_t> buffer;
-    AuthResPool::AuthAttributes conditions;
-    data.ReadUInt8Vector(&buffer);
-    conditions.Unpack(buffer);
-    std::shared_ptr<AuthResPool::AuthAttributes> values = std::make_shared<AuthResPool::AuthAttributes>();
-    if (values == nullptr) {
-        COAUTH_HILOGE(MODULE_SERVICE, "GetExecutorPropStub failed, values is nullptr");
-        return FAIL;
-    }
-
-    int32_t ret = GetExecutorProp(conditions, values);
-    if (!reply.WriteInt32(ret)) {
-        COAUTH_HILOGE(MODULE_SERVICE, "failed to WriteInt32(ret)");
-        return FAIL;
-    }
-
-    std::vector<uint8_t> replyBuffer;
-    values->Pack(replyBuffer);
-    if (!reply.WriteUInt8Vector(replyBuffer)) {
-        COAUTH_HILOGE(MODULE_SERVICE, "failed to replyBuffer");
-        return FAIL;
-    }
-    return SUCCESS;
-}
-
-int32_t CoAuthStub::SetExecutorPropStub(MessageParcel& data, MessageParcel& reply)
-{
-    COAUTH_HILOGI(MODULE_SERVICE, "CoAuthStub: SetExecutorPropStub start");
-    std::vector<uint8_t> buffer;
-    std::shared_ptr<AuthResPool::AuthAttributes> conditions = std::make_shared<AuthResPool::AuthAttributes>();
-
-    data.ReadUInt8Vector(&buffer);
-    conditions->Unpack(buffer);
-
-    sptr<ISetPropCallback> callback = iface_cast<ISetPropCallback>(data.ReadRemoteObject());
-    if (callback == nullptr) {
-        COAUTH_HILOGE(MODULE_SERVICE, "SetExecutorPropStub failed, callback is nullptr");
-        return FAIL;
-    }
-
-    SetExecutorProp(*conditions, callback);
-
     return SUCCESS;
 }
 } // namespace CoAuth

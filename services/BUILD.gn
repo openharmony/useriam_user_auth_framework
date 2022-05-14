@@ -24,7 +24,6 @@ ohos_shared_library("userauthservice") {
   include_dirs = [
     "//base/user_iam/user_auth/services/user_auth/inc",
     "//base/user_iam/user_auth/services/co_auth/inc",
-    "//base/user_iam/user_auth/services/co_auth/common/interface",
     "//base/user_iam/user_auth/common/logs/user_idm",
     "//base/user_iam/user_auth/services/user_idm/inc",
     "//base/user_iam/user_auth/frameworks/user_idm/inc",
@@ -34,6 +33,7 @@ ohos_shared_library("userauthservice") {
   ]
 
   sources = [
+    "co_auth/src/auth_info.cpp",
     "co_auth/src/auth_res_manager.cpp",
     "co_auth/src/auth_res_pool.cpp",
     "co_auth/src/call_monitor.cpp",
@@ -64,18 +64,19 @@ ohos_shared_library("userauthservice") {
   deps = [
     "//base/user_iam/user_auth/common:iam_thread_pool",
     "//base/user_iam/user_auth/frameworks/co_auth:coauth_framework",
-    "//base/user_iam/user_auth/services/co_auth/common:useriam_common_lib",
     "//third_party/openssl:libcrypto_shared",
   ]
 
   external_deps = [
     "access_token:libaccesstoken_sdk",
+    "device_driver_framework:libhdf_utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
     "startup_l2:syspara",
+    "user_auth_device_driver_interface:libuser_auth_proxy_1.0",
     "utils_base:utils",
   ]
 

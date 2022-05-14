@@ -14,11 +14,13 @@
  */
 
 #include "useridm_adapter.h"
+#include "securec.h"
 #include "useridm_hilog_wrapper.h"
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {
+namespace UserAuthHdi = OHOS::HDI::UserAuth::V1_0;
 UserIDMAdapter &UserIDMAdapter::GetInstance()
 {
     static UserIDMAdapter instance;
@@ -28,41 +30,69 @@ UserIDMAdapter &UserIDMAdapter::GetInstance()
 void UserIDMAdapter::OpenEditSession(int32_t userId, uint64_t& challenge)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "UserIDMAdapter OpenEditSession start");
-    int32_t ret = OHOS::UserIAM::UserIDM::Hal::OpenSession(userId, challenge);
-    USERIDM_HILOGD(MODULE_SERVICE, "Call TA info: OpenSession: %{public}d", ret);
+    challenge = 0;
+    auto hdiInterface = UserAuthHdi::IUserAuthInterface::Get();
+    if (hdiInterface == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "hdiInterface is nullptr!");
+        return;
+    }
+    std::vector<uint8_t> hdiChallenge;
+    int32_t ret = hdiInterface->OpenSession(userId, hdiChallenge);
+    if (ret != SUCCESS || hdiChallenge.size() != sizeof(uint64_t)) {
+        USERIDM_HILOGE(MODULE_SERVICE, "OpenSession failed: %{public}d", ret);
+        return;
+    }
+    if (memcpy_s(&challenge, sizeof(uint64_t), &hdiChallenge[0], hdiChallenge.size()) != EOK) {
+        USERIDM_HILOGE(MODULE_SERVICE, "copy challenge failed");
+        return;
+    }
 }
 
 void UserIDMAdapter::CloseEditSession()
 {
     USERIDM_HILOGD(MODULE_SERVICE, "UserIDMAdapter CloseEditSession start");
-    int32_t ret = OHOS::UserIAM::UserIDM::Hal::CloseSession();
-    USERIDM_HILOGD(MODULE_SERVICE, "Call TA info: CloseSession: %{public}d", ret);
+    auto hdiInterface = UserAuthHdi::IUserAuthInterface::Get();
+    if (hdiInterface == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "hdiInterface is nullptr!");
+        return;
+    }
+    int32_t ret = hdiInterface->CloseSession(0);
+    USERIDM_HILOGD(MODULE_SERVICE, "call hdi info: CloseSession: %{public}d", ret);
+}
+
+void UserIDMAdapter::CopyCredentialFromHdi(const UserAuthHdi::CredentialInfo& in, UserIDM::CredentialInfo& out)
+{
+    out.authSubType = OHOS::UserIAM::UserIDM::AuthSubType(in.executorType);
+    out.authType = OHOS::UserIAM::UserIDM::AuthType(in.authType);
+    out.credentialId = in.credentialId;
+    out.templateId = in.templateId;
 }
 
 int32_t UserIDMAdapter::QueryCredential(int32_t userId, AuthType authType,
     std::vector<OHOS::UserIAM::UserIDM::CredentialInfo>& credInfos)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "UserIDMAdapter QueryCredential start");
-    std::vector<OHOS::UserIAM::UserIDM::Hal::CredentialInfo> taInfos;
-    int32_t ret = OHOS::UserIAM::UserIDM::Hal::QueryCredential(userId, authType, taInfos);
+    auto hdiInterface = UserAuthHdi::IUserAuthInterface::Get();
+    if (hdiInterface == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "hdiInterface is nullptr!");
+        return GENERAL_ERROR;
+    }
+    std::vector<UserAuthHdi::CredentialInfo> hdiInfos;
+    int32_t ret = hdiInterface->GetCredential(userId, static_cast<UserAuthHdi::AuthType>(authType), hdiInfos);
     if (ret != SUCCESS) {
-        USERIDM_HILOGE(MODULE_SERVICE, "call TA info error: %{public}d", ret);
+        USERIDM_HILOGE(MODULE_SERVICE, "call driver info error: %{public}d", ret);
         return ret;
     }
 
-    size_t vectorSize = taInfos.size();
-    if (vectorSize > 0) {
-        for (size_t i = 0; i < vectorSize; i++) {
-            OHOS::UserIAM::UserIDM::Hal::CredentialInfo taInfo = taInfos[i];
-            OHOS::UserIAM::UserIDM::CredentialInfo credInfo;
-            credInfo.authSubType = OHOS::UserIAM::UserIDM::AuthSubType(taInfo.authSubType);
-            credInfo.authType = OHOS::UserIAM::UserIDM::AuthType(taInfo.authType);
-            credInfo.credentialId = taInfo.credentialId;
-            credInfo.templateId = taInfo.templateId;
-            credInfos.push_back(credInfo);
-        }
-    } else {
+    size_t vectorSize = hdiInfos.size();
+    if (vectorSize <= 0) {
         USERIDM_HILOGE(MODULE_SERVICE, "vector size is: %{public}zu", vectorSize);
+        return GENERAL_ERROR;
+    }
+    for (auto &hdiInfo : hdiInfos) {
+        OHOS::UserIAM::UserIDM::CredentialInfo credInfo = {};
+        CopyCredentialFromHdi(hdiInfo, credInfo);
+        credInfos.push_back(credInfo);
     }
     return ret;
 }
@@ -71,82 +101,127 @@ int32_t UserIDMAdapter::GetSecureUid(int32_t userId, uint64_t& secureUid,
     std::vector<OHOS::UserIAM::UserIDM::EnrolledInfo>& enrolledInfos)
 {
     USERIDM_HILOGI(MODULE_SERVICE, "UserIDMAdapter GetSecureUid start");
-
-    std::vector<OHOS::UserIAM::UserIDM::Hal::EnrolledInfo> taInfos;
-    int32_t ret = OHOS::UserIAM::UserIDM::Hal::GetSecureUid(userId, secureUid, taInfos);
+    auto hdiInterface = UserAuthHdi::IUserAuthInterface::Get();
+    if (hdiInterface == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "hdiInterface is nullptr!");
+        return GENERAL_ERROR;
+    }
+    std::vector<UserAuthHdi::EnrolledInfo> hdiInfos;
+    int32_t ret = hdiInterface->GetSecureInfo(userId, secureUid, hdiInfos);
     if (ret != SUCCESS) {
-        USERIDM_HILOGE(MODULE_SERVICE, "Call TA info: GetSecureUid: %{public}d", ret);
+        USERIDM_HILOGE(MODULE_SERVICE, "call driver info: GetSecureInfo: %{public}d", ret);
         return ret;
     }
-    size_t vectorSize = taInfos.size();
-    if (vectorSize > 0) {
-        for (size_t i = 0; i < vectorSize; i++) {
-            OHOS::UserIAM::UserIDM::EnrolledInfo enrollInfo;
-            enrollInfo.authType = OHOS::UserIAM::UserIDM::AuthType(taInfos[i].authType);
-            enrollInfo.enrolledId = taInfos[i].enrolledId;
-            enrolledInfos.push_back(enrollInfo);
-        }
-    } else {
+    size_t vectorSize = hdiInfos.size();
+    if (vectorSize <= 0) {
         USERIDM_HILOGE(MODULE_SERVICE, "vector size is: %{public}zu", vectorSize);
+        return GENERAL_ERROR;
+    }
+    for (auto &hdiInfo : hdiInfos) {
+        OHOS::UserIAM::UserIDM::EnrolledInfo enrollInfo = {};
+        enrollInfo.authType = OHOS::UserIAM::UserIDM::AuthType(hdiInfo.authType);
+        enrollInfo.enrolledId = hdiInfo.enrolledId;
+        enrolledInfos.push_back(enrollInfo);
     }
     return ret;
+}
+
+bool UserIDMAdapter::CopyScheduleInfo(const UserAuthHdi::ScheduleInfo& in, CoAuth::ScheduleInfo& out)
+{
+    if (in.executors.size() == 0 || in.templateIds.size() == 0) {
+        COAUTH_HILOGE(MODULE_SERVICE, "param is invalid");
+        return false;
+    }
+    out.scheduleId = in.scheduleId;
+    out.templateId = in.templateIds[0];
+    out.authSubType = static_cast<uint64_t>(in.executorType);
+    out.scheduleMode = in.scheduleMode;
+    for (auto &executor : in.executors) {
+        if (executor.info.publicKey.size() != CoAuth::PUBLIC_KEY_LEN) {
+            COAUTH_HILOGE(MODULE_SERVICE, "publicKey is invalid");
+            return false;
+        }
+        CoAuth::ExecutorInfo temp = {};
+        temp.executorId = executor.index;
+        auto &info = executor.info;
+        temp.authType = static_cast<uint32_t>(info.authType);
+        temp.authAbility = static_cast<uint64_t>(info.executorType);
+        temp.esl = static_cast<uint32_t>(info.esl);
+        temp.executorType =  static_cast<uint32_t>(info.executorRole);
+        if (memcpy_s(temp.publicKey, CoAuth::PUBLIC_KEY_LEN, &info.publicKey[0], info.publicKey.size()) != EOK) {
+            COAUTH_HILOGE(MODULE_SERVICE, "copy publicKey failed");
+            return false;
+        }
+        out.executors.push_back(temp);
+    }
+    return true;
 }
 
 int32_t UserIDMAdapter::InitSchedule(std::vector<uint8_t> autoToken, int32_t userId, AuthType authType,
-    AuthSubType authSubType, uint64_t& sessionId)
+    AuthSubType authSubType, CoAuth::ScheduleInfo& info)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "UserIDMAdapter InitSchedule start");
-    int32_t ret = OHOS::UserIAM::UserIDM::Hal::InitSchedulation(autoToken, userId, authType, authSubType, sessionId);
-    USERIDM_HILOGI(MODULE_SERVICE, "Call TA info: GetScheduleId: %{public}d", ret);
+    auto hdiInterface = UserAuthHdi::IUserAuthInterface::Get();
+    if (hdiInterface == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "hdiInterface is nullptr!");
+        return GENERAL_ERROR;
+    }
+    UserAuthHdi::EnrollParam param = {};
+    param.authType = static_cast<UserAuthHdi::AuthType>(authType);
+    param.executorType = static_cast<uint32_t>(authSubType);
+    UserAuthHdi::ScheduleInfo hdiInfo;
+    int32_t ret = hdiInterface->BeginEnrollment(userId, autoToken, param, hdiInfo);
+    if (ret != SUCCESS) {
+        USERIDM_HILOGE(MODULE_SERVICE, "call driver info error: %{public}d", ret);
+        return ret;
+    }
+    if (!CopyScheduleInfo(hdiInfo, info)) {
+        USERIDM_HILOGE(MODULE_SERVICE, "CopyScheduleInfo failed");
+        return GENERAL_ERROR;
+    }
     return ret;
 }
 
-int32_t UserIDMAdapter::DeleteCredential(int32_t userId, uint64_t credentialId, std::vector<uint8_t> authToken,
+int32_t UserIDMAdapter::DeleteCredential(int32_t userId, uint64_t credentialId, std::vector<uint8_t>& authToken,
     OHOS::UserIAM::UserIDM::CredentialInfo& credInfo)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "UserIDMAdapter DeleteCredential start");
-
-    OHOS::UserIAM::UserIDM::Hal::CredentialInfo taInfo;
-    int32_t ret = OHOS::UserIAM::UserIDM::Hal::DeleteCredential(userId, credentialId, authToken, taInfo);
+    auto hdiInterface = UserAuthHdi::IUserAuthInterface::Get();
+    if (hdiInterface == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "hdiInterface is nullptr!");
+        return GENERAL_ERROR;
+    }
+    UserAuthHdi::CredentialInfo hdiInfo = {};
+    int32_t ret = hdiInterface->DeleteCredential(userId, credentialId, authToken, hdiInfo);
     if (ret != SUCCESS) {
-        USERIDM_HILOGE(MODULE_SERVICE, "get TA info error: %{public}d", ret);
+        USERIDM_HILOGE(MODULE_SERVICE, "call driver info error: %{public}d", ret);
         return ret;
     }
-    credInfo.authSubType = OHOS::UserIAM::UserIDM::AuthSubType(taInfo.authSubType);
-    credInfo.authType = OHOS::UserIAM::UserIDM::AuthType(taInfo.authType);
-    credInfo.credentialId = taInfo.credentialId;
-    credInfo.templateId = taInfo.templateId;
-    USERIDM_HILOGI(MODULE_SERVICE, "Call TA info: DeleteCredential: %{public}d", ret);
+    CopyCredentialFromHdi(hdiInfo, credInfo);
 
     return ret;
 }
 
-int32_t UserIDMAdapter::DeleteUser(int32_t userId, std::vector<uint8_t> authToken,
+int32_t UserIDMAdapter::DeleteUser(int32_t userId, std::vector<uint8_t>& authToken,
     std::vector<OHOS::UserIAM::UserIDM::CredentialInfo>& credInfos)
 {
     USERIDM_HILOGI(MODULE_SERVICE, "UserIDMAdapter DeleteUser start");
-
-    std::vector<OHOS::UserIAM::UserIDM::Hal::CredentialInfo> taInfos;
-    int32_t ret = OHOS::UserIAM::UserIDM::Hal::DeleteUser(userId, authToken, taInfos);
+    auto hdiInterface = UserAuthHdi::IUserAuthInterface::Get();
+    if (hdiInterface == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "hdiInterface is nullptr!");
+        return GENERAL_ERROR;
+    }
+    std::vector<UserAuthHdi::CredentialInfo> hdiInfos;
+    int32_t ret = hdiInterface->DeleteUser(userId, authToken, hdiInfos);
     if (ret != SUCCESS) {
-        USERIDM_HILOGE(MODULE_SERVICE, "get TA info error: %{public}d", ret);
+        USERIDM_HILOGE(MODULE_SERVICE, "call driver info error: %{public}d", ret);
         return ret;
     }
-    size_t vectorSize = taInfos.size();
-    USERIDM_HILOGI(MODULE_SERVICE, "taInfos.size() %{public}zu", vectorSize);
-    if (vectorSize > 0) {
-        for (size_t i = 0; i < vectorSize; i++) {
-            OHOS::UserIAM::UserIDM::CredentialInfo credInfo;
-            credInfo.authSubType = OHOS::UserIAM::UserIDM::AuthSubType(taInfos[i].authSubType);
-            credInfo.authType = OHOS::UserIAM::UserIDM::AuthType(taInfos[i].authType);
-            credInfo.credentialId = taInfos[i].credentialId;
-            credInfo.templateId = taInfos[i].templateId;
-            credInfos.push_back(credInfo);
-        }
-    } else {
-        USERIDM_HILOGE(MODULE_SERVICE, "vector size is wrong");
+    for (auto &hdiInfo : hdiInfos) {
+        OHOS::UserIAM::UserIDM::CredentialInfo credInfo;
+        CopyCredentialFromHdi(hdiInfo, credInfo);
+        credInfos.push_back(credInfo);
     }
-
     return ret;
 }
 
@@ -154,25 +229,21 @@ int32_t UserIDMAdapter::DeleteUserEnforce(int32_t userId,
     std::vector<OHOS::UserIAM::UserIDM::CredentialInfo>& credInfos)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "UserIDMAdapter DeleteUserEnforce start");
-
-    std::vector<OHOS::UserIAM::UserIDM::Hal::CredentialInfo> taInfos;
-    int32_t ret = OHOS::UserIAM::UserIDM::Hal::DeleteUserEnforce(userId, taInfos);
+    auto hdiInterface = UserAuthHdi::IUserAuthInterface::Get();
+    if (hdiInterface == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "hdiInterface is nullptr!");
+        return GENERAL_ERROR;
+    }
+    std::vector<UserAuthHdi::CredentialInfo> hdiInfos;
+    int32_t ret = hdiInterface->EnforceDeleteUser(userId, hdiInfos);
     if (ret != SUCCESS) {
-        USERIDM_HILOGE(MODULE_SERVICE, "call TA info error: %{public}d", ret);
+        USERIDM_HILOGE(MODULE_SERVICE, "call driver info error: %{public}d", ret);
         return ret;
     }
-    size_t vectorSize = taInfos.size();
-    if (vectorSize > 0) {
-        for (size_t i = 0; i < vectorSize; i++) {
-            OHOS::UserIAM::UserIDM::CredentialInfo credInfo;
-            credInfo.authSubType = OHOS::UserIAM::UserIDM::AuthSubType(taInfos[i].authSubType);
-            credInfo.authType = OHOS::UserIAM::UserIDM::AuthType(taInfos[i].authType);
-            credInfo.credentialId = taInfos[i].credentialId;
-            credInfo.templateId = taInfos[i].templateId;
-            credInfos.push_back(credInfo);
-        }
-    } else {
-        USERIDM_HILOGE(MODULE_SERVICE, "vector size is wrong");
+    for (auto &hdiInfo : hdiInfos) {
+        OHOS::UserIAM::UserIDM::CredentialInfo credInfo;
+        CopyCredentialFromHdi(hdiInfo, credInfo);
+        credInfos.push_back(credInfo);
     }
     return ret;
 }
@@ -180,9 +251,14 @@ int32_t UserIDMAdapter::DeleteUserEnforce(int32_t userId,
 int32_t UserIDMAdapter::AddCredential(std::vector<uint8_t>& enrollToken, uint64_t& credentialId)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "UserIDMAdapter AddCredential start");
-
-    int32_t ret = OHOS::UserIAM::UserIDM::Hal::AddCredential(enrollToken, credentialId);
-    USERIDM_HILOGI(MODULE_SERVICE, "Call TA info: AddCredential: %{public}d", ret);
+    auto hdiInterface = UserAuthHdi::IUserAuthInterface::Get();
+    if (hdiInterface == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "hdiInterface is nullptr!");
+        return GENERAL_ERROR;
+    }
+    UserAuthHdi::CredentialInfo hdiInfo;
+    int32_t ret = hdiInterface->UpdateEnrollmentResult(0, enrollToken, credentialId, hdiInfo);
+    USERIDM_HILOGI(MODULE_SERVICE, "call driver info: AddCredential: %{public}d", ret);
 
     return ret;
 }
@@ -191,16 +267,17 @@ int32_t UserIDMAdapter::UpdateCredential(std::vector<uint8_t> enrollToken, uint6
     CredentialInfo &deletedCredential)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "UserIDMAdapter UpdateCredential start");
-
-    OHOS::UserIAM::UserIDM::Hal::CredentialInfo taInfo;
-    int32_t ret = OHOS::UserIAM::UserIDM::Hal::UpdateCredential(enrollToken, credentialId, taInfo);
+    auto hdiInterface = UserAuthHdi::IUserAuthInterface::Get();
+    if (hdiInterface == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "hdiInterface is nullptr!");
+        return GENERAL_ERROR;
+    }
+    UserAuthHdi::CredentialInfo hdiInfo;
+    int32_t ret = hdiInterface->UpdateEnrollmentResult(0, enrollToken, credentialId, hdiInfo);
     if (ret == SUCCESS) {
-        deletedCredential.authSubType = OHOS::UserIAM::UserIDM::AuthSubType(taInfo.authSubType);
-        deletedCredential.authType = OHOS::UserIAM::UserIDM::AuthType(taInfo.authType);
-        deletedCredential.credentialId = taInfo.credentialId;
-        deletedCredential.templateId = taInfo.templateId;
+        CopyCredentialFromHdi(hdiInfo, deletedCredential);
     } else {
-        USERIDM_HILOGE(MODULE_SERVICE, "Call TA info: UpdateCredential: %{public}d", ret);
+        USERIDM_HILOGE(MODULE_SERVICE, "call driver info: UpdateEnrollmentResult: %{public}d", ret);
     }
 
     return ret;
