@@ -14,7 +14,6 @@
  */
 
 #include "useridm_service.h"
-#include "useriam_common.h"
 #include "accesstoken_kit.h"
 #include "useridm_controller.h"
 
@@ -38,10 +37,6 @@ UserIDMService::~UserIDMService()
 void UserIDMService::OnStart()
 {
     USERIDM_HILOGI(MODULE_SERVICE, "Start service");
-    bool ret = OHOS::UserIAM::Common::IsIAMInited();
-    if (!ret) {
-        OHOS::UserIAM::Common::Init();
-    }
     if (!Publish(this)) {
         USERIDM_HILOGE(MODULE_SERVICE, "Failed to publish service");
     }
@@ -50,10 +45,6 @@ void UserIDMService::OnStart()
 void UserIDMService::OnStop()
 {
     USERIDM_HILOGI(MODULE_SERVICE, "Stop service");
-    bool ret = OHOS::UserIAM::Common::IsIAMInited();
-    if (ret) {
-        OHOS::UserIAM::Common::Close();
-    }
 }
 
 int32_t UserIDMService::GetCallingUserId(int32_t &userId)

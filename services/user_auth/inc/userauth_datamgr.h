@@ -31,15 +31,17 @@ public:
     DISALLOW_COPY_AND_MOVE(UserAuthDataMgr);
     static UserAuthDataMgr &GetInstance();
     int32_t AddContextId(uint64_t contextId);
-    int32_t IsContextIdExist(uint64_t contextId);
+    bool IsContextIdExist(uint64_t contextId);
     int32_t GenerateContextId(uint64_t &contextId);
     int32_t DeleteContextId(uint64_t contextId);
+    int32_t SetScheduleIds(uint64_t contextId, const std::vector<uint64_t> &sheduleIds);
+    int32_t GetScheduleIds(uint64_t contextId, std::vector<uint64_t> &sheduleIds);
 
 private:
     UserAuthDataMgr() = default;
     ~UserAuthDataMgr() = default;
     std::mutex mutex_;
-    std::set<uint64_t> contextIds_;
+    std::map<uint64_t, std::vector<uint64_t>> contexts_;
 };
 } // namespace UserAuth
 } // namespace UserIAM

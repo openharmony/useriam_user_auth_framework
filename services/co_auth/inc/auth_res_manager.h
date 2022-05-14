@@ -21,7 +21,7 @@
 #include "auth_executor.h"
 #include "iexecutor_callback.h"
 #include "iquery_callback.h"
-#include "coauth_interface.h"
+#include "v1_0/user_auth_interface_proxy.h"
 
 namespace OHOS {
 namespace UserIAM {
@@ -33,11 +33,15 @@ public:
     int32_t FindExecutorCallback(uint64_t executorID, sptr<ResIExecutorCallback> &callback);
     int32_t FindExecutorCallback(uint32_t authType, sptr<ResIExecutorCallback> &callback);
     int32_t DeleteExecutorCallback(uint64_t executorID);
-    int32_t SaveScheduleCallback(uint64_t scheduleId, uint64_t executorNum, sptr<ICoAuthCallback> callback);
-    int32_t FindScheduleCallback(uint64_t scheduleId, sptr<ICoAuthCallback> &callback);
+    int32_t SaveScheduleCallback(uint64_t scheduleId, const CoAuth::ScheduleInfo &scheduleInfo,
+        std::shared_ptr<CoAuthCallback> callback);
+    int32_t FindScheduleCallback(uint64_t scheduleId, std::shared_ptr<CoAuthCallback> &callback);
     int32_t DeleteScheduleCallback(uint64_t scheduleId);
+    int32_t FindScheduleInfo(uint64_t scheduleId, CoAuth::ScheduleInfo &info);
 
 private:
+    bool GetExecutorRegisterInfo(const std::shared_ptr<ResAuthExecutor> &executorInfo,
+        HDI::UserAuth::V1_0::ExecutorRegisterInfo &info);
     class ResIExecutorCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
         ResIExecutorCallbackDeathRecipient(uint64_t executorID, AuthResManager* parent);

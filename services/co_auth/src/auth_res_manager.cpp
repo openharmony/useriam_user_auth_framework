@@ -20,6 +20,33 @@
 namespace OHOS {
 namespace UserIAM {
 namespace CoAuth {
+namespace UserAuthHdi = OHOS::HDI::UserAuth::V1_0;
+
+bool AuthResManager::GetExecutorRegisterInfo(const std::shared_ptr<ResAuthExecutor> &executorInfo,
+    UserAuthHdi::ExecutorRegisterInfo &info)
+{
+    std::vector<uint8_t> publicKey;
+    executorInfo->GetPublicKey(publicKey);
+    if (publicKey.size() != PUBLIC_KEY_LEN) {
+        COAUTH_HILOGE(MODULE_SERVICE, "publicKey length is invalid");
+        return false;
+    }
+    AuthType authType;
+    executorInfo->GetAuthType(authType);
+    ExecutorSecureLevel esl;
+    executorInfo->GetExecutorSecLevel(esl);
+    ExecutorType exeType;
+    executorInfo->GetExecutorType(exeType);
+    uint64_t authAbility;
+    executorInfo->GetAuthAbility(authAbility);
+    info.authType = static_cast<UserAuthHdi::AuthType>(authType);
+    info.esl = static_cast<UserAuthHdi::ExecutorSecureLevel>(esl);
+    info.executorRole = static_cast<UserAuthHdi::ExecutorRole>(exeType);
+    info.executorType = static_cast<uint32_t>(authAbility);
+    info.publicKey.assign(publicKey.begin(), publicKey.end());
+    return true;
+}
+
 /* Register the executor, pass in the executor information and the callback returns the executor ID. */
 uint64_t AuthResManager::Register(std::shared_ptr<ResAuthExecutor> executorInfo, sptr<ResIExecutorCallback> callback)
 {
@@ -27,29 +54,20 @@ uint64_t AuthResManager::Register(std::shared_ptr<ResAuthExecutor> executorInfo,
         COAUTH_HILOGE(MODULE_SERVICE, "executorInfo or callback is nullptr");
         return INVALID_EXECUTOR_ID;
     }
-    ExecutorInfo info;
-    std::vector<uint8_t> publicKey;
-    AuthType authType;
-    ExecutorSecureLevel esl;
-    ExecutorType exeType;
-    executorInfo->GetAuthType(authType);
-    executorInfo->GetAuthAbility(info.authAbility);
-    executorInfo->GetExecutorSecLevel(esl);
-    executorInfo->GetExecutorType(exeType);
-    executorInfo->GetPublicKey(publicKey);
-    info.authType = authType;
-    info.esl = esl;
-    info.executorType = exeType;
-    if (publicKey.size() > PUBLIC_KEY_LEN) {
-        COAUTH_HILOGE(MODULE_SERVICE, "publicKey length too long");
+    UserAuthHdi::ExecutorRegisterInfo info;
+    if (!GetExecutorRegisterInfo(executorInfo, info)) {
+        COAUTH_HILOGE(MODULE_SERVICE, "get register info failed");
         return INVALID_EXECUTOR_ID;
     }
-    for (std::size_t i = 0; i < publicKey.size(); i++) {
-        info.publicKey[i] = publicKey[i];
+    auto hdiInterface = UserAuthHdi::IUserAuthInterface::Get();
+    if (hdiInterface == nullptr) {
+        COAUTH_HILOGE(MODULE_SERVICE, "hdiInterface is nullptr!");
+        return INVALID_EXECUTOR_ID;
     }
-
     uint64_t executorId = INVALID_EXECUTOR_ID;
-    int32_t result = ExecutorRegister(info, executorId);
+    std::vector<uint8_t> frameworksPublicKey;
+    std::vector<uint64_t> templateIds;
+    int32_t result = hdiInterface->AddExecutor(info, executorId, frameworksPublicKey, templateIds);
     if (result != SUCCESS) {
         COAUTH_HILOGE(MODULE_SERVICE, "register is failure!");
         return INVALID_EXECUTOR_ID;
@@ -81,26 +99,11 @@ uint64_t AuthResManager::Register(std::shared_ptr<ResAuthExecutor> executorInfo,
 /* Query whether the executor is registered */
 void AuthResManager::QueryStatus(ResAuthExecutor &executorInfo, sptr<ResIQueryCallback> callback)
 {
-    bool isExist = false;
-    int32_t result = SUCCESS;
-    AuthType authType;
     if (callback == nullptr) {
         COAUTH_HILOGE(MODULE_SERVICE, "callback is nullptr");
         return;
     }
-    result = executorInfo.GetAuthType(authType);
-    if (result == SUCCESS) {
-        COAUTH_HILOGI(MODULE_SERVICE, "get AuthType success");
-        isExist = IsExecutorExist(authType); // call TA
-    } else {
-        COAUTH_HILOGE(MODULE_SERVICE, "get AuthType failed");
-    }
-    if (!isExist) {
-        COAUTH_HILOGE(MODULE_SERVICE, "query status executor register is not exist");
-    } else {
-        COAUTH_HILOGI(MODULE_SERVICE, "query status executor register is exist");
-    }
-    callback->OnResult(isExist ? SUCCESS : FAIL);
+    callback->OnResult(FAIL); // Legacy interface, deleted later.
 }
 
 int32_t AuthResManager::FindExecutorCallback(uint64_t executorID,
@@ -120,12 +123,13 @@ int32_t AuthResManager::DeleteExecutorCallback(uint64_t executorID)
     return coAuthResPool_.DeleteExecutorCallback(executorID);
 }
 
-int32_t AuthResManager::SaveScheduleCallback(uint64_t scheduleId, uint64_t executorNum, sptr<ICoAuthCallback> callback)
+int32_t AuthResManager::SaveScheduleCallback(uint64_t scheduleId, const CoAuth::ScheduleInfo &scheduleInfo,
+    std::shared_ptr<CoAuthCallback> callback)
 {
-    return coAuthResPool_.Insert(scheduleId, executorNum, callback);
+    return coAuthResPool_.Insert(scheduleId, scheduleInfo, callback);
 }
 
-int32_t AuthResManager::FindScheduleCallback(uint64_t scheduleId, sptr<ICoAuthCallback> &callback)
+int32_t AuthResManager::FindScheduleCallback(uint64_t scheduleId, std::shared_ptr<CoAuthCallback> &callback)
 {
     return coAuthResPool_.FindScheduleCallback(scheduleId, callback);
 }
@@ -133,6 +137,11 @@ int32_t AuthResManager::FindScheduleCallback(uint64_t scheduleId, sptr<ICoAuthCa
 int32_t AuthResManager::DeleteScheduleCallback(uint64_t scheduleId)
 {
     return coAuthResPool_.DeleteScheduleCallback(scheduleId);
+}
+
+int32_t AuthResManager::FindScheduleInfo(uint64_t scheduleId, CoAuth::ScheduleInfo &info)
+{
+    return coAuthResPool_.GetScheduleInfo(scheduleId, info);
 }
 
 AuthResManager::ResIExecutorCallbackDeathRecipient::ResIExecutorCallbackDeathRecipient(
@@ -150,8 +159,12 @@ void AuthResManager::ResIExecutorCallbackDeathRecipient::OnRemoteDied(const wptr
     if (parent_ != nullptr) {
         parent_->DeleteExecutorCallback(executorID_);
     }
-
-    int32_t ret = ExecutorUnRegister(executorID_);
+    auto hdiInterface = UserAuthHdi::IUserAuthInterface::Get();
+    if (hdiInterface == nullptr) {
+        COAUTH_HILOGE(MODULE_SERVICE, "hdiInterface is nullptr!");
+        return;
+    }
+    int32_t ret = hdiInterface->DeleteExecutor(executorID_);
     if (ret != SUCCESS) {
         COAUTH_HILOGE(MODULE_SERVICE, "executor unregister failed");
     }

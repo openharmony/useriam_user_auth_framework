@@ -19,7 +19,6 @@
 #include "iuserauth_callback.h"
 #include "userauth_adapter.h"
 #include "userauth_info.h"
-#include "userauth_interface.h"
 
 namespace OHOS {
 namespace UserIAM {
@@ -32,12 +31,13 @@ public:
     int32_t SetExecutorProp(uint64_t callerUid, std::string pkgName, SetPropertyRequest setPropertyrequest,
         sptr<IUserAuthCallback> &callback);
     int32_t AddContextId(uint64_t contextId);
-    int32_t IsContextIdExist(uint64_t contextId);
+    bool IsContextIdExist(uint64_t contextId);
     int32_t GenerateContextId(uint64_t &contextId);
     int32_t DeleteContextId(uint64_t contextId);
-    int32_t GenerateSolution(AuthSolution param, std::vector<uint64_t> &sessionIds);
-    int32_t CoAuth(CoAuthInfo coAuthInfo, sptr<IUserAuthCallback> &callback);
-    int32_t CancelContext(uint64_t contextId, std::vector<uint64_t> &sessionIds);
+    int32_t GenerateSolution(AuthSolution param, std::vector<CoAuth::ScheduleInfo> &scheduleInfos);
+    int32_t CoAuth(const std::vector<CoAuth::ScheduleInfo> &scheduleInfos,
+        CoAuthInfo coAuthInfo, sptr<IUserAuthCallback> &callback);
+    int32_t CancelContext(uint64_t contextId);
     int32_t Cancel(uint64_t sessionId);
     int32_t GetVersion();
 };

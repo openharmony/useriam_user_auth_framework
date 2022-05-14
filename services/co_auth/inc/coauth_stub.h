@@ -17,7 +17,7 @@
 #define COAUTH_STUB_H
 
 #include <iremote_stub.h>
-#include "co_auth.h"
+#include "i_coauth.h"
 #include "auth_attributes.h"
 
 namespace OHOS {
@@ -34,10 +34,6 @@ public:
 private:
     int32_t RegisterStub(MessageParcel& data, MessageParcel& reply);
     int32_t QueryStatusStub(MessageParcel& data, MessageParcel& reply);
-    int32_t BeginScheduleStub(MessageParcel &data, MessageParcel &reply);
-    int32_t CancelStub(MessageParcel &data, MessageParcel &reply);
-    int32_t GetExecutorPropStub(MessageParcel &data, MessageParcel &reply);
-    int32_t SetExecutorPropStub(MessageParcel &data, MessageParcel &reply);
     void ReadAuthExecutor(AuthResPool::AuthExecutor &executorInfo, MessageParcel& data);
 };
 } // namespace CoAuth

@@ -48,6 +48,7 @@ static constexpr unsigned int IAM_DOMAIN_ID_USER = 0xD002421;
 static constexpr HiLogLabel LABEL_USER_AUTH_NAPI = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_NAPI"};
 static constexpr HiLogLabel LABEL_USER_AUTH_SDK = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_SDK"};
 static constexpr HiLogLabel LABEL_USER_AUTH_SA = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_SA"};
+static constexpr HiLogLabel LABEL_USER_AUTH_HDI = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_HDI"};
 static constexpr HiLogLabel LABEL_USER_AUTH_EXECUTOR = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_EXECUTOR"};
 
 // pin

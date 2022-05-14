@@ -19,7 +19,6 @@
 #include "iam_logger.h"
 #include "iam_para2str.h"
 #include "iam_ptr.h"
-#include "pool.h"
 
 #define LOG_LABEL Common::LABEL_USER_AUTH_EXECUTOR
 
