@@ -29,9 +29,9 @@ namespace UserIAM {
 namespace UserAuth {
 AsyncCommandBase::AsyncCommandBase(std::string type, uint64_t scheduleId, std::shared_ptr<Executor> executor)
     : scheduleId_(scheduleId),
-      executor_(executor)
+      executor_(executor),
+      commandId_(GenerateCommandId())
 {
-    commandId_ = GenerateCommandId();
     std::ostringstream ss;
     ss << "Command(type:" << type << ", id:" << commandId_ << ", scheduleId:" << GET_MASKED_STRING(scheduleId_)
        << ")";
@@ -40,7 +40,7 @@ AsyncCommandBase::AsyncCommandBase(std::string type, uint64_t scheduleId, std::s
 
 void AsyncCommandBase::OnHdiDisconnect()
 {
-    IAM_LOGE("driver disconnect, %{public}s end process", GetDescription());
+    IAM_LOGI("driver disconnect, %{public}s end process", GetDescription());
     // Need new result code: hal invalid
     OnResult(ResultCode::GENERAL_ERROR);
 }
@@ -88,7 +88,7 @@ uint32_t AsyncCommandBase::GenerateCommandId()
     static std::mutex mutex;
     static uint32_t commandId = 0;
     std::lock_guard<std::mutex> guard(mutex);
-    commandId++;
+    ++commandId;
     return commandId;
 }
 } // namespace UserAuth

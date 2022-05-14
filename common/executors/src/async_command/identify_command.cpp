@@ -60,7 +60,7 @@ void IdentifyCommand::OnResultInner(ResultCode result, const std::vector<uint8_t
     IF_FALSE_LOGE_AND_RETURN(executorMessenger != nullptr);
 
     std::vector<uint8_t> nonConstExtraInfo(extraInfo.begin(), extraInfo.end());
-    std::shared_ptr<AuthResPool::AuthAttributes> authAttributes = Common::MakeShared<AuthResPool::AuthAttributes>();
+    auto authAttributes = Common::MakeShared<AuthResPool::AuthAttributes>();
     IF_FALSE_LOGE_AND_RETURN(authAttributes != nullptr);
     authAttributes->SetUint32Value(AUTH_RESULT_CODE, result);
     authAttributes->SetUint8ArrayValue(AUTH_RESULT, nonConstExtraInfo);
@@ -69,7 +69,7 @@ void IdentifyCommand::OnResultInner(ResultCode result, const std::vector<uint8_t
         IAM_LOGI("%{public}s call fininsh fail", GetDescription());
         return;
     }
-    IAM_LOGI("%{public}s call fininsh success result=%{public}d", GetDescription(), result);
+    IAM_LOGI("%{public}s call fininsh success result %{public}d", GetDescription(), result);
 }
 
 void IdentifyCommand::OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo)
@@ -80,15 +80,15 @@ void IdentifyCommand::OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> 
     IF_FALSE_LOGE_AND_RETURN(executorMessenger != nullptr);
 
     std::vector<uint8_t> nonConstExtraInfo(extraInfo.begin(), extraInfo.end());
-    std::shared_ptr<AuthResPool::AuthMessage> msg = Common::MakeShared<AuthResPool::AuthMessage>(nonConstExtraInfo);
+    auto msg = Common::MakeShared<AuthResPool::AuthMessage>(nonConstExtraInfo);
     IF_FALSE_LOGE_AND_RETURN(msg != nullptr);
     int32_t ret = executorMessenger->SendData(scheduleId_, transNum_, TYPE_ALL_IN_ONE, TYPE_CO_AUTH, msg);
-    transNum_++;
+    ++transNum_;
     if (ret != USERAUTH_SUCCESS) {
-        IAM_LOGI("%{public}s call SendData fail", GetDescription());
+        IAM_LOGE("%{public}s call SendData fail", GetDescription());
         return;
     }
-    IAM_LOGI("%{public}s call SendData success acquire=%{public}d", GetDescription(), acquire);
+    IAM_LOGI("%{public}s call SendData success acquire %{public}d", GetDescription(), acquire);
 }
 } // namespace UserAuth
 } // namespace UserIAM
