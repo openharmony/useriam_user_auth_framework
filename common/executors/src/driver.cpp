@@ -57,7 +57,10 @@ void Driver::OnHdiDisconnect()
     IAM_LOGI("start");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     for (const auto &executor : executorList_) {
-        // executor is non-null
+        if (executor == nullptr) {
+            IAM_LOGE("executor is null");
+            continue;
+        }
         executor->OnHdiDisconnect();
     }
     executorList_.clear();
@@ -69,7 +72,10 @@ void Driver::OnFrameworkReady()
     IAM_LOGI("start");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     for (const auto &executor : executorList_) {
-        // executor is non-null
+        if (executor == nullptr) {
+            IAM_LOGE("executor is null");
+            continue;
+        }
         executor->OnFrameworkReady();
     }
     IAM_LOGI("success");
