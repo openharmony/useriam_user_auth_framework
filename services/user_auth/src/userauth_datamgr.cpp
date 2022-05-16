@@ -26,28 +26,24 @@ UserAuthDataMgr &UserAuthDataMgr::GetInstance()
     return instance;
 }
 
+bool UserAuthDataMgr::IsContextIdExist(uint64_t contextId)
+{
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthDataMgr IsContextIdExist start");
+    auto iter = contexts_.find(contextId);
+    return (iter != contexts_.end());
+}
+
 int32_t UserAuthDataMgr::AddContextId(uint64_t contextId)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthDataMgr AddContextId start");
     std::lock_guard<std::mutex> lock(mutex_);
-    if (contextIds_.count(contextId) == 1) {
+    if (IsContextIdExist(contextId)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "contextId is exist");
         return GENERAL_ERROR;
     }
-    contextIds_.insert(contextId);
+    contexts_[contextId] = {};
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthDataMgr AddContextId end");
     return SUCCESS;
-}
-
-int32_t UserAuthDataMgr::IsContextIdExist(uint64_t contextId)
-{
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthDataMgr IsContextIdExist start");
-    std::lock_guard<std::mutex> lock(mutex_);
-    if (contextIds_.count(contextId) == 1) {
-        return SUCCESS;
-    }
-    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthDataMgr IsContextIdExist end");
-    return GENERAL_ERROR;
 }
 
 int32_t UserAuthDataMgr::GenerateContextId(uint64_t &contextId)
@@ -60,7 +56,7 @@ int32_t UserAuthDataMgr::GenerateContextId(uint64_t &contextId)
             USERAUTH_HILOGE(MODULE_SERVICE, "GenerateContextId failed");
             continue;
         }
-    } while ((contextIds_.count(contextId) > 0) || (contextId == 0));
+    } while (IsContextIdExist(contextId) || (contextId == 0));
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthDataMgr GenerateContextId end");
     return SUCCESS;
 }
@@ -69,11 +65,35 @@ int32_t UserAuthDataMgr::DeleteContextId(uint64_t contextId)
 {
     USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthDataMgr DeleteContextId start");
     std::lock_guard<std::mutex> lock(mutex_);
-    if (contextIds_.count(contextId) == 0) {
+    if (!IsContextIdExist(contextId)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "contextId invalid");
         return GENERAL_ERROR;
     }
-    contextIds_.erase(contextId);
+    contexts_.erase(contextId);
+    return SUCCESS;
+}
+
+int32_t UserAuthDataMgr::SetScheduleIds(uint64_t contextId, const std::vector<uint64_t> &sheduleIds)
+{
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthDataMgr SetScheduleIds start");
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (!IsContextIdExist(contextId)) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "contextId invalid");
+        return GENERAL_ERROR;
+    }
+    contexts_[contextId] = sheduleIds;
+    return SUCCESS;
+}
+
+int32_t UserAuthDataMgr::GetScheduleIds(uint64_t contextId, std::vector<uint64_t> &sheduleIds)
+{
+    USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthDataMgr GetScheduleIds start");
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (!IsContextIdExist(contextId)) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "contextId invalid");
+        return GENERAL_ERROR;
+    }
+    sheduleIds = contexts_[contextId];
     return SUCCESS;
 }
 } // namespace UserAuth

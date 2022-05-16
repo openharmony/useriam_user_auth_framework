@@ -40,7 +40,7 @@ void UserIDMController::OpenEditSessionCtrl(int32_t userId, uint64_t &challenge)
     uint64_t temp = 0;
     bool res = data_->CheckScheduleIdIsActive(sessionId);
     if (res && (data_->CheckChallenge(temp))) {
-        CoAuth::CoAuth::GetInstance().Cancel(sessionId);
+        CoAuth::CoAuthManager::GetInstance().Cancel(sessionId);
     }
     data_->CleanData();
 
@@ -56,7 +56,7 @@ void UserIDMController::CloseEditSessionCtrl()
     uint64_t temp = 0;
     bool res = data_->CheckScheduleIdIsActive(sessionId);
     if (res && (data_->CheckChallenge(temp))) {
-        CoAuth::CoAuth::GetInstance().Cancel(sessionId);
+        CoAuth::CoAuthManager::GetInstance().Cancel(sessionId);
     }
     data_->CleanData();
 
@@ -76,14 +76,14 @@ int32_t UserIDMController::GetSecureInfoCtrl(int32_t userId, uint64_t& secureUid
     return UserIDMAdapter::GetInstance().GetSecureUid(userId, secureUid, enrolledInfos);
 }
 
-int32_t UserIDMController::DeleteCredentialCtrl(int32_t userId, uint64_t credentialId, std::vector<uint8_t> authToken,
+int32_t UserIDMController::DeleteCredentialCtrl(int32_t userId, uint64_t credentialId, std::vector<uint8_t>& authToken,
     CredentialInfo& credInfo)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "DeleteCredentialCtrl start");
     return UserIDMAdapter::GetInstance().DeleteCredential(userId, credentialId, authToken, credInfo);
 }
 
-int32_t UserIDMController::DeleteUserCtrl(int32_t userId, std::vector<uint8_t> authToken,
+int32_t UserIDMController::DeleteUserCtrl(int32_t userId, std::vector<uint8_t>& authToken,
     std::vector<CredentialInfo>& credInfo)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "DeleteUserCtrl start");
@@ -97,7 +97,7 @@ int32_t UserIDMController::DeleteUserByForceCtrl(int32_t userId, std::vector<Cre
 }
 
 int32_t UserIDMController::AddCredentialCallCoauth(uint64_t callerID, AddCredInfo& credInfo,
-    const sptr<IIDMCallback>& innerkitsCallback, uint64_t& challenge, uint64_t& scheduleId)
+    const sptr<IIDMCallback>& innerkitsCallback, uint64_t& challenge, CoAuth::ScheduleInfo& info)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "AddCredentialCallCoauth start");
     if (innerkitsCallback == nullptr) {
@@ -106,7 +106,7 @@ int32_t UserIDMController::AddCredentialCallCoauth(uint64_t callerID, AddCredInf
     }
 
     std::string callerName = std::to_string(callerID);
-    data_->InsertScheduleId(scheduleId);
+    data_->InsertScheduleId(info.scheduleId);
     CoAuth::AuthInfo paramInfo;
     paramInfo.SetPkgName(callerName);
     paramInfo.SetCallerUid(callerID);
@@ -114,14 +114,14 @@ int32_t UserIDMController::AddCredentialCallCoauth(uint64_t callerID, AddCredInf
 
     USERIDM_HILOGI(MODULE_SERVICE, "credInfo.authType is %{public}d", credInfo.authType);
     if (credInfo.authType == PIN) {
-        coAuthCallback = std::make_shared<UserIDMCoAuthHandler>(ADD_PIN_CRED, challenge, scheduleId, data_,
+        coAuthCallback = std::make_shared<UserIDMCoAuthHandler>(ADD_PIN_CRED, challenge, info.scheduleId, data_,
             innerkitsCallback);
     } else if (FACE == credInfo.authType) {
-        coAuthCallback = std::make_shared<UserIDMCoAuthHandler>(ADD_FACE_CRED, challenge, scheduleId, data_,
+        coAuthCallback = std::make_shared<UserIDMCoAuthHandler>(ADD_FACE_CRED, challenge, info.scheduleId, data_,
             innerkitsCallback);
     } else {
         USERIDM_HILOGE(MODULE_SERVICE, "credInfo.authType error: %{public}d", credInfo.authType);
-        coAuthCallback = std::make_shared<UserIDMCoAuthHandler>(ADD_PIN_CRED, challenge, scheduleId, data_,
+        coAuthCallback = std::make_shared<UserIDMCoAuthHandler>(ADD_PIN_CRED, challenge, info.scheduleId, data_,
             innerkitsCallback);
     }
 
@@ -129,7 +129,7 @@ int32_t UserIDMController::AddCredentialCallCoauth(uint64_t callerID, AddCredInf
         USERIDM_HILOGE(MODULE_SERVICE, "sorry: coAuthCallback is nullptr");
         return FAIL;
     } else {
-        CoAuth::CoAuth::GetInstance().BeginSchedule(scheduleId, paramInfo, coAuthCallback);
+        CoAuth::CoAuthManager::GetInstance().BeginSchedule(info, paramInfo, coAuthCallback);
     }
     return SUCCESS;
 }
@@ -143,7 +143,6 @@ int32_t UserIDMController::AddCredentialCtrl(int32_t userId, uint64_t callerID, 
         USERIDM_HILOGE(MODULE_SERVICE, "sorry: innerkitsCallback is nullptr");
         return INVALID_PARAMETERS;
     }
-    uint64_t scheduleId = 0;
     uint64_t challenge = 0;
 
     bool result = data_->CheckChallenge(challenge);
@@ -153,6 +152,7 @@ int32_t UserIDMController::AddCredentialCtrl(int32_t userId, uint64_t callerID, 
         innerkitsCallback->OnResult(FAIL, reqRet);
         return FAIL;
     }
+    uint64_t scheduleId = 0;
     result = data_->CheckScheduleIdIsActive(scheduleId);
     if (result) {
         USERIDM_HILOGE(MODULE_SERVICE, "current session in active: busy");
@@ -160,12 +160,13 @@ int32_t UserIDMController::AddCredentialCtrl(int32_t userId, uint64_t callerID, 
         innerkitsCallback->OnResult(BUSY, reqRet);
         return BUSY;
     }
+    CoAuth::ScheduleInfo info = {};
     int32_t ret = UserIDMAdapter::GetInstance().InitSchedule(credInfo.token, userId, credInfo.authType,
-        credInfo.authSubType, scheduleId);
+        credInfo.authSubType, info);
     if (ret == SUCCESS) {
-        ret = AddCredentialCallCoauth(callerID, credInfo, innerkitsCallback, challenge, scheduleId);
+        ret = AddCredentialCallCoauth(callerID, credInfo, innerkitsCallback, challenge, info);
     } else {
-        USERIDM_HILOGE(MODULE_SERVICE, "call TA info: InitSchedule failed");
+        USERIDM_HILOGE(MODULE_SERVICE, "call driver info: InitSchedule failed");
         RequestResult reqRet;
         innerkitsCallback->OnResult(FAIL, reqRet);
     }
@@ -197,25 +198,20 @@ int32_t UserIDMController::UpdateCredentialCtrl(int32_t userId, uint64_t callerI
         innerkitsCallback->OnResult(BUSY, reqRet);
         return BUSY;
     }
+    CoAuth::ScheduleInfo info;
     int32_t ret = UserIDMAdapter::GetInstance().InitSchedule(credInfo.token, userId, credInfo.authType,
-        credInfo.authSubType, scheduleId);
+        credInfo.authSubType, info);
     if (ret == SUCCESS) {
         USERIDM_HILOGI(MODULE_SERVICE, "InitSchedule SUCCESS");
-        data_->InsertScheduleId(scheduleId);
+        data_->InsertScheduleId(info.scheduleId);
         std::shared_ptr<UserIDMCoAuthHandler> coAuthCallback =
-            std::make_shared<UserIDMCoAuthHandler>(MODIFY_CRED, challenge, scheduleId, data_, innerkitsCallback);
-        sptr<IRemoteObject::DeathRecipient> dr = new (std::nothrow) CoAuthCallbackDeathRecipient(coAuthCallback);
-        if (dr == nullptr) {
-            COAUTH_HILOGE(MODULE_SERVICE, "dr is nullptr");
-        } else if (!innerkitsCallback->AsObject()->AddDeathRecipient(dr)) {
-            USERIDM_HILOGE(MODULE_SERVICE, "Failed to add death recipient CoAuthCallbackDeathRecipient");
-        }
+            std::make_shared<UserIDMCoAuthHandler>(MODIFY_CRED, challenge, info.scheduleId, data_, innerkitsCallback);
         CoAuth::AuthInfo paramInfo;
         paramInfo.SetPkgName(callerName);
         paramInfo.SetCallerUid(callerID);
-        CoAuth::CoAuth::GetInstance().BeginSchedule(scheduleId, paramInfo, coAuthCallback);
+        CoAuth::CoAuthManager::GetInstance().BeginSchedule(info, paramInfo, coAuthCallback);
     } else {
-        USERIDM_HILOGE(MODULE_SERVICE, "call TA info: BeginSchedule failed");
+        USERIDM_HILOGE(MODULE_SERVICE, "call driver info: InitSchedule failed");
         RequestResult reqRet;
         innerkitsCallback->OnResult(FAIL, reqRet);
     }
@@ -237,7 +233,7 @@ int32_t UserIDMController::DelSchedleIdCtrl(uint64_t challenge)
         USERIDM_HILOGE(MODULE_SERVICE, "CheckScheduleIdIsActive fail");
         return result;
     }
-    result = CoAuth::CoAuth::GetInstance().Cancel(sessionId);
+    result = CoAuth::CoAuthManager::GetInstance().Cancel(sessionId);
     if (result != SUCCESS) {
         USERIDM_HILOGE(MODULE_SERVICE, "Cancel fail");
         return result;
@@ -256,12 +252,6 @@ int32_t UserIDMController::DelFaceCredentialCtrl(AuthType authType, AuthSubType 
     }
     std::shared_ptr<UserIDMSetPropHandler> setPropCallback =
         std::make_shared<UserIDMSetPropHandler>(FACE, 0, 0, credentialId, data_, innerCallback);
-    sptr<IRemoteObject::DeathRecipient> dr = new (std::nothrow) SetPropCallbackDeathRecipient(setPropCallback);
-    if (dr == nullptr) {
-        COAUTH_HILOGE(MODULE_SERVICE, "dr is nullptr");
-    } else if (!innerCallback->AsObject()->AddDeathRecipient(dr)) {
-        USERIDM_HILOGE(MODULE_SERVICE, "Failed to add death recipient SetPropCallbackDeathRecipient");
-    }
     AuthResPool::AuthAttributes condition;
     condition.SetUint32Value(AuthAttributeType::AUTH_PROPERTY_MODE, 0);
     condition.SetUint64Value(AuthAttributeType::AUTH_CALLER_UID, 0);
@@ -269,7 +259,7 @@ int32_t UserIDMController::DelFaceCredentialCtrl(AuthType authType, AuthSubType 
     condition.SetUint64Value(AuthAttributeType::AUTH_SUBTYPE, authSubType);
     condition.SetUint64Value(AuthAttributeType::AUTH_CREDENTIAL_ID, credentialId);
     condition.SetUint64Value(AuthAttributeType::AUTH_TEMPLATE_ID, templateId);
-    CoAuth::CoAuth::GetInstance().SetExecutorProp(condition, setPropCallback);
+    CoAuth::CoAuthManager::GetInstance().SetExecutorProp(condition, setPropCallback);
     return SUCCESS;
 }
 
@@ -297,7 +287,7 @@ int32_t UserIDMController::DelExecutorPinInfoCtrl(const sptr<IIDMCallback>& inne
             condition.SetUint64Value(AuthAttributeType::AUTH_SUBTYPE, info[i].authSubType);
             condition.SetUint64Value(AuthAttributeType::AUTH_CREDENTIAL_ID, info[i].credentialId);
             condition.SetUint64Value(AuthAttributeType::AUTH_TEMPLATE_ID, info[i].templateId);
-            CoAuth::CoAuth::GetInstance().SetExecutorProp(condition, setPropCallback);
+            CoAuth::CoAuthManager::GetInstance().SetExecutorProp(condition, setPropCallback);
         } else if (info[i].authType == FACE) {
             std::shared_ptr<UserIDMSetPropHandler> setPropCallback =
                 std::make_shared<UserIDMSetPropHandler>(FACE, 0, 0, info[i].credentialId, data_, innerCallback);
@@ -308,50 +298,10 @@ int32_t UserIDMController::DelExecutorPinInfoCtrl(const sptr<IIDMCallback>& inne
             condition.SetUint64Value(AuthAttributeType::AUTH_SUBTYPE, info[i].authSubType);
             condition.SetUint64Value(AuthAttributeType::AUTH_CREDENTIAL_ID, info[i].credentialId);
             condition.SetUint64Value(AuthAttributeType::AUTH_TEMPLATE_ID, info[i].templateId);
-            CoAuth::CoAuth::GetInstance().SetExecutorProp(condition, setPropCallback);
+            CoAuth::CoAuthManager::GetInstance().SetExecutorProp(condition, setPropCallback);
         }
     }
     return SUCCESS;
-}
-
-UserIDMController::CoAuthCallbackDeathRecipient::CoAuthCallbackDeathRecipient(
-    std::shared_ptr<UserIDMCoAuthHandler> callback) : callback_(callback)
-{
-}
-
-void UserIDMController::CoAuthCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
-{
-    USERIDM_HILOGE(MODULE_SERVICE, "CoAuthCallbackDeathRecipient OnRemoteDied start");
-    if (remote == nullptr) {
-        USERIDM_HILOGE(MODULE_SERVICE, "CoAuthCallbackDeathRecipient OnRemoteDied failed, remote is nullptr");
-        return;
-    }
-    if (callback_ == nullptr) {
-        USERIDM_HILOGE(MODULE_SERVICE, "CoAuthCallbackDeathRecipient OnRemoteDied callback_ is nullptr");
-        return;
-    }
-    callback_->ResetCallback();
-    callback_ = nullptr;
-}
-
-UserIDMController::SetPropCallbackDeathRecipient::SetPropCallbackDeathRecipient(
-    std::shared_ptr<UserIDMSetPropHandler> callback) : callback_(callback)
-{
-}
-
-void UserIDMController::SetPropCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
-{
-    USERIDM_HILOGE(MODULE_SERVICE, "SetPropCallbackDeathRecipient OnRemoteDied start");
-    if (remote == nullptr) {
-        USERIDM_HILOGE(MODULE_SERVICE, "SetPropCallbackDeathRecipient OnRemoteDied failed, remote is nullptr");
-        return;
-    }
-    if (callback_ == nullptr) {
-        USERIDM_HILOGE(MODULE_SERVICE, "SetPropCallbackDeathRecipient OnRemoteDied callback_ is nullptr");
-        return;
-    }
-    callback_->ResetCallback();
-    callback_ = nullptr;
 }
 }  // namespace UserIDM
 }  // namespace UserIAM

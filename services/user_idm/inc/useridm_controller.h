@@ -19,8 +19,8 @@
 #include "useridm_info.h"
 #include "useridm_coauth_handler.h"
 #include "auth_info.h"
-#include "co_auth.h"
 #include "auth_attributes.h"
+#include "coauth_manager.h"
 
 namespace OHOS {
 namespace UserIAM {
@@ -35,13 +35,13 @@ public:
     int32_t GetAuthInfoCtrl(int32_t userId, AuthType authType, std::vector<CredentialInfo>& credInfos);
     int32_t GetSecureInfoCtrl(int32_t userId, uint64_t& secureUid, std::vector<EnrolledInfo>& enrolledInfos);
     int32_t DeleteCredentialCtrl(int32_t userId, uint64_t credentialId,
-        std::vector<uint8_t> authToken, CredentialInfo& credInfo);
-    int32_t DeleteUserCtrl(int32_t userId, std::vector<uint8_t> authToken, std::vector<CredentialInfo>& credInfo);
+        std::vector<uint8_t>& authToken, CredentialInfo& credInfo);
+    int32_t DeleteUserCtrl(int32_t userId, std::vector<uint8_t>& authToken, std::vector<CredentialInfo>& credInfo);
     int32_t DeleteUserByForceCtrl(int32_t userId, std::vector<CredentialInfo>& credInfo);
     int32_t AddCredentialCtrl(int32_t userId, uint64_t callerID, AddCredInfo& credInfo,
         const sptr<IIDMCallback>& innerkitsCallback);
     int32_t AddCredentialCallCoauth(uint64_t callerID, AddCredInfo& credInfo,
-        const sptr<IIDMCallback>& innerkitsCallback, uint64_t& challenge, uint64_t& scheduleId);
+        const sptr<IIDMCallback>& innerkitsCallback, uint64_t& challenge, CoAuth::ScheduleInfo& info);
     int32_t UpdateCredentialCtrl(int32_t userId, uint64_t callerID, std::string callerName,
         AddCredInfo& credInfo, const sptr<IIDMCallback>& innerCallback);
     int32_t DelSchedleIdCtrl(uint64_t challenge);
@@ -50,24 +50,6 @@ public:
     int32_t DelExecutorPinInfoCtrl(const sptr<IIDMCallback>& innerCallback, std::vector<CredentialInfo>& info);
 
 private:
-    class CoAuthCallbackDeathRecipient : public IRemoteObject::DeathRecipient, public NoCopyable {
-    public:
-        explicit CoAuthCallbackDeathRecipient(std::shared_ptr<UserIDMCoAuthHandler> callback);
-        ~CoAuthCallbackDeathRecipient() = default;
-        void OnRemoteDied(const wptr<IRemoteObject>& remote) override;
-    private:
-        std::shared_ptr<UserIDMCoAuthHandler> callback_;
-    };
-
-    class SetPropCallbackDeathRecipient : public IRemoteObject::DeathRecipient, public NoCopyable {
-    public:
-        explicit SetPropCallbackDeathRecipient(std::shared_ptr<UserIDMSetPropHandler> callback);
-        ~SetPropCallbackDeathRecipient() = default;
-        void OnRemoteDied(const wptr<IRemoteObject>& remote) override;
-    private:
-        std::shared_ptr<UserIDMSetPropHandler> callback_;
-    };
-
     std::shared_ptr<UserIDMModule> data_;
 };
 }  // namespace UserIDM

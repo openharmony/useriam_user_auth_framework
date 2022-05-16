@@ -15,13 +15,14 @@
 
 #include "userauth_service.h"
 
+#include <cinttypes>
 #include "accesstoken_kit.h"
 #ifdef HAS_OS_ACCOUNT_PART
 #include "os_account_manager.h"
 #endif // HAS_OS_ACCOUNT_PART
 #include "thread_groups.h"
 #include "userauth_hilog_wrapper.h"
-#include "useriam_common.h"
+#include "userauth_datamgr.h"
 
 namespace OHOS {
 namespace UserIAM {
@@ -53,25 +54,12 @@ void UserAuthService::OnStart()
     }
 
     ThreadGroups::GetInstance().CreateThreadGroup(GROUP_AUTH);
-
-    bool ret = OHOS::UserIAM::Common::IsIAMInited();
-    if (!ret) {
-        OHOS::UserIAM::Common::Init();
-    }
 }
 
 void UserAuthService::OnStop()
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "Stop service");
     ThreadGroups::GetInstance().DestroyThreadGroup(GROUP_AUTH);
-    bool init = OHOS::UserIAM::Common::IsIAMInited();
-    if (!init) {
-        return;
-    }
-    int32_t ret = OHOS::UserIAM::Common::Close();
-    if (ret != SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "Failed to Stop service");
-    }
 }
 
 bool UserAuthService::CheckPermission(const std::string &permission)
@@ -283,7 +271,8 @@ uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType
     }
 
     AuthSolution authSolutionParam = GetSolutionParam(contextId, userId, challenge, authType, authTrustLevel);
-    result = userAuthController_.GenerateSolution(authSolutionParam, coAuthInfo.sessionIds);
+    std::vector<CoAuth::ScheduleInfo> scheduleInfos;
+    result = userAuthController_.GenerateSolution(authSolutionParam, scheduleInfos);
     if (result != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "GenerateSolution failed");
         callback->onResult(result, extraInfo);
@@ -295,7 +284,7 @@ uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType
     coAuthInfo.contextID = contextId;
     coAuthInfo.pkgName = callerName;
     coAuthInfo.userID = userId;
-    result = userAuthController_.CoAuth(coAuthInfo, callback);
+    result = userAuthController_.CoAuth(scheduleInfos, coAuthInfo, callback);
     if (result != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "CoAuth failed");
         callback->onResult(result, extraInfo);
@@ -335,7 +324,8 @@ uint64_t UserAuthService::AuthUser(const int32_t userId, const uint64_t challeng
     authSolutionParam.authTrustLevel = authTrustLevel;
     authSolutionParam.challenge = challenge;
     authSolutionParam.authType = authType;
-    int32_t result = userAuthController_.GenerateSolution(authSolutionParam, coAuthInfo.sessionIds);
+    std::vector<CoAuth::ScheduleInfo> scheduleInfos;
+    int32_t result = userAuthController_.GenerateSolution(authSolutionParam, scheduleInfos);
     if (result != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "GenerateSolution failed");
         userAuthController_.DeleteContextId(contextId);
@@ -348,7 +338,7 @@ uint64_t UserAuthService::AuthUser(const int32_t userId, const uint64_t challeng
     coAuthInfo.contextID = contextId;
     coAuthInfo.pkgName = callerName;
     coAuthInfo.userID = userId;
-    result = userAuthController_.CoAuth(coAuthInfo, callback);
+    result = userAuthController_.CoAuth(scheduleInfos, coAuthInfo, callback);
     if (result != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "CoAuth failed");
         userAuthController_.DeleteContextId(contextId);
@@ -390,30 +380,34 @@ int32_t UserAuthService::GetControllerData(sptr<IUserAuthCallback> &callback, Au
 int32_t UserAuthService::CancelAuth(const uint64_t contextId)
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "UserAuthService CancelAuth start");
-    int result = INVALID_CONTEXT_ID;
-    std::vector<uint64_t> sessionIds;
     if (!CheckPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION) && !CheckPermission(ACCESS_BIOMETRIC_PERMISSION)) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Permission check failed");
         return E_CHECK_PERMISSION_FAILED;
     }
-    int ret = userAuthController_.IsContextIdExist(contextId);
+    if (!userAuthController_.IsContextIdExist(contextId)) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "contextId is invalid");
+        return INVALID_PARAMETERS;
+    }
+    int32_t ret = userAuthController_.CancelContext(contextId);
     if (ret != SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "IsContextIdExist failed");
-        return result;
+        USERAUTH_HILOGE(MODULE_SERVICE, "CancelContext failed");
+        return ret;
     }
-
-    result = userAuthController_.CancelContext(contextId, sessionIds);
-    if (result == SUCCESS) {
-        for (auto const &item : sessionIds) {
-            result = userAuthController_.Cancel(item);
-            if (result != SUCCESS) {
-                USERAUTH_HILOGE(MODULE_SERVICE, "Cancel failed");
-            }
-        }
+    std::vector<uint64_t> scheduleIds;
+    ret = UserAuthDataMgr::GetInstance().GetScheduleIds(contextId, scheduleIds);
+    if (ret != SUCCESS) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "GetScheduleIds failed");
         userAuthController_.DeleteContextId(contextId);
+        return ret;
     }
-
-    return result;
+    for (auto const &item : scheduleIds) {
+        ret = userAuthController_.Cancel(item);
+        if (ret != SUCCESS) {
+            USERAUTH_HILOGE(MODULE_SERVICE, "Cancel failed, item is 0xXXXX%{public}04" PRIx64, MASK & item);
+        }
+    }
+    userAuthController_.DeleteContextId(contextId);
+    return SUCCESS;
 }
 
 int32_t UserAuthService::GetVersion()

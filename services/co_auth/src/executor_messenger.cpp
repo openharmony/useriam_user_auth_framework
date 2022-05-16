@@ -15,7 +15,7 @@
 
 #include "executor_messenger.h"
 #include "securec.h"
-#include "coauth_interface.h"
+#include "coauth_manager.h"
 #include "call_monitor.h"
 
 namespace OHOS {
@@ -34,7 +34,7 @@ int32_t ExecutorMessenger::SendData(uint64_t scheduleId, uint64_t transNum, int3
         return FAIL;
     }
 
-    sptr<UserIAM::CoAuth::ICoAuthCallback> callback;
+    std::shared_ptr<UserIAM::CoAuth::CoAuthCallback> callback;
     int32_t findRet = ScheResPool_->FindScheduleCallback(scheduleId, callback);
     if (findRet != SUCCESS || callback == nullptr) {
         COAUTH_HILOGE(MODULE_SERVICE, "ScheduleCallback not find");
@@ -59,44 +59,11 @@ int32_t ExecutorMessenger::SendData(uint64_t scheduleId, uint64_t transNum, int3
     return SUCCESS;
 }
 
-int32_t ExecutorMessenger::DoSignToken(uint64_t scheduleId, std::vector<uint8_t>& scheduleToken,
-    std::shared_ptr<AuthAttributes> finalResult, sptr<UserIAM::CoAuth::ICoAuthCallback> callback)
-{
-    if (ScheResPool_ == nullptr || callback == nullptr) {
-        DeleteScheduleInfoById(scheduleId);
-        COAUTH_HILOGE(MODULE_SERVICE, "ScheResPool_ or callback is nullptr");
-        return FAIL;
-    }
-    COAUTH_HILOGD(MODULE_SERVICE, "ExecutorMessenger::DoSignToken");
-    UserIAM::CoAuth::ScheduleToken signScheduleToken;
-    std::vector<uint8_t> executorFinishMsg;
-    signScheduleToken.scheduleId = scheduleId;
-    finalResult->GetUint8ArrayValue(AUTH_RESULT, executorFinishMsg);
-    int32_t signRet = UserIAM::CoAuth::GetScheduleToken(executorFinishMsg, signScheduleToken);
-    if (signRet != SUCCESS) {
-        COAUTH_HILOGE(MODULE_SERVICE, "sign token failed, ret is %{public}d", signRet);
-        callback->OnFinish(signRet, scheduleToken);
-        ScheResPool_->DeleteScheduleCallback(scheduleId);
-        return signRet;
-    }
-    scheduleToken.resize(sizeof(UserIAM::CoAuth::ScheduleToken));
-    if (memcpy_s(&scheduleToken[0], scheduleToken.size(), &signScheduleToken,
-        sizeof(UserIAM::CoAuth::ScheduleToken)) != EOK) {
-        callback->OnFinish(FAIL, scheduleToken);
-        ScheResPool_->DeleteScheduleCallback(scheduleId);
-        COAUTH_HILOGE(MODULE_SERVICE, "copy scheduleToken failed");
-        return FAIL;
-    }
-
-    return SUCCESS;
-}
-
 int32_t ExecutorMessenger::Finish(uint64_t scheduleId, int32_t srcType, int32_t resultCode,
                                   std::shared_ptr<AuthAttributes> finalResult)
 {
     COAUTH_HILOGD(MODULE_SERVICE, "ExecutorMessenger::Finish");
     if (ScheResPool_ == nullptr) {
-        DeleteScheduleInfoById(scheduleId);
         COAUTH_HILOGE(MODULE_SERVICE, "ScheResPool_ is nullptr");
         return FAIL;
     }
@@ -107,38 +74,27 @@ int32_t ExecutorMessenger::Finish(uint64_t scheduleId, int32_t srcType, int32_t 
         return SUCCESS;
     }
     UserIAM::CoAuth::CallMonitor::GetInstance().MonitorRemoveCall(scheduleId);
-    sptr<UserIAM::CoAuth::ICoAuthCallback> callback;
+    std::shared_ptr<UserIAM::CoAuth::CoAuthCallback> callback;
     int32_t findRet = ScheResPool_->FindScheduleCallback(scheduleId, callback);
     if (findRet != SUCCESS || callback == nullptr) {
-        DeleteScheduleInfoById(scheduleId);
         COAUTH_HILOGE(MODULE_SERVICE, "get schedule callback failed");
         return FAIL;
     }
-    std::vector<uint8_t> scheduleToken;
+    std::vector<uint8_t> scheduleResult;
     if (finalResult == nullptr) {
-        DeleteScheduleInfoById(scheduleId);
-        callback->OnFinish(FAIL, scheduleToken);
+        callback->OnFinish(FAIL, scheduleResult);
         ScheResPool_->DeleteScheduleCallback(scheduleId);
         COAUTH_HILOGE(MODULE_SERVICE, "finalResult is nullptr");
         return FAIL;
     }
 
     if (resultCode == SUCCESS) {
-        int32_t signRet = DoSignToken(scheduleId, scheduleToken, finalResult, callback);
-        if (signRet != SUCCESS) {
-            return signRet;
-        }
+        finalResult->GetUint8ArrayValue(AUTH_RESULT, scheduleResult);
     }
-    callback->OnFinish(resultCode, scheduleToken);
+    callback->OnFinish(resultCode, scheduleResult);
     COAUTH_HILOGD(MODULE_SERVICE, "feedback finish info");
     ScheResPool_->DeleteScheduleCallback(scheduleId);
     return SUCCESS;
-}
-
-void ExecutorMessenger::DeleteScheduleInfoById(uint64_t scheduleId)
-{
-    UserIAM::CoAuth::ScheduleInfo scheduleInfo;
-    UserIAM::CoAuth::DeleteScheduleInfo(scheduleId, scheduleInfo);
 }
 } // namespace CoAuth
 } // namespace UserIAM

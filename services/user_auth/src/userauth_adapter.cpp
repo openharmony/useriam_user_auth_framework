@@ -15,8 +15,8 @@
 
 #include "userauth_adapter.h"
 #include <cinttypes>
+#include "securec.h"
 #include "auth_attributes.h"
-#include "co_auth.h"
 #include "userauth_datamgr.h"
 #include "userauth_excallback_impl.h"
 #include "userauth_hilog_wrapper.h"
@@ -28,6 +28,7 @@ namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
 const int g_userAuthVersion = 0;
+namespace UserAuthHdi = OHOS::HDI::UserAuth::V1_0;
 UserAuthAdapter &UserAuthAdapter::GetInstance()
 {
     static UserAuthAdapter instance;
@@ -37,11 +38,15 @@ UserAuthAdapter &UserAuthAdapter::GetInstance()
 int32_t UserAuthAdapter::GetAuthTrustLevel(int32_t userId, uint32_t authType, uint32_t &authTrustLevel)
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "GetAuthTrustLevel start");
-    int32_t ret = OHOS::UserIAM::UserAuth::GetAuthTrustLevel(userId, authType, authTrustLevel);
+    auto hdiInterface = UserAuthHdi::IUserAuthInterface::Get();
+    if (hdiInterface == nullptr) {
+        COAUTH_HILOGE(MODULE_SERVICE, "hdiInterface is nullptr!");
+        return GENERAL_ERROR;
+    }
+    int32_t ret = hdiInterface->GetAuthTrustLevel(userId, static_cast<UserAuthHdi::AuthType>(authType), authTrustLevel);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "GetAuthTrustLevel failed");
     }
-
     return ret;
 }
 
@@ -62,7 +67,7 @@ void UserAuthAdapter::GetPropAuthInfo(int32_t userId, uint64_t callerUid, const 
     getInfoCallback->OnGetInfo(credInfos);
 }
 
-void UserAuthAdapter::SetPropAuthInfo(CallerInfo callerInfo, int32_t resultCode, UserAuthToken authToken,
+void UserAuthAdapter::SetPropAuthInfo(CallerInfo callerInfo, int32_t resultCode, std::vector<uint8_t> &authToken,
     SetPropertyRequest request, std::vector<uint64_t> templateIds)
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "SetPropAuthInfo start");
@@ -84,7 +89,7 @@ void UserAuthAdapter::SetPropAuthInfo(CallerInfo callerInfo, int32_t resultCode,
     if (ret != SUCCESS) {
         return;
     }
-    CoAuth::CoAuth::GetInstance().SetExecutorProp(authAttributes, setPropCallback);
+    CoAuth::CoAuthManager::GetInstance().SetExecutorProp(authAttributes, setPropCallback);
     USERAUTH_HILOGI(MODULE_SERVICE, "SetPropAuthInfo end");
 }
 
@@ -138,7 +143,7 @@ int32_t UserAuthAdapter::SetProPropAuthInfo(OHOS::UserIAM::AuthResPool::AuthAttr
     return ret;
 }
 
-void UserAuthAdapter::GetPropAuthInfoCoAuth(CallerInfo callerInfo, int32_t resultCode, UserAuthToken authToken,
+void UserAuthAdapter::GetPropAuthInfoCoAuth(CallerInfo callerInfo, int32_t resultCode, std::vector<uint8_t> &authToken,
     GetPropertyRequest request, sptr<IUserAuthCallback> &callback)
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "GetPropAuthInfoCoAuth start");
@@ -155,7 +160,7 @@ void UserAuthAdapter::GetPropAuthInfoCoAuth(CallerInfo callerInfo, int32_t resul
     getInfoCallback->OnGetInfo(credInfos);
 }
 
-void UserAuthAdapter::CoAuthSetPropAuthInfo(CallerInfo callerInfo, int32_t resultCode, UserAuthToken authToken,
+void UserAuthAdapter::CoAuthSetPropAuthInfo(CallerInfo callerInfo, int32_t resultCode, std::vector<uint8_t> &authToken,
     SetPropertyRequest request)
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "CoAuthSetPropAuthInfo start");
@@ -172,32 +177,106 @@ void UserAuthAdapter::CoAuthSetPropAuthInfo(CallerInfo callerInfo, int32_t resul
     setPropCallback->OnGetInfo(credInfos);
 }
 
-int32_t UserAuthAdapter::GenerateSolution(AuthSolution param, std::vector<uint64_t> &sessionIds)
+bool UserAuthAdapter::CopyScheduleInfo(const UserAuthHdi::ScheduleInfo &in, CoAuth::ScheduleInfo &out)
+{
+    if (in.executors.size() == 0 || in.templateIds.size() == 0) {
+        COAUTH_HILOGE(MODULE_SERVICE, "param is invalid");
+        return false;
+    }
+    out.scheduleId = in.scheduleId;
+    out.templateId = in.templateIds[0];
+    out.authSubType = static_cast<uint64_t>(in.executorType);
+    out.scheduleMode = in.scheduleMode;
+    for (auto &executor : in.executors) {
+        auto &info = executor.info;
+        if (info.publicKey.size() != CoAuth::PUBLIC_KEY_LEN) {
+            COAUTH_HILOGE(MODULE_SERVICE, "publicKey is invalid");
+            return false;
+        }
+        CoAuth::ExecutorInfo temp = {};
+        temp.executorId = executor.index;
+        temp.authType = static_cast<uint32_t>(info.authType);
+        temp.authAbility = static_cast<uint64_t>(info.executorType);
+        temp.esl = static_cast<uint32_t>(info.esl);
+        temp.executorType =  static_cast<uint32_t>(info.executorRole);
+        if (memcpy_s(temp.publicKey, CoAuth::PUBLIC_KEY_LEN, &info.publicKey[0], info.publicKey.size()) != EOK) {
+            COAUTH_HILOGE(MODULE_SERVICE, "copy publicKey failed");
+            return false;
+        }
+        out.executors.push_back(temp);
+    }
+    return true;
+}
+
+int32_t UserAuthAdapter::GenerateSolution(const AuthSolution &param, std::vector<CoAuth::ScheduleInfo> &scheduleInfos)
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "UserAuth GenerateSolution start");
-    int32_t ret = OHOS::UserIAM::UserAuth::GenerateSolution(param, sessionIds);
+    auto hdiInterface = UserAuthHdi::IUserAuthInterface::Get();
+    if (hdiInterface == nullptr) {
+        COAUTH_HILOGE(MODULE_SERVICE, "hdiInterface is nullptr!");
+        return GENERAL_ERROR;
+    }
+    UserAuthHdi::AuthSolution hdiSolution = {};
+    hdiSolution.userId = param.userId;
+    hdiSolution.authTrustLevel = param.authTrustLevel;
+    hdiSolution.authType = static_cast<UserAuthHdi::AuthType>(param.authType);
+    hdiSolution.challenge.resize(sizeof(uint64_t));
+    if (memcpy_s(&hdiSolution.challenge[0], hdiSolution.challenge.size(), &param.challenge, sizeof(uint64_t)) != EOK) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "copy challenge failed");
+        return GENERAL_ERROR;
+    }
+    std::vector<UserAuthHdi::ScheduleInfo> hdiScheduleInfos;
+    int32_t ret = hdiInterface->BeginAuthentication(param.contextId, hdiSolution, hdiScheduleInfos);
     if (ret != SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "GenerateSolution failed");
+        USERAUTH_HILOGE(MODULE_SERVICE, "BeginAuthentication failed");
+        return ret;
+    }
+    std::vector<uint64_t> schedueIds;
+    for (uint32_t i = 0; i < hdiScheduleInfos.size(); i++) {
+        CoAuth::ScheduleInfo info;
+        if (!CopyScheduleInfo(hdiScheduleInfos[i], info)) {
+            USERAUTH_HILOGE(MODULE_SERVICE, "CopyScheduleInfo failed");
+            return GENERAL_ERROR;
+        }
+        scheduleInfos.push_back(info);
+        schedueIds.push_back(info.scheduleId);
+    }
+    ret = UserAuthDataMgr::GetInstance().SetScheduleIds(param.contextId, schedueIds);
+    if (ret != SUCCESS) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "SetScheduleIds failed");
     }
     return ret;
 }
 
 int32_t UserAuthAdapter::RequestAuthResult(uint64_t contextId, std::vector<uint8_t> scheduleToken,
-    UserAuthToken &authToken, std::vector<uint64_t> &sessionIds)
+    std::vector<uint8_t> &authToken)
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "RequestAuthResult start");
-    int32_t ret = OHOS::UserIAM::UserAuth::RequestAuthResult(contextId, scheduleToken, authToken, sessionIds);
-    if (ret != SUCCESS) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "RequestAuthResult failed");
+    auto hdiInterface = UserAuthHdi::IUserAuthInterface::Get();
+    if (hdiInterface == nullptr) {
+        COAUTH_HILOGE(MODULE_SERVICE, "hdiInterface is nullptr!");
+        return GENERAL_ERROR;
     }
+    UserAuthHdi::AuthResultInfo resultInfo;
+    int32_t ret = hdiInterface->UpdateAuthenticationResult(contextId, scheduleToken, resultInfo);
+    if (ret != SUCCESS) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "UpdateAuthenticationResult failed");
+        return ret;
+    }
+    authToken = resultInfo.token;
     USERAUTH_HILOGI(MODULE_SERVICE, "RequestAuthResult end");
     return ret;
 }
 
-int32_t UserAuthAdapter::CancelContext(uint64_t contextId, std::vector<uint64_t> &sessionIds)
+int32_t UserAuthAdapter::CancelContext(uint64_t contextId)
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "CancelContext start");
-    int32_t ret = OHOS::UserIAM::UserAuth::CancelContext(contextId, sessionIds);
+    auto hdiInterface = UserAuthHdi::IUserAuthInterface::Get();
+    if (hdiInterface == nullptr) {
+        COAUTH_HILOGE(MODULE_SERVICE, "hdiInterface is nullptr!");
+        return GENERAL_ERROR;
+    }
+    int32_t ret = hdiInterface->CancelAuthentication(contextId);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "CancelContext failed");
     }
@@ -207,7 +286,7 @@ int32_t UserAuthAdapter::CancelContext(uint64_t contextId, std::vector<uint64_t>
 int32_t UserAuthAdapter::Cancel(uint64_t sessionId)
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "Cancel start");
-    int32_t ret = CoAuth::CoAuth::GetInstance().Cancel(sessionId);
+    int32_t ret = CoAuth::CoAuthManager::GetInstance().Cancel(sessionId);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Cancel failed");
     }
@@ -263,7 +342,7 @@ int32_t UserAuthAdapter::GetExecutorProp(uint64_t callerUid, std::string pkgName
         result.result = ret;
         return ret;
     }
-    ret = CoAuth::CoAuth::GetInstance().GetExecutorProp(cAuthAttributes, pAuthAttributes);
+    ret = CoAuth::CoAuthManager::GetInstance().GetExecutorProp(cAuthAttributes, pAuthAttributes);
     if (ret != SUCCESS) {
         USERAUTH_HILOGE(MODULE_SERVICE, "GetExecutorProp failed");
         result.result = ret;
@@ -364,11 +443,12 @@ int32_t UserAuthAdapter::SetExecutorProp(uint64_t callerUid, std::string pkgName
         USERAUTH_HILOGE(MODULE_SERVICE, "Set ALGORITHM_INFO failed");
         return ret;
     }
-    CoAuth::CoAuth::GetInstance().SetExecutorProp(authAttributes, setPropCallback);
+    CoAuth::CoAuthManager::GetInstance().SetExecutorProp(authAttributes, setPropCallback);
     return ret;
 }
 
-int32_t UserAuthAdapter::CoAuth(CoAuthInfo coAuthInfo, sptr<IUserAuthCallback> &callback)
+int32_t UserAuthAdapter::CoAuth(const std::vector<CoAuth::ScheduleInfo> &scheduleInfos,
+    CoAuthInfo coAuthInfo, sptr<IUserAuthCallback> &callback)
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "CoAuth start");
 
@@ -391,8 +471,8 @@ int32_t UserAuthAdapter::CoAuth(CoAuthInfo coAuthInfo, sptr<IUserAuthCallback> &
         USERAUTH_HILOGE(MODULE_SERVICE, "SaveCoAuthCallback failed");
         return ret;
     }
-    for (auto const &item : coAuthInfo.sessionIds) {
-        CoAuth::CoAuth::GetInstance().BeginSchedule(item, authInfo, coAuthCallback);
+    for (auto &scheduleInfo : scheduleInfos) {
+        CoAuth::CoAuthManager::GetInstance().BeginSchedule(scheduleInfo, authInfo, coAuthCallback);
     }
 
     return SUCCESS;

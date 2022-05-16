@@ -14,6 +14,7 @@
  */
 
 #include "useridm_coauth_handler.h"
+#include "coauth_manager.h"
 #include "useridm_hilog_wrapper.h"
 #include "useridm_adapter.h"
 
@@ -68,7 +69,7 @@ int32_t UserIDMCoAuthHandler::OnFinishModify(uint32_t resultCode, std::vector<ui
         condition.SetUint64Value(AuthAttributeType::AUTH_CREDENTIAL_ID, credentialInfo.credentialId);
         condition.SetUint32Value(AuthAttributeType::AUTH_TYPE, credentialInfo.authType);
         condition.SetUint64Value(AuthAttributeType::AUTH_TEMPLATE_ID, credentialInfo.templateId);
-        CoAuth::CoAuth::GetInstance().SetExecutorProp(condition, setPropCallback);
+        CoAuth::CoAuthManager::GetInstance().SetExecutorProp(condition, setPropCallback);
         return SUCCESS;
     } else {
         USERIDM_HILOGE(MODULE_SERVICE, "scheduleId wrong");
@@ -100,7 +101,7 @@ void UserIDMCoAuthHandler::OnFinish(uint32_t resultCode, std::vector<uint8_t>& s
         if (res && (scheduleId == lastScheduleId_)) {
             result = UserIDMAdapter::GetInstance().AddCredential(scheduleToken, credentialId);
             if (result != SUCCESS) {
-                USERIDM_HILOGE(MODULE_SERVICE, "call TA info addCred failed");
+                USERIDM_HILOGE(MODULE_SERVICE, "call driver info: AddCredential failed");
             }
         }
         dataCallback_->DeleteSessionId();

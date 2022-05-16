@@ -36,19 +36,20 @@ void UserAuthController::GetPropAuthInfo(int32_t userId, std::string pkgName, ui
     UserAuthAdapter::GetInstance().GetPropAuthInfo(userId, callerUid, pkgName, getPropertyRequest, callback);
 }
 
-int32_t UserAuthController::GenerateSolution(AuthSolution param, std::vector<uint64_t> &sessionIds)
+int32_t UserAuthController::GenerateSolution(AuthSolution param, std::vector<CoAuth::ScheduleInfo> &scheduleInfos)
 {
-    return UserAuthAdapter::GetInstance().GenerateSolution(param, sessionIds);
+    return UserAuthAdapter::GetInstance().GenerateSolution(param, scheduleInfos);
 }
 
-int32_t UserAuthController::CoAuth(CoAuthInfo coAuthInfo, sptr<IUserAuthCallback> &callback)
+int32_t UserAuthController::CoAuth(const std::vector<CoAuth::ScheduleInfo> &scheduleInfos,
+    CoAuthInfo coAuthInfo, sptr<IUserAuthCallback> &callback)
 {
-    return UserAuthAdapter::GetInstance().CoAuth(coAuthInfo, callback);
+    return UserAuthAdapter::GetInstance().CoAuth(scheduleInfos, coAuthInfo, callback);
 }
 
-int32_t UserAuthController::CancelContext(uint64_t contextId, std::vector<uint64_t> &sessionIds)
+int32_t UserAuthController::CancelContext(uint64_t contextId)
 {
-    return UserAuthAdapter::GetInstance().CancelContext(contextId, sessionIds);
+    return UserAuthAdapter::GetInstance().CancelContext(contextId);
 }
 
 int32_t UserAuthController::Cancel(uint64_t sessionId)
@@ -61,7 +62,7 @@ int32_t UserAuthController::AddContextId(uint64_t contextId)
     return UserAuthDataMgr::GetInstance().AddContextId(contextId);
 }
 
-int32_t UserAuthController::IsContextIdExist(uint64_t contextId)
+bool UserAuthController::IsContextIdExist(uint64_t contextId)
 {
     return UserAuthDataMgr::GetInstance().IsContextIdExist(contextId);
 }
