@@ -29,16 +29,15 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-const std::string GROUP_SCHEDULE = "GROUP_SCHEDULE";
 const char IAM_EVENT_KEY[] = "bootevent.useriam.fwkready";
 int32_t DriverManager::Start(const std::map<std::string, HdiConfig> &hdiName2Config)
 {
     IAM_LOGI("start");
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (!HdiConfigIsValid(hdiName2Config)) {
         IAM_LOGE("service config is not valid");
         return USERAUTH_ERROR;
     }
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     hdiName2Config_ = hdiName2Config;
     serviceName2Driver_.clear();
     for (auto const &pair : hdiName2Config) {
@@ -63,8 +62,8 @@ bool DriverManager::HdiConfigIsValid(const std::map<std::string, HdiConfig> &hdi
     std::set<uint16_t> idSet;
     for (auto const &pair : hdiName2Config) {
         uint16_t id = pair.second.id;
-        if (idSet.count(id) != 0) {
-            IAM_LOGE("duplicate hdi id %{public}d", id);
+        if (idSet.find(id) != idSet.end()) {
+            IAM_LOGE("duplicate hdi id %{public}hu", id);
             return false;
         }
         if (pair.second.driver == nullptr) {
@@ -115,11 +114,14 @@ void DriverManager::OnReceive(const ServiceStatus &status)
 {
     IAM_LOGI("service %{public}s receive status", status.serviceName.c_str());
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    if (serviceName2Driver_.count(status.serviceName) == 0) {
+    auto driverIter = serviceName2Driver_.find(status.serviceName);
+    if (driverIter == serviceName2Driver_.end()) {
         IAM_LOGI("service name not match");
         return;
     }
 
+    auto driver = driverIter->second;
+    IF_FALSE_LOGE_AND_RETURN(driver != nullptr);
     switch (status.status) {
         case SERVIE_STATUS_START:
             IAM_LOGI("service %{public}s status change to start", status.serviceName.c_str());
@@ -127,7 +129,7 @@ void DriverManager::OnReceive(const ServiceStatus &status)
                 IAM_LOGE("service %{public}s is not running, ignore this message", status.serviceName.c_str());
                 break;
             }
-            serviceName2Driver_[status.serviceName]->OnHdiConnect();
+            driver->OnHdiConnect();
             break;
         case SERVIE_STATUS_STOP:
             IAM_LOGI("service %{public}s status change to stop", status.serviceName.c_str());
@@ -135,7 +137,7 @@ void DriverManager::OnReceive(const ServiceStatus &status)
                 IAM_LOGE("service %{public}s is running, ignore this message", status.serviceName.c_str());
                 break;
             }
-            serviceName2Driver_[status.serviceName]->OnHdiDisconnect();
+            driver->OnHdiDisconnect();
             break;
         default:
             IAM_LOGE("service %{public}s status invalid", status.serviceName.c_str());
@@ -171,7 +173,7 @@ void DriverManager::SubscribeFrameworkRedayEvent()
             return;
         }
         if (strcmp(value, "true")) {
-            IAM_LOGI("event value is not true");
+            IAM_LOGE("event value is not true");
             return;
         }
         DriverManager::GetInstance().OnFrameworkReady();
@@ -189,6 +191,10 @@ void DriverManager::OnAllHdiDisconnect()
     IAM_LOGI("start");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     for (auto const &pair : serviceName2Driver_) {
+        if (pair.second == nullptr) {
+            IAM_LOGE("pair.second is null");
+            continue;
+        }
         pair.second->OnHdiDisconnect();
     }
     IAM_LOGI("success");
@@ -199,6 +205,10 @@ void DriverManager::OnAllHdiConnect()
     IAM_LOGI("start");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     for (auto const &pair : serviceName2Driver_) {
+        if (pair.second == nullptr) {
+            IAM_LOGE("pair.second is null");
+            continue;
+        }
         pair.second->OnHdiConnect();
     }
     IAM_LOGI("success");
@@ -209,6 +219,10 @@ void DriverManager::OnFrameworkReady()
     IAM_LOGI("start");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     for (auto const &pair : serviceName2Driver_) {
+        if (pair.second == nullptr) {
+            IAM_LOGE("pair.second is null");
+            continue;
+        }
         pair.second->OnFrameworkReady();
     }
 }

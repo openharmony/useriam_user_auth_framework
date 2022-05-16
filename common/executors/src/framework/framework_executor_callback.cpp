@@ -209,8 +209,7 @@ ResultCode FrameworkExecutorCallback::ProcessCustomCommand(std::shared_ptr<AuthR
         return ret;
     }
 
-    ret = command->GetResult();
-    return ret;
+    return command->GetResult();
 }
 
 ResultCode FrameworkExecutorCallback::ProcessGetTemplateCommand(
