@@ -25,7 +25,6 @@
 #include "set_prop_callback.h"
 #include "useridm_callback.h"
 #include "useridm_info.h"
-#include "userauth_interface.h"
 
 namespace OHOS {
 namespace UserIAM {
@@ -45,8 +44,8 @@ public:
 
 private:
     void OnFinishHandleExtend(int32_t userId, SetPropertyRequest setPropertyRequest, AuthResult authResult,
-        int32_t ret, UserAuthToken authToken);
-    void DealFinishData(std::vector<uint64_t> sessionIds);
+        int32_t ret, std::vector<uint8_t> &authToken);
+    void DealFinishData();
 
     uint32_t callbackCount_ = 0;
     uint32_t callbackNowCount_ = 0;
@@ -75,7 +74,7 @@ private:
 
 class UserAuthCallbackImplSetPropFreeze : public CoAuth::SetPropCallback {
 public:
-    explicit UserAuthCallbackImplSetPropFreeze(std::vector<uint64_t> templateIds, UserAuthToken authToken,
+    UserAuthCallbackImplSetPropFreeze(std::vector<uint64_t> templateIds, std::vector<uint8_t> &authToken,
         FreezeInfo freezeInfo);
     virtual ~UserAuthCallbackImplSetPropFreeze() = default;
 
@@ -84,7 +83,7 @@ public:
 private:
     std::vector<uint64_t> templateIds_;
     int32_t resultCode_;
-    UserAuthToken authToken_;
+    std::vector<uint8_t> authToken_;
     AuthType authType_;
     std::string pkgName_;
     uint64_t callerUid_;
@@ -108,13 +107,13 @@ private:
 class UserAuthCallbackImplIdmCoAuthGetPropFreeze : public UserIDM::GetInfoCallback {
 public:
     explicit UserAuthCallbackImplIdmCoAuthGetPropFreeze(uint64_t callerUid, std::string pkgName, int32_t resultCode,
-        UserAuthToken authToken, SetPropertyRequest request);
+        std::vector<uint8_t> &authToken, SetPropertyRequest request);
     virtual ~UserAuthCallbackImplIdmCoAuthGetPropFreeze() = default;
 
     void OnGetInfo(std::vector<UserIDM::CredentialInfo>& info) override;
 
 private:
-    UserAuthToken authToken_;
+    std::vector<uint8_t> authToken_;
     int32_t resultCode_;
     SetPropertyRequest request_;
     std::string pkgName_;
@@ -124,14 +123,14 @@ private:
 class UserAuthCallbackImplIdmGetPropCoAuth : public UserIDM::GetInfoCallback {
 public:
     explicit UserAuthCallbackImplIdmGetPropCoAuth(const sptr<IUserAuthCallback> &impl, uint64_t callerUid,
-        std::string pkgName, int32_t resultCode, UserAuthToken authToken, GetPropertyRequest request);
+        std::string pkgName, int32_t resultCode, std::vector<uint8_t> &authToken, GetPropertyRequest request);
     virtual ~UserAuthCallbackImplIdmGetPropCoAuth() = default;
 
     void OnGetInfo(std::vector<UserIDM::CredentialInfo>& info) override;
 
 private:
     sptr<IUserAuthCallback> callback_ { nullptr };
-    UserAuthToken authToken_;
+    std::vector<uint8_t> authToken_;
     int32_t resultCode_;
     GetPropertyRequest request_;
     std::string pkgName_;

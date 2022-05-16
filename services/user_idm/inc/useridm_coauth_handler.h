@@ -20,7 +20,6 @@
 #include "coauth_callback.h"
 #include "useridm_setprop_handler.h"
 #include "auth_info.h"
-#include "co_auth.h"
 #include "auth_attributes.h"
 
 namespace OHOS {

@@ -40,8 +40,6 @@ ohos_shared_library("userauth_executors") {
     "//base/user_iam/user_auth/interfaces/inner_api/common/",
     "//base/user_iam/user_auth/common/utils",
     "//base/user_iam/user_auth/common/logs",
-    "//base/user_iam/user_auth/services/co_auth/common/coauth/inc/",
-    "//base/user_iam/user_auth/services/co_auth/common/common/inc/",
   ]
 
   public_configs = [ ":userauth_executors_public_config" ]

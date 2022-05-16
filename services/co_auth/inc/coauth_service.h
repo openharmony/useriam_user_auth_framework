@@ -19,7 +19,6 @@
 #include <system_ability.h>
 #include <system_ability_definition.h>
 #include "coauth_stub.h"
-#include "iset_prop_callback.h"
 #include "auth_attributes.h"
 #include "co_auth_info_define.h"
 #include "auth_res_manager.h"
@@ -46,15 +45,10 @@ public:
     uint64_t Register(std::shared_ptr<ResAuthExecutor> executorInfo,
         const sptr<ResIExecutorCallback> &callback) override;
     void QueryStatus(ResAuthExecutor &executorInfo, const sptr<ResIQueryCallback> &callback) override;
-    void BeginSchedule(uint64_t scheduleId, AuthInfo &authInfo, const sptr<ICoAuthCallback> &callback) override;
-    int32_t Cancel(uint64_t scheduleId) override;
-    int32_t GetExecutorProp(ResAuthAttributes &conditions, std::shared_ptr<ResAuthAttributes> values) override;
-    void SetExecutorProp(ResAuthAttributes &conditions, const sptr<ISetPropCallback> &callback) override;
 
 private:
     CoAuthRunningState state_ = CoAuthRunningState::STATE_STOPPED;
     AuthResManager authResMgr_;
-    CoAuthManager  coAuthMgr_;
 };
 } // namespace CoAuth
 } // namespace UserIAM

@@ -20,7 +20,6 @@
 #include "auth_attributes.h"
 #include "auth_executor.h"
 #include "co_auth_defines.h"
-#include "coauth.h"
 #include "executor.h"
 #include "executor_callback.h"
 #include "nocopyable.h"
@@ -28,6 +27,10 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
+enum ScheduleMode {
+    SCHEDULE_MODE_ENROLL = 0,
+    SCHEDULE_MODE_AUTH = 1,
+};
 using pAuthAttributes = std::shared_ptr<AuthResPool::AuthAttributes>;
 class FrameworkExecutorCallback : public AuthResPool::ExecutorCallback, public NoCopyable {
 public:

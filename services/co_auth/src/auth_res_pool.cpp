@@ -36,12 +36,14 @@ int32_t AuthResPool::Insert(uint64_t executorID, std::shared_ptr<ResAuthExecutor
     return SUCCESS;
 }
 
-int32_t AuthResPool::Insert(uint64_t scheduleId, uint64_t executorNum, sptr<ICoAuthCallback> callback)
+int32_t AuthResPool::Insert(uint64_t scheduleId, const CoAuth::ScheduleInfo &info,
+    std::shared_ptr<CoAuthCallback> callback)
 {
     std::lock_guard<std::mutex> lock(scheMutex_);
     auto scheduleRegister = std::make_shared<ScheduleRegister>();
-    scheduleRegister->executorNum = executorNum;
+    scheduleRegister->scheduleInfo = info;
     scheduleRegister->callback = callback;
+    scheduleRegister->executorNum = info.executors.size();
     scheResPool_.insert(std::make_pair(scheduleId, scheduleRegister));
     if (scheResPool_.begin() == scheResPool_.end()) {
         COAUTH_HILOGE(MODULE_SERVICE, "scheResPool_ is null");
@@ -54,9 +56,13 @@ int32_t AuthResPool::Insert(uint64_t scheduleId, uint64_t executorNum, sptr<ICoA
 int32_t AuthResPool::FindExecutorCallback(uint64_t executorID, sptr<ResIExecutorCallback> &callback)
 {
     std::lock_guard<std::mutex> lock(authMutex_);
-    std::map<uint64_t, std::shared_ptr<ExecutorRegister>>::iterator iter = authResPool_.find(executorID);
+    auto iter = authResPool_.find(executorID);
     if (iter == authResPool_.end()) {
         COAUTH_HILOGE(MODULE_SERVICE, "executorID is not found, size is %{public}zu", authResPool_.size());
+        return FAIL;
+    }
+    if (iter->second == nullptr) {
+        COAUTH_HILOGE(MODULE_SERVICE, "second is nullptr");
         return FAIL;
     }
     callback = iter->second->callback;
@@ -68,8 +74,7 @@ int32_t AuthResPool::FindExecutorCallback(uint32_t authType2Find, sptr<ResIExecu
 {
     AuthType authType;
     std::lock_guard<std::mutex> lock(authMutex_);
-    std::map<uint64_t, std::shared_ptr<ExecutorRegister>>::iterator iter;
-    for (iter = authResPool_.begin(); iter != authResPool_.end(); ++iter) {
+    for (auto iter = authResPool_.begin(); iter != authResPool_.end(); ++iter) {
         if (iter->second->executorInfo == nullptr) {
             continue;
         }
@@ -88,7 +93,7 @@ int32_t AuthResPool::FindExecutorCallback(uint32_t authType2Find, sptr<ResIExecu
 int32_t AuthResPool::DeleteExecutorCallback(uint64_t executorID)
 {
     std::lock_guard<std::mutex> lock(authMutex_);
-    std::map<uint64_t, std::shared_ptr<ExecutorRegister>>::iterator iter = authResPool_.find(executorID);
+    auto iter = authResPool_.find(executorID);
     if (iter == authResPool_.end()) {
         COAUTH_HILOGE(MODULE_SERVICE, "executorID is not found and delete callback failed");
         return FAIL;
@@ -98,12 +103,16 @@ int32_t AuthResPool::DeleteExecutorCallback(uint64_t executorID)
     return SUCCESS;
 }
 
-int32_t AuthResPool::FindScheduleCallback(uint64_t scheduleId, sptr<ICoAuthCallback> &callback)
+int32_t AuthResPool::FindScheduleCallback(uint64_t scheduleId, std::shared_ptr<CoAuthCallback> &callback)
 {
     std::lock_guard<std::mutex> lock(scheMutex_);
-    std::map<uint64_t, std::shared_ptr<ScheduleRegister>>::iterator iter = scheResPool_.find(scheduleId);
+    auto iter = scheResPool_.find(scheduleId);
     if (iter == scheResPool_.end()) {
         COAUTH_HILOGE(MODULE_SERVICE, "scheduleId is not found and find callback failed");
+        return FAIL;
+    }
+    if (iter->second == nullptr) {
+        COAUTH_HILOGE(MODULE_SERVICE, "second is nullptr");
         return FAIL;
     }
     callback = iter->second->callback;
@@ -114,9 +123,13 @@ int32_t AuthResPool::FindScheduleCallback(uint64_t scheduleId, sptr<ICoAuthCallb
 int32_t AuthResPool::ScheduleCountMinus(uint64_t scheduleId)
 {
     std::lock_guard<std::mutex> lock(scheMutex_);
-    std::map<uint64_t, std::shared_ptr<ScheduleRegister>>::iterator iter = scheResPool_.find(scheduleId);
+    auto iter = scheResPool_.find(scheduleId);
     if (iter == scheResPool_.end()) {
         COAUTH_HILOGE(MODULE_SERVICE, "scheduleId is not found and count minus one failed");
+        return FAIL;
+    }
+    if (iter->second == nullptr) {
+        COAUTH_HILOGE(MODULE_SERVICE, "second is nullptr");
         return FAIL;
     }
     if (iter->second->executorNum <= 0) {
@@ -131,9 +144,13 @@ int32_t AuthResPool::ScheduleCountMinus(uint64_t scheduleId)
 int32_t AuthResPool::GetScheduleCount(uint64_t scheduleId, uint64_t &scheduleCount)
 {
     std::lock_guard<std::mutex> lock(scheMutex_);
-    std::map<uint64_t, std::shared_ptr<ScheduleRegister>>::iterator iter = scheResPool_.find(scheduleId);
+    auto iter = scheResPool_.find(scheduleId);
     if (iter == scheResPool_.end()) {
         COAUTH_HILOGE(MODULE_SERVICE, "scheduleId is not found and get executorNum failed");
+        return FAIL;
+    }
+    if (iter->second == nullptr) {
+        COAUTH_HILOGE(MODULE_SERVICE, "second is nullptr");
         return FAIL;
     }
     scheduleCount = iter->second->executorNum;
@@ -141,10 +158,27 @@ int32_t AuthResPool::GetScheduleCount(uint64_t scheduleId, uint64_t &scheduleCou
     return SUCCESS;
 }
 
+int32_t AuthResPool::GetScheduleInfo(uint64_t scheduleId, CoAuth::ScheduleInfo &scheduleInfo)
+{
+    std::lock_guard<std::mutex> lock(scheMutex_);
+    auto iter = scheResPool_.find(scheduleId);
+    if (iter == scheResPool_.end()) {
+        COAUTH_HILOGE(MODULE_SERVICE, "scheduleId is not found and get executorNum failed");
+        return FAIL;
+    }
+    if (iter->second == nullptr) {
+        COAUTH_HILOGE(MODULE_SERVICE, "second is nullptr");
+        return FAIL;
+    }
+    scheduleInfo = iter->second->scheduleInfo;
+    COAUTH_HILOGD(MODULE_SERVICE, "get schedule info success");
+    return SUCCESS;
+}
+
 int32_t AuthResPool::DeleteScheduleCallback(uint64_t scheduleId)
 {
     std::lock_guard<std::mutex> lock(scheMutex_);
-    std::map<uint64_t, std::shared_ptr<ScheduleRegister>>::iterator iter = scheResPool_.find(scheduleId);
+    auto iter = scheResPool_.find(scheduleId);
     if (iter == scheResPool_.end()) {
         COAUTH_HILOGE(MODULE_SERVICE, "scheduleId is not found and delete callback failed");
         return FAIL;

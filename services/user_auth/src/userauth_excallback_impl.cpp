@@ -56,7 +56,7 @@ void UserAuthCallbackImplSetProp::OnResult(uint32_t result, std::vector<uint8_t>
 }
 
 UserAuthCallbackImplSetPropFreeze::UserAuthCallbackImplSetPropFreeze(std::vector<uint64_t> templateIds,
-    UserAuthToken authToken, FreezeInfo freezeInfo)
+    std::vector<uint8_t> &authToken, FreezeInfo freezeInfo)
 {
     templateIds_.clear();
     templateIds_.assign(templateIds.begin(), templateIds.end());
@@ -124,7 +124,7 @@ void UserAuthCallbackImplCoAuth::OnAcquireInfo(uint32_t acquire)
 }
 
 void UserAuthCallbackImplCoAuth::OnFinishHandleExtend(int32_t userId, SetPropertyRequest setPropertyRequest,
-    AuthResult authResult, int32_t ret, UserAuthToken authToken)
+    AuthResult authResult, int32_t ret, std::vector<uint8_t> &authToken)
 {
     if (authType_ == UserAuth::PIN) {
         USERAUTH_HILOGD(MODULE_SERVICE, "auth type is pin");
@@ -138,10 +138,12 @@ void UserAuthCallbackImplCoAuth::OnFinishHandleExtend(int32_t userId, SetPropert
     }
 }
 
-void UserAuthCallbackImplCoAuth::DealFinishData(std::vector<uint64_t> sessionIds)
+void UserAuthCallbackImplCoAuth::DealFinishData()
 {
-    if (sessionIds.size() != 0) {
-        for (auto const &item : sessionIds) {
+    std::vector<uint64_t> scheduleIds;
+    int32_t ret = UserAuthDataMgr::GetInstance().GetScheduleIds(callbackContextId_, scheduleIds);
+    if (ret == SUCCESS) {
+        for (auto const &item : scheduleIds) {
             UserAuthAdapter::GetInstance().Cancel(item);
         }
     }
@@ -153,8 +155,7 @@ void UserAuthCallbackImplCoAuth::DealFinishData(std::vector<uint64_t> sessionIds
 
 void UserAuthCallbackImplCoAuth::OnFinishHandle(uint32_t resultCode, std::vector<uint8_t> scheduleToken)
 {
-    UserAuthToken authToken = {};
-    std::vector<uint64_t> sessionIds;
+    std::vector<uint8_t> authToken;
     SetPropertyRequest setPropertyRequest;
     GetPropertyRequest getPropertyRequest;
     AuthResult authResult;
@@ -172,7 +173,7 @@ void UserAuthCallbackImplCoAuth::OnFinishHandle(uint32_t resultCode, std::vector
     }
     if (resultCode != CANCELED) {
         ret =
-            UserAuthAdapter::GetInstance().RequestAuthResult(callbackContextId_, scheduleToken, authToken, sessionIds);
+            UserAuthAdapter::GetInstance().RequestAuthResult(callbackContextId_, scheduleToken, authToken);
     }
     if (ret == E_RET_UNDONE) {
         if (callbackNowCount_ == callbackCount_) {
@@ -198,7 +199,7 @@ void UserAuthCallbackImplCoAuth::OnFinishHandle(uint32_t resultCode, std::vector
     getPropertyRequest.keys.push_back(UserAuth::FREEZING_TIME);
     UserAuthAdapter::GetInstance().GetPropAuthInfoCoAuth(callerInfo, resultCode, authToken, getPropertyRequest,
         callback_);
-    DealFinishData(sessionIds);
+    DealFinishData();
 }
 
 void UserAuthCallbackImplCoAuth::OnAcquireInfoHandle(uint32_t acquire)
@@ -279,7 +280,7 @@ void UserAuthCallbackImplIdmGetProp::OnGetInfo(std::vector<UserIDM::CredentialIn
 }
 
 UserAuthCallbackImplIdmCoAuthGetPropFreeze::UserAuthCallbackImplIdmCoAuthGetPropFreeze(uint64_t callerUid,
-    std::string pkgName, int32_t resultCode, UserAuthToken authToken, SetPropertyRequest request)
+    std::string pkgName, int32_t resultCode, std::vector<uint8_t> &authToken, SetPropertyRequest request)
 {
     authToken_ = authToken;
     resultCode_ = resultCode;
@@ -300,10 +301,7 @@ void UserAuthCallbackImplIdmCoAuthGetPropFreeze::OnGetInfo(std::vector<UserIDM::
     AuthResult authResult;
     if (info.size() == 0) {
         USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthCallbackImplIdmCoAuthGetPropFreeze OnGetInfo no data");
-        authResult.token.resize(sizeof(UserAuthToken));
-        if (memcpy_s(&authResult.token[0], authResult.token.size(), &authToken_, sizeof(UserAuthToken)) != EOK) {
-            USERAUTH_HILOGE(MODULE_SERVICE, "copy authToken_ error");
-        }
+        authResult.token = authToken_;
         return;
     }
     templateIds.clear();
@@ -314,7 +312,8 @@ void UserAuthCallbackImplIdmCoAuthGetPropFreeze::OnGetInfo(std::vector<UserIDM::
 }
 
 UserAuthCallbackImplIdmGetPropCoAuth::UserAuthCallbackImplIdmGetPropCoAuth(const sptr<IUserAuthCallback> &impl,
-    uint64_t callerUid, std::string pkgName, int32_t resultCode, UserAuthToken authToken, GetPropertyRequest request)
+    uint64_t callerUid, std::string pkgName, int32_t resultCode,
+    std::vector<uint8_t> &authToken, GetPropertyRequest request)
 {
     if (impl == nullptr) {
         USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthCallbackImplIdmGetPropCoAuth impl callback is nullptr");
@@ -336,10 +335,7 @@ void UserAuthCallbackImplIdmGetPropCoAuth::OnGetInfo(std::vector<UserIDM::Creden
     if (info.size() == 0) {
         USERAUTH_HILOGD(MODULE_SERVICE, "UserAuthCallbackImplIdmGetPropCoAuth OnGetInfo no data");
         executorProperty.result = GENERAL_ERROR;
-        authResult.token.resize(sizeof(UserAuthToken));
-        if (memcpy_s(&authResult.token[0], authResult.token.size(), &authToken_, sizeof(UserAuthToken)) != EOK) {
-            USERAUTH_HILOGE(MODULE_SERVICE, "copy authToken_ error");
-        }
+        authResult.token = authToken_;
         authResult.freezingTime = 0;
         authResult.remainTimes = 0;
         callback_->onResult(resultCode_, authResult);
@@ -353,10 +349,7 @@ void UserAuthCallbackImplIdmGetPropCoAuth::OnGetInfo(std::vector<UserIDM::Creden
     }
     authResult.freezingTime = executorProperty.freezingTime;
     authResult.remainTimes = executorProperty.remainTimes;
-    authResult.token.resize(sizeof(UserAuthToken));
-    if (memcpy_s(&authResult.token[0], authResult.token.size(), &authToken_, sizeof(UserAuthToken)) != EOK) {
-        USERAUTH_HILOGE(MODULE_SERVICE, "copy authToken_ error");
-    }
+    authResult.token = authToken_;
     callback_->onResult(resultCode_, authResult);
 }
 } // namespace UserAuth
