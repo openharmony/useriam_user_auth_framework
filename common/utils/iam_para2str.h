@@ -40,10 +40,7 @@ static inline std::string GetMaskedString(uint16_t val)
 
 static inline std::string GetPointerNullStateString(void *p)
 {
-    if (p == nullptr) {
-        return "null";
-    }
-    return "non-null";
+    return p == nullptr ? "null" : "non-null";
 }
 } // namespace Common
 } // namespace UserIAM

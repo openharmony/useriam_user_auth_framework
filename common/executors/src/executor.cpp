@@ -77,7 +77,7 @@ void Executor::RegisterExecutorCallback(ExecutorInfo &executorInfo)
     auto executorCallback = Common::MakeShared<FrameworkExecutorCallback>(shared_from_this());
     IF_FALSE_LOGE_AND_RETURN(executorCallback != nullptr);
     UserIAM::AuthResPool::ExecutorMgr::GetInstance().Register(executorInfo, executorCallback);
-    IAM_LOGI("register executor callback ok, executor id=%{public}s",
+    IAM_LOGI("register executor callback ok, executor id %{public}s",
         GET_MASKED_STRING(executorInfo.executorId).c_str());
 }
 
@@ -115,7 +115,11 @@ void Executor::RespondCallbackOnDisconnect()
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     for (auto it = command2Respond_.begin(); it != command2Respond_.end();) {
         auto cmdToProc = it;
-        it++;
+        ++it;
+        if (*cmdToProc == nullptr) {
+            IAM_LOGI("cmdToProc is null");
+            continue;
+        }
         (*cmdToProc)->OnHdiDisconnect();
     }
     command2Respond_.clear();
