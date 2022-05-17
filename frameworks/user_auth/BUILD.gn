@@ -35,7 +35,6 @@ ohos_shared_library("userauth_framework") {
   deps = [ "//base/user_iam/user_auth/frameworks/co_auth:coauth_framework" ]
 
   external_deps = [
-    "face_auth:faceauth_framework",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "samgr_standard:samgr_proxy",
@@ -44,6 +43,7 @@ ohos_shared_library("userauth_framework") {
 
   if (defined(ability_runtime_graphics) && ability_runtime_graphics) {
     deps += [ "//foundation/graphic/graphic:libsurface" ]
+    external_deps += [ "face_auth:faceauth_framework" ]
     defines = [ "SUPPORT_SURFACE" ]
   }
 
