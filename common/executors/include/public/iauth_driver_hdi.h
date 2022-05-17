@@ -17,8 +17,10 @@
 #define IAUTH_DRIVER_HDI_H
 
 #include <cstdint>
-#include "iauth_executor_hdi.h"
+
 #include "iremote_broker.h"
+
+#include "iauth_executor_hdi.h"
 
 namespace OHOS {
 namespace UserIAM {

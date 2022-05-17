@@ -16,6 +16,8 @@
 #ifndef CUSTOM_COMMAND_H
 #define CUSTOM_COMMAND_H
 
+#include <future>
+
 #include "async_command_base.h"
 
 namespace OHOS {

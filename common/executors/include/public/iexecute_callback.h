@@ -18,6 +18,7 @@
 
 #include <cstdint>
 #include <vector>
+
 #include "co_auth_defines.h"
 
 namespace OHOS {

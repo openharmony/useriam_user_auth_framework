@@ -17,6 +17,7 @@
 #define IASYNC_COMMAND_H
 
 #include <cstdint>
+
 #include "co_auth_defines.h"
 
 namespace OHOS {

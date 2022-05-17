@@ -16,11 +16,12 @@
 #ifndef ASYNC_COMMAND_BASE_H
 #define ASYNC_COMMAND_BASE_H
 
-#include <future>
 #include <mutex>
+
+#include "nocopyable.h"
+
 #include "co_auth_defines.h"
 #include "executor.h"
-#include "nocopyable.h"
 
 namespace OHOS {
 namespace UserIAM {
@@ -51,8 +52,6 @@ protected:
 private:
     void EndProcess();
     std::string str_;
-    std::promise<void> promise_;
-    std::future<void> future_;
 };
 } // namespace UserAuth
 } // namespace UserIAM

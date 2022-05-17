@@ -14,7 +14,9 @@
  */
 
 #include "custom_command.h"
+
 #include <chrono>
+
 #include "iam_check.h"
 #include "iam_logger.h"
 
@@ -50,8 +52,14 @@ ResultCode CustomCommand::SendRequest()
     std::vector<uint8_t> extraInfo(src, src + templateIdList.size() * sizeof(uint64_t) / sizeof(uint8_t));
     ResultCode ret =
         hdi->SendCommand(static_cast<UserAuth::AuthPropertyMode>(commandId), extraInfo, shared_from_this());
-    IAM_LOGI("%{public}s send command result %{public}d", GetDescription(), ret);
-    return ret;
+    if (ret != ResultCode::SUCCESS) {
+        result_ = ret;
+        promise_.set_value();
+        IAM_LOGE("%{public}s send command fail result %{public}d", GetDescription(), ret);
+        return ret;
+    }
+    IAM_LOGI("%{public}s send command result success", GetDescription());
+    return ResultCode::SUCCESS;
 }
 
 void CustomCommand::OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo)

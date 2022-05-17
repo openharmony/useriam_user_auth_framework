@@ -14,10 +14,12 @@
  */
 
 #include "async_command_base.h"
+
+#include <mutex>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <mutex>
+
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
@@ -33,8 +35,7 @@ AsyncCommandBase::AsyncCommandBase(std::string type, uint64_t scheduleId, std::s
       commandId_(GenerateCommandId())
 {
     std::ostringstream ss;
-    ss << "Command(type:" << type << ", id:" << commandId_ << ", scheduleId:" << GET_MASKED_STRING(scheduleId_)
-       << ")";
+    ss << "Command(type:" << type << ", id:" << commandId_ << ", scheduleId:" << GET_MASKED_STRING(scheduleId_) << ")";
     str_ = ss.str();
 }
 
@@ -54,6 +55,7 @@ ResultCode AsyncCommandBase::StartProcess()
     ResultCode ret = SendRequest();
     if (ret != ResultCode::SUCCESS) {
         IAM_LOGE("send request failed");
+        EndProcess();
         return ret;
     }
     return ResultCode::SUCCESS;

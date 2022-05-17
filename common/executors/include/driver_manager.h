@@ -18,11 +18,13 @@
 
 #include <cstdint>
 #include <map>
+
+#include "singleton.h"
+
 #include "driver.h"
 #include "iauth_driver_hdi.h"
 #include "idriver_manager.h"
 #include "iservstat_listener_hdi.h"
-#include "singleton.h"
 #include "system_ability_status_listener.h"
 
 namespace OHOS {
