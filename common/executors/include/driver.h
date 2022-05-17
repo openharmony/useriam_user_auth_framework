@@ -18,9 +18,11 @@
 
 #include <string>
 #include <vector>
+
+#include "nocopyable.h"
+
 #include "executor.h"
 #include "idriver_manager.h"
-#include "nocopyable.h"
 
 namespace OHOS {
 namespace UserIAM {

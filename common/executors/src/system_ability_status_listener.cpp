@@ -14,6 +14,7 @@
  */
 
 #include "system_ability_status_listener.h"
+
 #include "driver_manager.h"
 #include "iam_logger.h"
 #include "system_ability_definition.h"

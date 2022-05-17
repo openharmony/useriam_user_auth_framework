@@ -19,8 +19,10 @@
 #include <mutex>
 #include <set>
 #include <string>
+
 #include "nocopyable.h"
 #include "refbase.h"
+
 #include "system_ability_status_change_stub.h"
 
 namespace OHOS {

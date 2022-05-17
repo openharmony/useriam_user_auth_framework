@@ -14,7 +14,9 @@
  */
 
 #include "driver.h"
+
 #include <mutex>
+
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"

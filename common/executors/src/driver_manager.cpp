@@ -14,7 +14,9 @@
  */
 
 #include "driver_manager.h"
+
 #include <set>
+
 #include "devsvc_manager_stub.h"
 #include "hdf_device_desc.h"
 #include "iam_check.h"
@@ -116,7 +118,7 @@ void DriverManager::OnReceive(const ServiceStatus &status)
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto driverIter = serviceName2Driver_.find(status.serviceName);
     if (driverIter == serviceName2Driver_.end()) {
-        IAM_LOGI("service name not match");
+        IAM_LOGI("service name not match, ignore");
         return;
     }
 

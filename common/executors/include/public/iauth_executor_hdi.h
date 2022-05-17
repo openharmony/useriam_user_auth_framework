@@ -18,10 +18,10 @@
 
 #include <cstdint>
 #include <vector>
+
 #include "co_auth_defines.h"
 #include "framework_types.h"
 #include "iexecute_callback.h"
-#include "iauth_executor_hdi.h"
 
 namespace OHOS {
 namespace UserIAM {
