@@ -24,15 +24,17 @@
 
 ```undefined
 //base/user_iam/user_auth
-├── frameworks			# 框架代码
-├── interfaces			# 对外接口存放目录
-│   └── innerkits		# 对内部子系统暴露的头文件，供系统服务使用
-├── sa_profile			# Service Ability 配置文件
-├── services			# Service Ability 服务实现
-├── test				# 测试代码存放目录
-├── utils				# 工具代码存放目录
-├── bundle.json			# 组件描述文件
-└── userauth.gni		# 构建配置
+├── common              # 子系统公共库代码目录
+├── frameworks          # 接口层实现代码目录
+│   └── js              # js接口实现代码
+│       └── napi        # napi实现代码
+├── interfaces          # 对外接口存放目录
+│   └── inner_api       # 对内部子系统暴露的头文件，供系统服务使用
+│   └── kits            # OpenHarmony提供给第三方应用的接口文件
+├── sa_profile          # Service Ability 配置文件
+├── services            # Service Ability 服务实现
+├── test                # 测试代码存放目录
+├── bundle.json         # 组件描述文件
 ```
 
 
@@ -54,15 +56,9 @@
 1. 认证方案生成：根据目标用户录入的认证凭据和目标认证安全等级，决策用户身份认证方案。
 2. 认证结果评估：根据执行器返回的身份认证结果，评估是否达到目标认证安全等级。
 
-- 需在可信执行环境内实现[useriam_auth_executor_mgr](https://gitee.com/openharmony-sig/useriam_coauth)仓内，头文件```common\interface\userauth_interface.h``` 中定义的接口，保证用户身份认证方案决策和结果评估过程的安全性。
-
-
+- 需在可信执行环境内参考[[drivers_peripheral](https://gitee.com/openharmony/drivers_interface)]仓```user_auth```目录，实现[[drivers_interface](https://gitee.com/openharmony/drivers_interface)]仓内文件```user_auth/v1_0/IUserAuthInterface.idl``` 中定义的接口，保证用户身份认证方案决策和结果评估过程的安全性。
 
 ## 相关仓
-
-[useriam_auth_executor_mgr](https://gitee.com/openharmony/useriam_auth_executor_mgr)
-
-[useriam_user_idm](https://gitee.com/openharmony/useriam_user_idm)
 
 **[useriam_user_auth](https://gitee.com/openharmony/useriam_user_auth)**
 
@@ -70,3 +66,6 @@
 
 [useriam_faceauth](https://gitee.com/openharmony/useriam_faceauth)
 
+[drivers_peripheral](https://gitee.com/openharmony/drivers_peripheral)
+
+[drivers_interface](https://gitee.com/openharmony/drivers_interface)
