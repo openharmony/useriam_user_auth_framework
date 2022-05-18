@@ -142,7 +142,7 @@ ResultCode FrameworkExecutorCallback::OnGetPropertyInner(
     IF_FALSE_LOGE_AND_RETURN_VAL(
         conditions->GetUint32Value(AUTH_PROPERTY_MODE, commandId) == USERAUTH_SUCCESS, ResultCode::GENERAL_ERROR);
     if (commandId != PROPERMODE_GET) {
-        IAM_LOGI("command id not recognised");
+        IAM_LOGE("command id not recognised");
         return ResultCode::GENERAL_ERROR;
     }
     ResultCode ret = ProcessGetTemplateCommand(conditions, values);
@@ -205,7 +205,7 @@ ResultCode FrameworkExecutorCallback::ProcessCustomCommand(std::shared_ptr<AuthR
     IF_FALSE_LOGE_AND_RETURN_VAL(command != nullptr, ResultCode::GENERAL_ERROR);
     ResultCode ret = command->StartProcess();
     if (ret != ResultCode::SUCCESS) {
-        IAM_LOGI("start process command fail ret = %{public}d", ret);
+        IAM_LOGE("start process command fail ret = %{public}d", ret);
         return ret;
     }
 

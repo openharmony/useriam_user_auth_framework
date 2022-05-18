@@ -17,12 +17,14 @@
 #define FRAMEWORK_EXECUTOR_CALLBACK_H
 
 #include <cstdint>
+
+#include "nocopyable.h"
+
 #include "auth_attributes.h"
 #include "auth_executor.h"
 #include "co_auth_defines.h"
 #include "executor.h"
 #include "executor_callback.h"
-#include "nocopyable.h"
 
 namespace OHOS {
 namespace UserIAM {

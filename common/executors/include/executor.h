@@ -20,11 +20,13 @@
 #include <mutex>
 #include <set>
 #include <string>
+
+#include "nocopyable.h"
+
 #include "iasync_command.h"
 #include "iauth_executor_hdi.h"
 #include "iexecute_callback.h"
 #include "iexecutor_messenger.h"
-#include "nocopyable.h"
 
 namespace OHOS {
 namespace UserIAM {

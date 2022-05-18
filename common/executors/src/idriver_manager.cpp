@@ -14,6 +14,7 @@
  */
 
 #include "idriver_manager.h"
+
 #include "driver_manager.h"
 #include "iam_logger.h"
 
