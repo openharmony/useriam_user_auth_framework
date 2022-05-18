@@ -14,7 +14,9 @@
  */
 
 #include "executor.h"
+
 #include <sstream>
+
 #include "co_auth_defines.h"
 #include "executor_mgr.h"
 #include "framework_executor_callback.h"
@@ -57,7 +59,7 @@ void Executor::OnFrameworkReady()
     ExecutorInfo executorInfo = {};
     auto hdi = executorHdi_;
     if (hdi == nullptr) {
-        IAM_LOGI("executorHdi_ is disconnected, skip framework ready process");
+        IAM_LOGE("executorHdi_ is disconnected, skip framework ready process");
         return;
     }
     ResultCode ret = hdi->GetExecutorInfo(executorInfo);
@@ -77,8 +79,8 @@ void Executor::RegisterExecutorCallback(ExecutorInfo &executorInfo)
     auto executorCallback = Common::MakeShared<FrameworkExecutorCallback>(shared_from_this());
     IF_FALSE_LOGE_AND_RETURN(executorCallback != nullptr);
     UserIAM::AuthResPool::ExecutorMgr::GetInstance().Register(executorInfo, executorCallback);
-    IAM_LOGI("register executor callback ok, executor id %{public}s",
-        GET_MASKED_STRING(executorInfo.executorId).c_str());
+    IAM_LOGI(
+        "register executor callback ok, executor id %{public}s", GET_MASKED_STRING(executorInfo.executorId).c_str());
 }
 
 void Executor::SetExecutorMessenger(const sptr<AuthResPool::IExecutorMessenger> &messenger)
@@ -117,7 +119,7 @@ void Executor::RespondCallbackOnDisconnect()
         auto cmdToProc = it;
         ++it;
         if (*cmdToProc == nullptr) {
-            IAM_LOGI("cmdToProc is null");
+            IAM_LOGE("cmdToProc is null");
             continue;
         }
         (*cmdToProc)->OnHdiDisconnect();

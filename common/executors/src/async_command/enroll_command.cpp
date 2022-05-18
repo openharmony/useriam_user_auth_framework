@@ -14,6 +14,7 @@
  */
 
 #include "enroll_command.h"
+
 #include "framework_types.h"
 #include "iam_check.h"
 #include "iam_logger.h"
@@ -66,7 +67,7 @@ void EnrollCommand::OnResultInner(ResultCode result, const std::vector<uint8_t> 
     authAttributes->SetUint8ArrayValue(AUTH_RESULT, nonConstExtraInfo);
     int32_t ret = executorMessenger->Finish(scheduleId_, ALL_IN_ONE, result, authAttributes);
     if (ret != USERAUTH_SUCCESS) {
-        IAM_LOGI("%{public}s call fininsh fail", GetDescription());
+        IAM_LOGE("%{public}s call fininsh fail", GetDescription());
         return;
     }
     IAM_LOGI("%{public}s call fininsh success result %{public}d", GetDescription(), result);

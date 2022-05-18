@@ -18,6 +18,7 @@
 
 #include <cstdint>
 #include <map>
+
 #include "iauth_driver_hdi.h"
 
 namespace OHOS {
