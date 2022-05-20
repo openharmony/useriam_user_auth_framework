@@ -52,7 +52,7 @@ static constexpr HiLogLabel LABEL_USER_AUTH_HDI = {LOG_CORE, IAM_DOMAIN_ID_USER,
 static constexpr HiLogLabel LABEL_USER_AUTH_EXECUTOR = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_EXECUTOR"};
 
 // pin
-static constexpr unsigned int IAM_DOMAIN_ID_PIN = 0xD002432;
+static constexpr unsigned int IAM_DOMAIN_ID_PIN = 0xD002441;
 static constexpr HiLogLabel LABEL_PIN_AUTH_NAPI = {LOG_CORE, IAM_DOMAIN_ID_PIN, "PIN_AUTH_NAPI"};
 static constexpr HiLogLabel LABEL_PIN_AUTH_SDK = {LOG_CORE, IAM_DOMAIN_ID_PIN, "PIN_AUTH_SDK"};
 static constexpr HiLogLabel LABEL_PIN_AUTH_SA = {LOG_CORE, IAM_DOMAIN_ID_PIN, "PIN_AUTH_SA"};
@@ -60,12 +60,19 @@ static constexpr HiLogLabel LABEL_PIN_AUTH_HDI = {LOG_CORE, IAM_DOMAIN_ID_PIN, "
 static constexpr HiLogLabel LABEL_PIN_AUTH_IMPL = {LOG_CORE, IAM_DOMAIN_ID_PIN, "PIN_AUTH_IMPL"};
 
 // face
-static constexpr unsigned int IAM_DOMAIN_ID_FACE = 0xD002422;
+static constexpr unsigned int IAM_DOMAIN_ID_FACE = 0xD002442;
 static constexpr HiLogLabel LABEL_FACE_AUTH_NAPI = {LOG_CORE, IAM_DOMAIN_ID_FACE, "FACE_AUTH_NAPI"};
 static constexpr HiLogLabel LABEL_FACE_AUTH_SDK = {LOG_CORE, IAM_DOMAIN_ID_FACE, "FACE_AUTH_SDK"};
 static constexpr HiLogLabel LABEL_FACE_AUTH_SA = {LOG_CORE, IAM_DOMAIN_ID_FACE, "FACE_AUTH_SA"};
 static constexpr HiLogLabel LABEL_FACE_AUTH_HDI = {LOG_CORE, IAM_DOMAIN_ID_FACE, "FACE_AUTH_HDI"};
 static constexpr HiLogLabel LABEL_FACE_AUTH_IMPL = {LOG_CORE, IAM_DOMAIN_ID_FACE, "FACE_AUTH_IMPL"};
+
+// fingerprint
+static constexpr unsigned int IAM_DOMAIN_ID_FINGERPRINT = 0xD002443;
+static constexpr HiLogLabel LABEL_FINGERPRINT_AUTH_SA = {LOG_CORE, IAM_DOMAIN_ID_FINGERPRINT, "FINGERPRINT_AUTH_SA"};
+static constexpr HiLogLabel LABEL_FINGERPRINT_AUTH_HDI = {LOG_CORE, IAM_DOMAIN_ID_FINGERPRINT, "FINGERPRINT_AUTH_HDI"};
+static constexpr HiLogLabel LABEL_FINGERPRINT_AUTH_IMPL = {LOG_CORE, IAM_DOMAIN_ID_FINGERPRINT,
+    "FINGERPRINT_AUTH_IMPL"};
 } // namespace Common
 } // namespace UserIAM
 } // namespace OHOS
