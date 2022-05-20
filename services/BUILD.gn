@@ -32,6 +32,8 @@ ohos_shared_library("userauthservice") {
     "//base/user_iam/user_auth/interfaces/inner_api/user_auth",
   ]
 
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
   sources = [
     "co_auth/src/auth_info.cpp",
     "co_auth/src/auth_res_manager.cpp",
