@@ -20,7 +20,8 @@
 namespace OHOS {
 namespace UserIAM {
 namespace AuthResPool {
-void ExecutorCallbackProxy::OnMessengerReady(const sptr<IExecutorMessenger> &messenger)
+void ExecutorCallbackProxy::OnMessengerReady(const sptr<IExecutorMessenger> &messenger,
+    std::vector<uint8_t> &frameworkPublicKey, std::vector<uint64_t> &templateIds)
 {
     COAUTH_HILOGD(MODULE_INNERKIT, "ExecutorCallbackProxy OnMessengerReady");
     MessageParcel data;
@@ -36,6 +37,14 @@ void ExecutorCallbackProxy::OnMessengerReady(const sptr<IExecutorMessenger> &mes
     }
     if (!data.WriteRemoteObject(messenger.GetRefPtr()->AsObject())) {
         COAUTH_HILOGE(MODULE_INNERKIT, "write RemoteObject failed");
+        return;
+    }
+    if (!data.WriteUInt8Vector(frameworkPublicKey)) {
+        COAUTH_HILOGE(MODULE_INNERKIT, "write frameworkPublicKey failed");
+        return;
+    }
+    if (!data.WriteUInt64Vector(templateIds)) {
+        COAUTH_HILOGE(MODULE_INNERKIT, "write templateIds failed");
         return;
     }
     bool ret = SendRequest(static_cast<int32_t>(IExecutorCallback::ON_MESSENGER_READY), data, reply);
