@@ -32,13 +32,13 @@ class AsyncCommandBase : public std::enable_shared_from_this<AsyncCommandBase>,
                          public NoCopyable {
 public:
     AsyncCommandBase(std::string type, uint64_t scheduleId, std::shared_ptr<Executor> executor);
-    virtual ~AsyncCommandBase() = default;
+    ~AsyncCommandBase() override = default;
 
     void OnHdiDisconnect() override;
     ResultCode StartProcess() override;
     void OnResult(ResultCode result) override;
     void OnResult(ResultCode result, const std::vector<uint8_t> &extraInfo) override;
-    virtual void OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo) override = 0;
+    void OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo) override = 0;
 
 protected:
     static uint32_t GenerateCommandId();
@@ -51,7 +51,7 @@ protected:
 
 private:
     void EndProcess();
-    std::string str_;
+    std::string description_;
 };
 } // namespace UserAuth
 } // namespace UserIAM

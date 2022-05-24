@@ -25,7 +25,7 @@ class EnrollCommand : public AsyncCommandBase {
 public:
     EnrollCommand(std::shared_ptr<Executor> executor, uint64_t scheduleId,
         std::shared_ptr<AuthResPool::AuthAttributes> commandAttrs);
-    virtual ~EnrollCommand() = default;
+    ~EnrollCommand() override = default;
 
     void OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo) override;
 
