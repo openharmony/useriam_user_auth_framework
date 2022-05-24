@@ -25,7 +25,8 @@ namespace UserIAM {
 namespace AuthResPool {
 class IExecutorCallback : public IRemoteBroker {
 public:
-    virtual void OnMessengerReady(const sptr<IExecutorMessenger> &messenger) = 0;
+    virtual void OnMessengerReady(const sptr<IExecutorMessenger> &messenger,
+        std::vector<uint8_t> &frameworkPublicKey, std::vector<uint64_t> &templateIds) = 0;
     virtual int32_t OnBeginExecute(uint64_t scheduleId, std::vector<uint8_t> &publicKey,
         std::shared_ptr<AuthAttributes> commandAttrs) = 0;
     virtual int32_t OnEndExecute(uint64_t scheduleId, std::shared_ptr<AuthAttributes> consumerAttr) = 0;

@@ -28,7 +28,8 @@ public:
     explicit ExecutorCallbackStub(const std::shared_ptr<ExecutorCallback>& impl);
     ~ExecutorCallbackStub() override = default;
 
-    void OnMessengerReady(const sptr<IExecutorMessenger> &messenger) override;
+    void OnMessengerReady(const sptr<IExecutorMessenger> &messenger, std::vector<uint8_t> &publicKey,
+        std::vector<uint64_t> &templateIds) override;
     int32_t OnBeginExecute(uint64_t scheduleId, std::vector<uint8_t> &publicKey,
         std::shared_ptr<AuthAttributes> commandAttrs) override;
     int32_t OnEndExecute(uint64_t scheduleId, std::shared_ptr<AuthAttributes> consumerAttr) override;

@@ -62,8 +62,11 @@ int32_t ExecutorCallbackStub::OnMessengerReadyStub(MessageParcel &data, MessageP
         COAUTH_HILOGE(MODULE_INNERKIT, "messenger is nullptr");
         return FAIL;
     }
-    COAUTH_HILOGD(MODULE_INNERKIT, "iface_cast is right");
-    OnMessengerReady(messenger);
+    std::vector<uint8_t> publicKey;
+    data.ReadUInt8Vector(&publicKey);
+    std::vector<uint64_t> templateIds;
+    data.ReadUInt64Vector(&templateIds);
+    OnMessengerReady(messenger, publicKey, templateIds);
     COAUTH_HILOGD(MODULE_INNERKIT, "OnMessengerReady GetRefPtr");
     return SUCCESS;
 }
@@ -141,15 +144,14 @@ int32_t ExecutorCallbackStub::OnSetPropertyStub(MessageParcel &data, MessageParc
     return SUCCESS;
 }
 
-void ExecutorCallbackStub::OnMessengerReady(const sptr<IExecutorMessenger> &messenger)
+void ExecutorCallbackStub::OnMessengerReady(const sptr<IExecutorMessenger> &messenger, std::vector<uint8_t> &publicKey,
+    std::vector<uint64_t> &templateIds)
 {
     if (callback_ == nullptr) {
         return;
     } else {
         callback_->OnMessengerReady(messenger);
-        std::vector<uint8_t> pubKey;
-        std::vector<uint64_t> templateIds;
-        callback_->OnMessengerReady(messenger, pubKey, templateIds);
+        callback_->OnMessengerReady(messenger, publicKey, templateIds);
     }
 }
 
