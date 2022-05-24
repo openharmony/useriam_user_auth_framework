@@ -35,8 +35,7 @@ static inline std::string GetMaskedString(uint16_t val)
     return ss.str();
 }
 
-#define GET_MASKED_STRING(val) \
-    OHOS::UserIAM::Common::GetMaskedString(static_cast<uint16_t>(val))
+#define GET_MASKED_STRING(val) OHOS::UserIAM::Common::GetMaskedString(static_cast<uint16_t>(val))
 
 static inline std::string GetPointerNullStateString(void *p)
 {

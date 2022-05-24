@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,37 +13,20 @@
  * limitations under the License.
  */
 
-#ifndef EXECUTOR_DRIVER_H
-#define EXECUTOR_DRIVER_H
+#ifndef IAM_FUZZ_TEST_H
+#define IAM_FUZZ_TEST_H
 
-#include <string>
 #include <vector>
 
-#include "nocopyable.h"
-
-#include "executor.h"
-#include "idriver_manager.h"
+#include "parcel.h"
 
 namespace OHOS {
 namespace UserIAM {
-namespace UserAuth {
-class Driver : public NoCopyable {
-public:
-    Driver(const std::string &serviceName, HdiConfig hdiConfig);
-    ~Driver() override = default;
-
-    void OnHdiConnect();
-    void OnHdiDisconnect();
-    void OnFrameworkReady();
-
-private:
-    std::recursive_mutex mutex_;
-    std::string serviceName_;
-    HdiConfig hdiConfig_;
-    std::vector<std::shared_ptr<Executor>> executorList_;
-};
-} // namespace UserAuth
+namespace Common {
+void FillFuzzUint8Vector(Parcel &parcel, std::vector<uint8_t> &data);
+void FillFuzzUint64Vector(Parcel &parcel, std::vector<uint64_t> &data);
+} // namespace Common
 } // namespace UserIAM
 } // namespace OHOS
 
-#endif // EXECUTOR_DRIVER_H
+#endif // IAM_FUZZ_TEST_H

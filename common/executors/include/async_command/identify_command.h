@@ -25,7 +25,7 @@ class IdentifyCommand : public AsyncCommandBase {
 public:
     IdentifyCommand(std::shared_ptr<Executor> executor, uint64_t scheduleId,
         std::shared_ptr<AuthResPool::AuthAttributes> commandAttrs);
-    virtual ~IdentifyCommand() = default;
+    ~IdentifyCommand() override = default;
 
     void OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo) override;
 
