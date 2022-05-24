@@ -29,7 +29,8 @@ public:
         : IRemoteProxy<IExecutorCallback>(impl) {}
     ~ExecutorCallbackProxy() override = default;
 
-    void OnMessengerReady(const sptr<IExecutorMessenger> &messenger) override;
+    void OnMessengerReady(const sptr<IExecutorMessenger> &messenger,
+        std::vector<uint8_t> &frameworkPublicKey, std::vector<uint64_t> &templateIds) override;
     int32_t OnBeginExecute(uint64_t scheduleId, std::vector<uint8_t> &publicKey,
         std::shared_ptr<AuthAttributes> commandAttrs) override;
     int32_t OnEndExecute(uint64_t scheduleId, std::shared_ptr<AuthAttributes> consumerAttr) override;

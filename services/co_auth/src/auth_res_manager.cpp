@@ -91,7 +91,7 @@ uint64_t AuthResManager::Register(std::shared_ptr<ResAuthExecutor> executorInfo,
         COAUTH_HILOGE(MODULE_SERVICE, "messenger is nullptr");
         return INVALID_EXECUTOR_ID;
     }
-    callback->OnMessengerReady(messenger);
+    callback->OnMessengerReady(messenger, frameworksPublicKey, templateIds);
     COAUTH_HILOGD(MODULE_SERVICE, "register is successfull, exeID is 0xXXXX%{public}04" PRIx64, MASK & executorId);
     return executorId;
 }
