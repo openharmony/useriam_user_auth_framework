@@ -76,7 +76,9 @@ enum AuthType {
     /* Authentication type pin */
     PIN = 1,
     /* Authentication type face */
-    FACE = 2
+    FACE = 2,
+    /* Authentication type fingerprint */
+    FINGERPRINT = 3
 };
 
 /* Safety level of actuator */
