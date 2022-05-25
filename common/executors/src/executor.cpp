@@ -31,13 +31,17 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-const int32_t INVALID_EXECUTOR_ID = -1;
-
 Executor::Executor(std::shared_ptr<IAuthExecutorHdi> executorHdi, uint16_t hdiId)
     : executorHdi_(executorHdi),
       hdiId_(hdiId)
 {
-    SetStr(INVALID_EXECUTOR_ID);
+    auto hdi = executorHdi_;
+    IF_FALSE_LOGE_AND_RETURN(hdi != nullptr);
+    ExecutorInfo executorInfo = {};
+    IF_FALSE_LOGE_AND_RETURN(hdi->GetExecutorInfo(executorInfo) == ResultCode::SUCCESS);
+    std::ostringstream ss;
+    ss << "Executor(hdiId:" << hdiId_ << ", executorId:" << executorInfo.executorId << ")";
+    description_ = ss.str();
 }
 
 void Executor::OnHdiConnect()
@@ -67,7 +71,6 @@ void Executor::OnFrameworkReady()
         IAM_LOGE("Get executor info failed");
         return;
     }
-    SetStr(executorInfo.executorId);
     RegisterExecutorCallback(executorInfo);
 }
 
@@ -135,20 +138,7 @@ std::shared_ptr<IAuthExecutorHdi> Executor::GetExecutorHdi()
 
 const char *Executor::GetDescription()
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    return str_.c_str();
-}
-
-void Executor::SetStr(const int32_t executorId)
-{
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    std::ostringstream ss;
-    if (executorId == INVALID_EXECUTOR_ID) {
-        ss << "Executor(hdiId:" << hdiId_ << ", executorId: not set)";
-    } else {
-        ss << "Executor(hdiId:" << hdiId_ << ", executorId:" << executorId << ")";
-    }
-    str_ = ss.str();
+    return description_.c_str();
 }
 } // namespace UserAuth
 } // namespace UserIAM

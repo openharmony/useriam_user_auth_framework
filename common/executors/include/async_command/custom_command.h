@@ -26,7 +26,7 @@ namespace UserAuth {
 class CustomCommand : public AsyncCommandBase {
 public:
     CustomCommand(std::shared_ptr<Executor> executor, std::shared_ptr<AuthResPool::AuthAttributes> attributes);
-    virtual ~CustomCommand() = default;
+    ~CustomCommand() override = default;
 
     void OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo) override;
 

@@ -32,12 +32,12 @@ class SystemAbilityStatusListener : public OHOS::SystemAbilityStatusChangeStub, 
 public:
     static sptr<SystemAbilityStatusListener> GetInstance();
 
-    virtual void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
-    virtual void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+    void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
 
 private:
     SystemAbilityStatusListener() = default;
-    virtual ~SystemAbilityStatusListener() = default;
+    ~SystemAbilityStatusListener() override = default;
 
     static sptr<SystemAbilityStatusListener> instance_;
     static std::mutex mutex_;
