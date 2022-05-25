@@ -33,32 +33,34 @@ enum ScheduleMode {
     SCHEDULE_MODE_ENROLL = 0,
     SCHEDULE_MODE_AUTH = 1,
 };
-using pAuthAttributes = std::shared_ptr<AuthResPool::AuthAttributes>;
+
 class FrameworkExecutorCallback : public AuthResPool::ExecutorCallback, public NoCopyable {
 public:
     explicit FrameworkExecutorCallback(std::shared_ptr<Executor> executor);
-    virtual ~FrameworkExecutorCallback() = default;
+    ~FrameworkExecutorCallback() override = default;
 
-    int32_t OnBeginExecute(uint64_t scheduleId, std::vector<uint8_t> &publicKey, pAuthAttributes commandAttrs) override;
-    int32_t OnEndExecute(uint64_t scheduleId, pAuthAttributes consumerAttr) override;
-    int32_t OnSetProperty(pAuthAttributes properties) override;
+    int32_t OnBeginExecute(uint64_t scheduleId, std::vector<uint8_t> &publicKey,
+        std::shared_ptr<AuthResPool::AuthAttributes> commandAttrs) override;
+    int32_t OnEndExecute(uint64_t scheduleId, std::shared_ptr<AuthResPool::AuthAttributes> consumerAttr) override;
+    int32_t OnSetProperty(std::shared_ptr<AuthResPool::AuthAttributes> properties) override;
     void OnMessengerReady(const sptr<AuthResPool::IExecutorMessenger> &messenger, std::vector<uint8_t> &publicKey,
         std::vector<uint64_t> &templateIds) override;
     int32_t OnGetProperty(std::shared_ptr<AuthResPool::AuthAttributes> conditions,
         std::shared_ptr<AuthResPool::AuthAttributes> values) override;
 
 private:
-    ResultCode OnBeginExecuteInner(uint64_t scheduleId, std::vector<uint8_t> &publicKey, pAuthAttributes commandAttrs);
-    ResultCode OnEndExecuteInner(uint64_t scheduleId, pAuthAttributes consumerAttr);
-    ResultCode OnSetPropertyInner(pAuthAttributes properties);
+    ResultCode OnBeginExecuteInner(uint64_t scheduleId, std::vector<uint8_t> &publicKey,
+        std::shared_ptr<AuthResPool::AuthAttributes> commandAttrs);
+    ResultCode OnEndExecuteInner(uint64_t scheduleId, std::shared_ptr<AuthResPool::AuthAttributes> consumerAttr);
+    ResultCode OnSetPropertyInner(std::shared_ptr<AuthResPool::AuthAttributes> properties);
     ResultCode OnGetPropertyInner(
         std::shared_ptr<AuthResPool::AuthAttributes> conditions, std::shared_ptr<AuthResPool::AuthAttributes> values);
-    ResultCode ProcessEnrollCommand(uint64_t scheduleId, pAuthAttributes properties);
-    ResultCode ProcessAuthCommand(uint64_t scheduleId, pAuthAttributes properties);
-    ResultCode ProcessIdentifyCommand(uint64_t scheduleId, pAuthAttributes properties);
+    ResultCode ProcessEnrollCommand(uint64_t scheduleId, std::shared_ptr<AuthResPool::AuthAttributes> properties);
+    ResultCode ProcessAuthCommand(uint64_t scheduleId, std::shared_ptr<AuthResPool::AuthAttributes> properties);
+    ResultCode ProcessIdentifyCommand(uint64_t scheduleId, std::shared_ptr<AuthResPool::AuthAttributes> properties);
     ResultCode ProcessCancelCommand(uint64_t scheduleId);
-    ResultCode ProcessDeleteTemplateCommand(pAuthAttributes properties);
-    ResultCode ProcessCustomCommand(pAuthAttributes properties);
+    ResultCode ProcessDeleteTemplateCommand(std::shared_ptr<AuthResPool::AuthAttributes> properties);
+    ResultCode ProcessCustomCommand(std::shared_ptr<AuthResPool::AuthAttributes> properties);
     ResultCode ProcessGetTemplateCommand(
         std::shared_ptr<AuthResPool::AuthAttributes> conditions, std::shared_ptr<AuthResPool::AuthAttributes> values);
 

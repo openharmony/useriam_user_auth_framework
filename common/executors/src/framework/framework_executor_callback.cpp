@@ -14,6 +14,7 @@
  */
 
 #include "framework_executor_callback.h"
+
 #include "auth_command.h"
 #include "custom_command.h"
 #include "enroll_command.h"
@@ -111,6 +112,7 @@ int32_t FrameworkExecutorCallback::OnSetProperty(std::shared_ptr<AuthResPool::Au
 {
     return OnSetPropertyInner(properties);
 }
+
 ResultCode FrameworkExecutorCallback::OnSetPropertyInner(std::shared_ptr<AuthResPool::AuthAttributes> properties)
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(properties != nullptr, ResultCode::GENERAL_ERROR);
@@ -133,6 +135,7 @@ int32_t FrameworkExecutorCallback::OnGetProperty(
 {
     return OnGetPropertyInner(conditions, values);
 }
+
 ResultCode FrameworkExecutorCallback::OnGetPropertyInner(
     std::shared_ptr<AuthResPool::AuthAttributes> conditions, std::shared_ptr<AuthResPool::AuthAttributes> values)
 {

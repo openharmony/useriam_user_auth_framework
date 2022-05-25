@@ -64,3 +64,22 @@ ohos_source_set("iam_utils") {
 
   part_name = "user_auth"
 }
+
+config("iam_test_config") {
+  include_dirs = [ "test" ]
+}
+
+ohos_source_set("iam_test") {
+  testonly = true
+  include_dirs = [ "//base/user_iam/user_auth/common/logs" ]
+
+  external_deps = [
+    "hilog_native:libhilog",
+    "utils_base:utils",
+  ]
+
+  public_configs = [ ":iam_test_config" ]
+
+  sources = [ "test/iam_fuzz_test.cpp" ]
+  part_name = "user_auth"
+}

@@ -36,7 +36,7 @@ AsyncCommandBase::AsyncCommandBase(std::string type, uint64_t scheduleId, std::s
 {
     std::ostringstream ss;
     ss << "Command(type:" << type << ", id:" << commandId_ << ", scheduleId:" << GET_MASKED_STRING(scheduleId_) << ")";
-    str_ = ss.str();
+    description_ = ss.str();
 }
 
 void AsyncCommandBase::OnHdiDisconnect()
@@ -82,7 +82,7 @@ void AsyncCommandBase::EndProcess()
 
 const char *AsyncCommandBase::GetDescription()
 {
-    return str_.c_str();
+    return description_.c_str();
 }
 
 uint32_t AsyncCommandBase::GenerateCommandId()

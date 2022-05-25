@@ -34,7 +34,7 @@ namespace UserAuth {
 class Executor : public std::enable_shared_from_this<Executor>, public NoCopyable {
 public:
     Executor(std::shared_ptr<IAuthExecutorHdi> executorHdi, uint16_t hdiId);
-    virtual ~Executor() = default;
+    ~Executor() override = default;
 
     void OnHdiConnect();
     void OnHdiDisconnect();
@@ -49,12 +49,11 @@ public:
 private:
     void RegisterExecutorCallback(ExecutorInfo &executorInfo);
     void RespondCallbackOnDisconnect();
-    void SetStr(const int32_t executorId);
     sptr<AuthResPool::IExecutorMessenger> executorMessenger_;
     std::recursive_mutex mutex_;
     std::set<std::shared_ptr<IAsyncCommand>> command2Respond_;
     std::shared_ptr<IAuthExecutorHdi> executorHdi_;
-    std::string str_;
+    std::string description_;
     uint16_t hdiId_;
 };
 } // namespace UserAuth
