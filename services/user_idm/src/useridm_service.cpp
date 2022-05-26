@@ -115,6 +115,11 @@ void UserIDMService::CloseSession()
 int32_t UserIDMService::GetAuthInfo(AuthType authType, const sptr<IGetInfoCallback>& callback)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "service GetAuthInfo start");
+    if (callback == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "callback is nullptr");
+        return INVALID_PARAMETERS;
+    }
+
     if (!CheckPermission(USE_USER_IDM_PERMISSION)) {
         USERIDM_HILOGE(MODULE_SERVICE, "check permission failed");
         return CHECK_PERMISSION_FAILED;
@@ -137,6 +142,10 @@ int32_t UserIDMService::GetAuthInfo(AuthType authType, const sptr<IGetInfoCallba
 int32_t UserIDMService::GetAuthInfo(int32_t userId, AuthType authType, const sptr<IGetInfoCallback>& callback)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "service GetAuthInfoById start");
+    if (callback == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "callback is nullptr");
+        return INVALID_PARAMETERS;
+    }
 
     std::vector<CredentialInfo> credInfos;
     int32_t ret = UserIDMController::GetInstance().GetAuthInfoCtrl(userId, authType, credInfos);
@@ -149,6 +158,11 @@ int32_t UserIDMService::GetAuthInfo(int32_t userId, AuthType authType, const spt
 int32_t UserIDMService::GetSecInfo(int32_t userId, const sptr<IGetSecInfoCallback>& callback)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "service GetSecInfo start");
+    if (callback == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "callback is nullptr");
+        return INVALID_PARAMETERS;
+    }
+
     SecInfo secInfos = {};
     int32_t ret = UserIDMController::GetInstance().GetSecureInfoCtrl(userId,
         secInfos.secureUid, secInfos.enrolledInfo);
@@ -167,6 +181,11 @@ int32_t UserIDMService::GetSecInfo(int32_t userId, const sptr<IGetSecInfoCallbac
 void UserIDMService::AddCredential(AddCredInfo& credInfo, const sptr<IIDMCallback>& callback)
 {
     USERIDM_HILOGI(MODULE_SERVICE, "service AddCredential start");
+    if (callback == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "callback is nullptr");
+        return;
+    }
+
     if (!CheckPermission(MANAGE_USER_IDM_PERMISSION)) {
         USERIDM_HILOGE(MODULE_SERVICE, "check permission failed");
         RequestResult reqRet;
@@ -189,6 +208,11 @@ void UserIDMService::AddCredential(AddCredInfo& credInfo, const sptr<IIDMCallbac
 void UserIDMService::UpdateCredential(AddCredInfo& credInfo, const sptr<IIDMCallback>& innerkitsCallback)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "service UpdateCredential start");
+    if (innerkitsCallback == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "innerkitsCallback is nullptr");
+        return;
+    }
+
     if (!CheckPermission(MANAGE_USER_IDM_PERMISSION)) {
         USERIDM_HILOGE(MODULE_SERVICE, "check permission failed");
         RequestResult reqRet;
@@ -224,6 +248,10 @@ int32_t UserIDMService::Cancel(uint64_t challenge)
 int32_t UserIDMService::EnforceDelUser(int32_t userId, const sptr<IIDMCallback>& callback)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "service EnforceDelUser start");
+    if (callback == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "callback is nullptr");
+        return INVALID_PARAMETERS;
+    }
 
     std::vector<CredentialInfo> credInfos;
     int32_t ret = UserIDMController::GetInstance().DeleteUserByForceCtrl(userId, credInfos);
@@ -242,6 +270,11 @@ int32_t UserIDMService::EnforceDelUser(int32_t userId, const sptr<IIDMCallback>&
 void UserIDMService::DelUser(std::vector<uint8_t> authToken, const sptr<IIDMCallback>& callback)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "service DelUser start");
+    if (callback == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "callback is nullptr");
+        return;
+    }
+
     if (!CheckPermission(MANAGE_USER_IDM_PERMISSION)) {
         USERIDM_HILOGE(MODULE_SERVICE, "check permission failed");
         RequestResult reqRet;
@@ -274,6 +307,11 @@ void UserIDMService::DelCred(uint64_t credentialId, std::vector<uint8_t> authTok
     const sptr<IIDMCallback>& innerkitsCallback)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "service DelCred start");
+    if (innerkitsCallback == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "innerkitsCallback is nullptr");
+        return;
+    }
+
     if (!CheckPermission(MANAGE_USER_IDM_PERMISSION)) {
         USERIDM_HILOGE(MODULE_SERVICE, "check permission failed");
         RequestResult reqRet;

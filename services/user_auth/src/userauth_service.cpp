@@ -250,6 +250,11 @@ uint64_t UserAuthService::Auth(const uint64_t challenge, const AuthType authType
     CoAuthInfo coAuthInfo;
     AuthResult extraInfo;
 
+    if (callback == nullptr) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "callback is nullptr");
+        return invalidContextId;
+    }
+
     sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
     if ((!callback->AsObject()->AddDeathRecipient(dr))) {
         USERAUTH_HILOGE(MODULE_SERVICE, "Failed to add death recipient UserAuthServiceCallbackDeathRecipient");
@@ -304,6 +309,11 @@ uint64_t UserAuthService::AuthUser(const int32_t userId, const uint64_t challeng
     AuthSolution authSolutionParam;
     CoAuthInfo coAuthInfo;
     AuthResult extraInfo = {};
+
+    if (callback == nullptr) {
+        USERAUTH_HILOGE(MODULE_SERVICE, "callback is nullptr");
+        return invalidContextId;
+    }
 
     sptr<IRemoteObject::DeathRecipient> dr = new UserAuthServiceCallbackDeathRecipient(callback);
     if ((!callback->AsObject()->AddDeathRecipient(dr))) {
