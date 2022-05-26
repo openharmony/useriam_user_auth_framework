@@ -17,6 +17,7 @@
 #define IAM_FUZZ_TEST_H
 
 #include <vector>
+#include <string>
 
 #include "parcel.h"
 
@@ -24,7 +25,9 @@ namespace OHOS {
 namespace UserIAM {
 namespace Common {
 void FillFuzzUint8Vector(Parcel &parcel, std::vector<uint8_t> &data);
+void FillFuzzInt8Vector(Parcel &parcel, std::vector<int8_t> &data);
 void FillFuzzUint64Vector(Parcel &parcel, std::vector<uint64_t> &data);
+void FillFuzzString(Parcel &parcel, std::string &str);
 } // namespace Common
 } // namespace UserIAM
 } // namespace OHOS
