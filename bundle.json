@@ -119,7 +119,8 @@
         ],
         "test": [
             "//base/user_iam/user_auth/test/user_idm:user_idm_unittest",
-            "//base/user_iam/user_auth/test/user_auth:user_auth_unittest"
+            "//base/user_iam/user_auth/test/user_auth:user_auth_unittest",
+            "//base/user_iam/user_auth/test/user_auth/fuzztest/user_auth_service_fuzzer:UserAuthServiceFuzzTest"
         ]
       }
     }

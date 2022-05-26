@@ -25,33 +25,71 @@ namespace UserIAM {
 namespace Common {
 namespace {
 constexpr int32_t MAX_DATA_LEN = 200;
-}
-
-void FillFuzzUint8Vector(Parcel &parcel, std::vector<uint8_t> &data)
+void FillFuzzBuffer(Parcel &parcel, void *p, uint32_t len)
 {
-    uint32_t len = parcel.ReadUint32() % MAX_DATA_LEN;
+    if (len == 0) {
+        return;
+    }
+
     auto buffer = parcel.ReadBuffer(len);
     if (buffer == nullptr) {
         IAM_LOGE("ReadBuffer len %{public}u fail", len);
         return;
     }
+
+    if (memcpy_s(p, len, buffer, len) != EOK) {
+        IAM_LOGE("memcpy_s fail");
+        return;
+    }
+
+    return;
+}
+} // namespace
+
+void FillFuzzUint8Vector(Parcel &parcel, std::vector<uint8_t> &data)
+{
+    uint32_t len = parcel.ReadUint32() % MAX_DATA_LEN;
+    uint32_t memLen = len * sizeof(uint8_t);
     data.resize(len);
-    memcpy_s(static_cast<void *>(&data[0]), len, buffer, len);
-    IAM_LOGI("fill buffer len %{public}u ok", len);
+    FillFuzzBuffer(parcel, static_cast<void *>(&data[0]), memLen);
+    IAM_LOGI("fill vector len %{public}u ok", len);
+}
+
+void FillFuzzInt8Vector(Parcel &parcel, std::vector<int8_t> &data)
+{
+    uint32_t len = parcel.ReadUint32() % MAX_DATA_LEN;
+    uint32_t memLen = len * sizeof(int8_t);
+    data.resize(len);
+    FillFuzzBuffer(parcel, static_cast<void *>(&data[0]), memLen);
+    IAM_LOGI("fill vector len %{public}u ok", len);
+}
+
+void FillFuzzUint32Vector(Parcel &parcel, std::vector<uint32_t> &data)
+{
+    uint32_t len = parcel.ReadUint32() % MAX_DATA_LEN;
+    uint32_t memLen = len * sizeof(uint32_t);
+    data.resize(len);
+    FillFuzzBuffer(parcel, static_cast<void *>(&data[0]), memLen);
+    IAM_LOGI("fill vector len %{public}u ok", len);
 }
 
 void FillFuzzUint64Vector(Parcel &parcel, std::vector<uint64_t> &data)
 {
     uint32_t len = parcel.ReadUint32() % MAX_DATA_LEN;
     uint32_t memLen = len * sizeof(uint64_t);
-    auto buffer = parcel.ReadBuffer(memLen);
-    if (buffer == nullptr) {
-        IAM_LOGE("ReadBuffer len %{public}u fail", memLen);
-        return;
-    }
     data.resize(len);
-    memcpy_s(static_cast<void *>(&data[0]), memLen, buffer, memLen);
-    IAM_LOGI("fill buffer len %{public}u ok", len);
+    FillFuzzBuffer(parcel, static_cast<void *>(&data[0]), memLen);
+    IAM_LOGI("fill vector len %{public}u ok", len);
+}
+
+void FillFuzzString(Parcel &parcel, std::string &str)
+{
+    uint32_t len = parcel.ReadUint32() % MAX_DATA_LEN + 1;
+    uint32_t memLen = len * sizeof(char);
+    std::vector<char> data(len, 0);
+    FillFuzzBuffer(parcel, static_cast<void *>(&data[0]), memLen - 1);
+    str = std::string(&data[0]);
+    IAM_LOGI("fill string len %{public}u ok", len - 1);
 }
 } // namespace Common
 } // namespace UserIAM
