@@ -101,6 +101,21 @@ uint64_t UserIDMService::OpenSession()
     return challenge;
 }
 
+uint64_t UserIDMService::OpenSession(const int32_t userId)
+{
+    USERIDM_HILOGD(MODULE_SERVICE, "service OpenSession start");
+    if (!CheckPermission(MANAGE_USER_IDM_PERMISSION)) {
+        USERIDM_HILOGE(MODULE_SERVICE, "check permission failed");
+        return 0;
+    }
+
+    uint64_t challenge = 0;
+
+    UserIDMController::GetInstance().OpenEditSessionCtrl(userId, challenge);
+
+    return challenge;
+}
+
 void UserIDMService::CloseSession()
 {
     USERIDM_HILOGD(MODULE_SERVICE, "service CloseSession start");
@@ -110,6 +125,17 @@ void UserIDMService::CloseSession()
     }
 
     UserIDMController::GetInstance().CloseEditSessionCtrl();
+}
+
+void UserIDMService::CloseSession(const int32_t userId)
+{
+    USERIDM_HILOGD(MODULE_SERVICE, "service CloseSession start");
+    if (!CheckPermission(MANAGE_USER_IDM_PERMISSION)) {
+        USERIDM_HILOGE(MODULE_SERVICE, "check permission failed");
+        return;
+    }
+
+    UserIDMController::GetInstance().CloseEditSessionCtrl(userId);
 }
 
 int32_t UserIDMService::GetAuthInfo(AuthType authType, const sptr<IGetInfoCallback>& callback)
@@ -139,7 +165,8 @@ int32_t UserIDMService::GetAuthInfo(AuthType authType, const sptr<IGetInfoCallba
     return ret;
 }
 
-int32_t UserIDMService::GetAuthInfo(int32_t userId, AuthType authType, const sptr<IGetInfoCallback>& callback)
+int32_t UserIDMService::GetAuthInfo(const int32_t userId, const AuthType authType,
+    const sptr<IGetInfoCallback>& callback)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "service GetAuthInfoById start");
     if (callback == nullptr) {
@@ -155,7 +182,7 @@ int32_t UserIDMService::GetAuthInfo(int32_t userId, AuthType authType, const spt
     return ret;
 }
 
-int32_t UserIDMService::GetSecInfo(int32_t userId, const sptr<IGetSecInfoCallback>& callback)
+int32_t UserIDMService::GetSecInfo(const int32_t userId, const sptr<IGetSecInfoCallback>& callback)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "service GetSecInfo start");
     if (callback == nullptr) {
@@ -205,6 +232,30 @@ void UserIDMService::AddCredential(AddCredInfo& credInfo, const sptr<IIDMCallbac
     UserIDMController::GetInstance().AddCredentialCtrl(userId, callerId, credInfo, callback);
 }
 
+void UserIDMService::AddCredential(const int32_t userId, const AddCredInfo& credInfo,
+    const sptr<IIDMCallback>& innerkitsCallback)
+{
+    USERIDM_HILOGI(MODULE_SERVICE, "service AddCredential start");
+    if (innerkitsCallback == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "innerkitsCallback is nullptr");
+        return;
+    }
+	
+    if (!CheckPermission(MANAGE_USER_IDM_PERMISSION)) {
+        USERIDM_HILOGE(MODULE_SERVICE, "check permission failed");
+        RequestResult reqRet;
+        innerkitsCallback->OnResult(CHECK_PERMISSION_FAILED, reqRet);
+        return;
+    }
+    uint64_t callerId = static_cast<uint64_t>(this->GetCallingUid());
+    AddCredInfo info = {};
+    info.authType = static_cast<AuthType>(credInfo.authType);
+    info.authSubType = static_cast<AuthSubType>(credInfo.authSubType);
+    info.token = credInfo.token;
+
+    UserIDMController::GetInstance().AddCredentialCtrl(userId, callerId, info, innerkitsCallback);
+}
+
 void UserIDMService::UpdateCredential(AddCredInfo& credInfo, const sptr<IIDMCallback>& innerkitsCallback)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "service UpdateCredential start");
@@ -232,6 +283,31 @@ void UserIDMService::UpdateCredential(AddCredInfo& credInfo, const sptr<IIDMCall
     UserIDMController::GetInstance().UpdateCredentialCtrl(userId, callerId, callerName, credInfo, innerkitsCallback);
 }
 
+void UserIDMService::UpdateCredential(const int32_t userId, const AddCredInfo& credInfo,
+    const sptr<IIDMCallback>& innerkitsCallback)
+{
+    USERIDM_HILOGD(MODULE_SERVICE, "service UpdateCredential start");
+	if (innerkitsCallback == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "innerkitsCallback is nullptr");
+        return;
+    }
+	
+    if (!CheckPermission(MANAGE_USER_IDM_PERMISSION)) {
+        USERIDM_HILOGE(MODULE_SERVICE, "check permission failed");
+        RequestResult reqRet;
+        innerkitsCallback->OnResult(CHECK_PERMISSION_FAILED, reqRet);
+        return;
+    }
+    uint64_t callerId = static_cast<uint64_t>(this->GetCallingUid());
+    std::string callerName = std::to_string(callerId);
+    AddCredInfo info = {};
+    info.authType = static_cast<AuthType>(credInfo.authType);
+    info.authSubType = static_cast<AuthSubType>(credInfo.authSubType);
+    info.token = credInfo.token;
+
+    UserIDMController::GetInstance().UpdateCredentialCtrl(userId, callerId, callerName, info, innerkitsCallback);
+}
+
 int32_t UserIDMService::Cancel(uint64_t challenge)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "service Cancel start");
@@ -245,7 +321,20 @@ int32_t UserIDMService::Cancel(uint64_t challenge)
     return ret;
 }
 
-int32_t UserIDMService::EnforceDelUser(int32_t userId, const sptr<IIDMCallback>& callback)
+int32_t UserIDMService::Cancel(const int32_t userId)
+{
+    USERIDM_HILOGD(MODULE_SERVICE, "service Cancel start");
+    if (!CheckPermission(MANAGE_USER_IDM_PERMISSION)) {
+        USERIDM_HILOGE(MODULE_SERVICE, "check permission failed");
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    int32_t ret = UserIDMController::GetInstance().DelSchedleIdCtrl(userId);
+
+    return ret;
+}
+
+int32_t UserIDMService::EnforceDelUser(const int32_t userId, const sptr<IIDMCallback>& callback)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "service EnforceDelUser start");
     if (callback == nullptr) {
@@ -303,6 +392,34 @@ void UserIDMService::DelUser(std::vector<uint8_t> authToken, const sptr<IIDMCall
     }
 }
 
+void UserIDMService::DelUser(const int32_t userId, std::vector<uint8_t> authToken, const sptr<IIDMCallback>& callback)
+{
+    USERIDM_HILOGD(MODULE_SERVICE, "service DelUser start");
+    if (callback == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "callback is nullptr");
+        return;
+    }
+
+    if (!CheckPermission(MANAGE_USER_IDM_PERMISSION)) {
+        USERIDM_HILOGE(MODULE_SERVICE, "check permission failed");
+        RequestResult reqRet;
+        callback->OnResult(CHECK_PERMISSION_FAILED, reqRet);
+        return;
+    }
+
+    std::vector<CredentialInfo> credInfos;
+
+    int32_t ret = UserIDMController::GetInstance().DeleteUserCtrl(userId, authToken, credInfos);
+    if (ret == SUCCESS) {
+        USERIDM_HILOGE(MODULE_SERVICE, "DeleteUserCtrl success");
+        UserIDMController::GetInstance().DelExecutorPinInfoCtrl(callback, credInfos);
+    } else {
+        USERIDM_HILOGE(MODULE_SERVICE, "DeleteUserCtrl failed");
+        RequestResult reqRet;
+        callback->OnResult(ret, reqRet);
+    }
+}
+
 void UserIDMService::DelCred(uint64_t credentialId, std::vector<uint8_t> authToken,
     const sptr<IIDMCallback>& innerkitsCallback)
 {
@@ -328,6 +445,37 @@ void UserIDMService::DelCred(uint64_t credentialId, std::vector<uint8_t> authTok
     }
     CredentialInfo credentialInfo;
     ret = UserIDMController::GetInstance().DeleteCredentialCtrl(userId, credentialId, authToken, credentialInfo);
+    if (ret == SUCCESS) {
+        USERIDM_HILOGI(MODULE_SERVICE, "DeleteCredentialCtrl success");
+
+        UserIDMController::GetInstance().DelFaceCredentialCtrl(credentialInfo.authType, credentialInfo.authSubType,
+            credentialInfo.credentialId, credentialInfo.templateId, innerkitsCallback);
+    } else {
+        USERIDM_HILOGE(MODULE_SERVICE, "DeleteCredentialCtrl failed");
+        RequestResult reqRet;
+        innerkitsCallback->OnResult(ret, reqRet);
+    }
+}
+
+void UserIDMService::DelCredential(const int32_t userId, uint64_t credentialId, std::vector<uint8_t> authToken,
+    const sptr<IIDMCallback>& innerkitsCallback)
+{
+    USERIDM_HILOGD(MODULE_SERVICE, "service DelCred start");
+    if (innerkitsCallback == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "innerkitsCallback is nullptr");
+        return;
+    }
+
+    if (!CheckPermission(MANAGE_USER_IDM_PERMISSION)) {
+        USERIDM_HILOGE(MODULE_SERVICE, "check permission failed");
+        RequestResult reqRet;
+        innerkitsCallback->OnResult(CHECK_PERMISSION_FAILED, reqRet);
+        return;
+    }
+
+    CredentialInfo credentialInfo;
+    int32_t ret = UserIDMController::GetInstance().DeleteCredentialCtrl(userId, credentialId, authToken,
+        credentialInfo);
     if (ret == SUCCESS) {
         USERIDM_HILOGI(MODULE_SERVICE, "DeleteCredentialCtrl success");
 

@@ -28,10 +28,12 @@ public:
     static UserIDMAdapter &GetInstance();
     void OpenEditSession(int32_t userId, uint64_t& challenge);
     void CloseEditSession();
+    int32_t CloseEditSession(int32_t userId);
     int32_t QueryCredential(int32_t userId, AuthType authType, std::vector<CredentialInfo>& credInfos);
     int32_t GetSecureUid(int32_t userId, uint64_t& secureUid, std::vector<EnrolledInfo>& enrolledInfos);
     int32_t InitSchedule(std::vector<uint8_t> autoToken, int32_t userId, AuthType authType,
         AuthSubType authSubType, CoAuth::ScheduleInfo& info);
+    int32_t Cancel(int32_t userId);
     int32_t DeleteCredential(int32_t userId, uint64_t credentialId, std::vector<uint8_t>& authToken,
         CredentialInfo& credInfo);
     int32_t DeleteUser(int32_t userId, std::vector<uint8_t>& authToken, std::vector<CredentialInfo>& credInfo);

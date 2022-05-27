@@ -18,29 +18,47 @@
 
 #include <iremote_object.h>
 #include <singleton.h>
+#include "iuser_idm.h"
 #include "user_idm_defines.h"
 #include "user_idm_callback.h"
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-class UserIDM : public DelayedRefSingleton<UserAuth::UserIDM> {
+namespace  UserIdmDomain = OHOS::UserIAM::UserIDM;
+
+class UserIdm : public DelayedRefSingleton<UserAuth::UserIdm> {
 public:
     uint64_t OpenSession(const int32_t userId);
     void CloseSession(const int32_t userId);
 
-    void AddCredential(const int32_t userId, const AddCredInfo& credInfo, const std::shared_ptr<IDMCallback>& callback);
+    void AddCredential(const int32_t userId, const AddCredInfo& credInfo, const std::shared_ptr<IdmCallback>& callback);
     void UpdateCredential(const int32_t userId, const AddCredInfo& credInfo,
-        const std::shared_ptr<IDMCallback>& callback);
+        const std::shared_ptr<IdmCallback>& callback);
     int32_t Cancel(const int32_t userId);
     void DelUser(const int32_t userId, const std::vector<uint8_t> authToken,
-        const std::shared_ptr<IDMCallback>& callback);
+        const std::shared_ptr<IdmCallback>& callback);
     void DelCredential(const int32_t userId, const uint64_t credentialId, const std::vector<uint8_t> authToken,
-        const std::shared_ptr<IDMCallback>& callback);
+        const std::shared_ptr<IdmCallback>& callback);
 
     int32_t GetAuthInfo(const int32_t userId, AuthType authType, const std::shared_ptr<GetInfoCallback>& callback);
     int32_t GetSecInfo(const int32_t userId, const std::shared_ptr<GetSecInfoCallback>& callback);
-    int32_t EnforceDelUser(const int32_t userId, const std::shared_ptr<IDMCallback>& callback);
+    int32_t EnforceDelUser(const int32_t userId, const std::shared_ptr<IdmCallback>& callback);
+
+private:
+    class IdmDeathRecipient : public IRemoteObject::DeathRecipient, public NoCopyable {
+    public:
+        IdmDeathRecipient() = default;
+        ~IdmDeathRecipient() = default;
+        void OnRemoteDied(const wptr<IRemoteObject>& remote) override;
+    };
+
+    void ResetIdmProxy(const wptr<IRemoteObject>& remote);
+    sptr<UserIdmDomain::IUserIDM> GetIdmProxy();
+
+    std::mutex mutex_;
+    sptr<UserIdmDomain::IUserIDM> proxy_ {nullptr};
+    sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
 };
 }  // namespace UserAuth
 }  // namespace UserIAM

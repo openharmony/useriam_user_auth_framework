@@ -35,7 +35,7 @@ public:
     void OnGetSecInfo(SecInfo &info)override;
 };
 
-class IDMCallbackUT : public IDMCallback {
+class IDMCallbackUT : public IdmCallback {
 public:
     virtual ~IDMCallbackUT() = default;
     void OnResult(int32_t result, RequestResult reqRet) override;

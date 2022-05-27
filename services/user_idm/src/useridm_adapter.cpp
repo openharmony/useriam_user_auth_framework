@@ -60,6 +60,19 @@ void UserIDMAdapter::CloseEditSession()
     USERIDM_HILOGD(MODULE_SERVICE, "call hdi info: CloseSession: %{public}d", ret);
 }
 
+int32_t UserIDMAdapter::CloseEditSession(int32_t userId)
+{
+    USERIDM_HILOGD(MODULE_SERVICE, "UserIDMAdapter CloseEditSession start");
+    auto hdiInterface = UserAuthHdi::IUserAuthInterface::Get();
+    if (hdiInterface == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "hdiInterface is nullptr!");
+        return FAIL;
+    }
+    int32_t ret = hdiInterface->CloseSession(userId);
+    USERIDM_HILOGD(MODULE_SERVICE, "call hdi info: CloseSession: %{public}d", ret);
+    return ret;
+}
+
 void UserIDMAdapter::CopyCredentialFromHdi(const UserAuthHdi::CredentialInfo& in, UserIDM::CredentialInfo& out)
 {
     out.authSubType = OHOS::UserIAM::UserIDM::AuthSubType(in.executorType);
@@ -179,6 +192,19 @@ int32_t UserIDMAdapter::InitSchedule(std::vector<uint8_t> autoToken, int32_t use
         USERIDM_HILOGE(MODULE_SERVICE, "CopyScheduleInfo failed");
         return GENERAL_ERROR;
     }
+    return ret;
+}
+
+int32_t UserIDMAdapter::Cancel(int32_t userId)
+{
+    USERIDM_HILOGD(MODULE_SERVICE, "UserIDMAdapter Cancel start");
+    auto hdiInterface = UserAuthHdi::IUserAuthInterface::Get();
+    if (hdiInterface == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "hdiInterface is nullptr!");
+        return GENERAL_ERROR;
+    }
+    int32_t ret = hdiInterface->CancelEnrollment(userId);
+    USERIDM_HILOGD(MODULE_SERVICE, "call hdi info: CancelEnrollment: %{public}d", ret);
     return ret;
 }
 
