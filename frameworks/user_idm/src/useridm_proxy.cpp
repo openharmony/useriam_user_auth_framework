@@ -39,6 +39,25 @@ uint64_t UserIDMProxy::OpenSession()
     return challenge;
 }
 
+uint64_t UserIDMProxy::OpenSession(const int32_t userId)
+{
+    MessageParcel data;
+    MessageParcel reply;
+
+    if (!data.WriteInterfaceToken(UserIDMProxy::GetDescriptor())) {
+        USERIDM_HILOGE(MODULE_CLIENT, "write descriptor failed");
+        return FAIL;
+    }
+
+    uint64_t challenge = 0;
+    bool ret = SendRequest(USERIDM_OPEN_SESSION_BY_ID, data, reply);
+    if (ret) {
+        challenge = reply.ReadUint64();
+        USERIDM_HILOGI(MODULE_CLIENT, "challenge = 0xXXXX%{public}04" PRIx64, MASK & challenge);
+    }
+    return challenge;
+}
+
 void UserIDMProxy::CloseSession()
 {
     MessageParcel data;
@@ -50,6 +69,27 @@ void UserIDMProxy::CloseSession()
     }
 
     bool ret = SendRequest(USERIDM_CLOSE_SESSION, data, reply);
+    if (ret) {
+        USERIDM_HILOGE(MODULE_CLIENT, "ret = %{public}d", ret);
+    }
+}
+
+void UserIDMProxy::CloseSession(const int32_t userId)
+{
+    MessageParcel data;
+    MessageParcel reply;
+
+    if (!data.WriteInterfaceToken(UserIDMProxy::GetDescriptor())) {
+        USERIDM_HILOGE(MODULE_CLIENT, "write descriptor failed");
+        return;
+    }
+
+    if (!data.WriteInt32(userId)) {
+        USERIDM_HILOGE(MODULE_CLIENT, "failed to WriteInt32(userId)");
+        return;
+    }
+
+    bool ret = SendRequest(USERIDM_CLOSE_SESSION_BY_ID, data, reply);
     if (ret) {
         USERIDM_HILOGE(MODULE_CLIENT, "ret = %{public}d", ret);
     }
@@ -84,7 +124,7 @@ int32_t UserIDMProxy::GetAuthInfo(AuthType authType, const sptr<IGetInfoCallback
     return result;
 }
 
-int32_t UserIDMProxy::GetAuthInfo(int32_t userId, AuthType authType, const sptr<IGetInfoCallback>& callback)
+int32_t UserIDMProxy::GetAuthInfo(const int32_t userId, const AuthType authType, const sptr<IGetInfoCallback>& callback)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -118,7 +158,7 @@ int32_t UserIDMProxy::GetAuthInfo(int32_t userId, AuthType authType, const sptr<
     return result;
 }
 
-int32_t UserIDMProxy::GetSecInfo(int32_t userId, const sptr<IGetSecInfoCallback>& callback)
+int32_t UserIDMProxy::GetSecInfo(const int32_t userId, const sptr<IGetSecInfoCallback>& callback)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -180,6 +220,44 @@ void UserIDMProxy::AddCredential(AddCredInfo& credInfo, const sptr<IIDMCallback>
     SendRequest(USERIDM_ADD_CREDENTIAL, data, reply, false);
 }
 
+void UserIDMProxy::AddCredential(const int32_t userId, const AddCredInfo& credInfo, const sptr<IIDMCallback>& callback)
+{
+    MessageParcel data;
+    MessageParcel reply;
+
+    if (!data.WriteInterfaceToken(UserIDMProxy::GetDescriptor())) {
+        USERIDM_HILOGE(MODULE_CLIENT, "write descriptor failed");
+        return;
+    }
+
+    if (!data.WriteInt32(userId)) {
+        USERIDM_HILOGE(MODULE_CLIENT, "failed to WriteInt32(userId)");
+        return;
+    }
+
+    if (!data.WriteUint32(credInfo.authType)) {
+        USERIDM_HILOGE(MODULE_CLIENT, "failed to WriteUint32(credInfo.authType)");
+        return;
+    }
+
+    if (!data.WriteUint64(credInfo.authSubType)) {
+        USERIDM_HILOGE(MODULE_CLIENT, "failed to WriteUint64(credInfo.authSubType)");
+        return;
+    }
+
+    if (!data.WriteUInt8Vector(credInfo.token)) {
+        USERIDM_HILOGE(MODULE_CLIENT, "failed to WriteUInt8Vector(credInfo.token)");
+        return;
+    }
+
+    if (!data.WriteRemoteObject(callback->AsObject())) {
+        USERIDM_HILOGE(MODULE_CLIENT, "failed to WriteRemoteObject(callback)");
+        return;
+    }
+
+    SendRequest(USERIDM_ADD_CREDENTIAL_BY_ID, data, reply, false);
+}
+
 void UserIDMProxy::UpdateCredential(AddCredInfo& credInfo, const sptr<IIDMCallback>& callback)
 {
     MessageParcel data;
@@ -213,6 +291,45 @@ void UserIDMProxy::UpdateCredential(AddCredInfo& credInfo, const sptr<IIDMCallba
     SendRequest(USERIDM_UPDATE_CREDENTIAL, data, reply, false);
 }
 
+void UserIDMProxy::UpdateCredential(const int32_t userId, const AddCredInfo& credInfo,
+    const sptr<IIDMCallback>& callback)
+{
+    MessageParcel data;
+    MessageParcel reply;
+
+    if (!data.WriteInterfaceToken(UserIDMProxy::GetDescriptor())) {
+        USERIDM_HILOGE(MODULE_CLIENT, "write descriptor failed");
+        return;
+    }
+
+    if (!data.WriteInt32(userId)) {
+        USERIDM_HILOGE(MODULE_CLIENT, "failed to WriteInt32(userId)");
+        return;
+    }
+
+    if (!data.WriteUint32(credInfo.authType)) {
+        USERIDM_HILOGE(MODULE_CLIENT, "failed to WriteUint32(credInfo.authType)");
+        return;
+    }
+
+    if (!data.WriteUint64(credInfo.authSubType)) {
+        USERIDM_HILOGE(MODULE_CLIENT, "failed to WriteUint64(credInfo.authSubType)");
+        return;
+    }
+
+    if (!data.WriteUInt8Vector(credInfo.token)) {
+        USERIDM_HILOGE(MODULE_CLIENT, "failed to WriteUInt8Vector(credInfo.token)");
+        return;
+    }
+
+    if (!data.WriteRemoteObject(callback->AsObject())) {
+        USERIDM_HILOGE(MODULE_CLIENT, "failed to WriteRemoteObject(callback)");
+        return;
+    }
+
+    SendRequest(USERIDM_UPDATE_CREDENTIAL_BY_ID, data, reply, false);
+}
+
 int32_t UserIDMProxy::Cancel(uint64_t challenge)
 {
     MessageParcel data;
@@ -237,7 +354,31 @@ int32_t UserIDMProxy::Cancel(uint64_t challenge)
     return result;
 }
 
-int32_t UserIDMProxy::EnforceDelUser(int32_t userId, const sptr<IIDMCallback>& callback)
+int32_t UserIDMProxy::Cancel(const int32_t userId)
+{
+    MessageParcel data;
+    MessageParcel reply;
+
+    if (!data.WriteInterfaceToken(UserIDMProxy::GetDescriptor())) {
+        USERIDM_HILOGE(MODULE_CLIENT, "write descriptor failed");
+        return FAIL;
+    }
+
+    if (!data.WriteInt32(userId)) {
+        USERIDM_HILOGE(MODULE_CLIENT, "failed to WriteInt32(userId)");
+        return FAIL;
+    }
+
+    int32_t result = FAIL;
+    bool ret = SendRequest(USERIDM_CANCEL_BY_ID, data, reply);
+    if (ret) {
+        result = reply.ReadInt32();
+        USERIDM_HILOGI(MODULE_CLIENT, "result = %{public}d", result);
+    }
+    return result;
+}
+
+int32_t UserIDMProxy::EnforceDelUser(const int32_t userId, const sptr<IIDMCallback>& callback)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -289,6 +430,34 @@ void UserIDMProxy::DelUser(std::vector<uint8_t> authToken, const sptr<IIDMCallba
     SendRequest(USERIDM_DELUSER, data, reply, false);
 }
 
+void UserIDMProxy::DelUser(int32_t userId, std::vector<uint8_t> authToken, const sptr<IIDMCallback>& callback)
+{
+    MessageParcel data;
+    MessageParcel reply;
+
+    if (!data.WriteInterfaceToken(UserIDMProxy::GetDescriptor())) {
+        USERIDM_HILOGE(MODULE_CLIENT, "write descriptor failed");
+        return;
+    }
+
+    if (!data.WriteInt32(userId)) {
+        USERIDM_HILOGE(MODULE_CLIENT, "failed to WriteUint32(userId)");
+        return;
+    }
+
+    if (!data.WriteUInt8Vector(authToken)) {
+        USERIDM_HILOGE(MODULE_CLIENT, "failed to WriteUInt8Vector(authToken)");
+        return;
+    }
+
+    if (!data.WriteRemoteObject(callback->AsObject())) {
+        USERIDM_HILOGE(MODULE_CLIENT, "failed to WriteRemoteObject(callback)");
+        return;
+    }
+
+    SendRequest(USERIDM_DELUSER_BY_ID, data, reply, false);
+}
+
 void UserIDMProxy::DelCred(uint64_t credentialId, std::vector<uint8_t> authToken, const sptr<IIDMCallback>& callback)
 {
     MessageParcel data;
@@ -315,6 +484,40 @@ void UserIDMProxy::DelCred(uint64_t credentialId, std::vector<uint8_t> authToken
     }
 
     SendRequest(USERIDM_DELCRED, data, reply, false);
+}
+
+void UserIDMProxy:: DelCredential(const int32_t userId, const uint64_t credentialId,
+    const std::vector<uint8_t> authToken, const sptr<IIDMCallback>& callback)
+{
+    MessageParcel data;
+    MessageParcel reply;
+
+    if (!data.WriteInterfaceToken(UserIDMProxy::GetDescriptor())) {
+        USERIDM_HILOGE(MODULE_CLIENT, "write descriptor failed");
+        return;
+    }
+
+    if (!data.WriteInt32(userId)) {
+        USERIDM_HILOGE(MODULE_CLIENT, "failed to WriteUint32(userId)");
+        return;
+    }
+
+    if (!data.WriteUint64(credentialId)) {
+        USERIDM_HILOGE(MODULE_CLIENT, "failed to WriteUint64(credentialId)");
+        return;
+    }
+
+    if (!data.WriteUInt8Vector(authToken)) {
+        USERIDM_HILOGE(MODULE_CLIENT, "failed to WriteUInt8Vector(authToken)");
+        return;
+    }
+
+    if (!data.WriteRemoteObject(callback->AsObject())) {
+        USERIDM_HILOGE(MODULE_CLIENT, "failed to WriteRemoteObject(callback)");
+        return;
+    }
+
+    SendRequest(USERIDM_DELCREDENTIAL, data, reply, false);
 }
 
 bool UserIDMProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, bool isSync)

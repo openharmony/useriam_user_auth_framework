@@ -20,9 +20,17 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {
+namespace UserAuthDomain = OHOS::UserIAM::UserAuth;
+
 UserIDMGetSecInfoCallbackStub::UserIDMGetSecInfoCallbackStub(const std::shared_ptr<GetSecInfoCallback>& impl)
 {
     callback_ = impl;
+}
+
+UserIDMGetSecInfoCallbackStub::UserIDMGetSecInfoCallbackStub(
+    const std::shared_ptr<UserAuthDomain::GetSecInfoCallback>& impl)
+{
+    idmCallback_ = impl;
 }
 
 int32_t UserIDMGetSecInfoCallbackStub::OnRemoteRequest(uint32_t code,
@@ -67,11 +75,26 @@ void UserIDMGetSecInfoCallbackStub::OnGetSecInfo(SecInfo &info)
 {
     USERIDM_HILOGI(MODULE_CLIENT, "UserIDMGetSecInfoCallbackStub OnGetSecInfo start");
 
-    if (callback_ == nullptr) {
-        USERIDM_HILOGE(MODULE_CLIENT, "UserIDMGetSecInfoCallbackStub callback_ is nullptr");
+    if (callback_ != nullptr) {
+        callback_->OnGetSecInfo(info);
+        return;
+    } else if (idmCallback_ != nullptr) {
+        UserAuthDomain::SecInfo secInfo = {};
+        secInfo.secureUid = info.secureUid;
+        secInfo.enrolledInfoLen = info.enrolledInfoLen;
+        std::vector<UserAuthDomain::EnrolledInfo> enrolledInfos = {};
+        for (auto &enrolledInfo : info.enrolledInfo) {
+            UserAuthDomain::EnrolledInfo secEnrolledInfo = {};
+            secEnrolledInfo.authType = static_cast<UserAuthDomain::AuthType>(enrolledInfo.authType);
+            secEnrolledInfo.enrolledId = enrolledInfo.enrolledId;
+            enrolledInfos.push_back(secEnrolledInfo);
+        }
+        secInfo.enrolledInfo = enrolledInfos;
+        idmCallback_->OnGetSecInfo(secInfo);
         return;
     } else {
-        callback_->OnGetSecInfo(info);
+        USERIDM_HILOGE(MODULE_CLIENT, "callback_ is nullptr");
+        USERIDM_HILOGE(MODULE_CLIENT, "idmCallback_ is nullptr");
     }
 }
 }  // namespace UserIDM

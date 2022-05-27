@@ -20,9 +20,16 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {
+namespace UserAuthDomain = OHOS::UserIAM::UserAuth;
+
 UserIDMGetInfoCallbackStub::UserIDMGetInfoCallbackStub(const std::shared_ptr<GetInfoCallback>& impl)
 {
     callback_ = impl;
+}
+
+UserIDMGetInfoCallbackStub::UserIDMGetInfoCallbackStub(const std::shared_ptr<UserAuthDomain::GetInfoCallback>& impl)
+{
+    idmCallback_ = impl;
 }
 
 int32_t UserIDMGetInfoCallbackStub::OnRemoteRequest(uint32_t code,
@@ -95,17 +102,31 @@ void UserIDMGetInfoCallbackStub::OnGetInfo(std::vector<CredentialInfo>& infos)
 {
     USERIDM_HILOGI(MODULE_CLIENT, "UserIDMGetInfoCallbackStub OnGetInfo start");
 
-    if (callback_ == nullptr) {
-        USERIDM_HILOGE(MODULE_CLIENT, "UserIDMGetInfoCallbackStub OnGetInfo callback_ is nullptr");
-        return;
-    }
     if (infos.size() > 0) {
         USERIDM_HILOGI(MODULE_CLIENT, "have data");
     } else {
         USERIDM_HILOGI(MODULE_CLIENT, "get no data");
     }
-    // Call the NaPi interface and return the data to JS
-    callback_->OnGetInfo(infos);
+    
+    if (callback_ != nullptr) {
+        callback_->OnGetInfo(infos);
+        return;
+    } else if (idmCallback_ != nullptr) {
+        std::vector<UserAuthDomain::CredentialInfo> credInfos;
+        for (auto &credInfo : infos) {
+            UserAuthDomain::CredentialInfo credential = {};
+            credential.authType = static_cast<UserAuthDomain::AuthType>(credInfo.authType);
+            credential.authSubType = static_cast<UserAuthDomain::AuthSubType>(credInfo.authSubType);
+            credential.credentialId = credInfo.credentialId;
+            credential.templateId = credInfo.templateId;
+            credInfos.push_back(credential);
+        }
+        idmCallback_->OnGetInfo(credInfos);
+        return;
+    } else {
+        USERIDM_HILOGE(MODULE_CLIENT, "callback_ is nullptr");
+        USERIDM_HILOGE(MODULE_CLIENT, "idmCallback_ is nullptr");
+    }
 }
 }  // namespace UserIDM
 }  // namespace UserIAM

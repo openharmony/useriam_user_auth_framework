@@ -63,6 +63,24 @@ void UserIDMController::CloseEditSessionCtrl()
     UserIDMAdapter::GetInstance().CloseEditSession();
 }
 
+void UserIDMController::CloseEditSessionCtrl(int32_t userId)
+{
+    USERIDM_HILOGD(MODULE_SERVICE, "CloseEditSessionCtrl start");
+
+    int result = UserIDMAdapter::GetInstance().CloseEditSession(userId);
+    if (result != SUCCESS) {
+        USERIDM_HILOGD(MODULE_SERVICE, "CloseEditSessionCtrl fail");
+        return;
+    }
+    uint64_t sessionId = 0;
+    uint64_t temp = 0;
+    bool res = data_->CheckScheduleIdIsActive(sessionId);
+    if (res && (data_->CheckChallenge(temp))) {
+        CoAuth::CoAuthManager::GetInstance().Cancel(sessionId);
+    }
+    data_->CleanData();
+}
+
 int32_t UserIDMController::GetAuthInfoCtrl(int32_t userId, AuthType authType, std::vector<CredentialInfo>& credInfos)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "GetAuthInfoCtrl start");
@@ -237,6 +255,32 @@ int32_t UserIDMController::DelSchedleIdCtrl(uint64_t challenge)
     if (result != SUCCESS) {
         USERIDM_HILOGE(MODULE_SERVICE, "Cancel fail");
         return result;
+    }
+    data_->DeleteSessionId();
+    return result;
+}
+
+int32_t UserIDMController::DelSchedleIdCtrl(int32_t userId)
+{
+    USERIDM_HILOGD(MODULE_SERVICE, "DelSchedleIdCtrl start");
+    int32_t result = UserIDMAdapter::GetInstance().Cancel(userId);
+    if (result != SUCCESS) {
+        USERIDM_HILOGE(MODULE_SERVICE, "Cancel fail");
+        return result;
+    }
+    uint64_t sessionId = 0;
+    uint64_t lastChallenge = 0;
+    if (!data_->CheckChallenge(lastChallenge)) {
+        USERIDM_HILOGE(MODULE_SERVICE, "CheckChallenge fail");
+        return result;
+    }
+    if (!data_->CheckScheduleIdIsActive(sessionId)) {
+        USERIDM_HILOGE(MODULE_SERVICE, "CheckScheduleIdIsActive fail");
+        return result;
+    }
+    int32_t coAuthRet = CoAuth::CoAuthManager::GetInstance().Cancel(sessionId);
+    if (coAuthRet != SUCCESS) {
+        USERIDM_HILOGE(MODULE_SERVICE, "CoAuth cancel fail");
     }
     data_->DeleteSessionId();
     return result;
