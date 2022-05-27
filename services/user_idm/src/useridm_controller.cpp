@@ -94,14 +94,14 @@ int32_t UserIDMController::GetSecureInfoCtrl(int32_t userId, uint64_t& secureUid
     return UserIDMAdapter::GetInstance().GetSecureUid(userId, secureUid, enrolledInfos);
 }
 
-int32_t UserIDMController::DeleteCredentialCtrl(int32_t userId, uint64_t credentialId, std::vector<uint8_t>& authToken,
-    CredentialInfo& credInfo)
+int32_t UserIDMController::DeleteCredentialCtrl(int32_t userId, uint64_t credentialId,
+    const std::vector<uint8_t>& authToken, CredentialInfo& credInfo)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "DeleteCredentialCtrl start");
     return UserIDMAdapter::GetInstance().DeleteCredential(userId, credentialId, authToken, credInfo);
 }
 
-int32_t UserIDMController::DeleteUserCtrl(int32_t userId, std::vector<uint8_t>& authToken,
+int32_t UserIDMController::DeleteUserCtrl(int32_t userId, const std::vector<uint8_t>& authToken,
     std::vector<CredentialInfo>& credInfo)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "DeleteUserCtrl start");
@@ -114,7 +114,7 @@ int32_t UserIDMController::DeleteUserByForceCtrl(int32_t userId, std::vector<Cre
     return UserIDMAdapter::GetInstance().DeleteUserEnforce(userId, credInfo);
 }
 
-int32_t UserIDMController::AddCredentialCallCoauth(uint64_t callerID, AddCredInfo& credInfo,
+int32_t UserIDMController::AddCredentialCallCoauth(uint64_t callerID, const AddCredInfo& credInfo,
     const sptr<IIDMCallback>& innerkitsCallback, uint64_t& challenge, CoAuth::ScheduleInfo& info)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "AddCredentialCallCoauth start");
@@ -152,7 +152,7 @@ int32_t UserIDMController::AddCredentialCallCoauth(uint64_t callerID, AddCredInf
     return SUCCESS;
 }
 
-int32_t UserIDMController::AddCredentialCtrl(int32_t userId, uint64_t callerID, AddCredInfo& credInfo,
+int32_t UserIDMController::AddCredentialCtrl(int32_t userId, uint64_t callerID, const AddCredInfo& credInfo,
     const sptr<IIDMCallback>& innerkitsCallback)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "AddCredentialCtrl start");
@@ -192,7 +192,7 @@ int32_t UserIDMController::AddCredentialCtrl(int32_t userId, uint64_t callerID, 
 }
 
 int32_t UserIDMController::UpdateCredentialCtrl(int32_t userId, uint64_t callerID, std::string callerName,
-    AddCredInfo& credInfo, const sptr<IIDMCallback>& innerkitsCallback)
+    const AddCredInfo& credInfo, const sptr<IIDMCallback>& innerkitsCallback)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "UpdateCredentialCtrl start");
     if (innerkitsCallback == nullptr) {

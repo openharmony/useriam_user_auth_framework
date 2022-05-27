@@ -95,7 +95,7 @@ void UserIDMProxy::CloseSession(const int32_t userId)
     }
 }
 
-int32_t UserIDMProxy::GetAuthInfo(AuthType authType, const sptr<IGetInfoCallback>& callback)
+int32_t UserIDMProxy::GetAuthInfo(const AuthType authType, const sptr<IGetInfoCallback>& callback)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -187,7 +187,7 @@ int32_t UserIDMProxy::GetSecInfo(const int32_t userId, const sptr<IGetSecInfoCal
     return result;
 }
 
-void UserIDMProxy::AddCredential(AddCredInfo& credInfo, const sptr<IIDMCallback>& callback)
+void UserIDMProxy::AddCredential(const AddCredInfo& credInfo, const sptr<IIDMCallback>& callback)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -258,7 +258,7 @@ void UserIDMProxy::AddCredential(const int32_t userId, const AddCredInfo& credIn
     SendRequest(USERIDM_ADD_CREDENTIAL_BY_ID, data, reply, false);
 }
 
-void UserIDMProxy::UpdateCredential(AddCredInfo& credInfo, const sptr<IIDMCallback>& callback)
+void UserIDMProxy::UpdateCredential(const AddCredInfo& credInfo, const sptr<IIDMCallback>& callback)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -330,7 +330,7 @@ void UserIDMProxy::UpdateCredential(const int32_t userId, const AddCredInfo& cre
     SendRequest(USERIDM_UPDATE_CREDENTIAL_BY_ID, data, reply, false);
 }
 
-int32_t UserIDMProxy::Cancel(uint64_t challenge)
+int32_t UserIDMProxy::Cancel(const uint64_t challenge)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -407,7 +407,7 @@ int32_t UserIDMProxy::EnforceDelUser(const int32_t userId, const sptr<IIDMCallba
     return result;
 }
 
-void UserIDMProxy::DelUser(std::vector<uint8_t> authToken, const sptr<IIDMCallback>& callback)
+void UserIDMProxy::DelUser(const std::vector<uint8_t> authToken, const sptr<IIDMCallback>& callback)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -430,7 +430,7 @@ void UserIDMProxy::DelUser(std::vector<uint8_t> authToken, const sptr<IIDMCallba
     SendRequest(USERIDM_DELUSER, data, reply, false);
 }
 
-void UserIDMProxy::DelUser(int32_t userId, std::vector<uint8_t> authToken, const sptr<IIDMCallback>& callback)
+void UserIDMProxy::DelUser(const int32_t userId, std::vector<uint8_t> authToken, const sptr<IIDMCallback>& callback)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -458,7 +458,8 @@ void UserIDMProxy::DelUser(int32_t userId, std::vector<uint8_t> authToken, const
     SendRequest(USERIDM_DELUSER_BY_ID, data, reply, false);
 }
 
-void UserIDMProxy::DelCred(uint64_t credentialId, std::vector<uint8_t> authToken, const sptr<IIDMCallback>& callback)
+void UserIDMProxy::DelCred(const uint64_t credentialId, const std::vector<uint8_t> authToken,
+    const sptr<IIDMCallback>& callback)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -486,7 +487,7 @@ void UserIDMProxy::DelCred(uint64_t credentialId, std::vector<uint8_t> authToken
     SendRequest(USERIDM_DELCRED, data, reply, false);
 }
 
-void UserIDMProxy:: DelCredential(const int32_t userId, const uint64_t credentialId,
+void UserIDMProxy::DelCredential(const int32_t userId, const uint64_t credentialId,
     const std::vector<uint8_t> authToken, const sptr<IIDMCallback>& callback)
 {
     MessageParcel data;

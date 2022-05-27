@@ -29,8 +29,10 @@ namespace UserAuthDomain = OHOS::UserIAM::UserAuth;
 
 class UserIDMCallbackStub : public IRemoteStub<IIDMCallback> {
 public:
-    explicit UserIDMCallbackStub(const std::shared_ptr<IDMCallback> &impl);
-    explicit UserIDMCallbackStub(const std::shared_ptr<UserAuthDomain::IdmCallback> &impl);
+    explicit UserIDMCallbackStub(const std::shared_ptr<IDMCallback> &impl)
+        :callback_(impl), idmCallback_(nullptr) {}
+    explicit UserIDMCallbackStub(const std::shared_ptr<UserAuthDomain::IdmCallback> &impl)
+        :callback_(nullptr), idmCallback_(impl) {}
     ~UserIDMCallbackStub() override = default;
 
     void OnResult(int32_t result, RequestResult reqRet) override;
