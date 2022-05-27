@@ -64,6 +64,15 @@ void FillFuzzInt8Vector(Parcel &parcel, std::vector<int8_t> &data)
     IAM_LOGI("fill vector len %{public}u ok", len);
 }
 
+void FillFuzzUint32Vector(Parcel &parcel, std::vector<uint32_t> &data)
+{
+    uint32_t len = parcel.ReadUint32() % MAX_DATA_LEN;
+    uint32_t memLen = len * sizeof(uint32_t);
+    data.resize(len);
+    FillFuzzBuffer(parcel, static_cast<void *>(&data[0]), memLen);
+    IAM_LOGI("fill vector len %{public}u ok", len);
+}
+
 void FillFuzzUint64Vector(Parcel &parcel, std::vector<uint64_t> &data)
 {
     uint32_t len = parcel.ReadUint32() % MAX_DATA_LEN;
