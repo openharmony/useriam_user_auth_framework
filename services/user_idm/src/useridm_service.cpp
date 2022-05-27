@@ -287,7 +287,7 @@ void UserIDMService::UpdateCredential(const int32_t userId, const AddCredInfo& c
     const sptr<IIDMCallback>& innerkitsCallback)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "service UpdateCredential start");
-	if (innerkitsCallback == nullptr) {
+    if (innerkitsCallback == nullptr) {
         USERIDM_HILOGE(MODULE_SERVICE, "innerkitsCallback is nullptr");
         return;
     }

@@ -32,7 +32,7 @@ UserIDMStub::UserIDMStub()
     m_handle_[static_cast<int32_t>(IUserIDM::USERIDM_ADD_CREDENTIAL)] = &UserIDMStub::AddCredentialStub;
     m_handle_[static_cast<int32_t>(IUserIDM::USERIDM_ADD_CREDENTIAL_BY_ID)] = &UserIDMStub::AddCredentialByIdStub;
     m_handle_[static_cast<int32_t>(IUserIDM::USERIDM_UPDATE_CREDENTIAL)] = &UserIDMStub::UpdateCredentialStub;
-    m_handle_[static_cast<int32_t>(IUserIDM::USERIDM_UPDATE_CREDENTIAL_BY_ID)] = 
+    m_handle_[static_cast<int32_t>(IUserIDM::USERIDM_UPDATE_CREDENTIAL_BY_ID)] =
         &UserIDMStub::UpdateCredentialByIdStub;
     m_handle_[static_cast<int32_t>(IUserIDM::USERIDM_CANCEL)]  = &UserIDMStub::CancelStub;
     m_handle_[static_cast<int32_t>(IUserIDM::USERIDM_CANCEL_BY_ID)]  = &UserIDMStub::CancelByIdStub;

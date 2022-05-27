@@ -119,7 +119,7 @@ public:
      * (credential type, subtype, password authentication token).
      * param callback update results / acquireinfo callback.
      */
-    virtual void UpdateCredential(const int32_t userId, const AddCredInfo& credInfo, 
+    virtual void UpdateCredential(const int32_t userId, const AddCredInfo& credInfo,
         const sptr<IIDMCallback>& callback) = 0;
 
     /*
