@@ -14,10 +14,10 @@
  */
 
 #include "user_idm.h"
-#include "iuser_idm.h"
 #include <if_system_ability_manager.h>
 #include <iservice_registry.h>
 #include <system_ability_definition.h>
+#include "iuser_idm.h"
 #include "useridm_callback_stub.h"
 #include "useridm_getinfo_callback_stub.h"
 #include "useridm_getsecinfo_callback_stub.h"

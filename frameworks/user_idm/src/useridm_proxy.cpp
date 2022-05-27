@@ -486,7 +486,7 @@ void UserIDMProxy::DelCred(uint64_t credentialId, std::vector<uint8_t> authToken
     SendRequest(USERIDM_DELCRED, data, reply, false);
 }
 
-void UserIDMProxy:: DelCredential(const int32_t userId, const uint64_t credentialId,
+void UserIDMProxy::DelCredential(const int32_t userId, const uint64_t credentialId,
     const std::vector<uint8_t> authToken, const sptr<IIDMCallback>& callback)
 {
     MessageParcel data;
