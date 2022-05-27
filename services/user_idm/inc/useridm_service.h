@@ -39,22 +39,23 @@ public:
     uint64_t OpenSession(const int32_t userId) override;
     void CloseSession() override;
     void CloseSession(const int32_t userId) override;
-    int32_t GetAuthInfo(AuthType authType, const sptr<IGetInfoCallback>& callback) override;
-    int32_t GetAuthInfo(int32_t userId, AuthType authType, const sptr<IGetInfoCallback>& callback) override;
-    int32_t GetSecInfo(int32_t userId, const sptr<IGetSecInfoCallback>& callback) override;
-    void AddCredential(AddCredInfo& credInfo, const sptr<IIDMCallback>& callback) override;
+    int32_t GetAuthInfo(const AuthType authType, const sptr<IGetInfoCallback>& callback) override;
+    int32_t GetAuthInfo(const int32_t userId, const AuthType authType, const sptr<IGetInfoCallback>& callback) override;
+    int32_t GetSecInfo(const int32_t userId, const sptr<IGetSecInfoCallback>& callback) override;
+    void AddCredential(const AddCredInfo& credInfo, const sptr<IIDMCallback>& callback) override;
     void AddCredential(const int32_t userId, const AddCredInfo& credInfo,
         const sptr<IIDMCallback>& callback) override;
-    void UpdateCredential(AddCredInfo& credInfo, const sptr<IIDMCallback>& callback) override;
+    void UpdateCredential(const AddCredInfo& credInfo, const sptr<IIDMCallback>& callback) override;
     void UpdateCredential(const int32_t userId, const AddCredInfo& credInfo,
         const sptr<IIDMCallback>& callback) override;
-    int32_t Cancel(uint64_t challenge) override;
+    int32_t Cancel(const uint64_t challenge) override;
     int32_t Cancel(const int32_t userId) override;
-    int32_t EnforceDelUser(int32_t userId, const sptr<IIDMCallback>& callback) override;
-    void DelUser(std::vector<uint8_t> authToken, const sptr<IIDMCallback>& callback) override;
+    int32_t EnforceDelUser(const int32_t userId, const sptr<IIDMCallback>& callback) override;
+    void DelUser(const std::vector<uint8_t> authToken, const sptr<IIDMCallback>& callback) override;
     void DelUser(const int32_t userId, std::vector<uint8_t> authToken, const sptr<IIDMCallback>& callback) override;
-    void DelCred(uint64_t credentialId, std::vector<uint8_t> authToken, const sptr<IIDMCallback>& callback) override;
-    void DelCredential(const int32_t userId, uint64_t credentialId, std::vector<uint8_t> authToken,
+    void DelCred(const uint64_t credentialId, const std::vector<uint8_t> authToken,
+        const sptr<IIDMCallback>& callback) override;
+    void DelCredential(const int32_t userId, const uint64_t credentialId, const std::vector<uint8_t> authToken,
         const sptr<IIDMCallback>& callback) override;
 
 private:

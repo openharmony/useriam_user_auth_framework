@@ -58,7 +58,7 @@ public:
      * param authType credential type.
      * param callback returns all registered credential information of this type for the specific user.
      */
-    virtual int32_t GetAuthInfo(AuthType authType, const sptr<IGetInfoCallback>& callback) = 0;
+    virtual int32_t GetAuthInfo(const AuthType authType, const sptr<IGetInfoCallback>& callback) = 0;
 
     /*
      * get authentication information.
@@ -87,7 +87,7 @@ public:
      * (credential type, subtype, password authentication token).
      * param callback get results / acquireinfo callback.
      */
-    virtual void AddCredential(AddCredInfo& credInfo, const sptr<IIDMCallback>& callback) = 0;
+    virtual void AddCredential(const AddCredInfo& credInfo, const sptr<IIDMCallback>& callback) = 0;
 
     /**
      * add user credential information, pass in credential addition method and credential information
@@ -109,7 +109,7 @@ public:
      * (credential type, subtype, password authentication token).
      * param callback update results / acquireinfo callback.
      */
-    virtual void UpdateCredential(AddCredInfo& credInfo, const sptr<IIDMCallback>& callback) = 0;
+    virtual void UpdateCredential(const AddCredInfo& credInfo, const sptr<IIDMCallback>& callback) = 0;
 
     /*
      * update user credential information.
@@ -119,7 +119,7 @@ public:
      * (credential type, subtype, password authentication token).
      * param callback update results / acquireinfo callback.
      */
-    virtual void UpdateCredential(const int32_t userId, const AddCredInfo& credInfo, 
+    virtual void UpdateCredential(const int32_t userId, const AddCredInfo& credInfo,
         const sptr<IIDMCallback>& callback) = 0;
 
     /*
@@ -127,7 +127,7 @@ public:
      *
      * param challenge challenge value.
      */
-    virtual int32_t Cancel(uint64_t challenge) = 0;
+    virtual int32_t Cancel(const uint64_t challenge) = 0;
 
     /*
      * Cancel entry and pass in user id.
@@ -152,7 +152,7 @@ public:
      * param authToken user password authentication token.
      * param callback get deletion result through callback.
      */
-    virtual void DelUser(std::vector<uint8_t> authToken, const sptr<IIDMCallback>& callback) = 0;
+    virtual void DelUser(const std::vector<uint8_t> authToken, const sptr<IIDMCallback>& callback) = 0;
 
     /*
      * delete all users credential information, pass in the user password authentication token and callback,
@@ -174,7 +174,7 @@ public:
      * param authToken password authentication token.
      * param callback get deletion result through callback.
      */
-    virtual void DelCred(uint64_t credentialId, std::vector<uint8_t> authToken,
+    virtual void DelCred(const uint64_t credentialId, const std::vector<uint8_t> authToken,
         const sptr<IIDMCallback>& callback) = 0;
 
     /*
@@ -201,7 +201,7 @@ public:
         USERIDM_ADD_CREDENTIAL,
         USERIDM_ADD_CREDENTIAL_BY_ID,
         USERIDM_UPDATE_CREDENTIAL,
-		USERIDM_UPDATE_CREDENTIAL_BY_ID,
+        USERIDM_UPDATE_CREDENTIAL_BY_ID,
         USERIDM_CANCEL,
         USERIDM_CANCEL_BY_ID,
         USERIDM_ENFORCE_DELUSER,

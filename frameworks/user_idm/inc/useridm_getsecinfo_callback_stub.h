@@ -28,8 +28,10 @@ namespace UserAuthDomain = OHOS::UserIAM::UserAuth;
 
 class UserIDMGetSecInfoCallbackStub : public IRemoteStub<IGetSecInfoCallback> {
 public:
-    explicit UserIDMGetSecInfoCallbackStub(const std::shared_ptr<GetSecInfoCallback> &impl);
-    explicit UserIDMGetSecInfoCallbackStub(const std::shared_ptr<UserAuthDomain::GetSecInfoCallback> &impl);
+    explicit UserIDMGetSecInfoCallbackStub(const std::shared_ptr<GetSecInfoCallback> &impl)
+        :callback_(impl), idmCallback_(nullptr) {}
+    explicit UserIDMGetSecInfoCallbackStub(const std::shared_ptr<UserAuthDomain::GetSecInfoCallback> &impl)
+        :callback_(nullptr), idmCallback_(impl) {}
     ~UserIDMGetSecInfoCallbackStub() override = default;
 
     void OnGetSecInfo(SecInfo &info) override;

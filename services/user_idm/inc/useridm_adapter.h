@@ -34,9 +34,9 @@ public:
     int32_t InitSchedule(std::vector<uint8_t> autoToken, int32_t userId, AuthType authType,
         AuthSubType authSubType, CoAuth::ScheduleInfo& info);
     int32_t Cancel(int32_t userId);
-    int32_t DeleteCredential(int32_t userId, uint64_t credentialId, std::vector<uint8_t>& authToken,
+    int32_t DeleteCredential(int32_t userId, uint64_t credentialId, const std::vector<uint8_t>& authToken,
         CredentialInfo& credInfo);
-    int32_t DeleteUser(int32_t userId, std::vector<uint8_t>& authToken, std::vector<CredentialInfo>& credInfo);
+    int32_t DeleteUser(int32_t userId, const std::vector<uint8_t>& authToken, std::vector<CredentialInfo>& credInfo);
     int32_t DeleteUserEnforce(int32_t userId, std::vector<CredentialInfo>& credInfo);
     int32_t AddCredential(std::vector<uint8_t>& enrollToken, uint64_t& credentialId);
     int32_t UpdateCredential(std::vector<uint8_t> enrollToken, uint64_t &credentialId,

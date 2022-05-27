@@ -22,17 +22,6 @@ namespace UserIAM {
 namespace UserIDM {
 namespace UserAuthDomain = OHOS::UserIAM::UserAuth;
 
-UserIDMGetSecInfoCallbackStub::UserIDMGetSecInfoCallbackStub(const std::shared_ptr<GetSecInfoCallback>& impl)
-{
-    callback_ = impl;
-}
-
-UserIDMGetSecInfoCallbackStub::UserIDMGetSecInfoCallbackStub(
-    const std::shared_ptr<UserAuthDomain::GetSecInfoCallback>& impl)
-{
-    idmCallback_ = impl;
-}
-
 int32_t UserIDMGetSecInfoCallbackStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
@@ -78,7 +67,8 @@ void UserIDMGetSecInfoCallbackStub::OnGetSecInfo(SecInfo &info)
     if (callback_ != nullptr) {
         callback_->OnGetSecInfo(info);
         return;
-    } else if (idmCallback_ != nullptr) {
+    }
+    if (idmCallback_ != nullptr) {
         UserAuthDomain::SecInfo secInfo = {};
         secInfo.secureUid = info.secureUid;
         secInfo.enrolledInfoLen = info.enrolledInfoLen;
@@ -92,10 +82,9 @@ void UserIDMGetSecInfoCallbackStub::OnGetSecInfo(SecInfo &info)
         secInfo.enrolledInfo = enrolledInfos;
         idmCallback_->OnGetSecInfo(secInfo);
         return;
-    } else {
-        USERIDM_HILOGE(MODULE_CLIENT, "callback_ is nullptr");
-        USERIDM_HILOGE(MODULE_CLIENT, "idmCallback_ is nullptr");
     }
+    USERIDM_HILOGE(MODULE_CLIENT, "callback_ is nullptr");
+    USERIDM_HILOGE(MODULE_CLIENT, "idmCallback_ is nullptr");
 }
 }  // namespace UserIDM
 }  // namespace UserIAM

@@ -22,16 +22,6 @@ namespace UserIAM {
 namespace UserIDM {
 namespace UserAuthDomain = OHOS::UserIAM::UserAuth;
 
-UserIDMCallbackStub::UserIDMCallbackStub(const std::shared_ptr<IDMCallback>& impl)
-{
-    callback_ = impl;
-}
-
-UserIDMCallbackStub::UserIDMCallbackStub(const std::shared_ptr<UserAuthDomain::IdmCallback>& impl)
-{
-    idmCallback_ = impl;
-}
-
 int32_t UserIDMCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {
@@ -93,15 +83,15 @@ void UserIDMCallbackStub::OnResult(int32_t result, RequestResult reqRet)
     if (callback_ != nullptr) {
         callback_->OnResult(result, reqRet);
         return;
-    } else if (idmCallback_ != nullptr) {
+    }
+    if (idmCallback_ != nullptr) {
         UserAuthDomain::RequestResult para = {};
         para.credentialId = reqRet.credentialId;
         idmCallback_->OnResult(result, para);
         return;
-    } else {
-        USERIDM_HILOGE(MODULE_CLIENT, "callback_ is nullptr");
-        USERIDM_HILOGE(MODULE_CLIENT, "idmCallback_ is nullptr");
     }
+    USERIDM_HILOGE(MODULE_CLIENT, "callback_ is nullptr");
+    USERIDM_HILOGE(MODULE_CLIENT, "idmCallback_ is nullptr");
 }
 
 void UserIDMCallbackStub::OnAcquireInfo(int32_t module, int32_t acquire, RequestResult reqRet)
@@ -111,15 +101,15 @@ void UserIDMCallbackStub::OnAcquireInfo(int32_t module, int32_t acquire, Request
     if (callback_ != nullptr) {
         callback_->OnAcquireInfo(module, acquire, reqRet);
         return;
-    } else if (idmCallback_ != nullptr) {
+    }
+    if (idmCallback_ != nullptr) {
         UserAuthDomain::RequestResult para = {};
         para.credentialId = reqRet.credentialId;
         idmCallback_->OnAcquireInfo(module, acquire, para);
         return;
-    } else {
-        USERIDM_HILOGE(MODULE_CLIENT, "callback_ is nullptr");
-        USERIDM_HILOGE(MODULE_CLIENT, "idmCallback_ is nullptr");
     }
+    USERIDM_HILOGE(MODULE_CLIENT, "callback_ is nullptr");
+    USERIDM_HILOGE(MODULE_CLIENT, "idmCallback_ is nullptr");
 }
 }  // namespace UserIDM
 }  // namespace UserIAM

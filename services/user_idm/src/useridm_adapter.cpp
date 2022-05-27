@@ -208,7 +208,7 @@ int32_t UserIDMAdapter::Cancel(int32_t userId)
     return ret;
 }
 
-int32_t UserIDMAdapter::DeleteCredential(int32_t userId, uint64_t credentialId, std::vector<uint8_t>& authToken,
+int32_t UserIDMAdapter::DeleteCredential(int32_t userId, uint64_t credentialId, const std::vector<uint8_t>& authToken,
     OHOS::UserIAM::UserIDM::CredentialInfo& credInfo)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "UserIDMAdapter DeleteCredential start");
@@ -228,7 +228,7 @@ int32_t UserIDMAdapter::DeleteCredential(int32_t userId, uint64_t credentialId, 
     return ret;
 }
 
-int32_t UserIDMAdapter::DeleteUser(int32_t userId, std::vector<uint8_t>& authToken,
+int32_t UserIDMAdapter::DeleteUser(int32_t userId, const std::vector<uint8_t>& authToken,
     std::vector<OHOS::UserIAM::UserIDM::CredentialInfo>& credInfos)
 {
     USERIDM_HILOGI(MODULE_SERVICE, "UserIDMAdapter DeleteUser start");
