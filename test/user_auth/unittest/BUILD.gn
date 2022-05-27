@@ -25,8 +25,10 @@ ohos_unittest("user_auth_test") {
     "src/userauth_test.cpp",
   ]
 
-  deps = [ "//base/user_iam/user_auth/frameworks/user_auth:userauth_framework",
-  "//base/user_iam/user_auth/frameworks/user_idm:useridm_framework" ]
+  deps = [
+    "//base/user_iam/user_auth/frameworks/user_auth:userauth_framework",
+    "//base/user_iam/user_auth/frameworks/user_idm:useridm_framework",
+  ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
