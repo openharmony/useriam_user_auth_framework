@@ -27,12 +27,12 @@ int32_t UserIDMCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
 {
     USERIDM_HILOGD(MODULE_CLIENT, "UserIDMCallbackStub::OnRemoteRequest, cmd = %u, flags= %d", code,
         option.GetFlags());
-
+    
     if (UserIDMCallbackStub::GetDescriptor() != data.ReadInterfaceToken()) {
         USERIDM_HILOGE(MODULE_CLIENT, "UserIDMCallbackStub::OnRemoteRequest failed, descriptor is not matched!");
         return FAIL;
     }
-
+    
     switch (code) {
         case static_cast<int32_t>(IIDMCallback::IDM_CALLBACK_ON_RESULT):
             return OnResultStub(data, reply);
@@ -46,40 +46,32 @@ int32_t UserIDMCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
 int32_t UserIDMCallbackStub::OnResultStub(MessageParcel& data, MessageParcel& reply)
 {
     USERIDM_HILOGI(MODULE_CLIENT, "UserIDMCallbackStub OnResultStub start");
-
     RequestResult reqRet;
-
     int32_t result = data.ReadInt32();
     reqRet.credentialId = data.ReadUint64();
-
     this->OnResult(result, reqRet);
-
     return SUCCESS;
 }
 
 int32_t UserIDMCallbackStub::OnAcquireInfoStub(MessageParcel& data, MessageParcel& reply)
 {
     USERIDM_HILOGI(MODULE_CLIENT, "UserIDMCallbackStub OnAcquireInfoStub start");
-
     int32_t ret = SUCCESS;
     RequestResult reqRet;
     int32_t module = data.ReadInt32();
     int32_t acquire = data.ReadInt32();
     reqRet.credentialId = data.ReadUint64();
-
     OnAcquireInfo(module, acquire, reqRet);
     if (!reply.WriteInt32(ret)) {
         USERIDM_HILOGE(MODULE_CLIENT, "failed to WriteInt32(ret)");
         ret = FAIL;
     }
-
     return ret;
 }
 
 void UserIDMCallbackStub::OnResult(int32_t result, RequestResult reqRet)
 {
     USERIDM_HILOGD(MODULE_CLIENT, "UserIDMCallbackStub OnResult start");
-
     if (callback_ != nullptr) {
         callback_->OnResult(result, reqRet);
         return;
@@ -90,14 +82,12 @@ void UserIDMCallbackStub::OnResult(int32_t result, RequestResult reqRet)
         idmCallback_->OnResult(result, para);
         return;
     }
-    USERIDM_HILOGE(MODULE_CLIENT, "callback_ is nullptr");
-    USERIDM_HILOGE(MODULE_CLIENT, "idmCallback_ is nullptr");
+    USERIDM_HILOGE(MODULE_CLIENT, "callback_ is nullptr and idmCallback_ is nullptr");
 }
 
 void UserIDMCallbackStub::OnAcquireInfo(int32_t module, int32_t acquire, RequestResult reqRet)
 {
     USERIDM_HILOGD(MODULE_CLIENT, "UserIDMCallbackStub OnAcquireInfo start");
-
     if (callback_ != nullptr) {
         callback_->OnAcquireInfo(module, acquire, reqRet);
         return;
@@ -108,8 +98,7 @@ void UserIDMCallbackStub::OnAcquireInfo(int32_t module, int32_t acquire, Request
         idmCallback_->OnAcquireInfo(module, acquire, para);
         return;
     }
-    USERIDM_HILOGE(MODULE_CLIENT, "callback_ is nullptr");
-    USERIDM_HILOGE(MODULE_CLIENT, "idmCallback_ is nullptr");
+    USERIDM_HILOGE(MODULE_CLIENT, "callback_ is nullptr and idmCallback_ is nullptr");
 }
 }  // namespace UserIDM
 }  // namespace UserIAM
