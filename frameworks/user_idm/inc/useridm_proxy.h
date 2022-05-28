@@ -46,7 +46,8 @@ public:
     void DelUser(const std::vector<uint8_t> authToken, const sptr<IIDMCallback> &callback) override;
     void DelUser(const int32_t userId, const std::vector<uint8_t> authToken,
         const sptr<IIDMCallback> &callback) override;
-    void DelCred(const uint64_t credentialId, const std::vector<uint8_t> authToken, const sptr<IIDMCallback> &callback) override;
+    void DelCred(const uint64_t credentialId, const std::vector<uint8_t> authToken,
+        const sptr<IIDMCallback> &callback) override;
     void DelCredential(const int32_t userId, const uint64_t credentialId, const std::vector<uint8_t> authToken,
         const sptr<IIDMCallback> &callback) override;
 
