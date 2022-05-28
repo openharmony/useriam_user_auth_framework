@@ -91,7 +91,6 @@ int32_t UserIDMGetInfoCallbackStub::OnGetInfoStub(MessageParcel& data, MessagePa
 void UserIDMGetInfoCallbackStub::OnGetInfo(std::vector<CredentialInfo>& infos)
 {
     USERIDM_HILOGI(MODULE_CLIENT, "UserIDMGetInfoCallbackStub OnGetInfo start");
-
     if (infos.size() > 0) {
         USERIDM_HILOGI(MODULE_CLIENT, "have data");
     } else {
@@ -115,8 +114,7 @@ void UserIDMGetInfoCallbackStub::OnGetInfo(std::vector<CredentialInfo>& infos)
         idmCallback_->OnGetInfo(credInfos);
         return;
     }
-    USERIDM_HILOGE(MODULE_CLIENT, "callback_ is nullptr");
-    USERIDM_HILOGE(MODULE_CLIENT, "idmCallback_ is nullptr");
+    USERIDM_HILOGE(MODULE_CLIENT, "callback_ is nullptr and idmCallback_ is nullptr");
 }
 }  // namespace UserIDM
 }  // namespace UserIAM

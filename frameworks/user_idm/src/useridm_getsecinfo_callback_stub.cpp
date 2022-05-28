@@ -45,25 +45,21 @@ int32_t UserIDMGetSecInfoCallbackStub::OnRemoteRequest(uint32_t code,
 int32_t UserIDMGetSecInfoCallbackStub::OnGetSecInfoStub(MessageParcel& data, MessageParcel& reply)
 {
     USERIDM_HILOGI(MODULE_CLIENT, "UserIDMGetSecInfoCallbackStub OnGetSecInfoStub start");
-
     int32_t ret = SUCCESS;
     SecInfo info = {};
     info.secureUid = data.ReadUint64();
     info.enrolledInfoLen = data.ReadUint32();
-
     this->OnGetSecInfo(info);
     if (!reply.WriteInt32(ret)) {
         USERIDM_HILOGE(MODULE_CLIENT, "failed to WriteInt32(ret)");
         ret = FAIL;
     }
-
     return ret;
 }
 
 void UserIDMGetSecInfoCallbackStub::OnGetSecInfo(SecInfo &info)
 {
     USERIDM_HILOGI(MODULE_CLIENT, "UserIDMGetSecInfoCallbackStub OnGetSecInfo start");
-
     if (callback_ != nullptr) {
         callback_->OnGetSecInfo(info);
         return;
@@ -83,8 +79,7 @@ void UserIDMGetSecInfoCallbackStub::OnGetSecInfo(SecInfo &info)
         idmCallback_->OnGetSecInfo(secInfo);
         return;
     }
-    USERIDM_HILOGE(MODULE_CLIENT, "callback_ is nullptr");
-    USERIDM_HILOGE(MODULE_CLIENT, "idmCallback_ is nullptr");
+    USERIDM_HILOGE(MODULE_CLIENT, "callback_ is nullptr and idmCallback_ is nullptr");
 }
 }  // namespace UserIDM
 }  // namespace UserIAM

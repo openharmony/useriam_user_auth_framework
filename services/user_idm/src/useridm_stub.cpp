@@ -78,15 +78,12 @@ int32_t UserIDMStub::OpenSessionStub(MessageParcel& data, MessageParcel& reply)
 int32_t UserIDMStub::OpenSessionByIdStub(MessageParcel& data, MessageParcel& reply)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "OpenSessionByIdStub start");
-
     int32_t userId = data.ReadInt32();
-    
     uint64_t ret = OpenSession(userId);
     if (!reply.WriteUint64(ret)) {
         USERIDM_HILOGE(MODULE_SERVICE, "failed to WriteUint64(ret)");
         return FAIL;
     }
-
     return SUCCESS;
 }
 
@@ -102,11 +99,8 @@ int32_t UserIDMStub::CloseSessionStub(MessageParcel& data, MessageParcel& reply)
 int32_t UserIDMStub::CloseSessionByIdStub(MessageParcel& data, MessageParcel& reply)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "CloseSessionByIdStub start");
-
     int32_t userId = data.ReadInt32();
-    
     CloseSession(userId);
-
     return SUCCESS;
 }
 
@@ -134,7 +128,6 @@ int32_t UserIDMStub::GetAuthInfoStub(MessageParcel& data, MessageParcel& reply)
 int32_t UserIDMStub::GetAuthInfoByIdStub(MessageParcel& data, MessageParcel& reply)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "GetAuthInfoByIdStub start");
-
     int32_t userId = data.ReadInt32();
     AuthType authType = static_cast<AuthType>(data.ReadUint32());
     sptr<IGetInfoCallback> callback = iface_cast<IGetInfoCallback>(data.ReadRemoteObject());
@@ -142,33 +135,28 @@ int32_t UserIDMStub::GetAuthInfoByIdStub(MessageParcel& data, MessageParcel& rep
         USERIDM_HILOGE(MODULE_SERVICE, "callback is nullptr");
         return ERR_INVALID_VALUE;
     }
-
     int32_t ret = GetAuthInfo(userId, authType, callback);
     if (!reply.WriteInt32(ret)) {
         USERIDM_HILOGE(MODULE_SERVICE, "failed to WriteInt32(ret)");
         return FAIL;
     }
-
     return SUCCESS;
 }
 
 int32_t UserIDMStub::GetSecInfoStub(MessageParcel& data, MessageParcel& reply)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "GetSecInfoStub start");
-
     int32_t userId = data.ReadInt32();
     sptr<IGetSecInfoCallback> callback = iface_cast<IGetSecInfoCallback>(data.ReadRemoteObject());
     if (callback == nullptr) {
         USERIDM_HILOGE(MODULE_SERVICE, "callback is nullptr");
         return ERR_INVALID_VALUE;
     }
-
     int32_t ret = GetSecInfo(userId, callback);
     if (!reply.WriteInt32(ret)) {
         USERIDM_HILOGE(MODULE_SERVICE, "failed to WriteInt32(ret)");
         return FAIL;
     }
-
     return SUCCESS;
 }
 
@@ -194,19 +182,16 @@ int32_t UserIDMStub::AddCredentialStub(MessageParcel& data, MessageParcel& reply
 int32_t UserIDMStub::AddCredentialByIdStub(MessageParcel& data, MessageParcel& reply)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "AddCredentialByIdStub start");
-
     int32_t userId = data.ReadInt32();
     AddCredInfo credInfo;
     credInfo.authType = static_cast<AuthType>(data.ReadUint32());
     credInfo.authSubType = static_cast<AuthSubType>(data.ReadUint64());
     data.ReadUInt8Vector(&(credInfo.token));
-
     sptr<IIDMCallback> callback = iface_cast<IIDMCallback>(data.ReadRemoteObject());
     if (callback == nullptr) {
         USERIDM_HILOGE(MODULE_SERVICE, "callback is nullptr");
         return FAIL;
     }
-
     AddCredential(userId, credInfo, callback);
     return SUCCESS;
 }
@@ -233,19 +218,16 @@ int32_t UserIDMStub::UpdateCredentialStub(MessageParcel& data, MessageParcel& re
 int32_t UserIDMStub::UpdateCredentialByIdStub(MessageParcel& data, MessageParcel& reply)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "UpdateCredentialByIdStub start");
-
     int32_t userId = data.ReadInt32();
     AddCredInfo credInfo;
     credInfo.authType = static_cast<AuthType>(data.ReadUint32());
     credInfo.authSubType = static_cast<AuthSubType>(data.ReadUint64());
     data.ReadUInt8Vector(&(credInfo.token));
-
     sptr<IIDMCallback> callback = iface_cast<IIDMCallback>(data.ReadRemoteObject());
     if (callback == nullptr) {
         USERIDM_HILOGE(MODULE_SERVICE, "callback is nullptr");
         return FAIL;
     }
-
     UpdateCredential(userId, credInfo, callback);
     return SUCCESS;
 }
@@ -268,30 +250,24 @@ int32_t UserIDMStub::CancelStub(MessageParcel& data, MessageParcel& reply)
 int32_t UserIDMStub::CancelByIdStub(MessageParcel& data, MessageParcel& reply)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "CancelByIdStub start");
-
     int32_t userId = data.ReadInt32();
-
     int32_t ret = Cancel(userId);
     if (!reply.WriteInt32(ret)) {
         USERIDM_HILOGE(MODULE_SERVICE, "failed to WriteInt32(ret)");
         return FAIL;
     }
-
     return ret;
 }
 
 int32_t UserIDMStub::EnforceDelUserStub(MessageParcel& data, MessageParcel& reply)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "EnforceDelUserStub start");
-
     int32_t userId = data.ReadInt32();
-
     sptr<IIDMCallback> callback = iface_cast<IIDMCallback>(data.ReadRemoteObject());
     if (callback == nullptr) {
         USERIDM_HILOGE(MODULE_SERVICE, "callback is nullptr");
         return FAIL;
     }
-
     int32_t ret = EnforceDelUser(userId, callback);
     if (!reply.WriteInt32(ret)) {
         USERIDM_HILOGE(MODULE_SERVICE, "failed to WriteInt32(ret)");
@@ -320,17 +296,14 @@ int32_t UserIDMStub::DelUserStub(MessageParcel& data, MessageParcel& reply)
 int32_t UserIDMStub::DelUserByIdStub(MessageParcel& data, MessageParcel& reply)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "DelUserByIdStub start");
-
     int32_t userId = data.ReadInt32();
     std::vector<uint8_t> authToken;
     data.ReadUInt8Vector(&authToken);
-
     sptr<IIDMCallback> callback = iface_cast<IIDMCallback>(data.ReadRemoteObject());
     if (callback == nullptr) {
         USERIDM_HILOGE(MODULE_SERVICE, "callback is nullptr");
         return FAIL;
     }
-
     DelUser(userId, authToken, callback);
     return SUCCESS;
 }
@@ -355,7 +328,6 @@ int32_t UserIDMStub::DelCredStub(MessageParcel& data, MessageParcel& reply)
 int32_t UserIDMStub::DelCredentialStub(MessageParcel& data, MessageParcel& reply)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "DelCredentialStub start");
-
     int32_t userId = data.ReadInt32();
     uint64_t credentialId = data.ReadUint64();
     std::vector<uint8_t> authToken;
@@ -365,7 +337,6 @@ int32_t UserIDMStub::DelCredentialStub(MessageParcel& data, MessageParcel& reply
         USERIDM_HILOGE(MODULE_SERVICE, "callback is nullptr");
         return FAIL;
     }
-
     DelCredential(userId, credentialId, authToken, callback);
     return SUCCESS;
 }
