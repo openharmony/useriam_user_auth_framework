@@ -120,9 +120,9 @@
         "test": [
             "//base/user_iam/user_auth/test/user_idm:user_idm_unittest",
             "//base/user_iam/user_auth/test/user_auth:user_auth_unittest",
-            "//base/user_iam/user_auth/test/user_auth/fuzztest/user_auth_service_fuzzer:UserAuthServiceFuzzTest",
-            "//base/user_iam/user_auth/test/user_idm/fuzztest/user_idm_fuzzer:UserIdmFuzzTest",
-	    "//base/user_iam/user_auth/test/co_auth/fuzztest/co_auth_fuzzer:CoAuthFuzzTest"
+            "//base/user_iam/user_auth/test/user_auth/fuzztest/userauthservice_fuzzer:UserAuthServiceFuzzTest",
+            "//base/user_iam/user_auth/test/user_idm/fuzztest/useridm_fuzzer:UserIdmFuzzTest",
+            "//base/user_iam/user_auth/test/co_auth/fuzztest/coauth_fuzzer:CoAuthFuzzTest"
         ]
       }
     }
