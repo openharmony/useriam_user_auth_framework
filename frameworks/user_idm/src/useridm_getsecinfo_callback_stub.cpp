@@ -20,10 +20,7 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {
-UserIDMGetSecInfoCallbackStub::UserIDMGetSecInfoCallbackStub(const std::shared_ptr<GetSecInfoCallback>& impl)
-{
-    callback_ = impl;
-}
+namespace UserAuthDomain = OHOS::UserIAM::UserAuth;
 
 int32_t UserIDMGetSecInfoCallbackStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -48,31 +45,41 @@ int32_t UserIDMGetSecInfoCallbackStub::OnRemoteRequest(uint32_t code,
 int32_t UserIDMGetSecInfoCallbackStub::OnGetSecInfoStub(MessageParcel& data, MessageParcel& reply)
 {
     USERIDM_HILOGI(MODULE_CLIENT, "UserIDMGetSecInfoCallbackStub OnGetSecInfoStub start");
-
     int32_t ret = SUCCESS;
     SecInfo info = {};
     info.secureUid = data.ReadUint64();
     info.enrolledInfoLen = data.ReadUint32();
-
     this->OnGetSecInfo(info);
     if (!reply.WriteInt32(ret)) {
         USERIDM_HILOGE(MODULE_CLIENT, "failed to WriteInt32(ret)");
         ret = FAIL;
     }
-
     return ret;
 }
 
 void UserIDMGetSecInfoCallbackStub::OnGetSecInfo(SecInfo &info)
 {
     USERIDM_HILOGI(MODULE_CLIENT, "UserIDMGetSecInfoCallbackStub OnGetSecInfo start");
-
-    if (callback_ == nullptr) {
-        USERIDM_HILOGE(MODULE_CLIENT, "UserIDMGetSecInfoCallbackStub callback_ is nullptr");
-        return;
-    } else {
+    if (callback_ != nullptr) {
         callback_->OnGetSecInfo(info);
+        return;
     }
+    if (idmCallback_ != nullptr) {
+        UserAuthDomain::SecInfo secInfo = {};
+        secInfo.secureUid = info.secureUid;
+        secInfo.enrolledInfoLen = info.enrolledInfoLen;
+        std::vector<UserAuthDomain::EnrolledInfo> enrolledInfos = {};
+        for (auto &enrolledInfo : info.enrolledInfo) {
+            UserAuthDomain::EnrolledInfo secEnrolledInfo = {};
+            secEnrolledInfo.authType = static_cast<UserAuthDomain::AuthType>(enrolledInfo.authType);
+            secEnrolledInfo.enrolledId = enrolledInfo.enrolledId;
+            enrolledInfos.push_back(secEnrolledInfo);
+        }
+        secInfo.enrolledInfo = enrolledInfos;
+        idmCallback_->OnGetSecInfo(secInfo);
+        return;
+    }
+    USERIDM_HILOGE(MODULE_CLIENT, "callback_ is nullptr and idmCallback_ is nullptr");
 }
 }  // namespace UserIDM
 }  // namespace UserIAM

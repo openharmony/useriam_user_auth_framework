@@ -19,12 +19,19 @@
 void UserIDMUtTest_001(void);
 void UserIDMUtTest_002(void);
 void UserIDMUtTest_003(void);
+void UserIDMUtTest_003b(void);
 void UserIDMUtTest_004(void);
+void UserIDMUtTest_004b(void);
 void UserIDMUtTest_005(void);
 void UserIDMUtTest_006(void);
+void UserIDMUtTest_006b(void);
 void UserIDMUtTest_007(void);
+void UserIDMUtTest_007b(void);
 void UserIDMUtTest_008(void);
+void UserIDMUtTest_008b(void);
 void UserIDMUtTest_009(void);
+void UserIDMUtTest_009b(void);
 void UserIDMUtTest_010(void);
+void UserIDMUtTest_010b(void);
 
 #endif
