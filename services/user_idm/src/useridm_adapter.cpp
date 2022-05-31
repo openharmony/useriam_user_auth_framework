@@ -60,6 +60,19 @@ void UserIDMAdapter::CloseEditSession()
     USERIDM_HILOGD(MODULE_SERVICE, "call hdi info: CloseSession: %{public}d", ret);
 }
 
+int32_t UserIDMAdapter::CloseEditSession(int32_t userId)
+{
+    USERIDM_HILOGD(MODULE_SERVICE, "UserIDMAdapter CloseEditSession start");
+    auto hdiInterface = UserAuthHdi::IUserAuthInterface::Get();
+    if (hdiInterface == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "hdiInterface is nullptr!");
+        return FAIL;
+    }
+    int32_t ret = hdiInterface->CloseSession(userId);
+    USERIDM_HILOGD(MODULE_SERVICE, "call hdi info: CloseSession: %{public}d", ret);
+    return ret;
+}
+
 void UserIDMAdapter::CopyCredentialFromHdi(const UserAuthHdi::CredentialInfo& in, UserIDM::CredentialInfo& out)
 {
     out.authSubType = OHOS::UserIAM::UserIDM::AuthSubType(in.executorType);
@@ -182,7 +195,20 @@ int32_t UserIDMAdapter::InitSchedule(std::vector<uint8_t> autoToken, int32_t use
     return ret;
 }
 
-int32_t UserIDMAdapter::DeleteCredential(int32_t userId, uint64_t credentialId, std::vector<uint8_t>& authToken,
+int32_t UserIDMAdapter::Cancel(int32_t userId)
+{
+    USERIDM_HILOGD(MODULE_SERVICE, "UserIDMAdapter Cancel start");
+    auto hdiInterface = UserAuthHdi::IUserAuthInterface::Get();
+    if (hdiInterface == nullptr) {
+        USERIDM_HILOGE(MODULE_SERVICE, "hdiInterface is nullptr!");
+        return GENERAL_ERROR;
+    }
+    int32_t ret = hdiInterface->CancelEnrollment(userId);
+    USERIDM_HILOGD(MODULE_SERVICE, "call hdi info: CancelEnrollment: %{public}d", ret);
+    return ret;
+}
+
+int32_t UserIDMAdapter::DeleteCredential(int32_t userId, uint64_t credentialId, const std::vector<uint8_t>& authToken,
     OHOS::UserIAM::UserIDM::CredentialInfo& credInfo)
 {
     USERIDM_HILOGD(MODULE_SERVICE, "UserIDMAdapter DeleteCredential start");
@@ -202,7 +228,7 @@ int32_t UserIDMAdapter::DeleteCredential(int32_t userId, uint64_t credentialId, 
     return ret;
 }
 
-int32_t UserIDMAdapter::DeleteUser(int32_t userId, std::vector<uint8_t>& authToken,
+int32_t UserIDMAdapter::DeleteUser(int32_t userId, const std::vector<uint8_t>& authToken,
     std::vector<OHOS::UserIAM::UserIDM::CredentialInfo>& credInfos)
 {
     USERIDM_HILOGI(MODULE_SERVICE, "UserIDMAdapter DeleteUser start");

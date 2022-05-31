@@ -56,13 +56,13 @@ void UserIDMUtTest::TearDown()
 HWTEST_F(UserIDMUtTest, UserIDMUtTest_001, TestSize.Level1)
 {
     int32_t userId = 0;
-    UserIDM::GetInstance().OpenSession(userId);
+    UserIdm::GetInstance().OpenSession(userId);
 }
 
 HWTEST_F(UserIDMUtTest, UserIDMUtTest_002, TestSize.Level1)
 {
     int32_t userId = 0;
-    UserIDM::GetInstance().CloseSession(userId);
+    UserIdm::GetInstance().CloseSession(userId);
 }
 
 HWTEST_F(UserIDMUtTest, UserIDMUtTest_003, TestSize.Level1)
@@ -70,33 +70,60 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_003, TestSize.Level1)
     int32_t userId = 0;
     AddCredInfo credInfo;
     credInfo.authType = FACE;
-    std::shared_ptr<IDMCallback> callback = nullptr;
-    UserIDM::GetInstance().OpenSession(userId);
-    UserIDM::GetInstance().AddCredential(userId, credInfo, callback);
+    std::shared_ptr<IdmCallback> callback = nullptr;
+    UserIdm::GetInstance().OpenSession(userId);
+    UserIdm::GetInstance().AddCredential(userId, credInfo, callback);
+}
+
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_003b, TestSize.Level1)
+{
+    int32_t userId = 0;
+    AddCredInfo credInfo;
+    credInfo.authType = FACE;
+    std::shared_ptr<IdmCallback> callback = std::make_shared<IDMCallbackUT>();
+    UserIdm::GetInstance().OpenSession(userId);
+    UserIdm::GetInstance().AddCredential(userId, credInfo, callback);
 }
 
 HWTEST_F(UserIDMUtTest, UserIDMUtTest_004, TestSize.Level1)
 {
     int32_t userId = 0;
     AddCredInfo credInfo;
-    std::shared_ptr<IDMCallback> callback = nullptr;
-    UserIDM::GetInstance().OpenSession(userId);
-    UserIDM::GetInstance().UpdateCredential(userId, credInfo, callback);
+    std::shared_ptr<IdmCallback> callback = nullptr;
+    UserIdm::GetInstance().OpenSession(userId);
+    UserIdm::GetInstance().UpdateCredential(userId, credInfo, callback);
+}
+
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_004b, TestSize.Level1)
+{
+    int32_t userId = 0;
+    AddCredInfo credInfo;
+    std::shared_ptr<IdmCallback> callback = std::make_shared<IDMCallbackUT>();
+    UserIdm::GetInstance().OpenSession(userId);
+    UserIdm::GetInstance().UpdateCredential(userId, credInfo, callback);
 }
 
 HWTEST_F(UserIDMUtTest, UserIDMUtTest_005, TestSize.Level1)
 {
     int32_t userId = 0;
-    int32_t ret = UserIDM::GetInstance().Cancel(userId);
-    EXPECT_EQ(0, ret);
+    int32_t ret = UserIdm::GetInstance().Cancel(userId);
+    EXPECT_NE(SUCCESS, ret);
 }
 
 HWTEST_F(UserIDMUtTest, UserIDMUtTest_006, TestSize.Level1)
 {
     int32_t userId = 0;
     std::vector<uint8_t> authToken;
-    std::shared_ptr<IDMCallback> callback = nullptr;
-    UserIDM::GetInstance().DelUser(userId, authToken, callback);
+    std::shared_ptr<IdmCallback> callback = nullptr;
+    UserIdm::GetInstance().DelUser(userId, authToken, callback);
+}
+
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_006b, TestSize.Level1)
+{
+    int32_t userId = 0;
+    std::vector<uint8_t> authToken;
+    std::shared_ptr<IdmCallback> callback = std::make_shared<IDMCallbackUT>();
+    UserIdm::GetInstance().DelUser(userId, authToken, callback);
 }
 
 HWTEST_F(UserIDMUtTest, UserIDMUtTest_007, TestSize.Level1)
@@ -104,8 +131,17 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_007, TestSize.Level1)
     int32_t userId = 0;
     uint64_t credentialId = 1;
     std::vector<uint8_t> authToken;
-    std::shared_ptr<IDMCallback> callback = nullptr;
-    UserIDM::GetInstance().DelCredential(userId, credentialId, authToken, callback);
+    std::shared_ptr<IdmCallback> callback = nullptr;
+    UserIdm::GetInstance().DelCredential(userId, credentialId, authToken, callback);
+}
+
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_007b, TestSize.Level1)
+{
+    int32_t userId = 0;
+    uint64_t credentialId = 1;
+    std::vector<uint8_t> authToken;
+    std::shared_ptr<IdmCallback> callback = std::make_shared<IDMCallbackUT>();
+    UserIdm::GetInstance().DelCredential(userId, credentialId, authToken, callback);
 }
 
 HWTEST_F(UserIDMUtTest, UserIDMUtTest_008, TestSize.Level1)
@@ -113,24 +149,49 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_008, TestSize.Level1)
     int32_t userId = 0;
     AuthType authType = PIN;
     std::shared_ptr<GetInfoCallback> callback = nullptr;
-    int32_t ret = UserIDM::GetInstance().GetAuthInfo(userId, authType, callback);
-    EXPECT_EQ(0, ret);
+    int32_t ret = UserIdm::GetInstance().GetAuthInfo(userId, authType, callback);
+    EXPECT_NE(SUCCESS, ret);
+}
+
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_008b, TestSize.Level1)
+{
+    int32_t userId = 0;
+    AuthType authType = PIN;
+    std::shared_ptr<GetInfoCallback> callback = std::make_shared<GetInfoCallbackUT>();
+    int32_t ret = UserIdm::GetInstance().GetAuthInfo(userId, authType, callback);
+    EXPECT_NE(SUCCESS, ret);
 }
 
 HWTEST_F(UserIDMUtTest, UserIDMUtTest_009, TestSize.Level1)
 {
     uint32_t userId = 0;
     std::shared_ptr<GetSecInfoCallback> callback = nullptr;
-    int32_t ret = UserIDM::GetInstance().GetSecInfo(userId, callback);
-    EXPECT_EQ(0, ret);
+    int32_t ret = UserIdm::GetInstance().GetSecInfo(userId, callback);
+    EXPECT_NE(SUCCESS, ret);
+}
+
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_009b, TestSize.Level1)
+{
+    uint32_t userId = 0;
+    std::shared_ptr<GetSecInfoCallback> callback = std::make_shared<GetSecInfoCallbackUT>();
+    int32_t ret = UserIdm::GetInstance().GetSecInfo(userId, callback);
+    EXPECT_NE(SUCCESS, ret);
 }
 
 HWTEST_F(UserIDMUtTest, UserIDMUtTest_010, TestSize.Level1)
 {
     uint32_t userId = 0;
-    std::shared_ptr<IDMCallback> callback = nullptr;
-    int32_t ret = UserIDM::GetInstance().EnforceDelUser(userId, callback);
-    EXPECT_EQ(0, ret);
+    std::shared_ptr<IdmCallback> callback = nullptr;
+    int32_t ret = UserIdm::GetInstance().EnforceDelUser(userId, callback);
+    EXPECT_NE(SUCCESS, ret);
+}
+
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_010b, TestSize.Level1)
+{
+    uint32_t userId = 0;
+    std::shared_ptr<IdmCallback> callback = std::make_shared<IDMCallbackUT>();
+    int32_t ret = UserIdm::GetInstance().EnforceDelUser(userId, callback);
+    EXPECT_EQ(SUCCESS, ret);
 }
 }
 }

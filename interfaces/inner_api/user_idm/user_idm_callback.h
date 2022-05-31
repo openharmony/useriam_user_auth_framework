@@ -32,7 +32,7 @@ public:
     virtual void OnGetSecInfo(SecInfo &info) = 0;
 };
 
-class IDMCallback {
+class IdmCallback {
 public:
     virtual void OnResult(int32_t result, RequestResult reqRet) = 0;
     virtual void OnAcquireInfo(int32_t module, int32_t acquire, RequestResult reqRet) = 0;

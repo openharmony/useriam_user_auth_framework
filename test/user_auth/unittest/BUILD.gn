@@ -20,13 +20,15 @@ ohos_unittest("user_auth_test") {
   ]
 
   sources = [
-    "//base/user_iam/user_auth/frameworks/user_idm/src/user_idm.cpp",
     "src/user_idm_callback_test.cpp",
     "src/user_idm_ut_test.cpp",
     "src/userauth_test.cpp",
   ]
 
-  deps = [ "//base/user_iam/user_auth/frameworks/user_auth:userauth_framework" ]
+  deps = [
+    "//base/user_iam/user_auth/frameworks/user_auth:userauth_framework",
+    "//base/user_iam/user_auth/frameworks/user_idm:useridm_framework",
+  ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
