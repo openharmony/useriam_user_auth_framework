@@ -372,7 +372,7 @@ napi_value UserIdentityManager::NAPI_Cancel(napi_env env, napi_callback_info inf
     napi_value result = nullptr;
     size_t argc = ONE_PARAMETER;
     napi_value argv[ONE_PARAMETER] = {0};
-    SyncCancelContext *syncCancelContext = new (std::nothrow) SyncCancelContext();
+    std::unique_ptr<SyncCancelContext> syncCancelContext {new (std::nothrow) SyncCancelContext()};
     if (syncCancelContext == nullptr) {
         USERIDM_HILOGE(MODULE_JS_NAPI, "syncCancelContext is nullptr");
         return result;
@@ -383,8 +383,6 @@ napi_value UserIdentityManager::NAPI_Cancel(napi_env env, napi_callback_info inf
     syncCancelContext->challenge = AuthCommon::JudgeArrayType(env, ZERO_PARAMETER, argv);
     if (syncCancelContext->challenge.empty() || syncCancelContext->challenge.size() < sizeof(uint64_t)) {
         USERIDM_HILOGE(MODULE_JS_NAPI, "syncCancelContext->challenge is null or size is wrong!");
-        delete syncCancelContext;
-        syncCancelContext = nullptr;
         return result;
     }
     uint8_t tmp[sizeof(uint64_t)];
@@ -394,8 +392,6 @@ napi_value UserIdentityManager::NAPI_Cancel(napi_env env, napi_callback_info inf
     uint64_t *challenge = static_cast<uint64_t *>(static_cast<void *>(tmp));
     int32_t ret = UserIDMClient::GetInstance().Cancel(*challenge);
     NAPI_CALL(env, napi_create_int32(env, ret, &result));
-    delete syncCancelContext;
-    syncCancelContext = nullptr;
     return result;
 }
 

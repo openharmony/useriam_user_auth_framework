@@ -371,7 +371,6 @@ napi_value UserAuthImpl::BuildAuthInfo(napi_env env, AuthInfo *authInfo)
 {
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
-    authInfo->callBackInfo.env = env;
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, authInfo->info, &argc, argv, nullptr, nullptr));
@@ -405,13 +404,12 @@ napi_value UserAuthImpl::BuildAuthInfo(napi_env env, AuthInfo *authInfo)
 napi_value UserAuthImpl::Execute(napi_env env, napi_callback_info info)
 {
     USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s start", __func__);
-    ExecuteInfo *executeInfo = new (std::nothrow) ExecuteInfo();
+    std::unique_ptr<ExecuteInfo> executeInfo {new (std::nothrow) ExecuteInfo(env)};
     if (executeInfo == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s executeInfo nullptr", __func__);
         return nullptr;
     }
 
-    executeInfo->env = env;
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
@@ -433,7 +431,7 @@ napi_value UserAuthImpl::Execute(napi_env env, napi_callback_info info)
         NAPI_CALL(env, napi_create_promise(env, &executeInfo->deferred, &executeInfo->promise));
     }
 
-    std::shared_ptr<AuthApiCallback> callback = std::make_shared<AuthApiCallback>(executeInfo);
+    std::shared_ptr<AuthApiCallback> callback = std::make_shared<AuthApiCallback>(executeInfo.release());
     napi_value retPromise = nullptr;
     if (executeInfo->isPromise) {
         retPromise = executeInfo->promise;
@@ -557,7 +555,7 @@ ResultCode UserAuthImpl::ParseExecuteParameters(napi_env env, size_t argc, napi_
 napi_value UserAuthImpl::Auth(napi_env env, napi_callback_info info)
 {
     USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s start", __func__);
-    AuthInfo *authInfo = new (std::nothrow) AuthInfo();
+    AuthInfo *authInfo = new (std::nothrow) AuthInfo(env);
     if (authInfo == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s authInfo nullptr", __func__);
         return nullptr;
@@ -594,12 +592,11 @@ napi_value UserAuthImpl::AuthWrap(napi_env env, AuthInfo *authInfo)
 napi_value UserAuthImpl::AuthUser(napi_env env, napi_callback_info info)
 {
     USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s start", __func__);
-    AuthUserInfo *userInfo = new (std::nothrow) AuthUserInfo();
+    AuthUserInfo *userInfo = new (std::nothrow) AuthUserInfo(env);
     if (userInfo == nullptr) {
         USERAUTH_HILOGE(MODULE_JS_NAPI, "%{public}s userInfo nullptr", __func__);
         return nullptr;
     }
-    userInfo->callBackInfo.env = env;
     userInfo->info = info;
     napi_value ret = BuildAuthUserInfo(env, userInfo);
     if (ret == nullptr) {

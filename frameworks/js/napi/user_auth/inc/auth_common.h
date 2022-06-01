@@ -81,53 +81,53 @@ struct SetPropertyInfo {
 };
 
 struct ExecuteInfo {
-    bool isPromise;
-    napi_env env;
+    explicit ExecuteInfo(napi_env napiEnv);
+    ~ExecuteInfo();
+    bool isPromise {false};
+    napi_env env {nullptr};
     std::string type;
-    AuthTrustLevel trustLevel;
-    napi_ref callbackRef;
-    napi_deferred deferred;
-    napi_value promise;
-    int32_t result;
+    AuthTrustLevel trustLevel {ATL1};
+    napi_ref callbackRef {nullptr};
+    napi_deferred deferred {nullptr};
+    napi_value promise {nullptr};
+    int32_t result {0};
 };
 
 struct AuthInfo {
-    CallBackInfo callBackInfo;
-    napi_callback_info info;
-    napi_async_work asyncWork {nullptr};
-    napi_value onResultCallBack;
-    napi_value onAcquireInfoCallBack;
-    napi_ref onResult;
-    napi_ref onAcquireInfo;
-    napi_value onResultData[ARGS_TWO];
-    napi_value onAcquireInfoData[ARGS_THREE];
-    uint64_t challenge;
-    int32_t authType;
-    int32_t authTrustLevel;
-    int32_t result;
-    std::vector<uint8_t> token;
-    uint32_t remainTimes;
-    uint32_t freezingTime;
+    explicit AuthInfo(napi_env napiEnv);
+    ~AuthInfo();
+    napi_env env {nullptr};
+    napi_callback_info info {nullptr};
+    napi_value onResultCallBack {nullptr};
+    napi_value onAcquireInfoCallBack {nullptr};
+    napi_ref onResult {nullptr};
+    napi_ref onAcquireInfo {nullptr};
+    uint64_t challenge {0};
+    int32_t authType {0};
+    int32_t authTrustLevel {0};
+    int32_t result {0};
+    std::vector<uint8_t> token {};
+    uint32_t remainTimes {0};
+    uint32_t freezingTime {0};
 };
 
 struct AuthUserInfo {
-    CallBackInfo callBackInfo;
-    napi_callback_info info;
-    napi_async_work asyncWork {nullptr};
-    napi_ref onResult;
-    napi_ref onAcquireInfo;
-    napi_value onResultCallBack;
-    napi_value onAcquireInfoCallBack;
-    napi_value onResultData[ARGS_TWO];
-    napi_value onAcquireInfoData[ARGS_THREE];
-    int32_t userId;
-    uint64_t challenge;
-    int32_t authType;
-    int32_t authTrustLevel;
-    int32_t result;
-    std::vector<uint8_t> token;
-    uint32_t remainTimes;
-    uint32_t freezingTime;
+    explicit AuthUserInfo(napi_env napiEnv);
+    ~AuthUserInfo();
+    napi_env env {nullptr};
+    napi_callback_info info {nullptr};
+    napi_ref onResult {nullptr};
+    napi_ref onAcquireInfo {nullptr};
+    napi_value onResultCallBack {nullptr};
+    napi_value onAcquireInfoCallBack {nullptr};
+    int32_t userId {0};
+    uint64_t challenge {0};
+    int32_t authType {0};
+    int32_t authTrustLevel {0};
+    int32_t result {0};
+    std::vector<uint8_t> token {};
+    uint32_t remainTimes {0};
+    uint32_t freezingTime {0};
 };
 } // namespace UserAuth
 } // namespace UserIAM

@@ -113,7 +113,7 @@ struct AddCredInfo {
 };
 
 struct  RequestResult {
-    uint64_t credentialId;
+    uint64_t credentialId {0};
 };
 }  // namespace UserIDM
 }  // namespace UserIAM
