@@ -43,6 +43,12 @@ using HiLogLabel = OHOS::HiviewDFX::HiLogLabel;
 static constexpr unsigned int IAM_DOMAIN_ID_COMMON = 0xD002400;
 static constexpr HiLogLabel LABEL_IAM_COMMON = {LOG_CORE, IAM_DOMAIN_ID_COMMON, "IAM_COMMON"};
 
+// user idm
+static constexpr unsigned int IAM_DOMAIN_ID_IDM = 0xD002401;
+static constexpr HiLogLabel LABEL_USER_IDM_NAPI = {LOG_CORE, IAM_DOMAIN_ID_IDM, "USER_IDM_NAPI"};
+static constexpr HiLogLabel LABEL_USER_IDM_SDK = {LOG_CORE, IAM_DOMAIN_ID_IDM, "USER_IDM_SDK"};
+static constexpr HiLogLabel LABEL_USER_IDM_SA = {LOG_CORE, IAM_DOMAIN_ID_IDM, "USER_IDM_SA"};
+
 // user auth
 static constexpr unsigned int IAM_DOMAIN_ID_USER = 0xD002421;
 static constexpr HiLogLabel LABEL_USER_AUTH_NAPI = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_NAPI"};
@@ -50,6 +56,13 @@ static constexpr HiLogLabel LABEL_USER_AUTH_SDK = {LOG_CORE, IAM_DOMAIN_ID_USER,
 static constexpr HiLogLabel LABEL_USER_AUTH_SA = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_SA"};
 static constexpr HiLogLabel LABEL_USER_AUTH_HDI = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_HDI"};
 static constexpr HiLogLabel LABEL_USER_AUTH_EXECUTOR = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_EXECUTOR"};
+
+// auth executor manager
+static constexpr unsigned int IAM_DOMAIN_ID_AUTH_EXECUTOR_MGR = 0xD002431;
+static constexpr HiLogLabel LABEL_AUTH_EXECUTOR_MGR_SDK = {
+    LOG_CORE, IAM_DOMAIN_ID_AUTH_EXECUTOR_MGR, "AUTH_EXECUTOR_MGR_SDK"};
+static constexpr HiLogLabel LABEL_AUTH_EXECUTOR_MGR_SA = {
+    LOG_CORE, IAM_DOMAIN_ID_AUTH_EXECUTOR_MGR, "AUTH_EXECUTOR_MGR_SA"};
 
 // pin
 static constexpr unsigned int IAM_DOMAIN_ID_PIN = 0xD002441;
