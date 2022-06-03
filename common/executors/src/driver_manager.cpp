@@ -19,12 +19,13 @@
 
 #include "devsvc_manager_stub.h"
 #include "hdf_device_desc.h"
-#include "iam_check.h"
-#include "iam_logger.h"
-#include "iam_ptr.h"
 #include "iservice_registry.h"
 #include "iservmgr_hdi.h"
 #include "parameter.h"
+
+#include "iam_check.h"
+#include "iam_logger.h"
+#include "iam_ptr.h"
 
 #define LOG_LABEL Common::LABEL_USER_AUTH_EXECUTOR
 
@@ -52,8 +53,7 @@ int32_t DriverManager::Start(const std::map<std::string, HdiConfig> &hdiName2Con
         IAM_LOGI("add driver %{public}s", pair.first.c_str());
     }
     SubscribeHdiManagerServiceStatus();
-    SubscribeHdiDriverStatus();
-    SubscribeFrameworkRedayEvent();
+    SubscribeFrameworkReadyEvent();
     OnAllHdiConnect();
     IAM_LOGI("success");
     return USERAUTH_SUCCESS;
@@ -86,64 +86,37 @@ void DriverManager::SubscribeHdiDriverStatus()
         return;
     }
 
-    int32_t ret = servMgr->RegisterServiceStatusListener(this, DEVICE_CLASS_USERAUTH);
+    auto listener = new (std::nothrow) HdiServiceStatusListener([this](const ServiceStatus &status) {
+        std::lock_guard<std::recursive_mutex> lock(this->mutex_);
+        auto driverIter = this->serviceName2Driver_.find(status.serviceName);
+        if (driverIter == this->serviceName2Driver_.end()) {
+            return;
+        }
+
+        IAM_LOGI("service %{public}s receive status %{public}d", status.serviceName.c_str(), status.status);
+        auto driver = driverIter->second;
+        IF_FALSE_LOGE_AND_RETURN(driver != nullptr);
+        switch (status.status) {
+            case SERVIE_STATUS_START:
+                IAM_LOGI("service %{public}s status change to start", status.serviceName.c_str());
+                driver->OnHdiConnect();
+                break;
+            case SERVIE_STATUS_STOP:
+                IAM_LOGI("service %{public}s status change to stop", status.serviceName.c_str());
+                driver->OnHdiDisconnect();
+                break;
+            default:
+                IAM_LOGI("service %{public}s status ignored", status.serviceName.c_str());
+        }
+    });
+    IF_FALSE_LOGE_AND_RETURN(listener != nullptr);
+    auto listenerPtr = sptr<HdiServiceStatusListener>(listener);
+    int32_t ret = servMgr->RegisterServiceStatusListener(listener, DEVICE_CLASS_USERAUTH);
     if (ret != USERAUTH_SUCCESS) {
         IAM_LOGE("failed to register service status listener");
         return;
     }
     IAM_LOGI("success");
-}
-
-bool DriverManager::HdiDriverIsRunning(const std::string &serviceName)
-{
-    auto servMgr = IServiceManager::Get();
-    if (servMgr == nullptr) {
-        IAM_LOGE("failed to get IServiceManager");
-        return false;
-    }
-
-    auto service = servMgr->GetService(serviceName.c_str());
-    if (service == nullptr) {
-        IAM_LOGE("hdi driver is not running");
-        return false;
-    }
-
-    IAM_LOGI("hdi driver is running");
-    return true;
-}
-
-void DriverManager::OnReceive(const ServiceStatus &status)
-{
-    IAM_LOGI("service %{public}s receive status", status.serviceName.c_str());
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    auto driverIter = serviceName2Driver_.find(status.serviceName);
-    if (driverIter == serviceName2Driver_.end()) {
-        IAM_LOGI("service name not match, ignore");
-        return;
-    }
-
-    auto driver = driverIter->second;
-    IF_FALSE_LOGE_AND_RETURN(driver != nullptr);
-    switch (status.status) {
-        case SERVIE_STATUS_START:
-            IAM_LOGI("service %{public}s status change to start", status.serviceName.c_str());
-            if (!HdiDriverIsRunning(status.serviceName)) {
-                IAM_LOGE("service %{public}s is not running, ignore this message", status.serviceName.c_str());
-                break;
-            }
-            driver->OnHdiConnect();
-            break;
-        case SERVIE_STATUS_STOP:
-            IAM_LOGI("service %{public}s status change to stop", status.serviceName.c_str());
-            if (HdiDriverIsRunning(status.serviceName)) {
-                IAM_LOGE("service %{public}s is running, ignore this message", status.serviceName.c_str());
-                break;
-            }
-            driver->OnHdiDisconnect();
-            break;
-        default:
-            IAM_LOGE("service %{public}s status invalid", status.serviceName.c_str());
-    }
 }
 
 void DriverManager::SubscribeHdiManagerServiceStatus()
@@ -164,7 +137,7 @@ void DriverManager::SubscribeHdiManagerServiceStatus()
     IAM_LOGI("success");
 }
 
-void DriverManager::SubscribeFrameworkRedayEvent()
+void DriverManager::SubscribeFrameworkReadyEvent()
 {
     auto eventCallback = [](const char *key, const char *value, void *context) {
         IAM_LOGI("receive useriam.fwkready event");
