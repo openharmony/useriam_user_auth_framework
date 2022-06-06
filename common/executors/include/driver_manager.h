@@ -19,33 +19,45 @@
 #include <cstdint>
 #include <map>
 
+#include "iservstat_listener_hdi.h"
 #include "singleton.h"
+#include "system_ability_status_listener.h"
 
 #include "driver.h"
 #include "iauth_driver_hdi.h"
 #include "idriver_manager.h"
-#include "iservstat_listener_hdi.h"
-#include "system_ability_status_listener.h"
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
 using namespace HDI::ServiceManager::V1_0;
 
-class DriverManager : public ServStatListenerStub, public Singleton<DriverManager> {
+class DriverManager : public Singleton<DriverManager> {
 public:
     friend SystemAbilityStatusListener;
-
-    void OnReceive(const ServiceStatus &status) override;
     int32_t Start(const std::map<std::string, HdiConfig> &hdiName2Config);
     void OnFrameworkReady();
 
 private:
+    class HdiServiceStatusListener : public ServStatListenerStub {
+    public:
+        using StatusCallback = std::function<void(const ServiceStatus &)>;
+        explicit HdiServiceStatusListener(StatusCallback callback) : callback_(std::move(callback))
+        {
+        }
+        virtual ~HdiServiceStatusListener() = default;
+        void OnReceive(const ServiceStatus &status) override
+        {
+            callback_(status);
+        }
+
+    private:
+        StatusCallback callback_;
+    };
     bool HdiConfigIsValid(const std::map<std::string, HdiConfig> &hdiName2Config);
-    bool HdiDriverIsRunning(const std::string &serviceName);
     void SubscribeHdiDriverStatus();
     void SubscribeHdiManagerServiceStatus();
-    void SubscribeFrameworkRedayEvent();
+    void SubscribeFrameworkReadyEvent();
     void OnAllHdiDisconnect();
     void OnAllHdiConnect();
 
