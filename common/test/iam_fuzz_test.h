@@ -16,8 +16,8 @@
 #ifndef IAM_FUZZ_TEST_H
 #define IAM_FUZZ_TEST_H
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "parcel.h"
 
