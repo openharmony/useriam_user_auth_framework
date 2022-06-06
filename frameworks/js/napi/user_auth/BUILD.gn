@@ -18,7 +18,11 @@ config("userauth_public_config") {
 }
 
 ohos_shared_library("userauth") {
-  include_dirs = [ "inc" ]
+  include_dirs = [
+    "inc",
+    "//base/user_iam/user_auth/common/utils",
+    "//base/user_iam/user_auth/common/logs",
+  ]
 
   sources = [
     "src/auth_build.cpp",
@@ -29,7 +33,6 @@ ohos_shared_library("userauth") {
   ]
 
   deps = [ "//base/user_iam/user_auth/frameworks/user_auth:userauth_framework" ]
-
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -48,7 +51,10 @@ ohos_shared_library("userauth") {
 ohos_shared_library("userauth_napi") {
   defines = [ "USER_AUTH_FOR_KITS" ]
 
-  include_dirs = [ "inc" ]
+  include_dirs = [
+    "inc",
+    "//base/user_iam/user_auth/common/utils",
+  ]
 
   sources = [
     "src/auth_build.cpp",

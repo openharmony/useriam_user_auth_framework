@@ -14,10 +14,16 @@
  */
 
 #include "auth_build.h"
+
 #include <cinttypes>
+
+#include "iam_logger.h"
+#include "iam_para2str.h"
+
 #include "auth_common.h"
-#include "userauth_hilog_wrapper.h"
 #include "auth_object.h"
+
+#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_NAPI
 
 namespace OHOS {
 namespace UserIAM {
@@ -29,13 +35,13 @@ Napi_SetPropertyRequest AuthBuild::SetPropertyRequestBuild(napi_env env, napi_va
 {
     Napi_SetPropertyRequest request;
     if (object == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "SetPropertyRequestBuild object is null");
+        IAM_LOGE("object is null");
         return request;
     }
     request.authType_ = convert_.GetInt32ValueByKey(env, object, "authType");
     request.key_ = static_cast<uint32_t>(convert_.GetInt32ValueByKey(env, object, "key"));
     request.setInfo_ = convert_.NapiGetValueUint8Array(env, object, "setInfo");
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthBuild::SetPropertyRequestBuild authType = %{public}d", request.authType_);
+    IAM_LOGI("authType = %{public}d", request.authType_);
     return request;
 }
 
@@ -43,12 +49,12 @@ Napi_GetPropertyRequest AuthBuild::GetPropertyRequestBuild(napi_env env, napi_va
 {
     Napi_GetPropertyRequest request;
     if (object == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "GetPropertyRequestBuild object is null");
+        IAM_LOGE("object is null");
         return request;
     }
     request.authType_ = convert_.GetInt32ValueByKey(env, object, "authType");
     request.keys_ = convert_.GetInt32ArrayValueByKey(env, object, "keys");
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthBuild::GetPropertyRequestBuild authType = %{public}d", request.authType_);
+    IAM_LOGI("authType = %{public}d", request.authType_);
     return request;
 }
 
@@ -86,16 +92,16 @@ uint64_t AuthBuild::GetUint8ArrayTo64(napi_env env, napi_value value)
     bool isTypedArray = false;
     napi_is_typedarray(env, value, &isTypedArray);
     if (!isTypedArray) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "GetUint8ArrayTo64 value is not typedarray");
+        IAM_LOGE("value is not typedarray");
         return 0;
     }
     napi_get_typedarray_info(env, value, &arraytype, &length, reinterpret_cast<void **>(&data), &buffer, &offset);
     if (arraytype != napi_uint8_array) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "GetUint8ArrayTo64 js value is not uint8Array");
+        IAM_LOGE("value is not uint8Array");
         return 0;
     }
     if (offset != 0) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "offset is %{public}zu", offset);
+        IAM_LOGE("offset is %{public}zu", offset);
         return 0;
     }
     std::vector<uint8_t> result(data, data + length);
@@ -104,7 +110,7 @@ uint64_t AuthBuild::GetUint8ArrayTo64(napi_env env, napi_value value)
         tmp[i] = result[i];
     }
     uint64_t *re = static_cast<uint64_t *>(static_cast<void *>(tmp));
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "GetUint8ArrayTo64 resultUint64 is 0xXXXX%{public}04" PRIx64 "", MASK & *re);
+    IAM_LOGI("The low 16 bits is %{public}s", GET_MASKED_STRING(*re).c_str());
     return *re;
 }
 
