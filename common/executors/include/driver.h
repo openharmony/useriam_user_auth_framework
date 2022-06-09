@@ -37,7 +37,7 @@ public:
     void OnFrameworkReady();
 
 private:
-    std::recursive_mutex mutex_;
+    std::mutex mutex_;
     std::string serviceName_;
     HdiConfig hdiConfig_;
     std::vector<std::shared_ptr<Executor>> executorList_;

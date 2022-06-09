@@ -36,7 +36,7 @@ void Driver::OnHdiConnect()
 {
     IAM_LOGI("start");
     OnHdiDisconnect();
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     std::vector<std::shared_ptr<IAuthExecutorHdi>> executorHdiList;
     IF_FALSE_LOGE_AND_RETURN(hdiConfig_.driver != nullptr);
     hdiConfig_.driver->GetExecutorList(executorHdiList);
@@ -57,7 +57,7 @@ void Driver::OnHdiConnect()
 void Driver::OnHdiDisconnect()
 {
     IAM_LOGI("start");
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     for (const auto &executor : executorList_) {
         if (executor == nullptr) {
             IAM_LOGE("executor is null");
@@ -72,7 +72,7 @@ void Driver::OnHdiDisconnect()
 void Driver::OnFrameworkReady()
 {
     IAM_LOGI("start");
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     for (const auto &executor : executorList_) {
         if (executor == nullptr) {
             IAM_LOGE("executor is null");

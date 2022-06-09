@@ -25,9 +25,8 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-CustomCommand::CustomCommand(
-    std::shared_ptr<Executor> executor, std::shared_ptr<AuthResPool::AuthAttributes> attributes)
-    : AsyncCommandBase("CUSTOM", 0, executor),
+CustomCommand::CustomCommand(std::weak_ptr<Executor> executor, std::shared_ptr<AuthAttributes> attributes)
+    : AsyncCommandBase("CUSTOM", 0, executor, nullptr),
       attributes_(attributes)
 {
 }
@@ -37,12 +36,10 @@ ResultCode CustomCommand::SendRequest()
     static const size_t MAX_TEMPLATE_LIST_LEN = 1000;
     IAM_LOGI("%{public}s send request start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN_VAL(attributes_ != nullptr, ResultCode::GENERAL_ERROR);
-    IF_FALSE_LOGE_AND_RETURN_VAL(executor_ != nullptr, ResultCode::GENERAL_ERROR);
-    auto hdi = executor_->GetExecutorHdi();
+    auto hdi = GetExecutorHdi();
     IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, ResultCode::GENERAL_ERROR);
 
     future_ = promise_.get_future();
-
     uint32_t commandId = 0;
     attributes_->GetUint32Value(AUTH_PROPERTY_MODE, commandId);
     std::vector<uint64_t> templateIdList;

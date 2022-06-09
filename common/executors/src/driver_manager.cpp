@@ -40,7 +40,12 @@ int32_t DriverManager::Start(const std::map<std::string, HdiConfig> &hdiName2Con
         IAM_LOGE("service config is not valid");
         return USERAUTH_ERROR;
     }
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (started) {
+        IAM_LOGE("driver manager already started");
+        return USERAUTH_ERROR;
+    }
+    started = true;
     hdiName2Config_ = hdiName2Config;
     serviceName2Driver_.clear();
     for (auto const &pair : hdiName2Config) {
@@ -54,7 +59,6 @@ int32_t DriverManager::Start(const std::map<std::string, HdiConfig> &hdiName2Con
     }
     SubscribeHdiManagerServiceStatus();
     SubscribeFrameworkReadyEvent();
-    OnAllHdiConnect();
     IAM_LOGI("success");
     return USERAUTH_SUCCESS;
 }
@@ -86,16 +90,13 @@ void DriverManager::SubscribeHdiDriverStatus()
         return;
     }
 
-    auto listener = new (std::nothrow) HdiServiceStatusListener([this](const ServiceStatus &status) {
-        std::lock_guard<std::recursive_mutex> lock(this->mutex_);
-        auto driverIter = this->serviceName2Driver_.find(status.serviceName);
-        if (driverIter == this->serviceName2Driver_.end()) {
+    auto listener = new (std::nothrow) HdiServiceStatusListener([](const ServiceStatus &status) {
+        auto driver = DriverManager::GetInstance().GetDriverByServiceName(status.serviceName);
+        if (driver == nullptr) {
             return;
         }
 
         IAM_LOGI("service %{public}s receive status %{public}d", status.serviceName.c_str(), status.status);
-        auto driver = driverIter->second;
-        IF_FALSE_LOGE_AND_RETURN(driver != nullptr);
         switch (status.status) {
             case SERVIE_STATUS_START:
                 IAM_LOGI("service %{public}s status change to start", status.serviceName.c_str());
@@ -164,7 +165,7 @@ void DriverManager::SubscribeFrameworkReadyEvent()
 void DriverManager::OnAllHdiDisconnect()
 {
     IAM_LOGI("start");
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     for (auto const &pair : serviceName2Driver_) {
         if (pair.second == nullptr) {
             IAM_LOGE("pair.second is null");
@@ -175,24 +176,10 @@ void DriverManager::OnAllHdiDisconnect()
     IAM_LOGI("success");
 }
 
-void DriverManager::OnAllHdiConnect()
-{
-    IAM_LOGI("start");
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    for (auto const &pair : serviceName2Driver_) {
-        if (pair.second == nullptr) {
-            IAM_LOGE("pair.second is null");
-            continue;
-        }
-        pair.second->OnHdiConnect();
-    }
-    IAM_LOGI("success");
-}
-
 void DriverManager::OnFrameworkReady()
 {
     IAM_LOGI("start");
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     for (auto const &pair : serviceName2Driver_) {
         if (pair.second == nullptr) {
             IAM_LOGE("pair.second is null");
@@ -200,6 +187,18 @@ void DriverManager::OnFrameworkReady()
         }
         pair.second->OnFrameworkReady();
     }
+    IAM_LOGI("success");
+}
+
+std::shared_ptr<Driver> DriverManager::GetDriverByServiceName(const std::string &serviceName)
+{
+    IAM_LOGI("start");
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto driverIter = serviceName2Driver_.find(serviceName);
+    if (driverIter == serviceName2Driver_.end()) {
+        return nullptr;
+    }
+    return driverIter->second;
 }
 } // namespace UserAuth
 } // namespace UserIAM

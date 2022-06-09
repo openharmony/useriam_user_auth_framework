@@ -17,6 +17,7 @@
 #define FRAMEWORK_EXECUTOR_CALLBACK_H
 
 #include <cstdint>
+#include <string>
 
 #include "nocopyable.h"
 
@@ -29,42 +30,44 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
+using namespace AuthResPool;
 enum ScheduleMode {
     SCHEDULE_MODE_ENROLL = 0,
     SCHEDULE_MODE_AUTH = 1,
 };
 
-class FrameworkExecutorCallback : public AuthResPool::ExecutorCallback, public NoCopyable {
+class FrameworkExecutorCallback : public ExecutorCallback, public NoCopyable {
 public:
-    explicit FrameworkExecutorCallback(std::shared_ptr<Executor> executor);
+    explicit FrameworkExecutorCallback(std::weak_ptr<Executor> executor);
     ~FrameworkExecutorCallback() override = default;
 
-    int32_t OnBeginExecute(uint64_t scheduleId, std::vector<uint8_t> &publicKey,
-        std::shared_ptr<AuthResPool::AuthAttributes> commandAttrs) override;
-    int32_t OnEndExecute(uint64_t scheduleId, std::shared_ptr<AuthResPool::AuthAttributes> consumerAttr) override;
-    int32_t OnSetProperty(std::shared_ptr<AuthResPool::AuthAttributes> properties) override;
-    void OnMessengerReady(const sptr<AuthResPool::IExecutorMessenger> &messenger, std::vector<uint8_t> &publicKey,
+    int32_t OnBeginExecute(
+        uint64_t scheduleId, std::vector<uint8_t> &publicKey, std::shared_ptr<AuthAttributes> commandAttrs) override;
+    int32_t OnEndExecute(uint64_t scheduleId, std::shared_ptr<AuthAttributes> consumerAttr) override;
+    int32_t OnSetProperty(std::shared_ptr<AuthAttributes> properties) override;
+    void OnMessengerReady(const sptr<IExecutorMessenger> &messenger, std::vector<uint8_t> &publicKey,
         std::vector<uint64_t> &templateIds) override;
-    int32_t OnGetProperty(std::shared_ptr<AuthResPool::AuthAttributes> conditions,
-        std::shared_ptr<AuthResPool::AuthAttributes> values) override;
+    int32_t OnGetProperty(std::shared_ptr<AuthAttributes> conditions, std::shared_ptr<AuthAttributes> values) override;
 
 private:
-    ResultCode OnBeginExecuteInner(uint64_t scheduleId, std::vector<uint8_t> &publicKey,
-        std::shared_ptr<AuthResPool::AuthAttributes> commandAttrs);
-    ResultCode OnEndExecuteInner(uint64_t scheduleId, std::shared_ptr<AuthResPool::AuthAttributes> consumerAttr);
-    ResultCode OnSetPropertyInner(std::shared_ptr<AuthResPool::AuthAttributes> properties);
-    ResultCode OnGetPropertyInner(
-        std::shared_ptr<AuthResPool::AuthAttributes> conditions, std::shared_ptr<AuthResPool::AuthAttributes> values);
-    ResultCode ProcessEnrollCommand(uint64_t scheduleId, std::shared_ptr<AuthResPool::AuthAttributes> properties);
-    ResultCode ProcessAuthCommand(uint64_t scheduleId, std::shared_ptr<AuthResPool::AuthAttributes> properties);
-    ResultCode ProcessIdentifyCommand(uint64_t scheduleId, std::shared_ptr<AuthResPool::AuthAttributes> properties);
+    static uint32_t GenerateExecutorCallbackId();
+    ResultCode OnBeginExecuteInner(
+        uint64_t scheduleId, std::vector<uint8_t> &publicKey, std::shared_ptr<AuthAttributes> commandAttrs);
+    ResultCode OnEndExecuteInner(uint64_t scheduleId, std::shared_ptr<AuthAttributes> consumerAttr);
+    ResultCode OnSetPropertyInner(std::shared_ptr<AuthAttributes> properties);
+    ResultCode OnGetPropertyInner(std::shared_ptr<AuthAttributes> conditions, std::shared_ptr<AuthAttributes> values);
+    ResultCode ProcessEnrollCommand(uint64_t scheduleId, std::shared_ptr<AuthAttributes> properties);
+    ResultCode ProcessAuthCommand(uint64_t scheduleId, std::shared_ptr<AuthAttributes> properties);
+    ResultCode ProcessIdentifyCommand(uint64_t scheduleId, std::shared_ptr<AuthAttributes> properties);
     ResultCode ProcessCancelCommand(uint64_t scheduleId);
-    ResultCode ProcessDeleteTemplateCommand(std::shared_ptr<AuthResPool::AuthAttributes> properties);
-    ResultCode ProcessCustomCommand(std::shared_ptr<AuthResPool::AuthAttributes> properties);
+    ResultCode ProcessDeleteTemplateCommand(std::shared_ptr<AuthAttributes> properties);
+    ResultCode ProcessCustomCommand(std::shared_ptr<AuthAttributes> properties);
     ResultCode ProcessGetTemplateCommand(
-        std::shared_ptr<AuthResPool::AuthAttributes> conditions, std::shared_ptr<AuthResPool::AuthAttributes> values);
-
-    std::shared_ptr<Executor> executor_;
+        std::shared_ptr<AuthAttributes> conditions, std::shared_ptr<AuthAttributes> values);
+    const char *GetDescription();
+    sptr<IExecutorMessenger> executorMessenger_;
+    std::weak_ptr<Executor> executor_;
+    std::string description_;
 };
 } // namespace UserAuth
 } // namespace UserIAM

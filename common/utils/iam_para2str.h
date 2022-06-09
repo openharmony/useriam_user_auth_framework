@@ -26,12 +26,11 @@ namespace OHOS {
 namespace UserIAM {
 namespace Common {
 using namespace std;
-const uint64_t UINT64_MASK = 0xffff;
 const int32_t MASK_WIDTH = 4;
 static inline std::string GetMaskedString(uint16_t val)
 {
     std::ostringstream ss;
-    ss << "0xXXXX" << std::setfill('0') << std::setw(MASK_WIDTH) << std::hex << (val & UINT64_MASK);
+    ss << "0xXXXX" << std::setfill('0') << std::setw(MASK_WIDTH) << std::hex << val;
     return ss.str();
 }
 
