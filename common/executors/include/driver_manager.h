@@ -34,36 +34,38 @@ using namespace HDI::ServiceManager::V1_0;
 
 class DriverManager : public Singleton<DriverManager> {
 public:
-    friend SystemAbilityStatusListener;
     int32_t Start(const std::map<std::string, HdiConfig> &hdiName2Config);
     void OnFrameworkReady();
+    void OnAllHdiDisconnect();
+    void SubscribeHdiDriverStatus();
+    std::shared_ptr<Driver> GetDriverByServiceName(const std::string &serviceName);
 
 private:
-    class HdiServiceStatusListener : public ServStatListenerStub {
-    public:
-        using StatusCallback = std::function<void(const ServiceStatus &)>;
-        explicit HdiServiceStatusListener(StatusCallback callback) : callback_(std::move(callback))
-        {
-        }
-        virtual ~HdiServiceStatusListener() = default;
-        void OnReceive(const ServiceStatus &status) override
-        {
-            callback_(status);
-        }
-
-    private:
-        StatusCallback callback_;
-    };
+    class HdiServiceStatusListener;
     bool HdiConfigIsValid(const std::map<std::string, HdiConfig> &hdiName2Config);
-    void SubscribeHdiDriverStatus();
     void SubscribeHdiManagerServiceStatus();
     void SubscribeFrameworkReadyEvent();
-    void OnAllHdiDisconnect();
-    void OnAllHdiConnect();
 
-    std::recursive_mutex mutex_;
+    bool started = false;
+    std::mutex mutex_;
     std::map<std::string, std::shared_ptr<Driver>> serviceName2Driver_;
     std::map<std::string, HdiConfig> hdiName2Config_;
+};
+
+class DriverManager ::HdiServiceStatusListener : public ServStatListenerStub {
+public:
+    using StatusCallback = std::function<void(const ServiceStatus &)>;
+    explicit HdiServiceStatusListener(StatusCallback callback) : callback_(std::move(callback))
+    {
+    }
+    virtual ~HdiServiceStatusListener() = default;
+    void OnReceive(const ServiceStatus &status) override
+    {
+        callback_(status);
+    }
+
+private:
+    StatusCallback callback_;
 };
 } // namespace UserAuth
 } // namespace UserIAM

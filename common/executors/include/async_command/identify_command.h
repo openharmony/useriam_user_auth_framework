@@ -23,8 +23,8 @@ namespace UserIAM {
 namespace UserAuth {
 class IdentifyCommand : public AsyncCommandBase {
 public:
-    IdentifyCommand(std::shared_ptr<Executor> executor, uint64_t scheduleId,
-        std::shared_ptr<AuthResPool::AuthAttributes> commandAttrs);
+    IdentifyCommand(std::weak_ptr<Executor> executor, uint64_t scheduleId, std::shared_ptr<AuthAttributes> commandAttrs,
+        sptr<IExecutorMessenger> executorMessenger);
     ~IdentifyCommand() override = default;
 
     void OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo) override;
@@ -35,7 +35,7 @@ protected:
 
 private:
     uint32_t transNum_ = 1;
-    std::shared_ptr<AuthResPool::AuthAttributes> attributes_;
+    std::shared_ptr<AuthAttributes> attributes_;
 };
 } // namespace UserAuth
 } // namespace UserIAM

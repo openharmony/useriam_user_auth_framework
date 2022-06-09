@@ -23,14 +23,15 @@
 
 #include "nocopyable.h"
 
+#include "executor_callback.h"
 #include "iasync_command.h"
 #include "iauth_executor_hdi.h"
 #include "iexecute_callback.h"
-#include "iexecutor_messenger.h"
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
+using namespace AuthResPool;
 class Executor : public std::enable_shared_from_this<Executor>, public NoCopyable {
 public:
     Executor(std::shared_ptr<IAuthExecutorHdi> executorHdi, uint16_t hdiId);
@@ -39,8 +40,6 @@ public:
     void OnHdiConnect();
     void OnHdiDisconnect();
     void OnFrameworkReady();
-    void SetExecutorMessenger(const sptr<AuthResPool::IExecutorMessenger> &messenger);
-    sptr<AuthResPool::IExecutorMessenger> GetExecutorMessenger();
     void AddCommand(std::shared_ptr<IAsyncCommand> command);
     void RemoveCommand(std::shared_ptr<IAsyncCommand> command);
     std::shared_ptr<IAuthExecutorHdi> GetExecutorHdi();
@@ -49,8 +48,8 @@ public:
 private:
     void RegisterExecutorCallback(ExecutorInfo &executorInfo);
     void RespondCallbackOnDisconnect();
-    sptr<AuthResPool::IExecutorMessenger> executorMessenger_;
-    std::recursive_mutex mutex_;
+    std::shared_ptr<ExecutorCallback> executorCallback_;
+    std::mutex mutex_;
     std::set<std::shared_ptr<IAsyncCommand>> command2Respond_;
     std::shared_ptr<IAuthExecutorHdi> executorHdi_;
     std::string description_;
