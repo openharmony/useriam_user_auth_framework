@@ -26,6 +26,7 @@ ohos_shared_library("userauth") {
 
   sources = [
     "src/auth_build.cpp",
+    "src/auth_common.cpp",
     "src/authapi_callback.cpp",
     "src/result_convert.cpp",
     "src/user_auth_helper.cpp",
@@ -58,6 +59,7 @@ ohos_shared_library("userauth_napi") {
 
   sources = [
     "src/auth_build.cpp",
+    "src/auth_common.cpp",
     "src/authapi_callback.cpp",
     "src/result_convert.cpp",
     "src/user_auth_helper.cpp",

@@ -149,7 +149,7 @@ void AuthApiCallback::onAcquireInfo(const int32_t module, const uint32_t acquire
             IAM_LOGE("acquireInfoInner is null");
             return;
         }
-        acquireInfoInner->env = userInfo_->callBackInfo.env;
+        acquireInfoInner->env = userInfo_->env;
         acquireInfoInner->onAcquireInfo = userInfo_->onAcquireInfo;
         acquireInfoInner->module = module;
         acquireInfoInner->acquireInfo = acquireInfo;
@@ -165,7 +165,7 @@ void AuthApiCallback::onAcquireInfo(const int32_t module, const uint32_t acquire
             IAM_LOGE("acquireInfoInner is null");
             return;
         }
-        acquireInfoInner->env = authInfo_->callBackInfo.env;
+        acquireInfoInner->env = authInfo_->env;
         acquireInfoInner->onAcquireInfo = authInfo_->onAcquireInfo;
         acquireInfoInner->module = module;
         acquireInfoInner->acquireInfo = acquireInfo;
@@ -186,7 +186,7 @@ static void OnUserAuthResultWork(uv_work_t *work, int status)
         delete work;
         return;
     }
-    napi_env env = userInfo->callBackInfo.env;
+    napi_env env = userInfo->env;
     napi_value callback = nullptr;
     napi_value params[PARAM2] = {nullptr};
     napi_value return_val = nullptr;
@@ -200,8 +200,6 @@ static void OnUserAuthResultWork(uv_work_t *work, int status)
         env, userInfo->remainTimes, userInfo->freezingTime, userInfo->token);
     napi_call_function(env, nullptr, callback, PARAM2, params, &return_val);
 EXIT:
-    napi_delete_reference(env, userInfo->onResult);
-    napi_delete_reference(env, userInfo->onAcquireInfo);
     delete userInfo;
     delete work;
 }
@@ -210,7 +208,7 @@ void AuthApiCallback::OnUserAuthResult(const int32_t result, const AuthResult ex
 {
     IAM_LOGI("start");
     uv_loop_s *loop(nullptr);
-    napi_get_uv_event_loop(userInfo_->callBackInfo.env, &loop);
+    napi_get_uv_event_loop(userInfo_->env, &loop);
     if (loop == nullptr) {
         IAM_LOGE("loop is null");
         delete userInfo_;
@@ -242,7 +240,7 @@ static void OnAuthResultWork(uv_work_t *work, int status)
         delete work;
         return;
     }
-    napi_env env = authInfo->callBackInfo.env;
+    napi_env env = authInfo->env;
     napi_value callback = nullptr;
     napi_value params[PARAM2] = {nullptr};
     napi_value return_val = nullptr;
@@ -256,8 +254,6 @@ static void OnAuthResultWork(uv_work_t *work, int status)
         env, authInfo->remainTimes, authInfo->freezingTime, authInfo->token);
     napi_call_function(env, nullptr, callback, PARAM2, params, &return_val);
 EXIT:
-    napi_delete_reference(env, authInfo->onResult);
-    napi_delete_reference(env, authInfo->onAcquireInfo);
     delete authInfo;
     delete work;
 }
@@ -266,7 +262,7 @@ void AuthApiCallback::OnAuthResult(const int32_t result, const AuthResult extraI
 {
     IAM_LOGI("start");
     uv_loop_s *loop(nullptr);
-    napi_get_uv_event_loop(authInfo_->callBackInfo.env, &loop);
+    napi_get_uv_event_loop(authInfo_->env, &loop);
     if (loop == nullptr) {
         IAM_LOGE("loop is null");
         delete authInfo_;
@@ -322,9 +318,6 @@ static void OnExecuteResultWork(uv_work_t *work, int status)
             napi_call_function(env, undefined, callback, 1, &result, &callResult));
     }
 EXIT:
-    if (!executeInfo->isPromise) {
-        napi_delete_reference(env, executeInfo->callbackRef);
-    }
     delete executeInfo;
     delete work;
 }
