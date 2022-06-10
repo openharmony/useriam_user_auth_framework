@@ -25,7 +25,7 @@ namespace UserIAM {
 namespace UserAuth {
 class CustomCommand : public AsyncCommandBase {
 public:
-    CustomCommand(std::shared_ptr<Executor> executor, std::shared_ptr<AuthResPool::AuthAttributes> attributes);
+    CustomCommand(std::weak_ptr<Executor> executor, std::shared_ptr<AuthAttributes> attributes);
     ~CustomCommand() override = default;
 
     void OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo) override;
@@ -37,7 +37,7 @@ protected:
     ResultCode SendRequest() override;
 
 private:
-    std::shared_ptr<AuthResPool::AuthAttributes> attributes_;
+    std::shared_ptr<AuthAttributes> attributes_;
     ResultCode result_ = ResultCode::GENERAL_ERROR;
     std::promise<void> promise_;
     std::future<void> future_;

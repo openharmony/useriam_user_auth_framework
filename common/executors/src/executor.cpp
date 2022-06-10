@@ -47,7 +47,7 @@ Executor::Executor(std::shared_ptr<IAuthExecutorHdi> executorHdi, uint16_t hdiId
 void Executor::OnHdiConnect()
 {
     IAM_LOGI("%{public}s start", GetDescription());
-    // register resource pool depends on hdi start, after hid connect re-register resource pool
+    // register resource pool depends on hdi connect, after hid connect re-register resource pool
     OnFrameworkReady();
 }
 
@@ -79,30 +79,23 @@ void Executor::RegisterExecutorCallback(ExecutorInfo &executorInfo)
     IAM_LOGI("%{public}s start", GetDescription());
     auto combineResult = Common::CombineShortToInt(hdiId_, static_cast<uint16_t>(executorInfo.executorId));
     executorInfo.executorId = static_cast<int32_t>(combineResult);
-    auto executorCallback = Common::MakeShared<FrameworkExecutorCallback>(shared_from_this());
-    IF_FALSE_LOGE_AND_RETURN(executorCallback != nullptr);
-    UserIAM::AuthResPool::ExecutorMgr::GetInstance().Register(executorInfo, executorCallback);
+    if (executorCallback_ == nullptr) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (executorCallback_ == nullptr) {
+            auto localExecutorCallback = Common::MakeShared<FrameworkExecutorCallback>(weak_from_this());
+            IF_FALSE_LOGE_AND_RETURN(localExecutorCallback != nullptr);
+            executorCallback_ = localExecutorCallback;
+        }
+    }
+    ExecutorMgr::GetInstance().Register(executorInfo, executorCallback_);
     IAM_LOGI(
         "register executor callback ok, executor id %{public}s", GET_MASKED_STRING(executorInfo.executorId).c_str());
-}
-
-void Executor::SetExecutorMessenger(const sptr<AuthResPool::IExecutorMessenger> &messenger)
-{
-    IAM_LOGI("%{public}s start", GetDescription());
-    executorMessenger_ = messenger;
-    return;
-}
-
-sptr<AuthResPool::IExecutorMessenger> Executor::GetExecutorMessenger()
-{
-    IAM_LOGI("%{public}s start", GetDescription());
-    return executorMessenger_;
 }
 
 void Executor::AddCommand(std::shared_ptr<IAsyncCommand> command)
 {
     IAM_LOGI("%{public}s start", GetDescription());
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     IF_FALSE_LOGE_AND_RETURN(command != nullptr);
     command2Respond_.insert(command);
 }
@@ -110,14 +103,14 @@ void Executor::AddCommand(std::shared_ptr<IAsyncCommand> command)
 void Executor::RemoveCommand(std::shared_ptr<IAsyncCommand> command)
 {
     IAM_LOGI("%{public}s start", GetDescription());
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     command2Respond_.erase(command);
 }
 
 void Executor::RespondCallbackOnDisconnect()
 {
     IAM_LOGI("%{public}s start", GetDescription());
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     for (auto it = command2Respond_.begin(); it != command2Respond_.end();) {
         auto cmdToProc = it;
         ++it;

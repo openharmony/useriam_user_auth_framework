@@ -29,7 +29,7 @@ sptr<SystemAbilityStatusListener> SystemAbilityStatusListener::instance_ = nullp
 sptr<SystemAbilityStatusListener> SystemAbilityStatusListener::GetInstance()
 {
     if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> gurard(mutex_);
+        std::lock_guard<std::mutex> guard(mutex_);
         if (instance_ == nullptr) {
             instance_ = new (std::nothrow) SystemAbilityStatusListener();
             if (instance_ == nullptr) {

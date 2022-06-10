@@ -29,13 +29,15 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-AsyncCommandBase::AsyncCommandBase(std::string type, uint64_t scheduleId, std::shared_ptr<Executor> executor)
+AsyncCommandBase::AsyncCommandBase(
+    std::string type, uint64_t scheduleId, std::weak_ptr<Executor> executor, sptr<IExecutorMessenger> executorMessenger)
     : scheduleId_(scheduleId),
       executor_(executor),
-      commandId_(GenerateCommandId())
+      executorMessenger_(executorMessenger)
 {
+    auto commandId = GenerateCommandId();
     std::ostringstream ss;
-    ss << "Command(type:" << type << ", id:" << commandId_ << ", scheduleId:" << GET_MASKED_STRING(scheduleId_) << ")";
+    ss << "Command(type:" << type << ", id:" << commandId << ", scheduleId:" << GET_MASKED_STRING(scheduleId_) << ")";
     description_ = ss.str();
 }
 
@@ -49,9 +51,12 @@ void AsyncCommandBase::OnHdiDisconnect()
 ResultCode AsyncCommandBase::StartProcess()
 {
     IAM_LOGI("%{public}s start process", GetDescription());
-    IF_FALSE_LOGE_AND_RETURN_VAL(executor_ != nullptr, ResultCode::GENERAL_ERROR);
-
-    executor_->AddCommand(shared_from_this());
+    auto executor = executor_.lock();
+    if (executor == nullptr) {
+        IAM_LOGE("executor has been released, start process fail");
+        return ResultCode::GENERAL_ERROR;
+    }
+    executor->AddCommand(shared_from_this());
     ResultCode ret = SendRequest();
     if (ret != ResultCode::SUCCESS) {
         IAM_LOGE("send request failed");
@@ -76,8 +81,12 @@ void AsyncCommandBase::OnResult(ResultCode result, const std::vector<uint8_t> &e
 void AsyncCommandBase::EndProcess()
 {
     IAM_LOGI("%{public}s end process", GetDescription());
-    IF_FALSE_LOGE_AND_RETURN(executor_ != nullptr);
-    executor_->RemoveCommand(shared_from_this());
+    auto executor = executor_.lock();
+    if (executor == nullptr) {
+        IAM_LOGI("executor has been released, command has been removed, no need remove again");
+        return;
+    }
+    executor->RemoveCommand(shared_from_this());
 }
 
 const char *AsyncCommandBase::GetDescription()
@@ -90,8 +99,37 @@ uint32_t AsyncCommandBase::GenerateCommandId()
     static std::mutex mutex;
     static uint32_t commandId = 0;
     std::lock_guard<std::mutex> guard(mutex);
+    // commandId is only used in log, uint32 overflow or duplicate is ok
     ++commandId;
     return commandId;
+}
+
+std::shared_ptr<IAuthExecutorHdi> AsyncCommandBase::GetExecutorHdi()
+{
+    auto executor = executor_.lock();
+    if (executor == nullptr) {
+        IAM_LOGE("executor has been released, get executor hdi fail");
+        return nullptr;
+    }
+    return executor->GetExecutorHdi();
+}
+
+int32_t AsyncCommandBase::MessengerSendData(
+    uint64_t scheduleId, uint64_t transNum, int32_t srcType, int32_t dstType, std::shared_ptr<AuthMessage> msg)
+{
+    auto messenger = executorMessenger_;
+    IF_FALSE_LOGE_AND_RETURN_VAL(messenger != nullptr, USERAUTH_ERROR);
+    return messenger->SendData(scheduleId, transNum, srcType, dstType, msg);
+}
+
+int32_t AsyncCommandBase::MessengerFinish(
+    uint64_t scheduleId, int32_t srcType, int32_t resultCode, std::shared_ptr<AuthAttributes> finalResult)
+{
+    auto messenger = executorMessenger_;
+    IF_FALSE_LOGE_AND_RETURN_VAL(messenger != nullptr, USERAUTH_ERROR);
+    int32_t ret = messenger->Finish(scheduleId, srcType, resultCode, finalResult);
+    executorMessenger_ = nullptr;
+    return ret;
 }
 } // namespace UserAuth
 } // namespace UserIAM

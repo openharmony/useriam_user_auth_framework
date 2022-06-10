@@ -25,9 +25,9 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-IdentifyCommand::IdentifyCommand(
-    std::shared_ptr<Executor> executor, uint64_t scheduleId, std::shared_ptr<AuthResPool::AuthAttributes> attributes)
-    : AsyncCommandBase("IDENTIFY", scheduleId, executor),
+IdentifyCommand::IdentifyCommand(std::weak_ptr<Executor> executor, uint64_t scheduleId,
+    std::shared_ptr<AuthAttributes> attributes, sptr<IExecutorMessenger> executorMessenger)
+    : AsyncCommandBase("IDENTIFY", scheduleId, executor, executorMessenger),
       attributes_(attributes)
 {
 }
@@ -36,17 +36,16 @@ ResultCode IdentifyCommand::SendRequest()
 {
     IAM_LOGI("%{public}s send request start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN_VAL(attributes_ != nullptr, ResultCode::GENERAL_ERROR);
-    IF_FALSE_LOGE_AND_RETURN_VAL(executor_ != nullptr, ResultCode::GENERAL_ERROR);
-    auto hdi = executor_->GetExecutorHdi();
+    auto hdi = GetExecutorHdi();
     IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, ResultCode::GENERAL_ERROR);
 
-    std::vector<uint64_t> tempalteIdList;
+    std::vector<uint64_t> templateIdList;
     std::vector<uint8_t> extraInfo;
     uint64_t templateId = 0;
     attributes_->GetUint64Value(AUTH_TEMPLATE_ID, templateId);
     uint64_t callerUid;
     attributes_->GetUint64Value(AUTH_CALLER_UID, callerUid);
-    tempalteIdList.push_back(templateId);
+    templateIdList.push_back(templateId);
 
     ResultCode ret = hdi->Identify(scheduleId_, callerUid, extraInfo, shared_from_this());
     IAM_LOGI("%{public}s identify result %{public}d", GetDescription(), ret);
@@ -56,34 +55,28 @@ ResultCode IdentifyCommand::SendRequest()
 void IdentifyCommand::OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo)
 {
     IAM_LOGI("%{public}s on result start", GetDescription());
-    IF_FALSE_LOGE_AND_RETURN(executor_ != nullptr);
-    auto executorMessenger = executor_->GetExecutorMessenger();
-    IF_FALSE_LOGE_AND_RETURN(executorMessenger != nullptr);
 
     std::vector<uint8_t> nonConstExtraInfo(extraInfo.begin(), extraInfo.end());
-    auto authAttributes = Common::MakeShared<AuthResPool::AuthAttributes>();
+    auto authAttributes = Common::MakeShared<AuthAttributes>();
     IF_FALSE_LOGE_AND_RETURN(authAttributes != nullptr);
     authAttributes->SetUint32Value(AUTH_RESULT_CODE, result);
     authAttributes->SetUint8ArrayValue(AUTH_RESULT, nonConstExtraInfo);
-    int32_t ret = executorMessenger->Finish(scheduleId_, ALL_IN_ONE, result, authAttributes);
+    int32_t ret = MessengerFinish(scheduleId_, ALL_IN_ONE, result, authAttributes);
     if (ret != USERAUTH_SUCCESS) {
-        IAM_LOGE("%{public}s call fininsh fail", GetDescription());
+        IAM_LOGE("%{public}s call finish fail", GetDescription());
         return;
     }
-    IAM_LOGI("%{public}s call fininsh success result %{public}d", GetDescription(), result);
+    IAM_LOGI("%{public}s call finish success result %{public}d", GetDescription(), result);
 }
 
 void IdentifyCommand::OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo)
 {
     IAM_LOGI("%{public}s on acquire info start", GetDescription());
-    IF_FALSE_LOGE_AND_RETURN(executor_ != nullptr);
-    auto executorMessenger = executor_->GetExecutorMessenger();
-    IF_FALSE_LOGE_AND_RETURN(executorMessenger != nullptr);
 
     std::vector<uint8_t> nonConstExtraInfo(extraInfo.begin(), extraInfo.end());
-    auto msg = Common::MakeShared<AuthResPool::AuthMessage>(nonConstExtraInfo);
+    auto msg = Common::MakeShared<AuthMessage>(nonConstExtraInfo);
     IF_FALSE_LOGE_AND_RETURN(msg != nullptr);
-    int32_t ret = executorMessenger->SendData(scheduleId_, transNum_, TYPE_ALL_IN_ONE, TYPE_CO_AUTH, msg);
+    int32_t ret = MessengerSendData(scheduleId_, transNum_, TYPE_ALL_IN_ONE, TYPE_CO_AUTH, msg);
     ++transNum_;
     if (ret != USERAUTH_SUCCESS) {
         IAM_LOGE("%{public}s call SendData fail", GetDescription());
