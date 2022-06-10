@@ -1,5 +1,5 @@
 {
-    "name": "@openharmony/user_auth",
+    "name": "@openharmony/user_auth_framework",
     "version": "3.1.0",
     "description": "User Authentication capability",
     "homePage": "https://gitee.com/openharmony",
@@ -8,12 +8,12 @@
     "license": "Apache License 2.0",
     "publishAs": "code-segment",
     "segment": {
-      "destPath" : "base/user_iam/user_auth"
+      "destPath" : "base/user_iam/user_auth_framework"
     },
     "dirs": {},
     "scripts": {},
     "component": {
-      "name": "user_auth",
+      "name": "user_auth_framework",
       "subsystem": "useriam",
       "adapted_system_type": [ "standard" ],
       "syscap": ["SystemCapability.UserIAM.UserAuth.Core"],
@@ -27,7 +27,7 @@
             "safwk",
             "samgr_standard",
             "hilog",
-            "user_auth"
+            "user_auth_framework"
         ],
         "third_party": [
             "openssl"

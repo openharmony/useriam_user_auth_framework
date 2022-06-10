@@ -38,6 +38,6 @@ ohos_unittest("user_auth_test") {
 
   configs = [ "//base/user_iam/user_auth/common:iam_log_config" ]
 
-  part_name = "user_auth"
+  part_name = "user_auth_framework"
   module_out_path = "${part_name}/${target_name}"
 }
