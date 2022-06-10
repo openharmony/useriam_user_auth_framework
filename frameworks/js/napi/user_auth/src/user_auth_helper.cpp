@@ -29,16 +29,17 @@ namespace UserAuth {
 napi_value UserAuthServiceConstructor(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
-    UserAuthImpl *userAuthImpl = new (std::nothrow) UserAuthImpl();
+    std::unique_ptr<UserAuthImpl> userAuthImpl {new (std::nothrow) UserAuthImpl()};
     if (userAuthImpl == nullptr) {
         IAM_LOGE("userAuthImpl is nullptr");
         return nullptr;
     }
+
     napi_value thisVar = nullptr;
     size_t argc = ARGS_ONE;
     napi_value argv[ARGS_ONE] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
-    NAPI_CALL(env, napi_wrap(env, thisVar, userAuthImpl,
+    NAPI_CALL(env, napi_wrap(env, thisVar, userAuthImpl.get(),
         [](napi_env env, void *data, void *hint) {
             UserAuthImpl *userAuthImpl = static_cast<UserAuthImpl *>(data);
             if (userAuthImpl != nullptr) {
@@ -46,6 +47,7 @@ napi_value UserAuthServiceConstructor(napi_env env, napi_callback_info info)
             }
         },
         nullptr, nullptr));
+    userAuthImpl.release();
     return thisVar;
 }
 

@@ -30,7 +30,7 @@ namespace UserIDM {
 napi_value UserIdentityManagerConstructor(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
-    UserIdentityManager *userIdentityManager = new (std::nothrow) UserIdentityManager();
+    std::unique_ptr<UserIdentityManager> userIdentityManager {new (std::nothrow) UserIdentityManager()};
     if (userIdentityManager == nullptr) {
         IAM_LOGE("userIdentityManager is nullptr");
         return nullptr;
@@ -41,7 +41,7 @@ napi_value UserIdentityManagerConstructor(napi_env env, napi_callback_info info)
     napi_value argv[1] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NAPI_CALL(env, napi_wrap(
-        env, thisVar, userIdentityManager,
+        env, thisVar, userIdentityManager.get(),
         [](napi_env env, void *data, void *hint) {
             UserIdentityManager *userIdentityManager = static_cast<UserIdentityManager *>(data);
             if (userIdentityManager != nullptr) {
@@ -49,6 +49,7 @@ napi_value UserIdentityManagerConstructor(napi_env env, napi_callback_info info)
             }
         },
         nullptr, nullptr));
+    userIdentityManager.release();
     return thisVar;
 }
 
