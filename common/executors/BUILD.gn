@@ -57,9 +57,9 @@ ohos_shared_library("userauth_executors") {
     "ipc:ipc_single",
     "samgr_standard:samgr_proxy",
     "startup_l2:syspara_watchagent",
-    "user_auth_framework:coauth_framework",
+    "user_auth:coauth_framework",
     "utils_base:utils",
   ]
 
-  part_name = "user_auth_framework"
+  part_name = "user_auth"
 }
