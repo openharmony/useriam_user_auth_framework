@@ -14,13 +14,18 @@
  */
 
 #include "callback.h"
+
 #include <iremote_broker.h>
 #include <uv.h>
-#include "auth_common.h"
-#include "useridm_hilog_wrapper.h"
+
+#include "iam_logger.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
+
+#include "auth_common.h"
 #include "useridentity_manager.h"
+
+#define LOG_LABEL UserIAM::Common::LABEL_USER_IDM_NAPI
 
 namespace OHOS {
 namespace UserIAM {
@@ -32,13 +37,13 @@ const int PARAMTHREE = 3;
 
 napi_value GetAuthInfoRet(napi_env env, uint64_t ret)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     void* data = nullptr;
     napi_value arrayBuffer = nullptr;
     size_t bufferSize = sizeof(ret);
     NAPI_CALL(env, napi_create_arraybuffer(env, bufferSize, &data, &arrayBuffer));
     if (memcpy_s(data, bufferSize, reinterpret_cast<const void*>(&ret), bufferSize) != EOK) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "memcpy_s failed");
+        IAM_LOGE("memcpy_s failed");
         return nullptr;
     }
     napi_value result = nullptr;
@@ -50,7 +55,7 @@ static AsyncCallbackContext *CopyAsyncCallbackContext(AsyncCallbackContext *asyn
 {
     AsyncCallbackContext *copy = new (std::nothrow) AsyncCallbackContext();
     if (copy == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "new copy failed");
+        IAM_LOGE("new copy failed");
         return copy;
     }
     copy->env = asyncCallbackContext->env;
@@ -70,17 +75,17 @@ static AsyncCallbackContext *CopyAsyncCallbackContext(AsyncCallbackContext *asyn
 
 IIdmCallback::IIdmCallback(AsyncCallbackContext* asyncCallbackContext)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     std::lock_guard<std::mutex> idmMutexGuard(mutex_);
     asyncCallbackContext_ = asyncCallbackContext;
 }
 
 static void OnResultWork(uv_work_t* work, int status)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "Do OnResultWork start");
+    IAM_LOGI("start");
     AsyncCallbackContext *asyncCallbackContext = reinterpret_cast<AsyncCallbackContext *>(work->data);
     if (asyncCallbackContext == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "asyncCallbackContext is null");
+        IAM_LOGE("asyncCallbackContext is nullptr");
         delete work;
         return;
     }
@@ -91,27 +96,27 @@ static void OnResultWork(uv_work_t* work, int status)
     napi_value param[TWO_PARAMETER] = {0};
     napi_status napiStatus = napi_create_int32(env, asyncCallbackContext->result, &param[0]);
     if (napiStatus != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "napi_create_int32 failed");
+        IAM_LOGE("napi_create_int32 failed");
         goto EXIT;
     }
     param[ONE_PARAMETER] = AuthCommon::CreateObject(env, FUNC_ONRESULT, asyncCallbackContext->retCredentialId);
     if (param[ONE_PARAMETER] == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "create object failed");
+        IAM_LOGE("create object failed");
         goto EXIT;
     }
     napiStatus = napi_get_reference_value(env, asyncCallbackContext->callbackInfo.onResult, &callbackRef);
     if (napiStatus != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value failed");
+        IAM_LOGE("napi_get_reference_value failed");
         goto EXIT;
     }
     napiStatus = napi_get_global(env, &global);
     if (napiStatus != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "napi_get_global failed");
+        IAM_LOGE("napi_get_global failed");
         goto EXIT;
     }
     napiStatus = napi_call_function(env, global, callbackRef, PARAMTWO, param, &callResult);
     if (napiStatus != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "napi_call_function failed");
+        IAM_LOGE("napi_call_function failed");
     }
 EXIT:
     napi_delete_reference(env, asyncCallbackContext->callbackInfo.onResult);
@@ -122,23 +127,23 @@ EXIT:
 
 void IIdmCallback::OnResult(int32_t result, RequestResult extraInfo)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     std::lock_guard<std::mutex> idmMutexGuard(mutex_);
     if (asyncCallbackContext_ == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "asyncCallbackContext_ is nullptr");
+        IAM_LOGE("asyncCallbackContext_ is nullptr");
         return;
     }
     uv_loop_s *loop(nullptr);
     napi_get_uv_event_loop(asyncCallbackContext_->callbackInfo.env, &loop);
     if (loop == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "loop is null");
+        IAM_LOGE("loop is null");
         delete asyncCallbackContext_;
         asyncCallbackContext_ = nullptr;
         return;
     }
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "work is null");
+        IAM_LOGE("work is null");
         delete asyncCallbackContext_;
         asyncCallbackContext_ = nullptr;
         return;
@@ -149,7 +154,7 @@ void IIdmCallback::OnResult(int32_t result, RequestResult extraInfo)
     delete asyncCallbackContext_;
     asyncCallbackContext_ = nullptr;
     if (copy == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "copy is null");
+        IAM_LOGE("copy is null");
         delete work;
         return;
     }
@@ -159,10 +164,10 @@ void IIdmCallback::OnResult(int32_t result, RequestResult extraInfo)
 
 static void OnAcquireInfoWork(uv_work_t* work, int status)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "OnAcquireInfoWork start");
+    IAM_LOGI("start");
     AsyncCallbackContext *asyncCallbackContext = reinterpret_cast<AsyncCallbackContext *>(work->data);
     if (asyncCallbackContext == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "asyncCallbackContext is null");
+        IAM_LOGE("asyncCallbackContext is null");
         delete work;
         return;
     }
@@ -173,32 +178,32 @@ static void OnAcquireInfoWork(uv_work_t* work, int status)
     napi_value params[THREE_PARAMETER] = {0};
     napi_status napiStatus = napi_create_int32(env, asyncCallbackContext->module, &params[ZERO_PARAMETER]);
     if (napiStatus != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "napi_create_int32 failed");
+        IAM_LOGE("napi_create_int32 failed");
         goto EXIT;
     }
     napiStatus = napi_create_int32(env, asyncCallbackContext->acquire, &params[ONE_PARAMETER]);
     if (napiStatus != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "napi_create_int32 failed");
+        IAM_LOGE("napi_create_int32 failed");
         goto EXIT;
     }
     params[TWO_PARAMETER] = AuthCommon::CreateObject(env, FUNC_ONACQUIREINFO, asyncCallbackContext->retCredentialId);
     if (params[TWO_PARAMETER] == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "create object failed");
+        IAM_LOGE("CreateObject failed");
         goto EXIT;
     }
     napiStatus = napi_get_reference_value(env, asyncCallbackContext->callbackInfo.onAcquireInfo, &callbackRef);
     if (napiStatus != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value failed");
+        IAM_LOGE("napi_get_reference_value failed");
         goto EXIT;
     }
     napiStatus = napi_get_global(env, &global);
     if (napiStatus != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "napi_get_global failed");
+        IAM_LOGE("napi_get_global failed");
         goto EXIT;
     }
     napiStatus = napi_call_function(env, global, callbackRef, PARAMTHREE, params, &callResult);
     if (napiStatus != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "napi_call_function failed");
+        IAM_LOGE("napi_call_function failed");
     }
 EXIT:
     delete asyncCallbackContext;
@@ -207,21 +212,21 @@ EXIT:
 
 void IIdmCallback::OnAcquireInfo(int32_t module, int32_t acquire, RequestResult extraInfo)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     std::lock_guard<std::mutex> idmMutexGuard(mutex_);
     if (asyncCallbackContext_ == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "napi_call_function is nullptr");
+        IAM_LOGE("asyncCallbackContext_ is nullptr");
         return;
     }
     uv_loop_s *loop(nullptr);
     napi_get_uv_event_loop(asyncCallbackContext_->callbackInfo.env, &loop);
     if (loop == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "loop is null");
+        IAM_LOGE("loop is null");
         return;
     }
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "work is null");
+        IAM_LOGE("work is null");
         return;
     }
     asyncCallbackContext_->module = module;
@@ -229,7 +234,7 @@ void IIdmCallback::OnAcquireInfo(int32_t module, int32_t acquire, RequestResult 
     asyncCallbackContext_->retCredentialId = extraInfo.credentialId;
     AsyncCallbackContext *copy = CopyAsyncCallbackContext(asyncCallbackContext_);
     if (copy == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "copy is null");
+        IAM_LOGE("copy is null");
         delete work;
         return;
     }
@@ -239,13 +244,13 @@ void IIdmCallback::OnAcquireInfo(int32_t module, int32_t acquire, RequestResult 
 
 GetInfoCallbackIDM::GetInfoCallbackIDM(AsyncGetAuthInfo *asyncGetAuthInfo)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     asyncGetAuthInfo_ = asyncGetAuthInfo;
 }
 
 static napi_value CreateCredentialInfo(AsyncGetAuthInfo *asyncGetAuthInfo)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     napi_value array;
     napi_env env = asyncGetAuthInfo->env;
     NAPI_CALL(env, napi_create_array_with_length(env, asyncGetAuthInfo->info.size(), &array));
@@ -254,7 +259,7 @@ static napi_value CreateCredentialInfo(AsyncGetAuthInfo *asyncGetAuthInfo)
         NAPI_CALL(env, napi_create_object(env, &obj));
         napi_value credentialId = GetAuthInfoRet(env, (asyncGetAuthInfo->info[Vect].credentialId));
         if (credentialId == nullptr) {
-            USERIDM_HILOGE(MODULE_JS_NAPI, "GetAuthInfo failed");
+            IAM_LOGE("credentialId is nullptr");
             return nullptr;
         }
         napi_value authType;
@@ -265,7 +270,7 @@ static napi_value CreateCredentialInfo(AsyncGetAuthInfo *asyncGetAuthInfo)
             static_cast<int32_t>(asyncGetAuthInfo->info[Vect].authSubType), &authSubType));
         napi_value templateId = GetAuthInfoRet(env, (asyncGetAuthInfo->info[Vect].templateId));
         if (templateId == nullptr) {
-            USERIDM_HILOGE(MODULE_JS_NAPI, "GetAuthInfo failed");
+            IAM_LOGE("templateId is nullptr");
             return nullptr;
         }
         NAPI_CALL(env, napi_set_named_property(env, obj, "credentialId", credentialId));
@@ -281,7 +286,7 @@ static AsyncGetAuthInfo *CopyAsyncGetAuthInfo(AsyncGetAuthInfo *asyncGetAuthInfo
 {
     AsyncGetAuthInfo *copy = new (std::nothrow) AsyncGetAuthInfo();
     if (copy == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "new copy failed");
+        IAM_LOGE("new copy failed");
         return copy;
     }
     copy->env = asyncGetAuthInfo->env;
@@ -298,12 +303,12 @@ static void OnGetInfoPromiseWork(AsyncGetAuthInfo *asyncGetAuthInfo)
 {
     napi_value result = CreateCredentialInfo(asyncGetAuthInfo);
     if (result == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "createCredentialInfo failed");
+        IAM_LOGE("createCredentialInfo failed");
         return;
     }
     napi_status napiStatus = napi_resolve_deferred(asyncGetAuthInfo->env, asyncGetAuthInfo->deferred, result);
     if (napiStatus != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "napi_resolve_deferred failed");
+        IAM_LOGE("napi_resolve_deferred failed");
         return;
     }
 }
@@ -315,32 +320,32 @@ static void OnGetInfoCallbackWork(AsyncGetAuthInfo *asyncGetAuthInfo)
     napi_value callbackRet = 0;
     napi_value result = CreateCredentialInfo(asyncGetAuthInfo);
     if (result == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "createCredentialInfo failed");
+        IAM_LOGE("createCredentialInfo failed");
         return;
     }
     napi_status napiStatus = napi_get_reference_value(asyncGetAuthInfo->env, asyncGetAuthInfo->callback, &callback);
     if (napiStatus != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value failed");
+        IAM_LOGE("napi_get_reference_value failed");
         return;
     }
     napiStatus = napi_get_global(asyncGetAuthInfo->env, &global);
     if (napiStatus != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "napi_get_global failed");
+        IAM_LOGE("napi_get_global failed");
         return;
     }
     napiStatus = napi_call_function(asyncGetAuthInfo->env, global, callback, ONE_PARAMETER, &result, &callbackRet);
     if (napiStatus != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "napi_call_function failed");
+        IAM_LOGE("napi_call_function failed");
         return;
     }
 }
 
 static void OnGetInfoWork(uv_work_t* work, int status)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "OnGetInfoWork start");
+    IAM_LOGI("start");
     AsyncGetAuthInfo *asyncGetAuthInfo = reinterpret_cast<AsyncGetAuthInfo *>(work->data);
     if (asyncGetAuthInfo == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "asyncGetAuthInfo is null");
+        IAM_LOGE("asyncGetAuthInfo is null");
         delete work;
         return;
     }
@@ -356,26 +361,26 @@ static void OnGetInfoWork(uv_work_t* work, int status)
 
 void GetInfoCallbackIDM::OnGetInfo(std::vector<CredentialInfo>& info)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     if (asyncGetAuthInfo_ == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "asyncGetAuthInfo_ is nullptr");
+        IAM_LOGE("asyncGetAuthInfo_ is nullptr");
         return;
     }
     uv_loop_s *loop(nullptr);
     napi_get_uv_event_loop(asyncGetAuthInfo_->env, &loop);
     if (loop == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "loop is null");
+        IAM_LOGE("loop is null");
         return;
     }
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "work is null");
+        IAM_LOGE("work is null");
         return;
     }
     asyncGetAuthInfo_->info = info;
     AsyncGetAuthInfo *copy = CopyAsyncGetAuthInfo(asyncGetAuthInfo_);
     if (copy == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "copy is null");
+        IAM_LOGE("copy is null");
         delete work;
         return;
     }

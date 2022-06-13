@@ -20,6 +20,7 @@ config("useridm_public_config") {
     "//base/user_iam/user_auth/common/logs/user_idm",
     "//base/user_iam/user_auth/interfaces/inner_api/user_idm",
     "//third_party/libuv/include",
+    "//base/user_iam/user_auth/common/logs",
   ]
 }
 

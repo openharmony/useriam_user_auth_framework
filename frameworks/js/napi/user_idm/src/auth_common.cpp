@@ -14,11 +14,16 @@
  */
 
 #include "auth_common.h"
+
 #include <iremote_broker.h>
-#include "useridm_hilog_wrapper.h"
+
+#include "iam_logger.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
+
 #include "useridentity_manager.h"
+
+#define LOG_LABEL UserIAM::Common::LABEL_USER_IDM_NAPI
 
 namespace OHOS {
 namespace UserIAM {
@@ -26,11 +31,11 @@ namespace UserIDM {
 void AuthCommon::SaveCallback(napi_env env, size_t argc, napi_value* argv,
     AsyncCallbackContext* asyncCallbackContext)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     napi_valuetype valueType;
     napi_status status = napi_typeof(env, argv[argc], &valueType);
     if (status != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "napi_typeof failed");
+        IAM_LOGE("napi_typeof failed");
         return;
     }
     if (valueType == napi_object) {
@@ -38,55 +43,55 @@ void AuthCommon::SaveCallback(napi_env env, size_t argc, napi_value* argv,
         status = napi_get_named_property(env, argv[argc], "onResult",
             &asyncCallbackContext->idmCallOnResult);
         if (status != napi_ok) {
-            USERIDM_HILOGE(MODULE_JS_NAPI, "napi_get_named_property failed");
+            IAM_LOGE("napi_get_named_property failed");
             return;
         }
         status = napi_create_reference(
             env, asyncCallbackContext->idmCallOnResult, 1, &asyncCallbackContext->callbackInfo.onResult);
         if (status != napi_ok) {
-            USERIDM_HILOGE(MODULE_JS_NAPI, "napi_create_reference failed");
+            IAM_LOGE("napi_create_reference failed");
             return;
         }
         status = napi_get_named_property(
             env, argv[argc], "onAcquireInfo", &asyncCallbackContext->idmCallonAcquireInfo);
         if (status != napi_ok) {
-            USERIDM_HILOGE(MODULE_JS_NAPI, "napi_get_named_property failed");
+            IAM_LOGE("napi_get_named_property failed");
             return;
         }
         status = napi_create_reference(
             env, asyncCallbackContext->idmCallonAcquireInfo, 1, &asyncCallbackContext->callbackInfo.onAcquireInfo);
         if (status != napi_ok) {
-            USERIDM_HILOGE(MODULE_JS_NAPI, "napi_create_reference failed");
+            IAM_LOGE("napi_create_reference failed");
             return;
         }
     } else {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "type mismatch");
+        IAM_LOGE("type mismatch");
     }
 }
 
 int32_t AuthCommon::GetNamedProperty(napi_env env, napi_value obj, const std::string &keyStr)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     napi_value value = nullptr;
     napi_status status = napi_get_named_property(env, obj, keyStr.c_str(), &value);
     if (status != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "napi_get_named_property failed");
+        IAM_LOGE("napi_get_named_property failed");
         return 0;
     }
     napi_valuetype valueType = napi_undefined;
     status = napi_typeof(env, value, &valueType);
     if (status != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "napi_typeof failed");
+        IAM_LOGE("napi_typeof failed");
         return 0;
     }
     if (valueType != napi_number) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "valueType not number %{public}d", valueType);
+        IAM_LOGE("valueType not number %{public}d", valueType);
         return 0;
     }
     int32_t property;
     status = napi_get_value_int32(env, value, &property);
     if (status != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "napi_get_value_int32 failed");
+        IAM_LOGE("napi_get_value_int32 failed");
         return 0;
     }
     return property;
@@ -94,12 +99,12 @@ int32_t AuthCommon::GetNamedProperty(napi_env env, napi_value obj, const std::st
 
 std::vector<uint8_t> AuthCommon::GetNamedAttribute(napi_env env, napi_value obj)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     std::vector<uint8_t> retNull = {0};
     napi_value token;
     napi_status status = napi_get_named_property(env, obj, PROPERTY_KEY_EVENT, &token);
     if (status != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "napi_get_named_property failed");
+        IAM_LOGE("napi_get_named_property failed");
         return retNull;
     }
     napi_typedarray_type arraytype;
@@ -110,20 +115,20 @@ std::vector<uint8_t> AuthCommon::GetNamedAttribute(napi_env env, napi_value obj)
     bool isTypedArray = false;
     napi_is_typedarray(env, token, &isTypedArray);
     if (isTypedArray) {
-        USERIDM_HILOGI(MODULE_JS_NAPI, "token is an array");
+        IAM_LOGI("token is an array");
     } else {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "token is not an array");
+        IAM_LOGE("token is not an array");
         return retNull;
     }
     napi_get_typedarray_info(env, token, &arraytype, &length, reinterpret_cast<void **>(&data), &buffer, &offset);
     if (arraytype == napi_uint8_array) {
-        USERIDM_HILOGI(MODULE_JS_NAPI, "token is uint8 array");
+        IAM_LOGI("token is uint8 array");
     } else {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "token is not a uint8 array");
+        IAM_LOGE("token is not a uint8 array");
         return retNull;
     }
     if (offset != 0) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "offset is %{public}zu", offset);
+        IAM_LOGE("offset is %{public}zu", offset);
         return retNull;
     }
     std::vector<uint8_t> result(data, data + length);
@@ -132,7 +137,7 @@ std::vector<uint8_t> AuthCommon::GetNamedAttribute(napi_env env, napi_value obj)
 
 napi_value AuthCommon::CreateObject(napi_env env, const std::string& keyStr, uint64_t credentialId)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     napi_value obj;
     napi_value napiCredentialId = nullptr;
     NAPI_CALL(env, napi_create_object(env, &obj));
@@ -143,7 +148,7 @@ napi_value AuthCommon::CreateObject(napi_env env, const std::string& keyStr, uin
         size_t bufferSize = length;
         NAPI_CALL(env, napi_create_arraybuffer(env, bufferSize, &data, &arrayBuffer));
         if (memcpy_s(data, bufferSize, reinterpret_cast<const void*>(&credentialId), bufferSize) != EOK) {
-            USERIDM_HILOGE(MODULE_JS_NAPI, "memcpy_s failed");
+            IAM_LOGE("memcpy_s failed");
             return nullptr;
         }
         NAPI_CALL(env, napi_create_typedarray(env, napi_uint8_array, bufferSize, arrayBuffer, 0, &napiCredentialId));
@@ -155,22 +160,22 @@ napi_value AuthCommon::CreateObject(napi_env env, const std::string& keyStr, uin
 napi_status AuthCommon::JudgeObjectType (
     napi_env env, napi_callback_info info, AsyncCallbackContext* asyncCallbackContext)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     size_t argc = TWO_PARAMETER;
     napi_value argv[TWO_PARAMETER] = {0};
     napi_status status = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (status != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "napi_get_cb_info failed");
+        IAM_LOGE("napi_get_cb_info failed");
         return status;
     }
     if (argc != TWO_PARAMETER) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "get parameter size failed %{public}zu", argc);
+        IAM_LOGE("get parameter size failed %{public}zu", argc);
         return napi_invalid_arg;
     }
     napi_valuetype valueType = napi_undefined;
     status = napi_typeof(env, argv[ZERO_PARAMETER], &valueType);
     if (status != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "napi_typeof failed");
+        IAM_LOGE("napi_typeof failed");
         return status;
     }
     if (valueType == napi_object) {
@@ -178,7 +183,7 @@ napi_status AuthCommon::JudgeObjectType (
         asyncCallbackContext->authSubType = static_cast<AuthSubType>(GetNamedProperty(env, argv[0], PROPERTY_KEY_ID));
         asyncCallbackContext->token = GetNamedAttribute(env, argv[0]);
         if (asyncCallbackContext->token.empty()) {
-            USERIDM_HILOGE(MODULE_JS_NAPI, "GetNamedAttribute token failed");
+            IAM_LOGE("GetNamedAttribute token failed");
             asyncCallbackContext->token.push_back(0);
         }
     }
@@ -188,18 +193,18 @@ napi_status AuthCommon::JudgeObjectType (
 
 void AuthCommon::JudgeDelUserType(napi_env env, napi_callback_info info, AsyncCallbackContext* asyncCallbackContext)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     napi_status status;
     size_t argc = TWO_PARAMETER;
     napi_value argv[TWO_PARAMETER] = {0};
     status = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (status != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "napi_get_cb_info failed");
+        IAM_LOGE("napi_get_cb_info failed");
         return;
     }
     asyncCallbackContext->token = JudgeArrayType(env, ZERO_PARAMETER, argv);
     if (asyncCallbackContext->token.empty()) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "JudgeArrayType token failed");
+        IAM_LOGE("JudgeArrayType token failed");
         asyncCallbackContext->token.push_back(0);
     }
     SaveCallback(env, ONE_PARAMETER, argv, asyncCallbackContext);
@@ -207,23 +212,23 @@ void AuthCommon::JudgeDelUserType(napi_env env, napi_callback_info info, AsyncCa
 
 void AuthCommon::JudgeDelCredType(napi_env env, napi_callback_info info, AsyncCallbackContext* asyncCallbackContext)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     napi_status status;
     size_t argc = THREE_PARAMETER;
     napi_value argv[THREE_PARAMETER] = {0};
     status = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (status != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "napi_get_cb_info failed");
+        IAM_LOGE("napi_get_cb_info failed");
         return;
     }
     asyncCallbackContext->credentialId = JudgeArrayType(env, ZERO_PARAMETER, argv);
     if (asyncCallbackContext->credentialId.empty()) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "JudgeArrayType credentialId failed");
+        IAM_LOGE("JudgeArrayType credentialId failed");
         return;
     }
     asyncCallbackContext->token = JudgeArrayType(env, ONE_PARAMETER, argv);
     if (asyncCallbackContext->token.empty()) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "JudgeArrayType token failed");
+        IAM_LOGE("JudgeArrayType token failed");
         return;
     }
     SaveCallback(env, TWO_PARAMETER, argv, asyncCallbackContext);
@@ -231,7 +236,7 @@ void AuthCommon::JudgeDelCredType(napi_env env, napi_callback_info info, AsyncCa
 
 std::vector<uint8_t> AuthCommon::JudgeArrayType(napi_env env, size_t argc, napi_value* argv)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     std::vector<uint8_t> retNull = {0};
     napi_typedarray_type arraytype;
     size_t length = 0;
@@ -241,20 +246,20 @@ std::vector<uint8_t> AuthCommon::JudgeArrayType(napi_env env, size_t argc, napi_
     bool isTypedArray = false;
     napi_is_typedarray(env, argv[argc], &isTypedArray);
     if (isTypedArray) {
-        USERIDM_HILOGI(MODULE_JS_NAPI, "this is an array");
+        IAM_LOGI("this is an array");
     } else {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "this is not an array");
+        IAM_LOGE("this is not an array");
         return retNull;
     }
     napi_get_typedarray_info(env, argv[argc], &arraytype, &length, reinterpret_cast<void **>(&data), &buffer, &offset);
     if (arraytype == napi_uint8_array) {
-        USERIDM_HILOGI(MODULE_JS_NAPI, "this is a uint8 array");
+        IAM_LOGI("this is a uint8 array");
     } else {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "this is not a uint8 array");
+        IAM_LOGE("this is not a uint8 array");
         return retNull;
     }
     if (offset != 0) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "offset is %{public}zu", offset);
+        IAM_LOGE("offset is %{public}zu", offset);
         return retNull;
     }
     std::vector<uint8_t> result(data, data + length);
@@ -263,7 +268,7 @@ std::vector<uint8_t> AuthCommon::JudgeArrayType(napi_env env, size_t argc, napi_
 
 AsyncGetAuthInfo* GCreateAsyncInfo(napi_env env)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     return new (std::nothrow) AsyncGetAuthInfo {
         .env = env,
         .deferred = nullptr,
@@ -272,7 +277,7 @@ AsyncGetAuthInfo* GCreateAsyncInfo(napi_env env)
 
 AsyncOpenSession* OCreateAsyncInfo(napi_env env)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     return new (std::nothrow) AsyncOpenSession {
         .env = env,
         .asyncWork = nullptr,

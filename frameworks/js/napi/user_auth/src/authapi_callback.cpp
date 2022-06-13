@@ -14,10 +14,14 @@
  */
 
 #include "authapi_callback.h"
+
 #include <cinttypes>
 #include <uv.h>
+
+#include "iam_logger.h"
 #include "securec.h"
-#include "userauth_hilog_wrapper.h"
+
+#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_NAPI
 
 namespace OHOS {
 namespace UserIAM {
@@ -59,7 +63,7 @@ AuthApiCallback::~AuthApiCallback()
 napi_value AuthApiCallback::Uint8ArrayToNapi(napi_env env, std::vector<uint8_t> value)
 {
     size_t size = value.size();
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "Uint8ArrayToNapi size = %{public}zu", size);
+    IAM_LOGI("size = %{public}zu", size);
     napi_value out = nullptr;
     void *data = nullptr;
     napi_value buffer = nullptr;
@@ -90,26 +94,26 @@ napi_value AuthApiCallback::BuildOnResult(
 
 void AuthApiCallback::OnAuthAcquireInfo(AcquireInfoInner *acquireInfoInner)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthApiCallback OnAuthAcquireInfo start");
+    IAM_LOGI("start");
     uv_loop_s *loop(nullptr);
     napi_get_uv_event_loop(acquireInfoInner->env, &loop);
     if (loop == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "loop is null");
+        IAM_LOGE("loop is null");
         delete acquireInfoInner;
         return;
     }
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "work is null");
+        IAM_LOGE("work is null");
         delete acquireInfoInner;
         return;
     }
     work->data = reinterpret_cast<void *>(acquireInfoInner);
     uv_queue_work(loop, work, [] (uv_work_t *work) {}, [] (uv_work_t *work, int status) {
-        USERAUTH_HILOGI(MODULE_JS_NAPI, "Do OnAuthAcquireInfo work");
+        IAM_LOGI("Do OnAuthAcquireInfo work");
         AcquireInfoInner *acquireInfoInner = reinterpret_cast<AcquireInfoInner *>(work->data);
         if (acquireInfoInner == nullptr) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI, "authInfo is null");
+            IAM_LOGE("acquireInfoInner is null");
             delete work;
             return;
         }
@@ -118,7 +122,7 @@ void AuthApiCallback::OnAuthAcquireInfo(AcquireInfoInner *acquireInfoInner)
         napi_value callback;
         napi_status napiStatus = napi_get_reference_value(env, acquireInfoInner->onAcquireInfo, &callback);
         if (napiStatus != napi_ok) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value failed");
+            IAM_LOGE("napi_get_reference_value failed");
             delete acquireInfoInner;
             delete work;
             return;
@@ -129,7 +133,7 @@ void AuthApiCallback::OnAuthAcquireInfo(AcquireInfoInner *acquireInfoInner)
         napi_create_int32(env, acquireInfoInner->extraInfo, &params[PARAM2]);
         napiStatus = napi_call_function(env, nullptr, callback, PARAM3, params, &returnOnAcquire);
         if (napiStatus != napi_ok) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_call_function failed");
+            IAM_LOGE("napi_call_function failed");
         }
         delete acquireInfoInner;
         delete work;
@@ -138,11 +142,11 @@ void AuthApiCallback::OnAuthAcquireInfo(AcquireInfoInner *acquireInfoInner)
 
 void AuthApiCallback::onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthApiCallback onAcquireInfo start");
+    IAM_LOGI("start");
     if (userInfo_ != nullptr) {
         AcquireInfoInner *acquireInfoInner = new (std::nothrow) AcquireInfoInner();
         if (acquireInfoInner == nullptr) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI, "acquireInfoInner is null");
+            IAM_LOGE("acquireInfoInner is null");
             return;
         }
         acquireInfoInner->env = userInfo_->env;
@@ -152,13 +156,13 @@ void AuthApiCallback::onAcquireInfo(const int32_t module, const uint32_t acquire
         acquireInfoInner->extraInfo = extraInfo;
         OnAuthAcquireInfo(acquireInfoInner);
     } else {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "AuthApiCallback onAcquireInfo userInfo_ is nullptr");
+        IAM_LOGE("userInfo_ is nullptr");
     }
 
     if (authInfo_ != nullptr) {
         AcquireInfoInner *acquireInfoInner = new (std::nothrow) AcquireInfoInner();
         if (acquireInfoInner == nullptr) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI, "acquireInfoInner is null");
+            IAM_LOGE("acquireInfoInner is null");
             return;
         }
         acquireInfoInner->env = authInfo_->env;
@@ -168,17 +172,17 @@ void AuthApiCallback::onAcquireInfo(const int32_t module, const uint32_t acquire
         acquireInfoInner->extraInfo = extraInfo;
         OnAuthAcquireInfo(acquireInfoInner);
     } else {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "AuthApiCallback onAcquireInfo authInfo_ is nullptr");
+        IAM_LOGE("authInfo_ is nullptr");
     }
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthApiCallback onAcquireInfo end");
+    IAM_LOGI("end");
 }
 
 static void OnUserAuthResultWork(uv_work_t *work, int status)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "Do OnUserAuthResult work");
+    IAM_LOGI("start");
     AuthUserInfo *userInfo = reinterpret_cast<AuthUserInfo *>(work->data);
     if (userInfo == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "authInfo is null");
+        IAM_LOGE("userInfo is null");
         delete work;
         return;
     }
@@ -188,7 +192,7 @@ static void OnUserAuthResultWork(uv_work_t *work, int status)
     napi_value return_val = nullptr;
     napi_status napiStatus = napi_get_reference_value(env, userInfo->onResult, &callback);
     if (napiStatus != napi_ok) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value failed");
+        IAM_LOGE("napi_get_reference_value failed");
         goto EXIT;
     }
     napi_create_int32(env, userInfo->result, &params[PARAM0]);
@@ -202,18 +206,18 @@ EXIT:
 
 void AuthApiCallback::OnUserAuthResult(const int32_t result, const AuthResult extraInfo)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthApiCallback OnUserAuthResult start");
+    IAM_LOGI("start");
     uv_loop_s *loop(nullptr);
     napi_get_uv_event_loop(userInfo_->env, &loop);
     if (loop == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "loop is null");
+        IAM_LOGE("loop is null");
         delete userInfo_;
         userInfo_ = nullptr;
         return;
     }
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "work is null");
+        IAM_LOGE("work is null");
         delete userInfo_;
         userInfo_ = nullptr;
         return;
@@ -229,10 +233,10 @@ void AuthApiCallback::OnUserAuthResult(const int32_t result, const AuthResult ex
 
 static void OnAuthResultWork(uv_work_t *work, int status)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "Do OnAuthResult work");
+    IAM_LOGI("start");
     AuthInfo *authInfo = reinterpret_cast<AuthInfo *>(work->data);
     if (authInfo == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "authInfo is null");
+        IAM_LOGE("authInfo is null");
         delete work;
         return;
     }
@@ -242,7 +246,7 @@ static void OnAuthResultWork(uv_work_t *work, int status)
     napi_value return_val = nullptr;
     napi_status napiStatus = napi_get_reference_value(env, authInfo->onResult, &callback);
     if (napiStatus != napi_ok) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value failed");
+        IAM_LOGE("napi_get_reference_value failed");
         goto EXIT;
     }
     napi_create_int32(env, authInfo->result, &params[PARAM0]);
@@ -256,18 +260,18 @@ EXIT:
 
 void AuthApiCallback::OnAuthResult(const int32_t result, const AuthResult extraInfo)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthApiCallback OnAuthResult start");
+    IAM_LOGI("start");
     uv_loop_s *loop(nullptr);
     napi_get_uv_event_loop(authInfo_->env, &loop);
     if (loop == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "loop is null");
+        IAM_LOGE("loop is null");
         delete authInfo_;
         authInfo_ = nullptr;
         return;
     }
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "work is null");
+        IAM_LOGE("work is null");
         delete authInfo_;
         authInfo_ = nullptr;
         return;
@@ -283,35 +287,35 @@ void AuthApiCallback::OnAuthResult(const int32_t result, const AuthResult extraI
 
 static void OnExecuteResultWork(uv_work_t *work, int status)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "Do OnExecuteResultWork");
+    IAM_LOGI("start");
     ExecuteInfo *executeInfo = reinterpret_cast<ExecuteInfo *>(work->data);
     if (executeInfo == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "executeInfo is null");
+        IAM_LOGE("executeInfo is null");
         delete work;
         return;
     }
     napi_env env = executeInfo->env;
     napi_value result;
     if (napi_create_int32(env, executeInfo->result, &result) != napi_ok) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_create_int32 failed");
+        IAM_LOGE("napi_create_int32 failed");
         goto EXIT;
     }
     napi_value undefined;
     napi_get_undefined(env, &undefined);
     if (executeInfo->isPromise) {
         if (executeInfo->result == static_cast<int32_t>(AuthenticationResult::SUCCESS)) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI,
-                "resolve promise %{public}d", napi_resolve_deferred(env, executeInfo->deferred, result));
+            IAM_LOGI("resolve promise %{public}d",
+                napi_resolve_deferred(env, executeInfo->deferred, result));
         } else {
-            USERAUTH_HILOGE(MODULE_JS_NAPI,
-                "reject promise %{public}d", napi_reject_deferred(env, executeInfo->deferred, result));
+            IAM_LOGE("reject promise %{public}d",
+                napi_reject_deferred(env, executeInfo->deferred, result));
         }
     } else {
         napi_value callback;
         napi_get_reference_value(env, executeInfo->callbackRef, &callback);
         napi_value callResult = nullptr;
-        USERAUTH_HILOGI(MODULE_JS_NAPI,
-            "do callback %{public}d", napi_call_function(env, undefined, callback, 1, &result, &callResult));
+        IAM_LOGI("do callback %{public}d",
+            napi_call_function(env, undefined, callback, 1, &result, &callResult));
     }
 EXIT:
     delete executeInfo;
@@ -320,18 +324,18 @@ EXIT:
 
 void AuthApiCallback::OnExecuteResult(const int32_t result)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthApiCallback OnExecuteResult start");
+    IAM_LOGI("start");
     uv_loop_s *loop(nullptr);
     napi_get_uv_event_loop(executeInfo_->env, &loop);
     if (loop == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "loop is null");
+        IAM_LOGE("loop is null");
         delete executeInfo_;
         executeInfo_ = nullptr;
         return;
     }
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "work is null");
+        IAM_LOGE("work is null");
         delete executeInfo_;
         executeInfo_ = nullptr;
         return;
@@ -340,12 +344,10 @@ void AuthApiCallback::OnExecuteResult(const int32_t result)
     auto res = result2ExecuteResult.find(result);
     if (res == result2ExecuteResult.end()) {
         executeInfo_->result = static_cast<int32_t>(AuthenticationResult::GENERAL_ERROR);
-        USERAUTH_HILOGI(MODULE_JS_NAPI, "result %{public}d not found, set execute result GENERAL_ERROR",
-            result);
+        IAM_LOGE("result %{public}d not found, set execute result GENERAL_ERROR", result);
     } else {
         executeInfo_->result = static_cast<int32_t>(res->second);
-        USERAUTH_HILOGI(MODULE_JS_NAPI, "convert result %{public}d to execute result %{public}d",
-            result, executeInfo_->result);
+        IAM_LOGI("convert result %{public}d to execute result %{public}d", result, executeInfo_->result);
     }
 
     work->data = reinterpret_cast<void *>(executeInfo_);
@@ -355,23 +357,23 @@ void AuthApiCallback::OnExecuteResult(const int32_t result)
 
 void AuthApiCallback::onResult(const int32_t result, const AuthResult &extraInfo)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthApiCallback onResult start result = %{public}d", result);
+    IAM_LOGI("start result = %{public}d", result);
     if (userInfo_ != nullptr) {
         OnUserAuthResult(result, extraInfo);
     } else {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "AuthApiCallback onResult userInfo_ is nullptr");
+        IAM_LOGI("userInfo_ is nullptr");
     }
     if (authInfo_ != nullptr) {
         OnAuthResult(result, extraInfo);
     } else {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "AuthApiCallback onResult authInfo_ is nullptr");
+        IAM_LOGI("authInfo_ is nullptr");
     }
     if (executeInfo_ != nullptr) {
         OnExecuteResult(result);
     } else {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "AuthApiCallback onResult executeInfo_ is nullptr ");
+        IAM_LOGI("executeInfo_ is nullptr ");
     }
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthApiCallback onResult end");
+    IAM_LOGI("end");
 }
 
 GetPropApiCallback::GetPropApiCallback(GetPropertyInfo *getPropertyInfo)
@@ -385,10 +387,10 @@ GetPropApiCallback::~GetPropApiCallback()
 
 static void GetPropertyInfoCallback(uv_work_t* work, int status)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "Do GetPropertyInfo work");
+    IAM_LOGI("start");
     GetPropertyInfo *getPropertyInfo = reinterpret_cast<GetPropertyInfo *>(work->data);
     if (getPropertyInfo == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "getPropertyInfo is null");
+        IAM_LOGE("getPropertyInfo is null");
         delete work;
         return;
     }
@@ -397,32 +399,32 @@ static void GetPropertyInfoCallback(uv_work_t* work, int status)
     resultData[PARAM0] = GetPropApiCallback::BuildExecutorProperty(env, getPropertyInfo->getResult,
         getPropertyInfo->remainTimes, getPropertyInfo->freezingTime, getPropertyInfo->authSubType);
     if (getPropertyInfo->callBackInfo.callBack != nullptr) {
-        USERAUTH_HILOGI(MODULE_JS_NAPI, "onExecutorPropertyInfo async");
+        IAM_LOGI("onExecutorPropertyInfo async");
         napi_value global = nullptr;
         napi_status napiStatus = napi_get_global(env, &global);
         if (napiStatus != napi_ok) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_global failed");
+            IAM_LOGE("napi_get_global failed");
             goto EXIT;
         }
         napi_value resultValue = nullptr;
         napi_value callBack = nullptr;
         napiStatus = napi_get_reference_value(env, getPropertyInfo->callBackInfo.callBack, &callBack);
         if (napiStatus != napi_ok) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value failed");
+            IAM_LOGE("napi_get_reference_value failed");
             goto EXIT;
         }
         napiStatus = napi_call_function(env, global, callBack, PARAM1, resultData, &resultValue);
         if (napiStatus != napi_ok) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_call_function failed");
+            IAM_LOGE("napi_call_function failed");
             goto EXIT;
         }
     } else {
-        USERAUTH_HILOGI(MODULE_JS_NAPI, "onExecutorPropertyInfo promise");
+        IAM_LOGI("onExecutorPropertyInfo promise");
         napi_value resultValue = resultData[PARAM0];
         napi_deferred deferred = getPropertyInfo->callBackInfo.deferred;
         napi_status napiStatus = napi_resolve_deferred(env, deferred, resultValue);
         if (napiStatus != napi_ok) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_resolve_deferred failed");
+            IAM_LOGE("napi_resolve_deferred failed");
             goto EXIT;
         }
     }
@@ -459,20 +461,20 @@ napi_value GetPropApiCallback::BuildExecutorProperty(
 void GetPropApiCallback::onGetProperty(const ExecutorProperty result)
 {
     if (getPropertyInfo_ == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "GetPropApiCallback onGetProperty getPropertyInfo_ is nullptr");
+        IAM_LOGE("getPropertyInfo_ is nullptr");
         return;
     }
     uv_loop_s *loop(nullptr);
     napi_get_uv_event_loop(getPropertyInfo_->callBackInfo.env, &loop);
     if (loop == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "loop is null");
+        IAM_LOGE("loop is null");
         delete getPropertyInfo_;
         getPropertyInfo_ = nullptr;
         return;
     }
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "work is null");
+        IAM_LOGE("work is null");
         delete getPropertyInfo_;
         getPropertyInfo_ = nullptr;
         return;
@@ -483,7 +485,7 @@ void GetPropApiCallback::onGetProperty(const ExecutorProperty result)
     getPropertyInfo_->freezingTime = result.freezingTime;
     work->data = reinterpret_cast<void *>(getPropertyInfo_);
     getPropertyInfo_ = nullptr;
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "Before GetPropertyInfoCallback");
+    IAM_LOGI("Before GetPropertyInfoCallback");
     uv_queue_work(loop, work, [] (uv_work_t *work) {}, GetPropertyInfoCallback);
 }
 
@@ -498,24 +500,24 @@ SetPropApiCallback::~SetPropApiCallback()
 
 static void SetExecutorPropertyCallback(uv_work_t *work, int status)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "Do SetExecutorPropertyCallback work");
+    IAM_LOGI("start");
     SetPropertyInfo *setPropertyInfo = reinterpret_cast<SetPropertyInfo *>(work->data);
     if (setPropertyInfo == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "authInfo is null");
+        IAM_LOGE("setPropertyInfo is null");
         delete work;
         return;
     }
     napi_env env = setPropertyInfo->callBackInfo.env;
     napi_status napiStatus = napi_create_int32(env, setPropertyInfo->setResult, &setPropertyInfo->result);
     if (napiStatus != napi_ok) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_create_int32 failed");
+        IAM_LOGE("napi_create_int32 failed");
         goto EXIT;
     }
     if (setPropertyInfo->callBackInfo.callBack != nullptr) {
         napi_value global = nullptr;
         napiStatus = napi_get_global(env, &global);
         if (napiStatus != napi_ok) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_global failed");
+            IAM_LOGE("napi_get_global failed");
             goto EXIT;
         }
         napi_value resultData[PARAM1];
@@ -525,12 +527,12 @@ static void SetExecutorPropertyCallback(uv_work_t *work, int status)
         napi_value callBack = nullptr;
         napiStatus = napi_get_reference_value(env, setPropertyInfo->callBackInfo.callBack, &callBack);
         if (napiStatus != napi_ok) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value failed");
+            IAM_LOGE("napi_get_reference_value failed");
             goto EXIT;
         }
         napiStatus = napi_call_function(env, global, callBack, PARAM1, resultData, &result);
         if (napiStatus != napi_ok) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_call_function failed");
+            IAM_LOGE("napi_call_function failed");
             goto EXIT;
         }
     } else {
@@ -538,7 +540,7 @@ static void SetExecutorPropertyCallback(uv_work_t *work, int status)
         napi_deferred deferred = setPropertyInfo->callBackInfo.deferred;
         napiStatus = napi_resolve_deferred(env, deferred, result);
         if (napiStatus != napi_ok) {
-            USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_call_function failed");
+            IAM_LOGE("napi_resolve_deferred failed");
             goto EXIT;
         }
     }
@@ -550,22 +552,22 @@ EXIT:
 
 void SetPropApiCallback::onSetProperty(const int32_t result)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "onSetProperty start = %{public}d", result);
+    IAM_LOGI("start = %{public}d", result);
     if (setPropertyInfo_ == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "setPropertyInfo is null");
+        IAM_LOGE("setPropertyInfo is null");
         return;
     }
     uv_loop_s *loop(nullptr);
     napi_get_uv_event_loop(setPropertyInfo_->callBackInfo.env, &loop);
     if (loop == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "loop is null");
+        IAM_LOGE("loop is null");
         delete setPropertyInfo_;
         setPropertyInfo_ = nullptr;
         return;
     }
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "work is null");
+        IAM_LOGE("work is null");
         delete setPropertyInfo_;
         setPropertyInfo_ = nullptr;
         return;

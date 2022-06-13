@@ -14,19 +14,24 @@
  */
 
 #include "user_auth_helper.h"
+
 #include <cinttypes>
-#include "userauth_hilog_wrapper.h"
+
+#include "iam_logger.h"
+
 #include "user_auth_impl.h"
+
+#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_NAPI
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
 napi_value UserAuthServiceConstructor(napi_env env, napi_callback_info info)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     std::unique_ptr<UserAuthImpl> userAuthImpl {new (std::nothrow) UserAuthImpl()};
     if (userAuthImpl == nullptr) {
-        USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, get nullptr", __func__);
+        IAM_LOGE("userAuthImpl is nullptr");
         return nullptr;
     }
 
@@ -48,7 +53,7 @@ napi_value UserAuthServiceConstructor(napi_env env, napi_callback_info info)
 
 napi_value GetVersion(napi_env env, napi_callback_info info)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, GetVersion");
+    IAM_LOGI("start");
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
@@ -56,7 +61,7 @@ napi_value GetVersion(napi_env env, napi_callback_info info)
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userAuthImpl)));
     if (userAuthImpl == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "UserAuthHelper, GetVersion get nullptr");
+        IAM_LOGE("userAuthImpl is nullptr");
         return nullptr;
     }
     return userAuthImpl->GetVersion(env, info);
@@ -64,7 +69,7 @@ napi_value GetVersion(napi_env env, napi_callback_info info)
 
 napi_value GetAvailableStatus(napi_env env, napi_callback_info info)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, getAvailableStatus");
+    IAM_LOGI("start");
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
@@ -72,7 +77,7 @@ napi_value GetAvailableStatus(napi_env env, napi_callback_info info)
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userAuthImpl)));
     if (userAuthImpl == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "UserAuthHelper, getAvailableStatus get nullptr");
+        IAM_LOGE("userAuthImpl is nullptr");
         return nullptr;
     }
     return userAuthImpl->GetAvailableStatus(env, info);
@@ -80,7 +85,7 @@ napi_value GetAvailableStatus(napi_env env, napi_callback_info info)
 
 napi_value GetProperty(napi_env env, napi_callback_info info)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, GetProperty");
+    IAM_LOGI("start");
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
@@ -88,7 +93,7 @@ napi_value GetProperty(napi_env env, napi_callback_info info)
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userAuthImpl)));
     if (userAuthImpl == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "UserAuthHelper, GetProperty get nullptr");
+        IAM_LOGE("userAuthImpl is nullptr");
         return nullptr;
     }
     return userAuthImpl->GetProperty(env, info);
@@ -96,7 +101,7 @@ napi_value GetProperty(napi_env env, napi_callback_info info)
 
 napi_value SetProperty(napi_env env, napi_callback_info info)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, SetProperty");
+    IAM_LOGI("start");
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
@@ -104,7 +109,7 @@ napi_value SetProperty(napi_env env, napi_callback_info info)
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userAuthImpl)));
     if (userAuthImpl == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "UserAuthHelper, SetProperty get nullptr");
+        IAM_LOGE("userAuthImpl is nullptr");
         return nullptr;
     }
     return userAuthImpl->SetProperty(env, info);
@@ -112,7 +117,7 @@ napi_value SetProperty(napi_env env, napi_callback_info info)
 
 napi_value Auth(napi_env env, napi_callback_info info)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, Auth");
+    IAM_LOGI("start");
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
@@ -120,7 +125,7 @@ napi_value Auth(napi_env env, napi_callback_info info)
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userAuthImpl)));
     if (userAuthImpl == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "UserAuthHelper, Auth get nullptr");
+        IAM_LOGE("userAuthImpl is nullptr");
         return nullptr;
     }
     return userAuthImpl->Auth(env, info);
@@ -128,7 +133,7 @@ napi_value Auth(napi_env env, napi_callback_info info)
 
 napi_value Execute(napi_env env, napi_callback_info info)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, Execute");
+    IAM_LOGI("start");
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
@@ -136,7 +141,7 @@ napi_value Execute(napi_env env, napi_callback_info info)
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userAuthImpl)));
     if (userAuthImpl == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "UserAuthHelper, Execute get nullptr");
+        IAM_LOGE("userAuthImpl is nullptr");
         return nullptr;
     }
     return userAuthImpl->Execute(env, info);
@@ -144,7 +149,7 @@ napi_value Execute(napi_env env, napi_callback_info info)
 
 napi_value AuthUser(napi_env env, napi_callback_info info)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, AuthUser");
+    IAM_LOGI("start");
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
@@ -152,7 +157,7 @@ napi_value AuthUser(napi_env env, napi_callback_info info)
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userAuthImpl)));
     if (userAuthImpl == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "UserAuthHelper, AuthUser get nullptr");
+        IAM_LOGE("userAuthImpl is nullptr");
         return nullptr;
     }
     return userAuthImpl->AuthUser(env, info);
@@ -160,7 +165,7 @@ napi_value AuthUser(napi_env env, napi_callback_info info)
 
 napi_value CancelAuth(napi_env env, napi_callback_info info)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "UserAuthHelper, CancelAuth");
+    IAM_LOGI("start");
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
@@ -168,7 +173,7 @@ napi_value CancelAuth(napi_env env, napi_callback_info info)
     UserAuthImpl *userAuthImpl = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userAuthImpl)));
     if (userAuthImpl == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "UserAuthHelper, CancelAuth get nullptr");
+        IAM_LOGE("userAuthImpl is nullptr");
         return nullptr;
     }
     return userAuthImpl->CancelAuth(env, info);
@@ -479,7 +484,7 @@ napi_value UserAuthTypeConstructor(napi_env env)
 
 napi_value UserAuthInit(napi_env env, napi_value exports)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, start.", __func__);
+    IAM_LOGI("start");
     napi_status status;
     napi_property_descriptor exportFuncs[] = {
         DECLARE_NAPI_FUNCTION("getAuthenticator", UserAuth::ConstructorForAPI6),
@@ -487,11 +492,11 @@ napi_value UserAuthInit(napi_env env, napi_value exports)
     status = napi_define_properties(env, exports,
         sizeof(exportFuncs) / sizeof(napi_property_descriptor), exportFuncs);
     if (status != napi_ok) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_define_properties failed");
+        IAM_LOGE("napi_define_properties failed");
     }
     status = napi_set_named_property(env, exports, "UserAuth", GetCtor(env));
     if (status != napi_ok) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "napi_set_named_property failed");
+        IAM_LOGE("napi_set_named_property failed");
     }
     return exports;
 }
@@ -536,7 +541,7 @@ napi_value ConstructorForAPI6(napi_env env, napi_callback_info info)
 
 napi_value GetCtor(napi_env env)
 {
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     napi_value cons = nullptr;
     napi_property_descriptor clzDes[] = {
         DECLARE_NAPI_FUNCTION("getVersion", UserAuth::GetVersion),

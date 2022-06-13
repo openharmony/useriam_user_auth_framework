@@ -18,10 +18,12 @@
 #include <iremote_broker.h>
 #include "callback.h"
 #include "auth_common.h"
-#include "useridm_hilog_wrapper.h"
+#include "iam_logger.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "authface_userIDM_helper.h"
+
+#define LOG_LABEL UserIAM::Common::LABEL_USER_IDM_NAPI
 
 namespace OHOS {
 namespace UserIAM {
@@ -40,7 +42,7 @@ UserIdentityManager::~UserIdentityManager()
 
 napi_value UserIdentityManager::NAPI_OpenSession(napi_env env, napi_callback_info info)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     AsyncOpenSession *asyncInfo = OCreateAsyncInfo(env);
     if (asyncInfo == nullptr) {
         return nullptr;
@@ -60,7 +62,7 @@ napi_value UserIdentityManager::NAPI_OpenSession(napi_env env, napi_callback_inf
 
 napi_value UserIdentityManager::OpenSessionWrap(napi_env env, napi_callback_info info, AsyncOpenSession *asyncInfo)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     if (asyncInfo == nullptr) {
         return nullptr;
     }
@@ -89,9 +91,9 @@ napi_value UserIdentityManager::OpenSessionWrap(napi_env env, napi_callback_info
 
 napi_value OpenSessionRet(napi_env env, AsyncOpenSession* asyncOpenSession)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     if (asyncOpenSession == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "OpenSessionRet asyncOpenSession is nullptr");
+        IAM_LOGE("asyncOpenSession is nullptr");
         return nullptr;
     }
     void* data = nullptr;
@@ -100,7 +102,7 @@ napi_value OpenSessionRet(napi_env env, AsyncOpenSession* asyncOpenSession)
     NAPI_CALL(env, napi_create_arraybuffer(env, bufferSize, &data, &arrayBuffer));
     if (memcpy_s(data, bufferSize, reinterpret_cast<const void*>(&asyncOpenSession->openSession),
         bufferSize) != EOK) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "memcpy_s fail.");
+        IAM_LOGE("memcpy_s fail.");
         return nullptr;
     }
     napi_value result = nullptr;
@@ -112,7 +114,7 @@ napi_value OpenSessionRet(napi_env env, AsyncOpenSession* asyncOpenSession)
 napi_value UserIdentityManager::OpenSessionCallback(napi_env env, napi_value *argv, size_t argc,
     AsyncOpenSession *asyncInfo)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     if (argv == nullptr || asyncInfo == nullptr) {
         return nullptr;
     }
@@ -137,7 +139,7 @@ napi_value UserIdentityManager::OpenSessionCallback(napi_env env, napi_value *ar
                 napi_value callResult = nullptr;
                 result[0] = OpenSessionRet(env, asyncInfo);
                 if (result[0] == nullptr) {
-                    USERIDM_HILOGE(MODULE_JS_NAPI, "translate uint64 to uint8Array failed");
+                    IAM_LOGE("OpenSessionRet failed");
                 }
                 napi_get_undefined(env, &undefined);
                 napi_get_reference_value(env, asyncInfo->callback, &callback);
@@ -156,7 +158,7 @@ napi_value UserIdentityManager::OpenSessionCallback(napi_env env, napi_value *ar
 napi_value UserIdentityManager::OpenSessionPromise(napi_env env, napi_value *argv, size_t argc,
     AsyncOpenSession *asyncInfo)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     if (asyncInfo == nullptr) {
         return nullptr;
     }
@@ -176,7 +178,7 @@ napi_value UserIdentityManager::OpenSessionPromise(napi_env env, napi_value *arg
                 napi_value retPromise = nullptr;
                 retPromise = OpenSessionRet(env, asyncInfo);
                 if (retPromise == nullptr) {
-                    USERIDM_HILOGE(MODULE_JS_NAPI, "translate uint64 to uint8Array failed");
+                    IAM_LOGE("retPromise is nullptr");
                 }
                 napi_resolve_deferred(asyncInfo->env, asyncInfo->deferred, retPromise);
                 napi_delete_async_work(env, asyncInfo->asyncWork);
@@ -191,15 +193,15 @@ napi_value UserIdentityManager::OpenSessionPromise(napi_env env, napi_value *arg
 
 void UserIdentityManager::AddCredentialExecute(napi_env env, void *data)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     AsyncHolder *asyncHolder = reinterpret_cast<AsyncHolder *>(data);
     if (asyncHolder == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "%{public}s asyncHolder nullptr", __func__);
+        IAM_LOGE("asyncHolder is nullptr");
         return;
     }
     AsyncCallbackContext *asyncCallbackContext = reinterpret_cast<AsyncCallbackContext *>(asyncHolder->data);
     if (asyncCallbackContext == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "%{public}s asyncCallbackContext nullptr", __func__);
+        IAM_LOGE("asyncCallbackContext is nullptr");
         return;
     }
     AddCredInfo addCredInfo;
@@ -212,10 +214,10 @@ void UserIdentityManager::AddCredentialExecute(napi_env env, void *data)
 
 void UserIdentityManager::AddCredentialComplete(napi_env env, napi_status status, void *data)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     AsyncHolder *asyncHolder = reinterpret_cast<AsyncHolder *>(data);
     if (asyncHolder == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "%{public}s asyncHolder nullptr", __func__);
+        IAM_LOGE("asyncHolder is nullptr");
         return;
     }
     napi_delete_async_work(env, asyncHolder->asyncWork);
@@ -226,11 +228,11 @@ napi_value UserIdentityManager::BuildAddCredentialInfo(napi_env env, napi_callba
 {
     AsyncCallbackContext *asyncCallbackContext = reinterpret_cast<AsyncCallbackContext *>(asyncHolder->data);
     if (asyncCallbackContext == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "BuildAddCredentialInfo asyncCallbackContext nullptr");
+        IAM_LOGE("asyncCallbackContext is nullptr");
         return nullptr;
     }
     if (AuthCommon::JudgeObjectType(env, info, asyncCallbackContext) != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "BuildAddCredentialInfo JudgeObjectType fail");
+        IAM_LOGE("JudgeObjectType fail");
         return nullptr;
     }
     napi_value result = nullptr;
@@ -245,15 +247,15 @@ napi_value UserIdentityManager::BuildAddCredentialInfo(napi_env env, napi_callba
 
 napi_value UserIdentityManager::NAPI_AddCredential(napi_env env, napi_callback_info info)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     AsyncHolder *asyncHolder = new (std::nothrow) AsyncHolder();
     if (asyncHolder == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "NAPI_AddCredential asyncHolder nullptr");
+        IAM_LOGE("asyncHolder is nullptr");
         return nullptr;
     }
     AsyncCallbackContext *asyncCallbackContext = new (std::nothrow) AsyncCallbackContext();
     if (asyncCallbackContext == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "NAPI_AddCredential asyncCallbackContext nullptr");
+        IAM_LOGE("asyncCallbackContext is nullptr");
         delete asyncHolder;
         return nullptr;
     }
@@ -261,7 +263,7 @@ napi_value UserIdentityManager::NAPI_AddCredential(napi_env env, napi_callback_i
     asyncCallbackContext->env = env;
     napi_value ret = BuildAddCredentialInfo(env, info, asyncHolder);
     if (ret == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "NAPI_AddCredential BuildAddCredentialInfo fail");
+        IAM_LOGE("BuildAddCredentialInfo fail");
         delete asyncCallbackContext;
         if (asyncHolder->asyncWork != nullptr) {
             napi_delete_async_work(env, asyncHolder->asyncWork);
@@ -273,15 +275,15 @@ napi_value UserIdentityManager::NAPI_AddCredential(napi_env env, napi_callback_i
 
 void UserIdentityManager::UpdateCredentialExecute(napi_env env, void *data)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     AsyncHolder *asyncHolder = reinterpret_cast<AsyncHolder *>(data);
     if (asyncHolder == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "%{public}s asyncHolder nullptr", __func__);
+        IAM_LOGE("asyncHolder is nullptr");
         return;
     }
     AsyncCallbackContext *asyncCallbackContext = reinterpret_cast<AsyncCallbackContext *>(asyncHolder->data);
     if (asyncCallbackContext == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "%{public}s asyncCallbackContext nullptr", __func__);
+        IAM_LOGE("asyncCallbackContext is nullptr");
         return;
     }
     AddCredInfo addCredInfo;
@@ -294,10 +296,10 @@ void UserIdentityManager::UpdateCredentialExecute(napi_env env, void *data)
 
 void UserIdentityManager::UpdateCredentialComplete(napi_env env, napi_status status, void *data)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     AsyncHolder *asyncHolder = reinterpret_cast<AsyncHolder *>(data);
     if (asyncHolder == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "%{public}s asyncHolder nullptr", __func__);
+        IAM_LOGE("asyncHolder is nullptr");
         return;
     }
     napi_delete_async_work(env, asyncHolder->asyncWork);
@@ -309,12 +311,12 @@ napi_value UserIdentityManager::BuildUpdateCredentialInfo(
 {
     AsyncCallbackContext *asyncCallbackContext = reinterpret_cast<AsyncCallbackContext *>(asyncHolder->data);
     if (asyncCallbackContext == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "BuildUpdateCredentialInfo asyncCallbackContext nullptr");
+        IAM_LOGE("asyncCallbackContext is nullptr");
         return nullptr;
     }
 
     if (AuthCommon::JudgeObjectType(env, info, asyncCallbackContext) != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "BuildUpdateCredentialInfo JudgeObjectType fail");
+        IAM_LOGE("JudgeObjectType fail");
         return nullptr;
     }
     napi_value result = nullptr;
@@ -330,15 +332,15 @@ napi_value UserIdentityManager::BuildUpdateCredentialInfo(
 
 napi_value UserIdentityManager::NAPI_UpdateCredential(napi_env env, napi_callback_info info)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     AsyncHolder *asyncHolder = new (std::nothrow) AsyncHolder();
     if (asyncHolder == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "NAPI_UpdateCredential asyncHolder nullptr");
+        IAM_LOGE("syncHolder is nullptr");
         return nullptr;
     }
     AsyncCallbackContext *asyncCallbackContext = new (std::nothrow) AsyncCallbackContext();
     if (asyncCallbackContext == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "NAPI_UpdateCredential asyncCallbackContext nullptr");
+        IAM_LOGE("asyncCallbackContext is nullptr");
         delete asyncHolder;
         return nullptr;
     }
@@ -346,7 +348,7 @@ napi_value UserIdentityManager::NAPI_UpdateCredential(napi_env env, napi_callbac
     asyncCallbackContext->env = env;
     napi_value ret = BuildUpdateCredentialInfo(env, info, asyncHolder);
     if (ret == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "NAPI_UpdateCredential BuildAddCredentialInfo fail");
+        IAM_LOGE("BuildUpdateCredentialInfo fail");
         delete asyncCallbackContext;
         if (asyncHolder->asyncWork != nullptr) {
             napi_delete_async_work(env, asyncHolder->asyncWork);
@@ -358,7 +360,7 @@ napi_value UserIdentityManager::NAPI_UpdateCredential(napi_env env, napi_callbac
 
 napi_value UserIdentityManager::NAPI_CloseSession(napi_env env, napi_callback_info info)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     napi_value result = nullptr;
     int32_t retCloseSession = 0;
     UserIDMClient::GetInstance().CloseSession();
@@ -368,13 +370,13 @@ napi_value UserIdentityManager::NAPI_CloseSession(napi_env env, napi_callback_in
 
 napi_value UserIdentityManager::NAPI_Cancel(napi_env env, napi_callback_info info)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     napi_value result = nullptr;
     size_t argc = ONE_PARAMETER;
     napi_value argv[ONE_PARAMETER] = {0};
     std::unique_ptr<SyncCancelContext> syncCancelContext {new (std::nothrow) SyncCancelContext()};
     if (syncCancelContext == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "syncCancelContext is nullptr");
+        IAM_LOGE("syncCancelContext is nullptr");
         return result;
     }
 
@@ -382,7 +384,7 @@ napi_value UserIdentityManager::NAPI_Cancel(napi_env env, napi_callback_info inf
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
     syncCancelContext->challenge = AuthCommon::JudgeArrayType(env, ZERO_PARAMETER, argv);
     if (syncCancelContext->challenge.empty() || syncCancelContext->challenge.size() < sizeof(uint64_t)) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "syncCancelContext->challenge is null or size is wrong!");
+        IAM_LOGE("syncCancelContext->challenge is null or size is wrong!");
         return result;
     }
     uint8_t tmp[sizeof(uint64_t)];
@@ -397,15 +399,15 @@ napi_value UserIdentityManager::NAPI_Cancel(napi_env env, napi_callback_info inf
 
 void UserIdentityManager::DelUserExecute(napi_env env, void *data)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     AsyncHolder *asyncHolder = reinterpret_cast<AsyncHolder *>(data);
     if (asyncHolder == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "%{public}s asyncHolder nullptr", __func__);
+        IAM_LOGE("asyncHolder is nullptr");
         return;
     }
     AsyncCallbackContext *asyncCallbackContext = reinterpret_cast<AsyncCallbackContext *>(asyncHolder->data);
     if (asyncCallbackContext == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "%{public}s asyncCallbackContext nullptr", __func__);
+        IAM_LOGE("asyncCallbackContext is nullptr");
         return;
     }
     std::shared_ptr<IDMCallback> iidmCallback = std::make_shared<IIdmCallback>(asyncCallbackContext);
@@ -414,10 +416,10 @@ void UserIdentityManager::DelUserExecute(napi_env env, void *data)
 
 void UserIdentityManager::DelUserComplete(napi_env env, napi_status status, void *data)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     AsyncHolder *asyncHolder = reinterpret_cast<AsyncHolder *>(data);
     if (asyncHolder == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "%{public}s asyncHolder nullptr", __func__);
+        IAM_LOGE("asyncHolder is nullptr");
         return;
     }
     napi_delete_async_work(env, asyncHolder->asyncWork);
@@ -428,7 +430,7 @@ napi_value UserIdentityManager::DoDelUser(napi_env env, napi_callback_info info,
 {
     AsyncCallbackContext *asyncCallbackContext = reinterpret_cast<AsyncCallbackContext *>(asyncHolder->data);
     if (asyncCallbackContext == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "DoDelUser asyncCallbackContext nullptr");
+        IAM_LOGE("asyncCallbackContext is nullptr");
         return nullptr;
     }
     napi_value result = nullptr;
@@ -444,15 +446,15 @@ napi_value UserIdentityManager::DoDelUser(napi_env env, napi_callback_info info,
 
 napi_value UserIdentityManager::NAPI_DelUser(napi_env env, napi_callback_info info)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     AsyncHolder *asyncHolder = new (std::nothrow) AsyncHolder();
     if (asyncHolder == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "NAPI_DelUser asyncHolder nullptr");
+        IAM_LOGE("asyncHolder is nullptr");
         return nullptr;
     }
     AsyncCallbackContext *asyncCallbackContext = new (std::nothrow) AsyncCallbackContext();
     if (asyncCallbackContext == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "NAPI_DelUser asyncCallbackContext nullptr");
+        IAM_LOGE("asyncCallbackContext is nullptr");
         delete asyncHolder;
         return nullptr;
     }
@@ -460,7 +462,7 @@ napi_value UserIdentityManager::NAPI_DelUser(napi_env env, napi_callback_info in
     asyncCallbackContext->env = env;
     napi_value ret = DoDelUser(env, info, asyncHolder);
     if (ret == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "NAPI_DelUser DoDelUser fail");
+        IAM_LOGE("DoDelUser fail");
         delete asyncCallbackContext;
         if (asyncHolder->asyncWork != nullptr) {
             napi_delete_async_work(env, asyncHolder->asyncWork);
@@ -472,15 +474,15 @@ napi_value UserIdentityManager::NAPI_DelUser(napi_env env, napi_callback_info in
 
 void UserIdentityManager::DelCredExecute(napi_env env, void *data)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     AsyncHolder *asyncHolder = reinterpret_cast<AsyncHolder *>(data);
     if (asyncHolder == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "%{public}s asyncHolder nullptr", __func__);
+        IAM_LOGE("asyncHolder is nullptr");
         return;
     }
     AsyncCallbackContext *asyncCallbackContext = reinterpret_cast<AsyncCallbackContext *>(asyncHolder->data);
     if (asyncCallbackContext == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "%{public}s asyncCallbackContext nullptr", __func__);
+        IAM_LOGE("asyncCallbackContext is nullptr");
         return;
     }
     uint8_t tmp[sizeof(uint64_t)];
@@ -494,10 +496,10 @@ void UserIdentityManager::DelCredExecute(napi_env env, void *data)
 
 void UserIdentityManager::DelCredComplete(napi_env env, napi_status status, void *data)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     AsyncHolder *asyncHolder = reinterpret_cast<AsyncHolder *>(data);
     if (asyncHolder == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "%{public}s asyncHolder nullptr", __func__);
+        IAM_LOGE("asyncHolder is nullptr");
         return;
     }
     napi_delete_async_work(env, asyncHolder->asyncWork);
@@ -520,15 +522,15 @@ napi_value UserIdentityManager::DoDelCred(napi_env env, napi_callback_info info,
 
 napi_value UserIdentityManager::NAPI_DelCred(napi_env env, napi_callback_info info)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     AsyncHolder *asyncHolder = new (std::nothrow) AsyncHolder();
     if (asyncHolder == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "NAPI_DelCred asyncHolder nullptr");
+        IAM_LOGE("asyncHolder is nullptr");
         return nullptr;
     }
     AsyncCallbackContext *asyncCallbackContext = new (std::nothrow) AsyncCallbackContext();
     if (asyncCallbackContext == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "NAPI_DelCred asyncCallbackContext nullptr");
+        IAM_LOGE("asyncCallbackContext is nullptr");
         delete asyncHolder;
         return nullptr;
     }
@@ -536,7 +538,7 @@ napi_value UserIdentityManager::NAPI_DelCred(napi_env env, napi_callback_info in
     asyncCallbackContext->env = env;
     napi_value ret = DoDelCred(env, info, asyncHolder);
     if (ret == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "NAPI_DelCred DoDelCred fail");
+        IAM_LOGE("DoDelCred fail");
         delete asyncCallbackContext;
         if (asyncHolder->asyncWork != nullptr) {
             napi_delete_async_work(env, asyncHolder->asyncWork);
@@ -548,22 +550,22 @@ napi_value UserIdentityManager::NAPI_DelCred(napi_env env, napi_callback_info in
 
 napi_value UserIdentityManager::NAPI_GetAuthInfo(napi_env env, napi_callback_info info)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     AsyncHolder *asyncHolder = new (std::nothrow) AsyncHolder();
     if (asyncHolder == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "NAPI_GetAuthInfo asyncHolder nullptr");
+        IAM_LOGE("asyncHolder is nullptr");
         return nullptr;
     }
     AsyncGetAuthInfo *asyncGetAuthInfo = GCreateAsyncInfo(env);
     if (asyncGetAuthInfo == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "NAPI_GetAuthInfo asyncGetAuthInfo nullptr");
+        IAM_LOGE("asyncGetAuthInfo is nullptr");
         delete asyncHolder;
         return nullptr;
     }
     asyncHolder->data = asyncGetAuthInfo;
     napi_value ret = GetAuthInfoWrap(env, info, asyncHolder);
     if (ret == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "NAPI_GetAuthInfo GetAuthInfoWrap fail");
+        IAM_LOGE("GetAuthInfoWrap fail");
         if (asyncGetAuthInfo->callback != nullptr) {
             napi_delete_reference(env, asyncGetAuthInfo->callback);
         }
@@ -578,10 +580,10 @@ napi_value UserIdentityManager::NAPI_GetAuthInfo(napi_env env, napi_callback_inf
 
 napi_value UserIdentityManager::GetAuthInfoWrap(napi_env env, napi_callback_info info, AsyncHolder *asyncHolder)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     AsyncGetAuthInfo *asyncGetAuthInfo = reinterpret_cast<AsyncGetAuthInfo *>(asyncHolder->data);
     if (asyncGetAuthInfo == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "%{public}s asyncGetAuthInfo nullptr", __func__);
+        IAM_LOGE("asyncGetAuthInfo is nullptr");
         return 0;
     }
     size_t argc = ARGS_MAX_COUNT;
@@ -609,15 +611,15 @@ napi_value UserIdentityManager::GetAuthInfoWrap(napi_env env, napi_callback_info
 
 void UserIdentityManager::GetAuthInfoExecute(napi_env env, void *data)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     AsyncHolder *asyncHolder = reinterpret_cast<AsyncHolder *>(data);
     if (asyncHolder == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "%{public}s asyncHolder nullptr", __func__);
+        IAM_LOGE("asyncHolder is nullptr");
         return;
     }
     AsyncGetAuthInfo *asyncGetAuthInfo = reinterpret_cast<AsyncGetAuthInfo *>(asyncHolder->data);
     if (asyncGetAuthInfo == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "%{public}s asyncGetAuthInfo nullptr", __func__);
+        IAM_LOGE("asyncGetAuthInfo is nullptr");
         return;
     }
     std::shared_ptr<GetInfoCallback> getInfoCallbackIDM = std::make_shared<GetInfoCallbackIDM>(asyncGetAuthInfo);
@@ -626,10 +628,10 @@ void UserIdentityManager::GetAuthInfoExecute(napi_env env, void *data)
 
 void UserIdentityManager::GetAuthInfoComplete(napi_env env, napi_status status, void *data)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     AsyncHolder *asyncHolder = reinterpret_cast<AsyncHolder *>(data);
     if (asyncHolder == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "%{public}s asyncHolder nullptr", __func__);
+        IAM_LOGE("asyncHolder is nullptr");
         return;
     }
     napi_delete_async_work(env, asyncHolder->asyncWork);
@@ -639,10 +641,10 @@ void UserIdentityManager::GetAuthInfoComplete(napi_env env, napi_status status, 
 napi_value UserIdentityManager::GetAuthInfoCallback(napi_env env, napi_value *argv, size_t argc,
     AsyncHolder *asyncHolder)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     AsyncGetAuthInfo *asyncGetAuthInfo = reinterpret_cast<AsyncGetAuthInfo *>(asyncHolder->data);
     if (asyncGetAuthInfo == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "%{public}s asyncGetAuthInfo nullptr", __func__);
+        IAM_LOGE("asyncGetAuthInfo is nullptr");
         return nullptr;
     }
 
@@ -671,10 +673,10 @@ napi_value UserIdentityManager::GetAuthInfoCallback(napi_env env, napi_value *ar
 napi_value UserIdentityManager::GetAuthInfoPromise(napi_env env, napi_value *argv, size_t argc,
     AsyncHolder *asyncHolder)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     AsyncGetAuthInfo *asyncGetAuthInfo = reinterpret_cast<AsyncGetAuthInfo *>(asyncHolder->data);
     if (asyncGetAuthInfo == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "%{public}s asyncGetAuthInfo nullptr", __func__);
+        IAM_LOGE("asyncGetAuthInfo is nullptr");
         return nullptr;
     }
 
