@@ -54,5 +54,5 @@ ohos_shared_library("coauth_framework") {
     "//base/user_iam/user_auth/common:iam_log_config",
   ]
 
-  part_name = "user_auth"
+  part_name = "user_auth_framework"
 }
