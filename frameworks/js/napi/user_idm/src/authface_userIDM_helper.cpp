@@ -14,20 +14,25 @@
  */
 
 #include "authface_userIDM_helper.h"
+
 #include <iremote_broker.h>
+
+#include "iam_logger.h"
+
 #include "useridm_info.h"
-#include "useridm_hilog_wrapper.h"
 #include "useridentity_manager.h"
+
+#define LOG_LABEL UserIAM::Common::LABEL_USER_IDM_NAPI
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {
 napi_value UserIdentityManagerConstructor(napi_env env, napi_callback_info info)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     std::unique_ptr<UserIdentityManager> userIdentityManager {new (std::nothrow) UserIdentityManager()};
     if (userIdentityManager == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "%{public}s, get nullptr", __func__);
+        IAM_LOGE("userIdentityManager is nullptr");
         return nullptr;
     }
 
@@ -50,7 +55,7 @@ napi_value UserIdentityManagerConstructor(napi_env env, napi_callback_info info)
 
 napi_value OpenSession(napi_env env, napi_callback_info info)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
@@ -58,7 +63,7 @@ napi_value OpenSession(napi_env env, napi_callback_info info)
     UserIdentityManager *userIdentityManager = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userIdentityManager)));
     if (userIdentityManager == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "userIDM_helper OpenSession error");
+        IAM_LOGE("userIdentityManager is nullptr");
         return nullptr;
     }
 
@@ -67,7 +72,7 @@ napi_value OpenSession(napi_env env, napi_callback_info info)
 
 napi_value AddCredential(napi_env env, napi_callback_info info)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
@@ -75,7 +80,7 @@ napi_value AddCredential(napi_env env, napi_callback_info info)
     UserIdentityManager *userIdentityManager = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userIdentityManager)));
     if (userIdentityManager == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "userIDM_helper AddCredential error");
+        IAM_LOGE("userIdentityManager is nullptr");
         return nullptr;
     }
 
@@ -84,7 +89,7 @@ napi_value AddCredential(napi_env env, napi_callback_info info)
 
 napi_value UpdateCredential(napi_env env, napi_callback_info info)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
@@ -92,7 +97,7 @@ napi_value UpdateCredential(napi_env env, napi_callback_info info)
     UserIdentityManager *userIdentityManager = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userIdentityManager)));
     if (userIdentityManager == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "userIDM_helper UpdateCredential error");
+        IAM_LOGE("userIdentityManager is nullptr");
         return nullptr;
     }
 
@@ -101,7 +106,7 @@ napi_value UpdateCredential(napi_env env, napi_callback_info info)
 
 napi_value CloseSession(napi_env env, napi_callback_info info)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
@@ -109,7 +114,7 @@ napi_value CloseSession(napi_env env, napi_callback_info info)
     UserIdentityManager *userIdentityManager = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userIdentityManager)));
     if (userIdentityManager == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "userIDM_helper CloseSession error");
+        IAM_LOGE("userIdentityManager is nullptr");
         return nullptr;
     }
 
@@ -118,7 +123,7 @@ napi_value CloseSession(napi_env env, napi_callback_info info)
 
 napi_value Cancel(napi_env env, napi_callback_info info)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
@@ -126,7 +131,7 @@ napi_value Cancel(napi_env env, napi_callback_info info)
     UserIdentityManager *userIdentityManager = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userIdentityManager)));
     if (userIdentityManager == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "userIDM_helper Cancel error");
+        IAM_LOGE("userIdentityManager is nullptr");
         return nullptr;
     }
 
@@ -135,7 +140,7 @@ napi_value Cancel(napi_env env, napi_callback_info info)
 
 napi_value DelUser(napi_env env, napi_callback_info info)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
@@ -143,7 +148,7 @@ napi_value DelUser(napi_env env, napi_callback_info info)
     UserIdentityManager *userIdentityManager = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userIdentityManager)));
     if (userIdentityManager == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "userIDM_helper DelUser error");
+        IAM_LOGE("userIdentityManager is nullptr");
         return nullptr;
     }
 
@@ -152,7 +157,7 @@ napi_value DelUser(napi_env env, napi_callback_info info)
 
 napi_value DelCred(napi_env env, napi_callback_info info)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
@@ -160,7 +165,7 @@ napi_value DelCred(napi_env env, napi_callback_info info)
     UserIdentityManager *userIdentityManager = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userIdentityManager)));
     if (userIdentityManager == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "userIDM_helper DelCred error");
+        IAM_LOGE("userIdentityManager is nullptr");
         return nullptr;
     }
 
@@ -169,7 +174,7 @@ napi_value DelCred(napi_env env, napi_callback_info info)
 
 napi_value GetAuthInfo(napi_env env, napi_callback_info info)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     napi_value thisVar = nullptr;
     size_t argcAsync = 0;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
@@ -177,7 +182,7 @@ napi_value GetAuthInfo(napi_env env, napi_callback_info info)
     UserIdentityManager *userIdentityManager = nullptr;
     NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userIdentityManager)));
     if (userIdentityManager == nullptr) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "userIDM_helper GetAuthInfo error");
+        IAM_LOGE("userIdentityManager is nullptr");
         return nullptr;
     }
 
@@ -186,10 +191,10 @@ napi_value GetAuthInfo(napi_env env, napi_callback_info info)
 
 napi_value AuthFaceInit(napi_env env, napi_value exports)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     napi_status status = napi_set_named_property(env, exports, "UserIdentityManager", GetCtor(env));
     if (status != napi_ok) {
-        USERIDM_HILOGE(MODULE_JS_NAPI, "napi_set_named_property failed");
+        IAM_LOGE("napi_set_named_property failed");
     }
     return exports;
 }
@@ -241,7 +246,7 @@ napi_value EnumExport(napi_env env, napi_value exports)
 
 napi_value GetCtor(napi_env env)
 {
-    USERIDM_HILOGI(MODULE_JS_NAPI, "%{public}s, start", __func__);
+    IAM_LOGI("start");
     napi_value cons;
     napi_property_descriptor clzDes[] = {
         DECLARE_NAPI_FUNCTION("openSession", OpenSession),
