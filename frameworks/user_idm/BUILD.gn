@@ -48,5 +48,5 @@ ohos_shared_library("useridm_framework") {
     "utils_base:utils",
   ]
 
-  part_name = "user_auth"
+  part_name = "user_auth_framework"
 }
