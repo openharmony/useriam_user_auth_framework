@@ -51,5 +51,5 @@ ohos_shared_library("userauth_framework") {
 
   public_configs = [ ":userauth_framework_public_config" ]
 
-  part_name = "user_auth_framework"
+  part_name = "user_auth"
 }

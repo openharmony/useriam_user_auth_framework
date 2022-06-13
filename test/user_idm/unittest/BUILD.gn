@@ -35,6 +35,6 @@ ohos_unittest("user_idm_test") {
     "utils_base:utils",
   ]
 
-  part_name = "user_auth_framework"
+  part_name = "user_auth"
   module_out_path = "${part_name}/${target_name}"
 }
