@@ -15,9 +15,9 @@ import("//build/ohos.gni")
 import("//build/test.gni")
 
 ohos_fuzztest("UserIdmFuzzTest") {
-  module_out_path = "user_iam/user_auth/user_idm"
+  module_out_path = "useriam/user_auth_framework/user_idm"
   fuzz_config_file =
-      "//base/user_iam/user_auth/test/user_idm/fuzztest/useridm_fuzzer"
+      "//base/useriam/user_auth_framework/test/user_idm/fuzztest/useridm_fuzzer"
 
   cflags = [
     "-g",
@@ -27,18 +27,18 @@ ohos_fuzztest("UserIdmFuzzTest") {
   ]
 
   include_dirs = [
-    "//base/user_iam/user_auth/common/logs/user_idm",
-    "//base/user_iam/user_auth/frameworks/user_idm/inc",
-    "//base/user_iam/user_auth/services/user_idm/inc",
-    "//base/user_iam/user_auth/interfaces/inner_api/user_idm",
-    "//base/user_iam/user_auth/common/logs",
+    "//base/useriam/user_auth_framework/common/logs/user_idm",
+    "//base/useriam/user_auth_framework/frameworks/user_idm/inc",
+    "//base/useriam/user_auth_framework/services/user_idm/inc",
+    "//base/useriam/user_auth_framework/interfaces/inner_api/user_idm",
+    "//base/useriam/user_auth_framework/common/logs",
   ]
 
   sources = [ "user_idm_fuzzer.cpp" ]
 
   deps = [
-    "//base/user_iam/user_auth/common:iam_test",
-    "//base/user_iam/user_auth/services:userauthservice",
+    "//base/useriam/user_auth_framework/common:iam_test",
+    "//base/useriam/user_auth_framework/services:userauthservice",
   ]
 
   external_deps = [

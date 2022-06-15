@@ -23,7 +23,7 @@
 ## 目录
 
 ```undefined
-//base/user_iam/user_auth
+//base/useriam/user_auth_framework
 ├── common              # 子系统公共库代码目录
 ├── frameworks          # 接口层实现代码目录
 │   └── js              # js接口实现代码

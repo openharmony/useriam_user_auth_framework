@@ -16,8 +16,8 @@ import("//build/ohos.gni")
 config("coauth_framework_public_config") {
   include_dirs = [
     "inc",
-    "//base/user_iam/user_auth/interfaces/inner_api/co_auth",
-    "//base/user_iam/user_auth/interfaces/inner_api/common",
+    "//base/useriam/user_auth_framework/interfaces/inner_api/co_auth",
+    "//base/useriam/user_auth_framework/interfaces/inner_api/common",
   ]
 }
 
@@ -47,12 +47,12 @@ ohos_shared_library("coauth_framework") {
     "utils_base:utils",
   ]
 
-  configs = [ "//base/user_iam/user_auth/common:iam_log_config" ]
+  configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
 
   public_configs = [
     ":coauth_framework_public_config",
-    "//base/user_iam/user_auth/common:iam_log_config",
+    "//base/useriam/user_auth_framework/common:iam_log_config",
   ]
 
-  part_name = "user_auth"
+  part_name = "user_auth_framework"
 }
