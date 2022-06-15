@@ -18,7 +18,6 @@
 #include <sstream>
 
 #include "co_auth_defines.h"
-#include "executor_mgr.h"
 #include "framework_executor_callback.h"
 #include "iam_check.h"
 #include "iam_logger.h"
@@ -31,8 +30,10 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-Executor::Executor(std::shared_ptr<IAuthExecutorHdi> executorHdi, uint16_t hdiId)
-    : executorHdi_(executorHdi),
+Executor::Executor(std::shared_ptr<ExecutorMgrWrapper> executorMgrWrapper,
+    std::shared_ptr<IAuthExecutorHdi> executorHdi, uint16_t hdiId)
+    : executorMgrWrapper_(executorMgrWrapper),
+      executorHdi_(executorHdi),
       hdiId_(hdiId)
 {
     auto hdi = executorHdi_;
@@ -55,6 +56,7 @@ void Executor::OnHdiDisconnect()
 {
     IAM_LOGI("%{public}s start", GetDescription());
     executorHdi_ = nullptr;
+    RespondCallbackOnDisconnect();
 }
 
 void Executor::OnFrameworkReady()
@@ -87,7 +89,8 @@ void Executor::RegisterExecutorCallback(ExecutorInfo &executorInfo)
             executorCallback_ = localExecutorCallback;
         }
     }
-    ExecutorMgr::GetInstance().Register(executorInfo, executorCallback_);
+    IF_FALSE_LOGE_AND_RETURN(executorMgrWrapper_ != nullptr);
+    executorMgrWrapper_->Register(executorInfo, executorCallback_);
     IAM_LOGI(
         "register executor callback ok, executor id %{public}s", GET_MASKED_STRING(executorInfo.executorId).c_str());
 }

@@ -27,11 +27,10 @@ public:
         sptr<IExecutorMessenger> executorMessenger);
     ~EnrollCommand() override = default;
 
-    void OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo) override;
-
 protected:
-    void OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo) override;
     ResultCode SendRequest() override;
+    void OnAcquireInfoInner(int32_t acquire, const std::vector<uint8_t> &extraInfo) override;
+    void OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo) override;
 
 private:
     uint32_t transNum_ = 1;

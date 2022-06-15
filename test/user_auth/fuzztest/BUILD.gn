@@ -14,7 +14,11 @@
 import("//build/ohos.gni")
 import("//build/test.gni")
 
-group("user_auth_unittest") {
+group("UserAuthFuzzTest") {
   testonly = true
-  deps = [ "userauthservice_unittest:user_auth_service_test" ]
+  deps = [
+    "userauthdrivermanager_fuzzer:UserAuthDriverManagerFuzzTest",
+    "userauthexecutor_fuzzer:UserAuthExecutorFuzzTest",
+    "userauthservice_fuzzer:UserAuthServiceFuzzTest",
+  ]
 }

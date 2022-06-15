@@ -50,9 +50,7 @@ ResultCode CustomCommand::SendRequest()
     ResultCode ret =
         hdi->SendCommand(static_cast<UserAuth::AuthPropertyMode>(commandId), extraInfo, shared_from_this());
     if (ret != ResultCode::SUCCESS) {
-        result_ = ret;
-        promise_.set_value();
-        IAM_LOGE("%{public}s send command fail result %{public}d", GetDescription(), ret);
+        OnResult(ret);
         return ret;
     }
     IAM_LOGI("%{public}s send command result success", GetDescription());
@@ -62,11 +60,10 @@ ResultCode CustomCommand::SendRequest()
 void CustomCommand::OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo)
 {
     IAM_LOGI("%{public}s on result start", GetDescription());
-    result_ = result;
-    promise_.set_value();
+    SetResult(result);
 }
 
-void CustomCommand::OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo)
+void CustomCommand::OnAcquireInfoInner(int32_t acquire, const std::vector<uint8_t> &extraInfo)
 {
     IAM_LOGE("%{public}s not support", GetDescription());
 }
@@ -78,7 +75,7 @@ ResultCode CustomCommand::GetResult()
         return ResultCode::GENERAL_ERROR;
     }
     IAM_LOGI("%{public}s begin wait future", GetDescription());
-    const std::chrono::seconds maxWaitTime(1);
+    static const std::chrono::seconds maxWaitTime(1);
     auto ret = future_.wait_for(maxWaitTime);
     if (ret != std::future_status::ready) {
         IAM_LOGE("%{public}s future timeout", GetDescription());
@@ -86,6 +83,12 @@ ResultCode CustomCommand::GetResult()
     }
     IAM_LOGI("%{public}s get result %{public}d", GetDescription(), result_);
     return result_;
+}
+
+void CustomCommand::SetResult(ResultCode resultCode)
+{
+    result_ = resultCode;
+    promise_.set_value();
 }
 } // namespace UserAuth
 } // namespace UserIAM

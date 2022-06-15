@@ -13,31 +13,24 @@
  * limitations under the License.
  */
 
-#ifndef IDENTIFY_COMMAND_H
-#define IDENTIFY_COMMAND_H
+#ifndef EXCECUTOR_MGR_WRAPPER_H
+#define EXCECUTOR_MGR_WRAPPER_H
 
-#include "async_command_base.h"
+#include "nocopyable.h"
+
+#include "executor_callback.h"
+#include "executor_mgr.h"
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-class IdentifyCommand : public AsyncCommandBase {
+class ExecutorMgrWrapper : public NoCopyable {
 public:
-    IdentifyCommand(std::weak_ptr<Executor> executor, uint64_t scheduleId, std::shared_ptr<AuthAttributes> commandAttrs,
-        sptr<IExecutorMessenger> executorMessenger);
-    ~IdentifyCommand() override = default;
-
-protected:
-    ResultCode SendRequest() override;
-    void OnAcquireInfoInner(int32_t acquire, const std::vector<uint8_t> &extraInfo) override;
-    void OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo) override;
-
-private:
-    uint32_t transNum_ = 1;
-    std::shared_ptr<AuthAttributes> attributes_;
+    virtual ~ExecutorMgrWrapper() = default;
+    virtual void Register(const ExecutorInfo &info, std::shared_ptr<AuthResPool::ExecutorCallback> callback);
 };
 } // namespace UserAuth
 } // namespace UserIAM
 } // namespace OHOS
 
-#endif // IDENTIFY_COMMAND_H
+#endif // EXCECUTOR_MGR_WRAPPER_H

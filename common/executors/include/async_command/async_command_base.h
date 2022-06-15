@@ -41,12 +41,13 @@ public:
     ResultCode StartProcess() override;
     void OnResult(ResultCode result) override;
     void OnResult(ResultCode result, const std::vector<uint8_t> &extraInfo) override;
-    void OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo) override = 0;
+    void OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo) override;
 
 protected:
     static uint32_t GenerateCommandId();
     virtual ResultCode SendRequest() = 0;
     virtual void OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo) = 0;
+    virtual void OnAcquireInfoInner(int32_t acquire, const std::vector<uint8_t> &extraInfo) = 0;
     std::shared_ptr<IAuthExecutorHdi> GetExecutorHdi();
     int32_t MessengerSendData(
         uint64_t scheduleId, uint64_t transNum, int32_t srcType, int32_t dstType, std::shared_ptr<AuthMessage> msg);
@@ -61,6 +62,8 @@ private:
     std::string description_;
     std::weak_ptr<Executor> executor_;
     sptr<IExecutorMessenger> executorMessenger_;
+    std::mutex mutex_;
+    bool isFinished_ = false;
 };
 } // namespace UserAuth
 } // namespace UserIAM
