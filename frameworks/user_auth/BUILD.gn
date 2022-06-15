@@ -17,8 +17,8 @@ import("//foundation/ability/ability_runtime/aafwk.gni")
 config("userauth_framework_public_config") {
   include_dirs = [
     "inc",
-    "//base/user_iam/user_auth/interfaces/inner_api/user_auth",
-    "//base/user_iam/user_auth/interfaces/inner_api/common",
+    "//base/useriam/user_auth_framework/interfaces/inner_api/user_auth",
+    "//base/useriam/user_auth_framework/interfaces/inner_api/common",
   ]
 }
 
@@ -32,7 +32,9 @@ ohos_shared_library("userauth_framework") {
     "src/userauth_proxy.cpp",
   ]
 
-  deps = [ "//base/user_iam/user_auth/frameworks/co_auth:coauth_framework" ]
+  deps = [
+    "//base/useriam/user_auth_framework/frameworks/co_auth:coauth_framework",
+  ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
@@ -47,9 +49,9 @@ ohos_shared_library("userauth_framework") {
     defines = [ "SUPPORT_SURFACE" ]
   }
 
-  configs = [ "//base/user_iam/user_auth/common:iam_log_config" ]
+  configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
 
   public_configs = [ ":userauth_framework_public_config" ]
 
-  part_name = "user_auth"
+  part_name = "user_auth_framework"
 }

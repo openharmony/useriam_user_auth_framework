@@ -17,10 +17,10 @@ config("useridm_public_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "inc",
-    "//base/user_iam/user_auth/common/logs/user_idm",
-    "//base/user_iam/user_auth/interfaces/inner_api/user_idm",
+    "//base/useriam/user_auth_framework/common/logs/user_idm",
+    "//base/useriam/user_auth_framework/interfaces/inner_api/user_idm",
     "//third_party/libuv/include",
-    "//base/user_iam/user_auth/common/logs",
+    "//base/useriam/user_auth_framework/common/logs",
   ]
 }
 
@@ -37,7 +37,9 @@ ohos_shared_library("useridm") {
     "src/useridentity_manager.cpp",
   ]
 
-  deps = [ "//base/user_iam/user_auth/frameworks/user_idm:useridm_framework" ]
+  deps = [
+    "//base/useriam/user_auth_framework/frameworks/user_idm:useridm_framework",
+  ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
@@ -50,5 +52,5 @@ ohos_shared_library("useridm") {
 
   relative_install_dir = "module"
 
-  part_name = "user_auth"
+  part_name = "user_auth_framework"
 }

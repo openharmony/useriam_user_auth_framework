@@ -22,14 +22,14 @@ if (!defined(global_parts_info) ||
 
 ohos_shared_library("userauthservice") {
   include_dirs = [
-    "//base/user_iam/user_auth/services/user_auth/inc",
-    "//base/user_iam/user_auth/services/co_auth/inc",
-    "//base/user_iam/user_auth/common/logs/user_idm",
-    "//base/user_iam/user_auth/services/user_idm/inc",
-    "//base/user_iam/user_auth/frameworks/user_idm/inc",
-    "//base/user_iam/user_auth/frameworks/user_auth/inc",
-    "//base/user_iam/user_auth/interfaces/inner_api/user_idm",
-    "//base/user_iam/user_auth/interfaces/inner_api/user_auth",
+    "//base/useriam/user_auth_framework/services/user_auth/inc",
+    "//base/useriam/user_auth_framework/services/co_auth/inc",
+    "//base/useriam/user_auth_framework/common/logs/user_idm",
+    "//base/useriam/user_auth_framework/services/user_idm/inc",
+    "//base/useriam/user_auth_framework/frameworks/user_idm/inc",
+    "//base/useriam/user_auth_framework/frameworks/user_auth/inc",
+    "//base/useriam/user_auth_framework/interfaces/inner_api/user_idm",
+    "//base/useriam/user_auth_framework/interfaces/inner_api/user_auth",
   ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
@@ -64,8 +64,8 @@ ohos_shared_library("userauthservice") {
   ]
 
   deps = [
-    "//base/user_iam/user_auth/common:iam_thread_pool",
-    "//base/user_iam/user_auth/frameworks/co_auth:coauth_framework",
+    "//base/useriam/user_auth_framework/common:iam_thread_pool",
+    "//base/useriam/user_auth_framework/frameworks/co_auth:coauth_framework",
     "//third_party/openssl:libcrypto_shared",
   ]
 
@@ -87,7 +87,7 @@ ohos_shared_library("userauthservice") {
     external_deps += [ "os_account:os_account_innerkits" ]
   }
 
-  configs = [ "//base/user_iam/user_auth/common:iam_log_config" ]
+  configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
 
-  part_name = "user_auth"
+  part_name = "user_auth_framework"
 }

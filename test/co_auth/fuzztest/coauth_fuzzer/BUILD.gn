@@ -15,9 +15,9 @@ import("//build/ohos.gni")
 import("//build/test.gni")
 
 ohos_fuzztest("CoAuthFuzzTest") {
-  module_out_path = "user_iam/user_auth/co_auth"
+  module_out_path = "useriam/user_auth_framework/co_auth"
   fuzz_config_file =
-      "//base/user_iam/user_auth/test/co_auth/fuzztest/coauth_fuzzer"
+      "//base/useriam/user_auth_framework/test/co_auth/fuzztest/coauth_fuzzer"
 
   cflags = [
     "-g",
@@ -27,19 +27,19 @@ ohos_fuzztest("CoAuthFuzzTest") {
   ]
 
   include_dirs = [
-    "//base/user_iam/user_auth/frameworks/co_auth/inc",
-    "//base/user_iam/user_auth/services/co_auth/inc",
-    "//base/user_iam/user_auth/interfaces/inner_api/co_auth",
-    "//base/user_iam/user_auth/common/logs/co_auth/inc",
-    "//base/user_iam/user_auth/common/logs",
+    "//base/useriam/user_auth_framework/frameworks/co_auth/inc",
+    "//base/useriam/user_auth_framework/services/co_auth/inc",
+    "//base/useriam/user_auth_framework/interfaces/inner_api/co_auth",
+    "//base/useriam/user_auth_framework/common/logs/co_auth/inc",
+    "//base/useriam/user_auth_framework/common/logs",
   ]
 
   sources = [ "co_auth_fuzzer.cpp" ]
 
   deps = [
-    "//base/user_iam/user_auth/common:iam_test",
-    "//base/user_iam/user_auth/frameworks/co_auth:coauth_framework",
-    "//base/user_iam/user_auth/services:userauthservice",
+    "//base/useriam/user_auth_framework/common:iam_test",
+    "//base/useriam/user_auth_framework/frameworks/co_auth:coauth_framework",
+    "//base/useriam/user_auth_framework/services:userauthservice",
   ]
 
   external_deps = [

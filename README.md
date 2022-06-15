@@ -17,7 +17,7 @@ The userauth APIs support user authentication of the target Authentication Trust
 ## Directory Structure
 
 ```undefined
-//base/user_iam/user_auth
+//base/useriam/user_auth_framework
 ├── frameworks			# Framework code
 ├── interfaces			# Directory for storing external interfaces
 │   └── innerkits		# Header files exposed to the internal subsystems
