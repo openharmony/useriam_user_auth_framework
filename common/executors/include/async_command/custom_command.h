@@ -27,16 +27,15 @@ class CustomCommand : public AsyncCommandBase {
 public:
     CustomCommand(std::weak_ptr<Executor> executor, std::shared_ptr<AuthAttributes> attributes);
     ~CustomCommand() override = default;
-
-    void OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo) override;
-
     ResultCode GetResult();
 
 protected:
-    void OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo) override;
     ResultCode SendRequest() override;
+    void OnAcquireInfoInner(int32_t acquire, const std::vector<uint8_t> &extraInfo) override;
+    void OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo) override;
 
 private:
+    void SetResult(ResultCode resultCode);
     std::shared_ptr<AuthAttributes> attributes_;
     ResultCode result_ = ResultCode::GENERAL_ERROR;
     std::promise<void> promise_;

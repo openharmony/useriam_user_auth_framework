@@ -118,11 +118,11 @@
           }
         ],
         "test": [
+            "//base/user_iam/user_auth/test/co_auth/fuzztest/coauth_fuzzer:CoAuthFuzzTest",
             "//base/user_iam/user_auth/test/user_idm:user_idm_unittest",
-            "//base/user_iam/user_auth/test/user_auth:user_auth_unittest",
-            "//base/user_iam/user_auth/test/user_auth/fuzztest/userauthservice_fuzzer:UserAuthServiceFuzzTest",
             "//base/user_iam/user_auth/test/user_idm/fuzztest/useridm_fuzzer:UserIdmFuzzTest",
-            "//base/user_iam/user_auth/test/co_auth/fuzztest/coauth_fuzzer:CoAuthFuzzTest"
+            "//base/user_iam/user_auth/test/user_auth/unittest:user_auth_unittest",
+            "//base/user_iam/user_auth/test/user_auth/fuzztest:UserAuthFuzzTest"
         ]
       }
     }

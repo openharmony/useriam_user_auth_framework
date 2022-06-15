@@ -70,7 +70,7 @@ void AuthCommand::OnResultInner(ResultCode result, const std::vector<uint8_t> &e
     IAM_LOGI("%{public}s call finish success result %{public}d", GetDescription(), result);
 }
 
-void AuthCommand::OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo)
+void AuthCommand::OnAcquireInfoInner(int32_t acquire, const std::vector<uint8_t> &extraInfo)
 {
     IAM_LOGI("%{public}s on acquire info start", GetDescription());
 
