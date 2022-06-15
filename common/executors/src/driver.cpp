@@ -15,8 +15,7 @@
 
 #include "driver.h"
 
-#include <mutex>
-
+#include "executor_mgr_wrapper.h"
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
@@ -41,8 +40,9 @@ void Driver::OnHdiConnect()
     IF_FALSE_LOGE_AND_RETURN(hdiConfig_.driver != nullptr);
     hdiConfig_.driver->GetExecutorList(executorHdiList);
     IAM_LOGI("executorHdiList length is %{public}zu", executorHdiList.size());
+    auto executorMgrWrapper = Common::MakeShared<ExecutorMgrWrapper>();
     for (const auto &executorHdi : executorHdiList) {
-        auto executor = Common::MakeShared<Executor>(executorHdi, hdiConfig_.id);
+        auto executor = Common::MakeShared<Executor>(executorMgrWrapper, executorHdi, hdiConfig_.id);
         if (executor == nullptr) {
             IAM_LOGE("make_shared failed");
             continue;

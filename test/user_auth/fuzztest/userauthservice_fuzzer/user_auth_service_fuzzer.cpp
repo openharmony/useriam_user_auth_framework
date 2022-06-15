@@ -15,9 +15,9 @@
 
 #include "user_auth_service_fuzzer.h"
 
+#include <cinttypes>
 #include <cstddef>
 #include <cstdint>
-#include <cinttypes>
 
 #include "parcel.h"
 #include "securec.h"
@@ -38,7 +38,6 @@ namespace UserAuth {
 namespace {
 class DummyIUserAuthCallback : public IRemoteStub<IUserAuthCallback> {
 public:
-
     void onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo) override
     {
         USERAUTH_HILOGI(MODULE_SERVICE, "DummyIUserAuthCallback onAcquireInfo");
@@ -63,7 +62,7 @@ public:
         return;
     }
 
-    virtual ~DummyIUserAuthCallback () = default;
+    virtual ~DummyIUserAuthCallback() = default;
 };
 
 UserAuthService g_userAuthService(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true);
@@ -147,7 +146,7 @@ void FuzzSetProperty(Parcel &parcel)
 void FuzzAuth(Parcel &parcel)
 {
     USERAUTH_HILOGI(MODULE_SERVICE, "begin");
-    int32_t userId =  parcel.ReadInt32();
+    int32_t userId = parcel.ReadInt32();
     uint64_t challenge = parcel.ReadInt64();
     AuthType authType = static_cast<AuthType>(parcel.ReadUint32());
     AuthTrustLevel authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadUint32());

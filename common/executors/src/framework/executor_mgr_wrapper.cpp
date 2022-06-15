@@ -12,32 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#ifndef IDENTIFY_COMMAND_H
-#define IDENTIFY_COMMAND_H
-
-#include "async_command_base.h"
+#include "executor_mgr_wrapper.h"
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-class IdentifyCommand : public AsyncCommandBase {
-public:
-    IdentifyCommand(std::weak_ptr<Executor> executor, uint64_t scheduleId, std::shared_ptr<AuthAttributes> commandAttrs,
-        sptr<IExecutorMessenger> executorMessenger);
-    ~IdentifyCommand() override = default;
-
-protected:
-    ResultCode SendRequest() override;
-    void OnAcquireInfoInner(int32_t acquire, const std::vector<uint8_t> &extraInfo) override;
-    void OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo) override;
-
-private:
-    uint32_t transNum_ = 1;
-    std::shared_ptr<AuthAttributes> attributes_;
-};
+using namespace AuthResPool;
+void ExecutorMgrWrapper::Register(const ExecutorInfo &info, std::shared_ptr<ExecutorCallback> callback)
+{
+    UserAuth::ExecutorMgr::GetInstance().Register(info, callback);
+}
 } // namespace UserAuth
 } // namespace UserIAM
 } // namespace OHOS
-
-#endif // IDENTIFY_COMMAND_H
