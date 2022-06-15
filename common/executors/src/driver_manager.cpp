@@ -16,9 +16,8 @@
 #include "driver_manager.h"
 
 #include <set>
+#include <system_ability_definition.h>
 
-#include "devsvc_manager_stub.h"
-#include "hdf_device_desc.h"
 #include "iservice_registry.h"
 #include "iservmgr_hdi.h"
 #include "parameter.h"
