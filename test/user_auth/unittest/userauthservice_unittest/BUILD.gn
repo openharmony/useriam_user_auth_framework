@@ -16,7 +16,7 @@ import("//build/test.gni")
 ohos_unittest("user_auth_service_test") {
   include_dirs = [
     "inc",
-    "//base/user_iam/user_auth/interfaces/inner_api/user_idm",
+    "//base/useriam/user_auth_framework/interfaces/inner_api/user_idm",
   ]
 
   sources = [
@@ -26,8 +26,8 @@ ohos_unittest("user_auth_service_test") {
   ]
 
   deps = [
-    "//base/user_iam/user_auth/frameworks/user_auth:userauth_framework",
-    "//base/user_iam/user_auth/frameworks/user_idm:useridm_framework",
+    "//base/useriam/user_auth_framework/frameworks/user_auth:userauth_framework",
+    "//base/useriam/user_auth_framework/frameworks/user_idm:useridm_framework",
   ]
 
   external_deps = [
@@ -36,8 +36,8 @@ ohos_unittest("user_auth_service_test") {
     "utils_base:utils",
   ]
 
-  configs = [ "//base/user_iam/user_auth/common:iam_log_config" ]
+  configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
 
-  part_name = "user_auth"
+  part_name = "user_auth_framework"
   module_out_path = "${part_name}/${target_name}"
 }

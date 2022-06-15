@@ -17,9 +17,9 @@ import("//build/test.gni")
 ohos_unittest("user_idm_test") {
   include_dirs = [
     "inc",
-    "//base/user_iam/user_auth/common/logs/user_idm",
-    "//base/user_iam/user_auth/frameworks/user_idm/inc",
-    "//base/user_iam/user_auth/interfaces/inner_api/user_idm",
+    "//base/useriam/user_auth_framework/common/logs/user_idm",
+    "//base/useriam/user_auth_framework/frameworks/user_idm/inc",
+    "//base/useriam/user_auth_framework/interfaces/inner_api/user_idm",
   ]
 
   sources = [
@@ -27,7 +27,9 @@ ohos_unittest("user_idm_test") {
     "src/useridm_ut_test.cpp",
   ]
 
-  deps = [ "//base/user_iam/user_auth/frameworks/user_idm:useridm_framework" ]
+  deps = [
+    "//base/useriam/user_auth_framework/frameworks/user_idm:useridm_framework",
+  ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
@@ -35,6 +37,6 @@ ohos_unittest("user_idm_test") {
     "utils_base:utils",
   ]
 
-  part_name = "user_auth"
+  part_name = "user_auth_framework"
   module_out_path = "${part_name}/${target_name}"
 }

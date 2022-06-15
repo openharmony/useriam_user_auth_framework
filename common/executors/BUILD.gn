@@ -37,17 +37,17 @@ ohos_shared_library("userauth_executors") {
     "include",
     "include/async_command",
     "include/framework",
-    "//base/user_iam/user_auth/interfaces/inner_api/user_auth/",
-    "//base/user_iam/user_auth/interfaces/inner_api/common/",
-    "//base/user_iam/user_auth/common/utils",
-    "//base/user_iam/user_auth/common/logs",
+    "//base/useriam/user_auth_framework/interfaces/inner_api/user_auth/",
+    "//base/useriam/user_auth_framework/interfaces/inner_api/common/",
+    "//base/useriam/user_auth_framework/common/utils",
+    "//base/useriam/user_auth_framework/common/logs",
   ]
 
   public_configs = [ ":userauth_executors_public_config" ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
-  deps = [ "//base/user_iam/user_auth/common:iam_utils" ]
+  deps = [ "//base/useriam/user_auth_framework/common:iam_utils" ]
 
   external_deps = [
     "device_driver_framework:libhdf_host",
@@ -58,9 +58,9 @@ ohos_shared_library("userauth_executors") {
     "ipc:ipc_single",
     "samgr_standard:samgr_proxy",
     "startup_l2:syspara_watchagent",
-    "user_auth:coauth_framework",
+    "user_auth_framework:coauth_framework",
     "utils_base:utils",
   ]
 
-  part_name = "user_auth"
+  part_name = "user_auth_framework"
 }

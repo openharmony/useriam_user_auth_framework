@@ -40,7 +40,7 @@ ohos_source_set("iam_thread_pool") {
 
   public_configs = [ ":iam_thread_pool_config" ]
 
-  part_name = "user_auth"
+  part_name = "user_auth_framework"
 }
 
 config("iam_utils_config") {
@@ -62,7 +62,7 @@ ohos_source_set("iam_utils") {
 
   public_configs = [ ":iam_utils_config" ]
 
-  part_name = "user_auth"
+  part_name = "user_auth_framework"
 }
 
 config("iam_test_config") {
@@ -71,7 +71,7 @@ config("iam_test_config") {
 
 ohos_source_set("iam_test") {
   testonly = true
-  include_dirs = [ "//base/user_iam/user_auth/common/logs" ]
+  include_dirs = [ "//base/useriam/user_auth_framework/common/logs" ]
 
   external_deps = [
     "hilog_native:libhilog",
@@ -81,5 +81,5 @@ ohos_source_set("iam_test") {
   public_configs = [ ":iam_test_config" ]
 
   sources = [ "test/iam_fuzz_test.cpp" ]
-  part_name = "user_auth"
+  part_name = "user_auth_framework"
 }

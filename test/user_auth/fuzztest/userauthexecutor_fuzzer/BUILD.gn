@@ -15,8 +15,8 @@ import("//build/config/features.gni")
 import("//build/test.gni")
 
 ohos_fuzztest("UserAuthExecutorFuzzTest") {
-  module_out_path = "user_iam/user_auth/user_auth"
-  fuzz_config_file = "//base/user_iam/user_auth/test/user_auth/fuzztest/userauthexecutor_fuzzer"
+  module_out_path = "useriam/user_auth_framework/user_auth"
+  fuzz_config_file = "//base/useriam/user_auth_framework/test/user_auth/fuzztest/userauthexecutor_fuzzer"
   cflags = [
     "-g",
     "-O0",
@@ -24,13 +24,13 @@ ohos_fuzztest("UserAuthExecutorFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
   include_dirs = [
-    "//base/user_iam/user_auth/common/executors/include",
-    "//base/user_iam/user_auth/common/executors/include/async_command",
-    "//base/user_iam/user_auth/common/executors/include/framework",
-    "//base/user_iam/user_auth/interfaces/inner_api/user_auth/",
-    "//base/user_iam/user_auth/interfaces/inner_api/common/",
-    "//base/user_iam/user_auth/common/utils",
-    "//base/user_iam/user_auth/common/logs",
+    "//base/useriam/user_auth_framework/common/executors/include",
+    "//base/useriam/user_auth_framework/common/executors/include/async_command",
+    "//base/useriam/user_auth_framework/common/executors/include/framework",
+    "//base/useriam/user_auth_framework/interfaces/inner_api/user_auth/",
+    "//base/useriam/user_auth_framework/interfaces/inner_api/common/",
+    "//base/useriam/user_auth_framework/common/utils",
+    "//base/useriam/user_auth_framework/common/logs",
   ]
 
   sources = [ "user_auth_executor_fuzzer.cpp" ]
@@ -38,15 +38,15 @@ ohos_fuzztest("UserAuthExecutorFuzzTest") {
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   deps = [
-    "//base/user_iam/user_auth/common:iam_test",
-    "//base/user_iam/user_auth/common:iam_utils",
-    "//base/user_iam/user_auth/common/executors:userauth_executors",
+    "//base/useriam/user_auth_framework/common:iam_test",
+    "//base/useriam/user_auth_framework/common:iam_utils",
+    "//base/useriam/user_auth_framework/common/executors:userauth_executors",
   ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_single",
-    "user_auth:coauth_framework",
+    "user_auth_framework:coauth_framework",
     "utils_base:utils",
   ]
 }
