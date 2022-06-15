@@ -53,13 +53,13 @@ ResultCode AsyncCommandBase::StartProcess()
     IAM_LOGI("%{public}s start process", GetDescription());
     auto executor = executor_.lock();
     if (executor == nullptr) {
-        IAM_LOGE("executor has been released, start process fail");
+        IAM_LOGE("%{public}s executor has been released, start process fail", GetDescription());
         return ResultCode::GENERAL_ERROR;
     }
     executor->AddCommand(shared_from_this());
     ResultCode ret = SendRequest();
     if (ret != ResultCode::SUCCESS) {
-        IAM_LOGE("send request failed");
+        IAM_LOGE("%{public}s send request failed", GetDescription());
         EndProcess();
         return ret;
     }
@@ -74,8 +74,24 @@ void AsyncCommandBase::OnResult(ResultCode result)
 
 void AsyncCommandBase::OnResult(ResultCode result, const std::vector<uint8_t> &extraInfo)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
+    if (isFinished_) {
+        IAM_LOGE("command is finished, invocation of OnResult is invalid");
+        return;
+    }
+    isFinished_ = true;
     OnResultInner(result, extraInfo);
     EndProcess();
+}
+
+void AsyncCommandBase::OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo)
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    if (isFinished_) {
+        IAM_LOGE("command is finished, invocation of OnAcquireInfo is invalid");
+        return;
+    }
+    OnAcquireInfoInner(acquire, extraInfo);
 }
 
 void AsyncCommandBase::EndProcess()
@@ -83,7 +99,8 @@ void AsyncCommandBase::EndProcess()
     IAM_LOGI("%{public}s end process", GetDescription());
     auto executor = executor_.lock();
     if (executor == nullptr) {
-        IAM_LOGI("executor has been released, command has been removed, no need remove again");
+        IAM_LOGI(
+            "%{public}s executor has been released, command has been removed, no need remove again", GetDescription());
         return;
     }
     executor->RemoveCommand(shared_from_this());
@@ -108,7 +125,7 @@ std::shared_ptr<IAuthExecutorHdi> AsyncCommandBase::GetExecutorHdi()
 {
     auto executor = executor_.lock();
     if (executor == nullptr) {
-        IAM_LOGE("executor has been released, get executor hdi fail");
+        IAM_LOGE("%{public}s executor has been released, get executor hdi fail", GetDescription());
         return nullptr;
     }
     return executor->GetExecutorHdi();

@@ -69,7 +69,7 @@ void EnrollCommand::OnResultInner(ResultCode result, const std::vector<uint8_t> 
     IAM_LOGI("%{public}s call finish success result %{public}d", GetDescription(), result);
 }
 
-void EnrollCommand::OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo)
+void EnrollCommand::OnAcquireInfoInner(int32_t acquire, const std::vector<uint8_t> &extraInfo)
 {
     IAM_LOGI("%{public}s on acquire info start", GetDescription());
 

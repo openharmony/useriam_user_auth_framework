@@ -11,56 +11,44 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/ohos.gni")
+import("//build/config/features.gni")
+import("//build/test.gni")
 
-config("userauth_executors_public_config") {
-  include_dirs = [ "include/public" ]
-}
-
-ohos_shared_library("userauth_executors") {
-  sources = [
-    "src/async_command/async_command_base.cpp",
-    "src/async_command/auth_command.cpp",
-    "src/async_command/custom_command.cpp",
-    "src/async_command/enroll_command.cpp",
-    "src/async_command/identify_command.cpp",
-    "src/driver.cpp",
-    "src/driver_manager.cpp",
-    "src/executor.cpp",
-    "src/framework/executor_mgr_wrapper.cpp",
-    "src/framework/framework_executor_callback.cpp",
-    "src/idriver_manager.cpp",
-    "src/system_ability_status_listener.cpp",
+ohos_fuzztest("UserAuthDriverManagerFuzzTest") {
+  module_out_path = "user_iam/user_auth/user_auth"
+  fuzz_config_file = "//base/user_iam/user_auth/test/user_auth/fuzztest/userauthdrivermanager_fuzzer"
+  cflags = [
+    "-g",
+    "-O0",
+    "-Wno-unused-variable",
+    "-fno-omit-frame-pointer",
   ]
-
   include_dirs = [
-    "include",
-    "include/async_command",
-    "include/framework",
+    "//base/user_iam/user_auth/common/executors/include",
+    "//base/user_iam/user_auth/common/executors/include/async_command",
+    "//base/user_iam/user_auth/common/executors/include/framework",
     "//base/user_iam/user_auth/interfaces/inner_api/user_auth/",
     "//base/user_iam/user_auth/interfaces/inner_api/common/",
     "//base/user_iam/user_auth/common/utils",
     "//base/user_iam/user_auth/common/logs",
   ]
 
-  public_configs = [ ":userauth_executors_public_config" ]
+  sources = [ "user_auth_driver_manager_fuzzer.cpp" ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
-  deps = [ "//base/user_iam/user_auth/common:iam_utils" ]
+  deps = [
+    "//base/user_iam/user_auth/common:iam_test",
+    "//base/user_iam/user_auth/common:iam_utils",
+    "//base/user_iam/user_auth/common/executors:userauth_executors",
+  ]
 
   external_deps = [
-    "device_driver_framework:libhdf_host",
-    "device_driver_framework:libhdf_ipc_adapter",
-    "device_driver_framework:libhdf_utils",
     "device_driver_framework:libhdi",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_single",
     "samgr_standard:samgr_proxy",
-    "startup_l2:syspara_watchagent",
     "user_auth:coauth_framework",
     "utils_base:utils",
   ]
-
-  part_name = "user_auth"
 }
