@@ -75,7 +75,7 @@ int32_t UserIDMAdapter::CloseEditSession(int32_t userId)
 
 void UserIDMAdapter::CopyCredentialFromHdi(const UserAuthHdi::CredentialInfo& in, UserIDM::CredentialInfo& out)
 {
-    out.authSubType = OHOS::UserIAM::UserIDM::AuthSubType(in.executorType);
+    out.authSubType = OHOS::UserIAM::UserIDM::AuthSubType(in.executorMatcher);
     out.authType = OHOS::UserIAM::UserIDM::AuthType(in.authType);
     out.credentialId = in.credentialId;
     out.templateId = in.templateId;
@@ -120,7 +120,8 @@ int32_t UserIDMAdapter::GetSecureUid(int32_t userId, uint64_t& secureUid,
         return GENERAL_ERROR;
     }
     std::vector<UserAuthHdi::EnrolledInfo> hdiInfos;
-    int32_t ret = hdiInterface->GetSecureInfo(userId, secureUid, hdiInfos);
+    UserAuthHdi::PinSubType subType;
+    int32_t ret = hdiInterface->GetSecureInfo(userId, secureUid, subType, hdiInfos);
     if (ret != SUCCESS) {
         USERIDM_HILOGE(MODULE_SERVICE, "call driver info: GetSecureInfo: %{public}d", ret);
         return ret;
@@ -147,7 +148,7 @@ bool UserIDMAdapter::CopyScheduleInfo(const UserAuthHdi::ScheduleInfo& in, CoAut
     }
     out.scheduleId = in.scheduleId;
     out.templateId = in.templateIds[0];
-    out.authSubType = static_cast<uint64_t>(in.executorType);
+    out.authSubType = static_cast<uint64_t>(in.executorMatcher);
     out.scheduleMode = in.scheduleMode;
     for (auto &executor : in.executors) {
         if (executor.info.publicKey.size() != CoAuth::PUBLIC_KEY_LEN) {
@@ -155,10 +156,10 @@ bool UserIDMAdapter::CopyScheduleInfo(const UserAuthHdi::ScheduleInfo& in, CoAut
             return false;
         }
         CoAuth::ExecutorInfo temp = {};
-        temp.executorId = executor.index;
+        temp.executorId = executor.executorIndex;
         auto &info = executor.info;
         temp.authType = static_cast<uint32_t>(info.authType);
-        temp.authAbility = static_cast<uint64_t>(info.executorType);
+        temp.authAbility = static_cast<uint64_t>(info.executorMatcher);
         temp.esl = static_cast<uint32_t>(info.esl);
         temp.executorType =  static_cast<uint32_t>(info.executorRole);
         if (memcpy_s(temp.publicKey, CoAuth::PUBLIC_KEY_LEN, &info.publicKey[0], info.publicKey.size()) != EOK) {
@@ -181,7 +182,7 @@ int32_t UserIDMAdapter::InitSchedule(std::vector<uint8_t> autoToken, int32_t use
     }
     UserAuthHdi::EnrollParam param = {};
     param.authType = static_cast<UserAuthHdi::AuthType>(authType);
-    param.executorType = static_cast<uint32_t>(authSubType);
+    param.executorSensorHint = 0;
     UserAuthHdi::ScheduleInfo hdiInfo;
     int32_t ret = hdiInterface->BeginEnrollment(userId, autoToken, param, hdiInfo);
     if (ret != SUCCESS) {
