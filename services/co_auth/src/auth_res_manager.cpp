@@ -42,7 +42,7 @@ bool AuthResManager::GetExecutorRegisterInfo(const std::shared_ptr<ResAuthExecut
     info.authType = static_cast<UserAuthHdi::AuthType>(authType);
     info.esl = static_cast<UserAuthHdi::ExecutorSecureLevel>(esl);
     info.executorRole = static_cast<UserAuthHdi::ExecutorRole>(exeType);
-    info.executorType = static_cast<uint32_t>(authAbility);
+    info.executorMatcher = static_cast<uint32_t>(authAbility);
     info.publicKey.assign(publicKey.begin(), publicKey.end());
     return true;
 }

@@ -185,7 +185,7 @@ bool UserAuthAdapter::CopyScheduleInfo(const UserAuthHdi::ScheduleInfo &in, CoAu
     }
     out.scheduleId = in.scheduleId;
     out.templateId = in.templateIds[0];
-    out.authSubType = static_cast<uint64_t>(in.executorType);
+    out.authSubType = static_cast<uint64_t>(in.executorMatcher);
     out.scheduleMode = in.scheduleMode;
     for (auto &executor : in.executors) {
         auto &info = executor.info;
@@ -194,9 +194,9 @@ bool UserAuthAdapter::CopyScheduleInfo(const UserAuthHdi::ScheduleInfo &in, CoAu
             return false;
         }
         CoAuth::ExecutorInfo temp = {};
-        temp.executorId = executor.index;
+        temp.executorId = executor.executorIndex;
         temp.authType = static_cast<uint32_t>(info.authType);
-        temp.authAbility = static_cast<uint64_t>(info.executorType);
+        temp.authAbility = static_cast<uint64_t>(info.executorMatcher);
         temp.esl = static_cast<uint32_t>(info.esl);
         temp.executorType =  static_cast<uint32_t>(info.executorRole);
         if (memcpy_s(temp.publicKey, CoAuth::PUBLIC_KEY_LEN, &info.publicKey[0], info.publicKey.size()) != EOK) {
