@@ -121,9 +121,9 @@ int32_t UserIDMAdapter::GetSecureUid(int32_t userId, uint64_t& secureUid,
     }
     std::vector<UserAuthHdi::EnrolledInfo> hdiInfos;
     UserAuthHdi::PinSubType subType;
-    int32_t ret = hdiInterface->GetSecureInfo(userId, secureUid, subType, hdiInfos);
+    int32_t ret = hdiInterface->GetUserInfo(userId, secureUid, subType, hdiInfos);
     if (ret != SUCCESS) {
-        USERIDM_HILOGE(MODULE_SERVICE, "call driver info: GetSecureInfo: %{public}d", ret);
+        USERIDM_HILOGE(MODULE_SERVICE, "call driver info: GetUserInfo: %{public}d", ret);
         return ret;
     }
     size_t vectorSize = hdiInfos.size();
