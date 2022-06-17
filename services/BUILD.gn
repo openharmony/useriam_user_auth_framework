@@ -71,8 +71,8 @@ ohos_shared_library("userauthservice") {
 
   external_deps = [
     "access_token:libaccesstoken_sdk",
-    "device_driver_framework:libhdf_utils",
     "eventhandler:libeventhandler",
+    "hdf_core:libhdf_utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
