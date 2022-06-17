@@ -75,8 +75,6 @@ napi_value AuthApiCallback::Uint8ArrayToNapi(napi_env env, std::vector<uint8_t> 
             return out;
         }
     }
-    }
-    
     NAPI_CALL(env, napi_create_typedarray(env, napi_uint8_array, size, buffer, 0, &out));
     return out;
 }
