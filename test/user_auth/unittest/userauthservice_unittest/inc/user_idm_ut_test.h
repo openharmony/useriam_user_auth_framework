@@ -16,22 +16,22 @@
 #ifndef USER_IDM_UT_TEST_H
 #define USER_IDM_UT_TEST_H
 
-void UserIDMUtTest_001(void);
-void UserIDMUtTest_002(void);
-void UserIDMUtTest_003(void);
-void UserIDMUtTest_003b(void);
-void UserIDMUtTest_004(void);
-void UserIDMUtTest_004b(void);
-void UserIDMUtTest_005(void);
-void UserIDMUtTest_006(void);
-void UserIDMUtTest_006b(void);
-void UserIDMUtTest_007(void);
-void UserIDMUtTest_007b(void);
-void UserIDMUtTest_008(void);
-void UserIDMUtTest_008b(void);
-void UserIDMUtTest_009(void);
-void UserIDMUtTest_009b(void);
-void UserIDMUtTest_010(void);
-void UserIDMUtTest_010b(void);
+void UserIdmUtTest_001(void);
+void UserIdmUtTest_002(void);
+void UserIdmUtTest_003(void);
+void UserIdmUtTest_003b(void);
+void UserIdmUtTest_004(void);
+void UserIdmUtTest_004b(void);
+void UserIdmUtTest_005(void);
+void UserIdmUtTest_006(void);
+void UserIdmUtTest_006b(void);
+void UserIdmUtTest_007(void);
+void UserIdmUtTest_007b(void);
+void UserIdmUtTest_008(void);
+void UserIdmUtTest_008b(void);
+void UserIdmUtTest_009(void);
+void UserIdmUtTest_009b(void);
+void UserIdmUtTest_010(void);
+void UserIdmUtTest_010b(void);
 
 #endif

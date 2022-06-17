@@ -26,7 +26,7 @@ using namespace testing::ext;
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-class UserIDMUtTest : public testing::Test {
+class UserIdmUtTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
 
@@ -37,35 +37,35 @@ public:
     void TearDown();
 };
 
-void UserIDMUtTest::SetUpTestCase(void)
+void UserIdmUtTest::SetUpTestCase(void)
 {
 }
 
-void UserIDMUtTest::TearDownTestCase(void)
+void UserIdmUtTest::TearDownTestCase(void)
 {
 }
 
-void UserIDMUtTest::SetUp()
+void UserIdmUtTest::SetUp()
 {
 }
 
-void UserIDMUtTest::TearDown()
+void UserIdmUtTest::TearDown()
 {
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_001, TestSize.Level1)
+HWTEST_F(UserIdmUtTest, UserIdmUtTest_001, TestSize.Level1)
 {
     int32_t userId = 0;
     UserIdm::GetInstance().OpenSession(userId);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_002, TestSize.Level1)
+HWTEST_F(UserIdmUtTest, UserIdmUtTest_002, TestSize.Level1)
 {
     int32_t userId = 0;
     UserIdm::GetInstance().CloseSession(userId);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_003, TestSize.Level1)
+HWTEST_F(UserIdmUtTest, UserIdmUtTest_003, TestSize.Level1)
 {
     int32_t userId = 0;
     AddCredInfo credInfo;
@@ -75,7 +75,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_003, TestSize.Level1)
     UserIdm::GetInstance().AddCredential(userId, credInfo, callback);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_003b, TestSize.Level1)
+HWTEST_F(UserIdmUtTest, UserIdmUtTest_003b, TestSize.Level1)
 {
     int32_t userId = 0;
     AddCredInfo credInfo;
@@ -85,7 +85,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_003b, TestSize.Level1)
     UserIdm::GetInstance().AddCredential(userId, credInfo, callback);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_004, TestSize.Level1)
+HWTEST_F(UserIdmUtTest, UserIdmUtTest_004, TestSize.Level1)
 {
     int32_t userId = 0;
     AddCredInfo credInfo;
@@ -94,7 +94,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_004, TestSize.Level1)
     UserIdm::GetInstance().UpdateCredential(userId, credInfo, callback);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_004b, TestSize.Level1)
+HWTEST_F(UserIdmUtTest, UserIdmUtTest_004b, TestSize.Level1)
 {
     int32_t userId = 0;
     AddCredInfo credInfo;
@@ -103,14 +103,14 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_004b, TestSize.Level1)
     UserIdm::GetInstance().UpdateCredential(userId, credInfo, callback);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_005, TestSize.Level1)
+HWTEST_F(UserIdmUtTest, UserIdmUtTest_005, TestSize.Level1)
 {
     int32_t userId = 0;
     int32_t ret = UserIdm::GetInstance().Cancel(userId);
     EXPECT_NE(SUCCESS, ret);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_006, TestSize.Level1)
+HWTEST_F(UserIdmUtTest, UserIdmUtTest_006, TestSize.Level1)
 {
     int32_t userId = 0;
     std::vector<uint8_t> authToken;
@@ -118,7 +118,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_006, TestSize.Level1)
     UserIdm::GetInstance().DelUser(userId, authToken, callback);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_006b, TestSize.Level1)
+HWTEST_F(UserIdmUtTest, UserIdmUtTest_006b, TestSize.Level1)
 {
     int32_t userId = 0;
     std::vector<uint8_t> authToken;
@@ -126,7 +126,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_006b, TestSize.Level1)
     UserIdm::GetInstance().DelUser(userId, authToken, callback);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_007, TestSize.Level1)
+HWTEST_F(UserIdmUtTest, UserIdmUtTest_007, TestSize.Level1)
 {
     int32_t userId = 0;
     uint64_t credentialId = 1;
@@ -135,7 +135,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_007, TestSize.Level1)
     UserIdm::GetInstance().DelCredential(userId, credentialId, authToken, callback);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_007b, TestSize.Level1)
+HWTEST_F(UserIdmUtTest, UserIdmUtTest_007b, TestSize.Level1)
 {
     int32_t userId = 0;
     uint64_t credentialId = 1;
@@ -144,7 +144,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_007b, TestSize.Level1)
     UserIdm::GetInstance().DelCredential(userId, credentialId, authToken, callback);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_008, TestSize.Level1)
+HWTEST_F(UserIdmUtTest, UserIdmUtTest_008, TestSize.Level1)
 {
     int32_t userId = 0;
     AuthType authType = PIN;
@@ -153,7 +153,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_008, TestSize.Level1)
     EXPECT_NE(SUCCESS, ret);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_008b, TestSize.Level1)
+HWTEST_F(UserIdmUtTest, UserIdmUtTest_008b, TestSize.Level1)
 {
     int32_t userId = 0;
     AuthType authType = PIN;
@@ -162,7 +162,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_008b, TestSize.Level1)
     EXPECT_NE(SUCCESS, ret);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_009, TestSize.Level1)
+HWTEST_F(UserIdmUtTest, UserIdmUtTest_009, TestSize.Level1)
 {
     uint32_t userId = 0;
     std::shared_ptr<GetSecInfoCallback> callback = nullptr;
@@ -170,7 +170,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_009, TestSize.Level1)
     EXPECT_NE(SUCCESS, ret);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_009b, TestSize.Level1)
+HWTEST_F(UserIdmUtTest, UserIdmUtTest_009b, TestSize.Level1)
 {
     uint32_t userId = 0;
     std::shared_ptr<GetSecInfoCallback> callback = std::make_shared<GetSecInfoCallbackUT>();
@@ -178,7 +178,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_009b, TestSize.Level1)
     EXPECT_NE(SUCCESS, ret);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_010, TestSize.Level1)
+HWTEST_F(UserIdmUtTest, UserIdmUtTest_010, TestSize.Level1)
 {
     uint32_t userId = 0;
     std::shared_ptr<IdmCallback> callback = nullptr;
@@ -186,7 +186,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_010, TestSize.Level1)
     EXPECT_NE(SUCCESS, ret);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_010b, TestSize.Level1)
+HWTEST_F(UserIdmUtTest, UserIdmUtTest_010b, TestSize.Level1)
 {
     uint32_t userId = 0;
     std::shared_ptr<IdmCallback> callback = std::make_shared<IDMCallbackUT>();
