@@ -68,7 +68,13 @@ napi_value AuthApiCallback::Uint8ArrayToNapi(napi_env env, std::vector<uint8_t> 
     void *data = nullptr;
     napi_value buffer = nullptr;
     NAPI_CALL(env, napi_create_arraybuffer(env, size, &data, &buffer));
-    (void)memcpy_s(data, size, value.data(), value.size());
+    if (size != 0) {
+        errno_t ret = memcpy_s(data, size, value.data(), value.size());
+        if (ret != EOK) {
+            IAM_LOGE("memcpy_s failed");
+            return out;
+        }
+    }
     NAPI_CALL(env, napi_create_typedarray(env, napi_uint8_array, size, buffer, 0, &out));
     return out;
 }
