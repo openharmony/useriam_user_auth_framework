@@ -63,7 +63,7 @@ public:
         return;
     }
 
-    virtual ~DummyIUserAuthCallback () = default;
+    virtual ~DummyIUserAuthCallback() = default;
 };
 
 UserAuthService g_userAuthService(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true);
