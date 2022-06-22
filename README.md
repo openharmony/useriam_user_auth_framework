@@ -48,18 +48,18 @@ The userauth APIs support user authentication of the target Authentication Trust
 1. Authentication scheme: Determine the user authentication scheme based on the user credentials entered and the target ATL.
 2. Authentication result evaluation: Evaluate whether the authentication reaches the target ATL based on the authentication result returned by the executor.
 
-- The APIs defined in the header file ```common\interface\userauth_interface.h``` in the [useriam_auth_executor_mgr](https://gitee.com/openharmony-sig/useriam_coauth) repository must be implemented in a TEE, and the security of user authentication scheme and result evaluation must be ensured.
+- The APIs defined in the header file ```user_auth/v1_0/IUserAuthInterface.idl``` in the [drivers_interface](https://gitee.com/openharmony/drivers_interface) repository must be implemented in a TEE, and the security of user authentication scheme and result evaluation must be ensured.
 
 
 
 ## Repositories Involved
 
-[useriam_auth_executor_mgr](https://gitee.com/openharmony-sig/useriam_coauth)
+**[useriam_user_auth_framework](https://gitee.com/openharmony/useriam_user_auth_framework)**
 
-[useriam_user_idm](https://gitee.com/openharmony-sig/useriam_useridm)
+[useriam_pin_auth](https://gitee.com/openharmony/useriam_pin_auth)
 
-**[useriam_user_auth](https://gitee.com/openharmony-sig/useriam_userauth)**
+[useriam_face_auth](https://gitee.com/openharmony/useriam_face_auth)
 
-[useriam_pin_auth](https://gitee.com/openharmony-sig/useriam_pinauth)
+[drivers_peripheral](https://gitee.com/openharmony/drivers_peripheral)
 
-[useriam_faceauth](https://gitee.com/openharmony/useriam_faceauth)
+[drivers_interface](https://gitee.com/openharmony/drivers_interface)
