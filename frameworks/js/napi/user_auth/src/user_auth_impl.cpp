@@ -437,7 +437,6 @@ napi_value UserAuthImpl::Execute(napi_env env, napi_callback_info info)
         NAPI_CALL(env, napi_create_promise(env, &executeInfo->deferred, &executeInfo->promise));
     }
 
-    std::shared_ptr<AuthApiCallback> callback = std::make_shared<AuthApiCallback>(executeInfo.release());
     napi_value retPromise = nullptr;
     if (executeInfo->isPromise) {
         retPromise = executeInfo->promise;
@@ -446,6 +445,8 @@ napi_value UserAuthImpl::Execute(napi_env env, napi_callback_info info)
     }
 
     ResultCode ret = ParseExecuteParameters(env, argc, argv, (*executeInfo));
+    AuthTrustLevel authTrustLevel = executeInfo->trustLevel;
+    std::shared_ptr<AuthApiCallback> callback = std::make_shared<AuthApiCallback>(executeInfo.release());
     if (ret != ResultCode::SUCCESS) {
         IAM_LOGE("ParseExecuteParameters fail");
         AuthResult authResult = {};
@@ -453,7 +454,7 @@ napi_value UserAuthImpl::Execute(napi_env env, napi_callback_info info)
         return retPromise;
     }
 
-    UserAuthNative::GetInstance().Auth(0, FACE, executeInfo->trustLevel, callback);
+    UserAuthNative::GetInstance().Auth(0, FACE, authTrustLevel, callback);
     return retPromise;
 }
 
