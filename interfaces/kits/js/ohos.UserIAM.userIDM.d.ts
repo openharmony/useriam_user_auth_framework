@@ -16,7 +16,7 @@
 import{AsyncCallback} from './basic';
 declare namespace userIDM {
     /**
-     * js @calss UserIdentityManager.
+     * js @class UserIdentityManager.
      */
     class UserIdentityManager {
         /**
