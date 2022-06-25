@@ -51,6 +51,7 @@ int32_t CoAuthStub::ExecutorRegisterStub(MessageParcel &data, MessageParcel &rep
     }
     sptr<IRemoteObject> obj = data.ReadRemoteObject();
     if (obj == nullptr) {
+        IAM_LOGE("read remote object failed");
         return READ_PARCEL_ERROR;
     }
     sptr<ExecutorCallback> callback = iface_cast<ExecutorCallbackProxy>(obj);

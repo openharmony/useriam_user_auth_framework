@@ -274,6 +274,7 @@ int32_t UserAuthService::CancelAuthOrIdentify(uint64_t contextId)
     auto context = ContextPool::Instance().Select(contextId).lock();
     if (context == nullptr || !context->Stop()) {
         IAM_LOGE("failed to cancel auth or identify");
+        return FAIL;
     }
     if (!ContextPool::Instance().Delete(contextId)) {
         IAM_LOGE("failed to delete context");

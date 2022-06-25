@@ -51,12 +51,11 @@ void ExecutorCallbackProxy::OnMessengerReady(sptr<ExecutorMessenger> &messenger,
         return;
     }
 
-    bool ret = SendRequest(ExecutorCallback::ON_MESSENGER_READY, data, reply);
-    if (!ret) {
+    bool result = SendRequest(ExecutorCallback::ON_MESSENGER_READY, data, reply);
+    if (!result) {
         IAM_LOGE("send request failed");
         return;
     }
-    IAM_LOGD("ret = %{public}d", ret);
 }
 
 int32_t ExecutorCallbackProxy::OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
@@ -93,7 +92,6 @@ int32_t ExecutorCallbackProxy::OnBeginExecute(uint64_t scheduleId, const std::ve
         IAM_LOGE("read request result failed");
         return FAIL;
     }
-    IAM_LOGI("result = %{public}d", result);
     return result;
 }
 
@@ -126,7 +124,6 @@ int32_t ExecutorCallbackProxy::OnEndExecute(uint64_t scheduleId, const Attribute
         IAM_LOGE("read request result failed");
         return FAIL;
     }
-    IAM_LOGI("result = %{public}d", result);
     return result;
 }
 
@@ -155,7 +152,6 @@ int32_t ExecutorCallbackProxy::OnSetProperty(const Attributes &properties)
         IAM_LOGE("read request result failed");
         return FAIL;
     }
-    IAM_LOGI("result = %{public}d", result);
     return result;
 }
 
@@ -191,7 +187,6 @@ int32_t ExecutorCallbackProxy::OnGetProperty(const Attributes &condition, Attrib
         return FAIL;
     }
     values = Attributes(attr);
-    IAM_LOGI("result = %{public}d", result);
     return result;
 }
 

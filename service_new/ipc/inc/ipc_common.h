@@ -26,7 +26,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class IpcCommon : public NoCopyable {
+class IpcCommon final : public NoCopyable {
 public:
     static int32_t GetCallingUserId(IPCObjectStub &stub, std::optional<int32_t> &userId);
     static int32_t GetActiveAccountId(std::optional<int32_t> &userId);

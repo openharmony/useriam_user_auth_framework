@@ -110,6 +110,7 @@ int32_t UserAuthStub::GetPropertyStub(MessageParcel &data, MessageParcel &reply)
 
     sptr<IRemoteObject> obj = data.ReadRemoteObject();
     if (obj == nullptr) {
+        IAM_LOGE("failed to read remote object");
         return READ_PARCEL_ERROR;
     }
     sptr<GetExecutorPropertyCallback> callback = iface_cast<GetExecutorPropertyCallbackProxy>(obj);
@@ -150,6 +151,7 @@ int32_t UserAuthStub::GetPropertyByIdStub(MessageParcel &data, MessageParcel &re
 
     sptr<IRemoteObject> obj = data.ReadRemoteObject();
     if (obj == nullptr) {
+        IAM_LOGE("failed to read remote object");
         return READ_PARCEL_ERROR;
     }
     sptr<GetExecutorPropertyCallback> callback = iface_cast<GetExecutorPropertyCallbackProxy>(obj);
@@ -183,6 +185,7 @@ int32_t UserAuthStub::SetPropertyStub(MessageParcel &data, MessageParcel &reply)
 
     sptr<IRemoteObject> obj = data.ReadRemoteObject();
     if (obj == nullptr) {
+        IAM_LOGE("failed to read remote object");
         return READ_PARCEL_ERROR;
     }
     sptr<SetExecutorPropertyCallback> callback = iface_cast<SetExecutorPropertyCallbackProxy>(obj);
@@ -220,6 +223,7 @@ int32_t UserAuthStub::AuthStub(MessageParcel &data, MessageParcel &reply)
 
     sptr<IRemoteObject> obj = data.ReadRemoteObject();
     if (obj == nullptr) {
+        IAM_LOGE("failed to read remote object");
         return READ_PARCEL_ERROR;
     }
     sptr<UserAuthCallback> callback = iface_cast<UserAuthCallbackProxy>(obj);
@@ -273,6 +277,7 @@ int32_t UserAuthStub::AuthUserStub(MessageParcel &data, MessageParcel &reply)
 
     sptr<IRemoteObject> obj = data.ReadRemoteObject();
     if (obj == nullptr) {
+        IAM_LOGE("failed to read remote object");
         return READ_PARCEL_ERROR;
     }
     sptr<UserAuthCallback> callback = iface_cast<UserAuthCallbackProxy>(obj);
@@ -315,6 +320,7 @@ int32_t UserAuthStub::IdentifyStub(MessageParcel &data, MessageParcel &reply)
 
     sptr<IRemoteObject> obj = data.ReadRemoteObject();
     if (obj == nullptr) {
+        IAM_LOGE("failed to read remote object");
         return READ_PARCEL_ERROR;
     }
     sptr<UserAuthCallback> callback = iface_cast<UserAuthCallbackProxy>(obj);

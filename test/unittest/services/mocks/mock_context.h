@@ -47,6 +47,7 @@ public:
     {
         using namespace testing;
         auto context = UserIAM::Common::MakeShared<MockContext>();
+        EXPECT_NE(context, nullptr);
         EXPECT_CALL(*context, GetContextId()).WillRepeatedly(Return(contextId));
         return context;
     }
@@ -55,6 +56,7 @@ public:
     {
         using namespace testing;
         auto context = UserIAM::Common::MakeShared<MockContext>();
+        EXPECT_NE(context, nullptr);
         EXPECT_CALL(*context, GetContextId()).WillRepeatedly(Return(contextId));
         EXPECT_CALL(*context, GetScheduleNode(_)).Times(AnyNumber());
 
@@ -74,6 +76,7 @@ public:
     {
         using namespace testing;
         auto context = UserIAM::Common::MakeShared<MockContext>();
+        EXPECT_NE(context, nullptr);
         EXPECT_CALL(*context, GetContextId()).WillRepeatedly(Return(contextId));
         EXPECT_CALL(*context, GetScheduleNode(_)).Times(AnyNumber());
 
