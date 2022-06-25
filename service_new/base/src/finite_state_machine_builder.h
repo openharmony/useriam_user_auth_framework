@@ -38,9 +38,7 @@ public:
     std::shared_ptr<FiniteStateMachine::Builder> MakeTransition(uint32_t state, uint32_t event,
         uint32_t nextState) override;
     std::shared_ptr<Builder> MakeOnStateEnter(uint32_t state, const FiniteStateMachine::Action &action) override;
-
     std::shared_ptr<Builder> MakeOnStateLeave(uint32_t state, const FiniteStateMachine::Action &action) override;
-
     std::shared_ptr<FiniteStateMachine> Build() override;
 
 private:

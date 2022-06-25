@@ -28,7 +28,6 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 using namespace OHOS;
-// StateMachineBuilder
 FiniteStateMachineBuilder::FiniteStateMachineBuilder(std::string name, uint32_t initialState)
     : name_(std::move(name)),
       initstate_(initialState),
