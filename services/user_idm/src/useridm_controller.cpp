@@ -179,7 +179,11 @@ int32_t UserIDMController::AddCredentialCtrl(int32_t userId, uint64_t callerID, 
         return BUSY;
     }
     CoAuth::ScheduleInfo info = {};
-    int32_t ret = UserIDMAdapter::GetInstance().InitSchedule(credInfo.token, userId, credInfo.authType,
+    std::vector<uint8_t> token;
+    if (credInfo.authType != PIN) {
+        token = credInfo.token;
+    }
+    int32_t ret = UserIDMAdapter::GetInstance().InitSchedule(token, userId, credInfo.authType,
         credInfo.authSubType, info);
     if (ret == SUCCESS) {
         ret = AddCredentialCallCoauth(callerID, credInfo, innerkitsCallback, challenge, info);
