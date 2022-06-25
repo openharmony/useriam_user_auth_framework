@@ -149,9 +149,8 @@ ContextPool &ContextPool::Instance()
 uint64_t ContextPool::GetNewContextId()
 {
     static constexpr uint32_t MAX_TRY_TIMES = 10;
-	static std::mutex mutex;
-	std::lock_guard<std::mutex> lock(mutex);
-
+    static std::mutex mutex;
+    std::lock_guard<std::mutex> lock(mutex);
     uint64_t contextId = 0;
     unsigned char *contextIdPtr = static_cast<unsigned char *>(static_cast<void *>(&contextId));
     for (uint32_t i = 0; i < MAX_TRY_TIMES; i++) {
