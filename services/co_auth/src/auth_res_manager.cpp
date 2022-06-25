@@ -54,7 +54,7 @@ uint64_t AuthResManager::Register(std::shared_ptr<ResAuthExecutor> executorInfo,
         COAUTH_HILOGE(MODULE_SERVICE, "executorInfo or callback is nullptr");
         return INVALID_EXECUTOR_ID;
     }
-    UserAuthHdi::ExecutorRegisterInfo info;
+    UserAuthHdi::ExecutorRegisterInfo info = {};
     if (!GetExecutorRegisterInfo(executorInfo, info)) {
         COAUTH_HILOGE(MODULE_SERVICE, "get register info failed");
         return INVALID_EXECUTOR_ID;

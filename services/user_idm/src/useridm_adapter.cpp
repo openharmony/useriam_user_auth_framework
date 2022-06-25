@@ -75,7 +75,7 @@ int32_t UserIDMAdapter::CloseEditSession(int32_t userId)
 
 void UserIDMAdapter::CopyCredentialFromHdi(const UserAuthHdi::CredentialInfo& in, UserIDM::CredentialInfo& out)
 {
-    out.authSubType = OHOS::UserIAM::UserIDM::AuthSubType(in.executorMatcher);
+    out.authSubType = PIN_SIX;
     out.authType = OHOS::UserIAM::UserIDM::AuthType(in.authType);
     out.credentialId = in.credentialId;
     out.templateId = in.templateId;
@@ -142,12 +142,11 @@ int32_t UserIDMAdapter::GetSecureUid(int32_t userId, uint64_t& secureUid,
 
 bool UserIDMAdapter::CopyScheduleInfo(const UserAuthHdi::ScheduleInfo& in, CoAuth::ScheduleInfo& out)
 {
-    if (in.executors.size() == 0 || in.templateIds.size() == 0) {
+    if (in.executors.size() == 0) {
         COAUTH_HILOGE(MODULE_SERVICE, "param is invalid");
         return false;
     }
     out.scheduleId = in.scheduleId;
-    out.templateId = in.templateIds[0];
     out.authSubType = static_cast<uint64_t>(in.executorMatcher);
     out.scheduleMode = in.scheduleMode;
     for (auto &executor : in.executors) {

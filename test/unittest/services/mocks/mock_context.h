@@ -29,8 +29,8 @@ namespace UserAuth {
 class MockContextCallback : public ContextCallback {
 public:
     virtual ~MockContextCallback() = default;
-    MOCK_CONST_METHOD3(onAcquireInfo,
-        void(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg));
+    MOCK_CONST_METHOD3(
+        onAcquireInfo, void(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg));
     MOCK_CONST_METHOD2(OnResult, void(int32_t resultCode, const std::shared_ptr<Attributes> &finalResult));
 };
 
@@ -47,7 +47,10 @@ public:
     {
         using namespace testing;
         auto context = UserIAM::Common::MakeShared<MockContext>();
-        EXPECT_NE(context, nullptr);
+        if (context == nullptr) {
+            EXPECT_NE(context, nullptr);
+            return nullptr;
+        };
         EXPECT_CALL(*context, GetContextId()).WillRepeatedly(Return(contextId));
         return context;
     }
@@ -56,7 +59,10 @@ public:
     {
         using namespace testing;
         auto context = UserIAM::Common::MakeShared<MockContext>();
-        EXPECT_NE(context, nullptr);
+        if (context == nullptr) {
+            EXPECT_NE(context, nullptr);
+            return nullptr;
+        };
         EXPECT_CALL(*context, GetContextId()).WillRepeatedly(Return(contextId));
         EXPECT_CALL(*context, GetScheduleNode(_)).Times(AnyNumber());
 
@@ -71,12 +77,15 @@ public:
         return context;
     }
 
-    static std::shared_ptr<Context> CreateContextWithScheduleNode(uint64_t contextId,
-        const std::set<std::shared_ptr<ScheduleNode>> &scheduleIdList)
+    static std::shared_ptr<Context> CreateContextWithScheduleNode(
+        uint64_t contextId, const std::set<std::shared_ptr<ScheduleNode>> &scheduleIdList)
     {
         using namespace testing;
         auto context = UserIAM::Common::MakeShared<MockContext>();
-        EXPECT_NE(context, nullptr);
+        if (context == nullptr) {
+            EXPECT_NE(context, nullptr);
+            return nullptr;
+        };
         EXPECT_CALL(*context, GetContextId()).WillRepeatedly(Return(contextId));
         EXPECT_CALL(*context, GetScheduleNode(_)).Times(AnyNumber());
 
