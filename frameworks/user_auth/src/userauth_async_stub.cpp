@@ -26,6 +26,10 @@ UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<UserAuthCallback> &impl) : 
 {
 }
 
+UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<UserIdentifyCallback> &impl) : identifyCallback_(impl)
+{
+}
+
 UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<GetPropCallback> &impl) : getPropCallback_(impl)
 {
 }
@@ -50,7 +54,9 @@ int32_t UserAuthAsyncStub::OnRemoteRequest(uint32_t code, MessageParcel &data, M
         case static_cast<int32_t>(IUserAuth::USER_AUTH_ACQUIRE_INFO):
             return onAcquireInfoStub(data, reply);
         case static_cast<int32_t>(IUserAuth::USER_AUTH_ON_RESULT):
-            return onResultStub(data, reply);
+            return onAuthResultStub(data, reply);
+        case static_cast<int32_t>(IUserAuth::USER_AUTH_ON_IDENTIFY_RESULT):
+            return onIdentifyResultStub(data, reply);
         case static_cast<int32_t>(IUserAuth::USER_AUTH_GET_EX_PROP):
             return onExecutorPropertyInfoStub(data, reply);
         case static_cast<int32_t>(IUserAuth::USER_AUTH_SET_EX_PROP):
@@ -90,7 +96,7 @@ int32_t UserAuthAsyncStub::onAcquireInfoStub(MessageParcel& data, MessageParcel&
     return SUCCESS;
 }
 
-int32_t UserAuthAsyncStub::onResultStub(MessageParcel& data, MessageParcel& reply)
+int32_t UserAuthAsyncStub::onAuthResultStub(MessageParcel& data, MessageParcel& reply)
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthAsyncStub onResultStub start");
 
@@ -121,7 +127,36 @@ int32_t UserAuthAsyncStub::onResultStub(MessageParcel& data, MessageParcel& repl
     authResult.token.clear();
     authResult.token.assign(token.begin(), token.end());
 
-    this->onResult(result, authResult);
+    this->onAuthResult(result, authResult);
+    if (!reply.WriteInt32(SUCCESS)) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write success");
+        return E_WRITE_PARCEL_ERROR;
+    }
+
+    return SUCCESS;
+}
+
+int32_t UserAuthAsyncStub::onIdentifyResultStub(MessageParcel& data, MessageParcel& reply)
+{
+    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthAsyncStub onIdentifyResultStub start");
+
+    IdentifyResult identifyResult;
+    int32_t result;
+
+    if (!data.ReadInt32(result)) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to read result");
+        return E_READ_PARCEL_ERROR;
+    }
+    if (!data.ReadInt32(identifyResult.userId)) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to read user id");
+        return E_READ_PARCEL_ERROR;
+    }
+    if (!data.ReadUInt8Vector(&identifyResult.token)) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to read token");
+        return E_READ_PARCEL_ERROR;
+    }
+
+    this->onIdentifyResult(result, identifyResult);
     if (!reply.WriteInt32(SUCCESS)) {
         USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write success");
         return E_WRITE_PARCEL_ERROR;
@@ -201,18 +236,32 @@ void UserAuthAsyncStub::onAcquireInfo(const int32_t module, const uint32_t acqui
     authCallback_->onAcquireInfo(module, acquireInfo, extraInfo);
 }
 
-void UserAuthAsyncStub::onResult(const int32_t result, const AuthResult &extraInfo)
+void UserAuthAsyncStub::onAuthResult(const int32_t result, const AuthResult &extraInfo)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthAsyncStub onResult start");
+    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthAsyncStub onAuthResult start");
 
     if (authCallback_ == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "userauthAsyncStub onResult callback is nullptr");
+        USERAUTH_HILOGE(MODULE_INNERKIT, "userauthAsyncStub onAuthResult callback is nullptr");
         return;
     }
 
     USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub result:%{public}d, remain:%{public}u, freeze:%{public}u",
         result, extraInfo.remainTimes, extraInfo.freezingTime);
     authCallback_->onResult(result, extraInfo);
+}
+
+void UserAuthAsyncStub::onIdentifyResult(const int32_t result, const IdentifyResult &extraInfo)
+{
+    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthAsyncStub onIdentifyResult start");
+
+    if (identifyCallback_ == nullptr) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "UserAuthAsyncStub onIdentifyResult callback is nullptr");
+        return;
+    }
+
+    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthAsyncStub identify result:%{public}d, user id:%{public}d",
+        result, extraInfo.userId);
+    identifyCallback_->onResult(result, extraInfo);
 }
 
 void UserAuthAsyncStub::onExecutorPropertyInfo(const ExecutorProperty &result)

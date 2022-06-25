@@ -41,6 +41,7 @@ ohos_shared_library("userauth_executors") {
     "//base/useriam/user_auth_framework/interfaces/inner_api/common/",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs",
+    "//base/useriam/user_auth_framework/service_new/common_defines/types",
   ]
 
   public_configs = [ ":userauth_executors_public_config" ]
@@ -50,6 +51,9 @@ ohos_shared_library("userauth_executors") {
   deps = [ "//base/useriam/user_auth_framework/common:iam_utils" ]
 
   external_deps = [
+    "hdf_core:libhdf_host",
+    "hdf_core:libhdf_ipc_adapter",
+    "hdf_core:libhdf_utils",
     "hdf_core:libhdi",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_single",
