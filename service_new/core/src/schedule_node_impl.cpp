@@ -135,13 +135,14 @@ bool ScheduleNodeImpl::StopSchedule()
     return TryKickMachine(E_STOP_AUTH);
 }
 
-bool ScheduleNodeImpl::ContinueSchedule(ExecutorRole srcRole, ExecutorRole dstRole, [[maybe_unused]] uint64_t transNum,
+bool ScheduleNodeImpl::ContinueSchedule(ExecutorRole srcRole, ExecutorRole dstRole, uint64_t transNum,
     const std::vector<uint8_t> &msg)
 {
     if (dstRole != SCHEDULER) {
         IAM_LOGE("not supported yet");
         return false;
-    };
+    }
+
     if (info_.callback) {
         info_.callback->OnScheduleProcessed(srcRole, static_cast<int32_t>(GetAuthType()), msg);
     }
@@ -261,8 +262,7 @@ void ScheduleNodeImpl::StopTimer()
     timerId_ = 0;
 }
 
-// fsm processes
-void ScheduleNodeImpl::ProcessBeginVerifier(FiniteStateMachine &machine, [[maybe_unused]] uint32_t event) const
+void ScheduleNodeImpl::ProcessBeginVerifier(FiniteStateMachine &machine, uint32_t event) const
 {
     auto collector = info_.collector.lock();
     auto verifier = info_.verifier.lock();
@@ -283,7 +283,7 @@ void ScheduleNodeImpl::ProcessBeginVerifier(FiniteStateMachine &machine, [[maybe
     machine.Schedule(E_VERIFY_STARTED_SUCCESS);
 }
 
-void ScheduleNodeImpl::ProcessBeginCollector(FiniteStateMachine &machine, [[maybe_unused]] uint32_t event) const
+void ScheduleNodeImpl::ProcessBeginCollector(FiniteStateMachine &machine, uint32_t event) const
 {
     auto collector = info_.collector.lock();
     auto verifier = info_.verifier.lock();
@@ -300,26 +300,22 @@ void ScheduleNodeImpl::ProcessBeginCollector(FiniteStateMachine &machine, [[mayb
     IAM_LOGE("distributed auth not supported yet");
 }
 
-void ScheduleNodeImpl::ProcessVerifierBeginFailed([[maybe_unused]] FiniteStateMachine &machine,
-    [[maybe_unused]] uint32_t event)
+void ScheduleNodeImpl::ProcessVerifierBeginFailed(FiniteStateMachine &machine, uint32_t event)
 {
     SetResultCode(BUSY);
 }
 
-void ScheduleNodeImpl::ProcessCollectorBeginFailed([[maybe_unused]] FiniteStateMachine &machine,
-    [[maybe_unused]] uint32_t event)
+void ScheduleNodeImpl::ProcessCollectorBeginFailed(FiniteStateMachine &machine, uint32_t event)
 {
     SetResultCode(BUSY);
 }
 
-void ScheduleNodeImpl::ProcessScheduleResultReceived([[maybe_unused]] FiniteStateMachine &machine,
-    [[maybe_unused]] uint32_t event) const
+void ScheduleNodeImpl::ProcessScheduleResultReceived(FiniteStateMachine &machine, uint32_t event) const
 {
     // just do nothing
 }
 
-void ScheduleNodeImpl::ProcessEndCollector([[maybe_unused]] FiniteStateMachine &machine,
-    [[maybe_unused]] uint32_t event) const
+void ScheduleNodeImpl::ProcessEndCollector(FiniteStateMachine &machine, uint32_t event) const
 {
     auto collector = info_.collector.lock();
     auto verifier = info_.verifier.lock();
@@ -335,8 +331,7 @@ void ScheduleNodeImpl::ProcessEndCollector([[maybe_unused]] FiniteStateMachine &
     IAM_LOGE("distributed auth not supported yet");
 }
 
-void ScheduleNodeImpl::ProcessEndVerifier([[maybe_unused]] FiniteStateMachine &machine,
-    [[maybe_unused]] uint32_t event) const
+void ScheduleNodeImpl::ProcessEndVerifier(FiniteStateMachine &machine, uint32_t event) const
 {
     auto verifier = info_.verifier.lock();
     if (verifier == nullptr) {
@@ -352,8 +347,7 @@ void ScheduleNodeImpl::ProcessEndVerifier([[maybe_unused]] FiniteStateMachine &m
     machine.Schedule(E_VERIFY_STOPPED_SUCCESS);
 }
 
-void ScheduleNodeImpl::OnScheduleProcessing([[maybe_unused]] FiniteStateMachine &machine,
-    [[maybe_unused]] uint32_t event) const
+void ScheduleNodeImpl::OnScheduleProcessing(FiniteStateMachine &machine, uint32_t event) const
 {
     if (!info_.callback) {
         return;
@@ -361,7 +355,7 @@ void ScheduleNodeImpl::OnScheduleProcessing([[maybe_unused]] FiniteStateMachine 
     info_.callback->OnScheduleStarted();
 }
 
-void ScheduleNodeImpl::OnScheduleFinished([[maybe_unused]] FiniteStateMachine &machine, [[maybe_unused]] uint32_t event)
+void ScheduleNodeImpl::OnScheduleFinished(FiniteStateMachine &machine, uint32_t event)
 {
     StopTimer();
     if (!info_.callback) {

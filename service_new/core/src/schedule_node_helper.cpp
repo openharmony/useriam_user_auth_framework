@@ -39,6 +39,7 @@ bool ScheduleNodeHelper::BuildFromHdi(const std::vector<HdiScheduleInfo> &infos,
     for (const auto &info : infos) {
         std::shared_ptr<ScheduleNode> node;
         if (!ScheduleInfoToScheduleNode(info, node, para, callback)) {
+            IAM_LOGE("ScheduleInfoToScheduleNode error");
             return false;
         }
         outputs.push_back(node);
@@ -59,6 +60,7 @@ bool ScheduleNodeHelper::ScheduleInfoToScheduleNode(const HdiScheduleInfo &info,
     std::shared_ptr<ResourceNode> verifier;
 
     if (!ScheduleInfoToExecutors(info, collector, verifier)) {
+        IAM_LOGE("ScheduleInfoToExecutors error");
         return false;
     }
 

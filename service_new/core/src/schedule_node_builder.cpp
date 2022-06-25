@@ -28,7 +28,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-// Builder
 using Builder = ScheduleNode::Builder;
 
 ScheduleNodeBuilder::ScheduleNodeBuilder(const std::shared_ptr<ResourceNode> &collector,
@@ -121,7 +120,7 @@ std::shared_ptr<ScheduleNode> ScheduleNodeBuilder::Build()
 
 bool ScheduleNodeBuilder::CheckParameters()
 {
-    if (collector_->GetAuthType() != info_.authType) {
+    if (collector_ && collector_->GetAuthType() != info_.authType) {
         IAM_LOGE("authType mismatch");
         return false;
     }

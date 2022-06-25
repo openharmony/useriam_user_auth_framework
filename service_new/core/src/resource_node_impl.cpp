@@ -138,7 +138,7 @@ int32_t ResourceNodeImpl::BeginExecute(uint64_t scheduleId, const std::vector<ui
     if (callback_ != nullptr) {
         return callback_->OnBeginExecute(scheduleId, publicKey, command);
     }
-    return SUCCESS;
+    return FAIL;
 }
 
 int32_t ResourceNodeImpl::EndExecute(uint64_t scheduleId, const Attributes &command)
@@ -147,7 +147,7 @@ int32_t ResourceNodeImpl::EndExecute(uint64_t scheduleId, const Attributes &comm
     if (callback_ != nullptr) {
         return callback_->OnEndExecute(scheduleId, command);
     }
-    return SUCCESS;
+    return FAIL;
 }
 
 int32_t ResourceNodeImpl::SetProperty(const Attributes &properties)
@@ -156,7 +156,7 @@ int32_t ResourceNodeImpl::SetProperty(const Attributes &properties)
     if (callback_ != nullptr) {
         return callback_->OnSetProperty(properties);
     }
-    return SUCCESS;
+    return FAIL;
 }
 
 int32_t ResourceNodeImpl::GetProperty(const Attributes &condition, Attributes &values)
@@ -165,7 +165,7 @@ int32_t ResourceNodeImpl::GetProperty(const Attributes &condition, Attributes &v
     if (callback_ != nullptr) {
         return callback_->OnGetProperty(condition, values);
     }
-    return SUCCESS;
+    return FAIL;
 }
 
 void ResourceNodeImpl::Detach()

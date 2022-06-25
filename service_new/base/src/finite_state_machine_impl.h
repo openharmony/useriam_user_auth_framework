@@ -53,6 +53,7 @@ public:
     friend class FiniteStateMachineBuilder;
 
 private:
+    static constexpr uint32_t MAX_SCHEDULE_TIMES = 100;
     constexpr static inline uint64_t GetTransitionIndex(uint32_t state, uint32_t event)
     {
         constexpr uint32_t UINT32_WIDTH_LEN = 32;
@@ -70,8 +71,6 @@ private:
 
     std::mutex mutex_;
     SafeQueue<uint32_t> pendingEvents_ {};
-
-    static constexpr uint32_t MAX_SCHEDULE_TIMES = 100;
 };
 
 class FiniteStateMachineImpl::Inner final : public FiniteStateMachine, public NoCopyable {

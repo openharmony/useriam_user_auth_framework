@@ -79,7 +79,6 @@ enum SetPropertyType : uint32_t {
     THAW_TEMPLATE = 3,
 };
 
-// struct defines
 struct ExecutorRegisterInfo {
     AuthType authType;
     ExecutorRole executorRole;
