@@ -93,7 +93,7 @@ std::optional<int32_t> GetFuzzOptionalUserId(Parcel &parcel)
 sptr<IdmGetCredentialInfoCallback> GetFuzzIdmGetCredentialInfoCallback(Parcel &parcel)
 {
     if (parcel.ReadBool()) {
-        return new (std::nothrow) DummyIdmGetCredentialInfoCallback();
+        return new (nothrow) DummyIdmGetCredentialInfoCallback();
     }
     return nullptr;
 }
@@ -101,7 +101,7 @@ sptr<IdmGetCredentialInfoCallback> GetFuzzIdmGetCredentialInfoCallback(Parcel &p
 sptr<IdmGetSecureUserInfoCallback> GetFuzzIdmGetSecureUserInfoCallback(Parcel &parcel)
 {
     if (parcel.ReadBool()) {
-        return new (std::nothrow) DummyIdmGetSecureUserInfoCallback();
+        return new (nothrow) DummyIdmGetSecureUserInfoCallback();
     }
     return nullptr;
 }
@@ -109,7 +109,7 @@ sptr<IdmGetSecureUserInfoCallback> GetFuzzIdmGetSecureUserInfoCallback(Parcel &p
 sptr<IdmCallback> GetFuzzIdmCallback(Parcel &parcel)
 {
     if (parcel.ReadBool()) {
-        return new (std::nothrow) DummyIdmCallback();
+        return new (nothrow) DummyIdmCallback();
     }
     return nullptr;
 }
