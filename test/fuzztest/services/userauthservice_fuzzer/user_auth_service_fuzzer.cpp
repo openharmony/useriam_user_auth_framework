@@ -149,7 +149,7 @@ void FuzzGetProperty(Parcel &parcel)
 
     sptr<GetExecutorPropertyCallback> callback = nullptr;
     if (parcel.ReadBool()) {
-        callback = new DummyGetExecutorPropertyCallback();
+        callback = new (nothrow) DummyGetExecutorPropertyCallback();
     }
     g_userAuthService.GetProperty(userId, authType, keys, callback);
     IAM_LOGI("end");
@@ -165,7 +165,7 @@ void FuzzSetProperty(Parcel &parcel)
     Attributes attributes(attributesRaw);
     sptr<SetExecutorPropertyCallback> callback = nullptr;
     if (parcel.ReadBool()) {
-        callback = new DummySetExecutorPropertyCallback();
+        callback = new (nothrow) DummySetExecutorPropertyCallback();
     }
 
     g_userAuthService.SetProperty(userId, authType, attributes, callback);
@@ -182,7 +182,7 @@ void FuzzAuthUser(Parcel &parcel)
     AuthTrustLevel authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32());
     sptr<UserAuthCallback> callback = nullptr;
     if (parcel.ReadBool()) {
-        callback = new DummyUserAuthCallback();
+        callback = new (nothrow) DummyUserAuthCallback();
     }
     g_userAuthService.AuthUser(userId, challenge, authType, authTrustLevel, callback);
     IAM_LOGI("end");
@@ -196,7 +196,7 @@ void FuzzIdentify(Parcel &parcel)
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
     sptr<UserAuthCallback> callback = nullptr;
     if (parcel.ReadBool()) {
-        callback = new DummyUserAuthCallback();
+        callback = new (nothrow) DummyUserAuthCallback();
     }
     g_userAuthService.Identify(challenge, authType, callback);
     IAM_LOGI("end");
