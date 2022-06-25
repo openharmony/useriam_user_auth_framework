@@ -62,7 +62,7 @@ int32_t ExecutorMessengerProxy::SendData(uint64_t scheduleId, uint64_t transNum,
 
 
 int32_t ExecutorMessengerProxy::Finish(uint64_t scheduleId, int32_t srcType, int32_t resultCode,
-    std::shared_ptr<AuthAttributes> finalResult)
+    std::shared_ptr<UserIam::UserAuth::Attributes> finalResult)
 {
     if (finalResult == nullptr) {
         COAUTH_HILOGE(MODULE_INNERKIT, "finalResult is nullptr");
@@ -83,10 +83,7 @@ int32_t ExecutorMessengerProxy::Finish(uint64_t scheduleId, int32_t srcType, int
     if (!data.WriteInt32(resultCode)) {
         return FAIL;
     }
-    std::vector<uint8_t> buffer;
-    if (finalResult->Pack(buffer)) {
-        return FAIL;
-    }
+    std::vector<uint8_t> buffer = finalResult->Serialize();
     if (!data.WriteUInt8Vector(buffer)) {
         return FAIL;
     }

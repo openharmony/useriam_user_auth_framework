@@ -19,7 +19,7 @@
 #include <iremote_proxy.h>
 #include <iremote_broker.h>
 #include "i_coauth.h"
-#include "auth_attributes.h"
+#include "attributes.h"
 
 namespace OHOS {
 namespace UserIAM {

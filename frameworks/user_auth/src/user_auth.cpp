@@ -65,6 +65,23 @@ int32_t UserAuth::CancelAuth(const uint64_t contextId)
     USERAUTH_HILOGD(MODULE_INNERAPI, "CancelAuth start");
     return UserAuthNative::GetInstance().CancelAuth(contextId);
 }
+
+uint64_t UserAuth::Identify(const uint64_t challenge, const AuthType authType,
+    std::shared_ptr<UserIdentifyCallback> callback)
+{
+    USERAUTH_HILOGD(MODULE_INNERAPI, "Identify start");
+    if (callback == nullptr) {
+        USERAUTH_HILOGE(MODULE_INNERAPI, "Identify callback is nullptr");
+        return INVALID_PARAMETERS;
+    }
+    return UserAuthNative::GetInstance().Identify(challenge, authType, callback);
+}
+
+int32_t UserAuth::CancelIdentify(const uint64_t contextId)
+{
+    USERAUTH_HILOGD(MODULE_INNERAPI, "CancelIdentify start");
+    return UserAuthNative::GetInstance().CancelIdentify(contextId);
+}
 } // namespace UserAuth
 } // namespace UserIAM
 } // namespace OHOS

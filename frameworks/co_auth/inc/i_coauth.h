@@ -19,7 +19,7 @@
 #include <iremote_broker.h>
 #include <singleton.h>
 #include "icoauth_callback.h"
-#include "auth_attributes.h"
+#include "attributes.h"
 #include "iexecutor_callback.h"
 #include "iquery_callback.h"
 #include "auth_executor.h"
