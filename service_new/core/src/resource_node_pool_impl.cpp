@@ -54,7 +54,7 @@ bool ResourceNodePoolImpl::Insert(const std::shared_ptr<ResourceNode> &resource)
     uint64_t executorIndex = resource->GetExecutorIndex();
 
     auto iter = resourceNodeMap_.find(executorIndex);
-    if (iter != resourceNodeMap_.end()) {
+    if (iter != resourceNodeMap_.end() && iter->second != nullptr) {
         iter->second->Detach();
     }
 
