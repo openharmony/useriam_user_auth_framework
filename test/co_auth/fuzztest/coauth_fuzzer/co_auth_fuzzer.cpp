@@ -14,11 +14,11 @@
  */
 
 #include "co_auth_fuzzer.h"
+#include "coauth_service.h"
+#include "iam_fuzz_test.h"
+#include "iam_logger.h"
 #include "parcel.h"
 #include "securec.h"
-#include "iam_logger.h"
-#include "iam_fuzz_test.h"
-#include "coauth_service.h"
 
 #define LOG_LABEL OHOS::UserIAM::Common::LABEL_USER_AUTH_SA
 
@@ -36,22 +36,24 @@ class ResIExecutorCallbackFuzzer : public IRemoteStub<ResIExecutorCallback> {
 public:
     ResIExecutorCallbackFuzzer(int32_t onBeginExecuteResult, int32_t onEndExecuteResult, int32_t onSetPropertyResult,
         int32_t onGetPropertyResult)
-        : onBeginExecuteResult_(onBeginExecuteResult), onEndExecuteResult_(onEndExecuteResult),
-          onSetPropertyResult_(onSetPropertyResult), onGetPropertyResult_(onGetPropertyResult)
+        : onBeginExecuteResult_(onBeginExecuteResult),
+          onEndExecuteResult_(onEndExecuteResult),
+          onSetPropertyResult_(onSetPropertyResult),
+          onGetPropertyResult_(onGetPropertyResult)
     {
     }
-	
+
     virtual ~ResIExecutorCallbackFuzzer() = default;
-	
-    void OnMessengerReady(const sptr<IExecutorMessenger> &messenger,
-        std::vector<uint8_t> &frameworkPublicKey, std::vector<uint64_t> &templateIds) override
+
+    void OnMessengerReady(const sptr<IExecutorMessenger> &messenger, std::vector<uint8_t> &frameworkPublicKey,
+        std::vector<uint64_t> &templateIds) override
     {
         IAM_LOGI("ResIExecutorCallbackFuzzer OnMessengerReady");
         return;
     }
 
-    int32_t OnBeginExecute(uint64_t scheduleId, std::vector<uint8_t> &publicKey,
-        std::shared_ptr<AuthAttributes> commandAttrs) override
+    int32_t OnBeginExecute(
+        uint64_t scheduleId, std::vector<uint8_t> &publicKey, std::shared_ptr<AuthAttributes> commandAttrs) override
     {
         IAM_LOGI("ResIExecutorCallbackFuzzer OnBeginExecute");
         return onBeginExecuteResult_;
@@ -69,8 +71,7 @@ public:
         return onSetPropertyResult_;
     }
 
-    int32_t OnGetProperty(std::shared_ptr<AuthAttributes> conditions,
-        std::shared_ptr<AuthAttributes> values) override
+    int32_t OnGetProperty(std::shared_ptr<AuthAttributes> conditions, std::shared_ptr<AuthAttributes> values) override
     {
         IAM_LOGI("ResIExecutorCallbackFuzzer OnGetProperty");
         return onGetPropertyResult_;
@@ -133,8 +134,8 @@ void FuzzRegister(Parcel &parcel)
     FillFuzzResAuthExecutor(parcel, *executorInfo);
     sptr<ResIExecutorCallback> callback = nullptr;
     if (parcel.ReadBool()) {
-        callback = new (std::nothrow) ResIExecutorCallbackFuzzer(
-            parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32());
+        callback = new (std::nothrow)
+            ResIExecutorCallbackFuzzer(parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32());
     }
     g_coAuthService.Register(executorInfo, callback);
     IAM_LOGI("FuzzRegister end");
@@ -171,7 +172,7 @@ void CoAuthFuzzTest(const uint8_t *data, size_t size)
     fuzzFunc(parcel);
     return;
 }
-}
+} // namespace
 } // namespace CoAuth
 } // namespace UserIAM
 } // namespace OHOS

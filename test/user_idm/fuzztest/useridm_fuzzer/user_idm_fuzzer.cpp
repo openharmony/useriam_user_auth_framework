@@ -14,12 +14,11 @@
  */
 
 #include "user_idm_fuzzer.h"
+#include "iam_fuzz_test.h"
 #include "parcel.h"
 #include "securec.h"
-#include "iam_fuzz_test.h"
-#include "useridm_service.h"
 #include "useridm_hilog_wrapper.h"
-
+#include "useridm_service.h"
 
 #undef private
 
@@ -245,7 +244,7 @@ void UserIdmFuzzTest(const uint8_t *data, size_t size)
     fuzzFunc(parcel);
     return;
 }
-}
+} // namespace
 } // namespace UserIDM
 } // namespace UserIAM
 } // namespace OHOS
