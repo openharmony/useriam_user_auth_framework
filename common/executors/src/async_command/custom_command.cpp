@@ -25,7 +25,8 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-CustomCommand::CustomCommand(std::weak_ptr<Executor> executor, std::shared_ptr<AuthAttributes> attributes)
+CustomCommand::CustomCommand(
+    std::weak_ptr<Executor> executor, std::shared_ptr<UserIam::UserAuth::Attributes> attributes)
     : AsyncCommandBase("CUSTOM", 0, executor, nullptr),
       attributes_(attributes)
 {
@@ -41,9 +42,13 @@ ResultCode CustomCommand::SendRequest()
 
     future_ = promise_.get_future();
     uint32_t commandId = 0;
-    attributes_->GetUint32Value(AUTH_PROPERTY_MODE, commandId);
+    bool getAuthPropertyModeRet =
+        attributes_->GetUint32Value(UserIam::UserAuth::Attributes::ATTR_PROPERTY_MODE, commandId);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getAuthPropertyModeRet == true, ResultCode::GENERAL_ERROR);
     std::vector<uint64_t> templateIdList;
-    attributes_->GetUint64ArrayValue(AUTH_TEMPLATE_ID_LIST, templateIdList);
+    bool getAuthTemplateIdListRet =
+        attributes_->GetUint64ArrayValue(UserIam::UserAuth::Attributes::ATTR_TEMPLATE_ID_LIST, templateIdList);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getAuthTemplateIdListRet == true, ResultCode::GENERAL_ERROR);
     IF_FALSE_LOGE_AND_RETURN_VAL(templateIdList.size() < MAX_TEMPLATE_LIST_LEN, ResultCode::GENERAL_ERROR);
     const uint8_t *src = static_cast<const uint8_t *>(static_cast<const void *>(&templateIdList[0]));
     std::vector<uint8_t> extraInfo(src, src + templateIdList.size() * sizeof(uint64_t) / sizeof(uint8_t));

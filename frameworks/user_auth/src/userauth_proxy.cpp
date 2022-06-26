@@ -280,6 +280,72 @@ int32_t UserAuthProxy::CancelAuth(const uint64_t contextId)
     return result;
 }
 
+uint64_t UserAuthProxy::Identify(const uint64_t challenge, const AuthType authType,
+    sptr<IUserAuthCallback> &callback)
+{
+    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy Identify start");
+    const uint64_t invalidContextID = 0;
+    uint64_t result = invalidContextID;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+
+    if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "write descriptor failed");
+        return invalidContextID;
+    }
+    if (!data.WriteUint64(challenge)) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write challenge");
+        return invalidContextID;
+    }
+    if (!data.WriteUint32(static_cast<uint32_t>(authType))) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write authType");
+        return invalidContextID;
+    }
+    if (!data.WriteRemoteObject(callback->AsObject())) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write callback");
+        return invalidContextID;
+    }
+    bool ret = SendRequest(IUserAuth::USER_AUTH_IDENTIFY, data, reply, option);
+    if (!ret) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "SendRequest failed");
+        return invalidContextID;
+    }
+    if (!reply.ReadUint64(result)) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to read result");
+    }
+
+    return result;
+}
+
+int32_t UserAuthProxy::CancelIdentify(const uint64_t contextId)
+{
+    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy CancelIdentify start");
+    int32_t result = GENERAL_ERROR;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+
+    if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "write descriptor failed");
+        return E_WRITE_PARCEL_ERROR;
+    }
+    if (!data.WriteUint64(contextId)) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write contextId");
+        return E_WRITE_PARCEL_ERROR;
+    }
+    bool ret = SendRequest(IUserAuth::USER_AUTH_CANCEL_IDENTIFY, data, reply, option);
+    if (!ret) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "SendRequest failed");
+        return IPC_ERROR;
+    }
+    if (!reply.ReadInt32(result)) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to read result");
+    }
+
+    return result;
+}
+
 int32_t UserAuthProxy::GetVersion()
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy GetVersion start");

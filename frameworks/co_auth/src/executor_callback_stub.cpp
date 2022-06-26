@@ -75,10 +75,9 @@ int32_t ExecutorCallbackStub::OnBeginExecuteStub(MessageParcel &data, MessagePar
 {
     uint64_t scheduleId = data.ReadUint64();
     std::vector<uint8_t> publicKey, buffer;
-    std::shared_ptr<AuthAttributes> commandAttrs = std::make_shared<AuthAttributes>();
     data.ReadUInt8Vector(&publicKey);
     data.ReadUInt8Vector(&buffer);
-    commandAttrs->Unpack(buffer);
+    auto commandAttrs = std::make_shared<UserIam::UserAuth::Attributes>(buffer);
     int32_t ret = OnBeginExecute(scheduleId, publicKey, commandAttrs);
     if (!reply.WriteInt32(ret)) {
         COAUTH_HILOGE(MODULE_INNERKIT, "write ret failed");
@@ -91,13 +90,8 @@ int32_t ExecutorCallbackStub::OnEndExecuteStub(MessageParcel &data, MessageParce
 {
     uint64_t scheduleId = data.ReadUint64();
     std::vector<uint8_t> buffer;
-    std::shared_ptr<AuthAttributes> consumerAttr = std::make_shared<AuthAttributes>();
-    if (consumerAttr == nullptr) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "consumerAttr is null");
-        return FAIL;
-    }
     data.ReadUInt8Vector(&buffer);
-    consumerAttr->Unpack(buffer);
+    auto consumerAttr = std::make_shared<UserIam::UserAuth::Attributes>(buffer);
     int32_t ret = OnEndExecute(scheduleId, consumerAttr);
     if (!reply.WriteInt32(ret)) {
         COAUTH_HILOGE(MODULE_INNERKIT, "write ret failed");
@@ -109,19 +103,17 @@ int32_t ExecutorCallbackStub::OnEndExecuteStub(MessageParcel &data, MessageParce
 int32_t ExecutorCallbackStub::OnGetPropertyStub(MessageParcel &data, MessageParcel &reply)
 {
     std::vector<uint8_t> buffer;
-    std::shared_ptr<AuthAttributes> conditions = std::make_shared<AuthAttributes>();
     data.ReadUInt8Vector(&buffer);
-    conditions->Unpack(buffer);
+    auto conditions = std::make_shared<UserIam::UserAuth::Attributes>(buffer);
 
-    std::shared_ptr<AuthAttributes> values = std::make_shared<AuthAttributes>();
+    std::shared_ptr<UserIam::UserAuth::Attributes> values = std::make_shared<UserIam::UserAuth::Attributes>();
     int32_t ret = OnGetProperty(conditions, values);
     if (!reply.WriteInt32(ret)) {
         COAUTH_HILOGE(MODULE_INNERKIT, "write ret failed");
         return FAIL;
     }
 
-    std::vector<uint8_t> replyBuffer;
-    values->Pack(replyBuffer);
+    std::vector<uint8_t> replyBuffer = values->Serialize();
     if (!reply.WriteUInt8Vector(replyBuffer)) {
         COAUTH_HILOGE(MODULE_SERVICE, "write replyBuffer failed");
         return FAIL;
@@ -132,9 +124,8 @@ int32_t ExecutorCallbackStub::OnGetPropertyStub(MessageParcel &data, MessageParc
 int32_t ExecutorCallbackStub::OnSetPropertyStub(MessageParcel &data, MessageParcel &reply)
 {
     std::vector<uint8_t> buffer;
-    std::shared_ptr<AuthAttributes> properties = std::make_shared<AuthAttributes>();
     data.ReadUInt8Vector(&buffer);
-    properties->Unpack(buffer);
+    auto properties = std::make_shared<UserIam::UserAuth::Attributes>(buffer);
 
     int32_t ret = OnSetProperty(properties);
     if (!reply.WriteInt32(ret)) {
@@ -156,7 +147,7 @@ void ExecutorCallbackStub::OnMessengerReady(const sptr<IExecutorMessenger> &mess
 }
 
 int32_t ExecutorCallbackStub::OnBeginExecute(uint64_t scheduleId, std::vector<uint8_t> &publicKey,
-    std::shared_ptr<AuthAttributes> commandAttrs)
+    std::shared_ptr<UserIam::UserAuth::Attributes> commandAttrs)
 {
     int32_t ret = FAIL;
     if (callback_ == nullptr) {
@@ -167,7 +158,8 @@ int32_t ExecutorCallbackStub::OnBeginExecute(uint64_t scheduleId, std::vector<ui
     return ret;
 }
 
-int32_t ExecutorCallbackStub::OnEndExecute(uint64_t scheduleId, std::shared_ptr<AuthAttributes> consumerAttr)
+int32_t ExecutorCallbackStub::OnEndExecute(uint64_t scheduleId,
+    std::shared_ptr<UserIam::UserAuth::Attributes> consumerAttr)
 {
     int32_t ret = FAIL;
     if (callback_ == nullptr) {
@@ -178,7 +170,7 @@ int32_t ExecutorCallbackStub::OnEndExecute(uint64_t scheduleId, std::shared_ptr<
     return ret;
 }
 
-int32_t ExecutorCallbackStub::OnSetProperty(std::shared_ptr<AuthAttributes> properties)
+int32_t ExecutorCallbackStub::OnSetProperty(std::shared_ptr<UserIam::UserAuth::Attributes> properties)
 {
     int32_t ret = FAIL;
     if (callback_ == nullptr) {
@@ -189,8 +181,8 @@ int32_t ExecutorCallbackStub::OnSetProperty(std::shared_ptr<AuthAttributes> prop
     return ret;
 }
 
-int32_t ExecutorCallbackStub::OnGetProperty(std::shared_ptr<AuthAttributes> conditions,
-    std::shared_ptr<AuthAttributes> values)
+int32_t ExecutorCallbackStub::OnGetProperty(std::shared_ptr<UserIam::UserAuth::Attributes> conditions,
+    std::shared_ptr<UserIam::UserAuth::Attributes> values)
 {
     int32_t ret = FAIL;
     if (callback_ == nullptr) {

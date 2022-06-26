@@ -52,7 +52,7 @@ void ExecutorCallbackProxy::OnMessengerReady(const sptr<IExecutorMessenger> &mes
 }
 
 int32_t ExecutorCallbackProxy::OnBeginExecute(uint64_t scheduleId, std::vector<uint8_t> &publicKey,
-    std::shared_ptr<AuthAttributes> commandAttrs)
+    std::shared_ptr<UserIam::UserAuth::Attributes> commandAttrs)
 {
     if (commandAttrs == nullptr) {
         COAUTH_HILOGE(MODULE_INNERKIT, "commandAttrs is nullptr");
@@ -73,11 +73,7 @@ int32_t ExecutorCallbackProxy::OnBeginExecute(uint64_t scheduleId, std::vector<u
         COAUTH_HILOGE(MODULE_INNERKIT, "write publicKey failed");
         return FAIL;
     }
-    std::vector<uint8_t> buffer;
-    if (commandAttrs->Pack(buffer) != SUCCESS) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "pack commandAttrs failed");
-        return FAIL;
-    }
+    std::vector<uint8_t> buffer = commandAttrs.Serialize();
     if (!data.WriteUInt8Vector(buffer)) {
         COAUTH_HILOGE(MODULE_INNERKIT, "write buffer failed");
         return FAIL;
@@ -97,7 +93,8 @@ int32_t ExecutorCallbackProxy::OnBeginExecute(uint64_t scheduleId, std::vector<u
     return result;
 }
 
-int32_t ExecutorCallbackProxy::OnEndExecute(uint64_t scheduleId, std::shared_ptr<AuthAttributes> consumerAttr)
+int32_t ExecutorCallbackProxy::OnEndExecute(uint64_t scheduleId,
+    std::shared_ptr<UserIam::UserAuth::Attributes> consumerAttr)
 {
     if (consumerAttr == nullptr) {
         COAUTH_HILOGE(MODULE_INNERKIT, "consumerAttr is null");
@@ -115,11 +112,7 @@ int32_t ExecutorCallbackProxy::OnEndExecute(uint64_t scheduleId, std::shared_ptr
         return FAIL;
     }
 
-    std::vector<uint8_t> buffer;
-    if (consumerAttr->Pack(buffer) != SUCCESS) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "pack consumerAttr failed");
-        return FAIL;
-    }
+    std::vector<uint8_t> buffer  = consumerAttr.Serialize();
     if (!data.WriteUInt8Vector(buffer)) {
         COAUTH_HILOGE(MODULE_INNERKIT, "write buffer failed");
         return FAIL;
@@ -139,7 +132,7 @@ int32_t ExecutorCallbackProxy::OnEndExecute(uint64_t scheduleId, std::shared_ptr
     return result;
 }
 
-int32_t ExecutorCallbackProxy::OnSetProperty(std::shared_ptr<AuthAttributes> properties)
+int32_t ExecutorCallbackProxy::OnSetProperty(std::shared_ptr<UserIam::UserAuth::Attributes> properties)
 {
     if (properties == nullptr) {
         COAUTH_HILOGE(MODULE_INNERKIT, "properties is null");
@@ -151,11 +144,7 @@ int32_t ExecutorCallbackProxy::OnSetProperty(std::shared_ptr<AuthAttributes> pro
         COAUTH_HILOGE(MODULE_INNERKIT, "write descriptor failed");
         return FAIL;
     }
-    std::vector<uint8_t> buffer;
-    if (properties->Pack(buffer)) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "pack properties failed");
-        return FAIL;
-    }
+    std::vector<uint8_t> buffer  =  properties.Serialize();
     if (!data.WriteUInt8Vector(buffer)) {
         COAUTH_HILOGE(MODULE_INNERKIT, "write buffer failed");
         return FAIL;
@@ -174,8 +163,8 @@ int32_t ExecutorCallbackProxy::OnSetProperty(std::shared_ptr<AuthAttributes> pro
     return result;
 }
 
-int32_t ExecutorCallbackProxy::OnGetProperty(std::shared_ptr<AuthAttributes> conditions,
-    std::shared_ptr<AuthAttributes> values)
+int32_t ExecutorCallbackProxy::OnGetProperty(std::shared_ptr<UserIam::UserAuth::Attributes> conditions,
+    std::shared_ptr<UserIam::UserAuth::Attributes> values)
 {
     if (conditions == nullptr || values == nullptr) {
         COAUTH_HILOGE(MODULE_INNERKIT, "param is null");
@@ -193,11 +182,7 @@ int32_t ExecutorCallbackProxy::OnGetProperty(std::shared_ptr<AuthAttributes> con
         return FAIL;
     }
 
-    std::vector<uint8_t> buffer;
-    if (conditions->Pack(buffer)) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "pack conditions failed");
-        return FAIL;
-    }
+    std::vector<uint8_t> buffer =  conditions.Serialize();
     if (!data.WriteUInt8Vector(buffer)) {
         COAUTH_HILOGE(MODULE_INNERKIT, "write buffer failed");
         return FAIL;

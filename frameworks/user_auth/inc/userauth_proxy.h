@@ -39,6 +39,9 @@ public:
     uint64_t AuthUser(const int32_t userId, const uint64_t challenge, const AuthType authType,
         const AuthTrustLevel authTrustLevel, sptr<IUserAuthCallback> &callback) override;
     int32_t CancelAuth(const uint64_t contextId) override;
+    uint64_t Identify(const uint64_t challenge, const AuthType authType,
+        sptr<IUserAuthCallback> &callback) override;
+    int32_t CancelIdentify(const uint64_t contextId) override;
     int32_t GetVersion() override;
 
 private:

@@ -66,9 +66,8 @@ int32_t ExecutorMessengerStub::FinishStub(MessageParcel& data, MessageParcel& re
     int32_t resultCode = data.ReadInt32();
 
     std::vector<uint8_t> buffer;
-    std::shared_ptr<AuthAttributes> finalResult = std::make_shared<AuthAttributes>();
     data.ReadUInt8Vector(&buffer);
-    finalResult->Unpack(buffer);
+    auto finalResult = std::make_shared<UserIam::UserAuth::Attributes>(buffer);
 
     int32_t ret = Finish(scheduleId, srcType, resultCode, finalResult);
     if (!reply.WriteInt32(ret)) {

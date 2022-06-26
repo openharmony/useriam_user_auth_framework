@@ -41,7 +41,6 @@ ohos_unittest("iam_services_test") {
     "//base/useriam/user_auth_framework/service_new/context/src/enroll_context.cpp",
     "//base/useriam/user_auth_framework/service_new/context/src/identify_context.cpp",
     "//base/useriam/user_auth_framework/service_new/context/src/simple_auth_context.cpp",
-    "//base/useriam/user_auth_framework/service_new/context/src/widget_auth_context.cpp",
     "//base/useriam/user_auth_framework/service_new/core/src/authentication_impl.cpp",
     "//base/useriam/user_auth_framework/service_new/core/src/credential_info_impl.cpp",
     "//base/useriam/user_auth_framework/service_new/core/src/enrolled_info_impl.cpp",
@@ -61,6 +60,7 @@ ohos_unittest("iam_services_test") {
     "//base/useriam/user_auth_framework/service_new/ipc/src/executor_callback_proxy.cpp",
     "//base/useriam/user_auth_framework/service_new/ipc/src/executor_messenger_service.cpp",
     "//base/useriam/user_auth_framework/service_new/ipc/src/executor_messenger_stub.cpp",
+    "//base/useriam/user_auth_framework/service_new/ipc/src/ipc_common.cpp",
     "//base/useriam/user_auth_framework/service_new/ipc/src/user_auth_callback_proxy.cpp",
     "//base/useriam/user_auth_framework/service_new/ipc/src/user_auth_service.cpp",
     "//base/useriam/user_auth_framework/service_new/ipc/src/user_auth_stub.cpp",
@@ -118,6 +118,5 @@ ohos_unittest("iam_services_test") {
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
-  part_name = "user_auth_framework"
-  module_out_path = "${part_name}/${target_name}"
+  module_out_path = "useriam/user_auth_framework"
 }

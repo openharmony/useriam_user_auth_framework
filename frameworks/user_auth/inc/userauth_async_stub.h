@@ -28,22 +28,26 @@ class UserAuthAsyncStub : public IRemoteStub<IUserAuthCallback> {
 public:
     DISALLOW_COPY_AND_MOVE(UserAuthAsyncStub);
     explicit UserAuthAsyncStub(std::shared_ptr<UserAuthCallback>& impl);
+    explicit UserAuthAsyncStub(std::shared_ptr<UserIdentifyCallback>& impl);
     explicit UserAuthAsyncStub(std::shared_ptr<SetPropCallback>& impl);
     explicit UserAuthAsyncStub(std::shared_ptr<GetPropCallback>& impl);
     ~UserAuthAsyncStub() override = default;
 
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
     void onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo) override;
-    void onResult(const int32_t result, const AuthResult &extraInfo) override;
+    void onAuthResult(const int32_t result, const AuthResult &extraInfo) override;
+    void onIdentifyResult(const int32_t result, const IdentifyResult &extraInfo) override;
     void onExecutorPropertyInfo(const ExecutorProperty &result) override;
     void onSetExecutorProperty(const int32_t result) override;
 
 private:
     int32_t onAcquireInfoStub(MessageParcel& data, MessageParcel& reply);
-    int32_t onResultStub(MessageParcel& data, MessageParcel& reply);
+    int32_t onAuthResultStub(MessageParcel& data, MessageParcel& reply);
+    int32_t onIdentifyResultStub(MessageParcel& data, MessageParcel& reply);
     int32_t onExecutorPropertyInfoStub(MessageParcel& data, MessageParcel& reply);
     int32_t onSetExecutorPropertyStub(MessageParcel& data, MessageParcel& reply);
     std::shared_ptr<UserAuthCallback> authCallback_ {nullptr};
+    std::shared_ptr<UserIdentifyCallback> identifyCallback_ {nullptr};
     std::shared_ptr<SetPropCallback> setPropCallback_ {nullptr};
     std::shared_ptr<GetPropCallback> getPropCallback_ {nullptr};
 };

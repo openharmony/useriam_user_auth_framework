@@ -31,7 +31,7 @@ inline void Pack(std::vector<uint8_t> &dst, const T &data)
 
 int32_t UnpackUint64(const std::vector<uint8_t> &src, size_t index, uint64_t &data);
 
-inline uint32_t CombineShortToInt(uint16_t upper, uint16_t lower)
+inline uint32_t CombineUint16ToUint32(uint16_t upper, uint16_t lower)
 {
     return (static_cast<uint32_t>(upper) << 16U) | lower;
 }

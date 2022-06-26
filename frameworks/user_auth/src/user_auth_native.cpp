@@ -257,6 +257,37 @@ int32_t UserAuthNative::CancelAuth(const uint64_t contextId)
     return proxy->CancelAuth(contextId);
 }
 
+uint64_t UserAuthNative::Identify(const uint64_t challenge, const AuthType authType,
+    std::shared_ptr<UserIdentifyCallback> callback)
+{
+    USERAUTH_HILOGD(MODULE_INNERKIT, "Identify start");
+    if (callback == nullptr) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "Identify callback is nullptr");
+        return INVALID_PARAMETERS;
+    }
+    auto proxy = GetProxy();
+    if (proxy == nullptr) {
+        return E_RET_NOSERVER;
+    }
+    sptr<IUserAuthCallback> asyncStub = new (std::nothrow) UserAuthAsyncStub(callback);
+    if (asyncStub == nullptr) {
+        USERAUTH_HILOGE(MODULE_INNERKIT, "Identify asyncStub is nullptr");
+        return GENERAL_ERROR;
+    }
+    return proxy->Identify(challenge, authType, asyncStub);
+}
+
+int32_t UserAuthNative::CancelIdentify(const uint64_t contextId)
+{
+    USERAUTH_HILOGD(MODULE_INNERKIT, "CancelIdentify start");
+    auto proxy = GetProxy();
+    if (proxy == nullptr) {
+        return E_RET_NOSERVER;
+    }
+
+    return proxy->CancelIdentify(contextId);
+}
+
 int32_t UserAuthNative::GetVersion()
 {
     USERAUTH_HILOGD(MODULE_INNERKIT, "GetVersion start");
