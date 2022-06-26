@@ -41,7 +41,9 @@ Executor::Executor(std::shared_ptr<ExecutorMgrWrapper> executorMgrWrapper,
     ExecutorInfo executorInfo = {};
     IF_FALSE_LOGE_AND_RETURN(hdi->GetExecutorInfo(executorInfo) == ResultCode::SUCCESS);
     std::ostringstream ss;
-    ss << "Executor(hdiId:" << hdiId_ << ", executorId:" << executorInfo.executorId << ")";
+    uint32_t combineExecutorId = Common::CombineUint16ToUint32(hdiId_, static_cast<uint16_t>(executorInfo.executorId));
+    const uint32_t uint32_hex_width = 8;
+    ss << "Executor(Id:0x" << std::setfill('0') << std::setw(uint32_hex_width) << std::hex << combineExecutorId << ")";
     description_ = ss.str();
 }
 
@@ -79,8 +81,8 @@ void Executor::OnFrameworkReady()
 void Executor::RegisterExecutorCallback(ExecutorInfo &executorInfo)
 {
     IAM_LOGI("%{public}s start", GetDescription());
-    auto combineResult = Common::CombineShortToInt(hdiId_, static_cast<uint16_t>(executorInfo.executorId));
-    executorInfo.executorId = static_cast<int32_t>(combineResult);
+    uint32_t combineExecutorId = Common::CombineUint16ToUint32(hdiId_, static_cast<uint16_t>(executorInfo.executorId));
+    executorInfo.executorId = static_cast<uint64_t>(combineExecutorId);
     if (executorCallback_ == nullptr) {
         std::lock_guard<std::mutex> lock(mutex_);
         if (executorCallback_ == nullptr) {
@@ -98,8 +100,8 @@ void Executor::RegisterExecutorCallback(ExecutorInfo &executorInfo)
 void Executor::AddCommand(std::shared_ptr<IAsyncCommand> command)
 {
     IAM_LOGI("%{public}s start", GetDescription());
-    std::lock_guard<std::mutex> lock(mutex_);
     IF_FALSE_LOGE_AND_RETURN(command != nullptr);
+    std::lock_guard<std::mutex> lock(mutex_);
     command2Respond_.insert(command);
 }
 
@@ -113,17 +115,22 @@ void Executor::RemoveCommand(std::shared_ptr<IAsyncCommand> command)
 void Executor::RespondCallbackOnDisconnect()
 {
     IAM_LOGI("%{public}s start", GetDescription());
-    std::lock_guard<std::mutex> lock(mutex_);
-    for (auto it = command2Respond_.begin(); it != command2Respond_.end();) {
-        auto cmdToProc = it;
-        ++it;
-        if (*cmdToProc == nullptr) {
-            IAM_LOGE("cmdToProc is null");
+    std::set<std::shared_ptr<IAsyncCommand>> command2NotifyOnHdiDisconnect;
+    {
+        // cmd->OnHdiDisconnect will invoke RemoveCommand thus modify command2Respond_, make a copy before call
+        // OnHdiDisconnect
+        std::lock_guard<std::mutex> lock(mutex_);
+        command2NotifyOnHdiDisconnect =
+            std::set<std::shared_ptr<IAsyncCommand>>(command2Respond_.begin(), command2Respond_.end());
+    }
+
+    for (const auto &cmd : command2NotifyOnHdiDisconnect) {
+        if (cmd == nullptr) {
+            IAM_LOGE("cmd is null");
             continue;
         }
-        (*cmdToProc)->OnHdiDisconnect();
+        cmd->OnHdiDisconnect();
     }
-    command2Respond_.clear();
     IAM_LOGI("success");
 }
 

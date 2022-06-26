@@ -42,6 +42,10 @@ void Driver::OnHdiConnect()
     IAM_LOGI("executorHdiList length is %{public}zu", executorHdiList.size());
     auto executorMgrWrapper = Common::MakeShared<ExecutorMgrWrapper>();
     for (const auto &executorHdi : executorHdiList) {
+        if (executorHdi == nullptr) {
+            IAM_LOGI("executorHdi is nullptr, skip");
+            continue;
+        }
         auto executor = Common::MakeShared<Executor>(executorMgrWrapper, executorHdi, hdiConfig_.id);
         if (executor == nullptr) {
             IAM_LOGE("make_shared failed");

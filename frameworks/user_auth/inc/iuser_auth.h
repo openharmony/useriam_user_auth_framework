@@ -36,7 +36,10 @@ public:
         USER_AUTH_ON_RESULT,
         USER_AUTH_GET_EX_PROP,
         USER_AUTH_SET_EX_PROP,
-        USER_AUTH_ACQUIRE_INFO
+        USER_AUTH_ACQUIRE_INFO,
+        USER_AUTH_IDENTIFY,
+        USER_AUTH_CANCEL_IDENTIFY,
+        USER_AUTH_ON_IDENTIFY_RESULT,
     };
 
     /*
@@ -108,6 +111,26 @@ public:
      * return returns a number value indicating whether Cancel authentication was successful.
      */
     virtual int32_t CancelAuth(const uint64_t contextId) = 0;
+
+    /*
+     * identification: pass in the challenge value,
+     * authentication method and callback.
+     *
+     * param challenge pass in challenge value.
+     * param authType authentication type.
+     * param callback return results and acquireinfo through callback.
+     * return returns context id.
+     */
+    virtual uint64_t Identify(const uint64_t challenge, const AuthType authType,
+        sptr<IUserAuthCallback> &callback) = 0;
+
+    /*
+     * cancel identification and pass in context id.
+     *
+     * param contextId identification context id.
+     * return returns a number value indicating whether Cancel identification was successful.
+     */
+    virtual int32_t CancelIdentify(const uint64_t contextId) = 0;
 
     /*
      * get version information.
