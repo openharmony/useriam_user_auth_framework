@@ -14,9 +14,13 @@
  */
 
 #include "query_callback_stub.h"
+
 #include <message_parcel.h>
-#include "coauth_hilog_wrapper.h"
+
 #include "co_auth_info_define.h"
+#include "iam_logger.h"
+
+#define LOG_LABEL Common::LABEL_AUTH_EXECUTOR_MGR_SDK
 
 namespace OHOS {
 namespace UserIAM {
@@ -32,7 +36,7 @@ int32_t QueryCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
     std::u16string descripter = QueryCallbackStub::GetDescriptor();
     std::u16string remoteDescripter = data.ReadInterfaceToken();
     if (descripter != remoteDescripter) {
-        COAUTH_HILOGD(MODULE_INNERKIT, "descriptor is not matched");
+        IAM_LOGD("descriptor is not matched");
         return FAIL;
     }
     switch (code) {
@@ -54,7 +58,7 @@ int32_t QueryCallbackStub::OnResultStub(MessageParcel& data, MessageParcel& repl
 void QueryCallbackStub::OnResult(uint32_t resultCode)
 {
     if (callback_ == nullptr) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "callback_ is null");
+        IAM_LOGE("callback_ is null");
     } else {
         callback_->OnResult(resultCode);
     }

@@ -14,8 +14,12 @@
  */
 
 #include "useridm_callback_stub.h"
+
 #include <message_parcel.h>
-#include "useridm_hilog_wrapper.h"
+
+#include "iam_logger.h"
+
+#define LOG_LABEL Common::LABEL_USER_IDM_SDK
 
 namespace OHOS {
 namespace UserIAM {
@@ -25,11 +29,11 @@ namespace UserAuthDomain = OHOS::UserIAM::UserAuth;
 int32_t UserIDMCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {
-    USERIDM_HILOGD(MODULE_CLIENT, "UserIDMCallbackStub::OnRemoteRequest, cmd = %u, flags= %d", code,
+    IAM_LOGD("UserIDMCallbackStub::OnRemoteRequest, cmd = %u, flags= %d", code,
         option.GetFlags());
     
     if (UserIDMCallbackStub::GetDescriptor() != data.ReadInterfaceToken()) {
-        USERIDM_HILOGE(MODULE_CLIENT, "UserIDMCallbackStub::OnRemoteRequest failed, descriptor is not matched!");
+        IAM_LOGE("UserIDMCallbackStub::OnRemoteRequest failed, descriptor is not matched!");
         return FAIL;
     }
     
@@ -45,7 +49,7 @@ int32_t UserIDMCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
 
 int32_t UserIDMCallbackStub::OnResultStub(MessageParcel& data, MessageParcel& reply)
 {
-    USERIDM_HILOGI(MODULE_CLIENT, "UserIDMCallbackStub OnResultStub start");
+    IAM_LOGI("UserIDMCallbackStub OnResultStub start");
     RequestResult reqRet;
     int32_t result = data.ReadInt32();
     reqRet.credentialId = data.ReadUint64();
@@ -55,7 +59,7 @@ int32_t UserIDMCallbackStub::OnResultStub(MessageParcel& data, MessageParcel& re
 
 int32_t UserIDMCallbackStub::OnAcquireInfoStub(MessageParcel& data, MessageParcel& reply)
 {
-    USERIDM_HILOGI(MODULE_CLIENT, "UserIDMCallbackStub OnAcquireInfoStub start");
+    IAM_LOGI("UserIDMCallbackStub OnAcquireInfoStub start");
     int32_t ret = SUCCESS;
     RequestResult reqRet;
     int32_t module = data.ReadInt32();
@@ -63,7 +67,7 @@ int32_t UserIDMCallbackStub::OnAcquireInfoStub(MessageParcel& data, MessageParce
     reqRet.credentialId = data.ReadUint64();
     OnAcquireInfo(module, acquire, reqRet);
     if (!reply.WriteInt32(ret)) {
-        USERIDM_HILOGE(MODULE_CLIENT, "failed to WriteInt32(ret)");
+        IAM_LOGE("failed to WriteInt32(ret)");
         ret = FAIL;
     }
     return ret;
@@ -71,7 +75,7 @@ int32_t UserIDMCallbackStub::OnAcquireInfoStub(MessageParcel& data, MessageParce
 
 void UserIDMCallbackStub::OnResult(int32_t result, RequestResult reqRet)
 {
-    USERIDM_HILOGD(MODULE_CLIENT, "UserIDMCallbackStub OnResult start");
+    IAM_LOGD("UserIDMCallbackStub OnResult start");
     if (callback_ != nullptr) {
         callback_->OnResult(result, reqRet);
         return;
@@ -82,12 +86,12 @@ void UserIDMCallbackStub::OnResult(int32_t result, RequestResult reqRet)
         idmCallback_->OnResult(result, para);
         return;
     }
-    USERIDM_HILOGE(MODULE_CLIENT, "callback_ is nullptr and idmCallback_ is nullptr");
+    IAM_LOGE("callback_ is nullptr and idmCallback_ is nullptr");
 }
 
 void UserIDMCallbackStub::OnAcquireInfo(int32_t module, int32_t acquire, RequestResult reqRet)
 {
-    USERIDM_HILOGD(MODULE_CLIENT, "UserIDMCallbackStub OnAcquireInfo start");
+    IAM_LOGD("UserIDMCallbackStub OnAcquireInfo start");
     if (callback_ != nullptr) {
         callback_->OnAcquireInfo(module, acquire, reqRet);
         return;
@@ -98,7 +102,7 @@ void UserIDMCallbackStub::OnAcquireInfo(int32_t module, int32_t acquire, Request
         idmCallback_->OnAcquireInfo(module, acquire, para);
         return;
     }
-    USERIDM_HILOGE(MODULE_CLIENT, "callback_ is nullptr and idmCallback_ is nullptr");
+    IAM_LOGE("callback_ is nullptr and idmCallback_ is nullptr");
 }
 }  // namespace UserIDM
 }  // namespace UserIAM

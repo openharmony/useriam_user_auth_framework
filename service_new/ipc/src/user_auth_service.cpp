@@ -272,13 +272,20 @@ int32_t UserAuthService::CancelAuthOrIdentify(uint64_t contextId)
 {
     IAM_LOGI("start");
     auto context = ContextPool::Instance().Select(contextId).lock();
-    if (context == nullptr || !context->Stop()) {
+    if (context == nullptr) {
+        IAM_LOGE("context not exist");
+        return FAIL;
+    }
+
+    if (!context->Stop()) {
         IAM_LOGE("failed to cancel auth or identify");
         return FAIL;
     }
+
+    // try to delete contextId to prevent duplicate cancel success
+    // it's possible that contextId is deleted before Stop() returns, so delete may fail
     if (!ContextPool::Instance().Delete(contextId)) {
-        IAM_LOGE("failed to delete context");
-        return FAIL;
+        IAM_LOGI("failed to delete context");
     }
     return SUCCESS;
 }
