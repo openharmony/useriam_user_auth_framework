@@ -23,7 +23,11 @@ config("userauth_framework_public_config") {
 }
 
 ohos_shared_library("userauth_framework") {
-  include_dirs = [ "inc" ]
+  include_dirs = [
+    "inc",
+    "//base/useriam/user_auth_framework/common/utils",
+    "//base/useriam/user_auth_framework/common/logs",
+  ]
 
   sources = [
     "src/user_auth.cpp",
@@ -52,6 +56,8 @@ ohos_shared_library("userauth_framework") {
   configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
 
   public_configs = [ ":userauth_framework_public_config" ]
+
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   part_name = "user_auth_framework"
 }

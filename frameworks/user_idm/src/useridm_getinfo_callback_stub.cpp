@@ -14,8 +14,12 @@
  */
 
 #include "useridm_getinfo_callback_stub.h"
+
 #include <message_parcel.h>
-#include "useridm_hilog_wrapper.h"
+
+#include "iam_logger.h"
+
+#define LOG_LABEL Common::LABEL_USER_IDM_SDK
 
 namespace OHOS {
 namespace UserIAM {
@@ -25,12 +29,11 @@ namespace UserAuthDomain = OHOS::UserIAM::UserAuth;
 int32_t UserIDMGetInfoCallbackStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    USERIDM_HILOGI(MODULE_CLIENT, "UserIDMGetInfoCallbackStub::OnRemoteRequest, cmd = %{public}u, flags= %d",
+    IAM_LOGI("UserIDMGetInfoCallbackStub::OnRemoteRequest, cmd = %{public}u, flags= %d",
         code, option.GetFlags());
 
     if (UserIDMGetInfoCallbackStub::GetDescriptor() != data.ReadInterfaceToken()) {
-        USERIDM_HILOGE(MODULE_CLIENT,
-            "UserIDMGetInfoCallbackStub::OnRemoteRequest failed, descriptor is not matched!");
+        IAM_LOGE("UserIDMGetInfoCallbackStub::OnRemoteRequest failed, descriptor is not matched!");
         return FAIL;
     }
 
@@ -44,37 +47,37 @@ int32_t UserIDMGetInfoCallbackStub::OnRemoteRequest(uint32_t code,
 
 int32_t UserIDMGetInfoCallbackStub::OnGetInfoStub(MessageParcel& data, MessageParcel& reply)
 {
-    USERIDM_HILOGI(MODULE_CLIENT, "UserIDMGetInfoCallbackStub OnGetInfoStub start");
+    IAM_LOGI("UserIDMGetInfoCallbackStub OnGetInfoStub start");
     uint32_t vectorSize = 0;
     std::vector<CredentialInfo> credInfos;
     if (!data.ReadUint32(vectorSize)) {
-        USERIDM_HILOGE(MODULE_CLIENT, "read size fail");
+        IAM_LOGE("read size fail");
         OnGetInfo(credInfos);
         return FAIL;
     }
     for (uint32_t i = 0; i < vectorSize; i++) {
         CredentialInfo info;
         if (!data.ReadUint64(info.credentialId)) {
-            USERIDM_HILOGE(MODULE_CLIENT, "read credential id fail");
+            IAM_LOGE("read credential id fail");
             OnGetInfo(credInfos);
             return FAIL;
         }
         uint32_t authType = 0;
         if (!data.ReadUint32(authType)) {
-            USERIDM_HILOGE(MODULE_CLIENT, "read type fail");
+            IAM_LOGE("read type fail");
             OnGetInfo(credInfos);
             return FAIL;
         }
         info.authType = static_cast<AuthType>(authType);
         uint64_t authSubType = 0;
         if (!data.ReadUint64(authSubType)) {
-            USERIDM_HILOGE(MODULE_CLIENT, "read subtype fail");
+            IAM_LOGE("read subtype fail");
             OnGetInfo(credInfos);
             return FAIL;
         }
         info.authSubType = static_cast<AuthSubType>(authSubType);
         if (!data.ReadUint64(info.templateId)) {
-            USERIDM_HILOGE(MODULE_CLIENT, "read template id fail");
+            IAM_LOGE("read template id fail");
             OnGetInfo(credInfos);
             return FAIL;
         }
@@ -82,7 +85,7 @@ int32_t UserIDMGetInfoCallbackStub::OnGetInfoStub(MessageParcel& data, MessagePa
     }
     OnGetInfo(credInfos);
     if (!reply.WriteInt32(SUCCESS)) {
-        USERIDM_HILOGE(MODULE_CLIENT, "write result fail");
+        IAM_LOGE("write result fail");
         return FAIL;
     }
     return SUCCESS;
@@ -90,11 +93,11 @@ int32_t UserIDMGetInfoCallbackStub::OnGetInfoStub(MessageParcel& data, MessagePa
 
 void UserIDMGetInfoCallbackStub::OnGetInfo(std::vector<CredentialInfo>& infos)
 {
-    USERIDM_HILOGI(MODULE_CLIENT, "UserIDMGetInfoCallbackStub OnGetInfo start");
+    IAM_LOGI("UserIDMGetInfoCallbackStub OnGetInfo start");
     if (infos.size() > 0) {
-        USERIDM_HILOGI(MODULE_CLIENT, "have data");
+        IAM_LOGI("have data");
     } else {
-        USERIDM_HILOGI(MODULE_CLIENT, "get no data");
+        IAM_LOGI("get no data");
     }
     
     if (callback_ != nullptr) {
@@ -114,7 +117,7 @@ void UserIDMGetInfoCallbackStub::OnGetInfo(std::vector<CredentialInfo>& infos)
         idmCallback_->OnGetInfo(credInfos);
         return;
     }
-    USERIDM_HILOGE(MODULE_CLIENT, "callback_ is nullptr and idmCallback_ is nullptr");
+    IAM_LOGE("callback_ is nullptr and idmCallback_ is nullptr");
 }
 }  // namespace UserIDM
 }  // namespace UserIAM

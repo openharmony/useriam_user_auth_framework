@@ -53,7 +53,6 @@ ResultCode EnrollCommand::SendRequest()
 void EnrollCommand::OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo)
 {
     IAM_LOGI("%{public}s on result start", GetDescription());
-
     std::vector<uint8_t> nonConstExtraInfo(extraInfo.begin(), extraInfo.end());
     auto authAttributes = Common::MakeShared<UserIam::UserAuth::Attributes>();
     IF_FALSE_LOGE_AND_RETURN(authAttributes != nullptr);

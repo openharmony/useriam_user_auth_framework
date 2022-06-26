@@ -15,6 +15,10 @@
 
 #include "auth_attributes.h"
 
+#include "iam_logger.h"
+
+#define LOG_LABEL Common::LABEL_AUTH_EXECUTOR_MGR_SDK
+
 namespace OHOS {
 namespace UserIAM {
 namespace AuthResPool {
@@ -131,7 +135,7 @@ int32_t AuthAttributes::SetUint32Value(AuthAttributeType attrType, uint32_t valu
     }
     uint32ValueMap_[attrType] = value;
     existAttributes_.push_back(attrType);
-    COAUTH_HILOGD(MODULE_INNERKIT, "SetUint32Value : %{public}u.", value);
+    IAM_LOGD("SetUint32Value : %{public}u.", value);
     return SUCCESS;
 }
 
@@ -187,26 +191,26 @@ void AuthAttributes::UnpackTag(AuthAttributeType &tag, std::vector<uint8_t> &buf
 bool AuthAttributes::CheckLengthPass(ValueType type, uint32_t currIndex, uint32_t dataLength, uint32_t bufferLength)
 {
     if (currIndex + dataLength > bufferLength) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "buffer read exceed buffer size");
+        IAM_LOGE("buffer read exceed buffer size");
         return false;
     }
 
     switch (type) {
         case BOOLTYPE:
             if (dataLength != sizeof(bool)) {
-                COAUTH_HILOGE(MODULE_INNERKIT, "data length mismatch(bool)");
+                IAM_LOGE("data length mismatch(bool)");
                 return false;
             }
             break;
         case UINT32TYPE:
             if (dataLength != sizeof(uint32_t)) {
-                COAUTH_HILOGE(MODULE_INNERKIT, "data length mismatch(uint32_t)");
+                IAM_LOGE("data length mismatch(uint32_t)");
                 return false;
             }
             break;
         case UINT64TYPE:
             if (dataLength != sizeof(uint64_t)) {
-                COAUTH_HILOGE(MODULE_INNERKIT, "data length mismatch(uint64_t)");
+                IAM_LOGE("data length mismatch(uint64_t)");
                 return false;
             }
             break;
@@ -261,7 +265,7 @@ AuthAttributes* AuthAttributes::Unpack(std::vector<uint8_t> &buffer)
         if (!CheckLengthPass(iter->second, authDataLength, dataLength, buffer.size())) {
             return nullptr;
         }
-        COAUTH_HILOGE(MODULE_INNERKIT, "buffer read %{public}d", tag);
+        IAM_LOGE("buffer read %{public}d", tag);
         switch (iter->second) {
             case BOOLTYPE:
                 SetBoolValue(tag, GetBoolFromUint8(buffer, authDataLength));
@@ -364,7 +368,7 @@ int32_t AuthAttributes::Pack(std::vector<uint8_t> &buffer)
         tag = authAttributesPosition_.find(existAttributes_[i])->first;
         writePointer = static_cast<uint8_t*>(static_cast<void *>(&tag));
         buffer.insert(buffer.end(), writePointer, writePointer + sizeof(AuthAttributeType));
-        COAUTH_HILOGD(MODULE_INNERKIT, "data Write tag : %{public}u.", tag);
+        IAM_LOGD("data Write tag : %{public}u.", tag);
         PackToBuffer(authAttributesPosition_.find(existAttributes_[i]), dataLength, writePointer, buffer);
     }
 

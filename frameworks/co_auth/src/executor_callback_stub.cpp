@@ -14,7 +14,13 @@
  */
 
 #include "executor_callback_stub.h"
+
+#include "iam_check.h"
+#include "iam_logger.h"
+#include "iam_ptr.h"
 #include "message_parcel.h"
+
+#define LOG_LABEL Common::LABEL_AUTH_EXECUTOR_MGR_SDK
 
 namespace OHOS {
 namespace UserIAM {
@@ -30,11 +36,11 @@ ExecutorCallbackStub::ExecutorCallbackStub(const std::shared_ptr<ExecutorCallbac
 int32_t ExecutorCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {
-    COAUTH_HILOGD(MODULE_INNERKIT, "ExecutorCallbackStub::OnRemoteRequest!");
+    IAM_LOGD("ExecutorCallbackStub::OnRemoteRequest!");
     std::u16string descripter = ExecutorCallbackStub::GetDescriptor();
     std::u16string remoteDescripter = data.ReadInterfaceToken();
     if (descripter != remoteDescripter) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "descriptor is not matched");
+        IAM_LOGE("descriptor is not matched");
         return FAIL;
     }
 
@@ -56,10 +62,10 @@ int32_t ExecutorCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data
 
 int32_t ExecutorCallbackStub::OnMessengerReadyStub(MessageParcel &data, MessageParcel &reply)
 {
-    COAUTH_HILOGD(MODULE_INNERKIT, "ExecutorCallbackStub::OnMessengerReadyStub");
+    IAM_LOGD("ExecutorCallbackStub::OnMessengerReadyStub");
     sptr<IExecutorMessenger> messenger = iface_cast<IExecutorMessenger>(data.ReadRemoteObject());
     if (messenger == nullptr) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "messenger is nullptr");
+        IAM_LOGE("messenger is nullptr");
         return FAIL;
     }
     std::vector<uint8_t> publicKey;
@@ -67,7 +73,7 @@ int32_t ExecutorCallbackStub::OnMessengerReadyStub(MessageParcel &data, MessageP
     std::vector<uint64_t> templateIds;
     data.ReadUInt64Vector(&templateIds);
     OnMessengerReady(messenger, publicKey, templateIds);
-    COAUTH_HILOGD(MODULE_INNERKIT, "OnMessengerReady GetRefPtr");
+    IAM_LOGD("OnMessengerReady GetRefPtr");
     return SUCCESS;
 }
 
@@ -77,10 +83,11 @@ int32_t ExecutorCallbackStub::OnBeginExecuteStub(MessageParcel &data, MessagePar
     std::vector<uint8_t> publicKey, buffer;
     data.ReadUInt8Vector(&publicKey);
     data.ReadUInt8Vector(&buffer);
-    auto commandAttrs = std::make_shared<UserIam::UserAuth::Attributes>(buffer);
+    auto commandAttrs = Common::MakeShared<UserIam::UserAuth::Attributes>(buffer);
+    IF_FALSE_LOGE_AND_RETURN_VAL(commandAttrs != nullptr, FAIL);
     int32_t ret = OnBeginExecute(scheduleId, publicKey, commandAttrs);
     if (!reply.WriteInt32(ret)) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "write ret failed");
+        IAM_LOGE("write ret failed");
         return FAIL;
     }
     return SUCCESS;
@@ -91,10 +98,11 @@ int32_t ExecutorCallbackStub::OnEndExecuteStub(MessageParcel &data, MessageParce
     uint64_t scheduleId = data.ReadUint64();
     std::vector<uint8_t> buffer;
     data.ReadUInt8Vector(&buffer);
-    auto consumerAttr = std::make_shared<UserIam::UserAuth::Attributes>(buffer);
+    auto consumerAttr = Common::MakeShared<UserIam::UserAuth::Attributes>(buffer);
+    IF_FALSE_LOGE_AND_RETURN_VAL(consumerAttr != nullptr, FAIL);
     int32_t ret = OnEndExecute(scheduleId, consumerAttr);
     if (!reply.WriteInt32(ret)) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "write ret failed");
+        IAM_LOGE("write ret failed");
         return FAIL;
     }
     return SUCCESS;
@@ -104,18 +112,19 @@ int32_t ExecutorCallbackStub::OnGetPropertyStub(MessageParcel &data, MessageParc
 {
     std::vector<uint8_t> buffer;
     data.ReadUInt8Vector(&buffer);
-    auto conditions = std::make_shared<UserIam::UserAuth::Attributes>(buffer);
-
-    std::shared_ptr<UserIam::UserAuth::Attributes> values = std::make_shared<UserIam::UserAuth::Attributes>();
+    auto conditions = Common::MakeShared<UserIam::UserAuth::Attributes>(buffer);
+    IF_FALSE_LOGE_AND_RETURN_VAL(conditions != nullptr, FAIL);
+    auto values = Common::MakeShared<UserIam::UserAuth::Attributes>();
+    IF_FALSE_LOGE_AND_RETURN_VAL(values != nullptr, FAIL);
     int32_t ret = OnGetProperty(conditions, values);
     if (!reply.WriteInt32(ret)) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "write ret failed");
+        IAM_LOGE("write ret failed");
         return FAIL;
     }
 
     std::vector<uint8_t> replyBuffer = values->Serialize();
     if (!reply.WriteUInt8Vector(replyBuffer)) {
-        COAUTH_HILOGE(MODULE_SERVICE, "write replyBuffer failed");
+        IAM_LOGE("write replyBuffer failed");
         return FAIL;
     }
     return SUCCESS;
@@ -125,11 +134,11 @@ int32_t ExecutorCallbackStub::OnSetPropertyStub(MessageParcel &data, MessageParc
 {
     std::vector<uint8_t> buffer;
     data.ReadUInt8Vector(&buffer);
-    auto properties = std::make_shared<UserIam::UserAuth::Attributes>(buffer);
-
+    auto properties = Common::MakeShared<UserIam::UserAuth::Attributes>(buffer);
+    IF_FALSE_LOGE_AND_RETURN_VAL(properties != nullptr, FAIL);
     int32_t ret = OnSetProperty(properties);
     if (!reply.WriteInt32(ret)) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "write ret failed");
+        IAM_LOGE("write ret failed");
         return FAIL;
     }
     return SUCCESS;

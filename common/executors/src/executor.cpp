@@ -42,8 +42,8 @@ Executor::Executor(std::shared_ptr<ExecutorMgrWrapper> executorMgrWrapper,
     IF_FALSE_LOGE_AND_RETURN(hdi->GetExecutorInfo(executorInfo) == ResultCode::SUCCESS);
     std::ostringstream ss;
     uint32_t combineExecutorId = Common::CombineUint16ToUint32(hdiId_, static_cast<uint16_t>(executorInfo.executorId));
-    const uint32_t uint32_hex_width = 8;
-    ss << "Executor(Id:0x" << std::setfill('0') << std::setw(uint32_hex_width) << std::hex << combineExecutorId << ")";
+    const uint32_t uint32HexWidth = 8;
+    ss << "Executor(Id:0x" << std::setfill('0') << std::setw(uint32HexWidth) << std::hex << combineExecutorId << ")";
     description_ = ss.str();
 }
 
