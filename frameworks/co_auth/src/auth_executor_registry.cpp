@@ -14,11 +14,17 @@
  */
 
 #include "auth_executor_registry.h"
+
 #include <if_system_ability_manager.h>
 #include <iservice_registry.h>
 #include <system_ability_definition.h>
+
+#include "iam_check.h"
+#include "iam_logger.h"
 #include "query_callback_stub.h"
 #include "executor_callback_stub.h"
+
+#define LOG_LABEL Common::LABEL_AUTH_EXECUTOR_MGR_SDK
 
 namespace OHOS {
 namespace UserIAM {
@@ -32,23 +38,24 @@ sptr<CoAuth::ICoAuth> AuthExecutorRegistry::GetProxy()
 
     sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (sam == nullptr) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "get system ability manager failed");
+        IAM_LOGE("get system ability manager failed");
         return nullptr;
     }
     sptr<IRemoteObject> obj = sam->CheckSystemAbility(SUBSYS_USERIAM_SYS_ABILITY_AUTHEXECUTORMGR);
     if (obj == nullptr) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "get coauth service failed");
+        IAM_LOGE("get coauth service failed");
         return nullptr;
     }
-    sptr<IRemoteObject::DeathRecipient> dr = new AuthExecutorRegistryDeathRecipient();
+    sptr<IRemoteObject::DeathRecipient> dr = new (std::nothrow) AuthExecutorRegistryDeathRecipient();
+    IF_FALSE_LOGE_AND_RETURN_VAL(dr != nullptr, nullptr);
     if ((obj->IsProxyObject()) && (!obj->AddDeathRecipient(dr))) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "add death recipient failed");
+        IAM_LOGE("add death recipient failed");
         return nullptr;
     }
 
     proxy_ = iface_cast<CoAuth::ICoAuth>(obj);
     deathRecipient_ = dr;
-    COAUTH_HILOGI(MODULE_INNERKIT, "connect coauth service success");
+    IAM_LOGI("connect coauth service success");
     return proxy_;
 }
 
@@ -68,45 +75,47 @@ void AuthExecutorRegistry::ResetProxy(const wptr<IRemoteObject>& remote)
 uint64_t AuthExecutorRegistry::Register(std::shared_ptr<AuthExecutor> executorInfo,
     std::shared_ptr<ExecutorCallback> callback)
 {
-    COAUTH_HILOGD(MODULE_INNERKIT, "Register start");
+    IAM_LOGD("Register start");
     if (executorInfo == nullptr || callback == nullptr) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "executorInfo or callback is nullptr");
+        IAM_LOGE("executorInfo or callback is nullptr");
         return FAIL;
     }
     auto proxy = GetProxy();
     if (proxy == nullptr) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "proxy is nullptr");
+        IAM_LOGE("proxy is nullptr");
         return FAIL;
     }
-    sptr<IExecutorCallback> iExecutorCallback = new ExecutorCallbackStub(callback);
+    sptr<IExecutorCallback> iExecutorCallback = new (std::nothrow) ExecutorCallbackStub(callback);
+    IF_FALSE_LOGE_AND_RETURN_VAL(iExecutorCallback != nullptr, FAIL);
     return proxy->Register(executorInfo, iExecutorCallback);
 }
 
 void AuthExecutorRegistry::QueryStatus(AuthExecutor &executorInfo, std::shared_ptr<QueryCallback> callback)
 {
-    COAUTH_HILOGD(MODULE_INNERKIT, "QueryStatus start");
+    IAM_LOGD("QueryStatus start");
     if (callback == nullptr) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "callback is nullptr");
+        IAM_LOGE("callback is nullptr");
         return;
     }
     auto proxy = GetProxy();
     if (proxy == nullptr) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "proxy is nullptr");
+        IAM_LOGE("proxy is nullptr");
         return;
     }
-    sptr<IQueryCallback> iQueryCallback = new QueryCallbackStub(callback);
+    sptr<IQueryCallback> iQueryCallback = new (std::nothrow) QueryCallbackStub(callback);
+    IF_FALSE_LOGE_AND_RETURN(iQueryCallback != nullptr);
     return proxy->QueryStatus(executorInfo, iQueryCallback);
 }
 
 void AuthExecutorRegistry::AuthExecutorRegistryDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
 {
     if (remote == nullptr) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "remote is nullptr");
+        IAM_LOGE("remote is nullptr");
         return;
     }
 
     AuthExecutorRegistry::GetInstance().ResetProxy(remote);
-    COAUTH_HILOGE(MODULE_INNERKIT, "AuthExecutorRegistryDeathRecipient::Recv death notice");
+    IAM_LOGE("AuthExecutorRegistryDeathRecipient::Recv death notice");
 }
 } // namespace AuthResPool
 } // namespace UserIAM

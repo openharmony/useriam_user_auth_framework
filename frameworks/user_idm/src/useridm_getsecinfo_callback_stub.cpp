@@ -14,8 +14,12 @@
  */
 
 #include "useridm_getsecinfo_callback_stub.h"
+
 #include <message_parcel.h>
-#include "useridm_hilog_wrapper.h"
+
+#include "iam_logger.h"
+
+#define LOG_LABEL Common::LABEL_USER_IDM_SDK
 
 namespace OHOS {
 namespace UserIAM {
@@ -25,12 +29,11 @@ namespace UserAuthDomain = OHOS::UserIAM::UserAuth;
 int32_t UserIDMGetSecInfoCallbackStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    USERIDM_HILOGI(MODULE_CLIENT,
-        "UserIDMGetSecInfoCallbackStub::OnRemoteRequest, code:%{public}u, flags:%{public}d", code, option.GetFlags());
+    IAM_LOGI("UserIDMGetSecInfoCallbackStub::OnRemoteRequest, code:%{public}u, flags:%{public}d",
+        code, option.GetFlags());
 
     if (UserIDMGetSecInfoCallbackStub::GetDescriptor() != data.ReadInterfaceToken()) {
-        USERIDM_HILOGE(MODULE_CLIENT,
-            "UserIDMGetSecInfoCallbackStub::OnRemoteRequest failed, descriptor is not matched!");
+        IAM_LOGE("UserIDMGetSecInfoCallbackStub::OnRemoteRequest failed, descriptor is not matched!");
         return FAIL;
     }
 
@@ -44,14 +47,14 @@ int32_t UserIDMGetSecInfoCallbackStub::OnRemoteRequest(uint32_t code,
 
 int32_t UserIDMGetSecInfoCallbackStub::OnGetSecInfoStub(MessageParcel& data, MessageParcel& reply)
 {
-    USERIDM_HILOGI(MODULE_CLIENT, "UserIDMGetSecInfoCallbackStub OnGetSecInfoStub start");
+    IAM_LOGI("UserIDMGetSecInfoCallbackStub OnGetSecInfoStub start");
     int32_t ret = SUCCESS;
     SecInfo info = {};
     info.secureUid = data.ReadUint64();
     info.enrolledInfoLen = data.ReadUint32();
     this->OnGetSecInfo(info);
     if (!reply.WriteInt32(ret)) {
-        USERIDM_HILOGE(MODULE_CLIENT, "failed to WriteInt32(ret)");
+        IAM_LOGE("failed to WriteInt32(ret)");
         ret = FAIL;
     }
     return ret;
@@ -59,7 +62,7 @@ int32_t UserIDMGetSecInfoCallbackStub::OnGetSecInfoStub(MessageParcel& data, Mes
 
 void UserIDMGetSecInfoCallbackStub::OnGetSecInfo(SecInfo &info)
 {
-    USERIDM_HILOGI(MODULE_CLIENT, "UserIDMGetSecInfoCallbackStub OnGetSecInfo start");
+    IAM_LOGI("UserIDMGetSecInfoCallbackStub OnGetSecInfo start");
     if (callback_ != nullptr) {
         callback_->OnGetSecInfo(info);
         return;
@@ -79,7 +82,7 @@ void UserIDMGetSecInfoCallbackStub::OnGetSecInfo(SecInfo &info)
         idmCallback_->OnGetSecInfo(secInfo);
         return;
     }
-    USERIDM_HILOGE(MODULE_CLIENT, "callback_ is nullptr and idmCallback_ is nullptr");
+    IAM_LOGE("callback_ is nullptr and idmCallback_ is nullptr");
 }
 }  // namespace UserIDM
 }  // namespace UserIAM

@@ -55,11 +55,6 @@ std::shared_ptr<SecureUserInfo> UserIdmDatabaseImpl::GetSecUserInfo(int32_t user
         return nullptr;
     }
 
-    if (enrolledInfo.empty()) {
-        IAM_LOGE("bad enrolledInfo, enrolledInfo size is 0");
-        return nullptr;
-    }
-
     std::vector<std::shared_ptr<EnrolledInfo>> infoRet = {};
     infoRet.reserve(enrolledInfo.size());
 

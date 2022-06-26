@@ -27,6 +27,7 @@
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
 
+using namespace OHOS::UserIAM::Common;
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
@@ -38,7 +39,7 @@ ScheduleNodeImpl::ScheduleNodeImpl(ScheduleInfo &info) : info_(std::move(info))
         machine_->SetThreadHandler(info_.threadHandler);
     }
     if (info_.parameters == nullptr) {
-        info_.parameters = UserIAM::Common::MakeShared<Attributes>();
+        info_.parameters = MakeShared<Attributes>();
     }
 
     if (info_.parameters == nullptr) {

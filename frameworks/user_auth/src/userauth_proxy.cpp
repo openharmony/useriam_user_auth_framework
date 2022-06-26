@@ -14,9 +14,13 @@
  */
 
 #include "userauth_proxy.h"
+
 #include <cinttypes>
 #include <message_parcel.h>
-#include "userauth_hilog_wrapper.h"
+
+#include "iam_logger.h"
+
+#define LOG_LABEL Common::LABEL_USER_AUTH_SDK
 
 namespace OHOS {
 namespace UserIAM {
@@ -27,31 +31,31 @@ UserAuthProxy::UserAuthProxy(const sptr<IRemoteObject> &object) : IRemoteProxy<I
 
 int32_t UserAuthProxy::GetAvailableStatus(const AuthType authType, const AuthTrustLevel authTrustLevel)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy GetAvailableStatus start");
+    IAM_LOGD("UserAuthProxy GetAvailableStatus start");
     int32_t result = SUCCESS;
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
 
     if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "write descriptor failed");
+        IAM_LOGE("write descriptor failed");
         return GENERAL_ERROR;
     }
     if (!data.WriteUint32(static_cast<uint32_t>(authType))) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write authType");
+        IAM_LOGE("failed to write authType");
         return GENERAL_ERROR;
     }
     if (!data.WriteUint32(static_cast<uint32_t>(authTrustLevel))) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write authTrustLevel");
+        IAM_LOGE("failed to write authTrustLevel");
         return GENERAL_ERROR;
     }
     bool ret = SendRequest(static_cast<int32_t>(IUserAuth::USER_AUTH_GET_AVAILABLE_STATUS), data, reply, option);
     if (!ret) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "SendRequest failed");
+        IAM_LOGE("SendRequest failed");
         return GENERAL_ERROR;
     }
     if (!reply.ReadInt32(result)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to read result");
+        IAM_LOGE("failed to read result");
         return GENERAL_ERROR;
     }
 
@@ -60,30 +64,30 @@ int32_t UserAuthProxy::GetAvailableStatus(const AuthType authType, const AuthTru
 
 void UserAuthProxy::GetProperty(const GetPropertyRequest request, sptr<IUserAuthCallback> &callback)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy GetProperty start");
+    IAM_LOGD("UserAuthProxy GetProperty start");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
 
     if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "write descriptor failed!");
+        IAM_LOGE("write descriptor failed!");
         return;
     }
     if (!data.WriteUint32(static_cast<uint32_t>(request.authType))) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write request.authType");
+        IAM_LOGE("failed to write request.authType");
         return;
     }
     if (!data.WriteUInt32Vector(request.keys)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write request.keys");
+        IAM_LOGE("failed to write request.keys");
         return;
     }
     if (!data.WriteRemoteObject(callback->AsObject())) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write callback");
+        IAM_LOGE("failed to write callback");
         return;
     }
     bool ret = SendRequest(static_cast<int32_t>(IUserAuth::USER_AUTH_GET_PROPERTY), data, reply, option);
     if (!ret) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "SendRequest failed");
+        IAM_LOGE("SendRequest failed");
         ExecutorProperty result = {};
         result.result = IPC_ERROR;
         callback->onExecutorPropertyInfo(result);
@@ -93,34 +97,34 @@ void UserAuthProxy::GetProperty(const GetPropertyRequest request, sptr<IUserAuth
 void UserAuthProxy::GetProperty(const int32_t userId, const GetPropertyRequest request,
     sptr<IUserAuthCallback> &callback)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy GetProperty start");
+    IAM_LOGD("UserAuthProxy GetProperty start");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
 
     if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "write descriptor failed!");
+        IAM_LOGE("write descriptor failed!");
         return;
     }
     if (!data.WriteInt32(userId)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write userId");
+        IAM_LOGE("failed to write userId");
         return;
     }
     if (!data.WriteUint32(static_cast<uint32_t>(request.authType))) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write request.authType");
+        IAM_LOGE("failed to write request.authType");
         return;
     }
     if (!data.WriteUInt32Vector(request.keys)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write request.keys");
+        IAM_LOGE("failed to write request.keys");
         return;
     }
     if (!data.WriteRemoteObject(callback->AsObject())) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write callback");
+        IAM_LOGE("failed to write callback");
         return;
     }
     bool ret = SendRequest(static_cast<int32_t>(IUserAuth::USER_AUTH_GET_PROPERTY_BY_ID), data, reply, option);
     if (!ret) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "SendRequest failed");
+        IAM_LOGE("SendRequest failed");
         ExecutorProperty result = {};
         result.result = IPC_ERROR;
         callback->onExecutorPropertyInfo(result);
@@ -129,36 +133,36 @@ void UserAuthProxy::GetProperty(const int32_t userId, const GetPropertyRequest r
 
 void UserAuthProxy::SetProperty(const SetPropertyRequest request, sptr<IUserAuthCallback> &callback)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy SetProperty start");
+    IAM_LOGD("UserAuthProxy SetProperty start");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
 
     if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "write descriptor failed");
+        IAM_LOGE("write descriptor failed");
         return;
     }
     if (!data.WriteUint32(static_cast<uint32_t>(request.authType))) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write request.authType");
+        IAM_LOGE("failed to write request.authType");
         return;
     }
     if (!data.WriteUint32(static_cast<uint32_t>(request.key))) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write request.key");
+        IAM_LOGE("failed to write request.key");
         return;
     }
     if (!data.WriteUInt8Vector(request.setInfo)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write request.setInfo");
+        IAM_LOGE("failed to write request.setInfo");
         return;
     }
     if (!data.WriteRemoteObject(callback->AsObject())) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write callback");
+        IAM_LOGE("failed to write callback");
         return;
     }
     bool ret = SendRequest(IUserAuth::USER_AUTH_SET_PROPERTY, data, reply, option);
     if (!ret) {
         int32_t result = IPC_ERROR;
         callback->onSetExecutorProperty(result);
-        USERAUTH_HILOGE(MODULE_INNERKIT, "SendRequest failed");
+        IAM_LOGE("SendRequest failed");
         return;
     }
 }
@@ -166,7 +170,7 @@ void UserAuthProxy::SetProperty(const SetPropertyRequest request, sptr<IUserAuth
 uint64_t UserAuthProxy::Auth(const uint64_t challenge, const AuthType authType, const AuthTrustLevel authTrustLevel,
     sptr<IUserAuthCallback> &callback)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy Auth start");
+    IAM_LOGD("UserAuthProxy Auth start");
     const uint64_t invalidContextID = 0;
     uint64_t result = invalidContextID;
     MessageParcel data;
@@ -174,33 +178,33 @@ uint64_t UserAuthProxy::Auth(const uint64_t challenge, const AuthType authType, 
     MessageOption option(MessageOption::TF_SYNC);
 
     if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "write descriptor failed");
+        IAM_LOGE("write descriptor failed");
         return invalidContextID;
     }
-    USERAUTH_HILOGE(MODULE_SERVICE, "UserAuthProxy::Auth challenge = %{public}04" PRIx64 "", challenge);
+    IAM_LOGE("UserAuthProxy::Auth challenge = %{public}04" PRIx64 "", challenge);
     if (!data.WriteUint64(challenge)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write challenge");
+        IAM_LOGE("failed to write challenge");
         return invalidContextID;
     }
     if (!data.WriteUint32(static_cast<uint32_t>(authType))) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write authType");
+        IAM_LOGE("failed to write authType");
         return invalidContextID;
     }
     if (!data.WriteUint32(static_cast<uint32_t>(authTrustLevel))) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write authTrustLevel");
+        IAM_LOGE("failed to write authTrustLevel");
         return invalidContextID;
     }
     if (!data.WriteRemoteObject(callback->AsObject())) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write callback");
+        IAM_LOGE("failed to write callback");
         return invalidContextID;
     }
     bool ret = SendRequest(IUserAuth::USER_AUTH_AUTH, data, reply, option);
     if (!ret) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "SendRequest failed");
+        IAM_LOGE("SendRequest failed");
         return invalidContextID;
     }
     if (!reply.ReadUint64(result)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to read result");
+        IAM_LOGE("failed to read result");
     }
 
     return result;
@@ -209,7 +213,7 @@ uint64_t UserAuthProxy::Auth(const uint64_t challenge, const AuthType authType, 
 uint64_t UserAuthProxy::AuthUser(const int32_t userId, const uint64_t challenge, const AuthType authType,
     const AuthTrustLevel authTrustLevel, sptr<IUserAuthCallback> &callback)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy AuthUser start");
+    IAM_LOGD("UserAuthProxy AuthUser start");
     const uint64_t invalidContextID = 0;
     uint64_t result = invalidContextID;
     MessageParcel data;
@@ -217,36 +221,36 @@ uint64_t UserAuthProxy::AuthUser(const int32_t userId, const uint64_t challenge,
     MessageOption option(MessageOption::TF_SYNC);
 
     if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "write descriptor failed");
+        IAM_LOGE("write descriptor failed");
         return invalidContextID;
     }
     if (!data.WriteInt32(userId)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write userId");
+        IAM_LOGE("failed to write userId");
         return invalidContextID;
     }
     if (!data.WriteUint64(challenge)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write challenge");
+        IAM_LOGE("failed to write challenge");
         return invalidContextID;
     }
     if (!data.WriteUint32(static_cast<uint32_t>(authType))) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write authType");
+        IAM_LOGE("failed to write authType");
         return invalidContextID;
     }
     if (!data.WriteUint32(static_cast<uint32_t>(authTrustLevel))) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write authTrustLevel");
+        IAM_LOGE("failed to write authTrustLevel");
         return invalidContextID;
     }
     if (!data.WriteRemoteObject(callback->AsObject())) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write callback");
+        IAM_LOGE("failed to write callback");
         return invalidContextID;
     }
     bool ret = SendRequest(IUserAuth::USER_AUTH_AUTH_USER, data, reply, option);
     if (!ret) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "SendRequest failed");
+        IAM_LOGE("SendRequest failed");
         return invalidContextID;
     }
     if (!reply.ReadUint64(result)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to read result");
+        IAM_LOGE("failed to read result");
     }
 
     return result;
@@ -254,27 +258,27 @@ uint64_t UserAuthProxy::AuthUser(const int32_t userId, const uint64_t challenge,
 
 int32_t UserAuthProxy::CancelAuth(const uint64_t contextId)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy CancelAuth start");
+    IAM_LOGD("UserAuthProxy CancelAuth start");
     int32_t result = GENERAL_ERROR;
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
 
     if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "write descriptor failed");
+        IAM_LOGE("write descriptor failed");
         return E_WRITE_PARCEL_ERROR;
     }
     if (!data.WriteUint64(contextId)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write contextId");
+        IAM_LOGE("failed to write contextId");
         return E_WRITE_PARCEL_ERROR;
     }
     bool ret = SendRequest(IUserAuth::USER_AUTH_CANCEL_AUTH, data, reply, option);
     if (!ret) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "SendRequest failed");
+        IAM_LOGE("SendRequest failed");
         return IPC_ERROR;
     }
     if (!reply.ReadInt32(result)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to read result");
+        IAM_LOGE("failed to read result");
     }
 
     return result;
@@ -283,7 +287,7 @@ int32_t UserAuthProxy::CancelAuth(const uint64_t contextId)
 uint64_t UserAuthProxy::Identify(const uint64_t challenge, const AuthType authType,
     sptr<IUserAuthCallback> &callback)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy Identify start");
+    IAM_LOGD("UserAuthProxy Identify start");
     const uint64_t invalidContextID = 0;
     uint64_t result = invalidContextID;
     MessageParcel data;
@@ -291,28 +295,28 @@ uint64_t UserAuthProxy::Identify(const uint64_t challenge, const AuthType authTy
     MessageOption option(MessageOption::TF_SYNC);
 
     if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "write descriptor failed");
+        IAM_LOGE("write descriptor failed");
         return invalidContextID;
     }
     if (!data.WriteUint64(challenge)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write challenge");
+        IAM_LOGE("failed to write challenge");
         return invalidContextID;
     }
     if (!data.WriteUint32(static_cast<uint32_t>(authType))) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write authType");
+        IAM_LOGE("failed to write authType");
         return invalidContextID;
     }
     if (!data.WriteRemoteObject(callback->AsObject())) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write callback");
+        IAM_LOGE("failed to write callback");
         return invalidContextID;
     }
     bool ret = SendRequest(IUserAuth::USER_AUTH_IDENTIFY, data, reply, option);
     if (!ret) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "SendRequest failed");
+        IAM_LOGE("SendRequest failed");
         return invalidContextID;
     }
     if (!reply.ReadUint64(result)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to read result");
+        IAM_LOGE("failed to read result");
     }
 
     return result;
@@ -320,27 +324,27 @@ uint64_t UserAuthProxy::Identify(const uint64_t challenge, const AuthType authTy
 
 int32_t UserAuthProxy::CancelIdentify(const uint64_t contextId)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy CancelIdentify start");
+    IAM_LOGD("UserAuthProxy CancelIdentify start");
     int32_t result = GENERAL_ERROR;
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
 
     if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "write descriptor failed");
+        IAM_LOGE("write descriptor failed");
         return E_WRITE_PARCEL_ERROR;
     }
     if (!data.WriteUint64(contextId)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write contextId");
+        IAM_LOGE("failed to write contextId");
         return E_WRITE_PARCEL_ERROR;
     }
     bool ret = SendRequest(IUserAuth::USER_AUTH_CANCEL_IDENTIFY, data, reply, option);
     if (!ret) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "SendRequest failed");
+        IAM_LOGE("SendRequest failed");
         return IPC_ERROR;
     }
     if (!reply.ReadInt32(result)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to read result");
+        IAM_LOGE("failed to read result");
     }
 
     return result;
@@ -348,24 +352,24 @@ int32_t UserAuthProxy::CancelIdentify(const uint64_t contextId)
 
 int32_t UserAuthProxy::GetVersion()
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy GetVersion start");
+    IAM_LOGD("UserAuthProxy GetVersion start");
     int32_t result = GENERAL_ERROR;
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
 
     if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "write descriptor failed");
+        IAM_LOGE("write descriptor failed");
         return result;
     }
 
     bool ret = SendRequest(IUserAuth::USER_AUTH_GET_VERSION, data, reply, option);
     if (!ret) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "SendRequest failed");
+        IAM_LOGE("SendRequest failed");
         return IPC_ERROR;
     }
     if (!reply.ReadInt32(result)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to read result");
+        IAM_LOGE("failed to read result");
     }
 
     return result;
@@ -373,7 +377,7 @@ int32_t UserAuthProxy::GetVersion()
 
 bool UserAuthProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption option)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthProxy SendRequest start");
+    IAM_LOGD("UserAuthProxy SendRequest start");
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         return false;
@@ -381,7 +385,7 @@ bool UserAuthProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParce
 
     int32_t result = remote->SendRequest(code, data, reply, option);
     if (result != OHOS::UserIAM::UserAuth::SUCCESS) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "UserAuthProxy SendRequest failed");
+        IAM_LOGE("UserAuthProxy SendRequest failed");
         return false;
     }
     return true;

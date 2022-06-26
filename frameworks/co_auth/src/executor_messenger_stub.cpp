@@ -15,6 +15,12 @@
 
 #include "executor_messenger_stub.h"
 
+#include "iam_check.h"
+#include "iam_logger.h"
+#include "iam_ptr.h"
+
+#define LOG_LABEL Common::LABEL_AUTH_EXECUTOR_MGR_SDK
+
 namespace OHOS {
 namespace UserIAM {
 namespace AuthResPool {
@@ -24,11 +30,11 @@ const std::string PERMISSION_ACCESS_COAUTH = "ohos.permission.ACCESS_COAUTH";
 int32_t ExecutorMessengerStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {
-    COAUTH_HILOGD(MODULE_SERVICE, "cmd = %{public}u, flags= %{public}d", code, option.GetFlags());
+    IAM_LOGD(option.GetFlags());
     std::u16string descripter = ExecutorMessengerStub::GetDescriptor();
     std::u16string remoteDescripter = data.ReadInterfaceToken();
     if (descripter != remoteDescripter) {
-        COAUTH_HILOGE(MODULE_SERVICE, "descriptor is not matched");
+        IAM_LOGE("descriptor is not matched");
         return FAIL;
     }
 
@@ -50,10 +56,11 @@ int32_t ExecutorMessengerStub::SendDataStub(MessageParcel& data, MessageParcel& 
     int32_t dstType = data.ReadInt32();
     std::vector<uint8_t> buffer;
     data.ReadUInt8Vector(&buffer);
-    std::shared_ptr<AuthMessage> msg = std::make_shared<AuthMessage>(buffer);
+    auto msg = Common::MakeShared<AuthMessage>(buffer);
+    IF_FALSE_LOGE_AND_RETURN_VAL(msg != nullptr, FAIL);
     int32_t ret = SendData(scheduleId, transNum, srcType, dstType, msg); // Call business function
     if (!reply.WriteInt32(ret)) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "write ret failed");
+        IAM_LOGE("write ret failed");
         return FAIL;
     }
     return SUCCESS;
@@ -67,11 +74,11 @@ int32_t ExecutorMessengerStub::FinishStub(MessageParcel& data, MessageParcel& re
 
     std::vector<uint8_t> buffer;
     data.ReadUInt8Vector(&buffer);
-    auto finalResult = std::make_shared<UserIam::UserAuth::Attributes>(buffer);
-
+    auto finalResult = Common::MakeShared<UserIam::UserAuth::Attributes>(buffer);
+    IF_FALSE_LOGE_AND_RETURN_VAL(finalResult != nullptr, FAIL);
     int32_t ret = Finish(scheduleId, srcType, resultCode, finalResult);
     if (!reply.WriteInt32(ret)) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "write ret failed");
+        IAM_LOGE("write ret failed");
         return FAIL;
     }
     return SUCCESS;
