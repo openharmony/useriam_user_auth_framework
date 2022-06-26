@@ -70,7 +70,7 @@ bool ContextPoolImpl::Delete(uint64_t contextId)
     std::lock_guard<std::mutex> lock(poolMutex_);
     auto iter = contextMap_.find(contextId);
     if (iter == contextMap_.end()) {
-        IAM_LOGE("context is not existent");
+        IAM_LOGE("context not found");
         return false;
     }
     auto tempContext = iter->second;

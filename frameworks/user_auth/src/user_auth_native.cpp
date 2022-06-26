@@ -14,54 +14,61 @@
  */
 
 #include "user_auth_native.h"
+
 #include <cinttypes>
 #include <if_system_ability_manager.h>
 #include <iservice_registry.h>
 #include <sstream>
 #include <system_ability_definition.h>
+
 #ifdef SUPPORT_SURFACE
 #include "face_auth_innerkit.h"
 #include "surface.h"
 #include "surface_utils.h"
 #endif
+
+#include "iam_check.h"
+#include "iam_logger.h"
 #include "system_ability_definition.h"
-#include "userauth_hilog_wrapper.h"
+
+#define LOG_LABEL Common::LABEL_USER_AUTH_SDK
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
 sptr<IUserAuth> UserAuthNative::GetProxy()
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "GetProxy start");
+    IAM_LOGD("GetProxy start");
     std::lock_guard lock(mutex_);
     if (proxy_ != nullptr) {
         return proxy_;
     }
     sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (sam == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "Failed to get system manager");
+        IAM_LOGE("Failed to get system manager");
         return nullptr;
     }
     sptr<IRemoteObject> obj = sam->CheckSystemAbility(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH);
     if (obj == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "Failed to get userauth service");
+        IAM_LOGE("Failed to get userauth service");
         return nullptr;
     }
-    sptr<IRemoteObject::DeathRecipient> dr = new UserAuthDeathRecipient();
+    sptr<IRemoteObject::DeathRecipient> dr = new (std::nothrow) UserAuthDeathRecipient();
+    IF_FALSE_LOGE_AND_RETURN_VAL(dr != nullptr, nullptr);
     if ((obj->IsProxyObject()) && (!obj->AddDeathRecipient(dr))) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "Failed to add death recipient");
+        IAM_LOGE("Failed to add death recipient");
         return nullptr;
     }
 
     proxy_ = iface_cast<IUserAuth>(obj);
     deathRecipient_ = dr;
-    USERAUTH_HILOGI(MODULE_INNERKIT, "Succeed to connect userauth service");
+    IAM_LOGI("Succeed to connect userauth service");
     return proxy_;
 }
 
 void UserAuthNative::ResetProxy(const wptr<IRemoteObject> &remote)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "ResetProxy start");
+    IAM_LOGD("ResetProxy start");
     std::lock_guard<std::mutex> lock(mutex_);
     if (proxy_ == nullptr) {
         return;
@@ -76,9 +83,9 @@ void UserAuthNative::ResetProxy(const wptr<IRemoteObject> &remote)
 
 void UserAuthNative::UserAuthDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "OnRemoteDied start");
+    IAM_LOGD("OnRemoteDied start");
     if (remote == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "OnRemoteDied failed, remote is nullptr");
+        IAM_LOGE("OnRemoteDied failed, remote is nullptr");
         return;
     }
 
@@ -87,7 +94,7 @@ void UserAuthNative::UserAuthDeathRecipient::OnRemoteDied(const wptr<IRemoteObje
 
 int32_t UserAuthNative::GetAvailableStatus(const AuthType authType, const AuthTrustLevel authTrustLevel)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "GetAvailableStatus start");
+    IAM_LOGD("GetAvailableStatus start");
     auto proxy = GetProxy();
     if (proxy == nullptr) {
         return E_RET_NOSERVER;
@@ -98,9 +105,9 @@ int32_t UserAuthNative::GetAvailableStatus(const AuthType authType, const AuthTr
 
 void UserAuthNative::GetProperty(const GetPropertyRequest &request, std::shared_ptr<GetPropCallback> callback)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "GetProperty start");
+    IAM_LOGD("GetProperty start");
     if (callback == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "GetProperty callback is nullptr");
+        IAM_LOGE("GetProperty callback is nullptr");
         return;
     }
     auto proxy = GetProxy();
@@ -112,7 +119,7 @@ void UserAuthNative::GetProperty(const GetPropertyRequest &request, std::shared_
     }
     sptr<IUserAuthCallback> asyncStub = new (std::nothrow) UserAuthAsyncStub(callback);
     if (asyncStub == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "GetProperty asyncStub is nullptr");
+        IAM_LOGE("GetProperty asyncStub is nullptr");
         return;
     }
     proxy->GetProperty(request, asyncStub);
@@ -121,9 +128,9 @@ void UserAuthNative::GetProperty(const GetPropertyRequest &request, std::shared_
 void UserAuthNative::GetProperty(const int32_t userId, const GetPropertyRequest &request,
     std::shared_ptr<GetPropCallback> callback)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "GetProperty start");
+    IAM_LOGD("GetProperty start");
     if (callback == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "GetProperty callback is nullptr");
+        IAM_LOGE("GetProperty callback is nullptr");
         return;
     }
     auto proxy = GetProxy();
@@ -135,7 +142,7 @@ void UserAuthNative::GetProperty(const int32_t userId, const GetPropertyRequest 
     }
     sptr<IUserAuthCallback> asyncStub = new (std::nothrow) UserAuthAsyncStub(callback);
     if (asyncStub == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "GetProperty asyncStub is nullptr");
+        IAM_LOGE("GetProperty asyncStub is nullptr");
         return;
     }
     proxy->GetProperty(userId, request, asyncStub);
@@ -148,43 +155,43 @@ int32_t UserAuthNative::SetSurfaceId(const SetPropertyRequest &request)
     std::istringstream surfaceIdStream(surfaceIdString);
     uint64_t surfaceId = 0;
     surfaceIdStream >> surfaceId;
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "SetSurfaceId string %{public}s converted int %{public}" PRIu64,
+    IAM_LOGI("SetSurfaceId string %{public}s converted int %{public}" PRIu64,
         surfaceIdString.c_str(), surfaceId);
     if (surfaceId == 0) {
         int32_t ret = FaceAuth::FaceAuthInnerKit::SetBufferProducer(nullptr);
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "SetBufferProducer null result %{public}d", ret);
+        IAM_LOGE("SetBufferProducer null result %{public}d", ret);
         return ret;
     }
 
     sptr<Surface> previewSurface = SurfaceUtils::GetInstance()->GetSurface(surfaceId);
     if (previewSurface == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "GetXComponentSurfaceById Failed!");
+        IAM_LOGE("GetXComponentSurfaceById Failed!");
         return GENERAL_ERROR;
     }
 
     sptr<IBufferProducer> bufferProducer = previewSurface->GetProducer();
     if (bufferProducer == nullptr) {
-        USERAUTH_HILOGE(MODULE_JS_NAPI, "GetProducer Failed!");
+        IAM_LOGE("GetProducer Failed!");
         return GENERAL_ERROR;
     }
 
     int32_t ret = FaceAuth::FaceAuthInnerKit::SetBufferProducer(bufferProducer);
-    USERAUTH_HILOGI(MODULE_JS_NAPI, "SetBufferProducer result %{public}d", ret);
+    IAM_LOGI("SetBufferProducer result %{public}d", ret);
     return ret;
 }
 #else
 int32_t UserAuthNative::SetSurfaceId(const SetPropertyRequest &request)
 {
-    USERAUTH_HILOGE(MODULE_JS_NAPI, "surface is not supported!");
+    IAM_LOGE("surface is not supported!");
     return GENERAL_ERROR;
 }
 #endif
 
 void UserAuthNative::SetProperty(const SetPropertyRequest &request, std::shared_ptr<SetPropCallback> callback)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "SetProperty start");
+    IAM_LOGD("SetProperty start");
     if (callback == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "SetProperty callback is nullptr");
+        IAM_LOGE("SetProperty callback is nullptr");
         return;
     }
     auto proxy = GetProxy();
@@ -194,7 +201,7 @@ void UserAuthNative::SetProperty(const SetPropertyRequest &request, std::shared_
     }
     sptr<IUserAuthCallback> asyncStub = new (std::nothrow) UserAuthAsyncStub(callback);
     if (asyncStub == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "SetProperty asyncStub is nullptr");
+        IAM_LOGE("SetProperty asyncStub is nullptr");
         return;
     }
     if (request.key == static_cast<uint32_t>(AuthPropertyMode::PROPERMODE_SET_SURFACE_ID)
@@ -203,15 +210,15 @@ void UserAuthNative::SetProperty(const SetPropertyRequest &request, std::shared_
     } else {
         proxy->SetProperty(request, asyncStub);
     }
-    USERAUTH_HILOGD(MODULE_INNERKIT, "SetProperty end");
+    IAM_LOGD("SetProperty end");
 }
 
 uint64_t UserAuthNative::Auth(const uint64_t challenge, const AuthType authType, const AuthTrustLevel authTrustLevel,
     std::shared_ptr<UserAuthCallback> callback)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "Auth start");
+    IAM_LOGD("Auth start");
     if (callback == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "Auth callback is nullptr");
+        IAM_LOGE("Auth callback is nullptr");
         return INVALID_PARAMETERS;
     }
     auto proxy = GetProxy();
@@ -220,7 +227,7 @@ uint64_t UserAuthNative::Auth(const uint64_t challenge, const AuthType authType,
     }
     sptr<IUserAuthCallback> asyncStub = new (std::nothrow) UserAuthAsyncStub(callback);
     if (asyncStub == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "Auth asyncStub is nullptr");
+        IAM_LOGE("Auth asyncStub is nullptr");
         return GENERAL_ERROR;
     }
     return proxy->Auth(challenge, authType, authTrustLevel, asyncStub);
@@ -229,9 +236,9 @@ uint64_t UserAuthNative::Auth(const uint64_t challenge, const AuthType authType,
 uint64_t UserAuthNative::AuthUser(const int32_t userId, const uint64_t challenge, const AuthType authType,
     const AuthTrustLevel authTrustLevel, std::shared_ptr<UserAuthCallback> callback)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "AuthUser start");
+    IAM_LOGD("AuthUser start");
     if (callback == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "AuthUser callback is nullptr");
+        IAM_LOGE("AuthUser callback is nullptr");
         return INVALID_PARAMETERS;
     }
     auto proxy = GetProxy();
@@ -240,7 +247,7 @@ uint64_t UserAuthNative::AuthUser(const int32_t userId, const uint64_t challenge
     }
     sptr<IUserAuthCallback> asyncStub = new (std::nothrow) UserAuthAsyncStub(callback);
     if (asyncStub == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "AuthUser asyncStub is nullptr");
+        IAM_LOGE("AuthUser asyncStub is nullptr");
         return GENERAL_ERROR;
     }
     return proxy->AuthUser(userId, challenge, authType, authTrustLevel, asyncStub);
@@ -248,7 +255,7 @@ uint64_t UserAuthNative::AuthUser(const int32_t userId, const uint64_t challenge
 
 int32_t UserAuthNative::CancelAuth(const uint64_t contextId)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "CancelAuth start");
+    IAM_LOGD("CancelAuth start");
     auto proxy = GetProxy();
     if (proxy == nullptr) {
         return E_RET_NOSERVER;
@@ -260,9 +267,9 @@ int32_t UserAuthNative::CancelAuth(const uint64_t contextId)
 uint64_t UserAuthNative::Identify(const uint64_t challenge, const AuthType authType,
     std::shared_ptr<UserIdentifyCallback> callback)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "Identify start");
+    IAM_LOGD("Identify start");
     if (callback == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "Identify callback is nullptr");
+        IAM_LOGE("Identify callback is nullptr");
         return INVALID_PARAMETERS;
     }
     auto proxy = GetProxy();
@@ -271,7 +278,7 @@ uint64_t UserAuthNative::Identify(const uint64_t challenge, const AuthType authT
     }
     sptr<IUserAuthCallback> asyncStub = new (std::nothrow) UserAuthAsyncStub(callback);
     if (asyncStub == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "Identify asyncStub is nullptr");
+        IAM_LOGE("Identify asyncStub is nullptr");
         return GENERAL_ERROR;
     }
     return proxy->Identify(challenge, authType, asyncStub);
@@ -279,7 +286,7 @@ uint64_t UserAuthNative::Identify(const uint64_t challenge, const AuthType authT
 
 int32_t UserAuthNative::CancelIdentify(const uint64_t contextId)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "CancelIdentify start");
+    IAM_LOGD("CancelIdentify start");
     auto proxy = GetProxy();
     if (proxy == nullptr) {
         return E_RET_NOSERVER;
@@ -290,7 +297,7 @@ int32_t UserAuthNative::CancelIdentify(const uint64_t contextId)
 
 int32_t UserAuthNative::GetVersion()
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "GetVersion start");
+    IAM_LOGD("GetVersion start");
     auto proxy = GetProxy();
     if (proxy == nullptr) {
         return INVALID_PARAMETERS;

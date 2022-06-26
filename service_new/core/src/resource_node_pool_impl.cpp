@@ -80,7 +80,7 @@ bool ResourceNodePoolImpl::Delete(uint64_t executorIndex)
     std::lock_guard<std::mutex> lock(poolMutex_);
     auto iter = resourceNodeMap_.find(executorIndex);
     if (iter == resourceNodeMap_.end()) {
-        IAM_LOGE("executor is not existent");
+        IAM_LOGE("executor not found");
         return false;
     }
     auto tempResource = iter->second;

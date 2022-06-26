@@ -120,9 +120,14 @@ int32_t UserIdmService::GetCredentialInfo(std::optional<int32_t> userId, AuthTyp
         return CHECK_PERMISSION_FAILED;
     }
 
-    auto credInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId.value(), authType);
-
     std::optional<PinSubType> pinSubType = std::nullopt;
+    auto credInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId.value(), authType);
+    if (credInfos.empty()) {
+        IAM_LOGI("no cred enrolled");
+        callback->OnCredentialInfos(credInfos, pinSubType);
+        return SUCCESS;
+    }
+
     auto userInfo = UserIdmDatabase::Instance().GetSecUserInfo(userId.value());
     if (userInfo == nullptr) {
         IAM_LOGE("failed to get userInfo");
