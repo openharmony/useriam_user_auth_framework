@@ -25,7 +25,6 @@
 #include "iremote_object.h"
 #include "parcel.h"
 #include "iremote_broker.h"
-#include "coauth_hilog_wrapper.h"
 
 namespace OHOS {
 namespace UserIAM {
