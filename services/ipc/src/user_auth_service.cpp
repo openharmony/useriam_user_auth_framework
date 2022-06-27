@@ -282,11 +282,6 @@ int32_t UserAuthService::CancelAuthOrIdentify(uint64_t contextId)
         return FAIL;
     }
 
-    // try to delete contextId to prevent duplicate cancel success
-    // it's possible that contextId is deleted before Stop() returns, so delete may fail
-    if (!ContextPool::Instance().Delete(contextId)) {
-        IAM_LOGI("failed to delete context");
-    }
     return SUCCESS;
 }
 
