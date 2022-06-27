@@ -20,7 +20,6 @@
 #include "co_auth_info_define.h"
 #include "attributes.h"
 #include "auth_message.h"
-#include "coauth_hilog_wrapper.h"
 
 namespace OHOS {
 namespace UserIAM {

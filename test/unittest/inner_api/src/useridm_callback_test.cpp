@@ -14,32 +14,35 @@
  */
 
 #include "useridm_callback_test.h"
-#include "useridm_hilog_wrapper.h"
+
+#include "iam_logger.h"
+
+#define LOG_LABEL UserIAM::Common::LABEL_USER_IDM_SDK
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {
 void GetInfoCallbackUT::OnGetInfo(std::vector<CredentialInfo> &info)
 {
-    USERIDM_HILOGI(MODULE_CLIENT, "GetInfoCallbackUT OnGetInfo");
+    IAM_LOGI("GetInfoCallbackUT OnGetInfo");
     return;
 }
 
 void GetSecInfoCallbackUT::OnGetSecInfo(SecInfo &info)
 {
-    USERIDM_HILOGI(MODULE_CLIENT, "GetSecInfoCallbackUT OnGetSecInfo");
+    IAM_LOGI("GetSecInfoCallbackUT OnGetSecInfo");
     return;
 }
 
 void IDMCallbackUT::OnResult(int32_t result, RequestResult reqRet)
 {
-    USERIDM_HILOGI(MODULE_CLIENT, "IDMCallbackUT OnResult");
+    IAM_LOGI("IDMCallbackUT OnResult");
     return;
 }
 
 void IDMCallbackUT::OnAcquireInfo(int32_t module, int32_t acquire, RequestResult reqRet)
 {
-    USERIDM_HILOGI(MODULE_CLIENT, "IDMCallbackUT OnAcquireInfo");
+    IAM_LOGI("IDMCallbackUT OnAcquireInfo");
     return;
 }
 }  // namespace UserIDM
