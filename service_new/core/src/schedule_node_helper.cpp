@@ -70,7 +70,7 @@ bool ScheduleNodeHelper::ScheduleInfoToScheduleNode(const HdiScheduleInfo &info,
         return false;
     }
     if (para.uid.has_value()) {
-        builder = builder->SetCallingUid(para.uid.value());
+        builder->SetCallingUid(para.uid.value());
     }
     node = builder->SetAuthType(static_cast<AuthType>(info.authType))
                ->SetExecutorMatcher(info.executorMatcher)
