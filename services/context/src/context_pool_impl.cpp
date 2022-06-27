@@ -156,7 +156,7 @@ uint64_t ContextPool::GetNewContextId()
     for (uint32_t i = 0; i < MAX_TRY_TIMES; i++) {
         RAND_bytes(contextIdPtr, sizeof(uint64_t));
         if (contextId == 0 || ContextPool::Instance().Select(contextId).lock() != nullptr) {
-            IAM_LOGE("duplicate context id");
+            IAM_LOGE("invalid or duplicate context id");
             continue;
         }
     }
