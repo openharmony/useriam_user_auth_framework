@@ -17,7 +17,7 @@ import("//build/test.gni")
 ohos_unittest("iam_inner_api_test") {
   include_dirs = [
     "inc",
-    "//base/useriam/user_auth_framework/common/logs/user_idm",
+    "//base/useriam/user_auth_framework/common/logs",
     "//base/useriam/user_auth_framework/frameworks/user_idm/inc",
     "//base/useriam/user_auth_framework/interfaces/inner_api/user_idm",
   ]
