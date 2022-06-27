@@ -105,12 +105,14 @@ bool UserIdmSessionControllerImpl::IsSessionOpened(const std::vector<uint8_t> &c
 
 bool UserIdmSessionControllerImpl::ForceReset()
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     map_.clear();
     return true;
 }
 
 UserIdmSessionController::SessionMap UserIdmSessionControllerImpl::GetOpenedSessions() const
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     return map_;
 }
 
