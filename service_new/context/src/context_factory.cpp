@@ -1,0 +1,84 @@
+/*
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#include "context_factory.h"
+
+#include "authentication_impl.h"
+#include "context_callback_impl.h"
+#include "context_pool.h"
+#include "enroll_context.h"
+#include "enrollment_impl.h"
+#include "iam_check.h"
+#include "iam_logger.h"
+#include "iam_ptr.h"
+#include "identification_impl.h"
+#include "identify_context.h"
+#include "simple_auth_context.h"
+
+#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
+
+using namespace OHOS::UserIAM::Common;
+namespace OHOS {
+namespace UserIam {
+namespace UserAuth {
+std::shared_ptr<Context> ContextFactory::CreateSimpleAuthContext(int32_t userId, const std::vector<uint8_t> &challenge,
+    AuthType authType, AuthTrustLevel authTrustLevel, uint64_t callingUid, sptr<UserAuthCallback> &callback)
+{
+    IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, nullptr);
+    uint64_t newContextId = ContextPool::GetNewContextId();
+    auto auth = MakeShared<AuthenticationImpl>(newContextId, userId, authType, authTrustLevel);
+    IF_FALSE_LOGE_AND_RETURN_VAL(auth != nullptr, nullptr);
+    auth->SetChallenge(challenge);
+    auth->SetCallingUid(callingUid);
+    auto contextCallback = MakeShared<ContextCallbackImpl>(callback);
+    IF_FALSE_LOGE_AND_RETURN_VAL(contextCallback != nullptr, nullptr);
+    return MakeShared<SimpleAuthContext>(newContextId, auth, contextCallback);
+}
+
+std::shared_ptr<Context> ContextFactory::CreateIdentifyContext(const std::vector<uint8_t> &challenge, AuthType authType,
+    uint64_t callingUid, sptr<UserAuthCallback> &callback)
+{
+    IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, nullptr);
+    uint64_t newContextId = ContextPool::GetNewContextId();
+    auto identify = MakeShared<IdentificationImpl>(newContextId, authType);
+    IF_FALSE_LOGE_AND_RETURN_VAL(identify != nullptr, nullptr);
+    identify->SetChallenge(challenge);
+    identify->SetCallingUid(callingUid);
+    auto contextCallback = MakeShared<ContextCallbackImpl>(callback);
+    IF_FALSE_LOGE_AND_RETURN_VAL(contextCallback != nullptr, nullptr);
+    return MakeShared<IdentifyContext>(newContextId, identify, contextCallback);
+}
+
+std::shared_ptr<Context> ContextFactory::CreateEnrollContext(int32_t userId, AuthType authType, PinSubType pinSubType,
+    const std::vector<uint8_t> &token, uint64_t callingUid, const sptr<IdmCallback> &callback)
+{
+    IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, nullptr);
+    uint64_t newContextId = ContextPool::GetNewContextId();
+    auto enroll = MakeShared<EnrollmentImpl>(userId, authType);
+    IF_FALSE_LOGE_AND_RETURN_VAL(enroll != nullptr, nullptr);
+    enroll->SetAuthToken(token);
+    enroll->SetCallingUid(callingUid);
+    enroll->SetPinSubType(pinSubType);
+    auto contextCallback = MakeShared<ContextCallbackImpl>(callback);
+    IF_FALSE_LOGE_AND_RETURN_VAL(contextCallback != nullptr, nullptr);
+    return MakeShared<EnrollContext>(newContextId, enroll, contextCallback);
+}
+
+std::shared_ptr<Context> ContextFactory::CreateWidgetAuthContext(std::shared_ptr<ContextCallback> callback)
+{
+    return nullptr;
+}
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
