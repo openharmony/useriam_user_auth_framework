@@ -69,13 +69,15 @@ bool ScheduleNodeHelper::ScheduleInfoToScheduleNode(const HdiScheduleInfo &info,
         IAM_LOGE("invalid builder");
         return false;
     }
+    if (para.uid.has_value()) {
+        builder = builder->SetCallingUid(para.uid.value());
+    }
     node = builder->SetAuthType(static_cast<AuthType>(info.authType))
                ->SetExecutorMatcher(info.executorMatcher)
                ->SetScheduleId(info.scheduleId)
                ->SetTemplateIdList(info.templateIds)
                ->SetScheduleMode(static_cast<ScheduleMode>(info.scheduleMode))
                ->SetExpiredTime(para.expire.value_or(0))
-               ->SetCallingUid(para.uid.value_or(0))
                ->SetPinSubType(para.pinSubType.value_or(PinSubType::PIN_MAX))
                ->SetScheduleCallback(callback)
                ->Build();
