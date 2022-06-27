@@ -14,7 +14,10 @@
  */
 
 #include "auth_common.h"
-#include "userauth_hilog_wrapper.h"
+
+#include "iam_logger.h"
+
+#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_NAPI
 
 namespace OHOS {
 namespace UserIAM {
@@ -26,7 +29,7 @@ ExecuteInfo::ExecuteInfo(napi_env napiEnv) : env(napiEnv)
 ExecuteInfo::~ExecuteInfo()
 {
     if (env != nullptr && callbackRef != nullptr) {
-        USERAUTH_HILOGI(MODULE_JS_NAPI, "ExecuteInfo::~ExecuteInfo delete callbackRef");
+        IAM_LOGI("ExecuteInfo::~ExecuteInfo delete callbackRef");
         napi_delete_reference(env, callbackRef);
         callbackRef = nullptr;
     }
@@ -42,12 +45,12 @@ AuthInfo::~AuthInfo()
         return;
     }
     if (onResult != nullptr) {
-        USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthInfo::~AuthInfo delete onResult");
+        IAM_LOGI("AuthInfo::~AuthInfo delete onResult");
         napi_delete_reference(env, onResult);
         onResult = nullptr;
     }
     if (onAcquireInfo != nullptr) {
-        USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthInfo::~AuthInfo delete onAcquireInfo");
+        IAM_LOGI("AuthInfo::~AuthInfo delete onAcquireInfo");
         napi_delete_reference(env, onAcquireInfo);
         onAcquireInfo = nullptr;
     }
@@ -63,12 +66,12 @@ AuthUserInfo::~AuthUserInfo()
         return;
     }
     if (onResult != nullptr) {
-        USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthUserInfo::~AuthUserInfo delete onResult");
+        IAM_LOGI("AuthUserInfo::~AuthUserInfo delete onResult");
         napi_delete_reference(env, onResult);
         onResult = nullptr;
     }
     if (onAcquireInfo != nullptr) {
-        USERAUTH_HILOGI(MODULE_JS_NAPI, "AuthUserInfo::~AuthUserInfo delete onAcquireInfo");
+        IAM_LOGI("AuthUserInfo::~AuthUserInfo delete onAcquireInfo");
         napi_delete_reference(env, onAcquireInfo);
         onAcquireInfo = nullptr;
     }
