@@ -19,11 +19,13 @@
 #include <cstdint>
 #include <memory>
 #include <mutex>
+#include <optional>
 
 #include "finite_state_machine.h"
 #include "resource_node.h"
 #include "schedule_node.h"
 #include "schedule_node_callback.h"
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
@@ -35,7 +37,7 @@ public:
     class Inner;
     struct ScheduleInfo {
         uint64_t scheduleId {0};
-        uint64_t callingUid {0};
+        std::optional<uint64_t> callingUid;
         PinSubType pinSubType {0};
         uint64_t contextId {0};
         uint64_t expiredTime {0};
