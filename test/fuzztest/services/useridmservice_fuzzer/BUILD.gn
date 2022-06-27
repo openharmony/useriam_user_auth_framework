@@ -14,10 +14,9 @@
 import("//build/ohos.gni")
 import("//build/test.gni")
 
-ohos_fuzztest("CoAuthFuzzTest") {
-  module_out_path = "useriam/user_auth_framework/co_auth"
-  fuzz_config_file =
-      "//base/useriam/user_auth_framework/test/co_auth/fuzztest/coauth_fuzzer"
+ohos_fuzztest("UserIdmServiceFuzzTest") {
+  module_out_path = "useriam/user_auth_framework/services"
+  fuzz_config_file = "//base/useriam/user_auth_framework/test/fuzztest/services/useridmservice_fuzzer"
 
   cflags = [
     "-g",
@@ -28,23 +27,28 @@ ohos_fuzztest("CoAuthFuzzTest") {
 
   include_dirs = [
     "//base/useriam/user_auth_framework/frameworks/co_auth/inc",
-    "//base/useriam/user_auth_framework/services/co_auth/inc",
     "//base/useriam/user_auth_framework/interfaces/inner_api/co_auth",
+    "//base/useriam/user_auth_framework/service_new/base/inc",
+    "//base/useriam/user_auth_framework/service_new/core/inc",
+    "//base/useriam/user_auth_framework/service_new/core/src",
+    "//base/useriam/user_auth_framework/service_new/context/inc",
+    "//base/useriam/user_auth_framework/service_new/ipc/inc",
+    "//base/useriam/user_auth_framework/service_new/common_defines/types",
+    "//base/useriam/user_auth_framework/service_new/common_defines/interfaces",
+    "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs/co_auth/inc",
     "//base/useriam/user_auth_framework/common/logs",
+    "//base/useriam/user_auth_framework/interfaces/inner_api/user_auth/",
   ]
 
-  sources = [ "co_auth_fuzzer.cpp" ]
+  sources = [ "user_idm_service_fuzzer.cpp" ]
 
   deps = [
     "//base/useriam/user_auth_framework/common:iam_test",
-    "//base/useriam/user_auth_framework/frameworks/co_auth:coauth_framework",
-    "//base/useriam/user_auth_framework/services:userauthservice",
+    "//base/useriam/user_auth_framework/service_new:userauthservice",
   ]
 
   external_deps = [
-    "drivers_interface_user_auth:libuser_auth_proxy_1.0",
-    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",

@@ -11,33 +11,40 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/config/features.gni")
+import("//build/ohos.gni")
 import("//build/test.gni")
 
-ohos_fuzztest("UserAuthServiceFuzzTest") {
-  module_out_path = "useriam/user_auth_framework/user_auth"
-  fuzz_config_file = "//base/useriam/user_auth_framework/test/user_auth/fuzztest/userauthservice_fuzzer"
+ohos_fuzztest("CoAuthServiceFuzzTest") {
+  module_out_path = "useriam/user_auth_framework/services"
+  fuzz_config_file = "//base/useriam/user_auth_framework/test/fuzztest/services/coauthservice_fuzzer"
+
   cflags = [
     "-g",
     "-O0",
     "-Wno-unused-variable",
     "-fno-omit-frame-pointer",
   ]
+
   include_dirs = [
-    "//base/useriam/user_auth_framework/services/user_auth/inc",
-    "//base/useriam/user_auth_framework/frameworks/user_auth/inc",
-    "//base/useriam/user_auth_framework/interfaces/inner_api/user_auth",
-    "//base/useriam/user_auth_framework/services/co_auth/inc/",
+    "//base/useriam/user_auth_framework/frameworks/co_auth/inc",
+    "//base/useriam/user_auth_framework/service_new/base/inc",
+    "//base/useriam/user_auth_framework/service_new/core/inc",
+    "//base/useriam/user_auth_framework/service_new/core/src",
+    "//base/useriam/user_auth_framework/service_new/context/inc",
+    "//base/useriam/user_auth_framework/service_new/ipc/inc",
+    "//base/useriam/user_auth_framework/service_new/common_defines/types",
+    "//base/useriam/user_auth_framework/service_new/common_defines/interfaces",
+    "//base/useriam/user_auth_framework/common/utils",
+    "//base/useriam/user_auth_framework/common/logs/co_auth/inc",
     "//base/useriam/user_auth_framework/common/logs",
   ]
 
-  sources = [ "user_auth_service_fuzzer.cpp" ]
+  sources = [ "co_auth_service_fuzzer.cpp" ]
 
   deps = [
     "//base/useriam/user_auth_framework/common:iam_test",
     "//base/useriam/user_auth_framework/frameworks/co_auth:coauth_framework",
-    "//base/useriam/user_auth_framework/services:userauthservice",
-    "//utils/native/base:utils",
+    "//base/useriam/user_auth_framework/service_new:userauthservice",
   ]
 
   external_deps = [

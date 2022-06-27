@@ -71,6 +71,7 @@ ohos_shared_library("userauthservice") {
 
   external_deps = [
     "access_token:libaccesstoken_sdk",
+    "drivers_interface_user_auth:libuser_auth_proxy_1.0",
     "eventhandler:libeventhandler",
     "hdf_core:libhdf_utils",
     "hiviewdfx_hilog_native:libhilog",
@@ -78,7 +79,6 @@ ohos_shared_library("userauthservice") {
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
     "startup_l2:syspara",
-    "user_auth_device_driver_interface:libuser_auth_proxy_1.0",
     "utils_base:utils",
   ]
 

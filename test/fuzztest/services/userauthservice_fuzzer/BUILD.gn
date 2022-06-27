@@ -15,8 +15,8 @@ import("//build/config/features.gni")
 import("//build/test.gni")
 
 ohos_fuzztest("UserAuthServiceFuzzTest") {
-  module_out_path = "useriam/user_auth_framework/user_auth"
-  fuzz_config_file = "//base/useriam/user_auth_framework/test/user_auth/fuzztest/userauthservice_fuzzer"
+  module_out_path = "useriam/user_auth_framework/services"
+  fuzz_config_file = "//base/useriam/user_auth_framework/test/fuzztest/services/userauthservice_fuzzer"
   cflags = [
     "-g",
     "-O0",
@@ -24,11 +24,18 @@ ohos_fuzztest("UserAuthServiceFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
   include_dirs = [
-    "//base/useriam/user_auth_framework/services/user_auth/inc",
-    "//base/useriam/user_auth_framework/frameworks/user_auth/inc",
-    "//base/useriam/user_auth_framework/interfaces/inner_api/user_auth",
-    "//base/useriam/user_auth_framework/services/co_auth/inc/",
+    "//base/useriam/user_auth_framework/frameworks/co_auth/inc",
+    "//base/useriam/user_auth_framework/service_new/base/inc",
+    "//base/useriam/user_auth_framework/service_new/core/inc",
+    "//base/useriam/user_auth_framework/service_new/core/src",
+    "//base/useriam/user_auth_framework/service_new/context/inc",
+    "//base/useriam/user_auth_framework/service_new/ipc/inc",
+    "//base/useriam/user_auth_framework/service_new/common_defines/types",
+    "//base/useriam/user_auth_framework/service_new/common_defines/interfaces",
+    "//base/useriam/user_auth_framework/common/utils",
+    "//base/useriam/user_auth_framework/common/logs/co_auth/inc",
     "//base/useriam/user_auth_framework/common/logs",
+    "//base/useriam/user_auth_framework/interfaces/inner_api/user_auth/",
   ]
 
   sources = [ "user_auth_service_fuzzer.cpp" ]
@@ -36,7 +43,7 @@ ohos_fuzztest("UserAuthServiceFuzzTest") {
   deps = [
     "//base/useriam/user_auth_framework/common:iam_test",
     "//base/useriam/user_auth_framework/frameworks/co_auth:coauth_framework",
-    "//base/useriam/user_auth_framework/services:userauthservice",
+    "//base/useriam/user_auth_framework/service_new:userauthservice",
     "//utils/native/base:utils",
   ]
 
