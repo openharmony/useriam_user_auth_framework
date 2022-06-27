@@ -25,13 +25,13 @@ ohos_fuzztest("UserAuthServiceFuzzTest") {
   ]
   include_dirs = [
     "//base/useriam/user_auth_framework/frameworks/co_auth/inc",
-    "//base/useriam/user_auth_framework/service_new/base/inc",
-    "//base/useriam/user_auth_framework/service_new/core/inc",
-    "//base/useriam/user_auth_framework/service_new/core/src",
-    "//base/useriam/user_auth_framework/service_new/context/inc",
-    "//base/useriam/user_auth_framework/service_new/ipc/inc",
-    "//base/useriam/user_auth_framework/service_new/common_defines/types",
-    "//base/useriam/user_auth_framework/service_new/common_defines/interfaces",
+    "//base/useriam/user_auth_framework/services/base/inc",
+    "//base/useriam/user_auth_framework/services/core/inc",
+    "//base/useriam/user_auth_framework/services/core/src",
+    "//base/useriam/user_auth_framework/services/context/inc",
+    "//base/useriam/user_auth_framework/services/ipc/inc",
+    "//base/useriam/user_auth_framework/services/common_defines/types",
+    "//base/useriam/user_auth_framework/services/common_defines/interfaces",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs/co_auth/inc",
     "//base/useriam/user_auth_framework/common/logs",
@@ -43,7 +43,7 @@ ohos_fuzztest("UserAuthServiceFuzzTest") {
   deps = [
     "//base/useriam/user_auth_framework/common:iam_test",
     "//base/useriam/user_auth_framework/frameworks/co_auth:coauth_framework",
-    "//base/useriam/user_auth_framework/service_new:userauthservice",
+    "//base/useriam/user_auth_framework/services:userauthservice",
     "//utils/native/base:utils",
   ]
 

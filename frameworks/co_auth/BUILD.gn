@@ -39,7 +39,7 @@ config("coauth_framework_public_config") {
     "inc",
     "//base/useriam/user_auth_framework/interfaces/inner_api/co_auth",
     "//base/useriam/user_auth_framework/interfaces/inner_api/common",
-    "//base/useriam/user_auth_framework/service_new/base/inc",
+    "//base/useriam/user_auth_framework/services/base/inc",
   ]
 }
 
@@ -56,12 +56,8 @@ ohos_shared_library("coauth_framework") {
     "src/auth_message.cpp",
     "src/coauth_proxy.cpp",
     "src/executor_callback.cpp",
-
-    # "src/executor_callback_proxy.cpp",
     "src/executor_callback_stub.cpp",
     "src/executor_messenger_proxy.cpp",
-
-    # "src/executor_messenger_stub.cpp",
     "src/executor_mgr.cpp",
     "src/query_callback_proxy.cpp",
     "src/query_callback_stub.cpp",

@@ -41,7 +41,7 @@
       "sub_component": [
         "//base/useriam/user_auth_framework/sa_profile:userauth_sa_profile",
         "//base/useriam/user_auth_framework/sa_profile:useriam.init",
-        "//base/useriam/user_auth_framework/service_new:userauthservice",
+        "//base/useriam/user_auth_framework/services:userauthservice",
         "//base/useriam/user_auth_framework/common/executors:userauth_executors",
         "//base/useriam/user_auth_framework/frameworks/js/napi/user_idm:useridm"
       ],
