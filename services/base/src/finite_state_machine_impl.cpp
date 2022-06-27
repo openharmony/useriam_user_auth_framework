@@ -117,7 +117,10 @@ uint32_t FiniteStateMachineImpl::GetCurrentState() const
 
 uint32_t FiniteStateMachineImpl::EnsureCurrentState()
 {
-    threadHandler_->EnsureTask(nullptr);
+    if (threadHandler_) {
+        threadHandler_->EnsureTask(nullptr);
+    }
+
     return currentState_;
 }
 
