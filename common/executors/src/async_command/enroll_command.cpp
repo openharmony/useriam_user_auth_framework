@@ -28,7 +28,7 @@ namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
 EnrollCommand::EnrollCommand(std::weak_ptr<Executor> executor, uint64_t scheduleId,
-    std::shared_ptr<AuthAttributes> attributes, sptr<IExecutorMessenger> executorMessenger)
+    std::shared_ptr<UserIam::UserAuth::Attributes> attributes, sptr<IExecutorMessenger> executorMessenger)
     : AsyncCommandBase("ENROLL", scheduleId, executor, executorMessenger),
       attributes_(attributes)
 {
@@ -41,12 +41,10 @@ ResultCode EnrollCommand::SendRequest()
     auto hdi = GetExecutorHdi();
     IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, ResultCode::GENERAL_ERROR);
 
+    uint64_t callerUid = 0;
+    bool getCallerUidRet = attributes_->GetUint64Value(UserIam::UserAuth::Attributes::ATTR_CALLER_UID, callerUid);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getCallerUidRet == true, ResultCode::GENERAL_ERROR);
     std::vector<uint8_t> extraInfo;
-    uint64_t templateId = 0;
-    attributes_->GetUint64Value(AUTH_TEMPLATE_ID, templateId);
-    uint64_t callerUid;
-    attributes_->GetUint64Value(AUTH_CALLER_UID, callerUid);
-    Common::Pack(extraInfo, templateId);
     ResultCode ret = hdi->Enroll(scheduleId_, callerUid, extraInfo, shared_from_this());
     IAM_LOGI("%{public}s enroll result %{public}d", GetDescription(), ret);
     return ret;
@@ -55,12 +53,14 @@ ResultCode EnrollCommand::SendRequest()
 void EnrollCommand::OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo)
 {
     IAM_LOGI("%{public}s on result start", GetDescription());
-
     std::vector<uint8_t> nonConstExtraInfo(extraInfo.begin(), extraInfo.end());
-    auto authAttributes = Common::MakeShared<AuthAttributes>();
+    auto authAttributes = Common::MakeShared<UserIam::UserAuth::Attributes>();
     IF_FALSE_LOGE_AND_RETURN(authAttributes != nullptr);
-    authAttributes->SetUint32Value(AUTH_RESULT_CODE, result);
-    authAttributes->SetUint8ArrayValue(AUTH_RESULT, nonConstExtraInfo);
+    bool setResultCodeRet = authAttributes->SetUint32Value(UserIam::UserAuth::Attributes::ATTR_RESULT_CODE, result);
+    IF_FALSE_LOGE_AND_RETURN(setResultCodeRet == true);
+    bool setAuthResultRet =
+        authAttributes->SetUint8ArrayValue(UserIam::UserAuth::Attributes::ATTR_RESULT, nonConstExtraInfo);
+    IF_FALSE_LOGE_AND_RETURN(setAuthResultRet == true);
     int32_t ret = MessengerFinish(scheduleId_, ALL_IN_ONE, result, authAttributes);
     if (ret != USERAUTH_SUCCESS) {
         IAM_LOGE("%{public}s call finish fail", GetDescription());

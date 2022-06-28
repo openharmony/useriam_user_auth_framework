@@ -14,15 +14,23 @@
  */
 
 #include "userauth_async_stub.h"
+
 #include <cinttypes>
 #include <message_parcel.h>
-#include "userauth_hilog_wrapper.h"
+
+#include "iam_logger.h"
 #include "iuser_auth.h"
+
+#define LOG_LABEL Common::LABEL_USER_AUTH_SDK
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
 UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<UserAuthCallback> &impl) : authCallback_(impl)
+{
+}
+
+UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<UserIdentifyCallback> &impl) : identifyCallback_(impl)
 {
 }
 
@@ -37,12 +45,12 @@ UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<SetPropCallback> &impl) : s
 int32_t UserAuthAsyncStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
     MessageOption &option)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthAsyncStub OnRemoteRequest start");
+    IAM_LOGD("UserAuthAsyncStub OnRemoteRequest start");
 
     std::u16string descripter = UserAuthAsyncStub::GetDescriptor();
     std::u16string remoteDescripter = data.ReadInterfaceToken();
     if (descripter != remoteDescripter) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "UserAuthAsyncStub::OnRemoteRequest failed, descriptor is not matched");
+        IAM_LOGE("UserAuthAsyncStub::OnRemoteRequest failed, descriptor is not matched");
         return E_GET_POWER_SERVICE_FAILED;
     }
 
@@ -50,7 +58,9 @@ int32_t UserAuthAsyncStub::OnRemoteRequest(uint32_t code, MessageParcel &data, M
         case static_cast<int32_t>(IUserAuth::USER_AUTH_ACQUIRE_INFO):
             return onAcquireInfoStub(data, reply);
         case static_cast<int32_t>(IUserAuth::USER_AUTH_ON_RESULT):
-            return onResultStub(data, reply);
+            return onAuthResultStub(data, reply);
+        case static_cast<int32_t>(IUserAuth::USER_AUTH_ON_IDENTIFY_RESULT):
+            return onIdentifyResultStub(data, reply);
         case static_cast<int32_t>(IUserAuth::USER_AUTH_GET_EX_PROP):
             return onExecutorPropertyInfoStub(data, reply);
         case static_cast<int32_t>(IUserAuth::USER_AUTH_SET_EX_PROP):
@@ -62,37 +72,37 @@ int32_t UserAuthAsyncStub::OnRemoteRequest(uint32_t code, MessageParcel &data, M
 
 int32_t UserAuthAsyncStub::onAcquireInfoStub(MessageParcel& data, MessageParcel& reply)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthAsyncStub OnAcquireInfoStub start");
+    IAM_LOGD("UserAuthAsyncStub OnAcquireInfoStub start");
 
     int32_t module;
     uint32_t acquireInfo;
     int32_t extraInfo;
 
     if (!data.ReadInt32(module)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to read module");
+        IAM_LOGE("failed to read module");
         return E_READ_PARCEL_ERROR;
     }
     if (!data.ReadUint32(acquireInfo)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to read acquireInfo");
+        IAM_LOGE("failed to read acquireInfo");
         return E_READ_PARCEL_ERROR;
     }
     if (!data.ReadInt32(extraInfo)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to read extraInfo");
+        IAM_LOGE("failed to read extraInfo");
         return E_READ_PARCEL_ERROR;
     }
 
     this->onAcquireInfo(module, acquireInfo, extraInfo);
     if (!reply.WriteInt32(SUCCESS)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write success");
+        IAM_LOGE("failed to write success");
         return E_WRITE_PARCEL_ERROR;
     }
 
     return SUCCESS;
 }
 
-int32_t UserAuthAsyncStub::onResultStub(MessageParcel& data, MessageParcel& reply)
+int32_t UserAuthAsyncStub::onAuthResultStub(MessageParcel& data, MessageParcel& reply)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthAsyncStub onResultStub start");
+    IAM_LOGD("UserAuthAsyncStub onResultStub start");
 
     AuthResult authResult;
     std::vector<uint8_t> token;
@@ -101,19 +111,19 @@ int32_t UserAuthAsyncStub::onResultStub(MessageParcel& data, MessageParcel& repl
     int32_t result;
 
     if (!data.ReadInt32(result)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to read result");
+        IAM_LOGE("failed to read result");
         return E_READ_PARCEL_ERROR;
     }
     if (!data.ReadUInt8Vector(&token)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to read token");
+        IAM_LOGE("failed to read token");
         return E_READ_PARCEL_ERROR;
     }
     if (!data.ReadUint32(remainTimes)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to read remainTimes");
+        IAM_LOGE("failed to read remainTimes");
         return E_READ_PARCEL_ERROR;
     }
     if (!data.ReadUint32(freezingTime)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to read freezingTime");
+        IAM_LOGE("failed to read freezingTime");
         return E_READ_PARCEL_ERROR;
     }
     authResult.freezingTime = freezingTime;
@@ -121,9 +131,38 @@ int32_t UserAuthAsyncStub::onResultStub(MessageParcel& data, MessageParcel& repl
     authResult.token.clear();
     authResult.token.assign(token.begin(), token.end());
 
-    this->onResult(result, authResult);
+    this->onAuthResult(result, authResult);
     if (!reply.WriteInt32(SUCCESS)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write success");
+        IAM_LOGE("failed to write success");
+        return E_WRITE_PARCEL_ERROR;
+    }
+
+    return SUCCESS;
+}
+
+int32_t UserAuthAsyncStub::onIdentifyResultStub(MessageParcel& data, MessageParcel& reply)
+{
+    IAM_LOGD("UserAuthAsyncStub onIdentifyResultStub start");
+
+    IdentifyResult identifyResult;
+    int32_t result;
+
+    if (!data.ReadInt32(result)) {
+        IAM_LOGE("failed to read result");
+        return E_READ_PARCEL_ERROR;
+    }
+    if (!data.ReadInt32(identifyResult.userId)) {
+        IAM_LOGE("failed to read user id");
+        return E_READ_PARCEL_ERROR;
+    }
+    if (!data.ReadUInt8Vector(&identifyResult.token)) {
+        IAM_LOGE("failed to read token");
+        return E_READ_PARCEL_ERROR;
+    }
+
+    this->onIdentifyResult(result, identifyResult);
+    if (!reply.WriteInt32(SUCCESS)) {
+        IAM_LOGE("failed to write success");
         return E_WRITE_PARCEL_ERROR;
     }
 
@@ -132,7 +171,7 @@ int32_t UserAuthAsyncStub::onResultStub(MessageParcel& data, MessageParcel& repl
 
 int32_t UserAuthAsyncStub::onExecutorPropertyInfoStub(MessageParcel& data, MessageParcel& reply)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthAsyncStub onExecutorPropertyInfoStub start");
+    IAM_LOGD("UserAuthAsyncStub onExecutorPropertyInfoStub start");
 
     int32_t result;
     uint64_t authSubType;
@@ -141,19 +180,19 @@ int32_t UserAuthAsyncStub::onExecutorPropertyInfoStub(MessageParcel& data, Messa
     ExecutorProperty executorProperty = {};
 
     if (!data.ReadInt32(result)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to read result");
+        IAM_LOGE("failed to read result");
         return E_READ_PARCEL_ERROR;
     }
     if (!data.ReadUint64(authSubType)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to read authSubType");
+        IAM_LOGE("failed to read authSubType");
         return E_READ_PARCEL_ERROR;
     }
     if (!data.ReadUint32(remainTimes)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to read remainTimes");
+        IAM_LOGE("failed to read remainTimes");
         return E_READ_PARCEL_ERROR;
     }
     if (!data.ReadUint32(freezingTime)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to read freezingTime");
+        IAM_LOGE("failed to read freezingTime");
         return E_READ_PARCEL_ERROR;
     }
     executorProperty.authSubType = static_cast<AuthSubType>(authSubType);
@@ -163,7 +202,7 @@ int32_t UserAuthAsyncStub::onExecutorPropertyInfoStub(MessageParcel& data, Messa
 
     this->onExecutorPropertyInfo(executorProperty);
     if (!reply.WriteInt32(SUCCESS)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to write success");
+        IAM_LOGE("failed to write success");
         return E_WRITE_PARCEL_ERROR;
     }
 
@@ -172,15 +211,15 @@ int32_t UserAuthAsyncStub::onExecutorPropertyInfoStub(MessageParcel& data, Messa
 
 int32_t UserAuthAsyncStub::onSetExecutorPropertyStub(MessageParcel& data, MessageParcel& reply)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthAsyncStub onSetExecutorPropertyStub start");
+    IAM_LOGD("UserAuthAsyncStub onSetExecutorPropertyStub start");
     int32_t result;
     if (!data.ReadInt32(result)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "failed to read result");
+        IAM_LOGE("failed to read result");
         return E_READ_PARCEL_ERROR;
     }
     this->onSetExecutorProperty(result);
     if (!reply.WriteInt32(SUCCESS)) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "userauth failed to write success");
+        IAM_LOGE("userauth failed to write success");
         return E_WRITE_PARCEL_ERROR;
     }
     return SUCCESS;
@@ -188,57 +227,70 @@ int32_t UserAuthAsyncStub::onSetExecutorPropertyStub(MessageParcel& data, Messag
 
 void UserAuthAsyncStub::onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthAsyncStub onAcquireInfo start");
+    IAM_LOGD("UserAuthAsyncStub onAcquireInfo start");
 
     if (authCallback_ == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "userauthAsyncStub onAcquireInfo callback is nullptr");
+        IAM_LOGE("userauthAsyncStub onAcquireInfo callback is nullptr");
         return;
     }
 
-    USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub module:%{public}d, acquireInfo:%{public}u",
+    IAM_LOGD("userauthAsyncStub module:%{public}d, acquireInfo:%{public}u",
         module, acquireInfo);
 
     authCallback_->onAcquireInfo(module, acquireInfo, extraInfo);
 }
 
-void UserAuthAsyncStub::onResult(const int32_t result, const AuthResult &extraInfo)
+void UserAuthAsyncStub::onAuthResult(const int32_t result, const AuthResult &extraInfo)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthAsyncStub onResult start");
+    IAM_LOGD("UserAuthAsyncStub onAuthResult start");
 
     if (authCallback_ == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "userauthAsyncStub onResult callback is nullptr");
+        IAM_LOGE("userauthAsyncStub onAuthResult callback is nullptr");
         return;
     }
 
-    USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub result:%{public}d, remain:%{public}u, freeze:%{public}u",
+    IAM_LOGD("userauthAsyncStub result:%{public}d, remain:%{public}u, freeze:%{public}u",
         result, extraInfo.remainTimes, extraInfo.freezingTime);
     authCallback_->onResult(result, extraInfo);
 }
 
-void UserAuthAsyncStub::onExecutorPropertyInfo(const ExecutorProperty &result)
+void UserAuthAsyncStub::onIdentifyResult(const int32_t result, const IdentifyResult &extraInfo)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthAsyncStub onExecutorPropertyInfo start");
+    IAM_LOGD("UserAuthAsyncStub onIdentifyResult start");
 
-    if (getPropCallback_ == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "UserAuthAsyncStub onExecutorPropertyInfo callback is nullptr");
+    if (identifyCallback_ == nullptr) {
+        IAM_LOGE("UserAuthAsyncStub onIdentifyResult callback is nullptr");
         return;
     }
 
-    USERAUTH_HILOGD(MODULE_INNERKIT,
-        "userauthAsyncStub result:%{public}d, sub:%{public}" PRIu64 ", remain:%{public}u, freeze:%{public}u",
+    IAM_LOGD("UserAuthAsyncStub identify result:%{public}d, user id:%{public}d",
+        result, extraInfo.userId);
+    identifyCallback_->onResult(result, extraInfo);
+}
+
+void UserAuthAsyncStub::onExecutorPropertyInfo(const ExecutorProperty &result)
+{
+    IAM_LOGD("UserAuthAsyncStub onExecutorPropertyInfo start");
+
+    if (getPropCallback_ == nullptr) {
+        IAM_LOGE("UserAuthAsyncStub onExecutorPropertyInfo callback is nullptr");
+        return;
+    }
+
+   IAM_LOGD("userauthAsyncStub result:%{public}d, sub:%{public}" PRIu64 ", remain:%{public}u, freeze:%{public}u",
         result.result, result.authSubType, result.remainTimes, result.freezingTime);
     getPropCallback_->onGetProperty(result);
 }
 
 void UserAuthAsyncStub::onSetExecutorProperty(const int32_t result)
 {
-    USERAUTH_HILOGD(MODULE_INNERKIT, "UserAuthAsyncStub onSetExecutorProperty start");
+    IAM_LOGD("UserAuthAsyncStub onSetExecutorProperty start");
 
     if (setPropCallback_ == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERKIT, "UserAuthAsyncStub onSetExecutorProperty callback is nullptr");
+        IAM_LOGE("UserAuthAsyncStub onSetExecutorProperty callback is nullptr");
         return;
     }
-    USERAUTH_HILOGD(MODULE_INNERKIT, "userauthAsyncStub result:%{public}d", result);
+    IAM_LOGD("userauthAsyncStub result:%{public}d", result);
     setPropCallback_->onSetProperty(result);
 }
 }  // namespace UserAuth

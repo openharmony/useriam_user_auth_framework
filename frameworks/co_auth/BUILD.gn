@@ -13,32 +13,57 @@
 
 import("//build/ohos.gni")
 
+config("iam_attributes_config") {
+  include_dirs =
+      [ "//base/useriam/user_auth_framework/interfaces/inner_api/co_auth" ]
+}
+
+ohos_source_set("iam_attributes") {
+  include_dirs =
+      [ "//base/useriam/user_auth_framework/interfaces/inner_api/co_auth" ]
+
+  sources = [ "src/attributes.cpp" ]
+
+  configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
+
+  public_configs = [ ":iam_attributes_config" ]
+
+  external_deps = [
+    "hiviewdfx_hilog_native:libhilog",
+    "utils_base:utils",
+  ]
+}
+
 config("coauth_framework_public_config") {
   include_dirs = [
     "inc",
     "//base/useriam/user_auth_framework/interfaces/inner_api/co_auth",
     "//base/useriam/user_auth_framework/interfaces/inner_api/common",
+    "//base/useriam/user_auth_framework/services/base/inc",
   ]
 }
 
 ohos_shared_library("coauth_framework") {
-  include_dirs = [ "inc" ]
+  include_dirs = [
+    "inc",
+    "//base/useriam/user_auth_framework/common/utils",
+    "//base/useriam/user_auth_framework/common/logs",
+  ]
 
   sources = [
-    "src/auth_attributes.cpp",
     "src/auth_executor.cpp",
     "src/auth_executor_registry.cpp",
     "src/auth_message.cpp",
     "src/coauth_proxy.cpp",
     "src/executor_callback.cpp",
-    "src/executor_callback_proxy.cpp",
     "src/executor_callback_stub.cpp",
     "src/executor_messenger_proxy.cpp",
-    "src/executor_messenger_stub.cpp",
     "src/executor_mgr.cpp",
     "src/query_callback_proxy.cpp",
     "src/query_callback_stub.cpp",
   ]
+
+  deps = [ ":iam_attributes" ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
@@ -53,6 +78,8 @@ ohos_shared_library("coauth_framework") {
     ":coauth_framework_public_config",
     "//base/useriam/user_auth_framework/common:iam_log_config",
   ]
+
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   part_name = "user_auth_framework"
 }

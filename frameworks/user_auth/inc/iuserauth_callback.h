@@ -31,9 +31,14 @@ public:
     virtual void onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo) = 0;
 
     /*
-     * returns the result.
+     * returns the authentication result.
      */
-    virtual void onResult(const int32_t result, const AuthResult &extraInfo) = 0;
+    virtual void onAuthResult(const int32_t result, const AuthResult &extraInfo) = 0;
+
+    /*
+     * returns the identification result.
+     */
+    virtual void onIdentifyResult(const int32_t result, const IdentifyResult &extraInfo) = 0;
 
     /*
      * returns executor property information, such as remaining authentication times and remaining freezing time.

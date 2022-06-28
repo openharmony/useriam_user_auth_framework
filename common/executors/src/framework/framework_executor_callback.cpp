@@ -25,6 +25,7 @@
 #include "iam_logger.h"
 #include "iam_mem.h"
 #include "iam_ptr.h"
+#include "iam_types.h"
 #include "identify_command.h"
 
 #define LOG_LABEL Common::LABEL_USER_AUTH_EXECUTOR
@@ -41,28 +42,32 @@ FrameworkExecutorCallback::FrameworkExecutorCallback(std::weak_ptr<Executor> exe
 }
 
 int32_t FrameworkExecutorCallback::OnBeginExecute(
-    uint64_t scheduleId, std::vector<uint8_t> &publicKey, std::shared_ptr<AuthAttributes> commandAttrs)
+    uint64_t scheduleId, std::vector<uint8_t> &publicKey, std::shared_ptr<UserIam::UserAuth::Attributes> commandAttrs)
 {
     return OnBeginExecuteInner(scheduleId, publicKey, commandAttrs);
 }
 
 ResultCode FrameworkExecutorCallback::OnBeginExecuteInner(
-    uint64_t scheduleId, std::vector<uint8_t> &publicKey, std::shared_ptr<AuthAttributes> commandAttrs)
+    uint64_t scheduleId, std::vector<uint8_t> &publicKey, std::shared_ptr<UserIam::UserAuth::Attributes> commandAttrs)
 {
     static_cast<void>(publicKey);
     IF_FALSE_LOGE_AND_RETURN_VAL(commandAttrs != nullptr, ResultCode::GENERAL_ERROR);
     uint32_t commandId = 0;
-    IF_FALSE_LOGE_AND_RETURN_VAL(
-        commandAttrs->GetUint32Value(AUTH_SCHEDULE_MODE, commandId) == USERAUTH_SUCCESS, ResultCode::GENERAL_ERROR);
+    bool getScheduleModeRet =
+        commandAttrs->GetUint32Value(UserIam::UserAuth::Attributes::ATTR_SCHEDULE_MODE, commandId);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getScheduleModeRet == true, ResultCode::GENERAL_ERROR);
 
     IAM_LOGI("%{public}s start process cmd %{public}u", GetDescription(), commandId);
     ResultCode ret = ResultCode::GENERAL_ERROR;
     switch (commandId) {
-        case SCHEDULE_MODE_ENROLL:
+        case UserIam::UserAuth::ENROLL:
             ret = ProcessEnrollCommand(scheduleId, commandAttrs);
             break;
-        case SCHEDULE_MODE_AUTH:
+        case UserIam::UserAuth::AUTH:
             ret = ProcessAuthCommand(scheduleId, commandAttrs);
+            break;
+        case UserIam::UserAuth::IDENTIFY:
+            ret = ProcessIdentifyCommand(scheduleId, commandAttrs);
             break;
         default:
             IAM_LOGE("command id %{public}u is not supported", commandId);
@@ -72,26 +77,31 @@ ResultCode FrameworkExecutorCallback::OnBeginExecuteInner(
     return ret;
 }
 
-int32_t FrameworkExecutorCallback::OnEndExecute(uint64_t scheduleId, std::shared_ptr<AuthAttributes> consumerAttr)
+int32_t FrameworkExecutorCallback::OnEndExecute(
+    uint64_t scheduleId, std::shared_ptr<UserIam::UserAuth::Attributes> consumerAttr)
 {
     return OnEndExecuteInner(scheduleId, consumerAttr);
 }
 
 ResultCode FrameworkExecutorCallback::OnEndExecuteInner(
-    uint64_t scheduleId, std::shared_ptr<AuthAttributes> consumerAttr)
+    uint64_t scheduleId, std::shared_ptr<UserIam::UserAuth::Attributes> consumerAttr)
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(consumerAttr != nullptr, ResultCode::GENERAL_ERROR);
     uint32_t commandId = 0;
-    IF_FALSE_LOGE_AND_RETURN_VAL(
-        consumerAttr->GetUint32Value(AUTH_SCHEDULE_MODE, commandId) == USERAUTH_SUCCESS, ResultCode::GENERAL_ERROR);
+    bool getScheduleModeRet =
+        consumerAttr->GetUint32Value(UserIam::UserAuth::Attributes::ATTR_SCHEDULE_MODE, commandId);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getScheduleModeRet == true, ResultCode::GENERAL_ERROR);
 
     IAM_LOGI("%{public}s start process cmd %{public}u", GetDescription(), commandId);
     ResultCode ret = ResultCode::GENERAL_ERROR;
     switch (commandId) {
-        case SCHEDULE_MODE_AUTH:
+        case UserIam::UserAuth::AUTH:
             ret = ProcessCancelCommand(scheduleId);
             break;
-        case SCHEDULE_MODE_ENROLL:
+        case UserIam::UserAuth::ENROLL:
+            ret = ProcessCancelCommand(scheduleId);
+            break;
+        case UserIam::UserAuth::IDENTIFY:
             ret = ProcessCancelCommand(scheduleId);
             break;
         default:
@@ -118,17 +128,18 @@ void FrameworkExecutorCallback::OnMessengerReady(
     hdi->OnRegisterFinish(templateIds, publicKey, extraInfo);
 }
 
-int32_t FrameworkExecutorCallback::OnSetProperty(std::shared_ptr<AuthAttributes> properties)
+int32_t FrameworkExecutorCallback::OnSetProperty(std::shared_ptr<UserIam::UserAuth::Attributes> properties)
 {
     return OnSetPropertyInner(properties);
 }
 
-ResultCode FrameworkExecutorCallback::OnSetPropertyInner(std::shared_ptr<AuthAttributes> properties)
+ResultCode FrameworkExecutorCallback::OnSetPropertyInner(std::shared_ptr<UserIam::UserAuth::Attributes> properties)
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(properties != nullptr, ResultCode::GENERAL_ERROR);
     uint32_t commandId = 0;
-    IF_FALSE_LOGE_AND_RETURN_VAL(
-        properties->GetUint32Value(AUTH_PROPERTY_MODE, commandId) == USERAUTH_SUCCESS, ResultCode::GENERAL_ERROR);
+    bool getAuthPropertyModeRet =
+        properties->GetUint32Value(UserIam::UserAuth::Attributes::ATTR_PROPERTY_MODE, commandId);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getAuthPropertyModeRet == true, ResultCode::GENERAL_ERROR);
     IAM_LOGI("%{public}s start process cmd %{public}u", GetDescription(), commandId);
     ResultCode ret = ResultCode::GENERAL_ERROR;
     if (commandId == PROPERMODE_DELETE) {
@@ -141,19 +152,21 @@ ResultCode FrameworkExecutorCallback::OnSetPropertyInner(std::shared_ptr<AuthAtt
 }
 
 int32_t FrameworkExecutorCallback::OnGetProperty(
-    std::shared_ptr<AuthAttributes> conditions, std::shared_ptr<AuthAttributes> values)
+    std::shared_ptr<UserIam::UserAuth::Attributes> conditions, std::shared_ptr<UserIam::UserAuth::Attributes> values)
 {
     return OnGetPropertyInner(conditions, values);
 }
 
 ResultCode FrameworkExecutorCallback::OnGetPropertyInner(
-    std::shared_ptr<AuthAttributes> conditions, std::shared_ptr<AuthAttributes> values)
+    std::shared_ptr<UserIam::UserAuth::Attributes> conditions, std::shared_ptr<UserIam::UserAuth::Attributes> values)
 {
     IAM_LOGI("%{public}s start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN_VAL(conditions != nullptr, ResultCode::GENERAL_ERROR);
+    IF_FALSE_LOGE_AND_RETURN_VAL(values != nullptr, ResultCode::GENERAL_ERROR);
     uint32_t commandId = 0;
-    IF_FALSE_LOGE_AND_RETURN_VAL(
-        conditions->GetUint32Value(AUTH_PROPERTY_MODE, commandId) == USERAUTH_SUCCESS, ResultCode::GENERAL_ERROR);
+    bool getAuthPropertyModeRet =
+        conditions->GetUint32Value(UserIam::UserAuth::Attributes::ATTR_PROPERTY_MODE, commandId);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getAuthPropertyModeRet == true, ResultCode::GENERAL_ERROR);
     if (commandId != PROPERMODE_GET) {
         IAM_LOGE("command id not recognised");
         return ResultCode::GENERAL_ERROR;
@@ -164,7 +177,7 @@ ResultCode FrameworkExecutorCallback::OnGetPropertyInner(
 }
 
 ResultCode FrameworkExecutorCallback::ProcessEnrollCommand(
-    uint64_t scheduleId, std::shared_ptr<AuthAttributes> properties)
+    uint64_t scheduleId, std::shared_ptr<UserIam::UserAuth::Attributes> properties)
 {
     auto command = Common::MakeShared<EnrollCommand>(executor_, scheduleId, properties, executorMessenger_);
     IF_FALSE_LOGE_AND_RETURN_VAL(command != nullptr, ResultCode::GENERAL_ERROR);
@@ -172,7 +185,7 @@ ResultCode FrameworkExecutorCallback::ProcessEnrollCommand(
 }
 
 ResultCode FrameworkExecutorCallback::ProcessAuthCommand(
-    uint64_t scheduleId, std::shared_ptr<AuthAttributes> properties)
+    uint64_t scheduleId, std::shared_ptr<UserIam::UserAuth::Attributes> properties)
 {
     auto command = Common::MakeShared<AuthCommand>(executor_, scheduleId, properties, executorMessenger_);
     IF_FALSE_LOGE_AND_RETURN_VAL(command != nullptr, ResultCode::GENERAL_ERROR);
@@ -180,7 +193,7 @@ ResultCode FrameworkExecutorCallback::ProcessAuthCommand(
 }
 
 ResultCode FrameworkExecutorCallback::ProcessIdentifyCommand(
-    uint64_t scheduleId, std::shared_ptr<AuthAttributes> properties)
+    uint64_t scheduleId, std::shared_ptr<UserIam::UserAuth::Attributes> properties)
 {
     auto command = Common::MakeShared<IdentifyCommand>(executor_, scheduleId, properties, executorMessenger_);
     IF_FALSE_LOGE_AND_RETURN_VAL(command != nullptr, ResultCode::GENERAL_ERROR);
@@ -196,11 +209,11 @@ ResultCode FrameworkExecutorCallback::ProcessCancelCommand(uint64_t scheduleId)
     }
     auto hdi = executor->GetExecutorHdi();
     IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, ResultCode::GENERAL_ERROR);
-    hdi->Cancel(scheduleId);
-    return ResultCode::SUCCESS;
+    return hdi->Cancel(scheduleId);
 }
 
-ResultCode FrameworkExecutorCallback::ProcessDeleteTemplateCommand(std::shared_ptr<AuthAttributes> properties)
+ResultCode FrameworkExecutorCallback::ProcessDeleteTemplateCommand(
+    std::shared_ptr<UserIam::UserAuth::Attributes> properties)
 {
     IAM_LOGI("start");
     IF_FALSE_LOGE_AND_RETURN_VAL(properties != nullptr, ResultCode::GENERAL_ERROR);
@@ -212,14 +225,14 @@ ResultCode FrameworkExecutorCallback::ProcessDeleteTemplateCommand(std::shared_p
     auto hdi = executor->GetExecutorHdi();
     IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, ResultCode::GENERAL_ERROR);
     uint64_t templateId = 0;
-    properties->GetUint64Value(AUTH_TEMPLATE_ID, templateId);
+    bool getAuthTemplateIdRet = properties->GetUint64Value(UserIam::UserAuth::Attributes::ATTR_TEMPLATE_ID, templateId);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getAuthTemplateIdRet == true, ResultCode::GENERAL_ERROR);
     std::vector<uint64_t> templateIdList;
     templateIdList.push_back(templateId);
-    hdi->Delete(templateIdList);
-    return ResultCode::SUCCESS;
+    return hdi->Delete(templateIdList);
 }
 
-ResultCode FrameworkExecutorCallback::ProcessCustomCommand(std::shared_ptr<AuthAttributes> properties)
+ResultCode FrameworkExecutorCallback::ProcessCustomCommand(std::shared_ptr<UserIam::UserAuth::Attributes> properties)
 {
     auto command = Common::MakeShared<CustomCommand>(executor_, properties);
     IF_FALSE_LOGE_AND_RETURN_VAL(command != nullptr, ResultCode::GENERAL_ERROR);
@@ -233,7 +246,7 @@ ResultCode FrameworkExecutorCallback::ProcessCustomCommand(std::shared_ptr<AuthA
 }
 
 ResultCode FrameworkExecutorCallback::ProcessGetTemplateCommand(
-    std::shared_ptr<AuthAttributes> conditions, std::shared_ptr<AuthAttributes> values)
+    std::shared_ptr<UserIam::UserAuth::Attributes> conditions, std::shared_ptr<UserIam::UserAuth::Attributes> values)
 {
     IAM_LOGI("start");
     IF_FALSE_LOGE_AND_RETURN_VAL(conditions != nullptr, ResultCode::GENERAL_ERROR);
@@ -246,14 +259,21 @@ ResultCode FrameworkExecutorCallback::ProcessGetTemplateCommand(
     auto hdi = executor->GetExecutorHdi();
     IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, ResultCode::GENERAL_ERROR);
     uint64_t templateId = 0;
-    conditions->GetUint64Value(AUTH_TEMPLATE_ID, templateId);
+    bool getAuthTemplateIdRet = conditions->GetUint64Value(UserIam::UserAuth::Attributes::ATTR_TEMPLATE_ID, templateId);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getAuthTemplateIdRet == true, ResultCode::GENERAL_ERROR);
     TemplateInfo templateInfo = {};
-    hdi->GetTemplateInfo(templateId, templateInfo);
+    ResultCode ret = hdi->GetTemplateInfo(templateId, templateInfo);
+    IF_FALSE_LOGE_AND_RETURN_VAL(ret == SUCCESS, ret);
     uint64_t subType = 0;
     Common::UnpackUint64(templateInfo.extraInfo, 0, subType);
-    values->SetUint64Value(AUTH_SUBTYPE, subType);
-    values->SetUint32Value(AUTH_REMAIN_TIME, templateInfo.freezingTime);
-    values->SetUint32Value(AUTH_REMAIN_COUNT, templateInfo.remainTimes);
+    bool setAuthSubTypeRet = values->SetUint64Value(UserIam::UserAuth::Attributes::ATTR_PIN_SUB_TYPE, subType);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setAuthSubTypeRet == true, ResultCode::GENERAL_ERROR);
+    bool setAuthRemainTimeRet =
+        values->SetUint32Value(UserIam::UserAuth::Attributes::ATTR_FREEZING_TIME, templateInfo.freezingTime);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setAuthRemainTimeRet == true, ResultCode::GENERAL_ERROR);
+    bool setAuthRemainCountRet =
+        values->SetUint32Value(UserIam::UserAuth::Attributes::ATTR_REMAIN_TIMES, templateInfo.remainTimes);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setAuthRemainCountRet == true, ResultCode::GENERAL_ERROR);
     return ResultCode::SUCCESS;
 }
 

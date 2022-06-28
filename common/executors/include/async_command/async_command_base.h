@@ -51,8 +51,8 @@ protected:
     std::shared_ptr<IAuthExecutorHdi> GetExecutorHdi();
     int32_t MessengerSendData(
         uint64_t scheduleId, uint64_t transNum, int32_t srcType, int32_t dstType, std::shared_ptr<AuthMessage> msg);
-    int32_t MessengerFinish(
-        uint64_t scheduleId, int32_t srcType, int32_t resultCode, std::shared_ptr<AuthAttributes> finalResult);
+    int32_t MessengerFinish(uint64_t scheduleId, int32_t srcType, int32_t resultCode,
+        std::shared_ptr<UserIam::UserAuth::Attributes> finalResult);
 
     const char *GetDescription();
     uint64_t scheduleId_;

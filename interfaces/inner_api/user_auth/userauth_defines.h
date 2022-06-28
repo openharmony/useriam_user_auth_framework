@@ -82,6 +82,11 @@ struct AuthResult {
     uint32_t freezingTime {0};
 };
 
+struct IdentifyResult {
+    int32_t userId {0};
+    std::vector<uint8_t> token {};
+};
+
 struct FreezeInfo {
     uint64_t callerID;
     std::string pkgName;

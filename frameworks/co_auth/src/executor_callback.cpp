@@ -15,12 +15,16 @@
 
 #include "executor_callback.h"
 
+#include "iam_logger.h"
+
+#define LOG_LABEL Common::LABEL_AUTH_EXECUTOR_MGR_SDK
+
 namespace OHOS {
 namespace UserIAM {
 namespace AuthResPool {
 void ExecutorCallback::OnMessengerReady(const sptr<IExecutorMessenger> &messenger)
 {
-    COAUTH_HILOGD(MODULE_INNERKIT, "ExecutorCallback OnMessengerReady");
+    IAM_LOGD("ExecutorCallback OnMessengerReady");
     static_cast<void>(messenger);
     return;
 }
@@ -28,7 +32,7 @@ void ExecutorCallback::OnMessengerReady(const sptr<IExecutorMessenger> &messenge
 void ExecutorCallback::OnMessengerReady(const sptr<IExecutorMessenger> &messenger, std::vector<uint8_t> &publicKey,
     std::vector<uint64_t> &templateIds)
 {
-    COAUTH_HILOGD(MODULE_INNERKIT, "ExecutorCallback OnMessengerReady Overloading");
+    IAM_LOGD("ExecutorCallback OnMessengerReady Overloading");
     static_cast<void>(messenger);
     static_cast<void>(publicKey);
     static_cast<void>(templateIds);

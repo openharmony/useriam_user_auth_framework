@@ -32,7 +32,7 @@ public:
     int32_t SendData(uint64_t scheduleId, uint64_t transNum, int32_t srcType,
         int32_t dstType, std::shared_ptr<AuthMessage> msg) override;
     int32_t Finish(uint64_t scheduleId, int32_t srcType, int32_t resultCode,
-        std::shared_ptr<AuthAttributes> finalResult) override;
+        std::shared_ptr<UserIam::UserAuth::Attributes> finalResult) override;
 
 private:
     bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply);

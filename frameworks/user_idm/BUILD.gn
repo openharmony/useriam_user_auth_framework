@@ -28,6 +28,8 @@ ohos_shared_library("useridm_framework") {
     "//base/useriam/user_auth_framework/services/user_idm/inc",
     "//base/useriam/user_auth_framework/common/logs/user_idm",
     "//base/useriam/user_auth_framework/interfaces/inner_api/user_idm",
+    "//base/useriam/user_auth_framework/common/utils",
+    "//base/useriam/user_auth_framework/common/logs",
   ]
 
   sources = [
@@ -47,6 +49,8 @@ ohos_shared_library("useridm_framework") {
     "samgr_standard:samgr_proxy",
     "utils_base:utils",
   ]
+
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   part_name = "user_auth_framework"
 }
