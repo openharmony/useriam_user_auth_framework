@@ -45,8 +45,7 @@ private:
 
 ThreadHandlerImpl::ThreadHandlerImpl()
 {
-    constexpr uint32_t THREAD_CNT = 1;
-    pool_.Start(THREAD_CNT);
+    pool_.Start(1);
 }
 
 ThreadHandlerImpl::~ThreadHandlerImpl()

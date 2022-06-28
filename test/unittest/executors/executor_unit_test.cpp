@@ -399,7 +399,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_CommonErrorTest_002, 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_CommonErrorTest_003, TestSize.Level0)
 {
     static const uint64_t testScheduleId = 456;
-    static const uint32_t invalid_schedule_mode = 78;
+    static const uint32_t invalidScheduleMode = 78;
 
     shared_ptr<Executor> executor;
     shared_ptr<ExecutorCallback> executorCallback;
@@ -415,7 +415,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_CommonErrorTest_003, 
     auto commandAttrs = MakeShared<Attributes>();
     ASSERT_NE(commandAttrs, nullptr);
     // Error: invalid auth schedule mode
-    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, invalid_schedule_mode);
+    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, invalidScheduleMode);
     ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, commandAttrs);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
