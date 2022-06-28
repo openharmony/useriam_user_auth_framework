@@ -14,8 +14,11 @@
  */
 
 #include "executor_messenger_proxy.h"
-#include "coauth_hilog_wrapper.h"
+
+#include "iam_logger.h"
 #include "message_parcel.h"
+
+#define LOG_LABEL Common::LABEL_AUTH_EXECUTOR_MGR_SDK
 
 namespace OHOS {
 namespace UserIAM {
@@ -24,14 +27,14 @@ int32_t ExecutorMessengerProxy::SendData(uint64_t scheduleId, uint64_t transNum,
     int32_t srcType, int32_t dstType, std::shared_ptr<AuthMessage> msg)
 {
     if (msg == nullptr) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "msg is nullptr");
+        IAM_LOGE("msg is nullptr");
         return INVALID_PARAMETERS;
     }
     MessageParcel data;
     MessageParcel reply;
     int32_t result = 0;
     if (!data.WriteInterfaceToken(ExecutorMessengerProxy::GetDescriptor())) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "write descriptor failed");
+        IAM_LOGE("write descriptor failed");
         return FAIL;
     }
     if (!data.WriteUint64(scheduleId)) {
@@ -55,23 +58,23 @@ int32_t ExecutorMessengerProxy::SendData(uint64_t scheduleId, uint64_t transNum,
     bool ret = SendRequest(static_cast<int32_t>(IExecutorMessenger::COAUTH_SEND_DATA), data, reply);
     if (ret) {
         result = reply.ReadInt32();
-        COAUTH_HILOGI(MODULE_INNERKIT, "result = %{public}d", result);
+        IAM_LOGI("result = %{public}d", result);
     }
     return result;
 }
 
 
 int32_t ExecutorMessengerProxy::Finish(uint64_t scheduleId, int32_t srcType, int32_t resultCode,
-    std::shared_ptr<AuthAttributes> finalResult)
+    std::shared_ptr<UserIam::UserAuth::Attributes> finalResult)
 {
     if (finalResult == nullptr) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "finalResult is nullptr");
+        IAM_LOGE("finalResult is nullptr");
         return INVALID_PARAMETERS;
     }
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(ExecutorMessengerProxy::GetDescriptor())) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "write descriptor failed");
+        IAM_LOGE("write descriptor failed");
         return FAIL;
     }
     if (!data.WriteUint64(scheduleId)) {
@@ -83,10 +86,7 @@ int32_t ExecutorMessengerProxy::Finish(uint64_t scheduleId, int32_t srcType, int
     if (!data.WriteInt32(resultCode)) {
         return FAIL;
     }
-    std::vector<uint8_t> buffer;
-    if (finalResult->Pack(buffer)) {
-        return FAIL;
-    }
+    std::vector<uint8_t> buffer = finalResult->Serialize();
     if (!data.WriteUInt8Vector(buffer)) {
         return FAIL;
     }
@@ -94,7 +94,7 @@ int32_t ExecutorMessengerProxy::Finish(uint64_t scheduleId, int32_t srcType, int
     bool ret = SendRequest(static_cast<int32_t>(IExecutorMessenger::COAUTH_FINISH), data, reply);
     if (ret) {
         result = reply.ReadInt32();
-        COAUTH_HILOGI(MODULE_INNERKIT, "result = %{public}d", result);
+        IAM_LOGI("result = %{public}d", result);
     }
     return result;
 }
@@ -103,13 +103,13 @@ bool ExecutorMessengerProxy::SendRequest(uint32_t code, MessageParcel &data, Mes
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "get remote failed");
+        IAM_LOGE("get remote failed");
         return false;
     }
     MessageOption option(MessageOption::TF_SYNC);
     int32_t result = remote->SendRequest(code, data, reply, option);
     if (result != OHOS::NO_ERROR) {
-        COAUTH_HILOGE(MODULE_INNERKIT, "send request failed, result = %{public}d", result);
+        IAM_LOGE("send request failed, result = %{public}d", result);
         return false;
     }
     return true;

@@ -1,0 +1,122 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//build/test.gni")
+
+ohos_unittest("iam_services_test") {
+  include_dirs = [
+    "inc",
+    "mocks",
+    "//base/useriam/user_auth_framework/services/base/inc",
+    "//base/useriam/user_auth_framework/services/core/inc",
+    "//base/useriam/user_auth_framework/services/core/src",
+    "//base/useriam/user_auth_framework/services/context/inc",
+    "//base/useriam/user_auth_framework/services/context/src",
+    "//base/useriam/user_auth_framework/services/ipc/inc",
+    "//base/useriam/user_auth_framework/services/common_defines/types",
+    "//base/useriam/user_auth_framework/services/common_defines/interfaces",
+  ]
+
+  sources = [
+    "//base/useriam/user_auth_framework/services/base/src/finite_state_machine_builder.cpp",
+    "//base/useriam/user_auth_framework/services/base/src/finite_state_machine_impl.cpp",
+    "//base/useriam/user_auth_framework/services/base/src/relative_timer.cpp",
+    "//base/useriam/user_auth_framework/services/base/src/thread_handler_impl.cpp",
+    "//base/useriam/user_auth_framework/services/context/src/base_context.cpp",
+    "//base/useriam/user_auth_framework/services/context/src/context_callback_impl.cpp",
+    "//base/useriam/user_auth_framework/services/context/src/context_factory.cpp",
+    "//base/useriam/user_auth_framework/services/context/src/context_helper.cpp",
+    "//base/useriam/user_auth_framework/services/context/src/context_pool_impl.cpp",
+    "//base/useriam/user_auth_framework/services/context/src/enroll_context.cpp",
+    "//base/useriam/user_auth_framework/services/context/src/identify_context.cpp",
+    "//base/useriam/user_auth_framework/services/context/src/simple_auth_context.cpp",
+    "//base/useriam/user_auth_framework/services/core/src/authentication_impl.cpp",
+    "//base/useriam/user_auth_framework/services/core/src/credential_info_impl.cpp",
+    "//base/useriam/user_auth_framework/services/core/src/enrolled_info_impl.cpp",
+    "//base/useriam/user_auth_framework/services/core/src/enrollment_impl.cpp",
+    "//base/useriam/user_auth_framework/services/core/src/identification_impl.cpp",
+    "//base/useriam/user_auth_framework/services/core/src/resource_node_impl.cpp",
+    "//base/useriam/user_auth_framework/services/core/src/resource_node_pool_impl.cpp",
+    "//base/useriam/user_auth_framework/services/core/src/resource_node_utils.cpp",
+    "//base/useriam/user_auth_framework/services/core/src/schedule_node_builder.cpp",
+    "//base/useriam/user_auth_framework/services/core/src/schedule_node_helper.cpp",
+    "//base/useriam/user_auth_framework/services/core/src/schedule_node_impl.cpp",
+    "//base/useriam/user_auth_framework/services/core/src/secure_user_info_impl.cpp",
+    "//base/useriam/user_auth_framework/services/core/src/user_idm_database_impl.cpp",
+    "//base/useriam/user_auth_framework/services/core/src/user_idm_session_controller_impl.cpp",
+    "//base/useriam/user_auth_framework/services/ipc/src/co_auth_service.cpp",
+    "//base/useriam/user_auth_framework/services/ipc/src/co_auth_stub.cpp",
+    "//base/useriam/user_auth_framework/services/ipc/src/executor_callback_proxy.cpp",
+    "//base/useriam/user_auth_framework/services/ipc/src/executor_messenger_service.cpp",
+    "//base/useriam/user_auth_framework/services/ipc/src/executor_messenger_stub.cpp",
+    "//base/useriam/user_auth_framework/services/ipc/src/ipc_common.cpp",
+    "//base/useriam/user_auth_framework/services/ipc/src/user_auth_callback_proxy.cpp",
+    "//base/useriam/user_auth_framework/services/ipc/src/user_auth_service.cpp",
+    "//base/useriam/user_auth_framework/services/ipc/src/user_auth_stub.cpp",
+    "//base/useriam/user_auth_framework/services/ipc/src/user_idm_callback_proxy.cpp",
+    "//base/useriam/user_auth_framework/services/ipc/src/user_idm_service.cpp",
+    "//base/useriam/user_auth_framework/services/ipc/src/user_idm_stub.cpp",
+    "mocks/mock_iuser_auth_interface.cpp",
+    "src/attributes_test.cpp",
+    "src/authentication_impl_test.cpp",
+    "src/context_callback_impl_test.cpp",
+    "src/context_factory_test.cpp",
+    "src/context_pool_test.cpp",
+    "src/credential_info_test.cpp",
+    "src/enroll_context_test.cpp",
+    "src/enrolled_info_test.cpp",
+    "src/enrollment_impl_test.cpp",
+    "src/identification_impl_test.cpp",
+    "src/identify_context_test.cpp",
+    "src/relative_timer_test.cpp",
+    "src/resource_node_pool_test.cpp",
+    "src/resource_node_test.cpp",
+    "src/schedule_node_test.cpp",
+    "src/secure_user_info_test.cpp",
+    "src/simple_auth_context_test.cpp",
+    "src/state_machine_test.cpp",
+    "src/user_auth_service_test.cpp",
+    "src/user_auth_stub_test.cpp",
+    "src/user_idm_database_test.cpp",
+    "src/user_idm_service_test.cpp",
+    "src/user_idm_session_controller_test.cpp",
+    "src/user_idm_stub_test.cpp",
+  ]
+
+  deps = [
+    "//base/useriam/user_auth_framework/frameworks/co_auth:iam_attributes",
+    "//third_party/googletest:gmock",
+    "//third_party/openssl:libcrypto_shared",
+  ]
+
+  external_deps = [
+    "access_token:libaccesstoken_sdk",
+    "drivers_interface_user_auth:libuser_auth_proxy_1.0",
+    "hilog_native:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr_standard:samgr_proxy",
+    "startup_l2:syspara",
+    "utils_base:utils",
+  ]
+
+  configs = [
+    "//base/useriam/user_auth_framework/common:iam_log_config",
+    "//base/useriam/user_auth_framework/common:iam_utils_config",
+  ]
+
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
+  module_out_path = "useriam/user_auth_framework"
+}

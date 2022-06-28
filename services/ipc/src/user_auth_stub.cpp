@@ -1,0 +1,381 @@
+/*
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "user_auth_stub.h"
+
+#include <cinttypes>
+
+#include "iam_logger.h"
+#include "iam_scope_guard.h"
+#include "result_code.h"
+#include "securec.h"
+#include "user_auth_callback_proxy.h"
+
+#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
+
+namespace OHOS {
+namespace UserIam {
+namespace UserAuth {
+int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    IAM_LOGD("cmd = %{public}u, flags = %{public}d", code, option.GetFlags());
+    if (UserAuthStub::GetDescriptor() != data.ReadInterfaceToken()) {
+        IAM_LOGE("descriptor is not matched");
+        return FAIL;
+    }
+    switch (code) {
+        case UserAuth::USER_AUTH_GET_AVAILABLE_STATUS:
+            return GetAvailableStatusStub(data, reply);
+        case UserAuth::USER_AUTH_GET_PROPERTY:
+            return GetPropertyStub(data, reply);
+        case UserAuth::USER_AUTH_GET_PROPERTY_BY_ID:
+            return GetPropertyByIdStub(data, reply);
+        case UserAuth::USER_AUTH_SET_PROPERTY:
+            return SetPropertyStub(data, reply);
+        case UserAuth::USER_AUTH_AUTH:
+            return AuthStub(data, reply);
+        case UserAuth::USER_AUTH_AUTH_USER:
+            return AuthUserStub(data, reply);
+        case UserAuth::USER_AUTH_CANCEL_AUTH:
+            return CancelAuthOrIdentifyStub(data, reply);
+        case UserAuth::USER_AUTH_IDENTIFY:
+            return IdentifyStub(data, reply);
+        case UserAuth::USER_AUTH_CANCEL_IDENTIFY:
+            return CancelAuthOrIdentifyStub(data, reply);
+        case UserAuth::USER_AUTH_GET_VERSION:
+            return GetVersionStub(data, reply);
+        default:
+            return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+    }
+}
+
+int32_t UserAuthStub::GetAvailableStatusStub(MessageParcel &data, MessageParcel &reply)
+{
+    IAM_LOGD("enter");
+    ON_SCOPE_EXIT(IAM_LOGD("leave"));
+
+    uint32_t authType;
+    uint32_t authTrustLevel;
+
+    if (!data.ReadUint32(authType)) {
+        IAM_LOGE("failed to read authType");
+        return READ_PARCEL_ERROR;
+    }
+    if (!data.ReadUint32(authTrustLevel)) {
+        IAM_LOGE("failed to read authTrustLevel");
+        return READ_PARCEL_ERROR;
+    }
+
+    int32_t result = GetAvailableStatus(static_cast<AuthType>(authType), static_cast<AuthTrustLevel>(authTrustLevel));
+    if (!reply.WriteInt32(result)) {
+        IAM_LOGE("failed to write GetAvailableStatus result");
+        return WRITE_PARCEL_ERROR;
+    }
+    return SUCCESS;
+}
+
+int32_t UserAuthStub::GetPropertyStub(MessageParcel &data, MessageParcel &reply)
+{
+    IAM_LOGD("enter");
+    ON_SCOPE_EXIT(IAM_LOGD("leave"));
+
+    std::optional<int32_t> userId;
+    uint32_t authType;
+    std::vector<uint32_t> keys;
+
+    if (!data.ReadUint32(authType)) {
+        IAM_LOGE("failed to read authType");
+        return READ_PARCEL_ERROR;
+    }
+    if (!data.ReadUInt32Vector(&keys)) {
+        IAM_LOGE("failed to read attribute keys");
+        return READ_PARCEL_ERROR;
+    }
+    std::vector<Attributes::AttributeKey> attrKeys;
+    for (auto &key : keys) {
+        attrKeys.push_back(static_cast<Attributes::AttributeKey>(key));
+    }
+
+    sptr<IRemoteObject> obj = data.ReadRemoteObject();
+    if (obj == nullptr) {
+        IAM_LOGE("failed to read remote object");
+        return READ_PARCEL_ERROR;
+    }
+    sptr<GetExecutorPropertyCallback> callback = iface_cast<GetExecutorPropertyCallbackProxy>(obj);
+    if (callback == nullptr) {
+        IAM_LOGE("GetExecutorPropertyCallback is nullptr");
+        return FAIL;
+    }
+
+    GetProperty(userId, static_cast<AuthType>(authType), attrKeys, callback);
+    return SUCCESS;
+}
+
+int32_t UserAuthStub::GetPropertyByIdStub(MessageParcel &data, MessageParcel &reply)
+{
+    IAM_LOGD("enter");
+    ON_SCOPE_EXIT(IAM_LOGD("leave"));
+
+    int32_t userId;
+    uint32_t authType;
+    std::vector<uint32_t> keys;
+
+    if (!data.ReadInt32(userId)) {
+        IAM_LOGE("failed to read userId");
+        return READ_PARCEL_ERROR;
+    }
+    if (!data.ReadUint32(authType)) {
+        IAM_LOGE("failed to read authType");
+        return READ_PARCEL_ERROR;
+    }
+    if (!data.ReadUInt32Vector(&keys)) {
+        IAM_LOGE("failed to read attribute keys");
+        return READ_PARCEL_ERROR;
+    }
+    std::vector<Attributes::AttributeKey> attrKeys;
+    for (auto &key : keys) {
+        attrKeys.push_back(static_cast<Attributes::AttributeKey>(key));
+    }
+
+    sptr<IRemoteObject> obj = data.ReadRemoteObject();
+    if (obj == nullptr) {
+        IAM_LOGE("failed to read remote object");
+        return READ_PARCEL_ERROR;
+    }
+    sptr<GetExecutorPropertyCallback> callback = iface_cast<GetExecutorPropertyCallbackProxy>(obj);
+    if (callback == nullptr) {
+        IAM_LOGE("GetExecutorPropertyCallback is nullptr");
+        return FAIL;
+    }
+
+    GetProperty(userId, static_cast<AuthType>(authType), attrKeys, callback);
+    return SUCCESS;
+}
+
+int32_t UserAuthStub::SetPropertyStub(MessageParcel &data, MessageParcel &reply)
+{
+    IAM_LOGD("enter");
+    ON_SCOPE_EXIT(IAM_LOGD("leave"));
+
+    std::optional<int32_t> userId;
+    uint32_t authType;
+    std::vector<uint8_t> attr;
+
+    if (!data.ReadUint32(authType)) {
+        IAM_LOGE("failed to read authType");
+        return READ_PARCEL_ERROR;
+    }
+    if (!data.ReadUInt8Vector(&attr)) {
+        IAM_LOGE("failed to read attributes");
+        return READ_PARCEL_ERROR;
+    }
+    Attributes attributes(attr);
+
+    sptr<IRemoteObject> obj = data.ReadRemoteObject();
+    if (obj == nullptr) {
+        IAM_LOGE("failed to read remote object");
+        return READ_PARCEL_ERROR;
+    }
+    sptr<SetExecutorPropertyCallback> callback = iface_cast<SetExecutorPropertyCallbackProxy>(obj);
+    if (callback == nullptr) {
+        IAM_LOGE("SetExecutorPropertyCallback is nullptr");
+        return FAIL;
+    }
+
+    SetProperty(userId, static_cast<AuthType>(authType), attributes, callback);
+    return SUCCESS;
+}
+
+int32_t UserAuthStub::AuthStub(MessageParcel &data, MessageParcel &reply)
+{
+    IAM_LOGD("enter");
+    ON_SCOPE_EXIT(IAM_LOGD("leave"));
+
+    std::optional<int32_t> userId;
+    uint64_t tempChallenge;
+    uint32_t authType;
+    uint32_t authTrustLevel;
+
+    if (!data.ReadUint64(tempChallenge)) {
+        IAM_LOGE("failed to read challenge");
+        return READ_PARCEL_ERROR;
+    }
+    if (!data.ReadUint32(authType)) {
+        IAM_LOGE("failed to read authType");
+        return READ_PARCEL_ERROR;
+    }
+    if (!data.ReadUint32(authTrustLevel)) {
+        IAM_LOGE("failed to read authTrustLevel");
+        return READ_PARCEL_ERROR;
+    }
+
+    sptr<IRemoteObject> obj = data.ReadRemoteObject();
+    if (obj == nullptr) {
+        IAM_LOGE("failed to read remote object");
+        return READ_PARCEL_ERROR;
+    }
+    sptr<UserAuthCallback> callback = iface_cast<UserAuthCallbackProxy>(obj);
+    if (callback == nullptr) {
+        IAM_LOGE("UserAuthCallback is nullptr");
+        return FAIL;
+    }
+
+    std::vector<uint8_t> challenge;
+    challenge.resize(sizeof(uint64_t));
+    if (memcpy_s(&challenge[0], challenge.size(), &tempChallenge, sizeof(uint64_t)) != EOK) {
+        IAM_LOGE("failed to copy challenge");
+        return FAIL;
+    }
+
+    uint64_t contextId = AuthUser(userId, challenge, static_cast<AuthType>(authType),
+        static_cast<AuthTrustLevel>(authTrustLevel), callback);
+    if (!reply.WriteUint64(contextId)) {
+        IAM_LOGE("failed to write AuthUser result");
+        return WRITE_PARCEL_ERROR;
+    }
+    return SUCCESS;
+}
+
+int32_t UserAuthStub::AuthUserStub(MessageParcel &data, MessageParcel &reply)
+{
+    IAM_LOGD("enter");
+    ON_SCOPE_EXIT(IAM_LOGD("leave"));
+
+    int32_t userId;
+    uint64_t tempChallenge;
+    uint32_t authType;
+    uint32_t authTrustLevel;
+
+    if (!data.ReadInt32(userId)) {
+        IAM_LOGE("failed to read userId");
+        return READ_PARCEL_ERROR;
+    }
+    if (!data.ReadUint64(tempChallenge)) {
+        IAM_LOGE("failed to read challenge");
+        return READ_PARCEL_ERROR;
+    }
+    if (!data.ReadUint32(authType)) {
+        IAM_LOGE("failed to read authType");
+        return READ_PARCEL_ERROR;
+    }
+    if (!data.ReadUint32(authTrustLevel)) {
+        IAM_LOGE("failed to read authTrustLevel");
+        return READ_PARCEL_ERROR;
+    }
+
+    sptr<IRemoteObject> obj = data.ReadRemoteObject();
+    if (obj == nullptr) {
+        IAM_LOGE("failed to read remote object");
+        return READ_PARCEL_ERROR;
+    }
+    sptr<UserAuthCallback> callback = iface_cast<UserAuthCallbackProxy>(obj);
+    if (callback == nullptr) {
+        IAM_LOGE("UserAuthCallback is nullptr");
+        return FAIL;
+    }
+
+    std::vector<uint8_t> challenge;
+    challenge.resize(sizeof(uint64_t));
+    if (memcpy_s(&challenge[0], challenge.size(), &tempChallenge, sizeof(uint64_t)) != EOK) {
+        IAM_LOGE("failed to copy challenge");
+        return FAIL;
+    }
+
+    uint64_t contextId = AuthUser(userId, challenge, static_cast<AuthType>(authType),
+        static_cast<AuthTrustLevel>(authTrustLevel), callback);
+    if (!reply.WriteUint64(contextId)) {
+        IAM_LOGE("failed to write AuthUser result");
+        return WRITE_PARCEL_ERROR;
+    }
+    return SUCCESS;
+}
+
+int32_t UserAuthStub::IdentifyStub(MessageParcel &data, MessageParcel &reply)
+{
+    IAM_LOGD("enter");
+    ON_SCOPE_EXIT(IAM_LOGD("leave"));
+
+    uint64_t tempChallenge;
+    uint32_t authType;
+    if (!data.ReadUint64(tempChallenge)) {
+        IAM_LOGE("failed to read challenge");
+        return READ_PARCEL_ERROR;
+    }
+    if (!data.ReadUint32(authType)) {
+        IAM_LOGE("failed to read authType");
+        return READ_PARCEL_ERROR;
+    }
+
+    sptr<IRemoteObject> obj = data.ReadRemoteObject();
+    if (obj == nullptr) {
+        IAM_LOGE("failed to read remote object");
+        return READ_PARCEL_ERROR;
+    }
+    sptr<UserAuthCallback> callback = iface_cast<UserAuthCallbackProxy>(obj);
+    if (callback == nullptr) {
+        IAM_LOGE("UserAuthCallback is nullptr");
+        return FAIL;
+    }
+
+    std::vector<uint8_t> challenge;
+    challenge.resize(sizeof(uint64_t));
+    if (memcpy_s(&challenge[0], challenge.size(), &tempChallenge, sizeof(uint64_t)) != EOK) {
+        IAM_LOGE("failed to copy challenge");
+        return FAIL;
+    }
+
+    uint64_t contextId = Identify(challenge, static_cast<AuthType>(authType), callback);
+    if (!reply.WriteUint64(contextId)) {
+        IAM_LOGE("failed to write Identify result");
+        return WRITE_PARCEL_ERROR;
+    }
+    return SUCCESS;
+}
+
+int32_t UserAuthStub::CancelAuthOrIdentifyStub(MessageParcel &data, MessageParcel &reply)
+{
+    IAM_LOGD("enter");
+    ON_SCOPE_EXIT(IAM_LOGD("leave"));
+
+    uint64_t contextId;
+
+    if (!data.ReadUint64(contextId)) {
+        IAM_LOGE("failed to read contextId");
+        return READ_PARCEL_ERROR;
+    }
+
+    int32_t result = CancelAuthOrIdentify(contextId);
+    if (!reply.WriteInt32(result)) {
+        IAM_LOGE("failed to write CancelAuthOrIdentify result");
+        return WRITE_PARCEL_ERROR;
+    }
+    return SUCCESS;
+}
+
+int32_t UserAuthStub::GetVersionStub(MessageParcel &data, MessageParcel &reply)
+{
+    IAM_LOGD("enter");
+    ON_SCOPE_EXIT(IAM_LOGD("leave"));
+
+    int32_t result = GetVersion();
+    if (!reply.WriteInt32(result)) {
+        IAM_LOGE("failed to write GetVersion result");
+        return WRITE_PARCEL_ERROR;
+    }
+    return SUCCESS;
+}
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS

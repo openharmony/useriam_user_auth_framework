@@ -31,11 +31,11 @@ public:
     void OnMessengerReady(const sptr<IExecutorMessenger> &messenger, std::vector<uint8_t> &publicKey,
         std::vector<uint64_t> &templateIds) override;
     int32_t OnBeginExecute(uint64_t scheduleId, std::vector<uint8_t> &publicKey,
-        std::shared_ptr<AuthAttributes> commandAttrs) override;
-    int32_t OnEndExecute(uint64_t scheduleId, std::shared_ptr<AuthAttributes> consumerAttr) override;
-    int32_t OnSetProperty(std::shared_ptr<AuthAttributes> properties)  override;
-    int32_t OnGetProperty(std::shared_ptr<AuthAttributes> conditions,
-        std::shared_ptr<AuthAttributes> values) override;
+        std::shared_ptr<UserIam::UserAuth::Attributes> commandAttrs) override;
+    int32_t OnEndExecute(uint64_t scheduleId, std::shared_ptr<UserIam::UserAuth::Attributes> consumerAttr) override;
+    int32_t OnSetProperty(std::shared_ptr<UserIam::UserAuth::Attributes> properties)  override;
+    int32_t OnGetProperty(std::shared_ptr<UserIam::UserAuth::Attributes> conditions,
+        std::shared_ptr<UserIam::UserAuth::Attributes> values) override;
     int OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
 private:

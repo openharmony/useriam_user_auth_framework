@@ -34,6 +34,9 @@ public:
     uint64_t AuthUser(const int32_t userId, const uint64_t challenge, const AuthType authType,
         const AuthTrustLevel authTrustLevel, std::shared_ptr<UserAuthCallback> callback);
     int32_t CancelAuth(const uint64_t contextId);
+    uint64_t Identify(const uint64_t challenge, const AuthType authType,
+        std::shared_ptr<UserIdentifyCallback> callback);
+    int32_t CancelIdentify(const uint64_t contextId);
 };
 } // namespace UserAuth
 } // namespace UserIAM

@@ -139,8 +139,8 @@ int32_t AsyncCommandBase::MessengerSendData(
     return messenger->SendData(scheduleId, transNum, srcType, dstType, msg);
 }
 
-int32_t AsyncCommandBase::MessengerFinish(
-    uint64_t scheduleId, int32_t srcType, int32_t resultCode, std::shared_ptr<AuthAttributes> finalResult)
+int32_t AsyncCommandBase::MessengerFinish(uint64_t scheduleId, int32_t srcType, int32_t resultCode,
+    std::shared_ptr<UserIam::UserAuth::Attributes> finalResult)
 {
     auto messenger = executorMessenger_;
     IF_FALSE_LOGE_AND_RETURN_VAL(messenger != nullptr, USERAUTH_ERROR);

@@ -1,129 +1,130 @@
 {
-    "name": "@openharmony/user_auth_framework",
-    "version": "3.1.0",
-    "description": "User Authentication capability",
-    "homePage": "https://gitee.com/openharmony",
-    "author": {},
-    "repository": "",
-    "license": "Apache License 2.0",
-    "publishAs": "code-segment",
-    "segment": {
-      "destPath" : "base/useriam/user_auth_framework"
+  "name": "@openharmony/user_auth_framework",
+  "version": "3.1.0",
+  "description": "User Authentication capability",
+  "homePage": "https://gitee.com/openharmony",
+  "author": {},
+  "repository": "",
+  "license": "Apache License 2.0",
+  "publishAs": "code-segment",
+  "segment": {
+    "destPath": "base/useriam/user_auth_framework"
+  },
+  "dirs": {},
+  "scripts": {},
+  "component": {
+    "name": "user_auth_framework",
+    "subsystem": "useriam",
+    "adapted_system_type": [
+      "standard"
+    ],
+    "syscap": [
+      "SystemCapability.UserIAM.UserAuth.Core"
+    ],
+    "features": [],
+    "rom": "3924KB",
+    "ram": "5000KB",
+    "deps": {
+      "components": [
+        "hiviewdfx_hilog_native",
+        "ipc",
+        "safwk",
+        "samgr_standard",
+        "hilog",
+        "user_auth_framework"
+      ],
+      "third_party": [
+        "openssl"
+      ]
     },
-    "dirs": {},
-    "scripts": {},
-    "component": {
-      "name": "user_auth_framework",
-      "subsystem": "useriam",
-      "adapted_system_type": [ "standard" ],
-      "syscap": ["SystemCapability.UserIAM.UserAuth.Core"],
-      "features": [],
-      "rom": "3924KB",
-      "ram": "5000KB",
-      "deps": {
-        "components": [
-            "hiviewdfx_hilog_native",
-            "ipc",
-            "safwk",
-            "samgr_standard",
-            "hilog",
-            "user_auth_framework"
-        ],
-        "third_party": [
-            "openssl"
-        ]
-      },
-      "build": {
-        "sub_component": [
-            "//base/useriam/user_auth_framework/sa_profile:userauth_sa_profile",
-            "//base/useriam/user_auth_framework/sa_profile:useriam.init",
-            "//base/useriam/user_auth_framework/services:userauthservice",
-            "//base/useriam/user_auth_framework/common/executors:userauth_executors",
-            "//base/useriam/user_auth_framework/frameworks/js/napi/user_idm:useridm"
-        ],
-        "inner_kits": [
-      	  {
-            "type": "so",
-            "name": "//base/useriam/user_auth_framework/frameworks/user_auth:userauth_framework",
-            "header": {
-              "header_files": [
-                "user_auth/user_auth.h",
-                "user_auth/userauth_callback.h",
-                "user_auth/userauth_defines.h",
-                "common/common_info.h"
-              ],
-              "header_base": "//base/useriam/user_auth_framework/interfaces/inner_api/"
-            }
-          },
-          {
-            "type": "so",
-            "name": "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth:userauth",
-            "header": {
-              "header_files": [
-                "auth_build.h",
-                "auth_common.h",
-                "auth_object.h",
-                "authapi_callback.h",
-                "result_convert.h",
-                "user_auth_helper.h",
-                "user_auth_impl.h"
-              ],
-              "header_base": "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth/inc/"
-            }
-          },
-          {
-            "type": "so",
-            "name": "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth:userauth_napi",
-            "header": {
-              "header_files": [
-                "auth_build.h",
-                "auth_common.h",
-                "auth_object.h",
-                "authapi_callback.h",
-                "result_convert.h",
-                "user_auth_helper.h",
-                "user_auth_impl.h"
-              ],
-              "header_base": "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth/inc/"
-            }
-          },
-          {
-            "type": "so",
-            "name": "//base/useriam/user_auth_framework/frameworks/co_auth:coauth_framework",
-            "header": {
-              "header_files": [
-                "auth_attributes.h",
-                "auth_executor.h",
-                "co_auth_defines.h",
-                "executor_callback.h",
-                "executor_mgr.h"
-              ],
-              "header_base": "//base/useriam/user_auth_framework/interfaces/inner_api/co_auth/"
-            }
-          },
-          {
-            "type": "so",
-            "name": "//base/useriam/user_auth_framework/frameworks/user_idm:useridm_framework",
-            "header": {
-              "header_files": [
-                "user_idm_callback.h",
-                "user_idm_defines.h",
-                "user_idm.h",
-                "useridm_callback.h",
-                "useridm_info.h",
-                "useridm_client.h"
-              ],
-              "header_base": "//base/useriam/user_auth_framework/interfaces/inner_api/user_idm"
-            }
+    "build": {
+      "sub_component": [
+        "//base/useriam/user_auth_framework/sa_profile:userauth_sa_profile",
+        "//base/useriam/user_auth_framework/sa_profile:useriam.init",
+        "//base/useriam/user_auth_framework/services:userauthservice",
+        "//base/useriam/user_auth_framework/common/executors:userauth_executors",
+        "//base/useriam/user_auth_framework/frameworks/js/napi/user_idm:useridm"
+      ],
+      "inner_kits": [
+        {
+          "type": "so",
+          "name": "//base/useriam/user_auth_framework/frameworks/user_auth:userauth_framework",
+          "header": {
+            "header_files": [
+              "user_auth/user_auth.h",
+              "user_auth/userauth_callback.h",
+              "user_auth/userauth_defines.h",
+              "common/common_info.h"
+            ],
+            "header_base": "//base/useriam/user_auth_framework/interfaces/inner_api/"
           }
-        ],
-        "test": [
-            "//base/useriam/user_auth_framework/test/co_auth/fuzztest/coauth_fuzzer:CoAuthFuzzTest",
-            "//base/useriam/user_auth_framework/test/user_idm:user_idm_unittest",
-            "//base/useriam/user_auth_framework/test/user_idm/fuzztest/useridm_fuzzer:UserIdmFuzzTest",
-            "//base/useriam/user_auth_framework/test/user_auth/unittest:user_auth_unittest",
-            "//base/useriam/user_auth_framework/test/user_auth/fuzztest:UserAuthFuzzTest"
-        ]
-      }
+        },
+        {
+          "type": "so",
+          "name": "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth:userauth",
+          "header": {
+            "header_files": [
+              "auth_build.h",
+              "auth_common.h",
+              "auth_object.h",
+              "authapi_callback.h",
+              "result_convert.h",
+              "user_auth_helper.h",
+              "user_auth_impl.h"
+            ],
+            "header_base": "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth/inc/"
+          }
+        },
+        {
+          "type": "so",
+          "name": "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth:userauth_napi",
+          "header": {
+            "header_files": [
+              "auth_build.h",
+              "auth_common.h",
+              "auth_object.h",
+              "authapi_callback.h",
+              "result_convert.h",
+              "user_auth_helper.h",
+              "user_auth_impl.h"
+            ],
+            "header_base": "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth/inc/"
+          }
+        },
+        {
+          "type": "so",
+          "name": "//base/useriam/user_auth_framework/frameworks/co_auth:coauth_framework",
+          "header": {
+            "header_files": [
+              "attributes.h",
+              "auth_executor.h",
+              "co_auth_defines.h",
+              "executor_callback.h",
+              "executor_mgr.h"
+            ],
+            "header_base": "//base/useriam/user_auth_framework/interfaces/inner_api/co_auth/"
+          }
+        },
+        {
+          "type": "so",
+          "name": "//base/useriam/user_auth_framework/frameworks/user_idm:useridm_framework",
+          "header": {
+            "header_files": [
+              "user_idm_callback.h",
+              "user_idm_defines.h",
+              "user_idm.h",
+              "useridm_callback.h",
+              "useridm_info.h",
+              "useridm_client.h"
+            ],
+            "header_base": "//base/useriam/user_auth_framework/interfaces/inner_api/user_idm"
+          }
+        }
+      ],
+      "test": [
+        "//base/useriam/user_auth_framework/test:iam_unittest",
+        "//base/useriam/user_auth_framework/test:iam_fuzztest"
+      ]
     }
   }
+}

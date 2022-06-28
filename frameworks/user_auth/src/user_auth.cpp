@@ -14,12 +14,16 @@
  */
 
 #include "user_auth.h"
+
 #include <if_system_ability_manager.h>
 #include <iservice_registry.h>
 #include <system_ability_definition.h>
-#include "user_auth_native.h"
+
+#include "iam_logger.h"
 #include "system_ability_definition.h"
-#include "userauth_hilog_wrapper.h"
+#include "user_auth_native.h"
+
+#define LOG_LABEL Common::LABEL_USER_AUTH_SDK
 
 namespace OHOS {
 namespace UserIAM {
@@ -27,12 +31,12 @@ namespace UserAuth {
 void UserAuth::GetProperty(const int32_t userId, const GetPropertyRequest &request,
     std::shared_ptr<GetPropCallback> callback)
 {
-    USERAUTH_HILOGD(MODULE_INNERAPI, "GetProperty start");
+    IAM_LOGD("GetProperty start");
     if (callback == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERAPI, "GetProperty callback is nullptr");
+        IAM_LOGE("GetProperty callback is nullptr");
         return;
     }
-    USERAUTH_HILOGI(MODULE_INNERAPI, "GetProperty start with userid: %{public}d", userId);
+    IAM_LOGI("GetProperty start with userid: %{public}d", userId);
     UserAuthNative::GetInstance().GetProperty(userId, request, callback);
 }
 
@@ -40,21 +44,21 @@ void UserAuth::SetProperty(const int32_t userId, const SetPropertyRequest &reque
     std::shared_ptr<SetPropCallback> callback)
 {
     static_cast<void>(userId);
-    USERAUTH_HILOGD(MODULE_INNERAPI, "SetProperty start");
+    IAM_LOGD("SetProperty start");
     if (callback == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERAPI, "SetProperty callback is nullptr");
+        IAM_LOGE("SetProperty callback is nullptr");
         return;
     }
-    USERAUTH_HILOGI(MODULE_INNERAPI, "SetProperty start with userid: %{public}d", userId);
+    IAM_LOGI("SetProperty start with userid: %{public}d", userId);
     UserAuthNative::GetInstance().SetProperty(request, callback);
 }
 
 uint64_t UserAuth::AuthUser(const int32_t userId, const uint64_t challenge, const AuthType authType,
     const AuthTrustLevel authTrustLevel, std::shared_ptr<UserAuthCallback> callback)
 {
-    USERAUTH_HILOGD(MODULE_INNERAPI, "AuthUser start with userid: %{public}d", userId);
+    IAM_LOGD("AuthUser start with userid: %{public}d", userId);
     if (callback == nullptr) {
-        USERAUTH_HILOGE(MODULE_INNERAPI, "AuthUser callback is nullptr");
+        IAM_LOGE("AuthUser callback is nullptr");
         return INVALID_PARAMETERS;
     }
     return UserAuthNative::GetInstance().AuthUser(userId, challenge, authType, authTrustLevel, callback);
@@ -62,8 +66,25 @@ uint64_t UserAuth::AuthUser(const int32_t userId, const uint64_t challenge, cons
 
 int32_t UserAuth::CancelAuth(const uint64_t contextId)
 {
-    USERAUTH_HILOGD(MODULE_INNERAPI, "CancelAuth start");
+    IAM_LOGD("CancelAuth start");
     return UserAuthNative::GetInstance().CancelAuth(contextId);
+}
+
+uint64_t UserAuth::Identify(const uint64_t challenge, const AuthType authType,
+    std::shared_ptr<UserIdentifyCallback> callback)
+{
+    IAM_LOGD("Identify start");
+    if (callback == nullptr) {
+        IAM_LOGE("Identify callback is nullptr");
+        return INVALID_PARAMETERS;
+    }
+    return UserAuthNative::GetInstance().Identify(challenge, authType, callback);
+}
+
+int32_t UserAuth::CancelIdentify(const uint64_t contextId)
+{
+    IAM_LOGD("CancelIdentify start");
+    return UserAuthNative::GetInstance().CancelIdentify(contextId);
 }
 } // namespace UserAuth
 } // namespace UserIAM

@@ -16,8 +16,9 @@
 #include "driver_manager.h"
 
 #include <set>
-#include <system_ability_definition.h>
 
+#include "devsvc_manager_stub.h"
+#include "hdf_device_desc.h"
 #include "iservice_registry.h"
 #include "iservmgr_hdi.h"
 #include "parameter.h"
@@ -50,7 +51,7 @@ int32_t DriverManager::Start(const std::map<std::string, HdiConfig> &hdiName2Con
     for (auto const &pair : hdiName2Config) {
         auto driver = Common::MakeShared<Driver>(pair.first, pair.second);
         if (driver == nullptr) {
-            IAM_LOGE("make_shared for driver %{public}s failed", pair.first.c_str());
+            IAM_LOGE("MakeShared for driver %{public}s failed", pair.first.c_str());
             continue;
         }
         serviceName2Driver_[pair.first] = driver;

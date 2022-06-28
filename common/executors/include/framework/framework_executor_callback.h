@@ -21,7 +21,7 @@
 
 #include "nocopyable.h"
 
-#include "auth_attributes.h"
+#include "attributes.h"
 #include "auth_executor.h"
 #include "co_auth_defines.h"
 #include "executor.h"
@@ -41,29 +41,31 @@ public:
     explicit FrameworkExecutorCallback(std::weak_ptr<Executor> executor);
     ~FrameworkExecutorCallback() override = default;
 
-    int32_t OnBeginExecute(
-        uint64_t scheduleId, std::vector<uint8_t> &publicKey, std::shared_ptr<AuthAttributes> commandAttrs) override;
-    int32_t OnEndExecute(uint64_t scheduleId, std::shared_ptr<AuthAttributes> consumerAttr) override;
-    int32_t OnSetProperty(std::shared_ptr<AuthAttributes> properties) override;
+    int32_t OnBeginExecute(uint64_t scheduleId, std::vector<uint8_t> &publicKey,
+        std::shared_ptr<UserIam::UserAuth::Attributes> commandAttrs) override;
+    int32_t OnEndExecute(uint64_t scheduleId, std::shared_ptr<UserIam::UserAuth::Attributes> consumerAttr) override;
+    int32_t OnSetProperty(std::shared_ptr<UserIam::UserAuth::Attributes> properties) override;
     void OnMessengerReady(const sptr<IExecutorMessenger> &messenger, std::vector<uint8_t> &publicKey,
         std::vector<uint64_t> &templateIds) override;
-    int32_t OnGetProperty(std::shared_ptr<AuthAttributes> conditions, std::shared_ptr<AuthAttributes> values) override;
+    int32_t OnGetProperty(std::shared_ptr<UserIam::UserAuth::Attributes> conditions,
+        std::shared_ptr<UserIam::UserAuth::Attributes> values) override;
 
 private:
     static uint32_t GenerateExecutorCallbackId();
-    ResultCode OnBeginExecuteInner(
-        uint64_t scheduleId, std::vector<uint8_t> &publicKey, std::shared_ptr<AuthAttributes> commandAttrs);
-    ResultCode OnEndExecuteInner(uint64_t scheduleId, std::shared_ptr<AuthAttributes> consumerAttr);
-    ResultCode OnSetPropertyInner(std::shared_ptr<AuthAttributes> properties);
-    ResultCode OnGetPropertyInner(std::shared_ptr<AuthAttributes> conditions, std::shared_ptr<AuthAttributes> values);
-    ResultCode ProcessEnrollCommand(uint64_t scheduleId, std::shared_ptr<AuthAttributes> properties);
-    ResultCode ProcessAuthCommand(uint64_t scheduleId, std::shared_ptr<AuthAttributes> properties);
-    ResultCode ProcessIdentifyCommand(uint64_t scheduleId, std::shared_ptr<AuthAttributes> properties);
+    ResultCode OnBeginExecuteInner(uint64_t scheduleId, std::vector<uint8_t> &publicKey,
+        std::shared_ptr<UserIam::UserAuth::Attributes> commandAttrs);
+    ResultCode OnEndExecuteInner(uint64_t scheduleId, std::shared_ptr<UserIam::UserAuth::Attributes> consumerAttr);
+    ResultCode OnSetPropertyInner(std::shared_ptr<UserIam::UserAuth::Attributes> properties);
+    ResultCode OnGetPropertyInner(std::shared_ptr<UserIam::UserAuth::Attributes> conditions,
+        std::shared_ptr<UserIam::UserAuth::Attributes> values);
+    ResultCode ProcessEnrollCommand(uint64_t scheduleId, std::shared_ptr<UserIam::UserAuth::Attributes> properties);
+    ResultCode ProcessAuthCommand(uint64_t scheduleId, std::shared_ptr<UserIam::UserAuth::Attributes> properties);
+    ResultCode ProcessIdentifyCommand(uint64_t scheduleId, std::shared_ptr<UserIam::UserAuth::Attributes> properties);
     ResultCode ProcessCancelCommand(uint64_t scheduleId);
-    ResultCode ProcessDeleteTemplateCommand(std::shared_ptr<AuthAttributes> properties);
-    ResultCode ProcessCustomCommand(std::shared_ptr<AuthAttributes> properties);
-    ResultCode ProcessGetTemplateCommand(
-        std::shared_ptr<AuthAttributes> conditions, std::shared_ptr<AuthAttributes> values);
+    ResultCode ProcessDeleteTemplateCommand(std::shared_ptr<UserIam::UserAuth::Attributes> properties);
+    ResultCode ProcessCustomCommand(std::shared_ptr<UserIam::UserAuth::Attributes> properties);
+    ResultCode ProcessGetTemplateCommand(std::shared_ptr<UserIam::UserAuth::Attributes> conditions,
+        std::shared_ptr<UserIam::UserAuth::Attributes> values);
     const char *GetDescription();
     sptr<IExecutorMessenger> executorMessenger_;
     std::weak_ptr<Executor> executor_;
