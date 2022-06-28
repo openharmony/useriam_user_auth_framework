@@ -274,20 +274,7 @@ void FillIAttributes(std::shared_ptr<Parcel> parcel, std::shared_ptr<Attributes>
     attributes->SetUint32Value(Attributes::ATTR_SCHEDULE_MODE, parcel->ReadUint32());
 }
 
-void FuzzFrameworkOnMessengerReady1(std::shared_ptr<Parcel> parcel)
-{
-    IAM_LOGI("begin");
-    // g_executorCallback may be not set
-    if (g_executorCallback == nullptr) {
-        return;
-    }
-    sptr<IExecutorMessenger> messenger = nullptr;
-    FillIExecutorMessenger(parcel, messenger);
-    g_executorCallback->OnMessengerReady(messenger);
-    IAM_LOGI("end");
-}
-
-void FuzzFrameworkOnMessengerReady2(std::shared_ptr<Parcel> parcel)
+void FuzzFrameworkOnMessengerReady(std::shared_ptr<Parcel> parcel)
 {
     IAM_LOGI("begin");
     // g_executorCallback may be not set
@@ -382,8 +369,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzExecutorOnFrameworkReady,
     FuzzExecutorGetExecutorHdi,
     FuzzExecutorGetDescription,
-    FuzzFrameworkOnMessengerReady1,
-    FuzzFrameworkOnMessengerReady2,
+    FuzzFrameworkOnMessengerReady,
     FuzzFrameworkOnBeginExecute,
     FuzzFrameworkOnEndExecute,
     FuzzFrameworkOnSetProperty,
