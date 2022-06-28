@@ -94,7 +94,7 @@ HWTEST_F(UserIdmDatabaseTest, FailedGetSecUserInfoNoEnrolledInfo, TestSize.Level
     auto secUserInfo = UserIdmDatabase::Instance().GetSecUserInfo(USER_ID);
 
     // test EnrolledInfo is null
-    EXPECT_EQ(secUserInfo, nullptr);
+    EXPECT_NE(secUserInfo, nullptr);
 }
 
 HWTEST_F(UserIdmDatabaseTest, SuccessfulGetSecUserInfo, TestSize.Level1)

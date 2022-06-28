@@ -33,7 +33,9 @@ public:
     }
     ~IamScopeGuard() override
     {
-        action_();
+        if (action_ != nullptr) {
+            action_();
+        }
     }
 
 private:
