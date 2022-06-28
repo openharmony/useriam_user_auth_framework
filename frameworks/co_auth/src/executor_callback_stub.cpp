@@ -149,10 +149,8 @@ void ExecutorCallbackStub::OnMessengerReady(const sptr<IExecutorMessenger> &mess
 {
     if (callback_ == nullptr) {
         return;
-    } else {
-        callback_->OnMessengerReady(messenger);
-        callback_->OnMessengerReady(messenger, publicKey, templateIds);
     }
+    callback_->OnMessengerReady(messenger, publicKey, templateIds);
 }
 
 int32_t ExecutorCallbackStub::OnBeginExecute(uint64_t scheduleId, std::vector<uint8_t> &publicKey,
