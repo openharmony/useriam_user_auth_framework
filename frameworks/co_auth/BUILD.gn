@@ -55,12 +55,9 @@ ohos_shared_library("coauth_framework") {
     "src/auth_executor_registry.cpp",
     "src/auth_message.cpp",
     "src/coauth_proxy.cpp",
-    "src/executor_callback.cpp",
     "src/executor_callback_stub.cpp",
     "src/executor_messenger_proxy.cpp",
     "src/executor_mgr.cpp",
-    "src/query_callback_proxy.cpp",
-    "src/query_callback_stub.cpp",
   ]
 
   deps = [ ":iam_attributes" ]
