@@ -21,7 +21,6 @@
 #include "icoauth_callback.h"
 #include "attributes.h"
 #include "iexecutor_callback.h"
-#include "iquery_callback.h"
 #include "auth_executor.h"
 
 namespace OHOS {
@@ -29,18 +28,14 @@ namespace UserIAM {
 namespace CoAuth {
 class ICoAuth : public IRemoteBroker {
 public:
-
     /* Message ID */
-    enum {
+    enum : uint32_t {
         COAUTH_EXECUTOR_REGIST = 0,
-        COAUTH_QUERY_STATUS,
     };
 
     /* Business function */
     virtual uint64_t Register(std::shared_ptr<AuthResPool::AuthExecutor> executorInfo,
         const sptr<AuthResPool::IExecutorCallback> &callback) = 0;
-    virtual void QueryStatus(AuthResPool::AuthExecutor &executorInfo,
-        const sptr<AuthResPool::IQueryCallback> &callback) = 0;
 
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.CoAuth.ICoAuth");
 };
