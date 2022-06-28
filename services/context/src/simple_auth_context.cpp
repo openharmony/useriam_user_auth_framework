@@ -61,7 +61,7 @@ void SimpleAuthContext::OnResult(int32_t resultCode, const std::shared_ptr<Attri
         if (resultCode == SUCCESS) {
             resultCode = GENERAL_ERROR;
         }
-        resultInfo.result = resultCode;
+        resultInfo.result = static_cast<uint32_t>(resultCode);
     }
     InvokeResultCallback(resultInfo);
     IAM_LOGI("%{public}s on result %{public}d finish", GetDescription(), resultCode);
