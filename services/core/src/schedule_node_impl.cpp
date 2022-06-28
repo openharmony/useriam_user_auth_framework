@@ -34,7 +34,7 @@ namespace UserAuth {
 ScheduleNodeImpl::ScheduleNodeImpl(ScheduleInfo &info) : info_(std::move(info))
 {
     machine_ = MakeFiniteStateMachine();
-    if (info_.threadHandler == nullptr) {
+    if (machine_ && info_.threadHandler == nullptr) {
         info_.threadHandler = ThreadHandler::GetSingleThreadInstance();
         machine_->SetThreadHandler(info_.threadHandler);
     }
@@ -187,6 +187,7 @@ std::shared_ptr<FiniteStateMachine> ScheduleNodeImpl::MakeFiniteStateMachine()
         [this](FiniteStateMachine &machine, uint32_t event) { ProcessEndCollector(machine, event); });
     builder->MakeTransition(S_AUTH_PROCESSING, E_TIME_OUT, S_COLLECT_STOPPING,
         [this](FiniteStateMachine &machine, uint32_t event) { ProcessEndCollector(machine, event); });
+
     // S_COLLECT_STOPPING
     builder->MakeTransition(S_COLLECT_STOPPING, E_SCHEDULE_RESULT_RECEIVED, S_END);
     builder->MakeTransition(S_COLLECT_STOPPING, E_COLLECT_STOPPED_SUCCESS, S_VERIFY_STOPPING,
@@ -205,7 +206,6 @@ std::shared_ptr<FiniteStateMachine> ScheduleNodeImpl::MakeFiniteStateMachine()
     // ENTERS
     builder->MakeOnStateEnter(S_AUTH_PROCESSING,
         [this](FiniteStateMachine &machine, uint32_t event) { OnScheduleProcessing(machine, event); });
-
     builder->MakeOnStateEnter(S_END,
         [this](FiniteStateMachine &machine, uint32_t event) { OnScheduleFinished(machine, event); });
     return builder->Build();

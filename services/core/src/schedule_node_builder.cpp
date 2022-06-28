@@ -59,7 +59,7 @@ std::shared_ptr<Builder> ScheduleNodeBuilder::SetPinSubType(PinSubType pinSubTyp
     return shared_from_this();
 }
 
-std::shared_ptr<Builder> ScheduleNodeBuilder::SetTemplateIdList(std::vector<uint64_t> templateIdList)
+std::shared_ptr<Builder> ScheduleNodeBuilder::SetTemplateIdList(const std::vector<uint64_t> &templateIdList)
 {
     info_.templateIdList = templateIdList;
     return shared_from_this();
