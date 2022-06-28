@@ -23,9 +23,8 @@ namespace UserIAM {
 namespace AuthResPool {
 class ExecutorCallback {
 public:
-    virtual void OnMessengerReady(const sptr<IExecutorMessenger> &messenger);
     virtual void OnMessengerReady(const sptr<IExecutorMessenger> &messenger, std::vector<uint8_t> &publicKey,
-        std::vector<uint64_t> &templateIds);
+        std::vector<uint64_t> &templateIds) = 0;
     virtual int32_t OnBeginExecute(uint64_t scheduleId, std::vector<uint8_t> &publicKey,
         std::shared_ptr<UserIam::UserAuth::Attributes> commandAttrs) = 0;
     virtual int32_t OnEndExecute(uint64_t scheduleId, std::shared_ptr<UserIam::UserAuth::Attributes> consumerAttr) = 0;

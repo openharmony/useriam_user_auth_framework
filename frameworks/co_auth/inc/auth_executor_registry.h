@@ -17,7 +17,6 @@
 #define AUTH_EXECUTOR_REGISTRY_H
 
 #include "i_coauth.h"
-#include "query_callback.h"
 #include "executor_callback.h"
 
 namespace OHOS {
@@ -27,7 +26,6 @@ class AuthExecutorRegistry : public DelayedRefSingleton<AuthExecutorRegistry> {
 public:
     /* InnerKit */
     uint64_t Register(std::shared_ptr<AuthExecutor> executorInfo, std::shared_ptr<ExecutorCallback> callback);
-    void QueryStatus(AuthExecutor &executorInfo, std::shared_ptr<QueryCallback> callback);
 
 private:
     class AuthExecutorRegistryDeathRecipient : public IRemoteObject::DeathRecipient {
