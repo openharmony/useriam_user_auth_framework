@@ -30,13 +30,15 @@ ohos_shared_library("userauth_executors") {
     "src/framework/executor_mgr_wrapper.cpp",
     "src/framework/framework_executor_callback.cpp",
     "src/idriver_manager.cpp",
-    "src/system_ability_status_listener.cpp",
+    "src/listener/auth_executor_mgr_status_listener.cpp",
+    "src/listener/driver_manager_status_listener.cpp",
   ]
 
   include_dirs = [
     "include",
     "include/async_command",
     "include/framework",
+    "include/listener",
     "//base/useriam/user_auth_framework/interfaces/inner_api/user_auth/",
     "//base/useriam/user_auth_framework/interfaces/inner_api/common/",
     "//base/useriam/user_auth_framework/common/utils",

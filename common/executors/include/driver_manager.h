@@ -21,7 +21,6 @@
 
 #include "iservstat_listener_hdi.h"
 #include "singleton.h"
-#include "system_ability_status_listener.h"
 
 #include "driver.h"
 #include "iauth_driver_hdi.h"
@@ -43,7 +42,7 @@ public:
 private:
     class HdiServiceStatusListener;
     bool HdiConfigIsValid(const std::map<std::string, HdiConfig> &hdiName2Config);
-    void SubscribeHdiManagerServiceStatus();
+    void SubscribeServiceStatus();
     void SubscribeFrameworkReadyEvent();
 
     bool started = false;
