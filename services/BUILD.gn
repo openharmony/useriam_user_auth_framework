@@ -89,6 +89,7 @@ ohos_shared_library("userauthservice") {
     "drivers_interface_user_auth:libuser_auth_proxy_1.0",
     "hilog_native:libhilog",
     "hitrace_native:hitrace_meter",
+    "hisysevent_native:libhisysevent",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",

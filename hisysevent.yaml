@@ -1,0 +1,34 @@
+# Copyright (C) 2021-2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#    http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+domain: USERIAM
+
+USERIAM_USER_CREDENTIAL_MANAGER:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag:UserIdm, desc: user credential manager message}
+  USERID: {type: INT32, desc: user id}
+  AUTHTYPE: {type: UINT32, desc: auth type}
+  OPERATIONTYPE: {type: UINT32, desc: operation type}
+  RET: {type: INT32, desc: credential manager result}
+
+USERIAM_CREDENTIAL_CHANGE:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag:UserIdm, desc: user credential change message}
+  USERID: {type: INT32, desc: user id}
+  AUTHTYPE: {type: UINT32, desc: auth type}
+  OPERATIONTYPE: {type: UINT32, desc: operation type}
+  RET: {type: INT32, desc: credential change result}
+
+USERIAM_TEMPLATE_CHANGE:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag:UserIdm, desc: user template change message}
+  EXECUTORTYPE: {type: UINT32, desc: executor type}
+  OPERATIONTYPE: {type: UINT32, desc: operation type}
+  RET: {type: INT32, desc: template change result}
