@@ -17,12 +17,14 @@
 
 #include <set>
 
-#include "devsvc_manager_stub.h"
 #include "hdf_device_desc.h"
 #include "iservice_registry.h"
 #include "iservmgr_hdi.h"
 #include "parameter.h"
+#include "system_ability_definition.h"
 
+#include "auth_executor_mgr_status_listener.h"
+#include "driver_manager_status_listener.h"
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
@@ -57,7 +59,7 @@ int32_t DriverManager::Start(const std::map<std::string, HdiConfig> &hdiName2Con
         serviceName2Driver_[pair.first] = driver;
         IAM_LOGI("add driver %{public}s", pair.first.c_str());
     }
-    SubscribeHdiManagerServiceStatus();
+    SubscribeServiceStatus();
     SubscribeFrameworkReadyEvent();
     IAM_LOGI("success");
     return USERAUTH_SUCCESS;
@@ -120,7 +122,7 @@ void DriverManager::SubscribeHdiDriverStatus()
     IAM_LOGI("success");
 }
 
-void DriverManager::SubscribeHdiManagerServiceStatus()
+void DriverManager::SubscribeServiceStatus()
 {
     IAM_LOGI("start");
     auto sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -128,11 +130,20 @@ void DriverManager::SubscribeHdiManagerServiceStatus()
         IAM_LOGE("failed to get SA manager");
         return;
     }
-    auto listener = SystemAbilityStatusListener::GetInstance();
-    IF_FALSE_LOGE_AND_RETURN(listener != nullptr);
-    int32_t ret = sam->SubscribeSystemAbility(DEVICE_SERVICE_MANAGER_SA_ID, listener);
+    auto driverManagerStatuslistener = DriverManagerStatusListener::GetInstance();
+    IF_FALSE_LOGE_AND_RETURN(driverManagerStatuslistener != nullptr);
+    int32_t ret = sam->SubscribeSystemAbility(DEVICE_SERVICE_MANAGER_SA_ID, driverManagerStatuslistener);
     if (ret != USERAUTH_SUCCESS) {
-        IAM_LOGE("failed to subscribe status");
+        IAM_LOGE("failed to subscribe driver manager status");
+        return;
+    }
+
+    auto authExecutorMgrStatuslistener = AuthExecutorMgrStatusListener::GetInstance();
+    IF_FALSE_LOGE_AND_RETURN(authExecutorMgrStatuslistener != nullptr);
+    ret = sam->SubscribeSystemAbility(SUBSYS_USERIAM_SYS_ABILITY_AUTHEXECUTORMGR,
+        authExecutorMgrStatuslistener);
+    if (ret != USERAUTH_SUCCESS) {
+        IAM_LOGE("failed to subscribe auto executor mgr status");
         return;
     }
     IAM_LOGI("success");
