@@ -119,7 +119,7 @@ std::shared_ptr<ScheduleNode> ScheduleNodeBuilder::Build()
     return MakeShared<ScheduleNodeImpl>(info_);
 }
 
-bool ScheduleNodeBuilder::CheckParameters()
+bool ScheduleNodeBuilder::CheckParameters() const
 {
     if (collector_ && collector_->GetAuthType() != info_.authType) {
         IAM_LOGE("authType mismatch");
