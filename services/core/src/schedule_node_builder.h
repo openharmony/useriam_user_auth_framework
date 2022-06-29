@@ -49,7 +49,7 @@ public:
         const std::shared_ptr<ResourceNode> &verifier);
 
 private:
-    bool CheckParameters();
+    bool CheckParameters() const;
 
     const std::shared_ptr<ResourceNode> collector_;
     const std::shared_ptr<ResourceNode> verifier_;
