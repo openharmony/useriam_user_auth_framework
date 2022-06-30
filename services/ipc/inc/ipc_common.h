@@ -28,9 +28,30 @@ namespace UserIam {
 namespace UserAuth {
 class IpcCommon final : public NoCopyable {
 public:
+    using Recipient = std::function<void()>;
     static int32_t GetCallingUserId(IPCObjectStub &stub, std::optional<int32_t> &userId);
     static int32_t GetActiveAccountId(std::optional<int32_t> &userId);
     static bool CheckPermission(IPCObjectStub &stub, const std::string &permission);
+    class PeerDeathRecipient final : public IPCObjectProxy::DeathRecipient {
+    public:
+        explicit PeerDeathRecipient(Recipient &&recipient) : recipient_(std::forward<Recipient>(recipient))
+        {
+        }
+        ~PeerDeathRecipient() override = default;
+        void OnRemoteDied(const wptr<IRemoteObject> &object) override
+        {
+            if (auto remote = object.promote(); !remote) {
+                return;
+            }
+            if (recipient_) {
+                recipient_();
+            }
+        };
+
+    private:
+        Recipient recipient_;
+    };
+
 private:
     static uint32_t GetTokenId(IPCObjectStub &stub);
 };
