@@ -18,10 +18,14 @@
 
 #include "user_idm_stub.h"
 
+#include <memory>
 #include <string>
+#include <vector>
 
 #include "system_ability.h"
 #include "system_ability_definition.h"
+
+#include "context.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -50,7 +54,9 @@ public:
         const sptr<IdmCallback> &callback) override;
 
 private:
-    uint64_t contextId_ {0};
+    int32_t CancelCurrentEnroll();
+    void CancelCurrentEnrollIfExist();
+    std::mutex mutex_;
 };
 } // namespace UserAuth
 } // namespace UserIam

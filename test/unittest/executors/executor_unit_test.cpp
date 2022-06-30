@@ -768,7 +768,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_IdentifyTest_003, Tes
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
-HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnEndExecute_AUTH, TestSize.Level0)
+HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnEndExecute_Success, TestSize.Level0)
 {
     static const uint64_t testScheduleId = 456;
 
@@ -786,53 +786,6 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnEndExecute_AUTH, TestSize.Level0)
 
     auto commandAttrs = MakeShared<Attributes>();
     ASSERT_NE(commandAttrs, nullptr);
-    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, AUTH);
-    ret = executorCallback->OnEndExecute(testScheduleId, commandAttrs);
-    ASSERT_EQ(ret, ResultCode::SUCCESS);
-}
-
-HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnEndExecute_Enroll, TestSize.Level0)
-{
-    static const uint64_t testScheduleId = 456;
-
-    shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
-    shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
-    int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
-    ASSERT_EQ(ret, ResultCode::SUCCESS);
-
-    EXPECT_CALL(*mockExecutorHdi, Cancel(_)).Times(Exactly(1)).WillOnce([](uint64_t scheduleId) {
-        EXPECT_EQ(scheduleId, testScheduleId);
-        return ResultCode::SUCCESS;
-    });
-
-    auto commandAttrs = MakeShared<Attributes>();
-    ASSERT_NE(commandAttrs, nullptr);
-    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, ENROLL);
-    ret = executorCallback->OnEndExecute(testScheduleId, commandAttrs);
-    ASSERT_EQ(ret, ResultCode::SUCCESS);
-}
-
-HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnEndExecute_Identify, TestSize.Level0)
-{
-    static const uint64_t testScheduleId = 456;
-
-    shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
-    shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
-    int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
-    ASSERT_EQ(ret, ResultCode::SUCCESS);
-
-    EXPECT_CALL(*mockExecutorHdi, Cancel(_)).Times(Exactly(1)).WillOnce([](uint64_t scheduleId) {
-        EXPECT_EQ(scheduleId, testScheduleId);
-        return ResultCode::SUCCESS;
-    });
-
-    auto commandAttrs = MakeShared<Attributes>();
-    ASSERT_NE(commandAttrs, nullptr);
-    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, IDENTIFY);
     ret = executorCallback->OnEndExecute(testScheduleId, commandAttrs);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 }
@@ -856,7 +809,6 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnEndExecute_ErrorTest_001, TestSize
 
     auto commandAttrs = MakeShared<Attributes>();
     ASSERT_NE(commandAttrs, nullptr);
-    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, IDENTIFY);
     ret = executorCallback->OnEndExecute(testScheduleId, commandAttrs);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
@@ -876,7 +828,6 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnEndExecute_ErrorTest_002, TestSize
 
     auto commandAttrs = MakeShared<Attributes>();
     ASSERT_NE(commandAttrs, nullptr);
-    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, IDENTIFY);
     // Error: Executor is disconnected
     executor->OnHdiDisconnect();
     ret = executorCallback->OnEndExecute(testScheduleId, commandAttrs);

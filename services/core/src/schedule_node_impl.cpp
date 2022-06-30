@@ -369,6 +369,7 @@ void ScheduleNodeImpl::OnScheduleFinished(FiniteStateMachine &machine, uint32_t 
 
     auto result = result_.value();
     info_.callback->OnScheduleStoped(result.first, result.second);
+    info_.callback = nullptr;
 }
 } // namespace UserAuth
 } // namespace UserIam
