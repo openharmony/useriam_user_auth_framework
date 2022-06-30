@@ -114,6 +114,7 @@ struct AddCredInfo {
 
 struct  RequestResult {
     uint64_t credentialId {0};
+    std::vector<uint8_t> rootSecret;
 };
 }  // namespace UserIDM
 }  // namespace UserIAM
