@@ -16,6 +16,7 @@
 #include "hdi_wrapper.h"
 
 #include "iam_ptr.h"
+#include "iproxy_broker.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -23,7 +24,19 @@ namespace UserAuth {
 std::shared_ptr<OHOS::HDI::UserAuth::V1_0::IUserAuthInterface> HdiWrapper::GetHdiInstance()
 {
     auto hdi = OHOS::HDI::UserAuth::V1_0::IUserAuthInterface::Get();
+    if (!hdi) {
+        return {};
+    }
     return UserIAM::Common::SptrToStdSharedPtr<OHOS::HDI::UserAuth::V1_0::IUserAuthInterface>(hdi);
+}
+
+sptr<IRemoteObject> HdiWrapper::GetHdiRemoteObjInstance()
+{
+    auto hdi = OHOS::HDI::UserAuth::V1_0::IUserAuthInterface::Get();
+    if (!hdi) {
+        return {};
+    }
+    return HDI::hdi_objcast<OHOS::HDI::UserAuth::V1_0::IUserAuthInterface>(hdi);
 }
 } // namespace UserAuth
 } // namespace UserIam
