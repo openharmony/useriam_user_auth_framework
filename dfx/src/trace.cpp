@@ -48,8 +48,8 @@ void Trace::ProcessCredChangeEvent(const ContextCallbackNotifyListener::MetaData
 
 void Trace::ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData)
 {
-    bool checkRet = metaData.operationType == TRACE_AUTH_USER && metaData.authType.has_value()
-        && metaData.authType != PIN;
+    bool checkRet = metaData.operationType == TRACE_AUTH_USER && metaData.authType.has_value() &&
+        metaData.authType != PIN;
     if (!checkRet) {
         return;
     }
@@ -58,8 +58,8 @@ void Trace::ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &
 
 void Trace::ProcessPinAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData)
 {
-    bool checkRet = metaData.operationType == TRACE_AUTH_USER && metaData.authType.has_value()
-        && metaData.authType == PIN;
+    bool checkRet = metaData.operationType == TRACE_AUTH_USER && metaData.authType.has_value() &&
+        metaData.authType == PIN;
     if (!checkRet) {
         return;
     }

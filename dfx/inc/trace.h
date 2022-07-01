@@ -22,16 +22,14 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 class Trace {
-public:
-    Trace();
-    ~Trace();
-
 private:
     static Trace trace;
     static void ProcessCredChangeEvent(const ContextCallbackNotifyListener::MetaData &metaData);
     static void ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData);
     static void ProcessPinAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData);
     static void ProcessDelUserEvent(const ContextCallbackNotifyListener::MetaData &metaData);
+    Trace();
+    ~Trace();
 };
 } // namespace UserAuth
 } // namespace UserIam
