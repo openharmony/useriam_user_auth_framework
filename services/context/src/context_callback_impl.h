@@ -30,7 +30,6 @@ public:
     void OnResult(int32_t resultCode, Attributes &finalResult) override;
     void SetTraceUserId(int32_t userId) override;
     void SetTraceRemainTime(int32_t remainTime) override;
-    void SetTraceOperationResult(int32_t operationResult) override;
     void SetTraceFreezingTime(int32_t freezingTime) override;
     void SetTraceSdkVersion(int32_t version) override;
     void SetTraceCallingUid(uint64_t callingUid) override;

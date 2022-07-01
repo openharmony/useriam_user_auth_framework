@@ -44,15 +44,15 @@ enum OperationType : uint32_t {
 class ContextCallbackNotifyListener : public Singleton<ContextCallbackNotifyListener> {
 public:
     struct MetaData {
+        OperationType operationType;
+        int32_t operationResult;
         std::optional<int32_t> userId;
         std::optional<int32_t> remainTime;
-        std::optional<int32_t> operationResult;
         std::optional<int32_t> freezingTime;
         std::optional<int32_t> sdkVersion;
         std::optional<uint64_t> callingUid;
-        std::optional<OperationType> operationType;
         std::optional<AuthTrustLevel> atl;
-        std::vector<AuthType> authTypeVector;
+        std::optional<AuthType> authType;
         std::chrono::time_point<std::chrono::steady_clock> startTime;
         std::chrono::time_point<std::chrono::steady_clock> endTime;
     };
@@ -74,7 +74,6 @@ public:
     virtual void OnResult(int32_t resultCode, Attributes &finalResult) = 0;
     virtual void SetTraceUserId(int32_t userId) = 0;
     virtual void SetTraceRemainTime(int32_t remainTime) = 0;
-    virtual void SetTraceOperationResult(int32_t operationResult) = 0;
     virtual void SetTraceFreezingTime(int32_t freezingTime) = 0;
     virtual void SetTraceSdkVersion(int32_t version) = 0;
     virtual void SetTraceCallingUid(uint64_t callingUid) = 0;
