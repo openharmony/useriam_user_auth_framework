@@ -62,16 +62,6 @@ enum ScheduleMode : uint32_t {
     IDENTIFY = 2,
 };
 
-enum OperationType : uint32_t {
-    ADD_CREDENTIAL = 0,
-    DELETE_CREDENTIAL = 1,
-    DELETE_USER = 2,
-    ENFORCE_DELETE_USER = 3,
-    UPDATE_CREDENTIAL = 4,
-    USER_AUTH = 5,
-    PIN_AUTH = 6,
-};
-
 enum PropertyMode : uint32_t {
     PROPERTY_MODE_DEL = 0,
     PROPERTY_MODE_GET = 1,

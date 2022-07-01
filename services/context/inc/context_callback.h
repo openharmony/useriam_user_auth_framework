@@ -31,6 +31,16 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+enum OperationType : uint32_t {
+    TRACE_ADD_CREDENTIAL = 0,
+    TRACE_DELETE_CREDENTIAL = 1,
+    TRACE_DELETE_USER = 2,
+    TRACE_ENFORCE_DELETE_USER = 3,
+    TRACE_UPDATE_CREDENTIAL = 4,
+    TRACE_AUTH_USER = 5,
+    TRACE_IDENTIFY = 6,
+};
+
 class ContextCallbackNotifyListener : public Singleton<ContextCallbackNotifyListener> {
 public:
     struct MetaData {
@@ -56,8 +66,9 @@ private:
 
 class ContextCallback {
 public:
-    static std::shared_ptr<ContextCallback> Instance(sptr<IdmCallback> idmCallback);
-    static std::shared_ptr<ContextCallback> Instance(sptr<UserAuthCallback> userAuthCallback);
+    static std::shared_ptr<ContextCallback> NewInstance(sptr<IdmCallback> idmCallback, OperationType operationType);
+    static std::shared_ptr<ContextCallback> NewInstance(sptr<UserAuthCallback> userAuthCallback,
+        OperationType operationType);
     virtual ~ContextCallback() = default;
     virtual void onAcquireInfo(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg) const = 0;
     virtual void OnResult(int32_t resultCode, Attributes &finalResult) = 0;
@@ -68,7 +79,6 @@ public:
     virtual void SetTraceSdkVersion(int32_t version) = 0;
     virtual void SetTraceCallingUid(uint64_t callingUid) = 0;
     virtual void SetTraceAuthType(AuthType authType) = 0;
-    virtual void SetTraceOperationType(OperationType operationType) = 0;
     virtual void SetTraceAuthTrustLevel(AuthTrustLevel atl) = 0;
     virtual void SetCleaner(Context::ContextStopCallback callback) = 0;
 };

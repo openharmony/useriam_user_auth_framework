@@ -26,7 +26,6 @@ Trace Trace::trace;
 
 Trace::Trace()
 {
-    // 注册
     ContextCallbackNotifyListener::GetInstance().AddNotifier(ProcessCredChangeEvent);
     ContextCallbackNotifyListener::GetInstance().AddNotifier(ProcessUserAuthEvent);
     ContextCallbackNotifyListener::GetInstance().AddNotifier(ProcessPinAuthEvent);

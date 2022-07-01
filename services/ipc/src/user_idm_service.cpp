@@ -173,16 +173,12 @@ void UserIdmService::AddCredential(std::optional<int32_t> userId, AuthType authT
     }
 
     Attributes extraInfo;
-    auto contextCallback = ContextCallback::Instance(callback);
+    auto contextCallback = ContextCallback::NewInstance(callback,
+        isUpdate ? TRACE_UPDATE_CREDENTIAL : TRACE_ADD_CREDENTIAL);
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
-    }
-    if (isUpdate) {
-        contextCallback->SetTraceOperationType(UPDATE_CREDENTIAL);
-    } else {
-        contextCallback->SetTraceOperationType(ADD_CREDENTIAL);
     }
     uint64_t callingUid = static_cast<uint64_t>(this->GetCallingUid());
     contextCallback->SetTraceAuthType(authType);
@@ -276,13 +272,12 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallback> &
     }
 
     Attributes extraInfo;
-    auto contextCallback = ContextCallback::Instance(callback);
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ENFORCE_DELETE_USER);
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return FAIL;
     }
-    contextCallback->SetTraceOperationType(ENFORCE_DELETE_USER);
     contextCallback->SetTraceUserId(userId);
 
     auto userInfo = UserIdmDatabase::Instance().GetSecUserInfo(userId);
@@ -326,13 +321,12 @@ void UserIdmService::DelUser(std::optional<int32_t> userId, const std::vector<ui
     }
 
     Attributes extraInfo;
-    auto contextCallback = ContextCallback::Instance(callback);
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_DELETE_USER);
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
-    contextCallback->SetTraceOperationType(DELETE_USER);
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("failed to get userId");
         contextCallback->OnResult(INVALID_PARAMETERS, extraInfo);
@@ -382,13 +376,12 @@ void UserIdmService::DelCredential(std::optional<int32_t> userId, uint64_t crede
     }
 
     Attributes extraInfo;
-    auto contextCallback = ContextCallback::Instance(callback);
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_DELETE_CREDENTIAL);
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
-    contextCallback->SetTraceOperationType(DELETE_CREDENTIAL);
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("failed to get userId");
         contextCallback->OnResult(INVALID_PARAMETERS, extraInfo);

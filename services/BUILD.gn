@@ -27,10 +27,10 @@ ohos_shared_library("userauthservice") {
     "core/src",
     "context/inc",
     "ipc/inc",
-    "dfx",
     "common_defines/types",
     "common_defines/interfaces",
     "//base/useriam/user_auth_framework/common/utils",
+    "//base/useriam/user_auth_framework/dfx/inc",
   ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
@@ -75,7 +75,7 @@ ohos_shared_library("userauthservice") {
     "ipc/src/user_idm_callback_proxy.cpp",
     "ipc/src/user_idm_service.cpp",
     "ipc/src/user_idm_stub.cpp",
-    "dfx/trace.cpp",
+    "//base/useriam/user_auth_framework/dfx/src/trace.cpp",
   ]
 
   deps = [
