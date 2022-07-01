@@ -87,7 +87,7 @@ void ContextCallbackImpl::OnResult(int32_t resultCode, Attributes &finalResult)
     ContextCallbackNotifyListener::GetInstance().Process(metaData_);
     if (stopCallback_ != nullptr) {
         stopCallback_();
-    } 
+    }
 }
 
 void ContextCallbackImpl::SetTraceUserId(int32_t userId)
@@ -127,7 +127,7 @@ void ContextCallbackImpl::SetTraceAuthTrustLevel(AuthTrustLevel atl)
 
 void ContextCallbackImpl::SetCleaner(Context::ContextStopCallback callback)
 {
-   stopCallback_ = callback;
+    stopCallback_ = callback;
 }
 
 void ContextCallbackNotifyListener::AddNotifier(const Notify &notify)

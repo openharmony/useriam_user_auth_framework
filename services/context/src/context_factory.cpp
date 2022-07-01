@@ -34,7 +34,7 @@ namespace UserIam {
 namespace UserAuth {
 std::shared_ptr<Context> ContextFactory::CreateSimpleAuthContext(int32_t userId, const std::vector<uint8_t> &challenge,
     AuthType authType, AuthTrustLevel authTrustLevel, uint64_t callingUid,
-        const std::shared_ptr<ContextCallback> &callback)
+    const std::shared_ptr<ContextCallback> &callback)
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, nullptr);
     uint64_t newContextId = ContextPool::GetNewContextId();
