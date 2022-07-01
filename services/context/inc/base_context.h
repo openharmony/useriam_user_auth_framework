@@ -24,6 +24,7 @@
 #include "nocopyable.h"
 
 #include "context.h"
+#include "context_callback.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -38,7 +39,6 @@ public:
 
     uint64_t GetContextId() const override;
     std::shared_ptr<ScheduleNode> GetScheduleNode(uint64_t scheduleId) const override;
-    void SetContextStopCallback(ContextStopCallback callback) override;
 
     void OnScheduleStarted() override;
     void OnScheduleProcessed(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg) override;
@@ -59,7 +59,6 @@ private:
     std::string description_;
     bool hasStarted_ = false;
     std::mutex mutex_;
-    ContextStopCallback stopCallback_ = nullptr;
 };
 } // namespace UserAuth
 } // namespace UserIam

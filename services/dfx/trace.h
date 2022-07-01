@@ -13,45 +13,26 @@
  * limitations under the License.
  */
 
-#ifndef IAM_CONTEXT_H
-#define IAM_CONTEXT_H
+#ifndef TRACE_H
+#define TRACE_H
 
-#include <cstdint>
-#include <memory>
-#include <string>
-#include <vector>
-
-#include "nocopyable.h"
-
-#include "schedule_node.h"
+#include "context_callback.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-enum ContextState {
-    STATE_INIT,
-    STATE_RUNNING,
-    STATE_END,
-};
-
-enum ContextType {
-    CONTEXT_SIMPLE_AUTH,
-    CONTEXT_ENROLL,
-    CONTEXT_IDENTIFY,
-    WIDGET_AUTH_CONTEXT,
-};
-
-class Context {
+class Trace {
 public:
-    using ContextStopCallback = std::function<void()>;
-    virtual ~Context() = default;
-    virtual bool Start() = 0;
-    virtual bool Stop() = 0;
-    virtual uint64_t GetContextId() const = 0;
-    virtual ContextType GetContextType() const = 0;
-    virtual std::shared_ptr<ScheduleNode> GetScheduleNode(uint64_t scheduleId) const = 0;
+    static void ProcessCredChangeEvent(const ContextCallbackNotifyListener::MetaData &metaData);
+    static void ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData);
+    static void ProcessPinAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData);
+    Trace();
+    ~Trace();
+
+private:
+    static Trace trace;
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // IAM_CONTEXT_H
+#endif // TRACE_H
