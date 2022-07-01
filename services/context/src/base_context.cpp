@@ -69,11 +69,6 @@ std::shared_ptr<ScheduleNode> BaseContext::GetScheduleNode(uint64_t scheduleId) 
     return nullptr;
 }
 
-void BaseContext::SetContextStopCallback(ContextStopCallback callback)
-{
-    stopCallback_ = callback;
-};
-
 void BaseContext::OnScheduleStarted()
 {
     IAM_LOGI("%{public}s start", GetDescription());
@@ -89,9 +84,6 @@ void BaseContext::OnScheduleProcessed(ExecutorRole src, int32_t moduleType, cons
 void BaseContext::OnScheduleStoped(int32_t resultCode, const std::shared_ptr<Attributes> &finalResult)
 {
     OnResult(resultCode, finalResult);
-    if (stopCallback_ != nullptr) {
-        stopCallback_();
-    }
     return;
 }
 

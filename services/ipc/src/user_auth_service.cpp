@@ -22,6 +22,7 @@
 #include "context_helper.h"
 #include "hdi_wrapper.h"
 #include "iam_logger.h"
+#include "iam_ptr.h"
 #include "ipc_common.h"
 #include "result_code.h"
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
@@ -192,41 +193,54 @@ uint64_t UserAuthService::AuthUser(std::optional<int32_t> userId, const std::vec
         IAM_LOGE("callback is nullptr");
         return BAD_CONTEXT_ID;
     }
+    auto contextCallback = ContextCallback::Instance(callback);
+    if (contextCallback == nullptr) {
+        IAM_LOGE("failed to construct context callback");
+        callback->OnAuthResult(GENERAL_ERROR, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
+    if (authType == PIN) {
+        contextCallback->SetTraceOperationType(PIN_AUTH);
+    } else {
+        contextCallback->SetTraceOperationType(USER_AUTH);
+    }
+    auto callingUid = static_cast<uint64_t>(this->GetCallingUid());
+    contextCallback->SetTraceCallingUid(callingUid);
+    contextCallback->SetTraceAuthType(authType);
+    contextCallback->SetTraceAuthTrustLevel(authTrustLevel);
+    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
+        IAM_LOGE("get callingUserId failed");
+        contextCallback->OnResult(FAIL, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
+    contextCallback->SetTraceUserId(userId.value());
     if (authTrustLevel < ATL1 || authTrustLevel > ATL4) {
         IAM_LOGE("authTrustLevel is not in correct range");
-        callback->OnAuthResult(TRUST_LEVEL_NOT_SUPPORT, extraInfo);
+        contextCallback->OnResult(TRUST_LEVEL_NOT_SUPPORT, extraInfo);
         return BAD_CONTEXT_ID;
     }
     bool checkRet = !IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
         (authType == PIN || !IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION));
     if (checkRet) {
         IAM_LOGE("failed to check permission");
-        callback->OnAuthResult(CHECK_PERMISSION_FAILED, extraInfo);
+        contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
         return BAD_CONTEXT_ID;
     }
 
-    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
-        IAM_LOGE("get callingUserId failed");
-        callback->OnAuthResult(FAIL, extraInfo);
-        return BAD_CONTEXT_ID;
-    }
-
-    auto callingUid = static_cast<uint64_t>(this->GetCallingUid());
     auto context = ContextFactory::CreateSimpleAuthContext(userId.value(), challenge, authType, authTrustLevel,
-        callingUid, callback);
+        callingUid, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
-        callback->OnAuthResult(FAIL, extraInfo);
+        contextCallback->OnResult(FAIL, extraInfo);
         return BAD_CONTEXT_ID;
     }
 
     auto cleaner = ContextHelper::Cleaner(context);
-    context->SetContextStopCallback(cleaner);
+    contextCallback->SetCleaner(cleaner);
 
     if (!context->Start()) {
         IAM_LOGE("failed to start auth");
-        callback->OnAuthResult(FAIL, extraInfo);
-        cleaner();
+        contextCallback->OnResult(FAIL, extraInfo);
         return BAD_CONTEXT_ID;
     }
     return context->GetContextId();
@@ -236,33 +250,38 @@ uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthTy
     sptr<UserAuthCallback> &callback)
 {
     IAM_LOGI("start");
-    Attributes extraInfo;
 
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return BAD_CONTEXT_ID;
     }
+    Attributes extraInfo;
+    auto contextCallback = ContextCallback::Instance(callback);
+    if (contextCallback == nullptr) {
+        IAM_LOGE("failed to construct context callback");
+        callback->OnIdentifyResult(GENERAL_ERROR, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
     if (authType == PIN) {
         IAM_LOGE("pin not support");
-        callback->OnIdentifyResult(TYPE_NOT_SUPPORT, extraInfo);
+        contextCallback->OnResult(TYPE_NOT_SUPPORT, extraInfo);
         return BAD_CONTEXT_ID;
     }
 
     auto callingUid = static_cast<uint64_t>(this->GetCallingUid());
-    auto context = ContextFactory::CreateIdentifyContext(challenge, authType, callingUid, callback);
+    auto context = ContextFactory::CreateIdentifyContext(challenge, authType, callingUid, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
-        callback->OnIdentifyResult(FAIL, extraInfo);
+        contextCallback->OnResult(FAIL, extraInfo);
         return BAD_CONTEXT_ID;
     }
 
     auto cleaner = ContextHelper::Cleaner(context);
-    context->SetContextStopCallback(cleaner);
+    contextCallback->SetCleaner(cleaner);
 
     if (!context->Start()) {
         IAM_LOGE("failed to start identify");
-        callback->OnIdentifyResult(FAIL, extraInfo);
-        cleaner();
+        contextCallback->OnResult(FAIL, extraInfo);
         return BAD_CONTEXT_ID;
     }
     return context->GetContextId();

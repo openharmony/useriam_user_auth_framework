@@ -33,7 +33,8 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 std::shared_ptr<Context> ContextFactory::CreateSimpleAuthContext(int32_t userId, const std::vector<uint8_t> &challenge,
-    AuthType authType, AuthTrustLevel authTrustLevel, uint64_t callingUid, sptr<UserAuthCallback> &callback)
+    AuthType authType, AuthTrustLevel authTrustLevel, uint64_t callingUid,
+        const std::shared_ptr<ContextCallback> &callback)
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, nullptr);
     uint64_t newContextId = ContextPool::GetNewContextId();
@@ -41,13 +42,11 @@ std::shared_ptr<Context> ContextFactory::CreateSimpleAuthContext(int32_t userId,
     IF_FALSE_LOGE_AND_RETURN_VAL(auth != nullptr, nullptr);
     auth->SetChallenge(challenge);
     auth->SetCallingUid(callingUid);
-    auto contextCallback = MakeShared<ContextCallbackImpl>(callback);
-    IF_FALSE_LOGE_AND_RETURN_VAL(contextCallback != nullptr, nullptr);
-    return MakeShared<SimpleAuthContext>(newContextId, auth, contextCallback);
+    return MakeShared<SimpleAuthContext>(newContextId, auth, callback);
 }
 
 std::shared_ptr<Context> ContextFactory::CreateIdentifyContext(const std::vector<uint8_t> &challenge, AuthType authType,
-    uint64_t callingUid, sptr<UserAuthCallback> &callback)
+    uint64_t callingUid, const std::shared_ptr<ContextCallback> &callback)
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, nullptr);
     uint64_t newContextId = ContextPool::GetNewContextId();
@@ -55,13 +54,11 @@ std::shared_ptr<Context> ContextFactory::CreateIdentifyContext(const std::vector
     IF_FALSE_LOGE_AND_RETURN_VAL(identify != nullptr, nullptr);
     identify->SetChallenge(challenge);
     identify->SetCallingUid(callingUid);
-    auto contextCallback = MakeShared<ContextCallbackImpl>(callback);
-    IF_FALSE_LOGE_AND_RETURN_VAL(contextCallback != nullptr, nullptr);
-    return MakeShared<IdentifyContext>(newContextId, identify, contextCallback);
+    return MakeShared<IdentifyContext>(newContextId, identify, callback);
 }
 
 std::shared_ptr<Context> ContextFactory::CreateEnrollContext(int32_t userId, AuthType authType, PinSubType pinSubType,
-    const std::vector<uint8_t> &token, uint64_t callingUid, const sptr<IdmCallback> &callback)
+    const std::vector<uint8_t> &token, uint64_t callingUid, const std::shared_ptr<ContextCallback> &callback)
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, nullptr);
     uint64_t newContextId = ContextPool::GetNewContextId();
@@ -70,9 +67,7 @@ std::shared_ptr<Context> ContextFactory::CreateEnrollContext(int32_t userId, Aut
     enroll->SetAuthToken(token);
     enroll->SetCallingUid(callingUid);
     enroll->SetPinSubType(pinSubType);
-    auto contextCallback = MakeShared<ContextCallbackImpl>(callback);
-    IF_FALSE_LOGE_AND_RETURN_VAL(contextCallback != nullptr, nullptr);
-    return MakeShared<EnrollContext>(newContextId, enroll, contextCallback);
+    return MakeShared<EnrollContext>(newContextId, enroll, callback);
 }
 
 std::shared_ptr<Context> ContextFactory::CreateWidgetAuthContext(std::shared_ptr<ContextCallback> callback)
