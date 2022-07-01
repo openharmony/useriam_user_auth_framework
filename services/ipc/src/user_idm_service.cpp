@@ -296,12 +296,6 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallback> &
         return ret;
     }
 
-    for (const auto &credInfo : credInfos) {
-        if (credInfo != nullptr) {
-            contextCallback->SetTraceAuthType(credInfo->GetAuthType());
-        }
-    }
-
     ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos);
     if (ret != SUCCESS) {
         IAM_LOGE("failed to delete executor info, error code : %{public}d", ret);
@@ -351,11 +345,6 @@ void UserIdmService::DelUser(std::optional<int32_t> userId, const std::vector<ui
         IAM_LOGE("failed to delete user");
         contextCallback->OnResult(ret, extraInfo);
         return;
-    }
-    for (const auto &credInfo : credInfos) {
-        if (credInfo != nullptr) {
-            contextCallback->SetTraceAuthType(credInfo->GetAuthType());
-        }
     }
 
     ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos);

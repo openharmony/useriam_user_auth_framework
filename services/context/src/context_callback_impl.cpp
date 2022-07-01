@@ -106,11 +106,6 @@ void ContextCallbackImpl::SetTraceRemainTime(int32_t remainTime)
     metaData_.remainTime = remainTime;
 }
 
-void ContextCallbackImpl::SetTraceOperationResult(int32_t operationResult)
-{
-    metaData_.operationResult = operationResult;
-}
-
 void ContextCallbackImpl::SetTraceFreezingTime(int32_t freezingTime)
 {
     metaData_.freezingTime = freezingTime;
@@ -128,7 +123,7 @@ void ContextCallbackImpl::SetTraceCallingUid(uint64_t callingUid)
 
 void ContextCallbackImpl::SetTraceAuthType(AuthType authType)
 {
-    metaData_.authTypeVector.push_back(authType);
+    metaData_.authType = authType;
 }
 
 void ContextCallbackImpl::SetTraceAuthTrustLevel(AuthTrustLevel atl)
