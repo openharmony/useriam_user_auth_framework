@@ -40,6 +40,7 @@ private:
     std::mutex mutex_;
     std::string serviceName_;
     HdiConfig hdiConfig_;
+    bool hdiConnected_ = false;
     std::vector<std::shared_ptr<Executor>> executorList_;
 };
 } // namespace UserAuth

@@ -35,6 +35,12 @@ namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
 const char IAM_EVENT_KEY[] = "bootevent.useriam.fwkready";
+DriverManager::DriverManager()
+{
+    SubscribeServiceStatus();
+    SubscribeFrameworkReadyEvent();
+}
+
 int32_t DriverManager::Start(const std::map<std::string, HdiConfig> &hdiName2Config)
 {
     IAM_LOGI("start");
@@ -43,24 +49,20 @@ int32_t DriverManager::Start(const std::map<std::string, HdiConfig> &hdiName2Con
         return USERAUTH_ERROR;
     }
     std::lock_guard<std::mutex> lock(mutex_);
-    if (started) {
-        IAM_LOGE("driver manager already started");
-        return USERAUTH_ERROR;
-    }
-    started = true;
-    hdiName2Config_ = hdiName2Config;
-    serviceName2Driver_.clear();
-    for (auto const &pair : hdiName2Config) {
-        auto driver = Common::MakeShared<Driver>(pair.first, pair.second);
-        if (driver == nullptr) {
-            IAM_LOGE("MakeShared for driver %{public}s failed", pair.first.c_str());
+    for (auto const &[hdiName, config] : hdiName2Config) {
+        if (serviceName2Driver_.find(hdiName) != serviceName2Driver_.end()) {
+            IAM_LOGI("%{public}s already added, skip", hdiName.c_str());
             continue;
         }
-        serviceName2Driver_[pair.first] = driver;
-        IAM_LOGI("add driver %{public}s", pair.first.c_str());
+        auto driver = Common::MakeShared<Driver>(hdiName, config);
+        if (driver == nullptr) {
+            IAM_LOGE("MakeShared for driver %{public}s failed", hdiName.c_str());
+            continue;
+        }
+        serviceName2Driver_[hdiName] = driver;
+        driver->OnHdiConnect();
+        IAM_LOGI("add driver %{public}s", hdiName.c_str());
     }
-    SubscribeServiceStatus();
-    SubscribeFrameworkReadyEvent();
     IAM_LOGI("success");
     return USERAUTH_SUCCESS;
 }
@@ -68,13 +70,13 @@ int32_t DriverManager::Start(const std::map<std::string, HdiConfig> &hdiName2Con
 bool DriverManager::HdiConfigIsValid(const std::map<std::string, HdiConfig> &hdiName2Config)
 {
     std::set<uint16_t> idSet;
-    for (auto const &pair : hdiName2Config) {
-        uint16_t id = pair.second.id;
+    for (auto const &[hdiName, config] : hdiName2Config) {
+        uint16_t id = config.id;
         if (idSet.find(id) != idSet.end()) {
             IAM_LOGE("duplicate hdi id %{public}hu", id);
             return false;
         }
-        if (pair.second.driver == nullptr) {
+        if (config.driver == nullptr) {
             IAM_LOGE("driver is nullptr");
             return false;
         }
@@ -130,6 +132,7 @@ void DriverManager::SubscribeServiceStatus()
         IAM_LOGE("failed to get SA manager");
         return;
     }
+
     auto driverManagerStatuslistener = DriverManagerStatusListener::GetInstance();
     IF_FALSE_LOGE_AND_RETURN(driverManagerStatuslistener != nullptr);
     int32_t ret = sam->SubscribeSystemAbility(DEVICE_SERVICE_MANAGER_SA_ID, driverManagerStatuslistener);
@@ -151,6 +154,7 @@ void DriverManager::SubscribeServiceStatus()
 
 void DriverManager::SubscribeFrameworkReadyEvent()
 {
+    IAM_LOGI("start");
     auto eventCallback = [](const char *key, const char *value, void *context) {
         IAM_LOGI("receive useriam.fwkready event");
         IF_FALSE_LOGE_AND_RETURN(key != nullptr);

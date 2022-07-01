@@ -24,6 +24,7 @@
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_mem.h"
+#include "iam_para2str.h"
 #include "iam_ptr.h"
 #include "iam_types.h"
 #include "identify_command.h"
@@ -87,28 +88,10 @@ ResultCode FrameworkExecutorCallback::OnEndExecuteInner(
     uint64_t scheduleId, std::shared_ptr<UserIam::UserAuth::Attributes> consumerAttr)
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(consumerAttr != nullptr, ResultCode::GENERAL_ERROR);
-    uint32_t commandId = 0;
-    bool getScheduleModeRet =
-        consumerAttr->GetUint32Value(UserIam::UserAuth::Attributes::ATTR_SCHEDULE_MODE, commandId);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getScheduleModeRet == true, ResultCode::GENERAL_ERROR);
 
-    IAM_LOGI("%{public}s start process cmd %{public}u", GetDescription(), commandId);
-    ResultCode ret = ResultCode::GENERAL_ERROR;
-    switch (commandId) {
-        case UserIam::UserAuth::AUTH:
-            ret = ProcessCancelCommand(scheduleId);
-            break;
-        case UserIam::UserAuth::ENROLL:
-            ret = ProcessCancelCommand(scheduleId);
-            break;
-        case UserIam::UserAuth::IDENTIFY:
-            ret = ProcessCancelCommand(scheduleId);
-            break;
-        default:
-            IAM_LOGE("Command id %{public}u is not supported", commandId);
-            break;
-    }
-    IAM_LOGI("command id = %{public}u ret = %{public}d", commandId, ret);
+    ResultCode ret = ProcessCancelCommand(scheduleId);
+    IAM_LOGI("%{public}s cancel scheduleId %{public}s ret %{public}d", GetDescription(),
+        GET_MASKED_STRING(scheduleId).c_str(), ret);
     return ret;
 }
 

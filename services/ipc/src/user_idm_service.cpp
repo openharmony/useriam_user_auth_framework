@@ -21,7 +21,7 @@
 #include "context_pool.h"
 #include "hdi_wrapper.h"
 #include "iam_logger.h"
-#include "iam_ptr.h"
+#include "iam_para2str.h"
 #include "ipc_common.h"
 #include "resource_node_pool.h"
 #include "resource_node_utils.h"
@@ -196,6 +196,9 @@ void UserIdmService::AddCredential(std::optional<int32_t> userId, AuthType authT
         return;
     }
 
+    std::lock_guard<std::mutex> lock(mutex_);
+    CancelCurrentEnrollIfExist();
+
     auto context =
         ContextFactory::CreateEnrollContext(userId.value(), authType, pinSubType, token, callingUid, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
@@ -249,18 +252,43 @@ int32_t UserIdmService::Cancel(std::optional<int32_t> userId, const std::optiona
         return CHECK_PERMISSION_FAILED;
     }
 
-    auto context = ContextPool::Instance().Select(contextId_).lock();
-    if (context == nullptr || !context->Stop()) {
-        IAM_LOGE("failed to cancel");
+    bool userIdIsValid = userId.has_value() && UserIdmSessionController::Instance().IsSessionOpened(userId.value());
+    bool challengeIsValid = challenge.has_value() &&
+        UserIdmSessionController::Instance().IsSessionOpened(challenge.value());
+    if (!userIdIsValid && !challengeIsValid) {
+        IAM_LOGE("both user id and challenge are invalid");
         return FAIL;
     }
 
-    if (!ContextPool::Instance().Delete(contextId_)) {
-        IAM_LOGE("failed to delete context");
-        return FAIL;
+    std::lock_guard<std::mutex> lock(mutex_);
+    return CancelCurrentEnroll();
+}
+
+void UserIdmService::CancelCurrentEnrollIfExist()
+{
+    if (ContextPool::Instance().Select(CONTEXT_ENROLL).size() == 0) {
+        return;
     }
 
-    return SUCCESS;
+    IAM_LOGI("cancel current enroll due to new add credential request or delete");
+    CancelCurrentEnroll();
+}
+
+int32_t UserIdmService::CancelCurrentEnroll()
+{
+    IAM_LOGD("start");
+    auto contextList = ContextPool::Instance().Select(CONTEXT_ENROLL);
+    int32_t ret = FAIL;
+    for (const auto &context : contextList) {
+        if (auto ctx = context.lock(); ctx != nullptr) {
+            IAM_LOGE("stop the old context %{public}s", GET_MASKED_STRING(ctx->GetContextId()).c_str());
+            ctx->Stop();
+            ContextPool::Instance().Delete(ctx->GetContextId());
+            ret = SUCCESS;
+        }
+    }
+    IAM_LOGI("result %{public}d", ret);
+    return ret;
 }
 
 int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallback> &callback)
@@ -270,6 +298,9 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallback> &
         IAM_LOGE("callback is nullptr");
         return INVALID_PARAMETERS;
     }
+
+    std::lock_guard<std::mutex> lock(mutex_);
+    CancelCurrentEnrollIfExist();
 
     Attributes extraInfo;
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ENFORCE_DELETE_USER);
@@ -313,6 +344,9 @@ void UserIdmService::DelUser(std::optional<int32_t> userId, const std::vector<ui
         IAM_LOGE("callback is nullptr");
         return;
     }
+
+    std::lock_guard<std::mutex> lock(mutex_);
+    CancelCurrentEnrollIfExist();
 
     Attributes extraInfo;
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_DELETE_USER);
@@ -363,6 +397,9 @@ void UserIdmService::DelCredential(std::optional<int32_t> userId, uint64_t crede
         IAM_LOGE("callback is nullptr");
         return;
     }
+
+    std::lock_guard<std::mutex> lock(mutex_);
+    CancelCurrentEnrollIfExist();
 
     Attributes extraInfo;
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_DELETE_CREDENTIAL);
