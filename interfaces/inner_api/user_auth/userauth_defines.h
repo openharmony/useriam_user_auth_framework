@@ -78,6 +78,7 @@ struct SetPropertyRequest {
 
 struct AuthResult {
     std::vector<uint8_t> token {};
+    std::vector<uint8_t> rootSecret {};
     uint32_t remainTimes {0};
     uint32_t freezingTime {0};
 };

@@ -80,7 +80,7 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiError, TestSize.Level1)
     constexpr int32_t userId = 0x11;
 
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_CALL(*mock, UpdateEnrollmentResult(userId, _, _, _)).WillRepeatedly(Return(1));
+    EXPECT_CALL(*mock, UpdateEnrollmentResult(userId, _, _)).WillRepeatedly(Return(1));
 
     auto authentication = std::make_shared<EnrollmentImpl>(userId, FACE);
     std::vector<uint8_t> scheduleResult = {1, 2, 3};
@@ -92,13 +92,14 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiError, TestSize.Level1)
 HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful, TestSize.Level1)
 {
     using HdiCredentialInfo = OHOS::HDI::UserAuth::V1_0::CredentialInfo;
+    using HdiEnrollResultInfo = OHOS::HDI::UserAuth::V1_0::EnrollResultInfo;
     constexpr int32_t userId = 0x11;
     constexpr uint64_t credentialIdRet = 0x12;
     std::vector<uint8_t> scheduleResult = {1, 2, 3};
 
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
-    auto fillUpInfos = [](HdiCredentialInfo &infoRet) {
-        HdiCredentialInfo info = {
+    auto fillUpInfos = [](HdiEnrollResultInfo &infoRet) {
+        HdiCredentialInfo oldInfo = {
             .credentialId = 1,
             .executorIndex = 2,
             .templateId = 3,
@@ -106,10 +107,13 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful, TestSize.Level1)
             .executorMatcher = 5,
             .executorSensorHint = 6,
         };
+        HdiEnrollResultInfo info = {
+            .oldInfo = oldInfo,
+            .credentialId = credentialIdRet,
+        };
         infoRet = info;
     };
-    EXPECT_CALL(*mock, UpdateEnrollmentResult(userId, _, _, _))
-        .WillRepeatedly(DoAll(SetArgReferee<2>(credentialIdRet), WithArg<3>(fillUpInfos), Return(0)));
+    EXPECT_CALL(*mock, UpdateEnrollmentResult(userId, _, _)).WillRepeatedly(DoAll(WithArg<2>(fillUpInfos), Return(0)));
 
     auto authentication = std::make_shared<EnrollmentImpl>(userId, FACE);
     HdiCredentialInfo oldInfo = {};

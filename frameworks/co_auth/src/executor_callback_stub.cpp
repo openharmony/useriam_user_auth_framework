@@ -15,6 +15,7 @@
 
 #include "executor_callback_stub.h"
 
+#include "executor_messenger_proxy.h"
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
@@ -63,7 +64,7 @@ int32_t ExecutorCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data
 int32_t ExecutorCallbackStub::OnMessengerReadyStub(MessageParcel &data, MessageParcel &reply)
 {
     IAM_LOGD("ExecutorCallbackStub::OnMessengerReadyStub");
-    sptr<IExecutorMessenger> messenger = iface_cast<IExecutorMessenger>(data.ReadRemoteObject());
+    sptr<IExecutorMessenger> messenger = new (std::nothrow) ExecutorMessengerProxy(data.ReadRemoteObject());
     if (messenger == nullptr) {
         IAM_LOGE("messenger is nullptr");
         return FAIL;

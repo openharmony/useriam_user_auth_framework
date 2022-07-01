@@ -19,9 +19,12 @@
 #include <thread>
 
 #include "executor_messenger_service.h"
+#include "hdi_wrapper.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
+#include "ipc_common.h"
 #include "parameter.h"
+#include "relative_timer.h"
 #include "resource_node_pool.h"
 #include "result_code.h"
 
@@ -30,12 +33,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-void SendBootEvent()
-{
-    IAM_LOGI("SendBootEvent start");
-    SetParameter("bootevent.useriam.fwkready", "true");
-}
-
 REGISTER_SYSTEM_ABILITY_BY_ID(CoAuthService, SUBSYS_USERIAM_SYS_ABILITY_AUTHEXECUTORMGR, true);
 CoAuthService::CoAuthService(int32_t systemAbilityId, bool runOnCreate) : SystemAbility(systemAbilityId, runOnCreate)
 {
@@ -44,27 +41,17 @@ CoAuthService::CoAuthService(int32_t systemAbilityId, bool runOnCreate) : System
 
 void CoAuthService::OnStart()
 {
-    if (state_ == CoAuthRunningState::STATE_RUNNING) {
-        IAM_LOGW("CoAuthService has already started");
-        return;
-    }
     IAM_LOGI("Start service");
     if (!Publish(this)) {
         IAM_LOGE("Failed to publish service");
         return;
     }
-    state_ = CoAuthRunningState::STATE_RUNNING;
-    std::thread checkThread(OHOS::UserIam::UserAuth::SendBootEvent);
-    checkThread.join();
+
+    RelativeTimer::GetInstance().Register(Init, 0);
 }
 
 void CoAuthService::OnStop()
 {
-    if (state_ == CoAuthRunningState::STATE_STOPPED) {
-        IAM_LOGW("CoAuthService already stopped");
-        return;
-    }
-    state_ = CoAuthRunningState::STATE_STOPPED;
     IAM_LOGI("Stop service");
 }
 
@@ -90,9 +77,32 @@ uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<
     sptr<ExecutorMessenger> messenger = ExecutorMessengerService::GetInstance();
     executorCallback->OnMessengerReady(messenger, fwkPublicKey, templateIdList);
     uint64_t executorIndex = resourceNode->GetExecutorIndex();
-    IAM_LOGI("register successful, executorType is %{public}u, executorIndex is ****%{public}u",
-        static_cast<uint32_t>(resourceNode->GetAuthType()), static_cast<uint32_t>(executorIndex));
+    IAM_LOGI("register successful, executorType is %{public}u, executorIndex is ****%{public}hx",
+        static_cast<uint32_t>(resourceNode->GetAuthType()), static_cast<uint16_t>(executorIndex));
+    if (auto obj = executorCallback->AsObject(); obj) {
+        obj->AddDeathRecipient(new (std::nothrow) IpcCommon::PeerDeathRecipient([executorIndex]() {
+            auto result = ResourceNodePool::Instance().Delete(executorIndex);
+            IAM_LOGI("delete executor %{public}s, executorIndex is ****%{public}hx", (result ? "succ" : "failed"),
+                static_cast<uint16_t>(executorIndex));
+        }));
+    }
     return executorIndex;
+}
+
+void CoAuthService::Init()
+{
+    auto hdi = HdiWrapper::GetHdiRemoteObjInstance();
+    if (hdi) {
+        hdi->AddDeathRecipient(new (std::nothrow) IpcCommon::PeerDeathRecipient([]() {
+            ResourceNodePool::Instance().DeleteAll();
+            RelativeTimer::GetInstance().Register(Init, DEFER_TIME);
+            IAM_LOGI("delete all executors for hdi dead");
+        }));
+        IAM_LOGI("set fwk ready parameter");
+        SetParameter("bootevent.useriam.fwkready", "true");
+    } else {
+        RelativeTimer::GetInstance().Register(Init, DEFER_TIME);
+    }
 }
 } // namespace UserAuth
 } // namespace UserIam
