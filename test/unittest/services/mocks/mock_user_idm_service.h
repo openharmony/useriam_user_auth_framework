@@ -31,8 +31,8 @@ public:
         int32_t(std::optional<int32_t> userId, AuthType authType, const sptr<IdmGetCredentialInfoCallback> &callback));
     MOCK_METHOD2(GetSecInfo,
         int32_t(std::optional<int32_t> userId, const sptr<IdmGetSecureUserInfoCallback> &callback));
-    MOCK_METHOD5(AddCredential, void(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
-                                    const std::vector<uint8_t> &token, const sptr<IdmCallback> &callback));
+    MOCK_METHOD6(AddCredential, void(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
+        const std::vector<uint8_t> &token, const sptr<IdmCallback> &callback, bool isUpdate));
     MOCK_METHOD5(UpdateCredential, void(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
                                        const std::vector<uint8_t> &token, const sptr<IdmCallback> &callback));
     MOCK_METHOD2(Cancel, int32_t(std::optional<int32_t> userId, const std::optional<std::vector<uint8_t>> &challenge));

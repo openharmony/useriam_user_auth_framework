@@ -57,24 +57,22 @@ void ContextCallbackImplTest::TearDown()
 
 HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserAuthNull, TestSize.Level1)
 {
-    sptr<UserAuthCallback> callback = nullptr;
-    auto contextCallback = MakeShared<ContextCallbackImpl>(callback);
+    sptr<UserAuthCallback> callback = new (nothrow) MockUserAuthCallback();
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
     ASSERT_NE(contextCallback, nullptr);
-    auto testAttr = MakeShared<Attributes>();
-    ASSERT_TRUE(testAttr != nullptr);
+    Attributes attr;
     contextCallback->onAcquireInfo(static_cast<ExecutorRole>(0), 0, {});
-    contextCallback->OnResult(0, testAttr);
+    contextCallback->OnResult(0, attr);
 }
 
 HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserIdmNull, TestSize.Level1)
 {
-    sptr<IdmCallback> callback = nullptr;
-    auto contextCallback = MakeShared<ContextCallbackImpl>(callback);
+    sptr<IdmCallback> callback = new (nothrow) MockIdmCallback();
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
     ASSERT_NE(contextCallback, nullptr);
-    auto testAttr = MakeShared<Attributes>();
-    ASSERT_TRUE(testAttr != nullptr);
+    Attributes attr;
     contextCallback->onAcquireInfo(static_cast<ExecutorRole>(0), 0, {});
-    contextCallback->OnResult(0, testAttr);
+    contextCallback->OnResult(0, attr);
 }
 
 HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserAuth, TestSize.Level1)
@@ -92,10 +90,10 @@ HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserAuth, TestSize.Level1)
             EXPECT_TRUE(&reqRet == testAttr.get());
         });
     sptr<UserAuthCallback> callback = mockCallback;
-    auto contextCallback = MakeShared<ContextCallbackImpl>(callback);
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
     ASSERT_NE(contextCallback, nullptr);
     contextCallback->onAcquireInfo(static_cast<ExecutorRole>(0), 0, {});
-    contextCallback->OnResult(testResult, testAttr);
+    contextCallback->OnResult(testResult, *testAttr);
 }
 
 HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserIdmOnResult, TestSize.Level1)
@@ -113,10 +111,10 @@ HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserIdmOnResult, TestSize.L
             EXPECT_TRUE(&reqRet == testAttr.get());
         });
     sptr<IdmCallback> callback = mockCallback;
-    auto contextCallback = MakeShared<ContextCallbackImpl>(callback);
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
     ASSERT_NE(contextCallback, nullptr);
     contextCallback->onAcquireInfo(static_cast<ExecutorRole>(0), 0, {});
-    contextCallback->OnResult(testResult, testAttr);
+    contextCallback->OnResult(testResult, *testAttr);
 }
 } // namespace UserAuth
 } // namespace UserIam

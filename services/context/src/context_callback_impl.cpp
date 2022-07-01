@@ -25,9 +25,6 @@ namespace UserAuth {
 ContextCallbackImpl::ContextCallbackImpl(sptr<IdmCallback> idmCallback, OperationType operationType)
     : idmCallback_(idmCallback)
 {
-    if (idmCallback_ == nullptr) {
-        IAM_LOGE("idmCallback is nullptr, parameter is invalid");
-    }
     metaData_.operationType = operationType;
     metaData_.startTime = std::chrono::steady_clock::now();
 }
@@ -35,9 +32,6 @@ ContextCallbackImpl::ContextCallbackImpl(sptr<IdmCallback> idmCallback, Operatio
 ContextCallbackImpl::ContextCallbackImpl(sptr<UserAuthCallback> userAuthCallback, OperationType operationType)
     : userAuthCallback_(userAuthCallback)
 {
-    if (userAuthCallback_ == nullptr) {
-        IAM_LOGE("userAuthCallback is nullptr, parameter is invalid");
-    }
     metaData_.operationType = operationType;
     metaData_.startTime = std::chrono::steady_clock::now();
 }
@@ -153,12 +147,20 @@ void ContextCallbackNotifyListener::Process(const MetaData &metaData)
 std::shared_ptr<ContextCallback> ContextCallback::NewInstance(sptr<IdmCallback> idmCallback,
     OperationType operationType)
 {
+    if (idmCallback == nullptr) {
+        IAM_LOGE("idmCallback is nullptr, parameter is invalid");
+        return nullptr;
+    }
     return UserIAM::Common::MakeShared<ContextCallbackImpl>(idmCallback, operationType);
 }
 
 std::shared_ptr<ContextCallback> ContextCallback::NewInstance(sptr<UserAuthCallback> userAuthCallback,
     OperationType operationType)
 {
+    if (userAuthCallback == nullptr) {
+        IAM_LOGE("userAuthCallback is nullptr, parameter is invalid");
+        return nullptr;
+    }
     return UserIAM::Common::MakeShared<ContextCallbackImpl>(userAuthCallback, operationType);
 }
 } // namespace UserAuth

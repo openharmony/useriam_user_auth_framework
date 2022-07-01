@@ -176,7 +176,7 @@ void FuzzAddCredential(Parcel &parcel)
     std::vector<uint8_t> token;
     FillFuzzUint8Vector(parcel, token);
     sptr<IdmCallback> callback = GetFuzzIdmCallback(parcel);
-    g_UserIdmService.AddCredential(userId, authType, pinSubType, token, callback);
+    g_UserIdmService.AddCredential(userId, authType, pinSubType, token, callback, false);
     IAM_LOGI("end");
 }
 
