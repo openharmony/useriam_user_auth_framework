@@ -23,14 +23,14 @@ namespace UserIam {
 namespace UserAuth {
 class Trace {
 public:
-    static void ProcessCredChangeEvent(const ContextCallbackNotifyListener::MetaData &metaData);
-    static void ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData);
-    static void ProcessPinAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData);
     Trace();
     ~Trace();
 
 private:
     static Trace trace;
+    static void ProcessCredChangeEvent(const ContextCallbackNotifyListener::MetaData &metaData);
+    static void ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData);
+    static void ProcessPinAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData);
 };
 } // namespace UserAuth
 } // namespace UserIam
