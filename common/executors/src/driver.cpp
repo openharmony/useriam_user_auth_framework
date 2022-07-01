@@ -34,14 +34,18 @@ Driver::Driver(const std::string &serviceName, HdiConfig hdiConfig) : serviceNam
 void Driver::OnHdiConnect()
 {
     IAM_LOGI("start");
-    OnHdiDisconnect();
     std::lock_guard<std::mutex> lock(mutex_);
+    if (hdiConnected_) {
+        IAM_LOGI("already connected skip");
+        return;
+    }
     std::vector<std::shared_ptr<IAuthExecutorHdi>> executorHdiList;
     IF_FALSE_LOGE_AND_RETURN(hdiConfig_.driver != nullptr);
     hdiConfig_.driver->GetExecutorList(executorHdiList);
     IAM_LOGI("executorHdiList length is %{public}zu", executorHdiList.size());
     auto executorMgrWrapper = Common::MakeShared<ExecutorMgrWrapper>();
     IF_FALSE_LOGE_AND_RETURN(executorMgrWrapper != nullptr);
+    hdiConnected_ = true;
     for (const auto &executorHdi : executorHdiList) {
         if (executorHdi == nullptr) {
             IAM_LOGI("executorHdi is nullptr, skip");
@@ -63,6 +67,7 @@ void Driver::OnHdiDisconnect()
 {
     IAM_LOGI("start");
     std::lock_guard<std::mutex> lock(mutex_);
+    hdiConnected_ = false;
     for (const auto &executor : executorList_) {
         if (executor == nullptr) {
             IAM_LOGE("executor is null");

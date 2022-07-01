@@ -19,6 +19,7 @@
 #include <iservice_registry.h>
 #include <system_ability_definition.h>
 
+#include "coauth_proxy.h"
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "executor_callback_stub.h"
@@ -52,7 +53,7 @@ sptr<CoAuth::ICoAuth> AuthExecutorRegistry::GetProxy()
         return nullptr;
     }
 
-    proxy_ = iface_cast<CoAuth::ICoAuth>(obj);
+    proxy_ = new (std::nothrow) CoAuth::CoAuthProxy(obj);
     deathRecipient_ = dr;
     IAM_LOGI("connect coauth service success");
     return proxy_;
