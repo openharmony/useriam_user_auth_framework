@@ -464,7 +464,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_ContextFree, TestSize.Leve
     std::shared_ptr<MockContextCallback> contextCallback = MakeShared<MockContextCallback>();
     ASSERT_NE(contextCallback, nullptr);
     EXPECT_CALL(*contextCallback, OnResult(_, _)).Times(Exactly(1))
-        .WillOnce([](int32_t resultCode, const std::shared_ptr<Attributes> &finalResult) {
+        .WillOnce([](int32_t resultCode, Attributes &finalResult) {
             EXPECT_EQ(resultCode, ResultCode::BUSY);
         });
 
