@@ -24,10 +24,9 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-enum class CoAuthRunningState { STATE_STOPPED, STATE_RUNNING };
-
 class CoAuthService : public SystemAbility, public CoAuthStub {
 public:
+    static constexpr uint64_t DEFER_TIME = 2000;
     DECLARE_SYSTEM_ABILITY(CoAuthService);
     explicit CoAuthService(int32_t systemAbilityId, bool runOnCreate = false);
     ~CoAuthService() override = default;
@@ -36,7 +35,7 @@ public:
     uint64_t ExecutorRegister(const ExecutorRegisterInfo &info, sptr<ExecutorCallback> &callback) override;
 
 private:
-    CoAuthRunningState state_ = CoAuthRunningState::STATE_STOPPED;
+    static void Init();
 };
 } // namespace UserAuth
 } // namespace UserIam
