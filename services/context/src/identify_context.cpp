@@ -97,14 +97,13 @@ void IdentifyContext::InvokeResultCallback(const Identification::IdentifyResultI
 {
     IAM_LOGI("%{public}s start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
-    auto finalResult = MakeShared<Attributes>();
-    IF_FALSE_LOGE_AND_RETURN(finalResult != nullptr);
-    bool setResultCodeRet = finalResult->SetUint32Value(Attributes::ATTR_RESULT_CODE, resultInfo.result);
+    Attributes finalResult;
+    bool setResultCodeRet = finalResult.SetUint32Value(Attributes::ATTR_RESULT_CODE, resultInfo.result);
     IF_FALSE_LOGE_AND_RETURN(setResultCodeRet == true);
-    bool setUserIdRet = finalResult->SetInt32Value(Attributes::ATTR_USER_ID, resultInfo.userId);
+    bool setUserIdRet = finalResult.SetInt32Value(Attributes::ATTR_USER_ID, resultInfo.userId);
     IF_FALSE_LOGE_AND_RETURN(setUserIdRet == true);
     if (resultInfo.token.size() != 0) {
-        bool setSignatureResult = finalResult->SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, resultInfo.token);
+        bool setSignatureResult = finalResult.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, resultInfo.token);
         IF_FALSE_LOGE_AND_RETURN(setSignatureResult == true);
     }
 

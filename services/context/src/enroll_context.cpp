@@ -108,9 +108,8 @@ void EnrollContext::InvokeResultCallback(int32_t resultCode, const uint64_t cred
 {
     IAM_LOGI("%{public}s start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
-    auto finalResult = MakeShared<Attributes>();
-    IF_FALSE_LOGE_AND_RETURN(finalResult != nullptr);
-    bool setCredIdRet = finalResult->SetUint64Value(Attributes::ATTR_CREDENTIAL_ID, credentialId);
+    Attributes finalResult;
+    bool setCredIdRet = finalResult.SetUint64Value(Attributes::ATTR_CREDENTIAL_ID, credentialId);
     IF_FALSE_LOGE_AND_RETURN(setCredIdRet == true);
     callback_->OnResult(resultCode, finalResult);
     IAM_LOGI("%{public}s invoke result callback success", GetDescription());

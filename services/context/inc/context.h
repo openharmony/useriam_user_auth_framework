@@ -41,21 +41,12 @@ enum ContextType {
     WIDGET_AUTH_CONTEXT,
 };
 
-class ContextCallback {
-public:
-    virtual ~ContextCallback() = default;
-    virtual void onAcquireInfo(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg) const = 0;
-    virtual void OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &finalResult) const = 0;
-};
-
 class Context {
 public:
     using ContextStopCallback = std::function<void()>;
-
     virtual ~Context() = default;
     virtual bool Start() = 0;
     virtual bool Stop() = 0;
-    virtual void SetContextStopCallback(ContextStopCallback callback) = 0;
     virtual uint64_t GetContextId() const = 0;
     virtual ContextType GetContextType() const = 0;
     virtual std::shared_ptr<ScheduleNode> GetScheduleNode(uint64_t scheduleId) const = 0;

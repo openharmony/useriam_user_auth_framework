@@ -58,8 +58,9 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateSimpleAuth_001, TestSize.Level1
     std::vector<uint8_t> challenge;
     sptr<UserAuthCallback> callback = new (nothrow) MockUserAuthCallback();
     ASSERT_NE(callback, nullptr);
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER);
     auto context = factory->CreateSimpleAuthContext(
-        0, challenge, static_cast<AuthType>(0), static_cast<AuthTrustLevel>(0), 0, callback);
+        0, challenge, static_cast<AuthType>(0), static_cast<AuthTrustLevel>(0), 0, contextCallback);
     ASSERT_NE(context, nullptr);
     EXPECT_NE(context->GetContextId(), 0U);
     ASSERT_EQ(context->GetContextType(), CONTEXT_SIMPLE_AUTH);
@@ -72,8 +73,9 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateSimpleAuth_002, TestSize.Level1
     std::vector<uint8_t> challenge;
     // Error: callback is null
     sptr<UserAuthCallback> callback = nullptr;
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER);
     auto context = factory->CreateSimpleAuthContext(
-        0, challenge, static_cast<AuthType>(0), static_cast<AuthTrustLevel>(0), 0, callback);
+        0, challenge, static_cast<AuthType>(0), static_cast<AuthTrustLevel>(0), 0, contextCallback);
     ASSERT_EQ(context, nullptr);
 }
 
@@ -84,7 +86,8 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateIdentify_001, TestSize.Level1)
     std::vector<uint8_t> challenge;
     sptr<UserAuthCallback> callback = new (nothrow) MockUserAuthCallback();
     ASSERT_NE(callback, nullptr);
-    auto context = factory->CreateIdentifyContext(challenge, static_cast<AuthType>(0), 0, callback);
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_IDENTIFY);
+    auto context = factory->CreateIdentifyContext(challenge, static_cast<AuthType>(0), 0, contextCallback);
     ASSERT_NE(context, nullptr);
     EXPECT_NE(context->GetContextId(), 0U);
     ASSERT_EQ(context->GetContextType(), CONTEXT_IDENTIFY);
@@ -97,7 +100,8 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateIdentify_002, TestSize.Level1)
     std::vector<uint8_t> challenge;
     // Error: callback is null
     sptr<UserAuthCallback> callback = nullptr;
-    auto context = factory->CreateIdentifyContext(challenge, static_cast<AuthType>(0), 0, callback);
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_IDENTIFY);
+    auto context = factory->CreateIdentifyContext(challenge, static_cast<AuthType>(0), 0, contextCallback);
     ASSERT_EQ(context, nullptr);
 }
 
@@ -108,8 +112,9 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateEnrollContext_001, TestSize.Lev
     std::vector<uint8_t> token;
     sptr<IdmCallback> callback = new (nothrow) MockIdmCallback();
     ASSERT_NE(callback, nullptr);
-    auto context =
-        factory->CreateEnrollContext(0, static_cast<AuthType>(0), static_cast<PinSubType>(0), token, 0, callback);
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
+    auto context = factory->CreateEnrollContext(0, static_cast<AuthType>(0), static_cast<PinSubType>(0), token,
+        0, contextCallback);
     ASSERT_NE(context, nullptr);
     EXPECT_NE(context->GetContextId(), 0U);
     ASSERT_EQ(context->GetContextType(), CONTEXT_ENROLL);
@@ -122,8 +127,9 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateEnrollContext_002, TestSize.Lev
     std::vector<uint8_t> token;
     // Error: callback is null
     sptr<IdmCallback> callback = nullptr;
-    auto context =
-        factory->CreateEnrollContext(0, static_cast<AuthType>(0), static_cast<PinSubType>(0), token, 0, callback);
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
+    auto context = factory->CreateEnrollContext(0, static_cast<AuthType>(0), static_cast<PinSubType>(0), token,
+        0, contextCallback);
     ASSERT_EQ(context, nullptr);
 }
 } // namespace UserAuth

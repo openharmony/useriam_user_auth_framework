@@ -30,11 +30,13 @@ ohos_shared_library("userauthservice") {
     "common_defines/types",
     "common_defines/interfaces",
     "//base/useriam/user_auth_framework/common/utils",
+    "//base/useriam/user_auth_framework/dfx/inc",
   ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   sources = [
+    "//base/useriam/user_auth_framework/dfx/src/trace.cpp",
     "base/src/finite_state_machine_builder.cpp",
     "base/src/finite_state_machine_impl.cpp",
     "base/src/hdi_wrapper.cpp",
