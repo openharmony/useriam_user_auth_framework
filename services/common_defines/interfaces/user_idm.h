@@ -92,7 +92,7 @@ public:
      * param callback get results / acquire info callback.
      */
     virtual void AddCredential(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
-        const std::vector<uint8_t> &token, const sptr<IdmCallback> &callback) = 0;
+        const std::vector<uint8_t> &token, const sptr<IdmCallback> &callback, bool isUpdate) = 0;
     /*
      * update user credential information.
      *

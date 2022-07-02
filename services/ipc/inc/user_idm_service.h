@@ -43,7 +43,7 @@ public:
         const sptr<IdmGetCredentialInfoCallback> &callback) override;
     int32_t GetSecInfo(std::optional<int32_t> userId, const sptr<IdmGetSecureUserInfoCallback> &callback) override;
     void AddCredential(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
-        const std::vector<uint8_t> &token, const sptr<IdmCallback> &callback) override;
+        const std::vector<uint8_t> &token, const sptr<IdmCallback> &callback, bool isUpdate) override;
     void UpdateCredential(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
         const std::vector<uint8_t> &token, const sptr<IdmCallback> &callback) override;
     int32_t Cancel(std::optional<int32_t> userId, const std::optional<std::vector<uint8_t>> &challenge) override;

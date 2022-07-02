@@ -20,6 +20,7 @@
 #include <gmock/gmock.h>
 
 #include "context.h"
+#include "context_callback.h"
 #include "iam_ptr.h"
 #include "mock_schedule_node.h"
 
@@ -31,14 +32,21 @@ public:
     virtual ~MockContextCallback() = default;
     MOCK_CONST_METHOD3(
         onAcquireInfo, void(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg));
-    MOCK_CONST_METHOD2(OnResult, void(int32_t resultCode, const std::shared_ptr<Attributes> &finalResult));
+    MOCK_METHOD2(OnResult, void(int32_t resultCode, Attributes &finalResult));
+    MOCK_METHOD1(SetTraceUserId, void(int32_t userId));
+    MOCK_METHOD1(SetTraceRemainTime, void(int32_t remainTime));
+    MOCK_METHOD1(SetTraceFreezingTime, void(int32_t freezingTime));
+    MOCK_METHOD1(SetTraceSdkVersion, void(int32_t version));
+    MOCK_METHOD1(SetTraceCallingUid, void(uint64_t callingUid));
+    MOCK_METHOD1(SetTraceAuthType, void(AuthType authType));
+    MOCK_METHOD1(SetTraceAuthTrustLevel, void(AuthTrustLevel atl));
+    MOCK_METHOD1(SetCleaner, void(Context::ContextStopCallback callback));
 };
 
 class MockContext final : public Context {
 public:
     MOCK_METHOD0(Start, bool());
     MOCK_METHOD0(Stop, bool());
-    MOCK_METHOD1(SetContextStopCallback, void(ContextStopCallback callback));
     MOCK_CONST_METHOD0(GetContextId, uint64_t());
     MOCK_CONST_METHOD0(GetContextType, ContextType());
     MOCK_CONST_METHOD1(GetScheduleNode, std::shared_ptr<ScheduleNode>(uint64_t scheduleId));

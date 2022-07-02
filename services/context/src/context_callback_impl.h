@@ -16,25 +16,32 @@
 #ifndef CONTEXT_CALLBACK_IMPL_H
 #define CONTEXT_CALLBACK_IMPL_H
 
-#include "context.h"
-
-#include "user_auth_callback.h"
-#include "user_idm_callback.h"
+#include "context_callback.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 class ContextCallbackImpl : public ContextCallback, public NoCopyable {
 public:
-    explicit ContextCallbackImpl(sptr<IdmCallback> idmCallback);
-    explicit ContextCallbackImpl(sptr<UserAuthCallback> userAuthCallback);
+    explicit ContextCallbackImpl(sptr<IdmCallback> idmCallback, OperationType operationType);
+    explicit ContextCallbackImpl(sptr<UserAuthCallback> userAuthCallback, OperationType operationType);
     ~ContextCallbackImpl() override = default;
     void onAcquireInfo(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg) const override;
-    void OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &finalResult) const override;
+    void OnResult(int32_t resultCode, Attributes &finalResult) override;
+    void SetTraceUserId(int32_t userId) override;
+    void SetTraceRemainTime(int32_t remainTime) override;
+    void SetTraceFreezingTime(int32_t freezingTime) override;
+    void SetTraceSdkVersion(int32_t version) override;
+    void SetTraceCallingUid(uint64_t callingUid) override;
+    void SetTraceAuthType(AuthType authType) override;
+    void SetTraceAuthTrustLevel(AuthTrustLevel atl) override;
+    void SetCleaner(Context::ContextStopCallback callback) override;
 
 private:
     sptr<IdmCallback> idmCallback_;
     sptr<UserAuthCallback> userAuthCallback_;
+    Context::ContextStopCallback stopCallback_ {nullptr};
+    ContextCallbackNotifyListener::MetaData metaData_;
 };
 } // namespace UserAuth
 } // namespace UserIam
