@@ -53,7 +53,10 @@ ohos_source_set("iam_utils") {
     "logs",
   ]
 
-  sources = [ "utils/iam_mem.cpp" ]
+  sources = [
+    "utils/iam_mem.cpp",
+    "utils/iam_time.cpp",
+  ]
 
   external_deps = [
     "hilog_native:libhilog",

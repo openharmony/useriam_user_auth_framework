@@ -20,7 +20,6 @@
 #include "resource_node_utils.h"
 #include "schedule_node.h"
 #include "schedule_node_callback.h"
-#include "hisysevent.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
 
@@ -66,20 +65,6 @@ void EnrollContext::OnResult(int32_t resultCode, const std::shared_ptr<Attribute
         }
     }
     InvokeResultCallback(resultCode, credentialId);
-    
-    int32_t userId = 0;
-    uint32_t authType = 0;
-    uint32_t operationType = 0;
-    if (!scheduleResultAttr->GetInt32Value(Attributes::ATTR_USER_ID, userId)) {
-        IAM_LOGE("failed to get user id");
-    }
-    if (!scheduleResultAttr->GetUint32Value(Attributes::ATTR_AUTH_TYPE, authType)) {
-        IAM_LOGE("failed to get auth type");
-    }
-
-    OHOS::HiviewDFX::HiSysEvent::Write("USERIAM", "USERIAM_CREDENTIAL_CHANGE",
-                OHOS::HiviewDFX::HiSysEvent::EventType::SECURITY, "USERID", userId,
-                "AUTHTYPE", authType, "OPERATIONTYPE", operationType, "RET", resultCode);
     IAM_LOGI("%{public}s on result %{public}d finish", GetDescription(), resultCode);
 }
 

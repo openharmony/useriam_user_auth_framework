@@ -22,12 +22,14 @@
 #include "iservmgr_hdi.h"
 #include "parameter.h"
 #include "system_ability_definition.h"
+#include "hisysevent_adapter.h"
 
 #include "auth_executor_mgr_status_listener.h"
 #include "driver_manager_status_listener.h"
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
+#include "iam_time.h"
 
 #define LOG_LABEL Common::LABEL_USER_AUTH_EXECUTOR
 
@@ -107,6 +109,7 @@ void DriverManager::SubscribeHdiDriverStatus()
                 driver->OnHdiConnect();
                 break;
             case SERVIE_STATUS_STOP:
+                ReportSystemFault(Common::GetNowTimeString(), status.serviceName);
                 IAM_LOGI("service %{public}s status change to stop", status.serviceName.c_str());
                 driver->OnHdiDisconnect();
                 break;

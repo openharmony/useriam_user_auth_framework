@@ -102,6 +102,16 @@ enum ExecutorRole {
     ALL_IN_ONE = 3
 };
 
+enum OperationType : uint32_t {
+    ADD_CREDENTIAL = 0,
+    DELETE_CREDENTIAL = 1,
+    DELETE_USER = 2,
+    ENFORCE_DELETE_USER = 3,
+    UPDATE_CREDENTIAL = 4,
+    AUTH_USER = 5,
+    IDENTIFY = 6,
+};
+
 enum ResultCode {
     /**
      * Indicates that authentication is success or ability is supported.
@@ -150,6 +160,8 @@ enum ResultCode {
 };
 
 const uint64_t INVALID_EXECUTOR_ID = 0;
+
+const int32_t INVALID_EXECUTOR_TYPE = -1;
 
 struct ExecutorInfo {
     int32_t executorId;

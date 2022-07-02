@@ -18,7 +18,6 @@
 #include "iam_logger.h"
 #include "result_code.h"
 #include "user_idm.h"
-#include "hisysevent.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
 
@@ -87,20 +86,6 @@ void IdmCallbackProxy::OnResult(int32_t result, const Attributes &extraInfo)
     if (!ret) {
         IAM_LOGE("failed to send request");
     }
-
-    int32_t userId = 0;
-    uint32_t authType = 0;
-    uint32_t operationType = 0;
-    if (!extraInfo.GetInt32Value(Attributes::ATTR_USER_ID, userId)) {
-        IAM_LOGE("failed to get user id");
-    }
-    if (!extraInfo.GetUint32Value(Attributes::ATTR_AUTH_TYPE, authType)) {
-        IAM_LOGE("failed to get auth type");
-    }
-
-    OHOS::HiviewDFX::HiSysEvent::Write("USERIAM", "USERIAM_USER_CREDENTIAL_MANAGER",
-                OHOS::HiviewDFX::HiSysEvent::EventType::BEHAVIOR, "USERID", userId,
-                "AUTHTYPE", authType, "OPERATIONTYPE", operationType, "RET", result);
 }
 
 bool IdmCallbackProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply)

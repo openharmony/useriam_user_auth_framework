@@ -40,6 +40,7 @@ Executor::Executor(std::shared_ptr<ExecutorMgrWrapper> executorMgrWrapper,
     IF_FALSE_LOGE_AND_RETURN(hdi != nullptr);
     ExecutorInfo executorInfo = {};
     IF_FALSE_LOGE_AND_RETURN(hdi->GetExecutorInfo(executorInfo) == ResultCode::SUCCESS);
+    executorType_ = executorInfo.executorType;
     std::ostringstream ss;
     uint32_t combineExecutorId = Common::CombineUint16ToUint32(hdiId_, static_cast<uint16_t>(executorInfo.executorId));
     const uint32_t uint32HexWidth = 8;
@@ -142,6 +143,11 @@ std::shared_ptr<IAuthExecutorHdi> Executor::GetExecutorHdi()
 const char *Executor::GetDescription()
 {
     return description_.c_str();
+}
+
+int32_t Executor::GetExecutorType()
+{
+    return executorType_;
 }
 } // namespace UserAuth
 } // namespace UserIAM
