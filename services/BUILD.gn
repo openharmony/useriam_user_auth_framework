@@ -37,6 +37,8 @@ ohos_shared_library("userauthservice") {
 
   sources = [
     "//base/useriam/user_auth_framework/dfx/src/iam_hitrace_helper.cpp",
+    "//base/useriam/user_auth_framework/common/utils/iam_time.cpp",
+    "//base/useriam/user_auth_framework/dfx/src/hisysevent_adapter.cpp",
     "//base/useriam/user_auth_framework/dfx/src/trace.cpp",
     "base/src/finite_state_machine_builder.cpp",
     "base/src/finite_state_machine_impl.cpp",

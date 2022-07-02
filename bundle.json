@@ -22,6 +22,9 @@
       "SystemCapability.UserIAM.UserAuth.Core"
     ],
     "features": [],
+    "hisysevent_config": [
+      "//base/useriam/user_auth_framework/hisysevent.yaml"
+    ],
     "rom": "3924KB",
     "ram": "5000KB",
     "deps": {
