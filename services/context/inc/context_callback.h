@@ -24,6 +24,7 @@
 #include <singleton.h>
 #include <vector>
 
+#include "iam_defines.h"
 #include "context.h"
 #include "user_auth_callback.h"
 #include "user_idm_callback.h"
@@ -31,16 +32,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-enum OperationType : uint32_t {
-    TRACE_ADD_CREDENTIAL = 0,
-    TRACE_DELETE_CREDENTIAL = 1,
-    TRACE_DELETE_USER = 2,
-    TRACE_ENFORCE_DELETE_USER = 3,
-    TRACE_UPDATE_CREDENTIAL = 4,
-    TRACE_AUTH_USER = 5,
-    TRACE_IDENTIFY = 6,
-};
-
 class ContextCallbackNotifyListener : public Singleton<ContextCallbackNotifyListener> {
 public:
     struct MetaData {

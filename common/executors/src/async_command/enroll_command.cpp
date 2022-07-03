@@ -21,6 +21,7 @@
 #include "iam_mem.h"
 #include "iam_para2str.h"
 #include "iam_ptr.h"
+#include "iam_defines.h"
 #include "hisysevent_adapter.h"
 
 #define LOG_LABEL Common::LABEL_USER_AUTH_EXECUTOR
@@ -56,7 +57,7 @@ ResultCode EnrollCommand::SendRequest()
 void EnrollCommand::OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo)
 {
     IAM_LOGI("%{public}s on result start", GetDescription());
-    ReportTemplateChange(GetExecutorType(), OperationType::ADD_CREDENTIAL, "User Operation");
+    ReportTemplateChange(GetExecutorType(), UserIam::UserAuth::TRACE_ADD_CREDENTIAL, "User Operation");
     std::vector<uint8_t> nonConstExtraInfo(extraInfo.begin(), extraInfo.end());
     auto authAttributes = Common::MakeShared<UserIam::UserAuth::Attributes>();
     IF_FALSE_LOGE_AND_RETURN(authAttributes != nullptr);

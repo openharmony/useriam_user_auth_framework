@@ -27,6 +27,7 @@
 #include "iam_para2str.h"
 #include "iam_ptr.h"
 #include "iam_types.h"
+#include "iam_defines.h"
 #include "iam_hitrace_helper.h"
 #include "hisysevent_adapter.h"
 #include "identify_command.h"
@@ -217,7 +218,8 @@ ResultCode FrameworkExecutorCallback::ProcessDeleteTemplateCommand(
     templateIdList.push_back(templateId);
     ResultCode ret = hdi->Delete(templateIdList);
     if (ret == ResultCode::SUCCESS) {
-        ReportTemplateChange(executor->GetExecutorType(), OperationType::DELETE_CREDENTIAL, "User Operation");
+        ReportTemplateChange(executor->GetExecutorType(), UserIam::UserAuth::TRACE_DELETE_CREDENTIAL,
+            "User Operation");
     }
     UserIam::UserAuth::IamHitraceHelper traceHelper("hdi Delete");
     return ret;

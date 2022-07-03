@@ -31,7 +31,7 @@ struct UserAuthInfo {
 };
 
 struct PinAuthInfo {
-    uint32_t userId = 0;
+    int32_t userId = 0;
     uint64_t callingUid = 0;
     std::string authTimeString;
     uint32_t authResult = 0;
@@ -41,8 +41,8 @@ struct PinAuthInfo {
 
 void ReportSystemFault(const std::string &timeString, const std::string &moudleName);
 void ReportTemplateChange(int32_t executorType, uint32_t changeType, const std::string &reason);
-void ReportBehaviorCredChange(uint32_t userId, uint32_t authType, uint32_t operationType, uint32_t optResult);
-void ReportSecurityCredChange(uint32_t userId, uint32_t authType, uint32_t operationType, uint32_t optResult);
+void ReportBehaviorCredChange(int32_t userId, uint32_t authType, uint32_t operationType, uint32_t optResult);
+void ReportSecurityCredChange(int32_t userId, uint32_t authType, uint32_t operationType, uint32_t optResult);
 void ReportUserAuth(const UserAuthInfo &info);
 void ReportPinAuth(const PinAuthInfo &info);
 } // namespace UserAuth
