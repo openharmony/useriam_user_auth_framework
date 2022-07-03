@@ -13,27 +13,32 @@
  * limitations under the License.
  */
 
-#ifndef TRACE_H
-#define TRACE_H
+#include "iam_hitrace_helper.h"
 
-#include "nocopyable.h"
+#include <atomic>
 
-#include "context_callback.h"
+#include "hitrace_meter.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class Trace final : public NoCopyable {
-private:
-    static Trace trace;
-    static void ProcessCredChangeEvent(const ContextCallbackNotifyListener::MetaData &metaData);
-    static void ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData);
-    static void ProcessPinAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData);
-    static void ProcessDelUserEvent(const ContextCallbackNotifyListener::MetaData &metaData);
-    Trace();
-    ~Trace();
-};
+IamHitraceHelper::IamHitraceHelper(std::string value)
+    : taskId_(GetHiTraceTaskId()),
+      value_(std::move(value))
+{
+    StartAsyncTrace(HITRACE_TAG_OHOS, value_, taskId_);
+}
+
+IamHitraceHelper::~IamHitraceHelper()
+{
+    FinishAsyncTrace(HITRACE_TAG_OHOS, value_, taskId_);
+}
+
+int32_t IamHitraceHelper::GetHiTraceTaskId()
+{
+    static std::atomic<int32_t> taskId(0);
+    return taskId++;
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // TRACE_H

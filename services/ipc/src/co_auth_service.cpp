@@ -18,6 +18,8 @@
 #include <cinttypes>
 #include <thread>
 
+#include "string_ex.h"
+
 #include "executor_messenger_service.h"
 #include "hdi_wrapper.h"
 #include "iam_logger.h"
@@ -103,6 +105,36 @@ void CoAuthService::Init()
     } else {
         RelativeTimer::GetInstance().Register(Init, DEFER_TIME);
     }
+}
+
+int CoAuthService::Dump(int fd, const std::vector<std::u16string> &args)
+{
+    IAM_LOGI("start");
+    if (fd < 0) {
+        IAM_LOGE("invalid parameters");
+        dprintf(fd, "Invalid parameters.\n");
+        return INVALID_PARAMETERS;
+    }
+    std::string arg0 = (args.empty() ? "" : Str16ToStr8(args[0]));
+    if (arg0.empty() || arg0.compare("-h") == 0) {
+        dprintf(fd, "Usage:\n");
+        dprintf(fd, "      -h: command help.\n");
+        dprintf(fd, "      -l: resource pool dump.\n");
+        return SUCCESS;
+    }
+    if (arg0.compare("-l") == 0) {
+        ResourceNodePool::Instance().Enumerate([fd](const std::weak_ptr<ResourceNode> &node) {
+            auto nodeTmp = node.lock();
+            if (nodeTmp != nullptr) {
+                dprintf(fd, "ExecutorIndex is: %" PRIx64 ".\n", nodeTmp->GetExecutorIndex());
+                dprintf(fd, "ExecutorType is: %s.\n", AuthTypeToStr(nodeTmp->GetAuthType()));
+            }
+        });
+        return SUCCESS;
+    }
+    IAM_LOGE("invalid option");
+    dprintf(fd, "Invalid option\n");
+    return FAIL;
 }
 } // namespace UserAuth
 } // namespace UserIam

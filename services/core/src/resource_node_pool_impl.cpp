@@ -35,6 +35,7 @@ public:
     void DeleteAll() override;
     std::weak_ptr<ResourceNode> Select(uint64_t executorIndex) const override;
     uint32_t GetPoolSize() const override;
+    void Enumerate(std::function<void(const std::weak_ptr<ResourceNode> &)> action) const override;
     bool RegisterResourceNodePoolListener(const std::shared_ptr<ResourceNodePoolListener> &listener) override;
     bool DeregisterResourceNodePoolListener(const std::shared_ptr<ResourceNodePoolListener> &listener) override;
 
@@ -116,6 +117,18 @@ std::weak_ptr<ResourceNode> ResourceNodePoolImpl::Select(uint64_t executorIndex)
         result = iter->second;
     }
     return result;
+}
+
+void ResourceNodePoolImpl::Enumerate(std::function<void(const std::weak_ptr<ResourceNode> &)> action) const
+{
+    if (action == nullptr) {
+        IAM_LOGE("action is nullptr");
+        return;
+    }
+    std::lock_guard<std::mutex> lock(poolMutex_);
+    for (auto &node : resourceNodeMap_) {
+        action(node.second);
+    }
 }
 
 uint32_t ResourceNodePoolImpl::GetPoolSize() const

@@ -27,6 +27,7 @@
 #include "iam_para2str.h"
 #include "iam_ptr.h"
 #include "iam_types.h"
+#include "iam_hitrace_helper.h"
 #include "identify_command.h"
 
 #define LOG_LABEL Common::LABEL_USER_AUTH_EXECUTOR
@@ -211,7 +212,9 @@ ResultCode FrameworkExecutorCallback::ProcessDeleteTemplateCommand(
     bool getAuthTemplateIdRet = properties->GetUint64Value(UserIam::UserAuth::Attributes::ATTR_TEMPLATE_ID, templateId);
     IF_FALSE_LOGE_AND_RETURN_VAL(getAuthTemplateIdRet == true, ResultCode::GENERAL_ERROR);
     std::vector<uint64_t> templateIdList;
+
     templateIdList.push_back(templateId);
+    UserIam::UserAuth::IamHitraceHelper traceHelper("hdi Delete");
     return hdi->Delete(templateIdList);
 }
 
