@@ -14,6 +14,8 @@
  */
 #include "context_callback_impl.h"
 
+#include <sstream>
+
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
@@ -27,6 +29,9 @@ ContextCallbackImpl::ContextCallbackImpl(sptr<IdmCallback> idmCallback, Operatio
 {
     metaData_.operationType = operationType;
     metaData_.startTime = std::chrono::steady_clock::now();
+    std::ostringstream ss;
+    ss << "IDM(operation:" << operationType << ")";
+    iamHitraceHelper_ = UserIAM::Common::MakeShared<IamHitraceHelper>(ss.str());
 }
 
 ContextCallbackImpl::ContextCallbackImpl(sptr<UserAuthCallback> userAuthCallback, OperationType operationType)
@@ -34,6 +39,9 @@ ContextCallbackImpl::ContextCallbackImpl(sptr<UserAuthCallback> userAuthCallback
 {
     metaData_.operationType = operationType;
     metaData_.startTime = std::chrono::steady_clock::now();
+    std::ostringstream ss;
+    ss << "UserAuth(operation:" << operationType << ")";
+    iamHitraceHelper_ = UserIAM::Common::MakeShared<IamHitraceHelper>(ss.str());
 }
 
 void ContextCallbackImpl::onAcquireInfo(ExecutorRole src, int32_t moduleType,
@@ -71,6 +79,7 @@ void ContextCallbackImpl::OnResult(int32_t resultCode, Attributes &finalResult)
     }
     metaData_.endTime = std::chrono::steady_clock::now();
 
+    iamHitraceHelper_ = nullptr;
     if (idmCallback_ != nullptr) {
         idmCallback_->OnResult(resultCode, finalResult);
     }

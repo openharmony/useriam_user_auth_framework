@@ -118,6 +118,7 @@ ScheduleNode::State ScheduleNodeImpl::GetCurrentScheduleState() const
 
 bool ScheduleNodeImpl::StartSchedule()
 {
+    iamHitraceHelper_ = UserIAM::Common::MakeShared<IamHitraceHelper>(GetDescription());
     {
         std::lock_guard<std::mutex> lock(mutex_);
         if (!TryKickMachine(E_START_AUTH)) {
@@ -216,7 +217,9 @@ std::string ScheduleNodeImpl::GetDescription() const
     std::stringstream stream;
     std::string name;
 
-    stream << "schedule:****" << std::hex << static_cast<uint16_t>(GetScheduleId());
+    auto verifier = info_.verifier.lock();
+    stream << "schedule type:" << (verifier ? AuthTypeToStr(verifier->GetAuthType()) : "nullptr") <<
+        " id:******" << std::hex << static_cast<uint16_t>(GetScheduleId());
     stream >> name;
     return name;
 }
@@ -366,6 +369,8 @@ void ScheduleNodeImpl::OnScheduleFinished(FiniteStateMachine &machine, uint32_t 
     if (!result_.has_value()) {
         return;
     }
+
+    iamHitraceHelper_ = nullptr;
 
     auto result = result_.value();
     info_.callback->OnScheduleStoped(result.first, result.second);

@@ -19,6 +19,7 @@
 #include <message_parcel.h>
 
 #include "iam_logger.h"
+#include "iam_ptr.h"
 #include "iuser_auth.h"
 
 #define LOG_LABEL Common::LABEL_USER_AUTH_SDK
@@ -26,11 +27,15 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<UserAuthCallback> &impl) : authCallback_(impl)
+UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<UserAuthCallback> &impl)
+    : authCallback_(impl),
+      iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("UserAuth InnerKit"))
 {
 }
 
-UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<UserIdentifyCallback> &impl) : identifyCallback_(impl)
+UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<UserIdentifyCallback> &impl)
+    : identifyCallback_(impl),
+      iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("UserAuth InnerKit"))
 {
 }
 
@@ -249,6 +254,8 @@ void UserAuthAsyncStub::onAuthResult(const int32_t result, const AuthResult &ext
         return;
     }
 
+    iamHitraceHelper_= nullptr;
+
     IAM_LOGD("userauthAsyncStub result:%{public}d, remain:%{public}u, freeze:%{public}u",
         result, extraInfo.remainTimes, extraInfo.freezingTime);
     authCallback_->onResult(result, extraInfo);
@@ -262,6 +269,8 @@ void UserAuthAsyncStub::onIdentifyResult(const int32_t result, const IdentifyRes
         IAM_LOGE("UserAuthAsyncStub onIdentifyResult callback is nullptr");
         return;
     }
+
+    iamHitraceHelper_= nullptr;
 
     IAM_LOGD("UserAuthAsyncStub identify result:%{public}d, user id:%{public}d",
         result, extraInfo.userId);

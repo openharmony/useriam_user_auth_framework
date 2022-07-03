@@ -27,9 +27,11 @@ ohos_shared_library("userauth_framework") {
     "inc",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs",
+    "//base/useriam/user_auth_framework/dfx/inc",
   ]
 
   sources = [
+    "//base/useriam/user_auth_framework/dfx/src/iam_hitrace_helper.cpp",
     "src/user_auth.cpp",
     "src/user_auth_native.cpp",
     "src/userauth_async_stub.cpp",
@@ -41,6 +43,7 @@ ohos_shared_library("userauth_framework") {
   ]
 
   external_deps = [
+    "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "samgr_standard:samgr_proxy",

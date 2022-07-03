@@ -37,6 +37,7 @@ public:
     ~UserIdmService() override = default;
     void OnStart() override;
     void OnStop() override;
+    int Dump(int fd, const std::vector<std::u16string> &args) override;
     int32_t OpenSession(std::optional<int32_t> userId, std::vector<uint8_t> &challenge) override;
     void CloseSession(std::optional<int32_t> userId) override;
     int32_t GetCredentialInfo(std::optional<int32_t> userId, AuthType authType,

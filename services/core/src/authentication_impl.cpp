@@ -16,6 +16,7 @@
 
 #include "hdi_wrapper.h"
 #include "iam_logger.h"
+#include "iam_hitrace_helper.h"
 #include "schedule_node_helper.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
@@ -69,6 +70,7 @@ bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
         .challenge = challenge_,
     };
     std::vector<HdiScheduleInfo> infos;
+    IamHitraceHelper traceHelper("hdi BeginAuthentication");
     auto result = hdi->BeginAuthentication(contextId_, solution, infos);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi BeginAuthentication failed, err is %{public}d", result);

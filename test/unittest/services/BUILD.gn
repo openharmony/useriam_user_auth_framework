@@ -18,6 +18,7 @@ ohos_unittest("iam_services_test") {
   include_dirs = [
     "inc",
     "mocks",
+    "//base/useriam/user_auth_framework/dfx/inc",
     "//base/useriam/user_auth_framework/services/base/inc",
     "//base/useriam/user_auth_framework/services/core/inc",
     "//base/useriam/user_auth_framework/services/core/src",
@@ -29,6 +30,8 @@ ohos_unittest("iam_services_test") {
   ]
 
   sources = [
+    "//base/useriam/user_auth_framework/dfx/src/iam_hitrace_helper.cpp",
+    "//base/useriam/user_auth_framework/dfx/src/trace.cpp",
     "//base/useriam/user_auth_framework/services/base/src/finite_state_machine_builder.cpp",
     "//base/useriam/user_auth_framework/services/base/src/finite_state_machine_impl.cpp",
     "//base/useriam/user_auth_framework/services/base/src/relative_timer.cpp",
@@ -104,6 +107,7 @@ ohos_unittest("iam_services_test") {
     "access_token:libaccesstoken_sdk",
     "drivers_interface_user_auth:libuser_auth_proxy_1.0",
     "hilog_native:libhilog",
+    "hitrace_native:hitrace_meter",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",

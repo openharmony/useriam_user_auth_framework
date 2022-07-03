@@ -16,6 +16,7 @@
 #include "resource_node_utils.h"
 
 #include "iam_logger.h"
+#include "iam_hitrace_helper.h"
 #include "resource_node_pool.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
@@ -41,7 +42,7 @@ int32_t ResourceNodeUtils::NotifyExecutorToDeleteTemplates(const std::vector<std
         Attributes properties;
         properties.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_DEL);
         properties.SetUint64Value(Attributes::ATTR_TEMPLATE_ID, info->GetTemplateId());
-
+        IamHitraceHelper traceHelper("NotifyExecutorToDeleteTemplates");
         int32_t ret = resourceNode->SetProperty(properties);
         if (ret != SUCCESS) {
             IAM_LOGE("failed to set property to ****%{public}hx", static_cast<uint16_t>(executorIndex));
