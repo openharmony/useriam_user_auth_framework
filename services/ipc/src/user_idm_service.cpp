@@ -25,6 +25,7 @@
 #include "hdi_wrapper.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
+#include "iam_defines.h"
 #include "ipc_common.h"
 #include "resource_node_pool.h"
 #include "resource_node_utils.h"

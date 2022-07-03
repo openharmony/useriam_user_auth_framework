@@ -13,17 +13,30 @@
  * limitations under the License.
  */
 
+#include <securec.h>
+
 #include "iam_time.h"
 
 namespace OHOS {
 namespace UserIAM {
 namespace Common {
+constexpr uint32_t BUFFSIZE = 64;
+constexpr uint32_t DATALEN = 19;
+constexpr uint32_t TMYEAR = 1900;
 const std::string GetNowTimeString()
 {
     using namespace std::chrono;
     const time_point<system_clock> now = system_clock::now();
     time_t tt = system_clock::to_time_t(now);
-    return std::string(ctime(&tt));
+    struct tm curr;
+    char timeStr[BUFFSIZE + 1] = {0};
+    localtime_r(&tt, &curr);
+    int error = snprintf_s(timeStr, sizeof(timeStr), DATALEN, "%04d-%02d-%02d %02d:%02d:%02d",
+        curr.tm_year + TMYEAR, curr.tm_mon + 1, curr.tm_mday, curr.tm_hour, curr.tm_min, curr.tm_sec);
+    if (error != EOK) {
+        return std::string();
+    }
+    return std::string(timeStr);
 }
 } // namespace Common
 } // namespace UserIAM

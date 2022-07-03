@@ -45,7 +45,7 @@ public:
     void RemoveCommand(std::shared_ptr<IAsyncCommand> command);
     std::shared_ptr<IAuthExecutorHdi> GetExecutorHdi();
     const char *GetDescription();
-    int32_t GetExecutorType();
+    int32_t GetExecutorType() const;
 
 private:
     void RegisterExecutorCallback(ExecutorInfo &executorInfo);

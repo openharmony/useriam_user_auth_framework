@@ -20,6 +20,7 @@
 
 #include "nocopyable.h"
 
+#include "iam_defines.h"
 #include "co_auth_defines.h"
 #include "executor.h"
 #include "iexecutor_messenger.h"

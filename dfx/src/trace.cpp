@@ -49,7 +49,7 @@ void Trace::ProcessCredChangeEvent(const ContextCallbackNotifyListener::MetaData
     if (!checkRet) {
         return;
     }
-    uint32_t userId = 0;
+    int32_t userId = 0;
     uint32_t authType = 0;
     uint32_t operationType = metaData.operationType;
     uint32_t optResult = 0;
@@ -89,7 +89,7 @@ void Trace::ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &
     }
     auto timeSpan = duration_cast<milliseconds>(metaData.endTime - metaData.startTime);
     std::ostringstream ss;
-    ss << timeSpan.count() << "milliseconds";
+    ss << timeSpan.count() << " ms";
     info.timeSpanString = ss.str();
     if (metaData.sdkVersion.has_value()) {
         info.sdkVersion = metaData.sdkVersion.value();
@@ -100,8 +100,8 @@ void Trace::ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &
 
 void Trace::ProcessPinAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData)
 {
-    bool checkRet = metaData.operationType == TRACE_AUTH_USER && metaData.authType.has_value()
-        && metaData.authType == PIN;
+    bool checkRet = metaData.operationType == TRACE_AUTH_USER && metaData.authType.has_value() &&
+        metaData.authType == PIN;
     if (!checkRet) {
         return;
     }

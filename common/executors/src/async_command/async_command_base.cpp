@@ -99,7 +99,7 @@ int32_t AsyncCommandBase::GetExecutorType()
     auto executor = executor_.lock();
     if (executor == nullptr) {
         IAM_LOGE("%{public}s executor has been released, get executor type fail", GetDescription());
-        return INVALID_EXECUTOR_TYPE;
+        return UserIam::UserAuth::INVALID_EXECUTOR_TYPE;
     }
     return executor->GetExecutorType();
 }

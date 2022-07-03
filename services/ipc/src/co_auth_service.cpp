@@ -82,14 +82,14 @@ uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<
     executorCallback->OnMessengerReady(messenger, fwkPublicKey, templateIdList);
     uint64_t executorIndex = resourceNode->GetExecutorIndex();
     uint32_t executorType = static_cast<uint32_t>(resourceNode->GetAuthType());
-    std::string executorDesc = "executor, type " + std::to_string(executorType);
     IAM_LOGI("register successful, executorType is %{public}u, executorIndex is ****%{public}hx",
         executorType, static_cast<uint16_t>(executorIndex));
     if (auto obj = executorCallback->AsObject(); obj) {
-        obj->AddDeathRecipient(new (std::nothrow) IpcCommon::PeerDeathRecipient([executorIndex, executorDesc]() {
+        obj->AddDeathRecipient(new (std::nothrow) IpcCommon::PeerDeathRecipient([executorIndex, executorType]() {
             auto result = ResourceNodePool::Instance().Delete(executorIndex);
             IAM_LOGI("delete executor %{public}s, executorIndex is ****%{public}hx", (result ? "succ" : "failed"),
                 static_cast<uint16_t>(executorIndex));
+            std::string executorDesc = "executor, type " + std::to_string(executorType);
             UserIAM::UserAuth::ReportSystemFault(UserIAM::Common::GetNowTimeString(), executorDesc);
         }));
     }

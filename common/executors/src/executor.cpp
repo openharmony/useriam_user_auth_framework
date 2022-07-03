@@ -145,7 +145,7 @@ const char *Executor::GetDescription()
     return description_.c_str();
 }
 
-int32_t Executor::GetExecutorType()
+int32_t Executor::GetExecutorType() const
 {
     return executorType_;
 }
