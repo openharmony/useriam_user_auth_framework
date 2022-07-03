@@ -16,6 +16,8 @@
 #ifndef IDENTIFY_COMMAND_H
 #define IDENTIFY_COMMAND_H
 
+#include "iam_hitrace_helper.h"
+
 #include "async_command_base.h"
 
 namespace OHOS {
@@ -35,6 +37,7 @@ protected:
 private:
     uint32_t transNum_ = 1;
     std::shared_ptr<UserIam::UserAuth::Attributes> attributes_;
+    std::shared_ptr<UserIam::UserAuth::IamHitraceHelper> iamHitraceHelper_;
 };
 } // namespace UserAuth
 } // namespace UserIAM

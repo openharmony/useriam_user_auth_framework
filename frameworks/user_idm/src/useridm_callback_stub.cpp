@@ -18,6 +18,7 @@
 #include <message_parcel.h>
 
 #include "iam_logger.h"
+#include "iam_ptr.h"
 
 #define LOG_LABEL Common::LABEL_USER_IDM_SDK
 
@@ -25,6 +26,20 @@ namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {
 namespace UserAuthDomain = OHOS::UserIAM::UserAuth;
+
+UserIDMCallbackStub::UserIDMCallbackStub(const std::shared_ptr<IDMCallback> &impl)
+    : callback_(impl),
+      idmCallback_(nullptr),
+      iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("IDM InnerKit"))
+{
+}
+
+UserIDMCallbackStub::UserIDMCallbackStub(const std::shared_ptr<UserAuthDomain::IdmCallback> &impl)
+    : callback_(nullptr),
+      idmCallback_(impl),
+      iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("IDM InnerKit"))
+{
+}
 
 int32_t UserIDMCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
@@ -76,6 +91,7 @@ int32_t UserIDMCallbackStub::OnAcquireInfoStub(MessageParcel& data, MessageParce
 void UserIDMCallbackStub::OnResult(int32_t result, RequestResult reqRet)
 {
     IAM_LOGD("UserIDMCallbackStub OnResult start");
+    iamHitraceHelper_ = nullptr;
     if (callback_ != nullptr) {
         callback_->OnResult(result, reqRet);
         return;

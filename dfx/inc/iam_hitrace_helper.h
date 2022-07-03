@@ -13,27 +13,28 @@
  * limitations under the License.
  */
 
-#ifndef TRACE_H
-#define TRACE_H
+#ifndef IAM_HI_TRACE_HELPER_H
+#define IAM_HI_TRACE_HELPER_H
+
+#include <cstdint>
+#include <string>
 
 #include "nocopyable.h"
-
-#include "context_callback.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class Trace final : public NoCopyable {
+class IamHitraceHelper final : public NoCopyable {
+public:
+    explicit IamHitraceHelper(std::string value);
+    ~IamHitraceHelper() override;
+
 private:
-    static Trace trace;
-    static void ProcessCredChangeEvent(const ContextCallbackNotifyListener::MetaData &metaData);
-    static void ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData);
-    static void ProcessPinAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData);
-    static void ProcessDelUserEvent(const ContextCallbackNotifyListener::MetaData &metaData);
-    Trace();
-    ~Trace();
+    int32_t GetHiTraceTaskId();
+    int32_t taskId_;
+    std::string value_;
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // TRACE_H
+#endif // IAM_HI_TRACE_HELPER_H

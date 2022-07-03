@@ -17,6 +17,9 @@
 #define USERIDM_CALLBACK_STUB_H
 
 #include <iremote_stub.h>
+
+#include "iam_hitrace_helper.h"
+
 #include "iuseridm_callback.h"
 #include "useridm_info.h"
 #include "useridm_callback.h"
@@ -29,10 +32,8 @@ namespace UserAuthDomain = OHOS::UserIAM::UserAuth;
 
 class UserIDMCallbackStub : public IRemoteStub<IIDMCallback> {
 public:
-    explicit UserIDMCallbackStub(const std::shared_ptr<IDMCallback> &impl)
-        :callback_(impl), idmCallback_(nullptr) {}
-    explicit UserIDMCallbackStub(const std::shared_ptr<UserAuthDomain::IdmCallback> &impl)
-        :callback_(nullptr), idmCallback_(impl) {}
+    explicit UserIDMCallbackStub(const std::shared_ptr<IDMCallback> &impl);
+    explicit UserIDMCallbackStub(const std::shared_ptr<UserAuthDomain::IdmCallback> &impl);
     ~UserIDMCallbackStub() override = default;
 
     void OnResult(int32_t result, RequestResult reqRet) override;
@@ -45,6 +46,7 @@ private:
 
     std::shared_ptr<IDMCallback> callback_;
     std::shared_ptr<UserAuthDomain::IdmCallback> idmCallback_;
+    std::shared_ptr<UserIam::UserAuth::IamHitraceHelper> iamHitraceHelper_;
 };
 }  // namespace UserIDM
 }  // namespace UserIAM

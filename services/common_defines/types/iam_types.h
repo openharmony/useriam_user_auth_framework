@@ -28,6 +28,22 @@ enum AuthType : uint32_t {
     FINGERPRINT = 4,
 };
 
+inline const char *AuthTypeToStr(AuthType authType)
+{
+    switch (authType) {
+        case ALL:
+            return "All";
+        case PIN:
+            return "Pin";
+        case FACE:
+            return "Face";
+        case FINGERPRINT:
+            return "Fingerprint";
+        default:
+            return "";
+    }
+}
+
 enum PinSubType : uint64_t {
     PIN_SIX = 10000,
     PIN_NUMBER = 10001,

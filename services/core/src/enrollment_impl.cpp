@@ -17,6 +17,7 @@
 #include "hdi_wrapper.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
+#include "iam_hitrace_helper.h"
 
 #include "credential_info_impl.h"
 #include "schedule_node_helper.h"
@@ -73,6 +74,7 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
         .authType = static_cast<HdiAuthType>(authType_),
         .executorSensorHint = executorSensorHint_,
     };
+    IamHitraceHelper traceHelper("hdi BeginEnrollment");
     auto result = hdi->BeginEnrollment(userId_, authToken_, param, info);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi BeginEnrollment failed, err is %{public}d", result);

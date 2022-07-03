@@ -32,6 +32,7 @@ public:
     ~CoAuthService() override = default;
     void OnStart() override;
     void OnStop() override;
+    int Dump(int fd, const std::vector<std::u16string> &args) override;
     uint64_t ExecutorRegister(const ExecutorRegisterInfo &info, sptr<ExecutorCallback> &callback) override;
 
 private:

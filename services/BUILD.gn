@@ -36,6 +36,7 @@ ohos_shared_library("userauthservice") {
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   sources = [
+    "//base/useriam/user_auth_framework/dfx/src/iam_hitrace_helper.cpp",
     "//base/useriam/user_auth_framework/dfx/src/trace.cpp",
     "base/src/finite_state_machine_builder.cpp",
     "base/src/finite_state_machine_impl.cpp",
@@ -87,6 +88,7 @@ ohos_shared_library("userauthservice") {
     "access_token:libaccesstoken_sdk",
     "drivers_interface_user_auth:libuser_auth_proxy_1.0",
     "hilog_native:libhilog",
+    "hitrace_native:hitrace_meter",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
