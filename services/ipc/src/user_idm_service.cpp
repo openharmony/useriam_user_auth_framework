@@ -14,6 +14,9 @@
  */
 
 #include "user_idm_service.h"
+
+#include "string_ex.h"
+
 #include "accesstoken_kit.h"
 
 #include "context_factory.h"
@@ -440,6 +443,45 @@ void UserIdmService::DelCredential(std::optional<int32_t> userId, uint64_t crede
     }
 
     contextCallback->OnResult(ret, extraInfo);
+}
+
+int UserIdmService::Dump(int fd, const std::vector<std::u16string> &args)
+{
+    IAM_LOGI("start");
+    if (fd < 0) {
+        IAM_LOGE("invalid parameters");
+        dprintf(fd, "Invalid parameters.\n");
+        return INVALID_PARAMETERS;
+    }
+    std::string arg0 = (args.empty() ? "" : Str16ToStr8(args[0]));
+    if (arg0.empty() || arg0.compare("-h") == 0) {
+        dprintf(fd, "Usage:\n");
+        dprintf(fd, "      -h: command help.\n");
+        dprintf(fd, "      -l: active user info dump.\n");
+        return SUCCESS;
+    }
+    if (arg0.compare("-l") == 0) {
+        std::optional<int32_t> activeUserId;
+        if (IpcCommon::GetActiveAccountId(activeUserId) != SUCCESS) {
+            dprintf(fd, "Internal error.\n");
+            IAM_LOGE("failed to get active id");
+            return GENERAL_ERROR;
+        }
+        dprintf(fd, "Active user is %d\n", activeUserId.value());
+        auto userInfo = UserIdmDatabase::Instance().GetSecUserInfo(activeUserId.value());
+        if (userInfo != nullptr) {
+            auto enrolledInfo = userInfo->GetEnrolledInfo();
+            for (auto &info : enrolledInfo) {
+                if (info != nullptr) {
+                    dprintf(fd, "AuthType %s is enrolled.\n", AuthTypeToStr(info->GetAuthType()));
+                }
+            }
+        }
+        return SUCCESS;
+    }
+    IAM_LOGE("invalid option");
+    dprintf(fd, "Invalid option\n");
+    return FAIL;
 }
 } // namespace UserAuth
 } // namespace UserIam

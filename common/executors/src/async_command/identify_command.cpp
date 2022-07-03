@@ -28,7 +28,8 @@ namespace UserAuth {
 IdentifyCommand::IdentifyCommand(std::weak_ptr<Executor> executor, uint64_t scheduleId,
     std::shared_ptr<UserIam::UserAuth::Attributes> attributes, sptr<IExecutorMessenger> executorMessenger)
     : AsyncCommandBase("IDENTIFY", scheduleId, executor, executorMessenger),
-      attributes_(attributes)
+      attributes_(attributes),
+      iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("IdentifyCommand"))
 {
 }
 
@@ -43,6 +44,7 @@ ResultCode IdentifyCommand::SendRequest()
     std::vector<uint8_t> extraInfo;
     bool getCallerUidRet = attributes_->GetUint64Value(UserIam::UserAuth::Attributes::ATTR_CALLER_UID, callerUid);
     IF_FALSE_LOGE_AND_RETURN_VAL(getCallerUidRet == true, ResultCode::GENERAL_ERROR);
+    UserIam::UserAuth::IamHitraceHelper traceHelper("hdi Identify");
     ResultCode ret = hdi->Identify(scheduleId_, callerUid, extraInfo, shared_from_this());
     IAM_LOGI("%{public}s identify result %{public}d", GetDescription(), ret);
     return ret;
@@ -60,6 +62,7 @@ void IdentifyCommand::OnResultInner(ResultCode result, const std::vector<uint8_t
     bool setAuthResultRet =
         authAttributes->SetUint8ArrayValue(UserIam::UserAuth::Attributes::ATTR_RESULT, nonConstExtraInfo);
     IF_FALSE_LOGE_AND_RETURN(setAuthResultRet == true);
+    iamHitraceHelper_ = nullptr;
     int32_t ret = MessengerFinish(scheduleId_, ALL_IN_ONE, result, authAttributes);
     if (ret != USERAUTH_SUCCESS) {
         IAM_LOGE("%{public}s call finish fail", GetDescription());

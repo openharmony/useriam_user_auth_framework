@@ -16,6 +16,8 @@
 #ifndef CONTEXT_CALLBACK_IMPL_H
 #define CONTEXT_CALLBACK_IMPL_H
 
+#include "iam_hitrace_helper.h"
+
 #include "context_callback.h"
 
 namespace OHOS {
@@ -42,6 +44,7 @@ private:
     sptr<UserAuthCallback> userAuthCallback_;
     Context::ContextStopCallback stopCallback_ {nullptr};
     ContextCallbackNotifyListener::MetaData metaData_;
+    std::shared_ptr<IamHitraceHelper> iamHitraceHelper_;
 };
 } // namespace UserAuth
 } // namespace UserIam

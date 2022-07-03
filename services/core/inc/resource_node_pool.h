@@ -41,6 +41,7 @@ public:
     virtual void DeleteAll() = 0;
     virtual std::weak_ptr<ResourceNode> Select(uint64_t executorIndex) const = 0;
     virtual uint32_t GetPoolSize() const = 0;
+    virtual void Enumerate(std::function<void(const std::weak_ptr<ResourceNode> &)> action) const = 0;
     virtual bool RegisterResourceNodePoolListener(const std::shared_ptr<ResourceNodePoolListener> &listener) = 0;
     virtual bool DeregisterResourceNodePoolListener(const std::shared_ptr<ResourceNodePoolListener> &listener) = 0;
 };
