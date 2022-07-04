@@ -20,8 +20,8 @@
 #include "executor_callback.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace AuthResPool {
+namespace UserIam {
+namespace UserAuth {
 class AuthExecutorRegistry : public DelayedRefSingleton<AuthExecutorRegistry> {
 public:
     /* InnerKit */
@@ -39,12 +39,20 @@ private:
     };
 
     void ResetProxy(const wptr<IRemoteObject>& remote);
-    sptr<CoAuth::ICoAuth> GetProxy();
+    sptr<ICoAuth> GetProxy();
     std::mutex mutex_;
-    sptr<CoAuth::ICoAuth> proxy_ {nullptr};
+    sptr<ICoAuth> proxy_ {nullptr};
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
 };
 } // namespace AuthResPool
 } // namespace UserIAM
 } // namespace OHOS
+
+namespace OHOS {
+namespace UserIAM {
+namespace AuthResPool {
+using AuthExecutorRegistry = OHOS::UserIam::UserAuth::AuthExecutorRegistry;
+}
+}
+}
 #endif // AUTH_EXECUTOR_REGISTRY_H

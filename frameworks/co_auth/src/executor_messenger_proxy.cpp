@@ -18,11 +18,11 @@
 #include "iam_logger.h"
 #include "message_parcel.h"
 
-#define LOG_LABEL Common::LABEL_AUTH_EXECUTOR_MGR_SDK
+#define LOG_LABEL UserIAM::Common::LABEL_AUTH_EXECUTOR_MGR_SDK
 
 namespace OHOS {
-namespace UserIAM {
-namespace AuthResPool {
+namespace UserIam {
+namespace UserAuth {
 int32_t ExecutorMessengerProxy::SendData(uint64_t scheduleId, uint64_t transNum,
     int32_t srcType, int32_t dstType, std::shared_ptr<AuthMessage> msg)
 {

@@ -21,8 +21,8 @@
 #include "iexecutor_messenger.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace AuthResPool {
+namespace UserIam {
+namespace UserAuth {
 class IExecutorCallback : public IRemoteBroker {
 public:
     virtual void OnMessengerReady(const sptr<IExecutorMessenger> &messenger,
@@ -47,5 +47,11 @@ public:
 } // namespace AuthResPool
 } // namespace UserIAM
 } // namespace OHOS
-
+namespace OHOS {
+namespace UserIAM {
+namespace AuthResPool {
+using IExecutorCallback = OHOS::UserIam::UserAuth::IExecutorCallback;
+}
+}
+}
 #endif  // IEXECUTOR_CALLBACK_H

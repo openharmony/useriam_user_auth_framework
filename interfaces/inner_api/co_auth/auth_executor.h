@@ -23,8 +23,8 @@
 #include "co_auth_info_define.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace AuthResPool {
+namespace UserIam {
+namespace UserAuth {
 class AuthExecutor {
 public:
     AuthExecutor();
@@ -57,5 +57,11 @@ private:
 }  // namespace AuthResPool
 }  // namespace userIAM
 }  // namespace ohos
-
+namespace OHOS {
+namespace UserIAM {
+namespace AuthResPool {
+using AuthExecutor = OHOS::UserIam::UserAuth::AuthExecutor;
+}
+}
+}
 #endif  // AUTH_EXECUTOR_H

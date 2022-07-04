@@ -19,8 +19,8 @@
 #include "iexecutor_messenger.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace AuthResPool {
+namespace UserIam {
+namespace UserAuth {
 class ExecutorCallback {
 public:
     virtual void OnMessengerReady(const sptr<IExecutorMessenger> &messenger, std::vector<uint8_t> &publicKey,
@@ -35,5 +35,11 @@ public:
 } // namespace AuthResPool
 } // namespace UserIAM
 } // namespace OHOS
-
+namespace OHOS {
+namespace UserIAM {
+namespace AuthResPool {
+using ExecutorCallback = OHOS::UserIam::UserAuth::ExecutorCallback;
+}
+}
+}
 #endif  // EXECUTOR_CALLBACK_H

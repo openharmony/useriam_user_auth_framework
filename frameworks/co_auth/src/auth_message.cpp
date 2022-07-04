@@ -16,8 +16,8 @@
 #include "auth_message.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace AuthResPool {
+namespace UserIam {
+namespace UserAuth {
 AuthMessage* AuthMessage::FromUint8Array(std::vector<uint8_t> &msg)
 {
     msg = authMessage_;

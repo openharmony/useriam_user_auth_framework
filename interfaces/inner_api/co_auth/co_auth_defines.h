@@ -19,7 +19,8 @@
 #include "parcel.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
+namespace UserAuth {
 /* enums define */
 enum AuthAttributeType {
     /* Root tag */
@@ -72,82 +73,57 @@ enum AuthAttributeType {
     ALGORITHM_INFO
 };
 
-enum AuthType {
-    /* Authentication type pin */
+enum AuthType : uint32_t {
+    ALL = 0,
     PIN = 1,
-    /* Authentication type face */
     FACE = 2,
-    /* Authentication type fingerprint */
-    FINGERPRINT = 4
+    FINGERPRINT = 4,
 };
 
 /* Safety level of actuator */
-enum ExecutorSecureLevel {
-    /* Executor without access control */
+enum ExecutorSecureLevel : uint32_t {
     ESL0 = 0,
-    /* Executor with access control */
     ESL1 = 1,
-    /* Executor in secure hardware */
     ESL2 = 2,
-    /* Executor in high secure hardware */
-    ESL3 = 3
+    ESL3 = 3,
 };
 
-enum ExecutorRole {
-    /* Type of executor collector */
+enum ExecutorRole : uint32_t {
+    SCHEDULER = 0,
     COLLECTOR = 1,
-    /* Type of executor verifier */
     VERIFIER = 2,
-    /* Type of executor all in one */
-    ALL_IN_ONE = 3
+    ALL_IN_ONE = 3,
 };
 
-enum ResultCode {
-    /**
-     * Indicates that authentication is success or ability is supported.
-     */
+enum ResultCode : int32_t {
     SUCCESS = 0,
-    /**
-     * Indicates the authenticator fails to identify user.
-     */
     FAIL = 1,
-    /**
-     * Indicates other errors.
-     */
     GENERAL_ERROR = 2,
-    /**
-     * Indicates that authentication has been canceled.
-     */
     CANCELED = 3,
-    /**
-     * Indicates that authentication has timed out.
-     */
     TIMEOUT = 4,
-    /**
-     * Indicates that this authentication type is not supported.
-     */
     TYPE_NOT_SUPPORT = 5,
-    /**
-     * Indicates that the authentication trust level is not supported.
-     */
     TRUST_LEVEL_NOT_SUPPORT = 6,
-    /**
-     * Indicates that the authentication task is busy. Wait for a few seconds and try again.
-     */
     BUSY = 7,
-    /**
-     * Indicates incorrect parameters.
-     */
     INVALID_PARAMETERS = 8,
-    /**
-     * Indicates that the authenticator is locked.
-     */
     LOCKED = 9,
-    /**
-     * Indicates that the user has not enrolled the authenticator.
-     */
-    NOT_ENROLLED = 10
+    NOT_ENROLLED = 10,
+    HARDWARE_NOT_SUPPORTED = 11,
+    SYSTEM_ERROR_CODE_BEGIN = 1000, // error code for system
+    IPC_ERROR = 1001,
+    INVALID_CONTEXT_ID = 1002,
+    READ_PARCEL_ERROR = 1003,
+    WRITE_PARCEL_ERROR = 1004,
+    CHECK_PERMISSION_FAILED = 1005,
+    INVALID_HDI_INTERFACE = 1006,
+    VENDOR_ERROR_CODE_BEGIN = 10000, // error code for vendor
 };
+
+enum ScheduleMode : uint32_t {
+    ENROLL = 0,
+    AUTH = 1,
+    IDENTIFY = 2,
+};
+
 
 const uint64_t INVALID_EXECUTOR_ID = 0;
 
@@ -160,6 +136,18 @@ struct ExecutorInfo {
     std::vector<uint8_t> publicKey;
     std::vector<uint8_t> deviceId;
 };
+}
 } // namespace UserIAM
 } // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+using AuthAttributeType = OHOS::UserIam::UserAuth::AuthAttributeType;
+using AuthType = OHOS::UserIam::UserAuth::AuthType;
+using ExecutorSecureLevel = OHOS::UserIam::UserAuth::ExecutorSecureLevel;
+using ExecutorRole = OHOS::UserIam::UserAuth::ExecutorRole;
+using ResultCode = OHOS::UserIam::UserAuth::ResultCode;
+using ExecutorInfo = OHOS::UserIam::UserAuth::ExecutorInfo;
+using ScheduleMode = OHOS::UserIam::UserAuth::ScheduleMode;
+}
+}
 #endif // CO_AUTH_DEFINES_H

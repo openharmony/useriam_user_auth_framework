@@ -26,7 +26,6 @@
 #include "iam_mem.h"
 #include "iam_para2str.h"
 #include "iam_ptr.h"
-#include "iam_types.h"
 #include "iam_hitrace_helper.h"
 #include "identify_command.h"
 
@@ -35,6 +34,7 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
+using namespace OHOS::UserIam::UserAuth;
 FrameworkExecutorCallback::FrameworkExecutorCallback(std::weak_ptr<Executor> executor) : executor_(executor)
 {
     uint32_t callbackId = GenerateExecutorCallbackId();

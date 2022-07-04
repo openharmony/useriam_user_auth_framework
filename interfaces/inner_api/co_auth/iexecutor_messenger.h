@@ -22,8 +22,8 @@
 #include "auth_message.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace AuthResPool {
+namespace UserIam {
+namespace UserAuth {
 class IExecutorMessenger : public IRemoteBroker {
 public:
     /* Message ID */
@@ -42,4 +42,11 @@ public:
 } // namespace IExecutor_Messenger
 } // namespace UserIAM
 } // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace AuthResPool {
+using IExecutorMessenger = OHOS::UserIam::UserAuth::IExecutorMessenger;
+}
+}
+}
 #endif // IEXECUTOR_MESSENGER_H
