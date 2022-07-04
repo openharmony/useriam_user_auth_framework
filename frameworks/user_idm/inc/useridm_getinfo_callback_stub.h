@@ -22,16 +22,13 @@
 #include "user_idm_callback.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace UserIDM {
-namespace UserAuthDomain = OHOS::UserIAM::UserAuth;
+namespace UserIam {
+namespace UserAuth {
 
 class UserIDMGetInfoCallbackStub : public IRemoteStub<IGetInfoCallback> {
 public:
     explicit UserIDMGetInfoCallbackStub(const std::shared_ptr<GetInfoCallback> &impl)
         :callback_(impl), idmCallback_(nullptr) {}
-    explicit UserIDMGetInfoCallbackStub(const std::shared_ptr<UserAuthDomain::GetInfoCallback> &impl)
-        :callback_(nullptr), idmCallback_(impl) {}
     ~UserIDMGetInfoCallbackStub() override = default;
 
     void OnGetInfo(std::vector<CredentialInfo> &info) override;
@@ -42,10 +39,16 @@ private:
     int32_t OnGetInfoStub(MessageParcel &data, MessageParcel &reply);
 
     std::shared_ptr<GetInfoCallback> callback_;
-    std::shared_ptr<UserAuthDomain::GetInfoCallback> idmCallback_;
+    std::shared_ptr<GetInfoCallback> idmCallback_;
 };
 }  // namespace UserIDM
 }  // namespace UserIAM
 }  // namespace OHOS
-
+namespace OHOS {
+namespace UserIAM {
+namespace UserIDM {
+using UserIDMGetInfoCallbackStub = OHOS::UserIam::UserAuth::UserIDMGetInfoCallbackStub;
+}
+}
+}
 #endif // USERIDM_GETINFO_CALLBACK_STUB_H

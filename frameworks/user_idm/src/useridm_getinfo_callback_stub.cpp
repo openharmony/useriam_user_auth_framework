@@ -19,12 +19,11 @@
 
 #include "iam_logger.h"
 
-#define LOG_LABEL Common::LABEL_USER_IDM_SDK
+#define LOG_LABEL UserIAM::Common::LABEL_USER_IDM_SDK
 
 namespace OHOS {
-namespace UserIAM {
-namespace UserIDM {
-namespace UserAuthDomain = OHOS::UserIAM::UserAuth;
+namespace UserIam {
+namespace UserAuth {
 
 int32_t UserIDMGetInfoCallbackStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -105,11 +104,11 @@ void UserIDMGetInfoCallbackStub::OnGetInfo(std::vector<CredentialInfo>& infos)
         return;
     }
     if (idmCallback_ != nullptr) {
-        std::vector<UserAuthDomain::CredentialInfo> credInfos;
+        std::vector<CredentialInfo> credInfos;
         for (auto &credInfo : infos) {
-            UserAuthDomain::CredentialInfo credential = {};
-            credential.authType = static_cast<UserAuthDomain::AuthType>(credInfo.authType);
-            credential.authSubType = static_cast<UserAuthDomain::AuthSubType>(credInfo.authSubType);
+            CredentialInfo credential = {};
+            credential.authType = static_cast<AuthType>(credInfo.authType);
+            credential.authSubType = static_cast<AuthSubType>(credInfo.authSubType);
             credential.credentialId = credInfo.credentialId;
             credential.templateId = credInfo.templateId;
             credInfos.push_back(credential);

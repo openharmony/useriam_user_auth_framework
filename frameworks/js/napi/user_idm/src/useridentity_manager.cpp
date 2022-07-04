@@ -31,6 +31,7 @@ namespace UserIDM {
 namespace {
 const size_t ARGC = 2;
 }
+using namespace OHOS::UserIam::UserAuth;
 
 UserIdentityManager::UserIdentityManager()
 {

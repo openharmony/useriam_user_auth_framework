@@ -25,10 +25,10 @@
 #include "iam_logger.h"
 #include "system_ability_definition.h"
 
-#define LOG_LABEL Common::LABEL_USER_AUTH_SDK
+#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SDK
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 sptr<IUserAuth> UserAuthNative::GetProxy()
 {
@@ -141,6 +141,45 @@ void UserAuthNative::GetProperty(const int32_t userId, const GetPropertyRequest 
     }
     proxy->GetProperty(userId, request, asyncStub);
 }
+
+#ifdef SUPPORT_SURFACE
+int32_t UserAuthNative::SetSurfaceId(const SetPropertyRequest &request)
+{
+    std::string surfaceIdString(request.setInfo.begin(), request.setInfo.end());
+    std::istringstream surfaceIdStream(surfaceIdString);
+    uint64_t surfaceId = 0;
+    surfaceIdStream >> surfaceId;
+    IAM_LOGI("SetSurfaceId string %{public}s converted int %{public}" PRIu64,
+        surfaceIdString.c_str(), surfaceId);
+    if (surfaceId == 0) {
+        int32_t ret = UserIAM::FaceAuth::FaceAuthInnerKit::SetBufferProducer(nullptr);
+        IAM_LOGE("SetBufferProducer null result %{public}d", ret);
+        return ret;
+    }
+
+    sptr<Surface> previewSurface = SurfaceUtils::GetInstance()->GetSurface(surfaceId);
+    if (previewSurface == nullptr) {
+        IAM_LOGE("GetXComponentSurfaceById Failed!");
+        return GENERAL_ERROR;
+    }
+
+    sptr<IBufferProducer> bufferProducer = previewSurface->GetProducer();
+    if (bufferProducer == nullptr) {
+        IAM_LOGE("GetProducer Failed!");
+        return GENERAL_ERROR;
+    }
+
+    int32_t ret = UserIAM::FaceAuth::FaceAuthInnerKit::SetBufferProducer(bufferProducer);
+    IAM_LOGI("SetBufferProducer result %{public}d", ret);
+    return ret;
+}
+#else
+int32_t UserAuthNative::SetSurfaceId(const SetPropertyRequest &request)
+{
+    IAM_LOGE("surface is not supported!");
+    return GENERAL_ERROR;
+}
+#endif
 
 void UserAuthNative::SetProperty(const SetPropertyRequest &request, std::shared_ptr<SetPropCallback> callback)
 {

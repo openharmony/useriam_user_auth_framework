@@ -19,18 +19,8 @@
 #include "useridm_info.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace UserIDM {
-class GetInfoCallback {
-public:
-    virtual void OnGetInfo(std::vector<CredentialInfo> &info) = 0;
-};
-
-class GetSecInfoCallback {
-public:
-    virtual void OnGetSecInfo(SecInfo &info) = 0;
-};
-
+namespace UserIam {
+namespace UserAuth {
 class IDMCallback {
 public:
     virtual void OnResult(int32_t result, RequestResult reqRet) = 0;
@@ -39,5 +29,11 @@ public:
 }  // namespace UserIDM
 }  // namespace UserIAM
 }  // namespace OHOS
-
+namespace OHOS {
+namespace UserIAM {
+namespace UserIDM {
+using IDMCallback = OHOS::UserIam::UserAuth::IDMCallback;
+}
+}
+}
 #endif // USERIDM_CALLBACK_H

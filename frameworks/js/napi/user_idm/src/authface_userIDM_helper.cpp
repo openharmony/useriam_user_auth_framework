@@ -27,6 +27,7 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {
+using namespace OHOS::UserIam::UserAuth;
 napi_value UserIdentityManagerConstructor(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");

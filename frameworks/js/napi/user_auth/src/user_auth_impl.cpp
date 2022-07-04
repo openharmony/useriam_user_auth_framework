@@ -32,6 +32,7 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
+using namespace OHOS::UserIam::UserAuth;
 UserAuthImpl::UserAuthImpl()
 {
 }

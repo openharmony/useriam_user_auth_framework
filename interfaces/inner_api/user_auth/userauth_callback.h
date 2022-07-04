@@ -20,7 +20,7 @@
 #include "userauth_defines.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class UserAuthCallback {
 public:
@@ -43,6 +43,16 @@ public:
     virtual void onSetProperty(const int32_t result) = 0;
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace UserAuth {
+using UserAuthCallback = OHOS::UserIam::UserAuth::UserAuthCallback;
+using UserIdentifyCallback = OHOS::UserIam::UserAuth::UserIdentifyCallback;
+using GetPropCallback = OHOS::UserIam::UserAuth::GetPropCallback;
+using SetPropCallback = OHOS::UserIam::UserAuth::SetPropCallback;
+}
+}
+}
 #endif // IUSERAUTH_CALLBACK_H

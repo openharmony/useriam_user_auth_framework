@@ -21,7 +21,7 @@
 #include "common_info.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 enum class UserAuthType {
     FACE = 2,
@@ -101,6 +101,23 @@ struct CallerInfo {
     std::string pkgName;
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace UserAuth {
+using UserAuthType = OHOS::UserIam::UserAuth::UserAuthType;
+using AuthTrustLevel = OHOS::UserIam::UserAuth::AuthTrustLevel;
+using GetPropertyType = OHOS::UserIam::UserAuth::GetPropertyType;
+using GetPropertyRequest = OHOS::UserIam::UserAuth::GetPropertyRequest;
+using ExecutorProperty = OHOS::UserIam::UserAuth::ExecutorProperty;
+using AuthPropertyMode = OHOS::UserIam::UserAuth::AuthPropertyMode;
+using SetPropertyType = OHOS::UserIam::UserAuth::SetPropertyType;
+using AuthResult = OHOS::UserIam::UserAuth::AuthResult;
+using IdentifyResult = OHOS::UserIam::UserAuth::IdentifyResult;
+using FreezeInfo = OHOS::UserIam::UserAuth::FreezeInfo;
+using CallerInfo = OHOS::UserIam::UserAuth::CallerInfo;
+}
+}
+}
 #endif // USERAUTH_DEFINES_H

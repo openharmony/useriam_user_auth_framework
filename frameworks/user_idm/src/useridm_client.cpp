@@ -25,11 +25,11 @@
 #include "useridm_getinfo_callback_stub.h"
 #include "useridm_getsecinfo_callback_stub.h"
 
-#define LOG_LABEL Common::LABEL_USER_IDM_SDK
+#define LOG_LABEL UserIAM::Common::LABEL_USER_IDM_SDK
 
 namespace OHOS {
-namespace UserIAM {
-namespace UserIDM {
+namespace UserIam {
+namespace UserAuth {
 sptr<IUserIDM> UserIDMClient::GetUserIDMProxy()
 {
     IAM_LOGD("GetUserIDMProxy start");

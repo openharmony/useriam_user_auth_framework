@@ -22,7 +22,7 @@
 #include "userauth_defines.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 struct CoAuthInfo {
     AuthType authType {0};
@@ -72,4 +72,12 @@ const std::map<int32_t, AuthenticationResult> result2ExecuteResult = {
 } // namespace UserAuth
 } // namespace UserIAM
 } // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace UserAuth {
+using CoAuthInfo = OHOS::UserIam::UserAuth::CoAuthInfo;
+using AuthenticationResult = OHOS::UserIam::UserAuth::AuthenticationResult;
+}
+}
+}
 #endif // USERAUTH_INFO_H

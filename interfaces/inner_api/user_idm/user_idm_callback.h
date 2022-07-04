@@ -20,7 +20,7 @@
 #include "user_idm_defines.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class GetInfoCallback {
 public:
@@ -40,5 +40,21 @@ public:
 }  // namespace UserAuth
 }  // namespace UserIAM
 }  // namespace OHOS
-
+namespace OHOS {
+namespace UserIAM {
+namespace UserAuth {
+using GetInfoCallback = OHOS::UserIam::UserAuth::GetInfoCallback;
+using GetSecInfoCallback = OHOS::UserIam::UserAuth::GetSecInfoCallback;
+using IdmCallback = OHOS::UserIam::UserAuth::IdmCallback;
+}
+}
+}
+namespace OHOS {
+namespace UserIAM {
+namespace UserIDM {
+using GetInfoCallback = OHOS::UserIam::UserAuth::GetInfoCallback;
+using GetSecInfoCallback = OHOS::UserIam::UserAuth::GetSecInfoCallback;
+}
+}
+}
 #endif // USER_IDM_CALLBACK_H
