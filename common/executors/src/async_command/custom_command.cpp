@@ -34,7 +34,6 @@ CustomCommand::CustomCommand(
 
 ResultCode CustomCommand::SendRequest()
 {
-    static const size_t MAX_TEMPLATE_LIST_LEN = 1000;
     IAM_LOGI("%{public}s send request start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN_VAL(attributes_ != nullptr, ResultCode::GENERAL_ERROR);
     auto hdi = GetExecutorHdi();
@@ -45,13 +44,9 @@ ResultCode CustomCommand::SendRequest()
     bool getAuthPropertyModeRet =
         attributes_->GetUint32Value(UserIam::UserAuth::Attributes::ATTR_PROPERTY_MODE, commandId);
     IF_FALSE_LOGE_AND_RETURN_VAL(getAuthPropertyModeRet == true, ResultCode::GENERAL_ERROR);
-    std::vector<uint64_t> templateIdList;
-    bool getAuthTemplateIdListRet =
-        attributes_->GetUint64ArrayValue(UserIam::UserAuth::Attributes::ATTR_TEMPLATE_ID_LIST, templateIdList);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getAuthTemplateIdListRet == true, ResultCode::GENERAL_ERROR);
-    IF_FALSE_LOGE_AND_RETURN_VAL(templateIdList.size() < MAX_TEMPLATE_LIST_LEN, ResultCode::GENERAL_ERROR);
-    const uint8_t *src = static_cast<const uint8_t *>(static_cast<const void *>(&templateIdList[0]));
-    std::vector<uint8_t> extraInfo(src, src + templateIdList.size() * sizeof(uint64_t) / sizeof(uint8_t));
+    std::vector<uint8_t> extraInfo;
+    bool getExtraInfoRet = attributes_->GetUint8ArrayValue(UserIam::UserAuth::Attributes::ATTR_EXTRA_INFO, extraInfo);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getExtraInfoRet == true, ResultCode::GENERAL_ERROR);
     ResultCode ret =
         hdi->SendCommand(static_cast<UserAuth::AuthPropertyMode>(commandId), extraInfo, shared_from_this());
     if (ret != ResultCode::SUCCESS) {
