@@ -16,6 +16,7 @@ import("//build/ohos.gni")
 config("useridm_public_config") {
   include_dirs = [
     "inc",
+    "//base/useriam/user_auth_framework/interfaces/inner_api/common",
     "//base/useriam/user_auth_framework/interfaces/inner_api/user_idm",
   ]
 }

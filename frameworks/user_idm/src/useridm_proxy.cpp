@@ -19,13 +19,13 @@
 
 #include "iam_logger.h"
 
-#define LOG_LABEL Common::LABEL_USER_IDM_SDK
+#define LOG_LABEL UserIAM::Common::LABEL_USER_IDM_SDK
 
 using namespace OHOS::UserIAM::Common;
 
 namespace OHOS {
-namespace UserIAM {
-namespace UserIDM {
+namespace UserIam {
+namespace UserAuth {
 uint64_t UserIDMProxy::OpenSession()
 {
     MessageParcel data;
@@ -526,7 +526,7 @@ bool UserIDMProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParcel
         option.SetFlags(MessageOption::TF_ASYNC);
     }
     int32_t result = remote->SendRequest(code, data, reply, option);
-    if (result != OHOS::UserIAM::UserIDM::SUCCESS) {
+    if (result != SUCCESS) {
         IAM_LOGE("failed to SendRequest.result = %{public}d", result);
         return false;
     }

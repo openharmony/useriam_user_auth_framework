@@ -26,6 +26,7 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
+using namespace OHOS::UserIam::UserAuth;
 AuthApiCallback::AuthApiCallback(AuthInfo *authInfo)
 {
     authInfo_ = authInfo;

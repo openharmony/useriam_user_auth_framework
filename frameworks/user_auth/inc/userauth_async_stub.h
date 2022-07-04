@@ -25,7 +25,7 @@
 #include "userauth_callback.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class UserAuthAsyncStub : public IRemoteStub<IUserAuthCallback> {
 public:
@@ -58,5 +58,12 @@ private:
 }  // namespace UserAuth
 }  // namespace UserIAM
 }  // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace UserAuth {
+using UserAuthAsyncStub = OHOS::UserIam::UserAuth::UserAuthAsyncStub;
+}
+}
+}
 
 #endif // USERAUTH_ASYNC_STUB_H

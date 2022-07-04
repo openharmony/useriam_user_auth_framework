@@ -20,7 +20,7 @@
 #include "iuserauth_callback.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class IUserAuth : public IRemoteBroker {
 public:
@@ -144,4 +144,11 @@ public:
 } // namespace UserAuth
 } // namespace UserIAM
 } // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace UserAuth {
+using IUserAuth = OHOS::UserIam::UserAuth::IUserAuth;
+}
+}
+}
 #endif // IUSERAUTH_H

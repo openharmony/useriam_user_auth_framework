@@ -23,7 +23,7 @@
 #include "userauth_async_stub.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class UserAuthNative : public DelayedRefSingleton<UserAuthNative> {
 public:
@@ -54,6 +54,7 @@ private:
     };
 
     void ResetProxy(const wptr<IRemoteObject> &remote);
+    int32_t SetSurfaceId(const SetPropertyRequest &request);
     sptr<IUserAuth> GetProxy();
 
     std::mutex mutex_;
@@ -63,4 +64,11 @@ private:
 } // namespace UserAuth
 } // namespace UserIAM
 } // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace UserAuth {
+using UserAuthNative = OHOS::UserIam::UserAuth::UserAuthNative;
+}
+}
+}
 #endif // USER_AUTH_H

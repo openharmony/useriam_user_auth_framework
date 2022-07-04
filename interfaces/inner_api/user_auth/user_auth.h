@@ -23,7 +23,7 @@
 #include "userauth_callback.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class UserAuth : public DelayedRefSingleton<UserAuth> {
 public:
@@ -41,4 +41,11 @@ public:
 } // namespace UserAuth
 } // namespace UserIAM
 } // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace UserAuth {
+using UserAuth = OHOS::UserIam::UserAuth::UserAuth;
+}
+}
+}
 #endif // USERAUTH_CLIENT_H

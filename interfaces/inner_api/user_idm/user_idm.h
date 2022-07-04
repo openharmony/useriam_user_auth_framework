@@ -23,9 +23,8 @@
 #include "user_idm_callback.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
-namespace  UserIdmDomain = OHOS::UserIAM::UserIDM;
 
 class UserIdm : public DelayedRefSingleton<UserAuth::UserIdm> {
 public:
@@ -54,13 +53,20 @@ private:
     };
 
     void ResetIdmProxy(const wptr<IRemoteObject>& remote);
-    sptr<UserIdmDomain::IUserIDM> GetIdmProxy();
+    sptr<IUserIDM> GetIdmProxy();
 
     std::mutex mutex_;
-    sptr<UserIdmDomain::IUserIDM> proxy_ {nullptr};
+    sptr<IUserIDM> proxy_ {nullptr};
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
 };
 }  // namespace UserAuth
 }  // namespace UserIAM
 }  // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace UserAuth {
+using UserIdm = OHOS::UserIam::UserAuth::UserIdm;
+}
+}
+}
 #endif // USER_IDM_H
