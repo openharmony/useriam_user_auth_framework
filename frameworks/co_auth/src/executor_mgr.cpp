@@ -20,14 +20,14 @@
 #include "iam_logger.h"
 #include "iam_ptr.h"
 
-#define LOG_LABEL Common::LABEL_AUTH_EXECUTOR_MGR_SDK
+#define LOG_LABEL UserIAM::Common::LABEL_AUTH_EXECUTOR_MGR_SDK
 
 namespace OHOS {
-namespace UserIAM {
-namespace AuthResPool {
+namespace UserIam {
+namespace UserAuth {
 void ExecutorMgr::Register(const ExecutorInfo &info, std::shared_ptr<ExecutorCallback> callback)
 {
-    auto executorInfo = Common::MakeShared<AuthResPool::AuthExecutor>();
+    auto executorInfo = UserIAM::Common::MakeShared<AuthExecutor>();
     IF_FALSE_LOGE_AND_RETURN(executorInfo != nullptr);
     executorInfo->SetPublicKey(info.publicKey);
     executorInfo->SetExecutorSecLevel(info.esl);

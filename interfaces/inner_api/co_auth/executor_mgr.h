@@ -21,8 +21,8 @@
 #include "executor_callback.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace AuthResPool {
+namespace UserIam {
+namespace UserAuth {
 class ExecutorMgr : public DelayedRefSingleton<ExecutorMgr> {
 public:
     void Register(const ExecutorInfo &info, std::shared_ptr<ExecutorCallback> callback);
@@ -30,4 +30,11 @@ public:
 } // namespace AuthResPool
 } // namespace UserIAM
 } // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace AuthResPool {
+using ExecutorMgr = OHOS::UserIam::UserAuth::ExecutorMgr;
+}
+}
+}
 #endif // EXECUTOR_MANAGER_H

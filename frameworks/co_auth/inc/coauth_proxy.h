@@ -22,22 +22,29 @@
 #include "attributes.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace CoAuth {
+namespace UserIam {
+namespace UserAuth {
 class CoAuthProxy : public IRemoteProxy<ICoAuth> {
 public:
     explicit CoAuthProxy(const sptr<IRemoteObject>& impl)
         : IRemoteProxy<ICoAuth>(impl) {}
     ~CoAuthProxy() override = default;
-    uint64_t Register(std::shared_ptr<AuthResPool::AuthExecutor> executorInfo,
-        const sptr<AuthResPool::IExecutorCallback> &callback) override;
+    uint64_t Register(std::shared_ptr<AuthExecutor> executorInfo,
+        const sptr<IExecutorCallback> &callback) override;
 
 private:
     static inline BrokerDelegator<CoAuthProxy> delegator_;
     bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, bool isSync = true);
-    uint32_t WriteAuthExecutor(AuthResPool::AuthExecutor &executorInfo, MessageParcel &data);
+    uint32_t WriteAuthExecutor(AuthExecutor &executorInfo, MessageParcel &data);
 };
 } // namespace CoAuth
 } // namespace UserIAM
 } // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace CoAuth {
+using CoAuthProxy = OHOS::UserIam::UserAuth::CoAuthProxy;
+}
+}
+}
 #endif // COAUTH_PROXY_H

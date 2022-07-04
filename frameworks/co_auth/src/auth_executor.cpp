@@ -16,8 +16,8 @@
 #include "auth_executor.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace AuthResPool {
+namespace UserIam {
+namespace UserAuth {
 AuthExecutor::AuthExecutor()
     : authTypeValue_(PIN),
       authAbilityValue_(0),
