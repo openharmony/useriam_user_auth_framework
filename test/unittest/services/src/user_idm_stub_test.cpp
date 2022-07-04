@@ -234,7 +234,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubAddCredentialStub, TestSize.Level1)
     MockUserIdmService service;
     const sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
     ASSERT_NE(callback, nullptr);
-    EXPECT_CALL(service, AddCredential(Eq(std::nullopt), PIN, PIN_SIX, IsEmpty(), _, true)).Times(1);
+    EXPECT_CALL(service, AddCredential(Eq(std::nullopt), PIN, PIN_SIX, IsEmpty(), _, false)).Times(1);
     ON_CALL(service, AddCredential)
         .WillByDefault([](std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
                            const std::vector<uint8_t> &token, const sptr<IdmCallback> &callback, bool isUpdate) {
@@ -265,7 +265,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubAddCredentialByIdStub, TestSize.Level1)
     MockUserIdmService service;
     const sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
     ASSERT_NE(callback, nullptr);
-    EXPECT_CALL(service, AddCredential(Eq(IDM_STUB_TEST_USER_ID), PIN, PIN_SIX, IsEmpty(), _, true)).Times(1);
+    EXPECT_CALL(service, AddCredential(Eq(IDM_STUB_TEST_USER_ID), PIN, PIN_SIX, IsEmpty(), _, false)).Times(1);
     ON_CALL(service, AddCredential)
         .WillByDefault([](std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
                            const std::vector<uint8_t> &token, const sptr<IdmCallback> &callback, bool isUpdate) {
