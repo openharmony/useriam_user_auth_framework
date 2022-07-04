@@ -94,6 +94,16 @@ void AsyncCommandBase::OnAcquireInfo(int32_t acquire, const std::vector<uint8_t>
     OnAcquireInfoInner(acquire, extraInfo);
 }
 
+int32_t AsyncCommandBase::GetExecutorType()
+{
+    auto executor = executor_.lock();
+    if (executor == nullptr) {
+        IAM_LOGE("%{public}s executor has been released, get executor type fail", GetDescription());
+        return UserIam::UserAuth::INVALID_EXECUTOR_TYPE;
+    }
+    return executor->GetExecutorType();
+}
+
 void AsyncCommandBase::EndProcess()
 {
     IAM_LOGI("%{public}s end process", GetDescription());
