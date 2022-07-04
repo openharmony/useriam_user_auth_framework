@@ -21,12 +21,6 @@
 #include <sstream>
 #include <system_ability_definition.h>
 
-#ifdef SUPPORT_SURFACE
-#include "face_auth_innerkit.h"
-#include "surface.h"
-#include "surface_utils.h"
-#endif
-
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "system_ability_definition.h"
@@ -148,45 +142,6 @@ void UserAuthNative::GetProperty(const int32_t userId, const GetPropertyRequest 
     proxy->GetProperty(userId, request, asyncStub);
 }
 
-#ifdef SUPPORT_SURFACE
-int32_t UserAuthNative::SetSurfaceId(const SetPropertyRequest &request)
-{
-    std::string surfaceIdString(request.setInfo.begin(), request.setInfo.end());
-    std::istringstream surfaceIdStream(surfaceIdString);
-    uint64_t surfaceId = 0;
-    surfaceIdStream >> surfaceId;
-    IAM_LOGI("SetSurfaceId string %{public}s converted int %{public}" PRIu64,
-        surfaceIdString.c_str(), surfaceId);
-    if (surfaceId == 0) {
-        int32_t ret = FaceAuth::FaceAuthInnerKit::SetBufferProducer(nullptr);
-        IAM_LOGE("SetBufferProducer null result %{public}d", ret);
-        return ret;
-    }
-
-    sptr<Surface> previewSurface = SurfaceUtils::GetInstance()->GetSurface(surfaceId);
-    if (previewSurface == nullptr) {
-        IAM_LOGE("GetXComponentSurfaceById Failed!");
-        return GENERAL_ERROR;
-    }
-
-    sptr<IBufferProducer> bufferProducer = previewSurface->GetProducer();
-    if (bufferProducer == nullptr) {
-        IAM_LOGE("GetProducer Failed!");
-        return GENERAL_ERROR;
-    }
-
-    int32_t ret = FaceAuth::FaceAuthInnerKit::SetBufferProducer(bufferProducer);
-    IAM_LOGI("SetBufferProducer result %{public}d", ret);
-    return ret;
-}
-#else
-int32_t UserAuthNative::SetSurfaceId(const SetPropertyRequest &request)
-{
-    IAM_LOGE("surface is not supported!");
-    return GENERAL_ERROR;
-}
-#endif
-
 void UserAuthNative::SetProperty(const SetPropertyRequest &request, std::shared_ptr<SetPropCallback> callback)
 {
     IAM_LOGD("SetProperty start");
@@ -204,12 +159,8 @@ void UserAuthNative::SetProperty(const SetPropertyRequest &request, std::shared_
         IAM_LOGE("SetProperty asyncStub is nullptr");
         return;
     }
-    if (request.key == static_cast<uint32_t>(AuthPropertyMode::PROPERMODE_SET_SURFACE_ID)
-        && request.authType == FACE) {
-        asyncStub->onSetExecutorProperty(SetSurfaceId(request));
-    } else {
-        proxy->SetProperty(request, asyncStub);
-    }
+
+    proxy->SetProperty(request, asyncStub);
     IAM_LOGD("SetProperty end");
 }
 
