@@ -50,12 +50,6 @@ ohos_shared_library("userauth_framework") {
     "utils_base:utils",
   ]
 
-  if (defined(ability_runtime_graphics) && ability_runtime_graphics) {
-    deps += [ "//foundation/graphic/graphic_2d:libsurface" ]
-    external_deps += [ "face_auth:faceauth_framework" ]
-    defines = [ "SUPPORT_SURFACE" ]
-  }
-
   configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
 
   public_configs = [ ":userauth_framework_public_config" ]
