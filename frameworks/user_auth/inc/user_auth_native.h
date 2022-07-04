@@ -54,7 +54,6 @@ private:
     };
 
     void ResetProxy(const wptr<IRemoteObject> &remote);
-    int32_t SetSurfaceId(const SetPropertyRequest &request);
     sptr<IUserAuth> GetProxy();
 
     std::mutex mutex_;
