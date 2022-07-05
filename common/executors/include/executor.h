@@ -45,7 +45,7 @@ public:
     void RemoveCommand(std::shared_ptr<IAsyncCommand> command);
     std::shared_ptr<IAuthExecutorHdi> GetExecutorHdi();
     const char *GetDescription();
-    int32_t GetExecutorType() const;
+    int32_t GetAuthType() const;
 
 private:
     void RegisterExecutorCallback(ExecutorInfo &executorInfo);
@@ -57,7 +57,7 @@ private:
     std::shared_ptr<IAuthExecutorHdi> executorHdi_;
     std::string description_;
     uint16_t hdiId_;
-    int32_t executorType_;
+    int32_t authType_;
 };
 } // namespace UserAuth
 } // namespace UserIAM
