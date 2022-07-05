@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include <chrono>
 #include <securec.h>
 
 #include "iam_time.h"
