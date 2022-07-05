@@ -21,6 +21,11 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+class GetIDMInfoCallback {
+public:
+    virtual void OnGetInfo(std::vector<CredentialInfo> &info) = 0;
+};
+
 class IDMCallback {
 public:
     virtual void OnResult(int32_t result, RequestResult reqRet) = 0;
