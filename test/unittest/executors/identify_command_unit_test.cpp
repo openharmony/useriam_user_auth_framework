@@ -19,7 +19,6 @@
 #include "iam_logger.h"
 #include "iam_mem.h"
 #include "iam_ptr.h"
-#include "iam_types.h"
 #include "identify_command.h"
 
 #include "executor.h"

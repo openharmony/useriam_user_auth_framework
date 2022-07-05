@@ -28,7 +28,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-
 class UserIDMCallbackStub : public IRemoteStub<IIDMCallback> {
 public:
     explicit UserIDMCallbackStub(const std::shared_ptr<IDMCallback> &impl);

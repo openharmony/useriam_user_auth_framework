@@ -25,7 +25,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-
 UserIDMCallbackStub::UserIDMCallbackStub(const std::shared_ptr<IDMCallback> &impl)
     : callback_(impl),
       idmCallback_(nullptr),

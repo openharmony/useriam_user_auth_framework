@@ -25,6 +25,7 @@
 #include "userauth_defines.h"
 
 using namespace testing::ext;
+using namespace OHOS::UserIam::UserAuth;
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {

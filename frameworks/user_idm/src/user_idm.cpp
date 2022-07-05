@@ -32,7 +32,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-
 sptr<IUserIDM> UserIdm::GetIdmProxy()
 {
     IAM_LOGD("GetIdmProxy start");

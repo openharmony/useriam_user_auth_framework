@@ -23,6 +23,7 @@
 #include "user_idm_callback_test.h"
 
 using namespace testing::ext;
+using namespace OHOS::UserIam::UserAuth;
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
