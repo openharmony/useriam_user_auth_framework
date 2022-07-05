@@ -18,7 +18,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-const int32_t INVALID_EXECUTOR_TYPE = -1;
+const int32_t INVALID_AUTH_TYPE = -1;
 
 enum OperationType : uint32_t {
     TRACE_ADD_CREDENTIAL = 0,
