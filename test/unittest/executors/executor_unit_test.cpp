@@ -1166,10 +1166,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_DeleteTemplateTest_004
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_001, TestSize.Level0)
 {
     static const int32_t testCommandId = 123;
-    static const std::vector<uint64_t> testTemplateIdList = {4, 5, 6};
-    static const uint8_t *src = static_cast<const uint8_t *>(static_cast<const void *>(&testTemplateIdList[0]));
-    static const std::vector<uint8_t> testExtraInfo(
-        src, src + testTemplateIdList.size() * sizeof(uint64_t) / sizeof(uint8_t));
+    static const std::vector<uint8_t> testExtraInfo = {4, 5, 6};
     static std::thread t;
 
     shared_ptr<Executor> executor;
@@ -1203,7 +1200,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_001,
     auto property = MakeShared<Attributes>();
     ASSERT_NE(property, nullptr);
     property->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, testCommandId);
-    property->SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, testTemplateIdList);
+    property->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, testExtraInfo);
     ret = executorCallback->OnSetProperty(property);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
     ret = executorCallback->OnSetProperty(property);
@@ -1214,10 +1211,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_001,
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_002, TestSize.Level0)
 {
     static const int32_t testCommandId = 123;
-    static const std::vector<uint64_t> testTemplateIdList = {4, 5, 6};
-    static const uint8_t *src = static_cast<const uint8_t *>(static_cast<const void *>(&testTemplateIdList[0]));
-    static const std::vector<uint8_t> testExtraInfo(
-        src, src + testTemplateIdList.size() * sizeof(uint64_t) / sizeof(uint8_t));
+    static const std::vector<uint8_t> testExtraInfo = {4, 5, 6};
 
     shared_ptr<Executor> executor;
     shared_ptr<ExecutorCallback> executorCallback;
@@ -1239,7 +1233,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_002,
     auto property = MakeShared<Attributes>();
     ASSERT_NE(property, nullptr);
     property->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, testCommandId);
-    property->SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, testTemplateIdList);
+    property->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, testExtraInfo);
     ret = executorCallback->OnSetProperty(property);
     ASSERT_EQ(ret, ResultCode::TIMEOUT);
 }
@@ -1247,10 +1241,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_002,
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_003, TestSize.Level0)
 {
     static const int32_t testCommandId = 123;
-    static const std::vector<uint64_t> testTemplateIdList = {4, 5, 6};
-    static const uint8_t *src = static_cast<const uint8_t *>(static_cast<const void *>(&testTemplateIdList[0]));
-    static const std::vector<uint8_t> testExtraInfo(
-        src, src + testTemplateIdList.size() * sizeof(uint64_t) / sizeof(uint8_t));
+    static const std::vector<uint8_t> testExtraInfo = {4, 5, 6};
 
     shared_ptr<Executor> executor;
     shared_ptr<ExecutorCallback> executorCallback;
@@ -1273,7 +1264,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_003,
     auto property = MakeShared<Attributes>();
     ASSERT_NE(property, nullptr);
     property->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, testCommandId);
-    property->SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, testTemplateIdList);
+    property->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, testExtraInfo);
     ret = executorCallback->OnSetProperty(property);
     ASSERT_EQ(ret, ResultCode::TYPE_NOT_SUPPORT);
 }
@@ -1281,10 +1272,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_003,
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_004, TestSize.Level0)
 {
     static const int32_t testCommandId = 123;
-    static const std::vector<uint64_t> testTemplateIdList = {4, 5, 6};
-    static const uint8_t *src = static_cast<const uint8_t *>(static_cast<const void *>(&testTemplateIdList[0]));
-    static const std::vector<uint8_t> testExtraInfo(
-        src, src + testTemplateIdList.size() * sizeof(uint64_t) / sizeof(uint8_t));
+    static const std::vector<uint8_t> testExtraInfo = {4, 5, 6};
 
     shared_ptr<Executor> executor;
     shared_ptr<ExecutorCallback> executorCallback;
@@ -1306,7 +1294,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_004,
     auto property = MakeShared<Attributes>();
     ASSERT_NE(property, nullptr);
     property->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, testCommandId);
-    property->SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, testTemplateIdList);
+    property->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, testExtraInfo);
     ret = executorCallback->OnSetProperty(property);
     ASSERT_EQ(ret, ResultCode::TYPE_NOT_SUPPORT);
 }
@@ -1314,10 +1302,6 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_004,
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_005, TestSize.Level0)
 {
     static const int32_t testCommandId = 123;
-    static const std::vector<uint64_t> testTemplateIdList = {4, 5, 6};
-    static const uint8_t *src = static_cast<const uint8_t *>(static_cast<const void *>(&testTemplateIdList[0]));
-    static const std::vector<uint8_t> testExtraInfo(
-        src, src + testTemplateIdList.size() * sizeof(uint64_t) / sizeof(uint8_t));
 
     shared_ptr<Executor> executor;
     shared_ptr<ExecutorCallback> executorCallback;
@@ -1331,7 +1315,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_005,
     auto property = MakeShared<Attributes>();
     ASSERT_NE(property, nullptr);
     property->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, testCommandId);
-    // Error: ATTR_TEMPLATE_ID_LIST not set
+    // Error: ATTR_EXTRA_INFO not set
     ret = executorCallback->OnSetProperty(property);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
