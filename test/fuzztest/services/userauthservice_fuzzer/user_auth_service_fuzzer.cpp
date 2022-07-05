@@ -24,7 +24,6 @@
 #include "iam_fuzz_test.h"
 #include "iam_logger.h"
 #include "user_auth_service.h"
-#include "userauth_callback.h"
 
 #undef private
 
@@ -35,7 +34,7 @@
 
 using namespace std;
 using namespace OHOS::UserIAM::Common;
-using namespace OHOS::UserIAM::UserAuth;
+using namespace OHOS::UserIam::UserAuth;
 
 namespace OHOS {
 namespace UserIam {
