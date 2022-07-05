@@ -22,6 +22,7 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {
+using namespace OHOS::UserIam::UserAuth;
 void GetInfoCallbackUT::OnGetInfo(std::vector<CredentialInfo> &info)
 {
     IAM_LOGI("GetInfoCallbackUT OnGetInfo");

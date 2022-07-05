@@ -26,9 +26,7 @@
 #include "iam_mem.h"
 #include "iam_para2str.h"
 #include "iam_ptr.h"
-#include "iam_defines.h"
 #include "iam_hitrace_helper.h"
-#include "hisysevent_adapter.h"
 #include "identify_command.h"
 
 #define LOG_LABEL Common::LABEL_USER_AUTH_EXECUTOR

@@ -24,7 +24,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-
 int32_t UserIDMGetSecInfoCallbackStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {

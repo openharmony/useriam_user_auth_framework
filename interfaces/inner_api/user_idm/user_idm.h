@@ -25,7 +25,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-
 class UserIdm : public DelayedRefSingleton<UserAuth::UserIdm> {
 public:
     uint64_t OpenSession(const int32_t userId);

@@ -24,7 +24,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-
 class UserIDMGetSecInfoCallbackStub : public IRemoteStub<IGetSecInfoCallback> {
 public:
     explicit UserIDMGetSecInfoCallbackStub(const std::shared_ptr<GetSecInfoCallback> &impl)
