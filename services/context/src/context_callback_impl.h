@@ -17,6 +17,7 @@
 #define CONTEXT_CALLBACK_IMPL_H
 
 #include "iam_hitrace_helper.h"
+#include "iam_defines.h"
 
 #include "context_callback.h"
 

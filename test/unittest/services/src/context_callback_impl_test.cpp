@@ -57,22 +57,16 @@ void ContextCallbackImplTest::TearDown()
 
 HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserAuthNull, TestSize.Level1)
 {
-    sptr<UserAuthCallback> callback = new (nothrow) MockUserAuthCallback();
+    sptr<UserAuthCallback> callback = nullptr;
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
-    ASSERT_NE(contextCallback, nullptr);
-    Attributes attr;
-    contextCallback->onAcquireInfo(static_cast<ExecutorRole>(0), 0, {});
-    contextCallback->OnResult(0, attr);
+    ASSERT_EQ(contextCallback, nullptr);
 }
 
 HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserIdmNull, TestSize.Level1)
 {
-    sptr<IdmCallback> callback = new (nothrow) MockIdmCallback();
+    sptr<IdmCallback> callback = nullptr;
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
-    ASSERT_NE(contextCallback, nullptr);
-    Attributes attr;
-    contextCallback->onAcquireInfo(static_cast<ExecutorRole>(0), 0, {});
-    contextCallback->OnResult(0, attr);
+    ASSERT_EQ(contextCallback, nullptr);
 }
 
 HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserAuth, TestSize.Level1)

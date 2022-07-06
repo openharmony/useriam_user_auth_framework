@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,23 +13,17 @@
  * limitations under the License.
  */
 
-#ifndef IAM_RESOURCE_NODE_UTILS_H
-#define IAM_RESOURCE_NODE_UTILS_H
+#ifndef IAM_TIME_H
+#define IAM_TIME_H
 
-#include <cstdint>
-#include <memory>
-
-#include "credential_info.h"
+#include <string>
 
 namespace OHOS {
-namespace UserIam {
-namespace UserAuth {
-class ResourceNodeUtils {
-public:
-    static int32_t NotifyExecutorToDeleteTemplates(const std::vector<std::shared_ptr<CredentialInfo>> &infos);
-    static void SendMsgToExecutor(uint64_t executorIndex, const std::vector<uint8_t> &msg);
-};
-} // namespace UserAuth
-} // namespace UserIam
+namespace UserIAM {
+namespace Common {
+const std::string GetNowTimeString();
+} // namespace Common
+} // namespace UserIAM
 } // namespace OHOS
-#endif // IAM_RESOURCE_NODE_UTILS_H
+
+#endif // IAM_TIME_H
