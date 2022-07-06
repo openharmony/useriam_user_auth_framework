@@ -13,28 +13,28 @@
  * limitations under the License.
  */
 
-#ifndef QUERY_CALLBACK_PROXY_H
-#define QUERY_CALLBACK_PROXY_H
+#ifndef IAM_HI_TRACE_HELPER_H
+#define IAM_HI_TRACE_HELPER_H
 
-#include <iremote_proxy.h>
-#include "iquery_callback.h"
+#include <cstdint>
+#include <string>
+
+#include "nocopyable.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace AuthResPool {
-class QueryCallbackProxy : public IRemoteProxy<IQueryCallback> {
+namespace UserIam {
+namespace UserAuth {
+class IamHitraceHelper final : public NoCopyable {
 public:
-    explicit QueryCallbackProxy(const sptr<IRemoteObject>& impl)
-        : IRemoteProxy<IQueryCallback>(impl) {}
-    ~QueryCallbackProxy() override = default;
-
-    void OnResult(uint32_t resultCode) override;
+    explicit IamHitraceHelper(std::string value);
+    ~IamHitraceHelper() override;
 
 private:
-    bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply);
-    static inline BrokerDelegator<QueryCallbackProxy> delegator_;
+    int32_t GetHiTraceTaskId();
+    int32_t taskId_;
+    std::string value_;
 };
-} // namespace AuthResPool
-} // namespace UserIAM
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS
-#endif // QUERY_CALLBACK_PROXY_H
+#endif // IAM_HI_TRACE_HELPER_H

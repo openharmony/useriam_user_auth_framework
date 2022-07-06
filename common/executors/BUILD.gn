@@ -19,6 +19,8 @@ config("userauth_executors_public_config") {
 
 ohos_shared_library("userauth_executors") {
   sources = [
+    "//base/useriam/user_auth_framework/dfx/src/hisysevent_adapter.cpp",
+    "//base/useriam/user_auth_framework/dfx/src/iam_hitrace_helper.cpp",
     "src/async_command/async_command_base.cpp",
     "src/async_command/auth_command.cpp",
     "src/async_command/custom_command.cpp",
@@ -30,17 +32,20 @@ ohos_shared_library("userauth_executors") {
     "src/framework/executor_mgr_wrapper.cpp",
     "src/framework/framework_executor_callback.cpp",
     "src/idriver_manager.cpp",
-    "src/system_ability_status_listener.cpp",
+    "src/listener/auth_executor_mgr_status_listener.cpp",
+    "src/listener/driver_manager_status_listener.cpp",
   ]
 
   include_dirs = [
     "include",
     "include/async_command",
     "include/framework",
+    "include/listener",
     "//base/useriam/user_auth_framework/interfaces/inner_api/user_auth/",
     "//base/useriam/user_auth_framework/interfaces/inner_api/common/",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs",
+    "//base/useriam/user_auth_framework/dfx/inc",
     "//base/useriam/user_auth_framework/services/common_defines/types",
   ]
 
@@ -55,6 +60,8 @@ ohos_shared_library("userauth_executors") {
     "hdf_core:libhdf_ipc_adapter",
     "hdf_core:libhdf_utils",
     "hdf_core:libhdi",
+    "hisysevent_native:libhisysevent",
+    "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbeget_proxy",
     "ipc:ipc_single",

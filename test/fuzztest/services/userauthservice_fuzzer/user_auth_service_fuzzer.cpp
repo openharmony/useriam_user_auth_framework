@@ -137,11 +137,11 @@ void FuzzGetAvailableStatus(Parcel &parcel)
 void FuzzGetProperty(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    constexpr uint32_t MAX_DATA_LEN = 50;
+    constexpr uint32_t maxDataLen = 50;
     std::optional<int32_t> userId = GetFuzzOptionalUserId(parcel);
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
     std::vector<Attributes::AttributeKey> keys;
-    uint32_t keysLen = parcel.ReadUint32() % MAX_DATA_LEN;
+    uint32_t keysLen = parcel.ReadUint32() % maxDataLen;
     keys.reserve(keysLen);
     for (uint32_t i = 0; i < keysLen; i++) {
         keys.emplace_back(static_cast<Attributes::AttributeKey>(parcel.ReadInt32()));

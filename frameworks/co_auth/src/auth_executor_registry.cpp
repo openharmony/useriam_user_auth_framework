@@ -19,9 +19,9 @@
 #include <iservice_registry.h>
 #include <system_ability_definition.h>
 
+#include "coauth_proxy.h"
 #include "iam_check.h"
 #include "iam_logger.h"
-#include "query_callback_stub.h"
 #include "executor_callback_stub.h"
 
 #define LOG_LABEL Common::LABEL_AUTH_EXECUTOR_MGR_SDK
@@ -53,7 +53,7 @@ sptr<CoAuth::ICoAuth> AuthExecutorRegistry::GetProxy()
         return nullptr;
     }
 
-    proxy_ = iface_cast<CoAuth::ICoAuth>(obj);
+    proxy_ = new (std::nothrow) CoAuth::CoAuthProxy(obj);
     deathRecipient_ = dr;
     IAM_LOGI("connect coauth service success");
     return proxy_;
@@ -88,23 +88,6 @@ uint64_t AuthExecutorRegistry::Register(std::shared_ptr<AuthExecutor> executorIn
     sptr<IExecutorCallback> iExecutorCallback = new (std::nothrow) ExecutorCallbackStub(callback);
     IF_FALSE_LOGE_AND_RETURN_VAL(iExecutorCallback != nullptr, FAIL);
     return proxy->Register(executorInfo, iExecutorCallback);
-}
-
-void AuthExecutorRegistry::QueryStatus(AuthExecutor &executorInfo, std::shared_ptr<QueryCallback> callback)
-{
-    IAM_LOGD("QueryStatus start");
-    if (callback == nullptr) {
-        IAM_LOGE("callback is nullptr");
-        return;
-    }
-    auto proxy = GetProxy();
-    if (proxy == nullptr) {
-        IAM_LOGE("proxy is nullptr");
-        return;
-    }
-    sptr<IQueryCallback> iQueryCallback = new (std::nothrow) QueryCallbackStub(callback);
-    IF_FALSE_LOGE_AND_RETURN(iQueryCallback != nullptr);
-    return proxy->QueryStatus(executorInfo, iQueryCallback);
 }
 
 void AuthExecutorRegistry::AuthExecutorRegistryDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)

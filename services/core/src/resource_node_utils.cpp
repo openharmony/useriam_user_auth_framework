@@ -15,7 +15,9 @@
 
 #include "resource_node_utils.h"
 
+#include "iam_check.h"
 #include "iam_logger.h"
+#include "iam_hitrace_helper.h"
 #include "resource_node_pool.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
@@ -41,7 +43,7 @@ int32_t ResourceNodeUtils::NotifyExecutorToDeleteTemplates(const std::vector<std
         Attributes properties;
         properties.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_DEL);
         properties.SetUint64Value(Attributes::ATTR_TEMPLATE_ID, info->GetTemplateId());
-
+        IamHitraceHelper traceHelper("NotifyExecutorToDeleteTemplates");
         int32_t ret = resourceNode->SetProperty(properties);
         if (ret != SUCCESS) {
             IAM_LOGE("failed to set property to ****%{public}hx", static_cast<uint16_t>(executorIndex));
@@ -49,6 +51,28 @@ int32_t ResourceNodeUtils::NotifyExecutorToDeleteTemplates(const std::vector<std
     }
 
     return SUCCESS;
+}
+
+void ResourceNodeUtils::SendMsgToExecutor(uint64_t executorIndex, const std::vector<uint8_t> &msg)
+{
+    auto resourceNode = ResourceNodePool::Instance().Select(executorIndex).lock();
+    if (resourceNode == nullptr) {
+        IAM_LOGE("failed to find ****%{public}hx", static_cast<uint16_t>(executorIndex));
+        return;
+    }
+    Attributes properties;
+    // In current version, msg type is not set, temporary use PROPER_MODE_FREEZE
+    bool setAuthPropertyModeRet =
+        properties.SetUint32Value(UserIam::UserAuth::Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_FREEZE);
+    IF_FALSE_LOGE_AND_RETURN(setAuthPropertyModeRet == true);
+    bool setExtraInfoRet = properties.SetUint8ArrayValue(UserIam::UserAuth::Attributes::ATTR_EXTRA_INFO, msg);
+    IF_FALSE_LOGE_AND_RETURN(setExtraInfoRet == true);
+    int32_t ret = resourceNode->SetProperty(properties);
+    if (ret != SUCCESS) {
+        IAM_LOGE("failed to set property to ****%{public}hx", static_cast<uint16_t>(executorIndex));
+        return;
+    }
+    IAM_LOGI("send msg to ****%{public}hx success", static_cast<uint16_t>(executorIndex));
 }
 } // namespace UserAuth
 } // namespace UserIam

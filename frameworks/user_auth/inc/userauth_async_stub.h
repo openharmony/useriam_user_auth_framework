@@ -18,6 +18,9 @@
 
 #include <iremote_stub.h>
 #include <nocopyable.h>
+
+#include "iam_hitrace_helper.h"
+
 #include "iuserauth_callback.h"
 #include "userauth_callback.h"
 
@@ -50,6 +53,7 @@ private:
     std::shared_ptr<UserIdentifyCallback> identifyCallback_ {nullptr};
     std::shared_ptr<SetPropCallback> setPropCallback_ {nullptr};
     std::shared_ptr<GetPropCallback> getPropCallback_ {nullptr};
+    std::shared_ptr<UserIam::UserAuth::IamHitraceHelper> iamHitraceHelper_;
 };
 }  // namespace UserAuth
 }  // namespace UserIAM

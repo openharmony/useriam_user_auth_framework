@@ -273,7 +273,8 @@ int32_t UserIdmStub::AddCredentialStub(MessageParcel &data, MessageParcel &reply
         IAM_LOGI("auth type is pin, clear token");
         token.clear();
     }
-    AddCredential(std::nullopt, static_cast<AuthType>(authType), static_cast<PinSubType>(authSubType), token, callback);
+    AddCredential(std::nullopt, static_cast<AuthType>(authType), static_cast<PinSubType>(authSubType),
+        token, callback, false);
     return SUCCESS;
 }
 
@@ -315,7 +316,8 @@ int32_t UserIdmStub::AddCredentialByIdStub(MessageParcel &data, MessageParcel &r
         IAM_LOGI("auth type is pin, clear token");
         token.clear();
     }
-    AddCredential(userId, static_cast<AuthType>(authType), static_cast<PinSubType>(authSubType), token, callback);
+    AddCredential(userId, static_cast<AuthType>(authType), static_cast<PinSubType>(authSubType),
+        token, callback, false);
     return SUCCESS;
 }
 

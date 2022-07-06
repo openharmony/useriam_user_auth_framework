@@ -23,6 +23,7 @@
 #include "enrolled_info_impl.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
+#include "iam_hitrace_helper.h"
 #include "result_code.h"
 #include "secure_user_info.h"
 #include "secure_user_info_impl.h"
@@ -112,6 +113,7 @@ int32_t UserIdmDatabaseImpl::DeleteCredentialInfo(int32_t userId, uint64_t crede
     }
 
     HdiCredentialInfo hdiInfo = {};
+    IamHitraceHelper traceHelper("hdi DeleteCredential");
     int32_t ret = hdi->DeleteCredential(userId, credentialId, authToken, hdiInfo);
     if (ret != HDF_SUCCESS) {
         IAM_LOGE("failed to delete credential, error code : %{public}d", ret);
@@ -137,6 +139,7 @@ int32_t UserIdmDatabaseImpl::DeleteUser(int32_t userId, const std::vector<uint8_
     }
 
     std::vector<HdiCredentialInfo> hdiInfos;
+    IamHitraceHelper traceHelper("hdi DeleteUser");
     int32_t ret = hdi->DeleteUser(userId, authToken, hdiInfos);
     if (ret != HDF_SUCCESS) {
         IAM_LOGE("failed to delete user, error code : %{public}d", ret);
@@ -164,6 +167,7 @@ int32_t UserIdmDatabaseImpl::DeleteUserEnforce(int32_t userId, std::vector<std::
     }
 
     std::vector<HdiCredentialInfo> hdiInfos;
+    IamHitraceHelper traceHelper("hdi EnforceDeleteUser");
     int32_t ret = hdi->EnforceDeleteUser(userId, hdiInfos);
     if (ret != HDF_SUCCESS) {
         IAM_LOGE("failed to enforce delete user, error code : %{public}d", ret);

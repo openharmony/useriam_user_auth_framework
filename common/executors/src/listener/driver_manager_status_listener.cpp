@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "system_ability_status_listener.h"
+#include "driver_manager_status_listener.h"
 
 #include "driver_manager.h"
 #include "iam_logger.h"
@@ -24,23 +24,16 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-std::mutex SystemAbilityStatusListener::mutex_;
-sptr<SystemAbilityStatusListener> SystemAbilityStatusListener::instance_ = nullptr;
-sptr<SystemAbilityStatusListener> SystemAbilityStatusListener::GetInstance()
+sptr<DriverManagerStatusListener> DriverManagerStatusListener::GetInstance()
 {
-    if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> guard(mutex_);
-        if (instance_ == nullptr) {
-            instance_ = new (std::nothrow) SystemAbilityStatusListener();
-            if (instance_ == nullptr) {
-                IAM_LOGE("create instance failed");
-            }
-        }
+    static sptr<DriverManagerStatusListener> instance = new (std::nothrow) DriverManagerStatusListener();
+    if (instance == nullptr) {
+        IAM_LOGE("instance is nullptr");
     }
-    return instance_;
+    return instance;
 }
 
-void SystemAbilityStatusListener::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
+void DriverManagerStatusListener::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
 {
     if (systemAbilityId != DEVICE_SERVICE_MANAGER_SA_ID) {
         return;
@@ -50,7 +43,7 @@ void SystemAbilityStatusListener::OnAddSystemAbility(int32_t systemAbilityId, co
     Singleton<DriverManager>::GetInstance().SubscribeHdiDriverStatus();
 }
 
-void SystemAbilityStatusListener::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
+void DriverManagerStatusListener::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
 {
     if (systemAbilityId != DEVICE_SERVICE_MANAGER_SA_ID) {
         return;

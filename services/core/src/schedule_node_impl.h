@@ -21,6 +21,8 @@
 #include <mutex>
 #include <optional>
 
+#include "iam_hitrace_helper.h"
+
 #include "finite_state_machine.h"
 #include "resource_node.h"
 #include "schedule_node.h"
@@ -94,6 +96,7 @@ private:
     ScheduleInfo info_;
     std::shared_ptr<FiniteStateMachine> machine_;
     std::mutex mutex_;
+    std::shared_ptr<IamHitraceHelper> iamHitraceHelper_;
     // result
     std::optional<std::pair<ResultCode, std::shared_ptr<Attributes>>> result_;
 };

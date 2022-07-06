@@ -29,18 +29,13 @@ public:
     explicit CoAuthProxy(const sptr<IRemoteObject>& impl)
         : IRemoteProxy<ICoAuth>(impl) {}
     ~CoAuthProxy() override = default;
-
     uint64_t Register(std::shared_ptr<AuthResPool::AuthExecutor> executorInfo,
         const sptr<AuthResPool::IExecutorCallback> &callback) override;
-    void QueryStatus(AuthResPool::AuthExecutor &executorInfo,
-        const sptr<AuthResPool::IQueryCallback> &callback) override;
-
-private:
-    bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, bool isSync = true);
-    uint32_t WriteAuthExecutor(AuthResPool::AuthExecutor &executorInfo, MessageParcel &data);
 
 private:
     static inline BrokerDelegator<CoAuthProxy> delegator_;
+    bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, bool isSync = true);
+    uint32_t WriteAuthExecutor(AuthResPool::AuthExecutor &executorInfo, MessageParcel &data);
 };
 } // namespace CoAuth
 } // namespace UserIAM

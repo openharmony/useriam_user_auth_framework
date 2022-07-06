@@ -399,7 +399,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_CommonErrorTest_002, 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_CommonErrorTest_003, TestSize.Level0)
 {
     static const uint64_t testScheduleId = 456;
-    static const uint32_t invalid_schedule_mode = 78;
+    static const uint32_t invalidScheduleMode = 78;
 
     shared_ptr<Executor> executor;
     shared_ptr<ExecutorCallback> executorCallback;
@@ -415,7 +415,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_CommonErrorTest_003, 
     auto commandAttrs = MakeShared<Attributes>();
     ASSERT_NE(commandAttrs, nullptr);
     // Error: invalid auth schedule mode
-    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, invalid_schedule_mode);
+    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, invalidScheduleMode);
     ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, commandAttrs);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
@@ -768,7 +768,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_IdentifyTest_003, Tes
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
-HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnEndExecute_AUTH, TestSize.Level0)
+HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnEndExecute_Success, TestSize.Level0)
 {
     static const uint64_t testScheduleId = 456;
 
@@ -786,53 +786,6 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnEndExecute_AUTH, TestSize.Level0)
 
     auto commandAttrs = MakeShared<Attributes>();
     ASSERT_NE(commandAttrs, nullptr);
-    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, AUTH);
-    ret = executorCallback->OnEndExecute(testScheduleId, commandAttrs);
-    ASSERT_EQ(ret, ResultCode::SUCCESS);
-}
-
-HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnEndExecute_Enroll, TestSize.Level0)
-{
-    static const uint64_t testScheduleId = 456;
-
-    shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
-    shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
-    int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
-    ASSERT_EQ(ret, ResultCode::SUCCESS);
-
-    EXPECT_CALL(*mockExecutorHdi, Cancel(_)).Times(Exactly(1)).WillOnce([](uint64_t scheduleId) {
-        EXPECT_EQ(scheduleId, testScheduleId);
-        return ResultCode::SUCCESS;
-    });
-
-    auto commandAttrs = MakeShared<Attributes>();
-    ASSERT_NE(commandAttrs, nullptr);
-    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, ENROLL);
-    ret = executorCallback->OnEndExecute(testScheduleId, commandAttrs);
-    ASSERT_EQ(ret, ResultCode::SUCCESS);
-}
-
-HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnEndExecute_Identify, TestSize.Level0)
-{
-    static const uint64_t testScheduleId = 456;
-
-    shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
-    shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
-    int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
-    ASSERT_EQ(ret, ResultCode::SUCCESS);
-
-    EXPECT_CALL(*mockExecutorHdi, Cancel(_)).Times(Exactly(1)).WillOnce([](uint64_t scheduleId) {
-        EXPECT_EQ(scheduleId, testScheduleId);
-        return ResultCode::SUCCESS;
-    });
-
-    auto commandAttrs = MakeShared<Attributes>();
-    ASSERT_NE(commandAttrs, nullptr);
-    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, IDENTIFY);
     ret = executorCallback->OnEndExecute(testScheduleId, commandAttrs);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 }
@@ -856,7 +809,6 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnEndExecute_ErrorTest_001, TestSize
 
     auto commandAttrs = MakeShared<Attributes>();
     ASSERT_NE(commandAttrs, nullptr);
-    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, IDENTIFY);
     ret = executorCallback->OnEndExecute(testScheduleId, commandAttrs);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
@@ -876,7 +828,6 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnEndExecute_ErrorTest_002, TestSize
 
     auto commandAttrs = MakeShared<Attributes>();
     ASSERT_NE(commandAttrs, nullptr);
-    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, IDENTIFY);
     // Error: Executor is disconnected
     executor->OnHdiDisconnect();
     ret = executorCallback->OnEndExecute(testScheduleId, commandAttrs);
@@ -1215,10 +1166,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_DeleteTemplateTest_004
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_001, TestSize.Level0)
 {
     static const int32_t testCommandId = 123;
-    static const std::vector<uint64_t> testTemplateIdList = {4, 5, 6};
-    static const uint8_t *src = static_cast<const uint8_t *>(static_cast<const void *>(&testTemplateIdList[0]));
-    static const std::vector<uint8_t> testExtraInfo(
-        src, src + testTemplateIdList.size() * sizeof(uint64_t) / sizeof(uint8_t));
+    static const std::vector<uint8_t> testExtraInfo = {4, 5, 6};
     static std::thread t;
 
     shared_ptr<Executor> executor;
@@ -1252,7 +1200,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_001,
     auto property = MakeShared<Attributes>();
     ASSERT_NE(property, nullptr);
     property->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, testCommandId);
-    property->SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, testTemplateIdList);
+    property->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, testExtraInfo);
     ret = executorCallback->OnSetProperty(property);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
     ret = executorCallback->OnSetProperty(property);
@@ -1263,10 +1211,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_001,
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_002, TestSize.Level0)
 {
     static const int32_t testCommandId = 123;
-    static const std::vector<uint64_t> testTemplateIdList = {4, 5, 6};
-    static const uint8_t *src = static_cast<const uint8_t *>(static_cast<const void *>(&testTemplateIdList[0]));
-    static const std::vector<uint8_t> testExtraInfo(
-        src, src + testTemplateIdList.size() * sizeof(uint64_t) / sizeof(uint8_t));
+    static const std::vector<uint8_t> testExtraInfo = {4, 5, 6};
 
     shared_ptr<Executor> executor;
     shared_ptr<ExecutorCallback> executorCallback;
@@ -1288,7 +1233,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_002,
     auto property = MakeShared<Attributes>();
     ASSERT_NE(property, nullptr);
     property->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, testCommandId);
-    property->SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, testTemplateIdList);
+    property->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, testExtraInfo);
     ret = executorCallback->OnSetProperty(property);
     ASSERT_EQ(ret, ResultCode::TIMEOUT);
 }
@@ -1296,10 +1241,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_002,
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_003, TestSize.Level0)
 {
     static const int32_t testCommandId = 123;
-    static const std::vector<uint64_t> testTemplateIdList = {4, 5, 6};
-    static const uint8_t *src = static_cast<const uint8_t *>(static_cast<const void *>(&testTemplateIdList[0]));
-    static const std::vector<uint8_t> testExtraInfo(
-        src, src + testTemplateIdList.size() * sizeof(uint64_t) / sizeof(uint8_t));
+    static const std::vector<uint8_t> testExtraInfo = {4, 5, 6};
 
     shared_ptr<Executor> executor;
     shared_ptr<ExecutorCallback> executorCallback;
@@ -1322,7 +1264,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_003,
     auto property = MakeShared<Attributes>();
     ASSERT_NE(property, nullptr);
     property->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, testCommandId);
-    property->SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, testTemplateIdList);
+    property->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, testExtraInfo);
     ret = executorCallback->OnSetProperty(property);
     ASSERT_EQ(ret, ResultCode::TYPE_NOT_SUPPORT);
 }
@@ -1330,10 +1272,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_003,
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_004, TestSize.Level0)
 {
     static const int32_t testCommandId = 123;
-    static const std::vector<uint64_t> testTemplateIdList = {4, 5, 6};
-    static const uint8_t *src = static_cast<const uint8_t *>(static_cast<const void *>(&testTemplateIdList[0]));
-    static const std::vector<uint8_t> testExtraInfo(
-        src, src + testTemplateIdList.size() * sizeof(uint64_t) / sizeof(uint8_t));
+    static const std::vector<uint8_t> testExtraInfo = {4, 5, 6};
 
     shared_ptr<Executor> executor;
     shared_ptr<ExecutorCallback> executorCallback;
@@ -1355,7 +1294,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_004,
     auto property = MakeShared<Attributes>();
     ASSERT_NE(property, nullptr);
     property->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, testCommandId);
-    property->SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, testTemplateIdList);
+    property->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, testExtraInfo);
     ret = executorCallback->OnSetProperty(property);
     ASSERT_EQ(ret, ResultCode::TYPE_NOT_SUPPORT);
 }
@@ -1363,10 +1302,6 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_004,
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_005, TestSize.Level0)
 {
     static const int32_t testCommandId = 123;
-    static const std::vector<uint64_t> testTemplateIdList = {4, 5, 6};
-    static const uint8_t *src = static_cast<const uint8_t *>(static_cast<const void *>(&testTemplateIdList[0]));
-    static const std::vector<uint8_t> testExtraInfo(
-        src, src + testTemplateIdList.size() * sizeof(uint64_t) / sizeof(uint8_t));
 
     shared_ptr<Executor> executor;
     shared_ptr<ExecutorCallback> executorCallback;
@@ -1380,7 +1315,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_005,
     auto property = MakeShared<Attributes>();
     ASSERT_NE(property, nullptr);
     property->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, testCommandId);
-    // Error: ATTR_TEMPLATE_ID_LIST not set
+    // Error: ATTR_EXTRA_INFO not set
     ret = executorCallback->OnSetProperty(property);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }

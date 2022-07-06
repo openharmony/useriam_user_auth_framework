@@ -14,25 +14,34 @@
  */
 #include "context_callback_impl.h"
 
+#include <sstream>
+
 #include "iam_check.h"
 #include "iam_logger.h"
+#include "iam_ptr.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-ContextCallbackImpl::ContextCallbackImpl(sptr<IdmCallback> idmCallback) : idmCallback_(idmCallback)
+ContextCallbackImpl::ContextCallbackImpl(sptr<IdmCallback> idmCallback, OperationType operationType)
+    : idmCallback_(idmCallback)
 {
-    if (idmCallback_ == nullptr) {
-        IAM_LOGE("idmCallback is nullptr, parameter is invalid");
-    }
+    metaData_.operationType = operationType;
+    metaData_.startTime = std::chrono::steady_clock::now();
+    std::ostringstream ss;
+    ss << "IDM(operation:" << operationType << ")";
+    iamHitraceHelper_ = UserIAM::Common::MakeShared<IamHitraceHelper>(ss.str());
 }
 
-ContextCallbackImpl::ContextCallbackImpl(sptr<UserAuthCallback> userAuthCallback) : userAuthCallback_(userAuthCallback)
+ContextCallbackImpl::ContextCallbackImpl(sptr<UserAuthCallback> userAuthCallback, OperationType operationType)
+    : userAuthCallback_(userAuthCallback)
 {
-    if (userAuthCallback_ == nullptr) {
-        IAM_LOGE("userAuthCallback is nullptr, parameter is invalid");
-    }
+    metaData_.operationType = operationType;
+    metaData_.startTime = std::chrono::steady_clock::now();
+    std::ostringstream ss;
+    ss << "UserAuth(operation:" << operationType << ")";
+    iamHitraceHelper_ = UserIAM::Common::MakeShared<IamHitraceHelper>(ss.str());
 }
 
 void ContextCallbackImpl::onAcquireInfo(ExecutorRole src, int32_t moduleType,
@@ -57,21 +66,111 @@ void ContextCallbackImpl::onAcquireInfo(ExecutorRole src, int32_t moduleType,
     }
 }
 
-void ContextCallbackImpl::OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &finalResult) const
+void ContextCallbackImpl::OnResult(int32_t resultCode, Attributes &finalResult)
 {
-    IF_FALSE_LOGE_AND_RETURN(finalResult != nullptr);
+    int32_t remainTime;
+    int32_t freezingTime;
+    metaData_.operationResult = resultCode;
+    if (finalResult.GetInt32Value(Attributes::ATTR_REMAIN_TIMES, remainTime)) {
+        metaData_.remainTime = remainTime;
+    }
+    if (finalResult.GetInt32Value(Attributes::ATTR_FREEZING_TIME, freezingTime)) {
+        metaData_.freezingTime = freezingTime;
+    }
+    metaData_.endTime = std::chrono::steady_clock::now();
+
+    iamHitraceHelper_ = nullptr;
     if (idmCallback_ != nullptr) {
-        idmCallback_->OnResult(resultCode, *finalResult);
+        idmCallback_->OnResult(resultCode, finalResult);
     }
     if (userAuthCallback_ != nullptr) {
         int32_t userId;
-        auto isIdentify = finalResult->GetInt32Value(Attributes::ATTR_USER_ID, userId);
+        auto isIdentify = finalResult.GetInt32Value(Attributes::ATTR_USER_ID, userId);
         if (isIdentify) {
-            userAuthCallback_->OnIdentifyResult(resultCode, *finalResult);
+            userAuthCallback_->OnIdentifyResult(resultCode, finalResult);
         } else {
-            userAuthCallback_->OnAuthResult(resultCode, *finalResult);
+            userAuthCallback_->OnAuthResult(resultCode, finalResult);
         }
     }
+
+    ContextCallbackNotifyListener::GetInstance().Process(metaData_);
+    if (stopCallback_ != nullptr) {
+        stopCallback_();
+    }
+}
+
+void ContextCallbackImpl::SetTraceUserId(int32_t userId)
+{
+    metaData_.userId = userId;
+}
+
+void ContextCallbackImpl::SetTraceRemainTime(int32_t remainTime)
+{
+    metaData_.remainTime = remainTime;
+}
+
+void ContextCallbackImpl::SetTraceFreezingTime(int32_t freezingTime)
+{
+    metaData_.freezingTime = freezingTime;
+}
+
+void ContextCallbackImpl::SetTraceSdkVersion(int32_t version)
+{
+    metaData_.sdkVersion = version;
+}
+
+void ContextCallbackImpl::SetTraceCallingUid(uint64_t callingUid)
+{
+    metaData_.callingUid = callingUid;
+}
+
+void ContextCallbackImpl::SetTraceAuthType(AuthType authType)
+{
+    metaData_.authType = authType;
+}
+
+void ContextCallbackImpl::SetTraceAuthTrustLevel(AuthTrustLevel atl)
+{
+    metaData_.atl = atl;
+}
+
+void ContextCallbackImpl::SetCleaner(Context::ContextStopCallback callback)
+{
+    stopCallback_ = callback;
+}
+
+void ContextCallbackNotifyListener::AddNotifier(const Notify &notify)
+{
+    notifierList_.emplace_back(notify);
+}
+
+void ContextCallbackNotifyListener::Process(const MetaData &metaData)
+{
+    for (const auto &notify : notifierList_) {
+        if (notify != nullptr) {
+            notify(metaData);
+        }
+    }
+}
+
+std::shared_ptr<ContextCallback> ContextCallback::NewInstance(sptr<IdmCallback> idmCallback,
+    OperationType operationType)
+{
+    if (idmCallback == nullptr) {
+        IAM_LOGE("idmCallback is nullptr, parameter is invalid");
+        return nullptr;
+    }
+    return UserIAM::Common::MakeShared<ContextCallbackImpl>(idmCallback, operationType);
+}
+
+std::shared_ptr<ContextCallback> ContextCallback::NewInstance(sptr<UserAuthCallback> userAuthCallback,
+    OperationType operationType)
+{
+    if (userAuthCallback == nullptr) {
+        IAM_LOGE("userAuthCallback is nullptr, parameter is invalid");
+        return nullptr;
+    }
+    return UserIAM::Common::MakeShared<ContextCallbackImpl>(userAuthCallback, operationType);
 }
 } // namespace UserAuth
 } // namespace UserIam

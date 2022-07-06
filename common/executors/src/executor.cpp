@@ -40,6 +40,7 @@ Executor::Executor(std::shared_ptr<ExecutorMgrWrapper> executorMgrWrapper,
     IF_FALSE_LOGE_AND_RETURN(hdi != nullptr);
     ExecutorInfo executorInfo = {};
     IF_FALSE_LOGE_AND_RETURN(hdi->GetExecutorInfo(executorInfo) == ResultCode::SUCCESS);
+    authType_ = executorInfo.authType;
     std::ostringstream ss;
     uint32_t combineExecutorId = Common::CombineUint16ToUint32(hdiId_, static_cast<uint16_t>(executorInfo.executorId));
     const uint32_t uint32HexWidth = 8;
@@ -82,7 +83,7 @@ void Executor::RegisterExecutorCallback(ExecutorInfo &executorInfo)
 {
     IAM_LOGI("%{public}s start", GetDescription());
     uint32_t combineExecutorId = Common::CombineUint16ToUint32(hdiId_, static_cast<uint16_t>(executorInfo.executorId));
-    executorInfo.executorId = static_cast<uint64_t>(combineExecutorId);
+    executorInfo.executorId = static_cast<int32_t>(combineExecutorId);
     if (executorCallback_ == nullptr) {
         std::lock_guard<std::mutex> lock(mutex_);
         if (executorCallback_ == nullptr) {
@@ -142,6 +143,11 @@ std::shared_ptr<IAuthExecutorHdi> Executor::GetExecutorHdi()
 const char *Executor::GetDescription()
 {
     return description_.c_str();
+}
+
+int32_t Executor::GetAuthType() const
+{
+    return authType_;
 }
 } // namespace UserAuth
 } // namespace UserIAM

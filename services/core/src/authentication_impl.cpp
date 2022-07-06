@@ -16,6 +16,8 @@
 
 #include "hdi_wrapper.h"
 #include "iam_logger.h"
+#include "iam_hitrace_helper.h"
+#include "resource_node_utils.h"
 #include "schedule_node_helper.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
@@ -69,6 +71,7 @@ bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
         .challenge = challenge_,
     };
     std::vector<HdiScheduleInfo> infos;
+    IamHitraceHelper traceHelper("hdi BeginAuthentication");
     auto result = hdi->BeginAuthentication(contextId_, solution, infos);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi BeginAuthentication failed, err is %{public}d", result);
@@ -104,6 +107,10 @@ bool AuthenticationImpl::Update(const std::vector<uint8_t> &scheduleResult, Auth
     auto result = hdi->UpdateAuthenticationResult(contextId_, scheduleResult, info);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi UpdateAuthenticationResult failed, err is %{public}d", result);
+    }
+
+    for (auto &[executorIndex, commandId, msg] : info.msgs) {
+        ResourceNodeUtils::SendMsgToExecutor(executorIndex, msg);
     }
 
     resultInfo.result = info.result;

@@ -17,6 +17,7 @@
 #include "hdi_wrapper.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
+#include "iam_hitrace_helper.h"
 
 #include "credential_info_impl.h"
 #include "schedule_node_helper.h"
@@ -73,6 +74,7 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
         .authType = static_cast<HdiAuthType>(authType_),
         .executorSensorHint = executorSensorHint_,
     };
+    IamHitraceHelper traceHelper("hdi BeginEnrollment");
     auto result = hdi->BeginEnrollment(userId_, authToken_, param, info);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi BeginEnrollment failed, err is %{public}d", result);
@@ -97,7 +99,7 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
 bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
     std::shared_ptr<CredentialInfo> &info)
 {
-    using HdiCredentialInfo = OHOS::HDI::UserAuth::V1_0::CredentialInfo;
+    using HdiEnrollResultInfo = OHOS::HDI::UserAuth::V1_0::EnrollResultInfo;
 
     auto hdi = HdiWrapper::GetHdiInstance();
     if (!hdi) {
@@ -105,18 +107,19 @@ bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t
         return false;
     }
 
-    HdiCredentialInfo oldInfo = {};
-    auto result = hdi->UpdateEnrollmentResult(userId_, scheduleResult, credentialId, oldInfo);
+    HdiEnrollResultInfo resultInfo = {};
+    auto result = hdi->UpdateEnrollmentResult(userId_, scheduleResult, resultInfo);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi UpdateEnrollmentResult failed, err is %{public}d, userId is %{public}d", result, userId_);
         return false;
     }
     IAM_LOGI("hdi UpdateEnrollmentResult success, userId is %{public}d", userId_);
-    auto infoRet = MakeShared<CredentialInfoImpl>(userId_, oldInfo);
+    auto infoRet = MakeShared<CredentialInfoImpl>(userId_, resultInfo.oldInfo);
     if (infoRet == nullptr) {
         IAM_LOGE("bad alloc");
         return false;
     }
+    credentialId = resultInfo.credentialId;
     info = infoRet;
 
     return true;
