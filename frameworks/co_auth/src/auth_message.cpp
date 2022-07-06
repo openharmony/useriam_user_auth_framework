@@ -30,6 +30,6 @@ AuthMessage::AuthMessage(std::vector<uint8_t> &msg)
 }
 
 AuthMessage::~AuthMessage() = default;
-}  // namespace ohos
-}  // namespace userIAM
-}  // namespace authResPool
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS

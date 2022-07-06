@@ -305,5 +305,5 @@ int32_t UserIdm::EnforceDelUser(const int32_t userId, const std::shared_ptr<IdmC
     return proxy->EnforceDelUser(userId, callbackStub);
 }
 } // namespace UserAuth
-}  // namespace UserIAM
-}  // namespace OHOS
+} // namespace UserIam
+} // namespace OHOS

@@ -41,9 +41,9 @@ struct EnrolledCredInfo {
     AuthSubType authSubType;
     uint64_t templateId;
 };
-}  // namespace UserIDM
-}  // namespace UserIAM
-}  // namespace OHOS
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
 namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {

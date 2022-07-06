@@ -39,8 +39,8 @@ public:
 
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIAM.AuthResPool.IExecutor_Messenger");
 };
-} // namespace IExecutor_Messenger
-} // namespace UserIAM
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS
 namespace OHOS {
 namespace UserIAM {

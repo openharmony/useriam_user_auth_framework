@@ -117,6 +117,6 @@ void UserIDMGetInfoCallbackStub::OnGetInfo(std::vector<CredentialInfo>& infos)
     }
     IAM_LOGE("callback_ is nullptr and idmCallback_ is nullptr");
 }
-}  // namespace UserIDM
-}  // namespace UserIAM
-}  // namespace OHOS
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS

@@ -532,6 +532,6 @@ bool UserIDMProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParcel
     }
     return true;
 }
-}  // namespace UserIDM
-}  // namespace UserIAM
-}  // namespace OHOS
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS

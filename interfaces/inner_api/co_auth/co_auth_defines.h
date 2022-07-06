@@ -136,8 +136,8 @@ struct ExecutorInfo {
     std::vector<uint8_t> publicKey;
     std::vector<uint8_t> deviceId;
 };
-}
-} // namespace UserIAM
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS
 namespace OHOS {
 namespace UserIAM {

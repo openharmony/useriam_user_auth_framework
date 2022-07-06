@@ -257,5 +257,5 @@ int32_t UserAuthNative::GetVersion()
     return proxy->GetVersion();
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

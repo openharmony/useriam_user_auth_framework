@@ -39,7 +39,7 @@ public:
     int32_t CancelIdentify(const uint64_t contextId);
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 namespace OHOS {
 namespace UserIAM {

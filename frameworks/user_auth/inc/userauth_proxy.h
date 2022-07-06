@@ -49,7 +49,7 @@ private:
     static inline BrokerDelegator<UserAuthProxy> delegator_;
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 namespace OHOS {
 namespace UserIAM {

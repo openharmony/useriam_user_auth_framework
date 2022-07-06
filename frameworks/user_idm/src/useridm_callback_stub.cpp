@@ -118,6 +118,6 @@ void UserIDMCallbackStub::OnAcquireInfo(int32_t module, int32_t acquire, Request
     }
     IAM_LOGE("callback_ is nullptr and idmCallback_ is nullptr");
 }
-}  // namespace UserIDM
-}  // namespace UserIAM
-}  // namespace OHOS
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS

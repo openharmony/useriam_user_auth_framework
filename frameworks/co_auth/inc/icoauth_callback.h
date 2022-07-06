@@ -37,8 +37,8 @@ public:
 
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.CoAuth.ICoAuthCallback");
 };
-} // namespace CoAuth
-} // namespace UserIAM
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS
 namespace OHOS {
 namespace UserIAM {

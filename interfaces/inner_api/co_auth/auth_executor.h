@@ -54,9 +54,9 @@ private:
     std::vector<uint8_t> publicKeyValue_;
     std::vector<uint8_t> deviceIdValue_;
 };
-}  // namespace AuthResPool
-}  // namespace userIAM
-}  // namespace ohos
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
 namespace OHOS {
 namespace UserIAM {
 namespace AuthResPool {

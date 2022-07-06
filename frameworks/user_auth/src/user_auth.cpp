@@ -87,5 +87,5 @@ int32_t UserAuth::CancelIdentify(const uint64_t contextId)
     return UserAuthNative::GetInstance().CancelIdentify(contextId);
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

@@ -121,6 +121,6 @@ bool CoAuthProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParcel 
     }
     return true;
 }
-} // namespace CoAuth
-} // namespace UserIAM
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS

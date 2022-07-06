@@ -200,6 +200,6 @@ int32_t ExecutorCallbackStub::OnGetProperty(std::shared_ptr<UserIam::UserAuth::A
     }
     return ret;
 }
-} // namespace AuthResPool
-} // namespace UserIAM
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS

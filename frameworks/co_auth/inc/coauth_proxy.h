@@ -37,8 +37,8 @@ private:
     bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, bool isSync = true);
     uint32_t WriteAuthExecutor(AuthExecutor &executorInfo, MessageParcel &data);
 };
-} // namespace CoAuth
-} // namespace UserIAM
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS
 namespace OHOS {
 namespace UserIAM {

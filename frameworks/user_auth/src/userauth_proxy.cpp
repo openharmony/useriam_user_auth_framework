@@ -391,5 +391,5 @@ bool UserAuthProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParce
     return true;
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
