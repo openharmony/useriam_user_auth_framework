@@ -83,7 +83,7 @@ enum ResultCode : int32_t {
     ERRORCODE_MAX = 19
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 namespace OHOS {
 namespace UserIAM {

@@ -36,6 +36,6 @@ void ExecutorMgr::Register(const ExecutorInfo &info, std::shared_ptr<ExecutorCal
     executorInfo->SetExecutorType(static_cast<ExecutorType>(info.role));
     AuthExecutorRegistry::GetInstance().Register(executorInfo, callback);
 }
-} // namespace AuthResPool
-} // namespace UserIAM
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS

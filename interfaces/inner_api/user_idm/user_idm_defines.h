@@ -51,9 +51,9 @@ struct  RequestResult {
     uint64_t credentialId;
     std::vector<uint8_t> rootSecret;
 };
-}  // namespace UserAuth
-}  // namespace UserIAM
-}  // namespace OHOS
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {

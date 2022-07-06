@@ -293,6 +293,6 @@ void UserIDMClient::DelCred(uint64_t credentialId, std::vector<uint8_t> authToke
     IF_FALSE_LOGE_AND_RETURN(callbackStub != nullptr);
     proxy->DelCred(credentialId, authToken, callbackStub);
 }
-} // namespace UserIDM
-}  // namespace UserIAM
-}  // namespace OHOS
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS

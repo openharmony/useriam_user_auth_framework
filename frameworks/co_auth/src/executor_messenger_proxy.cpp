@@ -114,6 +114,6 @@ bool ExecutorMessengerProxy::SendRequest(uint32_t code, MessageParcel &data, Mes
     }
     return true;
 }
-}
-}
-}
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS

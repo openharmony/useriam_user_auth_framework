@@ -40,9 +40,9 @@ private:
     std::shared_ptr<GetSecInfoCallback> callback_;
     std::shared_ptr<GetSecInfoCallback> idmCallback_;
 };
-}  // namespace UserIDM
-}  // namespace UserIAM
-}  // namespace OHOS
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {

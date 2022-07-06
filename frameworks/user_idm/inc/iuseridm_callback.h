@@ -70,9 +70,9 @@ public:
 
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.useridm.IIDMCallback");
 };
-}  // namespace UserIDM
-}  // namespace UserIAM
-}  // namespace OHOS
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
 namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {

@@ -70,7 +70,7 @@ const std::map<int32_t, AuthenticationResult> result2ExecuteResult = {
     {ResultCode::E_CHECK_PERMISSION_FAILED, AuthenticationResult::GENERAL_ERROR},
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 namespace OHOS {
 namespace UserIAM {

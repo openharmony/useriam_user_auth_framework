@@ -100,6 +100,6 @@ void AuthExecutorRegistry::AuthExecutorRegistryDeathRecipient::OnRemoteDied(cons
     AuthExecutorRegistry::GetInstance().ResetProxy(remote);
     IAM_LOGE("AuthExecutorRegistryDeathRecipient::Recv death notice");
 }
-} // namespace AuthResPool
-} // namespace UserIAM
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS

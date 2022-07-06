@@ -57,9 +57,9 @@ private:
     sptr<IUserIDM> proxy_ {nullptr};
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
 };
-}  // namespace UserIDM
-}  // namespace UserIAM
-}  // namespace OHOS
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
 namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {

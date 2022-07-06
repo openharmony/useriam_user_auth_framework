@@ -46,8 +46,8 @@ private:
     int32_t OnSetPropertyStub(MessageParcel& data, MessageParcel& reply);
     std::shared_ptr<ExecutorCallback> callback_;
 };
-} // namespace AuthResPool
-} // namespace UserIAM
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS
 namespace OHOS {
 namespace UserIAM {

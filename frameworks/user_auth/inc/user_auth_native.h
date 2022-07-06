@@ -61,7 +61,7 @@ private:
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 namespace OHOS {
 namespace UserIAM {

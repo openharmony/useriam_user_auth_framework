@@ -35,8 +35,8 @@ public:
 private:
     std::vector<uint8_t> authMessage_;
 };
-} // namespace AuthResPool
-} // namespace UserIAM
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS
 namespace OHOS {
 namespace UserIAM {

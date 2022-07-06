@@ -37,9 +37,9 @@ public:
     virtual void OnResult(int32_t result, RequestResult reqRet) = 0;
     virtual void OnAcquireInfo(int32_t module, int32_t acquire, RequestResult reqRet) = 0;
 };
-}  // namespace UserAuth
-}  // namespace UserIAM
-}  // namespace OHOS
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {

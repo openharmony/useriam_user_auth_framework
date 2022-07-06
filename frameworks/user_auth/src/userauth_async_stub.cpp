@@ -302,6 +302,6 @@ void UserAuthAsyncStub::onSetExecutorProperty(const int32_t result)
     IAM_LOGD("userauthAsyncStub result:%{public}d", result);
     setPropCallback_->onSetProperty(result);
 }
-}  // namespace UserAuth
-}  // namespace UserIAM
-}  // namespace OHOS
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS

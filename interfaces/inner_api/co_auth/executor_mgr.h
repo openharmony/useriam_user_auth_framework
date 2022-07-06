@@ -27,8 +27,8 @@ class ExecutorMgr : public DelayedRefSingleton<ExecutorMgr> {
 public:
     void Register(const ExecutorInfo &info, std::shared_ptr<ExecutorCallback> callback);
 };
-} // namespace AuthResPool
-} // namespace UserIAM
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS
 namespace OHOS {
 namespace UserIAM {

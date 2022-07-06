@@ -38,8 +38,8 @@ private:
     bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply);
     static inline BrokerDelegator<ExecutorMessengerProxy> delegator_;
 };
-} // namespace AuthResPool
-} // namespace UserIAM
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS
 namespace OHOS {
 namespace UserIAM {

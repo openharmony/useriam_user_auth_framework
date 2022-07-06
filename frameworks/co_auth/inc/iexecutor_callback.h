@@ -44,8 +44,8 @@ public:
         ON_GET_PROPERTY
     };
 };
-} // namespace AuthResPool
-} // namespace UserIAM
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS
 namespace OHOS {
 namespace UserIAM {

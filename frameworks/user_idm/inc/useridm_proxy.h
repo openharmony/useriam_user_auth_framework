@@ -57,9 +57,9 @@ private:
 private:
     static inline BrokerDelegator<UserIDMProxy> delegator_;
 };
-}  // namespace UserIDM
-}  // namespace UserIAM
-}  // namespace OHOS
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
 namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {
