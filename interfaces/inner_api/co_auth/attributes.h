@@ -52,6 +52,7 @@ public:
         ATTR_EXECUTOR_INDEX,
         ATTR_EXECUTOR_SENSOR_HINT,
         ATTR_EXECUTOR_MATCHER,
+        ATTR_EXTRA_INFO,
     };
 
     Attributes() = default;

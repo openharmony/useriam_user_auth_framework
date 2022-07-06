@@ -21,7 +21,6 @@
 
 #include "iservstat_listener_hdi.h"
 #include "singleton.h"
-#include "system_ability_status_listener.h"
 
 #include "driver.h"
 #include "iauth_driver_hdi.h"
@@ -34,6 +33,8 @@ using namespace HDI::ServiceManager::V1_0;
 
 class DriverManager : public Singleton<DriverManager> {
 public:
+    DriverManager();
+    ~DriverManager() override = default;
     int32_t Start(const std::map<std::string, HdiConfig> &hdiName2Config);
     void OnFrameworkReady();
     void OnAllHdiDisconnect();
@@ -43,13 +44,11 @@ public:
 private:
     class HdiServiceStatusListener;
     bool HdiConfigIsValid(const std::map<std::string, HdiConfig> &hdiName2Config);
-    void SubscribeHdiManagerServiceStatus();
+    void SubscribeServiceStatus();
     void SubscribeFrameworkReadyEvent();
 
-    bool started = false;
     std::mutex mutex_;
     std::map<std::string, std::shared_ptr<Driver>> serviceName2Driver_;
-    std::map<std::string, HdiConfig> hdiName2Config_;
 };
 
 class DriverManager ::HdiServiceStatusListener : public ServStatListenerStub {

@@ -40,6 +40,7 @@ public:
     using AuthSolution = OHOS::HDI::UserAuth::V1_0::AuthSolution;
     using AuthResultInfo = OHOS::HDI::UserAuth::V1_0::AuthResultInfo;
     using IdentifyResultInfo = OHOS::HDI::UserAuth::V1_0::IdentifyResultInfo;
+    using EnrollResultInfo = OHOS::HDI::UserAuth::V1_0::EnrollResultInfo;
 
     class Holder;
     MOCK_METHOD0(Init, int32_t());
@@ -51,8 +52,8 @@ public:
     MOCK_METHOD1(CloseSession, int32_t(int32_t userId));
     MOCK_METHOD4(BeginEnrollment,
         int32_t(int32_t userId, const std::vector<uint8_t> &authToken, const EnrollParam &param, ScheduleInfo &info));
-    MOCK_METHOD4(UpdateEnrollmentResult, int32_t(int32_t userId, const std::vector<uint8_t> &scheduleResult,
-                                             uint64_t &credentialId, CredentialInfo &oldInfo));
+    MOCK_METHOD3(UpdateEnrollmentResult, int32_t(int32_t userId, const std::vector<uint8_t> &scheduleResult,
+                                             EnrollResultInfo &info));
     MOCK_METHOD1(CancelEnrollment, int32_t(int32_t userId));
     MOCK_METHOD4(DeleteCredential,
         int32_t(int32_t userId, uint64_t credentialId, const std::vector<uint8_t> &authToken, CredentialInfo &info));

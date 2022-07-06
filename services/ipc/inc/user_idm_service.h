@@ -18,10 +18,14 @@
 
 #include "user_idm_stub.h"
 
+#include <memory>
 #include <string>
+#include <vector>
 
 #include "system_ability.h"
 #include "system_ability_definition.h"
+
+#include "context.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -33,13 +37,14 @@ public:
     ~UserIdmService() override = default;
     void OnStart() override;
     void OnStop() override;
+    int Dump(int fd, const std::vector<std::u16string> &args) override;
     int32_t OpenSession(std::optional<int32_t> userId, std::vector<uint8_t> &challenge) override;
     void CloseSession(std::optional<int32_t> userId) override;
     int32_t GetCredentialInfo(std::optional<int32_t> userId, AuthType authType,
         const sptr<IdmGetCredentialInfoCallback> &callback) override;
     int32_t GetSecInfo(std::optional<int32_t> userId, const sptr<IdmGetSecureUserInfoCallback> &callback) override;
     void AddCredential(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
-        const std::vector<uint8_t> &token, const sptr<IdmCallback> &callback) override;
+        const std::vector<uint8_t> &token, const sptr<IdmCallback> &callback, bool isUpdate) override;
     void UpdateCredential(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
         const std::vector<uint8_t> &token, const sptr<IdmCallback> &callback) override;
     int32_t Cancel(std::optional<int32_t> userId, const std::optional<std::vector<uint8_t>> &challenge) override;
@@ -50,7 +55,9 @@ public:
         const sptr<IdmCallback> &callback) override;
 
 private:
-    uint64_t contextId_ {0};
+    int32_t CancelCurrentEnroll();
+    void CancelCurrentEnrollIfExist();
+    std::mutex mutex_;
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -34,7 +34,7 @@ public:
     std::shared_ptr<Builder> SetScheduleId(uint64_t scheduleId) override;
     std::shared_ptr<Builder> SetCallingUid(uint64_t uid) override;
     std::shared_ptr<Builder> SetPinSubType(PinSubType pinSubType) override;
-    std::shared_ptr<Builder> SetTemplateIdList(std::vector<uint64_t> templateIdList) override;
+    std::shared_ptr<Builder> SetTemplateIdList(const std::vector<uint64_t> &templateIdList) override;
     std::shared_ptr<Builder> SetAuthType(AuthType authType) override;
     std::shared_ptr<Builder> SetExecutorMatcher(uint32_t executorMatcher) override;
     std::shared_ptr<Builder> SetScheduleMode(ScheduleMode scheduleMode) override;
@@ -49,7 +49,7 @@ public:
         const std::shared_ptr<ResourceNode> &verifier);
 
 private:
-    bool CheckParameters();
+    bool CheckParameters() const;
 
     const std::shared_ptr<ResourceNode> collector_;
     const std::shared_ptr<ResourceNode> verifier_;

@@ -13,27 +13,32 @@
  * limitations under the License.
  */
 
-#ifndef IQUERY_CALLBACK_H
-#define IQUERY_CALLBACK_H
+#include "iam_hitrace_helper.h"
 
-#include <iremote_broker.h>
-#include <iremote_object.h>
-#include "query_callback.h"
+#include <atomic>
+
+#include "hitrace_meter.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace AuthResPool {
-class IQueryCallback : public IRemoteBroker {
-public:
-    enum {
-        COAUTH_QUERY_RESULT = 0
-    };
+namespace UserIam {
+namespace UserAuth {
+IamHitraceHelper::IamHitraceHelper(std::string value)
+    : taskId_(GetHiTraceTaskId()),
+      value_(std::move(value))
+{
+    StartAsyncTrace(HITRACE_TAG_OHOS, value_, taskId_);
+}
 
-    virtual void OnResult(uint32_t resultCode) = 0;
+IamHitraceHelper::~IamHitraceHelper()
+{
+    FinishAsyncTrace(HITRACE_TAG_OHOS, value_, taskId_);
+}
 
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.CoAuth.IQueryCallback");
-};
-} // namespace AuthResPool
-} // namespace UserIAM
+int32_t IamHitraceHelper::GetHiTraceTaskId()
+{
+    static std::atomic<int32_t> taskId(0);
+    return taskId++;
+}
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS
-#endif // IQUERY_CALLBACK_H

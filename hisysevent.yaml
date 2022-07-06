@@ -1,0 +1,57 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+domain: USERIAM_FWK
+
+USERIAM_SYSTEM_FAULT:
+  __BASE: {type: FAULT, level: CRITICAL, tag:LifeCycle, desc: system fault message}
+  HAPPEN_TIME: {type: STRING, desc: happen time}
+  MODULE_NAME: {type: STRING, desc: module name}
+
+USERIAM_USER_CREDENTIAL_MANAGER:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag:UserIdm, desc: credential manager message}
+  USER_ID: {type: INT32, desc: user id}
+  AUTH_TYPE: {type: UINT32, desc: auth type}
+  OPERATION_TYPE: {type: UINT32, desc: operation type}
+  OPERATION_RESULT: {type: UINT32, desc: operation result}
+
+USERIAM_CREDENTIAL_CHANGE:
+  __BASE: {type: SECURITY, level: CRITICAL, tag:UserIdm, desc: credential change message}
+  USER_ID: {type: INT32, desc: user id}
+  AUTH_TYPE: {type: UINT32, desc: auth type}
+  OPERATION_TYPE: {type: UINT32, desc: operation type}
+  OPERATION_RESULT: {type: UINT32, desc: operation result}
+
+USERIAM_TEMPLATE_CHANGE:
+  __BASE: {type: SECURITY, level: CRITICAL, tag:UserIdm, desc: template change message}
+  EXECUTOR_TYPE: {type: INT32, desc: executor type}
+  CHANGE_TYPE: {type: UINT32, desc: change type}
+  TRIGGER_REASON: {type: STRING, desc: trigger reason}
+
+USERIAM_USER_AUTH:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag:UserAuth, desc: user auth message}
+  CALLING_ID: {type: UINT64, desc: calling id}
+  AUTH_TYPE: {type: UINT32, desc: auth type}
+  AUTH_TRUST_LEVEL: {type: UINT32, desc: auth trust level}
+  AUTH_RESULT: {type: UINT32, desc: auth result}
+  AUTH_TIME_SPAN: {type: STRING, desc: auth time span}
+  SDK_VERSION: {type: UINT32, desc: sdk version}
+
+USERIAM_PIN_AUTH:
+  __BASE: {type: SECURITY, level: CRITICAL, tag:UserAuth, desc: pin auth message}
+  USER_ID: {type: INT32, desc: user id}
+  CALLING_ID: {type: UINT64, desc: calling id}
+  AUTH_TIME: {type: STRING, desc: auth time}
+  AUTH_RESULT: {type: UINT32, desc: auth result}
+  REMAIN_TIME: {type: UINT32, desc: remain time}
+  FREEXING_TIME: {type: UINT32, desc: freezing time}

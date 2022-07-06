@@ -22,6 +22,7 @@ ohos_shared_library("userauth") {
     "inc",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs",
+    "//base/useriam/user_auth_framework/dfx/inc",
   ]
 
   sources = [
@@ -56,6 +57,7 @@ ohos_shared_library("userauth_napi") {
   include_dirs = [
     "inc",
     "//base/useriam/user_auth_framework/common/utils",
+    "//base/useriam/user_auth_framework/dfx/inc",
   ]
 
   sources = [

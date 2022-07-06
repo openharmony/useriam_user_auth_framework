@@ -14,6 +14,9 @@
  */
 
 #include "user_idm_service.h"
+
+#include "string_ex.h"
+
 #include "accesstoken_kit.h"
 
 #include "context_factory.h"
@@ -21,6 +24,8 @@
 #include "context_pool.h"
 #include "hdi_wrapper.h"
 #include "iam_logger.h"
+#include "iam_para2str.h"
+#include "iam_defines.h"
 #include "ipc_common.h"
 #include "resource_node_pool.h"
 #include "resource_node_utils.h"
@@ -164,7 +169,7 @@ int32_t UserIdmService::GetSecInfo(std::optional<int32_t> userId, const sptr<Idm
 }
 
 void UserIdmService::AddCredential(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
-    const std::vector<uint8_t> &token, const sptr<IdmCallback> &callback)
+    const std::vector<uint8_t> &token, const sptr<IdmCallback> &callback, bool isUpdate)
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
@@ -172,35 +177,46 @@ void UserIdmService::AddCredential(std::optional<int32_t> userId, AuthType authT
     }
 
     Attributes extraInfo;
-
-    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
-        IAM_LOGE("failed to get userId");
-        callback->OnResult(INVALID_PARAMETERS, extraInfo);
+    auto contextCallback = ContextCallback::NewInstance(callback,
+        isUpdate ? TRACE_UPDATE_CREDENTIAL : TRACE_ADD_CREDENTIAL);
+    if (contextCallback == nullptr) {
+        IAM_LOGE("failed to construct context callback");
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
+    uint64_t callingUid = static_cast<uint64_t>(this->GetCallingUid());
+    contextCallback->SetTraceAuthType(authType);
+    contextCallback->SetTraceCallingUid(callingUid);
+    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
+        IAM_LOGE("failed to get userId");
+        contextCallback->OnResult(INVALID_PARAMETERS, extraInfo);
+        return;
+    }
+    contextCallback->SetTraceUserId(userId.value());
 
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
-        callback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
+        contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
         return;
     }
 
-    uint64_t callingUid = static_cast<uint64_t>(this->GetCallingUid());
+    std::lock_guard<std::mutex> lock(mutex_);
+    CancelCurrentEnrollIfExist();
+
     auto context =
-        ContextFactory::CreateEnrollContext(userId.value(), authType, pinSubType, token, callingUid, callback);
+        ContextFactory::CreateEnrollContext(userId.value(), authType, pinSubType, token, callingUid, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
-        callback->OnResult(FAIL, extraInfo);
+        contextCallback->OnResult(FAIL, extraInfo);
         return;
     }
 
     auto cleaner = ContextHelper::Cleaner(context);
-    context->SetContextStopCallback(cleaner);
+    contextCallback->SetCleaner(cleaner);
 
     if (!context->Start()) {
         IAM_LOGE("failed to start enroll");
-        callback->OnResult(FAIL, extraInfo);
-        cleaner();
+        contextCallback->OnResult(FAIL, extraInfo);
     }
 }
 
@@ -230,7 +246,7 @@ void UserIdmService::UpdateCredential(std::optional<int32_t> userId, AuthType au
         return;
     }
 
-    AddCredential(userId, authType, pinSubType, token, callback);
+    AddCredential(userId, authType, pinSubType, token, callback, true);
 }
 
 int32_t UserIdmService::Cancel(std::optional<int32_t> userId, const std::optional<std::vector<uint8_t>> &challenge)
@@ -240,18 +256,43 @@ int32_t UserIdmService::Cancel(std::optional<int32_t> userId, const std::optiona
         return CHECK_PERMISSION_FAILED;
     }
 
-    auto context = ContextPool::Instance().Select(contextId_).lock();
-    if (context == nullptr || !context->Stop()) {
-        IAM_LOGE("failed to cancel");
+    bool userIdIsValid = userId.has_value() && UserIdmSessionController::Instance().IsSessionOpened(userId.value());
+    bool challengeIsValid = challenge.has_value() &&
+        UserIdmSessionController::Instance().IsSessionOpened(challenge.value());
+    if (!userIdIsValid && !challengeIsValid) {
+        IAM_LOGE("both user id and challenge are invalid");
         return FAIL;
     }
 
-    if (!ContextPool::Instance().Delete(contextId_)) {
-        IAM_LOGE("failed to delete context");
-        return FAIL;
+    std::lock_guard<std::mutex> lock(mutex_);
+    return CancelCurrentEnroll();
+}
+
+void UserIdmService::CancelCurrentEnrollIfExist()
+{
+    if (ContextPool::Instance().Select(CONTEXT_ENROLL).size() == 0) {
+        return;
     }
 
-    return SUCCESS;
+    IAM_LOGI("cancel current enroll due to new add credential request or delete");
+    CancelCurrentEnroll();
+}
+
+int32_t UserIdmService::CancelCurrentEnroll()
+{
+    IAM_LOGD("start");
+    auto contextList = ContextPool::Instance().Select(CONTEXT_ENROLL);
+    int32_t ret = FAIL;
+    for (const auto &context : contextList) {
+        if (auto ctx = context.lock(); ctx != nullptr) {
+            IAM_LOGE("stop the old context %{public}s", GET_MASKED_STRING(ctx->GetContextId()).c_str());
+            ctx->Stop();
+            ContextPool::Instance().Delete(ctx->GetContextId());
+            ret = SUCCESS;
+        }
+    }
+    IAM_LOGI("result %{public}d", ret);
+    return ret;
 }
 
 int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallback> &callback)
@@ -261,12 +302,23 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallback> &
         IAM_LOGE("callback is nullptr");
         return INVALID_PARAMETERS;
     }
+
+    std::lock_guard<std::mutex> lock(mutex_);
+    CancelCurrentEnrollIfExist();
+
     Attributes extraInfo;
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ENFORCE_DELETE_USER);
+    if (contextCallback == nullptr) {
+        IAM_LOGE("failed to construct context callback");
+        callback->OnResult(GENERAL_ERROR, extraInfo);
+        return FAIL;
+    }
+    contextCallback->SetTraceUserId(userId);
 
     auto userInfo = UserIdmDatabase::Instance().GetSecUserInfo(userId);
     if (userInfo == nullptr) {
         IAM_LOGE("current userid %{public}d is not existed", userId);
-        callback->OnResult(INVALID_PARAMETERS, extraInfo);
+        contextCallback->OnResult(INVALID_PARAMETERS, extraInfo);
         return INVALID_PARAMETERS;
     }
 
@@ -275,7 +327,7 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallback> &
     if (ret != SUCCESS) {
         IAM_LOGE("failed to enforce delete user");
         static_cast<void>(extraInfo.SetUint64Value(Attributes::ATTR_CREDENTIAL_ID, 0));
-        callback->OnResult(ret, extraInfo);
+        contextCallback->OnResult(ret, extraInfo);
         return ret;
     }
 
@@ -285,7 +337,7 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallback> &
     }
 
     IAM_LOGI("delete user success");
-    callback->OnResult(SUCCESS, extraInfo);
+    contextCallback->OnResult(SUCCESS, extraInfo);
     return SUCCESS;
 }
 
@@ -297,16 +349,26 @@ void UserIdmService::DelUser(std::optional<int32_t> userId, const std::vector<ui
         return;
     }
 
+    std::lock_guard<std::mutex> lock(mutex_);
+    CancelCurrentEnrollIfExist();
+
     Attributes extraInfo;
-    if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
-        IAM_LOGE("failed to check permission");
-        callback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_DELETE_USER);
+    if (contextCallback == nullptr) {
+        IAM_LOGE("failed to construct context callback");
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
-
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("failed to get userId");
-        callback->OnResult(INVALID_PARAMETERS, extraInfo);
+        contextCallback->OnResult(INVALID_PARAMETERS, extraInfo);
+        return;
+    }
+    contextCallback->SetTraceUserId(userId.value());
+
+    if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
         return;
     }
 
@@ -319,7 +381,7 @@ void UserIdmService::DelUser(std::optional<int32_t> userId, const std::vector<ui
     int32_t ret = UserIdmDatabase::Instance().DeleteUser(userId.value(), authToken, credInfos);
     if (ret != SUCCESS) {
         IAM_LOGE("failed to delete user");
-        callback->OnResult(ret, extraInfo);
+        contextCallback->OnResult(ret, extraInfo);
         return;
     }
 
@@ -329,7 +391,7 @@ void UserIdmService::DelUser(std::optional<int32_t> userId, const std::vector<ui
     }
     IAM_LOGI("delete user end");
 
-    callback->OnResult(ret, extraInfo);
+    contextCallback->OnResult(ret, extraInfo);
 }
 
 void UserIdmService::DelCredential(std::optional<int32_t> userId, uint64_t credentialId,
@@ -340,16 +402,26 @@ void UserIdmService::DelCredential(std::optional<int32_t> userId, uint64_t crede
         return;
     }
 
+    std::lock_guard<std::mutex> lock(mutex_);
+    CancelCurrentEnrollIfExist();
+
     Attributes extraInfo;
-    if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
-        IAM_LOGE("failed to check permission");
-        callback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_DELETE_CREDENTIAL);
+    if (contextCallback == nullptr) {
+        IAM_LOGE("failed to construct context callback");
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
-
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("failed to get userId");
-        callback->OnResult(INVALID_PARAMETERS, extraInfo);
+        contextCallback->OnResult(INVALID_PARAMETERS, extraInfo);
+        return;
+    }
+    contextCallback->SetTraceUserId(userId.value());
+
+    if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
         return;
     }
 
@@ -357,8 +429,11 @@ void UserIdmService::DelCredential(std::optional<int32_t> userId, uint64_t crede
     auto ret = UserIdmDatabase::Instance().DeleteCredentialInfo(userId.value(), credentialId, authToken, oldInfo);
     if (ret != SUCCESS) {
         IAM_LOGE("failed to delete CredentialInfo");
-        callback->OnResult(ret, extraInfo);
+        contextCallback->OnResult(ret, extraInfo);
         return;
+    }
+    if (oldInfo != nullptr) {
+        contextCallback->SetTraceAuthType(oldInfo->GetAuthType());
     }
 
     IAM_LOGI("delete credentialInfo success");
@@ -368,7 +443,46 @@ void UserIdmService::DelCredential(std::optional<int32_t> userId, uint64_t crede
         IAM_LOGE("failed to delete executor info, error code : %{public}d", ret);
     }
 
-    callback->OnResult(ret, extraInfo);
+    contextCallback->OnResult(ret, extraInfo);
+}
+
+int UserIdmService::Dump(int fd, const std::vector<std::u16string> &args)
+{
+    IAM_LOGI("start");
+    if (fd < 0) {
+        IAM_LOGE("invalid parameters");
+        dprintf(fd, "Invalid parameters.\n");
+        return INVALID_PARAMETERS;
+    }
+    std::string arg0 = (args.empty() ? "" : Str16ToStr8(args[0]));
+    if (arg0.empty() || arg0.compare("-h") == 0) {
+        dprintf(fd, "Usage:\n");
+        dprintf(fd, "      -h: command help.\n");
+        dprintf(fd, "      -l: active user info dump.\n");
+        return SUCCESS;
+    }
+    if (arg0.compare("-l") == 0) {
+        std::optional<int32_t> activeUserId;
+        if (IpcCommon::GetActiveAccountId(activeUserId) != SUCCESS) {
+            dprintf(fd, "Internal error.\n");
+            IAM_LOGE("failed to get active id");
+            return GENERAL_ERROR;
+        }
+        dprintf(fd, "Active user is %d\n", activeUserId.value());
+        auto userInfo = UserIdmDatabase::Instance().GetSecUserInfo(activeUserId.value());
+        if (userInfo != nullptr) {
+            auto enrolledInfo = userInfo->GetEnrolledInfo();
+            for (auto &info : enrolledInfo) {
+                if (info != nullptr) {
+                    dprintf(fd, "AuthType %s is enrolled.\n", AuthTypeToStr(info->GetAuthType()));
+                }
+            }
+        }
+        return SUCCESS;
+    }
+    IAM_LOGE("invalid option");
+    dprintf(fd, "Invalid option\n");
+    return FAIL;
 }
 } // namespace UserAuth
 } // namespace UserIam

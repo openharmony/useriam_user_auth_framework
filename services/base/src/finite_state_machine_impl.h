@@ -56,8 +56,8 @@ private:
     static constexpr uint32_t MAX_SCHEDULE_TIMES = 100;
     constexpr static inline uint64_t GetTransitionIndex(uint32_t state, uint32_t event)
     {
-        constexpr uint32_t UINT32_WIDTH_LEN = 32;
-        return (static_cast<uint64_t>(state) << UINT32_WIDTH_LEN) | event;
+        constexpr uint32_t uint32WidthLen = 32;
+        return (static_cast<uint64_t>(state) << uint32WidthLen) | event;
     }
     void ScheduleInner(FiniteStateMachine &machine);
     void DealWithStateLeaveAndEnter(FiniteStateMachine &machine, uint32_t oldState, uint32_t newState);

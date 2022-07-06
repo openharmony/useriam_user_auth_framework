@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef SYSTEM_ABILITY_STATUS_LISTENER
-#define SYSTEM_ABILITY_STATUS_LISTENER
+#ifndef DRIVER_MANAGER_STATUS_LISTENER
+#define DRIVER_MANAGER_STATUS_LISTENER
 
 #include <mutex>
 #include <set>
@@ -28,22 +28,19 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-class SystemAbilityStatusListener : public OHOS::SystemAbilityStatusChangeStub, public NoCopyable {
+class DriverManagerStatusListener : public OHOS::SystemAbilityStatusChangeStub, public NoCopyable {
 public:
-    static sptr<SystemAbilityStatusListener> GetInstance();
+    static sptr<DriverManagerStatusListener> GetInstance();
 
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
 
 private:
-    SystemAbilityStatusListener() = default;
-    ~SystemAbilityStatusListener() override = default;
-
-    static sptr<SystemAbilityStatusListener> instance_;
-    static std::mutex mutex_;
+    DriverManagerStatusListener() = default;
+    ~DriverManagerStatusListener() override = default;
 };
 } // namespace UserAuth
 } // namespace UserIAM
 } // namespace OHOS
 
-#endif // SYSTEM_ABILITY_STATUS_LISTENER
+#endif // DRIVER_MANAGER_STATUS_LISTENER

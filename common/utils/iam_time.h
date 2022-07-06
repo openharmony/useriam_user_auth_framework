@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,17 +13,17 @@
  * limitations under the License.
  */
 
-#ifndef QUERY_CALLBACK_H
-#define QUERY_CALLBACK_H
+#ifndef IAM_TIME_H
+#define IAM_TIME_H
+
+#include <string>
 
 namespace OHOS {
 namespace UserIAM {
-namespace AuthResPool {
-class QueryCallback {
-public:
-    virtual void OnResult(uint32_t resultCode) = 0;
-};
-} // namespace AuthResPool
+namespace Common {
+const std::string GetNowTimeString();
+} // namespace Common
 } // namespace UserIAM
 } // namespace OHOS
-#endif // QUERY_CALLBACK_H
+
+#endif // IAM_TIME_H

@@ -93,7 +93,7 @@ uint64_t CoAuthProxy::Register(std::shared_ptr<AuthResPool::AuthExecutor> execut
         return 0;
     }
     uint64_t result = 0;
-    bool ret = SendRequest(static_cast<int32_t>(ICoAuth::COAUTH_EXECUTOR_REGIST), data, reply);
+    bool ret = SendRequest(ICoAuth::COAUTH_EXECUTOR_REGIST, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
         return 0;
@@ -103,30 +103,6 @@ uint64_t CoAuthProxy::Register(std::shared_ptr<AuthResPool::AuthExecutor> execut
         return 0;
     }
     return result;
-}
-
-void CoAuthProxy::QueryStatus(AuthResPool::AuthExecutor &executorInfo,
-    const sptr<AuthResPool::IQueryCallback> &callback)
-{
-    MessageParcel data;
-    MessageParcel reply;
-
-    if (!data.WriteInterfaceToken(CoAuthProxy::GetDescriptor())) {
-        IAM_LOGE("write descriptor failed");
-        return;
-    }
-    if (WriteAuthExecutor(executorInfo, data) == FAIL) {
-        IAM_LOGE("write executorInfo failed");
-        return;
-    }
-
-    if (!data.WriteRemoteObject(callback->AsObject())) {
-        IAM_LOGE("write callback failed");
-        return;
-    }
-
-    bool ret = SendRequest(static_cast<int32_t>(ICoAuth::COAUTH_QUERY_STATUS), data, reply, false);
-    IAM_LOGD("ret = %{public}d", ret);
 }
 
 bool CoAuthProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, bool isSync)

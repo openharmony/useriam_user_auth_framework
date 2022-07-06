@@ -34,7 +34,7 @@ namespace UserAuth {
 ScheduleNodeImpl::ScheduleNodeImpl(ScheduleInfo &info) : info_(std::move(info))
 {
     machine_ = MakeFiniteStateMachine();
-    if (info_.threadHandler == nullptr) {
+    if (machine_ && info_.threadHandler == nullptr) {
         info_.threadHandler = ThreadHandler::GetSingleThreadInstance();
         machine_->SetThreadHandler(info_.threadHandler);
     }
@@ -118,6 +118,7 @@ ScheduleNode::State ScheduleNodeImpl::GetCurrentScheduleState() const
 
 bool ScheduleNodeImpl::StartSchedule()
 {
+    iamHitraceHelper_ = UserIAM::Common::MakeShared<IamHitraceHelper>(GetDescription());
     {
         std::lock_guard<std::mutex> lock(mutex_);
         if (!TryKickMachine(E_START_AUTH)) {
@@ -187,6 +188,7 @@ std::shared_ptr<FiniteStateMachine> ScheduleNodeImpl::MakeFiniteStateMachine()
         [this](FiniteStateMachine &machine, uint32_t event) { ProcessEndCollector(machine, event); });
     builder->MakeTransition(S_AUTH_PROCESSING, E_TIME_OUT, S_COLLECT_STOPPING,
         [this](FiniteStateMachine &machine, uint32_t event) { ProcessEndCollector(machine, event); });
+
     // S_COLLECT_STOPPING
     builder->MakeTransition(S_COLLECT_STOPPING, E_SCHEDULE_RESULT_RECEIVED, S_END);
     builder->MakeTransition(S_COLLECT_STOPPING, E_COLLECT_STOPPED_SUCCESS, S_VERIFY_STOPPING,
@@ -205,7 +207,6 @@ std::shared_ptr<FiniteStateMachine> ScheduleNodeImpl::MakeFiniteStateMachine()
     // ENTERS
     builder->MakeOnStateEnter(S_AUTH_PROCESSING,
         [this](FiniteStateMachine &machine, uint32_t event) { OnScheduleProcessing(machine, event); });
-
     builder->MakeOnStateEnter(S_END,
         [this](FiniteStateMachine &machine, uint32_t event) { OnScheduleFinished(machine, event); });
     return builder->Build();
@@ -216,7 +217,9 @@ std::string ScheduleNodeImpl::GetDescription() const
     std::stringstream stream;
     std::string name;
 
-    stream << "schedule:****" << std::hex << static_cast<uint16_t>(GetScheduleId());
+    auto verifier = info_.verifier.lock();
+    stream << "schedule type:" << (verifier ? AuthTypeToStr(verifier->GetAuthType()) : "nullptr") <<
+        " id:******" << std::hex << static_cast<uint16_t>(GetScheduleId());
     stream >> name;
     return name;
 }
@@ -367,8 +370,11 @@ void ScheduleNodeImpl::OnScheduleFinished(FiniteStateMachine &machine, uint32_t 
         return;
     }
 
+    iamHitraceHelper_ = nullptr;
+
     auto result = result_.value();
     info_.callback->OnScheduleStoped(result.first, result.second);
+    info_.callback = nullptr;
 }
 } // namespace UserAuth
 } // namespace UserIam

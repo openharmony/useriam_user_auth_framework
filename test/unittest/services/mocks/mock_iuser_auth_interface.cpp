@@ -29,6 +29,11 @@ std::shared_ptr<IUserAuthInterface> HdiWrapper::GetHdiInstance()
     return MockIUserAuthInterface::Holder::GetInstance().Get();
 }
 
+sptr<IRemoteObject> HdiWrapper::GetHdiRemoteObjInstance()
+{
+    return {};
+}
+
 std::shared_ptr<MockIUserAuthInterface> MockIUserAuthInterface::Holder::Get()
 {
     std::lock_guard<std::mutex> guard(mutex_);

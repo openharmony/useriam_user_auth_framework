@@ -16,6 +16,7 @@
 
 #include "hdi_wrapper.h"
 #include "iam_logger.h"
+#include "iam_hitrace_helper.h"
 #include "schedule_node_helper.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
@@ -60,6 +61,7 @@ bool IdentificationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
     }
 
     HdiScheduleInfo info;
+    IamHitraceHelper traceHelper("hdi BeginIdentification");
     auto result =
         hdi->BeginIdentification(contextId_, static_cast<HdiAuthType>(authType_), challenge_, executorIndex_, info);
     if (result != HDF_SUCCESS) {

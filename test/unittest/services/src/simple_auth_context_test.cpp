@@ -18,6 +18,8 @@
 #include "mock_authentication.h"
 #include "mock_context.h"
 #include "mock_schedule_node.h"
+#include "schedule_node_impl.h"
+#include "mock_resource_node.h"
 
 using namespace OHOS::UserIAM::Common;
 using namespace testing;
@@ -293,7 +295,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_001, Test
     ASSERT_NE(contextCallback, nullptr);
     EXPECT_CALL(*contextCallback, OnResult(_, _))
         .Times(Exactly(1))
-        .WillOnce([](int32_t resultCode, const std::shared_ptr<Attributes> &finalResult) {
+        .WillOnce([](int32_t resultCode, Attributes &finalResult) {
             EXPECT_EQ(resultCode, testResultCode);
         });
 
@@ -316,7 +318,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_002, Test
     ASSERT_NE(contextCallback, nullptr);
     EXPECT_CALL(*contextCallback, OnResult(_, _))
         .Times(Exactly(1))
-        .WillOnce([](int32_t resultCode, const std::shared_ptr<Attributes> &finalResult) {
+        .WillOnce([](int32_t resultCode, Attributes &finalResult) {
             EXPECT_EQ(resultCode, ResultCode::GENERAL_ERROR);
         });
 
@@ -339,7 +341,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_003, Test
     ASSERT_NE(contextCallback, nullptr);
     EXPECT_CALL(*contextCallback, OnResult(_, _))
         .Times(Exactly(1))
-        .WillOnce([](int32_t resultCode, const std::shared_ptr<Attributes> &finalResult) {
+        .WillOnce([](int32_t resultCode, Attributes &finalResult) {
             EXPECT_EQ(resultCode, ResultCode::GENERAL_ERROR);
         });
 
@@ -369,7 +371,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_004, Test
     ASSERT_NE(contextCallback, nullptr);
     EXPECT_CALL(*contextCallback, OnResult(_, _))
         .Times(Exactly(1))
-        .WillOnce([](int32_t resultCode, const std::shared_ptr<Attributes> &finalResult) {
+        .WillOnce([](int32_t resultCode, Attributes &finalResult) {
             EXPECT_EQ(resultCode, ResultCode::GENERAL_ERROR);
         });
 
@@ -408,19 +410,19 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_005, Test
     std::shared_ptr<MockContextCallback> contextCallback = MakeShared<MockContextCallback>();
     ASSERT_NE(contextCallback, nullptr);
     EXPECT_CALL(*contextCallback, OnResult(_, _)).Times(Exactly(1))
-        .WillOnce([](int32_t resultCode, const std::shared_ptr<Attributes> &finalResult) {
+        .WillOnce([](int32_t resultCode, Attributes &finalResult) {
             EXPECT_EQ(resultCode, testResultCode);
             uint32_t attrResultCode;
             int32_t freezingTime;
             int32_t remainTimes;
             vector<uint8_t> signature;
-            bool ret = finalResult->GetUint32Value(Attributes::ATTR_RESULT_CODE, attrResultCode);
+            bool ret = finalResult.GetUint32Value(Attributes::ATTR_RESULT_CODE, attrResultCode);
             EXPECT_EQ(ret, true);
-            ret = finalResult->GetInt32Value(Attributes::ATTR_FREEZING_TIME, freezingTime);
+            ret = finalResult.GetInt32Value(Attributes::ATTR_FREEZING_TIME, freezingTime);
             EXPECT_EQ(ret, true);
-            ret = finalResult->GetInt32Value(Attributes::ATTR_REMAIN_TIMES, remainTimes);
+            ret = finalResult.GetInt32Value(Attributes::ATTR_REMAIN_TIMES, remainTimes);
             EXPECT_EQ(ret, true);
-            ret = finalResult->GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, signature);
+            ret = finalResult.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, signature);
             EXPECT_EQ(ret, true);
 
             EXPECT_EQ(resultCode, testResultCode);
@@ -438,6 +440,44 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_005, Test
     bool ret = result->SetUint8ArrayValue(Attributes::ATTR_RESULT, testScheduleResult);
     ASSERT_EQ(ret, true);
     nodeCallback->OnScheduleStoped(testResultCode, result);
+}
+
+HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_ContextFree, TestSize.Level1)
+{
+    static const uint64_t testContestId = 2;
+
+    std::shared_ptr<MockAuthentication> mockAuth = MakeShared<MockAuthentication>();
+    ASSERT_NE(mockAuth, nullptr);
+    EXPECT_CALL(*mockAuth, Start(_, _))
+        .Times(Exactly(1))
+        .WillOnce([](std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
+                      std::shared_ptr<ScheduleNodeCallback> callback) {
+            EXPECT_EQ(scheduleList.size(), 0U);
+            auto faceAllInOne = MockResourceNode::CreateWithExecuteIndex(1, FACE, ALL_IN_ONE);
+            auto builder = ScheduleNode::Builder::New(faceAllInOne, faceAllInOne);
+            builder->SetScheduleCallback(callback);
+            auto scheduleNode = builder->Build();
+            EXPECT_NE(scheduleNode, nullptr);
+            scheduleList.push_back(scheduleNode);
+            return true;
+        });
+    std::shared_ptr<MockContextCallback> contextCallback = MakeShared<MockContextCallback>();
+    ASSERT_NE(contextCallback, nullptr);
+    EXPECT_CALL(*contextCallback, OnResult(_, _)).Times(Exactly(1))
+        .WillOnce([](int32_t resultCode, Attributes &finalResult) {
+            EXPECT_EQ(resultCode, ResultCode::BUSY);
+        });
+
+    std::weak_ptr<Context> weakContext;
+    {
+        std::shared_ptr<Context> context =
+            MakeShared<SimpleAuthContext>(testContestId, mockAuth, contextCallback);
+        ASSERT_NE(context, nullptr);
+        weakContext = context;
+        context->Start();
+        usleep(1000);
+    }
+    ASSERT_EQ(weakContext.lock(), nullptr);
 }
 } // namespace UserAuth
 } // namespace UserIam

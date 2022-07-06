@@ -20,6 +20,7 @@
 
 #include "nocopyable.h"
 
+#include "iam_defines.h"
 #include "co_auth_defines.h"
 #include "executor.h"
 #include "iexecutor_messenger.h"
@@ -42,6 +43,7 @@ public:
     void OnResult(ResultCode result) override;
     void OnResult(ResultCode result, const std::vector<uint8_t> &extraInfo) override;
     void OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo) override;
+    int32_t GetAuthType();
 
 protected:
     static uint32_t GenerateCommandId();

@@ -81,7 +81,7 @@ public:
     virtual std::shared_ptr<Builder> SetScheduleId(uint64_t scheduleId) = 0;
     virtual std::shared_ptr<Builder> SetCallingUid(uint64_t uid) = 0;
     virtual std::shared_ptr<Builder> SetPinSubType(PinSubType pinSubType) = 0;
-    virtual std::shared_ptr<Builder> SetTemplateIdList(std::vector<uint64_t> templateIdList) = 0;
+    virtual std::shared_ptr<Builder> SetTemplateIdList(const std::vector<uint64_t> &templateIdList) = 0;
     virtual std::shared_ptr<Builder> SetAuthType(AuthType authType) = 0;
     virtual std::shared_ptr<Builder> SetExecutorMatcher(uint32_t executorMatcher) = 0;
     virtual std::shared_ptr<Builder> SetScheduleMode(ScheduleMode scheduleMode) = 0;
