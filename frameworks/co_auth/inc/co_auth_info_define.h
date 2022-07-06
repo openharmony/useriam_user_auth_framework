@@ -45,8 +45,8 @@ enum ExecutorType {
     /* Type of executor all in one */
     TYPE_ALL_IN_ONE = 3
 };
-}
-} // namespace UserIAM
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS
 namespace OHOS {
 namespace UserIAM {
