@@ -32,9 +32,9 @@ const std::string GetNowTimeString()
     struct tm curr;
     char timeStr[BUFFSIZE + 1] = {0};
     localtime_r(&tt, &curr);
-    int error = snprintf_s(timeStr, sizeof(timeStr), DATALEN, "%04d-%02d-%02d %02d:%02d:%02d",
+    int32_t len = snprintf_s(timeStr, sizeof(timeStr), DATALEN, "%04d-%02d-%02d %02d:%02d:%02d",
         curr.tm_year + TMYEAR, curr.tm_mon + 1, curr.tm_mday, curr.tm_hour, curr.tm_min, curr.tm_sec);
-    if (error != EOK) {
+    if (len < 0) {
         return std::string();
     }
     return std::string(timeStr);
