@@ -26,7 +26,9 @@
 #include "iam_mem.h"
 #include "iam_para2str.h"
 #include "iam_ptr.h"
+#include "iam_defines.h"
 #include "iam_hitrace_helper.h"
+#include "hisysevent_adapter.h"
 #include "identify_command.h"
 
 #define LOG_LABEL Common::LABEL_USER_AUTH_EXECUTOR
@@ -215,7 +217,12 @@ ResultCode FrameworkExecutorCallback::ProcessDeleteTemplateCommand(
 
     templateIdList.push_back(templateId);
     UserIam::UserAuth::IamHitraceHelper traceHelper("hdi Delete");
-    return hdi->Delete(templateIdList);
+    ResultCode ret = hdi->Delete(templateIdList);
+    if (ret == ResultCode::SUCCESS) {
+        ReportTemplateChange(executor->GetAuthType(), UserIam::UserAuth::TRACE_DELETE_CREDENTIAL,
+            "User Operation");
+    }
+    return ret;
 }
 
 ResultCode FrameworkExecutorCallback::ProcessCustomCommand(std::shared_ptr<UserIam::UserAuth::Attributes> properties)

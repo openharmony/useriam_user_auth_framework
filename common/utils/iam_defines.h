@@ -13,23 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef IAM_RESOURCE_NODE_UTILS_H
-#define IAM_RESOURCE_NODE_UTILS_H
-
-#include <cstdint>
-#include <memory>
-
-#include "credential_info.h"
-
+#ifndef IAM_DEFINES_H
+#define IAM_DEFINES_H
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class ResourceNodeUtils {
-public:
-    static int32_t NotifyExecutorToDeleteTemplates(const std::vector<std::shared_ptr<CredentialInfo>> &infos);
-    static void SendMsgToExecutor(uint64_t executorIndex, const std::vector<uint8_t> &msg);
+const int32_t INVALID_AUTH_TYPE = -1;
+
+enum OperationType : uint32_t {
+    TRACE_ADD_CREDENTIAL = 0,
+    TRACE_DELETE_CREDENTIAL = 1,
+    TRACE_DELETE_USER = 2,
+    TRACE_ENFORCE_DELETE_USER = 3,
+    TRACE_UPDATE_CREDENTIAL = 4,
+    TRACE_AUTH_USER = 5,
+    TRACE_IDENTIFY = 6,
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // IAM_RESOURCE_NODE_UTILS_H
+#endif // IAM_DEFINES_H

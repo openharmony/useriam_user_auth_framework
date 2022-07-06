@@ -22,9 +22,11 @@
 
 #include "executor_messenger_service.h"
 #include "hdi_wrapper.h"
+#include "hisysevent_adapter.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
 #include "ipc_common.h"
+#include "iam_time.h"
 #include "parameter.h"
 #include "relative_timer.h"
 #include "resource_node_pool.h"
@@ -79,13 +81,16 @@ uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<
     sptr<ExecutorMessenger> messenger = ExecutorMessengerService::GetInstance();
     executorCallback->OnMessengerReady(messenger, fwkPublicKey, templateIdList);
     uint64_t executorIndex = resourceNode->GetExecutorIndex();
+    uint32_t executorType = static_cast<uint32_t>(resourceNode->GetAuthType());
     IAM_LOGI("register successful, executorType is %{public}u, executorIndex is ****%{public}hx",
-        static_cast<uint32_t>(resourceNode->GetAuthType()), static_cast<uint16_t>(executorIndex));
+        executorType, static_cast<uint16_t>(executorIndex));
     if (auto obj = executorCallback->AsObject(); obj) {
-        obj->AddDeathRecipient(new (std::nothrow) IpcCommon::PeerDeathRecipient([executorIndex]() {
+        obj->AddDeathRecipient(new (std::nothrow) IpcCommon::PeerDeathRecipient([executorIndex, executorType]() {
             auto result = ResourceNodePool::Instance().Delete(executorIndex);
             IAM_LOGI("delete executor %{public}s, executorIndex is ****%{public}hx", (result ? "succ" : "failed"),
                 static_cast<uint16_t>(executorIndex));
+            std::string executorDesc = "executor, type " + std::to_string(executorType);
+            UserIAM::UserAuth::ReportSystemFault(UserIAM::Common::GetNowTimeString(), executorDesc);
         }));
     }
     return executorIndex;
@@ -99,6 +104,7 @@ void CoAuthService::Init()
             ResourceNodePool::Instance().DeleteAll();
             RelativeTimer::GetInstance().Register(Init, DEFER_TIME);
             IAM_LOGI("delete all executors for hdi dead");
+            UserIAM::UserAuth::ReportSystemFault(UserIAM::Common::GetNowTimeString(), "user_auth_hdi host");
         }));
         IAM_LOGI("set fwk ready parameter");
         SetParameter("bootevent.useriam.fwkready", "true");
