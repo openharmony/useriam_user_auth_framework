@@ -32,7 +32,7 @@ const std::string GetNowTimeString()
     struct tm curr;
     char timeStr[buffSize + 1] = {0};
     localtime_r(&tt, &curr);
-    int32_t len = snprintf_s(timeStr, sizeof(timeStr), dataLen, "%04d-%02d-%02d %02d:%02d:%02d",
+    int32_t len = snprintf_s(timeStr, sizeof(timeStr), dataLen, "%04u-%02d-%02d %02d:%02d:%02d",
         curr.tm_year + startYear, curr.tm_mon + 1, curr.tm_mday, curr.tm_hour, curr.tm_min, curr.tm_sec);
     if (len < 0) {
         return std::string();

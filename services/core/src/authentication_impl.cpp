@@ -113,7 +113,7 @@ bool AuthenticationImpl::Update(const std::vector<uint8_t> &scheduleResult, Auth
         ResourceNodeUtils::SendMsgToExecutor(executorIndex, msg);
     }
 
-    resultInfo.result = info.result;
+    resultInfo.result = static_cast<decltype(resultInfo.result)>(info.result);
     resultInfo.freezingTime = info.freezingTime;
     resultInfo.remainTimes = info.remainTimes;
     resultInfo.token = info.token;
