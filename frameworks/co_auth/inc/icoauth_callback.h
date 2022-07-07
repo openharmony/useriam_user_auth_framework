@@ -22,8 +22,8 @@
 #include <iremote_object.h>
 
 namespace OHOS {
-namespace UserIAM {
-namespace CoAuth {
+namespace UserIam {
+namespace UserAuth {
 class ICoAuthCallback : public IRemoteBroker {
 public:
 
@@ -37,7 +37,14 @@ public:
 
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.CoAuth.ICoAuthCallback");
 };
-} // namespace CoAuth
-} // namespace UserIAM
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace CoAuth {
+using ICoAuthCallback = OHOS::UserIam::UserAuth::ICoAuthCallback;
+}
+}
+}
 #endif // ICOAUTH_CALLBACK_H

@@ -21,7 +21,7 @@
 #include "common_info.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 struct CredentialInfo {
     uint64_t credentialId;
@@ -51,8 +51,29 @@ struct  RequestResult {
     uint64_t credentialId;
     std::vector<uint8_t> rootSecret;
 };
-}  // namespace UserAuth
-}  // namespace UserIAM
-}  // namespace OHOS
-
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace UserAuth {
+using CredentialInfo = OHOS::UserIam::UserAuth::CredentialInfo;
+using EnrolledInfo = OHOS::UserIam::UserAuth::EnrolledInfo;
+using SecInfo = OHOS::UserIam::UserAuth::SecInfo;
+using AddCredInfo = OHOS::UserIam::UserAuth::AddCredInfo;
+using RequestResult = OHOS::UserIam::UserAuth::RequestResult;
+}
+}
+}
+namespace OHOS {
+namespace UserIAM {
+namespace UserIDM {
+using CredentialInfo = OHOS::UserIam::UserAuth::CredentialInfo;
+using EnrolledInfo = OHOS::UserIam::UserAuth::EnrolledInfo;
+using SecInfo = OHOS::UserIam::UserAuth::SecInfo;
+using AddCredInfo = OHOS::UserIam::UserAuth::AddCredInfo;
+using RequestResult = OHOS::UserIam::UserAuth::RequestResult;
+}
+}
+}
 #endif // USER_IDM_DEFINES_H

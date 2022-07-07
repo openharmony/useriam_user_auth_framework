@@ -20,8 +20,8 @@
 #include "useridm_info.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace UserIDM {
+namespace UserIam {
+namespace UserAuth {
 class IGetInfoCallback : public IRemoteBroker {
 public:
     /*
@@ -70,8 +70,16 @@ public:
 
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.useridm.IIDMCallback");
 };
-}  // namespace UserIDM
-}  // namespace UserIAM
-}  // namespace OHOS
-
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace UserIDM {
+using IGetInfoCallback = OHOS::UserIam::UserAuth::IGetInfoCallback;
+using IGetSecInfoCallback = OHOS::UserIam::UserAuth::IGetInfoCallback;
+using IIDMCallback = OHOS::UserIam::UserAuth::IGetInfoCallback;
+}
+}
+}
 #endif // IUSERIDM_CALLBACK_H

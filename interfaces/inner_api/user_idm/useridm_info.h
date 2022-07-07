@@ -18,74 +18,21 @@
 
 #include <vector>
 #include <cstdint>
+#include "common_info.h"
+#include "user_idm_callback.h"
+#include "user_idm_defines.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace UserIDM {
+namespace UserIam {
+namespace UserAuth {
 enum CoAuthType {
     ADD_PIN_CRED = 0,
     MODIFY_CRED,
     ADD_FACE_CRED,
 };
 
-enum AuthType {
-    /**
-     * Authentication type all.
-     */
-    ALL = 0,
-    /**
-     * Authentication type pin.
-     */
-    PIN = 1,
-    /**
-     * Authentication type face.
-     */
-    FACE = 2,
-};
-
-enum AuthSubType {
-    /**
-     * Authentication sub type six number pin.
-     */
-    PIN_SIX = 10000,
-    /**
-     * Authentication sub type self defined number pin.
-     */
-    PIN_NUMBER = 10001,
-    /**
-     * Authentication sub type mixed pin.
-     */
-    PIN_MIXED = 10002,
-    /**
-     * Authentication sub type 2D face.
-     */
-    FACE_2D = 20000,
-    /**
-     * Authentication sub type 3D face.
-     */
-    FACE_3D = 20001,
-};
-
 enum IDMResultCode {
-    SUCCESS = 0,
-    FAIL = 1,
-    GENERAL_ERROR = 2,
-    CANCELED = 3,
-    TIMEOUT = 4,
-    TYPE_NOT_SUPPORT = 5,
-    TRUST_LEVEL_NOT_SUPPORT = 6,
-    BUSY = 7,
-    INVALID_PARAMETERS = 8,
-    LOCKED = 9,
-    NOT_ENROLLED = 10,
     CHECK_PERMISSION_FAILED = 11,
-};
-
-struct CredentialInfo {
-    uint64_t credentialId;
-    AuthType authType;
-    AuthSubType authSubType;
-    uint64_t templateId;
 };
 
 struct EnrolledCredInfo {
@@ -94,30 +41,16 @@ struct EnrolledCredInfo {
     AuthSubType authSubType;
     uint64_t templateId;
 };
-
-struct EnrolledInfo {
-    AuthType authType;
-    uint64_t enrolledId;
-};
-
-struct SecInfo {
-    uint64_t secureUid;
-    uint32_t enrolledInfoLen;
-    std::vector<EnrolledInfo> enrolledInfo;
-};
-
-struct AddCredInfo {
-    AuthType authType;
-    AuthSubType authSubType;
-    std::vector<uint8_t> token;
-};
-
-struct  RequestResult {
-    uint64_t credentialId {0};
-    std::vector<uint8_t> rootSecret;
-};
-}  // namespace UserIDM
-}  // namespace UserIAM
-}  // namespace OHOS
-
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace UserIDM {
+using CoAuthType = OHOS::UserIam::UserAuth::CoAuthType;
+using IDMResultCode = OHOS::UserIam::UserAuth::IDMResultCode;
+using EnrolledCredInfo = OHOS::UserIam::UserAuth::EnrolledCredInfo;
+}
+}
+}
 #endif // USERIDM_INFO_H

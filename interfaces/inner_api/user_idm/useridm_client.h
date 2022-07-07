@@ -22,8 +22,8 @@
 #include "useridm_callback.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace UserIDM {
+namespace UserIam {
+namespace UserAuth {
 class UserIDMClient : public Singleton<UserIDMClient> {
 public:
     /**
@@ -57,8 +57,14 @@ private:
     sptr<IUserIDM> proxy_ {nullptr};
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
 };
-}  // namespace UserIDM
-}  // namespace UserIAM
-}  // namespace OHOS
-
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace UserIDM {
+using UserIDMClient = OHOS::UserIam::UserAuth::UserIDMClient;
+}
+}
+}
 #endif // USERIDM_CLIENT_H

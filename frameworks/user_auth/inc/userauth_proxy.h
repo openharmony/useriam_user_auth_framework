@@ -21,7 +21,7 @@
 #include "iuser_auth.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class UserAuthProxy : public IRemoteProxy<IUserAuth> {
 public:
@@ -49,6 +49,13 @@ private:
     static inline BrokerDelegator<UserAuthProxy> delegator_;
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace UserAuth {
+using UserAuthProxy = OHOS::UserIam::UserAuth::UserAuthProxy;
+}
+}
+}
 #endif // USERAUTH_PROXY_H

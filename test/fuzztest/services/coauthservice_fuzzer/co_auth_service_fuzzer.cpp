@@ -21,7 +21,6 @@
 #include "executor_callback.h"
 #include "iam_fuzz_test.h"
 #include "iam_logger.h"
-#include "iexecutor_messenger.h"
 
 #define LOG_LABEL OHOS::UserIAM::Common::LABEL_USER_AUTH_SA
 

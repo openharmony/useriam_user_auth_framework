@@ -21,8 +21,8 @@
 #include "iexecutor_messenger.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace AuthResPool {
+namespace UserIam {
+namespace UserAuth {
 class ExecutorMessengerProxy : public IRemoteProxy<IExecutorMessenger> {
 public:
     explicit ExecutorMessengerProxy(const sptr<IRemoteObject>& impl)
@@ -38,8 +38,14 @@ private:
     bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply);
     static inline BrokerDelegator<ExecutorMessengerProxy> delegator_;
 };
-} // namespace AuthResPool
-} // namespace UserIAM
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS
-
+namespace OHOS {
+namespace UserIAM {
+namespace AuthResPool {
+using ExecutorMessengerProxy = OHOS::UserIam::UserAuth::ExecutorMessengerProxy;
+}
+}
+}
 #endif  // EXECUTOR_MESSENGER_PROXY_H

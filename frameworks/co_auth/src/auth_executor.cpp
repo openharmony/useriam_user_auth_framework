@@ -16,8 +16,8 @@
 #include "auth_executor.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace AuthResPool {
+namespace UserIam {
+namespace UserAuth {
 AuthExecutor::AuthExecutor()
     : authTypeValue_(PIN),
       authAbilityValue_(0),
@@ -103,6 +103,6 @@ int32_t AuthExecutor::SetDeviceId(const std::vector<uint8_t> &value)
     deviceIdValue_ = value;
     return 0;
 }
-}  // namespace ohos
-}  // namespace userIAM
-}  // namespace authResPool
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS

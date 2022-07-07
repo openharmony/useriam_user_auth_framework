@@ -20,24 +20,22 @@
 #include "iam_logger.h"
 #include "iam_ptr.h"
 
-#define LOG_LABEL Common::LABEL_USER_IDM_SDK
+#define LOG_LABEL UserIAM::Common::LABEL_USER_IDM_SDK
 
 namespace OHOS {
-namespace UserIAM {
-namespace UserIDM {
-namespace UserAuthDomain = OHOS::UserIAM::UserAuth;
-
+namespace UserIam {
+namespace UserAuth {
 UserIDMCallbackStub::UserIDMCallbackStub(const std::shared_ptr<IDMCallback> &impl)
     : callback_(impl),
       idmCallback_(nullptr),
-      iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("IDM InnerKit"))
+      iamHitraceHelper_(UserIAM::Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("IDM InnerKit"))
 {
 }
 
-UserIDMCallbackStub::UserIDMCallbackStub(const std::shared_ptr<UserAuthDomain::IdmCallback> &impl)
+UserIDMCallbackStub::UserIDMCallbackStub(const std::shared_ptr<IdmCallback> &impl)
     : callback_(nullptr),
       idmCallback_(impl),
-      iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("IDM InnerKit"))
+      iamHitraceHelper_(UserIAM::Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("IDM InnerKit"))
 {
 }
 
@@ -97,7 +95,7 @@ void UserIDMCallbackStub::OnResult(int32_t result, RequestResult reqRet)
         return;
     }
     if (idmCallback_ != nullptr) {
-        UserAuthDomain::RequestResult para = {};
+        RequestResult para = {};
         para.credentialId = reqRet.credentialId;
         idmCallback_->OnResult(result, para);
         return;
@@ -113,13 +111,13 @@ void UserIDMCallbackStub::OnAcquireInfo(int32_t module, int32_t acquire, Request
         return;
     }
     if (idmCallback_ != nullptr) {
-        UserAuthDomain::RequestResult para = {};
+        RequestResult para = {};
         para.credentialId = reqRet.credentialId;
         idmCallback_->OnAcquireInfo(module, acquire, para);
         return;
     }
     IAM_LOGE("callback_ is nullptr and idmCallback_ is nullptr");
 }
-}  // namespace UserIDM
-}  // namespace UserIAM
-}  // namespace OHOS
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS

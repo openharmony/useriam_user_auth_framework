@@ -23,10 +23,10 @@
 #include "system_ability_definition.h"
 #include "user_auth_native.h"
 
-#define LOG_LABEL Common::LABEL_USER_AUTH_SDK
+#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SDK
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 void UserAuth::GetProperty(const int32_t userId, const GetPropertyRequest &request,
     std::shared_ptr<GetPropCallback> callback)
@@ -87,5 +87,5 @@ int32_t UserAuth::CancelIdentify(const uint64_t contextId)
     return UserAuthNative::GetInstance().CancelIdentify(contextId);
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
