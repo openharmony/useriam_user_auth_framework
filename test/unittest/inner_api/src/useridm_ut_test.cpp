@@ -29,6 +29,7 @@ using namespace testing::ext;
 namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {
+using namespace OHOS::UserIam::UserAuth;
 class UserIDMUtTest : public testing::Test {
 public:
     static void SetUpTestCase(void);

@@ -25,10 +25,10 @@
 #include "iam_logger.h"
 #include "system_ability_definition.h"
 
-#define LOG_LABEL Common::LABEL_USER_AUTH_SDK
+#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SDK
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 sptr<IUserAuth> UserAuthNative::GetProxy()
 {
@@ -257,5 +257,5 @@ int32_t UserAuthNative::GetVersion()
     return proxy->GetVersion();
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

@@ -21,11 +21,11 @@
 #include "iam_ptr.h"
 #include "message_parcel.h"
 
-#define LOG_LABEL Common::LABEL_AUTH_EXECUTOR_MGR_SDK
+#define LOG_LABEL UserIAM::Common::LABEL_AUTH_EXECUTOR_MGR_SDK
 
 namespace OHOS {
-namespace UserIAM {
-namespace AuthResPool {
+namespace UserIam {
+namespace UserAuth {
 const std::string PERMISSION_AUTH_RESPOOL = "ohos.permission.ACCESS_AUTH_RESPOOL";
 const std::string PERMISSION_ACCESS_COAUTH = "ohos.permission.ACCESS_COAUTH";
 
@@ -84,7 +84,7 @@ int32_t ExecutorCallbackStub::OnBeginExecuteStub(MessageParcel &data, MessagePar
     std::vector<uint8_t> publicKey, buffer;
     data.ReadUInt8Vector(&publicKey);
     data.ReadUInt8Vector(&buffer);
-    auto commandAttrs = Common::MakeShared<UserIam::UserAuth::Attributes>(buffer);
+    auto commandAttrs = UserIAM::Common::MakeShared<UserIam::UserAuth::Attributes>(buffer);
     IF_FALSE_LOGE_AND_RETURN_VAL(commandAttrs != nullptr, FAIL);
     int32_t ret = OnBeginExecute(scheduleId, publicKey, commandAttrs);
     if (!reply.WriteInt32(ret)) {
@@ -99,7 +99,7 @@ int32_t ExecutorCallbackStub::OnEndExecuteStub(MessageParcel &data, MessageParce
     uint64_t scheduleId = data.ReadUint64();
     std::vector<uint8_t> buffer;
     data.ReadUInt8Vector(&buffer);
-    auto consumerAttr = Common::MakeShared<UserIam::UserAuth::Attributes>(buffer);
+    auto consumerAttr = UserIAM::Common::MakeShared<UserIam::UserAuth::Attributes>(buffer);
     IF_FALSE_LOGE_AND_RETURN_VAL(consumerAttr != nullptr, FAIL);
     int32_t ret = OnEndExecute(scheduleId, consumerAttr);
     if (!reply.WriteInt32(ret)) {
@@ -113,9 +113,9 @@ int32_t ExecutorCallbackStub::OnGetPropertyStub(MessageParcel &data, MessageParc
 {
     std::vector<uint8_t> buffer;
     data.ReadUInt8Vector(&buffer);
-    auto conditions = Common::MakeShared<UserIam::UserAuth::Attributes>(buffer);
+    auto conditions = UserIAM::Common::MakeShared<UserIam::UserAuth::Attributes>(buffer);
     IF_FALSE_LOGE_AND_RETURN_VAL(conditions != nullptr, FAIL);
-    auto values = Common::MakeShared<UserIam::UserAuth::Attributes>();
+    auto values = UserIAM::Common::MakeShared<UserIam::UserAuth::Attributes>();
     IF_FALSE_LOGE_AND_RETURN_VAL(values != nullptr, FAIL);
     int32_t ret = OnGetProperty(conditions, values);
     if (!reply.WriteInt32(ret)) {
@@ -135,7 +135,7 @@ int32_t ExecutorCallbackStub::OnSetPropertyStub(MessageParcel &data, MessageParc
 {
     std::vector<uint8_t> buffer;
     data.ReadUInt8Vector(&buffer);
-    auto properties = Common::MakeShared<UserIam::UserAuth::Attributes>(buffer);
+    auto properties = UserIAM::Common::MakeShared<UserIam::UserAuth::Attributes>(buffer);
     IF_FALSE_LOGE_AND_RETURN_VAL(properties != nullptr, FAIL);
     int32_t ret = OnSetProperty(properties);
     if (!reply.WriteInt32(ret)) {
@@ -200,6 +200,6 @@ int32_t ExecutorCallbackStub::OnGetProperty(std::shared_ptr<UserIam::UserAuth::A
     }
     return ret;
 }
-} // namespace AuthResPool
-} // namespace UserIAM
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS

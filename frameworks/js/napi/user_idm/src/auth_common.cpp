@@ -28,6 +28,7 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {
+using namespace OHOS::UserIam::UserAuth;
 void AuthCommon::SaveCallback(napi_env env, size_t argc, napi_value* argv,
     AsyncCallbackContext* asyncCallbackContext)
 {

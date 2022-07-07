@@ -25,7 +25,7 @@
 #include "userauth_callback.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class UserAuthAsyncStub : public IRemoteStub<IUserAuthCallback> {
 public:
@@ -55,8 +55,15 @@ private:
     std::shared_ptr<GetPropCallback> getPropCallback_ {nullptr};
     std::shared_ptr<UserIam::UserAuth::IamHitraceHelper> iamHitraceHelper_;
 };
-}  // namespace UserAuth
-}  // namespace UserIAM
-}  // namespace OHOS
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace UserAuth {
+using UserAuthAsyncStub = OHOS::UserIam::UserAuth::UserAuthAsyncStub;
+}
+}
+}
 
 #endif // USERAUTH_ASYNC_STUB_H

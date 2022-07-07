@@ -24,8 +24,8 @@
 #include "auth_executor.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace CoAuth {
+namespace UserIam {
+namespace UserAuth {
 class ICoAuth : public IRemoteBroker {
 public:
     /* Message ID */
@@ -34,12 +34,19 @@ public:
     };
 
     /* Business function */
-    virtual uint64_t Register(std::shared_ptr<AuthResPool::AuthExecutor> executorInfo,
-        const sptr<AuthResPool::IExecutorCallback> &callback) = 0;
+    virtual uint64_t Register(std::shared_ptr<AuthExecutor> executorInfo,
+        const sptr<IExecutorCallback> &callback) = 0;
 
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.CoAuth.ICoAuth");
 };
-} // namespace CoAuth
-} // namespace UserIAM
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace CoAuth {
+using ICoAuth = OHOS::UserIam::UserAuth::ICoAuth;
+}
+}
+}
 #endif // I_COAUTH_H

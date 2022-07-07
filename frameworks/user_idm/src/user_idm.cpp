@@ -27,14 +27,12 @@
 #include "useridm_getsecinfo_callback_stub.h"
 #include "useridm_info.h"
 
-#define LOG_LABEL Common::LABEL_USER_IDM_SDK
+#define LOG_LABEL UserIAM::Common::LABEL_USER_IDM_SDK
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
-namespace UserIdmDomain = OHOS::UserIAM::UserIDM;
-
-sptr<UserIdmDomain::IUserIDM> UserIdm::GetIdmProxy()
+sptr<IUserIDM> UserIdm::GetIdmProxy()
 {
     IAM_LOGD("GetIdmProxy start");
     std::lock_guard<std::mutex> lock(mutex_);
@@ -57,7 +55,7 @@ sptr<UserIdmDomain::IUserIDM> UserIdm::GetIdmProxy()
         IAM_LOGE("Failed to add death recipient");
         return nullptr;
     }
-    proxy_ = iface_cast<UserIdmDomain::IUserIDM>(obj);
+    proxy_ = iface_cast<IUserIDM>(obj);
     deathRecipient_ = dr;
     IAM_LOGD("Succeed to connect manager service");
     return proxy_;
@@ -127,11 +125,11 @@ void UserIdm::AddCredential(const int32_t userId, const AddCredInfo& credInfo,
         callback->OnResult(E_RET_NOSERVER, para);
         return;
     }
-    UserIdmDomain::AddCredInfo info = {};
-    info.authType = static_cast<UserIdmDomain::AuthType>(credInfo.authType);
-    info.authSubType = static_cast<UserIdmDomain::AuthSubType>(credInfo.authSubType);
+    AddCredInfo info = {};
+    info.authType = static_cast<AuthType>(credInfo.authType);
+    info.authSubType = static_cast<AuthSubType>(credInfo.authSubType);
     info.token = credInfo.token;
-    sptr<UserIdmDomain::IIDMCallback> callbackStub = new (std::nothrow) UserIdmDomain::UserIDMCallbackStub(callback);
+    sptr<IIDMCallback> callbackStub = new (std::nothrow) UserIDMCallbackStub(callback);
     if (callbackStub == nullptr) {
         IAM_LOGE("AddCredential callbackStub is nullptr");
         RequestResult para = {};
@@ -156,11 +154,11 @@ void UserIdm::UpdateCredential(const int32_t userId, const AddCredInfo& credInfo
         callback->OnResult(E_RET_NOSERVER, para);
         return;
     }
-    UserIdmDomain::AddCredInfo info = {};
-    info.authType = static_cast<UserIdmDomain::AuthType>(credInfo.authType);
-    info.authSubType = static_cast<UserIdmDomain::AuthSubType>(credInfo.authSubType);
+    AddCredInfo info = {};
+    info.authType = static_cast<AuthType>(credInfo.authType);
+    info.authSubType = static_cast<AuthSubType>(credInfo.authSubType);
     info.token = credInfo.token;
-    sptr<UserIdmDomain::IIDMCallback> callbackStub = new (std::nothrow) UserIdmDomain::UserIDMCallbackStub(callback);
+    sptr<IIDMCallback> callbackStub = new (std::nothrow) UserIDMCallbackStub(callback);
     if (callbackStub == nullptr) {
         IAM_LOGE("UpdateCredential callbackStub is nullptr");
         RequestResult para = {};
@@ -197,7 +195,7 @@ void UserIdm::DelUser(const int32_t userId, const std::vector<uint8_t> authToken
         callback->OnResult(E_RET_NOSERVER, para);
         return;
     }
-    sptr<UserIdmDomain::IIDMCallback> callbackStub = new (std::nothrow) UserIdmDomain::UserIDMCallbackStub(callback);
+    sptr<IIDMCallback> callbackStub = new (std::nothrow) UserIDMCallbackStub(callback);
     if (callbackStub == nullptr) {
         IAM_LOGE("DelUser callbackStub is nullptr");
         RequestResult para = {};
@@ -222,7 +220,7 @@ void UserIdm::DelCredential(const int32_t userId, const uint64_t credentialId,
         callback->OnResult(E_RET_NOSERVER, para);
         return;
     }
-    sptr<UserIdmDomain::IIDMCallback> callbackStub = new (std::nothrow) UserIdmDomain::UserIDMCallbackStub(callback);
+    sptr<IIDMCallback> callbackStub = new (std::nothrow) UserIDMCallbackStub(callback);
     if (callbackStub == nullptr) {
         IAM_LOGE("DelCredential callbackStub is nullptr");
         RequestResult para = {};
@@ -246,9 +244,9 @@ int32_t UserIdm::GetAuthInfo(int32_t userId, AuthType authType, const std::share
         callback->OnGetInfo(credInfos);
         return E_RET_NOSERVER;
     }
-    UserIdmDomain::AuthType type = static_cast<UserIdmDomain::AuthType>(authType);
-    sptr<UserIdmDomain::IGetInfoCallback> callbackStub =
-        new (std::nothrow) UserIdmDomain::UserIDMGetInfoCallbackStub(callback);
+    AuthType type = static_cast<AuthType>(authType);
+    sptr<IGetInfoCallback> callbackStub =
+        new (std::nothrow) UserIDMGetInfoCallbackStub(callback);
     if (callbackStub == nullptr) {
         IAM_LOGE("GetAuthInfo callbackStub is nullptr");
         std::vector<CredentialInfo> credInfos;
@@ -272,8 +270,8 @@ int32_t UserIdm::GetSecInfo(const int32_t userId, const std::shared_ptr<GetSecIn
         callback->OnGetSecInfo(secInfo);
         return E_RET_NOSERVER;
     }
-    sptr<UserIdmDomain::IGetSecInfoCallback> callbackStub =
-        new (std::nothrow) UserIdmDomain::UserIDMGetSecInfoCallbackStub(callback);
+    sptr<IGetSecInfoCallback> callbackStub =
+        new (std::nothrow) UserIDMGetSecInfoCallbackStub(callback);
     if (callbackStub == nullptr) {
         IAM_LOGE("GetSecInfo callbackStub is nullptr");
         SecInfo secInfo = {};
@@ -297,7 +295,7 @@ int32_t UserIdm::EnforceDelUser(const int32_t userId, const std::shared_ptr<IdmC
         callback->OnResult(E_RET_NOSERVER, para);
         return E_RET_NOSERVER;
     }
-    sptr<UserIdmDomain::IIDMCallback> callbackStub = new (std::nothrow) UserIdmDomain::UserIDMCallbackStub(callback);
+    sptr<IIDMCallback> callbackStub = new (std::nothrow) UserIDMCallbackStub(callback);
     if (callbackStub == nullptr) {
         IAM_LOGE("EnforceDelUser callbackStub is nullptr");
         RequestResult para = {};
@@ -307,5 +305,5 @@ int32_t UserIdm::EnforceDelUser(const int32_t userId, const std::shared_ptr<IdmC
     return proxy->EnforceDelUser(userId, callbackStub);
 }
 } // namespace UserAuth
-}  // namespace UserIAM
-}  // namespace OHOS
+} // namespace UserIam
+} // namespace OHOS

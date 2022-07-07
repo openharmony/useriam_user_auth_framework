@@ -22,20 +22,20 @@
 #include "iam_ptr.h"
 #include "iuser_auth.h"
 
-#define LOG_LABEL Common::LABEL_USER_AUTH_SDK
+#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SDK
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<UserAuthCallback> &impl)
     : authCallback_(impl),
-      iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("UserAuth InnerKit"))
+      iamHitraceHelper_(UserIAM::Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("UserAuth InnerKit"))
 {
 }
 
 UserAuthAsyncStub::UserAuthAsyncStub(std::shared_ptr<UserIdentifyCallback> &impl)
     : identifyCallback_(impl),
-      iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("UserAuth InnerKit"))
+      iamHitraceHelper_(UserIAM::Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("UserAuth InnerKit"))
 {
 }
 
@@ -302,6 +302,6 @@ void UserAuthAsyncStub::onSetExecutorProperty(const int32_t result)
     IAM_LOGD("userauthAsyncStub result:%{public}d", result);
     setPropCallback_->onSetProperty(result);
 }
-}  // namespace UserAuth
-}  // namespace UserIAM
-}  // namespace OHOS
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS

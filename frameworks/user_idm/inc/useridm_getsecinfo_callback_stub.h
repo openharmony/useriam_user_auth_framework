@@ -22,16 +22,12 @@
 #include "user_idm_callback.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace UserIDM {
-namespace UserAuthDomain = OHOS::UserIAM::UserAuth;
-
+namespace UserIam {
+namespace UserAuth {
 class UserIDMGetSecInfoCallbackStub : public IRemoteStub<IGetSecInfoCallback> {
 public:
     explicit UserIDMGetSecInfoCallbackStub(const std::shared_ptr<GetSecInfoCallback> &impl)
         :callback_(impl), idmCallback_(nullptr) {}
-    explicit UserIDMGetSecInfoCallbackStub(const std::shared_ptr<UserAuthDomain::GetSecInfoCallback> &impl)
-        :callback_(nullptr), idmCallback_(impl) {}
     ~UserIDMGetSecInfoCallbackStub() override = default;
 
     void OnGetSecInfo(SecInfo &info) override;
@@ -42,10 +38,16 @@ private:
     int32_t OnGetSecInfoStub(MessageParcel &data, MessageParcel &reply);
 
     std::shared_ptr<GetSecInfoCallback> callback_;
-    std::shared_ptr<UserAuthDomain::GetSecInfoCallback> idmCallback_;
+    std::shared_ptr<GetSecInfoCallback> idmCallback_;
 };
-}  // namespace UserIDM
-}  // namespace UserIAM
-}  // namespace OHOS
-
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
+namespace OHOS {
+namespace UserIam {
+namespace UserAuth {
+using UserIDMGetSecInfoCallbackStub = OHOS::UserIam::UserAuth::UserIDMGetSecInfoCallbackStub;
+}
+}
+}
 #endif // USERIDM_GET_SECINFO_CALLBACK_STUB_H

@@ -20,7 +20,8 @@
 #include "parcel.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
+namespace UserAuth {
 enum AuthAbility {
     /* Executor authentication ability six number pin */
     PIN_SIX = 1,
@@ -44,6 +45,13 @@ enum ExecutorType {
     /* Type of executor all in one */
     TYPE_ALL_IN_ONE = 3
 };
-} // namespace UserIAM
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+using AuthAbility = OHOS::UserIam::UserAuth::AuthAbility;
+using ExecutorType = OHOS::UserIam::UserAuth::ExecutorType;
+}
+}
 #endif // CO_AUTH_INFO_DEFINE_H

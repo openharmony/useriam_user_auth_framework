@@ -18,6 +18,7 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
+using namespace OHOS::UserIam::UserAuth;
 void GetInfoCallbackUT::OnGetInfo(std::vector<CredentialInfo> &info)
 {
     return;

@@ -26,14 +26,12 @@
 #include "user_idm_callback.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace UserIDM {
-namespace UserAuthDomain = OHOS::UserIAM::UserAuth;
-
+namespace UserIam {
+namespace UserAuth {
 class UserIDMCallbackStub : public IRemoteStub<IIDMCallback> {
 public:
     explicit UserIDMCallbackStub(const std::shared_ptr<IDMCallback> &impl);
-    explicit UserIDMCallbackStub(const std::shared_ptr<UserAuthDomain::IdmCallback> &impl);
+    explicit UserIDMCallbackStub(const std::shared_ptr<IdmCallback> &impl);
     ~UserIDMCallbackStub() override = default;
 
     void OnResult(int32_t result, RequestResult reqRet) override;
@@ -45,11 +43,17 @@ private:
     int32_t OnAcquireInfoStub(MessageParcel &data, MessageParcel &reply);
 
     std::shared_ptr<IDMCallback> callback_;
-    std::shared_ptr<UserAuthDomain::IdmCallback> idmCallback_;
+    std::shared_ptr<IdmCallback> idmCallback_;
     std::shared_ptr<UserIam::UserAuth::IamHitraceHelper> iamHitraceHelper_;
 };
-}  // namespace UserIDM
-}  // namespace UserIAM
-}  // namespace OHOS
-
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace UserIDM {
+using UserIDMCallbackStub = OHOS::UserIam::UserAuth::UserIDMCallbackStub;
+}
+}
+}
 #endif // USERIDM_CALLBACK_STUB_H

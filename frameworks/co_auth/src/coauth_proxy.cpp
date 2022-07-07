@@ -21,12 +21,12 @@
 
 #include "iam_logger.h"
 
-#define LOG_LABEL Common::LABEL_AUTH_EXECUTOR_MGR_SDK
+#define LOG_LABEL UserIAM::Common::LABEL_AUTH_EXECUTOR_MGR_SDK
 
 namespace OHOS {
-namespace UserIAM {
-namespace CoAuth {
-uint32_t CoAuthProxy::WriteAuthExecutor(AuthResPool::AuthExecutor &executorInfo, MessageParcel &data)
+namespace UserIam {
+namespace UserAuth {
+uint32_t CoAuthProxy::WriteAuthExecutor(AuthExecutor &executorInfo, MessageParcel &data)
 {
     AuthType authType;
     executorInfo.GetAuthType(authType);
@@ -70,8 +70,8 @@ uint32_t CoAuthProxy::WriteAuthExecutor(AuthResPool::AuthExecutor &executorInfo,
     return SUCCESS;
 }
 
-uint64_t CoAuthProxy::Register(std::shared_ptr<AuthResPool::AuthExecutor> executorInfo,
-    const sptr<AuthResPool::IExecutorCallback> &callback)
+uint64_t CoAuthProxy::Register(std::shared_ptr<AuthExecutor> executorInfo,
+    const sptr<IExecutorCallback> &callback)
 {
     IAM_LOGD("Register start");
     if (executorInfo == nullptr || callback == nullptr) {
@@ -121,6 +121,6 @@ bool CoAuthProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParcel 
     }
     return true;
 }
-} // namespace CoAuth
-} // namespace UserIAM
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS

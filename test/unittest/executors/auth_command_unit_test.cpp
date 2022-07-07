@@ -20,7 +20,6 @@
 #include "iam_logger.h"
 #include "iam_mem.h"
 #include "iam_ptr.h"
-#include "iam_types.h"
 
 #include "executor.h"
 #include "mock_iexecutor_messenger.h"

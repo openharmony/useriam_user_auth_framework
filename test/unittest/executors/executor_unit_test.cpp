@@ -21,7 +21,6 @@
 #include "framework_executor_callback.h"
 #include "iam_mem.h"
 #include "iam_ptr.h"
-#include "iam_types.h"
 
 #include "mock_executor_mgr_wrapper.h"
 #include "mock_iasync_command.h"

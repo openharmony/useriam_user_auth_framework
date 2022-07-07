@@ -19,8 +19,8 @@
 #include "iuseridm_callback.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace UserIDM {
+namespace UserIam {
+namespace UserAuth {
 class IUserIDM : public IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.useridm.IUserIDM");
@@ -211,8 +211,14 @@ public:
         USERIDM_DELCREDENTIAL,
     };
 };
-}  // namespace UserIDM
-}  // namespace UserIAM
-}  // namespace OHOS
-
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace UserIDM {
+using IUserIDM = OHOS::UserIam::UserAuth::IUserIDM;
+}
+}
+}
 #endif // IUSERIDM_H

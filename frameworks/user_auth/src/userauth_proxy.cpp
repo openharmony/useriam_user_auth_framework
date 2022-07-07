@@ -20,10 +20,10 @@
 
 #include "iam_logger.h"
 
-#define LOG_LABEL Common::LABEL_USER_AUTH_SDK
+#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SDK
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 UserAuthProxy::UserAuthProxy(const sptr<IRemoteObject> &object) : IRemoteProxy<IUserAuth>(object)
 {
@@ -384,12 +384,12 @@ bool UserAuthProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParce
     }
 
     int32_t result = remote->SendRequest(code, data, reply, option);
-    if (result != OHOS::UserIAM::UserAuth::SUCCESS) {
+    if (result != SUCCESS) {
         IAM_LOGE("UserAuthProxy SendRequest failed");
         return false;
     }
     return true;
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

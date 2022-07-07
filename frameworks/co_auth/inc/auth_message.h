@@ -23,8 +23,8 @@
 #include "iremote_broker.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace AuthResPool {
+namespace UserIam {
+namespace UserAuth {
 class AuthMessage {
 public:
     explicit AuthMessage(std::vector<uint8_t> &msg);
@@ -35,8 +35,14 @@ public:
 private:
     std::vector<uint8_t> authMessage_;
 };
-} // namespace AuthResPool
-} // namespace UserIAM
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS
-
+namespace OHOS {
+namespace UserIAM {
+namespace AuthResPool {
+using AuthMessage = OHOS::UserIam::UserAuth::AuthMessage;
+}
+}
+}
 #endif  // AUTH_MESSAGE_H

@@ -20,7 +20,7 @@
 #include "parcel.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 enum AuthType : uint32_t {
     /**
@@ -83,6 +83,24 @@ enum ResultCode : int32_t {
     ERRORCODE_MAX = 19
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace UserAuth {
+using AuthType = OHOS::UserIam::UserAuth::AuthType;
+using AuthSubType = OHOS::UserIam::UserAuth::AuthSubType;
+using ResultCode = OHOS::UserIam::UserAuth::ResultCode;
+}
+}
+}
+namespace OHOS {
+namespace UserIAM {
+namespace UserIDM {
+using AuthType = OHOS::UserIam::UserAuth::AuthType;
+using AuthSubType = OHOS::UserIam::UserAuth::AuthSubType;
+using ResultCode = OHOS::UserIam::UserAuth::ResultCode;
+}
+}
+}
 #endif // COMMON_INFO_H

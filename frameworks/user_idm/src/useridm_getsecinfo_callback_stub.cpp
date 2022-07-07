@@ -19,13 +19,11 @@
 
 #include "iam_logger.h"
 
-#define LOG_LABEL Common::LABEL_USER_IDM_SDK
+#define LOG_LABEL UserIAM::Common::LABEL_USER_IDM_SDK
 
 namespace OHOS {
-namespace UserIAM {
-namespace UserIDM {
-namespace UserAuthDomain = OHOS::UserIAM::UserAuth;
-
+namespace UserIam {
+namespace UserAuth {
 int32_t UserIDMGetSecInfoCallbackStub::OnRemoteRequest(uint32_t code,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
@@ -68,13 +66,13 @@ void UserIDMGetSecInfoCallbackStub::OnGetSecInfo(SecInfo &info)
         return;
     }
     if (idmCallback_ != nullptr) {
-        UserAuthDomain::SecInfo secInfo = {};
+        SecInfo secInfo = {};
         secInfo.secureUid = info.secureUid;
         secInfo.enrolledInfoLen = info.enrolledInfoLen;
-        std::vector<UserAuthDomain::EnrolledInfo> enrolledInfos = {};
+        std::vector<EnrolledInfo> enrolledInfos = {};
         for (auto &enrolledInfo : info.enrolledInfo) {
-            UserAuthDomain::EnrolledInfo secEnrolledInfo = {};
-            secEnrolledInfo.authType = static_cast<UserAuthDomain::AuthType>(enrolledInfo.authType);
+            EnrolledInfo secEnrolledInfo = {};
+            secEnrolledInfo.authType = static_cast<AuthType>(enrolledInfo.authType);
             secEnrolledInfo.enrolledId = enrolledInfo.enrolledId;
             enrolledInfos.push_back(secEnrolledInfo);
         }
@@ -84,6 +82,6 @@ void UserIDMGetSecInfoCallbackStub::OnGetSecInfo(SecInfo &info)
     }
     IAM_LOGE("callback_ is nullptr and idmCallback_ is nullptr");
 }
-}  // namespace UserIDM
-}  // namespace UserIAM
-}  // namespace OHOS
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS

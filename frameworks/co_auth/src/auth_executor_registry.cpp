@@ -24,12 +24,12 @@
 #include "iam_logger.h"
 #include "executor_callback_stub.h"
 
-#define LOG_LABEL Common::LABEL_AUTH_EXECUTOR_MGR_SDK
+#define LOG_LABEL UserIAM::Common::LABEL_AUTH_EXECUTOR_MGR_SDK
 
 namespace OHOS {
-namespace UserIAM {
-namespace AuthResPool {
-sptr<CoAuth::ICoAuth> AuthExecutorRegistry::GetProxy()
+namespace UserIam {
+namespace UserAuth {
+sptr<ICoAuth> AuthExecutorRegistry::GetProxy()
 {
     std::lock_guard<std::mutex> lock(mutex_);
     if (proxy_ != nullptr) {
@@ -53,7 +53,7 @@ sptr<CoAuth::ICoAuth> AuthExecutorRegistry::GetProxy()
         return nullptr;
     }
 
-    proxy_ = new (std::nothrow) CoAuth::CoAuthProxy(obj);
+    proxy_ = new (std::nothrow) CoAuthProxy(obj);
     deathRecipient_ = dr;
     IAM_LOGI("connect coauth service success");
     return proxy_;
@@ -100,6 +100,6 @@ void AuthExecutorRegistry::AuthExecutorRegistryDeathRecipient::OnRemoteDied(cons
     AuthExecutorRegistry::GetInstance().ResetProxy(remote);
     IAM_LOGE("AuthExecutorRegistryDeathRecipient::Recv death notice");
 }
-} // namespace AuthResPool
-} // namespace UserIAM
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS

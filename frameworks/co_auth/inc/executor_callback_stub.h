@@ -21,8 +21,8 @@
 #include "iremote_stub.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace AuthResPool {
+namespace UserIam {
+namespace UserAuth {
 class ExecutorCallbackStub : public IRemoteStub<IExecutorCallback> {
 public:
     explicit ExecutorCallbackStub(const std::shared_ptr<ExecutorCallback>& impl);
@@ -46,7 +46,14 @@ private:
     int32_t OnSetPropertyStub(MessageParcel& data, MessageParcel& reply);
     std::shared_ptr<ExecutorCallback> callback_;
 };
-} // namespace AuthResPool
-} // namespace UserIAM
+} // namespace UserAuth
+} // namespace UserIam
 } // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace AuthResPool {
+using ExecutorCallbackStub = OHOS::UserIam::UserAuth::ExecutorCallbackStub;
+}
+}
+}
 #endif // EXECUTOR_CALLBACK_STUB_H

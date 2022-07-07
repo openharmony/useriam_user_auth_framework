@@ -20,8 +20,8 @@
 #include "iuser_idm.h"
 
 namespace OHOS {
-namespace UserIAM {
-namespace UserIDM {
+namespace UserIam {
+namespace UserAuth {
 class UserIDMProxy : public IRemoteProxy<IUserIDM> {
 public:
     explicit UserIDMProxy(const sptr<IRemoteObject> &object)
@@ -57,9 +57,15 @@ private:
 private:
     static inline BrokerDelegator<UserIDMProxy> delegator_;
 };
-}  // namespace UserIDM
-}  // namespace UserIAM
-}  // namespace OHOS
-
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace UserIDM {
+using UserIDMProxy = OHOS::UserIam::UserAuth::UserIDMProxy;
+}
+}
+}
 
 #endif // USERIDM_PROXY_H
