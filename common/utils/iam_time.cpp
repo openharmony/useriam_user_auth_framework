@@ -21,19 +21,19 @@
 namespace OHOS {
 namespace UserIAM {
 namespace Common {
-constexpr uint32_t BUFFSIZE = 64;
-constexpr uint32_t DATALEN = 19;
-constexpr uint32_t TMYEAR = 1900;
 const std::string GetNowTimeString()
 {
     using namespace std::chrono;
+    constexpr uint32_t buffSize = 64;
+    constexpr uint32_t dataLen = 19;
+    constexpr uint32_t startYear = 1900;
     const time_point<system_clock> now = system_clock::now();
     time_t tt = system_clock::to_time_t(now);
     struct tm curr;
-    char timeStr[BUFFSIZE + 1] = {0};
+    char timeStr[buffSize + 1] = {0};
     localtime_r(&tt, &curr);
-    int32_t len = snprintf_s(timeStr, sizeof(timeStr), DATALEN, "%04d-%02d-%02d %02d:%02d:%02d",
-        curr.tm_year + TMYEAR, curr.tm_mon + 1, curr.tm_mday, curr.tm_hour, curr.tm_min, curr.tm_sec);
+    int32_t len = snprintf_s(timeStr, sizeof(timeStr), dataLen, "%04d-%02d-%02d %02d:%02d:%02d",
+        curr.tm_year + startYear, curr.tm_mon + 1, curr.tm_mday, curr.tm_hour, curr.tm_min, curr.tm_sec);
     if (len < 0) {
         return std::string();
     }
