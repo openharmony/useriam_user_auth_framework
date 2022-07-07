@@ -20,6 +20,7 @@
 #include <string>
 
 #include "iam_logger.h"
+#include "iam_defines.h"
 #include "nocopyable.h"
 
 namespace OHOS {
@@ -34,7 +35,7 @@ public:
     ~IamScopeGuard() override
     {
         if (action_ != nullptr) {
-            action_();
+            IAM_TRY(action_(), return);
         }
     }
 
