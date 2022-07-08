@@ -82,7 +82,7 @@ ohos_shared_library("userauthservice") {
   ]
 
   deps = [
-    "//base/useriam/user_auth_framework/frameworks/co_auth:iam_attributes",
+    "//base/useriam/user_auth_framework/frameworks/legacy/framework_old:legacy_attributes",
     "//third_party/openssl:libcrypto_shared",
   ]
 

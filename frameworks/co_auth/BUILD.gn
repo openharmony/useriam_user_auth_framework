@@ -22,8 +22,6 @@ ohos_source_set("iam_attributes") {
   include_dirs =
       [ "//base/useriam/user_auth_framework/interfaces/inner_api/co_auth" ]
 
-  sources = [ "src/attributes.cpp" ]
-
   configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
 
   public_configs = [ ":iam_attributes_config" ]
@@ -48,16 +46,6 @@ ohos_shared_library("coauth_framework") {
     "inc",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs",
-  ]
-
-  sources = [
-    "src/auth_executor.cpp",
-    "src/auth_executor_registry.cpp",
-    "src/auth_message.cpp",
-    "src/coauth_proxy.cpp",
-    "src/executor_callback_stub.cpp",
-    "src/executor_messenger_proxy.cpp",
-    "src/executor_mgr.cpp",
   ]
 
   deps = [ ":iam_attributes" ]

@@ -12,29 +12,30 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
-config("useridm_public_config") {
+config("framework_public_config") {
   include_dirs = [
-    "inc",
-    "//base/useriam/user_auth_framework/interfaces/inner_api/common",
-    "//base/useriam/user_auth_framework/interfaces/inner_api/user_idm",
+    "client/inc",
+    "common/inc",
+    "ipc/inc",
+    "//base/useriam/user_auth_framework/interfaces/inner_api/"
   ]
 }
 
-ohos_shared_library("useridm_framework") {
+ohos_shared_library("framework") {
   include_dirs = [
-    "inc",
-    "//base/useriam/user_auth_framework/interfaces/inner_api/common",
-    "//base/useriam/user_auth_framework/common/logs/user_auth/inc",
-    "//base/useriam/user_auth_framework/services/user_idm/inc",
-    "//base/useriam/user_auth_framework/common/logs/user_idm",
-    "//base/useriam/user_auth_framework/interfaces/inner_api/user_idm",
+    "//base/useriam/user_auth_framework/interfaces/inner_api/",
+    "client/inc",
+    "common/inc",
+    "ipc/inc",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs",
     "//base/useriam/user_auth_framework/dfx/inc",
   ]
 
-  public_configs = [ ":useridm_public_config" ]
+  sources = [
+  ]
 
   external_deps = [
     "hitrace_native:hitrace_meter",
@@ -43,6 +44,11 @@ ohos_shared_library("useridm_framework") {
     "samgr_standard:samgr_proxy",
     "utils_base:utils",
   ]
+
+
+  configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
+
+  public_configs = [ ":framework_public_config" ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
