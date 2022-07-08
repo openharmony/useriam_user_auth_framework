@@ -10,15 +10,16 @@
 
 ## 简介
 
-**统一用户认证**（userauth）是用户IAM子系统的基础部件之一，对外提供统一用户身份认证功能，并且开放生物特征认证API给三方应用调用。
+**统一用户认证框架**（user_auth_framework）主要包括三个模块，用户认证、凭据管理和执行器管理。
+
+**用户认证模块**对外提供统一用户身份认证功能，并且开放生物特征认证API给三方应用调用。
+
+**凭据管理模块**提供系统内统一的用户凭据管理（增删改查）接口，向下通过执行器管理模块，调用系统内的执行器资源，完成用户凭据的生命周期管理和安全存储。
+
+**执行器管理模块**提供系统内执行器资源的统一管理和协同调度能力，当前支持口令执行器和人脸执行器的管理。
 
 **图1** 统一用户认证架构图
-
-<img src="figures/统一用户认证架构图.png" alt="统一用户认证架构图" style="zoom:80%;" />
-
-
-
-用户认证接口支持针对目标用户完成达到目标认证结果可信等级（ATL）的用户身份认证。其中目标ATL由业务指定，目标用户id可以由业务指定（系统服务或系统基础应用），也可以从系统上下文获取（三方应用）。
+<img src="figures/统一用户认证架构图.png" alt="统一用户认证架构图" style="zoom:65%;" />
 
 ## 目录
 
@@ -26,8 +27,9 @@
 //base/useriam/user_auth_framework
 ├── common              # 子系统公共库代码目录
 ├── frameworks          # 接口层实现代码目录
-│   └── js              # js接口实现代码
+│   └── js              # js API接口实现代码
 │       └── napi        # napi实现代码
+│   └── native          # C++代码实现
 ├── interfaces          # 对外接口存放目录
 │   └── inner_api       # 对内部子系统暴露的头文件，供系统服务使用
 │   └── kits            # OpenHarmony提供给第三方应用的接口文件
@@ -40,14 +42,71 @@
 
 ## 说明
 
-### 接口说明
+### **用户认证框架inner_api接口说明**
 
-**表1** 统一用户认证API
+**表1** 执行器管理相关接口
 
 | 接口名  | 描述                             |
 | ------ | -------------------------------- |
-| getAvailableStatus(authType : AuthType, authTrustLevel : AuthTrustLevel) : number; | 指定ATL，查询是否支持目标认证方式 |
-| auth(challenge: BigInt, authType : AuthType, authTrustLevel: AuthTrustLevel, callback: IUserAuthCallback): BigInt; | 指定ATL和认证方式，完成用户身份认证 |
+| Register(info : ExecutorInfo, callback : ExecutorRegisterCallback): number; | 执行器注册接口 |
+| Unregister(info : ExecutorInfo): number; | 执行器反注册接口 |
+
+**表2** 执行器需要实现的回调接口
+
+| 接口名  | 描述                             |
+| ------ | -------------------------------- |
+| OnMessengerReady(messenger : ExecutorMessenger, frameworkPublicKey : Uint8Array, templateIds : Uint64Array) void; | 通知执行器信使可用，传入信使（用于后续与执行器通信） |
+| OnBeginExecute(scheduleId : number, publicKey : Uint8Array, commandAttrs : Attributes) number; | 通知执行器开始执行认证相关操作，commandAttrs中传入本次操作的属性 |
+| OnEndExecute(scheduleId : number, commandAttrs : Attributes) number; | 通知执行器结束本次操作 |
+| OnSetProperty(properties : Attributes) number; | 设置属性信息 |
+| OnGetProperty(conditions : Attributes, results : Attributes) number; | 获取属性信息 |
+
+**表3** 信使函数相关接口
+
+| 接口名  | 描述                             |
+| ------ | -------------------------------- |
+| SendData(scheduleId : number, transNum : number, srcType : ExecutorRole, dstType : ExecutorRole, msg : AuthMessage) number; | 发送消息，消息源为执行器，目的端为认证执行器管理，消息内容由执行器指定，比如返回人脸认证过程中的提示信息（光线过暗） |
+| Finish(scheduleId : number, srcType : ExecutorRole, resultCode : number, finalResult : Attributes) number; | 操作结束，消息源为执行器，目的端为认证执行器管理，消息内容为本次操作的最终结果 |
+
+**表4** 凭据管理相关接口
+
+| 接口名  | 描述                             |
+| ------ | -------------------------------- |
+| OpenSession(userId : number): number; | 打开会话的接口 |
+| CloseSession(userId : number): number; | 关闭会话的接口 |
+| AddCredential(userId : number, para : CredentialParameters, callback : UserIdmClientCallback): number; | 录入凭据 |
+| UpdateCredential(userId : number, para : CredentialParameters, callback : UserIdmClientCallback): number; | 修改凭据 |
+| Cancel(userId : number): number; | 取消凭据录入 |
+| DeleteCredential(userId : number, credentialId : number, authToken : Uint8Array, callback : UserIdmClientCallback): void; | 凭据删除 |
+| DeleteUser(userId : number, authToken : Uint8Array, callback : UserIdmClientCallback): void; | 删除口令，当系统内删除用户口令时，同时删除该用户的全部认证凭据 |
+| EraseUser(userId : number, callback : UserIdmClientCallback): number; | 用于管理员强制删除用户，同时删除该用户的全部认证凭据 |
+| GetCredentialInfo(userId : number, authType : AuthType, callback : GetCredentialInfoCallback): number; | 获取凭据信息 |
+| GetUserInfo(userId : number, callback : GetUserInfoCallback): number; | 获取用户信息 |
+
+**表5** 用户认证相关接口
+
+| 接口名  | 描述                             |
+| ------ | -------------------------------- |
+| GetProperty(userId : number, request : GetPropertyRequest, callback : GetPropCallback) : void; | 获取属性 |
+| SetProperty(userId : number, request : SetPropertyRequest, callback : SetPropCallback) : void; | 设置属性 |
+| BeginAuthentication(userId : number, challenge : Uint8Array, authType : AuthType, atl : AuthTrustLevel, callback : AuthenticationCallback): number; | 指定ATL和认证方式，完成用户身份认证 |
+| CancelAuthentication(contextId : number): number; | 取消认证 |
+| BeginIdentify(challenge : Uint8Array, authType : AuthType, callback : IdentifyCallback): number; | 指定认证类型，完成用户身份识别 |
+| CancelIdentify(contextId : number): number; | 取消识别 |
+
+### **用户认证框架js接口说明**
+
+**表6** 用户认证模块js接口
+
+| 接口名  | 描述                             |
+| ------ | -------------------------------- |
+| getVersion() : number; | 获取版本信息 |
+| getAvailableStatus(authType : AuthType, authTrustLevel : AuthTrustLevel) : number; | 检查当前的认证等级是否支持 |
+| getProperty(request : GetPropertyRequest, callback : AsyncCallback<ExecutorProperty>): void; | 获取属性 |
+| setProperty(request : SetPropertyRequest, callback : AsyncCallback<number>): void; | 设置属性 |
+| auth(challenge : Uint8Array, authType : AuthType, authTrustLevel : AuthTrustLevel, callback : IUserAuthCallback): Uint8Array; | 用户认证 |
+| authUser(userId : number, challenge : Uint8Array, authType : AuthType, authTrustLevel : AuthTrustLevel, callback : IUserAuthCallback): Uint8Array; | 用户认证 |
+| cancelAuth(contextID : Uint8Array) : number; | 取消认证 |
 
 ### 使用说明
 
