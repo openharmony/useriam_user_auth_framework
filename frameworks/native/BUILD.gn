@@ -19,7 +19,7 @@ config("framework_public_config") {
     "client/inc",
     "common/inc",
     "ipc/inc",
-    "//base/useriam/user_auth_framework/interfaces/inner_api/"
+    "//base/useriam/user_auth_framework/interfaces/inner_api/",
   ]
 }
 
@@ -34,8 +34,6 @@ ohos_shared_library("framework") {
     "//base/useriam/user_auth_framework/dfx/inc",
   ]
 
-  sources = []
-
   external_deps = [
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
@@ -43,7 +41,6 @@ ohos_shared_library("framework") {
     "samgr_standard:samgr_proxy",
     "utils_base:utils",
   ]
-
 
   configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
 
