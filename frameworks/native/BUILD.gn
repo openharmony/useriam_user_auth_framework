@@ -34,8 +34,7 @@ ohos_shared_library("framework") {
     "//base/useriam/user_auth_framework/dfx/inc",
   ]
 
-  sources = [
-  ]
+  sources = []
 
   external_deps = [
     "hitrace_native:hitrace_meter",
