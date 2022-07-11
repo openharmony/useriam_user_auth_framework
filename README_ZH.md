@@ -48,51 +48,51 @@
 
 | 接口名  | 描述                             |
 | ------ | -------------------------------- |
-| Register(info : ExecutorInfo, callback : ExecutorRegisterCallback): number; | 执行器注册接口 |
-| Unregister(info : ExecutorInfo): number; | 执行器反注册接口 |
+| Register(info : ExecutorInfo, callback : ExecutorRegisterCallback): void; | 执行器注册 |
+| Unregister(info : ExecutorInfo): void; | 执行器反注册 |
 
 **表2** 执行器需要实现的回调接口
 
 | 接口名  | 描述                             |
 | ------ | -------------------------------- |
-| OnMessengerReady(messenger : ExecutorMessenger, frameworkPublicKey : Uint8Array, templateIds : Uint64Array) void; | 通知执行器信使可用，传入信使（用于后续与执行器通信） |
-| OnBeginExecute(scheduleId : number, publicKey : Uint8Array, commandAttrs : Attributes) number; | 通知执行器开始执行认证相关操作，commandAttrs中传入本次操作的属性 |
-| OnEndExecute(scheduleId : number, commandAttrs : Attributes) number; | 通知执行器结束本次操作 |
-| OnSetProperty(properties : Attributes) number; | 设置属性信息 |
-| OnGetProperty(conditions : Attributes, results : Attributes) number; | 获取属性信息 |
+| OnMessengerReady(messenger : ExecutorMessenger, frameworkPublicKey : vector<uint8_t>, templateIds : vector<uint64_t>) void; | 通知执行器信使可用，传入信使（用于后续与执行器通信） |
+| OnBeginExecute(scheduleId : uint64_t, publicKey : vector<uint8_t>, commandAttrs : Attributes) int32_t; | 通知执行器开始执行认证相关操作，commandAttrs中传入本次操作的属性 |
+| OnEndExecute(scheduleId : uint64_t, commandAttrs : Attributes) int32_t; | 通知执行器结束本次操作 |
+| OnSetProperty(properties : Attributes) int32_t; | 设置属性信息 |
+| OnGetProperty(conditions : Attributes, results : Attributes) int32_t; | 获取属性信息 |
 
 **表3** 信使函数相关接口
 
 | 接口名  | 描述                             |
 | ------ | -------------------------------- |
-| SendData(scheduleId : number, transNum : number, srcType : ExecutorRole, dstType : ExecutorRole, msg : AuthMessage) number; | 发送消息，消息源为执行器，目的端为认证执行器管理，消息内容由执行器指定，比如返回人脸认证过程中的提示信息（光线过暗） |
-| Finish(scheduleId : number, srcType : ExecutorRole, resultCode : number, finalResult : Attributes) number; | 操作结束，消息源为执行器，目的端为认证执行器管理，消息内容为本次操作的最终结果 |
+| SendData(scheduleId : uint64_t, transNum : uint64_t, srcType : ExecutorRole, dstType : ExecutorRole, msg : AuthMessage) int32_t; | 发送消息，消息源为执行器，目的端为认证执行器管理，消息内容由执行器指定，比如返回人脸认证过程中的提示信息（光线过暗） |
+| Finish(scheduleId : uint64_t, srcType : ExecutorRole, resultCode : int32_t, finalResult : Attributes) int32_t; | 操作结束，消息源为执行器，目的端为认证执行器管理，消息内容为本次操作的最终结果 |
 
 **表4** 凭据管理相关接口
 
 | 接口名  | 描述                             |
 | ------ | -------------------------------- |
-| OpenSession(userId : number): number; | 打开会话的接口 |
-| CloseSession(userId : number): number; | 关闭会话的接口 |
-| AddCredential(userId : number, para : CredentialParameters, callback : UserIdmClientCallback): number; | 录入凭据 |
-| UpdateCredential(userId : number, para : CredentialParameters, callback : UserIdmClientCallback): number; | 修改凭据 |
-| Cancel(userId : number): number; | 取消凭据录入 |
-| DeleteCredential(userId : number, credentialId : number, authToken : Uint8Array, callback : UserIdmClientCallback): void; | 凭据删除 |
-| DeleteUser(userId : number, authToken : Uint8Array, callback : UserIdmClientCallback): void; | 删除口令，当系统内删除用户口令时，同时删除该用户的全部认证凭据 |
-| EraseUser(userId : number, callback : UserIdmClientCallback): number; | 用于管理员强制删除用户，同时删除该用户的全部认证凭据 |
-| GetCredentialInfo(userId : number, authType : AuthType, callback : GetCredentialInfoCallback): number; | 获取凭据信息 |
-| GetUserInfo(userId : number, callback : GetUserInfoCallback): number; | 获取用户信息 |
+| OpenSession(userId : int32_t): vector<uint8_t>; | 打开会话 |
+| CloseSession(userId : int32_t): void; | 关闭会话 |
+| AddCredential(userId : int32_t, para : CredentialParameters, callback : UserIdmClientCallback): void; | 录入凭据 |
+| UpdateCredential(userId : int32_t, para : CredentialParameters, callback : UserIdmClientCallback): void; | 修改凭据 |
+| Cancel(userId : int32_t): int32_t; | 取消凭据录入 |
+| DeleteCredential(userId : int32_t, credentialId : uint64_t, authToken : vector<uint8_t>, callback : UserIdmClientCallback): void; | 凭据删除 |
+| DeleteUser(userId : int32_t, authToken : vector<uint8_t>, callback : UserIdmClientCallback): void; | 删除口令，当系统内删除用户口令时，同时删除该用户的全部认证凭据 |
+| EraseUser(userId : int32_t, callback : UserIdmClientCallback): int32_t; | 用于管理员强制删除用户，同时删除该用户的全部认证凭据 |
+| GetCredentialInfo(userId : int32_t, authType : AuthType, callback : GetCredentialInfoCallback): int32_t; | 获取凭据信息 |
+| GetSecUserInfo(userId : int32_t, callback : GetSecUserInfoCallback): int32_t; | 获取用户信息 |
 
 **表5** 用户认证相关接口
 
 | 接口名  | 描述                             |
 | ------ | -------------------------------- |
-| GetProperty(userId : number, request : GetPropertyRequest, callback : GetPropCallback) : void; | 获取属性 |
-| SetProperty(userId : number, request : SetPropertyRequest, callback : SetPropCallback) : void; | 设置属性 |
-| BeginAuthentication(userId : number, challenge : Uint8Array, authType : AuthType, atl : AuthTrustLevel, callback : AuthenticationCallback): number; | 指定ATL和认证方式，完成用户身份认证 |
-| CancelAuthentication(contextId : number): number; | 取消认证 |
-| BeginIdentify(challenge : Uint8Array, authType : AuthType, callback : IdentifyCallback): number; | 指定认证类型，完成用户身份识别 |
-| CancelIdentify(contextId : number): number; | 取消识别 |
+| GetProperty(userId : int32_t, request : GetPropertyRequest, callback : GetPropCallback) : void; | 获取属性 |
+| SetProperty(userId : int32_t, request : SetPropertyRequest, callback : SetPropCallback) : void; | 设置属性 |
+| BeginAuthentication(userId : int32_t, challenge : vector<uint8_t>, authType : AuthType, atl : AuthTrustLevel, callback : AuthenticationCallback): uint64_t; | 指定ATL和认证方式，完成用户身份认证 |
+| CancelAuthentication(contextId : uint64_t): int32_t; | 取消认证 |
+| BeginIdentification(challenge : vector<uint8_t>, authType : AuthType, callback : IdentificationCallback): uint64_t; | 指定认证类型，完成用户身份识别 |
+| CancelIdentification(contextId : uint64_t): int32_t; | 取消识别 |
 
 ### **用户认证框架js接口说明**
 
