@@ -35,7 +35,6 @@ ohos_source_set("legacy_attributes") {
   ]
 }
 
-
 config("userauth_framework_legacy_config") {
   include_dirs = [
     "inc",
