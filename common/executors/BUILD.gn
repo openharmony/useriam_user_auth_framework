@@ -14,7 +14,7 @@
 import("//build/ohos.gni")
 
 config("userauth_executors_public_config") {
-  include_dirs = [ 
+  include_dirs = [
     "include/public",
     "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/co_auth",
     "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/common",
@@ -59,10 +59,10 @@ ohos_shared_library("userauth_executors") {
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
-  deps = [ 
+  deps = [
     "//base/useriam/user_auth_framework/common:iam_utils",
-    "//base/useriam/user_auth_framework/frameworks/legacy/framework_old:framework_legacy" 
-    ]
+    "//base/useriam/user_auth_framework/frameworks/legacy/framework_old:framework_legacy",
+  ]
 
   external_deps = [
     "hdf_core:libhdf_host",

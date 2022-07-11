@@ -15,13 +15,11 @@ import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 config("attributes_config") {
-  include_dirs =
-      [ "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/co_auth" ]
+  include_dirs = [ "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/co_auth" ]
 }
 
 ohos_source_set("legacy_attributes") {
-  include_dirs =
-      [ "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/co_auth", ]
+  include_dirs = [ "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/co_auth" ]
 
   sources = [ "src/attributes.cpp" ]
 
@@ -41,7 +39,7 @@ config("userauth_framework_legacy_config") {
     "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/user_auth",
     "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/co_auth",
     "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/user_idm",
-    "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/common"
+    "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/common",
   ]
 }
 
@@ -55,17 +53,7 @@ ohos_source_set("framework_legacy") {
 
   sources = [
     "//base/useriam/user_auth_framework/dfx/src/iam_hitrace_helper.cpp",
-    "src/user_auth.cpp",
-    "src/user_auth_native.cpp",
-    "src/userauth_async_stub.cpp",
-    "src/userauth_proxy.cpp",
     "src/attributes.cpp",
-    "src/user_idm.cpp",
-    "src/useridm_callback_stub.cpp",
-    "src/useridm_client.cpp",
-    "src/useridm_getinfo_callback_stub.cpp",
-    "src/useridm_getsecinfo_callback_stub.cpp",
-    "src/useridm_proxy.cpp",
     "src/auth_executor.cpp",
     "src/auth_executor_registry.cpp",
     "src/auth_message.cpp",
@@ -73,18 +61,26 @@ ohos_source_set("framework_legacy") {
     "src/executor_callback_stub.cpp",
     "src/executor_messenger_proxy.cpp",
     "src/executor_mgr.cpp",
+    "src/user_auth.cpp",
+    "src/user_auth_native.cpp",
+    "src/user_idm.cpp",
+    "src/userauth_async_stub.cpp",
+    "src/userauth_proxy.cpp",
+    "src/useridm_callback_stub.cpp",
+    "src/useridm_client.cpp",
+    "src/useridm_getinfo_callback_stub.cpp",
+    "src/useridm_getsecinfo_callback_stub.cpp",
+    "src/useridm_proxy.cpp",
   ]
 
-  deps = [
-    "//base/useriam/user_auth_framework/frameworks/native:framework",
-  ]
+  deps = [ "//base/useriam/user_auth_framework/frameworks/native:framework" ]
 
   external_deps = [
+    "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "samgr_standard:samgr_proxy",
     "utils_base:utils",
-    "hitrace_native:hitrace_meter"
   ]
 
   if (defined(ability_runtime_graphics) && ability_runtime_graphics) {

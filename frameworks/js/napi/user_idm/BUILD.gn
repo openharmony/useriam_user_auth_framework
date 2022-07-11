@@ -39,7 +39,7 @@ ohos_shared_library("useridm") {
   ]
 
   deps = [ "//base/useriam/user_auth_framework/frameworks/legacy/framework_old:framework_legacy" ]
-  
+
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
