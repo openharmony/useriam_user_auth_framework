@@ -16,6 +16,7 @@
 #include "co_auth_service.h"
 
 #include <cinttypes>
+#include <mutex>
 #include <thread>
 
 #include "string_ex.h"
@@ -45,13 +46,19 @@ CoAuthService::CoAuthService(int32_t systemAbilityId, bool runOnCreate) : System
 
 void CoAuthService::OnStart()
 {
+    static std::mutex mutex;
+    static uint32_t timerId = 0;
+    std::lock_guard<std::mutex> guard(mutex);
     IAM_LOGI("Start service");
     if (!Publish(this)) {
         IAM_LOGE("Failed to publish service");
         return;
     }
 
-    RelativeTimer::GetInstance().Register(Init, 0);
+    if (timerId != 0) {
+        RelativeTimer::GetInstance().Unregister(timerId);
+    }
+    timerId = RelativeTimer::GetInstance().Register(Init, 0);
 }
 
 void CoAuthService::OnStop()
