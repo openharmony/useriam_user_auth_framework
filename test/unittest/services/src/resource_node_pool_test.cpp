@@ -43,25 +43,25 @@ void ResourceNodePoolTest::TearDown()
     ResourceNodePool::Instance().DeleteAll();
 }
 
-HWTEST_F(ResourceNodePoolTest, ResourceNodePoolGetInstance, TestSize.Level1)
+HWTEST_F(ResourceNodePoolTest, ResourceNodePoolGetInstance, TestSize.Level0)
 {
     auto &pool = ResourceNodePool::Instance();
     EXPECT_NE(&pool, nullptr);
 }
 
-HWTEST_F(ResourceNodePoolTest, ResourceNodePoolGetUniqueInstance, TestSize.Level1)
+HWTEST_F(ResourceNodePoolTest, ResourceNodePoolGetUniqueInstance, TestSize.Level0)
 {
     auto &pool1 = ResourceNodePool::Instance();
     auto &pool2 = ResourceNodePool::Instance();
     EXPECT_EQ(&pool1, &pool2);
 }
 
-HWTEST_F(ResourceNodePoolTest, ResourceNodePoolInsertNull, TestSize.Level1)
+HWTEST_F(ResourceNodePoolTest, ResourceNodePoolInsertNull, TestSize.Level0)
 {
     EXPECT_EQ(ResourceNodePool::Instance().Insert(nullptr), false);
 }
 
-HWTEST_F(ResourceNodePoolTest, ResourceNodePoolInsertDuplicateId, TestSize.Level1)
+HWTEST_F(ResourceNodePoolTest, ResourceNodePoolInsertDuplicateId, TestSize.Level0)
 {
     const uint64_t EXECUTOR_INDEX = 100;
     auto resource1 = MockResourceNode::CreateWithExecuteIndex(EXECUTOR_INDEX, true);
@@ -77,7 +77,7 @@ HWTEST_F(ResourceNodePoolTest, ResourceNodePoolInsertDuplicateId, TestSize.Level
     EXPECT_EQ(pool.Delete(EXECUTOR_INDEX), true);
 }
 
-HWTEST_F(ResourceNodePoolTest, ResourceNodePoolDelete, TestSize.Level1)
+HWTEST_F(ResourceNodePoolTest, ResourceNodePoolDelete, TestSize.Level0)
 {
     const uint64_t EXECUTOR_INDEX = 200;
     auto &pool = ResourceNodePool::Instance();
@@ -88,7 +88,7 @@ HWTEST_F(ResourceNodePoolTest, ResourceNodePoolDelete, TestSize.Level1)
     EXPECT_EQ(pool.Select(EXECUTOR_INDEX).lock(), nullptr);
 }
 
-HWTEST_F(ResourceNodePoolTest, ResourceNodePoolInsertAndDelete, TestSize.Level1)
+HWTEST_F(ResourceNodePoolTest, ResourceNodePoolInsertAndDelete, TestSize.Level0)
 {
     auto &pool = ResourceNodePool::Instance();
     const uint64_t EXECUTOR_INDEX1 = 300;
@@ -112,7 +112,7 @@ HWTEST_F(ResourceNodePoolTest, ResourceNodePoolInsertAndDelete, TestSize.Level1)
     EXPECT_NE(pool.Select(EXECUTOR_INDEX1).lock(), resource1);
 }
 
-HWTEST_F(ResourceNodePoolTest, ResourceNodePoolListenerInsert, TestSize.Level1)
+HWTEST_F(ResourceNodePoolTest, ResourceNodePoolListenerInsert, TestSize.Level0)
 {
     auto &pool = ResourceNodePool::Instance();
     const uint64_t EXECUTOR_INDEX1 = 300;
@@ -166,7 +166,7 @@ HWTEST_F(ResourceNodePoolTest, ResourceNodePoolListenerInsert, TestSize.Level1)
     EXPECT_EQ(pool.DeregisterResourceNodePoolListener(listener3), true);
 }
 
-HWTEST_F(ResourceNodePoolTest, ResourceNodePoolListenerUpdate, TestSize.Level1)
+HWTEST_F(ResourceNodePoolTest, ResourceNodePoolListenerUpdate, TestSize.Level0)
 {
     auto &pool = ResourceNodePool::Instance();
     const uint64_t EXECUTOR_INDEX1 = 300;

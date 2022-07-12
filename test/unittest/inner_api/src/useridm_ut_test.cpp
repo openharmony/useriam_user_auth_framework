@@ -57,19 +57,19 @@ void UserIDMUtTest::TearDown()
 {
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_001, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_001, TestSize.Level0)
 {
     IAM_LOGI("UserIDMUtTest_001 start");
     UserIDMClient::GetInstance().OpenSession();
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_002, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_002, TestSize.Level0)
 {
     IAM_LOGI("UserIDMUtTest_002 start");
     UserIDMClient::GetInstance().CloseSession();
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_003, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_003, TestSize.Level0)
 {
     IAM_LOGI("UserIDMUtTest_003 start");
     AuthType authType = PIN;
@@ -78,7 +78,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_003, TestSize.Level1)
     EXPECT_NE(SUCCESS, ret);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_003b, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_003b, TestSize.Level0)
 {
     IAM_LOGI("UserIDMUtTest_003b start");
     AuthType authType = PIN;
@@ -87,7 +87,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_003b, TestSize.Level1)
     EXPECT_NE(SUCCESS, ret);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_003c, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_003c, TestSize.Level0)
 {
     IAM_LOGI("UserIDMUtTest_003c start");
     AuthType authType = FACE;
@@ -96,7 +96,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_003c, TestSize.Level1)
     EXPECT_NE(SUCCESS, ret);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_003d, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_003d, TestSize.Level0)
 {
     IAM_LOGI("UserIDMUtTest_003d start");
     AuthType authType = FACE;
@@ -105,7 +105,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_003d, TestSize.Level1)
     EXPECT_NE(SUCCESS, ret);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_004, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_004, TestSize.Level0)
 {
     IAM_LOGI("UserIDMUtTest_004 start");
     uint32_t userId = 1;
@@ -114,7 +114,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_004, TestSize.Level1)
     EXPECT_NE(SUCCESS, ret);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_004b, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_004b, TestSize.Level0)
 {
     IAM_LOGI("UserIDMUtTest_004b start");
     uint32_t userId = 1;
@@ -123,7 +123,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_004b, TestSize.Level1)
     EXPECT_NE(SUCCESS, ret);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_005, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_005, TestSize.Level0)
 {
     IAM_LOGI("UserIDMUtTest_005 start");
     AddCredInfo credInfo;
@@ -133,7 +133,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_005, TestSize.Level1)
     UserIDMClient::GetInstance().AddCredential(credInfo, callback);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_005b, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_005b, TestSize.Level0)
 {
     IAM_LOGI("UserIDMUtTest_005b start");
     AddCredInfo credInfo;
@@ -143,7 +143,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_005b, TestSize.Level1)
     UserIDMClient::GetInstance().AddCredential(credInfo, callback);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_005c, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_005c, TestSize.Level0)
 {
     IAM_LOGI("UserIDMUtTest_005c start");
     AddCredInfo credInfo;
@@ -153,7 +153,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_005c, TestSize.Level1)
     UserIDMClient::GetInstance().AddCredential(credInfo, callback);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_005d, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_005d, TestSize.Level0)
 {
     AddCredInfo credInfo;
     credInfo.authType = PIN;
@@ -163,7 +163,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_005d, TestSize.Level1)
     UserIDMClient::GetInstance().AddCredential(credInfo, callback);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_006, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_006, TestSize.Level0)
 {
     IAM_LOGI("UserIDMUtTest_006 start");
     AddCredInfo credInfo;
@@ -172,7 +172,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_006, TestSize.Level1)
     UserIDMClient::GetInstance().UpdateCredential(credInfo, callback);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_006b, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_006b, TestSize.Level0)
 {
     IAM_LOGI("UserIDMUtTest_006b start");
     AddCredInfo credInfo;
@@ -181,7 +181,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_006b, TestSize.Level1)
     UserIDMClient::GetInstance().UpdateCredential(credInfo, callback);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_007, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_007, TestSize.Level0)
 {
     IAM_LOGI("UserIDMUtTest_007 start");
     static uint64_t challenge = 1;
@@ -189,7 +189,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_007, TestSize.Level1)
     EXPECT_NE(SUCCESS, ret);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_008, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_008, TestSize.Level0)
 {
     IAM_LOGI("UserIDMUtTest_008 start");
     uint32_t userId = 0;
@@ -198,7 +198,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_008, TestSize.Level1)
     EXPECT_NE(SUCCESS, ret);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_008b, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_008b, TestSize.Level0)
 {
     IAM_LOGI("UserIDMUtTest_008b start");
     uint32_t userId = 1;
@@ -207,7 +207,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_008b, TestSize.Level1)
     EXPECT_EQ(SUCCESS, ret);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_009, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_009, TestSize.Level0)
 {
     IAM_LOGI("UserIDMUtTest_009 start");
     std::vector<uint8_t> authToken;
@@ -215,7 +215,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_009, TestSize.Level1)
     UserIDMClient::GetInstance().DelUser(authToken, callback);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_009b, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_009b, TestSize.Level0)
 {
     IAM_LOGI("UserIDMUtTest_009b start");
     std::vector<uint8_t> authToken;
@@ -223,7 +223,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_009b, TestSize.Level1)
     UserIDMClient::GetInstance().DelUser(authToken, callback);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_010, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_010, TestSize.Level0)
 {
     IAM_LOGI("UserIDMUtTest_010 start");
     uint64_t credentialId = 1;
@@ -232,7 +232,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_010, TestSize.Level1)
     UserIDMClient::GetInstance().DelCred(credentialId, authToken, callback);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_010b, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_010b, TestSize.Level0)
 {
     IAM_LOGI("UserIDMUtTest_010b start");
     uint64_t credentialId = 1;
@@ -241,7 +241,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_010b, TestSize.Level1)
     UserIDMClient::GetInstance().DelCred(credentialId, authToken, callback);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_011, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_011, TestSize.Level0)
 {
     IAM_LOGI("UserIDMUtTest_011 start");
     AuthType authType = PIN;
@@ -251,7 +251,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_011, TestSize.Level1)
     EXPECT_NE(SUCCESS, ret);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_011b, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_011b, TestSize.Level0)
 {
     IAM_LOGI("UserIDMUtTest_011b start");
     AuthType authType = PIN;
@@ -261,7 +261,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_011b, TestSize.Level1)
     EXPECT_NE(SUCCESS, ret);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_011c, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_011c, TestSize.Level0)
 {
     IAM_LOGI("UserIDMUtTest_011c start");
     AuthType authType = FACE;
@@ -271,7 +271,7 @@ HWTEST_F(UserIDMUtTest, UserIDMUtTest_011c, TestSize.Level1)
     EXPECT_NE(SUCCESS, ret);
 }
 
-HWTEST_F(UserIDMUtTest, UserIDMUtTest_011d, TestSize.Level1)
+HWTEST_F(UserIDMUtTest, UserIDMUtTest_011d, TestSize.Level0)
 {
     IAM_LOGI("UserIDMUtTest_011d start");
     AuthType aut = FACE;

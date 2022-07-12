@@ -444,7 +444,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_ExecutorDisconnectTest_001, TestSize
         .WillRepeatedly([](uint64_t scheduleId, int32_t srcType, int32_t resultCode,
                             std::shared_ptr<UserIam::UserAuth::Attributes> finalResult) {
             EXPECT_EQ(scheduleId, testScheduleId);
-            EXPECT_EQ(srcType, ALL_IN_ONE);
+            EXPECT_EQ(srcType, static_cast<int32_t>(ALL_IN_ONE));
             EXPECT_EQ(resultCode, ResultCode::GENERAL_ERROR);
             std::vector<uint8_t> extraInfo;
             EXPECT_EQ(finalResult->GetUint8ArrayValue(Attributes::ATTR_RESULT, extraInfo), true);
