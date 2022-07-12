@@ -17,12 +17,9 @@
 #define USER_IDM_CLIENT_H
 
 #include <memory>
-#include <optional>
 #include <vector>
 
-#include "iam_common_defines.h"
 #include "user_idm_client_callback.h"
-#include "user_idm_client_defines.h"
 
 namespace OHOS {
 namespace UserIam {
