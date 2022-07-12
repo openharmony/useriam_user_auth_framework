@@ -17,6 +17,8 @@
 #define USER_IDM_CLIENT_CALLBACK_H
 
 #include "attributes.h"
+#include "iam_common_defines.h"
+#include "user_idm_client_defines.h"
 
 namespace OHOS {
 namespace UserIam {

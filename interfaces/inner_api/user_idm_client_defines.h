@@ -16,6 +16,10 @@
 #ifndef USER_IDM_CLIENT_DEFINES_H
 #define USER_IDM_CLIENT_DEFINES_H
 
+#include <optional>
+
+#include "iam_common_defines.h"
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {

@@ -17,6 +17,7 @@
 #define USER_AUTH_CLIENT_DEFINES_H
 
 #include "attributes.h"
+#include "iam_common_defines.h"
 
 namespace OHOS {
 namespace UserIam {
