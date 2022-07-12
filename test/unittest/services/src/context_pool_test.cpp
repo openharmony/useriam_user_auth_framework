@@ -42,13 +42,13 @@ void ContextPoolTest::TearDown()
 {
 }
 
-HWTEST_F(ContextPoolTest, ContextPoolGetInstance, TestSize.Level1)
+HWTEST_F(ContextPoolTest, ContextPoolGetInstance, TestSize.Level0)
 {
     auto &pool = ContextPool::Instance();
     EXPECT_NE(&pool, nullptr);
 }
 
-HWTEST_F(ContextPoolTest, ContextPoolGetUniqueInstance, TestSize.Level1)
+HWTEST_F(ContextPoolTest, ContextPoolGetUniqueInstance, TestSize.Level0)
 {
     auto &pool1 = ContextPool::Instance();
     auto &pool2 = ContextPool::Instance();
@@ -57,14 +57,14 @@ HWTEST_F(ContextPoolTest, ContextPoolGetUniqueInstance, TestSize.Level1)
     EXPECT_EQ(&pool1, &pool2);
 }
 
-HWTEST_F(ContextPoolTest, ContextPoolInsertNull, TestSize.Level1)
+HWTEST_F(ContextPoolTest, ContextPoolInsertNull, TestSize.Level0)
 {
     auto &pool = ContextPool::Instance();
     ;
     EXPECT_EQ(pool.Insert(nullptr), false);
 }
 
-HWTEST_F(ContextPoolTest, ContextPoolInsertDuplicateId, TestSize.Level1)
+HWTEST_F(ContextPoolTest, ContextPoolInsertDuplicateId, TestSize.Level0)
 {
     const uint64_t CONTEXT_ID = 100;
     auto context1 = MockContext::CreateWithContextId(CONTEXT_ID);
@@ -80,7 +80,7 @@ HWTEST_F(ContextPoolTest, ContextPoolInsertDuplicateId, TestSize.Level1)
     EXPECT_EQ(pool.Delete(CONTEXT_ID), true);
 }
 
-HWTEST_F(ContextPoolTest, ContextPoolDelete, TestSize.Level1)
+HWTEST_F(ContextPoolTest, ContextPoolDelete, TestSize.Level0)
 {
     const uint64_t CONTEXT_ID = 200;
     auto &pool = ContextPool::Instance();
@@ -91,7 +91,7 @@ HWTEST_F(ContextPoolTest, ContextPoolDelete, TestSize.Level1)
     EXPECT_EQ(pool.Select(CONTEXT_ID).lock(), nullptr);
 }
 
-HWTEST_F(ContextPoolTest, ContextPoolInsertAndDelete, TestSize.Level1)
+HWTEST_F(ContextPoolTest, ContextPoolInsertAndDelete, TestSize.Level0)
 {
     auto &pool = ContextPool::Instance();
     const uint64_t CONTEXT_ID1 = 300;
@@ -112,7 +112,7 @@ HWTEST_F(ContextPoolTest, ContextPoolInsertAndDelete, TestSize.Level1)
     EXPECT_EQ(pool.Delete(CONTEXT_ID3), true);
 }
 
-HWTEST_F(ContextPoolTest, ContextSelectScheduleNodeByScheduleId, TestSize.Level1)
+HWTEST_F(ContextPoolTest, ContextSelectScheduleNodeByScheduleId, TestSize.Level0)
 {
     const uint64_t CONTEXT_ID1 = 100;
     const uint64_t SCHEDULE_ID1 = 102;
@@ -133,7 +133,7 @@ HWTEST_F(ContextPoolTest, ContextSelectScheduleNodeByScheduleId, TestSize.Level1
     EXPECT_EQ(pool.SelectScheduleNodeByScheduleId(SCHEDULE_ID2), nullptr);
 }
 
-HWTEST_F(ContextPoolTest, ContextPoolListenerInsert, TestSize.Level1)
+HWTEST_F(ContextPoolTest, ContextPoolListenerInsert, TestSize.Level0)
 {
     auto &pool = ContextPool::Instance();
     const uint64_t CONTEXT_ID1 = 300;
@@ -184,7 +184,7 @@ HWTEST_F(ContextPoolTest, ContextPoolListenerInsert, TestSize.Level1)
     EXPECT_EQ(pool.DeregisterContextPoolListener(listener3), true);
 }
 
-HWTEST_F(ContextPoolTest, ContextPoolCleaner, TestSize.Level1)
+HWTEST_F(ContextPoolTest, ContextPoolCleaner, TestSize.Level0)
 {
     const uint64_t CONTEXT_ID1 = 100;
     const uint64_t SCHEDULE_ID1 = 102;
@@ -199,7 +199,7 @@ HWTEST_F(ContextPoolTest, ContextPoolCleaner, TestSize.Level1)
     EXPECT_EQ(pool.Select(CONTEXT_ID1).lock(), nullptr);
 }
 
-HWTEST_F(ContextPoolTest, ContextPoolRandomId, TestSize.Level1)
+HWTEST_F(ContextPoolTest, ContextPoolRandomId, TestSize.Level0)
 {
     std::set<uint64_t> generated;
 

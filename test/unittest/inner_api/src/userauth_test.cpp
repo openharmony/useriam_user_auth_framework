@@ -120,14 +120,14 @@ void TestSetPropCallback::onSetProperty(const int32_t result)
     std::cout << "onSetProperty callback" << std::endl;
 }
 
-HWTEST_F(UserIamUtTest, UserAuthUtTest_001, TestSize.Level1)
+HWTEST_F(UserIamUtTest, UserAuthUtTest_001, TestSize.Level0)
 {
     AuthType authType = FACE;
     AuthTrustLevel authTrustLevel = ATL1;
     EXPECT_NE(0, UserAuthNative::GetInstance().GetAvailableStatus(authType, authTrustLevel));
 }
 
-HWTEST_F(UserIamUtTest, UserAuthUtTest_002, TestSize.Level1)
+HWTEST_F(UserIamUtTest, UserAuthUtTest_002, TestSize.Level0)
 {
     GetPropertyRequest request;
     request.authType = FACE;
@@ -137,7 +137,7 @@ HWTEST_F(UserIamUtTest, UserAuthUtTest_002, TestSize.Level1)
     UserAuthNative::GetInstance().GetProperty(request, callback);
 }
 
-HWTEST_F(UserIamUtTest, UserAuthUtTest_003, TestSize.Level1)
+HWTEST_F(UserIamUtTest, UserAuthUtTest_003, TestSize.Level0)
 {
     SetPropertyRequest request;
     request.authType = FACE;
@@ -148,7 +148,7 @@ HWTEST_F(UserIamUtTest, UserAuthUtTest_003, TestSize.Level1)
     UserAuthNative::GetInstance().SetProperty(request, callback);
 }
 
-HWTEST_F(UserIamUtTest, UserAuthUtTest_004, TestSize.Level1)
+HWTEST_F(UserIamUtTest, UserAuthUtTest_004, TestSize.Level0)
 {
     uint64_t challenge = 001;
     AuthType authType = FACE;
@@ -158,7 +158,7 @@ HWTEST_F(UserIamUtTest, UserAuthUtTest_004, TestSize.Level1)
         authTrustLevel, callback));
 }
 
-HWTEST_F(UserIamUtTest, UserAuthUtTest_005, TestSize.Level1)
+HWTEST_F(UserIamUtTest, UserAuthUtTest_005, TestSize.Level0)
 {
     int32_t userId = 0;
     uint64_t challenge = 001;
@@ -169,13 +169,13 @@ HWTEST_F(UserIamUtTest, UserAuthUtTest_005, TestSize.Level1)
         authType, authTrustLevel, callback));
 }
 
-HWTEST_F(UserIamUtTest, UserAuthUtTest_006, TestSize.Level1)
+HWTEST_F(UserIamUtTest, UserAuthUtTest_006, TestSize.Level0)
 {
     uint64_t contextId = 0;
     EXPECT_NE(SUCCESS, UserAuthNative::GetInstance().CancelAuth(contextId));
 }
 
-HWTEST_F(UserIamUtTest, UserAuthUtTest_007, TestSize.Level1)
+HWTEST_F(UserIamUtTest, UserAuthUtTest_007, TestSize.Level0)
 {
     GetPropertyRequest request;
     int32_t userId = 100;
@@ -186,7 +186,7 @@ HWTEST_F(UserIamUtTest, UserAuthUtTest_007, TestSize.Level1)
     UserAuth::GetInstance().GetProperty(userId, request, callback);
 }
 
-HWTEST_F(UserIamUtTest, UserAuthUtTest_008, TestSize.Level1)
+HWTEST_F(UserIamUtTest, UserAuthUtTest_008, TestSize.Level0)
 {
     SetPropertyRequest request;
     int32_t userId = 100;
@@ -198,7 +198,7 @@ HWTEST_F(UserIamUtTest, UserAuthUtTest_008, TestSize.Level1)
     UserAuth::GetInstance().SetProperty(userId, request, callback);
 }
 
-HWTEST_F(UserIamUtTest, UserAuthUtTest_009, TestSize.Level1)
+HWTEST_F(UserIamUtTest, UserAuthUtTest_009, TestSize.Level0)
 {
     int32_t userId = 0;
     uint64_t challenge = 001;
@@ -209,13 +209,13 @@ HWTEST_F(UserIamUtTest, UserAuthUtTest_009, TestSize.Level1)
         authTrustLevel, callback));
 }
 
-HWTEST_F(UserIamUtTest, UserAuthUtTest_010, TestSize.Level1)
+HWTEST_F(UserIamUtTest, UserAuthUtTest_010, TestSize.Level0)
 {
     uint64_t contextId = 0;
     EXPECT_NE(SUCCESS, UserAuth::GetInstance().CancelAuth(contextId));
 }
 
-HWTEST_F(UserIamUtTest, UserAuthUtTest_011, TestSize.Level1)
+HWTEST_F(UserIamUtTest, UserAuthUtTest_011, TestSize.Level0)
 {
     uint64_t challenge = 001;
     AuthType authType = PIN;
@@ -223,13 +223,13 @@ HWTEST_F(UserIamUtTest, UserAuthUtTest_011, TestSize.Level1)
     EXPECT_EQ(static_cast<uint64_t>(0), UserAuth::GetInstance().Identify(challenge, authType, callback));
 }
 
-HWTEST_F(UserIamUtTest, UserAuthUtTest_012, TestSize.Level1)
+HWTEST_F(UserIamUtTest, UserAuthUtTest_012, TestSize.Level0)
 {
     uint64_t contextId = 0;
     EXPECT_NE(SUCCESS, UserAuth::GetInstance().CancelIdentify(contextId));
 }
 
-HWTEST_F(UserIamUtTest, UserAuthUtTest_013, TestSize.Level1)
+HWTEST_F(UserIamUtTest, UserAuthUtTest_013, TestSize.Level0)
 {
     uint64_t challenge = 002;
     AuthType authType = FACE;
@@ -237,7 +237,7 @@ HWTEST_F(UserIamUtTest, UserAuthUtTest_013, TestSize.Level1)
     EXPECT_NE(static_cast<uint64_t>(0), UserAuth::GetInstance().Identify(challenge, authType, callback));
 }
 
-HWTEST_F(UserIamUtTest, UserAuthUtTest_014, TestSize.Level1)
+HWTEST_F(UserIamUtTest, UserAuthUtTest_014, TestSize.Level0)
 {
     uint64_t contextId = 0;
     EXPECT_NE(SUCCESS, UserAuth::GetInstance().CancelIdentify(contextId));

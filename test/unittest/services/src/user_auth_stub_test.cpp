@@ -41,7 +41,7 @@ void UserAuthStubTest::TearDown()
 {
 }
 
-HWTEST_F(UserAuthStubTest, UserAuthStubGetAvailableStatusStub, TestSize.Level1)
+HWTEST_F(UserAuthStubTest, UserAuthStubGetAvailableStatusStub, TestSize.Level0)
 {
     MockUserAuthService service;
     AuthType authType = FACE;
@@ -59,7 +59,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetAvailableStatusStub, TestSize.Level1)
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserAuth::USER_AUTH_GET_AVAILABLE_STATUS, data, reply, option));
 }
 
-HWTEST_F(UserAuthStubTest, UserAuthStubGetAvailableStatusStubFailed, TestSize.Level1)
+HWTEST_F(UserAuthStubTest, UserAuthStubGetAvailableStatusStubFailed, TestSize.Level0)
 {
     MockUserAuthService service;
     AuthType authType = FACE;
@@ -75,7 +75,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetAvailableStatusStubFailed, TestSize.Le
         service.OnRemoteRequest(UserAuth::USER_AUTH_GET_AVAILABLE_STATUS, data, reply, option));
 }
 
-HWTEST_F(UserAuthStubTest, UserAuthStubGetPropertyStub, TestSize.Level1)
+HWTEST_F(UserAuthStubTest, UserAuthStubGetPropertyStub, TestSize.Level0)
 {
     MockUserAuthService service;
     std::optional<int32_t> userId;
@@ -113,7 +113,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetPropertyStub, TestSize.Level1)
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserAuth::USER_AUTH_GET_PROPERTY, data, reply, option));
 }
 
-HWTEST_F(UserAuthStubTest, UserAuthStubGetPropertyByIdStub, TestSize.Level1)
+HWTEST_F(UserAuthStubTest, UserAuthStubGetPropertyByIdStub, TestSize.Level0)
 {
     MockUserAuthService service;
     std::optional<int32_t> userId = 1;
@@ -152,7 +152,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetPropertyByIdStub, TestSize.Level1)
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserAuth::USER_AUTH_GET_PROPERTY_BY_ID, data, reply, option));
 }
 
-HWTEST_F(UserAuthStubTest, UserAuthStubSetPropertyStub, TestSize.Level1)
+HWTEST_F(UserAuthStubTest, UserAuthStubSetPropertyStub, TestSize.Level0)
 {
     MockUserAuthService service;
     std::optional<int32_t> userId;
@@ -184,7 +184,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubSetPropertyStub, TestSize.Level1)
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserAuth::USER_AUTH_SET_PROPERTY, data, reply, option));
 }
 
-HWTEST_F(UserAuthStubTest, UserAuthStubAuthStub, TestSize.Level1)
+HWTEST_F(UserAuthStubTest, UserAuthStubAuthStub, TestSize.Level0)
 {
     MockUserAuthService service;
     std::optional<int32_t> userId;
@@ -221,7 +221,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthStub, TestSize.Level1)
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserAuth::USER_AUTH_AUTH, data, reply, option));
 }
 
-HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub, TestSize.Level1)
+HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub, TestSize.Level0)
 {
     MockUserAuthService service;
     std::optional<int32_t> userId = 1;
@@ -259,7 +259,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub, TestSize.Level1)
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserAuth::USER_AUTH_AUTH_USER, data, reply, option));
 }
 
-HWTEST_F(UserAuthStubTest, UserAuthStubIdentifyStub, TestSize.Level1)
+HWTEST_F(UserAuthStubTest, UserAuthStubIdentifyStub, TestSize.Level0)
 {
     MockUserAuthService service;
     uint64_t challenge = 125;
@@ -292,7 +292,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubIdentifyStub, TestSize.Level1)
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserAuth::USER_AUTH_IDENTIFY, data, reply, option));
 }
 
-HWTEST_F(UserAuthStubTest, UserAuthStubCancelAuthOrIdentifyStub, TestSize.Level1)
+HWTEST_F(UserAuthStubTest, UserAuthStubCancelAuthOrIdentifyStub, TestSize.Level0)
 {
     MockUserAuthService service;
     const uint64_t CONTEXT_ID = 100;
@@ -308,7 +308,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubCancelAuthOrIdentifyStub, TestSize.Level1
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserAuth::USER_AUTH_CANCEL_AUTH, data, reply, option));
 }
 
-HWTEST_F(UserAuthStubTest, UserAuthStubGetVersionStub, TestSize.Level1)
+HWTEST_F(UserAuthStubTest, UserAuthStubGetVersionStub, TestSize.Level0)
 {
     MockUserAuthService service;
     EXPECT_CALL(service, GetVersion()).WillOnce(Return(0));

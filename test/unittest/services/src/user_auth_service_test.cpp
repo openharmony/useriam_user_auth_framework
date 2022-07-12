@@ -41,7 +41,7 @@ void UserAuthServiceTest::TearDown()
 {
 }
 
-HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus, TestSize.Level1)
+HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus, TestSize.Level0)
 {
     UserAuthService service(100, true);
     AuthType authType = FACE;

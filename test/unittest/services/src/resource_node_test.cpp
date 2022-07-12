@@ -43,7 +43,7 @@ void ResourceNodeTest::TearDown()
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
 
-HWTEST_F(ResourceNodeTest, HdiError, TestSize.Level1)
+HWTEST_F(ResourceNodeTest, HdiError, TestSize.Level0)
 {
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_CALL(*mock, AddExecutor(_, _, _, _)).WillRepeatedly(Return(1));
@@ -55,7 +55,7 @@ HWTEST_F(ResourceNodeTest, HdiError, TestSize.Level1)
     EXPECT_EQ(node, nullptr);
 }
 
-HWTEST_F(ResourceNodeTest, InsertSuccessWithIndex, TestSize.Level1)
+HWTEST_F(ResourceNodeTest, InsertSuccessWithIndex, TestSize.Level0)
 {
     constexpr uint64_t DEST_EXECUTOR_INDEX = 0x12345678;
 
@@ -73,7 +73,7 @@ HWTEST_F(ResourceNodeTest, InsertSuccessWithIndex, TestSize.Level1)
     }
 }
 
-HWTEST_F(ResourceNodeTest, InsertSuccessWithTemplateIdList, TestSize.Level1)
+HWTEST_F(ResourceNodeTest, InsertSuccessWithTemplateIdList, TestSize.Level0)
 {
     constexpr uint64_t DEST_EXECUTOR_INDEX = 0x12345678;
 

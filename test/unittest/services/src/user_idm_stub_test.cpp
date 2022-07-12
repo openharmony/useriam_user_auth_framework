@@ -56,7 +56,7 @@ void UserIdmStubTest::TearDown()
 {
 }
 
-HWTEST_F(UserIdmStubTest, UserIdmStubOpenSessionStub, TestSize.Level1)
+HWTEST_F(UserIdmStubTest, UserIdmStubOpenSessionStub, TestSize.Level0)
 {
     MockUserIdmService service;
     EXPECT_CALL(service, OpenSession(Eq(std::nullopt), _)).Times(1);
@@ -78,7 +78,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubOpenSessionStub, TestSize.Level1)
     EXPECT_EQ(challenge, IDM_STUB_TEST_CHALLENGE);
 }
 
-HWTEST_F(UserIdmStubTest, UserIdmStubOpenSessionByIdStub, TestSize.Level1)
+HWTEST_F(UserIdmStubTest, UserIdmStubOpenSessionByIdStub, TestSize.Level0)
 {
     MockUserIdmService service;
     EXPECT_CALL(service, OpenSession(Eq(IDM_STUB_TEST_USER_ID), _)).Times(1);
@@ -101,7 +101,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubOpenSessionByIdStub, TestSize.Level1)
     EXPECT_EQ(challenge, IDM_STUB_TEST_CHALLENGE);
 }
 
-HWTEST_F(UserIdmStubTest, UserIdmStubCloseSessionStub, TestSize.Level1)
+HWTEST_F(UserIdmStubTest, UserIdmStubCloseSessionStub, TestSize.Level0)
 {
     MockUserIdmService service;
     EXPECT_CALL(service, CloseSession(Eq(std::nullopt))).Times(1);
@@ -115,7 +115,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubCloseSessionStub, TestSize.Level1)
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdm::USER_IDM_CLOSE_SESSION, data, reply, option));
 }
 
-HWTEST_F(UserIdmStubTest, UserIdmStubCloseSessionByIdStub, TestSize.Level1)
+HWTEST_F(UserIdmStubTest, UserIdmStubCloseSessionByIdStub, TestSize.Level0)
 {
     MockUserIdmService service;
     EXPECT_CALL(service, CloseSession(Eq(IDM_STUB_TEST_USER_ID))).Times(1);
@@ -130,7 +130,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubCloseSessionByIdStub, TestSize.Level1)
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdm::USER_IDM_CLOSE_SESSION_BY_ID, data, reply, option));
 }
 
-HWTEST_F(UserIdmStubTest, UserIdmStubGetCredentialInfoStub, TestSize.Level1)
+HWTEST_F(UserIdmStubTest, UserIdmStubGetCredentialInfoStub, TestSize.Level0)
 {
     MockUserIdmService service;
     const sptr<MockIdmGetCredentialInfoCallback> callback = new (std::nothrow) MockIdmGetCredentialInfoCallback();
@@ -163,7 +163,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubGetCredentialInfoStub, TestSize.Level1)
     EXPECT_TRUE(reply.ReadInt32(result));
 }
 
-HWTEST_F(UserIdmStubTest, UserIdmStubGetCredentialInfoByIdStub, TestSize.Level1)
+HWTEST_F(UserIdmStubTest, UserIdmStubGetCredentialInfoByIdStub, TestSize.Level0)
 {
     MockUserIdmService service;
     const sptr<MockIdmGetCredentialInfoCallback> callback = new (std::nothrow) MockIdmGetCredentialInfoCallback();
@@ -197,7 +197,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubGetCredentialInfoByIdStub, TestSize.Level1)
     EXPECT_TRUE(reply.ReadInt32(result));
 }
 
-HWTEST_F(UserIdmStubTest, UserIdmStubGetSecInfoStub, TestSize.Level1)
+HWTEST_F(UserIdmStubTest, UserIdmStubGetSecInfoStub, TestSize.Level0)
 {
     MockUserIdmService service;
     sptr<MockIdmGetSecureUserInfoCallback> callback = new (std::nothrow) MockIdmGetSecureUserInfoCallback();
@@ -229,7 +229,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubGetSecInfoStub, TestSize.Level1)
     EXPECT_TRUE(reply.ReadInt32(result));
 }
 
-HWTEST_F(UserIdmStubTest, UserIdmStubAddCredentialStub, TestSize.Level1)
+HWTEST_F(UserIdmStubTest, UserIdmStubAddCredentialStub, TestSize.Level0)
 {
     MockUserIdmService service;
     const sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
@@ -260,7 +260,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubAddCredentialStub, TestSize.Level1)
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdm::USER_IDM_ADD_CREDENTIAL, data, reply, option));
 }
 
-HWTEST_F(UserIdmStubTest, UserIdmStubAddCredentialByIdStub, TestSize.Level1)
+HWTEST_F(UserIdmStubTest, UserIdmStubAddCredentialByIdStub, TestSize.Level0)
 {
     MockUserIdmService service;
     const sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
@@ -292,7 +292,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubAddCredentialByIdStub, TestSize.Level1)
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdm::USER_IDM_ADD_CREDENTIAL_BY_ID, data, reply, option));
 }
 
-HWTEST_F(UserIdmStubTest, UserIdmStubUpdateCredentialStub, TestSize.Level1)
+HWTEST_F(UserIdmStubTest, UserIdmStubUpdateCredentialStub, TestSize.Level0)
 {
     MockUserIdmService service;
     const sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
@@ -323,7 +323,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubUpdateCredentialStub, TestSize.Level1)
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdm::USER_IDM_UPDATE_CREDENTIAL, data, reply, option));
 }
 
-HWTEST_F(UserIdmStubTest, UserIdmStubUpdateCredentialByIdStub, TestSize.Level1)
+HWTEST_F(UserIdmStubTest, UserIdmStubUpdateCredentialByIdStub, TestSize.Level0)
 {
     MockUserIdmService service;
     const sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
@@ -356,7 +356,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubUpdateCredentialByIdStub, TestSize.Level1)
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdm::USER_IDM_UPDATE_CREDENTIAL_BY_ID, data, reply, option));
 }
 
-HWTEST_F(UserIdmStubTest, UserIdmStubCancelStub, TestSize.Level1)
+HWTEST_F(UserIdmStubTest, UserIdmStubCancelStub, TestSize.Level0)
 {
     MockUserIdmService service;
     EXPECT_CALL(service, Cancel(Eq(std::nullopt), Eq(g_challengeVectorTest))).WillOnce(Return(SUCCESS));
@@ -374,7 +374,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubCancelStub, TestSize.Level1)
     EXPECT_TRUE(reply.ReadInt32(result));
 }
 
-HWTEST_F(UserIdmStubTest, UserIdmStubCancelByIdStub, TestSize.Level1)
+HWTEST_F(UserIdmStubTest, UserIdmStubCancelByIdStub, TestSize.Level0)
 {
     MockUserIdmService service;
     EXPECT_CALL(service, Cancel(Eq(IDM_STUB_TEST_USER_ID), Eq(std::nullopt))).WillOnce(Return(SUCCESS));
@@ -392,7 +392,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubCancelByIdStub, TestSize.Level1)
     EXPECT_TRUE(reply.ReadInt32(result));
 }
 
-HWTEST_F(UserIdmStubTest, UserIdmStubEnforceDelUserStub, TestSize.Level1)
+HWTEST_F(UserIdmStubTest, UserIdmStubEnforceDelUserStub, TestSize.Level0)
 {
     MockUserIdmService service;
     const sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
@@ -423,7 +423,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubEnforceDelUserStub, TestSize.Level1)
     EXPECT_TRUE(reply.ReadInt32(result));
 }
 
-HWTEST_F(UserIdmStubTest, UserIdmStubDelUserStub, TestSize.Level1)
+HWTEST_F(UserIdmStubTest, UserIdmStubDelUserStub, TestSize.Level0)
 {
     MockUserIdmService service;
     const sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
@@ -453,7 +453,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubDelUserStub, TestSize.Level1)
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdm::USER_IDM_DEL_USER, data, reply, option));
 }
 
-HWTEST_F(UserIdmStubTest, UserIdmStubDelUserByIdStub, TestSize.Level1)
+HWTEST_F(UserIdmStubTest, UserIdmStubDelUserByIdStub, TestSize.Level0)
 {
     MockUserIdmService service;
     const sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
@@ -484,7 +484,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubDelUserByIdStub, TestSize.Level1)
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdm::USER_IDM_DEL_USER_BY_ID, data, reply, option));
 }
 
-HWTEST_F(UserIdmStubTest, UserIdmStubDelCredentialStub, TestSize.Level1)
+HWTEST_F(UserIdmStubTest, UserIdmStubDelCredentialStub, TestSize.Level0)
 {
     MockUserIdmService service;
     const sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
@@ -515,7 +515,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubDelCredentialStub, TestSize.Level1)
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdm::USER_IDM_DEL_CRED, data, reply, option));
 }
 
-HWTEST_F(UserIdmStubTest, UserIdmStubDelCredentialByIdStub, TestSize.Level1)
+HWTEST_F(UserIdmStubTest, UserIdmStubDelCredentialByIdStub, TestSize.Level0)
 {
     MockUserIdmService service;
     const sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();

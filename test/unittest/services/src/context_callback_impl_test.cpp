@@ -55,21 +55,21 @@ void ContextCallbackImplTest::TearDown()
 {
 }
 
-HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserAuthNull, TestSize.Level1)
+HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserAuthNull, TestSize.Level0)
 {
     sptr<UserAuthCallback> callback = nullptr;
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
     ASSERT_EQ(contextCallback, nullptr);
 }
 
-HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserIdmNull, TestSize.Level1)
+HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserIdmNull, TestSize.Level0)
 {
     sptr<IdmCallback> callback = nullptr;
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
     ASSERT_EQ(contextCallback, nullptr);
 }
 
-HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserAuth, TestSize.Level1)
+HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserAuth, TestSize.Level0)
 {
     int32_t testResult = 66;
     auto testAttr = MakeShared<Attributes>();
@@ -90,7 +90,7 @@ HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserAuth, TestSize.Level1)
     contextCallback->OnResult(testResult, *testAttr);
 }
 
-HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserIdmOnResult, TestSize.Level1)
+HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserIdmOnResult, TestSize.Level0)
 {
     int32_t testResult = 66;
     auto testAttr = MakeShared<Attributes>();

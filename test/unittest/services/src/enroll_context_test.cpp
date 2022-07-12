@@ -53,7 +53,7 @@ void EnrollContextTest::TearDown()
 {
 }
 
-HWTEST_F(EnrollContextTest, EnrollContextTest_NullHdi, TestSize.Level1)
+HWTEST_F(EnrollContextTest, EnrollContextTest_NullHdi, TestSize.Level0)
 {
     const uint64_t testContestId = 2;
     const int32_t testResultCode = 7;
@@ -75,7 +75,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_NullHdi, TestSize.Level1)
     nodeCallback->OnScheduleStoped(testResultCode, finalResult);
 }
 
-HWTEST_F(EnrollContextTest, EnrollContextTest_NullCallback, TestSize.Level1)
+HWTEST_F(EnrollContextTest, EnrollContextTest_NullCallback, TestSize.Level0)
 {
     const uint64_t testContestId = 2;
     const ExecutorRole testRole = static_cast<ExecutorRole>(3);
@@ -99,7 +99,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_NullCallback, TestSize.Level1)
     nodeCallback->OnScheduleStoped(testResultCode, finalResult);
 }
 
-HWTEST_F(EnrollContextTest, EnrollContextTest_BasicInfo, TestSize.Level1)
+HWTEST_F(EnrollContextTest, EnrollContextTest_BasicInfo, TestSize.Level0)
 {
     const uint64_t testContestId = 2;
 
@@ -116,7 +116,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_BasicInfo, TestSize.Level1)
     ASSERT_EQ(context->GetContextType(), CONTEXT_ENROLL);
 }
 
-HWTEST_F(EnrollContextTest, EnrollContextTest_Start_001, TestSize.Level1)
+HWTEST_F(EnrollContextTest, EnrollContextTest_Start_001, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
 
@@ -136,7 +136,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_Start_001, TestSize.Level1)
     ASSERT_EQ(context->Start(), false);
 }
 
-HWTEST_F(EnrollContextTest, EnrollContextTest_Start_002, TestSize.Level1)
+HWTEST_F(EnrollContextTest, EnrollContextTest_Start_002, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
 
@@ -156,7 +156,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_Start_002, TestSize.Level1)
     ASSERT_EQ(context->Start(), false);
 }
 
-HWTEST_F(EnrollContextTest, EnrollContextTest_Start_003, TestSize.Level1)
+HWTEST_F(EnrollContextTest, EnrollContextTest_Start_003, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
 
@@ -178,7 +178,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_Start_003, TestSize.Level1)
     ASSERT_EQ(context->Start(), false);
 }
 
-HWTEST_F(EnrollContextTest, EnrollContextTest_Start_004, TestSize.Level1)
+HWTEST_F(EnrollContextTest, EnrollContextTest_Start_004, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
 
@@ -203,7 +203,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_Start_004, TestSize.Level1)
     ASSERT_EQ(context->Start(), false);
 }
 
-HWTEST_F(EnrollContextTest, EnrollContextTest_Start_005, TestSize.Level1)
+HWTEST_F(EnrollContextTest, EnrollContextTest_Start_005, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
     static const uint64_t testScheduleId = 3;
@@ -235,7 +235,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_Start_005, TestSize.Level1)
     ASSERT_EQ(node, nullptr);
 }
 
-HWTEST_F(EnrollContextTest, EnrollContextTest_Stop_001, TestSize.Level1)
+HWTEST_F(EnrollContextTest, EnrollContextTest_Stop_001, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
 
@@ -252,7 +252,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_Stop_001, TestSize.Level1)
     ASSERT_EQ(context->Stop(), false);
 }
 
-HWTEST_F(EnrollContextTest, EnrollContextTest_Stop_002, TestSize.Level1)
+HWTEST_F(EnrollContextTest, EnrollContextTest_Stop_002, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
     std::shared_ptr<MockEnrollment> mockEnroll = MakeShared<MockEnrollment>();
@@ -265,7 +265,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_Stop_002, TestSize.Level1)
     ASSERT_EQ(context->Stop(), true);
 }
 
-HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStarted, TestSize.Level1)
+HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStarted, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
 
@@ -280,12 +280,12 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStarted, TestSize.Level1
     nodeCallback->OnScheduleStarted();
 }
 
-HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleProcessed, TestSize.Level1)
+HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleProcessed, TestSize.Level0)
 {
     EXPECT_EQ(0, 0);
 }
 
-HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_001, TestSize.Level1)
+HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_001, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
     static const int32_t testResultCode = 7;
@@ -308,7 +308,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_001, TestSize.Lev
     nodeCallback->OnScheduleStoped(testResultCode, result);
 }
 
-HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_002, TestSize.Level1)
+HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_002, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
     static const int32_t testResultCode = ResultCode::SUCCESS;
@@ -331,7 +331,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_002, TestSize.Lev
     nodeCallback->OnScheduleStoped(testResultCode, result);
 }
 
-HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_003, TestSize.Level1)
+HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_003, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
     static const int32_t testResultCode = ResultCode::SUCCESS;
@@ -355,7 +355,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_003, TestSize.Lev
     nodeCallback->OnScheduleStoped(testResultCode, result);
 }
 
-HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_004, TestSize.Level1)
+HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_004, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
     static const int32_t testResultCode = ResultCode::SUCCESS;
@@ -392,7 +392,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_004, TestSize.Lev
     nodeCallback->OnScheduleStoped(testResultCode, result);
 }
 
-HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_005, TestSize.Level1)
+HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_005, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
     static const std::vector<uint8_t> testScheduleResult = {3, 4, 5, 6};
