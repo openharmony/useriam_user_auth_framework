@@ -40,7 +40,7 @@ void UserIdmServiceTest::TearDown()
 {
 }
 
-HWTEST_F(UserIdmServiceTest, UserIdmServiceOpenSession, TestSize.Level1)
+HWTEST_F(UserIdmServiceTest, UserIdmServiceOpenSession, TestSize.Level0)
 {
     EXPECT_EQ(0, 0);
 }

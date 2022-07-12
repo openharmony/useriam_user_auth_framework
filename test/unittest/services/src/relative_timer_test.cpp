@@ -42,7 +42,7 @@ void RelativeTimerTest::TearDown()
 {
 }
 
-HWTEST_F(RelativeTimerTest, RelativeTimerTest, TestSize.Level1)
+HWTEST_F(RelativeTimerTest, RelativeTimerTest, TestSize.Level0)
 {
     using namespace std::chrono;
     std::promise<void> ensure;

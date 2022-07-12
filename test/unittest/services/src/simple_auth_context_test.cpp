@@ -15,11 +15,13 @@
 
 #include "simple_auth_context.h"
 
+#include <future>
+
 #include "mock_authentication.h"
 #include "mock_context.h"
+#include "mock_resource_node.h"
 #include "mock_schedule_node.h"
 #include "schedule_node_impl.h"
-#include "mock_resource_node.h"
 
 using namespace OHOS::UserIAM::Common;
 using namespace testing;
@@ -54,7 +56,7 @@ void SimpleAuthContextTest::TearDown()
 {
 }
 
-HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_NullHdi, TestSize.Level1)
+HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_NullHdi, TestSize.Level0)
 {
     const uint64_t testContestId = 2;
     const int32_t testResultCode = 7;
@@ -76,7 +78,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_NullHdi, TestSize.Level1)
     nodeCallback->OnScheduleStoped(testResultCode, finalResult);
 }
 
-HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_NullCallback, TestSize.Level1)
+HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_NullCallback, TestSize.Level0)
 {
     const uint64_t testContestId = 2;
     const ExecutorRole testRole = static_cast<ExecutorRole>(3);
@@ -100,7 +102,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_NullCallback, TestSize.Lev
     nodeCallback->OnScheduleStoped(testResultCode, finalResult);
 }
 
-HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_BasicInfo, TestSize.Level1)
+HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_BasicInfo, TestSize.Level0)
 {
     const uint64_t testContestId = 2;
 
@@ -117,7 +119,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_BasicInfo, TestSize.Level1
     ASSERT_EQ(context->GetContextType(), CONTEXT_SIMPLE_AUTH);
 }
 
-HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_Start_001, TestSize.Level1)
+HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_Start_001, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
 
@@ -137,7 +139,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_Start_001, TestSize.Level1
     ASSERT_EQ(context->Start(), false);
 }
 
-HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_Start_002, TestSize.Level1)
+HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_Start_002, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
 
@@ -157,7 +159,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_Start_002, TestSize.Level1
     ASSERT_EQ(context->Start(), false);
 }
 
-HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_Start_003, TestSize.Level1)
+HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_Start_003, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
 
@@ -179,7 +181,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_Start_003, TestSize.Level1
     ASSERT_EQ(context->Start(), false);
 }
 
-HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_Start_004, TestSize.Level1)
+HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_Start_004, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
 
@@ -202,7 +204,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_Start_004, TestSize.Level1
     ASSERT_EQ(context->Start(), false);
 }
 
-HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_Start_005, TestSize.Level1)
+HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_Start_005, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
     static const uint64_t testScheduleId = 3;
@@ -233,7 +235,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_Start_005, TestSize.Level1
     ASSERT_EQ(node, nullptr);
 }
 
-HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_Stop_001, TestSize.Level1)
+HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_Stop_001, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
 
@@ -250,7 +252,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_Stop_001, TestSize.Level1)
     ASSERT_EQ(context->Stop(), false);
 }
 
-HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_Stop_002, TestSize.Level1)
+HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_Stop_002, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
 
@@ -264,7 +266,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_Stop_002, TestSize.Level1)
     ASSERT_EQ(context->Stop(), true);
 }
 
-HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStarted, TestSize.Level1)
+HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStarted, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
 
@@ -279,12 +281,12 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStarted, TestSiz
     nodeCallback->OnScheduleStarted();
 }
 
-HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleProcessed, TestSize.Level1)
+HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleProcessed, TestSize.Level0)
 {
     EXPECT_EQ(0, 0);
 }
 
-HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_001, TestSize.Level1)
+HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_001, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
     static const int32_t testResultCode = 7;
@@ -295,9 +297,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_001, Test
     ASSERT_NE(contextCallback, nullptr);
     EXPECT_CALL(*contextCallback, OnResult(_, _))
         .Times(Exactly(1))
-        .WillOnce([](int32_t resultCode, Attributes &finalResult) {
-            EXPECT_EQ(resultCode, testResultCode);
-        });
+        .WillOnce([](int32_t resultCode, Attributes &finalResult) { EXPECT_EQ(resultCode, testResultCode); });
 
     std::shared_ptr<ScheduleNodeCallback> nodeCallback =
         MakeShared<SimpleAuthContext>(testContestId, mockAuth, contextCallback);
@@ -307,7 +307,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_001, Test
     nodeCallback->OnScheduleStoped(testResultCode, result);
 }
 
-HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_002, TestSize.Level1)
+HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_002, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
     static const int32_t testResultCode = ResultCode::SUCCESS;
@@ -318,9 +318,8 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_002, Test
     ASSERT_NE(contextCallback, nullptr);
     EXPECT_CALL(*contextCallback, OnResult(_, _))
         .Times(Exactly(1))
-        .WillOnce([](int32_t resultCode, Attributes &finalResult) {
-            EXPECT_EQ(resultCode, ResultCode::GENERAL_ERROR);
-        });
+        .WillOnce(
+            [](int32_t resultCode, Attributes &finalResult) { EXPECT_EQ(resultCode, ResultCode::GENERAL_ERROR); });
 
     std::shared_ptr<ScheduleNodeCallback> nodeCallback =
         MakeShared<SimpleAuthContext>(testContestId, mockAuth, contextCallback);
@@ -330,7 +329,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_002, Test
     nodeCallback->OnScheduleStoped(testResultCode, result);
 }
 
-HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_003, TestSize.Level1)
+HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_003, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
     static const int32_t testResultCode = ResultCode::SUCCESS;
@@ -341,9 +340,8 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_003, Test
     ASSERT_NE(contextCallback, nullptr);
     EXPECT_CALL(*contextCallback, OnResult(_, _))
         .Times(Exactly(1))
-        .WillOnce([](int32_t resultCode, Attributes &finalResult) {
-            EXPECT_EQ(resultCode, ResultCode::GENERAL_ERROR);
-        });
+        .WillOnce(
+            [](int32_t resultCode, Attributes &finalResult) { EXPECT_EQ(resultCode, ResultCode::GENERAL_ERROR); });
 
     std::shared_ptr<ScheduleNodeCallback> nodeCallback =
         MakeShared<SimpleAuthContext>(testContestId, mockAuth, contextCallback);
@@ -353,7 +351,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_003, Test
     nodeCallback->OnScheduleStoped(testResultCode, result);
 }
 
-HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_004, TestSize.Level1)
+HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_004, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
     static const int32_t testResultCode = ResultCode::SUCCESS;
@@ -371,9 +369,8 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_004, Test
     ASSERT_NE(contextCallback, nullptr);
     EXPECT_CALL(*contextCallback, OnResult(_, _))
         .Times(Exactly(1))
-        .WillOnce([](int32_t resultCode, Attributes &finalResult) {
-            EXPECT_EQ(resultCode, ResultCode::GENERAL_ERROR);
-        });
+        .WillOnce(
+            [](int32_t resultCode, Attributes &finalResult) { EXPECT_EQ(resultCode, ResultCode::GENERAL_ERROR); });
 
     std::shared_ptr<ScheduleNodeCallback> nodeCallback =
         MakeShared<SimpleAuthContext>(testContestId, mockAuth, contextCallback);
@@ -386,7 +383,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_004, Test
     nodeCallback->OnScheduleStoped(testResultCode, result);
 }
 
-HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_005, TestSize.Level1)
+HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_005, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
     static const std::vector<uint8_t> testScheduleResult = {3, 4, 5, 6};
@@ -409,7 +406,8 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_005, Test
         });
     std::shared_ptr<MockContextCallback> contextCallback = MakeShared<MockContextCallback>();
     ASSERT_NE(contextCallback, nullptr);
-    EXPECT_CALL(*contextCallback, OnResult(_, _)).Times(Exactly(1))
+    EXPECT_CALL(*contextCallback, OnResult(_, _))
+        .Times(Exactly(1))
         .WillOnce([](int32_t resultCode, Attributes &finalResult) {
             EXPECT_EQ(resultCode, testResultCode);
             uint32_t attrResultCode;
@@ -442,7 +440,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_005, Test
     nodeCallback->OnScheduleStoped(testResultCode, result);
 }
 
-HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_ContextFree, TestSize.Level1)
+HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_ContextFree, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
 
@@ -463,20 +461,24 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_ContextFree, TestSize.Leve
         });
     std::shared_ptr<MockContextCallback> contextCallback = MakeShared<MockContextCallback>();
     ASSERT_NE(contextCallback, nullptr);
-    EXPECT_CALL(*contextCallback, OnResult(_, _)).Times(Exactly(1))
-        .WillOnce([](int32_t resultCode, Attributes &finalResult) {
+
+    std::promise<void> promise;
+    EXPECT_CALL(*contextCallback, OnResult(_, _))
+        .Times(Exactly(1))
+        .WillOnce([&promise](int32_t resultCode, Attributes &finalResult) {
             EXPECT_EQ(resultCode, ResultCode::BUSY);
+            promise.set_value();
         });
 
     std::weak_ptr<Context> weakContext;
     {
-        std::shared_ptr<Context> context =
-            MakeShared<SimpleAuthContext>(testContestId, mockAuth, contextCallback);
+        std::shared_ptr<Context> context = MakeShared<SimpleAuthContext>(testContestId, mockAuth, contextCallback);
         ASSERT_NE(context, nullptr);
         weakContext = context;
         context->Start();
-        usleep(1000);
+        promise.get_future().get();
     }
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
     ASSERT_EQ(weakContext.lock(), nullptr);
 }
 } // namespace UserAuth

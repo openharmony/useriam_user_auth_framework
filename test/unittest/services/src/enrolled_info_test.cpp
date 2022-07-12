@@ -40,7 +40,7 @@ void EnrolledInfoTest::TearDown()
 {
 }
 
-HWTEST_F(EnrolledInfoTest, GetUserId, TestSize.Level1)
+HWTEST_F(EnrolledInfoTest, GetUserId, TestSize.Level0)
 {
     int32_t userId = 100;
     HdiEnrolledInfo info = {
@@ -52,7 +52,7 @@ HWTEST_F(EnrolledInfoTest, GetUserId, TestSize.Level1)
     EXPECT_EQ(ret, userId);
 }
 
-HWTEST_F(EnrolledInfoTest, GetAuthType, TestSize.Level1)
+HWTEST_F(EnrolledInfoTest, GetAuthType, TestSize.Level0)
 {
     int32_t userId = 100;
     HdiEnrolledInfo info = {
@@ -64,7 +64,7 @@ HWTEST_F(EnrolledInfoTest, GetAuthType, TestSize.Level1)
     EXPECT_EQ(ret, PIN);
 }
 
-HWTEST_F(EnrolledInfoTest, GetEnrolledId, TestSize.Level1)
+HWTEST_F(EnrolledInfoTest, GetEnrolledId, TestSize.Level0)
 {
     int32_t userId = 100;
     HdiEnrolledInfo info = {

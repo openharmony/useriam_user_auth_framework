@@ -43,7 +43,7 @@ void UserIdmSessionControllerTest::TearDown()
     UserIdmSessionController::Instance().ForceReset();
 }
 
-HWTEST_F(UserIdmSessionControllerTest, UserIdmServiceOpenSessionSuccess, TestSize.Level1)
+HWTEST_F(UserIdmSessionControllerTest, UserIdmServiceOpenSessionSuccess, TestSize.Level0)
 {
     int32_t userId = 100;
     std::vector<uint8_t> challenge;
@@ -54,7 +54,7 @@ HWTEST_F(UserIdmSessionControllerTest, UserIdmServiceOpenSessionSuccess, TestSiz
     EXPECT_EQ(true, UserIdmSessionController::Instance().OpenSession(userId, challenge));
 }
 
-HWTEST_F(UserIdmSessionControllerTest, UserIdmServiceOpenSessionTwice, TestSize.Level1)
+HWTEST_F(UserIdmSessionControllerTest, UserIdmServiceOpenSessionTwice, TestSize.Level0)
 {
     int32_t userId1 = 100;
     int32_t userId2 = 100;
@@ -69,7 +69,7 @@ HWTEST_F(UserIdmSessionControllerTest, UserIdmServiceOpenSessionTwice, TestSize.
     EXPECT_EQ(true, UserIdmSessionController::Instance().OpenSession(userId3, challenge));
 }
 
-HWTEST_F(UserIdmSessionControllerTest, UserIdmServiceOpenSessionFailed, TestSize.Level1)
+HWTEST_F(UserIdmSessionControllerTest, UserIdmServiceOpenSessionFailed, TestSize.Level0)
 {
     int32_t userId = 100;
     std::vector<uint8_t> challenge;
@@ -80,7 +80,7 @@ HWTEST_F(UserIdmSessionControllerTest, UserIdmServiceOpenSessionFailed, TestSize
     EXPECT_EQ(false, UserIdmSessionController::Instance().OpenSession(userId, challenge));
 }
 
-HWTEST_F(UserIdmSessionControllerTest, UserIdmServiceIsSessionOpened, TestSize.Level1)
+HWTEST_F(UserIdmSessionControllerTest, UserIdmServiceIsSessionOpened, TestSize.Level0)
 {
     int32_t userId = 100;
     std::vector<uint8_t> nonce = {1, 3, 2, 5, 7};
@@ -107,7 +107,7 @@ HWTEST_F(UserIdmSessionControllerTest, UserIdmServiceIsSessionOpened, TestSize.L
     EXPECT_EQ(false, UserIdmSessionController::Instance().IsSessionOpened(notExisted));
 }
 
-HWTEST_F(UserIdmSessionControllerTest, UserIdmServiceIsSessionClosedByUserId, TestSize.Level1)
+HWTEST_F(UserIdmSessionControllerTest, UserIdmServiceIsSessionClosedByUserId, TestSize.Level0)
 {
     int32_t userId = 100;
     std::vector<uint8_t> nonce = {1, 3, 2, 5, 7};
@@ -129,7 +129,7 @@ HWTEST_F(UserIdmSessionControllerTest, UserIdmServiceIsSessionClosedByUserId, Te
     EXPECT_EQ(0U, UserIdmSessionController::Instance().GetOpenedSessions().size());
 }
 
-HWTEST_F(UserIdmSessionControllerTest, UserIdmServiceIsSessionClosedByChallenge, TestSize.Level1)
+HWTEST_F(UserIdmSessionControllerTest, UserIdmServiceIsSessionClosedByChallenge, TestSize.Level0)
 {
     int32_t userId = 100;
     std::vector<uint8_t> nonce = {1, 3, 2, 5, 7};
