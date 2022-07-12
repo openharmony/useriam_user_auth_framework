@@ -19,7 +19,6 @@
 #include <vector>
 
 #include "attributes.h"
-#include "iam_common_defines.h"
 
 namespace OHOS {
 namespace UserIam {
