@@ -44,7 +44,7 @@ void UserIdmDatabaseTest::TearDown()
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
 
-HWTEST_F(UserIdmDatabaseTest, FailedGetSecUserInfo, TestSize.Level1)
+HWTEST_F(UserIdmDatabaseTest, FailedGetSecUserInfo, TestSize.Level0)
 {
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_CALL(*mock, GetUserInfo(_, _, _, _)).WillRepeatedly(Return(1));
@@ -54,7 +54,7 @@ HWTEST_F(UserIdmDatabaseTest, FailedGetSecUserInfo, TestSize.Level1)
     EXPECT_EQ(secUserInfo, nullptr);
 }
 
-HWTEST_F(UserIdmDatabaseTest, FailedGetSecUserInfoNoPin, TestSize.Level1)
+HWTEST_F(UserIdmDatabaseTest, FailedGetSecUserInfoNoPin, TestSize.Level0)
 {
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
     constexpr int32_t USER_ID = 100;
@@ -78,7 +78,7 @@ HWTEST_F(UserIdmDatabaseTest, FailedGetSecUserInfoNoPin, TestSize.Level1)
     EXPECT_NE(secUserInfo, nullptr);
 }
 
-HWTEST_F(UserIdmDatabaseTest, FailedGetSecUserInfoNoEnrolledInfo, TestSize.Level1)
+HWTEST_F(UserIdmDatabaseTest, FailedGetSecUserInfoNoEnrolledInfo, TestSize.Level0)
 {
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
     constexpr int32_t USER_ID = 100;
@@ -97,7 +97,7 @@ HWTEST_F(UserIdmDatabaseTest, FailedGetSecUserInfoNoEnrolledInfo, TestSize.Level
     EXPECT_NE(secUserInfo, nullptr);
 }
 
-HWTEST_F(UserIdmDatabaseTest, SuccessfulGetSecUserInfo, TestSize.Level1)
+HWTEST_F(UserIdmDatabaseTest, SuccessfulGetSecUserInfo, TestSize.Level0)
 {
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
     constexpr int32_t USER_ID = 100;
@@ -132,7 +132,7 @@ HWTEST_F(UserIdmDatabaseTest, SuccessfulGetSecUserInfo, TestSize.Level1)
     EXPECT_EQ(2U, secUserInfo->GetEnrolledInfo().size());
 }
 
-HWTEST_F(UserIdmDatabaseTest, FailedGetCredentialInfoVector, TestSize.Level1)
+HWTEST_F(UserIdmDatabaseTest, FailedGetCredentialInfoVector, TestSize.Level0)
 {
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
     // mock hdi interface return 1
@@ -145,7 +145,7 @@ HWTEST_F(UserIdmDatabaseTest, FailedGetCredentialInfoVector, TestSize.Level1)
     EXPECT_EQ(infoRet.size(), 0U);
 }
 
-HWTEST_F(UserIdmDatabaseTest, SuccessfulGetCredentialInfoVector, TestSize.Level1)
+HWTEST_F(UserIdmDatabaseTest, SuccessfulGetCredentialInfoVector, TestSize.Level0)
 {
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
     constexpr int32_t USER_ID = 100;

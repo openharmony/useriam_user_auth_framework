@@ -52,7 +52,7 @@ void IdentifyContextTest::TearDown()
 {
 }
 
-HWTEST_F(IdentifyContextTest, IdentifyContextTest_NullHdi, TestSize.Level1)
+HWTEST_F(IdentifyContextTest, IdentifyContextTest_NullHdi, TestSize.Level0)
 {
     const uint64_t testContestId = 2;
     const int32_t testResultCode = 7;
@@ -74,7 +74,7 @@ HWTEST_F(IdentifyContextTest, IdentifyContextTest_NullHdi, TestSize.Level1)
     nodeCallback->OnScheduleStoped(testResultCode, finalResult);
 }
 
-HWTEST_F(IdentifyContextTest, IdentifyContextTest_NullCallback, TestSize.Level1)
+HWTEST_F(IdentifyContextTest, IdentifyContextTest_NullCallback, TestSize.Level0)
 {
     const uint64_t testContestId = 2;
     const ExecutorRole testRole = static_cast<ExecutorRole>(3);
@@ -98,7 +98,7 @@ HWTEST_F(IdentifyContextTest, IdentifyContextTest_NullCallback, TestSize.Level1)
     nodeCallback->OnScheduleStoped(testResultCode, finalResult);
 }
 
-HWTEST_F(IdentifyContextTest, IdentifyContextTest_BasicInfo, TestSize.Level1)
+HWTEST_F(IdentifyContextTest, IdentifyContextTest_BasicInfo, TestSize.Level0)
 {
     const uint64_t testContestId = 2;
 
@@ -115,7 +115,7 @@ HWTEST_F(IdentifyContextTest, IdentifyContextTest_BasicInfo, TestSize.Level1)
     ASSERT_EQ(context->GetContextType(), CONTEXT_IDENTIFY);
 }
 
-HWTEST_F(IdentifyContextTest, IdentifyContextTest_Start_001, TestSize.Level1)
+HWTEST_F(IdentifyContextTest, IdentifyContextTest_Start_001, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
 
@@ -135,7 +135,7 @@ HWTEST_F(IdentifyContextTest, IdentifyContextTest_Start_001, TestSize.Level1)
     ASSERT_EQ(context->Start(), false);
 }
 
-HWTEST_F(IdentifyContextTest, IdentifyContextTest_Start_002, TestSize.Level1)
+HWTEST_F(IdentifyContextTest, IdentifyContextTest_Start_002, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
 
@@ -155,7 +155,7 @@ HWTEST_F(IdentifyContextTest, IdentifyContextTest_Start_002, TestSize.Level1)
     ASSERT_EQ(context->Start(), false);
 }
 
-HWTEST_F(IdentifyContextTest, IdentifyContextTest_Start_003, TestSize.Level1)
+HWTEST_F(IdentifyContextTest, IdentifyContextTest_Start_003, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
 
@@ -177,7 +177,7 @@ HWTEST_F(IdentifyContextTest, IdentifyContextTest_Start_003, TestSize.Level1)
     ASSERT_EQ(context->Start(), false);
 }
 
-HWTEST_F(IdentifyContextTest, IdentifyContextTest_Start_004, TestSize.Level1)
+HWTEST_F(IdentifyContextTest, IdentifyContextTest_Start_004, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
 
@@ -200,7 +200,7 @@ HWTEST_F(IdentifyContextTest, IdentifyContextTest_Start_004, TestSize.Level1)
     ASSERT_EQ(context->Start(), false);
 }
 
-HWTEST_F(IdentifyContextTest, IdentifyContextTest_Start_005, TestSize.Level1)
+HWTEST_F(IdentifyContextTest, IdentifyContextTest_Start_005, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
     static const uint64_t testScheduleId = 3;
@@ -231,7 +231,7 @@ HWTEST_F(IdentifyContextTest, IdentifyContextTest_Start_005, TestSize.Level1)
     ASSERT_EQ(node, nullptr);
 }
 
-HWTEST_F(IdentifyContextTest, IdentifyContextTest_Stop_001, TestSize.Level1)
+HWTEST_F(IdentifyContextTest, IdentifyContextTest_Stop_001, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
 
@@ -248,7 +248,7 @@ HWTEST_F(IdentifyContextTest, IdentifyContextTest_Stop_001, TestSize.Level1)
     ASSERT_EQ(context->Stop(), false);
 }
 
-HWTEST_F(IdentifyContextTest, IdentifyContextTest_Stop_002, TestSize.Level1)
+HWTEST_F(IdentifyContextTest, IdentifyContextTest_Stop_002, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
 
@@ -262,7 +262,7 @@ HWTEST_F(IdentifyContextTest, IdentifyContextTest_Stop_002, TestSize.Level1)
     ASSERT_EQ(context->Stop(), true);
 }
 
-HWTEST_F(IdentifyContextTest, IdentifyContextTest_OnScheduleStarted, TestSize.Level1)
+HWTEST_F(IdentifyContextTest, IdentifyContextTest_OnScheduleStarted, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
 
@@ -277,12 +277,12 @@ HWTEST_F(IdentifyContextTest, IdentifyContextTest_OnScheduleStarted, TestSize.Le
     nodeCallback->OnScheduleStarted();
 }
 
-HWTEST_F(IdentifyContextTest, IdentifyContextTest_OnScheduleProcessed, TestSize.Level1)
+HWTEST_F(IdentifyContextTest, IdentifyContextTest_OnScheduleProcessed, TestSize.Level0)
 {
     EXPECT_EQ(0, 0);
 }
 
-HWTEST_F(IdentifyContextTest, IdentifyContextTest_OnScheduleStoped_001, TestSize.Level1)
+HWTEST_F(IdentifyContextTest, IdentifyContextTest_OnScheduleStoped_001, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
     static const int32_t testResultCode = 7;
@@ -305,7 +305,7 @@ HWTEST_F(IdentifyContextTest, IdentifyContextTest_OnScheduleStoped_001, TestSize
     nodeCallback->OnScheduleStoped(testResultCode, result);
 }
 
-HWTEST_F(IdentifyContextTest, IdentifyContextTest_OnScheduleStoped_002, TestSize.Level1)
+HWTEST_F(IdentifyContextTest, IdentifyContextTest_OnScheduleStoped_002, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
     static const int32_t testResultCode = ResultCode::SUCCESS;
@@ -328,7 +328,7 @@ HWTEST_F(IdentifyContextTest, IdentifyContextTest_OnScheduleStoped_002, TestSize
     nodeCallback->OnScheduleStoped(testResultCode, result);
 }
 
-HWTEST_F(IdentifyContextTest, IdentifyContextTest_OnScheduleStoped_003, TestSize.Level1)
+HWTEST_F(IdentifyContextTest, IdentifyContextTest_OnScheduleStoped_003, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
     static const int32_t testResultCode = ResultCode::SUCCESS;
@@ -352,7 +352,7 @@ HWTEST_F(IdentifyContextTest, IdentifyContextTest_OnScheduleStoped_003, TestSize
     nodeCallback->OnScheduleStoped(testResultCode, result);
 }
 
-HWTEST_F(IdentifyContextTest, IdentifyContextTest_OnScheduleStoped_004, TestSize.Level1)
+HWTEST_F(IdentifyContextTest, IdentifyContextTest_OnScheduleStoped_004, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
     static const int32_t testResultCode = ResultCode::SUCCESS;
@@ -385,7 +385,7 @@ HWTEST_F(IdentifyContextTest, IdentifyContextTest_OnScheduleStoped_004, TestSize
     nodeCallback->OnScheduleStoped(testResultCode, result);
 }
 
-HWTEST_F(IdentifyContextTest, IdentifyContextTest_OnScheduleStoped_005, TestSize.Level1)
+HWTEST_F(IdentifyContextTest, IdentifyContextTest_OnScheduleStoped_005, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
     static const std::vector<uint8_t> testScheduleResult = {3, 4, 5, 6};

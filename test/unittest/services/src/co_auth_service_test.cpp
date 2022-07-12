@@ -42,7 +42,7 @@ void CoAuthServiceTest::TearDown()
 {
 }
 
-HWTEST_F(CoAuthServiceTest, CoAuthServiceTestOnRemoteRequest, TestSize.Level1)
+HWTEST_F(CoAuthServiceTest, CoAuthServiceTestOnRemoteRequest, TestSize.Level0)
 {
     sptr<ExecutorCallbackStub> callback = new (std::nothrow) ExecutorCallbackStub();
     EXPECT_NE(callback, nullptr);

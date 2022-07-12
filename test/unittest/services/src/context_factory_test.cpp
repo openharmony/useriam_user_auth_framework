@@ -51,7 +51,7 @@ void ContextFactoryTest::TearDown()
 {
 }
 
-HWTEST_F(ContextFactoryTest, ContextFactoryCreateSimpleAuth_001, TestSize.Level1)
+HWTEST_F(ContextFactoryTest, ContextFactoryCreateSimpleAuth_001, TestSize.Level0)
 {
     auto factory = ContextFactory::GetInstance();
     ASSERT_NE(factory, nullptr);
@@ -66,7 +66,7 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateSimpleAuth_001, TestSize.Level1
     ASSERT_EQ(context->GetContextType(), CONTEXT_SIMPLE_AUTH);
 }
 
-HWTEST_F(ContextFactoryTest, ContextFactoryCreateSimpleAuth_002, TestSize.Level1)
+HWTEST_F(ContextFactoryTest, ContextFactoryCreateSimpleAuth_002, TestSize.Level0)
 {
     auto factory = ContextFactory::GetInstance();
     ASSERT_NE(factory, nullptr);
@@ -79,7 +79,7 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateSimpleAuth_002, TestSize.Level1
     ASSERT_EQ(context, nullptr);
 }
 
-HWTEST_F(ContextFactoryTest, ContextFactoryCreateIdentify_001, TestSize.Level1)
+HWTEST_F(ContextFactoryTest, ContextFactoryCreateIdentify_001, TestSize.Level0)
 {
     auto factory = ContextFactory::GetInstance();
     ASSERT_NE(factory, nullptr);
@@ -93,7 +93,7 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateIdentify_001, TestSize.Level1)
     ASSERT_EQ(context->GetContextType(), CONTEXT_IDENTIFY);
 }
 
-HWTEST_F(ContextFactoryTest, ContextFactoryCreateIdentify_002, TestSize.Level1)
+HWTEST_F(ContextFactoryTest, ContextFactoryCreateIdentify_002, TestSize.Level0)
 {
     auto factory = ContextFactory::GetInstance();
     ASSERT_NE(factory, nullptr);
@@ -105,7 +105,7 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateIdentify_002, TestSize.Level1)
     ASSERT_EQ(context, nullptr);
 }
 
-HWTEST_F(ContextFactoryTest, ContextFactoryCreateEnrollContext_001, TestSize.Level1)
+HWTEST_F(ContextFactoryTest, ContextFactoryCreateEnrollContext_001, TestSize.Level0)
 {
     auto factory = ContextFactory::GetInstance();
     ASSERT_NE(factory, nullptr);
@@ -120,7 +120,7 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateEnrollContext_001, TestSize.Lev
     ASSERT_EQ(context->GetContextType(), CONTEXT_ENROLL);
 }
 
-HWTEST_F(ContextFactoryTest, ContextFactoryCreateEnrollContext_002, TestSize.Level1)
+HWTEST_F(ContextFactoryTest, ContextFactoryCreateEnrollContext_002, TestSize.Level0)
 {
     auto factory = ContextFactory::GetInstance();
     ASSERT_NE(factory, nullptr);

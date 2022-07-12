@@ -52,7 +52,7 @@ void EnrollmentImplTest::TearDown()
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
 
-HWTEST_F(EnrollmentImplTest, EnrollmentHdiError, TestSize.Level1)
+HWTEST_F(EnrollmentImplTest, EnrollmentHdiError, TestSize.Level0)
 {
     constexpr int32_t userId = 0x11;
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
@@ -63,7 +63,7 @@ HWTEST_F(EnrollmentImplTest, EnrollmentHdiError, TestSize.Level1)
     EXPECT_FALSE(enrollment->Start(scheduleList, nullptr));
 }
 
-HWTEST_F(EnrollmentImplTest, EnrollmentHdiEmpty, TestSize.Level1)
+HWTEST_F(EnrollmentImplTest, EnrollmentHdiEmpty, TestSize.Level0)
 {
     constexpr int32_t userId = 0x11;
 
@@ -75,7 +75,7 @@ HWTEST_F(EnrollmentImplTest, EnrollmentHdiEmpty, TestSize.Level1)
     EXPECT_FALSE(authentication->Start(scheduleList, nullptr));
 }
 
-HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiError, TestSize.Level1)
+HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiError, TestSize.Level0)
 {
     constexpr int32_t userId = 0x11;
 
@@ -89,7 +89,7 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiError, TestSize.Level1)
     EXPECT_FALSE(authentication->Update(scheduleResult, credentialId, info));
 }
 
-HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful, TestSize.Level1)
+HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful, TestSize.Level0)
 {
     using HdiCredentialInfo = OHOS::HDI::UserAuth::V1_0::CredentialInfo;
     using HdiEnrollResultInfo = OHOS::HDI::UserAuth::V1_0::EnrollResultInfo;
@@ -108,8 +108,8 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful, TestSize.Level1)
             .executorSensorHint = 6,
         };
         HdiEnrollResultInfo info = {
-            .oldInfo = oldInfo,
             .credentialId = credentialIdRet,
+            .oldInfo = oldInfo,
         };
         infoRet = info;
     };
