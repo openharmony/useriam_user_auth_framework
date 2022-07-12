@@ -14,15 +14,14 @@
 import("//build/ohos.gni")
 
 config("iam_attributes_config") {
-  include_dirs =
-      [ "//base/useriam/user_auth_framework/interfaces/inner_api/co_auth" ]
+  include_dirs = [ "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/co_auth" ]
 }
 
 ohos_source_set("iam_attributes") {
   include_dirs =
-      [ "//base/useriam/user_auth_framework/interfaces/inner_api/co_auth" ]
+      [ "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/" ]
 
-  sources = [ "src/attributes.cpp" ]
+  sources = [ "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/src/attributes.cpp" ]
 
   configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
 
@@ -36,28 +35,28 @@ ohos_source_set("iam_attributes") {
 
 config("coauth_framework_public_config") {
   include_dirs = [
-    "inc",
-    "//base/useriam/user_auth_framework/interfaces/inner_api/co_auth",
-    "//base/useriam/user_auth_framework/interfaces/inner_api/common",
+    "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/inc",
+    "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/co_auth",
+    "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/common",
     "//base/useriam/user_auth_framework/services/base/inc",
   ]
 }
 
 ohos_shared_library("coauth_framework") {
   include_dirs = [
-    "inc",
+    "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/inc",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs",
   ]
 
   sources = [
-    "src/auth_executor.cpp",
-    "src/auth_executor_registry.cpp",
-    "src/auth_message.cpp",
-    "src/coauth_proxy.cpp",
-    "src/executor_callback_stub.cpp",
-    "src/executor_messenger_proxy.cpp",
-    "src/executor_mgr.cpp",
+    "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/src/auth_executor.cpp",
+    "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/src/auth_executor_registry.cpp",
+    "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/src/auth_message.cpp",
+    "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/src/coauth_proxy.cpp",
+    "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/src/executor_callback_stub.cpp",
+    "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/src/executor_messenger_proxy.cpp",
+    "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/src/executor_mgr.cpp",
   ]
 
   deps = [ ":iam_attributes" ]

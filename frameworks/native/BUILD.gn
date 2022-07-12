@@ -12,44 +12,41 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
-config("useridm_public_config") {
-  visibility = [ ":*" ]
+config("framework_public_config") {
   include_dirs = [
-    "inc",
-    "//base/useriam/user_auth_framework/common/logs/user_idm",
-    "//base/useriam/user_auth_framework/interfaces/inner_api/common",
-    "//base/useriam/user_auth_framework/interfaces/inner_api/user_idm",
-    "//third_party/libuv/include",
-    "//base/useriam/user_auth_framework/common/logs",
+    "client/inc",
+    "common/inc",
+    "ipc/inc",
+    "//base/useriam/user_auth_framework/interfaces/inner_api/",
   ]
 }
 
-ohos_shared_library("useridm") {
+ohos_shared_library("framework") {
   include_dirs = [
-    "inc",
-    "//third_party/libuv/include",
+    "//base/useriam/user_auth_framework/interfaces/inner_api/",
+    "client/inc",
+    "common/inc",
+    "ipc/inc",
+    "//base/useriam/user_auth_framework/common/utils",
+    "//base/useriam/user_auth_framework/common/logs",
+    "//base/useriam/user_auth_framework/dfx/inc",
   ]
-
-  sources = [
-    "src/auth_common.cpp",
-    "src/authface_userIDM_helper.cpp",
-    "src/callback.cpp",
-    "src/useridentity_manager.cpp",
-  ]
-
-  deps = [ "//base/useriam/user_auth_framework/frameworks/legacy/framework_old:framework_legacy" ]
 
   external_deps = [
+    "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "napi:ace_napi",
+    "samgr_standard:samgr_proxy",
     "utils_base:utils",
   ]
 
-  public_configs = [ ":useridm_public_config" ]
+  configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
 
-  relative_install_dir = "module"
+  public_configs = [ ":framework_public_config" ]
+
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   part_name = "user_auth_framework"
 }

@@ -16,15 +16,15 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 config("userauth_framework_public_config") {
   include_dirs = [
-    "inc",
-    "//base/useriam/user_auth_framework/interfaces/inner_api/user_auth",
-    "//base/useriam/user_auth_framework/interfaces/inner_api/common",
+    "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/inc",
+    "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/user_auth",
+    "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/common",
   ]
 }
 
 ohos_shared_library("userauth_framework") {
   include_dirs = [
-    "inc",
+    "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/inc",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs",
     "//base/useriam/user_auth_framework/dfx/inc",
@@ -32,10 +32,10 @@ ohos_shared_library("userauth_framework") {
 
   sources = [
     "//base/useriam/user_auth_framework/dfx/src/iam_hitrace_helper.cpp",
-    "src/user_auth.cpp",
-    "src/user_auth_native.cpp",
-    "src/userauth_async_stub.cpp",
-    "src/userauth_proxy.cpp",
+    "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/src/user_auth.cpp",
+    "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/src/user_auth_native.cpp",
+    "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/src/userauth_async_stub.cpp",
+    "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/src/userauth_proxy.cpp",
   ]
 
   deps = [
