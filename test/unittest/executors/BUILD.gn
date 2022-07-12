@@ -52,9 +52,9 @@ ohos_unittest("iam_executors_test") {
     "hdf_core:libhdf_utils",
     "hdf_core:libhdi",
     "hiviewdfx_hilog_native:libhilog",
+    "init:libbeget_proxy",
     "ipc:ipc_single",
     "samgr_standard:samgr_proxy",
-    "startup_l2:syspara_watchagent",
     "user_auth_framework:coauth_framework",
     "utils_base:utils",
   ]
