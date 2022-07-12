@@ -35,14 +35,14 @@ ohos_fuzztest("UserAuthServiceFuzzTest") {
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs/co_auth/inc",
     "//base/useriam/user_auth_framework/common/logs",
-    "//base/useriam/user_auth_framework/interfaces/inner_api/user_auth/",
+    "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/user_auth/",
   ]
 
   sources = [ "user_auth_service_fuzzer.cpp" ]
 
   deps = [
     "//base/useriam/user_auth_framework/common:iam_test",
-    "//base/useriam/user_auth_framework/frameworks/co_auth:coauth_framework",
+    "//base/useriam/user_auth_framework/frameworks/legacy/framework_old:framework_legacy",
     "//base/useriam/user_auth_framework/services:userauthservice",
     "//utils/native/base:utils",
   ]

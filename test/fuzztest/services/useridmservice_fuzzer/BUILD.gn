@@ -37,8 +37,8 @@ ohos_fuzztest("UserIdmServiceFuzzTest") {
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs/co_auth/inc",
     "//base/useriam/user_auth_framework/common/logs",
-    "//base/useriam/user_auth_framework/interfaces/inner_api/user_auth/",
-    "//base/useriam/user_auth_framework/interfaces/inner_api/co_auth",
+    "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/user_auth/",
+    "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/co_auth",
   ]
 
   sources = [ "user_idm_service_fuzzer.cpp" ]

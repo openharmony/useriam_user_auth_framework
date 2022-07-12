@@ -23,6 +23,7 @@ ohos_shared_library("userauth") {
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs",
     "//base/useriam/user_auth_framework/dfx/inc",
+    "//base/useriam/user_auth_framework/frameworks/js/napi/legacy",
   ]
 
   sources = [
@@ -34,7 +35,7 @@ ohos_shared_library("userauth") {
     "src/user_auth_impl.cpp",
   ]
 
-  deps = [ "//base/useriam/user_auth_framework/frameworks/user_auth:userauth_framework" ]
+  deps = [ "//base/useriam/user_auth_framework/frameworks/legacy/framework_old:framework_legacy" ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
@@ -58,6 +59,7 @@ ohos_shared_library("userauth_napi") {
     "inc",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/dfx/inc",
+    "//base/useriam/user_auth_framework/frameworks/js/napi/legacy",
   ]
 
   sources = [
@@ -69,7 +71,7 @@ ohos_shared_library("userauth_napi") {
     "src/user_auth_impl.cpp",
   ]
 
-  deps = [ "//base/useriam/user_auth_framework/frameworks/user_auth:userauth_framework" ]
+  deps = [ "//base/useriam/user_auth_framework/frameworks/legacy/framework_old:framework_legacy" ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",

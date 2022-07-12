@@ -43,7 +43,7 @@ ohos_fuzztest("CoAuthServiceFuzzTest") {
 
   deps = [
     "//base/useriam/user_auth_framework/common:iam_test",
-    "//base/useriam/user_auth_framework/frameworks/co_auth:coauth_framework",
+    "//base/useriam/user_auth_framework/frameworks/legacy/framework_old:framework_legacy",
     "//base/useriam/user_auth_framework/services:userauthservice",
   ]
 
