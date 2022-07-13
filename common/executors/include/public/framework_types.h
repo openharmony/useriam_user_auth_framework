@@ -27,27 +27,11 @@ enum UserAuthResult : int32_t {
     USERAUTH_ERROR = 1,
 };
 
-enum CommandId : int32_t {
-    LOCK_TEMPLATE = 0,
-    UNLOCK_TEMPLATE = 1,
-    VENDOR_COMMAND_BEGIN = 10000,
-};
-
 struct TemplateInfo {
     uint32_t executorType;
     int32_t freezingTime;
     int32_t remainTimes;
     std::vector<uint8_t> extraInfo;
-};
-
-enum AuthPropertyMode : int32_t {
-    PROPERMODE_INIT_ALGORITHM = 1,
-    PROPERMODE_DELETE = 2,
-    PROPERMODE_GET = 3,
-    PROPERMODE_SET = 4,
-    PROPERMODE_FREEZE = 5,
-    PROPERMODE_UNFREEZE = 6,
-    PROPERMODE_SET_SURFACE_ID = 100,
 };
 } // namespace UserAuth
 } // namespace UserIAM

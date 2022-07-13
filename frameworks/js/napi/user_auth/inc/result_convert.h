@@ -16,14 +16,14 @@
 #ifndef RESULT_CONVERT_H
 #define RESULT_CONVERT_H
 
-#include <string>
-#include <vector>
+#include "auth_common.h"
+#include "auth_object.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "nocopyable.h"
-#include "userauth_info.h"
-#include "auth_common.h"
-#include "auth_object.h"
+#include "user_auth_client.h"
+#include <string>
+#include <vector>
 
 namespace OHOS {
 namespace UserIAM {

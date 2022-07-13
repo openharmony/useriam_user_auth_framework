@@ -57,9 +57,12 @@ private:
     napi_value AuthUserWrap(napi_env env, AuthUserInfo *userInfo);
     napi_value BuildAuthUserInfo(napi_env env, AuthUserInfo *userInfo);
 
-    ResultCode ParseExecuteParametersOne(napi_env env, size_t argc, napi_value *argv, ExecuteInfo &executeInfo);
-    ResultCode ParseExecuteParametersZero(napi_env env, size_t argc, napi_value *argv, ExecuteInfo &executeInfo);
-    ResultCode ParseExecuteParameters(napi_env env, size_t argc, napi_value *argv, ExecuteInfo &executeInfo);
+    UserIam::UserAuth::ResultCode ParseExecuteParametersOne(napi_env env, size_t argc, napi_value *argv,
+        ExecuteInfo &executeInfo);
+    UserIam::UserAuth::ResultCode ParseExecuteParametersZero(napi_env env, size_t argc, napi_value *argv,
+        ExecuteInfo &executeInfo);
+    UserIam::UserAuth::ResultCode ParseExecuteParameters(napi_env env, size_t argc, napi_value *argv,
+        ExecuteInfo &executeInfo);
 
     static void SetPropertyExecute(napi_env env, void *data);
     static void SetPropertyPromiseExecuteDone(napi_env env, napi_status status, void *data);

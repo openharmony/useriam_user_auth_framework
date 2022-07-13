@@ -55,8 +55,7 @@ ResultCode CustomCommand::SendRequest()
     std::vector<uint8_t> extraInfo;
     bool getExtraInfoRet = attributes_->GetUint8ArrayValue(UserIam::UserAuth::Attributes::ATTR_EXTRA_INFO, extraInfo);
     IF_FALSE_LOGE_AND_RETURN_VAL(getExtraInfoRet == true, ResultCode::GENERAL_ERROR);
-    ResultCode ret =
-        hdi->SendCommand(static_cast<UserAuth::AuthPropertyMode>(commandId), extraInfo, shared_from_this());
+    ResultCode ret = hdi->SendCommand(static_cast<UserAuth::PropertyMode>(commandId), extraInfo, shared_from_this());
     if (ret != ResultCode::SUCCESS) {
         OnResult(ret);
         return ret;

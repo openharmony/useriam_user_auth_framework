@@ -16,15 +16,15 @@
 #ifndef USERIDENTITY_MANAGER_H
 #define USERIDENTITY_MANAGER_H
 
-#include <vector>
-#include <string>
 #include <iostream>
-#include <securec.h>
-#include "useridm_client.h"
-#include "useridm_callback.h"
+#include <string>
+#include <vector>
+
 #include "napi/native_api.h"
 #include "napi/native_common.h"
+#include "securec.h"
 
+#include "user_idm_client.h"
 namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {
@@ -46,17 +46,17 @@ typedef struct AsyncOpenSession {
     napi_deferred deferred;
     napi_value promise;
     napi_ref callback;
-    uint64_t openSession;
+    std::vector<uint8_t> openSession;
 } AsyncOpenSession;
 
 typedef struct AsyncGetAuthInfo {
     napi_env env;
     uint64_t openSession;
     napi_ref callback;
-    AuthType authType;
+    UserIam::UserAuth::AuthType authType;
     napi_deferred deferred;
     napi_value promise;
-    std::vector<CredentialInfo> info;
+    std::vector<UserIam::UserAuth::CredentialInfo> info;
 } AsyncGetAuthInfo;
 
 typedef struct CallbackInfo {
@@ -68,8 +68,8 @@ typedef struct CallbackInfo {
 typedef struct AsyncCallbackContext {
     napi_env env;
     CallbackInfo callbackInfo;
-    AuthType authType;
-    AuthSubType authSubType;
+    UserIam::UserAuth::AuthType authType;
+    UserIam::UserAuth::PinSubType authSubType;
     std::vector<uint8_t> credentialId;
     std::vector<uint8_t> token;
     napi_value idmCallOnResult;

@@ -16,6 +16,7 @@
 #include "authapi_callback.h"
 
 #include <cinttypes>
+#include <map>
 #include <uv.h>
 
 #include "iam_logger.h"
@@ -27,6 +28,7 @@ namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
 using namespace OHOS::UserIam::UserAuth;
+
 AuthApiCallback::AuthApiCallback(AuthInfo *authInfo)
 {
     authInfo_ = authInfo;
@@ -147,7 +149,7 @@ void AuthApiCallback::OnAuthAcquireInfo(AcquireInfoInner *acquireInfoInner)
     });
 }
 
-void AuthApiCallback::onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo)
+void AuthApiCallback::OnAcquireInfo(int32_t module, uint32_t acquireInfo, const Attributes &extraInfo)
 {
     IAM_LOGI("start");
     if (userInfo_ != nullptr) {
@@ -160,7 +162,7 @@ void AuthApiCallback::onAcquireInfo(const int32_t module, const uint32_t acquire
         acquireInfoInner->onAcquireInfo = userInfo_->onAcquireInfo;
         acquireInfoInner->module = module;
         acquireInfoInner->acquireInfo = acquireInfo;
-        acquireInfoInner->extraInfo = extraInfo;
+        acquireInfoInner->extraInfo = 0;
         OnAuthAcquireInfo(acquireInfoInner);
     } else {
         IAM_LOGE("userInfo_ is nullptr");
@@ -176,7 +178,7 @@ void AuthApiCallback::onAcquireInfo(const int32_t module, const uint32_t acquire
         acquireInfoInner->onAcquireInfo = authInfo_->onAcquireInfo;
         acquireInfoInner->module = module;
         acquireInfoInner->acquireInfo = acquireInfo;
-        acquireInfoInner->extraInfo = extraInfo;
+        acquireInfoInner->extraInfo = 0;
         OnAuthAcquireInfo(acquireInfoInner);
     } else {
         IAM_LOGE("authInfo_ is nullptr");
@@ -211,7 +213,7 @@ EXIT:
     delete work;
 }
 
-void AuthApiCallback::OnUserAuthResult(const int32_t result, const AuthResult extraInfo)
+void AuthApiCallback::OnUserAuthResult(const int32_t result, const UserIam::UserAuth::Attributes &extraInfo)
 {
     IAM_LOGI("start");
     uv_loop_s *loop(nullptr);
@@ -229,10 +231,22 @@ void AuthApiCallback::OnUserAuthResult(const int32_t result, const AuthResult ex
         userInfo_ = nullptr;
         return;
     }
-    userInfo_->result = result;
-    userInfo_->token = extraInfo.token;
-    userInfo_->freezingTime = extraInfo.freezingTime;
-    userInfo_->remainTimes = extraInfo.remainTimes;
+
+    userInfo_->result = ResultCode::FAIL;
+
+    if (!extraInfo.GetInt32Value(Attributes::ATTR_RESULT_CODE, userInfo_->result)) {
+        IAM_LOGE("ATTR_RESULT_CODE is null");
+    }
+    if (!extraInfo.GetUint8ArrayValue(Attributes::ATTR_AUTH_TOKEN, userInfo_->token)) {
+        IAM_LOGE("ATTR_PIN_SUB_TYPE is null");
+    }
+    if (!extraInfo.GetUint32Value(Attributes::ATTR_REMAIN_TIMES, userInfo_->remainTimes)) {
+        IAM_LOGE("ATTR_PIN_SUB_TYPE is null");
+    }
+    if (!extraInfo.GetUint32Value(Attributes::ATTR_FREEZING_TIME, userInfo_->freezingTime)) {
+        IAM_LOGE("ATTR_FREEZING_TIME is null");
+    }
+
     work->data = reinterpret_cast<void *>(userInfo_);
     userInfo_ = nullptr;
     uv_queue_work(loop, work, [] (uv_work_t *work) {}, OnUserAuthResultWork);
@@ -265,7 +279,7 @@ EXIT:
     delete work;
 }
 
-void AuthApiCallback::OnAuthResult(const int32_t result, const AuthResult extraInfo)
+void AuthApiCallback::OnAuthResult(int32_t result, const UserIam::UserAuth::Attributes &extraInfo)
 {
     IAM_LOGI("start");
     uv_loop_s *loop(nullptr);
@@ -283,10 +297,21 @@ void AuthApiCallback::OnAuthResult(const int32_t result, const AuthResult extraI
         authInfo_ = nullptr;
         return;
     }
-    authInfo_->result = result;
-    authInfo_->token = extraInfo.token;
-    authInfo_->freezingTime = extraInfo.freezingTime;
-    authInfo_->remainTimes = extraInfo.remainTimes;
+    authInfo_->result = ResultCode::FAIL;
+
+    if (!extraInfo.GetInt32Value(Attributes::ATTR_RESULT_CODE, authInfo_->result)) {
+        IAM_LOGE("ATTR_RESULT_CODE is null");
+    }
+    if (!extraInfo.GetUint8ArrayValue(Attributes::ATTR_AUTH_TOKEN, authInfo_->token)) {
+        IAM_LOGE("ATTR_PIN_SUB_TYPE is null");
+    }
+    if (!extraInfo.GetUint32Value(Attributes::ATTR_REMAIN_TIMES, authInfo_->remainTimes)) {
+        IAM_LOGE("ATTR_PIN_SUB_TYPE is null");
+    }
+    if (!extraInfo.GetUint32Value(Attributes::ATTR_FREEZING_TIME, authInfo_->freezingTime)) {
+        IAM_LOGE("ATTR_FREEZING_TIME is null");
+    }
+
     work->data = reinterpret_cast<void *>(authInfo_);
     authInfo_ = nullptr;
     uv_queue_work(loop, work, [] (uv_work_t *work) {}, OnAuthResultWork);
@@ -310,7 +335,7 @@ static void OnExecuteResultWork(uv_work_t *work, int status)
     napi_value undefined;
     napi_get_undefined(env, &undefined);
     if (executeInfo->isPromise) {
-        if (executeInfo->result == static_cast<int32_t>(AuthenticationResult::SUCCESS)) {
+        if (executeInfo->result == static_cast<int32_t>(ResultCode::SUCCESS)) {
             IAM_LOGI("resolve promise %{public}d",
                 napi_resolve_deferred(env, executeInfo->deferred, result));
         } else {
@@ -350,7 +375,7 @@ void AuthApiCallback::OnExecuteResult(const int32_t result)
 
     auto res = result2ExecuteResult.find(result);
     if (res == result2ExecuteResult.end()) {
-        executeInfo_->result = static_cast<int32_t>(AuthenticationResult::GENERAL_ERROR);
+        executeInfo_->result = static_cast<int32_t>(ResultCode::GENERAL_ERROR);
         IAM_LOGE("result %{public}d not found, set execute result GENERAL_ERROR", result);
     } else {
         executeInfo_->result = static_cast<int32_t>(res->second);
@@ -362,7 +387,7 @@ void AuthApiCallback::OnExecuteResult(const int32_t result)
     uv_queue_work(loop, work, [] (uv_work_t *work) {}, OnExecuteResultWork);
 }
 
-void AuthApiCallback::onResult(const int32_t result, const AuthResult &extraInfo)
+void AuthApiCallback::OnResult(int32_t result, const Attributes &extraInfo)
 {
     IAM_LOGI("start result = %{public}d", result);
     if (userInfo_ != nullptr) {
@@ -465,7 +490,7 @@ napi_value GetPropApiCallback::BuildExecutorProperty(
     return jsObject;
 }
 
-void GetPropApiCallback::onGetProperty(const ExecutorProperty result)
+void GetPropApiCallback::OnResult(int32_t result, const Attributes &extraInfo)
 {
     if (getPropertyInfo_ == nullptr) {
         IAM_LOGE("getPropertyInfo_ is nullptr");
@@ -486,10 +511,20 @@ void GetPropApiCallback::onGetProperty(const ExecutorProperty result)
         getPropertyInfo_ = nullptr;
         return;
     }
-    getPropertyInfo_->getResult = result.result;
-    getPropertyInfo_->authSubType = static_cast<uint64_t>(result.authSubType);
-    getPropertyInfo_->remainTimes = result.remainTimes;
-    getPropertyInfo_->freezingTime = result.freezingTime;
+    getPropertyInfo_->getResult = ResultCode::FAIL;
+    if (!extraInfo.GetInt32Value(Attributes::ATTR_RESULT_CODE, getPropertyInfo_->getResult)) {
+        IAM_LOGE("ATTR_RESULT_CODE is null");
+    }
+    if (!extraInfo.GetUint64Value(Attributes::ATTR_PIN_SUB_TYPE, getPropertyInfo_->authSubType)) {
+        IAM_LOGE("ATTR_PIN_SUB_TYPE is null");
+    }
+    if (!extraInfo.GetUint32Value(Attributes::ATTR_REMAIN_TIMES, getPropertyInfo_->remainTimes)) {
+        IAM_LOGE("ATTR_PIN_SUB_TYPE is null");
+    }
+    if (!extraInfo.GetUint32Value(Attributes::ATTR_FREEZING_TIME, getPropertyInfo_->freezingTime)) {
+        IAM_LOGE("ATTR_FREEZING_TIME is null");
+    }
+
     work->data = reinterpret_cast<void *>(getPropertyInfo_);
     getPropertyInfo_ = nullptr;
     IAM_LOGI("Before GetPropertyInfoCallback");
@@ -557,7 +592,7 @@ EXIT:
     delete work;
 }
 
-void SetPropApiCallback::onSetProperty(const int32_t result)
+void SetPropApiCallback::OnResult(int32_t result, const Attributes &extraInfo)
 {
     IAM_LOGI("start = %{public}d", result);
     if (setPropertyInfo_ == nullptr) {

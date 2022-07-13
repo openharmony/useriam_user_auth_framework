@@ -17,9 +17,9 @@
 
 #include <sstream>
 
-#include "co_auth_defines.h"
 #include "framework_executor_callback.h"
 #include "iam_check.h"
+#include "iam_common_defines.h"
 #include "iam_logger.h"
 #include "iam_mem.h"
 #include "iam_para2str.h"
@@ -42,7 +42,8 @@ Executor::Executor(std::shared_ptr<ExecutorMgrWrapper> executorMgrWrapper,
     IF_FALSE_LOGE_AND_RETURN(hdi->GetExecutorInfo(executorInfo) == ResultCode::SUCCESS);
     authType_ = executorInfo.authType;
     std::ostringstream ss;
-    uint32_t combineExecutorId = Common::CombineUint16ToUint32(hdiId_, static_cast<uint16_t>(executorInfo.executorId));
+    uint32_t combineExecutorId =
+        Common::CombineUint16ToUint32(hdiId_, static_cast<uint16_t>(executorInfo.executorSensorHint));
     const uint32_t uint32HexWidth = 8;
     ss << "Executor(Id:0x" << std::setfill('0') << std::setw(uint32HexWidth) << std::hex << combineExecutorId << ")";
     description_ = ss.str();
@@ -82,8 +83,9 @@ void Executor::OnFrameworkReady()
 void Executor::RegisterExecutorCallback(ExecutorInfo &executorInfo)
 {
     IAM_LOGI("%{public}s start", GetDescription());
-    uint32_t combineExecutorId = Common::CombineUint16ToUint32(hdiId_, static_cast<uint16_t>(executorInfo.executorId));
-    executorInfo.executorId = static_cast<int32_t>(combineExecutorId);
+    uint32_t combineExecutorId =
+        Common::CombineUint16ToUint32(hdiId_, static_cast<uint16_t>(executorInfo.executorSensorHint));
+    executorInfo.executorSensorHint = static_cast<int32_t>(combineExecutorId);
     if (executorCallback_ == nullptr) {
         std::lock_guard<std::mutex> lock(mutex_);
         if (executorCallback_ == nullptr) {
@@ -94,8 +96,8 @@ void Executor::RegisterExecutorCallback(ExecutorInfo &executorInfo)
     }
     IF_FALSE_LOGE_AND_RETURN(executorMgrWrapper_ != nullptr);
     executorMgrWrapper_->Register(executorInfo, executorCallback_);
-    IAM_LOGI(
-        "register executor callback ok, executor id %{public}s", GET_MASKED_STRING(executorInfo.executorId).c_str());
+    IAM_LOGI("register executor callback ok, executor id %{public}s",
+        GET_MASKED_STRING(executorInfo.executorSensorHint).c_str());
 }
 
 void Executor::AddCommand(std::shared_ptr<IAsyncCommand> command)
