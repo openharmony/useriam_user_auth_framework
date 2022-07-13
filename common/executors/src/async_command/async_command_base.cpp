@@ -15,14 +15,17 @@
 
 #include "async_command_base.h"
 
-#include <mutex>
+#include <cstdint>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <vector>
 
 #include "iam_check.h"
+#include "iam_defines.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
+#include "framework_types.h"
 
 #define LOG_LABEL Common::LABEL_USER_AUTH_EXECUTOR
 
