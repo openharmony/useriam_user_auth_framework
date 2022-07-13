@@ -36,25 +36,25 @@ int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Messag
         return FAIL;
     }
     switch (code) {
-        case UserAuth::USER_AUTH_GET_AVAILABLE_STATUS:
+        case UserAuthInterface::USER_AUTH_GET_AVAILABLE_STATUS:
             return GetAvailableStatusStub(data, reply);
-        case UserAuth::USER_AUTH_GET_PROPERTY:
+        case UserAuthInterface::USER_AUTH_GET_PROPERTY:
             return GetPropertyStub(data, reply);
-        case UserAuth::USER_AUTH_GET_PROPERTY_BY_ID:
+        case UserAuthInterface::USER_AUTH_GET_PROPERTY_BY_ID:
             return GetPropertyByIdStub(data, reply);
-        case UserAuth::USER_AUTH_SET_PROPERTY:
+        case UserAuthInterface::USER_AUTH_SET_PROPERTY:
             return SetPropertyStub(data, reply);
-        case UserAuth::USER_AUTH_AUTH:
+        case UserAuthInterface::USER_AUTH_AUTH:
             return AuthStub(data, reply);
-        case UserAuth::USER_AUTH_AUTH_USER:
+        case UserAuthInterface::USER_AUTH_AUTH_USER:
             return AuthUserStub(data, reply);
-        case UserAuth::USER_AUTH_CANCEL_AUTH:
+        case UserAuthInterface::USER_AUTH_CANCEL_AUTH:
             return CancelAuthOrIdentifyStub(data, reply);
-        case UserAuth::USER_AUTH_IDENTIFY:
+        case UserAuthInterface::USER_AUTH_IDENTIFY:
             return IdentifyStub(data, reply);
-        case UserAuth::USER_AUTH_CANCEL_IDENTIFY:
+        case UserAuthInterface::USER_AUTH_CANCEL_IDENTIFY:
             return CancelAuthOrIdentifyStub(data, reply);
-        case UserAuth::USER_AUTH_GET_VERSION:
+        case UserAuthInterface::USER_AUTH_GET_VERSION:
             return GetVersionStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
@@ -113,9 +113,9 @@ int32_t UserAuthStub::GetPropertyStub(MessageParcel &data, MessageParcel &reply)
         IAM_LOGE("failed to read remote object");
         return READ_PARCEL_ERROR;
     }
-    sptr<GetExecutorPropertyCallback> callback = iface_cast<GetExecutorPropertyCallbackProxy>(obj);
+    sptr<GetExecutorPropertyCallbackInterface> callback = iface_cast<GetExecutorPropertyCallbackProxy>(obj);
     if (callback == nullptr) {
-        IAM_LOGE("GetExecutorPropertyCallback is nullptr");
+        IAM_LOGE("GetExecutorPropertyCallbackInterface is nullptr");
         return FAIL;
     }
 
@@ -154,9 +154,9 @@ int32_t UserAuthStub::GetPropertyByIdStub(MessageParcel &data, MessageParcel &re
         IAM_LOGE("failed to read remote object");
         return READ_PARCEL_ERROR;
     }
-    sptr<GetExecutorPropertyCallback> callback = iface_cast<GetExecutorPropertyCallbackProxy>(obj);
+    sptr<GetExecutorPropertyCallbackInterface> callback = iface_cast<GetExecutorPropertyCallbackProxy>(obj);
     if (callback == nullptr) {
-        IAM_LOGE("GetExecutorPropertyCallback is nullptr");
+        IAM_LOGE("GetExecutorPropertyCallbackInterface is nullptr");
         return FAIL;
     }
 
@@ -188,9 +188,9 @@ int32_t UserAuthStub::SetPropertyStub(MessageParcel &data, MessageParcel &reply)
         IAM_LOGE("failed to read remote object");
         return READ_PARCEL_ERROR;
     }
-    sptr<SetExecutorPropertyCallback> callback = iface_cast<SetExecutorPropertyCallbackProxy>(obj);
+    sptr<SetExecutorPropertyCallbackInterface> callback = iface_cast<SetExecutorPropertyCallbackProxy>(obj);
     if (callback == nullptr) {
-        IAM_LOGE("SetExecutorPropertyCallback is nullptr");
+        IAM_LOGE("SetExecutorPropertyCallbackInterface is nullptr");
         return FAIL;
     }
 
@@ -226,9 +226,9 @@ int32_t UserAuthStub::AuthStub(MessageParcel &data, MessageParcel &reply)
         IAM_LOGE("failed to read remote object");
         return READ_PARCEL_ERROR;
     }
-    sptr<UserAuthCallback> callback = iface_cast<UserAuthCallbackProxy>(obj);
+    sptr<UserAuthCallbackInterface> callback = iface_cast<UserAuthCallbackProxy>(obj);
     if (callback == nullptr) {
-        IAM_LOGE("UserAuthCallback is nullptr");
+        IAM_LOGE("UserAuthCallbackInterface is nullptr");
         return FAIL;
     }
 
@@ -280,9 +280,9 @@ int32_t UserAuthStub::AuthUserStub(MessageParcel &data, MessageParcel &reply)
         IAM_LOGE("failed to read remote object");
         return READ_PARCEL_ERROR;
     }
-    sptr<UserAuthCallback> callback = iface_cast<UserAuthCallbackProxy>(obj);
+    sptr<UserAuthCallbackInterface> callback = iface_cast<UserAuthCallbackProxy>(obj);
     if (callback == nullptr) {
-        IAM_LOGE("UserAuthCallback is nullptr");
+        IAM_LOGE("UserAuthCallbackInterface is nullptr");
         return FAIL;
     }
 
@@ -323,9 +323,9 @@ int32_t UserAuthStub::IdentifyStub(MessageParcel &data, MessageParcel &reply)
         IAM_LOGE("failed to read remote object");
         return READ_PARCEL_ERROR;
     }
-    sptr<UserAuthCallback> callback = iface_cast<UserAuthCallbackProxy>(obj);
+    sptr<UserAuthCallbackInterface> callback = iface_cast<UserAuthCallbackProxy>(obj);
     if (callback == nullptr) {
-        IAM_LOGE("UserAuthCallback is nullptr");
+        IAM_LOGE("UserAuthCallbackInterface is nullptr");
         return FAIL;
     }
 

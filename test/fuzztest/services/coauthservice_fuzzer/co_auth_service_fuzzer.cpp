@@ -18,7 +18,7 @@
 #include "parcel.h"
 
 #include "co_auth_service.h"
-#include "executor_callback.h"
+#include "executor_callback_interface.h"
 #include "iam_fuzz_test.h"
 #include "iam_logger.h"
 
@@ -34,7 +34,7 @@ namespace OHOS {
 namespace UserIAM {
 namespace CoAuth {
 namespace {
-class CoAuthServiceFuzzer : public ExecutorCallback {
+class CoAuthServiceFuzzer : public ExecutorCallbackInterface {
 public:
     CoAuthServiceFuzzer(int32_t onBeginExecuteResult, int32_t onEndExecuteResult, int32_t onSetPropertyResult,
         int32_t onGetPropertyResult)
@@ -47,7 +47,7 @@ public:
 
     virtual ~CoAuthServiceFuzzer() = default;
 
-    void OnMessengerReady(sptr<ExecutorMessenger> &messenger, const std::vector<uint8_t> &publicKey,
+    void OnMessengerReady(sptr<ExecutorMessengerInterface> &messenger, const std::vector<uint8_t> &publicKey,
         const std::vector<uint64_t> &templateIdList) override
     {
         IAM_LOGI("start");
@@ -125,7 +125,7 @@ void FuzzRegister(Parcel &parcel)
     IAM_LOGI("FuzzRegister begin");
     ExecutorRegisterInfo executorInfo;
     FillFuzzExecutorRegisterInfo(parcel, executorInfo);
-    sptr<ExecutorCallback> callback = nullptr;
+    sptr<ExecutorCallbackInterface> callback = nullptr;
     if (parcel.ReadBool()) {
         callback = new (std::nothrow)
             CoAuthServiceFuzzer(parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32());

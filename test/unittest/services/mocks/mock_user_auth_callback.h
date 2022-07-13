@@ -18,12 +18,12 @@
 #include <gmock/gmock.h>
 #include <iremote_stub.h>
 
-#include "user_auth_callback.h"
+#include "user_auth_callback_interface.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockUserAuthCallback final : public IRemoteStub<UserAuthCallback> {
+class MockUserAuthCallback final : public IRemoteStub<UserAuthCallbackInterface> {
 public:
     MOCK_METHOD4(OnRemoteRequest,
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
@@ -32,14 +32,14 @@ public:
     MOCK_METHOD2(OnIdentifyResult, void(int32_t result, const Attributes &extraInfo));
 };
 
-class MockGetExecutorPropertyCallback final : public IRemoteStub<GetExecutorPropertyCallback> {
+class MockGetExecutorPropertyCallback final : public IRemoteStub<GetExecutorPropertyCallbackInterface> {
 public:
     MOCK_METHOD4(OnRemoteRequest,
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
     MOCK_METHOD2(OnGetExecutorPropertyResult, void(int32_t result, const Attributes &attributes));
 };
 
-class MockSetExecutorPropertyCallback final : public IRemoteStub<SetExecutorPropertyCallback> {
+class MockSetExecutorPropertyCallback final : public IRemoteStub<SetExecutorPropertyCallbackInterface> {
 public:
     MOCK_METHOD4(OnRemoteRequest,
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));

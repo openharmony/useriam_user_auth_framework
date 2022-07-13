@@ -16,7 +16,7 @@
 #ifndef CO_AUTH_STUB_H
 #define CO_AUTH_STUB_H
 
-#include "co_auth.h"
+#include "co_auth_interface.h"
 
 #include <iremote_stub.h>
 #include <message_parcel.h>
@@ -24,7 +24,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class CoAuthStub : public IRemoteStub<CoAuth> {
+class CoAuthStub : public IRemoteStub<CoAuthInterface> {
 public:
     static constexpr uint64_t INVALID_EXECUTOR_INDEX = 0;
     CoAuthStub() = default;

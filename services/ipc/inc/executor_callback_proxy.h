@@ -18,18 +18,18 @@
 
 #include <iremote_proxy.h>
 
-#include "executor_callback.h"
+#include "executor_callback_interface.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class ExecutorCallbackProxy : public IRemoteProxy<ExecutorCallback>, public NoCopyable {
+class ExecutorCallbackProxy : public IRemoteProxy<ExecutorCallbackInterface>, public NoCopyable {
 public:
-    explicit ExecutorCallbackProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<ExecutorCallback>(impl)
+    explicit ExecutorCallbackProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<ExecutorCallbackInterface>(impl)
     {
     }
     ~ExecutorCallbackProxy() override = default;
-    void OnMessengerReady(sptr<ExecutorMessenger> &messenger, const std::vector<uint8_t> &publicKey,
+    void OnMessengerReady(sptr<ExecutorMessengerInterface> &messenger, const std::vector<uint8_t> &publicKey,
         const std::vector<uint64_t> &templateIdList) override;
     int32_t OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
         const Attributes &command) override;
