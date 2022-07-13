@@ -25,7 +25,6 @@ ohos_unittest("iam_executors_test") {
     "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/common/",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs",
-    "//base/useriam/user_auth_framework/dfx/inc",
     "//base/useriam/user_auth_framework/services/common_defines/types",
   ]
 
@@ -42,8 +41,9 @@ ohos_unittest("iam_executors_test") {
   deps = [
     "//base/useriam/user_auth_framework/common:iam_utils",
     "//base/useriam/user_auth_framework/common/executors:userauth_executors",
+    "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
+    "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
     "//third_party/googletest:gmock_main",
-    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [

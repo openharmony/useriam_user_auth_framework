@@ -13,26 +13,6 @@
 
 import("//build/ohos.gni")
 
-config("iam_attributes_config") {
-  include_dirs = [ "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/co_auth" ]
-}
-
-ohos_source_set("iam_attributes") {
-  include_dirs =
-      [ "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/" ]
-
-  sources = [ "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/src/attributes.cpp" ]
-
-  configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
-
-  public_configs = [ ":iam_attributes_config" ]
-
-  external_deps = [
-    "hiviewdfx_hilog_native:libhilog",
-    "utils_base:utils",
-  ]
-}
-
 config("coauth_framework_public_config") {
   include_dirs = [
     "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/inc",
@@ -59,7 +39,9 @@ ohos_shared_library("coauth_framework") {
     "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/src/executor_mgr.cpp",
   ]
 
-  deps = [ ":iam_attributes" ]
+  deps = [
+    "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
+  ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",

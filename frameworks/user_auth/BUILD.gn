@@ -27,11 +27,9 @@ ohos_shared_library("userauth_framework") {
     "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/inc",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs",
-    "//base/useriam/user_auth_framework/dfx/inc",
   ]
 
   sources = [
-    "//base/useriam/user_auth_framework/dfx/src/iam_hitrace_helper.cpp",
     "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/src/user_auth.cpp",
     "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/src/user_auth_native.cpp",
     "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/src/userauth_async_stub.cpp",
@@ -40,6 +38,7 @@ ohos_shared_library("userauth_framework") {
 
   deps = [
     "//base/useriam/user_auth_framework/frameworks/co_auth:coauth_framework",
+    "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
   ]
 
   external_deps = [

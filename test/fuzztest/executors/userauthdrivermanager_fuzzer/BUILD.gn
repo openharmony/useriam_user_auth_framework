@@ -41,6 +41,7 @@ ohos_fuzztest("UserAuthDriverManagerFuzzTest") {
     "//base/useriam/user_auth_framework/common:iam_test",
     "//base/useriam/user_auth_framework/common:iam_utils",
     "//base/useriam/user_auth_framework/common/executors:userauth_executors",
+    "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
   ]
 
   external_deps = [

@@ -14,25 +14,6 @@
 import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
-config("attributes_config") {
-  include_dirs = [ "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/co_auth" ]
-}
-
-ohos_source_set("legacy_attributes") {
-  include_dirs = [ "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/co_auth" ]
-
-  sources = [ "src/attributes.cpp" ]
-
-  configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
-
-  public_configs = [ ":attributes_config" ]
-
-  external_deps = [
-    "hiviewdfx_hilog_native:libhilog",
-    "utils_base:utils",
-  ]
-}
-
 config("userauth_framework_legacy_config") {
   include_dirs = [
     "inc",
@@ -48,12 +29,9 @@ ohos_source_set("framework_legacy") {
     "inc",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs",
-    "//base/useriam/user_auth_framework/dfx/inc",
   ]
 
   sources = [
-    "//base/useriam/user_auth_framework/dfx/src/iam_hitrace_helper.cpp",
-    "src/attributes.cpp",
     "src/auth_executor.cpp",
     "src/auth_executor_registry.cpp",
     "src/auth_message.cpp",
@@ -73,10 +51,12 @@ ohos_source_set("framework_legacy") {
     "src/useridm_proxy.cpp",
   ]
 
-  deps = [ "//base/useriam/user_auth_framework/frameworks/native:framework" ]
+  deps = [
+    "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
+    "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
+  ]
 
   external_deps = [
-    "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "samgr_standard:samgr_proxy",
