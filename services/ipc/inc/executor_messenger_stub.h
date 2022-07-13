@@ -16,7 +16,7 @@
 #ifndef EXECUTOR_MESSENGER_STUB_H
 #define EXECUTOR_MESSENGER_STUB_H
 
-#include "executor_messenger.h"
+#include "executor_messenger_interface.h"
 
 #include <iremote_stub.h>
 #include <message_parcel.h>
@@ -24,7 +24,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class ExecutorMessengerStub : public IRemoteStub<ExecutorMessenger> {
+class ExecutorMessengerStub : public IRemoteStub<ExecutorMessengerInterface> {
 public:
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 

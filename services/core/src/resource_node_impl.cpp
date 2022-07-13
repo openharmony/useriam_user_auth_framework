@@ -33,7 +33,7 @@ namespace UserAuth {
 class ResourceNodeImpl : public ResourceNode, public NoCopyable {
 public:
     using IUserAuthInterface = OHOS::HDI::UserAuth::V1_0::IUserAuthInterface;
-    ResourceNodeImpl(ExecutorRegisterInfo info, std::shared_ptr<ExecutorCallback> callback);
+    ResourceNodeImpl(ExecutorRegisterInfo info, std::shared_ptr<ExecutorCallbackInterface> callback);
     ~ResourceNodeImpl() override;
 
     uint64_t GetExecutorIndex() const override;
@@ -58,12 +58,12 @@ private:
     int32_t SyncWithDriver(std::vector<uint64_t> &templateIdList, std::vector<uint8_t> &fwkPublicKey);
 
     ExecutorRegisterInfo info_;
-    std::shared_ptr<ExecutorCallback> callback_;
+    std::shared_ptr<ExecutorCallbackInterface> callback_;
     uint64_t executeIndex_ {0};
     bool synced {false};
 };
 
-ResourceNodeImpl::ResourceNodeImpl(ExecutorRegisterInfo info, std::shared_ptr<ExecutorCallback> callback)
+ResourceNodeImpl::ResourceNodeImpl(ExecutorRegisterInfo info, std::shared_ptr<ExecutorCallbackInterface> callback)
     : info_(std::move(info)),
       callback_(std::move(callback))
 {
@@ -209,7 +209,7 @@ int32_t ResourceNodeImpl::SyncWithDriver(std::vector<uint64_t> &templateIdList, 
 }
 
 std::shared_ptr<ResourceNode> ResourceNode::MakeNewResource(const ExecutorRegisterInfo &info,
-    const std::shared_ptr<ExecutorCallback> &callback, std::vector<uint64_t> &templateIdList,
+    const std::shared_ptr<ExecutorCallbackInterface> &callback, std::vector<uint64_t> &templateIdList,
     std::vector<uint8_t> &fwkPublicKey)
 {
     auto node = MakeShared<ResourceNodeImpl>(info, callback);

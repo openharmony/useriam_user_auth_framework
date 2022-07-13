@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef USER_IDM_CALLBACK_H
-#define USER_IDM_CALLBACK_H
+#ifndef USER_IDM_CALLBACK_INTERFACE_H
+#define USER_IDM_CALLBACK_INTERFACE_H
 
 #include <optional>
 
@@ -28,7 +28,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class IdmGetCredentialInfoCallback : public IRemoteBroker {
+class IdmGetCredInfoCallbackInterface : public IRemoteBroker {
 public:
     /*
      * return all registered credential information.
@@ -43,7 +43,7 @@ public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.useridm.IGetInfoCallback");
 };
 
-class IdmGetSecureUserInfoCallback : public IRemoteBroker {
+class IdmGetSecureUserInfoCallbackInterface : public IRemoteBroker {
 public:
     /*
      * return all registered security information.
@@ -57,7 +57,7 @@ public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.useridm.IGetSecInfoCallback");
 };
 
-class IdmCallback : public IRemoteBroker {
+class IdmCallbackInterface : public IRemoteBroker {
 public:
     /*
      * return result code and additional information through callback.
@@ -79,4 +79,4 @@ public:
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // USER_IDM_CALLBACK_H
+#endif // USER_IDM_CALLBACK_INTERFACE_H

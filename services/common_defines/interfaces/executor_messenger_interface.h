@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef EXECUTOR_MESSENGER_H
-#define EXECUTOR_MESSENGER_H
+#ifndef EXECUTOR_MESSENGER_INTERFACE_H
+#define EXECUTOR_MESSENGER_INTERFACE_H
 
 #include "attributes.h"
 #include "iam_types.h"
@@ -25,7 +25,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class ExecutorMessenger : public IRemoteBroker {
+class ExecutorMessengerInterface : public IRemoteBroker {
 public:
     /* Message ID */
     enum : uint32_t {
@@ -41,4 +41,4 @@ public:
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // EXECUTOR_MESSENGER_H
+#endif // EXECUTOR_MESSENGER_INTERFACE_H

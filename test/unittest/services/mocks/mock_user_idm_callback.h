@@ -18,12 +18,12 @@
 
 #include <gmock/gmock.h>
 
-#include "user_idm_callback.h"
+#include "user_idm_callback_interface.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockIdmGetCredentialInfoCallback final : public IRemoteStub<IdmGetCredentialInfoCallback> {
+class MockIdmGetCredentialInfoCallback final : public IRemoteStub<IdmGetCredInfoCallbackInterface> {
 public:
     MOCK_METHOD2(OnCredentialInfos,
         void(const std::vector<std::shared_ptr<CredentialInfo>> infoList, const std::optional<PinSubType> pinSubType));
@@ -31,14 +31,14 @@ public:
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
 };
 
-class MockIdmGetSecureUserInfoCallback final : public IRemoteStub<IdmGetSecureUserInfoCallback> {
+class MockIdmGetSecureUserInfoCallback final : public IRemoteStub<IdmGetSecureUserInfoCallbackInterface> {
 public:
     MOCK_METHOD1(OnSecureUserInfo, void(const std::shared_ptr<SecureUserInfo> info));
     MOCK_METHOD4(OnRemoteRequest,
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
 };
 
-class MockIdmCallback final : public IRemoteStub<IdmCallback> {
+class MockIdmCallback final : public IRemoteStub<IdmCallbackInterface> {
 public:
     MOCK_METHOD2(OnResult, void(int32_t result, const Attributes &reqRet));
     MOCK_METHOD3(OnAcquireInfo, void(int32_t module, int32_t acquire, const Attributes &reqRet));
