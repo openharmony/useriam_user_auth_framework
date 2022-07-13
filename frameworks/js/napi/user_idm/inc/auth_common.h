@@ -16,9 +16,9 @@
 #ifndef AUTH_COMMON_H
 #define AUTH_COMMON_H
 
-#include "useridm_info.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
+#include "user_idm_client.h"
 #include "useridentity_manager.h"
 
 namespace OHOS {

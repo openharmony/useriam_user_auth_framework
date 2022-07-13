@@ -181,7 +181,7 @@ napi_status AuthCommon::JudgeObjectType (
     }
     if (valueType == napi_object) {
         asyncCallbackContext->authType = static_cast<AuthType>(GetNamedProperty(env, argv[0], PROPERTY_KEY_NAME));
-        asyncCallbackContext->authSubType = static_cast<AuthSubType>(GetNamedProperty(env, argv[0], PROPERTY_KEY_ID));
+        asyncCallbackContext->authSubType = static_cast<PinSubType>(GetNamedProperty(env, argv[0], PROPERTY_KEY_ID));
         asyncCallbackContext->token = GetNamedAttribute(env, argv[0]);
         if (asyncCallbackContext->token.empty()) {
             IAM_LOGE("GetNamedAttribute token failed");

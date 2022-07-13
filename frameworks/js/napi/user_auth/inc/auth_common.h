@@ -16,12 +16,14 @@
 #ifndef OHOS_USERAUTH_COMMON_H
 #define OHOS_USERAUTH_COMMON_H
 
+#include <map>
 #include <string>
 #include <vector>
+
 #include "napi/native_api.h"
 #include "napi/native_common.h"
-#include "userauth_info.h"
 
+#include "user_auth_client.h"
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
@@ -86,7 +88,7 @@ struct ExecuteInfo {
     bool isPromise {false};
     napi_env env {nullptr};
     std::string type;
-    AuthTrustLevel trustLevel {UserIam::UserAuth::ATL1};
+    UserIam::UserAuth::AuthTrustLevel trustLevel {UserIam::UserAuth::ATL1};
     napi_ref callbackRef {nullptr};
     napi_deferred deferred {nullptr};
     napi_value promise {nullptr};
@@ -128,6 +130,52 @@ struct AuthUserInfo {
     std::vector<uint8_t> token {};
     uint32_t remainTimes {0};
     uint32_t freezingTime {0};
+};
+
+// For API6
+enum class AuthenticationResult {
+    NO_SUPPORT = -1,
+    SUCCESS = 0,
+    COMPARE_FAILURE = 1,
+    CANCELED = 2,
+    TIMEOUT = 3,
+    CAMERA_FAIL = 4,
+    BUSY = 5,
+    INVALID_PARAMETERS = 6,
+    LOCKED = 7,
+    NOT_ENROLLED = 8,
+    GENERAL_ERROR = 100,
+};
+
+enum GetPropertyType : uint32_t {
+    AUTH_SUB_TYPE = 1,
+    REMAIN_TIMES = 2,
+    FREEZING_TIME = 3,
+};
+
+enum SetPropertyType : uint32_t {
+    INIT_ALGORITHM = 1,
+    FREEZE_TEMPLATE = 2,
+    THAW_TEMPLATE = 3,
+};
+
+const std::map<int32_t, AuthenticationResult> result2ExecuteResult = {
+    {UserIam::UserAuth::ResultCode::SUCCESS, AuthenticationResult::SUCCESS},
+    {UserIam::UserAuth::ResultCode::FAIL, AuthenticationResult::COMPARE_FAILURE},
+    {UserIam::UserAuth::ResultCode::GENERAL_ERROR, AuthenticationResult::GENERAL_ERROR},
+    {UserIam::UserAuth::ResultCode::CANCELED, AuthenticationResult::CANCELED},
+    {UserIam::UserAuth::ResultCode::TIMEOUT, AuthenticationResult::TIMEOUT},
+    {UserIam::UserAuth::ResultCode::TYPE_NOT_SUPPORT, AuthenticationResult::NO_SUPPORT},
+    {UserIam::UserAuth::ResultCode::TRUST_LEVEL_NOT_SUPPORT, AuthenticationResult::NO_SUPPORT},
+    {UserIam::UserAuth::ResultCode::BUSY, AuthenticationResult::BUSY},
+    {UserIam::UserAuth::ResultCode::INVALID_PARAMETERS, AuthenticationResult::INVALID_PARAMETERS},
+    {UserIam::UserAuth::ResultCode::LOCKED, AuthenticationResult::LOCKED},
+    {UserIam::UserAuth::ResultCode::NOT_ENROLLED, AuthenticationResult::NOT_ENROLLED},
+    {UserIam::UserAuth::ResultCode::IPC_ERROR, AuthenticationResult::GENERAL_ERROR},
+    {UserIam::UserAuth::ResultCode::INVALID_CONTEXT_ID, AuthenticationResult::GENERAL_ERROR},
+    {UserIam::UserAuth::ResultCode::WRITE_PARCEL_ERROR, AuthenticationResult::GENERAL_ERROR},
+    {UserIam::UserAuth::ResultCode::READ_PARCEL_ERROR, AuthenticationResult::GENERAL_ERROR},
+    {UserIam::UserAuth::ResultCode::CHECK_PERMISSION_FAILED, AuthenticationResult::GENERAL_ERROR},
 };
 } // namespace UserAuth
 } // namespace UserIAM

@@ -32,8 +32,8 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-AsyncCommandBase::AsyncCommandBase(
-    std::string type, uint64_t scheduleId, std::weak_ptr<Executor> executor, sptr<IExecutorMessenger> executorMessenger)
+AsyncCommandBase::AsyncCommandBase(std::string type, uint64_t scheduleId, std::weak_ptr<Executor> executor,
+    std::shared_ptr<ExecutorMessenger> executorMessenger)
     : scheduleId_(scheduleId),
       executor_(executor),
       executorMessenger_(executorMessenger)
@@ -144,20 +144,20 @@ std::shared_ptr<IAuthExecutorHdi> AsyncCommandBase::GetExecutorHdi()
     return executor->GetExecutorHdi();
 }
 
-int32_t AsyncCommandBase::MessengerSendData(
-    uint64_t scheduleId, uint64_t transNum, int32_t srcType, int32_t dstType, std::shared_ptr<AuthMessage> msg)
+int32_t AsyncCommandBase::MessengerSendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcType,
+    ExecutorRole dstType, std::shared_ptr<AuthMessage> msg)
 {
     auto messenger = executorMessenger_;
     IF_FALSE_LOGE_AND_RETURN_VAL(messenger != nullptr, USERAUTH_ERROR);
     return messenger->SendData(scheduleId, transNum, srcType, dstType, msg);
 }
 
-int32_t AsyncCommandBase::MessengerFinish(uint64_t scheduleId, int32_t srcType, int32_t resultCode,
+int32_t AsyncCommandBase::MessengerFinish(uint64_t scheduleId, ExecutorRole srcType, int32_t resultCode,
     std::shared_ptr<UserIam::UserAuth::Attributes> finalResult)
 {
     auto messenger = executorMessenger_;
     IF_FALSE_LOGE_AND_RETURN_VAL(messenger != nullptr, USERAUTH_ERROR);
-    int32_t ret = messenger->Finish(scheduleId, srcType, resultCode, finalResult);
+    int32_t ret = messenger->Finish(scheduleId, srcType, resultCode, *finalResult);
     executorMessenger_ = nullptr;
     return ret;
 }

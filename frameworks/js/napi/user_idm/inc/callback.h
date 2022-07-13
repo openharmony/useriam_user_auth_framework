@@ -20,33 +20,36 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include <securec.h>
-#include "useridm_info.h"
-#include "useridm_callback.h"
+
 #include "napi/native_api.h"
 #include "napi/native_common.h"
+#include "securec.h"
+
+#include "user_idm_client.h"
+#include "user_idm_client_callback.h"
 #include "useridentity_manager.h"
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserIDM {
-class IIdmCallback : public IDMCallback {
+class IIdmCallback : public UserIam::UserAuth::UserIdmClientCallback {
 public:
     explicit IIdmCallback(AsyncCallbackContext *asyncCallbackContext);
     virtual ~IIdmCallback() = default;
     AsyncCallbackContext* asyncCallbackContext_;
-    void OnResult(int32_t result, RequestResult extraInfo) override;
-    void OnAcquireInfo(int32_t module, int32_t acquire, RequestResult extraInfo) override;
+    void OnResult(int32_t result, const UserIam::UserAuth::Attributes &extraInfo) override;
+    void OnAcquireInfo(int32_t module, uint32_t acquireInfo, const UserIam::UserAuth::Attributes &extraInfo) override;
+
 private:
     std::mutex mutex_;
 };
 
-class GetInfoCallbackIDM : public GetInfoCallback {
+class GetInfoCallbackIDM : public UserIam::UserAuth::GetCredentialInfoCallback {
 public:
     explicit GetInfoCallbackIDM(AsyncGetAuthInfo *asyncGetAuthInfo);
     virtual ~GetInfoCallbackIDM() = default;
     AsyncGetAuthInfo *asyncGetAuthInfo_;
-    void OnGetInfo(std::vector<CredentialInfo>& info) override;
+    void OnCredentialInfo(const std::vector<UserIam::UserAuth::CredentialInfo> &infoList) override;
 };
 
 napi_value GetAuthInfoRet(napi_env env, AsyncGetAuthInfo *asyncGetAuthInfo);

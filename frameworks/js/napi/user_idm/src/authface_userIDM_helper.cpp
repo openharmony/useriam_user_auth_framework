@@ -15,11 +15,10 @@
 
 #include "authface_userIDM_helper.h"
 
-#include <iremote_broker.h>
+#include "iremote_broker.h"
 
 #include "iam_logger.h"
-
-#include "useridm_info.h"
+#include "user_idm_client.h"
 #include "useridentity_manager.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_IDM_NAPI
@@ -222,11 +221,11 @@ napi_value AuthSubTypeConstructor(napi_env env)
     napi_value face2d = nullptr;
     napi_value face3d = nullptr;
     NAPI_CALL(env, napi_create_object(env, &authSubType));
-    NAPI_CALL(env, napi_create_int32(env, AuthSubType::PIN_SIX, &pinSix));
-    NAPI_CALL(env, napi_create_int32(env, AuthSubType::PIN_NUMBER, &pinNumber));
-    NAPI_CALL(env, napi_create_int32(env, AuthSubType::PIN_MIXED, &pinMixed));
-    NAPI_CALL(env, napi_create_int32(env, AuthSubType::FACE_2D, &face2d));
-    NAPI_CALL(env, napi_create_int32(env, AuthSubType::FACE_3D, &face3d));
+    NAPI_CALL(env, napi_create_int32(env, PinSubType::PIN_SIX, &pinSix));
+    NAPI_CALL(env, napi_create_int32(env, PinSubType::PIN_NUMBER, &pinNumber));
+    NAPI_CALL(env, napi_create_int32(env, PinSubType::PIN_MIXED, &pinMixed));
+    NAPI_CALL(env, napi_create_int32(env, PinSubType::PIN_MAX, &face2d));
+    NAPI_CALL(env, napi_create_int32(env, PinSubType::PIN_MAX, &face3d));
     NAPI_CALL(env, napi_set_named_property(env, authSubType, "PIN_SIX", pinSix));
     NAPI_CALL(env, napi_set_named_property(env, authSubType, "PIN_NUMBER", pinNumber));
     NAPI_CALL(env, napi_set_named_property(env, authSubType, "PIN_MIXED", pinMixed));

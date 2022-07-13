@@ -125,7 +125,7 @@ EXIT:
     delete work;
 }
 
-void IIdmCallback::OnResult(int32_t result, RequestResult extraInfo)
+void IIdmCallback::OnResult(int32_t result, const UserIam::UserAuth::Attributes &extraInfo)
 {
     IAM_LOGI("start");
     std::lock_guard<std::mutex> idmMutexGuard(mutex_);
@@ -148,8 +148,14 @@ void IIdmCallback::OnResult(int32_t result, RequestResult extraInfo)
         asyncCallbackContext_ = nullptr;
         return;
     }
+
+    uint64_t credId = 0;
+    if (!extraInfo.GetUint64Value(UserIam::UserAuth::Attributes::ATTR_CREDENTIAL_ID, credId)) {
+        IAM_LOGE("ATTR_CREDENTIAL_ID is null");
+    }
+
     asyncCallbackContext_->result = result;
-    asyncCallbackContext_->retCredentialId = extraInfo.credentialId;
+    asyncCallbackContext_->retCredentialId = credId;
     AsyncCallbackContext *copy = CopyAsyncCallbackContext(asyncCallbackContext_);
     delete asyncCallbackContext_;
     asyncCallbackContext_ = nullptr;
@@ -210,7 +216,7 @@ EXIT:
     delete work;
 }
 
-void IIdmCallback::OnAcquireInfo(int32_t module, int32_t acquire, RequestResult extraInfo)
+void IIdmCallback::OnAcquireInfo(int32_t module, uint32_t acquireInfo, const UserIam::UserAuth::Attributes &extraInfo)
 {
     IAM_LOGI("start");
     std::lock_guard<std::mutex> idmMutexGuard(mutex_);
@@ -229,9 +235,15 @@ void IIdmCallback::OnAcquireInfo(int32_t module, int32_t acquire, RequestResult 
         IAM_LOGE("work is null");
         return;
     }
+
+    uint64_t credId = 0;
+    if (!extraInfo.GetUint64Value(UserIam::UserAuth::Attributes::ATTR_CREDENTIAL_ID, credId)) {
+        IAM_LOGE("ATTR_CREDENTIAL_ID is null");
+    }
+
     asyncCallbackContext_->module = module;
-    asyncCallbackContext_->acquire = acquire;
-    asyncCallbackContext_->retCredentialId = extraInfo.credentialId;
+    asyncCallbackContext_->acquire = acquireInfo;
+    asyncCallbackContext_->retCredentialId = credId;
     AsyncCallbackContext *copy = CopyAsyncCallbackContext(asyncCallbackContext_);
     if (copy == nullptr) {
         IAM_LOGE("copy is null");
@@ -266,8 +278,10 @@ static napi_value CreateCredentialInfo(AsyncGetAuthInfo *asyncGetAuthInfo)
         NAPI_CALL(env, napi_create_uint32(env,
             static_cast<int32_t>(asyncGetAuthInfo->info[Vect].authType), &authType));
         napi_value authSubType;
-        NAPI_CALL(env, napi_create_uint32(env,
-            static_cast<int32_t>(asyncGetAuthInfo->info[Vect].authSubType), &authSubType));
+        NAPI_CALL(env,
+            napi_create_uint32(env,
+                static_cast<uint32_t>(asyncGetAuthInfo->info[Vect].pinType.value_or(UserIam::UserAuth::PIN_MAX)),
+                &authSubType));
         napi_value templateId = GetAuthInfoRet(env, (asyncGetAuthInfo->info[Vect].templateId));
         if (templateId == nullptr) {
             IAM_LOGE("templateId is nullptr");
@@ -359,7 +373,7 @@ static void OnGetInfoWork(uv_work_t* work, int status)
     delete work;
 }
 
-void GetInfoCallbackIDM::OnGetInfo(std::vector<CredentialInfo>& info)
+void GetInfoCallbackIDM::OnCredentialInfo(const std::vector<UserIam::UserAuth::CredentialInfo> &infoList)
 {
     IAM_LOGI("start");
     if (asyncGetAuthInfo_ == nullptr) {
@@ -377,7 +391,7 @@ void GetInfoCallbackIDM::OnGetInfo(std::vector<CredentialInfo>& info)
         IAM_LOGE("work is null");
         return;
     }
-    asyncGetAuthInfo_->info = info;
+    asyncGetAuthInfo_->info = infoList;
     AsyncGetAuthInfo *copy = CopyAsyncGetAuthInfo(asyncGetAuthInfo_);
     if (copy == nullptr) {
         IAM_LOGE("copy is null");
