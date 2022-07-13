@@ -202,9 +202,9 @@ void UserIdmService::AddCredential(std::optional<int32_t> userId, AuthType authT
 
     std::lock_guard<std::mutex> lock(mutex_);
     CancelCurrentEnrollIfExist();
-
+    auto tokenId = IpcCommon::GetAccessTokenId(*this);
     auto context =
-        ContextFactory::CreateEnrollContext(userId.value(), authType, pinSubType, token, callingUid, contextCallback);
+        ContextFactory::CreateEnrollContext(userId.value(), authType, pinSubType, token, tokenId, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
         contextCallback->OnResult(FAIL, extraInfo);
@@ -463,7 +463,7 @@ int UserIdmService::Dump(int fd, const std::vector<std::u16string> &args)
     }
     if (arg0.compare("-l") == 0) {
         std::optional<int32_t> activeUserId;
-        if (IpcCommon::GetActiveAccountId(activeUserId) != SUCCESS) {
+        if (IpcCommon::GetActiveUserId(activeUserId) != SUCCESS) {
             dprintf(fd, "Internal error.\n");
             IAM_LOGE("failed to get active id");
             return GENERAL_ERROR;

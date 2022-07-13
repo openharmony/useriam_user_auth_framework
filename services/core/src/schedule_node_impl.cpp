@@ -48,8 +48,8 @@ ScheduleNodeImpl::ScheduleNodeImpl(ScheduleInfo &info) : info_(std::move(info))
 
     info_.parameters->SetUint32Value(Attributes::ATTR_SCHEDULE_MODE, info_.scheduleMode);
 
-    if (info_.callingUid.has_value()) {
-        info_.parameters->SetUint64Value(Attributes::ATTR_CALLER_UID, info_.callingUid.value());
+    if (info_.tokenId.has_value()) {
+        info_.parameters->SetUint32Value(Attributes::ATTR_ACCESS_TOKEN_ID, info_.tokenId.value());
     }
 
     if (info_.pinSubType != 0) {

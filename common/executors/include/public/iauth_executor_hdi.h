@@ -35,12 +35,12 @@ public:
     virtual UserIAM::ResultCode GetTemplateInfo(uint64_t templateId, UserAuth::TemplateInfo &info) = 0;
     virtual UserIAM::ResultCode OnRegisterFinish(const std::vector<uint64_t> &templateIdList,
         const std::vector<uint8_t> &frameworkPublicKey, const std::vector<uint8_t> &extraInfo) = 0;
-    virtual UserIAM::ResultCode Enroll(uint64_t scheduleId, uint64_t callerUid, const std::vector<uint8_t> &extraInfo,
+    virtual UserIAM::ResultCode Enroll(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
         const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) = 0;
-    virtual UserIAM::ResultCode Authenticate(uint64_t scheduleId, uint64_t callerUid,
+    virtual UserIAM::ResultCode Authenticate(uint64_t scheduleId, uint32_t tokenId,
         const std::vector<uint64_t> &templateIdList, const std::vector<uint8_t> &extraInfo,
         const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) = 0;
-    virtual UserIAM::ResultCode Identify(uint64_t scheduleId, uint64_t callerUid, const std::vector<uint8_t> &extraInfo,
+    virtual UserIAM::ResultCode Identify(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
         const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) = 0;
     virtual UserIAM::ResultCode Delete(const std::vector<uint64_t> &templateIdList) = 0;
     virtual UserIAM::ResultCode Cancel(uint64_t scheduleId) = 0;
