@@ -17,18 +17,19 @@
 
 #include <gmock/gmock.h>
 
-#include "executor_callback.h"
+#include "executor_callback_interface.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockExecutorCallback final : public ExecutorCallback {
+class MockExecutorCallback final : public ExecutorCallbackInterface {
 public:
     MOCK_METHOD0(AsObject, sptr<IRemoteObject>());
     MOCK_METHOD4(OnRemoteRequest,
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
-    MOCK_METHOD3(OnMessengerReady, void(sptr<ExecutorMessenger> &messenger, const std::vector<uint8_t> &publicKey,
-                                       const std::vector<uint64_t> &templateIdList));
+    MOCK_METHOD3(OnMessengerReady,
+        void(sptr<ExecutorMessengerInterface> &messenger, const std::vector<uint8_t> &publicKey,
+            const std::vector<uint64_t> &templateIdList));
     MOCK_METHOD3(OnBeginExecute,
         int32_t(uint64_t scheduleId, const std::vector<uint8_t> &publicKey, const Attributes &command));
     MOCK_METHOD2(OnEndExecute, int32_t(uint64_t scheduleId, const Attributes &command));

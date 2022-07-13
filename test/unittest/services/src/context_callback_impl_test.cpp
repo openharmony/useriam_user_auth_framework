@@ -57,14 +57,14 @@ void ContextCallbackImplTest::TearDown()
 
 HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserAuthNull, TestSize.Level0)
 {
-    sptr<UserAuthCallback> callback = nullptr;
+    sptr<UserAuthCallbackInterface> callback = nullptr;
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
     ASSERT_EQ(contextCallback, nullptr);
 }
 
 HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserIdmNull, TestSize.Level0)
 {
-    sptr<IdmCallback> callback = nullptr;
+    sptr<IdmCallbackInterface> callback = nullptr;
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
     ASSERT_EQ(contextCallback, nullptr);
 }
@@ -83,7 +83,7 @@ HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserAuth, TestSize.Level0)
             EXPECT_TRUE(testResult == result);
             EXPECT_TRUE(&reqRet == testAttr.get());
         });
-    sptr<UserAuthCallback> callback = mockCallback;
+    sptr<UserAuthCallbackInterface> callback = mockCallback;
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
     ASSERT_NE(contextCallback, nullptr);
     contextCallback->onAcquireInfo(static_cast<ExecutorRole>(0), 0, {});
@@ -104,7 +104,7 @@ HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserIdmOnResult, TestSize.L
             EXPECT_TRUE(testResult == result);
             EXPECT_TRUE(&reqRet == testAttr.get());
         });
-    sptr<IdmCallback> callback = mockCallback;
+    sptr<IdmCallbackInterface> callback = mockCallback;
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
     ASSERT_NE(contextCallback, nullptr);
     contextCallback->onAcquireInfo(static_cast<ExecutorRole>(0), 0, {});

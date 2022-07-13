@@ -66,7 +66,7 @@ void CoAuthService::OnStop()
     IAM_LOGI("Stop service");
 }
 
-uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<ExecutorCallback> &callback)
+uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<ExecutorCallbackInterface> &callback)
 {
     if (callback == nullptr) {
         IAM_LOGE("executor callback is nullptr");
@@ -74,7 +74,7 @@ uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<
     }
     std::vector<uint64_t> templateIdList;
     std::vector<uint8_t> fwkPublicKey;
-    auto executorCallback = UserIAM::Common::SptrToStdSharedPtr<ExecutorCallback>(callback);
+    auto executorCallback = UserIAM::Common::SptrToStdSharedPtr<ExecutorCallbackInterface>(callback);
     auto resourceNode = ResourceNode::MakeNewResource(info, executorCallback, templateIdList, fwkPublicKey);
     if (resourceNode == nullptr) {
         IAM_LOGE("create resource node failed");
@@ -85,7 +85,7 @@ uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<
         return INVALID_EXECUTOR_INDEX;
     }
 
-    sptr<ExecutorMessenger> messenger = ExecutorMessengerService::GetInstance();
+    sptr<ExecutorMessengerInterface> messenger = ExecutorMessengerService::GetInstance();
     executorCallback->OnMessengerReady(messenger, fwkPublicKey, templateIdList);
     uint64_t executorIndex = resourceNode->GetExecutorIndex();
     uint32_t executorType = static_cast<uint32_t>(resourceNode->GetAuthType());

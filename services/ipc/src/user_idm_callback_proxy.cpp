@@ -17,7 +17,7 @@
 
 #include "iam_logger.h"
 #include "result_code.h"
-#include "user_idm.h"
+#include "user_idm_interface.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
 
