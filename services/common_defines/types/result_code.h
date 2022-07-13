@@ -16,34 +16,6 @@
 #ifndef IAM_RESULT_CODE_H
 #define IAM_RESULT_CODE_H
 
-#include <cstdint>
+#include "iam_common_defines.h"
 
-namespace OHOS {
-namespace UserIam {
-namespace UserAuth {
-enum ResultCode : int32_t {
-    SUCCESS = 0,
-    FAIL = 1,
-    GENERAL_ERROR = 2,
-    CANCELED = 3,
-    TIMEOUT = 4,
-    TYPE_NOT_SUPPORT = 5,
-    TRUST_LEVEL_NOT_SUPPORT = 6,
-    BUSY = 7,
-    INVALID_PARAMETERS = 8,
-    LOCKED = 9,
-    NOT_ENROLLED = 10,
-    HARDWARE_NOT_SUPPORTED = 11,
-    SYSTEM_ERROR_CODE_BEGIN = 1000, // error code for system
-    IPC_ERROR = 1001,
-    INVALID_CONTEXT_ID = 1002,
-    READ_PARCEL_ERROR = 1003,
-    WRITE_PARCEL_ERROR = 1004,
-    CHECK_PERMISSION_FAILED = 1005,
-    INVALID_HDI_INTERFACE = 1006,
-    VENDOR_ERROR_CODE_BEGIN = 10000, // error code for vendor
-};
-} // namespace UserAuth
-} // namespace UserIam
-} // namespace OHOS
 #endif // IAM_RESULT_CODE_H

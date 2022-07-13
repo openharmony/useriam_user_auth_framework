@@ -31,11 +31,9 @@ ohos_shared_library("useridm_framework") {
     "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/user_idm",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs",
-    "//base/useriam/user_auth_framework/dfx/inc",
   ]
 
   sources = [
-    "//base/useriam/user_auth_framework/dfx/src/iam_hitrace_helper.cpp",
     "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/src/user_idm.cpp",
     "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/src/useridm_callback_stub.cpp",
     "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/src/useridm_client.cpp",
@@ -45,6 +43,8 @@ ohos_shared_library("useridm_framework") {
   ]
 
   public_configs = [ ":useridm_public_config" ]
+
+  deps = [ "//base/useriam/user_auth_framework/frameworks/native/common:dfx" ]
 
   external_deps = [
     "hitrace_native:hitrace_meter",
