@@ -31,7 +31,7 @@ int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, std::optional<int32_t> 
     if (userId.has_value()) {
         return SUCCESS;
     }
-    uint32_t tokenId = GetTokenId(stub);
+    uint32_t tokenId = GetAccessTokenId(stub);
     using namespace Security::AccessToken;
     ATokenTypeEnum callingType = AccessTokenKit::GetTokenTypeFlag(tokenId);
     if (callingType != TOKEN_HAP) {
@@ -49,7 +49,7 @@ int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, std::optional<int32_t> 
     return SUCCESS;
 }
 
-int32_t IpcCommon::GetActiveAccountId(std::optional<int32_t> &userId)
+int32_t IpcCommon::GetActiveUserId(std::optional<int32_t> &userId)
 {
     if (userId.has_value()) {
         return SUCCESS;
@@ -72,12 +72,12 @@ int32_t IpcCommon::GetActiveAccountId(std::optional<int32_t> &userId)
 
 bool IpcCommon::CheckPermission(IPCObjectStub &stub, const std::string &permission)
 {
-    uint32_t tokenId = GetTokenId(stub);
+    uint32_t tokenId = GetAccessTokenId(stub);
     using namespace Security::AccessToken;
     return AccessTokenKit::VerifyAccessToken(tokenId, permission) == RET_SUCCESS;
 }
 
-uint32_t IpcCommon::GetTokenId(IPCObjectStub &stub)
+uint32_t IpcCommon::GetAccessTokenId(IPCObjectStub &stub)
 {
     uint32_t tokenId = stub.GetFirstTokenID();
     if (tokenId == 0) {

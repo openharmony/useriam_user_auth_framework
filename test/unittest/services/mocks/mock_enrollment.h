@@ -27,7 +27,7 @@ public:
     virtual ~MockEnrollment() = default;
     MOCK_METHOD1(SetExecutorSensorHint, void(uint32_t executorSensorHint));
     MOCK_METHOD1(SetAuthToken, void(const std::vector<uint8_t> &authToken));
-    MOCK_METHOD1(SetCallingUid, void(uint32_t uid));
+    MOCK_METHOD1(SetAccessTokenId, void(uint32_t tokenId));
     MOCK_METHOD1(SetPinSubType, void(PinSubType pinSubType));
     MOCK_METHOD2(Start,
         bool(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList, std::shared_ptr<ScheduleNodeCallback> callback));

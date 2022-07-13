@@ -47,9 +47,9 @@ std::shared_ptr<Builder> ScheduleNodeBuilder::SetScheduleId(uint64_t scheduleId)
     return shared_from_this();
 }
 
-std::shared_ptr<Builder> ScheduleNodeBuilder::SetCallingUid(uint64_t uid)
+std::shared_ptr<Builder> ScheduleNodeBuilder::SetAccessTokenId(uint32_t tokenId)
 {
-    info_.callingUid = uid;
+    info_.tokenId = tokenId;
     return shared_from_this();
 }
 

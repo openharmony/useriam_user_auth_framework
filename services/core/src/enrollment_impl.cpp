@@ -47,9 +47,9 @@ void EnrollmentImpl::SetAuthToken(const std::vector<uint8_t> &authToken)
     authToken_ = authToken;
 }
 
-void EnrollmentImpl::SetCallingUid(uint32_t uid)
+void EnrollmentImpl::SetAccessTokenId(uint32_t tokenId)
 {
-    uid_ = uid;
+    tokenId_ = tokenId;
 }
 
 void EnrollmentImpl::SetPinSubType(PinSubType pinSubType)
@@ -85,7 +85,7 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
     infos.emplace_back(info);
 
     ScheduleNodeHelper::NodeOptionalPara para;
-    para.uid = uid_;
+    para.tokenId = tokenId_;
 
     if (!ScheduleNodeHelper::BuildFromHdi(infos, callback, scheduleList, para)) {
         IAM_LOGE("BuildFromHdi failed");

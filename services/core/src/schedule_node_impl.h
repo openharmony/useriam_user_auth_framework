@@ -39,7 +39,7 @@ public:
     class Inner;
     struct ScheduleInfo {
         uint64_t scheduleId {0};
-        std::optional<uint64_t> callingUid;
+        std::optional<uint32_t> tokenId;
         PinSubType pinSubType {0};
         uint64_t contextId {0};
         uint64_t expiredTime {0};

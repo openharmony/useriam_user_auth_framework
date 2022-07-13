@@ -111,7 +111,7 @@ void UserAuthService::GetProperty(std::optional<int32_t> userId, AuthType authTy
         return;
     }
 
-    if (IpcCommon::GetActiveAccountId(userId) != SUCCESS) {
+    if (IpcCommon::GetActiveUserId(userId) != SUCCESS) {
         IAM_LOGE("failed to get userId");
         callback->OnGetExecutorPropertyResult(FAIL, values);
         return;
@@ -157,7 +157,7 @@ void UserAuthService::SetProperty(std::optional<int32_t> userId, AuthType authTy
         callback->OnSetExecutorPropertyResult(CHECK_PERMISSION_FAILED);
         return;
     }
-    if (IpcCommon::GetActiveAccountId(userId) != SUCCESS) {
+    if (IpcCommon::GetActiveUserId(userId) != SUCCESS) {
         IAM_LOGE("get userId failed");
         callback->OnSetExecutorPropertyResult(FAIL);
         return;
@@ -221,9 +221,9 @@ uint64_t UserAuthService::AuthUser(std::optional<int32_t> userId, const std::vec
         contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
         return BAD_CONTEXT_ID;
     }
-
+    auto tokenId = IpcCommon::GetAccessTokenId(*this);
     auto context = ContextFactory::CreateSimpleAuthContext(userId.value(), challenge, authType, authTrustLevel,
-        callingUid, contextCallback);
+        tokenId, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
         contextCallback->OnResult(FAIL, extraInfo);
@@ -263,8 +263,8 @@ uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthTy
         return BAD_CONTEXT_ID;
     }
 
-    auto callingUid = static_cast<uint64_t>(this->GetCallingUid());
-    auto context = ContextFactory::CreateIdentifyContext(challenge, authType, callingUid, contextCallback);
+    auto tokenId = IpcCommon::GetAccessTokenId(*this);
+    auto context = ContextFactory::CreateIdentifyContext(challenge, authType, tokenId, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
         contextCallback->OnResult(FAIL, extraInfo);

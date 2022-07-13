@@ -79,21 +79,21 @@ public:
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
-    ResultCode Enroll(uint64_t scheduleId, uint64_t callerUid, const std::vector<uint8_t> &extraInfo,
+    ResultCode Enroll(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
         const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) override
     {
         FuzzTriggerIExecuteCallback(callbackObj);
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
-    ResultCode Authenticate(uint64_t scheduleId, uint64_t callerUid, const std::vector<uint64_t> &templateIdList,
+    ResultCode Authenticate(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint64_t> &templateIdList,
         const std::vector<uint8_t> &extraInfo, const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) override
     {
         FuzzTriggerIExecuteCallback(callbackObj);
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
-    ResultCode Identify(uint64_t scheduleId, uint64_t callerUid, const std::vector<uint8_t> &extraInfo,
+    ResultCode Identify(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
         const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) override
     {
         FuzzTriggerIExecuteCallback(callbackObj);
