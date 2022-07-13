@@ -28,16 +28,17 @@ public:
 
     MOCK_METHOD4(GetProperty,
         void(std::optional<int32_t> userId, AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
-            sptr<GetExecutorPropertyCallback> &callback));
+            sptr<GetExecutorPropertyCallbackInterface> &callback));
 
     MOCK_METHOD4(SetProperty, void(std::optional<int32_t> userId, AuthType authType, const Attributes &attributes,
-                                  sptr<SetExecutorPropertyCallback> &callback));
+                                  sptr<SetExecutorPropertyCallbackInterface> &callback));
 
-    MOCK_METHOD5(AuthUser, uint64_t(std::optional<int32_t> userId, const std::vector<uint8_t> &challenge,
-                               AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallback> &callback));
+    MOCK_METHOD5(AuthUser,
+        uint64_t(std::optional<int32_t> userId, const std::vector<uint8_t> &challenge, AuthType authType,
+            AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback));
 
     MOCK_METHOD3(Identify,
-        uint64_t(const std::vector<uint8_t> &challenge, AuthType authType, sptr<UserAuthCallback> &callback));
+        uint64_t(const std::vector<uint8_t> &challenge, AuthType authType, sptr<UserAuthCallbackInterface> &callback));
 
     MOCK_METHOD1(CancelAuthOrIdentify, int32_t(uint64_t contextId));
     MOCK_METHOD0(GetVersion, int32_t());

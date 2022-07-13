@@ -109,7 +109,7 @@ void UserIdmService::CloseSession(std::optional<int32_t> userId)
 }
 
 int32_t UserIdmService::GetCredentialInfo(std::optional<int32_t> userId, AuthType authType,
-    const sptr<IdmGetCredentialInfoCallback> &callback)
+    const sptr<IdmGetCredInfoCallbackInterface> &callback)
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
@@ -146,7 +146,8 @@ int32_t UserIdmService::GetCredentialInfo(std::optional<int32_t> userId, AuthTyp
     return SUCCESS;
 }
 
-int32_t UserIdmService::GetSecInfo(std::optional<int32_t> userId, const sptr<IdmGetSecureUserInfoCallback> &callback)
+int32_t UserIdmService::GetSecInfo(std::optional<int32_t> userId,
+    const sptr<IdmGetSecureUserInfoCallbackInterface> &callback)
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
@@ -169,7 +170,7 @@ int32_t UserIdmService::GetSecInfo(std::optional<int32_t> userId, const sptr<Idm
 }
 
 void UserIdmService::AddCredential(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
-    const std::vector<uint8_t> &token, const sptr<IdmCallback> &callback, bool isUpdate)
+    const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback, bool isUpdate)
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
@@ -221,7 +222,7 @@ void UserIdmService::AddCredential(std::optional<int32_t> userId, AuthType authT
 }
 
 void UserIdmService::UpdateCredential(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
-    const std::vector<uint8_t> &token, const sptr<IdmCallback> &callback)
+    const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback)
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
@@ -295,7 +296,7 @@ int32_t UserIdmService::CancelCurrentEnroll()
     return ret;
 }
 
-int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallback> &callback)
+int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInterface> &callback)
 {
     IAM_LOGI("to delete userid: %{public}d", userId);
     if (callback == nullptr) {
@@ -342,7 +343,7 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallback> &
 }
 
 void UserIdmService::DelUser(std::optional<int32_t> userId, const std::vector<uint8_t> authToken,
-    const sptr<IdmCallback> &callback)
+    const sptr<IdmCallbackInterface> &callback)
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
@@ -395,7 +396,7 @@ void UserIdmService::DelUser(std::optional<int32_t> userId, const std::vector<ui
 }
 
 void UserIdmService::DelCredential(std::optional<int32_t> userId, uint64_t credentialId,
-    const std::vector<uint8_t> &authToken, const sptr<IdmCallback> &callback)
+    const std::vector<uint8_t> &authToken, const sptr<IdmCallbackInterface> &callback)
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");

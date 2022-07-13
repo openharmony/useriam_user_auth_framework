@@ -17,7 +17,7 @@
 
 #include "iam_logger.h"
 #include "result_code.h"
-#include "user_auth.h"
+#include "user_auth_interface.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
 
@@ -48,7 +48,7 @@ void UserAuthCallbackProxy::OnAcquireInfo(int32_t module, uint32_t acquireInfo, 
         return;
     }
 
-    bool ret = SendRequest(UserAuth::USER_AUTH_ACQUIRE_INFO, data, reply);
+    bool ret = SendRequest(UserAuthInterface::USER_AUTH_ACQUIRE_INFO, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
     }
@@ -96,7 +96,7 @@ void UserAuthCallbackProxy::OnAuthResult(int32_t result, const Attributes &extra
         IAM_LOGE("write freezing time failed");
         return;
     }
-    bool ret = SendRequest(UserAuth::USER_AUTH_ON_RESULT, data, reply);
+    bool ret = SendRequest(UserAuthInterface::USER_AUTH_ON_RESULT, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
     }
@@ -136,7 +136,7 @@ void UserAuthCallbackProxy::OnIdentifyResult(int32_t result, const Attributes &e
         return;
     }
 
-    bool ret = SendRequest(UserAuth::USER_AUTH_ON_IDENTIFY_RESULT, data, reply);
+    bool ret = SendRequest(UserAuthInterface::USER_AUTH_ON_IDENTIFY_RESULT, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
     }
@@ -200,7 +200,7 @@ void GetExecutorPropertyCallbackProxy::OnGetExecutorPropertyResult(int32_t resul
         IAM_LOGE("write freezing time failed");
         return;
     }
-    bool ret = SendRequest(UserAuth::USER_AUTH_GET_EX_PROP, data, reply);
+    bool ret = SendRequest(UserAuthInterface::USER_AUTH_GET_EX_PROP, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
     }
@@ -240,7 +240,7 @@ void SetExecutorPropertyCallbackProxy::OnSetExecutorPropertyResult(int32_t resul
         return;
     }
 
-    bool ret = SendRequest(UserAuth::USER_AUTH_SET_EX_PROP, data, reply);
+    bool ret = SendRequest(UserAuthInterface::USER_AUTH_SET_EX_PROP, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
     }

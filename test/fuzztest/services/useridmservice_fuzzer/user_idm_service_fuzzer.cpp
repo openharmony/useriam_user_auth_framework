@@ -33,7 +33,7 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
-class DummyIdmGetCredentialInfoCallback : public IdmGetCredentialInfoCallback {
+class DummyIdmGetCredentialInfoCallback : public IdmGetCredInfoCallbackInterface {
 public:
     void OnCredentialInfos(const std::vector<std::shared_ptr<CredentialInfo>> infoList,
         const std::optional<PinSubType> pinSubType) override
@@ -48,7 +48,7 @@ public:
     }
 };
 
-class DummyIdmGetSecureUserInfoCallback : public IdmGetSecureUserInfoCallback {
+class DummyIdmGetSecureUserInfoCallback : public IdmGetSecureUserInfoCallbackInterface {
 public:
     void OnSecureUserInfo(const std::shared_ptr<SecureUserInfo> info) override
     {
@@ -62,7 +62,7 @@ public:
     }
 };
 
-class DummyIdmCallback : public IdmCallback {
+class DummyIdmCallback : public IdmCallbackInterface {
 public:
     void OnResult(int32_t result, const Attributes &reqRet) override
     {
@@ -90,7 +90,7 @@ std::optional<int32_t> GetFuzzOptionalUserId(Parcel &parcel)
     return std::nullopt;
 }
 
-sptr<IdmGetCredentialInfoCallback> GetFuzzIdmGetCredentialInfoCallback(Parcel &parcel)
+sptr<IdmGetCredInfoCallbackInterface> GetFuzzIdmGetCredentialInfoCallback(Parcel &parcel)
 {
     if (parcel.ReadBool()) {
         return new (nothrow) DummyIdmGetCredentialInfoCallback();
@@ -98,7 +98,7 @@ sptr<IdmGetCredentialInfoCallback> GetFuzzIdmGetCredentialInfoCallback(Parcel &p
     return nullptr;
 }
 
-sptr<IdmGetSecureUserInfoCallback> GetFuzzIdmGetSecureUserInfoCallback(Parcel &parcel)
+sptr<IdmGetSecureUserInfoCallbackInterface> GetFuzzIdmGetSecureUserInfoCallback(Parcel &parcel)
 {
     if (parcel.ReadBool()) {
         return new (nothrow) DummyIdmGetSecureUserInfoCallback();
@@ -106,7 +106,7 @@ sptr<IdmGetSecureUserInfoCallback> GetFuzzIdmGetSecureUserInfoCallback(Parcel &p
     return nullptr;
 }
 
-sptr<IdmCallback> GetFuzzIdmCallback(Parcel &parcel)
+sptr<IdmCallbackInterface> GetFuzzIdmCallback(Parcel &parcel)
 {
     if (parcel.ReadBool()) {
         return new (nothrow) DummyIdmCallback();
@@ -153,7 +153,7 @@ void FuzzGetCredentialInfo(Parcel &parcel)
     IAM_LOGI("begin");
     std::optional<int32_t> userId = GetFuzzOptionalUserId(parcel);
     AuthType authType = static_cast<AuthType>(parcel.ReadUint32());
-    sptr<IdmGetCredentialInfoCallback> callback = GetFuzzIdmGetCredentialInfoCallback(parcel);
+    sptr<IdmGetCredInfoCallbackInterface> callback = GetFuzzIdmGetCredentialInfoCallback(parcel);
     g_UserIdmService.GetCredentialInfo(userId, authType, callback);
     IAM_LOGI("end");
 }
@@ -162,7 +162,7 @@ void FuzzGetSecInfo(Parcel &parcel)
 {
     IAM_LOGI("begin");
     std::optional<int32_t> userId = GetFuzzOptionalUserId(parcel);
-    sptr<IdmGetSecureUserInfoCallback> callback = GetFuzzIdmGetSecureUserInfoCallback(parcel);
+    sptr<IdmGetSecureUserInfoCallbackInterface> callback = GetFuzzIdmGetSecureUserInfoCallback(parcel);
     g_UserIdmService.GetSecInfo(userId, callback);
     IAM_LOGI("end");
 }
@@ -175,7 +175,7 @@ void FuzzAddCredential(Parcel &parcel)
     PinSubType pinSubType = static_cast<PinSubType>(parcel.ReadInt32());
     std::vector<uint8_t> token;
     FillFuzzUint8Vector(parcel, token);
-    sptr<IdmCallback> callback = GetFuzzIdmCallback(parcel);
+    sptr<IdmCallbackInterface> callback = GetFuzzIdmCallback(parcel);
     g_UserIdmService.AddCredential(userId, authType, pinSubType, token, callback, false);
     IAM_LOGI("end");
 }
@@ -188,7 +188,7 @@ void FuzzUpdateCredential(Parcel &parcel)
     PinSubType pinSubType = static_cast<PinSubType>(parcel.ReadInt32());
     std::vector<uint8_t> token;
     FillFuzzUint8Vector(parcel, token);
-    sptr<IdmCallback> callback = GetFuzzIdmCallback(parcel);
+    sptr<IdmCallbackInterface> callback = GetFuzzIdmCallback(parcel);
     g_UserIdmService.UpdateCredential(userId, authType, pinSubType, token, callback);
     IAM_LOGI("end");
 }
@@ -207,7 +207,7 @@ void FuzzEnforceDelUser(Parcel &parcel)
 {
     IAM_LOGI("begin");
     int32_t userId = parcel.ReadInt32();
-    sptr<IdmCallback> callback = GetFuzzIdmCallback(parcel);
+    sptr<IdmCallbackInterface> callback = GetFuzzIdmCallback(parcel);
     g_UserIdmService.EnforceDelUser(userId, callback);
     IAM_LOGI("end");
 }
@@ -218,7 +218,7 @@ void FuzzDelUser(Parcel &parcel)
     int32_t userId = parcel.ReadInt32();
     std::vector<uint8_t> authToken;
     FillFuzzUint8Vector(parcel, authToken);
-    sptr<IdmCallback> callback = GetFuzzIdmCallback(parcel);
+    sptr<IdmCallbackInterface> callback = GetFuzzIdmCallback(parcel);
     g_UserIdmService.DelUser(userId, authToken, callback);
     IAM_LOGI("end");
 }
@@ -230,7 +230,7 @@ void DelCredential(Parcel &parcel)
     uint64_t credentialId = parcel.ReadUint64();
     std::vector<uint8_t> authToken;
     FillFuzzUint8Vector(parcel, authToken);
-    sptr<IdmCallback> callback = GetFuzzIdmCallback(parcel);
+    sptr<IdmCallbackInterface> callback = GetFuzzIdmCallback(parcel);
     g_UserIdmService.DelCredential(userId, credentialId, authToken, callback);
     IAM_LOGI("end");
 }

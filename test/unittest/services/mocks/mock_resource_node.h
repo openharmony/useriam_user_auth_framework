@@ -57,7 +57,7 @@ public:
     }
 
     static std::shared_ptr<ResourceNode> CreateWithExecuteIndex(uint64_t executorId, AuthType authType,
-        ExecutorRole executorRole, ExecutorCallback &callback)
+        ExecutorRole executorRole, ExecutorCallbackInterface &callback)
     {
         using namespace testing;
         auto node = std::make_shared<MockResourceNode>();

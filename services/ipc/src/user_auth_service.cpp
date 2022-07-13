@@ -97,7 +97,7 @@ int32_t UserAuthService::GetAvailableStatus(AuthType authType, AuthTrustLevel au
 }
 
 void UserAuthService::GetProperty(std::optional<int32_t> userId, AuthType authType,
-    const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallback> &callback)
+    const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallbackInterface> &callback)
 {
     IAM_LOGI("start");
     Attributes values;
@@ -145,7 +145,7 @@ void UserAuthService::GetProperty(std::optional<int32_t> userId, AuthType authTy
 }
 
 void UserAuthService::SetProperty(std::optional<int32_t> userId, AuthType authType, const Attributes &attributes,
-    sptr<SetExecutorPropertyCallback> &callback)
+    sptr<SetExecutorPropertyCallbackInterface> &callback)
 {
     IAM_LOGI("start");
     if (callback == nullptr) {
@@ -184,7 +184,7 @@ void UserAuthService::SetProperty(std::optional<int32_t> userId, AuthType authTy
 }
 
 uint64_t UserAuthService::AuthUser(std::optional<int32_t> userId, const std::vector<uint8_t> &challenge,
-    AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallback> &callback)
+    AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback)
 {
     IAM_LOGI("start");
     Attributes extraInfo;
@@ -242,7 +242,7 @@ uint64_t UserAuthService::AuthUser(std::optional<int32_t> userId, const std::vec
 }
 
 uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthType authType,
-    sptr<UserAuthCallback> &callback)
+    sptr<UserAuthCallbackInterface> &callback)
 {
     IAM_LOGI("start");
 
