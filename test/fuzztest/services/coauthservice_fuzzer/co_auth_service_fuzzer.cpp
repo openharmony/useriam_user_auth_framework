@@ -29,6 +29,7 @@
 using namespace std;
 using namespace OHOS::UserIAM::Common;
 using namespace OHOS::UserIam::UserAuth;
+using ExecutorRegisterInfo = CoAuthInterface::ExecutorRegisterInfo;
 
 namespace OHOS {
 namespace UserIAM {
@@ -54,8 +55,8 @@ public:
         return;
     }
 
-    int32_t OnBeginExecute(
-        uint64_t scheduleId, const std::vector<uint8_t> &publicKey, const Attributes &command) override
+    int32_t OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
+        const Attributes &command) override
     {
         IAM_LOGI("start");
         return onBeginExecuteResult_;

@@ -17,10 +17,11 @@
 #define USER_AUTH_CALLBACK_INTERFACE_H
 
 #include <cstdint>
-#include <iremote_broker.h>
+
+#include "iremote_broker.h"
 
 #include "attributes.h"
-#include "iam_types.h"
+#include "iam_common_defines.h"
 
 namespace OHOS {
 namespace UserIam {
