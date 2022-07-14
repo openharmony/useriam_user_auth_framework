@@ -19,7 +19,7 @@
 
 #include "iam_logger.h"
 #include "ipc_client_utils.h"
-#include "user_auth_callback_stub.h"
+#include "user_auth_callback_service.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SDK
 namespace OHOS {
@@ -29,6 +29,7 @@ int32_t UserAuthClientImpl::GetAvailableStatus(AuthType authType, AuthTrustLevel
 {
     auto proxy = GetProxy();
     if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
         return FAIL;
     }
 
@@ -45,12 +46,20 @@ void UserAuthClientImpl::GetProperty(int32_t userId, const GetPropertyRequest &r
 
     auto proxy = GetProxy();
     if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
         callback->OnResult(FAIL, extraInfo);
         return;
     }
 
-    sptr<GetExecutorPropertyCallbackInterface> wrapper = {};
+    sptr<GetExecutorPropertyCallbackInterface> wrapper =
+        new (std::nothrow) GetExecutorPropertyCallbackService(callback);
+    if (wrapper == nullptr) {
+        IAM_LOGE("failed to create wrapper");
+        Attributes extraInfo;
+        callback->OnResult(FAIL, extraInfo);
+        return;
+    }
     proxy->GetProperty(userId, request.authType, request.keys, wrapper);
 }
 
@@ -64,12 +73,20 @@ void UserAuthClientImpl::SetProperty(int32_t userId, const SetPropertyRequest &r
 
     auto proxy = GetProxy();
     if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
         callback->OnResult(FAIL, extraInfo);
         return;
     }
 
-    sptr<SetExecutorPropertyCallbackInterface> wrapper = {};
+    sptr<SetExecutorPropertyCallbackInterface> wrapper =
+        new (std::nothrow) SetExecutorPropertyCallbackService(callback);
+    if (wrapper == nullptr) {
+        IAM_LOGE("failed to create wrapper");
+        Attributes extraInfo;
+        callback->OnResult(FAIL, extraInfo);
+        return;
+    }
     proxy->SetProperty(userId, request.authType, request.attrs, wrapper);
 }
 
@@ -83,12 +100,19 @@ uint64_t UserAuthClientImpl::BeginAuthentication(int32_t userId, const std::vect
 
     auto proxy = GetProxy();
     if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
         callback->OnResult(FAIL, extraInfo);
         return INVALID_SESSION_ID;
     }
 
-    sptr<UserAuthCallbackInterface> wrapper = {};
+    sptr<UserAuthCallbackInterface> wrapper = new (std::nothrow) UserAuthCallbackService(callback);
+    if (wrapper == nullptr) {
+        IAM_LOGE("failed to create wrapper");
+        Attributes extraInfo;
+        callback->OnResult(FAIL, extraInfo);
+        return INVALID_SESSION_ID;
+    }
     return proxy->AuthUser(userId, challenge, authType, atl, wrapper);
 }
 
@@ -96,6 +120,7 @@ int32_t UserAuthClientImpl::CancelAuthentication(uint64_t contextId)
 {
     auto proxy = GetProxy();
     if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
         return FAIL;
     }
 
@@ -112,12 +137,19 @@ uint64_t UserAuthClientImpl::BeginIdentification(const std::vector<uint8_t> &cha
 
     auto proxy = GetProxy();
     if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
         callback->OnResult(FAIL, extraInfo);
         return INVALID_SESSION_ID;
     }
 
-    sptr<UserAuthCallbackInterface> wrapper = {};
+    sptr<UserAuthCallbackInterface> wrapper = new (std::nothrow) UserAuthCallbackService(callback);
+    if (wrapper == nullptr) {
+        IAM_LOGE("failed to create wrapper");
+        Attributes extraInfo;
+        callback->OnResult(FAIL, extraInfo);
+        return INVALID_SESSION_ID;
+    }
     return proxy->Identify(challenge, authType, wrapper);
 }
 
@@ -125,6 +157,7 @@ int32_t UserAuthClientImpl::CancelIdentification(uint64_t contextId)
 {
     auto proxy = GetProxy();
     if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
         return FAIL;
     }
 

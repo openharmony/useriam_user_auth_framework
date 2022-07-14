@@ -18,7 +18,6 @@
 #include <cinttypes>
 
 #include "iam_logger.h"
-#include "iam_ptr.h"
 #include "user_auth_interface.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SDK
@@ -26,14 +25,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-UserAuthCallbackStub::UserAuthCallbackStub(const std::shared_ptr<AuthenticationCallback> &impl) : authCallback_(impl)
-{
-}
-
-UserAuthCallbackStub::UserAuthCallbackStub(const std::shared_ptr<IdentificationCallback> &impl) : identifyCallback_(impl)
-{
-}
-
 int32_t UserAuthCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
     MessageOption &option)
 {
@@ -74,7 +65,6 @@ int32_t UserAuthCallbackStub::OnAcquireInfoStub(MessageParcel &data, MessageParc
         return READ_PARCEL_ERROR;
     }
     
-    // Attributes extraInfo(buffer);
     OnAcquireInfo(module, acquireInfo, 0);
     return SUCCESS;
 }
@@ -117,39 +107,6 @@ int32_t UserAuthCallbackStub::OnIdentifyResultStub(MessageParcel &data, MessageP
     return SUCCESS;
 }
 
-void UserAuthCallbackStub::OnAcquireInfo(int32_t module, uint32_t acquireInfo, int32_t extraInfo)
-{
-    if (authCallback_ == nullptr) {
-        IAM_LOGE("auth callback is nullptr");
-        return;
-    }
-    Attributes attr;
-    authCallback_->OnAcquireInfo(module, acquireInfo, attr);
-}
-
-void UserAuthCallbackStub::OnAuthResult(int32_t result, const Attributes &extraInfo)
-{
-    if (authCallback_ == nullptr) {
-        IAM_LOGE("auth callback is nullptr");
-        return;
-    }
-    authCallback_->OnResult(result, extraInfo);
-}
-
-void UserAuthCallbackStub::OnIdentifyResult(int32_t result, const Attributes &extraInfo)
-{
-    if (identifyCallback_ == nullptr) {
-        IAM_LOGE("identify callback is nullptr");
-        return;
-    }
-    identifyCallback_->OnResult(result, extraInfo);
-}
-
-GetExecutorPropertyCallbackStub::GetExecutorPropertyCallbackStub(const std::shared_ptr<GetPropCallback> &impl)
-    : getPropCallback_(impl)
-{
-}
-
 int32_t GetExecutorPropertyCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
     MessageOption &option)
 {
@@ -184,20 +141,6 @@ int32_t GetExecutorPropertyCallbackStub::OnGetExecutorPropertyResultStub(Message
     return SUCCESS;
 }
 
-void GetExecutorPropertyCallbackStub::OnGetExecutorPropertyResult(int32_t result, const Attributes &attributes)
-{
-    if (getPropCallback_ == nullptr) {
-        IAM_LOGE("get prop callback is nullptr");
-        return;
-    }
-    getPropCallback_->OnResult(result, attributes);
-}
-
-SetExecutorPropertyCallbackStub::SetExecutorPropertyCallbackStub(const std::shared_ptr<SetPropCallback> &impl)
-    : setPropCallback_(impl)
-{
-}
-
 int32_t SetExecutorPropertyCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
     MessageOption &option)
 {
@@ -223,16 +166,6 @@ int32_t SetExecutorPropertyCallbackStub::OnSetExecutorPropertyResultStub(Message
     }
     OnSetExecutorPropertyResult(result);
     return SUCCESS;
-}
-
-void SetExecutorPropertyCallbackStub::OnSetExecutorPropertyResult(int32_t result)
-{
-    if (setPropCallback_ == nullptr) {
-        IAM_LOGE("set prop callback is nullptr");
-        return;
-    }
-    Attributes attr;
-    setPropCallback_->OnResult(result, attr);
 }
 } // namespace UserAuth
 } // namespace UserIam

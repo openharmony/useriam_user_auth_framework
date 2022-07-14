@@ -23,7 +23,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-
 sptr<IRemoteObject> IpcClientUtils::GetRemoteObject(int32_t saId)
 {
     auto sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -39,7 +38,6 @@ sptr<IRemoteObject> IpcClientUtils::GetRemoteObject(int32_t saId)
     }
     return obj;
 }
-
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

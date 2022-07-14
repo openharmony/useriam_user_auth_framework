@@ -13,19 +13,50 @@
  * limitations under the License.
  */
 
-#ifndef IPC_CLIENT_UTILS_H
-#define IPC_CLIENT_UTILS_H
-
-#include "iremote_object.h"
+#include "cred_info_impl.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class IpcClientUtils {
-public:
-    static sptr<IRemoteObject> GetRemoteObject(int32_t saId);
-};
+CredInfoImpl::CredInfoImpl(uint64_t credentialId, uint64_t templateId, AuthType authType)
+    : credentialId_(credentialId), templateId_(templateId), authType_(authType)
+{
+}
+
+uint64_t CredInfoImpl::GetCredentialId() const
+{
+    return credentialId_;
+}
+
+int32_t CredInfoImpl::GetUserId() const
+{
+    return 0;
+}
+
+uint64_t CredInfoImpl::GetExecutorIndex() const
+{
+    return 0;
+}
+
+uint64_t CredInfoImpl::GetTemplateId() const
+{
+    return templateId_;
+}
+
+AuthType CredInfoImpl::GetAuthType() const
+{
+    return authType_;
+}
+
+uint32_t CredInfoImpl::GetExecutorSensorHint() const
+{
+    return 0;
+}
+
+uint32_t CredInfoImpl::GetExecutorMatcher() const
+{
+    return 0;
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // IPC_CLIENT_UTILS_H

@@ -17,16 +17,15 @@
 
 #include "iam_logger.h"
 #include "iam_ptr.h"
+#include "sec_user_info_impl.h"
+#include "user_idm_client_defines.h"
+#include "cred_info_impl.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_IDM_SDK
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-IdmCallbackStub::IdmCallbackStub(const std::shared_ptr<UserIdmClientCallback> &impl) : idmClientCallback_(impl)
-{
-}
-
 int32_t IdmCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
     MessageOption &option)
 {
@@ -89,29 +88,6 @@ int32_t IdmCallbackStub::OnAcquireInfoStub(MessageParcel &data, MessageParcel &r
     return SUCCESS;
 }
 
-void IdmCallbackStub::OnResult(int32_t result, const Attributes &reqRet)
-{
-    if (idmClientCallback_ == nullptr) {
-        IAM_LOGE("idm client callback is nullptr");
-        return;
-    }
-    idmClientCallback_->OnResult(result, reqRet);
-}
-
-void IdmCallbackStub::OnAcquireInfo(int32_t module, int32_t acquire, const Attributes &reqRet)
-{
-    if (idmClientCallback_ == nullptr) {
-        IAM_LOGE("idm client callback is nullptr");
-        return;
-    }
-    idmClientCallback_->OnAcquireInfo(module, static_cast<uint32_t>(acquire), reqRet);
-}
-
-IdmGetCredInfoCallbackStub::IdmGetCredInfoCallbackStub(
-    const std::shared_ptr<GetCredentialInfoCallback> &impl) : getCredInfoCallback_(impl)
-{
-}
-
 int32_t IdmGetCredInfoCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
     MessageOption &option)
 {
@@ -129,59 +105,49 @@ int32_t IdmGetCredInfoCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel
 
 int32_t IdmGetCredInfoCallbackStub::OnCredentialInfosStub(MessageParcel &data, MessageParcel &reply)
 {
-    if (getCredInfoCallback_ == nullptr) {
-        IAM_LOGE("idm client callback is nullptr");
-        return FAIL;
-    }
     uint32_t vectorSize = 0;
-    std::vector<UserAuth::CredentialInfo> credInfos;
+    std::vector<std::shared_ptr<IdmGetCredInfoCallbackInterface::CredentialInfo>> infoList;
     if (!data.ReadUint32(vectorSize)) {
         IAM_LOGE("read size fail");
-        getCredInfoCallback_->OnCredentialInfo(credInfos);
+        OnCredentialInfos(infoList, std::nullopt);
         return READ_PARCEL_ERROR;
     }
+    uint64_t pinType = 0;
     for (uint32_t i = 0; i < vectorSize; ++i) {
-        UserAuth::CredentialInfo info = {};
-        if (!data.ReadUint64(info.credentialId)) {
+        uint64_t credentialId;
+        uint64_t templateId;
+        uint32_t authType;
+        if (!data.ReadUint64(credentialId)) {
             IAM_LOGE("failed to read credentialId");
-            getCredInfoCallback_->OnCredentialInfo(credInfos);
+            OnCredentialInfos(infoList, std::nullopt);
             return READ_PARCEL_ERROR;
         }
-        uint32_t authType = 0;
         if (!data.ReadUint32(authType)) {
             IAM_LOGE("failed to read authType");
-            getCredInfoCallback_->OnCredentialInfo(credInfos);
+            OnCredentialInfos(infoList, std::nullopt);
             return READ_PARCEL_ERROR;
         }
-        info.authType = static_cast<AuthType>(authType);
-        uint64_t pinSubType = 0;
-        if (!data.ReadUint64(pinSubType)) {
+        if (!data.ReadUint64(pinType)) {
             IAM_LOGE("failed to read pinSubType");
-            getCredInfoCallback_->OnCredentialInfo(credInfos);
+            OnCredentialInfos(infoList, std::nullopt);
             return READ_PARCEL_ERROR;
         }
-        info.pinType = static_cast<PinSubType>(pinSubType);
-        if (!data.ReadUint64(info.templateId)) {
+        if (!data.ReadUint64(templateId)) {
             IAM_LOGE("failed to read templateId");
-            getCredInfoCallback_->OnCredentialInfo(credInfos);
+            OnCredentialInfos(infoList, std::nullopt);
             return READ_PARCEL_ERROR;
         }
-        credInfos.push_back(info);
+        auto credInfo = UserIAM::Common::MakeShared<CredInfoImpl>(credentialId, templateId,
+            static_cast<AuthType>(authType));
+        infoList.push_back(credInfo);
     }
 
-    getCredInfoCallback_->OnCredentialInfo(credInfos);
+    std::optional<PinSubType> pinSubType = std::nullopt;
+    if (pinType != 0) {
+        pinSubType = static_cast<PinSubType>(pinType);
+    }
+    OnCredentialInfos(infoList, pinSubType);
     return SUCCESS;
-}
-
-void IdmGetCredInfoCallbackStub::OnCredentialInfos(const std::vector<std::shared_ptr<CredentialInfo>> infoList,
-    const std::optional<PinSubType> pinSubType)
-{
-    return;
-}
-
-IdmGetSecureUserInfoCallbackStub::IdmGetSecureUserInfoCallbackStub(const std::shared_ptr<GetSecUserInfoCallback> &impl)
-    : getSecInfoCallback_(impl)
-{
 }
 
 int32_t IdmGetSecureUserInfoCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
@@ -201,10 +167,10 @@ int32_t IdmGetSecureUserInfoCallbackStub::OnRemoteRequest(uint32_t code, Message
 
 int32_t IdmGetSecureUserInfoCallbackStub::OnSecureUserInfoStub(MessageParcel &data, MessageParcel &reply)
 {
-    SecUserInfo info = {};
+    uint64_t secureUid;
     uint32_t enrolledInfoLen;
 
-    if (!data.ReadUint64(info.secureUid)) {
+    if (!data.ReadUint64(secureUid)) {
         IAM_LOGE("failed to read secureUid");
         return READ_PARCEL_ERROR;
     }
@@ -212,18 +178,11 @@ int32_t IdmGetSecureUserInfoCallbackStub::OnSecureUserInfoStub(MessageParcel &da
         IAM_LOGE("failed to read enrolledInfoLen");
         return READ_PARCEL_ERROR;
     }
-    // 调用OnSecureUserInfo(), 参数不一致
-    if (getSecInfoCallback_ == nullptr) {
-        IAM_LOGE("get secure info callback is nullptr");
-        return FAIL;
-    }
-    getSecInfoCallback_->OnSecUserInfo(info);
-    return SUCCESS;
-}
 
-void IdmGetSecureUserInfoCallbackStub::OnSecureUserInfo(const std::shared_ptr<SecureUserInfo> info)
-{
-    return;
+    std::vector<std::shared_ptr<SecEnrolledInfo>> info;
+    auto secUserInfo = UserIAM::Common::MakeShared<SecUserInfoImpl>(secureUid, info);
+    OnSecureUserInfo(secUserInfo);
+    return SUCCESS;
 }
 } // namespace UserAuth
 } // namespace UserIam

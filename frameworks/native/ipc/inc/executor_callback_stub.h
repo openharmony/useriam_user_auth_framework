@@ -16,9 +16,6 @@
 #ifndef EXECUTOR_CALLBACK_STUB_H
 #define EXECUTOR_CALLBACK_STUB_H
 
-#include <memory>
-
-#include "co_auth_client_callback.h"
 #include "executor_callback_interface.h"
 #include "iremote_stub.h"
 #include "message_parcel.h"
@@ -29,16 +26,7 @@ namespace UserIam {
 namespace UserAuth {
 class ExecutorCallbackStub : public IRemoteStub<ExecutorCallbackInterface>, public NoCopyable {
 public:
-    explicit ExecutorCallbackStub(const std::shared_ptr<ExecutorRegisterCallback> &impl);
-    ~ExecutorCallbackStub() override = default;
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
-    void OnMessengerReady(sptr<ExecutorMessengerInterface> &messenger, const std::vector<uint8_t> &publicKey,
-        const std::vector<uint64_t> &templateIdList) override;
-    int32_t OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
-        const Attributes &command) override;
-    int32_t OnEndExecute(uint64_t scheduleId, const Attributes &command) override;
-    int32_t OnSetProperty(const Attributes &properties) override;
-    int32_t OnGetProperty(const Attributes &condition, Attributes &values) override;
 
 private:
     int32_t OnMessengerReadyStub(MessageParcel &data, MessageParcel &reply);
@@ -46,7 +34,6 @@ private:
     int32_t OnEndExecuteStub(MessageParcel &data, MessageParcel &reply);
     int32_t OnSetPropertyStub(MessageParcel &data, MessageParcel &reply);
     int32_t OnGetPropertyStub(MessageParcel &data, MessageParcel &reply);
-    std::shared_ptr<ExecutorRegisterCallback> callback_ {nullptr};
 };
 } // namespace UserAuth
 } // namespace UserIam

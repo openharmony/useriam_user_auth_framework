@@ -13,19 +13,26 @@
  * limitations under the License.
  */
 
-#ifndef IPC_CLIENT_UTILS_H
-#define IPC_CLIENT_UTILS_H
+#ifndef AUTH_MESSAGE_H
+#define AUTH_MESSAGE_H
 
-#include "iremote_object.h"
+#include <vector>
+
+#include "co_auth_client_defines.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class IpcClientUtils {
+class AuthMessageImpl final : public AuthMessage {
 public:
-    static sptr<IRemoteObject> GetRemoteObject(int32_t saId);
+    explicit AuthMessageImpl(std::vector<uint8_t> msg) : msg_(std::move(msg)) {};
+    virtual ~AuthMessageImpl() = default;
+    static const std::vector<uint8_t> &GetMsgBuffer(const std::shared_ptr<AuthMessage> &msg);
+
+private:
+    const std::vector<uint8_t> msg_;
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // IPC_CLIENT_UTILS_H
+#endif // AUTH_MESSAGE_H
