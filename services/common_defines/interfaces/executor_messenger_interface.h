@@ -16,11 +16,11 @@
 #ifndef EXECUTOR_MESSENGER_INTERFACE_H
 #define EXECUTOR_MESSENGER_INTERFACE_H
 
-#include "attributes.h"
-#include "iam_types.h"
-#include "result_code.h"
+#include "iremote_broker.h"
 
-#include <iremote_broker.h>
+#include "attributes.h"
+#include "iam_common_defines.h"
+#include "result_code.h"
 
 namespace OHOS {
 namespace UserIam {

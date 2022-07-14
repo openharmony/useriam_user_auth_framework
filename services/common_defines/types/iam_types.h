@@ -44,15 +44,6 @@ enum SetPropertyType : uint32_t {
     FREEZE_TEMPLATE = 2,
     THAW_TEMPLATE = 3,
 };
-
-struct ExecutorRegisterInfo {
-    AuthType authType;
-    ExecutorRole executorRole;
-    uint32_t executorSensorHint; // for multiple sensors index
-    uint32_t executorMatcher;    // for executors matcher
-    ExecutorSecureLevel esl;
-    std::vector<uint8_t> publicKey;
-};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

@@ -20,14 +20,16 @@
 #include <memory>
 #include <vector>
 
+#include "co_auth_interface.h"
 #include "executor_callback_interface.h"
-#include "iam_types.h"
+#include "iam_common_defines.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 class ResourceNode {
 public:
+    using ExecutorRegisterInfo = CoAuthInterface::ExecutorRegisterInfo;
     virtual ~ResourceNode() = default;
     virtual uint64_t GetExecutorIndex() const = 0;
     virtual std::string GetOwnerDeviceId() const = 0;
