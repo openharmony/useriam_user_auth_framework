@@ -48,7 +48,8 @@
         "//base/useriam/user_auth_framework/common/executors:userauth_executors",
         "//base/useriam/user_auth_framework/frameworks/js/napi/user_idm:useridm",
         "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth:userauth_napi",
-        "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth:userauth"
+        "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth:userauth",
+        "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_client_ipc"
       ],
       "inner_kits": [
         {
