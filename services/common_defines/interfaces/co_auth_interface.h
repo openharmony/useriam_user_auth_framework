@@ -16,12 +16,13 @@
 #ifndef CO_AUTH_INTERFACE_H
 #define CO_AUTH_INTERFACE_H
 
-#include "executor_callback_interface.h"
-#include "iam_types.h"
-#include "refbase.h"
-
 #include <cstdint>
-#include <iremote_broker.h>
+
+#include "executor_callback_interface.h"
+#include "iam_common_defines.h"
+
+#include "iremote_broker.h"
+#include "refbase.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -32,6 +33,16 @@ public:
     enum : uint32_t {
         CO_AUTH_EXECUTOR_REGISTER = 0,
     };
+
+    struct ExecutorRegisterInfo {
+        AuthType authType;
+        ExecutorRole executorRole;
+        uint32_t executorSensorHint; // for multiple sensors index
+        uint32_t executorMatcher;    // for executors matcher
+        ExecutorSecureLevel esl;
+        std::vector<uint8_t> publicKey;
+    };
+
     virtual uint64_t ExecutorRegister(const ExecutorRegisterInfo &info, sptr<ExecutorCallbackInterface> &callback) = 0;
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.CoAuth.ICoAuth");
 };

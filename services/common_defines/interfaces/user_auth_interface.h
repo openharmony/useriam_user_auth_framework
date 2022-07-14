@@ -17,11 +17,12 @@
 #define USER_AUTH_INTERFACE_H
 
 #include <cstdint>
-#include <iremote_broker.h>
 #include <optional>
 
-#include "attributes.h"
+#include "iremote_broker.h"
 #include "refbase.h"
+
+#include "attributes.h"
 #include "user_auth_callback_interface.h"
 
 namespace OHOS {

@@ -15,16 +15,18 @@
 
 #include "resource_node_test.h"
 
+#include "co_auth_interface.h"
+#include "resource_node.h"
+
 #include "mock_iuser_auth_interface.h"
 #include "mock_resource_node.h"
-#include "resource_node.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 using namespace testing;
 using namespace testing::ext;
-
+using ExecutorRegisterInfo = CoAuthInterface::ExecutorRegisterInfo;
 void ResourceNodeTest::SetUpTestCase()
 {
 }

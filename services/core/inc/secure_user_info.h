@@ -16,24 +16,15 @@
 #ifndef IAM_SECURE_USER_INFO_H
 #define IAM_SECURE_USER_INFO_H
 
-#include <cstdint>
-#include <memory>
-
 #include "enrolled_info.h"
-#include "iam_types.h"
+#include "user_idm_callback_interface.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class SecureUserInfo {
-public:
-    virtual ~SecureUserInfo() = default;
-    virtual int32_t GetUserId() const = 0;
-    virtual PinSubType GetPinSubType() const = 0;
-    virtual uint64_t GetSecUserId() const = 0;
-    virtual std::vector<std::shared_ptr<EnrolledInfo>> GetEnrolledInfo() const = 0;
-};
+using SecureUserInfo = IdmGetSecureUserInfoCallbackInterface::SecureUserInfo;
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
+
 #endif // IAM_SECURE_USER_INFO_H
