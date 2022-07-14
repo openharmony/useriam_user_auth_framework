@@ -54,6 +54,26 @@
       "inner_kits": [
         {
           "type": "so",
+          "name": "//base/useriam/user_auth_framework/frameworks/native/client:userauth_client",
+          "header": {
+            "header_files": [
+              "attributes.h",
+              "co_auth_client.h",
+              "co_auth_client_callback.h",
+              "co_auth_client_defines.h",
+              "iam_common_defines.h",
+              "user_auth_client.h",
+              "user_auth_client_callback.h",
+              "user_auth_client_defines.h",
+              "user_idm_client.h",
+              "user_idm_client_callback.h",
+              "user_idm_client_defines.h"
+            ],
+            "header_base": "//base/useriam/user_auth_framework/interfaces/inner_api/"
+          }
+        },
+        {
+          "type": "so",
           "name": "//base/useriam/user_auth_framework/frameworks/user_auth:userauth_framework",
           "header": {
             "header_files": [

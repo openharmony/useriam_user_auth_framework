@@ -13,38 +13,35 @@
 
 import("//build/ohos.gni")
 
-config("userauth_client_ipc_config") {
-  include_dirs = [ "inc" ]
-}
-
-ohos_source_set("userauth_client_ipc") {
+ohos_shared_library("userauth_client") {
   include_dirs = [
-    "//base/useriam/user_auth_framework/interfaces/inner_api",
-    "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/services/common_defines/interfaces",
     "//base/useriam/user_auth_framework/services/common_defines/types",
     "//base/useriam/user_auth_framework/services/core/inc",
+    "//base/useriam/user_auth_framework/interfaces/inner_api",
     "inc",
   ]
 
   sources = [
-    "src/co_auth_proxy.cpp",
-    "src/executor_callback_stub.cpp",
-    "src/executor_messenger_proxy.cpp",
-    "src/user_auth_callback_stub.cpp",
-    "src/user_auth_proxy.cpp",
-    "src/user_idm_callback_stub.cpp",
-    "src/user_idm_proxy.cpp",
-    "src/executor_messenger_client.cpp",
+    "src/co_auth_client_impl.cpp",
+    "src/ipc_client_utils.cpp",
+    "src/user_auth_client_impl.cpp",
+    "src/user_idm_client_impl.cpp",
   ]
 
-  configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
-  public_configs = [ ":userauth_client_ipc_config" ]
-  remove_configs = [ "//build/config/compiler:no_exceptions" ]
+  configs = [
+    "//base/useriam/user_auth_framework/common:iam_log_config",
+    "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_client_ipc_config",
+  ]
+
+  deps = [
+    "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
+  ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "samgr_standard:samgr_proxy",
     "utils_base:utils",
   ]
 }
