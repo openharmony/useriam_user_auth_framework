@@ -19,8 +19,8 @@ config("userauth_client_ipc_config") {
 
 ohos_source_set("userauth_client_ipc") {
   include_dirs = [
-    "//base/useriam/user_auth_framework/interfaces/inner_api",
     "//base/useriam/user_auth_framework/common/utils",
+    "//base/useriam/user_auth_framework/interfaces/inner_api",
     "//base/useriam/user_auth_framework/services/common_defines/interfaces",
     "//base/useriam/user_auth_framework/services/common_defines/types",
     "//base/useriam/user_auth_framework/services/core/inc",
@@ -29,13 +29,14 @@ ohos_source_set("userauth_client_ipc") {
 
   sources = [
     "src/co_auth_proxy.cpp",
+    "src/cred_info_impl.cpp",
     "src/executor_callback_stub.cpp",
     "src/executor_messenger_proxy.cpp",
+    "src/sec_user_info_impl.cpp",
     "src/user_auth_callback_stub.cpp",
     "src/user_auth_proxy.cpp",
     "src/user_idm_callback_stub.cpp",
     "src/user_idm_proxy.cpp",
-    "src/executor_messenger_client.cpp",
   ]
 
   configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]

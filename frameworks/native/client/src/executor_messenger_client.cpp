@@ -15,6 +15,7 @@
 
 #include "executor_messenger_client.h"
 
+#include "auth_message_impl.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
 
@@ -23,8 +24,13 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-int32_t ExecutorMessengerClient::SendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole, ExecutorRole dstRole,
-    const std::shared_ptr<AuthMessage> &msg)
+ExecutorMessengerClient::ExecutorMessengerClient(const sptr<ExecutorMessengerInterface> &messenger)
+    : messenger_(messenger)
+{
+}
+
+int32_t ExecutorMessengerClient::SendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole,
+    ExecutorRole dstRole, const std::shared_ptr<AuthMessage> &msg)
 {
     if (messenger_ == nullptr) {
         IAM_LOGE("messenger is nullptr");
@@ -33,8 +39,10 @@ int32_t ExecutorMessengerClient::SendData(uint64_t scheduleId, uint64_t transNum
     std::vector<uint8_t> buffer;
     if (msg == nullptr) {
         IAM_LOGE("msg is nullptr");
+        return FAIL;
     } else {
         AuthMessage::As(buffer);
+        buffer = AuthMessageImpl::GetMsgBuffer(msg);
     }
     return messenger_->SendData(scheduleId, transNum, srcRole, dstRole, buffer);
 }
@@ -47,6 +55,10 @@ int32_t ExecutorMessengerClient::Finish(uint64_t scheduleId, ExecutorRole srcRol
         return FAIL;
     }
     auto attr = UserIAM::Common::MakeShared<Attributes>(finalResult.Serialize());
+    if (attr == nullptr) {
+        IAM_LOGE("failed to create attributes");
+        return FAIL;
+    }
     return messenger_->Finish(scheduleId, srcRole, static_cast<ResultCode>(resultCode), attr);
 }
 } // namespace UserAuth

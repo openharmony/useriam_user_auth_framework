@@ -13,19 +13,39 @@
  * limitations under the License.
  */
 
-#ifndef IPC_CLIENT_UTILS_H
-#define IPC_CLIENT_UTILS_H
+#include "sec_user_info_impl.h"
 
-#include "iremote_object.h"
+#include "iam_logger.h"
+
+#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SDK
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class IpcClientUtils {
-public:
-    static sptr<IRemoteObject> GetRemoteObject(int32_t saId);
-};
+SecUserInfoImpl::SecUserInfoImpl(uint64_t secUserId, std::vector<std::shared_ptr<SecEnrolledInfo>> info)
+    : secUserId_(secUserId), info_(std::move(info))
+{
+}
+
+int32_t SecUserInfoImpl::GetUserId() const
+{
+    return 0;
+}
+
+PinSubType SecUserInfoImpl::GetPinSubType() const
+{
+    return PIN_SIX;
+}
+
+uint64_t SecUserInfoImpl::GetSecUserId() const
+{
+    return secUserId_;
+}
+
+std::vector<std::shared_ptr<SecEnrolledInfo>> SecUserInfoImpl::GetEnrolledInfo() const
+{
+    return info_;
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // IPC_CLIENT_UTILS_H

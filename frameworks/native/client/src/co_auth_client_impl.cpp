@@ -17,7 +17,7 @@
 
 #include "system_ability_definition.h"
 
-#include "executor_callback_stub.h"
+#include "executor_callback_service.h"
 #include "iam_logger.h"
 #include "ipc_client_utils.h"
 
@@ -46,7 +46,11 @@ void CoAuthClientImpl::Register(const ExecutorInfo &info, const std::shared_ptr<
     regInfo.esl = info.esl;
     regInfo.publicKey = info.publicKey;
 
-    sptr<ExecutorCallbackInterface> wrapper = {};
+    sptr<ExecutorCallbackInterface> wrapper = new (std::nothrow) ExecutorCallbackService(callback);
+    if (wrapper == nullptr) {
+        IAM_LOGE("failed to create wrapper");
+        return;
+    }
     proxy->ExecutorRegister(regInfo, wrapper);
 }
 

@@ -18,14 +18,20 @@ ohos_shared_library("userauth_client") {
     "//base/useriam/user_auth_framework/services/common_defines/interfaces",
     "//base/useriam/user_auth_framework/services/common_defines/types",
     "//base/useriam/user_auth_framework/services/core/inc",
+    "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/interfaces/inner_api",
     "inc",
   ]
 
   sources = [
+    "src/auth_message_impl.cpp",
     "src/co_auth_client_impl.cpp",
+    "src/executor_callback_service.cpp",
+    "src/executor_messenger_client.cpp",
     "src/ipc_client_utils.cpp",
+    "src/user_auth_callback_service.cpp",
     "src/user_auth_client_impl.cpp",
+    "src/user_idm_callback_service.cpp",
     "src/user_idm_client_impl.cpp",
   ]
 
@@ -33,9 +39,11 @@ ohos_shared_library("userauth_client") {
     "//base/useriam/user_auth_framework/common:iam_log_config",
     "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_client_ipc_config",
   ]
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   deps = [
     "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
+    "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_client_ipc",
   ]
 
   external_deps = [

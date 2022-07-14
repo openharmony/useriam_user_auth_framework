@@ -16,20 +16,14 @@
 #include "executor_callback_stub.h"
 
 #include "executor_messenger_proxy.h"
-#include "executor_messenger_client.h"
 #include "iam_common_defines.h"
 #include "iam_logger.h"
-#include "iam_ptr.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_AUTH_EXECUTOR_MGR_SDK
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-ExecutorCallbackStub::ExecutorCallbackStub(const std::shared_ptr<ExecutorRegisterCallback> &impl) : callback_(impl)
-{
-}
-
 int32_t ExecutorCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {
@@ -173,54 +167,6 @@ int32_t ExecutorCallbackStub::OnGetPropertyStub(MessageParcel &data, MessageParc
         return WRITE_PARCEL_ERROR;
     }
     return SUCCESS;
-}
-
-void ExecutorCallbackStub::OnMessengerReady(sptr<ExecutorMessengerInterface> &messenger,
-    const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList)
-{
-    if (callback_ == nullptr) {
-        IAM_LOGE("callback is nullptr");
-        return;
-    }
-    auto tempMessenger = UserIAM::Common::MakeShared<ExecutorMessengerClient>(messenger);
-    callback_->OnMessengerReady(tempMessenger, publicKey, templateIdList);
-}
-
-int32_t ExecutorCallbackStub::OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
-    const Attributes &command)
-{
-    if (callback_ == nullptr) {
-        IAM_LOGE("callback is nullptr");
-        return FAIL;
-    }
-    return callback_->OnBeginExecute(scheduleId, publicKey, command);
-}
-
-int32_t ExecutorCallbackStub::OnEndExecute(uint64_t scheduleId, const Attributes &command)
-{
-    if (callback_ == nullptr) {
-        IAM_LOGE("callback is nullptr");
-        return FAIL;
-    }
-    return callback_->OnEndExecute(scheduleId, command);
-}
-
-int32_t ExecutorCallbackStub::OnSetProperty(const Attributes &properties)
-{
-    if (callback_ == nullptr) {
-        IAM_LOGE("callback is nullptr");
-        return FAIL;
-    }
-    return callback_->OnSetProperty(properties);
-}
-
-int32_t ExecutorCallbackStub::OnGetProperty(const Attributes &condition, Attributes &values)
-{
-    if (callback_ == nullptr) {
-        IAM_LOGE("callback is nullptr");
-        return FAIL;
-    }
-    return callback_->OnGetProperty(condition, values);
 }
 } // namespace UserAuth
 } // namespace UserIam
