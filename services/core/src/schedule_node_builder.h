@@ -32,7 +32,7 @@ public:
     ScheduleNodeBuilder(const std::shared_ptr<ResourceNode> &collector, const std::shared_ptr<ResourceNode> &verifier);
     ~ScheduleNodeBuilder() override = default;
     std::shared_ptr<Builder> SetScheduleId(uint64_t scheduleId) override;
-    std::shared_ptr<Builder> SetCallingUid(uint64_t uid) override;
+    std::shared_ptr<Builder> SetAccessTokenId(uint32_t tokenId) override;
     std::shared_ptr<Builder> SetPinSubType(PinSubType pinSubType) override;
     std::shared_ptr<Builder> SetTemplateIdList(const std::vector<uint64_t> &templateIdList) override;
     std::shared_ptr<Builder> SetAuthType(AuthType authType) override;

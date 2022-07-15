@@ -30,12 +30,12 @@ namespace UserAuth {
 class ContextFactory : public DelayedSingleton<ContextFactory> {
 public:
     static std::shared_ptr<Context> CreateSimpleAuthContext(int32_t userId, const std::vector<uint8_t> &challenge,
-        AuthType authType, AuthTrustLevel authTrustLevel, uint64_t callingUid,
+        AuthType authType, AuthTrustLevel authTrustLevel, uint32_t tokenId,
         const std::shared_ptr<ContextCallback> &callback);
     static std::shared_ptr<Context> CreateIdentifyContext(const std::vector<uint8_t> &challenge, AuthType authType,
-        uint64_t callingUid, const std::shared_ptr<ContextCallback> &callback);
+        uint32_t tokenId, const std::shared_ptr<ContextCallback> &callback);
     static std::shared_ptr<Context> CreateEnrollContext(int32_t userId, AuthType authType, PinSubType pinSubType,
-        const std::vector<uint8_t> &token, uint64_t callingUid, const std::shared_ptr<ContextCallback> &callback);
+        const std::vector<uint8_t> &token, uint32_t tokenId, const std::shared_ptr<ContextCallback> &callback);
     static std::shared_ptr<Context> CreateWidgetAuthContext(std::shared_ptr<ContextCallback> callback);
 };
 } // namespace UserAuth

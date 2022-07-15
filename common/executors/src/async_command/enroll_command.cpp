@@ -45,12 +45,13 @@ ResultCode EnrollCommand::SendRequest()
     auto hdi = GetExecutorHdi();
     IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, ResultCode::GENERAL_ERROR);
 
-    uint64_t callerUid = 0;
-    bool getCallerUidRet = attributes_->GetUint64Value(UserIam::UserAuth::Attributes::ATTR_CALLER_UID, callerUid);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getCallerUidRet == true, ResultCode::GENERAL_ERROR);
+    uint32_t tokenId = 0;
+    bool getTokenIdRet = attributes_->GetUint32Value(UserIam::UserAuth::Attributes::ATTR_ACCESS_TOKEN_ID, tokenId);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getTokenIdRet == true, ResultCode::GENERAL_ERROR);
+
     std::vector<uint8_t> extraInfo;
     UserIam::UserAuth::IamHitraceHelper traceHelper("hdi Enroll");
-    ResultCode ret = hdi->Enroll(scheduleId_, callerUid, extraInfo, shared_from_this());
+    ResultCode ret = hdi->Enroll(scheduleId_, tokenId, extraInfo, shared_from_this());
     IAM_LOGI("%{public}s enroll result %{public}d", GetDescription(), ret);
     return ret;
 }

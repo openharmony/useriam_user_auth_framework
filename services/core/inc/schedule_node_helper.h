@@ -31,7 +31,7 @@ public:
     using HdiScheduleInfo = OHOS::HDI::UserAuth::V1_0::ScheduleInfo;
     struct NodeOptionalPara {
         std::optional<uint32_t> expire;
-        std::optional<uint64_t> uid;
+        std::optional<uint32_t> tokenId;
         std::optional<PinSubType> pinSubType;
     };
 
