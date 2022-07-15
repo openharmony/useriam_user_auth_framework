@@ -104,14 +104,6 @@ void FillFuzzExecutorRegisterInfo(Parcel &parcel, ExecutorRegisterInfo &executor
 
 CoAuthService g_coAuthService(SUBSYS_USERIAM_SYS_ABILITY_AUTHEXECUTORMGR, true);
 
-void FuzzOnStart(Parcel &parcel)
-{
-    IAM_LOGI("FuzzOnStart begin");
-    static_cast<void>(parcel);
-    g_coAuthService.OnStart();
-    IAM_LOGI("FuzzOnStart end");
-}
-
 void FuzzOnStop(Parcel &parcel)
 {
     IAM_LOGI("FuzzOnStop begin");
@@ -134,9 +126,8 @@ void FuzzRegister(Parcel &parcel)
     IAM_LOGI("FuzzRegister end");
 }
 
-using FuzzFunc = decltype(FuzzOnStart);
+using FuzzFunc = decltype(FuzzOnStop);
 FuzzFunc *g_fuzzFuncs[] = {
-    FuzzOnStart,
     FuzzOnStop,
     FuzzRegister,
 };
