@@ -66,6 +66,11 @@ int32_t UserIDMCallbackStub::OnResultStub(MessageParcel& data, MessageParcel& re
     RequestResult reqRet;
     int32_t result = data.ReadInt32();
     reqRet.credentialId = data.ReadUint64();
+    if (!data.ReadUInt8Vector(&reqRet.rootSecret)) {
+        IAM_LOGE("failed to read rootSecret");
+        this->OnResult(result, reqRet);
+        return E_READ_PARCEL_ERROR;
+    }
     this->OnResult(result, reqRet);
     return SUCCESS;
 }
