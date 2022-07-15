@@ -114,6 +114,7 @@ int32_t UserAuthAsyncStub::onAuthResultStub(MessageParcel& data, MessageParcel& 
     uint32_t remainTimes;
     uint32_t freezingTime;
     int32_t result;
+    std::vector<uint8_t> rootSecret;
 
     if (!data.ReadInt32(result)) {
         IAM_LOGE("failed to read result");
@@ -131,10 +132,16 @@ int32_t UserAuthAsyncStub::onAuthResultStub(MessageParcel& data, MessageParcel& 
         IAM_LOGE("failed to read freezingTime");
         return E_READ_PARCEL_ERROR;
     }
+    if (!data.ReadUInt8Vector(&rootSecret)) {
+        IAM_LOGE("failed to read rootSecret");
+        return E_READ_PARCEL_ERROR;
+    }
     authResult.freezingTime = freezingTime;
     authResult.remainTimes = remainTimes;
     authResult.token.clear();
     authResult.token.assign(token.begin(), token.end());
+    authResult.rootSecret.clear();
+    authResult.rootSecret.assign(rootSecret.begin(), rootSecret.end());
 
     this->onAuthResult(result, authResult);
     if (!reply.WriteInt32(SUCCESS)) {

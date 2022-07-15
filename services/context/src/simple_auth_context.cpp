@@ -108,6 +108,10 @@ void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInf
         bool setSignatureResult = finalResult.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, resultInfo.token);
         IF_FALSE_LOGE_AND_RETURN(setSignatureResult == true);
     }
+    if (resultInfo.rootSecret.size() != 0) {
+        bool setRootSecret = finalResult.SetUint8ArrayValue(Attributes::ATTR_ROOT_SECRET, resultInfo.rootSecret);
+        IF_FALSE_LOGE_AND_RETURN(setRootSecret == true);
+    }
     callback_->OnResult(resultInfo.result, finalResult);
     IAM_LOGI("%{public}s invoke result callback success", GetDescription());
 }

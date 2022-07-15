@@ -363,10 +363,10 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_004, TestSize.Lev
 
     std::shared_ptr<MockEnrollment> mockEnroll = MakeShared<MockEnrollment>();
     ASSERT_NE(mockEnroll, nullptr);
-    EXPECT_CALL(*mockEnroll, Update(_, _, _))
+    EXPECT_CALL(*mockEnroll, Update(_, _, _, _))
         .Times(Exactly(1))
         .WillOnce([](const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
-                      std::shared_ptr<CredentialInfo> &info) {
+                      std::shared_ptr<CredentialInfo> &info, std::vector<uint8_t> &rootSecret) {
             EXPECT_EQ(scheduleResult, testScheduleResult);
             return false;
         });
@@ -400,13 +400,14 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_005, TestSize.Lev
 
     std::shared_ptr<MockEnrollment> mockEnroll = MakeShared<MockEnrollment>();
     ASSERT_NE(mockEnroll, nullptr);
-    EXPECT_CALL(*mockEnroll, Update(_, _, _))
+    EXPECT_CALL(*mockEnroll, Update(_, _, _, _))
         .Times(Exactly(1))
         .WillOnce([](const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
-                      std::shared_ptr<CredentialInfo> &info) {
+                      std::shared_ptr<CredentialInfo> &info, std::vector<uint8_t> &rootSecret) {
             EXPECT_EQ(scheduleResult, testScheduleResult);
             credentialId = testCredentialId;
             info = nullptr;
+            rootSecret = {};
             return true;
         });
     std::shared_ptr<MockContextCallback> contextCallback = MakeShared<MockContextCallback>();

@@ -117,6 +117,7 @@ bool AuthenticationImpl::Update(const std::vector<uint8_t> &scheduleResult, Auth
     resultInfo.freezingTime = info.freezingTime;
     resultInfo.remainTimes = info.remainTimes;
     resultInfo.token = info.token;
+    resultInfo.rootSecret = info.rootSecret;
 
     return result == HDF_SUCCESS && resultInfo.result == SUCCESS;
 }
