@@ -24,11 +24,9 @@ config("useridm_public_config") {
 ohos_shared_library("useridm_framework") {
   include_dirs = [
     "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/inc",
-    "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/common",
     "//base/useriam/user_auth_framework/common/logs/user_auth/inc",
     "//base/useriam/user_auth_framework/services/user_idm/inc",
     "//base/useriam/user_auth_framework/common/logs/user_idm",
-    "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/user_idm",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs",
   ]
