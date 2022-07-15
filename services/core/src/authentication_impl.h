@@ -32,7 +32,7 @@ public:
 
     void SetExecutor(uint32_t executorIndex) override;
     void SetChallenge(const std::vector<uint8_t> &challenge) override;
-    void SetCallingUid(uint32_t uid) override;
+    void SetAccessTokenId(uint32_t tokenId) override;
 
     bool Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
         std::shared_ptr<ScheduleNodeCallback> callback) override;
@@ -48,7 +48,7 @@ private:
     uint32_t executorSensorHint {0};
     uint32_t executorIndex_ {0};
     std::vector<uint8_t> challenge_ {};
-    uint32_t uid_ {0};
+    uint32_t tokenId_ {0};
 
     bool running_ {false};
 };

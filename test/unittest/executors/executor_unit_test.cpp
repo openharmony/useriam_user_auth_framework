@@ -421,7 +421,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_CommonErrorTest_003, 
 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_ExecutorDisconnectTest_001, TestSize.Level0)
 {
-    static const uint64_t testCallUid = 123;
+    static const uint64_t testTokenId = 123;
     static const uint64_t testScheduleId = 456;
     static const std::vector<uint8_t> testExtraInfo = {};
 
@@ -435,7 +435,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_ExecutorDisconnectTest_001, TestSize
     EXPECT_CALL(*mockExecutorHdi, Enroll(_, _, _, _))
         .Times(Exactly(2))
         .WillRepeatedly(
-            [](uint64_t scheduleId, uint64_t callerUid, const std::vector<uint8_t> &extraInfo,
+            [](uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
                 const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) { return ResultCode::SUCCESS; });
 
     EXPECT_CALL(*mockMessenger, SendData(_, _, _, _, _)).Times(Exactly(0));
@@ -456,7 +456,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_ExecutorDisconnectTest_001, TestSize
     auto commandAttrs = MakeShared<Attributes>();
     ASSERT_NE(commandAttrs, nullptr);
     commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, ENROLL);
-    commandAttrs->SetUint64Value(Attributes::AttributeKey::ATTR_CALLER_UID, testCallUid);
+    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_ACCESS_TOKEN_ID, testTokenId);
     ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, commandAttrs);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
     ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, commandAttrs);
@@ -469,7 +469,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_ExecutorDisconnectTest_001, TestSize
 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_EnrollTest_001, TestSize.Level0)
 {
-    static const uint64_t testCallUid = 123;
+    static const uint64_t testTokenId = 123;
     static const uint64_t testScheduleId = 456;
 
     shared_ptr<Executor> executor;
@@ -482,10 +482,10 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_EnrollTest_001, TestS
     shared_ptr<UserAuth::IExecuteCallback> cmdCallback = nullptr;
     EXPECT_CALL(*mockExecutorHdi, Enroll(_, _, _, _))
         .Times(Exactly(1))
-        .WillOnce([&cmdCallback](uint64_t scheduleId, uint64_t callerUid, const std::vector<uint8_t> &extraInfo,
+        .WillOnce([&cmdCallback](uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
                       const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) {
             EXPECT_EQ(scheduleId, testScheduleId);
-            EXPECT_EQ(callerUid, testCallUid);
+            EXPECT_EQ(tokenId, testTokenId);
             cmdCallback = callbackObj;
             return ResultCode::SUCCESS;
         });
@@ -497,7 +497,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_EnrollTest_001, TestS
     auto commandAttrs = MakeShared<Attributes>();
     ASSERT_NE(commandAttrs, nullptr);
     commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, ENROLL);
-    commandAttrs->SetUint64Value(Attributes::AttributeKey::ATTR_CALLER_UID, testCallUid);
+    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_ACCESS_TOKEN_ID, testTokenId);
     ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, commandAttrs);
     ASSERT_NE(cmdCallback, nullptr);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
@@ -558,7 +558,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_EnrollTest_003, TestS
 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_001, TestSize.Level0)
 {
-    static const uint64_t testCallUid = 123;
+    static const uint64_t testTokenId = 123;
     static const uint64_t testScheduleId = 456;
     static const std::vector<uint64_t> testTemplateIdList = {7, 8, 9};
 
@@ -573,10 +573,10 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_001, TestSiz
     EXPECT_CALL(*mockExecutorHdi, Authenticate(_, _, _, _, _))
         .Times(Exactly(1))
         .WillOnce(
-            [&cmdCallback](uint64_t scheduleId, uint64_t callerUid, const std::vector<uint64_t> &templateIdList,
+            [&cmdCallback](uint64_t scheduleId, uint32_t tokenId, const std::vector<uint64_t> &templateIdList,
                 const std::vector<uint8_t> &extraInfo, const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) {
                 EXPECT_EQ(scheduleId, testScheduleId);
-                EXPECT_EQ(callerUid, testCallUid);
+                EXPECT_EQ(tokenId, testTokenId);
                 EXPECT_EQ(templateIdList, testTemplateIdList);
                 cmdCallback = callbackObj;
                 return ResultCode::SUCCESS;
@@ -590,7 +590,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_001, TestSiz
     ASSERT_NE(commandAttrs, nullptr);
     commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, AUTH);
     commandAttrs->SetUint64ArrayValue(Attributes::AttributeKey::ATTR_TEMPLATE_ID_LIST, testTemplateIdList);
-    commandAttrs->SetUint64Value(Attributes::AttributeKey::ATTR_CALLER_UID, testCallUid);
+    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_ACCESS_TOKEN_ID, testTokenId);
     ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, commandAttrs);
     ASSERT_NE(cmdCallback, nullptr);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
@@ -680,7 +680,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_004, TestSiz
 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_IdentifyTest_001, TestSize.Level0)
 {
-    static const uint64_t testCallUid = 123;
+    static const uint64_t testTokenId = 123;
     static const uint64_t testScheduleId = 456;
 
     shared_ptr<Executor> executor;
@@ -693,10 +693,10 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_IdentifyTest_001, Tes
     shared_ptr<UserAuth::IExecuteCallback> cmdCallback = nullptr;
     EXPECT_CALL(*mockExecutorHdi, Identify(_, _, _, _))
         .Times(Exactly(1))
-        .WillOnce([&cmdCallback](uint64_t scheduleId, uint64_t callerUid, const std::vector<uint8_t> &extraInfo,
+        .WillOnce([&cmdCallback](uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
                       const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) {
             EXPECT_EQ(scheduleId, testScheduleId);
-            EXPECT_EQ(callerUid, testCallUid);
+            EXPECT_EQ(tokenId, testTokenId);
             cmdCallback = callbackObj;
             return ResultCode::SUCCESS;
         });
@@ -708,7 +708,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_IdentifyTest_001, Tes
     auto commandAttrs = MakeShared<Attributes>();
     ASSERT_NE(commandAttrs, nullptr);
     commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, IDENTIFY);
-    commandAttrs->SetUint64Value(Attributes::AttributeKey::ATTR_CALLER_UID, testCallUid);
+    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_ACCESS_TOKEN_ID, testTokenId);
     ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, commandAttrs);
     ASSERT_NE(cmdCallback, nullptr);
     ASSERT_EQ(ret, ResultCode::SUCCESS);

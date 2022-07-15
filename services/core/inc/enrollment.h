@@ -31,7 +31,7 @@ public:
 
     virtual void SetExecutorSensorHint(uint32_t executorSensorHint) = 0;
     virtual void SetAuthToken(const std::vector<uint8_t> &authToken) = 0;
-    virtual void SetCallingUid(uint32_t uid) = 0;
+    virtual void SetAccessTokenId(uint32_t tokenId) = 0;
     virtual void SetPinSubType(PinSubType pinSubType) = 0;
     virtual bool Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
         std::shared_ptr<ScheduleNodeCallback> callback) = 0;

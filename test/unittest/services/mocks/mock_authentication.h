@@ -27,7 +27,7 @@ public:
     virtual ~MockAuthentication() = default;
     MOCK_METHOD1(SetExecutor, void(uint32_t executorIndex));
     MOCK_METHOD1(SetChallenge, void(const std::vector<uint8_t> &challenge));
-    MOCK_METHOD1(SetCallingUid, void(uint32_t uid));
+    MOCK_METHOD1(SetAccessTokenId, void(uint32_t tokenId));
     MOCK_METHOD2(Start,
         bool(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList, std::shared_ptr<ScheduleNodeCallback> callback));
     MOCK_METHOD2(Update, bool(const std::vector<uint8_t> &scheduleResult, AuthResultInfo &resultInfo));
