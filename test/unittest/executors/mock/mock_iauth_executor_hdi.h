@@ -44,7 +44,7 @@ public:
                                const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj));
     MOCK_METHOD1(Delete, ResultCode(const std::vector<uint64_t> &templateIdList));
     MOCK_METHOD1(Cancel, ResultCode(uint64_t scheduleId));
-    MOCK_METHOD3(SendCommand, ResultCode(UserAuth::AuthPropertyMode commandId, const std::vector<uint8_t> &extraInfo,
+    MOCK_METHOD3(SendCommand, ResultCode(PropertyMode commandId, const std::vector<uint8_t> &extraInfo,
                                   const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj));
 };
 } // namespace UserAuth

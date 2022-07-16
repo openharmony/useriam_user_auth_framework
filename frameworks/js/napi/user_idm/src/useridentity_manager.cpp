@@ -99,10 +99,9 @@ napi_value OpenSessionRet(napi_env env, AsyncOpenSession* asyncOpenSession)
     }
     void* data = nullptr;
     napi_value arrayBuffer = nullptr;
-    size_t bufferSize = sizeof(asyncOpenSession->openSession);
+    size_t bufferSize = asyncOpenSession->openSession.size();
     NAPI_CALL(env, napi_create_arraybuffer(env, bufferSize, &data, &arrayBuffer));
-    if (memcpy_s(data, bufferSize, reinterpret_cast<const void*>(&asyncOpenSession->openSession),
-        bufferSize) != EOK) {
+    if (memcpy_s(data, bufferSize, asyncOpenSession->openSession.data(), bufferSize) != EOK) {
         IAM_LOGE("memcpy_s fail.");
         return nullptr;
     }

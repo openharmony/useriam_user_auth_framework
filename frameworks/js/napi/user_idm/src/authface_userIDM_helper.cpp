@@ -224,8 +224,8 @@ napi_value AuthSubTypeConstructor(napi_env env)
     NAPI_CALL(env, napi_create_int32(env, PinSubType::PIN_SIX, &pinSix));
     NAPI_CALL(env, napi_create_int32(env, PinSubType::PIN_NUMBER, &pinNumber));
     NAPI_CALL(env, napi_create_int32(env, PinSubType::PIN_MIXED, &pinMixed));
-    NAPI_CALL(env, napi_create_int32(env, PinSubType::PIN_MAX, &face2d));
-    NAPI_CALL(env, napi_create_int32(env, PinSubType::PIN_MAX, &face3d));
+    NAPI_CALL(env, napi_create_int32(env, 20000, &face2d)); // FACE_2D = 20000
+    NAPI_CALL(env, napi_create_int32(env, 20001, &face3d)); // FACE_3D = 20001
     NAPI_CALL(env, napi_set_named_property(env, authSubType, "PIN_SIX", pinSix));
     NAPI_CALL(env, napi_set_named_property(env, authSubType, "PIN_NUMBER", pinNumber));
     NAPI_CALL(env, napi_set_named_property(env, authSubType, "PIN_MIXED", pinMixed));

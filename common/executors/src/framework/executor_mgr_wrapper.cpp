@@ -14,10 +14,8 @@
  */
 
 #include "executor_mgr_wrapper.h"
-#include "co_auth_client.h"
 
-#include "auth_message.h"
-#include "executor_mgr.h"
+#include "co_auth_client.h"
 
 namespace OHOS {
 namespace UserIAM {

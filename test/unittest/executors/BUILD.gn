@@ -20,9 +20,6 @@ ohos_unittest("iam_executors_test") {
     "//base/useriam/user_auth_framework/common/executors/include/public",
     "//base/useriam/user_auth_framework/common/executors/include/async_command",
     "//base/useriam/user_auth_framework/common/executors/include/framework",
-    "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/user_auth/",
-    "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/co_auth/",
-    "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/common/",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs",
     "//base/useriam/user_auth_framework/services/common_defines/types",
@@ -41,6 +38,7 @@ ohos_unittest("iam_executors_test") {
   deps = [
     "//base/useriam/user_auth_framework/common:iam_utils",
     "//base/useriam/user_auth_framework/common/executors:userauth_executors",
+    "//base/useriam/user_auth_framework/frameworks/native/client:userauth_client",
     "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
     "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
     "//third_party/googletest:gmock_main",
@@ -55,7 +53,6 @@ ohos_unittest("iam_executors_test") {
     "ipc:ipc_single",
     "samgr_standard:samgr_proxy",
     "startup_l2:syspara_watchagent",
-    "user_auth_framework:coauth_framework",
     "utils_base:utils",
   ]
 
