@@ -145,7 +145,11 @@ int32_t FrameworkExecutorCallback::OnGetProperty(const Attributes &conditions, A
 {
     auto cond = Common::MakeShared<UserIam::UserAuth::Attributes>(conditions.Serialize());
     auto values = Common::MakeShared<UserIam::UserAuth::Attributes>(results.Serialize());
-    return OnGetPropertyInner(cond, values);
+    auto ret = OnGetPropertyInner(cond, values);
+    if (values) {
+        results = std::move(*values);
+    }
+    return ret;
 }
 
 ResultCode FrameworkExecutorCallback::OnGetPropertyInner(std::shared_ptr<UserIam::UserAuth::Attributes> conditions,

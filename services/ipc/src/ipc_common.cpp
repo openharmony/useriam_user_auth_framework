@@ -28,7 +28,7 @@ namespace UserIam {
 namespace UserAuth {
 int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, std::optional<int32_t> &userId)
 {
-    if (userId.has_value()) {
+    if (userId.has_value() && userId.value() != 0) {
         return SUCCESS;
     }
     uint32_t tokenId = GetAccessTokenId(stub);
@@ -51,7 +51,7 @@ int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, std::optional<int32_t> 
 
 int32_t IpcCommon::GetActiveUserId(std::optional<int32_t> &userId)
 {
-    if (userId.has_value()) {
+    if (userId.has_value() && userId.value() != 0) {
         return SUCCESS;
     }
     std::vector<int32_t> ids;

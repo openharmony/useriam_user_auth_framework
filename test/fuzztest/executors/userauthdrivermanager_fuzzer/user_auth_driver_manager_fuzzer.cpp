@@ -47,13 +47,12 @@ public:
         if (fuzzParcel_ == nullptr) {
             return ResultCode::SUCCESS;
         }
-        executorInfo.executorId = fuzzParcel_->ReadInt32();
+        executorInfo.executorSensorHint = fuzzParcel_->ReadInt32();
         executorInfo.authType = static_cast<AuthType>(fuzzParcel_->ReadInt32());
-        executorInfo.role = static_cast<ExecutorRole>(fuzzParcel_->ReadInt32());
-        executorInfo.executorType = fuzzParcel_->ReadInt32();
+        executorInfo.executorRole = static_cast<ExecutorRole>(fuzzParcel_->ReadInt32());
+        executorInfo.executorMatcher = fuzzParcel_->ReadInt32();
         executorInfo.esl = static_cast<ExecutorSecureLevel>(fuzzParcel_->ReadInt32());
         FillFuzzUint8Vector(*fuzzParcel_, executorInfo.publicKey);
-        FillFuzzUint8Vector(*fuzzParcel_, executorInfo.deviceId);
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
@@ -100,7 +99,7 @@ public:
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
-    ResultCode SendCommand(UserAuth::AuthPropertyMode commandId, const std::vector<uint8_t> &extraInfo,
+    ResultCode SendCommand(PropertyMode commandId, const std::vector<uint8_t> &extraInfo,
         const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) override
     {
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
