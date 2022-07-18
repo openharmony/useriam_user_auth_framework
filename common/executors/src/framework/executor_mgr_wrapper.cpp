@@ -12,7 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "executor_mgr_wrapper.h"
+
+#include "auth_message.h"
+#include "executor_mgr.h"
 
 namespace OHOS {
 namespace UserIAM {

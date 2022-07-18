@@ -16,9 +16,17 @@
 #include "custom_command.h"
 
 #include <chrono>
+#include <cstdint>
+#include <future>
+#include <string>
+
+#include "refbase.h"
 
 #include "iam_check.h"
 #include "iam_logger.h"
+#include "framework_types.h"
+#include "iauth_executor_hdi.h"
+#include "iexecutor_messenger.h"
 
 #define LOG_LABEL Common::LABEL_USER_AUTH_EXECUTOR
 

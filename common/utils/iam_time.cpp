@@ -13,10 +13,15 @@
  * limitations under the License.
  */
 
-#include <chrono>
-#include <securec.h>
-
 #include "iam_time.h"
+
+#include <chrono>
+#include <cstdint>
+#include <ctime>
+#include <string>
+#include <sys/types.h>
+
+#include "securec.h"
 
 namespace OHOS {
 namespace UserIAM {
