@@ -18,6 +18,7 @@
 #include <cinttypes>
 
 #include "iam_logger.h"
+#include "securec.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_IDM_SDK
 
@@ -47,9 +48,15 @@ int32_t UserIdmProxy::OpenSession(std::optional<int32_t> userId, std::vector<uin
     if (!ret) {
         return FAIL;
     }
-    if (!reply.ReadUInt8Vector(&challenge)) {
+    uint64_t tempChallenge;
+    if (!reply.ReadUint64(tempChallenge)) {
         IAM_LOGE("failed to read challenge");
         return FAIL;
+    }
+    challenge.resize(sizeof(uint64_t));
+    if (memcpy_s(&challenge[0], challenge.size(), &tempChallenge, sizeof(uint64_t)) != EOK) {
+        IAM_LOGE("failed to copy challenge");
+        return GENERAL_ERROR;
     }
     return SUCCESS;
 }
