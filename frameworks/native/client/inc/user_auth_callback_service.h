@@ -18,6 +18,7 @@
 
 #include "user_auth_callback_stub.h"
 
+#include "iam_hitrace_helper.h"
 #include "user_auth_client_callback.h"
 
 namespace OHOS {
@@ -35,6 +36,7 @@ public:
 private:
     std::shared_ptr<AuthenticationCallback> authCallback_ {nullptr};
     std::shared_ptr<IdentificationCallback> identifyCallback_ {nullptr};
+    std::shared_ptr<UserIam::UserAuth::IamHitraceHelper> iamHitraceHelper_ {nullptr};
 };
 
 class GetExecutorPropertyCallbackService : public GetExecutorPropertyCallbackStub {

@@ -16,18 +16,22 @@
 #include "user_idm_callback_service.h"
 
 #include "iam_logger.h"
+#include "iam_ptr.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_IDM_SDK
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-IdmCallbackService::IdmCallbackService(const std::shared_ptr<UserIdmClientCallback> &impl) : idmClientCallback_(impl)
+IdmCallbackService::IdmCallbackService(const std::shared_ptr<UserIdmClientCallback> &impl)
+    : idmClientCallback_(impl),
+    iamHitraceHelper_(UserIAM::Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("IDM InnerKit"))
 {
 }
 
 void IdmCallbackService::OnResult(int32_t result, const Attributes &reqRet)
 {
+    iamHitraceHelper_ = nullptr;
     if (idmClientCallback_ == nullptr) {
         IAM_LOGE("idm client callback is nullptr");
         return;
