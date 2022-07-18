@@ -16,6 +16,7 @@
 #include "user_auth_callback_service.h"
 
 #include "iam_logger.h"
+#include "iam_ptr.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SDK
 
@@ -23,12 +24,14 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 UserAuthCallbackService::UserAuthCallbackService(const std::shared_ptr<AuthenticationCallback> &impl)
-    : authCallback_(impl)
+    : authCallback_(impl),
+    iamHitraceHelper_(UserIAM::Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("UserAuth InnerKit"))
 {
 }
 
 UserAuthCallbackService::UserAuthCallbackService(const std::shared_ptr<IdentificationCallback> &impl)
-    : identifyCallback_(impl)
+    : identifyCallback_(impl),
+    iamHitraceHelper_(UserIAM::Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("UserAuth InnerKit"))
 {
 }
 
@@ -48,6 +51,7 @@ void UserAuthCallbackService::OnAuthResult(int32_t result, const Attributes &ext
         IAM_LOGE("auth callback is nullptr");
         return;
     }
+    iamHitraceHelper_= nullptr;
     authCallback_->OnResult(result, extraInfo);
 }
 
@@ -57,6 +61,7 @@ void UserAuthCallbackService::OnIdentifyResult(int32_t result, const Attributes 
         IAM_LOGE("identify callback is nullptr");
         return;
     }
+    iamHitraceHelper_= nullptr;
     identifyCallback_->OnResult(result, extraInfo);
 }
 
