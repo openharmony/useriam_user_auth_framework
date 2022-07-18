@@ -31,8 +31,8 @@ public:
     MOCK_METHOD1(SetPinSubType, void(PinSubType pinSubType));
     MOCK_METHOD2(Start,
         bool(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList, std::shared_ptr<ScheduleNodeCallback> callback));
-    MOCK_METHOD3(Update, bool(const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
-                             std::shared_ptr<CredentialInfo> &info));
+    MOCK_METHOD4(Update, bool(const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
+                             std::shared_ptr<CredentialInfo> &info, std::vector<uint8_t> &rootSecret));
     MOCK_METHOD0(Cancel, bool());
 };
 } // namespace UserAuth

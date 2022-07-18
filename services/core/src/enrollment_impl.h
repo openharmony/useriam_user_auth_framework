@@ -39,7 +39,7 @@ public:
     bool Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
         std::shared_ptr<ScheduleNodeCallback> callback) override;
     bool Update(const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
-        std::shared_ptr<CredentialInfo> &info) override;
+        std::shared_ptr<CredentialInfo> &info, std::vector<uint8_t> &rootSecret) override;
     bool Cancel() override;
 
 private:

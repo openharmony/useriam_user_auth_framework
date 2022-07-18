@@ -86,7 +86,8 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiError, TestSize.Level0)
     std::vector<uint8_t> scheduleResult = {1, 2, 3};
     uint64_t credentialId = 0;
     std::shared_ptr<CredentialInfo> info = nullptr;
-    EXPECT_FALSE(authentication->Update(scheduleResult, credentialId, info));
+    std::vector<uint8_t> rootSecret;
+    EXPECT_FALSE(authentication->Update(scheduleResult, credentialId, info, rootSecret));
 }
 
 HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful, TestSize.Level0)
@@ -119,7 +120,8 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful, TestSize.Level0)
     HdiCredentialInfo oldInfo = {};
     std::shared_ptr<CredentialInfo> info = std::make_shared<CredentialInfoImpl>(userId, oldInfo);
     uint64_t credentialId = 0;
-    EXPECT_TRUE(authentication->Update(scheduleResult, credentialId, info));
+    std::vector<uint8_t> rootSecret;
+    EXPECT_TRUE(authentication->Update(scheduleResult, credentialId, info, rootSecret));
 
     // test return values
     EXPECT_EQ(credentialId, credentialIdRet);

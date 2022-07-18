@@ -97,7 +97,7 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
 }
 
 bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
-    std::shared_ptr<CredentialInfo> &info)
+    std::shared_ptr<CredentialInfo> &info, std::vector<uint8_t> &rootSecret)
 {
     using HdiEnrollResultInfo = OHOS::HDI::UserAuth::V1_0::EnrollResultInfo;
 
@@ -121,6 +121,7 @@ bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t
     }
     credentialId = resultInfo.credentialId;
     info = infoRet;
+    rootSecret = resultInfo.rootSecret;
 
     return true;
 }
