@@ -52,6 +52,7 @@ ohos_shared_library("userauth_client") {
 
   deps = [
     "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
+    "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
     "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_client_ipc",
   ]
 

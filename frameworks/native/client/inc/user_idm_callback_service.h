@@ -18,6 +18,7 @@
 
 #include "user_idm_callback_stub.h"
 
+#include "iam_hitrace_helper.h"
 #include "user_idm_client_callback.h"
 
 namespace OHOS {
@@ -32,6 +33,7 @@ public:
 
 private:
     std::shared_ptr<UserIdmClientCallback> idmClientCallback_ {nullptr};
+    std::shared_ptr<UserIam::UserAuth::IamHitraceHelper> iamHitraceHelper_ {nullptr};
 };
 
 class IdmGetCredInfoCallbackService : public IdmGetCredInfoCallbackStub {
