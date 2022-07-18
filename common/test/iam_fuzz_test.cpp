@@ -15,8 +15,14 @@
 
 #include "iam_fuzz_test.h"
 
-#include "iam_logger.h"
+#include <cstdint>
+#include <string>
+#include <vector>
+
+#include "parcel.h"
 #include "securec.h"
+
+#include "iam_logger.h"
 
 #define LOG_LABEL OHOS::UserIAM::Common::LABEL_IAM_COMMON
 
