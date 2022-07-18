@@ -31,6 +31,7 @@ public:
         int32_t freezingTime;
         int32_t remainTimes;
         std::vector<uint8_t> token;
+        std::vector<uint8_t> rootSecret;
     };
     virtual ~Authentication() = default;
 

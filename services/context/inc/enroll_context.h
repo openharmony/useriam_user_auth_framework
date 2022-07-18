@@ -37,8 +37,10 @@ protected:
     bool OnStop() const override;
 
 private:
-    bool UpdateScheduleResult(const std::shared_ptr<Attributes> &scheduleResultAttr, uint64_t &credentialId) const;
-    void InvokeResultCallback(int32_t resultCode, const uint64_t credentialId) const;
+    bool UpdateScheduleResult(const std::shared_ptr<Attributes> &scheduleResultAttr, uint64_t &credentialId,
+        std::vector<uint8_t> &rootSecret) const;
+    void InvokeResultCallback(int32_t resultCode, const uint64_t credentialId,
+        const std::vector<uint8_t> &rootSecret) const;
     std::shared_ptr<Enrollment> enroll_ = nullptr;
 };
 } // namespace UserAuth

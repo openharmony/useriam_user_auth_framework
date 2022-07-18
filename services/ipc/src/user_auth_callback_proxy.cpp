@@ -62,6 +62,7 @@ void UserAuthCallbackProxy::OnAuthResult(int32_t result, const Attributes &extra
     MessageParcel reply;
 
     std::vector<uint8_t> token;
+    std::vector<uint8_t> rootSecret;
     int32_t remainCounts = 0;
     int32_t freezingTime = 0;
 
@@ -74,6 +75,9 @@ void UserAuthCallbackProxy::OnAuthResult(int32_t result, const Attributes &extra
     }
     if (!extraInfo.GetInt32Value(Attributes::ATTR_FREEZING_TIME, freezingTime)) {
         IAM_LOGE("get freezing time failed");
+    }
+    if (!extraInfo.GetUint8ArrayValue(Attributes::ATTR_ROOT_SECRET, rootSecret)) {
+        IAM_LOGE("get root secret failed");
     }
 
     if (!data.WriteInterfaceToken(UserAuthCallbackProxy::GetOldDescriptor())) {
@@ -94,6 +98,10 @@ void UserAuthCallbackProxy::OnAuthResult(int32_t result, const Attributes &extra
     }
     if (!data.WriteInt32(freezingTime)) {
         IAM_LOGE("write freezing time failed");
+        return;
+    }
+    if (!data.WriteUInt8Vector(rootSecret)) {
+        IAM_LOGE("write root secret failed");
         return;
     }
     bool ret = SendRequest(UserAuthInterface::USER_AUTH_ON_RESULT, data, reply);

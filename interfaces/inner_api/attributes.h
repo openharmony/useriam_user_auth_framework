@@ -50,6 +50,7 @@ public:
         ATTR_TIME_STAMP = 100031,
         ATTR_ROOT_SECRET = 100032,
         ATTR_AUTH_TOKEN = 100033,
+
         // private attrs
         ATTR_USER_ID = 300000,
         ATTR_EXTRA_INFO,
