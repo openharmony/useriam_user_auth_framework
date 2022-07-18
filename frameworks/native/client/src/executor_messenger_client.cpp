@@ -41,7 +41,6 @@ int32_t ExecutorMessengerClient::SendData(uint64_t scheduleId, uint64_t transNum
         IAM_LOGE("msg is nullptr");
         return FAIL;
     } else {
-        AuthMessage::As(buffer);
         buffer = AuthMessageImpl::GetMsgBuffer(msg);
     }
     return messenger_->SendData(scheduleId, transNum, srcRole, dstRole, buffer);

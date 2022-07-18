@@ -18,6 +18,7 @@
 #include <cinttypes>
 
 #include "iam_logger.h"
+#include "securec.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SDK
 
@@ -154,6 +155,12 @@ uint64_t UserAuthProxy::AuthUser(std::optional<int32_t> userId, const std::vecto
     MessageParcel data;
     MessageParcel reply;
 
+    uint64_t tempChallenge;
+    if (memcpy_s(&tempChallenge, sizeof(uint64_t), &challenge[0], challenge.size()) != EOK) {
+        IAM_LOGE("failed to copy challenge");
+        return FAIL;
+    }
+
     if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
         IAM_LOGE("failed to write descriptor");
         return BAD_CONTEXT_ID;
@@ -162,7 +169,7 @@ uint64_t UserAuthProxy::AuthUser(std::optional<int32_t> userId, const std::vecto
         IAM_LOGE("failed to write userId");
         return BAD_CONTEXT_ID;
     }
-    if (!data.WriteUInt8Vector(challenge)) {
+    if (!data.WriteUint64(tempChallenge)) {
         IAM_LOGE("failed to write challenge");
         return BAD_CONTEXT_ID;
     }
@@ -201,11 +208,17 @@ uint64_t UserAuthProxy::Identify(const std::vector<uint8_t> &challenge, AuthType
     MessageParcel data;
     MessageParcel reply;
 
+    uint64_t tempChallenge;
+    if (memcpy_s(&tempChallenge, sizeof(uint64_t), &challenge[0], challenge.size()) != EOK) {
+        IAM_LOGE("failed to copy challenge");
+        return FAIL;
+    }
+
     if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
         IAM_LOGE("failed to write descriptor");
         return BAD_CONTEXT_ID;
     }
-    if (!data.WriteUInt8Vector(challenge)) {
+    if (!data.WriteUint64(tempChallenge)) {
         IAM_LOGE("failed to write challenge");
         return BAD_CONTEXT_ID;
     }

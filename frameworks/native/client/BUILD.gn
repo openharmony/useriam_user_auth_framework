@@ -13,6 +13,13 @@
 
 import("//build/ohos.gni")
 
+config("userauth_client_config") {
+  include_dirs = [
+    "inc",
+    "//base/useriam/user_auth_framework/interfaces/inner_api",
+  ]
+}
+
 ohos_shared_library("userauth_client") {
   include_dirs = [
     "//base/useriam/user_auth_framework/services/common_defines/interfaces",
@@ -41,6 +48,8 @@ ohos_shared_library("userauth_client") {
   ]
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
+  public_configs = [ ":userauth_client_config" ]
+
   deps = [
     "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
     "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_client_ipc",
@@ -52,4 +61,6 @@ ohos_shared_library("userauth_client") {
     "samgr_standard:samgr_proxy",
     "utils_base:utils",
   ]
+
+  part_name = "user_auth_framework"
 }
