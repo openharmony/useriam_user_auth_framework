@@ -85,6 +85,10 @@ int32_t ExecutorMessengerProxy::Finish(uint64_t scheduleId, ExecutorRole srcRole
         IAM_LOGE("failed to write descriptor");
         return WRITE_PARCEL_ERROR;
     }
+    if (!data.WriteUint64(scheduleId)) {
+        IAM_LOGE("failed to write scheduleId");
+        return WRITE_PARCEL_ERROR;
+    }
     if (!data.WriteUint32(srcRole)) {
         IAM_LOGE("failed to write srcRole");
         return WRITE_PARCEL_ERROR;

@@ -31,27 +31,28 @@ CoAuthProxy::CoAuthProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<CoAuthI
 
 int32_t CoAuthProxy::WriteExecutorInfo(const ExecutorRegisterInfo &info, MessageParcel &data)
 {
-    if (!data.WriteUint32(info.authType)) {
+    if (!data.WriteInt32(static_cast<int32_t>(info.authType))) {
         IAM_LOGE("failed to write authType");
         return FAIL;
     }
-    if (!data.WriteUint32(info.executorRole)) {
-        IAM_LOGE("failed to write executorRole");
-        return FAIL;
-    }
-    if (!data.WriteUint32(info.executorSensorHint)) {
-        IAM_LOGE("failed to write executorSensorHint");
-        return FAIL;
-    }
-    if (!data.WriteUint32(info.executorMatcher)) {
+    if (!data.WriteUint64(static_cast<uint32_t>(info.executorMatcher))) {
         IAM_LOGE("failed to write executorMatcher");
         return FAIL;
     }
-    if (!data.WriteUint32(info.esl)) {
+    if (!data.WriteInt32(static_cast<int32_t>(info.esl))) {
         IAM_LOGE("failed to write esl");
         return FAIL;
     }
+    if (!data.WriteInt32(static_cast<int32_t>(info.executorRole))) {
+        IAM_LOGE("failed to write executorRole");
+        return FAIL;
+    }
     if (!data.WriteUInt8Vector(info.publicKey)) {
+        IAM_LOGE("failed to write publicKey");
+        return FAIL;
+    }
+    std::vector<uint8_t> deviceId;
+    if (!data.WriteUInt8Vector(deviceId)) {
         IAM_LOGE("failed to write publicKey");
         return FAIL;
     }

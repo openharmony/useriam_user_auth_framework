@@ -48,18 +48,21 @@ int32_t IdmCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Mes
 int32_t IdmCallbackStub::OnResultStub(MessageParcel &data, MessageParcel &reply)
 {
     int32_t result;
-    std::vector<uint8_t> buffer;
+    uint64_t credentialId;
 
     if (!data.ReadInt32(result)) {
         IAM_LOGE("failed to read result");
         return READ_PARCEL_ERROR;
     }
-    if (!data.ReadUInt8Vector(&buffer)) {
-        IAM_LOGE("failed to read buffer");
+    if (!data.ReadUint64(credentialId)) {
+        IAM_LOGE("failed to read credentialId");
         return READ_PARCEL_ERROR;
     }
 
-    Attributes extraInfo(buffer);
+    Attributes extraInfo;
+    if (!extraInfo.SetUint64Value(Attributes::ATTR_CREDENTIAL_ID, credentialId)) {
+        IAM_LOGE("failed to set credentialId");
+    }
     OnResult(result, extraInfo);
     return SUCCESS;
 }
@@ -68,7 +71,7 @@ int32_t IdmCallbackStub::OnAcquireInfoStub(MessageParcel &data, MessageParcel &r
 {
     int32_t module;
     int32_t acquireInfo;
-    std::vector<uint8_t> buffer;
+    uint64_t credentialId;
 
     if (!data.ReadInt32(module)) {
         IAM_LOGE("failed to read module");
@@ -78,12 +81,15 @@ int32_t IdmCallbackStub::OnAcquireInfoStub(MessageParcel &data, MessageParcel &r
         IAM_LOGE("failed to read acquireInfo");
         return READ_PARCEL_ERROR;
     }
-    if (!data.ReadUInt8Vector(&buffer)) {
-        IAM_LOGE("failed to read buffer");
+    if (!data.ReadUint64(credentialId)) {
+        IAM_LOGE("failed to read credentialId");
         return READ_PARCEL_ERROR;
     }
 
-    Attributes extraInfo(buffer);
+    Attributes extraInfo;
+    if (!extraInfo.SetUint64Value(Attributes::ATTR_CREDENTIAL_ID, credentialId)) {
+        IAM_LOGE("failed to set credentialId");
+    }
     OnAcquireInfo(module, acquireInfo, extraInfo);
     return SUCCESS;
 }
@@ -157,7 +163,7 @@ int32_t IdmGetSecureUserInfoCallbackStub::OnRemoteRequest(uint32_t code, Message
     if (IdmGetSecureUserInfoCallbackStub::GetDescriptor() != data.ReadInterfaceToken()) {
         IAM_LOGE("descriptor is not matched");
         return FAIL;
-}
+    }
 
     if (code == IdmGetSecureUserInfoCallbackInterface::ON_GET_SEC_INFO) {
         return OnSecureUserInfoStub(data, reply);
