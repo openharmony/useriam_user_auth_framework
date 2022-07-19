@@ -26,6 +26,7 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
+using namespace OHOS::UserIam::UserAuth;
 napi_value UserAuthServiceConstructor(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
@@ -201,11 +202,11 @@ napi_value AuthSubTypeConstructor(napi_env env)
     napi_value face2d = nullptr;
     napi_value face3d = nullptr;
     NAPI_CALL(env, napi_create_object(env, &authSubType));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthSubType::PIN_SIX), &pinSix));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthSubType::PIN_NUMBER), &pinNumber));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthSubType::PIN_MIXED), &pinMixed));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthSubType::FACE_2D), &face2d));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthSubType::FACE_3D), &face3d));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(PinSubType::PIN_SIX), &pinSix));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(PinSubType::PIN_NUMBER), &pinNumber));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(PinSubType::PIN_MIXED), &pinMixed));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(20000), &face2d)); // FACE_2D = 20000
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(20001), &face3d)); // FACE_3D = 20001
     NAPI_CALL(env, napi_set_named_property(env, authSubType, "PIN_SIX", pinSix));
     NAPI_CALL(env, napi_set_named_property(env, authSubType, "PIN_NUMBER", pinNumber));
     NAPI_CALL(env, napi_set_named_property(env, authSubType, "PIN_MIXED", pinMixed));
@@ -239,6 +240,7 @@ napi_value GetPropertyTypeConstructor(napi_env env)
     napi_value authSubType = nullptr;
     napi_value remainTimes = nullptr;
     napi_value freezingTime = nullptr;
+
     NAPI_CALL(env, napi_create_object(env, &getPropertyType));
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(GetPropertyType::AUTH_SUB_TYPE), &authSubType));
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(GetPropertyType::REMAIN_TIMES), &remainTimes));
@@ -475,8 +477,8 @@ napi_value UserAuthTypeConstructor(napi_env env)
     napi_value face = nullptr;
     napi_value fingerprint = nullptr;
     NAPI_CALL(env, napi_create_object(env, &userAuthType));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthType::FACE), &face));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthType::FINGERPRINT), &fingerprint));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthType::FACE), &face));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthType::FINGERPRINT), &fingerprint));
     NAPI_CALL(env, napi_set_named_property(env, userAuthType, "FACE", face));
     NAPI_CALL(env, napi_set_named_property(env, userAuthType, "FINGERPRINT", fingerprint));
     return userAuthType;

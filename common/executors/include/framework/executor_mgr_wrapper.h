@@ -18,16 +18,16 @@
 
 #include "nocopyable.h"
 
-#include "executor_callback.h"
-#include "executor_mgr.h"
+#include "co_auth_client_callback.h"
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
+using namespace OHOS::UserIam::UserAuth;
 class ExecutorMgrWrapper : public NoCopyable {
 public:
-    virtual ~ExecutorMgrWrapper() = default;
-    virtual void Register(const ExecutorInfo &info, std::shared_ptr<AuthResPool::ExecutorCallback> callback);
+    ~ExecutorMgrWrapper() override = default;
+    virtual void Register(const ExecutorInfo &info, std::shared_ptr<ExecutorRegisterCallback> callback);
 };
 } // namespace UserAuth
 } // namespace UserIAM

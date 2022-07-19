@@ -18,13 +18,15 @@
 #include <cinttypes>
 #include <map>
 
+#include "securec.h"
+
 #include "iam_logger.h"
 #include "iam_para2str.h"
 
-#include "user_auth_native.h"
-#include "userauth_callback.h"
-#include "userauth_info.h"
 #include "authapi_callback.h"
+#include "user_auth_client_impl.h"
+
+#include "user_auth_client.h"
 #include "user_auth_helper.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_NAPI
@@ -43,7 +45,7 @@ UserAuthImpl::~UserAuthImpl()
 
 napi_value UserAuthImpl::GetVersion(napi_env env, napi_callback_info info)
 {
-    int32_t result = UserAuthNative::GetInstance().GetVersion();
+    int32_t result = 0;
     IAM_LOGI("start result = %{public}d", result);
     napi_value version = 0;
     NAPI_CALL(env, napi_create_int32(env, result, &version));
@@ -76,7 +78,10 @@ napi_value UserAuthImpl::GetAvailableStatus(napi_env env, napi_callback_info inf
     }
     AuthType authType = AuthType(type);
     AuthTrustLevel authTrustLevel = AuthTrustLevel(level);
-    result = UserAuthNative::GetInstance().GetAvailableStatus(authType, authTrustLevel);
+
+    auto &client = UserAuthClient::GetInstance();
+
+    result = static_cast<UserAuthClientImpl *>(&client)->GetAvailableStatus(authType, authTrustLevel);
     IAM_LOGI("result = %{public}d", result);
     NAPI_CALL(env, napi_create_int32(env, result, &ret));
     return ret;
@@ -164,7 +169,10 @@ void UserAuthImpl::GetPropertyExecute(napi_env env, void *data)
 
     GetPropertyRequest request;
     request.authType = authTypeGet;
-    request.keys = getPropertyInfo->keys;
+
+    for (auto item : getPropertyInfo->keys) {
+        request.keys.push_back(static_cast<Attributes::AttributeKey>(item));
+    }
     GetPropApiCallback *object = new (std::nothrow) GetPropApiCallback(getPropertyInfo);
     if (object == nullptr) {
         IAM_LOGE("object is nullptr");
@@ -172,7 +180,7 @@ void UserAuthImpl::GetPropertyExecute(napi_env env, void *data)
     }
     std::shared_ptr<GetPropApiCallback> callback;
     callback.reset(object);
-    UserAuthNative::GetInstance().GetProperty(request, callback);
+    UserAuthClient::GetInstance().GetProperty(0, request, callback);
     IAM_LOGI("end");
 }
 
@@ -310,8 +318,9 @@ void UserAuthImpl::SetPropertyExecute(napi_env env, void *data)
     AuthType authTypeGet = AuthType(setPropertyInfo->authType);
     SetPropertyRequest request;
     request.authType = authTypeGet;
-    request.key = SetPropertyType(setPropertyInfo->key);
-    request.setInfo = setPropertyInfo->setInfo;
+    request.mode = OHOS::UserIam::UserAuth::PropertyMode(setPropertyInfo->key);
+    request.attrs.SetUint8ArrayValue(Attributes::AttributeKey(setPropertyInfo->key), setPropertyInfo->setInfo);
+
     SetPropApiCallback *object = new (std::nothrow) SetPropApiCallback(setPropertyInfo);
     if (object == nullptr) {
         IAM_LOGE("object is nullptr");
@@ -319,7 +328,7 @@ void UserAuthImpl::SetPropertyExecute(napi_env env, void *data)
     }
     std::shared_ptr<SetPropApiCallback> callback;
     callback.reset(object);
-    UserAuthNative::GetInstance().SetProperty(request, callback);
+    UserAuthClient::GetInstance().SetProperty(0, request, callback);
     IAM_LOGI("end");
 }
 
@@ -450,12 +459,12 @@ napi_value UserAuthImpl::Execute(napi_env env, napi_callback_info info)
     std::shared_ptr<AuthApiCallback> callback = std::make_shared<AuthApiCallback>(executeInfo.release());
     if (ret != ResultCode::SUCCESS) {
         IAM_LOGE("ParseExecuteParameters fail");
-        AuthResult authResult = {};
-        callback->onResult(ret, authResult);
+        UserIam::UserAuth::Attributes extra;
+        callback->OnResult(ret, extra);
         return retPromise;
     }
-
-    UserAuthNative::GetInstance().Auth(0, FACE, authTrustLevel, callback);
+    std::vector<uint8_t> challenge;
+    UserAuthClient::GetInstance().BeginAuthentication(0, challenge, FACE, authTrustLevel, callback);
     return retPromise;
 }
 
@@ -588,7 +597,14 @@ napi_value UserAuthImpl::AuthWrap(napi_env env, AuthInfo *authInfo)
     }
     std::shared_ptr<AuthApiCallback> callback;
     callback.reset(object);
-    uint64_t result = UserAuthNative::GetInstance().Auth(authInfo->challenge, AuthType(authInfo->authType),
+
+    std::vector<uint8_t> challenge(sizeof(uint64_t));
+
+    if (memcpy_s(challenge.data(), sizeof(uint64_t), &authInfo->challenge, sizeof(uint64_t)) != EOK) {
+        IAM_LOGE("memcpy error");
+    }
+
+    uint64_t result = UserAuthClient::GetInstance().BeginAuthentication(0, challenge, AuthType(authInfo->authType),
         AuthTrustLevel(authInfo->authTrustLevel), callback);
     IAM_LOGI("result's low 16 bits is %{public}s", GET_MASKED_STRING(result).c_str());
     napi_value key = authBuild.Uint64ToUint8Array(env, result);
@@ -660,7 +676,14 @@ napi_value UserAuthImpl::AuthUserWrap(napi_env env, AuthUserInfo *userInfo)
     }
     std::shared_ptr<AuthApiCallback> callback;
     callback.reset(object);
-    uint64_t result = UserAuthNative::GetInstance().AuthUser(userInfo->userId, userInfo->challenge,
+
+    std::vector<uint8_t> challenge(sizeof(uint64_t));
+
+    if (memcpy_s(challenge.data(), sizeof(uint64_t), &userInfo->challenge, sizeof(uint64_t)) != EOK) {
+        IAM_LOGE("memcpy error");
+    }
+
+    uint64_t result = UserAuthClient::GetInstance().BeginAuthentication(userInfo->userId, challenge,
         AuthType(userInfo->authType), AuthTrustLevel(userInfo->authTrustLevel), callback);
     IAM_LOGI("result's low 16 bits is %{public}s", GET_MASKED_STRING(result).c_str());
     napi_value key = authBuild.Uint64ToUint8Array(env, result);
@@ -679,7 +702,7 @@ napi_value UserAuthImpl::CancelAuth(napi_env env, napi_callback_info info)
     if (contextId == 0) {
         return nullptr;
     }
-    int32_t result = UserAuthNative::GetInstance().CancelAuth(contextId);
+    int32_t result = UserAuthClient::GetInstance().CancelAuthentication(contextId);
     IAM_LOGI("result = %{public}d", result);
     napi_value key = 0;
     NAPI_CALL(env, napi_create_int32(env, result, &key));

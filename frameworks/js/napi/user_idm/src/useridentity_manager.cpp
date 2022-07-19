@@ -99,10 +99,9 @@ napi_value OpenSessionRet(napi_env env, AsyncOpenSession* asyncOpenSession)
     }
     void* data = nullptr;
     napi_value arrayBuffer = nullptr;
-    size_t bufferSize = sizeof(asyncOpenSession->openSession);
+    size_t bufferSize = asyncOpenSession->openSession.size();
     NAPI_CALL(env, napi_create_arraybuffer(env, bufferSize, &data, &arrayBuffer));
-    if (memcpy_s(data, bufferSize, reinterpret_cast<const void*>(&asyncOpenSession->openSession),
-        bufferSize) != EOK) {
+    if (memcpy_s(data, bufferSize, asyncOpenSession->openSession.data(), bufferSize) != EOK) {
         IAM_LOGE("memcpy_s fail.");
         return nullptr;
     }
@@ -128,7 +127,7 @@ napi_value UserIdentityManager::OpenSessionCallback(napi_env env, napi_value *ar
         [](napi_env env, void *data) {
             AsyncOpenSession *asyncInfo = (AsyncOpenSession*)data;
             if (asyncInfo != nullptr) {
-                asyncInfo->openSession = UserIDMClient::GetInstance().OpenSession();
+                asyncInfo->openSession = UserIdmClient::GetInstance().OpenSession(0);
             }
         },
         [](napi_env env, napi_status status, void *data) {
@@ -170,7 +169,7 @@ napi_value UserIdentityManager::OpenSessionPromise(napi_env env, napi_value *arg
         [](napi_env env, void *data) {
             AsyncOpenSession *asyncInfo = (AsyncOpenSession*)data;
             if (asyncInfo != nullptr) {
-                asyncInfo->openSession = UserIDMClient::GetInstance().OpenSession();
+                asyncInfo->openSession = UserIdmClient::GetInstance().OpenSession(0);
             }
         },
         [](napi_env env, napi_status status, void *data) {
@@ -205,12 +204,13 @@ void UserIdentityManager::AddCredentialExecute(napi_env env, void *data)
         IAM_LOGE("asyncCallbackContext is nullptr");
         return;
     }
-    AddCredInfo addCredInfo;
+    CredentialParameters addCredInfo;
     addCredInfo.authType = asyncCallbackContext->authType;
-    addCredInfo.authSubType = asyncCallbackContext->authSubType;
+    addCredInfo.pinType = asyncCallbackContext->authSubType;
+
     addCredInfo.token.assign(asyncCallbackContext->token.begin(), asyncCallbackContext->token.end());
-    std::shared_ptr<IDMCallback> iidmCallback = std::make_shared<IIdmCallback>(asyncCallbackContext);
-    UserIDMClient::GetInstance().AddCredential(addCredInfo, iidmCallback);
+    std::shared_ptr<UserIdmClientCallback> iidmCallback = std::make_shared<IIdmCallback>(asyncCallbackContext);
+    UserIdmClient::GetInstance().AddCredential(0, addCredInfo, iidmCallback);
 }
 
 void UserIdentityManager::AddCredentialComplete(napi_env env, napi_status status, void *data)
@@ -287,12 +287,12 @@ void UserIdentityManager::UpdateCredentialExecute(napi_env env, void *data)
         IAM_LOGE("asyncCallbackContext is nullptr");
         return;
     }
-    AddCredInfo addCredInfo;
+    CredentialParameters addCredInfo;
     addCredInfo.authType = asyncCallbackContext->authType;
-    addCredInfo.authSubType = asyncCallbackContext->authSubType;
+    addCredInfo.pinType = asyncCallbackContext->authSubType;
     addCredInfo.token.assign(asyncCallbackContext->token.begin(), asyncCallbackContext->token.end());
-    std::shared_ptr<IDMCallback> iidmCallback = std::make_shared<IIdmCallback>(asyncCallbackContext);
-    UserIDMClient::GetInstance().UpdateCredential(addCredInfo, iidmCallback);
+    std::shared_ptr<UserIdmClientCallback> iidmCallback = std::make_shared<IIdmCallback>(asyncCallbackContext);
+    UserIdmClient::GetInstance().UpdateCredential(0, addCredInfo, iidmCallback);
 }
 
 void UserIdentityManager::UpdateCredentialComplete(napi_env env, napi_status status, void *data)
@@ -364,7 +364,7 @@ napi_value UserIdentityManager::NAPI_CloseSession(napi_env env, napi_callback_in
     IAM_LOGI("start");
     napi_value result = nullptr;
     int32_t retCloseSession = 0;
-    UserIDMClient::GetInstance().CloseSession();
+    UserIdmClient::GetInstance().CloseSession(0);
     NAPI_CALL(env, napi_create_int32(env, retCloseSession, &result));
     return result;
 }
@@ -393,7 +393,7 @@ napi_value UserIdentityManager::NAPI_Cancel(napi_env env, napi_callback_info inf
         tmp[i] = syncCancelContext->challenge[i];
     }
     uint64_t *challenge = static_cast<uint64_t *>(static_cast<void *>(tmp));
-    int32_t ret = UserIDMClient::GetInstance().Cancel(*challenge);
+    int32_t ret = UserIdmClient::GetInstance().Cancel(*challenge);
     NAPI_CALL(env, napi_create_int32(env, ret, &result));
     return result;
 }
@@ -411,8 +411,8 @@ void UserIdentityManager::DelUserExecute(napi_env env, void *data)
         IAM_LOGE("asyncCallbackContext is nullptr");
         return;
     }
-    std::shared_ptr<IDMCallback> iidmCallback = std::make_shared<IIdmCallback>(asyncCallbackContext);
-    UserIDMClient::GetInstance().DelUser(asyncCallbackContext->token, iidmCallback);
+    std::shared_ptr<UserIdmClientCallback> iidmCallback = std::make_shared<IIdmCallback>(asyncCallbackContext);
+    UserIdmClient::GetInstance().DeleteUser(0, asyncCallbackContext->token, iidmCallback);
 }
 
 void UserIdentityManager::DelUserComplete(napi_env env, napi_status status, void *data)
@@ -491,8 +491,8 @@ void UserIdentityManager::DelCredExecute(napi_env env, void *data)
         tmp[i] = asyncCallbackContext->credentialId[i];
     }
     uint64_t *tempCredentialId = static_cast<uint64_t *>(static_cast<void *>(tmp));
-    std::shared_ptr<IDMCallback> iidmCallback = std::make_shared<IIdmCallback>(asyncCallbackContext);
-    UserIDMClient::GetInstance().DelCred(*tempCredentialId, asyncCallbackContext->token, iidmCallback);
+    std::shared_ptr<UserIdmClientCallback> iidmCallback = std::make_shared<IIdmCallback>(asyncCallbackContext);
+    UserIdmClient::GetInstance().DeleteCredential(0, *tempCredentialId, asyncCallbackContext->token, iidmCallback);
 }
 
 void UserIdentityManager::DelCredComplete(napi_env env, napi_status status, void *data)
@@ -623,8 +623,9 @@ void UserIdentityManager::GetAuthInfoExecute(napi_env env, void *data)
         IAM_LOGE("asyncGetAuthInfo is nullptr");
         return;
     }
-    std::shared_ptr<GetInfoCallback> getInfoCallbackIDM = std::make_shared<GetInfoCallbackIDM>(asyncGetAuthInfo);
-    UserIDMClient::GetInstance().GetAuthInfo(asyncGetAuthInfo->authType, getInfoCallbackIDM);
+    std::shared_ptr<GetCredentialInfoCallback> getInfoCallbackIDM =
+        std::make_shared<GetInfoCallbackIDM>(asyncGetAuthInfo);
+    UserIdmClient::GetInstance().GetCredentialInfo(0, asyncGetAuthInfo->authType, getInfoCallbackIDM);
 }
 
 void UserIdentityManager::GetAuthInfoComplete(napi_env env, napi_status status, void *data)

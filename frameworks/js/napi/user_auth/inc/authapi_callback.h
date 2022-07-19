@@ -16,11 +16,13 @@
 #ifndef AUTHAPI_CALLBACK_H
 #define AUTHAPI_CALLBACK_H
 
+#include <vector>
+
 #include "napi/native_api.h"
 #include "napi/native_common.h"
-#include "userauth_callback.h"
-#include "userauth_info.h"
+
 #include "auth_common.h"
+#include "user_auth_client.h"
 
 namespace OHOS {
 namespace UserIAM {
@@ -33,14 +35,14 @@ typedef struct AcquireInfoInner {
     int32_t extraInfo;
 } AcquireInfoInner;
 
-class AuthApiCallback : public UserAuthCallback {
+class AuthApiCallback : public UserIam::UserAuth::AuthenticationCallback {
 public:
     explicit AuthApiCallback(AuthInfo *authInfo);
     explicit AuthApiCallback(AuthUserInfo *userInfo);
     explicit AuthApiCallback(ExecuteInfo *executeInfo);
     virtual ~AuthApiCallback();
-    void onAcquireInfo(const int32_t module, const uint32_t acquireInfo, const int32_t extraInfo) override;
-    void onResult(const int32_t result, const AuthResult &extraInfo) override;
+    void OnAcquireInfo(int32_t module, uint32_t acquireInfo, const UserIam::UserAuth::Attributes &extraInfo) override;
+    void OnResult(int32_t result, const UserIam::UserAuth::Attributes &extraInfo) override;
 
     static napi_value BuildOnResult(
         napi_env env, uint32_t remainTimes, uint32_t freezingTime, std::vector<uint8_t> token);
@@ -48,8 +50,8 @@ public:
 
 private:
     void OnAuthAcquireInfo(AcquireInfoInner *acquireInfoInner);
-    void OnUserAuthResult(const int32_t result, const AuthResult extraInfo);
-    void OnAuthResult(const int32_t result, const AuthResult extraInfo);
+    void OnUserAuthResult(const int32_t result, const UserIam::UserAuth::Attributes &extraInfo);
+    void OnAuthResult(const int32_t result, const UserIam::UserAuth::Attributes &extraInfo);
     void OnExecuteResult(const int32_t result);
 
     AuthInfo *authInfo_;
@@ -57,11 +59,11 @@ private:
     ExecuteInfo *executeInfo_;
 };
 
-class GetPropApiCallback : public GetPropCallback {
+class GetPropApiCallback : public UserIam::UserAuth::GetPropCallback {
 public:
     explicit GetPropApiCallback(GetPropertyInfo *getPropertyInfo);
     virtual ~GetPropApiCallback();
-    void onGetProperty(const ExecutorProperty result) override;
+    void OnResult(int32_t result, const UserIam::UserAuth::Attributes &extraInfo) override;
 
     static napi_value BuildExecutorProperty(
         napi_env env, int32_t result, uint32_t remainTimes, uint32_t freezingTime, uint64_t authSubType);
@@ -70,11 +72,11 @@ private:
     GetPropertyInfo *getPropertyInfo_;
 };
 
-class SetPropApiCallback : public SetPropCallback {
+class SetPropApiCallback : public UserIam::UserAuth::SetPropCallback {
 public:
     explicit SetPropApiCallback(SetPropertyInfo *setPropertyInfo);
     virtual ~SetPropApiCallback();
-    void onSetProperty(const int32_t result) override;
+    void OnResult(int32_t result, const UserIam::UserAuth::Attributes &extraInfo) override;
 
 private:
     SetPropertyInfo *setPropertyInfo_;

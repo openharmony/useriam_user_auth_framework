@@ -118,7 +118,7 @@ void UserAuthService::GetProperty(std::optional<int32_t> userId, AuthType authTy
     }
     auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId.value(), authType);
     if (credentialInfos.empty() || credentialInfos[0] == nullptr) {
-        IAM_LOGE("credential info is incorrect");
+        IAM_LOGE("user %{public}d has no credential type %{public}d", userId.value(), authType);
         callback->OnGetExecutorPropertyResult(FAIL, values);
         return;
     }
