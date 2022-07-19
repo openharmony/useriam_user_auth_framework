@@ -24,7 +24,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-void UserAuthCallbackProxy::OnAcquireInfo(int32_t module, uint32_t acquireInfo, int32_t extraInfo)
+void UserAuthCallbackProxy::OnAcquireInfo(int32_t module, uint32_t acquireInfo, const Attributes &extraInfo)
 {
     IAM_LOGI("start");
 
@@ -43,8 +43,9 @@ void UserAuthCallbackProxy::OnAcquireInfo(int32_t module, uint32_t acquireInfo, 
         IAM_LOGE("write acquireInfo failed");
         return;
     }
-    if (!data.WriteInt32(extraInfo)) {
-        IAM_LOGE("write extraInfo failed");
+    auto buffer = extraInfo.Serialize();
+    if (!data.WriteUInt8Vector(buffer)) {
+        IAM_LOGE("write buffer failed");
         return;
     }
 
@@ -61,25 +62,6 @@ void UserAuthCallbackProxy::OnAuthResult(int32_t result, const Attributes &extra
     MessageParcel data;
     MessageParcel reply;
 
-    std::vector<uint8_t> token;
-    std::vector<uint8_t> rootSecret;
-    int32_t remainCounts = 0;
-    int32_t freezingTime = 0;
-
-    if (!extraInfo.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, token)) {
-        // when auth fail token is not set
-        IAM_LOGI("get token failed");
-    }
-    if (!extraInfo.GetInt32Value(Attributes::ATTR_REMAIN_TIMES, remainCounts)) {
-        IAM_LOGE("get remain counts failed");
-    }
-    if (!extraInfo.GetInt32Value(Attributes::ATTR_FREEZING_TIME, freezingTime)) {
-        IAM_LOGE("get freezing time failed");
-    }
-    if (!extraInfo.GetUint8ArrayValue(Attributes::ATTR_ROOT_SECRET, rootSecret)) {
-        IAM_LOGE("get root secret failed");
-    }
-
     if (!data.WriteInterfaceToken(UserAuthCallbackProxy::GetOldDescriptor())) {
         IAM_LOGE("write descriptor failed");
         return;
@@ -88,22 +70,12 @@ void UserAuthCallbackProxy::OnAuthResult(int32_t result, const Attributes &extra
         IAM_LOGE("write result failed");
         return;
     }
-    if (!data.WriteUInt8Vector(token)) {
-        IAM_LOGE("write token failed");
+    auto buffer = extraInfo.Serialize();
+    if (!data.WriteUInt8Vector(buffer)) {
+        IAM_LOGE("write buffer failed");
         return;
     }
-    if (!data.WriteInt32(remainCounts)) {
-        IAM_LOGE("write remain counts failed");
-        return;
-    }
-    if (!data.WriteInt32(freezingTime)) {
-        IAM_LOGE("write freezing time failed");
-        return;
-    }
-    if (!data.WriteUInt8Vector(rootSecret)) {
-        IAM_LOGE("write root secret failed");
-        return;
-    }
+
     bool ret = SendRequest(UserAuthInterface::USER_AUTH_ON_RESULT, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
@@ -117,16 +89,6 @@ void UserAuthCallbackProxy::OnIdentifyResult(int32_t result, const Attributes &e
     MessageParcel data;
     MessageParcel reply;
 
-    int32_t userId = 0;
-    std::vector<uint8_t> token;
-
-    if (!extraInfo.GetInt32Value(Attributes::ATTR_USER_ID, userId)) {
-        IAM_LOGE("get userId failed");
-    }
-    if (!extraInfo.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, token)) {
-        IAM_LOGI("get token failed");
-    }
-
     if (!data.WriteInterfaceToken(UserAuthCallbackProxy::GetOldDescriptor())) {
         IAM_LOGE("write descriptor failed");
         return;
@@ -135,12 +97,9 @@ void UserAuthCallbackProxy::OnIdentifyResult(int32_t result, const Attributes &e
         IAM_LOGE("write result failed");
         return;
     }
-    if (!data.WriteInt32(userId)) {
-        IAM_LOGE("write userId failed");
-        return;
-    }
-    if (!data.WriteUInt8Vector(token)) {
-        IAM_LOGE("write token failed");
+    auto buffer = extraInfo.Serialize();
+    if (!data.WriteUInt8Vector(buffer)) {
+        IAM_LOGE("write buffer failed");
         return;
     }
 
@@ -175,19 +134,6 @@ void GetExecutorPropertyCallbackProxy::OnGetExecutorPropertyResult(int32_t resul
     MessageParcel data;
     MessageParcel reply;
 
-    uint64_t authSubType = 0;
-    uint32_t remainCounts = 0;
-    uint32_t freezingTime = 0;
-    if (!attributes.GetUint64Value(Attributes::ATTR_PIN_SUB_TYPE, authSubType)) {
-        IAM_LOGE("get authSubType failed");
-    }
-    if (!attributes.GetUint32Value(Attributes::ATTR_REMAIN_TIMES, remainCounts)) {
-        IAM_LOGE("get remain counts failed");
-    }
-    if (!attributes.GetUint32Value(Attributes::ATTR_FREEZING_TIME, freezingTime)) {
-        IAM_LOGE("get freezing time failed");
-    }
-
     if (!data.WriteInterfaceToken(GetExecutorPropertyCallbackProxy::GetOldDescriptor())) {
         IAM_LOGE("write descriptor failed");
         return;
@@ -196,18 +142,12 @@ void GetExecutorPropertyCallbackProxy::OnGetExecutorPropertyResult(int32_t resul
         IAM_LOGE("write result failed");
         return;
     }
-    if (!data.WriteUint64(authSubType)) {
-        IAM_LOGE("write authSubType failed");
+    auto buffer = attributes.Serialize();
+    if (!data.WriteUInt8Vector(buffer)) {
+        IAM_LOGE("write buffer failed");
         return;
     }
-    if (!data.WriteUint32(remainCounts)) {
-        IAM_LOGE("write remain counts failed");
-        return;
-    }
-    if (!data.WriteUint32(freezingTime)) {
-        IAM_LOGE("write freezing time failed");
-        return;
-    }
+
     bool ret = SendRequest(UserAuthInterface::USER_AUTH_GET_EX_PROP, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
