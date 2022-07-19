@@ -74,42 +74,42 @@ int32_t CoAuthStub::ExecutorRegisterStub(MessageParcel &data, MessageParcel &rep
 
 int32_t CoAuthStub::ReadExecutorRegisterInfo(ExecutorRegisterInfo &executorInfo, MessageParcel &data)
 {
-    int32_t authType;
-    uint64_t authAbility;
-    int32_t executorSecLevel;
-    int32_t executorType;
-    std::vector<uint8_t> deviceId;
+    uint32_t authType;
+    uint32_t executorRole;
+    uint32_t executorSensorHint;
+    uint32_t executorMatcher;
+    uint32_t esl;
 
-    if (!data.ReadInt32(authType)) {
-        IAM_LOGE("read authType failed");
+    if (!data.ReadUint32(authType)) {
+        IAM_LOGE("failed to read authType");
         return READ_PARCEL_ERROR;
     }
-    if (!data.ReadUint64(authAbility)) {
-        IAM_LOGE("read authAbility failed");
+    if (!data.ReadUint32(executorRole)) {
+        IAM_LOGE("failed to read executorRole");
         return READ_PARCEL_ERROR;
     }
-    if (!data.ReadInt32(executorSecLevel)) {
-        IAM_LOGE("read executorSecLevel failed");
+    if (!data.ReadUint32(executorSensorHint)) {
+        IAM_LOGE("failed to read executorSensorHint");
         return READ_PARCEL_ERROR;
     }
-    if (!data.ReadInt32(executorType)) {
-        IAM_LOGE("read executorType failed");
+    if (!data.ReadUint32(executorMatcher)) {
+        IAM_LOGE("failed to read executorMatcher");
+        return READ_PARCEL_ERROR;
+    }
+    if (!data.ReadUint32(esl)) {
+        IAM_LOGE("failed to read esl");
         return READ_PARCEL_ERROR;
     }
     if (!data.ReadUInt8Vector(&executorInfo.publicKey)) {
-        IAM_LOGE("read publicKey failed");
-        return READ_PARCEL_ERROR;
-    }
-    if (!data.ReadUInt8Vector(&deviceId)) {
-        IAM_LOGE("read deviceId failed");
+        IAM_LOGE("failed to read publicKey");
         return READ_PARCEL_ERROR;
     }
 
-    executorInfo.authType = static_cast<AuthType>(static_cast<uint32_t>(authType));
-    executorInfo.executorRole = static_cast<ExecutorRole>(static_cast<uint32_t>(executorType));
-    executorInfo.executorSensorHint = 0;
-    executorInfo.executorMatcher = 0;
-    executorInfo.esl = static_cast<ExecutorSecureLevel>(static_cast<uint32_t>(executorSecLevel));
+    executorInfo.authType = static_cast<AuthType>(authType);
+    executorInfo.executorRole = static_cast<ExecutorRole>(executorRole);
+    executorInfo.executorSensorHint = executorSensorHint;
+    executorInfo.executorMatcher = executorMatcher;
+    executorInfo.esl = static_cast<ExecutorSecureLevel>(esl);
     return SUCCESS;
 }
 } // namespace UserAuth

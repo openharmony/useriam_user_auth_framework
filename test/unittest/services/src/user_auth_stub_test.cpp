@@ -188,7 +188,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthStub, TestSize.Level0)
 {
     MockUserAuthService service;
     std::optional<int32_t> userId;
-    uint64_t challenge = 124;
+    std::vector<uint8_t> challenge = {1, 2, 4};
     AuthType authType = FACE;
     AuthTrustLevel atl = ATL2;
 
@@ -212,7 +212,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthStub, TestSize.Level0)
     MessageOption option(MessageOption::TF_SYNC);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
-    EXPECT_TRUE(data.WriteUint64(challenge));
+    EXPECT_TRUE(data.WriteUInt8Vector(challenge));
     EXPECT_TRUE(data.WriteUint32(static_cast<uint32_t>(authType)));
     EXPECT_TRUE(data.WriteUint32(static_cast<uint32_t>(atl)));
     EXPECT_NE(callback->AsObject(), nullptr);
@@ -225,7 +225,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub, TestSize.Level0)
 {
     MockUserAuthService service;
     std::optional<int32_t> userId = 1;
-    uint64_t challenge = 125;
+    std::vector<uint8_t> challenge = {1, 2, 5};
     AuthType authType = FACE;
     AuthTrustLevel atl = ATL2;
 
@@ -250,7 +250,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub, TestSize.Level0)
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(userId.value()));
-    EXPECT_TRUE(data.WriteUint64(challenge));
+    EXPECT_TRUE(data.WriteUInt8Vector(challenge));
     EXPECT_TRUE(data.WriteUint32(static_cast<uint32_t>(authType)));
     EXPECT_TRUE(data.WriteUint32(static_cast<uint32_t>(atl)));
     EXPECT_NE(callback->AsObject(), nullptr);
@@ -262,7 +262,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub, TestSize.Level0)
 HWTEST_F(UserAuthStubTest, UserAuthStubIdentifyStub, TestSize.Level0)
 {
     MockUserAuthService service;
-    uint64_t challenge = 125;
+    std::vector<uint8_t> challenge = {1, 2, 5};
     AuthType authType = FACE;
 
     sptr<MockUserAuthCallback> callback = new MockUserAuthCallback();
@@ -285,7 +285,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubIdentifyStub, TestSize.Level0)
     MessageOption option(MessageOption::TF_SYNC);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
-    EXPECT_TRUE(data.WriteUint64(challenge));
+    EXPECT_TRUE(data.WriteUInt8Vector(challenge));
     EXPECT_TRUE(data.WriteUint32(static_cast<uint32_t>(authType)));
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));

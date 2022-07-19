@@ -62,7 +62,8 @@ void ContextCallbackImpl::onAcquireInfo(ExecutorRole src, int32_t moduleType,
             return;
         }
         int32_t acquire = *(int32_t *)(const_cast<uint8_t *>(&acquireMsg[0]));
-        userAuthCallback_->OnAcquireInfo(moduleType, acquire, 0);
+        Attributes attr;
+        userAuthCallback_->OnAcquireInfo(moduleType, acquire, attr);
     }
 }
 
