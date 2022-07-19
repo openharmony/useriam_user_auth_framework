@@ -34,9 +34,8 @@ using namespace testing::ext;
 namespace {
 constexpr int32_t IDM_STUB_TEST_USER_ID = 1;
 const vector<uint8_t> IDM_STUB_TEST_AUTH_TOKEN = {1, 2, 3, 4, 5};
-constexpr uint64_t IDM_STUB_TEST_CHALLENGE = 0x1234567890;
 constexpr uint64_t IDM_STUB_TEST_CRED_ID = 1;
-vector<uint8_t> g_challengeVectorTest;
+std::vector<uint8_t> g_challengeVectorTest = {1, 2, 3, 4, 5, 6, 7, 8};
 } // namespace
 
 void UserIdmStubTest::SetUpTestCase()
@@ -49,9 +48,6 @@ void UserIdmStubTest::TearDownTestCase()
 
 void UserIdmStubTest::SetUp()
 {
-    g_challengeVectorTest.resize(sizeof(IDM_STUB_TEST_CHALLENGE));
-    (void)memcpy_s(g_challengeVectorTest.data(), g_challengeVectorTest.size(), &IDM_STUB_TEST_CHALLENGE,
-        sizeof(IDM_STUB_TEST_CHALLENGE));
 }
 
 void UserIdmStubTest::TearDown()
@@ -75,9 +71,9 @@ HWTEST_F(UserIdmStubTest, UserIdmStubOpenSessionStub, TestSize.Level0)
 
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_OPEN_SESSION, data, reply, option));
 
-    uint64_t challenge;
-    EXPECT_TRUE(reply.ReadUint64(challenge));
-    EXPECT_EQ(challenge, IDM_STUB_TEST_CHALLENGE);
+    std::vector<uint8_t> challenge;
+    EXPECT_TRUE(reply.ReadUInt8Vector(&challenge));
+    EXPECT_THAT(g_challengeVectorTest, ElementsAre(1, 2, 3, 4, 5, 6, 7, 8));
 }
 
 HWTEST_F(UserIdmStubTest, UserIdmStubOpenSessionByIdStub, TestSize.Level0)
@@ -98,9 +94,9 @@ HWTEST_F(UserIdmStubTest, UserIdmStubOpenSessionByIdStub, TestSize.Level0)
 
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_OPEN_SESSION_BY_ID, data, reply, option));
 
-    uint64_t challenge;
-    EXPECT_TRUE(reply.ReadUint64(challenge));
-    EXPECT_EQ(challenge, IDM_STUB_TEST_CHALLENGE);
+    std::vector<uint8_t> challenge;
+    EXPECT_TRUE(reply.ReadUInt8Vector(&challenge));
+    EXPECT_THAT(g_challengeVectorTest, ElementsAre(1, 2, 3, 4, 5, 6, 7, 8));
 }
 
 HWTEST_F(UserIdmStubTest, UserIdmStubCloseSessionStub, TestSize.Level0)
@@ -371,7 +367,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubCancelStub, TestSize.Level0)
     MessageOption option(MessageOption::TF_SYNC);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
-    EXPECT_TRUE(data.WriteUint64(IDM_STUB_TEST_CHALLENGE));
+    EXPECT_TRUE(data.WriteUInt8Vector(g_challengeVectorTest));
 
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_CANCEL, data, reply, option));
 

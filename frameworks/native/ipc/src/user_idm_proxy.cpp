@@ -18,7 +18,6 @@
 #include <cinttypes>
 
 #include "iam_logger.h"
-#include "securec.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_IDM_SDK
 
@@ -36,11 +35,11 @@ int32_t UserIdmProxy::OpenSession(std::optional<int32_t> userId, std::vector<uin
 
     if (!data.WriteInterfaceToken(UserIdmProxy::GetDescriptor())) {
         IAM_LOGE("failed to write descriptor");
-        return FAIL;
+        return WRITE_PARCEL_ERROR;
     }
     if (userId.has_value() && !data.WriteInt32(userId.value())) {
         IAM_LOGE("failed to write userId");
-        return FAIL;
+        return WRITE_PARCEL_ERROR;
     }
     
     bool ret = SendRequest(userId.has_value() ? UserIdmInterface::USER_IDM_OPEN_SESSION_BY_ID :
@@ -48,15 +47,9 @@ int32_t UserIdmProxy::OpenSession(std::optional<int32_t> userId, std::vector<uin
     if (!ret) {
         return FAIL;
     }
-    uint64_t tempChallenge;
-    if (!reply.ReadUint64(tempChallenge)) {
+    if (!reply.ReadUInt8Vector(&challenge)) {
         IAM_LOGE("failed to read challenge");
-        return FAIL;
-    }
-    challenge.resize(sizeof(uint64_t));
-    if (memcpy_s(&challenge[0], challenge.size(), &tempChallenge, sizeof(uint64_t)) != EOK) {
-        IAM_LOGE("failed to copy challenge");
-        return GENERAL_ERROR;
+        return READ_PARCEL_ERROR;
     }
     return SUCCESS;
 }
@@ -91,19 +84,19 @@ int32_t UserIdmProxy::GetCredentialInfo(std::optional<int32_t> userId, AuthType 
 
     if (!data.WriteInterfaceToken(UserIdmProxy::GetDescriptor())) {
         IAM_LOGE("failed to write descriptor");
-        return FAIL;
+        return WRITE_PARCEL_ERROR;
     }
     if (userId.has_value() && !data.WriteInt32(userId.value())) {
         IAM_LOGE("failed to write userId");
-        return FAIL;
+        return WRITE_PARCEL_ERROR;
     }
     if (!data.WriteUint32(authType)) {
         IAM_LOGE("failed to write authType");
-        return FAIL;
+        return WRITE_PARCEL_ERROR;
     }
     if (!data.WriteRemoteObject(callback->AsObject())) {
         IAM_LOGE("failed to write callback");
-        return FAIL;
+        return WRITE_PARCEL_ERROR;
     }
 
     bool ret = SendRequest(userId.has_value() ? UserIdmInterface::USER_IDM_GET_AUTH_INFO_BY_ID :
@@ -130,15 +123,15 @@ int32_t UserIdmProxy::GetSecInfo(std::optional<int32_t> userId,
 
     if (!data.WriteInterfaceToken(UserIdmProxy::GetDescriptor())) {
         IAM_LOGE("failed to write descriptor");
-        return FAIL;
+        return WRITE_PARCEL_ERROR;
     }
     if (userId.has_value() && !data.WriteInt32(userId.value())) {
         IAM_LOGE("failed to write userId");
-        return FAIL;
+        return WRITE_PARCEL_ERROR;
     }
     if (!data.WriteRemoteObject(callback->AsObject())) {
         IAM_LOGE("failed to write callback");
-        return FAIL;
+        return WRITE_PARCEL_ERROR;
     }
 
     bool ret = SendRequest(UserIdmInterface::USER_IDM_GET_SEC_INFO, data, reply);
@@ -242,15 +235,15 @@ int32_t UserIdmProxy::Cancel(std::optional<int32_t> userId, const std::optional<
 
     if (!data.WriteInterfaceToken(UserIdmProxy::GetDescriptor())) {
         IAM_LOGE("failed to write descriptor");
-        return FAIL;
+        return WRITE_PARCEL_ERROR;
     }
     if (userId.has_value() && !data.WriteInt32(userId.value())) {
         IAM_LOGE("failed to write userId");
-        return FAIL;
+        return WRITE_PARCEL_ERROR;
     }
     if (challenge.has_value() && !data.WriteUInt8Vector(challenge.value())) {
         IAM_LOGE("failed to write challenge");
-        return FAIL;
+        return WRITE_PARCEL_ERROR;
     }
 
     bool ret = SendRequest(userId.has_value() ? UserIdmInterface::USER_IDM_CANCEL_BY_ID :
@@ -276,15 +269,15 @@ int32_t UserIdmProxy::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInter
 
     if (!data.WriteInterfaceToken(UserIdmProxy::GetDescriptor())) {
         IAM_LOGE("failed to write descriptor");
-        return FAIL;
+        return WRITE_PARCEL_ERROR;
     }
     if (!data.WriteInt32(userId)) {
         IAM_LOGE("failed to write userId");
-        return FAIL;
+        return WRITE_PARCEL_ERROR;
     }
     if (!data.WriteRemoteObject(callback->AsObject())) {
         IAM_LOGE("failed to write callback");
-        return FAIL;
+        return WRITE_PARCEL_ERROR;
     }
 
     bool ret = SendRequest(UserIdmInterface::USER_IDM_ENFORCE_DEL_USER, data, reply);

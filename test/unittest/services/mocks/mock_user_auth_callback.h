@@ -27,7 +27,7 @@ class MockUserAuthCallback final : public IRemoteStub<UserAuthCallbackInterface>
 public:
     MOCK_METHOD4(OnRemoteRequest,
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
-    MOCK_METHOD3(OnAcquireInfo, void(int32_t module, uint32_t acquireInfo, int32_t extraInfo));
+    MOCK_METHOD3(OnAcquireInfo, void(int32_t module, uint32_t acquireInfo, const Attributes &extraInfo));
     MOCK_METHOD2(OnAuthResult, void(int32_t result, const Attributes &extraInfo));
     MOCK_METHOD2(OnIdentifyResult, void(int32_t result, const Attributes &extraInfo));
 };

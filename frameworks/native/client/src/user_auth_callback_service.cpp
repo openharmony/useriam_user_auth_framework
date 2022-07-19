@@ -35,14 +35,13 @@ UserAuthCallbackService::UserAuthCallbackService(const std::shared_ptr<Identific
 {
 }
 
-void UserAuthCallbackService::OnAcquireInfo(int32_t module, uint32_t acquireInfo, int32_t extraInfo)
+void UserAuthCallbackService::OnAcquireInfo(int32_t module, uint32_t acquireInfo, const Attributes &extraInfo)
 {
     if (authCallback_ == nullptr) {
         IAM_LOGE("auth callback is nullptr");
         return;
     }
-    Attributes attr;
-    authCallback_->OnAcquireInfo(module, acquireInfo, attr);
+    authCallback_->OnAcquireInfo(module, acquireInfo, extraInfo);
 }
 
 void UserAuthCallbackService::OnAuthResult(int32_t result, const Attributes &extraInfo)

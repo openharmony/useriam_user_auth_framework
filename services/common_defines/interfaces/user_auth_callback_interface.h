@@ -31,7 +31,7 @@ public:
     /*
      * returns the acquire info.
      */
-    virtual void OnAcquireInfo(int32_t module, uint32_t acquireInfo, int32_t extraInfo) = 0;
+    virtual void OnAcquireInfo(int32_t module, uint32_t acquireInfo, const Attributes &extraInfo) = 0;
 
     /*
      * returns the auth result.

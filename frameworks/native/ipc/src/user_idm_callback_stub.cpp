@@ -48,21 +48,18 @@ int32_t IdmCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Mes
 int32_t IdmCallbackStub::OnResultStub(MessageParcel &data, MessageParcel &reply)
 {
     int32_t result;
-    uint64_t credentialId;
+    std::vector<uint8_t> buffer;
 
     if (!data.ReadInt32(result)) {
         IAM_LOGE("failed to read result");
         return READ_PARCEL_ERROR;
     }
-    if (!data.ReadUint64(credentialId)) {
-        IAM_LOGE("failed to read credentialId");
+    if (!data.ReadUInt8Vector(&buffer)) {
+        IAM_LOGE("failed to read buffer");
         return READ_PARCEL_ERROR;
     }
 
-    Attributes extraInfo;
-    if (!extraInfo.SetUint64Value(Attributes::ATTR_CREDENTIAL_ID, credentialId)) {
-        IAM_LOGE("failed to set credentialId");
-    }
+    Attributes extraInfo(buffer);
     OnResult(result, extraInfo);
     return SUCCESS;
 }
@@ -71,7 +68,7 @@ int32_t IdmCallbackStub::OnAcquireInfoStub(MessageParcel &data, MessageParcel &r
 {
     int32_t module;
     int32_t acquireInfo;
-    uint64_t credentialId;
+    std::vector<uint8_t> buffer;
 
     if (!data.ReadInt32(module)) {
         IAM_LOGE("failed to read module");
@@ -81,15 +78,12 @@ int32_t IdmCallbackStub::OnAcquireInfoStub(MessageParcel &data, MessageParcel &r
         IAM_LOGE("failed to read acquireInfo");
         return READ_PARCEL_ERROR;
     }
-    if (!data.ReadUint64(credentialId)) {
-        IAM_LOGE("failed to read credentialId");
+    if (!data.ReadUInt8Vector(&buffer)) {
+        IAM_LOGE("failed to read buffer");
         return READ_PARCEL_ERROR;
     }
 
-    Attributes extraInfo;
-    if (!extraInfo.SetUint64Value(Attributes::ATTR_CREDENTIAL_ID, credentialId)) {
-        IAM_LOGE("failed to set credentialId");
-    }
+    Attributes extraInfo(buffer);
     OnAcquireInfo(module, acquireInfo, extraInfo);
     return SUCCESS;
 }
