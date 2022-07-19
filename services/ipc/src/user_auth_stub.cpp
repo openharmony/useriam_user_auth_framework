@@ -20,7 +20,6 @@
 #include "iam_logger.h"
 #include "iam_scope_guard.h"
 #include "result_code.h"
-#include "securec.h"
 #include "user_auth_callback_proxy.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
@@ -63,8 +62,8 @@ int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Messag
 
 int32_t UserAuthStub::GetAvailableStatusStub(MessageParcel &data, MessageParcel &reply)
 {
-    IAM_LOGD("enter");
-    ON_SCOPE_EXIT(IAM_LOGD("leave"));
+    IAM_LOGI("enter");
+    ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
     uint32_t authType;
     uint32_t authTrustLevel;
@@ -88,8 +87,8 @@ int32_t UserAuthStub::GetAvailableStatusStub(MessageParcel &data, MessageParcel 
 
 int32_t UserAuthStub::GetPropertyStub(MessageParcel &data, MessageParcel &reply)
 {
-    IAM_LOGD("enter");
-    ON_SCOPE_EXIT(IAM_LOGD("leave"));
+    IAM_LOGI("enter");
+    ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
     std::optional<int32_t> userId;
     uint32_t authType;
@@ -125,8 +124,8 @@ int32_t UserAuthStub::GetPropertyStub(MessageParcel &data, MessageParcel &reply)
 
 int32_t UserAuthStub::GetPropertyByIdStub(MessageParcel &data, MessageParcel &reply)
 {
-    IAM_LOGD("enter");
-    ON_SCOPE_EXIT(IAM_LOGD("leave"));
+    IAM_LOGI("enter");
+    ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
     int32_t userId;
     uint32_t authType;
@@ -166,8 +165,8 @@ int32_t UserAuthStub::GetPropertyByIdStub(MessageParcel &data, MessageParcel &re
 
 int32_t UserAuthStub::SetPropertyStub(MessageParcel &data, MessageParcel &reply)
 {
-    IAM_LOGD("enter");
-    ON_SCOPE_EXIT(IAM_LOGD("leave"));
+    IAM_LOGI("enter");
+    ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
     std::optional<int32_t> userId;
     uint32_t authType;
@@ -200,15 +199,15 @@ int32_t UserAuthStub::SetPropertyStub(MessageParcel &data, MessageParcel &reply)
 
 int32_t UserAuthStub::AuthStub(MessageParcel &data, MessageParcel &reply)
 {
-    IAM_LOGD("enter");
-    ON_SCOPE_EXIT(IAM_LOGD("leave"));
+    IAM_LOGI("enter");
+    ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
     std::optional<int32_t> userId;
-    uint64_t tempChallenge;
+    std::vector<uint8_t> challenge;
     uint32_t authType;
     uint32_t authTrustLevel;
 
-    if (!data.ReadUint64(tempChallenge)) {
+    if (!data.ReadUInt8Vector(&challenge)) {
         IAM_LOGE("failed to read challenge");
         return READ_PARCEL_ERROR;
     }
@@ -229,13 +228,6 @@ int32_t UserAuthStub::AuthStub(MessageParcel &data, MessageParcel &reply)
     sptr<UserAuthCallbackInterface> callback = iface_cast<UserAuthCallbackProxy>(obj);
     if (callback == nullptr) {
         IAM_LOGE("UserAuthCallbackInterface is nullptr");
-        return FAIL;
-    }
-
-    std::vector<uint8_t> challenge;
-    challenge.resize(sizeof(uint64_t));
-    if (memcpy_s(&challenge[0], challenge.size(), &tempChallenge, sizeof(uint64_t)) != EOK) {
-        IAM_LOGE("failed to copy challenge");
         return FAIL;
     }
 
@@ -250,11 +242,11 @@ int32_t UserAuthStub::AuthStub(MessageParcel &data, MessageParcel &reply)
 
 int32_t UserAuthStub::AuthUserStub(MessageParcel &data, MessageParcel &reply)
 {
-    IAM_LOGD("enter");
-    ON_SCOPE_EXIT(IAM_LOGD("leave"));
+    IAM_LOGI("enter");
+    ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
     int32_t userId;
-    uint64_t tempChallenge;
+    std::vector<uint8_t> challenge;
     uint32_t authType;
     uint32_t authTrustLevel;
 
@@ -262,7 +254,7 @@ int32_t UserAuthStub::AuthUserStub(MessageParcel &data, MessageParcel &reply)
         IAM_LOGE("failed to read userId");
         return READ_PARCEL_ERROR;
     }
-    if (!data.ReadUint64(tempChallenge)) {
+    if (!data.ReadUInt8Vector(&challenge)) {
         IAM_LOGE("failed to read challenge");
         return READ_PARCEL_ERROR;
     }
@@ -286,13 +278,6 @@ int32_t UserAuthStub::AuthUserStub(MessageParcel &data, MessageParcel &reply)
         return FAIL;
     }
 
-    std::vector<uint8_t> challenge;
-    challenge.resize(sizeof(uint64_t));
-    if (memcpy_s(&challenge[0], challenge.size(), &tempChallenge, sizeof(uint64_t)) != EOK) {
-        IAM_LOGE("failed to copy challenge");
-        return FAIL;
-    }
-
     uint64_t contextId = AuthUser(userId, challenge, static_cast<AuthType>(authType),
         static_cast<AuthTrustLevel>(authTrustLevel), callback);
     if (!reply.WriteUint64(contextId)) {
@@ -304,12 +289,13 @@ int32_t UserAuthStub::AuthUserStub(MessageParcel &data, MessageParcel &reply)
 
 int32_t UserAuthStub::IdentifyStub(MessageParcel &data, MessageParcel &reply)
 {
-    IAM_LOGD("enter");
-    ON_SCOPE_EXIT(IAM_LOGD("leave"));
+    IAM_LOGI("enter");
+    ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
-    uint64_t tempChallenge;
+    std::vector<uint8_t> challenge;
     uint32_t authType;
-    if (!data.ReadUint64(tempChallenge)) {
+
+    if (!data.ReadUInt8Vector(&challenge)) {
         IAM_LOGE("failed to read challenge");
         return READ_PARCEL_ERROR;
     }
@@ -329,13 +315,6 @@ int32_t UserAuthStub::IdentifyStub(MessageParcel &data, MessageParcel &reply)
         return FAIL;
     }
 
-    std::vector<uint8_t> challenge;
-    challenge.resize(sizeof(uint64_t));
-    if (memcpy_s(&challenge[0], challenge.size(), &tempChallenge, sizeof(uint64_t)) != EOK) {
-        IAM_LOGE("failed to copy challenge");
-        return FAIL;
-    }
-
     uint64_t contextId = Identify(challenge, static_cast<AuthType>(authType), callback);
     if (!reply.WriteUint64(contextId)) {
         IAM_LOGE("failed to write Identify result");
@@ -346,8 +325,8 @@ int32_t UserAuthStub::IdentifyStub(MessageParcel &data, MessageParcel &reply)
 
 int32_t UserAuthStub::CancelAuthOrIdentifyStub(MessageParcel &data, MessageParcel &reply)
 {
-    IAM_LOGD("enter");
-    ON_SCOPE_EXIT(IAM_LOGD("leave"));
+    IAM_LOGI("enter");
+    ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
     uint64_t contextId;
 
@@ -366,8 +345,8 @@ int32_t UserAuthStub::CancelAuthOrIdentifyStub(MessageParcel &data, MessageParce
 
 int32_t UserAuthStub::GetVersionStub(MessageParcel &data, MessageParcel &reply)
 {
-    IAM_LOGD("enter");
-    ON_SCOPE_EXIT(IAM_LOGD("leave"));
+    IAM_LOGI("enter");
+    ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
     int32_t result = GetVersion();
     if (!reply.WriteInt32(result)) {

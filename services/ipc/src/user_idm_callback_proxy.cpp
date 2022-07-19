@@ -35,10 +35,6 @@ void IdmCallbackProxy::OnAcquireInfo(int32_t module, int32_t acquire, const Attr
         IAM_LOGE("failed to write descriptor");
         return;
     }
-    uint64_t credentialId = 0;
-    if (!reqRet.GetUint64Value(Attributes::ATTR_CREDENTIAL_ID, credentialId)) {
-        IAM_LOGE("failed to get credentialId");
-    }
     if (!data.WriteInt32(module)) {
         IAM_LOGE("failed to write module");
         return;
@@ -47,8 +43,9 @@ void IdmCallbackProxy::OnAcquireInfo(int32_t module, int32_t acquire, const Attr
         IAM_LOGE("failed to write acquire");
         return;
     }
-    if (!data.WriteUint64(credentialId)) {
-        IAM_LOGE("failed to write credentialId");
+    auto buffer = reqRet.Serialize();
+    if (!data.WriteUInt8Vector(buffer)) {
+        IAM_LOGE("failed to write buffer");
         return;
     }
 
@@ -65,14 +62,6 @@ void IdmCallbackProxy::OnResult(int32_t result, const Attributes &extraInfo)
     MessageParcel data;
     MessageParcel reply;
 
-    uint64_t credentialId = 0;
-    std::vector<uint8_t> rootSecret;
-    if (!extraInfo.GetUint64Value(Attributes::ATTR_CREDENTIAL_ID, credentialId)) {
-        IAM_LOGE("failed to get credentialId");
-    }
-    if (!extraInfo.GetUint8ArrayValue(Attributes::ATTR_ROOT_SECRET, rootSecret)) {
-        IAM_LOGE("failed to get rootSecret");
-    }
     if (!data.WriteInterfaceToken(IdmCallbackProxy::GetDescriptor())) {
         IAM_LOGE("failed to write descriptor");
         return;
@@ -81,12 +70,9 @@ void IdmCallbackProxy::OnResult(int32_t result, const Attributes &extraInfo)
         IAM_LOGE("failed to write result");
         return;
     }
-    if (!data.WriteUint64(credentialId)) {
-        IAM_LOGE("failed to write credentialId");
-        return;
-    }
-    if (!data.WriteUInt8Vector(rootSecret)) {
-        IAM_LOGE("write root secret failed");
+    auto buffer = extraInfo.Serialize();
+    if (!data.WriteUInt8Vector(buffer)) {
+        IAM_LOGE("failed to write buffer");
         return;
     }
 
@@ -198,7 +184,6 @@ void IdmGetSecureUserInfoProxy::OnSecureUserInfo(const std::shared_ptr<SecureUse
         IAM_LOGE("failed to write secureUid");
         return;
     }
-
     if (!data.WriteUint32(info->GetEnrolledInfo().size())) {
         IAM_LOGE("failed to write enrolledInfoLen");
         return;

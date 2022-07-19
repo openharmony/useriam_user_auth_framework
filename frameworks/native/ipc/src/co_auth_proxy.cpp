@@ -31,30 +31,29 @@ CoAuthProxy::CoAuthProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<CoAuthI
 
 int32_t CoAuthProxy::WriteExecutorInfo(const ExecutorRegisterInfo &info, MessageParcel &data)
 {
-    if (!data.WriteInt32(static_cast<int32_t>(info.authType))) {
+    if (!data.WriteUint32(info.authType)) {
         IAM_LOGE("failed to write authType");
-        return FAIL;
+        return WRITE_PARCEL_ERROR;
     }
-    if (!data.WriteUint64(static_cast<uint32_t>(info.executorMatcher))) {
-        IAM_LOGE("failed to write executorMatcher");
-        return FAIL;
-    }
-    if (!data.WriteInt32(static_cast<int32_t>(info.esl))) {
-        IAM_LOGE("failed to write esl");
-        return FAIL;
-    }
-    if (!data.WriteInt32(static_cast<int32_t>(info.executorRole))) {
+    if (!data.WriteUint32(info.executorRole)) {
         IAM_LOGE("failed to write executorRole");
-        return FAIL;
+        return WRITE_PARCEL_ERROR;
+    }
+    if (!data.WriteUint32(info.executorSensorHint)) {
+        IAM_LOGE("failed to write executorSensorHint");
+        return WRITE_PARCEL_ERROR;
+    }
+    if (!data.WriteUint32(info.executorMatcher)) {
+        IAM_LOGE("failed to write executorMatcher");
+        return WRITE_PARCEL_ERROR;
+    }
+    if (!data.WriteUint32(info.esl)) {
+        IAM_LOGE("failed to write esl");
+        return WRITE_PARCEL_ERROR;
     }
     if (!data.WriteUInt8Vector(info.publicKey)) {
         IAM_LOGE("failed to write publicKey");
-        return FAIL;
-    }
-    std::vector<uint8_t> deviceId;
-    if (!data.WriteUInt8Vector(deviceId)) {
-        IAM_LOGE("failed to write publicKey");
-        return FAIL;
+        return WRITE_PARCEL_ERROR;
     }
     return SUCCESS;
 }
