@@ -53,7 +53,6 @@ ohos_unittest("iam_executors_test") {
     "init:libbeget_proxy",
     "ipc:ipc_single",
     "samgr_standard:samgr_proxy",
-    "user_auth_framework:coauth_framework",
     "utils_base:utils",
   ]
 
