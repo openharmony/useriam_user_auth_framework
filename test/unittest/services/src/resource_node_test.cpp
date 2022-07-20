@@ -15,16 +15,18 @@
 
 #include "resource_node_test.h"
 
+#include "co_auth_interface.h"
+#include "resource_node.h"
+
 #include "mock_iuser_auth_interface.h"
 #include "mock_resource_node.h"
-#include "resource_node.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 using namespace testing;
 using namespace testing::ext;
-
+using ExecutorRegisterInfo = CoAuthInterface::ExecutorRegisterInfo;
 void ResourceNodeTest::SetUpTestCase()
 {
 }
@@ -43,7 +45,7 @@ void ResourceNodeTest::TearDown()
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
 
-HWTEST_F(ResourceNodeTest, HdiError, TestSize.Level1)
+HWTEST_F(ResourceNodeTest, HdiError, TestSize.Level0)
 {
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_CALL(*mock, AddExecutor(_, _, _, _)).WillRepeatedly(Return(1));
@@ -55,7 +57,7 @@ HWTEST_F(ResourceNodeTest, HdiError, TestSize.Level1)
     EXPECT_EQ(node, nullptr);
 }
 
-HWTEST_F(ResourceNodeTest, InsertSuccessWithIndex, TestSize.Level1)
+HWTEST_F(ResourceNodeTest, InsertSuccessWithIndex, TestSize.Level0)
 {
     constexpr uint64_t DEST_EXECUTOR_INDEX = 0x12345678;
 
@@ -73,7 +75,7 @@ HWTEST_F(ResourceNodeTest, InsertSuccessWithIndex, TestSize.Level1)
     }
 }
 
-HWTEST_F(ResourceNodeTest, InsertSuccessWithTemplateIdList, TestSize.Level1)
+HWTEST_F(ResourceNodeTest, InsertSuccessWithTemplateIdList, TestSize.Level0)
 {
     constexpr uint64_t DEST_EXECUTOR_INDEX = 0x12345678;
 

@@ -19,13 +19,14 @@
 #include <cstdint>
 #include <vector>
 
-#include "co_auth_defines.h"
+#include "iam_common_defines.h"
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
 class IExecuteCallback {
 public:
+    using ResultCode = UserIam::UserAuth::ResultCode;
     IExecuteCallback() = default;
     virtual ~IExecuteCallback() = default;
 

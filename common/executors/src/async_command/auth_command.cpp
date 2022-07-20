@@ -17,6 +17,7 @@
 
 #include "framework_types.h"
 #include "iam_check.h"
+#include "iam_common_defines.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
 #include "iam_ptr.h"
@@ -28,7 +29,7 @@ namespace UserIAM {
 namespace UserAuth {
 using namespace OHOS::UserIam::UserAuth;
 AuthCommand::AuthCommand(std::weak_ptr<Executor> executor, uint64_t scheduleId,
-    std::shared_ptr<UserIam::UserAuth::Attributes> attributes, sptr<IExecutorMessenger> executorMessenger)
+    std::shared_ptr<UserIam::UserAuth::Attributes> attributes, std::shared_ptr<ExecutorMessenger> executorMessenger)
     : AsyncCommandBase("AUTH", scheduleId, executor, executorMessenger),
       attributes_(attributes),
       iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("AuthCommand"))
@@ -47,11 +48,12 @@ ResultCode AuthCommand::SendRequest()
     bool getTemplateIdListRet =
         attributes_->GetUint64ArrayValue(UserIam::UserAuth::Attributes::ATTR_TEMPLATE_ID_LIST, templateIdList);
     IF_FALSE_LOGE_AND_RETURN_VAL(getTemplateIdListRet == true, ResultCode::GENERAL_ERROR);
-    uint64_t callerUid = 0;
-    bool getCallerUidRet = attributes_->GetUint64Value(UserIam::UserAuth::Attributes::ATTR_CALLER_UID, callerUid);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getCallerUidRet == true, ResultCode::GENERAL_ERROR);
+    uint32_t tokenId = 0;
+    bool getTokenIdRet = attributes_->GetUint32Value(UserIam::UserAuth::Attributes::ATTR_ACCESS_TOKEN_ID, tokenId);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getTokenIdRet == true, ResultCode::GENERAL_ERROR);
+
     UserIam::UserAuth::IamHitraceHelper traceHelper("hdi Authenticate");
-    ResultCode ret = hdi->Authenticate(scheduleId_, callerUid, templateIdList, extraInfo, shared_from_this());
+    ResultCode ret = hdi->Authenticate(scheduleId_, tokenId, templateIdList, extraInfo, shared_from_this());
     IAM_LOGI("%{public}s authenticate result %{public}d", GetDescription(), ret);
     return ret;
 }
@@ -82,9 +84,9 @@ void AuthCommand::OnAcquireInfoInner(int32_t acquire, const std::vector<uint8_t>
     IAM_LOGI("%{public}s on acquire info start", GetDescription());
 
     std::vector<uint8_t> nonConstExtraInfo(extraInfo.begin(), extraInfo.end());
-    auto msg = Common::MakeShared<AuthMessage>(nonConstExtraInfo);
+    auto msg = AuthMessage::As(nonConstExtraInfo);
     IF_FALSE_LOGE_AND_RETURN(msg != nullptr);
-    int32_t ret = MessengerSendData(scheduleId_, transNum_, TYPE_ALL_IN_ONE, TYPE_CO_AUTH, msg);
+    int32_t ret = MessengerSendData(scheduleId_, transNum_, ALL_IN_ONE, SCHEDULER, msg);
     ++transNum_;
     if (ret != USERAUTH_SUCCESS) {
         IAM_LOGE("%{public}s call SendData fail", GetDescription());

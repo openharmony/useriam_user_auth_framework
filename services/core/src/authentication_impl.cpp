@@ -47,9 +47,9 @@ void AuthenticationImpl::SetChallenge(const std::vector<uint8_t> &challenge)
     challenge_ = challenge;
 }
 
-void AuthenticationImpl::SetCallingUid(uint32_t uid)
+void AuthenticationImpl::SetAccessTokenId(uint32_t tokenId)
 {
-    uid_ = uid;
+    tokenId_ = tokenId;
 }
 
 bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
@@ -83,7 +83,7 @@ bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
     }
 
     ScheduleNodeHelper::NodeOptionalPara para;
-    para.uid = uid_;
+    para.tokenId = tokenId_;
 
     if (!ScheduleNodeHelper::BuildFromHdi(infos, callback, scheduleList, para)) {
         IAM_LOGE("BuildFromHdi failed");
@@ -117,6 +117,7 @@ bool AuthenticationImpl::Update(const std::vector<uint8_t> &scheduleResult, Auth
     resultInfo.freezingTime = info.freezingTime;
     resultInfo.remainTimes = info.remainTimes;
     resultInfo.token = info.token;
+    resultInfo.rootSecret = info.rootSecret;
 
     return result == HDF_SUCCESS && resultInfo.result == SUCCESS;
 }

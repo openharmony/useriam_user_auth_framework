@@ -97,7 +97,7 @@ int32_t UserAuthService::GetAvailableStatus(AuthType authType, AuthTrustLevel au
 }
 
 void UserAuthService::GetProperty(std::optional<int32_t> userId, AuthType authType,
-    const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallback> &callback)
+    const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallbackInterface> &callback)
 {
     IAM_LOGI("start");
     Attributes values;
@@ -111,14 +111,14 @@ void UserAuthService::GetProperty(std::optional<int32_t> userId, AuthType authTy
         return;
     }
 
-    if (IpcCommon::GetActiveAccountId(userId) != SUCCESS) {
+    if (IpcCommon::GetActiveUserId(userId) != SUCCESS) {
         IAM_LOGE("failed to get userId");
         callback->OnGetExecutorPropertyResult(FAIL, values);
         return;
     }
     auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId.value(), authType);
     if (credentialInfos.empty() || credentialInfos[0] == nullptr) {
-        IAM_LOGE("credential info is incorrect");
+        IAM_LOGE("user %{public}d has no credential type %{public}d", userId.value(), authType);
         callback->OnGetExecutorPropertyResult(FAIL, values);
         return;
     }
@@ -145,7 +145,7 @@ void UserAuthService::GetProperty(std::optional<int32_t> userId, AuthType authTy
 }
 
 void UserAuthService::SetProperty(std::optional<int32_t> userId, AuthType authType, const Attributes &attributes,
-    sptr<SetExecutorPropertyCallback> &callback)
+    sptr<SetExecutorPropertyCallbackInterface> &callback)
 {
     IAM_LOGI("start");
     if (callback == nullptr) {
@@ -157,7 +157,7 @@ void UserAuthService::SetProperty(std::optional<int32_t> userId, AuthType authTy
         callback->OnSetExecutorPropertyResult(CHECK_PERMISSION_FAILED);
         return;
     }
-    if (IpcCommon::GetActiveAccountId(userId) != SUCCESS) {
+    if (IpcCommon::GetActiveUserId(userId) != SUCCESS) {
         IAM_LOGE("get userId failed");
         callback->OnSetExecutorPropertyResult(FAIL);
         return;
@@ -184,7 +184,7 @@ void UserAuthService::SetProperty(std::optional<int32_t> userId, AuthType authTy
 }
 
 uint64_t UserAuthService::AuthUser(std::optional<int32_t> userId, const std::vector<uint8_t> &challenge,
-    AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallback> &callback)
+    AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback)
 {
     IAM_LOGI("start");
     Attributes extraInfo;
@@ -221,9 +221,9 @@ uint64_t UserAuthService::AuthUser(std::optional<int32_t> userId, const std::vec
         contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
         return BAD_CONTEXT_ID;
     }
-
+    auto tokenId = IpcCommon::GetAccessTokenId(*this);
     auto context = ContextFactory::CreateSimpleAuthContext(userId.value(), challenge, authType, authTrustLevel,
-        callingUid, contextCallback);
+        tokenId, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
         contextCallback->OnResult(FAIL, extraInfo);
@@ -242,7 +242,7 @@ uint64_t UserAuthService::AuthUser(std::optional<int32_t> userId, const std::vec
 }
 
 uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthType authType,
-    sptr<UserAuthCallback> &callback)
+    sptr<UserAuthCallbackInterface> &callback)
 {
     IAM_LOGI("start");
 
@@ -263,8 +263,8 @@ uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthTy
         return BAD_CONTEXT_ID;
     }
 
-    auto callingUid = static_cast<uint64_t>(this->GetCallingUid());
-    auto context = ContextFactory::CreateIdentifyContext(challenge, authType, callingUid, contextCallback);
+    auto tokenId = IpcCommon::GetAccessTokenId(*this);
+    auto context = ContextFactory::CreateIdentifyContext(challenge, authType, tokenId, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
         contextCallback->OnResult(FAIL, extraInfo);

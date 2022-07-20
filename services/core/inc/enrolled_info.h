@@ -16,21 +16,12 @@
 #ifndef IAM_ENROLLED_INFO_H
 #define IAM_ENROLLED_INFO_H
 
-#include <cstdint>
-#include <memory>
-
-#include "iam_types.h"
+#include "user_idm_callback_interface.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class EnrolledInfo {
-public:
-    virtual ~EnrolledInfo() = default;
-    virtual AuthType GetAuthType() const = 0;
-    virtual int32_t GetUserId() const = 0;
-    virtual uint64_t GetEnrolledId() const = 0;
-};
+using EnrolledInfo = IdmGetSecureUserInfoCallbackInterface::EnrolledInfo;
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

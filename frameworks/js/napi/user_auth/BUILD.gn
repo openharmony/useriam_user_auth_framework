@@ -22,8 +22,7 @@ ohos_shared_library("userauth") {
     "inc",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs",
-    "//base/useriam/user_auth_framework/dfx/inc",
-    "//base/useriam/user_auth_framework/frameworks/js/napi/legacy",
+    "//base/useriam/user_auth_framework/services/common_defines/interfaces",
   ]
 
   sources = [
@@ -35,7 +34,10 @@ ohos_shared_library("userauth") {
     "src/user_auth_impl.cpp",
   ]
 
-  deps = [ "//base/useriam/user_auth_framework/frameworks/legacy/framework_old:framework_legacy" ]
+  deps = [
+    "//base/useriam/user_auth_framework/frameworks/native/client:userauth_client",
+    "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
+  ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
@@ -45,6 +47,7 @@ ohos_shared_library("userauth") {
   ]
 
   configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
+
   public_configs = [ ":userauth_public_config" ]
 
   relative_install_dir = "module"
@@ -58,8 +61,7 @@ ohos_shared_library("userauth_napi") {
   include_dirs = [
     "inc",
     "//base/useriam/user_auth_framework/common/utils",
-    "//base/useriam/user_auth_framework/dfx/inc",
-    "//base/useriam/user_auth_framework/frameworks/js/napi/legacy",
+    "//base/useriam/user_auth_framework/services/common_defines/interfaces",
   ]
 
   sources = [
@@ -71,7 +73,10 @@ ohos_shared_library("userauth_napi") {
     "src/user_auth_impl.cpp",
   ]
 
-  deps = [ "//base/useriam/user_auth_framework/frameworks/legacy/framework_old:framework_legacy" ]
+  deps = [
+    "//base/useriam/user_auth_framework/frameworks/native/client:userauth_client",
+    "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
+  ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",

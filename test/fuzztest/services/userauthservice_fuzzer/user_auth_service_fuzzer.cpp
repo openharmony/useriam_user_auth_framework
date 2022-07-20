@@ -40,11 +40,11 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
-class DummyUserAuthCallback : public UserAuthCallback {
+class DummyUserAuthCallback : public UserAuthCallbackInterface {
 public:
     ~DummyUserAuthCallback() override = default;
 
-    void OnAcquireInfo(int32_t module, uint32_t acquireInfo, int32_t extraInfo) override
+    void OnAcquireInfo(int32_t module, uint32_t acquireInfo, const Attributes &extraInfo) override
     {
         IAM_LOGI("start");
         return;
@@ -68,7 +68,7 @@ public:
     }
 };
 
-class DummyGetExecutorPropertyCallback : public GetExecutorPropertyCallback {
+class DummyGetExecutorPropertyCallback : public GetExecutorPropertyCallbackInterface {
 public:
     ~DummyGetExecutorPropertyCallback() override = default;
 
@@ -84,7 +84,7 @@ public:
     }
 };
 
-class DummySetExecutorPropertyCallback : public SetExecutorPropertyCallback {
+class DummySetExecutorPropertyCallback : public SetExecutorPropertyCallbackInterface {
 public:
     ~DummySetExecutorPropertyCallback() override = default;
 
@@ -146,7 +146,7 @@ void FuzzGetProperty(Parcel &parcel)
         keys.emplace_back(static_cast<Attributes::AttributeKey>(parcel.ReadInt32()));
     }
 
-    sptr<GetExecutorPropertyCallback> callback = nullptr;
+    sptr<GetExecutorPropertyCallbackInterface> callback = nullptr;
     if (parcel.ReadBool()) {
         callback = new (nothrow) DummyGetExecutorPropertyCallback();
     }
@@ -162,7 +162,7 @@ void FuzzSetProperty(Parcel &parcel)
     vector<uint8_t> attributesRaw;
     FillFuzzUint8Vector(parcel, attributesRaw);
     Attributes attributes(attributesRaw);
-    sptr<SetExecutorPropertyCallback> callback = nullptr;
+    sptr<SetExecutorPropertyCallbackInterface> callback = nullptr;
     if (parcel.ReadBool()) {
         callback = new (nothrow) DummySetExecutorPropertyCallback();
     }
@@ -179,7 +179,7 @@ void FuzzAuthUser(Parcel &parcel)
     FillFuzzUint8Vector(parcel, challenge);
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
     AuthTrustLevel authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32());
-    sptr<UserAuthCallback> callback = nullptr;
+    sptr<UserAuthCallbackInterface> callback = nullptr;
     if (parcel.ReadBool()) {
         callback = new (nothrow) DummyUserAuthCallback();
     }
@@ -193,7 +193,7 @@ void FuzzIdentify(Parcel &parcel)
     std::vector<uint8_t> challenge;
     FillFuzzUint8Vector(parcel, challenge);
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
-    sptr<UserAuthCallback> callback = nullptr;
+    sptr<UserAuthCallbackInterface> callback = nullptr;
     if (parcel.ReadBool()) {
         callback = new (nothrow) DummyUserAuthCallback();
     }

@@ -13,24 +13,25 @@
  * limitations under the License.
  */
 
-#ifndef USER_AUTH_CALLBACK_H
-#define USER_AUTH_CALLBACK_H
+#ifndef USER_AUTH_CALLBACK_INTERFACE_H
+#define USER_AUTH_CALLBACK_INTERFACE_H
 
 #include <cstdint>
-#include <iremote_broker.h>
+
+#include "iremote_broker.h"
 
 #include "attributes.h"
-#include "iam_types.h"
+#include "iam_common_defines.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class UserAuthCallback : public IRemoteBroker {
+class UserAuthCallbackInterface : public IRemoteBroker {
 public:
     /*
      * returns the acquire info.
      */
-    virtual void OnAcquireInfo(int32_t module, uint32_t acquireInfo, int32_t extraInfo) = 0;
+    virtual void OnAcquireInfo(int32_t module, uint32_t acquireInfo, const Attributes &extraInfo) = 0;
 
     /*
      * returns the auth result.
@@ -45,7 +46,7 @@ public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIAM.UserAuth.UserAuthCallback");
 };
 
-class GetExecutorPropertyCallback : public IRemoteBroker {
+class GetExecutorPropertyCallbackInterface : public IRemoteBroker {
 public:
     /*
      * returns executor property information, such as remaining authentication times and remaining freezing time.
@@ -54,7 +55,7 @@ public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIAM.UserAuth.GetExecutorPropertyCallback");
 };
 
-class SetExecutorPropertyCallback : public IRemoteBroker {
+class SetExecutorPropertyCallbackInterface : public IRemoteBroker {
 public:
     /*
      * returns a number value indicating whether the property setting was successful.
@@ -65,4 +66,4 @@ public:
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // USER_AUTH_CALLBACK_H
+#endif // USER_AUTH_CALLBACK_INTERFACE_H

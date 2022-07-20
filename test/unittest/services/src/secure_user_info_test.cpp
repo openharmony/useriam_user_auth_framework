@@ -38,7 +38,7 @@ void SecureUserInfoTest::TearDown()
 {
 }
 
-HWTEST_F(SecureUserInfoTest, GetUserId, TestSize.Level1)
+HWTEST_F(SecureUserInfoTest, GetUserId, TestSize.Level0)
 {
     constexpr int32_t userId = 100;
     constexpr PinSubType pinSubType = PIN_MIXED;
@@ -49,7 +49,7 @@ HWTEST_F(SecureUserInfoTest, GetUserId, TestSize.Level1)
     EXPECT_EQ(ret, userId);
 }
 
-HWTEST_F(SecureUserInfoTest, GetPinSubType, TestSize.Level1)
+HWTEST_F(SecureUserInfoTest, GetPinSubType, TestSize.Level0)
 {
     constexpr int32_t userId = 100;
     constexpr PinSubType pinSubType = PIN_MIXED;
@@ -59,7 +59,7 @@ HWTEST_F(SecureUserInfoTest, GetPinSubType, TestSize.Level1)
     EXPECT_EQ(secureUserInfoImpl.GetPinSubType(), pinSubType);
 }
 
-HWTEST_F(SecureUserInfoTest, GetSecUserId, TestSize.Level1)
+HWTEST_F(SecureUserInfoTest, GetSecUserId, TestSize.Level0)
 {
     constexpr int32_t userId = 100;
     constexpr PinSubType pinSubType = PIN_MIXED;
@@ -70,7 +70,7 @@ HWTEST_F(SecureUserInfoTest, GetSecUserId, TestSize.Level1)
     EXPECT_EQ(ret, secUserId);
 }
 
-HWTEST_F(SecureUserInfoTest, GetEnrolledInfo, TestSize.Level1)
+HWTEST_F(SecureUserInfoTest, GetEnrolledInfo, TestSize.Level0)
 {
     constexpr int32_t userId = 100;
     constexpr PinSubType pinSubType = PIN_MIXED;

@@ -13,32 +13,29 @@
  * limitations under the License.
  */
 
-#ifndef EXECUTOR_MESSENGER_H
-#define EXECUTOR_MESSENGER_H
+#ifndef CO_AUTH_PROXY_H
+#define CO_AUTH_PROXY_H
 
-#include "attributes.h"
-#include "iam_types.h"
-#include "result_code.h"
-
-#include <iremote_broker.h>
+#include "co_auth_interface.h"
+#include "iremote_proxy.h"
+#include "message_parcel.h"
+#include "nocopyable.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class ExecutorMessenger : public IRemoteBroker {
+class CoAuthProxy : public IRemoteProxy<CoAuthInterface>, public NoCopyable {
 public:
-    /* Message ID */
-    enum : uint32_t {
-        CO_AUTH_SEND_DATA = 0,
-        CO_AUTH_FINISH,
-    };
-    virtual int32_t SendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole, ExecutorRole dstRole,
-        const std::vector<uint8_t> &msg) = 0;
-    virtual int32_t Finish(uint64_t scheduleId, ExecutorRole srcRole, ResultCode resultCode,
-        const std::shared_ptr<Attributes> &finalResult) = 0;
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIAM.AuthResPool.IExecutor_Messenger");
+    explicit CoAuthProxy(const sptr<IRemoteObject> &impl);
+    ~CoAuthProxy() override = default;
+    uint64_t ExecutorRegister(const ExecutorRegisterInfo &info, sptr<ExecutorCallbackInterface> &callback) override;
+
+private:
+    static inline BrokerDelegator<CoAuthProxy> delegator_;
+    bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply);
+    int32_t WriteExecutorInfo(const ExecutorRegisterInfo &info, MessageParcel &data);
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // EXECUTOR_MESSENGER_H
+#endif // CO_AUTH_PROXY_H

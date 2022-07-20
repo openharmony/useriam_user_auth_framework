@@ -23,13 +23,11 @@
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-using namespace OHOS::UserIAM;
-using namespace OHOS::UserIAM::UserAuth;
-
+using namespace OHOS::UserIam::UserAuth;
 class MockExecutorMgrWrapper : public ExecutorMgrWrapper {
 public:
     virtual ~MockExecutorMgrWrapper() = default;
-    MOCK_METHOD2(Register, void(const ExecutorInfo &info, std::shared_ptr<AuthResPool::ExecutorCallback> callback));
+    MOCK_METHOD2(Register, void(const ExecutorInfo &info, std::shared_ptr<ExecutorRegisterCallback> callback));
 };
 } // namespace UserAuth
 } // namespace UserIAM

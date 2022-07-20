@@ -24,7 +24,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-ContextCallbackImpl::ContextCallbackImpl(sptr<IdmCallback> idmCallback, OperationType operationType)
+ContextCallbackImpl::ContextCallbackImpl(sptr<IdmCallbackInterface> idmCallback, OperationType operationType)
     : idmCallback_(idmCallback)
 {
     metaData_.operationType = operationType;
@@ -34,7 +34,7 @@ ContextCallbackImpl::ContextCallbackImpl(sptr<IdmCallback> idmCallback, Operatio
     iamHitraceHelper_ = UserIAM::Common::MakeShared<IamHitraceHelper>(ss.str());
 }
 
-ContextCallbackImpl::ContextCallbackImpl(sptr<UserAuthCallback> userAuthCallback, OperationType operationType)
+ContextCallbackImpl::ContextCallbackImpl(sptr<UserAuthCallbackInterface> userAuthCallback, OperationType operationType)
     : userAuthCallback_(userAuthCallback)
 {
     metaData_.operationType = operationType;
@@ -62,7 +62,8 @@ void ContextCallbackImpl::onAcquireInfo(ExecutorRole src, int32_t moduleType,
             return;
         }
         int32_t acquire = *(int32_t *)(const_cast<uint8_t *>(&acquireMsg[0]));
-        userAuthCallback_->OnAcquireInfo(moduleType, acquire, 0);
+        Attributes attr;
+        userAuthCallback_->OnAcquireInfo(moduleType, acquire, attr);
     }
 }
 
@@ -153,7 +154,7 @@ void ContextCallbackNotifyListener::Process(const MetaData &metaData)
     }
 }
 
-std::shared_ptr<ContextCallback> ContextCallback::NewInstance(sptr<IdmCallback> idmCallback,
+std::shared_ptr<ContextCallback> ContextCallback::NewInstance(sptr<IdmCallbackInterface> idmCallback,
     OperationType operationType)
 {
     if (idmCallback == nullptr) {
@@ -163,7 +164,7 @@ std::shared_ptr<ContextCallback> ContextCallback::NewInstance(sptr<IdmCallback> 
     return UserIAM::Common::MakeShared<ContextCallbackImpl>(idmCallback, operationType);
 }
 
-std::shared_ptr<ContextCallback> ContextCallback::NewInstance(sptr<UserAuthCallback> userAuthCallback,
+std::shared_ptr<ContextCallback> ContextCallback::NewInstance(sptr<UserAuthCallbackInterface> userAuthCallback,
     OperationType operationType)
 {
     if (userAuthCallback == nullptr) {

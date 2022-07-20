@@ -16,11 +16,9 @@
 #ifndef IAM_ATTRIBUTES_H
 #define IAM_ATTRIBUTES_H
 
-#include <map>
+#include <memory>
 #include <string>
 #include <vector>
-
-#include "nocopyable.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -34,9 +32,12 @@ public:
         ATTR_IDENTIFY_MODE = 100005,
         ATTR_TEMPLATE_ID = 100006,
         ATTR_TEMPLATE_ID_LIST = 100007,
+        ATTR_ERROR_COUNT = 100008,
         ATTR_REMAIN_TIMES = 100009,
         ATTR_FREEZING_TIME = 100010,
-        ATTR_SCHEDULE_ID = 100014,
+        ATTR_SESSION_ID = 100014,
+        ATTR_SCHEDULE_VERSION = 100016,
+        ATTR_SCHEDULE_ID = 100020,
         ATTR_PIN_SUB_TYPE = 100021,
         ATTR_SCHEDULE_MODE = 100022,
         ATTR_PROPERTY_MODE = 100023,
@@ -47,15 +48,18 @@ public:
         ATTR_CAPABILITY_LEVEL = 100029,
         ATTR_ALGORITHM_INFO = 100030,
         ATTR_TIME_STAMP = 100031,
+        ATTR_ROOT_SECRET = 100032,
+        ATTR_AUTH_TOKEN = 100033,
         // private attrs
-        ATTR_USER_ID = 200000,
+        ATTR_USER_ID = 300000,
+        ATTR_EXTRA_INFO,
         ATTR_EXECUTOR_INDEX,
         ATTR_EXECUTOR_SENSOR_HINT,
         ATTR_EXECUTOR_MATCHER,
-        ATTR_EXTRA_INFO,
+        ATTR_ACCESS_TOKEN_ID,
     };
 
-    Attributes() = default;
+    Attributes();
 
     explicit Attributes(const std::vector<uint8_t> &raw);
 
@@ -65,7 +69,7 @@ public:
     Attributes(Attributes &&other) noexcept;
     Attributes &operator=(Attributes &&other) noexcept;
 
-    virtual ~Attributes() = default;
+    virtual ~Attributes();
 
     bool SetBoolValue(AttributeKey key, bool value);
     bool SetUint64Value(AttributeKey key, uint64_t value);
@@ -96,32 +100,8 @@ public:
     std::vector<AttributeKey> GetKeys() const;
 
 private:
-    static constexpr uint32_t MAX_ATTR_LENGTH = 81920;
-    static constexpr uint32_t MAX_ATTR_COUNT = 512;
-    static bool EncodeBoolValue(bool src, std::vector<uint8_t> &dst);
-    static bool EncodeUint64Value(uint64_t src, std::vector<uint8_t> &dst);
-    static bool EncodeUint32Value(uint32_t src, std::vector<uint8_t> &dst);
-    static bool EncodeUint16Value(uint16_t src, std::vector<uint8_t> &dst);
-    static bool EncodeUint8Value(uint8_t src, std::vector<uint8_t> &dst);
-    static bool EncodeInt32Value(int32_t src, std::vector<uint8_t> &dst);
-    static bool EncodeStringValue(const std::string &src, std::vector<uint8_t> &dst);
-    static bool EncodeUint64ArrayValue(const std::vector<uint64_t> &src, std::vector<uint8_t> &dst);
-    static bool EncodeUint32ArrayValue(const std::vector<uint32_t> &src, std::vector<uint8_t> &dst);
-    static bool EncodeUint16ArrayValue(const std::vector<uint16_t> &src, std::vector<uint8_t> &dst);
-    static bool EncodeUint8ArrayValue(const std::vector<uint8_t> &src, std::vector<uint8_t> &dst);
-
-    static bool DecodeBoolValue(const std::vector<uint8_t> &src, bool &dst);
-    static bool DecodeUint64Value(const std::vector<uint8_t> &src, uint64_t &dst);
-    static bool DecodeUint32Value(const std::vector<uint8_t> &src, uint32_t &dst);
-    static bool DecodeUint16Value(const std::vector<uint8_t> &src, uint16_t &dst);
-    static bool DecodeUint8Value(const std::vector<uint8_t> &src, uint8_t &dst);
-    static bool DecodeInt32Value(const std::vector<uint8_t> &src, int32_t &dst);
-    static bool DecodeStringValue(const std::vector<uint8_t> &src, std::string &dst);
-    static bool DecodeUint64ArrayValue(const std::vector<uint8_t> &src, std::vector<uint64_t> &dst);
-    static bool DecodeUint32ArrayValue(const std::vector<uint8_t> &src, std::vector<uint32_t> &dst);
-    static bool DecodeUint16ArrayValue(const std::vector<uint8_t> &src, std::vector<uint16_t> &dst);
-    static bool DecodeUint8ArrayValue(const std::vector<uint8_t> &src, std::vector<uint8_t> &dst);
-    std::map<AttributeKey, const std::vector<uint8_t>> map_;
+    class Impl;
+    std::unique_ptr<Impl> impl_;
 };
 } // namespace UserAuth
 } // namespace UserIam

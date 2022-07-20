@@ -69,8 +69,8 @@ bool ScheduleNodeHelper::ScheduleInfoToScheduleNode(const HdiScheduleInfo &info,
         IAM_LOGE("invalid builder");
         return false;
     }
-    if (para.uid.has_value()) {
-        builder->SetCallingUid(para.uid.value());
+    if (para.tokenId.has_value()) {
+        builder->SetAccessTokenId(para.tokenId.value());
     }
     node = builder->SetAuthType(static_cast<AuthType>(info.authType))
                ->SetExecutorMatcher(info.executorMatcher)

@@ -13,19 +13,19 @@
  * limitations under the License.
  */
 
-#ifndef USER_IDM_H
-#define USER_IDM_H
+#ifndef USER_IDM_INTERFACE_H
+#define USER_IDM_INTERFACE_H
 
 #include <cstdint>
 #include <optional>
 
 #include "refbase.h"
-#include "user_idm_callback.h"
+#include "user_idm_callback_interface.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class UserIdm : public IRemoteBroker {
+class UserIdmInterface : public IRemoteBroker {
 public:
     enum : uint32_t {
         USER_IDM_OPEN_SESSION = 0,
@@ -71,7 +71,7 @@ public:
      * param callback returns all registered credential information of this type for the specific user.
      */
     virtual int32_t GetCredentialInfo(std::optional<int32_t> userId, AuthType authType,
-        const sptr<IdmGetCredentialInfoCallback> &callback) = 0;
+        const sptr<IdmGetCredInfoCallbackInterface> &callback) = 0;
 
     /*
      * get user security ID.
@@ -79,7 +79,8 @@ public:
      * param userId current user id.
      * param callback returns all registered security information for the specific user.
      */
-    virtual int32_t GetSecInfo(std::optional<int32_t> userId, const sptr<IdmGetSecureUserInfoCallback> &callback) = 0;
+    virtual int32_t GetSecInfo(std::optional<int32_t> userId,
+        const sptr<IdmGetSecureUserInfoCallbackInterface> &callback) = 0;
 
     /**
      * add user credential information, pass in credential addition method and credential information
@@ -92,7 +93,7 @@ public:
      * param callback get results / acquire info callback.
      */
     virtual void AddCredential(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
-        const std::vector<uint8_t> &token, const sptr<IdmCallback> &callback, bool isUpdate) = 0;
+        const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback, bool isUpdate) = 0;
     /*
      * update user credential information.
      *
@@ -102,7 +103,7 @@ public:
      * param callback update results / acquire info callback.
      */
     virtual void UpdateCredential(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
-        const std::vector<uint8_t> &token, const sptr<IdmCallback> &callback) = 0;
+        const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback) = 0;
 
     /*
      * Cancel entry and pass in user id.
@@ -118,7 +119,7 @@ public:
      * param authToken user password authentication token.
      * param callback get deletion result through callback.
      */
-    virtual int32_t EnforceDelUser(int32_t userId, const sptr<IdmCallback> &callback) = 0;
+    virtual int32_t EnforceDelUser(int32_t userId, const sptr<IdmCallbackInterface> &callback) = 0;
 
     /*
      * delete all users credential information, pass in the user password authentication token and callback,
@@ -129,7 +130,7 @@ public:
      * param callback get deletion result through callback.
      */
     virtual void DelUser(std::optional<int32_t> userId, const std::vector<uint8_t> authToken,
-        const sptr<IdmCallback> &callback) = 0;
+        const sptr<IdmCallbackInterface> &callback) = 0;
 
     /*
      * delete the user credential information, pass in the credential id, password authentication token and callback,
@@ -142,10 +143,10 @@ public:
      * param callback get deletion result through callback.
      */
     virtual void DelCredential(std::optional<int32_t> userId, uint64_t credentialId,
-        const std::vector<uint8_t> &authToken, const sptr<IdmCallback> &callback) = 0;
+        const std::vector<uint8_t> &authToken, const sptr<IdmCallbackInterface> &callback) = 0;
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.useridm.IUserIDM");
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // USER_IDM_H
+#endif // USER_IDM_INTERFACE_H

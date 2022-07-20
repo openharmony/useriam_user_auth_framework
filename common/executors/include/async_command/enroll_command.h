@@ -26,7 +26,8 @@ namespace UserAuth {
 class EnrollCommand : public AsyncCommandBase {
 public:
     EnrollCommand(std::weak_ptr<Executor> executor, uint64_t scheduleId,
-        std::shared_ptr<UserIam::UserAuth::Attributes> commandAttrs, sptr<IExecutorMessenger> executorMessenger);
+        std::shared_ptr<UserIam::UserAuth::Attributes> commandAttrs,
+        std::shared_ptr<ExecutorMessenger> executorMessenger);
     ~EnrollCommand() override = default;
 
 protected:

@@ -16,7 +16,7 @@
 #ifndef USER_AUTH_STUB_H
 #define USER_AUTH_STUB_H
 
-#include "user_auth.h"
+#include "user_auth_interface.h"
 
 #include <iremote_stub.h>
 #include <message_parcel.h>
@@ -24,7 +24,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class UserAuthStub : public IRemoteStub<UserAuth> {
+class UserAuthStub : public IRemoteStub<UserAuthInterface> {
 public:
     UserAuthStub() = default;
     ~UserAuthStub() override = default;

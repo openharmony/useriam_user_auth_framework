@@ -66,7 +66,7 @@ void StateMachineTest::TearDown()
     ThreadHandler::GetSingleThreadInstance()->EnsureTask(nullptr);
 }
 
-HWTEST_F(StateMachineTest, MachineCreateSelfReturn, TestSize.Level1)
+HWTEST_F(StateMachineTest, MachineCreateSelfReturn, TestSize.Level0)
 {
     auto handler = ThreadHandler::GetSingleThreadInstance();
     auto machineBuilder = FiniteStateMachine::Builder::New("testMachine0", STATE_INIT);
@@ -79,7 +79,7 @@ HWTEST_F(StateMachineTest, MachineCreateSelfReturn, TestSize.Level1)
     EXPECT_EQ(ret2, ret1);
 }
 
-HWTEST_F(StateMachineTest, MachineCreateOnlyBuildOnce, TestSize.Level1)
+HWTEST_F(StateMachineTest, MachineCreateOnlyBuildOnce, TestSize.Level0)
 {
     auto handler = ThreadHandler::GetSingleThreadInstance();
     auto machineBuilder = FiniteStateMachine::Builder::New("testMachine1", STATE_INIT);
@@ -95,7 +95,7 @@ HWTEST_F(StateMachineTest, MachineCreateOnlyBuildOnce, TestSize.Level1)
     EXPECT_EQ(second, nullptr);
 }
 
-HWTEST_F(StateMachineTest, MachineCreateCheckTransition, TestSize.Level1)
+HWTEST_F(StateMachineTest, MachineCreateCheckTransition, TestSize.Level0)
 {
     auto handler = ThreadHandler::GetSingleThreadInstance();
     auto machineBuilder = FiniteStateMachine::Builder::New("testMachine2", STATE_INIT);
@@ -108,7 +108,7 @@ HWTEST_F(StateMachineTest, MachineCreateCheckTransition, TestSize.Level1)
     EXPECT_EQ(machine, nullptr);
 }
 
-HWTEST_F(StateMachineTest, MachineCreateInitialState, TestSize.Level1)
+HWTEST_F(StateMachineTest, MachineCreateInitialState, TestSize.Level0)
 {
     auto handler = ThreadHandler::GetSingleThreadInstance();
     auto machineBuilder = FiniteStateMachine::Builder::New("testMachine3", STATE_COLLECT_STOPPING);
@@ -120,7 +120,7 @@ HWTEST_F(StateMachineTest, MachineCreateInitialState, TestSize.Level1)
     EXPECT_EQ(machine->GetCurrentState(), STATE_COLLECT_STOPPING);
 }
 
-HWTEST_F(StateMachineTest, MachineCreateNameCheck, TestSize.Level1)
+HWTEST_F(StateMachineTest, MachineCreateNameCheck, TestSize.Level0)
 {
     auto handler = ThreadHandler::GetSingleThreadInstance();
     auto machineBuilder = FiniteStateMachine::Builder::New("testMachine4", STATE_COLLECT_STOPPING);
@@ -132,7 +132,7 @@ HWTEST_F(StateMachineTest, MachineCreateNameCheck, TestSize.Level1)
     EXPECT_EQ(machine->GetMachineName(), "testMachine4");
 }
 
-HWTEST_F(StateMachineTest, MachineScheduleStepIn, TestSize.Level1)
+HWTEST_F(StateMachineTest, MachineScheduleStepIn, TestSize.Level0)
 {
     auto handler = ThreadHandler::GetSingleThreadInstance();
     auto machineBuilder = FiniteStateMachine::Builder::New("testMachine5", STATE_INIT);
@@ -153,7 +153,7 @@ HWTEST_F(StateMachineTest, MachineScheduleStepIn, TestSize.Level1)
     EXPECT_EQ(machine->EnsureCurrentState(), STATE_COLLECT_STARING);
 }
 
-HWTEST_F(StateMachineTest, MachineScheduleWithAction, TestSize.Level1)
+HWTEST_F(StateMachineTest, MachineScheduleWithAction, TestSize.Level0)
 {
     auto handler = ThreadHandler::GetSingleThreadInstance();
     auto machineBuilder = FiniteStateMachine::Builder::New("testMachine6", STATE_INIT);
@@ -187,7 +187,7 @@ HWTEST_F(StateMachineTest, MachineScheduleWithAction, TestSize.Level1)
     EXPECT_EQ(machine->EnsureCurrentState(), STATE_COLLECT_STARING);
 }
 
-HWTEST_F(StateMachineTest, MachineScheduleWithComplexActionDirectly, TestSize.Level1)
+HWTEST_F(StateMachineTest, MachineScheduleWithComplexActionDirectly, TestSize.Level0)
 {
     auto handler = MockThreadHandler::InvokeDirectly();
     auto machineBuilder = FiniteStateMachine::Builder::New("testMachine7", STATE_INIT);
@@ -225,7 +225,7 @@ HWTEST_F(StateMachineTest, MachineScheduleWithComplexActionDirectly, TestSize.Le
     EXPECT_EQ(machine->EnsureCurrentState(), STATE_AUTH_PROCESSING);
 }
 
-HWTEST_F(StateMachineTest, MachineScheduleWithComplexActionBackGround, TestSize.Level1)
+HWTEST_F(StateMachineTest, MachineScheduleWithComplexActionBackGround, TestSize.Level0)
 {
     auto handler = ThreadHandler::GetSingleThreadInstance();
     auto machineBuilder = FiniteStateMachine::Builder::New("testMachine8", STATE_INIT);
@@ -249,7 +249,7 @@ HWTEST_F(StateMachineTest, MachineScheduleWithComplexActionBackGround, TestSize.
     EXPECT_EQ(machine->EnsureCurrentState(), STATE_END);
 }
 
-HWTEST_F(StateMachineTest, MachineScheduleDeadlock, TestSize.Level1)
+HWTEST_F(StateMachineTest, MachineScheduleDeadlock, TestSize.Level0)
 {
     auto handler = ThreadHandler::GetSingleThreadInstance();
     auto machineBuilder = FiniteStateMachine::Builder::New("testMachine9", STATE_INIT);
@@ -267,7 +267,7 @@ HWTEST_F(StateMachineTest, MachineScheduleDeadlock, TestSize.Level1)
     EXPECT_EQ(machine->EnsureCurrentState(), STATE_INIT);
 }
 
-HWTEST_F(StateMachineTest, MachineScheduleContinues, TestSize.Level1)
+HWTEST_F(StateMachineTest, MachineScheduleContinues, TestSize.Level0)
 {
     MockFunction<void(FiniteStateMachine & machine, uint32_t event)> action;
     EXPECT_CALL(action, Call(_, STATE_INIT)).Times(Exactly(3));
@@ -288,7 +288,7 @@ HWTEST_F(StateMachineTest, MachineScheduleContinues, TestSize.Level1)
     }
 }
 
-HWTEST_F(StateMachineTest, MachineScheduleExpireNodeTimeout, TestSize.Level1)
+HWTEST_F(StateMachineTest, MachineScheduleExpireNodeTimeout, TestSize.Level0)
 {
     auto handler = ThreadHandler::GetSingleThreadInstance();
 
@@ -318,7 +318,7 @@ HWTEST_F(StateMachineTest, MachineScheduleExpireNodeTimeout, TestSize.Level1)
     }
 }
 
-HWTEST_F(StateMachineTest, MachineScheduleExpireNodeExpire, TestSize.Level1)
+HWTEST_F(StateMachineTest, MachineScheduleExpireNodeExpire, TestSize.Level0)
 {
     auto handler = ThreadHandler::GetSingleThreadInstance();
     MockFunction<void(FiniteStateMachine & machine, uint32_t event)> action;
@@ -343,7 +343,7 @@ HWTEST_F(StateMachineTest, MachineScheduleExpireNodeExpire, TestSize.Level1)
     handler->EnsureTask(nullptr);
 }
 
-HWTEST_F(StateMachineTest, MachineScheduleEnterAndLeave, TestSize.Level1)
+HWTEST_F(StateMachineTest, MachineScheduleEnterAndLeave, TestSize.Level0)
 {
     auto handler = ThreadHandler::GetSingleThreadInstance();
     MockFunction<void(FiniteStateMachine & machine, uint32_t event)> action;

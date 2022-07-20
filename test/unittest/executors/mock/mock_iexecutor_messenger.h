@@ -18,7 +18,7 @@
 
 #include "gmock/gmock.h"
 
-#include "iexecutor_messenger.h"
+#include "co_auth_client_defines.h"
 
 namespace OHOS {
 namespace UserIAM {
@@ -26,15 +26,14 @@ namespace UserAuth {
 using namespace OHOS::UserIAM;
 using namespace OHOS::UserIAM::UserAuth;
 
-class MockIExecutorMessenger : public IExecutorMessenger {
+class MockIExecutorMessenger : public ExecutorMessenger {
 public:
     virtual ~MockIExecutorMessenger() = default;
 
-    MOCK_METHOD5(SendData, int32_t(uint64_t scheduleId, uint64_t transNum, int32_t srcType, int32_t dstType,
-                               std::shared_ptr<AuthMessage> msg));
-    MOCK_METHOD4(Finish, int32_t(uint64_t scheduleId, int32_t srcType, int32_t resultCode,
-                             std::shared_ptr<UserIam::UserAuth::Attributes> finalResult));
-    MOCK_METHOD0(AsObject, sptr<OHOS::IRemoteObject>());
+    MOCK_METHOD5(SendData, int32_t(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole, ExecutorRole dstRole,
+                               const std::shared_ptr<AuthMessage> &msg));
+    MOCK_METHOD4(Finish,
+        int32_t(uint64_t scheduleId, ExecutorRole srcRole, int32_t resultCode, const Attributes &finalResult));
 };
 } // namespace UserAuth
 } // namespace UserIAM

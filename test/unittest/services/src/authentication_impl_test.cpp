@@ -52,7 +52,7 @@ void AuthenticationImplTest::TearDown()
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
 
-HWTEST_F(AuthenticationImplTest, AuthenticationHdiError, TestSize.Level1)
+HWTEST_F(AuthenticationImplTest, AuthenticationHdiError, TestSize.Level0)
 {
     constexpr uint64_t contextId = 0x1234567;
     constexpr int32_t userId = 0x11;
@@ -65,7 +65,7 @@ HWTEST_F(AuthenticationImplTest, AuthenticationHdiError, TestSize.Level1)
     EXPECT_FALSE(authentication->Start(scheduleList, nullptr));
 }
 
-HWTEST_F(AuthenticationImplTest, AuthenticationHdiEmpty, TestSize.Level1)
+HWTEST_F(AuthenticationImplTest, AuthenticationHdiEmpty, TestSize.Level0)
 {
     constexpr uint64_t contextId = 0x1234567;
     constexpr int32_t userId = 0x11;
@@ -78,7 +78,7 @@ HWTEST_F(AuthenticationImplTest, AuthenticationHdiEmpty, TestSize.Level1)
     EXPECT_FALSE(authentication->Start(scheduleList, nullptr));
 }
 
-HWTEST_F(AuthenticationImplTest, AuthenticationInvalidExecutor, TestSize.Level1)
+HWTEST_F(AuthenticationImplTest, AuthenticationInvalidExecutor, TestSize.Level0)
 {
     using ScheduleInfo = OHOS::HDI::UserAuth::V1_0::ScheduleInfo;
     using ExecutorInfo = OHOS::HDI::UserAuth::V1_0::ExecutorInfo;

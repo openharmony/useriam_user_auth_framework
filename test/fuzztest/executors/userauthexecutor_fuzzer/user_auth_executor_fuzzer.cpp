@@ -40,7 +40,7 @@ using namespace OHOS::UserIam::UserAuth;
 
 vector<std::function<void(void)>> g_callbackToReply;
 std::mutex g_callbackToReplyMutex;
-std::shared_ptr<AuthResPool::ExecutorCallback> g_executorCallback = nullptr;
+std::shared_ptr<ExecutorRegisterCallback> g_executorCallback = nullptr;
 
 class DummyAuthExecutorHdi : public IAuthExecutorHdi {
 public:
@@ -54,13 +54,12 @@ public:
         if (fuzzParcel_ == nullptr || g_executorCallback == nullptr) {
             return ResultCode::SUCCESS;
         }
-        executorInfo.executorId = fuzzParcel_->ReadInt32();
+        executorInfo.executorSensorHint = fuzzParcel_->ReadInt32();
         executorInfo.authType = static_cast<AuthType>(fuzzParcel_->ReadInt32());
-        executorInfo.role = static_cast<ExecutorRole>(fuzzParcel_->ReadInt32());
-        executorInfo.executorType = fuzzParcel_->ReadInt32();
+        executorInfo.executorRole = static_cast<ExecutorRole>(fuzzParcel_->ReadInt32());
+        executorInfo.executorMatcher = fuzzParcel_->ReadInt32();
         executorInfo.esl = static_cast<ExecutorSecureLevel>(fuzzParcel_->ReadInt32());
         FillFuzzUint8Vector(*fuzzParcel_, executorInfo.publicKey);
-        FillFuzzUint8Vector(*fuzzParcel_, executorInfo.deviceId);
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
@@ -79,21 +78,21 @@ public:
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
-    ResultCode Enroll(uint64_t scheduleId, uint64_t callerUid, const std::vector<uint8_t> &extraInfo,
+    ResultCode Enroll(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
         const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) override
     {
         FuzzTriggerIExecuteCallback(callbackObj);
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
-    ResultCode Authenticate(uint64_t scheduleId, uint64_t callerUid, const std::vector<uint64_t> &templateIdList,
+    ResultCode Authenticate(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint64_t> &templateIdList,
         const std::vector<uint8_t> &extraInfo, const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) override
     {
         FuzzTriggerIExecuteCallback(callbackObj);
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
-    ResultCode Identify(uint64_t scheduleId, uint64_t callerUid, const std::vector<uint8_t> &extraInfo,
+    ResultCode Identify(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
         const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) override
     {
         FuzzTriggerIExecuteCallback(callbackObj);
@@ -110,7 +109,7 @@ public:
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
-    ResultCode SendCommand(UserAuth::AuthPropertyMode commandId, const std::vector<uint8_t> &extraInfo,
+    ResultCode SendCommand(PropertyMode commandId, const std::vector<uint8_t> &extraInfo,
         const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) override
     {
         FuzzTriggerIExecuteCallback(callbackObj);
@@ -156,29 +155,25 @@ private:
 class DummyExecutorMgrWrapper : public ExecutorMgrWrapper {
 public:
     virtual ~DummyExecutorMgrWrapper() = default;
-    void Register(const ExecutorInfo &info, std::shared_ptr<AuthResPool::ExecutorCallback> callback) override
+    void Register(const ExecutorInfo &info, std::shared_ptr<ExecutorRegisterCallback> callback) override
     {
         g_executorCallback = callback;
     }
 };
 
-class DummyExecutorMessenger : public IExecutorMessenger {
+class DummyExecutorMessenger : public ExecutorMessenger {
 public:
-    int32_t SendData(uint64_t scheduleId, uint64_t transNum, int32_t srcType, int32_t dstType,
-        std::shared_ptr<AuthMessage> msg) override
+    virtual ~DummyExecutorMessenger() = default;
+    int32_t SendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole, ExecutorRole dstRole,
+        const std::shared_ptr<AuthMessage> &msg) override
     {
         return fuzzParcel_->ReadInt32();
     }
 
-    int32_t Finish(
-        uint64_t scheduleId, int32_t srcType, int32_t resultCode, std::shared_ptr<Attributes> finalResult) override
+    int32_t Finish(uint64_t scheduleId, ExecutorRole srcRole, int32_t resultCode,
+        const Attributes &finalResult) override
     {
         return fuzzParcel_->ReadInt32();
-    }
-
-    sptr<IRemoteObject> AsObject() override
-    {
-        return nullptr;
     }
 
     void SetParcel(std::shared_ptr<Parcel> &parcel)
@@ -193,7 +188,7 @@ private:
 auto g_executorHdi = Common::MakeShared<DummyAuthExecutorHdi>();
 auto g_executorMgrWrapper = Common::MakeShared<DummyExecutorMgrWrapper>();
 auto g_executor = Common::MakeShared<Executor>(g_executorMgrWrapper, g_executorHdi, 1);
-sptr<DummyExecutorMessenger> g_executorMessenger = new (std::nothrow) DummyExecutorMessenger();
+auto g_executorMessenger = Common::MakeShared<DummyExecutorMessenger>();
 
 void FuzzExecutorResetExecutor(std::shared_ptr<Parcel> parcel)
 {
@@ -246,7 +241,7 @@ void FuzzExecutorGetDescription(std::shared_ptr<Parcel> parcel)
     IAM_LOGI("end");
 }
 
-void FillIExecutorMessenger(std::shared_ptr<Parcel> parcel, sptr<IExecutorMessenger> &messenger)
+void FillIExecutorMessenger(std::shared_ptr<Parcel> parcel, shared_ptr<ExecutorMessenger> &messenger)
 {
     bool fillNull = parcel->ReadBool();
     if (fillNull) {
@@ -256,25 +251,24 @@ void FillIExecutorMessenger(std::shared_ptr<Parcel> parcel, sptr<IExecutorMessen
     messenger = g_executorMessenger;
 }
 
-void FillIAttributes(std::shared_ptr<Parcel> parcel, std::shared_ptr<Attributes> &attributes)
+void FillIAttributes(std::shared_ptr<Parcel> parcel, Attributes &attributes)
 {
     bool fillNull = parcel->ReadBool();
     if (fillNull) {
-        attributes = nullptr;
         return;
     }
-    attributes = MakeShared<Attributes>();
-    attributes->SetUint64Value(Attributes::ATTR_TEMPLATE_ID, parcel->ReadUint64());
-    attributes->SetUint64Value(Attributes::ATTR_CALLER_UID, parcel->ReadUint64());
-    attributes->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, parcel->ReadUint32());
+
+    attributes.SetUint64Value(Attributes::ATTR_TEMPLATE_ID, parcel->ReadUint64());
+    attributes.SetUint64Value(Attributes::ATTR_CALLER_UID, parcel->ReadUint64());
+    attributes.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, parcel->ReadUint32());
     std::vector<uint64_t> templateIdList;
     FillFuzzUint64Vector(*parcel, templateIdList);
-    attributes->GetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIdList);
+    attributes.GetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIdList);
     std::vector<uint8_t> extraInfo;
     FillFuzzUint8Vector(*parcel, extraInfo);
-    attributes->GetUint64ArrayValue(Attributes::ATTR_EXTRA_INFO, templateIdList);
-    attributes->SetUint64Value(Attributes::ATTR_CALLER_UID, parcel->ReadUint64());
-    attributes->SetUint32Value(Attributes::ATTR_SCHEDULE_MODE, parcel->ReadUint32());
+    attributes.GetUint64ArrayValue(Attributes::ATTR_EXTRA_INFO, templateIdList);
+    attributes.SetUint64Value(Attributes::ATTR_CALLER_UID, parcel->ReadUint64());
+    attributes.SetUint32Value(Attributes::ATTR_SCHEDULE_MODE, parcel->ReadUint32());
 }
 
 void FuzzFrameworkOnMessengerReady(std::shared_ptr<Parcel> parcel)
@@ -284,7 +278,7 @@ void FuzzFrameworkOnMessengerReady(std::shared_ptr<Parcel> parcel)
     if (g_executorCallback == nullptr) {
         return;
     }
-    sptr<IExecutorMessenger> messenger = nullptr;
+    shared_ptr<ExecutorMessenger> messenger = nullptr;
     FillIExecutorMessenger(parcel, messenger);
     std::vector<uint8_t> publicKey;
     FillFuzzUint8Vector(*parcel, publicKey);
@@ -304,7 +298,7 @@ void FuzzFrameworkOnBeginExecute(std::shared_ptr<Parcel> parcel)
     uint64_t scheduleId = parcel->ReadUint64();
     std::vector<uint8_t> publicKey;
     FillFuzzUint8Vector(*parcel, publicKey);
-    std::shared_ptr<Attributes> commandAttrs = nullptr;
+    Attributes commandAttrs;
     FillIAttributes(parcel, commandAttrs);
     g_executorCallback->OnBeginExecute(scheduleId, publicKey, commandAttrs);
     IAM_LOGI("end");
@@ -318,7 +312,7 @@ void FuzzFrameworkOnEndExecute(std::shared_ptr<Parcel> parcel)
         return;
     }
     uint64_t scheduleId = parcel->ReadUint64();
-    std::shared_ptr<Attributes> consumerAttr = nullptr;
+    Attributes consumerAttr;
     FillIAttributes(parcel, consumerAttr);
     g_executorCallback->OnEndExecute(scheduleId, consumerAttr);
     IAM_LOGI("end");
@@ -331,7 +325,7 @@ void FuzzFrameworkOnSetProperty(std::shared_ptr<Parcel> parcel)
     if (g_executorCallback == nullptr) {
         return;
     }
-    std::shared_ptr<Attributes> properties = nullptr;
+    Attributes properties;
     FillIAttributes(parcel, properties);
     g_executorCallback->OnSetProperty(properties);
     IAM_LOGI("end");
@@ -344,9 +338,9 @@ void FuzzFrameworkOnGetProperty(std::shared_ptr<Parcel> parcel)
     if (g_executorCallback == nullptr) {
         return;
     }
-    std::shared_ptr<Attributes> conditions = nullptr;
+    Attributes conditions;
     FillIAttributes(parcel, conditions);
-    std::shared_ptr<Attributes> values = nullptr;
+    Attributes values;
     FillIAttributes(parcel, values);
     g_executorCallback->OnGetProperty(conditions, values);
     IAM_LOGI("end");

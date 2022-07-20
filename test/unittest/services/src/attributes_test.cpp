@@ -41,13 +41,13 @@ void AttributesTest::TearDown()
 {
 }
 
-HWTEST_F(AttributesTest, AttributesInit, TestSize.Level1)
+HWTEST_F(AttributesTest, AttributesInit, TestSize.Level0)
 {
     Attributes attrs;
     EXPECT_EQ(attrs.Serialize().size(), 0U);
 }
 
-HWTEST_F(AttributesTest, AttributesSerialize, TestSize.Level1)
+HWTEST_F(AttributesTest, AttributesSerialize, TestSize.Level0)
 {
     const std::vector<Attributes::AttributeKey> desired = {Attributes::ATTR_RESULT_CODE, Attributes::ATTR_SIGNATURE,
         Attributes::ATTR_TEMPLATE_ID_LIST, Attributes::ATTR_REMAIN_TIMES, Attributes::ATTR_FREEZING_TIME,
@@ -105,7 +105,7 @@ HWTEST_F(AttributesTest, AttributesSerialize, TestSize.Level1)
     }
 }
 
-HWTEST_F(AttributesTest, AttributesBoolValue, TestSize.Level1)
+HWTEST_F(AttributesTest, AttributesBoolValue, TestSize.Level0)
 {
     Attributes attrs;
     EXPECT_TRUE(attrs.SetBoolValue(Attributes::ATTR_RESULT_CODE, true));
@@ -119,7 +119,7 @@ HWTEST_F(AttributesTest, AttributesBoolValue, TestSize.Level1)
     EXPECT_FALSE(value2);
 }
 
-HWTEST_F(AttributesTest, AttributesUint64Value, TestSize.Level1)
+HWTEST_F(AttributesTest, AttributesUint64Value, TestSize.Level0)
 {
     Attributes attrs;
     EXPECT_TRUE(attrs.SetUint64Value(Attributes::ATTR_RESULT_CODE, UINT32_MAX));
@@ -133,7 +133,7 @@ HWTEST_F(AttributesTest, AttributesUint64Value, TestSize.Level1)
     EXPECT_EQ(value2, UINT64_MAX);
 }
 
-HWTEST_F(AttributesTest, AttributesUint32Value, TestSize.Level1)
+HWTEST_F(AttributesTest, AttributesUint32Value, TestSize.Level0)
 {
     Attributes attrs;
     EXPECT_TRUE(attrs.SetUint32Value(Attributes::ATTR_RESULT_CODE, UINT16_MAX));
@@ -147,7 +147,7 @@ HWTEST_F(AttributesTest, AttributesUint32Value, TestSize.Level1)
     EXPECT_TRUE(value2 == UINT32_MAX);
 }
 
-HWTEST_F(AttributesTest, AttributesUint16Value, TestSize.Level1)
+HWTEST_F(AttributesTest, AttributesUint16Value, TestSize.Level0)
 {
     Attributes attrs;
     EXPECT_TRUE(attrs.SetUint16Value(Attributes::ATTR_RESULT_CODE, UINT8_MAX));
@@ -161,7 +161,7 @@ HWTEST_F(AttributesTest, AttributesUint16Value, TestSize.Level1)
     EXPECT_TRUE(value2 == UINT16_MAX);
 }
 
-HWTEST_F(AttributesTest, AttributesUint8Value, TestSize.Level1)
+HWTEST_F(AttributesTest, AttributesUint8Value, TestSize.Level0)
 {
     Attributes attrs;
     EXPECT_TRUE(attrs.SetUint8Value(Attributes::ATTR_RESULT_CODE, 0));
@@ -175,7 +175,7 @@ HWTEST_F(AttributesTest, AttributesUint8Value, TestSize.Level1)
     EXPECT_EQ(value2, UINT8_MAX);
 }
 
-HWTEST_F(AttributesTest, AttributesStringValue, TestSize.Level1)
+HWTEST_F(AttributesTest, AttributesStringValue, TestSize.Level0)
 {
     Attributes attrs;
     EXPECT_TRUE(attrs.SetStringValue(Attributes::ATTR_RESULT_CODE, "hello iam"));
@@ -189,7 +189,7 @@ HWTEST_F(AttributesTest, AttributesStringValue, TestSize.Level1)
     EXPECT_EQ(value2, "");
 }
 
-HWTEST_F(AttributesTest, AttributesUint64ByteArray, TestSize.Level1)
+HWTEST_F(AttributesTest, AttributesUint64ByteArray, TestSize.Level0)
 {
     {
         constexpr int SIZE = 8192;
@@ -216,7 +216,7 @@ HWTEST_F(AttributesTest, AttributesUint64ByteArray, TestSize.Level1)
     }
 }
 
-HWTEST_F(AttributesTest, AttributesUint32ByteArray, TestSize.Level1)
+HWTEST_F(AttributesTest, AttributesUint32ByteArray, TestSize.Level0)
 {
     {
         constexpr int SIZE = 8192;
@@ -243,7 +243,7 @@ HWTEST_F(AttributesTest, AttributesUint32ByteArray, TestSize.Level1)
     }
 }
 
-HWTEST_F(AttributesTest, AttributesUint16ByteArray, TestSize.Level1)
+HWTEST_F(AttributesTest, AttributesUint16ByteArray, TestSize.Level0)
 {
     {
         constexpr int SIZE = 8192;
@@ -270,7 +270,7 @@ HWTEST_F(AttributesTest, AttributesUint16ByteArray, TestSize.Level1)
     }
 }
 
-HWTEST_F(AttributesTest, AttributesUint8ByteArray, TestSize.Level1)
+HWTEST_F(AttributesTest, AttributesUint8ByteArray, TestSize.Level0)
 {
     {
         constexpr int SIZE = 8192;
@@ -297,7 +297,7 @@ HWTEST_F(AttributesTest, AttributesUint8ByteArray, TestSize.Level1)
     }
 }
 
-HWTEST_F(AttributesTest, AttributesDeserialize, TestSize.Level1)
+HWTEST_F(AttributesTest, AttributesDeserialize, TestSize.Level0)
 {
     const std::vector<Attributes::AttributeKey> desired = {Attributes::ATTR_RESULT_CODE, Attributes::ATTR_SIGNATURE,
         Attributes::ATTR_TEMPLATE_ID_LIST, Attributes::ATTR_REMAIN_TIMES, Attributes::ATTR_FREEZING_TIME,
@@ -306,7 +306,7 @@ HWTEST_F(AttributesTest, AttributesDeserialize, TestSize.Level1)
     const std::vector<uint8_t> raw = {161, 134, 1, 0, 1, 0, 0, 0, 1, 164, 134, 1, 0, 1, 0, 0, 0, 0, 167, 134, 1, 0, 4,
         0, 0, 0, 105, 97, 109, 0, 169, 134, 1, 0, 20, 0, 0, 0, 1, 0, 0, 0, 3, 0, 0, 0, 5, 0, 0, 0, 7, 0, 0, 0, 9, 0, 0,
         0, 170, 134, 1, 0, 40, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0,
-        0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 174, 134, 1, 0, 8, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255, 182,
+        0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 180, 134, 1, 0, 8, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255, 182,
         134, 1, 0, 4, 0, 0, 0, 255, 255, 255, 255};
 
     Attributes attrs(raw);
@@ -348,12 +348,12 @@ HWTEST_F(AttributesTest, AttributesDeserialize, TestSize.Level1)
     }
 }
 
-HWTEST_F(AttributesTest, AttributesInAttribute, TestSize.Level1)
+HWTEST_F(AttributesTest, AttributesInAttribute, TestSize.Level0)
 {
     const std::vector<uint8_t> raw = {161, 134, 1, 0, 1, 0, 0, 0, 1, 164, 134, 1, 0, 1, 0, 0, 0, 0, 167, 134, 1, 0, 4,
         0, 0, 0, 105, 97, 109, 0, 169, 134, 1, 0, 20, 0, 0, 0, 1, 0, 0, 0, 3, 0, 0, 0, 5, 0, 0, 0, 7, 0, 0, 0, 9, 0, 0,
         0, 170, 134, 1, 0, 40, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0,
-        0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 174, 134, 1, 0, 8, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255, 182,
+        0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 180, 134, 1, 0, 8, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255, 182,
         134, 1, 0, 4, 0, 0, 0, 255, 255, 255, 255};
 
     Attributes attrs1;
@@ -375,7 +375,7 @@ HWTEST_F(AttributesTest, AttributesInAttribute, TestSize.Level1)
     EXPECT_THAT(attrs4.Serialize(), ElementsAreArray(raw));
 }
 
-HWTEST_F(AttributesTest, AttributesDeserializeMismatch, TestSize.Level1)
+HWTEST_F(AttributesTest, AttributesDeserializeMismatch, TestSize.Level0)
 {
     const std::vector<uint8_t> raw = {0, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 0, 0, 20, 0, 0, 0, 1, 0, 0, 0, 3, 0, 0, 0, 5, 0,
         0, 0, 7, 0, 0, 0, 9, 0, 0, 0, 3, 0, 0, 0, 40, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0,
@@ -394,7 +394,7 @@ HWTEST_F(AttributesTest, AttributesDeserializeMismatch, TestSize.Level1)
     }
 }
 
-HWTEST_F(AttributesTest, AttributesEmptyArrays, TestSize.Level1)
+HWTEST_F(AttributesTest, AttributesEmptyArrays, TestSize.Level0)
 {
     Attributes attrs1;
     {
@@ -449,7 +449,7 @@ HWTEST_F(AttributesTest, AttributesEmptyArrays, TestSize.Level1)
     }
 }
 
-HWTEST_F(AttributesTest, AttributesCopyAndMove, TestSize.Level1)
+HWTEST_F(AttributesTest, AttributesCopyAndMove, TestSize.Level0)
 {
     EXPECT_FALSE(std::is_copy_assignable<Attributes>::value);
     EXPECT_FALSE(std::is_copy_constructible<Attributes>::value);

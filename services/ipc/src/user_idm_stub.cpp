@@ -16,14 +16,10 @@
 #include "user_idm_stub.h"
 
 #include <cinttypes>
-#include <message_parcel.h>
-
-#include "securec.h"
 
 #include "iam_logger.h"
 #include "iam_scope_guard.h"
 #include "result_code.h"
-
 #include "user_idm_callback_proxy.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
@@ -34,7 +30,7 @@ namespace UserAuth {
 int32_t UserIdmStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     IAM_LOGI("cmd = %{public}u, flags= %{public}d", code, option.GetFlags());
-    if (data.ReadInterfaceToken() != UserIdm::GetDescriptor()) {
+    if (data.ReadInterfaceToken() != UserIdmInterface::GetDescriptor()) {
         IAM_LOGE("failed to match descriptor");
         return FAIL;
     }
@@ -100,12 +96,7 @@ int32_t UserIdmStub::OpenSessionStub(MessageParcel &data, MessageParcel &reply)
         IAM_LOGE("failed to check challenge size");
         return GENERAL_ERROR;
     }
-    uint64_t challengeOut;
-    if (memcpy_s(&challengeOut, sizeof(uint64_t), challenge.data(), challenge.size()) != EOK) {
-        IAM_LOGE("failed to copy challenge");
-        return GENERAL_ERROR;
-    }
-    if (!reply.WriteUint64(challengeOut)) {
+    if (!reply.WriteUInt8Vector(challenge)) {
         IAM_LOGE("failed to write challenge");
         return WRITE_PARCEL_ERROR;
     }
@@ -134,12 +125,7 @@ int32_t UserIdmStub::OpenSessionByIdStub(MessageParcel &data, MessageParcel &rep
         IAM_LOGE("failed to check challenge size");
         return GENERAL_ERROR;
     }
-    uint64_t challengeOut;
-    if (memcpy_s(&challengeOut, sizeof(uint64_t), challenge.data(), challenge.size()) != EOK) {
-        IAM_LOGE("failed to copy challenge");
-        return GENERAL_ERROR;
-    }
-    if (!reply.WriteUint64(challengeOut)) {
+    if (!reply.WriteUInt8Vector(challenge)) {
         IAM_LOGE("failed to write challenge");
         return WRITE_PARCEL_ERROR;
     }
@@ -183,7 +169,7 @@ int32_t UserIdmStub::GetCredentialInfoStub(MessageParcel &data, MessageParcel &r
         return READ_PARCEL_ERROR;
     }
 
-    sptr<IdmGetCredentialInfoCallback> callback = iface_cast<IdmGetCredentialInfoProxy>(data.ReadRemoteObject());
+    sptr<IdmGetCredInfoCallbackInterface> callback = iface_cast<IdmGetCredentialInfoProxy>(data.ReadRemoteObject());
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return READ_PARCEL_ERROR;
@@ -211,7 +197,7 @@ int32_t UserIdmStub::GetCredentialInfoByIdStub(MessageParcel &data, MessageParce
         return READ_PARCEL_ERROR;
     }
 
-    sptr<IdmGetCredentialInfoCallback> callback = iface_cast<IdmGetCredentialInfoProxy>(data.ReadRemoteObject());
+    sptr<IdmGetCredInfoCallbackInterface> callback = iface_cast<IdmGetCredentialInfoProxy>(data.ReadRemoteObject());
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return ERR_INVALID_VALUE;
@@ -232,7 +218,8 @@ int32_t UserIdmStub::GetSecInfoStub(MessageParcel &data, MessageParcel &reply)
         IAM_LOGE("failed to read userId");
         return READ_PARCEL_ERROR;
     }
-    sptr<IdmGetSecureUserInfoCallback> callback = iface_cast<IdmGetSecureUserInfoProxy>(data.ReadRemoteObject());
+    sptr<IdmGetSecureUserInfoCallbackInterface> callback =
+        iface_cast<IdmGetSecureUserInfoProxy>(data.ReadRemoteObject());
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return ERR_INVALID_VALUE;
@@ -264,7 +251,7 @@ int32_t UserIdmStub::AddCredentialStub(MessageParcel &data, MessageParcel &reply
         return READ_PARCEL_ERROR;
     }
 
-    sptr<IdmCallback> callback = iface_cast<IdmCallbackProxy>(data.ReadRemoteObject());
+    sptr<IdmCallbackInterface> callback = iface_cast<IdmCallbackProxy>(data.ReadRemoteObject());
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return READ_PARCEL_ERROR;
@@ -307,7 +294,7 @@ int32_t UserIdmStub::AddCredentialByIdStub(MessageParcel &data, MessageParcel &r
         return READ_PARCEL_ERROR;
     }
 
-    sptr<IdmCallback> callback = iface_cast<IdmCallbackProxy>(data.ReadRemoteObject());
+    sptr<IdmCallbackInterface> callback = iface_cast<IdmCallbackProxy>(data.ReadRemoteObject());
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return READ_PARCEL_ERROR;
@@ -344,7 +331,7 @@ int32_t UserIdmStub::UpdateCredentialStub(MessageParcel &data, MessageParcel &re
         return READ_PARCEL_ERROR;
     }
 
-    sptr<IdmCallback> callback = iface_cast<IdmCallbackProxy>(data.ReadRemoteObject());
+    sptr<IdmCallbackInterface> callback = iface_cast<IdmCallbackProxy>(data.ReadRemoteObject());
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return READ_PARCEL_ERROR;
@@ -383,7 +370,7 @@ int32_t UserIdmStub::UpdateCredentialByIdStub(MessageParcel &data, MessageParcel
         return READ_PARCEL_ERROR;
     }
 
-    sptr<IdmCallback> callback = iface_cast<IdmCallbackProxy>(data.ReadRemoteObject());
+    sptr<IdmCallbackInterface> callback = iface_cast<IdmCallbackProxy>(data.ReadRemoteObject());
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return FAIL;
@@ -398,19 +385,13 @@ int32_t UserIdmStub::CancelStub(MessageParcel &data, MessageParcel &reply)
     IAM_LOGI("enter");
     ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
-    uint64_t challenge;
-    if (!data.ReadUint64(challenge)) {
+    std::vector<uint8_t> challenge;
+    if (!data.ReadUInt8Vector(&challenge)) {
         IAM_LOGE("failed to read challenge");
         return READ_PARCEL_ERROR;
     }
 
-    std::vector<uint8_t> challengeInner;
-    challengeInner.resize(sizeof(challenge));
-    if (memcpy_s(challengeInner.data(), challengeInner.size(), &challenge, sizeof(challenge))) {
-        IAM_LOGE("failed to copy challenge");
-        return GENERAL_ERROR;
-    }
-    int32_t ret = Cancel(std::nullopt, challengeInner);
+    int32_t ret = Cancel(std::nullopt, challenge);
     static_cast<void>(reply.WriteInt32(ret));
     return ret;
 }
@@ -442,7 +423,7 @@ int32_t UserIdmStub::EnforceDelUserStub(MessageParcel &data, MessageParcel &repl
         return READ_PARCEL_ERROR;
     }
 
-    sptr<IdmCallback> callback = iface_cast<IdmCallbackProxy>(data.ReadRemoteObject());
+    sptr<IdmCallbackInterface> callback = iface_cast<IdmCallbackProxy>(data.ReadRemoteObject());
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return READ_PARCEL_ERROR;
@@ -464,7 +445,7 @@ int32_t UserIdmStub::DelUserStub(MessageParcel &data, MessageParcel &reply)
         return READ_PARCEL_ERROR;
     }
 
-    sptr<IdmCallback> callback = iface_cast<IdmCallbackProxy>(data.ReadRemoteObject());
+    sptr<IdmCallbackInterface> callback = iface_cast<IdmCallbackProxy>(data.ReadRemoteObject());
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return READ_PARCEL_ERROR;
@@ -491,7 +472,7 @@ int32_t UserIdmStub::DelUserByIdStub(MessageParcel &data, [[maybe_unused]] Messa
         return READ_PARCEL_ERROR;
     }
 
-    sptr<IdmCallback> callback = iface_cast<IdmCallbackProxy>(data.ReadRemoteObject());
+    sptr<IdmCallbackInterface> callback = iface_cast<IdmCallbackProxy>(data.ReadRemoteObject());
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return READ_PARCEL_ERROR;
@@ -518,7 +499,7 @@ int32_t UserIdmStub::DelCredentialStub(MessageParcel &data, MessageParcel &reply
         return READ_PARCEL_ERROR;
     }
 
-    sptr<IdmCallback> callback = iface_cast<IdmCallbackProxy>(data.ReadRemoteObject());
+    sptr<IdmCallbackInterface> callback = iface_cast<IdmCallbackProxy>(data.ReadRemoteObject());
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return READ_PARCEL_ERROR;
@@ -551,7 +532,7 @@ int32_t UserIdmStub::DelCredentialByIdStub(MessageParcel &data, MessageParcel &r
         return READ_PARCEL_ERROR;
     }
 
-    sptr<IdmCallback> callback = iface_cast<IdmCallbackProxy>(data.ReadRemoteObject());
+    sptr<IdmCallbackInterface> callback = iface_cast<IdmCallbackProxy>(data.ReadRemoteObject());
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return FAIL;

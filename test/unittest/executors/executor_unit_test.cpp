@@ -72,38 +72,38 @@ void ExecutorUnitTest::TearDown()
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnHdiConnectTest_001, TestSize.Level0)
 {
     const uint16_t testHdiId = 5;
-    const ExecutorInfo testInfo = {.executorId = 10,
+    const ExecutorInfo testInfo = {
         .authType = static_cast<AuthType>(1),
-        .role = static_cast<ExecutorRole>(2),
-        .executorType = 2,
+        .executorRole = static_cast<ExecutorRole>(2),
+        .executorSensorHint = 10,
+        .executorMatcher = 2,
         .esl = static_cast<ExecutorSecureLevel>(4),
         .publicKey = {5, 6, 7},
-        .deviceId = {9, 10, 11}};
+    };
     auto executorMgrWrapper = MakeShared<MockExecutorMgrWrapper>();
     ASSERT_NE(executorMgrWrapper, nullptr);
     EXPECT_CALL(*executorMgrWrapper, Register(_, _))
         .Times(Exactly(1))
-        .WillOnce([&testInfo](const ExecutorInfo &info, std::shared_ptr<AuthResPool::ExecutorCallback> callback) {
-            EXPECT_TRUE(static_cast<const uint32_t>(info.executorId) ==
-                        Common::CombineUint16ToUint32(testHdiId, static_cast<uint16_t>(testInfo.executorId)));
+        .WillOnce([&testInfo](const ExecutorInfo &info, std::shared_ptr<ExecutorRegisterCallback> callback) {
+            EXPECT_TRUE(static_cast<const uint32_t>(info.executorSensorHint) ==
+                        Common::CombineUint16ToUint32(testHdiId, static_cast<uint16_t>(testInfo.executorSensorHint)));
             EXPECT_EQ(info.authType, testInfo.authType);
-            EXPECT_EQ(info.role, testInfo.role);
-            EXPECT_EQ(info.executorType, testInfo.executorType);
+            EXPECT_EQ(info.executorRole, testInfo.executorRole);
+            EXPECT_EQ(info.executorMatcher, testInfo.executorMatcher);
             EXPECT_EQ(info.esl, testInfo.esl);
             EXPECT_EQ(info.publicKey, testInfo.publicKey);
-            EXPECT_EQ(info.deviceId, testInfo.deviceId);
             EXPECT_NE(callback, nullptr);
         });
     auto executorHdi = MakeShared<MockIAuthExecutorHdi>();
     ASSERT_NE(executorHdi, nullptr);
     EXPECT_CALL(*executorHdi, GetExecutorInfo(_)).Times(Exactly(2)).WillRepeatedly([&testInfo](ExecutorInfo &info) {
-        info.executorId = testInfo.executorId;
+        info.executorSensorHint = testInfo.executorSensorHint;
         info.authType = testInfo.authType;
-        info.role = testInfo.role;
-        info.executorType = testInfo.executorType;
+        info.executorRole = testInfo.executorRole;
+        info.executorSensorHint = testInfo.executorSensorHint;
+        info.executorMatcher = testInfo.executorMatcher;
         info.esl = testInfo.esl;
         info.publicKey.assign(testInfo.publicKey.begin(), testInfo.publicKey.end());
-        info.deviceId.assign(testInfo.deviceId.begin(), testInfo.deviceId.end());
         return ResultCode::SUCCESS;
     });
     auto executor = MakeShared<Executor>(executorMgrWrapper, executorHdi, testHdiId);
@@ -114,38 +114,37 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnHdiConnectTest_001, TestSize.Level
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnFrameworkReadyTest_001, TestSize.Level0)
 {
     const uint16_t testHdiId = 5;
-    const ExecutorInfo testInfo = {.executorId = 10,
+    const ExecutorInfo testInfo = {
         .authType = static_cast<AuthType>(1),
-        .role = static_cast<ExecutorRole>(2),
-        .executorType = 2,
+        .executorRole = static_cast<ExecutorRole>(2),
+        .executorSensorHint = 10,
+        .executorMatcher = 2,
         .esl = static_cast<ExecutorSecureLevel>(4),
         .publicKey = {5, 6, 7},
-        .deviceId = {9, 10, 11}};
+    };
     auto executorMgrWrapper = MakeShared<MockExecutorMgrWrapper>();
     ASSERT_NE(executorMgrWrapper, nullptr);
     EXPECT_CALL(*executorMgrWrapper, Register(_, _))
         .Times(Exactly(1))
-        .WillOnce([&testInfo](const ExecutorInfo &info, std::shared_ptr<AuthResPool::ExecutorCallback> callback) {
-            EXPECT_TRUE(static_cast<const uint32_t>(info.executorId) ==
-                        Common::CombineUint16ToUint32(testHdiId, static_cast<uint16_t>(testInfo.executorId)));
+        .WillOnce([&testInfo](const ExecutorInfo &info, std::shared_ptr<ExecutorRegisterCallback> callback) {
+            EXPECT_TRUE(static_cast<const uint32_t>(info.executorSensorHint) ==
+                        Common::CombineUint16ToUint32(testHdiId, static_cast<uint16_t>(testInfo.executorSensorHint)));
             EXPECT_EQ(info.authType, testInfo.authType);
-            EXPECT_EQ(info.role, testInfo.role);
-            EXPECT_EQ(info.executorType, testInfo.executorType);
+            EXPECT_EQ(info.executorRole, testInfo.executorRole);
+            EXPECT_EQ(info.executorMatcher, testInfo.executorMatcher);
             EXPECT_EQ(info.esl, testInfo.esl);
             EXPECT_EQ(info.publicKey, testInfo.publicKey);
-            EXPECT_EQ(info.deviceId, testInfo.deviceId);
             EXPECT_NE(callback, nullptr);
         });
     auto executorHdi = MakeShared<MockIAuthExecutorHdi>();
     ASSERT_NE(executorHdi, nullptr);
     EXPECT_CALL(*executorHdi, GetExecutorInfo(_)).Times(Exactly(2)).WillRepeatedly([&testInfo](ExecutorInfo &info) {
-        info.executorId = testInfo.executorId;
         info.authType = testInfo.authType;
-        info.role = testInfo.role;
-        info.executorType = testInfo.executorType;
+        info.executorRole = testInfo.executorRole;
+        info.executorSensorHint = testInfo.executorSensorHint;
+        info.executorMatcher = testInfo.executorMatcher;
         info.esl = testInfo.esl;
         info.publicKey.assign(testInfo.publicKey.begin(), testInfo.publicKey.end());
-        info.deviceId.assign(testInfo.deviceId.begin(), testInfo.deviceId.end());
         return ResultCode::SUCCESS;
     });
     auto executor = MakeShared<Executor>(executorMgrWrapper, executorHdi, testHdiId);
@@ -156,13 +155,14 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnFrameworkReadyTest_001, TestSize.L
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnFrameworkReadyTest_002, TestSize.Level0)
 {
     const uint16_t testHdiId = 5;
-    const ExecutorInfo testInfo = {.executorId = 10,
+    const ExecutorInfo testInfo = {
         .authType = static_cast<AuthType>(1),
-        .role = static_cast<ExecutorRole>(2),
-        .executorType = 2,
+        .executorRole = static_cast<ExecutorRole>(2),
+        .executorSensorHint = 10,
+        .executorMatcher = 2,
         .esl = static_cast<ExecutorSecureLevel>(4),
         .publicKey = {5, 6, 7},
-        .deviceId = {9, 10, 11}};
+    };
     auto executorMgrWrapper = MakeShared<MockExecutorMgrWrapper>();
     ASSERT_NE(executorMgrWrapper, nullptr);
     EXPECT_CALL(*executorMgrWrapper, Register(_, _)).Times(Exactly(0));
@@ -174,13 +174,14 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnFrameworkReadyTest_002, TestSize.L
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnFrameworkReadyTest_003, TestSize.Level0)
 {
     const uint16_t testHdiId = 5;
-    const ExecutorInfo testInfo = {.executorId = 10,
+    const ExecutorInfo testInfo = {
         .authType = static_cast<AuthType>(1),
-        .role = static_cast<ExecutorRole>(2),
-        .executorType = 2,
+        .executorRole = static_cast<ExecutorRole>(2),
+        .executorSensorHint = 10,
+        .executorMatcher = 2,
         .esl = static_cast<ExecutorSecureLevel>(4),
         .publicKey = {5, 6, 7},
-        .deviceId = {9, 10, 11}};
+    };
     auto executorMgrWrapper = MakeShared<MockExecutorMgrWrapper>();
     ASSERT_NE(executorMgrWrapper, nullptr);
     EXPECT_CALL(*executorMgrWrapper, Register(_, _)).Times(Exactly(0));
@@ -197,23 +198,23 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnFrameworkReadyTest_003, TestSize.L
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnFrameworkReadyTest_004, TestSize.Level0)
 {
     const uint16_t testHdiId = 5;
-    const ExecutorInfo testInfo = {.executorId = 10,
+    const ExecutorInfo testInfo = {
         .authType = static_cast<AuthType>(1),
-        .role = static_cast<ExecutorRole>(2),
-        .executorType = 2,
+        .executorRole = static_cast<ExecutorRole>(2),
+        .executorSensorHint = 10,
+        .executorMatcher = 2,
         .esl = static_cast<ExecutorSecureLevel>(4),
         .publicKey = {5, 6, 7},
-        .deviceId = {9, 10, 11}};
+    };
     auto executorHdi = MakeShared<MockIAuthExecutorHdi>();
     ASSERT_NE(executorHdi, nullptr);
     EXPECT_CALL(*executorHdi, GetExecutorInfo(_)).Times(Exactly(2)).WillRepeatedly([&testInfo](ExecutorInfo &info) {
-        info.executorId = testInfo.executorId;
+        info.executorSensorHint = testInfo.executorSensorHint;
         info.authType = testInfo.authType;
-        info.role = testInfo.role;
-        info.executorType = testInfo.executorType;
+        info.executorRole = testInfo.executorRole;
+        info.executorMatcher = testInfo.executorMatcher;
         info.esl = testInfo.esl;
         info.publicKey.assign(testInfo.publicKey.begin(), testInfo.publicKey.end());
-        info.deviceId.assign(testInfo.deviceId.begin(), testInfo.deviceId.end());
         return ResultCode::SUCCESS;
     });
     auto executor = MakeShared<Executor>(nullptr, executorHdi, testHdiId);
@@ -266,7 +267,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_GetDescriptionTest_001, TestSize.Lev
     auto executorHdi = MakeShared<MockIAuthExecutorHdi>();
     ASSERT_NE(executorHdi, nullptr);
     EXPECT_CALL(*executorHdi, GetExecutorInfo(_)).Times(Exactly(1)).WillOnce([&testExecutorId](ExecutorInfo &info) {
-        info.executorId = testExecutorId;
+        info.executorSensorHint = testExecutorId;
         return ResultCode::SUCCESS;
     });
     auto executor = MakeShared<Executor>(nullptr, executorHdi, testHdiId);
@@ -308,8 +309,8 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_GetDescriptionTest_003, TestSize.Lev
 }
 
 namespace {
-int32_t GetExecutorAndMockStub(shared_ptr<Executor> &executor, shared_ptr<ExecutorCallback> &executorCallback,
-    shared_ptr<MockIAuthExecutorHdi> &mockExecutorHdi, sptr<MockIExecutorMessenger> &mockMessenger)
+int32_t GetExecutorAndMockStub(shared_ptr<Executor> &executor, shared_ptr<ExecutorRegisterCallback> &executorCallback,
+    shared_ptr<MockIAuthExecutorHdi> &mockExecutorHdi, std::shared_ptr<MockIExecutorMessenger> &mockMessenger)
 {
     static const uint16_t testHdiId = 1;
     static std::vector<uint8_t> testPublicKey = {2, 3, 4, 5, 6};
@@ -319,11 +320,11 @@ int32_t GetExecutorAndMockStub(shared_ptr<Executor> &executor, shared_ptr<Execut
     IF_FALSE_EXPECT_FAIL_AND_RETURN_VAL(executorMgrWrapper != nullptr, ResultCode::GENERAL_ERROR);
     EXPECT_CALL(*executorMgrWrapper, Register(_, _))
         .Times(Exactly(1))
-        .WillOnce([&executorCallback, &mockMessenger](
-                      const ExecutorInfo &info, std::shared_ptr<AuthResPool::ExecutorCallback> callback) {
+        .WillOnce([&executorCallback, &mockMessenger](const ExecutorInfo &info,
+                      std::shared_ptr<ExecutorRegisterCallback> callback) {
             EXPECT_NE(callback, nullptr);
             executorCallback = callback;
-            sptr<MockIExecutorMessenger> messenger = new (nothrow) MockIExecutorMessenger();
+            auto messenger = MakeShared<MockIExecutorMessenger>();
             EXPECT_NE(messenger, nullptr);
             mockMessenger = messenger;
             executorCallback->OnMessengerReady(messenger, testPublicKey, testTemplateIdList);
@@ -358,9 +359,9 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_CommonErrorTest_001, 
     static const uint64_t testScheduleId = 456;
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -368,8 +369,8 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_CommonErrorTest_001, 
     EXPECT_CALL(*mockMessenger, Finish(_, _, _, _)).Times(Exactly(0));
 
     vector<uint8_t> uselessPublicKey;
-    // Error: commandAttrs is nullptr
-    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, nullptr);
+    Attributes attr;
+    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, attr);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
@@ -378,9 +379,9 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_CommonErrorTest_002, 
     static const uint64_t testScheduleId = 456;
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -391,7 +392,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_CommonErrorTest_002, 
     auto commandAttrs = MakeShared<Attributes>();
     ASSERT_NE(commandAttrs, nullptr);
     // Error: auth schedule mode not set
-    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, commandAttrs);
+    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, *commandAttrs);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
@@ -401,9 +402,9 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_CommonErrorTest_003, 
     static const uint32_t invalidScheduleMode = 78;
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -415,51 +416,51 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_CommonErrorTest_003, 
     ASSERT_NE(commandAttrs, nullptr);
     // Error: invalid auth schedule mode
     commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, invalidScheduleMode);
-    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, commandAttrs);
+    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, *commandAttrs);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_ExecutorDisconnectTest_001, TestSize.Level0)
 {
-    static const uint64_t testCallUid = 123;
+    static const uint64_t testTokenId = 123;
     static const uint64_t testScheduleId = 456;
     static const std::vector<uint8_t> testExtraInfo = {};
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
     EXPECT_CALL(*mockExecutorHdi, Enroll(_, _, _, _))
         .Times(Exactly(2))
         .WillRepeatedly(
-            [](uint64_t scheduleId, uint64_t callerUid, const std::vector<uint8_t> &extraInfo,
+            [](uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
                 const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) { return ResultCode::SUCCESS; });
 
     EXPECT_CALL(*mockMessenger, SendData(_, _, _, _, _)).Times(Exactly(0));
     EXPECT_CALL(*mockMessenger, Finish(_, _, _, _))
         .Times(Exactly(2))
-        .WillRepeatedly([](uint64_t scheduleId, int32_t srcType, int32_t resultCode,
-                            std::shared_ptr<UserIam::UserAuth::Attributes> finalResult) {
-            EXPECT_EQ(scheduleId, testScheduleId);
-            EXPECT_EQ(srcType, ALL_IN_ONE);
-            EXPECT_EQ(resultCode, ResultCode::GENERAL_ERROR);
-            std::vector<uint8_t> extraInfo;
-            EXPECT_EQ(finalResult->GetUint8ArrayValue(Attributes::ATTR_RESULT, extraInfo), true);
-            EXPECT_EQ(extraInfo, testExtraInfo);
-            return ResultCode::SUCCESS;
-        });
+        .WillRepeatedly(
+            [](uint64_t scheduleId, ExecutorRole srcRole, int32_t resultCode, const Attributes &finalResult) {
+                EXPECT_EQ(scheduleId, testScheduleId);
+                EXPECT_EQ(srcRole, static_cast<ExecutorRole>(ALL_IN_ONE));
+                EXPECT_EQ(resultCode, ResultCode::GENERAL_ERROR);
+                std::vector<uint8_t> extraInfo;
+                EXPECT_EQ(finalResult.GetUint8ArrayValue(Attributes::ATTR_RESULT, extraInfo), true);
+                EXPECT_EQ(extraInfo, testExtraInfo);
+                return ResultCode::SUCCESS;
+            });
 
     vector<uint8_t> uselessPublicKey;
     auto commandAttrs = MakeShared<Attributes>();
     ASSERT_NE(commandAttrs, nullptr);
     commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, ENROLL);
-    commandAttrs->SetUint64Value(Attributes::AttributeKey::ATTR_CALLER_UID, testCallUid);
-    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, commandAttrs);
+    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_ACCESS_TOKEN_ID, testTokenId);
+    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, *commandAttrs);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
-    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, commandAttrs);
+    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, *commandAttrs);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
     // Error: Simulate hdi disconnect
     executor->OnHdiDisconnect();
@@ -469,23 +470,23 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_ExecutorDisconnectTest_001, TestSize
 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_EnrollTest_001, TestSize.Level0)
 {
-    static const uint64_t testCallUid = 123;
+    static const uint64_t testTokenId = 123;
     static const uint64_t testScheduleId = 456;
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
     shared_ptr<UserAuth::IExecuteCallback> cmdCallback = nullptr;
     EXPECT_CALL(*mockExecutorHdi, Enroll(_, _, _, _))
         .Times(Exactly(1))
-        .WillOnce([&cmdCallback](uint64_t scheduleId, uint64_t callerUid, const std::vector<uint8_t> &extraInfo,
+        .WillOnce([&cmdCallback](uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
                       const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) {
             EXPECT_EQ(scheduleId, testScheduleId);
-            EXPECT_EQ(callerUid, testCallUid);
+            EXPECT_EQ(tokenId, testTokenId);
             cmdCallback = callbackObj;
             return ResultCode::SUCCESS;
         });
@@ -497,8 +498,8 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_EnrollTest_001, TestS
     auto commandAttrs = MakeShared<Attributes>();
     ASSERT_NE(commandAttrs, nullptr);
     commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, ENROLL);
-    commandAttrs->SetUint64Value(Attributes::AttributeKey::ATTR_CALLER_UID, testCallUid);
-    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, commandAttrs);
+    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_ACCESS_TOKEN_ID, testTokenId);
+    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, *commandAttrs);
     ASSERT_NE(cmdCallback, nullptr);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 }
@@ -508,9 +509,9 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_EnrollTest_002, TestS
     static const uint64_t testScheduleId = 456;
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -524,7 +525,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_EnrollTest_002, TestS
     ASSERT_NE(commandAttrs, nullptr);
     commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, ENROLL);
     // Error: missing Attributes::AttributeKey::ATTR_CALLER_UID
-    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, commandAttrs);
+    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, *commandAttrs);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
@@ -534,9 +535,9 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_EnrollTest_003, TestS
     static const uint64_t testScheduleId = 456;
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -552,20 +553,20 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_EnrollTest_003, TestS
     commandAttrs->SetUint64Value(Attributes::AttributeKey::ATTR_CALLER_UID, testCallUid);
     // Error: Executor is disconnected
     executor->OnHdiDisconnect();
-    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, commandAttrs);
+    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, *commandAttrs);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_001, TestSize.Level0)
 {
-    static const uint64_t testCallUid = 123;
+    static const uint64_t testTokenId = 123;
     static const uint64_t testScheduleId = 456;
     static const std::vector<uint64_t> testTemplateIdList = {7, 8, 9};
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -573,10 +574,10 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_001, TestSiz
     EXPECT_CALL(*mockExecutorHdi, Authenticate(_, _, _, _, _))
         .Times(Exactly(1))
         .WillOnce(
-            [&cmdCallback](uint64_t scheduleId, uint64_t callerUid, const std::vector<uint64_t> &templateIdList,
+            [&cmdCallback](uint64_t scheduleId, uint32_t tokenId, const std::vector<uint64_t> &templateIdList,
                 const std::vector<uint8_t> &extraInfo, const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) {
                 EXPECT_EQ(scheduleId, testScheduleId);
-                EXPECT_EQ(callerUid, testCallUid);
+                EXPECT_EQ(tokenId, testTokenId);
                 EXPECT_EQ(templateIdList, testTemplateIdList);
                 cmdCallback = callbackObj;
                 return ResultCode::SUCCESS;
@@ -590,8 +591,8 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_001, TestSiz
     ASSERT_NE(commandAttrs, nullptr);
     commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, AUTH);
     commandAttrs->SetUint64ArrayValue(Attributes::AttributeKey::ATTR_TEMPLATE_ID_LIST, testTemplateIdList);
-    commandAttrs->SetUint64Value(Attributes::AttributeKey::ATTR_CALLER_UID, testCallUid);
-    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, commandAttrs);
+    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_ACCESS_TOKEN_ID, testTokenId);
+    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, *commandAttrs);
     ASSERT_NE(cmdCallback, nullptr);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 }
@@ -601,9 +602,9 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_002, TestSiz
     static const uint64_t testScheduleId = 456;
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -617,7 +618,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_002, TestSiz
     ASSERT_NE(commandAttrs, nullptr);
     commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, AUTH);
     // Error: missing Attributes::AttributeKey::ATTR_TEMPLATE_ID_LIST
-    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, commandAttrs);
+    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, *commandAttrs);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
@@ -627,9 +628,9 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_003, TestSiz
     static const std::vector<uint64_t> testTemplateIdList = {7, 8, 9};
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -644,7 +645,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_003, TestSiz
     commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, AUTH);
     commandAttrs->SetUint64ArrayValue(Attributes::AttributeKey::ATTR_TEMPLATE_ID_LIST, testTemplateIdList);
     // Error: missing Attributes::AttributeKey::ATTR_CALLER_UID
-    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, commandAttrs);
+    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, *commandAttrs);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
@@ -655,9 +656,9 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_004, TestSiz
     static const std::vector<uint64_t> testTemplateIdList = {7, 8, 9};
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -674,29 +675,29 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_004, TestSiz
     commandAttrs->SetUint64Value(Attributes::AttributeKey::ATTR_CALLER_UID, testCallUid);
     // Error: Executor is disconnected
     executor->OnHdiDisconnect();
-    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, commandAttrs);
+    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, *commandAttrs);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_IdentifyTest_001, TestSize.Level0)
 {
-    static const uint64_t testCallUid = 123;
+    static const uint64_t testTokenId = 123;
     static const uint64_t testScheduleId = 456;
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
     shared_ptr<UserAuth::IExecuteCallback> cmdCallback = nullptr;
     EXPECT_CALL(*mockExecutorHdi, Identify(_, _, _, _))
         .Times(Exactly(1))
-        .WillOnce([&cmdCallback](uint64_t scheduleId, uint64_t callerUid, const std::vector<uint8_t> &extraInfo,
+        .WillOnce([&cmdCallback](uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
                       const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) {
             EXPECT_EQ(scheduleId, testScheduleId);
-            EXPECT_EQ(callerUid, testCallUid);
+            EXPECT_EQ(tokenId, testTokenId);
             cmdCallback = callbackObj;
             return ResultCode::SUCCESS;
         });
@@ -708,8 +709,8 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_IdentifyTest_001, Tes
     auto commandAttrs = MakeShared<Attributes>();
     ASSERT_NE(commandAttrs, nullptr);
     commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, IDENTIFY);
-    commandAttrs->SetUint64Value(Attributes::AttributeKey::ATTR_CALLER_UID, testCallUid);
-    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, commandAttrs);
+    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_ACCESS_TOKEN_ID, testTokenId);
+    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, *commandAttrs);
     ASSERT_NE(cmdCallback, nullptr);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 }
@@ -719,9 +720,9 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_IdentifyTest_002, Tes
     static const uint64_t testScheduleId = 456;
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -735,7 +736,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_IdentifyTest_002, Tes
     ASSERT_NE(commandAttrs, nullptr);
     commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, IDENTIFY);
     // Error: missing Attributes::AttributeKey::ATTR_CALLER_UID
-    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, commandAttrs);
+    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, *commandAttrs);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
@@ -745,9 +746,9 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_IdentifyTest_003, Tes
     static const uint64_t testScheduleId = 456;
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -763,7 +764,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_IdentifyTest_003, Tes
     commandAttrs->SetUint64Value(Attributes::AttributeKey::ATTR_CALLER_UID, testCallUid);
     // Error: Executor is disconnected
     executor->OnHdiDisconnect();
-    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, commandAttrs);
+    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, *commandAttrs);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
@@ -772,9 +773,9 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnEndExecute_Success, TestSize.Level
     static const uint64_t testScheduleId = 456;
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -785,7 +786,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnEndExecute_Success, TestSize.Level
 
     auto commandAttrs = MakeShared<Attributes>();
     ASSERT_NE(commandAttrs, nullptr);
-    ret = executorCallback->OnEndExecute(testScheduleId, commandAttrs);
+    ret = executorCallback->OnEndExecute(testScheduleId, *commandAttrs);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 }
 
@@ -794,9 +795,9 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnEndExecute_ErrorTest_001, TestSize
     static const uint64_t testScheduleId = 456;
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -808,7 +809,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnEndExecute_ErrorTest_001, TestSize
 
     auto commandAttrs = MakeShared<Attributes>();
     ASSERT_NE(commandAttrs, nullptr);
-    ret = executorCallback->OnEndExecute(testScheduleId, commandAttrs);
+    ret = executorCallback->OnEndExecute(testScheduleId, *commandAttrs);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
@@ -817,9 +818,9 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnEndExecute_ErrorTest_002, TestSize
     static const uint64_t testScheduleId = 456;
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -829,25 +830,18 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnEndExecute_ErrorTest_002, TestSize
     ASSERT_NE(commandAttrs, nullptr);
     // Error: Executor is disconnected
     executor->OnHdiDisconnect();
-    ret = executorCallback->OnEndExecute(testScheduleId, commandAttrs);
+    ret = executorCallback->OnEndExecute(testScheduleId, *commandAttrs);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnEndExecute_ErrorTest_003, TestSize.Level0)
 {
-    static const uint64_t testScheduleId = 456;
-
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
-
-    EXPECT_CALL(*mockExecutorHdi, Cancel(_)).Times(Exactly(0));
-    // Error: commandAttrs is nullptr
-    ret = executorCallback->OnEndExecute(testScheduleId, nullptr);
-    ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnGetPropertyTest_001, TestSize.Level0)
@@ -858,9 +852,9 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnGetPropertyTest_001, TestSize.Leve
     static const uint64_t testAuthSubType = 101112;
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -876,11 +870,11 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnGetPropertyTest_001, TestSize.Leve
 
     auto conditions = MakeShared<Attributes>();
     ASSERT_NE(conditions, nullptr);
-    conditions->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERMODE_GET);
+    conditions->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_GET);
     conditions->SetUint64Value(Attributes::ATTR_TEMPLATE_ID, testTemplateId);
     auto values = MakeShared<Attributes>();
     ASSERT_NE(values, nullptr);
-    ret = executorCallback->OnGetProperty(conditions, values);
+    ret = executorCallback->OnGetProperty(*conditions, *values);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
     uint64_t pinAuthSubType;
     ASSERT_EQ(values->GetUint64Value(Attributes::ATTR_PIN_SUB_TYPE, pinAuthSubType), true);
@@ -898,9 +892,9 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnGetPropertyTest_002, TestSize.Leve
     static const uint64_t testTemplateId = 123;
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -912,16 +906,16 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnGetPropertyTest_002, TestSize.Leve
     conditions->SetUint64Value(Attributes::ATTR_TEMPLATE_ID, testTemplateId);
     auto values = MakeShared<Attributes>();
     ASSERT_NE(values, nullptr);
-    ret = executorCallback->OnGetProperty(conditions, values);
+    ret = executorCallback->OnGetProperty(*conditions, *values);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnGetPropertyTest_003, TestSize.Level0)
 {
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -929,20 +923,20 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnGetPropertyTest_003, TestSize.Leve
 
     auto conditions = MakeShared<Attributes>();
     ASSERT_NE(conditions, nullptr);
-    conditions->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERMODE_GET);
+    conditions->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_GET);
     // Error: missing ATTR_TEMPLATE_ID
     auto values = MakeShared<Attributes>();
     ASSERT_NE(values, nullptr);
-    ret = executorCallback->OnGetProperty(conditions, values);
+    ret = executorCallback->OnGetProperty(*conditions, *values);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnGetPropertyTest_004, TestSize.Level0)
 {
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -950,11 +944,11 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnGetPropertyTest_004, TestSize.Leve
 
     auto conditions = MakeShared<Attributes>();
     ASSERT_NE(conditions, nullptr);
-    conditions->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERMODE_GET);
+    conditions->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_GET);
     // Error: missing ATTR_TEMPLATE_ID
     auto values = MakeShared<Attributes>();
     ASSERT_NE(values, nullptr);
-    ret = executorCallback->OnGetProperty(conditions, values);
+    ret = executorCallback->OnGetProperty(*conditions, *values);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
@@ -963,9 +957,9 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnGetPropertyTest_005, TestSize.Leve
     static const uint64_t testTemplateId = 123;
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -974,25 +968,25 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnGetPropertyTest_005, TestSize.Leve
     auto conditions = MakeShared<Attributes>();
     ASSERT_NE(conditions, nullptr);
     // Error: invalid ATTR_PROPERTY_MODE
-    conditions->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERMODE_GET + 1);
+    conditions->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_GET + 1);
     conditions->SetUint64Value(Attributes::ATTR_TEMPLATE_ID, testTemplateId);
     auto values = MakeShared<Attributes>();
     ASSERT_NE(values, nullptr);
-    ret = executorCallback->OnGetProperty(conditions, values);
+    ret = executorCallback->OnGetProperty(*conditions, *values);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
     // Error: invalid ATTR_PROPERTY_MODE
-    conditions->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERMODE_GET - 1);
+    conditions->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_GET - 1);
     conditions->SetUint64Value(Attributes::ATTR_TEMPLATE_ID, testTemplateId);
-    ret = executorCallback->OnGetProperty(conditions, values);
+    ret = executorCallback->OnGetProperty(*conditions, *values);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnGetPropertyTest_006, TestSize.Level0)
 {
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -1001,16 +995,16 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnGetPropertyTest_006, TestSize.Leve
     // Error: conditions is nullptr
     auto values = MakeShared<Attributes>();
     ASSERT_NE(values, nullptr);
-    ret = executorCallback->OnGetProperty(nullptr, values);
+    ret = executorCallback->OnGetProperty(*values, *values);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnGetPropertyTest_007, TestSize.Level0)
 {
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -1018,9 +1012,10 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnGetPropertyTest_007, TestSize.Leve
 
     auto conditions = MakeShared<Attributes>();
     ASSERT_NE(conditions, nullptr);
-    conditions->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERMODE_GET);
-    // Error: values is nullptr
-    ret = executorCallback->OnGetProperty(conditions, nullptr);
+    conditions->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_GET);
+
+    Attributes attr;
+    ret = executorCallback->OnGetProperty(*conditions, attr);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
@@ -1029,9 +1024,9 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnGetPropertyTest_008, TestSize.Leve
     static const uint64_t testTemplateId = 123;
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -1044,24 +1039,24 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnGetPropertyTest_008, TestSize.Leve
 
     auto conditions = MakeShared<Attributes>();
     ASSERT_NE(conditions, nullptr);
-    conditions->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERMODE_GET);
+    conditions->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_GET);
     conditions->SetUint64Value(Attributes::ATTR_TEMPLATE_ID, testTemplateId);
     auto values = MakeShared<Attributes>();
     ASSERT_NE(values, nullptr);
-    ret = executorCallback->OnGetProperty(conditions, values);
+    ret = executorCallback->OnGetProperty(*conditions, *values);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_General, TestSize.Level0)
 {
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
-
-    ret = executorCallback->OnSetProperty(nullptr);
+    Attributes attr;
+    ret = executorCallback->OnSetProperty(attr);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
@@ -1070,9 +1065,9 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_DeleteTemplateTest_001
     static const uint64_t testTemplateId = 123;
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -1086,18 +1081,18 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_DeleteTemplateTest_001
 
     auto property = MakeShared<Attributes>();
     ASSERT_NE(property, nullptr);
-    property->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERMODE_DELETE);
+    property->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_DEL);
     property->SetUint64Value(Attributes::ATTR_TEMPLATE_ID, testTemplateId);
-    ret = executorCallback->OnSetProperty(property);
+    ret = executorCallback->OnSetProperty(*property);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 }
 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_DeleteTemplateTest_002, TestSize.Level0)
 {
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -1105,9 +1100,9 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_DeleteTemplateTest_002
 
     auto property = MakeShared<Attributes>();
     ASSERT_NE(property, nullptr);
-    property->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERMODE_DELETE);
+    property->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_DEL);
     // Error: missing template id
-    ret = executorCallback->OnSetProperty(property);
+    ret = executorCallback->OnSetProperty(*property);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
@@ -1116,9 +1111,9 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_DeleteTemplateTest_003
     static const uint64_t testTemplateId = 123;
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -1126,11 +1121,11 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_DeleteTemplateTest_003
 
     auto property = MakeShared<Attributes>();
     ASSERT_NE(property, nullptr);
-    property->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERMODE_DELETE);
+    property->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_DEL);
     property->SetUint64Value(Attributes::ATTR_TEMPLATE_ID, testTemplateId);
     // Error: Executor is disconnected
     executor->OnHdiDisconnect();
-    ret = executorCallback->OnSetProperty(property);
+    ret = executorCallback->OnSetProperty(*property);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
@@ -1139,9 +1134,9 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_DeleteTemplateTest_004
     static const uint64_t testTemplateId = 123;
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -1156,9 +1151,9 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_DeleteTemplateTest_004
 
     auto property = MakeShared<Attributes>();
     ASSERT_NE(property, nullptr);
-    property->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERMODE_DELETE);
+    property->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_DEL);
     property->SetUint64Value(Attributes::ATTR_TEMPLATE_ID, testTemplateId);
-    ret = executorCallback->OnSetProperty(property);
+    ret = executorCallback->OnSetProperty(*property);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
@@ -1169,22 +1164,22 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_001,
     static std::thread t;
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
     EXPECT_CALL(*mockExecutorHdi, SendCommand(_, _, _))
         .Times(Exactly(2))
-        .WillOnce([](UserAuth::AuthPropertyMode commandId, const std::vector<uint8_t> &extraInfo,
+        .WillOnce([](UserAuth::PropertyMode commandId, const std::vector<uint8_t> &extraInfo,
                       const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) {
             EXPECT_EQ(static_cast<int32_t>(commandId), testCommandId);
             EXPECT_EQ(extraInfo, testExtraInfo);
             callbackObj->OnResult(ResultCode::SUCCESS, {});
             return ResultCode::SUCCESS;
         })
-        .WillOnce([](UserAuth::AuthPropertyMode commandId, const std::vector<uint8_t> &extraInfo,
+        .WillOnce([](UserAuth::PropertyMode commandId, const std::vector<uint8_t> &extraInfo,
                       const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) {
             EXPECT_EQ(static_cast<int32_t>(commandId), testCommandId);
             EXPECT_EQ(extraInfo, testExtraInfo);
@@ -1200,9 +1195,9 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_001,
     ASSERT_NE(property, nullptr);
     property->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, testCommandId);
     property->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, testExtraInfo);
-    ret = executorCallback->OnSetProperty(property);
+    ret = executorCallback->OnSetProperty(*property);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
-    ret = executorCallback->OnSetProperty(property);
+    ret = executorCallback->OnSetProperty(*property);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
     t.join();
 }
@@ -1213,15 +1208,15 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_002,
     static const std::vector<uint8_t> testExtraInfo = {4, 5, 6};
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
     EXPECT_CALL(*mockExecutorHdi, SendCommand(_, _, _))
         .Times(Exactly(1))
-        .WillOnce([](UserAuth::AuthPropertyMode commandId, const std::vector<uint8_t> &extraInfo,
+        .WillOnce([](UserAuth::PropertyMode commandId, const std::vector<uint8_t> &extraInfo,
                       const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) {
             EXPECT_EQ(static_cast<int32_t>(commandId), testCommandId);
             EXPECT_EQ(extraInfo, testExtraInfo);
@@ -1233,7 +1228,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_002,
     ASSERT_NE(property, nullptr);
     property->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, testCommandId);
     property->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, testExtraInfo);
-    ret = executorCallback->OnSetProperty(property);
+    ret = executorCallback->OnSetProperty(*property);
     ASSERT_EQ(ret, ResultCode::TIMEOUT);
 }
 
@@ -1243,15 +1238,15 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_003,
     static const std::vector<uint8_t> testExtraInfo = {4, 5, 6};
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
     EXPECT_CALL(*mockExecutorHdi, SendCommand(_, _, _))
         .Times(Exactly(1))
-        .WillOnce([](UserAuth::AuthPropertyMode commandId, const std::vector<uint8_t> &extraInfo,
+        .WillOnce([](UserAuth::PropertyMode commandId, const std::vector<uint8_t> &extraInfo,
                       const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) {
             EXPECT_EQ(static_cast<int32_t>(commandId), testCommandId);
             EXPECT_EQ(extraInfo, testExtraInfo);
@@ -1264,7 +1259,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_003,
     ASSERT_NE(property, nullptr);
     property->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, testCommandId);
     property->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, testExtraInfo);
-    ret = executorCallback->OnSetProperty(property);
+    ret = executorCallback->OnSetProperty(*property);
     ASSERT_EQ(ret, ResultCode::TYPE_NOT_SUPPORT);
 }
 
@@ -1274,15 +1269,15 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_004,
     static const std::vector<uint8_t> testExtraInfo = {4, 5, 6};
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
     EXPECT_CALL(*mockExecutorHdi, SendCommand(_, _, _))
         .Times(Exactly(1))
-        .WillOnce([](UserAuth::AuthPropertyMode commandId, const std::vector<uint8_t> &extraInfo,
+        .WillOnce([](UserAuth::PropertyMode commandId, const std::vector<uint8_t> &extraInfo,
                       const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) {
             EXPECT_EQ(static_cast<int32_t>(commandId), testCommandId);
             EXPECT_EQ(extraInfo, testExtraInfo);
@@ -1294,7 +1289,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_004,
     ASSERT_NE(property, nullptr);
     property->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, testCommandId);
     property->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, testExtraInfo);
-    ret = executorCallback->OnSetProperty(property);
+    ret = executorCallback->OnSetProperty(*property);
     ASSERT_EQ(ret, ResultCode::TYPE_NOT_SUPPORT);
 }
 
@@ -1303,9 +1298,9 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_005,
     static const int32_t testCommandId = 123;
 
     shared_ptr<Executor> executor;
-    shared_ptr<ExecutorCallback> executorCallback;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
-    sptr<MockIExecutorMessenger> mockMessenger;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
@@ -1315,7 +1310,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_005,
     ASSERT_NE(property, nullptr);
     property->SetUint32Value(Attributes::ATTR_PROPERTY_MODE, testCommandId);
     // Error: ATTR_EXTRA_INFO not set
-    ret = executorCallback->OnSetProperty(property);
+    ret = executorCallback->OnSetProperty(*property);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 } // namespace UserAuth

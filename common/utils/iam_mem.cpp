@@ -15,6 +15,10 @@
  */
 
 #include "iam_mem.h"
+
+#include <cstdint>
+#include <vector>
+
 #include "securec.h"
 
 #define LOG_LABEL LABEL_IAM_COMMON

@@ -13,18 +13,18 @@
  * limitations under the License.
  */
 
-#ifndef EXECUTOR_CALLBACK_H
-#define EXECUTOR_CALLBACK_H
-
-#include "executor_messenger.h"
+#ifndef EXECUTOR_CALLBACK_INTERFACE_H
+#define EXECUTOR_CALLBACK_INTERFACE_H
 
 #include <cstdint>
-#include <iremote_broker.h>
 
+#include "iremote_broker.h"
+
+#include "executor_messenger_interface.h"
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class ExecutorCallback : public IRemoteBroker {
+class ExecutorCallbackInterface : public IRemoteBroker {
 public:
     /* Message ID */
     enum : uint32_t {
@@ -34,7 +34,7 @@ public:
         ON_SET_PROPERTY,
         ON_GET_PROPERTY,
     };
-    virtual void OnMessengerReady(sptr<ExecutorMessenger> &messenger, const std::vector<uint8_t> &publicKey,
+    virtual void OnMessengerReady(sptr<ExecutorMessengerInterface> &messenger, const std::vector<uint8_t> &publicKey,
         const std::vector<uint64_t> &templateIdList) = 0;
     virtual int32_t OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
         const Attributes &command) = 0;
@@ -46,4 +46,4 @@ public:
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // EXECUTOR_CALLBACK_H
+#endif // EXECUTOR_CALLBACK_INTERFACE_H

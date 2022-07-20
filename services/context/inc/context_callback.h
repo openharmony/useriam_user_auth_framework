@@ -24,10 +24,10 @@
 #include <singleton.h>
 #include <vector>
 
-#include "iam_defines.h"
 #include "context.h"
-#include "user_auth_callback.h"
-#include "user_idm_callback.h"
+#include "iam_defines.h"
+#include "user_auth_callback_interface.h"
+#include "user_idm_callback_interface.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -57,8 +57,9 @@ private:
 
 class ContextCallback {
 public:
-    static std::shared_ptr<ContextCallback> NewInstance(sptr<IdmCallback> idmCallback, OperationType operationType);
-    static std::shared_ptr<ContextCallback> NewInstance(sptr<UserAuthCallback> userAuthCallback,
+    static std::shared_ptr<ContextCallback> NewInstance(sptr<IdmCallbackInterface> idmCallback,
+        OperationType operationType);
+    static std::shared_ptr<ContextCallback> NewInstance(sptr<UserAuthCallbackInterface> userAuthCallback,
         OperationType operationType);
     virtual ~ContextCallback() = default;
     virtual void onAcquireInfo(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg) const = 0;

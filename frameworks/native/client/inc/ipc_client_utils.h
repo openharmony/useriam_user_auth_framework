@@ -13,29 +13,19 @@
  * limitations under the License.
  */
 
-#ifndef CO_AUTH_H
-#define CO_AUTH_H
+#ifndef IPC_CLIENT_UTILS_H
+#define IPC_CLIENT_UTILS_H
 
-#include "executor_callback.h"
-#include "iam_types.h"
-#include "refbase.h"
-
-#include <cstdint>
-#include <iremote_broker.h>
+#include "iremote_object.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class CoAuth : public IRemoteBroker {
+class IpcClientUtils {
 public:
-    /* Message ID */
-    enum : uint32_t {
-        CO_AUTH_EXECUTOR_REGISTER = 0,
-    };
-    virtual uint64_t ExecutorRegister(const ExecutorRegisterInfo &info, sptr<ExecutorCallback> &callback) = 0;
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.CoAuth.ICoAuth");
+    static sptr<IRemoteObject> GetRemoteObject(int32_t saId);
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // CO_AUTH_H
+#endif // IPC_CLIENT_UTILS_H

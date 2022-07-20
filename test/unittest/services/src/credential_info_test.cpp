@@ -38,7 +38,7 @@ void CredentialInfoTest::TearDown()
 {
 }
 
-HWTEST_F(CredentialInfoTest, GetCredentialId, TestSize.Level1)
+HWTEST_F(CredentialInfoTest, GetCredentialId, TestSize.Level0)
 {
     int32_t userId = 100;
     HdiCredential info = {
@@ -55,7 +55,7 @@ HWTEST_F(CredentialInfoTest, GetCredentialId, TestSize.Level1)
     EXPECT_EQ(ret, info.credentialId);
 }
 
-HWTEST_F(CredentialInfoTest, GetUserId, TestSize.Level1)
+HWTEST_F(CredentialInfoTest, GetUserId, TestSize.Level0)
 {
     int32_t userId = 100;
     HdiCredential info = {
@@ -71,7 +71,7 @@ HWTEST_F(CredentialInfoTest, GetUserId, TestSize.Level1)
     EXPECT_EQ(ret, userId);
 }
 
-HWTEST_F(CredentialInfoTest, GetExecutorIndex, TestSize.Level1)
+HWTEST_F(CredentialInfoTest, GetExecutorIndex, TestSize.Level0)
 {
     int32_t userId = 100;
     HdiCredential info = {
@@ -87,7 +87,7 @@ HWTEST_F(CredentialInfoTest, GetExecutorIndex, TestSize.Level1)
     EXPECT_EQ(ret, info.executorIndex);
 }
 
-HWTEST_F(CredentialInfoTest, GetTemplateId, TestSize.Level1)
+HWTEST_F(CredentialInfoTest, GetTemplateId, TestSize.Level0)
 {
     int32_t userId = 100;
     HdiCredential info = {
@@ -103,7 +103,7 @@ HWTEST_F(CredentialInfoTest, GetTemplateId, TestSize.Level1)
     EXPECT_EQ(ret, info.templateId);
 }
 
-HWTEST_F(CredentialInfoTest, GetAuthType, TestSize.Level1)
+HWTEST_F(CredentialInfoTest, GetAuthType, TestSize.Level0)
 {
     int32_t userId = 100;
     HdiCredential info = {
@@ -119,7 +119,7 @@ HWTEST_F(CredentialInfoTest, GetAuthType, TestSize.Level1)
     EXPECT_EQ(static_cast<uint32_t>(ret), static_cast<uint32_t>(info.authType));
 }
 
-HWTEST_F(CredentialInfoTest, GetExecutorSensorHint, TestSize.Level1)
+HWTEST_F(CredentialInfoTest, GetExecutorSensorHint, TestSize.Level0)
 {
     int32_t userId = 100;
     HdiCredential info = {
@@ -135,7 +135,7 @@ HWTEST_F(CredentialInfoTest, GetExecutorSensorHint, TestSize.Level1)
     EXPECT_EQ(ret, info.executorSensorHint);
 }
 
-HWTEST_F(CredentialInfoTest, GetExecutorMatcher, TestSize.Level1)
+HWTEST_F(CredentialInfoTest, GetExecutorMatcher, TestSize.Level0)
 {
     int32_t userId = 100;
     HdiCredential info = {
