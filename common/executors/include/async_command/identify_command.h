@@ -25,8 +25,7 @@ namespace UserIAM {
 namespace UserAuth {
 class IdentifyCommand : public AsyncCommandBase {
 public:
-    IdentifyCommand(std::weak_ptr<Executor> executor, uint64_t scheduleId,
-        std::shared_ptr<UserIam::UserAuth::Attributes> commandAttrs,
+    IdentifyCommand(std::weak_ptr<Executor> executor, uint64_t scheduleId, const Attributes &commandAttrs,
         std::shared_ptr<ExecutorMessenger> executorMessenger);
     ~IdentifyCommand() override = default;
 

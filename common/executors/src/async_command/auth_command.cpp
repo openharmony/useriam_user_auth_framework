@@ -29,9 +29,9 @@ namespace UserIAM {
 namespace UserAuth {
 using namespace OHOS::UserIam::UserAuth;
 AuthCommand::AuthCommand(std::weak_ptr<Executor> executor, uint64_t scheduleId,
-    std::shared_ptr<UserIam::UserAuth::Attributes> attributes, std::shared_ptr<ExecutorMessenger> executorMessenger)
+    const Attributes &attributes, std::shared_ptr<ExecutorMessenger> executorMessenger)
     : AsyncCommandBase("AUTH", scheduleId, executor, executorMessenger),
-      attributes_(attributes),
+      attributes_(Common::MakeShared<UserIam::UserAuth::Attributes>(attributes.Serialize())),
       iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("AuthCommand"))
 {
 }
@@ -39,7 +39,6 @@ AuthCommand::AuthCommand(std::weak_ptr<Executor> executor, uint64_t scheduleId,
 ResultCode AuthCommand::SendRequest()
 {
     IAM_LOGI("%{public}s send request start", GetDescription());
-    IF_FALSE_LOGE_AND_RETURN_VAL(attributes_ != nullptr, ResultCode::GENERAL_ERROR);
     auto hdi = GetExecutorHdi();
     IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, ResultCode::GENERAL_ERROR);
 
