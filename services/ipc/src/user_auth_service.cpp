@@ -24,7 +24,7 @@
 #include "iam_logger.h"
 #include "iam_ptr.h"
 #include "ipc_common.h"
-#include "result_code.h"
+#include "iam_common_defines.h"
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
 
 namespace OHOS {

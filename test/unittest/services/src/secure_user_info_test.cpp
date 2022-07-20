@@ -14,8 +14,10 @@
  */
 
 #include "secure_user_info_test.h"
-#include "iam_types.h"
+
+#include "iam_common_defines.h"
 #include "secure_user_info_impl.h"
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {

@@ -26,12 +26,13 @@
 #include "hisysevent_adapter.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
+#include "iam_para2str.h"
 #include "ipc_common.h"
 #include "iam_time.h"
+#include "iam_common_defines.h"
 #include "parameter.h"
 #include "relative_timer.h"
 #include "resource_node_pool.h"
-#include "result_code.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
 
@@ -140,7 +141,7 @@ int CoAuthService::Dump(int fd, const std::vector<std::u16string> &args)
             auto nodeTmp = node.lock();
             if (nodeTmp != nullptr) {
                 dprintf(fd, "ExecutorIndex is: %" PRIx64 ".\n", nodeTmp->GetExecutorIndex());
-                dprintf(fd, "ExecutorType is: %s.\n", AuthTypeToStr(nodeTmp->GetAuthType()));
+                dprintf(fd, "ExecutorType is: %s.\n", UserIAM::Common::AuthTypeToStr(nodeTmp->GetAuthType()));
             }
         });
         return SUCCESS;
