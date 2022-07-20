@@ -45,6 +45,7 @@ ohos_fuzztest("UserIdmServiceFuzzTest") {
 
   deps = [
     "//base/useriam/user_auth_framework/common:iam_test",
+    "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
     "//base/useriam/user_auth_framework/services:userauthservice",
   ]
 

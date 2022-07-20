@@ -38,13 +38,13 @@ public:
     void OnStop() override;
     int32_t GetAvailableStatus(AuthType authType, AuthTrustLevel authTrustLevel) override;
     void GetProperty(std::optional<int32_t> userId, AuthType authType,
-        const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallback> &callback) override;
+        const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallbackInterface> &callback) override;
     void SetProperty(std::optional<int32_t> userId, AuthType authType, const Attributes &attributes,
-        sptr<SetExecutorPropertyCallback> &callback) override;
+        sptr<SetExecutorPropertyCallbackInterface> &callback) override;
     uint64_t AuthUser(std::optional<int32_t> userId, const std::vector<uint8_t> &challenge, AuthType authType,
-        AuthTrustLevel authTrustLevel, sptr<UserAuthCallback> &callback) override;
+        AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) override;
     uint64_t Identify(const std::vector<uint8_t> &challenge, AuthType authType,
-        sptr<UserAuthCallback> &callback) override;
+        sptr<UserAuthCallbackInterface> &callback) override;
     int32_t CancelAuthOrIdentify(uint64_t contextId) override;
     int32_t GetVersion() override;
 };

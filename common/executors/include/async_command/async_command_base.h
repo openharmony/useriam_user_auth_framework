@@ -20,22 +20,21 @@
 
 #include "nocopyable.h"
 
-#include "iam_defines.h"
-#include "co_auth_defines.h"
+#include "co_auth_client_defines.h"
 #include "executor.h"
-#include "iexecutor_messenger.h"
+#include "iam_common_defines.h"
+#include "iam_defines.h"
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-using namespace AuthResPool;
 class AsyncCommandBase : public std::enable_shared_from_this<AsyncCommandBase>,
                          public IAsyncCommand,
                          public IExecuteCallback,
                          public NoCopyable {
 public:
     AsyncCommandBase(std::string type, uint64_t scheduleId, std::weak_ptr<Executor> executor,
-        sptr<IExecutorMessenger> executorMessenger);
+        std::shared_ptr<ExecutorMessenger> executorMessenger);
     ~AsyncCommandBase() override = default;
 
     void OnHdiDisconnect() override;
@@ -51,9 +50,9 @@ protected:
     virtual void OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo) = 0;
     virtual void OnAcquireInfoInner(int32_t acquire, const std::vector<uint8_t> &extraInfo) = 0;
     std::shared_ptr<IAuthExecutorHdi> GetExecutorHdi();
-    int32_t MessengerSendData(
-        uint64_t scheduleId, uint64_t transNum, int32_t srcType, int32_t dstType, std::shared_ptr<AuthMessage> msg);
-    int32_t MessengerFinish(uint64_t scheduleId, int32_t srcType, int32_t resultCode,
+    int32_t MessengerSendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcType, ExecutorRole dstType,
+        std::shared_ptr<AuthMessage> msg);
+    int32_t MessengerFinish(uint64_t scheduleId, ExecutorRole srcType, int32_t resultCode,
         std::shared_ptr<UserIam::UserAuth::Attributes> finalResult);
 
     const char *GetDescription();
@@ -63,7 +62,7 @@ private:
     void EndProcess();
     std::string description_;
     std::weak_ptr<Executor> executor_;
-    sptr<IExecutorMessenger> executorMessenger_;
+    std::shared_ptr<ExecutorMessenger> executorMessenger_;
     std::mutex mutex_;
     bool isFinished_ = false;
 };

@@ -18,15 +18,15 @@
 
 #include <iremote_proxy.h>
 
-#include "user_auth_callback.h"
-#include "user_idm_callback.h"
+#include "user_auth_callback_interface.h"
+#include "user_idm_callback_interface.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class IdmCallbackProxy : public IRemoteProxy<IdmCallback>, public NoCopyable {
+class IdmCallbackProxy : public IRemoteProxy<IdmCallbackInterface>, public NoCopyable {
 public:
-    explicit IdmCallbackProxy(const sptr<IRemoteObject> &object) : IRemoteProxy<IdmCallback>(object)
+    explicit IdmCallbackProxy(const sptr<IRemoteObject> &object) : IRemoteProxy<IdmCallbackInterface>(object)
     {
     }
     ~IdmCallbackProxy() override = default;
@@ -38,10 +38,10 @@ private:
     static inline BrokerDelegator<IdmCallbackProxy> delegator_;
 };
 
-class IdmGetCredentialInfoProxy : public IRemoteProxy<IdmGetCredentialInfoCallback>, public NoCopyable {
+class IdmGetCredentialInfoProxy : public IRemoteProxy<IdmGetCredInfoCallbackInterface>, public NoCopyable {
 public:
     explicit IdmGetCredentialInfoProxy(const sptr<IRemoteObject> &object)
-        : IRemoteProxy<IdmGetCredentialInfoCallback>(object)
+        : IRemoteProxy<IdmGetCredInfoCallbackInterface>(object)
     {
     }
     ~IdmGetCredentialInfoProxy() override = default;
@@ -53,10 +53,10 @@ private:
     static inline BrokerDelegator<IdmGetCredentialInfoProxy> delegator_;
 };
 
-class IdmGetSecureUserInfoProxy : public IRemoteProxy<IdmGetSecureUserInfoCallback>, public NoCopyable {
+class IdmGetSecureUserInfoProxy : public IRemoteProxy<IdmGetSecureUserInfoCallbackInterface>, public NoCopyable {
 public:
     explicit IdmGetSecureUserInfoProxy(const sptr<IRemoteObject> &object)
-        : IRemoteProxy<IdmGetSecureUserInfoCallback>(object)
+        : IRemoteProxy<IdmGetSecureUserInfoCallbackInterface>(object)
     {
     }
     ~IdmGetSecureUserInfoProxy() override = default;

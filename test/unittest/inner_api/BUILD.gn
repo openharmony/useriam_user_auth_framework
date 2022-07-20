@@ -18,7 +18,6 @@ ohos_unittest("iam_inner_api_test") {
   include_dirs = [
     "inc",
     "//base/useriam/user_auth_framework/common/logs",
-    "//base/useriam/user_auth_framework/dfx/inc",
     "//base/useriam/user_auth_framework/frameworks/legacy/framework_old/inc",
     "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/user_idm",
   ]
@@ -31,7 +30,10 @@ ohos_unittest("iam_inner_api_test") {
     "src/useridm_ut_test.cpp",
   ]
 
-  deps = [ "//base/useriam/user_auth_framework/frameworks/legacy/framework_old:framework_legacy" ]
+  deps = [
+    "//base/useriam/user_auth_framework/frameworks/legacy/framework_old:framework_legacy",
+    "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
+  ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",

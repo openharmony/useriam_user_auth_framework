@@ -16,17 +16,24 @@
 #include "custom_command.h"
 
 #include <chrono>
+#include <cstdint>
+#include <future>
+#include <string>
 
+#include "refbase.h"
+
+#include "framework_types.h"
 #include "iam_check.h"
 #include "iam_logger.h"
+#include "iauth_executor_hdi.h"
 
 #define LOG_LABEL Common::LABEL_USER_AUTH_EXECUTOR
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-CustomCommand::CustomCommand(
-    std::weak_ptr<Executor> executor, std::shared_ptr<UserIam::UserAuth::Attributes> attributes)
+using namespace UserIam::UserAuth;
+CustomCommand::CustomCommand(std::weak_ptr<Executor> executor, std::shared_ptr<Attributes> attributes)
     : AsyncCommandBase("CUSTOM", 0, executor, nullptr),
       attributes_(attributes)
 {
@@ -36,23 +43,25 @@ ResultCode CustomCommand::SendRequest()
 {
     IAM_LOGI("%{public}s send request start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN_VAL(attributes_ != nullptr, ResultCode::GENERAL_ERROR);
+
     auto hdi = GetExecutorHdi();
     IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, ResultCode::GENERAL_ERROR);
 
     future_ = promise_.get_future();
     uint32_t commandId = 0;
-    bool getAuthPropertyModeRet =
-        attributes_->GetUint32Value(UserIam::UserAuth::Attributes::ATTR_PROPERTY_MODE, commandId);
+    bool getAuthPropertyModeRet = attributes_->GetUint32Value(Attributes::ATTR_PROPERTY_MODE, commandId);
     IF_FALSE_LOGE_AND_RETURN_VAL(getAuthPropertyModeRet == true, ResultCode::GENERAL_ERROR);
+
     std::vector<uint8_t> extraInfo;
-    bool getExtraInfoRet = attributes_->GetUint8ArrayValue(UserIam::UserAuth::Attributes::ATTR_EXTRA_INFO, extraInfo);
+    bool getExtraInfoRet = attributes_->GetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, extraInfo);
     IF_FALSE_LOGE_AND_RETURN_VAL(getExtraInfoRet == true, ResultCode::GENERAL_ERROR);
-    ResultCode ret =
-        hdi->SendCommand(static_cast<UserAuth::AuthPropertyMode>(commandId), extraInfo, shared_from_this());
+
+    ResultCode ret = hdi->SendCommand(static_cast<UserAuth::PropertyMode>(commandId), extraInfo, shared_from_this());
     if (ret != ResultCode::SUCCESS) {
         OnResult(ret);
         return ret;
     }
+
     IAM_LOGI("%{public}s send command result success", GetDescription());
     return ResultCode::SUCCESS;
 }

@@ -19,12 +19,12 @@
 
 #include <gmock/gmock.h>
 
-#include "executor_messenger.h"
+#include "executor_messenger_interface.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockExecutorMessenger final : public ExecutorMessenger {
+class MockExecutorMessenger final : public ExecutorMessengerInterface {
 public:
     MOCK_METHOD0(AsObject, sptr<IRemoteObject>());
     MOCK_METHOD4(OnRemoteRequest,
@@ -34,7 +34,7 @@ public:
     MOCK_METHOD5(Finish,
         int32_t(uint64_t scheduleId, ExecutorRole srcRole, int32_t resultCode, const Attributes &finalResult));
 
-    static std::shared_ptr<ExecutorMessenger> Create()
+    static std::shared_ptr<ExecutorMessengerInterface> Create()
     {
         using namespace testing;
         auto messenger = UserIAM::Common::MakeShared<MockExecutorMessenger>();

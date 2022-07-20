@@ -51,12 +51,12 @@ void ContextFactoryTest::TearDown()
 {
 }
 
-HWTEST_F(ContextFactoryTest, ContextFactoryCreateSimpleAuth_001, TestSize.Level1)
+HWTEST_F(ContextFactoryTest, ContextFactoryCreateSimpleAuth_001, TestSize.Level0)
 {
     auto factory = ContextFactory::GetInstance();
     ASSERT_NE(factory, nullptr);
     std::vector<uint8_t> challenge;
-    sptr<UserAuthCallback> callback = new (nothrow) MockUserAuthCallback();
+    sptr<UserAuthCallbackInterface> callback = new (nothrow) MockUserAuthCallback();
     ASSERT_NE(callback, nullptr);
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER);
     auto context = factory->CreateSimpleAuthContext(
@@ -66,25 +66,25 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateSimpleAuth_001, TestSize.Level1
     ASSERT_EQ(context->GetContextType(), CONTEXT_SIMPLE_AUTH);
 }
 
-HWTEST_F(ContextFactoryTest, ContextFactoryCreateSimpleAuth_002, TestSize.Level1)
+HWTEST_F(ContextFactoryTest, ContextFactoryCreateSimpleAuth_002, TestSize.Level0)
 {
     auto factory = ContextFactory::GetInstance();
     ASSERT_NE(factory, nullptr);
     std::vector<uint8_t> challenge;
     // Error: callback is null
-    sptr<UserAuthCallback> callback = nullptr;
+    sptr<UserAuthCallbackInterface> callback = nullptr;
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER);
     auto context = factory->CreateSimpleAuthContext(
         0, challenge, static_cast<AuthType>(0), static_cast<AuthTrustLevel>(0), 0, contextCallback);
     ASSERT_EQ(context, nullptr);
 }
 
-HWTEST_F(ContextFactoryTest, ContextFactoryCreateIdentify_001, TestSize.Level1)
+HWTEST_F(ContextFactoryTest, ContextFactoryCreateIdentify_001, TestSize.Level0)
 {
     auto factory = ContextFactory::GetInstance();
     ASSERT_NE(factory, nullptr);
     std::vector<uint8_t> challenge;
-    sptr<UserAuthCallback> callback = new (nothrow) MockUserAuthCallback();
+    sptr<UserAuthCallbackInterface> callback = new (nothrow) MockUserAuthCallback();
     ASSERT_NE(callback, nullptr);
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_IDENTIFY);
     auto context = factory->CreateIdentifyContext(challenge, static_cast<AuthType>(0), 0, contextCallback);
@@ -93,24 +93,24 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateIdentify_001, TestSize.Level1)
     ASSERT_EQ(context->GetContextType(), CONTEXT_IDENTIFY);
 }
 
-HWTEST_F(ContextFactoryTest, ContextFactoryCreateIdentify_002, TestSize.Level1)
+HWTEST_F(ContextFactoryTest, ContextFactoryCreateIdentify_002, TestSize.Level0)
 {
     auto factory = ContextFactory::GetInstance();
     ASSERT_NE(factory, nullptr);
     std::vector<uint8_t> challenge;
     // Error: callback is null
-    sptr<UserAuthCallback> callback = nullptr;
+    sptr<UserAuthCallbackInterface> callback = nullptr;
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_IDENTIFY);
     auto context = factory->CreateIdentifyContext(challenge, static_cast<AuthType>(0), 0, contextCallback);
     ASSERT_EQ(context, nullptr);
 }
 
-HWTEST_F(ContextFactoryTest, ContextFactoryCreateEnrollContext_001, TestSize.Level1)
+HWTEST_F(ContextFactoryTest, ContextFactoryCreateEnrollContext_001, TestSize.Level0)
 {
     auto factory = ContextFactory::GetInstance();
     ASSERT_NE(factory, nullptr);
     std::vector<uint8_t> token;
-    sptr<IdmCallback> callback = new (nothrow) MockIdmCallback();
+    sptr<IdmCallbackInterface> callback = new (nothrow) MockIdmCallback();
     ASSERT_NE(callback, nullptr);
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
     auto context = factory->CreateEnrollContext(0, static_cast<AuthType>(0), static_cast<PinSubType>(0), token,
@@ -120,13 +120,13 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateEnrollContext_001, TestSize.Lev
     ASSERT_EQ(context->GetContextType(), CONTEXT_ENROLL);
 }
 
-HWTEST_F(ContextFactoryTest, ContextFactoryCreateEnrollContext_002, TestSize.Level1)
+HWTEST_F(ContextFactoryTest, ContextFactoryCreateEnrollContext_002, TestSize.Level0)
 {
     auto factory = ContextFactory::GetInstance();
     ASSERT_NE(factory, nullptr);
     std::vector<uint8_t> token;
     // Error: callback is null
-    sptr<IdmCallback> callback = nullptr;
+    sptr<IdmCallbackInterface> callback = nullptr;
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
     auto context = factory->CreateEnrollContext(0, static_cast<AuthType>(0), static_cast<PinSubType>(0), token,
         0, contextCallback);

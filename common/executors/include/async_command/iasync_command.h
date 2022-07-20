@@ -18,7 +18,7 @@
 
 #include <cstdint>
 
-#include "co_auth_defines.h"
+#include "iam_common_defines.h"
 
 namespace OHOS {
 namespace UserIAM {
@@ -29,7 +29,7 @@ public:
     virtual ~IAsyncCommand() = default;
 
     virtual void OnHdiDisconnect() = 0;
-    virtual ResultCode StartProcess() = 0;
+    virtual UserIam::UserAuth::ResultCode StartProcess() = 0;
 };
 } // namespace UserAuth
 } // namespace UserIAM

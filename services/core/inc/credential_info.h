@@ -16,25 +16,12 @@
 #ifndef IAM_CREDENTIAL_INFO_H
 #define IAM_CREDENTIAL_INFO_H
 
-#include <cstdint>
-#include <memory>
-
-#include "iam_types.h"
+#include "user_idm_callback_interface.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class CredentialInfo {
-public:
-    virtual ~CredentialInfo() = default;
-    virtual uint64_t GetCredentialId() const = 0;
-    virtual int32_t GetUserId() const = 0;
-    virtual uint64_t GetExecutorIndex() const = 0;
-    virtual uint64_t GetTemplateId() const = 0;
-    virtual AuthType GetAuthType() const = 0;
-    virtual uint32_t GetExecutorSensorHint() const = 0;
-    virtual uint32_t GetExecutorMatcher() const = 0;
-};
+using CredentialInfo = IdmGetCredInfoCallbackInterface::CredentialInfo;
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

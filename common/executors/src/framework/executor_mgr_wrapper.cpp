@@ -12,15 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "executor_mgr_wrapper.h"
+
+#include "co_auth_client.h"
 
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
-using namespace AuthResPool;
-void ExecutorMgrWrapper::Register(const ExecutorInfo &info, std::shared_ptr<ExecutorCallback> callback)
+using namespace OHOS::UserIam::UserAuth;
+void ExecutorMgrWrapper::Register(const ExecutorInfo &info, std::shared_ptr<ExecutorRegisterCallback> callback)
 {
-    UserAuth::ExecutorMgr::GetInstance().Register(info, callback);
+    UserAuth::CoAuthClient::GetInstance().Register(info, callback);
 }
 } // namespace UserAuth
 } // namespace UserIAM

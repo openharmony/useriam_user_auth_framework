@@ -33,13 +33,13 @@ public:
 
     void SetExecutorSensorHint(uint32_t executorSensorHint) override;
     void SetAuthToken(const std::vector<uint8_t> &authToken) override;
-    void SetCallingUid(uint32_t uid) override;
+    void SetAccessTokenId(uint32_t tokenId) override;
     void SetPinSubType(PinSubType pinSubType) override;
 
     bool Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
         std::shared_ptr<ScheduleNodeCallback> callback) override;
     bool Update(const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
-        std::shared_ptr<CredentialInfo> &info) override;
+        std::shared_ptr<CredentialInfo> &info, std::vector<uint8_t> &rootSecret) override;
     bool Cancel() override;
 
 private:
@@ -48,7 +48,7 @@ private:
     std::vector<uint8_t> authToken_;
 
     uint32_t executorSensorHint_ {0};
-    uint32_t uid_ {0};
+    uint32_t tokenId_ {0};
     PinSubType pinSubType_ {PinSubType::PIN_MAX};
     bool running_ {false};
 };

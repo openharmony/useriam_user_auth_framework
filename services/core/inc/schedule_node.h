@@ -79,7 +79,7 @@ public:
         const std::shared_ptr<ResourceNode> &verifier);
     virtual ~Builder() = default;
     virtual std::shared_ptr<Builder> SetScheduleId(uint64_t scheduleId) = 0;
-    virtual std::shared_ptr<Builder> SetCallingUid(uint64_t uid) = 0;
+    virtual std::shared_ptr<Builder> SetAccessTokenId(uint32_t tokenId) = 0;
     virtual std::shared_ptr<Builder> SetPinSubType(PinSubType pinSubType) = 0;
     virtual std::shared_ptr<Builder> SetTemplateIdList(const std::vector<uint64_t> &templateIdList) = 0;
     virtual std::shared_ptr<Builder> SetAuthType(AuthType authType) = 0;

@@ -24,8 +24,8 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-void ExecutorCallbackProxy::OnMessengerReady(sptr<ExecutorMessenger> &messenger, const std::vector<uint8_t> &publicKey,
-    const std::vector<uint64_t> &templateIdList)
+void ExecutorCallbackProxy::OnMessengerReady(sptr<ExecutorMessengerInterface> &messenger,
+    const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList)
 {
     if (messenger == nullptr) {
         IAM_LOGE("messenger is nullptr");
@@ -51,7 +51,7 @@ void ExecutorCallbackProxy::OnMessengerReady(sptr<ExecutorMessenger> &messenger,
         return;
     }
 
-    bool result = SendRequest(ExecutorCallback::ON_MESSENGER_READY, data, reply);
+    bool result = SendRequest(ExecutorCallbackInterface::ON_MESSENGER_READY, data, reply);
     if (!result) {
         IAM_LOGE("send request failed");
         return;
@@ -82,7 +82,7 @@ int32_t ExecutorCallbackProxy::OnBeginExecute(uint64_t scheduleId, const std::ve
         return FAIL;
     }
 
-    bool ret = SendRequest(ExecutorCallback::ON_BEGIN_EXECUTE, data, reply);
+    bool ret = SendRequest(ExecutorCallbackInterface::ON_BEGIN_EXECUTE, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
         return FAIL;
@@ -114,7 +114,7 @@ int32_t ExecutorCallbackProxy::OnEndExecute(uint64_t scheduleId, const Attribute
         return FAIL;
     }
 
-    bool ret = SendRequest(ExecutorCallback::ON_END_EXECUTE, data, reply);
+    bool ret = SendRequest(ExecutorCallbackInterface::ON_END_EXECUTE, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
         return FAIL;
@@ -142,7 +142,7 @@ int32_t ExecutorCallbackProxy::OnSetProperty(const Attributes &properties)
         return FAIL;
     }
 
-    bool ret = SendRequest(ExecutorCallback::ON_SET_PROPERTY, data, reply);
+    bool ret = SendRequest(ExecutorCallbackInterface::ON_SET_PROPERTY, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
         return FAIL;
@@ -170,7 +170,7 @@ int32_t ExecutorCallbackProxy::OnGetProperty(const Attributes &condition, Attrib
         return FAIL;
     }
 
-    bool ret = SendRequest(ExecutorCallback::ON_GET_PROPERTY, data, reply);
+    bool ret = SendRequest(ExecutorCallbackInterface::ON_GET_PROPERTY, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
         return FAIL;

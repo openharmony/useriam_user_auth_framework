@@ -20,7 +20,7 @@
 #include <memory>
 
 #include "credential_info.h"
-#include "iam_types.h"
+#include "iam_common_defines.h"
 #include "secure_user_info.h"
 
 namespace OHOS {

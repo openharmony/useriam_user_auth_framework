@@ -29,7 +29,6 @@ ohos_shared_library("userauthservice") {
     "ipc/inc",
     "common_defines/types",
     "common_defines/interfaces",
-    "//base/useriam/user_auth_framework/dfx/inc",
     "//base/useriam/user_auth_framework/common/utils",
   ]
 
@@ -37,9 +36,6 @@ ohos_shared_library("userauthservice") {
 
   sources = [
     "//base/useriam/user_auth_framework/common/utils/iam_time.cpp",
-    "//base/useriam/user_auth_framework/dfx/src/hisysevent_adapter.cpp",
-    "//base/useriam/user_auth_framework/dfx/src/iam_hitrace_helper.cpp",
-    "//base/useriam/user_auth_framework/dfx/src/trace.cpp",
     "base/src/finite_state_machine_builder.cpp",
     "base/src/finite_state_machine_impl.cpp",
     "base/src/hdi_wrapper.cpp",
@@ -65,6 +61,7 @@ ohos_shared_library("userauthservice") {
     "core/src/schedule_node_helper.cpp",
     "core/src/schedule_node_impl.cpp",
     "core/src/secure_user_info_impl.cpp",
+    "core/src/trace.cpp",
     "core/src/user_idm_database_impl.cpp",
     "core/src/user_idm_session_controller_impl.cpp",
     "ipc/src/co_auth_service.cpp",
@@ -82,7 +79,8 @@ ohos_shared_library("userauthservice") {
   ]
 
   deps = [
-    "//base/useriam/user_auth_framework/frameworks/legacy/framework_old:legacy_attributes",
+    "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
+    "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
     "//third_party/openssl:libcrypto_shared",
   ]
 
@@ -90,7 +88,6 @@ ohos_shared_library("userauthservice") {
     "access_token:libaccesstoken_sdk",
     "drivers_interface_user_auth:libuser_auth_proxy_1.0",
     "hilog_native:libhilog",
-    "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
     "init:libbegetutil",
     "ipc:ipc_core",

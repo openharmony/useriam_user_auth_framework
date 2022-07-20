@@ -20,14 +20,16 @@
 #include <memory>
 #include <vector>
 
-#include "executor_callback.h"
-#include "iam_types.h"
+#include "co_auth_interface.h"
+#include "executor_callback_interface.h"
+#include "iam_common_defines.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 class ResourceNode {
 public:
+    using ExecutorRegisterInfo = CoAuthInterface::ExecutorRegisterInfo;
     virtual ~ResourceNode() = default;
     virtual uint64_t GetExecutorIndex() const = 0;
     virtual std::string GetOwnerDeviceId() const = 0;
@@ -46,7 +48,7 @@ public:
     virtual void Detach() = 0;
 
     static std::shared_ptr<ResourceNode> MakeNewResource(const ExecutorRegisterInfo &info,
-        const std::shared_ptr<ExecutorCallback> &callback, std::vector<uint64_t> &templateIdList,
+        const std::shared_ptr<ExecutorCallbackInterface> &callback, std::vector<uint64_t> &templateIdList,
         std::vector<uint8_t> &fwkPublicKey);
 };
 } // namespace UserAuth

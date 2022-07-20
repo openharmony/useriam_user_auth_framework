@@ -19,8 +19,9 @@
 #include <cstdint>
 #include <vector>
 
-#include "co_auth_defines.h"
+#include "co_auth_client.h"
 #include "framework_types.h"
+#include "iam_common_defines.h"
 #include "iexecute_callback.h"
 
 namespace OHOS {
@@ -28,23 +29,26 @@ namespace UserIAM {
 namespace UserAuth {
 class IAuthExecutorHdi {
 public:
+    using ExecutorInfo = UserIam::UserAuth::ExecutorInfo;
+    using ResultCode = UserIam::UserAuth::ResultCode;
+    using PropertyMode = UserIam::UserAuth::PropertyMode;
     IAuthExecutorHdi() = default;
     virtual ~IAuthExecutorHdi() = default;
 
-    virtual UserIAM::ResultCode GetExecutorInfo(ExecutorInfo &info) = 0;
-    virtual UserIAM::ResultCode GetTemplateInfo(uint64_t templateId, UserAuth::TemplateInfo &info) = 0;
-    virtual UserIAM::ResultCode OnRegisterFinish(const std::vector<uint64_t> &templateIdList,
+    virtual ResultCode GetExecutorInfo(ExecutorInfo &info) = 0;
+    virtual ResultCode GetTemplateInfo(uint64_t templateId, UserAuth::TemplateInfo &info) = 0;
+    virtual ResultCode OnRegisterFinish(const std::vector<uint64_t> &templateIdList,
         const std::vector<uint8_t> &frameworkPublicKey, const std::vector<uint8_t> &extraInfo) = 0;
-    virtual UserIAM::ResultCode Enroll(uint64_t scheduleId, uint64_t callerUid, const std::vector<uint8_t> &extraInfo,
+    virtual ResultCode Enroll(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
         const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) = 0;
-    virtual UserIAM::ResultCode Authenticate(uint64_t scheduleId, uint64_t callerUid,
-        const std::vector<uint64_t> &templateIdList, const std::vector<uint8_t> &extraInfo,
+    virtual ResultCode Authenticate(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint64_t> &templateIdList,
+        const std::vector<uint8_t> &extraInfo, const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) = 0;
+    virtual ResultCode Identify(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
+
         const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) = 0;
-    virtual UserIAM::ResultCode Identify(uint64_t scheduleId, uint64_t callerUid, const std::vector<uint8_t> &extraInfo,
-        const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) = 0;
-    virtual UserIAM::ResultCode Delete(const std::vector<uint64_t> &templateIdList) = 0;
-    virtual UserIAM::ResultCode Cancel(uint64_t scheduleId) = 0;
-    virtual UserIAM::ResultCode SendCommand(UserAuth::AuthPropertyMode commandId, const std::vector<uint8_t> &extraInfo,
+    virtual ResultCode Delete(const std::vector<uint64_t> &templateIdList) = 0;
+    virtual ResultCode Cancel(uint64_t scheduleId) = 0;
+    virtual ResultCode SendCommand(PropertyMode commandId, const std::vector<uint8_t> &extraInfo,
         const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) = 0;
 };
 } // namespace UserAuth

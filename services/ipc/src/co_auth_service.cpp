@@ -16,6 +16,7 @@
 #include "co_auth_service.h"
 
 #include <cinttypes>
+#include <mutex>
 #include <thread>
 
 #include "string_ex.h"
@@ -45,13 +46,19 @@ CoAuthService::CoAuthService(int32_t systemAbilityId, bool runOnCreate) : System
 
 void CoAuthService::OnStart()
 {
+    static std::mutex mutex;
+    static uint32_t timerId = 0;
+    std::lock_guard<std::mutex> guard(mutex);
     IAM_LOGI("Start service");
     if (!Publish(this)) {
         IAM_LOGE("Failed to publish service");
         return;
     }
 
-    RelativeTimer::GetInstance().Register(Init, 0);
+    if (timerId != 0) {
+        RelativeTimer::GetInstance().Unregister(timerId);
+    }
+    timerId = RelativeTimer::GetInstance().Register(Init, 0);
 }
 
 void CoAuthService::OnStop()
@@ -59,7 +66,7 @@ void CoAuthService::OnStop()
     IAM_LOGI("Stop service");
 }
 
-uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<ExecutorCallback> &callback)
+uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<ExecutorCallbackInterface> &callback)
 {
     if (callback == nullptr) {
         IAM_LOGE("executor callback is nullptr");
@@ -67,7 +74,7 @@ uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<
     }
     std::vector<uint64_t> templateIdList;
     std::vector<uint8_t> fwkPublicKey;
-    auto executorCallback = UserIAM::Common::SptrToStdSharedPtr<ExecutorCallback>(callback);
+    auto executorCallback = UserIAM::Common::SptrToStdSharedPtr<ExecutorCallbackInterface>(callback);
     auto resourceNode = ResourceNode::MakeNewResource(info, executorCallback, templateIdList, fwkPublicKey);
     if (resourceNode == nullptr) {
         IAM_LOGE("create resource node failed");
@@ -78,7 +85,7 @@ uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<
         return INVALID_EXECUTOR_INDEX;
     }
 
-    sptr<ExecutorMessenger> messenger = ExecutorMessengerService::GetInstance();
+    sptr<ExecutorMessengerInterface> messenger = ExecutorMessengerService::GetInstance();
     executorCallback->OnMessengerReady(messenger, fwkPublicKey, templateIdList);
     uint64_t executorIndex = resourceNode->GetExecutorIndex();
     uint32_t executorType = static_cast<uint32_t>(resourceNode->GetAuthType());

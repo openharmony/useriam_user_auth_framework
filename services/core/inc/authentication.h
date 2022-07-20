@@ -31,12 +31,13 @@ public:
         int32_t freezingTime;
         int32_t remainTimes;
         std::vector<uint8_t> token;
+        std::vector<uint8_t> rootSecret;
     };
     virtual ~Authentication() = default;
 
     virtual void SetExecutor(uint32_t executorIndex) = 0;
     virtual void SetChallenge(const std::vector<uint8_t> &challenge) = 0;
-    virtual void SetCallingUid(uint32_t uid) = 0;
+    virtual void SetAccessTokenId(uint32_t tokenId) = 0;
 
     virtual bool Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
         std::shared_ptr<ScheduleNodeCallback> callback) = 0;

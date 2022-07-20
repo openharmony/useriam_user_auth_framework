@@ -41,18 +41,19 @@ public:
     int32_t OpenSession(std::optional<int32_t> userId, std::vector<uint8_t> &challenge) override;
     void CloseSession(std::optional<int32_t> userId) override;
     int32_t GetCredentialInfo(std::optional<int32_t> userId, AuthType authType,
-        const sptr<IdmGetCredentialInfoCallback> &callback) override;
-    int32_t GetSecInfo(std::optional<int32_t> userId, const sptr<IdmGetSecureUserInfoCallback> &callback) override;
+        const sptr<IdmGetCredInfoCallbackInterface> &callback) override;
+    int32_t GetSecInfo(std::optional<int32_t> userId,
+        const sptr<IdmGetSecureUserInfoCallbackInterface> &callback) override;
     void AddCredential(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
-        const std::vector<uint8_t> &token, const sptr<IdmCallback> &callback, bool isUpdate) override;
+        const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback, bool isUpdate) override;
     void UpdateCredential(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
-        const std::vector<uint8_t> &token, const sptr<IdmCallback> &callback) override;
+        const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback) override;
     int32_t Cancel(std::optional<int32_t> userId, const std::optional<std::vector<uint8_t>> &challenge) override;
-    int32_t EnforceDelUser(int32_t userId, const sptr<IdmCallback> &callback) override;
+    int32_t EnforceDelUser(int32_t userId, const sptr<IdmCallbackInterface> &callback) override;
     void DelUser(std::optional<int32_t> userId, const std::vector<uint8_t> authToken,
-        const sptr<IdmCallback> &callback) override;
+        const sptr<IdmCallbackInterface> &callback) override;
     void DelCredential(std::optional<int32_t> userId, uint64_t credentialId, const std::vector<uint8_t> &authToken,
-        const sptr<IdmCallback> &callback) override;
+        const sptr<IdmCallbackInterface> &callback) override;
 
 private:
     int32_t CancelCurrentEnroll();

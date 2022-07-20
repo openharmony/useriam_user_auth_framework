@@ -35,16 +35,16 @@ public:
     MOCK_METHOD3(
         OnRegisterFinish, ResultCode(const std::vector<uint64_t> &templateIdList,
                               const std::vector<uint8_t> &frameworkPublicKey, const std::vector<uint8_t> &extraInfo));
-    MOCK_METHOD4(Enroll, ResultCode(uint64_t scheduleId, uint64_t callerUid, const std::vector<uint8_t> &extraInfo,
+    MOCK_METHOD4(Enroll, ResultCode(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
                              const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj));
     MOCK_METHOD5(Authenticate,
-        ResultCode(uint64_t scheduleId, uint64_t callerUid, const std::vector<uint64_t> &templateIdList,
+        ResultCode(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint64_t> &templateIdList,
             const std::vector<uint8_t> &extraInfo, const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj));
-    MOCK_METHOD4(Identify, ResultCode(uint64_t scheduleId, uint64_t callerUid, const std::vector<uint8_t> &extraInfo,
+    MOCK_METHOD4(Identify, ResultCode(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
                                const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj));
     MOCK_METHOD1(Delete, ResultCode(const std::vector<uint64_t> &templateIdList));
     MOCK_METHOD1(Cancel, ResultCode(uint64_t scheduleId));
-    MOCK_METHOD3(SendCommand, ResultCode(UserAuth::AuthPropertyMode commandId, const std::vector<uint8_t> &extraInfo,
+    MOCK_METHOD3(SendCommand, ResultCode(PropertyMode commandId, const std::vector<uint8_t> &extraInfo,
                                   const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj));
 };
 } // namespace UserAuth

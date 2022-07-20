@@ -13,21 +13,22 @@
  * limitations under the License.
  */
 
-#ifndef USER_AUTH_H
-#define USER_AUTH_H
+#ifndef USER_AUTH_INTERFACE_H
+#define USER_AUTH_INTERFACE_H
 
 #include <cstdint>
-#include <iremote_broker.h>
 #include <optional>
 
-#include "attributes.h"
+#include "iremote_broker.h"
 #include "refbase.h"
-#include "user_auth_callback.h"
+
+#include "attributes.h"
+#include "user_auth_callback_interface.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class UserAuth : public IRemoteBroker {
+class UserAuthInterface : public IRemoteBroker {
 public:
     /* Message ID */
     enum : uint32_t {
@@ -51,16 +52,16 @@ public:
     virtual int32_t GetAvailableStatus(AuthType authType, AuthTrustLevel authTrustLevel) = 0;
 
     virtual void GetProperty(std::optional<int32_t> userId, AuthType authType,
-        const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallback> &callback) = 0;
+        const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallbackInterface> &callback) = 0;
 
     virtual void SetProperty(std::optional<int32_t> userId, AuthType authType, const Attributes &attributes,
-        sptr<SetExecutorPropertyCallback> &callback) = 0;
+        sptr<SetExecutorPropertyCallbackInterface> &callback) = 0;
 
     virtual uint64_t AuthUser(std::optional<int32_t> userId, const std::vector<uint8_t> &challenge, AuthType authType,
-        AuthTrustLevel authTrustLevel, sptr<UserAuthCallback> &callback) = 0;
+        AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) = 0;
 
     virtual uint64_t Identify(const std::vector<uint8_t> &challenge, AuthType authType,
-        sptr<UserAuthCallback> &callback) = 0;
+        sptr<UserAuthCallbackInterface> &callback) = 0;
 
     virtual int32_t CancelAuthOrIdentify(uint64_t contextId) = 0;
 
@@ -71,4 +72,4 @@ public:
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // USER_AUTH_H
+#endif // USER_AUTH_INTERFACE_H

@@ -51,7 +51,7 @@ void IdentificationImplTest::TearDown()
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
 
-HWTEST_F(IdentificationImplTest, IdentificationHdiError, TestSize.Level1)
+HWTEST_F(IdentificationImplTest, IdentificationHdiError, TestSize.Level0)
 {
     constexpr uint64_t contextId = 0x1234567;
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
@@ -62,7 +62,7 @@ HWTEST_F(IdentificationImplTest, IdentificationHdiError, TestSize.Level1)
     EXPECT_FALSE(identification->Start(scheduleList, nullptr));
 }
 
-HWTEST_F(IdentificationImplTest, IdentificationHdiEmpty, TestSize.Level1)
+HWTEST_F(IdentificationImplTest, IdentificationHdiEmpty, TestSize.Level0)
 {
     constexpr uint64_t contextId = 0x1234567;
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
@@ -73,7 +73,7 @@ HWTEST_F(IdentificationImplTest, IdentificationHdiEmpty, TestSize.Level1)
     EXPECT_FALSE(enrollment->Start(scheduleList, nullptr));
 }
 
-HWTEST_F(IdentificationImplTest, IdentificationUpdateHdiError, TestSize.Level1)
+HWTEST_F(IdentificationImplTest, IdentificationUpdateHdiError, TestSize.Level0)
 {
     constexpr uint64_t contextId = 0x1234567;
     using HdiIdentifyResultInfo = OHOS::HDI::UserAuth::V1_0::IdentifyResultInfo;
@@ -86,7 +86,7 @@ HWTEST_F(IdentificationImplTest, IdentificationUpdateHdiError, TestSize.Level1)
     EXPECT_FALSE(identification->Update(scheduleResult, retInfo));
 }
 
-HWTEST_F(IdentificationImplTest, IdentificationUpdateHdiSuccessful, TestSize.Level1)
+HWTEST_F(IdentificationImplTest, IdentificationUpdateHdiSuccessful, TestSize.Level0)
 {
     constexpr uint64_t contextId = 0x1234567;
     using HdiIdentifyResultInfo = OHOS::HDI::UserAuth::V1_0::IdentifyResultInfo;

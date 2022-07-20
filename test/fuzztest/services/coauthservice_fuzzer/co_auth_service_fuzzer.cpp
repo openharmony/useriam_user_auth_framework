@@ -18,7 +18,7 @@
 #include "parcel.h"
 
 #include "co_auth_service.h"
-#include "executor_callback.h"
+#include "executor_callback_interface.h"
 #include "iam_fuzz_test.h"
 #include "iam_logger.h"
 
@@ -29,12 +29,13 @@
 using namespace std;
 using namespace OHOS::UserIAM::Common;
 using namespace OHOS::UserIam::UserAuth;
+using ExecutorRegisterInfo = CoAuthInterface::ExecutorRegisterInfo;
 
 namespace OHOS {
 namespace UserIAM {
 namespace CoAuth {
 namespace {
-class CoAuthServiceFuzzer : public ExecutorCallback {
+class CoAuthServiceFuzzer : public ExecutorCallbackInterface {
 public:
     CoAuthServiceFuzzer(int32_t onBeginExecuteResult, int32_t onEndExecuteResult, int32_t onSetPropertyResult,
         int32_t onGetPropertyResult)
@@ -47,15 +48,15 @@ public:
 
     virtual ~CoAuthServiceFuzzer() = default;
 
-    void OnMessengerReady(sptr<ExecutorMessenger> &messenger, const std::vector<uint8_t> &publicKey,
+    void OnMessengerReady(sptr<ExecutorMessengerInterface> &messenger, const std::vector<uint8_t> &publicKey,
         const std::vector<uint64_t> &templateIdList) override
     {
         IAM_LOGI("start");
         return;
     }
 
-    int32_t OnBeginExecute(
-        uint64_t scheduleId, const std::vector<uint8_t> &publicKey, const Attributes &command) override
+    int32_t OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
+        const Attributes &command) override
     {
         IAM_LOGI("start");
         return onBeginExecuteResult_;
@@ -104,14 +105,6 @@ void FillFuzzExecutorRegisterInfo(Parcel &parcel, ExecutorRegisterInfo &executor
 
 CoAuthService g_coAuthService(SUBSYS_USERIAM_SYS_ABILITY_AUTHEXECUTORMGR, true);
 
-void FuzzOnStart(Parcel &parcel)
-{
-    IAM_LOGI("FuzzOnStart begin");
-    static_cast<void>(parcel);
-    g_coAuthService.OnStart();
-    IAM_LOGI("FuzzOnStart end");
-}
-
 void FuzzOnStop(Parcel &parcel)
 {
     IAM_LOGI("FuzzOnStop begin");
@@ -125,7 +118,7 @@ void FuzzRegister(Parcel &parcel)
     IAM_LOGI("FuzzRegister begin");
     ExecutorRegisterInfo executorInfo;
     FillFuzzExecutorRegisterInfo(parcel, executorInfo);
-    sptr<ExecutorCallback> callback = nullptr;
+    sptr<ExecutorCallbackInterface> callback = nullptr;
     if (parcel.ReadBool()) {
         callback = new (std::nothrow)
             CoAuthServiceFuzzer(parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32());
@@ -134,9 +127,8 @@ void FuzzRegister(Parcel &parcel)
     IAM_LOGI("FuzzRegister end");
 }
 
-using FuzzFunc = decltype(FuzzOnStart);
+using FuzzFunc = decltype(FuzzOnStop);
 FuzzFunc *g_fuzzFuncs[] = {
-    FuzzOnStart,
     FuzzOnStop,
     FuzzRegister,
 };

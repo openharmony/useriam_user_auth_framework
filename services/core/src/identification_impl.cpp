@@ -44,9 +44,9 @@ void IdentificationImpl::SetChallenge(const std::vector<uint8_t> &challenge)
     challenge_ = challenge;
 }
 
-void IdentificationImpl::SetCallingUid(uint32_t uid)
+void IdentificationImpl::SetAccessTokenId(uint32_t tokenId)
 {
-    uid_ = uid;
+    tokenId_ = tokenId;
 }
 
 bool IdentificationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
@@ -73,7 +73,7 @@ bool IdentificationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
     infos.emplace_back(info);
 
     ScheduleNodeHelper::NodeOptionalPara para;
-    para.uid = uid_;
+    para.tokenId = tokenId_;
 
     if (!ScheduleNodeHelper::BuildFromHdi(infos, callback, scheduleList, para)) {
         IAM_LOGE("BuildFromHdi failed");
