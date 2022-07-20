@@ -70,48 +70,6 @@
             ],
             "header_base": "//base/useriam/user_auth_framework/interfaces/inner_api/"
           }
-        },
-        {
-          "type": "so",
-          "name": "//base/useriam/user_auth_framework/frameworks/user_auth:userauth_framework",
-          "header": {
-            "header_files": [
-              "user_auth/user_auth.h",
-              "user_auth/userauth_callback.h",
-              "user_auth/userauth_defines.h",
-              "common/common_info.h"
-            ],
-            "header_base": "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/"
-          }
-        },
-        {
-          "type": "so",
-          "name": "//base/useriam/user_auth_framework/frameworks/co_auth:coauth_framework",
-          "header": {
-            "header_files": [
-              "attributes.h",
-              "auth_executor.h",
-              "co_auth_defines.h",
-              "executor_callback.h",
-              "executor_mgr.h"
-            ],
-            "header_base": "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/co_auth/"
-          }
-        },
-        {
-          "type": "so",
-          "name": "//base/useriam/user_auth_framework/frameworks/user_idm:useridm_framework",
-          "header": {
-            "header_files": [
-              "user_idm_callback.h",
-              "user_idm_defines.h",
-              "user_idm.h",
-              "useridm_callback.h",
-              "useridm_info.h",
-              "useridm_client.h"
-            ],
-            "header_base": "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/user_idm"
-          }
         }
       ],
       "test": [
