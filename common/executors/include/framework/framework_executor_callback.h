@@ -47,17 +47,17 @@ public:
 private:
     static uint32_t GenerateExecutorCallbackId();
     ResultCode OnBeginExecuteInner(uint64_t scheduleId, std::vector<uint8_t> &publicKey,
-        std::shared_ptr<UserIam::UserAuth::Attributes> commandAttrs);
-    ResultCode OnEndExecuteInner(uint64_t scheduleId, std::shared_ptr<UserIam::UserAuth::Attributes> consumerAttr);
-    ResultCode OnSetPropertyInner(std::shared_ptr<UserIam::UserAuth::Attributes> properties);
+        const Attributes &commandAttrs);
+    ResultCode OnEndExecuteInner(uint64_t scheduleId, const Attributes &consumerAttr);
+    ResultCode OnSetPropertyInner(const Attributes &properties);
     ResultCode OnGetPropertyInner(std::shared_ptr<UserIam::UserAuth::Attributes> conditions,
         std::shared_ptr<UserIam::UserAuth::Attributes> values);
-    ResultCode ProcessEnrollCommand(uint64_t scheduleId, std::shared_ptr<UserIam::UserAuth::Attributes> properties);
-    ResultCode ProcessAuthCommand(uint64_t scheduleId, std::shared_ptr<UserIam::UserAuth::Attributes> properties);
-    ResultCode ProcessIdentifyCommand(uint64_t scheduleId, std::shared_ptr<UserIam::UserAuth::Attributes> properties);
+    ResultCode ProcessEnrollCommand(uint64_t scheduleId, const Attributes &properties);
+    ResultCode ProcessAuthCommand(uint64_t scheduleId, const Attributes &properties);
+    ResultCode ProcessIdentifyCommand(uint64_t scheduleId, const Attributes &properties);
     ResultCode ProcessCancelCommand(uint64_t scheduleId);
-    ResultCode ProcessDeleteTemplateCommand(std::shared_ptr<UserIam::UserAuth::Attributes> properties);
-    ResultCode ProcessCustomCommand(std::shared_ptr<UserIam::UserAuth::Attributes> properties);
+    ResultCode ProcessDeleteTemplateCommand(const Attributes &properties);
+    ResultCode ProcessCustomCommand(const Attributes &properties);
     ResultCode ProcessGetTemplateCommand(std::shared_ptr<UserIam::UserAuth::Attributes> conditions,
         std::shared_ptr<UserIam::UserAuth::Attributes> values);
     const char *GetDescription();
