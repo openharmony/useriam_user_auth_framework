@@ -26,7 +26,6 @@ ohos_fuzztest("CoAuthServiceFuzzTest") {
   ]
 
   include_dirs = [
-    "//base/useriam/user_auth_framework/frameworks/co_auth/inc",
     "//base/useriam/user_auth_framework/services/base/inc",
     "//base/useriam/user_auth_framework/services/core/inc",
     "//base/useriam/user_auth_framework/services/core/src",
@@ -43,7 +42,6 @@ ohos_fuzztest("CoAuthServiceFuzzTest") {
 
   deps = [
     "//base/useriam/user_auth_framework/common:iam_test",
-    "//base/useriam/user_auth_framework/frameworks/legacy/framework_old:framework_legacy",
     "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
     "//base/useriam/user_auth_framework/services:userauthservice",
   ]

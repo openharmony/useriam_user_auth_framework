@@ -27,8 +27,6 @@ ohos_fuzztest("UserAuthDriverManagerFuzzTest") {
     "//base/useriam/user_auth_framework/common/executors/include",
     "//base/useriam/user_auth_framework/common/executors/include/async_command",
     "//base/useriam/user_auth_framework/common/executors/include/framework",
-    "//base/useriam/user_auth_framework/interfaces/inner_api/user_auth/",
-    "//base/useriam/user_auth_framework/interfaces/inner_api/common/",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs",
   ]
@@ -49,7 +47,6 @@ ohos_fuzztest("UserAuthDriverManagerFuzzTest") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_single",
     "samgr_standard:samgr_proxy",
-    "user_auth_framework:coauth_framework",
     "utils_base:utils",
   ]
 }

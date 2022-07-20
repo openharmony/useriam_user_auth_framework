@@ -26,7 +26,6 @@ ohos_fuzztest("UserIdmServiceFuzzTest") {
   ]
 
   include_dirs = [
-    "//base/useriam/user_auth_framework/frameworks/co_auth/inc",
     "//base/useriam/user_auth_framework/services/base/inc",
     "//base/useriam/user_auth_framework/services/core/inc",
     "//base/useriam/user_auth_framework/services/core/src",
@@ -37,8 +36,6 @@ ohos_fuzztest("UserIdmServiceFuzzTest") {
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs/co_auth/inc",
     "//base/useriam/user_auth_framework/common/logs",
-    "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/user_auth/",
-    "//base/useriam/user_auth_framework/frameworks/legacy/inner_api_old/co_auth",
   ]
 
   sources = [ "user_idm_service_fuzzer.cpp" ]
