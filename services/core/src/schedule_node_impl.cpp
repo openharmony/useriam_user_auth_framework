@@ -22,7 +22,8 @@
 #include "context.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
-#include "iam_types.h"
+#include "iam_para2str.h"
+#include "iam_common_defines.h"
 #include "relative_timer.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
@@ -218,7 +219,7 @@ std::string ScheduleNodeImpl::GetDescription() const
     std::string name;
 
     auto verifier = info_.verifier.lock();
-    stream << "schedule type:" << (verifier ? AuthTypeToStr(verifier->GetAuthType()) : "nullptr") <<
+    stream << "schedule type:" << (verifier ? UserIAM::Common::AuthTypeToStr(verifier->GetAuthType()) : "nullptr") <<
         " id:******" << std::hex << static_cast<uint16_t>(GetScheduleId());
     stream >> name;
     return name;

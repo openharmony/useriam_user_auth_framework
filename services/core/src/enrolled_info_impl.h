@@ -21,7 +21,7 @@
 
 #include "enrolled_info.h"
 #include "hdi_wrapper.h"
-#include "iam_types.h"
+#include "iam_common_defines.h"
 
 namespace OHOS {
 namespace UserIam {

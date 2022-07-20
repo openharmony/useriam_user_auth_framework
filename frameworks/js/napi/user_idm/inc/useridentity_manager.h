@@ -23,6 +23,7 @@
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "securec.h"
+
 #include "user_idm_client.h"
 
 namespace OHOS {

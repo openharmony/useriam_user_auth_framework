@@ -19,7 +19,7 @@
 
 #include "iam_logger.h"
 #include "iam_scope_guard.h"
-#include "result_code.h"
+#include "iam_common_defines.h"
 #include "user_idm_callback_proxy.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA

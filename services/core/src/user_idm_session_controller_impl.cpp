@@ -19,7 +19,7 @@
 
 #include "hdi_wrapper.h"
 #include "iam_logger.h"
-#include "result_code.h"
+#include "iam_common_defines.h"
 
 namespace OHOS {
 namespace UserIam {

@@ -15,8 +15,8 @@
 
 #include "user_idm_session_controller_test.h"
 
+#include "iam_common_defines.h"
 #include "mock_iuser_auth_interface.h"
-#include "result_code.h"
 #include "user_idm_session_controller.h"
 
 namespace OHOS {

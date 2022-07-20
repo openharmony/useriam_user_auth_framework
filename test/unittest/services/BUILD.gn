@@ -24,8 +24,8 @@ ohos_unittest("iam_services_test") {
     "//base/useriam/user_auth_framework/services/context/inc",
     "//base/useriam/user_auth_framework/services/context/src",
     "//base/useriam/user_auth_framework/services/ipc/inc",
-    "//base/useriam/user_auth_framework/services/common_defines/types",
-    "//base/useriam/user_auth_framework/services/common_defines/interfaces",
+    "//base/useriam/user_auth_framework/frameworks/native/ipc/inc",
+    "//base/useriam/user_auth_framework/frameworks/native/ipc/common_defines",
   ]
 
   sources = [
@@ -56,17 +56,10 @@ ohos_unittest("iam_services_test") {
     "//base/useriam/user_auth_framework/services/core/src/user_idm_database_impl.cpp",
     "//base/useriam/user_auth_framework/services/core/src/user_idm_session_controller_impl.cpp",
     "//base/useriam/user_auth_framework/services/ipc/src/co_auth_service.cpp",
-    "//base/useriam/user_auth_framework/services/ipc/src/co_auth_stub.cpp",
-    "//base/useriam/user_auth_framework/services/ipc/src/executor_callback_proxy.cpp",
     "//base/useriam/user_auth_framework/services/ipc/src/executor_messenger_service.cpp",
-    "//base/useriam/user_auth_framework/services/ipc/src/executor_messenger_stub.cpp",
     "//base/useriam/user_auth_framework/services/ipc/src/ipc_common.cpp",
-    "//base/useriam/user_auth_framework/services/ipc/src/user_auth_callback_proxy.cpp",
     "//base/useriam/user_auth_framework/services/ipc/src/user_auth_service.cpp",
-    "//base/useriam/user_auth_framework/services/ipc/src/user_auth_stub.cpp",
-    "//base/useriam/user_auth_framework/services/ipc/src/user_idm_callback_proxy.cpp",
     "//base/useriam/user_auth_framework/services/ipc/src/user_idm_service.cpp",
-    "//base/useriam/user_auth_framework/services/ipc/src/user_idm_stub.cpp",
     "mocks/mock_iuser_auth_interface.cpp",
     "src/attributes_test.cpp",
     "src/authentication_impl_test.cpp",
@@ -98,6 +91,7 @@ ohos_unittest("iam_services_test") {
     "//base/useriam/user_auth_framework/common:iam_utils",
     "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
     "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
+    "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_service_ipc",
     "//third_party/googletest:gmock",
     "//third_party/openssl:libcrypto_shared",
   ]

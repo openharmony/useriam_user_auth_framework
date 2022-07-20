@@ -16,8 +16,8 @@
 #include "executor_callback_proxy.h"
 
 #include "iam_logger.h"
+#include "iam_common_defines.h"
 #include "message_parcel.h"
-#include "result_code.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
 

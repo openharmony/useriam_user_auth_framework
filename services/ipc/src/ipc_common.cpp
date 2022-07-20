@@ -16,7 +16,7 @@
 #include "ipc_common.h"
 
 #include "accesstoken_kit.h"
-#include "result_code.h"
+#include "iam_common_defines.h"
 #include "iam_logger.h"
 #ifdef HAS_OS_ACCOUNT_PART
 #include "os_account_manager.h"
