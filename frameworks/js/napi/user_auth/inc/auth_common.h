@@ -22,8 +22,8 @@
 
 #include "napi/native_api.h"
 #include "napi/native_common.h"
-
 #include "user_auth_client.h"
+
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
