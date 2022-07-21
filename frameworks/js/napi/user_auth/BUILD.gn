@@ -18,12 +18,7 @@ config("userauth_public_config") {
 }
 
 ohos_shared_library("userauth") {
-  include_dirs = [
-    "inc",
-    "//base/useriam/user_auth_framework/common/utils",
-    "//base/useriam/user_auth_framework/common/logs",
-    "//base/useriam/user_auth_framework/frameworks/native/ipc/common_defines",
-  ]
+  include_dirs = [ "inc" ]
 
   sources = [
     "src/auth_build.cpp",
@@ -35,8 +30,10 @@ ohos_shared_library("userauth") {
   ]
 
   deps = [
+    "//base/useriam/user_auth_framework/common:iam_utils",
     "//base/useriam/user_auth_framework/frameworks/native/client:userauth_client",
     "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
+    "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_client_ipc",
   ]
 
   external_deps = [
@@ -45,8 +42,6 @@ ohos_shared_library("userauth") {
     "napi:ace_napi",
     "utils_base:utils",
   ]
-
-  configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
 
   public_configs = [ ":userauth_public_config" ]
 
@@ -58,11 +53,7 @@ ohos_shared_library("userauth") {
 ohos_shared_library("userauth_napi") {
   defines = [ "USER_AUTH_FOR_KITS" ]
 
-  include_dirs = [
-    "inc",
-    "//base/useriam/user_auth_framework/common/utils",
-    "//base/useriam/user_auth_framework/frameworks/native/ipc/common_defines",
-  ]
+  include_dirs = [ "inc" ]
 
   sources = [
     "src/auth_build.cpp",
@@ -74,8 +65,10 @@ ohos_shared_library("userauth_napi") {
   ]
 
   deps = [
+    "//base/useriam/user_auth_framework/common:iam_utils",
     "//base/useriam/user_auth_framework/frameworks/native/client:userauth_client",
     "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
+    "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_client_ipc",
   ]
 
   external_deps = [
@@ -84,8 +77,6 @@ ohos_shared_library("userauth_napi") {
     "napi:ace_napi",
     "utils_base:utils",
   ]
-
-  configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
 
   public_configs = [ ":userauth_public_config" ]
 
