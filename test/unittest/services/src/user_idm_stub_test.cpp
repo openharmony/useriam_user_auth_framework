@@ -16,7 +16,7 @@
 #include "user_idm_stub_test.h"
 
 #include "credential_info.h"
-#include "result_code.h"
+#include "iam_common_defines.h"
 #include "securec.h"
 #include "user_idm_callback_proxy.h"
 #include "user_idm_stub.h"

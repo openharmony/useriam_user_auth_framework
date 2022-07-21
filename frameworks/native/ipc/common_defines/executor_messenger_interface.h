@@ -13,38 +13,31 @@
  * limitations under the License.
  */
 
-#ifndef IAM_TYPES_H
-#define IAM_TYPES_H
+#ifndef EXECUTOR_MESSENGER_INTERFACE_H
+#define EXECUTOR_MESSENGER_INTERFACE_H
 
-#include <vector>
+#include "iremote_broker.h"
 
+#include "attributes.h"
 #include "iam_common_defines.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-inline const char *AuthTypeToStr(AuthType authType)
-{
-    switch (authType) {
-        case ALL:
-            return "All";
-        case PIN:
-            return "Pin";
-        case FACE:
-            return "Face";
-        case FINGERPRINT:
-            return "Fingerprint";
-        default:
-            return "";
-    }
-}
-
-enum SetPropertyType : uint32_t {
-    INIT_ALGORITHM = 1,
-    FREEZE_TEMPLATE = 2,
-    THAW_TEMPLATE = 3,
+class ExecutorMessengerInterface : public IRemoteBroker {
+public:
+    /* Message ID */
+    enum : uint32_t {
+        CO_AUTH_SEND_DATA = 0,
+        CO_AUTH_FINISH,
+    };
+    virtual int32_t SendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole, ExecutorRole dstRole,
+        const std::vector<uint8_t> &msg) = 0;
+    virtual int32_t Finish(uint64_t scheduleId, ExecutorRole srcRole, ResultCode resultCode,
+        const std::shared_ptr<Attributes> &finalResult) = 0;
+    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIAM.AuthResPool.IExecutor_Messenger");
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // IAM_TYPES_H
+#endif // EXECUTOR_MESSENGER_INTERFACE_H

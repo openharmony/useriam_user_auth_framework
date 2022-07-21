@@ -20,9 +20,9 @@
 #include <memory>
 #include <optional>
 
+#include "iam_common_defines.h"
 #include "finite_state_machine.h"
 #include "resource_node.h"
-#include "result_code.h"
 #include "schedule_node_callback.h"
 #include "thread_handler.h"
 

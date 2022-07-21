@@ -27,9 +27,9 @@
 #include "iam_para2str.h"
 #include "iam_defines.h"
 #include "ipc_common.h"
+#include "iam_common_defines.h"
 #include "resource_node_pool.h"
 #include "resource_node_utils.h"
-#include "result_code.h"
 #include "user_idm_callback_proxy.h"
 #include "user_idm_database.h"
 #include "user_idm_session_controller.h"
@@ -475,7 +475,7 @@ int UserIdmService::Dump(int fd, const std::vector<std::u16string> &args)
             auto enrolledInfo = userInfo->GetEnrolledInfo();
             for (auto &info : enrolledInfo) {
                 if (info != nullptr) {
-                    dprintf(fd, "AuthType %s is enrolled.\n", AuthTypeToStr(info->GetAuthType()));
+                    dprintf(fd, "AuthType %s is enrolled.\n", UserIAM::Common::AuthTypeToStr(info->GetAuthType()));
                 }
             }
         }

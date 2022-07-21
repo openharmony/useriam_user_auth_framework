@@ -22,7 +22,6 @@ ohos_unittest("iam_executors_test") {
     "//base/useriam/user_auth_framework/common/executors/include/framework",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs",
-    "//base/useriam/user_auth_framework/services/common_defines/types",
   ]
 
   sources = [

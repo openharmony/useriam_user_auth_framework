@@ -16,7 +16,7 @@
 #include "user_auth_callback_proxy.h"
 
 #include "iam_logger.h"
-#include "result_code.h"
+#include "iam_common_defines.h"
 #include "user_auth_interface.h"
 
 #define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA

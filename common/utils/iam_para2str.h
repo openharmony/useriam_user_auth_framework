@@ -16,9 +16,8 @@
 #ifndef IAM_PARA2STR_H
 #define IAM_PARA2STR_H
 
-#include <cinttypes>
-#include <cstdint>
 #include <iomanip>
+#include <map>
 #include <sstream>
 #include <string>
 
@@ -39,6 +38,15 @@ static inline std::string GetMaskedString(uint16_t val)
 static inline std::string GetPointerNullStateString(void *p)
 {
     return p == nullptr ? "null" : "non-null";
+}
+
+static inline const char *AuthTypeToStr(uint32_t authType)
+{
+    static std::map<uint32_t, std::string> typeNames = {{0, "All"}, {1, "Pin"}, {2, "Face"}, {4, "Fingerprint"}};
+    if (auto iter = typeNames.find(authType); iter != typeNames.end()) {
+        return iter->second.c_str();
+    }
+    return "unknown";
 }
 } // namespace Common
 } // namespace UserIAM
