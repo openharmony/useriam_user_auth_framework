@@ -15,7 +15,8 @@
 
 #include "enrolled_info_test.h"
 #include "enrolled_info_impl.h"
-#include "iam_types.h"
+#include "iam_common_defines.h"
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {

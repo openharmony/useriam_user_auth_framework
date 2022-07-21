@@ -16,8 +16,9 @@
 #include "user_idm_service_test.h"
 #include "user_idm_service.h"
 
+#include "iam_common_defines.h"
 #include "mock_user_idm_callback.h"
-#include "result_code.h"
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {

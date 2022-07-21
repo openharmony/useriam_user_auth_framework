@@ -27,8 +27,8 @@ ohos_shared_library("userauthservice") {
     "core/src",
     "context/inc",
     "ipc/inc",
-    "common_defines/types",
-    "common_defines/interfaces",
+    "//base/useriam/user_auth_framework/frameworks/native/ipc/inc",
+    "//base/useriam/user_auth_framework/frameworks/native/ipc/common_defines",
     "//base/useriam/user_auth_framework/common/utils",
   ]
 
@@ -65,22 +65,16 @@ ohos_shared_library("userauthservice") {
     "core/src/user_idm_database_impl.cpp",
     "core/src/user_idm_session_controller_impl.cpp",
     "ipc/src/co_auth_service.cpp",
-    "ipc/src/co_auth_stub.cpp",
-    "ipc/src/executor_callback_proxy.cpp",
     "ipc/src/executor_messenger_service.cpp",
-    "ipc/src/executor_messenger_stub.cpp",
     "ipc/src/ipc_common.cpp",
-    "ipc/src/user_auth_callback_proxy.cpp",
     "ipc/src/user_auth_service.cpp",
-    "ipc/src/user_auth_stub.cpp",
-    "ipc/src/user_idm_callback_proxy.cpp",
     "ipc/src/user_idm_service.cpp",
-    "ipc/src/user_idm_stub.cpp",
   ]
 
   deps = [
     "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
     "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
+    "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_service_ipc",
     "//third_party/openssl:libcrypto_shared",
   ]
 

@@ -19,12 +19,10 @@ config("userauth_client_ipc_config") {
 
 ohos_source_set("userauth_client_ipc") {
   include_dirs = [
+    "inc",
+    "common_defines",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/interfaces/inner_api",
-    "//base/useriam/user_auth_framework/services/common_defines/interfaces",
-    "//base/useriam/user_auth_framework/services/common_defines/types",
-    "//base/useriam/user_auth_framework/services/core/inc",
-    "inc",
   ]
 
   sources = [
@@ -37,6 +35,35 @@ ohos_source_set("userauth_client_ipc") {
     "src/user_auth_proxy.cpp",
     "src/user_idm_callback_stub.cpp",
     "src/user_idm_proxy.cpp",
+  ]
+
+  configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
+  public_configs = [ ":userauth_client_ipc_config" ]
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
+  external_deps = [
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "utils_base:utils",
+  ]
+}
+
+ohos_source_set("userauth_service_ipc") {
+  include_dirs = [
+    "inc",
+    "common_defines",
+    "//base/useriam/user_auth_framework/common/utils",
+    "//base/useriam/user_auth_framework/interfaces/inner_api",
+  ]
+
+  sources = [
+    "src/co_auth_stub.cpp",
+    "src/executor_callback_proxy.cpp",
+    "src/executor_messenger_stub.cpp",
+    "src/user_auth_callback_proxy.cpp",
+    "src/user_auth_stub.cpp",
+    "src/user_idm_callback_proxy.cpp",
+    "src/user_idm_stub.cpp",
   ]
 
   configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]

@@ -24,7 +24,7 @@
 #include "iam_logger.h"
 #include "iam_ptr.h"
 #include "iam_hitrace_helper.h"
-#include "result_code.h"
+#include "iam_common_defines.h"
 #include "secure_user_info.h"
 #include "secure_user_info_impl.h"
 

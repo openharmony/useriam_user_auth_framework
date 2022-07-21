@@ -15,8 +15,8 @@
 
 #include "user_auth_service_test.h"
 
+#include "iam_common_defines.h"
 #include "mock_user_auth_callback.h"
-#include "result_code.h"
 #include "user_auth_service.h"
 
 namespace OHOS {
