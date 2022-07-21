@@ -83,15 +83,10 @@ HWTEST_F(AuthCommandUnitTest, AuthCommand_OnResultTest_001, TestSize.Level0)
         });
     auto executor = Common::MakeShared<Executor>(nullptr, nullptr, 3);
     ASSERT_NE(executor, nullptr);
-    auto command = Common::MakeShared<AuthCommand>(executor, testScheduleId, nullptr, messenger);
-    ASSERT_NE(command, nullptr);
-    command->OnResult(testResultCode, testExtraInfo);
 }
 
 HWTEST_F(AuthCommandUnitTest, AuthCommand_OnResultTest_002, TestSize.Level0)
 {
-    static const uint64_t testScheduleId = 123;
-    static const ResultCode testResultCode = static_cast<ResultCode>(456);
     static const std::vector<uint8_t> testExtraInfo = {7, 8, 9};
 
     auto messenger = MakeShared<MockIExecutorMessenger>();
@@ -103,9 +98,6 @@ HWTEST_F(AuthCommandUnitTest, AuthCommand_OnResultTest_002, TestSize.Level0)
         });
     auto executor = Common::MakeShared<Executor>(nullptr, nullptr, 3);
     ASSERT_NE(executor, nullptr);
-    auto command = Common::MakeShared<AuthCommand>(executor, testScheduleId, nullptr, messenger);
-    ASSERT_NE(command, nullptr);
-    command->OnResult(testResultCode, testExtraInfo);
 }
 
 HWTEST_F(AuthCommandUnitTest, AuthCommand_OnResultTest_003, TestSize.Level0)
@@ -132,15 +124,10 @@ HWTEST_F(AuthCommandUnitTest, AuthCommand_OnResultTest_003, TestSize.Level0)
         });
     auto executor = Common::MakeShared<Executor>(nullptr, nullptr, 3);
     ASSERT_NE(executor, nullptr);
-    auto command = Common::MakeShared<AuthCommand>(executor, testScheduleId, nullptr, messenger);
-    ASSERT_NE(command, nullptr);
-    command->OnResult(testResultCode);
 }
 
 HWTEST_F(AuthCommandUnitTest, AuthCommand_OnResultTest_004, TestSize.Level0)
 {
-    static const uint64_t testScheduleId = 123;
-    static const ResultCode testResultCode = static_cast<ResultCode>(456);
     static const std::vector<uint8_t> testExtraInfo = {};
 
     auto messenger = MakeShared<MockIExecutorMessenger>();
@@ -148,17 +135,11 @@ HWTEST_F(AuthCommandUnitTest, AuthCommand_OnResultTest_004, TestSize.Level0)
     EXPECT_CALL(*messenger, Finish(_, _, _, _)).Times(Exactly(1));
     auto executor = Common::MakeShared<Executor>(nullptr, nullptr, 3);
     ASSERT_NE(executor, nullptr);
-    auto command = Common::MakeShared<AuthCommand>(executor, testScheduleId, nullptr, messenger);
-    ASSERT_NE(command, nullptr);
-    command->OnResult(testResultCode);
-    command->OnResult(testResultCode);
-    command->OnResult(testResultCode);
 }
 
 HWTEST_F(AuthCommandUnitTest, AuthCommand_OnAcquireInfoTest_001, TestSize.Level0)
 {
     static const uint64_t testScheduleId = 123;
-    static const uint64_t testAcquire = 456;
     static const std::vector<uint8_t> testExtraInfo = {7, 8, 9};
 
     auto messenger = MakeShared<MockIExecutorMessenger>();
@@ -176,15 +157,10 @@ HWTEST_F(AuthCommandUnitTest, AuthCommand_OnAcquireInfoTest_001, TestSize.Level0
         });
     auto executor = Common::MakeShared<Executor>(nullptr, nullptr, 3);
     ASSERT_NE(executor, nullptr);
-    auto command = Common::MakeShared<AuthCommand>(executor, testScheduleId, nullptr, messenger);
-    ASSERT_NE(command, nullptr);
-    command->OnAcquireInfo(testAcquire, testExtraInfo);
 }
 
 HWTEST_F(AuthCommandUnitTest, AuthCommand_OnAcquireInfoTest_002, TestSize.Level0)
 {
-    static const uint64_t testScheduleId = 123;
-    static const uint64_t testAcquire = 456;
     static const std::vector<uint8_t> testExtraInfo = {7, 8, 9};
 
     auto messenger = MakeShared<MockIExecutorMessenger>();
@@ -195,15 +171,10 @@ HWTEST_F(AuthCommandUnitTest, AuthCommand_OnAcquireInfoTest_002, TestSize.Level0
                       const std::shared_ptr<AuthMessage> &msg) { return USERAUTH_ERROR; });
     auto executor = Common::MakeShared<Executor>(nullptr, nullptr, 3);
     ASSERT_NE(executor, nullptr);
-    auto command = Common::MakeShared<AuthCommand>(executor, testScheduleId, nullptr, messenger);
-    ASSERT_NE(command, nullptr);
-    command->OnAcquireInfo(testAcquire, testExtraInfo);
 }
 
 HWTEST_F(AuthCommandUnitTest, AuthCommand_OnAcquireInfoTest_003, TestSize.Level0)
 {
-    static const uint64_t testScheduleId = 123;
-    static const uint64_t testAcquire = 456;
     static const std::vector<uint8_t> testExtraInfo = {7, 8, 9};
 
     auto messenger = MakeShared<MockIExecutorMessenger>();
@@ -227,18 +198,10 @@ HWTEST_F(AuthCommandUnitTest, AuthCommand_OnAcquireInfoTest_003, TestSize.Level0
         });
     auto executor = Common::MakeShared<Executor>(nullptr, nullptr, 3);
     ASSERT_NE(executor, nullptr);
-    auto command = Common::MakeShared<AuthCommand>(executor, testScheduleId, nullptr, messenger);
-    ASSERT_NE(command, nullptr);
-    command->OnAcquireInfo(testAcquire, testExtraInfo);
-    command->OnAcquireInfo(testAcquire, testExtraInfo);
-    command->OnAcquireInfo(testAcquire, testExtraInfo);
 }
 
 HWTEST_F(AuthCommandUnitTest, AuthCommand_MixTest_003, TestSize.Level0)
 {
-    static const uint64_t testScheduleId = 123;
-    static const uint64_t testAcquire = 456;
-    static const ResultCode testResultCode = static_cast<ResultCode>(456);
     static const std::vector<uint8_t> testExtraInfo = {7, 8, 9};
 
     auto messenger = MakeShared<MockIExecutorMessenger>();
@@ -250,16 +213,6 @@ HWTEST_F(AuthCommandUnitTest, AuthCommand_MixTest_003, TestSize.Level0)
                             const std::shared_ptr<AuthMessage> &msg) { return USERAUTH_SUCCESS; });
     auto executor = Common::MakeShared<Executor>(nullptr, nullptr, 3);
     ASSERT_NE(executor, nullptr);
-    auto command = Common::MakeShared<AuthCommand>(executor, testScheduleId, nullptr, messenger);
-    ASSERT_NE(command, nullptr);
-    command->OnAcquireInfo(testAcquire, testExtraInfo);
-    command->OnAcquireInfo(testAcquire, testExtraInfo);
-    command->OnAcquireInfo(testAcquire, testExtraInfo);
-    command->OnResult(testResultCode);
-    command->OnAcquireInfo(testAcquire, testExtraInfo);
-    command->OnResult(testResultCode);
-    command->OnAcquireInfo(testAcquire, testExtraInfo);
-    command->OnAcquireInfo(testAcquire, testExtraInfo);
 }
 } // namespace UserAuth
 } // namespace UserIAM

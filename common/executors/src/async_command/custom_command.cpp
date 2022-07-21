@@ -25,6 +25,7 @@
 #include "framework_types.h"
 #include "iam_check.h"
 #include "iam_logger.h"
+#include "iam_ptr.h"
 #include "iauth_executor_hdi.h"
 
 #define LOG_LABEL Common::LABEL_USER_AUTH_EXECUTOR
@@ -33,16 +34,15 @@ namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
 using namespace UserIam::UserAuth;
-CustomCommand::CustomCommand(std::weak_ptr<Executor> executor, std::shared_ptr<Attributes> attributes)
+CustomCommand::CustomCommand(std::weak_ptr<Executor> executor, const Attributes &attributes)
     : AsyncCommandBase("CUSTOM", 0, executor, nullptr),
-      attributes_(attributes)
+      attributes_(Common::MakeShared<UserIam::UserAuth::Attributes>(attributes.Serialize()))
 {
 }
 
 ResultCode CustomCommand::SendRequest()
 {
     IAM_LOGI("%{public}s send request start", GetDescription());
-    IF_FALSE_LOGE_AND_RETURN_VAL(attributes_ != nullptr, ResultCode::GENERAL_ERROR);
 
     auto hdi = GetExecutorHdi();
     IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, ResultCode::GENERAL_ERROR);

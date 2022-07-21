@@ -26,7 +26,7 @@ namespace UserAuth {
 class AuthCommand : public AsyncCommandBase {
 public:
     AuthCommand(std::weak_ptr<Executor> executor, uint64_t scheduleId,
-        std::shared_ptr<UserIam::UserAuth::Attributes> commandAttrs,
+        const Attributes &commandAttrs,
         std::shared_ptr<ExecutorMessenger> executorMessenger);
     ~AuthCommand() override = default;
 
