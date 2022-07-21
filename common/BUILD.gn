@@ -63,7 +63,10 @@ ohos_source_set("iam_utils") {
     "utils_base:utils",
   ]
 
-  public_configs = [ ":iam_utils_config" ]
+  public_configs = [
+    ":iam_utils_config",
+    ":iam_log_config",
+  ]
 
   part_name = "user_auth_framework"
 }

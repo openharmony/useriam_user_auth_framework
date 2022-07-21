@@ -42,8 +42,6 @@ ohos_shared_library("userauth_executors") {
     "include/async_command",
     "include/framework",
     "include/listener",
-    "//base/useriam/user_auth_framework/common/utils",
-    "//base/useriam/user_auth_framework/common/logs",
   ]
 
   public_configs = [ ":userauth_executors_public_config" ]

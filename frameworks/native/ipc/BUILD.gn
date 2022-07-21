@@ -14,14 +14,16 @@
 import("//build/ohos.gni")
 
 config("userauth_client_ipc_config") {
-  include_dirs = [ "inc" ]
+  include_dirs = [
+    "inc",
+    "common_defines",
+  ]
 }
 
 ohos_source_set("userauth_client_ipc") {
   include_dirs = [
     "inc",
     "common_defines",
-    "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/interfaces/inner_api",
   ]
 
@@ -41,6 +43,8 @@ ohos_source_set("userauth_client_ipc") {
   public_configs = [ ":userauth_client_ipc_config" ]
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
+  deps = [ "//base/useriam/user_auth_framework/common:iam_utils" ]
+
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -52,7 +56,6 @@ ohos_source_set("userauth_service_ipc") {
   include_dirs = [
     "inc",
     "common_defines",
-    "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/interfaces/inner_api",
   ]
 
@@ -69,6 +72,8 @@ ohos_source_set("userauth_service_ipc") {
   configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
   public_configs = [ ":userauth_client_ipc_config" ]
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
+  deps = [ "//base/useriam/user_auth_framework/common:iam_utils" ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",

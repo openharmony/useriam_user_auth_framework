@@ -19,15 +19,11 @@ config("useridm_public_config") {
     "inc",
     "//base/useriam/user_auth_framework/common/logs/user_idm",
     "//base/useriam/user_auth_framework/common/logs",
-    "//third_party/libuv/include",
   ]
 }
 
 ohos_shared_library("useridm") {
-  include_dirs = [
-    "inc",
-    "//third_party/libuv/include",
-  ]
+  include_dirs = [ "inc" ]
 
   sources = [
     "src/auth_common.cpp",
