@@ -17,7 +17,6 @@
 #define USER_IDM_INTERFACE_H
 
 #include <cstdint>
-#include <optional>
 
 #include "refbase.h"
 #include "user_idm_callback_interface.h"
@@ -29,23 +28,15 @@ class UserIdmInterface : public IRemoteBroker {
 public:
     enum : uint32_t {
         USER_IDM_OPEN_SESSION = 0,
-        USER_IDM_OPEN_SESSION_BY_ID,
         USER_IDM_CLOSE_SESSION,
-        USER_IDM_CLOSE_SESSION_BY_ID,
-        USER_IDM_GET_AUTH_INFO,
-        USER_IDM_GET_AUTH_INFO_BY_ID,
+        USER_IDM_GET_CRED_INFO,
         USER_IDM_GET_SEC_INFO,
         USER_IDM_ADD_CREDENTIAL,
-        USER_IDM_ADD_CREDENTIAL_BY_ID,
         USER_IDM_UPDATE_CREDENTIAL,
-        USER_IDM_UPDATE_CREDENTIAL_BY_ID,
         USER_IDM_CANCEL,
-        USER_IDM_CANCEL_BY_ID,
         USER_IDM_ENFORCE_DEL_USER,
         USER_IDM_DEL_USER,
-        USER_IDM_DEL_USER_BY_ID,
         USER_IDM_DEL_CRED,
-        USER_IDM_DEL_CREDENTIAL,
     };
 
     /*
@@ -54,14 +45,14 @@ public:
      * param userId user id.
      * return challenge value.
      */
-    virtual int32_t OpenSession(std::optional<int32_t> userId, std::vector<uint8_t> &challenge) = 0;
+    virtual int32_t OpenSession(int32_t userId, std::vector<uint8_t> &challenge) = 0;
 
     /*
      * end an IDM operation.
      *
      * param userId user id.
      */
-    virtual void CloseSession(std::optional<int32_t> userId) = 0;
+    virtual void CloseSession(int32_t userId) = 0;
 
     /*
      * get authentication information.
@@ -70,7 +61,7 @@ public:
      * param authType credential type.
      * param callback returns all registered credential information of this type for the specific user.
      */
-    virtual int32_t GetCredentialInfo(std::optional<int32_t> userId, AuthType authType,
+    virtual int32_t GetCredentialInfo(int32_t userId, AuthType authType,
         const sptr<IdmGetCredInfoCallbackInterface> &callback) = 0;
 
     /*
@@ -79,8 +70,7 @@ public:
      * param userId current user id.
      * param callback returns all registered security information for the specific user.
      */
-    virtual int32_t GetSecInfo(std::optional<int32_t> userId,
-        const sptr<IdmGetSecureUserInfoCallbackInterface> &callback) = 0;
+    virtual int32_t GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserInfoCallbackInterface> &callback) = 0;
 
     /**
      * add user credential information, pass in credential addition method and credential information
@@ -92,7 +82,7 @@ public:
      * (credential type, subtype, password authentication token).
      * param callback get results / acquire info callback.
      */
-    virtual void AddCredential(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
+    virtual void AddCredential(int32_t userId, AuthType authType, PinSubType pinSubType,
         const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback, bool isUpdate) = 0;
     /*
      * update user credential information.
@@ -102,7 +92,7 @@ public:
      * (credential type, subtype, password authentication token).
      * param callback update results / acquire info callback.
      */
-    virtual void UpdateCredential(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
+    virtual void UpdateCredential(int32_t userId, AuthType authType, PinSubType pinSubType,
         const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback) = 0;
 
     /*
@@ -110,7 +100,7 @@ public:
      *
      * param userId user id.
      */
-    virtual int32_t Cancel(std::optional<int32_t> userId, const std::optional<std::vector<uint8_t>> &challenge) = 0;
+    virtual int32_t Cancel(int32_t userId) = 0;
 
     /*
      * enforce delete the user credential information, pass in the callback,
@@ -129,7 +119,7 @@ public:
      * param authToken user password authentication token.
      * param callback get deletion result through callback.
      */
-    virtual void DelUser(std::optional<int32_t> userId, const std::vector<uint8_t> authToken,
+    virtual void DelUser(int32_t userId, const std::vector<uint8_t> authToken,
         const sptr<IdmCallbackInterface> &callback) = 0;
 
     /*
@@ -142,7 +132,7 @@ public:
      * param authToken password authentication token.
      * param callback get deletion result through callback.
      */
-    virtual void DelCredential(std::optional<int32_t> userId, uint64_t credentialId,
+    virtual void DelCredential(int32_t userId, uint64_t credentialId,
         const std::vector<uint8_t> &authToken, const sptr<IdmCallbackInterface> &callback) = 0;
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.useridm.IUserIDM");
 };

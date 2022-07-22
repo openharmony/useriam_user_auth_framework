@@ -112,8 +112,7 @@ int32_t UserIdmClientImpl::Cancel(int32_t userId)
         return FAIL;
     }
 
-    std::optional<std::vector<uint8_t>> challenge;
-    return proxy->Cancel(userId, challenge);
+    return proxy->Cancel(userId);
 }
 
 void UserIdmClientImpl::DeleteCredential(int32_t userId, uint64_t credentialId, const std::vector<uint8_t> &authToken,

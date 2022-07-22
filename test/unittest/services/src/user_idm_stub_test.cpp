@@ -57,28 +57,6 @@ void UserIdmStubTest::TearDown()
 HWTEST_F(UserIdmStubTest, UserIdmStubOpenSessionStub, TestSize.Level0)
 {
     MockUserIdmService service;
-    EXPECT_CALL(service, OpenSession(Eq(std::nullopt), _)).Times(1);
-    ON_CALL(service, OpenSession).WillByDefault([](std::optional<int32_t> userId, std::vector<uint8_t> &challenge) {
-        challenge = g_challengeVectorTest;
-        return SUCCESS;
-    });
-
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
-
-    EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
-
-    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_OPEN_SESSION, data, reply, option));
-
-    std::vector<uint8_t> challenge;
-    EXPECT_TRUE(reply.ReadUInt8Vector(&challenge));
-    EXPECT_THAT(g_challengeVectorTest, ElementsAre(1, 2, 3, 4, 5, 6, 7, 8));
-}
-
-HWTEST_F(UserIdmStubTest, UserIdmStubOpenSessionByIdStub, TestSize.Level0)
-{
-    MockUserIdmService service;
     EXPECT_CALL(service, OpenSession(Eq(IDM_STUB_TEST_USER_ID), _)).Times(1);
     ON_CALL(service, OpenSession).WillByDefault([](std::optional<int32_t> userId, std::vector<uint8_t> &challenge) {
         challenge = g_challengeVectorTest;
@@ -92,7 +70,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubOpenSessionByIdStub, TestSize.Level0)
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(IDM_STUB_TEST_USER_ID));
 
-    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_OPEN_SESSION_BY_ID, data, reply, option));
+    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_OPEN_SESSION, data, reply, option));
 
     std::vector<uint8_t> challenge;
     EXPECT_TRUE(reply.ReadUInt8Vector(&challenge));
@@ -100,20 +78,6 @@ HWTEST_F(UserIdmStubTest, UserIdmStubOpenSessionByIdStub, TestSize.Level0)
 }
 
 HWTEST_F(UserIdmStubTest, UserIdmStubCloseSessionStub, TestSize.Level0)
-{
-    MockUserIdmService service;
-    EXPECT_CALL(service, CloseSession(Eq(std::nullopt))).Times(1);
-
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
-
-    EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
-
-    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_CLOSE_SESSION, data, reply, option));
-}
-
-HWTEST_F(UserIdmStubTest, UserIdmStubCloseSessionByIdStub, TestSize.Level0)
 {
     MockUserIdmService service;
     EXPECT_CALL(service, CloseSession(Eq(IDM_STUB_TEST_USER_ID))).Times(1);
@@ -125,43 +89,10 @@ HWTEST_F(UserIdmStubTest, UserIdmStubCloseSessionByIdStub, TestSize.Level0)
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(IDM_STUB_TEST_USER_ID));
 
-    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_CLOSE_SESSION_BY_ID, data, reply, option));
+    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_CLOSE_SESSION, data, reply, option));
 }
 
 HWTEST_F(UserIdmStubTest, UserIdmStubGetCredentialInfoStub, TestSize.Level0)
-{
-    MockUserIdmService service;
-    const sptr<MockIdmGetCredentialInfoCallback> callback = new (std::nothrow) MockIdmGetCredentialInfoCallback();
-    ASSERT_NE(callback, nullptr);
-    EXPECT_CALL(service, GetCredentialInfo(Eq(std::nullopt), FACE, _)).Times(1);
-    ON_CALL(service, GetCredentialInfo)
-        .WillByDefault([](std::optional<int32_t> userId, AuthType authType,
-                           const sptr<IdmGetCredInfoCallbackInterface> &callback) {
-            EXPECT_NE(callback, nullptr);
-            if (callback != nullptr) {
-                std::vector<std::shared_ptr<CredentialInfo>> infoList;
-                callback->OnCredentialInfos(infoList, std::nullopt);
-            }
-            return SUCCESS;
-        });
-    EXPECT_CALL(*callback, OnCredentialInfos(_, _)).Times(1);
-
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
-
-    EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
-    EXPECT_TRUE(data.WriteUint32(FACE));
-    EXPECT_NE(callback->AsObject(), nullptr);
-    EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
-
-    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_GET_AUTH_INFO, data, reply, option));
-
-    int32_t result;
-    EXPECT_TRUE(reply.ReadInt32(result));
-}
-
-HWTEST_F(UserIdmStubTest, UserIdmStubGetCredentialInfoByIdStub, TestSize.Level0)
 {
     MockUserIdmService service;
     const sptr<MockIdmGetCredentialInfoCallback> callback = new (std::nothrow) MockIdmGetCredentialInfoCallback();
@@ -189,7 +120,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubGetCredentialInfoByIdStub, TestSize.Level0)
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
 
-    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_GET_AUTH_INFO_BY_ID, data, reply, option));
+    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_GET_CRED_INFO, data, reply, option));
 
     int32_t result;
     EXPECT_TRUE(reply.ReadInt32(result));
@@ -232,38 +163,6 @@ HWTEST_F(UserIdmStubTest, UserIdmStubAddCredentialStub, TestSize.Level0)
     MockUserIdmService service;
     const sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
     ASSERT_NE(callback, nullptr);
-    EXPECT_CALL(service, AddCredential(Eq(std::nullopt), PIN, PIN_SIX, IsEmpty(), _, false)).Times(1);
-    ON_CALL(service, AddCredential)
-        .WillByDefault(
-            [](std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
-                const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback, bool isUpdate) {
-                EXPECT_NE(callback, nullptr);
-                if (callback != nullptr) {
-                    Attributes attr;
-                    callback->OnResult(SUCCESS, attr);
-                }
-            });
-    EXPECT_CALL(*callback, OnResult(_, _)).Times(1);
-
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
-
-    EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
-    EXPECT_TRUE(data.WriteUint32(PIN));
-    EXPECT_TRUE(data.WriteUint64(PIN_SIX));
-    EXPECT_TRUE(data.WriteUInt8Vector(IDM_STUB_TEST_AUTH_TOKEN));
-    EXPECT_NE(callback->AsObject(), nullptr);
-    EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
-
-    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_ADD_CREDENTIAL, data, reply, option));
-}
-
-HWTEST_F(UserIdmStubTest, UserIdmStubAddCredentialByIdStub, TestSize.Level0)
-{
-    MockUserIdmService service;
-    const sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
-    ASSERT_NE(callback, nullptr);
     EXPECT_CALL(service, AddCredential(Eq(IDM_STUB_TEST_USER_ID), PIN, PIN_SIX, IsEmpty(), _, false)).Times(1);
     ON_CALL(service, AddCredential)
         .WillByDefault(
@@ -289,41 +188,10 @@ HWTEST_F(UserIdmStubTest, UserIdmStubAddCredentialByIdStub, TestSize.Level0)
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
 
-    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_ADD_CREDENTIAL_BY_ID, data, reply, option));
+    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_ADD_CREDENTIAL, data, reply, option));
 }
 
 HWTEST_F(UserIdmStubTest, UserIdmStubUpdateCredentialStub, TestSize.Level0)
-{
-    MockUserIdmService service;
-    const sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
-    ASSERT_NE(callback, nullptr);
-    EXPECT_CALL(service, UpdateCredential(Eq(std::nullopt), PIN, PIN_SIX, Eq(IDM_STUB_TEST_AUTH_TOKEN), _)).Times(1);
-    ON_CALL(service, UpdateCredential)
-        .WillByDefault([](std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
-                           const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback) {
-            EXPECT_NE(callback, nullptr);
-            if (callback != nullptr) {
-                Attributes attr;
-                callback->OnResult(SUCCESS, attr);
-            }
-        });
-    EXPECT_CALL(*callback, OnResult(_, _)).Times(1);
-
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
-
-    EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
-    EXPECT_TRUE(data.WriteUint32(PIN));
-    EXPECT_TRUE(data.WriteUint64(PIN_SIX));
-    EXPECT_TRUE(data.WriteUInt8Vector(IDM_STUB_TEST_AUTH_TOKEN));
-    EXPECT_NE(callback->AsObject(), nullptr);
-    EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
-
-    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_UPDATE_CREDENTIAL, data, reply, option));
-}
-
-HWTEST_F(UserIdmStubTest, UserIdmStubUpdateCredentialByIdStub, TestSize.Level0)
 {
     MockUserIdmService service;
     const sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
@@ -354,31 +222,13 @@ HWTEST_F(UserIdmStubTest, UserIdmStubUpdateCredentialByIdStub, TestSize.Level0)
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
 
     EXPECT_EQ(SUCCESS,
-        service.OnRemoteRequest(UserIdmInterface::USER_IDM_UPDATE_CREDENTIAL_BY_ID, data, reply, option));
+        service.OnRemoteRequest(UserIdmInterface::USER_IDM_UPDATE_CREDENTIAL, data, reply, option));
 }
 
 HWTEST_F(UserIdmStubTest, UserIdmStubCancelStub, TestSize.Level0)
 {
     MockUserIdmService service;
-    EXPECT_CALL(service, Cancel(Eq(std::nullopt), Eq(g_challengeVectorTest))).WillOnce(Return(SUCCESS));
-
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
-
-    EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
-    EXPECT_TRUE(data.WriteUInt8Vector(g_challengeVectorTest));
-
-    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_CANCEL, data, reply, option));
-
-    int32_t result;
-    EXPECT_TRUE(reply.ReadInt32(result));
-}
-
-HWTEST_F(UserIdmStubTest, UserIdmStubCancelByIdStub, TestSize.Level0)
-{
-    MockUserIdmService service;
-    EXPECT_CALL(service, Cancel(Eq(IDM_STUB_TEST_USER_ID), Eq(std::nullopt))).WillOnce(Return(SUCCESS));
+    EXPECT_CALL(service, Cancel(Eq(IDM_STUB_TEST_USER_ID))).WillOnce(Return(SUCCESS));
 
     MessageParcel data;
     MessageParcel reply;
@@ -387,7 +237,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubCancelByIdStub, TestSize.Level0)
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(IDM_STUB_TEST_USER_ID));
 
-    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_CANCEL_BY_ID, data, reply, option));
+    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_CANCEL, data, reply, option));
 
     int32_t result;
     EXPECT_TRUE(reply.ReadInt32(result));
@@ -429,36 +279,6 @@ HWTEST_F(UserIdmStubTest, UserIdmStubDelUserStub, TestSize.Level0)
     MockUserIdmService service;
     const sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
     ASSERT_NE(callback, nullptr);
-    EXPECT_CALL(service, DelUser(Eq(std::nullopt), Eq(IDM_STUB_TEST_AUTH_TOKEN), _)).Times(1);
-    ON_CALL(service, DelUser)
-        .WillByDefault([](std::optional<int32_t> userId, const std::vector<uint8_t> authToken,
-                           const sptr<IdmCallbackInterface> &callback) {
-            EXPECT_NE(callback, nullptr);
-            if (callback != nullptr) {
-                Attributes attr;
-                callback->OnResult(SUCCESS, attr);
-            }
-            return SUCCESS;
-        });
-    EXPECT_CALL(*callback, OnResult(_, _)).Times(1);
-
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
-
-    EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
-    EXPECT_TRUE(data.WriteUInt8Vector(IDM_STUB_TEST_AUTH_TOKEN));
-    EXPECT_NE(callback->AsObject(), nullptr);
-    EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
-
-    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_DEL_USER, data, reply, option));
-}
-
-HWTEST_F(UserIdmStubTest, UserIdmStubDelUserByIdStub, TestSize.Level0)
-{
-    MockUserIdmService service;
-    const sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
-    ASSERT_NE(callback, nullptr);
     EXPECT_CALL(service, DelUser(Eq(IDM_STUB_TEST_USER_ID), Eq(IDM_STUB_TEST_AUTH_TOKEN), _)).Times(1);
     ON_CALL(service, DelUser)
         .WillByDefault([](std::optional<int32_t> userId, const std::vector<uint8_t> authToken,
@@ -482,41 +302,10 @@ HWTEST_F(UserIdmStubTest, UserIdmStubDelUserByIdStub, TestSize.Level0)
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
 
-    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_DEL_USER_BY_ID, data, reply, option));
+    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_DEL_USER, data, reply, option));
 }
 
 HWTEST_F(UserIdmStubTest, UserIdmStubDelCredentialStub, TestSize.Level0)
-{
-    MockUserIdmService service;
-    const sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
-    ASSERT_NE(callback, nullptr);
-    EXPECT_CALL(service, DelCredential(Eq(std::nullopt), Eq(IDM_STUB_TEST_CRED_ID), Eq(IDM_STUB_TEST_AUTH_TOKEN), _))
-        .Times(1);
-    ON_CALL(service, DelCredential)
-        .WillByDefault([](std::optional<int32_t> userId, uint64_t credentialId, const std::vector<uint8_t> &authToken,
-                           const sptr<IdmCallbackInterface> &callback) {
-            EXPECT_NE(callback, nullptr);
-            if (callback != nullptr) {
-                Attributes attr;
-                callback->OnResult(SUCCESS, attr);
-            }
-        });
-    EXPECT_CALL(*callback, OnResult(_, _)).Times(1);
-
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
-
-    EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
-    EXPECT_TRUE(data.WriteUint64(IDM_STUB_TEST_CRED_ID));
-    EXPECT_TRUE(data.WriteUInt8Vector(IDM_STUB_TEST_AUTH_TOKEN));
-    EXPECT_NE(callback->AsObject(), nullptr);
-    EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
-
-    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_DEL_CRED, data, reply, option));
-}
-
-HWTEST_F(UserIdmStubTest, UserIdmStubDelCredentialByIdStub, TestSize.Level0)
 {
     MockUserIdmService service;
     const sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
@@ -546,7 +335,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubDelCredentialByIdStub, TestSize.Level0)
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
 
-    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_DEL_CREDENTIAL, data, reply, option));
+    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserIdmInterface::USER_IDM_DEL_CRED, data, reply, option));
 }
 } // namespace UserAuth
 } // namespace UserIam

@@ -16,7 +16,6 @@
 #include "user_idm_service.h"
 
 #include "string_ex.h"
-
 #include "accesstoken_kit.h"
 
 #include "context_factory.h"
@@ -62,7 +61,7 @@ void UserIdmService::OnStop()
     IAM_LOGI("stop service");
 }
 
-int32_t UserIdmService::OpenSession(std::optional<int32_t> userId, std::vector<uint8_t> &challenge)
+int32_t UserIdmService::OpenSession(int32_t userId, std::vector<uint8_t> &challenge)
 {
     IAM_LOGI("start");
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
@@ -83,7 +82,7 @@ int32_t UserIdmService::OpenSession(std::optional<int32_t> userId, std::vector<u
         }
     }
 
-    if (!UserIdmSessionController::Instance().OpenSession(userId.value(), challenge)) {
+    if (!UserIdmSessionController::Instance().OpenSession(userId, challenge)) {
         IAM_LOGE("failed to open session");
         return FAIL;
     }
@@ -91,7 +90,7 @@ int32_t UserIdmService::OpenSession(std::optional<int32_t> userId, std::vector<u
     return SUCCESS;
 }
 
-void UserIdmService::CloseSession(std::optional<int32_t> userId)
+void UserIdmService::CloseSession(int32_t userId)
 {
     IAM_LOGI("start");
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
@@ -103,19 +102,18 @@ void UserIdmService::CloseSession(std::optional<int32_t> userId)
         return;
     }
 
-    if (!UserIdmSessionController::Instance().CloseSession(userId.value())) {
+    if (!UserIdmSessionController::Instance().CloseSession(userId)) {
         IAM_LOGE("failed to get close session");
     }
 }
 
-int32_t UserIdmService::GetCredentialInfo(std::optional<int32_t> userId, AuthType authType,
+int32_t UserIdmService::GetCredentialInfo(int32_t userId, AuthType authType,
     const sptr<IdmGetCredInfoCallbackInterface> &callback)
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return INVALID_PARAMETERS;
     }
-
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("failed to get userId");
         return INVALID_PARAMETERS;
@@ -126,14 +124,14 @@ int32_t UserIdmService::GetCredentialInfo(std::optional<int32_t> userId, AuthTyp
     }
 
     std::optional<PinSubType> pinSubType = std::nullopt;
-    auto credInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId.value(), authType);
+    auto credInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType);
     if (credInfos.empty()) {
         IAM_LOGI("no cred enrolled");
         callback->OnCredentialInfos(credInfos, pinSubType);
         return SUCCESS;
     }
 
-    auto userInfo = UserIdmDatabase::Instance().GetSecUserInfo(userId.value());
+    auto userInfo = UserIdmDatabase::Instance().GetSecUserInfo(userId);
     if (userInfo == nullptr) {
         IAM_LOGE("failed to get userInfo");
         return INVALID_PARAMETERS;
@@ -146,22 +144,20 @@ int32_t UserIdmService::GetCredentialInfo(std::optional<int32_t> userId, AuthTyp
     return SUCCESS;
 }
 
-int32_t UserIdmService::GetSecInfo(std::optional<int32_t> userId,
-    const sptr<IdmGetSecureUserInfoCallbackInterface> &callback)
+int32_t UserIdmService::GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserInfoCallbackInterface> &callback)
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return INVALID_PARAMETERS;
     }
-
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("failed to get userId");
         return INVALID_PARAMETERS;
     }
 
-    auto userInfos = UserIdmDatabase::Instance().GetSecUserInfo(userId.value());
+    auto userInfos = UserIdmDatabase::Instance().GetSecUserInfo(userId);
     if (userInfos == nullptr) {
-        IAM_LOGE("current userid %{public}d is not existed", userId.value());
+        IAM_LOGE("current userid %{public}d is not existed", userId);
         return INVALID_PARAMETERS;
     }
     callback->OnSecureUserInfo(userInfos);
@@ -169,7 +165,7 @@ int32_t UserIdmService::GetSecInfo(std::optional<int32_t> userId,
     return SUCCESS;
 }
 
-void UserIdmService::AddCredential(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
+void UserIdmService::AddCredential(int32_t userId, AuthType authType, PinSubType pinSubType,
     const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback, bool isUpdate)
 {
     if (callback == nullptr) {
@@ -193,7 +189,7 @@ void UserIdmService::AddCredential(std::optional<int32_t> userId, AuthType authT
         contextCallback->OnResult(INVALID_PARAMETERS, extraInfo);
         return;
     }
-    contextCallback->SetTraceUserId(userId.value());
+    contextCallback->SetTraceUserId(userId);
 
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
@@ -205,7 +201,7 @@ void UserIdmService::AddCredential(std::optional<int32_t> userId, AuthType authT
     CancelCurrentEnrollIfExist();
     auto tokenId = IpcCommon::GetAccessTokenId(*this);
     auto context =
-        ContextFactory::CreateEnrollContext(userId.value(), authType, pinSubType, token, tokenId, contextCallback);
+        ContextFactory::CreateEnrollContext(userId, authType, pinSubType, token, tokenId, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
         contextCallback->OnResult(FAIL, extraInfo);
@@ -221,7 +217,7 @@ void UserIdmService::AddCredential(std::optional<int32_t> userId, AuthType authT
     }
 }
 
-void UserIdmService::UpdateCredential(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
+void UserIdmService::UpdateCredential(int32_t userId, AuthType authType, PinSubType pinSubType,
     const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback)
 {
     if (callback == nullptr) {
@@ -240,9 +236,9 @@ void UserIdmService::UpdateCredential(std::optional<int32_t> userId, AuthType au
         return;
     }
 
-    auto credInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId.value(), authType);
+    auto credInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType);
     if (credInfos.empty()) {
-        IAM_LOGE("current userid %{public}d has no credential for type %{public}u", userId.value(), authType);
+        IAM_LOGE("current userid %{public}d has no credential for type %{public}u", userId, authType);
         callback->OnResult(FAIL, extraInfo);
         return;
     }
@@ -250,17 +246,13 @@ void UserIdmService::UpdateCredential(std::optional<int32_t> userId, AuthType au
     AddCredential(userId, authType, pinSubType, token, callback, true);
 }
 
-int32_t UserIdmService::Cancel(std::optional<int32_t> userId, const std::optional<std::vector<uint8_t>> &challenge)
+int32_t UserIdmService::Cancel(int32_t userId)
 {
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
     }
-
-    bool userIdIsValid = userId.has_value() && UserIdmSessionController::Instance().IsSessionOpened(userId.value());
-    bool challengeIsValid = challenge.has_value() &&
-        UserIdmSessionController::Instance().IsSessionOpened(challenge.value());
-    if (!userIdIsValid && !challengeIsValid) {
+    if (!UserIdmSessionController::Instance().IsSessionOpened(userId)) {
         IAM_LOGE("both user id and challenge are invalid");
         return FAIL;
     }
@@ -342,7 +334,7 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInt
     return SUCCESS;
 }
 
-void UserIdmService::DelUser(std::optional<int32_t> userId, const std::vector<uint8_t> authToken,
+void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToken,
     const sptr<IdmCallbackInterface> &callback)
 {
     if (callback == nullptr) {
@@ -365,7 +357,7 @@ void UserIdmService::DelUser(std::optional<int32_t> userId, const std::vector<ui
         contextCallback->OnResult(INVALID_PARAMETERS, extraInfo);
         return;
     }
-    contextCallback->SetTraceUserId(userId.value());
+    contextCallback->SetTraceUserId(userId);
 
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
@@ -379,7 +371,7 @@ void UserIdmService::DelUser(std::optional<int32_t> userId, const std::vector<ui
     }
 
     std::vector<std::shared_ptr<CredentialInfo>> credInfos;
-    int32_t ret = UserIdmDatabase::Instance().DeleteUser(userId.value(), authToken, credInfos);
+    int32_t ret = UserIdmDatabase::Instance().DeleteUser(userId, authToken, credInfos);
     if (ret != SUCCESS) {
         IAM_LOGE("failed to delete user");
         contextCallback->OnResult(ret, extraInfo);
@@ -395,7 +387,7 @@ void UserIdmService::DelUser(std::optional<int32_t> userId, const std::vector<ui
     contextCallback->OnResult(ret, extraInfo);
 }
 
-void UserIdmService::DelCredential(std::optional<int32_t> userId, uint64_t credentialId,
+void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
     const std::vector<uint8_t> &authToken, const sptr<IdmCallbackInterface> &callback)
 {
     if (callback == nullptr) {
@@ -418,7 +410,7 @@ void UserIdmService::DelCredential(std::optional<int32_t> userId, uint64_t crede
         contextCallback->OnResult(INVALID_PARAMETERS, extraInfo);
         return;
     }
-    contextCallback->SetTraceUserId(userId.value());
+    contextCallback->SetTraceUserId(userId);
 
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
@@ -427,7 +419,7 @@ void UserIdmService::DelCredential(std::optional<int32_t> userId, uint64_t crede
     }
 
     std::shared_ptr<CredentialInfo> oldInfo;
-    auto ret = UserIdmDatabase::Instance().DeleteCredentialInfo(userId.value(), credentialId, authToken, oldInfo);
+    auto ret = UserIdmDatabase::Instance().DeleteCredentialInfo(userId, credentialId, authToken, oldInfo);
     if (ret != SUCCESS) {
         IAM_LOGE("failed to delete CredentialInfo");
         contextCallback->OnResult(ret, extraInfo);
