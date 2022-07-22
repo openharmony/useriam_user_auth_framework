@@ -13,21 +13,24 @@
 
 import("//build/ohos.gni")
 
-config("userauth_service_base_config") {
-  include_dirs = [ "inc" ]
+if (!defined(global_parts_info) ||
+    defined(global_parts_info.account_os_account)) {
+  has_os_account_part = true
+} else {
+  has_os_account_part = false
 }
 
-ohos_source_set("userauth_service_base") {
+ohos_source_set("userauth_services_ipc") {
   include_dirs = [ "inc" ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   sources = [
-    "src/finite_state_machine_builder.cpp",
-    "src/finite_state_machine_impl.cpp",
-    "src/hdi_wrapper.cpp",
-    "src/relative_timer.cpp",
-    "src/thread_handler_impl.cpp",
+    "src/co_auth_service.cpp",
+    "src/executor_messenger_service.cpp",
+    "src/ipc_common.cpp",
+    "src/user_auth_service.cpp",
+    "src/user_idm_service.cpp",
   ]
 
   deps = [
@@ -35,6 +38,9 @@ ohos_source_set("userauth_service_base") {
     "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
     "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
     "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_service_ipc",
+    "//base/useriam/user_auth_framework/services/base:userauth_service_base",
+    "//base/useriam/user_auth_framework/services/context:userauth_service_context",
+    "//base/useriam/user_auth_framework/services/core:userauth_service_core",
     "//third_party/openssl:libcrypto_shared",
   ]
 
@@ -50,7 +56,10 @@ ohos_source_set("userauth_service_base") {
     "utils_base:utils",
   ]
 
-  public_configs = [ ":userauth_service_base_config" ]
+  if (has_os_account_part) {
+    cflags_cc = [ "-DHAS_OS_ACCOUNT_PART" ]
+    external_deps += [ "os_account:os_account_innerkits" ]
+  }
 
   configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
 

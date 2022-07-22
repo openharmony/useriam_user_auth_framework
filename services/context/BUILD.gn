@@ -13,21 +13,25 @@
 
 import("//build/ohos.gni")
 
-config("userauth_service_base_config") {
+config("userauth_service_context_config") {
   include_dirs = [ "inc" ]
 }
 
-ohos_source_set("userauth_service_base") {
+ohos_source_set("userauth_service_context") {
   include_dirs = [ "inc" ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   sources = [
-    "src/finite_state_machine_builder.cpp",
-    "src/finite_state_machine_impl.cpp",
-    "src/hdi_wrapper.cpp",
-    "src/relative_timer.cpp",
-    "src/thread_handler_impl.cpp",
+    "src/base_context.cpp",
+    "src/context_callback_impl.cpp",
+    "src/context_factory.cpp",
+    "src/context_helper.cpp",
+    "src/context_pool_impl.cpp",
+    "src/enroll_context.cpp",
+    "src/identify_context.cpp",
+    "src/simple_auth_context.cpp",
+    "src/trace.cpp",
   ]
 
   deps = [
@@ -35,6 +39,8 @@ ohos_source_set("userauth_service_base") {
     "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
     "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
     "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_service_ipc",
+    "//base/useriam/user_auth_framework/services/base:userauth_service_base",
+    "//base/useriam/user_auth_framework/services/core:userauth_service_core",
     "//third_party/openssl:libcrypto_shared",
   ]
 
@@ -50,7 +56,7 @@ ohos_source_set("userauth_service_base") {
     "utils_base:utils",
   ]
 
-  public_configs = [ ":userauth_service_base_config" ]
+  public_configs = [ ":userauth_service_context_config" ]
 
   configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
 
