@@ -32,7 +32,8 @@ ohos_shared_library("useridm") {
     "src/useridentity_manager.cpp",
   ]
 
-  deps = [ "//base/useriam/user_auth_framework/frameworks/native/client:userauth_client" ]
+  deps = [ "//base/useriam/user_auth_framework/frameworks/native/client:userauth_client",
+  "//base/useriam/user_auth_framework/common:iam_utils"]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
