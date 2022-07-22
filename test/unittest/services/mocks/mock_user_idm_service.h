@@ -25,22 +25,20 @@ namespace UserIam {
 namespace UserAuth {
 class MockUserIdmService final : public UserIdmStub {
 public:
-    MOCK_METHOD2(OpenSession, int32_t(std::optional<int32_t> userId, std::vector<uint8_t> &challenge));
-    MOCK_METHOD1(CloseSession, void(std::optional<int32_t> userId));
-    MOCK_METHOD3(GetCredentialInfo, int32_t(std::optional<int32_t> userId, AuthType authType,
+    MOCK_METHOD2(OpenSession, int32_t(int32_t userId, std::vector<uint8_t> &challenge));
+    MOCK_METHOD1(CloseSession, void(int32_t userId));
+    MOCK_METHOD3(GetCredentialInfo, int32_t(int32_t userId, AuthType authType,
                                         const sptr<IdmGetCredInfoCallbackInterface> &callback));
-    MOCK_METHOD2(GetSecInfo,
-        int32_t(std::optional<int32_t> userId, const sptr<IdmGetSecureUserInfoCallbackInterface> &callback));
-    MOCK_METHOD6(AddCredential,
-        void(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType, const std::vector<uint8_t> &token,
-            const sptr<IdmCallbackInterface> &callback, bool isUpdate));
-    MOCK_METHOD5(UpdateCredential, void(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
+    MOCK_METHOD2(GetSecInfo, int32_t(int32_t userId, const sptr<IdmGetSecureUserInfoCallbackInterface> &callback));
+    MOCK_METHOD6(AddCredential, void(int32_t userId, AuthType authType, PinSubType pinSubType,
+        const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback, bool isUpdate));
+    MOCK_METHOD5(UpdateCredential, void(int32_t userId, AuthType authType, PinSubType pinSubType,
                                        const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback));
-    MOCK_METHOD2(Cancel, int32_t(std::optional<int32_t> userId, const std::optional<std::vector<uint8_t>> &challenge));
+    MOCK_METHOD1(Cancel, int32_t(int32_t userId));
     MOCK_METHOD2(EnforceDelUser, int32_t(int32_t userId, const sptr<IdmCallbackInterface> &callback));
-    MOCK_METHOD3(DelUser, void(std::optional<int32_t> userId, const std::vector<uint8_t> authToken,
+    MOCK_METHOD3(DelUser, void(int32_t userId, const std::vector<uint8_t> authToken,
                               const sptr<IdmCallbackInterface> &callback));
-    MOCK_METHOD4(DelCredential, void(std::optional<int32_t> userId, uint64_t credentialId,
+    MOCK_METHOD4(DelCredential, void(int32_t userId, uint64_t credentialId,
                                     const std::vector<uint8_t> &authToken, const sptr<IdmCallbackInterface> &callback));
 };
 } // namespace UserAuth
