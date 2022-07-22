@@ -15,11 +15,7 @@ import("//build/ohos.gni")
 
 config("useridm_public_config") {
   visibility = [ ":*" ]
-  include_dirs = [
-    "inc",
-    "//base/useriam/user_auth_framework/common/logs/user_idm",
-    "//base/useriam/user_auth_framework/common/logs",
-  ]
+  include_dirs = [ "inc" ]
 }
 
 ohos_shared_library("useridm") {
@@ -32,8 +28,10 @@ ohos_shared_library("useridm") {
     "src/useridentity_manager.cpp",
   ]
 
-  deps = [ "//base/useriam/user_auth_framework/frameworks/native/client:userauth_client",
-  "//base/useriam/user_auth_framework/common:iam_utils"]
+  deps = [
+    "//base/useriam/user_auth_framework/common:iam_utils",
+    "//base/useriam/user_auth_framework/frameworks/native/client:userauth_client",
+  ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
