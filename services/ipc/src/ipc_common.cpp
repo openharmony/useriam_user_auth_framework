@@ -31,6 +31,17 @@ int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, std::optional<int32_t> 
     if (userId.has_value() && userId.value() != 0) {
         return SUCCESS;
     }
+    int32_t tempUserId = 0;
+    int32_t ret = GetCallingUserId(stub, tempUserId);
+    userId = tempUserId;
+    return ret;
+}
+
+int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, int32_t &userId)
+{
+    if (userId != 0) {
+        return SUCCESS;
+    }
     uint32_t tokenId = GetAccessTokenId(stub);
     using namespace Security::AccessToken;
     ATokenTypeEnum callingType = AccessTokenKit::GetTokenTypeFlag(tokenId);
@@ -45,7 +56,7 @@ int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, std::optional<int32_t> 
         return TYPE_NOT_SUPPORT;
     }
     userId = static_cast<int32_t>(hapTokenInfo.userID);
-    IAM_LOGI("get callingUserId is %{public}d", userId.value());
+    IAM_LOGI("get callingUserId is %{public}d", userId);
     return SUCCESS;
 }
 

@@ -32,23 +32,15 @@ public:
 
 private:
     int32_t OpenSessionStub(MessageParcel &data, MessageParcel &reply);
-    int32_t OpenSessionByIdStub(MessageParcel &data, MessageParcel &reply);
     int32_t CloseSessionStub(MessageParcel &data, MessageParcel &reply);
-    int32_t CloseSessionByIdStub(MessageParcel &data, MessageParcel &reply);
     int32_t GetCredentialInfoStub(MessageParcel &data, MessageParcel &reply);
-    int32_t GetCredentialInfoByIdStub(MessageParcel &data, MessageParcel &reply);
     int32_t GetSecInfoStub(MessageParcel &data, MessageParcel &reply);
     int32_t AddCredentialStub(MessageParcel &data, MessageParcel &reply);
-    int32_t AddCredentialByIdStub(MessageParcel &data, MessageParcel &reply);
     int32_t UpdateCredentialStub(MessageParcel &data, MessageParcel &reply);
-    int32_t UpdateCredentialByIdStub(MessageParcel &data, MessageParcel &reply);
     int32_t CancelStub(MessageParcel &data, MessageParcel &reply);
-    int32_t CancelByIdStub(MessageParcel &data, MessageParcel &reply);
     int32_t EnforceDelUserStub(MessageParcel &data, MessageParcel &reply);
     int32_t DelUserStub(MessageParcel &data, MessageParcel &reply);
-    int32_t DelUserByIdStub(MessageParcel &data, MessageParcel &reply);
     int32_t DelCredentialStub(MessageParcel &data, MessageParcel &reply);
-    int32_t DelCredentialByIdStub(MessageParcel &data, MessageParcel &reply);
 };
 } // namespace UserAuth
 } // namespace UserIam
