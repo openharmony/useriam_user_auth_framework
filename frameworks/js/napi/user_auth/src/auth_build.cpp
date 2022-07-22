@@ -17,6 +17,7 @@
 
 #include <cinttypes>
 
+#include "securec.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
 
@@ -84,6 +85,21 @@ bool AuthBuild::NapiTypeNumber(napi_env env, napi_value value)
 
 uint64_t AuthBuild::GetUint8ArrayTo64(napi_env env, napi_value value)
 {
+    std::vector<uint8_t> result = GetUint8Array(env, value);
+    if (result.size() != sizeof(uint64_t)) {
+        IAM_LOGE("size is invalid");
+        return 0;
+    }
+    uint64_t valueU64;
+    if (memcpy_s(&valueU64, sizeof(valueU64), result.data(), result.size()) != EOK) {
+        IAM_LOGE("failed to copy value");
+        return valueU64;
+    }
+    return valueU64;
+}
+
+std::vector<uint8_t> AuthBuild::GetUint8Array(napi_env env, napi_value value)
+{
     napi_typedarray_type arraytype;
     size_t length = 0;
     napi_value buffer = nullptr;
@@ -93,25 +109,19 @@ uint64_t AuthBuild::GetUint8ArrayTo64(napi_env env, napi_value value)
     napi_is_typedarray(env, value, &isTypedArray);
     if (!isTypedArray) {
         IAM_LOGE("value is not typedarray");
-        return 0;
+        return {};
     }
     napi_get_typedarray_info(env, value, &arraytype, &length, reinterpret_cast<void **>(&data), &buffer, &offset);
     if (arraytype != napi_uint8_array) {
         IAM_LOGE("value is not uint8Array");
-        return 0;
+        return {};
     }
     if (offset != 0) {
         IAM_LOGE("offset is %{public}zu", offset);
-        return 0;
+        return {};
     }
     std::vector<uint8_t> result(data, data + length);
-    uint8_t tmp[sizeof(uint64_t)];
-    for (uint32_t i = 0; i < sizeof(uint64_t); i++) {
-        tmp[i] = result[i];
-    }
-    uint64_t *re = static_cast<uint64_t *>(static_cast<void *>(tmp));
-    IAM_LOGI("The low 16 bits is %{public}s", GET_MASKED_STRING(*re).c_str());
-    return *re;
+    return result;
 }
 
 int32_t AuthBuild::NapiGetValueInt32(napi_env env, napi_value value)
