@@ -13,8 +13,25 @@
 
 import("//build/ohos.gni")
 
-ohos_shared_library("userauthservice") {
+if (!defined(global_parts_info) ||
+    defined(global_parts_info.account_os_account)) {
+  has_os_account_part = true
+} else {
+  has_os_account_part = false
+}
+
+ohos_source_set("userauth_services_ipc") {
+  include_dirs = [ "inc" ]
+
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
+  sources = [
+    "src/co_auth_service.cpp",
+    "src/executor_messenger_service.cpp",
+    "src/ipc_common.cpp",
+    "src/user_auth_service.cpp",
+    "src/user_idm_service.cpp",
+  ]
 
   deps = [
     "//base/useriam/user_auth_framework/common:iam_utils",
@@ -24,7 +41,6 @@ ohos_shared_library("userauthservice") {
     "//base/useriam/user_auth_framework/services/base:userauth_service_base",
     "//base/useriam/user_auth_framework/services/context:userauth_service_context",
     "//base/useriam/user_auth_framework/services/core:userauth_service_core",
-    "//base/useriam/user_auth_framework/services/ipc:userauth_services_ipc",
     "//third_party/openssl:libcrypto_shared",
   ]
 
@@ -39,6 +55,11 @@ ohos_shared_library("userauthservice") {
     "samgr_standard:samgr_proxy",
     "utils_base:utils",
   ]
+
+  if (has_os_account_part) {
+    cflags_cc = [ "-DHAS_OS_ACCOUNT_PART" ]
+    external_deps += [ "os_account:os_account_innerkits" ]
+  }
 
   configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
 

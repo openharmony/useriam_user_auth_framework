@@ -13,8 +13,37 @@
 
 import("//build/ohos.gni")
 
-ohos_shared_library("userauthservice") {
+config("userauth_service_core_config") {
+  include_dirs = [
+    "inc",
+    "src",
+  ]
+}
+
+ohos_source_set("userauth_service_core") {
+  include_dirs = [
+    "inc",
+    "src",
+  ]
+
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
+  sources = [
+    "src/authentication_impl.cpp",
+    "src/credential_info_impl.cpp",
+    "src/enrolled_info_impl.cpp",
+    "src/enrollment_impl.cpp",
+    "src/identification_impl.cpp",
+    "src/resource_node_impl.cpp",
+    "src/resource_node_pool_impl.cpp",
+    "src/resource_node_utils.cpp",
+    "src/schedule_node_builder.cpp",
+    "src/schedule_node_helper.cpp",
+    "src/schedule_node_impl.cpp",
+    "src/secure_user_info_impl.cpp",
+    "src/user_idm_database_impl.cpp",
+    "src/user_idm_session_controller_impl.cpp",
+  ]
 
   deps = [
     "//base/useriam/user_auth_framework/common:iam_utils",
@@ -22,9 +51,6 @@ ohos_shared_library("userauthservice") {
     "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
     "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_service_ipc",
     "//base/useriam/user_auth_framework/services/base:userauth_service_base",
-    "//base/useriam/user_auth_framework/services/context:userauth_service_context",
-    "//base/useriam/user_auth_framework/services/core:userauth_service_core",
-    "//base/useriam/user_auth_framework/services/ipc:userauth_services_ipc",
     "//third_party/openssl:libcrypto_shared",
   ]
 
@@ -39,6 +65,8 @@ ohos_shared_library("userauthservice") {
     "samgr_standard:samgr_proxy",
     "utils_base:utils",
   ]
+
+  public_configs = [ ":userauth_service_core_config" ]
 
   configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
 
