@@ -394,7 +394,7 @@ napi_value UserAuthImpl::BuildAuthInfo(napi_env env, AuthInfo *authInfo)
         IAM_LOGE("parms error");
         return nullptr;
     }
-    authInfo->challenge = authBuild.GetUint8ArrayTo64(env, argv[0]);
+    authInfo->challenge = authBuild.GetUint8Array(env, argv[0]);
 
     if (authBuild.NapiTypeNumber(env, argv[PARAM1])) {
         int64_t type;
@@ -598,14 +598,8 @@ napi_value UserAuthImpl::AuthWrap(napi_env env, AuthInfo *authInfo)
     std::shared_ptr<AuthApiCallback> callback;
     callback.reset(object);
 
-    std::vector<uint8_t> challenge(sizeof(uint64_t));
-
-    if (memcpy_s(challenge.data(), sizeof(uint64_t), &authInfo->challenge, sizeof(uint64_t)) != EOK) {
-        IAM_LOGE("memcpy error");
-    }
-
-    uint64_t result = UserAuthClient::GetInstance().BeginAuthentication(0, challenge, AuthType(authInfo->authType),
-        AuthTrustLevel(authInfo->authTrustLevel), callback);
+    uint64_t result = UserAuthClient::GetInstance().BeginAuthentication(0, authInfo->challenge,
+        AuthType(authInfo->authType), AuthTrustLevel(authInfo->authTrustLevel), callback);
     IAM_LOGI("result's low 16 bits is %{public}s", GET_MASKED_STRING(result).c_str());
     napi_value key = authBuild.Uint64ToUint8Array(env, result);
     IAM_LOGI("end");
@@ -646,7 +640,7 @@ napi_value UserAuthImpl::BuildAuthUserInfo(napi_env env, AuthUserInfo *userInfo)
         NAPI_CALL(env, napi_get_value_int32(env, argv[PARAM0], &id));
         userInfo->userId = id;
     }
-    userInfo->challenge = authBuild.GetUint8ArrayTo64(env, argv[PARAM1]);
+    userInfo->challenge = authBuild.GetUint8Array(env, argv[PARAM1]);
     if (authBuild.NapiTypeNumber(env, argv[PARAM2])) {
         int32_t type = 0;
         napi_get_value_int32(env, argv[PARAM2], &type);
@@ -677,13 +671,7 @@ napi_value UserAuthImpl::AuthUserWrap(napi_env env, AuthUserInfo *userInfo)
     std::shared_ptr<AuthApiCallback> callback;
     callback.reset(object);
 
-    std::vector<uint8_t> challenge(sizeof(uint64_t));
-
-    if (memcpy_s(challenge.data(), sizeof(uint64_t), &userInfo->challenge, sizeof(uint64_t)) != EOK) {
-        IAM_LOGE("memcpy error");
-    }
-
-    uint64_t result = UserAuthClient::GetInstance().BeginAuthentication(userInfo->userId, challenge,
+    uint64_t result = UserAuthClient::GetInstance().BeginAuthentication(userInfo->userId, userInfo->challenge,
         AuthType(userInfo->authType), AuthTrustLevel(userInfo->authTrustLevel), callback);
     IAM_LOGI("result's low 16 bits is %{public}s", GET_MASKED_STRING(result).c_str());
     napi_value key = authBuild.Uint64ToUint8Array(env, result);

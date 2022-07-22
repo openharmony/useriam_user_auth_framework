@@ -105,7 +105,7 @@ struct AuthInfo {
     napi_value onAcquireInfoCallBack {nullptr};
     napi_ref onResult {nullptr};
     napi_ref onAcquireInfo {nullptr};
-    uint64_t challenge {0};
+    std::vector<uint8_t> challenge {};
     int32_t authType {0};
     int32_t authTrustLevel {0};
     int32_t result {0};
@@ -124,7 +124,7 @@ struct AuthUserInfo {
     napi_value onResultCallBack {nullptr};
     napi_value onAcquireInfoCallBack {nullptr};
     int32_t userId {0};
-    uint64_t challenge {0};
+    std::vector<uint8_t> challenge {};
     int32_t authType {0};
     int32_t authTrustLevel {0};
     int32_t result {0};

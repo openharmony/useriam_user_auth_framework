@@ -78,10 +78,6 @@ int32_t UserIdmStub::OpenSessionStub(MessageParcel &data, MessageParcel &reply)
         return ret;
     }
 
-    if (challenge.size() != sizeof(uint64_t)) {
-        IAM_LOGE("failed to check challenge size");
-        return GENERAL_ERROR;
-    }
     if (!reply.WriteUInt8Vector(challenge)) {
         IAM_LOGE("failed to write challenge");
         return WRITE_PARCEL_ERROR;

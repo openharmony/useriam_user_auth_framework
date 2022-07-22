@@ -16,6 +16,7 @@
 #ifndef FACERECOGNITION_AUTH_BUILD_H
 #define FACERECOGNITION_AUTH_BUILD_H
 
+#include <vector>
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "nocopyable.h"
@@ -35,6 +36,7 @@ public:
     bool NapiTypeObject(napi_env env, napi_value value);
     bool NapiTypeNumber(napi_env env, napi_value value);
 
+    std::vector<uint8_t> GetUint8Array(napi_env env, napi_value value);
     uint64_t GetUint8ArrayTo64(napi_env env, napi_value value);
     int32_t NapiGetValueInt32(napi_env env, napi_value value);
     napi_value Uint64ToUint8Array(napi_env env, uint64_t value);
