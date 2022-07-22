@@ -1,0 +1,98 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+
+if (!defined(global_parts_info) ||
+    defined(global_parts_info.account_os_account)) {
+  has_os_account_part = true
+} else {
+  has_os_account_part = false
+}
+
+ohos_shared_library("userauthservice") {
+  include_dirs = [
+    "base/inc",
+    "core/inc",
+    "core/src",
+    "context/inc",
+    "ipc/inc",
+  ]
+
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
+  sources = [
+    "base/src/finite_state_machine_builder.cpp",
+    "base/src/finite_state_machine_impl.cpp",
+    "base/src/hdi_wrapper.cpp",
+    "base/src/relative_timer.cpp",
+    "base/src/thread_handler_impl.cpp",
+    "context/src/base_context.cpp",
+    "context/src/context_callback_impl.cpp",
+    "context/src/context_factory.cpp",
+    "context/src/context_helper.cpp",
+    "context/src/context_pool_impl.cpp",
+    "context/src/enroll_context.cpp",
+    "context/src/identify_context.cpp",
+    "context/src/simple_auth_context.cpp",
+    "core/src/authentication_impl.cpp",
+    "core/src/credential_info_impl.cpp",
+    "core/src/enrolled_info_impl.cpp",
+    "core/src/enrollment_impl.cpp",
+    "core/src/identification_impl.cpp",
+    "core/src/resource_node_impl.cpp",
+    "core/src/resource_node_pool_impl.cpp",
+    "core/src/resource_node_utils.cpp",
+    "core/src/schedule_node_builder.cpp",
+    "core/src/schedule_node_helper.cpp",
+    "core/src/schedule_node_impl.cpp",
+    "core/src/secure_user_info_impl.cpp",
+    "core/src/trace.cpp",
+    "core/src/user_idm_database_impl.cpp",
+    "core/src/user_idm_session_controller_impl.cpp",
+    "ipc/src/co_auth_service.cpp",
+    "ipc/src/executor_messenger_service.cpp",
+    "ipc/src/ipc_common.cpp",
+    "ipc/src/user_auth_service.cpp",
+    "ipc/src/user_idm_service.cpp",
+  ]
+
+  deps = [
+    "//base/useriam/user_auth_framework/common:iam_utils",
+    "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
+    "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
+    "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_service_ipc",
+    "//third_party/openssl:libcrypto_shared",
+  ]
+
+  external_deps = [
+    "access_token:libaccesstoken_sdk",
+    "drivers_interface_user_auth:libuser_auth_proxy_1.0",
+    "hilog_native:libhilog",
+    "hitrace_native:hitrace_meter",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr_standard:samgr_proxy",
+    "utils_base:utils",
+  ]
+
+  if (has_os_account_part) {
+    cflags_cc = [ "-DHAS_OS_ACCOUNT_PART" ]
+    external_deps += [ "os_account:os_account_innerkits" ]
+  }
+
+  configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
+
+  part_name = "user_auth_framework"
+}
