@@ -13,38 +13,46 @@
 
 import("//build/ohos.gni")
 
-config("useridm_public_config") {
-  visibility = [ ":*" ]
+config("userauth_service_base_config") {
   include_dirs = [ "inc" ]
 }
 
-ohos_shared_library("useridm") {
+ohos_source_set("userauth_service_base") {
   include_dirs = [ "inc" ]
 
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
   sources = [
-    "src/auth_common.cpp",
-    "src/authface_userIDM_helper.cpp",
-    "src/callback.cpp",
-    "src/useridentity_manager.cpp",
+    "src/finite_state_machine_builder.cpp",
+    "src/finite_state_machine_impl.cpp",
+    "src/hdi_wrapper.cpp",
+    "src/relative_timer.cpp",
+    "src/thread_handler_impl.cpp",
   ]
 
   deps = [
     "//base/useriam/user_auth_framework/common:iam_utils",
-    "//base/useriam/user_auth_framework/frameworks/native/client:userauth_client",
+    "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
+    "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
+    "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_service_ipc",
+    "//third_party/openssl:libcrypto_shared",
   ]
 
   external_deps = [
-    "hiviewdfx_hilog_native:libhilog",
+    "access_token:libaccesstoken_sdk",
+    "drivers_interface_user_auth:libuser_auth_proxy_1.0",
+    "hilog_native:libhilog",
+    "hitrace_native:hitrace_meter",
+    "init:libbegetutil",
     "ipc:ipc_core",
-    "napi:ace_napi",
+    "safwk:system_ability_fwk",
+    "samgr_standard:samgr_proxy",
     "utils_base:utils",
   ]
 
-  public_configs = [ ":useridm_public_config" ]
+  public_configs = [ ":userauth_service_base_config" ]
 
   configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
-
-  relative_install_dir = "module"
 
   part_name = "user_auth_framework"
 }
