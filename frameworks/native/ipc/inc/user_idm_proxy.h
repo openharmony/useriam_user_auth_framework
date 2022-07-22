@@ -28,21 +28,20 @@ class UserIdmProxy : public IRemoteProxy<UserIdmInterface>, public NoCopyable {
 public:
     explicit UserIdmProxy(const sptr<IRemoteObject> &object);
     ~UserIdmProxy() override = default;
-    int32_t OpenSession(std::optional<int32_t> userId, std::vector<uint8_t> &challenge) override;
-    void CloseSession(std::optional<int32_t> userId) override;
-    int32_t GetCredentialInfo(std::optional<int32_t> userId, AuthType authType,
+    int32_t OpenSession(int32_t userId, std::vector<uint8_t> &challenge) override;
+    void CloseSession(int32_t userId) override;
+    int32_t GetCredentialInfo(int32_t userId, AuthType authType,
         const sptr<IdmGetCredInfoCallbackInterface> &callback) override;
-    int32_t GetSecInfo(std::optional<int32_t> userId,
-        const sptr<IdmGetSecureUserInfoCallbackInterface> &callback) override;
-    void AddCredential(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
+    int32_t GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserInfoCallbackInterface> &callback) override;
+    void AddCredential(int32_t userId, AuthType authType, PinSubType pinSubType,
         const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback, bool isUpdate) override;
-    void UpdateCredential(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
+    void UpdateCredential(int32_t userId, AuthType authType, PinSubType pinSubType,
         const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback) override;
-    int32_t Cancel(std::optional<int32_t> userId, const std::optional<std::vector<uint8_t>> &challenge) override;
+    int32_t Cancel(int32_t userId) override;
     int32_t EnforceDelUser(int32_t userId, const sptr<IdmCallbackInterface> &callback) override;
-    void DelUser(std::optional<int32_t> userId, const std::vector<uint8_t> authToken,
+    void DelUser(int32_t userId, const std::vector<uint8_t> authToken,
         const sptr<IdmCallbackInterface> &callback) override;
-    void DelCredential(std::optional<int32_t> userId, uint64_t credentialId,
+    void DelCredential(int32_t userId, uint64_t credentialId,
         const std::vector<uint8_t> &authToken, const sptr<IdmCallbackInterface> &callback) override;
 
 private:

@@ -82,12 +82,12 @@ public:
     }
 };
 
-std::optional<int32_t> GetFuzzOptionalUserId(Parcel &parcel)
+int32_t GetFuzzOptionalUserId(Parcel &parcel)
 {
     if (parcel.ReadBool()) {
         return parcel.ReadInt32();
     }
-    return std::nullopt;
+    return 0;
 }
 
 sptr<IdmGetCredInfoCallbackInterface> GetFuzzIdmGetCredentialInfoCallback(Parcel &parcel)
@@ -133,7 +133,7 @@ void FuzzOnStop(Parcel &parcel)
 void FuzzOpenSession(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    std::optional<int32_t> userId = GetFuzzOptionalUserId(parcel);
+    int32_t userId = GetFuzzOptionalUserId(parcel);
     std::vector<uint8_t> challenge;
     FillFuzzUint8Vector(parcel, challenge);
     g_UserIdmService.OpenSession(userId, challenge);
@@ -143,7 +143,7 @@ void FuzzOpenSession(Parcel &parcel)
 void FuzzCloseSession(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    std::optional<int32_t> userId = GetFuzzOptionalUserId(parcel);
+    int32_t userId = GetFuzzOptionalUserId(parcel);
     g_UserIdmService.CloseSession(userId);
     IAM_LOGI("end");
 }
@@ -151,7 +151,7 @@ void FuzzCloseSession(Parcel &parcel)
 void FuzzGetCredentialInfo(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    std::optional<int32_t> userId = GetFuzzOptionalUserId(parcel);
+    int32_t userId = GetFuzzOptionalUserId(parcel);
     AuthType authType = static_cast<AuthType>(parcel.ReadUint32());
     sptr<IdmGetCredInfoCallbackInterface> callback = GetFuzzIdmGetCredentialInfoCallback(parcel);
     g_UserIdmService.GetCredentialInfo(userId, authType, callback);
@@ -161,7 +161,7 @@ void FuzzGetCredentialInfo(Parcel &parcel)
 void FuzzGetSecInfo(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    std::optional<int32_t> userId = GetFuzzOptionalUserId(parcel);
+    int32_t userId = GetFuzzOptionalUserId(parcel);
     sptr<IdmGetSecureUserInfoCallbackInterface> callback = GetFuzzIdmGetSecureUserInfoCallback(parcel);
     g_UserIdmService.GetSecInfo(userId, callback);
     IAM_LOGI("end");
@@ -197,9 +197,7 @@ void FuzzCancel(Parcel &parcel)
 {
     IAM_LOGI("begin");
     int32_t userId = parcel.ReadInt32();
-    std::vector<uint8_t> challenge;
-    FillFuzzUint8Vector(parcel, challenge);
-    g_UserIdmService.Cancel(userId, challenge);
+    g_UserIdmService.Cancel(userId);
     IAM_LOGI("end");
 }
 

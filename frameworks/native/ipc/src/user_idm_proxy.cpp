@@ -28,7 +28,7 @@ UserIdmProxy::UserIdmProxy(const sptr<IRemoteObject> &object) : IRemoteProxy<Use
 {
 }
 
-int32_t UserIdmProxy::OpenSession(std::optional<int32_t> userId, std::vector<uint8_t> &challenge)
+int32_t UserIdmProxy::OpenSession(int32_t userId, std::vector<uint8_t> &challenge)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -37,13 +37,12 @@ int32_t UserIdmProxy::OpenSession(std::optional<int32_t> userId, std::vector<uin
         IAM_LOGE("failed to write descriptor");
         return WRITE_PARCEL_ERROR;
     }
-    if (userId.has_value() && !data.WriteInt32(userId.value())) {
+    if (!data.WriteInt32(userId)) {
         IAM_LOGE("failed to write userId");
         return WRITE_PARCEL_ERROR;
     }
     
-    bool ret = SendRequest(userId.has_value() ? UserIdmInterface::USER_IDM_OPEN_SESSION_BY_ID :
-        UserIdmInterface::USER_IDM_OPEN_SESSION, data, reply);
+    bool ret = SendRequest(UserIdmInterface::USER_IDM_OPEN_SESSION, data, reply);
     if (!ret) {
         return FAIL;
     }
@@ -54,7 +53,7 @@ int32_t UserIdmProxy::OpenSession(std::optional<int32_t> userId, std::vector<uin
     return SUCCESS;
 }
 
-void UserIdmProxy::CloseSession(std::optional<int32_t> userId)
+void UserIdmProxy::CloseSession(int32_t userId)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -63,16 +62,15 @@ void UserIdmProxy::CloseSession(std::optional<int32_t> userId)
         IAM_LOGE("failed to write descriptor");
         return;
     }
-    if (userId.has_value() && !data.WriteInt32(userId.value())) {
+    if (!data.WriteInt32(userId)) {
         IAM_LOGE("failed to write userId");
         return;
     }
 
-    SendRequest(userId.has_value() ? UserIdmInterface::USER_IDM_CLOSE_SESSION_BY_ID :
-        UserIdmInterface::USER_IDM_CLOSE_SESSION, data, reply);
+    SendRequest(UserIdmInterface::USER_IDM_CLOSE_SESSION, data, reply);
 }
 
-int32_t UserIdmProxy::GetCredentialInfo(std::optional<int32_t> userId, AuthType authType,
+int32_t UserIdmProxy::GetCredentialInfo(int32_t userId, AuthType authType,
     const sptr<IdmGetCredInfoCallbackInterface> &callback)
 {
     if (callback == nullptr) {
@@ -86,7 +84,7 @@ int32_t UserIdmProxy::GetCredentialInfo(std::optional<int32_t> userId, AuthType 
         IAM_LOGE("failed to write descriptor");
         return WRITE_PARCEL_ERROR;
     }
-    if (userId.has_value() && !data.WriteInt32(userId.value())) {
+    if (!data.WriteInt32(userId)) {
         IAM_LOGE("failed to write userId");
         return WRITE_PARCEL_ERROR;
     }
@@ -99,8 +97,7 @@ int32_t UserIdmProxy::GetCredentialInfo(std::optional<int32_t> userId, AuthType 
         return WRITE_PARCEL_ERROR;
     }
 
-    bool ret = SendRequest(userId.has_value() ? UserIdmInterface::USER_IDM_GET_AUTH_INFO_BY_ID :
-        UserIdmInterface::USER_IDM_GET_AUTH_INFO, data, reply);
+    bool ret = SendRequest(UserIdmInterface::USER_IDM_GET_CRED_INFO, data, reply);
     if (!ret) {
         return FAIL;
     }
@@ -111,8 +108,7 @@ int32_t UserIdmProxy::GetCredentialInfo(std::optional<int32_t> userId, AuthType 
     return result;
 }
 
-int32_t UserIdmProxy::GetSecInfo(std::optional<int32_t> userId,
-    const sptr<IdmGetSecureUserInfoCallbackInterface> &callback)
+int32_t UserIdmProxy::GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserInfoCallbackInterface> &callback)
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
@@ -125,7 +121,7 @@ int32_t UserIdmProxy::GetSecInfo(std::optional<int32_t> userId,
         IAM_LOGE("failed to write descriptor");
         return WRITE_PARCEL_ERROR;
     }
-    if (userId.has_value() && !data.WriteInt32(userId.value())) {
+    if (!data.WriteInt32(userId)) {
         IAM_LOGE("failed to write userId");
         return WRITE_PARCEL_ERROR;
     }
@@ -146,7 +142,7 @@ int32_t UserIdmProxy::GetSecInfo(std::optional<int32_t> userId,
     return result;
 }
 
-void UserIdmProxy::AddCredential(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
+void UserIdmProxy::AddCredential(int32_t userId, AuthType authType, PinSubType pinSubType,
     const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback, bool isUpdate)
 {
     if (callback == nullptr) {
@@ -160,7 +156,7 @@ void UserIdmProxy::AddCredential(std::optional<int32_t> userId, AuthType authTyp
         IAM_LOGE("failed to write descriptor");
         return;
     }
-    if (userId.has_value() && !data.WriteInt32(userId.value())) {
+    if (!data.WriteInt32(userId)) {
         IAM_LOGE("failed to write userId");
         return;
     }
@@ -181,11 +177,10 @@ void UserIdmProxy::AddCredential(std::optional<int32_t> userId, AuthType authTyp
         return;
     }
 
-    SendRequest(userId.has_value() ? UserIdmInterface::USER_IDM_ADD_CREDENTIAL_BY_ID :
-        UserIdmInterface::USER_IDM_ADD_CREDENTIAL, data, reply);
+    SendRequest(UserIdmInterface::USER_IDM_ADD_CREDENTIAL, data, reply);
 }
 
-void UserIdmProxy::UpdateCredential(std::optional<int32_t> userId, AuthType authType, PinSubType pinSubType,
+void UserIdmProxy::UpdateCredential(int32_t userId, AuthType authType, PinSubType pinSubType,
     const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback)
 {
     if (callback == nullptr) {
@@ -199,7 +194,7 @@ void UserIdmProxy::UpdateCredential(std::optional<int32_t> userId, AuthType auth
         IAM_LOGE("failed to write descriptor");
         return;
     }
-    if (userId.has_value() && !data.WriteInt32(userId.value())) {
+    if (!data.WriteInt32(userId)) {
         IAM_LOGE("failed to write userId");
         return;
     }
@@ -220,15 +215,14 @@ void UserIdmProxy::UpdateCredential(std::optional<int32_t> userId, AuthType auth
         return;
     }
 
-    bool ret = SendRequest(userId.has_value() ? UserIdmInterface::USER_IDM_UPDATE_CREDENTIAL_BY_ID :
-        UserIdmInterface::USER_IDM_UPDATE_CREDENTIAL, data, reply);
+    bool ret = SendRequest(UserIdmInterface::USER_IDM_UPDATE_CREDENTIAL, data, reply);
     if (!ret) {
         Attributes extraInfo;
         callback->OnResult(FAIL, extraInfo);
     }
 }
 
-int32_t UserIdmProxy::Cancel(std::optional<int32_t> userId, const std::optional<std::vector<uint8_t>> &challenge)
+int32_t UserIdmProxy::Cancel(int32_t userId)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -237,17 +231,12 @@ int32_t UserIdmProxy::Cancel(std::optional<int32_t> userId, const std::optional<
         IAM_LOGE("failed to write descriptor");
         return WRITE_PARCEL_ERROR;
     }
-    if (userId.has_value() && !data.WriteInt32(userId.value())) {
+    if (!data.WriteInt32(userId)) {
         IAM_LOGE("failed to write userId");
         return WRITE_PARCEL_ERROR;
     }
-    if (challenge.has_value() && !data.WriteUInt8Vector(challenge.value())) {
-        IAM_LOGE("failed to write challenge");
-        return WRITE_PARCEL_ERROR;
-    }
 
-    bool ret = SendRequest(userId.has_value() ? UserIdmInterface::USER_IDM_CANCEL_BY_ID :
-        UserIdmInterface::USER_IDM_CANCEL, data, reply);
+    bool ret = SendRequest(UserIdmInterface::USER_IDM_CANCEL, data, reply);
     if (!ret) {
         return FAIL;
     }
@@ -293,7 +282,7 @@ int32_t UserIdmProxy::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInter
     return result;
 }
 
-void UserIdmProxy::DelUser(std::optional<int32_t> userId, const std::vector<uint8_t> authToken,
+void UserIdmProxy::DelUser(int32_t userId, const std::vector<uint8_t> authToken,
     const sptr<IdmCallbackInterface> &callback)
 {
     if (callback == nullptr) {
@@ -307,7 +296,7 @@ void UserIdmProxy::DelUser(std::optional<int32_t> userId, const std::vector<uint
         IAM_LOGE("failed to write descriptor");
         return;
     }
-    if (userId.has_value() && !data.WriteInt32(userId.value())) {
+    if (!data.WriteInt32(userId)) {
         IAM_LOGE("failed to write userId");
         return;
     }
@@ -320,11 +309,10 @@ void UserIdmProxy::DelUser(std::optional<int32_t> userId, const std::vector<uint
         return;
     }
 
-    SendRequest(userId.has_value() ? UserIdmInterface::USER_IDM_DEL_USER_BY_ID :
-        UserIdmInterface::USER_IDM_DEL_USER, data, reply);
+    SendRequest(UserIdmInterface::USER_IDM_DEL_USER, data, reply);
 }
 
-void UserIdmProxy::DelCredential(std::optional<int32_t> userId, uint64_t credentialId,
+void UserIdmProxy::DelCredential(int32_t userId, uint64_t credentialId,
     const std::vector<uint8_t> &authToken, const sptr<IdmCallbackInterface> &callback)
 {
     if (callback == nullptr) {
@@ -338,7 +326,7 @@ void UserIdmProxy::DelCredential(std::optional<int32_t> userId, uint64_t credent
         IAM_LOGE("failed to write descriptor");
         return;
     }
-    if (userId.has_value() && !data.WriteInt32(userId.value())) {
+    if (!data.WriteInt32(userId)) {
         IAM_LOGE("failed to write userId");
         return;
     }
@@ -355,8 +343,7 @@ void UserIdmProxy::DelCredential(std::optional<int32_t> userId, uint64_t credent
         return;
     }
 
-    SendRequest(userId.has_value() ? UserIdmInterface::USER_IDM_DEL_CREDENTIAL :
-        UserIdmInterface::USER_IDM_DEL_CRED, data, reply);
+    SendRequest(UserIdmInterface::USER_IDM_DEL_CRED, data, reply);
 }
 
 bool UserIdmProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply)
