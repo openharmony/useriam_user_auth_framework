@@ -24,17 +24,17 @@
 #include "iam_defines.h"
 #include "hisysevent_adapter.h"
 
-#define LOG_LABEL Common::LABEL_USER_AUTH_EXECUTOR
+#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_EXECUTOR
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
-using namespace OHOS::UserIam::UserAuth;
+namespace Common = OHOS::UserIAM::Common;
 EnrollCommand::EnrollCommand(std::weak_ptr<Executor> executor, uint64_t scheduleId,
     const Attributes &attributes, std::shared_ptr<ExecutorMessenger> executorMessenger)
     : AsyncCommandBase("ENROLL", scheduleId, executor, executorMessenger),
-      attributes_(Common::MakeShared<UserIam::UserAuth::Attributes>(attributes.Serialize())),
-      iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("EnrollCommand"))
+      attributes_(Common::MakeShared<Attributes>(attributes.Serialize())),
+      iamHitraceHelper_(Common::MakeShared<IamHitraceHelper>("EnrollCommand"))
 {
 }
 
@@ -45,11 +45,11 @@ ResultCode EnrollCommand::SendRequest()
     IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, ResultCode::GENERAL_ERROR);
 
     uint32_t tokenId = 0;
-    bool getTokenIdRet = attributes_->GetUint32Value(UserIam::UserAuth::Attributes::ATTR_ACCESS_TOKEN_ID, tokenId);
+    bool getTokenIdRet = attributes_->GetUint32Value(Attributes::ATTR_ACCESS_TOKEN_ID, tokenId);
     IF_FALSE_LOGE_AND_RETURN_VAL(getTokenIdRet == true, ResultCode::GENERAL_ERROR);
 
     std::vector<uint8_t> extraInfo;
-    UserIam::UserAuth::IamHitraceHelper traceHelper("hdi Enroll");
+    IamHitraceHelper traceHelper("hdi Enroll");
     ResultCode ret = hdi->Enroll(scheduleId_, tokenId, extraInfo, shared_from_this());
     IAM_LOGI("%{public}s enroll result %{public}d", GetDescription(), ret);
     return ret;
@@ -58,14 +58,15 @@ ResultCode EnrollCommand::SendRequest()
 void EnrollCommand::OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo)
 {
     IAM_LOGI("%{public}s on result start", GetDescription());
-    ReportTemplateChange(GetAuthType(), UserIam::UserAuth::TRACE_ADD_CREDENTIAL, "User Operation");
+    UserIAM::UserAuth::ReportTemplateChange(GetAuthType(),
+        TRACE_ADD_CREDENTIAL, "User Operation");
     std::vector<uint8_t> nonConstExtraInfo(extraInfo.begin(), extraInfo.end());
-    auto authAttributes = Common::MakeShared<UserIam::UserAuth::Attributes>();
+    auto authAttributes = Common::MakeShared<Attributes>();
     IF_FALSE_LOGE_AND_RETURN(authAttributes != nullptr);
-    bool setResultCodeRet = authAttributes->SetUint32Value(UserIam::UserAuth::Attributes::ATTR_RESULT_CODE, result);
+    bool setResultCodeRet = authAttributes->SetUint32Value(Attributes::ATTR_RESULT_CODE, result);
     IF_FALSE_LOGE_AND_RETURN(setResultCodeRet == true);
     bool setAuthResultRet =
-        authAttributes->SetUint8ArrayValue(UserIam::UserAuth::Attributes::ATTR_RESULT, nonConstExtraInfo);
+        authAttributes->SetUint8ArrayValue(Attributes::ATTR_RESULT, nonConstExtraInfo);
     IF_FALSE_LOGE_AND_RETURN(setAuthResultRet == true);
     iamHitraceHelper_ = nullptr;
     int32_t ret = MessengerFinish(scheduleId_, ALL_IN_ONE, result, authAttributes);
@@ -93,5 +94,5 @@ void EnrollCommand::OnAcquireInfoInner(int32_t acquire, const std::vector<uint8_
     IAM_LOGI("%{public}s call SendData success acquire %{public}d", GetDescription(), acquire);
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

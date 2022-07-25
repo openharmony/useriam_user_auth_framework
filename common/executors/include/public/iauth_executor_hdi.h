@@ -25,13 +25,10 @@
 #include "iexecute_callback.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class IAuthExecutorHdi {
 public:
-    using ExecutorInfo = UserIam::UserAuth::ExecutorInfo;
-    using ResultCode = UserIam::UserAuth::ResultCode;
-    using PropertyMode = UserIam::UserAuth::PropertyMode;
     IAuthExecutorHdi() = default;
     virtual ~IAuthExecutorHdi() = default;
 
@@ -52,7 +49,14 @@ public:
         const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) = 0;
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace UserAuth {
+using IAuthExecutorHdi = OHOS::UserIam::UserAuth::IAuthExecutorHdi;
+}
+}
+}
 
 #endif // IAUTH_EXECUTOR_HDI_H

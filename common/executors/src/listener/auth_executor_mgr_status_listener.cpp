@@ -21,10 +21,10 @@
 #include "hisysevent_adapter.h"
 #include "system_ability_definition.h"
 
-#define LOG_LABEL Common::LABEL_USER_AUTH_EXECUTOR
+#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_EXECUTOR
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 sptr<AuthExecutorMgrStatusListener> AuthExecutorMgrStatusListener::GetInstance()
 {
@@ -50,9 +50,9 @@ void AuthExecutorMgrStatusListener::OnRemoveSystemAbility(int32_t systemAbilityI
         return;
     }
 
-    ReportSystemFault(Common::GetNowTimeString(), "user_auth_framework");
+    UserIAM::UserAuth::ReportSystemFault(UserIAM::Common::GetNowTimeString(), "user_auth_framework");
     IAM_LOGE("auth executor mgr SA removed");
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

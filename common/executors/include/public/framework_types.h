@@ -20,7 +20,7 @@
 #include <vector>
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 enum UserAuthResult : int32_t {
     USERAUTH_SUCCESS = 0,
@@ -34,7 +34,13 @@ struct TemplateInfo {
     std::vector<uint8_t> extraInfo;
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
-
+namespace OHOS {
+namespace UserIAM {
+namespace UserAuth {
+using TemplateInfo = OHOS::UserIam::UserAuth::TemplateInfo;
+}
+}
+}
 #endif // FRAMEWORK_TYPES_H

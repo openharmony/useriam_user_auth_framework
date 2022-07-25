@@ -27,7 +27,7 @@
 #include "idriver_manager.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 using namespace HDI::ServiceManager::V1_0;
 
@@ -67,7 +67,7 @@ private:
     StatusCallback callback_;
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 #endif // DRIVER_MANAGER_H
