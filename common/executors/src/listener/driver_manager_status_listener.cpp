@@ -19,10 +19,10 @@
 #include "iam_logger.h"
 #include "system_ability_definition.h"
 
-#define LOG_LABEL Common::LABEL_USER_AUTH_EXECUTOR
+#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_EXECUTOR
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 sptr<DriverManagerStatusListener> DriverManagerStatusListener::GetInstance()
 {
@@ -54,5 +54,5 @@ void DriverManagerStatusListener::OnRemoveSystemAbility(int32_t systemAbilityId,
     Singleton<DriverManager>::GetInstance().OnAllHdiDisconnect();
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

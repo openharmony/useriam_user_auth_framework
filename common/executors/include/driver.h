@@ -25,7 +25,7 @@
 #include "idriver_manager.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class Driver : public NoCopyable {
 public:
@@ -44,7 +44,7 @@ private:
     std::vector<std::shared_ptr<Executor>> executorList_;
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 #endif // EXECUTOR_DRIVER_H

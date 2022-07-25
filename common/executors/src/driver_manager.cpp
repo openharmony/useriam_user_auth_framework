@@ -31,10 +31,10 @@
 #include "iam_ptr.h"
 #include "iam_time.h"
 
-#define LOG_LABEL Common::LABEL_USER_AUTH_EXECUTOR
+#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_EXECUTOR
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 const char IAM_EVENT_KEY[] = "bootevent.useriam.fwkready";
 DriverManager::DriverManager()
@@ -56,7 +56,7 @@ int32_t DriverManager::Start(const std::map<std::string, HdiConfig> &hdiName2Con
             IAM_LOGI("%{public}s already added, skip", hdiName.c_str());
             continue;
         }
-        auto driver = Common::MakeShared<Driver>(hdiName, config);
+        auto driver = UserIAM::Common::MakeShared<Driver>(hdiName, config);
         if (driver == nullptr) {
             IAM_LOGE("MakeShared for driver %{public}s failed", hdiName.c_str());
             continue;
@@ -109,7 +109,7 @@ void DriverManager::SubscribeHdiDriverStatus()
                 driver->OnHdiConnect();
                 break;
             case SERVIE_STATUS_STOP:
-                ReportSystemFault(Common::GetNowTimeString(), status.serviceName);
+                UserIAM::UserAuth::ReportSystemFault(UserIAM::Common::GetNowTimeString(), status.serviceName);
                 IAM_LOGI("service %{public}s status change to stop", status.serviceName.c_str());
                 driver->OnHdiDisconnect();
                 break;
@@ -219,5 +219,5 @@ std::shared_ptr<Driver> DriverManager::GetDriverByServiceName(const std::string 
     return driverIter->second;
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

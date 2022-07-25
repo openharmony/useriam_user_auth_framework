@@ -35,6 +35,7 @@ using namespace OHOS::UserIam::UserAuth;
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
+using namespace OHOS::UserIam::UserAuth;
 class AuthCommandUnitTest : public testing::Test {
 public:
     static void SetUpTestCase();
