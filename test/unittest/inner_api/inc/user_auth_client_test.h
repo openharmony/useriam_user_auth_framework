@@ -13,25 +13,25 @@
  * limitations under the License.
  */
 
-#ifndef USER_IDM_UT_TEST_H
-#define USER_IDM_UT_TEST_H
+#ifndef USER_AUTH_CLIENT_TEST_H
+#define USER_AUTH_CLIENT_TEST_H
 
-void UserIdmUtTest_001(void);
-void UserIdmUtTest_002(void);
-void UserIdmUtTest_003(void);
-void UserIdmUtTest_003b(void);
-void UserIdmUtTest_004(void);
-void UserIdmUtTest_004b(void);
-void UserIdmUtTest_005(void);
-void UserIdmUtTest_006(void);
-void UserIdmUtTest_006b(void);
-void UserIdmUtTest_007(void);
-void UserIdmUtTest_007b(void);
-void UserIdmUtTest_008(void);
-void UserIdmUtTest_008b(void);
-void UserIdmUtTest_009(void);
-void UserIdmUtTest_009b(void);
-void UserIdmUtTest_010(void);
-void UserIdmUtTest_010b(void);
+#include <gtest/gtest.h>
 
-#endif
+namespace OHOS {
+namespace UserIam {
+namespace UserAuth {
+class UserAuthClientTest : public testing::Test {
+public:
+    static void SetUpTestCase();
+
+    static void TearDownTestCase();
+
+    void SetUp() override;
+
+    void TearDown() override;
+};
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
+#endif // USER_AUTH_CLIENT_TEST_H
