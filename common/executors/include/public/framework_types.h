@@ -36,11 +36,5 @@ struct TemplateInfo {
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-namespace OHOS {
-namespace UserIAM {
-namespace UserAuth {
-using TemplateInfo = OHOS::UserIam::UserAuth::TemplateInfo;
-}
-}
-}
+
 #endif // FRAMEWORK_TYPES_H

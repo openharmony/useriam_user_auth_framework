@@ -39,13 +39,5 @@ public:
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-namespace OHOS {
-namespace UserIAM {
-namespace UserAuth {
-using HdiConfig = OHOS::UserIam::UserAuth::HdiConfig;
-using IDriverManager = OHOS::UserIam::UserAuth::IDriverManager;
-}
-}
-}
 
 #endif // IDRIVER_MANAGER_H

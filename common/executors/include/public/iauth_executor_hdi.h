@@ -51,12 +51,5 @@ public:
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-namespace OHOS {
-namespace UserIAM {
-namespace UserAuth {
-using IAuthExecutorHdi = OHOS::UserIam::UserAuth::IAuthExecutorHdi;
-}
-}
-}
 
 #endif // IAUTH_EXECUTOR_HDI_H
