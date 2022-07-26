@@ -27,10 +27,10 @@
 #include "iam_para2str.h"
 #include "framework_types.h"
 
-#define LOG_LABEL Common::LABEL_USER_AUTH_EXECUTOR
+#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_EXECUTOR
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 AsyncCommandBase::AsyncCommandBase(std::string type, uint64_t scheduleId, std::weak_ptr<Executor> executor,
     std::shared_ptr<ExecutorMessenger> executorMessenger)
@@ -102,7 +102,7 @@ int32_t AsyncCommandBase::GetAuthType()
     auto executor = executor_.lock();
     if (executor == nullptr) {
         IAM_LOGE("%{public}s executor has been released, get executor type fail", GetDescription());
-        return UserIam::UserAuth::INVALID_AUTH_TYPE;
+        return INVALID_AUTH_TYPE;
     }
     return executor->GetAuthType();
 }
@@ -153,7 +153,7 @@ int32_t AsyncCommandBase::MessengerSendData(uint64_t scheduleId, uint64_t transN
 }
 
 int32_t AsyncCommandBase::MessengerFinish(uint64_t scheduleId, ExecutorRole srcType, int32_t resultCode,
-    std::shared_ptr<UserIam::UserAuth::Attributes> finalResult)
+    std::shared_ptr<Attributes> finalResult)
 {
     auto messenger = executorMessenger_;
     IF_FALSE_LOGE_AND_RETURN_VAL(messenger != nullptr, USERAUTH_ERROR);
@@ -162,5 +162,5 @@ int32_t AsyncCommandBase::MessengerFinish(uint64_t scheduleId, ExecutorRole srcT
     return ret;
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

@@ -21,7 +21,7 @@
 #include "async_command_base.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class EnrollCommand : public AsyncCommandBase {
 public:
@@ -36,11 +36,11 @@ protected:
 
 private:
     uint32_t transNum_ = 1;
-    std::shared_ptr<UserIam::UserAuth::Attributes> attributes_;
-    std::shared_ptr<UserIam::UserAuth::IamHitraceHelper> iamHitraceHelper_;
+    std::shared_ptr<Attributes> attributes_;
+    std::shared_ptr<IamHitraceHelper> iamHitraceHelper_;
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 #endif // ENROLL_COMMAND_H

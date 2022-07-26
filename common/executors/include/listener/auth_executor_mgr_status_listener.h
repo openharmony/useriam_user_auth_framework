@@ -26,7 +26,7 @@
 #include "system_ability_status_change_stub.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class AuthExecutorMgrStatusListener : public OHOS::SystemAbilityStatusChangeStub, public NoCopyable {
 public:
@@ -40,7 +40,7 @@ private:
     ~AuthExecutorMgrStatusListener() override = default;
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 #endif // EXECUTOR_MGR_STATUS_LISTENER

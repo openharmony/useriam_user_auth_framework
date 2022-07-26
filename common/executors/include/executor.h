@@ -29,7 +29,7 @@
 #include "iauth_executor_hdi.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class Executor : public std::enable_shared_from_this<Executor>, public NoCopyable {
 public:
@@ -59,7 +59,7 @@ private:
     int32_t authType_;
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 #endif // EXCECUTOR_H

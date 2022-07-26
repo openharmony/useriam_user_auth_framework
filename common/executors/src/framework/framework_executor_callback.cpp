@@ -31,12 +31,12 @@
 #include "iam_ptr.h"
 #include "identify_command.h"
 
-#define LOG_LABEL Common::LABEL_USER_AUTH_EXECUTOR
+#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_EXECUTOR
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
-using namespace OHOS::UserIam::UserAuth;
+namespace Common = OHOS::UserIAM::Common;
 FrameworkExecutorCallback::FrameworkExecutorCallback(std::weak_ptr<Executor> executor) : executor_(executor)
 {
     uint32_t callbackId = GenerateExecutorCallbackId();
@@ -59,19 +59,19 @@ ResultCode FrameworkExecutorCallback::OnBeginExecuteInner(uint64_t scheduleId, s
     static_cast<void>(publicKey);
     uint32_t commandId = 0;
     bool getScheduleModeRet =
-        commandAttrs.GetUint32Value(UserIam::UserAuth::Attributes::ATTR_SCHEDULE_MODE, commandId);
+        commandAttrs.GetUint32Value(Attributes::ATTR_SCHEDULE_MODE, commandId);
     IF_FALSE_LOGE_AND_RETURN_VAL(getScheduleModeRet == true, ResultCode::GENERAL_ERROR);
 
     IAM_LOGI("%{public}s start process cmd %{public}u", GetDescription(), commandId);
     ResultCode ret = ResultCode::GENERAL_ERROR;
     switch (commandId) {
-        case UserIam::UserAuth::ENROLL:
+        case ENROLL:
             ret = ProcessEnrollCommand(scheduleId, commandAttrs);
             break;
-        case UserIam::UserAuth::AUTH:
+        case AUTH:
             ret = ProcessAuthCommand(scheduleId, commandAttrs);
             break;
-        case UserIam::UserAuth::IDENTIFY:
+        case IDENTIFY:
             ret = ProcessIdentifyCommand(scheduleId, commandAttrs);
             break;
         default:
@@ -120,7 +120,7 @@ ResultCode FrameworkExecutorCallback::OnSetPropertyInner(const Attributes &prope
 {
     uint32_t commandId = 0;
     bool getAuthPropertyModeRet =
-        properties.GetUint32Value(UserIam::UserAuth::Attributes::ATTR_PROPERTY_MODE, commandId);
+        properties.GetUint32Value(Attributes::ATTR_PROPERTY_MODE, commandId);
     IF_FALSE_LOGE_AND_RETURN_VAL(getAuthPropertyModeRet == true, ResultCode::GENERAL_ERROR);
     IAM_LOGI("%{public}s start process cmd %{public}u", GetDescription(), commandId);
     ResultCode ret = ResultCode::GENERAL_ERROR;
@@ -135,8 +135,8 @@ ResultCode FrameworkExecutorCallback::OnSetPropertyInner(const Attributes &prope
 
 int32_t FrameworkExecutorCallback::OnGetProperty(const Attributes &conditions, Attributes &results)
 {
-    auto cond = Common::MakeShared<UserIam::UserAuth::Attributes>(conditions.Serialize());
-    auto values = Common::MakeShared<UserIam::UserAuth::Attributes>(results.Serialize());
+    auto cond = Common::MakeShared<Attributes>(conditions.Serialize());
+    auto values = Common::MakeShared<Attributes>(results.Serialize());
     auto ret = OnGetPropertyInner(cond, values);
     if (values) {
         results = std::move(*values);
@@ -144,15 +144,15 @@ int32_t FrameworkExecutorCallback::OnGetProperty(const Attributes &conditions, A
     return ret;
 }
 
-ResultCode FrameworkExecutorCallback::OnGetPropertyInner(std::shared_ptr<UserIam::UserAuth::Attributes> conditions,
-    std::shared_ptr<UserIam::UserAuth::Attributes> values)
+ResultCode FrameworkExecutorCallback::OnGetPropertyInner(std::shared_ptr<Attributes> conditions,
+    std::shared_ptr<Attributes> values)
 {
     IAM_LOGI("%{public}s start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN_VAL(conditions != nullptr, ResultCode::GENERAL_ERROR);
     IF_FALSE_LOGE_AND_RETURN_VAL(values != nullptr, ResultCode::GENERAL_ERROR);
     uint32_t commandId = 0;
     bool getAuthPropertyModeRet =
-        conditions->GetUint32Value(UserIam::UserAuth::Attributes::ATTR_PROPERTY_MODE, commandId);
+        conditions->GetUint32Value(Attributes::ATTR_PROPERTY_MODE, commandId);
     IF_FALSE_LOGE_AND_RETURN_VAL(getAuthPropertyModeRet == true, ResultCode::GENERAL_ERROR);
     if (commandId != PROPERTY_MODE_GET) {
         IAM_LOGE("command id not recognised");
@@ -207,15 +207,15 @@ ResultCode FrameworkExecutorCallback::ProcessDeleteTemplateCommand(const Attribu
     auto hdi = executor->GetExecutorHdi();
     IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, ResultCode::GENERAL_ERROR);
     uint64_t templateId = 0;
-    bool getAuthTemplateIdRet = properties.GetUint64Value(UserIam::UserAuth::Attributes::ATTR_TEMPLATE_ID, templateId);
+    bool getAuthTemplateIdRet = properties.GetUint64Value(Attributes::ATTR_TEMPLATE_ID, templateId);
     IF_FALSE_LOGE_AND_RETURN_VAL(getAuthTemplateIdRet == true, ResultCode::GENERAL_ERROR);
     std::vector<uint64_t> templateIdList;
 
     templateIdList.push_back(templateId);
-    UserIam::UserAuth::IamHitraceHelper traceHelper("hdi Delete");
+    IamHitraceHelper traceHelper("hdi Delete");
     ResultCode ret = hdi->Delete(templateIdList);
     if (ret == ResultCode::SUCCESS) {
-        ReportTemplateChange(executor->GetAuthType(), UserIam::UserAuth::TRACE_DELETE_CREDENTIAL, "User Operation");
+        UserIAM::UserAuth::ReportTemplateChange(executor->GetAuthType(), TRACE_DELETE_CREDENTIAL, "User Operation");
     }
     return ret;
 }
@@ -234,7 +234,7 @@ ResultCode FrameworkExecutorCallback::ProcessCustomCommand(const Attributes &pro
 }
 
 ResultCode FrameworkExecutorCallback::ProcessGetTemplateCommand(
-    std::shared_ptr<UserIam::UserAuth::Attributes> conditions, std::shared_ptr<UserIam::UserAuth::Attributes> values)
+    std::shared_ptr<Attributes> conditions, std::shared_ptr<Attributes> values)
 {
     IAM_LOGI("start");
     IF_FALSE_LOGE_AND_RETURN_VAL(conditions != nullptr, ResultCode::GENERAL_ERROR);
@@ -247,20 +247,20 @@ ResultCode FrameworkExecutorCallback::ProcessGetTemplateCommand(
     auto hdi = executor->GetExecutorHdi();
     IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, ResultCode::GENERAL_ERROR);
     uint64_t templateId = 0;
-    bool getAuthTemplateIdRet = conditions->GetUint64Value(UserIam::UserAuth::Attributes::ATTR_TEMPLATE_ID, templateId);
+    bool getAuthTemplateIdRet = conditions->GetUint64Value(Attributes::ATTR_TEMPLATE_ID, templateId);
     IF_FALSE_LOGE_AND_RETURN_VAL(getAuthTemplateIdRet == true, ResultCode::GENERAL_ERROR);
     TemplateInfo templateInfo = {};
     ResultCode ret = hdi->GetTemplateInfo(templateId, templateInfo);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret == SUCCESS, ret);
     uint64_t subType = 0;
     Common::UnpackUint64(templateInfo.extraInfo, 0, subType);
-    bool setAuthSubTypeRet = values->SetUint64Value(UserIam::UserAuth::Attributes::ATTR_PIN_SUB_TYPE, subType);
+    bool setAuthSubTypeRet = values->SetUint64Value(Attributes::ATTR_PIN_SUB_TYPE, subType);
     IF_FALSE_LOGE_AND_RETURN_VAL(setAuthSubTypeRet == true, ResultCode::GENERAL_ERROR);
     bool setAuthRemainTimeRet =
-        values->SetUint32Value(UserIam::UserAuth::Attributes::ATTR_FREEZING_TIME, templateInfo.freezingTime);
+        values->SetUint32Value(Attributes::ATTR_FREEZING_TIME, templateInfo.freezingTime);
     IF_FALSE_LOGE_AND_RETURN_VAL(setAuthRemainTimeRet == true, ResultCode::GENERAL_ERROR);
     bool setAuthRemainCountRet =
-        values->SetUint32Value(UserIam::UserAuth::Attributes::ATTR_REMAIN_TIMES, templateInfo.remainTimes);
+        values->SetUint32Value(Attributes::ATTR_REMAIN_TIMES, templateInfo.remainTimes);
     IF_FALSE_LOGE_AND_RETURN_VAL(setAuthRemainCountRet == true, ResultCode::GENERAL_ERROR);
     return ResultCode::SUCCESS;
 }
@@ -280,5 +280,5 @@ const char *FrameworkExecutorCallback::GetDescription()
     return description_.c_str();
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

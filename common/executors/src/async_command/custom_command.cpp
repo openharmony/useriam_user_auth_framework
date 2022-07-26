@@ -28,15 +28,15 @@
 #include "iam_ptr.h"
 #include "iauth_executor_hdi.h"
 
-#define LOG_LABEL Common::LABEL_USER_AUTH_EXECUTOR
+#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_EXECUTOR
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
-using namespace UserIam::UserAuth;
+namespace Common = OHOS::UserIAM::Common;
 CustomCommand::CustomCommand(std::weak_ptr<Executor> executor, const Attributes &attributes)
     : AsyncCommandBase("CUSTOM", 0, executor, nullptr),
-      attributes_(Common::MakeShared<UserIam::UserAuth::Attributes>(attributes.Serialize()))
+      attributes_(Common::MakeShared<Attributes>(attributes.Serialize()))
 {
 }
 
@@ -100,5 +100,5 @@ void CustomCommand::SetResult(ResultCode resultCode)
     promise_.set_value();
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

@@ -21,16 +21,15 @@
 #include "co_auth_client_callback.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
-using namespace OHOS::UserIam::UserAuth;
 class ExecutorMgrWrapper : public NoCopyable {
 public:
     ~ExecutorMgrWrapper() override = default;
     virtual void Register(const ExecutorInfo &info, std::shared_ptr<ExecutorRegisterCallback> callback);
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 #endif // EXCECUTOR_MGR_WRAPPER_H

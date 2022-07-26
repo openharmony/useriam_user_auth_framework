@@ -22,11 +22,12 @@
 #include "iauth_driver_hdi.h"
 #include "iauth_executor_hdi.h"
 
-#define LOG_LABEL Common::LABEL_USER_AUTH_EXECUTOR
+#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_EXECUTOR
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
+namespace Common = OHOS::UserIAM::Common;
 Driver::Driver(const std::string &serviceName, HdiConfig hdiConfig) : serviceName_(serviceName), hdiConfig_(hdiConfig)
 {
 }
@@ -93,5 +94,5 @@ void Driver::OnFrameworkReady()
     IAM_LOGI("success");
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

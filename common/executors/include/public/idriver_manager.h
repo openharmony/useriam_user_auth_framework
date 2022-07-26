@@ -22,7 +22,7 @@
 #include "iauth_driver_hdi.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 struct HdiConfig {
     uint16_t id; // non-zero
@@ -37,7 +37,15 @@ public:
     static int32_t Start(const std::map<std::string, HdiConfig> &hdiName2Config);
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace UserAuth {
+using HdiConfig = OHOS::UserIam::UserAuth::HdiConfig;
+using IDriverManager = OHOS::UserIam::UserAuth::IDriverManager;
+}
+}
+}
 
 #endif // IDRIVER_MANAGER_H
