@@ -126,11 +126,11 @@ void IdmGetCredentialInfoProxy::OnCredentialInfos(const std::vector<std::shared_
             IAM_LOGE("failed to write credentialId");
             return;
         }
-        if (!data.WriteUint32(info->GetAuthType())) {
+        if (!data.WriteInt32(info->GetAuthType())) {
             IAM_LOGE("failed to write authType)");
             return;
         }
-        if (!data.WriteUint64(pinSubType.value_or(static_cast<PinSubType>(0)))) {
+        if (!data.WriteInt32(pinSubType.value_or(static_cast<PinSubType>(0)))) {
             IAM_LOGE("failed to write authSubType");
             return;
         }
