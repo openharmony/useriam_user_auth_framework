@@ -13,32 +13,25 @@
  * limitations under the License.
  */
 
-#include "user_idm_callback_test.h"
+#ifndef USER_IDM_CLIENT_TEST_H
+#define USER_IDM_CLIENT_TEST_H
+
+#include <gtest/gtest.h>
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
-using namespace OHOS::UserIam::UserAuth;
-void GetInfoCallbackUT::OnGetInfo(std::vector<CredentialInfo> &info)
-{
-    return;
-}
+class UserIdmClientTest : public testing::Test {
+public:
+    static void SetUpTestCase();
 
-void GetSecInfoCallbackUT::OnGetSecInfo(SecInfo &info)
-{
-    return;
-}
+    static void TearDownTestCase();
 
-void IDMCallbackUT::OnResult(int32_t result, RequestResult reqRet)
-{
-    return;
-}
+    void SetUp() override;
 
-void IDMCallbackUT::OnAcquireInfo(int32_t module, int32_t acquire, RequestResult reqRet)
-{
-    return;
-}
-}  // namespace UserIDM
-}  // namespace UserIAM
-}  // namespace OHOS
-
+    void TearDown() override;
+};
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
+#endif // USER_IDM_CLIENT_TEST_H
