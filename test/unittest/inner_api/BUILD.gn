@@ -31,9 +31,9 @@ ohos_unittest("iam_inner_api_test") {
   deps = [ "//base/useriam/user_auth_framework/frameworks/native/common:dfx" ]
 
   external_deps = [
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "utils_base:utils",
   ]
 
   module_out_path = "useriam/user_auth_framework"

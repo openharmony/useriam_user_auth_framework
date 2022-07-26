@@ -27,8 +27,8 @@ ohos_source_set("attributes") {
   public_configs = [ ":attributes_config" ]
 
   external_deps = [
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
-    "utils_base:utils",
   ]
 }
 
@@ -49,9 +49,9 @@ ohos_source_set("dfx") {
   public_configs = [ ":dfx_config" ]
 
   external_deps = [
+    "c_utils:utils",
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
-    "utils_base:utils",
   ]
 }
