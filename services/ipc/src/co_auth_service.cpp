@@ -89,8 +89,8 @@ uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<
     sptr<ExecutorMessengerInterface> messenger = ExecutorMessengerService::GetInstance();
     executorCallback->OnMessengerReady(messenger, fwkPublicKey, templateIdList);
     uint64_t executorIndex = resourceNode->GetExecutorIndex();
-    uint32_t executorType = static_cast<uint32_t>(resourceNode->GetAuthType());
-    IAM_LOGI("register successful, executorType is %{public}u, executorIndex is ****%{public}hx",
+    int32_t executorType = resourceNode->GetAuthType();
+    IAM_LOGI("register successful, executorType is %{public}d, executorIndex is ****%{public}hx",
         executorType, static_cast<uint16_t>(executorIndex));
     if (auto obj = executorCallback->AsObject(); obj) {
         obj->AddDeathRecipient(new (std::nothrow) IpcCommon::PeerDeathRecipient([executorIndex, executorType]() {

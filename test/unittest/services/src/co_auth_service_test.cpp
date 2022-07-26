@@ -55,9 +55,9 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTestOnRemoteRequest, TestSize.Level0)
     info.executorMatcher = 0;
     info.esl = ESL1;
     info.publicKey = {'a', 'b', 'c', 'd'};
-    EXPECT_EQ(data.WriteUint32(info.authType), true);
-    EXPECT_EQ(data.WriteUint32(info.executorRole), true);
-    EXPECT_EQ(data.WriteUint32(info.esl), true);
+    EXPECT_EQ(data.WriteInt32(info.authType), true);
+    EXPECT_EQ(data.WriteInt32(info.executorRole), true);
+    EXPECT_EQ(data.WriteInt32(info.esl), true);
     EXPECT_EQ(data.WriteUInt8Vector(info.publicKey), true);
     EXPECT_EQ(data.WriteRemoteObject(callback->AsObject()), true);
     uint32_t code = static_cast<uint32_t>(ICoAuth::CO_AUTH_EXECUTOR_REGISTER);
