@@ -24,7 +24,7 @@ namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
 using namespace OHOS::UserIAM;
-using namespace OHOS::UserIAM::UserAuth;
+using namespace OHOS::UserIam::UserAuth;
 
 class MockIAuthDriverHdi : public IAuthDriverHdi {
     virtual ~MockIAuthDriverHdi() = default;
