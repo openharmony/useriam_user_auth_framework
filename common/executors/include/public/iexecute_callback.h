@@ -22,7 +22,7 @@
 #include "iam_common_defines.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class IExecuteCallback {
 public:
@@ -35,7 +35,13 @@ public:
     virtual void OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo) = 0;
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
-
+namespace OHOS {
+namespace UserIAM {
+namespace UserAuth {
+using IExecuteCallback = OHOS::UserIam::UserAuth::IExecuteCallback;
+}
+}
+}
 #endif // EXECUTE_CALLBACK_H

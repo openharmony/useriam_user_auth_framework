@@ -25,11 +25,12 @@
 #include "iam_para2str.h"
 #include "iam_ptr.h"
 
-#define LOG_LABEL Common::LABEL_USER_AUTH_EXECUTOR
+#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_EXECUTOR
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
+namespace Common = OHOS::UserIAM::Common;
 Executor::Executor(std::shared_ptr<ExecutorMgrWrapper> executorMgrWrapper,
     std::shared_ptr<IAuthExecutorHdi> executorHdi, uint16_t hdiId)
     : executorMgrWrapper_(executorMgrWrapper),
@@ -152,5 +153,5 @@ int32_t Executor::GetAuthType() const
     return authType_;
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

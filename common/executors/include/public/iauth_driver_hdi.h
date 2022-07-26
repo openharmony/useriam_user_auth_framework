@@ -23,7 +23,7 @@
 #include "iauth_executor_hdi.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class IAuthDriverHdi {
 public:
@@ -33,7 +33,14 @@ public:
     virtual void GetExecutorList(std::vector<std::shared_ptr<UserAuth::IAuthExecutorHdi>> &executorList) = 0;
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
+namespace OHOS {
+namespace UserIAM {
+namespace UserAuth {
+using IAuthDriverHdi = OHOS::UserIam::UserAuth::IAuthDriverHdi;
+}
+}
+}
 
 #endif // IAUTH_DRIVER_HDI_H

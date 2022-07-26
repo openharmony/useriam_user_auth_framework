@@ -27,7 +27,7 @@
 #include "iam_common_defines.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class FrameworkExecutorCallback : public ExecutorRegisterCallback, public NoCopyable {
 public:
@@ -50,23 +50,23 @@ private:
         const Attributes &commandAttrs);
     ResultCode OnEndExecuteInner(uint64_t scheduleId, const Attributes &consumerAttr);
     ResultCode OnSetPropertyInner(const Attributes &properties);
-    ResultCode OnGetPropertyInner(std::shared_ptr<UserIam::UserAuth::Attributes> conditions,
-        std::shared_ptr<UserIam::UserAuth::Attributes> values);
+    ResultCode OnGetPropertyInner(std::shared_ptr<Attributes> conditions,
+        std::shared_ptr<Attributes> values);
     ResultCode ProcessEnrollCommand(uint64_t scheduleId, const Attributes &properties);
     ResultCode ProcessAuthCommand(uint64_t scheduleId, const Attributes &properties);
     ResultCode ProcessIdentifyCommand(uint64_t scheduleId, const Attributes &properties);
     ResultCode ProcessCancelCommand(uint64_t scheduleId);
     ResultCode ProcessDeleteTemplateCommand(const Attributes &properties);
     ResultCode ProcessCustomCommand(const Attributes &properties);
-    ResultCode ProcessGetTemplateCommand(std::shared_ptr<UserIam::UserAuth::Attributes> conditions,
-        std::shared_ptr<UserIam::UserAuth::Attributes> values);
+    ResultCode ProcessGetTemplateCommand(std::shared_ptr<Attributes> conditions,
+        std::shared_ptr<Attributes> values);
     const char *GetDescription();
     std::shared_ptr<ExecutorMessenger> executorMessenger_;
     std::weak_ptr<Executor> executor_;
     std::string description_;
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 #endif // FRAMEWORK_EXECUTOR_CALLBACK_H

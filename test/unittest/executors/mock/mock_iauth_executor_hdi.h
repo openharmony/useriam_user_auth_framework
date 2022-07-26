@@ -25,6 +25,7 @@ namespace UserIAM {
 namespace UserAuth {
 using namespace OHOS::UserIAM;
 using namespace OHOS::UserIAM::UserAuth;
+using namespace OHOS::UserIam::UserAuth;
 
 class MockIAuthExecutorHdi : public IAuthExecutorHdi {
 public:

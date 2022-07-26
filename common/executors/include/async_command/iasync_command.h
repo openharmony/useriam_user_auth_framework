@@ -21,7 +21,7 @@
 #include "iam_common_defines.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class IAsyncCommand {
 public:
@@ -29,10 +29,10 @@ public:
     virtual ~IAsyncCommand() = default;
 
     virtual void OnHdiDisconnect() = 0;
-    virtual UserIam::UserAuth::ResultCode StartProcess() = 0;
+    virtual ResultCode StartProcess() = 0;
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 #endif // IASYNC_COMMAND_H

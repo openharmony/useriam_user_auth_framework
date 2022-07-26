@@ -21,7 +21,7 @@
 #include "async_command_base.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class CustomCommand : public AsyncCommandBase {
 public:
@@ -36,13 +36,13 @@ protected:
 
 private:
     void SetResult(ResultCode resultCode);
-    std::shared_ptr<UserIam::UserAuth::Attributes> attributes_;
+    std::shared_ptr<Attributes> attributes_;
     ResultCode result_ = ResultCode::GENERAL_ERROR;
     std::promise<void> promise_;
     std::future<void> future_;
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 #endif // CUSTOM_COMMAND_H

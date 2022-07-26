@@ -26,7 +26,7 @@
 #include "iam_defines.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class AsyncCommandBase : public std::enable_shared_from_this<AsyncCommandBase>,
                          public IAsyncCommand,
@@ -53,7 +53,7 @@ protected:
     int32_t MessengerSendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcType, ExecutorRole dstType,
         std::shared_ptr<AuthMessage> msg);
     int32_t MessengerFinish(uint64_t scheduleId, ExecutorRole srcType, int32_t resultCode,
-        std::shared_ptr<UserIam::UserAuth::Attributes> finalResult);
+        std::shared_ptr<Attributes> finalResult);
 
     const char *GetDescription();
     uint64_t scheduleId_;
@@ -67,7 +67,7 @@ private:
     bool isFinished_ = false;
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 #endif // ASYNC_COMMAND_BASE_H

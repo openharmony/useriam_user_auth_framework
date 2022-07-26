@@ -18,15 +18,15 @@
 #include "driver_manager.h"
 #include "iam_logger.h"
 
-#define LOG_LABEL Common::LABEL_USER_AUTH_EXECUTOR
+#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_EXECUTOR
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 int32_t IDriverManager::Start(const std::map<std::string, HdiConfig> &hdiName2Config)
 {
     return Singleton<UserAuth::DriverManager>::GetInstance().Start(hdiName2Config);
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

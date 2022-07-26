@@ -30,6 +30,7 @@ using namespace OHOS::UserIAM::Common;
 namespace OHOS {
 namespace UserIAM {
 namespace UserAuth {
+using namespace OHOS::UserIam::UserAuth;
 class DriverManagerUnitTest : public testing::Test {
 public:
     static void SetUpTestCase();
