@@ -32,7 +32,7 @@
         "hiviewdfx_hilog_native",
         "ipc",
         "safwk",
-        "samgr_standard",
+        "samgr",
         "hilog",
         "user_auth_framework"
       ],
