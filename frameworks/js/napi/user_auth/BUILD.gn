@@ -37,10 +37,10 @@ ohos_shared_library("userauth") {
   ]
 
   external_deps = [
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "utils_base:utils",
   ]
 
   public_configs = [ ":userauth_public_config" ]
@@ -72,10 +72,10 @@ ohos_shared_library("userauth_napi") {
   ]
 
   external_deps = [
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "utils_base:utils",
   ]
 
   public_configs = [ ":userauth_public_config" ]
