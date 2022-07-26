@@ -37,11 +37,5 @@ public:
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-namespace OHOS {
-namespace UserIAM {
-namespace UserAuth {
-using IExecuteCallback = OHOS::UserIam::UserAuth::IExecuteCallback;
-}
-}
-}
+
 #endif // EXECUTE_CALLBACK_H
