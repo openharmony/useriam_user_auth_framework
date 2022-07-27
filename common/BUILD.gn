@@ -34,8 +34,8 @@ ohos_source_set("iam_thread_pool") {
   sources = [ "thread_pool/thread_groups.cpp" ]
 
   external_deps = [
+    "c_utils:utils",
     "hilog_native:libhilog",
-    "utils_base:utils",
   ]
 
   public_configs = [ ":iam_thread_pool_config" ]
@@ -59,8 +59,8 @@ ohos_source_set("iam_utils") {
   ]
 
   external_deps = [
+    "c_utils:utils",
     "hilog_native:libhilog",
-    "utils_base:utils",
   ]
 
   public_configs = [
@@ -80,8 +80,8 @@ ohos_source_set("iam_test") {
   include_dirs = [ "//base/useriam/user_auth_framework/common/logs" ]
 
   external_deps = [
+    "c_utils:utils",
     "hilog_native:libhilog",
-    "utils_base:utils",
   ]
 
   public_configs = [ ":iam_test_config" ]
