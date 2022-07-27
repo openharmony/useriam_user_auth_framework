@@ -28,7 +28,6 @@
 #include "iam_defines.h"
 #include "user_auth_callback_interface.h"
 #include "user_idm_callback_interface.h"
-#include "iam_callback_interface.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -58,11 +57,13 @@ private:
 
 class ContextCallback {
 public:
-    static std::shared_ptr<ContextCallback> NewInstance(sptr<IamCallbackInterface> iamCallback,
+    static std::shared_ptr<ContextCallback> NewInstance(sptr<IdmCallbackInterface> idmCallback,
+        OperationType operationType);
+    static std::shared_ptr<ContextCallback> NewInstance(sptr<UserAuthCallbackInterface> userAuthCallback,
         OperationType operationType);
     virtual ~ContextCallback() = default;
-    virtual void OnResult(int32_t resultCode, const Attributes &finalResult) = 0;
     virtual void onAcquireInfo(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg) const = 0;
+    virtual void OnResult(int32_t resultCode, Attributes &finalResult) = 0;
     virtual void SetTraceUserId(int32_t userId) = 0;
     virtual void SetTraceRemainTime(int32_t remainTime) = 0;
     virtual void SetTraceFreezingTime(int32_t freezingTime) = 0;
