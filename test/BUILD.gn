@@ -18,6 +18,7 @@ group("iam_unittest") {
   testonly = true
   deps = [
     "unittest/executors:iam_executors_test",
+    "unittest/inner_api:iam_inner_api_test",
     "unittest/services:iam_services_test",
   ]
 }

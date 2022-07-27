@@ -27,37 +27,37 @@ class Attributes final {
 public:
     enum AttributeKey : uint32_t {
         ATTR_ROOT = 100000,
-        ATTR_RESULT_CODE = 100001,
-        ATTR_SIGNATURE = 100004,
-        ATTR_IDENTIFY_MODE = 100005,
-        ATTR_TEMPLATE_ID = 100006,
-        ATTR_TEMPLATE_ID_LIST = 100007,
-        ATTR_ERROR_COUNT = 100008,
-        ATTR_REMAIN_TIMES = 100009,
-        ATTR_FREEZING_TIME = 100010,
-        ATTR_SESSION_ID = 100014,
-        ATTR_SCHEDULE_VERSION = 100016,
-        ATTR_SCHEDULE_ID = 100020,
-        ATTR_PIN_SUB_TYPE = 100021,
-        ATTR_SCHEDULE_MODE = 100022,
-        ATTR_PROPERTY_MODE = 100023,
-        ATTR_AUTH_TYPE = 100024,
-        ATTR_CREDENTIAL_ID = 100025,
-        ATTR_CALLER_UID = 100027,
-        ATTR_RESULT = 100028,
-        ATTR_CAPABILITY_LEVEL = 100029,
-        ATTR_ALGORITHM_INFO = 100030,
-        ATTR_TIME_STAMP = 100031,
-        ATTR_ROOT_SECRET = 100032,
-        ATTR_AUTH_TOKEN = 100033,
+        ATTR_RESULT_CODE = 100001,      // uint32_t
+        ATTR_SIGNATURE = 100004,        // std::vector<uint8_t>
+        ATTR_IDENTIFY_MODE = 100005,    // uint32_t
+        ATTR_TEMPLATE_ID = 100006,      // uint64_t
+        ATTR_TEMPLATE_ID_LIST = 100007, // std::vector<uint64_t>
+        ATTR_ERROR_COUNT = 100008,      // int32_t
+        ATTR_REMAIN_TIMES = 100009,     // int32_t
+        ATTR_FREEZING_TIME = 100010,    // int32_t
+        ATTR_SESSION_ID = 100014,       // uint64_t
+        ATTR_SCHEDULE_VERSION = 100016, // uint32_t
+        ATTR_SCHEDULE_ID = 100020,      // uint64_t
+        ATTR_PIN_SUB_TYPE = 100021,     // int32_t
+        ATTR_SCHEDULE_MODE = 100022,    // int32_t
+        ATTR_PROPERTY_MODE = 100023,    // uint32_t
+        ATTR_AUTH_TYPE = 100024,        // int32_t
+        ATTR_CREDENTIAL_ID = 100025,    // uint64_t
+        ATTR_CALLER_UID = 100027,       // uint64_t
+        ATTR_RESULT = 100028,           // std::vector<uint8_t>
+        ATTR_CAPABILITY_LEVEL = 100029, // uint64_t
+        ATTR_ALGORITHM_INFO = 100030,   // uint64_t
+        ATTR_TIME_STAMP = 100031,       // uint64_t
+        ATTR_ROOT_SECRET = 100032,      // std::vector<uint8_t>
+        ATTR_AUTH_TOKEN = 100033,       // std::vector<uint8_t>
 
         // private attrs
-        ATTR_USER_ID = 300000,
-        ATTR_EXTRA_INFO,
-        ATTR_EXECUTOR_INDEX,
-        ATTR_EXECUTOR_SENSOR_HINT,
-        ATTR_EXECUTOR_MATCHER,
-        ATTR_ACCESS_TOKEN_ID,
+        ATTR_USER_ID = 300000,          // int32_t
+        ATTR_EXTRA_INFO,                // std::vector<uint8_t>
+        ATTR_EXECUTOR_INDEX,            // uint64_t
+        ATTR_EXECUTOR_SENSOR_HINT,      // uint32_t
+        ATTR_EXECUTOR_MATCHER,          // uint32_t
+        ATTR_ACCESS_TOKEN_ID,           // uint32_t
     };
 
     Attributes();

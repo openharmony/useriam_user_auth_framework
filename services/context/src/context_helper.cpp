@@ -18,7 +18,7 @@
 #include "context_pool.h"
 #include "iam_logger.h"
 
-#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
+#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
 namespace OHOS {
 namespace UserIam {

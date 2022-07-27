@@ -22,7 +22,7 @@
 #include "iam_common_defines.h"
 #include "user_idm_callback_proxy.h"
 
-#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
+#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
 namespace OHOS {
 namespace UserIam {
@@ -113,8 +113,8 @@ int32_t UserIdmStub::GetCredentialInfoStub(MessageParcel &data, MessageParcel &r
         return READ_PARCEL_ERROR;
     }
 
-    uint32_t authType;
-    if (!data.ReadUint32(authType)) {
+    int32_t authType;
+    if (!data.ReadInt32(authType)) {
         IAM_LOGE("failed to read authType");
         return READ_PARCEL_ERROR;
     }
@@ -163,14 +163,14 @@ int32_t UserIdmStub::AddCredentialStub(MessageParcel &data, MessageParcel &reply
         return READ_PARCEL_ERROR;
     }
 
-    uint32_t authType;
-    if (!data.ReadUint32(authType)) {
+    int32_t authType;
+    if (!data.ReadInt32(authType)) {
         IAM_LOGE("failed to read authType");
         return READ_PARCEL_ERROR;
     }
 
-    uint64_t authSubType;
-    if (!data.ReadUint64(authSubType)) {
+    int32_t authSubType;
+    if (!data.ReadInt32(authSubType)) {
         IAM_LOGE("failed to read authSubType");
         return READ_PARCEL_ERROR;
     }
@@ -206,14 +206,14 @@ int32_t UserIdmStub::UpdateCredentialStub(MessageParcel &data, MessageParcel &re
         return READ_PARCEL_ERROR;
     }
 
-    uint32_t authType;
-    if (!data.ReadUint32(authType)) {
+    int32_t authType;
+    if (!data.ReadInt32(authType)) {
         IAM_LOGE("failed to read authType");
         return READ_PARCEL_ERROR;
     }
 
-    uint64_t authSubType;
-    if (!data.ReadUint64(authSubType)) {
+    int32_t authSubType;
+    if (!data.ReadInt32(authSubType)) {
         IAM_LOGE("failed to read authSubType");
         return READ_PARCEL_ERROR;
     }

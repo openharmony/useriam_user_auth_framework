@@ -19,28 +19,28 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-enum AuthType : uint32_t {
+enum AuthType : int32_t {
     ALL = 0,
     PIN = 1,
     FACE = 2,
     FINGERPRINT = 4,
 };
 
-enum PinSubType : uint64_t {
+enum PinSubType : int32_t {
     PIN_SIX = 10000,
     PIN_NUMBER = 10001,
     PIN_MIXED = 10002,
     PIN_MAX,
 };
 
-enum ExecutorRole : uint32_t {
+enum ExecutorRole : int32_t {
     SCHEDULER = 0,
     COLLECTOR = 1,
     VERIFIER = 2,
     ALL_IN_ONE = 3,
 };
 
-enum ExecutorSecureLevel : uint32_t {
+enum ExecutorSecureLevel : int32_t {
     ESL0 = 0,
     ESL1 = 1,
     ESL2 = 2,
@@ -54,7 +54,7 @@ enum AuthTrustLevel : uint32_t {
     ATL4 = 40000,
 };
 
-enum ScheduleMode : uint32_t {
+enum ScheduleMode : int32_t {
     ENROLL = 0,
     AUTH = 1,
     IDENTIFY = 2,

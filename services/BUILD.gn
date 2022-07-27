@@ -30,6 +30,7 @@ ohos_shared_library("userauthservice") {
 
   external_deps = [
     "access_token:libaccesstoken_sdk",
+    "c_utils:utils",
     "drivers_interface_user_auth:libuser_auth_proxy_1.0",
     "hilog_native:libhilog",
     "hitrace_native:hitrace_meter",
@@ -37,7 +38,6 @@ ohos_shared_library("userauthservice") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "utils_base:utils",
   ]
 
   configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]

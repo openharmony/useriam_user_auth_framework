@@ -22,7 +22,7 @@
 #include "iam_common_defines.h"
 #include "string_ex.h"
 
-#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
+#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
 namespace OHOS {
 namespace UserIam {
@@ -74,17 +74,17 @@ int32_t CoAuthStub::ExecutorRegisterStub(MessageParcel &data, MessageParcel &rep
 
 int32_t CoAuthStub::ReadExecutorRegisterInfo(ExecutorRegisterInfo &executorInfo, MessageParcel &data)
 {
-    uint32_t authType;
-    uint32_t executorRole;
+    int32_t authType;
+    int32_t executorRole;
     uint32_t executorSensorHint;
     uint32_t executorMatcher;
-    uint32_t esl;
+    int32_t esl;
 
-    if (!data.ReadUint32(authType)) {
+    if (!data.ReadInt32(authType)) {
         IAM_LOGE("failed to read authType");
         return READ_PARCEL_ERROR;
     }
-    if (!data.ReadUint32(executorRole)) {
+    if (!data.ReadInt32(executorRole)) {
         IAM_LOGE("failed to read executorRole");
         return READ_PARCEL_ERROR;
     }
@@ -96,7 +96,7 @@ int32_t CoAuthStub::ReadExecutorRegisterInfo(ExecutorRegisterInfo &executorInfo,
         IAM_LOGE("failed to read executorMatcher");
         return READ_PARCEL_ERROR;
     }
-    if (!data.ReadUint32(esl)) {
+    if (!data.ReadInt32(esl)) {
         IAM_LOGE("failed to read esl");
         return READ_PARCEL_ERROR;
     }

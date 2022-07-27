@@ -31,7 +31,7 @@
 #include "iam_ptr.h"
 #include "identify_command.h"
 
-#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_EXECUTOR
+#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_EXECUTOR
 
 namespace OHOS {
 namespace UserIam {
@@ -57,9 +57,9 @@ ResultCode FrameworkExecutorCallback::OnBeginExecuteInner(uint64_t scheduleId, s
     const Attributes &commandAttrs)
 {
     static_cast<void>(publicKey);
-    uint32_t commandId = 0;
+    int32_t commandId = 0;
     bool getScheduleModeRet =
-        commandAttrs.GetUint32Value(Attributes::ATTR_SCHEDULE_MODE, commandId);
+        commandAttrs.GetInt32Value(Attributes::ATTR_SCHEDULE_MODE, commandId);
     IF_FALSE_LOGE_AND_RETURN_VAL(getScheduleModeRet == true, ResultCode::GENERAL_ERROR);
 
     IAM_LOGI("%{public}s start process cmd %{public}u", GetDescription(), commandId);
@@ -252,15 +252,14 @@ ResultCode FrameworkExecutorCallback::ProcessGetTemplateCommand(
     TemplateInfo templateInfo = {};
     ResultCode ret = hdi->GetTemplateInfo(templateId, templateInfo);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret == SUCCESS, ret);
-    uint64_t subType = 0;
-    Common::UnpackUint64(templateInfo.extraInfo, 0, subType);
-    bool setAuthSubTypeRet = values->SetUint64Value(Attributes::ATTR_PIN_SUB_TYPE, subType);
+    int32_t subType = *(static_cast<int32_t *>(static_cast<void *>(templateInfo.extraInfo.data())));
+    bool setAuthSubTypeRet = values->SetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, subType);
     IF_FALSE_LOGE_AND_RETURN_VAL(setAuthSubTypeRet == true, ResultCode::GENERAL_ERROR);
     bool setAuthRemainTimeRet =
-        values->SetUint32Value(Attributes::ATTR_FREEZING_TIME, templateInfo.freezingTime);
+        values->SetInt32Value(Attributes::ATTR_FREEZING_TIME, templateInfo.freezingTime);
     IF_FALSE_LOGE_AND_RETURN_VAL(setAuthRemainTimeRet == true, ResultCode::GENERAL_ERROR);
     bool setAuthRemainCountRet =
-        values->SetUint32Value(Attributes::ATTR_REMAIN_TIMES, templateInfo.remainTimes);
+        values->SetInt32Value(Attributes::ATTR_REMAIN_TIMES, templateInfo.remainTimes);
     IF_FALSE_LOGE_AND_RETURN_VAL(setAuthRemainCountRet == true, ResultCode::GENERAL_ERROR);
     return ResultCode::SUCCESS;
 }

@@ -21,7 +21,7 @@
 #include "iam_time.h"
 #include "hisysevent_adapter.h"
 
-#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
+#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
 using namespace OHOS::UserIAM::UserAuth;
 
@@ -50,7 +50,7 @@ void Trace::ProcessCredChangeEvent(const ContextCallbackNotifyListener::MetaData
         return;
     }
     int32_t userId = 0;
-    uint32_t authType = 0;
+    int32_t authType = 0;
     uint32_t operationType = metaData.operationType;
     uint32_t optResult = 0;
     if (metaData.userId.has_value()) {

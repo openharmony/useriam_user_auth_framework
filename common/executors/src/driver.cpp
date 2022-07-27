@@ -22,7 +22,7 @@
 #include "iauth_driver_hdi.h"
 #include "iauth_executor_hdi.h"
 
-#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_EXECUTOR
+#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_EXECUTOR
 
 namespace OHOS {
 namespace UserIam {

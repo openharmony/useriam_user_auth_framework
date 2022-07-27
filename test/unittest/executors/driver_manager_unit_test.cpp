@@ -21,7 +21,7 @@
 #include "mock_iauth_driver_hdi.h"
 #include "mock_iauth_executor_hdi.h"
 
-#define LOG_LABEL OHOS::UserIAM::Common::LABEL_USER_AUTH_EXECUTOR
+#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_EXECUTOR
 
 using namespace testing;
 using namespace testing::ext;

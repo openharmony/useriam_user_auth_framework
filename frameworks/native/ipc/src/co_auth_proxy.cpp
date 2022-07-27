@@ -20,7 +20,7 @@
 #include "iam_common_defines.h"
 #include "iam_logger.h"
 
-#define LOG_LABEL UserIAM::Common::LABEL_AUTH_EXECUTOR_MGR_SDK
+#define LOG_LABEL UserIam::Common::LABEL_AUTH_EXECUTOR_MGR_SDK
 
 namespace OHOS {
 namespace UserIam {
@@ -31,11 +31,11 @@ CoAuthProxy::CoAuthProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<CoAuthI
 
 int32_t CoAuthProxy::WriteExecutorInfo(const ExecutorRegisterInfo &info, MessageParcel &data)
 {
-    if (!data.WriteUint32(info.authType)) {
+    if (!data.WriteInt32(info.authType)) {
         IAM_LOGE("failed to write authType");
         return WRITE_PARCEL_ERROR;
     }
-    if (!data.WriteUint32(info.executorRole)) {
+    if (!data.WriteInt32(info.executorRole)) {
         IAM_LOGE("failed to write executorRole");
         return WRITE_PARCEL_ERROR;
     }
