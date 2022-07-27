@@ -196,7 +196,7 @@ uint64_t UserAuthService::AuthUser(std::optional<int32_t> userId, const std::vec
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER);
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
-        callback->OnAuthResult(GENERAL_ERROR, extraInfo);
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
     auto callingUid = static_cast<uint64_t>(this->GetCallingUid());
@@ -254,7 +254,7 @@ uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthTy
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_IDENTIFY);
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
-        callback->OnIdentifyResult(GENERAL_ERROR, extraInfo);
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
     if (authType == PIN) {

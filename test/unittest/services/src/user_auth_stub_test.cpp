@@ -200,12 +200,12 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthStub, TestSize.Level0)
                            AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) {
             if (callback != nullptr) {
                 Attributes attr;
-                callback->OnAuthResult(SUCCESS, attr);
+                callback->OnResult(SUCCESS, attr);
             }
             uint64_t contextId = 300;
             return contextId;
         });
-    EXPECT_CALL(*callback, OnAuthResult(_, _)).Times(1);
+    EXPECT_CALL(*callback, OnResult(_, _)).Times(1);
 
     MessageParcel data;
     MessageParcel reply;
@@ -237,12 +237,12 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub, TestSize.Level0)
                            AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) {
             if (callback != nullptr) {
                 Attributes attr;
-                callback->OnAuthResult(SUCCESS, attr);
+                callback->OnResult(SUCCESS, attr);
             }
             uint64_t contextId = 300;
             return contextId;
         });
-    EXPECT_CALL(*callback, OnAuthResult(_, _)).Times(1);
+    EXPECT_CALL(*callback, OnResult(_, _)).Times(1);
 
     MessageParcel data;
     MessageParcel reply;
@@ -273,12 +273,12 @@ HWTEST_F(UserAuthStubTest, UserAuthStubIdentifyStub, TestSize.Level0)
             [](const std::vector<uint8_t> &challenge, AuthType authType, sptr<UserAuthCallbackInterface> &callback) {
                 if (callback != nullptr) {
                     Attributes attr;
-                    callback->OnIdentifyResult(SUCCESS, attr);
+                    callback->OnResult(SUCCESS, attr);
                 }
                 uint64_t contextId = 300;
                 return contextId;
             });
-    EXPECT_CALL(*callback, OnIdentifyResult(_, _)).Times(1);
+    EXPECT_CALL(*callback, OnResult(_, _)).Times(1);
 
     MessageParcel data;
     MessageParcel reply;
