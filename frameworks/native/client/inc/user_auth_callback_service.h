@@ -29,8 +29,9 @@ public:
     explicit UserAuthCallbackService(const std::shared_ptr<AuthenticationCallback> &impl);
     explicit UserAuthCallbackService(const std::shared_ptr<IdentificationCallback> &impl);
     ~UserAuthCallbackService() override = default;
-    void OnResult(int32_t result, const Attributes &extraInfo) override;
-    void OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo) override;
+    void OnAcquireInfo(int32_t module, uint32_t acquireInfo, const Attributes &extraInfo) override;
+    void OnAuthResult(int32_t result, const Attributes &extraInfo) override;
+    void OnIdentifyResult(int32_t result, const Attributes &extraInfo) override;
 
 private:
     std::shared_ptr<AuthenticationCallback> authCallback_ {nullptr};

@@ -24,8 +24,8 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-ContextCallbackImpl::ContextCallbackImpl(sptr<IamCallbackInterface> iamCallback, OperationType operationType)
-    : iamCallback_(iamCallback)
+ContextCallbackImpl::ContextCallbackImpl(sptr<IdmCallbackInterface> idmCallback, OperationType operationType)
+    : idmCallback_(idmCallback)
 {
     metaData_.operationType = operationType;
     metaData_.startTime = std::chrono::steady_clock::now();
@@ -34,23 +34,40 @@ ContextCallbackImpl::ContextCallbackImpl(sptr<IamCallbackInterface> iamCallback,
     iamHitraceHelper_ = UserIAM::Common::MakeShared<IamHitraceHelper>(ss.str());
 }
 
+ContextCallbackImpl::ContextCallbackImpl(sptr<UserAuthCallbackInterface> userAuthCallback, OperationType operationType)
+    : userAuthCallback_(userAuthCallback)
+{
+    metaData_.operationType = operationType;
+    metaData_.startTime = std::chrono::steady_clock::now();
+    std::ostringstream ss;
+    ss << "UserAuth(operation:" << operationType << ")";
+    iamHitraceHelper_ = UserIAM::Common::MakeShared<IamHitraceHelper>(ss.str());
+}
+
 void ContextCallbackImpl::onAcquireInfo(ExecutorRole src, int32_t moduleType,
     const std::vector<uint8_t> &acquireMsg) const
 {
-    if (iamCallback_ == nullptr) {
-        IAM_LOGE("iam callback is nullptr");
-        return;
+    if (idmCallback_ != nullptr) {
+        if (acquireMsg.size() != sizeof(int32_t)) {
+            IAM_LOGE("acquireMsg size is invalid");
+            return;
+        }
+        int32_t acquire = *(int32_t *)(const_cast<uint8_t *>(&acquireMsg[0]));
+        Attributes attr = {};
+        idmCallback_->OnAcquireInfo(moduleType, acquire, attr);
     }
-    if (acquireMsg.size() != sizeof(int32_t)) {
-        IAM_LOGE("acquireMsg size is invalid");
-        return;
+    if (userAuthCallback_ != nullptr) {
+        if (acquireMsg.size() != sizeof(int32_t)) {
+            IAM_LOGE("acquireMsg size is invalid");
+            return;
+        }
+        int32_t acquire = *(int32_t *)(const_cast<uint8_t *>(&acquireMsg[0]));
+        Attributes attr;
+        userAuthCallback_->OnAcquireInfo(moduleType, acquire, attr);
     }
-    int32_t acquireInfo = *(int32_t *)(const_cast<uint8_t *>(&acquireMsg[0]));
-    Attributes attr = {};
-    iamCallback_->OnAcquireInfo(moduleType, acquireInfo, attr);
 }
 
-void ContextCallbackImpl::OnResult(int32_t resultCode, const Attributes &finalResult)
+void ContextCallbackImpl::OnResult(int32_t resultCode, Attributes &finalResult)
 {
     int32_t remainTime;
     int32_t freezingTime;
@@ -63,10 +80,20 @@ void ContextCallbackImpl::OnResult(int32_t resultCode, const Attributes &finalRe
     }
     metaData_.endTime = std::chrono::steady_clock::now();
 
-    if (iamCallback_ != nullptr) {
-        iamCallback_->OnResult(resultCode, finalResult);
+    iamHitraceHelper_ = nullptr;
+    if (idmCallback_ != nullptr) {
+        idmCallback_->OnResult(resultCode, finalResult);
     }
-    
+    if (userAuthCallback_ != nullptr) {
+        int32_t userId;
+        auto isIdentify = finalResult.GetInt32Value(Attributes::ATTR_USER_ID, userId);
+        if (isIdentify) {
+            userAuthCallback_->OnIdentifyResult(resultCode, finalResult);
+        } else {
+            userAuthCallback_->OnAuthResult(resultCode, finalResult);
+        }
+    }
+
     ContextCallbackNotifyListener::GetInstance().Process(metaData_);
     if (stopCallback_ != nullptr) {
         stopCallback_();
@@ -127,14 +154,24 @@ void ContextCallbackNotifyListener::Process(const MetaData &metaData)
     }
 }
 
-std::shared_ptr<ContextCallback> ContextCallback::NewInstance(sptr<IamCallbackInterface> iamCallback,
+std::shared_ptr<ContextCallback> ContextCallback::NewInstance(sptr<IdmCallbackInterface> idmCallback,
     OperationType operationType)
 {
-    if (iamCallback == nullptr) {
-        IAM_LOGE("iam callback is nullptr, parameter is invalid");
+    if (idmCallback == nullptr) {
+        IAM_LOGE("idmCallback is nullptr, parameter is invalid");
         return nullptr;
     }
-    return UserIAM::Common::MakeShared<ContextCallbackImpl>(iamCallback, operationType);
+    return UserIAM::Common::MakeShared<ContextCallbackImpl>(idmCallback, operationType);
+}
+
+std::shared_ptr<ContextCallback> ContextCallback::NewInstance(sptr<UserAuthCallbackInterface> userAuthCallback,
+    OperationType operationType)
+{
+    if (userAuthCallback == nullptr) {
+        IAM_LOGE("userAuthCallback is nullptr, parameter is invalid");
+        return nullptr;
+    }
+    return UserIAM::Common::MakeShared<ContextCallbackImpl>(userAuthCallback, operationType);
 }
 } // namespace UserAuth
 } // namespace UserIam

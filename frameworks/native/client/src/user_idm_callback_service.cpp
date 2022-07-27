@@ -29,23 +29,23 @@ IdmCallbackService::IdmCallbackService(const std::shared_ptr<UserIdmClientCallba
 {
 }
 
-void IdmCallbackService::OnResult(int32_t result, const Attributes &extraInfo)
+void IdmCallbackService::OnResult(int32_t result, const Attributes &reqRet)
 {
     iamHitraceHelper_ = nullptr;
     if (idmClientCallback_ == nullptr) {
         IAM_LOGE("idm client callback is nullptr");
         return;
     }
-    idmClientCallback_->OnResult(result, extraInfo);
+    idmClientCallback_->OnResult(result, reqRet);
 }
 
-void IdmCallbackService::OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo)
+void IdmCallbackService::OnAcquireInfo(int32_t module, int32_t acquire, const Attributes &reqRet)
 {
     if (idmClientCallback_ == nullptr) {
         IAM_LOGE("idm client callback is nullptr");
         return;
     }
-    idmClientCallback_->OnAcquireInfo(module, static_cast<uint32_t>(acquireInfo), extraInfo);
+    idmClientCallback_->OnAcquireInfo(module, static_cast<uint32_t>(acquire), reqRet);
 }
 
 IdmGetCredInfoCallbackService::IdmGetCredInfoCallbackService(

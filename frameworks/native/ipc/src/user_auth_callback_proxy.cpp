@@ -24,14 +24,45 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-void UserAuthCallbackProxy::OnResult(int32_t result, const Attributes &extraInfo)
+void UserAuthCallbackProxy::OnAcquireInfo(int32_t module, uint32_t acquireInfo, const Attributes &extraInfo)
 {
     IAM_LOGI("start");
 
     MessageParcel data;
     MessageParcel reply;
 
-    if (!data.WriteInterfaceToken(UserAuthCallbackProxy::GetDescriptor())) {
+    if (!data.WriteInterfaceToken(UserAuthCallbackProxy::GetOldDescriptor())) {
+        IAM_LOGE("write descriptor failed");
+        return;
+    }
+    if (!data.WriteInt32(module)) {
+        IAM_LOGE("write module failed");
+        return;
+    }
+    if (!data.WriteUint32(acquireInfo)) {
+        IAM_LOGE("write acquireInfo failed");
+        return;
+    }
+    auto buffer = extraInfo.Serialize();
+    if (!data.WriteUInt8Vector(buffer)) {
+        IAM_LOGE("write buffer failed");
+        return;
+    }
+
+    bool ret = SendRequest(UserAuthInterface::USER_AUTH_ACQUIRE_INFO, data, reply);
+    if (!ret) {
+        IAM_LOGE("send request failed");
+    }
+}
+
+void UserAuthCallbackProxy::OnAuthResult(int32_t result, const Attributes &extraInfo)
+{
+    IAM_LOGI("start");
+
+    MessageParcel data;
+    MessageParcel reply;
+
+    if (!data.WriteInterfaceToken(UserAuthCallbackProxy::GetOldDescriptor())) {
         IAM_LOGE("write descriptor failed");
         return;
     }
@@ -51,23 +82,19 @@ void UserAuthCallbackProxy::OnResult(int32_t result, const Attributes &extraInfo
     }
 }
 
-void UserAuthCallbackProxy::OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo)
+void UserAuthCallbackProxy::OnIdentifyResult(int32_t result, const Attributes &extraInfo)
 {
     IAM_LOGI("start");
 
     MessageParcel data;
     MessageParcel reply;
 
-    if (!data.WriteInterfaceToken(UserAuthCallbackProxy::GetDescriptor())) {
+    if (!data.WriteInterfaceToken(UserAuthCallbackProxy::GetOldDescriptor())) {
         IAM_LOGE("write descriptor failed");
         return;
     }
-    if (!data.WriteInt32(module)) {
-        IAM_LOGE("write module failed");
-        return;
-    }
-    if (!data.WriteInt32(acquireInfo)) {
-        IAM_LOGE("write acquireInfo failed");
+    if (!data.WriteInt32(result)) {
+        IAM_LOGE("write result failed");
         return;
     }
     auto buffer = extraInfo.Serialize();
@@ -76,7 +103,7 @@ void UserAuthCallbackProxy::OnAcquireInfo(int32_t module, int32_t acquireInfo, c
         return;
     }
 
-    bool ret = SendRequest(UserAuthInterface::USER_AUTH_ACQUIRE_INFO, data, reply);
+    bool ret = SendRequest(UserAuthInterface::USER_AUTH_ON_IDENTIFY_RESULT, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
     }
@@ -107,7 +134,7 @@ void GetExecutorPropertyCallbackProxy::OnGetExecutorPropertyResult(int32_t resul
     MessageParcel data;
     MessageParcel reply;
 
-    if (!data.WriteInterfaceToken(GetExecutorPropertyCallbackProxy::GetDescriptor())) {
+    if (!data.WriteInterfaceToken(GetExecutorPropertyCallbackProxy::GetOldDescriptor())) {
         IAM_LOGE("write descriptor failed");
         return;
     }
@@ -152,7 +179,7 @@ void SetExecutorPropertyCallbackProxy::OnSetExecutorPropertyResult(int32_t resul
     MessageParcel data;
     MessageParcel reply;
 
-    if (!data.WriteInterfaceToken(SetExecutorPropertyCallbackProxy::GetDescriptor())) {
+    if (!data.WriteInterfaceToken(SetExecutorPropertyCallbackProxy::GetOldDescriptor())) {
         IAM_LOGE("write descriptor failed");
         return;
     }
