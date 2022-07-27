@@ -22,6 +22,7 @@
 
 #include "attributes.h"
 #include "iam_common_defines.h"
+#include "iam_callback_interface.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -80,18 +81,8 @@ public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.useridm.IGetSecInfoCallback");
 };
 
-class IdmCallbackInterface : public IRemoteBroker {
+class IdmCallbackInterface : public IamCallbackInterface {
 public:
-    /*
-     * return result code and additional information through callback.
-     */
-    virtual void OnResult(int32_t result, const Attributes &reqRet) = 0;
-
-    /*
-     * return result code and additional information through acquire info.
-     */
-    virtual void OnAcquireInfo(int32_t module, int32_t acquire, const Attributes &reqRet) = 0;
-
     enum {
         IDM_CALLBACK_ON_RESULT = 0,
         IDM_CALLBACK_ON_ACQUIRE_INFO,
