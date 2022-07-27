@@ -18,7 +18,7 @@
 
 #include "hilog/log.h"
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace Common {
 #ifdef __FILE_NAME__
 #define IAM_LOG_FILE __FILE_NAME__
@@ -89,7 +89,7 @@ static constexpr HiLogLabel LABEL_FINGERPRINT_AUTH_IMPL = {
 
 constexpr uint64_t MASK = 0x0000FFFF;
 } // namespace Common
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 #endif // IAM_LOGGER_H
