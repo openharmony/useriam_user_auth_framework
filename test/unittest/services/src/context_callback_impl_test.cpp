@@ -77,7 +77,7 @@ HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserAuth, TestSize.Level0)
 
     sptr<MockUserAuthCallback> mockCallback = new (nothrow) MockUserAuthCallback();
     ASSERT_TRUE(mockCallback != nullptr);
-    EXPECT_CALL(*mockCallback, OnAuthResult(_, _))
+    EXPECT_CALL(*mockCallback, OnResult(_, _))
         .Times(Exactly(1))
         .WillOnce([&testResult, &testAttr](int32_t result, const Attributes &reqRet) {
             EXPECT_TRUE(testResult == result);
@@ -86,7 +86,7 @@ HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserAuth, TestSize.Level0)
     sptr<UserAuthCallbackInterface> callback = mockCallback;
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
     ASSERT_NE(contextCallback, nullptr);
-    contextCallback->onAcquireInfo(static_cast<ExecutorRole>(0), 0, {});
+    contextCallback->OnAcquireInfo(static_cast<ExecutorRole>(0), 0, {});
     contextCallback->OnResult(testResult, *testAttr);
 }
 
@@ -107,7 +107,7 @@ HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserIdmOnResult, TestSize.L
     sptr<IdmCallbackInterface> callback = mockCallback;
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
     ASSERT_NE(contextCallback, nullptr);
-    contextCallback->onAcquireInfo(static_cast<ExecutorRole>(0), 0, {});
+    contextCallback->OnAcquireInfo(static_cast<ExecutorRole>(0), 0, {});
     contextCallback->OnResult(testResult, *testAttr);
 }
 } // namespace UserAuth
