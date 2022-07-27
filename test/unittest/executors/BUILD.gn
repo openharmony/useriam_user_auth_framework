@@ -44,6 +44,7 @@ ohos_unittest("iam_executors_test") {
   ]
 
   external_deps = [
+    "c_utils:utils",
     "hdf_core:libhdf_host",
     "hdf_core:libhdf_ipc_adapter",
     "hdf_core:libhdf_utils",
@@ -52,7 +53,6 @@ ohos_unittest("iam_executors_test") {
     "init:libbeget_proxy",
     "ipc:ipc_single",
     "samgr_standard:samgr_proxy",
-    "utils_base:utils",
   ]
 
   configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
