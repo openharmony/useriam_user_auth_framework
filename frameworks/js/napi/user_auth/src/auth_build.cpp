@@ -24,7 +24,7 @@
 #include "auth_common.h"
 #include "auth_object.h"
 
-#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_NAPI
+#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_NAPI
 
 namespace OHOS {
 namespace UserIAM {

@@ -24,7 +24,7 @@
 
 #include "iam_logger.h"
 
-#define LOG_LABEL OHOS::UserIAM::Common::LABEL_IAM_COMMON
+#define LOG_LABEL UserIam::Common::LABEL_IAM_COMMON
 
 namespace OHOS {
 namespace UserIAM {
