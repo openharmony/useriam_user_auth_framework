@@ -24,6 +24,37 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+void IdmCallbackProxy::OnAcquireInfo(int32_t module, int32_t acquire, const Attributes &reqRet)
+{
+    IAM_LOGI("start");
+
+    MessageParcel data;
+    MessageParcel reply;
+
+    if (!data.WriteInterfaceToken(IdmCallbackProxy::GetDescriptor())) {
+        IAM_LOGE("failed to write descriptor");
+        return;
+    }
+    if (!data.WriteInt32(module)) {
+        IAM_LOGE("failed to write module");
+        return;
+    }
+    if (!data.WriteInt32(acquire)) {
+        IAM_LOGE("failed to write acquire");
+        return;
+    }
+    auto buffer = reqRet.Serialize();
+    if (!data.WriteUInt8Vector(buffer)) {
+        IAM_LOGE("failed to write buffer");
+        return;
+    }
+
+    bool ret = SendRequest(IDM_CALLBACK_ON_ACQUIRE_INFO, data, reply);
+    if (!ret) {
+        IAM_LOGE("failed to send request");
+    }
+}
+
 void IdmCallbackProxy::OnResult(int32_t result, const Attributes &extraInfo)
 {
     IAM_LOGI("start");
@@ -46,37 +77,6 @@ void IdmCallbackProxy::OnResult(int32_t result, const Attributes &extraInfo)
     }
 
     bool ret = SendRequest(IDM_CALLBACK_ON_RESULT, data, reply);
-    if (!ret) {
-        IAM_LOGE("failed to send request");
-    }
-}
-
-void IdmCallbackProxy::OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo)
-{
-    IAM_LOGI("start");
-
-    MessageParcel data;
-    MessageParcel reply;
-
-    if (!data.WriteInterfaceToken(IdmCallbackProxy::GetDescriptor())) {
-        IAM_LOGE("failed to write descriptor");
-        return;
-    }
-    if (!data.WriteInt32(module)) {
-        IAM_LOGE("failed to write module");
-        return;
-    }
-    if (!data.WriteInt32(acquireInfo)) {
-        IAM_LOGE("failed to write acquire");
-        return;
-    }
-    auto buffer = extraInfo.Serialize();
-    if (!data.WriteUInt8Vector(buffer)) {
-        IAM_LOGE("failed to write buffer");
-        return;
-    }
-
-    bool ret = SendRequest(IDM_CALLBACK_ON_ACQUIRE_INFO, data, reply);
     if (!ret) {
         IAM_LOGE("failed to send request");
     }

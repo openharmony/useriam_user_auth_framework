@@ -26,10 +26,11 @@ namespace UserIam {
 namespace UserAuth {
 class ContextCallbackImpl : public ContextCallback, public NoCopyable {
 public:
-    explicit ContextCallbackImpl(sptr<IamCallbackInterface> iamCallback, OperationType operationType);
+    explicit ContextCallbackImpl(sptr<IdmCallbackInterface> idmCallback, OperationType operationType);
+    explicit ContextCallbackImpl(sptr<UserAuthCallbackInterface> userAuthCallback, OperationType operationType);
     ~ContextCallbackImpl() override = default;
-    void OnResult(int32_t resultCode, const Attributes &finalResult) override;
     void onAcquireInfo(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg) const override;
+    void OnResult(int32_t resultCode, Attributes &finalResult) override;
     void SetTraceUserId(int32_t userId) override;
     void SetTraceRemainTime(int32_t remainTime) override;
     void SetTraceFreezingTime(int32_t freezingTime) override;
@@ -40,7 +41,8 @@ public:
     void SetCleaner(Context::ContextStopCallback callback) override;
 
 private:
-    sptr<IamCallbackInterface> iamCallback_ {nullptr};
+    sptr<IdmCallbackInterface> idmCallback_;
+    sptr<UserAuthCallbackInterface> userAuthCallback_;
     Context::ContextStopCallback stopCallback_ {nullptr};
     ContextCallbackNotifyListener::MetaData metaData_;
     std::shared_ptr<IamHitraceHelper> iamHitraceHelper_;

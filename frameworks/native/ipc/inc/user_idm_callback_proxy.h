@@ -30,8 +30,8 @@ public:
     {
     }
     ~IdmCallbackProxy() override = default;
-    void OnResult(int32_t result, const Attributes &extraInfo) override;
-    void OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo) override;
+    void OnAcquireInfo(int32_t module, int32_t acquire, const Attributes &reqRet) override;
+    void OnResult(int32_t result, const Attributes &reqRet) override;
 
 private:
     bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply);
