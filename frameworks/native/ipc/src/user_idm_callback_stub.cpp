@@ -112,22 +112,22 @@ int32_t IdmGetCredInfoCallbackStub::OnCredentialInfosStub(MessageParcel &data, M
         OnCredentialInfos(infoList, std::nullopt);
         return READ_PARCEL_ERROR;
     }
-    uint64_t pinType = 0;
+    int32_t pinType = 0;
     for (uint32_t i = 0; i < vectorSize; ++i) {
         uint64_t credentialId;
         uint64_t templateId;
-        uint32_t authType;
+        int32_t authType;
         if (!data.ReadUint64(credentialId)) {
             IAM_LOGE("failed to read credentialId");
             OnCredentialInfos(infoList, std::nullopt);
             return READ_PARCEL_ERROR;
         }
-        if (!data.ReadUint32(authType)) {
+        if (!data.ReadInt32(authType)) {
             IAM_LOGE("failed to read authType");
             OnCredentialInfos(infoList, std::nullopt);
             return READ_PARCEL_ERROR;
         }
-        if (!data.ReadUint64(pinType)) {
+        if (!data.ReadInt32(pinType)) {
             IAM_LOGE("failed to read pinSubType");
             OnCredentialInfos(infoList, std::nullopt);
             return READ_PARCEL_ERROR;

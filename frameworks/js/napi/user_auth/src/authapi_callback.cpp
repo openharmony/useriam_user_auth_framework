@@ -237,10 +237,10 @@ void AuthApiCallback::OnUserAuthResult(const int32_t result, const UserIam::User
     if (!extraInfo.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, userInfo_->token)) {
         IAM_LOGE("ATTR_AUTH_TOKEN is null");
     }
-    if (!extraInfo.GetUint32Value(Attributes::ATTR_REMAIN_TIMES, userInfo_->remainTimes)) {
+    if (!extraInfo.GetInt32Value(Attributes::ATTR_REMAIN_TIMES, userInfo_->remainTimes)) {
         IAM_LOGE("ATTR_REMAIN_TIMES is null");
     }
-    if (!extraInfo.GetUint32Value(Attributes::ATTR_FREEZING_TIME, userInfo_->freezingTime)) {
+    if (!extraInfo.GetInt32Value(Attributes::ATTR_FREEZING_TIME, userInfo_->freezingTime)) {
         IAM_LOGE("ATTR_FREEZING_TIME is null");
     }
 
@@ -299,10 +299,10 @@ void AuthApiCallback::OnAuthResult(int32_t result, const UserIam::UserAuth::Attr
     if (!extraInfo.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authInfo_->token)) {
         IAM_LOGE("ATTR_AUTH_TOKEN is null");
     }
-    if (!extraInfo.GetUint32Value(Attributes::ATTR_REMAIN_TIMES, authInfo_->remainTimes)) {
+    if (!extraInfo.GetInt32Value(Attributes::ATTR_REMAIN_TIMES, authInfo_->remainTimes)) {
         IAM_LOGE("ATTR_REMAIN_TIMES is null");
     }
-    if (!extraInfo.GetUint32Value(Attributes::ATTR_FREEZING_TIME, authInfo_->freezingTime)) {
+    if (!extraInfo.GetInt32Value(Attributes::ATTR_FREEZING_TIME, authInfo_->freezingTime)) {
         IAM_LOGE("ATTR_FREEZING_TIME is null");
     }
 
@@ -506,13 +506,13 @@ void GetPropApiCallback::OnResult(int32_t result, const Attributes &extraInfo)
         return;
     }
     getPropertyInfo_->getResult = result;
-    if (!extraInfo.GetUint64Value(Attributes::ATTR_PIN_SUB_TYPE, getPropertyInfo_->authSubType)) {
+    if (!extraInfo.GetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, getPropertyInfo_->authSubType)) {
         IAM_LOGE("ATTR_PIN_SUB_TYPE is null");
     }
-    if (!extraInfo.GetUint32Value(Attributes::ATTR_REMAIN_TIMES, getPropertyInfo_->remainTimes)) {
+    if (!extraInfo.GetInt32Value(Attributes::ATTR_REMAIN_TIMES, getPropertyInfo_->remainTimes)) {
         IAM_LOGE("ATTR_REMAIN_TIMES is null");
     }
-    if (!extraInfo.GetUint32Value(Attributes::ATTR_FREEZING_TIME, getPropertyInfo_->freezingTime)) {
+    if (!extraInfo.GetInt32Value(Attributes::ATTR_FREEZING_TIME, getPropertyInfo_->freezingTime)) {
         IAM_LOGE("ATTR_FREEZING_TIME is null");
     }
 
