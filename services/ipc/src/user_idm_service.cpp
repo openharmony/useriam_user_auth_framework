@@ -476,7 +476,7 @@ int UserIdmService::Dump(int fd, const std::vector<std::u16string> &args)
             auto enrolledInfo = userInfo->GetEnrolledInfo();
             for (auto &info : enrolledInfo) {
                 if (info != nullptr) {
-                    dprintf(fd, "AuthType %s is enrolled.\n", UserIAM::Common::AuthTypeToStr(info->GetAuthType()));
+                    dprintf(fd, "AuthType %s is enrolled.\n", Common::AuthTypeToStr(info->GetAuthType()));
                 }
             }
         }

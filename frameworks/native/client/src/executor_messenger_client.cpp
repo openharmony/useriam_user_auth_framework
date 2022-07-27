@@ -53,7 +53,7 @@ int32_t ExecutorMessengerClient::Finish(uint64_t scheduleId, ExecutorRole srcRol
         IAM_LOGE("messenger is nullptr");
         return FAIL;
     }
-    auto attr = UserIAM::Common::MakeShared<Attributes>(finalResult.Serialize());
+    auto attr = Common::MakeShared<Attributes>(finalResult.Serialize());
     if (attr == nullptr) {
         IAM_LOGE("failed to create attributes");
         return FAIL;

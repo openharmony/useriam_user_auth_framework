@@ -26,7 +26,6 @@
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
-using namespace OHOS::UserIAM::Common;
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
@@ -212,7 +211,7 @@ std::shared_ptr<ResourceNode> ResourceNode::MakeNewResource(const ExecutorRegist
     const std::shared_ptr<ExecutorCallbackInterface> &callback, std::vector<uint64_t> &templateIdList,
     std::vector<uint8_t> &fwkPublicKey)
 {
-    auto node = MakeShared<ResourceNodeImpl>(info, callback);
+    auto node = Common::MakeShared<ResourceNodeImpl>(info, callback);
     if (node == nullptr) {
         IAM_LOGE("bad alloc");
         return nullptr;

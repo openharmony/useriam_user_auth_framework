@@ -36,7 +36,7 @@ void ExecutorCallbackService::OnMessengerReady(sptr<ExecutorMessengerInterface> 
         IAM_LOGE("callback is nullptr");
         return;
     }
-    auto wrapper = UserIAM::Common::MakeShared<ExecutorMessengerClient>(messenger);
+    auto wrapper = Common::MakeShared<ExecutorMessengerClient>(messenger);
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         return;

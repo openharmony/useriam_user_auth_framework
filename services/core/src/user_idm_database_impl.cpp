@@ -33,7 +33,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-using namespace UserIAM::Common;
 using HdiEnrolledInfo = OHOS::HDI::UserAuth::V1_0::EnrolledInfo;
 using HdiAuthType = OHOS::HDI::UserAuth::V1_0::AuthType;
 using HdiCredentialInfo = OHOS::HDI::UserAuth::V1_0::CredentialInfo;
@@ -60,14 +59,15 @@ std::shared_ptr<SecureUserInfo> UserIdmDatabaseImpl::GetSecUserInfo(int32_t user
     infoRet.reserve(enrolledInfo.size());
 
     for (auto const &info : enrolledInfo) {
-        auto enrolledInfo = MakeShared<EnrolledInfoImpl>(userId, info);
+        auto enrolledInfo = Common::MakeShared<EnrolledInfoImpl>(userId, info);
         if (enrolledInfo == nullptr) {
             IAM_LOGE("bad alloc");
             return nullptr;
         }
         infoRet.emplace_back(enrolledInfo);
     }
-    auto secInfoRet = MakeShared<SecureUserInfoImpl>(userId, static_cast<PinSubType>(pinSubType), secureUid, infoRet);
+    auto secInfoRet = Common::MakeShared<SecureUserInfoImpl>(userId,
+        static_cast<PinSubType>(pinSubType), secureUid, infoRet);
     if (secInfoRet == nullptr) {
         IAM_LOGE("bad alloc");
         return nullptr;
@@ -92,7 +92,7 @@ std::vector<std::shared_ptr<CredentialInfo>> UserIdmDatabaseImpl::GetCredentialI
     }
     infoRet.reserve(hdiInfos.size());
     for (const auto &hdiInfo : hdiInfos) {
-        auto info = MakeShared<CredentialInfoImpl>(userId, hdiInfo);
+        auto info = Common::MakeShared<CredentialInfoImpl>(userId, hdiInfo);
         if (info == nullptr) {
             IAM_LOGE("bad alloc");
             return infoRet;
@@ -120,7 +120,7 @@ int32_t UserIdmDatabaseImpl::DeleteCredentialInfo(int32_t userId, uint64_t crede
         return ret;
     }
 
-    auto info = MakeShared<CredentialInfoImpl>(userId, hdiInfo);
+    auto info = Common::MakeShared<CredentialInfoImpl>(userId, hdiInfo);
     if (info == nullptr) {
         IAM_LOGE("bad alloc");
         return GENERAL_ERROR;
@@ -147,7 +147,7 @@ int32_t UserIdmDatabaseImpl::DeleteUser(int32_t userId, const std::vector<uint8_
     }
 
     for (auto info : hdiInfos) {
-        auto infoRet = MakeShared<CredentialInfoImpl>(userId, info);
+        auto infoRet = Common::MakeShared<CredentialInfoImpl>(userId, info);
         if (infoRet == nullptr) {
             IAM_LOGE("bad alloc");
             return GENERAL_ERROR;
@@ -175,7 +175,7 @@ int32_t UserIdmDatabaseImpl::DeleteUserEnforce(int32_t userId, std::vector<std::
     }
 
     for (auto info : hdiInfos) {
-        auto infoRet = MakeShared<CredentialInfoImpl>(userId, info);
+        auto infoRet = Common::MakeShared<CredentialInfoImpl>(userId, info);
         if (infoRet == nullptr) {
             IAM_LOGE("bad alloc");
             return GENERAL_ERROR;

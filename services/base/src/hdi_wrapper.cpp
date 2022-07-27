@@ -27,7 +27,7 @@ std::shared_ptr<OHOS::HDI::UserAuth::V1_0::IUserAuthInterface> HdiWrapper::GetHd
     if (!hdi) {
         return {};
     }
-    return UserIAM::Common::SptrToStdSharedPtr<OHOS::HDI::UserAuth::V1_0::IUserAuthInterface>(hdi);
+    return Common::SptrToStdSharedPtr<OHOS::HDI::UserAuth::V1_0::IUserAuthInterface>(hdi);
 }
 
 sptr<IRemoteObject> HdiWrapper::GetHdiRemoteObjInstance()

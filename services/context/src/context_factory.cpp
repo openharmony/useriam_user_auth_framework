@@ -28,7 +28,6 @@
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
-using namespace OHOS::UserIAM::Common;
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
@@ -38,11 +37,11 @@ std::shared_ptr<Context> ContextFactory::CreateSimpleAuthContext(int32_t userId,
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, nullptr);
     uint64_t newContextId = ContextPool::GetNewContextId();
-    auto auth = MakeShared<AuthenticationImpl>(newContextId, userId, authType, authTrustLevel);
+    auto auth = Common::MakeShared<AuthenticationImpl>(newContextId, userId, authType, authTrustLevel);
     IF_FALSE_LOGE_AND_RETURN_VAL(auth != nullptr, nullptr);
     auth->SetChallenge(challenge);
     auth->SetAccessTokenId(tokenId);
-    return MakeShared<SimpleAuthContext>(newContextId, auth, callback);
+    return Common::MakeShared<SimpleAuthContext>(newContextId, auth, callback);
 }
 
 std::shared_ptr<Context> ContextFactory::CreateIdentifyContext(const std::vector<uint8_t> &challenge, AuthType authType,
@@ -50,11 +49,11 @@ std::shared_ptr<Context> ContextFactory::CreateIdentifyContext(const std::vector
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, nullptr);
     uint64_t newContextId = ContextPool::GetNewContextId();
-    auto identify = MakeShared<IdentificationImpl>(newContextId, authType);
+    auto identify = Common::MakeShared<IdentificationImpl>(newContextId, authType);
     IF_FALSE_LOGE_AND_RETURN_VAL(identify != nullptr, nullptr);
     identify->SetChallenge(challenge);
     identify->SetAccessTokenId(tokenId);
-    return MakeShared<IdentifyContext>(newContextId, identify, callback);
+    return Common::MakeShared<IdentifyContext>(newContextId, identify, callback);
 }
 
 std::shared_ptr<Context> ContextFactory::CreateEnrollContext(int32_t userId, AuthType authType, PinSubType pinSubType,
@@ -62,12 +61,12 @@ std::shared_ptr<Context> ContextFactory::CreateEnrollContext(int32_t userId, Aut
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, nullptr);
     uint64_t newContextId = ContextPool::GetNewContextId();
-    auto enroll = MakeShared<EnrollmentImpl>(userId, authType);
+    auto enroll = Common::MakeShared<EnrollmentImpl>(userId, authType);
     IF_FALSE_LOGE_AND_RETURN_VAL(enroll != nullptr, nullptr);
     enroll->SetAuthToken(token);
     enroll->SetAccessTokenId(tokenId);
     enroll->SetPinSubType(pinSubType);
-    return MakeShared<EnrollContext>(newContextId, enroll, callback);
+    return Common::MakeShared<EnrollContext>(newContextId, enroll, callback);
 }
 
 std::shared_ptr<Context> ContextFactory::CreateWidgetAuthContext(std::shared_ptr<ContextCallback> callback)

@@ -30,7 +30,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-namespace Common = OHOS::UserIAM::Common;
 Executor::Executor(std::shared_ptr<ExecutorMgrWrapper> executorMgrWrapper,
     std::shared_ptr<IAuthExecutorHdi> executorHdi, uint16_t hdiId)
     : executorMgrWrapper_(executorMgrWrapper),

@@ -24,7 +24,6 @@
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
-using namespace OHOS::UserIAM::Common;
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
@@ -115,7 +114,7 @@ std::shared_ptr<ScheduleNode> ScheduleNodeBuilder::Build()
     IAM_LOGI("scheduleNode builder start to build");
     info_.collector = collector_;
     info_.verifier = verifier_;
-    return MakeShared<ScheduleNodeImpl>(info_);
+    return Common::MakeShared<ScheduleNodeImpl>(info_);
 }
 
 bool ScheduleNodeBuilder::CheckParameters() const
@@ -172,7 +171,7 @@ std::shared_ptr<Builder> Builder::New(const std::shared_ptr<ResourceNode> &colle
         return nullptr;
     }
 
-    return MakeShared<ScheduleNodeBuilder>(collector, verifier);
+    return Common::MakeShared<ScheduleNodeBuilder>(collector, verifier);
 }
 } // namespace UserAuth
 } // namespace UserIam

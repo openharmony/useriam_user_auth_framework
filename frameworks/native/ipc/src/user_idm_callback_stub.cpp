@@ -137,7 +137,7 @@ int32_t IdmGetCredInfoCallbackStub::OnCredentialInfosStub(MessageParcel &data, M
             OnCredentialInfos(infoList, std::nullopt);
             return READ_PARCEL_ERROR;
         }
-        auto credInfo = UserIAM::Common::MakeShared<CredInfoImpl>(credentialId, templateId,
+        auto credInfo = Common::MakeShared<CredInfoImpl>(credentialId, templateId,
             static_cast<AuthType>(authType));
         infoList.push_back(credInfo);
     }
@@ -180,7 +180,7 @@ int32_t IdmGetSecureUserInfoCallbackStub::OnSecureUserInfoStub(MessageParcel &da
     }
 
     std::vector<std::shared_ptr<SecEnrolledInfo>> info;
-    auto secUserInfo = UserIAM::Common::MakeShared<SecUserInfoImpl>(secureUid, info);
+    auto secUserInfo = Common::MakeShared<SecUserInfoImpl>(secureUid, info);
     OnSecureUserInfo(secUserInfo);
     return SUCCESS;
 }

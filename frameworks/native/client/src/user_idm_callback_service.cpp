@@ -25,7 +25,7 @@ namespace UserIam {
 namespace UserAuth {
 IdmCallbackService::IdmCallbackService(const std::shared_ptr<UserIdmClientCallback> &impl)
     : idmClientCallback_(impl),
-    iamHitraceHelper_(UserIAM::Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("IDM InnerKit"))
+    iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("IDM InnerKit"))
 {
 }
 

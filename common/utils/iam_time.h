@@ -19,11 +19,11 @@
 #include <string>
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace Common {
 const std::string GetNowTimeString();
 } // namespace Common
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 #endif // IAM_TIME_H

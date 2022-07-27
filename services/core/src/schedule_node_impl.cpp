@@ -27,7 +27,6 @@
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
-using namespace OHOS::UserIAM::Common;
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
@@ -39,7 +38,7 @@ ScheduleNodeImpl::ScheduleNodeImpl(ScheduleInfo &info) : info_(std::move(info))
         machine_->SetThreadHandler(info_.threadHandler);
     }
     if (info_.parameters == nullptr) {
-        info_.parameters = MakeShared<Attributes>();
+        info_.parameters = Common::MakeShared<Attributes>();
     }
 
     if (info_.parameters == nullptr) {
@@ -118,7 +117,7 @@ ScheduleNode::State ScheduleNodeImpl::GetCurrentScheduleState() const
 
 bool ScheduleNodeImpl::StartSchedule()
 {
-    iamHitraceHelper_ = UserIAM::Common::MakeShared<IamHitraceHelper>(GetDescription());
+    iamHitraceHelper_ = Common::MakeShared<IamHitraceHelper>(GetDescription());
     {
         std::lock_guard<std::mutex> lock(mutex_);
         if (!TryKickMachine(E_START_AUTH)) {
@@ -218,7 +217,7 @@ std::string ScheduleNodeImpl::GetDescription() const
     std::string name;
 
     auto verifier = info_.verifier.lock();
-    stream << "schedule type:" << (verifier ? UserIAM::Common::AuthTypeToStr(verifier->GetAuthType()) : "nullptr") <<
+    stream << "schedule type:" << (verifier ? Common::AuthTypeToStr(verifier->GetAuthType()) : "nullptr") <<
         " id:******" << std::hex << static_cast<uint16_t>(GetScheduleId());
     stream >> name;
     return name;

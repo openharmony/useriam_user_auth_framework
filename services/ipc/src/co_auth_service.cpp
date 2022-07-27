@@ -75,7 +75,7 @@ uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<
     }
     std::vector<uint64_t> templateIdList;
     std::vector<uint8_t> fwkPublicKey;
-    auto executorCallback = UserIAM::Common::SptrToStdSharedPtr<ExecutorCallbackInterface>(callback);
+    auto executorCallback = Common::SptrToStdSharedPtr<ExecutorCallbackInterface>(callback);
     auto resourceNode = ResourceNode::MakeNewResource(info, executorCallback, templateIdList, fwkPublicKey);
     if (resourceNode == nullptr) {
         IAM_LOGE("create resource node failed");
@@ -98,7 +98,7 @@ uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<
             IAM_LOGI("delete executor %{public}s, executorIndex is ****%{public}hx", (result ? "succ" : "failed"),
                 static_cast<uint16_t>(executorIndex));
             std::string executorDesc = "executor, type " + std::to_string(executorType);
-            UserIAM::UserAuth::ReportSystemFault(UserIAM::Common::GetNowTimeString(), executorDesc);
+            UserIAM::UserAuth::ReportSystemFault(Common::GetNowTimeString(), executorDesc);
         }));
     }
     return executorIndex;
@@ -112,7 +112,7 @@ void CoAuthService::Init()
             ResourceNodePool::Instance().DeleteAll();
             RelativeTimer::GetInstance().Register(Init, DEFER_TIME);
             IAM_LOGI("delete all executors for hdi dead");
-            UserIAM::UserAuth::ReportSystemFault(UserIAM::Common::GetNowTimeString(), "user_auth_hdi host");
+            UserIAM::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "user_auth_hdi host");
         }));
         IAM_LOGI("set fwk ready parameter");
         SetParameter("bootevent.useriam.fwkready", "true");
@@ -141,7 +141,7 @@ int CoAuthService::Dump(int fd, const std::vector<std::u16string> &args)
             auto nodeTmp = node.lock();
             if (nodeTmp != nullptr) {
                 dprintf(fd, "ExecutorIndex is: %" PRIx64 ".\n", nodeTmp->GetExecutorIndex());
-                dprintf(fd, "ExecutorType is: %s.\n", UserIAM::Common::AuthTypeToStr(nodeTmp->GetAuthType()));
+                dprintf(fd, "ExecutorType is: %s.\n", Common::AuthTypeToStr(nodeTmp->GetAuthType()));
             }
         });
         return SUCCESS;
