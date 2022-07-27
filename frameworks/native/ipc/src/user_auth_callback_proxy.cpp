@@ -31,7 +31,7 @@ void UserAuthCallbackProxy::OnResult(int32_t result, const Attributes &extraInfo
     MessageParcel data;
     MessageParcel reply;
 
-    if (!data.WriteInterfaceToken(UserAuthCallbackProxy::GetOldDescriptor())) {
+    if (!data.WriteInterfaceToken(UserAuthCallbackProxy::GetDescriptor())) {
         IAM_LOGE("write descriptor failed");
         return;
     }
@@ -58,7 +58,7 @@ void UserAuthCallbackProxy::OnAcquireInfo(int32_t module, int32_t acquireInfo, c
     MessageParcel data;
     MessageParcel reply;
 
-    if (!data.WriteInterfaceToken(UserAuthCallbackProxy::GetOldDescriptor())) {
+    if (!data.WriteInterfaceToken(UserAuthCallbackProxy::GetDescriptor())) {
         IAM_LOGE("write descriptor failed");
         return;
     }
@@ -107,7 +107,7 @@ void GetExecutorPropertyCallbackProxy::OnGetExecutorPropertyResult(int32_t resul
     MessageParcel data;
     MessageParcel reply;
 
-    if (!data.WriteInterfaceToken(GetExecutorPropertyCallbackProxy::GetOldDescriptor())) {
+    if (!data.WriteInterfaceToken(GetExecutorPropertyCallbackProxy::GetDescriptor())) {
         IAM_LOGE("write descriptor failed");
         return;
     }
@@ -152,7 +152,7 @@ void SetExecutorPropertyCallbackProxy::OnSetExecutorPropertyResult(int32_t resul
     MessageParcel data;
     MessageParcel reply;
 
-    if (!data.WriteInterfaceToken(SetExecutorPropertyCallbackProxy::GetOldDescriptor())) {
+    if (!data.WriteInterfaceToken(SetExecutorPropertyCallbackProxy::GetDescriptor())) {
         IAM_LOGE("write descriptor failed");
         return;
     }
