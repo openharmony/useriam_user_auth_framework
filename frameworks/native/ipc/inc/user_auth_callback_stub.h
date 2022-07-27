@@ -26,15 +26,24 @@ namespace UserIam {
 namespace UserAuth {
 class UserAuthCallbackStub : public IRemoteStub<UserAuthCallbackInterface>, public NoCopyable {
 public:
+    static inline const std::u16string GetOldDescriptor()
+    {
+        return u"ohos.UserIAM.UserAuth.IUserAuthCallback";
+    }
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
 private:
-    int32_t OnResultStub(MessageParcel &data, MessageParcel &reply);
     int32_t OnAcquireInfoStub(MessageParcel &data, MessageParcel &reply);
+    int32_t OnAuthResultStub(MessageParcel &data, MessageParcel &reply);
+    int32_t OnIdentifyResultStub(MessageParcel &data, MessageParcel &reply);
 };
 
 class GetExecutorPropertyCallbackStub : public IRemoteStub<GetExecutorPropertyCallbackInterface>, public NoCopyable {
 public:
+    static inline const std::u16string GetOldDescriptor()
+    {
+        return u"ohos.UserIAM.UserAuth.IUserAuthCallback";
+    }
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
 private:
@@ -43,6 +52,10 @@ private:
 
 class SetExecutorPropertyCallbackStub : public IRemoteStub<SetExecutorPropertyCallbackInterface>, public NoCopyable {
 public:
+    static inline const std::u16string GetOldDescriptor()
+    {
+        return u"ohos.UserIAM.UserAuth.IUserAuthCallback";
+    }
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
 private:

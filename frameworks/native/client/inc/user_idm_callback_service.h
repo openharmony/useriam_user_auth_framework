@@ -28,8 +28,8 @@ class IdmCallbackService : public IdmCallbackStub {
 public:
     explicit IdmCallbackService(const std::shared_ptr<UserIdmClientCallback> &impl);
     ~IdmCallbackService() override = default;
-    void OnResult(int32_t result, const Attributes &extraInfo) override;
-    void OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo) override;
+    void OnResult(int32_t result, const Attributes &reqRet) override;
+    void OnAcquireInfo(int32_t module, int32_t acquire, const Attributes &reqRet) override;
 
 private:
     std::shared_ptr<UserIdmClientCallback> idmClientCallback_ {nullptr};
