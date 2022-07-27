@@ -116,6 +116,32 @@ uint64_t UserAuthClientImpl::BeginAuthentication(int32_t userId, const std::vect
     return proxy->AuthUser(userId, challenge, authType, atl, wrapper);
 }
 
+uint64_t UserAuthClientImpl::BeginAuthentication(const std::vector<uint8_t> &challenge, AuthType authType,
+    AuthTrustLevel atl, const std::shared_ptr<AuthenticationCallback> &callback)
+{
+    if (!callback) {
+        IAM_LOGE("auth callback is nullptr");
+        return INVALID_SESSION_ID;
+    }
+
+    auto proxy = GetProxy();
+    if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
+        Attributes extraInfo;
+        callback->OnResult(FAIL, extraInfo);
+        return INVALID_SESSION_ID;
+    }
+
+    sptr<UserAuthCallbackInterface> wrapper = new (std::nothrow) UserAuthCallbackService(callback);
+    if (wrapper == nullptr) {
+        IAM_LOGE("failed to create wrapper");
+        Attributes extraInfo;
+        callback->OnResult(FAIL, extraInfo);
+        return INVALID_SESSION_ID;
+    }
+    return proxy->AuthUser(std::nullopt, challenge, authType, atl, wrapper);
+}
+
 int32_t UserAuthClientImpl::CancelAuthentication(uint64_t contextId)
 {
     auto proxy = GetProxy();
@@ -175,10 +201,15 @@ sptr<UserAuthInterface> UserAuthClientImpl::GetProxy()
     return iface_cast<UserAuthInterface>(obj);
 }
 
-UserAuthClient &UserAuthClient::GetInstance()
+UserAuthClientImpl &UserAuthClientImpl::Instance()
 {
     static UserAuthClientImpl impl;
     return impl;
+}
+
+UserAuthClient &UserAuthClient::GetInstance()
+{
+    return UserAuthClientImpl::Instance();
 }
 } // namespace UserAuth
 } // namespace UserIam
