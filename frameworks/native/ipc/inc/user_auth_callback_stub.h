@@ -33,9 +33,8 @@ public:
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
 private:
+    int32_t OnResultStub(MessageParcel &data, MessageParcel &reply);
     int32_t OnAcquireInfoStub(MessageParcel &data, MessageParcel &reply);
-    int32_t OnAuthResultStub(MessageParcel &data, MessageParcel &reply);
-    int32_t OnIdentifyResultStub(MessageParcel &data, MessageParcel &reply);
 };
 
 class GetExecutorPropertyCallbackStub : public IRemoteStub<GetExecutorPropertyCallbackInterface>, public NoCopyable {
