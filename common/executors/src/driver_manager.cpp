@@ -56,7 +56,7 @@ int32_t DriverManager::Start(const std::map<std::string, HdiConfig> &hdiName2Con
             IAM_LOGI("%{public}s already added, skip", hdiName.c_str());
             continue;
         }
-        auto driver = UserIAM::Common::MakeShared<Driver>(hdiName, config);
+        auto driver = Common::MakeShared<Driver>(hdiName, config);
         if (driver == nullptr) {
             IAM_LOGE("MakeShared for driver %{public}s failed", hdiName.c_str());
             continue;
@@ -109,7 +109,7 @@ void DriverManager::SubscribeHdiDriverStatus()
                 driver->OnHdiConnect();
                 break;
             case SERVIE_STATUS_STOP:
-                UserIAM::UserAuth::ReportSystemFault(UserIAM::Common::GetNowTimeString(), status.serviceName);
+                UserIAM::UserAuth::ReportSystemFault(Common::GetNowTimeString(), status.serviceName);
                 IAM_LOGI("service %{public}s status change to stop", status.serviceName.c_str());
                 driver->OnHdiDisconnect();
                 break;

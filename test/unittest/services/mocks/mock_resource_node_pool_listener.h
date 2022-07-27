@@ -40,7 +40,7 @@ public:
     static std::shared_ptr<ResourceNodePool::ResourceNodePoolListener> Create(const Callback &callback)
     {
         using namespace testing;
-        auto listener = UserIAM::Common::MakeShared<MockResourceNodePoolListener>();
+        auto listener = Common::MakeShared<MockResourceNodePoolListener>();
         EXPECT_CALL(*listener, OnResourceNodePoolInsert).Times(AtLeast(0));
         ON_CALL(*listener, OnResourceNodePoolInsert)
             .WillByDefault([callback](const std::shared_ptr<ResourceNode> &resource) {

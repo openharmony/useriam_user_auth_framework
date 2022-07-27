@@ -31,7 +31,7 @@ ContextCallbackImpl::ContextCallbackImpl(sptr<IdmCallbackInterface> idmCallback,
     metaData_.startTime = std::chrono::steady_clock::now();
     std::ostringstream ss;
     ss << "IDM(operation:" << operationType << ")";
-    iamHitraceHelper_ = UserIAM::Common::MakeShared<IamHitraceHelper>(ss.str());
+    iamHitraceHelper_ = Common::MakeShared<IamHitraceHelper>(ss.str());
 }
 
 ContextCallbackImpl::ContextCallbackImpl(sptr<UserAuthCallbackInterface> userAuthCallback, OperationType operationType)
@@ -41,7 +41,7 @@ ContextCallbackImpl::ContextCallbackImpl(sptr<UserAuthCallbackInterface> userAut
     metaData_.startTime = std::chrono::steady_clock::now();
     std::ostringstream ss;
     ss << "UserAuth(operation:" << operationType << ")";
-    iamHitraceHelper_ = UserIAM::Common::MakeShared<IamHitraceHelper>(ss.str());
+    iamHitraceHelper_ = Common::MakeShared<IamHitraceHelper>(ss.str());
 }
 
 void ContextCallbackImpl::onAcquireInfo(ExecutorRole src, int32_t moduleType,
@@ -161,7 +161,7 @@ std::shared_ptr<ContextCallback> ContextCallback::NewInstance(sptr<IdmCallbackIn
         IAM_LOGE("idmCallback is nullptr, parameter is invalid");
         return nullptr;
     }
-    return UserIAM::Common::MakeShared<ContextCallbackImpl>(idmCallback, operationType);
+    return Common::MakeShared<ContextCallbackImpl>(idmCallback, operationType);
 }
 
 std::shared_ptr<ContextCallback> ContextCallback::NewInstance(sptr<UserAuthCallbackInterface> userAuthCallback,
@@ -171,7 +171,7 @@ std::shared_ptr<ContextCallback> ContextCallback::NewInstance(sptr<UserAuthCallb
         IAM_LOGE("userAuthCallback is nullptr, parameter is invalid");
         return nullptr;
     }
-    return UserIAM::Common::MakeShared<ContextCallbackImpl>(userAuthCallback, operationType);
+    return Common::MakeShared<ContextCallbackImpl>(userAuthCallback, operationType);
 }
 } // namespace UserAuth
 } // namespace UserIam

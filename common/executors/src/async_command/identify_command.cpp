@@ -25,7 +25,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-namespace Common = OHOS::UserIAM::Common;
 IdentifyCommand::IdentifyCommand(std::weak_ptr<Executor> executor, uint64_t scheduleId,
     const Attributes &attributes, std::shared_ptr<ExecutorMessenger> executorMessenger)
     : AsyncCommandBase("IDENTIFY", scheduleId, executor, executorMessenger),

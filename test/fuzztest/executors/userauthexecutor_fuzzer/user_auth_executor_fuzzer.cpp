@@ -34,7 +34,7 @@ namespace UserIAM {
 namespace UserAuth {
 namespace {
 using namespace std;
-using namespace OHOS::UserIAM;
+using namespace OHOS::UserIam;
 using namespace OHOS::UserIAM::Common;
 using namespace OHOS::UserIam::UserAuth;
 
@@ -185,17 +185,17 @@ private:
     std::shared_ptr<Parcel> fuzzParcel_;
 };
 
-auto g_executorHdi = Common::MakeShared<DummyAuthExecutorHdi>();
-auto g_executorMgrWrapper = Common::MakeShared<DummyExecutorMgrWrapper>();
-auto g_executor = Common::MakeShared<Executor>(g_executorMgrWrapper, g_executorHdi, 1);
-auto g_executorMessenger = Common::MakeShared<DummyExecutorMessenger>();
+auto g_executorHdi = UserIam::Common::MakeShared<DummyAuthExecutorHdi>();
+auto g_executorMgrWrapper = UserIam::Common::MakeShared<DummyExecutorMgrWrapper>();
+auto g_executor = UserIam::Common::MakeShared<Executor>(g_executorMgrWrapper, g_executorHdi, 1);
+auto g_executorMessenger = UserIam::Common::MakeShared<DummyExecutorMessenger>();
 
 void FuzzExecutorResetExecutor(std::shared_ptr<Parcel> parcel)
 {
     IAM_LOGI("begin");
     static uint32_t id = 0;
     id++;
-    g_executor = Common::MakeShared<Executor>(g_executorMgrWrapper, g_executorHdi, id);
+    g_executor = UserIam::Common::MakeShared<Executor>(g_executorMgrWrapper, g_executorHdi, id);
     IAM_LOGI("end");
 }
 
@@ -376,7 +376,7 @@ FuzzFunc *g_fuzzFuncs[] = {
 
 void UserAuthExecutorFuzzTest(const uint8_t *data, size_t size)
 {
-    auto parcel = Common::MakeShared<Parcel>();
+    auto parcel = UserIam::Common::MakeShared<Parcel>();
     if (parcel == nullptr) {
         IAM_LOGI("parcel is null");
         return;

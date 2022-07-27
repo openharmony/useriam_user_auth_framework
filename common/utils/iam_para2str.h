@@ -22,7 +22,7 @@
 #include <string>
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace Common {
 using namespace std;
 const int32_t MASK_WIDTH = 4;
@@ -33,7 +33,7 @@ static inline std::string GetMaskedString(uint16_t val)
     return ss.str();
 }
 
-#define GET_MASKED_STRING(val) OHOS::UserIAM::Common::GetMaskedString(static_cast<uint16_t>(val))
+#define GET_MASKED_STRING(val) OHOS::UserIam::Common::GetMaskedString(static_cast<uint16_t>(val))
 
 static inline std::string GetPointerNullStateString(void *p)
 {
@@ -49,7 +49,7 @@ static inline const char *AuthTypeToStr(uint32_t authType)
     return "unknown";
 }
 } // namespace Common
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 #endif // IAM_PARA2STR_H
