@@ -23,7 +23,7 @@
 
 #include "useridentity_manager.h"
 
-#define LOG_LABEL UserIAM::Common::LABEL_USER_IDM_NAPI
+#define LOG_LABEL UserIam::Common::LABEL_USER_IDM_NAPI
 
 namespace OHOS {
 namespace UserIAM {

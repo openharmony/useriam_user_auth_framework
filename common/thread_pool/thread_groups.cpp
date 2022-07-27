@@ -22,7 +22,7 @@
 #include "iam_logger.h"
 #include "thread_pool.h"
 
-#define LOG_LABEL LABEL_IAM_COMMON
+#define LOG_LABEL UserIam::Common::LABEL_IAM_COMMON
 
 namespace OHOS {
 namespace UserIAM {

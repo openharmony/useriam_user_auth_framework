@@ -28,7 +28,7 @@
 #include "secure_user_info.h"
 #include "secure_user_info_impl.h"
 
-#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
+#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
 namespace OHOS {
 namespace UserIam {
