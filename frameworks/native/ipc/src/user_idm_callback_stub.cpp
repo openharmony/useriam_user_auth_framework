@@ -21,7 +21,7 @@
 #include "user_idm_client_defines.h"
 #include "cred_info_impl.h"
 
-#define LOG_LABEL UserIAM::Common::LABEL_USER_IDM_SDK
+#define LOG_LABEL UserIam::Common::LABEL_USER_IDM_SDK
 
 namespace OHOS {
 namespace UserIam {
