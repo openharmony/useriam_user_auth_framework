@@ -25,10 +25,6 @@ namespace UserIam {
 namespace UserAuth {
 class UserAuthCallbackProxy : public IRemoteProxy<UserAuthCallbackInterface>, public NoCopyable {
 public:
-    static inline const std::u16string GetOldDescriptor()
-    {
-        return u"ohos.UserIAM.UserAuth.IUserAuthCallback";
-    }
     explicit UserAuthCallbackProxy(const sptr<IRemoteObject> &object) : IRemoteProxy<UserAuthCallbackInterface>(object)
     {
     }
@@ -43,10 +39,6 @@ private:
 
 class GetExecutorPropertyCallbackProxy : public IRemoteProxy<GetExecutorPropertyCallbackInterface>, public NoCopyable {
 public:
-    static inline const std::u16string GetOldDescriptor()
-    {
-        return u"ohos.UserIAM.UserAuth.IUserAuthCallback";
-    }
     explicit GetExecutorPropertyCallbackProxy(const sptr<IRemoteObject> &object)
         : IRemoteProxy<GetExecutorPropertyCallbackInterface>(object)
     {
@@ -61,10 +53,6 @@ private:
 
 class SetExecutorPropertyCallbackProxy : public IRemoteProxy<SetExecutorPropertyCallbackInterface>, public NoCopyable {
 public:
-    static inline const std::u16string GetOldDescriptor()
-    {
-        return u"ohos.UserIAM.UserAuth.IUserAuthCallback";
-    }
     explicit SetExecutorPropertyCallbackProxy(const sptr<IRemoteObject> &object)
         : IRemoteProxy<SetExecutorPropertyCallbackInterface>(object)
     {
