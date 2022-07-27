@@ -24,38 +24,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-void UserAuthCallbackProxy::OnAcquireInfo(int32_t module, uint32_t acquireInfo, const Attributes &extraInfo)
-{
-    IAM_LOGI("start");
-
-    MessageParcel data;
-    MessageParcel reply;
-
-    if (!data.WriteInterfaceToken(UserAuthCallbackProxy::GetOldDescriptor())) {
-        IAM_LOGE("write descriptor failed");
-        return;
-    }
-    if (!data.WriteInt32(module)) {
-        IAM_LOGE("write module failed");
-        return;
-    }
-    if (!data.WriteUint32(acquireInfo)) {
-        IAM_LOGE("write acquireInfo failed");
-        return;
-    }
-    auto buffer = extraInfo.Serialize();
-    if (!data.WriteUInt8Vector(buffer)) {
-        IAM_LOGE("write buffer failed");
-        return;
-    }
-
-    bool ret = SendRequest(UserAuthInterface::USER_AUTH_ACQUIRE_INFO, data, reply);
-    if (!ret) {
-        IAM_LOGE("send request failed");
-    }
-}
-
-void UserAuthCallbackProxy::OnAuthResult(int32_t result, const Attributes &extraInfo)
+void UserAuthCallbackProxy::OnResult(int32_t result, const Attributes &extraInfo)
 {
     IAM_LOGI("start");
 
@@ -82,7 +51,7 @@ void UserAuthCallbackProxy::OnAuthResult(int32_t result, const Attributes &extra
     }
 }
 
-void UserAuthCallbackProxy::OnIdentifyResult(int32_t result, const Attributes &extraInfo)
+void UserAuthCallbackProxy::OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo)
 {
     IAM_LOGI("start");
 
@@ -93,8 +62,12 @@ void UserAuthCallbackProxy::OnIdentifyResult(int32_t result, const Attributes &e
         IAM_LOGE("write descriptor failed");
         return;
     }
-    if (!data.WriteInt32(result)) {
-        IAM_LOGE("write result failed");
+    if (!data.WriteInt32(module)) {
+        IAM_LOGE("write module failed");
+        return;
+    }
+    if (!data.WriteInt32(acquireInfo)) {
+        IAM_LOGE("write acquireInfo failed");
         return;
     }
     auto buffer = extraInfo.Serialize();
@@ -103,7 +76,7 @@ void UserAuthCallbackProxy::OnIdentifyResult(int32_t result, const Attributes &e
         return;
     }
 
-    bool ret = SendRequest(UserAuthInterface::USER_AUTH_ON_IDENTIFY_RESULT, data, reply);
+    bool ret = SendRequest(UserAuthInterface::USER_AUTH_ACQUIRE_INFO, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
     }
