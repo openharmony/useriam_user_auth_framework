@@ -19,7 +19,7 @@
 #include "iam_common_defines.h"
 #include "user_idm_interface.h"
 
-#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
+#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
 namespace OHOS {
 namespace UserIam {
@@ -126,11 +126,11 @@ void IdmGetCredentialInfoProxy::OnCredentialInfos(const std::vector<std::shared_
             IAM_LOGE("failed to write credentialId");
             return;
         }
-        if (!data.WriteUint32(info->GetAuthType())) {
+        if (!data.WriteInt32(info->GetAuthType())) {
             IAM_LOGE("failed to write authType)");
             return;
         }
-        if (!data.WriteUint64(pinSubType.value_or(static_cast<PinSubType>(0)))) {
+        if (!data.WriteInt32(pinSubType.value_or(static_cast<PinSubType>(0)))) {
             IAM_LOGE("failed to write authSubType");
             return;
         }

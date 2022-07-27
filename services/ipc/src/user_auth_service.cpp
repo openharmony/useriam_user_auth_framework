@@ -25,7 +25,7 @@
 #include "iam_ptr.h"
 #include "ipc_common.h"
 #include "iam_common_defines.h"
-#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
+#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
 namespace OHOS {
 namespace UserIam {
@@ -132,7 +132,7 @@ void UserAuthService::GetProperty(std::optional<int32_t> userId, AuthType authTy
         return;
     }
     Attributes attr;
-    attr.SetUint32Value(Attributes::ATTR_AUTH_TYPE, static_cast<uint32_t>(authType));
+    attr.SetInt32Value(Attributes::ATTR_AUTH_TYPE, authType);
     attr.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_GET);
     attr.SetUint64Value(Attributes::ATTR_TEMPLATE_ID, templateId);
     attr.SetUint64Value(Attributes::ATTR_CALLER_UID, static_cast<uint64_t>(this->GetCallingUid()));

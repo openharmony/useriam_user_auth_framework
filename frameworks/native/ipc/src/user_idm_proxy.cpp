@@ -19,7 +19,7 @@
 
 #include "iam_logger.h"
 
-#define LOG_LABEL UserIAM::Common::LABEL_USER_IDM_SDK
+#define LOG_LABEL UserIam::Common::LABEL_USER_IDM_SDK
 
 namespace OHOS {
 namespace UserIam {
@@ -88,7 +88,7 @@ int32_t UserIdmProxy::GetCredentialInfo(int32_t userId, AuthType authType,
         IAM_LOGE("failed to write userId");
         return WRITE_PARCEL_ERROR;
     }
-    if (!data.WriteUint32(authType)) {
+    if (!data.WriteInt32(authType)) {
         IAM_LOGE("failed to write authType");
         return WRITE_PARCEL_ERROR;
     }
@@ -160,11 +160,11 @@ void UserIdmProxy::AddCredential(int32_t userId, AuthType authType, PinSubType p
         IAM_LOGE("failed to write userId");
         return;
     }
-    if (!data.WriteUint32(authType)) {
+    if (!data.WriteInt32(authType)) {
         IAM_LOGE("failed to write authType");
         return;
     }
-    if (!data.WriteUint64(pinSubType)) {
+    if (!data.WriteInt32(pinSubType)) {
         IAM_LOGE("failed to write pinSubType");
         return;
     }
@@ -198,11 +198,11 @@ void UserIdmProxy::UpdateCredential(int32_t userId, AuthType authType, PinSubTyp
         IAM_LOGE("failed to write userId");
         return;
     }
-    if (!data.WriteUint32(authType)) {
+    if (!data.WriteInt32(authType)) {
         IAM_LOGE("failed to write authType");
         return;
     }
-    if (!data.WriteUint64(pinSubType)) {
+    if (!data.WriteInt32(pinSubType)) {
         IAM_LOGE("failed to write pinSubType");
         return;
     }

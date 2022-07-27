@@ -46,6 +46,7 @@ ohos_source_set("userauth_service_context") {
 
   external_deps = [
     "access_token:libaccesstoken_sdk",
+    "c_utils:utils",
     "drivers_interface_user_auth:libuser_auth_proxy_1.0",
     "hilog_native:libhilog",
     "hitrace_native:hitrace_meter",
@@ -53,7 +54,6 @@ ohos_source_set("userauth_service_context") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "utils_base:utils",
   ]
 
   public_configs = [ ":userauth_service_context_config" ]

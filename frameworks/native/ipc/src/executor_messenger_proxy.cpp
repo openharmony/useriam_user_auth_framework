@@ -17,7 +17,7 @@
 
 #include "iam_logger.h"
 
-#define LOG_LABEL UserIAM::Common::LABEL_AUTH_EXECUTOR_MGR_SDK
+#define LOG_LABEL UserIam::Common::LABEL_AUTH_EXECUTOR_MGR_SDK
 
 namespace OHOS {
 namespace UserIam {
@@ -45,11 +45,11 @@ int32_t ExecutorMessengerProxy::SendData(uint64_t scheduleId, uint64_t transNum,
         IAM_LOGE("failed to write transNum");
         return WRITE_PARCEL_ERROR;
     }
-    if (!data.WriteUint32(srcRole)) {
+    if (!data.WriteInt32(srcRole)) {
         IAM_LOGE("failed to write srcRole");
         return WRITE_PARCEL_ERROR;
     }
-    if (!data.WriteUint32(dstRole)) {
+    if (!data.WriteInt32(dstRole)) {
         IAM_LOGE("failed to write dstRole");
         return WRITE_PARCEL_ERROR;
     }
@@ -89,7 +89,7 @@ int32_t ExecutorMessengerProxy::Finish(uint64_t scheduleId, ExecutorRole srcRole
         IAM_LOGE("failed to write scheduleId");
         return WRITE_PARCEL_ERROR;
     }
-    if (!data.WriteUint32(srcRole)) {
+    if (!data.WriteInt32(srcRole)) {
         IAM_LOGE("failed to write srcRole");
         return WRITE_PARCEL_ERROR;
     }

@@ -29,7 +29,7 @@
 #include "user_auth_client.h"
 #include "user_auth_helper.h"
 
-#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_NAPI
+#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_NAPI
 
 namespace OHOS {
 namespace UserIAM {
@@ -79,9 +79,7 @@ napi_value UserAuthImpl::GetAvailableStatus(napi_env env, napi_callback_info inf
     AuthType authType = AuthType(type);
     AuthTrustLevel authTrustLevel = AuthTrustLevel(level);
 
-    auto &client = UserAuthClient::GetInstance();
-
-    result = static_cast<UserAuthClientImpl *>(&client)->GetAvailableStatus(authType, authTrustLevel);
+    result = UserAuthClientImpl::Instance().GetAvailableStatus(authType, authTrustLevel);
     IAM_LOGI("result = %{public}d", result);
     NAPI_CALL(env, napi_create_int32(env, result, &ret));
     return ret;
@@ -464,7 +462,7 @@ napi_value UserAuthImpl::Execute(napi_env env, napi_callback_info info)
         return retPromise;
     }
     std::vector<uint8_t> challenge;
-    UserAuthClient::GetInstance().BeginAuthentication(0, challenge, FACE, authTrustLevel, callback);
+    UserAuthClientImpl::Instance().BeginAuthentication(challenge, FACE, authTrustLevel, callback);
     return retPromise;
 }
 
@@ -598,7 +596,7 @@ napi_value UserAuthImpl::AuthWrap(napi_env env, AuthInfo *authInfo)
     std::shared_ptr<AuthApiCallback> callback;
     callback.reset(object);
 
-    uint64_t result = UserAuthClient::GetInstance().BeginAuthentication(0, authInfo->challenge,
+    uint64_t result = UserAuthClientImpl::Instance().BeginAuthentication(authInfo->challenge,
         AuthType(authInfo->authType), AuthTrustLevel(authInfo->authTrustLevel), callback);
     IAM_LOGI("result's low 16 bits is %{public}s", GET_MASKED_STRING(result).c_str());
     napi_value key = authBuild.Uint64ToUint8Array(env, result);

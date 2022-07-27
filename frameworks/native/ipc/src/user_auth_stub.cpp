@@ -22,7 +22,7 @@
 #include "iam_common_defines.h"
 #include "user_auth_callback_proxy.h"
 
-#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
+#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
 namespace OHOS {
 namespace UserIam {
@@ -65,10 +65,10 @@ int32_t UserAuthStub::GetAvailableStatusStub(MessageParcel &data, MessageParcel 
     IAM_LOGI("enter");
     ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
-    uint32_t authType;
+    int32_t authType;
     uint32_t authTrustLevel;
 
-    if (!data.ReadUint32(authType)) {
+    if (!data.ReadInt32(authType)) {
         IAM_LOGE("failed to read authType");
         return READ_PARCEL_ERROR;
     }
@@ -91,10 +91,10 @@ int32_t UserAuthStub::GetPropertyStub(MessageParcel &data, MessageParcel &reply)
     ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
     std::optional<int32_t> userId;
-    uint32_t authType;
+    int32_t authType;
     std::vector<uint32_t> keys;
 
-    if (!data.ReadUint32(authType)) {
+    if (!data.ReadInt32(authType)) {
         IAM_LOGE("failed to read authType");
         return READ_PARCEL_ERROR;
     }
@@ -128,14 +128,14 @@ int32_t UserAuthStub::GetPropertyByIdStub(MessageParcel &data, MessageParcel &re
     ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
     int32_t userId;
-    uint32_t authType;
+    int32_t authType;
     std::vector<uint32_t> keys;
 
     if (!data.ReadInt32(userId)) {
         IAM_LOGE("failed to read userId");
         return READ_PARCEL_ERROR;
     }
-    if (!data.ReadUint32(authType)) {
+    if (!data.ReadInt32(authType)) {
         IAM_LOGE("failed to read authType");
         return READ_PARCEL_ERROR;
     }
@@ -169,10 +169,10 @@ int32_t UserAuthStub::SetPropertyStub(MessageParcel &data, MessageParcel &reply)
     ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
     std::optional<int32_t> userId;
-    uint32_t authType;
+    int32_t authType;
     std::vector<uint8_t> attr;
 
-    if (!data.ReadUint32(authType)) {
+    if (!data.ReadInt32(authType)) {
         IAM_LOGE("failed to read authType");
         return READ_PARCEL_ERROR;
     }
@@ -204,14 +204,14 @@ int32_t UserAuthStub::AuthStub(MessageParcel &data, MessageParcel &reply)
 
     std::optional<int32_t> userId;
     std::vector<uint8_t> challenge;
-    uint32_t authType;
+    int32_t authType;
     uint32_t authTrustLevel;
 
     if (!data.ReadUInt8Vector(&challenge)) {
         IAM_LOGE("failed to read challenge");
         return READ_PARCEL_ERROR;
     }
-    if (!data.ReadUint32(authType)) {
+    if (!data.ReadInt32(authType)) {
         IAM_LOGE("failed to read authType");
         return READ_PARCEL_ERROR;
     }
@@ -247,7 +247,7 @@ int32_t UserAuthStub::AuthUserStub(MessageParcel &data, MessageParcel &reply)
 
     int32_t userId;
     std::vector<uint8_t> challenge;
-    uint32_t authType;
+    int32_t authType;
     uint32_t authTrustLevel;
 
     if (!data.ReadInt32(userId)) {
@@ -258,7 +258,7 @@ int32_t UserAuthStub::AuthUserStub(MessageParcel &data, MessageParcel &reply)
         IAM_LOGE("failed to read challenge");
         return READ_PARCEL_ERROR;
     }
-    if (!data.ReadUint32(authType)) {
+    if (!data.ReadInt32(authType)) {
         IAM_LOGE("failed to read authType");
         return READ_PARCEL_ERROR;
     }
@@ -293,13 +293,13 @@ int32_t UserAuthStub::IdentifyStub(MessageParcel &data, MessageParcel &reply)
     ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
     std::vector<uint8_t> challenge;
-    uint32_t authType;
+    int32_t authType;
 
     if (!data.ReadUInt8Vector(&challenge)) {
         IAM_LOGE("failed to read challenge");
         return READ_PARCEL_ERROR;
     }
-    if (!data.ReadUint32(authType)) {
+    if (!data.ReadInt32(authType)) {
         IAM_LOGE("failed to read authType");
         return READ_PARCEL_ERROR;
     }

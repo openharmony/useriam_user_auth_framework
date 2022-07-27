@@ -33,7 +33,7 @@
 #include "user_idm_database.h"
 #include "user_idm_session_controller.h"
 
-#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_SA
+#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
@@ -114,17 +114,20 @@ int32_t UserIdmService::GetCredentialInfo(int32_t userId, AuthType authType,
         IAM_LOGE("callback is nullptr");
         return INVALID_PARAMETERS;
     }
+    std::vector<std::shared_ptr<CredentialInfo>> credInfos;
+    std::optional<PinSubType> pinSubType = std::nullopt;
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("failed to get userId");
+        callback->OnCredentialInfos(credInfos, pinSubType);
         return INVALID_PARAMETERS;
     }
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
+        callback->OnCredentialInfos(credInfos, pinSubType);
         return CHECK_PERMISSION_FAILED;
     }
 
-    std::optional<PinSubType> pinSubType = std::nullopt;
-    auto credInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType);
+    credInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType);
     if (credInfos.empty()) {
         IAM_LOGI("no cred enrolled");
         callback->OnCredentialInfos(credInfos, pinSubType);
@@ -134,6 +137,7 @@ int32_t UserIdmService::GetCredentialInfo(int32_t userId, AuthType authType,
     auto userInfo = UserIdmDatabase::Instance().GetSecUserInfo(userId);
     if (userInfo == nullptr) {
         IAM_LOGE("failed to get userInfo");
+        callback->OnCredentialInfos(credInfos, pinSubType);
         return INVALID_PARAMETERS;
     }
 
@@ -150,14 +154,17 @@ int32_t UserIdmService::GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserIn
         IAM_LOGE("callback is nullptr");
         return INVALID_PARAMETERS;
     }
+    std::shared_ptr<SecureUserInfo> userInfos = nullptr;
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("failed to get userId");
+        callback->OnSecureUserInfo(userInfos);
         return INVALID_PARAMETERS;
     }
 
-    auto userInfos = UserIdmDatabase::Instance().GetSecUserInfo(userId);
+    userInfos = UserIdmDatabase::Instance().GetSecUserInfo(userId);
     if (userInfos == nullptr) {
         IAM_LOGE("current userid %{public}d is not existed", userId);
+        callback->OnSecureUserInfo(userInfos);
         return INVALID_PARAMETERS;
     }
     callback->OnSecureUserInfo(userInfos);
@@ -225,11 +232,12 @@ void UserIdmService::UpdateCredential(int32_t userId, AuthType authType, PinSubT
         return;
     }
 
+    Attributes extraInfo;
     if (token.empty()) {
         IAM_LOGE("token is empty in update");
+        callback->OnResult(FAIL, extraInfo);
         return;
     }
-    Attributes extraInfo;
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("failed to get userId");
         callback->OnResult(FAIL, extraInfo);
@@ -367,6 +375,7 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
 
     if (authToken.empty()) {
         IAM_LOGE("token is empty in delete");
+        contextCallback->OnResult(INVALID_PARAMETERS, extraInfo);
         return;
     }
 

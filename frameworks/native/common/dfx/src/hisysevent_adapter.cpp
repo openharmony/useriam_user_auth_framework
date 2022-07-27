@@ -20,7 +20,7 @@
 #include "hisysevent.h"
 #include "iam_logger.h"
 
-#define LOG_LABEL Common::LABEL_USER_AUTH_SA
+#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
 namespace OHOS {
 namespace UserIAM {
@@ -71,7 +71,7 @@ void ReportTemplateChange(int32_t executorType, uint32_t changeType, const std::
             ret, executorType, changeType, reason.c_str());
     }
 }
-void ReportBehaviorCredChange(int32_t userId, uint32_t authType, uint32_t operationType, uint32_t optResult)
+void ReportBehaviorCredChange(int32_t userId, int32_t authType, uint32_t operationType, uint32_t optResult)
 {
     int32_t ret = HiSysEvent::Write(DOMAIN_STR, "USERIAM_USER_CREDENTIAL_MANAGER",
         HiSysEvent::EventType::BEHAVIOR,
@@ -80,13 +80,13 @@ void ReportBehaviorCredChange(int32_t userId, uint32_t authType, uint32_t operat
         STR_OPERATION_TYPE, operationType,
         STR_OPERATION_RESULT, optResult);
     if (ret != 0) {
-        IAM_LOGE("hisysevent write failed! ret %{public}d, userId %{public}d, authType %{public}u,"
+        IAM_LOGE("hisysevent write failed! ret %{public}d, userId %{public}d, authType %{public}d,"
             "operationType %{public}u, optResult %{public}u.",
             ret, userId, authType, operationType, optResult);
     }
 }
 
-void ReportSecurityCredChange(int32_t userId, uint32_t authType, uint32_t operationType, uint32_t optResult)
+void ReportSecurityCredChange(int32_t userId, int32_t authType, uint32_t operationType, uint32_t optResult)
 {
     int32_t ret = HiSysEvent::Write(DOMAIN_STR, "USERIAM_CREDENTIAL_CHANGE",
         HiSysEvent::EventType::SECURITY,
@@ -95,7 +95,7 @@ void ReportSecurityCredChange(int32_t userId, uint32_t authType, uint32_t operat
         STR_OPERATION_TYPE, operationType,
         STR_OPERATION_RESULT, optResult);
     if (ret != 0) {
-        IAM_LOGE("hisysevent write failed! ret %{public}d, userId %{public}d, authType %{public}u,"
+        IAM_LOGE("hisysevent write failed! ret %{public}d, userId %{public}d, authType %{public}d,"
             "operationType %{public}u, optResult %{public}u.",
             ret, userId, authType, operationType, optResult);
     }
@@ -112,7 +112,7 @@ void ReportUserAuth(const UserAuthInfo &info)
         STR_AUTH_TIME_SPAN, info.timeSpanString,
         STR_SDK_VERSION, info.sdkVersion);
     if (ret != 0) {
-        IAM_LOGE("hisysevent write failed! ret %{public}d, callingUid %{public}"  PRIu64 ", authType %{public}u,"
+        IAM_LOGE("hisysevent write failed! ret %{public}d, callingUid %{public}"  PRIu64 ", authType %{public}d,"
             "atl %{public}u, authResult %{public}u, timeSpanString %{public}s, sdkVersion%{public}u.",
             ret, info.callingUid, info.authType, info.atl, info.authResult,
             info.timeSpanString.c_str(), info.sdkVersion);

@@ -21,7 +21,7 @@
 
 #include "user_auth_impl.h"
 
-#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_NAPI
+#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_NAPI
 
 namespace OHOS {
 namespace UserIAM {
@@ -186,8 +186,8 @@ napi_value AuthTypeConstructor(napi_env env)
     napi_value pin = nullptr;
     napi_value face = nullptr;
     NAPI_CALL(env, napi_create_object(env, &authType));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthType::PIN), &pin));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthType::FACE), &face));
+    NAPI_CALL(env, napi_create_int32(env, AuthType::PIN, &pin));
+    NAPI_CALL(env, napi_create_int32(env, AuthType::FACE, &face));
     NAPI_CALL(env, napi_set_named_property(env, authType, "PIN", pin));
     NAPI_CALL(env, napi_set_named_property(env, authType, "FACE", face));
     return authType;
@@ -202,9 +202,9 @@ napi_value AuthSubTypeConstructor(napi_env env)
     napi_value face2d = nullptr;
     napi_value face3d = nullptr;
     NAPI_CALL(env, napi_create_object(env, &authSubType));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(PinSubType::PIN_SIX), &pinSix));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(PinSubType::PIN_NUMBER), &pinNumber));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(PinSubType::PIN_MIXED), &pinMixed));
+    NAPI_CALL(env, napi_create_int32(env, PinSubType::PIN_SIX, &pinSix));
+    NAPI_CALL(env, napi_create_int32(env, PinSubType::PIN_NUMBER, &pinNumber));
+    NAPI_CALL(env, napi_create_int32(env, PinSubType::PIN_MIXED, &pinMixed));
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(20000), &face2d)); // FACE_2D = 20000
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(20001), &face3d)); // FACE_3D = 20001
     NAPI_CALL(env, napi_set_named_property(env, authSubType, "PIN_SIX", pinSix));
@@ -477,8 +477,8 @@ napi_value UserAuthTypeConstructor(napi_env env)
     napi_value face = nullptr;
     napi_value fingerprint = nullptr;
     NAPI_CALL(env, napi_create_object(env, &userAuthType));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthType::FACE), &face));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthType::FINGERPRINT), &fingerprint));
+    NAPI_CALL(env, napi_create_int32(env, AuthType::FACE, &face));
+    NAPI_CALL(env, napi_create_int32(env, AuthType::FINGERPRINT, &fingerprint));
     NAPI_CALL(env, napi_set_named_property(env, userAuthType, "FACE", face));
     NAPI_CALL(env, napi_set_named_property(env, userAuthType, "FINGERPRINT", fingerprint));
     return userAuthType;
