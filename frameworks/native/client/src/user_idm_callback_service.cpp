@@ -18,7 +18,7 @@
 #include "iam_logger.h"
 #include "iam_ptr.h"
 
-#define LOG_LABEL UserIAM::Common::LABEL_USER_IDM_SDK
+#define LOG_LABEL UserIam::Common::LABEL_USER_IDM_SDK
 
 namespace OHOS {
 namespace UserIam {

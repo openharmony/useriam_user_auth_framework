@@ -21,7 +21,7 @@
 #include "hisysevent_adapter.h"
 #include "system_ability_definition.h"
 
-#define LOG_LABEL UserIAM::Common::LABEL_USER_AUTH_EXECUTOR
+#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_EXECUTOR
 
 namespace OHOS {
 namespace UserIam {
