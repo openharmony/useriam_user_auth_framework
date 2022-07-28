@@ -22,27 +22,13 @@
 
 #include "attributes.h"
 #include "iam_common_defines.h"
+#include "iam_callback_interface.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class UserAuthCallbackInterface : public IRemoteBroker {
+class UserAuthCallbackInterface : public IamCallbackInterface {
 public:
-    /*
-     * returns the acquire info.
-     */
-    virtual void OnAcquireInfo(int32_t module, uint32_t acquireInfo, const Attributes &extraInfo) = 0;
-
-    /*
-     * returns the auth result.
-     */
-    virtual void OnAuthResult(int32_t result, const Attributes &extraInfo) = 0;
-
-    /*
-     * returns the identify result.
-     */
-    virtual void OnIdentifyResult(int32_t result, const Attributes &extraInfo) = 0;
-
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIAM.UserAuth.UserAuthCallback");
 };
 

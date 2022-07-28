@@ -40,8 +40,8 @@ public:
 
 class MockIdmCallback final : public IRemoteStub<IdmCallbackInterface> {
 public:
-    MOCK_METHOD2(OnResult, void(int32_t result, const Attributes &reqRet));
-    MOCK_METHOD3(OnAcquireInfo, void(int32_t module, int32_t acquire, const Attributes &reqRet));
+    MOCK_METHOD2(OnResult, void(int32_t result, const Attributes &extraInfo));
+    MOCK_METHOD3(OnAcquireInfo, void(int32_t module, int32_t acquire, const Attributes &extraInfo));
     MOCK_METHOD4(OnRemoteRequest,
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
 };

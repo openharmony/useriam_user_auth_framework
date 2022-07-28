@@ -296,7 +296,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_001, TestSize.Lev
     ASSERT_NE(contextCallback, nullptr);
     EXPECT_CALL(*contextCallback, OnResult(_, _))
         .Times(Exactly(1))
-        .WillOnce([](int32_t resultCode, Attributes &finalResult) {
+        .WillOnce([](int32_t resultCode, const Attributes &finalResult) {
             EXPECT_EQ(resultCode, testResultCode);
         });
 
@@ -319,7 +319,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_002, TestSize.Lev
     ASSERT_NE(contextCallback, nullptr);
     EXPECT_CALL(*contextCallback, OnResult(_, _))
         .Times(Exactly(1))
-        .WillOnce([](int32_t resultCode, Attributes &finalResult) {
+        .WillOnce([](int32_t resultCode, const Attributes &finalResult) {
             EXPECT_EQ(resultCode, ResultCode::GENERAL_ERROR);
         });
 
@@ -342,7 +342,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_003, TestSize.Lev
     ASSERT_NE(contextCallback, nullptr);
     EXPECT_CALL(*contextCallback, OnResult(_, _))
         .Times(Exactly(1))
-        .WillOnce([](int32_t resultCode, Attributes &finalResult) {
+        .WillOnce([](int32_t resultCode, const Attributes &finalResult) {
             EXPECT_EQ(resultCode, ResultCode::GENERAL_ERROR);
         });
 
@@ -374,7 +374,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_004, TestSize.Lev
     ASSERT_NE(contextCallback, nullptr);
     EXPECT_CALL(*contextCallback, OnResult(_, _))
         .Times(Exactly(1))
-        .WillOnce([](int32_t resultCode, Attributes &finalResult) {
+        .WillOnce([](int32_t resultCode, const Attributes &finalResult) {
             EXPECT_EQ(resultCode, ResultCode::GENERAL_ERROR);
         });
 
@@ -414,7 +414,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_005, TestSize.Lev
     ASSERT_NE(contextCallback, nullptr);
     EXPECT_CALL(*contextCallback, OnResult(_, _))
         .Times(Exactly(1))
-        .WillOnce([](int32_t resultCode, Attributes &finalResult) {
+        .WillOnce([](int32_t resultCode, const Attributes &finalResult) {
             EXPECT_EQ(resultCode, ResultCode::SUCCESS);
             uint64_t credentialId;
             bool ret = finalResult.GetUint64Value(Attributes::ATTR_CREDENTIAL_ID, credentialId);
