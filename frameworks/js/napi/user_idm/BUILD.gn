@@ -34,10 +34,10 @@ ohos_shared_library("useridm") {
   ]
 
   external_deps = [
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "utils_base:utils",
   ]
 
   public_configs = [ ":useridm_public_config" ]

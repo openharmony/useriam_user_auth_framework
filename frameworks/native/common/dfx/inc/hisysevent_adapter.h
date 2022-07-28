@@ -23,7 +23,7 @@ namespace UserIAM {
 namespace UserAuth {
 struct UserAuthInfo {
     uint64_t callingUid = 0;
-    uint32_t authType = 0;
+    int32_t authType = 0;
     uint32_t atl = 0;
     uint32_t authResult = 0;
     std::string timeSpanString;
@@ -41,8 +41,8 @@ struct PinAuthInfo {
 
 void ReportSystemFault(const std::string &timeString, const std::string &moudleName);
 void ReportTemplateChange(int32_t executorType, uint32_t changeType, const std::string &reason);
-void ReportBehaviorCredChange(int32_t userId, uint32_t authType, uint32_t operationType, uint32_t optResult);
-void ReportSecurityCredChange(int32_t userId, uint32_t authType, uint32_t operationType, uint32_t optResult);
+void ReportBehaviorCredChange(int32_t userId, int32_t authType, uint32_t operationType, uint32_t optResult);
+void ReportSecurityCredChange(int32_t userId, int32_t authType, uint32_t operationType, uint32_t optResult);
 void ReportUserAuth(const UserAuthInfo &info);
 void ReportPinAuth(const PinAuthInfo &info);
 } // namespace UserAuth

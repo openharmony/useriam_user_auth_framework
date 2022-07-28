@@ -29,34 +29,51 @@ int32_t UserAuthCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data
     MessageOption &option)
 {
     IAM_LOGD("cmd = %{public}u, flags = %{public}d", code, option.GetFlags());
-    if (UserAuthCallbackStub::GetOldDescriptor() != data.ReadInterfaceToken()) {
+    if (UserAuthCallbackStub::GetDescriptor() != data.ReadInterfaceToken()) {
         IAM_LOGE("descriptor is not matched");
         return FAIL;
     }
 
     switch (code) {
+        case UserAuthInterface::USER_AUTH_ON_RESULT:
+            return OnResultStub(data, reply);
         case UserAuthInterface::USER_AUTH_ACQUIRE_INFO:
             return OnAcquireInfoStub(data, reply);
-        case UserAuthInterface::USER_AUTH_ON_RESULT:
-            return OnAuthResultStub(data, reply);
-        case UserAuthInterface::USER_AUTH_ON_IDENTIFY_RESULT:
-            return OnIdentifyResultStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
 }
 
+int32_t UserAuthCallbackStub::OnResultStub(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t result;
+    std::vector<uint8_t> buffer;
+
+    if (!data.ReadInt32(result)) {
+        IAM_LOGE("failed to read result");
+        return READ_PARCEL_ERROR;
+    }
+    if (!data.ReadUInt8Vector(&buffer)) {
+        IAM_LOGE("failed to read buffer");
+        return READ_PARCEL_ERROR;
+    }
+    
+    Attributes extraInfo(buffer);
+    OnResult(result, extraInfo);
+    return SUCCESS;
+}
+
 int32_t UserAuthCallbackStub::OnAcquireInfoStub(MessageParcel &data, MessageParcel &reply)
 {
     int32_t module;
-    uint32_t acquireInfo;
+    int32_t acquireInfo;
     std::vector<uint8_t> buffer;
 
     if (!data.ReadInt32(module)) {
         IAM_LOGE("failed to read module");
         return READ_PARCEL_ERROR;
     }
-    if (!data.ReadUint32(acquireInfo)) {
+    if (!data.ReadInt32(acquireInfo)) {
         IAM_LOGE("failed to read acquireInfo");
         return READ_PARCEL_ERROR;
     }
@@ -70,49 +87,11 @@ int32_t UserAuthCallbackStub::OnAcquireInfoStub(MessageParcel &data, MessageParc
     return SUCCESS;
 }
 
-int32_t UserAuthCallbackStub::OnAuthResultStub(MessageParcel &data, MessageParcel &reply)
-{
-    int32_t result;
-    std::vector<uint8_t> buffer;
-
-    if (!data.ReadInt32(result)) {
-        IAM_LOGE("failed to read result");
-        return READ_PARCEL_ERROR;
-    }
-    if (!data.ReadUInt8Vector(&buffer)) {
-        IAM_LOGE("failed to read buffer");
-        return READ_PARCEL_ERROR;
-    }
-    
-    Attributes extraInfo(buffer);
-    OnAuthResult(result, extraInfo);
-    return SUCCESS;
-}
-
-int32_t UserAuthCallbackStub::OnIdentifyResultStub(MessageParcel &data, MessageParcel &reply)
-{
-    int32_t result;
-    std::vector<uint8_t> buffer;
-
-    if (!data.ReadInt32(result)) {
-        IAM_LOGE("failed to read result");
-        return READ_PARCEL_ERROR;
-    }
-    if (!data.ReadUInt8Vector(&buffer)) {
-        IAM_LOGE("failed to read buffer");
-        return READ_PARCEL_ERROR;
-    }
-
-    Attributes extraInfo(buffer);
-    OnIdentifyResult(result, extraInfo);
-    return SUCCESS;
-}
-
 int32_t GetExecutorPropertyCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
     MessageOption &option)
 {
     IAM_LOGD("cmd = %{public}u, flags = %{public}d", code, option.GetFlags());
-    if (GetExecutorPropertyCallbackStub::GetOldDescriptor() != data.ReadInterfaceToken()) {
+    if (GetExecutorPropertyCallbackStub::GetDescriptor() != data.ReadInterfaceToken()) {
         IAM_LOGE("descriptor is not matched");
         return FAIL;
     }
@@ -146,7 +125,7 @@ int32_t SetExecutorPropertyCallbackStub::OnRemoteRequest(uint32_t code, MessageP
     MessageOption &option)
 {
     IAM_LOGD("cmd = %{public}u, flags = %{public}d", code, option.GetFlags());
-    if (SetExecutorPropertyCallbackStub::GetOldDescriptor() != data.ReadInterfaceToken()) {
+    if (SetExecutorPropertyCallbackStub::GetDescriptor() != data.ReadInterfaceToken()) {
         IAM_LOGE("descriptor is not matched");
         return FAIL;
     }

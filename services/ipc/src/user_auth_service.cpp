@@ -132,7 +132,7 @@ void UserAuthService::GetProperty(std::optional<int32_t> userId, AuthType authTy
         return;
     }
     Attributes attr;
-    attr.SetUint32Value(Attributes::ATTR_AUTH_TYPE, static_cast<uint32_t>(authType));
+    attr.SetInt32Value(Attributes::ATTR_AUTH_TYPE, authType);
     attr.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_GET);
     attr.SetUint64Value(Attributes::ATTR_TEMPLATE_ID, templateId);
     attr.SetUint64Value(Attributes::ATTR_CALLER_UID, static_cast<uint64_t>(this->GetCallingUid()));
@@ -196,7 +196,7 @@ uint64_t UserAuthService::AuthUser(std::optional<int32_t> userId, const std::vec
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER);
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
-        callback->OnAuthResult(GENERAL_ERROR, extraInfo);
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
     auto callingUid = static_cast<uint64_t>(this->GetCallingUid());
@@ -254,7 +254,7 @@ uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthTy
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_IDENTIFY);
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
-        callback->OnIdentifyResult(GENERAL_ERROR, extraInfo);
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
     if (authType == PIN) {
