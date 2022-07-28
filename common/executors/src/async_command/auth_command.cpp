@@ -27,7 +27,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-namespace Common = OHOS::UserIAM::Common;
 AuthCommand::AuthCommand(std::weak_ptr<Executor> executor, uint64_t scheduleId,
     const Attributes &attributes, std::shared_ptr<ExecutorMessenger> executorMessenger)
     : AsyncCommandBase("AUTH", scheduleId, executor, executorMessenger),

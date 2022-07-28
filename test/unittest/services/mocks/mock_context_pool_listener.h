@@ -38,7 +38,7 @@ public:
     static std::shared_ptr<ContextPool::ContextPoolListener> Create(const Callback &callback)
     {
         using namespace testing;
-        auto listener = UserIAM::Common::MakeShared<MockContextPoolListener>();
+        auto listener = Common::MakeShared<MockContextPoolListener>();
         EXPECT_CALL(*listener, OnContextPoolInsert).Times(AtLeast(0));
         ON_CALL(*listener, OnContextPoolInsert).WillByDefault([callback](const std::shared_ptr<Context> &context) {
             if (callback != nullptr) {

@@ -112,7 +112,7 @@ void Trace::ProcessPinAuthEvent(const ContextCallbackNotifyListener::MetaData &m
     if (metaData.callingUid.has_value()) {
         info.callingUid = metaData.callingUid.value();
     }
-    info.authTimeString = UserIAM::Common::GetNowTimeString();
+    info.authTimeString = Common::GetNowTimeString();
     if (metaData.operationResult) {
         info.authResult = metaData.operationResult;
     }

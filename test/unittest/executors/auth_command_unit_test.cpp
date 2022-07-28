@@ -29,7 +29,8 @@
 using namespace std;
 using namespace testing;
 using namespace testing::ext;
-using namespace OHOS::UserIAM::Common;
+using namespace OHOS::UserIam;
+using namespace OHOS::UserIam::Common;
 using namespace OHOS::UserIam::UserAuth;
 
 namespace OHOS {

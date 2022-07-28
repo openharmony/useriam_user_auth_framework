@@ -20,7 +20,7 @@
 #include <vector>
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace Common {
 template <typename T>
 inline void Pack(std::vector<uint8_t> &dst, const T &data)
@@ -36,7 +36,7 @@ inline uint32_t CombineUint16ToUint32(uint16_t upper, uint16_t lower)
     return (static_cast<uint32_t>(upper) << 16U) | lower;
 }
 } // namespace Common
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 #endif // IAM_MEM_H

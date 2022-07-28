@@ -24,7 +24,7 @@
 #define LOG_LABEL LABEL_IAM_COMMON
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace Common {
 int32_t UnpackUint64(const std::vector<uint8_t> &src, size_t index, uint64_t &data)
 {
@@ -37,5 +37,5 @@ int32_t UnpackUint64(const std::vector<uint8_t> &src, size_t index, uint64_t &da
     return 0;
 }
 } // namespace Common
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
