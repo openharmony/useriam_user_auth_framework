@@ -30,9 +30,9 @@ namespace UserAuth {
 class MockContextCallback : public ContextCallback {
 public:
     virtual ~MockContextCallback() = default;
+    MOCK_METHOD2(OnResult, void(int32_t resultCode, const Attributes &finalResult));
     MOCK_CONST_METHOD3(
-        onAcquireInfo, void(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg));
-    MOCK_METHOD2(OnResult, void(int32_t resultCode, Attributes &finalResult));
+        OnAcquireInfo, void(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg));
     MOCK_METHOD1(SetTraceUserId, void(int32_t userId));
     MOCK_METHOD1(SetTraceRemainTime, void(int32_t remainTime));
     MOCK_METHOD1(SetTraceFreezingTime, void(int32_t freezingTime));
