@@ -24,7 +24,7 @@
 #include "nocopyable.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace Common {
 class IamScopeGuard : public NoCopyable {
 public:
@@ -43,11 +43,11 @@ private:
     ExitAction action_;
 };
 
-#define ON_SCOPE_EXIT_ID(id, ...) auto exitGuard##id = OHOS::UserIAM::Common::IamScopeGuard([&]() { __VA_ARGS__; })
+#define ON_SCOPE_EXIT_ID(id, ...) auto exitGuard##id = OHOS::UserIam::Common::IamScopeGuard([&]() { __VA_ARGS__; })
 
 #define ON_SCOPE_EXIT(...) ON_SCOPE_EXIT_ID(__LINE__, __VA_ARGS__)
 } // namespace Common
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 #endif // IAM_SCOPE_GUARD_H

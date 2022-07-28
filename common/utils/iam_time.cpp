@@ -24,7 +24,7 @@
 #include "securec.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace Common {
 const std::string GetNowTimeString()
 {
@@ -45,5 +45,5 @@ const std::string GetNowTimeString()
     return std::string(timeStr);
 }
 } // namespace Common
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

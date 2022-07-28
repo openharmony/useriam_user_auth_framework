@@ -24,7 +24,6 @@
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
-using namespace OHOS::UserIAM::Common;
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
@@ -114,7 +113,7 @@ bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t
         return false;
     }
     IAM_LOGI("hdi UpdateEnrollmentResult success, userId is %{public}d", userId_);
-    auto infoRet = MakeShared<CredentialInfoImpl>(userId_, resultInfo.oldInfo);
+    auto infoRet = Common::MakeShared<CredentialInfoImpl>(userId_, resultInfo.oldInfo);
     if (infoRet == nullptr) {
         IAM_LOGE("bad alloc");
         return false;

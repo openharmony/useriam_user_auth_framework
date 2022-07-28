@@ -24,7 +24,6 @@
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
-using namespace OHOS::UserIAM::Common;
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
@@ -107,7 +106,7 @@ int32_t ExecutorMessengerStub::FinishStub(MessageParcel &data, MessageParcel &re
         IAM_LOGE("read attributes failed");
         return READ_PARCEL_ERROR;
     }
-    auto finalResult = UserIAM::Common::MakeShared<Attributes>(attributes);
+    auto finalResult = Common::MakeShared<Attributes>(attributes);
     IF_FALSE_LOGE_AND_RETURN_VAL(finalResult != nullptr, WRITE_PARCEL_ERROR);
     int32_t result =
         Finish(scheduleId, static_cast<ExecutorRole>(srcRole), static_cast<ResultCode>(resultCode), finalResult);

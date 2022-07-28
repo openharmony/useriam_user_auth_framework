@@ -36,7 +36,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-namespace Common = OHOS::UserIAM::Common;
 FrameworkExecutorCallback::FrameworkExecutorCallback(std::weak_ptr<Executor> executor) : executor_(executor)
 {
     uint32_t callbackId = GenerateExecutorCallbackId();

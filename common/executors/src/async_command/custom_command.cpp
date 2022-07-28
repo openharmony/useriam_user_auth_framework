@@ -33,7 +33,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-namespace Common = OHOS::UserIAM::Common;
 CustomCommand::CustomCommand(std::weak_ptr<Executor> executor, const Attributes &attributes)
     : AsyncCommandBase("CUSTOM", 0, executor, nullptr),
       attributes_(Common::MakeShared<Attributes>(attributes.Serialize()))

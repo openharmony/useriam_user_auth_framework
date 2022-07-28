@@ -14,11 +14,7 @@
 import("//build/ohos.gni")
 
 config("iam_log_config") {
-  include_dirs = [
-    "logs",
-    "logs/co_auth/inc",
-    "logs/user_auth/inc",
-  ]
+  include_dirs = [ "logs" ]
 }
 
 config("iam_thread_pool_config") {

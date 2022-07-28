@@ -54,7 +54,7 @@ public:
     static std::shared_ptr<Context> CreateWithContextId(uint64_t contextId)
     {
         using namespace testing;
-        auto context = UserIAM::Common::MakeShared<MockContext>();
+        auto context = Common::MakeShared<MockContext>();
         if (context == nullptr) {
             EXPECT_NE(context, nullptr);
             return nullptr;
@@ -66,7 +66,7 @@ public:
     static std::shared_ptr<Context> CreateContextWithScheduleNode(uint64_t contextId, std::set<uint64_t> scheduleIdList)
     {
         using namespace testing;
-        auto context = UserIAM::Common::MakeShared<MockContext>();
+        auto context = Common::MakeShared<MockContext>();
         if (context == nullptr) {
             EXPECT_NE(context, nullptr);
             return nullptr;
@@ -89,7 +89,7 @@ public:
         uint64_t contextId, const std::set<std::shared_ptr<ScheduleNode>> &scheduleIdList)
     {
         using namespace testing;
-        auto context = UserIAM::Common::MakeShared<MockContext>();
+        auto context = Common::MakeShared<MockContext>();
         if (context == nullptr) {
             EXPECT_NE(context, nullptr);
             return nullptr;

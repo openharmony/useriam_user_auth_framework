@@ -31,7 +31,7 @@ ContextCallbackImpl::ContextCallbackImpl(sptr<IamCallbackInterface> iamCallback,
     metaData_.startTime = std::chrono::steady_clock::now();
     std::ostringstream ss;
     ss << "IDM(operation:" << operationType << ")";
-    iamHitraceHelper_ = UserIAM::Common::MakeShared<IamHitraceHelper>(ss.str());
+    iamHitraceHelper_ = Common::MakeShared<IamHitraceHelper>(ss.str());
 }
 
 void ContextCallbackImpl::OnAcquireInfo(ExecutorRole src, int32_t moduleType,
@@ -134,7 +134,7 @@ std::shared_ptr<ContextCallback> ContextCallback::NewInstance(sptr<IamCallbackIn
         IAM_LOGE("iam callback is nullptr, parameter is invalid");
         return nullptr;
     }
-    return UserIAM::Common::MakeShared<ContextCallbackImpl>(iamCallback, operationType);
+    return UserIam::Common::MakeShared<ContextCallbackImpl>(iamCallback, operationType);
 }
 } // namespace UserAuth
 } // namespace UserIam

@@ -21,7 +21,7 @@
 #include "refbase.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace Common {
 template <typename T>
 static inline std::shared_ptr<T> SptrToStdSharedPtr(sptr<T> &other)
@@ -49,7 +49,7 @@ static inline std::unique_ptr<T> MakeUnique(Args &&... args)
     }
 }
 } // namespace Common
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 #endif // IAM_PTR_H

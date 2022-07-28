@@ -19,7 +19,7 @@
 #include "iam_logger.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace Common {
 // these macros are used to check condition that should never fail
 #define IF_FALSE_LOGE_AND_RETURN(cond)                  \
@@ -38,7 +38,7 @@ namespace Common {
         }                                               \
     } while (0)
 } // namespace Common
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 #endif // IAM_CHECK_H

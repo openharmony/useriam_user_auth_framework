@@ -37,7 +37,7 @@ public:
     static std::shared_ptr<ExecutorMessengerInterface> Create()
     {
         using namespace testing;
-        auto messenger = UserIAM::Common::MakeShared<MockExecutorMessenger>();
+        auto messenger = Common::MakeShared<MockExecutorMessenger>();
         return messenger;
     }
 };

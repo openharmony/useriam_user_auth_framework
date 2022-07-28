@@ -33,7 +33,7 @@ namespace UserIAM {
 namespace UserAuth {
 namespace {
 using namespace std;
-using namespace OHOS::UserIAM;
+using namespace OHOS::UserIam;
 using namespace OHOS::UserIAM::Common;
 using namespace OHOS::UserIam::UserAuth;
 class DummyAuthExecutorHdi : public IAuthExecutorHdi {
@@ -115,7 +115,7 @@ private:
     std::shared_ptr<Parcel> fuzzParcel_ = nullptr;
 };
 
-auto g_executorHdi = Common::MakeShared<DummyAuthExecutorHdi>();
+auto g_executorHdi = UserIam::Common::MakeShared<DummyAuthExecutorHdi>();
 
 class DummyAuthDriverHdi : public IAuthDriverHdi {
 public:
@@ -147,7 +147,7 @@ private:
     std::shared_ptr<Parcel> fuzzParcel_;
 };
 
-auto g_authDriverHdi = Common::MakeShared<DummyAuthDriverHdi>();
+auto g_authDriverHdi = UserIam::Common::MakeShared<DummyAuthDriverHdi>();
 const std::map<std::string, UserAuth::HdiConfig> g_hdiName2Config = {
     {"face_auth_interface_service", {1, g_authDriverHdi}}, {"pin_auth_interface_service", {2, g_authDriverHdi}}};
 const string g_serviceNames[] = {"face_auth_interface_service", "pin_auth_interface_service"};
@@ -227,7 +227,7 @@ FuzzFunc *g_fuzzFuncs[] = {
 
 void UserAuthDriverManagerFuzzTest(const uint8_t *data, size_t size)
 {
-    auto parcel = Common::MakeShared<Parcel>();
+    auto parcel = UserIam::Common::MakeShared<Parcel>();
     if (parcel == nullptr) {
         IAM_LOGI("parcel is null");
         return;

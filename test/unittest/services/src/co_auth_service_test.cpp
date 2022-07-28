@@ -61,7 +61,7 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTestOnRemoteRequest, TestSize.Level0)
     EXPECT_EQ(data.WriteUInt8Vector(info.publicKey), true);
     EXPECT_EQ(data.WriteRemoteObject(callback->AsObject()), true);
     uint32_t code = static_cast<uint32_t>(ICoAuth::CO_AUTH_EXECUTOR_REGISTER);
-    auto service = UserIAM::Common::MakeShared<CoAuthService>(1, true);
+    auto service = Common::MakeShared<CoAuthService>(1, true);
     EXPECT_NE(service, nullptr);
     EXPECT_EQ(service->OnRemoteRequest(code, data, reply), 0);
     uint64_t executorIndex = 0;

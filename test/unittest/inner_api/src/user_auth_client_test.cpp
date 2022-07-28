@@ -65,7 +65,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetProperty, TestSize.Level0)
 {
     int32_t userId = 100;
     GetPropertyRequest request = {};
-    auto callback = UserIAM::Common::MakeShared<MockGetPropCallback>();
+    auto callback = Common::MakeShared<MockGetPropCallback>();
     EXPECT_NE(callback, nullptr);
     EXPECT_CALL(*callback, OnResult(_, _)).Times(1);
     UserAuthClient::GetInstance().GetProperty(userId, request, callback);

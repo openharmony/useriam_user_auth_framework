@@ -25,7 +25,6 @@
 
 using namespace testing;
 using namespace testing::ext;
-using namespace OHOS::UserIAM::Common;
 
 namespace OHOS {
 namespace UserIAM {

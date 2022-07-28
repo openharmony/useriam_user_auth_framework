@@ -84,13 +84,13 @@ std::shared_ptr<FiniteStateMachine> FiniteStateMachineBuilder::Build()
         return nullptr;
     }
     valid_ = false;
-    return UserIAM::Common::MakeShared<FiniteStateMachineImpl>(name_, initstate_, transitionMap_, enterMap_, leaveMap_);
+    return Common::MakeShared<FiniteStateMachineImpl>(name_, initstate_, transitionMap_, enterMap_, leaveMap_);
 }
 
 std::shared_ptr<FiniteStateMachine::Builder> FiniteStateMachine::Builder::New(const std::string &name,
     uint32_t initialState)
 {
-    return UserIAM::Common::MakeShared<FiniteStateMachineBuilder>(name, initialState);
+    return Common::MakeShared<FiniteStateMachineBuilder>(name, initialState);
 }
 } // namespace UserAuth
 } // namespace UserIam

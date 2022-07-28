@@ -26,7 +26,6 @@ namespace UserAuth {
 using namespace std;
 using namespace testing;
 using namespace testing::ext;
-using namespace OHOS::UserIAM::Common;
 
 class ContextCallbackImplTest : public testing::Test {
 public:
@@ -72,7 +71,7 @@ HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserIdmNull, TestSize.Level
 HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserAuth, TestSize.Level0)
 {
     int32_t testResult = 66;
-    auto testAttr = MakeShared<Attributes>();
+    auto testAttr = Common::MakeShared<Attributes>();
     ASSERT_TRUE(testAttr != nullptr);
 
     sptr<MockUserAuthCallback> mockCallback = new (nothrow) MockUserAuthCallback();
@@ -93,7 +92,7 @@ HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserAuth, TestSize.Level0)
 HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserIdmOnResult, TestSize.Level0)
 {
     int32_t testResult = 66;
-    auto testAttr = MakeShared<Attributes>();
+    auto testAttr = Common::MakeShared<Attributes>();
     ASSERT_TRUE(testAttr != nullptr);
 
     sptr<MockIdmCallback> mockCallback = new (nothrow) MockIdmCallback();

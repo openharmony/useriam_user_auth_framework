@@ -27,7 +27,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-namespace Common = OHOS::UserIAM::Common;
 Driver::Driver(const std::string &serviceName, HdiConfig hdiConfig) : serviceName_(serviceName), hdiConfig_(hdiConfig)
 {
 }
