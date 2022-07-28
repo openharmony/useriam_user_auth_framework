@@ -78,7 +78,7 @@ void BaseContext::OnScheduleProcessed(ExecutorRole src, int32_t moduleType, cons
 {
     IAM_LOGI("%{public}s start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
-    callback_->onAcquireInfo(src, moduleType, acquireMsg);
+    callback_->OnAcquireInfo(src, moduleType, acquireMsg);
 }
 
 void BaseContext::OnScheduleStoped(int32_t resultCode, const std::shared_ptr<Attributes> &finalResult)

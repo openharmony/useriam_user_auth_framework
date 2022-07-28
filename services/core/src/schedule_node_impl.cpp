@@ -45,14 +45,14 @@ ScheduleNodeImpl::ScheduleNodeImpl(ScheduleInfo &info) : info_(std::move(info))
         return;
     }
 
-    info_.parameters->SetUint32Value(Attributes::ATTR_SCHEDULE_MODE, info_.scheduleMode);
+    info_.parameters->SetInt32Value(Attributes::ATTR_SCHEDULE_MODE, info_.scheduleMode);
 
     if (info_.tokenId.has_value()) {
         info_.parameters->SetUint32Value(Attributes::ATTR_ACCESS_TOKEN_ID, info_.tokenId.value());
     }
 
     if (info_.pinSubType != 0) {
-        info_.parameters->SetUint64Value(Attributes::ATTR_PIN_SUB_TYPE, info_.pinSubType);
+        info_.parameters->SetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, info_.pinSubType);
     }
 
     if (info_.templateIdList.empty()) {
@@ -145,7 +145,7 @@ bool ScheduleNodeImpl::ContinueSchedule(ExecutorRole srcRole, ExecutorRole dstRo
     }
 
     if (info_.callback) {
-        info_.callback->OnScheduleProcessed(srcRole, static_cast<int32_t>(GetAuthType()), msg);
+        info_.callback->OnScheduleProcessed(srcRole, GetAuthType(), msg);
     }
 
     return true;

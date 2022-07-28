@@ -49,8 +49,8 @@ int32_t ExecutorMessengerStub::SendDataStub(MessageParcel &data, MessageParcel &
 {
     uint64_t scheduleId;
     uint64_t transNum;
-    uint32_t srcRole;
-    uint32_t dstRole;
+    int32_t srcRole;
+    int32_t dstRole;
     std::vector<uint8_t> msg;
 
     if (!data.ReadUint64(scheduleId)) {
@@ -61,11 +61,11 @@ int32_t ExecutorMessengerStub::SendDataStub(MessageParcel &data, MessageParcel &
         IAM_LOGE("read transNum failed");
         return READ_PARCEL_ERROR;
     }
-    if (!data.ReadUint32(srcRole)) {
+    if (!data.ReadInt32(srcRole)) {
         IAM_LOGE("read srcRole failed");
         return READ_PARCEL_ERROR;
     }
-    if (!data.ReadUint32(dstRole)) {
+    if (!data.ReadInt32(dstRole)) {
         IAM_LOGE("read dstRole failed");
         return READ_PARCEL_ERROR;
     }
@@ -86,7 +86,7 @@ int32_t ExecutorMessengerStub::SendDataStub(MessageParcel &data, MessageParcel &
 int32_t ExecutorMessengerStub::FinishStub(MessageParcel &data, MessageParcel &reply)
 {
     uint64_t scheduleId;
-    uint32_t srcRole;
+    int32_t srcRole;
     int32_t resultCode;
     std::vector<uint8_t> attributes;
 
@@ -94,7 +94,7 @@ int32_t ExecutorMessengerStub::FinishStub(MessageParcel &data, MessageParcel &re
         IAM_LOGE("read scheduleId failed");
         return READ_PARCEL_ERROR;
     }
-    if (!data.ReadUint32(srcRole)) {
+    if (!data.ReadInt32(srcRole)) {
         IAM_LOGE("read srcRole failed");
         return READ_PARCEL_ERROR;
     }

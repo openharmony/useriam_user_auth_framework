@@ -68,9 +68,9 @@ struct GetPropertyInfo {
     int32_t authType;
     std::vector<uint32_t> keys;
     int32_t getResult;
-    uint64_t authSubType;
-    uint32_t remainTimes;
-    uint32_t freezingTime;
+    int32_t authSubType;
+    int32_t remainTimes;
+    int32_t freezingTime;
 };
 
 struct SetPropertyInfo {
@@ -110,8 +110,8 @@ struct AuthInfo {
     int32_t authTrustLevel {0};
     int32_t result {0};
     std::vector<uint8_t> token {};
-    uint32_t remainTimes {0};
-    uint32_t freezingTime {0};
+    int32_t remainTimes {0};
+    int32_t freezingTime {0};
 };
 
 struct AuthUserInfo {
@@ -129,8 +129,8 @@ struct AuthUserInfo {
     int32_t authTrustLevel {0};
     int32_t result {0};
     std::vector<uint8_t> token {};
-    uint32_t remainTimes {0};
-    uint32_t freezingTime {0};
+    int32_t remainTimes {0};
+    int32_t freezingTime {0};
 };
 
 // For API6

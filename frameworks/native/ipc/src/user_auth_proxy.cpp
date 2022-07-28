@@ -41,7 +41,7 @@ int32_t UserAuthProxy::GetAvailableStatus(AuthType authType, AuthTrustLevel auth
         IAM_LOGE("failed to write descriptor");
         return WRITE_PARCEL_ERROR;
     }
-    if (!data.WriteUint32(authType)) {
+    if (!data.WriteInt32(authType)) {
         IAM_LOGE("failed to write authType");
         return WRITE_PARCEL_ERROR;
     }
@@ -85,7 +85,7 @@ void UserAuthProxy::GetProperty(std::optional<int32_t> userId, AuthType authType
         IAM_LOGE("failed to write userId");
         return;
     }
-    if (!data.WriteUint32(authType)) {
+    if (!data.WriteInt32(authType)) {
         IAM_LOGE("failed to write authType");
         return;
     }
@@ -124,7 +124,7 @@ void UserAuthProxy::SetProperty(std::optional<int32_t> userId, AuthType authType
         IAM_LOGE("failed to write userId");
         return;
     }
-    if (!data.WriteUint32(authType)) {
+    if (!data.WriteInt32(authType)) {
         IAM_LOGE("failed to write authType");
         return;
     }
@@ -166,7 +166,7 @@ uint64_t UserAuthProxy::AuthUser(std::optional<int32_t> userId, const std::vecto
         IAM_LOGE("failed to write challenge");
         return BAD_CONTEXT_ID;
     }
-    if (!data.WriteUint32(authType)) {
+    if (!data.WriteInt32(authType)) {
         IAM_LOGE("failed to write authType");
         return BAD_CONTEXT_ID;
     }
@@ -209,7 +209,7 @@ uint64_t UserAuthProxy::Identify(const std::vector<uint8_t> &challenge, AuthType
         IAM_LOGE("failed to write challenge");
         return BAD_CONTEXT_ID;
     }
-    if (!data.WriteUint32(authType)) {
+    if (!data.WriteInt32(authType)) {
         IAM_LOGE("failed to write authType");
         return BAD_CONTEXT_ID;
     }

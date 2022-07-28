@@ -42,16 +42,15 @@ ohos_fuzztest("UserAuthServiceFuzzTest") {
     "//base/useriam/user_auth_framework/common:iam_test",
     "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
     "//base/useriam/user_auth_framework/services:userauthservice",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
+    "c_utils:utils",
     "drivers_interface_user_auth:libuser_auth_proxy_1.0",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
-    "utils_base:utils",
   ]
 }

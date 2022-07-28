@@ -877,8 +877,8 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnGetPropertyTest_001, TestSize.Leve
     ASSERT_NE(values, nullptr);
     ret = executorCallback->OnGetProperty(*conditions, *values);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
-    uint64_t pinAuthSubType;
-    ASSERT_EQ(values->GetUint64Value(Attributes::ATTR_PIN_SUB_TYPE, pinAuthSubType), true);
+    int32_t pinAuthSubType;
+    ASSERT_EQ(values->GetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, pinAuthSubType), true);
     ASSERT_EQ(pinAuthSubType, testAuthSubType);
     int32_t freezingTime;
     ASSERT_EQ(values->GetInt32Value(Attributes::ATTR_FREEZING_TIME, freezingTime), true);

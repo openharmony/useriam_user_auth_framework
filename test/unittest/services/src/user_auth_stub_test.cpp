@@ -53,8 +53,8 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetAvailableStatusStub, TestSize.Level0)
     MessageOption option(MessageOption::TF_SYNC);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
-    EXPECT_TRUE(data.WriteUint32(static_cast<uint32_t>(authType)));
-    EXPECT_TRUE(data.WriteUint32(static_cast<uint32_t>(authTrustLevel)));
+    EXPECT_TRUE(data.WriteInt32(authType));
+    EXPECT_TRUE(data.WriteUint32(authTrustLevel));
 
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserAuthInterface::USER_AUTH_GET_AVAILABLE_STATUS, data, reply, option));
 }
@@ -69,7 +69,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetAvailableStatusStubFailed, TestSize.Le
     MessageOption option(MessageOption::TF_SYNC);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
-    EXPECT_TRUE(data.WriteUint32(static_cast<uint32_t>(authType)));
+    EXPECT_TRUE(data.WriteInt32(authType));
 
     EXPECT_EQ(READ_PARCEL_ERROR,
         service.OnRemoteRequest(UserAuthInterface::USER_AUTH_GET_AVAILABLE_STATUS, data, reply, option));
@@ -105,7 +105,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetPropertyStub, TestSize.Level0)
     MessageOption option(MessageOption::TF_SYNC);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
-    EXPECT_TRUE(data.WriteUint32(static_cast<uint32_t>(authType)));
+    EXPECT_TRUE(data.WriteInt32(authType));
     EXPECT_TRUE(data.WriteUInt32Vector(keys));
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
@@ -144,7 +144,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetPropertyByIdStub, TestSize.Level0)
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(userId.value()));
-    EXPECT_TRUE(data.WriteUint32(static_cast<uint32_t>(authType)));
+    EXPECT_TRUE(data.WriteInt32(authType));
     EXPECT_TRUE(data.WriteUInt32Vector(keys));
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
@@ -176,7 +176,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubSetPropertyStub, TestSize.Level0)
     MessageOption option(MessageOption::TF_SYNC);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
-    EXPECT_TRUE(data.WriteUint32(static_cast<uint32_t>(authType)));
+    EXPECT_TRUE(data.WriteInt32(authType));
     EXPECT_TRUE(data.WriteUInt8Vector(attributes.Serialize()));
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
@@ -200,12 +200,12 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthStub, TestSize.Level0)
                            AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) {
             if (callback != nullptr) {
                 Attributes attr;
-                callback->OnAuthResult(SUCCESS, attr);
+                callback->OnResult(SUCCESS, attr);
             }
             uint64_t contextId = 300;
             return contextId;
         });
-    EXPECT_CALL(*callback, OnAuthResult(_, _)).Times(1);
+    EXPECT_CALL(*callback, OnResult(_, _)).Times(1);
 
     MessageParcel data;
     MessageParcel reply;
@@ -213,7 +213,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthStub, TestSize.Level0)
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteUInt8Vector(challenge));
-    EXPECT_TRUE(data.WriteUint32(static_cast<uint32_t>(authType)));
+    EXPECT_TRUE(data.WriteInt32(authType));
     EXPECT_TRUE(data.WriteUint32(static_cast<uint32_t>(atl)));
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
@@ -237,12 +237,12 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub, TestSize.Level0)
                            AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) {
             if (callback != nullptr) {
                 Attributes attr;
-                callback->OnAuthResult(SUCCESS, attr);
+                callback->OnResult(SUCCESS, attr);
             }
             uint64_t contextId = 300;
             return contextId;
         });
-    EXPECT_CALL(*callback, OnAuthResult(_, _)).Times(1);
+    EXPECT_CALL(*callback, OnResult(_, _)).Times(1);
 
     MessageParcel data;
     MessageParcel reply;
@@ -251,7 +251,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub, TestSize.Level0)
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(userId.value()));
     EXPECT_TRUE(data.WriteUInt8Vector(challenge));
-    EXPECT_TRUE(data.WriteUint32(static_cast<uint32_t>(authType)));
+    EXPECT_TRUE(data.WriteInt32(authType));
     EXPECT_TRUE(data.WriteUint32(static_cast<uint32_t>(atl)));
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
@@ -273,12 +273,12 @@ HWTEST_F(UserAuthStubTest, UserAuthStubIdentifyStub, TestSize.Level0)
             [](const std::vector<uint8_t> &challenge, AuthType authType, sptr<UserAuthCallbackInterface> &callback) {
                 if (callback != nullptr) {
                     Attributes attr;
-                    callback->OnIdentifyResult(SUCCESS, attr);
+                    callback->OnResult(SUCCESS, attr);
                 }
                 uint64_t contextId = 300;
                 return contextId;
             });
-    EXPECT_CALL(*callback, OnIdentifyResult(_, _)).Times(1);
+    EXPECT_CALL(*callback, OnResult(_, _)).Times(1);
 
     MessageParcel data;
     MessageParcel reply;
@@ -286,7 +286,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubIdentifyStub, TestSize.Level0)
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteUInt8Vector(challenge));
-    EXPECT_TRUE(data.WriteUint32(static_cast<uint32_t>(authType)));
+    EXPECT_TRUE(data.WriteInt32(authType));
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
 
