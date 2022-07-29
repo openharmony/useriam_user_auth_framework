@@ -27,7 +27,7 @@
 #undef private
 
 using namespace std;
-using namespace OHOS::UserIAM::Common;
+using namespace OHOS::UserIam::Common;
 using namespace OHOS::UserIam::UserAuth;
 using ExecutorRegisterInfo = CoAuthInterface::ExecutorRegisterInfo;
 

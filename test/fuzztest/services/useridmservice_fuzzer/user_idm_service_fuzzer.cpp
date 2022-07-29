@@ -25,7 +25,7 @@
 #undef private
 
 using namespace std;
-using namespace OHOS::UserIAM::Common;
+using namespace OHOS::UserIam::Common;
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 

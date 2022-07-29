@@ -33,7 +33,7 @@
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
 using namespace std;
-using namespace OHOS::UserIAM::Common;
+using namespace OHOS::UserIam::Common;
 using namespace OHOS::UserIam::UserAuth;
 
 namespace OHOS {
