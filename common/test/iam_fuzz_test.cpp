@@ -27,7 +27,7 @@
 #define LOG_LABEL UserIam::Common::LABEL_IAM_COMMON
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace Common {
 namespace {
 constexpr int32_t MAX_DATA_LEN = 200;
@@ -98,5 +98,5 @@ void FillFuzzString(Parcel &parcel, std::string &str)
     IAM_LOGI("fill string len %{public}u ok", len - 1);
 }
 } // namespace Common
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
