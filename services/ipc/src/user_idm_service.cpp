@@ -121,7 +121,7 @@ int32_t UserIdmService::GetCredentialInfo(int32_t userId, AuthType authType,
         callback->OnCredentialInfos(credInfos, pinSubType);
         return INVALID_PARAMETERS;
     }
-    if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
+    if (!IpcCommon::CheckPermission(*this, USE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         callback->OnCredentialInfos(credInfos, pinSubType);
         return CHECK_PERMISSION_FAILED;
