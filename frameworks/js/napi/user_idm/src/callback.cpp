@@ -242,7 +242,7 @@ void IIdmCallback::OnAcquireInfo(int32_t module, uint32_t acquireInfo, const Use
     }
 
     asyncCallbackContext_->module = module;
-    asyncCallbackContext_->acquire = acquireInfo;
+    asyncCallbackContext_->acquire = static_cast<int32_t>(acquireInfo);
     asyncCallbackContext_->retCredentialId = credId;
     AsyncCallbackContext *copy = CopyAsyncCallbackContext(asyncCallbackContext_);
     if (copy == nullptr) {
