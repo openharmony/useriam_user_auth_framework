@@ -85,7 +85,7 @@ void Executor::RegisterExecutorCallback(ExecutorInfo &executorInfo)
     IAM_LOGI("%{public}s start", GetDescription());
     uint32_t combineExecutorId =
         Common::CombineUint16ToUint32(hdiId_, static_cast<uint16_t>(executorInfo.executorSensorHint));
-    executorInfo.executorSensorHint = static_cast<int32_t>(combineExecutorId);
+    executorInfo.executorSensorHint = combineExecutorId;
     if (executorCallback_ == nullptr) {
         std::lock_guard<std::mutex> lock(mutex_);
         if (executorCallback_ == nullptr) {
