@@ -33,8 +33,7 @@ namespace UserIAM {
 namespace UserAuth {
 namespace {
 using namespace std;
-using namespace OHOS::UserIam;
-using namespace OHOS::UserIAM::Common;
+using namespace OHOS::UserIam::Common;
 using namespace OHOS::UserIam::UserAuth;
 class DummyAuthExecutorHdi : public IAuthExecutorHdi {
 public:
