@@ -182,8 +182,8 @@ HWTEST_F(UserIdmStubTest, UserIdmStubAddCredentialStub, TestSize.Level0)
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(IDM_STUB_TEST_USER_ID));
-    EXPECT_TRUE(data.WriteUint32(PIN));
-    EXPECT_TRUE(data.WriteUint64(PIN_SIX));
+    EXPECT_TRUE(data.WriteInt32(PIN));
+    EXPECT_TRUE(data.WriteInt32(PIN_SIX));
     EXPECT_TRUE(data.WriteUInt8Vector(IDM_STUB_TEST_AUTH_TOKEN));
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
@@ -215,8 +215,8 @@ HWTEST_F(UserIdmStubTest, UserIdmStubUpdateCredentialStub, TestSize.Level0)
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(IDM_STUB_TEST_USER_ID));
-    EXPECT_TRUE(data.WriteUint32(PIN));
-    EXPECT_TRUE(data.WriteUint64(PIN_SIX));
+    EXPECT_TRUE(data.WriteInt32(PIN));
+    EXPECT_TRUE(data.WriteInt32(PIN_SIX));
     EXPECT_TRUE(data.WriteUInt8Vector(IDM_STUB_TEST_AUTH_TOKEN));
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
