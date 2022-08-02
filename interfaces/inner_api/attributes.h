@@ -27,7 +27,7 @@ class Attributes final {
 public:
     enum AttributeKey : uint32_t {
         ATTR_ROOT = 100000,
-        ATTR_RESULT_CODE = 100001,      // uint32_t
+        ATTR_RESULT_CODE = 100001,      // int32_t
         ATTR_SIGNATURE = 100004,        // std::vector<uint8_t>
         ATTR_IDENTIFY_MODE = 100005,    // uint32_t
         ATTR_TEMPLATE_ID = 100006,      // uint64_t
