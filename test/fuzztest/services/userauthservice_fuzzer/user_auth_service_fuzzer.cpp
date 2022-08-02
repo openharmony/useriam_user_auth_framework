@@ -47,12 +47,17 @@ public:
     void OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo) override
     {
         IAM_LOGI("start");
+        static_cast<void>(module);
+        static_cast<void>(acquireInfo);
+        static_cast<void>(extraInfo);
         return;
     }
 
     void OnResult(int32_t result, const Attributes &extraInfo) override
     {
         IAM_LOGI("start");
+        static_cast<void>(result);
+        static_cast<void>(extraInfo);
         return;
     }
 
