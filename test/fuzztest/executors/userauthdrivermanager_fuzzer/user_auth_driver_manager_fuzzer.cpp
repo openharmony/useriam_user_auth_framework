@@ -74,18 +74,31 @@ public:
     ResultCode Enroll(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
         const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) override
     {
+        static_cast<void>(scheduleId);
+        static_cast<void>(tokenId);
+        static_cast<void>(extraInfo);
+        static_cast<void>(callbackObj);
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
     ResultCode Authenticate(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint64_t> &templateIdList,
         const std::vector<uint8_t> &extraInfo, const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) override
     {
+        static_cast<void>(scheduleId);
+        static_cast<void>(tokenId);
+        static_cast<void>(templateIdList);
+        static_cast<void>(extraInfo);
+        static_cast<void>(callbackObj);
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
     ResultCode Identify(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
         const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) override
     {
+        static_cast<void>(scheduleId);
+        static_cast<void>(tokenId);
+        static_cast<void>(extraInfo);
+        static_cast<void>(callbackObj);
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
