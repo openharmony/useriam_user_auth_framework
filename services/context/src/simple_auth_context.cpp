@@ -60,7 +60,7 @@ void SimpleAuthContext::OnResult(int32_t resultCode, const std::shared_ptr<Attri
         if (resultCode == SUCCESS) {
             resultCode = GENERAL_ERROR;
         }
-        resultInfo.result = static_cast<uint32_t>(resultCode);
+        resultInfo.result = resultCode;
     }
     InvokeResultCallback(resultInfo);
     IAM_LOGI("%{public}s on result %{public}d finish", GetDescription(), resultCode);
@@ -97,7 +97,7 @@ void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInf
     IAM_LOGI("%{public}s start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
     Attributes finalResult;
-    bool setResultCodeRet = finalResult.SetUint32Value(Attributes::ATTR_RESULT_CODE, resultInfo.result);
+    bool setResultCodeRet = finalResult.SetInt32Value(Attributes::ATTR_RESULT_CODE, resultInfo.result);
     IF_FALSE_LOGE_AND_RETURN(setResultCodeRet == true);
     bool setFreezingTimeRet = finalResult.SetInt32Value(Attributes::ATTR_FREEZING_TIME, resultInfo.freezingTime);
     IF_FALSE_LOGE_AND_RETURN(setFreezingTimeRet == true);

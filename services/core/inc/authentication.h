@@ -27,7 +27,7 @@ namespace UserAuth {
 class Authentication {
 public:
     struct AuthResultInfo {
-        uint32_t result;
+        int32_t result;
         int32_t freezingTime;
         int32_t remainTimes;
         std::vector<uint8_t> token;
