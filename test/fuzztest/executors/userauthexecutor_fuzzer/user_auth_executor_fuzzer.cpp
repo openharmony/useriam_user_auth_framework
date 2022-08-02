@@ -80,6 +80,9 @@ public:
     ResultCode Enroll(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
         const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) override
     {
+        static_cast<void>(scheduleId);
+        static_cast<void>(tokenId);
+        static_cast<void>(extraInfo);
         FuzzTriggerIExecuteCallback(callbackObj);
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
@@ -87,6 +90,10 @@ public:
     ResultCode Authenticate(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint64_t> &templateIdList,
         const std::vector<uint8_t> &extraInfo, const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) override
     {
+        static_cast<void>(scheduleId);
+        static_cast<void>(tokenId);
+        static_cast<void>(templateIdList);
+        static_cast<void>(extraInfo);
         FuzzTriggerIExecuteCallback(callbackObj);
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
@@ -94,6 +101,9 @@ public:
     ResultCode Identify(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
         const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) override
     {
+        static_cast<void>(scheduleId);
+        static_cast<void>(tokenId);
+        static_cast<void>(extraInfo);
         FuzzTriggerIExecuteCallback(callbackObj);
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
@@ -166,12 +176,21 @@ public:
     int32_t SendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole, ExecutorRole dstRole,
         const std::shared_ptr<AuthMessage> &msg) override
     {
+        static_cast<void>(scheduleId);
+        static_cast<void>(transNum);
+        static_cast<void>(srcRole);
+        static_cast<void>(dstRole);
+        static_cast<void>(msg);
         return fuzzParcel_->ReadInt32();
     }
 
     int32_t Finish(uint64_t scheduleId, ExecutorRole srcRole, int32_t resultCode,
         const Attributes &finalResult) override
     {
+        static_cast<void>(scheduleId);
+        static_cast<void>(srcRole);
+        static_cast<void>(resultCode);
+        static_cast<void>(finalResult);
         return fuzzParcel_->ReadInt32();
     }
 
