@@ -251,7 +251,8 @@ ResultCode FrameworkExecutorCallback::ProcessGetTemplateCommand(
     TemplateInfo templateInfo = {};
     ResultCode ret = hdi->GetTemplateInfo(templateId, templateInfo);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret == SUCCESS, ret);
-    int32_t subType = *(static_cast<int32_t *>(static_cast<void *>(templateInfo.extraInfo.data())));
+    int32_t subType = 0;
+    Common::UnpackInt32(templateInfo.extraInfo, 0, subType);
     bool setAuthSubTypeRet = values->SetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, subType);
     IF_FALSE_LOGE_AND_RETURN_VAL(setAuthSubTypeRet == true, ResultCode::GENERAL_ERROR);
     bool setAuthRemainTimeRet =
