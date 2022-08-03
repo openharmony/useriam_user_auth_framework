@@ -21,7 +21,7 @@
 #include "executor.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class MockExecutor : public Executor {
 public:
@@ -36,7 +36,7 @@ public:
     MOCK_METHOD0(GetDescription, const char *());
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 #endif // MOCK_EXECUTOR_H

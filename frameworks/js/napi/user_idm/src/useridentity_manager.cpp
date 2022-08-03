@@ -26,7 +26,7 @@
 #define LOG_LABEL UserIam::Common::LABEL_USER_IDM_NAPI
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserIDM {
 namespace {
 const size_t ARGC = 2;
@@ -722,5 +722,5 @@ extern "C" __attribute__((constructor)) void RegisterModule(void)
     napi_module_register(&module);
 }
 } // namespace UserIDM
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

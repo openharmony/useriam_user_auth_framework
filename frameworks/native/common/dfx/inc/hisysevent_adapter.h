@@ -19,7 +19,7 @@
 #include <string>
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 struct UserAuthInfo {
     uint64_t callingUid = 0;
@@ -46,6 +46,6 @@ void ReportSecurityCredChange(int32_t userId, int32_t authType, uint32_t operati
 void ReportUserAuth(const UserAuthInfo &info);
 void ReportPinAuth(const PinAuthInfo &info);
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 #endif // OHOS_USERIAM_DFX_HISYSEVENT_ADAPTER_H

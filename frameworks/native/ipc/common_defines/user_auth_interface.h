@@ -67,7 +67,7 @@ public:
 
     virtual int32_t GetVersion() = 0;
 
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIAM.UserAuth.IUserAuth");
+    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIam.UserAuth.IUserAuth");
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -34,9 +34,8 @@ using namespace OHOS::UserIam::Common;
 using namespace OHOS::UserIam::UserAuth;
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
-using namespace OHOS::UserIam::UserAuth;
 class AuthCommandUnitTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -272,5 +271,5 @@ HWTEST_F(AuthCommandUnitTest, AuthCommand_MixTest_003, TestSize.Level0)
     command->OnAcquireInfo(testAcquire, testExtraInfo);
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

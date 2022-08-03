@@ -98,7 +98,7 @@ uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<
             IAM_LOGI("delete executor %{public}s, executorIndex is ****%{public}hx", (result ? "succ" : "failed"),
                 static_cast<uint16_t>(executorIndex));
             std::string executorDesc = "executor, type " + std::to_string(executorType);
-            UserIAM::UserAuth::ReportSystemFault(Common::GetNowTimeString(), executorDesc);
+            UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), executorDesc);
         }));
     }
     return executorIndex;
@@ -112,7 +112,7 @@ void CoAuthService::Init()
             ResourceNodePool::Instance().DeleteAll();
             RelativeTimer::GetInstance().Register(Init, DEFER_TIME);
             IAM_LOGI("delete all executors for hdi dead");
-            UserIAM::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "user_auth_hdi host");
+            UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "user_auth_hdi host");
         }));
         IAM_LOGI("set fwk ready parameter");
         SetParameter("bootevent.useriam.fwkready", "true");

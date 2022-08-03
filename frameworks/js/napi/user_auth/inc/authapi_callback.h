@@ -25,7 +25,7 @@
 #include "user_auth_client.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 typedef struct AcquireInfoInner {
     napi_env env;
@@ -82,6 +82,6 @@ private:
     SetPropertyInfo *setPropertyInfo_;
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 #endif // AUTHAPI_CALLBACK_H

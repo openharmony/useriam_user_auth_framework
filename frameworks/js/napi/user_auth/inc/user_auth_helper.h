@@ -20,7 +20,7 @@
 #include "napi/native_common.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 enum AuthMethod {
     PIN_ONLY = 0xF,
@@ -82,6 +82,6 @@ napi_value Execute(napi_env env, napi_callback_info info);
 napi_value AuthUser(napi_env env, napi_callback_info info);
 napi_value CancelAuth(napi_env env, napi_callback_info info);
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 #endif // FACERECOGNITION_USER_AUTH_HELPER_H

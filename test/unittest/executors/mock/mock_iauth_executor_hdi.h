@@ -21,10 +21,9 @@
 #include "mock_iauth_executor_hdi.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
-using namespace OHOS::UserIAM;
-using namespace OHOS::UserIAM::UserAuth;
+using namespace OHOS::UserIam;
 using namespace OHOS::UserIam::UserAuth;
 
 class MockIAuthExecutorHdi : public IAuthExecutorHdi {
@@ -49,7 +48,7 @@ public:
                                   const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj));
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 #endif // MOCK_IAUTH_EXECUTOR_HDI_H

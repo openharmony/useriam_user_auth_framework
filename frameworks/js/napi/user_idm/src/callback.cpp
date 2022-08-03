@@ -28,7 +28,7 @@
 #define LOG_LABEL UserIam::Common::LABEL_USER_IDM_NAPI
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserIDM {
 namespace {
 const int PARAMTWO = 2;
@@ -404,5 +404,5 @@ void GetInfoCallbackIDM::OnCredentialInfo(const std::vector<UserIam::UserAuth::C
     uv_queue_work(loop, work, [] (uv_work_t *work) { }, OnGetInfoWork);
 }
 } // namespace UserIDM
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace ohos

@@ -57,7 +57,7 @@ ResultCode EnrollCommand::SendRequest()
 void EnrollCommand::OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo)
 {
     IAM_LOGI("%{public}s on result start", GetDescription());
-    UserIAM::UserAuth::ReportTemplateChange(GetAuthType(),
+    UserIam::UserAuth::ReportTemplateChange(GetAuthType(),
         TRACE_ADD_CREDENTIAL, "User Operation");
     std::vector<uint8_t> nonConstExtraInfo(extraInfo.begin(), extraInfo.end());
     auto authAttributes = Common::MakeShared<Attributes>();

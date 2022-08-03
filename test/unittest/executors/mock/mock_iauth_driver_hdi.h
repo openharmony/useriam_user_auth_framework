@@ -21,9 +21,9 @@
 #include "iauth_driver_hdi.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
-using namespace OHOS::UserIAM;
+using namespace OHOS::UserIam;
 using namespace OHOS::UserIam::UserAuth;
 
 class MockIAuthDriverHdi : public IAuthDriverHdi {
@@ -32,7 +32,7 @@ class MockIAuthDriverHdi : public IAuthDriverHdi {
     MOCK_METHOD1(GetExecutorList, void(std::vector<std::shared_ptr<IAuthExecutorHdi>> &executorList));
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 #endif // MOCK_IAUTH_DRIVER_HDI_H
