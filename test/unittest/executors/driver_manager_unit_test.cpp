@@ -27,7 +27,7 @@ using namespace testing;
 using namespace testing::ext;
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 using namespace OHOS::UserIam::UserAuth;
 class DriverManagerUnitTest : public testing::Test {
@@ -59,5 +59,5 @@ HWTEST_F(DriverManagerUnitTest, UserAuthDriverManager_GetExecutorListTest_001, T
     EXPECT_TRUE(0 == 0);
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

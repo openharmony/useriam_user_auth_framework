@@ -26,7 +26,7 @@
 #include "user_auth_client.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 constexpr size_t ARGS_MAX_COUNT = 10;
 constexpr size_t ARGS_ASYNC_COUNT = 1;
@@ -179,6 +179,6 @@ const std::map<int32_t, AuthenticationResult> result2ExecuteResult = {
     {UserIam::UserAuth::ResultCode::CHECK_PERMISSION_FAILED, AuthenticationResult::GENERAL_ERROR},
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 #endif /* OHOS_USERAUTH_COMMON_H */

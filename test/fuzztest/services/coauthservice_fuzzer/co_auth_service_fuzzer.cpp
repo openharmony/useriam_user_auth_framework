@@ -32,7 +32,7 @@ using namespace OHOS::UserIam::UserAuth;
 using ExecutorRegisterInfo = CoAuthInterface::ExecutorRegisterInfo;
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace CoAuth {
 namespace {
 class CoAuthServiceFuzzer : public ExecutorCallbackInterface {
@@ -145,12 +145,12 @@ void CoAuthFuzzTest(const uint8_t *data, size_t size)
 }
 } // namespace
 } // namespace CoAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int32_t LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
-    OHOS::UserIAM::CoAuth::CoAuthFuzzTest(data, size);
+    OHOS::UserIam::CoAuth::CoAuthFuzzTest(data, size);
     return 0;
 }

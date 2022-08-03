@@ -21,7 +21,7 @@
 #include "iasync_command.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class MockIAsyncCommand : public IAsyncCommand {
 public:
@@ -31,7 +31,7 @@ public:
     MOCK_METHOD0(StartProcess, ResultCode());
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 #endif // MOCK_IASYNC_COMMAND_H

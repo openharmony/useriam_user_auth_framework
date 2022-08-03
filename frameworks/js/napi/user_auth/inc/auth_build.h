@@ -24,7 +24,7 @@
 #include "result_convert.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class AuthBuild {
 public:
@@ -45,6 +45,6 @@ private:
     ResultConvert convert_;
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 #endif // FACERECOGNITION_AUTH_BUILD_H

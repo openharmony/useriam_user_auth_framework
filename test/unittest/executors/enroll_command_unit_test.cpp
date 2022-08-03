@@ -34,7 +34,7 @@ using namespace OHOS::UserIam::Common;
 using namespace OHOS::UserIam::UserAuth;
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class EnrollCommandUnitTest : public testing::Test {
 public:
@@ -273,5 +273,5 @@ HWTEST_F(EnrollCommandUnitTest, EnrollCommand_MixTest_003, TestSize.Level0)
     command->OnAcquireInfo(testAcquire, testExtraInfo);
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

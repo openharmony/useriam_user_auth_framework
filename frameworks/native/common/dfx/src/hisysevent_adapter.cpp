@@ -23,7 +23,7 @@
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 using HiSysEvent = OHOS::HiviewDFX::HiSysEvent;
 
@@ -137,5 +137,5 @@ void ReportPinAuth(const PinAuthInfo &info)
     }
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

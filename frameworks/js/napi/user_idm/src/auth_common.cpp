@@ -26,7 +26,7 @@
 #define LOG_LABEL UserIam::Common::LABEL_USER_IDM_NAPI
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserIDM {
 using namespace OHOS::UserIam::UserAuth;
 void AuthCommon::SaveCallback(napi_env env, size_t argc, napi_value* argv,
@@ -286,5 +286,5 @@ AsyncOpenSession* OCreateAsyncInfo(napi_env env)
     };
 }
 } // UserIDM
-} // USerIAM
+} // UserIam
 } // namespace OHOS

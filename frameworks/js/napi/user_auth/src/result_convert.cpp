@@ -24,7 +24,7 @@
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_NAPI
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 ResultConvert::ResultConvert(void)
 {
@@ -206,5 +206,5 @@ napi_value ResultConvert::GetNapiValue(napi_env env, const std::string keyChar, 
     return nullptr;
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

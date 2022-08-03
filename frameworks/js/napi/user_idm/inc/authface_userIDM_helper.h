@@ -20,7 +20,7 @@
 #include "napi/native_common.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserIDM {
 napi_value EnumExport(napi_env env, napi_value exports);
 napi_value AuthSubTypeConstructor(napi_env env);
@@ -37,6 +37,6 @@ napi_value DelUser(napi_env env, napi_callback_info info);
 napi_value DelCred(napi_env env, napi_callback_info info);
 napi_value GetAuthInfo(napi_env env, napi_callback_info info);
 } // namespace UserIDM
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 #endif // AUTHFACE_USERIDM_HELPER_H

@@ -32,7 +32,7 @@
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_NAPI
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 using namespace OHOS::UserIam::UserAuth;
 UserAuthImpl::UserAuthImpl()
@@ -719,5 +719,5 @@ extern "C" __attribute__((constructor)) void RegisterModule(void)
     napi_module_register(&module);
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
