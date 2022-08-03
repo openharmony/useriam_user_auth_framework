@@ -30,7 +30,7 @@
 #include "useridentity_manager.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserIDM {
 class IIdmCallback : public UserIam::UserAuth::UserIdmClientCallback {
 public:
@@ -54,6 +54,6 @@ public:
 
 napi_value GetAuthInfoRet(napi_env env, AsyncGetAuthInfo *asyncGetAuthInfo);
 } // namespace UserIDM
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace ohos
 #endif // CALLBACK_H

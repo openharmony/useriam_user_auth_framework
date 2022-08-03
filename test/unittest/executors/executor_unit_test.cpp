@@ -44,7 +44,7 @@ using namespace OHOS::UserIam::Common;
 using namespace OHOS::UserIam::UserAuth;
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class ExecutorUnitTest : public testing::Test {
 public:
@@ -1315,5 +1315,5 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_005,
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

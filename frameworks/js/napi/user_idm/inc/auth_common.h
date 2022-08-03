@@ -22,7 +22,7 @@
 #include "useridentity_manager.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserIDM {
 class AuthCommon {
 public:
@@ -37,6 +37,6 @@ public:
     static void SaveCallback(napi_env env, size_t argc, napi_value* argv, AsyncCallbackContext* asyncCallbackContext);
 };
 } // namespace UserIDM
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 #endif  // AUTH_COMMON_H

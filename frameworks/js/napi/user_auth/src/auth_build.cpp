@@ -27,7 +27,7 @@
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_NAPI
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 AuthBuild::AuthBuild() = default;
 AuthBuild::~AuthBuild() = default;
@@ -134,5 +134,5 @@ napi_value AuthBuild::Uint64ToUint8Array(napi_env env, uint64_t value)
     return convert_.Uint64ToUint8Napi(env, value);
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

@@ -214,7 +214,7 @@ ResultCode FrameworkExecutorCallback::ProcessDeleteTemplateCommand(const Attribu
     IamHitraceHelper traceHelper("hdi Delete");
     ResultCode ret = hdi->Delete(templateIdList);
     if (ret == ResultCode::SUCCESS) {
-        UserIAM::UserAuth::ReportTemplateChange(executor->GetAuthType(), TRACE_DELETE_CREDENTIAL, "User Operation");
+        UserIam::UserAuth::ReportTemplateChange(executor->GetAuthType(), TRACE_DELETE_CREDENTIAL, "User Operation");
     }
     return ret;
 }

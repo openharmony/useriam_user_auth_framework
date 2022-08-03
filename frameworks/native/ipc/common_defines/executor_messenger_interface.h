@@ -35,7 +35,7 @@ public:
         const std::vector<uint8_t> &msg) = 0;
     virtual int32_t Finish(uint64_t scheduleId, ExecutorRole srcRole, ResultCode resultCode,
         const std::shared_ptr<Attributes> &finalResult) = 0;
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIAM.AuthResPool.IExecutor_Messenger");
+    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIam.AuthResPool.IExecutor_Messenger");
 };
 } // namespace UserAuth
 } // namespace UserIam

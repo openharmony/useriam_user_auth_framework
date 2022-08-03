@@ -20,7 +20,7 @@
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_NAPI
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 ExecuteInfo::ExecuteInfo(napi_env napiEnv) : env(napiEnv)
 {
@@ -77,5 +77,5 @@ AuthUserInfo::~AuthUserInfo()
     }
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

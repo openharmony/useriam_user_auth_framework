@@ -21,10 +21,9 @@
 #include "co_auth_client_defines.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
-using namespace OHOS::UserIAM;
-using namespace OHOS::UserIAM::UserAuth;
+using namespace OHOS::UserIam;
 using namespace OHOS::UserIam::UserAuth;
 
 class MockIExecutorMessenger : public ExecutorMessenger {
@@ -37,7 +36,7 @@ public:
         int32_t(uint64_t scheduleId, ExecutorRole srcRole, int32_t resultCode, const Attributes &finalResult));
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 #endif // MOCK_IEXECUTOR_MESSAGER_H

@@ -27,7 +27,7 @@
 #include "user_idm_client.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserIDM {
 constexpr size_t ZERO_PARAMETER = 0;
 constexpr size_t ONE_PARAMETER = 1;
@@ -135,7 +135,7 @@ AsyncGetAuthInfo *GCreateAsyncInfo(napi_env env);
 AsyncOpenSession *OCreateAsyncInfo(napi_env env);
 napi_value OpenSessionRet(napi_env env, AsyncOpenSession *asyncOpenSession);
 } // namespace UserIDM
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 #endif // USERIDENTITY_MANAGER_H

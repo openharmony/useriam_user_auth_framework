@@ -21,7 +21,7 @@
 #include "auth_common.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 typedef struct AsyncHolder {
     AsyncHolder() : data(nullptr), asyncWork(nullptr) {};
@@ -72,6 +72,6 @@ private:
     static void GetPropertyAsyncExecuteDone(napi_env env, napi_status status, void *data);
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 #endif // FACERECOGNITION_USER_AUTH_H

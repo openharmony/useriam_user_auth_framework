@@ -29,7 +29,7 @@ namespace UserIam {
 namespace UserAuth {
 class UserAuthCallbackInterface : public IamCallbackInterface {
 public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIAM.UserAuth.UserAuthCallback");
+    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIam.UserAuth.UserAuthCallback");
 };
 
 class GetExecutorPropertyCallbackInterface : public IRemoteBroker {
@@ -38,7 +38,7 @@ public:
      * returns executor property information, such as remaining authentication times and remaining freezing time.
      */
     virtual void OnGetExecutorPropertyResult(int32_t result, const Attributes &attributes) = 0;
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIAM.UserAuth.GetExecutorPropertyCallback");
+    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIam.UserAuth.GetExecutorPropertyCallback");
 };
 
 class SetExecutorPropertyCallbackInterface : public IRemoteBroker {
@@ -47,7 +47,7 @@ public:
      * returns a number value indicating whether the property setting was successful.
      */
     virtual void OnSetExecutorPropertyResult(int32_t result) = 0;
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIAM.UserAuth.SetExecutorPropertyCallback");
+    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIam.UserAuth.SetExecutorPropertyCallback");
 };
 } // namespace UserAuth
 } // namespace UserIam
