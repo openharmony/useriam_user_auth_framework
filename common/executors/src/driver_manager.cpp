@@ -109,7 +109,7 @@ void DriverManager::SubscribeHdiDriverStatus()
                 driver->OnHdiConnect();
                 break;
             case SERVIE_STATUS_STOP:
-                UserIAM::UserAuth::ReportSystemFault(Common::GetNowTimeString(), status.serviceName);
+                UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), status.serviceName);
                 IAM_LOGI("service %{public}s status change to stop", status.serviceName.c_str());
                 driver->OnHdiDisconnect();
                 break;

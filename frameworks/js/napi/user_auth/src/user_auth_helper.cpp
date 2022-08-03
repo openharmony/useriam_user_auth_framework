@@ -24,7 +24,7 @@
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_NAPI
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 using namespace OHOS::UserIam::UserAuth;
 napi_value UserAuthServiceConstructor(napi_env env, napi_callback_info info)
@@ -570,5 +570,5 @@ napi_value GetCtorForAPI6(napi_env env)
     return cons;
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS

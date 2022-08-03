@@ -29,7 +29,7 @@
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_EXECUTOR
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 namespace {
 using namespace std;
@@ -255,12 +255,12 @@ void UserAuthDriverManagerFuzzTest(const uint8_t *data, size_t size)
 }
 } // namespace
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
-    OHOS::UserIAM::UserAuth::UserAuthDriverManagerFuzzTest(data, size);
+    OHOS::UserIam::UserAuth::UserAuthDriverManagerFuzzTest(data, size);
     return 0;
 }

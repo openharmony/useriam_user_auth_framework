@@ -28,7 +28,7 @@
 #include "user_auth_client.h"
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class ResultConvert {
 public:
@@ -49,6 +49,6 @@ private:
     napi_value GetNapiValue(napi_env env, const std::string keyChar, napi_value object);
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 #endif // RESULT_CONVERT_H

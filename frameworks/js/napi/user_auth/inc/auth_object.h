@@ -19,7 +19,7 @@
 #include <vector>
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 class Napi_ExecutorProperty {
 public:
@@ -49,6 +49,6 @@ public:
     uint32_t freezingTime_;
 };
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
 #endif // AUTH_OBJECT_H

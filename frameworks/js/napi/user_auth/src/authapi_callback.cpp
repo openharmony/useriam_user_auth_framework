@@ -25,7 +25,7 @@
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_NAPI
 
 namespace OHOS {
-namespace UserIAM {
+namespace UserIam {
 namespace UserAuth {
 using namespace OHOS::UserIam::UserAuth;
 
@@ -611,5 +611,5 @@ void SetPropApiCallback::OnResult(int32_t result, const Attributes &extraInfo)
     uv_queue_work(loop, work, [] (uv_work_t *work) {}, SetExecutorPropertyCallback);
 }
 } // namespace UserAuth
-} // namespace UserIAM
+} // namespace UserIam
 } // namespace OHOS
