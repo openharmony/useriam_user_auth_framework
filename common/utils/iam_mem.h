@@ -30,6 +30,7 @@ inline void Pack(std::vector<uint8_t> &dst, const T &data)
 }
 
 int32_t UnpackUint64(const std::vector<uint8_t> &src, size_t index, uint64_t &data);
+int32_t UnpackInt32(const std::vector<uint8_t> &src, size_t index, int32_t &data);
 
 inline uint32_t CombineUint16ToUint32(uint16_t upper, uint16_t lower)
 {
