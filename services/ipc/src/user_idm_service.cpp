@@ -304,7 +304,7 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInt
         return INVALID_PARAMETERS;
     }
     Attributes extraInfo;
-    if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
+    if (!IpcCommon::CheckPermission(*this, ENFORCE_USER_IDM)) {
         IAM_LOGE("failed to check permission");
         callback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
         return CHECK_PERMISSION_FAILED;
