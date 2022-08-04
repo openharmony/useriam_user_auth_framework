@@ -37,11 +37,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-namespace {
-    const std::string MANAGE_USER_IDM_PERMISSION = "ohos.permission.MANAGE_USER_IDM";
-    const std::string USE_USER_IDM_PERMISSION = "ohos.permission.USE_USER_IDM";
-} // namespace
-
 REGISTER_SYSTEM_ABILITY_BY_ID(UserIdmService, SUBSYS_USERIAM_SYS_ABILITY_USERIDM, true);
 
 UserIdmService::UserIdmService(int32_t systemAbilityId, bool runOnCreate) : SystemAbility(systemAbilityId, runOnCreate)
@@ -159,6 +154,11 @@ int32_t UserIdmService::GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserIn
         IAM_LOGE("failed to get userId");
         callback->OnSecureUserInfo(userInfos);
         return INVALID_PARAMETERS;
+    }
+    if (!IpcCommon::CheckPermission(*this, USE_USER_IDM_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        callback->OnSecureUserInfo(userInfos);
+        return CHECK_PERMISSION_FAILED;
     }
 
     userInfos = UserIdmDatabase::Instance().GetSecUserInfo(userId);
@@ -303,11 +303,16 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInt
         IAM_LOGE("callback is nullptr");
         return INVALID_PARAMETERS;
     }
+    Attributes extraInfo;
+    if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        callback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
+        return CHECK_PERMISSION_FAILED;
+    }
 
     std::lock_guard<std::mutex> lock(mutex_);
     CancelCurrentEnrollIfExist();
 
-    Attributes extraInfo;
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ENFORCE_DELETE_USER);
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");

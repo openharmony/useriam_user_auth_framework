@@ -35,8 +35,6 @@ namespace {
     const int32_t INVALID_VERSION = -1;
     const int32_t CURRENT_VERSION = 0;
     const uint32_t AUTH_TRUST_LEVEL_SYS = 1;
-    const std::string ACCESS_USER_AUTH_INTERNAL_PERMISSION = "ohos.permission.ACCESS_USER_AUTH_INTERNAL";
-    const std::string ACCESS_BIOMETRIC_PERMISSION = "ohos.permission.ACCESS_BIOMETRIC";
 } // namespace
 
 REGISTER_SYSTEM_ABILITY_BY_ID(UserAuthService, SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true);
@@ -191,6 +189,11 @@ uint64_t UserAuthService::AuthUser(std::optional<int32_t> userId, const std::vec
 
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
+        return BAD_CONTEXT_ID;
+    }
+    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+        IAM_LOGE("permission check failed");
+        callback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
         return BAD_CONTEXT_ID;
     }
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER);
