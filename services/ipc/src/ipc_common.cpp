@@ -99,7 +99,8 @@ bool IpcCommon::CheckPermission(IPCObjectStub &stub, Permission permission)
 {
     switch (permission) {
         case MANAGE_USER_IDM_PERMISSION:
-            return CheckManagerUserIdmPermission(stub, PermissionString::MANAGE_USER_IDM_PERMISSION);
+            return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::MANAGE_USER_IDM_PERMISSION) && 
+                CheckHapCallingBundleNameWhiteList(stub, SETTINGS_BUNDLE_NAME);
         case USE_USER_IDM_PERMISSION:
             return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::USE_USER_IDM_PERMISSION);
         case ACCESS_USER_AUTH_INTERNAL_PERMISSION:
@@ -109,7 +110,8 @@ bool IpcCommon::CheckPermission(IPCObjectStub &stub, Permission permission)
         case ACCESS_AUTH_RESPOOL:
             return CheckDirectCaller(stub, PermissionString::ACCESS_AUTH_RESPOOL);
         case ENFORCE_USER_IDM:
-            return CheckEnforceUserIdmPermission(stub, PermissionString::ENFORCE_USER_IDM);
+            return CheckDirectCaller(stub, PermissionString::ENFORCE_USER_IDM) &&
+                CheckNativeCallingProcessWhiteList(stub, ACCOUNT_PROCESS_NAME);
         default:
             IAM_LOGE("failed to check permission");
             return false;
@@ -159,27 +161,6 @@ bool IpcCommon::CheckHapCallingBundleNameWhiteList(IPCObjectStub &stub, const st
         return false;
     }
     return hapTokenInfo.bundleName == whiteList;
-}
-
-bool IpcCommon::CheckManagerUserIdmPermission(IPCObjectStub &stub, const std::string &permission)
-{
-    uint32_t firstTokenId = stub.GetFirstTokenID();
-    uint32_t callingTokenId = stub.GetCallingTokenID();
-    using namespace Security::AccessToken;
-    if ((firstTokenId != 0 && AccessTokenKit::VerifyAccessToken(firstTokenId, permission) != RET_SUCCESS) ||
-        AccessTokenKit::VerifyAccessToken(callingTokenId, permission) != RET_SUCCESS) {
-        IAM_LOGE("failed to check permission");
-        return false;
-    }
-    return CheckHapCallingBundleNameWhiteList(stub, SETTINGS_BUNDLE_NAME);
-}
-
-bool IpcCommon::CheckEnforceUserIdmPermission(IPCObjectStub &stub, const std::string &permission)
-{
-    uint32_t callingTokenId = stub.GetCallingTokenID();
-    using namespace Security::AccessToken;
-    return AccessTokenKit::VerifyAccessToken(callingTokenId, permission) != RET_SUCCESS && 
-        CheckNativeCallingProcessWhiteList(stub, ACCOUNT_PROCESS_NAME);
 }
 
 bool IpcCommon::CheckDirectCallerAndFirstCallerIfSet(IPCObjectStub &stub, const std::string &permission)
