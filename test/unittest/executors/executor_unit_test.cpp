@@ -850,7 +850,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnGetPropertyTest_001, TestSize.Leve
     static const uint64_t testTemplateId = 123;
     static const int32_t testFreezingTime = 456;
     static const int32_t testRemainTimes = 789;
-    static const uint64_t testAuthSubType = 101112;
+    static const int32_t testAuthSubType = 101112;
 
     shared_ptr<Executor> executor;
     shared_ptr<ExecutorRegisterCallback> executorCallback;
@@ -865,7 +865,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnGetPropertyTest_001, TestSize.Leve
             EXPECT_EQ(templateId, testTemplateId);
             info.freezingTime = testFreezingTime;
             info.remainTimes = testRemainTimes;
-            Common::Pack<uint64_t>(info.extraInfo, testAuthSubType);
+            Common::Pack<int32_t>(info.extraInfo, testAuthSubType);
             return ResultCode::SUCCESS;
         });
 

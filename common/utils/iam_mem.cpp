@@ -36,6 +36,17 @@ int32_t UnpackUint64(const std::vector<uint8_t> &src, size_t index, uint64_t &da
     }
     return 0;
 }
+
+int32_t UnpackInt32(const std::vector<uint8_t> &src, size_t index, int32_t &data)
+{
+    if ((src.size() < index) || (src.size() - index < sizeof(int32_t))) {
+        return 1;
+    }
+    if (memcpy_s(static_cast<void *>(&data), sizeof(int32_t), &src[index], sizeof(int32_t)) != 0) {
+        return 1;
+    }
+    return 0;
+}
 } // namespace Common
 } // namespace UserIam
 } // namespace OHOS
