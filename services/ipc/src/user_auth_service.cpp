@@ -191,11 +191,6 @@ uint64_t UserAuthService::AuthUser(std::optional<int32_t> userId, const std::vec
         IAM_LOGE("callback is nullptr");
         return BAD_CONTEXT_ID;
     }
-    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
-        IAM_LOGE("permission check failed");
-        callback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
-        return BAD_CONTEXT_ID;
-    }
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER);
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
