@@ -99,8 +99,7 @@ bool IpcCommon::CheckPermission(IPCObjectStub &stub, Permission permission)
 {
     switch (permission) {
         case MANAGE_USER_IDM_PERMISSION:
-            return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::MANAGE_USER_IDM_PERMISSION) &&
-                CheckHapCallingBundleNameWhiteList(stub, SETTINGS_BUNDLE_NAME);
+            return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::MANAGE_USER_IDM_PERMISSION);
         case USE_USER_IDM_PERMISSION:
             return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::USE_USER_IDM_PERMISSION);
         case ACCESS_USER_AUTH_INTERNAL_PERMISSION:
@@ -143,24 +142,6 @@ bool IpcCommon::CheckNativeCallingProcessWhiteList(IPCObjectStub &stub, const st
         return false;
     }
     return nativeTokenInfo.processName == whiteList;
-}
-
-bool IpcCommon::CheckHapCallingBundleNameWhiteList(IPCObjectStub &stub, const std::string &whiteList)
-{
-    uint32_t tokenId = stub.GetCallingTokenID();
-    using namespace Security::AccessToken;
-    ATokenTypeEnum callingType = AccessTokenKit::GetTokenTypeFlag(tokenId);
-    if (callingType != TOKEN_HAP) {
-        IAM_LOGE("failed to get calling type");
-        return false;
-    }
-    HapTokenInfo hapTokenInfo;
-    int result = AccessTokenKit::GetHapTokenInfo(tokenId, hapTokenInfo);
-    if (result != SUCCESS) {
-        IAM_LOGE("failed to get hap token info, result = %{public}d", result);
-        return false;
-    }
-    return hapTokenInfo.bundleName == whiteList;
 }
 
 bool IpcCommon::CheckDirectCallerAndFirstCallerIfSet(IPCObjectStub &stub, const std::string &permission)

@@ -65,7 +65,6 @@ public:
 
 private:
     static bool CheckNativeCallingProcessWhiteList(IPCObjectStub &stub, const std::string &whiteList);
-    static bool CheckHapCallingBundleNameWhiteList(IPCObjectStub &stub, const std::string &whiteList);
     static bool CheckDirectCallerAndFirstCallerIfSet(IPCObjectStub &stub, const std::string &permission);
     static bool CheckDirectCaller(IPCObjectStub &stub, const std::string &permission);
 };
