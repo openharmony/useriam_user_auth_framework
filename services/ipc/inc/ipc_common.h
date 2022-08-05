@@ -26,13 +26,22 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+enum Permission {
+    MANAGE_USER_IDM_PERMISSION,
+    USE_USER_IDM_PERMISSION,
+    ACCESS_USER_AUTH_INTERNAL_PERMISSION,
+    ACCESS_BIOMETRIC_PERMISSION,
+    ACCESS_AUTH_RESPOOL,
+    ENFORCE_USER_IDM,
+};
+
 class IpcCommon final : public NoCopyable {
 public:
     using Recipient = std::function<void()>;
     static int32_t GetCallingUserId(IPCObjectStub &stub, std::optional<int32_t> &userId);
     static int32_t GetCallingUserId(IPCObjectStub &stub, int32_t &userId);
     static int32_t GetActiveUserId(std::optional<int32_t> &userId);
-    static bool CheckPermission(IPCObjectStub &stub, const std::string &permission);
+    static bool CheckPermission(IPCObjectStub &stub, Permission permission);
     static uint32_t GetAccessTokenId(IPCObjectStub &stub);
     class PeerDeathRecipient final : public IPCObjectProxy::DeathRecipient {
     public:
@@ -53,6 +62,11 @@ public:
     private:
         Recipient recipient_;
     };
+
+private:
+    static bool CheckNativeCallingProcessWhiteList(IPCObjectStub &stub, const std::string &whiteList);
+    static bool CheckDirectCallerAndFirstCallerIfSet(IPCObjectStub &stub, const std::string &permission);
+    static bool CheckDirectCaller(IPCObjectStub &stub, const std::string &permission);
 };
 } // namespace UserAuth
 } // namespace UserIam
