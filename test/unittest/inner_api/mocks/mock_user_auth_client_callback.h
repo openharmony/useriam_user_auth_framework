@@ -20,7 +20,7 @@
 
 #include <gmock/gmock.h>
 
-#include "user_idm_client_callback.h"
+#include "user_auth_client_callback.h"
 
 namespace OHOS {
 namespace UserIam {
