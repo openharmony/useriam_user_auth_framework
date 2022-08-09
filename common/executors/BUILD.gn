@@ -64,7 +64,7 @@ ohos_shared_library("userauth_executors") {
     "hiviewdfx_hilog_native:libhilog",
     "init:libbeget_proxy",
     "ipc:ipc_single",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 
   part_name = "user_auth_framework"

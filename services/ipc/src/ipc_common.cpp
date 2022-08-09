@@ -26,6 +26,20 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+namespace PermissionString {
+    const std::string MANAGE_USER_IDM_PERMISSION = "ohos.permission.MANAGE_USER_IDM";
+    const std::string USE_USER_IDM_PERMISSION = "ohos.permission.USE_USER_IDM";
+    const std::string ACCESS_USER_AUTH_INTERNAL_PERMISSION = "ohos.permission.ACCESS_USER_AUTH_INTERNAL";
+    const std::string ACCESS_BIOMETRIC_PERMISSION = "ohos.permission.ACCESS_BIOMETRIC";
+    const std::string ACCESS_AUTH_RESPOOL = "ohos.permission.ACCESS_AUTH_RESPOOL";
+    const std::string ENFORCE_USER_IDM = "ohos.permission.ENFORCE_USER_IDM";
+}
+
+namespace {
+    const std::string ACCOUNT_PROCESS_NAME = "accountmgr";
+    const std::string SETTINGS_BUNDLE_NAME = "com.ohos.settings";
+}
+
 int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, std::optional<int32_t> &userId)
 {
     if (userId.has_value() && userId.value() != 0) {
@@ -81,11 +95,26 @@ int32_t IpcCommon::GetActiveUserId(std::optional<int32_t> &userId)
     return SUCCESS;
 }
 
-bool IpcCommon::CheckPermission(IPCObjectStub &stub, const std::string &permission)
+bool IpcCommon::CheckPermission(IPCObjectStub &stub, Permission permission)
 {
-    uint32_t tokenId = GetAccessTokenId(stub);
-    using namespace Security::AccessToken;
-    return AccessTokenKit::VerifyAccessToken(tokenId, permission) == RET_SUCCESS;
+    switch (permission) {
+        case MANAGE_USER_IDM_PERMISSION:
+            return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::MANAGE_USER_IDM_PERMISSION);
+        case USE_USER_IDM_PERMISSION:
+            return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::USE_USER_IDM_PERMISSION);
+        case ACCESS_USER_AUTH_INTERNAL_PERMISSION:
+            return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+        case ACCESS_BIOMETRIC_PERMISSION:
+            return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::ACCESS_BIOMETRIC_PERMISSION);
+        case ACCESS_AUTH_RESPOOL:
+            return CheckDirectCaller(stub, PermissionString::ACCESS_AUTH_RESPOOL);
+        case ENFORCE_USER_IDM:
+            return CheckDirectCaller(stub, PermissionString::ENFORCE_USER_IDM) &&
+                CheckNativeCallingProcessWhiteList(stub, ACCOUNT_PROCESS_NAME);
+        default:
+            IAM_LOGE("failed to check permission");
+            return false;
+    }
 }
 
 uint32_t IpcCommon::GetAccessTokenId(IPCObjectStub &stub)
@@ -95,6 +124,48 @@ uint32_t IpcCommon::GetAccessTokenId(IPCObjectStub &stub)
         tokenId = stub.GetCallingTokenID();
     }
     return tokenId;
+}
+
+bool IpcCommon::CheckNativeCallingProcessWhiteList(IPCObjectStub &stub, const std::string &whiteList)
+{
+    uint32_t tokenId = stub.GetCallingTokenID();
+    using namespace Security::AccessToken;
+    ATokenTypeEnum callingType = AccessTokenKit::GetTokenTypeFlag(tokenId);
+    if (callingType != TOKEN_NATIVE) {
+        IAM_LOGE("failed to get calling type");
+        return false;
+    }
+    NativeTokenInfo nativeTokenInfo;
+    int result = AccessTokenKit::GetNativeTokenInfo(tokenId, nativeTokenInfo);
+    if (result != SUCCESS) {
+        IAM_LOGE("failed to get native token info, result = %{public}d", result);
+        return false;
+    }
+    return nativeTokenInfo.processName == whiteList;
+}
+
+bool IpcCommon::CheckDirectCallerAndFirstCallerIfSet(IPCObjectStub &stub, const std::string &permission)
+{
+    uint32_t firstTokenId = stub.GetFirstTokenID();
+    uint32_t callingTokenId = stub.GetCallingTokenID();
+    using namespace Security::AccessToken;
+    if ((firstTokenId != 0 && AccessTokenKit::VerifyAccessToken(firstTokenId, permission) != RET_SUCCESS) ||
+        AccessTokenKit::VerifyAccessToken(callingTokenId, permission) != RET_SUCCESS) {
+        IAM_LOGE("failed to check permission");
+        return false;
+    }
+    return true;
+}
+
+bool IpcCommon::CheckDirectCaller(IPCObjectStub &stub, const std::string &permission)
+{
+    uint32_t callingTokenId = stub.GetCallingTokenID();
+    using namespace Security::AccessToken;
+    if (AccessTokenKit::VerifyAccessToken(callingTokenId, permission) != RET_SUCCESS) {
+        IAM_LOGE("failed to check permission");
+        return false;
+    }
+    return true;
 }
 } // namespace UserAuth
 } // namespace UserIam

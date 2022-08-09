@@ -35,8 +35,6 @@ namespace {
     const int32_t INVALID_VERSION = -1;
     const int32_t CURRENT_VERSION = 0;
     const uint32_t AUTH_TRUST_LEVEL_SYS = 1;
-    const std::string ACCESS_USER_AUTH_INTERNAL_PERMISSION = "ohos.permission.ACCESS_USER_AUTH_INTERNAL";
-    const std::string ACCESS_BIOMETRIC_PERMISSION = "ohos.permission.ACCESS_BIOMETRIC";
 } // namespace
 
 REGISTER_SYSTEM_ABILITY_BY_ID(UserAuthService, SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true);

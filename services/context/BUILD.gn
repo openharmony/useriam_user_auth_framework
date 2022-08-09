@@ -53,7 +53,7 @@ ohos_source_set("userauth_service_context") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 
   public_configs = [ ":userauth_service_context_config" ]

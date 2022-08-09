@@ -73,6 +73,10 @@ uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<
         IAM_LOGE("executor callback is nullptr");
         return INVALID_EXECUTOR_INDEX;
     }
+    if (!IpcCommon::CheckPermission(*this, ACCESS_AUTH_RESPOOL)) {
+        IAM_LOGE("failed to check permission");
+        return INVALID_EXECUTOR_INDEX;
+    }
     std::vector<uint64_t> templateIdList;
     std::vector<uint8_t> fwkPublicKey;
     auto executorCallback = Common::SptrToStdSharedPtr<ExecutorCallbackInterface>(callback);
