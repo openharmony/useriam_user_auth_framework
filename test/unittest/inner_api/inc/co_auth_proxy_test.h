@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,37 +13,25 @@
  * limitations under the License.
  */
 
-#include "proxy_test.h"
+#ifndef CO_AUTH_PROXY_TEST_H
+#define CO_AUTH_PROXY_TEST_H
 
-#include "mock_remote_object.h"
+#include <gtest/gtest.h>
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-using namespace testing;
-using namespace testing::ext;
+class CoAuthProxyTest : public testing::Test {
+public:
+    static void SetUpTestCase();
 
-void ProxyTest::SetUpTestCase()
-{
-}
+    static void TearDownTestCase();
 
-void ProxyTest::TearDownTestCase()
-{
-}
+    void SetUp() override;
 
-void ProxyTest::SetUp()
-{
-}
-
-void ProxyTest::TearDown()
-{
-}
-
-HWTEST_F(ProxyTest, ProxyGetAvailableStatus, TestSize.Level0)
-{
-    sptr<IRemoteObject> obj = new MockRemoteObject();
-    EXPECT_NE(obj, nullptr);
-}
+    void TearDown() override;
+};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
+#endif // CO_AUTH_PROXY_TEST_H

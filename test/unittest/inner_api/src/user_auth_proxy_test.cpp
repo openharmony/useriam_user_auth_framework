@@ -48,7 +48,7 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyGetAvailableStatus, TestSize.Level0)
 {
     static const AuthType testAuthType = FACE;
     static const AuthTrustLevel testAuthTrustLevel = ATL3;
-    sptr<IRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserAuthProxy>(obj);
     EXPECT_NE(proxy, nullptr);
@@ -61,10 +61,11 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyGetAvailableStatus, TestSize.Level0)
             EXPECT_EQ(testAuthTrustLevel, authTrustLevel);
             return SUCCESS;
         });
-    ON_CALL(*obj, SendRequest(_, _, _, _))
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
+    ON_CALL(*obj, SendRequest)
         .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
             service->OnRemoteRequest(code, data, reply, option);
-            return true;
+            return SUCCESS;
         });
     proxy->GetAvailableStatus(testAuthType, testAuthTrustLevel);
 }
@@ -90,23 +91,24 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyGetProperty, TestSize.Level0)
         .Times(Exactly(1))
         .WillOnce([&testCallback](std::optional<int32_t> userId, AuthType authType,
             const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallbackInterface> &callback) {
+            EXPECT_TRUE(userId.has_value());
             EXPECT_EQ(userId.value(), testUserId.value());
             EXPECT_EQ(authType, testAuthType);
             EXPECT_THAT(keys, ElementsAre(Attributes::ATTR_RESULT_CODE, Attributes::ATTR_SIGNATURE,
                 Attributes::ATTR_SCHEDULE_MODE));
             EXPECT_EQ(callback, testCallback);
         });
-    ON_CALL(*obj, SendRequest(_, _, _, _))
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
+    ON_CALL(*obj, SendRequest)
         .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
             service->OnRemoteRequest(code, data, reply, option);
-            return true;
+            return SUCCESS;
         });
     proxy->GetProperty(testUserId, testAuthType, testKeys, testCallback);
 }
 
 HWTEST_F(UserAuthProxyTest, UserAuthProxySetProperty, TestSize.Level0)
 {
-    static const std::optional<int32_t> testUserId = 200;
     static const AuthType testAuthType = FACE;
 
     Attributes testAttr;
@@ -124,21 +126,22 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxySetProperty, TestSize.Level0)
     EXPECT_NE(service, nullptr);
     EXPECT_CALL(*service, SetProperty(_, _, _, _))
         .Times(Exactly(1))
-        .WillOnce([&testCallback, &testAttr](std::optional<int32_t> userId, AuthType authType,
+        .WillOnce([&testCallback](std::optional<int32_t> userId, AuthType authType,
             const Attributes &attributes, sptr<SetExecutorPropertyCallbackInterface> &callback) {
-            EXPECT_EQ(userId.value(), testUserId.value());
+            EXPECT_EQ(userId.has_value(), false);
             EXPECT_EQ(authType, testAuthType);
             int32_t resultCode;
             EXPECT_EQ(attributes.GetInt32Value(Attributes::ATTR_RESULT_CODE, resultCode), true);
             EXPECT_EQ(resultCode, 1);
             EXPECT_EQ(callback, testCallback);
         });
-    ON_CALL(*obj, SendRequest(_, _, _, _))
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
+    ON_CALL(*obj, SendRequest)
         .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
             service->OnRemoteRequest(code, data, reply, option);
-            return true;
+            return SUCCESS;
         });
-    proxy->SetProperty(testUserId, testAuthType, testAttr, testCallback);
+    proxy->SetProperty(std::nullopt, testAuthType, testAttr, testCallback);
 }
 
 HWTEST_F(UserAuthProxyTest, UserAuthProxyAuthUser, TestSize.Level0)
@@ -162,6 +165,7 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyAuthUser, TestSize.Level0)
         .Times(Exactly(1))
         .WillOnce([&testCallback](std::optional<int32_t> userId, const std::vector<uint8_t> &challenge,
             AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) {
+            EXPECT_TRUE(userId.has_value());
             EXPECT_EQ(userId.value(), testUserId);
             EXPECT_THAT(challenge, ElementsAre(1, 2, 3, 4));
             EXPECT_EQ(authType, testAuthType);
@@ -169,10 +173,11 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyAuthUser, TestSize.Level0)
             EXPECT_EQ(callback, testCallback);
             return 0;
         });
-    ON_CALL(*obj, SendRequest(_, _, _, _))
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
+    ON_CALL(*obj, SendRequest)
         .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
             service->OnRemoteRequest(code, data, reply, option);
-            return true;
+            return SUCCESS;
         });
     proxy->AuthUser(testUserId, testChallenge, testAuthType, testAtl, testCallback);
 }
@@ -193,10 +198,11 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyCancelAuthOrIdentify, TestSize.Level0)
             EXPECT_EQ(contextId, testContextId);
             return SUCCESS;
         });
-    ON_CALL(*obj, SendRequest(_, _, _, _))
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
+    ON_CALL(*obj, SendRequest)
         .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
             service->OnRemoteRequest(code, data, reply, option);
-            return true;
+            return SUCCESS;
         });
     proxy->CancelAuthOrIdentify(testContextId);
 }
@@ -225,10 +231,11 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyIdentify, TestSize.Level0)
             EXPECT_EQ(callback, testCallback);
             return 0;
         });
-    ON_CALL(*obj, SendRequest(_, _, _, _))
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
+    ON_CALL(*obj, SendRequest)
         .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
             service->OnRemoteRequest(code, data, reply, option);
-            return true;
+            return SUCCESS;
         });
     proxy->Identify(testChallenge, testAuthType, testCallback);
 }

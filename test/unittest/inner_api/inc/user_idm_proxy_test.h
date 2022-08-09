@@ -13,28 +13,25 @@
  * limitations under the License.
  */
 
-#ifndef MOCK_REMOTE_OBJECT_H
-#define MOCK_REMOTE_OBJECT_H
+#ifndef USER_IDM_PROXY_TEST_H
+#define USER_IDM_PROXY_TEST_H
 
-#include <gmock/gmock.h>
-
-#include "iremote_object.h"
+#include <gtest/gtest.h>
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockRemoteObject final : public IRemoteObject {
+class UserIdmProxyTest : public testing::Test {
 public:
-    MockRemoteObject() : IRemoteObject(u"")
-    {
-    }
-    MOCK_METHOD0(GetObjectRefCount, int32_t());
-    MOCK_METHOD4(SendRequest, int(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
-    MOCK_METHOD1(AddDeathRecipient, bool(const sptr<DeathRecipient> &recipient));
-    MOCK_METHOD1(RemoveDeathRecipient, bool(const sptr<DeathRecipient> &recipient));
-    MOCK_METHOD2(Dump, int(int fd, const std::vector<std::u16string> &args));
+    static void SetUpTestCase();
+
+    static void TearDownTestCase();
+
+    void SetUp() override;
+
+    void TearDown() override;
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // MOCK_REMOTE_OBJECT_H
+#endif // USER_IDM_PROXY_TEST_H

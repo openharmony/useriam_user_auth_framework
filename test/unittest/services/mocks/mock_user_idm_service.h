@@ -18,7 +18,7 @@
 
 #include <gmock/gmock.h>
 
-#include "user_idm_service.h"
+#include "user_idm_stub.h"
 
 namespace OHOS {
 namespace UserIam {
