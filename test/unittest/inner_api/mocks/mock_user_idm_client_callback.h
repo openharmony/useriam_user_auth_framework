@@ -16,8 +16,6 @@
 #ifndef MOCK_USER_IDM_CLIENT_CALLBACK_H
 #define MOCK_USER_IDM_CLIENT_CALLBACK_H
 
-#include <memory>
-
 #include <gmock/gmock.h>
 
 #include "user_idm_client_callback.h"

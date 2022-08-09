@@ -13,25 +13,22 @@
  * limitations under the License.
  */
 
-#ifndef PROXY_TEST_H
-#define PROXY_TEST_H
+#ifndef IAM_MOCK_CO_AUTH_SERVICE_H
+#define IAM_MOCK_CO_AUTH_SERVICE_H
 
-#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+
+#include "co_auth_stub.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class ProxyTest : public testing::Test {
+class MockCoAuthService final : public CoAuthStub {
 public:
-    static void SetUpTestCase();
-
-    static void TearDownTestCase();
-
-    void SetUp() override;
-
-    void TearDown() override;
+    MOCK_METHOD2(ExecutorRegister, uint64_t(const ExecutorRegisterInfo &info,
+        sptr<ExecutorCallbackInterface> &callback));
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // PROXY_TEST_H
+#endif // IAM_MOCK_CO_AUTH_SERVICE_H
