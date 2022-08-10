@@ -22,7 +22,6 @@
 #include "iam_para2str.h"
 
 #include "auth_common.h"
-#include "auth_object.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_NAPI
 
@@ -31,33 +30,6 @@ namespace UserIam {
 namespace UserAuth {
 AuthBuild::AuthBuild() = default;
 AuthBuild::~AuthBuild() = default;
-
-Napi_SetPropertyRequest AuthBuild::SetPropertyRequestBuild(napi_env env, napi_value object)
-{
-    Napi_SetPropertyRequest request;
-    if (object == nullptr) {
-        IAM_LOGE("object is null");
-        return request;
-    }
-    request.authType_ = convert_.GetInt32ValueByKey(env, object, "authType");
-    request.key_ = static_cast<uint32_t>(convert_.GetInt32ValueByKey(env, object, "key"));
-    request.setInfo_ = convert_.NapiGetValueUint8Array(env, object, "setInfo");
-    IAM_LOGI("authType = %{public}d", request.authType_);
-    return request;
-}
-
-Napi_GetPropertyRequest AuthBuild::GetPropertyRequestBuild(napi_env env, napi_value object)
-{
-    Napi_GetPropertyRequest request;
-    if (object == nullptr) {
-        IAM_LOGE("object is null");
-        return request;
-    }
-    request.authType_ = convert_.GetInt32ValueByKey(env, object, "authType");
-    request.keys_ = convert_.GetInt32ArrayValueByKey(env, object, "keys");
-    IAM_LOGI("authType = %{public}d", request.authType_);
-    return request;
-}
 
 bool AuthBuild::NapiTypeObject(napi_env env, napi_value value)
 {
