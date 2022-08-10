@@ -13,32 +13,28 @@
  * limitations under the License.
  */
 
-#ifndef MOCK_USER_IDM_CLIENT_CALLBACK_H
-#define MOCK_USER_IDM_CLIENT_CALLBACK_H
+#ifndef MOCK_REMOTE_OBJECT_H
+#define MOCK_REMOTE_OBJECT_H
 
 #include <gmock/gmock.h>
 
-#include "user_idm_client_callback.h"
+#include "iremote_object.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockGetCredentialInfoCallback final : public GetCredentialInfoCallback {
+class MockRemoteObject final : public IRemoteObject {
 public:
-    MOCK_METHOD1(OnCredentialInfo, void(const std::vector<CredentialInfo> &infoList));
-};
-
-class MockGetSecUserInfoCallback final : public GetSecUserInfoCallback {
-public:
-    MOCK_METHOD1(OnSecUserInfo, void(const SecUserInfo &info));
-};
-
-class MockUserIdmClientCallback final : public UserIdmClientCallback {
-public:
-    MOCK_METHOD2(OnResult, void(int32_t result, const Attributes &extraInfo));
-    MOCK_METHOD3(OnAcquireInfo, void(int32_t module, uint32_t acquireInfo, const Attributes &extraInfo));
+    MockRemoteObject() : IRemoteObject(u"")
+    {
+    }
+    MOCK_METHOD0(GetObjectRefCount, int32_t());
+    MOCK_METHOD4(SendRequest, int(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
+    MOCK_METHOD1(AddDeathRecipient, bool(const sptr<DeathRecipient> &recipient));
+    MOCK_METHOD1(RemoveDeathRecipient, bool(const sptr<DeathRecipient> &recipient));
+    MOCK_METHOD2(Dump, int(int fd, const std::vector<std::u16string> &args));
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // MOCK_USER_IDM_CLIENT_CALLBACK_H
+#endif // MOCK_REMOTE_OBJECT_H

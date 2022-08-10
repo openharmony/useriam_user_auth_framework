@@ -13,32 +13,22 @@
  * limitations under the License.
  */
 
-#ifndef MOCK_USER_IDM_CLIENT_CALLBACK_H
-#define MOCK_USER_IDM_CLIENT_CALLBACK_H
+#ifndef IAM_MOCK_CO_AUTH_SERVICE_H
+#define IAM_MOCK_CO_AUTH_SERVICE_H
 
 #include <gmock/gmock.h>
 
-#include "user_idm_client_callback.h"
+#include "co_auth_stub.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockGetCredentialInfoCallback final : public GetCredentialInfoCallback {
+class MockCoAuthService final : public CoAuthStub {
 public:
-    MOCK_METHOD1(OnCredentialInfo, void(const std::vector<CredentialInfo> &infoList));
-};
-
-class MockGetSecUserInfoCallback final : public GetSecUserInfoCallback {
-public:
-    MOCK_METHOD1(OnSecUserInfo, void(const SecUserInfo &info));
-};
-
-class MockUserIdmClientCallback final : public UserIdmClientCallback {
-public:
-    MOCK_METHOD2(OnResult, void(int32_t result, const Attributes &extraInfo));
-    MOCK_METHOD3(OnAcquireInfo, void(int32_t module, uint32_t acquireInfo, const Attributes &extraInfo));
+    MOCK_METHOD2(ExecutorRegister, uint64_t(const ExecutorRegisterInfo &info,
+        sptr<ExecutorCallbackInterface> &callback));
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // MOCK_USER_IDM_CLIENT_CALLBACK_H
+#endif // IAM_MOCK_CO_AUTH_SERVICE_H
