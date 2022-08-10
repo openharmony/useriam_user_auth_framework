@@ -62,27 +62,6 @@ struct CallBackInfo {
     napi_deferred deferred {nullptr};
 };
 
-struct GetPropertyInfo {
-    CallBackInfo callBackInfo;
-    napi_value result {nullptr};
-    int32_t authType;
-    std::vector<uint32_t> keys;
-    int32_t getResult;
-    int32_t authSubType;
-    int32_t remainTimes;
-    int32_t freezingTime;
-};
-
-struct SetPropertyInfo {
-    CallBackInfo callBackInfo;
-    napi_async_work asyncWork {nullptr};
-    napi_value result {nullptr};
-    int32_t authType;
-    uint32_t key;
-    std::vector<uint8_t> setInfo;
-    int32_t setResult;
-};
-
 struct ExecuteInfo {
     explicit ExecuteInfo(napi_env napiEnv);
     ~ExecuteInfo();
@@ -114,25 +93,6 @@ struct AuthInfo {
     int32_t freezingTime {0};
 };
 
-struct AuthUserInfo {
-    explicit AuthUserInfo(napi_env napiEnv);
-    ~AuthUserInfo();
-    napi_env env {nullptr};
-    napi_callback_info info {nullptr};
-    napi_ref onResult {nullptr};
-    napi_ref onAcquireInfo {nullptr};
-    napi_value onResultCallBack {nullptr};
-    napi_value onAcquireInfoCallBack {nullptr};
-    int32_t userId {0};
-    std::vector<uint8_t> challenge {};
-    int32_t authType {0};
-    int32_t authTrustLevel {0};
-    int32_t result {0};
-    std::vector<uint8_t> token {};
-    int32_t remainTimes {0};
-    int32_t freezingTime {0};
-};
-
 // For API6
 enum class AuthenticationResult {
     NO_SUPPORT = -1,
@@ -146,18 +106,6 @@ enum class AuthenticationResult {
     LOCKED = 7,
     NOT_ENROLLED = 8,
     GENERAL_ERROR = 100,
-};
-
-enum GetPropertyType : uint32_t {
-    AUTH_SUB_TYPE = 1,
-    REMAIN_TIMES = 2,
-    FREEZING_TIME = 3,
-};
-
-enum SetPropertyType : uint32_t {
-    INIT_ALGORITHM = 1,
-    FREEZE_TEMPLATE = 2,
-    THAW_TEMPLATE = 3,
 };
 
 const std::map<int32_t, AuthenticationResult> result2ExecuteResult = {

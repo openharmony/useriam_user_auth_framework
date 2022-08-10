@@ -24,7 +24,6 @@
 #include "nocopyable.h"
 
 #include "auth_common.h"
-#include "auth_object.h"
 #include "user_auth_client.h"
 
 namespace OHOS {
@@ -36,7 +35,6 @@ public:
     ResultConvert();
     virtual ~ResultConvert();
     napi_value Uint64ToUint8Napi(napi_env env, uint64_t value);
-    std::vector<uint8_t> NapiGetValueUint8Array(napi_env env, napi_value jsObject, std::string key);
     napi_valuetype GetType(napi_env env, napi_value value);
     std::string GetStringValueByKey(napi_env env, napi_value jsObject, std::string key);
     int32_t GetInt32ValueByKey(napi_env env, napi_value jsObject, std::string key);

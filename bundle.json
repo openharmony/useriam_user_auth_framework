@@ -46,8 +46,6 @@
         "//base/useriam/user_auth_framework/sa_profile:useriam.init",
         "//base/useriam/user_auth_framework/services:userauthservice",
         "//base/useriam/user_auth_framework/common/executors:userauth_executors",
-        "//base/useriam/user_auth_framework/frameworks/js/napi/user_idm:useridm",
-        "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth:userauth_napi",
         "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth:userauth"
       ],
       "inner_kits": [

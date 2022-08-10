@@ -55,27 +55,6 @@ AuthInfo::~AuthInfo()
         onAcquireInfo = nullptr;
     }
 }
-
-AuthUserInfo::AuthUserInfo(napi_env napiEnv) : env(napiEnv)
-{
-}
-
-AuthUserInfo::~AuthUserInfo()
-{
-    if (env == nullptr) {
-        return;
-    }
-    if (onResult != nullptr) {
-        IAM_LOGI("AuthUserInfo::~AuthUserInfo delete onResult");
-        napi_delete_reference(env, onResult);
-        onResult = nullptr;
-    }
-    if (onAcquireInfo != nullptr) {
-        IAM_LOGI("AuthUserInfo::~AuthUserInfo delete onAcquireInfo");
-        napi_delete_reference(env, onAcquireInfo);
-        onAcquireInfo = nullptr;
-    }
-}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
