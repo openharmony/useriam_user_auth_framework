@@ -36,26 +36,14 @@ public:
     AuthBuild authBuild;
     napi_value GetVersion(napi_env env, napi_callback_info info);
     napi_value GetAvailableStatus(napi_env env, napi_callback_info info);
-    napi_value GetProperty(napi_env env, napi_callback_info info);
-    napi_value SetProperty(napi_env env, napi_callback_info info);
     napi_value Auth(napi_env env, napi_callback_info info);
     napi_value Execute(napi_env env, napi_callback_info info);
-    napi_value AuthUser(napi_env env, napi_callback_info info);
     napi_value CancelAuth(napi_env env, napi_callback_info info);
 
 private:
-    napi_value GetPropertyWrap(napi_env env, napi_callback_info info, AsyncHolder *asyncHolder);
-    napi_value GetPropertyAsync(napi_env env, AsyncHolder *asyncHolder);
-    napi_value GetPropertyPromise(napi_env env, AsyncHolder *asyncHolder);
-
-    napi_value SetPropertyWrap(napi_env env, napi_callback_info info, AsyncHolder *asyncHolder);
-    napi_value SetPropertyAsync(napi_env env, AsyncHolder *asyncHolder);
-    napi_value SetPropertyPromise(napi_env env, AsyncHolder *asyncHolder);
 
     napi_value AuthWrap(napi_env env, AuthInfo *authInfo);
     napi_value BuildAuthInfo(napi_env env, AuthInfo *authInfo);
-    napi_value AuthUserWrap(napi_env env, AuthUserInfo *userInfo);
-    napi_value BuildAuthUserInfo(napi_env env, AuthUserInfo *userInfo);
 
     UserIam::UserAuth::ResultCode ParseExecuteParametersOne(napi_env env, size_t argc, napi_value *argv,
         ExecuteInfo &executeInfo);
@@ -63,13 +51,6 @@ private:
         ExecuteInfo &executeInfo);
     UserIam::UserAuth::ResultCode ParseExecuteParameters(napi_env env, size_t argc, napi_value *argv,
         ExecuteInfo &executeInfo);
-
-    static void SetPropertyExecute(napi_env env, void *data);
-    static void SetPropertyPromiseExecuteDone(napi_env env, napi_status status, void *data);
-    static void SetPropertyAsyncExecuteDone(napi_env env, napi_status status, void *data);
-    static void GetPropertyExecute(napi_env env, void *data);
-    static void GetPropertyPromiseExecuteDone(napi_env env, napi_status status, void *data);
-    static void GetPropertyAsyncExecuteDone(napi_env env, napi_status status, void *data);
 };
 } // namespace UserAuth
 } // namespace UserIam

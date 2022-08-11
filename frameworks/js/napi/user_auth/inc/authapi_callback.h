@@ -38,7 +38,6 @@ typedef struct AcquireInfoInner {
 class AuthApiCallback : public UserIam::UserAuth::AuthenticationCallback {
 public:
     explicit AuthApiCallback(AuthInfo *authInfo);
-    explicit AuthApiCallback(AuthUserInfo *userInfo);
     explicit AuthApiCallback(ExecuteInfo *executeInfo);
     virtual ~AuthApiCallback();
     void OnAcquireInfo(int32_t module, uint32_t acquireInfo, const UserIam::UserAuth::Attributes &extraInfo) override;
@@ -55,31 +54,7 @@ private:
     void OnExecuteResult(const int32_t result);
 
     AuthInfo *authInfo_;
-    AuthUserInfo *userInfo_;
     ExecuteInfo *executeInfo_;
-};
-
-class GetPropApiCallback : public UserIam::UserAuth::GetPropCallback {
-public:
-    explicit GetPropApiCallback(GetPropertyInfo *getPropertyInfo);
-    virtual ~GetPropApiCallback();
-    void OnResult(int32_t result, const UserIam::UserAuth::Attributes &extraInfo) override;
-
-    static napi_value BuildExecutorProperty(
-        napi_env env, int32_t result, uint32_t remainTimes, uint32_t freezingTime, uint64_t authSubType);
-
-private:
-    GetPropertyInfo *getPropertyInfo_;
-};
-
-class SetPropApiCallback : public UserIam::UserAuth::SetPropCallback {
-public:
-    explicit SetPropApiCallback(SetPropertyInfo *setPropertyInfo);
-    virtual ~SetPropApiCallback();
-    void OnResult(int32_t result, const UserIam::UserAuth::Attributes &extraInfo) override;
-
-private:
-    SetPropertyInfo *setPropertyInfo_;
 };
 } // namespace UserAuth
 } // namespace UserIam
