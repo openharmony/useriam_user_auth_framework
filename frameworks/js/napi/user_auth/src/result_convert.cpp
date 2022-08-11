@@ -46,37 +46,6 @@ napi_value ResultConvert::Uint64ToUint8Napi(napi_env env, uint64_t value)
     return result;
 }
 
-std::vector<uint8_t> ResultConvert::NapiGetValueUint8Array(napi_env env, napi_value jsObject, std::string key)
-{
-    napi_value jsValue = GetNapiValue(env, key.c_str(), jsObject);
-    std::vector<uint8_t> retNull;
-    if (jsValue == nullptr) {
-        return retNull;
-    }
-    napi_typedarray_type arraytype;
-    size_t length = 0;
-    napi_value buffer = nullptr;
-    size_t offset = 0;
-    uint8_t *data = nullptr;
-    bool isTypedArray = false;
-    napi_is_typedarray(env, jsValue, &isTypedArray);
-    if (!isTypedArray) {
-        IAM_LOGE("jsValue is not typedarray");
-        return retNull;
-    }
-    napi_get_typedarray_info(env, jsValue, &arraytype, &length, reinterpret_cast<void **>(&data), &buffer, &offset);
-    if (arraytype != napi_uint8_array) {
-        IAM_LOGE("jsValue is not uint8Array");
-        return retNull;
-    }
-    if (offset != 0) {
-        IAM_LOGE("offset is %{public}zu", offset);
-        return retNull;
-    }
-    std::vector<uint8_t> result(data, data + length);
-    return result;
-}
-
 napi_valuetype ResultConvert::GetType(napi_env env, napi_value value)
 {
     napi_status status;

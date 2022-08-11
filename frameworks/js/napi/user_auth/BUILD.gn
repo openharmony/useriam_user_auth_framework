@@ -45,41 +45,6 @@ ohos_shared_library("userauth") {
 
   public_configs = [ ":userauth_public_config" ]
 
-  relative_install_dir = "module"
-
-  part_name = "user_auth_framework"
-}
-
-ohos_shared_library("userauth_napi") {
-  defines = [ "USER_AUTH_FOR_KITS" ]
-
-  include_dirs = [ "inc" ]
-
-  sources = [
-    "src/auth_build.cpp",
-    "src/auth_common.cpp",
-    "src/authapi_callback.cpp",
-    "src/result_convert.cpp",
-    "src/user_auth_helper.cpp",
-    "src/user_auth_impl.cpp",
-  ]
-
-  deps = [
-    "//base/useriam/user_auth_framework/common:iam_utils",
-    "//base/useriam/user_auth_framework/frameworks/native/client:userauth_client",
-    "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
-    "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_client_ipc",
-  ]
-
-  external_deps = [
-    "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
-    "napi:ace_napi",
-  ]
-
-  public_configs = [ ":userauth_public_config" ]
-
   relative_install_dir = "module/useriam"
 
   part_name = "user_auth_framework"

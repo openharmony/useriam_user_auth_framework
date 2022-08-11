@@ -31,8 +31,6 @@ public:
     DISALLOW_COPY_AND_MOVE(AuthBuild);
     AuthBuild();
     virtual ~AuthBuild();
-    Napi_SetPropertyRequest SetPropertyRequestBuild(napi_env env, napi_value object);
-    Napi_GetPropertyRequest GetPropertyRequestBuild(napi_env env, napi_value object);
     bool NapiTypeObject(napi_env env, napi_value value);
     bool NapiTypeNumber(napi_env env, napi_value value);
 

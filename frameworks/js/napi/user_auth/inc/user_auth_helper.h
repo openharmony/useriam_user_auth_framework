@@ -54,18 +54,11 @@ enum FingerprintTips {
     FINGERPRINT_AUTH_TIP_TOO_SLOW = 5
 };
 
-napi_value AuthTypeConstructor(napi_env env);
-napi_value AuthSubTypeConstructor(napi_env env);
 napi_value AuthTrustLevelConstructor(napi_env env);
-napi_value GetPropertyTypeConstructor(napi_env env);
-napi_value SetPropertyTypeConstructor(napi_env env);
-napi_value AuthMethodConstructor(napi_env env);
-napi_value ModuleConstructor(napi_env env);
 napi_value ResultCodeConstructor(napi_env env);
 napi_value AuthenticationResultConstructor(napi_env env);
 napi_value FaceTipsCodeConstructor(napi_env env);
 napi_value FingerprintTipsConstructorForKits(napi_env env);
-napi_value FingerprintTipsConstructorForInnerkits(napi_env env);
 napi_value UserAuthTypeConstructor(napi_env env);
 napi_value UserAuthInit(napi_env env, napi_value exports);
 napi_value EnumExport(napi_env env, napi_value exports);
@@ -75,11 +68,8 @@ napi_value ConstructorForAPI6(napi_env env, napi_callback_info info);
 napi_value UserAuthServiceConstructor(napi_env env, napi_callback_info info);
 napi_value GetVersion(napi_env env, napi_callback_info info);
 napi_value GetAvailableStatus(napi_env env, napi_callback_info info);
-napi_value GetProperty(napi_env env, napi_callback_info info);
-napi_value SetProperty(napi_env env, napi_callback_info info);
 napi_value Auth(napi_env env, napi_callback_info info);
 napi_value Execute(napi_env env, napi_callback_info info);
-napi_value AuthUser(napi_env env, napi_callback_info info);
 napi_value CancelAuth(napi_env env, napi_callback_info info);
 } // namespace UserAuth
 } // namespace UserIam
