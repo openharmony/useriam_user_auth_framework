@@ -23,6 +23,7 @@ ohos_unittest("iam_inner_api_test") {
   ]
 
   sources = [
+    "src/co_auth_client_test.cpp",
     "src/co_auth_proxy_test.cpp",
     "src/user_auth_client_test.cpp",
     "src/user_auth_proxy_test.cpp",
