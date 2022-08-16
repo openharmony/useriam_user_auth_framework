@@ -126,7 +126,7 @@ int32_t UserIdmService::GetCredentialInfo(int32_t userId, AuthType authType,
     if (credInfos.empty()) {
         IAM_LOGI("no cred enrolled");
         callback->OnCredentialInfos(credInfos, pinSubType);
-        return SUCCESS;
+        return FAIL;
     }
 
     auto userInfo = UserIdmDatabase::Instance().GetSecUserInfo(userId);

@@ -20,6 +20,7 @@
 
 #include "iam_ptr.h"
 #include "user_auth_client.h"
+#include "user_auth_client_impl.h"
 #include "mock_user_auth_client_callback.h"
 
 namespace OHOS {
@@ -61,14 +62,81 @@ void UserAuthClientTest::TearDown()
 {
 }
 
+HWTEST_F(UserAuthClientTest, UserAuthClientGetAvailableStatus, TestSize.Level0)
+{
+    AuthType testAuthType = FACE;
+    AuthTrustLevel testAtl = ATL1;
+    int32_t ret = UserAuthClientImpl::Instance().GetAvailableStatus(testAuthType, testAtl);
+    EXPECT_NE(ret, SUCCESS);
+}
+
 HWTEST_F(UserAuthClientTest, UserAuthClientGetProperty, TestSize.Level0)
 {
-    int32_t userId = 100;
-    GetPropertyRequest request = {};
-    auto callback = Common::MakeShared<MockGetPropCallback>();
-    EXPECT_NE(callback, nullptr);
-    EXPECT_CALL(*callback, OnResult(_, _)).Times(1);
-    UserAuthClient::GetInstance().GetProperty(userId, request, callback);
+    int32_t testUserId = 200;
+    GetPropertyRequest testRequest = {};
+    auto testCallback = Common::MakeShared<MockGetPropCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
+    UserAuthClient::GetInstance().GetProperty(testUserId, testRequest, testCallback);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientSetProperty, TestSize.Level0)
+{
+    int32_t testUserId = 200;
+    SetPropertyRequest testRequest = {};
+    auto testCallback = Common::MakeShared<MockSetPropCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
+    UserAuthClient::GetInstance().SetProperty(testUserId, testRequest, testCallback);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientBeginAuthentication001, TestSize.Level0)
+{
+    int32_t testUserId = 200;
+    std::vector<uint8_t> testChallenge = {1, 2, 3, 4};
+    AuthType testAuthType = PIN;
+    AuthTrustLevel testAtl = ATL1;
+    SetPropertyRequest testRequest = {};
+    auto testCallback = Common::MakeShared<MockAuthenticationCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
+    UserAuthClient::GetInstance().BeginAuthentication(testUserId, testChallenge, testAuthType, testAtl, testCallback);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientBeginAuthentication002, TestSize.Level0)
+{
+    std::vector<uint8_t> testChallenge = {1, 2, 3, 4};
+    AuthType testAuthType = PIN;
+    AuthTrustLevel testAtl = ATL1;
+    SetPropertyRequest testRequest = {};
+    auto testCallback = Common::MakeShared<MockAuthenticationCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
+    UserAuthClientImpl::Instance().BeginAuthentication(testChallenge, testAuthType, testAtl, testCallback);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientCancelAuthentication, TestSize.Level0)
+{
+    uint64_t testContextId = 122;
+    int32_t ret = UserAuthClient::GetInstance().CancelAuthentication(testContextId);
+    EXPECT_NE(ret, SUCCESS);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientBeginIdentification, TestSize.Level0)
+{
+    std::vector<uint8_t> testChallenge = {1, 2, 3, 4};
+    AuthType testAuthType = FACE;
+    auto testCallback = Common::MakeShared<MockIdentificationCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
+    UserAuthClient::GetInstance().BeginIdentification(testChallenge, testAuthType, testCallback);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientCancelIdentification, TestSize.Level0)
+{
+    uint64_t testContextId = 122;
+    int32_t ret = UserAuthClient::GetInstance().CancelIdentification(testContextId);
+    EXPECT_NE(ret, SUCCESS);
 }
 } // namespace UserAuth
 } // namespace UserIam
