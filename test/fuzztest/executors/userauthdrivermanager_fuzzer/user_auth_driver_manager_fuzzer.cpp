@@ -16,6 +16,7 @@
 #include "user_auth_driver_manager_fuzzer.h"
 
 #include <cstdint>
+#include <mutex>
 
 #include "driver_manager.h"
 #include "iam_fuzz_test.h"
@@ -42,6 +43,7 @@ public:
 
     ResultCode GetExecutorInfo(ExecutorInfo &executorInfo) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
         // GetExecutorInfo is called in Executor constructor, when fuzzParcel_ is null
         // SUCCESS is returned to generate executor description
         if (fuzzParcel_ == nullptr) {
@@ -58,6 +60,10 @@ public:
 
     ResultCode GetTemplateInfo(uint64_t templateId, UserAuth::TemplateInfo &templateInfo) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (fuzzParcel_ == nullptr) {
+            return ResultCode::FAIL;
+        }
         templateInfo.executorType = fuzzParcel_->ReadUint32();
         templateInfo.freezingTime = fuzzParcel_->ReadInt32();
         templateInfo.remainTimes = fuzzParcel_->ReadInt32();
@@ -68,6 +74,10 @@ public:
     ResultCode OnRegisterFinish(const std::vector<uint64_t> &templateIdList,
         const std::vector<uint8_t> &frameworkPublicKey, const std::vector<uint8_t> &extraInfo) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (fuzzParcel_ == nullptr) {
+            return ResultCode::FAIL;
+        }
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
@@ -78,6 +88,10 @@ public:
         static_cast<void>(tokenId);
         static_cast<void>(extraInfo);
         static_cast<void>(callbackObj);
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (fuzzParcel_ == nullptr) {
+            return ResultCode::FAIL;
+        }
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
@@ -89,6 +103,10 @@ public:
         static_cast<void>(templateIdList);
         static_cast<void>(extraInfo);
         static_cast<void>(callbackObj);
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (fuzzParcel_ == nullptr) {
+            return ResultCode::FAIL;
+        }
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
@@ -99,32 +117,50 @@ public:
         static_cast<void>(tokenId);
         static_cast<void>(extraInfo);
         static_cast<void>(callbackObj);
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (fuzzParcel_ == nullptr) {
+            return ResultCode::FAIL;
+        }
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
     ResultCode Delete(const std::vector<uint64_t> &templateIdList) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (fuzzParcel_ == nullptr) {
+            return ResultCode::FAIL;
+        }
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
     ResultCode Cancel(uint64_t scheduleId) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (fuzzParcel_ == nullptr) {
+            return ResultCode::FAIL;
+        }
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
     ResultCode SendCommand(PropertyMode commandId, const std::vector<uint8_t> &extraInfo,
         const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (fuzzParcel_ == nullptr) {
+            return ResultCode::FAIL;
+        }
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
     void SetParcel(std::shared_ptr<Parcel> &parcel)
     {
+        std::lock_guard<std::mutex> lock(mutex_);
         fuzzParcel_ = parcel;
     }
 
 private:
-    std::shared_ptr<Parcel> fuzzParcel_ = nullptr;
+    std::mutex mutex_;
+    std::shared_ptr<Parcel> fuzzParcel_ {nullptr};
 };
 
 auto g_executorHdi = UserIam::Common::MakeShared<DummyAuthExecutorHdi>();
@@ -136,9 +172,13 @@ public:
 
     void GetExecutorList(std::vector<std::shared_ptr<UserAuth::IAuthExecutorHdi>> &executorList)
     {
-        static const uint32_t max_num = 20;
+        static const uint32_t maxNum = 20;
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (fuzzParcel_ == nullptr) {
+            return;
+        }
         uint32_t num = fuzzParcel_->ReadUint32();
-        uint32_t executorNum = num % max_num;
+        uint32_t executorNum = num % maxNum;
         for (uint32_t i = 0; i < executorNum; i++) {
             bool isNull = fuzzParcel_->ReadBool();
             if (isNull) {
@@ -152,11 +192,13 @@ public:
 
     void SetParcel(std::shared_ptr<Parcel> &parcel)
     {
+        std::lock_guard<std::mutex> lock(mutex_);
         fuzzParcel_ = parcel;
     }
 
 private:
-    std::shared_ptr<Parcel> fuzzParcel_;
+    std::mutex mutex_;
+    std::shared_ptr<Parcel> fuzzParcel_ {nullptr};
 };
 
 auto g_authDriverHdi = UserIam::Common::MakeShared<DummyAuthDriverHdi>();
