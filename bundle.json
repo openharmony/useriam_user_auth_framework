@@ -41,13 +41,19 @@
       ]
     },
     "build": {
-      "sub_component": [
-        "//base/useriam/user_auth_framework/sa_profile:userauth_sa_profile",
-        "//base/useriam/user_auth_framework/sa_profile:useriam.init",
-        "//base/useriam/user_auth_framework/services:userauthservice",
-        "//base/useriam/user_auth_framework/common/executors:userauth_executors",
-        "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth:userauth"
-      ],
+      "group_type": {
+        "base_group": [
+        ],
+        "fwk_group": [
+          "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth:userauth"
+        ],
+        "service_group": [
+          "//base/useriam/user_auth_framework/sa_profile:useriam.init",
+          "//base/useriam/user_auth_framework/services:userauthservice",
+          "//base/useriam/user_auth_framework/common/executors:userauth_executors",
+          "//base/useriam/user_auth_framework/sa_profile:userauth_sa_profile"
+        ]
+      },
       "inner_kits": [
         {
           "type": "so",
