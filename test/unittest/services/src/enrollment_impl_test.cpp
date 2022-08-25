@@ -75,6 +75,12 @@ HWTEST_F(EnrollmentImplTest, EnrollmentHdiEmpty, TestSize.Level0)
     EXPECT_FALSE(authentication->Start(scheduleList, nullptr));
 }
 
+/**
+ * @tc.name: enroll_update
+ * @tc.desc: verify hdi enroll
+ * @tc.type: FUNC
+ * @tc.require: issueI5NXMW
+ */
 HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiError, TestSize.Level0)
 {
     constexpr int32_t userId = 0x11;
