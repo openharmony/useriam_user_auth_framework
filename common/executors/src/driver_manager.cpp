@@ -17,7 +17,6 @@
 
 #include <set>
 
-#include "hdf_device_desc.h"
 #include "iservice_registry.h"
 #include "iservmgr_hdi.h"
 #include "parameter.h"
