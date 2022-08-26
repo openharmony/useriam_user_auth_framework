@@ -15,6 +15,7 @@
 
 #include "user_auth_client_test.h"
 
+#include "file_ex.h"
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
 
@@ -48,6 +49,7 @@ void UserAuthClientTest::SetUpTestCase()
     };
     tokenId = GetAccessTokenId(&infoInstance);
     SetSelfTokenID(tokenId);
+    SaveStringToFile("/sys/fs/selinux/enforce", "0");
 }
 
 void UserAuthClientTest::TearDownTestCase()
