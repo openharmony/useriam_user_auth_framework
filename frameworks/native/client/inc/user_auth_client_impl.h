@@ -40,12 +40,14 @@ public:
     uint64_t BeginIdentification(const std::vector<uint8_t> &challenge, AuthType authType,
         const std::shared_ptr<IdentificationCallback> &callback) override;
     int32_t CancelIdentification(uint64_t contextId) override;
+    int32_t GetVersion();
 
 private:
     friend class UserAuthClient;
     UserAuthClientImpl() = default;
     ~UserAuthClientImpl() override = default;
 
+    constexpr static int32_t MINIMUM_VERSION {0};
     constexpr static uint64_t INVALID_SESSION_ID {0};
     sptr<UserAuthInterface> GetProxy();
 };
