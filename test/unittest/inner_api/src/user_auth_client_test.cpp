@@ -138,6 +138,12 @@ HWTEST_F(UserAuthClientTest, UserAuthClientCancelIdentification, TestSize.Level0
     int32_t ret = UserAuthClient::GetInstance().CancelIdentification(testContextId);
     EXPECT_NE(ret, SUCCESS);
 }
+
+HWTEST_F(UserAuthClientTest, UserAuthClientGetVersion, TestSize.Level0)
+{
+    int32_t version = UserAuthClientImpl::Instance().GetVersion();
+    EXPECT_EQ(version, 0);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
