@@ -15,6 +15,7 @@
 
 #include "co_auth_client_test.h"
 
+#include "file_ex.h"
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
 
@@ -46,6 +47,7 @@ void CoAuthClientTest::SetUpTestCase()
     };
     tokenId = GetAccessTokenId(&infoInstance);
     SetSelfTokenID(tokenId);
+    SaveStringToFile("/sys/fs/selinux/enforce", "0");
 }
 
 void CoAuthClientTest::TearDownTestCase()

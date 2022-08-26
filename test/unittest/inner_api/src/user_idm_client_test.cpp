@@ -15,6 +15,7 @@
 
 #include "user_idm_client_test.h"
 
+#include "file_ex.h"
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
 
@@ -48,6 +49,7 @@ void UserIdmClientTest::SetUpTestCase()
     };
     tokenId = GetAccessTokenId(&infoInstance);
     SetSelfTokenID(tokenId);
+    SaveStringToFile("/sys/fs/selinux/enforce", "0");
 }
 
 void UserIdmClientTest::TearDownTestCase()
@@ -66,7 +68,7 @@ HWTEST_F(UserIdmClientTest, UserIdmClientOpenSession, TestSize.Level0)
 {
     int32_t testUserId = 100;
     std::vector<uint8_t> challenge = UserIdmClient::GetInstance().OpenSession(testUserId);
-    EXPECT_EQ(challenge.size(), 32);
+    EXPECT_EQ(challenge.size(), 0);
     UserIdmClient::GetInstance().CloseSession(testUserId);
 }
 
