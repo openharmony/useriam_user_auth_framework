@@ -37,7 +37,6 @@ ohos_shared_library("userauthservice") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
   ]
 
   configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
