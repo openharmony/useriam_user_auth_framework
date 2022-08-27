@@ -45,7 +45,7 @@ UserAuthImpl::~UserAuthImpl()
 
 napi_value UserAuthImpl::GetVersion(napi_env env, napi_callback_info info)
 {
-    int32_t result = 0;
+    int32_t result = UserAuthClientImpl::Instance().GetVersion();
     IAM_LOGI("start result = %{public}d", result);
     napi_value version = 0;
     NAPI_CALL(env, napi_create_int32(env, result, &version));

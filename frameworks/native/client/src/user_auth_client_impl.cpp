@@ -190,6 +190,17 @@ int32_t UserAuthClientImpl::CancelIdentification(uint64_t contextId)
     return proxy->CancelAuthOrIdentify(contextId);
 }
 
+int32_t UserAuthClientImpl::GetVersion()
+{
+    auto proxy = GetProxy();
+    if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
+        return MINIMUM_VERSION;
+    }
+
+    return proxy->GetVersion();
+}
+
 sptr<UserAuthInterface> UserAuthClientImpl::GetProxy()
 {
     auto obj = IpcClientUtils::GetRemoteObject(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH);

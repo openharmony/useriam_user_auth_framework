@@ -32,7 +32,7 @@ namespace UserIam {
 namespace UserAuth {
 namespace {
     const uint64_t BAD_CONTEXT_ID = 0;
-    const int32_t INVALID_VERSION = -1;
+    const int32_t MINIMUM_VERSION = 0;
     const int32_t CURRENT_VERSION = 0;
     const uint32_t AUTH_TRUST_LEVEL_SYS = 1;
 } // namespace
@@ -260,6 +260,11 @@ uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthTy
         contextCallback->OnResult(TYPE_NOT_SUPPORT, extraInfo);
         return BAD_CONTEXT_ID;
     }
+    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
 
     auto tokenId = IpcCommon::GetAccessTokenId(*this);
     auto context = ContextFactory::CreateIdentifyContext(challenge, authType, tokenId, contextCallback);
@@ -283,6 +288,12 @@ uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthTy
 int32_t UserAuthService::CancelAuthOrIdentify(uint64_t contextId)
 {
     IAM_LOGI("start");
+    bool checkRet = !IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
+        !IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION);
+    if (checkRet) {
+        IAM_LOGE("failed to check permission");
+        return CHECK_PERMISSION_FAILED;
+    }
     auto context = ContextPool::Instance().Select(contextId).lock();
     if (context == nullptr) {
         IAM_LOGE("context not exist");
@@ -304,7 +315,7 @@ int32_t UserAuthService::GetVersion()
         !IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION);
     if (checkRet) {
         IAM_LOGE("failed to check permission");
-        return INVALID_VERSION;
+        return MINIMUM_VERSION;
     }
     return CURRENT_VERSION;
 }
