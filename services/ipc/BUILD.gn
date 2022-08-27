@@ -21,7 +21,10 @@ if (!defined(global_parts_info) ||
 }
 
 ohos_source_set("userauth_services_ipc") {
-  include_dirs = [ "inc" ]
+  include_dirs = [
+    "inc",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
+  ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
@@ -53,7 +56,6 @@ ohos_source_set("userauth_services_ipc") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
   ]
 
   if (has_os_account_part) {
