@@ -37,21 +37,27 @@ UserAuthCallbackService::UserAuthCallbackService(const std::shared_ptr<Identific
 
 void UserAuthCallbackService::OnResult(int32_t result, const Attributes &extraInfo)
 {
-    if (authCallback_ == nullptr) {
-        IAM_LOGE("auth callback is nullptr");
+    if (authCallback_ != nullptr) {
+        authCallback_->OnResult(result, extraInfo);
+    } else if (identifyCallback_ != nullptr) {
+        identifyCallback_->OnResult(result, extraInfo);
+    } else {
+        IAM_LOGE("both auth and identify callback is nullptr");
         return;
     }
     iamHitraceHelper_= nullptr;
-    authCallback_->OnResult(result, extraInfo);
 }
 
 void UserAuthCallbackService::OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo)
 {
-    if (authCallback_ == nullptr) {
-        IAM_LOGE("auth callback is nullptr");
+    if (authCallback_ != nullptr) {
+        authCallback_->OnAcquireInfo(module, acquireInfo, extraInfo);
+    } else if (identifyCallback_ != nullptr) {
+        identifyCallback_->OnAcquireInfo(module, acquireInfo, extraInfo);
+    } else {
+        IAM_LOGE("both auth and identify callback is nullptr");
         return;
     }
-    authCallback_->OnAcquireInfo(module, acquireInfo, extraInfo);
 }
 
 GetExecutorPropertyCallbackService::GetExecutorPropertyCallbackService(const std::shared_ptr<GetPropCallback> &impl)

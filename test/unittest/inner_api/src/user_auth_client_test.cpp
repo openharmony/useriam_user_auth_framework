@@ -32,28 +32,12 @@ using namespace testing::ext;
 
 void UserAuthClientTest::SetUpTestCase()
 {
-    static const char *PERMS[] = {
-        "ohos.permission.ACCESS_USER_AUTH_INTERNAL",
-        "ohos.permission.ACCESS_BIOMETRIC"
-    };
-    uint64_t tokenId;
-    NativeTokenInfoParams infoInstance = {
-        .dcapsNum = 0,
-        .permsNum = 2,
-        .aclsNum = 0,
-        .dcaps = nullptr,
-        .perms = PERMS,
-        .acls = nullptr,
-        .processName = "useriam",
-        .aplStr = "system_core",
-    };
-    tokenId = GetAccessTokenId(&infoInstance);
-    SetSelfTokenID(tokenId);
     SaveStringToFile("/sys/fs/selinux/enforce", "0");
 }
 
 void UserAuthClientTest::TearDownTestCase()
 {
+    SaveStringToFile("/sys/fs/selinux/enforce", "1");
 }
 
 void UserAuthClientTest::SetUp()
@@ -95,7 +79,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientSetProperty, TestSize.Level0)
 HWTEST_F(UserAuthClientTest, UserAuthClientBeginAuthentication001, TestSize.Level0)
 {
     int32_t testUserId = 200;
-    std::vector<uint8_t> testChallenge = {1, 2, 3, 4};
+    std::vector<uint8_t> testChallenge = {1, 2, 3, 4, 3, 2, 1, 0};
     AuthType testAuthType = PIN;
     AuthTrustLevel testAtl = ATL1;
     SetPropertyRequest testRequest = {};
@@ -107,7 +91,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginAuthentication001, TestSize.Leve
 
 HWTEST_F(UserAuthClientTest, UserAuthClientBeginAuthentication002, TestSize.Level0)
 {
-    std::vector<uint8_t> testChallenge = {1, 2, 3, 4};
+    std::vector<uint8_t> testChallenge = {1, 2, 3, 4, 8, 7, 5, 4};
     AuthType testAuthType = PIN;
     AuthTrustLevel testAtl = ATL1;
     SetPropertyRequest testRequest = {};
@@ -119,14 +103,14 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginAuthentication002, TestSize.Leve
 
 HWTEST_F(UserAuthClientTest, UserAuthClientCancelAuthentication, TestSize.Level0)
 {
-    uint64_t testContextId = 122;
+    uint64_t testContextId = 12345562;
     int32_t ret = UserAuthClient::GetInstance().CancelAuthentication(testContextId);
     EXPECT_NE(ret, SUCCESS);
 }
 
 HWTEST_F(UserAuthClientTest, UserAuthClientBeginIdentification, TestSize.Level0)
 {
-    std::vector<uint8_t> testChallenge = {1, 2, 3, 4};
+    std::vector<uint8_t> testChallenge = {4, 5, 6, 7, 3, 4, 1, 2};
     AuthType testAuthType = FACE;
     auto testCallback = Common::MakeShared<MockIdentificationCallback>();
     EXPECT_NE(testCallback, nullptr);
@@ -136,7 +120,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginIdentification, TestSize.Level0)
 
 HWTEST_F(UserAuthClientTest, UserAuthClientCancelIdentification, TestSize.Level0)
 {
-    uint64_t testContextId = 122;
+    uint64_t testContextId = 1221215;
     int32_t ret = UserAuthClient::GetInstance().CancelIdentification(testContextId);
     EXPECT_NE(ret, SUCCESS);
 }
