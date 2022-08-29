@@ -15,6 +15,7 @@
 
 #include "co_auth_client_test.h"
 
+#include "file_ex.h"
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
 
@@ -31,25 +32,32 @@ using namespace testing::ext;
 void CoAuthClientTest::SetUpTestCase()
 {
     static const char *PERMS[] = {
-        "ohos.permission.ACCESS_AUTH_RESPOOL"
+        "ohos.permission.ACCESS_AUTH_RESPOOL",
+        "ohos.permission.ACCESS_USER_AUTH_INTERNAL",
+        "ohos.permission.ACCESS_BIOMETRIC",
+        "ohos.permission.MANAGE_USER_IDM",
+        "ohos.permission.USE_USER_IDM",
+        "ohos.permission.ENFORCE_USER_IDM"
     };
     uint64_t tokenId;
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
-        .permsNum = 1,
+        .permsNum = 6,
         .aclsNum = 0,
         .dcaps = nullptr,
         .perms = PERMS,
         .acls = nullptr,
-        .processName = "useriam",
+        .processName = "co_auth",
         .aplStr = "system_core",
     };
     tokenId = GetAccessTokenId(&infoInstance);
     SetSelfTokenID(tokenId);
+    SaveStringToFile("/sys/fs/selinux/enforce", "0");
 }
 
 void CoAuthClientTest::TearDownTestCase()
 {
+    SaveStringToFile("/sys/fs/selinux/enforce", "1");
 }
 
 void CoAuthClientTest::SetUp()
