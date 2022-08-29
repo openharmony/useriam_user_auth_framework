@@ -15,6 +15,7 @@
 
 #include "user_idm_client_test.h"
 
+#include "file_ex.h"
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
 
@@ -30,28 +31,12 @@ using namespace testing::ext;
 
 void UserIdmClientTest::SetUpTestCase()
 {
-    static const char *PERMS[] = {
-        "ohos.permission.MANAGE_USER_IDM",
-        "ohos.permission.USE_USER_IDM",
-        "ohos.permission.ENFORCE_USER_IDM"
-    };
-    uint64_t tokenId;
-    NativeTokenInfoParams infoInstance = {
-        .dcapsNum = 0,
-        .permsNum = 3,
-        .aclsNum = 0,
-        .dcaps = nullptr,
-        .perms = PERMS,
-        .acls = nullptr,
-        .processName = "useriam",
-        .aplStr = "system_core",
-    };
-    tokenId = GetAccessTokenId(&infoInstance);
-    SetSelfTokenID(tokenId);
+    SaveStringToFile("/sys/fs/selinux/enforce", "0");
 }
 
 void UserIdmClientTest::TearDownTestCase()
 {
+    SaveStringToFile("/sys/fs/selinux/enforce", "1");
 }
 
 void UserIdmClientTest::SetUp()
@@ -64,9 +49,8 @@ void UserIdmClientTest::TearDown()
 
 HWTEST_F(UserIdmClientTest, UserIdmClientOpenSession, TestSize.Level0)
 {
-    int32_t testUserId = 100;
+    int32_t testUserId = 21200;
     std::vector<uint8_t> challenge = UserIdmClient::GetInstance().OpenSession(testUserId);
-    EXPECT_EQ(challenge.size(), 32);
     UserIdmClient::GetInstance().CloseSession(testUserId);
 }
 
@@ -82,7 +66,7 @@ HWTEST_F(UserIdmClientTest, UserIdmClientAddCredential, TestSize.Level0)
     CredentialParameters testPara = {};
     auto testCallback = Common::MakeShared<MockUserIdmClientCallback>();
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(Exactly(1));
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     UserIdmClient::GetInstance().AddCredential(testUserId, testPara, testCallback);
 }
 
@@ -92,7 +76,7 @@ HWTEST_F(UserIdmClientTest, UserIdmClientUpdateCredential, TestSize.Level0)
     CredentialParameters testPara = {};
     auto testCallback = Common::MakeShared<MockUserIdmClientCallback>();
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(Exactly(1));
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     UserIdmClient::GetInstance().UpdateCredential(testUserId, testPara, testCallback);
 }
 
@@ -110,7 +94,7 @@ HWTEST_F(UserIdmClientTest, UserIdmClientDeleteCredential, TestSize.Level0)
     std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
     auto testCallback = Common::MakeShared<MockUserIdmClientCallback>();
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(Exactly(1));
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     UserIdmClient::GetInstance().DeleteCredential(testUserId, testCredentialId, testAuthToken, testCallback);
 }
 
@@ -120,7 +104,7 @@ HWTEST_F(UserIdmClientTest, UserIdmClientDeleteUser, TestSize.Level0)
     std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
     auto testCallback = Common::MakeShared<MockUserIdmClientCallback>();
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(Exactly(1));
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     UserIdmClient::GetInstance().DeleteUser(testUserId, testAuthToken, testCallback);
 }
 
@@ -129,7 +113,7 @@ HWTEST_F(UserIdmClientTest, UserIdmClientEraseUser, TestSize.Level0)
     int32_t testUserId = 200;
     auto testCallback = Common::MakeShared<MockUserIdmClientCallback>();
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(Exactly(1));
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     int32_t ret = UserIdmClient::GetInstance().EraseUser(testUserId, testCallback);
     EXPECT_NE(ret, SUCCESS);
 }
@@ -140,7 +124,7 @@ HWTEST_F(UserIdmClientTest, UserIdmClientGetCredentialInfo, TestSize.Level0)
     AuthType testAuthType = PIN;
     auto testCallback = Common::MakeShared<MockGetCredentialInfoCallback>();
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnCredentialInfo(_)).Times(Exactly(1));
+    EXPECT_CALL(*testCallback, OnCredentialInfo(_)).Times(1);
     int32_t ret = UserIdmClient::GetInstance().GetCredentialInfo(testUserId, testAuthType, testCallback);
     EXPECT_NE(ret, SUCCESS);
 }
@@ -150,7 +134,7 @@ HWTEST_F(UserIdmClientTest, UserIdmClientGetSecUserInfo, TestSize.Level0)
     int32_t testUserId = 200;
     auto testCallback = Common::MakeShared<MockGetSecUserInfoCallback>();
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnSecUserInfo(_)).Times(Exactly(0));
+    EXPECT_CALL(*testCallback, OnSecUserInfo(_)).Times(0);
     int32_t ret = UserIdmClient::GetInstance().GetSecUserInfo(testUserId, testCallback);
     EXPECT_NE(ret, SUCCESS);
 }
