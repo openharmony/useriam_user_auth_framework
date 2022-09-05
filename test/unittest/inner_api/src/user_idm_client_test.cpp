@@ -15,6 +15,7 @@
 
 #include "user_idm_client_test.h"
 
+#include "accesstoken_kit.h"
 #include "file_ex.h"
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
@@ -29,13 +30,35 @@ namespace UserAuth {
 using namespace testing;
 using namespace testing::ext;
 
+static uint64_t tokenId;
+
 void UserIdmClientTest::SetUpTestCase()
 {
+    static const char *PERMS[] = {
+        "ohos.permission.MANAGE_USER_IDM",
+        "ohos.permission.USE_USER_IDM",
+        "ohos.permission.ENFORCE_USER_IDM"
+    };
+    NativeTokenInfoParams infoInstance = {
+        .dcapsNum = 0,
+        .permsNum = 3,
+        .aclsNum = 0,
+        .dcaps = nullptr,
+        .perms = PERMS,
+        .acls = nullptr,
+        .processName = "user_idm_client_test",
+        .aplStr = "system_core",
+    };
+    tokenId = GetAccessTokenId(&infoInstance);
+    SetSelfTokenID(tokenId);
+    Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
     SaveStringToFile("/sys/fs/selinux/enforce", "0");
 }
 
 void UserIdmClientTest::TearDownTestCase()
 {
+    Security::AccessToken::AccessTokenKit::DeleteToken(tokenId);
+    Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
     SaveStringToFile("/sys/fs/selinux/enforce", "1");
 }
 

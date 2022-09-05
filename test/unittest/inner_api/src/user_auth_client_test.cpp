@@ -15,6 +15,7 @@
 
 #include "user_auth_client_test.h"
 
+#include "accesstoken_kit.h"
 #include "file_ex.h"
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
@@ -30,13 +31,34 @@ namespace UserAuth {
 using namespace testing;
 using namespace testing::ext;
 
+static uint64_t tokenId;
+
 void UserAuthClientTest::SetUpTestCase()
 {
+    static const char *PERMS[] = {
+        "ohos.permission.ACCESS_USER_AUTH_INTERNAL",
+        "ohos.permission.ACCESS_BIOMETRIC"
+    };
+    NativeTokenInfoParams infoInstance = {
+        .dcapsNum = 0,
+        .permsNum = 2,
+        .aclsNum = 0,
+        .dcaps = nullptr,
+        .perms = PERMS,
+        .acls = nullptr,
+        .processName = "user_auth_client_test",
+        .aplStr = "system_core",
+    };
+    tokenId = GetAccessTokenId(&infoInstance);
+    SetSelfTokenID(tokenId);
+    Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
     SaveStringToFile("/sys/fs/selinux/enforce", "0");
 }
 
 void UserAuthClientTest::TearDownTestCase()
 {
+    Security::AccessToken::AccessTokenKit::DeleteToken(tokenId);
+    Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
     SaveStringToFile("/sys/fs/selinux/enforce", "1");
 }
 
