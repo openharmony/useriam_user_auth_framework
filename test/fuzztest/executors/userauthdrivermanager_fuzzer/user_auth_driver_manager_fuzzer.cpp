@@ -202,15 +202,15 @@ private:
 };
 
 auto g_authDriverHdi = UserIam::Common::MakeShared<DummyAuthDriverHdi>();
-const std::map<std::string, UserAuth::HdiConfig> g_hdiName2Config = {
+const std::map<std::string, UserAuth::HdiConfig> GLOBAL_HDI_NAME_TO_CONFIG = {
     {"face_auth_interface_service", {1, g_authDriverHdi}}, {"pin_auth_interface_service", {2, g_authDriverHdi}}};
-const string g_serviceNames[] = {"face_auth_interface_service", "pin_auth_interface_service"};
+const string GLOBAL_SERVICE_NAMES[] = {"face_auth_interface_service", "pin_auth_interface_service"};
 
 void FuzzStart(std::shared_ptr<Parcel> parcel)
 {
     IAM_LOGI("begin");
     // driver manager forbids multiple invoke of Start(), it's config must be valid
-    Singleton<UserAuth::DriverManager>::GetInstance().Start(g_hdiName2Config);
+    Singleton<UserAuth::DriverManager>::GetInstance().Start(GLOBAL_HDI_NAME_TO_CONFIG);
     IAM_LOGI("end");
 }
 
@@ -247,9 +247,9 @@ void FuzzGetDriverByServiceName(std::shared_ptr<Parcel> parcel)
 void FuzzDriverConnect(std::shared_ptr<Parcel> parcel)
 {
     IAM_LOGI("begin");
-    uint32_t index = parcel->ReadUint32() % (sizeof(g_serviceNames) / sizeof(g_serviceNames[0]));
+    uint32_t index = parcel->ReadUint32() % (sizeof(GLOBAL_SERVICE_NAMES) / sizeof(GLOBAL_SERVICE_NAMES[0]));
     std::shared_ptr<Driver> driver =
-        Singleton<UserAuth::DriverManager>::GetInstance().GetDriverByServiceName(g_serviceNames[index]);
+        Singleton<UserAuth::DriverManager>::GetInstance().GetDriverByServiceName(GLOBAL_SERVICE_NAMES[index]);
     // Since config is valid, GetDriverByServiceName should never return null.
     // If it happens to be null, let fuzz process crash.
     driver->OnHdiConnect();
@@ -259,9 +259,9 @@ void FuzzDriverConnect(std::shared_ptr<Parcel> parcel)
 void FuzzDriverDisconnect(std::shared_ptr<Parcel> parcel)
 {
     IAM_LOGI("begin");
-    uint32_t index = parcel->ReadUint32() % (sizeof(g_serviceNames) / sizeof(g_serviceNames[0]));
+    uint32_t index = parcel->ReadUint32() % (sizeof(GLOBAL_SERVICE_NAMES) / sizeof(GLOBAL_SERVICE_NAMES[0]));
     std::shared_ptr<Driver> driver =
-        Singleton<UserAuth::DriverManager>::GetInstance().GetDriverByServiceName(g_serviceNames[index]);
+        Singleton<UserAuth::DriverManager>::GetInstance().GetDriverByServiceName(GLOBAL_SERVICE_NAMES[index]);
     // Since config is valid, GetDriverByServiceName should never return null.
     // If it happens to be null, let fuzz process crash.
     driver->OnHdiDisconnect();
