@@ -28,7 +28,7 @@ namespace UserAuth {
 class AuthenticationImpl final : public Authentication, public NoCopyable {
 public:
     AuthenticationImpl(uint64_t contextId, int32_t userId, AuthType authType, AuthTrustLevel atl);
-    virtual ~AuthenticationImpl() override;
+    ~AuthenticationImpl() override;
 
     void SetExecutor(uint32_t executorIndex) override;
     void SetChallenge(const std::vector<uint8_t> &challenge) override;
