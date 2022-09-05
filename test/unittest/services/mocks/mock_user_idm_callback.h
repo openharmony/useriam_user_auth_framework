@@ -14,9 +14,11 @@
  */
 #ifndef IAM_MOCK_USER_IDM_CALLBACK_H
 #define IAM_MOCK_USER_IDM_CALLBACK_H
+
 #include <memory>
 
 #include <gmock/gmock.h>
+#include <iremote_stub.h>
 
 #include "user_idm_callback_interface.h"
 
