@@ -13,10 +13,6 @@
  * limitations under the License.
  */
 
-#include "user_auth_helper.h"
-
-#include <cinttypes>
-
 #include "iam_logger.h"
 
 #include "user_auth_impl.h"
@@ -26,7 +22,52 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-using namespace OHOS::UserIam::UserAuth;
+namespace {
+enum FaceTipsCode {
+    FACE_AUTH_TIP_TOO_BRIGHT = 1,
+    FACE_AUTH_TIP_TOO_DARK = 2,
+    FACE_AUTH_TIP_TOO_CLOSE = 3,
+    FACE_AUTH_TIP_TOO_FAR = 4,
+    FACE_AUTH_TIP_TOO_HIGH = 5,
+    FACE_AUTH_TIP_TOO_LOW = 6,
+    FACE_AUTH_TIP_TOO_RIGHT = 7,
+    FACE_AUTH_TIP_TOO_LEFT = 8,
+    FACE_AUTH_TIP_TOO_MUCH_MOTION = 9,
+    FACE_AUTH_TIP_POOR_GAZE = 10,
+    FACE_AUTH_TIP_NOT_DETECTED = 11,
+};
+
+enum FingerprintTips {
+    FINGERPRINT_AUTH_TIP_GOOD = 0,
+    FINGERPRINT_AUTH_TIP_IMAGER_DIRTY = 1,
+    FINGERPRINT_AUTH_TIP_INSUFFICIENT = 2,
+    FINGERPRINT_AUTH_TIP_PARTIAL = 3,
+    FINGERPRINT_AUTH_TIP_TOO_FAST = 4,
+    FINGERPRINT_AUTH_TIP_TOO_SLOW = 5
+};
+
+napi_status GetUserAuthImpl(napi_env env, napi_callback_info info, UserAuthImpl **userAuthImpl)
+{
+    napi_value thisVar = nullptr;
+    size_t argc = ARGS_ONE;
+    napi_value argv[ARGS_ONE] = {nullptr};
+    napi_status ret = napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_get_cb_info fail");
+        return ret;
+    }
+    ret = napi_unwrap(env, thisVar, reinterpret_cast<void **>(userAuthImpl));
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_unwrap fail");
+        return ret;
+    }
+    if (*userAuthImpl == nullptr) {
+        IAM_LOGE("userAuthImpl is null");
+        return napi_generic_failure;
+    }
+    return ret;
+}
+
 napi_value UserAuthServiceConstructor(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
@@ -55,80 +96,40 @@ napi_value UserAuthServiceConstructor(napi_env env, napi_callback_info info)
 napi_value GetVersion(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
-    napi_value thisVar = nullptr;
-    size_t argcAsync = 0;
-    napi_value args[ARGS_MAX_COUNT] = {nullptr};
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
-    UserAuthImpl *userAuthImpl = nullptr;
-    NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userAuthImpl)));
-    if (userAuthImpl == nullptr) {
-        IAM_LOGE("userAuthImpl is nullptr");
-        return nullptr;
-    }
+    UserAuthImpl *userAuthImpl;
+    NAPI_CALL(env, GetUserAuthImpl(env, info, &userAuthImpl));
     return userAuthImpl->GetVersion(env, info);
 }
 
 napi_value GetAvailableStatus(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
-    napi_value thisVar = nullptr;
-    size_t argcAsync = 0;
-    napi_value args[ARGS_MAX_COUNT] = {nullptr};
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
-    UserAuthImpl *userAuthImpl = nullptr;
-    NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userAuthImpl)));
-    if (userAuthImpl == nullptr) {
-        IAM_LOGE("userAuthImpl is nullptr");
-        return nullptr;
-    }
+    UserAuthImpl *userAuthImpl;
+    NAPI_CALL(env, GetUserAuthImpl(env, info, &userAuthImpl));
     return userAuthImpl->GetAvailableStatus(env, info);
 }
 
 napi_value Auth(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
-    napi_value thisVar = nullptr;
-    size_t argcAsync = 0;
-    napi_value args[ARGS_MAX_COUNT] = {nullptr};
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
-    UserAuthImpl *userAuthImpl = nullptr;
-    NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userAuthImpl)));
-    if (userAuthImpl == nullptr) {
-        IAM_LOGE("userAuthImpl is nullptr");
-        return nullptr;
-    }
+    UserAuthImpl *userAuthImpl;
+    NAPI_CALL(env, GetUserAuthImpl(env, info, &userAuthImpl));
     return userAuthImpl->Auth(env, info);
 }
 
 napi_value Execute(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
-    napi_value thisVar = nullptr;
-    size_t argcAsync = 0;
-    napi_value args[ARGS_MAX_COUNT] = {nullptr};
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
-    UserAuthImpl *userAuthImpl = nullptr;
-    NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userAuthImpl)));
-    if (userAuthImpl == nullptr) {
-        IAM_LOGE("userAuthImpl is nullptr");
-        return nullptr;
-    }
+    UserAuthImpl *userAuthImpl;
+    NAPI_CALL(env, GetUserAuthImpl(env, info, &userAuthImpl));
     return userAuthImpl->Execute(env, info);
 }
 
 napi_value CancelAuth(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
-    napi_value thisVar = nullptr;
-    size_t argcAsync = 0;
-    napi_value args[ARGS_MAX_COUNT] = {nullptr};
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
-    UserAuthImpl *userAuthImpl = nullptr;
-    NAPI_CALL(env, napi_unwrap(env, thisVar, reinterpret_cast<void **>(&userAuthImpl)));
-    if (userAuthImpl == nullptr) {
-        IAM_LOGE("userAuthImpl is nullptr");
-        return nullptr;
-    }
+    UserAuthImpl *userAuthImpl;
+    NAPI_CALL(env, GetUserAuthImpl(env, info, &userAuthImpl));
     return userAuthImpl->CancelAuth(env, info);
 }
 
@@ -319,12 +320,45 @@ napi_value UserAuthTypeConstructor(napi_env env)
     return userAuthType;
 }
 
+napi_value GetCtor(napi_env env)
+{
+    IAM_LOGI("start");
+    napi_value cons = nullptr;
+    napi_property_descriptor clzDes[] = {
+        DECLARE_NAPI_FUNCTION("getVersion", UserAuth::GetVersion),
+        DECLARE_NAPI_FUNCTION("getAvailableStatus", UserAuth::GetAvailableStatus),
+        DECLARE_NAPI_FUNCTION("auth", UserAuth::Auth),
+        DECLARE_NAPI_FUNCTION("cancelAuth", UserAuth::CancelAuth),
+    };
+    NAPI_CALL(env, napi_define_class(env, "UserAuth", NAPI_AUTO_LENGTH, UserAuthServiceConstructor, nullptr,
+        sizeof(clzDes) / sizeof(napi_property_descriptor), clzDes, &cons));
+    return cons;
+}
+
+napi_value GetCtorForApi6(napi_env env)
+{
+    napi_value cons = nullptr;
+    napi_property_descriptor clzDes[] = {
+        DECLARE_NAPI_FUNCTION("execute", UserAuth::Execute),
+    };
+    NAPI_CALL(env, napi_define_class(env, "UserAuth", NAPI_AUTO_LENGTH, UserAuthServiceConstructor, nullptr,
+        sizeof(clzDes) / sizeof(napi_property_descriptor), clzDes, &cons));
+    return cons;
+}
+
+napi_value ConstructorForApi6(napi_env env, napi_callback_info info)
+{
+    napi_value userAuthForApi6 = nullptr;
+    NAPI_CALL(env, napi_new_instance(env, GetCtorForApi6(env), 0, nullptr, &userAuthForApi6));
+    return userAuthForApi6;
+}
+
 napi_value UserAuthInit(napi_env env, napi_value exports)
 {
     IAM_LOGI("start");
     napi_status status;
     napi_property_descriptor exportFuncs[] = {
-        DECLARE_NAPI_FUNCTION("getAuthenticator", UserAuth::ConstructorForAPI6),
+        DECLARE_NAPI_FUNCTION("getAuthenticator", UserAuth::ConstructorForApi6),
     };
     status = napi_define_properties(env, exports,
         sizeof(exportFuncs) / sizeof(napi_property_descriptor), exportFuncs);
@@ -352,39 +386,26 @@ napi_value EnumExport(napi_env env, napi_value exports)
     return exports;
 }
 
-napi_value ConstructorForAPI6(napi_env env, napi_callback_info info)
+napi_value ModuleInit(napi_env env, napi_value exports)
 {
-    napi_value thisVar = nullptr;
-    napi_value userAuthForAPI6 = nullptr;
-    NAPI_CALL(env, napi_new_instance(env, GetCtorForAPI6(env), 0, nullptr, &userAuthForAPI6));
-    NAPI_CALL(env, napi_get_cb_info(env, info, nullptr, nullptr, &thisVar, nullptr));
-    return userAuthForAPI6;
+    napi_value val = UserAuthInit(env, exports);
+    val = EnumExport(env, val);
+    return val;
 }
+} // namespace
 
-napi_value GetCtor(napi_env env)
+extern "C" __attribute__((constructor)) void RegisterModule(void)
 {
-    IAM_LOGI("start");
-    napi_value cons = nullptr;
-    napi_property_descriptor clzDes[] = {
-        DECLARE_NAPI_FUNCTION("getVersion", UserAuth::GetVersion),
-        DECLARE_NAPI_FUNCTION("getAvailableStatus", UserAuth::GetAvailableStatus),
-        DECLARE_NAPI_FUNCTION("auth", UserAuth::Auth),
-        DECLARE_NAPI_FUNCTION("cancelAuth", UserAuth::CancelAuth),
+    napi_module module = {
+        .nm_version = 1,
+        .nm_flags = 0,
+        .nm_filename = nullptr,
+        .nm_register_func = ModuleInit,
+        .nm_modname = "userIAM.userAuth",
+        .nm_priv = nullptr,
+        .reserved = {}
     };
-    NAPI_CALL(env, napi_define_class(env, "UserAuth", NAPI_AUTO_LENGTH, UserAuthServiceConstructor, nullptr,
-        sizeof(clzDes) / sizeof(napi_property_descriptor), clzDes, &cons));
-    return cons;
-}
-
-napi_value GetCtorForAPI6(napi_env env)
-{
-    napi_value cons = nullptr;
-    napi_property_descriptor clzDes[] = {
-        DECLARE_NAPI_FUNCTION("execute", UserAuth::Execute),
-    };
-    NAPI_CALL(env, napi_define_class(env, "UserAuth", NAPI_AUTO_LENGTH, UserAuthServiceConstructor, nullptr,
-        sizeof(clzDes) / sizeof(napi_property_descriptor), clzDes, &cons));
-    return cons;
+    napi_module_register(&module);
 }
 } // namespace UserAuth
 } // namespace UserIam

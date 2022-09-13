@@ -13,14 +13,13 @@
  * limitations under the License.
  */
 
-#include "authapi_callback.h"
+#include "auth_api_callback.h"
 
-#include <cinttypes>
-#include <map>
 #include <uv.h>
 
-#include "iam_logger.h"
 #include "securec.h"
+
+#include "iam_logger.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_NAPI
 
