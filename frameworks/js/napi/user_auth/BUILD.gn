@@ -18,15 +18,16 @@ config("userauth_public_config") {
 }
 
 ohos_shared_library("userauth") {
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
   include_dirs = [ "inc" ]
 
   sources = [
-    "src/auth_build.cpp",
+    "src/auth_api_callback.cpp",
     "src/auth_common.cpp",
-    "src/authapi_callback.cpp",
-    "src/result_convert.cpp",
-    "src/user_auth_helper.cpp",
+    "src/user_auth_entry.cpp",
     "src/user_auth_impl.cpp",
+    "src/user_auth_napi_helper.cpp",
   ]
 
   deps = [

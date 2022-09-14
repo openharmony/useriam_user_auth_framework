@@ -86,8 +86,6 @@ static constexpr HiLogLabel LABEL_FINGERPRINT_AUTH_SA = {LOG_CORE, IAM_DOMAIN_ID
 static constexpr HiLogLabel LABEL_FINGERPRINT_AUTH_HDI = {LOG_CORE, IAM_DOMAIN_ID_FINGERPRINT, "FINGERPRINT_AUTH_HDI"};
 static constexpr HiLogLabel LABEL_FINGERPRINT_AUTH_IMPL = {
     LOG_CORE, IAM_DOMAIN_ID_FINGERPRINT, "FINGERPRINT_AUTH_IMPL"};
-
-constexpr uint64_t MASK = 0x0000FFFF;
 } // namespace Common
 } // namespace UserIam
 } // namespace OHOS

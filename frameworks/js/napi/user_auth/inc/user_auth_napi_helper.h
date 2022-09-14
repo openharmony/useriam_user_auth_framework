@@ -13,36 +13,33 @@
  * limitations under the License.
  */
 
-#ifndef FACERECOGNITION_AUTH_BUILD_H
-#define FACERECOGNITION_AUTH_BUILD_H
+#ifndef USER_AUTH_NAPI_HELPER
+#define USER_AUTH_NAPI_HELPER
 
 #include <vector>
+
 #include "napi/native_api.h"
-#include "napi/native_common.h"
-#include "nocopyable.h"
-#include "auth_common.h"
-#include "result_convert.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class AuthBuild {
-public:
-    DISALLOW_COPY_AND_MOVE(AuthBuild);
-    AuthBuild();
-    virtual ~AuthBuild();
-    bool NapiTypeObject(napi_env env, napi_value value);
-    bool NapiTypeNumber(napi_env env, napi_value value);
 
-    std::vector<uint8_t> GetUint8Array(napi_env env, napi_value value);
-    uint64_t GetUint8ArrayTo64(napi_env env, napi_value value);
-    int32_t NapiGetValueInt32(napi_env env, napi_value value);
-    napi_value Uint64ToUint8Array(napi_env env, uint64_t value);
+class UserAuthNapiHelper {
+public:
+    static napi_status CheckNapiType(napi_env env, napi_value value, napi_valuetype type);
+    static napi_status GetInt32Value(napi_env env, napi_value value, int32_t &out);
+    static napi_status GetStrValue(napi_env env, napi_value value, char *out, size_t &len);
+    static napi_status GetFunctionRef(napi_env env, napi_value value, napi_ref &ref);
+    static napi_status GetUint8ArrayValue(napi_env env, napi_value value, std::vector<uint8_t> &array);
+    static napi_value Uint64ToNapiUint8Array(napi_env env, uint64_t value);
 
 private:
-    ResultConvert convert_;
+    UserAuthNapiHelper() = default;
+    ~UserAuthNapiHelper() = default;
 };
+
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // FACERECOGNITION_AUTH_BUILD_H
+
+#endif // USER_AUTH_NAPI_HELPER
