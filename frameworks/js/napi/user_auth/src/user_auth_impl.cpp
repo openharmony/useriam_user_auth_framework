@@ -15,107 +15,52 @@
 
 #include "user_auth_impl.h"
 
-#include <cinttypes>
 #include <map>
 
 #include "securec.h"
 
 #include "iam_logger.h"
 #include "iam_para2str.h"
+#include "iam_ptr.h"
 
-#include "authapi_callback.h"
+#include "user_auth_napi_helper.h"
+#include "auth_api_callback.h"
 #include "user_auth_client_impl.h"
-
-#include "user_auth_client.h"
-#include "user_auth_helper.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_NAPI
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-using namespace OHOS::UserIam::UserAuth;
-UserAuthImpl::UserAuthImpl()
-{
-}
-
-UserAuthImpl::~UserAuthImpl()
-{
-}
-
 napi_value UserAuthImpl::GetVersion(napi_env env, napi_callback_info info)
 {
     int32_t result = UserAuthClientImpl::Instance().GetVersion();
     IAM_LOGI("start result = %{public}d", result);
-    napi_value version = 0;
+    napi_value version;
     NAPI_CALL(env, napi_create_int32(env, result, &version));
     return version;
 }
 
 napi_value UserAuthImpl::GetAvailableStatus(napi_env env, napi_callback_info info)
 {
-    napi_value argv[ARGS_MAX_COUNT] = {nullptr};
-    size_t argc = ARGS_MAX_COUNT;
-    int32_t result = INVALID_PARAMETERS;
-    napi_value ret = nullptr;
+    napi_value argv[ARGS_TWO] = {nullptr};
+    size_t argc = ARGS_TWO;
+    napi_value result;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
     if (argc != ARGS_TWO) {
         IAM_LOGE("parms error");
-        NAPI_CALL(env, napi_create_int32(env, result, &ret));
-        return ret;
+        NAPI_CALL(env, napi_create_int32(env, INVALID_PARAMETERS, &result));
+        return result;
     }
-    int32_t type = authBuild.NapiGetValueInt32(env, argv[PARAM0]);
-    if (type == GET_VALUE_ERROR) {
-        IAM_LOGE("argv[PARAM0] error");
-        NAPI_CALL(env, napi_create_int32(env, result, &ret));
-        return ret;
-    }
-    int32_t level = authBuild.NapiGetValueInt32(env, argv[PARAM1]);
-    if (level == GET_VALUE_ERROR) {
-        IAM_LOGE("argv[PARAM1] error");
-        NAPI_CALL(env, napi_create_int32(env, result, &ret));
-        return ret;
-    }
+    int32_t type;
+    NAPI_CALL(env, napi_get_value_int32(env, argv[PARAM0], &type));
+    int32_t level;
+    NAPI_CALL(env, napi_get_value_int32(env, argv[PARAM1], &level));
     AuthType authType = AuthType(type);
     AuthTrustLevel authTrustLevel = AuthTrustLevel(level);
-
-    result = UserAuthClientImpl::Instance().GetAvailableStatus(authType, authTrustLevel);
-    IAM_LOGI("result = %{public}d", result);
-    NAPI_CALL(env, napi_create_int32(env, result, &ret));
-    return ret;
-}
-
-napi_value UserAuthImpl::BuildAuthInfo(napi_env env, AuthInfo *authInfo)
-{
-    napi_value result = nullptr;
-    NAPI_CALL(env, napi_get_null(env, &result));
-    size_t argc = ARGS_MAX_COUNT;
-    napi_value argv[ARGS_MAX_COUNT] = {nullptr};
-    NAPI_CALL(env, napi_get_cb_info(env, authInfo->info, &argc, argv, nullptr, nullptr));
-    if (argc != ARGS_FOUR) {
-        IAM_LOGE("parms error");
-        return nullptr;
-    }
-    authInfo->challenge = authBuild.GetUint8Array(env, argv[0]);
-
-    if (authBuild.NapiTypeNumber(env, argv[PARAM1])) {
-        int64_t type;
-        NAPI_CALL(env, napi_get_value_int64(env, argv[PARAM1], &type));
-        authInfo->authType = type;
-    }
-
-    if (authBuild.NapiTypeNumber(env, argv[PARAM2])) {
-        int64_t level;
-        NAPI_CALL(env, napi_get_value_int64(env, argv[PARAM2], &level));
-        authInfo->authTrustLevel = level;
-    }
-
-    if (authBuild.NapiTypeObject(env, argv[PARAM3])) {
-        NAPI_CALL(env, napi_get_named_property(env, argv[PARAM3], "onResult", &authInfo->onResultCallBack));
-        NAPI_CALL(env, napi_create_reference(env, authInfo->onResultCallBack, PARAM1, &authInfo->onResult));
-        NAPI_CALL(env, napi_get_named_property(env, argv[PARAM3], "onAcquireInfo", &authInfo->onAcquireInfoCallBack));
-        NAPI_CALL(env, napi_create_reference(env, authInfo->onAcquireInfoCallBack, PARAM1, &authInfo->onAcquireInfo));
-    }
+    int32_t status = UserAuthClientImpl::Instance().GetAvailableStatus(authType, authTrustLevel);
+    IAM_LOGI("result = %{public}d", status);
+    NAPI_CALL(env, napi_create_int32(env, status, &result));
     return result;
 }
 
@@ -128,147 +73,101 @@ napi_value UserAuthImpl::Execute(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    size_t argc = ARGS_MAX_COUNT;
-    napi_value argv[ARGS_MAX_COUNT] = {};
+    size_t argc = ARGS_THREE;
+    napi_value argv[ARGS_THREE] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
-
-    executeInfo->isPromise = true;
-    if (argc > 0) {
-        size_t callbackIndex = argc - 1;
-        napi_valuetype valuetype;
-        NAPI_CALL(env, napi_typeof(env, argv[callbackIndex], &valuetype));
-        if (valuetype == napi_function) {
-            executeInfo->isPromise = false;
-            NAPI_CALL(env, napi_create_reference(env, argv[callbackIndex], 1, &executeInfo->callbackRef));
-        } else {
-            executeInfo->isPromise = true;
-        }
-    }
-
-    if (executeInfo->isPromise) {
-        NAPI_CALL(env, napi_create_promise(env, &executeInfo->deferred, &executeInfo->promise));
-    }
-
     napi_value retPromise = nullptr;
-    if (executeInfo->isPromise) {
+    if (argc == ARGS_THREE) {
+        executeInfo->isPromise = false;
+        NAPI_CALL(env, UserAuthNapiHelper::GetFunctionRef(env, argv[PARAM2], executeInfo->callbackRef));
+        NAPI_CALL(env, napi_get_null(executeInfo->env, &retPromise));
+    } else if (argc == ARGS_TWO) {
+        executeInfo->isPromise = true;
+        NAPI_CALL(env, napi_create_promise(env, &executeInfo->deferred, &executeInfo->promise));
         retPromise = executeInfo->promise;
     } else {
-        napi_get_null(executeInfo->env, &retPromise);
-    }
-
-    ResultCode ret = ParseExecuteParameters(env, argc, argv, (*executeInfo));
-    AuthTrustLevel authTrustLevel = executeInfo->trustLevel;
-    std::shared_ptr<AuthApiCallback> callback = std::make_shared<AuthApiCallback>(executeInfo.release());
-    if (ret != ResultCode::SUCCESS) {
-        IAM_LOGE("ParseExecuteParameters fail");
-        UserIam::UserAuth::Attributes extra;
-        callback->OnResult(ret, extra);
+        IAM_LOGE("bad params");
         return retPromise;
     }
+
+    AuthType authType;
+    ResultCode resultCode;
+    std::shared_ptr<AuthApiCallback> callback = std::make_shared<AuthApiCallback>(executeInfo.release());
+    NAPI_CALL(env, ParseExecuteAuthType(env, argv[PARAM0], authType, resultCode));
+    if (resultCode != ResultCode::SUCCESS) {
+        IAM_LOGE("ParseAuthType fail");
+        UserIam::UserAuth::Attributes extra;
+        callback->OnResult(resultCode, extra);
+        return retPromise;
+    }
+    AuthTrustLevel authTrustLevel;
+    NAPI_CALL(env, ParseExecuteSecureLevel(env, argv[PARAM1], authTrustLevel, resultCode));
+    if (resultCode != ResultCode::SUCCESS) {
+        IAM_LOGE("ParseExecuteSecureLevel fail");
+        UserIam::UserAuth::Attributes extra;
+        callback->OnResult(resultCode, extra);
+        return retPromise;
+    }
+
     std::vector<uint8_t> challenge;
     UserAuthClientImpl::Instance().BeginAuthentication(challenge, FACE, authTrustLevel, callback);
     return retPromise;
 }
 
-ResultCode UserAuthImpl::ParseExecuteParametersZero(napi_env env, size_t argc, napi_value* argv,
-    ExecuteInfo& executeInfo)
+napi_status UserAuthImpl::ParseExecuteAuthType(napi_env env, napi_value value,
+    AuthType &authType, ResultCode &resultCode)
 {
-    napi_valuetype valuetype = napi_undefined;
-    napi_typeof(env, argv[PARAM0], &valuetype);
-    if (valuetype != napi_string) {
-        IAM_LOGE("argv[PARAM0] is not string");
-        return ResultCode::INVALID_PARAMETERS;
+    resultCode = ResultCode::FAIL;
+    static const size_t maxLen = 20;
+    char str[maxLen] = {0};
+    size_t len = maxLen;
+    napi_status result = UserAuthNapiHelper::GetStrValue(env, value, str, len);
+    if (result != napi_ok) {
+        IAM_LOGE("getStrValue fail");
+        return result;
     }
-
-    size_t len = 0;
-    napi_get_value_string_utf8(env, argv[PARAM0], nullptr, 0, &len);
-
-    if (len == 0) {
-        IAM_LOGE("string length is 0");
-        return ResultCode::INVALID_PARAMETERS;
+    static const char *authTypeAll = "ALL";
+    static const char *authTypeFaceOnly = "FACE_ONLY";
+    if (strcmp(str, authTypeAll) == 0) {
+        IAM_LOGE("type ALL not supported");
+        resultCode = ResultCode::TYPE_NOT_SUPPORT;
+        return napi_ok;
     }
-
-    char *str = new (std::nothrow) char[len + 1]();
-    if (str == nullptr) {
-        IAM_LOGE("str is nullptr");
-        return ResultCode::INVALID_PARAMETERS;
-    }
-    napi_get_value_string_utf8(env, argv[PARAM0], str, len + 1, &len);
-    executeInfo.type = str;
-    delete[] str;
-
-    if (executeInfo.type.compare("ALL") == 0) {
-        IAM_LOGE("type is ALL");
-        return ResultCode::TYPE_NOT_SUPPORT;
-    }
-
-    if (executeInfo.type.compare("FACE_ONLY") != 0) {
+    if (strcmp(str, authTypeFaceOnly) != 0) {
         IAM_LOGE("type is invalid");
-        return ResultCode::INVALID_PARAMETERS;
+        resultCode = ResultCode::INVALID_PARAMETERS;
+        return napi_ok;
     }
-
-    return ResultCode::SUCCESS;
+    resultCode = ResultCode::SUCCESS;
+    return napi_ok;
 }
 
-ResultCode UserAuthImpl::ParseExecuteParametersOne(napi_env env, size_t argc, napi_value* argv,
-    ExecuteInfo& executeInfo)
+napi_status UserAuthImpl::ParseExecuteSecureLevel(napi_env env, napi_value value,
+    AuthTrustLevel &authTrustLevel, ResultCode &resultCode)
 {
-    napi_valuetype valuetype = napi_undefined;
-    napi_typeof(env, argv[PARAM1], &valuetype);
-    if (valuetype != napi_string) {
-        IAM_LOGE("argv[PARAM1] is not string");
-        return ResultCode::INVALID_PARAMETERS;
+    resultCode = ResultCode::FAIL;
+    static const size_t maxLen = 20;
+    char str[maxLen] = {0};
+    size_t len = maxLen;
+    napi_status result = UserAuthNapiHelper::GetStrValue(env, value, str, len);
+    if (result != napi_ok) {
+        IAM_LOGE("getStrValue fail");
+        return result;
     }
-    std::map<std::string, AuthTrustLevel> convertAuthTrustLevel = {
+    static std::map<std::string, AuthTrustLevel> convertAuthTrustLevel = {
         {"S1", ATL1},
         {"S2", ATL2},
         {"S3", ATL3},
         {"S4", ATL4},
     };
-    size_t len = 0;
-    napi_get_value_string_utf8(env, argv[PARAM1], nullptr, 0, &len);
-    if (len == 0) {
-        IAM_LOGE("string length is 0");
-        return ResultCode::INVALID_PARAMETERS;
-    }
-
-    char *str = new (std::nothrow) char[len + 1]();
-    if (str == nullptr) {
-        IAM_LOGE("str is null");
-        return ResultCode::INVALID_PARAMETERS;
-    }
-    napi_get_value_string_utf8(env, argv[PARAM1], str, len + 1, &len);
     if (convertAuthTrustLevel.count(str) == 0) {
         IAM_LOGE("trust level invalid");
-        delete[] str;
-        return ResultCode::INVALID_PARAMETERS;
+        resultCode = ResultCode::INVALID_PARAMETERS;
+        return napi_ok;
     }
-    executeInfo.trustLevel = convertAuthTrustLevel[str];
-    delete[] str;
-
-    return ResultCode::SUCCESS;
-}
-
-ResultCode UserAuthImpl::ParseExecuteParameters(napi_env env, size_t argc, napi_value* argv, ExecuteInfo& executeInfo)
-{
-    if (argc < PARAM2) {
-        IAM_LOGE("argc check fail");
-        return ResultCode::INVALID_PARAMETERS;
-    }
-
-    ResultCode ret = ParseExecuteParametersZero(env, argc, argv, executeInfo);
-    if (ret != ResultCode::SUCCESS) {
-        IAM_LOGE("ParseExecuteParametersZero fail");
-        return ret;
-    }
-
-    ret = ParseExecuteParametersOne(env, argc, argv, executeInfo);
-    if (ret != ResultCode::SUCCESS) {
-        IAM_LOGE("ParseExecuteParametersOne fail");
-        return ret;
-    }
-
-    return ResultCode::SUCCESS;
+    authTrustLevel = convertAuthTrustLevel[str];
+    resultCode = ResultCode::SUCCESS;
+    return napi_ok;
 }
 
 napi_value UserAuthImpl::Auth(napi_env env, napi_callback_info info)
@@ -279,71 +178,70 @@ napi_value UserAuthImpl::Auth(napi_env env, napi_callback_info info)
         IAM_LOGE("authInfo is nullptr");
         return nullptr;
     }
-    authInfo->info = info;
-    napi_value ret = BuildAuthInfo(env, authInfo);
-    if (ret == nullptr) {
-        IAM_LOGE("BuildAuthInfo fail");
+    std::shared_ptr<AuthApiCallback> callback = Common::MakeShared<AuthApiCallback>(authInfo);
+    if (callback == nullptr) {
+        IAM_LOGE("callback is nullptr");
         delete authInfo;
-        return ret;
-    }
-    return AuthWrap(env, authInfo);
-}
-
-napi_value UserAuthImpl::AuthWrap(napi_env env, AuthInfo *authInfo)
-{
-    IAM_LOGI("start");
-    AuthApiCallback *object = new (std::nothrow) AuthApiCallback(authInfo);
-    if (object == nullptr) {
-        IAM_LOGE("object is nullptr");
         return nullptr;
     }
-    std::shared_ptr<AuthApiCallback> callback;
-    callback.reset(object);
-
-    uint64_t result = UserAuthClientImpl::Instance().BeginAuthentication(authInfo->challenge,
-        AuthType(authInfo->authType), AuthTrustLevel(authInfo->authTrustLevel), callback);
-    IAM_LOGI("result's low 16 bits is %{public}s", GET_MASKED_STRING(result).c_str());
-    napi_value key = authBuild.Uint64ToUint8Array(env, result);
+    size_t argc = ARGS_FOUR;
+    napi_value argv[ARGS_FOUR] = {nullptr};
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
+    if (argc != ARGS_FOUR) {
+        IAM_LOGE("parms error");
+        return nullptr;
+    }
+    std::vector<uint8_t> challenge;
+    if (UserAuthNapiHelper::GetUint8ArrayValue(env, argv[PARAM0], challenge) != napi_ok) {
+        IAM_LOGE("challenge invalid, use null challenge");
+        challenge.clear();
+    }
+    int32_t authType;
+    NAPI_CALL(env, UserAuthNapiHelper::GetInt32Value(env, argv[PARAM1], authType));
+    int32_t authTrustLevel;
+    NAPI_CALL(env, UserAuthNapiHelper::GetInt32Value(env, argv[PARAM2], authTrustLevel));
+    NAPI_CALL(env, UserAuthNapiHelper::CheckNapiType(env, argv[PARAM3], napi_object));
+    napi_value onResultValue;
+    NAPI_CALL(env, napi_get_named_property(env, argv[PARAM3], "onResult", &onResultValue));
+    NAPI_CALL(env, napi_create_reference(env, onResultValue, 1, &authInfo->onResult));
+    napi_value onAcquireInfoValue;
+    NAPI_CALL(env, napi_get_named_property(env, argv[PARAM3], "onAcquireInfo", &onAcquireInfoValue));
+    NAPI_CALL(env, napi_create_reference(env, onAcquireInfoValue, 1, &authInfo->onAcquireInfo));
+    uint64_t result = UserAuthClientImpl::Instance().BeginAuthentication(challenge,
+        AuthType(authType), AuthTrustLevel(authTrustLevel), callback);
+    IAM_LOGI("result is %{public}s", GET_MASKED_STRING(result).c_str());
+    napi_value key = UserAuthNapiHelper::Uint64ToNapiUint8Array(env, result);
     IAM_LOGI("end");
     return key;
 }
 
 napi_value UserAuthImpl::CancelAuth(napi_env env, napi_callback_info info)
 {
-    size_t argc = ARGS_MAX_COUNT;
-    napi_value argv[ARGS_MAX_COUNT] = {nullptr};
+    size_t argc = ARGS_ONE;
+    napi_value argv[ARGS_ONE] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
-
-    uint64_t contextId = authBuild.GetUint8ArrayTo64(env, argv[0]);
+    if (argc != ARGS_ONE) {
+        IAM_LOGE("parms error");
+        return nullptr;
+    }
+    std::vector<uint8_t> contextIdArray;
+    NAPI_CALL(env, UserAuthNapiHelper::GetUint8ArrayValue(env, argv[PARAM0], contextIdArray));
+    uint64_t contextId;
+    if (memcpy_s(reinterpret_cast<void *>(&contextId), sizeof(contextId),
+        contextIdArray.data(), contextIdArray.size()) != EOK) {
+        IAM_LOGE("memcpy error");
+        return nullptr;
+    }
     IAM_LOGI("contextId's low 16 bits is %{public}s", GET_MASKED_STRING(contextId).c_str());
     if (contextId == 0) {
+        IAM_LOGE("invalid error");
         return nullptr;
     }
     int32_t result = UserAuthClient::GetInstance().CancelAuthentication(contextId);
     IAM_LOGI("result = %{public}d", result);
-    napi_value key = 0;
+    napi_value key;
     NAPI_CALL(env, napi_create_int32(env, result, &key));
     return key;
-}
-
-static napi_value ModuleInit(napi_env env, napi_value exports)
-{
-    napi_value val = UserAuthInit(env, exports);
-    val = EnumExport(env, val);
-    return val;
-}
-extern "C" __attribute__((constructor)) void RegisterModule(void)
-{
-    napi_module module = {
-        .nm_version = 1,
-        .nm_flags = 0,
-        .nm_filename = nullptr,
-        .nm_register_func = ModuleInit,
-        .nm_modname = "userIAM.userAuth",
-        .nm_priv = nullptr,
-        .reserved = {}
-    };
-    napi_module_register(&module);
 }
 } // namespace UserAuth
 } // namespace UserIam

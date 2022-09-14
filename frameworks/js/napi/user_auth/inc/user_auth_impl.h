@@ -13,27 +13,18 @@
  * limitations under the License.
  */
 
-#ifndef FACERECOGNITION_USER_AUTH_H
-#define FACERECOGNITION_USER_AUTH_H
+#ifndef USER_AUTH_IMPL_H
+#define USER_AUTH_IMPL_H
 
-#include "napi/native_common.h"
-#include "auth_build.h"
 #include "auth_common.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-typedef struct AsyncHolder {
-    AsyncHolder() : data(nullptr), asyncWork(nullptr) {};
-    void *data;
-    napi_async_work asyncWork;
-} AsyncHolder;
-
 class UserAuthImpl {
 public:
-    UserAuthImpl();
-    ~UserAuthImpl();
-    AuthBuild authBuild;
+    UserAuthImpl() = default;
+    ~UserAuthImpl() = default;
     napi_value GetVersion(napi_env env, napi_callback_info info);
     napi_value GetAvailableStatus(napi_env env, napi_callback_info info);
     napi_value Auth(napi_env env, napi_callback_info info);
@@ -41,18 +32,15 @@ public:
     napi_value CancelAuth(napi_env env, napi_callback_info info);
 
 private:
-
     napi_value AuthWrap(napi_env env, AuthInfo *authInfo);
     napi_value BuildAuthInfo(napi_env env, AuthInfo *authInfo);
 
-    UserIam::UserAuth::ResultCode ParseExecuteParametersOne(napi_env env, size_t argc, napi_value *argv,
-        ExecuteInfo &executeInfo);
-    UserIam::UserAuth::ResultCode ParseExecuteParametersZero(napi_env env, size_t argc, napi_value *argv,
-        ExecuteInfo &executeInfo);
-    UserIam::UserAuth::ResultCode ParseExecuteParameters(napi_env env, size_t argc, napi_value *argv,
-        ExecuteInfo &executeInfo);
+    napi_status ParseExecuteInfo(napi_env env, napi_value value, AuthType &authType, ResultCode &resultCode);
+    napi_status ParseExecuteAuthType(napi_env env, napi_value value, AuthType &authType, ResultCode &resultCode);
+    napi_status ParseExecuteSecureLevel(napi_env env, napi_value value,
+        AuthTrustLevel &authTrustLevel, ResultCode &resultCode);
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // FACERECOGNITION_USER_AUTH_H
+#endif // USER_AUTH_IMPL_H
