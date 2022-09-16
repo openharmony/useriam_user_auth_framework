@@ -59,10 +59,6 @@ void UserIdmService::OnStop()
 int32_t UserIdmService::OpenSession(int32_t userId, std::vector<uint8_t> &challenge)
 {
     IAM_LOGI("start");
-    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
-        IAM_LOGE("failed to get userId");
-        return INVALID_PARAMETERS;
-    }
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
@@ -92,10 +88,6 @@ void UserIdmService::CloseSession(int32_t userId)
         IAM_LOGE("failed to check permission");
         return;
     }
-    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
-        IAM_LOGE("failed to get userId");
-        return;
-    }
 
     if (!UserIdmSessionController::Instance().CloseSession(userId)) {
         IAM_LOGE("failed to get close session");
@@ -111,11 +103,6 @@ int32_t UserIdmService::GetCredentialInfo(int32_t userId, AuthType authType,
     }
     std::vector<std::shared_ptr<CredentialInfo>> credInfos;
     std::optional<PinSubType> pinSubType = std::nullopt;
-    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
-        IAM_LOGE("failed to get userId");
-        callback->OnCredentialInfos(credInfos, pinSubType);
-        return INVALID_PARAMETERS;
-    }
     if (!IpcCommon::CheckPermission(*this, USE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         callback->OnCredentialInfos(credInfos, pinSubType);
@@ -150,11 +137,6 @@ int32_t UserIdmService::GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserIn
         return INVALID_PARAMETERS;
     }
     std::shared_ptr<SecureUserInfo> userInfos = nullptr;
-    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
-        IAM_LOGE("failed to get userId");
-        callback->OnSecureUserInfo(userInfos);
-        return INVALID_PARAMETERS;
-    }
     if (!IpcCommon::CheckPermission(*this, USE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         callback->OnSecureUserInfo(userInfos);
@@ -191,11 +173,6 @@ void UserIdmService::AddCredential(int32_t userId, AuthType authType, PinSubType
     uint64_t callingUid = static_cast<uint64_t>(this->GetCallingUid());
     contextCallback->SetTraceAuthType(authType);
     contextCallback->SetTraceCallingUid(callingUid);
-    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
-        IAM_LOGE("failed to get userId");
-        contextCallback->OnResult(INVALID_PARAMETERS, extraInfo);
-        return;
-    }
     contextCallback->SetTraceUserId(userId);
 
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
@@ -235,11 +212,6 @@ void UserIdmService::UpdateCredential(int32_t userId, AuthType authType, PinSubT
     Attributes extraInfo;
     if (token.empty()) {
         IAM_LOGE("token is empty in update");
-        callback->OnResult(FAIL, extraInfo);
-        return;
-    }
-    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
-        IAM_LOGE("failed to get userId");
         callback->OnResult(FAIL, extraInfo);
         return;
     }
@@ -365,11 +337,6 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
-    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
-        IAM_LOGE("failed to get userId");
-        contextCallback->OnResult(INVALID_PARAMETERS, extraInfo);
-        return;
-    }
     contextCallback->SetTraceUserId(userId);
 
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
@@ -417,11 +384,6 @@ void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
         callback->OnResult(GENERAL_ERROR, extraInfo);
-        return;
-    }
-    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
-        IAM_LOGE("failed to get userId");
-        contextCallback->OnResult(INVALID_PARAMETERS, extraInfo);
         return;
     }
     contextCallback->SetTraceUserId(userId);
