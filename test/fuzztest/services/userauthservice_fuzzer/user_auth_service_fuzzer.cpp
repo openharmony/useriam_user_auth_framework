@@ -136,7 +136,7 @@ void FuzzGetProperty(Parcel &parcel)
 {
     IAM_LOGI("begin");
     constexpr uint32_t maxDataLen = 50;
-    std::optional<int32_t> userId = GetFuzzOptionalUserId(parcel);
+    int32_t userId = parcel.ReadInt32();
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
     std::vector<Attributes::AttributeKey> keys;
     uint32_t keysLen = parcel.ReadUint32() % maxDataLen;
@@ -156,7 +156,7 @@ void FuzzGetProperty(Parcel &parcel)
 void FuzzSetProperty(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    std::optional<int32_t> userId = GetFuzzOptionalUserId(parcel);
+    int32_t userId = parcel.ReadInt32();
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
     vector<uint8_t> attributesRaw;
     FillFuzzUint8Vector(parcel, attributesRaw);
