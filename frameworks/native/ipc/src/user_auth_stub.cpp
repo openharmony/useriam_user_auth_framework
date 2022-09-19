@@ -15,6 +15,7 @@
 
 #include "user_auth_stub.h"
 
+#include <algorithm>
 #include <cinttypes>
 
 #include "iam_logger.h"
@@ -103,9 +104,10 @@ int32_t UserAuthStub::GetPropertyStub(MessageParcel &data, MessageParcel &reply)
         return READ_PARCEL_ERROR;
     }
     std::vector<Attributes::AttributeKey> attrKeys;
-    for (auto &key : keys) {
-        attrKeys.push_back(static_cast<Attributes::AttributeKey>(key));
-    }
+    attrKeys.resize(keys.size());
+    std::transform(keys.begin(), keys.end(), attrKeys.begin(), [](uint32_t key){
+        return static_cast<Attributes::AttributeKey>(key);
+    });
 
     sptr<IRemoteObject> obj = data.ReadRemoteObject();
     if (obj == nullptr) {
@@ -144,9 +146,10 @@ int32_t UserAuthStub::GetPropertyByIdStub(MessageParcel &data, MessageParcel &re
         return READ_PARCEL_ERROR;
     }
     std::vector<Attributes::AttributeKey> attrKeys;
-    for (auto &key : keys) {
-        attrKeys.push_back(static_cast<Attributes::AttributeKey>(key));
-    }
+    attrKeys.resize(keys.size());
+    std::transform(keys.begin(), keys.end(), attrKeys.begin(), [](uint32_t key){
+        return static_cast<Attributes::AttributeKey>(key);
+    });
 
     sptr<IRemoteObject> obj = data.ReadRemoteObject();
     if (obj == nullptr) {
