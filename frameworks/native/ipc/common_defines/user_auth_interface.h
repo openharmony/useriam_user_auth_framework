@@ -34,7 +34,6 @@ public:
     enum : uint32_t {
         USER_AUTH_GET_AVAILABLE_STATUS = 0,
         USER_AUTH_GET_PROPERTY,
-        USER_AUTH_GET_PROPERTY_BY_ID,
         USER_AUTH_SET_PROPERTY,
         USER_AUTH_AUTH,
         USER_AUTH_AUTH_USER,
@@ -51,10 +50,10 @@ public:
 
     virtual int32_t GetAvailableStatus(AuthType authType, AuthTrustLevel authTrustLevel) = 0;
 
-    virtual void GetProperty(std::optional<int32_t> userId, AuthType authType,
+    virtual void GetProperty(int32_t userId, AuthType authType,
         const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallbackInterface> &callback) = 0;
 
-    virtual void SetProperty(std::optional<int32_t> userId, AuthType authType, const Attributes &attributes,
+    virtual void SetProperty(int32_t userId, AuthType authType, const Attributes &attributes,
         sptr<SetExecutorPropertyCallbackInterface> &callback) = 0;
 
     virtual uint64_t AuthUser(std::optional<int32_t> userId, const std::vector<uint8_t> &challenge, AuthType authType,

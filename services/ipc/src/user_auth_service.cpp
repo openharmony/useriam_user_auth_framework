@@ -94,7 +94,7 @@ int32_t UserAuthService::GetAvailableStatus(AuthType authType, AuthTrustLevel au
     return SUCCESS;
 }
 
-void UserAuthService::GetProperty(std::optional<int32_t> userId, AuthType authType,
+void UserAuthService::GetProperty(int32_t userId, AuthType authType,
     const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallbackInterface> &callback)
 {
     IAM_LOGI("start");
@@ -109,14 +109,9 @@ void UserAuthService::GetProperty(std::optional<int32_t> userId, AuthType authTy
         return;
     }
 
-    if (IpcCommon::GetActiveUserId(userId) != SUCCESS) {
-        IAM_LOGE("failed to get userId");
-        callback->OnGetExecutorPropertyResult(FAIL, values);
-        return;
-    }
-    auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId.value(), authType);
+    auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType);
     if (credentialInfos.empty() || credentialInfos[0] == nullptr) {
-        IAM_LOGE("user %{public}d has no credential type %{public}d", userId.value(), authType);
+        IAM_LOGE("user %{public}d has no credential type %{public}d", userId, authType);
         callback->OnGetExecutorPropertyResult(FAIL, values);
         return;
     }
@@ -142,7 +137,7 @@ void UserAuthService::GetProperty(std::optional<int32_t> userId, AuthType authTy
     callback->OnGetExecutorPropertyResult(result, values);
 }
 
-void UserAuthService::SetProperty(std::optional<int32_t> userId, AuthType authType, const Attributes &attributes,
+void UserAuthService::SetProperty(int32_t userId, AuthType authType, const Attributes &attributes,
     sptr<SetExecutorPropertyCallbackInterface> &callback)
 {
     IAM_LOGI("start");
@@ -155,13 +150,8 @@ void UserAuthService::SetProperty(std::optional<int32_t> userId, AuthType authTy
         callback->OnSetExecutorPropertyResult(CHECK_PERMISSION_FAILED);
         return;
     }
-    if (IpcCommon::GetActiveUserId(userId) != SUCCESS) {
-        IAM_LOGE("get userId failed");
-        callback->OnSetExecutorPropertyResult(FAIL);
-        return;
-    }
 
-    auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId.value(), authType);
+    auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType);
     if (credentialInfos.empty() || credentialInfos[0] == nullptr) {
         IAM_LOGE("credential info is incorrect");
         callback->OnSetExecutorPropertyResult(FAIL);
@@ -181,11 +171,23 @@ void UserAuthService::SetProperty(std::optional<int32_t> userId, AuthType authTy
     callback->OnSetExecutorPropertyResult(result);
 }
 
+bool UserAuthService::CheckAuthPermission(bool isInnerCaller, AuthType authType)
+{
+    if (isInnerCaller && IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+        return true;
+    }
+    if (!isInnerCaller && authType != PIN && IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
+        return true;
+    }
+    return false;
+}
+
 uint64_t UserAuthService::AuthUser(std::optional<int32_t> userId, const std::vector<uint8_t> &challenge,
     AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback)
 {
     IAM_LOGI("start");
     Attributes extraInfo;
+    bool isInnerCaller = userId.has_value();
 
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
@@ -212,9 +214,7 @@ uint64_t UserAuthService::AuthUser(std::optional<int32_t> userId, const std::vec
         contextCallback->OnResult(TRUST_LEVEL_NOT_SUPPORT, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    bool checkRet = !IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
-        (authType == PIN || !IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION));
-    if (checkRet) {
+    if (!CheckAuthPermission(isInnerCaller, authType)) {
         IAM_LOGE("failed to check permission");
         contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
         return BAD_CONTEXT_ID;
