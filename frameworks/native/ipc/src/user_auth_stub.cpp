@@ -39,8 +39,6 @@ int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Messag
             return GetAvailableStatusStub(data, reply);
         case UserAuthInterface::USER_AUTH_GET_PROPERTY:
             return GetPropertyStub(data, reply);
-        case UserAuthInterface::USER_AUTH_GET_PROPERTY_BY_ID:
-            return GetPropertyByIdStub(data, reply);
         case UserAuthInterface::USER_AUTH_SET_PROPERTY:
             return SetPropertyStub(data, reply);
         case UserAuthInterface::USER_AUTH_AUTH:
@@ -90,43 +88,6 @@ int32_t UserAuthStub::GetPropertyStub(MessageParcel &data, MessageParcel &reply)
     IAM_LOGI("enter");
     ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
-    std::optional<int32_t> userId;
-    int32_t authType;
-    std::vector<uint32_t> keys;
-
-    if (!data.ReadInt32(authType)) {
-        IAM_LOGE("failed to read authType");
-        return READ_PARCEL_ERROR;
-    }
-    if (!data.ReadUInt32Vector(&keys)) {
-        IAM_LOGE("failed to read attribute keys");
-        return READ_PARCEL_ERROR;
-    }
-    std::vector<Attributes::AttributeKey> attrKeys;
-    for (auto &key : keys) {
-        attrKeys.push_back(static_cast<Attributes::AttributeKey>(key));
-    }
-
-    sptr<IRemoteObject> obj = data.ReadRemoteObject();
-    if (obj == nullptr) {
-        IAM_LOGE("failed to read remote object");
-        return READ_PARCEL_ERROR;
-    }
-    sptr<GetExecutorPropertyCallbackInterface> callback = iface_cast<GetExecutorPropertyCallbackProxy>(obj);
-    if (callback == nullptr) {
-        IAM_LOGE("GetExecutorPropertyCallbackInterface is nullptr");
-        return FAIL;
-    }
-
-    GetProperty(userId, static_cast<AuthType>(authType), attrKeys, callback);
-    return SUCCESS;
-}
-
-int32_t UserAuthStub::GetPropertyByIdStub(MessageParcel &data, MessageParcel &reply)
-{
-    IAM_LOGI("enter");
-    ON_SCOPE_EXIT(IAM_LOGI("leave"));
-
     int32_t userId;
     int32_t authType;
     std::vector<uint32_t> keys;
@@ -168,10 +129,14 @@ int32_t UserAuthStub::SetPropertyStub(MessageParcel &data, MessageParcel &reply)
     IAM_LOGI("enter");
     ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
-    std::optional<int32_t> userId;
+    int32_t userId;
     int32_t authType;
     std::vector<uint8_t> attr;
 
+    if (!data.ReadInt32(userId)) {
+        IAM_LOGE("failed to read userId");
+        return READ_PARCEL_ERROR;
+    }
     if (!data.ReadInt32(authType)) {
         IAM_LOGE("failed to read authType");
         return READ_PARCEL_ERROR;
