@@ -63,7 +63,7 @@ int32_t UserAuthProxy::GetAvailableStatus(AuthType authType, AuthTrustLevel auth
     return result;
 }
 
-void UserAuthProxy::GetProperty(std::optional<int32_t> userId, AuthType authType,
+void UserAuthProxy::GetProperty(int32_t userId, AuthType authType,
     const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallbackInterface> &callback)
 {
     if (callback == nullptr) {
@@ -83,7 +83,7 @@ void UserAuthProxy::GetProperty(std::optional<int32_t> userId, AuthType authType
         IAM_LOGE("failed to write descriptor");
         return;
     }
-    if (userId.has_value() && !data.WriteInt32(userId.value())) {
+    if (!data.WriteInt32(userId)) {
         IAM_LOGE("failed to write userId");
         return;
     }
@@ -100,15 +100,14 @@ void UserAuthProxy::GetProperty(std::optional<int32_t> userId, AuthType authType
         return;
     }
 
-    bool ret = SendRequest(userId.has_value() ? UserAuthInterface::USER_AUTH_GET_PROPERTY_BY_ID :
-        UserAuthInterface::USER_AUTH_GET_PROPERTY, data, reply);
+    bool ret = SendRequest(UserAuthInterface::USER_AUTH_GET_PROPERTY, data, reply);
     if (!ret) {
         Attributes attr;
         callback->OnGetExecutorPropertyResult(FAIL, attr);
     }
 }
 
-void UserAuthProxy::SetProperty(std::optional<int32_t> userId, AuthType authType, const Attributes &attributes,
+void UserAuthProxy::SetProperty(int32_t userId, AuthType authType, const Attributes &attributes,
     sptr<SetExecutorPropertyCallbackInterface> &callback)
 {
     if (callback == nullptr) {
@@ -122,7 +121,7 @@ void UserAuthProxy::SetProperty(std::optional<int32_t> userId, AuthType authType
         IAM_LOGE("failed to write descriptor");
         return;
     }
-    if (userId.has_value() && !data.WriteInt32(userId.value())) {
+    if (!data.WriteInt32(userId)) {
         IAM_LOGE("failed to write userId");
         return;
     }

@@ -72,7 +72,7 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyGetAvailableStatus, TestSize.Level0)
 
 HWTEST_F(UserAuthProxyTest, UserAuthProxyGetProperty, TestSize.Level0)
 {
-    static const std::optional<int32_t> testUserId = 200;
+    static const int32_t testUserId = 200;
     static const AuthType testAuthType = FACE;
     std::vector<Attributes::AttributeKey> testKeys = {Attributes::ATTR_RESULT_CODE, Attributes::ATTR_SIGNATURE,
         Attributes::ATTR_SCHEDULE_MODE};
@@ -92,7 +92,7 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyGetProperty, TestSize.Level0)
         .WillOnce([&testCallback](std::optional<int32_t> userId, AuthType authType,
             const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallbackInterface> &callback) {
             EXPECT_TRUE(userId.has_value());
-            EXPECT_EQ(userId.value(), testUserId.value());
+            EXPECT_EQ(userId.value(), testUserId);
             EXPECT_EQ(authType, testAuthType);
             EXPECT_THAT(keys, ElementsAre(Attributes::ATTR_RESULT_CODE, Attributes::ATTR_SIGNATURE,
                 Attributes::ATTR_SCHEDULE_MODE));
@@ -126,9 +126,9 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxySetProperty, TestSize.Level0)
     EXPECT_NE(service, nullptr);
     EXPECT_CALL(*service, SetProperty(_, _, _, _))
         .Times(Exactly(1))
-        .WillOnce([&testCallback](std::optional<int32_t> userId, AuthType authType,
+        .WillOnce([&testCallback](int32_t userId, AuthType authType,
             const Attributes &attributes, sptr<SetExecutorPropertyCallbackInterface> &callback) {
-            EXPECT_EQ(userId.has_value(), false);
+            EXPECT_EQ(userId, 0);
             EXPECT_EQ(authType, testAuthType);
             int32_t resultCode;
             EXPECT_EQ(attributes.GetInt32Value(Attributes::ATTR_RESULT_CODE, resultCode), true);
@@ -141,7 +141,7 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxySetProperty, TestSize.Level0)
             service->OnRemoteRequest(code, data, reply, option);
             return SUCCESS;
         });
-    proxy->SetProperty(std::nullopt, testAuthType, testAttr, testCallback);
+    proxy->SetProperty(0, testAuthType, testAttr, testCallback);
 }
 
 HWTEST_F(UserAuthProxyTest, UserAuthProxyAuthUser, TestSize.Level0)
