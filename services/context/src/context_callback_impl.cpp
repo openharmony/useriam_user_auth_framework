@@ -18,6 +18,7 @@
 
 #include "iam_check.h"
 #include "iam_logger.h"
+#include "iam_mem.h"
 #include "iam_ptr.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
@@ -41,11 +42,11 @@ void ContextCallbackImpl::OnAcquireInfo(ExecutorRole src, int32_t moduleType,
         IAM_LOGE("iam callback is nullptr");
         return;
     }
-    if (acquireMsg.size() != sizeof(int32_t)) {
-        IAM_LOGE("acquireMsg size is invalid");
+    int32_t acquireInfo;
+    if (Common::UnpackInt32(acquireMsg, 0, acquireInfo) != SUCCESS) {
+        IAM_LOGE("failed to unpack acquireMsg");
         return;
     }
-    const int32_t acquireInfo = *(static_cast<const int32_t *>(static_cast<const void *>(&acquireMsg[0])));
     Attributes attr = {};
     iamCallback_->OnAcquireInfo(moduleType, acquireInfo, attr);
 }

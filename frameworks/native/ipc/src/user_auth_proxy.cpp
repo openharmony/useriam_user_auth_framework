@@ -15,6 +15,7 @@
 
 #include "user_auth_proxy.h"
 
+#include <algorithm>
 #include <cinttypes>
 
 #include "iam_logger.h"
@@ -73,9 +74,10 @@ void UserAuthProxy::GetProperty(int32_t userId, AuthType authType,
     MessageParcel reply;
 
     std::vector<uint32_t> attrKeys;
-    for (const auto &key : keys) {
-        attrKeys.push_back(static_cast<uint32_t>(key));
-    }
+    attrKeys.resize(keys.size());
+    std::transform(keys.begin(), keys.end(), attrKeys.begin(), [](Attributes::AttributeKey key){
+        return static_cast<uint32_t>(key);
+    });
 
     if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
         IAM_LOGE("failed to write descriptor");

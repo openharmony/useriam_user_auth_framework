@@ -46,19 +46,19 @@ std::shared_ptr<SecureUserInfo> UserIdmDatabaseImpl::GetSecUserInfo(int32_t user
         return nullptr;
     }
 
-    std::vector<HdiEnrolledInfo> enrolledInfo;
+    std::vector<HdiEnrolledInfo> enrolledInfoVector;
     uint64_t secureUid = 0;
     HdiPinSubType pinSubType;
-    int32_t ret = hdi->GetUserInfo(userId, secureUid, pinSubType, enrolledInfo);
+    int32_t ret = hdi->GetUserInfo(userId, secureUid, pinSubType, enrolledInfoVector);
     if (ret != HDF_SUCCESS) {
         IAM_LOGE("GetSecureInfo failed, error code : %{public}d", ret);
         return nullptr;
     }
 
-    std::vector<std::shared_ptr<EnrolledInfo>> infoRet = {};
-    infoRet.reserve(enrolledInfo.size());
+    std::vector<std::shared_ptr<EnrolledInfo>> infoRet;
+    infoRet.reserve(enrolledInfoVector.size());
 
-    for (auto const &info : enrolledInfo) {
+    for (auto const &info : enrolledInfoVector) {
         auto enrolledInfo = Common::MakeShared<EnrolledInfoImpl>(userId, info);
         if (enrolledInfo == nullptr) {
             IAM_LOGE("bad alloc");
