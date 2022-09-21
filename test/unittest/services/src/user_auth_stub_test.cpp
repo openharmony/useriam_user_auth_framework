@@ -75,10 +75,10 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetAvailableStatusStubFailed, TestSize.Le
         service.OnRemoteRequest(UserAuthInterface::USER_AUTH_GET_AVAILABLE_STATUS, data, reply, option));
 }
 
-HWTEST_F(UserAuthStubTest, UserAuthStubGetPropertyStub, TestSize.Level0)
+HWTEST_F(UserAuthStubTest, UserAuthStubGetPropertyByIdStub, TestSize.Level0)
 {
     MockUserAuthService service;
-    std::optional<int32_t> userId;
+    int32_t userId = 1;
     AuthType authType = FACE;
     std::vector<Attributes::AttributeKey> attrKeys = {Attributes::ATTR_RESULT_CODE, Attributes::ATTR_SIGNATURE,
         Attributes::ATTR_SCHEDULE_MODE};
@@ -105,6 +105,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetPropertyStub, TestSize.Level0)
     MessageOption option(MessageOption::TF_SYNC);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteInt32(userId));
     EXPECT_TRUE(data.WriteInt32(authType));
     EXPECT_TRUE(data.WriteUInt32Vector(keys));
     EXPECT_NE(callback->AsObject(), nullptr);
@@ -113,49 +114,10 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetPropertyStub, TestSize.Level0)
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserAuthInterface::USER_AUTH_GET_PROPERTY, data, reply, option));
 }
 
-HWTEST_F(UserAuthStubTest, UserAuthStubGetPropertyByIdStub, TestSize.Level0)
-{
-    MockUserAuthService service;
-    std::optional<int32_t> userId = 1;
-    AuthType authType = FACE;
-    std::vector<Attributes::AttributeKey> attrKeys = {Attributes::ATTR_RESULT_CODE, Attributes::ATTR_SIGNATURE,
-        Attributes::ATTR_SCHEDULE_MODE};
-    std::vector<uint32_t> keys;
-    for (auto &attrKey : attrKeys) {
-        keys.push_back(static_cast<uint32_t>(attrKey));
-    }
-    sptr<MockGetExecutorPropertyCallback> callback = new MockGetExecutorPropertyCallback();
-    EXPECT_NE(callback, nullptr);
-    EXPECT_CALL(service, GetProperty(userId, FACE, _, _)).Times(1);
-    ON_CALL(service, GetProperty)
-        .WillByDefault(
-            [](std::optional<int32_t> userId, AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
-                sptr<GetExecutorPropertyCallbackInterface> &callback) {
-                if (callback != nullptr) {
-                    Attributes attr;
-                    callback->OnGetExecutorPropertyResult(SUCCESS, attr);
-                }
-            });
-    EXPECT_CALL(*callback, OnGetExecutorPropertyResult(_, _)).Times(1);
-
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
-
-    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
-    EXPECT_TRUE(data.WriteInt32(userId.value()));
-    EXPECT_TRUE(data.WriteInt32(authType));
-    EXPECT_TRUE(data.WriteUInt32Vector(keys));
-    EXPECT_NE(callback->AsObject(), nullptr);
-    EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
-
-    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserAuthInterface::USER_AUTH_GET_PROPERTY_BY_ID, data, reply, option));
-}
-
 HWTEST_F(UserAuthStubTest, UserAuthStubSetPropertyStub, TestSize.Level0)
 {
     MockUserAuthService service;
-    std::optional<int32_t> userId;
+    int32_t userId = 1;
     AuthType authType = FACE;
     Attributes attributes;
 
@@ -163,7 +125,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubSetPropertyStub, TestSize.Level0)
     EXPECT_NE(callback, nullptr);
     EXPECT_CALL(service, SetProperty(userId, FACE, _, _)).Times(1);
     ON_CALL(service, SetProperty)
-        .WillByDefault([](std::optional<int32_t> userId, AuthType authType, const Attributes &attributes,
+        .WillByDefault([](int32_t userId, AuthType authType, const Attributes &attributes,
                            sptr<SetExecutorPropertyCallbackInterface> &callback) {
             if (callback != nullptr) {
                 callback->OnSetExecutorPropertyResult(SUCCESS);
@@ -176,6 +138,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubSetPropertyStub, TestSize.Level0)
     MessageOption option(MessageOption::TF_SYNC);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteInt32(userId));
     EXPECT_TRUE(data.WriteInt32(authType));
     EXPECT_TRUE(data.WriteUInt8Vector(attributes.Serialize()));
     EXPECT_NE(callback->AsObject(), nullptr);

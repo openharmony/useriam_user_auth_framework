@@ -27,10 +27,10 @@ public:
     MOCK_METHOD2(GetAvailableStatus, int32_t(AuthType authType, AuthTrustLevel authTrustLevel));
 
     MOCK_METHOD4(GetProperty,
-        void(std::optional<int32_t> userId, AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
+        void(int32_t userId, AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
             sptr<GetExecutorPropertyCallbackInterface> &callback));
 
-    MOCK_METHOD4(SetProperty, void(std::optional<int32_t> userId, AuthType authType, const Attributes &attributes,
+    MOCK_METHOD4(SetProperty, void(int32_t userId, AuthType authType, const Attributes &attributes,
                                   sptr<SetExecutorPropertyCallbackInterface> &callback));
 
     MOCK_METHOD5(AuthUser,
