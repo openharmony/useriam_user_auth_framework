@@ -75,7 +75,7 @@ void UserAuthProxy::GetProperty(std::optional<int32_t> userId, AuthType authType
 
     std::vector<uint32_t> attrKeys;
     attrKeys.resize(keys.size());
-    std::transform(keys.begin(), keys.end(), attrKeys.begin(), [](Attributes::AttributeKey key){
+    std::transform(keys.begin(), keys.end(), attrKeys.begin(), [](Attributes::AttributeKey key) {
         return static_cast<uint32_t>(key);
     });
 
