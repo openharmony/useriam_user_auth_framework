@@ -105,7 +105,7 @@ int32_t UserAuthStub::GetPropertyStub(MessageParcel &data, MessageParcel &reply)
     }
     std::vector<Attributes::AttributeKey> attrKeys;
     attrKeys.resize(keys.size());
-    std::transform(keys.begin(), keys.end(), attrKeys.begin(), [](uint32_t key){
+    std::transform(keys.begin(), keys.end(), attrKeys.begin(), [](uint32_t key) {
         return static_cast<Attributes::AttributeKey>(key);
     });
 
