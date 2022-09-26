@@ -23,8 +23,10 @@ ohos_shared_library("userauth") {
   include_dirs = [ "inc" ]
 
   sources = [
-    "src/auth_api_callback.cpp",
-    "src/auth_common.cpp",
+    "src/auth_instance_v9.cpp",
+    "src/user_auth_callback_v6.cpp",
+    "src/user_auth_callback_v8.cpp",
+    "src/user_auth_callback_v9.cpp",
     "src/user_auth_entry.cpp",
     "src/user_auth_impl.cpp",
     "src/user_auth_napi_helper.cpp",
