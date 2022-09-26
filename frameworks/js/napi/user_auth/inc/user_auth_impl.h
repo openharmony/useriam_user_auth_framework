@@ -23,21 +23,19 @@ namespace UserIam {
 namespace UserAuth {
 class UserAuthImpl {
 public:
+    static napi_value GetVersion(napi_env env, napi_callback_info info);
+    static napi_value GetAvailableStatus(napi_env env, napi_callback_info info);
+    static napi_value Auth(napi_env env, napi_callback_info info);
+    static napi_value Execute(napi_env env, napi_callback_info info);
+    static napi_value CancelAuth(napi_env env, napi_callback_info info);
+ 
+private:
     UserAuthImpl() = default;
     ~UserAuthImpl() = default;
-    napi_value GetVersion(napi_env env, napi_callback_info info);
-    napi_value GetAvailableStatus(napi_env env, napi_callback_info info);
-    napi_value Auth(napi_env env, napi_callback_info info);
-    napi_value Execute(napi_env env, napi_callback_info info);
-    napi_value CancelAuth(napi_env env, napi_callback_info info);
 
-private:
-    napi_value AuthWrap(napi_env env, AuthInfo *authInfo);
-    napi_value BuildAuthInfo(napi_env env, AuthInfo *authInfo);
-
-    napi_status ParseExecuteInfo(napi_env env, napi_value value, AuthType &authType, ResultCode &resultCode);
-    napi_status ParseExecuteAuthType(napi_env env, napi_value value, AuthType &authType, ResultCode &resultCode);
-    napi_status ParseExecuteSecureLevel(napi_env env, napi_value value,
+    static napi_status ParseExecuteInfo(napi_env env, napi_value value, AuthType &authType, ResultCode &resultCode);
+    static napi_status ParseExecuteAuthType(napi_env env, napi_value value, AuthType &authType, ResultCode &resultCode);
+    static napi_status ParseExecuteSecureLevel(napi_env env, napi_value value,
         AuthTrustLevel &authTrustLevel, ResultCode &resultCode);
 };
 } // namespace UserAuth
