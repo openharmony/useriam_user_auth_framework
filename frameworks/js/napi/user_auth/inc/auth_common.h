@@ -27,6 +27,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+constexpr size_t ARGS_ZERO = 0;
 constexpr size_t ARGS_ONE = 1;
 constexpr size_t ARGS_TWO = 2;
 constexpr size_t ARGS_THREE = 3;
@@ -37,31 +38,8 @@ constexpr size_t PARAM1 = 1;
 constexpr size_t PARAM2 = 2;
 constexpr size_t PARAM3 = 3;
 
-struct ExecuteInfo {
-    explicit ExecuteInfo(napi_env napiEnv);
-    ~ExecuteInfo();
-    bool isPromise {false};
-    napi_env env {nullptr};
-    napi_ref callbackRef {nullptr};
-    napi_deferred deferred {nullptr};
-    napi_value promise {nullptr};
-    int32_t result {0};
-};
-
-struct AuthInfo {
-    explicit AuthInfo(napi_env napiEnv);
-    ~AuthInfo();
-    napi_env env {nullptr};
-    napi_ref onResult {nullptr};
-    napi_ref onAcquireInfo {nullptr};
-    int32_t result {0};
-    std::vector<uint8_t> token {};
-    int32_t remainTimes {0};
-    int32_t freezingTime {0};
-};
-
 // For API6
-enum class AuthenticationResult {
+enum class AuthenticationResult : int32_t {
     NO_SUPPORT = -1,
     SUCCESS = 0,
     COMPARE_FAILURE = 1,
@@ -75,23 +53,20 @@ enum class AuthenticationResult {
     GENERAL_ERROR = 100,
 };
 
-const std::map<int32_t, AuthenticationResult> result2ExecuteResult = {
-    {ResultCode::SUCCESS, AuthenticationResult::SUCCESS},
-    {ResultCode::FAIL, AuthenticationResult::COMPARE_FAILURE},
-    {ResultCode::GENERAL_ERROR, AuthenticationResult::GENERAL_ERROR},
-    {ResultCode::CANCELED, AuthenticationResult::CANCELED},
-    {ResultCode::TIMEOUT, AuthenticationResult::TIMEOUT},
-    {ResultCode::TYPE_NOT_SUPPORT, AuthenticationResult::NO_SUPPORT},
-    {ResultCode::TRUST_LEVEL_NOT_SUPPORT, AuthenticationResult::NO_SUPPORT},
-    {ResultCode::BUSY, AuthenticationResult::BUSY},
-    {ResultCode::INVALID_PARAMETERS, AuthenticationResult::INVALID_PARAMETERS},
-    {ResultCode::LOCKED, AuthenticationResult::LOCKED},
-    {ResultCode::NOT_ENROLLED, AuthenticationResult::NOT_ENROLLED},
-    {ResultCode::IPC_ERROR, AuthenticationResult::GENERAL_ERROR},
-    {ResultCode::INVALID_CONTEXT_ID, AuthenticationResult::GENERAL_ERROR},
-    {ResultCode::WRITE_PARCEL_ERROR, AuthenticationResult::GENERAL_ERROR},
-    {ResultCode::READ_PARCEL_ERROR, AuthenticationResult::GENERAL_ERROR},
-    {ResultCode::CHECK_PERMISSION_FAILED, AuthenticationResult::GENERAL_ERROR},
+enum class ResultCodeV9 : int32_t {
+    RESULT_CODE_V9_MIN = 12500000,
+    SUCCESS = 12500000,
+    FAIL = 12500001,
+    GENERAL_ERROR = 12500002,
+    CANCELED = 12500003,
+    TIMEOUT = 12500004,
+    TYPE_NOT_SUPPORT = 12500005,
+    TRUST_LEVEL_NOT_SUPPORT = 12500006,
+    BUSY = 12500007,
+    INVALID_PARAMETERS = 12500008,
+    LOCKED = 12500009,
+    NOT_ENROLLED = 12500010,
+    RESULT_CODE_V9_MAX = 12500010,
 };
 } // namespace UserAuth
 } // namespace UserIam
