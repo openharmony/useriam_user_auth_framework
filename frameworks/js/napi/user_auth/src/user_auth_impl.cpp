@@ -24,7 +24,8 @@
 #include "iam_ptr.h"
 
 #include "user_auth_napi_helper.h"
-#include "auth_api_callback.h"
+#include "user_auth_callback_v6.h"
+#include "user_auth_callback_v8.h"
 #include "user_auth_client_impl.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_NAPI
@@ -67,32 +68,34 @@ napi_value UserAuthImpl::GetAvailableStatus(napi_env env, napi_callback_info inf
 napi_value UserAuthImpl::Execute(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
-    std::unique_ptr<ExecuteInfo> executeInfo {new (std::nothrow) ExecuteInfo(env)};
-    if (executeInfo == nullptr) {
-        IAM_LOGE("executeInfo is nullptr");
-        return nullptr;
-    }
-
     size_t argc = ARGS_THREE;
     napi_value argv[ARGS_THREE] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
     napi_value retPromise = nullptr;
+    std::shared_ptr<JsRefHolder> callbackRef = nullptr;
+    napi_deferred promiseDeferred = nullptr;
     if (argc == ARGS_THREE) {
-        executeInfo->isPromise = false;
-        NAPI_CALL(env, UserAuthNapiHelper::GetFunctionRef(env, argv[PARAM2], executeInfo->callbackRef));
-        NAPI_CALL(env, napi_get_null(executeInfo->env, &retPromise));
+        callbackRef = Common::MakeShared<JsRefHolder>(env, argv[PARAM2]);
+        if (callbackRef == nullptr || !callbackRef->IsValid()) {
+            IAM_LOGE("make callback ref fail");
+            return nullptr;
+        }
+        NAPI_CALL(env, napi_get_null(env, &retPromise));
     } else if (argc == ARGS_TWO) {
-        executeInfo->isPromise = true;
-        NAPI_CALL(env, napi_create_promise(env, &executeInfo->deferred, &executeInfo->promise));
-        retPromise = executeInfo->promise;
+        NAPI_CALL(env, napi_create_promise(env, &promiseDeferred, &retPromise));
     } else {
         IAM_LOGE("bad params");
         return retPromise;
     }
+    std::shared_ptr<UserAuthCallbackV6> callback =
+        Common::MakeShared<UserAuthCallbackV6>(env, callbackRef, promiseDeferred);
+    if (callback == nullptr) {
+        IAM_LOGE("callback is nullptr");
+        return nullptr;
+    }
 
     AuthType authType;
     ResultCode resultCode;
-    std::shared_ptr<AuthApiCallback> callback = std::make_shared<AuthApiCallback>(executeInfo.release());
     NAPI_CALL(env, ParseExecuteAuthType(env, argv[PARAM0], authType, resultCode));
     if (resultCode != ResultCode::SUCCESS) {
         IAM_LOGE("ParseAuthType fail");
@@ -173,17 +176,6 @@ napi_status UserAuthImpl::ParseExecuteSecureLevel(napi_env env, napi_value value
 napi_value UserAuthImpl::Auth(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
-    AuthInfo *authInfo = new (std::nothrow) AuthInfo(env);
-    if (authInfo == nullptr) {
-        IAM_LOGE("authInfo is nullptr");
-        return nullptr;
-    }
-    std::shared_ptr<AuthApiCallback> callback = Common::MakeShared<AuthApiCallback>(authInfo);
-    if (callback == nullptr) {
-        IAM_LOGE("callback is nullptr");
-        delete authInfo;
-        return nullptr;
-    }
     size_t argc = ARGS_FOUR;
     napi_value argv[ARGS_FOUR] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
@@ -203,10 +195,15 @@ napi_value UserAuthImpl::Auth(napi_env env, napi_callback_info info)
     NAPI_CALL(env, UserAuthNapiHelper::CheckNapiType(env, argv[PARAM3], napi_object));
     napi_value onResultValue;
     NAPI_CALL(env, napi_get_named_property(env, argv[PARAM3], "onResult", &onResultValue));
-    NAPI_CALL(env, napi_create_reference(env, onResultValue, 1, &authInfo->onResult));
+    auto resultCallback = Common::MakeShared<JsRefHolder>(env, onResultValue);
     napi_value onAcquireInfoValue;
     NAPI_CALL(env, napi_get_named_property(env, argv[PARAM3], "onAcquireInfo", &onAcquireInfoValue));
-    NAPI_CALL(env, napi_create_reference(env, onAcquireInfoValue, 1, &authInfo->onAcquireInfo));
+    auto acquireCallback = Common::MakeShared<JsRefHolder>(env, onAcquireInfoValue);
+    auto callback = Common::MakeShared<UserAuthCallbackV8>(env, resultCallback, acquireCallback);
+    if (callback == nullptr) {
+        IAM_LOGE("callback is nullptr");
+        return nullptr;
+    }
     uint64_t result = UserAuthClientImpl::Instance().BeginAuthentication(challenge,
         AuthType(authType), AuthTrustLevel(authTrustLevel), callback);
     IAM_LOGI("result is %{public}s", GET_MASKED_STRING(result).c_str());
