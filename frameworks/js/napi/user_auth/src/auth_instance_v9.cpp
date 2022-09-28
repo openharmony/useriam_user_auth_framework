@@ -73,7 +73,7 @@ ResultCodeV9 AuthInstanceV9::GetAvailableStatus(napi_env env, napi_callback_info
         return ResultCodeV9::GENERAL_ERROR;
     }
     if (argc != ARGS_TWO) {
-        IAM_LOGE("invalid param, argc:%{publiz}zu", argc);
+        IAM_LOGE("invalid param, argc:%{public}zu", argc);
         return ResultCodeV9::INVALID_PARAMETERS;
     }
     int32_t type;
@@ -140,7 +140,7 @@ ResultCodeV9 AuthInstanceV9::Init(napi_env env, napi_callback_info info)
         return ResultCodeV9::GENERAL_ERROR;
     }
     if (argc != ARGS_THREE) {
-        IAM_LOGE("invalid param, argc:%{publiz}zu", argc);
+        IAM_LOGE("invalid param, argc:%{public}zu", argc);
         return ResultCodeV9::INVALID_PARAMETERS;
     }
     challenge_.clear();
@@ -200,11 +200,11 @@ ResultCodeV9 AuthInstanceV9::On(napi_env env, napi_callback_info info)
     size_t argc = ARGS_TWO;
     napi_status ret = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (ret != napi_ok) {
-        IAM_LOGE("napi_get_cb_info fail:%{publiz}d", ret);
+        IAM_LOGE("napi_get_cb_info fail:%{public}d", ret);
         return ResultCodeV9::GENERAL_ERROR;
     }
     if (argc != ARGS_TWO) {
-        IAM_LOGE("invalid param, argc:%{publiz}zu", argc);
+        IAM_LOGE("invalid param, argc:%{public}zu", argc);
         return ResultCodeV9::INVALID_PARAMETERS;
     }
     static const size_t maxLen = 10;
@@ -212,7 +212,7 @@ ResultCodeV9 AuthInstanceV9::On(napi_env env, napi_callback_info info)
     size_t len = maxLen;
     ret = UserAuthNapiHelper::GetStrValue(env, argv[PARAM0], str, len);
     if (ret != napi_ok) {
-        IAM_LOGE("GetStrValue fail:%{publiz}d", ret);
+        IAM_LOGE("GetStrValue fail:%{public}d", ret);
         return ResultCodeV9::INVALID_PARAMETERS;
     }
     auto callbackRef = GetCallback(env, argv[PARAM1]);
@@ -229,7 +229,7 @@ ResultCodeV9 AuthInstanceV9::On(napi_env env, napi_callback_info info)
         callback_->SetAcquireCallback(callbackRef);
         return ResultCodeV9::SUCCESS;
     } else {
-        IAM_LOGE("invalid event:%{publiz}s", str);
+        IAM_LOGE("invalid event:%{public}s", str);
         return ResultCodeV9::INVALID_PARAMETERS;
     }
 }
@@ -244,11 +244,11 @@ ResultCodeV9 AuthInstanceV9::Off(napi_env env, napi_callback_info info)
     size_t argc = ARGS_ONE;
     napi_status ret = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (ret != napi_ok) {
-        IAM_LOGE("napi_get_cb_info fail:%{publiz}d", ret);
+        IAM_LOGE("napi_get_cb_info fail:%{public}d", ret);
         return ResultCodeV9::GENERAL_ERROR;
     }
     if (argc != ARGS_ONE) {
-        IAM_LOGE("invalid param, argc:%{publiz}zu", argc);
+        IAM_LOGE("invalid param, argc:%{public}zu", argc);
         return ResultCodeV9::INVALID_PARAMETERS;
     }
     static const size_t maxLen = 10;
@@ -256,17 +256,19 @@ ResultCodeV9 AuthInstanceV9::Off(napi_env env, napi_callback_info info)
     size_t len = maxLen;
     ret = UserAuthNapiHelper::GetStrValue(env, argv[PARAM0], str, len);
     if (ret != napi_ok) {
-        IAM_LOGE("GetStrValue fail:%{publiz}d", ret);
+        IAM_LOGE("GetStrValue fail:%{public}d", ret);
         return ResultCodeV9::GENERAL_ERROR;
     }
     if (str == AUTH_EVENT_RESULT) {
         callback_->ClearResultCallback();
+        IAM_LOGI("clear result callback");
         return ResultCodeV9::SUCCESS;
     } else if (str == AUTH_EVENT_TIP) {
         callback_->ClearAcquireCallback();
+        IAM_LOGI("clear tip callback");
         return ResultCodeV9::SUCCESS;
     } else {
-        IAM_LOGE("invalid event:%{publiz}s", str);
+        IAM_LOGE("invalid event:%{public}s", str);
         return ResultCodeV9::INVALID_PARAMETERS;
     }
 }
@@ -281,11 +283,11 @@ ResultCodeV9 AuthInstanceV9::Start(napi_env env, napi_callback_info info)
     size_t argc = ARGS_ONE;
     napi_status ret = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (ret != napi_ok) {
-        IAM_LOGE("napi_get_cb_info fail:%{publiz}d", ret);
+        IAM_LOGE("napi_get_cb_info fail:%{public}d", ret);
         return ResultCodeV9::GENERAL_ERROR;
     }
     if (argc != ARGS_ZERO) {
-        IAM_LOGE("invalid param, argc:%{publiz}zu", argc);
+        IAM_LOGE("invalid param, argc:%{public}zu", argc);
         return ResultCodeV9::INVALID_PARAMETERS;
     }
     std::lock_guard<std::mutex> guard(mutex_);
@@ -308,11 +310,11 @@ ResultCodeV9 AuthInstanceV9::Cancel(napi_env env, napi_callback_info info)
     size_t argc = ARGS_ONE;
     napi_status ret = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (ret != napi_ok) {
-        IAM_LOGE("napi_get_cb_info fail:%{publiz}d", ret);
+        IAM_LOGE("napi_get_cb_info fail:%{public}d", ret);
         return ResultCodeV9::GENERAL_ERROR;
     }
     if (argc != ARGS_ZERO) {
-        IAM_LOGE("invalid param, argc:%{publiz}zu", argc);
+        IAM_LOGE("invalid param, argc:%{public}zu", argc);
         return ResultCodeV9::INVALID_PARAMETERS;
     }
     std::lock_guard<std::mutex> guard(mutex_);
