@@ -152,7 +152,7 @@ public:
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
-    void SetParcel(std::shared_ptr<Parcel> &parcel)
+    void SetParcel(const std::shared_ptr<Parcel> &parcel)
     {
         std::lock_guard<std::mutex> lock(mutex_);
         fuzzParcel_ = parcel;
@@ -190,7 +190,7 @@ public:
         return;
     }
 
-    void SetParcel(std::shared_ptr<Parcel> &parcel)
+    void SetParcel(const std::shared_ptr<Parcel> &parcel)
     {
         std::lock_guard<std::mutex> lock(mutex_);
         fuzzParcel_ = parcel;
