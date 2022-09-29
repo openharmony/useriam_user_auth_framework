@@ -125,7 +125,7 @@ public:
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
-    void SetParcel(std::shared_ptr<Parcel> &parcel)
+    void SetParcel(const std::shared_ptr<Parcel> &parcel)
     {
         fuzzParcel_ = parcel;
     }
@@ -194,7 +194,7 @@ public:
         return fuzzParcel_->ReadInt32();
     }
 
-    void SetParcel(std::shared_ptr<Parcel> &parcel)
+    void SetParcel(const std::shared_ptr<Parcel> &parcel)
     {
         fuzzParcel_ = parcel;
     }
