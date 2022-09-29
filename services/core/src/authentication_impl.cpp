@@ -114,8 +114,8 @@ bool AuthenticationImpl::Update(const std::vector<uint8_t> &scheduleResult, Auth
     }
 
     resultInfo.result = static_cast<decltype(resultInfo.result)>(info.result);
-    resultInfo.freezingTime = info.freezingTime;
-    resultInfo.remainTimes = info.remainTimes;
+    resultInfo.freezingTime = info.lockoutDuration;
+    resultInfo.remainTimes = info.remainAttempts;
     resultInfo.token = info.token;
     resultInfo.rootSecret = info.rootSecret;
 
