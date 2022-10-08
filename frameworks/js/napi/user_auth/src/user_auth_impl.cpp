@@ -120,7 +120,7 @@ napi_value UserAuthImpl::Execute(napi_env env, napi_callback_info info)
 napi_status UserAuthImpl::ParseExecuteAuthType(napi_env env, napi_value value,
     AuthType &authType, ResultCode &resultCode)
 {
-    resultCode = ResultCode::FAIL;
+    resultCode = ResultCode::GENERAL_ERROR;
     static const size_t maxLen = 20;
     char str[maxLen] = {0};
     size_t len = maxLen;
@@ -148,7 +148,7 @@ napi_status UserAuthImpl::ParseExecuteAuthType(napi_env env, napi_value value,
 napi_status UserAuthImpl::ParseExecuteSecureLevel(napi_env env, napi_value value,
     AuthTrustLevel &authTrustLevel, ResultCode &resultCode)
 {
-    resultCode = ResultCode::FAIL;
+    resultCode = ResultCode::GENERAL_ERROR;
     static const size_t maxLen = 20;
     char str[maxLen] = {0};
     size_t len = maxLen;

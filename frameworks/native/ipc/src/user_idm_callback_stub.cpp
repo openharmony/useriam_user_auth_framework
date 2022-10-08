@@ -32,7 +32,7 @@ int32_t IdmCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Mes
     IAM_LOGD("cmd = %{public}u, flags = %{public}d", code, option.GetFlags());
     if (IdmCallbackStub::GetDescriptor() != data.ReadInterfaceToken()) {
         IAM_LOGE("descriptor is not matched");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     
     switch (code) {
@@ -94,7 +94,7 @@ int32_t IdmGetCredInfoCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel
     IAM_LOGD("cmd = %{public}u, flags = %{public}d", code, option.GetFlags());
     if (IdmGetCredInfoCallbackStub::GetDescriptor() != data.ReadInterfaceToken()) {
         IAM_LOGE("descriptor is not matched");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     if (code == IdmGetCredInfoCallbackInterface::ON_GET_INFO) {
@@ -156,7 +156,7 @@ int32_t IdmGetSecureUserInfoCallbackStub::OnRemoteRequest(uint32_t code, Message
     IAM_LOGD("cmd = %{public}u, flags = %{public}d", code, option.GetFlags());
     if (IdmGetSecureUserInfoCallbackStub::GetDescriptor() != data.ReadInterfaceToken()) {
         IAM_LOGE("descriptor is not matched");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     if (code == IdmGetSecureUserInfoCallbackInterface::ON_GET_SEC_INFO) {

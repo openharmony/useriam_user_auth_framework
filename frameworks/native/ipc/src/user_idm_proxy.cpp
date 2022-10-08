@@ -44,7 +44,7 @@ int32_t UserIdmProxy::OpenSession(int32_t userId, std::vector<uint8_t> &challeng
     
     bool ret = SendRequest(UserIdmInterface::USER_IDM_OPEN_SESSION, data, reply);
     if (!ret) {
-        return FAIL;
+        return GENERAL_ERROR;
     }
     if (!reply.ReadUInt8Vector(&challenge)) {
         IAM_LOGE("failed to read challenge");
@@ -75,7 +75,7 @@ int32_t UserIdmProxy::GetCredentialInfo(int32_t userId, AuthType authType,
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     MessageParcel data;
     MessageParcel reply;
@@ -99,9 +99,9 @@ int32_t UserIdmProxy::GetCredentialInfo(int32_t userId, AuthType authType,
 
     bool ret = SendRequest(UserIdmInterface::USER_IDM_GET_CRED_INFO, data, reply);
     if (!ret) {
-        return FAIL;
+        return GENERAL_ERROR;
     }
-    int32_t result = FAIL;
+    int32_t result = GENERAL_ERROR;
     if (!reply.ReadInt32(result)) {
         IAM_LOGE("failed to read result");
     }
@@ -112,7 +112,7 @@ int32_t UserIdmProxy::GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserInfo
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     MessageParcel data;
     MessageParcel reply;
@@ -133,9 +133,9 @@ int32_t UserIdmProxy::GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserInfo
     bool ret = SendRequest(UserIdmInterface::USER_IDM_GET_SEC_INFO, data, reply);
     if (!ret) {
         callback->OnSecureUserInfo(nullptr);
-        return FAIL;
+        return GENERAL_ERROR;
     }
-    int32_t result = FAIL;
+    int32_t result = GENERAL_ERROR;
     if (!reply.ReadInt32(result)) {
         IAM_LOGE("failed to read result");
     }
@@ -218,7 +218,7 @@ void UserIdmProxy::UpdateCredential(int32_t userId, AuthType authType, PinSubTyp
     bool ret = SendRequest(UserIdmInterface::USER_IDM_UPDATE_CREDENTIAL, data, reply);
     if (!ret) {
         Attributes extraInfo;
-        callback->OnResult(FAIL, extraInfo);
+        callback->OnResult(GENERAL_ERROR, extraInfo);
     }
 }
 
@@ -238,9 +238,9 @@ int32_t UserIdmProxy::Cancel(int32_t userId)
 
     bool ret = SendRequest(UserIdmInterface::USER_IDM_CANCEL, data, reply);
     if (!ret) {
-        return FAIL;
+        return GENERAL_ERROR;
     }
-    int32_t result = FAIL;
+    int32_t result = GENERAL_ERROR;
     if (!reply.ReadInt32(result)) {
         IAM_LOGE("failed to read result");
     }
@@ -251,7 +251,7 @@ int32_t UserIdmProxy::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInter
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     MessageParcel data;
     MessageParcel reply;
@@ -272,10 +272,10 @@ int32_t UserIdmProxy::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInter
     bool ret = SendRequest(UserIdmInterface::USER_IDM_ENFORCE_DEL_USER, data, reply);
     if (!ret) {
         Attributes attr;
-        callback->OnResult(FAIL, attr);
-        return FAIL;
+        callback->OnResult(GENERAL_ERROR, attr);
+        return GENERAL_ERROR;
     }
-    int32_t result = FAIL;
+    int32_t result = GENERAL_ERROR;
     if (!reply.ReadInt32(result)) {
         IAM_LOGE("failed to read result");
     }

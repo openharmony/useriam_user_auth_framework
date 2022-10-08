@@ -75,7 +75,7 @@ HWTEST_F(UserIdmSessionControllerTest, UserIdmServiceOpenSessionFailed, TestSize
     std::vector<uint8_t> challenge;
 
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_CALL(*mock, OpenSession(userId, _)).WillRepeatedly(Return(FAIL));
+    EXPECT_CALL(*mock, OpenSession(userId, _)).WillRepeatedly(Return(GENERAL_ERROR));
 
     EXPECT_EQ(false, UserIdmSessionController::Instance().OpenSession(userId, challenge));
 }

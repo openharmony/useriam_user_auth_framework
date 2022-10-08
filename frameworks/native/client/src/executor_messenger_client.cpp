@@ -34,12 +34,12 @@ int32_t ExecutorMessengerClient::SendData(uint64_t scheduleId, uint64_t transNum
 {
     if (messenger_ == nullptr) {
         IAM_LOGE("messenger is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     std::vector<uint8_t> buffer;
     if (msg == nullptr) {
         IAM_LOGE("msg is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     } else {
         buffer = AuthMessageImpl::GetMsgBuffer(msg);
     }
@@ -51,12 +51,12 @@ int32_t ExecutorMessengerClient::Finish(uint64_t scheduleId, ExecutorRole srcRol
 {
     if (messenger_ == nullptr) {
         IAM_LOGE("messenger is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     auto attr = Common::MakeShared<Attributes>(finalResult.Serialize());
     if (attr == nullptr) {
         IAM_LOGE("failed to create attributes");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     return messenger_->Finish(scheduleId, srcRole, static_cast<ResultCode>(resultCode), attr);
 }

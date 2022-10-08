@@ -32,7 +32,7 @@ int32_t UserIdmStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Message
     IAM_LOGI("cmd = %{public}u, flags= %{public}d", code, option.GetFlags());
     if (data.ReadInterfaceToken() != UserIdmInterface::GetDescriptor()) {
         IAM_LOGE("failed to match descriptor");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     switch (code) {
@@ -226,7 +226,7 @@ int32_t UserIdmStub::UpdateCredentialStub(MessageParcel &data, MessageParcel &re
     sptr<IdmCallbackInterface> callback = iface_cast<IdmCallbackProxy>(data.ReadRemoteObject());
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     UpdateCredential(userId, static_cast<AuthType>(authType), static_cast<PinSubType>(authSubType), token, callback);
@@ -324,7 +324,7 @@ int32_t UserIdmStub::DelCredentialStub(MessageParcel &data, MessageParcel &reply
     sptr<IdmCallbackInterface> callback = iface_cast<IdmCallbackProxy>(data.ReadRemoteObject());
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     DelCredential(userId, credentialId, authToken, callback);

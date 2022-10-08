@@ -30,7 +30,7 @@ int32_t ExecutorCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data
     IAM_LOGD("cmd = %{public}u, flags = %{public}d", code, option.GetFlags());
     if (ExecutorCallbackStub::GetDescriptor() != data.ReadInterfaceToken()) {
         IAM_LOGE("descriptor is not matched");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     switch (code) {
         case ExecutorCallbackInterface::ON_MESSENGER_READY:
@@ -58,7 +58,7 @@ int32_t ExecutorCallbackStub::OnMessengerReadyStub(MessageParcel &data, MessageP
     sptr<ExecutorMessengerInterface> messenger = iface_cast<ExecutorMessengerProxy>(obj);
     if (messenger == nullptr) {
         IAM_LOGE("executor messenger is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     
     std::vector<uint8_t> publicKey;
