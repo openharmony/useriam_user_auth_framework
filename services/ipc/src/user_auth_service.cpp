@@ -73,12 +73,12 @@ int32_t UserAuthService::GetAvailableStatus(AuthType authType, AuthTrustLevel au
     std::optional<int32_t> userId = std::nullopt;
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("failed to get callingUserId");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi == nullptr) {
         IAM_LOGE("hdi interface is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     uint32_t supportedAtl = AUTH_TRUST_LEVEL_SYS;
     int32_t result =
@@ -112,7 +112,7 @@ void UserAuthService::GetProperty(int32_t userId, AuthType authType,
     auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType);
     if (credentialInfos.empty() || credentialInfos[0] == nullptr) {
         IAM_LOGE("user %{public}d has no credential type %{public}d", userId, authType);
-        callback->OnGetExecutorPropertyResult(FAIL, values);
+        callback->OnGetExecutorPropertyResult(NOT_ENROLLED, values);
         return;
     }
     uint64_t executorIndex = credentialInfos[0]->GetExecutorIndex();
@@ -121,7 +121,7 @@ void UserAuthService::GetProperty(int32_t userId, AuthType authType,
     auto resourceNode = ResourceNodePool::Instance().Select(executorIndex).lock();
     if (resourceNode == nullptr) {
         IAM_LOGE("resourceNode is nullptr");
-        callback->OnGetExecutorPropertyResult(FAIL, values);
+        callback->OnGetExecutorPropertyResult(GENERAL_ERROR, values);
         return;
     }
     Attributes attr;
@@ -154,14 +154,14 @@ void UserAuthService::SetProperty(int32_t userId, AuthType authType, const Attri
     auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType);
     if (credentialInfos.empty() || credentialInfos[0] == nullptr) {
         IAM_LOGE("credential info is incorrect");
-        callback->OnSetExecutorPropertyResult(FAIL);
+        callback->OnSetExecutorPropertyResult(NOT_ENROLLED);
         return;
     }
     uint64_t executorIndex = credentialInfos[0]->GetExecutorIndex();
     auto resourceNode = ResourceNodePool::Instance().Select(executorIndex).lock();
     if (resourceNode == nullptr) {
         IAM_LOGE("resourceNode is nullptr");
-        callback->OnSetExecutorPropertyResult(FAIL);
+        callback->OnSetExecutorPropertyResult(GENERAL_ERROR);
         return;
     }
     int32_t result = resourceNode->SetProperty(attributes);
@@ -205,7 +205,7 @@ uint64_t UserAuthService::AuthUser(std::optional<int32_t> userId, const std::vec
     contextCallback->SetTraceAuthTrustLevel(authTrustLevel);
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("get callingUserId failed");
-        contextCallback->OnResult(FAIL, extraInfo);
+        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
     contextCallback->SetTraceUserId(userId.value());
@@ -224,7 +224,7 @@ uint64_t UserAuthService::AuthUser(std::optional<int32_t> userId, const std::vec
         tokenId, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
-        contextCallback->OnResult(FAIL, extraInfo);
+        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
 
@@ -270,7 +270,7 @@ uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthTy
     auto context = ContextFactory::CreateIdentifyContext(challenge, authType, tokenId, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
-        contextCallback->OnResult(FAIL, extraInfo);
+        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
 
@@ -279,7 +279,7 @@ uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthTy
 
     if (!context->Start()) {
         IAM_LOGE("failed to start identify");
-        contextCallback->OnResult(FAIL, extraInfo);
+        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
     return context->GetContextId();

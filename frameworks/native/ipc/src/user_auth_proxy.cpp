@@ -53,7 +53,7 @@ int32_t UserAuthProxy::GetAvailableStatus(AuthType authType, AuthTrustLevel auth
 
     bool ret = SendRequest(UserAuthInterface::USER_AUTH_GET_AVAILABLE_STATUS, data, reply);
     if (!ret) {
-        return FAIL;
+        return GENERAL_ERROR;
     }
     int32_t result = SUCCESS;
     if (!reply.ReadInt32(result)) {
@@ -103,7 +103,7 @@ void UserAuthProxy::GetProperty(int32_t userId, AuthType authType,
     bool ret = SendRequest(UserAuthInterface::USER_AUTH_GET_PROPERTY, data, reply);
     if (!ret) {
         Attributes attr;
-        callback->OnGetExecutorPropertyResult(FAIL, attr);
+        callback->OnGetExecutorPropertyResult(GENERAL_ERROR, attr);
     }
 }
 
@@ -141,7 +141,7 @@ void UserAuthProxy::SetProperty(int32_t userId, AuthType authType, const Attribu
 
     bool ret = SendRequest(UserAuthInterface::USER_AUTH_SET_PROPERTY, data, reply);
     if (!ret) {
-        callback->OnSetExecutorPropertyResult(FAIL);
+        callback->OnSetExecutorPropertyResult(GENERAL_ERROR);
     }
 }
 
@@ -237,18 +237,18 @@ int32_t UserAuthProxy::CancelAuthOrIdentify(uint64_t contextId)
 
     if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
         IAM_LOGE("failed to write descriptor");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     if (!data.WriteUint64(contextId)) {
         IAM_LOGE("failed to write contextId");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     bool ret = SendRequest(UserAuthInterface::USER_AUTH_CANCEL_AUTH, data, reply);
     if (!ret) {
-        return FAIL;
+        return GENERAL_ERROR;
     }
-    int32_t result = FAIL;
+    int32_t result = GENERAL_ERROR;
     if (!reply.ReadInt32(result)) {
         IAM_LOGE("failed to read result");
     }
@@ -262,14 +262,14 @@ int32_t UserAuthProxy::GetVersion()
 
     if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
         IAM_LOGE("failed to write descriptor");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     bool ret = SendRequest(UserAuthInterface::USER_AUTH_GET_VERSION, data, reply);
     if (!ret) {
-        return FAIL;
+        return GENERAL_ERROR;
     }
-    int32_t result = FAIL;
+    int32_t result = GENERAL_ERROR;
     if (!reply.ReadInt32(result)) {
         IAM_LOGE("failed to read result");
     }

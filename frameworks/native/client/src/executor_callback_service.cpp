@@ -49,7 +49,7 @@ int32_t ExecutorCallbackService::OnBeginExecute(uint64_t scheduleId, const std::
 {
     if (callback_ == nullptr) {
         IAM_LOGE("callback is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     return callback_->OnBeginExecute(scheduleId, publicKey, command);
 }
@@ -58,7 +58,7 @@ int32_t ExecutorCallbackService::OnEndExecute(uint64_t scheduleId, const Attribu
 {
     if (callback_ == nullptr) {
         IAM_LOGE("callback is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     return callback_->OnEndExecute(scheduleId, command);
 }
@@ -67,7 +67,7 @@ int32_t ExecutorCallbackService::OnSetProperty(const Attributes &properties)
 {
     if (callback_ == nullptr) {
         IAM_LOGE("callback is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     return callback_->OnSetProperty(properties);
 }
@@ -76,7 +76,7 @@ int32_t ExecutorCallbackService::OnGetProperty(const Attributes &condition, Attr
 {
     if (callback_ == nullptr) {
         IAM_LOGE("callback is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     return callback_->OnGetProperty(condition, values);
 }

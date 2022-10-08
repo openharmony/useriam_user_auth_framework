@@ -33,7 +33,7 @@ int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Messag
     IAM_LOGD("cmd = %{public}u, flags = %{public}d", code, option.GetFlags());
     if (UserAuthStub::GetDescriptor() != data.ReadInterfaceToken()) {
         IAM_LOGE("descriptor is not matched");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     switch (code) {
         case UserAuthInterface::USER_AUTH_GET_AVAILABLE_STATUS:
@@ -119,7 +119,7 @@ int32_t UserAuthStub::GetPropertyStub(MessageParcel &data, MessageParcel &reply)
     sptr<GetExecutorPropertyCallbackInterface> callback = iface_cast<GetExecutorPropertyCallbackProxy>(obj);
     if (callback == nullptr) {
         IAM_LOGE("GetExecutorPropertyCallbackInterface is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     GetProperty(userId, static_cast<AuthType>(authType), attrKeys, callback);
@@ -157,7 +157,7 @@ int32_t UserAuthStub::SetPropertyStub(MessageParcel &data, MessageParcel &reply)
     sptr<SetExecutorPropertyCallbackInterface> callback = iface_cast<SetExecutorPropertyCallbackProxy>(obj);
     if (callback == nullptr) {
         IAM_LOGE("SetExecutorPropertyCallbackInterface is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     SetProperty(userId, static_cast<AuthType>(authType), attributes, callback);
@@ -195,7 +195,7 @@ int32_t UserAuthStub::AuthStub(MessageParcel &data, MessageParcel &reply)
     sptr<UserAuthCallbackInterface> callback = iface_cast<UserAuthCallbackProxy>(obj);
     if (callback == nullptr) {
         IAM_LOGE("UserAuthCallbackInterface is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     uint64_t contextId = AuthUser(userId, challenge, static_cast<AuthType>(authType),
@@ -242,7 +242,7 @@ int32_t UserAuthStub::AuthUserStub(MessageParcel &data, MessageParcel &reply)
     sptr<UserAuthCallbackInterface> callback = iface_cast<UserAuthCallbackProxy>(obj);
     if (callback == nullptr) {
         IAM_LOGE("UserAuthCallbackInterface is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     uint64_t contextId = AuthUser(userId, challenge, static_cast<AuthType>(authType),
@@ -279,7 +279,7 @@ int32_t UserAuthStub::IdentifyStub(MessageParcel &data, MessageParcel &reply)
     sptr<UserAuthCallbackInterface> callback = iface_cast<UserAuthCallbackProxy>(obj);
     if (callback == nullptr) {
         IAM_LOGE("UserAuthCallbackInterface is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     uint64_t contextId = Identify(challenge, static_cast<AuthType>(authType), callback);

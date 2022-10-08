@@ -45,12 +45,12 @@ int32_t ExecutorMessengerService::SendData(uint64_t scheduleId, uint64_t transNu
     auto scheduleNode = ContextPool::Instance().SelectScheduleNodeByScheduleId(scheduleId);
     if (scheduleNode == nullptr) {
         IAM_LOGE("selected schedule node is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     bool result = scheduleNode->ContinueSchedule(srcRole, dstRole, transNum, msg);
     if (!result) {
         IAM_LOGE("continue schedule failed");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     return SUCCESS;
 }
@@ -61,12 +61,12 @@ int32_t ExecutorMessengerService::Finish(uint64_t scheduleId, ExecutorRole srcRo
     auto scheduleNode = ContextPool::Instance().SelectScheduleNodeByScheduleId(scheduleId);
     if (scheduleNode == nullptr) {
         IAM_LOGE("selected schedule node is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     bool result = scheduleNode->ContinueSchedule(resultCode, finalResult);
     if (!result) {
         IAM_LOGE("continue schedule failed");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     return SUCCESS;
 }

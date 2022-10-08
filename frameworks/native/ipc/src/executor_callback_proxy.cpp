@@ -66,31 +66,31 @@ int32_t ExecutorCallbackProxy::OnBeginExecute(uint64_t scheduleId, const std::ve
 
     if (!data.WriteInterfaceToken(ExecutorCallbackProxy::GetDescriptor())) {
         IAM_LOGE("write descriptor failed");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     if (!data.WriteUint64(scheduleId)) {
         IAM_LOGE("write scheduleId failed");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     if (!data.WriteUInt8Vector(publicKey)) {
         IAM_LOGE("write publicKey failed");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     auto attr = command.Serialize();
     if (!data.WriteUInt8Vector(attr)) {
         IAM_LOGE("write command failed");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     bool ret = SendRequest(ExecutorCallbackInterface::ON_BEGIN_EXECUTE, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
-        return FAIL;
+        return GENERAL_ERROR;
     }
-    int32_t result = FAIL;
+    int32_t result = GENERAL_ERROR;
     if (!reply.ReadInt32(result)) {
         IAM_LOGE("read request result failed");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     return result;
 }
@@ -102,27 +102,27 @@ int32_t ExecutorCallbackProxy::OnEndExecute(uint64_t scheduleId, const Attribute
 
     if (!data.WriteInterfaceToken(ExecutorCallbackProxy::GetDescriptor())) {
         IAM_LOGE("write descriptor failed");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     if (!data.WriteUint64(scheduleId)) {
         IAM_LOGE("write scheduleId failed");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     auto attr = command.Serialize();
     if (!data.WriteUInt8Vector(attr)) {
         IAM_LOGE("write command failed");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     bool ret = SendRequest(ExecutorCallbackInterface::ON_END_EXECUTE, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
-        return FAIL;
+        return GENERAL_ERROR;
     }
-    int32_t result = FAIL;
+    int32_t result = GENERAL_ERROR;
     if (!reply.ReadInt32(result)) {
         IAM_LOGE("read request result failed");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     return result;
 }
@@ -134,23 +134,23 @@ int32_t ExecutorCallbackProxy::OnSetProperty(const Attributes &properties)
 
     if (!data.WriteInterfaceToken(ExecutorCallbackProxy::GetDescriptor())) {
         IAM_LOGE("write descriptor failed");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     auto attr = properties.Serialize();
     if (!data.WriteUInt8Vector(attr)) {
         IAM_LOGE("write properties failed");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     bool ret = SendRequest(ExecutorCallbackInterface::ON_SET_PROPERTY, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
-        return FAIL;
+        return GENERAL_ERROR;
     }
-    int32_t result = FAIL;
+    int32_t result = GENERAL_ERROR;
     if (!reply.ReadInt32(result)) {
         IAM_LOGE("read request result failed");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     return result;
 }
@@ -162,29 +162,29 @@ int32_t ExecutorCallbackProxy::OnGetProperty(const Attributes &condition, Attrib
 
     if (!data.WriteInterfaceToken(ExecutorCallbackProxy::GetDescriptor())) {
         IAM_LOGE("write descriptor failed");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     if (!data.WriteUInt8Vector(condition.Serialize())) {
         IAM_LOGE("write condition failed");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     bool ret = SendRequest(ExecutorCallbackInterface::ON_GET_PROPERTY, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
-        return FAIL;
+        return GENERAL_ERROR;
     }
-    int32_t result = FAIL;
+    int32_t result = GENERAL_ERROR;
     if (!reply.ReadInt32(result)) {
         IAM_LOGE("read request result failed");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     std::vector<uint8_t> attr;
     if (!reply.ReadUInt8Vector(&attr)) {
         IAM_LOGE("read reply values failed");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     values = Attributes(attr);
     return result;

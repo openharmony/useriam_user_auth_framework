@@ -31,7 +31,7 @@ int32_t UserAuthCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data
     IAM_LOGD("cmd = %{public}u, flags = %{public}d", code, option.GetFlags());
     if (UserAuthCallbackStub::GetDescriptor() != data.ReadInterfaceToken()) {
         IAM_LOGE("descriptor is not matched");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     switch (code) {
@@ -93,7 +93,7 @@ int32_t GetExecutorPropertyCallbackStub::OnRemoteRequest(uint32_t code, MessageP
     IAM_LOGD("cmd = %{public}u, flags = %{public}d", code, option.GetFlags());
     if (GetExecutorPropertyCallbackStub::GetDescriptor() != data.ReadInterfaceToken()) {
         IAM_LOGE("descriptor is not matched");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     if (code == UserAuthInterface::USER_AUTH_GET_EX_PROP) {
@@ -127,7 +127,7 @@ int32_t SetExecutorPropertyCallbackStub::OnRemoteRequest(uint32_t code, MessageP
     IAM_LOGD("cmd = %{public}u, flags = %{public}d", code, option.GetFlags());
     if (SetExecutorPropertyCallbackStub::GetDescriptor() != data.ReadInterfaceToken()) {
         IAM_LOGE("descriptor is not matched");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     if (code == UserAuthInterface::USER_AUTH_SET_EX_PROP) {

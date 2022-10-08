@@ -62,7 +62,7 @@ public:
     {
         std::lock_guard<std::mutex> lock(mutex_);
         if (fuzzParcel_ == nullptr) {
-            return ResultCode::FAIL;
+            return ResultCode::GENERAL_ERROR;
         }
         templateInfo.executorType = fuzzParcel_->ReadUint32();
         templateInfo.freezingTime = fuzzParcel_->ReadInt32();
@@ -76,7 +76,7 @@ public:
     {
         std::lock_guard<std::mutex> lock(mutex_);
         if (fuzzParcel_ == nullptr) {
-            return ResultCode::FAIL;
+            return ResultCode::GENERAL_ERROR;
         }
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
@@ -90,7 +90,7 @@ public:
         static_cast<void>(callbackObj);
         std::lock_guard<std::mutex> lock(mutex_);
         if (fuzzParcel_ == nullptr) {
-            return ResultCode::FAIL;
+            return ResultCode::GENERAL_ERROR;
         }
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
@@ -105,7 +105,7 @@ public:
         static_cast<void>(callbackObj);
         std::lock_guard<std::mutex> lock(mutex_);
         if (fuzzParcel_ == nullptr) {
-            return ResultCode::FAIL;
+            return ResultCode::GENERAL_ERROR;
         }
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
@@ -119,7 +119,7 @@ public:
         static_cast<void>(callbackObj);
         std::lock_guard<std::mutex> lock(mutex_);
         if (fuzzParcel_ == nullptr) {
-            return ResultCode::FAIL;
+            return ResultCode::GENERAL_ERROR;
         }
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
@@ -128,7 +128,7 @@ public:
     {
         std::lock_guard<std::mutex> lock(mutex_);
         if (fuzzParcel_ == nullptr) {
-            return ResultCode::FAIL;
+            return ResultCode::GENERAL_ERROR;
         }
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
@@ -137,7 +137,7 @@ public:
     {
         std::lock_guard<std::mutex> lock(mutex_);
         if (fuzzParcel_ == nullptr) {
-            return ResultCode::FAIL;
+            return ResultCode::GENERAL_ERROR;
         }
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
@@ -147,7 +147,7 @@ public:
     {
         std::lock_guard<std::mutex> lock(mutex_);
         if (fuzzParcel_ == nullptr) {
-            return ResultCode::FAIL;
+            return ResultCode::GENERAL_ERROR;
         }
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }

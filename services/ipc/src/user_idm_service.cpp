@@ -75,7 +75,7 @@ int32_t UserIdmService::OpenSession(int32_t userId, std::vector<uint8_t> &challe
 
     if (!UserIdmSessionController::Instance().OpenSession(userId, challenge)) {
         IAM_LOGE("failed to open session");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     return SUCCESS;
@@ -113,7 +113,7 @@ int32_t UserIdmService::GetCredentialInfo(int32_t userId, AuthType authType,
     if (credInfos.empty()) {
         IAM_LOGI("no cred enrolled");
         callback->OnCredentialInfos(credInfos, pinSubType);
-        return FAIL;
+        return NOT_ENROLLED;
     }
 
     auto userInfo = UserIdmDatabase::Instance().GetSecUserInfo(userId);
@@ -188,7 +188,7 @@ void UserIdmService::AddCredential(int32_t userId, AuthType authType, PinSubType
         ContextFactory::CreateEnrollContext(userId, authType, pinSubType, token, tokenId, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
-        contextCallback->OnResult(FAIL, extraInfo);
+        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
 
@@ -197,7 +197,7 @@ void UserIdmService::AddCredential(int32_t userId, AuthType authType, PinSubType
 
     if (!context->Start()) {
         IAM_LOGE("failed to start enroll");
-        contextCallback->OnResult(FAIL, extraInfo);
+        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
     }
 }
 
@@ -212,14 +212,14 @@ void UserIdmService::UpdateCredential(int32_t userId, AuthType authType, PinSubT
     Attributes extraInfo;
     if (token.empty()) {
         IAM_LOGE("token is empty in update");
-        callback->OnResult(FAIL, extraInfo);
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
 
     auto credInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType);
     if (credInfos.empty()) {
         IAM_LOGE("current userid %{public}d has no credential for type %{public}u", userId, authType);
-        callback->OnResult(FAIL, extraInfo);
+        callback->OnResult(NOT_ENROLLED, extraInfo);
         return;
     }
 
@@ -234,7 +234,7 @@ int32_t UserIdmService::Cancel(int32_t userId)
     }
     if (!UserIdmSessionController::Instance().IsSessionOpened(userId)) {
         IAM_LOGE("both user id and challenge are invalid");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     std::lock_guard<std::mutex> lock(mutex_);
@@ -255,7 +255,7 @@ int32_t UserIdmService::CancelCurrentEnroll()
 {
     IAM_LOGD("start");
     auto contextList = ContextPool::Instance().Select(CONTEXT_ENROLL);
-    int32_t ret = FAIL;
+    int32_t ret = GENERAL_ERROR;
     for (const auto &context : contextList) {
         if (auto ctx = context.lock(); ctx != nullptr) {
             IAM_LOGE("stop the old context %{public}s", GET_MASKED_STRING(ctx->GetContextId()).c_str());
@@ -289,7 +289,7 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInt
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
         callback->OnResult(GENERAL_ERROR, extraInfo);
-        return FAIL;
+        return GENERAL_ERROR;
     }
     contextCallback->SetTraceUserId(userId);
 
@@ -451,7 +451,7 @@ int UserIdmService::Dump(int fd, const std::vector<std::u16string> &args)
     }
     IAM_LOGE("invalid option");
     dprintf(fd, "Invalid option\n");
-    return FAIL;
+    return GENERAL_ERROR;
 }
 } // namespace UserAuth
 } // namespace UserIam

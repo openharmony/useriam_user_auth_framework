@@ -61,7 +61,7 @@ int32_t ExecutorMessengerProxy::SendData(uint64_t scheduleId, uint64_t transNum,
     bool ret = SendRequest(ExecutorMessengerInterface::CO_AUTH_SEND_DATA, data, reply);
     if (!ret) {
         IAM_LOGE("failed to send request");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     int32_t result = 0;
     if (!reply.ReadInt32(result)) {
@@ -106,7 +106,7 @@ int32_t ExecutorMessengerProxy::Finish(uint64_t scheduleId, ExecutorRole srcRole
     bool ret = SendRequest(ExecutorMessengerInterface::CO_AUTH_FINISH, data, reply);
     if (!ret) {
         IAM_LOGE("failed to send request");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     int32_t result = 0;
     if (!reply.ReadInt32(result)) {
