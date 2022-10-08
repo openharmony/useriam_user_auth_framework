@@ -50,6 +50,7 @@ public:
     MOCK_CONST_METHOD0(GetContextId, uint64_t());
     MOCK_CONST_METHOD0(GetContextType, ContextType());
     MOCK_CONST_METHOD1(GetScheduleNode, std::shared_ptr<ScheduleNode>(uint64_t scheduleId));
+    MOCK_CONST_METHOD0(GetLatestError, int32_t());
 
     static std::shared_ptr<Context> CreateWithContextId(uint64_t contextId)
     {
@@ -108,6 +109,9 @@ public:
             });
         return context;
     }
+
+protected:
+    MOCK_METHOD1(SetLatestError, void(int32_t error));
 };
 } // namespace UserAuth
 } // namespace UserIam

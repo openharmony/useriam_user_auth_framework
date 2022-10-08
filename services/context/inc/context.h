@@ -50,6 +50,10 @@ public:
     virtual uint64_t GetContextId() const = 0;
     virtual ContextType GetContextType() const = 0;
     virtual std::shared_ptr<ScheduleNode> GetScheduleNode(uint64_t scheduleId) const = 0;
+    virtual int32_t GetLatestError() const = 0;
+
+protected:
+    virtual void SetLatestError(int32_t error) = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam

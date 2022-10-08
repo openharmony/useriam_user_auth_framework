@@ -37,6 +37,18 @@ AuthenticationImpl::~AuthenticationImpl()
     Cancel();
 }
 
+void AuthenticationImpl::SetLatestError(int32_t error)
+{
+    if (error != ResultCode::SUCCESS) {
+        latestError_ = error;
+    }
+}
+
+int32_t AuthenticationImpl::GetLatestError() const
+{
+    return latestError_;
+}
+
 void AuthenticationImpl::SetExecutor(uint32_t executorIndex)
 {
     executorIndex_ = executorIndex;
@@ -75,6 +87,7 @@ bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
     auto result = hdi->BeginAuthentication(contextId_, solution, infos);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi BeginAuthentication failed, err is %{public}d", result);
+        SetLatestError(result);
         return false;
     }
     if (infos.empty()) {
