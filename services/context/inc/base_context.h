@@ -43,8 +43,10 @@ public:
     void OnScheduleStarted() override;
     void OnScheduleProcessed(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg) override;
     void OnScheduleStoped(int32_t resultCode, const std::shared_ptr<Attributes> &finalResult) override;
+    int32_t GetLatestError() const override;
 
 protected:
+    void SetLatestError(int32_t error) override;
     const char *GetDescription() const;
     virtual bool OnStart() = 0;
     virtual void OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr) const = 0;
@@ -59,6 +61,7 @@ private:
     std::string description_;
     bool hasStarted_ = false;
     std::mutex mutex_;
+    int32_t latestError_ = ResultCode::GENERAL_ERROR;
 };
 } // namespace UserAuth
 } // namespace UserIam

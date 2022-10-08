@@ -233,7 +233,7 @@ uint64_t UserAuthService::AuthUser(std::optional<int32_t> userId, const std::vec
 
     if (!context->Start()) {
         IAM_LOGE("failed to start auth");
-        contextCallback->OnResult(FAIL, extraInfo);
+        contextCallback->OnResult(context->GetLatestError(), extraInfo);
         return BAD_CONTEXT_ID;
     }
     return context->GetContextId();
@@ -297,12 +297,12 @@ int32_t UserAuthService::CancelAuthOrIdentify(uint64_t contextId)
     auto context = ContextPool::Instance().Select(contextId).lock();
     if (context == nullptr) {
         IAM_LOGE("context not exist");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     if (!context->Stop()) {
         IAM_LOGE("failed to cancel auth or identify");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     return SUCCESS;

@@ -32,6 +32,10 @@ public:
         bool(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList, std::shared_ptr<ScheduleNodeCallback> callback));
     MOCK_METHOD2(Update, bool(const std::vector<uint8_t> &scheduleResult, AuthResultInfo &resultInfo));
     MOCK_METHOD0(Cancel, bool());
+    MOCK_CONST_METHOD0(GetLatestError, int32_t());
+
+protected:
+    MOCK_METHOD1(SetLatestError, void(int32_t error));
 };
 } // namespace UserAuth
 } // namespace UserIam

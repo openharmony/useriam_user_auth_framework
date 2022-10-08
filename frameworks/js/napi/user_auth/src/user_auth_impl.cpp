@@ -184,7 +184,7 @@ napi_value UserAuthImpl::Auth(napi_env env, napi_callback_info info)
         return nullptr;
     }
     std::vector<uint8_t> challenge;
-    if (UserAuthNapiHelper::GetUint8ArrayValue(env, argv[PARAM0], challenge) != napi_ok) {
+    if (UserAuthNapiHelper::GetUint8ArrayValue(env, argv[PARAM0], MAX_CHALLENG_LEN, challenge) != napi_ok) {
         IAM_LOGE("challenge invalid, use null challenge");
         challenge.clear();
     }
@@ -221,8 +221,9 @@ napi_value UserAuthImpl::CancelAuth(napi_env env, napi_callback_info info)
         IAM_LOGE("parms error");
         return nullptr;
     }
+    const size_t maxContextIdLen = 8;
     std::vector<uint8_t> contextIdArray;
-    NAPI_CALL(env, UserAuthNapiHelper::GetUint8ArrayValue(env, argv[PARAM0], contextIdArray));
+    NAPI_CALL(env, UserAuthNapiHelper::GetUint8ArrayValue(env, argv[PARAM0], maxContextIdLen, contextIdArray));
     uint64_t contextId;
     if (memcpy_s(reinterpret_cast<void *>(&contextId), sizeof(contextId),
         contextIdArray.data(), contextIdArray.size()) != EOK) {
