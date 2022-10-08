@@ -84,7 +84,7 @@ ResultCodeV9 AuthInstanceV9::GetAvailableStatus(napi_env env, napi_callback_info
     }
     if (!CheckAuthType(type)) {
         IAM_LOGE("CheckAuthType fail");
-        return ResultCodeV9::TYPE_NOT_SUPPORT;
+        return ResultCodeV9::INVALID_PARAMETERS;
     }
     uint32_t level;
     ret = napi_get_value_uint32(env, argv[PARAM1], &level);
@@ -94,7 +94,7 @@ ResultCodeV9 AuthInstanceV9::GetAvailableStatus(napi_env env, napi_callback_info
     }
     if (!CheckAuthTrustLevel(level)) {
         IAM_LOGE("CheckAuthTrustLevel fail");
-        return ResultCodeV9::TRUST_LEVEL_NOT_SUPPORT;
+        return ResultCodeV9::INVALID_PARAMETERS;
     }
     AuthType authType = AuthType(type);
     AuthTrustLevel authTrustLevel = AuthTrustLevel(level);
@@ -118,7 +118,7 @@ napi_status AuthInstanceV9::InitChallenge(napi_env env, napi_value value)
         IAM_LOGI("challenge is null");
         return ret;
     }
-    ret = UserAuthNapiHelper::GetUint8ArrayValue(env, value, challenge_);
+    ret = UserAuthNapiHelper::GetUint8ArrayValue(env, value, MAX_CHALLENG_LEN, challenge_);
     if (ret != napi_ok) {
         IAM_LOGE("GetUint8ArrayValue fail:%{public}d", ret);
     }
@@ -157,7 +157,7 @@ ResultCodeV9 AuthInstanceV9::Init(napi_env env, napi_callback_info info)
     }
     if (!CheckAuthType(authType)) {
         IAM_LOGE("CheckAuthType fail");
-        return ResultCodeV9::TYPE_NOT_SUPPORT;
+        return ResultCodeV9::INVALID_PARAMETERS;
     }
     authType_ = AuthType(authType);
     uint32_t authTrustLevel;
@@ -168,7 +168,7 @@ ResultCodeV9 AuthInstanceV9::Init(napi_env env, napi_callback_info info)
     }
     if (!CheckAuthTrustLevel(authTrustLevel)) {
         IAM_LOGE("CheckAuthTrustLevel fail");
-        return ResultCodeV9::TRUST_LEVEL_NOT_SUPPORT;
+        return ResultCodeV9::INVALID_PARAMETERS;
     }
     authTrustLevel_ = AuthTrustLevel(authTrustLevel);
     return ResultCodeV9::SUCCESS;
@@ -320,7 +320,7 @@ ResultCodeV9 AuthInstanceV9::Cancel(napi_env env, napi_callback_info info)
     std::lock_guard<std::mutex> guard(mutex_);
     if (!isAuthStarted_) {
         IAM_LOGE("auth not started");
-        return ResultCodeV9::FAIL;
+        return ResultCodeV9::GENERAL_ERROR;
     }
     int32_t result = UserAuthClientImpl::Instance().CancelAuthentication(contextId_);
     if (result != ResultCode::SUCCESS) {

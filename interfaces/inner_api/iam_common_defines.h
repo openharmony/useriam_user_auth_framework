@@ -19,6 +19,8 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+constexpr size_t MAX_CHALLENG_LEN = 32;
+
 enum AuthType : int32_t {
     ALL = 0,
     PIN = 1,

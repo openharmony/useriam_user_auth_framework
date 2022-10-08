@@ -41,7 +41,11 @@ bool SimpleAuthContext::OnStart()
     IAM_LOGI("%{public}s start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN_VAL(auth_ != nullptr, false);
     bool startRet = auth_->Start(scheduleList_, shared_from_this());
-    IF_FALSE_LOGE_AND_RETURN_VAL(startRet, false);
+    if (!startRet) {
+        IAM_LOGE("%{public}s auth start fail", GetDescription());
+        SetLatestError(auth_->GetLatestError());
+        return startRet;
+    }
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_.size() == 1, false);
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_[0] != nullptr, false);
     bool startScheduleRet = scheduleList_[0]->StartSchedule();
