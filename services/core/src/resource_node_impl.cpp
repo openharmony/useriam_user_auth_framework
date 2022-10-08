@@ -139,7 +139,7 @@ int32_t ResourceNodeImpl::BeginExecute(uint64_t scheduleId, const std::vector<ui
     if (callback_ != nullptr) {
         return callback_->OnBeginExecute(scheduleId, publicKey, command);
     }
-    return FAIL;
+    return GENERAL_ERROR;
 }
 
 int32_t ResourceNodeImpl::EndExecute(uint64_t scheduleId, const Attributes &command)
@@ -148,7 +148,7 @@ int32_t ResourceNodeImpl::EndExecute(uint64_t scheduleId, const Attributes &comm
     if (callback_ != nullptr) {
         return callback_->OnEndExecute(scheduleId, command);
     }
-    return FAIL;
+    return GENERAL_ERROR;
 }
 
 int32_t ResourceNodeImpl::SetProperty(const Attributes &properties)
@@ -157,7 +157,7 @@ int32_t ResourceNodeImpl::SetProperty(const Attributes &properties)
     if (callback_ != nullptr) {
         return callback_->OnSetProperty(properties);
     }
-    return FAIL;
+    return GENERAL_ERROR;
 }
 
 int32_t ResourceNodeImpl::GetProperty(const Attributes &condition, Attributes &values)
@@ -166,7 +166,7 @@ int32_t ResourceNodeImpl::GetProperty(const Attributes &condition, Attributes &v
     if (callback_ != nullptr) {
         return callback_->OnGetProperty(condition, values);
     }
-    return FAIL;
+    return GENERAL_ERROR;
 }
 
 void ResourceNodeImpl::Detach()
@@ -194,13 +194,13 @@ int32_t ResourceNodeImpl::SyncWithDriver(std::vector<uint64_t> &templateIdList, 
     auto hdi = HdiWrapper::GetHdiInstance();
     if (!hdi) {
         IAM_LOGE("bad hdi");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     int32_t result = hdi->AddExecutor(hdiInfo, executeIndex_, fwkPublicKey, templateIdList);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi AddExecutor failed with code %{public}d", result);
-        return FAIL;
+        return GENERAL_ERROR;
     }
     synced = true;
     IAM_LOGI("hdi AddExecutor ****%{public}hx success", static_cast<uint16_t>(executeIndex_));

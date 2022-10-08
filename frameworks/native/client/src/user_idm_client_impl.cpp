@@ -65,7 +65,7 @@ void UserIdmClientImpl::AddCredential(int32_t userId, const CredentialParameters
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
-        callback->OnResult(FAIL, extraInfo);
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
 
@@ -73,7 +73,7 @@ void UserIdmClientImpl::AddCredential(int32_t userId, const CredentialParameters
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
-        callback->OnResult(FAIL, extraInfo);
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
     proxy->AddCredential(userId, para.authType, para.pinType.value_or(PIN_SIX), para.token, wrapper, false);
@@ -90,7 +90,7 @@ void UserIdmClientImpl::UpdateCredential(int32_t userId, const CredentialParamet
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
-        callback->OnResult(FAIL, extraInfo);
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
 
@@ -98,7 +98,7 @@ void UserIdmClientImpl::UpdateCredential(int32_t userId, const CredentialParamet
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
-        callback->OnResult(FAIL, extraInfo);
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
     proxy->UpdateCredential(userId, para.authType, para.pinType.value_or(PIN_SIX), para.token, wrapper);
@@ -109,7 +109,7 @@ int32_t UserIdmClientImpl::Cancel(int32_t userId)
     auto proxy = GetProxy();
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     return proxy->Cancel(userId);
@@ -126,7 +126,7 @@ void UserIdmClientImpl::DeleteCredential(int32_t userId, uint64_t credentialId, 
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
-        callback->OnResult(FAIL, extraInfo);
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
 
@@ -134,7 +134,7 @@ void UserIdmClientImpl::DeleteCredential(int32_t userId, uint64_t credentialId, 
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
-        callback->OnResult(FAIL, extraInfo);
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
     proxy->DelCredential(userId, credentialId, authToken, wrapper);
@@ -151,7 +151,7 @@ void UserIdmClientImpl::DeleteUser(int32_t userId, const std::vector<uint8_t> &a
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
-        callback->OnResult(FAIL, extraInfo);
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
 
@@ -159,7 +159,7 @@ void UserIdmClientImpl::DeleteUser(int32_t userId, const std::vector<uint8_t> &a
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
-        callback->OnResult(FAIL, extraInfo);
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
     proxy->DelUser(userId, authToken, wrapper);
@@ -169,21 +169,21 @@ int32_t UserIdmClientImpl::EraseUser(int32_t userId, const std::shared_ptr<UserI
 {
     if (!callback) {
         IAM_LOGE("user idm client callback is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     auto proxy = GetProxy();
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
-        callback->OnResult(FAIL, extraInfo);
-        return FAIL;
+        callback->OnResult(GENERAL_ERROR, extraInfo);
+        return GENERAL_ERROR;
     }
     sptr<IdmCallbackInterface> wrapper = new (std::nothrow) IdmCallbackService(callback);
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
-        callback->OnResult(FAIL, extraInfo);
-        return FAIL;
+        callback->OnResult(GENERAL_ERROR, extraInfo);
+        return GENERAL_ERROR;
     }
     return proxy->EnforceDelUser(userId, wrapper);
 }
@@ -193,7 +193,7 @@ int32_t UserIdmClientImpl::GetCredentialInfo(int32_t userId, AuthType authType,
 {
     if (!callback) {
         IAM_LOGE("get credential info callback is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     auto proxy = GetProxy();
@@ -201,7 +201,7 @@ int32_t UserIdmClientImpl::GetCredentialInfo(int32_t userId, AuthType authType,
         IAM_LOGE("proxy is nullptr");
         std::vector<CredentialInfo> infoList;
         callback->OnCredentialInfo(infoList);
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     sptr<IdmGetCredInfoCallbackInterface> wrapper = new (std::nothrow) IdmGetCredInfoCallbackService(callback);
@@ -209,7 +209,7 @@ int32_t UserIdmClientImpl::GetCredentialInfo(int32_t userId, AuthType authType,
         IAM_LOGE("failed to create wrapper");
         std::vector<CredentialInfo> infoList;
         callback->OnCredentialInfo(infoList);
-        return FAIL;
+        return GENERAL_ERROR;
     }
     return proxy->GetCredentialInfo(userId, authType, wrapper);
 }
@@ -218,7 +218,7 @@ int32_t UserIdmClientImpl::GetSecUserInfo(int32_t userId, const std::shared_ptr<
 {
     if (!callback) {
         IAM_LOGE("get secure info callback is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     auto proxy = GetProxy();
@@ -226,7 +226,7 @@ int32_t UserIdmClientImpl::GetSecUserInfo(int32_t userId, const std::shared_ptr<
         IAM_LOGE("proxy is nullptr");
         SecUserInfo info = {};
         callback->OnSecUserInfo(info);
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     sptr<IdmGetSecureUserInfoCallbackInterface> wrapper =
@@ -235,7 +235,7 @@ int32_t UserIdmClientImpl::GetSecUserInfo(int32_t userId, const std::shared_ptr<
         IAM_LOGE("failed to create wrapper");
         SecUserInfo info = {};
         callback->OnSecUserInfo(info);
-        return FAIL;
+        return GENERAL_ERROR;
     }
     return proxy->GetSecInfo(userId, wrapper);
 }

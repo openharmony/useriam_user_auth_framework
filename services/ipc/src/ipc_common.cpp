@@ -83,7 +83,7 @@ int32_t IpcCommon::GetActiveUserId(std::optional<int32_t> &userId)
     ErrCode queryRet = AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
     if (queryRet != ERR_OK || ids.empty()) {
         IAM_LOGE("failed to query active account id");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 #else  // HAS_OS_ACCOUNT_PART
     const int32_t DEFAULT_OS_ACCOUNT_ID = 0;

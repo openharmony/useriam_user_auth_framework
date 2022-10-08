@@ -32,7 +32,7 @@ int32_t CoAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageP
     IAM_LOGD("CoAuthStub::OnRemoteRequest, cmd = %{public}u, flags = %{public}d", code, option.GetFlags());
     if (CoAuthStub::GetDescriptor() != data.ReadInterfaceToken()) {
         IAM_LOGE("descriptor is not matched");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     switch (code) {
         case CoAuthInterface::CO_AUTH_EXECUTOR_REGISTER:
@@ -57,13 +57,13 @@ int32_t CoAuthStub::ExecutorRegisterStub(MessageParcel &data, MessageParcel &rep
     sptr<ExecutorCallbackInterface> callback = new (std::nothrow) ExecutorCallbackProxy(obj);
     if (callback == nullptr) {
         IAM_LOGE("executor callback is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     uint64_t executorIndex = ExecutorRegister(executorInfo, callback);
     if (executorIndex == INVALID_EXECUTOR_INDEX) {
         IAM_LOGE("executor register failed");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     if (!reply.WriteUint64(executorIndex)) {
         IAM_LOGE("write ExecutorRegister result failed");
