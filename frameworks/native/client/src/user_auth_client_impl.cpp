@@ -30,7 +30,7 @@ int32_t UserAuthClientImpl::GetAvailableStatus(AuthType authType, AuthTrustLevel
     auto proxy = GetProxy();
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     return proxy->GetAvailableStatus(authType, authTrustLevel);
@@ -48,7 +48,7 @@ void UserAuthClientImpl::GetProperty(int32_t userId, const GetPropertyRequest &r
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
-        callback->OnResult(FAIL, extraInfo);
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
 
@@ -57,7 +57,7 @@ void UserAuthClientImpl::GetProperty(int32_t userId, const GetPropertyRequest &r
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
-        callback->OnResult(FAIL, extraInfo);
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
     proxy->GetProperty(userId, request.authType, request.keys, wrapper);
@@ -75,7 +75,7 @@ void UserAuthClientImpl::SetProperty(int32_t userId, const SetPropertyRequest &r
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
-        callback->OnResult(FAIL, extraInfo);
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
 
@@ -84,7 +84,7 @@ void UserAuthClientImpl::SetProperty(int32_t userId, const SetPropertyRequest &r
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
-        callback->OnResult(FAIL, extraInfo);
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
     proxy->SetProperty(userId, request.authType, request.attrs, wrapper);
@@ -102,7 +102,7 @@ uint64_t UserAuthClientImpl::BeginAuthentication(int32_t userId, const std::vect
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
-        callback->OnResult(FAIL, extraInfo);
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return INVALID_SESSION_ID;
     }
 
@@ -110,7 +110,7 @@ uint64_t UserAuthClientImpl::BeginAuthentication(int32_t userId, const std::vect
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
-        callback->OnResult(FAIL, extraInfo);
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return INVALID_SESSION_ID;
     }
     return proxy->AuthUser(userId, challenge, authType, atl, wrapper);
@@ -128,7 +128,7 @@ uint64_t UserAuthClientImpl::BeginAuthentication(const std::vector<uint8_t> &cha
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
-        callback->OnResult(FAIL, extraInfo);
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return INVALID_SESSION_ID;
     }
 
@@ -136,7 +136,7 @@ uint64_t UserAuthClientImpl::BeginAuthentication(const std::vector<uint8_t> &cha
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
-        callback->OnResult(FAIL, extraInfo);
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return INVALID_SESSION_ID;
     }
     return proxy->AuthUser(std::nullopt, challenge, authType, atl, wrapper);
@@ -147,7 +147,7 @@ int32_t UserAuthClientImpl::CancelAuthentication(uint64_t contextId)
     auto proxy = GetProxy();
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     return proxy->CancelAuthOrIdentify(contextId);
@@ -165,7 +165,7 @@ uint64_t UserAuthClientImpl::BeginIdentification(const std::vector<uint8_t> &cha
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
-        callback->OnResult(FAIL, extraInfo);
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return INVALID_SESSION_ID;
     }
 
@@ -173,7 +173,7 @@ uint64_t UserAuthClientImpl::BeginIdentification(const std::vector<uint8_t> &cha
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
-        callback->OnResult(FAIL, extraInfo);
+        callback->OnResult(GENERAL_ERROR, extraInfo);
         return INVALID_SESSION_ID;
     }
     return proxy->Identify(challenge, authType, wrapper);
@@ -184,7 +184,7 @@ int32_t UserAuthClientImpl::CancelIdentification(uint64_t contextId)
     auto proxy = GetProxy();
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     return proxy->CancelAuthOrIdentify(contextId);

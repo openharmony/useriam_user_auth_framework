@@ -293,7 +293,7 @@ ResultCodeV9 AuthInstanceV9::Start(napi_env env, napi_callback_info info)
     std::lock_guard<std::mutex> guard(mutex_);
     if (isAuthStarted_) {
         IAM_LOGE("auth already started");
-        return ResultCodeV9::FAIL;
+        return ResultCodeV9::GENERAL_ERROR;
     }
     contextId_ = UserAuthClientImpl::Instance().BeginAuthentication(challenge_, authType_, authTrustLevel_, callback_);
     isAuthStarted_ = true;

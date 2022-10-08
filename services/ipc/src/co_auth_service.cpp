@@ -152,7 +152,7 @@ int CoAuthService::Dump(int fd, const std::vector<std::u16string> &args)
     }
     IAM_LOGE("invalid option");
     dprintf(fd, "Invalid option\n");
-    return FAIL;
+    return GENERAL_ERROR;
 }
 } // namespace UserAuth
 } // namespace UserIam

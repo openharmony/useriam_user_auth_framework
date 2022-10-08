@@ -33,7 +33,7 @@ int32_t ExecutorMessengerStub::OnRemoteRequest(uint32_t code, MessageParcel &dat
     IAM_LOGD("ExecutorMessengerStub::OnRemoteRequest, cmd = %{public}u, flags = %{public}d", code, option.GetFlags());
     if (ExecutorMessengerStub::GetDescriptor() != data.ReadInterfaceToken()) {
         IAM_LOGE("descriptor is not matched");
-        return FAIL;
+        return GENERAL_ERROR;
     }
     switch (code) {
         case ExecutorMessengerInterface::CO_AUTH_SEND_DATA:
@@ -71,7 +71,7 @@ int32_t ExecutorMessengerStub::SendDataStub(MessageParcel &data, MessageParcel &
     }
     if (!data.ReadUInt8Vector(&msg)) {
         IAM_LOGE("read msg failed");
-        return FAIL;
+        return GENERAL_ERROR;
     }
 
     int32_t result =
