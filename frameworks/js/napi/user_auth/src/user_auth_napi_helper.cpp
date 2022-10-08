@@ -197,7 +197,8 @@ napi_status UserAuthNapiHelper::GetFunctionRef(napi_env env, napi_value value, n
     return result;
 }
 
-napi_status UserAuthNapiHelper::GetUint8ArrayValue(napi_env env, napi_value value, std::vector<uint8_t> &array)
+napi_status UserAuthNapiHelper::GetUint8ArrayValue(napi_env env, napi_value value,
+    size_t limitLen, std::vector<uint8_t> &array)
 {
     bool isTypedarray;
     napi_status result = napi_is_typedarray(env, value, &isTypedarray);
@@ -222,6 +223,10 @@ napi_status UserAuthNapiHelper::GetUint8ArrayValue(napi_env env, napi_value valu
     if (type != napi_uint8_array) {
         IAM_LOGE("value is not napi_uint8_array");
         return napi_invalid_arg;
+    }
+    if (length > limitLen) {
+        IAM_LOGE("array length reach limit");
+        return napi_generic_failure;
     }
     array.resize(length);
     if (memcpy_s(array.data(), length, data, length) != EOK) {

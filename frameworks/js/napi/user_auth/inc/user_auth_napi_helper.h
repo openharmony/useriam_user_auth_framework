@@ -35,7 +35,8 @@ public:
     static napi_status GetUint32Value(napi_env env, napi_value value, uint32_t &out);
     static napi_status GetStrValue(napi_env env, napi_value value, char *out, size_t &len);
     static napi_status GetFunctionRef(napi_env env, napi_value value, napi_ref &ref);
-    static napi_status GetUint8ArrayValue(napi_env env, napi_value value, std::vector<uint8_t> &array);
+    static napi_status GetUint8ArrayValue(napi_env env, napi_value value,
+        size_t limitLen, std::vector<uint8_t> &array);
     static napi_value Uint64ToNapiUint8Array(napi_env env, uint64_t value);
     static napi_status SetInt32Property(napi_env env, napi_value obj, const char *name, int32_t value);
     static napi_status SetUint32Property(napi_env env, napi_value obj, const char *name, uint32_t value);

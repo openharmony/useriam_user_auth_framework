@@ -33,6 +33,18 @@ BaseContext::BaseContext(const std::string &type, uint64_t contextId, std::share
     description_ = ss.str();
 }
 
+void BaseContext::SetLatestError(int32_t error)
+{
+    if (error != ResultCode::SUCCESS) {
+        latestError_ = error;
+    }
+}
+
+int32_t BaseContext::GetLatestError() const
+{
+    return latestError_;
+}
+
 uint64_t BaseContext::GetContextId() const
 {
     return contextId_;
