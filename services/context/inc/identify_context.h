@@ -34,12 +34,12 @@ public:
 
 protected:
     bool OnStart() override;
-    void OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr) const override;
-    bool OnStop() const override;
+    void OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr) override;
+    bool OnStop() override;
 
 private:
     bool UpdateScheduleResult(const std::shared_ptr<Attributes> &scheduleResultAttr,
-        Identification::IdentifyResultInfo &resultInfo) const;
+        Identification::IdentifyResultInfo &resultInfo);
     void InvokeResultCallback(const Identification::IdentifyResultInfo &resultInfo) const;
     std::shared_ptr<Identification> identify_ = nullptr;
 };

@@ -54,7 +54,7 @@ bool SimpleAuthContext::OnStart()
     return true;
 }
 
-void SimpleAuthContext::OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr) const
+void SimpleAuthContext::OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr)
 {
     IAM_LOGI("%{public}s receive result code %{public}d", GetDescription(), resultCode);
     Authentication::AuthResultInfo resultInfo = {};
@@ -62,7 +62,7 @@ void SimpleAuthContext::OnResult(int32_t resultCode, const std::shared_ptr<Attri
     if (!updateRet) {
         IAM_LOGE("%{public}s UpdateScheduleResult fail", GetDescription());
         if (resultCode == SUCCESS) {
-            resultCode = GENERAL_ERROR;
+            resultCode = GetLatestError();
         }
         resultInfo.result = resultCode;
     }
@@ -70,7 +70,7 @@ void SimpleAuthContext::OnResult(int32_t resultCode, const std::shared_ptr<Attri
     IAM_LOGI("%{public}s on result %{public}d finish", GetDescription(), resultCode);
 }
 
-bool SimpleAuthContext::OnStop() const
+bool SimpleAuthContext::OnStop()
 {
     IAM_LOGI("%{public}s start", GetDescription());
     if (scheduleList_.size() == 1 && scheduleList_[0] != nullptr) {
@@ -79,12 +79,16 @@ bool SimpleAuthContext::OnStop() const
 
     IF_FALSE_LOGE_AND_RETURN_VAL(auth_ != nullptr, false);
     bool cancelRet = auth_->Cancel();
-    IF_FALSE_LOGE_AND_RETURN_VAL(cancelRet, false);
+    if (!cancelRet) {
+        IAM_LOGE("%{public}s auth stop fail", GetDescription());
+        SetLatestError(auth_->GetLatestError());
+        return cancelRet;
+    }
     return true;
 }
 
 bool SimpleAuthContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &scheduleResultAttr,
-    Authentication::AuthResultInfo &resultInfo) const
+    Authentication::AuthResultInfo &resultInfo)
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(auth_ != nullptr, false);
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleResultAttr != nullptr, false);
@@ -92,7 +96,11 @@ bool SimpleAuthContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &
     bool getResultCodeRet = scheduleResultAttr->GetUint8ArrayValue(Attributes::ATTR_RESULT, scheduleResult);
     IF_FALSE_LOGE_AND_RETURN_VAL(getResultCodeRet == true, false);
     bool updateRet = auth_->Update(scheduleResult, resultInfo);
-    IF_FALSE_LOGE_AND_RETURN_VAL(updateRet == true, false);
+    if (!updateRet) {
+        IAM_LOGE("%{public}s auth update fail", GetDescription());
+        SetLatestError(auth_->GetLatestError());
+        return updateRet;
+    }
     return true;
 }
 

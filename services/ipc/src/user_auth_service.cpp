@@ -279,7 +279,7 @@ uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthTy
 
     if (!context->Start()) {
         IAM_LOGE("failed to start identify");
-        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
+        contextCallback->OnResult(context->GetLatestError(), extraInfo);
         return BAD_CONTEXT_ID;
     }
     return context->GetContextId();
@@ -302,7 +302,7 @@ int32_t UserAuthService::CancelAuthOrIdentify(uint64_t contextId)
 
     if (!context->Stop()) {
         IAM_LOGE("failed to cancel auth or identify");
-        return GENERAL_ERROR;
+        return context->GetLatestError();
     }
 
     return SUCCESS;

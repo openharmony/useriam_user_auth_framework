@@ -120,6 +120,7 @@ bool AuthenticationImpl::Update(const std::vector<uint8_t> &scheduleResult, Auth
     auto result = hdi->UpdateAuthenticationResult(contextId_, scheduleResult, info);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi UpdateAuthenticationResult failed, err is %{public}d", result);
+        SetLatestError(result);
     }
 
     for (auto &[executorIndex, commandId, msg] : info.msgs) {
@@ -131,6 +132,10 @@ bool AuthenticationImpl::Update(const std::vector<uint8_t> &scheduleResult, Auth
     resultInfo.remainTimes = info.remainAttempts;
     resultInfo.token = info.token;
     resultInfo.rootSecret = info.rootSecret;
+
+    if (resultInfo.result != SUCCESS) {
+        SetLatestError(resultInfo.result);
+    }
 
     return result == HDF_SUCCESS && resultInfo.result == SUCCESS;
 }
@@ -151,6 +156,7 @@ bool AuthenticationImpl::Cancel()
     auto result = hdi->CancelAuthentication(contextId_);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi CancelAuthentication failed, err is %{public}d", result);
+        SetLatestError(result);
         return false;
     }
     return true;
