@@ -38,6 +38,10 @@ public:
     virtual bool Update(const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
         std::shared_ptr<CredentialInfo> &info, std::vector<uint8_t> &rootSecret) = 0;
     virtual bool Cancel() = 0;
+    virtual int32_t GetLatestError() const = 0;
+
+protected:
+    virtual void SetLatestError(int32_t error) = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam

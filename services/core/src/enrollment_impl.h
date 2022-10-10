@@ -41,6 +41,10 @@ public:
     bool Update(const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
         std::shared_ptr<CredentialInfo> &info, std::vector<uint8_t> &rootSecret) override;
     bool Cancel() override;
+    int32_t GetLatestError() const override;
+
+protected:
+    void SetLatestError(int32_t error) override;
 
 private:
     int32_t userId_;
@@ -51,6 +55,7 @@ private:
     uint32_t tokenId_ {0};
     PinSubType pinSubType_ {PinSubType::PIN_MAX};
     bool running_ {false};
+    int32_t latestError_ = ResultCode::GENERAL_ERROR;
 };
 } // namespace UserAuth
 } // namespace UserIam

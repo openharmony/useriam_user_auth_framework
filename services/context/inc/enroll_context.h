@@ -33,12 +33,12 @@ public:
 
 protected:
     bool OnStart() override;
-    void OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr) const override;
-    bool OnStop() const override;
+    void OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr) override;
+    bool OnStop() override;
 
 private:
     bool UpdateScheduleResult(const std::shared_ptr<Attributes> &scheduleResultAttr, uint64_t &credentialId,
-        std::vector<uint8_t> &rootSecret) const;
+        std::vector<uint8_t> &rootSecret);
     void InvokeResultCallback(int32_t resultCode, const uint64_t credentialId,
         const std::vector<uint8_t> &rootSecret) const;
     std::shared_ptr<Enrollment> enroll_ = nullptr;

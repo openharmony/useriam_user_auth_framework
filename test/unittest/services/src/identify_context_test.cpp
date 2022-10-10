@@ -120,6 +120,7 @@ HWTEST_F(IdentifyContextTest, IdentifyContextTest_Start_001, TestSize.Level0)
 
     std::shared_ptr<MockIdentification> mockIdentify = Common::MakeShared<MockIdentification>();
     ASSERT_NE(mockIdentify, nullptr);
+    EXPECT_CALL(*mockIdentify, GetLatestError()).Times(1);
     EXPECT_CALL(*mockIdentify, Start(_, _))
         .Times(Exactly(1))
         .WillOnce([](std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
@@ -241,6 +242,7 @@ HWTEST_F(IdentifyContextTest, IdentifyContextTest_Stop_001, TestSize.Level0)
 
     std::shared_ptr<MockIdentification> mockIdentify = Common::MakeShared<MockIdentification>();
     ASSERT_NE(mockIdentify, nullptr);
+    EXPECT_CALL(*mockIdentify, GetLatestError()).Times(1);
     EXPECT_CALL(*mockIdentify, Cancel()).Times(Exactly(1)).WillOnce([]() {
         // Error: identification cancel fail
         return false;
@@ -366,6 +368,7 @@ HWTEST_F(IdentifyContextTest, IdentifyContextTest_OnScheduleStoped_004, TestSize
 
     std::shared_ptr<MockIdentification> mockIdentify = Common::MakeShared<MockIdentification>();
     ASSERT_NE(mockIdentify, nullptr);
+    EXPECT_CALL(*mockIdentify, GetLatestError()).Times(1);
     EXPECT_CALL(*mockIdentify, Update(_, _))
         .Times(Exactly(1))
         .WillOnce([](const std::vector<uint8_t> &scheduleResult, Identification::IdentifyResultInfo &resultInfo) {

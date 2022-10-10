@@ -34,6 +34,10 @@ public:
     MOCK_METHOD4(Update, bool(const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
                              std::shared_ptr<CredentialInfo> &info, std::vector<uint8_t> &rootSecret));
     MOCK_METHOD0(Cancel, bool());
+    MOCK_CONST_METHOD0(GetLatestError, int32_t());
+
+protected:
+    MOCK_METHOD1(SetLatestError, void(int32_t error));
 };
 } // namespace UserAuth
 } // namespace UserIam

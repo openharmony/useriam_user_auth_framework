@@ -121,6 +121,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_Start_001, TestSize.Level0)
 
     std::shared_ptr<MockEnrollment> mockEnroll = Common::MakeShared<MockEnrollment>();
     ASSERT_NE(mockEnroll, nullptr);
+    EXPECT_CALL(*mockEnroll, GetLatestError()).Times(1);
     EXPECT_CALL(*mockEnroll, Start(_, _))
         .Times(Exactly(1))
         .WillOnce([](std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
@@ -240,6 +241,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_Stop_001, TestSize.Level0)
 
     std::shared_ptr<MockEnrollment> mockEnroll = Common::MakeShared<MockEnrollment>();
     ASSERT_NE(mockEnroll, nullptr);
+    EXPECT_CALL(*mockEnroll, GetLatestError()).Times(1);
     EXPECT_CALL(*mockEnroll, Cancel()).Times(Exactly(1)).WillOnce([]() {
         // Error: enrollment cancel fail
         return false;
@@ -362,6 +364,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_004, TestSize.Lev
 
     std::shared_ptr<MockEnrollment> mockEnroll = Common::MakeShared<MockEnrollment>();
     ASSERT_NE(mockEnroll, nullptr);
+    EXPECT_CALL(*mockEnroll, GetLatestError()).Times(1);
     EXPECT_CALL(*mockEnroll, Update(_, _, _, _))
         .Times(Exactly(1))
         .WillOnce([](const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,

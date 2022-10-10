@@ -36,6 +36,18 @@ EnrollmentImpl::~EnrollmentImpl()
     Cancel();
 }
 
+void EnrollmentImpl::SetLatestError(int32_t error)
+{
+    if (error != ResultCode::SUCCESS) {
+        latestError_ = error;
+    }
+}
+
+int32_t EnrollmentImpl::GetLatestError() const
+{
+    return latestError_;
+}
+
 void EnrollmentImpl::SetExecutorSensorHint(uint32_t executorSensorHint)
 {
     executorSensorHint_ = executorSensorHint;
@@ -77,6 +89,7 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
     auto result = hdi->BeginEnrollment(userId_, authToken_, param, info);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi BeginEnrollment failed, err is %{public}d", result);
+        SetLatestError(result);
         return false;
     }
 
@@ -110,6 +123,7 @@ bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t
     auto result = hdi->UpdateEnrollmentResult(userId_, scheduleResult, resultInfo);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi UpdateEnrollmentResult failed, err is %{public}d, userId is %{public}d", result, userId_);
+        SetLatestError(result);
         return false;
     }
     IAM_LOGI("hdi UpdateEnrollmentResult success, userId is %{public}d", userId_);
@@ -141,6 +155,7 @@ bool EnrollmentImpl::Cancel()
     auto result = hdi->CancelEnrollment(userId_);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi CancelEnrollment failed, err is %{public}d", result);
+        SetLatestError(result);
         return false;
     }
     return true;

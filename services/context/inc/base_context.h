@@ -49,8 +49,8 @@ protected:
     void SetLatestError(int32_t error) override;
     const char *GetDescription() const;
     virtual bool OnStart() = 0;
-    virtual void OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr) const = 0;
-    virtual bool OnStop() const = 0;
+    virtual void OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr) = 0;
+    virtual bool OnStop() = 0;
     std::shared_ptr<ContextCallback> callback_ = nullptr;
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList_;
 

@@ -197,7 +197,7 @@ void UserIdmService::AddCredential(int32_t userId, AuthType authType, PinSubType
 
     if (!context->Start()) {
         IAM_LOGE("failed to start enroll");
-        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
+        contextCallback->OnResult(context->GetLatestError(), extraInfo);
     }
 }
 
