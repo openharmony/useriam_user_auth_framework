@@ -38,6 +38,10 @@ public:
         std::shared_ptr<ScheduleNodeCallback> callback) override;
     bool Update(const std::vector<uint8_t> &scheduleResult, IdentifyResultInfo &resultInfo) override;
     bool Cancel() override;
+    int32_t GetLatestError() const override;
+
+protected:
+    void SetLatestError(int32_t error) override;
 
 private:
     uint64_t contextId_;
@@ -48,6 +52,7 @@ private:
     uint32_t tokenId_ {0};
 
     bool running_ {false};
+    int32_t latestError_ = ResultCode::GENERAL_ERROR;
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -41,7 +41,11 @@ bool IdentifyContext::OnStart()
     IAM_LOGI("%{public}s start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN_VAL(identify_ != nullptr, false);
     bool startRet = identify_->Start(scheduleList_, shared_from_this());
-    IF_FALSE_LOGE_AND_RETURN_VAL(startRet, false);
+    if (!startRet) {
+        IAM_LOGE("%{public}s identify start fail", GetDescription());
+        SetLatestError(identify_->GetLatestError());
+        return startRet;
+    }
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_.size() == 1, false);
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_[0] != nullptr, false);
     bool startScheduleRet = scheduleList_[0]->StartSchedule();
@@ -50,7 +54,7 @@ bool IdentifyContext::OnStart()
     return true;
 }
 
-void IdentifyContext::OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr) const
+void IdentifyContext::OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr)
 {
     IAM_LOGI("%{public}s receive result code %{public}d", GetDescription(), resultCode);
     Identification::IdentifyResultInfo resultInfo = {};
@@ -58,7 +62,7 @@ void IdentifyContext::OnResult(int32_t resultCode, const std::shared_ptr<Attribu
     if (!updateRet) {
         IAM_LOGE("%{public}s UpdateScheduleResult fail", GetDescription());
         if (resultCode == SUCCESS) {
-            resultCode = GENERAL_ERROR;
+            resultCode = GetLatestError();
         }
         resultInfo.result = resultCode;
     }
@@ -66,7 +70,7 @@ void IdentifyContext::OnResult(int32_t resultCode, const std::shared_ptr<Attribu
     IAM_LOGI("%{public}s on result %{public}d finish", GetDescription(), resultCode);
 }
 
-bool IdentifyContext::OnStop() const
+bool IdentifyContext::OnStop()
 {
     IAM_LOGI("%{public}s start", GetDescription());
     if (scheduleList_.size() == 1 && scheduleList_[0] != nullptr) {
@@ -75,12 +79,16 @@ bool IdentifyContext::OnStop() const
 
     IF_FALSE_LOGE_AND_RETURN_VAL(identify_ != nullptr, false);
     bool cancelRet = identify_->Cancel();
-    IF_FALSE_LOGE_AND_RETURN_VAL(cancelRet, false);
+    if (!cancelRet) {
+        IAM_LOGE("%{public}s identify cancel fail", GetDescription());
+        SetLatestError(identify_->GetLatestError());
+        return cancelRet;
+    }
     return true;
 }
 
 bool IdentifyContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &scheduleResultAttr,
-    Identification::IdentifyResultInfo &resultInfo) const
+    Identification::IdentifyResultInfo &resultInfo)
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(identify_ != nullptr, false);
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleResultAttr != nullptr, false);
@@ -88,7 +96,11 @@ bool IdentifyContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &sc
     bool getResultCodeRet = scheduleResultAttr->GetUint8ArrayValue(Attributes::ATTR_RESULT, scheduleResult);
     IF_FALSE_LOGE_AND_RETURN_VAL(getResultCodeRet == true, false);
     bool updateRet = identify_->Update(scheduleResult, resultInfo);
-    IF_FALSE_LOGE_AND_RETURN_VAL(updateRet == true, false);
+    if (!updateRet) {
+        IAM_LOGE("%{public}s identify update fail", GetDescription());
+        SetLatestError(identify_->GetLatestError());
+        return updateRet;
+    }
     return true;
 }
 
