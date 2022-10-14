@@ -43,7 +43,11 @@ bool EnrollContext::OnStart()
     IAM_LOGI("%{public}s start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN_VAL(enroll_ != nullptr, false);
     bool startRet = enroll_->Start(scheduleList_, shared_from_this());
-    IF_FALSE_LOGE_AND_RETURN_VAL(startRet, false);
+    if (!startRet) {
+        IAM_LOGE("%{public}s enroll start fail", GetDescription());
+        SetLatestError(enroll_->GetLatestError());
+        return startRet;
+    }
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_.size() == 1, false);
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_[0] != nullptr, false);
     bool startScheduleRet = scheduleList_[0]->StartSchedule();
@@ -52,7 +56,7 @@ bool EnrollContext::OnStart()
     return true;
 }
 
-void EnrollContext::OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr) const
+void EnrollContext::OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr)
 {
     IAM_LOGI("%{public}s receive result code %{public}d", GetDescription(), resultCode);
     uint64_t credentialId = 0;
@@ -61,14 +65,14 @@ void EnrollContext::OnResult(int32_t resultCode, const std::shared_ptr<Attribute
     if (!updateRet) {
         IAM_LOGE("%{public}s UpdateScheduleResult fail", GetDescription());
         if (resultCode == SUCCESS) {
-            resultCode = GENERAL_ERROR;
+            resultCode = GetLatestError();
         }
     }
     InvokeResultCallback(resultCode, credentialId, rootSecret);
     IAM_LOGI("%{public}s on result %{public}d finish", GetDescription(), resultCode);
 }
 
-bool EnrollContext::OnStop() const
+bool EnrollContext::OnStop()
 {
     IAM_LOGI("%{public}s start", GetDescription());
     if (scheduleList_.size() == 1 && scheduleList_[0] != nullptr) {
@@ -77,12 +81,16 @@ bool EnrollContext::OnStop() const
 
     IF_FALSE_LOGE_AND_RETURN_VAL(enroll_ != nullptr, false);
     bool cancelRet = enroll_->Cancel();
-    IF_FALSE_LOGE_AND_RETURN_VAL(cancelRet, false);
+    if (!cancelRet) {
+        IAM_LOGE("%{public}s enroll stop fail", GetDescription());
+        SetLatestError(enroll_->GetLatestError());
+        return cancelRet;
+    }
     return true;
 }
 
 bool EnrollContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &scheduleResultAttr,
-    uint64_t &credentialId, std::vector<uint8_t> &rootSecret) const
+    uint64_t &credentialId, std::vector<uint8_t> &rootSecret)
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(enroll_ != nullptr, false);
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleResultAttr != nullptr, false);
@@ -91,7 +99,11 @@ bool EnrollContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &sche
     IF_FALSE_LOGE_AND_RETURN_VAL(getResultCodeRet == true, false);
     std::shared_ptr<CredentialInfo> infoToDel;
     bool updateRet = enroll_->Update(scheduleResult, credentialId, infoToDel, rootSecret);
-    IF_FALSE_LOGE_AND_RETURN_VAL(updateRet, false);
+    if (!updateRet) {
+        IAM_LOGE("%{public}s enroll update fail", GetDescription());
+        SetLatestError(enroll_->GetLatestError());
+        return updateRet;
+    }
     if (infoToDel == nullptr) {
         IAM_LOGI("no credential to delete");
     } else {

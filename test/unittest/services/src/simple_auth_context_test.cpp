@@ -124,6 +124,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_Start_001, TestSize.Level0
 
     std::shared_ptr<MockAuthentication> mockAuth = Common::MakeShared<MockAuthentication>();
     ASSERT_NE(mockAuth, nullptr);
+    EXPECT_CALL(*mockAuth, GetLatestError()).Times(1);
     EXPECT_CALL(*mockAuth, Start(_, _))
         .Times(Exactly(1))
         .WillOnce([](std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
@@ -240,6 +241,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_Stop_001, TestSize.Level0)
 
     std::shared_ptr<MockAuthentication> mockAuth = Common::MakeShared<MockAuthentication>();
     ASSERT_NE(mockAuth, nullptr);
+    EXPECT_CALL(*mockAuth, GetLatestError()).Times(1);
     EXPECT_CALL(*mockAuth, Cancel()).Times(Exactly(1)).WillOnce([]() {
         // Error: authentication cancel fail
         return false;
@@ -360,6 +362,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_004, Test
 
     std::shared_ptr<MockAuthentication> mockAuth = Common::MakeShared<MockAuthentication>();
     ASSERT_NE(mockAuth, nullptr);
+    EXPECT_CALL(*mockAuth, GetLatestError()).Times(1);
     EXPECT_CALL(*mockAuth, Update(_, _))
         .Times(Exactly(1))
         .WillOnce([](const std::vector<uint8_t> &scheduleResult, Authentication::AuthResultInfo &resultInfo) {

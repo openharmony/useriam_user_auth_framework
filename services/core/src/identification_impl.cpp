@@ -34,6 +34,18 @@ IdentificationImpl::~IdentificationImpl()
     Cancel();
 }
 
+void IdentificationImpl::SetLatestError(int32_t error)
+{
+    if (error != ResultCode::SUCCESS) {
+        latestError_ = error;
+    }
+}
+
+int32_t IdentificationImpl::GetLatestError() const
+{
+    return latestError_;
+}
+
 void IdentificationImpl::SetExecutor(uint32_t executorIndex)
 {
     executorIndex_ = executorIndex;
@@ -66,6 +78,7 @@ bool IdentificationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
         hdi->BeginIdentification(contextId_, static_cast<HdiAuthType>(authType_), challenge_, executorIndex_, info);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi BeginAuthentication failed, err is %{public}d", result);
+        SetLatestError(result);
         return false;
     }
 
@@ -97,6 +110,7 @@ bool IdentificationImpl::Update(const std::vector<uint8_t> &scheduleResult, Iden
     auto result = hdi->UpdateIdentificationResult(contextId_, scheduleResult, info);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi UpdateAuthenticationResult failed, err is %{public}d", result);
+        SetLatestError(result);
         return false;
     }
 
@@ -123,6 +137,7 @@ bool IdentificationImpl::Cancel()
     auto result = hdi->CancelIdentification(contextId_);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi CancelAuthentication failed, err is %{public}d", result);
+        SetLatestError(result);
         return false;
     }
     return true;

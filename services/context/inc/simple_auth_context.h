@@ -34,12 +34,12 @@ public:
 
 protected:
     bool OnStart() override;
-    void OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr) const override;
-    bool OnStop() const override;
+    void OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr) override;
+    bool OnStop() override;
 
 private:
     bool UpdateScheduleResult(const std::shared_ptr<Attributes> &scheduleResultAttr,
-        Authentication::AuthResultInfo &resultInfo) const;
+        Authentication::AuthResultInfo &resultInfo);
     void InvokeResultCallback(const Authentication::AuthResultInfo &resultInfo) const;
     std::shared_ptr<Authentication> auth_ = nullptr;
 };
