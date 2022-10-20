@@ -39,8 +39,8 @@ ohos_fuzztest("UserIdmClientFuzzTest") {
 
   deps = [
     "//base/useriam/user_auth_framework/common:iam_test",
-    "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
     "//base/useriam/user_auth_framework/frameworks/native/client:userauth_client",
+    "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
   ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
