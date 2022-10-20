@@ -28,14 +28,15 @@ class UserAuthClientImpl final : public UserAuthClient, NoCopyable {
 public:
     static UserAuthClientImpl& Instance();
     int32_t GetAvailableStatus(AuthType authType, AuthTrustLevel authTrustLevel);
+    int32_t GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel);
     void GetProperty(int32_t userId, const GetPropertyRequest &request,
         const std::shared_ptr<GetPropCallback> &callback) override;
     void SetProperty(int32_t userId, const SetPropertyRequest &request,
         const std::shared_ptr<SetPropCallback> &callback) override;
     uint64_t BeginAuthentication(int32_t userId, const std::vector<uint8_t> &challenge, AuthType authType,
         AuthTrustLevel atl, const std::shared_ptr<AuthenticationCallback> &callback) override;
-    uint64_t BeginAuthentication(const std::vector<uint8_t> &challenge, AuthType authType, AuthTrustLevel atl,
-        const std::shared_ptr<AuthenticationCallback> &callback);
+    uint64_t BeginNorthAuthentication(int32_t apiVersion, const std::vector<uint8_t> &challenge, AuthType authType,
+        AuthTrustLevel atl, const std::shared_ptr<AuthenticationCallback> &callback);
     int32_t CancelAuthentication(uint64_t contextId) override;
     uint64_t BeginIdentification(const std::vector<uint8_t> &challenge, AuthType authType,
         const std::shared_ptr<IdentificationCallback> &callback) override;
