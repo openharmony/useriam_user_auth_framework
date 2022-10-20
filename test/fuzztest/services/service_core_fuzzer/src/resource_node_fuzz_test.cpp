@@ -79,9 +79,9 @@ public:
 std::shared_ptr<ResourceNode> GetResourceNode(Parcel &parcel)
 {
     IAM_LOGI("start");
-    static std::shared_ptr<ResourceNode> gResourceNode;
-    if (gResourceNode != nullptr) {
-        return gResourceNode;
+    static std::shared_ptr<ResourceNode> g_ResourceNode;
+    if (g_ResourceNode != nullptr) {
+        return g_ResourceNode;
     }
     CoAuthInterface::ExecutorRegisterInfo info = {};
     info.authType = static_cast<AuthType>(parcel.ReadInt32());
@@ -96,8 +96,8 @@ std::shared_ptr<ResourceNode> GetResourceNode(Parcel &parcel)
     Common::FillFuzzUint64Vector(parcel, templateIdList);
     std::vector<uint8_t> fwkPublicKey;
     Common::FillFuzzUint8Vector(parcel, fwkPublicKey);
-    gResourceNode = ResourceNode::MakeNewResource(info, callback, templateIdList, fwkPublicKey);
-    return gResourceNode;
+    g_ResourceNode = ResourceNode::MakeNewResource(info, callback, templateIdList, fwkPublicKey);
+    return g_ResourceNode;
 }
 
 void FuzzResourceNodeGetExecutorIndex(Parcel &parcel)
@@ -262,7 +262,7 @@ void FuzzResourceNodeDetach(Parcel &parcel)
 } // namespace OHOS
 
 using ResourceNodeFuzzFunc = decltype(OHOS::UserIam::UserAuth::FuzzResourceNodeGetExecutorIndex);
-ResourceNodeFuzzFunc *gResourceNodeFuzzFuncs[] = {
+ResourceNodeFuzzFunc *g_ResourceNodeFuzzFuncs[] = {
     OHOS::UserIam::UserAuth::FuzzResourceNodeGetExecutorIndex,
     OHOS::UserIam::UserAuth::FuzzResourceNodeGetOwnerDeviceId,
     OHOS::UserIam::UserAuth::FuzzResourceNodeGetOwnerPid,
@@ -281,8 +281,8 @@ ResourceNodeFuzzFunc *gResourceNodeFuzzFuncs[] = {
 
 void ResourceNodeFuzzTest(OHOS::Parcel &parcel)
 {
-    uint32_t index = parcel.ReadUint32() % (sizeof(gResourceNodeFuzzFuncs) / sizeof(ResourceNodeFuzzFunc *));
-    auto fuzzFunc = gResourceNodeFuzzFuncs[index];
+    uint32_t index = parcel.ReadUint32() % (sizeof(g_ResourceNodeFuzzFuncs) / sizeof(ResourceNodeFuzzFunc *));
+    auto fuzzFunc = g_ResourceNodeFuzzFuncs[index];
     fuzzFunc(parcel);
     return;
 }

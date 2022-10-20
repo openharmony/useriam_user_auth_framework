@@ -134,12 +134,13 @@ void FuzzClientBeginAuthentication001(Parcel &parcel)
 void FuzzClientBeginAuthentication002(Parcel &parcel)
 {
     IAM_LOGI("start");
+    int32_t apiVersion = parcel.ReadInt32();
     std::vector<uint8_t> challenge;
     Common::FillFuzzUint8Vector(parcel, challenge);
     auto authType = static_cast<AuthType>(parcel.ReadInt32());
     auto atl = static_cast<AuthTrustLevel>(parcel.ReadUint32());
     auto callback = Common::MakeShared<DummyAuthenticationCallback>();
-    UserAuthClientImpl::Instance().BeginAuthentication(challenge, authType, atl, callback);
+    UserAuthClientImpl::Instance().BeginNorthAuthentication(apiVersion, challenge, authType, atl, callback);
     IAM_LOGI("end");
 }
 
@@ -178,14 +179,14 @@ void FuzzClientGetVersion(Parcel &parcel)
     IAM_LOGI("end");
 }
 
-auto authCallback = Common::MakeShared<DummyAuthenticationCallback>();
-auto gUserAuthCallbackService = Common::MakeShared<UserAuthCallbackService>(authCallback);
+auto g_UserAuthCallbackService =
+    Common::MakeShared<UserAuthCallbackService>(Common::MakeShared<DummyAuthenticationCallback>());
 
-auto getPropCallback = Common::MakeShared<DummyGetPropCallback>();
-auto gGetPropCallbackService = Common::MakeShared<GetExecutorPropertyCallbackService>(getPropCallback);
+auto g_GetPropCallbackService =
+    Common::MakeShared<GetExecutorPropertyCallbackService>(Common::MakeShared<DummyGetPropCallback>());
 
-auto setPropCallback = Common::MakeShared<DummySetPropCallback>();
-auto gSetPropCallbackService = Common::MakeShared<SetExecutorPropertyCallbackService>(setPropCallback);
+auto g_SetPropCallbackService =
+    Common::MakeShared<SetExecutorPropertyCallbackService>(Common::MakeShared<DummySetPropCallback>());
 
 void FuzzUserAuthCallbackServiceOnResult(Parcel &parcel)
 {
@@ -194,8 +195,8 @@ void FuzzUserAuthCallbackServiceOnResult(Parcel &parcel)
     std::vector<uint8_t> attr;
     Common::FillFuzzUint8Vector(parcel, attr);
     Attributes extraInfo(attr);
-    if (gUserAuthCallbackService != nullptr) {
-        gUserAuthCallbackService->OnResult(result, extraInfo);
+    if (g_UserAuthCallbackService != nullptr) {
+        g_UserAuthCallbackService->OnResult(result, extraInfo);
     }
     IAM_LOGI("end");
 }
@@ -208,8 +209,8 @@ void FuzzUserAuthCallbackServiceOnAcquireInfo(Parcel &parcel)
     std::vector<uint8_t> attr;
     Common::FillFuzzUint8Vector(parcel, attr);
     Attributes extraInfo(attr);
-    if (gUserAuthCallbackService != nullptr) {
-        gUserAuthCallbackService->OnAcquireInfo(result, acquireInfo, extraInfo);
+    if (g_UserAuthCallbackService != nullptr) {
+        g_UserAuthCallbackService->OnAcquireInfo(result, acquireInfo, extraInfo);
     }
     IAM_LOGI("end");
 }
@@ -221,8 +222,8 @@ void FuzzGetPropCallbackServiceOnPropResult(Parcel &parcel)
     std::vector<uint8_t> attr;
     Common::FillFuzzUint8Vector(parcel, attr);
     Attributes extraInfo(attr);
-    if (gGetPropCallbackService != nullptr) {
-        gGetPropCallbackService->OnGetExecutorPropertyResult(result, extraInfo);
+    if (g_GetPropCallbackService != nullptr) {
+        g_GetPropCallbackService->OnGetExecutorPropertyResult(result, extraInfo);
     }
     IAM_LOGI("end");
 }
@@ -231,8 +232,8 @@ void FuzzSetPropCallbackServiceOnPropResult(Parcel &parcel)
 {
     IAM_LOGI("start");
     int32_t result = parcel.ReadInt32();
-    if (gSetPropCallbackService != nullptr) {
-        gSetPropCallbackService->OnSetExecutorPropertyResult(result);
+    if (g_SetPropCallbackService != nullptr) {
+        g_SetPropCallbackService->OnSetExecutorPropertyResult(result);
     }
     IAM_LOGI("end");
 }

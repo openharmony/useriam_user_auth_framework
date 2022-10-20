@@ -164,15 +164,14 @@ void FuzzClientGetSecUserInfo(Parcel &parcel)
     IAM_LOGI("end");
 }
 
-auto idmClientCallback = Common::MakeShared<DummyUserIdmClientCallback>();
-auto gIdmCallbackService = Common::MakeShared<IdmCallbackService>(idmClientCallback);
+auto g_IdmCallbackService =
+    Common::MakeShared<IdmCallbackService>(Common::MakeShared<DummyUserIdmClientCallback>());
 
-auto getCredentialInfoCallback = Common::MakeShared<DummyGetCredentialInfoCallback>();
-auto gIdmGetCredInfoCallbackService = Common::MakeShared<IdmGetCredInfoCallbackService>(getCredentialInfoCallback);
+auto g_IdmGetCredInfoCallbackService =
+    Common::MakeShared<IdmGetCredInfoCallbackService>(Common::MakeShared<DummyGetCredentialInfoCallback>());
 
-auto getSecUserInfoCallback = Common::MakeShared<DummyGetSecUserInfoCallback>();
-auto gIdmGetSecureUserInfoCallbackService =
-    Common::MakeShared<IdmGetSecureUserInfoCallbackService>(getSecUserInfoCallback);
+auto g_IdmGetSecureUserInfoCallbackService =
+    Common::MakeShared<IdmGetSecureUserInfoCallbackService>(Common::MakeShared<DummyGetSecUserInfoCallback>());
 
 void FuzzIdmCallbackServiceOnResult(Parcel &parcel)
 {
@@ -181,8 +180,8 @@ void FuzzIdmCallbackServiceOnResult(Parcel &parcel)
     std::vector<uint8_t> attr;
     Common::FillFuzzUint8Vector(parcel, attr);
     Attributes extraInfo(attr);
-    if (gIdmCallbackService != nullptr) {
-        gIdmCallbackService->OnResult(result, extraInfo);
+    if (g_IdmCallbackService != nullptr) {
+        g_IdmCallbackService->OnResult(result, extraInfo);
     }
     IAM_LOGI("end");
 }
@@ -195,8 +194,8 @@ void FuzzIdmCallbackServiceOnAcquireInfo(Parcel &parcel)
     std::vector<uint8_t> attr;
     Common::FillFuzzUint8Vector(parcel, attr);
     Attributes extraInfo(attr);
-    if (gIdmCallbackService != nullptr) {
-        gIdmCallbackService->OnAcquireInfo(module, acquireInfo, extraInfo);
+    if (g_IdmCallbackService != nullptr) {
+        g_IdmCallbackService->OnAcquireInfo(module, acquireInfo, extraInfo);
     }
     IAM_LOGI("end");
 }
@@ -206,8 +205,8 @@ void FuzzCallbackServiceOnCredentialInfos(Parcel &parcel)
     IAM_LOGI("start");
     std::vector<std::shared_ptr<IdmGetCredInfoCallbackInterface::CredentialInfo>> infoList;
     auto subType = static_cast<PinSubType>(parcel.ReadInt32());
-    if (gIdmGetCredInfoCallbackService != nullptr) {
-        gIdmGetCredInfoCallbackService->OnCredentialInfos(infoList, subType);
+    if (g_IdmGetCredInfoCallbackService != nullptr) {
+        g_IdmGetCredInfoCallbackService->OnCredentialInfos(infoList, subType);
     }
     IAM_LOGI("end");
 }
@@ -216,8 +215,8 @@ void FuzzCallbackServiceOnSecureUserInfo(Parcel &parcel)
 {
     IAM_LOGI("start");
     std::shared_ptr<IdmGetSecureUserInfoCallbackInterface::SecureUserInfo> info;
-    if (gIdmGetSecureUserInfoCallbackService != nullptr) {
-        gIdmGetSecureUserInfoCallbackService->OnSecureUserInfo(info);
+    if (g_IdmGetSecureUserInfoCallbackService != nullptr) {
+        g_IdmGetSecureUserInfoCallbackService->OnSecureUserInfo(info);
     }
     IAM_LOGI("end");
 }

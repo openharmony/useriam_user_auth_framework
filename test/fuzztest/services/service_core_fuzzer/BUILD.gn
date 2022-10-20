@@ -39,8 +39,8 @@ ohos_fuzztest("ServiceCoreFuzzTest") {
 
   sources = [
     "src/resource_node_fuzz_test.cpp",
-    "src/schedule_node_fuzz_test.cpp",
     "src/resource_node_pool_fuzz_test.cpp",
+    "src/schedule_node_fuzz_test.cpp",
     "src/service_core_fuzz_test_main.cpp",
   ]
 
@@ -52,7 +52,5 @@ ohos_fuzztest("ServiceCoreFuzzTest") {
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
-  external_deps = [
-    "hiviewdfx_hilog_native:libhilog",
-  ]
+  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
 }
