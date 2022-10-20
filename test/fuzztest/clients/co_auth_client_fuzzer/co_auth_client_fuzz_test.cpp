@@ -106,16 +106,21 @@ public:
     }
 };
 
-void FuzzCoAuthClientRegister(Parcel &parcel)
+void FillExecutorInfo(Parcel &parcel, ExecutorInfo &info)
 {
-    IAM_LOGI("start");
-    ExecutorInfo info = {};
     info.authType = static_cast<AuthType>(parcel.ReadInt32());
     info.executorRole = static_cast<ExecutorRole>(parcel.ReadInt32());
     info.executorMatcher = parcel.ReadUint32();
     info.executorSensorHint = parcel.ReadUint32();
     info.esl = static_cast<ExecutorSecureLevel>(parcel.ReadInt32());
     Common::FillFuzzUint8Vector(parcel, info.publicKey);
+}
+
+void FuzzCoAuthClientRegister(Parcel &parcel)
+{
+    IAM_LOGI("start");
+    ExecutorInfo info = {};
+    FillExecutorInfo(parcel, info);
     auto callback = Common::MakeShared<DummyExecutorRegisterCallback>();
     CoAuthClient::GetInstance().Register(info, callback);
     IAM_LOGI("end");
@@ -125,21 +130,16 @@ void FuzzCoAuthClientUnregister(Parcel &parcel)
 {
     IAM_LOGI("start");
     ExecutorInfo info = {};
-    info.authType = static_cast<AuthType>(parcel.ReadInt32());
-    info.executorRole = static_cast<ExecutorRole>(parcel.ReadInt32());
-    info.executorMatcher = parcel.ReadUint32();
-    info.executorSensorHint = parcel.ReadUint32();
-    info.esl = static_cast<ExecutorSecureLevel>(parcel.ReadInt32());
-    Common::FillFuzzUint8Vector(parcel, info.publicKey);
+    FillExecutorInfo(parcel, info);
     CoAuthClient::GetInstance().Unregister(info);
     IAM_LOGI("end");
 }
 
-auto executorRegisterCallback = Common::MakeShared<DummyExecutorRegisterCallback>();
-auto gExecutorCallbackService = Common::MakeShared<ExecutorCallbackService>(executorRegisterCallback);
+auto g_ExecutorCallbackService =
+    Common::MakeShared<ExecutorCallbackService>(Common::MakeShared<DummyExecutorRegisterCallback>());
 
-sptr<ExecutorMessengerInterface> testMessenger = new DummyExecutorMessengerInterface();
-auto gExecutorMessengerClient = Common::MakeShared<ExecutorMessengerClient>(testMessenger);
+auto g_ExecutorMessengerClient =
+    Common::MakeShared<ExecutorMessengerClient>(new DummyExecutorMessengerInterface());
 
 void FuzzExecutorCallbackServiceOnMessengerReady(Parcel &parcel)
 {
@@ -149,8 +149,8 @@ void FuzzExecutorCallbackServiceOnMessengerReady(Parcel &parcel)
     Common::FillFuzzUint8Vector(parcel, publicKey);
     std::vector<uint64_t> templateIdList;
     Common::FillFuzzUint64Vector(parcel, templateIdList);
-    if (gExecutorCallbackService != nullptr) {
-        gExecutorCallbackService->OnMessengerReady(messenger, publicKey, templateIdList);
+    if (g_ExecutorCallbackService != nullptr) {
+        g_ExecutorCallbackService->OnMessengerReady(messenger, publicKey, templateIdList);
     }
     IAM_LOGI("end");
 }
@@ -164,8 +164,8 @@ void FuzzExecutorCallbackServiceOnBeginExecute(Parcel &parcel)
     std::vector<uint8_t> attr;
     Common::FillFuzzUint8Vector(parcel, attr);
     Attributes command(attr);
-    if (gExecutorCallbackService != nullptr) {
-        gExecutorCallbackService->OnBeginExecute(scheduleId, publicKey, command);
+    if (g_ExecutorCallbackService != nullptr) {
+        g_ExecutorCallbackService->OnBeginExecute(scheduleId, publicKey, command);
     }
     IAM_LOGI("end");
 }
@@ -177,8 +177,8 @@ void FuzzExecutorCallbackServiceOnEndExecute(Parcel &parcel)
     std::vector<uint8_t> attr;
     Common::FillFuzzUint8Vector(parcel, attr);
     Attributes command(attr);
-    if (gExecutorCallbackService != nullptr) {
-        gExecutorCallbackService->OnEndExecute(scheduleId, command);
+    if (g_ExecutorCallbackService != nullptr) {
+        g_ExecutorCallbackService->OnEndExecute(scheduleId, command);
     }
     IAM_LOGI("end");
 }
@@ -189,8 +189,8 @@ void FuzzExecutorCallbackServiceOnSetProperty(Parcel &parcel)
     std::vector<uint8_t> attr;
     Common::FillFuzzUint8Vector(parcel, attr);
     Attributes properties(attr);
-    if (gExecutorCallbackService != nullptr) {
-        gExecutorCallbackService->OnSetProperty(properties);
+    if (g_ExecutorCallbackService != nullptr) {
+        g_ExecutorCallbackService->OnSetProperty(properties);
     }
     IAM_LOGI("end");
 }
@@ -202,8 +202,8 @@ void FuzzExecutorCallbackServiceOnGetProperty(Parcel &parcel)
     Common::FillFuzzUint8Vector(parcel, attr);
     Attributes condition(attr);
     Attributes values;
-    if (gExecutorCallbackService != nullptr) {
-        gExecutorCallbackService->OnGetProperty(condition, values);
+    if (g_ExecutorCallbackService != nullptr) {
+        g_ExecutorCallbackService->OnGetProperty(condition, values);
     }
     IAM_LOGI("end");
 }
@@ -218,8 +218,8 @@ void FuzzExecutorMessengerClientSendData(Parcel &parcel)
     std::vector<uint8_t> testMessage;
     Common::FillFuzzUint8Vector(parcel, testMessage);
     auto msg = AuthMessage::As(testMessage);
-    if (gExecutorMessengerClient != nullptr) {
-        gExecutorMessengerClient->SendData(scheduleId, transNum, srcRole, dstRole, msg);
+    if (g_ExecutorMessengerClient != nullptr) {
+        g_ExecutorMessengerClient->SendData(scheduleId, transNum, srcRole, dstRole, msg);
     }
     IAM_LOGI("end");
 }
@@ -233,8 +233,8 @@ void FuzzExecutorMessengerClientFinish(Parcel &parcel)
     std::vector<uint8_t> attr;
     Common::FillFuzzUint8Vector(parcel, attr);
     Attributes finalResult(attr);
-    if (gExecutorMessengerClient != nullptr) {
-        gExecutorMessengerClient->Finish(scheduleId, srcRole, resultCode, finalResult);
+    if (g_ExecutorMessengerClient != nullptr) {
+        g_ExecutorMessengerClient->Finish(scheduleId, srcRole, resultCode, finalResult);
     }
     IAM_LOGI("end");
 }

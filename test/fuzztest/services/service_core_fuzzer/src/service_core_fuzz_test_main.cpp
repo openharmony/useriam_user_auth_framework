@@ -29,14 +29,11 @@ FuzzEntryFunc *gFuzzFuncList[] = {
 /* Fuzzer entry point */
 extern "C" int32_t LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
-
     OHOS::Parcel parcel;
     parcel.WriteBuffer(data, size);
     parcel.RewindRead(0);
     uint32_t index = parcel.ReadUint32() % (sizeof(gFuzzFuncList) / sizeof(FuzzEntryFunc *));
-
     auto fuzzEntryFunc = gFuzzFuncList[index];
     fuzzEntryFunc(parcel);
-
     return 0;
 }
