@@ -35,6 +35,7 @@ namespace {
     const int32_t MINIMUM_VERSION = 0;
     const int32_t CURRENT_VERSION = 0;
     const uint32_t AUTH_TRUST_LEVEL_SYS = 1;
+    const int32_t API_VERSION_8 = 8;
 } // namespace
 
 REGISTER_SYSTEM_ABILITY_BY_ID(UserAuthService, SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true);
@@ -57,7 +58,7 @@ void UserAuthService::OnStop()
     IAM_LOGI("stop service");
 }
 
-int32_t UserAuthService::GetAvailableStatus(AuthType authType, AuthTrustLevel authTrustLevel)
+int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel)
 {
     IAM_LOGI("start");
     bool checkRet = !IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
@@ -70,7 +71,7 @@ int32_t UserAuthService::GetAvailableStatus(AuthType authType, AuthTrustLevel au
         IAM_LOGE("authTrustLevel is not in correct range");
         return TRUST_LEVEL_NOT_SUPPORT;
     }
-    std::optional<int32_t> userId = std::nullopt;
+    int32_t userId;
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("failed to get callingUserId");
         return GENERAL_ERROR;
@@ -82,9 +83,13 @@ int32_t UserAuthService::GetAvailableStatus(AuthType authType, AuthTrustLevel au
     }
     uint32_t supportedAtl = AUTH_TRUST_LEVEL_SYS;
     int32_t result =
-        hdi->GetAuthTrustLevel(userId.value(), static_cast<HDI::UserAuth::V1_0::AuthType>(authType), supportedAtl);
+        hdi->GetAuthTrustLevel(userId, static_cast<HDI::UserAuth::V1_0::AuthType>(authType), supportedAtl);
     if (result != SUCCESS) {
-        IAM_LOGE("failed to get current supported authTrustLevel from hdi, result = %{public}d", result);
+        IAM_LOGE("failed to get current supported authTrustLevel from hdi apiVersion:%{public}d result:%{public}d",
+            apiVersion, result);
+        if (apiVersion == API_VERSION_8 && result == NOT_ENROLLED) {
+            return TRUST_LEVEL_NOT_SUPPORT;
+        }
         return result;
     }
     if (authTrustLevel > supportedAtl) {
@@ -182,45 +187,101 @@ bool UserAuthService::CheckAuthPermission(bool isInnerCaller, AuthType authType)
     return false;
 }
 
-uint64_t UserAuthService::AuthUser(std::optional<int32_t> userId, const std::vector<uint8_t> &challenge,
+std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(const std::vector<uint8_t> &challenge,
     AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback)
 {
-    IAM_LOGI("start");
-    Attributes extraInfo;
-    bool isInnerCaller = userId.has_value();
-
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
-        return BAD_CONTEXT_ID;
+        return nullptr;
     }
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER);
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
+        Attributes extraInfo;
         callback->OnResult(GENERAL_ERROR, extraInfo);
-        return BAD_CONTEXT_ID;
+        return nullptr;
     }
     auto callingUid = static_cast<uint64_t>(this->GetCallingUid());
     contextCallback->SetTraceCallingUid(callingUid);
     contextCallback->SetTraceAuthType(authType);
     contextCallback->SetTraceAuthTrustLevel(authTrustLevel);
+    return contextCallback;
+}
+
+uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &challenge,
+    AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback)
+{
+    IAM_LOGI("start");
+    auto contextCallback = GetAuthContextCallback(challenge, authType, authTrustLevel, callback);
+    if (contextCallback == nullptr) {
+        IAM_LOGE("contextCallback is nullptr");
+        return BAD_CONTEXT_ID;
+    }
+    Attributes extraInfo;
+    int32_t userId;
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("get callingUserId failed");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    contextCallback->SetTraceUserId(userId.value());
+    contextCallback->SetTraceUserId(userId);
     if (authTrustLevel < ATL1 || authTrustLevel > ATL4) {
         IAM_LOGE("authTrustLevel is not in correct range");
         contextCallback->OnResult(TRUST_LEVEL_NOT_SUPPORT, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    if (!CheckAuthPermission(isInnerCaller, authType)) {
+    if (authType == PIN || !IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
         return BAD_CONTEXT_ID;
     }
     auto tokenId = IpcCommon::GetAccessTokenId(*this);
-    auto context = ContextFactory::CreateSimpleAuthContext(userId.value(), challenge, authType, authTrustLevel,
+    auto context = ContextFactory::CreateSimpleAuthContext(userId, challenge, authType, authTrustLevel,
+        tokenId, contextCallback);
+    if (!ContextPool::Instance().Insert(context)) {
+        IAM_LOGE("failed to insert context");
+        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
+
+    auto cleaner = ContextHelper::Cleaner(context);
+    contextCallback->SetCleaner(cleaner);
+
+    if (!context->Start()) {
+        int32_t errorCode = context->GetLatestError();
+        IAM_LOGE("failed to start auth apiVersion:%{public}d errorCode:%{public}d", apiVersion, errorCode);
+        if (apiVersion == API_VERSION_8 && errorCode == NOT_ENROLLED) {
+            errorCode = FAIL;
+        }
+        contextCallback->OnResult(errorCode, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
+    return context->GetContextId();
+}
+
+uint64_t UserAuthService::AuthUser(int32_t userId, const std::vector<uint8_t> &challenge,
+    AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback)
+{
+    IAM_LOGI("start");
+    auto contextCallback = GetAuthContextCallback(challenge, authType, authTrustLevel, callback);
+    if (contextCallback == nullptr) {
+        IAM_LOGE("contextCallback is nullptr");
+        return BAD_CONTEXT_ID;
+    }
+    contextCallback->SetTraceUserId(userId);
+    Attributes extraInfo;
+    if (authTrustLevel < ATL1 || authTrustLevel > ATL4) {
+        IAM_LOGE("authTrustLevel is not in correct range");
+        contextCallback->OnResult(TRUST_LEVEL_NOT_SUPPORT, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
+    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
+    auto tokenId = IpcCommon::GetAccessTokenId(*this);
+    auto context = ContextFactory::CreateSimpleAuthContext(userId, challenge, authType, authTrustLevel,
         tokenId, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");

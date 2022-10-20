@@ -46,7 +46,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus, TestSize.Level0
     UserAuthService service(100, true);
     AuthType authType = FACE;
     AuthTrustLevel authTrustLevel = ATL3;
-    EXPECT_EQ(CHECK_PERMISSION_FAILED, service.GetAvailableStatus(authType, authTrustLevel));
+    EXPECT_EQ(CHECK_PERMISSION_FAILED, service.GetAvailableStatus(0, authType, authTrustLevel));
 }
 } // namespace UserAuth
 } // namespace UserIam
