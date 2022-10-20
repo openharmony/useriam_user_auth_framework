@@ -119,6 +119,12 @@ void FuzzOnStart(Parcel &parcel)
 void FuzzOnStop(Parcel &parcel)
 {
     IAM_LOGI("begin");
+    static int32_t skipCount = 1000;
+    // OnStop affects test of other function, skip it in the first phase
+    if (skipCount > 0) {
+        --skipCount;
+        return;
+    }
     g_userAuthService.OnStop();
     IAM_LOGI("end");
 }

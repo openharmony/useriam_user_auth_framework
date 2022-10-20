@@ -18,9 +18,11 @@
 #include "parcel.h"
 
 #include "co_auth_service.h"
+#include "executor_messenger_service.h"
 #include "executor_callback_interface.h"
 #include "iam_fuzz_test.h"
 #include "iam_logger.h"
+#include "iam_ptr.h"
 
 #define LOG_LABEL OHOS::UserIam::Common::LABEL_USER_AUTH_SA
 
@@ -104,11 +106,18 @@ void FillFuzzExecutorRegisterInfo(Parcel &parcel, ExecutorRegisterInfo &executor
 }
 
 CoAuthService g_coAuthService(SUBSYS_USERIAM_SYS_ABILITY_AUTHEXECUTORMGR, true);
+sptr<ExecutorMessengerService> executorMessengerService = ExecutorMessengerService::GetInstance();
 
 void FuzzOnStop(Parcel &parcel)
 {
     IAM_LOGI("FuzzOnStop begin");
     static_cast<void>(parcel);
+    static int32_t skipCount = 500;
+    // OnStop affects test of other function, skip it in the first phase
+    if (skipCount > 0) {
+        --skipCount;
+        return;
+    }
     g_coAuthService.OnStop();
     IAM_LOGI("FuzzOnStop end");
 }
@@ -127,10 +136,42 @@ void FuzzRegister(Parcel &parcel)
     IAM_LOGI("FuzzRegister end");
 }
 
+void FuzzSendData(Parcel &parcel)
+{
+    IAM_LOGI("FuzzSendData begin");
+    uint64_t scheduleId = parcel.ReadUint64();
+    uint64_t transNum = parcel.ReadUint64();
+    ExecutorRole srcRole = static_cast<ExecutorRole>(parcel.ReadInt32());
+    ExecutorRole dstRole = static_cast<ExecutorRole>(parcel.ReadInt32());
+    std::vector<uint8_t> msg;
+    Common::FillFuzzUint8Vector(parcel, msg);
+
+    if (executorMessengerService != nullptr) {
+        executorMessengerService->SendData(scheduleId, transNum, srcRole, dstRole, msg);
+    }
+    IAM_LOGI("FuzzSendData end");
+}
+
+void FuzzFinish(Parcel &parcel)
+{
+    IAM_LOGI("FuzzFinish begin");
+    uint64_t scheduleId = parcel.ReadUint64();
+    ExecutorRole srcRole = static_cast<ExecutorRole>(parcel.ReadInt32());
+    ResultCode resultCode = static_cast<ResultCode>(parcel.ReadInt32());
+    auto finalResult = Common::MakeShared<Attributes>();
+
+    if (executorMessengerService != nullptr) {
+        executorMessengerService->Finish(scheduleId, srcRole, resultCode, finalResult);
+    }
+    IAM_LOGI("FuzzFinish end");
+}
+
 using FuzzFunc = decltype(FuzzOnStop);
 FuzzFunc *g_fuzzFuncs[] = {
     FuzzOnStop,
     FuzzRegister,
+    FuzzSendData,
+    FuzzFinish,
 };
 
 void CoAuthFuzzTest(const uint8_t *data, size_t size)
