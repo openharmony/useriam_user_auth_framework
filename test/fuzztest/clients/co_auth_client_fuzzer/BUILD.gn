@@ -14,9 +14,9 @@
 import("//build/ohos.gni")
 import("//build/test.gni")
 
-ohos_fuzztest("CoAuthServiceFuzzTest") {
-  module_out_path = "useriam/user_auth_framework/services"
-  fuzz_config_file = "//base/useriam/user_auth_framework/test/fuzztest/services/coauthservice_fuzzer"
+ohos_fuzztest("CoAuthClientFuzzTest") {
+  module_out_path = "useriam/user_auth_framework/clients"
+  fuzz_config_file = "//base/useriam/user_auth_framework/test/fuzztest/clients/co_auth_client_fuzzer"
 
   cflags = [
     "-g",
@@ -26,11 +26,7 @@ ohos_fuzztest("CoAuthServiceFuzzTest") {
   ]
 
   include_dirs = [
-    "//base/useriam/user_auth_framework/services/base/inc",
-    "//base/useriam/user_auth_framework/services/core/inc",
-    "//base/useriam/user_auth_framework/services/core/src",
-    "//base/useriam/user_auth_framework/services/context/inc",
-    "//base/useriam/user_auth_framework/services/ipc/inc",
+    "//base/useriam/user_auth_framework/interfaces/inner_api",
     "//base/useriam/user_auth_framework/frameworks/native/ipc/inc",
     "//base/useriam/user_auth_framework/frameworks/native/ipc/common_defines",
     "//base/useriam/user_auth_framework/common/utils",
@@ -38,20 +34,17 @@ ohos_fuzztest("CoAuthServiceFuzzTest") {
     "//base/useriam/user_auth_framework/common/logs",
   ]
 
-  sources = [ "co_auth_service_fuzzer.cpp" ]
+  sources = [ "co_auth_client_fuzz_test.cpp" ]
 
   deps = [
     "//base/useriam/user_auth_framework/common:iam_test",
     "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
-    "//base/useriam/user_auth_framework/services:userauthservice",
+    "//base/useriam/user_auth_framework/frameworks/native/client:userauth_client",
   ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   external_deps = [
-    "c_utils:utils",
-    "drivers_interface_user_auth:libuser_auth_proxy_1.0",
-    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",

@@ -28,5 +28,6 @@ group("iam_fuzztest") {
   deps = [
     "fuzztest/executors:iam_executors_fuzztest",
     "fuzztest/services:iam_services_fuzztest",
+    "fuzztest/clients:iam_clients_fuzztest",
   ]
 }
