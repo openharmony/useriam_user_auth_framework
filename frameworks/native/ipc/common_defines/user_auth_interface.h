@@ -48,7 +48,7 @@ public:
         USER_AUTH_ON_IDENTIFY_RESULT,
     };
 
-    virtual int32_t GetAvailableStatus(AuthType authType, AuthTrustLevel authTrustLevel) = 0;
+    virtual int32_t GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel) = 0;
 
     virtual void GetProperty(int32_t userId, AuthType authType,
         const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallbackInterface> &callback) = 0;
@@ -56,7 +56,10 @@ public:
     virtual void SetProperty(int32_t userId, AuthType authType, const Attributes &attributes,
         sptr<SetExecutorPropertyCallbackInterface> &callback) = 0;
 
-    virtual uint64_t AuthUser(std::optional<int32_t> userId, const std::vector<uint8_t> &challenge, AuthType authType,
+    virtual uint64_t AuthUser(int32_t userId, const std::vector<uint8_t> &challenge, AuthType authType,
+        AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) = 0;
+
+    virtual uint64_t Auth(int32_t apiVersion, const std::vector<uint8_t> &challenge, AuthType authType,
         AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) = 0;
 
     virtual uint64_t Identify(const std::vector<uint8_t> &challenge, AuthType authType,

@@ -24,7 +24,7 @@ namespace UserIam {
 namespace UserAuth {
 class MockUserAuthService final : public UserAuthStub {
 public:
-    MOCK_METHOD2(GetAvailableStatus, int32_t(AuthType authType, AuthTrustLevel authTrustLevel));
+    MOCK_METHOD3(GetAvailableStatus, int32_t(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel));
 
     MOCK_METHOD4(GetProperty,
         void(int32_t userId, AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
@@ -34,7 +34,11 @@ public:
                                   sptr<SetExecutorPropertyCallbackInterface> &callback));
 
     MOCK_METHOD5(AuthUser,
-        uint64_t(std::optional<int32_t> userId, const std::vector<uint8_t> &challenge, AuthType authType,
+        uint64_t(int32_t userId, const std::vector<uint8_t> &challenge, AuthType authType,
+            AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback));
+    
+    MOCK_METHOD5(Auth,
+        uint64_t(int32_t apiVersion, const std::vector<uint8_t> &challenge, AuthType authType,
             AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback));
 
     MOCK_METHOD3(Identify,

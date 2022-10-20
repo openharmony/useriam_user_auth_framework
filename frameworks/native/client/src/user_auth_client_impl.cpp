@@ -27,13 +27,18 @@ namespace UserIam {
 namespace UserAuth {
 int32_t UserAuthClientImpl::GetAvailableStatus(AuthType authType, AuthTrustLevel authTrustLevel)
 {
+    return GetAvailableStatus(INT32_MAX, authType, authTrustLevel);
+}
+
+int32_t UserAuthClientImpl::GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel)
+{
     auto proxy = GetProxy();
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
         return GENERAL_ERROR;
     }
 
-    return proxy->GetAvailableStatus(authType, authTrustLevel);
+    return proxy->GetAvailableStatus(apiVersion, authType, authTrustLevel);
 }
 
 void UserAuthClientImpl::GetProperty(int32_t userId, const GetPropertyRequest &request,
@@ -116,8 +121,8 @@ uint64_t UserAuthClientImpl::BeginAuthentication(int32_t userId, const std::vect
     return proxy->AuthUser(userId, challenge, authType, atl, wrapper);
 }
 
-uint64_t UserAuthClientImpl::BeginAuthentication(const std::vector<uint8_t> &challenge, AuthType authType,
-    AuthTrustLevel atl, const std::shared_ptr<AuthenticationCallback> &callback)
+uint64_t UserAuthClientImpl::BeginNorthAuthentication(int32_t apiVersion, const std::vector<uint8_t> &challenge,
+    AuthType authType, AuthTrustLevel atl, const std::shared_ptr<AuthenticationCallback> &callback)
 {
     if (!callback) {
         IAM_LOGE("auth callback is nullptr");
@@ -139,7 +144,7 @@ uint64_t UserAuthClientImpl::BeginAuthentication(const std::vector<uint8_t> &cha
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return INVALID_SESSION_ID;
     }
-    return proxy->AuthUser(std::nullopt, challenge, authType, atl, wrapper);
+    return proxy->Auth(apiVersion, challenge, authType, atl, wrapper);
 }
 
 int32_t UserAuthClientImpl::CancelAuthentication(uint64_t contextId)

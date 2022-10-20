@@ -22,6 +22,7 @@
 #include <system_ability.h>
 #include <system_ability_definition.h>
 
+#include "context_callback.h"
 #include "context_pool.h"
 #include "resource_node_pool.h"
 #include "user_idm_database.h"
@@ -36,13 +37,15 @@ public:
     ~UserAuthService() override = default;
     void OnStart() override;
     void OnStop() override;
-    int32_t GetAvailableStatus(AuthType authType, AuthTrustLevel authTrustLevel) override;
+    int32_t GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel) override;
     void GetProperty(int32_t userId, AuthType authType,
         const std::vector<Attributes::AttributeKey> &keys,
         sptr<GetExecutorPropertyCallbackInterface> &callback) override;
     void SetProperty(int32_t userId, AuthType authType, const Attributes &attributes,
         sptr<SetExecutorPropertyCallbackInterface> &callback) override;
-    uint64_t AuthUser(const std::optional<int32_t> userId, const std::vector<uint8_t> &challenge, AuthType authType,
+    uint64_t AuthUser(int32_t userId, const std::vector<uint8_t> &challenge, AuthType authType,
+        AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) override;
+    uint64_t Auth(int32_t apiVersion, const std::vector<uint8_t> &challenge, AuthType authType,
         AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) override;
     uint64_t Identify(const std::vector<uint8_t> &challenge, AuthType authType,
         sptr<UserAuthCallbackInterface> &callback) override;
@@ -50,6 +53,8 @@ public:
     int32_t GetVersion() override;
 
 private:
+    std::shared_ptr<ContextCallback> GetAuthContextCallback(const std::vector<uint8_t> &challenge, AuthType authType,
+        AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback);
     bool CheckAuthPermission(bool isInnerCaller, AuthType authType);
 };
 } // namespace UserAuth

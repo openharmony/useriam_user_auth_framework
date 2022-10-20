@@ -66,6 +66,7 @@ int32_t UserAuthStub::GetAvailableStatusStub(MessageParcel &data, MessageParcel 
 
     int32_t authType;
     uint32_t authTrustLevel;
+    int32_t apiVersion;
 
     if (!data.ReadInt32(authType)) {
         IAM_LOGE("failed to read authType");
@@ -75,8 +76,13 @@ int32_t UserAuthStub::GetAvailableStatusStub(MessageParcel &data, MessageParcel 
         IAM_LOGE("failed to read authTrustLevel");
         return READ_PARCEL_ERROR;
     }
+    if (!data.ReadInt32(apiVersion)) {
+        IAM_LOGE("failed to read authType");
+        return READ_PARCEL_ERROR;
+    }
 
-    int32_t result = GetAvailableStatus(static_cast<AuthType>(authType), static_cast<AuthTrustLevel>(authTrustLevel));
+    int32_t result = GetAvailableStatus(apiVersion,
+        static_cast<AuthType>(authType), static_cast<AuthTrustLevel>(authTrustLevel));
     if (!reply.WriteInt32(result)) {
         IAM_LOGE("failed to write GetAvailableStatus result");
         return WRITE_PARCEL_ERROR;
@@ -169,10 +175,10 @@ int32_t UserAuthStub::AuthStub(MessageParcel &data, MessageParcel &reply)
     IAM_LOGI("enter");
     ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
-    std::optional<int32_t> userId;
     std::vector<uint8_t> challenge;
     int32_t authType;
     uint32_t authTrustLevel;
+    int32_t apiVersion;
 
     if (!data.ReadUInt8Vector(&challenge)) {
         IAM_LOGE("failed to read challenge");
@@ -197,8 +203,12 @@ int32_t UserAuthStub::AuthStub(MessageParcel &data, MessageParcel &reply)
         IAM_LOGE("UserAuthCallbackInterface is nullptr");
         return GENERAL_ERROR;
     }
+    if (!data.ReadInt32(apiVersion)) {
+        IAM_LOGE("failed to read apiVersion");
+        return READ_PARCEL_ERROR;
+    }
 
-    uint64_t contextId = AuthUser(userId, challenge, static_cast<AuthType>(authType),
+    uint64_t contextId = Auth(apiVersion, challenge, static_cast<AuthType>(authType),
         static_cast<AuthTrustLevel>(authTrustLevel), callback);
     if (!reply.WriteUint64(contextId)) {
         IAM_LOGE("failed to write AuthUser result");
