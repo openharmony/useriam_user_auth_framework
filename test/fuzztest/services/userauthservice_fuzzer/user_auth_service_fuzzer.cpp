@@ -99,14 +99,6 @@ public:
     }
 };
 
-std::optional<int32_t> GetFuzzOptionalUserId(Parcel &parcel)
-{
-    if (parcel.ReadBool()) {
-        return parcel.ReadInt32();
-    }
-    return std::nullopt;
-}
-
 UserAuthService g_userAuthService(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true);
 
 void FuzzOnStart(Parcel &parcel)
@@ -132,9 +124,10 @@ void FuzzOnStop(Parcel &parcel)
 void FuzzGetAvailableStatus(Parcel &parcel)
 {
     IAM_LOGI("begin");
+    int32_t apiVersion = parcel.ReadInt32();
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
     AuthTrustLevel authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32());
-    g_userAuthService.GetAvailableStatus(authType, authTrustLevel);
+    g_userAuthService.GetAvailableStatus(apiVersion, authType, authTrustLevel);
     IAM_LOGI("end");
 }
 
@@ -176,10 +169,26 @@ void FuzzSetProperty(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzAuth(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    int32_t apiVersion = parcel.ReadInt32();
+    std::vector<uint8_t> challenge;
+    FillFuzzUint8Vector(parcel, challenge);
+    AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
+    AuthTrustLevel authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32());
+    sptr<UserAuthCallbackInterface> callback = nullptr;
+    if (parcel.ReadBool()) {
+        callback = new (nothrow) DummyUserAuthCallback();
+    }
+    g_userAuthService.AuthUser(apiVersion, challenge, authType, authTrustLevel, callback);
+    IAM_LOGI("end");
+}
+
 void FuzzAuthUser(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    std::optional<int32_t> userId = GetFuzzOptionalUserId(parcel);
+    int32_t userId = parcel.ReadInt32();
     std::vector<uint8_t> challenge;
     FillFuzzUint8Vector(parcel, challenge);
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
@@ -228,6 +237,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzGetAvailableStatus,
     FuzzGetProperty,
     FuzzSetProperty,
+    FuzzAuth,
     FuzzAuthUser,
     FuzzIdentify,
     FuzzCancelAuthOrIdentify,
