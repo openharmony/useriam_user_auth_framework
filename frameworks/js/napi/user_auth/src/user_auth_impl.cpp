@@ -59,7 +59,7 @@ napi_value UserAuthImpl::GetAvailableStatus(napi_env env, napi_callback_info inf
     NAPI_CALL(env, napi_get_value_int32(env, argv[PARAM1], &level));
     AuthType authType = AuthType(type);
     AuthTrustLevel authTrustLevel = AuthTrustLevel(level);
-    int32_t status = UserAuthClientImpl::Instance().GetAvailableStatus(authType, authTrustLevel);
+    int32_t status = UserAuthClientImpl::Instance().GetAvailableStatus(API_VERSION_8, authType, authTrustLevel);
     IAM_LOGI("result = %{public}d", status);
     NAPI_CALL(env, napi_create_int32(env, status, &result));
     return result;
@@ -113,7 +113,7 @@ napi_value UserAuthImpl::Execute(napi_env env, napi_callback_info info)
     }
 
     std::vector<uint8_t> challenge;
-    UserAuthClientImpl::Instance().BeginAuthentication(challenge, FACE, authTrustLevel, callback);
+    UserAuthClientImpl::Instance().BeginNorthAuthentication(API_VERSION_6, challenge, FACE, authTrustLevel, callback);
     return retPromise;
 }
 
@@ -204,7 +204,7 @@ napi_value UserAuthImpl::Auth(napi_env env, napi_callback_info info)
         IAM_LOGE("callback is nullptr");
         return nullptr;
     }
-    uint64_t result = UserAuthClientImpl::Instance().BeginAuthentication(challenge,
+    uint64_t result = UserAuthClientImpl::Instance().BeginNorthAuthentication(API_VERSION_8, challenge,
         AuthType(authType), AuthTrustLevel(authTrustLevel), callback);
     IAM_LOGI("result is %{public}s", GET_MASKED_STRING(result).c_str());
     napi_value key = UserAuthNapiHelper::Uint64ToNapiUint8Array(env, result);
