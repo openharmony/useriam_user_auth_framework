@@ -18,8 +18,8 @@ group("iam_services_fuzztest") {
   testonly = true
   deps = [
     "coauthservice_fuzzer:CoAuthServiceFuzzTest",
+    "service_core_fuzzer:ServiceCoreFuzzTest",
     "userauthservice_fuzzer:UserAuthServiceFuzzTest",
     "useridmservice_fuzzer:UserIdmServiceFuzzTest",
-    "service_core_fuzzer:ServiceCoreFuzzTest",
   ]
 }

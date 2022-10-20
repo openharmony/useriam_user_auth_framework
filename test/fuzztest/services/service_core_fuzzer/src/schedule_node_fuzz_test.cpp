@@ -27,32 +27,30 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
-
-auto collector = Common::MakeShared<DummyResourceNode>();
-auto verifier = Common::MakeShared<DummyResourceNode>();
-auto gBuilder = ScheduleNode::Builder::New(collector, verifier);
+auto g_Builder =
+    ScheduleNode::Builder::New(Common::MakeShared<DummyResourceNode>(), Common::MakeShared<DummyResourceNode>());
 
 std::shared_ptr<ScheduleNode> GetScheduleNode(Parcel &parcel)
 {
     IAM_LOGI("start");
-    static std::shared_ptr<ScheduleNode> gScheduleNode;
-    if (gScheduleNode != nullptr) {
-        return gScheduleNode;
+    static std::shared_ptr<ScheduleNode> g_ScheduleNode;
+    if (g_ScheduleNode != nullptr) {
+        return g_ScheduleNode;
     }
-    if (gBuilder == nullptr) {
+    if (g_Builder == nullptr) {
         return nullptr;
     }
-    gBuilder->SetScheduleId(parcel.ReadUint64());
-    gBuilder->SetAccessTokenId(parcel.ReadUint32());
-    gBuilder->SetPinSubType(static_cast<PinSubType>(parcel.ReadInt32()));
-    gBuilder->SetAuthType(static_cast<AuthType>(parcel.ReadInt32()));
-    gBuilder->SetExecutorMatcher(parcel.ReadUint32());
+    g_Builder->SetScheduleId(parcel.ReadUint64());
+    g_Builder->SetAccessTokenId(parcel.ReadUint32());
+    g_Builder->SetPinSubType(static_cast<PinSubType>(parcel.ReadInt32()));
+    g_Builder->SetAuthType(static_cast<AuthType>(parcel.ReadInt32()));
+    g_Builder->SetExecutorMatcher(parcel.ReadUint32());
     std::vector<uint64_t> templateIdList;
     Common::FillFuzzUint64Vector(parcel, templateIdList);
-    gBuilder->SetTemplateIdList(templateIdList);
+    g_Builder->SetTemplateIdList(templateIdList);
 
-    gScheduleNode = gBuilder->Build();
-    return gScheduleNode;
+    g_ScheduleNode = g_Builder->Build();
+    return g_ScheduleNode;
 }
 
 void FuzzScheduleNodeGetScheduleId(Parcel &parcel)
@@ -199,7 +197,7 @@ void FuzzScheduleNodeContinueSchedule002(Parcel &parcel)
 } // namespace OHOS
 
 using ScheduleNodeFuzzFunc = decltype(OHOS::UserIam::UserAuth::FuzzScheduleNodeGetScheduleId);
-ScheduleNodeFuzzFunc *gScheduleNodeFuzzFuncs[] = {
+ScheduleNodeFuzzFunc *g_ScheduleNodeFuzzFuncs[] = {
     OHOS::UserIam::UserAuth::FuzzScheduleNodeGetScheduleId,
     OHOS::UserIam::UserAuth::FuzzScheduleNodeGetContextId,
     OHOS::UserIam::UserAuth::FuzzScheduleNodeGetAuthType,
@@ -217,8 +215,8 @@ ScheduleNodeFuzzFunc *gScheduleNodeFuzzFuncs[] = {
 
 void ScheduleNodeFuzzTest(OHOS::Parcel &parcel)
 {
-    uint32_t index = parcel.ReadUint32() % (sizeof(gScheduleNodeFuzzFuncs) / sizeof(ScheduleNodeFuzzFunc *));
-    auto fuzzFunc = gScheduleNodeFuzzFuncs[index];
+    uint32_t index = parcel.ReadUint32() % (sizeof(g_ScheduleNodeFuzzFuncs) / sizeof(ScheduleNodeFuzzFunc *));
+    auto fuzzFunc = g_ScheduleNodeFuzzFuncs[index];
     fuzzFunc(parcel);
     return;
 }
