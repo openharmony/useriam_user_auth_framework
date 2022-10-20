@@ -44,9 +44,10 @@ void UserAuthStubTest::TearDown()
 HWTEST_F(UserAuthStubTest, UserAuthStubGetAvailableStatusStub, TestSize.Level0)
 {
     MockUserAuthService service;
+    int32_t apiVersion = 0;
     AuthType authType = FACE;
     AuthTrustLevel authTrustLevel = ATL3;
-    EXPECT_CALL(service, GetAvailableStatus(FACE, ATL3)).WillOnce(Return(0));
+    EXPECT_CALL(service, GetAvailableStatus(apiVersion, FACE, ATL3)).WillOnce(Return(0));
 
     MessageParcel data;
     MessageParcel reply;
@@ -55,6 +56,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetAvailableStatusStub, TestSize.Level0)
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(authType));
     EXPECT_TRUE(data.WriteUint32(authTrustLevel));
+    EXPECT_TRUE(data.WriteInt32(apiVersion));
 
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserAuthInterface::USER_AUTH_GET_AVAILABLE_STATUS, data, reply, option));
 }
@@ -150,16 +152,16 @@ HWTEST_F(UserAuthStubTest, UserAuthStubSetPropertyStub, TestSize.Level0)
 HWTEST_F(UserAuthStubTest, UserAuthStubAuthStub, TestSize.Level0)
 {
     MockUserAuthService service;
-    std::optional<int32_t> userId;
+    int32_t apiVersion = 0;
     std::vector<uint8_t> challenge = {1, 2, 4};
     AuthType authType = FACE;
     AuthTrustLevel atl = ATL2;
 
     sptr<MockUserAuthCallback> callback = new MockUserAuthCallback();
     EXPECT_NE(callback, nullptr);
-    EXPECT_CALL(service, AuthUser(userId, _, FACE, atl, _)).Times(1);
-    ON_CALL(service, AuthUser)
-        .WillByDefault([](std::optional<int32_t> userId, const std::vector<uint8_t> &challenge, AuthType authType,
+    EXPECT_CALL(service, Auth(apiVersion, _, FACE, atl, _)).Times(1);
+    ON_CALL(service, Auth)
+        .WillByDefault([](int32_t apiVersion, const std::vector<uint8_t> &challenge, AuthType authType,
                            AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) {
             if (callback != nullptr) {
                 Attributes attr;
@@ -180,6 +182,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthStub, TestSize.Level0)
     EXPECT_TRUE(data.WriteUint32(static_cast<uint32_t>(atl)));
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
+    EXPECT_TRUE(data.WriteInt32(apiVersion));
 
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(UserAuthInterface::USER_AUTH_AUTH, data, reply, option));
 }
@@ -187,7 +190,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthStub, TestSize.Level0)
 HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub, TestSize.Level0)
 {
     MockUserAuthService service;
-    std::optional<int32_t> userId = 1;
+    int32_t userId = 1;
     std::vector<uint8_t> challenge = {1, 2, 5};
     AuthType authType = FACE;
     AuthTrustLevel atl = ATL2;
@@ -196,7 +199,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub, TestSize.Level0)
     EXPECT_NE(callback, nullptr);
     EXPECT_CALL(service, AuthUser(userId, _, FACE, atl, _)).Times(1);
     ON_CALL(service, AuthUser)
-        .WillByDefault([](std::optional<int32_t> userId, const std::vector<uint8_t> &challenge, AuthType authType,
+        .WillByDefault([](int32_t userId, const std::vector<uint8_t> &challenge, AuthType authType,
                            AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) {
             if (callback != nullptr) {
                 Attributes attr;
@@ -212,7 +215,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub, TestSize.Level0)
     MessageOption option(MessageOption::TF_SYNC);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
-    EXPECT_TRUE(data.WriteInt32(userId.value()));
+    EXPECT_TRUE(data.WriteInt32(userId));
     EXPECT_TRUE(data.WriteUInt8Vector(challenge));
     EXPECT_TRUE(data.WriteInt32(authType));
     EXPECT_TRUE(data.WriteUint32(static_cast<uint32_t>(atl)));

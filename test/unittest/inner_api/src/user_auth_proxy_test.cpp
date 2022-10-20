@@ -46,6 +46,7 @@ void UserAuthProxyTest::TearDown()
 
 HWTEST_F(UserAuthProxyTest, UserAuthProxyGetAvailableStatus, TestSize.Level0)
 {
+    static const int32_t testApiVersion = 0;
     static const AuthType testAuthType = FACE;
     static const AuthTrustLevel testAuthTrustLevel = ATL3;
     sptr<MockRemoteObject> obj = new MockRemoteObject();
@@ -54,9 +55,10 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyGetAvailableStatus, TestSize.Level0)
     EXPECT_NE(proxy, nullptr);
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, GetAvailableStatus(_, _))
+    EXPECT_CALL(*service, GetAvailableStatus(_, _, _))
         .Times(Exactly(1))
-        .WillOnce([](AuthType authType, AuthTrustLevel authTrustLevel) {
+        .WillOnce([](int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel) {
+            EXPECT_EQ(testApiVersion, apiVersion);
             EXPECT_EQ(testAuthType, authType);
             EXPECT_EQ(testAuthTrustLevel, authTrustLevel);
             return SUCCESS;
@@ -67,7 +69,7 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyGetAvailableStatus, TestSize.Level0)
             service->OnRemoteRequest(code, data, reply, option);
             return SUCCESS;
         });
-    proxy->GetAvailableStatus(testAuthType, testAuthTrustLevel);
+    proxy->GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel);
 }
 
 HWTEST_F(UserAuthProxyTest, UserAuthProxyGetProperty, TestSize.Level0)
@@ -144,6 +146,43 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxySetProperty, TestSize.Level0)
     proxy->SetProperty(0, testAuthType, testAttr, testCallback);
 }
 
+HWTEST_F(UserAuthProxyTest, UserAuthProxyAuth, TestSize.Level0)
+{
+    static const int32_t testApiVersion = 0;
+    static const AuthType testAuthType = FACE;
+    static const AuthTrustLevel testAtl = ATL1;
+    const std::vector<uint8_t> testChallenge = {1, 2, 3, 4};
+
+    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    EXPECT_NE(obj, nullptr);
+    auto proxy = Common::MakeShared<UserAuthProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+    auto authCallback = Common::MakeShared<MockAuthenticationCallback>();
+    EXPECT_NE(authCallback, nullptr);
+    sptr<UserAuthCallbackInterface> testCallback =
+        new (std::nothrow) UserAuthCallbackService(authCallback);
+    auto service = Common::MakeShared<MockUserAuthService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, Auth(_, _, _, _, _))
+        .Times(Exactly(1))
+        .WillOnce([&testCallback](int32_t apiVersion, const std::vector<uint8_t> &challenge,
+            AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) {
+            EXPECT_EQ(apiVersion, testApiVersion);
+            EXPECT_THAT(challenge, ElementsAre(1, 2, 3, 4));
+            EXPECT_EQ(authType, testAuthType);
+            EXPECT_EQ(authTrustLevel, testAtl);
+            EXPECT_EQ(callback, testCallback);
+            return 0;
+        });
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
+    ON_CALL(*obj, SendRequest)
+        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            service->OnRemoteRequest(code, data, reply, option);
+            return SUCCESS;
+        });
+    proxy->Auth(testApiVersion, testChallenge, testAuthType, testAtl, testCallback);
+}
+
 HWTEST_F(UserAuthProxyTest, UserAuthProxyAuthUser, TestSize.Level0)
 {
     static const int32_t testUserId = 200;
@@ -163,10 +202,9 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyAuthUser, TestSize.Level0)
     EXPECT_NE(service, nullptr);
     EXPECT_CALL(*service, AuthUser(_, _, _, _, _))
         .Times(Exactly(1))
-        .WillOnce([&testCallback](std::optional<int32_t> userId, const std::vector<uint8_t> &challenge,
+        .WillOnce([&testCallback](int32_t userId, const std::vector<uint8_t> &challenge,
             AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) {
-            EXPECT_TRUE(userId.has_value());
-            EXPECT_EQ(userId.value(), testUserId);
+            EXPECT_EQ(userId, testUserId);
             EXPECT_THAT(challenge, ElementsAre(1, 2, 3, 4));
             EXPECT_EQ(authType, testAuthType);
             EXPECT_EQ(authTrustLevel, testAtl);
