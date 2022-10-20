@@ -38,6 +38,10 @@ constexpr size_t PARAM1 = 1;
 constexpr size_t PARAM2 = 2;
 constexpr size_t PARAM3 = 3;
 
+constexpr int32_t API_VERSION_6 = 6;
+constexpr int32_t API_VERSION_8 = 8;
+constexpr int32_t API_VERSION_9 = 9;
+
 // For API6
 enum class AuthenticationResult : int32_t {
     NO_SUPPORT = -1,
