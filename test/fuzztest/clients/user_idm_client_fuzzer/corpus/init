@@ -11,15 +11,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/ohos.gni")
-import("//build/test.gni")
-
-group("iam_services_fuzztest") {
-  testonly = true
-  deps = [
-    "coauthservice_fuzzer:CoAuthServiceFuzzTest",
-    "service_core_fuzzer:ServiceCoreFuzzTest",
-    "userauthservice_fuzzer:UserAuthServiceFuzzTest",
-    "useridmservice_fuzzer:UserIdmServiceFuzzTest",
-  ]
-}
+FUZZ
