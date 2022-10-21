@@ -33,7 +33,7 @@ UserAuthProxy::UserAuthProxy(const sptr<IRemoteObject> &object) : IRemoteProxy<U
 {
 }
 
-int32_t UserAuthProxy::GetAvailableStatus(AuthType authType, AuthTrustLevel authTrustLevel)
+int32_t UserAuthProxy::GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -48,6 +48,10 @@ int32_t UserAuthProxy::GetAvailableStatus(AuthType authType, AuthTrustLevel auth
     }
     if (!data.WriteUint32(authTrustLevel)) {
         IAM_LOGE("failed to write authTrustLevel");
+        return WRITE_PARCEL_ERROR;
+    }
+    if (!data.WriteInt32(apiVersion)) {
+        IAM_LOGE("failed to write apiVersion");
         return WRITE_PARCEL_ERROR;
     }
 
@@ -145,7 +149,62 @@ void UserAuthProxy::SetProperty(int32_t userId, AuthType authType, const Attribu
     }
 }
 
-uint64_t UserAuthProxy::AuthUser(std::optional<int32_t> userId, const std::vector<uint8_t> &challenge,
+bool UserAuthProxy::WriteAuthParam(MessageParcel &data, const std::vector<uint8_t> &challenge,
+    AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback)
+{
+    if (!data.WriteUInt8Vector(challenge)) {
+        IAM_LOGE("failed to write challenge");
+        return false;
+    }
+    if (!data.WriteInt32(authType)) {
+        IAM_LOGE("failed to write authType");
+        return false;
+    }
+    if (!data.WriteUint32(authTrustLevel)) {
+        IAM_LOGE("failed to write authTrustLevel");
+        return false;
+    }
+    if (!data.WriteRemoteObject(callback->AsObject())) {
+        IAM_LOGE("failed to write callback");
+        return false;
+    }
+    return true;
+}
+
+uint64_t UserAuthProxy::Auth(int32_t apiVersion, const std::vector<uint8_t> &challenge, AuthType authType,
+    AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback)
+{
+    if (callback == nullptr) {
+        IAM_LOGE("callback is nullptr");
+        return BAD_CONTEXT_ID;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+
+    if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
+        IAM_LOGE("failed to write descriptor");
+        return BAD_CONTEXT_ID;
+    }
+    if (!WriteAuthParam(data, challenge, authType, authTrustLevel, callback)) {
+        IAM_LOGE("failed to write auth param");
+        return BAD_CONTEXT_ID;
+    }
+    if (!data.WriteInt32(apiVersion)) {
+        IAM_LOGE("failed to write apiVersion");
+        return BAD_CONTEXT_ID;
+    }
+    bool ret = SendRequest(UserAuthInterface::USER_AUTH_AUTH, data, reply);
+    if (!ret) {
+        return BAD_CONTEXT_ID;
+    }
+    uint64_t result = BAD_CONTEXT_ID;
+    if (!reply.ReadUint64(result)) {
+        IAM_LOGE("failed to read result");
+    }
+    return result;
+}
+
+uint64_t UserAuthProxy::AuthUser(int32_t userId, const std::vector<uint8_t> &challenge,
     AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback)
 {
     if (callback == nullptr) {
@@ -159,29 +218,16 @@ uint64_t UserAuthProxy::AuthUser(std::optional<int32_t> userId, const std::vecto
         IAM_LOGE("failed to write descriptor");
         return BAD_CONTEXT_ID;
     }
-    if (userId.has_value() && !data.WriteInt32(userId.value())) {
+    if (!data.WriteInt32(userId)) {
         IAM_LOGE("failed to write userId");
         return BAD_CONTEXT_ID;
     }
-    if (!data.WriteUInt8Vector(challenge)) {
-        IAM_LOGE("failed to write challenge");
-        return BAD_CONTEXT_ID;
-    }
-    if (!data.WriteInt32(authType)) {
-        IAM_LOGE("failed to write authType");
-        return BAD_CONTEXT_ID;
-    }
-    if (!data.WriteUint32(authTrustLevel)) {
-        IAM_LOGE("failed to write authTrustLevel");
-        return BAD_CONTEXT_ID;
-    }
-    if (!data.WriteRemoteObject(callback->AsObject())) {
-        IAM_LOGE("failed to write callback");
+    if (!WriteAuthParam(data, challenge, authType, authTrustLevel, callback)) {
+        IAM_LOGE("failed to write auth param");
         return BAD_CONTEXT_ID;
     }
 
-    bool ret = SendRequest(userId.has_value() ? UserAuthInterface::USER_AUTH_AUTH_USER :
-        UserAuthInterface::USER_AUTH_AUTH, data, reply);
+    bool ret = SendRequest(UserAuthInterface::USER_AUTH_AUTH_USER, data, reply);
     if (!ret) {
         return BAD_CONTEXT_ID;
     }

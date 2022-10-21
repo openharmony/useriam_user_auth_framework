@@ -52,7 +52,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetAvailableStatus, TestSize.Level0)
 {
     AuthType testAuthType = FACE;
     AuthTrustLevel testAtl = ATL1;
-    int32_t ret = UserAuthClientImpl::Instance().GetAvailableStatus(testAuthType, testAtl);
+    int32_t ret = UserAuthClientImpl::Instance().GetAvailableStatus(0, testAuthType, testAtl);
     EXPECT_NE(ret, SUCCESS);
 }
 
@@ -98,7 +98,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginAuthentication002, TestSize.Leve
     auto testCallback = Common::MakeShared<MockAuthenticationCallback>();
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
-    UserAuthClientImpl::Instance().BeginAuthentication(testChallenge, testAuthType, testAtl, testCallback);
+    UserAuthClientImpl::Instance().BeginNorthAuthentication(0, testChallenge, testAuthType, testAtl, testCallback);
 }
 
 HWTEST_F(UserAuthClientTest, UserAuthClientCancelAuthentication, TestSize.Level0)
