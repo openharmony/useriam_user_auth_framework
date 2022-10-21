@@ -14,12 +14,11 @@
 import("//build/ohos.gni")
 import("//build/test.gni")
 
-group("iam_services_fuzztest") {
+group("iam_clients_fuzztest") {
   testonly = true
   deps = [
-    "coauthservice_fuzzer:CoAuthServiceFuzzTest",
-    "service_core_fuzzer:ServiceCoreFuzzTest",
-    "userauthservice_fuzzer:UserAuthServiceFuzzTest",
-    "useridmservice_fuzzer:UserIdmServiceFuzzTest",
+    "co_auth_client_fuzzer:CoAuthClientFuzzTest",
+    "user_auth_client_fuzzer:UserAuthClientFuzzTest",
+    "user_idm_client_fuzzer:UserIdmClientFuzzTest",
   ]
 }

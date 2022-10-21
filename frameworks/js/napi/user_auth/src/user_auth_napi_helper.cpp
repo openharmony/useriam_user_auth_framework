@@ -16,6 +16,7 @@
 #include "user_auth_napi_helper.h"
 
 #include <string>
+#include <uv.h>
 
 #include "securec.h"
 
@@ -29,19 +30,57 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
-    const std::map<ResultCodeV9, std::string> g_resultV92Str = {
-        {ResultCodeV9::SUCCESS, "Authentication succeeded."},
-        {ResultCodeV9::FAIL, "Authentication failed."},
-        {ResultCodeV9::GENERAL_ERROR, "Unknown errors."},
-        {ResultCodeV9::CANCELED, "Authentication canceled."},
-        {ResultCodeV9::TIMEOUT, "Authentication timeout."},
-        {ResultCodeV9::TYPE_NOT_SUPPORT, "Unsupport authentication type."},
-        {ResultCodeV9::TRUST_LEVEL_NOT_SUPPORT, "Unsupport authentication trust level."},
-        {ResultCodeV9::BUSY, "Authentication service is busy."},
-        {ResultCodeV9::INVALID_PARAMETERS, "Invalid authentication parameters."},
-        {ResultCodeV9::LOCKED, "Authentication is lockout."},
-        {ResultCodeV9::NOT_ENROLLED, "Authentication template has not been enrolled."},
-    };
+const std::map<ResultCodeV9, std::string> g_resultV92Str = {
+    {ResultCodeV9::SUCCESS, "Authentication succeeded."},
+    {ResultCodeV9::FAIL, "Authentication failed."},
+    {ResultCodeV9::GENERAL_ERROR, "Unknown errors."},
+    {ResultCodeV9::CANCELED, "Authentication canceled."},
+    {ResultCodeV9::TIMEOUT, "Authentication timeout."},
+    {ResultCodeV9::TYPE_NOT_SUPPORT, "Unsupport authentication type."},
+    {ResultCodeV9::TRUST_LEVEL_NOT_SUPPORT, "Unsupport authentication trust level."},
+    {ResultCodeV9::BUSY, "Authentication service is busy."},
+    {ResultCodeV9::INVALID_PARAMETERS, "Invalid authentication parameters."},
+    {ResultCodeV9::LOCKED, "Authentication is lockout."},
+    {ResultCodeV9::NOT_ENROLLED, "Authentication template has not been enrolled."},
+};
+
+struct DeleteRefHolder {
+    napi_env env {nullptr};
+    napi_ref ref {nullptr};
+};
+
+void DestoryDeleteWork(uv_work_t *work)
+{
+    if (work == nullptr) {
+        return;
+    }
+    if (work->data != nullptr) {
+        delete (reinterpret_cast<DeleteRefHolder *>(work->data));
+    }
+    delete work;
+}
+
+void OnDeleteRefWork(uv_work_t *work, int status)
+{
+    IAM_LOGI("start");
+    if (work == nullptr) {
+        IAM_LOGE("work is null");
+        return;
+    }
+    DeleteRefHolder *deleteRefHolder = reinterpret_cast<DeleteRefHolder *>(work->data);
+    if (deleteRefHolder == nullptr) {
+        IAM_LOGE("deleteRefHolder is invalid");
+        DestoryDeleteWork(work);
+        return;
+    }
+    napi_status ret = napi_delete_reference(deleteRefHolder->env, deleteRefHolder->ref);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_delete_reference fail %{public}d", ret);
+        DestoryDeleteWork(work);
+        return;
+    }
+    DestoryDeleteWork(work);
+}
 }
 
 JsRefHolder::JsRefHolder(napi_env env, napi_value value)
@@ -66,9 +105,29 @@ JsRefHolder::~JsRefHolder()
         return;
     }
     IAM_LOGI("delete reference");
-    napi_status ret = napi_delete_reference(env_, ref_);
-    if (ret != napi_ok) {
-        IAM_LOGE("napi_delete_reference fail %{public}d", ret);
+    uv_loop_s *loop;
+    napi_status napiStatus = napi_get_uv_event_loop(env_, &loop);
+    if (napiStatus != napi_ok || loop == nullptr) {
+        IAM_LOGE("napi_get_uv_event_loop fail");
+        return;
+    }
+    uv_work_t *work = new (std::nothrow) uv_work_t;
+    if (work == nullptr) {
+        IAM_LOGE("work is null");
+        return;
+    }
+    DeleteRefHolder *deleteRefHolder = new (std::nothrow) DeleteRefHolder();
+    if (deleteRefHolder == nullptr) {
+        IAM_LOGE("deleteRefHolder is null");
+        delete work;
+        return;
+    }
+    deleteRefHolder->env = env_;
+    deleteRefHolder->ref = ref_;
+    work->data = reinterpret_cast<void *>(deleteRefHolder);
+    if (uv_queue_work(loop, work, [](uv_work_t *work) {}, OnDeleteRefWork) != 0) {
+        IAM_LOGE("uv_queue_work fail");
+        DestoryDeleteWork(work);
     }
     env_ = nullptr;
     ref_ = nullptr;

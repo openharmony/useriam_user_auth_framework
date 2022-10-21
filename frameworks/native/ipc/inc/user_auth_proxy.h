@@ -28,13 +28,15 @@ class UserAuthProxy : public IRemoteProxy<UserAuthInterface>, public NoCopyable 
 public:
     explicit UserAuthProxy(const sptr<IRemoteObject> &object);
     ~UserAuthProxy() override = default;
-    int32_t GetAvailableStatus(AuthType authType, AuthTrustLevel authTrustLevel) override;
+    int32_t GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel) override;
     void GetProperty(int32_t userId, AuthType authType,
         const std::vector<Attributes::AttributeKey> &keys,
         sptr<GetExecutorPropertyCallbackInterface> &callback) override;
     void SetProperty(int32_t userId, AuthType authType, const Attributes &attributes,
         sptr<SetExecutorPropertyCallbackInterface> &callback) override;
-    uint64_t AuthUser(std::optional<int32_t> userId, const std::vector<uint8_t> &challenge, AuthType authType,
+    uint64_t AuthUser(int32_t userId, const std::vector<uint8_t> &challenge, AuthType authType,
+        AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) override;
+    uint64_t Auth(int32_t apiVersion, const std::vector<uint8_t> &challenge, AuthType authType,
         AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) override;
     uint64_t Identify(const std::vector<uint8_t> &challenge, AuthType authType,
         sptr<UserAuthCallbackInterface> &callback) override;
@@ -43,6 +45,8 @@ public:
 
 private:
     static inline BrokerDelegator<UserAuthProxy> delegator_;
+    bool WriteAuthParam(MessageParcel &data, const std::vector<uint8_t> &challenge,
+        AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback);
     bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply);
 };
 } // namespace UserAuth

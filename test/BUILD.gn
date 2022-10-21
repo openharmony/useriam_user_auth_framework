@@ -26,6 +26,7 @@ group("iam_unittest") {
 group("iam_fuzztest") {
   testonly = true
   deps = [
+    "fuzztest/clients:iam_clients_fuzztest",
     "fuzztest/executors:iam_executors_fuzztest",
     "fuzztest/services:iam_services_fuzztest",
   ]

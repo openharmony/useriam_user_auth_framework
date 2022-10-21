@@ -47,12 +47,13 @@ void UserAuthServiceTest::TearDown()
 HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus, TestSize.Level0)
 {
     UserAuthService service(100, true);
+    int32_t testApiVersion = 8;
     AuthType testAuthType = FACE;
     AuthTrustLevel testAuthTrustLevel = ATL3;
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAuthTrustLevel(_, _, _)).Times(1);
-    EXPECT_NE(SUCCESS, service.GetAvailableStatus(testAuthType, testAuthTrustLevel));
+    EXPECT_NE(SUCCESS, service.GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel));
 }
 
 HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty, TestSize.Level0)
@@ -92,6 +93,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetProperty, TestSize.Level0)
 HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser001, TestSize.Level0)
 {
     UserAuthService service(100, true);
+    int32_t testApiVersion = 9;
     std::vector<uint8_t> testChallenge = {1, 2, 3, 4};
     AuthType testAuthType = FACE;
     AuthTrustLevel testAuthTrustLevel = ATL2;
@@ -103,7 +105,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser001, TestSize.Level0)
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*tempCallback, OnResult(_, _)).Times(1);
     EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _)).Times(1);
-    uint64_t contextId = service.AuthUser(std::nullopt, testChallenge, testAuthType, testAuthTrustLevel, testCallback);
+    uint64_t contextId = service.Auth(testApiVersion, testChallenge, testAuthType, testAuthTrustLevel, testCallback);
     EXPECT_EQ(contextId, 0);
 }
 
