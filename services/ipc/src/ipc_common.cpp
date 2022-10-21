@@ -39,17 +39,6 @@ namespace {
     const std::string ACCOUNT_PROCESS_NAME = "accountmgr";
 }
 
-int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, std::optional<int32_t> &userId)
-{
-    if (userId.has_value() && userId.value() != 0) {
-        return SUCCESS;
-    }
-    int32_t tempUserId = 0;
-    int32_t ret = GetCallingUserId(stub, tempUserId);
-    userId = tempUserId;
-    return ret;
-}
-
 int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, int32_t &userId)
 {
     if (userId != 0) {

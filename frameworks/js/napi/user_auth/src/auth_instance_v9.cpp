@@ -98,7 +98,7 @@ ResultCodeV9 AuthInstanceV9::GetAvailableStatus(napi_env env, napi_callback_info
     }
     AuthType authType = AuthType(type);
     AuthTrustLevel authTrustLevel = AuthTrustLevel(level);
-    int32_t status = UserAuthClientImpl::Instance().GetAvailableStatus(authType, authTrustLevel);
+    int32_t status = UserAuthClientImpl::Instance().GetAvailableStatus(API_VERSION_9, authType, authTrustLevel);
     IAM_LOGI("result = %{public}d", status);
     return ResultCodeV9(UserAuthNapiHelper::GetResultCodeV9(status));
 }
@@ -295,7 +295,8 @@ ResultCodeV9 AuthInstanceV9::Start(napi_env env, napi_callback_info info)
         IAM_LOGE("auth already started");
         return ResultCodeV9::GENERAL_ERROR;
     }
-    contextId_ = UserAuthClientImpl::Instance().BeginAuthentication(challenge_, authType_, authTrustLevel_, callback_);
+    contextId_ = UserAuthClientImpl::Instance().BeginNorthAuthentication(API_VERSION_9,
+        challenge_, authType_, authTrustLevel_, callback_);
     isAuthStarted_ = true;
     return ResultCodeV9::SUCCESS;
 }
