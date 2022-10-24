@@ -19,12 +19,14 @@
 #include "resource_node_pool_fuzz_test.h"
 #include "schedule_node_fuzz_test.h"
 
-using FuzzEntryFunc = decltype(ScheduleNodeFuzzTest);
-FuzzEntryFunc *gFuzzFuncList[] = {
-    ScheduleNodeFuzzTest,
-    ResourceNodePoolFuzzTest,
-    ResourceNodeFuzzTest,
+namespace {
+using FuzzEntryFunc = decltype(OHOS::UserIam::UserAuth::ScheduleNodeFuzzTest);
+FuzzEntryFunc *g_FuzzFuncList[] = {
+    OHOS::UserIam::UserAuth::ScheduleNodeFuzzTest,
+    OHOS::UserIam::UserAuth::ResourceNodePoolFuzzTest,
+    OHOS::UserIam::UserAuth::ResourceNodeFuzzTest,
 };
+} // namespace
 
 /* Fuzzer entry point */
 extern "C" int32_t LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
@@ -32,8 +34,8 @@ extern "C" int32_t LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     OHOS::Parcel parcel;
     parcel.WriteBuffer(data, size);
     parcel.RewindRead(0);
-    uint32_t index = parcel.ReadUint32() % (sizeof(gFuzzFuncList) / sizeof(FuzzEntryFunc *));
-    auto fuzzEntryFunc = gFuzzFuncList[index];
+    uint32_t index = parcel.ReadUint32() % (sizeof(g_FuzzFuncList) / sizeof(FuzzEntryFunc *));
+    auto fuzzEntryFunc = g_FuzzFuncList[index];
     fuzzEntryFunc(parcel);
     return 0;
 }
