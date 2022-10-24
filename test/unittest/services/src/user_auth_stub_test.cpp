@@ -227,8 +227,8 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthStub002, TestSize.Level0)
     sptr<MockUserAuthCallback> callback = new MockUserAuthCallback();
     EXPECT_NE(callback, nullptr);
     MockUserAuthService service;
-    EXPECT_CALL(service, AuthUser(_, _, _, _, _)).Times(1);
-    ON_CALL(service, AuthUser)
+    EXPECT_CALL(service, Auth(_, _, _, _, _)).Times(1);
+    ON_CALL(service, Auth)
         .WillByDefault(
             [&testChallenge, &testAuthType, &testAtl, &testContextId, &testApiVersion](int32_t apiVersion,
                 const std::vector<uint8_t> &challenge, AuthType authType, AuthTrustLevel authTrustLevel,

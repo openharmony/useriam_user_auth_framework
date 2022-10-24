@@ -17,18 +17,19 @@
 
 #include <gmock/gmock.h>
 
-#include "secure_user_info.h"
+#include "user_idm_callback_interface.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockSecureUserInfo final : public SecureUserInfo {
+class MockSecureUserInfo final : public IdmGetSecureUserInfoCallbackInterface::SecureUserInfo {
 public:
     ~MockSecureUserInfo() override = default;
     MOCK_CONST_METHOD0(GetUserId, int32_t());
     MOCK_CONST_METHOD0(GetPinSubType, PinSubType());
     MOCK_CONST_METHOD0(GetSecUserId, uint64_t());
-    MOCK_CONST_METHOD0(GetEnrolledInfo, std::vector<std::shared_ptr<EnrolledInfo>>());
+    MOCK_CONST_METHOD0(GetEnrolledInfo,
+        std::vector<std::shared_ptr<IdmGetSecureUserInfoCallbackInterface::EnrolledInfo>>());
 };
 } // namespace UserAuth
 } // namespace UserIam

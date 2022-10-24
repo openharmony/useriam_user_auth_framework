@@ -38,7 +38,6 @@ enum Permission {
 class IpcCommon final : public NoCopyable {
 public:
     using Recipient = std::function<void()>;
-    static int32_t GetCallingUserId(IPCObjectStub &stub, std::optional<int32_t> &userId);
     static int32_t GetCallingUserId(IPCObjectStub &stub, int32_t &userId);
     static int32_t GetActiveUserId(std::optional<int32_t> &userId);
     static bool CheckPermission(IPCObjectStub &stub, Permission permission);
