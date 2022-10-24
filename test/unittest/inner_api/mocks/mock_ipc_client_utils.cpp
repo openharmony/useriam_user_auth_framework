@@ -12,28 +12,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef IAM_MOCK_CREDENTIAL_INFO_H
-#define IAM_MOCK_CREDENTIAL_INFO_H
-
-#include <gmock/gmock.h>
-
-#include "user_idm_callback_interface.h"
+#include "mock_ipc_client_utils.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockCredentialInfo final : public IdmGetCredInfoCallbackInterface::CredentialInfo {
-public:
-    virtual ~MockCredentialInfo() = default;
-    MOCK_CONST_METHOD0(GetCredentialId, uint64_t());
-    MOCK_CONST_METHOD0(GetUserId, int32_t());
-    MOCK_CONST_METHOD0(GetExecutorIndex, uint64_t());
-    MOCK_CONST_METHOD0(GetTemplateId, uint64_t());
-    MOCK_CONST_METHOD0(GetAuthType, AuthType());
-    MOCK_CONST_METHOD0(GetExecutorSensorHint, uint32_t());
-    MOCK_CONST_METHOD0(GetExecutorMatcher, uint32_t());
-};
+sptr<IRemoteObject> IpcClientUtils::obj_ = nullptr;
+
+sptr<IRemoteObject> IpcClientUtils::GetRemoteObject(int32_t saId)
+{
+    return obj_;
+}
+
+void IpcClientUtils::SetObj(const sptr<IRemoteObject> &obj)
+{
+    obj_ = obj;
+}
+
+void IpcClientUtils::ResetObj()
+{
+    obj_ = nullptr;
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // IAM_MOCK_CREDENTIAL_INFO_H

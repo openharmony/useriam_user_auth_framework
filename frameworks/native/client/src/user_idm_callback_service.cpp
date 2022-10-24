@@ -56,6 +56,11 @@ IdmGetCredInfoCallbackService::IdmGetCredInfoCallbackService(
 void IdmGetCredInfoCallbackService::OnCredentialInfos(const std::vector<std::shared_ptr<CredentialInfo>> infoList,
     const std::optional<PinSubType> pinSubType)
 {
+    if (getCredInfoCallback_ == nullptr) {
+        IAM_LOGE("getCredInfoCallback is nullptr");
+        return;
+    }
+    
     std::vector<UserAuth::CredentialInfo> credInfoList;
     for (const auto &it : infoList) {
         if (it == nullptr) {
