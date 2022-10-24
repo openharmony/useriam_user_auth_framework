@@ -84,26 +84,26 @@ void FuzzDeregisterResourceNodePoolListener(Parcel &parcel)
     ResourceNodePool::Instance().DeregisterResourceNodePoolListener(listener);
     IAM_LOGI("end");
 }
-} // namespace
-} // namespace UserAuth
-} // namespace UserIam
-} // namespace OHOS
 
-using ResourcePoolFuzzFunc = decltype(OHOS::UserIam::UserAuth::FuzzResourcePoolInsert);
-ResourcePoolFuzzFunc *gResourcePoolFuzzFuncs[] = {
-    OHOS::UserIam::UserAuth::FuzzResourcePoolInsert,
-    OHOS::UserIam::UserAuth::FuzzResourcePoolDelete,
-    OHOS::UserIam::UserAuth::FuzzResourcePoolDeleteAll,
-    OHOS::UserIam::UserAuth::FuzzResourcePoolSelect,
-    OHOS::UserIam::UserAuth::FuzzResourcePoolGetPoolSize,
-    OHOS::UserIam::UserAuth::FuzzRegisterResourceNodePoolListener,
-    OHOS::UserIam::UserAuth::FuzzDeregisterResourceNodePoolListener,
+using ResourcePoolFuzzFunc = decltype(FuzzResourcePoolInsert);
+ResourcePoolFuzzFunc *g_ResourcePoolFuzzFuncs[] = {
+    FuzzResourcePoolInsert,
+    FuzzResourcePoolDelete,
+    FuzzResourcePoolDeleteAll,
+    FuzzResourcePoolSelect,
+    FuzzResourcePoolGetPoolSize,
+    FuzzRegisterResourceNodePoolListener,
+    FuzzDeregisterResourceNodePoolListener,
 };
+} // namespace
 
-void ResourceNodePoolFuzzTest(OHOS::Parcel &parcel)
+void ResourceNodePoolFuzzTest(Parcel &parcel)
 {
-    uint32_t index = parcel.ReadUint32() % (sizeof(gResourcePoolFuzzFuncs) / sizeof(ResourcePoolFuzzFunc *));
-    auto fuzzFunc = gResourcePoolFuzzFuncs[index];
+    uint32_t index = parcel.ReadUint32() % (sizeof(g_ResourcePoolFuzzFuncs) / sizeof(ResourcePoolFuzzFunc *));
+    auto fuzzFunc = g_ResourcePoolFuzzFuncs[index];
     fuzzFunc(parcel);
     return;
 }
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
