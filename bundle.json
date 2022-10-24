@@ -51,7 +51,8 @@
           "//base/useriam/user_auth_framework/sa_profile:useriam.init",
           "//base/useriam/user_auth_framework/services:userauthservice",
           "//base/useriam/user_auth_framework/common/executors:userauth_executors",
-          "//base/useriam/user_auth_framework/sa_profile:userauth_sa_profile"
+          "//base/useriam/user_auth_framework/sa_profile:userauth_sa_profile",
+          "//base/useriam/user_auth_framework/param:param_files"
         ]
       },
       "inner_kits": [
