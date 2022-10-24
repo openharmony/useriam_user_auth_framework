@@ -12,28 +12,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef IAM_MOCK_CREDENTIAL_INFO_H
-#define IAM_MOCK_CREDENTIAL_INFO_H
 
-#include <gmock/gmock.h>
+#ifndef MOCK_IPC_CLIENT_UTILS_H
+#define MOCK_IPC_CLIENT_UTILS_H
 
-#include "user_idm_callback_interface.h"
+#include "iremote_object.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockCredentialInfo final : public IdmGetCredInfoCallbackInterface::CredentialInfo {
+class IpcClientUtils {
 public:
-    virtual ~MockCredentialInfo() = default;
-    MOCK_CONST_METHOD0(GetCredentialId, uint64_t());
-    MOCK_CONST_METHOD0(GetUserId, int32_t());
-    MOCK_CONST_METHOD0(GetExecutorIndex, uint64_t());
-    MOCK_CONST_METHOD0(GetTemplateId, uint64_t());
-    MOCK_CONST_METHOD0(GetAuthType, AuthType());
-    MOCK_CONST_METHOD0(GetExecutorSensorHint, uint32_t());
-    MOCK_CONST_METHOD0(GetExecutorMatcher, uint32_t());
+    static sptr<IRemoteObject> GetRemoteObject(int32_t saId);
+    static void SetObj(const sptr<IRemoteObject> &obj);
+    static void ResetObj();
+
+private:
+    static sptr<IRemoteObject> obj_;
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // IAM_MOCK_CREDENTIAL_INFO_H
+#endif // MOCK_IPC_CLIENT_UTILS_H

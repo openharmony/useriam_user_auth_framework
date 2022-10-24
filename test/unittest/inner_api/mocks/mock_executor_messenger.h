@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef IAM_MOCK_EXECUTOR_MESSENGER_H
-#define IAM_MOCK_EXECUTOR_MESSENGER_H
+#ifndef MOCK_EXECUTOR_MESSENGER_H
+#define MOCK_EXECUTOR_MESSENGER_H
 
 #include <memory>
 
@@ -29,19 +29,12 @@ public:
     MOCK_METHOD0(AsObject, sptr<IRemoteObject>());
     MOCK_METHOD4(OnRemoteRequest,
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
-    MOCK_METHOD5(SendData, int32_t(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole, ExecutorRole dstRole,
-                               const std::vector<uint8_t> &msg));
-    MOCK_METHOD5(Finish,
-        int32_t(uint64_t scheduleId, ExecutorRole srcRole, int32_t resultCode, const Attributes &finalResult));
-
-    static std::shared_ptr<ExecutorMessengerInterface> Create()
-    {
-        using namespace testing;
-        auto messenger = Common::MakeShared<MockExecutorMessenger>();
-        return messenger;
-    }
+    MOCK_METHOD5(SendData, int32_t(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole,
+        ExecutorRole dstRole, const std::vector<uint8_t> &msg));
+    MOCK_METHOD4(Finish, int32_t(uint64_t scheduleId, ExecutorRole srcRole, ResultCode resultCode,
+        const std::shared_ptr<Attributes> &finalResult));
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // IAM_MOCK_EXECUTOR_MESSENGER_H
+#endif // MOCK_EXECUTOR_MESSENGER_H
