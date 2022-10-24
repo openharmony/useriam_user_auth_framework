@@ -15,7 +15,6 @@
 
 #include "mock_ipc_common.h"
 
-// #include "accesstoken_kit.h"
 #include "iam_common_defines.h"
 #include "iam_logger.h"
 #ifdef HAS_OS_ACCOUNT_PART
@@ -23,24 +22,19 @@
 #endif // HAS_OS_ACCOUNT_PART
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
+namespace {
+    const uint32_t TEST_USER_ID = 548781;
+}
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, std::optional<int32_t> &userId)
-{
-    if (userId.has_value() && userId.value() != 0) {
-        return SUCCESS;
-    }
-    userId = 54879;
-    return SUCCESS;
-}
-
 int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, int32_t &userId)
 {
     if (userId != 0) {
         return SUCCESS;
     }
-    userId = 3561;
+    userId = TEST_USER_ID;
     return SUCCESS;
 }
 

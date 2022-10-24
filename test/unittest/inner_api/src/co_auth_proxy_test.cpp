@@ -46,13 +46,15 @@ void CoAuthProxyTest::TearDown()
 
 HWTEST_F(CoAuthProxyTest, CoAuthProxyExecutorRegister, TestSize.Level0)
 {
-    static CoAuthInterface::ExecutorRegisterInfo testInfo = {};
+    CoAuthInterface::ExecutorRegisterInfo testInfo = {};
     testInfo.authType = PIN;
     testInfo.executorRole = COLLECTOR;
     testInfo.executorSensorHint = 11;
     testInfo.executorMatcher = 22;
     testInfo.esl = ESL1;
     testInfo.publicKey = {1, 2, 3, 4};
+
+    uint64_t testExecutorIndex = 73265;
 
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
@@ -64,21 +66,22 @@ HWTEST_F(CoAuthProxyTest, CoAuthProxyExecutorRegister, TestSize.Level0)
     EXPECT_NE(service, nullptr);
     EXPECT_CALL(*service, ExecutorRegister(_, _))
         .Times(Exactly(1))
-        .WillOnce([](const CoAuthInterface::ExecutorRegisterInfo &info, sptr<ExecutorCallbackInterface> &callback) {
+        .WillOnce(
+            [&testInfo, &testExecutorIndex](const CoAuthInterface::ExecutorRegisterInfo &info,
+            sptr<ExecutorCallbackInterface> &callback) {
             EXPECT_EQ(testInfo.authType, info.authType);
             EXPECT_EQ(testInfo.executorRole, info.executorRole);
             EXPECT_EQ(testInfo.executorSensorHint, info.executorSensorHint);
             EXPECT_EQ(testInfo.executorMatcher, info.executorMatcher);
             EXPECT_EQ(testInfo.esl, info.esl);
-            EXPECT_THAT(testInfo.publicKey, ElementsAre(1, 2, 3, 4));
-            const uint64_t contextId = 111;
-            return contextId;
+            EXPECT_THAT(testInfo.publicKey, ElementsAreArray(info.publicKey));
+            return testExecutorIndex;
         });
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
         .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
             service->OnRemoteRequest(code, data, reply, option);
-            return SUCCESS;
+            return OHOS::NO_ERROR;
         });
     proxy->ExecutorRegister(testInfo, testCallback);
 }

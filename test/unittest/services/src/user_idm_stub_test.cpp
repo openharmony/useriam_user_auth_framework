@@ -210,7 +210,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubGetSecInfoStub002, TestSize.Level0)
             [&testUserId](int32_t userId, const sptr<IdmGetSecureUserInfoCallbackInterface> &callback) {
                 EXPECT_EQ(userId, testUserId);
                 if (callback != nullptr) {
-                    const std::shared_ptr<SecureUserInfo> info;
+                    const std::shared_ptr<IdmGetSecureUserInfoCallbackInterface::SecureUserInfo> info;
                     callback->OnSecureUserInfo(info);
                 }
                 return SUCCESS;

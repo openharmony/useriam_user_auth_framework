@@ -12,28 +12,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef IAM_MOCK_CREDENTIAL_INFO_H
-#define IAM_MOCK_CREDENTIAL_INFO_H
 
-#include <gmock/gmock.h>
+#ifndef USER_IDM_CALLBACK_SERVICE_TEST_H
+#define USER_IDM_CALLBACK_SERVICE_TEST_H
 
-#include "user_idm_callback_interface.h"
+#include <gtest/gtest.h>
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockCredentialInfo final : public IdmGetCredInfoCallbackInterface::CredentialInfo {
+class UserIdmCallbackServiceTest : public testing::Test {
 public:
-    virtual ~MockCredentialInfo() = default;
-    MOCK_CONST_METHOD0(GetCredentialId, uint64_t());
-    MOCK_CONST_METHOD0(GetUserId, int32_t());
-    MOCK_CONST_METHOD0(GetExecutorIndex, uint64_t());
-    MOCK_CONST_METHOD0(GetTemplateId, uint64_t());
-    MOCK_CONST_METHOD0(GetAuthType, AuthType());
-    MOCK_CONST_METHOD0(GetExecutorSensorHint, uint32_t());
-    MOCK_CONST_METHOD0(GetExecutorMatcher, uint32_t());
+    static void SetUpTestCase();
+
+    static void TearDownTestCase();
+
+    void SetUp() override;
+
+    void TearDown() override;
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // IAM_MOCK_CREDENTIAL_INFO_H
+#endif // USER_IDM_CALLBACK_SERVICE_TEST_H
