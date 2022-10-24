@@ -191,32 +191,32 @@ void FuzzScheduleNodeContinueSchedule002(Parcel &parcel)
     }
     IAM_LOGI("end");
 }
-} // namespace
-} // namespace UserAuth
-} // namespace UserIam
-} // namespace OHOS
 
-using ScheduleNodeFuzzFunc = decltype(OHOS::UserIam::UserAuth::FuzzScheduleNodeGetScheduleId);
+using ScheduleNodeFuzzFunc = decltype(FuzzScheduleNodeGetScheduleId);
 ScheduleNodeFuzzFunc *g_ScheduleNodeFuzzFuncs[] = {
-    OHOS::UserIam::UserAuth::FuzzScheduleNodeGetScheduleId,
-    OHOS::UserIam::UserAuth::FuzzScheduleNodeGetContextId,
-    OHOS::UserIam::UserAuth::FuzzScheduleNodeGetAuthType,
-    OHOS::UserIam::UserAuth::FuzzScheduleNodeGetExecutorMatcher,
-    OHOS::UserIam::UserAuth::FuzzScheduleNodeGetScheduleMode,
-    OHOS::UserIam::UserAuth::FuzzScheduleNodeGetCollectorExecutor,
-    OHOS::UserIam::UserAuth::FuzzScheduleNodeGetVerifyExecutor,
-    OHOS::UserIam::UserAuth::FuzzScheduleNodeGetTemplateIdList,
-    OHOS::UserIam::UserAuth::FuzzScheduleNodeGetCurrentScheduleState,
-    OHOS::UserIam::UserAuth::FuzzScheduleNodeStartSchedule,
-    OHOS::UserIam::UserAuth::FuzzScheduleNodeStopSchedule,
-    OHOS::UserIam::UserAuth::FuzzScheduleNodeContinueSchedule001,
-    OHOS::UserIam::UserAuth::FuzzScheduleNodeContinueSchedule002,
+    FuzzScheduleNodeGetScheduleId,
+    FuzzScheduleNodeGetContextId,
+    FuzzScheduleNodeGetAuthType,
+    FuzzScheduleNodeGetExecutorMatcher,
+    FuzzScheduleNodeGetScheduleMode,
+    FuzzScheduleNodeGetCollectorExecutor,
+    FuzzScheduleNodeGetVerifyExecutor,
+    FuzzScheduleNodeGetTemplateIdList,
+    FuzzScheduleNodeGetCurrentScheduleState,
+    FuzzScheduleNodeStartSchedule,
+    FuzzScheduleNodeStopSchedule,
+    FuzzScheduleNodeContinueSchedule001,
+    FuzzScheduleNodeContinueSchedule002,
 };
+} // namespace
 
-void ScheduleNodeFuzzTest(OHOS::Parcel &parcel)
+void ScheduleNodeFuzzTest(Parcel &parcel)
 {
     uint32_t index = parcel.ReadUint32() % (sizeof(g_ScheduleNodeFuzzFuncs) / sizeof(ScheduleNodeFuzzFunc *));
     auto fuzzFunc = g_ScheduleNodeFuzzFuncs[index];
     fuzzFunc(parcel);
     return;
 }
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
