@@ -18,6 +18,12 @@
 
 #include "parcel.h"
 
-void ScheduleNodeFuzzTest(OHOS::Parcel &parcel);
+namespace OHOS {
+namespace UserIam {
+namespace UserAuth {
+void ScheduleNodeFuzzTest(Parcel &parcel);
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
 
 #endif // SCHEDULE_NODE_FUZZ_TEST_H
