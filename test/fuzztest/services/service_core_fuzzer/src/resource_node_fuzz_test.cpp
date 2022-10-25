@@ -256,33 +256,33 @@ void FuzzResourceNodeDetach(Parcel &parcel)
     }
     IAM_LOGI("end");
 }
-} // namespace
-} // namespace UserAuth
-} // namespace UserIam
-} // namespace OHOS
 
-using ResourceNodeFuzzFunc = decltype(OHOS::UserIam::UserAuth::FuzzResourceNodeGetExecutorIndex);
+using ResourceNodeFuzzFunc = decltype(FuzzResourceNodeGetExecutorIndex);
 ResourceNodeFuzzFunc *g_ResourceNodeFuzzFuncs[] = {
-    OHOS::UserIam::UserAuth::FuzzResourceNodeGetExecutorIndex,
-    OHOS::UserIam::UserAuth::FuzzResourceNodeGetOwnerDeviceId,
-    OHOS::UserIam::UserAuth::FuzzResourceNodeGetOwnerPid,
-    OHOS::UserIam::UserAuth::FuzzResourceNodeGetAuthType,
-    OHOS::UserIam::UserAuth::FuzzResourceNodeGetExecutorRole,
-    OHOS::UserIam::UserAuth::FuzzResourceNodeGetExecutorSensorHint,
-    OHOS::UserIam::UserAuth::FuzzResourceNodeGetExecutorMatcher,
-    OHOS::UserIam::UserAuth::FuzzResourceNodeGetExecutorEsl,
-    OHOS::UserIam::UserAuth::FuzzResourceNodeGetExecutorPublicKey,
-    OHOS::UserIam::UserAuth::FuzzResourceNodeBeginExecute,
-    OHOS::UserIam::UserAuth::FuzzResourceNodeEndExecute,
-    OHOS::UserIam::UserAuth::FuzzResourceNodeSetProperty,
-    OHOS::UserIam::UserAuth::FuzzResourceNodeGetProperty,
-    OHOS::UserIam::UserAuth::FuzzResourceNodeDetach,
+    FuzzResourceNodeGetExecutorIndex,
+    FuzzResourceNodeGetOwnerDeviceId,
+    FuzzResourceNodeGetOwnerPid,
+    FuzzResourceNodeGetAuthType,
+    FuzzResourceNodeGetExecutorRole,
+    FuzzResourceNodeGetExecutorSensorHint,
+    FuzzResourceNodeGetExecutorMatcher,
+    FuzzResourceNodeGetExecutorEsl,
+    FuzzResourceNodeGetExecutorPublicKey,
+    FuzzResourceNodeBeginExecute,
+    FuzzResourceNodeEndExecute,
+    FuzzResourceNodeSetProperty,
+    FuzzResourceNodeGetProperty,
+    FuzzResourceNodeDetach,
 };
+} // namespace
 
-void ResourceNodeFuzzTest(OHOS::Parcel &parcel)
+void ResourceNodeFuzzTest(Parcel &parcel)
 {
     uint32_t index = parcel.ReadUint32() % (sizeof(g_ResourceNodeFuzzFuncs) / sizeof(ResourceNodeFuzzFunc *));
     auto fuzzFunc = g_ResourceNodeFuzzFuncs[index];
     fuzzFunc(parcel);
     return;
 }
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
