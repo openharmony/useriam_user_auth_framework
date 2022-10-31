@@ -369,6 +369,10 @@ napi_status UserAuthNapiHelper::SetUint8ArrayProperty(napi_env env,
     void *data;
     napi_value buffer;
     napi_status ret = napi_create_arraybuffer(env, size, &data, &buffer);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_create_arraybuffer failed %{public}d", ret);
+        return ret;
+    }
     if (size != 0) {
         if (memcpy_s(data, size, value.data(), value.size()) != EOK) {
             IAM_LOGE("memcpy_s failed");
