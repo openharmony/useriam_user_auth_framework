@@ -15,6 +15,7 @@
 
 #include "resource_node_pool_test.h"
 
+#include "iam_ptr.h"
 #include "resource_node_pool.h"
 
 #include "mock_resource_node.h"
@@ -193,6 +194,49 @@ HWTEST_F(ResourceNodePoolTest, ResourceNodePoolListenerUpdate, TestSize.Level0)
     EXPECT_EQ(pool.Delete(EXECUTOR_INDEX2), false);
 
     EXPECT_EQ(pool.DeregisterResourceNodePoolListener(listener), true);
+}
+
+HWTEST_F(ResourceNodePoolTest, ResourceNodePoolTestDelete, TestSize.Level0)
+{
+    auto &pool = ResourceNodePool::Instance();
+    const uint64_t EXECUTOR_INDEX1 = 300;
+    const uint64_t EXECUTOR_INDEX2 = 500;
+    auto resource1 = MockResourceNode::CreateWithExecuteIndex(EXECUTOR_INDEX1);
+    auto resource2 = MockResourceNode::CreateWithExecuteIndex(EXECUTOR_INDEX2);
+
+    auto listener1 = Common::MakeShared<MockResourceNodePoolListener>();
+    EXPECT_NE(listener1, nullptr);
+    EXPECT_CALL(*listener1, OnResourceNodePoolDelete(_)).Times(2);
+    EXPECT_CALL(*listener1, OnResourceNodePoolInsert(_)).Times(2);
+    EXPECT_TRUE(pool.RegisterResourceNodePoolListener(listener1));
+    std::shared_ptr<ResourceNodePool::ResourceNodePoolListener> listener2 = nullptr;
+    EXPECT_FALSE(pool.RegisterResourceNodePoolListener(listener2));
+
+    EXPECT_TRUE(pool.Insert(resource1));
+    EXPECT_TRUE(pool.Insert(resource2));
+    pool.DeleteAll();
+
+    EXPECT_TRUE(pool.DeregisterResourceNodePoolListener(listener1));
+}
+
+HWTEST_F(ResourceNodePoolTest, ResourceNodePoolTestEnumerate, TestSize.Level0)
+{
+    auto &pool = ResourceNodePool::Instance();
+    const uint64_t EXECUTOR_INDEX1 = 300;
+    const uint64_t EXECUTOR_INDEX2 = 500;
+    auto resource1 = MockResourceNode::CreateWithExecuteIndex(EXECUTOR_INDEX1);
+    auto resource2 = MockResourceNode::CreateWithExecuteIndex(EXECUTOR_INDEX2);
+    EXPECT_TRUE(pool.Insert(resource1));
+    EXPECT_TRUE(pool.Insert(resource2));
+
+    auto action1 = [](const std::weak_ptr<ResourceNode> &) {
+        return;
+    };
+    std::function<void(const std::weak_ptr<ResourceNode> &)> action2 = nullptr;
+    pool.Enumerate(action2);
+    pool.Enumerate(action1);
+
+    pool.DeleteAll();
 }
 } // namespace UserAuth
 } // namespace UserIam

@@ -45,7 +45,7 @@ void CoAuthServiceTest::TearDown()
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
 
-HWTEST_F(CoAuthServiceTest, CoAuthServiceTestExecutorRegister, TestSize.Level0)
+HWTEST_F(CoAuthServiceTest, CoAuthServiceTest001, TestSize.Level0)
 {
     sptr<ExecutorCallbackInterface> testCallback = new MockExecutorCallback();
     EXPECT_NE(testCallback, nullptr);
@@ -70,6 +70,47 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTestExecutorRegister, TestSize.Level0)
     uint64_t executorIndex = service->ExecutorRegister(info, testCallback);
     EXPECT_EQ(executorIndex, 0);
     EXPECT_EQ(ResourceNodePool::Instance().Delete(executorIndex), true);
+}
+
+HWTEST_F(CoAuthServiceTest, CoAuthServiceTest002, TestSize.Level0)
+{
+    auto service = Common::MakeShared<CoAuthService>(1, true);
+    EXPECT_NE(service, nullptr);
+
+    service->OnStart();
+    service->OnStop();
+}
+
+HWTEST_F(CoAuthServiceTest, CoAuthServiceTest003, TestSize.Level0)
+{
+    auto service = Common::MakeShared<CoAuthService>(1, true);
+    EXPECT_NE(service, nullptr);
+
+    CoAuthInterface::ExecutorRegisterInfo info = {};
+    sptr<ExecutorCallbackInterface> testCallback = nullptr;
+    uint64_t executorIndex = service->ExecutorRegister(info, testCallback);
+    EXPECT_EQ(executorIndex, 0);
+}
+
+HWTEST_F(CoAuthServiceTest, CoAuthServiceTest004, TestSize.Level0)
+{
+    int testFd1 = -1;
+    int testFd2 = 1;
+    std::vector<std::u16string> testArgs;
+
+    auto service = Common::MakeShared<CoAuthService>(1, true);
+    EXPECT_NE(service, nullptr);
+
+    EXPECT_EQ(service->Dump(testFd1, testArgs), INVALID_PARAMETERS);
+    EXPECT_EQ(service->Dump(testFd2, testArgs), SUCCESS);
+    testArgs.push_back(u"-h");
+    EXPECT_EQ(service->Dump(testFd2, testArgs), SUCCESS);
+    testArgs.clear();
+    testArgs.push_back(u"-l");
+    EXPECT_EQ(service->Dump(testFd2, testArgs), SUCCESS);
+    testArgs.clear();
+    testArgs.push_back(u"-k");
+    EXPECT_EQ(service->Dump(testFd2, testArgs), GENERAL_ERROR);
 }
 } // namespace UserAuth
 } // namespace UserIam

@@ -210,6 +210,25 @@ HWTEST_F(ContextPoolTest, ContextPoolRandomId, TestSize.Level0)
         generated.emplace(contextId);
     }
 }
+
+HWTEST_F(ContextPoolTest, ContextPoolSelect, TestSize.Level0)
+{
+    auto context = Common::MakeShared<MockContext>();
+    EXPECT_NE(context, nullptr);
+    EXPECT_CALL(*context, GetContextId()).WillRepeatedly(Return(10));
+    EXPECT_CALL(*context, GetContextType()).WillRepeatedly(Return(CONTEXT_SIMPLE_AUTH));
+    auto &pool = ContextPool::Instance();
+    EXPECT_TRUE(pool.Insert(context));
+
+    auto contextVector = pool.Select(CONTEXT_IDENTIFY);
+    EXPECT_EQ(contextVector.size(), 0);
+    contextVector = pool.Select(CONTEXT_SIMPLE_AUTH);
+    EXPECT_EQ(contextVector.size(), 1);
+    auto tempContext = contextVector[0].lock();
+    EXPECT_NE(tempContext, nullptr);
+    EXPECT_EQ(tempContext->GetContextId(), 10);
+    EXPECT_TRUE(pool.Delete(10));
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
