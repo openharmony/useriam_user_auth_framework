@@ -428,11 +428,12 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetVersionStub, TestSize.Level0)
     int32_t testVersion = 1000;
 
     MockUserAuthService service;
-    EXPECT_CALL(service, GetVersion()).Times(1);
+    EXPECT_CALL(service, GetVersion(_)).Times(1);
     ON_CALL(service, GetVersion)
         .WillByDefault(
-            [&testVersion]() {
-                return testVersion;
+            [&testVersion](int32_t &version) {
+                version = testVersion;
+                return SUCCESS;
             }
         );
 
@@ -447,6 +448,9 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetVersionStub, TestSize.Level0)
     int32_t version = -1;
     EXPECT_TRUE(reply.ReadInt32(version));
     EXPECT_EQ(version, testVersion);
+    int32_t result;
+    EXPECT_TRUE(reply.ReadInt32(result));
+    EXPECT_EQ(result, SUCCESS);
 }
 } // namespace UserAuth
 } // namespace UserIam

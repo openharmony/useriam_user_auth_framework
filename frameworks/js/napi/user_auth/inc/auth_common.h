@@ -58,6 +58,8 @@ enum class AuthenticationResult : int32_t {
 };
 
 enum class ResultCodeV9 : int32_t {
+    OHOS_CHECK_PERMISSION_FAILED = 201,
+    OHOS_INVALID_PARAM = 401,
     RESULT_CODE_V9_MIN = 12500000,
     SUCCESS = 12500000,
     FAIL = 12500001,
@@ -67,7 +69,6 @@ enum class ResultCodeV9 : int32_t {
     TYPE_NOT_SUPPORT = 12500005,
     TRUST_LEVEL_NOT_SUPPORT = 12500006,
     BUSY = 12500007,
-    INVALID_PARAMETERS = 12500008,
     LOCKED = 12500009,
     NOT_ENROLLED = 12500010,
     RESULT_CODE_V9_MAX = 12500010,
