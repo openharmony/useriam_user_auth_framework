@@ -155,7 +155,9 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCancelAuthOrIdentify, TestSize.Leve
 HWTEST_F(UserAuthServiceTest, UserAuthServiceGetVersion, TestSize.Level0)
 {
     UserAuthService service(100, true);
-    EXPECT_EQ(service.GetVersion(), 0);
+    int32_t version;
+    service.GetVersion(version);
+    EXPECT_EQ(version, 0);
 }
 } // namespace UserAuth
 } // namespace UserIam

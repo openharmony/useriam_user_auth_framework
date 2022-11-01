@@ -67,7 +67,7 @@ public:
 
     virtual int32_t CancelAuthOrIdentify(uint64_t contextId) = 0;
 
-    virtual int32_t GetVersion() = 0;
+    virtual int32_t GetVersion(int32_t &version) = 0;
 
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIam.UserAuth.IUserAuth");
 };
