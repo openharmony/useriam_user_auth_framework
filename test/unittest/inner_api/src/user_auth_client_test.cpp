@@ -45,7 +45,17 @@ void UserAuthClientTest::TearDown()
 {
 }
 
-HWTEST_F(UserAuthClientTest, UserAuthClientGetAvailableStatus, TestSize.Level0)
+HWTEST_F(UserAuthClientTest, UserAuthClientGetAvailableStatus001, TestSize.Level0)
+{
+    AuthType testAuthType = FACE;
+    AuthTrustLevel testAtl = ATL1;
+
+    IpcClientUtils::ResetObj();
+    int32_t ret = UserAuthClientImpl::Instance().GetAvailableStatus(testAuthType, testAtl);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientGetAvailableStatus002, TestSize.Level0)
 {
     int32_t testApiVersion = 9;
     AuthType testAuthType = FACE;
@@ -78,7 +88,22 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetAvailableStatus, TestSize.Level0)
     IpcClientUtils::ResetObj();
 }
 
-HWTEST_F(UserAuthClientTest, UserAuthClientGetProperty, TestSize.Level0)
+HWTEST_F(UserAuthClientTest, UserAuthClientGetProperty001, TestSize.Level0)
+{
+    int32_t testUserId = 200;
+    GetPropertyRequest testRequest = {};
+
+    std::shared_ptr<MockGetPropCallback> testCallback = nullptr;
+    UserAuthClient::GetInstance().GetProperty(testUserId, testRequest, testCallback);
+
+    IpcClientUtils::ResetObj();
+    testCallback = Common::MakeShared<MockGetPropCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
+    UserAuthClient::GetInstance().GetProperty(testUserId, testRequest, testCallback);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientGetProperty002, TestSize.Level0)
 {
     int32_t testUserId = 200;
     GetPropertyRequest testRequest = {};
@@ -119,7 +144,21 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetProperty, TestSize.Level0)
     IpcClientUtils::ResetObj();
 }
 
-HWTEST_F(UserAuthClientTest, UserAuthClientSetProperty, TestSize.Level0)
+HWTEST_F(UserAuthClientTest, UserAuthClientSetProperty001, TestSize.Level0)
+{
+    int32_t testUserId = 200;
+    SetPropertyRequest testRequest = {};
+    std::shared_ptr<MockSetPropCallback> testCallback = nullptr;
+    UserAuthClient::GetInstance().SetProperty(testUserId, testRequest, testCallback);
+
+    IpcClientUtils::ResetObj();
+    testCallback = Common::MakeShared<MockSetPropCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
+    UserAuthClient::GetInstance().SetProperty(testUserId, testRequest, testCallback);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientSetProperty002, TestSize.Level0)
 {
     int32_t testUserId = 200;
     SetPropertyRequest testRequest = {};
@@ -161,7 +200,27 @@ HWTEST_F(UserAuthClientTest, UserAuthClientSetProperty, TestSize.Level0)
     IpcClientUtils::ResetObj();
 }
 
-HWTEST_F(UserAuthClientTest, UserAuthClientBeginNorthAuthentication, TestSize.Level0)
+HWTEST_F(UserAuthClientTest, UserAuthClientBeginNorthAuthentication001, TestSize.Level0)
+{
+    int32_t testApiVersion = 8;
+    std::vector<uint8_t> testChallenge = {1, 2, 3, 4, 3, 2, 1, 0};
+    AuthType testAuthType = PIN;
+    AuthTrustLevel testAtl = ATL1;
+    std::shared_ptr<MockAuthenticationCallback> testCallback = nullptr;
+    uint64_t contextId = UserAuthClientImpl::Instance().BeginNorthAuthentication(testApiVersion, testChallenge,
+        testAuthType, testAtl, testCallback);
+    EXPECT_EQ(contextId, 0);
+
+    IpcClientUtils::ResetObj();
+    testCallback = Common::MakeShared<MockAuthenticationCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
+    contextId = UserAuthClientImpl::Instance().BeginNorthAuthentication(testApiVersion, testChallenge,
+        testAuthType, testAtl, testCallback);
+    EXPECT_EQ(contextId, 0);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientBeginNorthAuthentication002, TestSize.Level0)
 {
     int32_t testApiVersion = 8;
     std::vector<uint8_t> testChallenge = {1, 2, 3, 4, 3, 2, 1, 0};
@@ -208,7 +267,27 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginNorthAuthentication, TestSize.Le
     IpcClientUtils::ResetObj();
 }
 
-HWTEST_F(UserAuthClientTest, UserAuthClientBeginAuthentication, TestSize.Level0)
+HWTEST_F(UserAuthClientTest, UserAuthClientBeginAuthentication001, TestSize.Level0)
+{
+    int32_t testUserId = 84548;
+    std::vector<uint8_t> testChallenge = {1, 2, 3, 4, 8, 7, 5, 4};
+    AuthType testAuthType = PIN;
+    AuthTrustLevel testAtl = ATL1;
+    std::shared_ptr<MockAuthenticationCallback> testCallback = nullptr;
+    uint64_t contextId = UserAuthClient::GetInstance().BeginAuthentication(testUserId, testChallenge,
+        testAuthType, testAtl, testCallback);
+    EXPECT_EQ(contextId, 0);
+
+    IpcClientUtils::ResetObj();
+    testCallback = Common::MakeShared<MockAuthenticationCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
+    contextId = UserAuthClient::GetInstance().BeginAuthentication(testUserId, testChallenge,
+        testAuthType, testAtl, testCallback);
+    EXPECT_EQ(contextId, 0);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientBeginAuthentication002, TestSize.Level0)
 {
     int32_t testUserId = 84548;
     std::vector<uint8_t> testChallenge = {1, 2, 3, 4, 8, 7, 5, 4};
@@ -255,7 +334,16 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginAuthentication, TestSize.Level0)
     IpcClientUtils::ResetObj();
 }
 
-HWTEST_F(UserAuthClientTest, UserAuthClientCancelAuthentication, TestSize.Level0)
+HWTEST_F(UserAuthClientTest, UserAuthClientCancelAuthentication001, TestSize.Level0)
+{
+    uint64_t testContextId = 12345562;
+
+    IpcClientUtils::ResetObj();
+    int32_t ret = UserAuthClient::GetInstance().CancelAuthentication(testContextId);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientCancelAuthentication002, TestSize.Level0)
 {
     uint64_t testContextId = 12345562;
 
@@ -284,7 +372,23 @@ HWTEST_F(UserAuthClientTest, UserAuthClientCancelAuthentication, TestSize.Level0
     IpcClientUtils::ResetObj();
 }
 
-HWTEST_F(UserAuthClientTest, UserAuthClientBeginIdentification, TestSize.Level0)
+HWTEST_F(UserAuthClientTest, UserAuthClientBeginIdentification001, TestSize.Level0)
+{
+    std::vector<uint8_t> testChallenge = {4, 5, 6, 7, 3, 4, 1, 2};
+    AuthType testAuthType = FACE;
+    std::shared_ptr<MockIdentificationCallback> testCallback = nullptr;
+    uint64_t contextId = UserAuthClient::GetInstance().BeginIdentification(testChallenge, testAuthType, testCallback);
+    EXPECT_EQ(contextId, 0);
+
+    IpcClientUtils::ResetObj();
+    testCallback = Common::MakeShared<MockIdentificationCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
+    contextId = UserAuthClient::GetInstance().BeginIdentification(testChallenge, testAuthType, testCallback);
+    EXPECT_EQ(contextId, 0);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientBeginIdentification002, TestSize.Level0)
 {
     std::vector<uint8_t> testChallenge = {4, 5, 6, 7, 3, 4, 1, 2};
     AuthType testAuthType = FACE;
@@ -325,7 +429,16 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginIdentification, TestSize.Level0)
     IpcClientUtils::ResetObj();
 }
 
-HWTEST_F(UserAuthClientTest, UserAuthClientCancelIdentification, TestSize.Level0)
+HWTEST_F(UserAuthClientTest, UserAuthClientCancelIdentification001, TestSize.Level0)
+{
+    uint64_t testContextId = 1221215;
+    
+    IpcClientUtils::ResetObj();
+    int32_t ret = UserAuthClient::GetInstance().CancelIdentification(testContextId);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientCancelIdentification002, TestSize.Level0)
 {
     uint64_t testContextId = 1221215;
 
@@ -354,7 +467,14 @@ HWTEST_F(UserAuthClientTest, UserAuthClientCancelIdentification, TestSize.Level0
     IpcClientUtils::ResetObj();
 }
 
-HWTEST_F(UserAuthClientTest, UserAuthClientGetVersion, TestSize.Level0)
+HWTEST_F(UserAuthClientTest, UserAuthClientGetVersion001, TestSize.Level0)
+{
+    int32_t version = UserAuthClientImpl::Instance().GetVersion();
+    EXPECT_EQ(version, 0);
+    IpcClientUtils::ResetObj();
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientGetVersion002, TestSize.Level0)
 {
     int32_t testVersion = 20000;
 

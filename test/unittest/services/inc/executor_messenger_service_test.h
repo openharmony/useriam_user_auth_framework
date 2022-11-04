@@ -13,25 +13,25 @@
  * limitations under the License.
  */
 
-#ifndef MOCK_IAUTH_DRIVER_HDI_H
-#define MOCK_IAUTH_DRIVER_HDI_H
+#ifndef EXECUTOR_MESSENGER_SERVICE_TEST_H
+#define EXECUTOR_MESSENGER_SERVICE_TEST_H
 
-#include "gmock/gmock.h"
-
-#include "iauth_driver_hdi.h"
+#include <gtest/gtest.h>
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-using namespace OHOS::UserIam;
-using namespace OHOS::UserIam::UserAuth;
-
-class MockIAuthDriverHdi : public IAuthDriverHdi {
+class ExecutorMessengerServiceTest : public testing::Test {
 public:
-    MOCK_METHOD1(GetExecutorList, void(std::vector<std::shared_ptr<IAuthExecutorHdi>> &executorList));
+    static void SetUpTestCase();
+
+    static void TearDownTestCase();
+
+    void SetUp() override;
+
+    void TearDown() override;
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-
-#endif // MOCK_IAUTH_DRIVER_HDI_H
+#endif // EXECUTOR_MESSENGER_SERVICE_TEST_H

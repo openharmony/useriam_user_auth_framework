@@ -23,6 +23,9 @@ namespace UserIam {
 namespace UserAuth {
 using namespace testing;
 using namespace testing::ext;
+using HdiAuthResultInfo = OHOS::HDI::UserAuth::V1_0::AuthResultInfo;
+using HdiExecutorSendMsg = OHOS::HDI::UserAuth::V1_0::ExecutorSendMsg;
+
 class AuthenticationImplTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -113,6 +116,56 @@ HWTEST_F(AuthenticationImplTest, AuthenticationInvalidExecutor, TestSize.Level0)
     auto authentication = std::make_shared<AuthenticationImpl>(contextId, userId, FACE, ATL3);
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
     EXPECT_FALSE(authentication->Start(scheduleList, nullptr));
+}
+
+HWTEST_F(AuthenticationImplTest, AuthenticationImplTestUpdate001, TestSize.Level0)
+{
+    constexpr uint64_t contextId = 54871;
+    constexpr int32_t userId = 1534;
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, UpdateAuthenticationResult(_, _, _)).Times(1);
+    ON_CALL(*mockHdi, UpdateAuthenticationResult)
+        .WillByDefault(
+            [](uint64_t contextId, const std::vector<uint8_t> &scheduleResult, HdiAuthResultInfo &info) {
+                info.result = HDF_SUCCESS;
+                return HDF_SUCCESS;
+            }
+        );
+
+    auto authentication = std::make_shared<AuthenticationImpl>(contextId, userId, FACE, ATL3);
+    EXPECT_NE(authentication, nullptr);
+    std::vector<uint8_t> scheduleResult;
+    Authentication::AuthResultInfo info = {};
+    EXPECT_TRUE(authentication->Update(scheduleResult, info));
+}
+
+HWTEST_F(AuthenticationImplTest, AuthenticationImplTestUpdate002, TestSize.Level0)
+{
+    constexpr uint64_t contextId = 54871;
+    constexpr int32_t userId = 1534;
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, UpdateAuthenticationResult(_, _, _)).Times(1);
+    ON_CALL(*mockHdi, UpdateAuthenticationResult)
+        .WillByDefault(
+            [](uint64_t contextId, const std::vector<uint8_t> &scheduleResult, HdiAuthResultInfo &info) {
+                info.result = HDF_FAILURE;
+                HdiExecutorSendMsg msg = {};
+                msg.commandId = 10;
+                msg.executorIndex = 20;
+                info.msgs.push_back(msg);
+                return HDF_FAILURE;
+            }
+        );
+
+    auto authentication = std::make_shared<AuthenticationImpl>(contextId, userId, FACE, ATL3);
+    EXPECT_NE(authentication, nullptr);
+    std::vector<uint8_t> scheduleResult;
+    Authentication::AuthResultInfo info = {};
+    EXPECT_FALSE(authentication->Update(scheduleResult, info));
 }
 } // namespace UserAuth
 } // namespace UserIam

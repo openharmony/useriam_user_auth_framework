@@ -44,7 +44,16 @@ void UserIdmClientTest::TearDown()
 {
 }
 
-HWTEST_F(UserIdmClientTest, UserIdmClientOpenSession, TestSize.Level0)
+HWTEST_F(UserIdmClientTest, UserIdmClientOpenSession001, TestSize.Level0)
+{
+    int32_t testUserId = 21200;
+
+    IpcClientUtils::ResetObj();
+    std::vector<uint8_t> challenge = UserIdmClient::GetInstance().OpenSession(testUserId);
+    EXPECT_TRUE(challenge.empty());
+}
+
+HWTEST_F(UserIdmClientTest, UserIdmClientOpenSession002, TestSize.Level0)
 {
     int32_t testUserId = 21200;
     std::vector<uint8_t> testChallenge = {1, 3, 4, 7};
@@ -75,7 +84,15 @@ HWTEST_F(UserIdmClientTest, UserIdmClientOpenSession, TestSize.Level0)
     IpcClientUtils::ResetObj();
 }
 
-HWTEST_F(UserIdmClientTest, UserIdmClientCloseSession, TestSize.Level0)
+HWTEST_F(UserIdmClientTest, UserIdmClientCloseSession001, TestSize.Level0)
+{
+    int32_t testUserId = 200;
+
+    IpcClientUtils::ResetObj();
+    UserIdmClient::GetInstance().CloseSession(testUserId);
+}
+
+HWTEST_F(UserIdmClientTest, UserIdmClientCloseSession002, TestSize.Level0)
 {
     int32_t testUserId = 200;
 
@@ -103,7 +120,21 @@ HWTEST_F(UserIdmClientTest, UserIdmClientCloseSession, TestSize.Level0)
     IpcClientUtils::ResetObj();
 }
 
-HWTEST_F(UserIdmClientTest, UserIdmClientAddCredential, TestSize.Level0)
+HWTEST_F(UserIdmClientTest, UserIdmClientAddCredential001, TestSize.Level0)
+{
+    int32_t testUserId = 200;
+    CredentialParameters testPara = {};
+    std::shared_ptr<MockUserIdmClientCallback> testCallback = nullptr;
+    UserIdmClient::GetInstance().AddCredential(testUserId, testPara, testCallback);
+    
+    testCallback = Common::MakeShared<MockUserIdmClientCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
+    IpcClientUtils::ResetObj();
+    UserIdmClient::GetInstance().AddCredential(testUserId, testPara, testCallback);
+}
+
+HWTEST_F(UserIdmClientTest, UserIdmClientAddCredential002, TestSize.Level0)
 {
     int32_t testUserId = 200;
     CredentialParameters testPara = {};
@@ -145,7 +176,21 @@ HWTEST_F(UserIdmClientTest, UserIdmClientAddCredential, TestSize.Level0)
     IpcClientUtils::ResetObj();
 }
 
-HWTEST_F(UserIdmClientTest, UserIdmClientUpdateCredential, TestSize.Level0)
+HWTEST_F(UserIdmClientTest, UserIdmClientUpdateCredential001, TestSize.Level0)
+{
+    int32_t testUserId = 200;
+    CredentialParameters testPara = {};
+    std::shared_ptr<MockUserIdmClientCallback> testCallback = nullptr;
+    UserIdmClient::GetInstance().UpdateCredential(testUserId, testPara, testCallback);
+    
+    testCallback = Common::MakeShared<MockUserIdmClientCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
+    IpcClientUtils::ResetObj();
+    UserIdmClient::GetInstance().UpdateCredential(testUserId, testPara, testCallback);
+}
+
+HWTEST_F(UserIdmClientTest, UserIdmClientUpdateCredential002, TestSize.Level0)
 {
     int32_t testUserId = 200;
     CredentialParameters testPara = {};
@@ -188,7 +233,16 @@ HWTEST_F(UserIdmClientTest, UserIdmClientUpdateCredential, TestSize.Level0)
     IpcClientUtils::ResetObj();
 }
 
-HWTEST_F(UserIdmClientTest, UserIdmClientCancel, TestSize.Level0)
+HWTEST_F(UserIdmClientTest, UserIdmClientCancel001, TestSize.Level0)
+{
+    int32_t testUserId = 200;
+
+    IpcClientUtils::ResetObj();
+    int32_t ret = UserIdmClient::GetInstance().Cancel(testUserId);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+}
+
+HWTEST_F(UserIdmClientTest, UserIdmClientCancel002, TestSize.Level0)
 {
     int32_t testUserId = 200;
 
@@ -217,7 +271,22 @@ HWTEST_F(UserIdmClientTest, UserIdmClientCancel, TestSize.Level0)
     IpcClientUtils::ResetObj();
 }
 
-HWTEST_F(UserIdmClientTest, UserIdmClientDeleteCredential, TestSize.Level0)
+HWTEST_F(UserIdmClientTest, UserIdmClientDeleteCredential001, TestSize.Level0)
+{
+    int32_t testUserId = 200;
+    uint64_t testCredentialId = 111;
+    std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
+    std::shared_ptr<MockUserIdmClientCallback> testCallback = nullptr;
+    UserIdmClient::GetInstance().DeleteCredential(testUserId, testCredentialId, testAuthToken, testCallback);
+
+    IpcClientUtils::ResetObj();
+    testCallback = Common::MakeShared<MockUserIdmClientCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
+    UserIdmClient::GetInstance().DeleteCredential(testUserId, testCredentialId, testAuthToken, testCallback);
+}
+
+HWTEST_F(UserIdmClientTest, UserIdmClientDeleteCredential002, TestSize.Level0)
 {
     int32_t testUserId = 200;
     uint64_t testCredentialId = 111;
@@ -256,7 +325,21 @@ HWTEST_F(UserIdmClientTest, UserIdmClientDeleteCredential, TestSize.Level0)
     IpcClientUtils::ResetObj();
 }
 
-HWTEST_F(UserIdmClientTest, UserIdmClientDeleteUser, TestSize.Level0)
+HWTEST_F(UserIdmClientTest, UserIdmClientDeleteUser001, TestSize.Level0)
+{
+    int32_t testUserId = 200;
+    std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
+    std::shared_ptr<MockUserIdmClientCallback> testCallback = nullptr;
+    UserIdmClient::GetInstance().DeleteUser(testUserId, testAuthToken, testCallback);
+
+    IpcClientUtils::ResetObj();
+    testCallback = Common::MakeShared<MockUserIdmClientCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
+    UserIdmClient::GetInstance().DeleteUser(testUserId, testAuthToken, testCallback);
+}
+
+HWTEST_F(UserIdmClientTest, UserIdmClientDeleteUser002, TestSize.Level0)
 {
     int32_t testUserId = 200;
     std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
@@ -293,7 +376,22 @@ HWTEST_F(UserIdmClientTest, UserIdmClientDeleteUser, TestSize.Level0)
     IpcClientUtils::ResetObj();
 }
 
-HWTEST_F(UserIdmClientTest, UserIdmClientEraseUser, TestSize.Level0)
+HWTEST_F(UserIdmClientTest, UserIdmClientEraseUser001, TestSize.Level0)
+{
+    int32_t testUserId = 200;
+    std::shared_ptr<MockUserIdmClientCallback> testCallback = nullptr;
+    int32_t ret = UserIdmClient::GetInstance().EraseUser(testUserId, testCallback);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+
+    IpcClientUtils::ResetObj();
+    testCallback = Common::MakeShared<MockUserIdmClientCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
+    ret = UserIdmClient::GetInstance().EraseUser(testUserId, testCallback);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+}
+
+HWTEST_F(UserIdmClientTest, UserIdmClientEraseUser002, TestSize.Level0)
 {
     int32_t testUserId = 200;
     auto testCallback = Common::MakeShared<MockUserIdmClientCallback>();
@@ -329,7 +427,23 @@ HWTEST_F(UserIdmClientTest, UserIdmClientEraseUser, TestSize.Level0)
     IpcClientUtils::ResetObj();
 }
 
-HWTEST_F(UserIdmClientTest, UserIdmClientGetCredentialInfo, TestSize.Level0)
+HWTEST_F(UserIdmClientTest, UserIdmClientGetCredentialInfo001, TestSize.Level0)
+{
+    int32_t testUserId = 200;
+    AuthType testAuthType = PIN;
+    std::shared_ptr<MockGetCredentialInfoCallback> testCallback = nullptr;
+    int32_t ret = UserIdmClient::GetInstance().GetCredentialInfo(testUserId, testAuthType, testCallback);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+
+    IpcClientUtils::ResetObj();
+    testCallback = Common::MakeShared<MockGetCredentialInfoCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnCredentialInfo(_)).Times(1);
+    ret = UserIdmClient::GetInstance().GetCredentialInfo(testUserId, testAuthType, testCallback);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+}
+
+HWTEST_F(UserIdmClientTest, UserIdmClientGetCredentialInfo002, TestSize.Level0)
 {
     int32_t testUserId = 200;
     AuthType testAuthType = PIN;
@@ -367,7 +481,22 @@ HWTEST_F(UserIdmClientTest, UserIdmClientGetCredentialInfo, TestSize.Level0)
     IpcClientUtils::ResetObj();
 }
 
-HWTEST_F(UserIdmClientTest, UserIdmClientGetSecUserInfo, TestSize.Level0)
+HWTEST_F(UserIdmClientTest, UserIdmClientGetSecUserInfo001, TestSize.Level0)
+{
+    int32_t testUserId = 200;
+    std::shared_ptr<MockGetSecUserInfoCallback> testCallback = nullptr;
+    int32_t ret = UserIdmClient::GetInstance().GetSecUserInfo(testUserId, testCallback);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+
+    IpcClientUtils::ResetObj();
+    testCallback = Common::MakeShared<MockGetSecUserInfoCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnSecUserInfo(_)).Times(1);
+    ret = UserIdmClient::GetInstance().GetSecUserInfo(testUserId, testCallback);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+}
+
+HWTEST_F(UserIdmClientTest, UserIdmClientGetSecUserInfo002, TestSize.Level0)
 {
     int32_t testUserId = 200;
     auto testCallback = Common::MakeShared<MockGetSecUserInfoCallback>();
