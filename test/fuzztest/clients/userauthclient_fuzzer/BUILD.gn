@@ -14,9 +14,9 @@
 import("//build/ohos.gni")
 import("//build/test.gni")
 
-ohos_fuzztest("CoAuthClientFuzzTest") {
+ohos_fuzztest("UserAuthClientFuzzTest") {
   module_out_path = "useriam/user_auth_framework/clients"
-  fuzz_config_file = "//base/useriam/user_auth_framework/test/fuzztest/clients/co_auth_client_fuzzer"
+  fuzz_config_file = "//base/useriam/user_auth_framework/test/fuzztest/clients/userauthclient_fuzzer"
 
   cflags = [
     "-g",
@@ -27,14 +27,15 @@ ohos_fuzztest("CoAuthClientFuzzTest") {
 
   include_dirs = [
     "//base/useriam/user_auth_framework/interfaces/inner_api",
-    "//base/useriam/user_auth_framework/frameworks/native/ipc/inc",
     "//base/useriam/user_auth_framework/frameworks/native/ipc/common_defines",
+    "//base/useriam/user_auth_framework/frameworks/native/ipc/inc",
+    "//base/useriam/user_auth_framework/frameworks/native/common/dfx/inc",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs/co_auth/inc",
     "//base/useriam/user_auth_framework/common/logs",
   ]
 
-  sources = [ "co_auth_client_fuzz_test.cpp" ]
+  sources = [ "user_auth_client_fuzzer.cpp" ]
 
   deps = [
     "//base/useriam/user_auth_framework/common:iam_test",
