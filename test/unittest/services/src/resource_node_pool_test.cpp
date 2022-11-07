@@ -226,14 +226,18 @@ HWTEST_F(ResourceNodePoolTest, ResourceNodePoolTestEnumerate, TestSize.Level0)
     const uint64_t EXECUTOR_INDEX2 = 500;
     auto resource1 = MockResourceNode::CreateWithExecuteIndex(EXECUTOR_INDEX1);
     auto resource2 = MockResourceNode::CreateWithExecuteIndex(EXECUTOR_INDEX2);
-    EXPECT_TRUE(pool.Insert(resource1));
-    EXPECT_TRUE(pool.Insert(resource2));
 
     auto action1 = [](const std::weak_ptr<ResourceNode> &) {
         return;
     };
     std::function<void(const std::weak_ptr<ResourceNode> &)> action2 = nullptr;
     pool.Enumerate(action2);
+    pool.Enumerate(action1);
+    EXPECT_TRUE(pool.Insert(resource1));
+    EXPECT_TRUE(pool.Insert(resource2));
+    EXPECT_EQ(pool.Select(400).lock(), nullptr);
+    EXPECT_NE(pool.Select(EXECUTOR_INDEX1).lock(), nullptr);
+    EXPECT_NE(pool.Select(EXECUTOR_INDEX1).lock(), nullptr);
     pool.Enumerate(action1);
 
     pool.DeleteAll();

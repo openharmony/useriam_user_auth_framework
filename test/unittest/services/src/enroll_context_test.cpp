@@ -266,6 +266,63 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_Stop_002, TestSize.Level0)
     ASSERT_EQ(context->Stop(), true);
 }
 
+HWTEST_F(EnrollContextTest, EnrollContextTest_Stop_003, TestSize.Level0)
+{
+    static const uint64_t testContestId = 2;
+
+    std::shared_ptr<MockEnrollment> mockEnroll = Common::MakeShared<MockEnrollment>();
+    ASSERT_NE(mockEnroll, nullptr);
+    EXPECT_CALL(*mockEnroll, Start(_, _)).Times(1);
+    ON_CALL(*mockEnroll, Start)
+        .WillByDefault(
+            [](std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
+                std::shared_ptr<ScheduleNodeCallback> callback) {
+                scheduleList.push_back(nullptr);
+                return true;
+            }
+        );
+    EXPECT_CALL(*mockEnroll, Cancel()).Times(Exactly(1)).WillOnce([]() {
+        return true;
+    });
+    std::shared_ptr<ContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
+    ASSERT_NE(contextCallback, nullptr);
+    std::shared_ptr<Context> context = Common::MakeShared<EnrollContext>(testContestId, mockEnroll, contextCallback);
+    ASSERT_NE(context, nullptr);
+    ASSERT_EQ(context->Start(), false);
+    ASSERT_EQ(context->Stop(), true);
+}
+
+HWTEST_F(EnrollContextTest, EnrollContextTest_Stop_004, TestSize.Level0)
+{
+    static const uint64_t testContestId = 2;
+
+    std::shared_ptr<MockEnrollment> mockEnroll = Common::MakeShared<MockEnrollment>();
+    ASSERT_NE(mockEnroll, nullptr);
+    EXPECT_CALL(*mockEnroll, Start(_, _)).Times(1);
+    ON_CALL(*mockEnroll, Start)
+        .WillByDefault(
+            [](std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
+                std::shared_ptr<ScheduleNodeCallback> callback) {
+                auto scheduleNode = Common::MakeShared<MockScheduleNode>();
+                EXPECT_NE(scheduleNode, nullptr);
+                EXPECT_CALL(*scheduleNode, StartSchedule()).Times(1);
+                EXPECT_CALL(*scheduleNode, StopSchedule()).Times(1);
+                scheduleList.push_back(scheduleNode);
+                return true;
+            }
+        );
+    EXPECT_CALL(*mockEnroll, GetLatestError()).Times(1);
+    EXPECT_CALL(*mockEnroll, Cancel()).Times(Exactly(1)).WillOnce([]() {
+        return false;
+    });
+    std::shared_ptr<ContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
+    ASSERT_NE(contextCallback, nullptr);
+    std::shared_ptr<Context> context = Common::MakeShared<EnrollContext>(testContestId, mockEnroll, contextCallback);
+    ASSERT_NE(context, nullptr);
+    ASSERT_EQ(context->Start(), false);
+    ASSERT_EQ(context->Stop(), false);
+}
+
 HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStarted, TestSize.Level0)
 {
     static const uint64_t testContestId = 2;
@@ -423,6 +480,45 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_005, TestSize.Lev
             EXPECT_EQ(ret, true);
             EXPECT_EQ(testCredentialId, credentialId);
         });
+
+    std::shared_ptr<ScheduleNodeCallback> nodeCallback =
+        Common::MakeShared<EnrollContext>(testContestId, mockEnroll, contextCallback);
+    ASSERT_NE(nodeCallback, nullptr);
+    // Success
+    std::shared_ptr<Attributes> result = Common::MakeShared<Attributes>();
+    ASSERT_NE(result, nullptr);
+    bool ret1 = result->SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, testScheduleResult);
+    ASSERT_EQ(ret1, true);
+
+    bool ret2 = result->SetUint8ArrayValue(Attributes::ATTR_RESULT, testScheduleResult);
+    ASSERT_EQ(ret2, true);
+    nodeCallback->OnScheduleStoped(ResultCode::SUCCESS, result);
+}
+
+HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_006, TestSize.Level0)
+{
+    static const uint64_t testContestId = 2;
+    static const std::vector<uint8_t> testScheduleResult = {3, 4, 5, 6};
+    static const uint64_t testCredentialId = 7;
+
+    std::shared_ptr<MockEnrollment> mockEnroll = Common::MakeShared<MockEnrollment>();
+    ASSERT_NE(mockEnroll, nullptr);
+    EXPECT_CALL(*mockEnroll, Update(_, _, _, _))
+        .Times(Exactly(1))
+        .WillOnce([](const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
+                      std::shared_ptr<CredentialInfo> &info, std::vector<uint8_t> &rootSecret) {
+            EXPECT_EQ(scheduleResult, testScheduleResult);
+            credentialId = testCredentialId;
+            auto credInfo = Common::MakeShared<MockCredentialInfo>();
+            EXPECT_NE(credInfo, nullptr);
+            EXPECT_CALL(*credInfo, GetExecutorIndex()).WillOnce(Return(10));
+            info = credInfo;
+            rootSecret = {1, 2, 3, 4};
+            return true;
+        });
+    std::shared_ptr<MockContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
+    ASSERT_NE(contextCallback, nullptr);
+    EXPECT_CALL(*contextCallback, OnResult(_, _)).Times(1);
 
     std::shared_ptr<ScheduleNodeCallback> nodeCallback =
         Common::MakeShared<EnrollContext>(testContestId, mockEnroll, contextCallback);
