@@ -14,9 +14,9 @@
 import("//build/ohos.gni")
 import("//build/test.gni")
 
-ohos_fuzztest("UserAuthClientFuzzTest") {
-  module_out_path = "useriam/user_auth_framework/clients"
-  fuzz_config_file = "//base/useriam/user_auth_framework/test/fuzztest/clients/user_auth_client_fuzzer"
+ohos_fuzztest("ServiceCoreFuzzTest") {
+  module_out_path = "useriam/user_auth_framework/services"
+  fuzz_config_file = "//base/useriam/user_auth_framework/test/fuzztest/services/servicecore_fuzzer"
 
   cflags = [
     "-g",
@@ -26,29 +26,31 @@ ohos_fuzztest("UserAuthClientFuzzTest") {
   ]
 
   include_dirs = [
+    "inc",
     "//base/useriam/user_auth_framework/interfaces/inner_api",
     "//base/useriam/user_auth_framework/frameworks/native/ipc/common_defines",
-    "//base/useriam/user_auth_framework/frameworks/native/ipc/inc",
-    "//base/useriam/user_auth_framework/frameworks/native/common/dfx/inc",
+    "//base/useriam/user_auth_framework/services/base/inc",
+    "//base/useriam/user_auth_framework/services/core/inc",
+    "//base/useriam/user_auth_framework/services/core/src",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs/co_auth/inc",
     "//base/useriam/user_auth_framework/common/logs",
   ]
 
-  sources = [ "user_auth_client_fuzz_test.cpp" ]
+  sources = [
+    "src/resource_node_fuzzer.cpp",
+    "src/resource_node_pool_fuzzer.cpp",
+    "src/schedule_node_fuzzer.cpp",
+    "src/service_core_fuzzer.cpp",
+  ]
 
   deps = [
     "//base/useriam/user_auth_framework/common:iam_test",
-    "//base/useriam/user_auth_framework/frameworks/native/client:userauth_client",
     "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
+    "//base/useriam/user_auth_framework/services/core:userauth_service_core",
   ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
-  external_deps = [
-    "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
-    "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
-  ]
+  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
 }

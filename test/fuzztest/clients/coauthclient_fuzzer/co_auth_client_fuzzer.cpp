@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "co_auth_client_fuzz_test.h"
+#include "co_auth_client_fuzzer.h"
 
 #include "parcel.h"
 
