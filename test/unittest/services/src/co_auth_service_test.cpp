@@ -18,7 +18,9 @@
 #include "co_auth_service.h"
 #include "iam_ptr.h"
 #include "mock_executor_callback.h"
+#include "mock_ipc_common.h"
 #include "mock_iuser_auth_interface.h"
+#include "mock_resource_node.h"
 #include "resource_node_pool.h"
 
 namespace OHOS {
@@ -26,6 +28,8 @@ namespace UserIam {
 namespace UserAuth {
 using namespace testing;
 using namespace testing::ext;
+
+using HdiExecutorRegisterInfo = OHOS::HDI::UserAuth::V1_0::ExecutorRegisterInfo;
 
 void CoAuthServiceTest::SetUpTestCase()
 {
@@ -65,11 +69,24 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest001, TestSize.Level0)
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*tempCallback, OnMessengerReady(_, _, _)).Times(1);
-    EXPECT_CALL(*mockHdi, AddExecutor(_, _, _, _)).Times(1);
+    EXPECT_CALL(*mockHdi, AddExecutor(_, _, _, _))
+        .Times(2)
+        .WillOnce(Return(HDF_FAILURE))
+        .WillOnce(
+            [](const HdiExecutorRegisterInfo &info, uint64_t &index, std::vector<uint8_t> &publicKey,
+                std::vector<uint64_t> &templateIds) {
+                index = 12345;
+                return HDF_SUCCESS;
+            }
+        );
     EXPECT_CALL(*mockHdi, DeleteExecutor(_)).Times(1);
+    IpcCommon::AddPermission(ACCESS_AUTH_RESPOOL);
     uint64_t executorIndex = service->ExecutorRegister(info, testCallback);
     EXPECT_EQ(executorIndex, 0);
+    executorIndex = service->ExecutorRegister(info, testCallback);
+    EXPECT_NE(executorIndex, 0);
     EXPECT_EQ(ResourceNodePool::Instance().Delete(executorIndex), true);
+    IpcCommon::DeleteAllPermission();
 }
 
 HWTEST_F(CoAuthServiceTest, CoAuthServiceTest002, TestSize.Level0)
@@ -101,6 +118,10 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest004, TestSize.Level0)
     auto service = Common::MakeShared<CoAuthService>(1, true);
     EXPECT_NE(service, nullptr);
 
+    auto node = MockResourceNode::CreateWithExecuteIndex(20);
+    EXPECT_NE(node, nullptr);
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(node));
+
     EXPECT_EQ(service->Dump(testFd1, testArgs), INVALID_PARAMETERS);
     EXPECT_EQ(service->Dump(testFd2, testArgs), SUCCESS);
     testArgs.push_back(u"-h");
@@ -111,6 +132,8 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest004, TestSize.Level0)
     testArgs.clear();
     testArgs.push_back(u"-k");
     EXPECT_EQ(service->Dump(testFd2, testArgs), GENERAL_ERROR);
+
+    EXPECT_TRUE(ResourceNodePool::Instance().Delete(20));
 }
 } // namespace UserAuth
 } // namespace UserIam
