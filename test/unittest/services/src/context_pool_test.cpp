@@ -100,6 +100,7 @@ HWTEST_F(ContextPoolTest, ContextPoolInsertAndDelete, TestSize.Level0)
     auto context1 = MockContext::CreateWithContextId(CONTEXT_ID1);
     auto context2 = MockContext::CreateWithContextId(CONTEXT_ID2);
     auto context3 = MockContext::CreateWithContextId(CONTEXT_ID3);
+    EXPECT_EQ(pool.Select(CONTEXT_ID3).lock(), nullptr);
     EXPECT_EQ(pool.Insert(context1), true);
     EXPECT_EQ(pool.Insert(context2), true);
     EXPECT_EQ(pool.Insert(context3), true);
@@ -110,6 +111,10 @@ HWTEST_F(ContextPoolTest, ContextPoolInsertAndDelete, TestSize.Level0)
     EXPECT_EQ(pool.Delete(CONTEXT_ID1), true);
     EXPECT_EQ(pool.Delete(CONTEXT_ID2), true);
     EXPECT_EQ(pool.Delete(CONTEXT_ID3), true);
+
+    EXPECT_FALSE(pool.Delete(CONTEXT_ID1));
+    EXPECT_FALSE(pool.Delete(CONTEXT_ID2));
+    EXPECT_FALSE(pool.Delete(CONTEXT_ID3));
 }
 
 HWTEST_F(ContextPoolTest, ContextSelectScheduleNodeByScheduleId, TestSize.Level0)
@@ -124,6 +129,9 @@ HWTEST_F(ContextPoolTest, ContextSelectScheduleNodeByScheduleId, TestSize.Level0
     auto context2 = MockContext::CreateContextWithScheduleNode(CONTEXT_ID2, {SCHEDULE_ID2});
     EXPECT_EQ(pool.Insert(context2), true);
 
+    std::shared_ptr<ContextPool::ContextPoolListener> listener = nullptr;
+    EXPECT_FALSE(pool.RegisterContextPoolListener(listener));
+    EXPECT_EQ(pool.SelectScheduleNodeByScheduleId(302), nullptr);
     EXPECT_NE(pool.SelectScheduleNodeByScheduleId(SCHEDULE_ID1), nullptr);
     EXPECT_EQ(pool.Delete(CONTEXT_ID1), true);
     EXPECT_EQ(pool.SelectScheduleNodeByScheduleId(SCHEDULE_ID1), nullptr);
@@ -211,16 +219,25 @@ HWTEST_F(ContextPoolTest, ContextPoolRandomId, TestSize.Level0)
     }
 }
 
-HWTEST_F(ContextPoolTest, ContextPoolSelect, TestSize.Level0)
+HWTEST_F(ContextPoolTest, ContextPoolTestSelect, TestSize.Level0)
 {
-    auto context = Common::MakeShared<MockContext>();
-    EXPECT_NE(context, nullptr);
-    EXPECT_CALL(*context, GetContextId()).WillRepeatedly(Return(10));
-    EXPECT_CALL(*context, GetContextType()).WillRepeatedly(Return(CONTEXT_SIMPLE_AUTH));
-    auto &pool = ContextPool::Instance();
-    EXPECT_TRUE(pool.Insert(context));
+    auto context1 = Common::MakeShared<MockContext>();
+    EXPECT_NE(context1, nullptr);
+    EXPECT_CALL(*context1, GetContextId()).WillRepeatedly(Return(10));
+    EXPECT_CALL(*context1, GetContextType()).WillRepeatedly(Return(CONTEXT_SIMPLE_AUTH));
 
-    auto contextVector = pool.Select(CONTEXT_IDENTIFY);
+    auto context2 = Common::MakeShared<MockContext>();
+    EXPECT_NE(context2, nullptr);
+    EXPECT_CALL(*context2, GetContextId()).WillRepeatedly(Return(20));
+    EXPECT_CALL(*context2, GetContextType()).WillRepeatedly(Return(CONTEXT_IDENTIFY));
+
+    auto &pool = ContextPool::Instance();
+    auto contextVector = pool.Select(CONTEXT_SIMPLE_AUTH);
+    EXPECT_EQ(contextVector.size(), 0);
+    EXPECT_TRUE(pool.Insert(context1));
+    EXPECT_TRUE(pool.Insert(context2));
+
+    contextVector = pool.Select(WIDGET_AUTH_CONTEXT);
     EXPECT_EQ(contextVector.size(), 0);
     contextVector = pool.Select(CONTEXT_SIMPLE_AUTH);
     EXPECT_EQ(contextVector.size(), 1);
@@ -228,6 +245,25 @@ HWTEST_F(ContextPoolTest, ContextPoolSelect, TestSize.Level0)
     EXPECT_NE(tempContext, nullptr);
     EXPECT_EQ(tempContext->GetContextId(), 10);
     EXPECT_TRUE(pool.Delete(10));
+    EXPECT_TRUE(pool.Delete(20));
+}
+
+HWTEST_F(ContextPoolTest, ContextPoolTestGetNewContextId, TestSize.Level0)
+{
+    const int32_t COUNT = 1000;
+    std::vector<uint64_t> contextIdVector(COUNT);
+
+    for (int32_t i = 0; i < COUNT; ++i) {
+        uint64_t contextId = ContextPool::GetNewContextId();
+        contextIdVector[i] = contextId;
+        auto context = MockContext::CreateWithContextId(contextId);
+        ContextPool::Instance().Insert(context);
+    }
+
+    for (int32_t i = 0; i < COUNT; ++i) {
+        uint64_t contextId = contextIdVector[i];
+        EXPECT_TRUE(ContextPool::Instance().Delete(contextId));
+    }
 }
 } // namespace UserAuth
 } // namespace UserIam
