@@ -16,7 +16,6 @@
 #ifndef IAM_USER_IDM_SESSION_CONTROLLER_H
 #define IAM_USER_IDM_SESSION_CONTROLLER_H
 
-#include <unordered_map>
 #include <vector>
 
 namespace OHOS {
@@ -24,16 +23,11 @@ namespace UserIam {
 namespace UserAuth {
 class UserIdmSessionController {
 public:
-    using SessionMap = std::unordered_map<int32_t, std::vector<uint8_t>>;
     static UserIdmSessionController &Instance();
-
     virtual bool OpenSession(int32_t userId, std::vector<uint8_t> &challenge) = 0;
     virtual bool CloseSession(int32_t userId) = 0;
-    virtual bool CloseSession(const std::vector<uint8_t> &challenge) = 0;
     virtual bool IsSessionOpened(int32_t userId) const = 0;
-    virtual bool IsSessionOpened(const std::vector<uint8_t> &challenge) const = 0;
     virtual bool ForceReset() = 0;
-    virtual SessionMap GetOpenedSessions() const = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam

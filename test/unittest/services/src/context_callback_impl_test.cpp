@@ -92,21 +92,24 @@ HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserAuth, TestSize.Level0)
 HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserIdmOnResult, TestSize.Level0)
 {
     int32_t testResult = 66;
+    std::vector<uint8_t> testMsg = {1, 2, 3, 4};
     auto testAttr = Common::MakeShared<Attributes>();
     ASSERT_TRUE(testAttr != nullptr);
+    EXPECT_TRUE(testAttr->SetInt32Value(Attributes::ATTR_REMAIN_TIMES, 2));
+    EXPECT_TRUE(testAttr->SetInt32Value(Attributes::ATTR_FREEZING_TIME, 40));
+
+    auto notify = [](const ContextCallbackNotifyListener::MetaData &metaData) { return; };
+    ContextCallbackNotifyListener::GetInstance().AddNotifier(notify);
+    ContextCallbackNotifyListener::GetInstance().AddNotifier(nullptr);
 
     sptr<MockIdmCallback> mockCallback = new (nothrow) MockIdmCallback();
     ASSERT_TRUE(mockCallback != nullptr);
-    EXPECT_CALL(*mockCallback, OnResult(_, _))
-        .Times(Exactly(1))
-        .WillOnce([&testResult, &testAttr](int32_t result, const Attributes &reqRet) {
-            EXPECT_TRUE(testResult == result);
-            EXPECT_TRUE(&reqRet == testAttr.get());
-        });
+    EXPECT_CALL(*mockCallback, OnResult(_, _)).Times(1);
+    EXPECT_CALL(*mockCallback, OnAcquireInfo(_, _, _)).Times(1);
     sptr<IdmCallbackInterface> callback = mockCallback;
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
     ASSERT_NE(contextCallback, nullptr);
-    contextCallback->OnAcquireInfo(static_cast<ExecutorRole>(0), 0, {});
+    contextCallback->OnAcquireInfo(static_cast<ExecutorRole>(0), 0, testMsg);
     contextCallback->OnResult(testResult, *testAttr);
 }
 } // namespace UserAuth
