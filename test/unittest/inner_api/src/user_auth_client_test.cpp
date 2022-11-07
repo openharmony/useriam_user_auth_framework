@@ -469,9 +469,9 @@ HWTEST_F(UserAuthClientTest, UserAuthClientCancelIdentification002, TestSize.Lev
 
 HWTEST_F(UserAuthClientTest, UserAuthClientGetVersion001, TestSize.Level0)
 {
+    IpcClientUtils::ResetObj();
     int32_t version = UserAuthClientImpl::Instance().GetVersion();
     EXPECT_EQ(version, 0);
-    IpcClientUtils::ResetObj();
 }
 
 HWTEST_F(UserAuthClientTest, UserAuthClientGetVersion002, TestSize.Level0)
