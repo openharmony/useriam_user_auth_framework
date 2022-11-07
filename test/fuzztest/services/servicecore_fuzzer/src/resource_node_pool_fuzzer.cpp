@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "resource_node_pool_fuzz_test.h"
+#include "resource_node_pool_fuzzer.h"
 
 #include "common_dummy.h"
 #include "resource_node_pool.h"
