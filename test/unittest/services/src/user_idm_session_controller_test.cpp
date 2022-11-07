@@ -93,18 +93,11 @@ HWTEST_F(UserIdmSessionControllerTest, UserIdmServiceIsSessionOpened, TestSize.L
     EXPECT_CALL(*mock, OpenSession(userId, _)).WillRepeatedly(DoAll(WithArg<1>(fillUpChallenge), Return(SUCCESS)));
 
     EXPECT_EQ(false, UserIdmSessionController::Instance().IsSessionOpened(userId));
-    EXPECT_EQ(false, UserIdmSessionController::Instance().IsSessionOpened(nonce));
-    EXPECT_EQ(0U, UserIdmSessionController::Instance().GetOpenedSessions().size());
 
     EXPECT_EQ(true, UserIdmSessionController::Instance().OpenSession(userId, challenge));
     EXPECT_THAT(challenge, ElementsAreArray(nonce));
 
     EXPECT_EQ(true, UserIdmSessionController::Instance().IsSessionOpened(userId));
-    EXPECT_EQ(1U, UserIdmSessionController::Instance().GetOpenedSessions().size());
-    EXPECT_EQ(true, UserIdmSessionController::Instance().IsSessionOpened(challenge));
-
-    std::vector<uint8_t> notExisted = {1, 2, 3, 4, 5};
-    EXPECT_EQ(false, UserIdmSessionController::Instance().IsSessionOpened(notExisted));
 }
 
 HWTEST_F(UserIdmSessionControllerTest, UserIdmServiceIsSessionClosedByUserId, TestSize.Level0)
@@ -118,15 +111,14 @@ HWTEST_F(UserIdmSessionControllerTest, UserIdmServiceIsSessionClosedByUserId, Te
 
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_CALL(*mock, OpenSession(userId, _)).WillRepeatedly(DoAll(WithArg<1>(fillUpChallenge), Return(SUCCESS)));
-    EXPECT_CALL(*mock, CloseSession(userId)).WillRepeatedly(Return(SUCCESS));
-
-    EXPECT_EQ(0U, UserIdmSessionController::Instance().GetOpenedSessions().size());
+    EXPECT_CALL(*mock, CloseSession(userId))
+        .WillOnce(Return(HDF_SUCCESS))
+        .WillOnce(Return(HDF_FAILURE));
 
     EXPECT_EQ(true, UserIdmSessionController::Instance().OpenSession(userId, challenge));
-    EXPECT_EQ(1U, UserIdmSessionController::Instance().GetOpenedSessions().size());
 
-    EXPECT_EQ(true, UserIdmSessionController::Instance().CloseSession(userId));
-    EXPECT_EQ(0U, UserIdmSessionController::Instance().GetOpenedSessions().size());
+    EXPECT_TRUE(UserIdmSessionController::Instance().CloseSession(userId));
+    EXPECT_FALSE(UserIdmSessionController::Instance().CloseSession(userId));
 }
 
 HWTEST_F(UserIdmSessionControllerTest, UserIdmServiceIsSessionClosedByChallenge, TestSize.Level0)
@@ -142,13 +134,9 @@ HWTEST_F(UserIdmSessionControllerTest, UserIdmServiceIsSessionClosedByChallenge,
     EXPECT_CALL(*mock, OpenSession(userId, _)).WillRepeatedly(DoAll(WithArg<1>(fillUpChallenge), Return(SUCCESS)));
     EXPECT_CALL(*mock, CloseSession(userId)).WillRepeatedly(Return(SUCCESS));
 
-    EXPECT_EQ(0U, UserIdmSessionController::Instance().GetOpenedSessions().size());
-
     EXPECT_EQ(true, UserIdmSessionController::Instance().OpenSession(userId, challenge));
-    EXPECT_EQ(1U, UserIdmSessionController::Instance().GetOpenedSessions().size());
 
-    EXPECT_EQ(true, UserIdmSessionController::Instance().CloseSession(nonce));
-    EXPECT_EQ(0U, UserIdmSessionController::Instance().GetOpenedSessions().size());
+    EXPECT_EQ(true, UserIdmSessionController::Instance().CloseSession(userId));
 }
 } // namespace UserAuth
 } // namespace UserIam
