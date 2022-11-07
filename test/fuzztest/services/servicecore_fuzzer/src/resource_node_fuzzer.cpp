@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "resource_node_fuzz_test.h"
+#include "resource_node_fuzzer.h"
 
 #include "resource_node.h"
 #include "iam_fuzz_test.h"
