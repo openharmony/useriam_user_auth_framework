@@ -17,8 +17,8 @@ import("//build/test.gni")
 group("iam_clients_fuzztest") {
   testonly = true
   deps = [
-    "co_auth_client_fuzzer:CoAuthClientFuzzTest",
-    "user_auth_client_fuzzer:UserAuthClientFuzzTest",
-    "user_idm_client_fuzzer:UserIdmClientFuzzTest",
+    "coauthclient_fuzzer:CoAuthClientFuzzTest",
+    "userauthclient_fuzzer:UserAuthClientFuzzTest",
+    "useridmclient_fuzzer:UserIdmClientFuzzTest",
   ]
 }

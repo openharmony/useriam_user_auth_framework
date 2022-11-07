@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "user_idm_client_fuzz_test.h"
+#include "user_idm_client_fuzzer.h"
 
 #include "parcel.h"
 
