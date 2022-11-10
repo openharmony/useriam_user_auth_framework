@@ -30,7 +30,7 @@ class UserAuthCallbackV6 : public std::enable_shared_from_this<UserAuthCallbackV
                            public AuthenticationCallback {
 public:
     UserAuthCallbackV6(napi_env env, const std::shared_ptr<JsRefHolder> &callback, napi_deferred promise);
-    virtual ~UserAuthCallbackV6();
+    ~UserAuthCallbackV6() override;
     void OnAcquireInfo(int32_t module, uint32_t acquireInfo, const Attributes &extraInfo) override;
     void OnResult(int32_t result, const Attributes &extraInfo) override;
 
