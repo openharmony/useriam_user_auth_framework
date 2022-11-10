@@ -31,7 +31,7 @@ private:
     static void ProcessPinAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData);
     static void ProcessDelUserEvent(const ContextCallbackNotifyListener::MetaData &metaData);
     Trace();
-    ~Trace();
+    ~Trace() override;
 };
 } // namespace UserAuth
 } // namespace UserIam
