@@ -43,7 +43,7 @@ private:
     ExitAction action_;
 };
 
-#define ON_SCOPE_EXIT_ID(id, ...) auto exitGuard##id = OHOS::UserIam::Common::IamScopeGuard([&]() { __VA_ARGS__; })
+#define ON_SCOPE_EXIT_ID(id, ...) auto exitGuard##id = OHOS::UserIam::Common::IamScopeGuard([]() { __VA_ARGS__; })
 
 #define ON_SCOPE_EXIT(...) ON_SCOPE_EXIT_ID(__LINE__, __VA_ARGS__)
 } // namespace Common

@@ -373,13 +373,11 @@ napi_status UserAuthNapiHelper::SetUint8ArrayProperty(napi_env env,
         IAM_LOGE("napi_create_arraybuffer failed %{public}d", ret);
         return ret;
     }
-    if (size == 0 || size < value.size()) {
-        IAM_LOGE("size is invalid");
-        return napi_generic_failure;
-    }
-    if (memcpy_s(data, size, value.data(), value.size()) != EOK) {
-        IAM_LOGE("memcpy_s failed");
-        return napi_generic_failure;
+    if (size != 0) {
+        if (memcpy_s(data, size, value.data(), value.size()) != EOK) {
+            IAM_LOGE("memcpy_s failed");
+            return napi_generic_failure;
+        }
     }
     napi_value napiValue;
     ret = napi_create_typedarray(env, napi_uint8_array, size, buffer, 0, &napiValue);
