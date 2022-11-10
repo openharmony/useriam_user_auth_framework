@@ -39,6 +39,12 @@ public:
         USER_IDM_DEL_CRED,
     };
 
+    struct CredentialPara {
+        AuthType authType {ALL};
+        PinSubType pinType {PIN_SIX};
+        std::vector<uint8_t> token;
+    };
+
     /*
      * start an IDM operation to obtain challenge value, a challenge value of 0 indicates that open session failed.
      *
@@ -82,8 +88,8 @@ public:
      * (credential type, subtype, password authentication token).
      * param callback get results / acquire info callback.
      */
-    virtual void AddCredential(int32_t userId, AuthType authType, PinSubType pinSubType,
-        const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback, bool isUpdate) = 0;
+    virtual void AddCredential(int32_t userId, const CredentialPara &credPara,
+        const sptr<IdmCallbackInterface> &callback, bool isUpdate) = 0;
     /*
      * update user credential information.
      *
@@ -92,8 +98,8 @@ public:
      * (credential type, subtype, password authentication token).
      * param callback update results / acquire info callback.
      */
-    virtual void UpdateCredential(int32_t userId, AuthType authType, PinSubType pinSubType,
-        const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback) = 0;
+    virtual void UpdateCredential(int32_t userId, const CredentialPara &credPara,
+        const sptr<IdmCallbackInterface> &callback) = 0;
 
     /*
      * Cancel entry and pass in user id.
