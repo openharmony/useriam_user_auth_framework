@@ -190,8 +190,11 @@ int32_t UserIdmStub::AddCredentialStub(MessageParcel &data, MessageParcel &reply
         IAM_LOGI("auth type is pin, clear token");
         token.clear();
     }
-    AddCredential(userId, static_cast<AuthType>(authType), static_cast<PinSubType>(authSubType),
-        token, callback, false);
+    CredentialPara credPara = {};
+    credPara.authType = static_cast<AuthType>(authType);
+    credPara.pinType = static_cast<PinSubType>(authSubType);
+    credPara.token = token;
+    AddCredential(userId, credPara, callback, false);
     return SUCCESS;
 }
 
@@ -229,7 +232,11 @@ int32_t UserIdmStub::UpdateCredentialStub(MessageParcel &data, MessageParcel &re
         return GENERAL_ERROR;
     }
 
-    UpdateCredential(userId, static_cast<AuthType>(authType), static_cast<PinSubType>(authSubType), token, callback);
+    CredentialPara credPara = {};
+    credPara.authType = static_cast<AuthType>(authType);
+    credPara.pinType = static_cast<PinSubType>(authSubType);
+    credPara.token = token;
+    UpdateCredential(userId, credPara, callback);
     return SUCCESS;
 }
 

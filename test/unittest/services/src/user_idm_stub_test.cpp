@@ -251,23 +251,23 @@ HWTEST_F(UserIdmStubTest, UserIdmStubAddCredentialStub001, TestSize.Level0)
 HWTEST_F(UserIdmStubTest, UserIdmStubAddCredentialStub002, TestSize.Level0)
 {
     int32_t testUserId = 753662;
-    AuthType testAuthType = FACE;
-    PinSubType testSubType = PIN_SIX;
-    std::vector<uint8_t> testToken = {2, 4, 6, 8};
+    UserIdmInterface::CredentialPara testCredPara = {};
+    testCredPara.authType = FACE;
+    testCredPara.pinType = PIN_SIX;
+    testCredPara.token = {2, 4, 6, 8};
 
     sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
     EXPECT_NE(callback, nullptr);
     MockUserIdmService service;
-    EXPECT_CALL(service, AddCredential(_, _, _, _, _, _)).Times(1);
+    EXPECT_CALL(service, AddCredential(_, _, _, _)).Times(1);
     ON_CALL(service, AddCredential)
         .WillByDefault(
-            [&testUserId, &testAuthType, &testToken, &testSubType](int32_t userId, AuthType authType,
-                PinSubType pinSubType, const std::vector<uint8_t> &token,
+            [&testUserId, &testCredPara](int32_t userId, const UserIdmInterface::CredentialPara &credPara,
                 const sptr<IdmCallbackInterface> &callback, bool isUpdate) {
                 EXPECT_EQ(userId, testUserId);
-                EXPECT_EQ(authType, testAuthType);
-                EXPECT_EQ(pinSubType, testSubType);
-                EXPECT_THAT(token, ElementsAreArray(testToken));
+                EXPECT_EQ(credPara.authType, testCredPara.authType);
+                EXPECT_EQ(credPara.pinType, testCredPara.pinType);
+                EXPECT_THAT(credPara.token, ElementsAreArray(testCredPara.token));
                 if (callback != nullptr) {
                     Attributes attr;
                     callback->OnResult(SUCCESS, attr);
@@ -283,9 +283,9 @@ HWTEST_F(UserIdmStubTest, UserIdmStubAddCredentialStub002, TestSize.Level0)
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(testUserId));
-    EXPECT_TRUE(data.WriteInt32(testAuthType));
-    EXPECT_TRUE(data.WriteInt32(testSubType));
-    EXPECT_TRUE(data.WriteUInt8Vector(testToken));
+    EXPECT_TRUE(data.WriteInt32(testCredPara.authType));
+    EXPECT_TRUE(data.WriteInt32(testCredPara.pinType));
+    EXPECT_TRUE(data.WriteUInt8Vector(testCredPara.token));
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
 
@@ -308,22 +308,23 @@ HWTEST_F(UserIdmStubTest, UserIdmStubUpdateCredentialStub001, TestSize.Level0)
 HWTEST_F(UserIdmStubTest, UserIdmStubUpdateCredentialStub002, TestSize.Level0)
 {
     int32_t testUserId = 63526;
-    AuthType testAuthType = PIN;
-    PinSubType testSubType = PIN_SIX;
-    std::vector<uint8_t> testToken = {1, 2, 4, 6, 8};
+    UserIdmInterface::CredentialPara testCredPara = {};
+    testCredPara.authType = PIN;
+    testCredPara.pinType = PIN_SIX;
+    testCredPara.token = {1, 2, 4, 6, 8};
 
     const sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
     EXPECT_NE(callback, nullptr);
     MockUserIdmService service;
-    EXPECT_CALL(service, UpdateCredential(_, _, _, _, _)).Times(1);
+    EXPECT_CALL(service, UpdateCredential(_, _, _)).Times(1);
     ON_CALL(service, UpdateCredential)
         .WillByDefault(
-            [&testUserId, &testAuthType, &testSubType, &testToken](int32_t userId, AuthType authType,
-                PinSubType pinSubType, const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback) {
+            [&testUserId, &testCredPara](int32_t userId, const UserIdmInterface::CredentialPara &credPara,
+                const sptr<IdmCallbackInterface> &callback) {
                 EXPECT_EQ(userId, testUserId);
-                EXPECT_EQ(authType, testAuthType);
-                EXPECT_EQ(pinSubType, testSubType);
-                EXPECT_THAT(token, ElementsAreArray(testToken));
+                EXPECT_EQ(credPara.authType, testCredPara.authType);
+                EXPECT_EQ(credPara.pinType, testCredPara.pinType);
+                EXPECT_THAT(credPara.token, ElementsAreArray(testCredPara.token));
                 if (callback != nullptr) {
                     Attributes attr;
                     callback->OnResult(SUCCESS, attr);
@@ -339,9 +340,9 @@ HWTEST_F(UserIdmStubTest, UserIdmStubUpdateCredentialStub002, TestSize.Level0)
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(testUserId));
-    EXPECT_TRUE(data.WriteInt32(testAuthType));
-    EXPECT_TRUE(data.WriteInt32(testSubType));
-    EXPECT_TRUE(data.WriteUInt8Vector(testToken));
+    EXPECT_TRUE(data.WriteInt32(testCredPara.authType));
+    EXPECT_TRUE(data.WriteInt32(testCredPara.pinType));
+    EXPECT_TRUE(data.WriteUInt8Vector(testCredPara.token));
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
 

@@ -154,8 +154,8 @@ int32_t UserIdmService::GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserIn
     return SUCCESS;
 }
 
-void UserIdmService::AddCredential(int32_t userId, AuthType authType, PinSubType pinSubType,
-    const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback, bool isUpdate)
+void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPara,
+    const sptr<IdmCallbackInterface> &callback, bool isUpdate)
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
@@ -171,7 +171,7 @@ void UserIdmService::AddCredential(int32_t userId, AuthType authType, PinSubType
         return;
     }
     uint64_t callingUid = static_cast<uint64_t>(this->GetCallingUid());
-    contextCallback->SetTraceAuthType(authType);
+    contextCallback->SetTraceAuthType(credPara.authType);
     contextCallback->SetTraceCallingUid(callingUid);
     contextCallback->SetTraceUserId(userId);
 
@@ -184,8 +184,13 @@ void UserIdmService::AddCredential(int32_t userId, AuthType authType, PinSubType
     std::lock_guard<std::mutex> lock(mutex_);
     CancelCurrentEnrollIfExist();
     auto tokenId = IpcCommon::GetAccessTokenId(*this);
-    auto context =
-        ContextFactory::CreateEnrollContext(userId, authType, pinSubType, token, tokenId, contextCallback);
+    ContextFactory::EnrollContextPara para = {};
+    para.authType = credPara.authType;
+    para.userId = userId;
+    para.pinType = credPara.pinType;
+    para.tokenId = tokenId;
+    para.token = credPara.token;
+    auto context = ContextFactory::CreateEnrollContext(para, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
@@ -201,8 +206,8 @@ void UserIdmService::AddCredential(int32_t userId, AuthType authType, PinSubType
     }
 }
 
-void UserIdmService::UpdateCredential(int32_t userId, AuthType authType, PinSubType pinSubType,
-    const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback)
+void UserIdmService::UpdateCredential(int32_t userId, const CredentialPara &credPara,
+    const sptr<IdmCallbackInterface> &callback)
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
@@ -210,20 +215,20 @@ void UserIdmService::UpdateCredential(int32_t userId, AuthType authType, PinSubT
     }
 
     Attributes extraInfo;
-    if (token.empty()) {
+    if (credPara.token.empty()) {
         IAM_LOGE("token is empty in update");
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
 
-    auto credInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType);
+    auto credInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, credPara.authType);
     if (credInfos.empty()) {
-        IAM_LOGE("current userid %{public}d has no credential for type %{public}u", userId, authType);
+        IAM_LOGE("current userid %{public}d has no credential for type %{public}u", userId, credPara.authType);
         callback->OnResult(NOT_ENROLLED, extraInfo);
         return;
     }
 
-    AddCredential(userId, authType, pinSubType, token, callback, true);
+    AddCredential(userId, credPara, callback, true);
 }
 
 int32_t UserIdmService::Cancel(int32_t userId)

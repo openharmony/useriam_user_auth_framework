@@ -76,7 +76,11 @@ void UserIdmClientImpl::AddCredential(int32_t userId, const CredentialParameters
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
-    proxy->AddCredential(userId, para.authType, para.pinType.value_or(PIN_SIX), para.token, wrapper, false);
+    UserIdmInterface::CredentialPara credPara = {};
+    credPara.authType = para.authType;
+    credPara.pinType = para.pinType.value_or(PIN_SIX);
+    credPara.token = std::move(para.token);
+    proxy->AddCredential(userId, credPara, wrapper, false);
 }
 
 void UserIdmClientImpl::UpdateCredential(int32_t userId, const CredentialParameters &para,
@@ -101,7 +105,11 @@ void UserIdmClientImpl::UpdateCredential(int32_t userId, const CredentialParamet
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
-    proxy->UpdateCredential(userId, para.authType, para.pinType.value_or(PIN_SIX), para.token, wrapper);
+    UserIdmInterface::CredentialPara credPara = {};
+    credPara.authType = para.authType;
+    credPara.pinType = para.pinType.value_or(PIN_SIX);
+    credPara.token = std::move(para.token);
+    proxy->UpdateCredential(userId, credPara, wrapper);
 }
 
 int32_t UserIdmClientImpl::Cancel(int32_t userId)
