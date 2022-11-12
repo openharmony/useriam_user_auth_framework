@@ -44,8 +44,9 @@ Trace::~Trace()
 
 void Trace::ProcessCredChangeEvent(const ContextCallbackNotifyListener::MetaData &metaData)
 {
-    bool checkRet = metaData.operationType == TRACE_ADD_CREDENTIAL || metaData.operationType == TRACE_DELETE_CREDENTIAL
-        || metaData.operationType == TRACE_UPDATE_CREDENTIAL;
+    bool checkRet = metaData.operationType == TRACE_ADD_CREDENTIAL ||
+        metaData.operationType == TRACE_DELETE_CREDENTIAL ||
+        metaData.operationType == TRACE_UPDATE_CREDENTIAL;
     if (!checkRet) {
         return;
     }

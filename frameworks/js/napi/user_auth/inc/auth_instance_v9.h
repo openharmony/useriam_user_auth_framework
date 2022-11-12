@@ -33,7 +33,7 @@ public:
     static ResultCodeV9 GetAvailableStatus(napi_env env, napi_callback_info info);
 
     explicit AuthInstanceV9(napi_env env);
-    ~AuthInstanceV9() = default;
+    ~AuthInstanceV9() override = default;
 
     ResultCodeV9 Init(napi_env env, napi_callback_info info);
     ResultCodeV9 On(napi_env env, napi_callback_info info);
