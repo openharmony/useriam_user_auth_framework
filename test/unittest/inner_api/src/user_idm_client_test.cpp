@@ -147,14 +147,14 @@ HWTEST_F(UserIdmClientTest, UserIdmClientAddCredential002, TestSize.Level0)
 
     auto service = Common::MakeShared<MockUserIdmService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, AddCredential(_, _, _, _, _, _)).Times(1);
+    EXPECT_CALL(*service, AddCredential(_, _, _, _)).Times(1);
     ON_CALL(*service, AddCredential)
         .WillByDefault(
-            [&testUserId, &testPara](int32_t userId, AuthType authType, PinSubType pinSubType,
-                const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback, bool isUpdate) {
+            [&testUserId, &testPara](int32_t userId, const UserIdmInterface::CredentialPara &credPara,
+                const sptr<IdmCallbackInterface> &callback, bool isUpdate) {
                 EXPECT_EQ(userId, testUserId);
-                EXPECT_EQ(authType, testPara.authType);
-                EXPECT_THAT(token, ElementsAreArray(testPara.token));
+                EXPECT_EQ(credPara.authType, testPara.authType);
+                EXPECT_THAT(credPara.token, ElementsAreArray(testPara.token));
                 EXPECT_EQ(isUpdate, false);
                 if (callback != nullptr) {
                     Attributes extraInfo;
@@ -203,16 +203,16 @@ HWTEST_F(UserIdmClientTest, UserIdmClientUpdateCredential002, TestSize.Level0)
 
     auto service = Common::MakeShared<MockUserIdmService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, UpdateCredential(_, _, _, _, _)).Times(1);
+    EXPECT_CALL(*service, UpdateCredential(_, _, _)).Times(1);
     ON_CALL(*service, UpdateCredential)
         .WillByDefault(
-            [&testUserId, &testPara](int32_t userId, AuthType authType, PinSubType pinSubType,
-                const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback) {
+            [&testUserId, &testPara](int32_t userId, const UserIdmInterface::CredentialPara &credPara,
+                const sptr<IdmCallbackInterface> &callback) {
                 EXPECT_EQ(userId, testUserId);
-                EXPECT_EQ(authType, testPara.authType);
+                EXPECT_EQ(credPara.authType, testPara.authType);
                 EXPECT_TRUE(testPara.pinType.has_value());
-                EXPECT_EQ(pinSubType, testPara.pinType.value());
-                EXPECT_THAT(token, ElementsAreArray(testPara.token));
+                EXPECT_EQ(credPara.pinType, testPara.pinType.value());
+                EXPECT_THAT(credPara.token, ElementsAreArray(testPara.token));
                 if (callback != nullptr) {
                     Attributes extraInfo;
                     callback->OnResult(SUCCESS, extraInfo);

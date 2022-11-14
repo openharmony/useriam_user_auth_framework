@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-#include "service_core_fuzz_test_main.h"
+#include "service_core_fuzzer.h"
 
-#include "resource_node_fuzz_test.h"
-#include "resource_node_pool_fuzz_test.h"
-#include "schedule_node_fuzz_test.h"
+#include "resource_node_fuzzer.h"
+#include "resource_node_pool_fuzzer.h"
+#include "schedule_node_fuzzer.h"
 
 namespace {
 using FuzzEntryFunc = decltype(OHOS::UserIam::UserAuth::ScheduleNodeFuzzTest);

@@ -32,7 +32,7 @@ class UserAuthCallbackV9 : public std::enable_shared_from_this<UserAuthCallbackV
                            public AuthenticationCallback {
 public:
     explicit UserAuthCallbackV9(napi_env env);
-    virtual ~UserAuthCallbackV9();
+    ~UserAuthCallbackV9() override;
     void OnAcquireInfo(int32_t module, uint32_t acquireInfo, const Attributes &extraInfo) override;
     void OnResult(int32_t result, const Attributes &extraInfo) override;
 

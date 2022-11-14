@@ -177,12 +177,12 @@ void FuzzAddCredential(Parcel &parcel)
 {
     IAM_LOGI("begin");
     int32_t userId = parcel.ReadInt32();
-    AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
-    PinSubType pinSubType = static_cast<PinSubType>(parcel.ReadInt32());
-    std::vector<uint8_t> token;
-    FillFuzzUint8Vector(parcel, token);
+    UserIdmInterface::CredentialPara para = {};
+    para.authType = static_cast<AuthType>(parcel.ReadInt32());
+    para.pinType = static_cast<PinSubType>(parcel.ReadInt32());
+    FillFuzzUint8Vector(parcel, para.token);
     sptr<IdmCallbackInterface> callback = GetFuzzIdmCallback(parcel);
-    g_UserIdmService.AddCredential(userId, authType, pinSubType, token, callback, false);
+    g_UserIdmService.AddCredential(userId, para, callback, false);
     IAM_LOGI("end");
 }
 
@@ -190,12 +190,12 @@ void FuzzUpdateCredential(Parcel &parcel)
 {
     IAM_LOGI("begin");
     int32_t userId = parcel.ReadInt32();
-    AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
-    PinSubType pinSubType = static_cast<PinSubType>(parcel.ReadInt32());
-    std::vector<uint8_t> token;
-    FillFuzzUint8Vector(parcel, token);
+    UserIdmInterface::CredentialPara para = {};
+    para.authType = static_cast<AuthType>(parcel.ReadInt32());
+    para.pinType = static_cast<PinSubType>(parcel.ReadInt32());
+    FillFuzzUint8Vector(parcel, para.token);
     sptr<IdmCallbackInterface> callback = GetFuzzIdmCallback(parcel);
-    g_UserIdmService.UpdateCredential(userId, authType, pinSubType, token, callback);
+    g_UserIdmService.UpdateCredential(userId, para, callback);
     IAM_LOGI("end");
 }
 

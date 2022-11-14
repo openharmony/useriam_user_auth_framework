@@ -53,7 +53,7 @@ private:
 class JsRefHolder : public NoCopyable {
 public:
     JsRefHolder(napi_env env, napi_value value);
-    ~JsRefHolder();
+    ~JsRefHolder() override;
     bool IsValid() const;
     napi_ref Get() const;
 

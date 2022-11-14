@@ -142,8 +142,8 @@ int32_t UserIdmProxy::GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserInfo
     return result;
 }
 
-void UserIdmProxy::AddCredential(int32_t userId, AuthType authType, PinSubType pinSubType,
-    const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback, bool isUpdate)
+void UserIdmProxy::AddCredential(int32_t userId, const CredentialPara &credPara,
+    const sptr<IdmCallbackInterface> &callback, bool isUpdate)
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
@@ -160,15 +160,15 @@ void UserIdmProxy::AddCredential(int32_t userId, AuthType authType, PinSubType p
         IAM_LOGE("failed to write userId");
         return;
     }
-    if (!data.WriteInt32(authType)) {
+    if (!data.WriteInt32(credPara.authType)) {
         IAM_LOGE("failed to write authType");
         return;
     }
-    if (!data.WriteInt32(pinSubType)) {
+    if (!data.WriteInt32(credPara.pinType)) {
         IAM_LOGE("failed to write pinSubType");
         return;
     }
-    if (!data.WriteUInt8Vector(token)) {
+    if (!data.WriteUInt8Vector(credPara.token)) {
         IAM_LOGE("failed to write token");
         return;
     }
@@ -180,8 +180,8 @@ void UserIdmProxy::AddCredential(int32_t userId, AuthType authType, PinSubType p
     SendRequest(UserIdmInterface::USER_IDM_ADD_CREDENTIAL, data, reply);
 }
 
-void UserIdmProxy::UpdateCredential(int32_t userId, AuthType authType, PinSubType pinSubType,
-    const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback)
+void UserIdmProxy::UpdateCredential(int32_t userId, const CredentialPara &credPara,
+    const sptr<IdmCallbackInterface> &callback)
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
@@ -198,15 +198,15 @@ void UserIdmProxy::UpdateCredential(int32_t userId, AuthType authType, PinSubTyp
         IAM_LOGE("failed to write userId");
         return;
     }
-    if (!data.WriteInt32(authType)) {
+    if (!data.WriteInt32(credPara.authType)) {
         IAM_LOGE("failed to write authType");
         return;
     }
-    if (!data.WriteInt32(pinSubType)) {
+    if (!data.WriteInt32(credPara.pinType)) {
         IAM_LOGE("failed to write pinSubType");
         return;
     }
-    if (!data.WriteUInt8Vector(token)) {
+    if (!data.WriteUInt8Vector(credPara.token)) {
         IAM_LOGE("failed to write token");
         return;
     }

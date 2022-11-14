@@ -285,20 +285,22 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential001, TestSize.Level0)
 {
     UserIdmService service(123123, true);
     int32_t testUserId = 15457;
-    AuthType testAuthType = PIN;
-    PinSubType testPinSubType = PIN_SIX;
-    std::vector<uint8_t> testToken = {1, 2, 3, 4};
+    UserIdmInterface::CredentialPara testCredPara = {};
+    testCredPara.authType = PIN;
+    testCredPara.pinType = PIN_SIX;
+    testCredPara.token = {1, 2, 3, 4};
     sptr<IdmCallbackInterface> testCallback = nullptr;
-    service.AddCredential(testUserId, testAuthType, testPinSubType, testToken, testCallback, false);
+    service.AddCredential(testUserId, testCredPara, testCallback, false);
 }
 
 HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential002, TestSize.Level0)
 {
     UserIdmService service(123123, true);
     int32_t testUserId = 15457;
-    AuthType testAuthType = PIN;
-    PinSubType testPinSubType = PIN_SIX;
-    std::vector<uint8_t> testToken = {1, 2, 3, 4};
+    UserIdmInterface::CredentialPara testCredPara = {};
+    testCredPara.authType = PIN;
+    testCredPara.pinType = PIN_SIX;
+    testCredPara.token = {1, 2, 3, 4};
     sptr<IdmCallbackInterface> testCallback = new MockIdmCallback();
     EXPECT_NE(testCallback, nullptr);
     auto *tempCallback = static_cast<MockIdmCallback *>(testCallback.GetRefPtr());
@@ -319,9 +321,9 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential002, TestSize.Level0)
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, BeginEnrollment(_, _, _, _)).WillRepeatedly(Return(HDF_FAILURE));
     
-    service.AddCredential(testUserId, testAuthType, testPinSubType, testToken, testCallback, false);
+    service.AddCredential(testUserId, testCredPara, testCallback, false);
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
-    service.AddCredential(testUserId, testAuthType, testPinSubType, testToken, testCallback, false);
+    service.AddCredential(testUserId, testCredPara, testCallback, false);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -329,9 +331,11 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential003, TestSize.Level0)
 {
     UserIdmService service(123123, true);
     int32_t testUserId = 15457;
-    AuthType testAuthType = PIN;
-    PinSubType testPinSubType = PIN_SIX;
-    std::vector<uint8_t> testToken = {1, 2, 3, 4};
+    UserIdmInterface::CredentialPara testCredPara = {};
+    testCredPara.authType = PIN;
+    testCredPara.pinType = PIN_SIX;
+    testCredPara.token = {1, 2, 3, 4};
+
     sptr<IdmCallbackInterface> testCallback = new MockIdmCallback();
     EXPECT_NE(testCallback, nullptr);
     auto *tempCallback = static_cast<MockIdmCallback *>(testCallback.GetRefPtr());
@@ -362,7 +366,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential003, TestSize.Level0)
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
 
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
-    service.AddCredential(testUserId, testAuthType, testPinSubType, testToken, testCallback, false);
+    service.AddCredential(testUserId, testCredPara, testCallback, false);
     Mock::AllowLeak(tempCallback);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(60));
     IpcCommon::DeleteAllPermission();
@@ -372,9 +376,10 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUpdateCredential001, TestSize.Level0)
 {
     UserIdmService service(123123, true);
     int32_t testUserId = 1548545;
-    AuthType testAuthType = FACE;
-    PinSubType testPinSubType = PIN_SIX;
-    std::vector<uint8_t> testToken = {1, 2, 3, 4};
+    UserIdmInterface::CredentialPara testCredPara = {};
+    testCredPara.authType = FACE;
+    testCredPara.pinType = PIN_SIX;
+    testCredPara.token = {1, 2, 3, 4};
     sptr<IdmCallbackInterface> testCallback = new MockIdmCallback();
     EXPECT_NE(testCallback, nullptr);
     auto *tempCallback = static_cast<MockIdmCallback *>(testCallback.GetRefPtr());
@@ -389,7 +394,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUpdateCredential001, TestSize.Level0)
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).WillRepeatedly(Return(HDF_SUCCESS));
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
-    service.UpdateCredential(testUserId, testAuthType, testPinSubType, testToken, testCallback);
+    service.UpdateCredential(testUserId, testCredPara, testCallback);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -397,12 +402,13 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUpdateCredential002, TestSize.Level0)
 {
     UserIdmService service(123123, true);
     int32_t testUserId = 1548545;
-    AuthType testAuthType = FACE;
-    PinSubType testPinSubType = PIN_SIX;
-    std::vector<uint8_t> testToken;
+    UserIdmInterface::CredentialPara testCredPara = {};
+    testCredPara.authType = FACE;
+    testCredPara.pinType = PIN_SIX;
     sptr<IdmCallbackInterface> testCallback = nullptr;
+
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
-    service.UpdateCredential(testUserId, testAuthType, testPinSubType, testToken, testCallback);
+    service.UpdateCredential(testUserId, testCredPara, testCallback);
 
     testCallback = new MockIdmCallback();
     EXPECT_NE(testCallback, nullptr);
@@ -438,12 +444,13 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUpdateCredential002, TestSize.Level0)
                 return HDF_SUCCESS;
             }
         );
+    
     EXPECT_CALL(*mockHdi, BeginEnrollment(_, _, _, _)).WillOnce(Return(HDF_FAILURE));
 
-    service.UpdateCredential(testUserId, testAuthType, testPinSubType, testToken, testCallback);
+    service.UpdateCredential(testUserId, testCredPara, testCallback);
 
-    testToken = {1, 2, 3, 4};
-    service.UpdateCredential(testUserId, testAuthType, testPinSubType, testToken, testCallback);
+    testCredPara.token = {1, 2, 3, 4};
+    service.UpdateCredential(testUserId, testCredPara, testCallback);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -451,9 +458,11 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUpdateCredential003, TestSize.Level0)
 {
     UserIdmService service(123123, true);
     int32_t testUserId = 1548545;
-    AuthType testAuthType = FACE;
-    PinSubType testPinSubType = PIN_SIX;
-    std::vector<uint8_t> testToken = {1, 2, 3, 4};
+    UserIdmInterface::CredentialPara testCredPara = {};
+    testCredPara.authType = FACE;
+    testCredPara.pinType = PIN_SIX;
+    testCredPara.token = {1, 2, 3, 4};
+
     sptr<IdmCallbackInterface> testCallback = new MockIdmCallback();
     EXPECT_NE(testCallback, nullptr);
     auto *tempCallback = static_cast<MockIdmCallback *>(testCallback.GetRefPtr());
@@ -500,7 +509,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUpdateCredential003, TestSize.Level0)
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
 
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
-    service.UpdateCredential(testUserId, testAuthType, testPinSubType, testToken, testCallback);
+    service.UpdateCredential(testUserId, testCredPara, testCallback);
 
     Mock::AllowLeak(tempCallback);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(70));
