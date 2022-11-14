@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "schedule_node_fuzz_test.h"
+#include "schedule_node_fuzzer.h"
 
 #include "common_dummy.h"
 #include "schedule_node.h"
