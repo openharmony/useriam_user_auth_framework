@@ -226,7 +226,8 @@ void FuzzCancelAuthOrIdentify(Parcel &parcel)
 void FuzzGetVersion(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    g_userAuthService.GetVersion();
+    int32_t version = -1;
+    g_userAuthService.GetVersion(version);
     IAM_LOGI("end");
 }
 
