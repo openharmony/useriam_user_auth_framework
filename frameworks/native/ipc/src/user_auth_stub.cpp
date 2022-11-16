@@ -325,7 +325,12 @@ int32_t UserAuthStub::GetVersionStub(MessageParcel &data, MessageParcel &reply)
     IAM_LOGI("enter");
     ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
-    int32_t result = GetVersion();
+    int32_t version;
+    int32_t result = GetVersion(version);
+    if (!reply.WriteInt32(version)) {
+        IAM_LOGE("failed to write GetVersion version");
+        return WRITE_PARCEL_ERROR;
+    }
     if (!reply.WriteInt32(result)) {
         IAM_LOGE("failed to write GetVersion result");
         return WRITE_PARCEL_ERROR;

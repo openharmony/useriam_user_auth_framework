@@ -32,11 +32,16 @@ namespace {
     const std::string AUTH_EVENT_TIP = "tip";
 }
 
-ResultCodeV9 AuthInstanceV9::GetVersion(napi_env env, napi_value &version)
+ResultCodeV9 AuthInstanceV9::GetVersion(napi_env env, napi_value &jsVersion)
 {
-    int32_t result = UserAuthClientImpl::Instance().GetVersion();
-    IAM_LOGI("result = %{public}d", result);
-    napi_status ret = napi_create_int32(env, result, &version);
+    int32_t version;
+    int32_t result = UserAuthClientImpl::Instance().GetVersion(version);
+    if (result != ResultCode::SUCCESS) {
+        IAM_LOGE("GetVersion result = %{public}d", result);
+        return ResultCodeV9(UserAuthNapiHelper::GetResultCodeV9(result));
+    }
+    IAM_LOGI("version = %{public}d", version);
+    napi_status ret = napi_create_int32(env, version, &jsVersion);
     if (ret != napi_ok) {
         IAM_LOGE("napi_create_int32 fail:%{public}d", ret);
         return ResultCodeV9::GENERAL_ERROR;
@@ -74,7 +79,7 @@ ResultCodeV9 AuthInstanceV9::GetAvailableStatus(napi_env env, napi_callback_info
     }
     if (argc != ARGS_TWO) {
         IAM_LOGE("invalid param, argc:%{public}zu", argc);
-        return ResultCodeV9::INVALID_PARAMETERS;
+        return ResultCodeV9::OHOS_INVALID_PARAM;
     }
     int32_t type;
     ret = napi_get_value_int32(env, argv[PARAM0], &type);
@@ -84,7 +89,7 @@ ResultCodeV9 AuthInstanceV9::GetAvailableStatus(napi_env env, napi_callback_info
     }
     if (!CheckAuthType(type)) {
         IAM_LOGE("CheckAuthType fail");
-        return ResultCodeV9::INVALID_PARAMETERS;
+        return ResultCodeV9::TYPE_NOT_SUPPORT;
     }
     uint32_t level;
     ret = napi_get_value_uint32(env, argv[PARAM1], &level);
@@ -94,7 +99,7 @@ ResultCodeV9 AuthInstanceV9::GetAvailableStatus(napi_env env, napi_callback_info
     }
     if (!CheckAuthTrustLevel(level)) {
         IAM_LOGE("CheckAuthTrustLevel fail");
-        return ResultCodeV9::INVALID_PARAMETERS;
+        return ResultCodeV9::TRUST_LEVEL_NOT_SUPPORT;
     }
     AuthType authType = AuthType(type);
     AuthTrustLevel authTrustLevel = AuthTrustLevel(level);
@@ -141,34 +146,34 @@ ResultCodeV9 AuthInstanceV9::Init(napi_env env, napi_callback_info info)
     }
     if (argc != ARGS_THREE) {
         IAM_LOGE("invalid param, argc:%{public}zu", argc);
-        return ResultCodeV9::INVALID_PARAMETERS;
+        return ResultCodeV9::OHOS_INVALID_PARAM;
     }
     challenge_.clear();
     ret = InitChallenge(env, argv[PARAM0]);
     if (ret != napi_ok) {
         IAM_LOGE("InitChallenge fail:%{public}d", ret);
-        return ResultCodeV9::INVALID_PARAMETERS;
+        return ResultCodeV9::OHOS_INVALID_PARAM;
     }
     int32_t authType;
     ret = UserAuthNapiHelper::GetInt32Value(env, argv[PARAM1], authType);
     if (ret != napi_ok) {
         IAM_LOGE("GetInt32Value fail:%{public}d", ret);
-        return ResultCodeV9::INVALID_PARAMETERS;
+        return ResultCodeV9::OHOS_INVALID_PARAM;
     }
     if (!CheckAuthType(authType)) {
         IAM_LOGE("CheckAuthType fail");
-        return ResultCodeV9::INVALID_PARAMETERS;
+        return ResultCodeV9::TYPE_NOT_SUPPORT;
     }
     authType_ = AuthType(authType);
     uint32_t authTrustLevel;
     ret = UserAuthNapiHelper::GetUint32Value(env, argv[PARAM2], authTrustLevel);
     if (ret != napi_ok) {
         IAM_LOGE("GetUint32Value fail:%{public}d", ret);
-        return ResultCodeV9::INVALID_PARAMETERS;
+        return ResultCodeV9::OHOS_INVALID_PARAM;
     }
     if (!CheckAuthTrustLevel(authTrustLevel)) {
         IAM_LOGE("CheckAuthTrustLevel fail");
-        return ResultCodeV9::INVALID_PARAMETERS;
+        return ResultCodeV9::TRUST_LEVEL_NOT_SUPPORT;
     }
     authTrustLevel_ = AuthTrustLevel(authTrustLevel);
     return ResultCodeV9::SUCCESS;
@@ -205,7 +210,7 @@ ResultCodeV9 AuthInstanceV9::On(napi_env env, napi_callback_info info)
     }
     if (argc != ARGS_TWO) {
         IAM_LOGE("invalid param, argc:%{public}zu", argc);
-        return ResultCodeV9::INVALID_PARAMETERS;
+        return ResultCodeV9::OHOS_INVALID_PARAM;
     }
     static const size_t maxLen = 10;
     char str[maxLen] = {0};
@@ -213,12 +218,12 @@ ResultCodeV9 AuthInstanceV9::On(napi_env env, napi_callback_info info)
     ret = UserAuthNapiHelper::GetStrValue(env, argv[PARAM0], str, len);
     if (ret != napi_ok) {
         IAM_LOGE("GetStrValue fail:%{public}d", ret);
-        return ResultCodeV9::INVALID_PARAMETERS;
+        return ResultCodeV9::OHOS_INVALID_PARAM;
     }
     auto callbackRef = GetCallback(env, argv[PARAM1]);
     if (callbackRef == nullptr || !callbackRef->IsValid()) {
         IAM_LOGE("GetCallback fail");
-        return ResultCodeV9::INVALID_PARAMETERS;
+        return ResultCodeV9::OHOS_INVALID_PARAM;
     }
     if (str == AUTH_EVENT_RESULT) {
         IAM_LOGI("SetResultCallback");
@@ -230,7 +235,7 @@ ResultCodeV9 AuthInstanceV9::On(napi_env env, napi_callback_info info)
         return ResultCodeV9::SUCCESS;
     } else {
         IAM_LOGE("invalid event:%{public}s", str);
-        return ResultCodeV9::INVALID_PARAMETERS;
+        return ResultCodeV9::OHOS_INVALID_PARAM;
     }
 }
 
@@ -249,7 +254,7 @@ ResultCodeV9 AuthInstanceV9::Off(napi_env env, napi_callback_info info)
     }
     if (argc != ARGS_ONE) {
         IAM_LOGE("invalid param, argc:%{public}zu", argc);
-        return ResultCodeV9::INVALID_PARAMETERS;
+        return ResultCodeV9::OHOS_INVALID_PARAM;
     }
     static const size_t maxLen = 10;
     char str[maxLen] = {0};
@@ -269,7 +274,7 @@ ResultCodeV9 AuthInstanceV9::Off(napi_env env, napi_callback_info info)
         return ResultCodeV9::SUCCESS;
     } else {
         IAM_LOGE("invalid event:%{public}s", str);
-        return ResultCodeV9::INVALID_PARAMETERS;
+        return ResultCodeV9::OHOS_INVALID_PARAM;
     }
 }
 
@@ -288,7 +293,7 @@ ResultCodeV9 AuthInstanceV9::Start(napi_env env, napi_callback_info info)
     }
     if (argc != ARGS_ZERO) {
         IAM_LOGE("invalid param, argc:%{public}zu", argc);
-        return ResultCodeV9::INVALID_PARAMETERS;
+        return ResultCodeV9::OHOS_INVALID_PARAM;
     }
     std::lock_guard<std::mutex> guard(mutex_);
     if (isAuthStarted_) {
@@ -316,7 +321,7 @@ ResultCodeV9 AuthInstanceV9::Cancel(napi_env env, napi_callback_info info)
     }
     if (argc != ARGS_ZERO) {
         IAM_LOGE("invalid param, argc:%{public}zu", argc);
-        return ResultCodeV9::INVALID_PARAMETERS;
+        return ResultCodeV9::OHOS_INVALID_PARAM;
     }
     std::lock_guard<std::mutex> guard(mutex_);
     if (!isAuthStarted_) {
