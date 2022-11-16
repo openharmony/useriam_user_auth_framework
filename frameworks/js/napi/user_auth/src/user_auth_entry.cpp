@@ -345,7 +345,6 @@ napi_value ResultCodeV9Constructor(napi_env env)
     napi_value typeNotSupport = nullptr;
     napi_value trustLevelNotSupport = nullptr;
     napi_value busy = nullptr;
-    napi_value invalidParameters = nullptr;
     napi_value locked = nullptr;
     napi_value notEnrolled = nullptr;
     NAPI_CALL(env, napi_create_object(env, &resultCode));
@@ -368,7 +367,6 @@ napi_value ResultCodeV9Constructor(napi_env env)
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "TYPE_NOT_SUPPORT", typeNotSupport));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "TRUST_LEVEL_NOT_SUPPORT", trustLevelNotSupport));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "BUSY", busy));
-    NAPI_CALL(env, napi_set_named_property(env, resultCode, "INVALID_PARAMETERS", invalidParameters));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "LOCKED", locked));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "NOT_ENROLLED", notEnrolled));
     return resultCode;
