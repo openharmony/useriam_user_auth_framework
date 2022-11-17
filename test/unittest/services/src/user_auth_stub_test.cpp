@@ -278,7 +278,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubCancelAuthOrIdentifyStub, TestSize.Level0
 HWTEST_F(UserAuthStubTest, UserAuthStubGetVersionStub, TestSize.Level0)
 {
     MockUserAuthService service;
-    EXPECT_CALL(service, GetVersion()).WillOnce(Return(0));
+    EXPECT_CALL(service, GetVersion(_)).WillOnce(Return(0));
 
     MessageParcel data;
     MessageParcel reply;

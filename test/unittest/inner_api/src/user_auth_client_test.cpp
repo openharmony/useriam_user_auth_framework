@@ -127,7 +127,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientCancelIdentification, TestSize.Level0
 
 HWTEST_F(UserAuthClientTest, UserAuthClientGetVersion, TestSize.Level0)
 {
-    int32_t version = UserAuthClientImpl::Instance().GetVersion();
+    int32_t version = -1;
+    UserAuthClientImpl::Instance().GetVersion(version);
     EXPECT_EQ(version, 0);
 }
 } // namespace UserAuth
