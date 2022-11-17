@@ -301,8 +301,9 @@ int32_t UserAuthProxy::CancelAuthOrIdentify(uint64_t contextId)
     return result;
 }
 
-int32_t UserAuthProxy::GetVersion()
+int32_t UserAuthProxy::GetVersion(int32_t &version)
 {
+    version = 0;
     MessageParcel data;
     MessageParcel reply;
 
@@ -313,6 +314,10 @@ int32_t UserAuthProxy::GetVersion()
 
     bool ret = SendRequest(UserAuthInterface::USER_AUTH_GET_VERSION, data, reply);
     if (!ret) {
+        return GENERAL_ERROR;
+    }
+    if (!reply.ReadInt32(version)) {
+        IAM_LOGE("failed to read version");
         return GENERAL_ERROR;
     }
     int32_t result = GENERAL_ERROR;
