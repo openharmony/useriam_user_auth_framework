@@ -72,15 +72,6 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest001, TestSize.Level0)
     EXPECT_EQ(ResourceNodePool::Instance().Delete(executorIndex), true);
 }
 
-HWTEST_F(CoAuthServiceTest, CoAuthServiceTest002, TestSize.Level0)
-{
-    auto service = Common::MakeShared<CoAuthService>(1, true);
-    EXPECT_NE(service, nullptr);
-
-    service->OnStart();
-    service->OnStop();
-}
-
 HWTEST_F(CoAuthServiceTest, CoAuthServiceTest003, TestSize.Level0)
 {
     auto service = Common::MakeShared<CoAuthService>(1, true);
