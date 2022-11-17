@@ -41,7 +41,7 @@ public:
     uint64_t Identify(const std::vector<uint8_t> &challenge, AuthType authType,
         sptr<UserAuthCallbackInterface> &callback) override;
     int32_t CancelAuthOrIdentify(uint64_t contextId) override;
-    int32_t GetVersion() override;
+    int32_t GetVersion(int32_t &version) override;
 
 private:
     static inline BrokerDelegator<UserAuthProxy> delegator_;

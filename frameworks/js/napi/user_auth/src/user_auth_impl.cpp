@@ -35,11 +35,16 @@ namespace UserIam {
 namespace UserAuth {
 napi_value UserAuthImpl::GetVersion(napi_env env, napi_callback_info info)
 {
-    int32_t result = UserAuthClientImpl::Instance().GetVersion();
-    IAM_LOGI("start result = %{public}d", result);
-    napi_value version;
-    NAPI_CALL(env, napi_create_int32(env, result, &version));
-    return version;
+    int32_t version;
+    int32_t result = UserAuthClientImpl::Instance().GetVersion(version);
+    if (result != SUCCESS) {
+        IAM_LOGE("result = %{public}d", result);
+        version = 0;
+    }
+    IAM_LOGI("version = %{public}d", version);
+    napi_value jsVersion;
+    NAPI_CALL(env, napi_create_int32(env, version, &jsVersion));
+    return jsVersion;
 }
 
 napi_value UserAuthImpl::GetAvailableStatus(napi_env env, napi_callback_info info)
