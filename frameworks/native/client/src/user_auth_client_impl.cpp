@@ -195,15 +195,15 @@ int32_t UserAuthClientImpl::CancelIdentification(uint64_t contextId)
     return proxy->CancelAuthOrIdentify(contextId);
 }
 
-int32_t UserAuthClientImpl::GetVersion()
+int32_t UserAuthClientImpl::GetVersion(int32_t &version)
 {
     auto proxy = GetProxy();
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
-        return MINIMUM_VERSION;
+        return GENERAL_ERROR;
     }
 
-    return proxy->GetVersion();
+    return proxy->GetVersion(version);
 }
 
 sptr<UserAuthInterface> UserAuthClientImpl::GetProxy()
