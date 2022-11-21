@@ -29,13 +29,33 @@ namespace UserIam {
 namespace UserAuth {
 class ContextFactory : public DelayedSingleton<ContextFactory> {
 public:
-    static std::shared_ptr<Context> CreateSimpleAuthContext(int32_t userId, const std::vector<uint8_t> &challenge,
-        AuthType authType, AuthTrustLevel authTrustLevel, uint32_t tokenId,
+    struct AuthContextPara {
+        int32_t userId {0};
+        AuthType authType {ALL};
+        AuthTrustLevel atl {ATL1};
+        uint32_t tokenId {0};
+        std::vector<uint8_t> challenge;
+    };
+
+    struct IdentifyContextPara {
+        AuthType authType {ALL};
+        uint32_t tokenId {0};
+        std::vector<uint8_t> challenge;
+    };
+
+    struct EnrollContextPara {
+        int32_t userId {0};
+        AuthType authType {ALL};
+        PinSubType pinType {PIN_SIX};
+        uint32_t tokenId {0};
+        std::vector<uint8_t> token;
+    };
+    static std::shared_ptr<Context> CreateSimpleAuthContext(const AuthContextPara &para,
         const std::shared_ptr<ContextCallback> &callback);
-    static std::shared_ptr<Context> CreateIdentifyContext(const std::vector<uint8_t> &challenge, AuthType authType,
-        uint32_t tokenId, const std::shared_ptr<ContextCallback> &callback);
-    static std::shared_ptr<Context> CreateEnrollContext(int32_t userId, AuthType authType, PinSubType pinSubType,
-        const std::vector<uint8_t> &token, uint32_t tokenId, const std::shared_ptr<ContextCallback> &callback);
+    static std::shared_ptr<Context> CreateIdentifyContext(const IdentifyContextPara &para,
+        const std::shared_ptr<ContextCallback> &callback);
+    static std::shared_ptr<Context> CreateEnrollContext(const EnrollContextPara &para,
+        const std::shared_ptr<ContextCallback> &callback);
     static std::shared_ptr<Context> CreateWidgetAuthContext(std::shared_ptr<ContextCallback> callback);
 };
 } // namespace UserAuth

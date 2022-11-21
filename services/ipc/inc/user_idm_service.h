@@ -43,10 +43,10 @@ public:
     int32_t GetCredentialInfo(int32_t userId, AuthType authType,
         const sptr<IdmGetCredInfoCallbackInterface> &callback) override;
     int32_t GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserInfoCallbackInterface> &callback) override;
-    void AddCredential(int32_t userId, AuthType authType, PinSubType pinSubType,
-        const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback, bool isUpdate) override;
-    void UpdateCredential(int32_t userId, AuthType authType, PinSubType pinSubType,
-        const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback) override;
+    void AddCredential(int32_t userId, const CredentialPara &credPara,
+        const sptr<IdmCallbackInterface> &callback, bool isUpdate) override;
+    void UpdateCredential(int32_t userId, const CredentialPara &credPara,
+        const sptr<IdmCallbackInterface> &callback) override;
     int32_t Cancel(int32_t userId) override;
     int32_t EnforceDelUser(int32_t userId, const sptr<IdmCallbackInterface> &callback) override;
     void DelUser(int32_t userId, const std::vector<uint8_t> authToken,

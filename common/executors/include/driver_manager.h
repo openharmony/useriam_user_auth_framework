@@ -57,7 +57,7 @@ public:
     explicit HdiServiceStatusListener(StatusCallback callback) : callback_(std::move(callback))
     {
     }
-    virtual ~HdiServiceStatusListener() = default;
+    ~HdiServiceStatusListener() override = default;
     void OnReceive(const ServiceStatus &status) override
     {
         callback_(status);
