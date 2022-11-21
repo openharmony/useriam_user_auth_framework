@@ -18,6 +18,7 @@
 #include "iam_logger.h"
 #include "iam_ptr.h"
 
+#include "driver_manager.h"
 #include "mock_iauth_driver_hdi.h"
 #include "mock_iauth_executor_hdi.h"
 
@@ -54,9 +55,24 @@ void DriverManagerUnitTest::TearDown()
 {
 }
 
-HWTEST_F(DriverManagerUnitTest, UserAuthDriverManager_GetExecutorListTest_001, TestSize.Level0)
+HWTEST_F(DriverManagerUnitTest, DriverManagerTest_001, TestSize.Level0)
 {
-    EXPECT_TRUE(0 == 0);
+    std::string serviceName = "mockDriver";
+    HdiConfig config = {};
+    config.id = 10;
+    config.driver = nullptr;
+    std::map<std::string, HdiConfig> hdiName2Config;
+    EXPECT_EQ(DriverManager::GetInstance().Start(hdiName2Config), USERAUTH_SUCCESS);
+    hdiName2Config.emplace(serviceName, config);
+    EXPECT_EQ(DriverManager::GetInstance().Start(hdiName2Config), USERAUTH_ERROR);
+    EXPECT_EQ(DriverManager::GetInstance().GetDriverByServiceName(serviceName), nullptr);
+    config.driver = Common::MakeShared<MockIAuthDriverHdi>();
+    EXPECT_EQ(DriverManager::GetInstance().Start(hdiName2Config), USERAUTH_ERROR);
+    DriverManager::GetInstance().GetDriverByServiceName(serviceName);
+    EXPECT_EQ(DriverManager::GetInstance().Start(hdiName2Config), USERAUTH_ERROR);
+    DriverManager::GetInstance().OnFrameworkReady();
+    DriverManager::GetInstance().SubscribeHdiDriverStatus();
+    DriverManager::GetInstance().OnAllHdiDisconnect();
 }
 } // namespace UserAuth
 } // namespace UserIam

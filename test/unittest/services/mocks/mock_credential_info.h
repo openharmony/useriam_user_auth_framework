@@ -17,12 +17,12 @@
 
 #include <gmock/gmock.h>
 
-#include "credential_info.h"
+#include "user_idm_callback_interface.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockCredentialInfo final : public CredentialInfo {
+class MockCredentialInfo final : public IdmGetCredInfoCallbackInterface::CredentialInfo {
 public:
     virtual ~MockCredentialInfo() = default;
     MOCK_CONST_METHOD0(GetCredentialId, uint64_t());

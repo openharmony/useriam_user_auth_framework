@@ -30,10 +30,10 @@ public:
     MOCK_METHOD3(GetCredentialInfo, int32_t(int32_t userId, AuthType authType,
                                         const sptr<IdmGetCredInfoCallbackInterface> &callback));
     MOCK_METHOD2(GetSecInfo, int32_t(int32_t userId, const sptr<IdmGetSecureUserInfoCallbackInterface> &callback));
-    MOCK_METHOD6(AddCredential, void(int32_t userId, AuthType authType, PinSubType pinSubType,
-        const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback, bool isUpdate));
-    MOCK_METHOD5(UpdateCredential, void(int32_t userId, AuthType authType, PinSubType pinSubType,
-                                       const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback));
+    MOCK_METHOD4(AddCredential, void(int32_t userId, const CredentialPara &credPara,
+        const sptr<IdmCallbackInterface> &callback, bool isUpdate));
+    MOCK_METHOD3(UpdateCredential, void(int32_t userId, const CredentialPara &credPara,
+        const sptr<IdmCallbackInterface> &callback));
     MOCK_METHOD1(Cancel, int32_t(int32_t userId));
     MOCK_METHOD2(EnforceDelUser, int32_t(int32_t userId, const sptr<IdmCallbackInterface> &callback));
     MOCK_METHOD3(DelUser, void(int32_t userId, const std::vector<uint8_t> authToken,

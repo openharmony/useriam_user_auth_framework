@@ -15,9 +15,11 @@
 
 #include "resource_node_test.h"
 
+#include "iam_ptr.h"
 #include "co_auth_interface.h"
 #include "resource_node.h"
 
+#include "mock_executor_callback.h"
 #include "mock_iuser_auth_interface.h"
 #include "mock_resource_node.h"
 
@@ -107,6 +109,63 @@ HWTEST_F(ResourceNodeTest, InsertSuccessWithTemplateIdList, TestSize.Level0)
         EXPECT_THAT(templateIdList, ElementsAre(1, 3, 5, 7, 9));
         EXPECT_THAT(fwkPublicKey, ElementsAre(5, 3, 7, 1, 4));
     }
+}
+
+HWTEST_F(ResourceNodeTest, ResourceNodeTest001, TestSize.Level0)
+{
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, AddExecutor(_, _, _, _)).Times(1);
+    EXPECT_CALL(*mockHdi, DeleteExecutor(_)).Times(1);
+
+    ExecutorRegisterInfo info = {};
+    std::vector<uint64_t> templateIdList;
+    std::vector<uint8_t> fwkPublicKey;
+    std::shared_ptr<ExecutorCallbackInterface> testCallback = nullptr;
+    auto node = ResourceNode::MakeNewResource(info, testCallback, templateIdList, fwkPublicKey);
+    EXPECT_NE(node, nullptr);
+
+    uint64_t scheduleId = 10;
+    std::vector<uint8_t> publicKey;
+    Attributes command;
+    Attributes properties;
+    Attributes condition;
+    Attributes values;
+    EXPECT_EQ(node->BeginExecute(scheduleId, publicKey, command), GENERAL_ERROR);
+    EXPECT_EQ(node->EndExecute(scheduleId, command), GENERAL_ERROR);
+    EXPECT_EQ(node->SetProperty(properties), GENERAL_ERROR);
+    EXPECT_EQ(node->GetProperty(condition, values), GENERAL_ERROR);
+}
+
+HWTEST_F(ResourceNodeTest, ResourceNodeTest002, TestSize.Level0)
+{
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, AddExecutor(_, _, _, _)).Times(1);
+    EXPECT_CALL(*mockHdi, DeleteExecutor(_)).Times(1);
+
+    ExecutorRegisterInfo info = {};
+    std::vector<uint64_t> templateIdList;
+    std::vector<uint8_t> fwkPublicKey;
+    auto testCallback = Common::MakeShared<MockExecutorCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnBeginExecute(_, _, _)).WillRepeatedly(Return(SUCCESS));
+    EXPECT_CALL(*testCallback, OnEndExecute(_, _)).WillRepeatedly(Return(SUCCESS));
+    EXPECT_CALL(*testCallback, OnSetProperty(_)).WillRepeatedly(Return(SUCCESS));
+    EXPECT_CALL(*testCallback, OnGetProperty(_, _)).WillRepeatedly(Return(SUCCESS));
+    auto node = ResourceNode::MakeNewResource(info, testCallback, templateIdList, fwkPublicKey);
+    EXPECT_NE(node, nullptr);
+
+    uint64_t scheduleId = 10;
+    std::vector<uint8_t> publicKey;
+    Attributes command;
+    Attributes properties;
+    Attributes condition;
+    Attributes values;
+    EXPECT_EQ(node->BeginExecute(scheduleId, publicKey, command), SUCCESS);
+    EXPECT_EQ(node->EndExecute(scheduleId, command), SUCCESS);
+    EXPECT_EQ(node->SetProperty(properties), SUCCESS);
+    EXPECT_EQ(node->GetProperty(condition, values), SUCCESS);
 }
 } // namespace UserAuth
 } // namespace UserIam

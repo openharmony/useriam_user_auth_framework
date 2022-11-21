@@ -31,7 +31,7 @@ class UserAuthCallbackV8 : public std::enable_shared_from_this<UserAuthCallbackV
 public:
     UserAuthCallbackV8(napi_env env,
         const std::shared_ptr<JsRefHolder> &resultCallback, const std::shared_ptr<JsRefHolder> &acquireCallback);
-    virtual ~UserAuthCallbackV8();
+    ~UserAuthCallbackV8() override;
     void OnAcquireInfo(int32_t module, uint32_t acquireInfo, const Attributes &extraInfo) override;
     void OnResult(int32_t result, const Attributes &extraInfo) override;
 

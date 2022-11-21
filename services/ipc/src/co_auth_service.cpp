@@ -119,6 +119,7 @@ void CoAuthService::Init()
             UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "user_auth_hdi host");
         }));
         IAM_LOGI("set fwk ready parameter");
+        SetParameter("bootevent.useriam.fwkready", "false");
         SetParameter("bootevent.useriam.fwkready", "true");
     } else {
         RelativeTimer::GetInstance().Register(Init, DEFER_TIME);

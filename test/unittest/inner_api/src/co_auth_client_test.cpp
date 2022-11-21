@@ -15,13 +15,12 @@
 
 #include "co_auth_client_test.h"
 
-#include "file_ex.h"
-#include "nativetoken_kit.h"
-#include "token_setproc.h"
-
 #include "co_auth_client.h"
 #include "iam_ptr.h"
+#include "mock_co_auth_service.h"
 #include "mock_executor_register_callback.h"
+#include "mock_remote_object.h"
+#include "mock_ipc_client_utils.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -31,33 +30,10 @@ using namespace testing::ext;
 
 void CoAuthClientTest::SetUpTestCase()
 {
-    static const char *PERMS[] = {
-        "ohos.permission.ACCESS_AUTH_RESPOOL",
-        "ohos.permission.ACCESS_USER_AUTH_INTERNAL",
-        "ohos.permission.ACCESS_BIOMETRIC",
-        "ohos.permission.MANAGE_USER_IDM",
-        "ohos.permission.USE_USER_IDM",
-        "ohos.permission.ENFORCE_USER_IDM"
-    };
-    uint64_t tokenId;
-    NativeTokenInfoParams infoInstance = {
-        .dcapsNum = 0,
-        .permsNum = 6,
-        .aclsNum = 0,
-        .dcaps = nullptr,
-        .perms = PERMS,
-        .acls = nullptr,
-        .processName = "co_auth",
-        .aplStr = "system_core",
-    };
-    tokenId = GetAccessTokenId(&infoInstance);
-    SetSelfTokenID(tokenId);
-    SaveStringToFile("/sys/fs/selinux/enforce", "0");
 }
 
 void CoAuthClientTest::TearDownTestCase()
 {
-    SaveStringToFile("/sys/fs/selinux/enforce", "1");
 }
 
 void CoAuthClientTest::SetUp()
@@ -70,7 +46,7 @@ void CoAuthClientTest::TearDown()
 
 HWTEST_F(CoAuthClientTest, CoAuthClientRegister, TestSize.Level0)
 {
-    static ExecutorInfo testInfo = {};
+    ExecutorInfo testInfo = {};
     testInfo.authType = PIN;
     testInfo.executorRole = COLLECTOR;
     testInfo.executorSensorHint = 11;
@@ -78,9 +54,46 @@ HWTEST_F(CoAuthClientTest, CoAuthClientRegister, TestSize.Level0)
     testInfo.esl = ESL1;
     testInfo.publicKey = {1, 2, 3, 4};
 
+    uint64_t testExecutorIndex = 73265;
+
     auto testCallback = Common::MakeShared<MockExecutorRegisterCallback>();
     EXPECT_NE(testCallback, nullptr);
+
+    auto service = Common::MakeShared<MockCoAuthService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, ExecutorRegister(_, _)).Times(1);
+    ON_CALL(*service, ExecutorRegister)
+        .WillByDefault(
+            [&testInfo, &testExecutorIndex](const CoAuthInterface::ExecutorRegisterInfo &info,
+                sptr<ExecutorCallbackInterface> &callback) {
+                EXPECT_EQ(testInfo.authType, info.authType);
+                EXPECT_EQ(testInfo.executorRole, info.executorRole);
+                EXPECT_EQ(testInfo.executorSensorHint, info.executorSensorHint);
+                EXPECT_EQ(testInfo.executorMatcher, info.executorMatcher);
+                EXPECT_EQ(testInfo.esl, info.esl);
+                EXPECT_THAT(testInfo.publicKey, ElementsAreArray(info.publicKey));
+                return testExecutorIndex;
+            }
+        );
+    
+    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    EXPECT_NE(obj, nullptr);
+    IpcClientUtils::SetObj(obj);
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
+    ON_CALL(*obj, SendRequest)
+        .WillByDefault(
+            [&service, testExecutorIndex](uint32_t code, MessageParcel &data, MessageParcel &reply,
+                MessageOption &option) {
+                service->OnRemoteRequest(code, data, reply, option);
+                uint64_t executorIndex = 0;
+                EXPECT_TRUE(reply.ReadUint64(executorIndex));
+                EXPECT_EQ(executorIndex, testExecutorIndex);
+                return true;
+            }
+        );
+
     CoAuthClient::GetInstance().Register(testInfo, testCallback);
+    IpcClientUtils::ResetObj();
 }
 } // namespace UserAuth
 } // namespace UserIam

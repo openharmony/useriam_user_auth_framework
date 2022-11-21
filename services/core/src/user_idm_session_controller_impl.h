@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <memory>
 #include <mutex>
+#include <set>
 #include <vector>
 
 #include "user_idm_session_controller.h"
@@ -32,15 +33,12 @@ class UserIdmSessionControllerImpl : public UserIdmSessionController, public Sin
 public:
     bool OpenSession(int32_t userId, std::vector<uint8_t> &challenge) override;
     bool CloseSession(int32_t userId) override;
-    bool CloseSession(const std::vector<uint8_t> &challenge) override;
     bool IsSessionOpened(int32_t userId) const override;
-    bool IsSessionOpened(const std::vector<uint8_t> &challenge) const override;
     bool ForceReset() override;
-    SessionMap GetOpenedSessions() const override;
 
 private:
     mutable std::mutex mutex_;
-    UserIdmSessionController::SessionMap map_;
+    std::set<int32_t> sessionSet_;
 };
 } // namespace UserAuth
 } // namespace UserIam

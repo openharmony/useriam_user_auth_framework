@@ -199,6 +199,152 @@ HWTEST_F(UserIdmDatabaseTest, SuccessfulGetCredentialInfoVector, TestSize.Level0
     EXPECT_EQ(2U, info[1]->GetExecutorSensorHint());
     EXPECT_EQ(3U, info[1]->GetExecutorMatcher());
 }
+
+HWTEST_F(UserIdmDatabaseTest, DeleteCredentialInfo001, TestSize.Level0)
+{
+    int32_t testUserId = 4501;
+    uint64_t testCredentialId = 87841;
+    std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
+    std::shared_ptr<CredentialInfo> testCredInfo = nullptr;
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, DeleteCredential(_, _, _, _)).WillRepeatedly(Return(1));
+    int32_t result = UserIdmDatabase::Instance().DeleteCredentialInfo(testUserId, testCredentialId,
+        testAuthToken, testCredInfo);
+    EXPECT_EQ(result, 1);
+}
+
+HWTEST_F(UserIdmDatabaseTest, DeleteCredentialInfo002, TestSize.Level0)
+{
+    int32_t testUserId = 4501;
+    uint64_t testCredentialId = 87841;
+    std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
+    std::shared_ptr<CredentialInfo> testCredInfo = nullptr;
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, DeleteCredential(_, _, _, _)).Times(1);
+    ON_CALL(*mockHdi, DeleteCredential)
+        .WillByDefault(
+            [](int32_t userId, uint64_t credentialId, const std::vector<uint8_t> &authToken, HdiCredentialInfo &info) {
+                info.authType = static_cast<HdiAuthType>(1);
+                info.credentialId = 10;
+                info.executorIndex = 20;
+                info.executorMatcher = 30;
+                info.executorSensorHint = 40;
+                info.templateId = 50;
+                return HDF_SUCCESS;
+            }
+        );
+    int32_t result = UserIdmDatabase::Instance().DeleteCredentialInfo(testUserId, testCredentialId,
+        testAuthToken, testCredInfo);
+    EXPECT_EQ(result, SUCCESS);
+    EXPECT_NE(testCredInfo, nullptr);
+    EXPECT_EQ(testCredInfo->GetAuthType(), PIN);
+    EXPECT_EQ(testCredInfo->GetCredentialId(), 10);
+    EXPECT_EQ(testCredInfo->GetExecutorIndex(), 20);
+    EXPECT_EQ(testCredInfo->GetExecutorMatcher(), 30);
+    EXPECT_EQ(testCredInfo->GetExecutorSensorHint(), 40);
+    EXPECT_EQ(testCredInfo->GetTemplateId(), 50);
+    EXPECT_EQ(testCredInfo->GetUserId(), testUserId);
+}
+
+HWTEST_F(UserIdmDatabaseTest, DeleteUser001, TestSize.Level0)
+{
+    int32_t testUserId = 4501;
+    std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
+    std::vector<std::shared_ptr<CredentialInfo>> testCredInfos;
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, DeleteUser(_, _, _)).WillRepeatedly(Return(1));
+    int32_t result = UserIdmDatabase::Instance().DeleteUser(testUserId, testAuthToken, testCredInfos);
+    EXPECT_EQ(result, 1);
+}
+
+HWTEST_F(UserIdmDatabaseTest, DeleteUser002, TestSize.Level0)
+{
+    int32_t testUserId = 4501;
+    std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
+    std::vector<std::shared_ptr<CredentialInfo>> testCredInfos;
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, DeleteUser(_, _, _)).Times(1);
+    ON_CALL(*mockHdi, DeleteUser)
+        .WillByDefault(
+            [](int32_t userId, const std::vector<uint8_t> &authToken, std::vector<HdiCredentialInfo> &deletedInfos) {
+                HdiCredentialInfo info = {};
+                info.authType = static_cast<HdiAuthType>(1);
+                info.credentialId = 10;
+                info.executorIndex = 20;
+                info.executorMatcher = 30;
+                info.executorSensorHint = 40;
+                info.templateId = 50;
+                deletedInfos.emplace_back(info);
+                return HDF_SUCCESS;
+            }
+        );
+    int32_t result = UserIdmDatabase::Instance().DeleteUser(testUserId, testAuthToken, testCredInfos);
+    EXPECT_EQ(result, SUCCESS);
+    EXPECT_EQ(testCredInfos.size(), 1);
+    EXPECT_NE(testCredInfos[0], nullptr);
+    EXPECT_EQ(testCredInfos[0]->GetAuthType(), PIN);
+    EXPECT_EQ(testCredInfos[0]->GetCredentialId(), 10);
+    EXPECT_EQ(testCredInfos[0]->GetExecutorIndex(), 20);
+    EXPECT_EQ(testCredInfos[0]->GetExecutorMatcher(), 30);
+    EXPECT_EQ(testCredInfos[0]->GetExecutorSensorHint(), 40);
+    EXPECT_EQ(testCredInfos[0]->GetTemplateId(), 50);
+    EXPECT_EQ(testCredInfos[0]->GetUserId(), testUserId);
+}
+
+HWTEST_F(UserIdmDatabaseTest, DeleteUserEnforce001, TestSize.Level0)
+{
+    int32_t testUserId = 4501;
+    std::vector<std::shared_ptr<CredentialInfo>> testCredInfos;
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, EnforceDeleteUser(_, _)).WillRepeatedly(Return(1));
+    int32_t result = UserIdmDatabase::Instance().DeleteUserEnforce(testUserId, testCredInfos);
+    EXPECT_EQ(result, 1);
+}
+
+HWTEST_F(UserIdmDatabaseTest, DeleteUserEnforce002, TestSize.Level0)
+{
+    int32_t testUserId = 4501;
+    std::vector<std::shared_ptr<CredentialInfo>> testCredInfos;
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, EnforceDeleteUser(_, _)).Times(1);
+    ON_CALL(*mockHdi, EnforceDeleteUser)
+        .WillByDefault(
+            [](int32_t userId, std::vector<HdiCredentialInfo> &deletedInfos) {
+                HdiCredentialInfo info = {};
+                info.authType = static_cast<HdiAuthType>(1);
+                info.credentialId = 10;
+                info.executorIndex = 20;
+                info.executorMatcher = 30;
+                info.executorSensorHint = 40;
+                info.templateId = 50;
+                deletedInfos.emplace_back(info);
+                return HDF_SUCCESS;
+            }
+        );
+    int32_t result = UserIdmDatabase::Instance().DeleteUserEnforce(testUserId, testCredInfos);
+    EXPECT_EQ(result, SUCCESS);
+    EXPECT_EQ(testCredInfos.size(), 1);
+    EXPECT_NE(testCredInfos[0], nullptr);
+    EXPECT_EQ(testCredInfos[0]->GetAuthType(), PIN);
+    EXPECT_EQ(testCredInfos[0]->GetCredentialId(), 10);
+    EXPECT_EQ(testCredInfos[0]->GetExecutorIndex(), 20);
+    EXPECT_EQ(testCredInfos[0]->GetExecutorMatcher(), 30);
+    EXPECT_EQ(testCredInfos[0]->GetExecutorSensorHint(), 40);
+    EXPECT_EQ(testCredInfos[0]->GetTemplateId(), 50);
+    EXPECT_EQ(testCredInfos[0]->GetUserId(), testUserId);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
