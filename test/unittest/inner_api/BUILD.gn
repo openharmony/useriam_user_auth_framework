@@ -20,28 +20,43 @@ ohos_unittest("iam_inner_api_test") {
     "mocks",
     "//base/useriam/user_auth_framework/test/unittest/services/mocks",
     "//base/useriam/user_auth_framework/interfaces/inner_api",
+    "//base/useriam/user_auth_framework/frameworks/native/client/inc",
   ]
 
   sources = [
+    "//base/useriam/user_auth_framework/frameworks/native/client/src/auth_message_impl.cpp",
+    "//base/useriam/user_auth_framework/frameworks/native/client/src/co_auth_client_impl.cpp",
+    "//base/useriam/user_auth_framework/frameworks/native/client/src/executor_callback_service.cpp",
+    "//base/useriam/user_auth_framework/frameworks/native/client/src/executor_messenger_client.cpp",
+    "//base/useriam/user_auth_framework/frameworks/native/client/src/user_auth_callback_service.cpp",
+    "//base/useriam/user_auth_framework/frameworks/native/client/src/user_auth_client_impl.cpp",
+    "//base/useriam/user_auth_framework/frameworks/native/client/src/user_idm_callback_service.cpp",
+    "//base/useriam/user_auth_framework/frameworks/native/client/src/user_idm_client_impl.cpp",
+    "mocks/mock_ipc_client_utils.cpp",
     "src/co_auth_client_test.cpp",
     "src/co_auth_proxy_test.cpp",
+    "src/executor_callback_service_test.cpp",
+    "src/executor_messenger_client_test.cpp",
+    "src/user_auth_callback_service_test.cpp",
     "src/user_auth_client_test.cpp",
     "src/user_auth_proxy_test.cpp",
+    "src/user_idm_callback_service_test.cpp",
     "src/user_idm_client_test.cpp",
     "src/user_idm_proxy_test.cpp",
   ]
 
   configs = [
+    "//base/useriam/user_auth_framework/common:iam_log_config",
     "//base/useriam/user_auth_framework/common:iam_utils_config",
     "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_client_ipc_config",
   ]
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   deps = [
-    "//base/security/access_token/interfaces/innerkits/nativetoken:libnativetoken",
-    "//base/security/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
     "//base/useriam/user_auth_framework/frameworks/native/client:userauth_client",
+    "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
     "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
+    "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_client_ipc",
     "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_service_ipc",
     "//third_party/googletest:gmock",
   ]

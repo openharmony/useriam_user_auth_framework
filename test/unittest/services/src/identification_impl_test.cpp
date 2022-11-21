@@ -14,14 +14,27 @@
  */
 #include <memory>
 
+#include "iam_ptr.h"
+
 #include "identification_impl.h"
 #include "mock_iuser_auth_interface.h"
+#include "mock_resource_node.h"
+#include "mock_schedule_node_callback.h"
+#include "resource_node_pool.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 using namespace testing;
 using namespace testing::ext;
+
+using HdiScheduleInfo = OHOS::HDI::UserAuth::V1_0::ScheduleInfo;
+using HdiScheduleMode = OHOS::HDI::UserAuth::V1_0::ScheduleMode;
+using HdiAuthType = OHOS::HDI::UserAuth::V1_0::AuthType;
+using HdiExecutorInfo = OHOS::HDI::UserAuth::V1_0::ExecutorInfo;
+using HdiExecutorSecureLevel = OHOS::HDI::UserAuth::V1_0::ExecutorSecureLevel;
+using HdiExecutorRole = OHOS::HDI::UserAuth::V1_0::ExecutorRole;
+
 class IdentificationImplTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -112,6 +125,55 @@ HWTEST_F(IdentificationImplTest, IdentificationUpdateHdiSuccessful, TestSize.Lev
     EXPECT_EQ(retInfo.result, 0);
     EXPECT_EQ(retInfo.userId, 0x11);
     EXPECT_THAT(retInfo.token, ElementsAre(1, 2, 3, 4, 5, 6));
+}
+
+HWTEST_F(IdentificationImplTest, IdentificationTestStart, TestSize.Level0)
+{
+    constexpr uint64_t contextId = 34567;
+    constexpr uint64_t executorIndex = 60;
+    
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, CancelIdentification(_))
+        .Times(2)
+        .WillOnce(Return(HDF_SUCCESS))
+        .WillOnce(Return(HDF_FAILURE));
+    EXPECT_CALL(*mockHdi, BeginIdentification(_, _, _, _, _))
+        .WillRepeatedly(
+            [](uint64_t contextId, HdiAuthType authType, const std::vector<uint8_t> &challenge, uint32_t executorId,
+                HdiScheduleInfo &scheduleInfo) {
+                scheduleInfo.authType = HdiAuthType::FACE;
+                scheduleInfo.executorMatcher = 10;
+                HdiExecutorInfo executorInfo = {};
+                executorInfo.executorIndex = 60;
+                executorInfo.info.authType = HdiAuthType::FACE;
+                executorInfo.info.esl = HdiExecutorSecureLevel::ESL1;
+                executorInfo.info.executorMatcher = 10;
+                executorInfo.info.executorRole = HdiExecutorRole::ALL_IN_ONE;
+                executorInfo.info.executorSensorHint = 90;
+                executorInfo.info.publicKey = {1, 2, 3, 4};
+                scheduleInfo.executors.push_back(executorInfo);
+                scheduleInfo.scheduleId = 20;
+                scheduleInfo.scheduleMode = HdiScheduleMode::IDENTIFY;
+                scheduleInfo.templateIds.push_back(30);
+                return HDF_SUCCESS;
+            }
+        );
+    auto resourceNode = MockResourceNode::CreateWithExecuteIndex(executorIndex, FACE, ALL_IN_ONE);
+    EXPECT_NE(resourceNode, nullptr);
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
+    auto identification = std::make_shared<IdentificationImpl>(contextId, FACE);
+    EXPECT_NE(identification, nullptr);
+    std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
+    auto callback = Common::MakeShared<MockScheduleNodeCallback>();
+    EXPECT_NE(callback, nullptr);
+    EXPECT_TRUE(identification->Start(scheduleList, callback));
+    EXPECT_TRUE(identification->Cancel());
+
+    EXPECT_TRUE(identification->Start(scheduleList, callback));
+    EXPECT_FALSE(identification->Cancel());
+
+    EXPECT_TRUE(ResourceNodePool::Instance().Delete(executorIndex));
 }
 } // namespace UserAuth
 } // namespace UserIam

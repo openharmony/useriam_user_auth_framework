@@ -235,17 +235,20 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
         contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    auto tokenId = IpcCommon::GetAccessTokenId(*this);
-    auto context = ContextFactory::CreateSimpleAuthContext(userId, challenge, authType, authTrustLevel,
-        tokenId, contextCallback);
+    ContextFactory::AuthContextPara para = {};
+    para.tokenId = IpcCommon::GetAccessTokenId(*this);
+    para.userId = userId;
+    para.authType = authType;
+    para.atl = authTrustLevel;
+    para.challenge = std::move(challenge);
+    auto context = ContextFactory::CreateSimpleAuthContext(para, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
 
-    auto cleaner = ContextHelper::Cleaner(context);
-    contextCallback->SetCleaner(cleaner);
+    contextCallback->SetCleaner(ContextHelper::Cleaner(context));
 
     if (!context->Start()) {
         int32_t errorCode = context->GetLatestError();
@@ -280,17 +283,20 @@ uint64_t UserAuthService::AuthUser(int32_t userId, const std::vector<uint8_t> &c
         contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    auto tokenId = IpcCommon::GetAccessTokenId(*this);
-    auto context = ContextFactory::CreateSimpleAuthContext(userId, challenge, authType, authTrustLevel,
-        tokenId, contextCallback);
+    ContextFactory::AuthContextPara para = {};
+    para.tokenId = IpcCommon::GetAccessTokenId(*this);
+    para.userId = userId;
+    para.authType = authType;
+    para.atl = authTrustLevel;
+    para.challenge = std::move(challenge);
+    auto context = ContextFactory::CreateSimpleAuthContext(para, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
 
-    auto cleaner = ContextHelper::Cleaner(context);
-    contextCallback->SetCleaner(cleaner);
+    contextCallback->SetCleaner(ContextHelper::Cleaner(context));
 
     if (!context->Start()) {
         IAM_LOGE("failed to start auth");
@@ -327,16 +333,18 @@ uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthTy
         return BAD_CONTEXT_ID;
     }
 
-    auto tokenId = IpcCommon::GetAccessTokenId(*this);
-    auto context = ContextFactory::CreateIdentifyContext(challenge, authType, tokenId, contextCallback);
+    ContextFactory::IdentifyContextPara para = {};
+    para.tokenId = IpcCommon::GetAccessTokenId(*this);
+    para.authType = authType;
+    para.challenge = std::move(challenge);
+    auto context = ContextFactory::CreateIdentifyContext(para, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
 
-    auto cleaner = ContextHelper::Cleaner(context);
-    contextCallback->SetCleaner(cleaner);
+    contextCallback->SetCleaner(ContextHelper::Cleaner(context));
 
     if (!context->Start()) {
         IAM_LOGE("failed to start identify");

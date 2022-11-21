@@ -34,7 +34,7 @@ bool UserIdmSessionControllerImpl::OpenSession(int32_t userId, std::vector<uint8
         return false;
     }
     std::lock_guard<std::mutex> lock(mutex_);
-    if (!map_.empty()) {
+    if (!sessionSet_.empty()) {
         IAM_LOGW("old session is not closed");
     }
 
@@ -43,7 +43,7 @@ bool UserIdmSessionControllerImpl::OpenSession(int32_t userId, std::vector<uint8
         IAM_LOGE("failed to open session, error code : %{public}d", ret);
         return false;
     }
-    map_[userId] = challenge;
+    sessionSet_.insert(userId);
     return true;
 }
 
@@ -61,59 +61,21 @@ bool UserIdmSessionControllerImpl::CloseSession(int32_t userId)
         return false;
     }
 
-    map_.erase(userId);
+    sessionSet_.erase(userId);
     return true;
-}
-
-bool UserIdmSessionControllerImpl::CloseSession(const std::vector<uint8_t> &challenge)
-{
-    std::optional<int32_t> userId;
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        for (const auto &[key, value] : map_) {
-            if (value == challenge) {
-                userId = key;
-                break;
-            }
-        }
-    }
-
-    if (userId.has_value()) {
-        return CloseSession(userId.value());
-    }
-
-    return false;
 }
 
 bool UserIdmSessionControllerImpl::IsSessionOpened(int32_t userId) const
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    return map_.find(userId) != map_.end();
-}
-
-bool UserIdmSessionControllerImpl::IsSessionOpened(const std::vector<uint8_t> &challenge) const
-{
-    std::lock_guard<std::mutex> lock(mutex_);
-    for (const auto &[key, value] : map_) {
-        if (value == challenge) {
-            return true;
-        }
-    }
-
-    return false;
+    return sessionSet_.find(userId) != sessionSet_.end();
 }
 
 bool UserIdmSessionControllerImpl::ForceReset()
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    map_.clear();
+    sessionSet_.clear();
     return true;
-}
-
-UserIdmSessionController::SessionMap UserIdmSessionControllerImpl::GetOpenedSessions() const
-{
-    std::lock_guard<std::mutex> lock(mutex_);
-    return map_;
 }
 
 UserIdmSessionController &UserIdmSessionController::Instance()

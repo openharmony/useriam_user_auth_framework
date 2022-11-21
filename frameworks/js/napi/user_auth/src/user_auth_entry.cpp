@@ -375,42 +375,42 @@ napi_value ResultCodeV9Constructor(napi_env env)
 napi_value AuthenticationResultConstructor(napi_env env)
 {
     napi_value resultCode = nullptr;
-    napi_value no_support = nullptr;
+    napi_value noSupport = nullptr;
     napi_value success = nullptr;
-    napi_value compare_failure = nullptr;
+    napi_value compareFailure = nullptr;
     napi_value canceled = nullptr;
     napi_value timeout = nullptr;
-    napi_value camera_fail = nullptr;
+    napi_value cameraFail = nullptr;
     napi_value busy = nullptr;
-    napi_value invalid_parameters = nullptr;
+    napi_value invalidParameters = nullptr;
     napi_value locked = nullptr;
-    napi_value not_enrolled = nullptr;
-    napi_value general_error = nullptr;
+    napi_value notEnrolled = nullptr;
+    napi_value generalError = nullptr;
     NAPI_CALL(env, napi_create_object(env, &resultCode));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::NO_SUPPORT), &no_support));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::NO_SUPPORT), &noSupport));
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::SUCCESS), &success));
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::COMPARE_FAILURE),
-        &compare_failure));
+        &compareFailure));
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::CANCELED), &canceled));
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::TIMEOUT), &timeout));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::CAMERA_FAIL), &camera_fail));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::CAMERA_FAIL), &cameraFail));
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::BUSY), &busy));
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::INVALID_PARAMETERS),
-        &invalid_parameters));
+        &invalidParameters));
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::LOCKED), &locked));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::NOT_ENROLLED), &not_enrolled));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::GENERAL_ERROR), &general_error));
-    NAPI_CALL(env, napi_set_named_property(env, resultCode, "NO_SUPPORT", no_support));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::NOT_ENROLLED), &notEnrolled));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(AuthenticationResult::GENERAL_ERROR), &generalError));
+    NAPI_CALL(env, napi_set_named_property(env, resultCode, "NO_SUPPORT", noSupport));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "SUCCESS", success));
-    NAPI_CALL(env, napi_set_named_property(env, resultCode, "COMPARE_FAILURE", compare_failure));
+    NAPI_CALL(env, napi_set_named_property(env, resultCode, "COMPARE_FAILURE", compareFailure));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "CANCELED", canceled));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "TIMEOUT", timeout));
-    NAPI_CALL(env, napi_set_named_property(env, resultCode, "CAMERA_FAIL", camera_fail));
+    NAPI_CALL(env, napi_set_named_property(env, resultCode, "CAMERA_FAIL", cameraFail));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "BUSY", busy));
-    NAPI_CALL(env, napi_set_named_property(env, resultCode, "INVALID_PARAMETERS", invalid_parameters));
+    NAPI_CALL(env, napi_set_named_property(env, resultCode, "INVALID_PARAMETERS", invalidParameters));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "LOCKED", locked));
-    NAPI_CALL(env, napi_set_named_property(env, resultCode, "NOT_ENROLLED", not_enrolled));
-    NAPI_CALL(env, napi_set_named_property(env, resultCode, "GENERAL_ERROR", general_error));
+    NAPI_CALL(env, napi_set_named_property(env, resultCode, "NOT_ENROLLED", notEnrolled));
+    NAPI_CALL(env, napi_set_named_property(env, resultCode, "GENERAL_ERROR", generalError));
     return resultCode;
 }
 
