@@ -16,9 +16,10 @@
 #include "co_auth_service_test.h"
 
 #include "co_auth_service.h"
-#include "executor_callback_stub.h"
-
-#include <message_parcel.h>
+#include "iam_ptr.h"
+#include "mock_executor_callback.h"
+#include "mock_iuser_auth_interface.h"
+#include "resource_node_pool.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -36,37 +37,71 @@ void CoAuthServiceTest::TearDownTestCase()
 
 void CoAuthServiceTest::SetUp()
 {
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
 
 void CoAuthServiceTest::TearDown()
 {
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
 
-HWTEST_F(CoAuthServiceTest, CoAuthServiceTestOnRemoteRequest, TestSize.Level0)
+HWTEST_F(CoAuthServiceTest, CoAuthServiceTest001, TestSize.Level0)
 {
-    sptr<ExecutorCallbackStub> callback = new (std::nothrow) ExecutorCallbackStub();
-    EXPECT_NE(callback, nullptr);
-    MessageParcel data;
-    MessageParcel reply;
-    ExecutorRegisterInfo info = {};
-    info.authType = PIN;
+    sptr<ExecutorCallbackInterface> testCallback = new MockExecutorCallback();
+    EXPECT_NE(testCallback, nullptr);
+    sptr<MockExecutorCallback> tempCallback = static_cast<MockExecutorCallback *>(testCallback.GetRefPtr());
+    EXPECT_NE(tempCallback, nullptr);
+
+    CoAuthInterface::ExecutorRegisterInfo info = {};
+    info.authType = FINGERPRINT;
     info.executorRole = SCHEDULER;
     info.executorSensorHint = 0;
     info.executorMatcher = 0;
     info.esl = ESL1;
     info.publicKey = {'a', 'b', 'c', 'd'};
-    EXPECT_EQ(data.WriteInt32(info.authType), true);
-    EXPECT_EQ(data.WriteInt32(info.executorRole), true);
-    EXPECT_EQ(data.WriteInt32(info.esl), true);
-    EXPECT_EQ(data.WriteUInt8Vector(info.publicKey), true);
-    EXPECT_EQ(data.WriteRemoteObject(callback->AsObject()), true);
-    uint32_t code = static_cast<uint32_t>(ICoAuth::CO_AUTH_EXECUTOR_REGISTER);
+    
     auto service = Common::MakeShared<CoAuthService>(1, true);
     EXPECT_NE(service, nullptr);
-    EXPECT_EQ(service->OnRemoteRequest(code, data, reply), 0);
-    uint64_t executorIndex = 0;
-    EXPECT_EQ(reply.ReadUint64(executorIndex), true);
-    EXPECT_NE(executorIndex, 0);
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*tempCallback, OnMessengerReady(_, _, _)).Times(1);
+    EXPECT_CALL(*mockHdi, AddExecutor(_, _, _, _)).Times(1);
+    EXPECT_CALL(*mockHdi, DeleteExecutor(_)).Times(1);
+    uint64_t executorIndex = service->ExecutorRegister(info, testCallback);
+    EXPECT_EQ(executorIndex, 0);
+    EXPECT_EQ(ResourceNodePool::Instance().Delete(executorIndex), true);
+}
+
+HWTEST_F(CoAuthServiceTest, CoAuthServiceTest003, TestSize.Level0)
+{
+    auto service = Common::MakeShared<CoAuthService>(1, true);
+    EXPECT_NE(service, nullptr);
+
+    CoAuthInterface::ExecutorRegisterInfo info = {};
+    sptr<ExecutorCallbackInterface> testCallback = nullptr;
+    uint64_t executorIndex = service->ExecutorRegister(info, testCallback);
+    EXPECT_EQ(executorIndex, 0);
+}
+
+HWTEST_F(CoAuthServiceTest, CoAuthServiceTest004, TestSize.Level0)
+{
+    int testFd1 = -1;
+    int testFd2 = 1;
+    std::vector<std::u16string> testArgs;
+
+    auto service = Common::MakeShared<CoAuthService>(1, true);
+    EXPECT_NE(service, nullptr);
+
+    EXPECT_EQ(service->Dump(testFd1, testArgs), INVALID_PARAMETERS);
+    EXPECT_EQ(service->Dump(testFd2, testArgs), SUCCESS);
+    testArgs.push_back(u"-h");
+    EXPECT_EQ(service->Dump(testFd2, testArgs), SUCCESS);
+    testArgs.clear();
+    testArgs.push_back(u"-l");
+    EXPECT_EQ(service->Dump(testFd2, testArgs), SUCCESS);
+    testArgs.clear();
+    testArgs.push_back(u"-k");
+    EXPECT_EQ(service->Dump(testFd2, testArgs), GENERAL_ERROR);
 }
 } // namespace UserAuth
 } // namespace UserIam

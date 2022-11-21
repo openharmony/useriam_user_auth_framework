@@ -161,9 +161,10 @@ HWTEST_F(UserIdmProxyTest, UserIdmProxyGetSecInfo, TestSize.Level0)
 HWTEST_F(UserIdmProxyTest, UserIdmProxyAddCredential, TestSize.Level0)
 {
     static const int32_t testUserId = 200;
-    static const AuthType testAuthType = FACE;
-    static const PinSubType testPinSubType = PIN_SIX;
-    static const std::vector<uint8_t> testToken = {1, 2, 3, 4};
+    UserIdmInterface::CredentialPara testCredPara = {};
+    testCredPara.authType = FACE;
+    testCredPara.pinType = PIN_SIX;
+    testCredPara.token = {1, 2, 3, 4};
 
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
@@ -174,15 +175,14 @@ HWTEST_F(UserIdmProxyTest, UserIdmProxyAddCredential, TestSize.Level0)
     sptr<IdmCallbackInterface> testCallback = new (std::nothrow) IdmCallbackService(idmCallback);
     auto service = Common::MakeShared<MockUserIdmService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, AddCredential(_, _, _, _, _, _))
+    EXPECT_CALL(*service, AddCredential(_, _, _, _))
         .Times(Exactly(1))
-        .WillOnce([&testCallback](int32_t userId, AuthType authType, PinSubType pinSubType,
-            const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback, bool isUpdate) {
-            EXPECT_EQ(testUserId, userId);
-            EXPECT_EQ(testAuthType, authType);
-            EXPECT_EQ(testPinSubType, pinSubType);
-            EXPECT_THAT(testToken, ElementsAre(1, 2, 3, 4));
-            EXPECT_EQ(testCallback, callback);
+        .WillOnce([&testCredPara](int32_t userId, const UserIdmInterface::CredentialPara &credPara,
+            const sptr<IdmCallbackInterface> &callback, bool isUpdate) {
+            EXPECT_EQ(userId, testUserId);
+            EXPECT_EQ(credPara.authType, testCredPara.authType);
+            EXPECT_EQ(credPara.pinType, testCredPara.pinType);
+            EXPECT_THAT(credPara.token, ElementsAreArray(testCredPara.token));
             return SUCCESS;
         });
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
@@ -191,15 +191,16 @@ HWTEST_F(UserIdmProxyTest, UserIdmProxyAddCredential, TestSize.Level0)
             service->OnRemoteRequest(code, data, reply, option);
             return SUCCESS;
         });
-    proxy->AddCredential(testUserId, testAuthType, testPinSubType, testToken, testCallback, false);
+    proxy->AddCredential(testUserId, testCredPara, testCallback, false);
 }
 
 HWTEST_F(UserIdmProxyTest, UserIdmProxyUpdateCredential, TestSize.Level0)
 {
     static const int32_t testUserId = 200;
-    static const AuthType testAuthType = FACE;
-    static const PinSubType testPinSubType = PIN_SIX;
-    static const std::vector<uint8_t> testToken = {1, 2, 3, 4};
+    UserIdmInterface::CredentialPara testCredPara = {};
+    testCredPara.authType = FACE;
+    testCredPara.pinType = PIN_SIX;
+    testCredPara.token = {1, 2, 3, 4};
 
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
@@ -210,15 +211,14 @@ HWTEST_F(UserIdmProxyTest, UserIdmProxyUpdateCredential, TestSize.Level0)
     sptr<IdmCallbackInterface> testCallback = new (std::nothrow) IdmCallbackService(idmCallback);
     auto service = Common::MakeShared<MockUserIdmService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, UpdateCredential(_, _, _, _, _))
+    EXPECT_CALL(*service, UpdateCredential(_, _, _))
         .Times(Exactly(1))
-        .WillOnce([&testCallback](int32_t userId, AuthType authType, PinSubType pinSubType,
-            const std::vector<uint8_t> &token, const sptr<IdmCallbackInterface> &callback) {
-            EXPECT_EQ(testUserId, userId);
-            EXPECT_EQ(testAuthType, authType);
-            EXPECT_EQ(testPinSubType, pinSubType);
-            EXPECT_THAT(testToken, ElementsAre(1, 2, 3, 4));
-            EXPECT_EQ(testCallback, callback);
+        .WillOnce([&testCredPara](int32_t userId, const UserIdmInterface::CredentialPara &credPara,
+            const sptr<IdmCallbackInterface> &callback) {
+            EXPECT_EQ(userId, testUserId);
+            EXPECT_EQ(credPara.authType, testCredPara.authType);
+            EXPECT_EQ(credPara.pinType, testCredPara.pinType);
+            EXPECT_THAT(credPara.token, ElementsAreArray(testCredPara.token));
             return SUCCESS;
         });
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
@@ -227,7 +227,7 @@ HWTEST_F(UserIdmProxyTest, UserIdmProxyUpdateCredential, TestSize.Level0)
             service->OnRemoteRequest(code, data, reply, option);
             return SUCCESS;
         });
-    proxy->UpdateCredential(testUserId, testAuthType, testPinSubType, testToken, testCallback);
+    proxy->UpdateCredential(testUserId, testCredPara, testCallback);
 }
 
 HWTEST_F(UserIdmProxyTest, UserIdmProxyCancel, TestSize.Level0)

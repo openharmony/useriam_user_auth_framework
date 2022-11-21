@@ -341,7 +341,7 @@ napi_status UserAuthNapiHelper::CallVoidNapiFunc(napi_env env, napi_ref funcRef,
 
 napi_status UserAuthNapiHelper::SetInt32Property(napi_env env, napi_value obj, const char *name, int32_t value)
 {
-    napi_value napiValue = 0;
+    napi_value napiValue = nullptr;
     napi_status ret = napi_create_int32(env, value, &napiValue);
     if (ret != napi_ok) {
         IAM_LOGE("napi_create_int32 failed %{public}d", ret);
@@ -356,7 +356,7 @@ napi_status UserAuthNapiHelper::SetInt32Property(napi_env env, napi_value obj, c
 
 napi_status UserAuthNapiHelper::SetUint32Property(napi_env env, napi_value obj, const char *name, uint32_t value)
 {
-    napi_value napiValue = 0;
+    napi_value napiValue = nullptr;
     napi_status ret = napi_create_uint32(env, value, &napiValue);
     if (ret != napi_ok) {
         IAM_LOGE("napi_create_uint32 failed %{public}d", ret);

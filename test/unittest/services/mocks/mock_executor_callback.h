@@ -16,15 +16,15 @@
 #define IAM_MOCK_EXECUTOR_CALLBACK_H
 
 #include <gmock/gmock.h>
+#include "iremote_stub.h"
 
 #include "executor_callback_interface.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockExecutorCallback final : public ExecutorCallbackInterface {
+class MockExecutorCallback final : public IRemoteStub<ExecutorCallbackInterface> {
 public:
-    MOCK_METHOD0(AsObject, sptr<IRemoteObject>());
     MOCK_METHOD4(OnRemoteRequest,
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
     MOCK_METHOD3(OnMessengerReady,

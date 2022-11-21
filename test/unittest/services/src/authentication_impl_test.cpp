@@ -15,14 +15,31 @@
 
 #include <memory>
 
+#include "iam_ptr.h"
+
 #include "authentication_impl.h"
+#include "resource_node_pool.h"
 #include "mock_iuser_auth_interface.h"
+#include "mock_resource_node.h"
+#include "mock_schedule_node_callback.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 using namespace testing;
 using namespace testing::ext;
+
+using HdiAuthResultInfo = OHOS::HDI::UserAuth::V1_0::AuthResultInfo;
+using HdiAuthSolution = OHOS::HDI::UserAuth::V1_0::AuthSolution;
+using HdiExecutorSendMsg = OHOS::HDI::UserAuth::V1_0::ExecutorSendMsg;
+using HdiAuthType = OHOS::HDI::UserAuth::V1_0::AuthType;
+using HdiEnrollParam = OHOS::HDI::UserAuth::V1_0::EnrollParam;
+using HdiExecutorInfo = OHOS::HDI::UserAuth::V1_0::ExecutorInfo;
+using HdiScheduleInfo = OHOS::HDI::UserAuth::V1_0::ScheduleInfo;
+using HdiExecutorRole = OHOS::HDI::UserAuth::V1_0::ExecutorRole;
+using HdiScheduleMode = OHOS::HDI::UserAuth::V1_0::ScheduleMode;
+using HdiExecutorSecureLevel = OHOS::HDI::UserAuth::V1_0::ExecutorSecureLevel;
+
 class AuthenticationImplTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -113,6 +130,107 @@ HWTEST_F(AuthenticationImplTest, AuthenticationInvalidExecutor, TestSize.Level0)
     auto authentication = std::make_shared<AuthenticationImpl>(contextId, userId, FACE, ATL3);
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
     EXPECT_FALSE(authentication->Start(scheduleList, nullptr));
+}
+
+HWTEST_F(AuthenticationImplTest, AuthenticationImplTestUpdate001, TestSize.Level0)
+{
+    constexpr uint64_t contextId = 54871;
+    constexpr int32_t userId = 1534;
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, UpdateAuthenticationResult(_, _, _)).Times(1);
+    ON_CALL(*mockHdi, UpdateAuthenticationResult)
+        .WillByDefault(
+            [](uint64_t contextId, const std::vector<uint8_t> &scheduleResult, HdiAuthResultInfo &info) {
+                info.result = HDF_SUCCESS;
+                return HDF_SUCCESS;
+            }
+        );
+
+    auto authentication = std::make_shared<AuthenticationImpl>(contextId, userId, FACE, ATL3);
+    EXPECT_NE(authentication, nullptr);
+    std::vector<uint8_t> scheduleResult;
+    Authentication::AuthResultInfo info = {};
+    EXPECT_TRUE(authentication->Update(scheduleResult, info));
+}
+
+HWTEST_F(AuthenticationImplTest, AuthenticationImplTestUpdate002, TestSize.Level0)
+{
+    constexpr uint64_t contextId = 54871;
+    constexpr int32_t userId = 1534;
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, UpdateAuthenticationResult(_, _, _)).Times(1);
+    ON_CALL(*mockHdi, UpdateAuthenticationResult)
+        .WillByDefault(
+            [](uint64_t contextId, const std::vector<uint8_t> &scheduleResult, HdiAuthResultInfo &info) {
+                info.result = HDF_FAILURE;
+                HdiExecutorSendMsg msg = {};
+                msg.commandId = 10;
+                msg.executorIndex = 20;
+                info.msgs.push_back(msg);
+                return HDF_FAILURE;
+            }
+        );
+
+    auto authentication = std::make_shared<AuthenticationImpl>(contextId, userId, FACE, ATL3);
+    EXPECT_NE(authentication, nullptr);
+    std::vector<uint8_t> scheduleResult;
+    Authentication::AuthResultInfo info = {};
+    EXPECT_FALSE(authentication->Update(scheduleResult, info));
+}
+
+HWTEST_F(AuthenticationImplTest, AuthenticationImplTestStart, TestSize.Level0)
+{
+    constexpr uint64_t contextId = 34567;
+    constexpr uint64_t userId = 25781;
+    constexpr uint64_t executorIndex = 60;
+    
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, CancelAuthentication(_))
+        .Times(2)
+        .WillOnce(Return(HDF_SUCCESS))
+        .WillOnce(Return(HDF_FAILURE));
+    EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _))
+        .WillRepeatedly(
+            [](uint64_t contextId, const HdiAuthSolution &param, std::vector<HdiScheduleInfo> &scheduleInfos) {
+                HdiScheduleInfo scheduleInfo = {};
+                scheduleInfo.authType = HdiAuthType::FACE;
+                scheduleInfo.executorMatcher = 10;
+                HdiExecutorInfo executorInfo = {};
+                executorInfo.executorIndex = 60;
+                executorInfo.info.authType = HdiAuthType::FACE;
+                executorInfo.info.esl = HdiExecutorSecureLevel::ESL1;
+                executorInfo.info.executorMatcher = 10;
+                executorInfo.info.executorRole = HdiExecutorRole::ALL_IN_ONE;
+                executorInfo.info.executorSensorHint = 90;
+                executorInfo.info.publicKey = {1, 2, 3, 4};
+                scheduleInfo.executors.push_back(executorInfo);
+                scheduleInfo.scheduleId = 20;
+                scheduleInfo.scheduleMode = HdiScheduleMode::AUTH;
+                scheduleInfo.templateIds.push_back(30);
+                scheduleInfos.push_back(scheduleInfo);
+                return HDF_SUCCESS;
+            }
+        );
+    auto resourceNode = MockResourceNode::CreateWithExecuteIndex(executorIndex, FACE, ALL_IN_ONE);
+    EXPECT_NE(resourceNode, nullptr);
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
+    auto authentication = std::make_shared<AuthenticationImpl>(contextId, userId, FACE, ATL3);
+    EXPECT_NE(authentication, nullptr);
+    std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
+    auto callback = Common::MakeShared<MockScheduleNodeCallback>();
+    EXPECT_NE(callback, nullptr);
+    EXPECT_TRUE(authentication->Start(scheduleList, callback));
+    EXPECT_TRUE(authentication->Cancel());
+
+    EXPECT_TRUE(authentication->Start(scheduleList, callback));
+    EXPECT_FALSE(authentication->Cancel());
+
+    EXPECT_TRUE(ResourceNodePool::Instance().Delete(executorIndex));
 }
 } // namespace UserAuth
 } // namespace UserIam
