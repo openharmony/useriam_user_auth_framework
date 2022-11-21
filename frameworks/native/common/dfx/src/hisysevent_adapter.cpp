@@ -27,7 +27,6 @@ namespace UserIam {
 namespace UserAuth {
 using HiSysEvent = OHOS::HiviewDFX::HiSysEvent;
 
-const std::string DOMAIN_STR = std::string(HiSysEvent::Domain::USERIAM_FWK);
 constexpr char STR_USER_ID[] = "USER_ID";
 constexpr char STR_CALLING_ID[] = "CALLING_ID";
 constexpr char STR_AUTH_TYPE[] = "AUTH_TYPE";
@@ -48,7 +47,7 @@ constexpr char STR_SDK_VERSION[] = "SDK_VERSION";
 
 void ReportSystemFault(const std::string &timeString, const std::string &moudleName)
 {
-    int32_t ret = HiSysEvent::Write(DOMAIN_STR, "USERIAM_SYSTEM_FAULT",
+    int32_t ret = HiSysEventWrite(HiSysEvent::Domain::USERIAM_FWK, "USERIAM_SYSTEM_FAULT",
         HiSysEvent::EventType::FAULT,
         STR_HAPPEN_TIME, timeString,
         STR_MODULE_NAME, moudleName);
@@ -60,7 +59,7 @@ void ReportSystemFault(const std::string &timeString, const std::string &moudleN
 
 void ReportTemplateChange(int32_t executorType, uint32_t changeType, const std::string &reason)
 {
-    int32_t ret = HiSysEvent::Write(DOMAIN_STR, "USERIAM_TEMPLATE_CHANGE",
+    int32_t ret = HiSysEventWrite(HiSysEvent::Domain::USERIAM_FWK, "USERIAM_TEMPLATE_CHANGE",
         HiSysEvent::EventType::SECURITY,
         STR_EXECUTOR_TYPE, executorType,
         STR_CHANGE_TYPE, changeType,
@@ -73,7 +72,7 @@ void ReportTemplateChange(int32_t executorType, uint32_t changeType, const std::
 }
 void ReportBehaviorCredChange(int32_t userId, int32_t authType, uint32_t operationType, uint32_t optResult)
 {
-    int32_t ret = HiSysEvent::Write(DOMAIN_STR, "USERIAM_USER_CREDENTIAL_MANAGER",
+    int32_t ret = HiSysEventWrite(HiSysEvent::Domain::USERIAM_FWK, "USERIAM_USER_CREDENTIAL_MANAGER",
         HiSysEvent::EventType::BEHAVIOR,
         STR_USER_ID, userId,
         STR_AUTH_TYPE, authType,
@@ -88,7 +87,7 @@ void ReportBehaviorCredChange(int32_t userId, int32_t authType, uint32_t operati
 
 void ReportSecurityCredChange(int32_t userId, int32_t authType, uint32_t operationType, uint32_t optResult)
 {
-    int32_t ret = HiSysEvent::Write(DOMAIN_STR, "USERIAM_CREDENTIAL_CHANGE",
+    int32_t ret = HiSysEventWrite(HiSysEvent::Domain::USERIAM_FWK, "USERIAM_CREDENTIAL_CHANGE",
         HiSysEvent::EventType::SECURITY,
         STR_USER_ID, userId,
         STR_AUTH_TYPE, authType,
@@ -103,7 +102,7 @@ void ReportSecurityCredChange(int32_t userId, int32_t authType, uint32_t operati
 
 void ReportUserAuth(const UserAuthInfo &info)
 {
-    int32_t ret = HiSysEvent::Write(DOMAIN_STR, "USERIAM_USER_AUTH",
+    int32_t ret = HiSysEventWrite(HiSysEvent::Domain::USERIAM_FWK, "USERIAM_USER_AUTH",
         HiSysEvent::EventType::BEHAVIOR,
         STR_CALLING_ID, info.callingUid,
         STR_AUTH_TYPE, info.authType,
@@ -121,7 +120,7 @@ void ReportUserAuth(const UserAuthInfo &info)
 
 void ReportPinAuth(const PinAuthInfo &info)
 {
-    int32_t ret = HiSysEvent::Write(DOMAIN_STR, "USERIAM_PIN_AUTH",
+    int32_t ret = HiSysEventWrite(HiSysEvent::Domain::USERIAM_FWK, "USERIAM_PIN_AUTH",
         HiSysEvent::EventType::SECURITY,
         STR_USER_ID, info.userId,
         STR_CALLING_ID, info.callingUid,
