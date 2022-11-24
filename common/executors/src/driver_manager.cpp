@@ -118,7 +118,7 @@ void DriverManager::SubscribeHdiDriverStatus()
     });
     IF_FALSE_LOGE_AND_RETURN(listener != nullptr);
     auto listenerPtr = sptr<HdiServiceStatusListener>(listener);
-    int32_t ret = servMgr->RegisterServiceStatusListener(listener, DEVICE_CLASS_USERAUTH);
+    int32_t ret = servMgr->RegisterServiceStatusListener(listenerPtr, DEVICE_CLASS_USERAUTH);
     if (ret != USERAUTH_SUCCESS) {
         IAM_LOGE("failed to register service status listener");
         return;
