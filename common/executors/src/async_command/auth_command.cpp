@@ -38,6 +38,8 @@ AuthCommand::AuthCommand(std::weak_ptr<Executor> executor, uint64_t scheduleId,
 ResultCode AuthCommand::SendRequest()
 {
     IAM_LOGI("%{public}s send request start", GetDescription());
+    IF_FALSE_LOGE_AND_RETURN_VAL(attributes_ != nullptr, ResultCode::GENERAL_ERROR);
+
     auto hdi = GetExecutorHdi();
     IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, ResultCode::GENERAL_ERROR);
 
