@@ -15,6 +15,7 @@
 
 #include "async_command_base.h"
 
+#include <atomic>
 #include <cstdint>
 #include <ostream>
 #include <sstream>
@@ -126,12 +127,9 @@ const char *AsyncCommandBase::GetDescription()
 
 uint32_t AsyncCommandBase::GenerateCommandId()
 {
-    static std::mutex mutex;
-    static uint32_t commandId = 0;
-    std::lock_guard<std::mutex> guard(mutex);
+    std::atomic<uint32_t> commandId = 0;
     // commandId is only used in log, uint32 overflow or duplicate is ok
-    ++commandId;
-    return commandId;
+    return ++commandId;
 }
 
 std::shared_ptr<IAuthExecutorHdi> AsyncCommandBase::GetExecutorHdi()

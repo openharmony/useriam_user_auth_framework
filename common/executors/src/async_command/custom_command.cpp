@@ -42,6 +42,7 @@ CustomCommand::CustomCommand(std::weak_ptr<Executor> executor, const Attributes 
 ResultCode CustomCommand::SendRequest()
 {
     IAM_LOGI("%{public}s send request start", GetDescription());
+    IF_FALSE_LOGE_AND_RETURN_VAL(attributes_ != nullptr, ResultCode::GENERAL_ERROR);
 
     auto hdi = GetExecutorHdi();
     IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, ResultCode::GENERAL_ERROR);
@@ -57,6 +58,7 @@ ResultCode CustomCommand::SendRequest()
 
     ResultCode ret = hdi->SendCommand(static_cast<UserAuth::PropertyMode>(commandId), extraInfo, shared_from_this());
     if (ret != ResultCode::SUCCESS) {
+        IAM_LOGE("%{public}s send command result fail ret = %{public}d", GetDescription(), ret);
         OnResult(ret);
         return ret;
     }
