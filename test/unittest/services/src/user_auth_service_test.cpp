@@ -408,7 +408,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuth004, TestSize.Level0)
                 executorInfo.executorIndex = 60;
                 scheduleInfo.executors.push_back(executorInfo);
                 scheduleInfos.push_back(scheduleInfo);
-                context = ContextPool::Instance().Select(contextId);
+                context = ContextPool::Instance().Select(contextId).lock();
                 return HDF_SUCCESS;
             }
         );
@@ -446,7 +446,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuth004, TestSize.Level0)
     
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
 
-    uint64_t contextId = service.Auth(testApiVersion, testChallenge, testAuthType, testAuthTrustLevel, testCallback);
+    service.Auth(testApiVersion, testChallenge, testAuthType, testAuthTrustLevel, testCallback);
     promise.get_future().get();
 
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(60));
@@ -504,7 +504,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser003, TestSize.Level0)
     std::vector<uint8_t> testChallenge = {1, 2, 3, 4};
     AuthType testAuthType = FACE;
     AuthTrustLevel testAuthTrustLevel = ATL2;
-    uint64_t contextId = 0;
+    std::shared_ptr<Context> context = nullptr;
 
     sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
@@ -518,15 +518,15 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser003, TestSize.Level0)
             }
         )
         .WillOnce(
-            [&contextId](int32_t result, const Attributes &extraInfo) {
+            [&context](int32_t result, const Attributes &extraInfo) {
                 EXPECT_EQ(result, SUCCESS);
-                auto context = ContextPool::Instance().Select(contextId).lock();
-                EXPECT_NE(context, nullptr);
-                EXPECT_TRUE(context->Stop());
+                if (context != nullptr) {
+                    context->Stop();
+                }
             }
         );
     
-    contextId = service.AuthUser(testUserId, testChallenge, testAuthType, testAuthTrustLevel, testCallback);
+    uint64_t contextId = service.AuthUser(testUserId, testChallenge, testAuthType, testAuthTrustLevel, testCallback);
     EXPECT_EQ(contextId, 0);
 
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
@@ -534,7 +534,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser003, TestSize.Level0)
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _))
         .WillRepeatedly(
-            [](uint64_t contextId, const HdiAuthSolution &param, std::vector<HdiScheduleInfo> &scheduleInfos) {
+            [&context](uint64_t contextId, const HdiAuthSolution &param, std::vector<HdiScheduleInfo> &scheduleInfos) {
                 HdiScheduleInfo scheduleInfo = {};
                 scheduleInfo.authType = HdiAuthType::FACE;
                 scheduleInfo.scheduleId = 30;
@@ -542,6 +542,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser003, TestSize.Level0)
                 executorInfo.executorIndex = 60;
                 scheduleInfo.executors.push_back(executorInfo);
                 scheduleInfos.push_back(scheduleInfo);
+                context = ContextPool::Instance().Select(contextId).lock();
                 return HDF_SUCCESS;
             }
         );
@@ -668,7 +669,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceIdentify003, TestSize.Level0)
                 HdiExecutorInfo executorInfo = {};
                 executorInfo.executorIndex = 60;
                 scheduleInfo.executors.push_back(executorInfo);
-                context = ContextPool::Instance().Select(contextId);
+                context = ContextPool::Instance().Select(contextId).lock();
                 return HDF_SUCCESS;
             }
         );
@@ -750,9 +751,11 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCancelAuthOrIdentify_002, TestSize.
 HWTEST_F(UserAuthServiceTest, UserAuthServiceGetVersion, TestSize.Level0)
 {
     UserAuthService service(100, true);
-    EXPECT_EQ(service.GetVersion(), 0);
+    int32_t version = -1;
+    EXPECT_EQ(service.GetVersion(version), CHECK_PERMISSION_FAILED);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    EXPECT_EQ(service.GetVersion(), 0);
+    EXPECT_EQ(service.GetVersion(version), SUCCESS);
+    EXPECT_EQ(version, 0);
     IpcCommon::DeleteAllPermission();
 }
 } // namespace UserAuth

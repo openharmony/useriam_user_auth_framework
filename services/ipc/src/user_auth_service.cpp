@@ -377,16 +377,18 @@ int32_t UserAuthService::CancelAuthOrIdentify(uint64_t contextId)
     return SUCCESS;
 }
 
-int32_t UserAuthService::GetVersion()
+int32_t UserAuthService::GetVersion(int32_t &version)
 {
     IAM_LOGI("start");
+    version = MINIMUM_VERSION;
     bool checkRet = !IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
         !IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION);
     if (checkRet) {
         IAM_LOGE("failed to check permission");
-        return MINIMUM_VERSION;
+        return CHECK_PERMISSION_FAILED;
     }
-    return CURRENT_VERSION;
+    version = CURRENT_VERSION;
+    return SUCCESS;
 }
 } // namespace UserAuth
 } // namespace UserIam

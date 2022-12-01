@@ -367,7 +367,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential003, TestSize.Level0)
                 info.authType = HdiAuthType::PIN;
                 auto contextList = ContextPool::Instance().Select(CONTEXT_ENROLL);
                 if (!contextList.empty()) {
-                    context = contextList[0];
+                    context = contextList[0].lock();
                 }
                 return HDF_SUCCESS;
             }
