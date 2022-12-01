@@ -175,7 +175,8 @@ void FuzzClientGetVersion(Parcel &parcel)
 {
     IAM_LOGI("start");
     static_cast<void>(parcel.ReadInt32());
-    UserAuthClientImpl::Instance().GetVersion();
+    int32_t version = -1;
+    UserAuthClientImpl::Instance().GetVersion(version);
     IAM_LOGI("end");
 }
 

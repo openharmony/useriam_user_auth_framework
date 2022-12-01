@@ -470,8 +470,10 @@ HWTEST_F(UserAuthClientTest, UserAuthClientCancelIdentification002, TestSize.Lev
 HWTEST_F(UserAuthClientTest, UserAuthClientGetVersion001, TestSize.Level0)
 {
     IpcClientUtils::ResetObj();
-    int32_t version = UserAuthClientImpl::Instance().GetVersion();
-    EXPECT_EQ(version, 0);
+    int32_t version = -1;
+    int32_t ret = UserAuthClientImpl::Instance().GetVersion(version);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+    IpcClientUtils::ResetObj();
 }
 
 HWTEST_F(UserAuthClientTest, UserAuthClientGetVersion002, TestSize.Level0)
@@ -480,11 +482,12 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetVersion002, TestSize.Level0)
 
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, GetVersion()).Times(1);
+    EXPECT_CALL(*service, GetVersion(_)).Times(1);
     ON_CALL(*service, GetVersion)
         .WillByDefault(
-            [&testVersion]() {
-                return testVersion;
+            [&testVersion](int32_t &version) {
+                version = testVersion;
+                return SUCCESS;
             }
         );
 
@@ -497,8 +500,9 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetVersion002, TestSize.Level0)
             service->OnRemoteRequest(code, data, reply, option);
             return OHOS::NO_ERROR;
         });
-    
-    int32_t version = UserAuthClientImpl::Instance().GetVersion();
+    int32_t version;
+    int32_t result = UserAuthClientImpl::Instance().GetVersion(version);
+    EXPECT_EQ(result, SUCCESS);
     EXPECT_EQ(version, testVersion);
     IpcClientUtils::ResetObj();
 }

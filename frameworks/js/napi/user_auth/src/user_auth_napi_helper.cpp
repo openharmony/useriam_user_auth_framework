@@ -31,6 +31,8 @@ namespace UserIam {
 namespace UserAuth {
 namespace {
 const std::map<ResultCodeV9, std::string> g_resultV92Str = {
+    {ResultCodeV9::OHOS_INVALID_PARAM, "Invalid authentication parameters."},
+    {ResultCodeV9::OHOS_CHECK_PERMISSION_FAILED, "Permission denied."},
     {ResultCodeV9::SUCCESS, "Authentication succeeded."},
     {ResultCodeV9::FAIL, "Authentication failed."},
     {ResultCodeV9::GENERAL_ERROR, "Unknown errors."},
@@ -39,7 +41,6 @@ const std::map<ResultCodeV9, std::string> g_resultV92Str = {
     {ResultCodeV9::TYPE_NOT_SUPPORT, "Unsupport authentication type."},
     {ResultCodeV9::TRUST_LEVEL_NOT_SUPPORT, "Unsupport authentication trust level."},
     {ResultCodeV9::BUSY, "Authentication service is busy."},
-    {ResultCodeV9::INVALID_PARAMETERS, "Invalid authentication parameters."},
     {ResultCodeV9::LOCKED, "Authentication is lockout."},
     {ResultCodeV9::NOT_ENROLLED, "Authentication template has not been enrolled."},
 };
@@ -145,6 +146,12 @@ napi_ref JsRefHolder::Get() const
 
 int32_t UserAuthNapiHelper::GetResultCodeV9(int32_t result)
 {
+    if (result == CHECK_PERMISSION_FAILED) {
+        return static_cast<int32_t>(ResultCodeV9::OHOS_CHECK_PERMISSION_FAILED);
+    }
+    if (result == INVALID_PARAMETERS) {
+        return static_cast<int32_t>(ResultCodeV9::OHOS_INVALID_PARAM);
+    }
     if (result > (INT32_MAX - static_cast<int32_t>(ResultCodeV9::RESULT_CODE_V9_MIN))) {
         return static_cast<int32_t>(ResultCodeV9::GENERAL_ERROR);
     }

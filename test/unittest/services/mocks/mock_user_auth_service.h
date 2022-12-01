@@ -45,7 +45,7 @@ public:
         uint64_t(const std::vector<uint8_t> &challenge, AuthType authType, sptr<UserAuthCallbackInterface> &callback));
 
     MOCK_METHOD1(CancelAuthOrIdentify, int32_t(uint64_t contextId));
-    MOCK_METHOD0(GetVersion, int32_t());
+    MOCK_METHOD1(GetVersion, int32_t(int32_t &version));
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -41,7 +41,7 @@ public:
     uint64_t BeginIdentification(const std::vector<uint8_t> &challenge, AuthType authType,
         const std::shared_ptr<IdentificationCallback> &callback) override;
     int32_t CancelIdentification(uint64_t contextId) override;
-    int32_t GetVersion();
+    int32_t GetVersion(int32_t &version);
 
 private:
     friend class UserAuthClient;
