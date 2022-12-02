@@ -44,7 +44,7 @@ void CoAuthClientTest::TearDown()
 {
 }
 
-HWTEST_F(CoAuthClientTest, CoAuthClientRegister, TestSize.Level0)
+HWTEST_F(CoAuthClientTest, CoAuthClientRegister_001, TestSize.Level0)
 {
     ExecutorInfo testInfo = {};
     testInfo.authType = PIN;
@@ -94,6 +94,24 @@ HWTEST_F(CoAuthClientTest, CoAuthClientRegister, TestSize.Level0)
 
     CoAuthClient::GetInstance().Register(testInfo, testCallback);
     IpcClientUtils::ResetObj();
+}
+
+HWTEST_F(CoAuthClientTest, CoAuthClientRegister_002, TestSize.Level0)
+{
+    ExecutorInfo testInfo = {};
+    std::shared_ptr<ExecutorRegisterCallback> testCallback = nullptr;
+
+    CoAuthClient::GetInstance().Register(testInfo, testCallback);
+}
+
+HWTEST_F(CoAuthClientTest, CoAuthClientRegister_003, TestSize.Level0)
+{
+    ExecutorInfo testInfo = {};
+    IpcClientUtils::ResetObj();
+    auto testCallback = Common::MakeShared<MockExecutorRegisterCallback>();
+    EXPECT_NE(testCallback, nullptr);
+
+    CoAuthClient::GetInstance().Register(testInfo, testCallback);
 }
 } // namespace UserAuth
 } // namespace UserIam
