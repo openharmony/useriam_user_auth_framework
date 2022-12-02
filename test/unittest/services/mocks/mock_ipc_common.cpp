@@ -29,6 +29,8 @@ namespace {
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+std::set<Permission> IpcCommon::permSet_;
+
 int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, int32_t &userId)
 {
     if (userId != 0) {
@@ -62,7 +64,7 @@ int32_t IpcCommon::GetActiveUserId(std::optional<int32_t> &userId)
 // for unittest only
 bool IpcCommon::CheckPermission(IPCObjectStub &stub, Permission permission)
 {
-    return true;
+    return permSet_.find(permission) != permSet_.end();
 }
 
 uint32_t IpcCommon::GetAccessTokenId(IPCObjectStub &stub)
@@ -72,6 +74,16 @@ uint32_t IpcCommon::GetAccessTokenId(IPCObjectStub &stub)
         tokenId = stub.GetCallingTokenID();
     }
     return tokenId;
+}
+
+void IpcCommon::AddPermission(Permission perm)
+{
+    permSet_.insert(perm);
+}
+
+void IpcCommon::DeleteAllPermission()
+{
+    permSet_.clear();
 }
 } // namespace UserAuth
 } // namespace UserIam
