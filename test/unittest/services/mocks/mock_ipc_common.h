@@ -20,6 +20,7 @@
 #include <iremote_stub.h>
 #include <optional>
 #include <string>
+#include <set>
 
 #include "nocopyable.h"
 
@@ -37,30 +38,15 @@ enum Permission {
 
 class IpcCommon final : public NoCopyable {
 public:
-    using Recipient = std::function<void()>;
     static int32_t GetCallingUserId(IPCObjectStub &stub, int32_t &userId);
     static int32_t GetActiveUserId(std::optional<int32_t> &userId);
     static bool CheckPermission(IPCObjectStub &stub, Permission permission);
     static uint32_t GetAccessTokenId(IPCObjectStub &stub);
-    class PeerDeathRecipient final : public IPCObjectProxy::DeathRecipient {
-    public:
-        explicit PeerDeathRecipient(Recipient &&recipient) : recipient_(std::forward<Recipient>(recipient))
-        {
-        }
-        ~PeerDeathRecipient() override = default;
-        void OnRemoteDied(const wptr<IRemoteObject> &object) override
-        {
-            if (auto remote = object.promote(); !remote) {
-                return;
-            }
-            if (recipient_) {
-                recipient_();
-            }
-        };
+    static void AddPermission(Permission perm);
+    static void DeleteAllPermission();
 
-    private:
-        Recipient recipient_;
-    };
+private:
+    static std::set<Permission> permSet_;
 };
 } // namespace UserAuth
 } // namespace UserIam
