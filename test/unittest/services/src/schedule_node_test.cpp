@@ -15,6 +15,7 @@
 
 #include "schedule_node_test.h"
 
+#include "iam_ptr.h"
 #include "schedule_node.h"
 
 #include "mock_executor_callback.h"
@@ -370,6 +371,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessButTimeoutAndEndFail,
         constexpr uint32_t EXECUTOR_INDEX = 0xAAAAAAA;
         constexpr uint32_t EXECUTOR_MATCHER = 0xDEEDBEEF;
         constexpr uint32_t SCHEDULE_ID = 0xBEEFABCD;
+        std::vector<uint64_t> TEMPLATE_LIST = {1};
         auto faceAllInOne = MockResourceNode::CreateWithExecuteIndex(EXECUTOR_INDEX, FACE, ALL_IN_ONE, executor);
         auto builder = ScheduleNode::Builder::New(faceAllInOne, faceAllInOne);
         ASSERT_NE(builder, nullptr);
@@ -379,6 +381,10 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessButTimeoutAndEndFail,
         builder->SetScheduleMode(IDENTIFY);
         builder->SetExpiredTime(550);
         builder->SetScheduleCallback(callback);
+        auto parameters = Common::MakeShared<Attributes>();
+        EXPECT_NE(parameters, nullptr);
+        builder->SetParametersAttributes(parameters);
+        builder->SetTemplateIdList(TEMPLATE_LIST);
 
         auto scheduleNode = builder->Build();
         ASSERT_NE(scheduleNode, nullptr);
@@ -427,6 +433,8 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessGetResult, TestSize.L
         builder->SetScheduleId(SCHEDULE_ID);
         builder->SetScheduleMode(IDENTIFY);
         builder->SetScheduleCallback(callback);
+        std::shared_ptr<Attributes> parameters = nullptr;
+        builder->SetParametersAttributes(parameters);
 
         auto scheduleNode = builder->Build();
         ASSERT_NE(scheduleNode, nullptr);
@@ -531,6 +539,8 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneUserStopAndEndFailed, TestSi
         builder->SetScheduleId(SCHEDULE_ID);
         builder->SetScheduleMode(IDENTIFY);
         builder->SetScheduleCallback(callback);
+        builder->SetAccessTokenId(12330);
+        builder->SetPinSubType(PIN_SIX);
 
         auto scheduleNode = builder->Build();
         ASSERT_NE(scheduleNode, nullptr);
@@ -557,6 +567,44 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneUserStopAndEndFailed, TestSi
         EXPECT_LT(cost, 560);
     }
     handler->EnsureTask(nullptr);
+}
+
+HWTEST_F(ScheduleNodeTest, ScheduleNodeTestContinueSchedule, TestSize.Level0)
+{
+    ExecutorRole testSrcRole = COLLECTOR;
+    ExecutorRole testDstRole = COLLECTOR;
+    uint64_t testTransNum = 58786;
+    std::vector<uint8_t> testMsg;
+
+    constexpr uint32_t EXECUTOR_INDEX = 0xAAAAAAA;
+    constexpr uint32_t EXECUTOR_MATCHER = 0xDEEDBEEF;
+    constexpr uint32_t SCHEDULE_ID = 0xBEEFABCD;
+    MockExecutorCallback executor;
+    auto faceAllInOne = MockResourceNode::CreateWithExecuteIndex(EXECUTOR_INDEX, FACE, ALL_IN_ONE, executor);
+    auto builder = ScheduleNode::Builder::New(faceAllInOne, faceAllInOne);
+    EXPECT_NE(builder, nullptr);
+    builder->SetExecutorMatcher(EXECUTOR_MATCHER);
+    builder->SetScheduleId(SCHEDULE_ID);
+    builder->SetScheduleMode(IDENTIFY);
+    std::shared_ptr<MockScheduleNodeCallback> callback = nullptr;
+    builder->SetScheduleCallback(callback);
+
+    auto scheduleNode = builder->Build();
+    EXPECT_NE(scheduleNode, nullptr);
+
+    EXPECT_FALSE(scheduleNode->ContinueSchedule(testSrcRole, testDstRole, testTransNum, testMsg));
+    testDstRole = SCHEDULER;
+    scheduleNode = builder->Build();
+    EXPECT_NE(scheduleNode, nullptr);
+    EXPECT_TRUE(scheduleNode->ContinueSchedule(testSrcRole, testDstRole, testTransNum, testMsg));
+    callback = Common::MakeShared<MockScheduleNodeCallback>();
+    EXPECT_NE(callback, nullptr);
+    EXPECT_CALL(*callback, OnScheduleProcessed(_, _, _)).Times(1);
+    builder->SetScheduleCallback(callback);
+    builder->SetAuthType(FACE);
+    scheduleNode = builder->Build();
+    EXPECT_NE(scheduleNode, nullptr);
+    EXPECT_TRUE(scheduleNode->ContinueSchedule(testSrcRole, testDstRole, testTransNum, testMsg));
 }
 } // namespace UserAuth
 } // namespace UserIam
