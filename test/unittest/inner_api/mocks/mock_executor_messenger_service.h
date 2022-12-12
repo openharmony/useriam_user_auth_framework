@@ -12,23 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MOCK_EXECUTOR_MESSENGER_H
-#define MOCK_EXECUTOR_MESSENGER_H
+#ifndef MOCK_EXECUTOR_MESSENGER_SERVICE_H
+#define MOCK_EXECUTOR_MESSENGER_SERVICE_H
 
 #include <memory>
 
 #include <gmock/gmock.h>
 
-#include "executor_messenger_interface.h"
+#include "executor_messenger_stub.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockExecutorMessenger final : public ExecutorMessengerInterface {
+class MockExecutorMessengerService final : public ExecutorMessengerStub {
 public:
-    MOCK_METHOD0(AsObject, sptr<IRemoteObject>());
-    MOCK_METHOD4(OnRemoteRequest,
-        int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
     MOCK_METHOD5(SendData, int32_t(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole,
         ExecutorRole dstRole, const std::vector<uint8_t> &msg));
     MOCK_METHOD4(Finish, int32_t(uint64_t scheduleId, ExecutorRole srcRole, ResultCode resultCode,
@@ -37,4 +34,4 @@ public:
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // MOCK_EXECUTOR_MESSENGER_H
+#endif // MOCK_EXECUTOR_MESSENGER_SERVICE_H
