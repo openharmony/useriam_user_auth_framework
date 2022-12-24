@@ -565,7 +565,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_ContextFree, TestSize.Leve
     EXPECT_CALL(*contextCallback, OnResult(_, _))
         .Times(Exactly(1))
         .WillOnce([&promise](int32_t resultCode, const Attributes &finalResult) {
-            EXPECT_EQ(resultCode, ResultCode::BUSY);
+            EXPECT_EQ(resultCode, ResultCode::GENERAL_ERROR);
             promise.set_value();
         });
 

@@ -74,20 +74,20 @@ private:
     std::shared_ptr<FiniteStateMachine> MakeFiniteStateMachine();
     std::string GetDescription() const;
     bool TryKickMachine(Event event);
-    void SetResultCode(ResultCode resultCode, const std::shared_ptr<Attributes> &finalResult = nullptr);
+    void SetResultCode(int32_t resultCode, const std::shared_ptr<Attributes> &finalResult = nullptr);
     void StartTimer();
     void StopTimer();
     // fsm processes begins
-    void ProcessBeginVerifier(FiniteStateMachine &machine, uint32_t event) const;
-    void ProcessBeginCollector(FiniteStateMachine &machine, uint32_t event) const;
+    void ProcessBeginVerifier(FiniteStateMachine &machine, uint32_t event);
+    void ProcessBeginCollector(FiniteStateMachine &machine, uint32_t event);
     // fsm processes begins ack
     void ProcessVerifierBeginFailed(FiniteStateMachine &machine, uint32_t event);
     void ProcessCollectorBeginFailed(FiniteStateMachine &machine, uint32_t event);
     // fsm processes wait
     void ProcessScheduleResultReceived(FiniteStateMachine &machine, uint32_t event) const;
     // fsm processes ends
-    void ProcessEndCollector(FiniteStateMachine &machine, uint32_t event) const;
-    void ProcessEndVerifier(FiniteStateMachine &machine, uint32_t event) const;
+    void ProcessEndCollector(FiniteStateMachine &machine, uint32_t event);
+    void ProcessEndVerifier(FiniteStateMachine &machine, uint32_t event);
 
     void OnScheduleProcessing(FiniteStateMachine &machine, uint32_t event) const;
     void OnScheduleFinished(FiniteStateMachine &machine, uint32_t event);
@@ -98,7 +98,7 @@ private:
     std::mutex mutex_;
     std::shared_ptr<IamHitraceHelper> iamHitraceHelper_;
     // result
-    std::optional<std::pair<ResultCode, std::shared_ptr<Attributes>>> result_;
+    std::optional<std::pair<int32_t, std::shared_ptr<Attributes>>> result_;
 };
 } // namespace UserAuth
 } // namespace UserIam
