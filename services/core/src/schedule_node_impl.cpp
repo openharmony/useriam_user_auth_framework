@@ -232,7 +232,7 @@ bool ScheduleNodeImpl::TryKickMachine(Event event)
     return true;
 }
 
-void ScheduleNodeImpl::SetResultCode(ResultCode resultCode, const std::shared_ptr<Attributes> &finalResult)
+void ScheduleNodeImpl::SetResultCode(int32_t resultCode, const std::shared_ptr<Attributes> &finalResult)
 {
     result_ = std::make_pair(resultCode, finalResult);
 }
@@ -265,11 +265,12 @@ void ScheduleNodeImpl::StopTimer()
     timerId_ = 0;
 }
 
-void ScheduleNodeImpl::ProcessBeginVerifier(FiniteStateMachine &machine, uint32_t event) const
+void ScheduleNodeImpl::ProcessBeginVerifier(FiniteStateMachine &machine, uint32_t event)
 {
     auto collector = info_.collector.lock();
     auto verifier = info_.verifier.lock();
     if (collector == nullptr || verifier == nullptr) {
+        SetResultCode(GENERAL_ERROR);
         machine.Schedule(E_VERIFY_STARTED_FAILED);
         IAM_LOGE("invalid resource");
         return;
@@ -277,8 +278,9 @@ void ScheduleNodeImpl::ProcessBeginVerifier(FiniteStateMachine &machine, uint32_
     auto peerPk = collector->GetExecutorPublicKey();
 
     auto result = verifier->BeginExecute(info_.scheduleId, peerPk, *info_.parameters);
-    if (result != 0) {
-        IAM_LOGE("start verify failed");
+    if (result != SUCCESS) {
+        IAM_LOGE("start verify failed, result = %{public}d", result);
+        SetResultCode(result);
         machine.Schedule(E_VERIFY_STARTED_FAILED);
         return;
     }
@@ -286,11 +288,12 @@ void ScheduleNodeImpl::ProcessBeginVerifier(FiniteStateMachine &machine, uint32_
     machine.Schedule(E_VERIFY_STARTED_SUCCESS);
 }
 
-void ScheduleNodeImpl::ProcessBeginCollector(FiniteStateMachine &machine, uint32_t event) const
+void ScheduleNodeImpl::ProcessBeginCollector(FiniteStateMachine &machine, uint32_t event)
 {
     auto collector = info_.collector.lock();
     auto verifier = info_.verifier.lock();
     if (collector == nullptr || verifier == nullptr) {
+        SetResultCode(GENERAL_ERROR);
         machine.Schedule(E_COLLECT_STARTED_FAILED);
         IAM_LOGE("invalid resource");
         return;
@@ -305,12 +308,12 @@ void ScheduleNodeImpl::ProcessBeginCollector(FiniteStateMachine &machine, uint32
 
 void ScheduleNodeImpl::ProcessVerifierBeginFailed(FiniteStateMachine &machine, uint32_t event)
 {
-    SetResultCode(BUSY);
+    // just do nothing
 }
 
 void ScheduleNodeImpl::ProcessCollectorBeginFailed(FiniteStateMachine &machine, uint32_t event)
 {
-    SetResultCode(BUSY);
+    // just do nothing
 }
 
 void ScheduleNodeImpl::ProcessScheduleResultReceived(FiniteStateMachine &machine, uint32_t event) const
@@ -318,11 +321,12 @@ void ScheduleNodeImpl::ProcessScheduleResultReceived(FiniteStateMachine &machine
     // just do nothing
 }
 
-void ScheduleNodeImpl::ProcessEndCollector(FiniteStateMachine &machine, uint32_t event) const
+void ScheduleNodeImpl::ProcessEndCollector(FiniteStateMachine &machine, uint32_t event)
 {
     auto collector = info_.collector.lock();
     auto verifier = info_.verifier.lock();
     if (collector == nullptr || verifier == nullptr) {
+        SetResultCode(GENERAL_ERROR);
         machine.Schedule(E_COLLECT_STOPPED_FAILED);
         return;
     }
@@ -334,16 +338,19 @@ void ScheduleNodeImpl::ProcessEndCollector(FiniteStateMachine &machine, uint32_t
     IAM_LOGE("distributed auth not supported yet");
 }
 
-void ScheduleNodeImpl::ProcessEndVerifier(FiniteStateMachine &machine, uint32_t event) const
+void ScheduleNodeImpl::ProcessEndVerifier(FiniteStateMachine &machine, uint32_t event)
 {
     auto verifier = info_.verifier.lock();
     if (verifier == nullptr) {
+        SetResultCode(GENERAL_ERROR);
         machine.Schedule(E_VERIFY_STOPPED_FAILED);
         return;
     }
     Attributes attr;
     auto result = verifier->EndExecute(info_.scheduleId, attr);
-    if (result != 0) {
+    if (result != SUCCESS) {
+        IAM_LOGE("end verify failed, result = %{public}d", result);
+        SetResultCode(result);
         machine.Schedule(E_VERIFY_STOPPED_FAILED);
         return;
     }
@@ -372,6 +379,7 @@ void ScheduleNodeImpl::OnScheduleFinished(FiniteStateMachine &machine, uint32_t 
     iamHitraceHelper_ = nullptr;
 
     auto result = result_.value();
+    IAM_LOGI("schedule result = %{public}d", result.first);
     info_.callback->OnScheduleStoped(result.first, result.second);
     info_.callback = nullptr;
 }
