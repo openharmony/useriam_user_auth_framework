@@ -393,7 +393,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessButTimeoutAndEndFail,
         EXPECT_CALL(executor, OnBeginExecute(_, _, _)).WillOnce(Return(0));
         EXPECT_CALL(*callback, OnScheduleStarted()).Times(1);
         EXPECT_CALL(executor, OnEndExecute(_, _)).WillOnce(Return(1)); // mock end failed
-        EXPECT_CALL(*callback, OnScheduleStoped(TIMEOUT, _)).Times(1);
+        EXPECT_CALL(*callback, OnScheduleStoped(_, _)).Times(1);
 
         const time_point<system_clock> start = system_clock::now();
         EXPECT_TRUE(scheduleNode->StartSchedule());
@@ -405,6 +405,8 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessButTimeoutAndEndFail,
         auto cost = duration_cast<milliseconds>(finish - start).count();
         EXPECT_GT(cost, 540);
         EXPECT_LT(cost, 560);
+
+        sleep(1);
     }
     handler->EnsureTask(nullptr);
 }
@@ -549,7 +551,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneUserStopAndEndFailed, TestSi
         EXPECT_CALL(executor, OnBeginExecute(_, _, _)).WillOnce(Return(0));
         EXPECT_CALL(*callback, OnScheduleStarted()).Times(1);
         EXPECT_CALL(executor, OnEndExecute(_, _)).WillOnce(Return(1)); // Mock end failed
-        EXPECT_CALL(*callback, OnScheduleStoped(CANCELED, _)).Times(1);
+        EXPECT_CALL(*callback, OnScheduleStoped(_, _)).Times(1);
 
         const time_point<system_clock> start = system_clock::now();
 
@@ -565,6 +567,8 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneUserStopAndEndFailed, TestSi
         auto cost = duration_cast<milliseconds>(finish - start).count();
         EXPECT_GT(cost, 540);
         EXPECT_LT(cost, 560);
+
+        sleep(1);
     }
     handler->EnsureTask(nullptr);
 }
