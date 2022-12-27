@@ -132,7 +132,7 @@ bool ScheduleNodeImpl::StopSchedule()
 {
     std::lock_guard<std::mutex> lock(mutex_);
 
-    SetResultCode(CANCELED);
+    SetFwkResultCode(CANCELED);
     return TryKickMachine(E_STOP_AUTH);
 }
 
@@ -154,7 +154,8 @@ bool ScheduleNodeImpl::ContinueSchedule(ExecutorRole srcRole, ExecutorRole dstRo
 bool ScheduleNodeImpl::ContinueSchedule(ResultCode resultCode, const std::shared_ptr<Attributes> &finalResult)
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    SetResultCode(resultCode, finalResult);
+    SetExecutorResultCode(resultCode);
+    SetScheduleResult(finalResult);
     return TryKickMachine(E_SCHEDULE_RESULT_RECEIVED);
 }
 
@@ -232,9 +233,19 @@ bool ScheduleNodeImpl::TryKickMachine(Event event)
     return true;
 }
 
-void ScheduleNodeImpl::SetResultCode(int32_t resultCode, const std::shared_ptr<Attributes> &finalResult)
+void ScheduleNodeImpl::SetFwkResultCode(int32_t resultCode)
 {
-    result_ = std::make_pair(resultCode, finalResult);
+    fwkResultCode_ = resultCode;
+}
+
+void ScheduleNodeImpl::SetExecutorResultCode(int32_t resultCode)
+{
+    executorResultCode_ = resultCode;
+}
+
+void ScheduleNodeImpl::SetScheduleResult(const std::shared_ptr<Attributes> &scheduleResult)
+{
+    scheduleResult_ = scheduleResult;
 }
 
 void ScheduleNodeImpl::StartTimer()
@@ -248,7 +259,7 @@ void ScheduleNodeImpl::StartTimer()
         [self = weak_from_this(), this] {
             if (self.lock()) {
                 std::lock_guard<std::mutex> lock(mutex_);
-                SetResultCode(TIMEOUT);
+                SetFwkResultCode(TIMEOUT);
                 TryKickMachine(E_TIME_OUT);
             }
         },
@@ -270,7 +281,7 @@ void ScheduleNodeImpl::ProcessBeginVerifier(FiniteStateMachine &machine, uint32_
     auto collector = info_.collector.lock();
     auto verifier = info_.verifier.lock();
     if (collector == nullptr || verifier == nullptr) {
-        SetResultCode(GENERAL_ERROR);
+        SetFwkResultCode(GENERAL_ERROR);
         machine.Schedule(E_VERIFY_STARTED_FAILED);
         IAM_LOGE("invalid resource");
         return;
@@ -280,7 +291,7 @@ void ScheduleNodeImpl::ProcessBeginVerifier(FiniteStateMachine &machine, uint32_
     auto result = verifier->BeginExecute(info_.scheduleId, peerPk, *info_.parameters);
     if (result != SUCCESS) {
         IAM_LOGE("start verify failed, result = %{public}d", result);
-        SetResultCode(result);
+        SetExecutorResultCode(result);
         machine.Schedule(E_VERIFY_STARTED_FAILED);
         return;
     }
@@ -293,7 +304,7 @@ void ScheduleNodeImpl::ProcessBeginCollector(FiniteStateMachine &machine, uint32
     auto collector = info_.collector.lock();
     auto verifier = info_.verifier.lock();
     if (collector == nullptr || verifier == nullptr) {
-        SetResultCode(GENERAL_ERROR);
+        SetFwkResultCode(GENERAL_ERROR);
         machine.Schedule(E_COLLECT_STARTED_FAILED);
         IAM_LOGE("invalid resource");
         return;
@@ -326,7 +337,7 @@ void ScheduleNodeImpl::ProcessEndCollector(FiniteStateMachine &machine, uint32_t
     auto collector = info_.collector.lock();
     auto verifier = info_.verifier.lock();
     if (collector == nullptr || verifier == nullptr) {
-        SetResultCode(GENERAL_ERROR);
+        SetFwkResultCode(GENERAL_ERROR);
         machine.Schedule(E_COLLECT_STOPPED_FAILED);
         return;
     }
@@ -342,7 +353,7 @@ void ScheduleNodeImpl::ProcessEndVerifier(FiniteStateMachine &machine, uint32_t 
 {
     auto verifier = info_.verifier.lock();
     if (verifier == nullptr) {
-        SetResultCode(GENERAL_ERROR);
+        SetFwkResultCode(GENERAL_ERROR);
         machine.Schedule(E_VERIFY_STOPPED_FAILED);
         return;
     }
@@ -350,7 +361,7 @@ void ScheduleNodeImpl::ProcessEndVerifier(FiniteStateMachine &machine, uint32_t 
     auto result = verifier->EndExecute(info_.scheduleId, attr);
     if (result != SUCCESS) {
         IAM_LOGE("end verify failed, result = %{public}d", result);
-        SetResultCode(result);
+        SetExecutorResultCode(result);
         machine.Schedule(E_VERIFY_STOPPED_FAILED);
         return;
     }
@@ -372,15 +383,11 @@ void ScheduleNodeImpl::OnScheduleFinished(FiniteStateMachine &machine, uint32_t 
         return;
     }
 
-    if (!result_.has_value()) {
-        return;
-    }
-
     iamHitraceHelper_ = nullptr;
 
-    auto result = result_.value();
-    IAM_LOGI("schedule result = %{public}d", result.first);
-    info_.callback->OnScheduleStoped(result.first, result.second);
+    int32_t result = fwkResultCode_.value_or(executorResultCode_);
+    IAM_LOGI("schedule result = %{public}d", result);
+    info_.callback->OnScheduleStoped(result, scheduleResult_);
     info_.callback = nullptr;
 }
 } // namespace UserAuth
