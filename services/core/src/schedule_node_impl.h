@@ -74,7 +74,9 @@ private:
     std::shared_ptr<FiniteStateMachine> MakeFiniteStateMachine();
     std::string GetDescription() const;
     bool TryKickMachine(Event event);
-    void SetResultCode(int32_t resultCode, const std::shared_ptr<Attributes> &finalResult = nullptr);
+    void SetFwkResultCode(int32_t resultCode);
+    void SetExecutorResultCode(int32_t resultCode);
+    void SetScheduleResult(const std::shared_ptr<Attributes> &scheduleResult);
     void StartTimer();
     void StopTimer();
     // fsm processes begins
@@ -98,7 +100,9 @@ private:
     std::mutex mutex_;
     std::shared_ptr<IamHitraceHelper> iamHitraceHelper_;
     // result
-    std::optional<std::pair<int32_t, std::shared_ptr<Attributes>>> result_;
+    int32_t executorResultCode_ {GENERAL_ERROR};
+    std::optional<int32_t> fwkResultCode_ {std::nullopt};
+    std::shared_ptr<Attributes> scheduleResult_ {nullptr};
 };
 } // namespace UserAuth
 } // namespace UserIam
