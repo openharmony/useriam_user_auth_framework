@@ -36,7 +36,10 @@ namespace PermissionString {
 }
 
 namespace {
-    const std::string ACCOUNT_PROCESS_NAME = "accountmgr";
+    // process white list of allowing to call, <processUid, processName>
+    const std::vector<std::pair<int32_t, std::string>> whiteLists = {
+        {3058, "accountmgr"},
+    };
 }
 
 int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, int32_t &userId)
@@ -88,7 +91,7 @@ bool IpcCommon::CheckPermission(IPCObjectStub &stub, Permission permission)
     switch (permission) {
         case MANAGE_USER_IDM_PERMISSION:
             return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::MANAGE_USER_IDM_PERMISSION) &&
-                CheckNativeCallingProcessWhiteList(stub, ACCOUNT_PROCESS_NAME);
+                CheckNativeCallingProcessWhiteList(stub);
         case USE_USER_IDM_PERMISSION:
             return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::USE_USER_IDM_PERMISSION);
         case ACCESS_USER_AUTH_INTERNAL_PERMISSION:
@@ -99,7 +102,7 @@ bool IpcCommon::CheckPermission(IPCObjectStub &stub, Permission permission)
             return CheckDirectCaller(stub, PermissionString::ACCESS_AUTH_RESPOOL);
         case ENFORCE_USER_IDM:
             return CheckDirectCaller(stub, PermissionString::ENFORCE_USER_IDM) &&
-                CheckNativeCallingProcessWhiteList(stub, ACCOUNT_PROCESS_NAME);
+                CheckNativeCallingProcessWhiteList(stub);
         default:
             IAM_LOGE("failed to check permission");
             return false;
@@ -115,7 +118,7 @@ uint32_t IpcCommon::GetAccessTokenId(IPCObjectStub &stub)
     return tokenId;
 }
 
-bool IpcCommon::CheckNativeCallingProcessWhiteList(IPCObjectStub &stub, const std::string &whiteList)
+bool IpcCommon::CheckNativeCallingProcessWhiteList(IPCObjectStub &stub)
 {
     uint32_t tokenId = stub.GetCallingTokenID();
     using namespace Security::AccessToken;
@@ -130,7 +133,16 @@ bool IpcCommon::CheckNativeCallingProcessWhiteList(IPCObjectStub &stub, const st
         IAM_LOGE("failed to get native token info, result = %{public}d", result);
         return false;
     }
-    return nativeTokenInfo.processName == whiteList;
+
+    std::string processName = nativeTokenInfo.processName;
+    int32_t processUid = stub.GetCallingUid();
+    for (const auto &whiteList : whiteLists) {
+        if (whiteList.first == processUid && whiteList.second == processName) {
+            return true;
+        }
+    }
+    IAM_LOGE("failed to check process white list");
+    return false;
 }
 
 bool IpcCommon::CheckDirectCallerAndFirstCallerIfSet(IPCObjectStub &stub, const std::string &permission)
