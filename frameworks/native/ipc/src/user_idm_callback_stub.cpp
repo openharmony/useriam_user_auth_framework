@@ -26,6 +26,10 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+namespace {
+    const uint32_t CRED_INFO_VECTOR_LENGTH_LIMIT = 100;
+} // namespace
+
 int32_t IdmCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
     MessageOption &option)
 {
@@ -111,6 +115,10 @@ int32_t IdmGetCredInfoCallbackStub::OnCredentialInfosStub(MessageParcel &data, M
         IAM_LOGE("read size fail");
         OnCredentialInfos(infoList, std::nullopt);
         return READ_PARCEL_ERROR;
+    }
+    if (vectorSize > CRED_INFO_VECTOR_LENGTH_LIMIT) {
+        IAM_LOGI("the cred info vector size is invalid");
+        return GENERAL_ERROR;
     }
     int32_t pinType = 0;
     for (uint32_t i = 0; i < vectorSize; ++i) {
