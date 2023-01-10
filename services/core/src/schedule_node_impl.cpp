@@ -214,14 +214,12 @@ std::shared_ptr<FiniteStateMachine> ScheduleNodeImpl::MakeFiniteStateMachine()
 
 std::string ScheduleNodeImpl::GetDescription() const
 {
-    std::stringstream stream;
-    std::string name;
+    std::ostringstream ss;
 
     auto verifier = info_.verifier.lock();
-    stream << "schedule type:" << (verifier ? Common::AuthTypeToStr(verifier->GetAuthType()) : "nullptr") <<
+    ss << "schedule type:" << (verifier ? Common::AuthTypeToStr(verifier->GetAuthType()) : "nullptr") <<
         " id:******" << std::hex << static_cast<uint16_t>(GetScheduleId());
-    stream >> name;
-    return name;
+    return ss.str();
 }
 
 bool ScheduleNodeImpl::TryKickMachine(Event event)
