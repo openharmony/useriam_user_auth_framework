@@ -29,7 +29,7 @@ namespace UserIam {
 namespace UserAuth {
 class UserAuthNapiHelper {
 public:
-    static napi_value GenerateBusinessErrorV9(napi_env env, ResultCodeV9 result);
+    static napi_value GenerateBusinessErrorV9(napi_env env, UserAuthResultCode result);
     static napi_status CheckNapiType(napi_env env, napi_value value, napi_valuetype type);
     static napi_status GetInt32Value(napi_env env, napi_value value, int32_t &out);
     static napi_status GetUint32Value(napi_env env, napi_value value, uint32_t &out);
@@ -43,6 +43,7 @@ public:
     static napi_status SetUint8ArrayProperty(napi_env env,
         napi_value obj, const char *name, const std::vector<uint8_t> &value);
     static napi_status CallVoidNapiFunc(napi_env env, napi_ref funcRef, size_t argc, const napi_value *argv);
+    static int32_t GetResultCodeV8(int32_t result);
     static int32_t GetResultCodeV9(int32_t result);
 
 private:
