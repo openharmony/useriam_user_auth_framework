@@ -67,8 +67,8 @@ napi_value GetVersionV9(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
     napi_value version = nullptr;
-    ResultCodeV9 result = AuthInstanceV9::GetVersion(env, version);
-    if (result != ResultCodeV9::SUCCESS) {
+    UserAuthResultCode result = AuthInstanceV9::GetVersion(env, version);
+    if (result != UserAuthResultCode::SUCCESS) {
         IAM_LOGE("fail");
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, result));
         return nullptr;
@@ -85,8 +85,8 @@ napi_value GetAvailableStatus(napi_env env, napi_callback_info info)
 napi_value GetAvailableStatusV9(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
-    ResultCodeV9 result = AuthInstanceV9::GetAvailableStatus(env, info);
-    if (result != ResultCodeV9::SUCCESS) {
+    UserAuthResultCode result = AuthInstanceV9::GetAvailableStatus(env, info);
+    if (result != UserAuthResultCode::SUCCESS) {
         IAM_LOGE("fail");
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, result));
     }
@@ -147,11 +147,11 @@ napi_value On(napi_env env, napi_callback_info info)
     napi_status ret = UnwrapAuthInstanceV9(env, info, &authInstance);
     if (ret != napi_ok) {
         IAM_LOGE("UnwrapAuthInstanceV9 fail:%{public}d", ret);
-        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, ResultCodeV9::GENERAL_ERROR));
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
         return nullptr;
     }
-    ResultCodeV9 code = authInstance->On(env, info);
-    if (code != ResultCodeV9::SUCCESS) {
+    UserAuthResultCode code = authInstance->On(env, info);
+    if (code != UserAuthResultCode::SUCCESS) {
         IAM_LOGE("On fail:%{public}d", static_cast<int32_t>(code));
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, code));
     }
@@ -165,11 +165,11 @@ napi_value Off(napi_env env, napi_callback_info info)
     napi_status ret = UnwrapAuthInstanceV9(env, info, &authInstance);
     if (ret != napi_ok) {
         IAM_LOGE("UnwrapAuthInstanceV9 fail:%{public}d", ret);
-        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, ResultCodeV9::GENERAL_ERROR));
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
         return nullptr;
     }
-    ResultCodeV9 code = authInstance->Off(env, info);
-    if (code != ResultCodeV9::SUCCESS) {
+    UserAuthResultCode code = authInstance->Off(env, info);
+    if (code != UserAuthResultCode::SUCCESS) {
         IAM_LOGE("Off fail:%{public}d", static_cast<int32_t>(code));
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, code));
     }
@@ -183,11 +183,11 @@ napi_value Start(napi_env env, napi_callback_info info)
     napi_status ret = UnwrapAuthInstanceV9(env, info, &authInstance);
     if (ret != napi_ok) {
         IAM_LOGE("UnwrapAuthInstanceV9 fail:%{public}d", ret);
-        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, ResultCodeV9::GENERAL_ERROR));
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
         return nullptr;
     }
-    ResultCodeV9 code = authInstance->Start(env, info);
-    if (code != ResultCodeV9::SUCCESS) {
+    UserAuthResultCode code = authInstance->Start(env, info);
+    if (code != UserAuthResultCode::SUCCESS) {
         IAM_LOGE("Start fail:%{public}d", static_cast<int32_t>(code));
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, code));
     }
@@ -201,11 +201,11 @@ napi_value Cancel(napi_env env, napi_callback_info info)
     napi_status ret = UnwrapAuthInstanceV9(env, info, &authInstance);
     if (ret != napi_ok) {
         IAM_LOGE("UnwrapAuthInstanceV9 fail:%{public}d", ret);
-        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, ResultCodeV9::GENERAL_ERROR));
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
         return nullptr;
     }
-    ResultCodeV9 code = authInstance->Cancel(env, info);
-    if (code != ResultCodeV9::SUCCESS) {
+    UserAuthResultCode code = authInstance->Cancel(env, info);
+    if (code != UserAuthResultCode::SUCCESS) {
         IAM_LOGE("Cancel fail:%{public}d", static_cast<int32_t>(code));
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, code));
     }
@@ -233,23 +233,23 @@ napi_value GetAuthInstanceV9(napi_env env, napi_callback_info info)
     napi_status ret = napi_new_instance(env, AuthInstanceV9Class(env), 0, nullptr, &authInstanceV9);
     if (ret != napi_ok) {
         IAM_LOGE("napi_new_instance fail:%{public}d", ret);
-        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, ResultCodeV9::GENERAL_ERROR));
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
         return nullptr;
     }
     AuthInstanceV9 *authInstance;
     ret = napi_unwrap(env, authInstanceV9, reinterpret_cast<void **>(&authInstance));
     if (ret != napi_ok) {
         IAM_LOGE("napi_unwrap fail");
-        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, ResultCodeV9::GENERAL_ERROR));
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
         return nullptr;
     }
     if (authInstance == nullptr) {
         IAM_LOGE("authInstanceV9 is null");
-        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, ResultCodeV9::GENERAL_ERROR));
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
         return nullptr;
     }
-    ResultCodeV9 code = authInstance->Init(env, info);
-    if (code != ResultCodeV9::SUCCESS) {
+    UserAuthResultCode code = authInstance->Init(env, info);
+    if (code != UserAuthResultCode::SUCCESS) {
         IAM_LOGE("Init fail:%{public}d", static_cast<int32_t>(code));
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, code));
         return nullptr;
@@ -334,7 +334,7 @@ napi_value ResultCodeConstructor(napi_env env)
     return resultCode;
 }
 
-napi_value ResultCodeV9Constructor(napi_env env)
+napi_value UserAuthResultCodeConstructor(napi_env env)
 {
     napi_value resultCode = nullptr;
     napi_value success = nullptr;
@@ -348,17 +348,17 @@ napi_value ResultCodeV9Constructor(napi_env env)
     napi_value locked = nullptr;
     napi_value notEnrolled = nullptr;
     NAPI_CALL(env, napi_create_object(env, &resultCode));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(ResultCodeV9::SUCCESS), &success));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(ResultCodeV9::FAIL), &fail));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(ResultCodeV9::GENERAL_ERROR), &generalError));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(ResultCodeV9::CANCELED), &canceled));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(ResultCodeV9::TIMEOUT), &timeout));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(ResultCodeV9::TYPE_NOT_SUPPORT), &typeNotSupport));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::SUCCESS), &success));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::FAIL), &fail));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR), &generalError));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::CANCELED), &canceled));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::TIMEOUT), &timeout));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::TYPE_NOT_SUPPORT), &typeNotSupport));
     NAPI_CALL(env, napi_create_int32(env,
-        static_cast<int32_t>(ResultCodeV9::TRUST_LEVEL_NOT_SUPPORT), &trustLevelNotSupport));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(ResultCodeV9::BUSY), &busy));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(ResultCodeV9::LOCKED), &locked));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(ResultCodeV9::NOT_ENROLLED), &notEnrolled));
+        static_cast<int32_t>(UserAuthResultCode::TRUST_LEVEL_NOT_SUPPORT), &trustLevelNotSupport));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::BUSY), &busy));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::LOCKED), &locked));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::NOT_ENROLLED), &notEnrolled));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "SUCCESS", success));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "FAIL", fail));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "GENERAL_ERROR", generalError));
@@ -562,7 +562,7 @@ napi_value EnumExport(napi_env env, napi_value exports)
     napi_property_descriptor descriptors[] = {
         DECLARE_NAPI_PROPERTY("AuthTrustLevel", AuthTrustLevelConstructor(env)),
         DECLARE_NAPI_PROPERTY("ResultCode", ResultCodeConstructor(env)),
-        DECLARE_NAPI_PROPERTY("ResultCodeV9", ResultCodeV9Constructor(env)),
+        DECLARE_NAPI_PROPERTY("UserAuthResultCode", UserAuthResultCodeConstructor(env)),
         DECLARE_NAPI_PROPERTY("FingerprintTips", FingerprintTipsConstructorForKits(env)),
         DECLARE_NAPI_PROPERTY("UserAuthType", UserAuthTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("FaceTips", FaceTipsCodeConstructor(env)),

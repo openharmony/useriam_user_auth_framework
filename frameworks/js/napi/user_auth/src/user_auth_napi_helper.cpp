@@ -30,19 +30,19 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
-const std::map<ResultCodeV9, std::string> g_resultV92Str = {
-    {ResultCodeV9::OHOS_INVALID_PARAM, "Invalid authentication parameters."},
-    {ResultCodeV9::OHOS_CHECK_PERMISSION_FAILED, "Permission denied."},
-    {ResultCodeV9::SUCCESS, "Authentication succeeded."},
-    {ResultCodeV9::FAIL, "Authentication failed."},
-    {ResultCodeV9::GENERAL_ERROR, "Unknown errors."},
-    {ResultCodeV9::CANCELED, "Authentication canceled."},
-    {ResultCodeV9::TIMEOUT, "Authentication timeout."},
-    {ResultCodeV9::TYPE_NOT_SUPPORT, "Unsupport authentication type."},
-    {ResultCodeV9::TRUST_LEVEL_NOT_SUPPORT, "Unsupport authentication trust level."},
-    {ResultCodeV9::BUSY, "Authentication service is busy."},
-    {ResultCodeV9::LOCKED, "Authentication is lockout."},
-    {ResultCodeV9::NOT_ENROLLED, "Authentication template has not been enrolled."},
+const std::map<UserAuthResultCode, std::string> g_resultV92Str = {
+    {UserAuthResultCode::OHOS_INVALID_PARAM, "Invalid authentication parameters."},
+    {UserAuthResultCode::OHOS_CHECK_PERMISSION_FAILED, "Permission denied."},
+    {UserAuthResultCode::SUCCESS, "Authentication succeeded."},
+    {UserAuthResultCode::FAIL, "Authentication failed."},
+    {UserAuthResultCode::GENERAL_ERROR, "Unknown errors."},
+    {UserAuthResultCode::CANCELED, "Authentication canceled."},
+    {UserAuthResultCode::TIMEOUT, "Authentication timeout."},
+    {UserAuthResultCode::TYPE_NOT_SUPPORT, "Unsupport authentication type."},
+    {UserAuthResultCode::TRUST_LEVEL_NOT_SUPPORT, "Unsupport authentication trust level."},
+    {UserAuthResultCode::BUSY, "Authentication service is busy."},
+    {UserAuthResultCode::LOCKED, "Authentication is lockout."},
+    {UserAuthResultCode::NOT_ENROLLED, "Authentication template has not been enrolled."},
 };
 
 struct DeleteRefHolder {
@@ -144,34 +144,45 @@ napi_ref JsRefHolder::Get() const
     return ref_;
 }
 
+int32_t UserAuthNapiHelper::GetResultCodeV8(int32_t result)
+{
+    if (result == CHECK_PERMISSION_FAILED) {
+        return static_cast<int32_t>(UserAuthResultCode::OHOS_CHECK_PERMISSION_FAILED);
+    }
+    if ((result < SUCCESS) || (result > NOT_ENROLLED)) {
+        return GENERAL_ERROR;
+    }
+    return result;
+}
+
 int32_t UserAuthNapiHelper::GetResultCodeV9(int32_t result)
 {
     if (result == CHECK_PERMISSION_FAILED) {
-        return static_cast<int32_t>(ResultCodeV9::OHOS_CHECK_PERMISSION_FAILED);
+        return static_cast<int32_t>(UserAuthResultCode::OHOS_CHECK_PERMISSION_FAILED);
     }
     if (result == INVALID_PARAMETERS) {
-        return static_cast<int32_t>(ResultCodeV9::OHOS_INVALID_PARAM);
+        return static_cast<int32_t>(UserAuthResultCode::OHOS_INVALID_PARAM);
     }
-    if (result > (INT32_MAX - static_cast<int32_t>(ResultCodeV9::RESULT_CODE_V9_MIN))) {
-        return static_cast<int32_t>(ResultCodeV9::GENERAL_ERROR);
+    if (result > (INT32_MAX - static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V9_MIN))) {
+        return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
     }
-    int32_t resultCodeV9 = result + static_cast<int32_t>(ResultCodeV9::RESULT_CODE_V9_MIN);
-    if (resultCodeV9 >= static_cast<int32_t>(ResultCodeV9::RESULT_CODE_V9_MIN) &&
-        resultCodeV9 <= static_cast<int32_t>(ResultCodeV9::RESULT_CODE_V9_MAX)) {
+    int32_t resultCodeV9 = result + static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V9_MIN);
+    if (resultCodeV9 >= static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V9_MIN) &&
+        resultCodeV9 <= static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V9_MAX)) {
         return resultCodeV9;
     }
-    return static_cast<int32_t>(ResultCodeV9::GENERAL_ERROR);
+    return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
 }
 
-napi_value UserAuthNapiHelper::GenerateBusinessErrorV9(napi_env env, ResultCodeV9 result)
+napi_value UserAuthNapiHelper::GenerateBusinessErrorV9(napi_env env, UserAuthResultCode result)
 {
     napi_value code;
     std::string msgStr;
     auto res = g_resultV92Str.find(result);
     if (res == g_resultV92Str.end()) {
         IAM_LOGE("result %{public}d not found", static_cast<int32_t>(result));
-        msgStr = g_resultV92Str.at(ResultCodeV9::GENERAL_ERROR);
-        NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(ResultCodeV9::GENERAL_ERROR), &code));
+        msgStr = g_resultV92Str.at(UserAuthResultCode::GENERAL_ERROR);
+        NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR), &code));
     } else {
         msgStr = res->second;
         NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(result), &code));
