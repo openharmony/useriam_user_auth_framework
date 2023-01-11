@@ -119,7 +119,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus003, TestSize.Lev
         return NOT_ENROLLED;
     });
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    EXPECT_EQ(TRUST_LEVEL_NOT_SUPPORT, service.GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel));
+    EXPECT_EQ(NOT_ENROLLED, service.GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel));
 
     testApiVersion = 9;
     EXPECT_EQ(NOT_ENROLLED, service.GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel));
@@ -135,7 +135,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus004, TestSize.Lev
     auto service = Common::MakeShared<UserAuthService>(100, true);
     EXPECT_NE(service, nullptr);
     int32_t ret = service->GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel);
-    EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
+    EXPECT_EQ(ret, TYPE_NOT_SUPPORT);
 
     testAuthType = FACE;
     ret = service->GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel);

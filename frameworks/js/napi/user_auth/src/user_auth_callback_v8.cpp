@@ -209,7 +209,7 @@ void UserAuthCallbackV8::OnAcquireInfo(int32_t module, uint32_t acquireInfo,
 
 void UserAuthCallbackV8::OnResult(int32_t result, const Attributes &extraInfo)
 {
-    IAM_LOGI("start, result:%{public}d", result);
+    IAM_LOGI("start, result:%{public}d", UserAuthNapiHelper::GetResultCodeV8(result));
     uv_loop_s *loop;
     napi_status napiStatus = napi_get_uv_event_loop(env_, &loop);
     if (napiStatus != napi_ok || loop == nullptr) {
@@ -228,7 +228,7 @@ void UserAuthCallbackV8::OnResult(int32_t result, const Attributes &extraInfo)
         return;
     }
     resultHolder->callback = shared_from_this();
-    resultHolder->result = result;
+    resultHolder->result = UserAuthNapiHelper::GetResultCodeV8(result);
     if (!extraInfo.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, resultHolder->token)) {
         IAM_LOGE("ATTR_SIGNATURE is null");
     }

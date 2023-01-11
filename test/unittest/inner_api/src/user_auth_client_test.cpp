@@ -222,7 +222,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginNorthAuthentication001, TestSize
 
 HWTEST_F(UserAuthClientTest, UserAuthClientBeginNorthAuthentication002, TestSize.Level0)
 {
-    int32_t testApiVersion = 8;
+    int32_t testApiVersion = 9;
     std::vector<uint8_t> testChallenge = {1, 2, 3, 4, 3, 2, 1, 0};
     AuthType testAuthType = PIN;
     AuthTrustLevel testAtl = ATL1;

@@ -57,7 +57,7 @@ enum class AuthenticationResult : int32_t {
     GENERAL_ERROR = 100,
 };
 
-enum class ResultCodeV9 : int32_t {
+enum class UserAuthResultCode : int32_t {
     OHOS_CHECK_PERMISSION_FAILED = 201,
     OHOS_INVALID_PARAM = 401,
     RESULT_CODE_V9_MIN = 12500000,
