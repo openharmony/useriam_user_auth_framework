@@ -29,17 +29,17 @@ namespace UserIam {
 namespace UserAuth {
 class AuthInstanceV9 : public NoCopyable {
 public:
-    static ResultCodeV9 GetVersion(napi_env env, napi_value &jsVersion);
-    static ResultCodeV9 GetAvailableStatus(napi_env env, napi_callback_info info);
+    static UserAuthResultCode GetVersion(napi_env env, napi_value &jsVersion);
+    static UserAuthResultCode GetAvailableStatus(napi_env env, napi_callback_info info);
 
     explicit AuthInstanceV9(napi_env env);
     ~AuthInstanceV9() override = default;
 
-    ResultCodeV9 Init(napi_env env, napi_callback_info info);
-    ResultCodeV9 On(napi_env env, napi_callback_info info);
-    ResultCodeV9 Off(napi_env env, napi_callback_info info);
-    ResultCodeV9 Start(napi_env env, napi_callback_info info);
-    ResultCodeV9 Cancel(napi_env env, napi_callback_info info);
+    UserAuthResultCode Init(napi_env env, napi_callback_info info);
+    UserAuthResultCode On(napi_env env, napi_callback_info info);
+    UserAuthResultCode Off(napi_env env, napi_callback_info info);
+    UserAuthResultCode Start(napi_env env, napi_callback_info info);
+    UserAuthResultCode Cancel(napi_env env, napi_callback_info info);
 
 private:
     static bool CheckAuthType(int32_t authType);
