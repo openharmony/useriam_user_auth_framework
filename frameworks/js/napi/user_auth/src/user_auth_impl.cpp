@@ -64,9 +64,15 @@ napi_value UserAuthImpl::GetAvailableStatus(napi_env env, napi_callback_info inf
     NAPI_CALL(env, napi_get_value_int32(env, argv[PARAM1], &level));
     AuthType authType = AuthType(type);
     AuthTrustLevel authTrustLevel = AuthTrustLevel(level);
+    ResultCode checkRet = CheckAuthTypeAndAuthTrustLevel(authType, authTrustLevel);
+    if (checkRet != SUCCESS) {
+        IAM_LOGE("CheckAuthTypeAndAuthTrsutLevel failed");
+        NAPI_CALL(env, napi_create_int32(env, checkRet, &result));
+        return result;
+    }
     int32_t status = UserAuthClientImpl::Instance().GetAvailableStatus(API_VERSION_8, authType, authTrustLevel);
     IAM_LOGI("result = %{public}d", status);
-    NAPI_CALL(env, napi_create_int32(env, status, &result));
+    NAPI_CALL(env, napi_create_int32(env, UserAuthNapiHelper::GetResultCodeV8(status), &result));
     return result;
 }
 
@@ -209,6 +215,14 @@ napi_value UserAuthImpl::Auth(napi_env env, napi_callback_info info)
         IAM_LOGE("callback is nullptr");
         return nullptr;
     }
+    ResultCode checkRet = CheckAuthTypeAndAuthTrustLevel(AuthType(authType), AuthTrustLevel(authTrustLevel));
+    if (checkRet != SUCCESS) {
+        IAM_LOGE("CheckAuthTypeAndAuthTrsutLevel failed");
+        Attributes extraInfo;
+        callback->OnResult(checkRet, extraInfo);
+        napi_value key = UserAuthNapiHelper::Uint64ToNapiUint8Array(env, INVALID_CONTEXT_ID);
+        return key;
+    }
     uint64_t result = UserAuthClientImpl::Instance().BeginNorthAuthentication(API_VERSION_8, challenge,
         AuthType(authType), AuthTrustLevel(authTrustLevel), callback);
     IAM_LOGI("result is %{public}s", GET_MASKED_STRING(result).c_str());
@@ -243,8 +257,21 @@ napi_value UserAuthImpl::CancelAuth(napi_env env, napi_callback_info info)
     int32_t result = UserAuthClient::GetInstance().CancelAuthentication(contextId);
     IAM_LOGI("result = %{public}d", result);
     napi_value key;
-    NAPI_CALL(env, napi_create_int32(env, result, &key));
+    NAPI_CALL(env, napi_create_int32(env, UserAuthNapiHelper::GetResultCodeV8(result), &key));
     return key;
+}
+
+ResultCode UserAuthImpl::CheckAuthTypeAndAuthTrustLevel(AuthType authType, AuthTrustLevel authTrustLevel)
+{
+    if (authType != FINGERPRINT && authType != FACE) {
+        IAM_LOGE("authType check fail:%{public}d", authType);
+        return TYPE_NOT_SUPPORT;
+    }
+    if (authTrustLevel != ATL1 && authTrustLevel != ATL2 && authTrustLevel != ATL3 && authTrustLevel != ATL4) {
+        IAM_LOGE("authTrustLevel check fail:%{public}d", authTrustLevel);
+        return TRUST_LEVEL_NOT_SUPPORT;
+    }
+    return SUCCESS;
 }
 } // namespace UserAuth
 } // namespace UserIam

@@ -35,7 +35,6 @@ namespace {
     const int32_t MINIMUM_VERSION = 0;
     const int32_t CURRENT_VERSION = 0;
     const uint32_t AUTH_TRUST_LEVEL_SYS = 1;
-    const int32_t API_VERSION_8 = 8;
 } // namespace
 
 REGISTER_SYSTEM_ABILITY_BY_ID(UserAuthService, SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true);
@@ -61,13 +60,12 @@ void UserAuthService::OnStop()
 int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel)
 {
     IAM_LOGI("start");
-    bool checkRet = !IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
-        (authType == PIN || !IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION));
-    if (checkRet) {
+    ResultCode checkRet = CheckServicePermission(authType);
+    if (checkRet != SUCCESS) {
         IAM_LOGE("failed to check permission");
-        return CHECK_PERMISSION_FAILED;
+        return checkRet;
     }
-    if (authTrustLevel < ATL1 || authTrustLevel > ATL4) {
+    if (authTrustLevel != ATL1 && authTrustLevel != ATL2 && authTrustLevel != ATL3 && authTrustLevel != ATL4) {
         IAM_LOGE("authTrustLevel is not in correct range");
         return TRUST_LEVEL_NOT_SUPPORT;
     }
@@ -87,9 +85,6 @@ int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authTyp
     if (result != SUCCESS) {
         IAM_LOGE("failed to get current supported authTrustLevel from hdi apiVersion:%{public}d result:%{public}d",
             apiVersion, result);
-        if (apiVersion == API_VERSION_8 && result == NOT_ENROLLED) {
-            return TRUST_LEVEL_NOT_SUPPORT;
-        }
         return result;
     }
     if (authTrustLevel > supportedAtl) {
@@ -187,6 +182,27 @@ bool UserAuthService::CheckAuthPermission(bool isInnerCaller, AuthType authType)
     return false;
 }
 
+ResultCode UserAuthService::CheckNorthPermission(AuthType authType)
+{
+    if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
+        IAM_LOGE("CheckNorthPermission failed, no permission");
+        return CHECK_PERMISSION_FAILED;
+    }
+    if (authType == PIN) {
+        IAM_LOGE("CheckNorthPermission, type error");
+        return TYPE_NOT_SUPPORT;
+    }
+    return SUCCESS;
+}
+
+ResultCode UserAuthService::CheckServicePermission(AuthType authType)
+{
+    if (IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+        return SUCCESS;
+    }
+    return CheckNorthPermission(authType);
+}
+
 std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(const std::vector<uint8_t> &challenge,
     AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback)
 {
@@ -218,6 +234,12 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
         return BAD_CONTEXT_ID;
     }
     Attributes extraInfo;
+    ResultCode checkRet = CheckNorthPermission(authType);
+    if (checkRet != SUCCESS) {
+        IAM_LOGE("CheckNorthPermission failed");
+        contextCallback->OnResult(checkRet, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
     int32_t userId;
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("get callingUserId failed");
@@ -225,14 +247,9 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
         return BAD_CONTEXT_ID;
     }
     contextCallback->SetTraceUserId(userId);
-    if (authTrustLevel < ATL1 || authTrustLevel > ATL4) {
+    if (authTrustLevel != ATL1 && authTrustLevel != ATL2 && authTrustLevel != ATL3 && authTrustLevel != ATL4) {
         IAM_LOGE("authTrustLevel is not in correct range");
         contextCallback->OnResult(TRUST_LEVEL_NOT_SUPPORT, extraInfo);
-        return BAD_CONTEXT_ID;
-    }
-    if (authType == PIN || !IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
-        IAM_LOGE("failed to check permission");
-        contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
         return BAD_CONTEXT_ID;
     }
     ContextFactory::AuthContextPara para = {};
@@ -253,9 +270,6 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
     if (!context->Start()) {
         int32_t errorCode = context->GetLatestError();
         IAM_LOGE("failed to start auth apiVersion:%{public}d errorCode:%{public}d", apiVersion, errorCode);
-        if (apiVersion == API_VERSION_8 && errorCode == NOT_ENROLLED) {
-            errorCode = FAIL;
-        }
         contextCallback->OnResult(errorCode, extraInfo);
         return BAD_CONTEXT_ID;
     }
