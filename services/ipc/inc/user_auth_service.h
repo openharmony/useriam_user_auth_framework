@@ -56,6 +56,8 @@ private:
     std::shared_ptr<ContextCallback> GetAuthContextCallback(const std::vector<uint8_t> &challenge, AuthType authType,
         AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback);
     bool CheckAuthPermission(bool isInnerCaller, AuthType authType);
+    ResultCode CheckNorthPermission(AuthType authType);
+    ResultCode CheckServicePermission(AuthType authType);
 };
 } // namespace UserAuth
 } // namespace UserIam
