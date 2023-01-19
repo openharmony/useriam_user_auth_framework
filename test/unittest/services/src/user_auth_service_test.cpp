@@ -135,7 +135,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus004, TestSize.Lev
     auto service = Common::MakeShared<UserAuthService>(100, true);
     EXPECT_NE(service, nullptr);
     int32_t ret = service->GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel);
-    EXPECT_EQ(ret, TYPE_NOT_SUPPORT);
+    EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
 
     testAuthType = FACE;
     ret = service->GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel);
