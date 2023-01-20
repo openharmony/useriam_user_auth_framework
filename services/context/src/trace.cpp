@@ -113,7 +113,10 @@ void Trace::ProcessPinAuthEvent(const ContextCallbackNotifyListener::MetaData &m
     if (metaData.callingUid.has_value()) {
         info.callingUid = metaData.callingUid.value();
     }
-    info.authTimeString = Common::GetNowTimeString();
+    auto timeSpan = std::chrono::duration_cast<std::chrono::milliseconds>(metaData.endTime - metaData.startTime);
+    std::ostringstream ss;
+    ss << timeSpan.count() << " ms";
+    info.authTimeString = ss.str();
     if (metaData.operationResult) {
         info.authResult = metaData.operationResult;
     }
