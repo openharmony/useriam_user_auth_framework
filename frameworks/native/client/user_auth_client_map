@@ -1,0 +1,101 @@
+# Copyright (c) 2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{
+    global:
+        *;
+    local:
+        extern "C++" {
+            OHOS::UserIam::UserAuth::UserAuthClientImpl::GetProperty*;
+            OHOS::UserIam::UserAuth::UserAuthClientImpl::SetProperty*;
+            OHOS::UserIam::UserAuth::UserAuthClientImpl::BeginAuthentication*;
+            OHOS::UserIam::UserAuth::UserAuthClientImpl::BeginIdentification*;
+            OHOS::UserIam::UserAuth::UserAuthClientImpl::CancelIdentification*;
+            OHOS::UserIam::UserAuth::UserAuthClientImpl::CancelAuthentication*;
+            OHOS::UserIam::UserAuth::UserAuthClientImpl::GetProxy*;
+            OHOS::UserIam::UserAuth::UserIdmClientImpl::DeleteUser*;
+            OHOS::UserIam::UserAuth::UserIdmClientImpl::OpenSession*;
+            OHOS::UserIam::UserAuth::UserIdmClientImpl::CloseSession*;
+            OHOS::UserIam::UserAuth::UserIdmClientImpl::AddCredential*;
+            OHOS::UserIam::UserAuth::UserIdmClientImpl::GetSecUserInfo*;
+            OHOS::UserIam::UserAuth::UserIdmClientImpl::DeleteCredential*;
+            OHOS::UserIam::UserAuth::UserIdmClientImpl::UpdateCredential*;
+            OHOS::UserIam::UserAuth::UserIdmClientImpl::GetCredentialInfo*;
+            OHOS::UserIam::UserAuth::UserIdmClientImpl::Cancel*;
+            OHOS::UserIam::UserAuth::UserIdmClientImpl::GetProxy*;
+            OHOS::UserIam::UserAuth::UserIdmClientImpl::EraseUser*;
+            OHOS::UserIam::UserAuth::CoAuthClientImpl::Unregister*;
+            OHOS::UserIam::UserAuth::CoAuthClientImpl::GetProxy*;
+            OHOS::UserIam::UserAuth::CoAuthClientImpl::Register*;
+            OHOS::UserIam::UserAuth::ExecutorCallbackService::OnEndExecute*;
+            OHOS::UserIam::UserAuth::ExecutorCallbackService::OnGetProperty*;
+            OHOS::UserIam::UserAuth::ExecutorCallbackService::OnSetProperty*;
+            OHOS::UserIam::UserAuth::ExecutorCallbackService::OnBeginExecute*;
+            OHOS::UserIam::UserAuth::UserAuthCallbackService::OnAcquireInfo*;
+            OHOS::UserIam::UserAuth::UserAuthCallbackService::OnResult*;
+            OHOS::UserIam::UserAuth::GetExecutorPropertyCallbackService::OnGetExecutorPropertyResult*;
+            OHOS::UserIam::UserAuth::SetExecutorPropertyCallbackService::OnSetExecutorPropertyResult*;
+            OHOS::UserIam::UserAuth::IdmCallbackService::OnAcquireInfo*;
+            OHOS::UserIam::UserAuth::IdmCallbackService::OnResult*;
+            OHOS::UserIam::UserAuth::IdmGetCredInfoCallbackService::OnCredentialInfos*;
+            OHOS::UserIam::UserAuth::IdmGetSecureUserInfoCallbackService::OnSecureUserInfo*;
+            std::__h*;
+            OHOS::UserIam::UserAuth::UserAuthProxy*;
+            OHOS::UserIam::UserAuth::UserIdmProxy*;
+            OHOS::UserIam::UserAuth::CoAuthProxy*;
+            OHOS::UserIam::UserAuth::ExecutorMessengerProxy*;
+            OHOS::UserIam::UserAuth::CredInfoImpl*;
+            OHOS::UserIam::UserAuth::SecUserInfoImpl*;
+            OHOS::UserIam::UserAuth::UserAuthCallbackProxy*;
+            OHOS::UserIam::UserAuth::GetExecutorPropertyCallbackProxy*;
+            OHOS::UserIam::UserAuth::SetExecutorPropertyCallbackProxy*;
+            OHOS::UserIam::UserAuth::IdmCallbackProxy*;
+            OHOS::UserIam::UserAuth::IdmGetCredentialInfoProxy*;
+            OHOS::UserIam::UserAuth::IdmGetSecureUserInfoProxy*;
+            OHOS::UserIam::UserAuth::CoAuthStub*;
+            OHOS::UserIam::UserAuth::ExecutorCallbackStub*;
+            OHOS::UserIam::UserAuth::ExecutorMessengerStub*;
+            OHOS::UserIam::UserAuth::UserAuthCallbackStub*;
+            OHOS::UserIam::UserAuth::GetExecutorPropertyCallbackStub*;
+            OHOS::UserIam::UserAuth::SetExecutorPropertyCallbackStub*;
+            OHOS::UserIam::UserAuth::SetExecutorPropertyCallbackStub*;
+            OHOS::UserIam::UserAuth::UserAuthStub*;
+            OHOS::UserIam::UserAuth::IdmCallbackStub*;
+            OHOS::UserIam::UserAuth::IdmGetCredInfoCallbackStub*;
+            OHOS::UserIam::UserAuth::IdmGetSecureUserInfoCallbackStub*;
+            OHOS::UserIam::UserAuth::UserIdmStub*;
+            OHOS::IRemoteStub*;
+            OHOS::IRemoteProxy*;
+            OHOS::BrokerDelegator*;
+            OHOS::UserIam::UserAuth::IpcClientUtils::GetRemoteObject*;
+            OHOS::IServiceRegistry::metaDescriptor_;
+            OHOS::ISystemAbilityManager::metaDescriptor_;
+            OHOS::ISystemAbilityManager::SAMANAGER_INTERFACE_TOKEN;
+            OHOS::ISystemAbilityLoadCallback::metaDescriptor_;
+            OHOS::ISystemAbilityStatusChange::metaDescriptor_;
+            OHOS::UserIam::UserAuth::Report*;
+            OHOS::UserIam::UserAuth::CoAuthInterface::metaDescriptor_;
+            OHOS::UserIam::UserAuth::UserIdmInterface::metaDescriptor_;
+            OHOS::UserIam::UserAuth::UserAuthInterface::metaDescriptor_;
+            OHOS::UserIam::UserAuth::IamHitraceHelper*;
+            OHOS::UserIam::UserAuth::IdmCallbackInterface::metaDescriptor_;
+            OHOS::UserIam::UserAuth::ExecutorCallbackService::OnMessengerReady*;
+            OHOS::UserIam::UserAuth::ExecutorCallbackInterface::metaDescriptor_;
+            OHOS::UserIam::UserAuth::UserAuthCallbackInterface::metaDescriptor_;
+            OHOS::UserIam::UserAuth::ExecutorMessengerInterface::metaDescriptor_;
+            OHOS::UserIam::UserAuth::IdmGetCredInfoCallbackInterface::metaDescriptor_;
+            OHOS::UserIam::UserAuth::GetExecutorPropertyCallbackInterface::metaDescriptor_;
+            OHOS::UserIam::UserAuth::SetExecutorPropertyCallbackInterface::metaDescriptor_;
+            OHOS::UserIam::UserAuth::IdmGetSecureUserInfoCallbackInterface::metaDescriptor_;
+        };
+};
