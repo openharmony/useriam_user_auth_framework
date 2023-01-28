@@ -328,7 +328,7 @@ ResultCodeV9 AuthInstanceV9::Cancel(napi_env env, napi_callback_info info)
         IAM_LOGE("auth not started");
         return ResultCodeV9::GENERAL_ERROR;
     }
-    int32_t result = UserAuthClientImpl::Instance().CancelAuthentication(contextId_);
+    int32_t result = UserAuthClient::GetInstance().CancelAuthentication(contextId_);
     if (result != ResultCode::SUCCESS) {
         IAM_LOGE("CancelAuthentication fail:%{public}d", result);
         return ResultCodeV9(UserAuthNapiHelper::GetResultCodeV9(result));
