@@ -38,13 +38,14 @@ ohos_shared_library("userauth_client") {
     "src/user_idm_client_impl.cpp",
   ]
 
-  configs = [
-    "//base/useriam/user_auth_framework/common:iam_log_config",
-    "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_client_ipc_config",
-  ]
+  configs = [ "../../../common:iam_log_config" ]
+
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
-  public_configs = [ ":userauth_client_config" ]
+  public_configs = [
+    ":userauth_client_config",
+    "../ipc:userauth_client_ipc_config",
+  ]
 
   deps = [
     "//base/useriam/user_auth_framework/common:iam_utils",
