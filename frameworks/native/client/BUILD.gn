@@ -53,6 +53,8 @@ ohos_shared_library("userauth_client") {
     "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_client_ipc",
   ]
 
+  version_script = "user_auth_client_map"
+
   external_deps = [
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
