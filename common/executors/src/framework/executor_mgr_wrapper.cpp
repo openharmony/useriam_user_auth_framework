@@ -15,6 +15,8 @@
 
 #include "executor_mgr_wrapper.h"
 
+#include "ipc_skeleton.h"
+
 #include "co_auth_client.h"
 
 namespace OHOS {
@@ -22,7 +24,10 @@ namespace UserIam {
 namespace UserAuth {
 void ExecutorMgrWrapper::Register(const ExecutorInfo &info, std::shared_ptr<ExecutorRegisterCallback> callback)
 {
+    // Same process service tokenId get processing
+    std::string callingIdentity = IPCSkeleton::ResetCallingIdentity();
     UserAuth::CoAuthClient::GetInstance().Register(info, callback);
+    IPCSkeleton::SetCallingIdentity(callingIdentity);
 }
 } // namespace UserAuth
 } // namespace UserIam
