@@ -19,7 +19,6 @@
 #include <cstdint>
 #include <memory>
 
-#include "iremote_object.h"
 #include "v1_0/iuser_auth_interface.h"
 
 namespace OHOS {
