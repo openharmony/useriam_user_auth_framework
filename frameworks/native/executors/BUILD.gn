@@ -66,4 +66,6 @@ ohos_shared_library("userauth_executors") {
   ]
 
   part_name = "user_auth_framework"
+
+  innerapi_tags = ["platformsdk"]
 }

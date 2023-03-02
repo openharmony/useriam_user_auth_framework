@@ -64,4 +64,6 @@ ohos_shared_library("userauth_client") {
   ]
 
   part_name = "user_auth_framework"
+
+  innerapi_tags = ["platformsdk"]
 }
