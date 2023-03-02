@@ -17,7 +17,7 @@ ohos_unittest("iam_executors_test") {
   include_dirs = [
     "mock",
     "//base/useriam/user_auth_framework/frameworks/native/executors/include",
-    "//base/useriam/user_auth_framework/frameworks/native/executors/include/public",
+    "//base/useriam/user_auth_framework/interfaces/inner_api/iam_executor",
     "//base/useriam/user_auth_framework/frameworks/native/executors/include/async_command",
     "//base/useriam/user_auth_framework/frameworks/native/executors/include/framework",
     "//base/useriam/user_auth_framework/common/utils",
