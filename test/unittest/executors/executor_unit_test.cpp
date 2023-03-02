@@ -1164,7 +1164,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_001,
     static const int32_t testCommandId = 123;
     static const std::vector<uint8_t> testExtraInfo = {4, 5, 6};
     static std::thread t;
-    static std::string threadName= "executor_unit_test";
+    static std::string threadName = "executor_unit_test";
 
     shared_ptr<Executor> executor;
     shared_ptr<ExecutorRegisterCallback> executorCallback;
