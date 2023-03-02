@@ -24,9 +24,9 @@ ohos_fuzztest("UserAuthExecutorFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
   include_dirs = [
-    "//base/useriam/user_auth_framework/common/executors/include",
-    "//base/useriam/user_auth_framework/common/executors/include/async_command",
-    "//base/useriam/user_auth_framework/common/executors/include/framework",
+    "//base/useriam/user_auth_framework/frameworks/native/executors/include",
+    "//base/useriam/user_auth_framework/frameworks/native/executors/include/async_command",
+    "//base/useriam/user_auth_framework/frameworks/native/executors/include/framework",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs",
   ]
