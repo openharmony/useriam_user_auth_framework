@@ -49,7 +49,7 @@ ohos_fuzztest("UserAuthServiceFuzzTest") {
     "drivers_interface_user_auth:libuser_auth_proxy_1.0",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
+    "ipc:ipc_single",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
