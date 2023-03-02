@@ -13,28 +13,27 @@
  * limitations under the License.
  */
 
-#ifndef FRAMEWORK_TYPES_H
-#define FRAMEWORK_TYPES_H
+#ifndef IAM_EXECUTOR_IAUTH_DRIVER_HDI_H
+#define IAM_EXECUTOR_IAUTH_DRIVER_HDI_H
 
 #include <cstdint>
-#include <vector>
+
+#include "iremote_broker.h"
+
+#include "iam_executor_iauth_executor_hdi.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-enum UserAuthResult : int32_t {
-    USERAUTH_SUCCESS = 0,
-    USERAUTH_ERROR = 1,
-};
+class IAuthDriverHdi {
+public:
+    IAuthDriverHdi() = default;
+    virtual ~IAuthDriverHdi() = default;
 
-struct TemplateInfo {
-    uint32_t executorType;
-    int32_t freezingTime;
-    int32_t remainTimes;
-    std::vector<uint8_t> extraInfo;
+    virtual void GetExecutorList(std::vector<std::shared_ptr<UserAuth::IAuthExecutorHdi>> &executorList) = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
 
-#endif // FRAMEWORK_TYPES_H
+#endif // IAM_EXECUTOR_IAUTH_DRIVER_HDI_H

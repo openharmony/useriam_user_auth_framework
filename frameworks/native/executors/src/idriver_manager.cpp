@@ -13,38 +13,20 @@
  * limitations under the License.
  */
 
-#ifndef EXECUTOR_DRIVER_H
-#define EXECUTOR_DRIVER_H
+#include "iam_executor_idriver_manager.h"
 
-#include <string>
-#include <vector>
+#include "driver_manager.h"
+#include "iam_logger.h"
 
-#include "nocopyable.h"
-
-#include "executor.h"
-#include "idriver_manager.h"
+#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_EXECUTOR
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class Driver : public NoCopyable {
-public:
-    Driver(const std::string &serviceName, HdiConfig hdiConfig);
-    ~Driver() override = default;
-
-    void OnHdiConnect();
-    void OnHdiDisconnect();
-    void OnFrameworkReady();
-
-private:
-    std::mutex mutex_;
-    std::string serviceName_;
-    HdiConfig hdiConfig_;
-    bool hdiConnected_ = false;
-    std::vector<std::shared_ptr<Executor>> executorList_;
-};
+int32_t IDriverManager::Start(const std::map<std::string, HdiConfig> &hdiName2Config)
+{
+    return Singleton<UserAuth::DriverManager>::GetInstance().Start(hdiName2Config);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-
-#endif // EXECUTOR_DRIVER_H

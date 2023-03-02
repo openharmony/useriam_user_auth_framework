@@ -23,7 +23,7 @@
 #include "iam_fuzz_test.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
-#include "iauth_executor_hdi.h"
+#include "iam_executor_iauth_executor_hdi.h"
 
 #undef private
 
