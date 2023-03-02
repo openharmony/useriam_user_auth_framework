@@ -34,15 +34,15 @@ ohos_shared_library("userauth") {
 
   deps = [
     "//base/useriam/user_auth_framework/common:iam_utils",
-    "//base/useriam/user_auth_framework/frameworks/native/client:userauth_client",
     "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
   ]
 
   external_deps = [
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
+    "ipc:ipc_single",
     "napi:ace_napi",
+    "user_auth_framework:userauth_client",
   ]
 
   public_configs = [ ":userauth_public_config" ]

@@ -26,7 +26,7 @@
 #include "iam_defines.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
-#include "framework_types.h"
+#include "iam_executor_framework_types.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_EXECUTOR
 

@@ -13,31 +13,28 @@
  * limitations under the License.
  */
 
-#ifndef IDRIVER_MANAGER_H
-#define IDRIVER_MANAGER_H
+#ifndef IAM_EXECUTOR_FRAMEWORK_TYPES_H
+#define IAM_EXECUTOR_FRAMEWORK_TYPES_H
 
 #include <cstdint>
-#include <map>
-
-#include "iauth_driver_hdi.h"
+#include <vector>
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-struct HdiConfig {
-    uint16_t id; // non-zero
-    std::shared_ptr<IAuthDriverHdi> driver;
+enum UserAuthResult : int32_t {
+    USERAUTH_SUCCESS = 0,
+    USERAUTH_ERROR = 1,
 };
 
-class IDriverManager {
-public:
-    IDriverManager() = default;
-    virtual ~IDriverManager() = default;
-
-    static int32_t Start(const std::map<std::string, HdiConfig> &hdiName2Config);
+struct TemplateInfo {
+    uint32_t executorType;
+    int32_t freezingTime;
+    int32_t remainTimes;
+    std::vector<uint8_t> extraInfo;
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
 
-#endif // IDRIVER_MANAGER_H
+#endif // IAM_EXECUTOR_FRAMEWORK_TYPES_H

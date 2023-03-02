@@ -26,7 +26,7 @@
 #include "co_auth_client_callback.h"
 #include "executor_mgr_wrapper.h"
 #include "iasync_command.h"
-#include "iauth_executor_hdi.h"
+#include "iam_executor_iauth_executor_hdi.h"
 
 namespace OHOS {
 namespace UserIam {

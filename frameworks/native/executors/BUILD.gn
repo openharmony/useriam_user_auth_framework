@@ -15,8 +15,8 @@ import("//build/ohos.gni")
 
 config("userauth_executors_public_config") {
   include_dirs = [
-    "include/public",
     "//base/useriam/user_auth_framework/interfaces/inner_api",
+    "//base/useriam/user_auth_framework/interfaces/inner_api/iam_executor",
   ]
 }
 
@@ -26,6 +26,7 @@ ohos_shared_library("userauth_executors") {
     "src/async_command/auth_command.cpp",
     "src/async_command/custom_command.cpp",
     "src/async_command/enroll_command.cpp",
+
     "src/async_command/identify_command.cpp",
     "src/driver.cpp",
     "src/driver_manager.cpp",
@@ -50,7 +51,6 @@ ohos_shared_library("userauth_executors") {
 
   deps = [
     "//base/useriam/user_auth_framework/common:iam_utils",
-    "//base/useriam/user_auth_framework/frameworks/native/client:userauth_client",
     "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
     "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
   ]
@@ -62,7 +62,10 @@ ohos_shared_library("userauth_executors") {
     "init:libbeget_proxy",
     "ipc:ipc_single",
     "samgr:samgr_proxy",
+    "user_auth_framework:userauth_client",
   ]
 
   part_name = "user_auth_framework"
+
+  innerapi_tags = ["platformsdk"]
 }
