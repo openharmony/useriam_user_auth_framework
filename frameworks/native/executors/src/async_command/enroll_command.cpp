@@ -15,7 +15,7 @@
 
 #include "enroll_command.h"
 
-#include "framework_types.h"
+#include "iam_executor_framework_types.h"
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_mem.h"

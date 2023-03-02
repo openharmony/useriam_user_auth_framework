@@ -18,7 +18,7 @@
 
 #include "gmock/gmock.h"
 
-#include "iauth_driver_hdi.h"
+#include "iam_executor_iauth_driver_hdi.h"
 
 namespace OHOS {
 namespace UserIam {

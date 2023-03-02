@@ -30,6 +30,7 @@ ohos_source_set("userauth_services_ipc") {
 
   sources = [
     "src/co_auth_service.cpp",
+
     "src/executor_messenger_service.cpp",
     "src/ipc_common.cpp",
     "src/user_auth_service.cpp",
@@ -54,7 +55,7 @@ ohos_source_set("userauth_services_ipc") {
     "hilog_native:libhilog",
     "hitrace_native:hitrace_meter",
     "init:libbegetutil",
-    "ipc:ipc_core",
+    "ipc:ipc_single",
     "safwk:system_ability_fwk",
   ]
 
