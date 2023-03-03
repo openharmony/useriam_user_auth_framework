@@ -26,7 +26,6 @@ ohos_shared_library("userauth_executors") {
     "src/async_command/auth_command.cpp",
     "src/async_command/custom_command.cpp",
     "src/async_command/enroll_command.cpp",
-
     "src/async_command/identify_command.cpp",
     "src/driver.cpp",
     "src/driver_manager.cpp",
