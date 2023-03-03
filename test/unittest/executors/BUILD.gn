@@ -16,10 +16,10 @@ import("//build/test.gni")
 ohos_unittest("iam_executors_test") {
   include_dirs = [
     "mock",
-    "//base/useriam/user_auth_framework/common/executors/include",
-    "//base/useriam/user_auth_framework/common/executors/include/public",
-    "//base/useriam/user_auth_framework/common/executors/include/async_command",
-    "//base/useriam/user_auth_framework/common/executors/include/framework",
+    "../../../frameworks/native/executors/include",
+    "../../../interfaces/inner_api/iam_executor",
+    "../../../frameworks/native/executors/include/async_command",
+    "../../../frameworks/native/executors/include/framework",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs",
   ]
@@ -36,8 +36,6 @@ ohos_unittest("iam_executors_test") {
 
   deps = [
     "//base/useriam/user_auth_framework/common:iam_utils",
-    "//base/useriam/user_auth_framework/common/executors:userauth_executors",
-    "//base/useriam/user_auth_framework/frameworks/native/client:userauth_client",
     "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
     "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
     "//third_party/googletest:gmock_main",
@@ -53,6 +51,8 @@ ohos_unittest("iam_executors_test") {
     "init:libbeget_proxy",
     "ipc:ipc_single",
     "samgr:samgr_proxy",
+    "user_auth_framework:userauth_client",
+    "user_auth_framework:userauth_executors",
   ]
 
   configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]

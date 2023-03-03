@@ -13,16 +13,16 @@
  * limitations under the License.
  */
 
-#ifndef IAUTH_EXECUTOR_HDI_H
-#define IAUTH_EXECUTOR_HDI_H
+#ifndef IAM_EXECUTOR_IAUTH_EXECUTOR_HDI_H
+#define IAM_EXECUTOR_IAUTH_EXECUTOR_HDI_H
 
 #include <cstdint>
 #include <vector>
 
 #include "co_auth_client.h"
-#include "framework_types.h"
+#include "iam_executor_framework_types.h"
 #include "iam_common_defines.h"
-#include "iexecute_callback.h"
+#include "iam_executor_iexecute_callback.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -52,4 +52,4 @@ public:
 } // namespace UserIam
 } // namespace OHOS
 
-#endif // IAUTH_EXECUTOR_HDI_H
+#endif // IAM_EXECUTOR_IAUTH_EXECUTOR_HDI_H
