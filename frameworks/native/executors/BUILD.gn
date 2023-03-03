@@ -15,8 +15,8 @@ import("//build/ohos.gni")
 
 config("userauth_executors_public_config") {
   include_dirs = [
-    "include/public",
-    "//base/useriam/user_auth_framework/interfaces/inner_api",
+    "../../../interfaces/inner_api",
+    "../../../interfaces/inner_api/iam_executor",
   ]
 }
 

@@ -13,29 +13,38 @@
  * limitations under the License.
  */
 
-#ifndef IEXECUTE_CALLBACK_H
-#define IEXECUTE_CALLBACK_H
+#ifndef EXECUTOR_DRIVER_H
+#define EXECUTOR_DRIVER_H
 
-#include <cstdint>
+#include <string>
 #include <vector>
 
-#include "iam_common_defines.h"
+#include "nocopyable.h"
+
+#include "executor.h"
+#include "iam_executor_idriver_manager.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class IExecuteCallback {
+class Driver : public NoCopyable {
 public:
-    using ResultCode = UserIam::UserAuth::ResultCode;
-    IExecuteCallback() = default;
-    virtual ~IExecuteCallback() = default;
+    Driver(const std::string &serviceName, HdiConfig hdiConfig);
+    ~Driver() override = default;
 
-    virtual void OnResult(ResultCode result, const std::vector<uint8_t> &extraInfo) = 0;
-    virtual void OnResult(ResultCode result) = 0;
-    virtual void OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo) = 0;
+    void OnHdiConnect();
+    void OnHdiDisconnect();
+    void OnFrameworkReady();
+
+private:
+    std::mutex mutex_;
+    std::string serviceName_;
+    HdiConfig hdiConfig_;
+    bool hdiConnected_ = false;
+    std::vector<std::shared_ptr<Executor>> executorList_;
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
 
-#endif // EXECUTE_CALLBACK_H
+#endif // EXECUTOR_DRIVER_H

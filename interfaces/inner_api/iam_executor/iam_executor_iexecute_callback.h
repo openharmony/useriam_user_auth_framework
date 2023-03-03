@@ -13,20 +13,29 @@
  * limitations under the License.
  */
 
-#include "idriver_manager.h"
+#ifndef IAM_EXECUTOR_IEXECUTE_CALLBACK_H
+#define IAM_EXECUTOR_IEXECUTE_CALLBACK_H
 
-#include "driver_manager.h"
-#include "iam_logger.h"
+#include <cstdint>
+#include <vector>
 
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_EXECUTOR
+#include "iam_common_defines.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-int32_t IDriverManager::Start(const std::map<std::string, HdiConfig> &hdiName2Config)
-{
-    return Singleton<UserAuth::DriverManager>::GetInstance().Start(hdiName2Config);
-}
+class IExecuteCallback {
+public:
+    using ResultCode = UserIam::UserAuth::ResultCode;
+    IExecuteCallback() = default;
+    virtual ~IExecuteCallback() = default;
+
+    virtual void OnResult(ResultCode result, const std::vector<uint8_t> &extraInfo) = 0;
+    virtual void OnResult(ResultCode result) = 0;
+    virtual void OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo) = 0;
+};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
+
+#endif // IAM_EXECUTOR_EXECUTE_CALLBACK_H

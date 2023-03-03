@@ -13,27 +13,31 @@
  * limitations under the License.
  */
 
-#ifndef IAUTH_DRIVER_HDI_H
-#define IAUTH_DRIVER_HDI_H
+#ifndef IAM_EXECUTOR_IDRIVER_MANAGER_H
+#define IAM_EXECUTOR_IDRIVER_MANAGER_H
 
 #include <cstdint>
+#include <map>
 
-#include "iremote_broker.h"
-
-#include "iauth_executor_hdi.h"
+#include "iam_executor_iauth_driver_hdi.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class IAuthDriverHdi {
-public:
-    IAuthDriverHdi() = default;
-    virtual ~IAuthDriverHdi() = default;
+struct HdiConfig {
+    uint16_t id; // non-zero
+    std::shared_ptr<IAuthDriverHdi> driver;
+};
 
-    virtual void GetExecutorList(std::vector<std::shared_ptr<UserAuth::IAuthExecutorHdi>> &executorList) = 0;
+class IDriverManager {
+public:
+    IDriverManager() = default;
+    virtual ~IDriverManager() = default;
+
+    static int32_t Start(const std::map<std::string, HdiConfig> &hdiName2Config);
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
 
-#endif // IAUTH_DRIVER_HDI_H
+#endif // IAM_EXECUTOR_IDRIVER_MANAGER_H

@@ -16,6 +16,7 @@
 #include "gtest/gtest.h"
 
 #include <thread>
+#include <pthread.h>
 
 #include "executor.h"
 #include "framework_executor_callback.h"
@@ -1163,6 +1164,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_001,
     static const int32_t testCommandId = 123;
     static const std::vector<uint8_t> testExtraInfo = {4, 5, 6};
     static std::thread t;
+    static std::string threadName = "executor_unit_test";
 
     shared_ptr<Executor> executor;
     shared_ptr<ExecutorRegisterCallback> executorCallback;
@@ -1185,6 +1187,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_001,
             EXPECT_EQ(static_cast<int32_t>(commandId), testCommandId);
             EXPECT_EQ(extraInfo, testExtraInfo);
             t = std::thread([callbackObj] {
+                pthread_setname_np(pthread_self(), threadName.c_str());
                 const int32_t sleepTime = 500;
                 std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
                 callbackObj->OnResult(ResultCode::SUCCESS, {});
