@@ -13,6 +13,14 @@
  * limitations under the License.
  */
 
+/**
+ * @file iam_executor_iauth_driver_hdi.h
+ *
+ * @brief Hardware device interface for authenticate driver.
+ * @since 3.1
+ * @version 3.2
+ */
+
 #ifndef IAM_EXECUTOR_IAUTH_DRIVER_HDI_H
 #define IAM_EXECUTOR_IAUTH_DRIVER_HDI_H
 
@@ -27,9 +35,21 @@ namespace UserIam {
 namespace UserAuth {
 class IAuthDriverHdi {
 public:
+    /**
+     * @brief Default constructor.
+     */
     IAuthDriverHdi() = default;
+
+    /**
+     * @brief Deconstructor.
+     */
     virtual ~IAuthDriverHdi() = default;
 
+    /**
+     * @brief Get the list of executor.
+     *
+     * @param executorList The list of executor.
+     */
     virtual void GetExecutorList(std::vector<std::shared_ptr<UserAuth::IAuthExecutorHdi>> &executorList) = 0;
 };
 } // namespace UserAuth

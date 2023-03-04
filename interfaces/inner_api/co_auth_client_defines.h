@@ -13,6 +13,14 @@
  * limitations under the License.
  */
 
+/**
+ * @file co_auth_client_defines.h
+ *
+ * @brief Type definitions used by coAuth client.
+ * @since 3.1
+ * @version 3.2
+ */
+
 #ifndef CO_AUTH_CLIENT_DEFINES_H
 #define CO_AUTH_CLIENT_DEFINES_H
 
@@ -24,24 +32,59 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+/**
+ * @brief Infomation used to describe an Executor.
+ */
 struct ExecutorInfo {
+    /** Authentication type supported by executor. */
     AuthType authType {0};
+    /** Executor role. */
     ExecutorRole executorRole {0};
+    /** Unique index of executor within each authType. */
     uint32_t executorSensorHint {0};
+    /** Sensor or algorithm type supported by executor. */
     uint32_t executorMatcher {0};
+    /** Executor secure level. */
     ExecutorSecureLevel esl {0};
+    /** Used to verify the result issued by the authenticator. */
     std::vector<uint8_t> publicKey {};
 };
 
 class AuthMessage {
 public:
+    /**
+     * @brief Function of type conversion.
+     *
+     * @param msg Incoming vector<uint8_t> type.
+     * @return Return shared_ptr<AuthMessage>.
+     */
     static std::shared_ptr<AuthMessage> As(const std::vector<uint8_t> &msg);
 };
 
 class ExecutorMessenger {
 public:
+    /**
+     * @brief Called by the executor, send authentication data to resource pool.
+     *
+     * @param scheduleId Specify the current schedule.
+     * @param transNum Properties of this operation.
+     * @param srcRole Source executor role.
+     * @param dstRole Destination executor role.
+     * @param msg Authentication message.
+     * @return Return send data success or not(0:success; other:failed).
+     */
     virtual int32_t SendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole, ExecutorRole dstRole,
         const std::shared_ptr<AuthMessage> &msg) = 0;
+
+    /**
+     * @brief Called by the executor, send finish data to resource pool.
+     *
+     * @param scheduleId Specify the current schedule.
+     * @param srcRole Source executor role.
+     * @param resultcode Authentication result code.
+     * @param finalResult Authentication final result.
+     * @return Return finish success or not(0:success; other:failed).
+     */
     virtual int32_t Finish(uint64_t scheduleId, ExecutorRole srcRole, int32_t resultCode,
         const Attributes &finalResult) = 0;
 };
