@@ -55,7 +55,7 @@ ohos_unittest("iam_executors_test") {
   ]
 
   configs = [
-    "//base/useriam/user_auth_framework/common:iam_log_config",
+    "../../../common:iam_log_config",
     "../../../common:iam_utils_config",
   ]
 
