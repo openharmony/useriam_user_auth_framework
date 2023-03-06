@@ -32,12 +32,13 @@ ohos_shared_library("userauth") {
     "src/user_auth_napi_helper.cpp",
   ]
 
+  deps = [ "../../../native/client:userauth_client" ]
+
   external_deps = [
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_single",
     "napi:ace_napi",
-    "user_auth_framework:userauth_client",
   ]
 
   configs = [

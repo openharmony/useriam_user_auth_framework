@@ -13,85 +13,167 @@
  * limitations under the License.
  */
 
+/**
+ * @file iam_common_defines.h
+ *
+ * @brief Some common defines in IAM.
+ * @since 3.1
+ * @version 3.2
+ */
+
 #ifndef IAM_COMMON_DEFINES_H
 #define IAM_COMMON_DEFINES_H
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+/** Max length of challenge. */
 constexpr size_t MAX_CHALLENG_LEN = 32;
 
+/**
+ * @brief Defines authentication type.
+ */
 enum AuthType : int32_t {
+    /** All authentication types. */
     ALL = 0,
+    /** Pin authentication. */
     PIN = 1,
+    /** Face authentication. */
     FACE = 2,
+    /** Fingerprint authentication. */
     FINGERPRINT = 4,
 };
 
+/**
+ * @brief Defines pin auth's subtype.
+ */
 enum PinSubType : int32_t {
+    /** Digit password with fixed length of six. */
     PIN_SIX = 10000,
+    /** Digit password with unfixed length. */
     PIN_NUMBER = 10001,
+    /** Complex password with number and alphabet. */
     PIN_MIXED = 10002,
+    /** Max pin. */
     PIN_MAX,
 };
 
+/**
+ * @brief Enumerates executor roles.
+ */
 enum ExecutorRole : int32_t {
+    /** Scheduler executor. */
     SCHEDULER = 0,
+    /** The executor acts as a collector. */
     COLLECTOR = 1,
+    /** The executor acts as a verifier. */
     VERIFIER = 2,
+    /** The executor acts as a collector and verifier. */
     ALL_IN_ONE = 3,
 };
 
+/**
+ * @brief Enumerates executor security levels.
+ */
 enum ExecutorSecureLevel : int32_t {
+    /** Executor secure level 0. */
     ESL0 = 0,
+    /** Executor secure level 1. */
     ESL1 = 1,
+    /** Executor secure level 2. */
     ESL2 = 2,
+    /** Executor secure level 3. */
     ESL3 = 3,
 };
 
+/**
+ * @brief Authentication trust level
+ */
 enum AuthTrustLevel : uint32_t {
+    /** Auth trust level 1. */
     ATL1 = 10000,
+    /** Auth trust level 2. */
     ATL2 = 20000,
+    /** Auth trust level 3. */
     ATL3 = 30000,
+    /** Auth trust level 4. */
     ATL4 = 40000,
 };
 
+/**
+ * @brief Schedule mode.
+ */
 enum ScheduleMode : int32_t {
+    /** The schedule mode is enrollment. */
     ENROLL = 0,
+    /** The schedule mode is authentication. */
     AUTH = 1,
+    /** The schedule mode is identification. */
     IDENTIFY = 2,
 };
 
+/**
+ * @brief Property mode.
+ */
 enum PropertyMode : uint32_t {
+    /** The property mode is init algorithm. */
     PROPERTY_INIT_ALGORITHM = 1,
+    /** The property mode is delete. */
     PROPERTY_MODE_DEL = 2,
+    /** The property mode is get. */
     PROPERTY_MODE_GET = 3,
+    /** The property mode is set. */
     PROPERTY_MODE_SET = 4,
+    /** The property mode is freeze. */
     PROPERTY_MODE_FREEZE = 5,
+    /** The property mode is unfreeze. */
     PROPERTY_MODE_UNFREEZE = 6,
 };
 
+/**
+ * @brief The result code.
+ */
 enum ResultCode : int32_t {
+    /** The result is success. */
     SUCCESS = 0,
+    /** Compile fail. */
     FAIL = 1,
+    /** The result is fail, because an unknown error occurred. */
     GENERAL_ERROR = 2,
+    /** The result is fail, because the request was canceled. */
     CANCELED = 3,
+    /** The result is fail ,because of time out. */
     TIMEOUT = 4,
+    /** The result is fail ,because type is not support. */
     TYPE_NOT_SUPPORT = 5,
+    /** The result is fail ,because trust level is not support. */
     TRUST_LEVEL_NOT_SUPPORT = 6,
+    /** The result is fail, because the service was busy. */
     BUSY = 7,
+    /** The result is fail, because parameters is invalid. */
     INVALID_PARAMETERS = 8,
+    /** The result if fail, because the status is locked. */
     LOCKED = 9,
+    /** The result is fail, because the user was not enrolled. */
     NOT_ENROLLED = 10,
+    /** The result is fail, because the hardware is not supported. */
     HARDWARE_NOT_SUPPORTED = 11,
-    SYSTEM_ERROR_CODE_BEGIN = 1000, // error code for system
+    /** The result is fail, because something wrong from system. */
+    SYSTEM_ERROR_CODE_BEGIN = 1000,
+    /** The result is fail, because something wrong from ipc. */
     IPC_ERROR = 1001,
+    /** The result is fail, because the context ID is invalid. */
     INVALID_CONTEXT_ID = 1002,
+    /** The result is fail, because something wrong when read parcel. */
     READ_PARCEL_ERROR = 1003,
+    /** The result is fail, because something wrong when write parcel. */
     WRITE_PARCEL_ERROR = 1004,
+    /** The result is fail, because permission check is failed. */
     CHECK_PERMISSION_FAILED = 1005,
+    /** The result is fail, because the hdi interface is invalid. */
     INVALID_HDI_INTERFACE = 1006,
-    VENDOR_ERROR_CODE_BEGIN = 10000, // error code for vendor
+    /** The result is fail, because something wrong from vendor. */
+    VENDOR_ERROR_CODE_BEGIN = 10000,
 };
 } // namespace UserAuth
 } // namespace UserIam
