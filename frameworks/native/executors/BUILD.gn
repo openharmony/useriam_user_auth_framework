@@ -44,6 +44,8 @@ ohos_shared_library("userauth_executors") {
     "include/listener",
   ]
 
+  configs = [ "../../../common:iam_log_config" ]
+
   public_configs = [ ":userauth_executors_public_config" ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]

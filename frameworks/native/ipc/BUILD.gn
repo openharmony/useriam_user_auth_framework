@@ -39,11 +39,13 @@ ohos_source_set("userauth_client_ipc") {
     "src/user_idm_proxy.cpp",
   ]
 
-  configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
+  configs = [
+    "../../../common:iam_log_config",
+    "../../../common:iam_utils_config",
+  ]
+
   public_configs = [ ":userauth_client_ipc_config" ]
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
-
-  deps = [ "//base/useriam/user_auth_framework/common:iam_utils" ]
 
   external_deps = [
     "c_utils:utils",
@@ -69,11 +71,13 @@ ohos_source_set("userauth_service_ipc") {
     "src/user_idm_stub.cpp",
   ]
 
-  configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
+  configs = [
+    "../../../common:iam_log_config",
+    "../../../common:iam_utils_config",
+  ]
+
   public_configs = [ ":userauth_client_ipc_config" ]
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
-
-  deps = [ "//base/useriam/user_auth_framework/common:iam_utils" ]
 
   external_deps = [
     "c_utils:utils",

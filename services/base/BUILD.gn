@@ -30,28 +30,20 @@ ohos_source_set("userauth_service_base") {
     "src/thread_handler_impl.cpp",
   ]
 
-  deps = [
-    "//base/useriam/user_auth_framework/common:iam_utils",
-    "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
-    "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
-    "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_service_ipc",
-    "//third_party/openssl:libcrypto_shared",
-  ]
-
   external_deps = [
-    "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "drivers_interface_user_auth:libuser_auth_proxy_1.0",
     "hilog_native:libhilog",
-    "hitrace_native:hitrace_meter",
     "init:libbegetutil",
-    "ipc:ipc_single",
     "safwk:system_ability_fwk",
   ]
 
   public_configs = [ ":userauth_service_base_config" ]
 
-  configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
+  configs = [
+    "../../common:iam_log_config",
+    "../../common:iam_utils_config",
+  ]
 
   part_name = "user_auth_framework"
 }
