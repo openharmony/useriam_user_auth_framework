@@ -13,6 +13,14 @@
  * limitations under the License.
  */
 
+/**
+ * @file co_auth_client.h
+ *
+ * @brief The definition of coAuth client.
+ * @since 3.1
+ * @version 3.2
+ */
+
 #ifndef CO_AUTH_CLIENT_H
 #define CO_AUTH_CLIENT_H
 
@@ -24,10 +32,31 @@ namespace UserIam {
 namespace UserAuth {
 class CoAuthClient {
 public:
+    /**
+     * @brief Get coAuth client's instance.
+     *
+     * @return CoAuthClient's instance.
+     */
     static CoAuthClient &GetInstance();
+
+    /**
+     * @brief Deconstructor.
+     */
     virtual ~CoAuthClient() = default;
 
+    /**
+     * @brief Executor secure register into coAuth resource pool.
+     *
+     * @param info Information about executor which need to register into coAuth.
+     * @param callback Callback of executor register.
+     */
     virtual void Register(const ExecutorInfo &info, const std::shared_ptr<ExecutorRegisterCallback> &callback) = 0;
+
+    /**
+     * @brief Executor secure unregister from coAuth resource pool.
+     *
+     * @param info Information about executor which need to unregister from coAuth.
+     */
     virtual void Unregister(const ExecutorInfo &info) = 0;
 };
 } // namespace UserAuth

@@ -13,6 +13,14 @@
  * limitations under the License.
  */
 
+/**
+ * @file co_auth_client_defines.h
+ *
+ * @brief Type definitions used by user auth client.
+ * @since 3.1
+ * @version 3.2
+ */
+
 #ifndef USER_AUTH_CLIENT_DEFINES_H
 #define USER_AUTH_CLIENT_DEFINES_H
 
@@ -22,14 +30,25 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+/**
+ * @brief Executor property needed to get.
+ */
 struct GetPropertyRequest {
+    /** Auth type supported by executor. */
     AuthType authType {0};
+    /** The keys of attribute needed to get. */
     std::vector<Attributes::AttributeKey> keys {};
 };
 
+/**
+ * @brief Executor property needed to set.
+ */
 struct SetPropertyRequest {
+    /** Auth type supported by executor. */
     AuthType authType {0};
+    /**  The executor's property mode. */
     PropertyMode mode {0};
+    /** The attributes needed to set. */
     Attributes attrs {};
 };
 } // namespace UserAuth
