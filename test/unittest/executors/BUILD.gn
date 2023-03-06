@@ -20,11 +20,25 @@ ohos_unittest("iam_executors_test") {
     "../../../interfaces/inner_api/iam_executor",
     "../../../frameworks/native/executors/include/async_command",
     "../../../frameworks/native/executors/include/framework",
+    "../../../frameworks/native/executors/include/listener",
     "//base/useriam/user_auth_framework/common/utils",
     "//base/useriam/user_auth_framework/common/logs",
   ]
 
   sources = [
+    "../../../frameworks/native/executors/src/async_command/async_command_base.cpp",
+    "../../../frameworks/native/executors/src/async_command/auth_command.cpp",
+    "../../../frameworks/native/executors/src/async_command/custom_command.cpp",
+    "../../../frameworks/native/executors/src/async_command/enroll_command.cpp",
+    "../../../frameworks/native/executors/src/async_command/identify_command.cpp",
+    "../../../frameworks/native/executors/src/driver.cpp",
+    "../../../frameworks/native/executors/src/driver_manager.cpp",
+    "../../../frameworks/native/executors/src/executor.cpp",
+    "../../../frameworks/native/executors/src/framework/executor_mgr_wrapper.cpp",
+    "../../../frameworks/native/executors/src/framework/framework_executor_callback.cpp",
+    "../../../frameworks/native/executors/src/idriver_manager.cpp",
+    "../../../frameworks/native/executors/src/listener/auth_executor_mgr_status_listener.cpp",
+    "../../../frameworks/native/executors/src/listener/driver_manager_status_listener.cpp",
     "auth_command_unit_test.cpp",
     "driver_manager_unit_test.cpp",
     "enroll_command_unit_test.cpp",
@@ -35,6 +49,7 @@ ohos_unittest("iam_executors_test") {
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   deps = [
+    "../../../common:iam_utils",
     "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
     "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
     "//third_party/googletest:gmock_main",
@@ -51,7 +66,6 @@ ohos_unittest("iam_executors_test") {
     "ipc:ipc_single",
     "samgr:samgr_proxy",
     "user_auth_framework:userauth_client",
-    "user_auth_framework:userauth_executors",
   ]
 
   configs = [

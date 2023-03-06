@@ -50,6 +50,10 @@ ohos_shared_library("userauth_executors") {
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
+  if (use_musl) {
+    version_script = "user_auth_executors_map"
+  }
+
   deps = [
     "//base/useriam/user_auth_framework/common:iam_utils",
     "//base/useriam/user_auth_framework/frameworks/native/client:userauth_client",
