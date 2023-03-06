@@ -41,10 +41,7 @@ ohos_source_set("userauth_services_ipc") {
     "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
     "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
     "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_service_ipc",
-    "//base/useriam/user_auth_framework/services/base:userauth_service_base",
     "//base/useriam/user_auth_framework/services/context:userauth_service_context",
-    "//base/useriam/user_auth_framework/services/core:userauth_service_core",
-    "//third_party/openssl:libcrypto_shared",
   ]
 
   external_deps = [
@@ -63,7 +60,11 @@ ohos_source_set("userauth_services_ipc") {
     external_deps += [ "os_account:os_account_innerkits" ]
   }
 
-  configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
+  configs = [
+    "../base:userauth_service_base_config",
+    "../../common:iam_log_config",
+    "../core:userauth_service_core_config",
+  ]
 
   part_name = "user_auth_framework"
 }

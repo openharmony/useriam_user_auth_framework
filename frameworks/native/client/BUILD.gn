@@ -38,7 +38,10 @@ ohos_shared_library("userauth_client") {
     "src/user_idm_client_impl.cpp",
   ]
 
-  configs = [ "../../../common:iam_log_config" ]
+  configs = [
+    "../../../common:iam_log_config",
+    "../../../common:iam_utils_config",
+  ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
@@ -48,7 +51,6 @@ ohos_shared_library("userauth_client") {
   ]
 
   deps = [
-    "//base/useriam/user_auth_framework/common:iam_utils",
     "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
     "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
     "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_client_ipc",

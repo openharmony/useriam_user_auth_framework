@@ -35,7 +35,6 @@ ohos_unittest("iam_executors_test") {
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   deps = [
-    "//base/useriam/user_auth_framework/common:iam_utils",
     "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
     "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
     "//third_party/googletest:gmock_main",
@@ -55,7 +54,10 @@ ohos_unittest("iam_executors_test") {
     "user_auth_framework:userauth_executors",
   ]
 
-  configs = [ "//base/useriam/user_auth_framework/common:iam_log_config" ]
+  configs = [
+    "//base/useriam/user_auth_framework/common:iam_log_config",
+    "../../../common:iam_utils_config",
+  ]
 
   module_out_path = "useriam/user_auth_framework"
 }
