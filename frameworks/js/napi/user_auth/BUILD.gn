@@ -33,8 +33,9 @@ ohos_shared_library("userauth") {
   ]
 
   deps = [
-    "//base/useriam/user_auth_framework/common:iam_utils",
-    "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
+    "../../../../common:iam_utils",
+    "../../../native/client:userauth_client",
+    "../../../native/common:dfx",
   ]
 
   external_deps = [
@@ -42,7 +43,6 @@ ohos_shared_library("userauth") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_single",
     "napi:ace_napi",
-    "user_auth_framework:userauth_client",
   ]
 
   public_configs = [ ":userauth_public_config" ]

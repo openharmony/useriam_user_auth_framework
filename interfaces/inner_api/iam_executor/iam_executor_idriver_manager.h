@@ -13,6 +13,14 @@
  * limitations under the License.
  */
 
+/**
+ * @file iam_executor_idriver_manager.h
+ *
+ * @brief Driver manager of executor.
+ * @since 3.1
+ * @version 3.2
+ */
+
 #ifndef IAM_EXECUTOR_IDRIVER_MANAGER_H
 #define IAM_EXECUTOR_IDRIVER_MANAGER_H
 
@@ -24,16 +32,34 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+/**
+ * @brief Hardware device interface config.
+ */
 struct HdiConfig {
+    /** Driver ID. */
     uint16_t id; // non-zero
+    /** The current driver. */
     std::shared_ptr<IAuthDriverHdi> driver;
 };
 
 class IDriverManager {
 public:
+    /**
+     * @brief Default constructor.
+     */
     IDriverManager() = default;
+
+    /**
+     * @brief Deconstructor.
+     */
     virtual ~IDriverManager() = default;
 
+    /**
+     * @brief Start.
+     *
+     * @param hdiName2Config Hardware device interface name and config.
+     * @return Return the result success or not.
+     */
     static int32_t Start(const std::map<std::string, HdiConfig> &hdiName2Config);
 };
 } // namespace UserAuth
