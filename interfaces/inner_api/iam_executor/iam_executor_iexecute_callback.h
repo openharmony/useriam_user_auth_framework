@@ -13,6 +13,14 @@
  * limitations under the License.
  */
 
+/**
+ * @file iam_executor_idriver_manager.h
+ *
+ * @brief Driver manager of executor.
+ * @since 3.1
+ * @version 3.2
+ */
+
 #ifndef IAM_EXECUTOR_IEXECUTE_CALLBACK_H
 #define IAM_EXECUTOR_IEXECUTE_CALLBACK_H
 
@@ -27,11 +35,38 @@ namespace UserAuth {
 class IExecuteCallback {
 public:
     using ResultCode = UserIam::UserAuth::ResultCode;
+
+    /**
+     * @brief Default constructor.
+     */
     IExecuteCallback() = default;
+
+    /**
+     * @brief Deconstructor.
+     */
     virtual ~IExecuteCallback() = default;
 
+    /**
+     * @brief The callback return execute result.
+     *
+     * @param result The result success or error code{@link ResultCode}.
+     * @param extraInfo Other related information about execute.
+     */
     virtual void OnResult(ResultCode result, const std::vector<uint8_t> &extraInfo) = 0;
+
+    /**
+     * @brief The callback return execute result.
+     *
+     * @param result The result success or error code{@link ResultCode}.
+     */
     virtual void OnResult(ResultCode result) = 0;
+
+    /**
+     * @brief The callback return authenticate acquire information.
+     *
+     * @param acquireInfo Acquire info needed to be pass in.
+     * @param extraInfo Other related information about execute.
+     */
     virtual void OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo) = 0;
 };
 } // namespace UserAuth
