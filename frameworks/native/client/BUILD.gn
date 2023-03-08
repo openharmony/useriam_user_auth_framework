@@ -50,6 +50,8 @@ ohos_shared_library("userauth_client") {
     "../ipc:userauth_client_ipc_config",
   ]
 
+  innerapi_tags = [ "platformsdk" ]
+
   deps = [
     "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
     "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
