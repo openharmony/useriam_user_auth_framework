@@ -43,6 +43,10 @@ void Driver::OnHdiConnect()
     IF_FALSE_LOGE_AND_RETURN(hdiConfig_.driver != nullptr);
     hdiConfig_.driver->GetExecutorList(executorHdiList);
     IAM_LOGI("executorHdiList length is %{public}zu", executorHdiList.size());
+    if (executorHdiList.empty()) {
+        IAM_LOGE("executorHdiList is empty, hdiConnected fail.");
+        return;
+    }
     auto executorMgrWrapper = Common::MakeShared<ExecutorMgrWrapper>();
     IF_FALSE_LOGE_AND_RETURN(executorMgrWrapper != nullptr);
     hdiConnected_ = true;
