@@ -122,7 +122,7 @@ ResultCode FrameworkExecutorCallback::OnSetPropertyInner(const Attributes &prope
         properties.GetUint32Value(Attributes::ATTR_PROPERTY_MODE, commandId);
     IF_FALSE_LOGE_AND_RETURN_VAL(getAuthPropertyModeRet == true, ResultCode::GENERAL_ERROR);
     IAM_LOGI("%{public}s start process cmd %{public}u", GetDescription(), commandId);
-    ResultCode ret = ResultCode::GENERAL_ERROR;
+    ResultCode ret;
     if (commandId == PROPERTY_MODE_DEL) {
         ret = ProcessDeleteTemplateCommand(properties);
     } else {
