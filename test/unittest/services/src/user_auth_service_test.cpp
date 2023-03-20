@@ -755,7 +755,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetVersion, TestSize.Level0)
     EXPECT_EQ(service.GetVersion(version), CHECK_PERMISSION_FAILED);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     EXPECT_EQ(service.GetVersion(version), SUCCESS);
-    EXPECT_EQ(version, 0);
+    EXPECT_EQ(version, 1);
     IpcCommon::DeleteAllPermission();
 }
 } // namespace UserAuth
