@@ -33,7 +33,7 @@ namespace UserAuth {
 namespace {
     const uint64_t BAD_CONTEXT_ID = 0;
     const int32_t MINIMUM_VERSION = 0;
-    const int32_t CURRENT_VERSION = 0;
+    const int32_t CURRENT_VERSION = 1;
     const uint32_t AUTH_TRUST_LEVEL_SYS = 1;
 } // namespace
 
