@@ -32,23 +32,6 @@ namespace {
     const std::string AUTH_EVENT_TIP = "tip";
 }
 
-UserAuthResultCode AuthInstanceV9::GetVersion(napi_env env, napi_value &jsVersion)
-{
-    int32_t version;
-    int32_t result = UserAuthClientImpl::Instance().GetVersion(version);
-    if (result != ResultCode::SUCCESS) {
-        IAM_LOGE("GetVersion result = %{public}d", result);
-        return UserAuthResultCode(UserAuthNapiHelper::GetResultCodeV9(result));
-    }
-    IAM_LOGI("version = %{public}d", version);
-    napi_status ret = napi_create_int32(env, version, &jsVersion);
-    if (ret != napi_ok) {
-        IAM_LOGE("napi_create_int32 fail:%{public}d", ret);
-        return UserAuthResultCode::GENERAL_ERROR;
-    }
-    return UserAuthResultCode::SUCCESS;
-}
-
 bool AuthInstanceV9::CheckAuthType(int32_t authType)
 {
     if (authType != AuthType::FACE && authType != AuthType::FINGERPRINT) {
