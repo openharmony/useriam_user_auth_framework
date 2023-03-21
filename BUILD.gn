@@ -1,0 +1,45 @@
+# Copyright (C) 2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+import("//build/ohos.gni")
+
+group("fwk_group") {
+  deps = []
+  if (device_company == "qemu") {
+    deps += [ "frameworks/native/client:userauth_client" ]
+  } else {
+    deps += [ "frameworks/js/napi/user_auth:userauth" ]
+  }
+}
+
+group("service_group") {
+  deps = []
+  if (device_company != "qemu") {
+    deps += [
+      "param:param_files",
+      "sa_profile:userauth_sa_profile",
+      "sa_profile:useriam.init",
+      "services:userauthservice",
+    ]
+  }
+}
+
+group("tests") {
+  testonly = true
+  deps = []
+  if (device_company != "qemu") {
+    deps += [
+      "test:iam_fuzztest",
+      "test:iam_unittest",
+    ]
+  }
+}
