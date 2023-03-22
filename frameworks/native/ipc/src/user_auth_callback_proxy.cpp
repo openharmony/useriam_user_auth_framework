@@ -84,7 +84,7 @@ void UserAuthCallbackProxy::OnAcquireInfo(int32_t module, int32_t acquireInfo, c
 
 bool UserAuthCallbackProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply)
 {
-    IAM_LOGI("start");
+    IAM_LOGI("start code = %{public}u", code);
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         IAM_LOGE("get remote failed");

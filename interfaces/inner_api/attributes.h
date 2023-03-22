@@ -85,6 +85,8 @@ public:
         ATTR_ROOT_SECRET = 100032,
         /** Auth token, the value type is std::vector<uint8_t>. */
         ATTR_AUTH_TOKEN = 100033,
+        /** Security user id return when add pin credential, the value type is uint64_t. */
+        ATTR_SEC_USER_ID = 100034,
 
         /**
          * Private attrs.
