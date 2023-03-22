@@ -28,7 +28,7 @@ namespace UserAuth {
 int32_t UserAuthCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
     MessageOption &option)
 {
-    IAM_LOGD("cmd = %{public}u, flags = %{public}d", code, option.GetFlags());
+    IAM_LOGI("code = %{public}u, flags = %{public}d", code, option.GetFlags());
     if (UserAuthCallbackStub::GetDescriptor() != data.ReadInterfaceToken()) {
         IAM_LOGE("descriptor is not matched");
         return GENERAL_ERROR;
@@ -46,6 +46,7 @@ int32_t UserAuthCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data
 
 int32_t UserAuthCallbackStub::OnResultStub(MessageParcel &data, MessageParcel &reply)
 {
+    IAM_LOGI("start");
     int32_t result;
     std::vector<uint8_t> buffer;
 
@@ -65,6 +66,7 @@ int32_t UserAuthCallbackStub::OnResultStub(MessageParcel &data, MessageParcel &r
 
 int32_t UserAuthCallbackStub::OnAcquireInfoStub(MessageParcel &data, MessageParcel &reply)
 {
+    IAM_LOGI("start");
     int32_t module;
     int32_t acquireInfo;
     std::vector<uint8_t> buffer;
@@ -90,7 +92,7 @@ int32_t UserAuthCallbackStub::OnAcquireInfoStub(MessageParcel &data, MessageParc
 int32_t GetExecutorPropertyCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
     MessageOption &option)
 {
-    IAM_LOGD("cmd = %{public}u, flags = %{public}d", code, option.GetFlags());
+    IAM_LOGI("code = %{public}u, flags = %{public}d", code, option.GetFlags());
     if (GetExecutorPropertyCallbackStub::GetDescriptor() != data.ReadInterfaceToken()) {
         IAM_LOGE("descriptor is not matched");
         return GENERAL_ERROR;
@@ -104,6 +106,7 @@ int32_t GetExecutorPropertyCallbackStub::OnRemoteRequest(uint32_t code, MessageP
 
 int32_t GetExecutorPropertyCallbackStub::OnGetExecutorPropertyResultStub(MessageParcel &data, MessageParcel &reply)
 {
+    IAM_LOGI("start");
     int32_t result;
     std::vector<uint8_t> buffer;
 
@@ -124,7 +127,7 @@ int32_t GetExecutorPropertyCallbackStub::OnGetExecutorPropertyResultStub(Message
 int32_t SetExecutorPropertyCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
     MessageOption &option)
 {
-    IAM_LOGD("cmd = %{public}u, flags = %{public}d", code, option.GetFlags());
+    IAM_LOGI("code = %{public}u, flags = %{public}d", code, option.GetFlags());
     if (SetExecutorPropertyCallbackStub::GetDescriptor() != data.ReadInterfaceToken()) {
         IAM_LOGE("descriptor is not matched");
         return GENERAL_ERROR;
@@ -138,6 +141,7 @@ int32_t SetExecutorPropertyCallbackStub::OnRemoteRequest(uint32_t code, MessageP
 
 int32_t SetExecutorPropertyCallbackStub::OnSetExecutorPropertyResultStub(MessageParcel &data, MessageParcel &reply)
 {
+    IAM_LOGI("start");
     int32_t result;
 
     if (!data.ReadInt32(result)) {

@@ -190,6 +190,7 @@ void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPar
     para.pinType = credPara.pinType;
     para.tokenId = tokenId;
     para.token = credPara.token;
+    para.isUpdate = isUpdate;
     auto context = ContextFactory::CreateEnrollContext(para, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
