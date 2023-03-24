@@ -29,7 +29,6 @@ namespace UserIam {
 namespace UserAuth {
 class AuthInstanceV9 : public NoCopyable {
 public:
-    static UserAuthResultCode GetVersion(napi_env env, napi_value &jsVersion);
     static UserAuthResultCode GetAvailableStatus(napi_env env, napi_callback_info info);
 
     explicit AuthInstanceV9(napi_env env);

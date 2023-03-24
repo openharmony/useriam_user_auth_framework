@@ -63,19 +63,6 @@ napi_value GetVersion(napi_env env, napi_callback_info info)
     return UserAuthImpl::GetVersion(env, info);
 }
 
-napi_value GetVersionV9(napi_env env, napi_callback_info info)
-{
-    IAM_LOGI("start");
-    napi_value version = nullptr;
-    UserAuthResultCode result = AuthInstanceV9::GetVersion(env, version);
-    if (result != UserAuthResultCode::SUCCESS) {
-        IAM_LOGE("fail");
-        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, result));
-        return nullptr;
-    }
-    return version;
-}
-
 napi_value GetAvailableStatus(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
@@ -539,7 +526,6 @@ napi_value UserAuthInit(napi_env env, napi_value exports)
     napi_status status;
     napi_property_descriptor exportFuncs[] = {
         DECLARE_NAPI_FUNCTION("getAuthenticator", UserAuth::ConstructorForApi6),
-        DECLARE_NAPI_FUNCTION("getVersion", UserAuth::GetVersionV9),
         DECLARE_NAPI_FUNCTION("getAvailableStatus", UserAuth::GetAvailableStatusV9),
         DECLARE_NAPI_FUNCTION("getAuthInstance", UserAuth::GetAuthInstanceV9),
     };
