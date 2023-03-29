@@ -45,10 +45,13 @@
         "base_group": [
         ],
         "fwk_group": [
-          "//base/useriam/user_auth_framework:fwk_group"
+          "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth:userauth"
         ],
         "service_group": [
-          "//base/useriam/user_auth_framework:service_group"
+          "//base/useriam/user_auth_framework/sa_profile:useriam.init",
+          "//base/useriam/user_auth_framework/services:userauthservice",
+          "//base/useriam/user_auth_framework/sa_profile:userauth_sa_profile",
+          "//base/useriam/user_auth_framework/param:param_files"
         ]
       },
       "inner_kits": [
@@ -88,7 +91,8 @@
         }
       ],
       "test": [
-        "//base/useriam/user_auth_framework:tests"
+        "//base/useriam/user_auth_framework/test:iam_unittest",
+        "//base/useriam/user_auth_framework/test:iam_fuzztest"
       ]
     }
   }
