@@ -31,6 +31,7 @@ IdmCallbackService::IdmCallbackService(const std::shared_ptr<UserIdmClientCallba
 
 void IdmCallbackService::OnResult(int32_t result, const Attributes &extraInfo)
 {
+    IAM_LOGI("start");
     iamHitraceHelper_ = nullptr;
     if (idmClientCallback_ == nullptr) {
         IAM_LOGE("idm client callback is nullptr");
@@ -41,6 +42,7 @@ void IdmCallbackService::OnResult(int32_t result, const Attributes &extraInfo)
 
 void IdmCallbackService::OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo)
 {
+    IAM_LOGI("start");
     if (idmClientCallback_ == nullptr) {
         IAM_LOGE("idm client callback is nullptr");
         return;
@@ -56,6 +58,7 @@ IdmGetCredInfoCallbackService::IdmGetCredInfoCallbackService(
 void IdmGetCredInfoCallbackService::OnCredentialInfos(const std::vector<std::shared_ptr<CredentialInfo>> infoList,
     const std::optional<PinSubType> pinSubType)
 {
+    IAM_LOGI("start");
     if (getCredInfoCallback_ == nullptr) {
         IAM_LOGE("getCredInfoCallback is nullptr");
         return;
@@ -85,6 +88,7 @@ IdmGetSecureUserInfoCallbackService::IdmGetSecureUserInfoCallbackService(
 
 void IdmGetSecureUserInfoCallbackService::OnSecureUserInfo(const std::shared_ptr<SecureUserInfo> info)
 {
+    IAM_LOGI("start");
     if (info == nullptr) {
         IAM_LOGE("secure user info is nullptr");
         return;

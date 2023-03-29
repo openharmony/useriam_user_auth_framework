@@ -33,7 +33,7 @@ namespace {
 int32_t IdmCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
     MessageOption &option)
 {
-    IAM_LOGD("cmd = %{public}u, flags = %{public}d", code, option.GetFlags());
+    IAM_LOGI("code = %{public}u, flags = %{public}d", code, option.GetFlags());
     if (IdmCallbackStub::GetDescriptor() != data.ReadInterfaceToken()) {
         IAM_LOGE("descriptor is not matched");
         return GENERAL_ERROR;
@@ -51,6 +51,7 @@ int32_t IdmCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Mes
 
 int32_t IdmCallbackStub::OnResultStub(MessageParcel &data, MessageParcel &reply)
 {
+    IAM_LOGI("start");
     int32_t result;
     std::vector<uint8_t> buffer;
 
@@ -70,6 +71,7 @@ int32_t IdmCallbackStub::OnResultStub(MessageParcel &data, MessageParcel &reply)
 
 int32_t IdmCallbackStub::OnAcquireInfoStub(MessageParcel &data, MessageParcel &reply)
 {
+    IAM_LOGI("start");
     int32_t module;
     int32_t acquireInfo;
     std::vector<uint8_t> buffer;
@@ -95,7 +97,7 @@ int32_t IdmCallbackStub::OnAcquireInfoStub(MessageParcel &data, MessageParcel &r
 int32_t IdmGetCredInfoCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
     MessageOption &option)
 {
-    IAM_LOGD("cmd = %{public}u, flags = %{public}d", code, option.GetFlags());
+    IAM_LOGI("code = %{public}u, flags = %{public}d", code, option.GetFlags());
     if (IdmGetCredInfoCallbackStub::GetDescriptor() != data.ReadInterfaceToken()) {
         IAM_LOGE("descriptor is not matched");
         return GENERAL_ERROR;
@@ -109,6 +111,7 @@ int32_t IdmGetCredInfoCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel
 
 int32_t IdmGetCredInfoCallbackStub::OnCredentialInfosStub(MessageParcel &data, MessageParcel &reply)
 {
+    IAM_LOGI("start");
     uint32_t vectorSize = 0;
     std::vector<std::shared_ptr<IdmGetCredInfoCallbackInterface::CredentialInfo>> infoList;
     if (!data.ReadUint32(vectorSize)) {
@@ -161,7 +164,7 @@ int32_t IdmGetCredInfoCallbackStub::OnCredentialInfosStub(MessageParcel &data, M
 int32_t IdmGetSecureUserInfoCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
     MessageOption &option)
 {
-    IAM_LOGD("cmd = %{public}u, flags = %{public}d", code, option.GetFlags());
+    IAM_LOGI("code = %{public}u, flags = %{public}d", code, option.GetFlags());
     if (IdmGetSecureUserInfoCallbackStub::GetDescriptor() != data.ReadInterfaceToken()) {
         IAM_LOGE("descriptor is not matched");
         return GENERAL_ERROR;
@@ -175,6 +178,7 @@ int32_t IdmGetSecureUserInfoCallbackStub::OnRemoteRequest(uint32_t code, Message
 
 int32_t IdmGetSecureUserInfoCallbackStub::OnSecureUserInfoStub(MessageParcel &data, MessageParcel &reply)
 {
+    IAM_LOGI("start");
     uint64_t secureUid;
     uint32_t enrolledInfoLen;
 

@@ -61,14 +61,15 @@ void EnrollContext::OnResult(int32_t resultCode, const std::shared_ptr<Attribute
     IAM_LOGI("%{public}s receive result code %{public}d", GetDescription(), resultCode);
     uint64_t credentialId = 0;
     std::vector<uint8_t> rootSecret;
-    bool updateRet = UpdateScheduleResult(scheduleResultAttr, credentialId, rootSecret);
+    std::optional<uint64_t> secUserId = std::nullopt;
+    bool updateRet = UpdateScheduleResult(scheduleResultAttr, credentialId, rootSecret, secUserId);
     if (!updateRet) {
         IAM_LOGE("%{public}s UpdateScheduleResult fail", GetDescription());
         if (resultCode == SUCCESS) {
             resultCode = GetLatestError();
         }
     }
-    InvokeResultCallback(resultCode, credentialId, rootSecret);
+    InvokeResultCallback(resultCode, credentialId, rootSecret, secUserId);
     IAM_LOGI("%{public}s on result %{public}d finish", GetDescription(), resultCode);
 }
 
@@ -90,7 +91,7 @@ bool EnrollContext::OnStop()
 }
 
 bool EnrollContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &scheduleResultAttr,
-    uint64_t &credentialId, std::vector<uint8_t> &rootSecret)
+    uint64_t &credentialId, std::vector<uint8_t> &rootSecret, std::optional<uint64_t> &secUserId)
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(enroll_ != nullptr, false);
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleResultAttr != nullptr, false);
@@ -98,7 +99,7 @@ bool EnrollContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &sche
     bool getResultCodeRet = scheduleResultAttr->GetUint8ArrayValue(Attributes::ATTR_RESULT, scheduleResult);
     IF_FALSE_LOGE_AND_RETURN_VAL(getResultCodeRet == true, false);
     std::shared_ptr<CredentialInfo> infoToDel;
-    bool updateRet = enroll_->Update(scheduleResult, credentialId, infoToDel, rootSecret);
+    bool updateRet = enroll_->Update(scheduleResult, credentialId, infoToDel, rootSecret, secUserId);
     if (!updateRet) {
         IAM_LOGE("%{public}s enroll update fail", GetDescription());
         SetLatestError(enroll_->GetLatestError());
@@ -117,17 +118,23 @@ bool EnrollContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &sche
 }
 
 void EnrollContext::InvokeResultCallback(int32_t resultCode, const uint64_t credentialId,
-    const std::vector<uint8_t> &rootSecret) const
+    const std::vector<uint8_t> &rootSecret, std::optional<uint64_t> &secUserId) const
 {
     IAM_LOGI("%{public}s start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
     Attributes finalResult;
+    if (secUserId.has_value()) {
+        IAM_LOGI("%{public}s get sec user id has value", GetDescription());
+        bool setSecUserIdRet = finalResult.SetUint64Value(Attributes::ATTR_SEC_USER_ID, secUserId.value());
+        IF_FALSE_LOGE_AND_RETURN(setSecUserIdRet == true);
+    }
     bool setCredIdRet = finalResult.SetUint64Value(Attributes::ATTR_CREDENTIAL_ID, credentialId);
     IF_FALSE_LOGE_AND_RETURN(setCredIdRet == true);
     if (rootSecret.size() != 0) {
         bool setRootSecret = finalResult.SetUint8ArrayValue(Attributes::ATTR_ROOT_SECRET, rootSecret);
         IF_FALSE_LOGE_AND_RETURN(setRootSecret == true);
     }
+
     callback_->OnResult(resultCode, finalResult);
     IAM_LOGI("%{public}s invoke result callback success", GetDescription());
 }

@@ -32,6 +32,7 @@ ExecutorCallbackService::ExecutorCallbackService(const std::shared_ptr<ExecutorR
 void ExecutorCallbackService::OnMessengerReady(sptr<ExecutorMessengerInterface> &messenger,
     const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList)
 {
+    IAM_LOGI("start");
     if (callback_ == nullptr) {
         IAM_LOGE("callback is nullptr");
         return;
@@ -47,6 +48,7 @@ void ExecutorCallbackService::OnMessengerReady(sptr<ExecutorMessengerInterface> 
 int32_t ExecutorCallbackService::OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
     const Attributes &command)
 {
+    IAM_LOGI("start");
     if (callback_ == nullptr) {
         IAM_LOGE("callback is nullptr");
         return GENERAL_ERROR;
@@ -56,6 +58,7 @@ int32_t ExecutorCallbackService::OnBeginExecute(uint64_t scheduleId, const std::
 
 int32_t ExecutorCallbackService::OnEndExecute(uint64_t scheduleId, const Attributes &command)
 {
+    IAM_LOGI("start");
     if (callback_ == nullptr) {
         IAM_LOGE("callback is nullptr");
         return GENERAL_ERROR;
@@ -65,6 +68,7 @@ int32_t ExecutorCallbackService::OnEndExecute(uint64_t scheduleId, const Attribu
 
 int32_t ExecutorCallbackService::OnSetProperty(const Attributes &properties)
 {
+    IAM_LOGI("start");
     if (callback_ == nullptr) {
         IAM_LOGE("callback is nullptr");
         return GENERAL_ERROR;
@@ -74,6 +78,7 @@ int32_t ExecutorCallbackService::OnSetProperty(const Attributes &properties)
 
 int32_t ExecutorCallbackService::OnGetProperty(const Attributes &condition, Attributes &values)
 {
+    IAM_LOGI("start");
     if (callback_ == nullptr) {
         IAM_LOGE("callback is nullptr");
         return GENERAL_ERROR;

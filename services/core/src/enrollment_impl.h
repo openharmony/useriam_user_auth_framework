@@ -35,11 +35,13 @@ public:
     void SetAuthToken(const std::vector<uint8_t> &authToken) override;
     void SetAccessTokenId(uint32_t tokenId) override;
     void SetPinSubType(PinSubType pinSubType) override;
+    void SetIsUpdate(bool isUpdate) override;
 
     bool Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
         std::shared_ptr<ScheduleNodeCallback> callback) override;
     bool Update(const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
-        std::shared_ptr<CredentialInfo> &info, std::vector<uint8_t> &rootSecret) override;
+        std::shared_ptr<CredentialInfo> &info, std::vector<uint8_t> &rootSecret,
+        std::optional<uint64_t> &secUserId) override;
     bool Cancel() override;
     int32_t GetLatestError() const override;
 
@@ -47,13 +49,17 @@ protected:
     void SetLatestError(int32_t error) override;
 
 private:
+    bool GetSecUserId(std::optional<uint64_t> &secUserId);
+
     int32_t userId_;
     AuthType authType_;
     std::vector<uint8_t> authToken_;
+    std::optional<uint64_t> secUserId_ {std::nullopt};
 
     uint32_t executorSensorHint_ {0};
     uint32_t tokenId_ {0};
     PinSubType pinSubType_ {PinSubType::PIN_MAX};
+    bool isUpdate_ {false};
     bool running_ {false};
     int32_t latestError_ = ResultCode::GENERAL_ERROR;
 };

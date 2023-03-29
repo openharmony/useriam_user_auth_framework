@@ -21,6 +21,7 @@
 
 #include "credential_info_impl.h"
 #include "schedule_node_helper.h"
+#include "user_idm_database.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
@@ -68,6 +69,11 @@ void EnrollmentImpl::SetPinSubType(PinSubType pinSubType)
     pinSubType_ = pinSubType;
 }
 
+void EnrollmentImpl::SetIsUpdate(bool isUpdate)
+{
+    isUpdate_ = isUpdate;
+}
+
 bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
     std::shared_ptr<ScheduleNodeCallback> callback)
 {
@@ -77,6 +83,11 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
     auto hdi = HdiWrapper::GetHdiInstance();
     if (!hdi) {
         IAM_LOGE("bad hdi");
+        return false;
+    }
+    // cache secUserId first in case of update
+    if (isUpdate_ && !GetSecUserId(secUserId_)) {
+        IAM_LOGE("get and cache secUserId fail");
         return false;
     }
 
@@ -108,8 +119,29 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
     return true;
 }
 
+bool EnrollmentImpl::GetSecUserId(std::optional<uint64_t> &secUserId)
+{
+    secUserId = std::nullopt;
+    if (authType_ != PIN) {
+        IAM_LOGI("no need return sec user id");
+        return true;
+    }
+    auto userInfo = UserIdmDatabase::Instance().GetSecUserInfo(userId_);
+    if (userInfo != nullptr) {
+        secUserId = userInfo->GetSecUserId();
+        return true;
+    }
+
+    IAM_LOGE("current user id %{public}d get fail", userId_);
+    std::vector<std::shared_ptr<CredentialInfo>> credInfos;
+    if (UserIdmDatabase::Instance().DeleteUserEnforce(userId_, credInfos) != SUCCESS) {
+        IAM_LOGE("failed to enforce delete user");
+    }
+    return false;
+}
+
 bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
-    std::shared_ptr<CredentialInfo> &info, std::vector<uint8_t> &rootSecret)
+    std::shared_ptr<CredentialInfo> &info, std::vector<uint8_t> &rootSecret, std::optional<uint64_t> &secUserId)
 {
     using HdiEnrollResultInfo = OHOS::HDI::UserAuth::V1_0::EnrollResultInfo;
 
@@ -127,15 +159,26 @@ bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t
         return false;
     }
     IAM_LOGI("hdi UpdateEnrollmentResult success, userId is %{public}d", userId_);
-    auto infoRet = Common::MakeShared<CredentialInfoImpl>(userId_, resultInfo.oldInfo);
-    if (infoRet == nullptr) {
+
+    credentialId = resultInfo.credentialId;
+    rootSecret = resultInfo.rootSecret;
+    if (isUpdate_) {
+        secUserId = secUserId_;
+    } else {
+        if (!GetSecUserId(secUserId)) {
+            IAM_LOGE("enroll get secUserId fail");
+            return false;
+        }
+        IAM_LOGI("enroll not need to delete old cred");
+        info = nullptr;
+        return true;
+    }
+
+    info = Common::MakeShared<CredentialInfoImpl>(userId_, resultInfo.oldInfo);
+    if (info == nullptr) {
         IAM_LOGE("bad alloc");
         return false;
     }
-    credentialId = resultInfo.credentialId;
-    info = infoRet;
-    rootSecret = resultInfo.rootSecret;
-
     return true;
 }
 

@@ -18,6 +18,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <optional>
 
 #include "credential_info.h"
 #include "schedule_node.h"
@@ -33,10 +34,12 @@ public:
     virtual void SetAuthToken(const std::vector<uint8_t> &authToken) = 0;
     virtual void SetAccessTokenId(uint32_t tokenId) = 0;
     virtual void SetPinSubType(PinSubType pinSubType) = 0;
+    virtual void SetIsUpdate(bool isUpdate) = 0;
     virtual bool Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
         std::shared_ptr<ScheduleNodeCallback> callback) = 0;
     virtual bool Update(const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
-        std::shared_ptr<CredentialInfo> &info, std::vector<uint8_t> &rootSecret) = 0;
+        std::shared_ptr<CredentialInfo> &info, std::vector<uint8_t> &rootSecret,
+        std::optional<uint64_t> &secUserId) = 0;
     virtual bool Cancel() = 0;
     virtual int32_t GetLatestError() const = 0;
 

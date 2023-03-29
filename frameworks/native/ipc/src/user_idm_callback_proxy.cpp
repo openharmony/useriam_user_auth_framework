@@ -84,7 +84,7 @@ void IdmCallbackProxy::OnAcquireInfo(int32_t module, int32_t acquireInfo, const 
 
 bool IdmCallbackProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply)
 {
-    IAM_LOGI("start");
+    IAM_LOGI("start code = %{public}u", code);
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         IAM_LOGE("failed to get remote");
@@ -148,7 +148,7 @@ void IdmGetCredentialInfoProxy::OnCredentialInfos(const std::vector<std::shared_
 
 bool IdmGetCredentialInfoProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply)
 {
-    IAM_LOGI("start");
+    IAM_LOGI("start code = %{public}u", code);
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         IAM_LOGE("failed to get remote");
@@ -197,7 +197,7 @@ void IdmGetSecureUserInfoProxy::OnSecureUserInfo(const std::shared_ptr<SecureUse
 
 bool IdmGetSecureUserInfoProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply)
 {
-    IAM_LOGI("start");
+    IAM_LOGI("start code = %{public}u", code);
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         IAM_LOGE("failed to get remote");
