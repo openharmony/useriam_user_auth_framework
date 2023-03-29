@@ -21,55 +21,54 @@ config("userauth_executors_public_config") {
 }
 
 ohos_shared_library("userauth_executors") {
-  if (device_company != "qemu") {
-    sources = [
-      "src/async_command/async_command_base.cpp",
-      "src/async_command/auth_command.cpp",
-      "src/async_command/custom_command.cpp",
-      "src/async_command/enroll_command.cpp",
-      "src/async_command/identify_command.cpp",
-      "src/driver.cpp",
-      "src/driver_manager.cpp",
-      "src/executor.cpp",
-      "src/framework/executor_mgr_wrapper.cpp",
-      "src/framework/framework_executor_callback.cpp",
-      "src/idriver_manager.cpp",
-      "src/listener/auth_executor_mgr_status_listener.cpp",
-      "src/listener/driver_manager_status_listener.cpp",
-    ]
+  sources = [
+    "src/async_command/async_command_base.cpp",
+    "src/async_command/auth_command.cpp",
+    "src/async_command/custom_command.cpp",
+    "src/async_command/enroll_command.cpp",
+    "src/async_command/identify_command.cpp",
+    "src/driver.cpp",
+    "src/driver_manager.cpp",
+    "src/executor.cpp",
+    "src/framework/executor_mgr_wrapper.cpp",
+    "src/framework/framework_executor_callback.cpp",
+    "src/idriver_manager.cpp",
+    "src/listener/auth_executor_mgr_status_listener.cpp",
+    "src/listener/driver_manager_status_listener.cpp",
+  ]
 
-    include_dirs = [
-      "include",
-      "include/async_command",
-      "include/framework",
-      "include/listener",
-    ]
+  include_dirs = [
+    "include",
+    "include/async_command",
+    "include/framework",
+    "include/listener",
+  ]
 
-    configs = [ "../../../common:iam_log_config" ]
+  configs = [ "../../../common:iam_log_config" ]
 
-    public_configs = [ ":userauth_executors_public_config" ]
+  public_configs = [ ":userauth_executors_public_config" ]
 
-    remove_configs = [ "//build/config/compiler:no_exceptions" ]
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
-    if (use_musl) {
-      version_script = "user_auth_executors_map"
-    }
-
-    deps = [
-      "../../../common:iam_utils",
-      "../client:userauth_client",
-      "../common:attributes",
-      "../common:dfx",
-    ]
-
-    external_deps = [
-      "c_utils:utils",
-      "hdf_core:libhdi",
-      "hiviewdfx_hilog_native:libhilog",
-      "init:libbeget_proxy",
-      "ipc:ipc_single",
-      "samgr:samgr_proxy",
-    ]
+  if (use_musl) {
+    version_script = "user_auth_executors_map"
   }
+
+  deps = [
+    "../../../common:iam_utils",
+    "../../../frameworks/native/client:userauth_client",
+    "../../../frameworks/native/common:attributes",
+    "../../../frameworks/native/common:dfx",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hdf_core:libhdi",
+    "hiviewdfx_hilog_native:libhilog",
+    "init:libbeget_proxy",
+    "ipc:ipc_single",
+    "samgr:samgr_proxy",
+  ]
+
   part_name = "user_auth_framework"
 }
