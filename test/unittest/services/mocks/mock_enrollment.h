@@ -29,10 +29,12 @@ public:
     MOCK_METHOD1(SetAuthToken, void(const std::vector<uint8_t> &authToken));
     MOCK_METHOD1(SetAccessTokenId, void(uint32_t tokenId));
     MOCK_METHOD1(SetPinSubType, void(PinSubType pinSubType));
+    MOCK_METHOD1(SetIsUpdate, void(bool isUpdate));
     MOCK_METHOD2(Start,
         bool(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList, std::shared_ptr<ScheduleNodeCallback> callback));
-    MOCK_METHOD4(Update, bool(const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
-                             std::shared_ptr<CredentialInfo> &info, std::vector<uint8_t> &rootSecret));
+    MOCK_METHOD5(Update, bool(const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
+                             std::shared_ptr<CredentialInfo> &info, std::vector<uint8_t> &rootSecret,
+                             std::optional<uint64_t> &secUserId));
     MOCK_METHOD0(Cancel, bool());
     MOCK_CONST_METHOD0(GetLatestError, int32_t());
 

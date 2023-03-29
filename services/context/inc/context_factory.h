@@ -47,6 +47,7 @@ public:
         int32_t userId {0};
         AuthType authType {ALL};
         PinSubType pinType {PIN_SIX};
+        bool isUpdate {false};
         uint32_t tokenId {0};
         std::vector<uint8_t> token;
     };

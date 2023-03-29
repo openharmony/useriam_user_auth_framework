@@ -65,6 +65,7 @@ std::shared_ptr<Context> ContextFactory::CreateEnrollContext(const EnrollContext
     enroll->SetAuthToken(para.token);
     enroll->SetAccessTokenId(para.tokenId);
     enroll->SetPinSubType(para.pinType);
+    enroll->SetIsUpdate(para.isUpdate);
     return Common::MakeShared<EnrollContext>(newContextId, enroll, callback);
 }
 
