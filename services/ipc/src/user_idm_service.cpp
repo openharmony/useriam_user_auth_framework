@@ -22,6 +22,7 @@
 #include "context_helper.h"
 #include "context_pool.h"
 #include "hdi_wrapper.h"
+#include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
 #include "iam_defines.h"
@@ -277,20 +278,9 @@ int32_t UserIdmService::CancelCurrentEnroll()
 int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInterface> &callback)
 {
     IAM_LOGI("to delete userid: %{public}d", userId);
-    if (callback == nullptr) {
-        IAM_LOGE("callback is nullptr");
-        return INVALID_PARAMETERS;
-    }
+    IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, INVALID_PARAMETERS);
+
     Attributes extraInfo;
-    if (!IpcCommon::CheckPermission(*this, ENFORCE_USER_IDM)) {
-        IAM_LOGE("failed to check permission");
-        callback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
-        return CHECK_PERMISSION_FAILED;
-    }
-
-    std::lock_guard<std::mutex> lock(mutex_);
-    CancelCurrentEnrollIfExist();
-
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ENFORCE_DELETE_USER);
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
@@ -298,6 +288,15 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInt
         return GENERAL_ERROR;
     }
     contextCallback->SetTraceUserId(userId);
+
+    if (!IpcCommon::CheckPermission(*this, ENFORCE_USER_IDM)) {
+        IAM_LOGE("failed to check permission");
+        contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    std::lock_guard<std::mutex> lock(mutex_);
+    CancelCurrentEnrollIfExist();
 
     auto userInfo = UserIdmDatabase::Instance().GetSecUserInfo(userId);
     if (userInfo == nullptr) {
@@ -328,13 +327,7 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInt
 void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToken,
     const sptr<IdmCallbackInterface> &callback)
 {
-    if (callback == nullptr) {
-        IAM_LOGE("callback is nullptr");
-        return;
-    }
-
-    std::lock_guard<std::mutex> lock(mutex_);
-    CancelCurrentEnrollIfExist();
+    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
 
     Attributes extraInfo;
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_DELETE_USER);
@@ -350,6 +343,9 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
         contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
         return;
     }
+
+    std::lock_guard<std::mutex> lock(mutex_);
+    CancelCurrentEnrollIfExist();
 
     if (authToken.empty()) {
         IAM_LOGE("token is empty in delete");
@@ -377,13 +373,7 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
 void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
     const std::vector<uint8_t> &authToken, const sptr<IdmCallbackInterface> &callback)
 {
-    if (callback == nullptr) {
-        IAM_LOGE("callback is nullptr");
-        return;
-    }
-
-    std::lock_guard<std::mutex> lock(mutex_);
-    CancelCurrentEnrollIfExist();
+    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
 
     Attributes extraInfo;
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_DELETE_CREDENTIAL);
@@ -399,6 +389,9 @@ void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
         contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
         return;
     }
+
+    std::lock_guard<std::mutex> lock(mutex_);
+    CancelCurrentEnrollIfExist();
 
     std::shared_ptr<CredentialInfo> oldInfo;
     auto ret = UserIdmDatabase::Instance().DeleteCredentialInfo(userId, credentialId, authToken, oldInfo);
