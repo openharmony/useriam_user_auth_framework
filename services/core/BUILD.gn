@@ -57,6 +57,7 @@ ohos_source_set("userauth_service_core") {
     "hilog_native:libhilog",
     "hitrace_native:hitrace_meter",
     "init:libbegetutil",
+    "ipc:ipc_core",
     "safwk:system_ability_fwk",
   ]
 
