@@ -157,6 +157,8 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful_001, TestSize.Level0)
 
 HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful_002, TestSize.Level0)
 {
+    using HdiCredentialInfo = OHOS::HDI::UserAuth::V1_0::CredentialInfo;
+
     int32_t userId = 1206;
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_CALL(*mock, UpdateEnrollmentResult(_, _, _)).WillRepeatedly(Return(0));
@@ -171,9 +173,26 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful_002, TestSize.Level0)
     EXPECT_TRUE(enroll->Update(scheduleResult, credentialId, info, rootSecret, secUserId));
 
     EXPECT_CALL(*mock, GetUserInfo(_, _, _, _)).WillRepeatedly(Return(1));
-    EXPECT_CALL(*mock, EnforceDeleteUser(_, _)).WillRepeatedly(Return(1));
+    EXPECT_CALL(*mock, EnforceDeleteUser(_, _))
+        .WillOnce(Return(1))
+        .WillRepeatedly(
+            [](int32_t userId, std::vector<HdiCredentialInfo> &deletedInfos) {
+                HdiCredentialInfo info = {
+                    .credentialId = 1,
+                    .executorIndex = 2,
+                    .templateId = 3,
+                    .authType = static_cast<HdiAuthType>(1),
+                    .executorMatcher = 2,
+                    .executorSensorHint = 3,
+                };
+                deletedInfos.push_back(info);
+                return 0;
+            }
+        );
+
     enroll = std::make_shared<EnrollmentImpl>(userId, PIN);
     enroll->SetIsUpdate(false);
+    EXPECT_FALSE(enroll->Update(scheduleResult, credentialId, info, rootSecret, secUserId));
     EXPECT_FALSE(enroll->Update(scheduleResult, credentialId, info, rootSecret, secUserId));
 }
 
@@ -231,13 +250,11 @@ HWTEST_F(EnrollmentImplTest, EnrollmentImplTestStart_002, TestSize.Level0)
     using HdiAuthType = OHOS::HDI::UserAuth::V1_0::AuthType;
     using HdiPinSubType = OHOS::HDI::UserAuth::V1_0::PinSubType;
     using HdiEnrolledInfo = OHOS::HDI::UserAuth::V1_0::EnrolledInfo;
-    using HdiCredentialInfo = OHOS::HDI::UserAuth::V1_0::CredentialInfo;
 
     uint64_t userId = 34567;
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_CALL(*mock, BeginEnrollment(_, _, _, _)).WillRepeatedly(Return(1));
     EXPECT_CALL(*mock, GetUserInfo(_, _, _, _))
-        .WillOnce(Return(1))
         .WillOnce(Return(1))
         .WillRepeatedly(
             [](int32_t userId, uint64_t &secureUid, HdiPinSubType &pinSubType,
@@ -253,23 +270,6 @@ HWTEST_F(EnrollmentImplTest, EnrollmentImplTestStart_002, TestSize.Level0)
             }
         );
 
-    EXPECT_CALL(*mock, EnforceDeleteUser(_, _))
-        .WillOnce(Return(1))
-        .WillRepeatedly(
-            [](int32_t userId, std::vector<HdiCredentialInfo> &deletedInfos) {
-                HdiCredentialInfo info = {
-                    .credentialId = 1,
-                    .executorIndex = 2,
-                    .templateId = 3,
-                    .authType = static_cast<HdiAuthType>(1),
-                    .executorMatcher = 2,
-                    .executorSensorHint = 3,
-                };
-                deletedInfos.push_back(info);
-                return 0;
-            }
-        );
-
     auto enroll = std::make_shared<EnrollmentImpl>(userId, FACE);
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
     auto callback = Common::MakeShared<MockScheduleNodeCallback>();
@@ -280,7 +280,6 @@ HWTEST_F(EnrollmentImplTest, EnrollmentImplTestStart_002, TestSize.Level0)
 
     enroll = std::make_shared<EnrollmentImpl>(userId, PIN);
     enroll->SetIsUpdate(true);
-    EXPECT_FALSE(enroll->Start(scheduleList, callback));
     EXPECT_FALSE(enroll->Start(scheduleList, callback));
     EXPECT_FALSE(enroll->Start(scheduleList, callback));
 }
