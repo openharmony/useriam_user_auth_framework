@@ -132,6 +132,11 @@ bool EnrollmentImpl::GetSecUserId(std::optional<uint64_t> &secUserId)
         return true;
     }
 
+    // do not delete users in case of updates
+    if (isUpdate_) {
+        return false;
+    }
+
     IAM_LOGE("current user id %{public}d get fail", userId_);
     std::vector<std::shared_ptr<CredentialInfo>> credInfos;
     if (UserIdmDatabase::Instance().DeleteUserEnforce(userId_, credInfos) != SUCCESS) {
