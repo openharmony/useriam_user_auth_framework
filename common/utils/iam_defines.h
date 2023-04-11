@@ -15,6 +15,9 @@
 
 #ifndef IAM_DEFINES_H
 #define IAM_DEFINES_H
+
+#include <cstdint>
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
