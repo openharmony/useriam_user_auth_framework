@@ -461,7 +461,8 @@ HWTEST_F(UserIdmClientTest, UserIdmClientGetCredentialInfo002, TestSize.Level0)
                 EXPECT_EQ(userId, testUserId);
                 EXPECT_EQ(authType, testAuthType);
                 if (callback != nullptr) {
-                    callback->OnCredentialInfos({}, std::nullopt);
+                    std::vector<CredentialInfo> credInfoList;
+                    callback->OnCredentialInfos(credInfoList);
                 }
                 return SUCCESS;
             }

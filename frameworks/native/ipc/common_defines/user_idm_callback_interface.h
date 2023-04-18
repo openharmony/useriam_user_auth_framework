@@ -23,6 +23,7 @@
 #include "attributes.h"
 #include "iam_common_defines.h"
 #include "iam_callback_interface.h"
+#include "user_idm_client_defines.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -32,22 +33,11 @@ public:
     enum {
         ON_GET_INFO = 0,
     };
-    class CredentialInfo {
-    public:
-        virtual ~CredentialInfo() = default;
-        virtual uint64_t GetCredentialId() const = 0;
-        virtual int32_t GetUserId() const = 0;
-        virtual uint64_t GetExecutorIndex() const = 0;
-        virtual uint64_t GetTemplateId() const = 0;
-        virtual AuthType GetAuthType() const = 0;
-        virtual uint32_t GetExecutorSensorHint() const = 0;
-        virtual uint32_t GetExecutorMatcher() const = 0;
-    };
+
     /*
      * return all registered credential information.
      */
-    virtual void OnCredentialInfos(const std::vector<std::shared_ptr<CredentialInfo>> infoList,
-        const std::optional<PinSubType> pinSubType) = 0;
+    virtual void OnCredentialInfos(const std::vector<CredentialInfo> &credInfoList) = 0;
 
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.useridm.IGetInfoCallback");
 };
@@ -57,26 +47,11 @@ public:
     enum {
         ON_GET_SEC_INFO = 0,
     };
-    class EnrolledInfo {
-    public:
-        virtual ~EnrolledInfo() = default;
-        virtual AuthType GetAuthType() const = 0;
-        virtual int32_t GetUserId() const = 0;
-        virtual uint64_t GetEnrolledId() const = 0;
-    };
 
-    class SecureUserInfo {
-    public:
-        virtual ~SecureUserInfo() = default;
-        virtual int32_t GetUserId() const = 0;
-        virtual PinSubType GetPinSubType() const = 0;
-        virtual uint64_t GetSecUserId() const = 0;
-        virtual std::vector<std::shared_ptr<EnrolledInfo>> GetEnrolledInfo() const = 0;
-    };
     /*
      * return all registered security information.
      */
-    virtual void OnSecureUserInfo(const std::shared_ptr<SecureUserInfo> info) = 0;
+    virtual void OnSecureUserInfo(const SecUserInfo &secUserInfo) = 0;
 
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.useridm.IGetSecInfoCallback");
 };

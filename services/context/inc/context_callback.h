@@ -26,8 +26,6 @@
 
 #include "context.h"
 #include "iam_defines.h"
-#include "user_auth_callback_interface.h"
-#include "user_idm_callback_interface.h"
 #include "iam_callback_interface.h"
 
 namespace OHOS {

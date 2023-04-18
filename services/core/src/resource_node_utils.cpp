@@ -25,7 +25,8 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-int32_t ResourceNodeUtils::NotifyExecutorToDeleteTemplates(const std::vector<std::shared_ptr<CredentialInfo>> &infos)
+int32_t ResourceNodeUtils::NotifyExecutorToDeleteTemplates(
+    const std::vector<std::shared_ptr<CredentialInfoInterface>> &infos)
 {
     if (infos.size() == 0) {
         IAM_LOGE("bad infos, infos size is 0");

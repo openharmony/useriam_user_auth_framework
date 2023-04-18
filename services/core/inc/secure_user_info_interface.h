@@ -13,39 +13,29 @@
  * limitations under the License.
  */
 
-#include "sec_user_info_impl.h"
+#ifndef IAM_SECURE_USER_INFO_INTERFACE_H
+#define IAM_SECURE_USER_INFO_INTERFACE_H
 
-#include "iam_logger.h"
+#include <cstdint>
+#include <vector>
+#include <memory>
 
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SDK
+#include "enrolled_info_interface.h"
+#include "iam_common_defines.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-SecUserInfoImpl::SecUserInfoImpl(uint64_t secUserId, std::vector<std::shared_ptr<SecEnrolledInfo>> info)
-    : secUserId_(secUserId), info_(std::move(info))
-{
-}
-
-int32_t SecUserInfoImpl::GetUserId() const
-{
-    return 0;
-}
-
-PinSubType SecUserInfoImpl::GetPinSubType() const
-{
-    return PIN_SIX;
-}
-
-uint64_t SecUserInfoImpl::GetSecUserId() const
-{
-    return secUserId_;
-}
-
-std::vector<std::shared_ptr<SecEnrolledInfo>> SecUserInfoImpl::GetEnrolledInfo() const
-{
-    return info_;
-}
+class SecureUserInfoInterface {
+public:
+    virtual ~SecureUserInfoInterface() = default;
+    virtual int32_t GetUserId() const = 0;
+    virtual PinSubType GetPinSubType() const = 0;
+    virtual uint64_t GetSecUserId() const = 0;
+    virtual std::vector<std::shared_ptr<EnrolledInfoInterface>> GetEnrolledInfo() const = 0;
+};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
+
+#endif // IAM_SECURE_USER_INFO_INTERFACE_H

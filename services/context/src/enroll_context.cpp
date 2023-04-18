@@ -98,7 +98,7 @@ bool EnrollContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &sche
     std::vector<uint8_t> scheduleResult;
     bool getResultCodeRet = scheduleResultAttr->GetUint8ArrayValue(Attributes::ATTR_RESULT, scheduleResult);
     IF_FALSE_LOGE_AND_RETURN_VAL(getResultCodeRet == true, false);
-    std::shared_ptr<CredentialInfo> infoToDel;
+    std::shared_ptr<CredentialInfoInterface> infoToDel;
     bool updateRet = enroll_->Update(scheduleResult, credentialId, infoToDel, rootSecret, secUserId);
     if (!updateRet) {
         IAM_LOGE("%{public}s enroll update fail", GetDescription());
@@ -108,7 +108,7 @@ bool EnrollContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &sche
     if (infoToDel == nullptr) {
         IAM_LOGI("no credential to delete");
     } else {
-        std::vector<std::shared_ptr<CredentialInfo>> credInfos = {infoToDel};
+        std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos = {infoToDel};
         int32_t ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos);
         if (ret != SUCCESS) {
             IAM_LOGE("failed to delete executor info, error code : %{public}d", ret);

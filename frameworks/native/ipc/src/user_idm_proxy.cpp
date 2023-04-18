@@ -132,7 +132,8 @@ int32_t UserIdmProxy::GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserInfo
 
     bool ret = SendRequest(UserIdmInterface::USER_IDM_GET_SEC_INFO, data, reply);
     if (!ret) {
-        callback->OnSecureUserInfo(nullptr);
+        SecUserInfo secUserInfo = {};
+        callback->OnSecureUserInfo(secUserInfo);
         return GENERAL_ERROR;
     }
     int32_t result = GENERAL_ERROR;

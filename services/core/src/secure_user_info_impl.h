@@ -16,27 +16,28 @@
 #ifndef IAM_SECURE_USER_INFO_IMPL_H
 #define IAM_SECURE_USER_INFO_IMPL_H
 
-#include "hdi_wrapper.h"
-#include "secure_user_info.h"
+#include "nocopyable.h"
+
+#include "secure_user_info_interface.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class SecureUserInfoImpl final : public SecureUserInfo, public NoCopyable {
+class SecureUserInfoImpl final : public SecureUserInfoInterface, public NoCopyable {
 public:
-    SecureUserInfoImpl(int32_t userId, PinSubType pinSubType, uint64_t secUserId,
-        std::vector<std::shared_ptr<EnrolledInfo>> info);
-    ~SecureUserInfoImpl() override;
+    SecureUserInfoImpl(int32_t userId, PinSubType subType, uint64_t secUserId,
+        std::vector<std::shared_ptr<EnrolledInfoInterface>> &enrolledInfos);
+    ~SecureUserInfoImpl() override = default;
     int32_t GetUserId() const override;
     PinSubType GetPinSubType() const override;
     uint64_t GetSecUserId() const override;
-    std::vector<std::shared_ptr<EnrolledInfo>> GetEnrolledInfo() const override;
+    std::vector<std::shared_ptr<EnrolledInfoInterface>> GetEnrolledInfo() const override;
 
 private:
-    int32_t userId_;
-    PinSubType pinSubType_;
-    uint64_t secUserId_;
-    std::vector<std::shared_ptr<EnrolledInfo>> info_;
+    int32_t userId_ {0};
+    PinSubType subType_ {PIN_SIX};
+    uint64_t secUserId_ {0};
+    std::vector<std::shared_ptr<EnrolledInfoInterface>> enrolledInfos_;
 };
 } // namespace UserAuth
 } // namespace UserIam

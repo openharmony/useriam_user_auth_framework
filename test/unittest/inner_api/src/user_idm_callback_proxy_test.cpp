@@ -16,9 +16,8 @@
 #include "user_idm_callback_proxy_test.h"
 
 #include "iam_ptr.h"
-#include "mock_credential_info.h"
 #include "mock_remote_object.h"
-#include "mock_secure_user_info.h"
+#include "mock_user_idm_callback_service.h"
 #include "user_idm_callback_proxy.h"
 
 namespace OHOS {
@@ -86,12 +85,27 @@ HWTEST_F(UserIdmCallbackProxyTest, TestOnAcquireInfo_001, TestSize.Level0)
 
 HWTEST_F(UserIdmCallbackProxyTest, TestOnCredentialInfos_001, TestSize.Level0)
 {
+    auto service = Common::MakeShared<MockIdmGetCredInfoCallbackService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, OnCredentialInfos(_))
+        .WillOnce(
+            [](const std::vector<CredentialInfo> &credInfoList) {
+                EXPECT_EQ(credInfoList.size(), 3);
+                EXPECT_EQ(credInfoList[0].authType, PIN);
+                EXPECT_EQ(credInfoList[1].authType, FACE);
+                EXPECT_EQ(credInfoList[2].authType, FINGERPRINT);
+                EXPECT_EQ(credInfoList[0].credentialId, 10);
+                EXPECT_EQ(credInfoList[1].credentialId, 100);
+                EXPECT_EQ(credInfoList[2].credentialId, 1000);
+            }
+        );
+
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _))
         .WillOnce(
-            [](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-                EXPECT_EQ(code, IdmGetCredInfoCallbackInterface::ON_GET_INFO);
+            [&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+                service->OnRemoteRequest(code, data, reply, option);
                 return OHOS::NO_ERROR;
             }
         );
@@ -99,31 +113,36 @@ HWTEST_F(UserIdmCallbackProxyTest, TestOnCredentialInfos_001, TestSize.Level0)
     auto proxy = Common::MakeShared<IdmGetCredentialInfoProxy>(obj);
     EXPECT_NE(proxy, nullptr);
 
-    std::vector<std::shared_ptr<IdmGetCredInfoCallbackInterface::CredentialInfo>> infoList;
-    infoList.push_back(nullptr);
-    PinSubType subType = PIN_SIX;
-    proxy->OnCredentialInfos(infoList, subType);
+    CredentialInfo info1 = {PIN, PIN_SIX, 10, 20};
+    CredentialInfo info2 = {FACE, std::nullopt, 100, 200};
+    CredentialInfo info3 = {FINGERPRINT, std::nullopt, 1000, 2000};
+    std::vector<CredentialInfo> credInfoList = {info1, info2, info3};
 
-    infoList.clear();
-    auto credInfo = Common::MakeShared<MockCredentialInfo>();
-    EXPECT_NE(credInfo, nullptr);
-    infoList.push_back(credInfo);
-
-    EXPECT_CALL(*credInfo, GetCredentialId()).WillOnce(Return(20));
-    EXPECT_CALL(*credInfo, GetTemplateId()).WillOnce(Return(30));
-    EXPECT_CALL(*credInfo, GetAuthType()).WillOnce(Return(PIN));
-
-    proxy->OnCredentialInfos(infoList, subType);
+    proxy->OnCredentialInfos(credInfoList);
 }
 
 HWTEST_F(UserIdmCallbackProxyTest, TestOnSecureUserInfo_001, TestSize.Level0)
 {
+    auto service = Common::MakeShared<MockIdmGetSecureUserInfoCallbackService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, OnSecureUserInfo(_))
+        .WillOnce(
+            [](const SecUserInfo &secUserInfo) {
+                EXPECT_EQ(secUserInfo.secureUid, 1000);
+                EXPECT_EQ(secUserInfo.enrolledInfo.size(), 2);
+                EXPECT_EQ(secUserInfo.enrolledInfo[0].authType, FACE);
+                EXPECT_EQ(secUserInfo.enrolledInfo[0].enrolledId, 10);
+                EXPECT_EQ(secUserInfo.enrolledInfo[1].authType, FINGERPRINT);
+                EXPECT_EQ(secUserInfo.enrolledInfo[1].enrolledId, 20);
+            }
+        );
+
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _))
         .WillOnce(
-            [](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-                EXPECT_EQ(code, IdmGetSecureUserInfoCallbackInterface::ON_GET_SEC_INFO);
+            [&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+                service->OnRemoteRequest(code, data, reply, option);
                 return OHOS::NO_ERROR;
             }
         );
@@ -131,17 +150,10 @@ HWTEST_F(UserIdmCallbackProxyTest, TestOnSecureUserInfo_001, TestSize.Level0)
     auto proxy = Common::MakeShared<IdmGetSecureUserInfoProxy>(obj);
     EXPECT_NE(proxy, nullptr);
 
-    std::shared_ptr<IdmGetSecureUserInfoCallbackInterface::SecureUserInfo> info = nullptr;
-    proxy->OnSecureUserInfo(info);
-
-    std::vector<std::shared_ptr<IdmGetSecureUserInfoCallbackInterface::EnrolledInfo>> enrolledInfos;
-    enrolledInfos.push_back(nullptr);
-    auto testUserInfo = Common::MakeShared<MockSecureUserInfo>();
-    EXPECT_NE(testUserInfo, nullptr);
-    EXPECT_CALL(*testUserInfo, GetSecUserId()).WillOnce(Return(10));
-    EXPECT_CALL(*testUserInfo, GetEnrolledInfo()).WillOnce(Return(enrolledInfos));
-
-    proxy->OnSecureUserInfo(testUserInfo);
+    SecUserInfo secUserInfo = {};
+    secUserInfo.secureUid = 1000;
+    secUserInfo.enrolledInfo = {{FACE, 10}, {FINGERPRINT, 20}};
+    proxy->OnSecureUserInfo(secUserInfo);
 }
 } // namespace UserAuth
 } // namespace UserIam

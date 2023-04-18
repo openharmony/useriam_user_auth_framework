@@ -13,50 +13,24 @@
  * limitations under the License.
  */
 
-#include "cred_info_impl.h"
+#ifndef IAM_ENROLLED_INFO_INTERFACE_H
+#define IAM_ENROLLED_INFO_INTERFACE_H
+
+#include <cstdint>
+
+#include "iam_common_defines.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-CredInfoImpl::CredInfoImpl(uint64_t credentialId, uint64_t templateId, AuthType authType)
-    : credentialId_(credentialId), templateId_(templateId), authType_(authType)
-{
-}
-
-uint64_t CredInfoImpl::GetCredentialId() const
-{
-    return credentialId_;
-}
-
-int32_t CredInfoImpl::GetUserId() const
-{
-    return 0;
-}
-
-uint64_t CredInfoImpl::GetExecutorIndex() const
-{
-    return 0;
-}
-
-uint64_t CredInfoImpl::GetTemplateId() const
-{
-    return templateId_;
-}
-
-AuthType CredInfoImpl::GetAuthType() const
-{
-    return authType_;
-}
-
-uint32_t CredInfoImpl::GetExecutorSensorHint() const
-{
-    return 0;
-}
-
-uint32_t CredInfoImpl::GetExecutorMatcher() const
-{
-    return 0;
-}
+class EnrolledInfoInterface {
+public:
+    virtual ~EnrolledInfoInterface() = default;
+    virtual AuthType GetAuthType() const = 0;
+    virtual int32_t GetUserId() const = 0;
+    virtual uint64_t GetEnrolledId() const = 0;
+};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
+#endif // IAM_ENROLLED_INFO_INTERFACE_H

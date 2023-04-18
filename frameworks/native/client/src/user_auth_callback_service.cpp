@@ -37,7 +37,7 @@ UserAuthCallbackService::UserAuthCallbackService(const std::shared_ptr<Identific
 
 void UserAuthCallbackService::OnResult(int32_t result, const Attributes &extraInfo)
 {
-    IAM_LOGI("start");
+    IAM_LOGI("start, result: %{public}d", result);
     if (authCallback_ != nullptr) {
         authCallback_->OnResult(result, extraInfo);
     } else if (identifyCallback_ != nullptr) {

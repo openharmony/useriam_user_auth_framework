@@ -24,6 +24,9 @@
 #ifndef IAM_COMMON_DEFINES_H
 #define IAM_COMMON_DEFINES_H
 
+#include <cstdint>
+#include <cstddef>
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {

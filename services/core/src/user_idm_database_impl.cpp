@@ -18,15 +18,12 @@
 #include "securec.h"
 
 #include "attributes.h"
-#include "credential_info.h"
-#include "credential_info_impl.h"
 #include "enrolled_info_impl.h"
+#include "hdi_wrapper.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
 #include "iam_hitrace_helper.h"
 #include "iam_common_defines.h"
-#include "secure_user_info.h"
-#include "secure_user_info_impl.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
@@ -38,7 +35,7 @@ using HdiAuthType = OHOS::HDI::UserAuth::V1_0::AuthType;
 using HdiCredentialInfo = OHOS::HDI::UserAuth::V1_0::CredentialInfo;
 using HdiPinSubType = OHOS::HDI::UserAuth::V1_0::PinSubType;
 
-std::shared_ptr<SecureUserInfo> UserIdmDatabaseImpl::GetSecUserInfo(int32_t userId)
+std::shared_ptr<SecureUserInfoInterface> UserIdmDatabaseImpl::GetSecUserInfo(int32_t userId)
 {
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi == nullptr) {
@@ -55,7 +52,7 @@ std::shared_ptr<SecureUserInfo> UserIdmDatabaseImpl::GetSecUserInfo(int32_t user
         return nullptr;
     }
 
-    std::vector<std::shared_ptr<EnrolledInfo>> infoRet;
+    std::vector<std::shared_ptr<EnrolledInfoInterface>> infoRet;
     infoRet.reserve(enrolledInfoVector.size());
 
     for (auto const &info : enrolledInfoVector) {
@@ -75,9 +72,10 @@ std::shared_ptr<SecureUserInfo> UserIdmDatabaseImpl::GetSecUserInfo(int32_t user
     return secInfoRet;
 }
 
-std::vector<std::shared_ptr<CredentialInfo>> UserIdmDatabaseImpl::GetCredentialInfo(int32_t userId, AuthType authType)
+std::vector<std::shared_ptr<CredentialInfoInterface>> UserIdmDatabaseImpl::GetCredentialInfo(int32_t userId,
+    AuthType authType)
 {
-    std::vector<std::shared_ptr<CredentialInfo>> infoRet;
+    std::vector<std::shared_ptr<CredentialInfoInterface>> infoRet;
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi == nullptr) {
         IAM_LOGE("bad hdi");
@@ -104,7 +102,7 @@ std::vector<std::shared_ptr<CredentialInfo>> UserIdmDatabaseImpl::GetCredentialI
 }
 
 int32_t UserIdmDatabaseImpl::DeleteCredentialInfo(int32_t userId, uint64_t credentialId,
-    const std::vector<uint8_t> &authToken, std::shared_ptr<CredentialInfo> &credInfo)
+    const std::vector<uint8_t> &authToken, std::shared_ptr<CredentialInfoInterface> &credInfo)
 {
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi == nullptr) {
@@ -130,7 +128,7 @@ int32_t UserIdmDatabaseImpl::DeleteCredentialInfo(int32_t userId, uint64_t crede
 }
 
 int32_t UserIdmDatabaseImpl::DeleteUser(int32_t userId, const std::vector<uint8_t> &authToken,
-    std::vector<std::shared_ptr<CredentialInfo>> &credInfos)
+    std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos)
 {
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi == nullptr) {
@@ -146,8 +144,8 @@ int32_t UserIdmDatabaseImpl::DeleteUser(int32_t userId, const std::vector<uint8_
         return ret;
     }
 
-    for (auto info : hdiInfos) {
-        auto infoRet = Common::MakeShared<CredentialInfoImpl>(userId, info);
+    for (const auto &hdiInfo : hdiInfos) {
+        auto infoRet = Common::MakeShared<CredentialInfoImpl>(userId, hdiInfo);
         if (infoRet == nullptr) {
             IAM_LOGE("bad alloc");
             return GENERAL_ERROR;
@@ -158,7 +156,8 @@ int32_t UserIdmDatabaseImpl::DeleteUser(int32_t userId, const std::vector<uint8_
     return SUCCESS;
 }
 
-int32_t UserIdmDatabaseImpl::DeleteUserEnforce(int32_t userId, std::vector<std::shared_ptr<CredentialInfo>> &credInfos)
+int32_t UserIdmDatabaseImpl::DeleteUserEnforce(int32_t userId,
+    std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos)
 {
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi == nullptr) {
@@ -174,8 +173,8 @@ int32_t UserIdmDatabaseImpl::DeleteUserEnforce(int32_t userId, std::vector<std::
         return ret;
     }
 
-    for (auto info : hdiInfos) {
-        auto infoRet = Common::MakeShared<CredentialInfoImpl>(userId, info);
+    for (const auto &hdiInfo : hdiInfos) {
+        auto infoRet = Common::MakeShared<CredentialInfoImpl>(userId, hdiInfo);
         if (infoRet == nullptr) {
             IAM_LOGE("bad alloc");
             return GENERAL_ERROR;

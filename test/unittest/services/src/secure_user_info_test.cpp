@@ -45,7 +45,7 @@ HWTEST_F(SecureUserInfoTest, GetUserId, TestSize.Level0)
     constexpr int32_t userId = 100;
     constexpr PinSubType pinSubType = PIN_MIXED;
     constexpr uint64_t secUserId = 200;
-    std::vector<std::shared_ptr<EnrolledInfo>> info = {nullptr};
+    std::vector<std::shared_ptr<EnrolledInfoInterface>> info = {nullptr};
     SecureUserInfoImpl secureUserInfoImpl(userId, pinSubType, secUserId, info);
     int32_t ret = secureUserInfoImpl.GetUserId();
     EXPECT_EQ(ret, userId);
@@ -56,7 +56,7 @@ HWTEST_F(SecureUserInfoTest, GetPinSubType, TestSize.Level0)
     constexpr int32_t userId = 100;
     constexpr PinSubType pinSubType = PIN_MIXED;
     constexpr uint64_t secUserId = 200;
-    std::vector<std::shared_ptr<EnrolledInfo>> info = {nullptr};
+    std::vector<std::shared_ptr<EnrolledInfoInterface>> info = {nullptr};
     SecureUserInfoImpl secureUserInfoImpl(userId, pinSubType, secUserId, info);
     EXPECT_EQ(secureUserInfoImpl.GetPinSubType(), pinSubType);
 }
@@ -66,7 +66,7 @@ HWTEST_F(SecureUserInfoTest, GetSecUserId, TestSize.Level0)
     constexpr int32_t userId = 100;
     constexpr PinSubType pinSubType = PIN_MIXED;
     constexpr uint64_t secUserId = 200;
-    std::vector<std::shared_ptr<EnrolledInfo>> info = {nullptr};
+    std::vector<std::shared_ptr<EnrolledInfoInterface>> info = {nullptr};
     SecureUserInfoImpl secureUserInfoImpl(userId, pinSubType, secUserId, info);
     uint64_t ret = secureUserInfoImpl.GetSecUserId();
     EXPECT_EQ(ret, secUserId);
@@ -77,7 +77,7 @@ HWTEST_F(SecureUserInfoTest, GetEnrolledInfo, TestSize.Level0)
     constexpr int32_t userId = 100;
     constexpr PinSubType pinSubType = PIN_MIXED;
     constexpr uint64_t secUserId = 200;
-    std::vector<std::shared_ptr<EnrolledInfo>> info = {nullptr};
+    std::vector<std::shared_ptr<EnrolledInfoInterface>> info = {nullptr};
     SecureUserInfoImpl secureUserInfoImpl(userId, pinSubType, secUserId, info);
     auto ret = secureUserInfoImpl.GetEnrolledInfo();
     EXPECT_EQ(ret, info);
