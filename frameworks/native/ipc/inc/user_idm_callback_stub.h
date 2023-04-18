@@ -19,6 +19,7 @@
 #include "iremote_stub.h"
 #include "message_parcel.h"
 #include "nocopyable.h"
+
 #include "user_idm_callback_interface.h"
 
 namespace OHOS {
@@ -39,6 +40,7 @@ public:
 
 private:
     int32_t OnCredentialInfosStub(MessageParcel &data, MessageParcel &reply);
+    ResultCode ReadCredentialInfoList(MessageParcel &data, std::vector<CredentialInfo> &credInfoList);
 };
 
 class IdmGetSecureUserInfoCallbackStub : public IRemoteStub<IdmGetSecureUserInfoCallbackInterface>, public NoCopyable {
@@ -47,6 +49,7 @@ public:
 
 private:
     int32_t OnSecureUserInfoStub(MessageParcel &data, MessageParcel &reply);
+    ResultCode ReadSecureUserInfo(MessageParcel &data, SecUserInfo &secUserInfo);
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -425,7 +425,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_004, TestSize.Lev
     EXPECT_CALL(*mockEnroll, Update(_, _, _, _, _))
         .Times(Exactly(1))
         .WillOnce([](const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
-            std::shared_ptr<CredentialInfo> &info, std::vector<uint8_t> &rootSecret,
+            std::shared_ptr<CredentialInfoInterface> &info, std::vector<uint8_t> &rootSecret,
             std::optional<uint64_t> &secUserId) {
             EXPECT_EQ(scheduleResult, testScheduleResult);
             return false;
@@ -463,7 +463,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_005, TestSize.Lev
     EXPECT_CALL(*mockEnroll, Update(_, _, _, _, _))
         .Times(Exactly(1))
         .WillOnce([](const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
-            std::shared_ptr<CredentialInfo> &info, std::vector<uint8_t> &rootSecret,
+            std::shared_ptr<CredentialInfoInterface> &info, std::vector<uint8_t> &rootSecret,
             std::optional<uint64_t> &secUserId) {
             EXPECT_EQ(scheduleResult, testScheduleResult);
             credentialId = testCredentialId;
@@ -508,7 +508,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_006, TestSize.Lev
     EXPECT_CALL(*mockEnroll, Update(_, _, _, _, _))
         .Times(Exactly(1))
         .WillOnce([](const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
-            std::shared_ptr<CredentialInfo> &info, std::vector<uint8_t> &rootSecret,
+            std::shared_ptr<CredentialInfoInterface> &info, std::vector<uint8_t> &rootSecret,
             std::optional<uint64_t> &secUserId) {
             EXPECT_EQ(scheduleResult, testScheduleResult);
             credentialId = testCredentialId;

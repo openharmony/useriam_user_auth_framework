@@ -45,7 +45,7 @@ void ResourceNodeUtilsTest::TearDown()
 
 HWTEST_F(ResourceNodeUtilsTest, NotifyExecutorToDeleteTemplates001, TestSize.Level0)
 {
-    std::vector<std::shared_ptr<IdmGetCredInfoCallbackInterface::CredentialInfo>> infos;
+    std::vector<std::shared_ptr<CredentialInfoInterface>> infos;
     int32_t result = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(infos);
     EXPECT_EQ(result, INVALID_PARAMETERS);
 }
@@ -56,7 +56,7 @@ HWTEST_F(ResourceNodeUtilsTest, NotifyExecutorToDeleteTemplates002, TestSize.Lev
     EXPECT_NE(credInfo, nullptr);
     EXPECT_CALL(*credInfo, GetExecutorIndex()).WillRepeatedly(Return(10));
 
-    std::vector<std::shared_ptr<IdmGetCredInfoCallbackInterface::CredentialInfo>> infos;
+    std::vector<std::shared_ptr<CredentialInfoInterface>> infos;
     infos.push_back(credInfo);
     int32_t result = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(infos);
     EXPECT_EQ(result, SUCCESS);
@@ -74,7 +74,7 @@ HWTEST_F(ResourceNodeUtilsTest, NotifyExecutorToDeleteTemplates003, TestSize.Lev
     EXPECT_CALL(*credInfo2, GetExecutorIndex()).WillRepeatedly(Return(100));
     EXPECT_CALL(*credInfo2, GetTemplateId()).WillRepeatedly(Return(200));
 
-    std::vector<std::shared_ptr<IdmGetCredInfoCallbackInterface::CredentialInfo>> infos;
+    std::vector<std::shared_ptr<CredentialInfoInterface>> infos;
     infos.push_back(credInfo1);
     infos.push_back(credInfo2);
 

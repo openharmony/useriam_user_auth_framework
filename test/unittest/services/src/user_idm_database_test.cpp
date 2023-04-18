@@ -140,7 +140,7 @@ HWTEST_F(UserIdmDatabaseTest, FailedGetCredentialInfoVector, TestSize.Level0)
     AuthType authType = PIN;
     EXPECT_CALL(*mock, GetCredential(_, _, _)).WillRepeatedly(Return(1));
     auto &database = UserIdmDatabase::Instance();
-    std::vector<std::shared_ptr<CredentialInfo>> info = {};
+    std::vector<std::shared_ptr<CredentialInfoInterface>> info = {};
     auto infoRet = database.GetCredentialInfo(USER_ID, authType);
     EXPECT_EQ(infoRet.size(), 0U);
 }
@@ -205,7 +205,7 @@ HWTEST_F(UserIdmDatabaseTest, DeleteCredentialInfo001, TestSize.Level0)
     int32_t testUserId = 4501;
     uint64_t testCredentialId = 87841;
     std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
-    std::shared_ptr<CredentialInfo> testCredInfo = nullptr;
+    std::shared_ptr<CredentialInfoInterface> testCredInfo = nullptr;
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
@@ -220,7 +220,7 @@ HWTEST_F(UserIdmDatabaseTest, DeleteCredentialInfo002, TestSize.Level0)
     int32_t testUserId = 4501;
     uint64_t testCredentialId = 87841;
     std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
-    std::shared_ptr<CredentialInfo> testCredInfo = nullptr;
+    std::shared_ptr<CredentialInfoInterface> testCredInfo = nullptr;
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
@@ -254,7 +254,7 @@ HWTEST_F(UserIdmDatabaseTest, DeleteUser001, TestSize.Level0)
 {
     int32_t testUserId = 4501;
     std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
-    std::vector<std::shared_ptr<CredentialInfo>> testCredInfos;
+    std::vector<std::shared_ptr<CredentialInfoInterface>> testCredInfos;
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
@@ -267,7 +267,7 @@ HWTEST_F(UserIdmDatabaseTest, DeleteUser002, TestSize.Level0)
 {
     int32_t testUserId = 4501;
     std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
-    std::vector<std::shared_ptr<CredentialInfo>> testCredInfos;
+    std::vector<std::shared_ptr<CredentialInfoInterface>> testCredInfos;
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
@@ -302,7 +302,7 @@ HWTEST_F(UserIdmDatabaseTest, DeleteUser002, TestSize.Level0)
 HWTEST_F(UserIdmDatabaseTest, DeleteUserEnforce001, TestSize.Level0)
 {
     int32_t testUserId = 4501;
-    std::vector<std::shared_ptr<CredentialInfo>> testCredInfos;
+    std::vector<std::shared_ptr<CredentialInfoInterface>> testCredInfos;
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
@@ -314,7 +314,7 @@ HWTEST_F(UserIdmDatabaseTest, DeleteUserEnforce001, TestSize.Level0)
 HWTEST_F(UserIdmDatabaseTest, DeleteUserEnforce002, TestSize.Level0)
 {
     int32_t testUserId = 4501;
-    std::vector<std::shared_ptr<CredentialInfo>> testCredInfos;
+    std::vector<std::shared_ptr<CredentialInfoInterface>> testCredInfos;
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);

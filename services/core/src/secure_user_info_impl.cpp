@@ -14,25 +14,15 @@
  */
 
 #include "secure_user_info_impl.h"
-#include "enrolled_info_impl.h"
 
-#include "hdi_wrapper.h"
-#include "iam_logger.h"
-
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-SecureUserInfoImpl::SecureUserInfoImpl(int32_t userId, PinSubType pinSubType, uint64_t secUserId,
-    std::vector<std::shared_ptr<EnrolledInfo>> info)
-    : userId_(userId),
-      pinSubType_(pinSubType),
-      secUserId_(secUserId),
-      info_(std::move(info))
+SecureUserInfoImpl::SecureUserInfoImpl(int32_t userId, PinSubType subType, uint64_t secUserId,
+    std::vector<std::shared_ptr<EnrolledInfoInterface>> &enrolledInfos)
+    : userId_(userId), subType_(subType), secUserId_(secUserId), enrolledInfos_(enrolledInfos)
 {
 }
-
-SecureUserInfoImpl::~SecureUserInfoImpl() = default;
 
 int32_t SecureUserInfoImpl::GetUserId() const
 {
@@ -41,7 +31,7 @@ int32_t SecureUserInfoImpl::GetUserId() const
 
 PinSubType SecureUserInfoImpl::GetPinSubType() const
 {
-    return pinSubType_;
+    return subType_;
 }
 
 uint64_t SecureUserInfoImpl::GetSecUserId() const
@@ -49,9 +39,9 @@ uint64_t SecureUserInfoImpl::GetSecUserId() const
     return secUserId_;
 }
 
-std::vector<std::shared_ptr<EnrolledInfo>> SecureUserInfoImpl::GetEnrolledInfo() const
+std::vector<std::shared_ptr<EnrolledInfoInterface>> SecureUserInfoImpl::GetEnrolledInfo() const
 {
-    return info_;
+    return enrolledInfos_;
 }
 } // namespace UserAuth
 } // namespace UserIam

@@ -22,9 +22,6 @@
 
 #include "singleton.h"
 
-#include "credential_info.h"
-#include "secure_user_info.h"
-
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
@@ -32,13 +29,15 @@ class UserIdmDatabaseImpl : public UserIdmDatabase, public Singleton<UserIdmData
 public:
     UserIdmDatabaseImpl() = default;
     ~UserIdmDatabaseImpl() override = default;
-    std::shared_ptr<SecureUserInfo> GetSecUserInfo(int32_t userId) override;
-    std::vector<std::shared_ptr<CredentialInfo>> GetCredentialInfo(int32_t userId, AuthType authType) override;
+    std::shared_ptr<SecureUserInfoInterface> GetSecUserInfo(int32_t userId) override;
+    std::vector<std::shared_ptr<CredentialInfoInterface>> GetCredentialInfo(int32_t userId,
+        AuthType authType) override;
     int32_t DeleteCredentialInfo(int32_t userId, uint64_t credentialId, const std::vector<uint8_t> &authToken,
-        std::shared_ptr<CredentialInfo> &credInfo) override;
+        std::shared_ptr<CredentialInfoInterface> &credInfo) override;
     int32_t DeleteUser(int32_t userId, const std::vector<uint8_t> &authToken,
-        std::vector<std::shared_ptr<CredentialInfo>> &credInfos) override;
-    int32_t DeleteUserEnforce(int32_t userId, std::vector<std::shared_ptr<CredentialInfo>> &credInfos) override;
+        std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos) override;
+    int32_t DeleteUserEnforce(int32_t userId,
+        std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos) override;
 };
 } // namespace UserAuth
 } // namespace UserIam

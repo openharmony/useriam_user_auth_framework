@@ -101,10 +101,9 @@ bool IdmCallbackProxy::SendRequest(uint32_t code, MessageParcel &data, MessagePa
     return true;
 }
 
-void IdmGetCredentialInfoProxy::OnCredentialInfos(const std::vector<std::shared_ptr<CredentialInfo>> infoList,
-    const std::optional<PinSubType> pinSubType)
+void IdmGetCredentialInfoProxy::OnCredentialInfos(const std::vector<CredentialInfo> &credInfoList)
 {
-    IAM_LOGI("start");
+    IAM_LOGI("start, cred info vector size: %{public}zu", credInfoList.size());
 
     MessageParcel data;
     MessageParcel reply;
@@ -113,28 +112,24 @@ void IdmGetCredentialInfoProxy::OnCredentialInfos(const std::vector<std::shared_
         IAM_LOGE("failed to write descriptor");
         return;
     }
-    if (!data.WriteUint32(infoList.size())) {
-        IAM_LOGE("failed to write infoList.size()");
+    if (!data.WriteUint32(credInfoList.size())) {
+        IAM_LOGE("failed to write credInfoList size");
         return;
     }
-    for (const auto &info : infoList) {
-        if (info == nullptr) {
-            return;
-        }
-
-        if (!data.WriteUint64(info->GetCredentialId())) {
+    for (const auto &info : credInfoList) {
+        if (!data.WriteUint64(info.credentialId)) {
             IAM_LOGE("failed to write credentialId");
             return;
         }
-        if (!data.WriteInt32(info->GetAuthType())) {
-            IAM_LOGE("failed to write authType)");
+        if (!data.WriteInt32(info.authType)) {
+            IAM_LOGE("failed to write authType");
             return;
         }
-        if (!data.WriteInt32(pinSubType.value_or(static_cast<PinSubType>(0)))) {
-            IAM_LOGE("failed to write authSubType");
+        if (!data.WriteInt32(info.pinType.value_or(static_cast<PinSubType>(0)))) {
+            IAM_LOGE("failed to write pinSubType");
             return;
         }
-        if (!data.WriteUint64(info->GetTemplateId())) {
+        if (!data.WriteUint64(info.templateId)) {
             IAM_LOGE("failed to write templateId");
             return;
         }
@@ -165,27 +160,45 @@ bool IdmGetCredentialInfoProxy::SendRequest(uint32_t code, MessageParcel &data, 
     return true;
 }
 
-void IdmGetSecureUserInfoProxy::OnSecureUserInfo(const std::shared_ptr<SecureUserInfo> info)
+ResultCode IdmGetSecureUserInfoProxy::WriteSecureUserInfo(MessageParcel &data, const SecUserInfo &secUserInfo)
+
+{
+    IAM_LOGI("start");
+    if (!data.WriteInterfaceToken(IdmGetSecureUserInfoProxy::GetDescriptor())) {
+        IAM_LOGE("failed to write descriptor");
+        return WRITE_PARCEL_ERROR;
+    }
+    if (!data.WriteUint64(secUserInfo.secureUid)) {
+        IAM_LOGE("failed to write secureUid");
+        return WRITE_PARCEL_ERROR;
+    }
+    uint32_t enrolledInfoLen = secUserInfo.enrolledInfo.size();
+    IAM_LOGI("write enrolled info vector len: %{public}u", enrolledInfoLen);
+    if (!data.WriteUint32(enrolledInfoLen)) {
+        IAM_LOGE("failed to write enrolledInfoLen");
+        return WRITE_PARCEL_ERROR;
+    }
+    for (const auto &info : secUserInfo.enrolledInfo) {
+        if (!data.WriteInt32(info.authType)) {
+            IAM_LOGE("failed to write authType");
+            return WRITE_PARCEL_ERROR;
+        }
+        if (!data.WriteUint64(info.enrolledId)) {
+            IAM_LOGE("failed to write enrolledId");
+            return WRITE_PARCEL_ERROR;
+        }
+    }
+    return SUCCESS;
+}
+
+void IdmGetSecureUserInfoProxy::OnSecureUserInfo(const SecUserInfo &secUserInfo)
 {
     IAM_LOGI("start");
 
-    if (info == nullptr) {
-        IAM_LOGE("info is nullptr");
-        return;
-    }
-
     MessageParcel data;
     MessageParcel reply;
-    if (!data.WriteInterfaceToken(IdmGetSecureUserInfoProxy::GetDescriptor())) {
-        IAM_LOGE("failed to write descriptor");
-        return;
-    }
-    if (!data.WriteUint64(info->GetSecUserId())) {
-        IAM_LOGE("failed to write secureUid");
-        return;
-    }
-    if (!data.WriteUint32(info->GetEnrolledInfo().size())) {
-        IAM_LOGE("failed to write enrolledInfoLen");
+    if (WriteSecureUserInfo(data, secUserInfo) != SUCCESS) {
+        IAM_LOGE("WriteSecureUserInfo fail");
         return;
     }
 

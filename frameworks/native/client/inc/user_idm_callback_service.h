@@ -40,8 +40,7 @@ class IdmGetCredInfoCallbackService : public IdmGetCredInfoCallbackStub {
 public:
     explicit IdmGetCredInfoCallbackService(const std::shared_ptr<GetCredentialInfoCallback> &impl);
     ~IdmGetCredInfoCallbackService() override = default;
-    void OnCredentialInfos(const std::vector<std::shared_ptr<CredentialInfo>> infoList,
-        const std::optional<PinSubType> pinSubType) override;
+    void OnCredentialInfos(const std::vector<CredentialInfo> &credInfoList) override;
 
 private:
     std::shared_ptr<GetCredentialInfoCallback> getCredInfoCallback_ {nullptr};
@@ -51,7 +50,7 @@ class IdmGetSecureUserInfoCallbackService : public IdmGetSecureUserInfoCallbackS
 public:
     explicit IdmGetSecureUserInfoCallbackService(const std::shared_ptr<GetSecUserInfoCallback> &impl);
     ~IdmGetSecureUserInfoCallbackService() override = default;
-    void OnSecureUserInfo(const std::shared_ptr<SecureUserInfo> info) override;
+    void OnSecureUserInfo(const SecUserInfo &secUserInfo) override;
 
 private:
     std::shared_ptr<GetSecUserInfoCallback> getSecInfoCallback_ {nullptr};

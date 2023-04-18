@@ -27,15 +27,14 @@ namespace UserIam {
 namespace UserAuth {
 class MockIdmGetCredentialInfoCallback final : public IRemoteStub<IdmGetCredInfoCallbackInterface> {
 public:
-    MOCK_METHOD2(OnCredentialInfos,
-        void(const std::vector<std::shared_ptr<CredentialInfo>> infoList, const std::optional<PinSubType> pinSubType));
+    MOCK_METHOD1(OnCredentialInfos, void(const std::vector<CredentialInfo> &credInfoList));
     MOCK_METHOD4(OnRemoteRequest,
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
 };
 
 class MockIdmGetSecureUserInfoCallback final : public IRemoteStub<IdmGetSecureUserInfoCallbackInterface> {
 public:
-    MOCK_METHOD1(OnSecureUserInfo, void(const std::shared_ptr<SecureUserInfo> info));
+    MOCK_METHOD1(OnSecureUserInfo, void(const SecUserInfo &secUserInfo));
     MOCK_METHOD4(OnRemoteRequest,
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
 };

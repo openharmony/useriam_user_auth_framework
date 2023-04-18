@@ -16,13 +16,15 @@
 #ifndef IAM_CREDENTIAL_INFO_IMPL_H
 #define IAM_CREDENTIAL_INFO_IMPL_H
 
-#include "credential_info.h"
+#include "nocopyable.h"
+
+#include "credential_info_interface.h"
 #include "hdi_wrapper.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class CredentialInfoImpl final : public CredentialInfo, public NoCopyable {
+class CredentialInfoImpl final : public CredentialInfoInterface, public NoCopyable {
 public:
     using HdiCredential = OHOS::HDI::UserAuth::V1_0::CredentialInfo;
     CredentialInfoImpl(int32_t userId, const HdiCredential &info);
