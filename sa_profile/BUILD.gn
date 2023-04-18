@@ -21,7 +21,6 @@ ohos_sa_profile("userauth_sa_profile") {
     "931.xml",
   ]
 
-  subsystem_name = "useriam"
   part_name = "user_auth_framework"
 }
 
