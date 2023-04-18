@@ -66,5 +66,6 @@ ohos_source_set("userauth_services_ipc") {
     "../core:userauth_service_core_config",
   ]
 
+  subsystem_name = "useriam"
   part_name = "user_auth_framework"
 }

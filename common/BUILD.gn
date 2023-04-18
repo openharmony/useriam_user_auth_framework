@@ -36,6 +36,7 @@ ohos_source_set("iam_thread_pool") {
 
   public_configs = [ ":iam_thread_pool_config" ]
 
+  subsystem_name = "useriam"
   part_name = "user_auth_framework"
 }
 
@@ -64,6 +65,7 @@ ohos_source_set("iam_utils") {
     ":iam_log_config",
   ]
 
+  subsystem_name = "useriam"
   part_name = "user_auth_framework"
 }
 
@@ -83,5 +85,7 @@ ohos_source_set("iam_test") {
   public_configs = [ ":iam_test_config" ]
 
   sources = [ "test/iam_fuzz_test.cpp" ]
+
+  subsystem_name = "useriam"
   part_name = "user_auth_framework"
 }
