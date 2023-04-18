@@ -20,5 +20,6 @@ ohos_shared_library("userauthservice") {
     "//base/useriam/user_auth_framework/services/ipc:userauth_services_ipc",
   ]
 
+  subsystem_name = "useriam"
   part_name = "user_auth_framework"
 }
