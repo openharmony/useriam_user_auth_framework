@@ -95,6 +95,41 @@ void UserIdmService::CloseSession(int32_t userId)
     }
 }
 
+int32_t UserIdmService::GetCredentialInfoInner(int32_t userId, AuthType authType,
+    std::vector<CredentialInfo> &credInfoList)
+{
+    IAM_LOGI("start");
+    if (!IpcCommon::CheckPermission(*this, USE_USER_IDM_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        return CHECK_PERMISSION_FAILED;
+    }
+    auto credInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType);
+    if (credInfos.empty()) {
+        IAM_LOGE("no cred enrolled");
+        return NOT_ENROLLED;
+    }
+    for (const auto &credInfo : credInfos) {
+        if (credInfo == nullptr) {
+            IAM_LOGE("credInfo is nullptr");
+            return GENERAL_ERROR;
+        }
+        CredentialInfo info = {};
+        info.credentialId = credInfo->GetCredentialId();
+        info.templateId = credInfo->GetTemplateId();
+        info.authType = credInfo->GetAuthType();
+        if (info.authType == PIN) {
+            auto userInfo = UserIdmDatabase::Instance().GetSecUserInfo(userId);
+            if (userInfo == nullptr) {
+                IAM_LOGE("failed to get userInfo");
+                return GENERAL_ERROR;
+            }
+            info.pinType = userInfo->GetPinSubType();
+        }
+        credInfoList.push_back(info);
+    }
+    return SUCCESS;
+}
+
 int32_t UserIdmService::GetCredentialInfo(int32_t userId, AuthType authType,
     const sptr<IdmGetCredInfoCallbackInterface> &callback)
 {
@@ -102,32 +137,40 @@ int32_t UserIdmService::GetCredentialInfo(int32_t userId, AuthType authType,
         IAM_LOGE("callback is nullptr");
         return INVALID_PARAMETERS;
     }
-    std::vector<std::shared_ptr<CredentialInfo>> credInfos;
-    std::optional<PinSubType> pinSubType = std::nullopt;
+
+    std::vector<CredentialInfo> credInfoList;
+    int32_t ret = GetCredentialInfoInner(userId, authType, credInfoList);
+    if (ret != SUCCESS) {
+        IAM_LOGE("GetCredentialInfoInner fail, ret: %{public}d", ret);
+        credInfoList.clear();
+    }
+    callback->OnCredentialInfos(credInfoList);
+
+    return ret;
+}
+
+int32_t UserIdmService::GetSecInfoInner(int32_t userId, SecUserInfo &secUserInfo)
+{
+    IAM_LOGI("start");
     if (!IpcCommon::CheckPermission(*this, USE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
-        callback->OnCredentialInfos(credInfos, pinSubType);
         return CHECK_PERMISSION_FAILED;
     }
-
-    credInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType);
-    if (credInfos.empty()) {
-        IAM_LOGI("no cred enrolled");
-        callback->OnCredentialInfos(credInfos, pinSubType);
-        return NOT_ENROLLED;
-    }
-
-    auto userInfo = UserIdmDatabase::Instance().GetSecUserInfo(userId);
-    if (userInfo == nullptr) {
-        IAM_LOGE("failed to get userInfo");
-        callback->OnCredentialInfos(credInfos, pinSubType);
+    auto userInfos = UserIdmDatabase::Instance().GetSecUserInfo(userId);
+    if (userInfos == nullptr) {
+        IAM_LOGE("current userid %{public}d is not existed", userId);
         return INVALID_PARAMETERS;
     }
-
-    pinSubType = userInfo->GetPinSubType();
-    IAM_LOGE("before OnCredentialInfos");
-    callback->OnCredentialInfos(credInfos, pinSubType);
-
+    std::vector<std::shared_ptr<EnrolledInfoInterface>> enrolledInfos = userInfos->GetEnrolledInfo();
+    for (const auto &enrolledInfo : enrolledInfos) {
+        if (enrolledInfo == nullptr) {
+            IAM_LOGE("enrolledInfo is nullptr");
+            return GENERAL_ERROR;
+        }
+        EnrolledInfo info = {enrolledInfo->GetAuthType(), enrolledInfo->GetEnrolledId()};
+        secUserInfo.enrolledInfo.push_back(info);
+    }
+    secUserInfo.secureUid = userInfos->GetSecUserId();
     return SUCCESS;
 }
 
@@ -137,22 +180,17 @@ int32_t UserIdmService::GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserIn
         IAM_LOGE("callback is nullptr");
         return INVALID_PARAMETERS;
     }
-    std::shared_ptr<SecureUserInfo> userInfos = nullptr;
-    if (!IpcCommon::CheckPermission(*this, USE_USER_IDM_PERMISSION)) {
-        IAM_LOGE("failed to check permission");
-        callback->OnSecureUserInfo(userInfos);
-        return CHECK_PERMISSION_FAILED;
-    }
 
-    userInfos = UserIdmDatabase::Instance().GetSecUserInfo(userId);
-    if (userInfos == nullptr) {
-        IAM_LOGE("current userid %{public}d is not existed", userId);
-        callback->OnSecureUserInfo(userInfos);
-        return INVALID_PARAMETERS;
+    SecUserInfo secUserInfo = {};
+    int32_t ret = GetSecInfoInner(userId, secUserInfo);
+    if (ret != SUCCESS) {
+        IAM_LOGE("GetSecInfoInner fail, ret: %{public}d", ret);
+        secUserInfo.secureUid = 0;
+        secUserInfo.enrolledInfo.clear();
     }
-    callback->OnSecureUserInfo(userInfos);
+    callback->OnSecureUserInfo(secUserInfo);
 
-    return SUCCESS;
+    return ret;
 }
 
 void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPara,
@@ -305,7 +343,7 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInt
         return INVALID_PARAMETERS;
     }
 
-    std::vector<std::shared_ptr<CredentialInfo>> credInfos;
+    std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
     int32_t ret = UserIdmDatabase::Instance().DeleteUserEnforce(userId, credInfos);
     if (ret != SUCCESS) {
         IAM_LOGE("failed to enforce delete user");
@@ -353,7 +391,7 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
         return;
     }
 
-    std::vector<std::shared_ptr<CredentialInfo>> credInfos;
+    std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
     int32_t ret = UserIdmDatabase::Instance().DeleteUser(userId, authToken, credInfos);
     if (ret != SUCCESS) {
         IAM_LOGE("failed to delete user");
@@ -393,7 +431,7 @@ void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
     std::lock_guard<std::mutex> lock(mutex_);
     CancelCurrentEnrollIfExist();
 
-    std::shared_ptr<CredentialInfo> oldInfo;
+    std::shared_ptr<CredentialInfoInterface> oldInfo;
     auto ret = UserIdmDatabase::Instance().DeleteCredentialInfo(userId, credentialId, authToken, oldInfo);
     if (ret != SUCCESS) {
         IAM_LOGE("failed to delete CredentialInfo");
@@ -405,7 +443,7 @@ void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
     }
 
     IAM_LOGI("delete credentialInfo success");
-    std::vector<std::shared_ptr<CredentialInfo>> list = {oldInfo};
+    std::vector<std::shared_ptr<CredentialInfoInterface>> list = {oldInfo};
     ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(list);
     if (ret != SUCCESS) {
         IAM_LOGE("failed to delete executor info, error code : %{public}d", ret);

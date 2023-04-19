@@ -146,7 +146,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo001, TestSize.Level0
     EXPECT_NE(testCallback, nullptr);
     auto *tempCallback = static_cast<MockIdmGetCredentialInfoCallback *>(testCallback.GetRefPtr());
     EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnCredentialInfos(_, _)).Times(2);
+    EXPECT_CALL(*tempCallback, OnCredentialInfos(_)).Times(2);
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
@@ -178,7 +178,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo003, TestSize.Level0
     EXPECT_NE(testCallback, nullptr);
     auto *tempCallback = static_cast<MockIdmGetCredentialInfoCallback *>(testCallback.GetRefPtr());
     EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnCredentialInfos(_, _)).Times(2);
+    EXPECT_CALL(*tempCallback, OnCredentialInfos(_)).Times(2);
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
@@ -216,8 +216,43 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo003, TestSize.Level0
     
     IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
     int32_t ret = service.GetCredentialInfo(testUserId, testAuthType, testCallback);
-    EXPECT_EQ(ret, INVALID_PARAMETERS);
+    EXPECT_EQ(ret, GENERAL_ERROR);
     ret = service.GetCredentialInfo(testUserId, testAuthType, testCallback);
+    EXPECT_EQ(ret, SUCCESS);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo004, TestSize.Level0)
+{
+    UserIdmService service(123123, true);
+    int32_t testUserId = 0;
+    AuthType testAuthType = PIN;
+    sptr<IdmGetCredInfoCallbackInterface> testCallback = new MockIdmGetCredentialInfoCallback();
+    EXPECT_NE(testCallback, nullptr);
+    auto *tempCallback = static_cast<MockIdmGetCredentialInfoCallback *>(testCallback.GetRefPtr());
+    EXPECT_NE(tempCallback, nullptr);
+    EXPECT_CALL(*tempCallback, OnCredentialInfos(_)).Times(1);
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetCredential(_, _, _))
+        .WillOnce(
+            [](int32_t userId, HdiAuthType authType, std::vector<HdiCredentialInfo> &infos) {
+                HdiCredentialInfo tempInfo = {
+                    .credentialId = 1,
+                    .executorIndex = 2,
+                    .templateId = 3,
+                    .authType = static_cast<HdiAuthType>(2),
+                    .executorMatcher = 2,
+                    .executorSensorHint = 3,
+                };
+                infos.push_back(tempInfo);
+                return HDF_SUCCESS;
+            }
+        );
+
+    IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
+    int32_t ret = service.GetCredentialInfo(testUserId, testAuthType, testCallback);
     EXPECT_EQ(ret, SUCCESS);
     IpcCommon::DeleteAllPermission();
 }

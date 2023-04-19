@@ -35,8 +35,7 @@ namespace UserAuth {
 namespace {
 class DummyIdmGetCredentialInfoCallback : public IdmGetCredInfoCallbackInterface {
 public:
-    void OnCredentialInfos(const std::vector<std::shared_ptr<CredentialInfo>> infoList,
-        const std::optional<PinSubType> pinSubType) override
+    void OnCredentialInfos(const std::vector<CredentialInfo> &credInfoList) override
     {
         IAM_LOGI("start");
         return;
@@ -50,7 +49,7 @@ public:
 
 class DummyIdmGetSecureUserInfoCallback : public IdmGetSecureUserInfoCallbackInterface {
 public:
-    void OnSecureUserInfo(const std::shared_ptr<SecureUserInfo> info) override
+    void OnSecureUserInfo(const SecUserInfo &secUserInfo) override
     {
         IAM_LOGI("start");
         return;
