@@ -20,6 +20,7 @@ ohos_sa_profile("userauth_sa_profile") {
     "921.xml",
     "931.xml",
   ]
+
   part_name = "user_auth_framework"
 }
 
@@ -30,5 +31,7 @@ ohos_prebuilt_etc("useriam.init") {
     source = "useriam_bionic.cfg"
   }
   relative_install_dir = "init"
+
+  subsystem_name = "useriam"
   part_name = "user_auth_framework"
 }

@@ -30,6 +30,9 @@ ohos_source_set("attributes") {
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
   ]
+
+  subsystem_name = "useriam"
+  part_name = "user_auth_framework"
 }
 
 config("dfx_config") {
@@ -54,4 +57,7 @@ ohos_source_set("dfx") {
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
   ]
+
+  subsystem_name = "useriam"
+  part_name = "user_auth_framework"
 }

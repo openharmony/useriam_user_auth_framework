@@ -46,5 +46,6 @@ ohos_source_set("userauth_service_base") {
     "../../common:iam_utils_config",
   ]
 
+  subsystem_name = "useriam"
   part_name = "user_auth_framework"
 }

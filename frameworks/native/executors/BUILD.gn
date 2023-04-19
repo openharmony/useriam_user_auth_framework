@@ -70,5 +70,6 @@ ohos_shared_library("userauth_executors") {
     "samgr:samgr_proxy",
   ]
 
+  subsystem_name = "useriam"
   part_name = "user_auth_framework"
 }
