@@ -17,9 +17,7 @@
 
 #include "iam_logger.h"
 #include "iam_ptr.h"
-#include "sec_user_info_impl.h"
 #include "user_idm_client_defines.h"
-#include "cred_info_impl.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_IDM_SDK
 
@@ -27,7 +25,7 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
-    const uint32_t CRED_INFO_VECTOR_LENGTH_LIMIT = 100;
+    const uint32_t INFO_VECTOR_LENGTH_LIMIT = 100;
 } // namespace
 
 int32_t IdmCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
@@ -109,55 +107,56 @@ int32_t IdmGetCredInfoCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
-int32_t IdmGetCredInfoCallbackStub::OnCredentialInfosStub(MessageParcel &data, MessageParcel &reply)
+ResultCode IdmGetCredInfoCallbackStub::ReadCredentialInfoList(MessageParcel &data,
+    std::vector<CredentialInfo> &credInfoList)
 {
     IAM_LOGI("start");
-    uint32_t vectorSize = 0;
-    std::vector<std::shared_ptr<IdmGetCredInfoCallbackInterface::CredentialInfo>> infoList;
-    if (!data.ReadUint32(vectorSize)) {
-        IAM_LOGE("read size fail");
-        OnCredentialInfos(infoList, std::nullopt);
+    uint32_t credInfosLen = 0;
+    if (!data.ReadUint32(credInfosLen)) {
+        IAM_LOGE("read credInfosLen fail");
         return READ_PARCEL_ERROR;
     }
-    if (vectorSize > CRED_INFO_VECTOR_LENGTH_LIMIT) {
-        IAM_LOGI("the cred info vector size is invalid");
+    IAM_LOGI("read cred info vector len: %{public}u", credInfosLen);
+    if (credInfosLen > INFO_VECTOR_LENGTH_LIMIT) {
+        IAM_LOGE("the cred info vector size exceed limit");
         return GENERAL_ERROR;
     }
-    int32_t pinType = 0;
-    for (uint32_t i = 0; i < vectorSize; ++i) {
-        uint64_t credentialId;
-        uint64_t templateId;
+    for (uint32_t i = 0; i < credInfosLen; ++i) {
+        CredentialInfo info = {};
         int32_t authType;
-        if (!data.ReadUint64(credentialId)) {
+        int32_t pinType = 0;
+        if (!data.ReadUint64(info.credentialId)) {
             IAM_LOGE("failed to read credentialId");
-            OnCredentialInfos(infoList, std::nullopt);
             return READ_PARCEL_ERROR;
         }
         if (!data.ReadInt32(authType)) {
             IAM_LOGE("failed to read authType");
-            OnCredentialInfos(infoList, std::nullopt);
             return READ_PARCEL_ERROR;
         }
         if (!data.ReadInt32(pinType)) {
             IAM_LOGE("failed to read pinSubType");
-            OnCredentialInfos(infoList, std::nullopt);
             return READ_PARCEL_ERROR;
         }
-        if (!data.ReadUint64(templateId)) {
+        if (!data.ReadUint64(info.templateId)) {
             IAM_LOGE("failed to read templateId");
-            OnCredentialInfos(infoList, std::nullopt);
             return READ_PARCEL_ERROR;
         }
-        auto credInfo = Common::MakeShared<CredInfoImpl>(credentialId, templateId,
-            static_cast<AuthType>(authType));
-        infoList.push_back(credInfo);
+        info.authType = static_cast<AuthType>(authType);
+        info.pinType = static_cast<PinSubType>(pinType);
+        credInfoList.push_back(info);
     }
+    return SUCCESS;
+}
 
-    std::optional<PinSubType> pinSubType = std::nullopt;
-    if (pinType != 0) {
-        pinSubType = static_cast<PinSubType>(pinType);
+int32_t IdmGetCredInfoCallbackStub::OnCredentialInfosStub(MessageParcel &data, MessageParcel &reply)
+{
+    IAM_LOGI("start");
+    std::vector<CredentialInfo> credInfoList;
+    if (ReadCredentialInfoList(data, credInfoList) != SUCCESS) {
+        IAM_LOGE("ReadCredentialInfoList fail");
+        credInfoList.clear();
     }
-    OnCredentialInfos(infoList, pinSubType);
+    OnCredentialInfos(credInfoList);
     return SUCCESS;
 }
 
@@ -176,13 +175,11 @@ int32_t IdmGetSecureUserInfoCallbackStub::OnRemoteRequest(uint32_t code, Message
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
-int32_t IdmGetSecureUserInfoCallbackStub::OnSecureUserInfoStub(MessageParcel &data, MessageParcel &reply)
+ResultCode IdmGetSecureUserInfoCallbackStub::ReadSecureUserInfo(MessageParcel &data, SecUserInfo &secUserInfo)
 {
     IAM_LOGI("start");
-    uint64_t secureUid;
     uint32_t enrolledInfoLen;
-
-    if (!data.ReadUint64(secureUid)) {
+    if (!data.ReadUint64(secUserInfo.secureUid)) {
         IAM_LOGE("failed to read secureUid");
         return READ_PARCEL_ERROR;
     }
@@ -190,9 +187,39 @@ int32_t IdmGetSecureUserInfoCallbackStub::OnSecureUserInfoStub(MessageParcel &da
         IAM_LOGE("failed to read enrolledInfoLen");
         return READ_PARCEL_ERROR;
     }
+    IAM_LOGI("read enrolled info vector len: %{public}u", enrolledInfoLen);
+    if (enrolledInfoLen > INFO_VECTOR_LENGTH_LIMIT) {
+        IAM_LOGE("the enrolled info vector size exceed limit");
+        return GENERAL_ERROR;
+    }
+    secUserInfo.enrolledInfo.resize(enrolledInfoLen);
+    for (uint32_t i = 0; i < enrolledInfoLen; ++i) {
+        int32_t authType;
+        uint64_t enrolledId;
+        if (!data.ReadInt32(authType)) {
+            IAM_LOGE("failed to read authType");
+            return READ_PARCEL_ERROR;
+        }
+        if (!data.ReadUint64(enrolledId)) {
+            IAM_LOGE("failed to read enrolledId");
+            return READ_PARCEL_ERROR;
+        }
+        secUserInfo.enrolledInfo[i] = {static_cast<AuthType>(authType), enrolledId};
+    }
+    return SUCCESS;
+}
 
-    std::vector<std::shared_ptr<SecEnrolledInfo>> info;
-    auto secUserInfo = Common::MakeShared<SecUserInfoImpl>(secureUid, info);
+int32_t IdmGetSecureUserInfoCallbackStub::OnSecureUserInfoStub(MessageParcel &data, MessageParcel &reply)
+{
+    IAM_LOGI("start");
+    SecUserInfo secUserInfo = {};
+
+    if (ReadSecureUserInfo(data, secUserInfo) != SUCCESS) {
+        IAM_LOGE("ReadSecureUserInfo fail");
+        secUserInfo.secureUid = 0;
+        secUserInfo.enrolledInfo.clear();
+    }
+
     OnSecureUserInfo(secUserInfo);
     return SUCCESS;
 }

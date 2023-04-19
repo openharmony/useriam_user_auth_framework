@@ -31,7 +31,7 @@ IdmCallbackService::IdmCallbackService(const std::shared_ptr<UserIdmClientCallba
 
 void IdmCallbackService::OnResult(int32_t result, const Attributes &extraInfo)
 {
-    IAM_LOGI("start");
+    IAM_LOGI("start, result: %{public}d", result);
     iamHitraceHelper_ = nullptr;
     if (idmClientCallback_ == nullptr) {
         IAM_LOGE("idm client callback is nullptr");
@@ -55,29 +55,14 @@ IdmGetCredInfoCallbackService::IdmGetCredInfoCallbackService(
 {
 }
 
-void IdmGetCredInfoCallbackService::OnCredentialInfos(const std::vector<std::shared_ptr<CredentialInfo>> infoList,
-    const std::optional<PinSubType> pinSubType)
+void IdmGetCredInfoCallbackService::OnCredentialInfos(const std::vector<CredentialInfo> &credInfoList)
 {
-    IAM_LOGI("start");
+    IAM_LOGI("start, cred info vector size: %{public}zu", credInfoList.size());
     if (getCredInfoCallback_ == nullptr) {
         IAM_LOGE("getCredInfoCallback is nullptr");
         return;
     }
-    
-    std::vector<UserAuth::CredentialInfo> credInfoList;
-    for (const auto &it : infoList) {
-        if (it == nullptr) {
-            continue;
-        }
-        UserAuth::CredentialInfo info = {};
-        info.credentialId = it->GetCredentialId();
-        info.templateId = it->GetTemplateId();
-        info.authType = it->GetAuthType();
-        if (info.authType == PIN && pinSubType.has_value()) {
-            info.pinType = pinSubType;
-        }
-        credInfoList.push_back(info);
-    }
+
     getCredInfoCallback_->OnCredentialInfo(credInfoList);
 }
 
@@ -86,15 +71,14 @@ IdmGetSecureUserInfoCallbackService::IdmGetSecureUserInfoCallbackService(
 {
 }
 
-void IdmGetSecureUserInfoCallbackService::OnSecureUserInfo(const std::shared_ptr<SecureUserInfo> info)
+void IdmGetSecureUserInfoCallbackService::OnSecureUserInfo(const SecUserInfo &secUserInfo)
 {
-    IAM_LOGI("start");
-    if (info == nullptr) {
-        IAM_LOGE("secure user info is nullptr");
+    IAM_LOGI("start, enrolled info vector size: %{public}zu", secUserInfo.enrolledInfo.size());
+    if (getSecInfoCallback_ == nullptr) {
+        IAM_LOGE("getSecInfoCallback_ is nullptr");
         return;
     }
-    SecUserInfo secUserInfo = {};
-    secUserInfo.secureUid = info->GetSecUserId();
+
     getSecInfoCallback_->OnSecUserInfo(secUserInfo);
 }
 } // namespace UserAuth

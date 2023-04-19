@@ -16,17 +16,15 @@
 #ifndef IAM_ENROLLED_INFO_IMPL_H
 #define IAM_ENROLLED_INFO_IMPL_H
 
-#include <cstdint>
-#include <memory>
+#include "nocopyable.h"
 
-#include "enrolled_info.h"
+#include "enrolled_info_interface.h"
 #include "hdi_wrapper.h"
-#include "iam_common_defines.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class EnrolledInfoImpl final : public EnrolledInfo, public NoCopyable {
+class EnrolledInfoImpl final : public EnrolledInfoInterface, public NoCopyable {
 public:
     using HdiEnrolledInfo = OHOS::HDI::UserAuth::V1_0::EnrolledInfo;
     EnrolledInfoImpl(int32_t userId, const HdiEnrolledInfo &info);

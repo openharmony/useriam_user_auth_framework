@@ -29,10 +29,8 @@ ohos_source_set("userauth_client_ipc") {
 
   sources = [
     "src/co_auth_proxy.cpp",
-    "src/cred_info_impl.cpp",
     "src/executor_callback_stub.cpp",
     "src/executor_messenger_proxy.cpp",
-    "src/sec_user_info_impl.cpp",
     "src/user_auth_callback_stub.cpp",
     "src/user_auth_proxy.cpp",
     "src/user_idm_callback_stub.cpp",

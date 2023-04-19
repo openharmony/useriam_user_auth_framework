@@ -138,7 +138,7 @@ bool EnrollmentImpl::GetSecUserId(std::optional<uint64_t> &secUserId)
     }
 
     IAM_LOGE("current user id %{public}d get fail", userId_);
-    std::vector<std::shared_ptr<CredentialInfo>> credInfos;
+    std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
     if (UserIdmDatabase::Instance().DeleteUserEnforce(userId_, credInfos) != SUCCESS) {
         IAM_LOGE("failed to enforce delete user");
     }
@@ -146,7 +146,8 @@ bool EnrollmentImpl::GetSecUserId(std::optional<uint64_t> &secUserId)
 }
 
 bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
-    std::shared_ptr<CredentialInfo> &info, std::vector<uint8_t> &rootSecret, std::optional<uint64_t> &secUserId)
+    std::shared_ptr<CredentialInfoInterface> &info, std::vector<uint8_t> &rootSecret,
+    std::optional<uint64_t> &secUserId)
 {
     using HdiEnrollResultInfo = OHOS::HDI::UserAuth::V1_0::EnrollResultInfo;
 

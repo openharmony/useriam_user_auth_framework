@@ -15,7 +15,7 @@
 
 #include "user_idm_stub_test.h"
 
-#include "credential_info.h"
+#include "credential_info_interface.h"
 #include "iam_common_defines.h"
 #include "securec.h"
 #include "user_idm_callback_proxy.h"
@@ -158,13 +158,13 @@ HWTEST_F(UserIdmStubTest, UserIdmStubGetCredentialInfoStub002, TestSize.Level0)
                 EXPECT_EQ(userId, testUserId);
                 EXPECT_EQ(authType, testAuthType);
                 if (callback != nullptr) {
-                    std::vector<std::shared_ptr<CredentialInfo>> infoList;
-                    callback->OnCredentialInfos(infoList, std::nullopt);
+                    std::vector<CredentialInfo> credInfoList;
+                    callback->OnCredentialInfos(credInfoList);
                 }
                 return SUCCESS;
             }
         );
-    EXPECT_CALL(*callback, OnCredentialInfos(_, _)).Times(1);
+    EXPECT_CALL(*callback, OnCredentialInfos(_)).Times(1);
 
     MessageParcel data;
     MessageParcel reply;
@@ -210,8 +210,8 @@ HWTEST_F(UserIdmStubTest, UserIdmStubGetSecInfoStub002, TestSize.Level0)
             [&testUserId](int32_t userId, const sptr<IdmGetSecureUserInfoCallbackInterface> &callback) {
                 EXPECT_EQ(userId, testUserId);
                 if (callback != nullptr) {
-                    const std::shared_ptr<IdmGetSecureUserInfoCallbackInterface::SecureUserInfo> info;
-                    callback->OnSecureUserInfo(info);
+                    SecUserInfo secUserInfo = {};
+                    callback->OnSecureUserInfo(secUserInfo);
                 }
                 return SUCCESS;
             }

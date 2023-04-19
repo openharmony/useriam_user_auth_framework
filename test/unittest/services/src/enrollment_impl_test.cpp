@@ -103,7 +103,7 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiError, TestSize.Level0)
     auto enroll = std::make_shared<EnrollmentImpl>(userId, FACE);
     std::vector<uint8_t> scheduleResult = {1, 2, 3};
     uint64_t credentialId = 0;
-    std::shared_ptr<CredentialInfo> info = nullptr;
+    std::shared_ptr<CredentialInfoInterface> info = nullptr;
     std::vector<uint8_t> rootSecret;
     std::optional<uint64_t> secUserId = std::nullopt;
     EXPECT_FALSE(enroll->Update(scheduleResult, credentialId, info, rootSecret, secUserId));
@@ -138,7 +138,7 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful_001, TestSize.Level0)
     auto enroll = std::make_shared<EnrollmentImpl>(userId, FACE);
     enroll->SetIsUpdate(true);
     HdiCredentialInfo oldInfo = {};
-    std::shared_ptr<CredentialInfo> info = std::make_shared<CredentialInfoImpl>(userId, oldInfo);
+    std::shared_ptr<CredentialInfoInterface> info = std::make_shared<CredentialInfoImpl>(userId, oldInfo);
     uint64_t credentialId = 0;
     std::vector<uint8_t> rootSecret;
     std::optional<uint64_t> secUserId = std::nullopt;
@@ -166,7 +166,7 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful_002, TestSize.Level0)
     enroll->SetIsUpdate(false);
 
     std::vector<uint8_t> scheduleResult = {1, 2, 3};
-    std::shared_ptr<CredentialInfo> info = nullptr;
+    std::shared_ptr<CredentialInfoInterface> info = nullptr;
     uint64_t credentialId = 0;
     std::vector<uint8_t> rootSecret;
     std::optional<uint64_t> secUserId = std::nullopt;

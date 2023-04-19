@@ -203,10 +203,15 @@ void FuzzIdmCallbackServiceOnAcquireInfo(Parcel &parcel)
 void FuzzCallbackServiceOnCredentialInfos(Parcel &parcel)
 {
     IAM_LOGI("start");
-    std::vector<std::shared_ptr<IdmGetCredInfoCallbackInterface::CredentialInfo>> infoList;
-    auto subType = static_cast<PinSubType>(parcel.ReadInt32());
+    CredentialInfo info = {};
+    info.authType = static_cast<AuthType>(parcel.ReadInt32());
+    info.credentialId = parcel.ReadUint64();
+    info.templateId = parcel.ReadUint64();
+    info.pinType = static_cast<PinSubType>(parcel.ReadInt32());
+    std::vector<CredentialInfo> credInfoList = {info};
+
     if (g_IdmGetCredInfoCallbackService != nullptr) {
-        g_IdmGetCredInfoCallbackService->OnCredentialInfos(infoList, subType);
+        g_IdmGetCredInfoCallbackService->OnCredentialInfos(credInfoList);
     }
     IAM_LOGI("end");
 }
@@ -214,9 +219,15 @@ void FuzzCallbackServiceOnCredentialInfos(Parcel &parcel)
 void FuzzCallbackServiceOnSecureUserInfo(Parcel &parcel)
 {
     IAM_LOGI("start");
-    std::shared_ptr<IdmGetSecureUserInfoCallbackInterface::SecureUserInfo> info;
+    SecUserInfo secUserInfo = {};
+    secUserInfo.secureUid = parcel.ReadUint64();
+    EnrolledInfo info = {};
+    info.authType = static_cast<AuthType>(parcel.ReadInt32());
+    info.enrolledId = parcel.ReadUint64();
+    secUserInfo.enrolledInfo = {info};
+
     if (g_IdmGetSecureUserInfoCallbackService != nullptr) {
-        g_IdmGetSecureUserInfoCallbackService->OnSecureUserInfo(info);
+        g_IdmGetSecureUserInfoCallbackService->OnSecureUserInfo(secUserInfo);
     }
     IAM_LOGI("end");
 }

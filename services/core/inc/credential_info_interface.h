@@ -13,16 +13,28 @@
  * limitations under the License.
  */
 
-#ifndef IAM_ENROLLED_INFO_H
-#define IAM_ENROLLED_INFO_H
+#ifndef IAM_CREDENTIAL_INFO_INTERFACE_H
+#define IAM_CREDENTIAL_INFO_INTERFACE_H
 
-#include "user_idm_callback_interface.h"
+#include <cstdint>
+
+#include "iam_common_defines.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-using EnrolledInfo = IdmGetSecureUserInfoCallbackInterface::EnrolledInfo;
+class CredentialInfoInterface {
+public:
+    virtual ~CredentialInfoInterface() = default;
+    virtual uint64_t GetCredentialId() const = 0;
+    virtual int32_t GetUserId() const = 0;
+    virtual uint64_t GetExecutorIndex() const = 0;
+    virtual uint64_t GetTemplateId() const = 0;
+    virtual AuthType GetAuthType() const = 0;
+    virtual uint32_t GetExecutorSensorHint() const = 0;
+    virtual uint32_t GetExecutorMatcher() const = 0;
+};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // IAM_ENROLLED_INFO_H
+#endif // IAM_CREDENTIAL_INFO_INTERFACE_H

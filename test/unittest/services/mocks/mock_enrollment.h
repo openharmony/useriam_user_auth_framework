@@ -33,7 +33,7 @@ public:
     MOCK_METHOD2(Start,
         bool(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList, std::shared_ptr<ScheduleNodeCallback> callback));
     MOCK_METHOD5(Update, bool(const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
-                             std::shared_ptr<CredentialInfo> &info, std::vector<uint8_t> &rootSecret,
+                             std::shared_ptr<CredentialInfoInterface> &info, std::vector<uint8_t> &rootSecret,
                              std::optional<uint64_t> &secUserId));
     MOCK_METHOD0(Cancel, bool());
     MOCK_CONST_METHOD0(GetLatestError, int32_t());

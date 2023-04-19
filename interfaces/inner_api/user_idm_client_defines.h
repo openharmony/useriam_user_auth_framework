@@ -25,6 +25,7 @@
 #define USER_IDM_CLIENT_DEFINES_H
 
 #include <optional>
+#include <vector>
 
 #include "iam_common_defines.h"
 

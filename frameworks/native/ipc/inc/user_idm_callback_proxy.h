@@ -45,8 +45,7 @@ public:
     {
     }
     ~IdmGetCredentialInfoProxy() override = default;
-    void OnCredentialInfos(const std::vector<std::shared_ptr<CredentialInfo>> infoList,
-        const std::optional<PinSubType> pinSubType) override;
+    void OnCredentialInfos(const std::vector<CredentialInfo> &credInfoList) override;
 
 private:
     bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply);
@@ -60,11 +59,12 @@ public:
     {
     }
     ~IdmGetSecureUserInfoProxy() override = default;
-    void OnSecureUserInfo(const std::shared_ptr<SecureUserInfo> info) override;
+    void OnSecureUserInfo(const SecUserInfo &secUserInfo) override;
 
 private:
-    bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply);
     static inline BrokerDelegator<IdmGetSecureUserInfoProxy> delegator_;
+    bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply);
+    ResultCode WriteSecureUserInfo(MessageParcel &data, const SecUserInfo &secUserInfo);
 };
 } // namespace UserAuth
 } // namespace UserIam

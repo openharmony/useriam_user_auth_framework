@@ -19,9 +19,9 @@
 #include <cstdint>
 #include <memory>
 
-#include "credential_info.h"
+#include "credential_info_impl.h"
 #include "iam_common_defines.h"
-#include "secure_user_info.h"
+#include "secure_user_info_impl.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -29,13 +29,15 @@ namespace UserAuth {
 class UserIdmDatabase {
 public:
     static UserIdmDatabase &Instance();
-    virtual std::shared_ptr<SecureUserInfo> GetSecUserInfo(int32_t userId) = 0;
-    virtual std::vector<std::shared_ptr<CredentialInfo>> GetCredentialInfo(int32_t userId, AuthType authType) = 0;
-    virtual int32_t DeleteCredentialInfo(int32_t userId, uint64_t credentialId, const std::vector<uint8_t> &authToken,
-        std::shared_ptr<CredentialInfo> &credInfo) = 0;
+    virtual std::shared_ptr<SecureUserInfoInterface> GetSecUserInfo(int32_t userId) = 0;
+    virtual std::vector<std::shared_ptr<CredentialInfoInterface>> GetCredentialInfo(int32_t userId,
+        AuthType authType) = 0;
+    virtual int32_t DeleteCredentialInfo(int32_t userId, uint64_t credentialId,
+        const std::vector<uint8_t> &authToken, std::shared_ptr<CredentialInfoInterface> &credInfo) = 0;
     virtual int32_t DeleteUser(int32_t userId, const std::vector<uint8_t> &authToken,
-        std::vector<std::shared_ptr<CredentialInfo>> &credInfos) = 0;
-    virtual int32_t DeleteUserEnforce(int32_t userId, std::vector<std::shared_ptr<CredentialInfo>> &credInfos) = 0;
+        std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos) = 0;
+    virtual int32_t DeleteUserEnforce(int32_t userId,
+        std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos) = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam
