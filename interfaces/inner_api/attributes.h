@@ -87,6 +87,10 @@ public:
         ATTR_AUTH_TOKEN = 100033,
         /** Security user id return when add pin credential, the value type is uint64_t. */
         ATTR_SEC_USER_ID = 100034,
+        /** Enroll progress, the value type is string. */
+        ATTR_ENROLL_PROGRESS = 100035,
+        /** Sensor info, the value type is string. */
+        ATTR_SENSOR_INFO = 100036,
 
         /**
          * Private attrs.
