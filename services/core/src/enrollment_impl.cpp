@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -49,11 +49,6 @@ int32_t EnrollmentImpl::GetLatestError() const
     return latestError_;
 }
 
-uint32_t EnrollmentImpl::GetAccessTokenId() const
-{
-    return tokenId_;
-}
-
 void EnrollmentImpl::SetExecutorSensorHint(uint32_t executorSensorHint)
 {
     executorSensorHint_ = executorSensorHint;
@@ -67,6 +62,11 @@ void EnrollmentImpl::SetAuthToken(const std::vector<uint8_t> &authToken)
 void EnrollmentImpl::SetAccessTokenId(uint32_t tokenId)
 {
     tokenId_ = tokenId;
+}
+
+uint32_t EnrollmentImpl::GetAccessTokenId() const
+{
+    return tokenId_;
 }
 
 void EnrollmentImpl::SetPinSubType(PinSubType pinSubType)
