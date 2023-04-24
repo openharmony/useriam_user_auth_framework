@@ -49,6 +49,11 @@ int32_t EnrollmentImpl::GetLatestError() const
     return latestError_;
 }
 
+uint32_t EnrollmentImpl::GetAccessTokenId() const
+{
+    return tokenId_;
+}
+
 void EnrollmentImpl::SetExecutorSensorHint(uint32_t executorSensorHint)
 {
     executorSensorHint_ = executorSensorHint;

@@ -43,6 +43,7 @@ public:
         std::optional<uint64_t> &secUserId) override;
     bool Cancel() override;
     int32_t GetLatestError() const override;
+    uint32_t GetAccessTokenId() const override;
 
 protected:
     void SetLatestError(int32_t error) override;

@@ -36,6 +36,11 @@ ContextType IdentifyContext::GetContextType() const
     return CONTEXT_IDENTIFY;
 }
 
+uint32_t IdentifyContext::GetTokenId() const
+{
+    return identify_->GetAccessTokenId();
+}
+
 bool IdentifyContext::OnStart()
 {
     IAM_LOGI("%{public}s start", GetDescription());

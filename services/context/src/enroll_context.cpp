@@ -38,6 +38,11 @@ ContextType EnrollContext::GetContextType() const
     return CONTEXT_ENROLL;
 }
 
+uint32_t EnrollContext::GetTokenId() const
+{
+    return enroll_->GetAccessTokenId();
+}
+
 bool EnrollContext::OnStart()
 {
     IAM_LOGI("%{public}s start", GetDescription());

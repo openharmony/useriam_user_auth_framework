@@ -33,6 +33,7 @@ public:
     void SetExecutor(uint32_t executorIndex) override;
     void SetChallenge(const std::vector<uint8_t> &challenge) override;
     void SetAccessTokenId(uint32_t tokenId) override;
+    uint32_t GetAccessTokenId() const override;
 
     bool Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
         std::shared_ptr<ScheduleNodeCallback> callback) override;

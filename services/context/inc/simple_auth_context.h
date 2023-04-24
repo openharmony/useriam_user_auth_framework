@@ -31,6 +31,7 @@ public:
         std::shared_ptr<ContextCallback> callback);
     ~SimpleAuthContext() override = default;
     ContextType GetContextType() const override;
+    uint32_t GetTokenId() const override;
 
 protected:
     bool OnStart() override;
