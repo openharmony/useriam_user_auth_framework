@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,12 +36,12 @@ public:
     virtual void SetExecutor(uint32_t executorIndex) = 0;
     virtual void SetChallenge(const std::vector<uint8_t> &challenge) = 0;
     virtual void SetAccessTokenId(uint32_t tokenId) = 0;
-    virtual uint32_t GetAccessTokenId() const = 0;
 
     virtual bool Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
         std::shared_ptr<ScheduleNodeCallback> callback) = 0;
     virtual bool Update(const std::vector<uint8_t> &scheduleResult, IdentifyResultInfo &resultInfo) = 0;
     virtual bool Cancel() = 0;
+    virtual uint32_t GetAccessTokenId() const = 0;
     virtual int32_t GetLatestError() const = 0;
 
 protected:
