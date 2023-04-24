@@ -383,6 +383,10 @@ int32_t UserAuthService::CancelAuthOrIdentify(uint64_t contextId)
         return GENERAL_ERROR;
     }
 
+    if (context-> GetTokenId() != IpcCommon::GetAccessTokenId(*this)) {
+        return INVALID_CONTEXT_ID;
+    }
+
     if (!context->Stop()) {
         IAM_LOGE("failed to cancel auth or identify");
         return context->GetLatestError();

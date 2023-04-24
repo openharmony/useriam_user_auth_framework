@@ -42,6 +42,7 @@ public:
         std::optional<uint64_t> &secUserId) = 0;
     virtual bool Cancel() = 0;
     virtual int32_t GetLatestError() const = 0;
+    virtual uint32_t GetAccessTokenId() const = 0;
 
 protected:
     virtual void SetLatestError(int32_t error) = 0;

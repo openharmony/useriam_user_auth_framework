@@ -36,6 +36,11 @@ ContextType SimpleAuthContext::GetContextType() const
     return CONTEXT_SIMPLE_AUTH;
 }
 
+uint32_t SimpleAuthContext::GetTokenId() const
+{
+    return auth_->GetAccessTokenId();
+}
+
 bool SimpleAuthContext::OnStart()
 {
     IAM_LOGI("%{public}s start", GetDescription());

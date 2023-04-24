@@ -64,6 +64,11 @@ void AuthenticationImpl::SetAccessTokenId(uint32_t tokenId)
     tokenId_ = tokenId;
 }
 
+uint32_t AuthenticationImpl::GetAccessTokenId() const
+{
+    return tokenId_;
+}
+
 bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
     std::shared_ptr<ScheduleNodeCallback> callback)
 {
