@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -18,47 +18,47 @@ ohos_unittest("iam_services_test") {
   include_dirs = [
     "inc",
     "mocks",
-    "//base/useriam/user_auth_framework/services/base/inc",
-    "//base/useriam/user_auth_framework/services/core/inc",
-    "//base/useriam/user_auth_framework/services/core/src",
-    "//base/useriam/user_auth_framework/services/context/inc",
-    "//base/useriam/user_auth_framework/services/context/src",
-    "//base/useriam/user_auth_framework/services/ipc/inc",
-    "//base/useriam/user_auth_framework/frameworks/native/ipc/inc",
-    "//base/useriam/user_auth_framework/frameworks/native/ipc/common_defines",
+    "../../../services/base/inc",
+    "../../../services/core/inc",
+    "../../../services/core/src",
+    "../../../services/context/inc",
+    "../../../services/context/src",
+    "../../../services/ipc/inc",
+    "../../../frameworks/native/ipc/inc",
+    "../../../frameworks/native/ipc/common_defines",
   ]
 
   sources = [
-    "//base/useriam/user_auth_framework/services/base/src/finite_state_machine_builder.cpp",
-    "//base/useriam/user_auth_framework/services/base/src/finite_state_machine_impl.cpp",
-    "//base/useriam/user_auth_framework/services/base/src/relative_timer.cpp",
-    "//base/useriam/user_auth_framework/services/base/src/thread_handler_impl.cpp",
-    "//base/useriam/user_auth_framework/services/context/src/base_context.cpp",
-    "//base/useriam/user_auth_framework/services/context/src/context_callback_impl.cpp",
-    "//base/useriam/user_auth_framework/services/context/src/context_factory.cpp",
-    "//base/useriam/user_auth_framework/services/context/src/context_helper.cpp",
-    "//base/useriam/user_auth_framework/services/context/src/context_pool_impl.cpp",
-    "//base/useriam/user_auth_framework/services/context/src/enroll_context.cpp",
-    "//base/useriam/user_auth_framework/services/context/src/identify_context.cpp",
-    "//base/useriam/user_auth_framework/services/context/src/simple_auth_context.cpp",
-    "//base/useriam/user_auth_framework/services/core/src/authentication_impl.cpp",
-    "//base/useriam/user_auth_framework/services/core/src/credential_info_impl.cpp",
-    "//base/useriam/user_auth_framework/services/core/src/enrolled_info_impl.cpp",
-    "//base/useriam/user_auth_framework/services/core/src/enrollment_impl.cpp",
-    "//base/useriam/user_auth_framework/services/core/src/identification_impl.cpp",
-    "//base/useriam/user_auth_framework/services/core/src/resource_node_impl.cpp",
-    "//base/useriam/user_auth_framework/services/core/src/resource_node_pool_impl.cpp",
-    "//base/useriam/user_auth_framework/services/core/src/resource_node_utils.cpp",
-    "//base/useriam/user_auth_framework/services/core/src/schedule_node_builder.cpp",
-    "//base/useriam/user_auth_framework/services/core/src/schedule_node_helper.cpp",
-    "//base/useriam/user_auth_framework/services/core/src/schedule_node_impl.cpp",
-    "//base/useriam/user_auth_framework/services/core/src/secure_user_info_impl.cpp",
-    "//base/useriam/user_auth_framework/services/core/src/user_idm_database_impl.cpp",
-    "//base/useriam/user_auth_framework/services/core/src/user_idm_session_controller_impl.cpp",
-    "//base/useriam/user_auth_framework/services/ipc/src/co_auth_service.cpp",
-    "//base/useriam/user_auth_framework/services/ipc/src/executor_messenger_service.cpp",
-    "//base/useriam/user_auth_framework/services/ipc/src/user_auth_service.cpp",
-    "//base/useriam/user_auth_framework/services/ipc/src/user_idm_service.cpp",
+    "../../../services/base/src/finite_state_machine_builder.cpp",
+    "../../../services/base/src/finite_state_machine_impl.cpp",
+    "../../../services/base/src/relative_timer.cpp",
+    "../../../services/base/src/thread_handler_impl.cpp",
+    "../../../services/context/src/base_context.cpp",
+    "../../../services/context/src/context_callback_impl.cpp",
+    "../../../services/context/src/context_factory.cpp",
+    "../../../services/context/src/context_helper.cpp",
+    "../../../services/context/src/context_pool_impl.cpp",
+    "../../../services/context/src/enroll_context.cpp",
+    "../../../services/context/src/identify_context.cpp",
+    "../../../services/context/src/simple_auth_context.cpp",
+    "../../../services/core/src/authentication_impl.cpp",
+    "../../../services/core/src/credential_info_impl.cpp",
+    "../../../services/core/src/enrolled_info_impl.cpp",
+    "../../../services/core/src/enrollment_impl.cpp",
+    "../../../services/core/src/identification_impl.cpp",
+    "../../../services/core/src/resource_node_impl.cpp",
+    "../../../services/core/src/resource_node_pool_impl.cpp",
+    "../../../services/core/src/resource_node_utils.cpp",
+    "../../../services/core/src/schedule_node_builder.cpp",
+    "../../../services/core/src/schedule_node_helper.cpp",
+    "../../../services/core/src/schedule_node_impl.cpp",
+    "../../../services/core/src/secure_user_info_impl.cpp",
+    "../../../services/core/src/user_idm_database_impl.cpp",
+    "../../../services/core/src/user_idm_session_controller_impl.cpp",
+    "../../../services/ipc/src/co_auth_service.cpp",
+    "../../../services/ipc/src/executor_messenger_service.cpp",
+    "../../../services/ipc/src/user_auth_service.cpp",
+    "../../../services/ipc/src/user_idm_service.cpp",
     "mocks/mock_ipc_common.cpp",
     "mocks/mock_iuser_auth_interface.cpp",
     "src/attributes_test.cpp",
@@ -93,10 +93,10 @@ ohos_unittest("iam_services_test") {
   ]
 
   deps = [
-    "//base/useriam/user_auth_framework/common:iam_utils",
-    "//base/useriam/user_auth_framework/frameworks/native/common:attributes",
-    "//base/useriam/user_auth_framework/frameworks/native/common:dfx",
-    "//base/useriam/user_auth_framework/frameworks/native/ipc:userauth_service_ipc",
+    "../../../common:iam_utils",
+    "../../../frameworks/native/common:attributes",
+    "../../../frameworks/native/common:dfx",
+    "../../../frameworks/native/ipc:userauth_service_ipc",
     "//third_party/googletest:gmock",
     "//third_party/openssl:libcrypto_shared",
   ]
@@ -114,11 +114,14 @@ ohos_unittest("iam_services_test") {
   ]
 
   configs = [
-    "//base/useriam/user_auth_framework/common:iam_log_config",
-    "//base/useriam/user_auth_framework/common:iam_utils_config",
+    "../../../common:iam_log_config",
+    "../../../common:iam_utils_config",
   ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   module_out_path = "useriam/user_auth_framework"
+
+  subsystem_name = "useriam"
+  part_name = "user_auth_framework"
 }
