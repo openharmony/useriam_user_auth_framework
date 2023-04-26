@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -47,6 +47,10 @@ void CoAuthClientTest::TearDown()
 HWTEST_F(CoAuthClientTest, CoAuthClientRegister_001, TestSize.Level0)
 {
     ExecutorInfo testInfo = {};
+    std::shared_ptr<ExecutorRegisterCallback> testCallback = nullptr;
+
+    CoAuthClient::GetInstance().Register(testInfo, testCallback);
+
     testInfo.authType = PIN;
     testInfo.executorRole = COLLECTOR;
     testInfo.executorSensorHint = 11;
@@ -56,7 +60,7 @@ HWTEST_F(CoAuthClientTest, CoAuthClientRegister_001, TestSize.Level0)
 
     uint64_t testExecutorIndex = 73265;
 
-    auto testCallback = Common::MakeShared<MockExecutorRegisterCallback>();
+    testCallback = Common::MakeShared<MockExecutorRegisterCallback>();
     EXPECT_NE(testCallback, nullptr);
 
     auto service = Common::MakeShared<MockCoAuthService>();
@@ -97,14 +101,6 @@ HWTEST_F(CoAuthClientTest, CoAuthClientRegister_001, TestSize.Level0)
 }
 
 HWTEST_F(CoAuthClientTest, CoAuthClientRegister_002, TestSize.Level0)
-{
-    ExecutorInfo testInfo = {};
-    std::shared_ptr<ExecutorRegisterCallback> testCallback = nullptr;
-
-    CoAuthClient::GetInstance().Register(testInfo, testCallback);
-}
-
-HWTEST_F(CoAuthClientTest, CoAuthClientRegister_003, TestSize.Level0)
 {
     ExecutorInfo testInfo = {};
     IpcClientUtils::ResetObj();
