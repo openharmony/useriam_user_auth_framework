@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -287,7 +287,21 @@ HWTEST_F(IdentifyContextTest, IdentifyContextTest_OnScheduleStarted, TestSize.Le
 
 HWTEST_F(IdentifyContextTest, IdentifyContextTest_OnScheduleProcessed, TestSize.Level0)
 {
-    EXPECT_EQ(0, 0);
+    static const uint64_t testContestId = 2;
+    const ExecutorRole testRole = static_cast<ExecutorRole>(3);
+    const int32_t testModuleType = 4;
+    const std::vector<uint8_t> testAcquireMsg = {4, 5, 6};
+
+    std::shared_ptr<MockIdentification> mockIdentify = Common::MakeShared<MockIdentification>();
+    ASSERT_NE(mockIdentify, nullptr);
+    std::shared_ptr<ContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
+    ASSERT_NE(contextCallback, nullptr);
+
+    std::shared_ptr<ScheduleNodeCallback> nodeCallback =
+        Common::MakeShared<IdentifyContext>(testContestId, mockIdentify, contextCallback);
+    ASSERT_NE(nodeCallback, nullptr);
+
+    nodeCallback->OnScheduleProcessed(testRole, testModuleType, testAcquireMsg);
 }
 
 HWTEST_F(IdentifyContextTest, IdentifyContextTest_OnScheduleStoped_001, TestSize.Level0)
