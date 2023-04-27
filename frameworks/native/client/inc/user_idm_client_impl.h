@@ -16,6 +16,8 @@
 #ifndef USER_IDM_CLIENT_IMPL_H
 #define USER_IDM_CLIENT_IMPL_H
 
+#include <mutex>
+
 #include "nocopyable.h"
 
 #include "user_idm_client.h"
@@ -46,8 +48,18 @@ private:
     friend class UserIdmClient;
     UserIdmClientImpl() = default;
     ~UserIdmClientImpl() override = default;
-
+    static UserIdmClientImpl &Instance();
+    class UserIdmImplDeathRecipient : public IRemoteObject::DeathRecipient, public NoCopyable {
+    public:
+        UserIdmImplDeathRecipient() = default;
+        ~UserIdmImplDeathRecipient() override = default;
+        void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    };
+    void ResetProxy(const wptr<IRemoteObject> &remote);
     sptr<UserIdmInterface> GetProxy();
+    sptr<UserIdmInterface> proxy_ {nullptr};
+    sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
+    std::mutex mutex_;
 };
 } // namespace UserAuth
 } // namespace UserIam
