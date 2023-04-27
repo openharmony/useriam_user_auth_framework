@@ -250,19 +250,64 @@ int32_t UserIdmClientImpl::GetSecUserInfo(int32_t userId, const std::shared_ptr<
 
 sptr<UserIdmInterface> UserIdmClientImpl::GetProxy()
 {
-    auto obj = IpcClientUtils::GetRemoteObject(SUBSYS_USERIAM_SYS_ABILITY_USERIDM);
+    IAM_LOGI("start");
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (proxy_ != nullptr) {
+        return proxy_;
+    }
+    sptr<IRemoteObject> obj = IpcClientUtils::GetRemoteObject(SUBSYS_USERIAM_SYS_ABILITY_USERIDM);
     if (obj == nullptr) {
-        IAM_LOGE("failed to get useridm service");
+        IAM_LOGE("remote object is null");
+        return nullptr;
+    }
+    sptr<IRemoteObject::DeathRecipient> dr = new (std::nothrow) UserIdmImplDeathRecipient();
+    if ((dr == nullptr) || (obj->IsProxyObject() && !obj->AddDeathRecipient(dr))) {
+        IAM_LOGE("add death recipient fail");
         return nullptr;
     }
 
-    return iface_cast<UserIdmInterface>(obj);
+    proxy_ = iface_cast<UserIdmInterface>(obj);
+    deathRecipient_ = dr;
+    return proxy_;
+}
+
+void UserIdmClientImpl::ResetProxy(const wptr<IRemoteObject> &remote)
+{
+    IAM_LOGI("start");
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (proxy_ == nullptr) {
+        IAM_LOGE("proxy_ is null");
+        return;
+    }
+    auto serviceRemote = proxy_->AsObject();
+    if ((serviceRemote != nullptr) && (serviceRemote == remote.promote())) {
+        IAM_LOGI("need reset");
+        serviceRemote->RemoveDeathRecipient(deathRecipient_);
+        proxy_ = nullptr;
+        deathRecipient_ = nullptr;
+    }
+    IAM_LOGI("end reset proxy");
+}
+
+void UserIdmClientImpl::UserIdmImplDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    IAM_LOGI("start");
+    if (remote == nullptr) {
+        IAM_LOGE("remote is nullptr");
+        return;
+    }
+    UserIdmClientImpl::Instance().ResetProxy(remote);
+}
+
+UserIdmClientImpl &UserIdmClientImpl::Instance()
+{
+    static UserIdmClientImpl impl;
+    return impl;
 }
 
 UserIdmClient &UserIdmClient::GetInstance()
 {
-    static UserIdmClientImpl impl;
-    return impl;
+    return UserIdmClientImpl::Instance();
 }
 } // namespace UserAuth
 } // namespace UserIam

@@ -348,8 +348,14 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleProcessed, TestS
 
     std::shared_ptr<MockAuthentication> mockAuth = Common::MakeShared<MockAuthentication>();
     ASSERT_NE(mockAuth, nullptr);
-    std::shared_ptr<ContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
+    auto contextCallback = Common::MakeShared<MockContextCallback>();
     ASSERT_NE(contextCallback, nullptr);
+    EXPECT_CALL(*contextCallback, OnAcquireInfo(_, _, _))
+        .WillOnce(
+            [](ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg) {
+                EXPECT_EQ(moduleType, 4);
+            }
+        );
 
     std::shared_ptr<ScheduleNodeCallback> nodeCallback =
         Common::MakeShared<SimpleAuthContext>(testContestId, mockAuth, contextCallback);

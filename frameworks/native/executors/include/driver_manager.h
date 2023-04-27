@@ -49,6 +49,7 @@ private:
 
     std::mutex mutex_;
     std::map<std::string, std::shared_ptr<Driver>> serviceName2Driver_;
+    sptr<HdiServiceStatusListener> hdiServiceStatusListener_ {nullptr};
 };
 
 class DriverManager ::HdiServiceStatusListener : public ServStatListenerStub {
