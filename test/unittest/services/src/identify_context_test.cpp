@@ -294,8 +294,14 @@ HWTEST_F(IdentifyContextTest, IdentifyContextTest_OnScheduleProcessed, TestSize.
 
     std::shared_ptr<MockIdentification> mockIdentify = Common::MakeShared<MockIdentification>();
     ASSERT_NE(mockIdentify, nullptr);
-    std::shared_ptr<ContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
+    auto contextCallback = Common::MakeShared<MockContextCallback>();
     ASSERT_NE(contextCallback, nullptr);
+    EXPECT_CALL(*contextCallback, OnAcquireInfo(_, _, _))
+        .WillOnce(
+            [](ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg) {
+                EXPECT_EQ(moduleType, 4);
+            }
+        );
 
     std::shared_ptr<ScheduleNodeCallback> nodeCallback =
         Common::MakeShared<IdentifyContext>(testContestId, mockIdentify, contextCallback);

@@ -60,19 +60,64 @@ void CoAuthClientImpl::Unregister(const ExecutorInfo &info)
 
 sptr<CoAuthInterface> CoAuthClientImpl::GetProxy()
 {
-    auto obj = IpcClientUtils::GetRemoteObject(SUBSYS_USERIAM_SYS_ABILITY_AUTHEXECUTORMGR);
-    if (!obj) {
-        IAM_LOGE("failed to get service");
+    IAM_LOGI("start");
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (proxy_ != nullptr) {
+        return proxy_;
+    }
+    sptr<IRemoteObject> obj = IpcClientUtils::GetRemoteObject(SUBSYS_USERIAM_SYS_ABILITY_AUTHEXECUTORMGR);
+    if (obj == nullptr) {
+        IAM_LOGE("remote object is null");
+        return nullptr;
+    }
+    sptr<IRemoteObject::DeathRecipient> dr = new (std::nothrow) CoAuthImplDeathRecipient();
+    if ((dr == nullptr) || (obj->IsProxyObject() && !obj->AddDeathRecipient(dr))) {
+        IAM_LOGE("add death recipient fail");
         return nullptr;
     }
 
-    return iface_cast<CoAuthInterface>(obj);
+    proxy_ = iface_cast<CoAuthInterface>(obj);
+    deathRecipient_ = dr;
+    return proxy_;
+}
+
+void CoAuthClientImpl::ResetProxy(const wptr<IRemoteObject> &remote)
+{
+    IAM_LOGI("start");
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (proxy_ == nullptr) {
+        IAM_LOGE("proxy_ is null");
+        return;
+    }
+    auto serviceRemote = proxy_->AsObject();
+    if ((serviceRemote != nullptr) && (serviceRemote == remote.promote())) {
+        IAM_LOGI("need reset");
+        serviceRemote->RemoveDeathRecipient(deathRecipient_);
+        proxy_ = nullptr;
+        deathRecipient_ = nullptr;
+    }
+    IAM_LOGI("end reset proxy");
+}
+
+void CoAuthClientImpl::CoAuthImplDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    IAM_LOGI("start");
+    if (remote == nullptr) {
+        IAM_LOGE("remote is nullptr");
+        return;
+    }
+    CoAuthClientImpl::Instance().ResetProxy(remote);
+}
+
+CoAuthClientImpl &CoAuthClientImpl::Instance()
+{
+    static CoAuthClientImpl impl;
+    return impl;
 }
 
 CoAuthClient &CoAuthClient::GetInstance()
 {
-    static CoAuthClientImpl impl;
-    return impl;
+    return CoAuthClientImpl::Instance();
 }
 } // namespace UserAuth
 } // namespace UserIam

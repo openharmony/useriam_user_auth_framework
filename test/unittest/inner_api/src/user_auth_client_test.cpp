@@ -76,6 +76,17 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetAvailableStatus002, TestSize.Level
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillRepeatedly(
+            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+                dr = recipient;
+                return true;
+            }
+        );
+
     IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
@@ -85,6 +96,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetAvailableStatus002, TestSize.Level
         });
     int32_t ret = UserAuthClientImpl::Instance().GetAvailableStatus(testApiVersion, testAuthType, testAtl);
     EXPECT_EQ(ret, SUCCESS);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
 
@@ -133,6 +146,17 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetProperty002, TestSize.Level0)
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillRepeatedly(
+            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+                dr = recipient;
+                return true;
+            }
+        );
+
     IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
@@ -141,6 +165,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetProperty002, TestSize.Level0)
             return OHOS::NO_ERROR;
         });
     UserAuthClient::GetInstance().GetProperty(testUserId, testRequest, testCallback);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
 
@@ -188,6 +214,17 @@ HWTEST_F(UserAuthClientTest, UserAuthClientSetProperty002, TestSize.Level0)
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillRepeatedly(
+            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+                dr = recipient;
+                return true;
+            }
+        );
+
     IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
@@ -197,6 +234,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientSetProperty002, TestSize.Level0)
         });
 
     UserAuthClient::GetInstance().SetProperty(testUserId, testRequest, testCallback);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
 
@@ -253,6 +292,17 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginNorthAuthentication002, TestSize
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillRepeatedly(
+            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+                dr = recipient;
+                return true;
+            }
+        );
+
     IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
@@ -264,6 +314,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginNorthAuthentication002, TestSize
     uint64_t contextId = UserAuthClientImpl::Instance().BeginNorthAuthentication(testApiVersion, testChallenge,
         testAuthType, testAtl, testCallback);
     EXPECT_EQ(contextId, testContextId);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
 
@@ -320,6 +372,17 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginAuthentication002, TestSize.Leve
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillRepeatedly(
+            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+                dr = recipient;
+                return true;
+            }
+        );
+
     IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
@@ -331,6 +394,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginAuthentication002, TestSize.Leve
     uint64_t contextId = UserAuthClient::GetInstance().BeginAuthentication(testUserId, testChallenge,
         testAuthType, testAtl, testCallback);
     EXPECT_EQ(contextId, testContextId);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
 
@@ -359,6 +424,17 @@ HWTEST_F(UserAuthClientTest, UserAuthClientCancelAuthentication002, TestSize.Lev
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillRepeatedly(
+            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+                dr = recipient;
+                return true;
+            }
+        );
+
     IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
@@ -369,6 +445,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientCancelAuthentication002, TestSize.Lev
 
     int32_t ret = UserAuthClient::GetInstance().CancelAuthentication(testContextId);
     EXPECT_EQ(ret, SUCCESS);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
 
@@ -416,6 +494,17 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginIdentification002, TestSize.Leve
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillRepeatedly(
+            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+                dr = recipient;
+                return true;
+            }
+        );
+
     IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
@@ -426,6 +515,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginIdentification002, TestSize.Leve
 
     uint64_t contextId = UserAuthClient::GetInstance().BeginIdentification(testChallenge, testAuthType, testCallback);
     EXPECT_EQ(contextId, testContextId);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
 
@@ -454,6 +545,17 @@ HWTEST_F(UserAuthClientTest, UserAuthClientCancelIdentification002, TestSize.Lev
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillRepeatedly(
+            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+                dr = recipient;
+                return true;
+            }
+        );
+
     IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
@@ -464,6 +566,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientCancelIdentification002, TestSize.Lev
     
     int32_t ret = UserAuthClient::GetInstance().CancelIdentification(testContextId);
     EXPECT_EQ(ret, SUCCESS);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
 
@@ -493,6 +597,17 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetVersion002, TestSize.Level0)
 
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillRepeatedly(
+            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+                dr = recipient;
+                return true;
+            }
+        );
+
     IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
@@ -504,6 +619,41 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetVersion002, TestSize.Level0)
     int32_t result = UserAuthClientImpl::Instance().GetVersion(version);
     EXPECT_EQ(result, SUCCESS);
     EXPECT_EQ(version, testVersion);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
+    IpcClientUtils::ResetObj();
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientGetVersion003, TestSize.Level0)
+{
+    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    EXPECT_NE(obj, nullptr);
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillOnce(Return(false))
+        .WillRepeatedly(
+            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+                dr = recipient;
+                return true;
+            }
+        );
+
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).WillRepeatedly(Return(OHOS::NO_ERROR));
+
+    IpcClientUtils::SetObj(obj);
+
+    int32_t version;
+    EXPECT_EQ(UserAuthClientImpl::Instance().GetVersion(version), GENERAL_ERROR);
+    EXPECT_EQ(UserAuthClientImpl::Instance().GetVersion(version), GENERAL_ERROR);
+    EXPECT_EQ(UserAuthClientImpl::Instance().GetVersion(version), GENERAL_ERROR);
+
+    EXPECT_NE(dr, nullptr);
+    sptr<IRemoteObject> remote = nullptr;
+    dr->OnRemoteDied(remote);
+    dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
 } // namespace UserAuth
