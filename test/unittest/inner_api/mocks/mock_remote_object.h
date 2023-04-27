@@ -29,6 +29,7 @@ public:
     {
     }
     MOCK_METHOD0(GetObjectRefCount, int32_t());
+    MOCK_CONST_METHOD0(IsProxyObject, bool());
     MOCK_METHOD4(SendRequest, int(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
     MOCK_METHOD1(AddDeathRecipient, bool(const sptr<DeathRecipient> &recipient));
     MOCK_METHOD1(RemoveDeathRecipient, bool(const sptr<DeathRecipient> &recipient));

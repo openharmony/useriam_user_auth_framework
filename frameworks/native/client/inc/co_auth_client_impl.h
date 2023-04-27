@@ -16,6 +16,8 @@
 #ifndef CO_AUTH_CLIENT_IMPL_H
 #define CO_AUTH_CLIENT_IMPL_H
 
+#include <mutex>
+
 #include "nocopyable.h"
 
 #include "co_auth_client.h"
@@ -33,7 +35,18 @@ private:
     friend class CoAuthClient;
     CoAuthClientImpl() = default;
     ~CoAuthClientImpl() override = default;
+    static CoAuthClientImpl &Instance();
+    class CoAuthImplDeathRecipient : public IRemoteObject::DeathRecipient, public NoCopyable {
+    public:
+        CoAuthImplDeathRecipient() = default;
+        ~CoAuthImplDeathRecipient() override = default;
+        void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    };
+    void ResetProxy(const wptr<IRemoteObject> &remote);
     sptr<CoAuthInterface> GetProxy();
+    sptr<CoAuthInterface> proxy_ {nullptr};
+    sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
+    std::mutex mutex_;
 };
 } // namespace UserAuth
 } // namespace UserIam
