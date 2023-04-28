@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -340,7 +340,26 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStarted, TestSize.Level0
 
 HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleProcessed, TestSize.Level0)
 {
-    EXPECT_EQ(0, 0);
+    static const uint64_t testContestId = 2;
+    const ExecutorRole testRole = static_cast<ExecutorRole>(3);
+    const int32_t testModuleType = 4;
+    const std::vector<uint8_t> testAcquireMsg = {4, 5, 6};
+
+    std::shared_ptr<MockEnrollment> mockEnroll = Common::MakeShared<MockEnrollment>();
+    ASSERT_NE(mockEnroll, nullptr);
+    auto contextCallback = Common::MakeShared<MockContextCallback>();
+    ASSERT_NE(contextCallback, nullptr);
+    EXPECT_CALL(*contextCallback, OnAcquireInfo(_, _, _))
+        .WillOnce(
+            [](ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg) {
+                EXPECT_EQ(moduleType, 4);
+            }
+        );
+
+    std::shared_ptr<ScheduleNodeCallback> nodeCallback =
+        Common::MakeShared<EnrollContext>(testContestId, mockEnroll, contextCallback);
+    ASSERT_NE(nodeCallback, nullptr);
+    nodeCallback->OnScheduleProcessed(testRole, testModuleType, testAcquireMsg);
 }
 
 HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_001, TestSize.Level0)

@@ -16,7 +16,7 @@ import("//build/test.gni")
 
 ohos_fuzztest("UserAuthExecutorFuzzTest") {
   module_out_path = "useriam/user_auth_framework/executors"
-  fuzz_config_file = "//base/useriam/user_auth_framework/test/fuzztest/executors/userauthexecutor_fuzzer"
+  fuzz_config_file = "../userauthexecutor_fuzzer"
   cflags = [
     "-g",
     "-O0",
@@ -28,8 +28,8 @@ ohos_fuzztest("UserAuthExecutorFuzzTest") {
     "../../../../frameworks/native/executors/include/async_command",
     "../../../../frameworks/native/executors/include/framework",
     "../../../../frameworks/native/executors/include/listener",
-    "//base/useriam/user_auth_framework/common/utils",
-    "//base/useriam/user_auth_framework/common/logs",
+    "../../../../common/utils",
+    "../../../../common/logs",
   ]
 
   sources = [
@@ -71,4 +71,7 @@ ohos_fuzztest("UserAuthExecutorFuzzTest") {
     "samgr:samgr_proxy",
     "user_auth_framework:userauth_client",
   ]
+
+  subsystem_name = "useriam"
+  part_name = "user_auth_framework"
 }

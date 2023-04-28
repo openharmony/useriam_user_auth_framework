@@ -71,6 +71,17 @@ HWTEST_F(UserIdmClientTest, UserIdmClientOpenSession002, TestSize.Level0)
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillRepeatedly(
+            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+                dr = recipient;
+                return true;
+            }
+        );
+
     IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
@@ -81,6 +92,8 @@ HWTEST_F(UserIdmClientTest, UserIdmClientOpenSession002, TestSize.Level0)
 
     std::vector<uint8_t> challenge = UserIdmClient::GetInstance().OpenSession(testUserId);
     EXPECT_THAT(challenge, ElementsAreArray(testChallenge));
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
 
@@ -108,6 +121,17 @@ HWTEST_F(UserIdmClientTest, UserIdmClientCloseSession002, TestSize.Level0)
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillRepeatedly(
+            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+                dr = recipient;
+                return true;
+            }
+        );
+
     IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
@@ -117,6 +141,41 @@ HWTEST_F(UserIdmClientTest, UserIdmClientCloseSession002, TestSize.Level0)
         });
     
     UserIdmClient::GetInstance().CloseSession(testUserId);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
+    IpcClientUtils::ResetObj();
+}
+
+HWTEST_F(UserIdmClientTest, UserIdmClientCloseSession003, TestSize.Level0)
+{
+    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    EXPECT_NE(obj, nullptr);
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillOnce(Return(false))
+        .WillRepeatedly(
+            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+                dr = recipient;
+                return true;
+            }
+        );
+
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).WillRepeatedly(Return(OHOS::NO_ERROR));
+
+    IpcClientUtils::SetObj(obj);
+
+    int32_t testUserId = 1326;
+    UserIdmClient::GetInstance().CloseSession(testUserId);
+    UserIdmClient::GetInstance().CloseSession(testUserId);
+    UserIdmClient::GetInstance().CloseSession(testUserId);
+
+    EXPECT_NE(dr, nullptr);
+    sptr<IRemoteObject> remote = nullptr;
+    dr->OnRemoteDied(remote);
+    dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
 
@@ -164,6 +223,17 @@ HWTEST_F(UserIdmClientTest, UserIdmClientAddCredential002, TestSize.Level0)
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillRepeatedly(
+            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+                dr = recipient;
+                return true;
+            }
+        );
+
     IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
@@ -173,6 +243,8 @@ HWTEST_F(UserIdmClientTest, UserIdmClientAddCredential002, TestSize.Level0)
         });
 
     UserIdmClient::GetInstance().AddCredential(testUserId, testPara, testCallback);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
 
@@ -221,6 +293,17 @@ HWTEST_F(UserIdmClientTest, UserIdmClientUpdateCredential002, TestSize.Level0)
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillRepeatedly(
+            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+                dr = recipient;
+                return true;
+            }
+        );
+
     IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
@@ -230,6 +313,8 @@ HWTEST_F(UserIdmClientTest, UserIdmClientUpdateCredential002, TestSize.Level0)
         });
 
     UserIdmClient::GetInstance().UpdateCredential(testUserId, testPara, testCallback);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
 
@@ -258,6 +343,17 @@ HWTEST_F(UserIdmClientTest, UserIdmClientCancel002, TestSize.Level0)
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillRepeatedly(
+            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+                dr = recipient;
+                return true;
+            }
+        );
+
     IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
@@ -268,6 +364,8 @@ HWTEST_F(UserIdmClientTest, UserIdmClientCancel002, TestSize.Level0)
 
     int32_t ret = UserIdmClient::GetInstance().Cancel(testUserId);
     EXPECT_EQ(ret, SUCCESS);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
 
@@ -313,6 +411,17 @@ HWTEST_F(UserIdmClientTest, UserIdmClientDeleteCredential002, TestSize.Level0)
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillRepeatedly(
+            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+                dr = recipient;
+                return true;
+            }
+        );
+
     IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
@@ -322,6 +431,8 @@ HWTEST_F(UserIdmClientTest, UserIdmClientDeleteCredential002, TestSize.Level0)
         });
 
     UserIdmClient::GetInstance().DeleteCredential(testUserId, testCredentialId, testAuthToken, testCallback);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
 
@@ -364,6 +475,17 @@ HWTEST_F(UserIdmClientTest, UserIdmClientDeleteUser002, TestSize.Level0)
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillRepeatedly(
+            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+                dr = recipient;
+                return true;
+            }
+        );
+
     IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
@@ -373,6 +495,8 @@ HWTEST_F(UserIdmClientTest, UserIdmClientDeleteUser002, TestSize.Level0)
         });
 
     UserIdmClient::GetInstance().DeleteUser(testUserId, testAuthToken, testCallback);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
 
@@ -414,6 +538,17 @@ HWTEST_F(UserIdmClientTest, UserIdmClientEraseUser002, TestSize.Level0)
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillRepeatedly(
+            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+                dr = recipient;
+                return true;
+            }
+        );
+
     IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
@@ -424,6 +559,8 @@ HWTEST_F(UserIdmClientTest, UserIdmClientEraseUser002, TestSize.Level0)
 
     int32_t ret = UserIdmClient::GetInstance().EraseUser(testUserId, testCallback);
     EXPECT_EQ(ret, SUCCESS);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
 
@@ -469,6 +606,17 @@ HWTEST_F(UserIdmClientTest, UserIdmClientGetCredentialInfo002, TestSize.Level0)
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillRepeatedly(
+            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+                dr = recipient;
+                return true;
+            }
+        );
+
     IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
@@ -479,6 +627,8 @@ HWTEST_F(UserIdmClientTest, UserIdmClientGetCredentialInfo002, TestSize.Level0)
 
     int32_t ret = UserIdmClient::GetInstance().GetCredentialInfo(testUserId, testAuthType, testCallback);
     EXPECT_EQ(ret, SUCCESS);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
 
@@ -516,6 +666,17 @@ HWTEST_F(UserIdmClientTest, UserIdmClientGetSecUserInfo002, TestSize.Level0)
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillRepeatedly(
+            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+                dr = recipient;
+                return true;
+            }
+        );
+
     IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
@@ -526,6 +687,8 @@ HWTEST_F(UserIdmClientTest, UserIdmClientGetSecUserInfo002, TestSize.Level0)
 
     int32_t ret = UserIdmClient::GetInstance().GetSecUserInfo(testUserId, testCallback);
     EXPECT_EQ(ret, SUCCESS);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
 } // namespace UserAuth

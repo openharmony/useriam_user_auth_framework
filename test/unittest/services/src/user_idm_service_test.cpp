@@ -370,7 +370,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential003, TestSize.Level0)
     UserIdmService service(123123, true);
     int32_t testUserId = 15457;
     UserIdmInterface::CredentialPara testCredPara = {};
-    testCredPara.authType = PIN;
+    testCredPara.authType = FACE;
     testCredPara.pinType = PIN_SIX;
     testCredPara.token = {1, 2, 3, 4};
     std::shared_ptr<Context> context = nullptr;
@@ -399,7 +399,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential003, TestSize.Level0)
                 executorInfo.executorIndex = 60;
                 info.executors.push_back(executorInfo);
                 info.scheduleId = 20;
-                info.authType = HdiAuthType::PIN;
+                info.authType = HdiAuthType::FACE;
                 auto contextList = ContextPool::Instance().Select(CONTEXT_ENROLL);
                 if (!contextList.empty()) {
                     context = contextList[0].lock();
@@ -421,7 +421,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential003, TestSize.Level0)
     auto resourceNode = Common::MakeShared<MockResourceNode>();
     EXPECT_NE(resourceNode, nullptr);
     EXPECT_CALL(*resourceNode, GetExecutorIndex()).WillRepeatedly(Return(60));
-    EXPECT_CALL(*resourceNode, GetAuthType()).WillRepeatedly(Return(PIN));
+    EXPECT_CALL(*resourceNode, GetAuthType()).WillRepeatedly(Return(FACE));
     EXPECT_CALL(*resourceNode, GetExecutorRole()).WillRepeatedly(Return(ALL_IN_ONE));
     EXPECT_CALL(*resourceNode, GetExecutorMatcher()).WillRepeatedly(Return(0));
     EXPECT_CALL(*resourceNode, GetExecutorPublicKey()).WillRepeatedly(Return(std::vector<uint8_t>()));
