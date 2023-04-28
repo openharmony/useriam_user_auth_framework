@@ -16,6 +16,8 @@
 #ifndef USER_AUTH_CLIENT_IMPL_H
 #define USER_AUTH_CLIENT_IMPL_H
 
+#include <mutex>
+
 #include "nocopyable.h"
 
 #include "user_auth_client.h"
@@ -47,10 +49,19 @@ private:
     friend class UserAuthClient;
     UserAuthClientImpl() = default;
     ~UserAuthClientImpl() override = default;
-
+    class UserAuthImplDeathRecipient : public IRemoteObject::DeathRecipient, public NoCopyable {
+    public:
+        UserAuthImplDeathRecipient() = default;
+        ~UserAuthImplDeathRecipient() override = default;
+        void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    };
+    void ResetProxy(const wptr<IRemoteObject> &remote);
+    sptr<UserAuthInterface> GetProxy();
+    sptr<UserAuthInterface> proxy_ {nullptr};
+    sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
     constexpr static int32_t MINIMUM_VERSION {0};
     constexpr static uint64_t INVALID_SESSION_ID {0};
-    sptr<UserAuthInterface> GetProxy();
+    std::mutex mutex_;
 };
 } // namespace UserAuth
 } // namespace UserIam

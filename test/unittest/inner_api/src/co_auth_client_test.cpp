@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -47,6 +47,10 @@ void CoAuthClientTest::TearDown()
 HWTEST_F(CoAuthClientTest, CoAuthClientRegister_001, TestSize.Level0)
 {
     ExecutorInfo testInfo = {};
+    std::shared_ptr<ExecutorRegisterCallback> testCallback = nullptr;
+
+    CoAuthClient::GetInstance().Register(testInfo, testCallback);
+
     testInfo.authType = PIN;
     testInfo.executorRole = COLLECTOR;
     testInfo.executorSensorHint = 11;
@@ -56,7 +60,7 @@ HWTEST_F(CoAuthClientTest, CoAuthClientRegister_001, TestSize.Level0)
 
     uint64_t testExecutorIndex = 73265;
 
-    auto testCallback = Common::MakeShared<MockExecutorRegisterCallback>();
+    testCallback = Common::MakeShared<MockExecutorRegisterCallback>();
     EXPECT_NE(testCallback, nullptr);
 
     auto service = Common::MakeShared<MockCoAuthService>();
@@ -79,6 +83,17 @@ HWTEST_F(CoAuthClientTest, CoAuthClientRegister_001, TestSize.Level0)
     sptr<MockRemoteObject> obj = new MockRemoteObject();
     EXPECT_NE(obj, nullptr);
     IpcClientUtils::SetObj(obj);
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillRepeatedly(
+            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+                dr = recipient;
+                return true;
+            }
+        );
+
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
         .WillByDefault(
@@ -88,23 +103,17 @@ HWTEST_F(CoAuthClientTest, CoAuthClientRegister_001, TestSize.Level0)
                 uint64_t executorIndex = 0;
                 EXPECT_TRUE(reply.ReadUint64(executorIndex));
                 EXPECT_EQ(executorIndex, testExecutorIndex);
-                return true;
+                return OHOS::NO_ERROR;
             }
         );
 
     CoAuthClient::GetInstance().Register(testInfo, testCallback);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
 
 HWTEST_F(CoAuthClientTest, CoAuthClientRegister_002, TestSize.Level0)
-{
-    ExecutorInfo testInfo = {};
-    std::shared_ptr<ExecutorRegisterCallback> testCallback = nullptr;
-
-    CoAuthClient::GetInstance().Register(testInfo, testCallback);
-}
-
-HWTEST_F(CoAuthClientTest, CoAuthClientRegister_003, TestSize.Level0)
 {
     ExecutorInfo testInfo = {};
     IpcClientUtils::ResetObj();
@@ -112,6 +121,41 @@ HWTEST_F(CoAuthClientTest, CoAuthClientRegister_003, TestSize.Level0)
     EXPECT_NE(testCallback, nullptr);
 
     CoAuthClient::GetInstance().Register(testInfo, testCallback);
+}
+
+HWTEST_F(CoAuthClientTest, CoAuthClientRegister_004, TestSize.Level0)
+{
+    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    EXPECT_NE(obj, nullptr);
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillOnce(Return(false))
+        .WillRepeatedly(
+            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+                dr = recipient;
+                return true;
+            }
+        );
+
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).WillRepeatedly(Return(OHOS::NO_ERROR));
+
+    IpcClientUtils::SetObj(obj);
+
+    ExecutorInfo testInfo = {};
+    auto testCallback = Common::MakeShared<MockExecutorRegisterCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    CoAuthClient::GetInstance().Register(testInfo, testCallback);
+    CoAuthClient::GetInstance().Register(testInfo, testCallback);
+    CoAuthClient::GetInstance().Register(testInfo, testCallback);
+
+    EXPECT_NE(dr, nullptr);
+    sptr<IRemoteObject> remote = nullptr;
+    dr->OnRemoteDied(remote);
+    dr->OnRemoteDied(obj);
+    IpcClientUtils::ResetObj();
 }
 } // namespace UserAuth
 } // namespace UserIam

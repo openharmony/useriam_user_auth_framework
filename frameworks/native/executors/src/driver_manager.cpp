@@ -95,7 +95,13 @@ void DriverManager::SubscribeHdiDriverStatus()
         return;
     }
 
-    auto listener = new (std::nothrow) HdiServiceStatusListener([](const ServiceStatus &status) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (hdiServiceStatusListener_ != nullptr) {
+        int32_t ret = servMgr->UnregisterServiceStatusListener(hdiServiceStatusListener_);
+        hdiServiceStatusListener_ = nullptr;
+        IAM_LOGI("UnregisterServiceStatusListener result %{public}d", ret);
+    }
+    hdiServiceStatusListener_ = new (std::nothrow) HdiServiceStatusListener([](const ServiceStatus &status) {
         auto driver = DriverManager::GetInstance().GetDriverByServiceName(status.serviceName);
         if (driver == nullptr) {
             return;
@@ -116,11 +122,11 @@ void DriverManager::SubscribeHdiDriverStatus()
                 IAM_LOGI("service %{public}s status ignored", status.serviceName.c_str());
         }
     });
-    IF_FALSE_LOGE_AND_RETURN(listener != nullptr);
-    auto listenerPtr = sptr<HdiServiceStatusListener>(listener);
-    int32_t ret = servMgr->RegisterServiceStatusListener(listenerPtr, DEVICE_CLASS_USERAUTH);
+    IF_FALSE_LOGE_AND_RETURN(hdiServiceStatusListener_ != nullptr);
+    int32_t ret = servMgr->RegisterServiceStatusListener(hdiServiceStatusListener_, DEVICE_CLASS_USERAUTH);
     if (ret != USERAUTH_SUCCESS) {
         IAM_LOGE("failed to register service status listener");
+        hdiServiceStatusListener_ = nullptr;
         return;
     }
     IAM_LOGI("success");
@@ -183,6 +189,16 @@ void DriverManager::OnAllHdiDisconnect()
 {
     IAM_LOGI("start");
     std::lock_guard<std::mutex> lock(mutex_);
+    if (hdiServiceStatusListener_ == nullptr) {
+        IAM_LOGE("HdiServiceStatusListener not added");
+        return;
+    }
+    auto servMgr = IServiceManager::Get();
+    if (servMgr != nullptr) {
+        int32_t ret = servMgr->UnregisterServiceStatusListener(hdiServiceStatusListener_);
+        IAM_LOGI("UnregisterServiceStatusListener result %{public}d", ret);
+    }
+    hdiServiceStatusListener_ = nullptr;
     for (auto const &pair : serviceName2Driver_) {
         if (pair.second == nullptr) {
             IAM_LOGE("pair.second is null");
