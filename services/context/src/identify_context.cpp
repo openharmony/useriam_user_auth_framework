@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -34,6 +34,11 @@ IdentifyContext::IdentifyContext(uint64_t contextId, std::shared_ptr<Identificat
 ContextType IdentifyContext::GetContextType() const
 {
     return CONTEXT_IDENTIFY;
+}
+
+uint32_t IdentifyContext::GetTokenId() const
+{
+    return identify_->GetAccessTokenId();
 }
 
 bool IdentifyContext::OnStart()

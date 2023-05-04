@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,6 +36,11 @@ EnrollContext::EnrollContext(uint64_t contextId, std::shared_ptr<Enrollment> enr
 ContextType EnrollContext::GetContextType() const
 {
     return CONTEXT_ENROLL;
+}
+
+uint32_t EnrollContext::GetTokenId() const
+{
+    return enroll_->GetAccessTokenId();
 }
 
 bool EnrollContext::OnStart()

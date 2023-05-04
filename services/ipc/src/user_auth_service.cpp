@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -381,6 +381,11 @@ int32_t UserAuthService::CancelAuthOrIdentify(uint64_t contextId)
     if (context == nullptr) {
         IAM_LOGE("context not exist");
         return GENERAL_ERROR;
+    }
+
+    if (context-> GetTokenId() != IpcCommon::GetAccessTokenId(*this)) {
+        IAM_LOGE("failed to check tokenId");
+        return INVALID_CONTEXT_ID;
     }
 
     if (!context->Stop()) {

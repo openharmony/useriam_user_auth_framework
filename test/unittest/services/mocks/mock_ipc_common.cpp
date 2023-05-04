@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,6 +30,8 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 std::set<Permission> IpcCommon::permSet_;
+bool IpcCommon::isSetTokenId_ = false;
+uint32_t IpcCommon::tokenId_ = 0;
 
 int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, int32_t &userId)
 {
@@ -69,11 +71,20 @@ bool IpcCommon::CheckPermission(IPCObjectStub &stub, Permission permission)
 
 uint32_t IpcCommon::GetAccessTokenId(IPCObjectStub &stub)
 {
-    uint32_t tokenId = stub.GetFirstTokenID();
-    if (tokenId == 0) {
-        tokenId = stub.GetCallingTokenID();
+    if (isSetTokenId_) {
+        return tokenId_;
     }
-    return tokenId;
+    tokenId_ = stub.GetFirstTokenID();
+    if (tokenId_ == 0) {
+        tokenId_ = stub.GetCallingTokenID();
+    }
+    return tokenId_;
+}
+
+void IpcCommon::SetAccessTokenId(uint32_t tokenId, bool isSetTokenId)
+{
+    tokenId_ =  tokenId;
+    isSetTokenId_ = isSetTokenId;
 }
 
 void IpcCommon::AddPermission(Permission perm)
