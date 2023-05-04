@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -42,6 +42,7 @@ public:
         std::shared_ptr<CredentialInfoInterface> &info, std::vector<uint8_t> &rootSecret,
         std::optional<uint64_t> &secUserId) override;
     bool Cancel() override;
+    uint32_t GetAccessTokenId() const override;
     int32_t GetLatestError() const override;
 
 protected:

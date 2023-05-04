@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -42,11 +42,14 @@ public:
     static int32_t GetActiveUserId(std::optional<int32_t> &userId);
     static bool CheckPermission(IPCObjectStub &stub, Permission permission);
     static uint32_t GetAccessTokenId(IPCObjectStub &stub);
+    static void SetAccessTokenId(uint32_t tokenId, bool isSetTokenId);
     static void AddPermission(Permission perm);
     static void DeleteAllPermission();
 
 private:
     static std::set<Permission> permSet_;
+    static bool isSetTokenId_;
+    static uint32_t tokenId_;
 };
 } // namespace UserAuth
 } // namespace UserIam
