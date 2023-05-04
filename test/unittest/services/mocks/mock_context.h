@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -51,6 +51,7 @@ public:
     MOCK_CONST_METHOD0(GetContextType, ContextType());
     MOCK_CONST_METHOD1(GetScheduleNode, std::shared_ptr<ScheduleNode>(uint64_t scheduleId));
     MOCK_CONST_METHOD0(GetLatestError, int32_t());
+    MOCK_CONST_METHOD0(GetTokenId, uint32_t());
 
     static std::shared_ptr<Context> CreateWithContextId(uint64_t contextId)
     {
