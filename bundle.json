@@ -25,8 +25,8 @@
     "hisysevent_config": [
       "//base/useriam/user_auth_framework/hisysevent.yaml"
     ],
-    "rom": "3924KB",
-    "ram": "5000KB",
+    "rom": "3380KB",
+    "ram": "7271KB",
     "deps": {
       "components": [
         "hiviewdfx_hilog_native",
