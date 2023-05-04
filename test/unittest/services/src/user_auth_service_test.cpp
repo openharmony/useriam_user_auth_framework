@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -718,6 +718,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCancelAuthOrIdentify_001, TestSize.
 {
     UserAuthService service(100, true);
     uint64_t testContextId = 12355236;
+    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId), CHECK_PERMISSION_FAILED);
+
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     EXPECT_EQ(service.CancelAuthOrIdentify(testContextId), GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
@@ -727,9 +729,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCancelAuthOrIdentify_002, TestSize.
 {
     UserAuthService service(100, true);
     uint64_t testContextId = 12355236;
-    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId), CHECK_PERMISSION_FAILED);
 
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    uint32_t tokenId = 0;
+    IpcCommon::SetAccessTokenId(tokenId, true);
     auto context = Common::MakeShared<MockContext>();
     EXPECT_NE(context, nullptr);
     EXPECT_CALL(*context, GetContextId()).WillRepeatedly(Return(testContextId));
@@ -743,7 +746,9 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCancelAuthOrIdentify_002, TestSize.
     
     EXPECT_EQ(service.CancelAuthOrIdentify(testContextId), GENERAL_ERROR);
     EXPECT_EQ(service.CancelAuthOrIdentify(testContextId), SUCCESS);
+    IpcCommon::SetAccessTokenId(tokenId, false);
 
+    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId), INVALID_CONTEXT_ID);
     EXPECT_TRUE(ContextPool::Instance().Delete(testContextId));
     IpcCommon::DeleteAllPermission();
 }

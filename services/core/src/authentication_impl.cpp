@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -62,6 +62,11 @@ void AuthenticationImpl::SetChallenge(const std::vector<uint8_t> &challenge)
 void AuthenticationImpl::SetAccessTokenId(uint32_t tokenId)
 {
     tokenId_ = tokenId;
+}
+
+uint32_t AuthenticationImpl::GetAccessTokenId() const
+{
+    return tokenId_;
 }
 
 bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
