@@ -1,6 +1,6 @@
 {
   "name": "@openharmony/user_auth_framework",
-  "version": "3.1.0",
+  "version": "4.0",
   "description": "User Authentication capability",
   "homePage": "https://gitee.com/openharmony",
   "author": {},
@@ -33,8 +33,16 @@
         "ipc",
         "safwk",
         "samgr",
-        "hilog",
-        "user_auth_framework"
+        "init",
+        "hisysevent_native",
+        "drivers_interface_user_auth",
+        "access_token",
+        "os_account",
+        "napi",
+        "hilog_native",
+        "hdf_core",
+        "hitrace_native",
+        "c_utils"
       ],
       "third_party": [
         "openssl"
