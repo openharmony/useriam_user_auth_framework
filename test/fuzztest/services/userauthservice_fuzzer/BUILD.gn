@@ -32,7 +32,6 @@ ohos_fuzztest("UserAuthServiceFuzzTest") {
     "../../../../frameworks/native/ipc/inc",
     "../../../../frameworks/native/ipc/common_defines",
     "../../../../common/utils",
-    "../../../../common/logs/co_auth/inc",
     "../../../../common/logs",
   ]
 
@@ -41,7 +40,7 @@ ohos_fuzztest("UserAuthServiceFuzzTest") {
   deps = [
     "../../../../common:iam_test",
     "../../../../frameworks/native/common:attributes",
-    "../../../../services:userauthservice",
+    "../../../../services/ipc:userauth_services_ipc",
   ]
 
   external_deps = [

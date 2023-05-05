@@ -28,27 +28,40 @@ ohos_fuzztest("CoAuthClientFuzzTest") {
   include_dirs = [
     "../../../../interfaces/inner_api",
     "../../../../frameworks/native/ipc/inc",
+    "../../../../frameworks/native/client/inc",
     "../../../../frameworks/native/ipc/common_defines",
     "../../../../common/utils",
-    "../../../../common/logs/co_auth/inc",
     "../../../../common/logs",
   ]
 
-  sources = [ "co_auth_client_fuzzer.cpp" ]
+  sources = [
+    "../../../../frameworks/native/client/src/auth_message_impl.cpp",
+    "../../../../frameworks/native/client/src/co_auth_client_impl.cpp",
+    "../../../../frameworks/native/client/src/executor_callback_service.cpp",
+    "../../../../frameworks/native/client/src/executor_messenger_client.cpp",
+    "../../../../frameworks/native/client/src/ipc_client_utils.cpp",
+    "../../../../frameworks/native/client/src/user_auth_callback_service.cpp",
+    "../../../../frameworks/native/client/src/user_auth_client_impl.cpp",
+    "../../../../frameworks/native/client/src/user_idm_callback_service.cpp",
+    "../../../../frameworks/native/client/src/user_idm_client_impl.cpp",
+    "co_auth_client_fuzzer.cpp",
+  ]
 
   deps = [
     "../../../../common:iam_test",
     "../../../../frameworks/native/common:attributes",
+    "../../../../frameworks/native/common:dfx",
+    "../../../../frameworks/native/ipc:userauth_client_ipc",
   ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   external_deps = [
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_single",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "user_auth_framework:userauth_client",
   ]
 
   subsystem_name = "useriam"

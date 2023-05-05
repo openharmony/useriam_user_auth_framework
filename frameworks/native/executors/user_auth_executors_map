@@ -13,36 +13,9 @@
 
 {
     global:
-        *;
+    extern "C++" {
+        OHOS::UserIam::UserAuth::IDriverManager::Start*;
+    };
     local:
-        extern "C++" {
-            OHOS::UserIam::Common::UnpackInt32*;
-            OHOS::UserIam::Common::UnpackUint64*;
-            OHOS::IRemoteStub*;
-            OHOS::ISystemAbilityManager*;
-            OHOS::HDI::ServiceManager*;
-            OHOS::UserIam::Common::GetNowTimeString*;
-            OHOS::UserIam::UserAuth::Attributes*;
-            OHOS::UserIam::UserAuth::AuthCommand*;
-            OHOS::UserIam::UserAuth::CustomCommand*;
-            OHOS::UserIam::UserAuth::DriverManager*;
-            OHOS::UserIam::UserAuth::EnrollCommand*;
-            OHOS::UserIam::UserAuth::ReportPinAuth*;
-            OHOS::UserIam::UserAuth::ReportUserAuth*;
-            OHOS::UserIam::UserAuth::IdentifyCommand*;
-            OHOS::UserIam::UserAuth::AsyncCommandBase*;
-            OHOS::UserIam::UserAuth::IamHitraceHelper*;
-            OHOS::UserIam::UserAuth::ReportSystemFault*;
-            OHOS::UserIam::UserAuth::ExecutorMgrWrapper*;
-            OHOS::UserIam::UserAuth::ReportTemplateChange*;
-            OHOS::UserIam::UserAuth::ReportBehaviorCredChange*;
-            OHOS::UserIam::UserAuth::ReportSecurityCredChange*;
-            OHOS::UserIam::UserAuth::FrameworkExecutorCallback*;
-            OHOS::UserIam::UserAuth::DriverManagerStatusListener*;
-            OHOS::UserIam::UserAuth::AuthExecutorMgrStatusListener*;
-            OHOS::UserIam::UserAuth::Driver*;
-            OHOS::UserIam::UserAuth::Executor*;
-            OHOS::HiviewDFX::HiSysEvent::Domain*;
-            std::__h*;
-        };
+        *;
 };
