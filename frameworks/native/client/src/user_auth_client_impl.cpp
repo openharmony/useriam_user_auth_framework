@@ -86,7 +86,7 @@ ResultCode UserAuthClientImpl::SetPropertyInner(int32_t userId, const SetPropert
 
     Attributes::AttributeKey key = keys[0];
     uint32_t keyValue = static_cast<uint32_t>(key);
-    IF_FALSE_LOGE_AND_RETURN_VAL(keyValue != PROPERTY_INIT_ALGORITHM, GENERAL_ERROR);
+    IF_FALSE_LOGE_AND_RETURN_VAL(keyValue == PROPERTY_INIT_ALGORITHM, GENERAL_ERROR);
     keyValue = keyValue + VENDOR_COMMAND_BASE;
     Attributes attr;
 
