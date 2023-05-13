@@ -20,9 +20,9 @@
 #include <unordered_map>
 
 #include "hdi_wrapper.h"
+#include "iam_common_defines.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
-#include "iam_common_defines.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
@@ -31,7 +31,6 @@ namespace UserIam {
 namespace UserAuth {
 class ResourceNodeImpl : public ResourceNode, public NoCopyable {
 public:
-    using IUserAuthInterface = OHOS::HDI::UserAuth::V1_0::IUserAuthInterface;
     ResourceNodeImpl(ExecutorRegisterInfo info, std::shared_ptr<ExecutorCallbackInterface> callback);
     ~ResourceNodeImpl() override;
 
@@ -177,11 +176,6 @@ void ResourceNodeImpl::Detach()
 
 int32_t ResourceNodeImpl::SyncWithDriver(std::vector<uint64_t> &templateIdList, std::vector<uint8_t> &fwkPublicKey)
 {
-    using HdiExecutorRegisterInfo = OHOS::HDI::UserAuth::V1_0::ExecutorRegisterInfo;
-    using HdiAuthType = OHOS::HDI::UserAuth::V1_0::AuthType;
-    using HdiExecutorRole = OHOS::HDI::UserAuth::V1_0::ExecutorRole;
-    using HdiExecutorSecureLevel = OHOS::HDI::UserAuth::V1_0::ExecutorSecureLevel;
-
     HdiExecutorRegisterInfo hdiInfo = {
         .authType = static_cast<HdiAuthType>(info_.authType),
         .executorRole = static_cast<HdiExecutorRole>(info_.executorRole),

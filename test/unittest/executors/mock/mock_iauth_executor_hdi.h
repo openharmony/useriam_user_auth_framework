@@ -31,21 +31,23 @@ public:
     virtual ~MockIAuthExecutorHdi() = default;
 
     MOCK_METHOD1(GetExecutorInfo, ResultCode(ExecutorInfo &info));
-    MOCK_METHOD2(GetTemplateInfo, ResultCode(uint64_t templateId, UserAuth::TemplateInfo &info));
     MOCK_METHOD3(
         OnRegisterFinish, ResultCode(const std::vector<uint64_t> &templateIdList,
                               const std::vector<uint8_t> &frameworkPublicKey, const std::vector<uint8_t> &extraInfo));
-    MOCK_METHOD4(Enroll, ResultCode(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
+    MOCK_METHOD3(Enroll, ResultCode(uint64_t scheduleId, const EnrollParam &param,
                              const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj));
-    MOCK_METHOD5(Authenticate,
-        ResultCode(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint64_t> &templateIdList,
-            const std::vector<uint8_t> &extraInfo, const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj));
-    MOCK_METHOD4(Identify, ResultCode(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
+    MOCK_METHOD3(Authenticate,
+        ResultCode(uint64_t scheduleId, const AuthenticateParam &param,
+            const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj));
+    MOCK_METHOD3(Identify, ResultCode(uint64_t scheduleId, const IdentifyParam &param,
                                const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj));
     MOCK_METHOD1(Delete, ResultCode(const std::vector<uint64_t> &templateIdList));
     MOCK_METHOD1(Cancel, ResultCode(uint64_t scheduleId));
     MOCK_METHOD3(SendCommand, ResultCode(PropertyMode commandId, const std::vector<uint8_t> &extraInfo,
                                   const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj));
+    MOCK_METHOD3(GetProperty, ResultCode (const std::vector<uint64_t> &templateIdList,
+        const std::vector<Attributes::AttributeKey> &keys, Property &property));
+    MOCK_METHOD1(SetCachedTemplates, ResultCode(const std::vector<uint64_t> &templateIdList));
 };
 } // namespace UserAuth
 } // namespace UserIam

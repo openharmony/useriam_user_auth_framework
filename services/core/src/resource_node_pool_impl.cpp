@@ -40,7 +40,7 @@ public:
     bool DeregisterResourceNodePoolListener(const std::shared_ptr<ResourceNodePoolListener> &listener) override;
 
 private:
-    mutable std::mutex poolMutex_;
+    mutable std::recursive_mutex poolMutex_;
     std::unordered_map<uint64_t, std::shared_ptr<ResourceNode>> resourceNodeMap_;
     std::set<std::shared_ptr<ResourceNodePoolListener>> listenerSet_;
 };
@@ -51,7 +51,7 @@ bool ResourceNodePoolImpl::Insert(const std::shared_ptr<ResourceNode> &resource)
         IAM_LOGE("resource is nullptr");
         return false;
     }
-    std::lock_guard<std::mutex> lock(poolMutex_);
+    std::lock_guard<std::recursive_mutex> lock(poolMutex_);
     uint64_t executorIndex = resource->GetExecutorIndex();
 
     auto iter = resourceNodeMap_.find(executorIndex);
@@ -78,7 +78,7 @@ bool ResourceNodePoolImpl::Insert(const std::shared_ptr<ResourceNode> &resource)
 
 bool ResourceNodePoolImpl::Delete(uint64_t executorIndex)
 {
-    std::lock_guard<std::mutex> lock(poolMutex_);
+    std::lock_guard<std::recursive_mutex> lock(poolMutex_);
     auto iter = resourceNodeMap_.find(executorIndex);
     if (iter == resourceNodeMap_.end()) {
         IAM_LOGE("executor not found");
@@ -96,7 +96,7 @@ bool ResourceNodePoolImpl::Delete(uint64_t executorIndex)
 
 void ResourceNodePoolImpl::DeleteAll()
 {
-    std::lock_guard<std::mutex> lock(poolMutex_);
+    std::lock_guard<std::recursive_mutex> lock(poolMutex_);
     auto tempMap = resourceNodeMap_;
     resourceNodeMap_.clear();
     for (auto &node : tempMap) {
@@ -110,7 +110,7 @@ void ResourceNodePoolImpl::DeleteAll()
 
 std::weak_ptr<ResourceNode> ResourceNodePoolImpl::Select(uint64_t executorIndex) const
 {
-    std::lock_guard<std::mutex> lock(poolMutex_);
+    std::lock_guard<std::recursive_mutex> lock(poolMutex_);
     std::weak_ptr<ResourceNode> result;
     auto iter = resourceNodeMap_.find(executorIndex);
     if (iter != resourceNodeMap_.end()) {
@@ -125,7 +125,7 @@ void ResourceNodePoolImpl::Enumerate(std::function<void(const std::weak_ptr<Reso
         IAM_LOGE("action is nullptr");
         return;
     }
-    std::lock_guard<std::mutex> lock(poolMutex_);
+    std::lock_guard<std::recursive_mutex> lock(poolMutex_);
     for (auto &node : resourceNodeMap_) {
         action(node.second);
     }
@@ -133,7 +133,7 @@ void ResourceNodePoolImpl::Enumerate(std::function<void(const std::weak_ptr<Reso
 
 uint32_t ResourceNodePoolImpl::GetPoolSize() const
 {
-    std::lock_guard<std::mutex> lock(poolMutex_);
+    std::lock_guard<std::recursive_mutex> lock(poolMutex_);
     return resourceNodeMap_.size();
 }
 
@@ -143,14 +143,14 @@ bool ResourceNodePoolImpl::RegisterResourceNodePoolListener(const std::shared_pt
         IAM_LOGE("listener is nullptr");
         return false;
     }
-    std::lock_guard<std::mutex> lock(poolMutex_);
+    std::lock_guard<std::recursive_mutex> lock(poolMutex_);
     listenerSet_.insert(listener);
     return true;
 }
 
 bool ResourceNodePoolImpl::DeregisterResourceNodePoolListener(const std::shared_ptr<ResourceNodePoolListener> &listener)
 {
-    std::lock_guard<std::mutex> lock(poolMutex_);
+    std::lock_guard<std::recursive_mutex> lock(poolMutex_);
     return listenerSet_.erase(listener) == 1;
 }
 

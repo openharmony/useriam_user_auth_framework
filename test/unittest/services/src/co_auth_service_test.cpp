@@ -29,7 +29,7 @@ namespace UserAuth {
 using namespace testing;
 using namespace testing::ext;
 
-using HdiExecutorRegisterInfo = OHOS::HDI::UserAuth::V1_0::ExecutorRegisterInfo;
+using HdiExecutorRegisterInfo = HdiExecutorRegisterInfo;
 
 void CoAuthServiceTest::SetUpTestCase()
 {

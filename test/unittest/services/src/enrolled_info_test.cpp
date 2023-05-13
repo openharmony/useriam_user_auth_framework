@@ -22,9 +22,6 @@ namespace UserIam {
 namespace UserAuth {
 using namespace testing;
 using namespace testing::ext;
-using HdiEnrolledInfo = OHOS::HDI::UserAuth::V1_0::EnrolledInfo;
-using HdiAuthType = OHOS::HDI::UserAuth::V1_0::AuthType;
-
 void EnrolledInfoTest::SetUpTestCase()
 {
 }

@@ -55,9 +55,13 @@ ScheduleNodeImpl::ScheduleNodeImpl(ScheduleInfo &info) : info_(std::move(info))
         info_.parameters->SetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, info_.pinSubType);
     }
 
+    info_.parameters->SetBoolValue(Attributes::ATTR_END_AFTER_FIRST_FAIL, info_.endAfterFirstFail);
+    info_.parameters->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, info_.extraInfo);
+
     if (info_.templateIdList.empty()) {
         return;
     }
+
     info_.parameters->SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, info_.templateIdList);
     if (info_.templateIdList.size() == 1) {
         info_.parameters->SetUint64Value(Attributes::ATTR_TEMPLATE_ID, *info_.templateIdList.begin());
@@ -308,7 +312,7 @@ void ScheduleNodeImpl::ProcessBeginCollector(FiniteStateMachine &machine, uint32
         return;
     }
     if (collector == verifier) {
-        IAM_LOGE("all in one schedule, just wait the result");
+        IAM_LOGI("all in one schedule, just wait the result");
         machine.Schedule(E_COLLECT_STARTED_SUCCESS);
         return;
     }

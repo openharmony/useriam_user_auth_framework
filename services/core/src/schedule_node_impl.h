@@ -52,6 +52,8 @@ public:
         std::shared_ptr<ThreadHandler> threadHandler;
         std::shared_ptr<ScheduleNodeCallback> callback;
         std::shared_ptr<Attributes> parameters;
+        bool endAfterFirstFail;
+        std::vector<uint8_t> extraInfo;
     };
     explicit ScheduleNodeImpl(ScheduleInfo &info);
     ~ScheduleNodeImpl() override = default;

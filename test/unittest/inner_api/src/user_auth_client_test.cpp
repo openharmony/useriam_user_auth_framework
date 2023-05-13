@@ -204,9 +204,6 @@ HWTEST_F(UserAuthClientTest, UserAuthClientSetProperty002, TestSize.Level0)
                 sptr<SetExecutorPropertyCallbackInterface> &callback) {
                 EXPECT_EQ(userId, testUserId);
                 EXPECT_EQ(authType, testRequest.authType);
-                int32_t resultCode;
-                EXPECT_EQ(attributes.GetInt32Value(Attributes::ATTR_RESULT_CODE, resultCode), true);
-                EXPECT_EQ(resultCode, FAIL);
                 if (callback != nullptr) {
                     callback->OnSetExecutorPropertyResult(SUCCESS);
                 }
@@ -450,7 +447,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientCancelAuthentication002, TestSize.Lev
     IpcClientUtils::ResetObj();
 }
 
-HWTEST_F(UserAuthClientTest, UserAuthClientBeginIdentification001, TestSize.Level0)
+HWTEST_F(UserAuthClientTest, UserAuthClientBeginIdentificationV1_1001, TestSize.Level0)
 {
     std::vector<uint8_t> testChallenge = {4, 5, 6, 7, 3, 4, 1, 2};
     AuthType testAuthType = FACE;
@@ -466,7 +463,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginIdentification001, TestSize.Leve
     EXPECT_EQ(contextId, 0);
 }
 
-HWTEST_F(UserAuthClientTest, UserAuthClientBeginIdentification002, TestSize.Level0)
+HWTEST_F(UserAuthClientTest, UserAuthClientBeginIdentificationV1_1002, TestSize.Level0)
 {
     std::vector<uint8_t> testChallenge = {4, 5, 6, 7, 3, 4, 1, 2};
     AuthType testAuthType = FACE;

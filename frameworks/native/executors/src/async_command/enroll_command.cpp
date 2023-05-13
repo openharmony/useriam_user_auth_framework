@@ -50,8 +50,11 @@ ResultCode EnrollCommand::SendRequest()
     IF_FALSE_LOGE_AND_RETURN_VAL(getTokenIdRet == true, ResultCode::GENERAL_ERROR);
 
     std::vector<uint8_t> extraInfo;
+    bool getExtraInfoRet = attributes_->GetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, extraInfo);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getExtraInfoRet == true, ResultCode::GENERAL_ERROR);
+
     IamHitraceHelper traceHelper("hdi Enroll");
-    ResultCode ret = hdi->Enroll(scheduleId_, tokenId, extraInfo, shared_from_this());
+    ResultCode ret = hdi->Enroll(scheduleId_, (EnrollParam) { tokenId, extraInfo }, shared_from_this());
     IAM_LOGI("%{public}s enroll result %{public}d", GetDescription(), ret);
     return ret;
 }

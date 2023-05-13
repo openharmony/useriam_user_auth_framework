@@ -28,8 +28,8 @@
 #include <vector>
 
 #include "co_auth_client.h"
-#include "iam_executor_framework_types.h"
 #include "iam_common_defines.h"
+#include "iam_executor_framework_types.h"
 #include "iam_executor_iexecute_callback.h"
 
 namespace OHOS {
@@ -56,15 +56,6 @@ public:
     virtual ResultCode GetExecutorInfo(ExecutorInfo &info) = 0;
 
     /**
-     * @brief Get template infomation.
-     *
-     * @param templateId Template id.
-     * @param info The template infomation.
-     * @return Return the result success or error code{@link ResultCode}.
-     */
-    virtual ResultCode GetTemplateInfo(uint64_t templateId, UserAuth::TemplateInfo &info) = 0;
-
-    /**
      * @brief Register is finish.
      *
      * @param templateIdList Template ID list.
@@ -79,37 +70,33 @@ public:
      * @brief Begin enroll.
      *
      * @param scheduleId Current enroll schedule ID.
-     * @param tokenId Current enroll token ID.
-     * @param extraInfo Extra information of enroll.
+     * @param param Enroll param.
      * @param callbackObj Callback of enroll result.
      * @return Return the result success or error code{@link ResultCode}.
      */
-    virtual ResultCode Enroll(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
+    virtual ResultCode Enroll(uint64_t scheduleId, const EnrollParam &param,
         const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) = 0;
 
     /**
      * @brief Begin authenticate.
      *
      * @param scheduleId Current authenticate schedule ID.
-     * @param tokenId Current authenticate token ID.
-     * @param templateIdList Template ID list.
-     * @param extraInfo Extra information of authenticate.
+     * @param param Authenticate param.
      * @param callbackObj Callback of authenticate result.
      * @return Return the result success or error code{@link ResultCode}.
      */
-    virtual ResultCode Authenticate(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint64_t> &templateIdList,
-        const std::vector<uint8_t> &extraInfo, const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) = 0;
+    virtual ResultCode Authenticate(uint64_t scheduleId, const AuthenticateParam &param,
+        const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) = 0;
 
     /**
      * @brief Begin identify.
      *
      * @param scheduleId Current identify schedule ID.
-     * @param tokenId Current identify token ID.
-     * @param extraInfo Extra information of identify.
+     * @param param Identify param.
      * @param callbackObj Callback of identify result.
      * @return Return the result success or error code{@link ResultCode}.
      */
-    virtual ResultCode Identify(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
+    virtual ResultCode Identify(uint64_t scheduleId, const IdentifyParam &param,
         const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) = 0;
 
     /**
@@ -138,6 +125,25 @@ public:
      */
     virtual ResultCode SendCommand(PropertyMode commandId, const std::vector<uint8_t> &extraInfo,
         const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) = 0;
+
+    /**
+     * @brief Get property.
+     *
+     * @param templateIdList Template id list.
+     * @param keys Keys of property to get.
+     * @param property Return property .
+     * @return Return the result success or error code{@link ResultCode}.
+     */
+    virtual ResultCode GetProperty(const std::vector<uint64_t> &templateIdList,
+        const std::vector<Attributes::AttributeKey> &keys, Property &property) = 0;
+
+    /**
+     * @brief Set cached templates.
+     *
+     * @param templateIdList Template id list.
+     * @return Return the result success or error code{@link ResultCode}.
+     */
+    virtual ResultCode SetCachedTemplates(const std::vector<uint64_t> &templateIdList) = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam
