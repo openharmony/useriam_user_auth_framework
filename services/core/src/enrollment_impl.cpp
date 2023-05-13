@@ -15,9 +15,9 @@
 #include "enrollment_impl.h"
 
 #include "hdi_wrapper.h"
+#include "iam_hitrace_helper.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
-#include "iam_hitrace_helper.h"
 
 #include "credential_info_impl.h"
 #include "schedule_node_helper.h"
@@ -82,9 +82,6 @@ void EnrollmentImpl::SetIsUpdate(bool isUpdate)
 bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
     std::shared_ptr<ScheduleNodeCallback> callback)
 {
-    using HdiScheduleInfo = OHOS::HDI::UserAuth::V1_0::ScheduleInfo;
-    using HdiAuthType = OHOS::HDI::UserAuth::V1_0::AuthType;
-    using EnrollParam = OHOS::HDI::UserAuth::V1_0::EnrollParam;
     auto hdi = HdiWrapper::GetHdiInstance();
     if (!hdi) {
         IAM_LOGE("bad hdi");
@@ -97,12 +94,12 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
     }
 
     HdiScheduleInfo info = {};
-    EnrollParam param = {
+    HdiEnrollParam param = {
         .authType = static_cast<HdiAuthType>(authType_),
         .executorSensorHint = executorSensorHint_,
     };
     IamHitraceHelper traceHelper("hdi BeginEnrollment");
-    auto result = hdi->BeginEnrollment(userId_, authToken_, param, info);
+    auto result = hdi->BeginEnrollmentV1_1(userId_, authToken_, param, info);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi BeginEnrollment failed, err is %{public}d", result);
         SetLatestError(result);
@@ -154,8 +151,6 @@ bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t
     std::shared_ptr<CredentialInfoInterface> &info, std::vector<uint8_t> &rootSecret,
     std::optional<uint64_t> &secUserId)
 {
-    using HdiEnrollResultInfo = OHOS::HDI::UserAuth::V1_0::EnrollResultInfo;
-
     auto hdi = HdiWrapper::GetHdiInstance();
     if (!hdi) {
         IAM_LOGE("bad hdi");

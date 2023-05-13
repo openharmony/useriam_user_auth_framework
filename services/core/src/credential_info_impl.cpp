@@ -18,7 +18,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-CredentialInfoImpl::CredentialInfoImpl(int32_t userId, const HdiCredential &info) : userId_(userId), info_(info)
+CredentialInfoImpl::CredentialInfoImpl(int32_t userId, const HdiCredentialInfo &info) : userId_(userId), info_(info)
 {
 }
 

@@ -53,6 +53,7 @@ ohos_unittest("iam_services_test") {
     "../../../services/core/src/schedule_node_helper.cpp",
     "../../../services/core/src/schedule_node_impl.cpp",
     "../../../services/core/src/secure_user_info_impl.cpp",
+    "../../../services/core/src/template_cache_manager.cpp",
     "../../../services/core/src/user_idm_database_impl.cpp",
     "../../../services/core/src/user_idm_session_controller_impl.cpp",
     "../../../services/ipc/src/co_auth_service.cpp",
@@ -104,11 +105,12 @@ ohos_unittest("iam_services_test") {
   external_deps = [
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
-    "drivers_interface_user_auth:libuser_auth_proxy_1.0",
+    "drivers_interface_user_auth:libuser_auth_proxy_1.1",
     "hilog_native:libhilog",
     "hitrace_native:hitrace_meter",
     "init:libbegetutil",
     "ipc:ipc_single",
+    "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]

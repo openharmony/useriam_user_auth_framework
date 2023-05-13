@@ -22,8 +22,6 @@ namespace UserIam {
 namespace UserAuth {
 using namespace testing;
 using namespace testing::ext;
-
-using namespace OHOS::HDI::UserAuth::V1_0;
 std::shared_ptr<IUserAuthInterface> HdiWrapper::GetHdiInstance()
 {
     return MockIUserAuthInterface::Holder::GetInstance().Get();

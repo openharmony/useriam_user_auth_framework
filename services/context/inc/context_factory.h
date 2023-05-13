@@ -35,6 +35,7 @@ public:
         AuthTrustLevel atl {ATL1};
         uint32_t tokenId {0};
         std::vector<uint8_t> challenge;
+        bool endAfterFirstFail;
     };
 
     struct IdentifyContextPara {

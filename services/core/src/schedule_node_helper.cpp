@@ -80,6 +80,8 @@ bool ScheduleNodeHelper::ScheduleInfoToScheduleNode(const HdiScheduleInfo &info,
                ->SetExpiredTime(para.expire.value_or(0))
                ->SetPinSubType(para.pinSubType.value_or(PinSubType::PIN_MAX))
                ->SetScheduleCallback(callback)
+               ->SetEndAfterFirstFail(para.endAfterFirstFail.value_or(false))
+               ->SetExtraInfo(info.extraInfo)
                ->Build();
     if (node == nullptr) {
         IAM_LOGE("builder failed");

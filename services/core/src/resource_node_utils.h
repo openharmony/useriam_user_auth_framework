@@ -17,6 +17,7 @@
 #define IAM_RESOURCE_NODE_UTILS_H
 
 #include <cstdint>
+#include <map>
 #include <memory>
 
 #include "credential_info_interface.h"
@@ -26,9 +27,12 @@ namespace UserIam {
 namespace UserAuth {
 class ResourceNodeUtils {
 public:
-    static int32_t NotifyExecutorToDeleteTemplates(
-        const std::vector<std::shared_ptr<CredentialInfoInterface>> &infos);
+    static int32_t NotifyExecutorToDeleteTemplates(const std::vector<std::shared_ptr<CredentialInfoInterface>> &infos);
     static void SendMsgToExecutor(uint64_t executorIndex, const std::vector<uint8_t> &msg);
+    static void SetCachedTemplates(uint64_t executorIndex,
+        const std::vector<std::shared_ptr<CredentialInfoInterface>> &infos);
+    static ResultCode ClassifyCredInfoByExecutor(const std::vector<std::shared_ptr<CredentialInfoInterface>> &in,
+        std::map<uint64_t, std::vector<std::shared_ptr<CredentialInfoInterface>>> &out);
 };
 } // namespace UserAuth
 } // namespace UserIam

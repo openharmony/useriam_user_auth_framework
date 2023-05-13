@@ -27,18 +27,6 @@ namespace UserIam {
 namespace UserAuth {
 using namespace testing;
 using namespace testing::ext;
-
-using HdiAuthResultInfo = OHOS::HDI::UserAuth::V1_0::AuthResultInfo;
-using HdiAuthSolution = OHOS::HDI::UserAuth::V1_0::AuthSolution;
-using HdiExecutorSendMsg = OHOS::HDI::UserAuth::V1_0::ExecutorSendMsg;
-using HdiAuthType = OHOS::HDI::UserAuth::V1_0::AuthType;
-using HdiEnrollParam = OHOS::HDI::UserAuth::V1_0::EnrollParam;
-using HdiExecutorInfo = OHOS::HDI::UserAuth::V1_0::ExecutorInfo;
-using HdiScheduleInfo = OHOS::HDI::UserAuth::V1_0::ScheduleInfo;
-using HdiExecutorRole = OHOS::HDI::UserAuth::V1_0::ExecutorRole;
-using HdiScheduleMode = OHOS::HDI::UserAuth::V1_0::ScheduleMode;
-using HdiExecutorSecureLevel = OHOS::HDI::UserAuth::V1_0::ExecutorSecureLevel;
-
 void ScheduleNodeHelperTest::SetUpTestCase()
 {
 }

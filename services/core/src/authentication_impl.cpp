@@ -15,8 +15,8 @@
 #include "authentication_impl.h"
 
 #include "hdi_wrapper.h"
-#include "iam_logger.h"
 #include "iam_hitrace_helper.h"
+#include "iam_logger.h"
 #include "resource_node_utils.h"
 #include "schedule_node_helper.h"
 
@@ -72,9 +72,6 @@ uint32_t AuthenticationImpl::GetAccessTokenId() const
 bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
     std::shared_ptr<ScheduleNodeCallback> callback)
 {
-    using HdiAuthSolution = OHOS::HDI::UserAuth::V1_0::AuthSolution;
-    using HdiAuthType = OHOS::HDI::UserAuth::V1_0::AuthType;
-    using HdiScheduleInfo = OHOS::HDI::UserAuth::V1_0::ScheduleInfo;
     auto hdi = HdiWrapper::GetHdiInstance();
     if (!hdi) {
         IAM_LOGE("bad hdi");
@@ -89,7 +86,7 @@ bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
     };
     std::vector<HdiScheduleInfo> infos;
     IamHitraceHelper traceHelper("hdi BeginAuthentication");
-    auto result = hdi->BeginAuthentication(contextId_, solution, infos);
+    auto result = hdi->BeginAuthenticationV1_1(contextId_, solution, infos);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi BeginAuthentication failed, err is %{public}d", result);
         SetLatestError(result);
@@ -120,7 +117,6 @@ bool AuthenticationImpl::Update(const std::vector<uint8_t> &scheduleResult, Auth
         return false;
     }
 
-    using HdiAuthResultInfo = OHOS::HDI::UserAuth::V1_0::AuthResultInfo;
     HdiAuthResultInfo info;
     auto result = hdi->UpdateAuthenticationResult(contextId_, scheduleResult, info);
     if (result != HDF_SUCCESS) {

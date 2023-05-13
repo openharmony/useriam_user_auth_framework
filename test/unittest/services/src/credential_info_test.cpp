@@ -20,8 +20,6 @@ namespace UserIam {
 namespace UserAuth {
 using namespace testing;
 using namespace testing::ext;
-using HdiCredential = OHOS::HDI::UserAuth::V1_0::CredentialInfo;
-
 void CredentialInfoTest::SetUpTestCase()
 {
 }
@@ -41,11 +39,11 @@ void CredentialInfoTest::TearDown()
 HWTEST_F(CredentialInfoTest, GetCredentialId, TestSize.Level0)
 {
     int32_t userId = 100;
-    HdiCredential info = {
+    HdiCredentialInfo info = {
         .credentialId = 1,
         .executorIndex = 2,
         .templateId = 3,
-        .authType = static_cast<OHOS::HDI::UserAuth::V1_0::AuthType>(4),
+        .authType = static_cast<HdiAuthType>(4),
         .executorMatcher = 5,
         .executorSensorHint = 6,
     };
@@ -58,11 +56,11 @@ HWTEST_F(CredentialInfoTest, GetCredentialId, TestSize.Level0)
 HWTEST_F(CredentialInfoTest, GetUserId, TestSize.Level0)
 {
     int32_t userId = 100;
-    HdiCredential info = {
+    HdiCredentialInfo info = {
         .credentialId = 1,
         .executorIndex = 2,
         .templateId = 3,
-        .authType = static_cast<OHOS::HDI::UserAuth::V1_0::AuthType>(4),
+        .authType = static_cast<HdiAuthType>(4),
         .executorMatcher = 5,
         .executorSensorHint = 6,
     };
@@ -74,11 +72,11 @@ HWTEST_F(CredentialInfoTest, GetUserId, TestSize.Level0)
 HWTEST_F(CredentialInfoTest, GetExecutorIndex, TestSize.Level0)
 {
     int32_t userId = 100;
-    HdiCredential info = {
+    HdiCredentialInfo info = {
         .credentialId = 1,
         .executorIndex = 2,
         .templateId = 3,
-        .authType = static_cast<OHOS::HDI::UserAuth::V1_0::AuthType>(4),
+        .authType = static_cast<HdiAuthType>(4),
         .executorMatcher = 5,
         .executorSensorHint = 6,
     };
@@ -90,11 +88,11 @@ HWTEST_F(CredentialInfoTest, GetExecutorIndex, TestSize.Level0)
 HWTEST_F(CredentialInfoTest, GetTemplateId, TestSize.Level0)
 {
     int32_t userId = 100;
-    HdiCredential info = {
+    HdiCredentialInfo info = {
         .credentialId = 1,
         .executorIndex = 2,
         .templateId = 3,
-        .authType = static_cast<OHOS::HDI::UserAuth::V1_0::AuthType>(4),
+        .authType = static_cast<HdiAuthType>(4),
         .executorMatcher = 5,
         .executorSensorHint = 6,
     };
@@ -106,27 +104,27 @@ HWTEST_F(CredentialInfoTest, GetTemplateId, TestSize.Level0)
 HWTEST_F(CredentialInfoTest, GetAuthType, TestSize.Level0)
 {
     int32_t userId = 100;
-    HdiCredential info = {
+    HdiCredentialInfo info = {
         .credentialId = 1,
         .executorIndex = 2,
         .templateId = 3,
-        .authType = static_cast<OHOS::HDI::UserAuth::V1_0::AuthType>(4),
+        .authType = static_cast<HdiAuthType>(4),
         .executorMatcher = 5,
         .executorSensorHint = 6,
     };
     CredentialInfoImpl CredentialInfoImpl(userId, info);
-    AuthType ret = CredentialInfoImpl.GetAuthType();
+    HdiAuthType ret = static_cast<HdiAuthType>(CredentialInfoImpl.GetAuthType());
     EXPECT_EQ(static_cast<uint32_t>(ret), static_cast<uint32_t>(info.authType));
 }
 
 HWTEST_F(CredentialInfoTest, GetExecutorSensorHint, TestSize.Level0)
 {
     int32_t userId = 100;
-    HdiCredential info = {
+    HdiCredentialInfo info = {
         .credentialId = 1,
         .executorIndex = 2,
         .templateId = 3,
-        .authType = static_cast<OHOS::HDI::UserAuth::V1_0::AuthType>(4),
+        .authType = static_cast<HdiAuthType>(4),
         .executorMatcher = 5,
         .executorSensorHint = 6,
     };
@@ -138,11 +136,11 @@ HWTEST_F(CredentialInfoTest, GetExecutorSensorHint, TestSize.Level0)
 HWTEST_F(CredentialInfoTest, GetExecutorMatcher, TestSize.Level0)
 {
     int32_t userId = 100;
-    HdiCredential info = {
+    HdiCredentialInfo info = {
         .credentialId = 1,
         .executorIndex = 2,
         .templateId = 3,
-        .authType = static_cast<OHOS::HDI::UserAuth::V1_0::AuthType>(4),
+        .authType = static_cast<HdiAuthType>(4),
         .executorMatcher = 5,
         .executorSensorHint = 6,
     };

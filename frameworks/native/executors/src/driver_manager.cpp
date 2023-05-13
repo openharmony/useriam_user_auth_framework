@@ -35,6 +35,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+using namespace HDI::ServiceManager::V1_0;
 const char IAM_EVENT_KEY[] = "bootevent.useriam.fwkready";
 DriverManager::DriverManager()
 {

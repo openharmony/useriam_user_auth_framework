@@ -13,6 +13,13 @@
 
 import("//build/ohos.gni")
 
+if (!defined(global_parts_info) ||
+    defined(global_parts_info.account_os_account)) {
+  has_os_account_part = true
+} else {
+  has_os_account_part = false
+}
+
 config("userauth_service_core_config") {
   include_dirs = [
     "inc",
@@ -41,6 +48,7 @@ ohos_source_set("userauth_service_core") {
     "src/schedule_node_helper.cpp",
     "src/schedule_node_impl.cpp",
     "src/secure_user_info_impl.cpp",
+    "src/template_cache_manager.cpp",
     "src/user_idm_database_impl.cpp",
     "src/user_idm_session_controller_impl.cpp",
   ]
@@ -52,14 +60,22 @@ ohos_source_set("userauth_service_core") {
   ]
 
   external_deps = [
+    "ability_base:want",
     "c_utils:utils",
-    "drivers_interface_user_auth:libuser_auth_proxy_1.0",
+    "common_event_service:cesfwk_innerkits",
+    "drivers_interface_user_auth:libuser_auth_proxy_1.1",
     "hilog_native:libhilog",
     "hitrace_native:hitrace_meter",
     "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
   ]
+
+  if (has_os_account_part) {
+    cflags_cc = [ "-DHAS_OS_ACCOUNT_PART" ]
+    external_deps += [ "os_account:os_account_innerkits" ]
+  }
 
   public_configs = [ ":userauth_service_core_config" ]
 

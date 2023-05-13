@@ -125,6 +125,8 @@ ResultCode FrameworkExecutorCallback::OnSetPropertyInner(const Attributes &prope
     ResultCode ret;
     if (commandId == PROPERTY_MODE_DEL) {
         ret = ProcessDeleteTemplateCommand(properties);
+    } else if (commandId == PROPERTY_MODE_SET_CACHED_TEMPLATES) {
+        ret = ProcessSetCachedTemplates(properties);
     } else {
         ret = ProcessCustomCommand(properties);
     }
@@ -157,7 +159,8 @@ ResultCode FrameworkExecutorCallback::OnGetPropertyInner(std::shared_ptr<Attribu
         IAM_LOGE("command id not recognised");
         return ResultCode::GENERAL_ERROR;
     }
-    ResultCode ret = ProcessGetTemplateCommand(conditions, values);
+
+    ResultCode ret = ProcessGetPropertyCommand(conditions, values);
     IAM_LOGI("command id = %{public}u ret = %{public}d", commandId, ret);
     return ret;
 }
@@ -219,6 +222,24 @@ ResultCode FrameworkExecutorCallback::ProcessDeleteTemplateCommand(const Attribu
     return ret;
 }
 
+ResultCode FrameworkExecutorCallback::ProcessSetCachedTemplates(const Attributes &properties)
+{
+    IAM_LOGI("start");
+    auto executor = executor_.lock();
+    if (executor == nullptr) {
+        IAM_LOGE("executor has been released, process failed");
+        return ResultCode::GENERAL_ERROR;
+    }
+    auto hdi = executor->GetExecutorHdi();
+    IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, ResultCode::GENERAL_ERROR);
+
+    std::vector<uint64_t> templateIdList;
+    bool getTemplateIdListRet = properties.GetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIdList);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getTemplateIdListRet == true, ResultCode::GENERAL_ERROR);
+
+    return hdi->SetCachedTemplates(templateIdList);
+}
+
 ResultCode FrameworkExecutorCallback::ProcessCustomCommand(const Attributes &properties)
 {
     auto command = Common::MakeShared<CustomCommand>(executor_, properties);
@@ -232,8 +253,8 @@ ResultCode FrameworkExecutorCallback::ProcessCustomCommand(const Attributes &pro
     return command->GetResult();
 }
 
-ResultCode FrameworkExecutorCallback::ProcessGetTemplateCommand(
-    std::shared_ptr<Attributes> conditions, std::shared_ptr<Attributes> values)
+ResultCode FrameworkExecutorCallback::ProcessGetPropertyCommand(std::shared_ptr<Attributes> conditions,
+    std::shared_ptr<Attributes> values)
 {
     IAM_LOGI("start");
     IF_FALSE_LOGE_AND_RETURN_VAL(conditions != nullptr, ResultCode::GENERAL_ERROR);
@@ -245,22 +266,71 @@ ResultCode FrameworkExecutorCallback::ProcessGetTemplateCommand(
     }
     auto hdi = executor->GetExecutorHdi();
     IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, ResultCode::GENERAL_ERROR);
-    uint64_t templateId = 0;
-    bool getAuthTemplateIdRet = conditions->GetUint64Value(Attributes::ATTR_TEMPLATE_ID, templateId);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getAuthTemplateIdRet == true, ResultCode::GENERAL_ERROR);
-    TemplateInfo templateInfo = {};
-    ResultCode ret = hdi->GetTemplateInfo(templateId, templateInfo);
-    IF_FALSE_LOGE_AND_RETURN_VAL(ret == SUCCESS, ret);
-    int32_t subType = 0;
-    Common::UnpackInt32(templateInfo.extraInfo, 0, subType);
-    bool setAuthSubTypeRet = values->SetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, subType);
-    IF_FALSE_LOGE_AND_RETURN_VAL(setAuthSubTypeRet == true, ResultCode::GENERAL_ERROR);
-    bool setAuthRemainTimeRet =
-        values->SetInt32Value(Attributes::ATTR_FREEZING_TIME, templateInfo.freezingTime);
-    IF_FALSE_LOGE_AND_RETURN_VAL(setAuthRemainTimeRet == true, ResultCode::GENERAL_ERROR);
-    bool setAuthRemainCountRet =
-        values->SetInt32Value(Attributes::ATTR_REMAIN_TIMES, templateInfo.remainTimes);
-    IF_FALSE_LOGE_AND_RETURN_VAL(setAuthRemainCountRet == true, ResultCode::GENERAL_ERROR);
+
+    std::vector<uint64_t> templateIdList;
+    bool getTemplateIdListRet = conditions->GetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIdList);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getTemplateIdListRet == true, ResultCode::GENERAL_ERROR);
+
+    std::vector<uint32_t> uint32KeyList;
+    bool getKeyListRet = conditions->GetUint32ArrayValue(Attributes::ATTR_KEY_LIST, uint32KeyList);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getKeyListRet == true, ResultCode::GENERAL_ERROR);
+
+    std::vector<Attributes::AttributeKey> keyList;
+    keyList.reserve(uint32KeyList.size());
+    for (auto &uint32Key : uint32KeyList) {
+        keyList.push_back(static_cast<Attributes::AttributeKey>(uint32Key));
+    }
+
+    Property property = {};
+
+    ResultCode getPropertyRet = hdi->GetProperty(templateIdList, keyList, property);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getPropertyRet == SUCCESS, ResultCode::GENERAL_ERROR);
+
+    ResultCode fillAttributeRet = FillPropertyToAttribute(keyList, property, values);
+    IF_FALSE_LOGE_AND_RETURN_VAL(fillAttributeRet == SUCCESS, ResultCode::GENERAL_ERROR);
+
+    return ResultCode::SUCCESS;
+}
+
+ResultCode FrameworkExecutorCallback::FillPropertyToAttribute(const std::vector<Attributes::AttributeKey> &keyList,
+    const Property property, std::shared_ptr<Attributes> values)
+{
+    for (auto &key : keyList) {
+        switch (key) {
+            case Attributes::ATTR_PIN_SUB_TYPE: {
+                bool setAuthSubTypeRet = values->SetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, property.authSubType);
+                IF_FALSE_LOGE_AND_RETURN_VAL(setAuthSubTypeRet == true, ResultCode::GENERAL_ERROR);
+                break;
+            }
+            case Attributes::ATTR_FREEZING_TIME: {
+                bool setAuthRemainTimeRet =
+                    values->SetInt32Value(Attributes::ATTR_FREEZING_TIME, property.lockoutDuration);
+                IF_FALSE_LOGE_AND_RETURN_VAL(setAuthRemainTimeRet == true, ResultCode::GENERAL_ERROR);
+                break;
+            }
+            case Attributes::ATTR_REMAIN_TIMES: {
+                bool setAuthRemainCountRet =
+                    values->SetInt32Value(Attributes::ATTR_REMAIN_TIMES, property.remainAttempts);
+                IF_FALSE_LOGE_AND_RETURN_VAL(setAuthRemainCountRet == true, ResultCode::GENERAL_ERROR);
+                break;
+            }
+            case Attributes::ATTR_ENROLL_PROGRESS: {
+                bool setEnrollProgressRet =
+                    values->SetStringValue(Attributes::ATTR_ENROLL_PROGRESS, property.enrollmentProgress);
+                IF_FALSE_LOGE_AND_RETURN_VAL(setEnrollProgressRet == true, ResultCode::GENERAL_ERROR);
+                break;
+            }
+            case Attributes::ATTR_SENSOR_INFO: {
+                bool setSensorInfoRet = values->SetStringValue(Attributes::ATTR_SENSOR_INFO, property.sensorInfo);
+                IF_FALSE_LOGE_AND_RETURN_VAL(setSensorInfoRet == true, ResultCode::GENERAL_ERROR);
+                break;
+            }
+            default:
+                IAM_LOGE("key %{public}d is not recognized", key);
+                return ResultCode::GENERAL_ERROR;
+        }
+    }
+
     return ResultCode::SUCCESS;
 }
 

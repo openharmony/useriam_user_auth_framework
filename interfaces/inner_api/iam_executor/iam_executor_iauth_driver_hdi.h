@@ -51,6 +51,11 @@ public:
      * @param executorList The list of executor.
      */
     virtual void GetExecutorList(std::vector<std::shared_ptr<UserAuth::IAuthExecutorHdi>> &executorList) = 0;
+
+    /**
+     * @brief On hdi disconnect.
+     */
+    virtual void OnHdiDisconnect() = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam

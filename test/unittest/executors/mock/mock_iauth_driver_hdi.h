@@ -29,6 +29,7 @@ using namespace OHOS::UserIam::UserAuth;
 class MockIAuthDriverHdi : public IAuthDriverHdi {
 public:
     MOCK_METHOD1(GetExecutorList, void(std::vector<std::shared_ptr<IAuthExecutorHdi>> &executorList));
+    MOCK_METHOD0(OnHdiDisconnect, void());
 };
 } // namespace UserAuth
 } // namespace UserIam

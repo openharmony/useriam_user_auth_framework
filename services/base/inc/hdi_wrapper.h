@@ -20,14 +20,14 @@
 #include <memory>
 
 #include "iremote_object.h"
-#include "v1_0/iuser_auth_interface.h"
+#include "user_auth_hdi.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 class HdiWrapper {
 public:
-    static std::shared_ptr<OHOS::HDI::UserAuth::V1_0::IUserAuthInterface> GetHdiInstance();
+    static std::shared_ptr<IUserAuthInterface> GetHdiInstance();
     static sptr<IRemoteObject> GetHdiRemoteObjInstance();
 };
 } // namespace UserAuth
