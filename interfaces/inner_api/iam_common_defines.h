@@ -24,8 +24,8 @@
 #ifndef IAM_COMMON_DEFINES_H
 #define IAM_COMMON_DEFINES_H
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 namespace OHOS {
 namespace UserIam {
@@ -131,6 +131,8 @@ enum PropertyMode : uint32_t {
     PROPERTY_MODE_FREEZE = 5,
     /** The property mode is unfreeze. */
     PROPERTY_MODE_UNFREEZE = 6,
+    /** The property mode is set cached templates. */
+    PROPERTY_MODE_SET_CACHED_TEMPLATES = 7,
 };
 
 /**

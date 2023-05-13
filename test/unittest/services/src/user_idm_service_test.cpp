@@ -35,15 +35,6 @@ namespace UserIam {
 namespace UserAuth {
 using namespace testing;
 using namespace testing::ext;
-
-using HdiCredentialInfo = OHOS::HDI::UserAuth::V1_0::CredentialInfo;
-using HdiEnrolledInfo = OHOS::HDI::UserAuth::V1_0::EnrolledInfo;
-using HdiExecutorInfo = OHOS::HDI::UserAuth::V1_0::ExecutorInfo;
-using HdiAuthType = OHOS::HDI::UserAuth::V1_0::AuthType;
-using HdiPinSubType = OHOS::HDI::UserAuth::V1_0::PinSubType;
-using HdiEnrollParam = OHOS::HDI::UserAuth::V1_0::EnrollParam;
-using HdiScheduleInfo = OHOS::HDI::UserAuth::V1_0::ScheduleInfo;
-
 void UserIdmServiceTest::SetUpTestCase()
 {
 }
@@ -357,7 +348,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential002, TestSize.Level0)
         );
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, BeginEnrollment(_, _, _, _)).WillRepeatedly(Return(HDF_FAILURE));
+    EXPECT_CALL(*mockHdi, BeginEnrollmentV1_1(_, _, _, _)).WillRepeatedly(Return(HDF_FAILURE));
     
     service.AddCredential(testUserId, testCredPara, testCallback, false);
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
@@ -391,7 +382,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential003, TestSize.Level0)
     
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, BeginEnrollment(_, _, _, _))
+    EXPECT_CALL(*mockHdi, BeginEnrollmentV1_1(_, _, _, _))
         .WillOnce(
             [&context](int32_t userId, const std::vector<uint8_t> &authToken, const HdiEnrollParam &param,
                 HdiScheduleInfo &info) {
@@ -522,7 +513,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUpdateCredential002, TestSize.Level0)
             }
         );
     
-    EXPECT_CALL(*mockHdi, BeginEnrollment(_, _, _, _)).WillOnce(Return(HDF_FAILURE));
+    EXPECT_CALL(*mockHdi, BeginEnrollmentV1_1(_, _, _, _)).WillOnce(Return(HDF_FAILURE));
 
     service.UpdateCredential(testUserId, testCredPara, testCallback);
 

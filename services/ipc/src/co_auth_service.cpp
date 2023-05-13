@@ -33,6 +33,7 @@
 #include "parameter.h"
 #include "relative_timer.h"
 #include "resource_node_pool.h"
+#include "template_cache_manager.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
@@ -105,6 +106,8 @@ uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<
             UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), executorDesc);
         }));
     }
+    IAM_LOGI("update template cache after register success");
+    TemplateCacheManager::GetInstance().UpdateTemplateCache(resourceNode->GetAuthType());
     return executorIndex;
 }
 

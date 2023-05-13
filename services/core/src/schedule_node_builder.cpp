@@ -18,9 +18,9 @@
 
 #include "nocopyable.h"
 
+#include "iam_common_defines.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
-#include "iam_common_defines.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
@@ -102,6 +102,18 @@ std::shared_ptr<Builder> ScheduleNodeBuilder::SetParametersAttributes(const std:
 std::shared_ptr<Builder> ScheduleNodeBuilder::SetThreadHandler(const std::shared_ptr<ThreadHandler> &threadHandler)
 {
     info_.threadHandler = threadHandler;
+    return shared_from_this();
+}
+
+std::shared_ptr<Builder> ScheduleNodeBuilder::SetEndAfterFirstFail(const bool endAfterFirstFail)
+{
+    info_.endAfterFirstFail = endAfterFirstFail;
+    return shared_from_this();
+}
+
+std::shared_ptr<Builder> ScheduleNodeBuilder::SetExtraInfo(const std::vector<uint8_t> &extraInfo)
+{
+    info_.extraInfo = extraInfo;
     return shared_from_this();
 }
 

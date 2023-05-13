@@ -57,8 +57,10 @@ private:
     ResultCode ProcessIdentifyCommand(uint64_t scheduleId, const Attributes &properties);
     ResultCode ProcessCancelCommand(uint64_t scheduleId);
     ResultCode ProcessDeleteTemplateCommand(const Attributes &properties);
+    ResultCode ProcessSetCachedTemplates(const Attributes &properties);
     ResultCode ProcessCustomCommand(const Attributes &properties);
-    ResultCode ProcessGetTemplateCommand(std::shared_ptr<Attributes> conditions,
+    ResultCode ProcessGetPropertyCommand(std::shared_ptr<Attributes> conditions, std::shared_ptr<Attributes> values);
+    ResultCode FillPropertyToAttribute(const std::vector<Attributes::AttributeKey> &keyList, const Property property,
         std::shared_ptr<Attributes> values);
     const char *GetDescription();
     std::shared_ptr<ExecutorMessenger> executorMessenger_;

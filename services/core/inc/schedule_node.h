@@ -20,8 +20,8 @@
 #include <memory>
 #include <optional>
 
-#include "iam_common_defines.h"
 #include "finite_state_machine.h"
+#include "iam_common_defines.h"
 #include "resource_node.h"
 #include "schedule_node_callback.h"
 #include "thread_handler.h"
@@ -89,6 +89,8 @@ public:
     virtual std::shared_ptr<Builder> SetExpiredTime(uint32_t ms) = 0;
     virtual std::shared_ptr<Builder> SetParametersAttributes(const std::shared_ptr<Attributes> &parameters) = 0;
     virtual std::shared_ptr<Builder> SetThreadHandler(const std::shared_ptr<ThreadHandler> &threadHandler) = 0;
+    virtual std::shared_ptr<Builder> SetEndAfterFirstFail(const bool endAfterFirstFail) = 0;
+    virtual std::shared_ptr<Builder> SetExtraInfo(const std::vector<uint8_t> &extraInfo) = 0;
     virtual std::shared_ptr<ScheduleNode> Build() = 0;
 };
 } // namespace UserAuth

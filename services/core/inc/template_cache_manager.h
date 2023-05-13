@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,31 +13,36 @@
  * limitations under the License.
  */
 
-#include "hdi_wrapper.h"
+#ifndef TEMPLATE_CACHE_MANAGER
+#define TEMPLATE_CACHE_MANAGER
 
-#include "iam_ptr.h"
-#include "iproxy_broker.h"
+#include <memory>
+#include <mutex>
+
+#include "iam_common_defines.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-std::shared_ptr<IUserAuthInterface> HdiWrapper::GetHdiInstance()
-{
-    auto hdi = IUserAuthInterface::Get();
-    if (!hdi) {
-        return nullptr;
-    }
-    return Common::SptrToStdSharedPtr<IUserAuthInterface>(hdi);
-}
+class TemplateCacheManager {
+public:
+    static TemplateCacheManager &GetInstance();
+    void ProcessUserIdChange();
+    void UpdateTemplateCache(AuthType authType);
 
-sptr<IRemoteObject> HdiWrapper::GetHdiRemoteObjInstance()
-{
-    auto hdi = IUserAuthInterface::Get();
-    if (!hdi) {
-        return nullptr;
-    }
-    return HDI::hdi_objcast<IUserAuthInterface>(hdi);
-}
+private:
+    TemplateCacheManager();
+    ~TemplateCacheManager() = default;
+
+    int32_t GetCurrentUserId();
+
+    static const int INVALID_USER_ID = INT_MAX;
+
+    std::recursive_mutex recursiveMutex_;
+    int currUserId_ = INVALID_USER_ID;
+};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
+
+#endif // TEMPLATE_CACHE_MANAGER

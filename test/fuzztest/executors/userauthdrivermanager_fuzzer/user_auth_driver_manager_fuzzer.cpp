@@ -58,19 +58,6 @@ public:
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
-    ResultCode GetTemplateInfo(uint64_t templateId, UserAuth::TemplateInfo &templateInfo) override
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        if (fuzzParcel_ == nullptr) {
-            return ResultCode::GENERAL_ERROR;
-        }
-        templateInfo.executorType = fuzzParcel_->ReadUint32();
-        templateInfo.freezingTime = fuzzParcel_->ReadInt32();
-        templateInfo.remainTimes = fuzzParcel_->ReadInt32();
-        FillFuzzUint8Vector(*fuzzParcel_, templateInfo.extraInfo);
-        return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
-    }
-
     ResultCode OnRegisterFinish(const std::vector<uint64_t> &templateIdList,
         const std::vector<uint8_t> &frameworkPublicKey, const std::vector<uint8_t> &extraInfo) override
     {
@@ -81,13 +68,9 @@ public:
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
-    ResultCode Enroll(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
+    ResultCode Enroll(uint64_t scheduleId, const EnrollParam &param,
         const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) override
     {
-        static_cast<void>(scheduleId);
-        static_cast<void>(tokenId);
-        static_cast<void>(extraInfo);
-        static_cast<void>(callbackObj);
         std::lock_guard<std::mutex> lock(mutex_);
         if (fuzzParcel_ == nullptr) {
             return ResultCode::GENERAL_ERROR;
@@ -95,14 +78,9 @@ public:
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
-    ResultCode Authenticate(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint64_t> &templateIdList,
-        const std::vector<uint8_t> &extraInfo, const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) override
+    ResultCode Authenticate(uint64_t scheduleId, const AuthenticateParam &param,
+        const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) override
     {
-        static_cast<void>(scheduleId);
-        static_cast<void>(tokenId);
-        static_cast<void>(templateIdList);
-        static_cast<void>(extraInfo);
-        static_cast<void>(callbackObj);
         std::lock_guard<std::mutex> lock(mutex_);
         if (fuzzParcel_ == nullptr) {
             return ResultCode::GENERAL_ERROR;
@@ -110,13 +88,9 @@ public:
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
-    ResultCode Identify(uint64_t scheduleId, uint32_t tokenId, const std::vector<uint8_t> &extraInfo,
+    ResultCode Identify(uint64_t scheduleId, const IdentifyParam &param,
         const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) override
     {
-        static_cast<void>(scheduleId);
-        static_cast<void>(tokenId);
-        static_cast<void>(extraInfo);
-        static_cast<void>(callbackObj);
         std::lock_guard<std::mutex> lock(mutex_);
         if (fuzzParcel_ == nullptr) {
             return ResultCode::GENERAL_ERROR;
@@ -144,6 +118,30 @@ public:
 
     ResultCode SendCommand(PropertyMode commandId, const std::vector<uint8_t> &extraInfo,
         const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) override
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (fuzzParcel_ == nullptr) {
+            return ResultCode::GENERAL_ERROR;
+        }
+        return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
+    }
+
+    ResultCode GetProperty(const std::vector<uint64_t> &templateIdList,
+        const std::vector<Attributes::AttributeKey> &keys, Property &property) override
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (fuzzParcel_ == nullptr) {
+            return ResultCode::GENERAL_ERROR;
+        }
+        property.authSubType = fuzzParcel_->ReadUint64();
+        property.lockoutDuration = fuzzParcel_->ReadInt32();
+        property.remainAttempts = fuzzParcel_->ReadInt32();
+        property.enrollmentProgress = fuzzParcel_->ReadString();
+        property.sensorInfo = fuzzParcel_->ReadString();
+        return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
+    }
+
+    ResultCode SetCachedTemplates(const std::vector<uint64_t> &templateIdList) override
     {
         std::lock_guard<std::mutex> lock(mutex_);
         if (fuzzParcel_ == nullptr) {
@@ -187,6 +185,11 @@ public:
             }
             executorList.push_back(g_executorHdi);
         }
+        return;
+    }
+
+    void OnHdiDisconnect()
+    {
         return;
     }
 

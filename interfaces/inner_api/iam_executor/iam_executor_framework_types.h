@@ -25,6 +25,7 @@
 #define IAM_EXECUTOR_FRAMEWORK_TYPES_H
 
 #include <cstdint>
+#include <string>
 #include <vector>
 
 namespace OHOS {
@@ -53,6 +54,57 @@ struct TemplateInfo {
     /** Extra Info. */
     std::vector<uint8_t> extraInfo;
 };
+
+/**
+ * @brief Defines Enroll parameter.
+ */
+struct EnrollParam {
+    /** Token id. */
+    uint32_t tokenId;
+    /** Extra info. */
+    std::vector<uint8_t> extraInfo;
+};
+
+/**
+ * @brief Defines Authenticate parameter.
+ */
+struct AuthenticateParam {
+    /** Token id. */
+    uint32_t tokenId;
+    /** Template id list. */
+    std::vector<uint64_t> templateIdList;
+    /** Extra info. */
+    std::vector<uint8_t> extraInfo;
+    /** End after first fail. */
+    bool endAfterFirstFail;
+};
+
+/**
+ * @brief Defines Identify parameter.
+ */
+struct IdentifyParam {
+    /** Token id. */
+    uint32_t tokenId;
+    /** Extra info. */
+    std::vector<uint8_t> extraInfo;
+};
+
+/**
+ * @brief Defines Property.
+ */
+struct Property {
+    /** Auth sub type. */
+    uint64_t authSubType;
+    /** Lockout duration. */
+    int lockoutDuration;
+    /** Remain attempts. */
+    int remainAttempts;
+    /** Enroll progress. */
+    std::string enrollmentProgress;
+    /** Sensor info. */
+    std::string sensorInfo;
+};
+
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

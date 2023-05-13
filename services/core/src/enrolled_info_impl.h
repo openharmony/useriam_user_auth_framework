@@ -26,7 +26,6 @@ namespace UserIam {
 namespace UserAuth {
 class EnrolledInfoImpl final : public EnrolledInfoInterface, public NoCopyable {
 public:
-    using HdiEnrolledInfo = OHOS::HDI::UserAuth::V1_0::EnrolledInfo;
     EnrolledInfoImpl(int32_t userId, const HdiEnrolledInfo &info);
     ~EnrolledInfoImpl() override = default;
     AuthType GetAuthType() const override;

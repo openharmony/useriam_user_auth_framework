@@ -30,11 +30,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-using HdiEnrolledInfo = OHOS::HDI::UserAuth::V1_0::EnrolledInfo;
-using HdiAuthType = OHOS::HDI::UserAuth::V1_0::AuthType;
-using HdiCredentialInfo = OHOS::HDI::UserAuth::V1_0::CredentialInfo;
-using HdiPinSubType = OHOS::HDI::UserAuth::V1_0::PinSubType;
-
 std::shared_ptr<SecureUserInfoInterface> UserIdmDatabaseImpl::GetSecUserInfo(int32_t userId)
 {
     auto hdi = HdiWrapper::GetHdiInstance();

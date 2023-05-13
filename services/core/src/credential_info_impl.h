@@ -26,8 +26,7 @@ namespace UserIam {
 namespace UserAuth {
 class CredentialInfoImpl final : public CredentialInfoInterface, public NoCopyable {
 public:
-    using HdiCredential = OHOS::HDI::UserAuth::V1_0::CredentialInfo;
-    CredentialInfoImpl(int32_t userId, const HdiCredential &info);
+    CredentialInfoImpl(int32_t userId, const HdiCredentialInfo &info);
     ~CredentialInfoImpl() override = default;
     uint64_t GetCredentialId() const override;
     int32_t GetUserId() const override;
@@ -39,7 +38,7 @@ public:
 
 private:
     int32_t userId_;
-    HdiCredential info_;
+    HdiCredentialInfo info_;
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -49,7 +49,7 @@ ohos_fuzztest("CoAuthServiceFuzzTest") {
 
   external_deps = [
     "c_utils:utils",
-    "drivers_interface_user_auth:libuser_auth_proxy_1.0",
+    "drivers_interface_user_auth:libuser_auth_proxy_1.1",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_single",

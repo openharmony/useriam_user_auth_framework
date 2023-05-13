@@ -28,11 +28,11 @@ namespace UserIam {
 namespace UserAuth {
 class ScheduleNodeHelper {
 public:
-    using HdiScheduleInfo = OHOS::HDI::UserAuth::V1_0::ScheduleInfo;
     struct NodeOptionalPara {
         std::optional<uint32_t> expire;
         std::optional<uint32_t> tokenId;
         std::optional<PinSubType> pinSubType;
+        std::optional<bool> endAfterFirstFail;
     };
 
     static bool BuildFromHdi(const std::vector<HdiScheduleInfo> &infos, std::shared_ptr<ScheduleNodeCallback> callback,

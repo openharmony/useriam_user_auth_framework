@@ -29,8 +29,8 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-using namespace HDI::ServiceManager::V1_0;
-
+using ServStatListenerStub = HDI::ServiceManager::V1_0::ServStatListenerStub;
+using ServiceStatus = HDI::ServiceManager::V1_0::ServiceStatus;
 class DriverManager : public Singleton<DriverManager> {
 public:
     DriverManager();
@@ -52,7 +52,7 @@ private:
     sptr<HdiServiceStatusListener> hdiServiceStatusListener_ {nullptr};
 };
 
-class DriverManager ::HdiServiceStatusListener : public ServStatListenerStub {
+class DriverManager::HdiServiceStatusListener : public ServStatListenerStub {
 public:
     using StatusCallback = std::function<void(const ServiceStatus &)>;
     explicit HdiServiceStatusListener(StatusCallback callback) : callback_(std::move(callback))
