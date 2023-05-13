@@ -189,8 +189,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientSetProperty002, TestSize.Level0)
     int32_t testUserId = 200;
     SetPropertyRequest testRequest = {};
     testRequest.authType = PIN;
-    testRequest.mode = PROPERTY_MODE_DEL;
-    EXPECT_EQ(testRequest.attrs.SetInt32Value(Attributes::ATTR_RESULT_CODE, FAIL), true);
+    testRequest.mode = PROPERTY_INIT_ALGORITHM;
+    EXPECT_EQ(testRequest.attrs.SetInt32Value(static_cast<Attributes::AttributeKey>(testRequest.mode), FAIL), true);
     auto testCallback = Common::MakeShared<MockSetPropCallback>();
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
