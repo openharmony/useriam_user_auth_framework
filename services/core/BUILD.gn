@@ -60,9 +60,7 @@ ohos_source_set("userauth_service_core") {
   ]
 
   external_deps = [
-    "ability_base:want",
     "c_utils:utils",
-    "common_event_service:cesfwk_innerkits",
     "drivers_interface_user_auth:libuser_auth_proxy_1.1",
     "hilog_native:libhilog",
     "hitrace_native:hitrace_meter",
