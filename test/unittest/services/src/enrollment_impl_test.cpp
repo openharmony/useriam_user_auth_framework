@@ -27,14 +27,6 @@ namespace UserIam {
 namespace UserAuth {
 using namespace testing;
 using namespace testing::ext;
-
-using HdiAuthType = OHOS::HDI::UserAuth::V1_0::AuthType;
-using HdiEnrollParam = OHOS::HDI::UserAuth::V1_0::EnrollParam;
-using HdiExecutorInfo = OHOS::HDI::UserAuth::V1_0::ExecutorInfo;
-using HdiScheduleInfo = OHOS::HDI::UserAuth::V1_0::ScheduleInfo;
-using HdiExecutorRole = OHOS::HDI::UserAuth::V1_0::ExecutorRole;
-using HdiScheduleMode = OHOS::HDI::UserAuth::V1_0::ScheduleMode;
-using HdiExecutorSecureLevel = OHOS::HDI::UserAuth::V1_0::ExecutorSecureLevel;
 class EnrollmentImplTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -68,7 +60,7 @@ HWTEST_F(EnrollmentImplTest, EnrollmentHdiError, TestSize.Level0)
 {
     constexpr int32_t userId = 0x11;
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_CALL(*mock, BeginEnrollment(userId, _, _, _)).WillRepeatedly(Return(1));
+    EXPECT_CALL(*mock, BeginEnrollmentV1_1(userId, _, _, _)).WillRepeatedly(Return(1));
 
     auto enrollment = std::make_shared<EnrollmentImpl>(userId, FACE);
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
@@ -80,7 +72,7 @@ HWTEST_F(EnrollmentImplTest, EnrollmentHdiEmpty, TestSize.Level0)
     constexpr int32_t userId = 0x11;
 
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_CALL(*mock, BeginEnrollment(userId, _, _, _)).WillRepeatedly(Return(0));
+    EXPECT_CALL(*mock, BeginEnrollmentV1_1(userId, _, _, _)).WillRepeatedly(Return(0));
 
     auto enroll = std::make_shared<EnrollmentImpl>(userId, FACE);
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
@@ -111,8 +103,6 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiError, TestSize.Level0)
 
 HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful_001, TestSize.Level0)
 {
-    using HdiCredentialInfo = OHOS::HDI::UserAuth::V1_0::CredentialInfo;
-    using HdiEnrollResultInfo = OHOS::HDI::UserAuth::V1_0::EnrollResultInfo;
     constexpr int32_t userId = 0x11;
     constexpr uint64_t credentialIdRet = 0x12;
     std::vector<uint8_t> scheduleResult = {1, 2, 3};
@@ -123,7 +113,7 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful_001, TestSize.Level0)
             .credentialId = 1,
             .executorIndex = 2,
             .templateId = 3,
-            .authType = static_cast<OHOS::HDI::UserAuth::V1_0::AuthType>(0),
+            .authType = static_cast<HdiAuthType>(0),
             .executorMatcher = 5,
             .executorSensorHint = 6,
         };
@@ -157,8 +147,6 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful_001, TestSize.Level0)
 
 HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful_002, TestSize.Level0)
 {
-    using HdiCredentialInfo = OHOS::HDI::UserAuth::V1_0::CredentialInfo;
-
     int32_t userId = 1206;
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_CALL(*mock, UpdateEnrollmentResult(_, _, _)).WillRepeatedly(Return(0));
@@ -207,7 +195,7 @@ HWTEST_F(EnrollmentImplTest, EnrollmentImplTestStart_001, TestSize.Level0)
         .Times(2)
         .WillOnce(Return(HDF_SUCCESS))
         .WillOnce(Return(HDF_FAILURE));
-    EXPECT_CALL(*mockHdi, BeginEnrollment(_, _, _, _))
+    EXPECT_CALL(*mockHdi, BeginEnrollmentV1_1(_, _, _, _))
         .WillRepeatedly(
             [](int32_t userId, const std::vector<uint8_t> &authToken, const HdiEnrollParam &param,
                 HdiScheduleInfo &info) {
@@ -247,13 +235,9 @@ HWTEST_F(EnrollmentImplTest, EnrollmentImplTestStart_001, TestSize.Level0)
 
 HWTEST_F(EnrollmentImplTest, EnrollmentImplTestStart_002, TestSize.Level0)
 {
-    using HdiAuthType = OHOS::HDI::UserAuth::V1_0::AuthType;
-    using HdiPinSubType = OHOS::HDI::UserAuth::V1_0::PinSubType;
-    using HdiEnrolledInfo = OHOS::HDI::UserAuth::V1_0::EnrolledInfo;
-
     uint64_t userId = 34567;
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_CALL(*mock, BeginEnrollment(_, _, _, _)).WillRepeatedly(Return(1));
+    EXPECT_CALL(*mock, BeginEnrollmentV1_1(_, _, _, _)).WillRepeatedly(Return(1));
     EXPECT_CALL(*mock, GetUserInfo(_, _, _, _))
         .WillOnce(Return(1))
         .WillRepeatedly(

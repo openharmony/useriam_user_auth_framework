@@ -21,20 +21,20 @@
 #include "context_factory.h"
 #include "context_helper.h"
 #include "hdi_wrapper.h"
+#include "iam_common_defines.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
 #include "ipc_common.h"
-#include "iam_common_defines.h"
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
-    const uint64_t BAD_CONTEXT_ID = 0;
-    const int32_t MINIMUM_VERSION = 0;
-    const int32_t CURRENT_VERSION = 1;
-    const uint32_t AUTH_TRUST_LEVEL_SYS = 1;
+const uint64_t BAD_CONTEXT_ID = 0;
+const int32_t MINIMUM_VERSION = 0;
+const int32_t CURRENT_VERSION = 1;
+const uint32_t AUTH_TRUST_LEVEL_SYS = 1;
 } // namespace
 
 REGISTER_SYSTEM_ABILITY_BY_ID(UserAuthService, SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true);
@@ -81,7 +81,7 @@ int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authTyp
     }
     uint32_t supportedAtl = AUTH_TRUST_LEVEL_SYS;
     int32_t result =
-        hdi->GetAuthTrustLevel(userId, static_cast<HDI::UserAuth::V1_0::AuthType>(authType), supportedAtl);
+        hdi->GetAuthTrustLevel(userId, static_cast<HdiAuthType>(authType), supportedAtl);
     if (result != SUCCESS) {
         IAM_LOGE("failed to get current supported authTrustLevel from hdi apiVersion:%{public}d result:%{public}d",
             apiVersion, result);
@@ -116,7 +116,6 @@ void UserAuthService::GetProperty(int32_t userId, AuthType authType,
         return;
     }
     uint64_t executorIndex = credentialInfos[0]->GetExecutorIndex();
-    uint64_t templateId = credentialInfos[0]->GetTemplateId();
 
     auto resourceNode = ResourceNodePool::Instance().Select(executorIndex).lock();
     if (resourceNode == nullptr) {
@@ -124,11 +123,25 @@ void UserAuthService::GetProperty(int32_t userId, AuthType authType,
         callback->OnGetExecutorPropertyResult(GENERAL_ERROR, values);
         return;
     }
+
+    std::vector<uint64_t> templateIds;
+    templateIds.reserve(credentialInfos.size());
+    for (auto &info : credentialInfos) {
+        templateIds.push_back(info->GetTemplateId());
+    }
+
+    std::vector<uint32_t> uint32Keys;
+    uint32Keys.reserve(keys.size());
+    for (auto &key : keys) {
+        uint32Keys.push_back(static_cast<uint32_t>(key));
+    }
+
     Attributes attr;
     attr.SetInt32Value(Attributes::ATTR_AUTH_TYPE, authType);
     attr.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_GET);
-    attr.SetUint64Value(Attributes::ATTR_TEMPLATE_ID, templateId);
+    attr.SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIds);
     attr.SetUint64Value(Attributes::ATTR_CALLER_UID, static_cast<uint64_t>(this->GetCallingUid()));
+    attr.SetUint32ArrayValue(Attributes::ATTR_KEY_LIST, uint32Keys);
 
     int32_t result = resourceNode->GetProperty(attr, values);
     if (result != SUCCESS) {
@@ -258,6 +271,7 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
     para.authType = authType;
     para.atl = authTrustLevel;
     para.challenge = std::move(challenge);
+    para.endAfterFirstFail = true;
     auto context = ContextFactory::CreateSimpleAuthContext(para, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
@@ -303,6 +317,7 @@ uint64_t UserAuthService::AuthUser(int32_t userId, const std::vector<uint8_t> &c
     para.authType = authType;
     para.atl = authTrustLevel;
     para.challenge = std::move(challenge);
+    para.endAfterFirstFail = false;
     auto context = ContextFactory::CreateSimpleAuthContext(para, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");

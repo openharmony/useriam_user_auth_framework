@@ -21,11 +21,6 @@ namespace UserIam {
 namespace UserAuth {
 using namespace testing;
 using namespace testing::ext;
-
-using HdiCredentialInfo = OHOS::HDI::UserAuth::V1_0::CredentialInfo;
-using HDIEnrolledInfo = OHOS::HDI::UserAuth::V1_0::EnrolledInfo;
-using HdiAuthType = OHOS::HDI::UserAuth::V1_0::AuthType;
-
 void UserIdmDatabaseTest::SetUpTestCase()
 {
 }
@@ -59,9 +54,9 @@ HWTEST_F(UserIdmDatabaseTest, FailedGetSecUserInfoNoPin, TestSize.Level0)
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
     constexpr int32_t USER_ID = 100;
     constexpr uint64_t SECURE_UID = 200;
-    auto fillUpInfos = [](std::vector<HDIEnrolledInfo> &list) {
-        std::vector<HDIEnrolledInfo> infos = {};
-        HDIEnrolledInfo info1 = {
+    auto fillUpInfos = [](std::vector<HdiEnrolledInfo> &list) {
+        std::vector<HdiEnrolledInfo> infos = {};
+        HdiEnrolledInfo info1 = {
             .enrolledId = 0,
             .authType = static_cast<HdiAuthType>(2),
         };
@@ -83,8 +78,8 @@ HWTEST_F(UserIdmDatabaseTest, FailedGetSecUserInfoNoEnrolledInfo, TestSize.Level
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
     constexpr int32_t USER_ID = 100;
     constexpr uint64_t SECURE_UID = 200;
-    auto fillUpInfos = [](std::vector<HDIEnrolledInfo> &list) {
-        std::vector<HDIEnrolledInfo> infos = {};
+    auto fillUpInfos = [](std::vector<HdiEnrolledInfo> &list) {
+        std::vector<HdiEnrolledInfo> infos = {};
         list.swap(infos);
     };
 
@@ -103,14 +98,14 @@ HWTEST_F(UserIdmDatabaseTest, SuccessfulGetSecUserInfo, TestSize.Level0)
     constexpr int32_t USER_ID = 100;
     constexpr uint64_t SECURE_UID = 200;
     constexpr PinSubType PIN_SUB_TYPE = PIN_NUMBER;
-    auto fillUpInfos = [](std::vector<HDIEnrolledInfo> &list) {
-        std::vector<HDIEnrolledInfo> infos = {};
-        HDIEnrolledInfo info1 = {
+    auto fillUpInfos = [](std::vector<HdiEnrolledInfo> &list) {
+        std::vector<HdiEnrolledInfo> infos = {};
+        HdiEnrolledInfo info1 = {
             .enrolledId = 0,
             .authType = static_cast<HdiAuthType>(1),
         };
         infos.emplace_back((info1));
-        HDIEnrolledInfo info2 = {
+        HdiEnrolledInfo info2 = {
             .enrolledId = 1,
             .authType = static_cast<HdiAuthType>(2),
         };
@@ -118,7 +113,6 @@ HWTEST_F(UserIdmDatabaseTest, SuccessfulGetSecUserInfo, TestSize.Level0)
         list.swap(infos);
     };
 
-    using HdiPinSubType = OHOS::HDI::UserAuth::V1_0::PinSubType;
     EXPECT_CALL(*mock, GetUserInfo(USER_ID, _, _, _))
         .WillRepeatedly(DoAll(SetArgReferee<1>(SECURE_UID), SetArgReferee<2>(static_cast<HdiPinSubType>(PIN_SUB_TYPE)),
             WithArg<3>(fillUpInfos), Return(0)));

@@ -12,32 +12,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef TEMPLATE_CACHE_MANAGER_TEST
+#define TEMPLATE_CACHE_MANAGER_TEST
 
-#include "hdi_wrapper.h"
-
-#include "iam_ptr.h"
-#include "iproxy_broker.h"
+#include <gtest/gtest.h>
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-std::shared_ptr<IUserAuthInterface> HdiWrapper::GetHdiInstance()
-{
-    auto hdi = IUserAuthInterface::Get();
-    if (!hdi) {
-        return nullptr;
-    }
-    return Common::SptrToStdSharedPtr<IUserAuthInterface>(hdi);
-}
+class TemplateCacheManagerTest : public testing::Test {
+public:
+    static void SetUpTestCase();
 
-sptr<IRemoteObject> HdiWrapper::GetHdiRemoteObjInstance()
-{
-    auto hdi = IUserAuthInterface::Get();
-    if (!hdi) {
-        return nullptr;
-    }
-    return HDI::hdi_objcast<IUserAuthInterface>(hdi);
-}
+    static void TearDownTestCase();
+
+    void SetUp() override;
+
+    void TearDown() override;
+};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
+
+#endif // TEMPLATE_CACHE_MANAGER_TEST

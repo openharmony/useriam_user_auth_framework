@@ -91,7 +91,10 @@ public:
         ATTR_ENROLL_PROGRESS = 100035,
         /** Sensor info, the value type is string. */
         ATTR_SENSOR_INFO = 100036,
-
+        /** Key list, the value type is std::vector<uint32_t>. */
+        ATTR_KEY_LIST = 100037,
+        /** End after first fail, the value type is boolean. */
+        ATTR_END_AFTER_FIRST_FAIL = 100038,
         /**
          * Private attrs.
          * User ID, the value type is int32_t.

@@ -15,9 +15,9 @@
 
 #include "auth_command.h"
 
-#include "iam_executor_framework_types.h"
 #include "iam_check.h"
 #include "iam_common_defines.h"
+#include "iam_executor_framework_types.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
 #include "iam_ptr.h"
@@ -44,16 +44,21 @@ ResultCode AuthCommand::SendRequest()
     IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, ResultCode::GENERAL_ERROR);
 
     std::vector<uint64_t> templateIdList;
-    std::vector<uint8_t> extraInfo;
-    bool getTemplateIdListRet =
-        attributes_->GetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIdList);
+    bool getTemplateIdListRet = attributes_->GetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIdList);
     IF_FALSE_LOGE_AND_RETURN_VAL(getTemplateIdListRet == true, ResultCode::GENERAL_ERROR);
     uint32_t tokenId = 0;
     bool getTokenIdRet = attributes_->GetUint32Value(Attributes::ATTR_ACCESS_TOKEN_ID, tokenId);
     IF_FALSE_LOGE_AND_RETURN_VAL(getTokenIdRet == true, ResultCode::GENERAL_ERROR);
+    bool endAfterFirstFail;
+    bool getEndAfterFirstFailRet = attributes_->GetBoolValue(Attributes::ATTR_END_AFTER_FIRST_FAIL, endAfterFirstFail);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getEndAfterFirstFailRet == true, ResultCode::GENERAL_ERROR);
+    std::vector<uint8_t> extraInfo;
+    bool getExtraInfoRet = attributes_->GetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, extraInfo);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getExtraInfoRet == true, ResultCode::GENERAL_ERROR);
 
     IamHitraceHelper traceHelper("hdi Authenticate");
-    ResultCode ret = hdi->Authenticate(scheduleId_, tokenId, templateIdList, extraInfo, shared_from_this());
+    ResultCode ret = hdi->Authenticate(scheduleId_,
+        (AuthenticateParam) { tokenId, templateIdList, extraInfo, endAfterFirstFail }, shared_from_this());
     IAM_LOGI("%{public}s authenticate result %{public}d", GetDescription(), ret);
     return ret;
 }

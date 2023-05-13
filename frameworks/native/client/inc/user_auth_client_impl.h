@@ -46,6 +46,9 @@ public:
     int32_t GetVersion(int32_t &version);
 
 private:
+    ResultCode SetPropertyInner(int32_t userId, const SetPropertyRequest &request,
+        const std::shared_ptr<SetPropCallback> &callback);
+
     friend class UserAuthClient;
     UserAuthClientImpl() = default;
     ~UserAuthClientImpl() override = default;

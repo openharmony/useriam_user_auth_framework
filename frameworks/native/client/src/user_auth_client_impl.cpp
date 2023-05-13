@@ -17,6 +17,7 @@
 
 #include "system_ability_definition.h"
 
+#include "iam_check.h"
 #include "iam_logger.h"
 #include "ipc_client_utils.h"
 #include "user_auth_callback_service.h"
@@ -25,6 +26,9 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+namespace {
+constexpr uint32_t VENDOR_COMMAND_BASE = 10000;
+}
 int32_t UserAuthClientImpl::GetAvailableStatus(AuthType authType, AuthTrustLevel authTrustLevel)
 {
     return GetAvailableStatus(INT32_MAX, authType, authTrustLevel);
@@ -68,6 +72,42 @@ void UserAuthClientImpl::GetProperty(int32_t userId, const GetPropertyRequest &r
     proxy->GetProperty(userId, request.authType, request.keys, wrapper);
 }
 
+ResultCode UserAuthClientImpl::SetPropertyInner(int32_t userId, const SetPropertyRequest &request,
+    const std::shared_ptr<SetPropCallback> &callback)
+{
+    auto proxy = GetProxy();
+    if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    auto keys = request.attrs.GetKeys();
+    IF_FALSE_LOGE_AND_RETURN_VAL(keys.size() == 1, GENERAL_ERROR);
+
+    Attributes::AttributeKey key = keys[0];
+    uint32_t keyValue = static_cast<uint32_t>(key);
+    IF_FALSE_LOGE_AND_RETURN_VAL(keyValue != PROPERTY_INIT_ALGORITHM, GENERAL_ERROR);
+    keyValue = keyValue + VENDOR_COMMAND_BASE;
+    Attributes attr;
+
+    std::vector<uint8_t> extraInfo;
+    bool getArrayRet = request.attrs.GetUint8ArrayValue(static_cast<Attributes::AttributeKey>(key), extraInfo);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getArrayRet, GENERAL_ERROR);
+
+    bool setModeRet = attr.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, keyValue);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setModeRet, GENERAL_ERROR);
+
+    bool setArrayRet = attr.SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, extraInfo);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setArrayRet, GENERAL_ERROR);
+
+    sptr<SetExecutorPropertyCallbackInterface> wrapper =
+        new (std::nothrow) SetExecutorPropertyCallbackService(callback);
+    IF_FALSE_LOGE_AND_RETURN_VAL(wrapper != nullptr, GENERAL_ERROR);
+    proxy->SetProperty(userId, request.authType, attr, wrapper);
+    return SUCCESS;
+}
+
+
 void UserAuthClientImpl::SetProperty(int32_t userId, const SetPropertyRequest &request,
     const std::shared_ptr<SetPropCallback> &callback)
 {
@@ -76,23 +116,13 @@ void UserAuthClientImpl::SetProperty(int32_t userId, const SetPropertyRequest &r
         return;
     }
 
-    auto proxy = GetProxy();
-    if (!proxy) {
-        IAM_LOGE("proxy is nullptr");
-        Attributes extraInfo;
-        callback->OnResult(GENERAL_ERROR, extraInfo);
+    ResultCode result = SetPropertyInner(userId, request, callback);
+    if (result != SUCCESS) {
+        IAM_LOGE("result is not success");
+        Attributes retExtraInfo;
+        callback->OnResult(GENERAL_ERROR, retExtraInfo);
         return;
     }
-
-    sptr<SetExecutorPropertyCallbackInterface> wrapper =
-        new (std::nothrow) SetExecutorPropertyCallbackService(callback);
-    if (wrapper == nullptr) {
-        IAM_LOGE("failed to create wrapper");
-        Attributes extraInfo;
-        callback->OnResult(GENERAL_ERROR, extraInfo);
-        return;
-    }
-    proxy->SetProperty(userId, request.authType, request.attrs, wrapper);
 }
 
 uint64_t UserAuthClientImpl::BeginAuthentication(int32_t userId, const std::vector<uint8_t> &challenge,
