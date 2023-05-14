@@ -24,19 +24,16 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+constexpr int INVALID_USER_ID = INT_MAX;
 class TemplateCacheManager {
 public:
     static TemplateCacheManager &GetInstance();
-    void ProcessUserIdChange();
+    void ProcessUserIdChange(const int newUserId);
     void UpdateTemplateCache(AuthType authType);
 
 private:
     TemplateCacheManager();
     ~TemplateCacheManager() = default;
-
-    int32_t GetCurrentUserId();
-
-    static const int INVALID_USER_ID = INT_MAX;
 
     std::recursive_mutex recursiveMutex_;
     int currUserId_ = INVALID_USER_ID;

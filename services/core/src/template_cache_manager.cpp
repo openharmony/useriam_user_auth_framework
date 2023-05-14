@@ -34,6 +34,19 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+namespace {
+int32_t GetCurrentUserId()
+{
+    std::vector<int32_t> ids;
+    ErrCode queryRet = AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
+    if (queryRet != ERR_OK || ids.empty()) {
+        IAM_LOGE("failed to query active account id ret %{public}d count %{public}zu",
+            queryRet, ids.size());
+        return INVALID_USER_ID;
+    }
+    return ids.front();
+}
+}
 using OsAccountSubscriber = AccountSA::OsAccountSubscriber;
 
 class ServiceStatusListener : public OHOS::SystemAbilityStatusChangeStub, public NoCopyable {
@@ -130,7 +143,12 @@ void OsAccountIdSubscriber::Subscribe()
         return;
     }
 
-    TemplateCacheManager::GetInstance().ProcessUserIdChange();
+    int32_t userId = GetCurrentUserId();
+    if (userId == INVALID_USER_ID) {
+        IAM_LOGE("GetCurrentUserId fail");
+        return;
+    }
+    TemplateCacheManager::GetInstance().ProcessUserIdChange(userId);
     IAM_LOGI("subscribe success");
 }
 
@@ -155,9 +173,9 @@ void OsAccountIdSubscriber::OnAccountsChanged(const int& id)
         return;
     }
 
-    threadHandler_->PostTask([]() {
+    threadHandler_->PostTask([id]() {
         IAM_LOGI("task process begin");
-        TemplateCacheManager::GetInstance().ProcessUserIdChange();
+        TemplateCacheManager::GetInstance().ProcessUserIdChange(id);
         IAM_LOGI("task process end");
     });
 }
@@ -182,26 +200,9 @@ TemplateCacheManager &TemplateCacheManager::GetInstance()
     return templateCacheManager;
 }
 
-int32_t TemplateCacheManager::GetCurrentUserId()
-{
-    std::vector<int32_t> ids;
-    ErrCode queryRet = AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
-    if (queryRet != ERR_OK || ids.empty()) {
-        IAM_LOGE("failed to query active account id ret %{public}d count %{public}zu",
-            queryRet, ids.size());
-        return INVALID_USER_ID;
-    }
-    return ids.front();
-}
-
-void TemplateCacheManager::ProcessUserIdChange()
+void TemplateCacheManager::ProcessUserIdChange(const int newUserId)
 {
     std::lock_guard<std::recursive_mutex> lock(recursiveMutex_);
-    int32_t newUserId = GetCurrentUserId();
-    if (newUserId == INVALID_USER_ID) {
-        IAM_LOGE("GetCurrentUserId fail");
-        return;
-    }
     if (newUserId == currUserId_) {
         IAM_LOGE("same userId %{public}d", newUserId);
         return;
