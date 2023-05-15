@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,10 +30,12 @@ public:
     DECLARE_SYSTEM_ABILITY(CoAuthService);
     explicit CoAuthService(int32_t systemAbilityId, bool runOnCreate = false);
     ~CoAuthService() override = default;
-    void OnStart() override;
-    void OnStop() override;
     int Dump(int fd, const std::vector<std::u16string> &args) override;
     uint64_t ExecutorRegister(const ExecutorRegisterInfo &info, sptr<ExecutorCallbackInterface> &callback) override;
+
+protected:
+    void OnStart() override;
+    void OnStop() override;
 
 private:
     static void Init();

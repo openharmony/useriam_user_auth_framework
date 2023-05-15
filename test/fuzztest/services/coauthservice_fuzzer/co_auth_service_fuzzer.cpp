@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -108,20 +108,6 @@ void FillFuzzExecutorRegisterInfo(Parcel &parcel, ExecutorRegisterInfo &executor
 CoAuthService g_coAuthService(SUBSYS_USERIAM_SYS_ABILITY_AUTHEXECUTORMGR, true);
 sptr<ExecutorMessengerService> executorMessengerService = ExecutorMessengerService::GetInstance();
 
-void FuzzOnStop(Parcel &parcel)
-{
-    IAM_LOGI("FuzzOnStop begin");
-    static_cast<void>(parcel);
-    static int32_t skipCount = 500;
-    // OnStop affects test of other function, skip it in the first phase
-    if (skipCount > 0) {
-        --skipCount;
-        return;
-    }
-    g_coAuthService.OnStop();
-    IAM_LOGI("FuzzOnStop end");
-}
-
 void FuzzRegister(Parcel &parcel)
 {
     IAM_LOGI("FuzzRegister begin");
@@ -166,9 +152,8 @@ void FuzzFinish(Parcel &parcel)
     IAM_LOGI("FuzzFinish end");
 }
 
-using FuzzFunc = decltype(FuzzOnStop);
+using FuzzFunc = decltype(FuzzRegister);
 FuzzFunc *g_fuzzFuncs[] = {
-    FuzzOnStop,
     FuzzRegister,
     FuzzSendData,
     FuzzFinish,
