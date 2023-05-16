@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,12 +31,14 @@ struct ResultCallbackV9Holder {
     std::vector<uint8_t> token {};
     int32_t remainTimes {0};
     int32_t freezingTime {0};
+    napi_env env;
 };
 
 struct AcquireCallbackV9Holder {
     std::shared_ptr<UserAuthCallbackV9> callback {nullptr};
     int32_t module {0};
     uint32_t acquireInfo {0};
+    napi_env env;
 };
 
 void DestoryResultWork(uv_work_t *work)
@@ -74,13 +76,22 @@ void OnResultV9Work(uv_work_t *work, int status)
         DestoryResultWork(work);
         return;
     }
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(resultHolder->env, &scope);
+    if (scope == nullptr) {
+        IAM_LOGE("scope is invalid");
+        DestoryResultWork(work);
+        return;
+    }
     napi_status ret = resultHolder->callback->DoResultCallback(resultHolder->result, resultHolder->token,
         resultHolder->remainTimes, resultHolder->freezingTime);
     if (ret != napi_ok) {
         IAM_LOGE("DoResultCallback fail %{public}d", ret);
+        napi_close_handle_scope(resultHolder->env, scope);
         DestoryResultWork(work);
         return;
     }
+    napi_close_handle_scope(resultHolder->env, scope);
     DestoryResultWork(work);
 }
 
@@ -97,12 +108,21 @@ void OnAcquireV9Work(uv_work_t *work, int status)
         DestoryAcquireWork(work);
         return;
     }
-    napi_status ret = acquireHolder->callback->DoAcquireCallback(acquireHolder->module, acquireHolder->acquireInfo);
-    if (ret != napi_ok) {
-        IAM_LOGE("DoAcquireCallback fail %{public}d", ret);
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(acquireHolder->env, &scope);
+    if (scope == nullptr) {
+        IAM_LOGE("scope is invalid");
         DestoryAcquireWork(work);
         return;
     }
+    napi_status ret = acquireHolder->callback->DoAcquireCallback(acquireHolder->module, acquireHolder->acquireInfo);
+    if (ret != napi_ok) {
+        IAM_LOGE("DoAcquireCallback fail %{public}d", ret);
+        napi_close_handle_scope(acquireHolder->env, scope);
+        DestoryAcquireWork(work);
+        return;
+    }
+    napi_close_handle_scope(acquireHolder->env, scope);
     DestoryAcquireWork(work);
 }
 }
@@ -241,6 +261,7 @@ void UserAuthCallbackV9::OnAcquireInfo(int32_t module, uint32_t acquireInfo,
     acquireHolder->callback = shared_from_this();
     acquireHolder->module = module;
     acquireHolder->acquireInfo = acquireInfo;
+    acquireHolder->env = env_;
     work->data = reinterpret_cast<void *>(acquireHolder);
     if (uv_queue_work(loop, work, [](uv_work_t *work) {}, OnAcquireV9Work) != 0) {
         IAM_LOGE("uv_queue_work fail");
@@ -270,6 +291,7 @@ void UserAuthCallbackV9::OnResult(int32_t result, const Attributes &extraInfo)
     }
     resultHolder->callback = shared_from_this();
     resultHolder->result = UserAuthNapiHelper::GetResultCodeV9(result);
+    resultHolder->env = env_;
     if (!extraInfo.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, resultHolder->token)) {
         IAM_LOGE("ATTR_SIGNATURE is null");
     }
