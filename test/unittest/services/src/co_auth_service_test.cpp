@@ -29,8 +29,6 @@ namespace UserAuth {
 using namespace testing;
 using namespace testing::ext;
 
-using HdiExecutorRegisterInfo = HdiExecutorRegisterInfo;
-
 void CoAuthServiceTest::SetUpTestCase()
 {
 }
