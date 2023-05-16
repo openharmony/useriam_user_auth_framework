@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -100,26 +100,6 @@ public:
 };
 
 UserAuthService g_userAuthService(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true);
-
-void FuzzOnStart(Parcel &parcel)
-{
-    IAM_LOGI("begin");
-    g_userAuthService.OnStart();
-    IAM_LOGI("end");
-}
-
-void FuzzOnStop(Parcel &parcel)
-{
-    IAM_LOGI("begin");
-    static int32_t skipCount = 1000;
-    // OnStop affects test of other function, skip it in the first phase
-    if (skipCount > 0) {
-        --skipCount;
-        return;
-    }
-    g_userAuthService.OnStop();
-    IAM_LOGI("end");
-}
 
 void FuzzGetAvailableStatus(Parcel &parcel)
 {
@@ -231,10 +211,8 @@ void FuzzGetVersion(Parcel &parcel)
     IAM_LOGI("end");
 }
 
-using FuzzFunc = decltype(FuzzOnStart);
+using FuzzFunc = decltype(FuzzGetAvailableStatus);
 FuzzFunc *g_fuzzFuncs[] = {
-    FuzzOnStart,
-    FuzzOnStop,
     FuzzGetAvailableStatus,
     FuzzGetProperty,
     FuzzSetProperty,
