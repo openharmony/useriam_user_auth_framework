@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -35,8 +35,6 @@ public:
     DECLARE_SYSTEM_ABILITY(UserAuthService);
     explicit UserAuthService(int32_t systemAbilityId, bool runOnCreate = false);
     ~UserAuthService() override = default;
-    void OnStart() override;
-    void OnStop() override;
     int32_t GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel) override;
     void GetProperty(int32_t userId, AuthType authType,
         const std::vector<Attributes::AttributeKey> &keys,
@@ -51,6 +49,10 @@ public:
         sptr<UserAuthCallbackInterface> &callback) override;
     int32_t CancelAuthOrIdentify(uint64_t contextId) override;
     int32_t GetVersion(int32_t &version) override;
+
+protected:
+    void OnStart() override;
+    void OnStop() override;
 
 private:
     std::shared_ptr<ContextCallback> GetAuthContextCallback(const std::vector<uint8_t> &challenge, AuthType authType,
