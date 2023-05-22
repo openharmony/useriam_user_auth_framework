@@ -17,10 +17,6 @@
 
 #include "co_auth_client.h"
 #include "iam_ptr.h"
-#include "mock_co_auth_service.h"
-#include "mock_executor_register_callback.h"
-#include "mock_remote_object.h"
-#include "mock_ipc_client_utils.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -81,9 +77,21 @@ HWTEST_F(CoAuthClientTest, CoAuthClientRegister_001, TestSize.Level0)
         );
     
     sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    CallRemoteObject(service, obj, dr, 73265);
+
+
+    CoAuthClient::GetInstance().Register(testInfo, testCallback);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
+    IpcClientUtils::ResetObj();
+}
+
+void CoAuthClientTest::CallRemoteObject(const std::shared_ptr<MockCoAuthService> service,
+    const sptr<MockRemoteObject> &obj, sptr<IRemoteObject::DeathRecipient> &dr, uint64_t testExecutorIndex)
+{
     EXPECT_NE(obj, nullptr);
     IpcClientUtils::SetObj(obj);
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
     EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
     EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
     EXPECT_CALL(*obj, AddDeathRecipient(_))
@@ -106,11 +114,6 @@ HWTEST_F(CoAuthClientTest, CoAuthClientRegister_001, TestSize.Level0)
                 return OHOS::NO_ERROR;
             }
         );
-
-    CoAuthClient::GetInstance().Register(testInfo, testCallback);
-    EXPECT_NE(dr, nullptr);
-    dr->OnRemoteDied(obj);
-    IpcClientUtils::ResetObj();
 }
 
 HWTEST_F(CoAuthClientTest, CoAuthClientRegister_002, TestSize.Level0)

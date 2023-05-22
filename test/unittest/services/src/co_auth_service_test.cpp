@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -87,7 +87,7 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest001, TestSize.Level0)
     IpcCommon::DeleteAllPermission();
 }
 
-HWTEST_F(CoAuthServiceTest, CoAuthServiceTest003, TestSize.Level0)
+HWTEST_F(CoAuthServiceTest, CoAuthServiceTest002, TestSize.Level0)
 {
     auto service = Common::MakeShared<CoAuthService>(1, true);
     EXPECT_NE(service, nullptr);
@@ -98,7 +98,7 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest003, TestSize.Level0)
     EXPECT_EQ(executorIndex, 0);
 }
 
-HWTEST_F(CoAuthServiceTest, CoAuthServiceTest004, TestSize.Level0)
+HWTEST_F(CoAuthServiceTest, CoAuthServiceTest003, TestSize.Level0)
 {
     int testFd1 = -1;
     int testFd2 = 1;
