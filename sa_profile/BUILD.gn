@@ -16,9 +16,9 @@ import("//build/ohos/sa_profile/sa_profile.gni")
 
 ohos_sa_profile("userauth_sa_profile") {
   sources = [
-    "901.xml",
-    "921.xml",
-    "931.xml",
+    "901.json",
+    "921.json",
+    "931.json",
   ]
 
   part_name = "user_auth_framework"
