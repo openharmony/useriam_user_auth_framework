@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -73,16 +73,16 @@ bool ScheduleNodeHelper::ScheduleInfoToScheduleNode(const HdiScheduleInfo &info,
         builder->SetAccessTokenId(para.tokenId.value());
     }
     node = builder->SetAuthType(static_cast<AuthType>(info.authType))
-               ->SetExecutorMatcher(info.executorMatcher)
-               ->SetScheduleId(info.scheduleId)
-               ->SetTemplateIdList(info.templateIds)
-               ->SetScheduleMode(static_cast<ScheduleMode>(info.scheduleMode))
-               ->SetExpiredTime(para.expire.value_or(0))
-               ->SetPinSubType(para.pinSubType.value_or(PinSubType::PIN_MAX))
-               ->SetScheduleCallback(callback)
-               ->SetEndAfterFirstFail(para.endAfterFirstFail.value_or(false))
-               ->SetExtraInfo(info.extraInfo)
-               ->Build();
+        ->SetExecutorMatcher(info.executorMatcher)
+        ->SetScheduleId(info.scheduleId)
+        ->SetTemplateIdList(info.templateIds)
+        ->SetScheduleMode(static_cast<ScheduleMode>(info.scheduleMode))
+        ->SetExpiredTime(para.expire.value_or(0))
+        ->SetPinSubType(para.pinSubType.value_or(PinSubType::PIN_MAX))
+        ->SetScheduleCallback(callback)
+        ->SetEndAfterFirstFail(para.endAfterFirstFail.value_or(false))
+        ->SetExtraInfo(info.extraInfo)
+        ->Build();
     if (node == nullptr) {
         IAM_LOGE("builder failed");
         return false;
