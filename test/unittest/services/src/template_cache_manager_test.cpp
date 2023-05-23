@@ -42,9 +42,12 @@ void TemplateCacheManagerTest::TearDown()
 
 HWTEST_F(TemplateCacheManagerTest, TemplateCacheManagerTest_001, TestSize.Level0)
 {
-    TemplateCacheManager::GetInstance();
-    sleep(5);
-    EXPECT_EQ(true, true);
+    EXPECT_NO_THROW({
+        TemplateCacheManager::GetInstance().UpdateTemplateCache(PIN);
+        TemplateCacheManager::GetInstance().ProcessUserIdChange(1);
+        TemplateCacheManager::GetInstance().ProcessUserIdChange(1);
+        TemplateCacheManager::GetInstance().UpdateTemplateCache(PIN);
+    });
 }
 } // namespace UserAuth
 } // namespace UserIam
