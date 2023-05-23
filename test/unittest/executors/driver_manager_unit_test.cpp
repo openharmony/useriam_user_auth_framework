@@ -19,6 +19,7 @@
 #include "iam_ptr.h"
 
 #include "driver_manager.h"
+#include "iam_executor_idriver_manager.h"
 #include "mock_iauth_driver_hdi.h"
 #include "mock_iauth_executor_hdi.h"
 
@@ -73,6 +74,21 @@ HWTEST_F(DriverManagerUnitTest, DriverManagerTest_001, TestSize.Level0)
     DriverManager::GetInstance().OnFrameworkReady();
     DriverManager::GetInstance().SubscribeHdiDriverStatus();
     DriverManager::GetInstance().OnAllHdiDisconnect();
+}
+
+HWTEST_F(DriverManagerUnitTest, DriverManagerTest_002, TestSize.Level0)
+{
+    std::string serviceName = "mockDriver";
+    HdiConfig config = {};
+    config.id = 10;
+    config.driver = nullptr;
+    std::map<std::string, HdiConfig> hdiName2Config;
+    auto manager = new IDriverManager();
+    EXPECT_EQ(manager->Start(hdiName2Config), USERAUTH_SUCCESS);
+    hdiName2Config.emplace(serviceName, config);
+    EXPECT_EQ(manager->Start(hdiName2Config), USERAUTH_ERROR);
+    config.driver = Common::MakeShared<MockIAuthDriverHdi>();
+    EXPECT_EQ(manager->Start(hdiName2Config), USERAUTH_ERROR);
 }
 } // namespace UserAuth
 } // namespace UserIam
