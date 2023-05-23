@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,10 +18,6 @@
 #include "iam_ptr.h"
 #include "user_auth_client.h"
 #include "user_auth_client_impl.h"
-#include "mock_ipc_client_utils.h"
-#include "mock_remote_object.h"
-#include "mock_user_auth_service.h"
-#include "mock_user_auth_client_callback.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -75,25 +71,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetAvailableStatus002, TestSize.Level
             }
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
-    EXPECT_NE(obj, nullptr);
     sptr<IRemoteObject::DeathRecipient> dr = nullptr;
-    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
-    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*obj, AddDeathRecipient(_))
-        .WillRepeatedly(
-            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
-                dr = recipient;
-                return true;
-            }
-        );
-
-    IpcClientUtils::SetObj(obj);
-    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
-    ON_CALL(*obj, SendRequest)
-        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-            service->OnRemoteRequest(code, data, reply, option);
-            return OHOS::NO_ERROR;
-        });
+    CallRemoteObject(service, obj, dr);
     int32_t ret = UserAuthClientImpl::Instance().GetAvailableStatus(testApiVersion, testAuthType, testAtl);
     EXPECT_EQ(ret, SUCCESS);
     EXPECT_NE(dr, nullptr);
@@ -145,25 +124,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetProperty002, TestSize.Level0)
             }
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
-    EXPECT_NE(obj, nullptr);
     sptr<IRemoteObject::DeathRecipient> dr = nullptr;
-    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
-    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*obj, AddDeathRecipient(_))
-        .WillRepeatedly(
-            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
-                dr = recipient;
-                return true;
-            }
-        );
-
-    IpcClientUtils::SetObj(obj);
-    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
-    ON_CALL(*obj, SendRequest)
-        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-            service->OnRemoteRequest(code, data, reply, option);
-            return OHOS::NO_ERROR;
-        });
+    CallRemoteObject(service, obj, dr);
     UserAuthClient::GetInstance().GetProperty(testUserId, testRequest, testCallback);
     EXPECT_NE(dr, nullptr);
     dr->OnRemoteDied(obj);
@@ -210,25 +172,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientSetProperty002, TestSize.Level0)
             }
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
-    EXPECT_NE(obj, nullptr);
     sptr<IRemoteObject::DeathRecipient> dr = nullptr;
-    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
-    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*obj, AddDeathRecipient(_))
-        .WillRepeatedly(
-            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
-                dr = recipient;
-                return true;
-            }
-        );
-
-    IpcClientUtils::SetObj(obj);
-    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
-    ON_CALL(*obj, SendRequest)
-        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-            service->OnRemoteRequest(code, data, reply, option);
-            return OHOS::NO_ERROR;
-        });
+    CallRemoteObject(service, obj, dr);
 
     UserAuthClient::GetInstance().SetProperty(testUserId, testRequest, testCallback);
     EXPECT_NE(dr, nullptr);
@@ -288,25 +233,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginNorthAuthentication002, TestSize
             }
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
-    EXPECT_NE(obj, nullptr);
     sptr<IRemoteObject::DeathRecipient> dr = nullptr;
-    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
-    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*obj, AddDeathRecipient(_))
-        .WillRepeatedly(
-            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
-                dr = recipient;
-                return true;
-            }
-        );
-
-    IpcClientUtils::SetObj(obj);
-    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
-    ON_CALL(*obj, SendRequest)
-        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-            service->OnRemoteRequest(code, data, reply, option);
-            return OHOS::NO_ERROR;
-        });
+    CallRemoteObject(service, obj, dr);
 
     uint64_t contextId = UserAuthClientImpl::Instance().BeginNorthAuthentication(testApiVersion, testChallenge,
         testAuthType, testAtl, testCallback);
@@ -368,25 +296,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginAuthentication002, TestSize.Leve
             }
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
-    EXPECT_NE(obj, nullptr);
     sptr<IRemoteObject::DeathRecipient> dr = nullptr;
-    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
-    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*obj, AddDeathRecipient(_))
-        .WillRepeatedly(
-            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
-                dr = recipient;
-                return true;
-            }
-        );
-
-    IpcClientUtils::SetObj(obj);
-    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
-    ON_CALL(*obj, SendRequest)
-        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-            service->OnRemoteRequest(code, data, reply, option);
-            return OHOS::NO_ERROR;
-        });
+    CallRemoteObject(service, obj, dr);
 
     uint64_t contextId = UserAuthClient::GetInstance().BeginAuthentication(testUserId, testChallenge,
         testAuthType, testAtl, testCallback);
@@ -420,25 +331,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientCancelAuthentication002, TestSize.Lev
             }
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
-    EXPECT_NE(obj, nullptr);
     sptr<IRemoteObject::DeathRecipient> dr = nullptr;
-    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
-    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*obj, AddDeathRecipient(_))
-        .WillRepeatedly(
-            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
-                dr = recipient;
-                return true;
-            }
-        );
-
-    IpcClientUtils::SetObj(obj);
-    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
-    ON_CALL(*obj, SendRequest)
-        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-            service->OnRemoteRequest(code, data, reply, option);
-            return OHOS::NO_ERROR;
-        });
+    CallRemoteObject(service, obj, dr);
 
     int32_t ret = UserAuthClient::GetInstance().CancelAuthentication(testContextId);
     EXPECT_EQ(ret, SUCCESS);
@@ -490,25 +384,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginIdentificationV1_1002, TestSize.
             }
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
-    EXPECT_NE(obj, nullptr);
     sptr<IRemoteObject::DeathRecipient> dr = nullptr;
-    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
-    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*obj, AddDeathRecipient(_))
-        .WillRepeatedly(
-            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
-                dr = recipient;
-                return true;
-            }
-        );
-
-    IpcClientUtils::SetObj(obj);
-    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
-    ON_CALL(*obj, SendRequest)
-        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-            service->OnRemoteRequest(code, data, reply, option);
-            return OHOS::NO_ERROR;
-        });
+    CallRemoteObject(service, obj, dr);
 
     uint64_t contextId = UserAuthClient::GetInstance().BeginIdentification(testChallenge, testAuthType, testCallback);
     EXPECT_EQ(contextId, testContextId);
@@ -541,25 +418,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientCancelIdentification002, TestSize.Lev
             }
         );
     sptr<MockRemoteObject> obj = new MockRemoteObject();
-    EXPECT_NE(obj, nullptr);
     sptr<IRemoteObject::DeathRecipient> dr = nullptr;
-    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
-    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*obj, AddDeathRecipient(_))
-        .WillRepeatedly(
-            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
-                dr = recipient;
-                return true;
-            }
-        );
-
-    IpcClientUtils::SetObj(obj);
-    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
-    ON_CALL(*obj, SendRequest)
-        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-            service->OnRemoteRequest(code, data, reply, option);
-            return OHOS::NO_ERROR;
-        });
+    CallRemoteObject(service, obj, dr);
     
     int32_t ret = UserAuthClient::GetInstance().CancelIdentification(testContextId);
     EXPECT_EQ(ret, SUCCESS);
@@ -593,25 +453,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetVersion002, TestSize.Level0)
         );
 
     sptr<MockRemoteObject> obj = new MockRemoteObject();
-    EXPECT_NE(obj, nullptr);
     sptr<IRemoteObject::DeathRecipient> dr = nullptr;
-    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
-    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*obj, AddDeathRecipient(_))
-        .WillRepeatedly(
-            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
-                dr = recipient;
-                return true;
-            }
-        );
-
-    IpcClientUtils::SetObj(obj);
-    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
-    ON_CALL(*obj, SendRequest)
-        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-            service->OnRemoteRequest(code, data, reply, option);
-            return OHOS::NO_ERROR;
-        });
+    CallRemoteObject(service, obj, dr);
     int32_t version;
     int32_t result = UserAuthClientImpl::Instance().GetVersion(version);
     EXPECT_EQ(result, SUCCESS);
@@ -652,6 +495,29 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetVersion003, TestSize.Level0)
     dr->OnRemoteDied(remote);
     dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
+}
+
+void UserAuthClientTest::CallRemoteObject(const std::shared_ptr<MockUserAuthService> service,
+    const sptr<MockRemoteObject> &obj, sptr<IRemoteObject::DeathRecipient> &dr)
+{
+    EXPECT_NE(obj, nullptr);
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillRepeatedly(
+            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+                dr = recipient;
+                return true;
+            }
+        );
+
+    IpcClientUtils::SetObj(obj);
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
+    ON_CALL(*obj, SendRequest)
+        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            service->OnRemoteRequest(code, data, reply, option);
+            return OHOS::NO_ERROR;
+        });
 }
 } // namespace UserAuth
 } // namespace UserIam
