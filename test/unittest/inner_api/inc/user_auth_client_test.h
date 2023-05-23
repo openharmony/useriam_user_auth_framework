@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,10 @@
 #define USER_AUTH_CLIENT_TEST_H
 
 #include <gtest/gtest.h>
+#include "mock_ipc_client_utils.h"
+#include "mock_remote_object.h"
+#include "mock_user_auth_service.h"
+#include "mock_user_auth_client_callback.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -30,6 +34,9 @@ public:
     void SetUp() override;
 
     void TearDown() override;
+
+    void CallRemoteObject(const std::shared_ptr<MockUserAuthService> service, const sptr<MockRemoteObject> &obj,
+        sptr<IRemoteObject::DeathRecipient> &dr);
 };
 } // namespace UserAuth
 } // namespace UserIam
