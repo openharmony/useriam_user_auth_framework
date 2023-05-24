@@ -83,12 +83,11 @@ HWTEST_F(DriverManagerUnitTest, DriverManagerTest_002, TestSize.Level0)
     config.id = 10;
     config.driver = nullptr;
     std::map<std::string, HdiConfig> hdiName2Config;
-    auto manager = new IDriverManager();
-    EXPECT_EQ(manager->Start(hdiName2Config), USERAUTH_SUCCESS);
+    EXPECT_EQ(IDriverManager::Start(hdiName2Config), USERAUTH_SUCCESS);
     hdiName2Config.emplace(serviceName, config);
-    EXPECT_EQ(manager->Start(hdiName2Config), USERAUTH_ERROR);
+    EXPECT_EQ(IDriverManager::Start(hdiName2Config), USERAUTH_ERROR);
     config.driver = Common::MakeShared<MockIAuthDriverHdi>();
-    EXPECT_EQ(manager->Start(hdiName2Config), USERAUTH_ERROR);
+    EXPECT_EQ(IDriverManager::Start(hdiName2Config), USERAUTH_ERROR);
 }
 } // namespace UserAuth
 } // namespace UserIam
