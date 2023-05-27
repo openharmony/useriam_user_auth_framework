@@ -161,7 +161,7 @@ void FuzzAuth(Parcel &parcel)
     if (parcel.ReadBool()) {
         callback = new (nothrow) DummyUserAuthCallback();
     }
-    g_userAuthService.AuthUser(apiVersion, challenge, authType, authTrustLevel, callback);
+    g_userAuthService.Auth(apiVersion, challenge, authType, authTrustLevel, callback);
     IAM_LOGI("end");
 }
 
