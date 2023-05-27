@@ -33,6 +33,11 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
+const int CMD_LEN = 19;
+std::u16string cmd[] = {u"-h", u"-lc", u"-ls", u"-c", u"-c [base system]", u"-s", u"-s [SA0 SA1]", u"-s [SA] -a [-h]",
+    u"-e", u"--net", u"--storage", u"-p", u"-p [pid]", u"--cpuusage [pid]", u"cified pid", u"--cpufreq", u"--mem [pid]",
+    u"--zip", u"--mem-smaps pid [-v]"};
+
 class DummyIdmGetCredentialInfoCallback : public IdmGetCredInfoCallbackInterface {
 public:
     void OnCredentialInfos(const std::vector<CredentialInfo> &credInfoList) override
@@ -206,6 +211,20 @@ void FuzzDelUser(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzDump(Parcel &parcel)
+{
+    IAM_LOGI("FuzzDump begin");
+    std::vector<uint8_t> msg;
+    Common::FillFuzzUint8Vector(parcel, msg);
+    int32_t fd = parcel.ReadInt32();
+    std::vector<std::u16string> args;
+    for (uint32_t i = 0; i < msg.size(); i++) {
+        args.push_back(cmd[msg[i] % CMD_LEN]);
+    }
+    g_UserIdmService.Dump(fd, args);
+    IAM_LOGI("FuzzDump end");
+}
+
 void DelCredential(Parcel &parcel)
 {
     IAM_LOGI("begin");
@@ -230,6 +249,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzEnforceDelUser,
     FuzzDelUser,
     DelCredential,
+    FuzzDump,
 };
 
 void UserIdmFuzzTest(const uint8_t *data, size_t size)
