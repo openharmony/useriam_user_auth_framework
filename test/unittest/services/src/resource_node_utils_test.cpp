@@ -125,6 +125,59 @@ HWTEST_F(ResourceNodeUtilsTest, SendMsgToExecutor002, TestSize.Level0)
     ResourceNodeUtils::SendMsgToExecutor(testIndex2, testMsg);
     ResourceNodePool::Instance().DeleteAll();
 }
+
+HWTEST_F(ResourceNodeUtilsTest, SetCachedTemplates001, TestSize.Level0)
+{
+    const uint64_t testIndex = 10;
+    std::vector<std::shared_ptr<CredentialInfoInterface>> infos;
+    EXPECT_TRUE(ResourceNodePool::Instance().Select(testIndex).lock() == nullptr);
+    ResourceNodeUtils::SetCachedTemplates(testIndex, infos);
+}
+
+HWTEST_F(ResourceNodeUtilsTest, SetCachedTemplates002, TestSize.Level0)
+{
+    const uint64_t testIndex = 10;
+    auto resourceNode = MockResourceNode::CreateWithExecuteIndex(testIndex);
+    EXPECT_CALL(*(static_cast<MockResourceNode *>(resourceNode.get())), SetProperty(_))
+        .WillRepeatedly(Return(FAIL));
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
+    auto mockCredentialInfo = Common::MakeShared<MockCredentialInfo>();
+    EXPECT_CALL(*mockCredentialInfo, GetTemplateId()).WillRepeatedly(Return(0));
+    std::vector<std::shared_ptr<CredentialInfoInterface>> infos = { mockCredentialInfo };
+    ResourceNodeUtils::SetCachedTemplates(testIndex, infos);
+    ResourceNodePool::Instance().DeleteAll();
+}
+
+HWTEST_F(ResourceNodeUtilsTest, SetCachedTemplates003, TestSize.Level0)
+{
+    const uint64_t testIndex = 10;
+    auto resourceNode = MockResourceNode::CreateWithExecuteIndex(testIndex);
+    EXPECT_CALL(*(static_cast<MockResourceNode *>(resourceNode.get())), SetProperty(_))
+        .WillRepeatedly(Return(SUCCESS));
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
+    auto mockCredentialInfo = Common::MakeShared<MockCredentialInfo>();
+    EXPECT_CALL(*mockCredentialInfo, GetTemplateId()).WillRepeatedly(Return(0));
+    std::vector<std::shared_ptr<CredentialInfoInterface>> infos = { mockCredentialInfo };
+    ResourceNodeUtils::SetCachedTemplates(testIndex, infos);
+    ResourceNodePool::Instance().DeleteAll();
+}
+
+HWTEST_F(ResourceNodeUtilsTest, ClassifyCredInfoByExecutor001, TestSize.Level0)
+{
+    std::vector<std::shared_ptr<CredentialInfoInterface>> in = { nullptr };
+    std::map<uint64_t, std::vector<std::shared_ptr<CredentialInfoInterface>>> out;
+    EXPECT_EQ(ResourceNodeUtils::ClassifyCredInfoByExecutor(in, out), GENERAL_ERROR);
+}
+
+HWTEST_F(ResourceNodeUtilsTest, ClassifyCredInfoByExecutor002, TestSize.Level0)
+{
+    auto mockCredentialInfo = Common::MakeShared<MockCredentialInfo>();
+    EXPECT_CALL(*mockCredentialInfo, GetExecutorIndex()).WillRepeatedly(Return(0));
+    std::vector<std::shared_ptr<CredentialInfoInterface>> in = { mockCredentialInfo };
+    std::map<uint64_t, std::vector<std::shared_ptr<CredentialInfoInterface>>> out;
+    EXPECT_EQ(ResourceNodeUtils::ClassifyCredInfoByExecutor(in, out), SUCCESS);
+    EXPECT_EQ(ResourceNodeUtils::ClassifyCredInfoByExecutor(in, out), SUCCESS);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
