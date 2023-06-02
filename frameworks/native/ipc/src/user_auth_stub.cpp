@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,6 +28,10 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+namespace {
+    const uint32_t MAX_ATTR_COUNT = 512;
+} // namespace
+
 int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     IAM_LOGD("cmd = %{public}u, flags = %{public}d", code, option.GetFlags());
@@ -112,6 +116,10 @@ int32_t UserAuthStub::GetPropertyStub(MessageParcel &data, MessageParcel &reply)
         return READ_PARCEL_ERROR;
     }
     std::vector<Attributes::AttributeKey> attrKeys;
+    if (keys.size() > MAX_ATTR_COUNT) {
+        IAM_LOGE("the attribute key vector size exceed limit");
+        return GENERAL_ERROR;
+    }
     attrKeys.resize(keys.size());
     std::transform(keys.begin(), keys.end(), attrKeys.begin(), [](uint32_t key) {
         return static_cast<Attributes::AttributeKey>(key);
