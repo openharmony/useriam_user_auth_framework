@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,6 +27,7 @@ namespace UserIam {
 namespace UserAuth {
 namespace {
     const uint64_t BAD_CONTEXT_ID = 0;
+    const uint32_t MAX_ATTR_COUNT = 512;
 } // namespace
 
 UserAuthProxy::UserAuthProxy(const sptr<IRemoteObject> &object) : IRemoteProxy<UserAuthInterface>(object)
@@ -78,6 +79,10 @@ void UserAuthProxy::GetProperty(int32_t userId, AuthType authType,
     MessageParcel reply;
 
     std::vector<uint32_t> attrKeys;
+    if (keys.size() > MAX_ATTR_COUNT) {
+        IAM_LOGE("the attribute key vector size exceed limit");
+        return;
+    }
     attrKeys.resize(keys.size());
     std::transform(keys.begin(), keys.end(), attrKeys.begin(), [](Attributes::AttributeKey key) {
         return static_cast<uint32_t>(key);
