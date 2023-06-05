@@ -54,7 +54,7 @@ int32_t ResourceNodeUtils::NotifyExecutorToDeleteTemplates(
     return SUCCESS;
 }
 
-void ResourceNodeUtils::SendMsgToExecutor(uint64_t executorIndex, const std::vector<uint8_t> &msg)
+void ResourceNodeUtils::SendMsgToExecutor(uint64_t executorIndex, int32_t commandId, const std::vector<uint8_t> &msg)
 {
     auto resourceNode = ResourceNodePool::Instance().Select(executorIndex).lock();
     if (resourceNode == nullptr) {
@@ -64,7 +64,7 @@ void ResourceNodeUtils::SendMsgToExecutor(uint64_t executorIndex, const std::vec
     Attributes properties;
     // In current version, msg type is not set, temporary use PROPER_MODE_FREEZE
     bool setAuthPropertyModeRet =
-        properties.SetUint32Value(UserIam::UserAuth::Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_FREEZE);
+        properties.SetInt32Value(UserIam::UserAuth::Attributes::ATTR_PROPERTY_MODE, commandId);
     IF_FALSE_LOGE_AND_RETURN(setAuthPropertyModeRet == true);
     bool setExtraInfoRet = properties.SetUint8ArrayValue(UserIam::UserAuth::Attributes::ATTR_EXTRA_INFO, msg);
     IF_FALSE_LOGE_AND_RETURN(setExtraInfoRet == true);
