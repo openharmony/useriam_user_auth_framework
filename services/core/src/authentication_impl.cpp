@@ -125,7 +125,7 @@ bool AuthenticationImpl::Update(const std::vector<uint8_t> &scheduleResult, Auth
     }
 
     for (auto &[executorIndex, commandId, msg] : info.msgs) {
-        ResourceNodeUtils::SendMsgToExecutor(executorIndex, msg);
+        ResourceNodeUtils::SendMsgToExecutor(executorIndex, commandId, msg);
     }
 
     resultInfo.result = static_cast<decltype(resultInfo.result)>(info.result);
