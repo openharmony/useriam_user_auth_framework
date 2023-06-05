@@ -28,7 +28,7 @@ namespace UserAuth {
 class ResourceNodeUtils {
 public:
     static int32_t NotifyExecutorToDeleteTemplates(const std::vector<std::shared_ptr<CredentialInfoInterface>> &infos);
-    static void SendMsgToExecutor(uint64_t executorIndex, const std::vector<uint8_t> &msg);
+    static void SendMsgToExecutor(uint64_t executorIndex, int32_t commandId, const std::vector<uint8_t> &msg);
     static void SetCachedTemplates(uint64_t executorIndex,
         const std::vector<std::shared_ptr<CredentialInfoInterface>> &infos);
     static ResultCode ClassifyCredInfoByExecutor(const std::vector<std::shared_ptr<CredentialInfoInterface>> &in,
