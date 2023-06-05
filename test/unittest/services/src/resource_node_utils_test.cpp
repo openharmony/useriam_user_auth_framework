@@ -98,15 +98,17 @@ HWTEST_F(ResourceNodeUtilsTest, NotifyExecutorToDeleteTemplates003, TestSize.Lev
 HWTEST_F(ResourceNodeUtilsTest, SendMsgToExecutor001, TestSize.Level0)
 {
     uint64_t testIndex = 10;
+    int32_t commandId = 1250;
     std::vector<uint8_t> testMsg = {1, 2, 3, 4};
 
-    ResourceNodeUtils::SendMsgToExecutor(testIndex, testMsg);
+    ResourceNodeUtils::SendMsgToExecutor(testIndex, commandId, testMsg);
 }
 
 HWTEST_F(ResourceNodeUtilsTest, SendMsgToExecutor002, TestSize.Level0)
 {
     uint64_t testIndex1 = 10;
     uint64_t testIndex2 = 100;
+    int32_t commandId = 1250;
     std::vector<uint8_t> testMsg = {1, 2, 3, 4};
 
     auto resourceNode1 = Common::MakeShared<MockResourceNode>();
@@ -121,8 +123,8 @@ HWTEST_F(ResourceNodeUtilsTest, SendMsgToExecutor002, TestSize.Level0)
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode1));
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode2));
 
-    ResourceNodeUtils::SendMsgToExecutor(testIndex1, testMsg);
-    ResourceNodeUtils::SendMsgToExecutor(testIndex2, testMsg);
+    ResourceNodeUtils::SendMsgToExecutor(testIndex1, commandId, testMsg);
+    ResourceNodeUtils::SendMsgToExecutor(testIndex2, commandId, testMsg);
     ResourceNodePool::Instance().DeleteAll();
 }
 
