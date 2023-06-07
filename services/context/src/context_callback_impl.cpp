@@ -43,11 +43,10 @@ void ContextCallbackImpl::OnAcquireInfo(ExecutorRole src, int32_t moduleType,
         return;
     }
     int32_t acquireInfo;
-    if (Common::UnpackInt32(acquireMsg, 0, acquireInfo) != SUCCESS) {
-        IAM_LOGE("failed to unpack acquireMsg");
-        return;
-    }
-    Attributes attr = {};
+    Attributes attr(acquireMsg);
+    bool getAcquireInfoRet = attr.GetInt32Value(Attributes::ATTR_TIP_INFO, acquireInfo);
+    IF_FALSE_LOGE_AND_RETURN(getAcquireInfoRet);
+
     iamCallback_->OnAcquireInfo(moduleType, acquireInfo, attr);
 }
 

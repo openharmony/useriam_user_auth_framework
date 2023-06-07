@@ -80,8 +80,13 @@ void IdentifyCommand::OnAcquireInfoInner(int32_t acquire, const std::vector<uint
 {
     IAM_LOGI("%{public}s on acquire info start", GetDescription());
 
-    std::vector<uint8_t> nonConstExtraInfo(extraInfo.begin(), extraInfo.end());
-    auto msg = AuthMessage::As(nonConstExtraInfo);
+    Attributes attr;
+    bool setAcquireRet = attr.SetInt32Value(Attributes::ATTR_TIP_INFO, acquire);
+    IF_FALSE_LOGE_AND_RETURN(setAcquireRet);
+    bool setExtraInfoRet = attr.SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, extraInfo);
+    IF_FALSE_LOGE_AND_RETURN(setExtraInfoRet);
+
+    auto msg = AuthMessage::As(attr.Serialize());
     IF_FALSE_LOGE_AND_RETURN(msg != nullptr);
     int32_t ret = MessengerSendData(scheduleId_, transNum_, ALL_IN_ONE, SCHEDULER, msg);
     ++transNum_;
