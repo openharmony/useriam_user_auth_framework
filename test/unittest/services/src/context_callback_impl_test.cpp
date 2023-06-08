@@ -92,11 +92,13 @@ HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserAuth, TestSize.Level0)
 HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserIdmOnResult, TestSize.Level0)
 {
     int32_t testResult = 66;
-    std::vector<uint8_t> testMsg = {1, 2, 3, 4};
+    int32_t acquire = 20;
     auto testAttr = Common::MakeShared<Attributes>();
     ASSERT_TRUE(testAttr != nullptr);
+    EXPECT_TRUE(testAttr->SetInt32Value(Attributes::ATTR_TIP_INFO, acquire));
     EXPECT_TRUE(testAttr->SetInt32Value(Attributes::ATTR_REMAIN_TIMES, 2));
     EXPECT_TRUE(testAttr->SetInt32Value(Attributes::ATTR_FREEZING_TIME, 40));
+    auto testMsg = testAttr->Serialize();
 
     auto notify = [](const ContextCallbackNotifyListener::MetaData &metaData) { return; };
     ContextCallbackNotifyListener::GetInstance().AddNotifier(notify);

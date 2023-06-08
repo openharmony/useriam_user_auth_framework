@@ -95,6 +95,8 @@ public:
         ATTR_KEY_LIST = 100037,
         /** End after first fail, the value type is boolean. */
         ATTR_END_AFTER_FIRST_FAIL = 100038,
+        /** tip info, the value type is int32_t. */
+        ATTR_TIP_INFO = 100039,
         /**
          * Private attrs.
          * User ID, the value type is int32_t.
