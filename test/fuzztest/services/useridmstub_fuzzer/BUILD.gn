@@ -1,0 +1,58 @@
+# Copyright (c) 2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/config/features.gni")
+import("//build/test.gni")
+
+ohos_fuzztest("UserIdmStubFuzzTest") {
+  module_out_path = "useriam/user_auth_framework/services"
+  fuzz_config_file = "../useridmstub_fuzzer"
+  cflags = [
+    "-g",
+    "-O0",
+    "-Wno-unused-variable",
+    "-fno-omit-frame-pointer",
+  ]
+  include_dirs = [
+    "../../../../services/base/inc",
+    "../../../../services/core/inc",
+    "../../../../services/core/src",
+    "../../../../services/context/inc",
+    "../../../../services/ipc/inc",
+    "../../../../frameworks/native/ipc/inc",
+    "../../../../frameworks/native/ipc/common_defines",
+    "../../../../common/utils",
+    "../../../../common/logs",
+  ]
+
+  sources = [ "user_idm_stub_fuzzer.cpp" ]
+
+  deps = [
+    "../../../../common:iam_test",
+    "../../../../frameworks/native/common:attributes",
+    "../../../../services/ipc:userauth_services_ipc",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "drivers_interface_user_auth:libuser_auth_proxy_1.1",
+    "eventhandler:libeventhandler",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_single",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+
+  subsystem_name = "useriam"
+  part_name = "user_auth_framework"
+}
