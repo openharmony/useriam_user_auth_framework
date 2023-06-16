@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#ifndef EXECUTOR_CALLBACK_STUB_FUZZER_H
-#define EXECUTOR_CALLBACK_STUB_FUZZER_H
+#ifndef USER_AUTH_CALLBACK_STUB_FUZZER_TEST_H
+#define USER_AUTH_CALLBACK_STUB_FUZZER_TEST_H
 
-#define FUZZ_PROJECT_NAME "ExecutorCallbackStubFuzzTest"
+#define FUZZ_PROJECT_NAME "UserAuthCallbackStubFuzzTest"
 
-#endif // EXECUTOR_CALLBACK_STUB_FUZZER_H
+#endif // USER_AUTH_CALLBACK_STUB_FUZZER_TEST_H

@@ -14,9 +14,9 @@
 import("//build/ohos.gni")
 import("//build/test.gni")
 
-ohos_fuzztest("ExecutorCallbackStubFuzzTest") {
+ohos_fuzztest("UserAuthCallbackStubFuzzTest") {
   module_out_path = "useriam/user_auth_framework/clients"
-  fuzz_config_file = "../executorcallbackstub_fuzzer"
+  fuzz_config_file = "../userauthcallbackstub_fuzzer"
 
   cflags = [
     "-g",
@@ -27,9 +27,9 @@ ohos_fuzztest("ExecutorCallbackStubFuzzTest") {
 
   include_dirs = [
     "../../../../interfaces/inner_api",
-    "../../../../frameworks/native/ipc/inc",
-    "../../../../frameworks/native/client/inc",
     "../../../../frameworks/native/ipc/common_defines",
+    "../../../../frameworks/native/ipc/inc",
+    "../../../../frameworks/native/common/dfx/inc",
     "../../../../common/utils",
     "../../../../common/logs",
   ]
@@ -44,7 +44,7 @@ ohos_fuzztest("ExecutorCallbackStubFuzzTest") {
     "../../../../frameworks/native/client/src/user_auth_client_impl.cpp",
     "../../../../frameworks/native/client/src/user_idm_callback_service.cpp",
     "../../../../frameworks/native/client/src/user_idm_client_impl.cpp",
-    "executor_callback_stub_fuzzer.cpp",
+    "user_auth_callback_stub_fuzzer.cpp",
   ]
 
   deps = [
@@ -57,11 +57,11 @@ ohos_fuzztest("ExecutorCallbackStubFuzzTest") {
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   external_deps = [
-    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_single",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "user_auth_framework:userauth_client",
   ]
 
   subsystem_name = "useriam"
