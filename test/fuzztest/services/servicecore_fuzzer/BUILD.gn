@@ -51,7 +51,7 @@ ohos_fuzztest("ServiceCoreFuzzTest") {
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
-  external_deps = [ "hilog:libhilog" ]
+  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
 
   subsystem_name = "useriam"
   part_name = "user_auth_framework"

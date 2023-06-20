@@ -62,7 +62,7 @@ ohos_source_set("userauth_service_core") {
   external_deps = [
     "c_utils:utils",
     "drivers_interface_user_auth:libuser_auth_proxy_1.1",
-    "hilog:libhilog",
+    "hilog_native:libhilog",
     "hitrace_native:hitrace_meter",
     "init:libbegetutil",
     "ipc:ipc_core",
