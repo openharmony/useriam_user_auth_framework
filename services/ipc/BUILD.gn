@@ -45,7 +45,7 @@ ohos_source_set("userauth_services_ipc") {
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "drivers_interface_user_auth:libuser_auth_proxy_1.1",
-    "hilog_native:libhilog",
+    "hilog:libhilog",
     "hitrace_native:hitrace_meter",
     "init:libbegetutil",
     "ipc:ipc_single",

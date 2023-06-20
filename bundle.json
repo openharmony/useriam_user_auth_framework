@@ -29,7 +29,7 @@
     "ram": "7271KB",
     "deps": {
       "components": [
-        "hiviewdfx_hilog_native",
+        "hilog",
         "ipc",
         "safwk",
         "samgr",
@@ -39,7 +39,6 @@
         "access_token",
         "os_account",
         "napi",
-        "hilog_native",
         "hdf_core",
         "hitrace_native",
         "c_utils"
