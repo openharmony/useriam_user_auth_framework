@@ -43,7 +43,7 @@ ohos_source_set("userauth_service_context") {
 
   external_deps = [
     "c_utils:utils",
-    "hilog_native:libhilog",
+    "hilog:libhilog",
     "hitrace_native:hitrace_meter",
     "init:libbegetutil",
   ]
