@@ -65,7 +65,7 @@ ohos_fuzztest("UserAuthDriverManagerFuzzTest") {
   external_deps = [
     "c_utils:utils",
     "hdf_core:libhdi",
-    "hilog:libhilog",
+    "hiviewdfx_hilog_native:libhilog",
     "init:libbeget_proxy",
     "ipc:ipc_single",
     "samgr:samgr_proxy",

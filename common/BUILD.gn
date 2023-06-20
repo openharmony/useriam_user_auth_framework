@@ -31,7 +31,7 @@ ohos_source_set("iam_thread_pool") {
 
   external_deps = [
     "c_utils:utils",
-    "hilog:libhilog",
+    "hilog_native:libhilog",
   ]
 
   public_configs = [ ":iam_thread_pool_config" ]
@@ -57,7 +57,7 @@ ohos_source_set("iam_utils") {
 
   external_deps = [
     "c_utils:utils",
-    "hilog:libhilog",
+    "hilog_native:libhilog",
   ]
 
   public_configs = [
@@ -79,7 +79,7 @@ ohos_source_set("iam_test") {
 
   external_deps = [
     "c_utils:utils",
-    "hilog:libhilog",
+    "hilog_native:libhilog",
   ]
 
   public_configs = [ ":iam_test_config" ]
