@@ -64,7 +64,7 @@ ohos_shared_library("userauth_executors") {
   external_deps = [
     "c_utils:utils",
     "hdf_core:libhdi",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "init:libbeget_proxy",
     "ipc:ipc_single",
     "samgr:samgr_proxy",
