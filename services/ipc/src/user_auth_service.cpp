@@ -21,6 +21,7 @@
 #include "context_factory.h"
 #include "context_helper.h"
 #include "hdi_wrapper.h"
+#include "iam_check.h"
 #include "iam_common_defines.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
@@ -35,6 +36,51 @@ const uint64_t BAD_CONTEXT_ID = 0;
 const int32_t MINIMUM_VERSION = 0;
 const int32_t CURRENT_VERSION = 1;
 const uint32_t AUTH_TRUST_LEVEL_SYS = 1;
+void GetTemplatesByAuthType(int32_t userId, AuthType authType, std::vector<uint64_t> &templateIds)
+{
+    templateIds.clear();
+    auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType);
+    if (credentialInfos.empty()) {
+        IAM_LOGE("user %{public}d has no credential type %{public}d", userId, authType);
+        return;
+    }
+    
+    templateIds.reserve(credentialInfos.size());
+    for (auto &info : credentialInfos) {
+        if (info == nullptr) {
+            IAM_LOGE("info is nullptr");
+            continue;
+        }
+        templateIds.push_back(info->GetTemplateId());
+    }
+}
+
+bool IsTemplateIdListRequired(const std::vector<Attributes::AttributeKey> &keys)
+{
+    for (const auto &key : keys) {
+        if (key == Attributes::AttributeKey::ATTR_PIN_SUB_TYPE ||
+            key == Attributes::AttributeKey::ATTR_REMAIN_TIMES ||
+            key == Attributes::AttributeKey::ATTR_FREEZING_TIME) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void GetResourceNodeByType(AuthType authType, std::vector<std::weak_ptr<ResourceNode>> &authTypeNodes)
+{
+    authTypeNodes.clear();
+    ResourceNodePool::Instance().Enumerate(
+        [&authTypeNodes, authType](const std::weak_ptr<ResourceNode> &weakNode) {
+            auto node = weakNode.lock();
+            if (node == nullptr) {
+                return;
+            }
+            if (node->GetAuthType() == authType) {
+                authTypeNodes.push_back(node);
+            }
+        });
+}
 } // namespace
 
 REGISTER_SYSTEM_ABILITY_BY_ID(UserAuthService, SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true);
@@ -98,36 +144,39 @@ void UserAuthService::GetProperty(int32_t userId, AuthType authType,
     const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallbackInterface> &callback)
 {
     IAM_LOGI("start");
+    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
     Attributes values;
-    if (callback == nullptr) {
-        IAM_LOGE("callback is nullptr");
-        return;
-    }
+
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         callback->OnGetExecutorPropertyResult(CHECK_PERMISSION_FAILED, values);
         return;
     }
 
-    auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType);
-    if (credentialInfos.empty() || credentialInfos[0] == nullptr) {
-        IAM_LOGE("user %{public}d has no credential type %{public}d", userId, authType);
-        callback->OnGetExecutorPropertyResult(NOT_ENROLLED, values);
-        return;
+    std::vector<uint64_t> templateIds;
+    if (IsTemplateIdListRequired(keys)) {
+        GetTemplatesByAuthType(userId, authType, templateIds);
+        if (templateIds.size() == 0) {
+            IAM_LOGE("template id list is required, but templateIds size is 0");
+            callback->OnGetExecutorPropertyResult(NOT_ENROLLED, values);
+            return;
+        }
     }
-    uint64_t executorIndex = credentialInfos[0]->GetExecutorIndex();
 
-    auto resourceNode = ResourceNodePool::Instance().Select(executorIndex).lock();
-    if (resourceNode == nullptr) {
-        IAM_LOGE("resourceNode is nullptr");
+    std::vector<std::weak_ptr<ResourceNode>> authTypeNodes;
+    GetResourceNodeByType(authType, authTypeNodes);
+    if (authTypeNodes.size() != 1) {
+        IAM_LOGE("auth type %{public}d resource node num %{public}zu is not expected",
+            authType, authTypeNodes.size());
         callback->OnGetExecutorPropertyResult(GENERAL_ERROR, values);
         return;
     }
 
-    std::vector<uint64_t> templateIds;
-    templateIds.reserve(credentialInfos.size());
-    for (auto &info : credentialInfos) {
-        templateIds.push_back(info->GetTemplateId());
+    auto resourceNode = authTypeNodes[0].lock();
+    if (resourceNode == nullptr) {
+        IAM_LOGE("resourceNode is nullptr");
+        callback->OnGetExecutorPropertyResult(GENERAL_ERROR, values);
+        return;
     }
 
     std::vector<uint32_t> uint32Keys;
@@ -164,14 +213,16 @@ void UserAuthService::SetProperty(int32_t userId, AuthType authType, const Attri
         return;
     }
 
-    auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType);
-    if (credentialInfos.empty() || credentialInfos[0] == nullptr) {
-        IAM_LOGE("credential info is incorrect");
-        callback->OnSetExecutorPropertyResult(NOT_ENROLLED);
+    std::vector<std::weak_ptr<ResourceNode>> authTypeNodes;
+    GetResourceNodeByType(authType, authTypeNodes);
+    if (authTypeNodes.size() != 1) {
+        IAM_LOGE("auth type %{public}d resource node num %{public}zu is not expected",
+            authType, authTypeNodes.size());
+        callback->OnSetExecutorPropertyResult(GENERAL_ERROR);
         return;
     }
-    uint64_t executorIndex = credentialInfos[0]->GetExecutorIndex();
-    auto resourceNode = ResourceNodePool::Instance().Select(executorIndex).lock();
+
+    auto resourceNode = authTypeNodes[0].lock();
     if (resourceNode == nullptr) {
         IAM_LOGE("resourceNode is nullptr");
         callback->OnSetExecutorPropertyResult(GENERAL_ERROR);
