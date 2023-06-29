@@ -40,6 +40,7 @@ std::shared_ptr<Context> ContextFactory::CreateSimpleAuthContext(const AuthConte
     IF_FALSE_LOGE_AND_RETURN_VAL(auth != nullptr, nullptr);
     auth->SetChallenge(para.challenge);
     auth->SetAccessTokenId(para.tokenId);
+    auth->SetEndAfterFirstFail(para.endAfterFirstFail);
     return Common::MakeShared<SimpleAuthContext>(newContextId, auth, callback);
 }
 

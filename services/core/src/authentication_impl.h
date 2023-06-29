@@ -33,6 +33,7 @@ public:
     void SetExecutor(uint32_t executorIndex) override;
     void SetChallenge(const std::vector<uint8_t> &challenge) override;
     void SetAccessTokenId(uint32_t tokenId) override;
+    void SetEndAfterFirstFail(bool endAfterFirstFail) override;
 
     bool Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
         std::shared_ptr<ScheduleNodeCallback> callback) override;
@@ -49,6 +50,7 @@ private:
     int32_t userId_;
     AuthType authType_;
     AuthTrustLevel atl_;
+    bool endAfterFirstFail_ {false};
 
     uint32_t executorSensorHint {0};
     uint32_t executorIndex_ {0};

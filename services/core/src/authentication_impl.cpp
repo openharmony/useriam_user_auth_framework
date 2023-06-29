@@ -64,6 +64,11 @@ void AuthenticationImpl::SetAccessTokenId(uint32_t tokenId)
     tokenId_ = tokenId;
 }
 
+void AuthenticationImpl::SetEndAfterFirstFail(bool endAfterFirstFail)
+{
+    endAfterFirstFail_ = endAfterFirstFail;
+}
+
 uint32_t AuthenticationImpl::GetAccessTokenId() const
 {
     return tokenId_;
@@ -99,6 +104,7 @@ bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
 
     ScheduleNodeHelper::NodeOptionalPara para;
     para.tokenId = tokenId_;
+    para.endAfterFirstFail = endAfterFirstFail_;
 
     if (!ScheduleNodeHelper::BuildFromHdi(infos, callback, scheduleList, para)) {
         IAM_LOGE("BuildFromHdi failed");
