@@ -144,16 +144,16 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty001, TestSize.Level0)
 {
     UserAuthService service(100, true);
     int32_t testUserId = 123;
-    AuthType testAuthType = FACE;
-    std::vector<Attributes::AttributeKey> testKeys = {Attributes::ATTR_RESULT_CODE, Attributes::ATTR_SIGNATURE};
+    AuthType testAuthType = PIN;
+    std::vector<Attributes::AttributeKey> testKeys = {Attributes::ATTR_PIN_SUB_TYPE, Attributes::ATTR_SIGNATURE};
     sptr<GetExecutorPropertyCallbackInterface> testCallback = new MockGetExecutorPropertyCallback();
     EXPECT_NE(testCallback, nullptr);
     auto *tempCallback = static_cast<MockGetExecutorPropertyCallback *>(testCallback.GetRefPtr());
     EXPECT_NE(tempCallback, nullptr);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*tempCallback, OnGetExecutorPropertyResult(_, _)).Times(2);
     EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).Times(1);
+    EXPECT_CALL(*tempCallback, OnGetExecutorPropertyResult(_, _)).Times(2);
     service.GetProperty(testUserId, testAuthType, testKeys, testCallback);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     service.GetProperty(testUserId, testAuthType, testKeys, testCallback);
@@ -164,8 +164,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty002, TestSize.Level0)
 {
     UserAuthService service(100, true);
     int32_t testUserId = 123;
-    AuthType testAuthType = FACE;
-    std::vector<Attributes::AttributeKey> testKeys = {Attributes::ATTR_RESULT_CODE, Attributes::ATTR_SIGNATURE};
+    AuthType testAuthType = PIN;
+    std::vector<Attributes::AttributeKey> testKeys = {Attributes::ATTR_PIN_SUB_TYPE, Attributes::ATTR_SIGNATURE};
     sptr<GetExecutorPropertyCallbackInterface> testCallback = nullptr;
     service.GetProperty(testUserId, testAuthType, testKeys, testCallback);
 
@@ -211,16 +211,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetProperty001, TestSize.Level0)
 {
     UserAuthService service(100, true);
     int32_t testUserId = 124;
-    AuthType testAuthType = FACE;
+    AuthType testAuthType = PIN;
     Attributes testAttr;
     sptr<SetExecutorPropertyCallbackInterface> testCallback = new MockSetExecutorPropertyCallback();
     EXPECT_NE(testCallback, nullptr);
     auto *tempCallback = static_cast<MockSetExecutorPropertyCallback *>(testCallback.GetRefPtr());
     EXPECT_NE(tempCallback, nullptr);
-    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*tempCallback, OnSetExecutorPropertyResult(_)).Times(2);
-    EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).Times(1);
     service.SetProperty(testUserId, testAuthType, testAttr, testCallback);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     service.SetProperty(testUserId, testAuthType, testAttr, testCallback);
@@ -231,29 +228,11 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetProperty002, TestSize.Level0)
 {
     UserAuthService service(100, true);
     int32_t testUserId = 124;
-    AuthType testAuthType = FACE;
+    AuthType testAuthType = PIN;
     Attributes testAttr;
     sptr<SetExecutorPropertyCallbackInterface> testCallback = nullptr;
     service.SetProperty(testUserId, testAuthType, testAttr, testCallback);
 
-    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).Times(2);
-    ON_CALL(*mockHdi, GetCredential)
-        .WillByDefault(
-            [](int32_t userId, HdiAuthType authType, std::vector<HdiCredentialInfo> &infos) {
-                HdiCredentialInfo tempInfo = {
-                    .credentialId = 1,
-                    .executorIndex = 2,
-                    .templateId = 3,
-                    .authType = static_cast<HdiAuthType>(1),
-                    .executorMatcher = 2,
-                    .executorSensorHint = 3,
-                };
-                infos.push_back(tempInfo);
-                return HDF_SUCCESS;
-            }
-        );
     auto resourceNode = MockResourceNode::CreateWithExecuteIndex(2);
     EXPECT_NE(resourceNode, nullptr);
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
