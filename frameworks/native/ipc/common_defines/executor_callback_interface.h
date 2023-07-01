@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,19 +21,12 @@
 #include "iremote_broker.h"
 
 #include "executor_messenger_interface.h"
+#include "executor_callback_interface_ipc_interface_code.h"
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 class ExecutorCallbackInterface : public IRemoteBroker {
 public:
-    /* Message ID */
-    enum : uint32_t {
-        ON_MESSENGER_READY = 1,
-        ON_BEGIN_EXECUTE,
-        ON_END_EXECUTE,
-        ON_SET_PROPERTY,
-        ON_GET_PROPERTY,
-    };
     virtual void OnMessengerReady(sptr<ExecutorMessengerInterface> &messenger, const std::vector<uint8_t> &publicKey,
         const std::vector<uint64_t> &templateIdList) = 0;
     virtual int32_t OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,

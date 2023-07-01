@@ -13,27 +13,18 @@
  * limitations under the License.
  */
 
-#ifndef EXECUTOR_MESSENGER_INTERFACE_H
-#define EXECUTOR_MESSENGER_INTERFACE_H
+#ifndef IDM_CALLBACK_INTERFACE_IPC_INTERFACE_CODE_H
+#define IDM_CALLBACK_INTERFACE_IPC_INTERFACE_CODE_H
 
-#include "iremote_broker.h"
-
-#include "attributes.h"
-#include "executor_messenger_interface_ipc_interface_code.h"
-#include "iam_common_defines.h"
-
+/* SAID: 901 */
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class ExecutorMessengerInterface : public IRemoteBroker {
-public:
-    virtual int32_t SendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole, ExecutorRole dstRole,
-        const std::vector<uint8_t> &msg) = 0;
-    virtual int32_t Finish(uint64_t scheduleId, ExecutorRole srcRole, ResultCode resultCode,
-        const std::shared_ptr<Attributes> &finalResult) = 0;
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIam.AuthResPool.IExecutor_Messenger");
+enum class IdmCallbackInterfaceCode{
+    IDM_CALLBACK_ON_RESULT = 0,
+    IDM_CALLBACK_ON_ACQUIRE_INFO,
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // EXECUTOR_MESSENGER_INTERFACE_H
+#endif // IDM_CALLBACK_INTERFACE_IPC_INTERFACE_CODE_H

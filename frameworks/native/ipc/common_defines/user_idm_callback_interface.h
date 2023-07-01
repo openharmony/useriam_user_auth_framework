@@ -23,6 +23,9 @@
 #include "attributes.h"
 #include "iam_common_defines.h"
 #include "iam_callback_interface.h"
+#include "idm_callback_interface_ipc_interface_code.h"
+#include "idm_get_cred_info_callback_interface_ipc_interface_code.h"
+#include "idm_get_secure_user_info_callback_interface_ipc_interface_code.h"
 #include "user_idm_client_defines.h"
 
 namespace OHOS {
@@ -30,10 +33,6 @@ namespace UserIam {
 namespace UserAuth {
 class IdmGetCredInfoCallbackInterface : public IRemoteBroker {
 public:
-    enum {
-        ON_GET_INFO = 0,
-    };
-
     /*
      * return all registered credential information.
      */
@@ -44,10 +43,6 @@ public:
 
 class IdmGetSecureUserInfoCallbackInterface : public IRemoteBroker {
 public:
-    enum {
-        ON_GET_SEC_INFO = 0,
-    };
-
     /*
      * return all registered security information.
      */
@@ -58,11 +53,6 @@ public:
 
 class IdmCallbackInterface : public IamCallbackInterface {
 public:
-    enum {
-        IDM_CALLBACK_ON_RESULT = 0,
-        IDM_CALLBACK_ON_ACQUIRE_INFO,
-    };
-
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.useridm.IIDMCallback");
 };
 } // namespace UserAuth

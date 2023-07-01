@@ -51,7 +51,7 @@ HWTEST_F(UserAuthCallbackStubTest, TestOnResultStub_001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserAuthInterface::USER_AUTH_ON_RESULT;
+    uint32_t code = static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_ON_RESULT);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthCallbackInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(result));
@@ -73,7 +73,7 @@ HWTEST_F(UserAuthCallbackStubTest, TestOnAcquireInfoStub_001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserAuthInterface::USER_AUTH_ACQUIRE_INFO;
+    uint32_t code = static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_ACQUIRE_INFO);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthCallbackInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(module));
@@ -95,7 +95,7 @@ HWTEST_F(UserAuthCallbackStubTest, TestOnGetExecutorPropertyResultStub_001, Test
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserAuthInterface::USER_AUTH_GET_EX_PROP;
+    uint32_t code = static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_GET_EX_PROP);
 
     EXPECT_TRUE(data.WriteInterfaceToken(GetExecutorPropertyCallbackInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(result));
@@ -115,7 +115,7 @@ HWTEST_F(UserAuthCallbackStubTest, TestOnSetExecutorPropertyResultStub_001, Test
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserAuthInterface::USER_AUTH_SET_EX_PROP;
+    uint32_t code = static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_SET_EX_PROP);
 
     EXPECT_TRUE(data.WriteInterfaceToken(SetExecutorPropertyCallbackInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(result));

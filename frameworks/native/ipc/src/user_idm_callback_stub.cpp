@@ -38,9 +38,9 @@ int32_t IdmCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Mes
     }
     
     switch (code) {
-        case IdmCallbackInterface::IDM_CALLBACK_ON_RESULT:
+        case static_cast<uint32_t>(IdmCallbackInterfaceCode::IDM_CALLBACK_ON_RESULT):
             return OnResultStub(data, reply);
-        case IdmCallbackInterface::IDM_CALLBACK_ON_ACQUIRE_INFO:
+        case static_cast<uint32_t>(IdmCallbackInterfaceCode::IDM_CALLBACK_ON_ACQUIRE_INFO):
             return OnAcquireInfoStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
@@ -101,7 +101,7 @@ int32_t IdmGetCredInfoCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel
         return GENERAL_ERROR;
     }
 
-    if (code == IdmGetCredInfoCallbackInterface::ON_GET_INFO) {
+    if (code == static_cast<uint32_t>(IdmGetCredInfoCallbackInterfaceCode::ON_GET_INFO)) {
         return OnCredentialInfosStub(data, reply);
     }
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
@@ -169,7 +169,7 @@ int32_t IdmGetSecureUserInfoCallbackStub::OnRemoteRequest(uint32_t code, Message
         return GENERAL_ERROR;
     }
 
-    if (code == IdmGetSecureUserInfoCallbackInterface::ON_GET_SEC_INFO) {
+    if (code == static_cast<uint32_t>(IdmGetSecureUserInfoCallbackInterfaceCode::ON_GET_SEC_INFO)) {
         return OnSecureUserInfoStub(data, reply);
     }
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);

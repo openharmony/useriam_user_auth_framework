@@ -49,7 +49,7 @@ HWTEST_F(UserIdmCallbackProxyTest, TestOnResult_001, TestSize.Level0)
     EXPECT_CALL(*obj, SendRequest(_, _, _, _))
         .WillOnce(
             [](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-                EXPECT_EQ(code, IdmCallbackInterface::IDM_CALLBACK_ON_RESULT);
+                EXPECT_EQ(code, static_cast<uint32_t>(IdmCallbackInterfaceCode::IDM_CALLBACK_ON_RESULT));
                 return OHOS::NO_ERROR;
             }
         );
@@ -69,7 +69,7 @@ HWTEST_F(UserIdmCallbackProxyTest, TestOnAcquireInfo_001, TestSize.Level0)
     EXPECT_CALL(*obj, SendRequest(_, _, _, _))
         .WillOnce(
             [](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-                EXPECT_EQ(code, IdmCallbackInterface::IDM_CALLBACK_ON_ACQUIRE_INFO);
+                EXPECT_EQ(code, static_cast<uint32_t>(IdmCallbackInterfaceCode::IDM_CALLBACK_ON_ACQUIRE_INFO));
                 return OHOS::NO_ERROR;
             }
         );

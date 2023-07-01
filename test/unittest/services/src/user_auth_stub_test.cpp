@@ -46,7 +46,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetAvailableStatusStub001, TestSize.Level
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserAuthInterface::USER_AUTH_GET_AVAILABLE_STATUS;
+    uint32_t code = static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_GET_AVAILABLE_STATUS);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
 
@@ -75,7 +75,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetAvailableStatusStub002, TestSize.Level
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserAuthInterface::USER_AUTH_GET_AVAILABLE_STATUS;
+    uint32_t code = static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_GET_AVAILABLE_STATUS);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(testAuthType));
@@ -93,7 +93,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetPropertyStub001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserAuthInterface::USER_AUTH_GET_PROPERTY;
+    uint32_t code = static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_GET_PROPERTY);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
 
@@ -134,7 +134,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetPropertyStub002, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserAuthInterface::USER_AUTH_GET_PROPERTY;
+    uint32_t code = static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_GET_PROPERTY);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(testUserId));
@@ -151,7 +151,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubSetPropertyStub001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserAuthInterface::USER_AUTH_SET_PROPERTY;
+    uint32_t code = static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_SET_PROPERTY);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
 
@@ -191,7 +191,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubSetPropertyStub002, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserAuthInterface::USER_AUTH_SET_PROPERTY;
+    uint32_t code = static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_SET_PROPERTY);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(testUserId));
@@ -208,7 +208,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthStub001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserAuthInterface::USER_AUTH_AUTH;
+    uint32_t code = static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_AUTH);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
 
@@ -249,7 +249,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthStub002, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserAuthInterface::USER_AUTH_AUTH;
+    uint32_t code = static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_AUTH);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteUInt8Vector(testChallenge));
@@ -270,7 +270,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserAuthInterface::USER_AUTH_AUTH_USER;
+    uint32_t code = static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_AUTH_USER);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
 
@@ -311,7 +311,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub002, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserAuthInterface::USER_AUTH_AUTH_USER;
+    uint32_t code = static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_AUTH_USER);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(testUserId));
@@ -332,7 +332,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubIdentifyStub001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserAuthInterface::USER_AUTH_IDENTIFY;
+    uint32_t code = static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_IDENTIFY);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
 
@@ -368,7 +368,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubIdentifyStub002, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserAuthInterface::USER_AUTH_IDENTIFY;
+    uint32_t code = static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_IDENTIFY);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteUInt8Vector(testChallenge));
@@ -387,7 +387,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubCancelAuthOrIdentifyStub001, TestSize.Lev
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserAuthInterface::USER_AUTH_CANCEL_AUTH;
+    uint32_t code = static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_CANCEL_AUTH);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
 
@@ -412,7 +412,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubCancelAuthOrIdentifyStub002, TestSize.Lev
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserAuthInterface::USER_AUTH_CANCEL_AUTH;
+    uint32_t code = static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_CANCEL_AUTH);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteUint64(testContextId));
@@ -440,7 +440,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetVersionStub, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserAuthInterface::USER_AUTH_GET_VERSION;
+    uint32_t code = static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_GET_VERSION);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
 

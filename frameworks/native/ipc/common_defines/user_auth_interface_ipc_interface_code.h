@@ -13,27 +13,30 @@
  * limitations under the License.
  */
 
-#ifndef EXECUTOR_MESSENGER_INTERFACE_H
-#define EXECUTOR_MESSENGER_INTERFACE_H
+#ifndef USER_AUTH_INTERFACE_IPC_INTERFACE_CODE_H
+#define USER_AUTH_INTERFACE_IPC_INTERFACE_CODE_H
 
-#include "iremote_broker.h"
-
-#include "attributes.h"
-#include "executor_messenger_interface_ipc_interface_code.h"
-#include "iam_common_defines.h"
-
+/* SAID: 921 */
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class ExecutorMessengerInterface : public IRemoteBroker {
-public:
-    virtual int32_t SendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole, ExecutorRole dstRole,
-        const std::vector<uint8_t> &msg) = 0;
-    virtual int32_t Finish(uint64_t scheduleId, ExecutorRole srcRole, ResultCode resultCode,
-        const std::shared_ptr<Attributes> &finalResult) = 0;
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIam.AuthResPool.IExecutor_Messenger");
+enum class UserAuthInterfaceCode {
+    USER_AUTH_GET_AVAILABLE_STATUS = 0,
+    USER_AUTH_GET_PROPERTY,
+    USER_AUTH_SET_PROPERTY,
+    USER_AUTH_AUTH,
+    USER_AUTH_AUTH_USER,
+    USER_AUTH_CANCEL_AUTH,
+    USER_AUTH_GET_VERSION,
+    USER_AUTH_ON_RESULT,
+    USER_AUTH_GET_EX_PROP,
+    USER_AUTH_SET_EX_PROP,
+    USER_AUTH_ACQUIRE_INFO,
+    USER_AUTH_IDENTIFY,
+    USER_AUTH_CANCEL_IDENTIFY,
+    USER_AUTH_ON_IDENTIFY_RESULT,
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // EXECUTOR_MESSENGER_INTERFACE_H
+#endif // USER_AUTH_INTERFACE_IPC_INTERFACE_CODE_H
