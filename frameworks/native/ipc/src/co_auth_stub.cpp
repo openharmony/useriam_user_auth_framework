@@ -35,7 +35,7 @@ int32_t CoAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageP
         return GENERAL_ERROR;
     }
     switch (code) {
-        case static_cast<uint32_t>(CoAuthInterfaceCode::CO_AUTH_EXECUTOR_REGISTER):
+        case CoAuthInterfaceCode::CO_AUTH_EXECUTOR_REGISTER:
             return ExecutorRegisterStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);

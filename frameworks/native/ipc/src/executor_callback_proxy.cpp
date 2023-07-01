@@ -51,7 +51,7 @@ void ExecutorCallbackProxy::OnMessengerReady(sptr<ExecutorMessengerInterface> &m
         return;
     }
 
-    bool result = SendRequest(static_cast<uint32_t>(ExecutorCallbackInterfaceCode::ON_MESSENGER_READY), data, reply);
+    bool result = SendRequest(ExecutorCallbackInterfaceCode::ON_MESSENGER_READY, data, reply);
     if (!result) {
         IAM_LOGE("send request failed");
         return;
@@ -82,7 +82,7 @@ int32_t ExecutorCallbackProxy::OnBeginExecute(uint64_t scheduleId, const std::ve
         return GENERAL_ERROR;
     }
 
-    bool ret = SendRequest(static_cast<uint32_t>(ExecutorCallbackInterfaceCode::ON_BEGIN_EXECUTE), data, reply);
+    bool ret = SendRequest(ExecutorCallbackInterfaceCode::ON_BEGIN_EXECUTE, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
         return GENERAL_ERROR;
@@ -114,7 +114,7 @@ int32_t ExecutorCallbackProxy::OnEndExecute(uint64_t scheduleId, const Attribute
         return GENERAL_ERROR;
     }
 
-    bool ret = SendRequest(static_cast<uint32_t>(ExecutorCallbackInterfaceCode::ON_END_EXECUTE), data, reply);
+    bool ret = SendRequest(ExecutorCallbackInterfaceCode::ON_END_EXECUTE, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
         return GENERAL_ERROR;
@@ -142,7 +142,7 @@ int32_t ExecutorCallbackProxy::OnSetProperty(const Attributes &properties)
         return GENERAL_ERROR;
     }
 
-    bool ret = SendRequest(static_cast<uint32_t>(ExecutorCallbackInterfaceCode::ON_SET_PROPERTY), data, reply);
+    bool ret = SendRequest(ExecutorCallbackInterfaceCode::ON_SET_PROPERTY, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
         return GENERAL_ERROR;
@@ -170,7 +170,7 @@ int32_t ExecutorCallbackProxy::OnGetProperty(const Attributes &condition, Attrib
         return GENERAL_ERROR;
     }
 
-    bool ret = SendRequest(static_cast<uint32_t>(ExecutorCallbackInterfaceCode::ON_GET_PROPERTY), data, reply);
+    bool ret = SendRequest(ExecutorCallbackInterfaceCode::ON_GET_PROPERTY, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
         return GENERAL_ERROR;

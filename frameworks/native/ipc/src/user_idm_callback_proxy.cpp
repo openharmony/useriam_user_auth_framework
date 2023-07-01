@@ -45,7 +45,7 @@ void IdmCallbackProxy::OnResult(int32_t result, const Attributes &extraInfo)
         return;
     }
 
-    bool ret = SendRequest(static_cast<uint32_t>(IdmCallbackInterfaceCode::IDM_CALLBACK_ON_RESULT), data, reply);
+    bool ret = SendRequest(IdmCallbackInterfaceCode::IDM_CALLBACK_ON_RESULT, data, reply);
     if (!ret) {
         IAM_LOGE("failed to send request");
     }
@@ -76,7 +76,7 @@ void IdmCallbackProxy::OnAcquireInfo(int32_t module, int32_t acquireInfo, const 
         return;
     }
 
-    bool ret = SendRequest(static_cast<uint32_t>(IdmCallbackInterfaceCode::IDM_CALLBACK_ON_ACQUIRE_INFO), data, reply);
+    bool ret = SendRequest(IdmCallbackInterfaceCode::IDM_CALLBACK_ON_ACQUIRE_INFO, data, reply);
     if (!ret) {
         IAM_LOGE("failed to send request");
     }
@@ -135,7 +135,7 @@ void IdmGetCredentialInfoProxy::OnCredentialInfos(const std::vector<CredentialIn
         }
     }
 
-    bool ret = SendRequest(static_cast<uint32_t>(IdmGetCredInfoCallbackInterfaceCode::ON_GET_INFO), data, reply);
+    bool ret = SendRequest(IdmGetCredInfoCallbackInterfaceCode::ON_GET_INFO, data, reply);
     if (!ret) {
         IAM_LOGE("failed to send request");
     }
@@ -202,7 +202,7 @@ void IdmGetSecureUserInfoProxy::OnSecureUserInfo(const SecUserInfo &secUserInfo)
         return;
     }
 
-    bool ret = SendRequest(static_cast<uint32_t>(IdmGetSecureUserInfoCallbackInterfaceCode::ON_GET_SEC_INFO), data, reply);
+    bool ret = SendRequest(IdmGetSecureUserInfoCallbackInterfaceCode::ON_GET_SEC_INFO, data, reply);
     if (!ret) {
         IAM_LOGE("failed to send request");
     }

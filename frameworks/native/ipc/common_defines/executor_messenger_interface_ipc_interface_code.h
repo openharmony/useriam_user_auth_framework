@@ -20,7 +20,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-enum class ExecutorMessengerInterfaceCode {
+enum ExecutorMessengerInterfaceCode : uint32_t {
     CO_AUTH_SEND_DATA = 0,
     CO_AUTH_FINISH,
 };

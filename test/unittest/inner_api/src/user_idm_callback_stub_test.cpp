@@ -50,7 +50,7 @@ HWTEST_F(UserIdmCallbackStubTest, TestOnResultStub_001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = static_cast<uint32_t>(IdmCallbackInterfaceCode::IDM_CALLBACK_ON_RESULT);
+    uint32_t code = IdmCallbackInterfaceCode::IDM_CALLBACK_ON_RESULT;
 
     EXPECT_TRUE(data.WriteInterfaceToken(IdmCallbackInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(result));
@@ -72,7 +72,7 @@ HWTEST_F(UserIdmCallbackStubTest, TestOnAcquireInfoStub_001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = static_cast<uint32_t>(IdmCallbackInterfaceCode::IDM_CALLBACK_ON_ACQUIRE_INFO);
+    uint32_t code = IdmCallbackInterfaceCode::IDM_CALLBACK_ON_ACQUIRE_INFO;
 
     EXPECT_TRUE(data.WriteInterfaceToken(IdmCallbackInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(module));
@@ -91,7 +91,7 @@ HWTEST_F(UserIdmCallbackStubTest, TestOnCredentialInfosStub_001, TestSize.Level0
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = static_cast<uint32_t>(IdmGetCredInfoCallbackInterfaceCode::ON_GET_INFO);
+    uint32_t code = IdmGetCredInfoCallbackInterfaceCode::ON_GET_INFO;
 
     EXPECT_TRUE(data.WriteInterfaceToken(IdmGetCredInfoCallbackInterface::GetDescriptor()));
 
@@ -112,7 +112,7 @@ HWTEST_F(UserIdmCallbackStubTest, TestOnCredentialInfosStub_002, TestSize.Level0
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = static_cast<uint32_t>(IdmGetCredInfoCallbackInterfaceCode::ON_GET_INFO);
+    uint32_t code = IdmGetCredInfoCallbackInterfaceCode::ON_GET_INFO;
 
     EXPECT_TRUE(data.WriteInterfaceToken(IdmGetCredInfoCallbackInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteUint32(1000));
@@ -134,7 +134,7 @@ HWTEST_F(UserIdmCallbackStubTest, TestOnSecureUserInfoStub_001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = static_cast<uint32_t>(IdmGetSecureUserInfoCallbackInterfaceCode::ON_GET_SEC_INFO);
+    uint32_t code = IdmGetSecureUserInfoCallbackInterfaceCode::ON_GET_SEC_INFO;
 
     EXPECT_TRUE(data.WriteInterfaceToken(IdmGetSecureUserInfoCallbackInterface::GetDescriptor()));
     auto service = Common::MakeShared<MockIdmGetSecureUserInfoCallbackService>();
@@ -155,7 +155,7 @@ HWTEST_F(UserIdmCallbackStubTest, TestOnSecureUserInfoStub_002, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = static_cast<uint32_t>(IdmGetSecureUserInfoCallbackInterfaceCode::ON_GET_SEC_INFO);
+    uint32_t code = IdmGetSecureUserInfoCallbackInterfaceCode::ON_GET_SEC_INFO;
 
     EXPECT_TRUE(data.WriteInterfaceToken(IdmGetSecureUserInfoCallbackInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteUint64(20));

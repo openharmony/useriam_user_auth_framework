@@ -36,9 +36,9 @@ int32_t ExecutorMessengerStub::OnRemoteRequest(uint32_t code, MessageParcel &dat
         return GENERAL_ERROR;
     }
     switch (code) {
-        case static_cast<uint32_t>(ExecutorMessengerInterfaceCode::CO_AUTH_SEND_DATA):
+        case ExecutorMessengerInterfaceCode::CO_AUTH_SEND_DATA:
             return SendDataStub(data, reply);
-        case static_cast<uint32_t>(ExecutorMessengerInterfaceCode::CO_AUTH_FINISH):
+        case ExecutorMessengerInterfaceCode::CO_AUTH_FINISH:
             return FinishStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);

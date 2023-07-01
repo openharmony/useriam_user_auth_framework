@@ -53,7 +53,7 @@ HWTEST_F(ExecutorMessengerStubTest, TestSendDataStub_001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = static_cast<uint32_t>(ExecutorMessengerInterfaceCode::CO_AUTH_SEND_DATA);
+    uint32_t code = ExecutorMessengerInterfaceCode::CO_AUTH_SEND_DATA;
 
     EXPECT_TRUE(data.WriteInterfaceToken(ExecutorMessengerInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteUint64(scheduleId));
@@ -79,7 +79,7 @@ HWTEST_F(ExecutorMessengerStubTest, TestFinishStub_001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = static_cast<uint32_t>(ExecutorMessengerInterfaceCode::CO_AUTH_FINISH);
+    uint32_t code = ExecutorMessengerInterfaceCode::CO_AUTH_FINISH;
 
     EXPECT_TRUE(data.WriteInterfaceToken(ExecutorMessengerInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteUint64(scheduleId));

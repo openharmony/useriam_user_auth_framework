@@ -42,7 +42,7 @@ int32_t UserIdmProxy::OpenSession(int32_t userId, std::vector<uint8_t> &challeng
         return WRITE_PARCEL_ERROR;
     }
     
-    bool ret = SendRequest(static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_OPEN_SESSION), data, reply);
+    bool ret = SendRequest(UserIdmInterfaceCode::USER_IDM_OPEN_SESSION, data, reply);
     if (!ret) {
         return GENERAL_ERROR;
     }
@@ -67,7 +67,7 @@ void UserIdmProxy::CloseSession(int32_t userId)
         return;
     }
 
-    SendRequest(static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_CLOSE_SESSION), data, reply);
+    SendRequest(UserIdmInterfaceCode::USER_IDM_CLOSE_SESSION, data, reply);
 }
 
 int32_t UserIdmProxy::GetCredentialInfo(int32_t userId, AuthType authType,
@@ -97,7 +97,7 @@ int32_t UserIdmProxy::GetCredentialInfo(int32_t userId, AuthType authType,
         return WRITE_PARCEL_ERROR;
     }
 
-    bool ret = SendRequest(static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_GET_CRED_INFO), data, reply);
+    bool ret = SendRequest(UserIdmInterfaceCode::USER_IDM_GET_CRED_INFO, data, reply);
     if (!ret) {
         return GENERAL_ERROR;
     }
@@ -130,7 +130,7 @@ int32_t UserIdmProxy::GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserInfo
         return WRITE_PARCEL_ERROR;
     }
 
-    bool ret = SendRequest(static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_GET_SEC_INFO), data, reply);
+    bool ret = SendRequest(UserIdmInterfaceCode::USER_IDM_GET_SEC_INFO, data, reply);
     if (!ret) {
         SecUserInfo secUserInfo = {};
         callback->OnSecureUserInfo(secUserInfo);
@@ -178,7 +178,7 @@ void UserIdmProxy::AddCredential(int32_t userId, const CredentialPara &credPara,
         return;
     }
 
-    SendRequest(static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_ADD_CREDENTIAL), data, reply);
+    SendRequest(UserIdmInterfaceCode::USER_IDM_ADD_CREDENTIAL, data, reply);
 }
 
 void UserIdmProxy::UpdateCredential(int32_t userId, const CredentialPara &credPara,
@@ -216,7 +216,7 @@ void UserIdmProxy::UpdateCredential(int32_t userId, const CredentialPara &credPa
         return;
     }
 
-    bool ret = SendRequest(static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_UPDATE_CREDENTIAL), data, reply);
+    bool ret = SendRequest(UserIdmInterfaceCode::USER_IDM_UPDATE_CREDENTIAL, data, reply);
     if (!ret) {
         Attributes extraInfo;
         callback->OnResult(GENERAL_ERROR, extraInfo);
@@ -237,7 +237,7 @@ int32_t UserIdmProxy::Cancel(int32_t userId)
         return WRITE_PARCEL_ERROR;
     }
 
-    bool ret = SendRequest(static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_CANCEL), data, reply);
+    bool ret = SendRequest(UserIdmInterfaceCode::USER_IDM_CANCEL, data, reply);
     if (!ret) {
         return GENERAL_ERROR;
     }
@@ -270,7 +270,7 @@ int32_t UserIdmProxy::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInter
         return WRITE_PARCEL_ERROR;
     }
 
-    bool ret = SendRequest(static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_ENFORCE_DEL_USER), data, reply);
+    bool ret = SendRequest(UserIdmInterfaceCode::USER_IDM_ENFORCE_DEL_USER, data, reply);
     if (!ret) {
         Attributes attr;
         callback->OnResult(GENERAL_ERROR, attr);
@@ -310,7 +310,7 @@ void UserIdmProxy::DelUser(int32_t userId, const std::vector<uint8_t> authToken,
         return;
     }
 
-    SendRequest(static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_DEL_USER), data, reply);
+    SendRequest(UserIdmInterfaceCode::USER_IDM_DEL_USER, data, reply);
 }
 
 void UserIdmProxy::DelCredential(int32_t userId, uint64_t credentialId,
@@ -344,7 +344,7 @@ void UserIdmProxy::DelCredential(int32_t userId, uint64_t credentialId,
         return;
     }
 
-    SendRequest(static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_DEL_CRED), data, reply);
+    SendRequest(UserIdmInterfaceCode::USER_IDM_DEL_CRED, data, reply);
 }
 
 bool UserIdmProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply)

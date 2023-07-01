@@ -20,7 +20,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-enum class ExecutorCallbackInterfaceCode {
+enum ExecutorCallbackInterfaceCode : uint32_t {
     ON_MESSENGER_READY = 1,
     ON_BEGIN_EXECUTE,
     ON_END_EXECUTE,

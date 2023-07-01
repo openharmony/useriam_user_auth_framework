@@ -36,25 +36,25 @@ int32_t UserIdmStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Message
     }
 
     switch (code) {
-        case static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_OPEN_SESSION):
+        case UserIdmInterfaceCode::USER_IDM_OPEN_SESSION:
             return OpenSessionStub(data, reply);
-        case static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_CLOSE_SESSION):
+        case UserIdmInterfaceCode::USER_IDM_CLOSE_SESSION:
             return CloseSessionStub(data, reply);
-        case static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_GET_CRED_INFO):
+        case UserIdmInterfaceCode::USER_IDM_GET_CRED_INFO:
             return GetCredentialInfoStub(data, reply);
-        case static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_GET_SEC_INFO):
+        case UserIdmInterfaceCode::USER_IDM_GET_SEC_INFO:
             return GetSecInfoStub(data, reply);
-        case static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_ADD_CREDENTIAL):
+        case UserIdmInterfaceCode::USER_IDM_ADD_CREDENTIAL:
             return AddCredentialStub(data, reply);
-        case static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_UPDATE_CREDENTIAL):
+        case UserIdmInterfaceCode::USER_IDM_UPDATE_CREDENTIAL:
             return UpdateCredentialStub(data, reply);
-        case static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_CANCEL):
+        case UserIdmInterfaceCode::USER_IDM_CANCEL:
             return CancelStub(data, reply);
-        case static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_ENFORCE_DEL_USER):
+        case UserIdmInterfaceCode::USER_IDM_ENFORCE_DEL_USER:
             return EnforceDelUserStub(data, reply);
-        case static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_DEL_USER):
+        case UserIdmInterfaceCode::USER_IDM_DEL_USER:
             return DelUserStub(data, reply);
-        case static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_DEL_CRED):
+        case UserIdmInterfaceCode::USER_IDM_DEL_CRED:
             return DelCredentialStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
