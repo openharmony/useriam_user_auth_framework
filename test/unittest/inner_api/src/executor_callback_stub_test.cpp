@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -53,7 +53,7 @@ HWTEST_F(ExecutorCallbackStubTest, TestOnMessengerReadyStub_001, TestSize.Level0
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = ExecutorCallbackInterface::ON_MESSENGER_READY;
+    uint32_t code = ExecutorCallbackInterfaceCode::ON_MESSENGER_READY;
 
     EXPECT_TRUE(data.WriteInterfaceToken(ExecutorCallbackInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteRemoteObject(messenger->AsObject()));
@@ -76,7 +76,7 @@ HWTEST_F(ExecutorCallbackStubTest, TestOnBeginExecuteStub_001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = ExecutorCallbackInterface::ON_BEGIN_EXECUTE;
+    uint32_t code = ExecutorCallbackInterfaceCode::ON_BEGIN_EXECUTE;
 
     EXPECT_TRUE(data.WriteInterfaceToken(ExecutorCallbackInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteUint64(scheduleId));
@@ -98,7 +98,7 @@ HWTEST_F(ExecutorCallbackStubTest, TestOnEndExecuteStub_001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = ExecutorCallbackInterface::ON_END_EXECUTE;
+    uint32_t code = ExecutorCallbackInterfaceCode::ON_END_EXECUTE;
 
     EXPECT_TRUE(data.WriteInterfaceToken(ExecutorCallbackInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteUint64(scheduleId));
@@ -118,7 +118,7 @@ HWTEST_F(ExecutorCallbackStubTest, TestOnSetPropertyStub_001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = ExecutorCallbackInterface::ON_SET_PROPERTY;
+    uint32_t code = ExecutorCallbackInterfaceCode::ON_SET_PROPERTY;
 
     EXPECT_TRUE(data.WriteInterfaceToken(ExecutorCallbackInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteUInt8Vector(properties));
@@ -137,7 +137,7 @@ HWTEST_F(ExecutorCallbackStubTest, TestOnGetPropertyStub_001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = ExecutorCallbackInterface::ON_GET_PROPERTY;
+    uint32_t code = ExecutorCallbackInterfaceCode::ON_GET_PROPERTY;
 
     EXPECT_TRUE(data.WriteInterfaceToken(ExecutorCallbackInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteUInt8Vector(condition));

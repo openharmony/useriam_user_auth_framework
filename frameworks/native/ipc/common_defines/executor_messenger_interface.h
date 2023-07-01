@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,6 +19,7 @@
 #include "iremote_broker.h"
 
 #include "attributes.h"
+#include "executor_messenger_interface_ipc_interface_code.h"
 #include "iam_common_defines.h"
 
 namespace OHOS {
@@ -26,11 +27,6 @@ namespace UserIam {
 namespace UserAuth {
 class ExecutorMessengerInterface : public IRemoteBroker {
 public:
-    /* Message ID */
-    enum : uint32_t {
-        CO_AUTH_SEND_DATA = 0,
-        CO_AUTH_FINISH,
-    };
     virtual int32_t SendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole, ExecutorRole dstRole,
         const std::vector<uint8_t> &msg) = 0;
     virtual int32_t Finish(uint64_t scheduleId, ExecutorRole srcRole, ResultCode resultCode,

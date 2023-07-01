@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -50,7 +50,7 @@ HWTEST_F(UserIdmCallbackStubTest, TestOnResultStub_001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = IdmCallbackInterface::IDM_CALLBACK_ON_RESULT;
+    uint32_t code = IdmCallbackInterfaceCode::IDM_CALLBACK_ON_RESULT;
 
     EXPECT_TRUE(data.WriteInterfaceToken(IdmCallbackInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(result));
@@ -72,7 +72,7 @@ HWTEST_F(UserIdmCallbackStubTest, TestOnAcquireInfoStub_001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = IdmCallbackInterface::IDM_CALLBACK_ON_ACQUIRE_INFO;
+    uint32_t code = IdmCallbackInterfaceCode::IDM_CALLBACK_ON_ACQUIRE_INFO;
 
     EXPECT_TRUE(data.WriteInterfaceToken(IdmCallbackInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(module));
@@ -91,7 +91,7 @@ HWTEST_F(UserIdmCallbackStubTest, TestOnCredentialInfosStub_001, TestSize.Level0
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = IdmGetCredInfoCallbackInterface::ON_GET_INFO;
+    uint32_t code = IdmGetCredInfoCallbackInterfaceCode::ON_GET_INFO;
 
     EXPECT_TRUE(data.WriteInterfaceToken(IdmGetCredInfoCallbackInterface::GetDescriptor()));
 
@@ -112,7 +112,7 @@ HWTEST_F(UserIdmCallbackStubTest, TestOnCredentialInfosStub_002, TestSize.Level0
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = IdmGetCredInfoCallbackInterface::ON_GET_INFO;
+    uint32_t code = IdmGetCredInfoCallbackInterfaceCode::ON_GET_INFO;
 
     EXPECT_TRUE(data.WriteInterfaceToken(IdmGetCredInfoCallbackInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteUint32(1000));
@@ -134,7 +134,7 @@ HWTEST_F(UserIdmCallbackStubTest, TestOnSecureUserInfoStub_001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = IdmGetSecureUserInfoCallbackInterface::ON_GET_SEC_INFO;
+    uint32_t code = IdmGetSecureUserInfoCallbackInterfaceCode::ON_GET_SEC_INFO;
 
     EXPECT_TRUE(data.WriteInterfaceToken(IdmGetSecureUserInfoCallbackInterface::GetDescriptor()));
     auto service = Common::MakeShared<MockIdmGetSecureUserInfoCallbackService>();
@@ -155,7 +155,7 @@ HWTEST_F(UserIdmCallbackStubTest, TestOnSecureUserInfoStub_002, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = IdmGetSecureUserInfoCallbackInterface::ON_GET_SEC_INFO;
+    uint32_t code = IdmGetSecureUserInfoCallbackInterfaceCode::ON_GET_SEC_INFO;
 
     EXPECT_TRUE(data.WriteInterfaceToken(IdmGetSecureUserInfoCallbackInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteUint64(20));

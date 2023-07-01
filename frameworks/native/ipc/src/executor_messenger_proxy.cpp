@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -58,7 +58,7 @@ int32_t ExecutorMessengerProxy::SendData(uint64_t scheduleId, uint64_t transNum,
         return WRITE_PARCEL_ERROR;
     }
 
-    bool ret = SendRequest(ExecutorMessengerInterface::CO_AUTH_SEND_DATA, data, reply);
+    bool ret = SendRequest(ExecutorMessengerInterfaceCode::CO_AUTH_SEND_DATA, data, reply);
     if (!ret) {
         IAM_LOGE("failed to send request");
         return GENERAL_ERROR;
@@ -103,7 +103,7 @@ int32_t ExecutorMessengerProxy::Finish(uint64_t scheduleId, ExecutorRole srcRole
         return WRITE_PARCEL_ERROR;
     }
 
-    bool ret = SendRequest(ExecutorMessengerInterface::CO_AUTH_FINISH, data, reply);
+    bool ret = SendRequest(ExecutorMessengerInterfaceCode::CO_AUTH_FINISH, data, reply);
     if (!ret) {
         IAM_LOGE("failed to send request");
         return GENERAL_ERROR;

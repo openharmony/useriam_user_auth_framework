@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -82,7 +82,7 @@ HWTEST_F(CoAuthStubTest, CoAuthStubTestExecutorRegister001, TestSize.Level0)
     EXPECT_TRUE(data.WriteUInt8Vector(testInfo.publicKey));
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
-    uint32_t code = CoAuthInterface::CO_AUTH_EXECUTOR_REGISTER;
+    uint32_t code = CoAuthInterfaceCode::CO_AUTH_EXECUTOR_REGISTER;
     MessageOption option(MessageOption::TF_SYNC);
 
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
@@ -96,7 +96,7 @@ HWTEST_F(CoAuthStubTest, CoAuthStubTestExecutorRegister002, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
 
-    uint32_t code = CoAuthInterface::CO_AUTH_EXECUTOR_REGISTER;
+    uint32_t code = CoAuthInterfaceCode::CO_AUTH_EXECUTOR_REGISTER;
     MessageOption option(MessageOption::TF_SYNC);
 
     MockCoAuthService service;
@@ -109,7 +109,7 @@ HWTEST_F(CoAuthStubTest, CoAuthStubTestExecutorRegister003, TestSize.Level0)
     MessageParcel reply;
 
     EXPECT_TRUE(data.WriteInterfaceToken(CoAuthInterface::GetDescriptor()));
-    uint32_t code = CoAuthInterface::CO_AUTH_EXECUTOR_REGISTER;
+    uint32_t code = CoAuthInterfaceCode::CO_AUTH_EXECUTOR_REGISTER;
     MessageOption option(MessageOption::TF_SYNC);
 
     MockCoAuthService service;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -49,7 +49,7 @@ HWTEST_F(UserIdmCallbackProxyTest, TestOnResult_001, TestSize.Level0)
     EXPECT_CALL(*obj, SendRequest(_, _, _, _))
         .WillOnce(
             [](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-                EXPECT_EQ(code, IdmCallbackInterface::IDM_CALLBACK_ON_RESULT);
+                EXPECT_EQ(code, IdmCallbackInterfaceCode::IDM_CALLBACK_ON_RESULT);
                 return OHOS::NO_ERROR;
             }
         );
@@ -69,7 +69,7 @@ HWTEST_F(UserIdmCallbackProxyTest, TestOnAcquireInfo_001, TestSize.Level0)
     EXPECT_CALL(*obj, SendRequest(_, _, _, _))
         .WillOnce(
             [](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-                EXPECT_EQ(code, IdmCallbackInterface::IDM_CALLBACK_ON_ACQUIRE_INFO);
+                EXPECT_EQ(code, IdmCallbackInterfaceCode::IDM_CALLBACK_ON_ACQUIRE_INFO);
                 return OHOS::NO_ERROR;
             }
         );
