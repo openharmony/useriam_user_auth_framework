@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,25 +20,13 @@
 
 #include "refbase.h"
 #include "user_idm_callback_interface.h"
+#include "user_idm_interface_ipc_interface_code.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 class UserIdmInterface : public IRemoteBroker {
 public:
-    enum : uint32_t {
-        USER_IDM_OPEN_SESSION = 0,
-        USER_IDM_CLOSE_SESSION,
-        USER_IDM_GET_CRED_INFO,
-        USER_IDM_GET_SEC_INFO,
-        USER_IDM_ADD_CREDENTIAL,
-        USER_IDM_UPDATE_CREDENTIAL,
-        USER_IDM_CANCEL,
-        USER_IDM_ENFORCE_DEL_USER,
-        USER_IDM_DEL_USER,
-        USER_IDM_DEL_CRED,
-    };
-
     struct CredentialPara {
         AuthType authType {ALL};
         PinSubType pinType {PIN_SIX};

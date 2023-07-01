@@ -40,23 +40,23 @@ int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Messag
         return GENERAL_ERROR;
     }
     switch (code) {
-        case UserAuthInterface::USER_AUTH_GET_AVAILABLE_STATUS:
+        case UserAuthInterfaceCode::USER_AUTH_GET_AVAILABLE_STATUS:
             return GetAvailableStatusStub(data, reply);
-        case UserAuthInterface::USER_AUTH_GET_PROPERTY:
+        case UserAuthInterfaceCode::USER_AUTH_GET_PROPERTY:
             return GetPropertyStub(data, reply);
-        case UserAuthInterface::USER_AUTH_SET_PROPERTY:
+        case UserAuthInterfaceCode::USER_AUTH_SET_PROPERTY:
             return SetPropertyStub(data, reply);
-        case UserAuthInterface::USER_AUTH_AUTH:
+        case UserAuthInterfaceCode::USER_AUTH_AUTH:
             return AuthStub(data, reply);
-        case UserAuthInterface::USER_AUTH_AUTH_USER:
+        case UserAuthInterfaceCode::USER_AUTH_AUTH_USER:
             return AuthUserStub(data, reply);
-        case UserAuthInterface::USER_AUTH_CANCEL_AUTH:
+        case UserAuthInterfaceCode::USER_AUTH_CANCEL_AUTH:
             return CancelAuthOrIdentifyStub(data, reply);
-        case UserAuthInterface::USER_AUTH_IDENTIFY:
+        case UserAuthInterfaceCode::USER_AUTH_IDENTIFY:
             return IdentifyStub(data, reply);
-        case UserAuthInterface::USER_AUTH_CANCEL_IDENTIFY:
+        case UserAuthInterfaceCode::USER_AUTH_CANCEL_IDENTIFY:
             return CancelAuthOrIdentifyStub(data, reply);
-        case UserAuthInterface::USER_AUTH_GET_VERSION:
+        case UserAuthInterfaceCode::USER_AUTH_GET_VERSION:
             return GetVersionStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);

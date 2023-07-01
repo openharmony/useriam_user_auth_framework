@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@
 #include "executor_callback_interface.h"
 #include "iam_common_defines.h"
 
+#include "co_auth_interface_ipc_interface_code.h"
 #include "iremote_broker.h"
 #include "refbase.h"
 
@@ -29,11 +30,6 @@ namespace UserIam {
 namespace UserAuth {
 class CoAuthInterface : public IRemoteBroker {
 public:
-    /* Message ID */
-    enum : uint32_t {
-        CO_AUTH_EXECUTOR_REGISTER = 0,
-    };
-
     struct ExecutorRegisterInfo {
         AuthType authType;
         ExecutorRole executorRole;

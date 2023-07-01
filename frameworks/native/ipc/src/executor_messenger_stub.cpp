@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,9 +36,9 @@ int32_t ExecutorMessengerStub::OnRemoteRequest(uint32_t code, MessageParcel &dat
         return GENERAL_ERROR;
     }
     switch (code) {
-        case ExecutorMessengerInterface::CO_AUTH_SEND_DATA:
+        case ExecutorMessengerInterfaceCode::CO_AUTH_SEND_DATA:
             return SendDataStub(data, reply);
-        case ExecutorMessengerInterface::CO_AUTH_FINISH:
+        case ExecutorMessengerInterfaceCode::CO_AUTH_FINISH:
             return FinishStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);

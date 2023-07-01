@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -35,7 +35,7 @@ int32_t CoAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageP
         return GENERAL_ERROR;
     }
     switch (code) {
-        case CoAuthInterface::CO_AUTH_EXECUTOR_REGISTER:
+        case CoAuthInterfaceCode::CO_AUTH_EXECUTOR_REGISTER:
             return ExecutorRegisterStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);

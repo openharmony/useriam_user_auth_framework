@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -45,7 +45,7 @@ void IdmCallbackProxy::OnResult(int32_t result, const Attributes &extraInfo)
         return;
     }
 
-    bool ret = SendRequest(IDM_CALLBACK_ON_RESULT, data, reply);
+    bool ret = SendRequest(IdmCallbackInterfaceCode::IDM_CALLBACK_ON_RESULT, data, reply);
     if (!ret) {
         IAM_LOGE("failed to send request");
     }
@@ -76,7 +76,7 @@ void IdmCallbackProxy::OnAcquireInfo(int32_t module, int32_t acquireInfo, const 
         return;
     }
 
-    bool ret = SendRequest(IDM_CALLBACK_ON_ACQUIRE_INFO, data, reply);
+    bool ret = SendRequest(IdmCallbackInterfaceCode::IDM_CALLBACK_ON_ACQUIRE_INFO, data, reply);
     if (!ret) {
         IAM_LOGE("failed to send request");
     }
@@ -135,7 +135,7 @@ void IdmGetCredentialInfoProxy::OnCredentialInfos(const std::vector<CredentialIn
         }
     }
 
-    bool ret = SendRequest(ON_GET_INFO, data, reply);
+    bool ret = SendRequest(IdmGetCredInfoCallbackInterfaceCode::ON_GET_INFO, data, reply);
     if (!ret) {
         IAM_LOGE("failed to send request");
     }
@@ -202,7 +202,7 @@ void IdmGetSecureUserInfoProxy::OnSecureUserInfo(const SecUserInfo &secUserInfo)
         return;
     }
 
-    bool ret = SendRequest(ON_GET_SEC_INFO, data, reply);
+    bool ret = SendRequest(IdmGetSecureUserInfoCallbackInterfaceCode::ON_GET_SEC_INFO, data, reply);
     if (!ret) {
         IAM_LOGE("failed to send request");
     }

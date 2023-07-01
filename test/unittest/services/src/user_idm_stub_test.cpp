@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -52,7 +52,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubOpenSessionStub001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserIdmInterface::USER_IDM_OPEN_SESSION;
+    uint32_t code = UserIdmInterfaceCode::USER_IDM_OPEN_SESSION;
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
 
@@ -79,7 +79,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubOpenSessionStub002, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserIdmInterface::USER_IDM_OPEN_SESSION;
+    uint32_t code = UserIdmInterfaceCode::USER_IDM_OPEN_SESSION;
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(testUserId));
@@ -96,7 +96,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubCloseSessionStub001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserIdmInterface::USER_IDM_CLOSE_SESSION;
+    uint32_t code = UserIdmInterfaceCode::USER_IDM_CLOSE_SESSION;
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
 
@@ -121,7 +121,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubCloseSessionStub002, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserIdmInterface::USER_IDM_CLOSE_SESSION;
+    uint32_t code = UserIdmInterfaceCode::USER_IDM_CLOSE_SESSION;
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(testUserId));
@@ -134,7 +134,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubGetCredentialInfoStub001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserIdmInterface::USER_IDM_GET_CRED_INFO;
+    uint32_t code = UserIdmInterfaceCode::USER_IDM_GET_CRED_INFO;
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
 
@@ -169,7 +169,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubGetCredentialInfoStub002, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserIdmInterface::USER_IDM_GET_CRED_INFO;
+    uint32_t code = UserIdmInterfaceCode::USER_IDM_GET_CRED_INFO;
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(testUserId));
@@ -189,7 +189,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubGetSecInfoStub001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserIdmInterface::USER_IDM_GET_SEC_INFO;
+    uint32_t code = UserIdmInterfaceCode::USER_IDM_GET_SEC_INFO;
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
 
@@ -221,7 +221,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubGetSecInfoStub002, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserIdmInterface::USER_IDM_GET_SEC_INFO;
+    uint32_t code = UserIdmInterfaceCode::USER_IDM_GET_SEC_INFO;
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(testUserId));
@@ -240,7 +240,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubAddCredentialStub001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserIdmInterface::USER_IDM_ADD_CREDENTIAL;
+    uint32_t code = UserIdmInterfaceCode::USER_IDM_ADD_CREDENTIAL;
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
 
@@ -279,7 +279,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubAddCredentialStub002, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserIdmInterface::USER_IDM_ADD_CREDENTIAL;
+    uint32_t code = UserIdmInterfaceCode::USER_IDM_ADD_CREDENTIAL;
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(testUserId));
@@ -297,7 +297,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubUpdateCredentialStub001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserIdmInterface::USER_IDM_UPDATE_CREDENTIAL;
+    uint32_t code = UserIdmInterfaceCode::USER_IDM_UPDATE_CREDENTIAL;
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
 
@@ -336,7 +336,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubUpdateCredentialStub002, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserIdmInterface::USER_IDM_UPDATE_CREDENTIAL;
+    uint32_t code = UserIdmInterfaceCode::USER_IDM_UPDATE_CREDENTIAL;
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(testUserId));
@@ -354,7 +354,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubCancelStub001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserIdmInterface::USER_IDM_CANCEL;
+    uint32_t code = UserIdmInterfaceCode::USER_IDM_CANCEL;
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
 
@@ -379,7 +379,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubCancelStub002, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserIdmInterface::USER_IDM_CANCEL;
+    uint32_t code = UserIdmInterfaceCode::USER_IDM_CANCEL;
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(testUserId));
@@ -396,7 +396,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubEnforceDelUserStub001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserIdmInterface::USER_IDM_ENFORCE_DEL_USER;
+    uint32_t code = UserIdmInterfaceCode::USER_IDM_ENFORCE_DEL_USER;
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
 
@@ -428,7 +428,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubEnforceDelUserStub002, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserIdmInterface::USER_IDM_ENFORCE_DEL_USER;
+    uint32_t code = UserIdmInterfaceCode::USER_IDM_ENFORCE_DEL_USER;
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(testUserId));
@@ -447,7 +447,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubDelUserStub001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserIdmInterface::USER_IDM_DEL_USER;
+    uint32_t code = UserIdmInterfaceCode::USER_IDM_DEL_USER;
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
 
@@ -481,7 +481,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubDelUserStub002, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserIdmInterface::USER_IDM_DEL_USER;
+    uint32_t code = UserIdmInterfaceCode::USER_IDM_DEL_USER;
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(testUserId));
@@ -497,7 +497,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubDelCredentialStub001, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserIdmInterface::USER_IDM_DEL_CRED;
+    uint32_t code = UserIdmInterfaceCode::USER_IDM_DEL_CRED;
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
 
@@ -533,7 +533,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubDelCredentialStub002, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserIdmInterface::USER_IDM_DEL_CRED;
+    uint32_t code = UserIdmInterfaceCode::USER_IDM_DEL_CRED;
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserIdmInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(testUserId));

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -82,7 +82,7 @@ uint64_t CoAuthProxy::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<Ex
         return BAD_CONTEXT_ID;
     }
     
-    bool ret = SendRequest(CoAuthInterface::CO_AUTH_EXECUTOR_REGISTER, data, reply);
+    bool ret = SendRequest(CoAuthInterfaceCode::CO_AUTH_EXECUTOR_REGISTER, data, reply);
     if (!ret) {
         IAM_LOGE("failed to send request");
         return BAD_CONTEXT_ID;

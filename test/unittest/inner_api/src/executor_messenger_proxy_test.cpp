@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -48,7 +48,7 @@ HWTEST_F(ExecutorMessengerProxyTest, TestSendData_001, TestSize.Level0)
     EXPECT_CALL(*obj, SendRequest(_, _, _, _))
         .WillOnce(
             [](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-                EXPECT_EQ(code, ExecutorMessengerInterface::CO_AUTH_SEND_DATA);
+                EXPECT_EQ(code, ExecutorMessengerInterfaceCode::CO_AUTH_SEND_DATA);
                 EXPECT_TRUE(reply.WriteInt32(SUCCESS));
                 return OHOS::NO_ERROR;
             }
@@ -86,7 +86,7 @@ HWTEST_F(ExecutorMessengerProxyTest, TestFinish_002, TestSize.Level0)
     EXPECT_CALL(*obj, SendRequest(_, _, _, _))
         .WillOnce(
             [](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-                EXPECT_EQ(code, ExecutorMessengerInterface::CO_AUTH_FINISH);
+                EXPECT_EQ(code, ExecutorMessengerInterfaceCode::CO_AUTH_FINISH);
                 EXPECT_TRUE(reply.WriteInt32(SUCCESS));
                 return OHOS::NO_ERROR;
             }

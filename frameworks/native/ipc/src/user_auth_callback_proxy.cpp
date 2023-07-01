@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -45,7 +45,7 @@ void UserAuthCallbackProxy::OnResult(int32_t result, const Attributes &extraInfo
         return;
     }
 
-    bool ret = SendRequest(UserAuthInterface::USER_AUTH_ON_RESULT, data, reply);
+    bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_ON_RESULT, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
     }
@@ -76,7 +76,7 @@ void UserAuthCallbackProxy::OnAcquireInfo(int32_t module, int32_t acquireInfo, c
         return;
     }
 
-    bool ret = SendRequest(UserAuthInterface::USER_AUTH_ACQUIRE_INFO, data, reply);
+    bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_ACQUIRE_INFO, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
     }
@@ -121,7 +121,7 @@ void GetExecutorPropertyCallbackProxy::OnGetExecutorPropertyResult(int32_t resul
         return;
     }
 
-    bool ret = SendRequest(UserAuthInterface::USER_AUTH_GET_EX_PROP, data, reply);
+    bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_GET_EX_PROP, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
     }
@@ -161,7 +161,7 @@ void SetExecutorPropertyCallbackProxy::OnSetExecutorPropertyResult(int32_t resul
         return;
     }
 
-    bool ret = SendRequest(UserAuthInterface::USER_AUTH_SET_EX_PROP, data, reply);
+    bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_SET_EX_PROP, data, reply);
     if (!ret) {
         IAM_LOGE("send request failed");
     }
