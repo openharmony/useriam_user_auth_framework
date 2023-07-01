@@ -20,7 +20,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-enum class UserAuthInterfaceCode {
+enum UserAuthInterfaceCode : uint32_t {
     USER_AUTH_GET_AVAILABLE_STATUS = 0,
     USER_AUTH_GET_PROPERTY,
     USER_AUTH_SET_PROPERTY,

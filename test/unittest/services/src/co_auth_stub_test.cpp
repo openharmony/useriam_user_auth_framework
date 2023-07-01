@@ -82,7 +82,7 @@ HWTEST_F(CoAuthStubTest, CoAuthStubTestExecutorRegister001, TestSize.Level0)
     EXPECT_TRUE(data.WriteUInt8Vector(testInfo.publicKey));
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
-    uint32_t code = static_cast<uint32_t>(CoAuthInterfaceCode::CO_AUTH_EXECUTOR_REGISTER);
+    uint32_t code = CoAuthInterfaceCode::CO_AUTH_EXECUTOR_REGISTER;
     MessageOption option(MessageOption::TF_SYNC);
 
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
@@ -96,7 +96,7 @@ HWTEST_F(CoAuthStubTest, CoAuthStubTestExecutorRegister002, TestSize.Level0)
     MessageParcel data;
     MessageParcel reply;
 
-    uint32_t code = static_cast<uint32_t>(CoAuthInterfaceCode::CO_AUTH_EXECUTOR_REGISTER);
+    uint32_t code = CoAuthInterfaceCode::CO_AUTH_EXECUTOR_REGISTER;
     MessageOption option(MessageOption::TF_SYNC);
 
     MockCoAuthService service;
@@ -109,7 +109,7 @@ HWTEST_F(CoAuthStubTest, CoAuthStubTestExecutorRegister003, TestSize.Level0)
     MessageParcel reply;
 
     EXPECT_TRUE(data.WriteInterfaceToken(CoAuthInterface::GetDescriptor()));
-    uint32_t code = static_cast<uint32_t>(CoAuthInterfaceCode::CO_AUTH_EXECUTOR_REGISTER);
+    uint32_t code = CoAuthInterfaceCode::CO_AUTH_EXECUTOR_REGISTER;
     MessageOption option(MessageOption::TF_SYNC);
 
     MockCoAuthService service;

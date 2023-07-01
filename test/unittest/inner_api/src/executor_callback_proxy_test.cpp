@@ -63,7 +63,7 @@ HWTEST_F(ExecutorCallbackProxyTest, TestOnMessengerReady_002, TestSize.Level0)
     EXPECT_CALL(*obj, SendRequest(_, _, _, _))
         .WillOnce(
             [](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-                EXPECT_EQ(code, static_cast<uint32_t>(ExecutorCallbackInterfaceCode::ON_MESSENGER_READY));
+                EXPECT_EQ(code, ExecutorCallbackInterfaceCode::ON_MESSENGER_READY);
                 return OHOS::NO_ERROR;
             }
         );
@@ -85,7 +85,7 @@ HWTEST_F(ExecutorCallbackProxyTest, TestOnBeginExecute_001, TestSize.Level0)
     EXPECT_CALL(*obj, SendRequest(_, _, _, _))
         .WillOnce(
             [](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-                EXPECT_EQ(code, static_cast<uint32_t>(ExecutorCallbackInterfaceCode::ON_BEGIN_EXECUTE));
+                EXPECT_EQ(code, ExecutorCallbackInterfaceCode::ON_BEGIN_EXECUTE);
                 EXPECT_TRUE(reply.WriteInt32(SUCCESS));
                 return OHOS::NO_ERROR;
             }
@@ -108,7 +108,7 @@ HWTEST_F(ExecutorCallbackProxyTest, TestOnEndExecute_001, TestSize.Level0)
     EXPECT_CALL(*obj, SendRequest(_, _, _, _))
         .WillOnce(
             [](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-                EXPECT_EQ(code, static_cast<uint32_t>(ExecutorCallbackInterfaceCode::ON_END_EXECUTE));
+                EXPECT_EQ(code, ExecutorCallbackInterfaceCode::ON_END_EXECUTE);
                 EXPECT_TRUE(reply.WriteInt32(SUCCESS));
                 return OHOS::NO_ERROR;
             }
@@ -129,7 +129,7 @@ HWTEST_F(ExecutorCallbackProxyTest, TestOnSetProperty_001, TestSize.Level0)
     EXPECT_CALL(*obj, SendRequest(_, _, _, _))
         .WillOnce(
             [](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-                EXPECT_EQ(code, static_cast<uint32_t>(ExecutorCallbackInterfaceCode::ON_SET_PROPERTY));
+                EXPECT_EQ(code, ExecutorCallbackInterfaceCode::ON_SET_PROPERTY);
                 EXPECT_TRUE(reply.WriteInt32(SUCCESS));
                 return OHOS::NO_ERROR;
             }
@@ -150,14 +150,14 @@ HWTEST_F(ExecutorCallbackProxyTest, TestOnGetProperty_001, TestSize.Level0)
         .Times(2)
         .WillOnce(
             [](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-                EXPECT_EQ(code, static_cast<uint32_t>(ExecutorCallbackInterfaceCode::ON_GET_PROPERTY));
+                EXPECT_EQ(code, ExecutorCallbackInterfaceCode::ON_GET_PROPERTY);
                 EXPECT_TRUE(reply.WriteInt32(SUCCESS));
                 return OHOS::NO_ERROR;
             }
         )
         .WillOnce(
             [](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-                EXPECT_EQ(code, static_cast<uint32_t>(ExecutorCallbackInterfaceCode::ON_GET_PROPERTY));
+                EXPECT_EQ(code, ExecutorCallbackInterfaceCode::ON_GET_PROPERTY);
                 return GENERAL_ERROR;
             }
         );

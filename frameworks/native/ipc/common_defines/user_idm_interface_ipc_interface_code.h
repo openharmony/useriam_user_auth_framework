@@ -20,7 +20,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-enum class UserIdmInterfaceCode {
+enum UserIdmInterfaceCode : uint32_t {
     USER_IDM_OPEN_SESSION = 0,
     USER_IDM_CLOSE_SESSION,
     USER_IDM_GET_CRED_INFO,

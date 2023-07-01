@@ -56,7 +56,7 @@ int32_t UserAuthProxy::GetAvailableStatus(int32_t apiVersion, AuthType authType,
         return WRITE_PARCEL_ERROR;
     }
 
-    bool ret = SendRequest(static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_GET_AVAILABLE_STATUS), data, reply);
+    bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_GET_AVAILABLE_STATUS, data, reply);
     if (!ret) {
         return GENERAL_ERROR;
     }
@@ -109,7 +109,7 @@ void UserAuthProxy::GetProperty(int32_t userId, AuthType authType,
         return;
     }
 
-    bool ret = SendRequest(static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_GET_PROPERTY), data, reply);
+    bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_GET_PROPERTY, data, reply);
     if (!ret) {
         Attributes attr;
         callback->OnGetExecutorPropertyResult(GENERAL_ERROR, attr);
@@ -148,7 +148,7 @@ void UserAuthProxy::SetProperty(int32_t userId, AuthType authType, const Attribu
         return;
     }
 
-    bool ret = SendRequest(static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_SET_PROPERTY), data, reply);
+    bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_SET_PROPERTY, data, reply);
     if (!ret) {
         callback->OnSetExecutorPropertyResult(GENERAL_ERROR);
     }
@@ -198,7 +198,7 @@ uint64_t UserAuthProxy::Auth(int32_t apiVersion, const std::vector<uint8_t> &cha
         IAM_LOGE("failed to write apiVersion");
         return BAD_CONTEXT_ID;
     }
-    bool ret = SendRequest(static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_AUTH), data, reply);
+    bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_AUTH, data, reply);
     if (!ret) {
         return BAD_CONTEXT_ID;
     }
@@ -232,7 +232,7 @@ uint64_t UserAuthProxy::AuthUser(int32_t userId, const std::vector<uint8_t> &cha
         return BAD_CONTEXT_ID;
     }
 
-    bool ret = SendRequest(static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_AUTH_USER), data, reply);
+    bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_AUTH_USER, data, reply);
     if (!ret) {
         return BAD_CONTEXT_ID;
     }
@@ -270,7 +270,7 @@ uint64_t UserAuthProxy::Identify(const std::vector<uint8_t> &challenge, AuthType
         return BAD_CONTEXT_ID;
     }
 
-    bool ret = SendRequest(static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_IDENTIFY), data, reply);
+    bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_IDENTIFY, data, reply);
     if (!ret) {
         return BAD_CONTEXT_ID;
     }
@@ -295,7 +295,7 @@ int32_t UserAuthProxy::CancelAuthOrIdentify(uint64_t contextId)
         return GENERAL_ERROR;
     }
 
-    bool ret = SendRequest(static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_CANCEL_AUTH), data, reply);
+    bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_CANCEL_AUTH, data, reply);
     if (!ret) {
         return GENERAL_ERROR;
     }
@@ -317,7 +317,7 @@ int32_t UserAuthProxy::GetVersion(int32_t &version)
         return GENERAL_ERROR;
     }
 
-    bool ret = SendRequest(static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_GET_VERSION), data, reply);
+    bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_GET_VERSION, data, reply);
     if (!ret) {
         return GENERAL_ERROR;
     }

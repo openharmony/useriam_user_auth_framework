@@ -20,7 +20,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-enum class CoAuthInterfaceCode {
+enum CoAuthInterfaceCode : uint32_t {
     CO_AUTH_EXECUTOR_REGISTER = 0,
 };
 } // namespace UserAuth

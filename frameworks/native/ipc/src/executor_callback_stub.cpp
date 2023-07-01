@@ -33,15 +33,15 @@ int32_t ExecutorCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data
         return GENERAL_ERROR;
     }
     switch (code) {
-        case static_cast<uint32_t>(ExecutorCallbackInterfaceCode::ON_MESSENGER_READY):
+        case ExecutorCallbackInterfaceCode::ON_MESSENGER_READY:
             return OnMessengerReadyStub(data, reply);
-        case static_cast<uint32_t>(ExecutorCallbackInterfaceCode::ON_BEGIN_EXECUTE):
+        case ExecutorCallbackInterfaceCode::ON_BEGIN_EXECUTE:
             return OnBeginExecuteStub(data, reply);
-        case static_cast<uint32_t>(ExecutorCallbackInterfaceCode::ON_END_EXECUTE):
+        case ExecutorCallbackInterfaceCode::ON_END_EXECUTE:
             return OnEndExecuteStub(data, reply);
-        case static_cast<uint32_t>(ExecutorCallbackInterfaceCode::ON_SET_PROPERTY):
+        case ExecutorCallbackInterfaceCode::ON_SET_PROPERTY:
             return OnSetPropertyStub(data, reply);
-        case static_cast<uint32_t>(ExecutorCallbackInterfaceCode::ON_GET_PROPERTY):
+        case ExecutorCallbackInterfaceCode::ON_GET_PROPERTY:
             return OnGetPropertyStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
