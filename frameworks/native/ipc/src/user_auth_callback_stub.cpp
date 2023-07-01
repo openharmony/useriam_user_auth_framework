@@ -35,9 +35,9 @@ int32_t UserAuthCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data
     }
 
     switch (code) {
-        case UserAuthInterface::USER_AUTH_ON_RESULT:
+        case static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_ON_RESULT):
             return OnResultStub(data, reply);
-        case UserAuthInterface::USER_AUTH_ACQUIRE_INFO:
+        case static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_ACQUIRE_INFO):
             return OnAcquireInfoStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
@@ -98,7 +98,7 @@ int32_t GetExecutorPropertyCallbackStub::OnRemoteRequest(uint32_t code, MessageP
         return GENERAL_ERROR;
     }
 
-    if (code == UserAuthInterface::USER_AUTH_GET_EX_PROP) {
+    if (code == static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_GET_EX_PROP)) {
         return OnGetExecutorPropertyResultStub(data, reply);
     }
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
@@ -133,7 +133,7 @@ int32_t SetExecutorPropertyCallbackStub::OnRemoteRequest(uint32_t code, MessageP
         return GENERAL_ERROR;
     }
 
-    if (code == UserAuthInterface::USER_AUTH_SET_EX_PROP) {
+    if (code == static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_SET_EX_PROP)) {
         return OnSetExecutorPropertyResultStub(data, reply);
     }
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);

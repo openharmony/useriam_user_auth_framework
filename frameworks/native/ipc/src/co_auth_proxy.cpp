@@ -82,7 +82,7 @@ uint64_t CoAuthProxy::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<Ex
         return BAD_CONTEXT_ID;
     }
     
-    bool ret = SendRequest(CoAuthInterface::CO_AUTH_EXECUTOR_REGISTER, data, reply);
+    bool ret = SendRequest(static_cast<uint32_t>(CoAuthInterfaceCode::CO_AUTH_EXECUTOR_REGISTER), data, reply);
     if (!ret) {
         IAM_LOGE("failed to send request");
         return BAD_CONTEXT_ID;

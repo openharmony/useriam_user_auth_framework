@@ -13,27 +13,26 @@
  * limitations under the License.
  */
 
-#ifndef EXECUTOR_MESSENGER_INTERFACE_H
-#define EXECUTOR_MESSENGER_INTERFACE_H
+#ifndef USER_IDM_INTERFACE_IPC_INTERFACE_CODE_H
+#define USER_IDM_INTERFACE_IPC_INTERFACE_CODE_H
 
-#include "iremote_broker.h"
-
-#include "attributes.h"
-#include "executor_messenger_interface_ipc_interface_code.h"
-#include "iam_common_defines.h"
-
+/* SAID: 931 */
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class ExecutorMessengerInterface : public IRemoteBroker {
-public:
-    virtual int32_t SendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole, ExecutorRole dstRole,
-        const std::vector<uint8_t> &msg) = 0;
-    virtual int32_t Finish(uint64_t scheduleId, ExecutorRole srcRole, ResultCode resultCode,
-        const std::shared_ptr<Attributes> &finalResult) = 0;
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIam.AuthResPool.IExecutor_Messenger");
+enum class UserIdmInterfaceCode {
+    USER_IDM_OPEN_SESSION = 0,
+    USER_IDM_CLOSE_SESSION,
+    USER_IDM_GET_CRED_INFO,
+    USER_IDM_GET_SEC_INFO,
+    USER_IDM_ADD_CREDENTIAL,
+    USER_IDM_UPDATE_CREDENTIAL,
+    USER_IDM_CANCEL,
+    USER_IDM_ENFORCE_DEL_USER,
+    USER_IDM_DEL_USER,
+    USER_IDM_DEL_CRED,
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // EXECUTOR_MESSENGER_INTERFACE_H
+#endif // USER_IDM_INTERFACE_IPC_INTERFACE_CODE_H

@@ -36,25 +36,25 @@ int32_t UserIdmStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Message
     }
 
     switch (code) {
-        case USER_IDM_OPEN_SESSION:
+        case static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_OPEN_SESSION):
             return OpenSessionStub(data, reply);
-        case USER_IDM_CLOSE_SESSION:
+        case static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_CLOSE_SESSION):
             return CloseSessionStub(data, reply);
-        case USER_IDM_GET_CRED_INFO:
+        case static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_GET_CRED_INFO):
             return GetCredentialInfoStub(data, reply);
-        case USER_IDM_GET_SEC_INFO:
+        case static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_GET_SEC_INFO):
             return GetSecInfoStub(data, reply);
-        case USER_IDM_ADD_CREDENTIAL:
+        case static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_ADD_CREDENTIAL):
             return AddCredentialStub(data, reply);
-        case USER_IDM_UPDATE_CREDENTIAL:
+        case static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_UPDATE_CREDENTIAL):
             return UpdateCredentialStub(data, reply);
-        case USER_IDM_CANCEL:
+        case static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_CANCEL):
             return CancelStub(data, reply);
-        case USER_IDM_ENFORCE_DEL_USER:
+        case static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_ENFORCE_DEL_USER):
             return EnforceDelUserStub(data, reply);
-        case USER_IDM_DEL_USER:
+        case static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_DEL_USER):
             return DelUserStub(data, reply);
-        case USER_IDM_DEL_CRED:
+        case static_cast<uint32_t>(UserIdmInterfaceCode::USER_IDM_DEL_CRED):
             return DelCredentialStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
