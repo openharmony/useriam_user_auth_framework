@@ -13,34 +13,30 @@
  * limitations under the License.
  */
 
-#ifndef USER_AUTH_INTERFACE_IPC_INTERFACE_CODE_H
-#define USER_AUTH_INTERFACE_IPC_INTERFACE_CODE_H
+/**
+ * @file iuser_auth_widget_callback.h
+ *
+ * @brief Callback definitions returned by user auth client.
+ */
 
-/* SAID: 921 */
+#ifndef IUSER_AUTH_WIDGET_CALLBACK_H
+#define IUSER_AUTH_WIDGET_CALLBACK_H
+
+#include <string>
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-enum UserAuthInterfaceCode : uint32_t {
-    USER_AUTH_GET_AVAILABLE_STATUS = 0,
-    USER_AUTH_GET_PROPERTY,
-    USER_AUTH_SET_PROPERTY,
-    USER_AUTH_AUTH,
-    USER_AUTH_AUTH_USER,
-    USER_AUTH_CANCEL_AUTH,
-    USER_AUTH_GET_VERSION,
-    USER_AUTH_ON_RESULT,
-    USER_AUTH_GET_EX_PROP,
-    USER_AUTH_SET_EX_PROP,
-    USER_AUTH_ACQUIRE_INFO,
-    USER_AUTH_IDENTIFY,
-    USER_AUTH_CANCEL_IDENTIFY,
-    USER_AUTH_ON_IDENTIFY_RESULT,
-    USER_AUTH_AUTH_WIDGET,
-    USER_AUTH_NOTICE,
-    USER_AUTH_ON_SEND_COMMAND,
-    USER_AUTH_REG_WIDGET_CB,
+class IUserAuthWidgetCallback {
+public:
+    /**
+     * @brief send command to widget.
+     *
+     * @param cmdData command data.
+     */
+    virtual void SendCommand(const std::string &cmdData) = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // USER_AUTH_INTERFACE_IPC_INTERFACE_CODE_H
+#endif // IUSER_AUTH_WIDGET_CALLBACK_H

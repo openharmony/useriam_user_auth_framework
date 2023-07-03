@@ -17,6 +17,8 @@
 #define USER_AUTH_IMPL_H
 
 #include "auth_common.h"
+#include "napi/native_api.h"
+#include "napi/native_common.h"
 
 namespace OHOS {
 namespace UserIam {

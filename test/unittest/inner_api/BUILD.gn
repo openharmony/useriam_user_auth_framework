@@ -20,6 +20,7 @@ ohos_unittest("iam_inner_api_test") {
     "mocks",
     "../services/mocks",
     "../../../interfaces/inner_api",
+    "../../../frameworks/js/napi/user_auth/inc",
     "../../../frameworks/native/client/inc",
   ]
 
@@ -72,6 +73,7 @@ ohos_unittest("iam_inner_api_test") {
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_single",
+    "napi:ace_napi",
   ]
 
   module_out_path = "useriam/user_auth_framework"

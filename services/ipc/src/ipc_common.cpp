@@ -33,6 +33,8 @@ namespace PermissionString {
     const std::string ACCESS_BIOMETRIC_PERMISSION = "ohos.permission.ACCESS_BIOMETRIC";
     const std::string ACCESS_AUTH_RESPOOL = "ohos.permission.ACCESS_AUTH_RESPOOL";
     const std::string ENFORCE_USER_IDM = "ohos.permission.ENFORCE_USER_IDM";
+    const std::string ACCESS_AUTH_WIDGET_POOL = "ohos.permission.ACCESS_AUTH_WIDGET_POOL";
+    const std::string SUPPORT_USER_AUTH = "ohos.permission.SUPPORT_USER_AUTH";
 }
 
 namespace {
@@ -103,6 +105,10 @@ bool IpcCommon::CheckPermission(IPCObjectStub &stub, Permission permission)
         case ENFORCE_USER_IDM:
             return CheckDirectCaller(stub, PermissionString::ENFORCE_USER_IDM) &&
                 CheckNativeCallingProcessWhiteList(stub);
+        case ACCESS_AUTH_WIDGET_POOL:
+            return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::ACCESS_AUTH_WIDGET_POOL);
+        case SUPPORT_USER_AUTH:
+            return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::SUPPORT_USER_AUTH);
         default:
             IAM_LOGE("failed to check permission");
             return false;

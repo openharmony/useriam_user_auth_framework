@@ -13,34 +13,28 @@
  * limitations under the License.
  */
 
-#ifndef USER_AUTH_INTERFACE_IPC_INTERFACE_CODE_H
-#define USER_AUTH_INTERFACE_IPC_INTERFACE_CODE_H
+#ifndef WIDGET_CALLBACK_SERVICE_H
+#define WIDGET_CALLBACK_SERVICE_H
 
-/* SAID: 921 */
+#include "widget_callback_stub.h"
+
+#include "iam_hitrace_helper.h"
+#include "iuser_auth_widget_callback.h"
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-enum UserAuthInterfaceCode : uint32_t {
-    USER_AUTH_GET_AVAILABLE_STATUS = 0,
-    USER_AUTH_GET_PROPERTY,
-    USER_AUTH_SET_PROPERTY,
-    USER_AUTH_AUTH,
-    USER_AUTH_AUTH_USER,
-    USER_AUTH_CANCEL_AUTH,
-    USER_AUTH_GET_VERSION,
-    USER_AUTH_ON_RESULT,
-    USER_AUTH_GET_EX_PROP,
-    USER_AUTH_SET_EX_PROP,
-    USER_AUTH_ACQUIRE_INFO,
-    USER_AUTH_IDENTIFY,
-    USER_AUTH_CANCEL_IDENTIFY,
-    USER_AUTH_ON_IDENTIFY_RESULT,
-    USER_AUTH_AUTH_WIDGET,
-    USER_AUTH_NOTICE,
-    USER_AUTH_ON_SEND_COMMAND,
-    USER_AUTH_REG_WIDGET_CB,
+class WidgetCallbackService : public WidgetCallbackStub {
+public:
+    explicit WidgetCallbackService(const std::shared_ptr<IUserAuthWidgetCallback> &impl);
+    ~WidgetCallbackService() override = default;
+    void SendCommand(const std::string &cmdData) override;
+
+private:
+    std::shared_ptr<IUserAuthWidgetCallback> widgetCallback_ {nullptr};
+    std::shared_ptr<UserIam::UserAuth::IamHitraceHelper> iamHitraceHelper_ {nullptr};
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // USER_AUTH_INTERFACE_IPC_INTERFACE_CODE_H
+#endif // WIDGET_CALLBACK_SERVICE_H

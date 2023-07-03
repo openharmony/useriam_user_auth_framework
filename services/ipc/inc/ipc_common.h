@@ -33,6 +33,8 @@ enum Permission {
     ACCESS_BIOMETRIC_PERMISSION,
     ACCESS_AUTH_RESPOOL,
     ENFORCE_USER_IDM,
+    ACCESS_AUTH_WIDGET_POOL,
+    SUPPORT_USER_AUTH,
 };
 
 class IpcCommon final : public NoCopyable {
