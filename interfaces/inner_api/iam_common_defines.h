@@ -27,6 +27,9 @@
 #include <cstddef>
 #include <cstdint>
 
+#include <string>
+#include <vector>
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
@@ -163,6 +166,8 @@ enum ResultCode : int32_t {
     NOT_ENROLLED = 10,
     /** The result is fail, because the hardware is not supported. */
     HARDWARE_NOT_SUPPORTED = 11,
+    /** The result is fail, because canceled from widget. */
+    CANCELED_FROM_WIDGET = 12,
     /** The result is fail, because something wrong from system. */
     SYSTEM_ERROR_CODE_BEGIN = 1000,
     /** The result is fail, because something wrong from ipc. */
@@ -177,6 +182,8 @@ enum ResultCode : int32_t {
     CHECK_PERMISSION_FAILED = 1005,
     /** The result is fail, because the hdi interface is invalid. */
     INVALID_HDI_INTERFACE = 1006,
+    /** The result is fail, because the caller app is not system. */
+    CHECK_SYSTEM_APP_FAILED = 1007,
     /** The result is fail, because something wrong from vendor. */
     VENDOR_ERROR_CODE_BEGIN = 10000,
 };

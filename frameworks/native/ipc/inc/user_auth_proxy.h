@@ -38,16 +38,21 @@ public:
         AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) override;
     uint64_t Auth(int32_t apiVersion, const std::vector<uint8_t> &challenge, AuthType authType,
         AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) override;
+    uint64_t AuthWidget(int32_t apiVersion, const AuthParam &authParam,
+        const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback) override;
     uint64_t Identify(const std::vector<uint8_t> &challenge, AuthType authType,
         sptr<UserAuthCallbackInterface> &callback) override;
     int32_t CancelAuthOrIdentify(uint64_t contextId) override;
     int32_t GetVersion(int32_t &version) override;
+    int32_t Notice(NoticeType noticeType, const std::string &eventData) override;
+    int32_t RegisterWidgetCallback(int32_t version, sptr<WidgetCallbackInterface> &callback) override;
 
 private:
     static inline BrokerDelegator<UserAuthProxy> delegator_;
     bool WriteAuthParam(MessageParcel &data, const std::vector<uint8_t> &challenge,
         AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback);
     bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply);
+    bool WriteWidgetParam(MessageParcel &data, const AuthParam &authParam, const WidgetParam &widgetParam);
 };
 } // namespace UserAuth
 } // namespace UserIam

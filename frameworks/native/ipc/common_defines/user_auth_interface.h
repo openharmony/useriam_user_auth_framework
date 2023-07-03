@@ -25,6 +25,7 @@
 #include "attributes.h"
 #include "user_auth_callback_interface.h"
 #include "user_auth_interface_ipc_interface_code.h"
+#include "widget_callback_interface.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -45,12 +46,19 @@ public:
     virtual uint64_t Auth(int32_t apiVersion, const std::vector<uint8_t> &challenge, AuthType authType,
         AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) = 0;
 
+    virtual uint64_t AuthWidget(int32_t apiVersion, const AuthParam &authParam,
+        const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback) = 0;
+
     virtual uint64_t Identify(const std::vector<uint8_t> &challenge, AuthType authType,
         sptr<UserAuthCallbackInterface> &callback) = 0;
 
     virtual int32_t CancelAuthOrIdentify(uint64_t contextId) = 0;
 
     virtual int32_t GetVersion(int32_t &version) = 0;
+
+    virtual int32_t Notice(NoticeType noticeType, const std::string &eventData) = 0;
+
+    virtual int32_t RegisterWidgetCallback(int32_t version, sptr<WidgetCallbackInterface> &callback) = 0;
 
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIam.UserAuth.IUserAuth");
 };

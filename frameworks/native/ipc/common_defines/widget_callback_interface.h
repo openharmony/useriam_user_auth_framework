@@ -13,34 +13,25 @@
  * limitations under the License.
  */
 
-#ifndef USER_AUTH_INTERFACE_IPC_INTERFACE_CODE_H
-#define USER_AUTH_INTERFACE_IPC_INTERFACE_CODE_H
+#ifndef WIDGET_CALLBACK_INTERFACE_H
+#define WIDGET_CALLBACK_INTERFACE_H
 
-/* SAID: 921 */
+#include <cstdint>
+
+#include "iremote_broker.h"
+
+#include "iam_common_defines.h"
+#include "user_auth_common_defines.h"
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-enum UserAuthInterfaceCode : uint32_t {
-    USER_AUTH_GET_AVAILABLE_STATUS = 0,
-    USER_AUTH_GET_PROPERTY,
-    USER_AUTH_SET_PROPERTY,
-    USER_AUTH_AUTH,
-    USER_AUTH_AUTH_USER,
-    USER_AUTH_CANCEL_AUTH,
-    USER_AUTH_GET_VERSION,
-    USER_AUTH_ON_RESULT,
-    USER_AUTH_GET_EX_PROP,
-    USER_AUTH_SET_EX_PROP,
-    USER_AUTH_ACQUIRE_INFO,
-    USER_AUTH_IDENTIFY,
-    USER_AUTH_CANCEL_IDENTIFY,
-    USER_AUTH_ON_IDENTIFY_RESULT,
-    USER_AUTH_AUTH_WIDGET,
-    USER_AUTH_NOTICE,
-    USER_AUTH_ON_SEND_COMMAND,
-    USER_AUTH_REG_WIDGET_CB,
+class WidgetCallbackInterface : public IRemoteBroker {
+public:
+    virtual void SendCommand(const std::string &cmdData) = 0;
+    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIam.UserAuth.WidgetCallback");
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // USER_AUTH_INTERFACE_IPC_INTERFACE_CODE_H
+#endif // WIDGET_CALLBACK_INTERFACE_H

@@ -22,6 +22,8 @@
 #include "iam_scope_guard.h"
 #include "iam_common_defines.h"
 #include "user_auth_callback_proxy.h"
+#include "widget_callback_proxy.h"
+#include "user_auth_common_defines.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
@@ -48,6 +50,8 @@ int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Messag
             return SetPropertyStub(data, reply);
         case UserAuthInterfaceCode::USER_AUTH_AUTH:
             return AuthStub(data, reply);
+        case UserAuthInterfaceCode::USER_AUTH_AUTH_WIDGET:
+            return AuthWidgetStub(data, reply);
         case UserAuthInterfaceCode::USER_AUTH_AUTH_USER:
             return AuthUserStub(data, reply);
         case UserAuthInterfaceCode::USER_AUTH_CANCEL_AUTH:
@@ -58,6 +62,10 @@ int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Messag
             return CancelAuthOrIdentifyStub(data, reply);
         case UserAuthInterfaceCode::USER_AUTH_GET_VERSION:
             return GetVersionStub(data, reply);
+        case UserAuthInterfaceCode::USER_AUTH_NOTICE:
+            return NoticeStub(data, reply);
+        case UserAuthInterfaceCode::USER_AUTH_REG_WIDGET_CB:
+            return RegisterWidgetCallbackStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -225,6 +233,76 @@ int32_t UserAuthStub::AuthStub(MessageParcel &data, MessageParcel &reply)
     return SUCCESS;
 }
 
+int32_t UserAuthStub::AuthWidgetStub(MessageParcel &data, MessageParcel &reply)
+{
+    IAM_LOGI("enter");
+    ON_SCOPE_EXIT(IAM_LOGI("leave"));
+
+    AuthParam authParam;
+    WidgetParam widgetParam;
+    if (!ReadWidgetParam(data, authParam, widgetParam)) {
+        IAM_LOGE("failed to read widget param");
+        return ResultCode::READ_PARCEL_ERROR;
+    }
+
+    sptr<IRemoteObject> obj = data.ReadRemoteObject();
+    if (obj == nullptr) {
+        IAM_LOGE("failed to read remote object");
+        return ResultCode::READ_PARCEL_ERROR;
+    }
+    sptr<UserAuthCallbackInterface> callback = iface_cast<UserAuthCallbackProxy>(obj);
+    if (callback == nullptr) {
+        IAM_LOGE("UserAuthCallbackInterface is nullptr");
+        return ResultCode::GENERAL_ERROR;
+    }
+
+    int32_t apiVersion;
+    if (!data.ReadInt32(apiVersion)) {
+        IAM_LOGE("failed to read apiVersion");
+        return ResultCode::READ_PARCEL_ERROR;
+    }
+
+    uint64_t contextId = AuthWidget(apiVersion, authParam, widgetParam, callback);
+    if (!reply.WriteUint64(contextId)) {
+        IAM_LOGE("failed to write contextId");
+        return ResultCode::WRITE_PARCEL_ERROR;
+    }
+    return ResultCode::SUCCESS;
+}
+
+bool UserAuthStub::ReadWidgetParam(MessageParcel &data, AuthParam &authParam, WidgetParam &widgetParam)
+{
+    if (!data.ReadUInt8Vector(&authParam.challenge)) {
+        IAM_LOGE("failed to read challenge");
+        return false;
+    }
+    std::vector<int32_t> atList;
+    if (!data.ReadInt32Vector(&atList)) {
+        IAM_LOGE("failed to read authTypeList");
+        return false;
+    }
+    for (auto at : atList) {
+        authParam.authType.push_back(static_cast<AuthType>(at));
+    }
+
+    uint32_t authTrustLevel;
+    if (!data.ReadUint32(authTrustLevel)) {
+        IAM_LOGE("failed to read authTrustLevel");
+        return false;
+    }
+    authParam.authTrustLevel = static_cast<AuthTrustLevel>(authTrustLevel);
+
+    widgetParam.title = data.ReadString();
+    widgetParam.navigationButtonText = data.ReadString();
+    int32_t winMode;
+    if (!data.ReadInt32(winMode)) {
+        IAM_LOGE("failed to read window mode");
+        return false;
+    }
+    widgetParam.windowMode = static_cast<WindowModeType>(winMode);
+    return true;
+}
+
 int32_t UserAuthStub::AuthUserStub(MessageParcel &data, MessageParcel &reply)
 {
     IAM_LOGI("enter");
@@ -343,6 +421,62 @@ int32_t UserAuthStub::GetVersionStub(MessageParcel &data, MessageParcel &reply)
         IAM_LOGE("failed to write GetVersion result");
         return WRITE_PARCEL_ERROR;
     }
+    return SUCCESS;
+}
+
+int32_t UserAuthStub::NoticeStub(MessageParcel &data, MessageParcel &reply)
+{
+    IAM_LOGI("enter");
+    ON_SCOPE_EXIT(IAM_LOGI("leave"));
+
+    int32_t type;
+    if (!data.ReadInt32(type)) {
+        IAM_LOGE("failed to read type");
+        return ResultCode::READ_PARCEL_ERROR;
+    }
+    NoticeType noticeType = static_cast<NoticeType>(type);
+    if (noticeType != WIDGET_NOTICE) {
+        IAM_LOGE("NoticeStub unsupport notice type");
+        return ResultCode::GENERAL_ERROR;
+    }
+    std::string eventData = data.ReadString();
+
+    int32_t result = Notice(noticeType, eventData);
+    if (!reply.WriteInt32(result)) {
+        IAM_LOGE("failed to write notice result");
+        return ResultCode::WRITE_PARCEL_ERROR;
+    }
+    IAM_LOGI("noticeStub success");
+    return ResultCode::SUCCESS;
+}
+
+int32_t UserAuthStub::RegisterWidgetCallbackStub(MessageParcel &data, MessageParcel &reply)
+{
+    IAM_LOGI("enter");
+    ON_SCOPE_EXIT(IAM_LOGI("leave"));
+
+    int32_t version;
+    if (!data.ReadInt32(version)) {
+        IAM_LOGE("failed to read version");
+        return READ_PARCEL_ERROR;
+    }
+
+    sptr<IRemoteObject> obj = data.ReadRemoteObject();
+    if (obj == nullptr) {
+        IAM_LOGE("failed to read remote object");
+        return READ_PARCEL_ERROR;
+    }
+    sptr<WidgetCallbackInterface> callback = iface_cast<WidgetCallbackProxy>(obj);
+    if (callback == nullptr) {
+        IAM_LOGE("RegisterWidgetCallbackStub is nullptr");
+        return GENERAL_ERROR;
+    }
+    int32_t result = RegisterWidgetCallback(version, callback);
+    if (!reply.WriteInt32(result)) {
+        IAM_LOGE("failed to write register widget callback result");
+        return WRITE_PARCEL_ERROR;
+    }
+    IAM_LOGI("RegisterWidgetCallbackStub success");
     return SUCCESS;
 }
 } // namespace UserAuth

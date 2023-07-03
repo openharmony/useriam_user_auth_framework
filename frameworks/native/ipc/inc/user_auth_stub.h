@@ -35,10 +35,14 @@ private:
     int32_t GetPropertyStub(MessageParcel &data, MessageParcel &reply);
     int32_t SetPropertyStub(MessageParcel &data, MessageParcel &reply);
     int32_t AuthStub(MessageParcel &data, MessageParcel &reply);
+    int32_t AuthWidgetStub(MessageParcel &data, MessageParcel &reply);
     int32_t AuthUserStub(MessageParcel &data, MessageParcel &reply);
     int32_t IdentifyStub(MessageParcel &data, MessageParcel &reply);
     int32_t CancelAuthOrIdentifyStub(MessageParcel &data, MessageParcel &reply);
     int32_t GetVersionStub(MessageParcel &data, MessageParcel &reply);
+    int32_t NoticeStub(MessageParcel &data, MessageParcel &reply);
+    bool ReadWidgetParam(MessageParcel &data, AuthParam &authParam, WidgetParam &widgetParam);
+    int32_t RegisterWidgetCallbackStub(MessageParcel &data, MessageParcel &reply);
 };
 } // namespace UserAuth
 } // namespace UserIam
