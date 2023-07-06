@@ -41,6 +41,7 @@ constexpr size_t PARAM3 = 3;
 constexpr int32_t API_VERSION_6 = 6;
 constexpr int32_t API_VERSION_8 = 8;
 constexpr int32_t API_VERSION_9 = 9;
+constexpr int32_t API_VERSION_10 = 10;
 
 // For API6
 enum class AuthenticationResult : int32_t {
@@ -59,8 +60,10 @@ enum class AuthenticationResult : int32_t {
 
 enum class UserAuthResultCode : int32_t {
     OHOS_CHECK_PERMISSION_FAILED = 201,
+    OHOS_CHECK_SYSTEM_APP_FAILED = 202,
     OHOS_INVALID_PARAM = 401,
     RESULT_CODE_V9_MIN = 12500000,
+    RESULT_CODE_V10_MIN = 12500000,
     SUCCESS = 12500000,
     FAIL = 12500001,
     GENERAL_ERROR = 12500002,
@@ -72,6 +75,8 @@ enum class UserAuthResultCode : int32_t {
     LOCKED = 12500009,
     NOT_ENROLLED = 12500010,
     RESULT_CODE_V9_MAX = 12500010,
+    CANCELED_FROM_WIDGET = 12500011,
+    RESULT_CODE_V10_MAX = 12500011,
 };
 } // namespace UserAuth
 } // namespace UserIam

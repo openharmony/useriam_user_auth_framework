@@ -20,6 +20,7 @@
 
 #include "securec.h"
 
+#include "napi/native_api.h"
 #include "napi/native_common.h"
 
 #include "iam_logger.h"
@@ -30,9 +31,12 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
+static constexpr const int MAX_STRING_LENGTH = 65536;
+
 const std::map<UserAuthResultCode, std::string> g_resultV92Str = {
     {UserAuthResultCode::OHOS_INVALID_PARAM, "Invalid authentication parameters."},
     {UserAuthResultCode::OHOS_CHECK_PERMISSION_FAILED, "Permission denied."},
+    {UserAuthResultCode::OHOS_CHECK_SYSTEM_APP_FAILED, "The caller is not a system application."},
     {UserAuthResultCode::SUCCESS, "Authentication succeeded."},
     {UserAuthResultCode::FAIL, "Authentication failed."},
     {UserAuthResultCode::GENERAL_ERROR, "Unknown errors."},
@@ -43,6 +47,7 @@ const std::map<UserAuthResultCode, std::string> g_resultV92Str = {
     {UserAuthResultCode::BUSY, "Authentication service is busy."},
     {UserAuthResultCode::LOCKED, "Authentication is lockout."},
     {UserAuthResultCode::NOT_ENROLLED, "Authentication template has not been enrolled."},
+    {UserAuthResultCode::CANCELED_FROM_WIDGET, "Authentication is canceled from widget."},
 };
 
 struct DeleteRefHolder {
@@ -170,6 +175,28 @@ int32_t UserAuthNapiHelper::GetResultCodeV9(int32_t result)
     if (resultCodeV9 >= static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V9_MIN) &&
         resultCodeV9 <= static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V9_MAX)) {
         return resultCodeV9;
+    }
+    return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
+}
+
+int32_t UserAuthNapiHelper::GetResultCodeV10(int32_t result)
+{
+    if (result == CHECK_PERMISSION_FAILED) {
+        return static_cast<int32_t>(UserAuthResultCode::OHOS_CHECK_PERMISSION_FAILED);
+    }
+    if (result == INVALID_PARAMETERS) {
+        return static_cast<int32_t>(UserAuthResultCode::OHOS_INVALID_PARAM);
+    }
+    if (result == CHECK_SYSTEM_APP_FAILED) {
+        return static_cast<int32_t>(UserAuthResultCode::OHOS_CHECK_SYSTEM_APP_FAILED);
+    }
+    if (result > (INT32_MAX - static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V10_MIN))) {
+        return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
+    }
+    int32_t resultCodeV10 = result + static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V10_MIN);
+    if (resultCodeV10 >= static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V10_MIN) &&
+        resultCodeV10 <= static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V10_MAX)) {
+        return resultCodeV10;
     }
     return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
 }
@@ -408,6 +435,78 @@ napi_status UserAuthNapiHelper::SetUint8ArrayProperty(napi_env env,
         IAM_LOGE("napi_set_named_property failed %{public}d", ret);
     }
     return ret;
+}
+
+napi_value UserAuthNapiHelper::GetNamedProperty(napi_env env, napi_value object, const std::string &propertyName)
+{
+    napi_value value = nullptr;
+    bool hasProperty = false;
+    NAPI_CALL(env, napi_has_named_property(env, object, propertyName.c_str(), &hasProperty));
+    if (!hasProperty) {
+        return value;
+    }
+    NAPI_CALL(env, napi_get_named_property(env, object, propertyName.c_str(), &value));
+    return value;
+}
+
+std::string UserAuthNapiHelper::GetStringFromValueUtf8(napi_env env, napi_value value)
+{
+    std::string result;
+    std::vector<char> str(MAX_STRING_LENGTH + 1, '\0');
+    size_t length = 0;
+    NAPI_CALL(env, napi_get_value_string_utf8(env, value, &str[0], MAX_STRING_LENGTH, &length));
+    if (length > 0) {
+        return result.append(&str[0], length);
+    }
+    return result;
+}
+
+bool UserAuthNapiHelper::HasNamedProperty(napi_env env, napi_value object, const std::string &propertyName)
+{
+    bool hasProperty = false;
+    NAPI_CALL_BASE(env, napi_has_named_property(env, object, propertyName.c_str(), &hasProperty), false);
+    return hasProperty;
+}
+
+std::string UserAuthNapiHelper::GetStringPropertyUtf8(napi_env env, napi_value object, const std::string &propertyName)
+{
+    if (!HasNamedProperty(env, object, propertyName)) {
+        IAM_LOGE("propertyName: %{public}s not exists.", propertyName.c_str());
+        return "";
+    }
+    napi_value value = GetNamedProperty(env, object, propertyName);
+    return GetStringFromValueUtf8(env, value);
+}
+
+bool UserAuthNapiHelper::SetStringPropertyUtf8(
+    napi_env env, napi_value object, const std::string &name, const std::string &value)
+{
+    napi_value jsValue = nullptr;
+    if (napi_create_string_utf8(env, value.c_str(), strlen(value.c_str()), &jsValue) != napi_ok) {
+        IAM_LOGE("get string error");
+        return false;
+    }
+    napi_valuetype valueType = napi_undefined;
+    NAPI_CALL_BASE(env, napi_typeof(env, jsValue, &valueType), napi_undefined);
+    napi_set_named_property(env, object, name.c_str(), jsValue);
+    return true;
+}
+
+bool UserAuthNapiHelper::GetInt32Array(napi_env env, napi_value obj, std::vector<uint32_t> vec)
+{
+    vec.clear();
+    uint32_t len;
+    napi_get_array_length(env, obj, &len);
+    IAM_LOGE("GetInt32Array length: %{public}d", len);
+    for (uint32_t index = 0; index < len; index++) {
+        napi_value value;
+        uint32_t getValue;
+        NAPI_CALL_BASE(env, napi_get_element(env, obj, index, &value), napi_undefined);
+        NAPI_CALL_BASE(env, napi_get_value_uint32(env, value, &getValue), napi_undefined);
+        IAM_LOGE("vec[%{public}d]: %{public}d", index, len);
+        vec.emplace_back(getValue);
+    }
+    return true;
 }
 } // namespace UserAuth
 } // namespace UserIam

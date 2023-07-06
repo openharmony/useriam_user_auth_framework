@@ -17,6 +17,10 @@
 
 #include "user_auth_impl.h"
 #include "auth_instance_v9.h"
+#include "user_auth_instance_v10.h"
+#include "user_auth_widget_mgr_v10.h"
+#include "user_auth_client_impl.h"
+
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_NAPI
 
@@ -244,6 +248,350 @@ napi_value GetAuthInstanceV9(napi_env env, napi_callback_info info)
     return authInstanceV9;
 }
 
+napi_status UnwrapAuthInstanceV10(napi_env env, napi_callback_info info, UserAuthInstanceV10 **authInstanceV10)
+{
+    napi_value thisVar = nullptr;
+    size_t argc = ARGS_ONE;
+    napi_value argv[ARGS_ONE] = {nullptr};
+    napi_status ret = napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_get_cb_info fail");
+        return ret;
+    }
+    ret = napi_unwrap(env, thisVar, reinterpret_cast<void **>(authInstanceV10));
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_unwrap fail");
+        return ret;
+    }
+    if (*authInstanceV10 == nullptr) {
+        IAM_LOGE("authInstanceV9 is null");
+        return napi_generic_failure;
+    }
+    return ret;
+}
+
+napi_value OnV10(napi_env env, napi_callback_info info)
+{
+    IAM_LOGI("start");
+    UserAuthInstanceV10 *authInstance = nullptr;
+    napi_status ret = UnwrapAuthInstanceV10(env, info, &authInstance);
+    if (ret != napi_ok) {
+        IAM_LOGE("UnwrapAuthInstanceV10 fail:%{public}d", ret);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        return nullptr;
+    }
+    UserAuthResultCode code = authInstance->On(env, info);
+    if (code != UserAuthResultCode::SUCCESS) {
+        IAM_LOGE("On fail:%{public}d", static_cast<int32_t>(code));
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, code));
+    }
+    return nullptr;
+}
+
+napi_value OffV10(napi_env env, napi_callback_info info)
+{
+    IAM_LOGI("start");
+    UserAuthInstanceV10 *authInstance = nullptr;
+    napi_status ret = UnwrapAuthInstanceV10(env, info, &authInstance);
+    if (ret != napi_ok) {
+        IAM_LOGE("UnwrapAuthInstanceV10 fail:%{public}d", ret);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        return nullptr;
+    }
+    UserAuthResultCode code = authInstance->Off(env, info);
+    if (code != UserAuthResultCode::SUCCESS) {
+        IAM_LOGE("Off fail:%{public}d", static_cast<int32_t>(code));
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, code));
+    }
+    return nullptr;
+}
+
+napi_value StartV10(napi_env env, napi_callback_info info)
+{
+    IAM_LOGI("start");
+    UserAuthInstanceV10 *authInstance = nullptr;
+    napi_status ret = UnwrapAuthInstanceV10(env, info, &authInstance);
+    if (ret != napi_ok) {
+        IAM_LOGE("UnwrapAuthInstanceV10 fail:%{public}d", ret);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        return nullptr;
+    }
+    UserAuthResultCode code = authInstance->Start(env, info);
+    if (code != UserAuthResultCode::SUCCESS) {
+        IAM_LOGE("Start fail:%{public}d", static_cast<int32_t>(code));
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, code));
+    }
+    return nullptr;
+}
+
+napi_value CancelV10(napi_env env, napi_callback_info info)
+{
+    IAM_LOGI("start");
+    UserAuthInstanceV10 *authInstance = nullptr;
+    napi_status ret = UnwrapAuthInstanceV10(env, info, &authInstance);
+    if (ret != napi_ok) {
+        IAM_LOGE("UnwrapAuthInstanceV10 fail:%{public}d", ret);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        return nullptr;
+    }
+    UserAuthResultCode code = authInstance->Cancel(env, info);
+    if (code != UserAuthResultCode::SUCCESS) {
+        IAM_LOGE("Cancel fail:%{public}d", static_cast<int32_t>(code));
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, code));
+    }
+    return nullptr;
+}
+
+napi_value UserAuthInstanceV10Constructor(napi_env env, napi_callback_info info)
+{
+    IAM_LOGI("start");
+    std::unique_ptr<UserAuthInstanceV10> userAuthInstanceV10 {new (std::nothrow) UserAuthInstanceV10(env)};
+    if (userAuthInstanceV10 == nullptr) {
+        IAM_LOGE("userAuthInstanceV10 is nullptr");
+        return nullptr;
+    }
+
+    napi_value thisVar = nullptr;
+    size_t argc = ARGS_TWO;
+    napi_value argv[ARGS_TWO] = {nullptr};
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
+    NAPI_CALL(env, napi_wrap(env, thisVar, userAuthInstanceV10.get(),
+        [](napi_env env, void *data, void *hint) {
+            UserAuthInstanceV10 *userAuthInstanceV10 = static_cast<UserAuthInstanceV10 *>(data);
+            if (userAuthInstanceV10 != nullptr) {
+                delete userAuthInstanceV10;
+            }
+        },
+        nullptr, nullptr));
+    userAuthInstanceV10.release();
+    return thisVar;
+}
+
+napi_value UserAuthInstanceV10Class(napi_env env)
+{
+    napi_value result = nullptr;
+    napi_property_descriptor clzDes[] = {
+        DECLARE_NAPI_FUNCTION("on", UserAuth::OnV10),
+        DECLARE_NAPI_FUNCTION("off", UserAuth::OffV10),
+        DECLARE_NAPI_FUNCTION("start", UserAuth::StartV10),
+        DECLARE_NAPI_FUNCTION("cancel", UserAuth::CancelV10),
+    };
+    NAPI_CALL(env, napi_define_class(env, "UserAuthInstance", NAPI_AUTO_LENGTH, UserAuthInstanceV10Constructor, nullptr,
+        sizeof(clzDes) / sizeof(napi_property_descriptor), clzDes, &result));
+    return result;
+}
+
+napi_status UnwrapAuthWidgetMgrV10(napi_env env, napi_callback_info info, UserAuthWidgetMgr **authWidgetMgrV10)
+{
+    napi_value thisVar = nullptr;
+    size_t argc = ARGS_ONE;
+    napi_value argv[ARGS_ONE] = {nullptr};
+    napi_status ret = napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_get_cb_info fail");
+        return ret;
+    }
+    ret = napi_unwrap(env, thisVar, reinterpret_cast<void **>(authWidgetMgrV10));
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_unwrap fail");
+        return ret;
+    }
+    if (*authWidgetMgrV10 == nullptr) {
+        IAM_LOGE("authWidgetMgr is null");
+        return napi_generic_failure;
+    }
+    return ret;
+}
+
+napi_value WidgetOn(napi_env env, napi_callback_info info)
+{
+    IAM_LOGI("widgetOn");
+    UserAuthWidgetMgr *authWidgetMgr = nullptr;
+    napi_status ret = UnwrapAuthWidgetMgrV10(env, info, &authWidgetMgr);
+    if (ret != napi_ok) {
+        IAM_LOGE("UnwrapAuthWidgetMgrV10 fail:%{public}d", ret);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        return nullptr;
+    }
+    UserAuthResultCode code = authWidgetMgr->On(env, info);
+    if (code != UserAuthResultCode::SUCCESS) {
+        IAM_LOGE("widgetOn fail:%{public}d", static_cast<int32_t>(code));
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, code));
+    }
+    return nullptr;
+}
+
+napi_value WidgetOff(napi_env env, napi_callback_info info)
+{
+    IAM_LOGI("widgetOff");
+    UserAuthWidgetMgr *authWidgetMgr = nullptr;
+    napi_status ret = UnwrapAuthWidgetMgrV10(env, info, &authWidgetMgr);
+    if (ret != napi_ok) {
+        IAM_LOGE("UnwrapAuthWidgetMgrV10 fail:%{public}d", ret);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        return nullptr;
+    }
+    UserAuthResultCode code = authWidgetMgr->Off(env, info);
+    if (code != UserAuthResultCode::SUCCESS) {
+        IAM_LOGE("widgetOff fail:%{public}d", static_cast<int32_t>(code));
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, code));
+    }
+    return nullptr;
+}
+
+napi_value SendNotice(napi_env env, napi_callback_info info)
+{
+    IAM_LOGI("start SendNotice");
+    UserAuthResultCode errCode = UserAuthResultCode::SUCCESS;
+
+    napi_value argv[ARGS_TWO];
+    size_t argc = ARGS_TWO;
+    napi_status ret = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_get_cb_info fail:%{public}d", ret);
+        errCode = UserAuthResultCode::GENERAL_ERROR;
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, errCode));
+        return nullptr;
+    }
+    if (argc != ARGS_TWO) {
+        IAM_LOGE("invalid param, argc:%{public}zu", argc);
+        errCode = UserAuthResultCode::OHOS_INVALID_PARAM;
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, errCode));
+        return nullptr;
+    }
+
+    NoticeType noticeType = NoticeType::WIDGET_NOTICE;
+    int32_t noticeType_value = 0;
+    ret = UserAuthNapiHelper::GetInt32Value(env, argv[PARAM0], noticeType_value);
+    if (ret != napi_ok) {
+        IAM_LOGE("GetStrValue fail:%{public}d", ret);
+        errCode = UserAuthResultCode::OHOS_INVALID_PARAM;
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, errCode));
+        return nullptr;
+    }
+    IAM_LOGI("recv SendNotice noticeType:%{public}d", noticeType_value);
+
+    if (noticeType_value != 1) {
+        errCode = UserAuthResultCode::OHOS_INVALID_PARAM;
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, errCode));
+        return nullptr;
+    }
+    std::string eventData = UserAuthNapiHelper::GetStringFromValueUtf8(env, argv[PARAM1]);
+    IAM_LOGI("recv SendNotice eventData:%{public}s", eventData.c_str());
+
+    int32_t result = UserAuthClientImpl::Instance().Notice(noticeType, eventData);
+    if (result != ResultCode::SUCCESS) {
+        errCode = UserAuthResultCode(UserAuthNapiHelper::GetResultCodeV10(result));
+        IAM_LOGE("SendNotice fail. result: %{public}d, errCode: %{public}d", result, errCode);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, errCode));
+        return nullptr;
+    }
+    IAM_LOGI("end SendNotice");
+    return nullptr;
+}
+
+napi_value UserAuthWidgetMgrV10Constructor(napi_env env, napi_callback_info info)
+{
+    IAM_LOGI("start");
+    std::unique_ptr<UserAuthWidgetMgr> userAuthWidgetMgrV10 {new (std::nothrow) UserAuthWidgetMgr(env)};
+    if (userAuthWidgetMgrV10 == nullptr) {
+        IAM_LOGE("userAuthWidgetMgrV10 is nullptr");
+        return nullptr;
+    }
+
+    napi_value thisVar = nullptr;
+    size_t argc = ARGS_ONE;
+    napi_value argv[ARGS_ONE] = {nullptr};
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
+    NAPI_CALL(env, napi_wrap(env, thisVar, userAuthWidgetMgrV10.get(),
+        [](napi_env env, void *data, void *hint) {
+            UserAuthWidgetMgr *userAuthWidgetMgrV10 = static_cast<UserAuthWidgetMgr *>(data);
+            if (userAuthWidgetMgrV10 != nullptr) {
+                delete userAuthWidgetMgrV10;
+            }
+        },
+        nullptr, nullptr));
+    userAuthWidgetMgrV10.release();
+    return thisVar;
+}
+
+napi_value UserAuthWidgetMgrV10Class(napi_env env)
+{
+    napi_value result = nullptr;
+    napi_property_descriptor clzDes[] = {
+        DECLARE_NAPI_FUNCTION("on", UserAuth::WidgetOn),
+        DECLARE_NAPI_FUNCTION("off", UserAuth::WidgetOff),
+    };
+    NAPI_CALL(env, napi_define_class(env, "UserAuthWidgetMgr", NAPI_AUTO_LENGTH, UserAuthWidgetMgrV10Constructor,
+        nullptr, sizeof(clzDes) / sizeof(napi_property_descriptor), clzDes, &result));
+    return result;
+}
+
+napi_value GetUserAuthInstanceV10(napi_env env, napi_callback_info info)
+{
+    IAM_LOGI("start");
+    napi_value userAuthInstanceV10;
+    napi_status ret = napi_new_instance(env, UserAuthInstanceV10Class(env), 0, nullptr, &userAuthInstanceV10);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_new_instance fail:%{public}d", ret);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        return nullptr;
+    }
+    UserAuthInstanceV10 *userAuthInstance = nullptr;
+    ret = napi_unwrap(env, userAuthInstanceV10, reinterpret_cast<void **>(&userAuthInstance));
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_unwrap fail");
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        return nullptr;
+    }
+    if (userAuthInstance == nullptr) {
+        IAM_LOGE("userAuthInstanceV10 is null");
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        return nullptr;
+    }
+    UserAuthResultCode code = userAuthInstance->Init(env, info);
+    if (code != UserAuthResultCode::SUCCESS) {
+        IAM_LOGE("Init fail:%{public}d", static_cast<int32_t>(code));
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, code));
+        return nullptr;
+    }
+
+    IAM_LOGE("GetUserAuthInstanceV10 SUCCESS");
+    return userAuthInstanceV10;
+}
+
+napi_value GetUserAuthWidgetMgrV10(napi_env env, napi_callback_info info)
+{
+    IAM_LOGI("start");
+    napi_value userAuthWidgetMgrV10;
+    napi_status ret = napi_new_instance(env, UserAuthWidgetMgrV10Class(env), 0, nullptr, &userAuthWidgetMgrV10);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_new_instance fail:%{public}d", ret);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        return nullptr;
+    }
+    UserAuthWidgetMgr *userAuthWidgetMgr = nullptr;
+    ret = napi_unwrap(env, userAuthWidgetMgrV10, reinterpret_cast<void **>(&userAuthWidgetMgr));
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_unwrap fail");
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        return nullptr;
+    }
+    if (userAuthWidgetMgr == nullptr) {
+        IAM_LOGE("userAuthInstanceV10 is null");
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        return nullptr;
+    }
+    UserAuthResultCode code = userAuthWidgetMgr->Init(env, info);
+    if (code != UserAuthResultCode::SUCCESS) {
+        IAM_LOGE("Init fail:%{public}d", static_cast<int32_t>(code));
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, code));
+        return nullptr;
+    }
+    IAM_LOGI("end");
+    return userAuthWidgetMgrV10;
+}
+
 napi_value Auth(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
@@ -295,6 +643,7 @@ napi_value ResultCodeConstructor(napi_env env)
     napi_value invalidParameters = nullptr;
     napi_value locked = nullptr;
     napi_value notEnrolled = nullptr;
+    napi_value canceledFromWidget = nullptr;
     NAPI_CALL(env, napi_create_object(env, &resultCode));
     NAPI_CALL(env, napi_create_int32(env, ResultCode::SUCCESS, &success));
     NAPI_CALL(env, napi_create_int32(env, ResultCode::FAIL, &fail));
@@ -307,6 +656,7 @@ napi_value ResultCodeConstructor(napi_env env)
     NAPI_CALL(env, napi_create_int32(env, ResultCode::INVALID_PARAMETERS, &invalidParameters));
     NAPI_CALL(env, napi_create_int32(env, ResultCode::LOCKED, &locked));
     NAPI_CALL(env, napi_create_int32(env, ResultCode::NOT_ENROLLED, &notEnrolled));
+    NAPI_CALL(env, napi_create_int32(env, ResultCode::CANCELED_FROM_WIDGET, &canceledFromWidget));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "SUCCESS", success));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "FAIL", fail));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "GENERAL_ERROR", generalError));
@@ -318,6 +668,7 @@ napi_value ResultCodeConstructor(napi_env env)
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "INVALID_PARAMETERS", invalidParameters));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "LOCKED", locked));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "NOT_ENROLLED", notEnrolled));
+    NAPI_CALL(env, napi_set_named_property(env, resultCode, "CANCELED_FROM_WIDGET", canceledFromWidget));
     return resultCode;
 }
 
@@ -334,6 +685,7 @@ napi_value UserAuthResultCodeConstructor(napi_env env)
     napi_value busy = nullptr;
     napi_value locked = nullptr;
     napi_value notEnrolled = nullptr;
+    napi_value canceledFromWidget = nullptr;
     NAPI_CALL(env, napi_create_object(env, &resultCode));
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::SUCCESS), &success));
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::FAIL), &fail));
@@ -346,6 +698,8 @@ napi_value UserAuthResultCodeConstructor(napi_env env)
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::BUSY), &busy));
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::LOCKED), &locked));
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::NOT_ENROLLED), &notEnrolled));
+    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::CANCELED_FROM_WIDGET),
+        &canceledFromWidget));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "SUCCESS", success));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "FAIL", fail));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "GENERAL_ERROR", generalError));
@@ -356,6 +710,7 @@ napi_value UserAuthResultCodeConstructor(napi_env env)
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "BUSY", busy));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "LOCKED", locked));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "NOT_ENROLLED", notEnrolled));
+    NAPI_CALL(env, napi_set_named_property(env, resultCode, "CANCELED_FROM_WIDGET", canceledFromWidget));
     return resultCode;
 }
 
@@ -487,6 +842,29 @@ napi_value UserAuthTypeConstructor(napi_env env)
     return userAuthType;
 }
 
+napi_value NoticeTypeConstructor(napi_env env)
+{
+    napi_value noticeType = nullptr;
+    napi_value widget_notice = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &noticeType));
+    NAPI_CALL(env, napi_create_int32(env, NoticeType::WIDGET_NOTICE, &widget_notice));
+    NAPI_CALL(env, napi_set_named_property(env, noticeType, "WIDGET_NOTICE", widget_notice));
+    return noticeType;
+}
+
+napi_value WindowModeTypeConstructor(napi_env env)
+{
+    napi_value windowModeType = nullptr;
+    napi_value dialog_box = nullptr;
+    napi_value fullscreen = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &windowModeType));
+    NAPI_CALL(env, napi_create_int32(env, WindowModeType::DIALOG_BOX, &dialog_box));
+    NAPI_CALL(env, napi_create_int32(env, WindowModeType::FULLSCREEN, &fullscreen));
+    NAPI_CALL(env, napi_set_named_property(env, windowModeType, "DIALOG_BOX", dialog_box));
+    NAPI_CALL(env, napi_set_named_property(env, windowModeType, "FULLSCREEN", fullscreen));
+    return windowModeType;
+}
+
 napi_value GetCtor(napi_env env)
 {
     IAM_LOGI("start");
@@ -528,7 +906,11 @@ napi_value UserAuthInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getAuthenticator", UserAuth::ConstructorForApi6),
         DECLARE_NAPI_FUNCTION("getAvailableStatus", UserAuth::GetAvailableStatusV9),
         DECLARE_NAPI_FUNCTION("getAuthInstance", UserAuth::GetAuthInstanceV9),
+        DECLARE_NAPI_FUNCTION("getUserAuthInstance", UserAuth::GetUserAuthInstanceV10),
+        DECLARE_NAPI_FUNCTION("getUserAuthWidgetMgr", UserAuth::GetUserAuthWidgetMgrV10),
+        DECLARE_NAPI_FUNCTION("sendNotice", UserAuth::SendNotice),
     };
+    
     status = napi_define_properties(env, exports,
         sizeof(exportFuncs) / sizeof(napi_property_descriptor), exportFuncs);
     if (status != napi_ok) {
@@ -553,6 +935,9 @@ napi_value EnumExport(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("UserAuthType", UserAuthTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("FaceTips", FaceTipsCodeConstructor(env)),
         DECLARE_NAPI_PROPERTY("AuthenticationResult", AuthenticationResultConstructor(env)),
+        //add
+        DECLARE_NAPI_PROPERTY("NoticeType", NoticeTypeConstructor(env)),
+        DECLARE_NAPI_PROPERTY("WindowModeType", WindowModeTypeConstructor(env)),
     };
     NAPI_CALL(env, napi_define_properties(env, exports,
         sizeof(descriptors) / sizeof(napi_property_descriptor), descriptors));

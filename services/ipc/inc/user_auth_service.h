@@ -23,6 +23,7 @@
 #include <system_ability_definition.h>
 
 #include "context_callback.h"
+#include "context_factory.h"
 #include "context_pool.h"
 #include "resource_node_pool.h"
 #include "user_idm_database.h"
@@ -45,10 +46,14 @@ public:
         AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) override;
     uint64_t Auth(int32_t apiVersion, const std::vector<uint8_t> &challenge, AuthType authType,
         AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) override;
+    uint64_t AuthWidget(int32_t apiVersion, const AuthParam &authParam,
+        const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback) override;
     uint64_t Identify(const std::vector<uint8_t> &challenge, AuthType authType,
         sptr<UserAuthCallbackInterface> &callback) override;
     int32_t CancelAuthOrIdentify(uint64_t contextId) override;
     int32_t GetVersion(int32_t &version) override;
+    int32_t Notice(NoticeType noticeType, const std::string &eventData) override;
+    int32_t RegisterWidgetCallback(int32_t version, sptr<WidgetCallbackInterface> &callback) override;
 
 protected:
     void OnStart() override;
@@ -57,9 +62,13 @@ protected:
 private:
     std::shared_ptr<ContextCallback> GetAuthContextCallback(const std::vector<uint8_t> &challenge, AuthType authType,
         AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback);
+    std::shared_ptr<ContextCallback> GetAuthContextCallback(const std::vector<uint8_t> &challenge,
+        AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback);
     bool CheckAuthPermission(bool isInnerCaller, AuthType authType);
     ResultCode CheckNorthPermission(AuthType authType);
+    ResultCode CheckWidgetNorthPermission(const std::vector<AuthType> &authTypeList);
     ResultCode CheckServicePermission(AuthType authType);
+    bool CheckCallerIsSystemApp();
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -13,34 +13,29 @@
  * limitations under the License.
  */
 
-#ifndef USER_AUTH_INTERFACE_IPC_INTERFACE_CODE_H
-#define USER_AUTH_INTERFACE_IPC_INTERFACE_CODE_H
+#ifndef WIDGET_CALLBACK_PROXY_H
+#define WIDGET_CALLBACK_PROXY_H
 
-/* SAID: 921 */
+#include <iremote_proxy.h>
+
+#include "widget_callback_interface.h"
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-enum UserAuthInterfaceCode : uint32_t {
-    USER_AUTH_GET_AVAILABLE_STATUS = 0,
-    USER_AUTH_GET_PROPERTY,
-    USER_AUTH_SET_PROPERTY,
-    USER_AUTH_AUTH,
-    USER_AUTH_AUTH_USER,
-    USER_AUTH_CANCEL_AUTH,
-    USER_AUTH_GET_VERSION,
-    USER_AUTH_ON_RESULT,
-    USER_AUTH_GET_EX_PROP,
-    USER_AUTH_SET_EX_PROP,
-    USER_AUTH_ACQUIRE_INFO,
-    USER_AUTH_IDENTIFY,
-    USER_AUTH_CANCEL_IDENTIFY,
-    USER_AUTH_ON_IDENTIFY_RESULT,
-    USER_AUTH_AUTH_WIDGET,
-    USER_AUTH_NOTICE,
-    USER_AUTH_ON_SEND_COMMAND,
-    USER_AUTH_REG_WIDGET_CB,
+class WidgetCallbackProxy : public IRemoteProxy<WidgetCallbackInterface>, public NoCopyable {
+public:
+    explicit WidgetCallbackProxy(const sptr<IRemoteObject> &object) : IRemoteProxy<WidgetCallbackInterface>(object)
+    {
+    }
+    ~WidgetCallbackProxy() override = default;
+    void SendCommand(const std::string &cmdData) override;
+
+private:
+    static inline BrokerDelegator<WidgetCallbackProxy> delegator_;
+    bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply);
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // USER_AUTH_INTERFACE_IPC_INTERFACE_CODE_H
+#endif // WIDGET_CALLBACK_PROXY_H

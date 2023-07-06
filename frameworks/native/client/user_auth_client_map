@@ -17,8 +17,11 @@
         OHOS::UserIam::UserAuth::CoAuthClient::GetInstance*;
         OHOS::UserIam::UserAuth::UserAuthClientImpl::Instance*;
         OHOS::UserIam::UserAuth::UserAuthClientImpl::BeginNorthAuthentication*;
+        OHOS::UserIam::UserAuth::UserAuthClientImpl::BeginWidgetAuth*;
         OHOS::UserIam::UserAuth::UserAuthClientImpl::GetVersion*;
         OHOS::UserIam::UserAuth::UserAuthClientImpl::GetAvailableStatus*;
+        OHOS::UserIam::UserAuth::UserAuthClientImpl::SetWidgetCallback*;
+        OHOS::UserIam::UserAuth::UserAuthClientImpl::Notice*;
         OHOS::UserIam::UserAuth::AuthMessage::As*;
         OHOS::UserIam::UserAuth::UserAuthClient::GetInstance*;
         OHOS::UserIam::UserAuth::UserIdmClient::GetInstance*;

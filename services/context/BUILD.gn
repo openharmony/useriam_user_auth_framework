@@ -18,7 +18,10 @@ config("userauth_service_context_config") {
 }
 
 ohos_source_set("userauth_service_context") {
-  include_dirs = [ "inc" ]
+  include_dirs = [
+    "inc",
+    "../../frameworks/js/napi/user_auth/inc",
+  ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
