@@ -209,6 +209,81 @@ uint64_t UserAuthProxy::Auth(int32_t apiVersion, const std::vector<uint8_t> &cha
     return result;
 }
 
+uint64_t UserAuthProxy::AuthWidget(int32_t apiVersion, const AuthParam &authParam,
+    const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback)
+{
+    if (callback == nullptr) {
+        IAM_LOGE("callback is nullptr");
+        return BAD_CONTEXT_ID;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+
+    if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
+        IAM_LOGE("failed to write descriptor");
+        return BAD_CONTEXT_ID;
+    }
+
+    if (!WriteWidgetParam(data, authParam, widgetParam)) {
+        IAM_LOGE("failed to write widget param");
+        return BAD_CONTEXT_ID;
+    }
+
+    if (!data.WriteRemoteObject(callback->AsObject())) {
+        IAM_LOGE("failed to write callback");
+        return false;
+    }
+
+    if (!data.WriteInt32(apiVersion)) {
+        IAM_LOGE("failed to write apiVersion");
+        return BAD_CONTEXT_ID;
+    }
+
+    bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_AUTH_WIDGET, data, reply);
+    if (!ret) {
+        return BAD_CONTEXT_ID;
+    }
+    uint64_t result = BAD_CONTEXT_ID;
+    if (!reply.ReadUint64(result)) {
+        IAM_LOGE("failed to read result");
+    }
+    return result;
+}
+
+bool UserAuthProxy::WriteWidgetParam(MessageParcel &data, const AuthParam &authParam, const WidgetParam &widgetParam)
+{
+    if (!data.WriteUInt8Vector(authParam.challenge)) {
+        IAM_LOGE("failed to write challenge");
+        return false;
+    }
+    std::vector<int32_t> atList;
+    for (auto at : authParam.authType) {
+        atList.push_back(static_cast<int32_t>(at));
+    }
+    if (!data.WriteInt32Vector(atList)) {
+        IAM_LOGE("failed to write authTypeList");
+        return false;
+    }
+    if (!data.WriteUint32(authParam.authTrustLevel)) {
+        IAM_LOGE("failed to write authTrustLevel");
+        return false;
+    }
+
+    if (!data.WriteString(widgetParam.title)) {
+        IAM_LOGE("failed to write title");
+        return false;
+    }
+    if (!data.WriteString(widgetParam.navigationButtonText)) {
+        IAM_LOGE("failed to write navigation button text");
+        return false;
+    }
+    if (!data.WriteInt32(static_cast<int32_t>(widgetParam.windowMode))) {
+        IAM_LOGE("failed to write window mode");
+        return false;
+    }
+    return true;
+}
+
 uint64_t UserAuthProxy::AuthUser(int32_t userId, const std::vector<uint8_t> &challenge,
     AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback)
 {
@@ -347,6 +422,74 @@ bool UserAuthProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParce
         return false;
     }
     return true;
+}
+
+int32_t UserAuthProxy::Notice(NoticeType noticeType, const std::string &eventData)
+{
+    MessageParcel data;
+    MessageParcel reply;
+
+    if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
+        IAM_LOGE("failed to write descriptor");
+        return ResultCode::WRITE_PARCEL_ERROR;
+    }
+
+    int32_t type = static_cast<int32_t>(noticeType);
+    if (!data.WriteInt32(type)) {
+        IAM_LOGE("failed to write noticeType");
+        return ResultCode::WRITE_PARCEL_ERROR;
+    }
+    if (!data.WriteString(eventData)) {
+        IAM_LOGE("failed to write eventData");
+        return ResultCode::WRITE_PARCEL_ERROR;
+    }
+
+    bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_NOTICE, data, reply);
+    if (!ret) {
+        return ResultCode::GENERAL_ERROR;
+    }
+    int32_t result = ResultCode::GENERAL_ERROR;
+    if (!reply.ReadInt32(result)) {
+        IAM_LOGE("failed to read result");
+        return ResultCode::READ_PARCEL_ERROR;
+    }
+    return result;
+}
+
+int32_t UserAuthProxy::RegisterWidgetCallback(int32_t version, sptr<WidgetCallbackInterface> &callback)
+{
+    if (callback == nullptr) {
+        IAM_LOGE("callback is nullptr");
+        return GENERAL_ERROR;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+
+    if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
+        IAM_LOGE("failed to write descriptor");
+        return GENERAL_ERROR;
+    }
+
+    if (!data.WriteInt32(version)) {
+        IAM_LOGE("failed to write version");
+        return WRITE_PARCEL_ERROR;
+    }
+
+    if (!data.WriteRemoteObject(callback->AsObject())) {
+        IAM_LOGE("failed to write callback");
+        return GENERAL_ERROR;
+    }
+
+    bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_REG_WIDGET_CB, data, reply);
+    if (!ret) {
+        return GENERAL_ERROR;
+    }
+    int32_t result = GENERAL_ERROR;
+    if (!reply.ReadInt32(result)) {
+        IAM_LOGE("failed to read result");
+        return READ_PARCEL_ERROR;
+    }
+    return result;
 }
 } // namespace UserAuth
 } // namespace UserIam

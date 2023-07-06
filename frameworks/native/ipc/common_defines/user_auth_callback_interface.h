@@ -23,6 +23,7 @@
 #include "attributes.h"
 #include "iam_common_defines.h"
 #include "iam_callback_interface.h"
+#include "user_auth_common_defines.h"
 
 namespace OHOS {
 namespace UserIam {

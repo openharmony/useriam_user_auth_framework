@@ -17,10 +17,12 @@
 
 #include "system_ability_definition.h"
 
+#include "auth_common.h"
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "ipc_client_utils.h"
 #include "user_auth_callback_service.h"
+#include "widget_callback_service.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SDK
 namespace OHOS {
@@ -296,6 +298,64 @@ UserAuthClientImpl &UserAuthClientImpl::Instance()
 UserAuthClient &UserAuthClient::GetInstance()
 {
     return UserAuthClientImpl::Instance();
+}
+
+uint64_t UserAuthClientImpl::BeginWidgetAuth(int32_t apiVersion, const AuthParam &authParam,
+    const WidgetParam &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback)
+{
+    // parameter verification
+    if (!callback) {
+        IAM_LOGE("auth callback is nullptr");
+        return INVALID_SESSION_ID;
+    }
+    auto proxy = GetProxy();
+    if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
+        Attributes extraInfo;
+        callback->OnResult(static_cast<int32_t>(ResultCode::GENERAL_ERROR), extraInfo);
+        return INVALID_SESSION_ID;
+    }
+
+    sptr<UserAuthCallbackInterface> wrapper = new (std::nothrow) UserAuthCallbackService(callback);
+    if (wrapper == nullptr) {
+        IAM_LOGE("failed to create wrapper");
+        Attributes extraInfo;
+        callback->OnResult(static_cast<int32_t>(ResultCode::GENERAL_ERROR), extraInfo);
+        return INVALID_SESSION_ID;
+    }
+    return proxy->AuthWidget(apiVersion, authParam, widgetParam, wrapper);
+}
+
+int32_t UserAuthClientImpl::SetWidgetCallback(int32_t version, const std::shared_ptr<IUserAuthWidgetCallback> &callback)
+{
+    if (!callback) {
+        IAM_LOGE("widget callback is nullptr");
+        return GENERAL_ERROR;
+    }
+    auto proxy = GetProxy();
+    if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    sptr<WidgetCallbackInterface> wrapper = new (std::nothrow) WidgetCallbackService(callback);
+    if (wrapper == nullptr) {
+        IAM_LOGE("failed to create wrapper");
+        return GENERAL_ERROR;
+    }
+    return proxy->RegisterWidgetCallback(version, wrapper);
+}
+
+int32_t UserAuthClientImpl::Notice(NoticeType noticeType, const std::string &eventData)
+{
+    auto proxy = GetProxy();
+    if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
+        return GENERAL_ERROR;
+    }
+    IAM_LOGI("UserAuthClientImpl::Notice noticeType:%{public}d, eventDat:%{public}s",
+        static_cast<int32_t>(noticeType), eventData.c_str());
+    return proxy->Notice(noticeType, eventData);
 }
 } // namespace UserAuth
 } // namespace UserIam

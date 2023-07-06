@@ -22,6 +22,7 @@
 
 #include "user_auth_client.h"
 #include "user_auth_interface.h"
+#include "iuser_auth_widget_callback.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -44,6 +45,10 @@ public:
         const std::shared_ptr<IdentificationCallback> &callback) override;
     int32_t CancelIdentification(uint64_t contextId) override;
     int32_t GetVersion(int32_t &version);
+    uint64_t BeginWidgetAuth(int32_t apiVersion, const AuthParam &authParam,
+        const WidgetParam &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback);
+    int32_t SetWidgetCallback(int32_t version, const std::shared_ptr<IUserAuthWidgetCallback> &callback);
+    int32_t Notice(NoticeType noticeType, const std::string &eventData);
 
 private:
     ResultCode SetPropertyInner(int32_t userId, const SetPropertyRequest &request,
