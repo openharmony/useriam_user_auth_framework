@@ -222,8 +222,8 @@ void UserAuthCallbackV8::OnAcquireInfo(int32_t module, uint32_t acquireInfo,
     acquireHolder->acquireInfo = acquireInfo;
     acquireHolder->env = env_;
     work->data = reinterpret_cast<void *>(acquireHolder);
-    if (uv_queue_work(loop, work, [](uv_work_t *work) {}, OnAcquireV8Work) != 0) {
-        IAM_LOGE("uv_queue_work fail");
+    if (uv_queue_work_with_qos(loop, work, [](uv_work_t *work) {}, OnAcquireV8Work, uv_qos_user_initiated) != 0) {
+        IAM_LOGE("uv_queue_work_with_qos fail");
         DestoryAcquireWork(work);
     }
 }
@@ -262,8 +262,8 @@ void UserAuthCallbackV8::OnResult(int32_t result, const Attributes &extraInfo)
     }
 
     work->data = reinterpret_cast<void *>(resultHolder);
-    if (uv_queue_work(loop, work, [](uv_work_t *work) {}, OnResultV8Work) != 0) {
-        IAM_LOGE("uv_queue_work fail");
+    if (uv_queue_work_with_qos(loop, work, [](uv_work_t *work) {}, OnResultV8Work, uv_qos_user_initiated) != 0) {
+        IAM_LOGE("uv_queue_work_with_qos fail");
         DestoryResultWork(work);
     }
 }

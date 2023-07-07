@@ -131,8 +131,8 @@ JsRefHolder::~JsRefHolder()
     deleteRefHolder->env = env_;
     deleteRefHolder->ref = ref_;
     work->data = reinterpret_cast<void *>(deleteRefHolder);
-    if (uv_queue_work(loop, work, [](uv_work_t *work) {}, OnDeleteRefWork) != 0) {
-        IAM_LOGE("uv_queue_work fail");
+    if (uv_queue_work_with_qos(loop, work, [](uv_work_t *work) {}, OnDeleteRefWork, uv_qos_user_initiated) != 0) {
+        IAM_LOGE("uv_qos_user_initiated fail");
         DestoryDeleteWork(work);
     }
     env_ = nullptr;
