@@ -183,8 +183,8 @@ void UserAuthCallbackV10::OnResult(int32_t result, const Attributes &extraInfo)
     }
 
     work->data = reinterpret_cast<void *>(resultHolder);
-    if (uv_queue_work_with_qos(loop, work, [](uv_work_t *work) {}, OnResultV10Work, uv_qos_user_initiated) != 0) {
-        IAM_LOGE("uv_queue_work_with_qos fail");
+    if (uv_queue_work(loop, work, [](uv_work_t *work) {}, OnResultV10Work) != 0) {
+        IAM_LOGE("uv_queue_work fail");
         DestoryResultWork(work);
     }
 }
