@@ -145,8 +145,8 @@ void UserAuthWidgetCallback::SendCommand(const std::string &cmdData)
     holder->env = env_;
 
     work->data = reinterpret_cast<void *>(holder);
-    if (uv_queue_work_with_qos(loop, work, [](uv_work_t *work) {}, OnWork, uv_qos_user_initiated) != 0) {
-        IAM_LOGE("uv_queue_work_with_qos fail");
+    if (uv_queue_work(loop, work, [](uv_work_t *work) {}, OnWork) != 0) {
+        IAM_LOGE("uv_queue_work fail");
         DestoryWork(work);
     }
 }
