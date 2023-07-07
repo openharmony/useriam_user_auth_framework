@@ -555,6 +555,10 @@ int32_t UserAuthService::Notice(NoticeType noticeType, const std::string &eventD
         IAM_LOGE("the caller is not a system application");
         return ResultCode::CHECK_SYSTEM_APP_FAILED;
     }
+    if (!IpcCommon::CheckPermission(*this, SUPPORT_USER_AUTH)) {
+        IAM_LOGE("failed to check permission");
+        return ResultCode::CHECK_PERMISSION_FAILED;
+    }
     return ResultCode::GENERAL_ERROR;
 }
 
@@ -563,6 +567,10 @@ int32_t UserAuthService::RegisterWidgetCallback(int32_t version, sptr<WidgetCall
     if (!CheckCallerIsSystemApp()) {
         IAM_LOGE("the caller is not a system application");
         return ResultCode::CHECK_SYSTEM_APP_FAILED;
+    }
+    if (!IpcCommon::CheckPermission(*this, SUPPORT_USER_AUTH)) {
+        IAM_LOGE("failed to check permission");
+        return ResultCode::CHECK_PERMISSION_FAILED;
     }
     return ResultCode::GENERAL_ERROR;
 }
