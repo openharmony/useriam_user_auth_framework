@@ -66,8 +66,14 @@ UserAuthResultCode UserAuthWidgetMgr::Init(napi_env env, napi_callback_info info
         IAM_LOGE("get version fail:%{public}d", ret);
         return UserAuthResultCode::GENERAL_ERROR;
     }
+
+    if (version != WIDGET_NOTICE) {
+        IAM_LOGE("version error: %{public}d", ret);
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
+    }
     version_ = version;
     int32_t result = UserAuthClientImpl::Instance().SetWidgetCallback(version_, callback_);
+    IAM_LOGI("version SetWidgetCallback result: %{public}d", result);
     return static_cast<UserAuthResultCode>(UserAuthNapiHelper::GetResultCodeV10(result));
 }
 
@@ -119,6 +125,10 @@ UserAuthResultCode UserAuthWidgetMgr::On(napi_env env, napi_callback_info info)
     }
     if (type == TYPE_COMMAND) {
         IAM_LOGI("SetResultCallback");
+        if (callback_->GetCommandCallback() != nullptr) {
+            IAM_LOGE("command callback has been register");
+            return UserAuthResultCode::GENERAL_ERROR;
+        }
         callback_->SetCommandCallback(callbackRef);
         return UserAuthResultCode::SUCCESS;
     } else {
@@ -161,6 +171,10 @@ UserAuthResultCode UserAuthWidgetMgr::Off(napi_env env, napi_callback_info info)
 
     if (type == TYPE_COMMAND) {
         IAM_LOGI("SetResultCallback");
+        if (callback_->GetCommandCallback() == nullptr) {
+            IAM_LOGE("no command callback register yet");
+            return UserAuthResultCode::GENERAL_ERROR;
+        }
         callback_->ClearCommandCallback();
         return UserAuthResultCode::SUCCESS;
     } else {

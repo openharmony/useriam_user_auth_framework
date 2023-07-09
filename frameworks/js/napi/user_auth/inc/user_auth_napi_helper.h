@@ -45,11 +45,11 @@ public:
     static napi_status CallVoidNapiFunc(napi_env env, napi_ref funcRef, size_t argc, const napi_value *argv);
     static napi_value GetNamedProperty(napi_env env, napi_value value, const std::string &propertyName);
     static std::string GetStringFromValueUtf8(napi_env env, napi_value value);
+    static bool HasNamedProperty(napi_env env, napi_value object, const std::string &propertyName);
     static std::string GetStringPropertyUtf8(napi_env env, napi_value object, const std::string &propertyName);
     static int32_t GetResultCodeV8(int32_t result);
     static int32_t GetResultCodeV9(int32_t result);
     static int32_t GetResultCodeV10(int32_t result);
-    static bool HasNamedProperty(napi_env env, napi_value object, const std::string &propertyName);
     static bool SetStringPropertyUtf8(
         napi_env env, napi_value object, const std::string &name, const std::string &value);
     static bool GetInt32Array(napi_env env, napi_value obj, std::vector<uint32_t> vec);

@@ -21,7 +21,6 @@
 #include "user_auth_widget_mgr_v10.h"
 #include "user_auth_client_impl.h"
 
-
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_NAPI
 
 namespace OHOS {
@@ -692,14 +691,15 @@ napi_value UserAuthResultCodeConstructor(napi_env env)
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR), &generalError));
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::CANCELED), &canceled));
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::TIMEOUT), &timeout));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::TYPE_NOT_SUPPORT), &typeNotSupport));
+    NAPI_CALL(env, napi_create_int32(env,
+        static_cast<int32_t>(UserAuthResultCode::TYPE_NOT_SUPPORT), &typeNotSupport));
     NAPI_CALL(env, napi_create_int32(env,
         static_cast<int32_t>(UserAuthResultCode::TRUST_LEVEL_NOT_SUPPORT), &trustLevelNotSupport));
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::BUSY), &busy));
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::LOCKED), &locked));
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::NOT_ENROLLED), &notEnrolled));
-    NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::CANCELED_FROM_WIDGET),
-        &canceledFromWidget));
+    NAPI_CALL(env, napi_create_int32(env,
+        static_cast<int32_t>(UserAuthResultCode::CANCELED_FROM_WIDGET), &canceledFromWidget));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "SUCCESS", success));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "FAIL", fail));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "GENERAL_ERROR", generalError));
@@ -832,11 +832,14 @@ napi_value FingerprintTipsConstructorForKits(napi_env env)
 napi_value UserAuthTypeConstructor(napi_env env)
 {
     napi_value userAuthType = nullptr;
+    napi_value pin = nullptr;
     napi_value face = nullptr;
     napi_value fingerprint = nullptr;
     NAPI_CALL(env, napi_create_object(env, &userAuthType));
+    NAPI_CALL(env, napi_create_int32(env, AuthType::PIN, &pin));
     NAPI_CALL(env, napi_create_int32(env, AuthType::FACE, &face));
     NAPI_CALL(env, napi_create_int32(env, AuthType::FINGERPRINT, &fingerprint));
+    NAPI_CALL(env, napi_set_named_property(env, userAuthType, "PIN", pin));
     NAPI_CALL(env, napi_set_named_property(env, userAuthType, "FACE", face));
     NAPI_CALL(env, napi_set_named_property(env, userAuthType, "FINGERPRINT", fingerprint));
     return userAuthType;
@@ -910,7 +913,6 @@ napi_value UserAuthInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getUserAuthWidgetMgr", UserAuth::GetUserAuthWidgetMgrV10),
         DECLARE_NAPI_FUNCTION("sendNotice", UserAuth::SendNotice),
     };
-    
     status = napi_define_properties(env, exports,
         sizeof(exportFuncs) / sizeof(napi_property_descriptor), exportFuncs);
     if (status != napi_ok) {
