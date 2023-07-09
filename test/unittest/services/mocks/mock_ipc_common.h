@@ -45,6 +45,7 @@ public:
     static void SetAccessTokenId(uint32_t tokenId, bool isSetTokenId);
     static void AddPermission(Permission perm);
     static void DeleteAllPermission();
+    static uint32_t GetTokenId(IPCObjectStub &stub);
 
 private:
     static std::set<Permission> permSet_;

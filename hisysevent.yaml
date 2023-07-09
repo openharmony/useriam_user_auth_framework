@@ -46,6 +46,7 @@ USERIAM_USER_AUTH:
   AUTH_RESULT: {type: UINT32, desc: auth result}
   AUTH_TIME_SPAN: {type: STRING, desc: auth time span}
   SDK_VERSION: {type: UINT32, desc: sdk version}
+  AUTH_WIDGET_TYPE: {type: UINT32, desc: auth widget auth type and window mode}
 
 USERIAM_PIN_AUTH:
   __BASE: {type: SECURITY, level: CRITICAL, tag: UserAuth, desc: pin auth message}

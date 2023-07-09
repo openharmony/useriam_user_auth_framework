@@ -32,7 +32,6 @@ namespace UserIam {
 namespace UserAuth {
 namespace {
 static constexpr const int MAX_STRING_LENGTH = 65536;
-
 const std::map<UserAuthResultCode, std::string> g_resultV92Str = {
     {UserAuthResultCode::OHOS_INVALID_PARAM, "Invalid authentication parameters."},
     {UserAuthResultCode::OHOS_CHECK_PERMISSION_FAILED, "Permission denied."},
@@ -196,8 +195,10 @@ int32_t UserAuthNapiHelper::GetResultCodeV10(int32_t result)
     int32_t resultCodeV10 = result + static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V10_MIN);
     if (resultCodeV10 >= static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V10_MIN) &&
         resultCodeV10 <= static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V10_MAX)) {
+        IAM_LOGI("version GetResultCodeV10 resultCodeV10 result: %{public}d", resultCodeV10);
         return resultCodeV10;
     }
+    IAM_LOGE("version GetResultCodeV10 resultCodeV10 error");
     return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
 }
 
@@ -470,10 +471,6 @@ bool UserAuthNapiHelper::HasNamedProperty(napi_env env, napi_value object, const
 
 std::string UserAuthNapiHelper::GetStringPropertyUtf8(napi_env env, napi_value object, const std::string &propertyName)
 {
-    if (!HasNamedProperty(env, object, propertyName)) {
-        IAM_LOGE("propertyName: %{public}s not exists.", propertyName.c_str());
-        return "";
-    }
     napi_value value = GetNamedProperty(env, object, propertyName);
     return GetStringFromValueUtf8(env, value);
 }
