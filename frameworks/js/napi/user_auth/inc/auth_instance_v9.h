@@ -40,10 +40,10 @@ public:
     UserAuthResultCode Start(napi_env env, napi_callback_info info);
     UserAuthResultCode Cancel(napi_env env, napi_callback_info info);
 
-private:
     static bool CheckAuthType(int32_t authType);
     static bool CheckAuthTrustLevel(uint32_t authTrustLevel);
 
+private:
     napi_status InitChallenge(napi_env env, napi_value value);
     std::shared_ptr<JsRefHolder> GetCallback(napi_env env, napi_value value);
 

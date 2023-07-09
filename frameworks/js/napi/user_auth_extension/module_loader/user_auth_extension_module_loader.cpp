@@ -28,8 +28,8 @@ Extension *UserAuthExtensionModuleLoader::Create(const std::unique_ptr<Runtime>&
 std::map<std::string, std::string> UserAuthExtensionModuleLoader::GetParams()
 {
     std::map<std::string, std::string> params;
-    // type means extension type in ExtensionAbilityType of extension_ability_info.h, 300 means UserAuthExtension.
-    params.insert(std::pair<std::string, std::string>("type", "300"));
+    // type means extension type in ExtensionAbilityType of extension_ability_info.h, 21 means UserAuthExtension.
+    params.insert(std::pair<std::string, std::string>("type", "21"));
     // extension name
     params.insert(std::pair<std::string, std::string>("name", "UserAuthExtensionAbility"));
     return params;

@@ -96,6 +96,13 @@ void IpcCommon::DeleteAllPermission()
 {
     permSet_.clear();
 }
+
+uint32_t IpcCommon::GetTokenId(IPCObjectStub &stub)
+{
+    uint32_t tokenId = stub.GetCallingTokenID();
+    IAM_LOGI("get tokenId: %{public}d", tokenId);
+    return tokenId;
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

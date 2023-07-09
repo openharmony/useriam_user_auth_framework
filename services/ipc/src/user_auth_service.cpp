@@ -18,8 +18,8 @@
 #include <cinttypes>
 
 #include "accesstoken_kit.h"
-#include "context_factory.h"
 #include "auth_common.h"
+#include "context_factory.h"
 #include "context_helper.h"
 #include "hdi_wrapper.h"
 #include "iam_check.h"
@@ -29,6 +29,7 @@
 #include "ipc_common.h"
 #include "ipc_skeleton.h"
 #include "tokenid_kit.h"
+#include "widget_client.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
@@ -129,7 +130,6 @@ int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authTyp
         IAM_LOGE("hdi interface is nullptr");
         return GENERAL_ERROR;
     }
-
     uint32_t supportedAtl = AUTH_TRUST_LEVEL_SYS;
     int32_t result =
         hdi->GetAuthTrustLevel(userId, static_cast<HdiAuthType>(authType), supportedAtl);
@@ -264,16 +264,25 @@ ResultCode UserAuthService::CheckNorthPermission(AuthType authType)
     return SUCCESS;
 }
 
-ResultCode UserAuthService::CheckWidgetNorthPermission(const std::vector<AuthType> &authTypeList)
+ResultCode UserAuthService::CheckWidgetNorthPermission(const std::vector<AuthType> &authTypeList,
+    const AuthTrustLevel &authTrustValue)
 {
     if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
         IAM_LOGE("CheckWidgetNorthPermission failed, no permission");
         return ResultCode::CHECK_PERMISSION_FAILED;
     }
+
     for (auto authType : authTypeList) {
-        if (authType != AuthType::PIN && authType != AuthType::FACE && authType != AuthType::FINGERPRINT) {
-            IAM_LOGE("CheckWidgetNorthPermission, type error");
-            return ResultCode::TYPE_NOT_SUPPORT;
+        switch (authType) {
+            case AuthType::ALL :
+            case AuthType::PIN :
+                return ResultCode::SUCCESS;
+            case AuthType::FACE:
+            case AuthType::FINGERPRINT:
+                if (authTrustValue == AuthTrustLevel::ATL4) {
+                    IAM_LOGE("authType not match with trustLevel.");
+                    return ResultCode::TRUST_LEVEL_NOT_SUPPORT;
+                }
         }
     }
     return ResultCode::SUCCESS;
@@ -506,9 +515,9 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParam &authPa
         return BAD_CONTEXT_ID;
     }
     Attributes extraInfo;
-    ResultCode checkRet = CheckWidgetNorthPermission(authParam.authType);
+    ResultCode checkRet = CheckWidgetNorthPermission(authParam.authType, authParam.authTrustLevel);
     if (checkRet != SUCCESS) {
-        IAM_LOGE("CheckNorthPermission failed");
+        IAM_LOGE("CheckNorthPermission failed. errCode: %{public}d", checkRet);
         contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
     }
@@ -519,13 +528,45 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParam &authPa
         return BAD_CONTEXT_ID;
     }
     contextCallback->SetTraceUserId(userId);
-    if (authParam.authTrustLevel != ATL1 && authParam.authTrustLevel != ATL2
-        && authParam.authTrustLevel != ATL3 && authParam.authTrustLevel != ATL4) {
-        IAM_LOGE("authTrustLevel is not in correct range");
-        contextCallback->OnResult(ResultCode::TRUST_LEVEL_NOT_SUPPORT, extraInfo);
+    if (!CheckValidSolution(userId, authParam.authType, authParam.authTrustLevel)) {
+        IAM_LOGE("no valid solution, userId:%{public}d", userId);
+        contextCallback->OnResult(ResultCode::NOT_ENROLLED, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    return ResultCode::GENERAL_ERROR;
+
+    ContextFactory::AuthWidgetContextPara para;
+    InitWidgetContextParam(userId, authParam, widgetParam, para);
+    auto context = ContextFactory::CreateWidgetContext(para, contextCallback, userId, para.tokenId);
+    const int32_t retryTimes = 3;
+    if (!Insert2ContextPool(context, retryTimes)) {
+        IAM_LOGE("insert context to pool failed, retry %{public}d times", retryTimes);
+        contextCallback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
+
+    contextCallback->SetCleaner(ContextHelper::Cleaner(context));
+    if (!context->Start()) {
+        int32_t errorCode = context->GetLatestError();
+        IAM_LOGE("failed to start auth apiVersion:%{public}d errorCode:%{public}d", apiVersion, errorCode);
+        contextCallback->OnResult(errorCode, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
+    return context->GetContextId();
+}
+
+bool UserAuthService::Insert2ContextPool(const std::shared_ptr<Context> &context, int32_t retryTimes)
+{
+    bool ret = false;
+    if (retryTimes <= 0) {
+        retryTimes = 1;
+    }
+    for (auto i = 0; i < retryTimes; i++) {
+        ret = ContextPool::Instance().Insert(context);
+        if (ret) {
+            break;
+        }
+    }
+    return ret;
 }
 
 std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(const std::vector<uint8_t> &challenge,
@@ -555,11 +596,13 @@ int32_t UserAuthService::Notice(NoticeType noticeType, const std::string &eventD
         IAM_LOGE("the caller is not a system application");
         return ResultCode::CHECK_SYSTEM_APP_FAILED;
     }
-    if (!IpcCommon::CheckPermission(*this, SUPPORT_USER_AUTH)) {
+
+    bool checkRet = !IpcCommon::CheckPermission(*this, SUPPORT_USER_AUTH);
+    if (checkRet) {
         IAM_LOGE("failed to check permission");
         return ResultCode::CHECK_PERMISSION_FAILED;
     }
-    return ResultCode::GENERAL_ERROR;
+    return WidgetClient::Instance().OnNotice(noticeType, eventData);
 }
 
 int32_t UserAuthService::RegisterWidgetCallback(int32_t version, sptr<WidgetCallbackInterface> &callback)
@@ -568,11 +611,149 @@ int32_t UserAuthService::RegisterWidgetCallback(int32_t version, sptr<WidgetCall
         IAM_LOGE("the caller is not a system application");
         return ResultCode::CHECK_SYSTEM_APP_FAILED;
     }
+
     if (!IpcCommon::CheckPermission(*this, SUPPORT_USER_AUTH)) {
-        IAM_LOGE("failed to check permission");
+        IAM_LOGE("CheckWidgetNorthPermission failed, no permission");
         return ResultCode::CHECK_PERMISSION_FAILED;
     }
-    return ResultCode::GENERAL_ERROR;
+
+    int32_t userId;
+    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
+        IAM_LOGE("get callingUserId failed");
+        return ResultCode::GENERAL_ERROR;
+    }
+
+    uint32_t tokenId = IpcCommon::GetTokenId(*this);
+    IAM_LOGE("RegisterWidgetCallback tokenId %{public}d", tokenId);
+
+    int32_t curVersion = std::stoi(WidgetClient::Instance().GetVersion());
+    if (version != curVersion) {
+        return ResultCode::INVALID_PARAMETERS;
+    }
+
+    WidgetClient::Instance().SetWidgetCallback(callback);
+    WidgetClient::Instance().SetUserAndTokenId(userId, tokenId);
+    return ResultCode::SUCCESS;
+}
+
+void UserAuthService::InitWidgetContextParam(int32_t userId, const AuthParam &authParam,
+    const WidgetParam &widgetParam, ContextFactory::AuthWidgetContextPara &para)
+{
+    for (auto &authType : authParam.authType) {
+        ContextFactory::AuthWidgetContextPara::AuthProfile profile;
+        if (!GetUserAuthProfile(userId, authType, profile)) {
+            IAM_LOGE("get user auth profile failed");
+        } else {
+            para.authProfileMap[authType] = profile;
+            if (authType == AuthType::PIN) {
+                WidgetClient::Instance().SetPinSubType(static_cast<PinSubType>(profile.pinSubType));
+            } else if (authType == AuthType::FINGERPRINT) {
+                WidgetClient::Instance().SetSensorInfo(profile.sensorInfo);
+            }
+        }
+    }
+    para.userId = userId;
+    para.tokenId = 0;
+    para.callingUid = this->GetCallingUid();
+    para.challenge = std::move(authParam.challenge);
+    para.authTypeList = authParam.authType;
+    para.atl = authParam.authTrustLevel;
+    para.widgetParam = widgetParam;
+}
+
+bool UserAuthService::GetUserAuthProfile(int32_t userId, const AuthType &authType,
+    ContextFactory::AuthWidgetContextPara::AuthProfile &profile)
+{
+    Attributes values;
+    auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType);
+    if (credentialInfos.empty() || credentialInfos[0] == nullptr) {
+        IAM_LOGE("user %{public}d has no credential type %{public}d", userId, authType);
+        return false;
+    }
+    uint64_t executorIndex = credentialInfos[0]->GetExecutorIndex();
+    auto resourceNode = ResourceNodePool::Instance().Select(executorIndex).lock();
+    if (resourceNode == nullptr) {
+        IAM_LOGE("resourceNode is nullptr");
+        return false;
+    }
+
+    std::vector<uint64_t> templateIds;
+    templateIds.reserve(credentialInfos.size());
+    for (auto &info : credentialInfos) {
+        templateIds.push_back(info->GetTemplateId());
+    }
+    std::vector<uint32_t> uint32Keys = {
+        Attributes::ATTR_SENSOR_INFO,
+        Attributes::ATTR_REMAIN_TIMES,
+        Attributes::ATTR_FREEZING_TIME
+    };
+    if (authType == AuthType::PIN) {
+        uint32Keys.push_back(Attributes::ATTR_PIN_SUB_TYPE);
+    }
+
+    Attributes attr;
+    attr.SetInt32Value(Attributes::ATTR_AUTH_TYPE, authType);
+    attr.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_GET);
+    attr.SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIds);
+    attr.SetUint64Value(Attributes::ATTR_CALLER_UID, static_cast<uint64_t>(this->GetCallingUid()));
+    attr.SetUint32ArrayValue(Attributes::ATTR_KEY_LIST, uint32Keys);
+    int32_t result = resourceNode->GetProperty(attr, values);
+    if (result != SUCCESS) {
+        IAM_LOGE("failed to get property, result = %{public}d", result);
+        return false;
+    }
+    return ParseAttributes(values, authType, profile);
+}
+
+bool UserAuthService::ParseAttributes(const Attributes &values, const AuthType &authType,
+    ContextFactory::AuthWidgetContextPara::AuthProfile &profile)
+{
+    if (authType == AuthType::PIN) {
+        if (!values.GetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, profile.pinSubType)) {
+            IAM_LOGE("get ATTR_PIN_SUB_TYPE failed");
+            return false;
+        }
+    }
+    if (!values.GetStringValue(Attributes::ATTR_SENSOR_INFO, profile.sensorInfo)) {
+        IAM_LOGE("get ATTR_SENSOR_INFO failed");
+        return false;
+    }
+    if (!values.GetInt32Value(Attributes::ATTR_REMAIN_TIMES, profile.remainTimes)) {
+        IAM_LOGE("get ATTR_REMAIN_TIMES failed");
+        return false;
+    }
+    if (!values.GetInt32Value(Attributes::ATTR_FREEZING_TIME, profile.freezingTime)) {
+        IAM_LOGE("get ATTR_FREEZING_TIME failed");
+        return false;
+    }
+    return true;
+}
+
+bool UserAuthService::CheckValidSolution(int32_t userId,
+    const std::vector<AuthType> &authTypeList, const AuthTrustLevel &atl)
+{
+    auto hdi = HdiWrapper::GetHdiInstance();
+    IAM_LOGE("hdi interface authTypeList start");
+    if (hdi == nullptr) {
+        IAM_LOGE("hdi interface is nullptr");
+        return false;
+    }
+    std::vector<HdiAuthType> inputAuthType, validTypes;
+    uint32_t inputAtl = atl;
+    IAM_LOGE("hdi interface authTypeList size is:%{public}d", authTypeList.size());
+    for (size_t index = 0; index < authTypeList.size(); index++) {
+        inputAuthType.emplace_back(static_cast<HdiAuthType>(authTypeList[index]));
+        IAM_LOGE("hdi interface authTypeList now index is:%{public}d", index);
+    }
+    int32_t result = hdi->GetValidSolution(userId, inputAuthType,
+        inputAtl, validTypes);
+    IAM_LOGE("hdi interface authTypeList middle");
+    if (result != SUCCESS) {
+        IAM_LOGE("failed to get current supported authTrustLevel from hdi result:%{public}d",
+            result);
+        return false;
+    }
+    return true;
 }
 
 bool UserAuthService::CheckCallerIsSystemApp()

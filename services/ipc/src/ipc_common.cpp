@@ -124,6 +124,13 @@ uint32_t IpcCommon::GetAccessTokenId(IPCObjectStub &stub)
     return tokenId;
 }
 
+uint32_t IpcCommon::GetTokenId(IPCObjectStub &stub)
+{
+    uint32_t tokenId = stub.GetCallingTokenID();
+    IAM_LOGI("get tokenId: %{public}d", tokenId);
+    return tokenId;
+}
+
 bool IpcCommon::CheckNativeCallingProcessWhiteList(IPCObjectStub &stub)
 {
     uint32_t tokenId = stub.GetCallingTokenID();

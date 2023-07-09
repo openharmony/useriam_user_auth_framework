@@ -44,6 +44,8 @@ public:
     static int32_t GetActiveUserId(std::optional<int32_t> &userId);
     static bool CheckPermission(IPCObjectStub &stub, Permission permission);
     static uint32_t GetAccessTokenId(IPCObjectStub &stub);
+    static uint32_t GetTokenId(IPCObjectStub &stub);
+    static uint32_t SetTokenId(IPCObjectStub &stub);
     class PeerDeathRecipient final : public IPCObjectProxy::DeathRecipient {
     public:
         explicit PeerDeathRecipient(Recipient &&recipient) : recipient_(std::forward<Recipient>(recipient))
