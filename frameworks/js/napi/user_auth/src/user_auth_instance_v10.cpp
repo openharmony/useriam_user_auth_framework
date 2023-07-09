@@ -35,12 +35,34 @@ const std::string WIDGET_PARAM_TITLE = "title";
 const std::string WIDGET_PARAM_NABTNTEXT = "navigationButtonText";
 const std::string WIDGET_PARAM_WINDOWMODE = "windowMode";
 const std::string NOTICETYPE = "noticeType";
+constexpr int32_t TITLE_MAX = 500;
+constexpr int32_t BUTTON_MAX = 60;
 
 UserAuthInstanceV10::UserAuthInstanceV10(napi_env env) : callback_(Common::MakeShared<UserAuthCallbackV10>(env))
 {
     if (callback_ == nullptr) {
         IAM_LOGE("get null callback");
     }
+}
+
+UserAuthResultCode UserAuthInstanceV10::CheckAuthType(uint32_t authType)
+{
+    if ((int32_t)authType != AuthType::PIN && (int32_t)authType != AuthType::FACE &&
+        (int32_t)authType != AuthType::FINGERPRINT) {
+        IAM_LOGE("authType check fail:%{public}d", authType);
+        return UserAuthResultCode::TYPE_NOT_SUPPORT;
+    }
+    return UserAuthResultCode::SUCCESS;
+}
+
+UserAuthResultCode UserAuthInstanceV10::CheckAuthTrustLevel(uint32_t authTrustLevel)
+{
+    if (authTrustLevel != AuthTrustLevel::ATL1 && authTrustLevel != AuthTrustLevel::ATL2 &&
+        authTrustLevel != AuthTrustLevel::ATL3 && authTrustLevel != AuthTrustLevel::ATL4) {
+        IAM_LOGE("authTrustLevel check fail:%{public}d", authTrustLevel);
+        return UserAuthResultCode::TYPE_NOT_SUPPORT;
+    }
+    return UserAuthResultCode::SUCCESS;
 }
 
 UserAuthResultCode UserAuthInstanceV10::InitChallenge(napi_env env, napi_value value)
@@ -84,6 +106,11 @@ UserAuthResultCode UserAuthInstanceV10::InitAuthType(napi_env env, napi_value va
             IAM_LOGE("napi authType GetUint32Value fail:%{public}d", ret);
             continue;
         }
+        UserAuthResultCode errCode = CheckAuthType(at);
+        if (errCode != UserAuthResultCode::SUCCESS) {
+            IAM_LOGE("authType is illegal, %{public}ud", at);
+            return errCode;
+        }
         IAM_LOGI("napi authType: %{public}ud", at);
         authParam_.authType.push_back(static_cast<AuthType>(at));
         napi_close_handle_scope(env, scope);
@@ -101,17 +128,30 @@ UserAuthResultCode UserAuthInstanceV10::InitAuthParam(napi_env env, napi_value v
         return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
 
+    if (!UserAuthNapiHelper::HasNamedProperty(env, value, AUTH_PARAM_CHALLENGE)) {
+        IAM_LOGE("propertyName: %{public}s not exists.", AUTH_PARAM_CHALLENGE.c_str());
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
+    }
     napi_value napi_challenge = UserAuthNapiHelper::GetNamedProperty(env, value, AUTH_PARAM_CHALLENGE);
     UserAuthResultCode errorCode = InitChallenge(env, napi_challenge);
     if (errorCode != UserAuthResultCode::SUCCESS) {
-        IAM_LOGE("InitChallenge fail:%{public}d", ret);
+        IAM_LOGE("InitChallenge fail:%{public}d", errorCode);
         return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
 
+    if (!UserAuthNapiHelper::HasNamedProperty(env, value, AUTH_PARAM_AUTHTYPE)) {
+        IAM_LOGE("propertyName: %{public}s not exists.", AUTH_PARAM_AUTHTYPE.c_str());
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
+    }
     napi_value napi_authType = UserAuthNapiHelper::GetNamedProperty(env, value, AUTH_PARAM_AUTHTYPE);
     errorCode = InitAuthType(env, napi_authType);
     if (errorCode != UserAuthResultCode::SUCCESS) {
-        IAM_LOGE("InitAuthType fail:%{public}d", ret);
+        IAM_LOGE("InitAuthType fail:%{public}d", errorCode);
+        return errorCode;
+    }
+
+    if (!UserAuthNapiHelper::HasNamedProperty(env, value, AUTH_PARAM_AUTHTRUSTLEVEL)) {
+        IAM_LOGE("propertyName: %{public}s not exists.", AUTH_PARAM_AUTHTRUSTLEVEL.c_str());
         return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
 
@@ -121,6 +161,11 @@ UserAuthResultCode UserAuthInstanceV10::InitAuthParam(napi_env env, napi_value v
     if (ret != napi_ok) {
         IAM_LOGE("GetUint32Value fail:%{public}d", ret);
         return UserAuthResultCode::OHOS_INVALID_PARAM;
+    }
+    errorCode = CheckAuthTrustLevel(authTrustLevel);
+    if (errorCode != UserAuthResultCode::SUCCESS) {
+        IAM_LOGE("AuthTrustLeval fail:%{public}d", errorCode);
+        return errorCode;
     }
     authParam_.authTrustLevel = AuthTrustLevel(authTrustLevel);
 
@@ -135,11 +180,23 @@ UserAuthResultCode UserAuthInstanceV10::InitWidgetParam(napi_env env, napi_value
         return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
 
+    if (!UserAuthNapiHelper::HasNamedProperty(env, value, WIDGET_PARAM_TITLE)) {
+        IAM_LOGE("propertyName: %{public}s not exists.", WIDGET_PARAM_TITLE.c_str());
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
+    }
     std::string title = UserAuthNapiHelper::GetStringPropertyUtf8(env, value, WIDGET_PARAM_TITLE);
+    if (title.length() > TITLE_MAX) {
+        IAM_LOGE("title text too long. size: %{public}d", title.length());
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
+    }
     widgetParam_.title = title;
 
     if (UserAuthNapiHelper::HasNamedProperty(env, value, WIDGET_PARAM_NABTNTEXT)) {
         std::string ngtBtnTxt = UserAuthNapiHelper::GetStringPropertyUtf8(env, value, WIDGET_PARAM_NABTNTEXT);
+        if (ngtBtnTxt.length() > BUTTON_MAX) {
+            IAM_LOGE("button text too long. size: %{public}d", ngtBtnTxt.length());
+            return UserAuthResultCode::OHOS_INVALID_PARAM;
+        }
         widgetParam_.navigationButtonText = ngtBtnTxt;
     }
 
@@ -248,6 +305,10 @@ UserAuthResultCode UserAuthInstanceV10::On(napi_env env, napi_callback_info info
     }
     if (str == AUTH_EVENT_RESULT) {
         IAM_LOGI("getAuthInstance on SetResultCallback");
+        if (callback_->GetResultCallback() != nullptr) {
+            IAM_LOGE("callback has been register");
+            return UserAuthResultCode::GENERAL_ERROR;
+        }
         callback_->SetResultCallback(callbackRef);
         return UserAuthResultCode::SUCCESS;
     } else {
@@ -279,9 +340,13 @@ UserAuthResultCode UserAuthInstanceV10::Off(napi_env env, napi_callback_info inf
     ret = UserAuthNapiHelper::GetStrValue(env, argv[PARAM0], str, len);
     if (ret != napi_ok) {
         IAM_LOGE("getAuthInstance offGetStrValue fail:%{public}d", ret);
-        return UserAuthResultCode::GENERAL_ERROR;
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
     if (str == AUTH_EVENT_RESULT) {
+        if (callback_->GetResultCallback() == nullptr) {
+            IAM_LOGE("no callback register yet");
+            return UserAuthResultCode::GENERAL_ERROR;
+        }
         callback_->ClearResultCallback();
         IAM_LOGI("getAuthInstance offclear result callback");
         return UserAuthResultCode::SUCCESS;

@@ -66,9 +66,23 @@ private:
         AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback);
     bool CheckAuthPermission(bool isInnerCaller, AuthType authType);
     ResultCode CheckNorthPermission(AuthType authType);
-    ResultCode CheckWidgetNorthPermission(const std::vector<AuthType> &authTypeList);
+    ResultCode CheckWidgetNorthPermission(const std::vector<AuthType> &authTypeList,
+        const AuthTrustLevel &authTrustValue);
     ResultCode CheckServicePermission(AuthType authType);
+    bool GetPinSubType(int32_t userId, int32_t &pinSubType);
+    bool GetSensorInfo(int32_t userId, std::string &sendsorInfo);
+    bool GetRemainFreezing(int32_t userId, const AuthType &authType,
+        int32_t &remainTimes, int32_t &freezingTime);
+    void InitWidgetContextParam(int32_t userId, const AuthParam &authParam,
+        const WidgetParam &widgetParam, ContextFactory::AuthWidgetContextPara &para);
+    bool GetUserAuthProfile(int32_t userId, const AuthType &authType,
+        ContextFactory::AuthWidgetContextPara::AuthProfile &profile);
+    bool Insert2ContextPool(const std::shared_ptr<Context> &context, int32_t retryTimes);
+    bool CheckValidSolution(int32_t userId,
+        const std::vector<AuthType> &authTypeList, const AuthTrustLevel &atl);
     bool CheckCallerIsSystemApp();
+    bool ParseAttributes(const Attributes &values, const AuthType &authType,
+        ContextFactory::AuthWidgetContextPara::AuthProfile &profile);
 };
 } // namespace UserAuth
 } // namespace UserIam
