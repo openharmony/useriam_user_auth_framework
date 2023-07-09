@@ -26,7 +26,7 @@ namespace UserAuth {
 
 #define PARCEL_WRITE_HELPER_NORET(parcel, type, value)          \
     do {                                                        \
-        bool ret = parcel.Write##type(value);                 \
+        bool ret = parcel.Write##type((value));                 \
         if (!ret) {                                             \
             IAM_LOGE("write value failed!");                    \
             return;                                             \
