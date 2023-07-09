@@ -186,7 +186,7 @@ UserAuthResultCode UserAuthInstanceV10::InitWidgetParam(napi_env env, napi_value
     }
     std::string title = UserAuthNapiHelper::GetStringPropertyUtf8(env, value, WIDGET_PARAM_TITLE);
     if (title.length() > TITLE_MAX) {
-        IAM_LOGE("title text too long. size: %{public}d", title.length());
+        IAM_LOGE("title text too long. size: %{public}zu", title.length());
         return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
     widgetParam_.title = title;
@@ -194,7 +194,7 @@ UserAuthResultCode UserAuthInstanceV10::InitWidgetParam(napi_env env, napi_value
     if (UserAuthNapiHelper::HasNamedProperty(env, value, WIDGET_PARAM_NABTNTEXT)) {
         std::string ngtBtnTxt = UserAuthNapiHelper::GetStringPropertyUtf8(env, value, WIDGET_PARAM_NABTNTEXT);
         if (ngtBtnTxt.length() > BUTTON_MAX) {
-            IAM_LOGE("button text too long. size: %{public}d", ngtBtnTxt.length());
+            IAM_LOGE("button text too long. size: %{public}zu", ngtBtnTxt.length());
             return UserAuthResultCode::OHOS_INVALID_PARAM;
         }
         widgetParam_.navigationButtonText = ngtBtnTxt;

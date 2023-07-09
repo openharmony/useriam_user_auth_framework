@@ -740,10 +740,10 @@ bool UserAuthService::CheckValidSolution(int32_t userId,
     }
     std::vector<HdiAuthType> inputAuthType, validTypes;
     uint32_t inputAtl = atl;
-    IAM_LOGE("hdi interface authTypeList size is:%{public}d", authTypeList.size());
+    IAM_LOGE("hdi interface authTypeList size is:%{public}zu", authTypeList.size());
     for (size_t index = 0; index < authTypeList.size(); index++) {
         inputAuthType.emplace_back(static_cast<HdiAuthType>(authTypeList[index]));
-        IAM_LOGE("hdi interface authTypeList now index is:%{public}d", index);
+        IAM_LOGE("hdi interface authTypeList now index is:%{public}zu", index);
     }
     int32_t result = hdi->GetValidSolution(userId, inputAuthType,
         inputAtl, validTypes);
