@@ -1,0 +1,84 @@
+/**
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+{
+  "module": {
+    "name": "entry",
+    "type": "entry",
+    "description": "$string:module_desc",
+    "mainElement": "userauthuiextensionability",
+    "deviceTypes": [
+      "default",
+      "tablet"
+    ],
+    "deliveryWithInstall": true,
+    "installationFree": false,
+    "pages": "$profile:main_pages",
+    "abilities": [
+      {
+        "name": "EntryAbility",
+        "srcEntrance": "./ets/mainability/MainAbility.ts",
+        "description": "$string:EntryAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:EntryAbility_label",
+        "startWindowIcon": "$media:icon",
+        "startWindowBackground": "$color:start_window_background",
+        "visible": true,
+        "skills": [
+          {
+            "entities": [
+              "entity.system.home"
+            ],
+            "actions": [
+              "action.system.home"
+            ]
+          }
+        ]
+      }
+    ],
+    "extensionAbilities": [
+      {
+        "name": "userauthuiextensionability",
+        "srcEntry": "./ets/extensionability/UserAuthAbility.ts",
+        "icon": "$media:app_icon",
+        "label": "$string:EntryAbility_label",
+        "type": "sysDialog/userAuth",
+        "permissions": [
+          "ohos.permission.ACCESS_PIN_AUTH",
+          "ohos.permission.ACCESS_BIOMETRIC",
+          "ohos.permission.SUPPORT_USER_AUTH"
+        ],
+        "metadata": [
+          {
+            // 新增key值，定义垂域服务业务细分类型
+            "name": "ohos.extension.servicetype",
+            "value": "commonDialog"
+          }
+        ]
+      }
+    ],
+    "requestPermissions": [
+      {
+        "name": "ohos.permission.ACCESS_PIN_AUTH"
+      },
+      {
+        "name": "ohos.permission.ACCESS_BIOMETRIC"
+      },
+      {
+        "name": "ohos.permission.SUPPORT_USER_AUTH"
+      },
+    ]
+  }
+}
