@@ -16,25 +16,11 @@
 {
   "app": {
     "compileSdkVersion": 10,
-    "compatibleSdkVersion": 9,
+    "compatibleSdkVersion": 10,
     "products": [
       {
         "name": "default",
         "signingConfig": "default"
-      }
-    ],
-    "signingConfigs": [
-      {
-        "name": "default",
-        "material": {
-          "certpath": "./signature/auto_ohos_default_useriam_auth_widget_project_master_com.ohos.useriam.authwidget.cer",
-          "storePassword": "0000001BEBCFE8A17A4302A1CB5DBB283B54F090C0AF053075D7A612CC6CBA7EB8EEAB4FE5ACB3E18BFCFA",
-          "keyAlias": "debugKey",
-          "keyPassword": "0000001B9C6D8D93EB54F4F23C541370BB6E6230A4AD7BC44470F018150164E3E7994B9CCC8239D6C26130",
-          "profile": "./signature/auto_ohos_default_useriam_auth_widget_project_master_com.ohos.useriam.authwidget.p7b",
-          "signAlg": "SHA256withECDSA",
-          "storeFile": "./signature/auto_ohos_default_useriam_auth_widget_project_master_com.ohos.useriam.authwidget.p12"
-        }
       }
     ]
   },
