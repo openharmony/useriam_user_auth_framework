@@ -108,7 +108,6 @@ std::shared_ptr<ContextCallback> WidgetContext::GetAuthContextCallback(AuthType 
 std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &challenge,
     AuthType authType, AuthTrustLevel authTrustLevel)
 {
-    userId_ = WidgetClient::Instance().GetUserId();
     tokenId_ = WidgetClient::Instance().GetTokenId();
     IAM_LOGI("Real userId: %{public}d, Real tokenId: %{public}d", userId_, tokenId_);
     std::shared_ptr<IamCallbackInterface> iamCallback =
