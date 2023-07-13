@@ -51,7 +51,6 @@ ohos_source_set("userauth_service_core") {
     "src/template_cache_manager.cpp",
     "src/user_idm_database_impl.cpp",
     "src/user_idm_session_controller_impl.cpp",
-    "src/widget_schedule_node_impl.cpp",
   ]
 
   deps = [
