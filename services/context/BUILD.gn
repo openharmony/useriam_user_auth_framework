@@ -60,6 +60,7 @@ ohos_source_set("userauth_service_context") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "init:libbegetutil",
+    "napi:ace_napi",
   ]
 
   public_configs = [ ":userauth_service_context_config" ]
