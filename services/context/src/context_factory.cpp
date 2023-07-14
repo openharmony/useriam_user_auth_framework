@@ -25,7 +25,6 @@
 #include "identification_impl.h"
 #include "identify_context.h"
 #include "simple_auth_context.h"
-#include "widget_context.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
@@ -74,14 +73,6 @@ std::shared_ptr<Context> ContextFactory::CreateEnrollContext(const EnrollContext
 std::shared_ptr<Context> ContextFactory::CreateWidgetAuthContext(std::shared_ptr<ContextCallback> callback)
 {
     return nullptr;
-}
-
-std::shared_ptr<Context> ContextFactory::CreateWidgetContext(const AuthWidgetContextPara &para,
-    std::shared_ptr<ContextCallback> callback, int32_t userId, uint32_t tokenId)
-{
-    IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, nullptr);
-    uint64_t newContextId = ContextPool::GetNewContextId();
-    return Common::MakeShared<WidgetContext>(newContextId, para, callback, userId, tokenId);
 }
 } // namespace UserAuth
 } // namespace UserIam
