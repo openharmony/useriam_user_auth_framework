@@ -27,29 +27,6 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
-enum FaceTipsCode {
-    FACE_AUTH_TIP_TOO_BRIGHT = 1,
-    FACE_AUTH_TIP_TOO_DARK = 2,
-    FACE_AUTH_TIP_TOO_CLOSE = 3,
-    FACE_AUTH_TIP_TOO_FAR = 4,
-    FACE_AUTH_TIP_TOO_HIGH = 5,
-    FACE_AUTH_TIP_TOO_LOW = 6,
-    FACE_AUTH_TIP_TOO_RIGHT = 7,
-    FACE_AUTH_TIP_TOO_LEFT = 8,
-    FACE_AUTH_TIP_TOO_MUCH_MOTION = 9,
-    FACE_AUTH_TIP_POOR_GAZE = 10,
-    FACE_AUTH_TIP_NOT_DETECTED = 11,
-};
-
-enum FingerprintTips {
-    FINGERPRINT_AUTH_TIP_GOOD = 0,
-    FINGERPRINT_AUTH_TIP_IMAGER_DIRTY = 1,
-    FINGERPRINT_AUTH_TIP_INSUFFICIENT = 2,
-    FINGERPRINT_AUTH_TIP_PARTIAL = 3,
-    FINGERPRINT_AUTH_TIP_TOO_FAST = 4,
-    FINGERPRINT_AUTH_TIP_TOO_SLOW = 5
-};
-
 napi_value UserAuthServiceConstructor(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
