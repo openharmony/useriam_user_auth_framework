@@ -17,6 +17,11 @@
 #include "user_auth_extension.h"
 
 namespace OHOS::AbilityRuntime {
+namespace {
+constexpr static char USER_AUTH_EXTENSION_NAME[] = "UserAuthExtensionAbility";
+constexpr static char USER_AUTH_EXTENSION_TYPE[] = "300";
+}
+
 UserAuthExtensionModuleLoader::UserAuthExtensionModuleLoader() = default;
 UserAuthExtensionModuleLoader::~UserAuthExtensionModuleLoader() = default;
 
@@ -28,10 +33,10 @@ Extension *UserAuthExtensionModuleLoader::Create(const std::unique_ptr<Runtime>&
 std::map<std::string, std::string> UserAuthExtensionModuleLoader::GetParams()
 {
     std::map<std::string, std::string> params;
-    // type means extension type in ExtensionAbilityType of extension_ability_info.h, 21 means UserAuthExtension.
-    params.insert(std::pair<std::string, std::string>("type", "21"));
+    // type means extension type in ExtensionAbilityType of extension_ability_info.h, 300 means UserAuthExtension.
+    params.insert(std::pair<std::string, std::string>("type", USER_AUTH_EXTENSION_TYPE));
     // extension name
-    params.insert(std::pair<std::string, std::string>("name", "UserAuthExtensionAbility"));
+    params.insert(std::pair<std::string, std::string>("name", USER_AUTH_EXTENSION_NAME));
     return params;
 }
 
