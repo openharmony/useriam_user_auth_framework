@@ -80,6 +80,9 @@ void Driver::OnHdiDisconnect()
         executor->OnHdiDisconnect();
     }
     executorList_.clear();
+
+    IF_FALSE_LOGE_AND_RETURN(hdiConfig_.driver != nullptr);
+    hdiConfig_.driver->OnHdiDisconnect();
     IAM_LOGI("success");
 }
 
