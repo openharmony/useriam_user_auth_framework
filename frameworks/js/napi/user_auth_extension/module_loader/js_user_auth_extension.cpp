@@ -219,7 +219,7 @@ void JsUserAuthExtension::OnCommandWindow(const AAFwk::Want &want, const sptr<AA
         HILOG_ERROR("sessionInfo is nullptr.");
         return;
     }
-    HILOG_DEBUG("begin. persistentId: %{private}" PRIu64", winCmd: %{public}d", sessionInfo->persistentId, winCmd);
+    HILOG_DEBUG("begin. persistentId: %{private}" PRIu32", winCmd: %{public}d", sessionInfo->persistentId, winCmd);
     Extension::OnCommandWindow(want, sessionInfo, winCmd);
     switch (winCmd) {
         case AAFwk::WIN_CMD_FOREGROUND:
