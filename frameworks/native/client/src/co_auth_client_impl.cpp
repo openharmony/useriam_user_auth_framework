@@ -17,6 +17,7 @@
 
 #include "system_ability_definition.h"
 
+#include "callback_manager.h"
 #include "executor_callback_service.h"
 #include "iam_logger.h"
 #include "ipc_client_utils.h"
@@ -106,6 +107,7 @@ void CoAuthClientImpl::CoAuthImplDeathRecipient::OnRemoteDied(const wptr<IRemote
         IAM_LOGE("remote is nullptr");
         return;
     }
+    CallbackManager::GetInstance().OnServiceDeath();
     CoAuthClientImpl::Instance().ResetProxy(remote);
 }
 
