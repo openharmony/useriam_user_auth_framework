@@ -44,7 +44,8 @@
         "napi",
         "hdf_core",
         "hitrace",
-        "c_utils"
+        "c_utils",
+        "window_manager"
       ],
       "third_party": [
         "openssl"
