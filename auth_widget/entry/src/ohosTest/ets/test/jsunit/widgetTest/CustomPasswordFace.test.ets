@@ -24,23 +24,31 @@ export default function CustomPasswordFaceTest() {
       const wantDefault = {
         "cmd": [{
           "event": "CMD_NOTIFY_AUTH_START", "payload": {
-            "lockoutDuration": 0, "remainAttempts": 5, "type": "pin"
+            "lockoutDuration": 0, "remainAttempts": 5, "type": "pin", "sensorInfo": ""
           }, "version": "1"
         }],
-        "pinSubType": "PIN_SIX",
+        "pinSubType": "PIN_NUMBER",
         "title": "",
         "type": ["pin", "face"],
         "widgetContextId": 6711153399710207000,
         "windowModeType": "FULLSCREEN"
       };
       globalThis.wantParams = wantDefault;
+      globalThis.themeType = 2;
+    })
+
+    it('input_full_customPwd_test', 0, async function (done) {
+      let driver = Driver.create();
+      await driver.delayMs(delayTime);
+      await driver.findComponent(ON.id('pinInputNumber'));
+      expect(true).assertTrue();
+      done();
     })
 
     it('faceImg_customPwd_test', 0, async function (done) {
       let driver = Driver.create();
       await driver.delayMs(delayTime);
-      let btn = await driver.findComponent(ON.id('faceImg_customPwd'));
-      await btn.click();
+      await driver.findComponent(ON.id('faceImgCustomPwd'));
       expect(true).assertTrue();
       done();
     })

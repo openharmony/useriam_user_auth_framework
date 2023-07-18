@@ -16,6 +16,10 @@
 import util from '@ohos.util';
 import userAuth from '@ohos.userIAM.userAuth';
 import { DialogType } from '../module/DialogType';
+import LogUtils from './LogUtils';
+import window from '@ohos.window';
+
+const TAG = 'FuncUtils';
 
 export class FuncUtils {
   getUint8PW(value: string): Uint8Array {
@@ -45,6 +49,29 @@ export class FuncUtils {
       }
     }
     return DialogType.PIN;
+  }
+
+  getWindowHeight(): void {
+    LogUtils.info(TAG, 'getWindowHeight');
+    try {
+      window.on('systemBarTintChange', (data) => {
+        LogUtils.debug(TAG, 'Succeeded in enabling the listener for window stage event changes. Data: ' +
+        JSON.stringify(data));
+        for (let i = 0; i < data.regionTint.length; i++) {
+          let regionData = data.regionTint[i];
+          if (regionData.type === window.WindowType.TYPE_STATUS_BAR) {
+            AppStorage.SetOrCreate('SYSTEM_STATUS_BAR_HEIGHT', px2vp(regionData.region.height));
+            continue;
+          }
+          if (regionData.type === window.WindowType.TYPE_NAVIGATION_BAR) {
+            AppStorage.SetOrCreate('SYSTEM_NAVIGATION_BAR_HEIGHT', px2vp(regionData.region.height));
+            continue;
+          }
+        }
+      });
+    } catch (error) {
+      LogUtils.error(TAG, 'Failed to enable the listener for window stage event changes. error: ' + error?.code);
+    }
   }
 }
 

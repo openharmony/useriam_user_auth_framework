@@ -16,7 +16,6 @@
 import userAuth from '@ohos.userIAM.userAuth';
 import window from '@ohos.window';
 import { DialogType } from '../../../../main/ets/common/module/DialogType';
-import AuthUtils from '../../../../main/ets/common/utils/AuthUtils';
 import FuncUtils from '../../../../main/ets/common/utils/FuncUtils';
 import LogUtils from '../../../../main/ets/common/utils/LogUtils';
 import Constants, { CmdType } from '../../../../main/ets/common/vm/Constants';
@@ -39,32 +38,32 @@ struct Index {
   @State pinSubType: string = Constants.pinNumber;
   @State dialogType: DialogType = DialogType.ALL;
   @State windowModeType: string = 'DIALOG_BOX';
-  // background 1:white 2:Gaussian Blur
-  @State themeType: number = Constants.themeTypeWhite;
   @State cmdData: Array<CmdType> = [];
+  @Provide isLandscape: boolean = false;
+  @Provide underFingerPrint: boolean = false;
 
   onCancel(): void {
-    LogUtils.d(TAG, 'Callback when the first button is clicked');
+    LogUtils.debug(TAG, 'Callback when the first button is clicked');
     globalThis.session?.terminateSelf();
   }
 
   onAccept(): void {
-    LogUtils.d(TAG, 'Callback when the second button is clicked');
+    LogUtils.debug(TAG, 'Callback when the second button is clicked');
   }
 
   existApp(): void {
-    LogUtils.d(TAG, 'Click the callback in the blank area');
+    LogUtils.debug(TAG, 'Click the callback in the blank area');
     globalThis.session?.terminateSelf();
   }
 
   handleAuthStart(): void {
     try {
       userAuthWidgetMgr = userAuth.getUserAuthWidgetMgr(Constants.userAuthWidgetMgrVersion);
-      LogUtils.i(TAG, 'getUserAuthWidgetMgr success');
+      LogUtils.info(TAG, 'getUserAuthWidgetMgr success');
       let that = this;
       userAuthWidgetMgr.on('command', {
         callback: function (result) {
-          LogUtils.i(TAG, 'userAuthWidgetMgr onCommand result: ' + JSON.stringify(result));
+          LogUtils.info(TAG, 'userAuthWidgetMgr onCommand result: ' + JSON.stringify(result));
           const cmdDataObj = JSON.parse(result?.cmdData || '{}');
           if (cmdDataObj?.cmd?.[0]?.payload?.result === Constants.userAuthWidgetMgrSuccess) {
             that.onCancel();
@@ -75,50 +74,46 @@ struct Index {
         }
       });
     } catch (error) {
-      LogUtils.e(TAG, 'getUserAuthWidgetMgr catch error: ' + JSON.stringify(error));
+      LogUtils.error(TAG, 'getUserAuthWidgetMgr catch error: ' + error?.code);
     }
-    AuthUtils.getInstance().sendNotice('CMD_NOTIFY_AUTH_START', [Constants.noticeTypePin]);
   }
 
   aboutToAppear(): void {
-    LogUtils.d(TAG, 'aboutToAppear');
+    LogUtils.debug(TAG, 'aboutToAppear test');
     if (globalThis.wantParams) {
+      LogUtils.debug(TAG, 'globalThis.wantParams： ' + JSON.stringify(globalThis.wantParams));
       this.getParams(globalThis.wantParams);
-      this.handleAuthStart();
-      this.cmdData = globalThis.wantParams?.cmd;
-      AuthUtils.getInstance().sendNotice('CMD_NOTIFY_AUTH_START', this.type);
-      LogUtils.d(TAG, 'globalThis.wantParams： ' + JSON.stringify(globalThis.wantParams));
     } else {
-      LogUtils.e(TAG, 'aboutToAppear wantParams null');
+      LogUtils.error(TAG, 'aboutToAppear wantParams null');
     }
     this.getWindowHeight();
   }
 
   aboutToDisappear(): void {
-    LogUtils.i(TAG, 'aboutToDisappear');
+    LogUtils.info(TAG, 'aboutToDisappear');
     if (userAuthWidgetMgr) {
       userAuthWidgetMgr.off('command', {
         callback: function (result) {
-          LogUtils.i(TAG, 'aboutToDisappear userAuthWidgetMgr offCommand result: ' + JSON.stringify(result));
+          LogUtils.info(TAG, 'aboutToDisappear userAuthWidgetMgr offCommand result: ' + JSON.stringify(result));
         }
       });
     }
   }
 
   onPageShow(): void {
-    LogUtils.i(TAG, 'onPageShow');
+    LogUtils.info(TAG, 'onPageShow');
   }
 
   onPageHide(): void {
-    LogUtils.i(TAG, 'onPageHide');
+    LogUtils.info(TAG, 'onPageHide');
   }
 
   onBackPress(): void {
-    LogUtils.i(TAG, 'onBackPress');
+    LogUtils.info(TAG, 'onBackPress');
   }
 
   getParams(result): void {
-    LogUtils.i(TAG, 'getParams');
+    LogUtils.info(TAG, 'getParams');
     const { pinSubType, windowModeType, cmd, type, widgetContextId } = result;
     this.pinSubType = pinSubType;
     const newType = type && type.map(item => {
@@ -140,10 +135,10 @@ struct Index {
   }
 
   getWindowHeight(): void {
-    LogUtils.i(TAG, 'getWindowHeight');
+    LogUtils.info(TAG, 'getWindowHeight');
     try {
       window.on('systemBarTintChange', (data) => {
-        LogUtils.d(TAG, 'Succeeded in enabling the listener for window stage event changes. Data: ' +
+        LogUtils.debug(TAG, 'Succeeded in enabling the listener for window stage event changes. Data: ' +
         JSON.stringify(data));
         for (let i = 0; i < data.regionTint.length; i++) {
           let regionData = data.regionTint[i];
@@ -157,9 +152,8 @@ struct Index {
           }
         }
       });
-    } catch (exception) {
-      LogUtils.e(TAG, 'Failed to enable the listener for window stage event changes. Cause:' +
-      JSON.stringify(exception));
+    } catch (error) {
+      LogUtils.error(TAG, 'Failed to enable the listener for window stage event changes. error: ' + error?.code);
     }
   }
 
@@ -190,7 +184,6 @@ struct Index {
       } else {
         // full screen PIN
         CustomPassword({
-          themeType: $themeType,
           authType: $authType,
           pinSubType: $pinSubType,
           cmdData: $cmdData

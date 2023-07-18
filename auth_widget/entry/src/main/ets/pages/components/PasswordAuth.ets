@@ -14,8 +14,8 @@
  */
 
 import account_osAccount from '@ohos.account.osAccount';
-import Pwd from '../../common/components/Pwd';
-import SixPwd from '../../common/components/SixPwd';
+import PassWord from '../../common/components/PassWord';
+import SixPassword from '../../common/components/SixPassword';
 import AuthUtils from '../../common/utils/AuthUtils';
 import FuncUtils from '../../common/utils/FuncUtils';
 import LogUtils from '../../common/utils/LogUtils';
@@ -24,6 +24,8 @@ import Constants, { CmdType } from '../../common/vm/Constants';
 
 const TAG = 'PasswordAuth';
 const INTERVAL = 1000;
+const BUTTON_OPACITY = 1;
+const TEXT_LENGTH = 4;
 
 let pinAuthManager;
 let pinData = '';
@@ -31,18 +33,12 @@ let pinData = '';
 @Component
 export default struct PasswordAuth {
   @Link pinSubType: string;
-  @State @Watch('onFlagChange') controllerFlag: boolean = false;
   @State @Watch('onTextValueChange') textValue: string = '';
   @Link @Watch('onCmdDataChange') cmdData: Array<CmdType>;
   @State isEdit: boolean = true;
   // tip
   @State inputValue: string = ' ';
-
-  onFlagChange(): void {
-    if (this.controllerFlag) {
-      globalThis.session?.terminateSelf?.();
-    }
-  }
+  @StorageLink('SYSTEM_NAVIGATION_BAR_HEIGHT') SYSTEM_NAVIGATION_BAR_HEIGHT: number = 0;
 
   onTextValueChange(): void {
     pinData = this.textValue;
@@ -59,6 +55,7 @@ export default struct PasswordAuth {
           if (num === 'first') {
             this.inputValue = '';
           }
+          // pin auth Remaining number
           if (remainAttempts < 3) {
             this.inputValue = globalThis.context.resourceManager
               .getStringSync($r('app.string.unified_authwidget_pwd_error_can_try'))
@@ -67,6 +64,7 @@ export default struct PasswordAuth {
           }
           return;
         }
+        // pin auth Remaining number
         if (remainAttempts === 0 && lockoutDuration) {
           this.countTime(lockoutDuration);
           this.isEdit = false;
@@ -81,26 +79,28 @@ export default struct PasswordAuth {
   }
 
   aboutToAppear(): void {
-    if (this.cmdData && this.cmdData.length > 0) {
-      this.onCmdDataChange('first');
-    }
-    // register input
     try {
-      LogUtils.i(TAG, 'aboutToAppear PINAuth start');
+      if (this.cmdData && this.cmdData.length > 0) {
+        this.onCmdDataChange('first');
+      }
+      LogUtils.info(TAG, 'aboutToAppear PINAuth start');
       pinAuthManager = new account_osAccount.PINAuth();
+      // register input
       pinAuthManager.registerInputer({
         onGetData: (authSubType, callback) => {
+          LogUtils.info(TAG, 'aboutToAppear registerInputer onGetData');
           const uint8PW = FuncUtils.getUint8PW(pinData);
           callback.onSetData(authSubType, uint8PW);
         }
       });
     } catch (error) {
-      LogUtils.e(TAG, 'aboutToAppear PINAuth catch error: ' + JSON.stringify(error));
+      LogUtils.error(TAG, 'aboutToAppear PINAuth catch error: ' + error?.code);
+      globalThis.session?.terminateSelf?.();
     }
   }
 
   aboutToDisappear(): void {
-    LogUtils.i(TAG, 'aboutToAppear pinAuthManager unregisterInputer');
+    LogUtils.info(TAG, 'aboutToAppear pinAuthManager unregisterInputer');
     pinAuthManager?.unregisterInputer?.();
   }
 
@@ -138,7 +138,7 @@ export default struct PasswordAuth {
             if (this.pinSubType !== Constants.pinSix) {
               // arbitrary input
               Column() {
-                Pwd({
+                PassWord({
                   pinSubType: $pinSubType,
                   textValue: $textValue,
                   inputValue: $inputValue,
@@ -157,7 +157,7 @@ export default struct PasswordAuth {
                       .onClick(() => {
                         globalThis.session?.terminateSelf?.();
                       })
-                      .id('cancelBtn_dialog_pwd')
+                      .id('cancelBtnDialogPwd')
                   }.width('50%')
 
                   Divider()
@@ -170,13 +170,15 @@ export default struct PasswordAuth {
                       .onClick(async () => {
                         AuthUtils.getInstance().sendNotice('EVENT_AUTH_TYPE_READY', [Constants.noticeTypePin]);
                       })
-                      .enabled(this.textValue.length >= 4)
+                      .enabled(this.textValue.length >= TEXT_LENGTH)
                       .margin({ right: $r('app.float.content_padding') })
                       .width('90%')
                       .height($r('app.float.btn_height'))
                       .fontSize($r('sys.float.ohos_id_text_size_button1'))
                       .fontColor($r('sys.color.ohos_id_color_text_primary_activated'))
-                      .opacity(this.textValue.length >= 4 ? 1 : $r('sys.float.ohos_fa_alpha_disabled'))
+                      .opacity(this.textValue.length >= TEXT_LENGTH
+                        ? BUTTON_OPACITY
+                        : $r('sys.float.ohos_fa_alpha_disabled'))
                       .fontWeight(FontWeight.Medium)
                       .backgroundColor(Color.Transparent)
                       .id('okBtn')
@@ -188,7 +190,7 @@ export default struct PasswordAuth {
             } else {
               // six number
               Column() {
-                SixPwd({
+                SixPassword({
                   textValue: $textValue,
                   inputValue: $inputValue,
                   isEdit: $isEdit
@@ -206,7 +208,7 @@ export default struct PasswordAuth {
                   .fontSize($r('sys.float.ohos_id_text_size_button1'))
                   .fontColor($r('sys.color.ohos_id_color_text_primary_activated'))
                   .fontWeight(FontWeight.Medium)
-                  .id('cancelBtn_dialog_sixPwd')
+                  .id('cancelBtnDialogSixPwd')
               }
             }
           }
@@ -220,6 +222,7 @@ export default struct PasswordAuth {
         }
       }
     }
+    .margin({ bottom: this.SYSTEM_NAVIGATION_BAR_HEIGHT })
     .height('100%')
     .justifyContent(FlexAlign.End)
     .backgroundColor(Color.Transparent)

@@ -1,14 +1,13 @@
 {
-  "license": "ISC",
-  "devDependencies": {},
   "name": "auth_widget",
+  "version": "1.0.0",
   "ohos": {
     "org": "huawei",
-    "directoryLevel": "module",
-    "buildTool": "hvigor"
+    "buildTool": "hvigor",
+    "directoryLevel": "module"
   },
   "description": "example description",
   "repository": {},
-  "version": "1.0.0",
+  "license": "ISC",
   "dependencies": {}
 }

@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import userAuth from '@ohos.userIAM.userAuth';
 import Constants from '../vm/Constants';
 import LogUtils from './LogUtils';
@@ -39,11 +40,12 @@ export default class AuthUtils {
         }
       };
       const jsonEventData = JSON.stringify(eventData);
-      LogUtils.i(TAG, 'sendNotice start eventData: ' + jsonEventData);
+      LogUtils.info(TAG, 'sendNotice start eventData: ' + jsonEventData);
       userAuth.sendNotice(userAuth.NoticeType.WIDGET_NOTICE, jsonEventData);
-      LogUtils.i(TAG, 'sendNotice success');
+      LogUtils.info(TAG, 'sendNotice success');
     } catch (error) {
-      LogUtils.e(TAG, 'sendNotice catch error: ' + JSON.stringify(error));
+      LogUtils.error(TAG, 'sendNotice catch error: ' + error?.code);
+      globalThis.session?.terminateSelf?.();
     }
   }
 }
