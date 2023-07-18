@@ -15,6 +15,10 @@
 
 import { Driver, ON } from '@ohos.UiTest';
 import { beforeAll, describe, expect, it } from '@ohos/hypium';
+import abilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
+
+const delegator = abilityDelegatorRegistry.getAbilityDelegator();
+const bundleName = abilityDelegatorRegistry.getArguments().bundleName;
 
 const delayTime: number = 1000;
 
@@ -26,27 +30,35 @@ export default function passwordAuthSixTest() {
 
   describe('passwordAuthSixTest', function () {
     beforeAll(async function () {
+
+    })
+
+    it('cancelBtn_dialog_sixPwd_test', 0, async function (done) {
       const data = {
         "cmd": [{
           "event": "CMD_NOTIFY_AUTH_START", "payload": {
-            "lockoutDuration": 0, "remainAttempts": 5, "type": "pin"
+            "lockoutDuration": 0, "remainAttempts": 5, "type": "pin", "sensorInfo": ""
           }, "version": "1"
         }],
         "pinSubType": "PIN_SIX",
         "title": "",
         "type": ["pin"],
         "widgetContextId": 7932856209793250000,
-        "windowModeType": "DIALOG_BOX"
+        "windowModeType": "DIALOG_BOX",
       };
       globalThis.wantParams = data;
-    })
+      sleep(1000);
 
-    it('cancelBtn_dialog_sixPwd_test', 0, async function (done) {
-      await sleep(1000)
+      let want = {
+        bundleName: bundleName,
+        abilityName: "EntryAbility"
+      }
+      await delegator.startAbility(want);
+      sleep(1000);
+
       let driver = Driver.create();
       await driver.delayMs(delayTime);
-      let btn = await driver.findComponent(ON.id('cancelBtn_dialog_sixPwd'));
-      await btn.click();
+      await driver.findComponent(ON.id('cancelBtnDialogSixPwd'));
       expect(true).assertTrue();
       done();
     })

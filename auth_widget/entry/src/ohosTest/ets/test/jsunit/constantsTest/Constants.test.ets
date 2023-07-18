@@ -25,6 +25,9 @@ export default function ConstantsTest() {
       expect(Constants.userAuthWidgetMgrVersion).assertEqual(1);
       expect(Constants.userAuthWidgetMgrSuccess).assertEqual(0);
       expect(Constants.noticeVersion).assertEqual('1');
+      expect(Constants.noticeTypePin).assertEqual('pin');
+      expect(Constants.noticeTypeFace).assertEqual('face');
+      expect(Constants.noticeTypeFinger).assertEqual('fingerprint');
       done();
     })
   })

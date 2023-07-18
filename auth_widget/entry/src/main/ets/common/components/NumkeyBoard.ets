@@ -16,13 +16,15 @@
 import deviceInfo from '@ohos.deviceInfo';
 import Constants from '../vm/Constants';
 
-const DIGITALPSD_BUTTON_DIAMETER = 60;
-const DIGITALPSD_BUTTON_RECT_WH = 100;
-const DIGITALPSD_BUTTON_RECT_HH = 50;
+const DIGITAL_BUTTON_DIAMETER = 60;
+const DIGITAL_BUTTON_RECT_WH = 100;
+const DIGITAL_BUTTON_RECT_HH = 50;
+const DEL_PASSWORD = -2;
+const CALL_PHONE = -1;
+const GO_BACK = -3;
 
 @Component
 export default struct NumKeyBoard {
-  @Link themeType: number;
   private onKeyPress: (params, callback) => void;
   @StorageLink('numKeyboard') numKeyboard: any[] = Constants.numKeyBoard;
 
@@ -31,7 +33,6 @@ export default struct NumKeyBoard {
       Grid() {
         ForEach(this.numKeyboard, (item: any) => {
           GridItem() {
-
             Stack({ alignContent: Alignment.Center }) {
               Column({ space: 0 }) {
                 Flex({
@@ -39,59 +40,57 @@ export default struct NumKeyBoard {
                   alignItems: ItemAlign.Center,
                   justifyContent: FlexAlign.Center
                 }) {
-                  if (item.value === Constants.callPhone ||
-                  item.value === Constants.goBack ||
-                  item.value === Constants.delPwd) {
+                  if (item.value === CALL_PHONE || item.value === GO_BACK || item.value === DEL_PASSWORD) {
                     Text(item.row1)
-                      .fontSize($r('app.float.digitalpsd_prompt_fontsize'))
+                      .id('textNumKeyBordCustomPwd' + item.index)
+                      .fontSize($r('app.float.digital_password_prompt_font_size'))
                       .fontWeight(FontWeight.Medium)
-                      .fontColor(this.themeType === 1 ? Color.Black : Color.White)
+                      .fontColor(Color.White)
                       .textAlign(TextAlign.Center)
                       .width(Constants.fullContainerWidth)
-                      .padding(0)
-                      .margin(0)
+                      .padding($r('app.float.numkeyBoard_rowsGap'))
+                      .margin($r('app.float.numkeyBoard_rowsGap'))
                   } else {
                     Text(item.row1)
-                      .fontSize($r('app.float.digitalpsd_row1_fontsize'))
+                      .id('textNumKeyBordCustomPwd' + item.index)
+                      .fontSize($r('app.float.digital_password_row1_font_size'))
                       .fontWeight(FontWeight.Medium)
-                      .fontColor(this.themeType === 1 ? Color.Black : Color.White)
+                      .fontColor(Color.White)
                       .textAlign(TextAlign.Center)
                       .width(Constants.fullContainerWidth)
-                      .padding(0)
-                      .margin(0)
+                      .padding($r('app.float.numkeyBoard_rowsGap'))
+                      .margin($r('app.float.numkeyBoard_rowsGap'))
                   }
                   if (!!item.row2) {
                     Text(item.row2)
-                      .fontSize($r('app.float.digitalpsd_row2_fontsize'))
+                      .fontSize($r('app.float.digital_password_row2_font_size'))
                       .fontWeight(FontWeight.Regular)
-                      .fontColor(this.themeType === 1 ? Color.Black : Color.White)
+                      .fontColor(Color.White)
                       .opacity($r('app.float.numkeyBoard_text_opacity'))
                       .textAlign(TextAlign.Center)
                       .width(Constants.fullContainerWidth)
-                      .padding(0)
-                      .margin(0)
+                      .padding($r('app.float.numkeyBoard_rowsGap'))
+                      .margin($r('app.float.numkeyBoard_rowsGap'))
                   }
                 }
                 .width(Constants.fullContainerWidth)
-                .height('120px')
+                .height($r('app.float.keyboard_key_high'))
               }
 
               if (deviceInfo.deviceType === 'tablet') {
-                if (item.value === Constants.callPhone ||
-                item.value === Constants.goBack ||
-                item.value === Constants.delPwd) {
+                if (item.value === CALL_PHONE || item.value === GO_BACK || item.value === DEL_PASSWORD) {
                   Column() {
                     Button({ type: ButtonType.Normal, stateEffect: true })
-                      .backgroundColor('#00FFFFFF')
-                      .width(DIGITALPSD_BUTTON_RECT_WH)
-                      .height(DIGITALPSD_BUTTON_RECT_HH)
+                      .backgroundColor($r('app.color.button_color'))
+                      .width(DIGITAL_BUTTON_RECT_WH)
+                      .height(DIGITAL_BUTTON_RECT_HH)
                   }
                 } else {
                   Column() {
                     Button({ type: ButtonType.Circle })
-                      .backgroundColor('#00FFFFFF')
-                      .width(DIGITALPSD_BUTTON_DIAMETER)
-                      .height(DIGITALPSD_BUTTON_DIAMETER)
+                      .backgroundColor($r('app.color.button_color'))
+                      .width(DIGITAL_BUTTON_DIAMETER)
+                      .height(DIGITAL_BUTTON_DIAMETER)
                   }
                 }
               }
@@ -100,7 +99,7 @@ export default struct NumKeyBoard {
               setTimeout(this.onKeyPress.bind(this), 0, item.index, () => {
               });
             })
-            .id('numKeyBord_customPwd')
+            .id('numKeyBordCustomPwd' + item.index)
           }
         })
       }

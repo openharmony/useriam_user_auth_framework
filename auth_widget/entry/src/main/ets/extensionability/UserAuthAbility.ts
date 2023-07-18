@@ -15,35 +15,52 @@
 
 import LogUtils from '../common/utils/LogUtils';
 import UserAuthExtensionAbility from '@ohos.app.ability.UserAuthExtensionAbility';
+import WindowPrivacyUtils from '../common/utils/WindowPrivacyUtils';
 
 const TAG = 'UserAuthAbility';
+// The current interface only support string type
+const TRANSPARENT_COLOR = '#00000000';
+const MASK_THIN_COLOR = '#33182431';
 
 export default class UserAuthAbility extends UserAuthExtensionAbility {
   onCreate() {
-    LogUtils.i(TAG, 'UserAuthExtensionAbility onCreate context: ' + JSON.stringify(this.context));
+    LogUtils.info(TAG, 'UserAuthExtensionAbility onCreate');
     globalThis.context = this.context;
   }
 
   onForeground(): void {
-    LogUtils.i(TAG, 'UserAuthExtensionAbility onForeground');
+    LogUtils.info(TAG, 'UserAuthExtensionAbility onForeground');
   }
 
   onBackground(): void {
-    LogUtils.i(TAG, 'UserAuthExtensionAbility onBackground');
+    LogUtils.info(TAG, 'UserAuthExtensionAbility onBackground');
+    globalThis.session?.terminateSelf();
   }
 
   onDestroy(): void | Promise<void> {
-    LogUtils.i(TAG, 'UserAuthExtensionAbility onDestroy');
+    LogUtils.info(TAG, 'UserAuthExtensionAbility onDestroy');
   }
 
   onSessionCreate(want, session): void {
-    LogUtils.i(TAG, 'UserAuthExtensionAbility onSessionCreate want: ' + JSON.stringify(want));
+    LogUtils.info(TAG, 'UserAuthExtensionAbility onSessionCreate');
     globalThis.wantParams = want?.parameters?.useriamCmdData;
     globalThis.session = session;
-    session.loadContent('pages/Index');
+    session?.loadContent('pages/Index');
+    try {
+      if (globalThis.wantParams?.windowModeType === 'DIALOG_BOX') {
+        session?.setWindowBackgroundColor(MASK_THIN_COLOR);
+      } else {
+        session?.setWindowBackgroundColor(TRANSPARENT_COLOR);
+      }
+    } catch (error) {
+      LogUtils.error(TAG, 'UserAuthExtensionAbility onSessionCreate error: ' + error?.code);
+      session?.terminateSelf();
+    }
+    WindowPrivacyUtils.setWindowPrivacyMode(session, true);
   }
 
   onSessionDestroy(session): void {
-    LogUtils.i(TAG, 'UserAuthExtensionAbility onSessionDestroy');
+    LogUtils.info(TAG, 'UserAuthExtensionAbility onSessionDestroy');
+    WindowPrivacyUtils.setWindowPrivacyMode(session, false);
   }
 }

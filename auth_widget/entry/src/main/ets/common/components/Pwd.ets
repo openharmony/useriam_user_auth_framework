@@ -47,6 +47,7 @@ export default struct Pwd {
         .fontSize($r('sys.float.ohos_id_text_size_body1'))
         .fontColor($r('sys.color.ohos_id_color_text_primary'))
         .fontWeight(FontWeight.Medium)
+        .id('titlePwdAuth')
       TextInput({
         placeholder: '',
         text: this.pinSubType === Constants.pinNumber ? this.passwordArrNumber.join('') : this.textValue
@@ -57,8 +58,8 @@ export default struct Pwd {
         .type(InputType.Password)
         .margin({
           top: $r('app.float.content_padding'),
-          left: $r('app.float.content_padding'),
-          right: $r('app.float.content_padding')
+          left: $r('app.float.digitalpsd_passwdmask_height'),
+          right: $r('app.float.digitalpsd_passwdmask_height')
         })
         .textAlign(TextAlign.Center)
         .fontColor($r('sys.color.ohos_id_color_text_primary'))
@@ -72,7 +73,7 @@ export default struct Pwd {
           }
           this.textValue = value;
         })
-        .id('pinInput_mix')
+        .id('pinInputMix')
       Text(this.inputValue)
         .fontSize($r('sys.float.ohos_id_text_size_body2'))
         .margin({ top: $r('app.float.element_margin') })

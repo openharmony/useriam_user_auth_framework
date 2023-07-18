@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 {
   "module": {
     "name": "entry",
@@ -20,39 +20,12 @@
     "description": "$string:module_desc",
     "mainElement": "userauthuiextensionability",
     "deviceTypes": [
-      "default"
+      "default",
+      "tablet"
     ],
     "deliveryWithInstall": true,
     "installationFree": false,
     "pages": "$profile:main_pages",
-    "metadata": [
-      {
-        "name": "ArkTSPartialUpdate",
-        "value": "true"
-      }
-    ],
-    "abilities": [
-      {
-        "name": "EntryAbility",
-        "srcEntrance": "./ets/mainability/MainAbility.ts",
-        "description": "$string:EntryAbility_desc",
-        "icon": "$media:icon",
-        "label": "$string:EntryAbility_label",
-        "startWindowIcon": "$media:icon",
-        "startWindowBackground": "$color:start_window_background",
-        "visible": true,
-        "skills": [
-          {
-            "entities": [
-              "entity.system.home"
-            ],
-            "actions": [
-              "action.system.home"
-            ]
-          }
-        ]
-      }
-    ],
     "extensionAbilities": [
       {
         "name": "userauthuiextensionability",

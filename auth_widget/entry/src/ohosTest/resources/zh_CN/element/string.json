@@ -139,6 +139,70 @@
     {
       "name": "unified_authwidget_hint_pin_error",
       "value": "密码错误"
+    },
+    {
+      "name": "unified_authwidget_use_pwd",
+      "value": "请输入密码"
+    },
+    {
+      "name": "unified_authwidget_title_face_forbidden",
+      "value": "人脸已禁用"
+    },
+    {
+      "name": "unified_authwidget_hint_fp_retry_s2",
+      "value": "指纹不匹配，请稍许用力并适当停留"
+    },
+    {
+      "name": "unified_authwidget_title_fp_forbidden",
+      "value": "指纹已禁用"
+    },
+    {
+      "name": "unified_authwidget_hint_recognition",
+      "value": "人脸识别中"
+    },
+    {
+      "name": "unified_authwidget_title_number_failed_fp_forbidden",
+      "value": "失败次数过多，指纹已禁用"
+    },
+    {
+      "name": "unified_authwidget_tip_verify_in_portrait_mode",
+      "value": "请在竖屏状态下进行验证"
+    },
+    {
+      "name": "unified_authwidget_pwd_error_can_try_frequency",
+      "value": "密码错误，还可尝试%d次"
+    },
+    {
+      "name": "unified_authwidget_pwd_error_can_try",
+      "value": "密码错误，还可尝试"
+    },
+    {
+      "name": "unified_authwidget_frequency",
+      "value": "次"
+    },
+    {
+      "name": "unified_authwidget_many_failures",
+      "value": "失败次数过多，请"
+    },
+    {
+      "name": "unified_authwidget_postretry",
+      "value": "后重试"
+    },
+    {
+      "name": "unified_authwidget_minutes",
+      "value": "分钟"
+    },
+    {
+      "name": "unified_authwidget_seconds",
+      "value": "秒"
+    },
+    {
+      "name": "unified_authwidget_notarize",
+      "value": "确认"
+    },
+    {
+      "name": "unified_authwidget_title_number_failed_face_forbidden",
+      "value": "失败次数过多，人脸已禁用"
     }
   ]
 }
