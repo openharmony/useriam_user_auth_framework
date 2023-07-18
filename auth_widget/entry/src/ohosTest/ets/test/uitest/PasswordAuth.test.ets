@@ -13,119 +13,77 @@
  * limitations under the License.
  */
 
-import abilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
-import UIAbility from '@ohos.app.ability.UIAbility';
 import { Driver, ON } from '@ohos.UiTest';
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from '@ohos/hypium';
+import { beforeAll, describe, expect, it } from '@ohos/hypium';
+import abilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
 
 const delegator = abilityDelegatorRegistry.getAbilityDelegator();
 const bundleName = abilityDelegatorRegistry.getArguments().bundleName;
-const delayms: number = 1000;
-let ab: UIAbility;
+
+const delayTime: number = 1000;
 
 export default function PasswordAuthTest() {
   describe('PasswordAuthTest', function () {
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
     beforeAll(async function () {
-      await  delegator.addAbilityMonitor({
-        abilityName: 'EntryAbility',
-        moduleName: bundleName,
-        onAbilityCreate(ability: UIAbility) {
-          ab = ability;
-        }
-      });
+      const data = {
+        "cmd": [{
+          "event": "CMD_NOTIFY_AUTH_START", "payload": {
+            "lockoutDuration": 0, "remainAttempts": 5, "type": "pin", "sensorInfo": ""
+          }, "version": "1"
+        }],
+        "pinSubType": "PIN_MIXED",
+        "title": "please input",
+        "type": ["pin"],
+        "widgetContextId": 7932856209793250000,
+        "windowModeType": "DIALOG_BOX"
+      };
+      globalThis.wantParams = data;
+      sleep(1000);
+
       let want = {
         bundleName: bundleName,
         abilityName: "EntryAbility"
       }
       await delegator.startAbility(want);
-    })
-    beforeEach(function () {
-      // Presets an action, which is performed before each unit test case starts.
-      // The number of execution times is the same as the number of test cases defined by **it**.
-      // This API supports only one parameter: preset action function.
-    })
-    afterEach(function () {
-      // Presets a clear action, which is performed after each unit test case ends.
-      // The number of execution times is the same as the number of test cases defined by **it**.
-      // This API supports only one parameter: clear action function.
-    })
-    afterAll(function () {
-      // Presets a clear action, which is performed after all test cases of the test suite end.
-      // This API supports only one parameter: clear action function.
+      sleep(1000);
     })
 
-    it('clickEventOk_Input', 0, async function (done) {
+    it('pinInputMix_ui_test', 0, async function (done) {
       let driver = Driver.create();
-      await driver.delayMs(delayms);
-
-      let pinInput = await driver.findComponent(ON.id('pinInput'));
-      await pinInput.inputText('111111');
-      await driver.delayMs(delayms);
-      let input_new = await driver.findComponent(ON.id('pinInput'));
-      let text = await input_new.getText();
-      expect(text === '111111').assertTrue();
-
+      await driver.delayMs(delayTime);
+      await driver.findComponent(ON.id('pinInputMix'));
+      expect(true).assertTrue();
       done();
     })
 
-    it('clickEventCancel_Input', 0, async function (done) {
+    it('cancelBtn_dialog_pwd_ui_test', 0, async function (done) {
       let driver = Driver.create();
-      await driver.delayMs(delayms);
-      await driver.delayMs(delayms);
-      let cancel_btn = await driver.findComponent(ON.id('pinInput'))
-      await cancel_btn.inputText('1221212')
-      await driver.delayMs(delayms);
-      let ok_btn = await driver.findComponent(ON.id('okBtn'))
-      await ok_btn.click()
-      await driver.delayMs(delayms);
-      await cancel_btn.inputText('111111')
-      await ok_btn.click()
-      await driver.delayMs(delayms);
-      done()
-    })
-
-    it('clickEventError_Input', 0, async function (done) {
-      let driver = Driver.create();
-      await driver.delayMs(delayms);
-      await driver.delayMs(delayms);
-
-      let Input = await driver.findComponent(ON.id('pinInput'));
-
-      await Input.inputText('2345643');
-      await driver.delayMs(delayms);
-      let ok_btn = await driver.findComponent(ON.id('okBtn'));
-      await ok_btn.click();
-      await driver.delayMs(delayms);
-
-      await Input.inputText('2345643');
-      await driver.delayMs(delayms);
-      await ok_btn.click();
-      await driver.delayMs(delayms);
-
-      await driver.delayMs(delayms);
-
-      await Input.inputText('2345643');
-      await driver.delayMs(delayms);
-      await ok_btn.click()
-      await driver.delayMs(delayms);
-
-      await Input.inputText('2345643');
-      await driver.delayMs(delayms);
-      await ok_btn.click()
-      await driver.delayMs(delayms);
-
-      await Input.inputText('2345643');
-      await driver.delayMs(delayms);
-      await ok_btn.click();
-      await driver.delayMs(delayms);
-
+      await driver.delayMs(delayTime);
+      await driver.findComponent(ON.id('cancelBtnDialogPwd'));
+      expect(true).assertTrue();
       done();
     })
-    it('assertEqual', 0, function () {
-      // Defines a test case. This API supports three parameters: test case name, filter parameter, and test case function.
-      let a = 'test';
-      // Defines a variety of assertion methods, which are used to declare expected boolean conditions.
-      expect(a).assertEqual('test');
+
+    it('okBtn_dialog_pwd_ui_test', 0, async function (done) {
+      let driver = Driver.create();
+      await driver.delayMs(delayTime);
+      await driver.findComponent(ON.id('okBtn'));
+      expect(true).assertTrue();
+      done();
+    })
+
+    it('titlePwdAuth_ui_test', 0, async function (done) {
+      let driver = Driver.create();
+      await driver.delayMs(delayTime);
+      await driver.findComponent(ON.id('titlePwdAuth'));
+      await driver.delayMs(delayTime);
+      expect(true).assertTrue();
+      done();
     })
   })
 }

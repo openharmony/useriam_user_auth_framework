@@ -15,7 +15,7 @@
 
 import LogUtils from '../common/utils/LogUtils';
 import UIAbility from '@ohos.app.ability.UIAbility';
-import type window from '@ohos.window';
+import window from '@ohos.window';
 
 const TAG = 'MainAbility';
 
