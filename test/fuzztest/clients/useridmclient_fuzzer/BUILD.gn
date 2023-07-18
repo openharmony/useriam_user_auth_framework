@@ -37,6 +37,7 @@ ohos_fuzztest("UserIdmClientFuzzTest") {
 
   sources = [
     "../../../../frameworks/native/client/src/auth_message_impl.cpp",
+    "../../../../frameworks/native/client/src/callback_manager_impl.cpp",
     "../../../../frameworks/native/client/src/co_auth_client_impl.cpp",
     "../../../../frameworks/native/client/src/executor_callback_service.cpp",
     "../../../../frameworks/native/client/src/executor_messenger_client.cpp",

@@ -27,7 +27,7 @@ namespace UserAuth {
 class IdmCallbackService : public IdmCallbackStub {
 public:
     explicit IdmCallbackService(const std::shared_ptr<UserIdmClientCallback> &impl);
-    ~IdmCallbackService() override = default;
+    ~IdmCallbackService() override;
     void OnResult(int32_t result, const Attributes &extraInfo) override;
     void OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo) override;
 
@@ -39,7 +39,7 @@ private:
 class IdmGetCredInfoCallbackService : public IdmGetCredInfoCallbackStub {
 public:
     explicit IdmGetCredInfoCallbackService(const std::shared_ptr<GetCredentialInfoCallback> &impl);
-    ~IdmGetCredInfoCallbackService() override = default;
+    ~IdmGetCredInfoCallbackService() override;
     void OnCredentialInfos(const std::vector<CredentialInfo> &credInfoList) override;
 
 private:
@@ -49,7 +49,7 @@ private:
 class IdmGetSecureUserInfoCallbackService : public IdmGetSecureUserInfoCallbackStub {
 public:
     explicit IdmGetSecureUserInfoCallbackService(const std::shared_ptr<GetSecUserInfoCallback> &impl);
-    ~IdmGetSecureUserInfoCallbackService() override = default;
+    ~IdmGetSecureUserInfoCallbackService() override;
     void OnSecureUserInfo(const SecUserInfo &secUserInfo) override;
 
 private:

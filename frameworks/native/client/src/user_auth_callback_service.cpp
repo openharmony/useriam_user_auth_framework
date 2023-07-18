@@ -15,6 +15,7 @@
 
 #include "user_auth_callback_service.h"
 
+#include "callback_manager.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
 
@@ -27,12 +28,33 @@ UserAuthCallbackService::UserAuthCallbackService(const std::shared_ptr<Authentic
     : authCallback_(impl),
     iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("UserAuth InnerKit"))
 {
+    CallbackManager::CallbackAction action = [impl]() {
+        Attributes extraInfo;
+        if (impl != nullptr) {
+            IAM_LOGI("user auth service death, auth callback return default result to caller");
+            impl->OnResult(GENERAL_ERROR, extraInfo);
+        }
+    };
+    CallbackManager::GetInstance().AddCallback(reinterpret_cast<uintptr_t>(this), action);
 }
 
 UserAuthCallbackService::UserAuthCallbackService(const std::shared_ptr<IdentificationCallback> &impl)
     : identifyCallback_(impl),
     iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("UserAuth InnerKit"))
 {
+    CallbackManager::CallbackAction action = [impl]() {
+        Attributes extraInfo;
+        if (impl != nullptr) {
+            IAM_LOGI("user auth service death, identify callback return default result to caller");
+            impl->OnResult(GENERAL_ERROR, extraInfo);
+        }
+    };
+    CallbackManager::GetInstance().AddCallback(reinterpret_cast<uintptr_t>(this), action);
+}
+
+UserAuthCallbackService::~UserAuthCallbackService()
+{
+    CallbackManager::GetInstance().RemoveCallback(reinterpret_cast<uintptr_t>(this));
 }
 
 void UserAuthCallbackService::OnResult(int32_t result, const Attributes &extraInfo)
@@ -65,6 +87,19 @@ void UserAuthCallbackService::OnAcquireInfo(int32_t module, int32_t acquireInfo,
 GetExecutorPropertyCallbackService::GetExecutorPropertyCallbackService(const std::shared_ptr<GetPropCallback> &impl)
     : getPropCallback_(impl)
 {
+    CallbackManager::CallbackAction action = [impl]() {
+        Attributes extraInfo;
+        if (impl != nullptr) {
+            IAM_LOGI("user auth service death, get prop callback return default result to caller");
+            impl->OnResult(GENERAL_ERROR, extraInfo);
+        }
+    };
+    CallbackManager::GetInstance().AddCallback(reinterpret_cast<uintptr_t>(this), action);
+}
+
+GetExecutorPropertyCallbackService::~GetExecutorPropertyCallbackService()
+{
+    CallbackManager::GetInstance().RemoveCallback(reinterpret_cast<uintptr_t>(this));
 }
 
 void GetExecutorPropertyCallbackService::OnGetExecutorPropertyResult(int32_t result, const Attributes &attributes)
@@ -80,6 +115,19 @@ void GetExecutorPropertyCallbackService::OnGetExecutorPropertyResult(int32_t res
 SetExecutorPropertyCallbackService::SetExecutorPropertyCallbackService(const std::shared_ptr<SetPropCallback> &impl)
     : setPropCallback_(impl)
 {
+    CallbackManager::CallbackAction action = [impl]() {
+        Attributes extraInfo;
+        if (impl != nullptr) {
+            IAM_LOGI("user auth service death, set prop callback return default result to caller");
+            impl->OnResult(GENERAL_ERROR, extraInfo);
+        }
+    };
+    CallbackManager::GetInstance().AddCallback(reinterpret_cast<uintptr_t>(this), action);
+}
+
+SetExecutorPropertyCallbackService::~SetExecutorPropertyCallbackService()
+{
+    CallbackManager::GetInstance().RemoveCallback(reinterpret_cast<uintptr_t>(this));
 }
 
 void SetExecutorPropertyCallbackService::OnSetExecutorPropertyResult(int32_t result)

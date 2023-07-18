@@ -13,28 +13,29 @@
  * limitations under the License.
  */
 
-#ifndef WIDGET_CALLBACK_SERVICE_H
-#define WIDGET_CALLBACK_SERVICE_H
+#ifndef CALLBACK_MANAGER_H
+#define CALLBACK_MANAGER_H
 
-#include "widget_callback_stub.h"
+#include <cstdint>
+#include <functional>
 
-#include "iam_hitrace_helper.h"
-#include "iuser_auth_widget_callback.h"
+#include "iremote_broker.h"
+#include "refbase.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class WidgetCallbackService : public WidgetCallbackStub {
+class CallbackManager {
 public:
-    explicit WidgetCallbackService(const std::shared_ptr<IUserAuthWidgetCallback> &impl);
-    ~WidgetCallbackService() override;
-    void SendCommand(const std::string &cmdData) override;
-
-private:
-    std::shared_ptr<IUserAuthWidgetCallback> widgetCallback_ {nullptr};
-    std::shared_ptr<UserIam::UserAuth::IamHitraceHelper> iamHitraceHelper_ {nullptr};
+    using CallbackAction = std::function<void()>;
+    static CallbackManager &GetInstance();
+    virtual ~CallbackManager() = default;
+    virtual void AddCallback(uintptr_t key, CallbackAction &action) = 0;
+    virtual void RemoveCallback(uintptr_t key) = 0;
+    virtual void OnServiceDeath() = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // WIDGET_CALLBACK_SERVICE_H
+
+#endif // CALLBACK_MANAGER_H

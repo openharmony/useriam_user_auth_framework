@@ -28,7 +28,7 @@ class UserAuthCallbackService : public UserAuthCallbackStub {
 public:
     explicit UserAuthCallbackService(const std::shared_ptr<AuthenticationCallback> &impl);
     explicit UserAuthCallbackService(const std::shared_ptr<IdentificationCallback> &impl);
-    ~UserAuthCallbackService() override = default;
+    ~UserAuthCallbackService() override;
     void OnResult(int32_t result, const Attributes &extraInfo) override;
     void OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo) override;
 
@@ -41,7 +41,7 @@ private:
 class GetExecutorPropertyCallbackService : public GetExecutorPropertyCallbackStub {
 public:
     explicit GetExecutorPropertyCallbackService(const std::shared_ptr<GetPropCallback> &impl);
-    ~GetExecutorPropertyCallbackService() override = default;
+    ~GetExecutorPropertyCallbackService() override;
     void OnGetExecutorPropertyResult(int32_t result, const Attributes &attributes) override;
 
 private:
@@ -51,7 +51,7 @@ private:
 class SetExecutorPropertyCallbackService : public SetExecutorPropertyCallbackStub {
 public:
     explicit SetExecutorPropertyCallbackService(const std::shared_ptr<SetPropCallback> &impl);
-    ~SetExecutorPropertyCallbackService() override = default;
+    ~SetExecutorPropertyCallbackService() override;
     void OnSetExecutorPropertyResult(int32_t result) override;
 
 private:
