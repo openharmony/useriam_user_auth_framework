@@ -40,9 +40,8 @@ export class LogUtils {
    *
    * @param tag Identifies the log tag.
    * @param format Indicates the log format string.
-   * @since 7
    */
-  d(tag: string, format: string): void {
+  debug(tag: string, format: string): void {
     if (LogUtils.isLogGable(hiLog.LogLevel.DEBUG)) {
       hiLog.debug(DOMAIN, TAG, tag + SYMBOL + format);
     }
@@ -53,9 +52,8 @@ export class LogUtils {
    *
    * @param tag Identifies the log tag.
    * @param format Indicates the log format string.
-   * @since 7
    */
-  i(tag: string, format: string): void {
+  info(tag: string, format: string): void {
     if (LogUtils.isLogGable(hiLog.LogLevel.INFO)) {
       hiLog.info(DOMAIN, TAG, tag + SYMBOL + format);
     }
@@ -66,9 +64,8 @@ export class LogUtils {
    *
    * @param tag Identifies the log tag.
    * @param format Indicates the log format string.
-   * @since 7
    */
-  w(tag: string, format: string): void {
+  warn(tag: string, format: string): void {
     if (LogUtils.isLogGable(hiLog.LogLevel.WARN)) {
       hiLog.warn(DOMAIN, TAG, tag + SYMBOL + format);
     }
@@ -79,9 +76,8 @@ export class LogUtils {
    *
    * @param tag Identifies the log tag.
    * @param format Indicates the log format string.
-   * @since 7
    */
-  e(tag: string, format: string): void {
+  error(tag: string, format: string): void {
     if (LogUtils.isLogGable(hiLog.LogLevel.ERROR)) {
       hiLog.error(DOMAIN, TAG, tag + SYMBOL + format);
     }
@@ -92,9 +88,8 @@ export class LogUtils {
    *
    * @param tag Identifies the log tag.
    * @param format Indicates the log format string.
-   * @since 7
    */
-  f(tag: string, format: string): void {
+  fatal(tag: string, format: string): void {
     if (LogUtils.isLogGable(hiLog.LogLevel.FATAL)) {
       hiLog.fatal(DOMAIN, TAG, tag + SYMBOL + format);
     }
@@ -105,7 +100,6 @@ export class LogUtils {
    *
    * @param tag Identifies the log tag.
    * @param level log level
-   * @since 7
    */
   private static isLogGable(level: hiLog.LogLevel): boolean {
     return hiLog.isLoggable(DOMAIN, TAG, level);

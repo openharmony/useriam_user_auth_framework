@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,13 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 {
   "module": {
     "name": "entry_test",
     "type": "feature",
     "description": "$string:module_test_desc",
-    "mainElement": "userauthuiextensionability",
+    "mainElement": "TestAbility",
     "deviceTypes": [
       "default",
       "tablet"
@@ -46,6 +46,166 @@
             ]
           }
         ]
+      },
+      {
+        "name": "PasswordAbility",
+        "srcEntrance": "./ets/testability/PasswordAbility.ets",
+        "description": "$string:TestAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:TestAbility_label",
+        "visible": true,
+        "startWindowIcon": "$media:icon",
+        "startWindowBackground": "$color:start_window_background",
+      },
+      {
+        "name": "PasswordSixAbility",
+        "srcEntrance": "./ets/testability/PasswordSixAbility.ets",
+        "description": "$string:TestAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:TestAbility_label",
+        "visible": true,
+        "startWindowIcon": "$media:icon",
+        "startWindowBackground": "$color:start_window_background",
+      },
+      {
+        "name": "CustomPwdAbility",
+        "srcEntrance": "./ets/testability/CustomPwdAbility.ets",
+        "description": "$string:TestAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:TestAbility_label",
+        "visible": true,
+        "startWindowIcon": "$media:icon",
+        "startWindowBackground": "$color:start_window_background",
+      },
+      {
+        "name": "CustomPwdNumberAbility",
+        "srcEntrance": "./ets/testability/CustomPwdNumberAbility.ets",
+        "description": "$string:TestAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:TestAbility_label",
+        "visible": true,
+        "startWindowIcon": "$media:icon",
+        "startWindowBackground": "$color:start_window_background",
+      },
+      {
+        "name": "CustomMixFailAbility",
+        "srcEntrance": "./ets/testability/CustomMixFailAbility.ets",
+        "description": "$string:TestAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:TestAbility_label",
+        "visible": true,
+        "startWindowIcon": "$media:icon",
+        "startWindowBackground": "$color:start_window_background",
+      },
+      {
+        "name": "CustomMixFailTimesAbility",
+        "srcEntrance": "./ets/testability/CustomMixFailTimesAbility.ets",
+        "description": "$string:TestAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:TestAbility_label",
+        "visible": true,
+        "startWindowIcon": "$media:icon",
+        "startWindowBackground": "$color:start_window_background",
+      },
+      {
+        "name": "FaceAbility",
+        "srcEntrance": "./ets/testability/FaceAbility.ets",
+        "description": "$string:TestAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:TestAbility_label",
+        "visible": true,
+        "startWindowIcon": "$media:icon",
+        "startWindowBackground": "$color:start_window_background",
+      },
+      {
+        "name": "FaceFailTimesAbility",
+        "srcEntrance": "./ets/testability/FaceFailTimesAbility.ets",
+        "description": "$string:TestAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:TestAbility_label",
+        "visible": true,
+        "startWindowIcon": "$media:icon",
+        "startWindowBackground": "$color:start_window_background",
+      },
+      {
+        "name": "FaceMixAbility",
+        "srcEntrance": "./ets/testability/FaceMixAbility.ets",
+        "description": "$string:TestAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:TestAbility_label",
+        "visible": true,
+        "startWindowIcon": "$media:icon",
+        "startWindowBackground": "$color:start_window_background",
+      },
+      {
+        "name": "FaceMixSuccess3Ability",
+        "srcEntrance": "./ets/testability/FaceMixSuccess3Ability.ets",
+        "description": "$string:TestAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:TestAbility_label",
+        "visible": true,
+        "startWindowIcon": "$media:icon",
+        "startWindowBackground": "$color:start_window_background",
+      },
+      {
+        "name": "FaceMixSuccessAbility",
+        "srcEntrance": "./ets/testability/FaceMixSuccessAbility.ets",
+        "description": "$string:TestAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:TestAbility_label",
+        "visible": true,
+        "startWindowIcon": "$media:icon",
+        "startWindowBackground": "$color:start_window_background",
+      },
+      {
+        "name": "FaceMixTimesAbility",
+        "srcEntrance": "./ets/testability/FaceMixTimesAbility.ets",
+        "description": "$string:TestAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:TestAbility_label",
+        "visible": true,
+        "startWindowIcon": "$media:icon",
+        "startWindowBackground": "$color:start_window_background",
+      },
+      {
+        "name": "FaceSingleAbility",
+        "srcEntrance": "./ets/testability/FaceSingleAbility.ets",
+        "description": "$string:TestAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:TestAbility_label",
+        "visible": true,
+        "startWindowIcon": "$media:icon",
+        "startWindowBackground": "$color:start_window_background",
+      },
+      {
+        "name": "FingerprintAbility",
+        "srcEntrance": "./ets/testability/FingerprintAbility.ets",
+        "description": "$string:TestAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:TestAbility_label",
+        "visible": true,
+        "startWindowIcon": "$media:icon",
+        "startWindowBackground": "$color:start_window_background",
+      },
+      {
+        "name": "FingerFailAbility",
+        "srcEntrance": "./ets/testability/FingerFailAbility.ets",
+        "description": "$string:TestAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:TestAbility_label",
+        "visible": true,
+        "startWindowIcon": "$media:icon",
+        "startWindowBackground": "$color:start_window_background",
+      },
+      {
+        "name": "FingerFailTimesAbility",
+        "srcEntrance": "./ets/testability/FingerFailTimesAbility.ets",
+        "description": "$string:TestAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:TestAbility_label",
+        "visible": true,
+        "startWindowIcon": "$media:icon",
+        "startWindowBackground": "$color:start_window_background",
       }
     ],
     "extensionAbilities": [

@@ -15,11 +15,7 @@
 
 export default class Constants {
   static deviceDpi = ['360vp', '780vp'];
-  static thousandth = 1000;
-  static normalPosition = -260;
-  static titlePosition = 200;
-  static fingerTextPosition = 260;
-  static fingerImgPosition = 150;
+
   // Pin type
   static pinSix = 'PIN_SIX';
   static pinNumber = 'PIN_NUMBER';
@@ -33,26 +29,21 @@ export default class Constants {
 
   // getUserAuthWidgetMgr params
   static userAuthWidgetMgrVersion = 1;
-  //command result success
+  // command result success
   static userAuthWidgetMgrSuccess = 0;
 
-  // sendNotice param
-  // version
+  // sendNotice param: version
   static noticeVersion = '1';
   // type
   static noticeTypePin = 'pin';
   static noticeTypeFace = 'face';
   static noticeTypeFinger = 'fingerprint';
 
-  // dialog full background type
-  // 1:white 2:Gaussian Blur
-  static themeTypeWhite = 1;
-  static themeTypeGaussianBlur = 2;
+  static fingerSensorPositionLine = 0.75;
 
-  // digital keybord
-  static callPhone = -1;
-  static delPwd = -2;
-  static goBack = -3;
+  static hintTimesByFailLess = 3;
+  static maxFailTimes = 5;
+
   static numKeyBoard = [
     {
       index: 0,
@@ -121,7 +112,7 @@ export default class Constants {
       index: 9,
       row1: $r('app.string.unified_authwidget_notarize'),
       row2: '',
-      value: Constants.callPhone,
+      value: -1,
       bkg: false
     },
     {
@@ -135,7 +126,7 @@ export default class Constants {
       index: 11,
       row1: $r('app.string.unified_authwidget_back'),
       row2: '',
-      value: Constants.goBack,
+      value: -3,
       bkg: false
     }];
 }
@@ -144,7 +135,8 @@ export interface FingerPosition {
   sensorType: string,
   udSensorCenterXInThousandth?: number,
   udSensorCenterYInThousandth?: number,
-  udSensorRadiusInPx?: number
+  udSensorRadiusInPx?: number,
+  outOfScreenSensorType?: string
 }
 
 export interface CmdData {

@@ -13,36 +13,48 @@
  * limitations under the License.
  */
 
-import IndexTest from './Index.test';
-import funcUtilsTest from './jsunit/commonUtilsTest/FuncUtils.test';
-import constantsTest from './jsunit/constantsTest/Constants.test';
-import customPasswordTest from './jsunit/widgetTest/CustomPassword.test';
-import CustomPasswordFaceTest from './jsunit/widgetTest/CustomPasswordFace.test';
-import CustomPasswordFingerTest from './jsunit/widgetTest/CustomPasswordFinger.test';
-import FaceAuth from './jsunit/widgetTest/FaceAuth.test';
-import FingerprintAuth from './jsunit/widgetTest/FingerprintAuth.test';
-import pageComTest from './jsunit/widgetTest/PageCom.test';
-import passwordAuthTest from './jsunit/widgetTest/PasswordAuth.test';
-import PasswordAuthTestSix from './jsunit/widgetTest/PasswordAuthSix.test';
-import CustomPasswordTest from './uitest/CustomPassword.test';
-import FaceAuthTest from './uitest/FaceAuth.test';
-import FingerprintAuthTest from './uitest/FingerprintAuth.test';
-import PasswordAuthTest from './uitest/PasswordAuth.test';
+import ConstantsTest from './jsunit/Constants.test';
+import FuncUtilsTest from './jsunit/FuncUtils.test';
+import PageComTest from './jsunit/PageCom.test';
+import FindWindowExampleTest from './uitest/FindWindowExample.test';
+import PinNumberTest from './uitest/PinNumber.test';
+import CustomPinTest from './uitest/CustomPin.test';
+import CustomMixFailTest from './uitest/CustomMixFail.test';
+import CustomMixFailTimesTest from './uitest/CustomMixFailTimes.test';
+import CustomPasswordNumberTest from './uitest/CustomPasswordNumber.test';
+import PinTest from './uitest/Pin.test';
+import PinFaceTest from './uitest/PinFace.test';
+import FaceTest from './uitest/Face.test';
+import FaceFailTimesTest from './uitest/FaceFailTimes.test';
+import FaceMixTimesAuthTest from './uitest/FaceMixAuth.test';
+import PinFaceFailTest from './uitest/PinFaceFail.test';
+import FaceMixFailAuthTest from './uitest/FaceMixFailAuth.test';
+import FaceFingerFailTest from './uitest/FaceFingerFail.test';
+import FingerTest from './uitest/finger.test';
+import PinFingerTest from './uitest/PinFinger.test';
+import FingerFailAuthTest from './uitest/FingerFailTimesAuth.test';
+import PinFingerFailTest from './uitest/PinFingerFail.test';
 
 export default function testsuite() {
-  IndexTest();
-  CustomPasswordTest();
-  PasswordAuthTest();
-  FaceAuthTest();
-  FingerprintAuthTest();
-  funcUtilsTest();
-  pageComTest();
-  constantsTest();
-  passwordAuthTest();
-  PasswordAuthTestSix();
-  FaceAuth();
-  FingerprintAuth();
-  customPasswordTest();
-  CustomPasswordFaceTest();
-  CustomPasswordFingerTest();
+  PageComTest();
+  FuncUtilsTest();
+  ConstantsTest();
+  FindWindowExampleTest();
+  FingerTest();
+  PinFingerTest();
+  FingerFailAuthTest();
+  PinFingerFailTest();
+  PinNumberTest();
+  CustomPinTest();
+  CustomMixFailTest();
+  CustomMixFailTimesTest();
+  CustomPasswordNumberTest();
+  FaceTest();
+  FaceFailTimesTest();
+  FaceMixTimesAuthTest();
+  PinTest();
+  PinFaceTest();
+  PinFaceFailTest();
+  FaceMixFailAuthTest();
+  FaceFingerFailTest();
 }

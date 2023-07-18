@@ -15,93 +15,79 @@
 
 import account_osAccount from '@ohos.account.osAccount';
 import userAuth from '@ohos.userIAM.userAuth';
-import CustomPSD from '../../common/components/CustomPSD'
+import FullScreen from '../../common/components/FullScreen';
 import FuncUtils from '../../common/utils/FuncUtils';
 import LogUtils from '../../common/utils/LogUtils';
 import Constants from '../../common/vm/Constants';
 
 const TAG = 'CustomPassword';
-const WHITE_OPACITY = 1;
-const BLUR_OPACITY = 0.2;
-const BTN_BORDER_RADIUS = 25;
-
+const BLUR_OPACITY = 0.5;
+const SATURATE = 1.3;
+const BLUR_RADIUS = 242;
+const BACK_BLUR = 80;
+const PADDING_ZERO = 0;
 let pinAuthManager;
 let pinData = '';
 
 @Component
 export default struct CustomPassword {
   @Link pinSubType: string;
-  @Link themeType: number;
   @Link authType: Array<userAuth.UserAuthType>;
   @Link cmdData: [];
   @State isBackTouched: boolean = false
-  @State @Watch('onFlagChange') controllerFlag: boolean = false;
   @State @Watch('onTextValueChange') textValue: string = '';
-
-  onFlagChange(): void {
-    LogUtils.i(TAG, 'onFlagChange controllerFlag: ' + this.controllerFlag);
-    if (this.controllerFlag) {
-      globalThis.session?.terminateSelf?.();
-    }
-  }
+  @Consume isLandscape: boolean;
+  @StorageLink('SYSTEM_STATUS_BAR_HEIGHT') SYSTEM_STATUS_BAR_HEIGHT: number = 0;
+  @StorageLink('SYSTEM_NAVIGATION_BAR_HEIGHT') SYSTEM_NAVIGATION_BAR_HEIGHT: number = 0;
 
   onTextValueChange(): void {
     pinData = this.textValue;
   }
 
   aboutToAppear(): void {
-    // register input
     try {
-      LogUtils.i(TAG, 'aboutToAppear PINAuth start');
+      LogUtils.info(TAG, 'aboutToAppear PINAuth');
       pinAuthManager = new account_osAccount.PINAuth();
-      LogUtils.i(TAG, 'aboutToAppear PINAuth pinAuthManager： ' + JSON.stringify(pinAuthManager));
+      // register input
       pinAuthManager.registerInputer({
         onGetData: (authSubType, callback) => {
+          LogUtils.info(TAG, 'aboutToAppear registerInputer onGetData');
           const uint8PW = FuncUtils.getUint8PW(pinData);
-          LogUtils.i(TAG, 'PINAuth onGetData pinData');
           callback.onSetData(authSubType, uint8PW);
         }
       });
     } catch (error) {
-      LogUtils.e(TAG, 'aboutToAppear PINAuth catch error: ' + JSON.stringify(error));
+      LogUtils.error(TAG, 'aboutToAppear PINAuth catch error: ' + error?.code);
+      globalThis.session?.terminateSelf?.();
     }
   }
 
   aboutToDisappear(): void {
-    LogUtils.i(TAG, 'aboutToDisappear PINAuth unregisterInputer');
+    LogUtils.info(TAG, 'aboutToDisappear PINAuth unregisterInputer');
     pinAuthManager?.unregisterInputer?.();
   }
 
   build() {
-    Stack() {
-      Text().width(Constants.fullContainerWidth)
-        .height(Constants.fullContainerWidth)
-        .backgroundColor($r('sys.color.ohos_id_color_dialog_bg'))
-        .opacity(this.themeType === Constants.themeTypeWhite ? WHITE_OPACITY : BLUR_OPACITY)
+    Column() {
+      Column() {
+      }
+      .width(Constants.fullContainerWidth)
+      .height(Constants.fullContainerWidth)
+      .position({ x: 0, y: 0 })
+      .opacity(BLUR_OPACITY)
+      .backgroundColor($r('app.color.full_screen_background'))
+      .blur(BLUR_RADIUS)
+      .saturate(SATURATE)
+
       Column() {
         Flex({ direction: FlexDirection.Row }) {
-          if (this.themeType === Constants.themeTypeWhite) {
-            Flex() {
-              Text('←')
-                .borderRadius(8)
-                .fontSize($r('app.float.title_size'))
-                .backgroundColor(Color.Transparent)
-                .fontColor(Color.Black)
-              Text($r('app.string.unified_authwidget_back'))
-                .fontSize($r('app.float.title_size'))
-                .fontWeight(FontWeight.Medium)
-                .fontColor(Color.Black)
-                .textAlign(TextAlign.Center)
-                .textOverflow({ overflow: TextOverflow.None })
-                .margin({ left: 12 })
-            }
-            .id('cancelIcon_customPwd')
-            .margin({ left: $r('sys.float.ohos_id_max_padding_start'), right: $r('app.float.element_margin'), top:
-            '2vp' })
-            .padding($r('app.float.back_padding'))
-            .width($r('app.float.back_width'))
-            .backgroundColor(this.isBackTouched ? $r('sys.color.ohos_id_color_hover') : Color.Transparent)
-            .borderRadius(BTN_BORDER_RADIUS)
+          Image($r('app.media.ic_white_cancel'))
+            .id('cancelImgCustomPwd')
+            .width($r('app.float.image_back_size'))
+            .height($r('app.float.image_back_size'))
+            .margin({ left: $r('sys.float.ohos_id_max_padding_start'), top: $r('app.float.content_padding') })
+            .backgroundColor(this.isBackTouched
+              ? $r('sys.color.ohos_id_color_hover') : Color.Transparent)
             .onClick(() => {
               globalThis.session?.terminateSelf?.();
             })
@@ -113,25 +99,6 @@ export default struct CustomPassword {
                 this.isBackTouched = false;
               }
             });
-          } else {
-            Image($r('app.media.ic_white_cancel'))
-              .id('cancelImg_customPwd')
-              .width($r('app.float.image_small'))
-              .height($r('app.float.image_small'))
-              .margin({ left: $r('app.float.element_margin'), top: $r('app.float.element_margin') })
-              .backgroundColor(this.isBackTouched ? $r('sys.color.ohos_id_color_hover') : Color.Transparent)
-              .onClick(() => {
-                globalThis.session?.terminateSelf?.();
-              })
-              .onTouch((event: TouchEvent) => {
-                if (event.type === TouchType.Down) {
-                  this.isBackTouched = true;
-                }
-                if (event.type === TouchType.Up) {
-                  this.isBackTouched = false;
-                }
-              });
-          }
         }
 
         GridRow({
@@ -146,23 +113,24 @@ export default struct CustomPassword {
           GridCol({
             span: { xs: 8, sm: 6, md: 6, lg: 6 },
           }) {
-            CustomPSD({
-              themeType: $themeType,
+            FullScreen({
               textValue: $textValue,
-              controllerFlag: $controllerFlag,
               authType: $authType,
               pinSubType: $pinSubType,
               cmdData: $cmdData
             })
-          }.margin({ left: 'auto', right: 'auto' })
+          }
         }
       }
+      .padding(this.isLandscape
+        ? PADDING_ZERO
+        : { top: this.SYSTEM_STATUS_BAR_HEIGHT, bottom: this.SYSTEM_NAVIGATION_BAR_HEIGHT })
       .justifyContent(FlexAlign.SpaceBetween)
       .width(Constants.fullContainerWidth)
       .height(Constants.fullContainerWidth)
     }
     .width(Constants.fullContainerWidth)
     .height(Constants.fullContainerWidth)
-    .backdropBlur(80)
+    .backdropBlur(BACK_BLUR)
   }
 }

@@ -71,8 +71,7 @@ export default struct SixPwd {
                         // success
                         globalThis.session?.terminateSelf?.();
                       } else {
-                        // fail
-                        // frequency
+                        // fail frequency
                         const frequency = cmdData?.cmd?.[0]?.payload?.remainAttempts;
                         if (frequency) {
                           that.inputValue = globalThis.context.resourceManager
@@ -104,7 +103,6 @@ export default struct SixPwd {
                 } catch (error) {
                   LogUtils.e(TAG, 'getUserAuthWidgetMgr catch error: ' + JSON.stringify(error));
                 }
-
                 // check
                 AuthUtils.getInstance().sendNotice('EVENT_AUTH_TYPE_READY', [Constants.noticeTypePin]);
               }

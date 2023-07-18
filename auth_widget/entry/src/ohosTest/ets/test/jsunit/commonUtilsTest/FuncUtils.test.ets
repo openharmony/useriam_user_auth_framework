@@ -18,6 +18,8 @@ import { beforeAll, describe, expect, it } from '@ohos/hypium';
 import AuthUtils from '../../../../../main/ets/common/utils/AuthUtils';
 import FuncUtils from '../../../../../main/ets/common/utils/FuncUtils';
 import LogUtils from '../../../../../main/ets/common/utils/LogUtils';
+import TimeUtils from '../../../../../main/ets/common/utils/TimeUtils';
+import WindowPrivacyUtils from '../../../../../main/ets/common/utils/WindowPrivacyUtils';
 
 const TAG = 'FuncUtilsTest';
 
@@ -38,7 +40,7 @@ export default function FuncUtilsTest() {
       userAuthInstance = await userAuth.getUserAuthInstance(authParam, widgetParam);
       userAuthInstance.on('result', {
         callback: function (result) {
-          LogUtils.i(TAG, 'callback result = ' + JSON.stringify(result));
+          LogUtils.i(TAG, 'userAuthInstance callback result = ' + JSON.stringify(result));
         }
       });
       userAuthInstance.start();
@@ -47,6 +49,7 @@ export default function FuncUtilsTest() {
     it('getUint8PWFunc_test', 0, function (done) {
       const data1 = FuncUtils.getUint8PW('111111');
       const data2 = FuncUtils.getUint8PW('11111111');
+      FuncUtils.getWindowHeight();
       expect(data1).assertInstanceOf('Uint8Array');
       expect(data2).assertInstanceOf('Uint8Array');
       done();
@@ -54,20 +57,54 @@ export default function FuncUtilsTest() {
 
     it('getDialogTypeFunc_test', 0, function (done) {
       const data1 = FuncUtils.getDialogType([1]);
-      const data2 = FuncUtils.getDialogType([1, 2, 3]);
+      const data2 = FuncUtils.getDialogType([1, 2, 4]);
       const data3 = FuncUtils.getDialogType([]);
       const data4 = FuncUtils.getDialogType(null);
       const data5 = FuncUtils.getDialogType(undefined);
+      const data6 = FuncUtils.getDialogType([1, 2]);
+      const data7 = FuncUtils.getDialogType([1, 4]);
+      const data8 = FuncUtils.getDialogType([2]);
+      const data9 = FuncUtils.getDialogType([4]);
       expect(data1).assertEqual(1);
-      expect(data2).assertEqual(6);
+      expect(data2).assertEqual(10);
       expect(data3).assertEqual(1);
       expect(data4).assertEqual(1);
       expect(data5).assertEqual(1);
+      expect(data6).assertEqual(6);
+      expect(data7).assertEqual(7);
+      expect(data8).assertEqual(2);
+      expect(data9).assertEqual(3);
       done();
     })
 
-    it('sendNotice_test', 0, async function (done) {
+    it('getWindowHeightFunc_test', 0, function (done) {
+      FuncUtils.getWindowHeight();
+      done();
+    })
+
+    it('sendNoticeFunc_test', 0, async function (done) {
       AuthUtils.getInstance().sendNotice('EVENT_AUTH_TYPE_READY', ['pin']);
+      AuthUtils.getInstance().sendNotice('EVENT_AUTH_TYPE_START', ['pin']);
+      done();
+    })
+
+    it('logFunc_test', 0, async function (done) {
+      LogUtils.d(TAG, 'debug log test');
+      LogUtils.i(TAG, 'info log test');
+      LogUtils.w(TAG, 'warning log test');
+      LogUtils.e(TAG, 'error log test');
+      LogUtils.f(TAG, 'fatal log test');
+      done();
+    })
+
+    it('getFreezingTimeNmFunc_test', 0, async function (done) {
+      TimeUtils.getFreezingTimeNm(10000, globalThis.context);
+      TimeUtils.getFreezingTimeNm(100000, globalThis.context);
+      done();
+    })
+
+    it('setWindowPrivacyModeFunc_test', 0, async function (done) {
+      WindowPrivacyUtils.setWindowPrivacyMode(null, false);
       done();
     })
   })

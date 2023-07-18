@@ -21,7 +21,7 @@
       "value": "0"
     },
     {
-      "name": "lock_prompt_fontsize",
+      "name": "lock_prompt_font_size",
       "value": "32px"
     },
     {
@@ -29,7 +29,7 @@
       "value": "0"
     },
     {
-      "name": "batterysoc_fontsize",
+      "name": "batterysoc_font_size",
       "value": "36px"
     },
     {
@@ -45,7 +45,7 @@
       "value": "72px"
     },
     {
-      "name": "accounts_name_fontsize",
+      "name": "accounts_name_font_size",
       "value": "24px"
     },
     {
@@ -53,167 +53,167 @@
       "value": "8px"
     },
     {
-      "name": "digitalpsd_prompt_fontsize",
+      "name": "digital_password_prompt_font_size",
       "value": "32px"
     },
     {
-      "name": "digitalpsd_prompt_margin_bottom",
+      "name": "digital_password_prompt_margin_bottom",
       "value": "48px"
     },
     {
-      "name": "digitalpsd_prompt_width",
+      "name": "digital_password_prompt_width",
       "value": "800px"
     },
     {
-      "name": "digitalpsd_prompt_height",
+      "name": "digital_password_prompt_height",
       "value": "72px"
     },
     {
-      "name": "digitalpsd_passwdmask_width",
+      "name": "digital_password_mask_width",
       "value": "400px"
     },
     {
-      "name": "digitalpsd_passwdmask_height",
+      "name": "digital_password_mask_height",
       "value": "24vp"
     },
     {
-      "name": "digitalpsd_passwdmask_margin_bottom",
+      "name": "digital_password_mask_margin_bottom",
       "value": "128px"
     },
     {
-      "name": "digitalpsd_input_area_height",
+      "name": "digital_password_input_area_height",
       "value": "200px"
     },
     {
-      "name": "digitalpsd_row1_fontsize",
+      "name": "digital_password_row1_font_size",
       "value": "48px"
     },
     {
-      "name": "digitalpsd_row2_fontsize",
+      "name": "digital_password_row2_font_size",
       "value": "24px"
     },
     {
-      "name": "digitalpsd_row_height",
+      "name": "digital_password_row_height",
       "value": "200px"
     },
     {
-      "name": "digitalpsd_key_area_height",
+      "name": "digital_password_key_area_height",
       "value": "800px"
     },
     {
-      "name": "digitalpsd_key_area_margin_bottom",
+      "name": "digital_password_key_area_margin_bottom",
       "value": "64px"
     },
     {
-      "name": "digitalpsd_key_area_margin_bottom_portrait",
+      "name": "digital_password_key_area_margin_bottom_portrait",
       "value": "128px"
     },
     {
-      "name": "mixedpsd_prompt_fontsize",
+      "name": "mixed_password_prompt_font_size",
       "value": "32px"
     },
     {
-      "name": "mixedpsd_prompt_text_fontsize",
+      "name": "mixed_password_prompt_text_font_size",
       "value": "32px"
     },
     {
-      "name": "mixedpsd_prompt_margin_bottom",
+      "name": "mixed_password_prompt_margin_bottom",
       "value": "48px"
     },
     {
-      "name": "mixedpsd_prompt_margin_top",
+      "name": "mixed_password_prompt_margin_top",
       "value": "0"
     },
     {
-      "name": "mixedpsd_prompt_width",
+      "name": "mixed_password_prompt_width",
       "value": "800px"
     },
     {
-      "name": "mixedpsd_prompt_height",
+      "name": "mixed_password_prompt_height",
       "value": "72px"
     },
     {
-      "name": "mixedpsd_input_maxlen",
+      "name": "mixed_password_input_maxlen",
       "value": "30px"
     },
     {
-      "name": "mixedpsd_input_width",
+      "name": "mixed_password_input_width",
       "value": "600px"
     },
     {
-      "name": "mixedpsd_input_height",
+      "name": "mixed_password_input_height",
       "value": "72px"
     },
     {
-      "name": "mixedpsd_input_margin_bottom",
+      "name": "mixed_password_input_margin_bottom",
       "value": "64px"
     },
     {
-      "name": "custompsd_prompt_fontsize",
+      "name": "custom_password_prompt_font_size",
       "value": "32px"
     },
     {
-      "name": "custompsd_prompt_margin_bottom",
+      "name": "custom_password_prompt_margin_bottom",
       "value": "48px"
     },
     {
-      "name": "custompsd_prompt_width",
+      "name": "custom_password_prompt_width",
       "value": "800px"
     },
     {
-      "name": "custompsd_prompt_height",
+      "name": "custom_password_prompt_height",
       "value": "72px"
     },
     {
-      "name": "custompsd_input_width",
+      "name": "custom_password_input_width",
       "value": "600px"
     },
     {
-      "name": "custompsd_input_width_portrait",
+      "name": "custom_password_input_width_portrait",
       "value": "700px"
     },
     {
-      "name": "custompsd_input_height",
+      "name": "custom_password_input_height",
       "value": "72px"
     },
     {
-      "name": "custompsd_input_radius",
+      "name": "custom_password_input_radius",
       "value": "36px"
     },
     {
-      "name": "custompsd_input_margin_bottom",
+      "name": "custom_password_input_margin_bottom",
       "value": "90px"
     },
     {
-      "name": "custompsd_passwdmask_margin_bottom",
+      "name": "custom_password_mask_margin_bottom",
       "value": "128px"
     },
     {
-      "name": "custompsd_input_area_height",
+      "name": "custom_password_input_area_height",
       "value": "400px"
     },
     {
-      "name": "custompsd_key_area_height",
+      "name": "custom_password_key_area_height",
       "value": "800px"
     },
     {
-      "name": "custompsd_key_area_margin_bottom",
+      "name": "custom_password_key_area_margin_bottom",
       "value": "64px"
     },
     {
-      "name": "custompsd_key_area_margin_bottom_portrait",
+      "name": "custom_password_key_area_margin_bottom_portrait",
       "value": "128px"
     },
     {
-      "name": "custompsd_text_opacity",
+      "name": "custom_password_text_opacity",
       "value": "1px"
     },
     {
-      "name": "custompsd_digitalpsd_ic_diameter",
+      "name": "custom_password_digital_password_ic_diameter",
       "value": "12vp"
     },
     {
-      "name": "custompsd_button_height",
+      "name": "custom_password_button_height",
       "value": "36vp"
     },
     {
@@ -293,6 +293,10 @@
       "value": "8vp"
     },
     {
+      "name": "margin_16",
+      "value": "16vp"
+    },
+    {
       "name": "input_height",
       "value": "40vp"
     },
@@ -311,6 +315,10 @@
     {
       "name": "input_btn_padding_up_down",
       "value": "3vp"
+    },
+    {
+      "name": "image_back_size",
+      "value": "24vp"
     },
     {
       "name": "image_size",
@@ -333,12 +341,60 @@
       "value": "20vp"
     },
     {
+      "name": "size_24",
+      "value": "24vp"
+    },
+    {
       "name": "back_width",
       "value": "97vp"
     },
     {
       "name": "back_padding",
       "value": "10vp"
+    },
+    {
+      "name": "keyboard_key_high",
+      "value": "120vp"
+    },
+    {
+      "name": "button_border_width",
+      "value": "6vp"
+    },
+    {
+      "name": "cancel_margin_top",
+      "value": "2vp"
+    },
+    {
+      "name": "margin_12",
+      "value": "12vp"
+    },
+    {
+      "name": "margin_14",
+      "value": "14vp"
+    },
+    {
+      "name": "text_high",
+      "value": "40vp"
+    },
+    {
+      "name": "finger_high",
+      "value": "72vp"
+    },
+    {
+      "name": "three_hundred_size",
+      "value": "300vp"
+    },
+    {
+      "name": "padding_8",
+      "value": "8vp"
+    },
+    {
+      "name": "padding_16",
+      "value": "16vp"
+    },
+    {
+      "name": "margin_64",
+      "value": "64vp"
     }
   ]
 }
