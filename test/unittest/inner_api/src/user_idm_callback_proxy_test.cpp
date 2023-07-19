@@ -19,6 +19,7 @@
 #include "mock_remote_object.h"
 #include "mock_user_idm_callback_service.h"
 #include "user_idm_callback_proxy.h"
+#include "widget_callback_service.h"
 
 namespace OHOS {
 namespace UserIam {

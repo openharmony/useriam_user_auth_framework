@@ -17,6 +17,8 @@
 
 #include "user_auth_impl.h"
 #include "auth_instance_v9.h"
+#include "nlohmann/json.hpp"
+#include "user_auth_impl.h"
 #include "user_auth_instance_v10.h"
 #include "user_auth_widget_mgr_v10.h"
 #include "user_auth_client_impl.h"
@@ -27,6 +29,12 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
+const std::string NOTICE_WIDGET_CTXID = "widgetContextId";
+const std::string NOTICE_EVENT_TYPE = "event";
+const std::string NOTICE_VERSION = "version";
+const std::string NOTICE_PAYLOAD = "payload";
+const std::string NOTICE_PAYLOAD_TYPE = "type";
+const std::string SUPPORT_NOTICE_VERSION = "1";
 napi_value UserAuthServiceConstructor(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
@@ -415,6 +423,27 @@ napi_value WidgetOff(napi_env env, napi_callback_info info)
     return nullptr;
 }
 
+static bool VerifyNoticeParam(const std::string &eventData)
+{
+    auto json = nlohmann::json::parse(eventData.c_str());
+    if (json.find(NOTICE_WIDGET_CTXID) == json.end() || !json[NOTICE_WIDGET_CTXID].is_number()) {
+        IAM_LOGE("Invalid widget context id exist in notice data");
+        return false;
+    }
+
+    if (json.find(NOTICE_EVENT_TYPE) == json.end() || !json[NOTICE_EVENT_TYPE].is_string()) {
+        IAM_LOGE("Invalid event type exist in notice data");
+        return false;
+    }
+
+    if (json.find(NOTICE_PAYLOAD) == json.end()) {
+        IAM_LOGE("Invalid payload exist in notice data");
+        return false;
+    }
+    IAM_LOGI("valid notice parameter");
+    return true;
+}
+
 napi_value SendNotice(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start SendNotice");
@@ -445,15 +474,21 @@ napi_value SendNotice(napi_env env, napi_callback_info info)
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, errCode));
         return nullptr;
     }
-    IAM_LOGI("recv SendNotice noticeType:%{public}d", noticeType_value);
 
-    if (noticeType_value != 1) {
+    if (noticeType_value != WIDGET_NOTICE) {
         errCode = UserAuthResultCode::OHOS_INVALID_PARAM;
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, errCode));
         return nullptr;
     }
+
     std::string eventData = UserAuthNapiHelper::GetStringFromValueUtf8(env, argv[PARAM1]);
-    IAM_LOGI("recv SendNotice eventData:%{public}s", eventData.c_str());
+    IAM_LOGI("recv SendNotice noticeType:%{public}d, eventData:%{public}s", noticeType_value, eventData.c_str());
+    if (!VerifyNoticeParam(eventData)) {
+        IAM_LOGE("Invalid notice parameter");
+        errCode = UserAuthResultCode::OHOS_INVALID_PARAM;
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, errCode));
+        return nullptr;
+    }
 
     int32_t result = UserAuthClientImpl::Instance().Notice(noticeType, eventData);
     if (result != ResultCode::SUCCESS) {

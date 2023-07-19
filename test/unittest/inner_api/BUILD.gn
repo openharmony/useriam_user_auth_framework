@@ -33,6 +33,7 @@ ohos_unittest("iam_inner_api_test") {
     "../../../frameworks/native/client/src/user_auth_client_impl.cpp",
     "../../../frameworks/native/client/src/user_idm_callback_service.cpp",
     "../../../frameworks/native/client/src/user_idm_client_impl.cpp",
+    "../../../frameworks/native/client/src/widget_callback_service.cpp",
     "mocks/mock_ipc_client_utils.cpp",
     "src/co_auth_client_test.cpp",
     "src/co_auth_proxy_test.cpp",
@@ -52,6 +53,9 @@ ohos_unittest("iam_inner_api_test") {
     "src/user_idm_callback_stub_test.cpp",
     "src/user_idm_client_test.cpp",
     "src/user_idm_proxy_test.cpp",
+    "src/widget_callback_proxy_test.cpp",
+    "src/widget_callback_service_test.cpp",
+    "src/widget_callback_stub_test.cpp",
   ]
 
   configs = [
