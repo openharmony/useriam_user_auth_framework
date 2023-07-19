@@ -20,6 +20,7 @@
 #include "auth_common.h"
 #include "iam_check.h"
 #include "iam_logger.h"
+#include "iam_ptr.h"
 #include "ipc_client_utils.h"
 #include "user_auth_callback_service.h"
 #include "widget_callback_service.h"
@@ -28,6 +29,53 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+namespace {
+class NorthAuthenticationCallback : public AuthenticationCallback, public NoCopyable {
+public:
+    explicit NorthAuthenticationCallback(std::shared_ptr<AuthenticationCallback> innerCallback);
+    void OnAcquireInfo(int32_t module, uint32_t acquireInfo, const Attributes &extraInfo) override;
+    void OnResult(int32_t result, const Attributes &extraInfo) override;
+
+private:
+    std::shared_ptr<AuthenticationCallback> innerCallback_ = nullptr;
+};
+
+NorthAuthenticationCallback::NorthAuthenticationCallback(std::shared_ptr<AuthenticationCallback> innerCallback)
+    : innerCallback_(innerCallback) {};
+
+void NorthAuthenticationCallback::OnAcquireInfo(int32_t module, uint32_t acquireInfo, const Attributes &extraInfo)
+{
+    if (innerCallback_ == nullptr) {
+        IAM_LOGE("callback is nullptr");
+        return;
+    }
+
+    if (module == AuthType::FACE) {
+        if (acquireInfo == 0 || acquireInfo > FACE_AUTH_TIP_MAX) {
+            IAM_LOGI("skip undefined face auth tip %{public}u", acquireInfo);
+            return;
+        }
+    } else if (module == AuthType::FINGERPRINT) {
+        if (acquireInfo > FINGERPRINT_AUTH_TIP_MAX) {
+            IAM_LOGI("skip undefined fingerprint auth tip %{public}u", acquireInfo);
+            return;
+        }
+    }
+
+    innerCallback_->OnAcquireInfo(module, acquireInfo, extraInfo);
+}
+
+void NorthAuthenticationCallback::OnResult(int32_t result, const Attributes &extraInfo)
+{
+    if (innerCallback_ == nullptr) {
+        IAM_LOGE("callback is nullptr");
+        return;
+    }
+
+    innerCallback_->OnResult(result, extraInfo);
+}
+} // namespace
+
 int32_t UserAuthClientImpl::GetAvailableStatus(AuthType authType, AuthTrustLevel authTrustLevel)
 {
     return GetAvailableStatus(INT32_MAX, authType, authTrustLevel);
@@ -103,7 +151,6 @@ ResultCode UserAuthClientImpl::SetPropertyInner(int32_t userId, const SetPropert
     return SUCCESS;
 }
 
-
 void UserAuthClientImpl::SetProperty(int32_t userId, const SetPropertyRequest &request,
     const std::shared_ptr<SetPropCallback> &callback)
 {
@@ -155,6 +202,14 @@ uint64_t UserAuthClientImpl::BeginNorthAuthentication(int32_t apiVersion, const 
         return INVALID_SESSION_ID;
     }
 
+    auto northCallback = Common::MakeShared<NorthAuthenticationCallback>(callback);
+    if (!northCallback) {
+        IAM_LOGE("auth callback is nullptr");
+        Attributes extraInfo;
+        callback->OnResult(GENERAL_ERROR, extraInfo);
+        return INVALID_SESSION_ID;
+    }
+
     auto proxy = GetProxy();
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
@@ -163,7 +218,7 @@ uint64_t UserAuthClientImpl::BeginNorthAuthentication(int32_t apiVersion, const 
         return INVALID_SESSION_ID;
     }
 
-    sptr<UserAuthCallbackInterface> wrapper = new (std::nothrow) UserAuthCallbackService(callback);
+    sptr<UserAuthCallbackInterface> wrapper = new (std::nothrow) UserAuthCallbackService(northCallback);
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
@@ -347,8 +402,8 @@ int32_t UserAuthClientImpl::Notice(NoticeType noticeType, const std::string &eve
         IAM_LOGE("proxy is nullptr");
         return GENERAL_ERROR;
     }
-    IAM_LOGI("UserAuthClientImpl::Notice noticeType:%{public}d, eventDat:%{public}s",
-        static_cast<int32_t>(noticeType), eventData.c_str());
+    IAM_LOGI("UserAuthClientImpl::Notice noticeType:%{public}d, eventDat:%{public}s", static_cast<int32_t>(noticeType),
+        eventData.c_str());
     return proxy->Notice(noticeType, eventData);
 }
 } // namespace UserAuth
