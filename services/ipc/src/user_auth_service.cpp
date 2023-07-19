@@ -191,10 +191,8 @@ void UserAuthService::GetProperty(int32_t userId, AuthType authType,
     }
 
     Attributes attr;
-    attr.SetInt32Value(Attributes::ATTR_AUTH_TYPE, authType);
     attr.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_GET);
     attr.SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIds);
-    attr.SetUint64Value(Attributes::ATTR_CALLER_UID, static_cast<uint64_t>(this->GetCallingUid()));
     attr.SetUint32ArrayValue(Attributes::ATTR_KEY_LIST, uint32Keys);
 
     int32_t result = resourceNode->GetProperty(attr, values);
