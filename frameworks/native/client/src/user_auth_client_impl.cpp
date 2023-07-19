@@ -28,9 +28,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-namespace {
-constexpr uint32_t VENDOR_COMMAND_BASE = 10000;
-}
 int32_t UserAuthClientImpl::GetAvailableStatus(AuthType authType, AuthTrustLevel authTrustLevel)
 {
     return GetAvailableStatus(INT32_MAX, authType, authTrustLevel);
@@ -87,16 +84,13 @@ ResultCode UserAuthClientImpl::SetPropertyInner(int32_t userId, const SetPropert
     IF_FALSE_LOGE_AND_RETURN_VAL(keys.size() == 1, GENERAL_ERROR);
 
     Attributes::AttributeKey key = keys[0];
-    uint32_t keyValue = static_cast<uint32_t>(key);
-    IF_FALSE_LOGE_AND_RETURN_VAL(keyValue == PROPERTY_INIT_ALGORITHM, GENERAL_ERROR);
-    keyValue = keyValue + VENDOR_COMMAND_BASE;
     Attributes attr;
 
     std::vector<uint8_t> extraInfo;
     bool getArrayRet = request.attrs.GetUint8ArrayValue(static_cast<Attributes::AttributeKey>(key), extraInfo);
     IF_FALSE_LOGE_AND_RETURN_VAL(getArrayRet, GENERAL_ERROR);
 
-    bool setModeRet = attr.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, keyValue);
+    bool setModeRet = attr.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, static_cast<uint32_t>(key));
     IF_FALSE_LOGE_AND_RETURN_VAL(setModeRet, GENERAL_ERROR);
 
     bool setArrayRet = attr.SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, extraInfo);
