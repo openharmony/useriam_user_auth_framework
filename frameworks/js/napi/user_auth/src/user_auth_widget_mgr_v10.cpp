@@ -163,10 +163,12 @@ UserAuthResultCode UserAuthWidgetMgr::Off(napi_env env, napi_callback_info info)
         return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
 
-    auto callbackRef = GetCallback(env, argv[PARAM1]);
-    if (!callbackRef->IsValid()) {
-        IAM_LOGE("GetCallback fail");
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+    if (argc == ARGS_TWO) {
+        auto callbackRef = GetCallback(env, argv[PARAM1]);
+        if (callbackRef == nullptr || !callbackRef->IsValid()) {
+            IAM_LOGE("GetCallback fail");
+            return UserAuthResultCode::OHOS_INVALID_PARAM;
+        }
     }
 
     if (type == TYPE_COMMAND) {

@@ -20,7 +20,9 @@
 #include "mock_remote_object.h"
 #include "mock_user_auth_service.h"
 #include "mock_user_auth_client_callback.h"
+#include "mock_iuser_auth_widget_callback.h"
 #include "user_auth_callback_service.h"
+#include "widget_callback_service.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -276,6 +278,112 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyIdentify, TestSize.Level0)
             return SUCCESS;
         });
     proxy->Identify(testChallenge, testAuthType, testCallback);
+}
+
+HWTEST_F(UserAuthProxyTest, UserAuthProxyAuthWidget001, TestSize.Level0)
+{
+    static const int32_t testApiVersion = 0;
+    AuthParam authParam;
+    WidgetParam widgetParam;
+
+    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    EXPECT_NE(obj, nullptr);
+    auto proxy = Common::MakeShared<UserAuthProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+    auto identifyCallback = Common::MakeShared<MockIdentificationCallback>();
+    EXPECT_NE(identifyCallback, nullptr);
+    sptr<UserAuthCallbackInterface> testCallback =
+        new (std::nothrow) UserAuthCallbackService(identifyCallback);
+    auto service = Common::MakeShared<MockUserAuthService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, AuthWidget(_, _, _, _))
+        .Times(Exactly(1))
+        .WillOnce([&testCallback](int32_t apiVersion, const AuthParam &authParam, const WidgetParam &widgetParam,
+            sptr<UserAuthCallbackInterface> &callback) {
+            EXPECT_EQ(apiVersion, testApiVersion);
+            EXPECT_EQ(callback, testCallback);
+            return 0;
+        });
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
+    ON_CALL(*obj, SendRequest)
+        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            service->OnRemoteRequest(code, data, reply, option);
+            return SUCCESS;
+        });
+    proxy->AuthWidget(testApiVersion, authParam, widgetParam, testCallback);
+}
+
+HWTEST_F(UserAuthProxyTest, UserAuthProxyAuthWidget002, TestSize.Level0)
+{
+    static const int32_t testApiVersion = 0;
+    AuthParam authParam;
+    WidgetParam widgetParam;
+
+    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    EXPECT_NE(obj, nullptr);
+    auto proxy = Common::MakeShared<UserAuthProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+    sptr<UserAuthCallbackInterface> testCallback = nullptr;
+    proxy->AuthWidget(testApiVersion, authParam, widgetParam, testCallback);
+}
+
+HWTEST_F(UserAuthProxyTest, UserAuthProxyNotice001, TestSize.Level0)
+{
+    static const NoticeType testNoticeType = NoticeType::WIDGET_NOTICE;
+    static const std::string testEventData = "notice";
+
+    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    EXPECT_NE(obj, nullptr);
+    auto proxy = Common::MakeShared<UserAuthProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+    
+    auto service = Common::MakeShared<MockUserAuthService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, Notice(_, _))
+        .Times(Exactly(1))
+        .WillOnce([](NoticeType noticeType, const std::string &eventData) {
+            EXPECT_EQ(noticeType, testNoticeType);
+            EXPECT_EQ(eventData, testEventData);
+            return 0;
+        });
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
+    ON_CALL(*obj, SendRequest)
+        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            service->OnRemoteRequest(code, data, reply, option);
+            return SUCCESS;
+        });
+    proxy->Notice(testNoticeType, testEventData);
+}
+
+HWTEST_F(UserAuthProxyTest, UserAuthProxyRegisterWidgetCallback001, TestSize.Level0)
+{
+    static const int32_t testVersion = 0;
+
+    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    EXPECT_NE(obj, nullptr);
+    auto proxy = Common::MakeShared<UserAuthProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+
+    auto identifyCallback = Common::MakeShared<MockIUserAuthWidgetCallback>();
+    EXPECT_NE(identifyCallback, nullptr);
+    sptr<WidgetCallbackInterface> testCallback =
+        new (std::nothrow) WidgetCallbackService(identifyCallback);
+    auto service = Common::MakeShared<MockUserAuthService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, RegisterWidgetCallback(_, _))
+        .Times(Exactly(1))
+        .WillOnce([&testCallback](int32_t version, sptr<WidgetCallbackInterface> &callback) {
+            EXPECT_EQ(version, testVersion);
+            EXPECT_EQ(callback, testCallback);
+            return 0;
+        });
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
+    ON_CALL(*obj, SendRequest)
+        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            service->OnRemoteRequest(code, data, reply, option);
+            return SUCCESS;
+        });
+    proxy->RegisterWidgetCallback(testVersion, testCallback);
 }
 } // namespace UserAuth
 } // namespace UserIam

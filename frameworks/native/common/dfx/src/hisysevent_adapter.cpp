@@ -44,6 +44,7 @@ constexpr char STR_REMAIN_TIME[] = "REMAIN_TIME";
 constexpr char STR_FREEXING_TIME[] = "FREEXING_TIME";
 constexpr char STR_AUTH_TIME_SPAN[] = "AUTH_TIME_SPAN";
 constexpr char STR_SDK_VERSION[] = "SDK_VERSION";
+constexpr char STR_AUTH_WIDGET_TYPE[] = "AUTH_WIDGET_TYPE";
 
 void ReportSystemFault(const std::string &timeString, const std::string &moudleName)
 {
@@ -109,12 +110,14 @@ void ReportUserAuth(const UserAuthInfo &info)
         STR_AUTH_TRUST_LEVEL, info.atl,
         STR_AUTH_RESULT, info.authResult,
         STR_AUTH_TIME_SPAN, info.timeSpanString,
-        STR_SDK_VERSION, info.sdkVersion);
+        STR_SDK_VERSION, info.sdkVersion,
+        STR_AUTH_WIDGET_TYPE, info.authWidgetType);
     if (ret != 0) {
         IAM_LOGE("hisysevent write failed! ret %{public}d, callingUid %{public}"  PRIu64 ", authType %{public}d,"
-            "atl %{public}u, authResult %{public}u, timeSpanString %{public}s, sdkVersion%{public}u.",
+            "atl %{public}u, authResult %{public}u, timeSpanString %{public}s, sdkVersion%{public}u,"
+            "authwidgetType%{public}u",
             ret, info.callingUid, info.authType, info.atl, info.authResult,
-            info.timeSpanString.c_str(), info.sdkVersion);
+            info.timeSpanString.c_str(), info.sdkVersion, info.authWidgetType);
     }
 }
 
