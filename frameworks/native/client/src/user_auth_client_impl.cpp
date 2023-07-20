@@ -108,8 +108,8 @@ void UserAuthClientImpl::GetProperty(int32_t userId, const GetPropertyRequest &r
         return;
     }
 
-    sptr<GetExecutorPropertyCallbackInterface> wrapper =
-        new (std::nothrow) GetExecutorPropertyCallbackService(callback);
+    sptr<GetExecutorPropertyCallbackInterface> wrapper(
+        new (std::nothrow) GetExecutorPropertyCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
@@ -144,8 +144,8 @@ ResultCode UserAuthClientImpl::SetPropertyInner(int32_t userId, const SetPropert
     bool setArrayRet = attr.SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, extraInfo);
     IF_FALSE_LOGE_AND_RETURN_VAL(setArrayRet, GENERAL_ERROR);
 
-    sptr<SetExecutorPropertyCallbackInterface> wrapper =
-        new (std::nothrow) SetExecutorPropertyCallbackService(callback);
+    sptr<SetExecutorPropertyCallbackInterface> wrapper(
+        new (std::nothrow) SetExecutorPropertyCallbackService(callback));
     IF_FALSE_LOGE_AND_RETURN_VAL(wrapper != nullptr, GENERAL_ERROR);
     proxy->SetProperty(userId, request.authType, attr, wrapper);
     return SUCCESS;
@@ -184,7 +184,7 @@ uint64_t UserAuthClientImpl::BeginAuthentication(int32_t userId, const std::vect
         return INVALID_SESSION_ID;
     }
 
-    sptr<UserAuthCallbackInterface> wrapper = new (std::nothrow) UserAuthCallbackService(callback);
+    sptr<UserAuthCallbackInterface> wrapper(new (std::nothrow) UserAuthCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
@@ -218,7 +218,7 @@ uint64_t UserAuthClientImpl::BeginNorthAuthentication(int32_t apiVersion, const 
         return INVALID_SESSION_ID;
     }
 
-    sptr<UserAuthCallbackInterface> wrapper = new (std::nothrow) UserAuthCallbackService(northCallback);
+    sptr<UserAuthCallbackInterface> wrapper(new (std::nothrow) UserAuthCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
@@ -255,7 +255,7 @@ uint64_t UserAuthClientImpl::BeginIdentification(const std::vector<uint8_t> &cha
         return INVALID_SESSION_ID;
     }
 
-    sptr<UserAuthCallbackInterface> wrapper = new (std::nothrow) UserAuthCallbackService(callback);
+    sptr<UserAuthCallbackInterface> wrapper(new (std::nothrow) UserAuthCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
@@ -297,12 +297,12 @@ sptr<UserAuthInterface> UserAuthClientImpl::GetProxy()
     sptr<IRemoteObject> obj = IpcClientUtils::GetRemoteObject(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH);
     if (obj == nullptr) {
         IAM_LOGE("remote object is null");
-        return nullptr;
+        return proxy_;
     }
-    sptr<IRemoteObject::DeathRecipient> dr = new (std::nothrow) UserAuthImplDeathRecipient();
+    sptr<IRemoteObject::DeathRecipient> dr(new (std::nothrow) UserAuthImplDeathRecipient());
     if ((dr == nullptr) || (obj->IsProxyObject() && !obj->AddDeathRecipient(dr))) {
         IAM_LOGE("add death recipient fail");
-        return nullptr;
+        return proxy_;
     }
 
     proxy_ = iface_cast<UserAuthInterface>(obj);
@@ -365,7 +365,7 @@ uint64_t UserAuthClientImpl::BeginWidgetAuth(int32_t apiVersion, const AuthParam
         return INVALID_SESSION_ID;
     }
 
-    sptr<UserAuthCallbackInterface> wrapper = new (std::nothrow) UserAuthCallbackService(callback);
+    sptr<UserAuthCallbackInterface> wrapper(new (std::nothrow) UserAuthCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
@@ -387,7 +387,7 @@ int32_t UserAuthClientImpl::SetWidgetCallback(int32_t version, const std::shared
         return GENERAL_ERROR;
     }
 
-    sptr<WidgetCallbackInterface> wrapper = new (std::nothrow) WidgetCallbackService(callback);
+    sptr<WidgetCallbackInterface> wrapper(new (std::nothrow) WidgetCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         return GENERAL_ERROR;

@@ -49,10 +49,8 @@ void CoAuthServiceTest::TearDown()
 
 HWTEST_F(CoAuthServiceTest, CoAuthServiceTest001, TestSize.Level0)
 {
-    sptr<ExecutorCallbackInterface> testCallback = new MockExecutorCallback();
+    sptr<MockExecutorCallback> testCallback(new (std::nothrow) MockExecutorCallback());
     EXPECT_NE(testCallback, nullptr);
-    sptr<MockExecutorCallback> tempCallback = static_cast<MockExecutorCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
 
     CoAuthInterface::ExecutorRegisterInfo info = {};
     info.authType = FINGERPRINT;
@@ -66,7 +64,7 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest001, TestSize.Level0)
     EXPECT_NE(service, nullptr);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*tempCallback, OnMessengerReady(_, _, _)).Times(1);
+    EXPECT_CALL(*testCallback, OnMessengerReady(_, _, _)).Times(1);
     EXPECT_CALL(*mockHdi, AddExecutor(_, _, _, _))
         .Times(2)
         .WillOnce(Return(HDF_FAILURE))
@@ -79,9 +77,10 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest001, TestSize.Level0)
         );
     EXPECT_CALL(*mockHdi, DeleteExecutor(_)).Times(1);
     IpcCommon::AddPermission(ACCESS_AUTH_RESPOOL);
-    uint64_t executorIndex = service->ExecutorRegister(info, testCallback);
+    sptr<ExecutorCallbackInterface> callbackInterface = testCallback;
+    uint64_t executorIndex = service->ExecutorRegister(info, callbackInterface);
     EXPECT_EQ(executorIndex, 0);
-    executorIndex = service->ExecutorRegister(info, testCallback);
+    executorIndex = service->ExecutorRegister(info, callbackInterface);
     EXPECT_NE(executorIndex, 0);
     EXPECT_EQ(ResourceNodePool::Instance().Delete(executorIndex), true);
     IpcCommon::DeleteAllPermission();
@@ -93,7 +92,7 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest002, TestSize.Level0)
     EXPECT_NE(service, nullptr);
 
     CoAuthInterface::ExecutorRegisterInfo info = {};
-    sptr<ExecutorCallbackInterface> testCallback = nullptr;
+    sptr<ExecutorCallbackInterface> testCallback(nullptr);
     uint64_t executorIndex = service->ExecutorRegister(info, testCallback);
     EXPECT_EQ(executorIndex, 0);
 }

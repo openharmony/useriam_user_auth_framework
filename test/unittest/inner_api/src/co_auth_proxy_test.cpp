@@ -56,12 +56,12 @@ HWTEST_F(CoAuthProxyTest, CoAuthProxyExecutorRegister, TestSize.Level0)
 
     uint64_t testExecutorIndex = 73265;
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<CoAuthProxy>(obj);
     EXPECT_NE(proxy, nullptr);
     auto executorCallback = Common::MakeShared<MockExecutorRegisterCallback>();
-    sptr<ExecutorCallbackInterface> testCallback = new (std::nothrow) ExecutorCallbackService(executorCallback);
+    sptr<ExecutorCallbackInterface> testCallback(new (std::nothrow) ExecutorCallbackService(executorCallback));
     auto service = Common::MakeShared<MockCoAuthService>();
     EXPECT_NE(service, nullptr);
     EXPECT_CALL(*service, ExecutorRegister(_, _))

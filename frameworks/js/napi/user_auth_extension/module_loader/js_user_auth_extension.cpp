@@ -302,7 +302,11 @@ void JsUserAuthExtension::ForegroundWindow(const AAFwk::Want &want, const sptr<A
     }
     auto obj = sessionInfo->sessionToken;
     if (uiWindowMap_.find(obj) == uiWindowMap_.end()) {
-        sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
+        sptr<Rosen::WindowOption> option(new (std::nothrow) Rosen::WindowOption());
+        if (option == nullptr) {
+            HILOG_ERROR("Failed to create window option");
+            return;
+        }
         auto context = GetContext();
         if (context == nullptr || context->GetAbilityInfo() == nullptr) {
             HILOG_ERROR("Failed to get context");

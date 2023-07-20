@@ -26,7 +26,7 @@ namespace UserIam {
 namespace UserAuth {
 sptr<DriverManagerStatusListener> DriverManagerStatusListener::GetInstance()
 {
-    static sptr<DriverManagerStatusListener> instance = new (std::nothrow) DriverManagerStatusListener();
+    static sptr<DriverManagerStatusListener> instance(new (std::nothrow) DriverManagerStatusListener());
     if (instance == nullptr) {
         IAM_LOGE("instance is nullptr");
     }

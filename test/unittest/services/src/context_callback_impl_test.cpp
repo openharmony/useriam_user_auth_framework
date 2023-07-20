@@ -56,14 +56,14 @@ void ContextCallbackImplTest::TearDown()
 
 HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserAuthNull, TestSize.Level0)
 {
-    sptr<UserAuthCallbackInterface> callback = nullptr;
+    sptr<UserAuthCallbackInterface> callback(nullptr);
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
     ASSERT_EQ(contextCallback, nullptr);
 }
 
 HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserIdmNull, TestSize.Level0)
 {
-    sptr<IdmCallbackInterface> callback = nullptr;
+    sptr<IdmCallbackInterface> callback(nullptr);
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
     ASSERT_EQ(contextCallback, nullptr);
 }
@@ -74,7 +74,7 @@ HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserAuth, TestSize.Level0)
     auto testAttr = Common::MakeShared<Attributes>();
     ASSERT_TRUE(testAttr != nullptr);
 
-    sptr<MockUserAuthCallback> mockCallback = new (nothrow) MockUserAuthCallback();
+    sptr<MockUserAuthCallback> mockCallback(new (nothrow) MockUserAuthCallback());
     ASSERT_TRUE(mockCallback != nullptr);
     EXPECT_CALL(*mockCallback, OnResult(_, _))
         .Times(Exactly(1))
@@ -104,7 +104,7 @@ HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserIdmOnResult, TestSize.L
     ContextCallbackNotifyListener::GetInstance().AddNotifier(notify);
     ContextCallbackNotifyListener::GetInstance().AddNotifier(nullptr);
 
-    sptr<MockIdmCallback> mockCallback = new (nothrow) MockIdmCallback();
+    sptr<MockIdmCallback> mockCallback(new (nothrow) MockIdmCallback());
     ASSERT_TRUE(mockCallback != nullptr);
     EXPECT_CALL(*mockCallback, OnResult(_, _)).Times(1);
     EXPECT_CALL(*mockCallback, OnAcquireInfo(_, _, _)).Times(1);

@@ -51,7 +51,7 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyGetAvailableStatus, TestSize.Level0)
     static const int32_t testApiVersion = 0;
     static const AuthType testAuthType = FACE;
     static const AuthTrustLevel testAuthTrustLevel = ATL3;
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserAuthProxy>(obj);
     EXPECT_NE(proxy, nullptr);
@@ -81,14 +81,14 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyGetProperty, TestSize.Level0)
     std::vector<Attributes::AttributeKey> testKeys = {Attributes::ATTR_RESULT_CODE, Attributes::ATTR_SIGNATURE,
         Attributes::ATTR_SCHEDULE_MODE};
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserAuthProxy>(obj);
     EXPECT_NE(proxy, nullptr);
     auto getPropCallback = Common::MakeShared<MockGetPropCallback>();
     EXPECT_NE(getPropCallback, nullptr);
-    sptr<GetExecutorPropertyCallbackInterface> testCallback =
-        new (std::nothrow) GetExecutorPropertyCallbackService(getPropCallback);
+    sptr<GetExecutorPropertyCallbackInterface> testCallback(
+        new (std::nothrow) GetExecutorPropertyCallbackService(getPropCallback));
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
     EXPECT_CALL(*service, GetProperty(_, _, _, _))
@@ -118,14 +118,14 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxySetProperty, TestSize.Level0)
     Attributes testAttr;
     EXPECT_EQ(testAttr.SetInt32Value(Attributes::ATTR_RESULT_CODE, 1), true);
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserAuthProxy>(obj);
     EXPECT_NE(proxy, nullptr);
     auto setPropCallback = Common::MakeShared<MockSetPropCallback>();
     EXPECT_NE(setPropCallback, nullptr);
-    sptr<SetExecutorPropertyCallbackInterface> testCallback =
-        new (std::nothrow) SetExecutorPropertyCallbackService(setPropCallback);
+    sptr<SetExecutorPropertyCallbackInterface> testCallback(
+        new (std::nothrow) SetExecutorPropertyCallbackService(setPropCallback));
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
     EXPECT_CALL(*service, SetProperty(_, _, _, _))
@@ -155,14 +155,13 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyAuth, TestSize.Level0)
     static const AuthTrustLevel testAtl = ATL1;
     const std::vector<uint8_t> testChallenge = {1, 2, 3, 4};
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserAuthProxy>(obj);
     EXPECT_NE(proxy, nullptr);
     auto authCallback = Common::MakeShared<MockAuthenticationCallback>();
     EXPECT_NE(authCallback, nullptr);
-    sptr<UserAuthCallbackInterface> testCallback =
-        new (std::nothrow) UserAuthCallbackService(authCallback);
+    sptr<UserAuthCallbackInterface> testCallback(new (std::nothrow) UserAuthCallbackService(authCallback));
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
     EXPECT_CALL(*service, Auth(_, _, _, _, _))
@@ -192,14 +191,13 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyAuthUser, TestSize.Level0)
     static const AuthTrustLevel testAtl = ATL1;
     const std::vector<uint8_t> testChallenge = {1, 2, 3, 4};
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserAuthProxy>(obj);
     EXPECT_NE(proxy, nullptr);
     auto authCallback = Common::MakeShared<MockAuthenticationCallback>();
     EXPECT_NE(authCallback, nullptr);
-    sptr<UserAuthCallbackInterface> testCallback =
-        new (std::nothrow) UserAuthCallbackService(authCallback);
+    sptr<UserAuthCallbackInterface> testCallback(new (std::nothrow) UserAuthCallbackService(authCallback));
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
     EXPECT_CALL(*service, AuthUser(_, _, _, _, _))
@@ -226,7 +224,7 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyCancelAuthOrIdentify, TestSize.Level0)
 {
     static const uint64_t testContextId = 200;
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserAuthProxy>(obj);
     EXPECT_NE(proxy, nullptr);
@@ -252,14 +250,13 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyIdentify, TestSize.Level0)
     static const AuthType testAuthType = FACE;
     const std::vector<uint8_t> testChallenge = {1, 2, 3, 4};
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserAuthProxy>(obj);
     EXPECT_NE(proxy, nullptr);
     auto identifyCallback = Common::MakeShared<MockIdentificationCallback>();
     EXPECT_NE(identifyCallback, nullptr);
-    sptr<UserAuthCallbackInterface> testCallback =
-        new (std::nothrow) UserAuthCallbackService(identifyCallback);
+    sptr<UserAuthCallbackInterface> testCallback(new (std::nothrow) UserAuthCallbackService(identifyCallback));
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
     EXPECT_CALL(*service, Identify(_, _, _))

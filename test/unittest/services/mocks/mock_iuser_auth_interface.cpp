@@ -29,7 +29,8 @@ std::shared_ptr<IUserAuthInterface> HdiWrapper::GetHdiInstance()
 
 sptr<IRemoteObject> HdiWrapper::GetHdiRemoteObjInstance()
 {
-    return {};
+    sptr<IRemoteObject> tmp(nullptr);
+    return tmp;
 }
 
 std::shared_ptr<MockIUserAuthInterface> MockIUserAuthInterface::Holder::Get()

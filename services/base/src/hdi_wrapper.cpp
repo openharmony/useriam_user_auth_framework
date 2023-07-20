@@ -34,7 +34,7 @@ sptr<IRemoteObject> HdiWrapper::GetHdiRemoteObjInstance()
 {
     auto hdi = IUserAuthInterface::Get();
     if (!hdi) {
-        return nullptr;
+        return sptr<IRemoteObject>(nullptr);
     }
     return HDI::hdi_objcast<IUserAuthInterface>(hdi);
 }

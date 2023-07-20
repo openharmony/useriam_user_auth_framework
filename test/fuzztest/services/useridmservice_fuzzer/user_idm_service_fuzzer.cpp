@@ -48,7 +48,8 @@ public:
 
     sptr<IRemoteObject> AsObject() override
     {
-        return nullptr;
+        sptr<IRemoteObject> tmp(nullptr);
+        return tmp;
     }
 };
 
@@ -62,7 +63,8 @@ public:
 
     sptr<IRemoteObject> AsObject() override
     {
-        return nullptr;
+        sptr<IRemoteObject> tmp(nullptr);
+        return tmp;
     }
 };
 
@@ -82,7 +84,8 @@ public:
 
     sptr<IRemoteObject> AsObject() override
     {
-        return nullptr;
+        sptr<IRemoteObject> tmp(nullptr);
+        return tmp;
     }
 };
 
@@ -96,26 +99,29 @@ int32_t GetFuzzOptionalUserId(Parcel &parcel)
 
 sptr<IdmGetCredInfoCallbackInterface> GetFuzzIdmGetCredentialInfoCallback(Parcel &parcel)
 {
+    sptr<IdmGetCredInfoCallbackInterface> tmp(nullptr);
     if (parcel.ReadBool()) {
-        return new (nothrow) DummyIdmGetCredentialInfoCallback();
+        tmp = sptr<IdmGetCredInfoCallbackInterface>(new (std::nothrow) DummyIdmGetCredentialInfoCallback());
     }
-    return nullptr;
+    return tmp;
 }
 
 sptr<IdmGetSecureUserInfoCallbackInterface> GetFuzzIdmGetSecureUserInfoCallback(Parcel &parcel)
 {
+    sptr<IdmGetSecureUserInfoCallbackInterface> tmp(nullptr);
     if (parcel.ReadBool()) {
-        return new (nothrow) DummyIdmGetSecureUserInfoCallback();
+        tmp = sptr<IdmGetSecureUserInfoCallbackInterface>(new (std::nothrow) DummyIdmGetSecureUserInfoCallback());
     }
-    return nullptr;
+    return tmp;
 }
 
 sptr<IdmCallbackInterface> GetFuzzIdmCallback(Parcel &parcel)
 {
+    sptr<IdmCallbackInterface> tmp(nullptr);
     if (parcel.ReadBool()) {
-        return new (nothrow) DummyIdmCallback();
+        tmp = sptr<IdmCallbackInterface>(new (std::nothrow) DummyIdmCallback());
     }
-    return nullptr;
+    return tmp;
 }
 
 UserIdmService g_UserIdmService(SUBSYS_USERIAM_SYS_ABILITY_USERIDM, true);

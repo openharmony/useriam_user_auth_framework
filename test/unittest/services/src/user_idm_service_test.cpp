@@ -133,11 +133,9 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo001, TestSize.Level0
     int32_t testUserId = 0;
     AuthType testAuthType = PIN;
 
-    sptr<IdmGetCredInfoCallbackInterface> testCallback = new MockIdmGetCredentialInfoCallback();
+    sptr<MockIdmGetCredentialInfoCallback> testCallback(new (std::nothrow) MockIdmGetCredentialInfoCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockIdmGetCredentialInfoCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnCredentialInfos(_)).Times(2);
+    EXPECT_CALL(*testCallback, OnCredentialInfos(_)).Times(2);
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
@@ -155,7 +153,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo002, TestSize.Level0
     UserIdmService service(123123, true);
     int32_t testUserId = 0;
     AuthType testAuthType = PIN;
-    sptr<IdmGetCredInfoCallbackInterface> testCallback = nullptr;
+    sptr<IdmGetCredInfoCallbackInterface> testCallback(nullptr);
     int32_t ret = service.GetCredentialInfo(testUserId, testAuthType, testCallback);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
 }
@@ -165,11 +163,9 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo003, TestSize.Level0
     UserIdmService service(123123, true);
     int32_t testUserId = 0;
     AuthType testAuthType = PIN;
-    sptr<IdmGetCredInfoCallbackInterface> testCallback = new MockIdmGetCredentialInfoCallback();
+    sptr<MockIdmGetCredentialInfoCallback> testCallback(new (std::nothrow) MockIdmGetCredentialInfoCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockIdmGetCredentialInfoCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnCredentialInfos(_)).Times(2);
+    EXPECT_CALL(*testCallback, OnCredentialInfos(_)).Times(2);
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
@@ -218,11 +214,9 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo004, TestSize.Level0
     UserIdmService service(123123, true);
     int32_t testUserId = 0;
     AuthType testAuthType = PIN;
-    sptr<IdmGetCredInfoCallbackInterface> testCallback = new MockIdmGetCredentialInfoCallback();
+    sptr<MockIdmGetCredentialInfoCallback> testCallback(new (std::nothrow) MockIdmGetCredentialInfoCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockIdmGetCredentialInfoCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnCredentialInfos(_)).Times(1);
+    EXPECT_CALL(*testCallback, OnCredentialInfos(_)).Times(1);
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
@@ -253,11 +247,9 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetSecInfo001, TestSize.Level0)
     UserIdmService service(123123, true);
     int32_t testUserId = 0;
 
-    sptr<IdmGetSecureUserInfoCallbackInterface> testCallback = new MockIdmGetSecureUserInfoCallback();
+    sptr<MockIdmGetSecureUserInfoCallback> testCallback(new (std::nothrow) MockIdmGetSecureUserInfoCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockIdmGetSecureUserInfoCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnSecureUserInfo(_)).Times(2);
+    EXPECT_CALL(*testCallback, OnSecureUserInfo(_)).Times(2);
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
@@ -275,7 +267,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetSecInfo002, TestSize.Level0)
 {
     UserIdmService service(123123, true);
     int32_t testUserId = 0;
-    sptr<IdmGetSecureUserInfoCallbackInterface> testCallback = nullptr;
+    sptr<MockIdmGetSecureUserInfoCallback> testCallback(nullptr);
     IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
     int32_t ret = service.GetSecInfo(testUserId, testCallback);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
@@ -298,11 +290,9 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetSecInfo002, TestSize.Level0)
             }
         );
     
-    testCallback = new MockIdmGetSecureUserInfoCallback();
+    testCallback = sptr<MockIdmGetSecureUserInfoCallback>(new (std::nothrow) MockIdmGetSecureUserInfoCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockIdmGetSecureUserInfoCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnSecureUserInfo(_)).Times(2);
+    EXPECT_CALL(*testCallback, OnSecureUserInfo(_)).Times(2);
     ret = service.GetSecInfo(testUserId, testCallback);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
     ret = service.GetSecInfo(testUserId, testCallback);
@@ -318,7 +308,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential001, TestSize.Level0)
     testCredPara.authType = PIN;
     testCredPara.pinType = PIN_SIX;
     testCredPara.token = {1, 2, 3, 4};
-    sptr<IdmCallbackInterface> testCallback = nullptr;
+    sptr<IdmCallbackInterface> testCallback(nullptr);
     service.AddCredential(testUserId, testCredPara, testCallback, false);
 }
 
@@ -330,11 +320,9 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential002, TestSize.Level0)
     testCredPara.authType = PIN;
     testCredPara.pinType = PIN_SIX;
     testCredPara.token = {1, 2, 3, 4};
-    sptr<IdmCallbackInterface> testCallback = new MockIdmCallback();
+    sptr<MockIdmCallback> testCallback(new (std::nothrow) MockIdmCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockIdmCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnResult(_, _))
+    EXPECT_CALL(*testCallback, OnResult(_, _))
         .Times(2)
         .WillOnce(
             [](int32_t result, const Attributes &extraInfo) {
@@ -366,11 +354,9 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential003, TestSize.Level0)
     testCredPara.token = {1, 2, 3, 4};
     std::shared_ptr<Context> context = nullptr;
 
-    sptr<IdmCallbackInterface> testCallback = new MockIdmCallback();
+    sptr<MockIdmCallback> testCallback(new (std::nothrow) MockIdmCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockIdmCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnResult(_, _))
+    EXPECT_CALL(*testCallback, OnResult(_, _))
         .WillOnce(
             [&context](int32_t result, const Attributes &extraInfo) {
                 EXPECT_EQ(result, SUCCESS);
@@ -448,11 +434,9 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUpdateCredential001, TestSize.Level0)
     testCredPara.authType = FACE;
     testCredPara.pinType = PIN_SIX;
     testCredPara.token = {1, 2, 3, 4};
-    sptr<IdmCallbackInterface> testCallback = new MockIdmCallback();
+    sptr<MockIdmCallback> testCallback(new (std::nothrow) MockIdmCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockIdmCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnResult(_, _))
+    EXPECT_CALL(*testCallback, OnResult(_, _))
         .WillOnce(
             [](int32_t result, const Attributes &extraInfo) {
                 EXPECT_EQ(result, NOT_ENROLLED);
@@ -473,16 +457,14 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUpdateCredential002, TestSize.Level0)
     UserIdmInterface::CredentialPara testCredPara = {};
     testCredPara.authType = FACE;
     testCredPara.pinType = PIN_SIX;
-    sptr<IdmCallbackInterface> testCallback = nullptr;
+    sptr<MockIdmCallback> testCallback(nullptr);
 
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
     service.UpdateCredential(testUserId, testCredPara, testCallback);
 
-    testCallback = new MockIdmCallback();
+    testCallback = sptr<MockIdmCallback>(new (std::nothrow) MockIdmCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockIdmCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnResult(_, _))
+    EXPECT_CALL(*testCallback, OnResult(_, _))
         .Times(2)
         .WillOnce(
             [](int32_t result, const Attributes &extraInfo) {
@@ -580,11 +562,9 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceEnforceDelUser001, TestSize.Level0)
 {
     UserIdmService service(123123, true);
     int32_t testUserId = 15485;
-    sptr<IdmCallbackInterface> testCallback = new MockIdmCallback();
+    sptr<MockIdmCallback> testCallback(new (std::nothrow) MockIdmCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockIdmCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnResult(_, _))
+    EXPECT_CALL(*testCallback, OnResult(_, _))
         .Times(2)
         .WillOnce(
             [](int32_t result, const Attributes &extraInfo) {
@@ -613,7 +593,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceEnforceDelUser002, TestSize.Level0)
 {
     UserIdmService service(123123, true);
     int32_t testUserId = 15485;
-    sptr<IdmCallbackInterface> testCallback = nullptr;
+    sptr<IdmCallbackInterface> testCallback(nullptr);
     int32_t ret = service.EnforceDelUser(testUserId, testCallback);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
 }
@@ -622,11 +602,9 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceEnforceDelUser003, TestSize.Level0)
 {
     UserIdmService service(123123, true);
     int32_t testUserId = 15485;
-    sptr<IdmCallbackInterface> testCallback = new MockIdmCallback();
+    sptr<MockIdmCallback> testCallback(new (std::nothrow) MockIdmCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockIdmCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnResult(_, _))
+    EXPECT_CALL(*testCallback, OnResult(_, _))
         .Times(2)
         .WillOnce(
             [](int32_t result, const Attributes &extraInfo) {
@@ -686,11 +664,9 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelUser001, TestSize.Level0)
     int32_t testUserId = 15486465;
     std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
 
-    sptr<IdmCallbackInterface> testCallback = new MockIdmCallback();
+    sptr<MockIdmCallback> testCallback(new (std::nothrow) MockIdmCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockIdmCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnResult(_, _))
+    EXPECT_CALL(*testCallback, OnResult(_, _))
         .Times(2)
         .WillOnce(
             [](int32_t result, const Attributes &extraInfo) {
@@ -718,7 +694,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelUser002, TestSize.Level0)
     UserIdmService service(123123, true);
     int32_t testUserId = 15486465;
     std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
-    sptr<IdmCallbackInterface> testCallback = nullptr;
+    sptr<IdmCallbackInterface> testCallback(nullptr);
     service.DelUser(testUserId, testAuthToken, testCallback);
 }
 
@@ -727,11 +703,9 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelUser003, TestSize.Level0)
     UserIdmService service(123123, true);
     int32_t testUserId = 15486465;
     std::vector<uint8_t> testAuthToken;
-    sptr<IdmCallbackInterface> testCallback = new MockIdmCallback();
+    sptr<MockIdmCallback> testCallback(new (std::nothrow) MockIdmCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockIdmCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnResult(_, _))
+    EXPECT_CALL(*testCallback, OnResult(_, _))
         .WillOnce(
             [](int32_t result, const Attributes &extraInfo) {
                 EXPECT_EQ(result, INVALID_PARAMETERS);
@@ -748,11 +722,9 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelUser004, TestSize.Level0)
     UserIdmService service(123123, true);
     int32_t testUserId = 15486465;
     std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
-    sptr<IdmCallbackInterface> testCallback = new MockIdmCallback();
+    sptr<MockIdmCallback> testCallback(new (std::nothrow) MockIdmCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockIdmCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnResult(_, _))
+    EXPECT_CALL(*testCallback, OnResult(_, _))
         .WillOnce(
             [](int32_t result, const Attributes &extraInfo) {
                 EXPECT_EQ(result, SUCCESS);
@@ -788,11 +760,9 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelCredential001, TestSize.Level0)
     uint64_t testCredentialId = 23424;
     std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
 
-    sptr<IdmCallbackInterface> testCallback = new MockIdmCallback();
+    sptr<MockIdmCallback> testCallback(new (std::nothrow) MockIdmCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockIdmCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnResult(_, _))
+    EXPECT_CALL(*testCallback, OnResult(_, _))
         .Times(2)
         .WillOnce(
             [](int32_t result, const Attributes &extraInfo) {
@@ -821,7 +791,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelCredential002, TestSize.Level0)
     int32_t testUserId = 1548865;
     uint64_t testCredentialId = 23424;
     std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
-    sptr<IdmCallbackInterface> testCallback = nullptr;
+    sptr<IdmCallbackInterface> testCallback(nullptr);
     service.DelCredential(testUserId, testCredentialId, testAuthToken, testCallback);
 }
 
@@ -832,11 +802,9 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelCredential003, TestSize.Level0)
     uint64_t testCredentialId = 23424;
     std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
 
-    sptr<IdmCallbackInterface> testCallback = new MockIdmCallback();
+    sptr<MockIdmCallback> testCallback(new (std::nothrow) MockIdmCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockIdmCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnResult(_, _))
+    EXPECT_CALL(*testCallback, OnResult(_, _))
         .WillOnce(
             [](int32_t result, const Attributes &extraInfo) {
                 EXPECT_EQ(result, SUCCESS);

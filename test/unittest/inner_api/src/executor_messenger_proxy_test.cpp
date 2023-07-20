@@ -43,7 +43,7 @@ void ExecutorMessengerProxyTest::TearDown()
 
 HWTEST_F(ExecutorMessengerProxyTest, TestSendData_001, TestSize.Level0)
 {
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _))
         .WillOnce(
@@ -72,7 +72,7 @@ HWTEST_F(ExecutorMessengerProxyTest, TestFinish_001, TestSize.Level0)
     ResultCode resultCode = SUCCESS;
     std::shared_ptr<Attributes> finalResult = nullptr;
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<ExecutorMessengerProxy>(obj);
     EXPECT_NE(proxy, nullptr);
@@ -81,7 +81,7 @@ HWTEST_F(ExecutorMessengerProxyTest, TestFinish_001, TestSize.Level0)
 
 HWTEST_F(ExecutorMessengerProxyTest, TestFinish_002, TestSize.Level0)
 {
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _))
         .WillOnce(

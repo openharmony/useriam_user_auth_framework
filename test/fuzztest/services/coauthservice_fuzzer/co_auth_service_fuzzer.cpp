@@ -89,7 +89,8 @@ public:
 
     sptr<IRemoteObject> AsObject() override
     {
-        return nullptr;
+        sptr<IRemoteObject> tmp(nullptr);
+        return tmp;
     }
 
 private:
@@ -118,10 +119,10 @@ void FuzzRegister(Parcel &parcel)
     IAM_LOGI("FuzzRegister begin");
     ExecutorRegisterInfo executorInfo;
     FillFuzzExecutorRegisterInfo(parcel, executorInfo);
-    sptr<ExecutorCallbackInterface> callback = nullptr;
+    sptr<ExecutorCallbackInterface> callback(nullptr);
     if (parcel.ReadBool()) {
-        callback = new (std::nothrow)
-            CoAuthServiceFuzzer(parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32());
+        callback = sptr<ExecutorCallbackInterface>(new (std::nothrow)
+            CoAuthServiceFuzzer(parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32()));
     }
     g_coAuthService.ExecutorRegister(executorInfo, callback);
     IAM_LOGI("FuzzRegister end");
