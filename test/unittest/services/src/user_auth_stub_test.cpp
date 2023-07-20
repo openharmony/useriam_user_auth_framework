@@ -111,7 +111,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetPropertyStub002, TestSize.Level0)
     for (auto &attrKey : testAttrKeys) {
         tempKeys.push_back(static_cast<uint32_t>(attrKey));
     }
-    sptr<MockGetExecutorPropertyCallback> callback = new MockGetExecutorPropertyCallback();
+    sptr<MockGetExecutorPropertyCallback> callback(new (std::nothrow) MockGetExecutorPropertyCallback());
     EXPECT_NE(callback, nullptr);
     MockUserAuthService service;
     EXPECT_CALL(service, GetProperty(_, _, _, _)).Times(1);
@@ -168,7 +168,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubSetPropertyStub002, TestSize.Level0)
     uint64_t testTemplateId = 3364734;
     EXPECT_TRUE(attributes.SetUint64Value(Attributes::ATTR_TEMPLATE_ID, testTemplateId));
 
-    sptr<MockSetExecutorPropertyCallback> callback = new MockSetExecutorPropertyCallback();
+    sptr<MockSetExecutorPropertyCallback> callback(new (std::nothrow) MockSetExecutorPropertyCallback());
     EXPECT_NE(callback, nullptr);
     MockUserAuthService service;
     EXPECT_CALL(service, SetProperty(_, _, _, _)).Times(1);
@@ -224,7 +224,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthStub002, TestSize.Level0)
     AuthTrustLevel testAtl = ATL2;
     uint64_t testContextId = 2346782;
 
-    sptr<MockUserAuthCallback> callback = new MockUserAuthCallback();
+    sptr<MockUserAuthCallback> callback(new (std::nothrow) MockUserAuthCallback());
     EXPECT_NE(callback, nullptr);
     MockUserAuthService service;
     EXPECT_CALL(service, Auth(_, _, _, _, _)).Times(1);
@@ -286,7 +286,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub002, TestSize.Level0)
     AuthTrustLevel testAtl = ATL2;
     uint64_t testContextId = 2346728;
 
-    sptr<MockUserAuthCallback> callback = new MockUserAuthCallback();
+    sptr<MockUserAuthCallback> callback(new (std::nothrow) MockUserAuthCallback());
     EXPECT_NE(callback, nullptr);
     MockUserAuthService service;
     EXPECT_CALL(service, AuthUser(_, _, _, _, _)).Times(1);
@@ -346,7 +346,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubIdentifyStub002, TestSize.Level0)
     AuthType testAuthType = FACE;
     uint64_t testContextId = 76374284;
 
-    sptr<MockUserAuthCallback> callback = new MockUserAuthCallback();
+    sptr<MockUserAuthCallback> callback(new (std::nothrow) MockUserAuthCallback());
     EXPECT_NE(callback, nullptr);
     MockUserAuthService service;
     EXPECT_CALL(service, Identify(_, _, _)).Times(1);

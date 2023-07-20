@@ -69,7 +69,7 @@ void UserIdmClientImpl::AddCredential(int32_t userId, const CredentialParameters
         return;
     }
 
-    sptr<IdmCallbackInterface> wrapper = new (std::nothrow) IdmCallbackService(callback);
+    sptr<IdmCallbackInterface> wrapper(new (std::nothrow) IdmCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
@@ -98,7 +98,7 @@ void UserIdmClientImpl::UpdateCredential(int32_t userId, const CredentialParamet
         return;
     }
 
-    sptr<IdmCallbackInterface> wrapper = new (std::nothrow) IdmCallbackService(callback);
+    sptr<IdmCallbackInterface> wrapper(new (std::nothrow) IdmCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
@@ -138,7 +138,7 @@ void UserIdmClientImpl::DeleteCredential(int32_t userId, uint64_t credentialId, 
         return;
     }
 
-    sptr<IdmCallbackInterface> wrapper = new (std::nothrow) IdmCallbackService(callback);
+    sptr<IdmCallbackInterface> wrapper(new (std::nothrow) IdmCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
@@ -163,7 +163,7 @@ void UserIdmClientImpl::DeleteUser(int32_t userId, const std::vector<uint8_t> &a
         return;
     }
 
-    sptr<IdmCallbackInterface> wrapper = new (std::nothrow) IdmCallbackService(callback);
+    sptr<IdmCallbackInterface> wrapper(new (std::nothrow) IdmCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
@@ -186,7 +186,7 @@ int32_t UserIdmClientImpl::EraseUser(int32_t userId, const std::shared_ptr<UserI
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return GENERAL_ERROR;
     }
-    sptr<IdmCallbackInterface> wrapper = new (std::nothrow) IdmCallbackService(callback);
+    sptr<IdmCallbackInterface> wrapper(new (std::nothrow) IdmCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
@@ -212,7 +212,7 @@ int32_t UserIdmClientImpl::GetCredentialInfo(int32_t userId, AuthType authType,
         return GENERAL_ERROR;
     }
 
-    sptr<IdmGetCredInfoCallbackInterface> wrapper = new (std::nothrow) IdmGetCredInfoCallbackService(callback);
+    sptr<IdmGetCredInfoCallbackInterface> wrapper(new (std::nothrow) IdmGetCredInfoCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         std::vector<CredentialInfo> infoList;
@@ -237,8 +237,8 @@ int32_t UserIdmClientImpl::GetSecUserInfo(int32_t userId, const std::shared_ptr<
         return GENERAL_ERROR;
     }
 
-    sptr<IdmGetSecureUserInfoCallbackInterface> wrapper =
-        new (std::nothrow) IdmGetSecureUserInfoCallbackService(callback);
+    sptr<IdmGetSecureUserInfoCallbackInterface> wrapper(
+        new (std::nothrow) IdmGetSecureUserInfoCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         SecUserInfo info = {};
@@ -258,12 +258,12 @@ sptr<UserIdmInterface> UserIdmClientImpl::GetProxy()
     sptr<IRemoteObject> obj = IpcClientUtils::GetRemoteObject(SUBSYS_USERIAM_SYS_ABILITY_USERIDM);
     if (obj == nullptr) {
         IAM_LOGE("remote object is null");
-        return nullptr;
+        return proxy_;
     }
-    sptr<IRemoteObject::DeathRecipient> dr = new (std::nothrow) UserIdmImplDeathRecipient();
+    sptr<IRemoteObject::DeathRecipient> dr(new (std::nothrow) UserIdmImplDeathRecipient());
     if ((dr == nullptr) || (obj->IsProxyObject() && !obj->AddDeathRecipient(dr))) {
         IAM_LOGE("add death recipient fail");
-        return nullptr;
+        return proxy_;
     }
 
     proxy_ = iface_cast<UserIdmInterface>(obj);

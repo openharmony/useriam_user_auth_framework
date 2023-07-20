@@ -146,17 +146,16 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty001, TestSize.Level0)
     int32_t testUserId = 123;
     AuthType testAuthType = PIN;
     std::vector<Attributes::AttributeKey> testKeys = {Attributes::ATTR_PIN_SUB_TYPE, Attributes::ATTR_SIGNATURE};
-    sptr<GetExecutorPropertyCallbackInterface> testCallback = new MockGetExecutorPropertyCallback();
+    sptr<MockGetExecutorPropertyCallback> testCallback(new (std::nothrow) MockGetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockGetExecutorPropertyCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).Times(1);
-    EXPECT_CALL(*tempCallback, OnGetExecutorPropertyResult(_, _)).Times(2);
-    service.GetProperty(testUserId, testAuthType, testKeys, testCallback);
+    EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _)).Times(2);
+    sptr<GetExecutorPropertyCallbackInterface> callbackInterface = testCallback;
+    service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    service.GetProperty(testUserId, testAuthType, testKeys, testCallback);
+    service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -166,8 +165,9 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty002, TestSize.Level0)
     int32_t testUserId = 123;
     AuthType testAuthType = PIN;
     std::vector<Attributes::AttributeKey> testKeys = {Attributes::ATTR_PIN_SUB_TYPE, Attributes::ATTR_SIGNATURE};
-    sptr<GetExecutorPropertyCallbackInterface> testCallback = nullptr;
-    service.GetProperty(testUserId, testAuthType, testKeys, testCallback);
+    sptr<MockGetExecutorPropertyCallback> testCallback(nullptr);
+    sptr<GetExecutorPropertyCallbackInterface> callbackInterface = testCallback;
+    service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
@@ -195,14 +195,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty002, TestSize.Level0)
         .Times(2)
         .WillOnce(Return(FAIL))
         .WillOnce(Return(SUCCESS));
-    testCallback = new MockGetExecutorPropertyCallback();
+    testCallback = sptr<MockGetExecutorPropertyCallback>(new (std::nothrow) MockGetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockGetExecutorPropertyCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnGetExecutorPropertyResult(_, _)).Times(2);
+    EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _)).Times(2);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    service.GetProperty(testUserId, testAuthType, testKeys, testCallback);
-    service.GetProperty(testUserId, testAuthType, testKeys, testCallback);
+    callbackInterface = testCallback;
+    service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
+    service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(2));
     IpcCommon::DeleteAllPermission();
 }
@@ -213,14 +212,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetProperty001, TestSize.Level0)
     int32_t testUserId = 124;
     AuthType testAuthType = PIN;
     Attributes testAttr;
-    sptr<SetExecutorPropertyCallbackInterface> testCallback = new MockSetExecutorPropertyCallback();
+    sptr<MockSetExecutorPropertyCallback> testCallback(new (std::nothrow) MockSetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockSetExecutorPropertyCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnSetExecutorPropertyResult(_)).Times(2);
-    service.SetProperty(testUserId, testAuthType, testAttr, testCallback);
+    EXPECT_CALL(*testCallback, OnSetExecutorPropertyResult(_)).Times(2);
+    sptr<SetExecutorPropertyCallbackInterface> callbackInterface = testCallback;
+    service.SetProperty(testUserId, testAuthType, testAttr, callbackInterface);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    service.SetProperty(testUserId, testAuthType, testAttr, testCallback);
+    service.SetProperty(testUserId, testAuthType, testAttr, callbackInterface);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -230,8 +228,9 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetProperty002, TestSize.Level0)
     int32_t testUserId = 124;
     AuthType testAuthType = PIN;
     Attributes testAttr;
-    sptr<SetExecutorPropertyCallbackInterface> testCallback = nullptr;
-    service.SetProperty(testUserId, testAuthType, testAttr, testCallback);
+    sptr<MockSetExecutorPropertyCallback> testCallback(nullptr);
+    sptr<SetExecutorPropertyCallbackInterface> callbackInterface = testCallback;
+    service.SetProperty(testUserId, testAuthType, testAttr, callbackInterface);
 
     auto resourceNode = MockResourceNode::CreateWithExecuteIndex(2);
     EXPECT_NE(resourceNode, nullptr);
@@ -241,14 +240,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetProperty002, TestSize.Level0)
         .Times(2)
         .WillOnce(Return(FAIL))
         .WillOnce(Return(SUCCESS));
-    testCallback = new MockSetExecutorPropertyCallback();
+    testCallback = sptr<MockSetExecutorPropertyCallback>(new (std::nothrow) MockSetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockSetExecutorPropertyCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnSetExecutorPropertyResult(_)).Times(2);
+    EXPECT_CALL(*testCallback, OnSetExecutorPropertyResult(_)).Times(2);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    service.SetProperty(testUserId, testAuthType, testAttr, testCallback);
-    service.SetProperty(testUserId, testAuthType, testAttr, testCallback);
+    callbackInterface = testCallback;
+    service.SetProperty(testUserId, testAuthType, testAttr, callbackInterface);
+    service.SetProperty(testUserId, testAuthType, testAttr, callbackInterface);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(2));
     IpcCommon::DeleteAllPermission();
 }
@@ -260,11 +258,9 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuth001, TestSize.Level0)
     std::vector<uint8_t> testChallenge = {1, 2, 3, 4};
     AuthType testAuthType = FACE;
     AuthTrustLevel testAuthTrustLevel = ATL2;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockUserAuthCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnResult(_, _))
+    EXPECT_CALL(*testCallback, OnResult(_, _))
         .WillOnce(
             [](int32_t result, const Attributes &extraInfo) {
                 EXPECT_EQ(result, HDF_FAILURE);
@@ -276,7 +272,9 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuth001, TestSize.Level0)
     EXPECT_CALL(*mockHdi, BeginAuthenticationV1_1(_, _, _)).WillOnce(Return(HDF_FAILURE));
 
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
-    uint64_t contextId = service.Auth(testApiVersion, testChallenge, testAuthType, testAuthTrustLevel, testCallback);
+    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
+    uint64_t contextId = service.Auth(testApiVersion, testChallenge, testAuthType,
+        testAuthTrustLevel, callbackInterface);
     EXPECT_EQ(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
@@ -288,23 +286,24 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuth002, TestSize.Level0)
     std::vector<uint8_t> testChallenge = {1, 2, 3, 4};
     AuthType testAuthType = FACE;
     AuthTrustLevel testAuthTrustLevel = ATL2;
-    sptr<UserAuthCallbackInterface> testCallback = nullptr;
+    sptr<MockUserAuthCallback> testCallback(nullptr);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
-    uint64_t contextId = service.Auth(testApiVersion, testChallenge, testAuthType, testAuthTrustLevel, testCallback);
+    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
+    uint64_t contextId = service.Auth(testApiVersion, testChallenge, testAuthType,
+        testAuthTrustLevel, callbackInterface);
     EXPECT_EQ(contextId, 0);
 
-    testCallback = new MockUserAuthCallback();
+    testCallback = sptr<MockUserAuthCallback>(new (std::nothrow) MockUserAuthCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockUserAuthCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnResult(_, _)).Times(2);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(2);
     testAuthTrustLevel = static_cast<AuthTrustLevel>(90000);
-    contextId = service.Auth(testApiVersion, testChallenge, testAuthType, testAuthTrustLevel, testCallback);
+    callbackInterface = testCallback;
+    contextId = service.Auth(testApiVersion, testChallenge, testAuthType, testAuthTrustLevel, callbackInterface);
     EXPECT_EQ(contextId, 0);
 
     testAuthType = PIN;
     testAuthTrustLevel = ATL1;
-    contextId = service.Auth(testApiVersion, testChallenge, testAuthType, testAuthTrustLevel, testCallback);
+    contextId = service.Auth(testApiVersion, testChallenge, testAuthType, testAuthTrustLevel, callbackInterface);
     EXPECT_EQ(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
@@ -316,28 +315,28 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuth003, TestSize.Level0)
     std::vector<uint8_t> testChallenge = {1, 2, 3, 4};
     AuthType testAuthType = PIN;
     AuthTrustLevel testAuthTrustLevel = ATL2;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockUserAuthCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnResult(_, _)).Times(4);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(4);
 
-    uint64_t contextId = service.Auth(testApiVersion, testChallenge, testAuthType, testAuthTrustLevel, testCallback);
+    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
+    uint64_t contextId = service.Auth(testApiVersion, testChallenge, testAuthType,
+        testAuthTrustLevel, callbackInterface);
     EXPECT_EQ(contextId, 0);
 
     testAuthType = FACE;
-    contextId = service.Auth(testApiVersion, testChallenge, testAuthType, testAuthTrustLevel, testCallback);
+    contextId = service.Auth(testApiVersion, testChallenge, testAuthType, testAuthTrustLevel, callbackInterface);
     EXPECT_EQ(contextId, 0);
 
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, BeginAuthenticationV1_1(_, _, _)).Times(2).WillRepeatedly(Return(NOT_ENROLLED));
-    contextId = service.Auth(testApiVersion, testChallenge, testAuthType, testAuthTrustLevel, testCallback);
+    contextId = service.Auth(testApiVersion, testChallenge, testAuthType, testAuthTrustLevel, callbackInterface);
     EXPECT_EQ(contextId, 0);
 
     testApiVersion = 8;
-    contextId = service.Auth(testApiVersion, testChallenge, testAuthType, testAuthTrustLevel, testCallback);
+    contextId = service.Auth(testApiVersion, testChallenge, testAuthType, testAuthTrustLevel, callbackInterface);
     EXPECT_EQ(contextId, 0);
 
     IpcCommon::DeleteAllPermission();
@@ -352,11 +351,9 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuth004, TestSize.Level0)
     AuthTrustLevel testAuthTrustLevel = ATL2;
     std::shared_ptr<Context> context = nullptr;
 
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockUserAuthCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnResult(_, _))
+    EXPECT_CALL(*testCallback, OnResult(_, _))
         .WillOnce(
             [&context](int32_t result, const Attributes &extraInfo) {
                 EXPECT_EQ(result, SUCCESS);
@@ -417,7 +414,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuth004, TestSize.Level0)
     
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
 
-    service.Auth(testApiVersion, testChallenge, testAuthType, testAuthTrustLevel, testCallback);
+    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
+    service.Auth(testApiVersion, testChallenge, testAuthType, testAuthTrustLevel, callbackInterface);
     promise.get_future().get();
 
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(60));
@@ -431,16 +429,16 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser001, TestSize.Level0)
     std::vector<uint8_t> testChallenge = {1, 2, 3, 4};
     AuthType testAuthType = FACE;
     AuthTrustLevel testAuthTrustLevel = ATL2;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockUserAuthCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*tempCallback, OnResult(_, _)).Times(1);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     EXPECT_CALL(*mockHdi, BeginAuthenticationV1_1(_, _, _)).Times(1);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    uint64_t contextId = service.AuthUser(testUserId, testChallenge, testAuthType, testAuthTrustLevel, testCallback);
+    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
+    uint64_t contextId = service.AuthUser(testUserId, testChallenge, testAuthType,
+        testAuthTrustLevel, callbackInterface);
     EXPECT_EQ(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
@@ -452,18 +450,19 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser002, TestSize.Level0)
     std::vector<uint8_t> testChallenge = {1, 2, 3, 4};
     AuthType testAuthType = FACE;
     AuthTrustLevel testAuthTrustLevel = ATL2;
-    sptr<UserAuthCallbackInterface> testCallback = nullptr;
+    sptr<MockUserAuthCallback> testCallback(nullptr);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    uint64_t contextId = service.AuthUser(testUserId, testChallenge, testAuthType, testAuthTrustLevel, testCallback);
+    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
+    uint64_t contextId = service.AuthUser(testUserId, testChallenge, testAuthType,
+        testAuthTrustLevel, callbackInterface);
     EXPECT_EQ(contextId, 0);
 
-    testCallback = new MockUserAuthCallback();
+    testCallback = sptr<MockUserAuthCallback>(new (std::nothrow) MockUserAuthCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockUserAuthCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnResult(_, _)).Times(1);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     testAuthTrustLevel = static_cast<AuthTrustLevel>(90000);
-    contextId = service.AuthUser(testUserId, testChallenge, testAuthType, testAuthTrustLevel, testCallback);
+    callbackInterface = testCallback;
+    contextId = service.AuthUser(testUserId, testChallenge, testAuthType, testAuthTrustLevel, callbackInterface);
     EXPECT_EQ(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
@@ -477,11 +476,9 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser003, TestSize.Level0)
     AuthTrustLevel testAuthTrustLevel = ATL2;
     std::shared_ptr<Context> context = nullptr;
 
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockUserAuthCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnResult(_, _))
+    EXPECT_CALL(*testCallback, OnResult(_, _))
         .Times(2)
         .WillOnce(
             [](int32_t result, const Attributes &extraInfo) {
@@ -496,8 +493,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser003, TestSize.Level0)
                 }
             }
         );
-    
-    uint64_t contextId = service.AuthUser(testUserId, testChallenge, testAuthType, testAuthTrustLevel, testCallback);
+
+    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
+    uint64_t contextId = service.AuthUser(testUserId, testChallenge, testAuthType,
+        testAuthTrustLevel, callbackInterface);
     EXPECT_EQ(contextId, 0);
 
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
@@ -551,7 +550,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser003, TestSize.Level0)
     
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
 
-    contextId = service.AuthUser(testUserId, testChallenge, testAuthType, testAuthTrustLevel, testCallback);
+    contextId = service.AuthUser(testUserId, testChallenge, testAuthType, testAuthTrustLevel, callbackInterface);
     promise.get_future().get();
 
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(60));
@@ -563,16 +562,15 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceIdentify001, TestSize.Level0)
     UserAuthService service(100, true);
     std::vector<uint8_t> testChallenge = {1, 2, 3, 4};
     AuthType testAuthType = FACE;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockUserAuthCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*tempCallback, OnResult(_, _)).Times(1);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     EXPECT_CALL(*mockHdi, BeginIdentificationV1_1(_, _, _, _, _)).Times(1);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    uint64_t contextId = service.Identify(testChallenge, testAuthType, testCallback);
+    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
+    uint64_t contextId = service.Identify(testChallenge, testAuthType, callbackInterface);
     EXPECT_EQ(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
@@ -582,18 +580,18 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceIdentify002, TestSize.Level0)
     UserAuthService service(100, true);
     std::vector<uint8_t> testChallenge = {1, 2, 3, 4};
     AuthType testAuthType = FACE;
-    sptr<UserAuthCallbackInterface> testCallback = nullptr;
+    sptr<MockUserAuthCallback> testCallback(nullptr);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    uint64_t contextId = service.Identify(testChallenge, testAuthType, testCallback);
+    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
+    uint64_t contextId = service.Identify(testChallenge, testAuthType, callbackInterface);
     EXPECT_EQ(contextId, 0);
 
-    testCallback = new MockUserAuthCallback();
+    testCallback = sptr<MockUserAuthCallback>(new (std::nothrow) MockUserAuthCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockUserAuthCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnResult(_, _)).Times(1);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     testAuthType = PIN;
-    contextId = service.Identify(testChallenge, testAuthType, testCallback);
+    callbackInterface = testCallback;
+    contextId = service.Identify(testChallenge, testAuthType, callbackInterface);
     EXPECT_EQ(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
@@ -605,11 +603,9 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceIdentify003, TestSize.Level0)
     AuthType testAuthType = FACE;
     std::shared_ptr<Context> context = nullptr;
 
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback());
     EXPECT_NE(testCallback, nullptr);
-    auto *tempCallback = static_cast<MockUserAuthCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
-    EXPECT_CALL(*tempCallback, OnResult(_, _))
+    EXPECT_CALL(*testCallback, OnResult(_, _))
         .Times(2)
         .WillOnce(
             [](int32_t result, const Attributes &extraInfo) {
@@ -625,7 +621,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceIdentify003, TestSize.Level0)
             }
         );
 
-    uint64_t contextId = service.Identify(testChallenge, testAuthType, testCallback);
+    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
+    uint64_t contextId = service.Identify(testChallenge, testAuthType, callbackInterface);
     EXPECT_EQ(contextId, 0);
 
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
@@ -678,7 +675,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceIdentify003, TestSize.Level0)
     
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
 
-    contextId = service.Identify(testChallenge, testAuthType, testCallback);
+    contextId = service.Identify(testChallenge, testAuthType, callbackInterface);
     promise.get_future().get();
 
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(60));

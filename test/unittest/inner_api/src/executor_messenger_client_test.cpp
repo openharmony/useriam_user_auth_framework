@@ -51,7 +51,7 @@ HWTEST_F(ExecutorMessengerClientTest, ExecutorMessengerClientTestSendData001, Te
     std::shared_ptr<AuthMessage> testMsg = AuthMessage::As(message);
     EXPECT_NE(testMsg, nullptr);
 
-    sptr<ExecutorMessengerInterface> testMessenger = nullptr;
+    sptr<ExecutorMessengerInterface> testMessenger(nullptr);
     auto service = Common::MakeShared<ExecutorMessengerClient>(testMessenger);
     EXPECT_NE(service, nullptr);
     int32_t result = service->SendData(testScheduleId, testTransNum, testSrcRole, testDstRole, testMsg);
@@ -66,7 +66,7 @@ HWTEST_F(ExecutorMessengerClientTest, ExecutorMessengerClientTestSendData002, Te
     ExecutorRole testDstRole = COLLECTOR;
     std::shared_ptr<AuthMessage> testMsg = nullptr;
 
-    sptr<MockExecutorMessengerService> testMessenger = new MockExecutorMessengerService();
+    sptr<MockExecutorMessengerService> testMessenger(new (std::nothrow) MockExecutorMessengerService());
     EXPECT_NE(testMessenger, nullptr);
     auto service = Common::MakeShared<ExecutorMessengerClient>(testMessenger);
     EXPECT_NE(service, nullptr);
@@ -84,7 +84,7 @@ HWTEST_F(ExecutorMessengerClientTest, ExecutorMessengerClientTestSendData003, Te
     std::shared_ptr<AuthMessage> testMsg = AuthMessage::As(message);
     EXPECT_NE(testMsg, nullptr);
 
-    sptr<MockExecutorMessengerService> testMessenger = new MockExecutorMessengerService();
+    sptr<MockExecutorMessengerService> testMessenger(new (std::nothrow) MockExecutorMessengerService());
     EXPECT_NE(testMessenger, nullptr);
     EXPECT_CALL(*testMessenger, SendData(_, _, _, _, _)).Times(1);
     ON_CALL(*testMessenger, SendData)
@@ -112,7 +112,7 @@ HWTEST_F(ExecutorMessengerClientTest, ExecutorMessengerClientTestFinish001, Test
     int32_t testResultCode = FAIL;
     Attributes finalResult;
 
-    sptr<ExecutorMessengerInterface> testMessenger = nullptr;
+    sptr<ExecutorMessengerInterface> testMessenger(nullptr);
     auto service = Common::MakeShared<ExecutorMessengerClient>(testMessenger);
     EXPECT_NE(service, nullptr);
     int32_t result = service->Finish(testScheduleId, testSrcRole, testResultCode, finalResult);
@@ -126,7 +126,7 @@ HWTEST_F(ExecutorMessengerClientTest, ExecutorMessengerClientTestFinish002, Test
     int32_t testResultCode = FAIL;
     Attributes finalResult;
 
-    sptr<MockExecutorMessengerService> testMessenger = new MockExecutorMessengerService();
+    sptr<MockExecutorMessengerService> testMessenger(new (std::nothrow) MockExecutorMessengerService());
     EXPECT_NE(testMessenger, nullptr);
     EXPECT_CALL(*testMessenger, Finish(_, _, _, _)).Times(1);
     ON_CALL(*testMessenger, Finish)

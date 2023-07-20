@@ -17,7 +17,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-sptr<IRemoteObject> IpcClientUtils::obj_ = nullptr;
+sptr<IRemoteObject> IpcClientUtils::obj_ {nullptr};
 
 sptr<IRemoteObject> IpcClientUtils::GetRemoteObject(int32_t saId)
 {

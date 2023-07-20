@@ -65,8 +65,8 @@ HWTEST_F(UserIdmClientTest, UserIdmClientOpenSession002, TestSize.Level0)
                 return SUCCESS;
             }
         );
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
 
     std::vector<uint8_t> challenge = UserIdmClient::GetInstance().OpenSession(testUserId);
@@ -98,8 +98,8 @@ HWTEST_F(UserIdmClientTest, UserIdmClientCloseSession002, TestSize.Level0)
                 return;
             }
         );
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
     
     UserIdmClient::GetInstance().CloseSession(testUserId);
@@ -110,11 +110,11 @@ HWTEST_F(UserIdmClientTest, UserIdmClientCloseSession002, TestSize.Level0)
 
 HWTEST_F(UserIdmClientTest, UserIdmClientCloseSession003, TestSize.Level0)
 {
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
 
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
     EXPECT_CALL(*obj, AddDeathRecipient(_))
         .WillOnce(Return(false))
@@ -135,7 +135,7 @@ HWTEST_F(UserIdmClientTest, UserIdmClientCloseSession003, TestSize.Level0)
     UserIdmClient::GetInstance().CloseSession(testUserId);
 
     EXPECT_NE(dr, nullptr);
-    sptr<IRemoteObject> remote = nullptr;
+    sptr<IRemoteObject> remote(nullptr);
     dr->OnRemoteDied(remote);
     dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
@@ -183,8 +183,8 @@ HWTEST_F(UserIdmClientTest, UserIdmClientAddCredential002, TestSize.Level0)
                 }
             }
         );
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
 
     UserIdmClient::GetInstance().AddCredential(testUserId, testPara, testCallback);
@@ -236,8 +236,8 @@ HWTEST_F(UserIdmClientTest, UserIdmClientUpdateCredential002, TestSize.Level0)
                 }
             }
         );
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
 
     UserIdmClient::GetInstance().UpdateCredential(testUserId, testPara, testCallback);
@@ -269,8 +269,8 @@ HWTEST_F(UserIdmClientTest, UserIdmClientCancel002, TestSize.Level0)
                 return SUCCESS;
             }
         );
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
 
     int32_t ret = UserIdmClient::GetInstance().Cancel(testUserId);
@@ -320,8 +320,8 @@ HWTEST_F(UserIdmClientTest, UserIdmClientDeleteCredential002, TestSize.Level0)
                 }
             }
         );
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
 
     UserIdmClient::GetInstance().DeleteCredential(testUserId, testCredentialId, testAuthToken, testCallback);
@@ -367,8 +367,8 @@ HWTEST_F(UserIdmClientTest, UserIdmClientDeleteUser002, TestSize.Level0)
                 }
             }
         );
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
 
     UserIdmClient::GetInstance().DeleteUser(testUserId, testAuthToken, testCallback);
@@ -413,8 +413,8 @@ HWTEST_F(UserIdmClientTest, UserIdmClientEraseUser002, TestSize.Level0)
                 return SUCCESS;
             }
         );
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
 
     int32_t ret = UserIdmClient::GetInstance().EraseUser(testUserId, testCallback);
@@ -464,8 +464,8 @@ HWTEST_F(UserIdmClientTest, UserIdmClientGetCredentialInfo002, TestSize.Level0)
                 return SUCCESS;
             }
         );
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
 
     int32_t ret = UserIdmClient::GetInstance().GetCredentialInfo(testUserId, testAuthType, testCallback);
@@ -507,8 +507,8 @@ HWTEST_F(UserIdmClientTest, UserIdmClientGetSecUserInfo002, TestSize.Level0)
                 return SUCCESS;
             }
         );
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
 
     int32_t ret = UserIdmClient::GetInstance().GetSecUserInfo(testUserId, testCallback);
