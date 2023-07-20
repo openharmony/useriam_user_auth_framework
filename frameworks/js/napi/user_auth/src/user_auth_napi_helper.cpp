@@ -472,6 +472,10 @@ bool UserAuthNapiHelper::HasNamedProperty(napi_env env, napi_value object, const
 std::string UserAuthNapiHelper::GetStringPropertyUtf8(napi_env env, napi_value object, const std::string &propertyName)
 {
     napi_value value = GetNamedProperty(env, object, propertyName);
+    napi_status result = CheckNapiType(env, value, napi_string);
+    if (result != napi_ok) {
+        return "";
+    }
     return GetStringFromValueUtf8(env, value);
 }
 

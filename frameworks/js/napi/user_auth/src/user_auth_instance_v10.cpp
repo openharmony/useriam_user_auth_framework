@@ -185,6 +185,10 @@ UserAuthResultCode UserAuthInstanceV10::InitWidgetParam(napi_env env, napi_value
         return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
     std::string title = UserAuthNapiHelper::GetStringPropertyUtf8(env, value, WIDGET_PARAM_TITLE);
+    if (title == "") {
+        IAM_LOGE("title is invalid");
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
+    }
     if (title.length() > TITLE_MAX) {
         IAM_LOGE("title text too long. size: %{public}zu", title.length());
         return UserAuthResultCode::OHOS_INVALID_PARAM;
@@ -320,18 +324,18 @@ UserAuthResultCode UserAuthInstanceV10::On(napi_env env, napi_callback_info info
 UserAuthResultCode UserAuthInstanceV10::Off(napi_env env, napi_callback_info info)
 {
     if (callback_ == nullptr) {
-        IAM_LOGE("getAuthInstance off callback is null");
+        IAM_LOGE("userAuthInstance off callback is null");
         return UserAuthResultCode::GENERAL_ERROR;
     }
     napi_value argv[ARGS_TWO];
     size_t argc = ARGS_TWO;
     napi_status ret = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (ret != napi_ok) {
-        IAM_LOGE("getAuthInstance offnapi_get_cb_info fail:%{public}d", ret);
+        IAM_LOGE("userAuthInstance off napi_get_cb_info fail:%{public}d", ret);
         return UserAuthResultCode::GENERAL_ERROR;
     }
-    if (argc < ARGS_TWO) {
-        IAM_LOGE("getAuthInstance offinvalid param, argc:%{public}zu", argc);
+    if (argc != ARGS_TWO && argc != ARGS_ONE) {
+        IAM_LOGE("userAuthInstance off invalid param, argc:%{public}zu", argc);
         return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
     static const size_t maxLen = 10;
@@ -339,16 +343,25 @@ UserAuthResultCode UserAuthInstanceV10::Off(napi_env env, napi_callback_info inf
     size_t len = maxLen;
     ret = UserAuthNapiHelper::GetStrValue(env, argv[PARAM0], str, len);
     if (ret != napi_ok) {
-        IAM_LOGE("getAuthInstance offGetStrValue fail:%{public}d", ret);
+        IAM_LOGE("UserAuthResultCode off GetStrValue fail:%{public}d", ret);
         return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
+
+    if (argc == ARGS_TWO) {
+        auto callbackRef = GetCallback(env, argv[PARAM1]);
+        if (callbackRef == nullptr || !callbackRef->IsValid()) {
+            IAM_LOGE("GetCallback fail");
+            return UserAuthResultCode::OHOS_INVALID_PARAM;
+        }
+    }
+
     if (str == AUTH_EVENT_RESULT) {
         if (callback_->GetResultCallback() == nullptr) {
             IAM_LOGE("no callback register yet");
             return UserAuthResultCode::GENERAL_ERROR;
         }
         callback_->ClearResultCallback();
-        IAM_LOGI("getAuthInstance offclear result callback");
+        IAM_LOGI("UserAuthResultCode off clear result callback");
         return UserAuthResultCode::SUCCESS;
     } else {
         IAM_LOGE("invalid event:%{public}s", str);
@@ -378,7 +391,6 @@ UserAuthResultCode UserAuthInstanceV10::Start(napi_env env, napi_callback_info i
         IAM_LOGE("auth already started");
         return UserAuthResultCode::GENERAL_ERROR;
     }
-    // BeginWidgetAuth
     contextId_ = UserAuthClientImpl::Instance().BeginWidgetAuth(API_VERSION_10,
         authParam_, widgetParam_, callback_);
     isAuthStarted_ = true;
@@ -412,6 +424,7 @@ UserAuthResultCode UserAuthInstanceV10::Cancel(napi_env env, napi_callback_info 
         IAM_LOGE("CancelAuthentication fail:%{public}d", result);
         return UserAuthResultCode(UserAuthNapiHelper::GetResultCodeV10(result));
     }
+    isAuthStarted_ = false;
     return UserAuthResultCode::SUCCESS;
 }
 } // namespace UserAuth

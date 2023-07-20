@@ -497,6 +497,57 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetVersion003, TestSize.Level0)
     IpcClientUtils::ResetObj();
 }
 
+HWTEST_F(UserAuthClientTest, UserAuthClientBeginWidgetAuth001, TestSize.Level0)
+{
+    static const int32_t apiVersion = 0;
+    AuthParam authParam;
+    WidgetParam widgetParam;
+    std::shared_ptr<MockAuthenticationCallback> testCallback = nullptr;
+    testCallback = Common::MakeShared<MockAuthenticationCallback>();
+    uint64_t widgetAuth = UserAuthClientImpl::Instance().BeginWidgetAuth(apiVersion, authParam, widgetParam,
+        testCallback);
+    EXPECT_EQ(widgetAuth, 0);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientBeginWidgetAuth002, TestSize.Level0)
+{
+    static const int32_t apiVersion = 0;
+    AuthParam authParam;
+    WidgetParam widgetParam;
+    std::shared_ptr<MockAuthenticationCallback> testCallback = nullptr;
+    uint64_t widgetAuth = UserAuthClientImpl::Instance().BeginWidgetAuth(apiVersion, authParam, widgetParam,
+        testCallback);
+    EXPECT_EQ(widgetAuth, 0);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientSetWidgetCallback001, TestSize.Level0)
+{
+    static const int32_t apiVersion = 0;
+    auto testCallback = Common::MakeShared<MockIUserAuthWidgetCallback>();
+    int32_t widgetCallback = UserAuthClientImpl::Instance().SetWidgetCallback(apiVersion, testCallback);
+    EXPECT_NE(widgetCallback, SUCCESS);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientSetWidgetCallback002, TestSize.Level0)
+{
+    static const int32_t apiVersion = 0;
+    std::shared_ptr<IUserAuthWidgetCallback> testCallback = nullptr;
+    int32_t widgetCallback = UserAuthClientImpl::Instance().SetWidgetCallback(apiVersion, testCallback);
+    EXPECT_EQ(widgetCallback, GENERAL_ERROR);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientNotice001, TestSize.Level0)
+{
+    int32_t notice = UserAuthClientImpl::Instance().Notice(NoticeType::WIDGET_NOTICE, "notice");
+    EXPECT_NE(notice, SUCCESS);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientNotice002, TestSize.Level0)
+{
+    int32_t notice = UserAuthClientImpl::Instance().Notice((enum NoticeType)0, "notice");
+    EXPECT_EQ(notice, GENERAL_ERROR);
+}
+
 void UserAuthClientTest::CallRemoteObject(const std::shared_ptr<MockUserAuthService> service,
     const sptr<MockRemoteObject> &obj, sptr<IRemoteObject::DeathRecipient> &dr)
 {
