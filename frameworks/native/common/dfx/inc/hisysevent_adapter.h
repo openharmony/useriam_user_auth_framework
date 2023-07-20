@@ -28,6 +28,7 @@ struct UserAuthInfo {
     uint32_t authResult = 0;
     std::string timeSpanString;
     uint32_t sdkVersion = 0;
+    uint32_t authWidgetType = 0;
 };
 
 struct PinAuthInfo {

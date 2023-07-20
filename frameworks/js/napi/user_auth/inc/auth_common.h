@@ -43,6 +43,10 @@ constexpr int32_t API_VERSION_8 = 8;
 constexpr int32_t API_VERSION_9 = 9;
 constexpr int32_t API_VERSION_10 = 10;
 
+constexpr const char *NOTICE_EVENT_AUTH_READY = "EVENT_AUTH_TYPE_READY";
+constexpr const char *NOTICE_EVENT_CANCEL_AUTH = "EVENT_AUTH_USER_CANCEL";
+constexpr const char *NOTICE_EVENT_USER_NAVIGATION = "EVENT_AUTH_USER_NAVIGATION";
+
 // For API6
 enum class AuthenticationResult : int32_t {
     NO_SUPPORT = -1,

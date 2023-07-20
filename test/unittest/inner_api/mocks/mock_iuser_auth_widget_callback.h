@@ -13,30 +13,21 @@
  * limitations under the License.
  */
 
-/**
- * @file iuser_auth_widget_callback.h
- *
- * @brief Callback definitions returned by user auth client.
- */
+#ifndef MOCK_IUSER_AUTH_WIDGET_CALLBACK_H
+#define MOCK_IUSER_AUTH_WIDGET_CALLBACK_H
 
-#ifndef IUSER_AUTH_WIDGET_CALLBACK_H
-#define IUSER_AUTH_WIDGET_CALLBACK_H
+#include <gmock/gmock.h>
 
-#include <string>
+#include "iuser_auth_widget_callback.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class IUserAuthWidgetCallback {
+class MockIUserAuthWidgetCallback final : public IUserAuthWidgetCallback {
 public:
-    /**
-     * @brief send command to widget.
-     *
-     * @param cmdData command data.
-     */
-    virtual void SendCommand(const std::string &cmdData) = 0;
+    MOCK_METHOD1(SendCommand, void(const std::string &cmdData));
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // IUSER_AUTH_WIDGET_CALLBACK_H
+#endif // MOCK_USER_AUTH_CLIENT_CALLBACK_H

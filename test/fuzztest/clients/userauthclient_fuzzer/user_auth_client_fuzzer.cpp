@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -82,6 +82,15 @@ public:
         IAM_LOGI("start");
         static_cast<void>(result);
         static_cast<void>(extraInfo);
+    }
+};
+
+class DummyIUserAuthWidgetCallback final : public IUserAuthWidgetCallback {
+public:
+    void SendCommand(const std::string &cmdData)
+    {
+        IAM_LOGI("start");
+        static_cast<void>(cmdData);
     }
 };
 
@@ -180,6 +189,45 @@ void FuzzClientGetVersion(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzBeginWidgetAuth(Parcel &parcel)
+{
+    IAM_LOGI("start");
+    int32_t apiVersion = parcel.ReadInt32();
+    AuthParam authParam;
+    WidgetParam widgetParam;
+    Common::FillFuzzUint8Vector(parcel, authParam.challenge);
+    std::vector<int32_t> atList;
+    parcel.ReadInt32Vector(&atList);
+    for (auto at : atList) {
+        authParam.authType.push_back(static_cast<AuthType>(at));
+    }
+    authParam.authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32());
+    widgetParam.title = parcel.ReadString();
+    widgetParam.navigationButtonText = parcel.ReadString();
+    widgetParam.windowMode = static_cast<WindowModeType>(parcel.ReadInt32());
+    auto callback = Common::MakeShared<DummyAuthenticationCallback>();
+    UserAuthClientImpl::Instance().BeginWidgetAuth(apiVersion, authParam, widgetParam, callback);
+    IAM_LOGI("end");
+}
+
+void FuzzSetWidgetCallback(Parcel &parcel)
+{
+    IAM_LOGI("start");
+    int32_t version = -1;
+    auto callback = Common::MakeShared<DummyIUserAuthWidgetCallback>();
+    UserAuthClientImpl::Instance().SetWidgetCallback(version, callback);
+    IAM_LOGI("end");
+}
+
+void FuzzNotice(Parcel &parcel)
+{
+    IAM_LOGI("start");
+    NoticeType noticeType = static_cast<NoticeType>(parcel.ReadInt32());
+    std::string eventData = parcel.ReadString();
+    UserAuthClientImpl::Instance().Notice(noticeType, eventData);
+    IAM_LOGI("end");
+}
+
 auto g_UserAuthCallbackService =
     Common::MakeShared<UserAuthCallbackService>(Common::MakeShared<DummyAuthenticationCallback>());
 
@@ -250,6 +298,9 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzClientBeginIdentification,
     FuzzCancelIdentification,
     FuzzClientGetVersion,
+    FuzzBeginWidgetAuth,
+    FuzzSetWidgetCallback,
+    FuzzNotice,
     FuzzUserAuthCallbackServiceOnResult,
     FuzzUserAuthCallbackServiceOnAcquireInfo,
     FuzzGetPropCallbackServiceOnPropResult,
