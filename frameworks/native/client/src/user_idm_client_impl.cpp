@@ -17,6 +17,7 @@
 
 #include "system_ability_definition.h"
 
+#include "callback_manager.h"
 #include "iam_logger.h"
 #include "ipc_client_utils.h"
 #include "user_idm_callback_service.h"
@@ -296,6 +297,7 @@ void UserIdmClientImpl::UserIdmImplDeathRecipient::OnRemoteDied(const wptr<IRemo
         IAM_LOGE("remote is nullptr");
         return;
     }
+    CallbackManager::GetInstance().OnServiceDeath();
     UserIdmClientImpl::Instance().ResetProxy(remote);
 }
 
