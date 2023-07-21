@@ -18,6 +18,7 @@
 #include "system_ability_definition.h"
 
 #include "auth_common.h"
+#include "callback_manager.h"
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
@@ -335,6 +336,7 @@ void UserAuthClientImpl::UserAuthImplDeathRecipient::OnRemoteDied(const wptr<IRe
         IAM_LOGE("remote is nullptr");
         return;
     }
+    CallbackManager::GetInstance().OnServiceDeath();
     UserAuthClientImpl::Instance().ResetProxy(remote);
 }
 

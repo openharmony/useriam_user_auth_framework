@@ -15,6 +15,7 @@
 
 #include "widget_callback_service.h"
 
+#include "callback_manager.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
 
@@ -27,6 +28,19 @@ WidgetCallbackService::WidgetCallbackService(const std::shared_ptr<IUserAuthWidg
     : widgetCallback_(impl),
     iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("UserAuthWidget InnerKit"))
 {
+    CallbackManager::CallbackAction action = [impl]() {
+        std::string command = "";
+        if (impl != nullptr) {
+            IAM_LOGI("user auth service death, auth widget callback return default result to caller");
+            impl->SendCommand(command);
+        }
+    };
+    CallbackManager::GetInstance().AddCallback(reinterpret_cast<uintptr_t>(this), action);
+}
+
+WidgetCallbackService::~WidgetCallbackService()
+{
+    CallbackManager::GetInstance().RemoveCallback(reinterpret_cast<uintptr_t>(this));
 }
 
 void WidgetCallbackService::SendCommand(const std::string &cmdData)
