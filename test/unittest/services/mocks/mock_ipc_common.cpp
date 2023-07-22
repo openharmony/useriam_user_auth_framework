@@ -36,7 +36,7 @@ uint32_t IpcCommon::tokenId_ = 0;
 int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, int32_t &userId)
 {
     if (userId != 0) {
-        return SUCCESS;
+        return FAIL;
     }
     userId = TEST_USER_ID;
     return SUCCESS;
@@ -95,6 +95,13 @@ void IpcCommon::AddPermission(Permission perm)
 void IpcCommon::DeleteAllPermission()
 {
     permSet_.clear();
+}
+
+uint32_t IpcCommon::GetTokenId(IPCObjectStub &stub)
+{
+    uint32_t tokenId = stub.GetCallingTokenID();
+    IAM_LOGI("get tokenId: %{public}d", tokenId);
+    return tokenId;
 }
 } // namespace UserAuth
 } // namespace UserIam

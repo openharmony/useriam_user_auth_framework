@@ -40,6 +40,8 @@ public:
     MOCK_METHOD1(SetTraceCallingUid, void(uint64_t callingUid));
     MOCK_METHOD1(SetTraceAuthType, void(AuthType authType));
     MOCK_METHOD1(SetTraceAuthTrustLevel, void(AuthTrustLevel atl));
+    MOCK_METHOD1(SetTraceWindowMode, void(WindowModeType windowMode));
+    MOCK_METHOD1(SetTraceNavigation, void(bool hasNaviBnt));
     MOCK_METHOD1(SetCleaner, void(Context::ContextStopCallback callback));
 };
 

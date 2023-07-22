@@ -38,9 +38,11 @@ public:
     void SetCommandCallback(const std::shared_ptr<JsRefHolder> &callback);
     void ClearCommandCallback();
     napi_status DoCommandCallback(const std::string &cmdData);
-    std::shared_ptr<JsRefHolder> GetCommandCallback();
+    bool HasCommandCallback();
 
 private:
+    std::shared_ptr<JsRefHolder> GetCommandCallback();
+
     napi_env env_ = nullptr;
     std::mutex mutex_;
     std::shared_ptr<JsRefHolder> commandCallback_ = nullptr;

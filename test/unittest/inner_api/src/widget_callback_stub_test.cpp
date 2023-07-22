@@ -56,6 +56,21 @@ HWTEST_F(WidgetCallbackStubTest, WidgetCallbackStubOnRemoteRequest001, TestSize.
 
     EXPECT_EQ(service->OnRemoteRequest(code, data, reply, option), SUCCESS);
 }
+
+HWTEST_F(WidgetCallbackStubTest, WidgetCallbackStubOnRemoteRequest002, TestSize.Level0)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    uint32_t code = 0;
+
+    EXPECT_TRUE(data.WriteInterfaceToken(WidgetCallbackInterface::GetDescriptor()));
+
+    auto service = Common::MakeShared<MockWidgetCallbackService>();
+    EXPECT_NE(service, nullptr);
+
+    EXPECT_NE(service->OnRemoteRequest(code, data, reply, option), SUCCESS);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

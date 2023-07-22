@@ -35,6 +35,11 @@ ohos_source_set("userauth_service_context") {
     "src/identify_context.cpp",
     "src/simple_auth_context.cpp",
     "src/trace.cpp",
+    "src/ui_extension_ability_connection.cpp",
+    "src/widget_client.cpp",
+    "src/widget_context.cpp",
+    "src/widget_context_callback_impl.cpp",
+    "src/widget_json.cpp",
   ]
 
   deps = [
@@ -45,6 +50,12 @@ ohos_source_set("userauth_service_context") {
   ]
 
   external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_context_native",
+    "ability_runtime:ability_manager",
+    "ability_runtime:abilitykit_native",
     "c_utils:utils",
     "hilog:libhilog",
     "hitrace:hitrace_meter",

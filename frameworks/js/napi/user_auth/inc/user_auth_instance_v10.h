@@ -39,9 +39,6 @@ public:
     UserAuthResultCode Cancel(napi_env env, napi_callback_info info);
 
 private:
-    UserAuthResultCode CheckAuthType(uint32_t authType);
-    UserAuthResultCode CheckAuthTrustLevel(uint32_t authTrustLevel);
-
     UserAuthResultCode InitChallenge(napi_env env, napi_value value);
     UserAuthResultCode InitAuthType(napi_env env, napi_value value);
     UserAuthResultCode InitAuthParam(napi_env env, napi_value value);

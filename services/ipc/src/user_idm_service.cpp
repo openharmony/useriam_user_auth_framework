@@ -27,6 +27,7 @@
 #include "iam_para2str.h"
 #include "iam_defines.h"
 #include "ipc_common.h"
+#include "ipc_skeleton.h"
 #include "iam_common_defines.h"
 #include "resource_node_pool.h"
 #include "resource_node_utils.h"
@@ -39,6 +40,7 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 REGISTER_SYSTEM_ABILITY_BY_ID(UserIdmService, SUBSYS_USERIAM_SYS_ABILITY_USERIDM, true);
+constexpr int32_t USERIAM_IPC_THREAD_NUM = 4;
 
 UserIdmService::UserIdmService(int32_t systemAbilityId, bool runOnCreate) : SystemAbility(systemAbilityId, runOnCreate)
 {
@@ -47,6 +49,7 @@ UserIdmService::UserIdmService(int32_t systemAbilityId, bool runOnCreate) : Syst
 void UserIdmService::OnStart()
 {
     IAM_LOGI("start service");
+    IPCSkeleton::SetMaxWorkThreadNum(USERIAM_IPC_THREAD_NUM);
     if (!Publish(this)) {
         IAM_LOGE("failed to publish service");
     }
