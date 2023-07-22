@@ -42,6 +42,8 @@ private:
     bool UpdateScheduleResult(const std::shared_ptr<Attributes> &scheduleResultAttr,
         Authentication::AuthResultInfo &resultInfo);
     void InvokeResultCallback(const Authentication::AuthResultInfo &resultInfo) const;
+    bool NeedSetFreezingTimeAndRemainTimes(int32_t result) const;
+    ResultCode SetFreezingTimeAndRemainTimes(int32_t &freezingTime, int32_t &remainTimes);
     std::shared_ptr<Authentication> auth_ = nullptr;
 };
 } // namespace UserAuth

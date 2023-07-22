@@ -254,16 +254,10 @@ void UserIdmService::UpdateCredential(int32_t userId, const CredentialPara &cred
         return;
     }
 
-    Attributes extraInfo;
-    if (credPara.token.empty()) {
-        IAM_LOGE("token is empty in update");
-        callback->OnResult(GENERAL_ERROR, extraInfo);
-        return;
-    }
-
     auto credInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, credPara.authType);
     if (credInfos.empty()) {
         IAM_LOGE("current userid %{public}d has no credential for type %{public}u", userId, credPara.authType);
+        Attributes extraInfo;
         callback->OnResult(NOT_ENROLLED, extraInfo);
         return;
     }
@@ -384,12 +378,6 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
 
     std::lock_guard<std::mutex> lock(mutex_);
     CancelCurrentEnrollIfExist();
-
-    if (authToken.empty()) {
-        IAM_LOGE("token is empty in delete");
-        contextCallback->OnResult(INVALID_PARAMETERS, extraInfo);
-        return;
-    }
 
     std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
     int32_t ret = UserIdmDatabase::Instance().DeleteUser(userId, authToken, credInfos);
