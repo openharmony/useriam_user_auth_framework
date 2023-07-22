@@ -32,7 +32,7 @@ ExecutorMessengerService::ExecutorMessengerService()
 
 sptr<ExecutorMessengerService> ExecutorMessengerService::GetInstance()
 {
-    static sptr<ExecutorMessengerService> instance = new (std::nothrow) ExecutorMessengerService();
+    static sptr<ExecutorMessengerService> instance(new (std::nothrow) ExecutorMessengerService());
     if (instance == nullptr) {
         IAM_LOGE("instance is nullptr");
     }

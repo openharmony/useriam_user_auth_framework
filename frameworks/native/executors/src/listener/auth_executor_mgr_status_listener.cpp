@@ -28,7 +28,7 @@ namespace UserIam {
 namespace UserAuth {
 sptr<AuthExecutorMgrStatusListener> AuthExecutorMgrStatusListener::GetInstance()
 {
-    static sptr<AuthExecutorMgrStatusListener> instance = new (std::nothrow) AuthExecutorMgrStatusListener();
+    static sptr<AuthExecutorMgrStatusListener> instance(new (std::nothrow) AuthExecutorMgrStatusListener());
     if (instance == nullptr) {
         IAM_LOGE("instance is nullptr");
     }

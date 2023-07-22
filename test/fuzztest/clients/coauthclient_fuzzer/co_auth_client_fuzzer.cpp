@@ -102,7 +102,8 @@ public:
 
     sptr<IRemoteObject> AsObject() override
     {
-        return nullptr;
+        sptr<IRemoteObject> tmp(nullptr);
+        return tmp;
     }
 };
 
@@ -139,12 +140,12 @@ auto g_ExecutorCallbackService =
     Common::MakeShared<ExecutorCallbackService>(Common::MakeShared<DummyExecutorRegisterCallback>());
 
 auto g_ExecutorMessengerClient =
-    Common::MakeShared<ExecutorMessengerClient>(new DummyExecutorMessengerInterface());
+    Common::MakeShared<ExecutorMessengerClient>(new (std::nothrow) DummyExecutorMessengerInterface());
 
 void FuzzExecutorCallbackServiceOnMessengerReady(Parcel &parcel)
 {
     IAM_LOGI("start");
-    sptr<ExecutorMessengerInterface> messenger = new DummyExecutorMessengerInterface();
+    sptr<ExecutorMessengerInterface> messenger(new (std::nothrow) DummyExecutorMessengerInterface());
     std::vector<uint8_t> publicKey;
     Common::FillFuzzUint8Vector(parcel, publicKey);
     std::vector<uint64_t> templateIdList;

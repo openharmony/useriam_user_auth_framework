@@ -49,7 +49,7 @@ HWTEST_F(UserIdmProxyTest, UserIdmProxyOpenSession, TestSize.Level0)
     static const int32_t testUserId = 200;
     std::vector<uint8_t> testChallenge;
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserIdmProxy>(obj);
     EXPECT_NE(proxy, nullptr);
@@ -74,7 +74,7 @@ HWTEST_F(UserIdmProxyTest, UserIdmProxyCloseSession, TestSize.Level0)
 {
     static const int32_t testUserId = 200;
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserIdmProxy>(obj);
     EXPECT_NE(proxy, nullptr);
@@ -100,14 +100,14 @@ HWTEST_F(UserIdmProxyTest, UserIdmProxyGetCredentialInfo, TestSize.Level0)
     static const int32_t testUserId = 200;
     static const AuthType testAuthType = PIN;
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserIdmProxy>(obj);
     EXPECT_NE(proxy, nullptr);
     auto getCredInfoCallback = Common::MakeShared<MockGetCredentialInfoCallback>();
     EXPECT_NE(getCredInfoCallback, nullptr);
-    sptr<IdmGetCredInfoCallbackInterface> testCallback =
-        new (std::nothrow) IdmGetCredInfoCallbackService(getCredInfoCallback);
+    sptr<IdmGetCredInfoCallbackInterface> testCallback(
+        new (std::nothrow) IdmGetCredInfoCallbackService(getCredInfoCallback));
     auto service = Common::MakeShared<MockUserIdmService>();
     EXPECT_NE(service, nullptr);
     EXPECT_CALL(*service, GetCredentialInfo(_, _, _))
@@ -132,14 +132,14 @@ HWTEST_F(UserIdmProxyTest, UserIdmProxyGetSecInfo, TestSize.Level0)
 {
     static const int32_t testUserId = 200;
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserIdmProxy>(obj);
     EXPECT_NE(proxy, nullptr);
     auto getSecInfoCallback = Common::MakeShared<MockGetSecUserInfoCallback>();
     EXPECT_NE(getSecInfoCallback, nullptr);
-    sptr<IdmGetSecureUserInfoCallbackInterface> testCallback =
-        new (std::nothrow) IdmGetSecureUserInfoCallbackService(getSecInfoCallback);
+    sptr<IdmGetSecureUserInfoCallbackInterface> testCallback(
+        new (std::nothrow) IdmGetSecureUserInfoCallbackService(getSecInfoCallback));
     auto service = Common::MakeShared<MockUserIdmService>();
     EXPECT_NE(service, nullptr);
     EXPECT_CALL(*service, GetSecInfo(_, _))
@@ -166,13 +166,13 @@ HWTEST_F(UserIdmProxyTest, UserIdmProxyAddCredential, TestSize.Level0)
     testCredPara.pinType = PIN_SIX;
     testCredPara.token = {1, 2, 3, 4};
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserIdmProxy>(obj);
     EXPECT_NE(proxy, nullptr);
     auto idmCallback = Common::MakeShared<MockUserIdmClientCallback>();
     EXPECT_NE(idmCallback, nullptr);
-    sptr<IdmCallbackInterface> testCallback = new (std::nothrow) IdmCallbackService(idmCallback);
+    sptr<IdmCallbackInterface> testCallback(new (std::nothrow) IdmCallbackService(idmCallback));
     auto service = Common::MakeShared<MockUserIdmService>();
     EXPECT_NE(service, nullptr);
     EXPECT_CALL(*service, AddCredential(_, _, _, _))
@@ -202,13 +202,13 @@ HWTEST_F(UserIdmProxyTest, UserIdmProxyUpdateCredential, TestSize.Level0)
     testCredPara.pinType = PIN_SIX;
     testCredPara.token = {1, 2, 3, 4};
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserIdmProxy>(obj);
     EXPECT_NE(proxy, nullptr);
     auto idmCallback = Common::MakeShared<MockUserIdmClientCallback>();
     EXPECT_NE(idmCallback, nullptr);
-    sptr<IdmCallbackInterface> testCallback = new (std::nothrow) IdmCallbackService(idmCallback);
+    sptr<IdmCallbackInterface> testCallback(new (std::nothrow) IdmCallbackService(idmCallback));
     auto service = Common::MakeShared<MockUserIdmService>();
     EXPECT_NE(service, nullptr);
     EXPECT_CALL(*service, UpdateCredential(_, _, _))
@@ -234,7 +234,7 @@ HWTEST_F(UserIdmProxyTest, UserIdmProxyCancel, TestSize.Level0)
 {
     static const int32_t testUserId = 200;
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserIdmProxy>(obj);
     EXPECT_NE(proxy, nullptr);
@@ -259,13 +259,13 @@ HWTEST_F(UserIdmProxyTest, UserIdmProxyEnforceDelUser, TestSize.Level0)
 {
     static const int32_t testUserId = 200;
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserIdmProxy>(obj);
     EXPECT_NE(proxy, nullptr);
     auto idmCallback = Common::MakeShared<MockUserIdmClientCallback>();
     EXPECT_NE(idmCallback, nullptr);
-    sptr<IdmCallbackInterface> testCallback = new (std::nothrow) IdmCallbackService(idmCallback);
+    sptr<IdmCallbackInterface> testCallback(new (std::nothrow) IdmCallbackService(idmCallback));
     auto service = Common::MakeShared<MockUserIdmService>();
     EXPECT_NE(service, nullptr);
     EXPECT_CALL(*service, EnforceDelUser(_, _))
@@ -289,13 +289,13 @@ HWTEST_F(UserIdmProxyTest, UserIdmProxyDelUser, TestSize.Level0)
     static const int32_t testUserId = 200;
     static const std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserIdmProxy>(obj);
     EXPECT_NE(proxy, nullptr);
     auto idmCallback = Common::MakeShared<MockUserIdmClientCallback>();
     EXPECT_NE(idmCallback, nullptr);
-    sptr<IdmCallbackInterface> testCallback = new (std::nothrow) IdmCallbackService(idmCallback);
+    sptr<IdmCallbackInterface> testCallback(new (std::nothrow) IdmCallbackService(idmCallback));
     auto service = Common::MakeShared<MockUserIdmService>();
     EXPECT_NE(service, nullptr);
     EXPECT_CALL(*service, DelUser(_, _, _))
@@ -322,13 +322,13 @@ HWTEST_F(UserIdmProxyTest, UserIdmProxyDelCredential, TestSize.Level0)
     static const uint64_t testCredentialId = 300;
     static const std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserIdmProxy>(obj);
     EXPECT_NE(proxy, nullptr);
     auto idmCallback = Common::MakeShared<MockUserIdmClientCallback>();
     EXPECT_NE(idmCallback, nullptr);
-    sptr<IdmCallbackInterface> testCallback = new (std::nothrow) IdmCallbackService(idmCallback);
+    sptr<IdmCallbackInterface> testCallback(new (std::nothrow) IdmCallbackService(idmCallback));
     auto service = Common::MakeShared<MockUserIdmService>();
     EXPECT_NE(service, nullptr);
     EXPECT_CALL(*service, DelCredential(_, _, _, _))

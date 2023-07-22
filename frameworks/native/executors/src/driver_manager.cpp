@@ -102,7 +102,8 @@ void DriverManager::SubscribeHdiDriverStatus()
         hdiServiceStatusListener_ = nullptr;
         IAM_LOGI("UnregisterServiceStatusListener result %{public}d", ret);
     }
-    hdiServiceStatusListener_ = new (std::nothrow) HdiServiceStatusListener([](const ServiceStatus &status) {
+
+    HdiServiceStatusListener::StatusCallback callback = [](const ServiceStatus &status) {
         auto driver = DriverManager::GetInstance().GetDriverByServiceName(status.serviceName);
         if (driver == nullptr) {
             return;
@@ -122,7 +123,9 @@ void DriverManager::SubscribeHdiDriverStatus()
             default:
                 IAM_LOGI("service %{public}s status ignored", status.serviceName.c_str());
         }
-    });
+    };
+
+    hdiServiceStatusListener_ = sptr<HdiServiceStatusListener>(new (std::nothrow) HdiServiceStatusListener(callback));
     IF_FALSE_LOGE_AND_RETURN(hdiServiceStatusListener_ != nullptr);
     int32_t ret = servMgr->RegisterServiceStatusListener(hdiServiceStatusListener_, DEVICE_CLASS_USERAUTH);
     if (ret != USERAUTH_SUCCESS) {

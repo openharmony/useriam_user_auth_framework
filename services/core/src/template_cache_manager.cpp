@@ -100,7 +100,7 @@ void ServiceStatusListener::OnRemoveSystemAbility(int32_t systemAbilityId, const
 
 sptr<ServiceStatusListener> ServiceStatusListener::GetInstance()
 {
-    static sptr<ServiceStatusListener> listener = new (std::nothrow) ServiceStatusListener();
+    static sptr<ServiceStatusListener> listener(new (std::nothrow) ServiceStatusListener());
     if (listener == nullptr) {
         IAM_LOGE("ServiceStatusListener is null");
     }

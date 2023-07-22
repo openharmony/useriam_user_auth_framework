@@ -47,7 +47,7 @@ void CoAuthClientImpl::Register(const ExecutorInfo &info, const std::shared_ptr<
     regInfo.esl = info.esl;
     regInfo.publicKey = info.publicKey;
 
-    sptr<ExecutorCallbackInterface> wrapper = new (std::nothrow) ExecutorCallbackService(callback);
+    sptr<ExecutorCallbackInterface> wrapper(new (std::nothrow) ExecutorCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         return;
@@ -69,12 +69,12 @@ sptr<CoAuthInterface> CoAuthClientImpl::GetProxy()
     sptr<IRemoteObject> obj = IpcClientUtils::GetRemoteObject(SUBSYS_USERIAM_SYS_ABILITY_AUTHEXECUTORMGR);
     if (obj == nullptr) {
         IAM_LOGE("remote object is null");
-        return nullptr;
+        return proxy_;
     }
-    sptr<IRemoteObject::DeathRecipient> dr = new (std::nothrow) CoAuthImplDeathRecipient();
+    sptr<IRemoteObject::DeathRecipient> dr(new (std::nothrow) CoAuthImplDeathRecipient());
     if ((dr == nullptr) || (obj->IsProxyObject() && !obj->AddDeathRecipient(dr))) {
         IAM_LOGE("add death recipient fail");
-        return nullptr;
+        return proxy_;
     }
 
     proxy_ = iface_cast<CoAuthInterface>(obj);

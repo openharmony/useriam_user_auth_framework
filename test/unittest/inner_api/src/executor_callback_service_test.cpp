@@ -43,7 +43,7 @@ void ExecutorCallbackServiceTest::TearDown()
 
 HWTEST_F(ExecutorCallbackServiceTest, ExecutorCallbackServiceTestOnMessengerReady001, TestSize.Level0)
 {
-    sptr<ExecutorMessengerInterface> testMessenger = nullptr;
+    sptr<ExecutorMessengerInterface> testMessenger(nullptr);
     std::vector<uint8_t> testPublicKey = {1, 2, 3, 4};
     std::vector<uint64_t> testTemplateIdList = {12, 13, 14, 15};
 
@@ -55,7 +55,7 @@ HWTEST_F(ExecutorCallbackServiceTest, ExecutorCallbackServiceTestOnMessengerRead
 
 HWTEST_F(ExecutorCallbackServiceTest, ExecutorCallbackServiceTestOnMessengerReady002, TestSize.Level0)
 {
-    sptr<ExecutorMessengerInterface> testMessenger = nullptr;
+    sptr<ExecutorMessengerInterface> testMessenger(nullptr);
     std::vector<uint8_t> testPublicKey = {1, 2, 3, 4};
     std::vector<uint64_t> testTemplateIdList = {12, 13, 14, 15};
 

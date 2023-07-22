@@ -25,16 +25,17 @@ namespace UserIam {
 namespace UserAuth {
 sptr<IRemoteObject> IpcClientUtils::GetRemoteObject(int32_t saId)
 {
+    sptr<IRemoteObject> obj(nullptr);
     auto sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (!sam) {
         IAM_LOGE("failed to get system ability manager");
-        return nullptr;
+        return obj;
     }
 
-    auto obj = sam->CheckSystemAbility(saId);
+    obj = sam->CheckSystemAbility(saId);
     if (!obj) {
         IAM_LOGE("failed to get service");
-        return nullptr;
+        return obj;
     }
     return obj;
 }
