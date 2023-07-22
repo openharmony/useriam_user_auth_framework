@@ -63,7 +63,8 @@ public:
 
     sptr<IRemoteObject> AsObject() override
     {
-        return nullptr;
+        sptr<IRemoteObject> tmp(nullptr);
+        return tmp;
     }
 };
 
@@ -79,7 +80,8 @@ public:
 
     sptr<IRemoteObject> AsObject() override
     {
-        return nullptr;
+        sptr<IRemoteObject> tmp(nullptr);
+        return tmp;
     }
 };
 
@@ -95,7 +97,8 @@ public:
 
     sptr<IRemoteObject> AsObject() override
     {
-        return nullptr;
+        sptr<IRemoteObject> tmp(nullptr);
+        return tmp;
     }
 };
 
@@ -124,9 +127,9 @@ void FuzzGetProperty(Parcel &parcel)
         keys.emplace_back(static_cast<Attributes::AttributeKey>(parcel.ReadInt32()));
     }
 
-    sptr<GetExecutorPropertyCallbackInterface> callback = nullptr;
+    sptr<GetExecutorPropertyCallbackInterface> callback(nullptr);
     if (parcel.ReadBool()) {
-        callback = new (nothrow) DummyGetExecutorPropertyCallback();
+        callback = sptr<GetExecutorPropertyCallbackInterface>(new (std::nothrow) DummyGetExecutorPropertyCallback());
     }
     g_userAuthService.GetProperty(userId, authType, keys, callback);
     IAM_LOGI("end");
@@ -140,9 +143,9 @@ void FuzzSetProperty(Parcel &parcel)
     vector<uint8_t> attributesRaw;
     FillFuzzUint8Vector(parcel, attributesRaw);
     Attributes attributes(attributesRaw);
-    sptr<SetExecutorPropertyCallbackInterface> callback = nullptr;
+    sptr<SetExecutorPropertyCallbackInterface> callback(nullptr);
     if (parcel.ReadBool()) {
-        callback = new (nothrow) DummySetExecutorPropertyCallback();
+        callback = sptr<SetExecutorPropertyCallbackInterface>(new (nothrow) DummySetExecutorPropertyCallback());
     }
 
     g_userAuthService.SetProperty(userId, authType, attributes, callback);
@@ -157,9 +160,9 @@ void FuzzAuth(Parcel &parcel)
     FillFuzzUint8Vector(parcel, challenge);
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
     AuthTrustLevel authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32());
-    sptr<UserAuthCallbackInterface> callback = nullptr;
+    sptr<UserAuthCallbackInterface> callback(nullptr);
     if (parcel.ReadBool()) {
-        callback = new (nothrow) DummyUserAuthCallback();
+        callback = sptr<UserAuthCallbackInterface>(new (std::nothrow) DummyUserAuthCallback());
     }
     g_userAuthService.Auth(apiVersion, challenge, authType, authTrustLevel, callback);
     IAM_LOGI("end");
@@ -173,9 +176,9 @@ void FuzzAuthUser(Parcel &parcel)
     FillFuzzUint8Vector(parcel, challenge);
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
     AuthTrustLevel authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32());
-    sptr<UserAuthCallbackInterface> callback = nullptr;
+    sptr<UserAuthCallbackInterface> callback(nullptr);
     if (parcel.ReadBool()) {
-        callback = new (nothrow) DummyUserAuthCallback();
+        callback = sptr<UserAuthCallbackInterface>(new (nothrow) DummyUserAuthCallback());
     }
     g_userAuthService.AuthUser(userId, challenge, authType, authTrustLevel, callback);
     IAM_LOGI("end");
@@ -187,9 +190,9 @@ void FuzzIdentify(Parcel &parcel)
     std::vector<uint8_t> challenge;
     FillFuzzUint8Vector(parcel, challenge);
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
-    sptr<UserAuthCallbackInterface> callback = nullptr;
+    sptr<UserAuthCallbackInterface> callback(nullptr);
     if (parcel.ReadBool()) {
-        callback = new (nothrow) DummyUserAuthCallback();
+        callback = sptr<UserAuthCallbackInterface>(new (nothrow) DummyUserAuthCallback());
     }
     g_userAuthService.Identify(challenge, authType, callback);
     IAM_LOGI("end");

@@ -45,7 +45,7 @@ void ExecutorCallbackStubTest::TearDown()
 
 HWTEST_F(ExecutorCallbackStubTest, TestOnMessengerReadyStub_001, TestSize.Level0)
 {
-    sptr<MockExecutorMessengerService> messenger = new MockExecutorMessengerService();
+    sptr<MockExecutorMessengerService> messenger(new (std::nothrow) MockExecutorMessengerService());
     EXPECT_NE(messenger, nullptr);
     std::vector<uint8_t> publicKey;
     std::vector<uint64_t> templateIdList;

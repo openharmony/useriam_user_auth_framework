@@ -72,7 +72,8 @@ public:
 
     sptr<IRemoteObject> AsObject() override
     {
-        return nullptr;
+        sptr<IRemoteObject> tmp(nullptr);
+        return tmp;
     }
 };
 

@@ -76,8 +76,8 @@ HWTEST_F(CoAuthClientTest, CoAuthClientRegister_001, TestSize.Level0)
             }
         );
     
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr, 73265);
 
 
@@ -128,11 +128,11 @@ HWTEST_F(CoAuthClientTest, CoAuthClientRegister_002, TestSize.Level0)
 
 HWTEST_F(CoAuthClientTest, CoAuthClientRegister_004, TestSize.Level0)
 {
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
 
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
     EXPECT_CALL(*obj, AddDeathRecipient(_))
         .WillOnce(Return(false))
@@ -155,7 +155,7 @@ HWTEST_F(CoAuthClientTest, CoAuthClientRegister_004, TestSize.Level0)
     CoAuthClient::GetInstance().Register(testInfo, testCallback);
 
     EXPECT_NE(dr, nullptr);
-    sptr<IRemoteObject> remote = nullptr;
+    sptr<IRemoteObject> remote(nullptr);
     dr->OnRemoteDied(remote);
     dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();

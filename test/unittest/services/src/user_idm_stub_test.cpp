@@ -147,7 +147,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubGetCredentialInfoStub002, TestSize.Level0)
     int32_t testUserId = 76255;
     AuthType testAuthType = FACE;
 
-    sptr<MockIdmGetCredentialInfoCallback> callback = new (std::nothrow) MockIdmGetCredentialInfoCallback();
+    sptr<MockIdmGetCredentialInfoCallback> callback(new (std::nothrow) MockIdmGetCredentialInfoCallback());
     EXPECT_NE(callback, nullptr);
     MockUserIdmService service;
     EXPECT_CALL(service, GetCredentialInfo(_, _, _)).Times(1);
@@ -201,7 +201,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubGetSecInfoStub002, TestSize.Level0)
 {
     int32_t testUserId = 87463;
 
-    sptr<MockIdmGetSecureUserInfoCallback> callback = new (std::nothrow) MockIdmGetSecureUserInfoCallback();
+    sptr<MockIdmGetSecureUserInfoCallback> callback(new (std::nothrow) MockIdmGetSecureUserInfoCallback());
     EXPECT_NE(callback, nullptr);
     MockUserIdmService service;
     EXPECT_CALL(service, GetSecInfo(_, _)).Times(1);
@@ -256,7 +256,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubAddCredentialStub002, TestSize.Level0)
     testCredPara.pinType = PIN_SIX;
     testCredPara.token = {2, 4, 6, 8};
 
-    sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
+    sptr<MockIdmCallback> callback(new (std::nothrow) MockIdmCallback());
     EXPECT_NE(callback, nullptr);
     MockUserIdmService service;
     EXPECT_CALL(service, AddCredential(_, _, _, _)).Times(1);
@@ -313,7 +313,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubUpdateCredentialStub002, TestSize.Level0)
     testCredPara.pinType = PIN_SIX;
     testCredPara.token = {1, 2, 4, 6, 8};
 
-    const sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
+    const sptr<MockIdmCallback> callback(new (std::nothrow) MockIdmCallback());
     EXPECT_NE(callback, nullptr);
     MockUserIdmService service;
     EXPECT_CALL(service, UpdateCredential(_, _, _)).Times(1);
@@ -408,7 +408,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubEnforceDelUserStub002, TestSize.Level0)
 {
     int32_t testUserId = 83462;
 
-    sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
+    sptr<MockIdmCallback> callback(new (std::nothrow) MockIdmCallback());
     EXPECT_NE(callback, nullptr);
     MockUserIdmService service;
     EXPECT_CALL(service, EnforceDelUser(_, _)).Times(1);
@@ -460,7 +460,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubDelUserStub002, TestSize.Level0)
     int32_t testUserId = 72342;
     std::vector<uint8_t> testAuthToken = {1, 3, 5, 7};
 
-    sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
+    sptr<MockIdmCallback> callback(new (std::nothrow) MockIdmCallback());
     EXPECT_NE(callback, nullptr);
     MockUserIdmService service;
     EXPECT_CALL(service, DelUser(_, _, _)).Times(1);
@@ -511,7 +511,7 @@ HWTEST_F(UserIdmStubTest, UserIdmStubDelCredentialStub002, TestSize.Level0)
     uint64_t testCredentialId = 72632;
     std::vector<uint8_t> testAuthToken = {3, 5, 7, 9};
 
-    sptr<MockIdmCallback> callback = new (std::nothrow) MockIdmCallback();
+    sptr<MockIdmCallback> callback(new (std::nothrow) MockIdmCallback());
     EXPECT_NE(callback, nullptr);
     MockUserIdmService service;
     EXPECT_CALL(service, DelCredential(_, _, _, _)).Times(1);

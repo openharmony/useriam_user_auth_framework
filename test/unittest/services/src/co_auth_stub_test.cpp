@@ -55,7 +55,7 @@ HWTEST_F(CoAuthStubTest, CoAuthStubTestExecutorRegister001, TestSize.Level0)
 
     uint64_t testContextId = 124545;
 
-    sptr<MockExecutorCallback> callback = new MockExecutorCallback();
+    sptr<MockExecutorCallback> callback(new (std::nothrow) MockExecutorCallback());
     EXPECT_NE(callback, nullptr);
     MockCoAuthService service;
     EXPECT_CALL(service, ExecutorRegister(_, _)).Times(1);

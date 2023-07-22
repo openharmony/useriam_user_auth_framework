@@ -44,11 +44,11 @@ void ExecutorCallbackProxyTest::TearDown()
 
 HWTEST_F(ExecutorCallbackProxyTest, TestOnMessengerReady_001, TestSize.Level0)
 {
-    sptr<ExecutorMessengerInterface> messenger = nullptr;
+    sptr<ExecutorMessengerInterface> messenger(nullptr);
     std::vector<uint8_t> publicKey;
     std::vector<uint64_t> templateIdList;
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<ExecutorCallbackProxy>(obj);
     EXPECT_NE(proxy, nullptr);
@@ -58,7 +58,7 @@ HWTEST_F(ExecutorCallbackProxyTest, TestOnMessengerReady_001, TestSize.Level0)
 
 HWTEST_F(ExecutorCallbackProxyTest, TestOnMessengerReady_002, TestSize.Level0)
 {
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _))
         .WillOnce(
@@ -71,7 +71,7 @@ HWTEST_F(ExecutorCallbackProxyTest, TestOnMessengerReady_002, TestSize.Level0)
     auto proxy = Common::MakeShared<ExecutorCallbackProxy>(obj);
     EXPECT_NE(proxy, nullptr);
     
-    sptr<ExecutorMessengerInterface> messenger = new MockExecutorMessengerService();
+    sptr<ExecutorMessengerInterface> messenger(new (std::nothrow) MockExecutorMessengerService());
     EXPECT_NE(messenger, nullptr);
     std::vector<uint8_t> publicKey;
     std::vector<uint64_t> templateIdList;
@@ -80,7 +80,7 @@ HWTEST_F(ExecutorCallbackProxyTest, TestOnMessengerReady_002, TestSize.Level0)
 
 HWTEST_F(ExecutorCallbackProxyTest, TestOnBeginExecute_001, TestSize.Level0)
 {
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _))
         .WillOnce(
@@ -103,7 +103,7 @@ HWTEST_F(ExecutorCallbackProxyTest, TestOnBeginExecute_001, TestSize.Level0)
 
 HWTEST_F(ExecutorCallbackProxyTest, TestOnEndExecute_001, TestSize.Level0)
 {
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _))
         .WillOnce(
@@ -124,7 +124,7 @@ HWTEST_F(ExecutorCallbackProxyTest, TestOnEndExecute_001, TestSize.Level0)
 
 HWTEST_F(ExecutorCallbackProxyTest, TestOnSetProperty_001, TestSize.Level0)
 {
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _))
         .WillOnce(
@@ -144,7 +144,7 @@ HWTEST_F(ExecutorCallbackProxyTest, TestOnSetProperty_001, TestSize.Level0)
 
 HWTEST_F(ExecutorCallbackProxyTest, TestOnGetProperty_001, TestSize.Level0)
 {
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _))
         .Times(2)

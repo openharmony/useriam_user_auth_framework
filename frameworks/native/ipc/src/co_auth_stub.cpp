@@ -54,7 +54,7 @@ int32_t CoAuthStub::ExecutorRegisterStub(MessageParcel &data, MessageParcel &rep
         IAM_LOGE("read remote object failed");
         return READ_PARCEL_ERROR;
     }
-    sptr<ExecutorCallbackInterface> callback = new (std::nothrow) ExecutorCallbackProxy(obj);
+    sptr<ExecutorCallbackInterface> callback(new (std::nothrow) ExecutorCallbackProxy(obj));
     if (callback == nullptr) {
         IAM_LOGE("executor callback is nullptr");
         return GENERAL_ERROR;

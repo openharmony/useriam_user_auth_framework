@@ -70,8 +70,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetAvailableStatus002, TestSize.Level
                 return SUCCESS;
             }
         );
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
     int32_t ret = UserAuthClientImpl::Instance().GetAvailableStatus(testApiVersion, testAuthType, testAtl);
     EXPECT_EQ(ret, SUCCESS);
@@ -123,8 +123,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetProperty002, TestSize.Level0)
                 }
             }
         );
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
     UserAuthClient::GetInstance().GetProperty(testUserId, testRequest, testCallback);
     EXPECT_NE(dr, nullptr);
@@ -171,8 +171,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientSetProperty002, TestSize.Level0)
                 }
             }
         );
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
 
     UserAuthClient::GetInstance().SetProperty(testUserId, testRequest, testCallback);
@@ -232,8 +232,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginNorthAuthentication002, TestSize
                 return testContextId;
             }
         );
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
 
     uint64_t contextId = UserAuthClientImpl::Instance().BeginNorthAuthentication(testApiVersion, testChallenge,
@@ -295,8 +295,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginAuthentication002, TestSize.Leve
                 return testContextId;
             }
         );
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
 
     uint64_t contextId = UserAuthClient::GetInstance().BeginAuthentication(testUserId, testChallenge,
@@ -330,8 +330,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientCancelAuthentication002, TestSize.Lev
                 return SUCCESS;
             }
         );
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
 
     int32_t ret = UserAuthClient::GetInstance().CancelAuthentication(testContextId);
@@ -383,8 +383,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginIdentificationV1_1002, TestSize.
                 return testContextId;
             }
         );
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
 
     uint64_t contextId = UserAuthClient::GetInstance().BeginIdentification(testChallenge, testAuthType, testCallback);
@@ -417,8 +417,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientCancelIdentification002, TestSize.Lev
                 return SUCCESS;
             }
         );
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
     
     int32_t ret = UserAuthClient::GetInstance().CancelIdentification(testContextId);
@@ -452,8 +452,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetVersion002, TestSize.Level0)
             }
         );
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
     int32_t version;
     int32_t result = UserAuthClientImpl::Instance().GetVersion(version);
@@ -466,11 +466,11 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetVersion002, TestSize.Level0)
 
 HWTEST_F(UserAuthClientTest, UserAuthClientGetVersion003, TestSize.Level0)
 {
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
 
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
     EXPECT_CALL(*obj, AddDeathRecipient(_))
         .WillOnce(Return(false))
@@ -491,7 +491,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetVersion003, TestSize.Level0)
     EXPECT_EQ(UserAuthClientImpl::Instance().GetVersion(version), GENERAL_ERROR);
 
     EXPECT_NE(dr, nullptr);
-    sptr<IRemoteObject> remote = nullptr;
+    sptr<IRemoteObject> remote(nullptr);
     dr->OnRemoteDied(remote);
     dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
