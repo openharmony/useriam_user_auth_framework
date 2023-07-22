@@ -66,9 +66,12 @@ private:
         AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback);
     bool CheckAuthPermission(bool isInnerCaller, AuthType authType);
     ResultCode CheckNorthPermission(AuthType authType);
-    ResultCode CheckWidgetNorthPermission(const std::vector<AuthType> &authTypeList);
     ResultCode CheckServicePermission(AuthType authType);
+    ResultCode CheckWidgetNorthPermission();
+    ResultCode CheckAuthWidgetParam(const AuthParam authParam, const WindowModeType windowMode);
+    bool Insert2ContextPool(const std::shared_ptr<Context> &context, int32_t retryTimes);
     bool CheckCallerIsSystemApp();
+    ResultCode CheckParam(const AuthParam &authParam, const WidgetParam &widgetParam);
 };
 } // namespace UserAuth
 } // namespace UserIam

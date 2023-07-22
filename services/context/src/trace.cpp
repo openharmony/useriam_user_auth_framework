@@ -16,12 +16,16 @@
 #include "trace.h"
 
 #include <sstream>
-
 #include "iam_logger.h"
 #include "iam_time.h"
 #include "hisysevent_adapter.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
+#define GET_BIT(v, n) ((v) & ((uint32_t)1 << (n)))
+#define SET_BIT(v, n) ((v) |= ((uint32_t)1 << (n)))
+
+constexpr uint32_t BIT_WINDOWMODE = 30;
+constexpr uint32_t BIT_NAVIGATION = 31;
 
 using namespace OHOS::UserIam::UserAuth;
 
@@ -95,6 +99,21 @@ void Trace::ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &
     if (metaData.sdkVersion.has_value()) {
         info.sdkVersion = metaData.sdkVersion.value();
     }
+
+    if (info.authType == AuthType::FINGERPRINT) {
+        SET_BIT(info.authWidgetType, (uint32_t)info.authType - 1);
+    } else {
+        SET_BIT(info.authWidgetType, (uint32_t)info.authType);
+    }
+
+    if (metaData.windowMode == FULLSCREEN) {
+        SET_BIT(info.authWidgetType, BIT_WINDOWMODE);
+    }
+
+    if (metaData.hasNaviBtn) {
+        SET_BIT(info.authWidgetType, BIT_NAVIGATION);
+    }
+
     ReportUserAuth(info);
     IAM_LOGI("start to process user auth event");
 }

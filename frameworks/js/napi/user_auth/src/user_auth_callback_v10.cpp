@@ -30,7 +30,7 @@ struct ResultCallbackV10Holder {
     int32_t result {0};
     std::vector<uint8_t> token {};
     int32_t authType {0};
-    napi_env env;
+    napi_env env {nullptr};
 };
 
 void DestoryResultWork(uv_work_t *work)
@@ -66,12 +66,7 @@ void OnResultV10Work(uv_work_t *work, int status)
     }
     napi_status ret = resultHolder->callback->DoResultCallback(resultHolder->result, resultHolder->token,
         resultHolder->authType);
-    if (ret != napi_ok) {
-        IAM_LOGE("DoResultCallback fail %{public}d", ret);
-        napi_close_handle_scope(resultHolder->env, scope);
-        DestoryResultWork(work);
-        return;
-    }
+    IAM_LOGD("DoResultCallback ret = %{public}d", ret);
     napi_close_handle_scope(resultHolder->env, scope);
     DestoryResultWork(work);
 }
@@ -104,6 +99,12 @@ std::shared_ptr<JsRefHolder> UserAuthCallbackV10::GetResultCallback()
 {
     std::lock_guard<std::mutex> guard(mutex_);
     return resultCallback_;
+}
+
+bool UserAuthCallbackV10::HasResultCallback()
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    return resultCallback_ != nullptr;
 }
 
 napi_status UserAuthCallbackV10::DoResultCallback(int32_t result,

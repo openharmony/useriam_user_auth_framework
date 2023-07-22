@@ -17,10 +17,11 @@
 #define IAM_CONTEXT_FACTORY_H
 
 #include <cstdint>
+#include <map>
 #include <memory>
+#include <string>
 
 #include "singleton.h"
-
 #include "context.h"
 #include "context_callback.h"
 
@@ -35,7 +36,26 @@ public:
         AuthTrustLevel atl {ATL1};
         uint32_t tokenId {0};
         std::vector<uint8_t> challenge;
+        WindowModeType windowMode;
         bool endAfterFirstFail;
+    };
+
+    struct AuthWidgetContextPara {
+        struct AuthProfile {
+            int32_t pinSubType {0};
+            std::string sensorInfo {""};
+            int32_t remainTimes {0};
+            int32_t freezingTime {0};
+        };
+
+        int32_t userId {0};
+        uint32_t tokenId {0};
+        int32_t callingUid {0};
+        std::vector<uint8_t> challenge {};
+        std::vector<AuthType> authTypeList {};
+        AuthTrustLevel atl {ATL1};
+        WidgetParam widgetParam {};
+        std::map<AuthType, AuthProfile> authProfileMap {};
     };
 
     struct IdentifyContextPara {
@@ -59,6 +79,8 @@ public:
     static std::shared_ptr<Context> CreateEnrollContext(const EnrollContextPara &para,
         const std::shared_ptr<ContextCallback> &callback);
     static std::shared_ptr<Context> CreateWidgetAuthContext(std::shared_ptr<ContextCallback> callback);
+    static std::shared_ptr<Context> CreateWidgetContext(const AuthWidgetContextPara &para,
+        std::shared_ptr<ContextCallback> callback);
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -30,6 +30,7 @@
 #include "ipc_common.h"
 #include "iam_time.h"
 #include "iam_common_defines.h"
+#include "ipc_skeleton.h"
 #include "parameter.h"
 #include "relative_timer.h"
 #include "resource_node_pool.h"
@@ -41,6 +42,8 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 REGISTER_SYSTEM_ABILITY_BY_ID(CoAuthService, SUBSYS_USERIAM_SYS_ABILITY_AUTHEXECUTORMGR, true);
+constexpr int32_t USERIAM_IPC_THREAD_NUM = 4;
+
 CoAuthService::CoAuthService(int32_t systemAbilityId, bool runOnCreate) : SystemAbility(systemAbilityId, runOnCreate)
 {
     IAM_LOGI("CoAuthService init");
@@ -52,6 +55,7 @@ void CoAuthService::OnStart()
     static uint32_t timerId = 0;
     std::lock_guard<std::mutex> guard(mutex);
     IAM_LOGI("Start service");
+    IPCSkeleton::SetMaxWorkThreadNum(USERIAM_IPC_THREAD_NUM);
     if (!Publish(this)) {
         IAM_LOGE("Failed to publish service");
         return;

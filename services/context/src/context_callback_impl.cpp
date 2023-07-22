@@ -66,7 +66,7 @@ void ContextCallbackImpl::OnResult(int32_t resultCode, const Attributes &finalRe
     if (iamCallback_ != nullptr) {
         iamCallback_->OnResult(resultCode, finalResult);
     }
-    
+
     ContextCallbackNotifyListener::GetInstance().Process(metaData_);
     if (stopCallback_ != nullptr) {
         stopCallback_();
@@ -106,6 +106,16 @@ void ContextCallbackImpl::SetTraceAuthType(AuthType authType)
 void ContextCallbackImpl::SetTraceAuthTrustLevel(AuthTrustLevel atl)
 {
     metaData_.atl = atl;
+}
+
+void ContextCallbackImpl::SetTraceWindowMode(WindowModeType windowMode)
+{
+    metaData_.windowMode = windowMode;
+}
+
+void ContextCallbackImpl::SetTraceNavigation(bool hasNaviBtn)
+{
+    metaData_.hasNaviBtn = hasNaviBtn;
 }
 
 void ContextCallbackImpl::SetCleaner(Context::ContextStopCallback callback)

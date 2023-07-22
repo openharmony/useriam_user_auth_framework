@@ -24,6 +24,7 @@
 #include "iam_fuzz_test.h"
 #include "iam_logger.h"
 #include "user_auth_service.h"
+#include "user_auth_common_defines.h"
 
 #undef private
 
@@ -99,6 +100,19 @@ public:
     {
         sptr<IRemoteObject> tmp(nullptr);
         return tmp;
+    }
+};
+
+class DummyWidgetCallback : public WidgetCallbackInterface {
+public:
+    void SendCommand(const std::string &cmdData) override
+    {
+        IAM_LOGI("start");
+    }
+
+    sptr<IRemoteObject> AsObject() override
+    {
+        return nullptr;
     }
 };
 
@@ -214,6 +228,51 @@ void FuzzGetVersion(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzAuthWidget(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    int32_t apiVersion = parcel.ReadInt32();
+    AuthParam authParam;
+    WidgetParam widgetParam;
+    FillFuzzUint8Vector(parcel, authParam.challenge);
+    std::vector<int32_t> atList;
+    parcel.ReadInt32Vector(&atList);
+    for (auto at : atList) {
+        authParam.authType.push_back(static_cast<AuthType>(at));
+    }
+    authParam.authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32());
+    sptr<UserAuthCallbackInterface> callback = nullptr;
+    widgetParam.title = parcel.ReadString();
+    widgetParam.navigationButtonText = parcel.ReadString();
+    widgetParam.windowMode = static_cast<WindowModeType>(parcel.ReadInt32());
+    if (parcel.ReadBool()) {
+        callback = new (nothrow) DummyUserAuthCallback();
+    }
+    g_userAuthService.AuthWidget(apiVersion, authParam, widgetParam, callback);
+    IAM_LOGI("end");
+}
+
+void FuzzNotice(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    NoticeType noticeType = static_cast<NoticeType>(parcel.ReadInt32());
+    std::string eventData = parcel.ReadString();
+    g_userAuthService.Notice(noticeType, eventData);
+    IAM_LOGI("end");
+}
+
+void FuzzRegisterWidgetCallback(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    int32_t version = parcel.ReadInt32();
+    sptr<WidgetCallbackInterface> callback = nullptr;
+    if (parcel.ReadBool()) {
+        callback = new (nothrow) DummyWidgetCallback();
+    }
+    g_userAuthService.RegisterWidgetCallback(version, callback);
+    IAM_LOGI("end");
+}
+
 using FuzzFunc = decltype(FuzzGetAvailableStatus);
 FuzzFunc *g_fuzzFuncs[] = {
     FuzzGetAvailableStatus,
@@ -224,6 +283,9 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzIdentify,
     FuzzCancelAuthOrIdentify,
     FuzzGetVersion,
+    FuzzAuthWidget,
+    FuzzNotice,
+    FuzzRegisterWidgetCallback,
 };
 
 void UserAuthFuzzTest(const uint8_t *data, size_t size)

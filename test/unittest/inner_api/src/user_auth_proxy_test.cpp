@@ -382,6 +382,18 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyRegisterWidgetCallback001, TestSize.Lev
         });
     proxy->RegisterWidgetCallback(testVersion, testCallback);
 }
+
+HWTEST_F(UserAuthProxyTest, UserAuthProxyRegisterWidgetCallback002, TestSize.Level0)
+{
+    static const int32_t testVersion = 0;
+
+    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    EXPECT_NE(obj, nullptr);
+    auto proxy = Common::MakeShared<UserAuthProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+    sptr<WidgetCallbackInterface> callback = nullptr;
+    EXPECT_EQ(proxy->RegisterWidgetCallback(testVersion, callback), GENERAL_ERROR);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

@@ -32,25 +32,6 @@ namespace {
     const std::string AUTH_EVENT_TIP = "tip";
 }
 
-bool AuthInstanceV9::CheckAuthType(int32_t authType)
-{
-    if (authType != AuthType::FACE && authType != AuthType::FINGERPRINT) {
-        IAM_LOGE("authType check fail:%{public}d", authType);
-        return false;
-    }
-    return true;
-}
-
-bool AuthInstanceV9::CheckAuthTrustLevel(uint32_t authTrustLevel)
-{
-    if (authTrustLevel != AuthTrustLevel::ATL1 && authTrustLevel != AuthTrustLevel::ATL2 &&
-        authTrustLevel != AuthTrustLevel::ATL3 && authTrustLevel != AuthTrustLevel::ATL4) {
-        IAM_LOGE("authTrustLevel check fail:%{public}d", authTrustLevel);
-        return false;
-    }
-    return true;
-}
-
 UserAuthResultCode AuthInstanceV9::GetAvailableStatus(napi_env env, napi_callback_info info)
 {
     napi_value argv[ARGS_TWO];
@@ -70,7 +51,7 @@ UserAuthResultCode AuthInstanceV9::GetAvailableStatus(napi_env env, napi_callbac
         IAM_LOGE("napi_get_value_int32 fail:%{public}d", ret);
         return UserAuthResultCode::GENERAL_ERROR;
     }
-    if (!CheckAuthType(type)) {
+    if (!UserAuthNapiHelper::CheckAuthType(type)) {
         IAM_LOGE("CheckAuthType fail");
         return UserAuthResultCode::TYPE_NOT_SUPPORT;
     }
@@ -80,7 +61,7 @@ UserAuthResultCode AuthInstanceV9::GetAvailableStatus(napi_env env, napi_callbac
         IAM_LOGE("napi_get_value_int32 fail:%{public}d", ret);
         return UserAuthResultCode::GENERAL_ERROR;
     }
-    if (!CheckAuthTrustLevel(level)) {
+    if (!UserAuthNapiHelper::CheckAuthTrustLevel(level)) {
         IAM_LOGE("CheckAuthTrustLevel fail");
         return UserAuthResultCode::TRUST_LEVEL_NOT_SUPPORT;
     }
@@ -143,7 +124,7 @@ UserAuthResultCode AuthInstanceV9::Init(napi_env env, napi_callback_info info)
         IAM_LOGE("GetInt32Value fail:%{public}d", ret);
         return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
-    if (!CheckAuthType(authType)) {
+    if (!UserAuthNapiHelper::CheckAuthType(authType)) {
         IAM_LOGE("CheckAuthType fail");
         return UserAuthResultCode::TYPE_NOT_SUPPORT;
     }
@@ -154,7 +135,7 @@ UserAuthResultCode AuthInstanceV9::Init(napi_env env, napi_callback_info info)
         IAM_LOGE("GetUint32Value fail:%{public}d", ret);
         return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
-    if (!CheckAuthTrustLevel(authTrustLevel)) {
+    if (!UserAuthNapiHelper::CheckAuthTrustLevel(authTrustLevel)) {
         IAM_LOGE("CheckAuthTrustLevel fail");
         return UserAuthResultCode::TRUST_LEVEL_NOT_SUPPORT;
     }
