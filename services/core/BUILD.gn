@@ -24,6 +24,7 @@ config("userauth_service_core_config") {
   include_dirs = [
     "inc",
     "src",
+    "../context/inc",
   ]
 }
 
@@ -36,6 +37,7 @@ ohos_source_set("userauth_service_core") {
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   sources = [
+    "src/auth_widget_helper.cpp",
     "src/authentication_impl.cpp",
     "src/credential_info_impl.cpp",
     "src/enrolled_info_impl.cpp",
@@ -51,6 +53,7 @@ ohos_source_set("userauth_service_core") {
     "src/template_cache_manager.cpp",
     "src/user_idm_database_impl.cpp",
     "src/user_idm_session_controller_impl.cpp",
+    "src/widget_schedule_node_impl.cpp",
   ]
 
   deps = [

@@ -161,10 +161,10 @@ enum ResultCode : int32_t {
     LOCKED = 9,
     /** The result is fail, because the user was not enrolled. */
     NOT_ENROLLED = 10,
-    /** The result is fail, because the hardware is not supported. */
-    HARDWARE_NOT_SUPPORTED = 11,
     /** The result is fail, because canceled from widget. */
-    CANCELED_FROM_WIDGET = 12,
+    CANCELED_FROM_WIDGET = 11,
+    /** The result is fail, because the hardware is not supported. */
+    HARDWARE_NOT_SUPPORTED = 12,
     /** The result is fail, because something wrong from system. */
     SYSTEM_ERROR_CODE_BEGIN = 1000,
     /** The result is fail, because something wrong from ipc. */

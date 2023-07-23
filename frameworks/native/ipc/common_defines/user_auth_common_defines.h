@@ -36,6 +36,9 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 
+const std::string NOTICE_VERSION_STR = "1";
+const std::string CMD_NOTIFY_AUTH_START = "CMD_NOTIFY_AUTH_START";
+
 /**
  * @brief Notice type for user authentication.
  */
@@ -51,7 +54,9 @@ enum WindowModeType : int32_t {
     /** Window mode type is dialog box. */
     DIALOG_BOX = 1,
     /**  Window mode type is full screen. */
-    FULLSCREEN = 2
+    FULLSCREEN = 2,
+    /**  Window mode type is not set */
+    UNKNOWN_WINDOW_MODE = 3,
 };
 /**
  * @brief Auth parameter.

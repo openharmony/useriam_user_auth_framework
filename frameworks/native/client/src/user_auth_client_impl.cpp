@@ -404,8 +404,8 @@ int32_t UserAuthClientImpl::Notice(NoticeType noticeType, const std::string &eve
         IAM_LOGE("proxy is nullptr");
         return GENERAL_ERROR;
     }
-    IAM_LOGI("UserAuthClientImpl::Notice noticeType:%{public}d, eventDat:%{public}s", static_cast<int32_t>(noticeType),
-        eventData.c_str());
+    IAM_LOGI("UserAuthClientImpl::Notice noticeType:%{public}d, eventDat:%{public}s",
+        static_cast<int32_t>(noticeType), eventData.c_str());
     return proxy->Notice(noticeType, eventData);
 }
 } // namespace UserAuth

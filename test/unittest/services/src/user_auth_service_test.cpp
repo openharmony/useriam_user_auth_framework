@@ -25,6 +25,7 @@
 #include "mock_iuser_auth_interface.h"
 #include "mock_ipc_common.h"
 #include "mock_user_auth_callback.h"
+#include "mock_user_auth_service.h"
 #include "mock_resource_node.h"
 #include "resource_node_pool.h"
 #include "user_auth_service.h"
@@ -689,7 +690,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCancelAuthOrIdentify_001, TestSize.
     EXPECT_EQ(service.CancelAuthOrIdentify(testContextId), CHECK_PERMISSION_FAILED);
 
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId), GENERAL_ERROR);
+    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId), CHECK_PERMISSION_FAILED);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -705,18 +706,14 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCancelAuthOrIdentify_002, TestSize.
     EXPECT_NE(context, nullptr);
     EXPECT_CALL(*context, GetContextId()).WillRepeatedly(Return(testContextId));
     EXPECT_CALL(*context, GetLatestError()).WillRepeatedly(Return(GENERAL_ERROR));
-    EXPECT_CALL(*context, Stop())
-        .Times(2)
-        .WillOnce(Return(false))
-        .WillOnce(Return(true));
     
     EXPECT_TRUE(ContextPool::Instance().Insert(context));
     
-    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId), GENERAL_ERROR);
-    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId), SUCCESS);
+    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId), CHECK_PERMISSION_FAILED);
+    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId), CHECK_PERMISSION_FAILED);
     IpcCommon::SetAccessTokenId(tokenId, false);
 
-    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId), INVALID_CONTEXT_ID);
+    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId), CHECK_PERMISSION_FAILED);
     EXPECT_TRUE(ContextPool::Instance().Delete(testContextId));
     IpcCommon::DeleteAllPermission();
 }
@@ -729,6 +726,156 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetVersion, TestSize.Level0)
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     EXPECT_EQ(service.GetVersion(version), SUCCESS);
     EXPECT_EQ(version, 1);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget1, TestSize.Level0)
+{
+    UserAuthService service(100, true);
+    int32_t apiVersion = 10;
+    AuthParam authParam;
+    authParam.challenge.push_back(1);
+    authParam.challenge.push_back(2);
+    authParam.challenge.push_back(3);
+    authParam.challenge.push_back(4);
+    authParam.authType.push_back(FACE);
+    authParam.authTrustLevel = ATL2;
+    WidgetParam widgetParam;
+    widgetParam.title = "使用密码验证";
+    widgetParam.navigationButtonText = "确定";
+
+    sptr<UserAuthCallbackInterface> testUserAuthCallback = nullptr;
+    EXPECT_EQ(service.AuthWidget(apiVersion, authParam, widgetParam, testUserAuthCallback), (uint64_t)0);
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget2, TestSize.Level0)
+{
+    UserAuthService service(100, true);
+    int32_t apiVersion = 10;
+    AuthParam authParam;
+    authParam.challenge.push_back(1);
+    authParam.challenge.push_back(2);
+    authParam.challenge.push_back(3);
+    authParam.challenge.push_back(4);
+    authParam.authType.push_back(FACE);
+    authParam.authTrustLevel = ATL2;
+    WidgetParam widgetParam;
+    widgetParam.title = "使用密码验证";
+    widgetParam.navigationButtonText = "确定";
+
+    sptr<UserAuthCallbackInterface> testUserAuthCallback = new MockUserAuthCallback();
+    EXPECT_NE(testUserAuthCallback, nullptr);
+
+    std::shared_ptr<Context> context = nullptr;
+
+    int32_t testUserId = 0;
+    IpcCommon::GetCallingUserId(service, testUserId);
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _)).WillRepeatedly(Return(SUCCESS));
+    EXPECT_CALL(*mockHdi, BeginAuthenticationV1_1(_, _, _))
+    .WillRepeatedly(
+        [&context](uint64_t contextId, const HdiAuthSolution &param, std::vector<HdiScheduleInfo> &scheduleInfos) {
+            HdiScheduleInfo scheduleInfo = {};
+            scheduleInfo.authType = HdiAuthType::FACE;
+            scheduleInfo.scheduleId = 20;
+            HdiExecutorInfo executorInfo = {};
+            executorInfo.executorIndex = 60;
+            scheduleInfo.executors.push_back(executorInfo);
+            scheduleInfos.push_back(scheduleInfo);
+            context = ContextPool::Instance().Select(contextId).lock();
+            return HDF_SUCCESS;
+        }
+    );
+    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testUserAuthCallback);
+    EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget3, TestSize.Level0)
+{
+    UserAuthService service(100, true);
+    int32_t apiVersion = 10;
+    AuthParam authParam;
+    authParam.challenge.push_back(1);
+    authParam.challenge.push_back(2);
+    authParam.challenge.push_back(3);
+    authParam.challenge.push_back(4);
+    authParam.authType.push_back(FACE);
+    authParam.authTrustLevel = ATL2;
+    WidgetParam widgetParam;
+    widgetParam.title = "使用密码验证";
+    widgetParam.navigationButtonText = "确定";
+    widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
+
+    sptr<UserAuthCallbackInterface> testUserAuthCallback = new MockUserAuthCallback();
+    EXPECT_NE(testUserAuthCallback, nullptr);
+    int32_t testUserId = 0;
+    IpcCommon::GetCallingUserId(service, testUserId);
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _)).WillRepeatedly(Return(FAIL));
+    auto *tempCallback = static_cast<MockUserAuthCallback *>(testUserAuthCallback.GetRefPtr());
+    EXPECT_NE(tempCallback, nullptr);
+    EXPECT_CALL(*tempCallback, OnResult(_, _)).Times(1);
+
+    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    EXPECT_EQ(service.AuthWidget(apiVersion, authParam, widgetParam, testUserAuthCallback), (uint64_t)0);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceNotice1, TestSize.Level0)
+{
+    UserAuthService service(100, true);
+    IpcCommon::AddPermission(SUPPORT_USER_AUTH);
+    int32_t conxtId = service.Notice(NoticeType::WIDGET_NOTICE, "PIN");
+    EXPECT_NE(conxtId, ResultCode::SUCCESS);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceNotice2, TestSize.Level0)
+{
+    UserAuthService service(100, true);
+    int32_t conxtId = service.Notice(NoticeType::WIDGET_NOTICE, "PIN");
+    EXPECT_EQ(conxtId, ResultCode::CHECK_SYSTEM_APP_FAILED);
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterWidgetCallback1, TestSize.Level0)
+{
+    UserAuthService service(100, true);
+    sptr<WidgetCallbackInterface> testCallback = nullptr;
+    EXPECT_EQ(service.RegisterWidgetCallback(1, testCallback), ResultCode::CHECK_SYSTEM_APP_FAILED);
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterWidgetCallback2, TestSize.Level0)
+{
+    UserAuthService service(100, true);
+    sptr<WidgetCallbackInterface> testCallback = nullptr;
+    IpcCommon::AddPermission(SUPPORT_USER_AUTH);
+    EXPECT_EQ(service.RegisterWidgetCallback(1, testCallback), ResultCode::CHECK_SYSTEM_APP_FAILED);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterWidgetCallback3, TestSize.Level0)
+{
+    UserAuthService service(100, true);
+    sptr<WidgetCallbackInterface> testCallback = nullptr;
+    IpcCommon::AddPermission(SUPPORT_USER_AUTH);
+    int32_t testUserId = 0;
+    IpcCommon::GetCallingUserId(service, testUserId);
+    EXPECT_EQ(service.RegisterWidgetCallback(2, testCallback), ResultCode::CHECK_SYSTEM_APP_FAILED);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterWidgetCallback4, TestSize.Level0)
+{
+    UserAuthService service(100, true);
+    sptr<WidgetCallbackInterface> testCallback = nullptr;
+    IpcCommon::AddPermission(SUPPORT_USER_AUTH);
+    int32_t testUserId = 0;
+    IpcCommon::GetCallingUserId(service, testUserId);
+    EXPECT_EQ(service.RegisterWidgetCallback(1, testCallback), ResultCode::CHECK_SYSTEM_APP_FAILED);
     IpcCommon::DeleteAllPermission();
 }
 } // namespace UserAuth

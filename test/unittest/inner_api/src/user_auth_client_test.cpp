@@ -504,8 +504,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginWidgetAuth001, TestSize.Level0)
     WidgetParam widgetParam;
     std::shared_ptr<MockAuthenticationCallback> testCallback = nullptr;
     testCallback = Common::MakeShared<MockAuthenticationCallback>();
-    uint64_t widgetAuth = UserAuthClientImpl::Instance().BeginWidgetAuth(apiVersion, authParam, widgetParam,
-        testCallback);
+    uint64_t widgetAuth = UserAuthClientImpl::Instance().BeginWidgetAuth(apiVersion, authParam,
+    widgetParam, testCallback);
     EXPECT_EQ(widgetAuth, 0);
 }
 
@@ -515,10 +515,52 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginWidgetAuth002, TestSize.Level0)
     AuthParam authParam;
     WidgetParam widgetParam;
     std::shared_ptr<MockAuthenticationCallback> testCallback = nullptr;
-    uint64_t widgetAuth = UserAuthClientImpl::Instance().BeginWidgetAuth(apiVersion, authParam, widgetParam,
-        testCallback);
+    uint64_t widgetAuth = UserAuthClientImpl::Instance().BeginWidgetAuth(apiVersion, authParam,
+    widgetParam, testCallback);
     EXPECT_EQ(widgetAuth, 0);
 }
+
+HWTEST_F(UserAuthClientTest, UserAuthClientBeginWidgetAuth003, TestSize.Level0)
+{
+    int32_t testVersion = 0;
+    AuthParam testParam = {};
+    testParam.challenge = {0};
+    testParam.authType = {ALL};
+    WidgetParam testWidgetParam = {};
+    testWidgetParam.title = "title";
+    auto testCallback = Common::MakeShared<MockAuthenticationCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    
+    uint64_t testContextVersion = 1;
+    auto service = Common::MakeShared<MockUserAuthService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, AuthWidget(_, _, _, _)).WillRepeatedly(Return(true));
+    ON_CALL(*service, AuthWidget)
+        .WillByDefault(
+            [&testVersion, &testParam, &testWidgetParam, &testContextVersion](int32_t apiVersion,
+            const AuthParam &authParam, const WidgetParam &widgetParam,
+            sptr<UserAuthCallbackInterface> &callback) {
+                EXPECT_EQ(apiVersion, testVersion);
+                EXPECT_EQ(authParam.authType, testParam.authType);
+                EXPECT_EQ(widgetParam.title, testWidgetParam.title);
+                if (callback != nullptr) {
+                    Attributes extraInfo;
+                    callback->OnResult(static_cast<int32_t>(ResultCode::GENERAL_ERROR), extraInfo);
+                }
+                return testContextVersion;
+            }
+        );
+
+    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    CallRemoteObject(service, obj, dr);
+    uint64_t widgetAuth = UserAuthClientImpl::Instance().BeginWidgetAuth(testVersion, testParam,
+    testWidgetParam, testCallback);
+    EXPECT_EQ(widgetAuth, testContextVersion);
+    dr->OnRemoteDied(obj);
+    IpcClientUtils::ResetObj();
+}
+
 
 HWTEST_F(UserAuthClientTest, UserAuthClientSetWidgetCallback001, TestSize.Level0)
 {
@@ -534,6 +576,33 @@ HWTEST_F(UserAuthClientTest, UserAuthClientSetWidgetCallback002, TestSize.Level0
     std::shared_ptr<IUserAuthWidgetCallback> testCallback = nullptr;
     int32_t widgetCallback = UserAuthClientImpl::Instance().SetWidgetCallback(apiVersion, testCallback);
     EXPECT_EQ(widgetCallback, GENERAL_ERROR);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientSetWidgetCallback003, TestSize.Level0)
+{
+    int32_t testVersion = 0;
+    auto testCallback = Common::MakeShared<MockIUserAuthWidgetCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    
+    uint64_t testContextVersion = 1;
+    auto service = Common::MakeShared<MockUserAuthService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, RegisterWidgetCallback(_, _)).WillRepeatedly(Return(true));
+    ON_CALL(*service, RegisterWidgetCallback)
+        .WillByDefault(
+            [&testVersion, &testContextVersion](int32_t version, sptr<WidgetCallbackInterface> &callback) {
+                EXPECT_EQ(version, testVersion);
+                return testContextVersion;
+            }
+        );
+
+    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    CallRemoteObject(service, obj, dr);
+    uint64_t widgetAuth = UserAuthClientImpl::Instance().SetWidgetCallback(testVersion, testCallback);
+    EXPECT_EQ(widgetAuth, testContextVersion);
+    dr->OnRemoteDied(obj);
+    IpcClientUtils::ResetObj();
 }
 
 HWTEST_F(UserAuthClientTest, UserAuthClientNotice001, TestSize.Level0)

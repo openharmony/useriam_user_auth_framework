@@ -37,6 +37,8 @@ public:
     void SetTraceCallingUid(uint64_t callingUid) override;
     void SetTraceAuthType(AuthType authType) override;
     void SetTraceAuthTrustLevel(AuthTrustLevel atl) override;
+    void SetTraceWindowMode(WindowModeType windowMode) override;
+    void SetTraceNavigation(bool hasNaviBnt) override;
     void SetCleaner(Context::ContextStopCallback callback) override;
 
 private:

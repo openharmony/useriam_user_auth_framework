@@ -97,6 +97,12 @@ void UserAuthWidgetCallback::ClearCommandCallback()
     commandCallback_ = nullptr;
 }
 
+bool UserAuthWidgetCallback::HasCommandCallback()
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    return commandCallback_ != nullptr;
+}
+
 std::shared_ptr<JsRefHolder> UserAuthWidgetCallback::GetCommandCallback()
 {
     std::lock_guard<std::mutex> guard(mutex_);
