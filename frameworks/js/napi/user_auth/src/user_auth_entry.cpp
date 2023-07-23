@@ -35,6 +35,7 @@ const std::string NOTICE_VERSION = "version";
 const std::string NOTICE_PAYLOAD = "payload";
 const std::string NOTICE_PAYLOAD_TYPE = "type";
 const std::string SUPPORT_NOTICE_VERSION = "1";
+
 napi_value UserAuthServiceConstructor(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
@@ -425,9 +426,9 @@ napi_value WidgetOff(napi_env env, napi_callback_info info)
 
 static bool VerifyNoticeParam(const std::string &eventData)
 {
-    auto json = nlohmann::json::parse(eventData.c_str());
-    if (json.find(NOTICE_WIDGET_CTXID) == json.end() || !json[NOTICE_WIDGET_CTXID].is_number()) {
-        IAM_LOGE("Invalid widget context id exist in notice data");
+    auto json = nlohmann::json::parse(eventData.c_str(), nullptr, false);
+    if (json.is_null() || json.is_discarded()) {
+        IAM_LOGE("Notice data is invalid json object");
         return false;
     }
 
@@ -436,12 +437,20 @@ static bool VerifyNoticeParam(const std::string &eventData)
         return false;
     }
 
-    if (json.find(NOTICE_PAYLOAD) == json.end()) {
+    if (json.find(NOTICE_PAYLOAD) == json.end() ||
+        json[NOTICE_PAYLOAD].find(NOTICE_PAYLOAD_TYPE) == json[NOTICE_PAYLOAD].end() ||
+        !json[NOTICE_PAYLOAD][NOTICE_PAYLOAD_TYPE].is_array()) {
         IAM_LOGE("Invalid payload exist in notice data");
         return false;
     }
     IAM_LOGI("valid notice parameter");
     return true;
+}
+
+napi_value ResultOfSendNotice(napi_env env, UserAuthResultCode errCode)
+{
+    napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, errCode));
+    return nullptr;
 }
 
 napi_value SendNotice(napi_env env, napi_callback_info info)
@@ -454,15 +463,11 @@ napi_value SendNotice(napi_env env, napi_callback_info info)
     napi_status ret = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (ret != napi_ok) {
         IAM_LOGE("napi_get_cb_info fail:%{public}d", ret);
-        errCode = UserAuthResultCode::GENERAL_ERROR;
-        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, errCode));
-        return nullptr;
+        return ResultOfSendNotice(env, UserAuthResultCode::GENERAL_ERROR);
     }
     if (argc != ARGS_TWO) {
         IAM_LOGE("invalid param, argc:%{public}zu", argc);
-        errCode = UserAuthResultCode::OHOS_INVALID_PARAM;
-        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, errCode));
-        return nullptr;
+        return ResultOfSendNotice(env, UserAuthResultCode::OHOS_INVALID_PARAM);
     }
 
     NoticeType noticeType = NoticeType::WIDGET_NOTICE;
@@ -470,32 +475,26 @@ napi_value SendNotice(napi_env env, napi_callback_info info)
     ret = UserAuthNapiHelper::GetInt32Value(env, argv[PARAM0], noticeType_value);
     if (ret != napi_ok) {
         IAM_LOGE("GetStrValue fail:%{public}d", ret);
-        errCode = UserAuthResultCode::OHOS_INVALID_PARAM;
-        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, errCode));
-        return nullptr;
+        return ResultOfSendNotice(env, UserAuthResultCode::OHOS_INVALID_PARAM);
     }
+    IAM_LOGI("recv SendNotice noticeType:%{public}d", noticeType_value);
 
     if (noticeType_value != WIDGET_NOTICE) {
-        errCode = UserAuthResultCode::OHOS_INVALID_PARAM;
-        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, errCode));
-        return nullptr;
+        return ResultOfSendNotice(env, UserAuthResultCode::OHOS_INVALID_PARAM);
     }
 
     std::string eventData = UserAuthNapiHelper::GetStringFromValueUtf8(env, argv[PARAM1]);
-    IAM_LOGI("recv SendNotice noticeType:%{public}d, eventData:%{public}s", noticeType_value, eventData.c_str());
+    IAM_LOGI("recv SendNotice eventData:%{public}s", eventData.c_str());
     if (!VerifyNoticeParam(eventData)) {
         IAM_LOGE("Invalid notice parameter");
-        errCode = UserAuthResultCode::OHOS_INVALID_PARAM;
-        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, errCode));
-        return nullptr;
+        return ResultOfSendNotice(env, UserAuthResultCode::OHOS_INVALID_PARAM);
     }
 
     int32_t result = UserAuthClientImpl::Instance().Notice(noticeType, eventData);
     if (result != ResultCode::SUCCESS) {
         errCode = UserAuthResultCode(UserAuthNapiHelper::GetResultCodeV10(result));
         IAM_LOGE("SendNotice fail. result: %{public}d, errCode: %{public}d", result, errCode);
-        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, errCode));
-        return nullptr;
+        return ResultOfSendNotice(env, UserAuthResultCode::OHOS_INVALID_PARAM);
     }
     IAM_LOGI("end SendNotice");
     return nullptr;

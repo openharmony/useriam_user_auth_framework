@@ -42,9 +42,11 @@ public:
         const std::vector<uint8_t> &token, int32_t authType);
     void SetResultCallback(const std::shared_ptr<JsRefHolder> &resultCallback);
     void ClearResultCallback();
-    std::shared_ptr<JsRefHolder> GetResultCallback();
+    bool HasResultCallback();
 
 private:
+    std::shared_ptr<JsRefHolder> GetResultCallback();
+
     napi_env env_ = nullptr;
     std::mutex mutex_;
     std::shared_ptr<JsRefHolder> resultCallback_ = nullptr;

@@ -35,6 +35,7 @@ enum Permission {
     ENFORCE_USER_IDM,
     ACCESS_AUTH_WIDGET_POOL,
     SUPPORT_USER_AUTH,
+    IS_SYSTEM_APP,
 };
 
 class IpcCommon final : public NoCopyable {
@@ -44,6 +45,7 @@ public:
     static int32_t GetActiveUserId(std::optional<int32_t> &userId);
     static bool CheckPermission(IPCObjectStub &stub, Permission permission);
     static uint32_t GetAccessTokenId(IPCObjectStub &stub);
+    static uint32_t GetTokenId(IPCObjectStub &stub);
     class PeerDeathRecipient final : public IPCObjectProxy::DeathRecipient {
     public:
         explicit PeerDeathRecipient(Recipient &&recipient) : recipient_(std::forward<Recipient>(recipient))
@@ -68,6 +70,7 @@ private:
     static bool CheckNativeCallingProcessWhiteList(IPCObjectStub &stub);
     static bool CheckDirectCallerAndFirstCallerIfSet(IPCObjectStub &stub, const std::string &permission);
     static bool CheckDirectCaller(IPCObjectStub &stub, const std::string &permission);
+    static bool CheckCallerIsSystemApp(IPCObjectStub &stub);
 };
 } // namespace UserAuth
 } // namespace UserIam

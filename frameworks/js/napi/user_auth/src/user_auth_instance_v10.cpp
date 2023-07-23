@@ -32,37 +32,20 @@ const std::string AUTH_PARAM_CHALLENGE = "challenge";
 const std::string AUTH_PARAM_AUTHTYPE = "authType";
 const std::string AUTH_PARAM_AUTHTRUSTLEVEL = "authTrustLevel";
 const std::string WIDGET_PARAM_TITLE = "title";
-const std::string WIDGET_PARAM_NABTNTEXT = "navigationButtonText";
+const std::string WIDGET_PARAM_NAVIBTNTEXT = "navigationButtonText";
 const std::string WIDGET_PARAM_WINDOWMODE = "windowMode";
 const std::string NOTICETYPE = "noticeType";
-constexpr int32_t TITLE_MAX = 500;
-constexpr int32_t BUTTON_MAX = 60;
+
+namespace WidgetType {
+    constexpr int32_t TITLE_MAX = 500;
+    constexpr int32_t BUTTON_MAX = 60;
+}
 
 UserAuthInstanceV10::UserAuthInstanceV10(napi_env env) : callback_(Common::MakeShared<UserAuthCallbackV10>(env))
 {
     if (callback_ == nullptr) {
         IAM_LOGE("get null callback");
     }
-}
-
-UserAuthResultCode UserAuthInstanceV10::CheckAuthType(uint32_t authType)
-{
-    if ((int32_t)authType != AuthType::PIN && (int32_t)authType != AuthType::FACE &&
-        (int32_t)authType != AuthType::FINGERPRINT) {
-        IAM_LOGE("authType check fail:%{public}d", authType);
-        return UserAuthResultCode::TYPE_NOT_SUPPORT;
-    }
-    return UserAuthResultCode::SUCCESS;
-}
-
-UserAuthResultCode UserAuthInstanceV10::CheckAuthTrustLevel(uint32_t authTrustLevel)
-{
-    if (authTrustLevel != AuthTrustLevel::ATL1 && authTrustLevel != AuthTrustLevel::ATL2 &&
-        authTrustLevel != AuthTrustLevel::ATL3 && authTrustLevel != AuthTrustLevel::ATL4) {
-        IAM_LOGE("authTrustLevel check fail:%{public}d", authTrustLevel);
-        return UserAuthResultCode::TYPE_NOT_SUPPORT;
-    }
-    return UserAuthResultCode::SUCCESS;
 }
 
 UserAuthResultCode UserAuthInstanceV10::InitChallenge(napi_env env, napi_value value)
@@ -93,27 +76,27 @@ UserAuthResultCode UserAuthInstanceV10::InitAuthType(napi_env env, napi_value va
     uint32_t length = 0;
     napi_get_array_length(env, value, &length);
     for (uint32_t i = 0; i < length; ++i) {
-        napi_value jsAt = nullptr;
+        napi_value jsValue = nullptr;
         napi_handle_scope scope = nullptr;
         napi_open_handle_scope(env, &scope);
-        napi_get_element(env, value, i, &jsAt);
-        if (jsAt == nullptr) {
+        napi_get_element(env, value, i, &jsValue);
+        if (jsValue == nullptr) {
+            napi_close_handle_scope(env, scope);
             continue;
         }
-        uint32_t at;
-        napi_status ret = UserAuthNapiHelper::GetUint32Value(env, jsAt, at);
+        uint32_t value = 0;
+        napi_status ret = UserAuthNapiHelper::GetUint32Value(env, jsValue, value);
+        napi_close_handle_scope(env, scope);
         if (ret != napi_ok) {
             IAM_LOGE("napi authType GetUint32Value fail:%{public}d", ret);
-            continue;
+            return UserAuthResultCode::OHOS_INVALID_PARAM;
         }
-        UserAuthResultCode errCode = CheckAuthType(at);
-        if (errCode != UserAuthResultCode::SUCCESS) {
-            IAM_LOGE("authType is illegal, %{public}ud", at);
-            return errCode;
+        if (!UserAuthNapiHelper::CheckUserAuthType(value)) {
+            IAM_LOGE("authType is illegal, %{public}u", value);
+            return UserAuthResultCode::TYPE_NOT_SUPPORT;
         }
-        IAM_LOGI("napi authType: %{public}ud", at);
-        authParam_.authType.push_back(static_cast<AuthType>(at));
-        napi_close_handle_scope(env, scope);
+        IAM_LOGI("napi authType: %{public}u", value);
+        authParam_.authType.push_back(static_cast<AuthType>(value));
     }
 
     IAM_LOGI("authType size:%{public}zu", authParam_.authType.size());
@@ -162,10 +145,9 @@ UserAuthResultCode UserAuthInstanceV10::InitAuthParam(napi_env env, napi_value v
         IAM_LOGE("GetUint32Value fail:%{public}d", ret);
         return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
-    errorCode = CheckAuthTrustLevel(authTrustLevel);
-    if (errorCode != UserAuthResultCode::SUCCESS) {
+    if (!UserAuthNapiHelper::CheckAuthTrustLevel(authTrustLevel)) {
         IAM_LOGE("AuthTrustLeval fail:%{public}d", errorCode);
-        return errorCode;
+        return UserAuthResultCode::TRUST_LEVEL_NOT_SUPPORT;
     }
     authParam_.authTrustLevel = AuthTrustLevel(authTrustLevel);
 
@@ -189,31 +171,30 @@ UserAuthResultCode UserAuthInstanceV10::InitWidgetParam(napi_env env, napi_value
         IAM_LOGE("title is invalid");
         return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
-    if (title.length() > TITLE_MAX) {
+    if (title.length() > WidgetType::TITLE_MAX) {
         IAM_LOGE("title text too long. size: %{public}zu", title.length());
         return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
     widgetParam_.title = title;
 
-    if (UserAuthNapiHelper::HasNamedProperty(env, value, WIDGET_PARAM_NABTNTEXT)) {
-        std::string ngtBtnTxt = UserAuthNapiHelper::GetStringPropertyUtf8(env, value, WIDGET_PARAM_NABTNTEXT);
-        if (ngtBtnTxt.length() > BUTTON_MAX) {
-            IAM_LOGE("button text too long. size: %{public}zu", ngtBtnTxt.length());
+    if (UserAuthNapiHelper::HasNamedProperty(env, value, WIDGET_PARAM_NAVIBTNTEXT)) {
+        std::string naviBtnTxt = UserAuthNapiHelper::GetStringPropertyUtf8(env, value, WIDGET_PARAM_NAVIBTNTEXT);
+        if (naviBtnTxt == "" || naviBtnTxt.length() > WidgetType::BUTTON_MAX) {
+            IAM_LOGE("navigation button text is invalid, size: %{public}zu", naviBtnTxt.length());
             return UserAuthResultCode::OHOS_INVALID_PARAM;
         }
-        widgetParam_.navigationButtonText = ngtBtnTxt;
+        widgetParam_.navigationButtonText = naviBtnTxt;
     }
 
+    widgetParam_.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
     if (UserAuthNapiHelper::HasNamedProperty(env, value, WIDGET_PARAM_WINDOWMODE)) {
         napi_value napi_windowModeType = UserAuthNapiHelper::GetNamedProperty(env, value, WIDGET_PARAM_WINDOWMODE);
         uint32_t windowMode;
         ret = UserAuthNapiHelper::GetUint32Value(env, napi_windowModeType, windowMode);
         switch (windowMode) {
             case WindowModeType::DIALOG_BOX:
-                widgetParam_.windowMode = WindowModeType::DIALOG_BOX;
-                break;
             case WindowModeType::FULLSCREEN:
-                widgetParam_.windowMode = WindowModeType::FULLSCREEN;
+                widgetParam_.windowMode = static_cast<WindowModeType>(windowMode);
                 break;
             default:
                 IAM_LOGE("windowMode type not support.");
@@ -221,7 +202,7 @@ UserAuthResultCode UserAuthInstanceV10::InitWidgetParam(napi_env env, napi_value
         }
     }
 
-    IAM_LOGI("widgetParam title:%{public}s, navBtnText:%{public}s, winMode:%{public}ud",
+    IAM_LOGI("widgetParam title:%{public}s, navBtnText:%{public}s, winMode:%{public}u",
         widgetParam_.title.c_str(), widgetParam_.navigationButtonText.c_str(),
         static_cast<uint32_t>(widgetParam_.windowMode));
     return UserAuthResultCode::SUCCESS;
@@ -309,8 +290,8 @@ UserAuthResultCode UserAuthInstanceV10::On(napi_env env, napi_callback_info info
     }
     if (str == AUTH_EVENT_RESULT) {
         IAM_LOGI("getAuthInstance on SetResultCallback");
-        if (callback_->GetResultCallback() != nullptr) {
-            IAM_LOGE("callback has been register");
+        if (callback_->HasResultCallback()) {
+            IAM_LOGE("callback has been registerred");
             return UserAuthResultCode::GENERAL_ERROR;
         }
         callback_->SetResultCallback(callbackRef);
@@ -356,8 +337,8 @@ UserAuthResultCode UserAuthInstanceV10::Off(napi_env env, napi_callback_info inf
     }
 
     if (str == AUTH_EVENT_RESULT) {
-        if (callback_->GetResultCallback() == nullptr) {
-            IAM_LOGE("no callback register yet");
+        if (!callback_->HasResultCallback()) {
+            IAM_LOGE("no callback registerred yet");
             return UserAuthResultCode::GENERAL_ERROR;
         }
         callback_->ClearResultCallback();

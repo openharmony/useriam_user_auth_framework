@@ -452,6 +452,9 @@ napi_value UserAuthNapiHelper::GetNamedProperty(napi_env env, napi_value object,
 
 std::string UserAuthNapiHelper::GetStringFromValueUtf8(napi_env env, napi_value value)
 {
+    if (CheckNapiType(env, value, napi_string) != napi_ok) {
+        return "";
+    }
     std::string result;
     std::vector<char> str(MAX_STRING_LENGTH + 1, '\0');
     size_t length = 0;
@@ -506,6 +509,35 @@ bool UserAuthNapiHelper::GetInt32Array(napi_env env, napi_value obj, std::vector
         NAPI_CALL_BASE(env, napi_get_value_uint32(env, value, &getValue), napi_undefined);
         IAM_LOGE("vec[%{public}d]: %{public}d", index, len);
         vec.emplace_back(getValue);
+    }
+    return true;
+}
+
+bool UserAuthNapiHelper::CheckAuthType(int32_t authType)
+{
+    if (authType != AuthType::FACE && authType != AuthType::FINGERPRINT) {
+        IAM_LOGE("authType check fail:%{public}d", authType);
+        return false;
+    }
+    return true;
+}
+
+bool UserAuthNapiHelper::CheckUserAuthType(int32_t authType)
+{
+    if (authType != AuthType::PIN && authType != AuthType::FACE &&
+        authType != AuthType::FINGERPRINT) {
+        IAM_LOGE("authType check fail:%{public}d", authType);
+        return false;
+    }
+    return true;
+}
+
+bool UserAuthNapiHelper::CheckAuthTrustLevel(uint32_t authTrustLevel)
+{
+    if (authTrustLevel != AuthTrustLevel::ATL1 && authTrustLevel != AuthTrustLevel::ATL2 &&
+        authTrustLevel != AuthTrustLevel::ATL3 && authTrustLevel != AuthTrustLevel::ATL4) {
+        IAM_LOGE("authTrustLevel check fail:%{public}d", authTrustLevel);
+        return false;
     }
     return true;
 }

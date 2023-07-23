@@ -22,6 +22,7 @@
 #include "mock_iuser_auth_interface.h"
 #include "mock_resource_node.h"
 #include "mock_schedule_node_callback.h"
+#include "mock_authentication.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -167,6 +168,18 @@ HWTEST_F(AuthenticationImplTest, AuthenticationImplTestUpdate002, TestSize.Level
     std::vector<uint8_t> scheduleResult;
     Authentication::AuthResultInfo info = {};
     EXPECT_FALSE(authentication->Update(scheduleResult, info));
+}
+
+HWTEST_F(AuthenticationImplTest, AuthenticationImplTestSetEndAfterFirstFail, TestSize.Level0)
+{
+    constexpr uint64_t contextId = 1234;
+    constexpr int32_t userId = 5678;
+    AuthType authType = FACE;
+    AuthTrustLevel atl = ATL3;
+    auto authentication = std::make_shared<AuthenticationImpl>(contextId, userId, authType, atl);
+    EXPECT_NE(authentication, nullptr);
+    bool endAfterFirstFail = true;
+    authentication->SetEndAfterFirstFail(endAfterFirstFail);
 }
 
 HWTEST_F(AuthenticationImplTest, AuthenticationImplTestStart, TestSize.Level0)

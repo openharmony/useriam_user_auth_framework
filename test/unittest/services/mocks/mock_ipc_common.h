@@ -34,6 +34,9 @@ enum Permission {
     ACCESS_BIOMETRIC_PERMISSION,
     ACCESS_AUTH_RESPOOL,
     ENFORCE_USER_IDM,
+    ACCESS_AUTH_WIDGET_POOL,
+    SUPPORT_USER_AUTH,
+    IS_SYSTEM_APP,
 };
 
 class IpcCommon final : public NoCopyable {
@@ -45,6 +48,7 @@ public:
     static void SetAccessTokenId(uint32_t tokenId, bool isSetTokenId);
     static void AddPermission(Permission perm);
     static void DeleteAllPermission();
+    static uint32_t GetTokenId(IPCObjectStub &stub);
 
 private:
     static std::set<Permission> permSet_;

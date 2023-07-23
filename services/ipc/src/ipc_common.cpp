@@ -14,10 +14,11 @@
  */
 
 #include "ipc_common.h"
-
+#include "ipc_skeleton.h"
 #include "accesstoken_kit.h"
 #include "iam_common_defines.h"
 #include "iam_logger.h"
+#include "tokenid_kit.h"
 #ifdef HAS_OS_ACCOUNT_PART
 #include "os_account_manager.h"
 #endif // HAS_OS_ACCOUNT_PART
@@ -109,6 +110,8 @@ bool IpcCommon::CheckPermission(IPCObjectStub &stub, Permission permission)
             return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::ACCESS_AUTH_WIDGET_POOL);
         case SUPPORT_USER_AUTH:
             return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::SUPPORT_USER_AUTH);
+        case IS_SYSTEM_APP:
+            return CheckCallerIsSystemApp(stub);
         default:
             IAM_LOGE("failed to check permission");
             return false;
@@ -121,6 +124,13 @@ uint32_t IpcCommon::GetAccessTokenId(IPCObjectStub &stub)
     if (tokenId == 0) {
         tokenId = stub.GetCallingTokenID();
     }
+    return tokenId;
+}
+
+uint32_t IpcCommon::GetTokenId(IPCObjectStub &stub)
+{
+    uint32_t tokenId = stub.GetCallingTokenID();
+    IAM_LOGI("get tokenId: %{public}d", tokenId);
     return tokenId;
 }
 
@@ -170,6 +180,20 @@ bool IpcCommon::CheckDirectCaller(IPCObjectStub &stub, const std::string &permis
     using namespace Security::AccessToken;
     if (AccessTokenKit::VerifyAccessToken(callingTokenId, permission) != RET_SUCCESS) {
         IAM_LOGE("failed to check permission");
+        return false;
+    }
+    return true;
+}
+
+bool IpcCommon::CheckCallerIsSystemApp(IPCObjectStub &stub)
+{
+    uint32_t callingTokenId = stub.GetCallingTokenID();
+    using namespace Security::AccessToken;
+    uint64_t fullTokenId = IPCSkeleton::GetCallingFullTokenID();
+    bool checkRet = TokenIdKit::IsSystemAppByFullTokenID(fullTokenId);
+    ATokenTypeEnum callingType = AccessTokenKit::GetTokenTypeFlag(callingTokenId);
+    if (callingType == TOKEN_HAP && !checkRet) {
+        IAM_LOGE("the caller is not a system application");
         return false;
     }
     return true;
