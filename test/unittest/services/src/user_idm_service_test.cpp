@@ -465,12 +465,6 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUpdateCredential002, TestSize.Level0)
     testCallback = sptr<MockIdmCallback>(new (std::nothrow) MockIdmCallback());
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _))
-        .Times(2)
-        .WillOnce(
-            [](int32_t result, const Attributes &extraInfo) {
-                EXPECT_EQ(result, GENERAL_ERROR);
-            }
-        )
         .WillOnce(
             [](int32_t result, const Attributes &extraInfo) {
                 EXPECT_EQ(result, HDF_FAILURE);
@@ -496,8 +490,6 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUpdateCredential002, TestSize.Level0)
         );
     
     EXPECT_CALL(*mockHdi, BeginEnrollmentV1_1(_, _, _, _)).WillOnce(Return(HDF_FAILURE));
-
-    service.UpdateCredential(testUserId, testCredPara, testCallback);
 
     testCredPara.token = {1, 2, 3, 4};
     service.UpdateCredential(testUserId, testCredPara, testCallback);

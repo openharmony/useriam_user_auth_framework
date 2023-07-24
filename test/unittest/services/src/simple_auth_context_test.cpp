@@ -468,7 +468,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_005, Test
 {
     static const uint64_t testContestId = 2;
     static const std::vector<uint8_t> testScheduleResult = {3, 4, 5, 6};
-    static const int32_t testResultCode = 7;
+    static const int32_t testResultCode = 1;
     static const int32_t testFreezingTime = 8;
     static const int32_t testRemainTimes = 9;
     static const std::vector<uint8_t> testSignature = {10, 11, 12, 13};
