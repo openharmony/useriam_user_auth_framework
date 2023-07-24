@@ -53,7 +53,7 @@ void GetTemplatesByAuthType(int32_t userId, AuthType authType, std::vector<uint6
         IAM_LOGE("user %{public}d has no credential type %{public}d", userId, authType);
         return;
     }
-
+    
     templateIds.reserve(credentialInfos.size());
     for (auto &info : credentialInfos) {
         if (info == nullptr) {
@@ -293,6 +293,7 @@ ResultCode UserAuthService::CheckAuthWidgetParam(const AuthParam authParam, cons
             case AuthType::ALL :
             case AuthType::PIN :
                 return ResultCode::SUCCESS;
+
             case AuthType::FACE:
             case AuthType::FINGERPRINT:
                 if (authParam.authTrustLevel == AuthTrustLevel::ATL4) {
@@ -300,6 +301,7 @@ ResultCode UserAuthService::CheckAuthWidgetParam(const AuthParam authParam, cons
                     return ResultCode::TRUST_LEVEL_NOT_SUPPORT;
                 }
                 break;
+
             default:
                 IAM_LOGE("no such type authType.");
                 return ResultCode::GENERAL_ERROR;
@@ -319,6 +321,7 @@ ResultCode UserAuthService::CheckAuthWidgetParam(const AuthParam authParam, cons
                     return ResultCode::TRUST_LEVEL_NOT_SUPPORT;
                 }
                 break;
+
             default:
                 IAM_LOGE("no such type authType.");
                 return ResultCode::GENERAL_ERROR;
@@ -560,7 +563,7 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParam &authPa
     const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback)
 {
     IAM_LOGI("start");
-    auto contextCallback = GetAuthContextCallback(authParam.challenge, authParam.authTrustLevel, callback);
+    auto contextCallback = GetAuthContextCallback(authParam, widgetParam, callback);
     if (contextCallback == nullptr) {
         IAM_LOGE("contextCallback is nullptr");
         return BAD_CONTEXT_ID;
@@ -627,8 +630,8 @@ bool UserAuthService::Insert2ContextPool(const std::shared_ptr<Context> &context
     return ret;
 }
 
-std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(const std::vector<uint8_t> &challenge,
-    AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback)
+std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(const AuthParam &authParam,
+    const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback)
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
@@ -643,7 +646,23 @@ std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(const s
     }
     auto callingUid = static_cast<uint64_t>(this->GetCallingUid());
     contextCallback->SetTraceCallingUid(callingUid);
-    contextCallback->SetTraceAuthTrustLevel(authTrustLevel);
+    contextCallback->SetTraceAuthTrustLevel(authParam.authTrustLevel);
+
+    uint32_t authWidgetType = 0;
+    for (auto authType : authParam.authType) {
+        authWidgetType |= authType;
+    }
+    static const uint32_t BIT_WINDOW_MODE = 0x40000000;
+    if (widgetParam.windowMode == FULLSCREEN) {
+        authWidgetType |= BIT_WINDOW_MODE;
+    }
+    static const uint32_t BIT_NAVIGATION = 0x80000000;
+    if (!widgetParam.navigationButtonText.empty()) {
+        authWidgetType |= BIT_NAVIGATION;
+    }
+    IAM_LOGE("SetTraceAuthWidgetType %{public}u", authWidgetType);
+    contextCallback->SetTraceAuthWidgetType(authWidgetType);
+
     return contextCallback;
 }
 

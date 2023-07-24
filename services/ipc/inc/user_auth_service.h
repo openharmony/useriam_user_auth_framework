@@ -62,8 +62,8 @@ protected:
 private:
     std::shared_ptr<ContextCallback> GetAuthContextCallback(const std::vector<uint8_t> &challenge, AuthType authType,
         AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback);
-    std::shared_ptr<ContextCallback> GetAuthContextCallback(const std::vector<uint8_t> &challenge,
-        AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback);
+    std::shared_ptr<ContextCallback> GetAuthContextCallback(const AuthParam &authParam,
+        const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback);
     bool CheckAuthPermission(bool isInnerCaller, AuthType authType);
     ResultCode CheckNorthPermission(AuthType authType);
     ResultCode CheckServicePermission(AuthType authType);

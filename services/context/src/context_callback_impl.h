@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,9 +36,8 @@ public:
     void SetTraceSdkVersion(int32_t version) override;
     void SetTraceCallingUid(uint64_t callingUid) override;
     void SetTraceAuthType(AuthType authType) override;
+    void SetTraceAuthWidgetType(uint32_t authWidgetType) override;
     void SetTraceAuthTrustLevel(AuthTrustLevel atl) override;
-    void SetTraceWindowMode(WindowModeType windowMode) override;
-    void SetTraceNavigation(bool hasNaviBnt) override;
     void SetCleaner(Context::ContextStopCallback callback) override;
 
 private:
