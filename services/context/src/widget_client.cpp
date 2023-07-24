@@ -19,8 +19,10 @@
 
 #include "iam_check.h"
 #include "iam_logger.h"
+#include "iam_time.h"
 #include "nlohmann/json.hpp"
 #include "widget_callback_interface.h"
+#include "hisysevent_adapter.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
@@ -166,6 +168,7 @@ void WidgetClient::ForceStopAuth()
     if (schedule_ != nullptr) {
         schedule_->StopSchedule();
     }
+    UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "AuthWidget");
 }
 
 void WidgetClient::SetPinSubType(const PinSubType &subType)
