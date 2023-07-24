@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -103,19 +103,14 @@ void ContextCallbackImpl::SetTraceAuthType(AuthType authType)
     metaData_.authType = authType;
 }
 
+void ContextCallbackImpl::SetTraceAuthWidgetType(uint32_t authWidgetType)
+{
+    metaData_.authWidgetType = authWidgetType;
+}
+
 void ContextCallbackImpl::SetTraceAuthTrustLevel(AuthTrustLevel atl)
 {
     metaData_.atl = atl;
-}
-
-void ContextCallbackImpl::SetTraceWindowMode(WindowModeType windowMode)
-{
-    metaData_.windowMode = windowMode;
-}
-
-void ContextCallbackImpl::SetTraceNavigation(bool hasNaviBtn)
-{
-    metaData_.hasNaviBtn = hasNaviBtn;
 }
 
 void ContextCallbackImpl::SetCleaner(Context::ContextStopCallback callback)

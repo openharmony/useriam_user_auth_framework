@@ -125,7 +125,7 @@ bool WidgetContext::BuildSchedule()
 }
 
 std::shared_ptr<ContextCallback> WidgetContext::GetAuthContextCallback(AuthType authType,
-    AuthTrustLevel authTrustLevel, WindowModeType windowMode, bool hasNaviBtn, sptr<IamCallbackInterface> &callback)
+    AuthTrustLevel authTrustLevel, sptr<IamCallbackInterface> &callback)
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
@@ -140,24 +140,19 @@ std::shared_ptr<ContextCallback> WidgetContext::GetAuthContextCallback(AuthType 
     }
     auto callingUid = static_cast<uint64_t>(para_.callingUid);
     contextCallback->SetTraceCallingUid(callingUid);
-    contextCallback->SetTraceAuthType(authType);
     contextCallback->SetTraceAuthTrustLevel(authTrustLevel);
-    contextCallback->SetTraceWindowMode(windowMode);
-    contextCallback->SetTraceNavigation(hasNaviBtn);
     return contextCallback;
 }
 
 std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &challenge,
-    AuthType authType, AuthTrustLevel authTrustLevel, WindowModeType windowMode)
+    AuthType authType, AuthTrustLevel authTrustLevel)
 {
     auto userId = para_.userId;
     auto tokenId = WidgetClient::Instance().GetAuthTokenId();
     IAM_LOGI("Real userId: %{public}d, Real tokenId: %{public}d", userId, tokenId);
-    sptr<IamCallbackInterface> iamCallback = new (std::nothrow) WidgetContextCallbackImpl(shared_from_this(),
-        static_cast<int32_t>(authType));
-    bool hasNaviBtn = para_.widgetParam.navigationButtonText != "";
-    auto contextCallback = GetAuthContextCallback(authType, authTrustLevel,
-        windowMode, hasNaviBtn, iamCallback);
+    sptr<IamCallbackInterface> iamCallback(new (std::nothrow) WidgetContextCallbackImpl(weak_from_this(),
+        static_cast<int32_t>(authType)));
+    auto contextCallback = GetAuthContextCallback(authType, authTrustLevel, iamCallback);
     callback_->SetTraceUserId(userId);
     ContextFactory::AuthContextPara para = {};
     para.tokenId = tokenId;
@@ -165,7 +160,6 @@ std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &ch
     para.authType = authType;
     para.atl = authTrustLevel;
     para.challenge = challenge;
-    para.windowMode = windowMode;
     para.endAfterFirstFail = true;
     auto context = ContextFactory::CreateSimpleAuthContext(para, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
@@ -287,7 +281,7 @@ void WidgetContext::ExecuteAuthList(const std::set<AuthType> &authTypeList)
     // create task, and start it
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     for (auto &authType : authTypeList) {
-        auto task = BuildTask(para_.challenge, authType, para_.atl, para_.widgetParam.windowMode);
+        auto task = BuildTask(para_.challenge, authType, para_.atl);
         if (task == nullptr) {
             IAM_LOGE("failed to create task, authType: %{public}s", AuthType2Str(authType).c_str());
             continue;
@@ -355,7 +349,7 @@ int32_t WidgetContext::ConnectExtensionAbility(const AAFwk::Want &want, const st
     }
     if (connection_ == nullptr) {
         IAM_LOGE("connection is nullptr");
-        connection_ = new (std::nothrow) UIExtensionAbilityConnection(commandStr);
+        connection_ = sptr<UIExtensionAbilityConnection>(new (std::nothrow) UIExtensionAbilityConnection(commandStr));
         if (connection_ == nullptr) {
             IAM_LOGE("new connection error.");
         }
