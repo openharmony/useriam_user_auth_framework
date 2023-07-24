@@ -32,8 +32,7 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 class WidgetScheduleNodeImpl final : public WidgetScheduleNode,
-                               public std::enable_shared_from_this<WidgetScheduleNodeImpl>,
-                               public NoCopyable {
+    public std::enable_shared_from_this<WidgetScheduleNodeImpl>, public NoCopyable {
 public:
     WidgetScheduleNodeImpl();
     ~WidgetScheduleNodeImpl() override = default;

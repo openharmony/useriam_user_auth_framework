@@ -53,7 +53,7 @@ void GetTemplatesByAuthType(int32_t userId, AuthType authType, std::vector<uint6
         IAM_LOGE("user %{public}d has no credential type %{public}d", userId, authType);
         return;
     }
-    
+
     templateIds.reserve(credentialInfos.size());
     for (auto &info : credentialInfos) {
         if (info == nullptr) {
@@ -293,7 +293,6 @@ ResultCode UserAuthService::CheckAuthWidgetParam(const AuthParam authParam, cons
             case AuthType::ALL :
             case AuthType::PIN :
                 return ResultCode::SUCCESS;
-
             case AuthType::FACE:
             case AuthType::FINGERPRINT:
                 if (authParam.authTrustLevel == AuthTrustLevel::ATL4) {
@@ -301,7 +300,6 @@ ResultCode UserAuthService::CheckAuthWidgetParam(const AuthParam authParam, cons
                     return ResultCode::TRUST_LEVEL_NOT_SUPPORT;
                 }
                 break;
-
             default:
                 IAM_LOGE("no such type authType.");
                 return ResultCode::GENERAL_ERROR;
@@ -321,7 +319,6 @@ ResultCode UserAuthService::CheckAuthWidgetParam(const AuthParam authParam, cons
                     return ResultCode::TRUST_LEVEL_NOT_SUPPORT;
                 }
                 break;
-
             default:
                 IAM_LOGE("no such type authType.");
                 return ResultCode::GENERAL_ERROR;
