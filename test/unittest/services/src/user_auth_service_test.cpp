@@ -706,9 +706,9 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCancelAuthOrIdentify_002, TestSize.
     EXPECT_NE(context, nullptr);
     EXPECT_CALL(*context, GetContextId()).WillRepeatedly(Return(testContextId));
     EXPECT_CALL(*context, GetLatestError()).WillRepeatedly(Return(GENERAL_ERROR));
-    
+
     EXPECT_TRUE(ContextPool::Instance().Insert(context));
-    
+
     EXPECT_EQ(service.CancelAuthOrIdentify(testContextId), CHECK_PERMISSION_FAILED);
     EXPECT_EQ(service.CancelAuthOrIdentify(testContextId), CHECK_PERMISSION_FAILED);
     IpcCommon::SetAccessTokenId(tokenId, false);

@@ -177,19 +177,15 @@ void WidgetClient::SetPinSubType(const PinSubType &subType)
         case PinSubType::PIN_SIX:
             pinSubType_ = "PIN_SIX";
             break;
-
         case PinSubType::PIN_NUMBER:
             pinSubType_ = "PIN_NUMBER";
             break;
-
         case PinSubType::PIN_MIXED:
             pinSubType_ = "PIN_MIXED";
             break;
-
         case PinSubType::PIN_MAX:
             pinSubType_ = "PIN_MAX";
             break;
-
         default:
             pinSubType_ = "PIN_SIX";
             break;

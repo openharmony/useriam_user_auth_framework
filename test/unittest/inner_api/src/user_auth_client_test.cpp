@@ -530,7 +530,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginWidgetAuth003, TestSize.Level0)
     testWidgetParam.title = "title";
     auto testCallback = Common::MakeShared<MockAuthenticationCallback>();
     EXPECT_NE(testCallback, nullptr);
-    
+
     uint64_t testContextVersion = 1;
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
@@ -583,7 +583,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientSetWidgetCallback003, TestSize.Level0
     int32_t testVersion = 0;
     auto testCallback = Common::MakeShared<MockIUserAuthWidgetCallback>();
     EXPECT_NE(testCallback, nullptr);
-    
+
     uint64_t testContextVersion = 1;
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);

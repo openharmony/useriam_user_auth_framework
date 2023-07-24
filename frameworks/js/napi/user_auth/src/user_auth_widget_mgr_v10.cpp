@@ -59,9 +59,9 @@ UserAuthResultCode UserAuthWidgetMgr::Init(napi_env env, napi_callback_info info
         return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
 
-    uint32_t version = 0;
-    ret = UserAuthNapiHelper::GetUint32Value(env, argv[PARAM0], version);
-    IAM_LOGI("UserAuthWidgetMgr version: %{public}u", version);
+    int32_t version = 0;
+    ret = UserAuthNapiHelper::GetInt32Value(env, argv[PARAM0], version);
+    IAM_LOGI("UserAuthWidgetMgr version: %{public}d", version);
     if (ret != napi_ok) {
         IAM_LOGE("get version fail:%{public}d", ret);
         return UserAuthResultCode::OHOS_INVALID_PARAM;

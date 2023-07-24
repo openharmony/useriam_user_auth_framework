@@ -46,6 +46,9 @@ UserAuthInstanceV10::UserAuthInstanceV10(napi_env env) : callback_(Common::MakeS
     if (callback_ == nullptr) {
         IAM_LOGE("get null callback");
     }
+    widgetParam_.navigationButtonText = "";
+    widgetParam_.title = "";
+    widgetParam_.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
 }
 
 UserAuthResultCode UserAuthInstanceV10::InitChallenge(napi_env env, napi_value value)
@@ -167,12 +170,8 @@ UserAuthResultCode UserAuthInstanceV10::InitWidgetParam(napi_env env, napi_value
         return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
     std::string title = UserAuthNapiHelper::GetStringPropertyUtf8(env, value, WIDGET_PARAM_TITLE);
-    if (title == "") {
-        IAM_LOGE("title is invalid");
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
-    }
-    if (title.length() > WidgetType::TITLE_MAX) {
-        IAM_LOGE("title text too long. size: %{public}zu", title.length());
+    if (title == "" || title.length() > WidgetType::TITLE_MAX) {
+        IAM_LOGE("title is invalid. size: %{public}zu", title.length());
         return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
     widgetParam_.title = title;
@@ -186,11 +185,14 @@ UserAuthResultCode UserAuthInstanceV10::InitWidgetParam(napi_env env, napi_value
         widgetParam_.navigationButtonText = naviBtnTxt;
     }
 
-    widgetParam_.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
     if (UserAuthNapiHelper::HasNamedProperty(env, value, WIDGET_PARAM_WINDOWMODE)) {
         napi_value napi_windowModeType = UserAuthNapiHelper::GetNamedProperty(env, value, WIDGET_PARAM_WINDOWMODE);
         uint32_t windowMode;
         ret = UserAuthNapiHelper::GetUint32Value(env, napi_windowModeType, windowMode);
+        if (ret != napi_ok) {
+            IAM_LOGE("napi authType GetUint32Value fail:%{public}d", ret);
+            return UserAuthResultCode::OHOS_INVALID_PARAM;
+        }
         switch (windowMode) {
             case WindowModeType::DIALOG_BOX:
             case WindowModeType::FULLSCREEN:
