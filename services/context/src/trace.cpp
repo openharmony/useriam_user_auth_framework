@@ -100,18 +100,18 @@ void Trace::ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &
         info.sdkVersion = metaData.sdkVersion.value();
     }
 
-    if (info.authType == AuthType::FINGERPRINT) {
-        SET_BIT(info.authWidgetType, (uint32_t)info.authType - 1);
-    } else {
-        SET_BIT(info.authWidgetType, (uint32_t)info.authType);
-    }
-
-    if (metaData.windowMode == FULLSCREEN) {
-        SET_BIT(info.authWidgetType, BIT_WINDOWMODE);
-    }
-
-    if (metaData.hasNaviBtn) {
-        SET_BIT(info.authWidgetType, BIT_NAVIGATION);
+    if (metaData.windowMode.has_value()) {
+        int32_t authTypeBitOffset = info.authType - 1;
+        if (info.authType == AuthType::FINGERPRINT) {
+            authTypeBitOffset--;
+        }
+        SET_BIT(info.authWidgetType, authTypeBitOffset);
+        if (metaData.windowMode.value() == FULLSCREEN) {
+            SET_BIT(info.authWidgetType, BIT_WINDOWMODE);
+        }
+        if (metaData.hasNaviBtn.value()) {
+            SET_BIT(info.authWidgetType, BIT_NAVIGATION);
+        }
     }
 
     ReportUserAuth(info);

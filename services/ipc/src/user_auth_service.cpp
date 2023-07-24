@@ -500,7 +500,8 @@ uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthTy
 int32_t UserAuthService::CancelAuthOrIdentify(uint64_t contextId)
 {
     IAM_LOGI("start");
-    bool checkRet = !IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION);
+    bool checkRet = !IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
+        !IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION);
     if (checkRet) {
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
