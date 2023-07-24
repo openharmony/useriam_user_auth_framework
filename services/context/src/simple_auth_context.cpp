@@ -14,9 +14,13 @@
  */
 #include "simple_auth_context.h"
 
+#include <set>
+#include <vector>
+
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
+#include "resource_node.h"
 #include "schedule_node.h"
 #include "schedule_node_callback.h"
 
@@ -24,6 +28,46 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+ResultCode SimpleAuthContext::SetFreezingTimeAndRemainTimes(int32_t &freezingTime, int32_t &remainTimes)
+{
+    IAM_LOGI("start");
+    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_.size() == 1, GENERAL_ERROR);
+    auto scheduleNode = scheduleList_[0];
+    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleNode != nullptr, GENERAL_ERROR);
+
+    auto resourceNode = scheduleNode->GetVerifyExecutor().lock();
+    IF_FALSE_LOGE_AND_RETURN_VAL(resourceNode != nullptr, GENERAL_ERROR);
+
+    auto optionalTemplateIdList = scheduleNode->GetTemplateIdList();
+    IF_FALSE_LOGE_AND_RETURN_VAL(optionalTemplateIdList.has_value(), GENERAL_ERROR);
+
+    std::vector<uint64_t> templateIdList = optionalTemplateIdList.value();
+
+    Attributes attr;
+    attr.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_GET);
+    attr.SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIdList);
+    std::vector<uint32_t> keys = { Attributes::ATTR_FREEZING_TIME, Attributes::ATTR_REMAIN_TIMES };
+    attr.SetUint32ArrayValue(Attributes::ATTR_KEY_LIST, keys);
+
+    Attributes values;
+    int32_t ret = resourceNode->GetProperty(attr, values);
+    IF_FALSE_LOGE_AND_RETURN_VAL(ret == SUCCESS, GENERAL_ERROR);
+
+    bool getFreezingTimeRet = values.GetInt32Value(Attributes::ATTR_FREEZING_TIME, freezingTime);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getFreezingTimeRet == true, GENERAL_ERROR);
+    bool getRemainTimesRet = values.GetInt32Value(Attributes::ATTR_REMAIN_TIMES, remainTimes);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getRemainTimesRet == true, GENERAL_ERROR);
+
+    IAM_LOGI("set freezing time and remain times success");
+    return SUCCESS;
+}
+
+bool SimpleAuthContext::NeedSetFreezingTimeAndRemainTimes(int32_t result) const
+{
+    static const std::set<int32_t> needSetCodes = { FAIL, LOCKED };
+    return needSetCodes.find(result) != needSetCodes.end();
+}
+
 SimpleAuthContext::SimpleAuthContext(uint64_t contextId, std::shared_ptr<Authentication> auth,
     std::shared_ptr<ContextCallback> callback)
     : BaseContext("SimpleAuth", contextId, callback),
@@ -71,6 +115,14 @@ void SimpleAuthContext::OnResult(int32_t resultCode, const std::shared_ptr<Attri
         }
         resultInfo.result = resultCode;
     }
+    if (NeedSetFreezingTimeAndRemainTimes(resultInfo.result)) {
+        IAM_LOGI("need get freezing time and remain times");
+        ResultCode result = SetFreezingTimeAndRemainTimes(resultInfo.freezingTime,
+            resultInfo.remainTimes);
+        if (result != SUCCESS) {
+            IAM_LOGE("fail to get freezing time and remain times");
+        }
+    }
     InvokeResultCallback(resultInfo);
     IAM_LOGI("%{public}s on result %{public}d finish", GetDescription(), resultCode);
 }
@@ -116,10 +168,14 @@ void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInf
     Attributes finalResult;
     bool setResultCodeRet = finalResult.SetInt32Value(Attributes::ATTR_RESULT_CODE, resultInfo.result);
     IF_FALSE_LOGE_AND_RETURN(setResultCodeRet == true);
-    bool setFreezingTimeRet = finalResult.SetInt32Value(Attributes::ATTR_FREEZING_TIME, resultInfo.freezingTime);
-    IF_FALSE_LOGE_AND_RETURN(setFreezingTimeRet == true);
-    bool setUserIdRet = finalResult.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, resultInfo.remainTimes);
-    IF_FALSE_LOGE_AND_RETURN(setUserIdRet == true);
+
+    if (resultInfo.result == SUCCESS || NeedSetFreezingTimeAndRemainTimes(resultInfo.result)) {
+        bool setFreezingTimeRet = finalResult.SetInt32Value(Attributes::ATTR_FREEZING_TIME, resultInfo.freezingTime);
+        IF_FALSE_LOGE_AND_RETURN(setFreezingTimeRet == true);
+        bool setRemainTimesRet = finalResult.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, resultInfo.remainTimes);
+        IF_FALSE_LOGE_AND_RETURN(setRemainTimesRet == true);
+    }
+
     if (resultInfo.token.size() != 0) {
         bool setSignatureResult = finalResult.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, resultInfo.token);
         IF_FALSE_LOGE_AND_RETURN(setSignatureResult == true);
