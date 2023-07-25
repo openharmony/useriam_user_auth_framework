@@ -134,8 +134,8 @@ HWTEST_F(WidgetContextTest, WidgetContextTestAuthResult001, TestSize.Level0)
     int32_t at = 1;
     Attributes finalResult;
     AuthType authType = ALL;
-    sptr<IamCallbackInterface> testCallback = new (std::nothrow) WidgetContextCallbackImpl(widgetContext,
-        static_cast<int32_t>(authType));
+    sptr<IamCallbackInterface> testCallback(
+        new (std::nothrow) WidgetContextCallbackImpl(widgetContext, static_cast<int32_t>(authType)));
     EXPECT_NE(testCallback, nullptr);
     widgetContext->AuthResult(resultCode, at, finalResult, testCallback);
 }
@@ -149,7 +149,7 @@ HWTEST_F(WidgetContextTest, WidgetContextTestAuthResult002, TestSize.Level0)
     int32_t resultCode = 1;
     int32_t at = 1;
     Attributes finalResult;
-    sptr<IamCallbackInterface> task = nullptr;
+    sptr<IamCallbackInterface> task(nullptr);
     widgetContext->AuthResult(resultCode, at, finalResult, task);
 }
 

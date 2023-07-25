@@ -121,7 +121,9 @@ bool IpcCommon::CheckPermission(IPCObjectStub &stub, Permission permission)
 uint32_t IpcCommon::GetAccessTokenId(IPCObjectStub &stub)
 {
     uint32_t tokenId = stub.GetFirstTokenID();
+    IAM_LOGI("get first caller tokenId: %{public}u", tokenId);
     if (tokenId == 0) {
+        IAM_LOGI("no first caller, get direct caller tokenId: %{public}u", tokenId);
         tokenId = stub.GetCallingTokenID();
     }
     return tokenId;
@@ -130,7 +132,7 @@ uint32_t IpcCommon::GetAccessTokenId(IPCObjectStub &stub)
 uint32_t IpcCommon::GetTokenId(IPCObjectStub &stub)
 {
     uint32_t tokenId = stub.GetCallingTokenID();
-    IAM_LOGI("get tokenId: %{public}d", tokenId);
+    IAM_LOGI("get tokenId: %{public}u", tokenId);
     return tokenId;
 }
 

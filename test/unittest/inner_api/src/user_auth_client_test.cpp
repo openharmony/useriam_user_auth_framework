@@ -552,7 +552,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginWidgetAuth003, TestSize.Level0)
         );
 
     sptr<MockRemoteObject> obj = new MockRemoteObject();
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
     uint64_t widgetAuth = UserAuthClientImpl::Instance().BeginWidgetAuth(testVersion, testParam,
     testWidgetParam, testCallback);
@@ -597,7 +597,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientSetWidgetCallback003, TestSize.Level0
         );
 
     sptr<MockRemoteObject> obj = new MockRemoteObject();
-    sptr<IRemoteObject::DeathRecipient> dr = nullptr;
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
     uint64_t widgetAuth = UserAuthClientImpl::Instance().SetWidgetCallback(testVersion, testCallback);
     EXPECT_EQ(widgetAuth, testContextVersion);
