@@ -494,7 +494,7 @@ napi_value SendNotice(napi_env env, napi_callback_info info)
     if (result != ResultCode::SUCCESS) {
         errCode = UserAuthResultCode(UserAuthNapiHelper::GetResultCodeV10(result));
         IAM_LOGE("SendNotice fail. result: %{public}d, errCode: %{public}d", result, errCode);
-        return ResultOfSendNotice(env, UserAuthResultCode::OHOS_INVALID_PARAM);
+        return ResultOfSendNotice(env, errCode);
     }
     IAM_LOGI("end SendNotice");
     return nullptr;
