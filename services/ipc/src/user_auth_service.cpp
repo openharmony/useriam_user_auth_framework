@@ -286,45 +286,38 @@ ResultCode UserAuthService::CheckServicePermission(AuthType authType)
     return CheckNorthPermission(authType);
 }
 
-ResultCode UserAuthService::CheckAuthWidgetParam(const AuthParam authParam, const WindowModeType windowMode)
+ResultCode UserAuthService::CheckAuthWidgetParam(const AuthParam &authParam, const WidgetParam &widgetParam)
 {
-    for (auto authType : authParam.authType) {
-        switch (authType) {
-            case AuthType::ALL :
-            case AuthType::PIN :
-                return ResultCode::SUCCESS;
-
-            case AuthType::FACE:
-            case AuthType::FINGERPRINT:
-                if (authParam.authTrustLevel == AuthTrustLevel::ATL4) {
-                    IAM_LOGE("authType not match with trustLevel.");
-                    return ResultCode::TRUST_LEVEL_NOT_SUPPORT;
-                }
-                break;
-
-            default:
-                IAM_LOGE("no such type authType.");
-                return ResultCode::GENERAL_ERROR;
+    if (widgetParam.navigationButtonText != "") {
+        IAM_LOGI("authParam.authType.size() = %{public}zu", authParam.authType.size());
+        if (authParam.authType.size() != 1 || authParam.authType[0] != AuthType::FACE ||
+            authParam.authType[0] != AuthType::FINGERPRINT) {
+            IAM_LOGE("authParam.authType[0] = %{public}d", authParam.authType[0]);
+            return ResultCode::INVALID_PARAMETERS;
         }
     }
+    if (authParam.authTrustLevel != AuthTrustLevel::ATL1 && authParam.authTrustLevel != AuthTrustLevel::ATL2
+        && authParam.authTrustLevel != AuthTrustLevel::ATL3 && authParam.authTrustLevel != AuthTrustLevel::ATL4) {
+        IAM_LOGE("authType not match with trustLevel.");
+        return ResultCode::TRUST_LEVEL_NOT_SUPPORT;
+    }
 
+    WindowModeType windowMode = widgetParam.windowMode;
     if (authParam.authType.size() == 1) {
         AuthType authTypeValue = authParam.authType[0];
         switch (authTypeValue) {
-            case AuthType::ALL :
             case AuthType::PIN :
                 return ResultCode::SUCCESS;
             case AuthType::FACE:
             case AuthType::FINGERPRINT:
                 if (windowMode == FULLSCREEN) {
-                    IAM_LOGE("Single fingerprint single face does not support full screen");
-                    return ResultCode::TRUST_LEVEL_NOT_SUPPORT;
+                    IAM_LOGE("Single fingerprint or single face does not support full screen");
+                    return ResultCode::GENERAL_ERROR;
                 }
                 break;
-
             default:
                 IAM_LOGE("no such type authType.");
-                return ResultCode::GENERAL_ERROR;
+                return ResultCode::TYPE_NOT_SUPPORT;
         }
     }
     return ResultCode::SUCCESS;
@@ -551,7 +544,7 @@ ResultCode UserAuthService::CheckParam(const AuthParam &authParam, const WidgetP
         IAM_LOGE("CheckWidgetNorthPermission failed. errCode: %{public}d", checkRet);
         return checkRet;
     }
-    checkRet = CheckAuthWidgetParam(authParam, widgetParam.windowMode);
+    checkRet = CheckAuthWidgetParam(authParam, widgetParam);
     if (checkRet != SUCCESS) {
         IAM_LOGE("parameter failed. errCode: %{public}d", checkRet);
         return checkRet;
