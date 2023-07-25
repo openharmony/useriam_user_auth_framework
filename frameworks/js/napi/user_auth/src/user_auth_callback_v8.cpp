@@ -15,6 +15,7 @@
 
 #include "user_auth_callback_v8.h"
 
+#include <optional>
 #include <uv.h>
 
 #include "iam_logger.h"
@@ -29,8 +30,8 @@ struct ResultCallbackV8Holder {
     std::shared_ptr<UserAuthCallbackV8> callback {nullptr};
     int32_t result {0};
     std::vector<uint8_t> token {};
-    int32_t remainTimes {0};
-    int32_t freezingTime {0};
+    std::optional<int32_t> remainTimes {std::nullopt};
+    std::optional<int32_t> freezingTime {std::nullopt};
     napi_env env;
 };
 
@@ -140,8 +141,8 @@ UserAuthCallbackV8::~UserAuthCallbackV8()
 {
 }
 
-napi_status UserAuthCallbackV8::DoResultCallback(int32_t result,
-    const std::vector<uint8_t> &token, int32_t remainTimes, int32_t freezingTime)
+napi_status UserAuthCallbackV8::DoResultCallback(int32_t result, const std::vector<uint8_t> &token,
+    std::optional<int32_t> &remainTimes, std::optional<int32_t> &freezingTime)
 {
     if (resultCallback_ == nullptr) {
         return napi_ok;
@@ -158,16 +159,23 @@ napi_status UserAuthCallbackV8::DoResultCallback(int32_t result,
         IAM_LOGE("napi_create_object failed %{public}d", ret);
         return ret;
     }
-    ret = UserAuthNapiHelper::SetInt32Property(env_, params[PARAM1], "remainTimes", remainTimes);
-    if (ret != napi_ok) {
-        IAM_LOGE("SetInt32Property failed %{public}d", ret);
-        return ret;
+
+    if (remainTimes.has_value()) {
+        ret = UserAuthNapiHelper::SetInt32Property(env_, params[PARAM1], "remainTimes", remainTimes.value());
+        if (ret != napi_ok) {
+            IAM_LOGE("SetInt32Property failed %{public}d", ret);
+            return ret;
+        }
     }
-    ret = UserAuthNapiHelper::SetInt32Property(env_, params[PARAM1], "freezingTime", freezingTime);
-    if (ret != napi_ok) {
-        IAM_LOGE("SetInt32Property failed %{public}d", ret);
-        return ret;
+
+    if (freezingTime.has_value()) {
+        ret = UserAuthNapiHelper::SetInt32Property(env_, params[PARAM1], "freezingTime", freezingTime.value());
+        if (ret != napi_ok) {
+            IAM_LOGE("SetInt32Property failed %{public}d", ret);
+            return ret;
+        }
     }
+
     ret = UserAuthNapiHelper::SetUint8ArrayProperty(env_, params[PARAM1], "token", token);
     if (ret != napi_ok) {
         IAM_LOGE("SetUint8ArrayProperty failed %{public}d", ret);
@@ -254,10 +262,18 @@ void UserAuthCallbackV8::OnResult(int32_t result, const Attributes &extraInfo)
     if (!extraInfo.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, resultHolder->token)) {
         IAM_LOGE("ATTR_SIGNATURE is null");
     }
-    if (!extraInfo.GetInt32Value(Attributes::ATTR_REMAIN_TIMES, resultHolder->remainTimes)) {
+
+    int32_t remainTimes = 0;
+    if (extraInfo.GetInt32Value(Attributes::ATTR_REMAIN_TIMES, remainTimes)) {
+        resultHolder->remainTimes = remainTimes;
+    } else {
         IAM_LOGE("ATTR_REMAIN_TIMES is null");
     }
-    if (!extraInfo.GetInt32Value(Attributes::ATTR_FREEZING_TIME, resultHolder->freezingTime)) {
+
+    int32_t freezingTime = INT32_MAX;
+    if (extraInfo.GetInt32Value(Attributes::ATTR_FREEZING_TIME, freezingTime)) {
+        resultHolder->freezingTime = freezingTime;
+    } else {
         IAM_LOGE("ATTR_FREEZING_TIME is null");
     }
 

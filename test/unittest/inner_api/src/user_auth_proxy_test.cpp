@@ -283,7 +283,7 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyAuthWidget001, TestSize.Level0)
     AuthParam authParam;
     WidgetParam widgetParam;
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserAuthProxy>(obj);
     EXPECT_NE(proxy, nullptr);
@@ -316,11 +316,11 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyAuthWidget002, TestSize.Level0)
     AuthParam authParam;
     WidgetParam widgetParam;
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserAuthProxy>(obj);
     EXPECT_NE(proxy, nullptr);
-    sptr<UserAuthCallbackInterface> testCallback = nullptr;
+    sptr<UserAuthCallbackInterface> testCallback(nullptr);
     proxy->AuthWidget(testApiVersion, authParam, widgetParam, testCallback);
 }
 
@@ -329,7 +329,7 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyNotice001, TestSize.Level0)
     static const NoticeType testNoticeType = NoticeType::WIDGET_NOTICE;
     static const std::string testEventData = "notice";
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserAuthProxy>(obj);
     EXPECT_NE(proxy, nullptr);
@@ -356,7 +356,7 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyRegisterWidgetCallback001, TestSize.Lev
 {
     static const int32_t testVersion = 0;
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserAuthProxy>(obj);
     EXPECT_NE(proxy, nullptr);
@@ -387,11 +387,11 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyRegisterWidgetCallback002, TestSize.Lev
 {
     static const int32_t testVersion = 0;
 
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserAuthProxy>(obj);
     EXPECT_NE(proxy, nullptr);
-    sptr<WidgetCallbackInterface> callback = nullptr;
+    sptr<WidgetCallbackInterface> callback(nullptr);
     EXPECT_EQ(proxy->RegisterWidgetCallback(testVersion, callback), GENERAL_ERROR);
 }
 } // namespace UserAuth

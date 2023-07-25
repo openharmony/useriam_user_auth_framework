@@ -44,7 +44,7 @@ void WidgetCallbackProxyTest::TearDown()
 
 HWTEST_F(WidgetCallbackProxyTest, WidgetCallbackStubOnRemoteRequest001, TestSize.Level0)
 {
-    sptr<MockRemoteObject> obj = new MockRemoteObject();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _))
         .WillOnce(

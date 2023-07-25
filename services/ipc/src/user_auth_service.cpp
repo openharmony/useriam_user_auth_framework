@@ -505,7 +505,7 @@ int32_t UserAuthService::CancelAuthOrIdentify(uint64_t contextId)
         return GENERAL_ERROR;
     }
 
-    if (context-> GetTokenId() != IpcCommon::GetTokenId(*this)) {
+    if (context->GetTokenId() != IpcCommon::GetAccessTokenId(*this)) {
         IAM_LOGE("failed to check tokenId");
         return INVALID_CONTEXT_ID;
     }
@@ -582,7 +582,7 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParam &authPa
 
     ContextFactory::AuthWidgetContextPara para;
     para.userId = userId;
-    para.tokenId = IpcCommon::GetTokenId(*this);
+    para.tokenId = IpcCommon::GetAccessTokenId(*this);
     para.callingUid = GetCallingUid();
     if (!AuthWidgetHelper::InitWidgetContextParam(userId, authParam, widgetParam, para)) {
         IAM_LOGE("init widgetContext failed");

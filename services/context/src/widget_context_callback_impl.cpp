@@ -47,7 +47,8 @@ void WidgetContextCallbackImpl::OnAcquireInfo(int32_t module, int32_t acquireInf
 
 sptr<IRemoteObject> WidgetContextCallbackImpl::AsObject()
 {
-    return nullptr;
+    sptr<IRemoteObject> tmp(nullptr);
+    return tmp;
 }
 } // namespace UserAuth
 } // namespace UserIam

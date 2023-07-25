@@ -29,9 +29,9 @@ WidgetCallbackService::WidgetCallbackService(const std::shared_ptr<IUserAuthWidg
     iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("UserAuthWidget InnerKit"))
 {
     CallbackManager::CallbackAction action = [impl]() {
-        std::string command = "";
         if (impl != nullptr) {
             IAM_LOGI("user auth service death, auth widget callback return default result to caller");
+            std::string command = "";
             impl->SendCommand(command);
         }
     };
