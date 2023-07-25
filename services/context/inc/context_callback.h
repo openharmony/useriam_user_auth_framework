@@ -44,8 +44,7 @@ public:
         std::optional<uint64_t> callingUid;
         std::optional<AuthTrustLevel> atl;
         std::optional<AuthType> authType;
-        std::optional<WindowModeType> windowMode;
-        std::optional<bool> hasNaviBtn;
+        std::optional<uint32_t> authWidgetType;
         std::chrono::time_point<std::chrono::steady_clock> startTime;
         std::chrono::time_point<std::chrono::steady_clock> endTime;
     };
@@ -70,9 +69,8 @@ public:
     virtual void SetTraceSdkVersion(int32_t version) = 0;
     virtual void SetTraceCallingUid(uint64_t callingUid) = 0;
     virtual void SetTraceAuthType(AuthType authType) = 0;
+    virtual void SetTraceAuthWidgetType(uint32_t authWidgetType) = 0;
     virtual void SetTraceAuthTrustLevel(AuthTrustLevel atl) = 0;
-    virtual void SetTraceWindowMode(WindowModeType windowMode) = 0;
-    virtual void SetTraceNavigation(bool hasNaviBnt) = 0;
     virtual void SetCleaner(Context::ContextStopCallback callback) = 0;
 };
 } // namespace UserAuth

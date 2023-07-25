@@ -63,7 +63,7 @@ HWTEST_F(WidgetCallbackServiceTest, WidgetCallbackServiceSendCommand002, TestSiz
                 EXPECT_EQ(cmdData, testData);
             }
         );
-    
+
     auto service = Common::MakeShared<WidgetCallbackService>(widgetCallback);
     EXPECT_NE(service, nullptr);
     service->SendCommand(testData);

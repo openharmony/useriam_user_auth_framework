@@ -103,19 +103,14 @@ void ContextCallbackImpl::SetTraceAuthType(AuthType authType)
     metaData_.authType = authType;
 }
 
+void ContextCallbackImpl::SetTraceAuthWidgetType(uint32_t authWidgetType)
+{
+    metaData_.authWidgetType = authWidgetType;
+}
+
 void ContextCallbackImpl::SetTraceAuthTrustLevel(AuthTrustLevel atl)
 {
     metaData_.atl = atl;
-}
-
-void ContextCallbackImpl::SetTraceWindowMode(WindowModeType windowMode)
-{
-    metaData_.windowMode = windowMode;
-}
-
-void ContextCallbackImpl::SetTraceNavigation(bool hasNaviBtn)
-{
-    metaData_.hasNaviBtn = hasNaviBtn;
 }
 
 void ContextCallbackImpl::SetCleaner(Context::ContextStopCallback callback)

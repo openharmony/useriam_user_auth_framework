@@ -165,10 +165,13 @@ void WidgetClient::Reset()
 void WidgetClient::ForceStopAuth()
 {
     IAM_LOGE("Stop Auth process forcely by disconnect");
+    if (widgetContextId_ != 0) {
+        IAM_LOGE("widget context id hasn't been reset");
+        UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "AuthWidget");
+    }
     if (schedule_ != nullptr) {
         schedule_->StopSchedule();
     }
-    UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "AuthWidget");
 }
 
 void WidgetClient::SetPinSubType(const PinSubType &subType)

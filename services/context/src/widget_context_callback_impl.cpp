@@ -26,7 +26,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-WidgetContextCallbackImpl::WidgetContextCallbackImpl(std::shared_ptr<WidgetContext> widgetContext, int32_t authType)
+WidgetContextCallbackImpl::WidgetContextCallbackImpl(std::weak_ptr<WidgetContext> widgetContext, int32_t authType)
     : authType_(authType), widgetContext_(widgetContext),
     iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("WidgetContext"))
 {

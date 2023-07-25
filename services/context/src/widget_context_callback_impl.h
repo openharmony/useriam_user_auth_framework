@@ -29,7 +29,7 @@ namespace UserAuth {
 class WidgetContext;
 class WidgetContextCallbackImpl : public IamCallbackInterface, public NoCopyable {
 public:
-    WidgetContextCallbackImpl(std::shared_ptr<WidgetContext> widgetContext, int32_t authType);
+    WidgetContextCallbackImpl(std::weak_ptr<WidgetContext> widgetContext, int32_t authType);
     ~WidgetContextCallbackImpl() override = default;
     void OnResult(int32_t result, const Attributes &extraInfo) override;
     void OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo) override;
