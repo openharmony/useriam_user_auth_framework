@@ -73,14 +73,14 @@ protected:
 private:
     void SetLatestError(int32_t error) override;
     std::shared_ptr<Context> BuildTask(const std::vector<uint8_t> &challenge,
-        AuthType authType, AuthTrustLevel authTrustLevel, WindowModeType windowMode);
+        AuthType authType, AuthTrustLevel authTrustLevel);
     bool BuildSchedule();
     bool ConnectExtension();
     int32_t ConnectExtensionAbility(const AAFwk::Want &want, const std::string commandStr);
     bool DisconnectExtension();
     void End(const ResultCode &resultCode);
     std::shared_ptr<ContextCallback> GetAuthContextCallback(AuthType authType, AuthTrustLevel authTrustLevel,
-        WindowModeType windowMode, bool hasNaviBtn, sptr<IamCallbackInterface> &callback);
+        sptr<IamCallbackInterface> &callback);
     bool TaskRun2Done(const std::shared_ptr<Context> &task);
     void StopAllRunTask();
     std::string BuildStartCommand();

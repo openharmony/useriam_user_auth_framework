@@ -21,11 +21,6 @@
 #include "hisysevent_adapter.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
-#define GET_BIT(v, n) ((v) & ((uint32_t)1 << (n)))
-#define SET_BIT(v, n) ((v) |= ((uint32_t)1 << (n)))
-
-constexpr uint32_t BIT_WINDOWMODE = 30;
-constexpr uint32_t BIT_NAVIGATION = 31;
 
 using namespace OHOS::UserIam::UserAuth;
 
@@ -75,7 +70,8 @@ void Trace::ProcessCredChangeEvent(const ContextCallbackNotifyListener::MetaData
 void Trace::ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData)
 {
     using namespace std::chrono;
-    bool checkRet = metaData.operationType == TRACE_AUTH_USER && metaData.authType.has_value();
+    bool checkRet = metaData.operationType == TRACE_AUTH_USER &&
+        (metaData.authType.has_value() || metaData.authWidgetType.has_value());
     if (!checkRet) {
         return;
     }
@@ -85,6 +81,9 @@ void Trace::ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &
     }
     if (metaData.authType.has_value()) {
         info.authType = metaData.authType.value();
+    }
+    if (metaData.authWidgetType.has_value()) {
+        info.authWidgetType = metaData.authWidgetType.value();
     }
     if (metaData.atl.has_value()) {
         info.atl = metaData.atl.value();
@@ -98,20 +97,6 @@ void Trace::ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &
     info.timeSpanString = ss.str();
     if (metaData.sdkVersion.has_value()) {
         info.sdkVersion = metaData.sdkVersion.value();
-    }
-
-    if (metaData.windowMode.has_value()) {
-        int32_t authTypeBitOffset = info.authType - 1;
-        if (info.authType == AuthType::FINGERPRINT) {
-            authTypeBitOffset--;
-        }
-        SET_BIT(info.authWidgetType, authTypeBitOffset);
-        if (metaData.windowMode.value() == FULLSCREEN) {
-            SET_BIT(info.authWidgetType, BIT_WINDOWMODE);
-        }
-        if (metaData.hasNaviBtn.value()) {
-            SET_BIT(info.authWidgetType, BIT_NAVIGATION);
-        }
     }
 
     ReportUserAuth(info);

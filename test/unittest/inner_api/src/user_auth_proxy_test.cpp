@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -333,7 +333,7 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyNotice001, TestSize.Level0)
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserAuthProxy>(obj);
     EXPECT_NE(proxy, nullptr);
-    
+
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
     EXPECT_CALL(*service, Notice(_, _))

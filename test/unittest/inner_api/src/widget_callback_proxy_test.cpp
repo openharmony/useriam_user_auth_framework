@@ -53,7 +53,7 @@ HWTEST_F(WidgetCallbackProxyTest, WidgetCallbackStubOnRemoteRequest001, TestSize
                 return OHOS::NO_ERROR;
             }
         );
-    
+
     auto proxy = Common::MakeShared<WidgetCallbackProxy>(obj);
     EXPECT_NE(proxy, nullptr);
 
