@@ -292,7 +292,7 @@ ResultCode UserAuthService::CheckAuthWidgetParam(const AuthParam &authParam, con
         IAM_LOGI("authParam.authType.size() = %{public}zu", authParam.authType.size());
         if (authParam.authType.size() != 1 || (authParam.authType[0] != AuthType::FACE &&
             authParam.authType[0] != AuthType::FINGERPRINT)) {
-            IAM_LOGE("authParam.authType[0] = %{public}d", authParam.authType[0]);
+            IAM_LOGE("navigationButtonText check fail");
             return ResultCode::INVALID_PARAMETERS;
         }
     }
