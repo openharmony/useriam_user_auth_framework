@@ -290,8 +290,8 @@ ResultCode UserAuthService::CheckAuthWidgetParam(const AuthParam &authParam, con
 {
     if (widgetParam.navigationButtonText != "") {
         IAM_LOGI("authParam.authType.size() = %{public}zu", authParam.authType.size());
-        if (authParam.authType.size() != 1 || authParam.authType[0] != AuthType::FACE &&
-            authParam.authType[0] != AuthType::FINGERPRINT) {
+        if (authParam.authType.size() != 1 || (authParam.authType[0] != AuthType::FACE &&
+            authParam.authType[0] != AuthType::FINGERPRINT)) {
             IAM_LOGE("authParam.authType[0] = %{public}d", authParam.authType[0]);
             return ResultCode::INVALID_PARAMETERS;
         }
