@@ -288,6 +288,10 @@ ResultCode UserAuthService::CheckServicePermission(AuthType authType)
 
 ResultCode UserAuthService::CheckAuthWidgetParam(const AuthParam &authParam, const WidgetParam &widgetParam)
 {
+    if (authParam.authType.size() == 0) {
+        IAM_LOGE("authParam authType size is 0");
+        return ResultCode::INVALID_PARAMETERS;
+    }
     if (widgetParam.navigationButtonText != "") {
         IAM_LOGI("authParam.authType.size() = %{public}zu", authParam.authType.size());
         if (authParam.authType.size() != 1 || (authParam.authType[0] != AuthType::FACE &&
@@ -693,7 +697,10 @@ int32_t UserAuthService::RegisterWidgetCallback(int32_t version, sptr<WidgetCall
     if (version != curVersion) {
         return ResultCode::INVALID_PARAMETERS;
     }
-
+    if (callback == nullptr) {
+        IAM_LOGE("callback is nullptr");
+        return ResultCode::INVALID_PARAMETERS;
+    }
     WidgetClient::Instance().SetWidgetCallback(callback);
     WidgetClient::Instance().SetAuthTokenId(tokenId);
     return ResultCode::SUCCESS;
