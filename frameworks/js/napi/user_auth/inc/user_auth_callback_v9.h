@@ -36,8 +36,8 @@ public:
     void OnAcquireInfo(int32_t module, uint32_t acquireInfo, const Attributes &extraInfo) override;
     void OnResult(int32_t result, const Attributes &extraInfo) override;
 
-    napi_status DoResultCallback(int32_t result,
-        const std::vector<uint8_t> &token, int32_t remainTimes, int32_t freezingTime);
+    napi_status DoResultCallback(int32_t result, const std::vector<uint8_t> &token,
+        std::optional<int32_t> &remainTimes, std::optional<int32_t> &freezingTime);
     napi_status DoAcquireCallback(int32_t module, uint32_t acquireInfo);
 
     void SetResultCallback(const std::shared_ptr<JsRefHolder> &resultCallback);

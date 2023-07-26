@@ -29,9 +29,9 @@ IdmCallbackService::IdmCallbackService(const std::shared_ptr<UserIdmClientCallba
     iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("IDM InnerKit"))
 {
     CallbackManager::CallbackAction action = [impl]() {
-        Attributes extraInfo;
         if (impl != nullptr) {
             IAM_LOGI("user idm service death, return default result to caller");
+            Attributes extraInfo;
             impl->OnResult(GENERAL_ERROR, extraInfo);
         }
     };
@@ -68,9 +68,9 @@ IdmGetCredInfoCallbackService::IdmGetCredInfoCallbackService(
     const std::shared_ptr<GetCredentialInfoCallback> &impl) : getCredInfoCallback_(impl)
 {
     CallbackManager::CallbackAction action = [impl]() {
-        std::vector<CredentialInfo> infoList;
         if (impl != nullptr) {
             IAM_LOGI("user idm service death, return default cred info result to caller");
+            std::vector<CredentialInfo> infoList;
             impl->OnCredentialInfo(infoList);
         }
     };
@@ -97,9 +97,9 @@ IdmGetSecureUserInfoCallbackService::IdmGetSecureUserInfoCallbackService(
     const std::shared_ptr<GetSecUserInfoCallback> &impl) : getSecInfoCallback_(impl)
 {
     CallbackManager::CallbackAction action = [impl]() {
-        SecUserInfo info = {};
         if (impl != nullptr) {
             IAM_LOGI("user idm service death, return default secure info to caller");
+            SecUserInfo info = {};
             impl->OnSecUserInfo(info);
         }
     };

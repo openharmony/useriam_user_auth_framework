@@ -140,7 +140,7 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateWidgetAuthContext_001, TestSize
     auto factory = ContextFactory::GetInstance();
     ASSERT_NE(factory, nullptr);
     std::vector<uint8_t> token;
-    sptr<IdmCallbackInterface> callback = nullptr;
+    sptr<IdmCallbackInterface> callback(nullptr);
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
     EXPECT_EQ(ContextFactory::CreateWidgetAuthContext(contextCallback), nullptr);
 }
@@ -150,7 +150,7 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateWidgetContext_001, TestSize.Lev
     auto factory = ContextFactory::GetInstance();
     ASSERT_NE(factory, nullptr);
     std::vector<uint8_t> token;
-    sptr<IdmCallbackInterface> callback = new (nothrow) MockIdmCallback();
+    sptr<IdmCallbackInterface> callback(new (std::nothrow) MockIdmCallback());
     ASSERT_NE(callback, nullptr);
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
     ContextFactory::AuthWidgetContextPara para = {};
@@ -163,7 +163,7 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateWidgetContext_002, TestSize.Lev
     auto factory = ContextFactory::GetInstance();
     ASSERT_NE(factory, nullptr);
     std::vector<uint8_t> token;
-    sptr<IdmCallbackInterface> callback = nullptr;
+    sptr<IdmCallbackInterface> callback(nullptr);
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
     ContextFactory::AuthWidgetContextPara para = {};
     auto context = factory->CreateWidgetContext(para, contextCallback);
