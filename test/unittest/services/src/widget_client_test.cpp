@@ -83,7 +83,7 @@ HWTEST_F(WidgetClientTest, WidgetClientTestSetWidgetParam, TestSize.Level0)
 
 HWTEST_F(WidgetClientTest, WidgetClientTestSetWidgetCallback, TestSize.Level0)
 {
-    sptr<WidgetCallbackInterface> testCallback = nullptr;
+    sptr<WidgetCallbackInterface> testCallback(nullptr);
     WidgetClient::Instance().SetWidgetCallback(testCallback);
 }
 

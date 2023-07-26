@@ -112,7 +112,8 @@ public:
 
     sptr<IRemoteObject> AsObject() override
     {
-        return nullptr;
+        sptr<IRemoteObject> tmp(nullptr);
+        return tmp;
     }
 };
 
@@ -241,12 +242,12 @@ void FuzzAuthWidget(Parcel &parcel)
         authParam.authType.push_back(static_cast<AuthType>(at));
     }
     authParam.authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32());
-    sptr<UserAuthCallbackInterface> callback = nullptr;
+    sptr<UserAuthCallbackInterface> callback(nullptr);
     widgetParam.title = parcel.ReadString();
     widgetParam.navigationButtonText = parcel.ReadString();
     widgetParam.windowMode = static_cast<WindowModeType>(parcel.ReadInt32());
     if (parcel.ReadBool()) {
-        callback = new (nothrow) DummyUserAuthCallback();
+        callback = sptr<UserAuthCallbackInterface>(new (std::nothrow) DummyUserAuthCallback());
     }
     g_userAuthService.AuthWidget(apiVersion, authParam, widgetParam, callback);
     IAM_LOGI("end");
@@ -265,9 +266,9 @@ void FuzzRegisterWidgetCallback(Parcel &parcel)
 {
     IAM_LOGI("begin");
     int32_t version = parcel.ReadInt32();
-    sptr<WidgetCallbackInterface> callback = nullptr;
+    sptr<WidgetCallbackInterface> callback(nullptr);
     if (parcel.ReadBool()) {
-        callback = new (nothrow) DummyWidgetCallback();
+        callback = sptr<WidgetCallbackInterface>(new (std::nothrow) DummyWidgetCallback());
     }
     g_userAuthService.RegisterWidgetCallback(version, callback);
     IAM_LOGI("end");

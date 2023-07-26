@@ -29,9 +29,9 @@ UserAuthCallbackService::UserAuthCallbackService(const std::shared_ptr<Authentic
     iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("UserAuth InnerKit"))
 {
     CallbackManager::CallbackAction action = [impl]() {
-        Attributes extraInfo;
         if (impl != nullptr) {
             IAM_LOGI("user auth service death, auth callback return default result to caller");
+            Attributes extraInfo;
             impl->OnResult(GENERAL_ERROR, extraInfo);
         }
     };
@@ -43,9 +43,9 @@ UserAuthCallbackService::UserAuthCallbackService(const std::shared_ptr<Identific
     iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("UserAuth InnerKit"))
 {
     CallbackManager::CallbackAction action = [impl]() {
-        Attributes extraInfo;
         if (impl != nullptr) {
             IAM_LOGI("user auth service death, identify callback return default result to caller");
+            Attributes extraInfo;
             impl->OnResult(GENERAL_ERROR, extraInfo);
         }
     };
@@ -88,9 +88,9 @@ GetExecutorPropertyCallbackService::GetExecutorPropertyCallbackService(const std
     : getPropCallback_(impl)
 {
     CallbackManager::CallbackAction action = [impl]() {
-        Attributes extraInfo;
         if (impl != nullptr) {
             IAM_LOGI("user auth service death, get prop callback return default result to caller");
+            Attributes extraInfo;
             impl->OnResult(GENERAL_ERROR, extraInfo);
         }
     };
@@ -116,9 +116,9 @@ SetExecutorPropertyCallbackService::SetExecutorPropertyCallbackService(const std
     : setPropCallback_(impl)
 {
     CallbackManager::CallbackAction action = [impl]() {
-        Attributes extraInfo;
         if (impl != nullptr) {
             IAM_LOGI("user auth service death, set prop callback return default result to caller");
+            Attributes extraInfo;
             impl->OnResult(GENERAL_ERROR, extraInfo);
         }
     };
