@@ -171,9 +171,7 @@ void WidgetScheduleNodeImpl::OnStopAuthList(FiniteStateMachine &machine, uint32_
     auto callback = callback_.lock();
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
     for (auto authType : stopAuthTypeList_) {
-        if (runningAuthTypeSet_.find(authType) != runningAuthTypeSet_.end()) {
-            runningAuthTypeSet_.erase(authType);
-        }
+        runningAuthTypeSet_.erase(authType);
     }
     callback->StopAuthList(stopAuthTypeList_);
 }
@@ -182,9 +180,7 @@ void WidgetScheduleNodeImpl::OnSuccessAuth(FiniteStateMachine &machine, uint32_t
 {
     auto callback = callback_.lock();
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
-    if (runningAuthTypeSet_.find(successAuthType_) != runningAuthTypeSet_.end()) {
-        runningAuthTypeSet_.erase(successAuthType_);
-    }
+    runningAuthTypeSet_.erase(successAuthType_);
     callback->SuccessAuth(successAuthType_);
 }
 
