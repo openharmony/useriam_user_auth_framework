@@ -100,7 +100,7 @@ std::string WinModeType2Str(const WindowModeType &winModeType)
 std::vector<AuthType> WidgetNotice::AuthTypeList()
 {
     std::vector<AuthType> atList;
-    for (auto &type : typeList) {
+    for (const auto &type : typeList) {
         atList.emplace_back(Str2AuthType(type));
     }
     return atList;

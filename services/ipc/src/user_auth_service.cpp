@@ -646,8 +646,8 @@ std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(const A
     contextCallback->SetTraceAuthTrustLevel(authParam.authTrustLevel);
 
     uint32_t authWidgetType = 0;
-    for (auto authType : authParam.authType) {
-        authWidgetType |= authType;
+    for (const auto authType : authParam.authType) {
+        authWidgetType |= static_cast<uint32_t>(authType);
     }
     static const uint32_t BIT_WINDOW_MODE = 0x40000000;
     if (widgetParam.windowMode == FULLSCREEN) {
