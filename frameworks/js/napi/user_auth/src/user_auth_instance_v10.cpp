@@ -46,6 +46,7 @@ UserAuthInstanceV10::UserAuthInstanceV10(napi_env env) : callback_(Common::MakeS
     if (callback_ == nullptr) {
         IAM_LOGE("get null callback");
     }
+    authParam_.authTrustLevel = AuthTrustLevel::ATL1;
     widgetParam_.navigationButtonText = "";
     widgetParam_.title = "";
     widgetParam_.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
