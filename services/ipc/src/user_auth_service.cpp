@@ -44,6 +44,7 @@ const uint64_t BAD_CONTEXT_ID = 0;
 const int32_t MINIMUM_VERSION = 0;
 const int32_t CURRENT_VERSION = 1;
 const uint32_t AUTH_TRUST_LEVEL_SYS = 1;
+const uint32_t MAX_AUTH_TYPE_LEN = 3;
 constexpr int32_t USERIAM_IPC_THREAD_NUM = 4;
 void GetTemplatesByAuthType(int32_t userId, AuthType authType, std::vector<uint64_t> &templateIds)
 {
@@ -288,8 +289,8 @@ ResultCode UserAuthService::CheckServicePermission(AuthType authType)
 
 ResultCode UserAuthService::CheckAuthWidgetParam(const AuthParam &authParam, const WidgetParam &widgetParam)
 {
-    if (authParam.authType.size() == 0) {
-        IAM_LOGE("authParam authType size is 0");
+    if (authParam.authType.size() == 0 || authParam.authType.size() > MAX_AUTH_TYPE_LEN) {
+        IAM_LOGE("authParam authType size invalid");
         return ResultCode::INVALID_PARAMETERS;
     }
     if (widgetParam.navigationButtonText != "") {
