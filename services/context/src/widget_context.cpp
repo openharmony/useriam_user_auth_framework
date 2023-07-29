@@ -46,14 +46,6 @@ namespace UserAuth {
 constexpr int32_t DEFAULT_VALUE = -1;
 const std::string UI_EXTENSION_TYPE_SET = "sysDialog/userAuth";
 
-#define IN_PROCESS_CALL(theCall)                                     \
-    ([&]() {                                                         \
-        std::string identity = IPCSkeleton::ResetCallingIdentity();  \
-        auto retVal = theCall;                                       \
-        IPCSkeleton::SetCallingIdentity(identity);                   \
-        return retVal;                                               \
-    }())
-
 WidgetContext::WidgetContext(uint64_t contextId, const ContextFactory::AuthWidgetContextPara &para,
     std::shared_ptr<ContextCallback> callback)
     : contextId_(contextId), description_("UserAuthWidget"), callback_(callback), hasStarted_(false),
@@ -354,8 +346,10 @@ int32_t WidgetContext::ConnectExtensionAbility(const AAFwk::Want &want, const st
             IAM_LOGE("new connection error.");
         }
     }
-    auto ret = IN_PROCESS_CALL(AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(want,
-        connection_, DEFAULT_VALUE));
+
+    std::string identity = IPCSkeleton::ResetCallingIdentity();
+    auto ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(want, connection_, DEFAULT_VALUE);
+    IPCSkeleton::SetCallingIdentity(identity);
     IAM_LOGI("ConnectExtensionAbility errCode=%{public}d", ret);
     return ret;
 }
