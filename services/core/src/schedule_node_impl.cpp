@@ -179,12 +179,16 @@ std::shared_ptr<FiniteStateMachine> ScheduleNodeImpl::MakeFiniteStateMachine()
     builder->MakeTransition(S_VERIFY_STARING, E_VERIFY_STARTED_FAILED, S_END,
         [this](FiniteStateMachine &machine, uint32_t event) { ProcessVerifierBeginFailed(machine, event); });
     builder->MakeTransition(S_VERIFY_STARING, E_SCHEDULE_RESULT_RECEIVED, S_END);
-    builder->MakeTransition(S_VERIFY_STARING, E_STOP_AUTH, S_END);
-    builder->MakeTransition(S_VERIFY_STARING, E_TIME_OUT, S_END);
+    builder->MakeTransition(S_VERIFY_STARING, E_STOP_AUTH, S_VERIFY_STOPPING,
+        [this](FiniteStateMachine &machine, uint32_t event) { ProcessEndVerifier(machine, event); });
+    builder->MakeTransition(S_VERIFY_STARING, E_TIME_OUT, S_VERIFY_STOPPING,
+        [this](FiniteStateMachine &machine, uint32_t event) { ProcessEndVerifier(machine, event); });
 
     // S_COLLECT_STARING
     builder->MakeTransition(S_COLLECT_STARING, E_COLLECT_STARTED_SUCCESS, S_AUTH_PROCESSING);
     builder->MakeTransition(S_COLLECT_STARING, E_SCHEDULE_RESULT_RECEIVED, S_END);
+    builder->MakeTransition(S_COLLECT_STARING, E_STOP_AUTH, S_COLLECT_STOPPING,
+        [this](FiniteStateMachine &machine, uint32_t event) { ProcessEndCollector(machine, event); });
 
     // S_AUTH_PROCESSING
     builder->MakeTransition(S_AUTH_PROCESSING, E_SCHEDULE_RESULT_RECEIVED, S_END);
