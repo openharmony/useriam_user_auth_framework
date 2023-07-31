@@ -17,6 +17,7 @@
 
 #include "system_ability_definition.h"
 
+#include "auth_common.h"
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_time.h"
@@ -29,6 +30,12 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+
+const std::string PIN_SUB_TYPE_SIX = "PIN_SIX";
+const std::string PIN_SUB_TYPE_NUMBER = "PIN_NUMBER";
+const std::string PIN_SUB_TYPE_MIXED = "PIN_MIXED";
+const std::string PIN_SUB_TYPE_MAX = "PIN_MAX";
+
 WidgetClient &WidgetClient::Instance()
 {
     static WidgetClient widgetClient;
@@ -44,8 +51,12 @@ void WidgetClient::SetWidgetSchedule(const std::shared_ptr<WidgetScheduleNode> &
 ResultCode WidgetClient::OnNotice(NoticeType type, const std::string &eventData)
 {
     // handle notice from widget
+    if (type != WIDGET_NOTICE) {
+        IAM_LOGE("Invalid notice type");
+        return ResultCode::INVALID_PARAMETERS;
+    }
     if (eventData.empty()) {
-        IAM_LOGE("OnNotice eventData is empty");
+        IAM_LOGE("Invalid notice event data");
         return ResultCode::INVALID_PARAMETERS;
     }
     IAM_LOGI("recv notice eventData: %{public}s", eventData.c_str());
@@ -55,27 +66,35 @@ ResultCode WidgetClient::OnNotice(NoticeType type, const std::string &eventData)
         return ResultCode::INVALID_PARAMETERS;
     }
     WidgetNotice notice = root.get<WidgetNotice>();
-    if (notice.event != "EVENT_AUTH_TYPE_READY" &&
-        notice.event != "EVENT_AUTH_USER_CANCEL" &&
-        notice.event != "EVENT_AUTH_USER_NAVIGATION") {
-        IAM_LOGE("OnNotice not support event");
+    if (notice.widgetContextId == 0) {
+        IAM_LOGE("Invalid widget context id");
         return ResultCode::INVALID_PARAMETERS;
     }
-    std::vector<AuthType> authTypeList = notice.AuthTypeList();
+    if (notice.event != NOTICE_EVENT_AUTH_READY &&
+        notice.event != NOTICE_EVENT_CANCEL_AUTH &&
+        notice.event != NOTICE_EVENT_USER_NAVIGATION) {
+        IAM_LOGE("Not support notice event");
+        return ResultCode::INVALID_PARAMETERS;
+    }
     if (schedule_ == nullptr) {
         IAM_LOGE("Invalid schedule node, report auth false");
         ReportWidgetResult(0, AuthType::ALL, 0, 0);
         return ResultCode::SUCCESS;
     }
-    if (notice.event == "EVENT_AUTH_TYPE_READY") {
+    std::vector<AuthType> authTypeList = {};
+    if (!GetAuthTypeList(notice, authTypeList)) {
+        IAM_LOGE("Invalid auth type list");
+        return ResultCode::INVALID_PARAMETERS;
+    }
+    if (notice.event == NOTICE_EVENT_AUTH_READY) {
         schedule_->StartAuthList(authTypeList);
-    } else if (notice.event == "EVENT_AUTH_USER_CANCEL") {
+    } else if (notice.event == NOTICE_EVENT_CANCEL_AUTH) {
         if (authTypeList.size() == 1 && authTypeList[0] == AuthType::ALL) {
             schedule_->StopSchedule();
         } else {
             schedule_->StopAuthList(authTypeList);
         }
-    } else if (notice.event == "EVENT_AUTH_USER_NAVIGATION") {
+    } else if (notice.event == NOTICE_EVENT_USER_NAVIGATION) {
         schedule_->NaviPinAuth();
     }
     return ResultCode::SUCCESS;
@@ -100,8 +119,8 @@ void WidgetClient::ReportWidgetResult(int32_t result, AuthType authType,
     WidgetCommand::Cmd cmd {
         .event = "CMD_NOTIFY_AUTH_RESULT",
         .version = NOTICE_VERSION_STR,
-        .result = result,
         .type = AuthType2Str(authType),
+        .result = result,
         .lockoutDuration = lockoutDuration,
         .remainAttempts = remainAttempts
     };
@@ -110,12 +129,14 @@ void WidgetClient::ReportWidgetResult(int32_t result, AuthType authType,
     }
     WidgetCommand widgetCmd {
         .widgetContextId = widgetContextId_,
-        .typeList = { AuthType2Str(authType) },
         .title = widgetParam_.title,
         .windowModeType = WinModeType2Str(widgetParam_.windowMode),
         .navigationButtonText = widgetParam_.navigationButtonText,
         .cmdList = { cmd }
     };
+    for (auto &type : authTypeList_) {
+        widgetCmd.typeList.emplace_back(AuthType2Str(type));
+    }
     if (!pinSubType_.empty()) {
         widgetCmd.pinSubType = pinSubType_;
     }
@@ -130,6 +151,11 @@ void WidgetClient::SetWidgetContextId(uint64_t contextId)
 void WidgetClient::SetWidgetParam(const WidgetParam &param)
 {
     widgetParam_ = param;
+}
+
+void WidgetClient::SetAuthTypeList(const std::vector<AuthType> &authTypeList)
+{
+    authTypeList_ = authTypeList;
 }
 
 void WidgetClient::SetWidgetCallback(const sptr<WidgetCallbackInterface> &callback)
@@ -176,25 +202,18 @@ void WidgetClient::ForceStopAuth()
 
 void WidgetClient::SetPinSubType(const PinSubType &subType)
 {
+    pinSubType_ = PIN_SUB_TYPE_SIX;
     switch (subType) {
-        case PinSubType::PIN_SIX:
-            pinSubType_ = "PIN_SIX";
-            break;
-
         case PinSubType::PIN_NUMBER:
-            pinSubType_ = "PIN_NUMBER";
+            pinSubType_ = PIN_SUB_TYPE_NUMBER;
             break;
-
         case PinSubType::PIN_MIXED:
-            pinSubType_ = "PIN_MIXED";
+            pinSubType_ = PIN_SUB_TYPE_MIXED;
             break;
-
         case PinSubType::PIN_MAX:
-            pinSubType_ = "PIN_MAX";
+            pinSubType_ = PIN_SUB_TYPE_MAX;
             break;
-
         default:
-            pinSubType_ = "PIN_SIX";
             break;
     }
 }
@@ -202,6 +221,27 @@ void WidgetClient::SetPinSubType(const PinSubType &subType)
 void WidgetClient::SetSensorInfo(const std::string &info)
 {
     sensorInfo_ = info;
+}
+
+bool WidgetClient::GetAuthTypeList(const WidgetNotice &notice, std::vector<AuthType> &authTypeList)
+{
+    std::vector<AuthType> tempList = notice.AuthTypeList();
+    for (auto &type : tempList) {
+        if (std::find(authTypeList_.begin(), authTypeList_.end(), type) != authTypeList_.end()) {
+            authTypeList.emplace_back(type);
+        } else {
+            if (type == AuthType::ALL && tempList.size() == 1 && notice.event == NOTICE_EVENT_CANCEL_AUTH) {
+                authTypeList.emplace_back(type);
+                return true;
+            }
+            return false;
+        }
+    }
+    if (authTypeList.size() == authTypeList_.size() && notice.event == NOTICE_EVENT_CANCEL_AUTH) {
+        authTypeList.clear();
+        authTypeList.emplace_back(AuthType::ALL);
+    }
+    return authTypeList.size() > 0;
 }
 } // namespace UserAuth
 } // namespace UserIam
