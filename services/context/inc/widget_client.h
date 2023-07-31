@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <memory>
 #include <set>
+#include <vector>
 
 #include "authentication_impl.h"
 #include "base_context.h"
@@ -37,6 +38,7 @@ public:
     void SetWidgetSchedule(const std::shared_ptr<WidgetScheduleNode> &schedule);
     void SetWidgetContextId(uint64_t contextId);
     void SetWidgetParam(const WidgetParam &param);
+    void SetAuthTypeList(const std::vector<AuthType> &authTypeList);
     void SetWidgetCallback(const sptr<WidgetCallbackInterface> &callback);
     void SetAuthTokenId(uint32_t tokenId);
     uint32_t GetAuthTokenId() const;
@@ -55,11 +57,13 @@ public:
 private:
     WidgetClient() = default;
     void SendCommand(const WidgetCommand &command);
+    bool GetAuthTypeList(const WidgetNotice &notice, std::vector<AuthType> &authTypeList);
 
 private:
     std::shared_ptr<WidgetScheduleNode> schedule_ {nullptr};
     uint64_t widgetContextId_ {0};
     WidgetParam widgetParam_ {};
+    std::vector<AuthType> authTypeList_ {};
     sptr<WidgetCallbackInterface> widgetCallback_ {nullptr};
     std::string pinSubType_ {""};
     std::string sensorInfo_ {""};

@@ -34,23 +34,19 @@ bool AuthWidgetHelper::InitWidgetContextParam(int32_t userId, const AuthParam &a
         if (!GetUserAuthProfile(userId, authType, profile, para.callingUid)) {
             IAM_LOGE("get user auth profile failed");
             return false;
-        } else {
-            para.authProfileMap[authType] = profile;
-            if (authType == AuthType::PIN) {
-                WidgetClient::Instance().SetPinSubType(static_cast<PinSubType>(profile.pinSubType));
-            } else if (authType == AuthType::FINGERPRINT) {
-                WidgetClient::Instance().SetSensorInfo(profile.sensorInfo);
-            } else if (authType == AuthType::ALL) {
-                WidgetClient::Instance().SetPinSubType(static_cast<PinSubType>(profile.pinSubType));
-                WidgetClient::Instance().SetSensorInfo(profile.sensorInfo);
-            }
+        }
+        para.authProfileMap[authType] = profile;
+        if (authType == AuthType::PIN) {
+            WidgetClient::Instance().SetPinSubType(static_cast<PinSubType>(profile.pinSubType));
+        } else if (authType == AuthType::FINGERPRINT) {
+            WidgetClient::Instance().SetSensorInfo(profile.sensorInfo);
         }
     }
     para.challenge = std::move(authParam.challenge);
     para.authTypeList = authParam.authType;
     para.atl = authParam.authTrustLevel;
     para.widgetParam = widgetParam;
-    if (para.widgetParam.windowMode == WindowModeType::UNKNOWN_WINDOW_MODE) {
+    if (widgetParam.windowMode == WindowModeType::UNKNOWN_WINDOW_MODE) {
         para.widgetParam.windowMode = WindowModeType::DIALOG_BOX;
     }
     return true;
@@ -138,10 +134,9 @@ int32_t AuthWidgetHelper::CheckValidSolution(int32_t userId,
     IAM_LOGE("hdi interface authTypeList size is:%{public}zu", authTypeList.size());
     for (size_t index = 0; index < authTypeList.size(); index++) {
         inputAuthType.emplace_back(static_cast<HdiAuthType>(authTypeList[index]));
-        IAM_LOGE("hdi interface authTypeList now index is:%zu{public}", index);
+        IAM_LOGE("hdi interface authTypeList now index is:%{public}zu", index);
     }
-    int32_t result = hdi->GetValidSolution(userId, inputAuthType,
-        inputAtl, validTypes);
+    int32_t result = hdi->GetValidSolution(userId, inputAuthType, inputAtl, validTypes);
     if (result != SUCCESS) {
         IAM_LOGE("failed to get current supported authTrustLevel from hdi result:%{public}d userId:%{public}d",
             result, userId);

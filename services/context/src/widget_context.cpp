@@ -186,6 +186,7 @@ bool WidgetContext::OnStart()
     }
     WidgetClient::Instance().SetWidgetContextId(GetContextId());
     WidgetClient::Instance().SetWidgetParam(para_.widgetParam);
+    WidgetClient::Instance().SetAuthTypeList(para_.authTypeList);
     WidgetClient::Instance().SetWidgetSchedule(schedule_);
     schedule_->StartSchedule();
 

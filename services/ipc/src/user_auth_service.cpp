@@ -44,8 +44,9 @@ const uint64_t BAD_CONTEXT_ID = 0;
 const int32_t MINIMUM_VERSION = 0;
 const int32_t CURRENT_VERSION = 1;
 const uint32_t AUTH_TRUST_LEVEL_SYS = 1;
-const uint32_t MAX_AUTH_TYPE_LEN = 3;
-constexpr int32_t USERIAM_IPC_THREAD_NUM = 4;
+const int32_t USERIAM_IPC_THREAD_NUM = 4;
+const uint32_t MAX_AUTH_TYPE_SIZE = 3;
+
 void GetTemplatesByAuthType(int32_t userId, AuthType authType, std::vector<uint64_t> &templateIds)
 {
     templateIds.clear();
@@ -289,10 +290,40 @@ ResultCode UserAuthService::CheckServicePermission(AuthType authType)
 
 ResultCode UserAuthService::CheckAuthWidgetParam(const AuthParam &authParam, const WidgetParam &widgetParam)
 {
-    if (authParam.authType.size() == 0 || authParam.authType.size() > MAX_AUTH_TYPE_LEN) {
-        IAM_LOGE("authParam authType size invalid");
+    if (authParam.authType.size() == 0 || authParam.authType.size() > MAX_AUTH_TYPE_SIZE) {
+        IAM_LOGE("invalid authType size:%{public}zu", authParam.authType.size());
         return ResultCode::INVALID_PARAMETERS;
     }
+
+    std::set<AuthType> authTypeChecker = {};
+    for (auto &type : authParam.authType) {
+        if (authTypeChecker.find(type) != authTypeChecker.end()) {
+            IAM_LOGE("duplicate auth type");
+            return ResultCode::INVALID_PARAMETERS;
+        }
+        switch (type) {
+            case AuthType::PIN:
+            case AuthType::FACE:
+            case AuthType::FINGERPRINT:
+                break;
+            default:
+                IAM_LOGE("invalid auth type");
+                return ResultCode::TYPE_NOT_SUPPORT;
+        }
+        authTypeChecker.emplace(type);
+    }
+
+    if (authParam.authTrustLevel != AuthTrustLevel::ATL1 && authParam.authTrustLevel != AuthTrustLevel::ATL2
+        && authParam.authTrustLevel != AuthTrustLevel::ATL3 && authParam.authTrustLevel != AuthTrustLevel::ATL4) {
+        IAM_LOGE("authType not match with trustLevel: %{public}u", authParam.authTrustLevel);
+        return ResultCode::TRUST_LEVEL_NOT_SUPPORT;
+    }
+
+    if (widgetParam.title == "") {
+        IAM_LOGE("title shouldn't be empty");
+        return ResultCode::INVALID_PARAMETERS;
+    }
+
     if (widgetParam.navigationButtonText != "") {
         IAM_LOGI("authParam.authType.size() = %{public}zu", authParam.authType.size());
         if (authParam.authType.size() != 1 || (authParam.authType[0] != AuthType::FACE &&
@@ -301,29 +332,11 @@ ResultCode UserAuthService::CheckAuthWidgetParam(const AuthParam &authParam, con
             return ResultCode::INVALID_PARAMETERS;
         }
     }
-    if (authParam.authTrustLevel != AuthTrustLevel::ATL1 && authParam.authTrustLevel != AuthTrustLevel::ATL2
-        && authParam.authTrustLevel != AuthTrustLevel::ATL3 && authParam.authTrustLevel != AuthTrustLevel::ATL4) {
-        IAM_LOGE("authType not match with trustLevel.");
-        return ResultCode::TRUST_LEVEL_NOT_SUPPORT;
-    }
 
-    WindowModeType windowMode = widgetParam.windowMode;
-    if (authParam.authType.size() == 1) {
-        AuthType authTypeValue = authParam.authType[0];
-        switch (authTypeValue) {
-            case AuthType::PIN :
-                return ResultCode::SUCCESS;
-            case AuthType::FACE:
-            case AuthType::FINGERPRINT:
-                if (windowMode == FULLSCREEN) {
-                    IAM_LOGE("Single fingerprint or single face does not support full screen");
-                    return ResultCode::GENERAL_ERROR;
-                }
-                break;
-            default:
-                IAM_LOGE("no such type authType.");
-                return ResultCode::TYPE_NOT_SUPPORT;
-        }
+    if (widgetParam.windowMode == FULLSCREEN && authParam.authType.size() == 1 &&
+        (authParam.authType[0] == AuthType::FACE || authParam.authType[0] == AuthType::FINGERPRINT)) {
+        IAM_LOGE("Single fingerprint or single face does not support full screen");
+        return ResultCode::GENERAL_ERROR;
     }
     return ResultCode::SUCCESS;
 }

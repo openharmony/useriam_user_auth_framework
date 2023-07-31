@@ -55,18 +55,18 @@ const std::string JSON_UI_EXTENSION_TYPE = "ability.want.params.uiExtensionType"
 const std::string JSON_USER_IAM_CMD_DATA = "useriamCmdData";
 
 // utils
-AuthType Str2AuthType(const std::string &strAt)
+AuthType Str2AuthType(const std::string &strAuthType)
 {
-    if (strAt == AUTH_TYPE_PIN) {
-        return AuthType::PIN;
-    } else if (strAt == AUTH_TYPE_FACE) {
-        return AuthType::FACE;
-    } else if (strAt == AUTH_TYPE_FINGER_PRINT) {
-        return AuthType::FINGERPRINT;
-    } else if (strAt == AUTH_TYPE_ALL) {
-        return AuthType::ALL;
+    std::map<std::string, AuthType> authTypeMap;
+    authTypeMap.emplace(std::make_pair(AUTH_TYPE_ALL, AuthType::ALL));
+    authTypeMap.emplace(std::make_pair(AUTH_TYPE_PIN, AuthType::PIN));
+    authTypeMap.emplace(std::make_pair(AUTH_TYPE_FACE, AuthType::FACE));
+    authTypeMap.emplace(std::make_pair(AUTH_TYPE_FINGER_PRINT, AuthType::FINGERPRINT));
+    auto result = AuthType::ALL;
+    if (authTypeMap.find(strAuthType) != authTypeMap.end()) {
+        result = authTypeMap[strAuthType];
     }
-    return AuthType::ALL;
+    return result;
 }
 
 std::string AuthType2Str(const AuthType &authType)
@@ -76,10 +76,9 @@ std::string AuthType2Str(const AuthType &authType)
     authTypeMap.emplace(std::make_pair(AuthType::PIN, AUTH_TYPE_PIN));
     authTypeMap.emplace(std::make_pair(AuthType::FACE, AUTH_TYPE_FACE));
     authTypeMap.emplace(std::make_pair(AuthType::FINGERPRINT, AUTH_TYPE_FINGER_PRINT));
-    auto result = "";
-    auto typeIt = authTypeMap.find(authType);
-    if (typeIt != authTypeMap.end()) {
-        result = typeIt->second.c_str();
+    std::string result = "";
+    if (authTypeMap.find(authType) != authTypeMap.end()) {
+        result = authTypeMap[authType];
     }
     return result;
 }
@@ -89,21 +88,20 @@ std::string WinModeType2Str(const WindowModeType &winModeType)
     std::map<int32_t, std::string> winModeTypeMap;
     winModeTypeMap.emplace(std::make_pair(WindowModeType::DIALOG_BOX, WINDOW_MODE_DIALOG));
     winModeTypeMap.emplace(std::make_pair(WindowModeType::FULLSCREEN, WINDOW_MODE_FULLSCREEN));
-    auto result = "";
-    auto typeIt = winModeTypeMap.find(winModeType);
-    if (typeIt != winModeTypeMap.end()) {
-        result = typeIt->second.c_str();
+    std::string result = "";
+    if (winModeTypeMap.find(winModeType) != winModeTypeMap.end()) {
+        result = winModeTypeMap[winModeType];
     }
     return result;
 }
 
-std::vector<AuthType> WidgetNotice::AuthTypeList()
+std::vector<AuthType> WidgetNotice::AuthTypeList() const
 {
-    std::vector<AuthType> atList;
+    std::vector<AuthType> authTypeList;
     for (const auto &type : typeList) {
-        atList.emplace_back(Str2AuthType(type));
+        authTypeList.emplace_back(Str2AuthType(type));
     }
-    return atList;
+    return authTypeList;
 }
 
 std::string PinSubType2Str(const PinSubType &subType)
@@ -115,9 +113,8 @@ std::string PinSubType2Str(const PinSubType &subType)
     pinSubTypeMap.emplace(std::make_pair(PinSubType::PIN_MAX, PIN_SUB_TYPE_MAX));
 
     std::string result = "";
-    auto typeIt = pinSubTypeMap.find(subType);
-    if (typeIt != pinSubTypeMap.end()) {
-        result = typeIt->second.c_str();
+    if (pinSubTypeMap.find(subType) != pinSubTypeMap.end()) {
+        result = pinSubTypeMap[subType];
     }
     return result;
 }
@@ -133,10 +130,20 @@ void to_json(nlohmann::json &jsonNotice, const WidgetNotice &notice)
 
 void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice)
 {
-    jsonNotice.at(JSON_WIDGET_CTX_ID).get_to(notice.widgetContextId);
-    jsonNotice.at(JSON_AUTH_EVENT).get_to(notice.event);
-    jsonNotice.at(JSON_AUTH_VERSION).get_to(notice.version);
-    jsonNotice.at(JSON_AUTH_PAYLOAD).at(JSON_AUTH_TYPE).get_to(notice.typeList);
+    if (jsonNotice.find(JSON_WIDGET_CTX_ID) != jsonNotice.end()) {
+        jsonNotice.at(JSON_WIDGET_CTX_ID).get_to(notice.widgetContextId);
+    }
+    if (jsonNotice.find(JSON_AUTH_EVENT) != jsonNotice.end()) {
+        jsonNotice.at(JSON_AUTH_EVENT).get_to(notice.event);
+    }
+    if (jsonNotice.find(JSON_AUTH_VERSION) != jsonNotice.end()) {
+        jsonNotice.at(JSON_AUTH_VERSION).get_to(notice.version);
+    }
+    if (jsonNotice.find(JSON_AUTH_PAYLOAD) != jsonNotice.end() ||
+        jsonNotice[JSON_AUTH_PAYLOAD].find(JSON_AUTH_TYPE) == jsonNotice[JSON_AUTH_PAYLOAD].end() ||
+        !jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].is_array()) {
+        jsonNotice.at(JSON_AUTH_PAYLOAD).at(JSON_AUTH_TYPE).get_to(notice.typeList);
+    }
 }
 
 void to_json(nlohmann::json &jsonCommand, const WidgetCommand &command)
