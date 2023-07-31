@@ -55,7 +55,7 @@ void WidgetContextCallbackImplTest::TearDown()
 {
 }
 
-HWTEST_F(WidgetContextCallbackImplTest, WidgetContextCallbackImplOnResult001, TestSize.Level0)
+HWTEST_F(WidgetContextCallbackImplTest, WidgetContextCallbackImplOnResult_001, TestSize.Level0)
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
@@ -71,7 +71,7 @@ HWTEST_F(WidgetContextCallbackImplTest, WidgetContextCallbackImplOnResult001, Te
     ASSERT_EQ(para.tokenId, 0);
 }
 
-HWTEST_F(WidgetContextCallbackImplTest, WidgetContextCallbackImplOnAcquireInfo002, TestSize.Level0)
+HWTEST_F(WidgetContextCallbackImplTest, WidgetContextCallbackImplOnAcquireInfo_002, TestSize.Level0)
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
@@ -90,6 +90,6 @@ HWTEST_F(WidgetContextCallbackImplTest, WidgetContextCallbackImplOnAcquireInfo00
     sptr<IRemoteObject> object = contextCallback->AsObject();
     EXPECT_EQ(object, nullptr);
 }
-}
-}
-}
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS

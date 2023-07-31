@@ -71,6 +71,6 @@ HWTEST_F(IpcCommonTest, IpcCommonTestGetTokenId, TestSize.Level0)
     service.Notice(NoticeType::WIDGET_NOTICE, "PIN");
     EXPECT_NE(IpcCommon::GetTokenId(service), (uint32_t)0);
 }
-}
-}
-}
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
