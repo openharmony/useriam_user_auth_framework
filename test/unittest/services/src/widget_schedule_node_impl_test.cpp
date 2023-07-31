@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,6 +20,7 @@
 
 #include "mock_widget_schedule_node_callback.h"
 #include "iam_logger.h"
+#include "iam_ptr.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -53,43 +54,31 @@ void WidgetScheduleNodeImplTest::TearDown()
 {
 }
 
-HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStartSchedule001, TestSize.Level0)
+HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStartSchedule, TestSize.Level0)
 {
     auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
     ASSERT_NE(schedule, nullptr);
-    auto widgetContext = new MockWidgetScheduleNodeCallback();
+    std::shared_ptr<MockWidgetScheduleNodeCallback> widgetContext =
+        Common::MakeShared<MockWidgetScheduleNodeCallback>();
     ASSERT_NE(widgetContext, nullptr);
-    schedule->SetCallback(std::shared_ptr<WidgetScheduleNodeCallback>(widgetContext));
-    EXPECT_CALL(*widgetContext, LaunchWidget()).WillRepeatedly(Return(true));
-    EXPECT_TRUE(schedule->StartSchedule());
-    testing::Mock::AllowLeak(widgetContext);
-}
-
-HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStartSchedule002, TestSize.Level0)
-{
-    auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
-    ASSERT_NE(schedule, nullptr);
-    auto widgetContext = new MockWidgetScheduleNodeCallback();
-    ASSERT_NE(widgetContext, nullptr);
-    schedule->SetCallback(std::shared_ptr<WidgetScheduleNodeCallback>(widgetContext));
+    schedule->SetCallback(widgetContext);
     EXPECT_CALL(*widgetContext, LaunchWidget()).WillRepeatedly(Return(false));
     EXPECT_CALL(*widgetContext, EndAuthAsCancel()).WillRepeatedly(Return());
     EXPECT_TRUE(schedule->StartSchedule());
-    testing::Mock::AllowLeak(widgetContext);
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStopSchedule, TestSize.Level0)
 {
     auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
     ASSERT_NE(schedule, nullptr);
-    auto widgetContext = new MockWidgetScheduleNodeCallback();
+    std::shared_ptr<MockWidgetScheduleNodeCallback> widgetContext =
+        Common::MakeShared<MockWidgetScheduleNodeCallback>();
     ASSERT_NE(widgetContext, nullptr);
-    schedule->SetCallback(std::shared_ptr<WidgetScheduleNodeCallback>(widgetContext));
+    schedule->SetCallback(widgetContext);
     EXPECT_CALL(*widgetContext, LaunchWidget()).WillRepeatedly(Return(true));
     schedule->StartSchedule();
     EXPECT_CALL(*widgetContext, EndAuthAsCancel()).WillRepeatedly(Return());
     EXPECT_TRUE(schedule->StopSchedule());
-    testing::Mock::AllowLeak(widgetContext);
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStartAuthList, TestSize.Level0)
@@ -97,14 +86,14 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStartAuthList, TestSi
     auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
     ASSERT_NE(schedule, nullptr);
     std::vector<AuthType> authTypeList = {AuthType::ALL, AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT};
-    auto widgetContext = new MockWidgetScheduleNodeCallback();
+    std::shared_ptr<MockWidgetScheduleNodeCallback> widgetContext =
+        Common::MakeShared<MockWidgetScheduleNodeCallback>();
     ASSERT_NE(widgetContext, nullptr);
-    schedule->SetCallback(std::shared_ptr<WidgetScheduleNodeCallback>(widgetContext));
+    schedule->SetCallback(widgetContext);
     EXPECT_CALL(*widgetContext, LaunchWidget()).WillRepeatedly(Return(true));
     schedule->StartSchedule();
     EXPECT_CALL(*widgetContext, ExecuteAuthList(_)).WillRepeatedly(Return());
     EXPECT_TRUE(schedule->StartAuthList(authTypeList));
-    testing::Mock::AllowLeak(widgetContext);
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStopAuthList, TestSize.Level0)
@@ -112,16 +101,16 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStopAuthList, TestSiz
     auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
     ASSERT_NE(schedule, nullptr);
     std::vector<AuthType> authTypeList = {AuthType::ALL, AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT};
-    auto widgetContext = new MockWidgetScheduleNodeCallback();
+    std::shared_ptr<MockWidgetScheduleNodeCallback> widgetContext =
+        Common::MakeShared<MockWidgetScheduleNodeCallback>();
     ASSERT_NE(widgetContext, nullptr);
-    schedule->SetCallback(std::shared_ptr<WidgetScheduleNodeCallback>(widgetContext));
+    schedule->SetCallback(widgetContext);
     EXPECT_CALL(*widgetContext, LaunchWidget()).WillRepeatedly(Return(true));
     schedule->StartSchedule();
     EXPECT_CALL(*widgetContext, ExecuteAuthList(_)).WillRepeatedly(Return());
     schedule->StartAuthList(authTypeList);
     EXPECT_CALL(*widgetContext, StopAuthList(_)).WillRepeatedly(Return());
     EXPECT_TRUE(schedule->StopAuthList(authTypeList));
-    testing::Mock::AllowLeak(widgetContext);
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplSuccessAuth, TestSize.Level0)
@@ -129,30 +118,31 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplSuccessAuth, TestSize
     auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
     ASSERT_NE(schedule, nullptr);
     std::vector<AuthType> authTypeList = {AuthType::ALL, AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT};
-    auto widgetContext = new MockWidgetScheduleNodeCallback();
+    std::shared_ptr<MockWidgetScheduleNodeCallback> widgetContext =
+        Common::MakeShared<MockWidgetScheduleNodeCallback>();
     ASSERT_NE(widgetContext, nullptr);
-    schedule->SetCallback(std::shared_ptr<WidgetScheduleNodeCallback>(widgetContext));
+    schedule->SetCallback(widgetContext);
     EXPECT_CALL(*widgetContext, LaunchWidget()).WillRepeatedly(Return(true));
     schedule->StartSchedule();
     EXPECT_CALL(*widgetContext, ExecuteAuthList(_)).WillRepeatedly(Return());
     schedule->StartAuthList(authTypeList);
     EXPECT_CALL(*widgetContext, SuccessAuth(_)).WillRepeatedly(Return());
     EXPECT_TRUE(schedule->SuccessAuth(AuthType::PIN));
-    testing::Mock::AllowLeak(widgetContext);
+    ON_CALL(*widgetContext, LaunchWidget()).WillByDefault(Return(true));
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplNaviPinAuth, TestSize.Level0)
 {
     auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
     ASSERT_NE(schedule, nullptr);
-    auto widgetContext = new MockWidgetScheduleNodeCallback();
+    std::shared_ptr<MockWidgetScheduleNodeCallback> widgetContext =
+        Common::MakeShared<MockWidgetScheduleNodeCallback>();
     ASSERT_NE(widgetContext, nullptr);
-    schedule->SetCallback(std::shared_ptr<WidgetScheduleNodeCallback>(widgetContext));
+    schedule->SetCallback(widgetContext);
     EXPECT_CALL(*widgetContext, LaunchWidget()).WillRepeatedly(Return(true));
     schedule->StartSchedule();
     EXPECT_CALL(*widgetContext, EndAuthAsNaviPin()).WillRepeatedly(Return());
     EXPECT_TRUE(schedule->NaviPinAuth());
-    testing::Mock::AllowLeak(widgetContext);
 }
 } // namespace UserAuth
 } // namespace UserIam

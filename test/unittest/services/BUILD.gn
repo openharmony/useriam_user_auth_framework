@@ -72,6 +72,7 @@ ohos_unittest("iam_services_test") {
     "mocks/mock_ipc_common.cpp",
     "mocks/mock_iuser_auth_interface.cpp",
     "src/attributes_test.cpp",
+    "src/auth_widget_helper_test.cpp",
     "src/authentication_impl_test.cpp",
     "src/co_auth_service_test.cpp",
     "src/co_auth_stub_test.cpp",
