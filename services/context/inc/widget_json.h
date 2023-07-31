@@ -30,14 +30,14 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 // utils
-AuthType Str2AuthType(const std::string &strAt);
-std::string AuthType2Str(const AuthType &at);
+AuthType Str2AuthType(const std::string &strAuthType);
+std::string AuthType2Str(const AuthType &authType);
 std::string WinModeType2Str(const WindowModeType &winModeType);
 std::string PinSubType2Str(const PinSubType &subType);
 
 // WidgetNotice
 struct WidgetNotice {
-    std::vector<AuthType> AuthTypeList();
+    std::vector<AuthType> AuthTypeList() const;
 
     // members
     uint64_t widgetContextId {0};
