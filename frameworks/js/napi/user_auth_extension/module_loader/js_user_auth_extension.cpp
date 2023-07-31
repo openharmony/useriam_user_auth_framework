@@ -315,6 +315,7 @@ void JsUserAuthExtension::ForegroundWindow(const AAFwk::Want &want, const sptr<A
         option->SetWindowName(context->GetBundleName() + context->GetAbilityInfo()->name);
         option->SetWindowType(Rosen::WindowType::WINDOW_TYPE_UI_EXTENSION);
         option->SetWindowSessionType(Rosen::WindowSessionType::EXTENSION_SESSION);
+        option->SetParentId(sessionInfo->hostWindowId);
         auto uiWindow = Rosen::Window::Create(option, GetContext(), sessionInfo->sessionToken);
         if (uiWindow == nullptr) {
             HILOG_ERROR("create ui window error.");
