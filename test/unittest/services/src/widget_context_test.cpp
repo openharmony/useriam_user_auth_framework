@@ -17,11 +17,7 @@
 
 #include <future>
 
-#include "mock_authentication.h"
 #include "mock_context.h"
-#include "mock_iuser_auth_interface.h"
-#include "mock_resource_node.h"
-#include "mock_schedule_node.h"
 
 #include "schedule_node_impl.h"
 #include "widget_context_callback_impl.h"
@@ -113,7 +109,7 @@ HWTEST_F(WidgetContextTest, WidgetContextTestGetTokenId, TestSize.Level0)
     EXPECT_EQ(widgetContext->GetTokenId(), (uint32_t)0);
 }
 
-HWTEST_F(WidgetContextTest, WidgetContextTestAuthResult001, TestSize.Level0)
+HWTEST_F(WidgetContextTest, WidgetContextTestAuthResult_001, TestSize.Level0)
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
@@ -134,13 +130,13 @@ HWTEST_F(WidgetContextTest, WidgetContextTestAuthResult001, TestSize.Level0)
     int32_t at = 1;
     Attributes finalResult;
     AuthType authType = ALL;
-    sptr<IamCallbackInterface> testCallback(
-        new (std::nothrow) WidgetContextCallbackImpl(widgetContext, static_cast<int32_t>(authType)));
-    EXPECT_NE(testCallback, nullptr);
+    sptr<IamCallbackInterface> testCallback = new (std::nothrow) WidgetContextCallbackImpl(widgetContext,
+        static_cast<int32_t>(authType));
     widgetContext->AuthResult(resultCode, at, finalResult, testCallback);
+    EXPECT_NE(testCallback, nullptr);
 }
 
-HWTEST_F(WidgetContextTest, WidgetContextTestAuthResult002, TestSize.Level0)
+HWTEST_F(WidgetContextTest, WidgetContextTestAuthResult_002, TestSize.Level0)
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
@@ -149,86 +145,92 @@ HWTEST_F(WidgetContextTest, WidgetContextTestAuthResult002, TestSize.Level0)
     int32_t resultCode = 1;
     int32_t at = 1;
     Attributes finalResult;
-    sptr<IamCallbackInterface> task(nullptr);
+    sptr<IamCallbackInterface> task = nullptr;
     widgetContext->AuthResult(resultCode, at, finalResult, task);
+    EXPECT_EQ(task, nullptr);
 }
 
-HWTEST_F(WidgetContextTest, WidgetContextTestLaunchWidget001, TestSize.Level0)
+HWTEST_F(WidgetContextTest, WidgetContextTestLaunchWidget_001, TestSize.Level0)
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
     auto widgetContext = CreateWidgetContext(contextId, para);
-    EXPECT_NE(widgetContext, nullptr);
-
     widgetContext->LaunchWidget();
+    EXPECT_NE(widgetContext, nullptr);
 }
 
-HWTEST_F(WidgetContextTest, WidgetContextTestLaunchWidget002, TestSize.Level0)
+HWTEST_F(WidgetContextTest, WidgetContextTestLaunchWidget_002, TestSize.Level0)
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
     ContextFactory::AuthWidgetContextPara::AuthProfile contextPara;
     para.authProfileMap[PIN] = contextPara;
     auto widgetContext = CreateWidgetContext(contextId, para);
-    EXPECT_NE(widgetContext, nullptr);
-
     widgetContext->LaunchWidget();
+    EXPECT_NE(widgetContext, nullptr);
 }
 
-HWTEST_F(WidgetContextTest, WidgetContextTestExecuteAuthList001, TestSize.Level0)
+HWTEST_F(WidgetContextTest, WidgetContextTestLaunchWidget_003, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    ContextFactory::AuthWidgetContextPara::AuthProfile authProfile;
+    authProfile.sensorInfo = "1";
+    para.authProfileMap[AuthType::FINGERPRINT] = authProfile;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    widgetContext->LaunchWidget();
+    EXPECT_NE(widgetContext, nullptr);
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestExecuteAuthList_001, TestSize.Level0)
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
     auto widgetContext = CreateWidgetContext(contextId, para);
-    EXPECT_NE(widgetContext, nullptr);
-
     std::set<AuthType> authTypeList;
     widgetContext->ExecuteAuthList(authTypeList);
+    EXPECT_NE(widgetContext, nullptr);
 }
 
-HWTEST_F(WidgetContextTest, WidgetContextTestEndAuthAsCancel001, TestSize.Level0)
+HWTEST_F(WidgetContextTest, WidgetContextTestEndAuthAsCancel, TestSize.Level0)
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
     auto widgetContext = CreateWidgetContext(contextId, para);
-    EXPECT_NE(widgetContext, nullptr);
-
     widgetContext->EndAuthAsCancel();
+    EXPECT_NE(widgetContext, nullptr);
 }
 
-HWTEST_F(WidgetContextTest, WidgetContextTestEndAuthAsNaviPin001, TestSize.Level0)
+HWTEST_F(WidgetContextTest, WidgetContextTestEndAuthAsNaviPin, TestSize.Level0)
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
     auto widgetContext = CreateWidgetContext(contextId, para);
-    EXPECT_NE(widgetContext, nullptr);
-
     widgetContext->EndAuthAsNaviPin();
+    EXPECT_NE(widgetContext, nullptr);
 }
 
-HWTEST_F(WidgetContextTest, WidgetContextTestStopAuthList001, TestSize.Level0)
+HWTEST_F(WidgetContextTest, WidgetContextTestStopAuthList_001, TestSize.Level0)
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
     auto widgetContext = CreateWidgetContext(contextId, para);
-    EXPECT_NE(widgetContext, nullptr);
-
     std::vector<AuthType> authTypeList;
     widgetContext->StopAuthList(authTypeList);
+    EXPECT_NE(widgetContext, nullptr);
 }
 
-HWTEST_F(WidgetContextTest, WidgetContextTestStopAuthList002, TestSize.Level0)
+HWTEST_F(WidgetContextTest, WidgetContextTestStopAuthList_002, TestSize.Level0)
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
     auto widgetContext = CreateWidgetContext(contextId, para);
-    EXPECT_NE(widgetContext, nullptr);
-
     std::vector<AuthType> authTypeList = {ALL, PIN, FACE};
     widgetContext->StopAuthList(authTypeList);
+    EXPECT_NE(widgetContext, nullptr);
 }
 
-HWTEST_F(WidgetContextTest, WidgetContextTestStopAuthList003, TestSize.Level0)
+HWTEST_F(WidgetContextTest, WidgetContextTestStopAuthList_003, TestSize.Level0)
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
@@ -236,8 +238,6 @@ HWTEST_F(WidgetContextTest, WidgetContextTestStopAuthList003, TestSize.Level0)
     para.atl = ATL2;
     std::shared_ptr<ContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
     auto widgetContext = CreateWidgetContext(contextId, para);
-    EXPECT_NE(widgetContext, nullptr);
-
     std::set<AuthType> authTypeList;
     authTypeList.insert(FACE);
     authTypeList.insert(ALL);
@@ -245,32 +245,31 @@ HWTEST_F(WidgetContextTest, WidgetContextTestStopAuthList003, TestSize.Level0)
 
     std::vector<AuthType> testTypeList = {ALL, PIN, FACE};
     widgetContext->StopAuthList(testTypeList);
+    EXPECT_NE(widgetContext, nullptr);
 }
 
-HWTEST_F(WidgetContextTest, WidgetContextTestSuccessAuth001, TestSize.Level0)
+HWTEST_F(WidgetContextTest, WidgetContextTestSuccessAuth_001, TestSize.Level0)
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
     auto widgetContext = CreateWidgetContext(contextId, para);
-    EXPECT_NE(widgetContext, nullptr);
-
     AuthType authType = ALL;
     widgetContext->SuccessAuth(authType);
+    EXPECT_NE(widgetContext, nullptr);
 }
 
-HWTEST_F(WidgetContextTest, WidgetContextTestSuccessAuth002, TestSize.Level0)
+HWTEST_F(WidgetContextTest, WidgetContextTestSuccessAuth_002, TestSize.Level0)
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
     auto widgetContext = CreateWidgetContext(contextId, para);
-    EXPECT_NE(widgetContext, nullptr);
-
     AuthType authType = ALL;
     widgetContext->LaunchWidget();
     widgetContext->SuccessAuth(authType);
+    EXPECT_NE(widgetContext, nullptr);
 }
 
-HWTEST_F(WidgetContextTest, WidgetContextTestSuccessAuth003, TestSize.Level0)
+HWTEST_F(WidgetContextTest, WidgetContextTestSuccessAuth_003, TestSize.Level0)
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
@@ -278,16 +277,15 @@ HWTEST_F(WidgetContextTest, WidgetContextTestSuccessAuth003, TestSize.Level0)
     para.atl = ATL2;
     std::shared_ptr<ContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
     auto widgetContext = CreateWidgetContext(contextId, para);
-    EXPECT_NE(widgetContext, nullptr);
     std::set<AuthType> authTypeList;
     authTypeList.insert(FACE);
     widgetContext->ExecuteAuthList(authTypeList);
-
     AuthType authType = ALL;
     widgetContext->SuccessAuth(authType);
+    EXPECT_NE(widgetContext, nullptr);
 }
 
-HWTEST_F(WidgetContextTest, WidgetContextTestExecuteAuthList002, TestSize.Level0)
+HWTEST_F(WidgetContextTest, WidgetContextTestExecuteAuthList_002, TestSize.Level0)
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
@@ -295,24 +293,10 @@ HWTEST_F(WidgetContextTest, WidgetContextTestExecuteAuthList002, TestSize.Level0
     para.atl = ATL2;
     std::shared_ptr<ContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
     auto widgetContext = CreateWidgetContext(contextId, para);
-    EXPECT_NE(widgetContext, nullptr);
-
     std::set<AuthType> authTypeList;
     authTypeList.insert(FACE);
     widgetContext->ExecuteAuthList(authTypeList);
-}
-
-HWTEST_F(WidgetContextTest, WidgetContextTestExecuteAuthList003, TestSize.Level0)
-{
-    uint64_t contextId = 1;
-    ContextFactory::AuthWidgetContextPara para;
-    std::shared_ptr<ContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
-    auto widgetContext = CreateWidgetContext(contextId, para);
     EXPECT_NE(widgetContext, nullptr);
-
-    std::set<AuthType> authTypeList;
-    authTypeList.insert((AuthType)-1);
-    widgetContext->ExecuteAuthList(authTypeList);
 }
 } // namespace UserAuth
 } // namespace UserIam

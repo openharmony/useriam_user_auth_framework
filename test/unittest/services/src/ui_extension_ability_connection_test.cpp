@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -61,7 +61,8 @@ HWTEST_F(UIExtensionAbilityConnectionTest, UIExtensionAbilityConnectionTestOnAbi
     AppExecFwk::ElementName element;
     int32_t resultCode = 1;
     connection->OnAbilityDisconnectDone(element, resultCode);
+    EXPECT_NE(connection, nullptr);
 }
-}
-}
-}
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
