@@ -219,7 +219,7 @@ uint64_t UserAuthClientImpl::BeginNorthAuthentication(int32_t apiVersion, const 
         return INVALID_SESSION_ID;
     }
 
-    sptr<UserAuthCallbackInterface> wrapper(new (std::nothrow) UserAuthCallbackService(callback));
+    sptr<UserAuthCallbackInterface> wrapper(new (std::nothrow) UserAuthCallbackService(northCallback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
