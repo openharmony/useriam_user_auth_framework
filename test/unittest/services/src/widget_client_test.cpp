@@ -63,29 +63,15 @@ void WidgetClientTest::TearDown()
 {
 }
 
-HWTEST_F(WidgetClientTest, WidgetClientTestSetWidgetSchedule, TestSize.Level0)
-{
-    auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
-    WidgetClient::Instance().SetWidgetSchedule(schedule);
-    EXPECT_NE(schedule, nullptr);
-}
-
-HWTEST_F(WidgetClientTest, WidgetClientTestSetWidgetContextId, TestSize.Level0)
-{
-    uint64_t contextId = 6;
-    WidgetClient::Instance().SetWidgetContextId(contextId);
-    EXPECT_EQ(contextId, 6);
-}
-
 HWTEST_F(WidgetClientTest, WidgetClientTestSetWidgetParam, TestSize.Level0)
 {
+    auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
+    EXPECT_NE(schedule, nullptr);
+    WidgetClient::Instance().SetWidgetSchedule(schedule);
+    uint64_t contextId = 6;
+    WidgetClient::Instance().SetWidgetContextId(contextId);
     WidgetParam widgetParam;
     WidgetClient::Instance().SetWidgetParam(widgetParam);
-    EXPECT_EQ(widgetParam.title, "");
-}
-
-HWTEST_F(WidgetClientTest, WidgetClientTestSetWidgetCallback, TestSize.Level0)
-{
     sptr<WidgetCallbackInterface> testCallback(nullptr);
     WidgetClient::Instance().SetWidgetCallback(testCallback);
     EXPECT_EQ(WidgetClient::Instance().GetAuthTokenId(), 0);
