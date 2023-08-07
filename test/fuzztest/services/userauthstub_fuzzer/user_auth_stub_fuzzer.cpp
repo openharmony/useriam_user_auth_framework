@@ -34,7 +34,7 @@ namespace UserIam {
 namespace UserAuth {
 namespace {
 constexpr uint32_t USER_AUTH_CODE_MIN = 0;
-constexpr uint32_t USER_AUTH_CODE_MAX = 14;
+constexpr uint32_t USER_AUTH_CODE_MAX = 17;
 const std::u16string USER_AUTH_INTERFACE_TOKEN = u"ohos.UserIam.UserAuth.IUserAuth";
 
 bool UserAuthStubFuzzTest(const uint8_t *rawData, size_t size)
