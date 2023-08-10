@@ -23,7 +23,7 @@
 #include <list>
 
 #include "auth_common.h"
-#include "ability_manager_client.h"
+#include "extension_manager_client.h"
 #include "authentication_impl.h"
 #include "context.h"
 #include "context_factory.h"

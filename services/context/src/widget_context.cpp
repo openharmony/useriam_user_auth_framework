@@ -335,11 +335,6 @@ void WidgetContext::SuccessAuth(AuthType authType)
 int32_t WidgetContext::ConnectExtensionAbility(const AAFwk::Want &want, const std::string commandStr)
 {
     IAM_LOGI("ConnectExtensionAbility start");
-    ErrCode errCode = AAFwk::AbilityManagerClient::GetInstance()->Connect();
-    if (errCode != ERR_OK) {
-        IAM_LOGE("connect ability server failed errCode=%{public}d", errCode);
-        return errCode;
-    }
     if (connection_ == nullptr) {
         IAM_LOGE("connection is nullptr");
         connection_ = sptr<UIExtensionAbilityConnection>(new (std::nothrow) UIExtensionAbilityConnection(commandStr));
@@ -349,7 +344,8 @@ int32_t WidgetContext::ConnectExtensionAbility(const AAFwk::Want &want, const st
     }
 
     std::string identity = IPCSkeleton::ResetCallingIdentity();
-    auto ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(want, connection_, DEFAULT_VALUE);
+    auto ret = AAFwk::ExtensionManagerClient::GetInstance().ConnectServiceExtensionAbility(want, connection_, nullptr,
+        DEFAULT_VALUE);
     IPCSkeleton::SetCallingIdentity(identity);
     IAM_LOGI("ConnectExtensionAbility errCode=%{public}d", ret);
     return ret;
@@ -378,12 +374,7 @@ bool WidgetContext::DisconnectExtension()
     if (connection_ == nullptr) {
         return true;
     }
-    auto amsClient = AAFwk::AbilityManagerClient::GetInstance();
-    if (amsClient == nullptr) {
-        IAM_LOGE("get abiliby manaber client failed.");
-        return false;
-    }
-    ErrCode ret = amsClient->DisconnectAbility(connection_);
+    ErrCode ret = AAFwk::ExtensionManagerClient::GetInstance().DisconnectAbility(connection_);
     if (ret != ERR_OK) {
         IAM_LOGE("disconnect extension ability failed ret: %{public}d.", ret);
         return false;
