@@ -58,6 +58,7 @@ int32_t UserAuthProxy::GetAvailableStatus(int32_t apiVersion, AuthType authType,
 
     bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_GET_AVAILABLE_STATUS, data, reply);
     if (!ret) {
+        IAM_LOGE("failed to send get available status IPC request");
         return GENERAL_ERROR;
     }
     int32_t result = SUCCESS;
@@ -111,6 +112,7 @@ void UserAuthProxy::GetProperty(int32_t userId, AuthType authType,
 
     bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_GET_PROPERTY, data, reply);
     if (!ret) {
+        IAM_LOGE("failed to send get property IPC request");
         Attributes attr;
         callback->OnGetExecutorPropertyResult(GENERAL_ERROR, attr);
     }
@@ -150,6 +152,7 @@ void UserAuthProxy::SetProperty(int32_t userId, AuthType authType, const Attribu
 
     bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_SET_PROPERTY, data, reply);
     if (!ret) {
+        IAM_LOGE("failed to send set property IPC request");
         callback->OnSetExecutorPropertyResult(GENERAL_ERROR);
     }
 }
@@ -200,6 +203,7 @@ uint64_t UserAuthProxy::Auth(int32_t apiVersion, const std::vector<uint8_t> &cha
     }
     bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_AUTH, data, reply);
     if (!ret) {
+        IAM_LOGE("failed to send user auth IPC request");
         return BAD_CONTEXT_ID;
     }
     uint64_t result = BAD_CONTEXT_ID;
@@ -231,7 +235,7 @@ uint64_t UserAuthProxy::AuthWidget(int32_t apiVersion, const AuthParam &authPara
 
     if (!data.WriteRemoteObject(callback->AsObject())) {
         IAM_LOGE("failed to write callback");
-        return false;
+        return BAD_CONTEXT_ID;
     }
 
     if (!data.WriteInt32(apiVersion)) {
@@ -241,6 +245,7 @@ uint64_t UserAuthProxy::AuthWidget(int32_t apiVersion, const AuthParam &authPara
 
     bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_AUTH_WIDGET, data, reply);
     if (!ret) {
+        IAM_LOGE("failed to send auth widget IPC request");
         return BAD_CONTEXT_ID;
     }
     uint64_t result = BAD_CONTEXT_ID;
@@ -309,6 +314,7 @@ uint64_t UserAuthProxy::AuthUser(int32_t userId, const std::vector<uint8_t> &cha
 
     bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_AUTH_USER, data, reply);
     if (!ret) {
+        IAM_LOGE("failed to send auth user IPC request");
         return BAD_CONTEXT_ID;
     }
     uint64_t result = BAD_CONTEXT_ID;
@@ -347,6 +353,7 @@ uint64_t UserAuthProxy::Identify(const std::vector<uint8_t> &challenge, AuthType
 
     bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_IDENTIFY, data, reply);
     if (!ret) {
+        IAM_LOGE("failed to send auth identify IPC request");
         return BAD_CONTEXT_ID;
     }
     uint64_t result = BAD_CONTEXT_ID;
@@ -372,6 +379,7 @@ int32_t UserAuthProxy::CancelAuthOrIdentify(uint64_t contextId)
 
     bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_CANCEL_AUTH, data, reply);
     if (!ret) {
+        IAM_LOGE("failed to send cancel auth IPC request");
         return GENERAL_ERROR;
     }
     int32_t result = GENERAL_ERROR;
@@ -394,6 +402,7 @@ int32_t UserAuthProxy::GetVersion(int32_t &version)
 
     bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_GET_VERSION, data, reply);
     if (!ret) {
+        IAM_LOGE("failed to send get version IPC request");
         return GENERAL_ERROR;
     }
     if (!reply.ReadInt32(version)) {
@@ -446,6 +455,7 @@ int32_t UserAuthProxy::Notice(NoticeType noticeType, const std::string &eventDat
 
     bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_NOTICE, data, reply);
     if (!ret) {
+        IAM_LOGE("failed to send user notice IPC request");
         return ResultCode::GENERAL_ERROR;
     }
     int32_t result = ResultCode::GENERAL_ERROR;
@@ -482,6 +492,7 @@ int32_t UserAuthProxy::RegisterWidgetCallback(int32_t version, sptr<WidgetCallba
 
     bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_REG_WIDGET_CB, data, reply);
     if (!ret) {
+        IAM_LOGE("failed to send register widget callback IPC request");
         return GENERAL_ERROR;
     }
     int32_t result = GENERAL_ERROR;

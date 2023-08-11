@@ -139,12 +139,20 @@ std::shared_ptr<ContextCallback> WidgetContext::GetAuthContextCallback(AuthType 
 std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &challenge,
     AuthType authType, AuthTrustLevel authTrustLevel)
 {
+    if (callback_ == nullptr) {
+        IAM_LOGE("invalid widget context callback, failed to build task");
+        return nullptr;
+    }
     auto userId = para_.userId;
     auto tokenId = WidgetClient::Instance().GetAuthTokenId();
-    IAM_LOGI("Real userId: %{public}d, Real tokenId: %{public}d", userId, tokenId);
+    IAM_LOGI("Real userId: %{public}d, Real tokenId: %{public}u", userId, tokenId);
     sptr<IamCallbackInterface> iamCallback(new (std::nothrow) WidgetContextCallbackImpl(weak_from_this(),
         static_cast<int32_t>(authType)));
     auto contextCallback = GetAuthContextCallback(authType, authTrustLevel, iamCallback);
+    if (contextCallback == nullptr) {
+        IAM_LOGE("failed to get simple context callback");
+        return nullptr;
+    }
     callback_->SetTraceUserId(userId);
     ContextFactory::AuthContextPara para = {};
     para.tokenId = tokenId;

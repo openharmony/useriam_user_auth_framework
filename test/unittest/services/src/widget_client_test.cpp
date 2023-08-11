@@ -63,16 +63,35 @@ void WidgetClientTest::TearDown()
 {
 }
 
-HWTEST_F(WidgetClientTest, WidgetClientTestSetWidgetParam, TestSize.Level0)
+HWTEST_F(WidgetClientTest, WidgetClientTestNotice, TestSize.Level0)
+{
+    WidgetNotice widgetNotice;
+    widgetNotice.widgetContextId = 1;
+    widgetNotice.event = "EVENT_AUTH_USER_NAVIGATION";
+    std::shared_ptr<WidgetScheduleNode> schedule = nullptr;
+    WidgetClient::Instance().SetWidgetSchedule(schedule);
+    nlohmann::json root = widgetNotice;
+    std::string eventData = root.dump();
+    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::SUCCESS);
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestSetWidgetSchedule, TestSize.Level0)
 {
     auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
-    EXPECT_NE(schedule, nullptr);
     WidgetClient::Instance().SetWidgetSchedule(schedule);
-    uint64_t contextId = 6;
-    WidgetClient::Instance().SetWidgetContextId(contextId);
+    EXPECT_NE(schedule, nullptr);
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestSetWidgetParam, TestSize.Level0)
+{
     WidgetParam widgetParam;
     WidgetClient::Instance().SetWidgetParam(widgetParam);
-    sptr<WidgetCallbackInterface> testCallback(nullptr);
+    EXPECT_EQ(widgetParam.title, "");
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestSetWidgetCallback, TestSize.Level0)
+{
+    sptr<WidgetCallbackInterface> testCallback = nullptr;
     WidgetClient::Instance().SetWidgetCallback(testCallback);
     EXPECT_EQ(WidgetClient::Instance().GetAuthTokenId(), 0);
 }

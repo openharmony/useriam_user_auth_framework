@@ -608,8 +608,7 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParam &authPa
         return BAD_CONTEXT_ID;
     }
     auto context = ContextFactory::CreateWidgetContext(para, contextCallback);
-    const int32_t retryTimes = 3;
-    if (!Insert2ContextPool(context, retryTimes)) {
+    if (!Insert2ContextPool(context)) {
         contextCallback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
@@ -625,12 +624,10 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParam &authPa
     return context->GetContextId();
 }
 
-bool UserAuthService::Insert2ContextPool(const std::shared_ptr<Context> &context, int32_t retryTimes)
+bool UserAuthService::Insert2ContextPool(const std::shared_ptr<Context> &context)
 {
     bool ret = false;
-    if (retryTimes <= 0) {
-        retryTimes = 1;
-    }
+    const int32_t retryTimes = 3;
     for (auto i = 0; i < retryTimes; i++) {
         ret = ContextPool::Instance().Insert(context);
         if (ret) {

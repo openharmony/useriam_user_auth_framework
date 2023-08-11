@@ -175,7 +175,6 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_001, TestSize.Level0)
     nlohmann::json root = widgetCommand;
     std::string cmdData = root.dump();
     EXPECT_NE(cmdData, "");
-    from_json(root, widgetCommand);
 }
 
 HWTEST_F(WidgetJsonTest, WidgetJsonto_json_002, TestSize.Level0)
@@ -206,7 +205,6 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_002, TestSize.Level0)
     nlohmann::json root = widgetCommand;
     std::string cmdData = root.dump();
     EXPECT_NE(cmdData, "");
-    from_json(root, widgetCommand);
 }
 
 HWTEST_F(WidgetJsonTest, WidgetJsonto_json_003, TestSize.Level0)
@@ -245,7 +243,6 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_003, TestSize.Level0)
     nlohmann::json root = widgetCmdParameters;
     std::string cmdData = root.dump();
     EXPECT_NE(cmdData, "");
-    from_json(root, widgetCmdParameters);
 }
 
 HWTEST_F(WidgetJsonTest, WidgetJsonto_json_004, TestSize.Level0)
@@ -275,7 +272,6 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_004, TestSize.Level0)
     nlohmann::json root = widgetCmdParameters;
     std::string cmdData = root.dump();
     EXPECT_NE(cmdData, "");
-    from_json(root, widgetCmdParameters);
 }
 
 HWTEST_F(WidgetJsonTest, WidgetJsonto_json_005, TestSize.Level0)

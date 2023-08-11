@@ -62,8 +62,8 @@ HWTEST_F(WidgetContextCallbackImplTest, WidgetContextCallbackImplOnResult_001, T
     std::shared_ptr<ContextCallback> callback = Common::MakeShared<MockContextCallback>();
     WidgetContext *widgetContext = new WidgetContext(contextId, para, callback);
     int32_t authType = 0;
-    auto contextCallback = Common::MakeShared<WidgetContextCallbackImpl>(std::shared_ptr<WidgetContext>(widgetContext),
-        authType);
+    auto contextCallback =
+        Common::MakeShared<WidgetContextCallbackImpl>(std::shared_ptr<WidgetContext>(widgetContext), authType);
     ASSERT_NE(contextCallback, nullptr);
     int32_t result = 1;
     Attributes extraInfo;
@@ -71,15 +71,26 @@ HWTEST_F(WidgetContextCallbackImplTest, WidgetContextCallbackImplOnResult_001, T
     ASSERT_EQ(para.tokenId, 0);
 }
 
-HWTEST_F(WidgetContextCallbackImplTest, WidgetContextCallbackImplOnAcquireInfo_002, TestSize.Level0)
+HWTEST_F(WidgetContextCallbackImplTest, WidgetContextCallbackImplOnResult_002, TestSize.Level0)
+{
+    std::shared_ptr<WidgetContext> widgetContext = nullptr;
+    int32_t authType = 0;
+    auto contextCallback = Common::MakeShared<WidgetContextCallbackImpl>(widgetContext, authType);
+    ASSERT_NE(contextCallback, nullptr);
+    int32_t result = 1;
+    Attributes extraInfo;
+    contextCallback->OnResult(result, extraInfo);
+}
+
+HWTEST_F(WidgetContextCallbackImplTest, WidgetContextCallbackImplOnAcquireInfo_003, TestSize.Level0)
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
     std::shared_ptr<ContextCallback> callback = Common::MakeShared<MockContextCallback>();
     WidgetContext *widgetContext = new WidgetContext(contextId, para, callback);
     int32_t authType = 0;
-    auto contextCallback = Common::MakeShared<WidgetContextCallbackImpl>(std::shared_ptr<WidgetContext>(widgetContext),
-        authType);
+    auto contextCallback =
+        Common::MakeShared<WidgetContextCallbackImpl>(std::shared_ptr<WidgetContext>(widgetContext), authType);
     ASSERT_NE(contextCallback, nullptr);
 
     int32_t module = 0;
