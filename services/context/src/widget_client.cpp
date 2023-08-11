@@ -78,8 +78,7 @@ ResultCode WidgetClient::OnNotice(NoticeType type, const std::string &eventData)
     }
     if (schedule_ == nullptr) {
         IAM_LOGE("Invalid schedule node, report auth false");
-        ReportWidgetResult(0, AuthType::ALL, 0, 0);
-        return ResultCode::SUCCESS;
+        return ResultCode::GENERAL_ERROR;
     }
     std::vector<AuthType> authTypeList = {};
     if (!GetAuthTypeList(notice, authTypeList)) {
@@ -166,7 +165,7 @@ void WidgetClient::SetWidgetCallback(const sptr<WidgetCallbackInterface> &callba
 void WidgetClient::SetAuthTokenId(uint32_t tokenId)
 {
     authTokenId_ = tokenId;
-    IAM_LOGI("WidgetClient SetAuthTokenId authTokenId: %{public}d", authTokenId_);
+    IAM_LOGI("WidgetClient SetAuthTokenId authTokenId: %{public}u", authTokenId_);
 }
 
 uint32_t WidgetClient::GetAuthTokenId() const
