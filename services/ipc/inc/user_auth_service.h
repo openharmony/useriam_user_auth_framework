@@ -69,7 +69,7 @@ private:
     ResultCode CheckServicePermission(AuthType authType);
     ResultCode CheckWidgetNorthPermission();
     ResultCode CheckAuthWidgetParam(const AuthParam &authParam, const WidgetParam &widgetParam);
-    bool Insert2ContextPool(const std::shared_ptr<Context> &context, int32_t retryTimes);
+    bool Insert2ContextPool(const std::shared_ptr<Context> &context);
     bool CheckCallerIsSystemApp();
     ResultCode CheckParam(const AuthParam &authParam, const WidgetParam &widgetParam);
 };

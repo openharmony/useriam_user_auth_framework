@@ -26,7 +26,7 @@ namespace UserIam {
 namespace UserAuth {
 WidgetCallbackService::WidgetCallbackService(const std::shared_ptr<IUserAuthWidgetCallback> &impl)
     : widgetCallback_(impl),
-    iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("UserAuthWidget InnerKit"))
+    iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("UserAuthWidget"))
 {
     CallbackManager::CallbackAction action = [impl]() {
         if (impl != nullptr) {

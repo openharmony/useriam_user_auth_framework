@@ -34,7 +34,6 @@ namespace PermissionString {
     const std::string ACCESS_BIOMETRIC_PERMISSION = "ohos.permission.ACCESS_BIOMETRIC";
     const std::string ACCESS_AUTH_RESPOOL = "ohos.permission.ACCESS_AUTH_RESPOOL";
     const std::string ENFORCE_USER_IDM = "ohos.permission.ENFORCE_USER_IDM";
-    const std::string ACCESS_AUTH_WIDGET_POOL = "ohos.permission.ACCESS_AUTH_WIDGET_POOL";
     const std::string SUPPORT_USER_AUTH = "ohos.permission.SUPPORT_USER_AUTH";
 }
 
@@ -106,8 +105,6 @@ bool IpcCommon::CheckPermission(IPCObjectStub &stub, Permission permission)
         case ENFORCE_USER_IDM:
             return CheckDirectCaller(stub, PermissionString::ENFORCE_USER_IDM) &&
                 CheckNativeCallingProcessWhiteList(stub);
-        case ACCESS_AUTH_WIDGET_POOL:
-            return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::ACCESS_AUTH_WIDGET_POOL);
         case SUPPORT_USER_AUTH:
             return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::SUPPORT_USER_AUTH);
         case IS_SYSTEM_APP:
@@ -194,11 +191,11 @@ bool IpcCommon::CheckCallerIsSystemApp(IPCObjectStub &stub)
     uint64_t fullTokenId = IPCSkeleton::GetCallingFullTokenID();
     bool checkRet = TokenIdKit::IsSystemAppByFullTokenID(fullTokenId);
     ATokenTypeEnum callingType = AccessTokenKit::GetTokenTypeFlag(callingTokenId);
-    if (callingType == TOKEN_HAP && !checkRet) {
-        IAM_LOGE("the caller is not a system application");
-        return false;
+    if (checkRet && callingType == TOKEN_HAP) {
+        IAM_LOGI("the caller is system application");
+        return true;
     }
-    return true;
+    return false;
 }
 } // namespace UserAuth
 } // namespace UserIam
