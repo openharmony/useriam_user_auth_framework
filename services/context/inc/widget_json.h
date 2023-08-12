@@ -72,7 +72,6 @@ struct WidgetCommand {
 };
 
 void to_json(nlohmann::json &jsonCommand, const WidgetCommand &command);
-void from_json(const nlohmann::json &jsonCommand, WidgetCommand &command);
 
 // WidgetCmdParameters
 struct WidgetCmdParameters {
@@ -81,7 +80,6 @@ struct WidgetCmdParameters {
 };
 
 void to_json(nlohmann::json &jsonWidgetCmdParams, const WidgetCmdParameters &widgetCmdParameters);
-void from_json(const nlohmann::json &jsonWidgetCmdParams, WidgetCmdParameters &widgetCmdParameters);
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

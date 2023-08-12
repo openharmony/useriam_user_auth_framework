@@ -19,14 +19,19 @@
 #include <future>
 
 #include "mock_widget_schedule_node_callback.h"
-#include "iam_logger.h"
+#include "mock_context.h"
+#include "widget_context.h"
 #include "iam_ptr.h"
 
 using namespace testing;
 using namespace testing::ext;
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+
+static std::shared_ptr<WidgetScheduleNodeCallback> widgetContext = nullptr;
+
 class WidgetScheduleNodeImplTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -40,6 +45,10 @@ public:
 
 void WidgetScheduleNodeImplTest::SetUpTestCase()
 {
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    std::shared_ptr<ContextCallback> callback = Common::MakeShared<MockContextCallback>();
+    widgetContext = Common::MakeShared<WidgetContext>(contextId, para, callback);
 }
 
 void WidgetScheduleNodeImplTest::TearDownTestCase()
@@ -58,27 +67,9 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStartSchedule, TestSi
 {
     auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
     ASSERT_NE(schedule, nullptr);
-    std::shared_ptr<MockWidgetScheduleNodeCallback> widgetContext =
-        Common::MakeShared<MockWidgetScheduleNodeCallback>();
-    ASSERT_NE(widgetContext, nullptr);
     schedule->SetCallback(widgetContext);
-    EXPECT_CALL(*widgetContext, LaunchWidget()).WillRepeatedly(Return(false));
-    EXPECT_CALL(*widgetContext, EndAuthAsCancel()).WillRepeatedly(Return());
     EXPECT_TRUE(schedule->StartSchedule());
-}
-
-HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStopSchedule, TestSize.Level0)
-{
-    auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
-    ASSERT_NE(schedule, nullptr);
-    std::shared_ptr<MockWidgetScheduleNodeCallback> widgetContext =
-        Common::MakeShared<MockWidgetScheduleNodeCallback>();
-    ASSERT_NE(widgetContext, nullptr);
-    schedule->SetCallback(widgetContext);
-    EXPECT_CALL(*widgetContext, LaunchWidget()).WillRepeatedly(Return(true));
-    schedule->StartSchedule();
-    EXPECT_CALL(*widgetContext, EndAuthAsCancel()).WillRepeatedly(Return());
-    EXPECT_TRUE(schedule->StopSchedule());
+    widgetContext->LaunchWidget();
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStartAuthList, TestSize.Level0)
@@ -86,14 +77,10 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStartAuthList, TestSi
     auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
     ASSERT_NE(schedule, nullptr);
     std::vector<AuthType> authTypeList = {AuthType::ALL, AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT};
-    std::shared_ptr<MockWidgetScheduleNodeCallback> widgetContext =
-        Common::MakeShared<MockWidgetScheduleNodeCallback>();
-    ASSERT_NE(widgetContext, nullptr);
     schedule->SetCallback(widgetContext);
-    EXPECT_CALL(*widgetContext, LaunchWidget()).WillRepeatedly(Return(true));
     schedule->StartSchedule();
-    EXPECT_CALL(*widgetContext, ExecuteAuthList(_)).WillRepeatedly(Return());
     EXPECT_TRUE(schedule->StartAuthList(authTypeList));
+    widgetContext->LaunchWidget();
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStopAuthList, TestSize.Level0)
@@ -101,16 +88,11 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStopAuthList, TestSiz
     auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
     ASSERT_NE(schedule, nullptr);
     std::vector<AuthType> authTypeList = {AuthType::ALL, AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT};
-    std::shared_ptr<MockWidgetScheduleNodeCallback> widgetContext =
-        Common::MakeShared<MockWidgetScheduleNodeCallback>();
-    ASSERT_NE(widgetContext, nullptr);
     schedule->SetCallback(widgetContext);
-    EXPECT_CALL(*widgetContext, LaunchWidget()).WillRepeatedly(Return(true));
     schedule->StartSchedule();
-    EXPECT_CALL(*widgetContext, ExecuteAuthList(_)).WillRepeatedly(Return());
     schedule->StartAuthList(authTypeList);
-    EXPECT_CALL(*widgetContext, StopAuthList(_)).WillRepeatedly(Return());
     EXPECT_TRUE(schedule->StopAuthList(authTypeList));
+    widgetContext->LaunchWidget();
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplSuccessAuth, TestSize.Level0)
@@ -118,31 +100,31 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplSuccessAuth, TestSize
     auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
     ASSERT_NE(schedule, nullptr);
     std::vector<AuthType> authTypeList = {AuthType::ALL, AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT};
-    std::shared_ptr<MockWidgetScheduleNodeCallback> widgetContext =
-        Common::MakeShared<MockWidgetScheduleNodeCallback>();
-    ASSERT_NE(widgetContext, nullptr);
     schedule->SetCallback(widgetContext);
-    EXPECT_CALL(*widgetContext, LaunchWidget()).WillRepeatedly(Return(true));
     schedule->StartSchedule();
-    EXPECT_CALL(*widgetContext, ExecuteAuthList(_)).WillRepeatedly(Return());
     schedule->StartAuthList(authTypeList);
-    EXPECT_CALL(*widgetContext, SuccessAuth(_)).WillRepeatedly(Return());
     EXPECT_TRUE(schedule->SuccessAuth(AuthType::PIN));
-    ON_CALL(*widgetContext, LaunchWidget()).WillByDefault(Return(true));
+    widgetContext->LaunchWidget();
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplNaviPinAuth, TestSize.Level0)
 {
     auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
     ASSERT_NE(schedule, nullptr);
-    std::shared_ptr<MockWidgetScheduleNodeCallback> widgetContext =
-        Common::MakeShared<MockWidgetScheduleNodeCallback>();
-    ASSERT_NE(widgetContext, nullptr);
     schedule->SetCallback(widgetContext);
-    EXPECT_CALL(*widgetContext, LaunchWidget()).WillRepeatedly(Return(true));
     schedule->StartSchedule();
-    EXPECT_CALL(*widgetContext, EndAuthAsNaviPin()).WillRepeatedly(Return());
     EXPECT_TRUE(schedule->NaviPinAuth());
+    widgetContext->LaunchWidget();
+}
+
+HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStopSchedule, TestSize.Level0)
+{
+    auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
+    ASSERT_NE(schedule, nullptr);
+    schedule->SetCallback(widgetContext);
+    schedule->StartSchedule();
+    EXPECT_TRUE(schedule->StopSchedule());
+    widgetContext->LaunchWidget();
 }
 } // namespace UserAuth
 } // namespace UserIam

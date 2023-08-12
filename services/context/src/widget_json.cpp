@@ -189,10 +189,6 @@ void to_json(nlohmann::json &jsonCommand, const WidgetCommand &command)
     }
 }
 
-void from_json(const nlohmann::json &jsonCommand, WidgetCommand &command)
-{
-}
-
 // WidgetCmdParameters
 void to_json(nlohmann::json &jsWidgetCmdParam, const WidgetCmdParameters &widgetCmdParameters)
 {
@@ -240,10 +236,6 @@ void to_json(nlohmann::json &jsWidgetCmdParam, const WidgetCmdParameters &widget
     jsWidgetCmdParam = nlohmann::json({{JSON_UI_EXTENSION_TYPE, widgetCmdParameters.uiExtensionType},
         {JSON_USER_IAM_CMD_DATA, jsCommand}
     });
-}
-
-void from_json(const nlohmann::json &jsWidgetParam, WidgetCmdParameters &widgetCmdParameters)
-{
 }
 } // namespace UserAuth
 } // namespace UserIam
