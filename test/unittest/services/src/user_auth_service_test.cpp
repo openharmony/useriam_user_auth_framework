@@ -1306,6 +1306,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceNotice_002, TestSize.Level0)
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     int32_t conxtId = service.Notice(NoticeType::WIDGET_NOTICE, "PIN");
     EXPECT_EQ(conxtId, ResultCode::CHECK_PERMISSION_FAILED);
+    IpcCommon::DeleteAllPermission();
 }
 
 HWTEST_F(UserAuthServiceTest, UserAuthServiceNotice_003, TestSize.Level0)
@@ -1315,13 +1316,14 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceNotice_003, TestSize.Level0)
     IpcCommon::AddPermission(SUPPORT_USER_AUTH);
     int32_t conxtId = service.Notice(NoticeType::WIDGET_NOTICE, "PIN");
     EXPECT_EQ(conxtId, ResultCode::INVALID_PARAMETERS);
+    IpcCommon::DeleteAllPermission();
 }
 
 HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterWidgetCallback_001, TestSize.Level0)
 {
     UserAuthService service(100, true);
     sptr<WidgetCallbackInterface> testCallback = nullptr;
-    EXPECT_EQ(service.RegisterWidgetCallback(1, testCallback), ResultCode::INVALID_PARAMETERS);
+    EXPECT_EQ(service.RegisterWidgetCallback(1, testCallback), ResultCode::CHECK_SYSTEM_APP_FAILED);
 }
 
 HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterWidgetCallback_002, TestSize.Level0)
@@ -1329,7 +1331,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterWidgetCallback_002, TestSiz
     UserAuthService service(100, true);
     sptr<WidgetCallbackInterface> testCallback = nullptr;
     IpcCommon::AddPermission(IS_SYSTEM_APP);
-    EXPECT_EQ(service.RegisterWidgetCallback(1, testCallback), ResultCode::INVALID_PARAMETERS);
+    EXPECT_EQ(service.RegisterWidgetCallback(1, testCallback), ResultCode::CHECK_PERMISSION_FAILED);
     IpcCommon::DeleteAllPermission();
 }
 
