@@ -634,7 +634,7 @@ bool UserAuthService::Insert2ContextPool(const std::shared_ptr<Context> &context
             break;
         }
     }
-    IAM_LOGE("insert context to pool failed, retry %{public}d times", retryTimes);
+    IAM_LOGI("insert context to pool, retry %{public}d times", retryTimes);
     return ret;
 }
 

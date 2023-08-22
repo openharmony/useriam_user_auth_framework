@@ -343,12 +343,14 @@ void WidgetContext::SuccessAuth(AuthType authType)
 int32_t WidgetContext::ConnectExtensionAbility(const AAFwk::Want &want, const std::string commandStr)
 {
     IAM_LOGI("ConnectExtensionAbility start");
+    if (connection_ != nullptr) {
+        IAM_LOGE("invalid connection_");
+        return ERR_INVALID_OPERATION;
+    }
+    connection_ = sptr<UIExtensionAbilityConnection>(new (std::nothrow) UIExtensionAbilityConnection(commandStr));
     if (connection_ == nullptr) {
-        IAM_LOGE("connection is nullptr");
-        connection_ = sptr<UIExtensionAbilityConnection>(new (std::nothrow) UIExtensionAbilityConnection(commandStr));
-        if (connection_ == nullptr) {
-            IAM_LOGE("new connection error.");
-        }
+        IAM_LOGE("new connection error.");
+        return ERR_NO_MEMORY;
     }
 
     std::string identity = IPCSkeleton::ResetCallingIdentity();
@@ -380,7 +382,8 @@ bool WidgetContext::ConnectExtension()
 bool WidgetContext::DisconnectExtension()
 {
     if (connection_ == nullptr) {
-        return true;
+        IAM_LOGE("invalid connection handle");
+        return false;
     }
     ErrCode ret = AAFwk::ExtensionManagerClient::GetInstance().DisconnectAbility(connection_);
     if (ret != ERR_OK) {
@@ -395,11 +398,16 @@ void WidgetContext::End(const ResultCode &resultCode)
     IAM_LOGI("in End, resultCode: %{public}d", static_cast<int32_t>(resultCode));
     WidgetClient::Instance().Reset();
     StopAllRunTask();
-    if (!DisconnectExtension()) {
-        IAM_LOGE("failed to release launch widget.");
+    if (resultCode != ResultCode::SUCCESS) {
+        IAM_LOGI("Try to disconnect extesnion");
+        if (!DisconnectExtension()) {
+            IAM_LOGE("failed to release launch widget.");
+        }
     }
-    Attributes attr;
-    callback_->OnResult(resultCode, attr);
+    if (callback_ != nullptr) {
+        Attributes attr;
+        callback_->OnResult(resultCode, attr);
+    }
 }
 
 void WidgetContext::StopAllRunTask()
