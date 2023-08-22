@@ -45,6 +45,7 @@ using HdiEnrolledInfo = OHOS::HDI::UserAuth::V1_0::EnrolledInfo;
 using HdiEnrollResultInfo = OHOS::HDI::UserAuth::V1_0::EnrollResultInfo;
 
 using ScheduleInfoV1_1 = OHOS::HDI::UserAuth::V1_1::ScheduleInfoV1_1;
+using UserInfo = OHOS::HDI::UserAuth::V1_1::UserInfo;
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

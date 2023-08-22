@@ -75,6 +75,7 @@ public:
     MOCK_METHOD5(BeginIdentificationV1_1,
         int32_t(uint64_t contextId, HdiAuthType authType, const std::vector<uint8_t> &challenge, uint32_t executorId,
             HdiScheduleInfo &scheduleInfo));
+    MOCK_METHOD1(GetAllUserInfo, int32_t(std::vector<UserInfo> &userInfos));
 };
 
 class MockIUserAuthInterface::Holder : public Singleton<MockIUserAuthInterface::Holder> {
