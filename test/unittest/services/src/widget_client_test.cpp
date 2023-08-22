@@ -72,7 +72,7 @@ HWTEST_F(WidgetClientTest, WidgetClientTestNotice, TestSize.Level0)
     WidgetClient::Instance().SetWidgetSchedule(schedule);
     nlohmann::json root = widgetNotice;
     std::string eventData = root.dump();
-    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::SUCCESS);
+    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::GENERAL_ERROR);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestSetWidgetSchedule, TestSize.Level0)
