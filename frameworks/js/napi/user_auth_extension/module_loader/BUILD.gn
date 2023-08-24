@@ -18,6 +18,16 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 import("//foundation/distributeddatamgr/relational_store/relational_store.gni")
 
 ohos_shared_library("user_auth_extension") {
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../../../../cfi_blocklist.txt"
+  }
+  stack_protector_ret = true
   include_dirs = [ "../interface" ]
 
   sources = [
@@ -52,6 +62,16 @@ ohos_shared_library("user_auth_extension") {
 }
 
 ohos_shared_library("user_auth_extension_module") {
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../../../../cfi_blocklist.txt"
+  }
+  stack_protector_ret = true
   include_dirs = [ "../interface" ]
 
   sources = [ "user_auth_extension_module_loader.cpp" ]

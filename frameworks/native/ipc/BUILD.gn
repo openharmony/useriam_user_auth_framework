@@ -21,6 +21,16 @@ config("userauth_client_ipc_config") {
 }
 
 ohos_source_set("userauth_client_ipc") {
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../../cfi_blocklist.txt"
+  }
+  stack_protector_ret = true
   include_dirs = [
     "inc",
     "common_defines",
@@ -57,6 +67,16 @@ ohos_source_set("userauth_client_ipc") {
 }
 
 ohos_source_set("userauth_service_ipc") {
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../../cfi_blocklist.txt"
+  }
+  stack_protector_ret = true
   include_dirs = [
     "inc",
     "common_defines",
