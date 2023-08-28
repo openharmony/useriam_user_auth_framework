@@ -37,7 +37,7 @@ void WidgetContextCallbackImpl::OnResult(int32_t result, const Attributes &extra
     std::lock_guard lock(mutex_);
     auto widgetContext = widgetContext_.lock();
     if (widgetContext != nullptr) {
-        widgetContext->AuthResult(result, authType_, extraInfo, this);
+        widgetContext->AuthResult(result, authType_, extraInfo);
     }
 }
 

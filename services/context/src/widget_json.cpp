@@ -139,9 +139,9 @@ void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice)
     if (jsonNotice.find(JSON_AUTH_VERSION) != jsonNotice.end()) {
         jsonNotice.at(JSON_AUTH_VERSION).get_to(notice.version);
     }
-    if (jsonNotice.find(JSON_AUTH_PAYLOAD) != jsonNotice.end() ||
-        jsonNotice[JSON_AUTH_PAYLOAD].find(JSON_AUTH_TYPE) == jsonNotice[JSON_AUTH_PAYLOAD].end() ||
-        !jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].is_array()) {
+    if (jsonNotice.find(JSON_AUTH_PAYLOAD) != jsonNotice.end() &&
+        jsonNotice[JSON_AUTH_PAYLOAD].find(JSON_AUTH_TYPE) != jsonNotice[JSON_AUTH_PAYLOAD].end() &&
+        jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].is_array()) {
         jsonNotice.at(JSON_AUTH_PAYLOAD).at(JSON_AUTH_TYPE).get_to(notice.typeList);
     }
 }

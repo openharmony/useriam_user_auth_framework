@@ -14,10 +14,11 @@
  */
 
 #include "widget_client.h"
-#include "widget_schedule_node_impl.h"
 
 #include <future>
+#include "auth_common.h"
 #include "iam_check.h"
+#include "iam_ptr.h"
 #include "widget_json.h"
 #include "widget_callback_interface.h"
 
@@ -25,6 +26,8 @@
 #include "mock_context.h"
 #include "mock_resource_node.h"
 #include "mock_schedule_node.h"
+#include "mock_widget_schedule_node.h"
+#include "mock_widget_callback_interface.h"
 #include "schedule_node_impl.h"
 #include "user_auth_callback_proxy.h"
 #include "widget_schedule_node.h"
@@ -45,6 +48,8 @@ public:
     void SetUp() override;
 
     void TearDown() override;
+
+    std::shared_ptr<WidgetScheduleNode> BuildSchedule();
 };
 
 void WidgetClientTest::SetUpTestCase()
@@ -63,23 +68,31 @@ void WidgetClientTest::TearDown()
 {
 }
 
-HWTEST_F(WidgetClientTest, WidgetClientTestNotice, TestSize.Level0)
+std::shared_ptr<WidgetScheduleNode> WidgetClientTest::BuildSchedule()
 {
-    WidgetNotice widgetNotice;
-    widgetNotice.widgetContextId = 1;
-    widgetNotice.event = "EVENT_AUTH_USER_NAVIGATION";
-    std::shared_ptr<WidgetScheduleNode> schedule = nullptr;
-    WidgetClient::Instance().SetWidgetSchedule(schedule);
-    nlohmann::json root = widgetNotice;
-    std::string eventData = root.dump();
-    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::GENERAL_ERROR);
+    auto schedule = Common::MakeShared<MockWidgetScheduleNode>();
+    EXPECT_NE(schedule, nullptr);
+    EXPECT_CALL(*schedule, StartSchedule).WillRepeatedly(Return(true));
+    EXPECT_CALL(*schedule, StopSchedule).WillRepeatedly(Return(true));
+    EXPECT_CALL(*schedule, StartAuthList).WillRepeatedly(Return(true));
+    EXPECT_CALL(*schedule, StopAuthList).WillRepeatedly(Return(true));
+    EXPECT_CALL(*schedule, SuccessAuth).WillRepeatedly(Return(true));
+    EXPECT_CALL(*schedule, NaviPinAuth).WillRepeatedly(Return(true));
+    return schedule;
 }
 
-HWTEST_F(WidgetClientTest, WidgetClientTestSetWidgetSchedule, TestSize.Level0)
+HWTEST_F(WidgetClientTest, WidgetClientTestSetWidgetSchedule_0001, TestSize.Level0)
 {
-    auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
+    auto schedule = BuildSchedule();
     WidgetClient::Instance().SetWidgetSchedule(schedule);
     EXPECT_NE(schedule, nullptr);
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestSetWidgetSchedule_0002, TestSize.Level0)
+{
+    std::shared_ptr<WidgetScheduleNode> nullSchedule(nullptr);
+    WidgetClient::Instance().SetWidgetSchedule(nullSchedule);
+    EXPECT_EQ(nullSchedule, nullptr);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestSetWidgetParam, TestSize.Level0)
@@ -93,7 +106,7 @@ HWTEST_F(WidgetClientTest, WidgetClientTestSetWidgetCallback, TestSize.Level0)
 {
     sptr<WidgetCallbackInterface> testCallback = nullptr;
     WidgetClient::Instance().SetWidgetCallback(testCallback);
-    EXPECT_EQ(WidgetClient::Instance().GetAuthTokenId(), 0);
+    EXPECT_EQ(testCallback, nullptr);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestSetAuthTokenId, TestSize.Level0)
@@ -103,110 +116,100 @@ HWTEST_F(WidgetClientTest, WidgetClientTestSetAuthTokenId, TestSize.Level0)
     EXPECT_EQ(WidgetClient::Instance().GetAuthTokenId(), tokenId);
 }
 
-HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_001, TestSize.Level0)
+HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0001, TestSize.Level0)
 {
     std::string eventData = "";
-    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::INVALID_PARAMETERS);
-}
-
-HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_002, TestSize.Level0)
-{
-    std::string eventData = "";
+    WidgetClient::Instance().Reset();
     EXPECT_EQ(WidgetClient::Instance().OnNotice((NoticeType)0, eventData), ResultCode::INVALID_PARAMETERS);
 }
 
-HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_003, TestSize.Level0)
+HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0002, TestSize.Level0)
 {
-    WidgetNotice widgetNotice;
-    widgetNotice.widgetContextId = 1;
-    widgetNotice.event = "EVENT_AUTH_TYPE_READY";
-    widgetNotice.typeList.push_back("pin");
-    widgetNotice.typeList.push_back("face");
-    widgetNotice.typeList.push_back("fingerprint");
-    widgetNotice.typeList.push_back("all");
-    widgetNotice.version = "1";
-    nlohmann::json root = widgetNotice;
-    std::string eventData = root.dump();
+    std::string eventData = "";
+    WidgetClient::Instance().Reset();
     EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::INVALID_PARAMETERS);
 }
 
-HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_004, TestSize.Level0)
-{
-    WidgetNotice widgetNotice;
-    widgetNotice.widgetContextId = 1;
-    widgetNotice.event = "EVENT_AUTH_USER_CANCEL";
-    widgetNotice.typeList.push_back("pin");
-    widgetNotice.typeList.push_back("face");
-    widgetNotice.typeList.push_back("fingerprint");
-    widgetNotice.typeList.push_back("all");
-    widgetNotice.version = "1";
-    nlohmann::json root = widgetNotice;
-    std::string eventData = root.dump();
-    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::INVALID_PARAMETERS);
-}
-
-HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_005, TestSize.Level0)
-{
-    WidgetNotice widgetNotice;
-    widgetNotice.widgetContextId = 1;
-    widgetNotice.event = "EVENT_AUTH_USER_CANCEL";
-    widgetNotice.typeList.push_back("all");
-    widgetNotice.version = "1";
-    nlohmann::json root = widgetNotice;
-    std::string eventData = root.dump();
-    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::SUCCESS);
-}
-
-HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_006, TestSize.Level0)
-{
-    WidgetNotice widgetNotice;
-    widgetNotice.widgetContextId = 1;
-    widgetNotice.event = "EVENT_AUTH_USER_NAVIGATION";
-    widgetNotice.typeList.push_back("pin");
-    widgetNotice.typeList.push_back("face");
-    widgetNotice.typeList.push_back("fingerprint");
-    widgetNotice.typeList.push_back("all");
-    widgetNotice.version = "1";
-    nlohmann::json root = widgetNotice;
-    std::string eventData = root.dump();
-    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::INVALID_PARAMETERS);
-}
-
-HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_007, TestSize.Level0)
-{
-    WidgetNotice widgetNotice;
-    widgetNotice.widgetContextId = 1;
-    widgetNotice.event = "aaaaa";
-    widgetNotice.typeList.push_back("pin");
-    widgetNotice.typeList.push_back("face");
-    widgetNotice.typeList.push_back("fingerprint");
-    widgetNotice.typeList.push_back("all");
-    widgetNotice.version = "1";
-    nlohmann::json root = widgetNotice;
-    std::string eventData = root.dump();
-    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::INVALID_PARAMETERS);
-}
-
-HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_008, TestSize.Level0)
+HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0003, TestSize.Level0)
 {
     std::string eventData = "invalid_json_string";
+    WidgetClient::Instance().Reset();
     EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::INVALID_PARAMETERS);
 }
 
-HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_009, TestSize.Level0)
+HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0004, TestSize.Level0)
+{
+    WidgetNotice widgetNotice;
+    nlohmann::json root = widgetNotice;
+    std::string eventData = root.dump();
+    WidgetClient::Instance().Reset();
+    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::INVALID_PARAMETERS);
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0005, TestSize.Level0)
 {
     WidgetNotice widgetNotice;
     widgetNotice.widgetContextId = 1;
-    widgetNotice.event = "EVENT_AUTH_USER_NAVIGATION";
-    widgetNotice.typeList.push_back("pin");
-    widgetNotice.typeList.push_back("face");
-    widgetNotice.typeList.push_back("fingerprint");
-    widgetNotice.typeList.push_back("all");
-    widgetNotice.version = "1";
-    std::shared_ptr<WidgetScheduleNode> schedule = nullptr;
-    WidgetClient::Instance().SetWidgetSchedule(schedule);
+    widgetNotice.event = "INVALID_EVENT_AUTH_TYPE";
     nlohmann::json root = widgetNotice;
     std::string eventData = root.dump();
+    WidgetClient::Instance().Reset();
+    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::INVALID_PARAMETERS);
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0006, TestSize.Level0)
+{
+    WidgetNotice widgetNotice;
+    widgetNotice.widgetContextId = 1;
+    widgetNotice.event = NOTICE_EVENT_AUTH_READY;
+    nlohmann::json root = widgetNotice;
+    std::string eventData = root.dump();
+    WidgetClient::Instance().Reset();
+    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::GENERAL_ERROR);
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0007, TestSize.Level0)
+{
+    WidgetNotice widgetNotice;
+    widgetNotice.widgetContextId = 1;
+    widgetNotice.event = NOTICE_EVENT_AUTH_READY;
+    nlohmann::json root = widgetNotice;
+    std::string eventData = root.dump();
+    WidgetClient::Instance().Reset();
+    std::vector<AuthType> authTypeList;
+    WidgetClient::Instance().SetAuthTypeList(authTypeList);
+    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::INVALID_PARAMETERS);
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0008, TestSize.Level0)
+{
+    WidgetNotice widgetNotice;
+    widgetNotice.widgetContextId = 1;
+    widgetNotice.event = NOTICE_EVENT_AUTH_READY;
+    nlohmann::json root = widgetNotice;
+    std::string eventData = root.dump();
+    WidgetClient::Instance().Reset();
+    std::vector<AuthType> authTypeList;
+    authTypeList.emplace_back(AuthType::PIN);
+    WidgetClient::Instance().SetAuthTypeList(authTypeList);
+    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::INVALID_PARAMETERS);
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0009, TestSize.Level0)
+{
+    WidgetNotice widgetNotice;
+    widgetNotice.widgetContextId = 1;
+    widgetNotice.event = NOTICE_EVENT_AUTH_READY;
+    widgetNotice.typeList.push_back("all");
+    nlohmann::json root = widgetNotice;
+    std::string eventData = root.dump();
+    WidgetClient::Instance().Reset();
+    std::vector<AuthType> authTypeList;
+    authTypeList.emplace_back(AuthType::PIN);
+    WidgetClient::Instance().SetAuthTypeList(authTypeList);
+    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
     EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::INVALID_PARAMETERS);
 }
 
@@ -214,14 +217,15 @@ HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0010, TestSize.Level0)
 {
     WidgetNotice widgetNotice;
     widgetNotice.widgetContextId = 1;
-    widgetNotice.event = "EVENT_AUTH_USER_NAVIGATION";
+    widgetNotice.event = NOTICE_EVENT_AUTH_READY;
     widgetNotice.typeList.push_back("pin");
-    widgetNotice.typeList.push_back("face");
-    widgetNotice.typeList.push_back("fingerprint");
-    widgetNotice.typeList.push_back("all");
-    widgetNotice.version = "1";
     nlohmann::json root = widgetNotice;
     std::string eventData = root.dump();
+    WidgetClient::Instance().Reset();
+    std::vector<AuthType> authTypeList;
+    authTypeList.emplace_back(AuthType::FACE);
+    WidgetClient::Instance().SetAuthTypeList(authTypeList);
+    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
     EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::INVALID_PARAMETERS);
 }
 
@@ -229,45 +233,31 @@ HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0011, TestSize.Level0)
 {
     WidgetNotice widgetNotice;
     widgetNotice.widgetContextId = 1;
-    widgetNotice.event = "NOTICE_EVENT_CANCEL_AUTH";
+    widgetNotice.event = NOTICE_EVENT_AUTH_READY;
     widgetNotice.typeList.push_back("pin");
-    widgetNotice.typeList.push_back("face");
-    widgetNotice.typeList.push_back("fingerprint");
-    widgetNotice.typeList.push_back("all");
-    widgetNotice.version = "1";
-    std::vector<AuthType> authTypeList;
-    authTypeList.push_back(FACE);
-    authTypeList.push_back(ALL);
-    authTypeList.push_back(PIN);
-    authTypeList.push_back(FINGERPRINT);
-    WidgetClient::Instance().SetAuthTypeList(authTypeList);
-    std::shared_ptr<WidgetScheduleNode> schedule = nullptr;
-    WidgetClient::Instance().SetWidgetSchedule(schedule);
     nlohmann::json root = widgetNotice;
     std::string eventData = root.dump();
-    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::INVALID_PARAMETERS);
+    WidgetClient::Instance().Reset();
+    std::vector<AuthType> authTypeList;
+    authTypeList.emplace_back(AuthType::PIN);
+    WidgetClient::Instance().SetAuthTypeList(authTypeList);
+    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::SUCCESS);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0012, TestSize.Level0)
 {
     WidgetNotice widgetNotice;
     widgetNotice.widgetContextId = 1;
-    widgetNotice.event = "EVENT_AUTH_USER_NAVIGATION";
-    widgetNotice.typeList.push_back("pin");
-    widgetNotice.typeList.push_back("face");
-    widgetNotice.typeList.push_back("fingerprint");
+    widgetNotice.event = NOTICE_EVENT_CANCEL_AUTH;
     widgetNotice.typeList.push_back("all");
-    widgetNotice.version = "1";
-    std::vector<AuthType> authTypeList;
-    authTypeList.push_back(FACE);
-    authTypeList.push_back(ALL);
-    authTypeList.push_back(PIN);
-    authTypeList.push_back(FINGERPRINT);
-    WidgetClient::Instance().SetAuthTypeList(authTypeList);
-    std::shared_ptr<WidgetScheduleNode> schedule = nullptr;
-    WidgetClient::Instance().SetWidgetSchedule(schedule);
     nlohmann::json root = widgetNotice;
     std::string eventData = root.dump();
+    WidgetClient::Instance().Reset();
+    std::vector<AuthType> authTypeList;
+    authTypeList.emplace_back(AuthType::PIN);
+    WidgetClient::Instance().SetAuthTypeList(authTypeList);
+    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
     EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::SUCCESS);
 }
 
@@ -275,128 +265,149 @@ HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0013, TestSize.Level0)
 {
     WidgetNotice widgetNotice;
     widgetNotice.widgetContextId = 1;
-    widgetNotice.event = "NOTICE_EVENT_CANCEL_AUTH";
+    widgetNotice.event = NOTICE_EVENT_CANCEL_AUTH;
     widgetNotice.typeList.push_back("pin");
-    widgetNotice.typeList.push_back("face");
-    widgetNotice.typeList.push_back("fingerprint");
-    widgetNotice.version = "1";
-    std::vector<AuthType> authTypeList;
-    authTypeList.push_back(FACE);
-    authTypeList.push_back(ALL);
-    authTypeList.push_back(PIN);
-    authTypeList.push_back(FINGERPRINT);
-    WidgetClient::Instance().SetAuthTypeList(authTypeList);
-    std::shared_ptr<WidgetScheduleNode> schedule = nullptr;
-    WidgetClient::Instance().SetWidgetSchedule(schedule);
     nlohmann::json root = widgetNotice;
     std::string eventData = root.dump();
-    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::INVALID_PARAMETERS);
+    WidgetClient::Instance().Reset();
+    std::vector<AuthType> authTypeList;
+    authTypeList.emplace_back(AuthType::PIN);
+    authTypeList.emplace_back(AuthType::FACE);
+    WidgetClient::Instance().SetAuthTypeList(authTypeList);
+    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::SUCCESS);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0014, TestSize.Level0)
 {
     WidgetNotice widgetNotice;
-    widgetNotice.widgetContextId = 0;
-    widgetNotice.event = "EVENT_AUTH_USER_CANCEL";
-    widgetNotice.typeList.push_back("all");
-    widgetNotice.version = "1";
+    widgetNotice.widgetContextId = 1;
+    widgetNotice.event = NOTICE_EVENT_CANCEL_AUTH;
+    widgetNotice.typeList.push_back("pin");
+    widgetNotice.typeList.push_back("face");
     nlohmann::json root = widgetNotice;
     std::string eventData = root.dump();
+    WidgetClient::Instance().Reset();
+    std::vector<AuthType> authTypeList;
+    authTypeList.emplace_back(AuthType::PIN);
+    authTypeList.emplace_back(AuthType::FACE);
+    authTypeList.emplace_back(AuthType::FINGERPRINT);
+    WidgetClient::Instance().SetAuthTypeList(authTypeList);
+    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::SUCCESS);
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0015, TestSize.Level0)
+{
+    WidgetNotice widgetNotice;
+    widgetNotice.widgetContextId = 1;
+    widgetNotice.event = NOTICE_EVENT_CANCEL_AUTH;
+    widgetNotice.typeList.push_back("pin");
+    nlohmann::json root = widgetNotice;
+    std::string eventData = root.dump();
+    WidgetClient::Instance().Reset();
+    std::vector<AuthType> authTypeList;
+    authTypeList.emplace_back(AuthType::PIN);
+    WidgetClient::Instance().SetAuthTypeList(authTypeList);
+    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::SUCCESS);
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0016, TestSize.Level0)
+{
+    WidgetNotice widgetNotice;
+    widgetNotice.widgetContextId = 1;
+    widgetNotice.event = NOTICE_EVENT_USER_NAVIGATION;
+    widgetNotice.typeList.push_back("pin");
+    nlohmann::json root = widgetNotice;
+    std::string eventData = root.dump();
+    WidgetClient::Instance().Reset();
+    std::vector<AuthType> authTypeList;
+    authTypeList.emplace_back(AuthType::PIN);
+    WidgetClient::Instance().SetAuthTypeList(authTypeList);
+    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::SUCCESS);
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0017, TestSize.Level0)
+{
+    WidgetNotice widgetNotice;
+    widgetNotice.widgetContextId = 1;
+    widgetNotice.event = NOTICE_EVENT_CANCEL_AUTH;
+    widgetNotice.typeList.push_back("all");
+    widgetNotice.typeList.push_back("face");
+    nlohmann::json root = widgetNotice;
+    std::string eventData = root.dump();
+    WidgetClient::Instance().Reset();
+    std::vector<AuthType> authTypeList;
+    authTypeList.emplace_back(AuthType::PIN);
+    WidgetClient::Instance().SetAuthTypeList(authTypeList);
+    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
     EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::INVALID_PARAMETERS);
 }
 
-HWTEST_F(WidgetClientTest, WidgetClientTestReportWidgetResult_001, TestSize.Level0)
+HWTEST_F(WidgetClientTest, WidgetClientTestReportWidgetResult_0001, TestSize.Level0)
 {
-    int32_t result = 1;
-    int32_t lockoutDuration = 1;
-    int32_t remainAttempts = 1;
-    WidgetClient::Instance().ReportWidgetResult(result, AuthType::FINGERPRINT, lockoutDuration, remainAttempts);
-    EXPECT_EQ(WidgetClient::Instance().GetAuthTokenId(), 1);
-}
-
-HWTEST_F(WidgetClientTest, WidgetClientTestReportWidgetResult_002, TestSize.Level0)
-{
-    int32_t result = 1;
-    int32_t lockoutDuration = 1;
-    int32_t remainAttempts = 1;
-    WidgetClient::Instance().SetSensorInfo("Sensor");
-    WidgetClient::Instance().ReportWidgetResult(result, AuthType::FINGERPRINT, lockoutDuration, remainAttempts);
-    EXPECT_EQ(WidgetClient::Instance().GetAuthTokenId(), 1);
-}
-
-HWTEST_F(WidgetClientTest, WidgetClientTestReportWidgetResult_003, TestSize.Level0)
-{
-    int32_t result = 1;
-    int32_t lockoutDuration = 1;
-    int32_t remainAttempts = 1;
     WidgetClient::Instance().Reset();
-    WidgetClient::Instance().SetSensorInfo("Sensor");
-    WidgetClient::Instance().ReportWidgetResult(result, AuthType::FINGERPRINT, lockoutDuration, remainAttempts);
+    WidgetClient::Instance().SetSensorInfo("fake senor info");
+    WidgetClient::Instance().ReportWidgetResult(1, AuthType::FINGERPRINT, 1, 1);
     EXPECT_EQ(WidgetClient::Instance().GetAuthTokenId(), 0);
 }
 
-HWTEST_F(WidgetClientTest, WidgetClientTestReportWidgetResult_004, TestSize.Level0)
+HWTEST_F(WidgetClientTest, WidgetClientTestReportWidgetResult_0002, TestSize.Level0)
 {
-    int32_t result = 1;
-    int32_t lockoutDuration = 1;
-    int32_t remainAttempts = 1;
     WidgetClient::Instance().Reset();
-    MessageParcel data;
-    sptr<IRemoteObject> obj = data.ReadRemoteObject();
-    sptr<WidgetCallbackInterface> testCallback = iface_cast<WidgetCallbackProxy>(obj);
-
-    EXPECT_EQ(testCallback, nullptr);
-    WidgetClient::Instance().SetWidgetCallback(testCallback);
-    WidgetClient::Instance().ReportWidgetResult(result, AuthType::PIN, lockoutDuration, remainAttempts);
+    WidgetClient::Instance().ReportWidgetResult(1, AuthType::FINGERPRINT, 1, 1);
     EXPECT_EQ(WidgetClient::Instance().GetAuthTokenId(), 0);
 }
 
-HWTEST_F(WidgetClientTest, WidgetClientTestReportWidgetResult_005, TestSize.Level0)
+HWTEST_F(WidgetClientTest, WidgetClientTestReportWidgetResult_0003, TestSize.Level0)
 {
-    int32_t result = 1;
-    int32_t lockoutDuration = 1;
-    int32_t remainAttempts = 1;
     WidgetClient::Instance().Reset();
-    MessageParcel data;
-    sptr<IRemoteObject> obj = data.ReadRemoteObject();
-    sptr<WidgetCallbackInterface> testCallback = iface_cast<WidgetCallbackProxy>(obj);
-
-    EXPECT_EQ(testCallback, nullptr);
-    WidgetClient::Instance().SetWidgetCallback(testCallback);
-    WidgetClient::Instance().SetPinSubType(PinSubType::PIN_SIX);
-    WidgetClient::Instance().ReportWidgetResult(result, AuthType::PIN, lockoutDuration, remainAttempts);
+    WidgetClient::Instance().SetSensorInfo("fake senor info");
+    WidgetClient::Instance().ReportWidgetResult(1, AuthType::PIN, 1, 1);
     EXPECT_EQ(WidgetClient::Instance().GetAuthTokenId(), 0);
 }
 
-HWTEST_F(WidgetClientTest, WidgetClientTestReportWidgetResult_006, TestSize.Level0)
+HWTEST_F(WidgetClientTest, WidgetClientTestReportWidgetResult_0004, TestSize.Level0)
 {
-    int32_t result = 1;
-    int32_t lockoutDuration = 1;
-    int32_t remainAttempts = 1;
     WidgetClient::Instance().Reset();
-    MessageParcel data;
-    sptr<IRemoteObject> obj = data.ReadRemoteObject();
-    sptr<WidgetCallbackInterface> testCallback = iface_cast<WidgetCallbackProxy>(obj);
-
-    EXPECT_EQ(testCallback, nullptr);
-    WidgetClient::Instance().SetWidgetCallback(testCallback);
     std::vector<AuthType> authTypeList;
-    authTypeList.push_back(FACE);
-    authTypeList.push_back(ALL);
-    authTypeList.push_back(PIN);
-    authTypeList.push_back(FINGERPRINT);
-    WidgetClient::Instance().SetPinSubType(PinSubType::PIN_SIX);
+    authTypeList.emplace_back(AuthType::PIN);
     WidgetClient::Instance().SetAuthTypeList(authTypeList);
-    WidgetClient::Instance().ReportWidgetResult(result, AuthType::PIN, lockoutDuration, remainAttempts);
+    WidgetClient::Instance().SetPinSubType(PinSubType::PIN_NUMBER);
+    WidgetClient::Instance().ReportWidgetResult(1, AuthType::PIN, 1, 1);
     EXPECT_EQ(WidgetClient::Instance().GetAuthTokenId(), 0);
 }
 
-HWTEST_F(WidgetClientTest, WidgetClientTestForceStopAuth, TestSize.Level0)
+HWTEST_F(WidgetClientTest, WidgetClientTestReportWidgetResult_0005, TestSize.Level0)
+{
+    WidgetClient::Instance().Reset();
+    std::vector<AuthType> authTypeList;
+    authTypeList.emplace_back(AuthType::PIN);
+    WidgetClient::Instance().SetAuthTypeList(authTypeList);
+    WidgetClient::Instance().SetPinSubType(PinSubType::PIN_NUMBER);
+    sptr<MockWidgetCallbackInterface> widgetCallback(new (std::nothrow) MockWidgetCallbackInterface);
+    EXPECT_NE(widgetCallback, nullptr);
+    EXPECT_CALL(*widgetCallback, SendCommand);
+    WidgetClient::Instance().SetWidgetCallback(widgetCallback);
+    WidgetClient::Instance().ReportWidgetResult(1, AuthType::PIN, 1, 1);
+    EXPECT_EQ(WidgetClient::Instance().GetAuthTokenId(), 0);
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestForceStopAuth_0001, TestSize.Level0)
+{
+    WidgetClient::Instance().Reset();
+    WidgetClient::Instance().ForceStopAuth();
+    EXPECT_EQ(WidgetClient::Instance().GetAuthTokenId(), 0);
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestForceStopAuth_0002, TestSize.Level0)
 {
     uint64_t contextId = 6;
+    WidgetClient::Instance().Reset();
     WidgetClient::Instance().SetWidgetContextId(contextId);
-    auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
-    WidgetClient::Instance().SetWidgetSchedule(schedule);
+    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
     WidgetClient::Instance().ForceStopAuth();
     EXPECT_EQ(WidgetClient::Instance().GetAuthTokenId(), 0);
 }
