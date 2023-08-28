@@ -70,9 +70,7 @@ ResultCode WidgetClient::OnNotice(NoticeType type, const std::string &eventData)
         IAM_LOGE("Invalid widget context id");
         return ResultCode::INVALID_PARAMETERS;
     }
-    if (notice.event != NOTICE_EVENT_AUTH_READY &&
-        notice.event != NOTICE_EVENT_CANCEL_AUTH &&
-        notice.event != NOTICE_EVENT_USER_NAVIGATION) {
+    if (!IsValidNoticeType(notice)) {
         IAM_LOGE("Not support notice event");
         return ResultCode::INVALID_PARAMETERS;
     }
@@ -224,23 +222,45 @@ void WidgetClient::SetSensorInfo(const std::string &info)
 
 bool WidgetClient::GetAuthTypeList(const WidgetNotice &notice, std::vector<AuthType> &authTypeList)
 {
+    if (authTypeList_.empty()) {
+        IAM_LOGE("inner auth type list is empty");
+        return false;
+    }
     std::vector<AuthType> tempList = notice.AuthTypeList();
-    for (auto &type : tempList) {
-        if (std::find(authTypeList_.begin(), authTypeList_.end(), type) != authTypeList_.end()) {
-            authTypeList.emplace_back(type);
-        } else {
-            if (type == AuthType::ALL && tempList.size() == 1 && notice.event == NOTICE_EVENT_CANCEL_AUTH) {
-                authTypeList.emplace_back(type);
-                return true;
-            }
+    if (tempList.empty()) {
+        IAM_LOGE("auth type list is empty");
+        return false;
+    }
+    if (tempList.size() == 1 && tempList[0] == AuthType::ALL) {
+        if (notice.event != NOTICE_EVENT_CANCEL_AUTH) {
+            IAM_LOGE("invalid type all case event type: %{public}s", notice.event.c_str());
             return false;
         }
+        authTypeList.emplace_back(AuthType::ALL);
+        return true;
+    }
+    for (auto &type : tempList) {
+        if (std::find(authTypeList_.begin(), authTypeList_.end(), type) == authTypeList_.end()) {
+            IAM_LOGE("invalid auth type: %{public}d", type);
+            return false;
+        }
+        authTypeList.emplace_back(type);
     }
     if (authTypeList.size() == authTypeList_.size() && notice.event == NOTICE_EVENT_CANCEL_AUTH) {
         authTypeList.clear();
         authTypeList.emplace_back(AuthType::ALL);
     }
-    return authTypeList.size() > 0;
+    return true;
+}
+
+bool WidgetClient::IsValidNoticeType(const WidgetNotice &notice)
+{
+    if (notice.event != NOTICE_EVENT_AUTH_READY &&
+        notice.event != NOTICE_EVENT_CANCEL_AUTH &&
+        notice.event != NOTICE_EVENT_USER_NAVIGATION) {
+        return false;
+    }
+    return true;
 }
 } // namespace UserAuth
 } // namespace UserIam

@@ -48,11 +48,13 @@ public:
     static void AddPermission(Permission perm);
     static void DeleteAllPermission();
     static uint32_t GetTokenId(IPCObjectStub &stub);
+    static void SetSkipUserFlag(bool isSkip);
 
 private:
     static std::set<Permission> permSet_;
     static bool isSetTokenId_;
     static uint32_t tokenId_;
+    static bool skipFlag_;
 };
 } // namespace UserAuth
 } // namespace UserIam
