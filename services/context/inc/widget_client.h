@@ -58,6 +58,7 @@ private:
     WidgetClient() = default;
     void SendCommand(const WidgetCommand &command);
     bool GetAuthTypeList(const WidgetNotice &notice, std::vector<AuthType> &authTypeList);
+    bool IsValidNoticeType(const WidgetNotice &notice);
 
 private:
     std::shared_ptr<WidgetScheduleNode> schedule_ {nullptr};

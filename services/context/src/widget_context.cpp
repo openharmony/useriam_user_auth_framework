@@ -170,19 +170,7 @@ std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &ch
     }
     contextCallback->SetCleaner(ContextHelper::Cleaner(context));
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    iamCallbackList_[iamCallback] = context;
     return context;
-}
-
-std::shared_ptr<Context> WidgetContext::GetTaskFromIamcallback(
-    const sptr<IamCallbackInterface> &iamCallback)
-{
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    auto it = iamCallbackList_.find(iamCallback);
-    if (it != iamCallbackList_.end()) {
-        return it->second;
-    }
-    return nullptr;
 }
 
 bool WidgetContext::OnStart()
@@ -215,15 +203,9 @@ bool WidgetContext::OnStop()
     return true;
 }
 
-void WidgetContext::AuthResult(int32_t resultCode, int32_t at, const Attributes &finalResult,
-    const sptr<IamCallbackInterface> &iamCallback)
+void WidgetContext::AuthResult(int32_t resultCode, int32_t at, const Attributes &finalResult)
 {
     IAM_LOGI("recv task result: %{public}d, authType: %{public}d", resultCode, at);
-    auto task = GetTaskFromIamcallback(iamCallback);
-    if (!TaskRun2Done(task)) {
-        IAM_LOGE("ignore this task result");
-        return;
-    }
     int32_t remainTimes = -1;
     int32_t freezingTime = -1;
     if (!finalResult.GetInt32Value(Attributes::ATTR_REMAIN_TIMES, remainTimes)) {
@@ -249,20 +231,6 @@ void WidgetContext::AuthResult(int32_t resultCode, int32_t at, const Attributes 
         SetLatestError(resultCode);
         schedule_->StopAuthList({authType});
     }
-}
-
-bool WidgetContext::TaskRun2Done(const std::shared_ptr<Context> &task)
-{
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    auto it = std::find_if(runTaskInfoList_.begin(),
-        runTaskInfoList_.end(), [&task](const TaskInfo &taskInfo) {
-        return (taskInfo.task == task);
-    });
-    if (it != runTaskInfoList_.end()) {
-        runTaskInfoList_.erase(it);
-        return true;
-    }
-    return false;
 }
 
 // WidgetScheduleNodeCallback
