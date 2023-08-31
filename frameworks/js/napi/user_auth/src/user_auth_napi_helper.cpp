@@ -134,8 +134,6 @@ JsRefHolder::~JsRefHolder()
         IAM_LOGE("uv_qos_user_initiated fail");
         DestoryDeleteWork(work);
     }
-    env_ = nullptr;
-    ref_ = nullptr;
 }
 
 bool JsRefHolder::IsValid() const
@@ -272,6 +270,10 @@ napi_status UserAuthNapiHelper::GetUint32Value(napi_env env, napi_value value, u
 
 napi_status UserAuthNapiHelper::GetStrValue(napi_env env, napi_value value, char *out, size_t &len)
 {
+    if (out == nullptr) {
+        IAM_LOGE("invalid out parameter");
+        return napi_invalid_arg;
+    }
     napi_status result = CheckNapiType(env, value, napi_string);
     if (result != napi_ok) {
         IAM_LOGE("CheckNapiType fail");

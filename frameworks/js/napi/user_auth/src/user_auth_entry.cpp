@@ -588,7 +588,7 @@ napi_value GetUserAuthWidgetMgrV10(napi_env env, napi_callback_info info)
         return nullptr;
     }
     if (userAuthWidgetMgr == nullptr) {
-        IAM_LOGE("userAuthInstanceV10 is null");
+        IAM_LOGE("userAuthWidgetMgr is null");
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
         return nullptr;
     }
