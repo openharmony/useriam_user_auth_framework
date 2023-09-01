@@ -15,6 +15,15 @@ import("//build/config/features.gni")
 import("//build/test.gni")
 
 ohos_fuzztest("UserAuthServiceFuzzTest") {
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  stack_protector_ret = true
   module_out_path = "useriam/user_auth_framework/services"
   fuzz_config_file = "../userauthservice_fuzzer"
   cflags = [
