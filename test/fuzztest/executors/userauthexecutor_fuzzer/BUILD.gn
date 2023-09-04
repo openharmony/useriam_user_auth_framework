@@ -57,10 +57,10 @@ ohos_fuzztest("UserAuthExecutorFuzzTest") {
   ]
 
   deps = [
-    "../../common_fuzzer:iam_test_fuzzer",
-    "../../common_fuzzer:iam_utils_fuzzer",
     "../../common_fuzzer:attributes_fuzzer",
     "../../common_fuzzer:dfx_fuzzer",
+    "../../common_fuzzer:iam_test_fuzzer",
+    "../../common_fuzzer:iam_utils_fuzzer",
   ]
 
   external_deps = [
