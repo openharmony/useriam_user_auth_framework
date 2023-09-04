@@ -39,8 +39,8 @@ ohos_fuzztest("UserIdmStubFuzzTest") {
   sources = [ "user_idm_stub_fuzzer.cpp" ]
 
   deps = [
-    "../../common_fuzzer:iam_test_fuzzer",
     "../../common_fuzzer:attributes_fuzzer",
+    "../../common_fuzzer:iam_test_fuzzer",
     "../../common_fuzzer:userauth_services_ipc_fuzzer",
   ]
 

@@ -51,9 +51,9 @@ ohos_fuzztest("CoAuthClientFuzzTest") {
   ]
 
   deps = [
-    "../../common_fuzzer:iam_test_fuzzer",
     "../../common_fuzzer:attributes_fuzzer",
     "../../common_fuzzer:dfx_fuzzer",
+    "../../common_fuzzer:iam_test_fuzzer",
     "../../common_fuzzer:userauth_client_ipc_fuzzer",
   ]
 

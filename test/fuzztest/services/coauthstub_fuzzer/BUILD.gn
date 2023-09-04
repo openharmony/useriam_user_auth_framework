@@ -39,8 +39,8 @@ ohos_fuzztest("CoAuthStubFuzzTest") {
   sources = [ "co_auth_stub_fuzzer.cpp" ]
 
   deps = [
-    "../../common_fuzzer:iam_test_fuzzer",
     "../../common_fuzzer:attributes_fuzzer",
+    "../../common_fuzzer:iam_test_fuzzer",
     "../../common_fuzzer:userauth_services_ipc_fuzzer",
   ]
 
