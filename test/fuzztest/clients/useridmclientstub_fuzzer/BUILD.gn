@@ -52,7 +52,7 @@ ohos_fuzztest("UserIdmClientStubFuzzTest") {
   ]
 
   deps = [
-    "../../../../common:iam_test",
+    "../../common_fuzzer:iam_test_fuzzer",
     "../../common_fuzzer:attributes_fuzzer",
     "../../common_fuzzer:dfx_fuzzer",
     "../../common_fuzzer:userauth_client_ipc_fuzzer",
