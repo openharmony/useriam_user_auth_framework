@@ -165,10 +165,10 @@ private:
     void FuzzTriggerIExecuteCallback(const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj)
     {
         auto reply = [fuzzParcel(this->fuzzParcel_), callbackObj]() {
-            const uint32_t max_trigger_count = 5;
-            uint32_t trigger_count = fuzzParcel->ReadUint32() % max_trigger_count;
+            const uint32_t maxTriggerCount = 5;
+            uint32_t triggerCount = fuzzParcel->ReadUint32() % maxTriggerCount;
             vector<uint8_t> extraInfo;
-            for (uint32_t i = 0; i < trigger_count; i++) {
+            for (uint32_t i = 0; i < triggerCount; i++) {
                 FillFuzzUint8Vector(*fuzzParcel, extraInfo);
                 bool triggerOnResult = fuzzParcel->ReadBool();
                 if (triggerOnResult) {

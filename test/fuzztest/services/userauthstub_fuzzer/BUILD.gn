@@ -15,6 +15,7 @@ import("//build/config/features.gni")
 import("//build/test.gni")
 
 ohos_fuzztest("UserAuthStubFuzzTest") {
+  stack_protector_ret = true
   module_out_path = "useriam/user_auth_framework/services"
   fuzz_config_file = "../userauthstub_fuzzer"
   cflags = [
@@ -38,9 +39,9 @@ ohos_fuzztest("UserAuthStubFuzzTest") {
   sources = [ "user_auth_stub_fuzzer.cpp" ]
 
   deps = [
-    "../../../../common:iam_test",
-    "../../../../frameworks/native/common:attributes",
-    "../../../../services/ipc:userauth_services_ipc",
+    "../../common_fuzzer:attributes_fuzzer",
+    "../../common_fuzzer:iam_test_fuzzer",
+    "../../common_fuzzer:userauth_services_ipc_fuzzer",
   ]
 
   external_deps = [
