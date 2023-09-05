@@ -15,6 +15,7 @@ import("//build/config/features.gni")
 import("//build/test.gni")
 
 ohos_fuzztest("UserAuthDriverManagerFuzzTest") {
+  stack_protector_ret = true
   module_out_path = "useriam/user_auth_framework/executors"
   fuzz_config_file = "../userauthdrivermanager_fuzzer"
   cflags = [
@@ -56,10 +57,10 @@ ohos_fuzztest("UserAuthDriverManagerFuzzTest") {
   ]
 
   deps = [
-    "../../../../common:iam_test",
-    "../../../../common:iam_utils",
-    "../../../../frameworks/native/common:attributes",
-    "../../../../frameworks/native/common:dfx",
+    "../../common_fuzzer:attributes_fuzzer",
+    "../../common_fuzzer:dfx_fuzzer",
+    "../../common_fuzzer:iam_test_fuzzer",
+    "../../common_fuzzer:iam_utils_fuzzer",
   ]
 
   external_deps = [

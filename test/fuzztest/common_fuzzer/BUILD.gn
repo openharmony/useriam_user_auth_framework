@@ -1,0 +1,416 @@
+# Copyright (c) 2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+
+if (!defined(global_parts_info) ||
+    defined(global_parts_info.account_os_account)) {
+  has_os_account_part = true
+} else {
+  has_os_account_part = false
+}
+
+ohos_source_set("attributes_fuzzer") {
+  stack_protector_ret = true
+  include_dirs = [ "../../../interfaces/inner_api" ]
+
+  sources =
+      [ "../../../frameworks/native/common/attributes/src/attributes.cpp" ]
+
+  configs = [ "../../../common:iam_log_config" ]
+
+  public_configs = [ "../../../frameworks/native/common:attributes_config" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+  ]
+
+  subsystem_name = "useriam"
+  part_name = "user_auth_framework"
+}
+
+ohos_source_set("dfx_fuzzer") {
+  stack_protector_ret = true
+  include_dirs = [ "../../../frameworks/native/common/dfx/inc" ]
+
+  sources = [
+    "../../../frameworks/native/common/dfx/src/hisysevent_adapter.cpp",
+    "../../../frameworks/native/common/dfx/src/iam_hitrace_helper.cpp",
+  ]
+
+  configs = [ "../../../common:iam_log_config" ]
+
+  public_configs = [ "../../../frameworks/native/common:dfx_config" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
+    "hitrace:hitrace_meter",
+  ]
+
+  subsystem_name = "useriam"
+  part_name = "user_auth_framework"
+}
+
+ohos_source_set("userauth_client_ipc_fuzzer") {
+  stack_protector_ret = true
+  include_dirs = [
+    "../../../frameworks/native/ipc/inc",
+    "../../../frameworks/native/ipc/common_defines",
+    "../../../interfaces/inner_api",
+  ]
+
+  sources = [
+    "../../../frameworks/native/ipc/src/co_auth_proxy.cpp",
+    "../../../frameworks/native/ipc/src/executor_callback_stub.cpp",
+    "../../../frameworks/native/ipc/src/executor_messenger_proxy.cpp",
+    "../../../frameworks/native/ipc/src/user_auth_callback_stub.cpp",
+    "../../../frameworks/native/ipc/src/user_auth_proxy.cpp",
+    "../../../frameworks/native/ipc/src/user_idm_callback_stub.cpp",
+    "../../../frameworks/native/ipc/src/user_idm_proxy.cpp",
+    "../../../frameworks/native/ipc/src/widget_callback_stub.cpp",
+  ]
+
+  configs = [
+    "../../../common:iam_log_config",
+    "../../../common:iam_utils_config",
+  ]
+
+  public_configs =
+      [ "../../../frameworks/native/ipc:userauth_client_ipc_config" ]
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_single",
+  ]
+
+  subsystem_name = "useriam"
+  part_name = "user_auth_framework"
+}
+
+ohos_source_set("userauth_service_base_fuzzer") {
+  stack_protector_ret = true
+  include_dirs = [ "../../../services/base/inc" ]
+
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
+  sources = [
+    "../../../services/base/src/finite_state_machine_builder.cpp",
+    "../../../services/base/src/finite_state_machine_impl.cpp",
+    "../../../services/base/src/hdi_wrapper.cpp",
+    "../../../services/base/src/relative_timer.cpp",
+    "../../../services/base/src/thread_handler_impl.cpp",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "drivers_interface_user_auth:libuser_auth_proxy_1.1",
+    "hilog:libhilog",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+  ]
+
+  public_configs = [ "../../../services/base:userauth_service_base_config" ]
+
+  configs = [
+    "../../../common:iam_log_config",
+    "../../../common:iam_utils_config",
+  ]
+
+  subsystem_name = "useriam"
+  part_name = "user_auth_framework"
+}
+
+ohos_source_set("userauth_service_core_fuzzer") {
+  stack_protector_ret = true
+  include_dirs = [
+    "../../../services/core/inc",
+    "../../../services/core/src",
+  ]
+
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
+  sources = [
+    "../../../services/core/src/auth_widget_helper.cpp",
+    "../../../services/core/src/authentication_impl.cpp",
+    "../../../services/core/src/credential_info_impl.cpp",
+    "../../../services/core/src/enrolled_info_impl.cpp",
+    "../../../services/core/src/enrollment_impl.cpp",
+    "../../../services/core/src/identification_impl.cpp",
+    "../../../services/core/src/resource_node_impl.cpp",
+    "../../../services/core/src/resource_node_pool_impl.cpp",
+    "../../../services/core/src/resource_node_utils.cpp",
+    "../../../services/core/src/schedule_node_builder.cpp",
+    "../../../services/core/src/schedule_node_helper.cpp",
+    "../../../services/core/src/schedule_node_impl.cpp",
+    "../../../services/core/src/secure_user_info_impl.cpp",
+    "../../../services/core/src/template_cache_manager.cpp",
+    "../../../services/core/src/user_idm_database_impl.cpp",
+    "../../../services/core/src/user_idm_session_controller_impl.cpp",
+    "../../../services/core/src/widget_schedule_node_impl.cpp",
+  ]
+
+  deps = [
+    "../common_fuzzer:attributes_fuzzer",
+    "../common_fuzzer:dfx_fuzzer",
+    "../common_fuzzer:userauth_service_base_fuzzer",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "drivers_interface_user_auth:libuser_auth_proxy_1.1",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+
+  if (has_os_account_part) {
+    cflags_cc = [ "-DHAS_OS_ACCOUNT_PART" ]
+    external_deps += [ "os_account:os_account_innerkits" ]
+  }
+
+  public_configs = [ "../../../services/core:userauth_service_core_config" ]
+
+  configs = [
+    "../../../common:iam_log_config",
+    "../../../common:iam_utils_config",
+    "../../../frameworks/native/ipc:userauth_client_ipc_config",
+  ]
+
+  subsystem_name = "useriam"
+  part_name = "user_auth_framework"
+}
+
+ohos_source_set("userauth_service_context_fuzzer") {
+  stack_protector_ret = true
+  include_dirs = [
+    "inc",
+    "../../../frameworks/js/napi/user_auth/inc",
+  ]
+
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
+  sources = [
+    "../../../services/context/src/base_context.cpp",
+    "../../../services/context/src/context_callback_impl.cpp",
+    "../../../services/context/src/context_factory.cpp",
+    "../../../services/context/src/context_helper.cpp",
+    "../../../services/context/src/context_pool_impl.cpp",
+    "../../../services/context/src/enroll_context.cpp",
+    "../../../services/context/src/identify_context.cpp",
+    "../../../services/context/src/simple_auth_context.cpp",
+    "../../../services/context/src/trace.cpp",
+    "../../../services/context/src/ui_extension_ability_connection.cpp",
+    "../../../services/context/src/widget_client.cpp",
+    "../../../services/context/src/widget_context.cpp",
+    "../../../services/context/src/widget_context_callback_impl.cpp",
+    "../../../services/context/src/widget_json.cpp",
+  ]
+
+  deps = [
+    "../common_fuzzer:attributes_fuzzer",
+    "../common_fuzzer:dfx_fuzzer",
+    "../common_fuzzer:userauth_service_core_fuzzer",
+    "//third_party/openssl:libcrypto_shared",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_context_native",
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:extension_manager",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "init:libbegetutil",
+    "napi:ace_napi",
+  ]
+
+  public_configs =
+      [ "../../../services/context:userauth_service_context_config" ]
+
+  configs = [
+    "../../../services/base:userauth_service_base_config",
+    "../../../common:iam_log_config",
+    "../../../common:iam_utils_config",
+    "../../../frameworks/native/ipc:userauth_client_ipc_config",
+  ]
+
+  subsystem_name = "useriam"
+  part_name = "user_auth_framework"
+}
+
+ohos_source_set("userauth_service_ipc_fuzzer") {
+  stack_protector_ret = true
+  include_dirs = [
+    "../../../frameworks/native/ipc/inc",
+    "../../../frameworks/native/ipc/common_defines",
+    "../../../interfaces/inner_api",
+  ]
+
+  sources = [
+    "../../../frameworks/native/ipc/src/co_auth_stub.cpp",
+    "../../../frameworks/native/ipc/src/executor_callback_proxy.cpp",
+    "../../../frameworks/native/ipc/src/executor_messenger_stub.cpp",
+    "../../../frameworks/native/ipc/src/user_auth_callback_proxy.cpp",
+    "../../../frameworks/native/ipc/src/user_auth_stub.cpp",
+    "../../../frameworks/native/ipc/src/user_idm_callback_proxy.cpp",
+    "../../../frameworks/native/ipc/src/user_idm_stub.cpp",
+    "../../../frameworks/native/ipc/src/widget_callback_proxy.cpp",
+  ]
+
+  configs = [
+    "../../../common:iam_log_config",
+    "../../../common:iam_utils_config",
+  ]
+
+  public_configs =
+      [ "../../../frameworks/native/ipc:userauth_client_ipc_config" ]
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_single",
+  ]
+
+  subsystem_name = "useriam"
+  part_name = "user_auth_framework"
+}
+
+ohos_source_set("userauth_services_ipc_fuzzer") {
+  stack_protector_ret = true
+  include_dirs = [
+    "../../../services/ipc/inc",
+    "../../../frameworks/js/napi/user_auth/inc",
+  ]
+
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
+  sources = [
+    "../../../services/ipc/src/co_auth_service.cpp",
+    "../../../services/ipc/src/executor_messenger_service.cpp",
+    "../../../services/ipc/src/ipc_common.cpp",
+    "../../../services/ipc/src/user_auth_service.cpp",
+    "../../../services/ipc/src/user_idm_service.cpp",
+  ]
+
+  deps = [
+    "../common_fuzzer:attributes_fuzzer",
+    "../common_fuzzer:dfx_fuzzer",
+    "../common_fuzzer:iam_utils_fuzzer",
+    "../common_fuzzer:userauth_service_context_fuzzer",
+    "../common_fuzzer:userauth_service_ipc_fuzzer",
+  ]
+
+  external_deps = [
+    "access_token:libaccesstoken_sdk",
+    "access_token:libtokenid_sdk",
+    "c_utils:utils",
+    "drivers_interface_user_auth:libuser_auth_proxy_1.1",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "init:libbegetutil",
+    "ipc:ipc_single",
+    "napi:ace_napi",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+
+  if (has_os_account_part) {
+    cflags_cc = [ "-DHAS_OS_ACCOUNT_PART" ]
+    external_deps += [ "os_account:os_account_innerkits" ]
+  }
+
+  configs = [
+    "../../../services/base:userauth_service_base_config",
+    "../../../common:iam_log_config",
+    "../../../services/core:userauth_service_core_config",
+  ]
+
+  subsystem_name = "useriam"
+  part_name = "user_auth_framework"
+}
+
+ohos_source_set("iam_thread_pool_fuzzer") {
+  stack_protector_ret = true
+  include_dirs = [
+    "thread_pool",
+    "../../../common/logs",
+  ]
+
+  sources = [ "thread_pool/thread_groups.cpp" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+  ]
+
+  public_configs = [ "../../../common:iam_thread_pool_config" ]
+
+  subsystem_name = "useriam"
+  part_name = "user_auth_framework"
+}
+
+ohos_source_set("iam_utils_fuzzer") {
+  stack_protector_ret = true
+  include_dirs = [
+    "../../../common/utils",
+    "../../../common/logs",
+  ]
+
+  sources = [
+    "../../../common/utils/iam_mem.cpp",
+    "../../../common/utils/iam_time.cpp",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+  ]
+
+  public_configs = [
+    "../../../common:iam_utils_config",
+    "../../../common:iam_log_config",
+  ]
+
+  subsystem_name = "useriam"
+  part_name = "user_auth_framework"
+}
+
+ohos_source_set("iam_test_fuzzer") {
+  testonly = true
+  include_dirs = [ "../../../common/logs" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+  ]
+
+  public_configs = [ "../../../common:iam_test_config" ]
+
+  sources = [ "../../../common/test/iam_fuzz_test.cpp" ]
+
+  subsystem_name = "useriam"
+  part_name = "user_auth_framework"
+}

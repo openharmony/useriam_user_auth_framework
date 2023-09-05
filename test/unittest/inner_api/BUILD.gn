@@ -15,6 +15,16 @@ import("//build/ohos.gni")
 import("//build/test.gni")
 
 ohos_unittest("iam_inner_api_test") {
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../../cfi_blocklist.txt"
+  }
+  stack_protector_ret = true
   include_dirs = [
     "inc",
     "mocks",

@@ -15,6 +15,7 @@ import("//build/ohos.gni")
 import("//build/test.gni")
 
 ohos_fuzztest("CoAuthServiceFuzzTest") {
+  stack_protector_ret = true
   module_out_path = "useriam/user_auth_framework/services"
   fuzz_config_file = "../coauthservice_fuzzer"
 
@@ -40,9 +41,9 @@ ohos_fuzztest("CoAuthServiceFuzzTest") {
   sources = [ "co_auth_service_fuzzer.cpp" ]
 
   deps = [
-    "../../../../common:iam_test",
-    "../../../../frameworks/native/common:attributes",
-    "../../../../services/ipc:userauth_services_ipc",
+    "../../common_fuzzer:attributes_fuzzer",
+    "../../common_fuzzer:iam_test_fuzzer",
+    "../../common_fuzzer:userauth_services_ipc_fuzzer",
   ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
