@@ -298,13 +298,6 @@ ohos_source_set("userauth_service_ipc_fuzzer") {
   part_name = "user_auth_framework"
 }
 
-if (!defined(global_parts_info) ||
-    defined(global_parts_info.account_os_account)) {
-  has_os_account_part = true
-} else {
-  has_os_account_part = false
-}
-
 ohos_source_set("userauth_services_ipc_fuzzer") {
   stack_protector_ret = true
   include_dirs = [
