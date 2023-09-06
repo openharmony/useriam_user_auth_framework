@@ -32,6 +32,7 @@ ExecutorMessengerClient::ExecutorMessengerClient(const sptr<ExecutorMessengerInt
 int32_t ExecutorMessengerClient::SendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole,
     ExecutorRole dstRole, const std::shared_ptr<AuthMessage> &msg)
 {
+    IAM_LOGI("start");
     if (messenger_ == nullptr) {
         IAM_LOGE("messenger is nullptr");
         return GENERAL_ERROR;
@@ -49,6 +50,7 @@ int32_t ExecutorMessengerClient::SendData(uint64_t scheduleId, uint64_t transNum
 int32_t ExecutorMessengerClient::Finish(uint64_t scheduleId, ExecutorRole srcRole, int32_t resultCode,
     const Attributes &finalResult)
 {
+    IAM_LOGI("start");
     if (messenger_ == nullptr) {
         IAM_LOGE("messenger is nullptr");
         return GENERAL_ERROR;

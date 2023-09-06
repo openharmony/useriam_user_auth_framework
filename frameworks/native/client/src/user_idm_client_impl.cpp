@@ -22,13 +22,14 @@
 #include "ipc_client_utils.h"
 #include "user_idm_callback_service.h"
 
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SDK
+#define LOG_LABEL UserIam::Common::LABEL_USER_IDM_SDK
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 std::vector<uint8_t> UserIdmClientImpl::OpenSession(int32_t userId)
 {
+    IAM_LOGI("start, userId:%{public}d", userId);
     auto proxy = GetProxy();
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
@@ -46,6 +47,7 @@ std::vector<uint8_t> UserIdmClientImpl::OpenSession(int32_t userId)
 
 void UserIdmClientImpl::CloseSession(int32_t userId)
 {
+    IAM_LOGI("start, userId:%{public}d", userId);
     auto proxy = GetProxy();
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
@@ -58,6 +60,7 @@ void UserIdmClientImpl::CloseSession(int32_t userId)
 void UserIdmClientImpl::AddCredential(int32_t userId, const CredentialParameters &para,
     const std::shared_ptr<UserIdmClientCallback> &callback)
 {
+    IAM_LOGI("start, userId:%{public}d authType:%{public}d", userId, para.authType);
     if (!callback) {
         IAM_LOGE("user idm client callback is nullptr");
         return;
@@ -87,6 +90,7 @@ void UserIdmClientImpl::AddCredential(int32_t userId, const CredentialParameters
 void UserIdmClientImpl::UpdateCredential(int32_t userId, const CredentialParameters &para,
     const std::shared_ptr<UserIdmClientCallback> &callback)
 {
+    IAM_LOGI("start, userId:%{public}d authType:%{public}d", userId, para.authType);
     if (!callback) {
         IAM_LOGE("user idm client callback is nullptr");
         return;
@@ -115,6 +119,7 @@ void UserIdmClientImpl::UpdateCredential(int32_t userId, const CredentialParamet
 
 int32_t UserIdmClientImpl::Cancel(int32_t userId)
 {
+    IAM_LOGI("start, userId:%{public}d", userId);
     auto proxy = GetProxy();
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
@@ -127,6 +132,7 @@ int32_t UserIdmClientImpl::Cancel(int32_t userId)
 void UserIdmClientImpl::DeleteCredential(int32_t userId, uint64_t credentialId, const std::vector<uint8_t> &authToken,
     const std::shared_ptr<UserIdmClientCallback> &callback)
 {
+    IAM_LOGI("start, userId:%{public}d", userId);
     if (!callback) {
         IAM_LOGE("user idm client callback is nullptr");
         return;
@@ -152,6 +158,7 @@ void UserIdmClientImpl::DeleteCredential(int32_t userId, uint64_t credentialId, 
 void UserIdmClientImpl::DeleteUser(int32_t userId, const std::vector<uint8_t> &authToken,
     const std::shared_ptr<UserIdmClientCallback> &callback)
 {
+    IAM_LOGI("start, userId:%{public}d", userId);
     if (!callback) {
         IAM_LOGE("user idm client callback is nullptr");
         return;
@@ -176,6 +183,7 @@ void UserIdmClientImpl::DeleteUser(int32_t userId, const std::vector<uint8_t> &a
 
 int32_t UserIdmClientImpl::EraseUser(int32_t userId, const std::shared_ptr<UserIdmClientCallback> &callback)
 {
+    IAM_LOGI("start, userId:%{public}d", userId);
     if (!callback) {
         IAM_LOGE("user idm client callback is nullptr");
         return GENERAL_ERROR;
@@ -200,6 +208,7 @@ int32_t UserIdmClientImpl::EraseUser(int32_t userId, const std::shared_ptr<UserI
 int32_t UserIdmClientImpl::GetCredentialInfo(int32_t userId, AuthType authType,
     const std::shared_ptr<GetCredentialInfoCallback> &callback)
 {
+    IAM_LOGI("start, userId:%{public}d authType:%{public}d", userId, authType);
     if (!callback) {
         IAM_LOGE("get credential info callback is nullptr");
         return GENERAL_ERROR;
@@ -225,6 +234,7 @@ int32_t UserIdmClientImpl::GetCredentialInfo(int32_t userId, AuthType authType,
 
 int32_t UserIdmClientImpl::GetSecUserInfo(int32_t userId, const std::shared_ptr<GetSecUserInfoCallback> &callback)
 {
+    IAM_LOGI("start, userId:%{public}d", userId);
     if (!callback) {
         IAM_LOGE("get secure info callback is nullptr");
         return GENERAL_ERROR;
@@ -251,7 +261,6 @@ int32_t UserIdmClientImpl::GetSecUserInfo(int32_t userId, const std::shared_ptr<
 
 sptr<UserIdmInterface> UserIdmClientImpl::GetProxy()
 {
-    IAM_LOGI("start");
     std::lock_guard<std::mutex> lock(mutex_);
     if (proxy_ != nullptr) {
         return proxy_;

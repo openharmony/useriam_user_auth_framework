@@ -79,23 +79,26 @@ void NorthAuthenticationCallback::OnResult(int32_t result, const Attributes &ext
 
 int32_t UserAuthClientImpl::GetAvailableStatus(AuthType authType, AuthTrustLevel authTrustLevel)
 {
+    IAM_LOGI("start, authType:%{public}d authTrustLevel:%{public}u", authType, authTrustLevel);
     return GetAvailableStatus(INT32_MAX, authType, authTrustLevel);
 }
 
 int32_t UserAuthClientImpl::GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel)
 {
+    IAM_LOGI("start, apiVersion:%{public}d authType:%{public}d authTrustLevel:%{public}u",
+        apiVersion, authType, authTrustLevel);
     auto proxy = GetProxy();
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
         return GENERAL_ERROR;
     }
-
     return proxy->GetAvailableStatus(apiVersion, authType, authTrustLevel);
 }
 
 void UserAuthClientImpl::GetProperty(int32_t userId, const GetPropertyRequest &request,
     const std::shared_ptr<GetPropCallback> &callback)
 {
+    IAM_LOGI("start, userId:%{public}d authType:%{public}d", userId, request.authType);
     if (!callback) {
         IAM_LOGE("get prop callback is nullptr");
         return;
@@ -155,6 +158,7 @@ ResultCode UserAuthClientImpl::SetPropertyInner(int32_t userId, const SetPropert
 void UserAuthClientImpl::SetProperty(int32_t userId, const SetPropertyRequest &request,
     const std::shared_ptr<SetPropCallback> &callback)
 {
+    IAM_LOGI("start, userId:%{public}d authType:%{public}d", userId, request.authType);
     if (!callback) {
         IAM_LOGE("set prop callback is nullptr");
         return;
@@ -172,6 +176,7 @@ void UserAuthClientImpl::SetProperty(int32_t userId, const SetPropertyRequest &r
 uint64_t UserAuthClientImpl::BeginAuthentication(int32_t userId, const std::vector<uint8_t> &challenge,
     AuthType authType, AuthTrustLevel atl, const std::shared_ptr<AuthenticationCallback> &callback)
 {
+    IAM_LOGI("start, userId:%{public}d authType:%{public}d atl:%{public}u", userId, authType, atl);
     if (!callback) {
         IAM_LOGE("auth callback is nullptr");
         return INVALID_SESSION_ID;
@@ -198,6 +203,7 @@ uint64_t UserAuthClientImpl::BeginAuthentication(int32_t userId, const std::vect
 uint64_t UserAuthClientImpl::BeginNorthAuthentication(int32_t apiVersion, const std::vector<uint8_t> &challenge,
     AuthType authType, AuthTrustLevel atl, const std::shared_ptr<AuthenticationCallback> &callback)
 {
+    IAM_LOGI("start, apiVersion:%{public}d authType:%{public}d atl:%{public}u", apiVersion, authType, atl);
     if (!callback) {
         IAM_LOGE("auth callback is nullptr");
         return INVALID_SESSION_ID;
@@ -231,6 +237,7 @@ uint64_t UserAuthClientImpl::BeginNorthAuthentication(int32_t apiVersion, const 
 
 int32_t UserAuthClientImpl::CancelAuthentication(uint64_t contextId)
 {
+    IAM_LOGI("start");
     auto proxy = GetProxy();
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
@@ -243,6 +250,7 @@ int32_t UserAuthClientImpl::CancelAuthentication(uint64_t contextId)
 uint64_t UserAuthClientImpl::BeginIdentification(const std::vector<uint8_t> &challenge, AuthType authType,
     const std::shared_ptr<IdentificationCallback> &callback)
 {
+    IAM_LOGI("start, authType:%{public}d", authType);
     if (!callback) {
         IAM_LOGE("identify callback is nullptr");
         return INVALID_SESSION_ID;
@@ -268,6 +276,7 @@ uint64_t UserAuthClientImpl::BeginIdentification(const std::vector<uint8_t> &cha
 
 int32_t UserAuthClientImpl::CancelIdentification(uint64_t contextId)
 {
+    IAM_LOGI("start");
     auto proxy = GetProxy();
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
@@ -279,6 +288,7 @@ int32_t UserAuthClientImpl::CancelIdentification(uint64_t contextId)
 
 int32_t UserAuthClientImpl::GetVersion(int32_t &version)
 {
+    IAM_LOGI("start");
     auto proxy = GetProxy();
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
@@ -290,7 +300,6 @@ int32_t UserAuthClientImpl::GetVersion(int32_t &version)
 
 sptr<UserAuthInterface> UserAuthClientImpl::GetProxy()
 {
-    IAM_LOGI("start");
     std::lock_guard<std::mutex> lock(mutex_);
     if (proxy_ != nullptr) {
         return proxy_;
@@ -354,6 +363,8 @@ UserAuthClient &UserAuthClient::GetInstance()
 uint64_t UserAuthClientImpl::BeginWidgetAuth(int32_t apiVersion, const AuthParam &authParam,
     const WidgetParam &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback)
 {
+    IAM_LOGI("start, apiVersion:%{public}d authTypeSize:%{public}zu authTrustLevel:%{public}u",
+        apiVersion, authParam.authType.size(), authParam.authTrustLevel);
     // parameter verification
     if (!callback) {
         IAM_LOGE("auth callback is nullptr");
@@ -379,6 +390,7 @@ uint64_t UserAuthClientImpl::BeginWidgetAuth(int32_t apiVersion, const AuthParam
 
 int32_t UserAuthClientImpl::SetWidgetCallback(int32_t version, const std::shared_ptr<IUserAuthWidgetCallback> &callback)
 {
+    IAM_LOGI("start, version:%{public}d", version);
     if (!callback) {
         IAM_LOGE("widget callback is nullptr");
         return GENERAL_ERROR;
@@ -399,6 +411,7 @@ int32_t UserAuthClientImpl::SetWidgetCallback(int32_t version, const std::shared
 
 int32_t UserAuthClientImpl::Notice(NoticeType noticeType, const std::string &eventData)
 {
+    IAM_LOGI("start, noticeType:%{public}d", noticeType);
     auto proxy = GetProxy();
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");

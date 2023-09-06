@@ -45,7 +45,7 @@ IdmCallbackService::~IdmCallbackService()
 
 void IdmCallbackService::OnResult(int32_t result, const Attributes &extraInfo)
 {
-    IAM_LOGI("start, result: %{public}d", result);
+    IAM_LOGI("start, result:%{public}d", result);
     iamHitraceHelper_ = nullptr;
     if (idmClientCallback_ == nullptr) {
         IAM_LOGE("idm client callback is nullptr");
@@ -56,7 +56,7 @@ void IdmCallbackService::OnResult(int32_t result, const Attributes &extraInfo)
 
 void IdmCallbackService::OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo)
 {
-    IAM_LOGI("start");
+    IAM_LOGI("start, module:%{public}d acquireInfo:%{public}d", module, acquireInfo);
     if (idmClientCallback_ == nullptr) {
         IAM_LOGE("idm client callback is nullptr");
         return;
@@ -84,7 +84,7 @@ IdmGetCredInfoCallbackService::~IdmGetCredInfoCallbackService()
 
 void IdmGetCredInfoCallbackService::OnCredentialInfos(const std::vector<CredentialInfo> &credInfoList)
 {
-    IAM_LOGI("start, cred info vector size: %{public}zu", credInfoList.size());
+    IAM_LOGI("start, cred info vector size:%{public}zu", credInfoList.size());
     if (getCredInfoCallback_ == nullptr) {
         IAM_LOGE("getCredInfoCallback is nullptr");
         return;
@@ -113,7 +113,7 @@ IdmGetSecureUserInfoCallbackService::~IdmGetSecureUserInfoCallbackService()
 
 void IdmGetSecureUserInfoCallbackService::OnSecureUserInfo(const SecUserInfo &secUserInfo)
 {
-    IAM_LOGI("start, enrolled info vector size: %{public}zu", secUserInfo.enrolledInfo.size());
+    IAM_LOGI("start, enrolled info vector size:%{public}zu", secUserInfo.enrolledInfo.size());
     if (getSecInfoCallback_ == nullptr) {
         IAM_LOGE("getSecInfoCallback_ is nullptr");
         return;
