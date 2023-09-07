@@ -59,7 +59,7 @@ UserAuthCallbackService::~UserAuthCallbackService()
 
 void UserAuthCallbackService::OnResult(int32_t result, const Attributes &extraInfo)
 {
-    IAM_LOGI("start, result: %{public}d", result);
+    IAM_LOGI("start, result:%{public}d", result);
     if (authCallback_ != nullptr) {
         authCallback_->OnResult(result, extraInfo);
     } else if (identifyCallback_ != nullptr) {
@@ -73,7 +73,7 @@ void UserAuthCallbackService::OnResult(int32_t result, const Attributes &extraIn
 
 void UserAuthCallbackService::OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo)
 {
-    IAM_LOGI("start");
+    IAM_LOGI("start, module:%{public}d acquireInfo:%{public}d", module, acquireInfo);
     if (authCallback_ != nullptr) {
         authCallback_->OnAcquireInfo(module, acquireInfo, extraInfo);
     } else if (identifyCallback_ != nullptr) {
@@ -104,7 +104,7 @@ GetExecutorPropertyCallbackService::~GetExecutorPropertyCallbackService()
 
 void GetExecutorPropertyCallbackService::OnGetExecutorPropertyResult(int32_t result, const Attributes &attributes)
 {
-    IAM_LOGI("start");
+    IAM_LOGI("start, result:%{public}d", result);
     if (getPropCallback_ == nullptr) {
         IAM_LOGE("get prop callback is nullptr");
         return;
@@ -132,7 +132,7 @@ SetExecutorPropertyCallbackService::~SetExecutorPropertyCallbackService()
 
 void SetExecutorPropertyCallbackService::OnSetExecutorPropertyResult(int32_t result)
 {
-    IAM_LOGI("start");
+    IAM_LOGI("start, result:%{public}d", result);
     if (setPropCallback_ == nullptr) {
         IAM_LOGE("set prop callback is nullptr");
         return;
