@@ -22,13 +22,14 @@
 #include "iam_logger.h"
 #include "ipc_client_utils.h"
 
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SDK
+#define LOG_LABEL UserIam::Common::LABEL_AUTH_EXECUTOR_MGR_SDK
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 void CoAuthClientImpl::Register(const ExecutorInfo &info, const std::shared_ptr<ExecutorRegisterCallback> &callback)
 {
+    IAM_LOGI("start type:%{public}d role:%{public}d", info.authType, info.executorRole);
     if (!callback) {
         IAM_LOGE("callback is nullptr");
         return;
@@ -57,11 +58,11 @@ void CoAuthClientImpl::Register(const ExecutorInfo &info, const std::shared_ptr<
 
 void CoAuthClientImpl::Unregister(const ExecutorInfo &info)
 {
+    IAM_LOGI("start type:%{public}d role:%{public}d", info.authType, info.executorRole);
 }
 
 sptr<CoAuthInterface> CoAuthClientImpl::GetProxy()
 {
-    IAM_LOGI("start");
     std::lock_guard<std::mutex> lock(mutex_);
     if (proxy_ != nullptr) {
         return proxy_;
