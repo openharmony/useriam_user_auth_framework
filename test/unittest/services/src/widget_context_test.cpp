@@ -125,8 +125,8 @@ HWTEST_F(WidgetContextTest, WidgetContextTestAuthResult_0002, TestSize.Level0)
     ContextFactory::AuthWidgetContextPara para;
     auto widgetContext = CreateWidgetContext(contextId, para);
     EXPECT_NE(widgetContext, nullptr);
-    EXPECT_TRUE(widgetContext->Start());
     Attributes finalResult;
+    finalResult.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, 1);
     widgetContext->AuthResult(ResultCode::SUCCESS, 1, finalResult);
 }
 
@@ -136,8 +136,35 @@ HWTEST_F(WidgetContextTest, WidgetContextTestAuthResult_0003, TestSize.Level0)
     ContextFactory::AuthWidgetContextPara para;
     auto widgetContext = CreateWidgetContext(contextId, para);
     EXPECT_NE(widgetContext, nullptr);
+    Attributes finalResult;
+    finalResult.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, 1);
+    finalResult.SetInt32Value(Attributes::ATTR_FREEZING_TIME, 1);
+    widgetContext->AuthResult(ResultCode::SUCCESS, 1, finalResult);
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestAuthResult_0004, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
     EXPECT_TRUE(widgetContext->Start());
     Attributes finalResult;
+    finalResult.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, 1);
+    finalResult.SetInt32Value(Attributes::ATTR_FREEZING_TIME, 1);
+    widgetContext->AuthResult(ResultCode::SUCCESS, 1, finalResult);
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestAuthResult_0005, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_TRUE(widgetContext->Start());
+    Attributes finalResult;
+    finalResult.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, 1);
+    finalResult.SetInt32Value(Attributes::ATTR_FREEZING_TIME, 1);
     widgetContext->AuthResult(ResultCode::GENERAL_ERROR, 1, finalResult);
 }
 
