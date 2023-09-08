@@ -130,19 +130,25 @@ void to_json(nlohmann::json &jsonNotice, const WidgetNotice &notice)
 
 void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice)
 {
-    if (jsonNotice.find(JSON_WIDGET_CTX_ID) != jsonNotice.end()) {
+    if (jsonNotice.find(JSON_WIDGET_CTX_ID) != jsonNotice.end() && jsonNotice[JSON_WIDGET_CTX_ID].is_number()) {
         jsonNotice.at(JSON_WIDGET_CTX_ID).get_to(notice.widgetContextId);
     }
-    if (jsonNotice.find(JSON_AUTH_EVENT) != jsonNotice.end()) {
+    if (jsonNotice.find(JSON_AUTH_EVENT) != jsonNotice.end() && jsonNotice[JSON_AUTH_EVENT].is_string()) {
         jsonNotice.at(JSON_AUTH_EVENT).get_to(notice.event);
     }
-    if (jsonNotice.find(JSON_AUTH_VERSION) != jsonNotice.end()) {
+    if (jsonNotice.find(JSON_AUTH_VERSION) != jsonNotice.end() && jsonNotice[JSON_AUTH_VERSION].is_string()) {
         jsonNotice.at(JSON_AUTH_VERSION).get_to(notice.version);
     }
     if (jsonNotice.find(JSON_AUTH_PAYLOAD) != jsonNotice.end() &&
         jsonNotice[JSON_AUTH_PAYLOAD].find(JSON_AUTH_TYPE) != jsonNotice[JSON_AUTH_PAYLOAD].end() &&
         jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].is_array()) {
-        jsonNotice.at(JSON_AUTH_PAYLOAD).at(JSON_AUTH_TYPE).get_to(notice.typeList);
+        for (size_t index = 0; index < jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].size(); index++) {
+            if (!jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].at(index).is_string()) {
+                notice.typeList.clear();
+                break;
+            }
+            notice.typeList.emplace_back(jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].at(index).get<std::string>());
+        }
     }
 }
 
