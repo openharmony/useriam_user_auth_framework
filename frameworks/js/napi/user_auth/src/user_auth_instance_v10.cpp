@@ -58,7 +58,7 @@ UserAuthResultCode UserAuthInstanceV10::InitChallenge(napi_env env, napi_value v
     napi_status ret = UserAuthNapiHelper::CheckNapiType(env, value, napi_null);
     if (ret == napi_ok) {
         IAM_LOGI("challenge is null");
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        return UserAuthResultCode::SUCCESS;
     }
     ret = UserAuthNapiHelper::GetUint8ArrayValue(env, value, MAX_CHALLENG_LEN, authParam_.challenge);
     if (ret != napi_ok) {
