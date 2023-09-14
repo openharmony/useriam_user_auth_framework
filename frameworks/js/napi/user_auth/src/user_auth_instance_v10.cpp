@@ -58,7 +58,7 @@ UserAuthResultCode UserAuthInstanceV10::InitChallenge(napi_env env, napi_value v
     napi_status ret = UserAuthNapiHelper::CheckNapiType(env, value, napi_null);
     if (ret == napi_ok) {
         IAM_LOGI("challenge is null");
-        return UserAuthResultCode::SUCCESS;
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
     ret = UserAuthNapiHelper::GetUint8ArrayValue(env, value, MAX_CHALLENG_LEN, authParam_.challenge);
     if (ret != napi_ok) {
@@ -253,7 +253,7 @@ std::shared_ptr<JsRefHolder> UserAuthInstanceV10::GetCallback(napi_env env, napi
         return nullptr;
     }
     napi_value callbackValue;
-    ret = napi_get_named_property(env, value, "callback", &callbackValue);
+    ret = napi_get_named_property(env, value, "onResult", &callbackValue);
     if (ret != napi_ok) {
         IAM_LOGE("napi_get_named_property fail:%{public}d", ret);
         return nullptr;
