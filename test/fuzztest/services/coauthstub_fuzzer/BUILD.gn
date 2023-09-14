@@ -16,7 +16,7 @@ import("//build/test.gni")
 
 ohos_fuzztest("CoAuthStubFuzzTest") {
   stack_protector_ret = true
-  module_out_path = "useriam/user_auth_framework/services"
+  module_out_path = "user_auth_framework/user_auth"
   fuzz_config_file = "../coauthstub_fuzzer"
   cflags = [
     "-g",
