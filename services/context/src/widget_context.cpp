@@ -225,6 +225,8 @@ void WidgetContext::AuthResult(int32_t resultCode, int32_t at, const Attributes 
 
     IAM_LOGI("call schedule:");
     if (resultCode == ResultCode::SUCCESS) {
+        finalResult.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authResultInfo_.token);
+        authResultInfo_.authType = authType;
         schedule_->SuccessAuth(authType);
     } else {
         // failed
@@ -372,10 +374,24 @@ void WidgetContext::End(const ResultCode &resultCode)
             IAM_LOGE("failed to release launch widget.");
         }
     }
-    if (callback_ != nullptr) {
-        Attributes attr;
-        callback_->OnResult(resultCode, attr);
+    if (callback_ == nullptr) {
+        IAM_LOGE("invalid callback");
+        return;
     }
+    Attributes attr;
+    if (resultCode == ResultCode::SUCCESS) {
+        if (authResultInfo_.token.size() > 0) {
+            if (!attr.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authResultInfo_.token)) {
+                IAM_LOGE("set signature token failed.");
+                return;
+            }
+        }
+        if (!attr.SetInt32Value(Attributes::ATTR_AUTH_TYPE, authResultInfo_.authType)) {
+            IAM_LOGE("set auth type failed.");
+            return;
+        }
+    }
+    callback_->OnResult(resultCode, attr);
 }
 
 void WidgetContext::StopAllRunTask()
