@@ -15,7 +15,7 @@ import("//build/ohos.gni")
 import("//build/test.gni")
 
 ohos_fuzztest("UserAuthClientFuzzTest") {
-  module_out_path = "useriam/user_auth_framework/clients"
+  module_out_path = "user_auth_framework/user_auth"
   fuzz_config_file = "../userauthclient_fuzzer"
 
   cflags = [
