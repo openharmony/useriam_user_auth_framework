@@ -380,15 +380,17 @@ void WidgetContext::End(const ResultCode &resultCode)
     }
     Attributes attr;
     if (resultCode == ResultCode::SUCCESS) {
+        if (!attr.SetInt32Value(Attributes::ATTR_AUTH_TYPE, authResultInfo_.authType)) {
+            IAM_LOGE("set auth type failed.");
+            callback_->OnResult(ResultCode::GENERAL_ERROR, attr);
+            return;
+        }
         if (authResultInfo_.token.size() > 0) {
             if (!attr.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authResultInfo_.token)) {
                 IAM_LOGE("set signature token failed.");
+                callback_->OnResult(ResultCode::GENERAL_ERROR, attr);
                 return;
             }
-        }
-        if (!attr.SetInt32Value(Attributes::ATTR_AUTH_TYPE, authResultInfo_.authType)) {
-            IAM_LOGE("set auth type failed.");
-            return;
         }
     }
     callback_->OnResult(resultCode, attr);
