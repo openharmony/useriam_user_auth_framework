@@ -124,6 +124,10 @@ int32_t UserAuthStub::GetPropertyStub(MessageParcel &data, MessageParcel &reply)
         return READ_PARCEL_ERROR;
     }
     std::vector<Attributes::AttributeKey> attrKeys;
+    if (keys.empty()) {
+        IAM_LOGE("the attribute key vector is empty");
+        return GENERAL_ERROR;
+    }
     if (keys.size() > MAX_ATTR_COUNT) {
         IAM_LOGE("the attribute key vector size exceed limit");
         return GENERAL_ERROR;

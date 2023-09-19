@@ -62,9 +62,7 @@ public:
     void StopAuthList(const std::vector<AuthType> &authTypeList) override;
     void SuccessAuth(AuthType authType) override;
 
-    void AuthResult(int32_t resultCode, int32_t at, const Attributes &finalResult,
-        const sptr<IamCallbackInterface> &iamCallback);
-
+    void AuthResult(int32_t resultCode, int32_t at, const Attributes &finalResult);
 protected:
     virtual bool OnStart();
     virtual void OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr);
@@ -81,10 +79,8 @@ private:
     void End(const ResultCode &resultCode);
     std::shared_ptr<ContextCallback> GetAuthContextCallback(AuthType authType, AuthTrustLevel authTrustLevel,
         sptr<IamCallbackInterface> &callback);
-    bool TaskRun2Done(const std::shared_ptr<Context> &task);
     void StopAllRunTask();
     std::string BuildStartCommand();
-    std::shared_ptr<Context> GetTaskFromIamcallback(const sptr<IamCallbackInterface> &iamCallback);
 
 private:
     struct TaskInfo {
@@ -101,7 +97,6 @@ private:
     ContextFactory::AuthWidgetContextPara para_ {};
     std::shared_ptr<WidgetScheduleNode> schedule_ {nullptr};
     std::recursive_mutex mutex_;
-    std::map<sptr<IamCallbackInterface>, std::shared_ptr<Context>> iamCallbackList_;
     std::list<TaskInfo> runTaskInfoList_;
     sptr<UIExtensionAbilityConnection> connection_ {nullptr};
 };
