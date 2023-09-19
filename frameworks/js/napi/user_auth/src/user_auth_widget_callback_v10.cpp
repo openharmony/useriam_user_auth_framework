@@ -116,13 +116,12 @@ napi_status UserAuthWidgetCallback::DoCommandCallback(const std::string &cmdData
         return napi_ok;
     }
     IAM_LOGI("start");
-    napi_value eventInfo;
-    napi_status ret = napi_create_object(env_, &eventInfo);
+    napi_value eventInfo = nullptr;
+    napi_status ret = napi_create_string_utf8(env_, cmdData.c_str(), cmdData.size(), &eventInfo);
     if (ret != napi_ok) {
         IAM_LOGE("napi_create_object failed %{public}d", ret);
         return ret;
     }
-    UserAuthNapiHelper::SetStringPropertyUtf8(env_, eventInfo, "cmdData", cmdData);
     return UserAuthNapiHelper::CallVoidNapiFunc(env_, commandCallback->Get(), ARGS_ONE, &eventInfo);
 }
 

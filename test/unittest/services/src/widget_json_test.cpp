@@ -107,7 +107,9 @@ HWTEST_F(WidgetJsonTest, WidgetJsonStr2AuthType_005, TestSize.Level0)
 
 HWTEST_F(WidgetJsonTest, WidgetJsonAuthType2Str, TestSize.Level0)
 {
-    EXPECT_EQ(AuthType2Str(PIN), "pin");
+    AuthType authType = static_cast<AuthType>(100);
+    std::string type = AuthType2Str(authType);
+    EXPECT_EQ(type, "");
 }
 
 HWTEST_F(WidgetJsonTest, WidgetJsonWinModeType2Str_001, TestSize.Level0)
@@ -171,10 +173,11 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_001, TestSize.Level0)
         widgetCommand.cmdList.push_back(cmd);
     }
     widgetCommand.typeList = typeList;
-
     nlohmann::json root = widgetCommand;
     std::string cmdData = root.dump();
-    EXPECT_NE(cmdData, "");
+    auto result = nlohmann::json::parse(cmdData.c_str());
+    auto widgetContextId = result["widgetContextId"];
+    EXPECT_EQ(widgetContextId, 1);
 }
 
 HWTEST_F(WidgetJsonTest, WidgetJsonto_json_002, TestSize.Level0)
@@ -201,10 +204,11 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_002, TestSize.Level0)
         widgetCommand.cmdList.push_back(cmd);
     }
     widgetCommand.typeList = typeList;
-
     nlohmann::json root = widgetCommand;
     std::string cmdData = root.dump();
-    EXPECT_NE(cmdData, "");
+    auto result = nlohmann::json::parse(cmdData.c_str());
+    auto pinSubType = result["pinSubType"];
+    EXPECT_EQ(pinSubType, "pinSubType");
 }
 
 HWTEST_F(WidgetJsonTest, WidgetJsonto_json_003, TestSize.Level0)
@@ -239,10 +243,11 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_003, TestSize.Level0)
         widgetCmdParameters.useriamCmdData.cmdList.push_back(cmd);
     }
     widgetCmdParameters.useriamCmdData.typeList = typeList;
-
     nlohmann::json root = widgetCmdParameters;
     std::string cmdData = root.dump();
-    EXPECT_NE(cmdData, "");
+    auto result = nlohmann::json::parse(cmdData.c_str());
+    auto uiExtensionType = result["ability.want.params.uiExtensionType"];
+    EXPECT_EQ(uiExtensionType, "sysDialog/userAuth");
 }
 
 HWTEST_F(WidgetJsonTest, WidgetJsonto_json_004, TestSize.Level0)
@@ -268,10 +273,11 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_004, TestSize.Level0)
         widgetCmdParameters.useriamCmdData.cmdList.push_back(cmd);
     }
     widgetCmdParameters.useriamCmdData.typeList = typeList;
-
     nlohmann::json root = widgetCmdParameters;
     std::string cmdData = root.dump();
-    EXPECT_NE(cmdData, "");
+    auto result = nlohmann::json::parse(cmdData.c_str());
+    auto uiExtensionType = result["ability.want.params.uiExtensionType"];
+    EXPECT_EQ(uiExtensionType, "sysDialog/userAuth");
 }
 
 HWTEST_F(WidgetJsonTest, WidgetJsonto_json_005, TestSize.Level0)
@@ -291,6 +297,60 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_005, TestSize.Level0)
     auto result = nlohmann::json::parse(cmdData.c_str());
     auto version = result["version"];
     EXPECT_EQ(version, "1");
+}
+
+HWTEST_F(WidgetJsonTest, WidgetJsonto_json_006, TestSize.Level0)
+{
+    auto root = nlohmann::json::parse("", nullptr, false);
+    WidgetNotice notice = root.get<WidgetNotice>();
+    EXPECT_EQ(notice.widgetContextId, static_cast<uint64_t>(0));
+}
+
+HWTEST_F(WidgetJsonTest, WidgetJsonto_json_007, TestSize.Level0)
+{
+    const std::string data = "{\"widgetContextId\":\"1\", \"event\":1, \"version\":1}";
+    auto root = nlohmann::json::parse(data, nullptr, false);
+    WidgetNotice notice = root.get<WidgetNotice>();
+    EXPECT_EQ(notice.widgetContextId, static_cast<uint64_t>(0));
+}
+
+HWTEST_F(WidgetJsonTest, WidgetJsonto_json_008, TestSize.Level0)
+{
+    const std::string data = "{\"widgetContextId\":1, \"event\":\"EVENT_AUTH_TYPE_READY\", \"version\":\"1\"}";
+    auto root = nlohmann::json::parse(data, nullptr, false);
+    WidgetNotice notice = root.get<WidgetNotice>();
+    EXPECT_EQ(notice.widgetContextId, static_cast<uint64_t>(1));
+    EXPECT_EQ(notice.event, "EVENT_AUTH_TYPE_READY");
+    EXPECT_EQ(notice.version, "1");
+}
+
+HWTEST_F(WidgetJsonTest, WidgetJsonto_json_009, TestSize.Level0)
+{
+    auto root = nlohmann::json::parse("{\"payload\":123}", nullptr, false);
+    WidgetNotice notice = root.get<WidgetNotice>();
+    EXPECT_EQ(notice.typeList.size(), static_cast<size_t>(0));
+}
+
+HWTEST_F(WidgetJsonTest, WidgetJsonto_json_010, TestSize.Level0)
+{
+    auto root = nlohmann::json::parse("{\"payload\":{\"type\":123}}", nullptr, false);
+    WidgetNotice notice = root.get<WidgetNotice>();
+    EXPECT_EQ(notice.typeList.size(), static_cast<size_t>(0));
+}
+
+HWTEST_F(WidgetJsonTest, WidgetJsonto_json_011, TestSize.Level0)
+{
+    auto root = nlohmann::json::parse("{\"payload\":{\"type\":[\"pin\", 123]}}", nullptr, false);
+    WidgetNotice notice = root.get<WidgetNotice>();
+    EXPECT_EQ(notice.typeList.size(), static_cast<size_t>(0));
+}
+
+HWTEST_F(WidgetJsonTest, WidgetJsonto_json_012, TestSize.Level0)
+{
+    auto root = nlohmann::json::parse("{\"payload\":{\"type\":[\"pin\"]}}", nullptr, false);
+    WidgetNotice notice = root.get<WidgetNotice>();
+    EXPECT_EQ(notice.typeList.size(), static_cast<size_t>(1));
+    EXPECT_EQ(notice.typeList[0], "pin");
 }
 } // namespace UserAuth
 } // namespace UserIam

@@ -32,10 +32,11 @@ namespace UserAuth {
 std::set<Permission> IpcCommon::permSet_;
 bool IpcCommon::isSetTokenId_ = false;
 uint32_t IpcCommon::tokenId_ = 0;
+bool IpcCommon::skipFlag_ = false;
 
 int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, int32_t &userId)
 {
-    if (userId != 0) {
+    if (userId != 0 || skipFlag_) {
         return FAIL;
     }
     userId = TEST_USER_ID;
@@ -102,6 +103,11 @@ uint32_t IpcCommon::GetTokenId(IPCObjectStub &stub)
     uint32_t tokenId = stub.GetCallingTokenID();
     IAM_LOGI("get tokenId: %{public}d", tokenId);
     return tokenId;
+}
+
+void IpcCommon::SetSkipUserFlag(bool isSkip)
+{
+    skipFlag_ = isSkip;
 }
 } // namespace UserAuth
 } // namespace UserIam

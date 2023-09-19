@@ -80,6 +80,10 @@ void UserAuthProxy::GetProperty(int32_t userId, AuthType authType,
     MessageParcel reply;
 
     std::vector<uint32_t> attrKeys;
+    if (keys.empty()) {
+        IAM_LOGE("the attribute key vector is empty");
+        return;
+    }
     if (keys.size() > MAX_ATTR_COUNT) {
         IAM_LOGE("the attribute key vector size exceed limit");
         return;
