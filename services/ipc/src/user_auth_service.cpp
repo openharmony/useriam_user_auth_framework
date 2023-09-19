@@ -247,17 +247,6 @@ void UserAuthService::SetProperty(int32_t userId, AuthType authType, const Attri
     callback->OnSetExecutorPropertyResult(result);
 }
 
-bool UserAuthService::CheckAuthPermission(bool isInnerCaller, AuthType authType)
-{
-    if (isInnerCaller && IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
-        return true;
-    }
-    if (!isInnerCaller && authType != PIN && IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
-        return true;
-    }
-    return false;
-}
-
 ResultCode UserAuthService::CheckNorthPermission(AuthType authType)
 {
     if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
@@ -634,7 +623,7 @@ bool UserAuthService::Insert2ContextPool(const std::shared_ptr<Context> &context
             break;
         }
     }
-    IAM_LOGE("insert context to pool failed, retry %{public}d times", retryTimes);
+    IAM_LOGI("insert context to pool, retry %{public}d times", retryTimes);
     return ret;
 }
 

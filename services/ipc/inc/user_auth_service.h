@@ -64,7 +64,6 @@ private:
         AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback);
     std::shared_ptr<ContextCallback> GetAuthContextCallback(const AuthParam &authParam,
         const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback);
-    bool CheckAuthPermission(bool isInnerCaller, AuthType authType);
     ResultCode CheckNorthPermission(AuthType authType);
     ResultCode CheckServicePermission(AuthType authType);
     ResultCode CheckWidgetNorthPermission();
