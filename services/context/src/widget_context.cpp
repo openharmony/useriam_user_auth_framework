@@ -170,19 +170,7 @@ std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &ch
     }
     contextCallback->SetCleaner(ContextHelper::Cleaner(context));
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    iamCallbackList_[iamCallback] = context;
     return context;
-}
-
-std::shared_ptr<Context> WidgetContext::GetTaskFromIamcallback(
-    const sptr<IamCallbackInterface> &iamCallback)
-{
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    auto it = iamCallbackList_.find(iamCallback);
-    if (it != iamCallbackList_.end()) {
-        return it->second;
-    }
-    return nullptr;
 }
 
 bool WidgetContext::OnStart()
@@ -215,15 +203,9 @@ bool WidgetContext::OnStop()
     return true;
 }
 
-void WidgetContext::AuthResult(int32_t resultCode, int32_t at, const Attributes &finalResult,
-    const sptr<IamCallbackInterface> &iamCallback)
+void WidgetContext::AuthResult(int32_t resultCode, int32_t at, const Attributes &finalResult)
 {
     IAM_LOGI("recv task result: %{public}d, authType: %{public}d", resultCode, at);
-    auto task = GetTaskFromIamcallback(iamCallback);
-    if (!TaskRun2Done(task)) {
-        IAM_LOGE("ignore this task result");
-        return;
-    }
     int32_t remainTimes = -1;
     int32_t freezingTime = -1;
     if (!finalResult.GetInt32Value(Attributes::ATTR_REMAIN_TIMES, remainTimes)) {
@@ -249,20 +231,6 @@ void WidgetContext::AuthResult(int32_t resultCode, int32_t at, const Attributes 
         SetLatestError(resultCode);
         schedule_->StopAuthList({authType});
     }
-}
-
-bool WidgetContext::TaskRun2Done(const std::shared_ptr<Context> &task)
-{
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    auto it = std::find_if(runTaskInfoList_.begin(),
-        runTaskInfoList_.end(), [&task](const TaskInfo &taskInfo) {
-        return (taskInfo.task == task);
-    });
-    if (it != runTaskInfoList_.end()) {
-        runTaskInfoList_.erase(it);
-        return true;
-    }
-    return false;
 }
 
 // WidgetScheduleNodeCallback
@@ -343,12 +311,14 @@ void WidgetContext::SuccessAuth(AuthType authType)
 int32_t WidgetContext::ConnectExtensionAbility(const AAFwk::Want &want, const std::string commandStr)
 {
     IAM_LOGI("ConnectExtensionAbility start");
+    if (connection_ != nullptr) {
+        IAM_LOGE("invalid connection_");
+        return ERR_INVALID_OPERATION;
+    }
+    connection_ = sptr<UIExtensionAbilityConnection>(new (std::nothrow) UIExtensionAbilityConnection(commandStr));
     if (connection_ == nullptr) {
-        IAM_LOGE("connection is nullptr");
-        connection_ = sptr<UIExtensionAbilityConnection>(new (std::nothrow) UIExtensionAbilityConnection(commandStr));
-        if (connection_ == nullptr) {
-            IAM_LOGE("new connection error.");
-        }
+        IAM_LOGE("new connection error.");
+        return ERR_NO_MEMORY;
     }
 
     std::string identity = IPCSkeleton::ResetCallingIdentity();
@@ -380,7 +350,8 @@ bool WidgetContext::ConnectExtension()
 bool WidgetContext::DisconnectExtension()
 {
     if (connection_ == nullptr) {
-        return true;
+        IAM_LOGE("invalid connection handle");
+        return false;
     }
     ErrCode ret = AAFwk::ExtensionManagerClient::GetInstance().DisconnectAbility(connection_);
     if (ret != ERR_OK) {
@@ -395,11 +366,16 @@ void WidgetContext::End(const ResultCode &resultCode)
     IAM_LOGI("in End, resultCode: %{public}d", static_cast<int32_t>(resultCode));
     WidgetClient::Instance().Reset();
     StopAllRunTask();
-    if (!DisconnectExtension()) {
-        IAM_LOGE("failed to release launch widget.");
+    if (resultCode != ResultCode::SUCCESS) {
+        IAM_LOGI("Try to disconnect extesnion");
+        if (!DisconnectExtension()) {
+            IAM_LOGE("failed to release launch widget.");
+        }
     }
-    Attributes attr;
-    callback_->OnResult(resultCode, attr);
+    if (callback_ != nullptr) {
+        Attributes attr;
+        callback_->OnResult(resultCode, attr);
+    }
 }
 
 void WidgetContext::StopAllRunTask()
