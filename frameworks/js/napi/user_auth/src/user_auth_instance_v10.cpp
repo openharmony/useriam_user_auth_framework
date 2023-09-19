@@ -253,7 +253,7 @@ std::shared_ptr<JsRefHolder> UserAuthInstanceV10::GetCallback(napi_env env, napi
         return nullptr;
     }
     napi_value callbackValue;
-    ret = napi_get_named_property(env, value, "callback", &callbackValue);
+    ret = napi_get_named_property(env, value, "onResult", &callbackValue);
     if (ret != napi_ok) {
         IAM_LOGE("napi_get_named_property fail:%{public}d", ret);
         return nullptr;
