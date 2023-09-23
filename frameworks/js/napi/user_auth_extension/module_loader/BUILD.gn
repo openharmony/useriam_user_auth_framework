@@ -53,6 +53,8 @@ ohos_shared_library("user_auth_extension") {
     "napi:ace_napi",
   ]
 
+  configs = [ "../../../../../common:iam_log_config" ]
+
   if (ability_runtime_graphics) {
     external_deps += [ "window_manager:libwm" ]
   }
