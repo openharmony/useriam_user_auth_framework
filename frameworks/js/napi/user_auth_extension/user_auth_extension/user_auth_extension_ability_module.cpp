@@ -20,16 +20,18 @@ extern const char _binary_user_auth_extension_ability_js_end[];
 extern const char _binary_user_auth_extension_ability_abc_start[];
 extern const char _binary_user_auth_extension_ability_abc_end[];
 
-extern "C" __attribute__((constructor)) void NAPI_app_ability_UserAuthExtensionAbility_AutoRegister()
-{
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-        .name = "app.ability.UserAuthExtensionAbility",
-        .fileName
-          = "app/ability/libuserauthextensionability_napi.so/user_auth_extension_ability.js",
-    };
+static napi_module g_module = {
+    .nm_version = 0,
+    .nm_modname = "app.ability.UserAuthExtensionAbility",
+    .nm_filename = "app/ability/libuserauthextensionability_napi.so/user_auth_extension_ability.js"
+};
 
-    moduleManager->Register(&newModuleInfo);
+/*
+ * The module registration.
+ */
+extern "C" __attribute__((constructor)) void NAPI_application_UserAuthExtensionAbility_AutoRegister(void)
+{
+    napi_module_register(&g_module);
 }
 
 extern "C" __attribute__((visibility("default"))) void NAPI_app_ability_UserAuthExtensionAbility_GetJSCode(
