@@ -40,6 +40,7 @@ public:
                               const sptr<IdmCallbackInterface> &callback));
     MOCK_METHOD4(DelCredential, void(int32_t userId, uint64_t credentialId,
                                     const std::vector<uint8_t> &authToken, const sptr<IdmCallbackInterface> &callback));
+    MOCK_METHOD1(ClearRedundancyCredential, void(const sptr<IdmCallbackInterface> &callback));
 };
 } // namespace UserAuth
 } // namespace UserIam

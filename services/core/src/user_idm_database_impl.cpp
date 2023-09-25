@@ -180,6 +180,35 @@ int32_t UserIdmDatabaseImpl::DeleteUserEnforce(int32_t userId,
     return SUCCESS;
 }
 
+std::vector<std::shared_ptr<UserInfoInterface>> UserIdmDatabaseImpl::GetAllExtUserInfo()
+{
+    std::vector<std::shared_ptr<UserInfoInterface>> infoRet;
+
+    auto hdi = HdiWrapper::GetHdiInstance();
+    if (hdi == nullptr) {
+        IAM_LOGE("bad hdi");
+        return infoRet;
+    }
+
+    std::vector<ExtUserInfo> userInfos;
+    int32_t ret = hdi->GetAllExtUserInfo(userInfos);
+    if (ret != HDF_SUCCESS) {
+        IAM_LOGE("GetAllExtUserInfo failed, error code :%{public}d", ret);
+        return infoRet;
+    }
+
+    for (const auto &iter : userInfos) {
+        auto userInfo = Common::MakeShared<UserInfoImpl>(iter.userId, iter.userInfo);
+        if (userInfo == nullptr) {
+            IAM_LOGE("bad alloc");
+            return infoRet;
+        }
+        infoRet.emplace_back(userInfo);
+    }
+
+    return infoRet;
+}
+
 UserIdmDatabase &UserIdmDatabase::Instance()
 {
     return UserIdmDatabaseImpl::GetInstance();

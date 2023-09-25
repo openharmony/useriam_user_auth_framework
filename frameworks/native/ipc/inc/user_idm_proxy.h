@@ -43,7 +43,7 @@ public:
         const sptr<IdmCallbackInterface> &callback) override;
     void DelCredential(int32_t userId, uint64_t credentialId,
         const std::vector<uint8_t> &authToken, const sptr<IdmCallbackInterface> &callback) override;
-
+    void ClearRedundancyCredential(const sptr<IdmCallbackInterface> &callback) override;
 private:
     static inline BrokerDelegator<UserIdmProxy> delegator_;
     bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply);

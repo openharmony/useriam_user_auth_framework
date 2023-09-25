@@ -51,6 +51,7 @@ public:
         const sptr<IdmCallbackInterface> &callback) override;
     void DelCredential(int32_t userId, uint64_t credentialId, const std::vector<uint8_t> &authToken,
         const sptr<IdmCallbackInterface> &callback) override;
+    void ClearRedundancyCredential(const sptr<IdmCallbackInterface> &callback) override;
 
 protected:
     void OnStart() override;
@@ -61,6 +62,8 @@ private:
     void CancelCurrentEnrollIfExist();
     int32_t GetSecInfoInner(int32_t userId, SecUserInfo &secUserInfo);
     int32_t GetCredentialInfoInner(int32_t userId, AuthType authType, std::vector<CredentialInfo> &credInfoList);
+    void EnforceDelUserInner(int32_t userId);
+    void ClearRedundancyCredentialInner();
     std::mutex mutex_;
 };
 } // namespace UserAuth

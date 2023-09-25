@@ -347,6 +347,28 @@ void UserIdmProxy::DelCredential(int32_t userId, uint64_t credentialId,
     SendRequest(UserIdmInterfaceCode::USER_IDM_DEL_CRED, data, reply);
 }
 
+void UserIdmProxy::ClearRedundancyCredential(const sptr<IdmCallbackInterface> &callback)
+{
+    if (callback == nullptr) {
+        IAM_LOGE("callback is nullptr");
+        return;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+
+    if (!data.WriteInterfaceToken(UserIdmProxy::GetDescriptor())) {
+        IAM_LOGE("failed to write descriptor");
+        return;
+    }
+
+    if (!data.WriteRemoteObject(callback->AsObject())) {
+        IAM_LOGE("failed to write callback");
+        return;
+    }
+
+    SendRequest(UserIdmInterfaceCode::USER_IDM_CLEAR_REDUNDANCY_CRED, data, reply);
+}
+
 bool UserIdmProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply)
 {
     IAM_LOGI("code = %{public}u", code);
