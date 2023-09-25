@@ -13,27 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef USER_IDM_INTERFACE_IPC_INTERFACE_CODE_H
-#define USER_IDM_INTERFACE_IPC_INTERFACE_CODE_H
+#ifndef IAM_USER_INFO_INTERFACE_H
+#define IAM_USER_INFO_INTERFACE_H
 
-/* SAID: 931 */
+#include "iam_common_defines.h"
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-enum UserIdmInterfaceCode : uint32_t {
-    USER_IDM_OPEN_SESSION = 0,
-    USER_IDM_CLOSE_SESSION,
-    USER_IDM_GET_CRED_INFO,
-    USER_IDM_GET_SEC_INFO,
-    USER_IDM_ADD_CREDENTIAL,
-    USER_IDM_UPDATE_CREDENTIAL,
-    USER_IDM_CANCEL,
-    USER_IDM_ENFORCE_DEL_USER,
-    USER_IDM_DEL_USER,
-    USER_IDM_DEL_CRED,
-    USER_IDM_CLEAR_REDUNDANCY_CRED,
+class UserInfoInterface {
+public:
+    virtual ~UserInfoInterface() = default;
+    virtual int32_t GetUserId() const = 0;
+    virtual PinSubType GetPinSubType() const = 0;
+    virtual uint64_t GetSecUserId() const = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // USER_IDM_INTERFACE_IPC_INTERFACE_CODE_H
+
+#endif // IAM_USER_INFO_INTERFACE_H

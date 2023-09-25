@@ -13,27 +13,30 @@
  * limitations under the License.
  */
 
-#ifndef USER_IDM_INTERFACE_IPC_INTERFACE_CODE_H
-#define USER_IDM_INTERFACE_IPC_INTERFACE_CODE_H
+#ifndef IAM_USER_INFO_IMPL_H
+#define IAM_USER_INFO_IMPL_H
 
-/* SAID: 931 */
+#include "nocopyable.h"
+
+#include "user_info_interface.h"
+#include "hdi_wrapper.h"
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-enum UserIdmInterfaceCode : uint32_t {
-    USER_IDM_OPEN_SESSION = 0,
-    USER_IDM_CLOSE_SESSION,
-    USER_IDM_GET_CRED_INFO,
-    USER_IDM_GET_SEC_INFO,
-    USER_IDM_ADD_CREDENTIAL,
-    USER_IDM_UPDATE_CREDENTIAL,
-    USER_IDM_CANCEL,
-    USER_IDM_ENFORCE_DEL_USER,
-    USER_IDM_DEL_USER,
-    USER_IDM_DEL_CRED,
-    USER_IDM_CLEAR_REDUNDANCY_CRED,
+class UserInfoImpl final : public UserInfoInterface, public NoCopyable {
+public:
+    UserInfoImpl(const int32_t userId, const UserInfo &info);
+    ~UserInfoImpl() override = default;
+    int32_t GetUserId() const override;
+    uint64_t GetSecUserId() const override;
+    PinSubType GetPinSubType() const override;
+
+private:
+    int32_t userId_ {0};
+    UserInfo userInfo_;
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // USER_IDM_INTERFACE_IPC_INTERFACE_CODE_H
+#endif // IAM_USER_INFO_IMPL_H

@@ -128,6 +128,15 @@ public:
      */
     virtual void DelCredential(int32_t userId, uint64_t credentialId,
         const std::vector<uint8_t> &authToken, const sptr<IdmCallbackInterface> &callback) = 0;
+
+    /*
+     * delete the user redundancy credential information, pass in callback,
+     * and obtain the deletion result through the callback.
+     * Only deleting the credential without account information is supported.
+     *
+     * param callback get deletion result through callback.
+     */
+    virtual void ClearRedundancyCredential(const sptr<IdmCallbackInterface> &callback) = 0;
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.useridm.IUserIDM");
 };
 } // namespace UserAuth

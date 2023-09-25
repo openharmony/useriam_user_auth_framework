@@ -46,7 +46,7 @@ ohos_fuzztest("UserAuthStubFuzzTest") {
 
   external_deps = [
     "c_utils:utils",
-    "drivers_interface_user_auth:libuser_auth_proxy_1.1",
+    "drivers_interface_user_auth:libuser_auth_proxy_1.2",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_single",

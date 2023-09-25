@@ -43,7 +43,7 @@ public:
     int32_t GetCredentialInfo(int32_t userId, AuthType authType,
         const std::shared_ptr<GetCredentialInfoCallback> &callback) override;
     int32_t GetSecUserInfo(int32_t userId, const std::shared_ptr<GetSecUserInfoCallback> &callback) override;
-
+    void ClearRedundancyCredential(const std::shared_ptr<UserIdmClientCallback> &callback) override;
 private:
     friend class UserIdmClient;
     UserIdmClientImpl() = default;
