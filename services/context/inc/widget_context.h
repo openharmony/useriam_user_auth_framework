@@ -21,6 +21,7 @@
 #include <memory>
 #include <mutex>
 #include <list>
+#include <vector>
 
 #include "auth_common.h"
 #include "extension_manager_client.h"
@@ -88,6 +89,11 @@ private:
         std::shared_ptr<Context> task {nullptr};
     };
 
+    struct WidgetAuthResultInfo {
+        std::vector<uint8_t> token {};
+        AuthType authType { 0 };
+    };
+
     uint64_t contextId_ {0};
     std::string description_ {""};
     std::shared_ptr<ContextCallback> callback_ {nullptr};
@@ -99,6 +105,7 @@ private:
     std::recursive_mutex mutex_;
     std::list<TaskInfo> runTaskInfoList_;
     sptr<UIExtensionAbilityConnection> connection_ {nullptr};
+    WidgetAuthResultInfo authResultInfo_ {};
 };
 } // namespace UserAuth
 } // namespace UserIam
