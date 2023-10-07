@@ -21,7 +21,6 @@
 #include <functional>
 #include <memory>
 #include <optional>
-#include <singleton.h>
 #include <vector>
 
 #include "context.h"
@@ -32,7 +31,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class ContextCallbackNotifyListener : public Singleton<ContextCallbackNotifyListener> {
+class ContextCallbackNotifyListener {
 public:
     struct MetaData {
         OperationType operationType;
@@ -41,14 +40,17 @@ public:
         std::optional<int32_t> remainTime;
         std::optional<int32_t> freezingTime;
         std::optional<int32_t> sdkVersion;
+        std::optional<uint64_t> contextId;
         std::optional<uint64_t> callingUid;
         std::optional<AuthTrustLevel> atl;
         std::optional<AuthType> authType;
         std::optional<uint32_t> authWidgetType;
+        std::optional<std::string> bundleName;
         std::chrono::time_point<std::chrono::steady_clock> startTime;
         std::chrono::time_point<std::chrono::steady_clock> endTime;
     };
     using Notify = std::function<void(const MetaData &metaData)>;
+    static ContextCallbackNotifyListener &GetInstance();
     void AddNotifier(const Notify &notify);
     void Process(const MetaData &metaData);
 
@@ -63,6 +65,8 @@ public:
     virtual ~ContextCallback() = default;
     virtual void OnResult(int32_t resultCode, const Attributes &finalResult) = 0;
     virtual void OnAcquireInfo(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg) const = 0;
+    virtual void SetTraceBundleName(std::string bundleName) = 0;
+    virtual void SetTraceContextId(uint64_t contextId) = 0;
     virtual void SetTraceUserId(int32_t userId) = 0;
     virtual void SetTraceRemainTime(int32_t remainTime) = 0;
     virtual void SetTraceFreezingTime(int32_t freezingTime) = 0;

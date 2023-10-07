@@ -133,6 +133,8 @@ std::shared_ptr<ContextCallback> WidgetContext::GetAuthContextCallback(AuthType 
     auto callingUid = static_cast<uint64_t>(para_.callingUid);
     contextCallback->SetTraceCallingUid(callingUid);
     contextCallback->SetTraceAuthTrustLevel(authTrustLevel);
+    contextCallback->SetTraceBundleName(para_.bundleName);
+    contextCallback->SetTraceAuthType(authType);
     return contextCallback;
 }
 

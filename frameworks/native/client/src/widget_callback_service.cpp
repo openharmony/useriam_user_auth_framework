@@ -16,8 +16,10 @@
 #include "widget_callback_service.h"
 
 #include "callback_manager.h"
+#include "hisysevent_adapter.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
+#include "iam_time.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SDK
 
@@ -30,6 +32,7 @@ WidgetCallbackService::WidgetCallbackService(const std::shared_ptr<IUserAuthWidg
 {
     CallbackManager::CallbackAction action = [impl]() {
         if (impl != nullptr) {
+            UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "WidgetCallback");
             IAM_LOGI("user auth service death, auth widget callback return default result to caller");
             std::string command = "";
             impl->SendCommand(command);

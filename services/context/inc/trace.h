@@ -28,8 +28,6 @@ private:
     static Trace trace;
     static void ProcessCredChangeEvent(const ContextCallbackNotifyListener::MetaData &metaData);
     static void ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData);
-    static void ProcessPinAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData);
-    static void ProcessDelUserEvent(const ContextCallbackNotifyListener::MetaData &metaData);
     Trace();
     ~Trace() override;
 };

@@ -29,23 +29,16 @@ struct UserAuthInfo {
     std::string timeSpanString;
     uint32_t sdkVersion = 0;
     uint32_t authWidgetType = 0;
-};
-
-struct PinAuthInfo {
-    int32_t userId = 0;
-    uint64_t callingUid = 0;
-    std::string authTimeString;
-    uint32_t authResult = 0;
-    uint32_t remainTime = 0;
-    uint32_t freezingTime = 0;
+    std::string bundleName;
 };
 
 void ReportSystemFault(const std::string &timeString, const std::string &moudleName);
 void ReportTemplateChange(int32_t executorType, uint32_t changeType, const std::string &reason);
-void ReportBehaviorCredChange(int32_t userId, int32_t authType, uint32_t operationType, uint32_t optResult);
-void ReportSecurityCredChange(int32_t userId, int32_t authType, uint32_t operationType, uint32_t optResult);
+void ReportBehaviorCredChange(int32_t userId, int32_t authType, uint32_t operationType, uint32_t optResult,
+    std::string bundleName);
+void ReportSecurityCredChange(int32_t userId, int32_t authType, uint32_t operationType, uint32_t optResult,
+    std::string bundleName, uint64_t contextId, uint64_t consumingTime);
 void ReportUserAuth(const UserAuthInfo &info);
-void ReportPinAuth(const PinAuthInfo &info);
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

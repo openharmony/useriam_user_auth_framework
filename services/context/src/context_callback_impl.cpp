@@ -83,6 +83,16 @@ void ContextCallbackImpl::SetTraceRemainTime(int32_t remainTime)
     metaData_.remainTime = remainTime;
 }
 
+void ContextCallbackImpl::SetTraceBundleName(std::string bundleName)
+{
+    metaData_.bundleName = bundleName;
+}
+
+void ContextCallbackImpl::SetTraceContextId(uint64_t contextId)
+{
+    metaData_.contextId = contextId;
+}
+
 void ContextCallbackImpl::SetTraceFreezingTime(int32_t freezingTime)
 {
     metaData_.freezingTime = freezingTime;
@@ -116,6 +126,12 @@ void ContextCallbackImpl::SetTraceAuthTrustLevel(AuthTrustLevel atl)
 void ContextCallbackImpl::SetCleaner(Context::ContextStopCallback callback)
 {
     stopCallback_ = callback;
+}
+
+ContextCallbackNotifyListener &ContextCallbackNotifyListener::GetInstance()
+{
+    static ContextCallbackNotifyListener contextCallbackNotifyListener;
+    return contextCallbackNotifyListener;
 }
 
 void ContextCallbackNotifyListener::AddNotifier(const Notify &notify)

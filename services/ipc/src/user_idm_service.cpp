@@ -26,6 +26,7 @@
 #include "iam_logger.h"
 #include "iam_para2str.h"
 #include "iam_defines.h"
+#include "iam_time.h"
 #include "ipc_common.h"
 #include "ipc_skeleton.h"
 #include "iam_common_defines.h"
@@ -141,12 +142,25 @@ int32_t UserIdmService::GetCredentialInfo(int32_t userId, AuthType authType,
         return INVALID_PARAMETERS;
     }
 
+    ContextCallbackNotifyListener::MetaData metaData_;
+    uint64_t callingUid = static_cast<uint64_t>(this->GetCallingUid());
+    std::string bundleName = IpcCommon::GetBundleNameByUid(callingUid);
+    metaData_.userId = userId;
+    metaData_.authType = authType;
+    metaData_.bundleName = bundleName;
+    metaData_.operationType = TRACE_GET_CREDENTIAL;
+    metaData_.startTime = std::chrono::steady_clock::now();
+
     std::vector<CredentialInfo> credInfoList;
     int32_t ret = GetCredentialInfoInner(userId, authType, credInfoList);
     if (ret != SUCCESS) {
         IAM_LOGE("GetCredentialInfoInner fail, ret: %{public}d", ret);
         credInfoList.clear();
     }
+
+    metaData_.operationResult = ret;
+    metaData_.endTime = std::chrono::steady_clock::now();
+    ContextCallbackNotifyListener::GetInstance().Process(metaData_);
     callback->OnCredentialInfos(credInfoList);
 
     return ret;
@@ -184,6 +198,15 @@ int32_t UserIdmService::GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserIn
         return INVALID_PARAMETERS;
     }
 
+    ContextCallbackNotifyListener::MetaData metaData_;
+    uint64_t callingUid = static_cast<uint64_t>(this->GetCallingUid());
+    std::string bundleName = IpcCommon::GetBundleNameByUid(callingUid);
+    metaData_.userId = userId;
+    metaData_.authType = AuthType::ALL;
+    metaData_.bundleName = bundleName;
+    metaData_.operationType = TRACE_GET_CREDENTIAL;
+    metaData_.startTime = std::chrono::steady_clock::now();
+
     SecUserInfo secUserInfo = {};
     int32_t ret = GetSecInfoInner(userId, secUserInfo);
     if (ret != SUCCESS) {
@@ -191,6 +214,13 @@ int32_t UserIdmService::GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserIn
         secUserInfo.secureUid = 0;
         secUserInfo.enrolledInfo.clear();
     }
+    if (secUserInfo != nullptr) {
+        contextCallback->SetTraceAuthType(secUserInfo.);
+    }
+
+    metaData_.operationResult = ret;
+    metaData_.endTime = std::chrono::steady_clock::now();
+    ContextCallbackNotifyListener::GetInstance().Process(metaData_);
     callback->OnSecureUserInfo(secUserInfo);
 
     return ret;
@@ -213,9 +243,11 @@ void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPar
         return;
     }
     uint64_t callingUid = static_cast<uint64_t>(this->GetCallingUid());
+    std::string bundleName = IpcCommon::GetBundleNameByUid(callingUid);
     contextCallback->SetTraceAuthType(credPara.authType);
     contextCallback->SetTraceCallingUid(callingUid);
     contextCallback->SetTraceUserId(userId);
+    contextCallback->SetTraceBundleName(bundleName);
 
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
@@ -234,6 +266,7 @@ void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPar
     para.token = credPara.token;
     para.isUpdate = isUpdate;
     auto context = ContextFactory::CreateEnrollContext(para, contextCallback);
+    contextCallback->SetTraceContextId(context->GetContextId());
     if (!ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
@@ -322,7 +355,13 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInt
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return GENERAL_ERROR;
     }
+
+    uint64_t callingUid = static_cast<uint64_t>(this->GetCallingUid());
+    std::string bundleName = IpcCommon::GetBundleNameByUid(callingUid);
+    contextCallback->SetTraceCallingUid(callingUid);
+    contextCallback->SetTraceBundleName(bundleName);
     contextCallback->SetTraceUserId(userId);
+    //没有contextId
 
     if (!IpcCommon::CheckPermission(*this, ENFORCE_USER_IDM)) {
         IAM_LOGE("failed to check permission");
@@ -348,6 +387,9 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInt
         contextCallback->OnResult(ret, extraInfo);
         return ret;
     }
+    if (credInfos != nullptr) {
+        contextCallback->SetTraceAuthType(credInfos->GetAuthType());
+    }
 
     ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos);
     if (ret != SUCCESS) {
@@ -371,7 +413,13 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
+
+    uint64_t callingUid = static_cast<uint64_t>(this->GetCallingUid());
+    std::string bundleName = IpcCommon::GetBundleNameByUid(callingUid);
+    contextCallback->SetTraceCallingUid(callingUid);
+    contextCallback->SetTraceBundleName(bundleName);
     contextCallback->SetTraceUserId(userId);
+    //没有contextId
 
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
@@ -388,6 +436,9 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
         IAM_LOGE("failed to delete user");
         contextCallback->OnResult(ret, extraInfo);
         return;
+    }
+    if (credInfos != nullptr) {
+        contextCallback->SetTraceAuthType(credInfos->GetAuthType());
     }
 
     ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos);
@@ -411,7 +462,13 @@ void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
+
+    uint64_t callingUid = static_cast<uint64_t>(this->GetCallingUid());
+    std::string bundleName = IpcCommon::GetBundleNameByUid(callingUid);
+    contextCallback->SetTraceCallingUid(callingUid);
+    contextCallback->SetTraceBundleName(bundleName);
     contextCallback->SetTraceUserId(userId);
+    //没有contextId
 
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");

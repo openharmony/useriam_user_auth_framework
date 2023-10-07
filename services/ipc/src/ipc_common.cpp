@@ -13,11 +13,16 @@
  * limitations under the License.
  */
 
+#include "bundle_mgr_interface.h"
+#include "bundle_mgr_proxy.h"
+#include "if_system_ability_manager.h"
 #include "ipc_common.h"
 #include "ipc_skeleton.h"
 #include "accesstoken_kit.h"
 #include "iam_common_defines.h"
 #include "iam_logger.h"
+#include "iservice_registry.h"
+#include "system_ability_definition.h"
 #include "tokenid_kit.h"
 #ifdef HAS_OS_ACCOUNT_PART
 #include "os_account_manager.h"
@@ -196,6 +201,36 @@ bool IpcCommon::CheckCallerIsSystemApp(IPCObjectStub &stub)
         return true;
     }
     return false;
+}
+
+std::string IpcCommon::GetBundleNameByUid(int32_t uid)
+{
+    std::string bundleName = "";
+    OHOS::sptr<OHOS::ISystemAbilityManager> systemAbilityManager =
+        OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (systemAbilityManager == nullptr) {
+        IAM_LOGE("system ability manager is null");
+        return bundleName;
+    }
+    OHOS::sptr<OHOS::IRemoteObject> remoteObject =
+        systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (remoteObject == nullptr) {
+        IAM_LOGE("bundle mgr remote object is null");
+        return bundleName;
+    }
+    sptr<AppExecFwk::IBundleMgr> iBundleMgr = OHOS::iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (iBundleMgr == nullptr) {
+        IAM_LOGE("iBundleMgr is null");
+        return bundleName;
+    }
+    std::string identity = IPCSkeleton::ResetCallingIdentity();
+    ErrCode errCode = iBundleMgr->GetNameForUid(uid, bundleName);
+    IPCSkeleton::SetCallingIdentity(identity);
+    if (errCode != ERR_OK) {
+        IAM_LOGI("get name for uid failed, error code : %{public}d", errCode);
+        return bundleName;
+    }
+    return bundleName;
 }
 } // namespace UserAuth
 } // namespace UserIam
