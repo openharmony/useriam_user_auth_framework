@@ -345,9 +345,11 @@ std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(const s
         return nullptr;
     }
     auto callingUid = static_cast<uint64_t>(this->GetCallingUid());
+    std::string bundleName =  IpcCommon::GetBundleNameByUid(callingUid);
     contextCallback->SetTraceCallingUid(callingUid);
     contextCallback->SetTraceAuthType(authType);
     contextCallback->SetTraceAuthTrustLevel(authTrustLevel);
+    contextCallback->SetTraceBundleName(bundleName);
     return contextCallback;
 }
 
@@ -591,6 +593,8 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParam &authPa
     para.userId = userId;
     para.tokenId = IpcCommon::GetAccessTokenId(*this);
     para.callingUid = GetCallingUid();
+    std::string bundleName =  IpcCommon::GetBundleNameByUid(para.callingUid);
+    para.bundleName = bundleName;
     if (!AuthWidgetHelper::InitWidgetContextParam(userId, authParam, widgetParam, para)) {
         IAM_LOGE("init widgetContext failed");
         contextCallback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
@@ -642,8 +646,10 @@ std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(const A
         return nullptr;
     }
     auto callingUid = static_cast<uint64_t>(this->GetCallingUid());
+    std::string bundleName =  IpcCommon::GetBundleNameByUid(callingUid);
     contextCallback->SetTraceCallingUid(callingUid);
     contextCallback->SetTraceAuthTrustLevel(authParam.authTrustLevel);
+    contextCallback->SetTraceBundleName(bundleName);
 
     uint32_t authWidgetType = 0;
     for (const auto authType : authParam.authType) {

@@ -341,6 +341,7 @@ void UserAuthClientImpl::ResetProxy(const wptr<IRemoteObject> &remote)
 void UserAuthClientImpl::UserAuthImplDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     IAM_LOGI("start");
+    UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "UserAuthService");
     if (remote == nullptr) {
         IAM_LOGE("remote is nullptr");
         return;

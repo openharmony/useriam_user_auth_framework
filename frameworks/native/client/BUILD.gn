@@ -66,6 +66,7 @@ ohos_shared_library("userauth_client") {
   innerapi_tags = [ "platformsdk" ]
 
   deps = [
+    "../../../common:iam_utils",
     "../common:attributes",
     "../common:dfx",
     "../ipc:userauth_client_ipc",

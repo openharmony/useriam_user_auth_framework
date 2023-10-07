@@ -104,6 +104,7 @@ void CoAuthClientImpl::ResetProxy(const wptr<IRemoteObject> &remote)
 void CoAuthClientImpl::CoAuthImplDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     IAM_LOGI("start");
+    UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "CoAuthService");
     if (remote == nullptr) {
         IAM_LOGE("remote is nullptr");
         return;

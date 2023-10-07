@@ -30,6 +30,8 @@ public:
     ~ContextCallbackImpl() override = default;
     void OnResult(int32_t resultCode, const Attributes &finalResult) override;
     void OnAcquireInfo(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg) const override;
+    void SetTraceBundleName(std::string bundleName) override;
+    void SetTraceContextId(uint64_t contextId) override;
     void SetTraceUserId(int32_t userId) override;
     void SetTraceRemainTime(int32_t remainTime) override;
     void SetTraceFreezingTime(int32_t freezingTime) override;
