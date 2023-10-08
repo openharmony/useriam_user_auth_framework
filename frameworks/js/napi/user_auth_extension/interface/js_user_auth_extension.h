@@ -147,13 +147,13 @@ public:
     virtual void Dump(const std::vector<std::string> &params, std::vector<std::string> &info) override;
 
 private:
-    virtual void BindContext(NativeEngine& engine, NativeObject* obj);
+    virtual void BindContext(napi_env env, napi_value obj);
 
-    NativeValue* CallObjectMethod(const char* name, NativeValue* const *argv = nullptr, size_t argc = 0);
+    napi_value CallObjectMethod(const char *name, const napi_value *argv = nullptr, size_t argc = 0);
 
-    NativeValue* CallOnConnect(const AAFwk::Want &want);
+    napi_value CallOnConnect(const AAFwk::Want &want);
 
-    NativeValue* CallOnDisconnect(const AAFwk::Want &want, bool withResult = false);
+    napi_value CallOnDisconnect(const AAFwk::Want &want, bool withResult = false);
 
     void ForegroundWindow(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo);
     void BackgroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo);

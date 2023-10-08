@@ -18,7 +18,6 @@
 #include "ability_info.h"
 #include "ability_manager_client.h"
 #include "hitrace_meter.h"
-#include "hilog_wrapper.h"
 #include "js_extension_common.h"
 #include "js_extension_context.h"
 #include "js_runtime.h"
@@ -32,45 +31,81 @@
 #include "napi_remote_object.h"
 #include "ui_extension_window_command.h"
 
+#include "iam_logger.h"
+
+#define LOG_LABEL OHOS::UserIam::Common::LABEL_USER_AUTH_NAPI
+
 namespace OHOS {
 namespace AbilityRuntime {
 using namespace OHOS::AppExecFwk;
+using namespace OHOS::UserIam::Common;
 namespace {
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 constexpr static char DEFAULT_BACKGROUND_COLOR[] = "#40ffffff";
 }
 
-NativeValue *AttachUIExtensionContext(NativeEngine *engine, void *value, void *)
+napi_value AttachUIExtensionContext(napi_env env, void *value, void *)
 {
-    HILOG_DEBUG("AttachUIExtensionContext");
+    IAM_LOGD("JsUserAuthExtension attachUIExtensionContext");
     if (value == nullptr) {
-        HILOG_ERROR("invalid parameter.");
+        IAM_LOGE("JsUserAuthExtension invalid parameter.");
         return nullptr;
     }
 
     auto ptr = reinterpret_cast<std::weak_ptr<UIExtensionContext> *>(value)->lock();
     if (ptr == nullptr) {
-        HILOG_ERROR("invalid context.");
+        IAM_LOGE("JsUserAuthExtension invalid context.");
         return nullptr;
     }
-    NativeValue *object = JsUIExtensionContext::CreateJsUIExtensionContext(*engine, ptr);
-    auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine, "application.UIExtensionContext",
-        &object, 1)->Get();
-    if (contextObj == nullptr) {
-        HILOG_ERROR("load context error.");
+    napi_value objValue = JsUIExtensionContext::CreateJsUIExtensionContext(env, ptr);
+    if (objValue == nullptr) {
+        IAM_LOGE("JsUserAuthExtension create context error.");
         return nullptr;
     }
-    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
-    nObject->ConvertToNativeBindingObject(engine, DetachCallbackFunc, AttachUIExtensionContext, value, nullptr);
+    std::shared_ptr<NativeReference> shellContextRef = JsRuntime::LoadSystemModuleByEngine(env,
+        "application.UIExtensionContext", &objValue, ARGC_ONE);
+    if (shellContextRef == nullptr) {
+        IAM_LOGE("JsUserAuthExtension load context error.");
+        return nullptr;
+    }
+    napi_value contextObjValue = shellContextRef->GetNapiValue();
+    if (contextObjValue == nullptr) {
+        IAM_LOGE("JsUserAuthExtension get context value error.");
+        return nullptr;
+    }
+    napi_coerce_to_native_binding_object(env, contextObjValue, DetachCallbackFunc,
+        AttachUIExtensionContext, value, nullptr);
 
     auto workContext = new (std::nothrow) std::weak_ptr<UIExtensionContext>(ptr);
-    nObject->SetNativePointer(workContext,
-        [](NativeEngine *, void *data, void *) {
-            HILOG_DEBUG("Finalizer for weak_ptr ui extension context is called");
+    if (workContext == nullptr) {
+        IAM_LOGE("JsUserAuthExtension create context error.");
+        return nullptr;
+    }
+    napi_status status = napi_wrap(env, contextObjValue, workContext,
+        [](napi_env env, void *data, void *) {
+            IAM_LOGD("JsUserAuthExtension finalizer for weak_ptr ui extension context is called");
             delete static_cast<std::weak_ptr<UIExtensionContext> *>(data);
-        }, nullptr);
-    return contextObj;
+        }, nullptr, nullptr);
+    if (status != napi_ok) {
+        IAM_LOGE("JsUserAuthExtension failed to wrap the context");
+        delete workContext;
+        return nullptr;
+    }
+    return contextObjValue;
+}
+
+bool IsMethodNative(napi_env env, napi_value value, napi_value method)
+{
+    if (method == nullptr) {
+        return false;
+    }
+    napi_valuetype valuetype = napi_undefined;
+    napi_typeof(env, method, &valuetype);
+    if (valuetype != napi_function) {
+        return false;
+    }
+    return true;
 }
 
 JsUserAuthExtension* JsUserAuthExtension::Create(const std::unique_ptr<Runtime>& runtime)
@@ -81,7 +116,7 @@ JsUserAuthExtension* JsUserAuthExtension::Create(const std::unique_ptr<Runtime>&
 JsUserAuthExtension::JsUserAuthExtension(JsRuntime& jsRuntime) : jsRuntime_(jsRuntime) {}
 JsUserAuthExtension::~JsUserAuthExtension()
 {
-    HILOG_DEBUG("Js ui extension destructor.");
+    IAM_LOGD("JsUserAuthExtension destructor.");
     auto context = GetContext();
     if (context) {
         context->Unbind();
@@ -95,10 +130,10 @@ void JsUserAuthExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record
     const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    HILOG_DEBUG("JsUserAuthExtension begin init");
+    IAM_LOGD("JsUserAuthExtension begin init");
     UserAuthExtension::Init(record, application, handler, token);
     if (Extension::abilityInfo_->srcEntrance.empty()) {
-        HILOG_ERROR("JsUserAuthExtension Init abilityInfo srcEntrance is empty");
+        IAM_LOGE("JsUserAuthExtension init abilityInfo srcEntrance is empty");
         return;
     }
     std::string srcPath(Extension::abilityInfo_->moduleName + "/");
@@ -109,97 +144,101 @@ void JsUserAuthExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record
     std::string moduleName(Extension::abilityInfo_->moduleName);
     moduleName.append("::").append(abilityInfo_->name);
     HandleScope handleScope(jsRuntime_);
-    auto& engine = jsRuntime_.GetNativeEngine();
-
+    napi_env env = jsRuntime_.GetNapiEnv();
     jsObj_ = jsRuntime_.LoadModule(
         moduleName, srcPath, abilityInfo_->hapPath, abilityInfo_->compileMode == CompileMode::ES_MODULE);
     if (jsObj_ == nullptr) {
-        HILOG_ERROR("Failed to get jsObj_");
+        IAM_LOGE("JsUserAuthExtension failed to get jsObj_");
         return;
     }
-
-    NativeObject* obj = ConvertNativeValueTo<NativeObject>(jsObj_->Get());
-    if (obj == nullptr) {
-        HILOG_ERROR("Failed to get JsUserAuthExtension object");
-        return;
-    }
-
-    BindContext(engine, obj);
+    BindContext(env, jsObj_->GetNapiValue());
 
     SetExtensionCommon(
         JsExtensionCommon::Create(jsRuntime_, static_cast<NativeReference&>(*jsObj_), shellContextRef_));
 }
 
-void JsUserAuthExtension::BindContext(NativeEngine& engine, NativeObject* obj)
+void JsUserAuthExtension::BindContext(napi_env env, napi_value obj)
 {
     auto context = GetContext();
     if (context == nullptr) {
-        HILOG_ERROR("Failed to get context");
+        IAM_LOGE("JsUserAuthExtension failed to get context");
         return;
     }
-    HILOG_DEBUG("BindContext CreateJsUIExtensionContext.");
-    NativeValue* contextObj = JsUIExtensionContext::CreateJsUIExtensionContext(engine, context);
+    HILOG_DEBUG("JsUserAuthExtension create JsUIExtensionContext.");
+    napi_value contextObjValue = JsUIExtensionContext::CreateJsUIExtensionContext(env, context);
+    if (contextObjValue == nullptr) {
+        IAM_LOGE("JsUserAuthExtension create context value error.");
+        return;
+    }
 
-    if (contextObj == nullptr) {
-        HILOG_ERROR("Create js ui extension context error.");
+    shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(env, "application.UIExtensionContext",
+        &contextObjValue, ARGC_ONE);
+    if (shellContextRef_ == nullptr) {
+        IAM_LOGE("JsUserAuthExtension load context error.");
+        return;
+    }
+    contextObjValue = shellContextRef_->GetNapiValue();
+    if (contextObjValue == nullptr) {
+        IAM_LOGE("JsUserAuthExtension get context value error.");
         return;
     }
 
-    shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(&engine, "application.UIExtensionContext",
-        &contextObj, ARGC_ONE);
-    contextObj = shellContextRef_->Get();
-    NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
-    if (nativeObj == nullptr) {
-        HILOG_ERROR("Failed to get context native object");
-        return;
-    }
     auto workContext = new (std::nothrow) std::weak_ptr<UIExtensionContext>(context);
-    nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachUIExtensionContext,
+    if (workContext == nullptr) {
+        IAM_LOGE("JsUserAuthExtension create work context error.");
+        return;
+    }
+    napi_coerce_to_native_binding_object(env, contextObjValue, DetachCallbackFunc, AttachUIExtensionContext,
         workContext, nullptr);
+
     context->Bind(jsRuntime_, shellContextRef_.get());
-    obj->SetProperty("context", contextObj);
+    napi_set_named_property(env, obj, "context", contextObjValue);
 
-    nativeObj->SetNativePointer(workContext,
-        [](NativeEngine*, void* data, void*) {
-            HILOG_DEBUG("Finalizer for weak_ptr ui extension context is called");
-            delete static_cast<std::weak_ptr<UIExtensionContext>*>(data);
-        }, nullptr);
+    napi_status status = napi_wrap(env, contextObjValue, workContext,
+        [](napi_env env, void* data, void*) {
+            IAM_LOGD("JsUserAuthExtension finalizer for weak_ptr ui extension context is called");
+            delete static_cast<std::weak_ptr<UIExtensionContext> *>(data);
+        }, nullptr, nullptr);
+    if (status != napi_ok) {
+        IAM_LOGE("JsUserAuthExtension failed to wrap the context");
+        delete workContext;
+    }
 
-    HILOG_DEBUG("Init end.");
+    IAM_LOGD("JsUserAuthExtension init end.");
 }
 
 void JsUserAuthExtension::OnStart(const AAFwk::Want &want)
 {
-    HILOG_DEBUG("JsUserAuthExtension OnStart begin.");
+    IAM_LOGD("JsUserAuthExtension onStart begin.");
     Extension::OnStart(want);
     HandleScope handleScope(jsRuntime_);
-    NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
-    napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
-    NativeValue* nativeWant = reinterpret_cast<NativeValue*>(napiWant);
-    NativeValue* argv[] = {nativeWant};
+    napi_env env = jsRuntime_.GetNapiEnv();
+    napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
+
+    napi_value argv[] = {napiWant};
     CallObjectMethod("onCreate", argv, ARGC_ONE);
-    HILOG_DEBUG("JsUserAuthExtension OnStart end.");
+    IAM_LOGD("JsUserAuthExtension onStart end.");
 }
 
 void JsUserAuthExtension::OnStop()
 {
     UserAuthExtension::OnStop();
-    HILOG_DEBUG("JsUserAuthExtension OnStop begin.");
+    IAM_LOGD("JsUserAuthExtension onStop begin.");
     HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onDestroy");
-    HILOG_DEBUG("JsUserAuthExtension OnStop end.");
+    IAM_LOGD("JsUserAuthExtension onStop end.");
 }
 
 sptr<IRemoteObject> JsUserAuthExtension::OnConnect(const AAFwk::Want &want)
 {
     HandleScope handleScope(jsRuntime_);
-    NativeValue *result = CallOnConnect(want);
-    NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
-    auto remoteObj = NAPI_ohos_rpc_getNativeRemoteObject(
-        reinterpret_cast<napi_env>(nativeEngine), reinterpret_cast<napi_value>(result));
+    napi_value result = CallOnConnect(want);
+    napi_env env = jsRuntime_.GetNapiEnv();
+    auto remoteObj = NAPI_ohos_rpc_getNativeRemoteObject(env, result);
     if (remoteObj == nullptr) {
-        HILOG_ERROR("remoteObj is nullptr.");
+        IAM_LOGE("JsUserAuthExtension remoteObj is nullptr.");
     }
+    IAM_LOGD("JsUserAuthExtension onConnect.");
     return remoteObj;
 }
 
@@ -207,19 +246,20 @@ void JsUserAuthExtension::OnDisconnect(const AAFwk::Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     Extension::OnDisconnect(want);
-    HILOG_DEBUG("JsUserAuthExtension OnDisconnect begin.");
+    IAM_LOGD("JsUserAuthExtension onDisconnect begin.");
     CallOnDisconnect(want, false);
-    HILOG_DEBUG("JsUserAuthExtension OnDisconnect end.");
+    IAM_LOGD("JsUserAuthExtension onDisconnect end.");
 }
 
 void JsUserAuthExtension::OnCommandWindow(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
     AAFwk::WindowCommand winCmd)
 {
     if (sessionInfo == nullptr) {
-        HILOG_ERROR("sessionInfo is nullptr.");
+        IAM_LOGE("JsUserAuthExtension sessionInfo is nullptr.");
         return;
     }
-    HILOG_DEBUG("begin. persistentId: %{private}d, winCmd: %{public}d", sessionInfo->persistentId, winCmd);
+    IAM_LOGD("JsUserAuthExtension begin. persistentId: %{private}d, winCmd: %{public}d",
+        sessionInfo->persistentId, winCmd);
     Extension::OnCommandWindow(want, sessionInfo, winCmd);
     switch (winCmd) {
         case AAFwk::WIN_CMD_FOREGROUND:
@@ -232,12 +272,12 @@ void JsUserAuthExtension::OnCommandWindow(const AAFwk::Want &want, const sptr<AA
             DestroyWindow(sessionInfo);
             break;
         default:
-            HILOG_DEBUG("unsupported cmd.");
+            IAM_LOGD("JsUserAuthExtension unsupported cmd.");
             break;
     }
     auto context = GetContext();
     if (context == nullptr) {
-        HILOG_ERROR("Failed to get context");
+        IAM_LOGE("JsUserAuthExtension failed to get context");
         return;
     }
     AAFwk::AbilityCommand abilityCmd;
@@ -250,66 +290,64 @@ void JsUserAuthExtension::OnCommandWindow(const AAFwk::Want &want, const sptr<AA
     }
     AAFwk::AbilityManagerClient::GetInstance()->ScheduleCommandAbilityWindowDone(
         context->GetToken(), sessionInfo, winCmd, abilityCmd);
-    HILOG_DEBUG("end.");
+    IAM_LOGD("end.");
 }
 
 void JsUserAuthExtension::OnCommand(const AAFwk::Want &want, bool restart, int startId)
 {
     Extension::OnCommand(want, restart, startId);
-    HILOG_DEBUG("JsUserAuthExtension OnCommand begin restart=%{public}s,startId=%{public}d.",
+    IAM_LOGD("JsUserAuthExtension onCommand begin restart=%{public}s,startId=%{public}d.",
         restart ? "true" : "false", startId);
     // wrap want
     HandleScope handleScope(jsRuntime_);
-    NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
-    napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
-    NativeValue* nativeWant = reinterpret_cast<NativeValue*>(napiWant);
+    napi_env env = jsRuntime_.GetNapiEnv();
+    napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
     // wrap startId
     napi_value napiStartId = nullptr;
-    napi_create_int32(reinterpret_cast<napi_env>(nativeEngine), startId, &napiStartId);
-    NativeValue* nativeStartId = reinterpret_cast<NativeValue*>(napiStartId);
-    NativeValue* argv[] = {nativeWant, nativeStartId};
+    napi_create_int32(env, startId, &napiStartId);
+    napi_value argv[] = {napiWant, napiStartId};
     CallObjectMethod("onRequest", argv, ARGC_TWO);
-    HILOG_DEBUG("JsUserAuthExtension OnCommand end.");
+    IAM_LOGD("JsUserAuthExtension onCommand end.");
 }
 
 void JsUserAuthExtension::OnForeground(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("JsUserAuthExtension OnForeground begin.");
+    IAM_LOGD("JsUserAuthExtension onForeground begin.");
     Extension::OnForeground(want);
 
     HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onForeground");
-    HILOG_DEBUG("JsUserAuthExtension OnForeground end.");
+    IAM_LOGD("JsUserAuthExtension onForeground end.");
 }
 
 void JsUserAuthExtension::OnBackground()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("JsUserAuthExtension OnBackground begin.");
+    IAM_LOGD("JsUserAuthExtension onBackground begin.");
     HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onBackground");
     Extension::OnBackground();
-    HILOG_DEBUG("JsUserAuthExtension OnBackground end.");
+    IAM_LOGD("JsUserAuthExtension onBackground end.");
 }
 
 void JsUserAuthExtension::ForegroundWindow(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo)
 {
-    HILOG_DEBUG("begin.");
+    IAM_LOGD("JsUserAuthExtension foreground begin.");
     if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
-        HILOG_ERROR("Invalid sessionInfo.");
+        IAM_LOGE("Invalid sessionInfo.");
         return;
     }
     auto obj = sessionInfo->sessionToken;
     if (uiWindowMap_.find(obj) == uiWindowMap_.end()) {
         sptr<Rosen::WindowOption> option(new (std::nothrow) Rosen::WindowOption());
         if (option == nullptr) {
-            HILOG_ERROR("Failed to create window option");
+            IAM_LOGE("JsUserAuthExtension failed to create window option");
             return;
         }
         auto context = GetContext();
         if (context == nullptr || context->GetAbilityInfo() == nullptr) {
-            HILOG_ERROR("Failed to get context");
+            IAM_LOGE("JsUserAuthExtension failed to get context");
             return;
         }
         option->SetWindowName(context->GetBundleName() + context->GetAbilityInfo()->name);
@@ -318,19 +356,20 @@ void JsUserAuthExtension::ForegroundWindow(const AAFwk::Want &want, const sptr<A
         option->SetParentId(sessionInfo->hostWindowId);
         auto uiWindow = Rosen::Window::Create(option, GetContext(), sessionInfo->sessionToken);
         if (uiWindow == nullptr) {
-            HILOG_ERROR("create ui window error.");
+            IAM_LOGE("JsUserAuthExtension create ui window error.");
             return;
         }
         uiWindow->SetBackgroundColor(DEFAULT_BACKGROUND_COLOR);
         HandleScope handleScope(jsRuntime_);
-        NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
-        napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
-        NativeValue* nativeWant = reinterpret_cast<NativeValue*>(napiWant);
-        NativeValue* nativeContentSession =
-            JsUIExtensionContentSession::CreateJsUIExtensionContentSession(*nativeEngine, sessionInfo, uiWindow);
-        contentSessions_.emplace(
-            obj, std::shared_ptr<NativeReference>(nativeEngine->CreateReference(nativeContentSession, 1)));
-        NativeValue* argv[] = {nativeWant, nativeContentSession};
+        napi_env env = jsRuntime_.GetNapiEnv();
+        napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
+        napi_value nativeContentSession =
+            JsUIExtensionContentSession::CreateJsUIExtensionContentSession(env, sessionInfo, uiWindow);
+            
+        napi_ref tmpRef = nullptr;
+        napi_create_reference(env, nativeContentSession, 1, &tmpRef);
+        contentSessions_.emplace(obj, reinterpret_cast<NativeReference *>(tmpRef));
+        napi_value argv[] = {napiWant, nativeContentSession};
         CallObjectMethod("onSessionCreate", argv, ARGC_TWO);
         uiWindowMap_[obj] = uiWindow;
     }
@@ -339,19 +378,19 @@ void JsUserAuthExtension::ForegroundWindow(const AAFwk::Want &want, const sptr<A
         uiWindow->Show();
         foregroundWindows_.emplace(obj);
     }
-    HILOG_DEBUG("end.");
+    IAM_LOGD("JsUserAuthExtension foreground end.");
 }
 
 void JsUserAuthExtension::BackgroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
 {
-    HILOG_DEBUG("begin.");
+    IAM_LOGD("JsUserAuthExtension background begin.");
     if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
-        HILOG_ERROR("Invalid sessionInfo.");
+        IAM_LOGE("Invalid sessionInfo.");
         return;
     }
     auto obj = sessionInfo->sessionToken;
     if (uiWindowMap_.find(obj) == uiWindowMap_.end()) {
-        HILOG_ERROR("Fail to find uiWindow");
+        IAM_LOGE("JsUserAuthExtension fail to find uiWindow");
         return;
     }
     auto& uiWindow = uiWindowMap_[obj];
@@ -359,24 +398,24 @@ void JsUserAuthExtension::BackgroundWindow(const sptr<AAFwk::SessionInfo> &sessi
         uiWindow->Hide();
         foregroundWindows_.erase(obj);
     }
-    HILOG_DEBUG("end.");
+    IAM_LOGD("JsUserAuthExtension background end.");
 }
 
 void JsUserAuthExtension::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
 {
-    HILOG_DEBUG("begin.");
+    IAM_LOGD("JsUserAuthExtension destroy begin.");
     if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
-        HILOG_ERROR("Invalid sessionInfo.");
+        IAM_LOGE("JsUserAuthExtension invalid sessionInfo.");
         return;
     }
     auto obj = sessionInfo->sessionToken;
     if (uiWindowMap_.find(obj) == uiWindowMap_.end()) {
-        HILOG_ERROR("Fail to find uiWindow");
+        IAM_LOGE("JsUserAuthExtension fail to find uiWindow");
         return;
     }
     if (contentSessions_.find(obj) != contentSessions_.end() && contentSessions_[obj] != nullptr) {
         HandleScope handleScope(jsRuntime_);
-        NativeValue* argv[] = {contentSessions_[obj]->Get()};
+        napi_value argv[] = {contentSessions_[obj]->GetNapiValue()};
         CallObjectMethod("onSessionDestroy", argv, ARGC_ONE);
     }
     auto& uiWindow = uiWindowMap_[obj];
@@ -386,179 +425,202 @@ void JsUserAuthExtension::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionI
     uiWindowMap_.erase(obj);
     foregroundWindows_.erase(obj);
     contentSessions_.erase(obj);
-    HILOG_DEBUG("end.");
+    IAM_LOGD("JsUserAuthExtension destroy end.");
 }
 
-NativeValue* JsUserAuthExtension::CallObjectMethod(const char* name, NativeValue* const* argv, size_t argc)
+napi_value JsUserAuthExtension::CallObjectMethod(const char *name, const napi_value *argv, size_t argc)
 {
-    HILOG_DEBUG("JsUserAuthExtension CallObjectMethod(%{public}s), begin", name);
+    IAM_LOGD("JsUserAuthExtension call funcation %{public}s begin", name);
 
     if (!jsObj_) {
-        HILOG_ERROR("Not found UIExtension.js");
+        IAM_LOGE("JsUserAuthExtension not found UIExtension.js");
         return nullptr;
     }
 
-    auto& nativeEngine = jsRuntime_.GetNativeEngine();
-    NativeValue* value = jsObj_->Get();
-    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
-    if (obj == nullptr) {
-        HILOG_ERROR("Failed to get UIExtension object");
+    napi_env env = jsRuntime_.GetNapiEnv();
+
+    napi_value value = jsObj_->GetNapiValue();
+    if (value == nullptr) {
+        HILOG_ERROR("JsUserAuthExtension failed to get UserAuthExtension object");
         return nullptr;
     }
 
-    NativeValue* method = obj->GetProperty(name);
-    if (method == nullptr || method->TypeOf() != NATIVE_FUNCTION) {
-        HILOG_ERROR("Failed to get '%{public}s' from UIExtension object", name);
+    napi_value method = nullptr;
+    napi_get_named_property(env, value, name, &method);
+    if (!IsMethodNative(env, value, method)) {
+        IAM_LOGE("JsUserAuthExtension failed to get %{public}s from UIExtension object", name);
         return nullptr;
     }
-    HILOG_DEBUG("JsUserAuthExtension CallFunction(%{public}s), success", name);
-    return nativeEngine.CallFunction(value, method, argv, argc);
+    IAM_LOGD("JsUserAuthExtension call funcation %{public}s success", name);
+
+    napi_value callFunctionResult = nullptr;
+    if (napi_call_function(env, value, method, argc, argv, &callFunctionResult) != napi_ok) {
+        IAM_LOGE("JsUserAuthExtension call funcation %{public}s error", name);
+        return nullptr;
+    }
+    return callFunctionResult;
 }
 
-NativeValue *JsUserAuthExtension::CallOnConnect(const AAFwk::Want &want)
+napi_value JsUserAuthExtension::CallOnConnect(const AAFwk::Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     Extension::OnConnect(want);
-    HILOG_DEBUG("JsUserAuthExtension CallOnConnect begin.");
+    IAM_LOGD("JsUserAuthExtension callOnConnect begin.");
     HandleScope handleScope(jsRuntime_);
-    NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
-    napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
-    auto* nativeWant = reinterpret_cast<NativeValue*>(napiWant);
-    NativeValue* argv[] = {nativeWant};
+    napi_env env = jsRuntime_.GetNapiEnv();
+    napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
+    napi_value argv[] = {napiWant};
     if (!jsObj_) {
-        HILOG_ERROR("Not found UIExtension.js");
+        IAM_LOGE("JsUserAuthExtension not found UIExtension.js");
         return nullptr;
     }
 
-    NativeValue* value = jsObj_->Get();
-    auto* obj = ConvertNativeValueTo<NativeObject>(value);
-    if (obj == nullptr) {
-        HILOG_ERROR("Failed to get UIExtension object");
+    napi_value value = jsObj_->GetNapiValue();
+    if (value == nullptr) {
+        IAM_LOGE("JsUserAuthExtension failed to get UIExtension object");
         return nullptr;
     }
 
-    NativeValue* method = obj->GetProperty("onConnect");
+    napi_value method = nullptr;
+    napi_get_named_property(env, value, "onConnect", &method);
     if (method == nullptr) {
-        HILOG_ERROR("Failed to get onConnect from UIExtension object");
+        IAM_LOGE("JsUserAuthExtension failed to get onConnect from UIExtension object");
         return nullptr;
     }
-    NativeValue* remoteNative = nativeEngine->CallFunction(value, method, argv, ARGC_ONE);
-    if (remoteNative == nullptr) {
-        HILOG_ERROR("remoteNative is nullptr.");
+    IAM_LOGD("JsUserAuthExtension call funcation onConnect success");
+
+    napi_value callFunctionResult = nullptr;
+    if (napi_call_function(env, value, method, ARGC_ONE, argv, &callFunctionResult) != napi_ok) {
+        IAM_LOGE("JsUserAuthExtension call funcation onConnect error");
+        return nullptr;
     }
-    HILOG_DEBUG("JsUserAuthExtension CallOnConnect end.");
-    return remoteNative;
+    IAM_LOGD("JsUserAuthExtension callOnConnect end.");
+    return callFunctionResult;
 }
 
-NativeValue *JsUserAuthExtension::CallOnDisconnect(const AAFwk::Want &want, bool withResult)
+napi_value JsUserAuthExtension::CallOnDisconnect(const AAFwk::Want &want, bool withResult)
 {
     HandleEscape handleEscape(jsRuntime_);
-    NativeEngine *nativeEngine = &jsRuntime_.GetNativeEngine();
-    napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
-    NativeValue *nativeWant = reinterpret_cast<NativeValue *>(napiWant);
-    NativeValue *argv[] = { nativeWant };
+    napi_env env = jsRuntime_.GetNapiEnv();
+    napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
+    napi_value argv[] = {napiWant};
     if (!jsObj_) {
-        HILOG_ERROR("Not found UIExtension.js");
+        IAM_LOGE("JsUserAuthExtension not found UIExtension.js");
         return nullptr;
     }
 
-    NativeValue *value = jsObj_->Get();
-    NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
-    if (obj == nullptr) {
-        HILOG_ERROR("Failed to get UIExtension object");
+    napi_value value = jsObj_->GetNapiValue();
+    if (value == nullptr) {
+        IAM_LOGE("JsUserAuthExtension failed to get UIExtension object");
         return nullptr;
     }
 
-    NativeValue *method = obj->GetProperty("onDisconnect");
+    napi_value method = nullptr;
+    napi_get_named_property(env, value, "onDisconnect", &method);
     if (method == nullptr) {
-        HILOG_ERROR("Failed to get onDisconnect from UIExtension object");
+        IAM_LOGE("JsUserAuthExtension failed to get onDisconnect from UIExtension object");
+        return nullptr;
+    }
+    IAM_LOGD("JsUserAuthExtension call funcation onDisconnect success");
+
+    napi_value callFunctionResult = nullptr;
+    if (napi_call_function(env, value, method, ARGC_ONE, argv, &callFunctionResult) != napi_ok) {
+        IAM_LOGE("JsUserAuthExtension call funcation onDisconnect error");
         return nullptr;
     }
 
     if (withResult) {
-        return handleEscape.Escape(nativeEngine->CallFunction(value, method, argv, ARGC_ONE));
+        return handleEscape.Escape(callFunctionResult);
     } else {
-        nativeEngine->CallFunction(value, method, argv, ARGC_ONE);
         return nullptr;
     }
+    IAM_LOGD("JsUserAuthExtension call funcation onDisconnect end.");
 }
 
 void JsUserAuthExtension::OnConfigurationUpdated(const AppExecFwk::Configuration& configuration)
 {
     Extension::OnConfigurationUpdated(configuration);
-    HILOG_DEBUG("JsUserAuthExtension OnConfigurationUpdated called.");
+    IAM_LOGD("JsUserAuthExtension onConfigurationUpdated called.");
 
     HandleScope handleScope(jsRuntime_);
-    auto& nativeEngine = jsRuntime_.GetNativeEngine();
+    napi_env env = jsRuntime_.GetNapiEnv();
 
     // Notify extension context
     auto fullConfig = GetContext()->GetConfiguration();
     if (!fullConfig) {
-        HILOG_ERROR("configuration is nullptr.");
+        IAM_LOGE("JsUserAuthExtension configuration is nullptr.");
         return;
     }
-    JsExtensionContext::ConfigurationUpdated(&nativeEngine, shellContextRef_, fullConfig);
+    JsExtensionContext::ConfigurationUpdated(env, shellContextRef_, fullConfig);
 
-    napi_value napiConfiguration = OHOS::AppExecFwk::WrapConfiguration(
-        reinterpret_cast<napi_env>(&nativeEngine), *fullConfig);
-    NativeValue* jsConfiguration = reinterpret_cast<NativeValue*>(napiConfiguration);
-    CallObjectMethod("onConfigurationUpdate", &jsConfiguration, ARGC_ONE);
+    napi_value napiConfiguration = OHOS::AppExecFwk::WrapConfiguration(env, *fullConfig);
+    CallObjectMethod("onConfigurationUpdate", &napiConfiguration, ARGC_ONE);
+}
+
+void ConvertDumpInfo(napi_env env, napi_value callFunctionResult, std::vector<std::string> &info)
+{
+    uint32_t arrLen = 0;
+    napi_get_array_length(env, callFunctionResult, &arrLen);
+    for (uint32_t i = 0; i < arrLen; i++) {
+        napi_value item = nullptr;
+        napi_get_element(env, callFunctionResult, i, &item);
+        std::string dumpInfoStr;
+        if (!ConvertFromJsValue(env, item, dumpInfoStr)) {
+            IAM_LOGE("JsUserAuthExtension parse dumpInfoStr failed");
+            return;
+        }
+        info.push_back(dumpInfoStr);
+    }
 }
 
 void JsUserAuthExtension::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
     Extension::Dump(params, info);
-    HILOG_DEBUG("JsUserAuthExtension Dump called.");
+    IAM_LOGD("JsUserAuthExtension dump called.");
     HandleScope handleScope(jsRuntime_);
-    auto& nativeEngine = jsRuntime_.GetNativeEngine();
-    // create js array object of params
-    NativeValue* arrayValue = nativeEngine.CreateArray(params.size());
-    NativeArray* array = ConvertNativeValueTo<NativeArray>(arrayValue);
+    napi_env env = jsRuntime_.GetNapiEnv();
+    napi_value arrayValue = nullptr;
+    napi_create_array_with_length(env, params.size(), &arrayValue);
     uint32_t index = 0;
     for (const auto &param : params) {
-        array->SetElement(index++, CreateJsValue(nativeEngine, param));
+        napi_set_element(env, arrayValue, index++, CreateJsValue(env, param));
     }
-    NativeValue* argv[] = { arrayValue };
-
+    napi_value argv[] = {arrayValue};
     if (!jsObj_) {
-        HILOG_ERROR("Not found UIExtension.js");
+        IAM_LOGE("JsUserAuthExtension not found UIExtension.js");
         return;
     }
-
-    NativeValue* value = jsObj_->Get();
-    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
-    if (obj == nullptr) {
-        HILOG_ERROR("Failed to get UIExtension object");
+    napi_value value = jsObj_->GetNapiValue();
+    if (value == nullptr) {
+        IAM_LOGE("JsUserAuthExtension failed to get UIExtension object");
         return;
     }
-
-    NativeValue* method = obj->GetProperty("onDump");
-    if (method == nullptr || method->TypeOf() != NATIVE_FUNCTION) {
-        method = obj->GetProperty("dump");
-        if (method == nullptr || method->TypeOf() != NATIVE_FUNCTION) {
-            HILOG_ERROR("Failed to get onDump from UIExtension object");
+    napi_value method;
+    napi_get_named_property(env, value, "onDump", &method);
+    if (!IsMethodNative(env, value, method)) {
+        napi_get_named_property(env, value, "dump", &method);
+        if (!IsMethodNative(env, value, method)) {
+            IAM_LOGE("JsUserAuthExtension failed to get dump function from UIExtension object");
             return;
         }
     }
-    NativeValue* dumpInfo = nativeEngine.CallFunction(value, method, argv, ARGC_ONE);
-    if (dumpInfo == nullptr) {
-        HILOG_ERROR("dumpInfo is nullptr.");
+    napi_value callFunctionResult;
+    if (napi_call_function(env, value, method, ARGC_ONE, argv, &callFunctionResult) != napi_ok) {
+        IAM_LOGE("JsUserAuthExtension call funcation onDump error");
         return;
     }
-    NativeArray* dumpInfoNative = ConvertNativeValueTo<NativeArray>(dumpInfo);
-    if (dumpInfoNative == nullptr) {
-        HILOG_ERROR("dumpInfoNative is nullptr.");
+    if (callFunctionResult == nullptr) {
+        IAM_LOGE("JsUserAuthExtension dump result is nullptr.");
         return;
     }
-    for (uint32_t i = 0; i < dumpInfoNative->GetLength(); i++) {
-        std::string dumpInfoStr;
-        if (!ConvertFromJsValue(nativeEngine, dumpInfoNative->GetElement(i), dumpInfoStr)) {
-            HILOG_ERROR("Parse dumpInfoStr failed");
-            return;
-        }
-        info.push_back(dumpInfoStr);
+    bool isArray = false;
+    napi_is_array(env, callFunctionResult, &isArray);
+    if (!isArray) {
+        IAM_LOGE("JsUserAuthExtension dump result is not an array");
+        return;
     }
-    HILOG_DEBUG("Dump info size: %{public}zu", info.size());
+    ConvertDumpInfo(env, callFunctionResult, info);
+    IAM_LOGD("JsUserAuthExtension dump info size: %{public}zu", info.size());
 }
 }
 }
