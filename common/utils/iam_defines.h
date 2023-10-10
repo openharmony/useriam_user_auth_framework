@@ -39,7 +39,6 @@ enum OperationType : uint32_t {
     TRACE_UPDATE_CREDENTIAL = 4,
     TRACE_AUTH_USER = 5,
     TRACE_IDENTIFY = 6,
-    TRACE_GET_CREDENTIAL = 7,
 };
 } // namespace UserAuth
 } // namespace UserIam

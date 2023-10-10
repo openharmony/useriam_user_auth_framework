@@ -16,10 +16,8 @@
 #include "user_auth_callback_service.h"
 
 #include "callback_manager.h"
-#include "hisysevent_adapter.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
-#include "iam_time.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SDK
 
@@ -32,7 +30,6 @@ UserAuthCallbackService::UserAuthCallbackService(const std::shared_ptr<Authentic
 {
     CallbackManager::CallbackAction action = [impl]() {
         if (impl != nullptr) {
-            UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "UserAuthAuthenticationCallback");
             IAM_LOGI("user auth service death, auth callback return default result to caller");
             Attributes extraInfo;
             impl->OnResult(GENERAL_ERROR, extraInfo);
@@ -47,7 +44,6 @@ UserAuthCallbackService::UserAuthCallbackService(const std::shared_ptr<Identific
 {
     CallbackManager::CallbackAction action = [impl]() {
         if (impl != nullptr) {
-            UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "UserAuthIdentificationCallback");
             IAM_LOGI("user auth service death, identify callback return default result to caller");
             Attributes extraInfo;
             impl->OnResult(GENERAL_ERROR, extraInfo);
@@ -93,7 +89,6 @@ GetExecutorPropertyCallbackService::GetExecutorPropertyCallbackService(const std
 {
     CallbackManager::CallbackAction action = [impl]() {
         if (impl != nullptr) {
-            UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "GetExecutorPropertyCallback");
             IAM_LOGI("user auth service death, get prop callback return default result to caller");
             Attributes extraInfo;
             impl->OnResult(GENERAL_ERROR, extraInfo);
@@ -122,7 +117,6 @@ SetExecutorPropertyCallbackService::SetExecutorPropertyCallbackService(const std
 {
     CallbackManager::CallbackAction action = [impl]() {
         if (impl != nullptr) {
-            UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "SetExecutorPropertyCallback");
             IAM_LOGI("user auth service death, set prop callback return default result to caller");
             Attributes extraInfo;
             impl->OnResult(GENERAL_ERROR, extraInfo);

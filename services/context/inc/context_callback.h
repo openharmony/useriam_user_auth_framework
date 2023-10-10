@@ -40,12 +40,10 @@ public:
         std::optional<int32_t> remainTime;
         std::optional<int32_t> freezingTime;
         std::optional<int32_t> sdkVersion;
-        std::optional<uint64_t> contextId;
         std::optional<uint64_t> callingUid;
         std::optional<AuthTrustLevel> atl;
         std::optional<AuthType> authType;
         std::optional<uint32_t> authWidgetType;
-        std::optional<std::string> bundleName;
         std::chrono::time_point<std::chrono::steady_clock> startTime;
         std::chrono::time_point<std::chrono::steady_clock> endTime;
     };
@@ -65,8 +63,6 @@ public:
     virtual ~ContextCallback() = default;
     virtual void OnResult(int32_t resultCode, const Attributes &finalResult) = 0;
     virtual void OnAcquireInfo(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg) const = 0;
-    virtual void SetTraceBundleName(std::string bundleName) = 0;
-    virtual void SetTraceContextId(uint64_t contextId) = 0;
     virtual void SetTraceUserId(int32_t userId) = 0;
     virtual void SetTraceRemainTime(int32_t remainTime) = 0;
     virtual void SetTraceFreezingTime(int32_t freezingTime) = 0;
