@@ -21,7 +21,6 @@
 #include <functional>
 #include <memory>
 #include <optional>
-#include <singleton.h>
 #include <vector>
 
 #include "context.h"
@@ -32,7 +31,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class ContextCallbackNotifyListener : public Singleton<ContextCallbackNotifyListener> {
+class ContextCallbackNotifyListener {
 public:
     struct MetaData {
         OperationType operationType;
@@ -49,6 +48,7 @@ public:
         std::chrono::time_point<std::chrono::steady_clock> endTime;
     };
     using Notify = std::function<void(const MetaData &metaData)>;
+    static ContextCallbackNotifyListener &GetInstance();
     void AddNotifier(const Notify &notify);
     void Process(const MetaData &metaData);
 
