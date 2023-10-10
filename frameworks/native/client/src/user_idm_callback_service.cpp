@@ -16,10 +16,8 @@
 #include "user_idm_callback_service.h"
 
 #include "callback_manager.h"
-#include "hisysevent_adapter.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
-#include "iam_time.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_IDM_SDK
 
@@ -32,7 +30,6 @@ IdmCallbackService::IdmCallbackService(const std::shared_ptr<UserIdmClientCallba
 {
     CallbackManager::CallbackAction action = [impl]() {
         if (impl != nullptr) {
-            UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "IdmCallback");
             IAM_LOGI("user idm service death, return default result to caller");
             Attributes extraInfo;
             impl->OnResult(GENERAL_ERROR, extraInfo);
@@ -72,7 +69,6 @@ IdmGetCredInfoCallbackService::IdmGetCredInfoCallbackService(
 {
     CallbackManager::CallbackAction action = [impl]() {
         if (impl != nullptr) {
-            UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "IdmGetCredInfoCallback");
             IAM_LOGI("user idm service death, return default cred info result to caller");
             std::vector<CredentialInfo> infoList;
             impl->OnCredentialInfo(infoList);
@@ -102,7 +98,6 @@ IdmGetSecureUserInfoCallbackService::IdmGetSecureUserInfoCallbackService(
 {
     CallbackManager::CallbackAction action = [impl]() {
         if (impl != nullptr) {
-            UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "IdmGetSecureUserInfoCallback");
             IAM_LOGI("user idm service death, return default secure info to caller");
             SecUserInfo info = {};
             impl->OnSecUserInfo(info);

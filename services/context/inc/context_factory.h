@@ -49,10 +49,9 @@ public:
 
         int32_t userId {0};
         uint32_t tokenId {0};
-        uint64_t callingUid {0};
+        int32_t callingUid {0};
         std::vector<uint8_t> challenge {};
         std::vector<AuthType> authTypeList {};
-        std::string bundleName = "";
         AuthTrustLevel atl {ATL1};
         WidgetParam widgetParam {};
         std::map<AuthType, AuthProfile> authProfileMap {};

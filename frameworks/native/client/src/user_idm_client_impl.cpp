@@ -302,7 +302,6 @@ void UserIdmClientImpl::ResetProxy(const wptr<IRemoteObject> &remote)
 void UserIdmClientImpl::UserIdmImplDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     IAM_LOGI("start");
-    UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "UserIdmService");
     if (remote == nullptr) {
         IAM_LOGE("remote is nullptr");
         return;
