@@ -22,8 +22,6 @@
 #include "user_auth_extension.h"
 
 class NativeReference;
-class NativeValue;
-class NativeObject;
 
 namespace OHOS {
 namespace AbilityRuntime {
