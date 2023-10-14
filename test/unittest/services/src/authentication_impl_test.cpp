@@ -182,6 +182,26 @@ HWTEST_F(AuthenticationImplTest, AuthenticationImplTestSetEndAfterFirstFail, Tes
     authentication->SetEndAfterFirstFail(endAfterFirstFail);
 }
 
+HWTEST_F(AuthenticationImplTest, AuthenticationImplTestGetLatestError, TestSize.Level0)
+{
+    constexpr uint64_t contextId = 1234;
+    constexpr int32_t userId = 5678;
+    auto authentication = std::make_shared<AuthenticationImpl>(contextId, userId, FACE, ATL3);
+    ASSERT_NE(authentication, nullptr);
+    int32_t lastError = authentication->GetLatestError();
+    EXPECT_EQ(ResultCode::GENERAL_ERROR, lastError);
+}
+
+HWTEST_F(AuthenticationImplTest, AuthenticationImplTestGetAuthExecutorMsgs, TestSize.Level0)
+{
+    constexpr uint64_t contextId = 1234;
+    constexpr int32_t userId = 5678;
+    auto authentication = std::make_shared<AuthenticationImpl>(contextId, userId, FACE, ATL3);
+    ASSERT_NE(authentication, nullptr);
+    auto authExecutorMsgs = authentication->GetAuthExecutorMsgs();
+    EXPECT_EQ(authExecutorMsgs.size(), 0);
+}
+
 HWTEST_F(AuthenticationImplTest, AuthenticationImplTestStart, TestSize.Level0)
 {
     constexpr uint64_t contextId = 34567;
