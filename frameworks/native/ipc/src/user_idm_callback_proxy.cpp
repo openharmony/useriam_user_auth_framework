@@ -90,7 +90,7 @@ bool IdmCallbackProxy::SendRequest(uint32_t code, MessageParcel &data, MessagePa
         IAM_LOGE("failed to get remote");
         return false;
     }
-    MessageOption option(MessageOption::TF_SYNC);
+    MessageOption option(MessageOption::TF_ASYNC);
     int32_t result = remote->SendRequest(code, data, reply, option);
     if (result != SUCCESS) {
         IAM_LOGE("failed to send request, result = %{public}d", result);
@@ -149,7 +149,7 @@ bool IdmGetCredentialInfoProxy::SendRequest(uint32_t code, MessageParcel &data, 
         IAM_LOGE("failed to get remote");
         return false;
     }
-    MessageOption option(MessageOption::TF_SYNC);
+    MessageOption option(MessageOption::TF_ASYNC);
     int32_t result = remote->SendRequest(code, data, reply, option);
     if (result != SUCCESS) {
         IAM_LOGE("failed to send request result = %{public}d", result);
@@ -216,7 +216,7 @@ bool IdmGetSecureUserInfoProxy::SendRequest(uint32_t code, MessageParcel &data, 
         IAM_LOGE("failed to get remote");
         return false;
     }
-    MessageOption option(MessageOption::TF_SYNC);
+    MessageOption option(MessageOption::TF_ASYNC);
     int32_t result = remote->SendRequest(code, data, reply, option);
     if (result != SUCCESS) {
         IAM_LOGE("failed to send request result = %{public}d", result);

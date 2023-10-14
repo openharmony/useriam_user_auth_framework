@@ -90,7 +90,7 @@ bool UserAuthCallbackProxy::SendRequest(uint32_t code, MessageParcel &data, Mess
         IAM_LOGE("get remote failed");
         return false;
     }
-    MessageOption option(MessageOption::TF_SYNC);
+    MessageOption option(MessageOption::TF_ASYNC);
     int32_t result = remote->SendRequest(code, data, reply, option);
     if (result != OHOS::NO_ERROR) {
         IAM_LOGE("send request failed, result = %{public}d", result);
@@ -135,7 +135,7 @@ bool GetExecutorPropertyCallbackProxy::SendRequest(uint32_t code, MessageParcel 
         IAM_LOGE("get remote failed");
         return false;
     }
-    MessageOption option(MessageOption::TF_SYNC);
+    MessageOption option(MessageOption::TF_ASYNC);
     int32_t result = remote->SendRequest(code, data, reply, option);
     if (result != OHOS::NO_ERROR) {
         IAM_LOGE("send request failed, result = %{public}d", result);
@@ -175,7 +175,7 @@ bool SetExecutorPropertyCallbackProxy::SendRequest(uint32_t code, MessageParcel 
         IAM_LOGE("get remote failed");
         return false;
     }
-    MessageOption option(MessageOption::TF_SYNC);
+    MessageOption option(MessageOption::TF_ASYNC);
     int32_t result = remote->SendRequest(code, data, reply, option);
     if (result != OHOS::NO_ERROR) {
         IAM_LOGE("send request failed, result = %{public}d", result);
