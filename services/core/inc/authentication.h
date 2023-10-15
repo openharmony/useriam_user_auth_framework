@@ -33,6 +33,11 @@ public:
         std::vector<uint8_t> token;
         std::vector<uint8_t> rootSecret;
     };
+    struct AuthExecutorMsg {
+        uint64_t executorIndex;
+        int32_t commandId;
+        std::vector<uint8_t> msg;
+    };
     virtual ~Authentication() = default;
 
     virtual void SetExecutor(uint32_t executorIndex) = 0;
@@ -43,6 +48,7 @@ public:
     virtual bool Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
         std::shared_ptr<ScheduleNodeCallback> callback) = 0;
     virtual bool Update(const std::vector<uint8_t> &scheduleResult, AuthResultInfo &resultInfo) = 0;
+    virtual std::vector<Authentication::AuthExecutorMsg> GetAuthExecutorMsgs() const = 0;
     virtual bool Cancel() = 0;
     virtual uint32_t GetAccessTokenId() const = 0;
     virtual int32_t GetLatestError() const = 0;

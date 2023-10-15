@@ -17,7 +17,6 @@
 #include "hdi_wrapper.h"
 #include "iam_hitrace_helper.h"
 #include "iam_logger.h"
-#include "resource_node_utils.h"
 #include "schedule_node_helper.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
@@ -74,9 +73,15 @@ uint32_t AuthenticationImpl::GetAccessTokenId() const
     return tokenId_;
 }
 
+std::vector<Authentication::AuthExecutorMsg> AuthenticationImpl::GetAuthExecutorMsgs() const
+{
+    return authExecutorMsgs_;
+}
+
 bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
     std::shared_ptr<ScheduleNodeCallback> callback)
 {
+    IAM_LOGE("UserId:%{public}d AuthType:%{public}d ATL:%{public}u", userId_, authType_, atl_);
     auto hdi = HdiWrapper::GetHdiInstance();
     if (!hdi) {
         IAM_LOGE("bad hdi");
@@ -131,7 +136,8 @@ bool AuthenticationImpl::Update(const std::vector<uint8_t> &scheduleResult, Auth
     }
 
     for (auto &[executorIndex, commandId, msg] : info.msgs) {
-        ResourceNodeUtils::SendMsgToExecutor(executorIndex, commandId, msg);
+        Authentication::AuthExecutorMsg authExecutorMsg = {executorIndex, commandId, msg};
+        authExecutorMsgs_.emplace_back(authExecutorMsg);
     }
 
     resultInfo.result = static_cast<decltype(resultInfo.result)>(info.result);

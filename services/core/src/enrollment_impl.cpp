@@ -82,6 +82,7 @@ void EnrollmentImpl::SetIsUpdate(bool isUpdate)
 bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
     std::shared_ptr<ScheduleNodeCallback> callback)
 {
+    IAM_LOGE("UserId:%{public}d AuthType:%{public}d", userId_, authType_);
     auto hdi = HdiWrapper::GetHdiInstance();
     if (!hdi) {
         IAM_LOGE("bad hdi");

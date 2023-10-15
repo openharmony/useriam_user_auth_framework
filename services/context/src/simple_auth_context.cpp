@@ -19,8 +19,10 @@
 
 #include "iam_check.h"
 #include "iam_logger.h"
+#include "iam_para2str.h"
 #include "iam_ptr.h"
 #include "resource_node.h"
+#include "resource_node_utils.h"
 #include "schedule_node.h"
 #include "schedule_node_callback.h"
 
@@ -58,7 +60,7 @@ ResultCode SimpleAuthContext::SetFreezingTimeAndRemainTimes(int32_t &freezingTim
     bool getRemainTimesRet = values.GetInt32Value(Attributes::ATTR_REMAIN_TIMES, remainTimes);
     IF_FALSE_LOGE_AND_RETURN_VAL(getRemainTimesRet == true, GENERAL_ERROR);
 
-    IAM_LOGI("set freezing time and remain times success");
+    IAM_LOGI("set freezingTime:%{public}d and remainTimes:%{public}d success", freezingTime, remainTimes);
     return SUCCESS;
 }
 
@@ -99,7 +101,8 @@ bool SimpleAuthContext::OnStart()
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_[0] != nullptr, false);
     bool startScheduleRet = scheduleList_[0]->StartSchedule();
     IF_FALSE_LOGE_AND_RETURN_VAL(startScheduleRet, false);
-    IAM_LOGI("%{public}s success", GetDescription());
+    IAM_LOGI("%{public}s Schedule:%{public}s Type:%{public}d success", GetDescription(),
+        GET_MASKED_STRING(scheduleList_[0]->GetScheduleId()).c_str(), scheduleList_[0]->GetAuthType());
     return true;
 }
 
@@ -124,6 +127,7 @@ void SimpleAuthContext::OnResult(int32_t resultCode, const std::shared_ptr<Attri
         }
     }
     InvokeResultCallback(resultInfo);
+    SendAuthExecutorMsg();
     IAM_LOGI("%{public}s on result %{public}d finish", GetDescription(), resultCode);
 }
 
@@ -142,6 +146,16 @@ bool SimpleAuthContext::OnStop()
         return cancelRet;
     }
     return true;
+}
+
+void SimpleAuthContext::SendAuthExecutorMsg()
+{
+    IF_FALSE_LOGE_AND_RETURN(auth_ != nullptr);
+    auto authExecutorMsgs = auth_->GetAuthExecutorMsgs();
+    for (auto &authExecutorMsg : authExecutorMsgs) {
+        ResourceNodeUtils::SendMsgToExecutor(
+            authExecutorMsg.executorIndex, authExecutorMsg.commandId, authExecutorMsg.msg);
+    }
 }
 
 bool SimpleAuthContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &scheduleResultAttr,

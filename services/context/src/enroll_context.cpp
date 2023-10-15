@@ -16,6 +16,7 @@
 
 #include "iam_check.h"
 #include "iam_logger.h"
+#include "iam_para2str.h"
 #include "iam_ptr.h"
 #include "resource_node_utils.h"
 #include "schedule_node.h"
@@ -57,7 +58,8 @@ bool EnrollContext::OnStart()
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_[0] != nullptr, false);
     bool startScheduleRet = scheduleList_[0]->StartSchedule();
     IF_FALSE_LOGE_AND_RETURN_VAL(startScheduleRet, false);
-    IAM_LOGI("%{public}s success", GetDescription());
+    IAM_LOGI("%{public}s Schedule:%{public}s Type:%{public}d success", GetDescription(),
+        GET_MASKED_STRING(scheduleList_[0]->GetScheduleId()).c_str(), scheduleList_[0]->GetAuthType());
     return true;
 }
 
