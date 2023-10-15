@@ -38,6 +38,7 @@ public:
     bool Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
         std::shared_ptr<ScheduleNodeCallback> callback) override;
     bool Update(const std::vector<uint8_t> &scheduleResult, AuthResultInfo &resultInfo) override;
+    std::vector<Authentication::AuthExecutorMsg> GetAuthExecutorMsgs() const override;
     bool Cancel() override;
     uint32_t GetAccessTokenId() const override;
     int32_t GetLatestError() const override;
@@ -60,6 +61,7 @@ private:
     bool running_ {false};
 
     int32_t latestError_ = ResultCode::GENERAL_ERROR;
+    std::vector<Authentication::AuthExecutorMsg> authExecutorMsgs_ {};
 };
 } // namespace UserAuth
 } // namespace UserIam
