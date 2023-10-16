@@ -12,28 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef IAM_MOCK_USER_INFO_H
+#define IAM_MOCK_USER_INFO_H
 
-#ifndef USER_IDM_INTERFACE_IPC_INTERFACE_CODE_H
-#define USER_IDM_INTERFACE_IPC_INTERFACE_CODE_H
+#include <gmock/gmock.h>
 
-/* SAID: 931 */
+#include "user_info_interface.h"
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-enum UserIdmInterfaceCode : uint32_t {
-    USER_IDM_OPEN_SESSION = 0,
-    USER_IDM_CLOSE_SESSION,
-    USER_IDM_GET_CRED_INFO,
-    USER_IDM_GET_SEC_INFO,
-    USER_IDM_ADD_CREDENTIAL,
-    USER_IDM_UPDATE_CREDENTIAL,
-    USER_IDM_CANCEL,
-    USER_IDM_ENFORCE_DEL_USER,
-    USER_IDM_DEL_USER,
-    USER_IDM_DEL_CRED,
-    USER_IDM_CLEAR_REDUNDANCY_CRED,
+class MockUserInfo final : public UserInfoInterface {
+public:
+    ~MockSecureUserInfo() override = default;
+    MOCK_CONST_METHOD0(GetUserId, int32_t());
+    MOCK_CONST_METHOD0(GetPinSubType, PinSubType());
+    MOCK_CONST_METHOD0(GetSecUserId, uint64_t());
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // USER_IDM_INTERFACE_IPC_INTERFACE_CODE_H
+#endif // IAM_MOCK_USER_INFO_H

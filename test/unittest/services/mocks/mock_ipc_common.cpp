@@ -64,6 +64,26 @@ int32_t IpcCommon::GetActiveUserId(std::optional<int32_t> &userId)
     return SUCCESS;
 }
 
+int32_t IpcCommon::GetAllUserId(std::vector<int32_t> &userIds)
+{
+#ifdef HAS_OS_ACCOUNT_PART
+    std::vector<OHOS::AccountSA::OsAccountInfo> accountInfos = {};
+    ErrCode ret = AccountSA::OsAccountManager::QueryAllCreatedOsAccounts(accountInfos);
+    if (ret != ERR_OK || accountInfos.empty()) {
+        IAM_LOGE("failed to query all account id ret %{public}d count %{public}zu", ret, accountInfos.size());
+        return GENERAL_ERROR;
+    }
+
+    for (const auto &iter : accountInfos) {
+        userIds.push_back(iter.GetLocalId());
+    }
+#else
+    const int32_t DEFAULT_OS_ACCOUNT_ID = 0;
+    userIds.push_back(DEFAULT_OS_ACCOUNT_ID);
+#endif
+    return SUCCESS;
+}
+
 // for unittest only
 bool IpcCommon::CheckPermission(IPCObjectStub &stub, Permission permission)
 {

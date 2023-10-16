@@ -63,6 +63,7 @@ ohos_source_set("userauth_service_core") {
     "src/template_cache_manager.cpp",
     "src/user_idm_database_impl.cpp",
     "src/user_idm_session_controller_impl.cpp",
+    "src/user_info_impl.cpp",
     "src/widget_schedule_node_impl.cpp",
   ]
 
@@ -74,7 +75,7 @@ ohos_source_set("userauth_service_core") {
 
   external_deps = [
     "c_utils:utils",
-    "drivers_interface_user_auth:libuser_auth_proxy_1.1",
+    "drivers_interface_user_auth:libuser_auth_proxy_1.2",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "init:libbegetutil",

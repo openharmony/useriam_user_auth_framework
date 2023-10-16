@@ -861,6 +861,89 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceTestDump, TestSize.Level0)
     testArgs.push_back(u"-k");
     EXPECT_EQ(service.Dump(testFd2, testArgs), GENERAL_ERROR);
 }
+
+HWTEST_F(UserIdmServiceTest, UserIdmServiceClearRedundancyCredential001, TestSize.Level0)
+{
+    UserIdmService service(123123, true);
+    sptr<MockIdmCallback> testCallback(new (std::nothrow) MockIdmCallback());
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _))
+        .Times(2)
+        .WillOnce(
+            [](int32_t result, const Attributes &extraInfo) {
+                EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
+            }
+        )
+        .WillOnce(
+            [](int32_t result, const Attributes &extraInfo) {
+                EXPECT_EQ(result, SUCCESS);
+            }
+        );
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetAllExtUserInfo(_)).WillOnce(Return(HDF_FAILURE));
+
+    service.ClearRedundancyCredential(testCallback);
+    IpcCommon::AddPermission(CLEAR_REDUNDANCY_PERMISSION);
+    service.ClearRedundancyCredential(testCallback);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserIdmServiceTest, UserIdmServiceClearRedundancyCredential002, TestSize.Level0)
+{
+    UserIdmService service(123123, true);
+    sptr<MockIdmCallback> testCallback(new (std::nothrow) MockIdmCallback());
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _))
+        .Times(2)
+        .WillOnce(
+            [](int32_t result, const Attributes &extraInfo) {
+                EXPECT_EQ(result, HDF_SUCCESS);
+            }
+        )
+        .WillOnce(
+            [](int32_t result, const Attributes &extraInfo) {
+                EXPECT_EQ(result, HDF_SUCCESS);
+            }
+        );
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetAllExtUserInfo(_))
+        .WillRepeatedly(
+            [](std::vector<ExtUserInfo> &userInfos) {
+                ExtUserInfo info = {
+                    .userId = 100,
+                };
+                userInfos.push_back(info);
+                return HDF_SUCCESS;
+            }
+        );
+
+    EXPECT_CALL(*mockHdi, EnforceDeleteUser(_, _))
+        .Times(2)
+        .WillOnce(Return(HDF_FAILURE))
+        .WillOnce(
+            [](int32_t userId, std::vector<HdiCredentialInfo> &deletedInfos) {
+                HdiCredentialInfo info = {};
+                info.authType = static_cast<HdiAuthType>(1);
+                info.credentialId = 10;
+                info.executorIndex = 20;
+                info.executorMatcher = 30;
+                info.executorSensorHint = 40;
+                info.templateId = 50;
+                deletedInfos.emplace_back(info);
+                return HDF_SUCCESS;
+            }
+        );
+
+    IpcCommon::AddPermission(CLEAR_REDUNDANCY_PERMISSION);
+    service.ClearRedundancyCredential(testCallback);
+    service.ClearRedundancyCredential(testCallback);
+    IpcCommon::DeleteAllPermission();
+}
+
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

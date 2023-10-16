@@ -243,6 +243,15 @@ void DelCredential(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzClearRedundancyCredential(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    sptr<IdmCallbackInterface> callback = GetFuzzIdmCallback(parcel);
+    g_UserIdmService.ClearRedundancyCredential(callback);
+    IAM_LOGI("end");
+}
+
+
 using FuzzFunc = decltype(FuzzOpenSession);
 FuzzFunc *g_fuzzFuncs[] = {
     FuzzOpenSession,
@@ -255,6 +264,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzEnforceDelUser,
     FuzzDelUser,
     DelCredential,
+    FuzzClearRedundancyCredential,
     FuzzDump,
 };
 
