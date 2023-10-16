@@ -48,6 +48,8 @@ int32_t GetCurrentUserId()
 }
 }
 using OsAccountSubscriber = AccountSA::OsAccountSubscriber;
+using OsAccountSubscribeInfo = AccountSA::OsAccountSubscribeInfo;
+using OS_ACCOUNT_SUBSCRIBE_TYPE = AccountSA::OS_ACCOUNT_SUBSCRIBE_TYPE;
 
 class ServiceStatusListener : public OHOS::SystemAbilityStatusChangeStub, public NoCopyable {
 public:
@@ -64,7 +66,7 @@ private:
 
 class OsAccountIdSubscriber : public OsAccountSubscriber, public NoCopyable {
 public:
-    OsAccountIdSubscriber();
+    explicit OsAccountIdSubscriber(const OsAccountSubscribeInfo &subscribeInfo);
     ~OsAccountIdSubscriber() = default;
 
     static std::shared_ptr<OsAccountIdSubscriber> GetInstance();
@@ -127,8 +129,9 @@ void ServiceStatusListener::Subscribe()
     IAM_LOGI("subscribe os account SA service status success");
 }
 
-OsAccountIdSubscriber::OsAccountIdSubscriber()
-    : threadHandler_(ThreadHandler::GetSingleThreadInstance())
+OsAccountIdSubscriber::OsAccountIdSubscriber(const OsAccountSubscribeInfo &subscribeInfo)
+    : OsAccountSubscriber(subscribeInfo),
+      threadHandler_(ThreadHandler::GetSingleThreadInstance())
 {}
 
 void OsAccountIdSubscriber::Subscribe()
@@ -182,7 +185,10 @@ void OsAccountIdSubscriber::OnAccountsChanged(const int& id)
 
 std::shared_ptr<OsAccountIdSubscriber> OsAccountIdSubscriber::GetInstance()
 {
-    static auto subscriber = Common::MakeShared<OsAccountIdSubscriber>();
+    OsAccountSubscribeInfo subscribeInfo;
+    subscribeInfo.SetOsAccountSubscribeType(OS_ACCOUNT_SUBSCRIBE_TYPE::ACTIVED);
+
+    static auto subscriber = Common::MakeShared<OsAccountIdSubscriber>(subscribeInfo);
     if (subscriber == nullptr) {
         IAM_LOGE("OsAccountIdSubscriber is null");
     }
