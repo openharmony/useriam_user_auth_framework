@@ -56,6 +56,8 @@ int32_t UserIdmStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Message
             return DelUserStub(data, reply);
         case UserIdmInterfaceCode::USER_IDM_DEL_CRED:
             return DelCredentialStub(data, reply);
+        case UserIdmInterfaceCode::USER_IDM_CLEAR_REDUNDANCY_CRED:
+            return ClearRedundancyCredentialStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -337,6 +339,23 @@ int32_t UserIdmStub::DelCredentialStub(MessageParcel &data, MessageParcel &reply
     DelCredential(userId, credentialId, authToken, callback);
     return SUCCESS;
 }
+
+int32_t UserIdmStub::ClearRedundancyCredentialStub(MessageParcel &data, MessageParcel &reply)
+{
+    IAM_LOGI("enter");
+    ON_SCOPE_EXIT(IAM_LOGI("leave"));
+
+    sptr<IdmCallbackInterface> callback = iface_cast<IdmCallbackProxy>(data.ReadRemoteObject());
+    if (callback == nullptr) {
+        IAM_LOGE("callback is nullptr");
+        return READ_PARCEL_ERROR;
+    }
+
+    ClearRedundancyCredential(callback);
+
+    return SUCCESS;
+}
+
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

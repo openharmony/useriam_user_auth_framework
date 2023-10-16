@@ -299,6 +299,33 @@ void UserIdmClientImpl::ResetProxy(const wptr<IRemoteObject> &remote)
     IAM_LOGI("end reset proxy");
 }
 
+void UserIdmClientImpl::ClearRedundancyCredential(const std::shared_ptr<UserIdmClientCallback> &callback)
+{
+    IAM_LOGI("start");
+    if (!callback) {
+        IAM_LOGE("ClearRedundancyCredential callback is nullptr");
+        return;
+    }
+
+    auto proxy = GetProxy();
+    if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
+        Attributes extraInfo;
+        callback->OnResult(GENERAL_ERROR, extraInfo);
+        return;
+    }
+
+    sptr<IdmCallbackInterface> wrapper(new (std::nothrow) IdmCallbackService(callback));
+    if (wrapper == nullptr) {
+        IAM_LOGE("failed to create wrapper");
+        Attributes extraInfo;
+        callback->OnResult(GENERAL_ERROR, extraInfo);
+        return;
+    }
+
+    proxy->ClearRedundancyCredential(wrapper);
+}
+
 void UserIdmClientImpl::UserIdmImplDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     IAM_LOGI("start");

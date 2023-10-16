@@ -22,6 +22,7 @@
 #include "credential_info_impl.h"
 #include "iam_common_defines.h"
 #include "secure_user_info_impl.h"
+#include "user_info_impl.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -38,6 +39,7 @@ public:
         std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos) = 0;
     virtual int32_t DeleteUserEnforce(int32_t userId,
         std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos) = 0;
+    virtual std::vector<std::shared_ptr<UserInfoInterface>> GetAllExtUserInfo() = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam

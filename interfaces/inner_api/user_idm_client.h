@@ -150,6 +150,14 @@ public:
      * @return Return get security userInfo success or not(0:success; other:failed).
      */
     virtual int32_t GetSecUserInfo(int32_t userId, const std::shared_ptr<GetSecUserInfoCallback> &callback) = 0;
+
+    /**
+     * @brief clear redundancy credential.
+     *
+     * @param callback Callback of delete credentialInfo result.
+     * @return Return delete userInfo success or not(0:success; other:failed).
+     */
+    virtual void ClearRedundancyCredential(const std::shared_ptr<UserIdmClientCallback> &callback) = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam

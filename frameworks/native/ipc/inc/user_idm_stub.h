@@ -41,6 +41,7 @@ private:
     int32_t EnforceDelUserStub(MessageParcel &data, MessageParcel &reply);
     int32_t DelUserStub(MessageParcel &data, MessageParcel &reply);
     int32_t DelCredentialStub(MessageParcel &data, MessageParcel &reply);
+    int32_t ClearRedundancyCredentialStub(MessageParcel &data, MessageParcel &reply);
 };
 } // namespace UserAuth
 } // namespace UserIam

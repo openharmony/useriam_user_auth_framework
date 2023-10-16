@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,27 +13,30 @@
  * limitations under the License.
  */
 
-#ifndef USER_IDM_INTERFACE_IPC_INTERFACE_CODE_H
-#define USER_IDM_INTERFACE_IPC_INTERFACE_CODE_H
+#include "user_info_impl.h"
 
-/* SAID: 931 */
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-enum UserIdmInterfaceCode : uint32_t {
-    USER_IDM_OPEN_SESSION = 0,
-    USER_IDM_CLOSE_SESSION,
-    USER_IDM_GET_CRED_INFO,
-    USER_IDM_GET_SEC_INFO,
-    USER_IDM_ADD_CREDENTIAL,
-    USER_IDM_UPDATE_CREDENTIAL,
-    USER_IDM_CANCEL,
-    USER_IDM_ENFORCE_DEL_USER,
-    USER_IDM_DEL_USER,
-    USER_IDM_DEL_CRED,
-    USER_IDM_CLEAR_REDUNDANCY_CRED,
-};
+UserInfoImpl::UserInfoImpl(const int32_t userId, const UserInfo &userInfo) : userId_(userId), userInfo_(userInfo)
+{
+}
+
+int32_t UserInfoImpl::GetUserId() const
+{
+    return userId_;
+}
+
+uint64_t UserInfoImpl::GetSecUserId() const
+{
+    return userInfo_.secureUid;
+}
+
+PinSubType UserInfoImpl::GetPinSubType() const
+{
+    return static_cast<PinSubType>(userInfo_.pinSubType);
+}
+
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // USER_IDM_INTERFACE_IPC_INTERFACE_CODE_H

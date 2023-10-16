@@ -36,6 +36,7 @@
 #include "user_idm_session_controller.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
@@ -53,6 +54,7 @@ void UserIdmService::OnStart()
     if (!Publish(this)) {
         IAM_LOGE("failed to publish service");
     }
+    this->ClearRedundancyCredentialInner();
 }
 
 void UserIdmService::OnStop()
@@ -481,6 +483,74 @@ int UserIdmService::Dump(int fd, const std::vector<std::u16string> &args)
     dprintf(fd, "Invalid option\n");
     return GENERAL_ERROR;
 }
+
+void UserIdmService::EnforceDelUserInner(int32_t userId)
+{
+    std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
+    int32_t ret = UserIdmDatabase::Instance().DeleteUserEnforce(userId, credInfos);
+    if (ret != SUCCESS) {
+        IAM_LOGE("failed to enforce delete user");
+        return;
+    }
+
+    ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos);
+    if (ret != SUCCESS) {
+        IAM_LOGE("failed to delete executor info, error code : %{public}d", ret);
+    }
+
+    IAM_LOGI("delete user success");
+}
+
+void UserIdmService::ClearRedundancyCredentialInner()
+{
+    std::vector<int32_t> accountInfo;
+    int32_t ret = IpcCommon::GetAllUserId(accountInfo);
+    if (ret != SUCCESS) {
+        IAM_LOGE("GetAllUserId failed");
+        return;
+    }
+
+    auto userInfos = UserIdmDatabase::Instance().GetAllExtUserInfo();
+    if (userInfos.empty()) {
+        IAM_LOGE("no userInfo");
+        return;
+    }
+
+    for (const auto &iter : userInfos) {
+        int32_t userId = iter->GetUserId();
+        std::vector<int32_t>::iterator it = std::find(accountInfo.begin(), accountInfo.end(), userId);
+        if (it == accountInfo.end()) {
+            this->EnforceDelUserInner(userId);
+            IAM_LOGE("ClearRedundancytCredential, userId: %{public}d", userId);
+        }
+    }
+}
+
+void UserIdmService::ClearRedundancyCredential(const sptr<IdmCallbackInterface> &callback)
+{
+    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+
+    Attributes extraInfo;
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ENFORCE_DELETE_USER);
+    if (contextCallback == nullptr) {
+        IAM_LOGE("failed to construct context callback");
+        callback->OnResult(GENERAL_ERROR, extraInfo);
+        return;
+    }
+
+    if (!IpcCommon::CheckPermission(*this, CLEAR_REDUNDANCY_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
+        return;
+    }
+
+    std::lock_guard<std::mutex> lock(mutex_);
+    CancelCurrentEnrollIfExist();
+
+    this->ClearRedundancyCredentialInner();
+    contextCallback->OnResult(SUCCESS, extraInfo);
+}
+
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
