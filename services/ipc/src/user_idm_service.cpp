@@ -54,7 +54,6 @@ void UserIdmService::OnStart()
     if (!Publish(this)) {
         IAM_LOGE("failed to publish service");
     }
-    this->ClearRedundancyCredentialInner();
 }
 
 void UserIdmService::OnStop()
