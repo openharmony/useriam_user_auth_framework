@@ -24,7 +24,7 @@ ohos_unittest("iam_inner_api_test") {
     debug = false
     blocklist = "../../../cfi_blocklist.txt"
   }
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   include_dirs = [
     "inc",
     "mocks",

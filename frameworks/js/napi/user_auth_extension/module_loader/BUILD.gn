@@ -27,7 +27,7 @@ ohos_shared_library("user_auth_extension") {
     debug = false
     blocklist = "../../../../../cfi_blocklist.txt"
   }
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   include_dirs = [ "../interface" ]
 
   sources = [
@@ -73,7 +73,7 @@ ohos_shared_library("user_auth_extension_module") {
     debug = false
     blocklist = "../../../../../cfi_blocklist.txt"
   }
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   include_dirs = [ "../interface" ]
 
   sources = [ "user_auth_extension_module_loader.cpp" ]

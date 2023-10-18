@@ -23,7 +23,7 @@ ohos_shared_library("userauthservice") {
     debug = false
     blocklist = "../cfi_blocklist.txt"
   }
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   deps = [ "../services/ipc:userauth_services_ipc" ]
