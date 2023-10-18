@@ -30,7 +30,7 @@ ohos_shared_library("userauth_client") {
     debug = false
     blocklist = "../../../cfi_blocklist.txt"
   }
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   include_dirs = [
     "inc",
     "../../../interfaces/inner_api",

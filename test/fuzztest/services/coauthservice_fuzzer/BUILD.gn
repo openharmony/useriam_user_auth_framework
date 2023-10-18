@@ -15,7 +15,7 @@ import("//build/ohos.gni")
 import("//build/test.gni")
 
 ohos_fuzztest("CoAuthServiceFuzzTest") {
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   module_out_path = "user_auth_framework/user_auth"
   fuzz_config_file = "../coauthservice_fuzzer"
 
