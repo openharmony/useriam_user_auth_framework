@@ -105,9 +105,8 @@ int32_t IpcCommon::GetAllUserId(std::vector<int32_t> &userIds)
         return GENERAL_ERROR;
     }
 
-    for (const auto &iter : accountInfos) {
-        userIds.push_back(iter.GetLocalId());
-    }
+    std::transform(accountInfos.begin(), accountInfos.end(), userIds.begin(),
+         [](OHOS::AccountSA::OsAccountInfo &accountInfo) -> int32_t {return accountInfo.GetLocalId();});
 #else
     const int32_t DEFAULT_OS_ACCOUNT_ID = 0;
     userIds.push_back(DEFAULT_OS_ACCOUNT_ID);
