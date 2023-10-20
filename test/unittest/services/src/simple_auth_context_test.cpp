@@ -219,7 +219,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_Start_005, TestSize.Level0
             EXPECT_EQ(scheduleList.size(), 0U);
             auto scheduleNode = Common::MakeShared<MockScheduleNode>();
             EXPECT_CALL(*scheduleNode, StartSchedule()).Times(Exactly(1)).WillOnce(Return(true));
-            EXPECT_CALL(*scheduleNode, GetScheduleId()).Times(Exactly(2)).WillRepeatedly(Return(testScheduleId));
+            EXPECT_CALL(*scheduleNode, GetScheduleId()).Times(Exactly(3)).WillRepeatedly(Return(testScheduleId));
             scheduleList.push_back(scheduleNode);
             return true;
         });
