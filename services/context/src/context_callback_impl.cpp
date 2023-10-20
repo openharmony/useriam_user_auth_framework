@@ -118,6 +118,12 @@ void ContextCallbackImpl::SetCleaner(Context::ContextStopCallback callback)
     stopCallback_ = callback;
 }
 
+ContextCallbackNotifyListener &ContextCallbackNotifyListener::GetInstance()
+{
+    static ContextCallbackNotifyListener contextCallbackNotifyListener;
+    return contextCallbackNotifyListener;
+}
+
 void ContextCallbackNotifyListener::AddNotifier(const Notify &notify)
 {
     notifierList_.emplace_back(notify);
