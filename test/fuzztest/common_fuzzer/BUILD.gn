@@ -21,7 +21,7 @@ if (!defined(global_parts_info) ||
 }
 
 ohos_source_set("attributes_fuzzer") {
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   include_dirs = [ "../../../interfaces/inner_api" ]
 
   sources =
@@ -41,7 +41,7 @@ ohos_source_set("attributes_fuzzer") {
 }
 
 ohos_source_set("dfx_fuzzer") {
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   include_dirs = [ "../../../frameworks/native/common/dfx/inc" ]
 
   sources = [
@@ -65,7 +65,7 @@ ohos_source_set("dfx_fuzzer") {
 }
 
 ohos_source_set("userauth_client_ipc_fuzzer") {
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   include_dirs = [
     "../../../frameworks/native/ipc/inc",
     "../../../frameworks/native/ipc/common_defines",
@@ -103,7 +103,7 @@ ohos_source_set("userauth_client_ipc_fuzzer") {
 }
 
 ohos_source_set("userauth_service_base_fuzzer") {
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   include_dirs = [ "../../../services/base/inc" ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
@@ -137,7 +137,7 @@ ohos_source_set("userauth_service_base_fuzzer") {
 }
 
 ohos_source_set("userauth_service_core_fuzzer") {
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   include_dirs = [
     "../../../services/core/inc",
     "../../../services/core/src",
@@ -201,7 +201,7 @@ ohos_source_set("userauth_service_core_fuzzer") {
 }
 
 ohos_source_set("userauth_service_context_fuzzer") {
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   include_dirs = [
     "inc",
     "../../../frameworks/js/napi/user_auth/inc",
@@ -262,7 +262,7 @@ ohos_source_set("userauth_service_context_fuzzer") {
 }
 
 ohos_source_set("userauth_service_ipc_fuzzer") {
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   include_dirs = [
     "../../../frameworks/native/ipc/inc",
     "../../../frameworks/native/ipc/common_defines",
@@ -300,7 +300,7 @@ ohos_source_set("userauth_service_ipc_fuzzer") {
 }
 
 ohos_source_set("userauth_services_ipc_fuzzer") {
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   include_dirs = [
     "../../../services/ipc/inc",
     "../../../frameworks/js/napi/user_auth/inc",
@@ -354,7 +354,7 @@ ohos_source_set("userauth_services_ipc_fuzzer") {
 }
 
 ohos_source_set("iam_thread_pool_fuzzer") {
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   include_dirs = [
     "thread_pool",
     "../../../common/logs",
@@ -374,7 +374,7 @@ ohos_source_set("iam_thread_pool_fuzzer") {
 }
 
 ohos_source_set("iam_utils_fuzzer") {
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   include_dirs = [
     "../../../common/utils",
     "../../../common/logs",

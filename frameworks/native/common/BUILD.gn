@@ -27,7 +27,7 @@ ohos_source_set("attributes") {
     debug = false
     blocklist = "../../../cfi_blocklist.txt"
   }
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   include_dirs = [ "../../../interfaces/inner_api" ]
 
   sources = [ "attributes/src/attributes.cpp" ]
@@ -59,7 +59,7 @@ ohos_source_set("dfx") {
     debug = false
     blocklist = "../../../cfi_blocklist.txt"
   }
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   include_dirs = [ "dfx/inc" ]
 
   sources = [

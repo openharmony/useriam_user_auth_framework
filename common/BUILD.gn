@@ -31,7 +31,7 @@ ohos_source_set("iam_thread_pool") {
     debug = false
     blocklist = "../cfi_blocklist.txt"
   }
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   include_dirs = [
     "thread_pool",
     "logs",
@@ -64,7 +64,7 @@ ohos_source_set("iam_utils") {
     debug = false
     blocklist = "../cfi_blocklist.txt"
   }
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   include_dirs = [
     "utils",
     "logs",
