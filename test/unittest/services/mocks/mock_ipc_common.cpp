@@ -69,13 +69,18 @@ int32_t IpcCommon::GetAllUserId(std::vector<int32_t> &userIds)
 #ifdef HAS_OS_ACCOUNT_PART
     std::vector<OHOS::AccountSA::OsAccountInfo> accountInfos = {};
     ErrCode ret = AccountSA::OsAccountManager::QueryAllCreatedOsAccounts(accountInfos);
-    if (ret != ERR_OK || accountInfos.empty()) {
-        IAM_LOGE("failed to query all account id ret %{public}d count %{public}zu", ret, accountInfos.size());
+    if (ret != ERR_OK) {
+        IAM_LOGE("failed to query all account id ret %{public}d ", ret);
         return GENERAL_ERROR;
     }
 
-    std::transform(accountInfos.begin(), accountInfos.end(), userIds.begin(),
-         [](OHOS::AccountSA::OsAccountInfo &accountInfo) -> int32_t { return accountInfo.GetLocalId(); });
+    if (accountInfos.empty()) {
+        IAM_LOGE("accountInfos count %{public}zu", accountInfos.size());
+        return SUCCESS;
+    }
+
+    std::transform(accountInfos.begin(), accountInfos.end(), std::back_inserter(userIds),
+        [](auto &iter) { return iter.GetLocalId(); });
 #else
     const int32_t DEFAULT_OS_ACCOUNT_ID = 0;
     userIds.push_back(DEFAULT_OS_ACCOUNT_ID);
