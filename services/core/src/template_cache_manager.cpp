@@ -25,6 +25,7 @@
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
+#include "context_pool.h"
 #include "resource_node_pool.h"
 #include "resource_node_utils.h"
 #include "user_idm_database.h"
@@ -97,6 +98,7 @@ void ServiceStatusListener::OnRemoveSystemAbility(int32_t systemAbilityId, const
 
     IAM_LOGE("os account service removed");
     OsAccountIdSubscriber::Unsubscribe();
+    ContextPool::Instance().CancelAll();
     IAM_LOGI("os account service remove process finish");
 }
 

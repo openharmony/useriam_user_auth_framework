@@ -34,6 +34,7 @@ public:
     static ContextPool &Instance();
     virtual bool Insert(const std::shared_ptr<Context> &context) = 0;
     virtual bool Delete(uint64_t contextId) = 0;
+    virtual void CancelAll() const = 0;
     virtual std::weak_ptr<Context> Select(uint64_t contextId) const = 0;
     virtual std::vector<std::weak_ptr<Context>> Select(ContextType contextType) const = 0;
     virtual std::shared_ptr<ScheduleNode> SelectScheduleNodeByScheduleId(uint64_t scheduleId) = 0;
