@@ -488,20 +488,22 @@ void UserIdmService::EnforceDelUserInner(int32_t userId)
     std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
     int32_t ret = UserIdmDatabase::Instance().DeleteUserEnforce(userId, credInfos);
     if (ret != SUCCESS) {
-        IAM_LOGE("failed to enforce delete user");
+        IAM_LOGE("failed to enforce delete user, ret:%{public}d", ret);
         return;
     }
 
     ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos);
     if (ret != SUCCESS) {
         IAM_LOGE("failed to delete executor info, error code : %{public}d", ret);
+        return;
     }
 
-    IAM_LOGI("delete user success");
+    IAM_LOGI("delete user success, userId:%{public}d", userId);
 }
 
 void UserIdmService::ClearRedundancyCredentialInner()
 {
+    IAM_LOGE("start");
     std::vector<int32_t> accountInfo;
     int32_t ret = IpcCommon::GetAllUserId(accountInfo);
     if (ret != SUCCESS) {
@@ -527,6 +529,7 @@ void UserIdmService::ClearRedundancyCredentialInner()
 
 void UserIdmService::ClearRedundancyCredential(const sptr<IdmCallbackInterface> &callback)
 {
+    IAM_LOGE("start");
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
 
     Attributes extraInfo;
