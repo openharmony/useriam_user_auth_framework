@@ -23,6 +23,7 @@
 #include <openssl/rand.h>
 
 #include "iam_logger.h"
+#include "iam_para2str.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 
@@ -33,6 +34,7 @@ class ContextPoolImpl final : public ContextPool, public Singleton<ContextPoolIm
 public:
     bool Insert(const std::shared_ptr<Context> &context) override;
     bool Delete(uint64_t contextId) override;
+    void CancelAll() const override;
     std::weak_ptr<Context> Select(uint64_t contextId) const override;
     std::vector<std::weak_ptr<Context>> Select(ContextType contextType) const override;
     std::shared_ptr<ScheduleNode> SelectScheduleNodeByScheduleId(uint64_t scheduleId) override;
@@ -81,6 +83,21 @@ bool ContextPoolImpl::Delete(uint64_t contextId)
         }
     }
     return true;
+}
+
+void ContextPoolImpl::CancelAll() const
+{
+    IAM_LOGI("start");
+    std::lock_guard<std::mutex> lock(poolMutex_);
+    for (const auto &context : contextMap_) {
+        if (context.second == nullptr) {
+            continue;
+        }
+        IAM_LOGI("cancel context %{public}s", GET_MASKED_STRING(context.second->GetContextId()).c_str());
+        if (!context.second->Stop()) {
+            IAM_LOGE("cancel context %{public}s fail", GET_MASKED_STRING(context.second->GetContextId()).c_str());
+        }
+    }
 }
 
 std::weak_ptr<Context> ContextPoolImpl::Select(uint64_t contextId) const
