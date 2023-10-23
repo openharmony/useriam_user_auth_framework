@@ -251,7 +251,6 @@ void FuzzClearRedundancyCredential(Parcel &parcel)
     IAM_LOGI("end");
 }
 
-
 using FuzzFunc = decltype(FuzzOpenSession);
 FuzzFunc *g_fuzzFuncs[] = {
     FuzzOpenSession,

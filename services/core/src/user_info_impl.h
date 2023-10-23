@@ -26,7 +26,7 @@ namespace UserIam {
 namespace UserAuth {
 class UserInfoImpl final : public UserInfoInterface, public NoCopyable {
 public:
-    UserInfoImpl(const int32_t userId, const UserInfo &info);
+    UserInfoImpl(const int32_t userId, const UserInfo &userInfo);
     ~UserInfoImpl() override = default;
     int32_t GetUserId() const override;
     uint64_t GetSecUserId() const override;
