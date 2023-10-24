@@ -64,13 +64,17 @@ private:
         AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback);
     std::shared_ptr<ContextCallback> GetAuthContextCallback(const AuthParam &authParam,
         const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback);
+    bool CheckAuthTrustLevel(AuthTrustLevel authTrustLevel);
     ResultCode CheckNorthPermission(AuthType authType);
     ResultCode CheckServicePermission(AuthType authType);
-    ResultCode CheckWidgetNorthPermission();
-    ResultCode CheckAuthWidgetParam(const AuthParam &authParam, const WidgetParam &widgetParam);
+    bool CheckSingeFaceOrFinger(const std::vector<AuthType> &authType);
+    int32_t CheckAuthWidgetType(const std::vector<AuthType> &authType);
+    int32_t CheckAuthWidgetParam(
+        int32_t userId, const AuthParam &authParam, const WidgetParam &widgetParam, std::vector<AuthType> &validType);
+    uint64_t StartWidgetContext(int32_t userId, const std::shared_ptr<ContextCallback> &contextCallback,
+        const AuthParam &authParam, const WidgetParam &widgetParam, std::vector<AuthType> &validType);
     bool Insert2ContextPool(const std::shared_ptr<Context> &context);
     bool CheckCallerIsSystemApp();
-    ResultCode CheckParam(const AuthParam &authParam, const WidgetParam &widgetParam);
 };
 } // namespace UserAuth
 } // namespace UserIam
