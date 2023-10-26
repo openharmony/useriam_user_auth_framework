@@ -26,10 +26,11 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 
-bool AuthWidgetHelper::InitWidgetContextParam(int32_t userId, const AuthParam &authParam,
+bool AuthWidgetHelper::InitWidgetContextParam(
+    int32_t userId, const AuthParam &authParam, std::vector<AuthType> &validType,
     const WidgetParam &widgetParam, ContextFactory::AuthWidgetContextPara &para)
 {
-    for (auto &authType : authParam.authType) {
+    for (auto &authType : validType) {
         ContextFactory::AuthWidgetContextPara::AuthProfile profile;
         if (!GetUserAuthProfile(userId, authType, profile, para.callingUid)) {
             IAM_LOGE("get user auth profile failed");
@@ -43,7 +44,7 @@ bool AuthWidgetHelper::InitWidgetContextParam(int32_t userId, const AuthParam &a
         }
     }
     para.challenge = std::move(authParam.challenge);
-    para.authTypeList = authParam.authType;
+    para.authTypeList = std::move(validType);
     para.atl = authParam.authTrustLevel;
     para.widgetParam = widgetParam;
     if (widgetParam.windowMode == WindowModeType::UNKNOWN_WINDOW_MODE) {
@@ -121,25 +122,30 @@ bool AuthWidgetHelper::ParseAttributes(const Attributes &values, const AuthType 
 }
 
 int32_t AuthWidgetHelper::CheckValidSolution(int32_t userId,
-    const std::vector<AuthType> &authTypeList, const AuthTrustLevel &atl)
+    const std::vector<AuthType> &authTypeList, const AuthTrustLevel &atl, std::vector<AuthType> &validTypeList)
 {
+    IAM_LOGE("start userId:%{public}d atl:%{public}u typeSize:%{public}zu", userId, atl, authTypeList.size());
     auto hdi = HdiWrapper::GetHdiInstance();
-    IAM_LOGE("hdi interface authTypeList start");
     if (hdi == nullptr) {
         IAM_LOGE("hdi interface is nullptr");
         return GENERAL_ERROR;
     }
-    std::vector<HdiAuthType> inputAuthType, validTypes;
+    std::vector<HdiAuthType> inputAuthType;
+    std::vector<HdiAuthType> validTypes;
     uint32_t inputAtl = atl;
-    IAM_LOGE("hdi interface authTypeList size is:%{public}zu", authTypeList.size());
-    for (size_t index = 0; index < authTypeList.size(); index++) {
-        inputAuthType.emplace_back(static_cast<HdiAuthType>(authTypeList[index]));
-        IAM_LOGE("hdi interface authTypeList now index is:%{public}zu", index);
+    for (auto &type : authTypeList) {
+        inputAuthType.emplace_back(static_cast<HdiAuthType>(type));
     }
     int32_t result = hdi->GetValidSolution(userId, inputAuthType, inputAtl, validTypes);
     if (result != SUCCESS) {
         IAM_LOGE("failed to get current supported authTrustLevel from hdi result:%{public}d userId:%{public}d",
             result, userId);
+        return result;
+    }
+    validTypeList.clear();
+    for (auto &type : validTypes) {
+        IAM_LOGI("get valid authType:%{public}d", type);
+        validTypeList.emplace_back(static_cast<AuthType>(type));
     }
     return result;
 }

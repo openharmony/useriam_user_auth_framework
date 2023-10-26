@@ -115,6 +115,16 @@ void UserAuthService::OnStop()
     IAM_LOGI("stop service");
 }
 
+bool UserAuthService::CheckAuthTrustLevel(AuthTrustLevel authTrustLevel)
+{
+    if ((authTrustLevel != ATL1) && (authTrustLevel != ATL2) &&
+        (authTrustLevel != ATL3) && (authTrustLevel != ATL4)) {
+        IAM_LOGE("authTrustLevel is support %{public}u", authTrustLevel);
+        return false;
+    }
+    return true;
+}
+
 int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel)
 {
     IAM_LOGI("start");
@@ -123,7 +133,7 @@ int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authTyp
         IAM_LOGE("failed to check permission");
         return checkRet;
     }
-    if (authTrustLevel != ATL1 && authTrustLevel != ATL2 && authTrustLevel != ATL3 && authTrustLevel != ATL4) {
+    if (!CheckAuthTrustLevel(authTrustLevel)) {
         IAM_LOGE("authTrustLevel is not in correct range");
         return TRUST_LEVEL_NOT_SUPPORT;
     }
@@ -260,74 +270,12 @@ ResultCode UserAuthService::CheckNorthPermission(AuthType authType)
     return SUCCESS;
 }
 
-ResultCode UserAuthService::CheckWidgetNorthPermission()
-{
-    if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
-        IAM_LOGE("CheckWidgetNorthPermission failed, no permission");
-        return ResultCode::CHECK_PERMISSION_FAILED;
-    }
-    return ResultCode::SUCCESS;
-}
-
 ResultCode UserAuthService::CheckServicePermission(AuthType authType)
 {
     if (IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         return SUCCESS;
     }
     return CheckNorthPermission(authType);
-}
-
-ResultCode UserAuthService::CheckAuthWidgetParam(const AuthParam &authParam, const WidgetParam &widgetParam)
-{
-    if (authParam.authType.size() == 0 || authParam.authType.size() > MAX_AUTH_TYPE_SIZE) {
-        IAM_LOGE("invalid authType size:%{public}zu", authParam.authType.size());
-        return ResultCode::INVALID_PARAMETERS;
-    }
-
-    std::set<AuthType> authTypeChecker = {};
-    for (auto &type : authParam.authType) {
-        if (authTypeChecker.find(type) != authTypeChecker.end()) {
-            IAM_LOGE("duplicate auth type");
-            return ResultCode::INVALID_PARAMETERS;
-        }
-        switch (type) {
-            case AuthType::PIN:
-            case AuthType::FACE:
-            case AuthType::FINGERPRINT:
-                break;
-            default:
-                IAM_LOGE("invalid auth type");
-                return ResultCode::TYPE_NOT_SUPPORT;
-        }
-        authTypeChecker.emplace(type);
-    }
-
-    if (authParam.authTrustLevel != AuthTrustLevel::ATL1 && authParam.authTrustLevel != AuthTrustLevel::ATL2
-        && authParam.authTrustLevel != AuthTrustLevel::ATL3 && authParam.authTrustLevel != AuthTrustLevel::ATL4) {
-        IAM_LOGE("authType not match with trustLevel: %{public}u", authParam.authTrustLevel);
-        return ResultCode::TRUST_LEVEL_NOT_SUPPORT;
-    }
-
-    if (widgetParam.title == "") {
-        IAM_LOGE("title shouldn't be empty");
-        return ResultCode::INVALID_PARAMETERS;
-    }
-
-    if (widgetParam.navigationButtonText != "") {
-        IAM_LOGI("authParam.authType.size() = %{public}zu", authParam.authType.size());
-        if (authParam.authType.size() != 1 || (authParam.authType[0] != AuthType::FACE &&
-            authParam.authType[0] != AuthType::FINGERPRINT)) {
-            IAM_LOGE("navigationButtonText check fail");
-            return ResultCode::INVALID_PARAMETERS;
-        }
-    }
-
-    if (widgetParam.windowMode == FULLSCREEN && authParam.authType.size() == 1 &&
-        (authParam.authType[0] == AuthType::FACE || authParam.authType[0] == AuthType::FINGERPRINT)) {
-        IAM_LOGE("Single fingerprint or single face does not support full screen");
-        return ResultCode::GENERAL_ERROR;
-    }
-    return ResultCode::SUCCESS;
 }
 
 std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(const std::vector<uint8_t> &challenge,
@@ -374,7 +322,7 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
         return BAD_CONTEXT_ID;
     }
     contextCallback->SetTraceUserId(userId);
-    if (authTrustLevel != ATL1 && authTrustLevel != ATL2 && authTrustLevel != ATL3 && authTrustLevel != ATL4) {
+    if (!CheckAuthTrustLevel(authTrustLevel)) {
         IAM_LOGE("authTrustLevel is not in correct range");
         contextCallback->OnResult(TRUST_LEVEL_NOT_SUPPORT, extraInfo);
         return BAD_CONTEXT_ID;
@@ -415,7 +363,7 @@ uint64_t UserAuthService::AuthUser(int32_t userId, const std::vector<uint8_t> &c
     }
     contextCallback->SetTraceUserId(userId);
     Attributes extraInfo;
-    if (authTrustLevel < ATL1 || authTrustLevel > ATL4) {
+    if (!CheckAuthTrustLevel(authTrustLevel)) {
         IAM_LOGE("authTrustLevel is not in correct range");
         contextCallback->OnResult(TRUST_LEVEL_NOT_SUPPORT, extraInfo);
         return BAD_CONTEXT_ID;
@@ -539,59 +487,101 @@ int32_t UserAuthService::GetVersion(int32_t &version)
     return SUCCESS;
 }
 
-ResultCode UserAuthService::CheckParam(const AuthParam &authParam, const WidgetParam &widgetParam)
+int32_t UserAuthService::CheckAuthWidgetType(const std::vector<AuthType> &authType)
 {
-    if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP) &&
-        widgetParam.windowMode != WindowModeType::UNKNOWN_WINDOW_MODE) {
-        IAM_LOGE("normal app can't set window mode.");
+    if (authType.empty() || (authType.size() > MAX_AUTH_TYPE_SIZE)) {
+        IAM_LOGE("invalid authType size:%{public}zu", authType.size());
         return INVALID_PARAMETERS;
     }
-    ResultCode checkRet = CheckWidgetNorthPermission();
-    if (checkRet != SUCCESS) {
-        IAM_LOGE("CheckWidgetNorthPermission failed. errCode: %{public}d", checkRet);
-        return checkRet;
+    for (auto &type : authType) {
+        if ((type != AuthType::PIN) && (type != AuthType::FACE) && (type != AuthType::FINGERPRINT)) {
+            IAM_LOGE("unsupport auth type %{public}d", type);
+            return TYPE_NOT_SUPPORT;
+        }
     }
-    checkRet = CheckAuthWidgetParam(authParam, widgetParam);
-    if (checkRet != SUCCESS) {
-        IAM_LOGE("parameter failed. errCode: %{public}d", checkRet);
-        return checkRet;
+    std::set<AuthType> typeChecker(authType.begin(), authType.end());
+    if (typeChecker.size() != authType.size()) {
+        IAM_LOGE("duplicate auth type");
+        return INVALID_PARAMETERS;
     }
     return SUCCESS;
 }
 
-uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParam &authParam,
-    const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback)
+bool UserAuthService::CheckSingeFaceOrFinger(const std::vector<AuthType> &authType)
 {
-    IAM_LOGI("start");
-    auto contextCallback = GetAuthContextCallback(authParam, widgetParam, callback);
-    if (contextCallback == nullptr) {
-        IAM_LOGE("contextCallback is nullptr");
-        return BAD_CONTEXT_ID;
+    const size_t sizeOne = 1;
+    const size_t type0 = 0;
+    if (authType.size() != sizeOne) {
+        return false;
     }
-    Attributes extraInfo;
-    ResultCode checkRet = CheckParam(authParam, widgetParam);
-    if (checkRet != SUCCESS) {
-        contextCallback->OnResult(checkRet, extraInfo);
-        return BAD_CONTEXT_ID;
+    if (authType[type0] == AuthType::FACE) {
+        return true;
     }
-    int32_t userId;
-    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
-        IAM_LOGE("get callingUserId failed");
-        contextCallback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
-        return BAD_CONTEXT_ID;
+    if (authType[type0] == AuthType::FINGERPRINT) {
+        return true;
     }
-    contextCallback->SetTraceUserId(userId);
-    int32_t ret = AuthWidgetHelper::CheckValidSolution(userId, authParam.authType, authParam.authTrustLevel);
+    return false;
+}
+
+int32_t UserAuthService::CheckAuthWidgetParam(
+    int32_t userId, const AuthParam &authParam, const WidgetParam &widgetParam, std::vector<AuthType> &validType)
+{
+    int32_t ret = CheckAuthWidgetType(authParam.authType);
     if (ret != SUCCESS) {
-        contextCallback->OnResult(ret, extraInfo);
-        return BAD_CONTEXT_ID;
+        IAM_LOGE("CheckAuthWidgetType fail.");
+        return ret;
+    }
+    if (!CheckAuthTrustLevel(authParam.authTrustLevel)) {
+        IAM_LOGE("authTrustLevel is not in correct range");
+        return ResultCode::TRUST_LEVEL_NOT_SUPPORT;
+    }
+    ret = AuthWidgetHelper::CheckValidSolution(
+        userId, authParam.authType, authParam.authTrustLevel, validType);
+    if (ret != SUCCESS) {
+        IAM_LOGE("CheckValidSolution fail %{public}d", ret);
+        return ret;
+    }
+    static const size_t validSizeTwo = 2;
+    static const size_t validType0 = 0;
+    static const size_t validType1 = 1;
+    if (((validType.size() == validSizeTwo) &&
+            (validType[validType0] == AuthType::FACE) && (validType[validType1] == AuthType::FINGERPRINT)) ||
+        ((validType.size() == validSizeTwo) &&
+            (validType[validType0] == AuthType::FINGERPRINT) && (validType[validType1] == AuthType::FACE))) {
+        IAM_LOGE("only face and finger not support");
+        return INVALID_PARAMETERS;
     }
 
+    if (widgetParam.title.empty()) {
+        IAM_LOGE("title is empty");
+        return INVALID_PARAMETERS;
+    }
+    if (!widgetParam.navigationButtonText.empty() && !CheckSingeFaceOrFinger(validType)) {
+        IAM_LOGE("navigationButtonText check fail, validType.size:%{public}zu", validType.size());
+        return INVALID_PARAMETERS;
+    }
+
+    if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP) &&
+        (widgetParam.windowMode != WindowModeType::UNKNOWN_WINDOW_MODE)) {
+        IAM_LOGE("normal app can't set window mode.");
+        return INVALID_PARAMETERS;
+    }
+    if (widgetParam.windowMode == FULLSCREEN && CheckSingeFaceOrFinger(validType)) {
+        IAM_LOGE("Single fingerprint or single face does not support full screen");
+        return INVALID_PARAMETERS;
+    }
+    return SUCCESS;
+}
+
+uint64_t UserAuthService::StartWidgetContext(int32_t userId, const std::shared_ptr<ContextCallback> &contextCallback,
+    const AuthParam &authParam, const WidgetParam &widgetParam, std::vector<AuthType> &validType)
+{
+    Attributes extraInfo;
     ContextFactory::AuthWidgetContextPara para;
     para.userId = userId;
     para.tokenId = IpcCommon::GetAccessTokenId(*this);
     para.callingUid = GetCallingUid();
-    if (!AuthWidgetHelper::InitWidgetContextParam(userId, authParam, widgetParam, para)) {
+    if (!AuthWidgetHelper::InitWidgetContextParam(userId, authParam, validType, widgetParam, para)) {
         IAM_LOGE("init widgetContext failed");
         contextCallback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
@@ -605,12 +595,42 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParam &authPa
     contextCallback->SetCleaner(ContextHelper::Cleaner(context));
     if (!context->Start()) {
         int32_t errorCode = context->GetLatestError();
-        IAM_LOGE("failed to start auth apiVersion:%{public}d errorCode:%{public}d", apiVersion, errorCode);
+        IAM_LOGE("start widget context fail %{public}d", errorCode);
         contextCallback->OnResult(errorCode, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    IAM_LOGI("authWidget end, receive message success.");
     return context->GetContextId();
+}
+
+uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParam &authParam,
+    const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback)
+{
+    IAM_LOGI("start %{public}d authTrustLevel:%{public}u", apiVersion, authParam.authTrustLevel);
+    auto contextCallback = GetAuthContextCallback(authParam, widgetParam, callback);
+    if (contextCallback == nullptr) {
+        IAM_LOGE("contextCallback is nullptr");
+        return BAD_CONTEXT_ID;
+    }
+    Attributes extraInfo;
+    if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
+        IAM_LOGE("CheckPermission failed");
+        contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
+    int32_t userId;
+    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
+        IAM_LOGE("get callingUserId failed");
+        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
+    contextCallback->SetTraceUserId(userId);
+    std::vector<AuthType> validType;
+    int32_t checkRet = CheckAuthWidgetParam(userId, authParam, widgetParam, validType);
+    if (checkRet != SUCCESS) {
+        contextCallback->OnResult(checkRet, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
+    return StartWidgetContext(userId, contextCallback, authParam, widgetParam, validType);
 }
 
 bool UserAuthService::Insert2ContextPool(const std::shared_ptr<Context> &context)
@@ -649,15 +669,15 @@ std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(const A
     for (const auto authType : authParam.authType) {
         authWidgetType |= static_cast<uint32_t>(authType);
     }
-    static const uint32_t BIT_WINDOW_MODE = 0x40000000;
+    static const uint32_t bitWindowMode = 0x40000000;
     if (widgetParam.windowMode == FULLSCREEN) {
-        authWidgetType |= BIT_WINDOW_MODE;
+        authWidgetType |= bitWindowMode;
     }
-    static const uint32_t BIT_NAVIGATION = 0x80000000;
+    static const uint32_t bitNavigation = 0x80000000;
     if (!widgetParam.navigationButtonText.empty()) {
-        authWidgetType |= BIT_NAVIGATION;
+        authWidgetType |= bitNavigation;
     }
-    IAM_LOGE("SetTraceAuthWidgetType %{public}u", authWidgetType);
+    IAM_LOGI("SetTraceAuthWidgetType %{public}08x", authWidgetType);
     contextCallback->SetTraceAuthWidgetType(authWidgetType);
 
     return contextCallback;
@@ -686,7 +706,7 @@ int32_t UserAuthService::RegisterWidgetCallback(int32_t version, sptr<WidgetCall
     }
 
     if (!IpcCommon::CheckPermission(*this, SUPPORT_USER_AUTH)) {
-        IAM_LOGE("CheckWidgetNorthPermission failed, no permission");
+        IAM_LOGE("CheckPermission failed, no permission");
         return ResultCode::CHECK_PERMISSION_FAILED;
     }
 
