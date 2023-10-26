@@ -66,9 +66,26 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam001, Te
     WidgetParam widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "确定";
-    Attributes values;
     ContextFactory::AuthWidgetContextPara para;
-    EXPECT_FALSE(AuthWidgetHelper::InitWidgetContextParam(userId, authParam, widgetParam, para));
+    std::vector<AuthType> validType;
+    EXPECT_TRUE(AuthWidgetHelper::InitWidgetContextParam(userId, authParam, validType, widgetParam, para));
+}
+
+HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam002, TestSize.Level0)
+{
+    int32_t userId = 1;
+    AuthParam authParam;
+    authParam.authType.push_back(FACE);
+    authParam.authType.push_back(ALL);
+    authParam.authType.push_back(PIN);
+    authParam.authType.push_back(FINGERPRINT);
+    authParam.authTrustLevel = ATL2;
+    WidgetParam widgetParam;
+    widgetParam.title = "使用密码验证";
+    widgetParam.navigationButtonText = "确定";
+    ContextFactory::AuthWidgetContextPara para;
+    std::vector<AuthType> validType = authParam.authType;
+    EXPECT_FALSE(AuthWidgetHelper::InitWidgetContextParam(userId, authParam, validType, widgetParam, para));
 }
 
 HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckValidSolution, TestSize.Level0)
@@ -80,7 +97,8 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckValidSolution, TestSize.
     authTypeList.push_back(PIN);
     authTypeList.push_back(FINGERPRINT);
     AuthTrustLevel atl = ATL3;
-    EXPECT_FALSE(AuthWidgetHelper::CheckValidSolution(userId, authTypeList, atl));
+    std::vector<AuthType> validTypeList;
+    EXPECT_FALSE(AuthWidgetHelper::CheckValidSolution(userId, authTypeList, atl, validTypeList));
 }
 } // namespace UserAuth
 } // namespace UserIam

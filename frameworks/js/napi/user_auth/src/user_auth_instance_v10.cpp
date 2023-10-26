@@ -15,6 +15,7 @@
 
 #include "user_auth_instance_v10.h"
 
+#include <algorithm>
 #include <string>
 
 #include "iam_logger.h"
@@ -88,18 +89,23 @@ UserAuthResultCode UserAuthInstanceV10::InitAuthType(napi_env env, napi_value va
             napi_close_handle_scope(env, scope);
             continue;
         }
-        uint32_t value = 0;
-        napi_status ret = UserAuthNapiHelper::GetUint32Value(env, jsValue, value);
+        int32_t value = 0;
+        napi_status ret = UserAuthNapiHelper::GetInt32Value(env, jsValue, value);
         napi_close_handle_scope(env, scope);
         if (ret != napi_ok) {
             IAM_LOGE("napi authType GetUint32Value fail:%{public}d", ret);
             return UserAuthResultCode::OHOS_INVALID_PARAM;
         }
+        IAM_LOGI("napi get authType:%{public}d", value);
         if (!UserAuthNapiHelper::CheckUserAuthType(value)) {
-            IAM_LOGE("authType is illegal, %{public}u", value);
+            IAM_LOGE("authType is illegal, %{public}d", value);
             return UserAuthResultCode::TYPE_NOT_SUPPORT;
         }
-        IAM_LOGI("napi authType: %{public}u", value);
+        auto iter = std::find(authParam_.authType.begin(), authParam_.authType.end(), static_cast<AuthType>(value));
+        if (iter != authParam_.authType.end()) {
+            IAM_LOGE("napi authType:%{public}d exist", value);
+            return UserAuthResultCode::OHOS_INVALID_PARAM;
+        }
         authParam_.authType.push_back(static_cast<AuthType>(value));
     }
 
