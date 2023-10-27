@@ -65,8 +65,6 @@ private:
     std::shared_ptr<ContextCallback> GetAuthContextCallback(const AuthParam &authParam,
         const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback);
     bool CheckAuthTrustLevel(AuthTrustLevel authTrustLevel);
-    ResultCode CheckNorthPermission(AuthType authType);
-    ResultCode CheckServicePermission(AuthType authType);
     bool CheckSingeFaceOrFinger(const std::vector<AuthType> &authType);
     int32_t CheckAuthWidgetType(const std::vector<AuthType> &authType);
     int32_t CheckAuthWidgetParam(
