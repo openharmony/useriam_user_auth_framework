@@ -263,10 +263,6 @@ ResultCode UserAuthService::CheckNorthPermission(AuthType authType)
         IAM_LOGE("CheckNorthPermission failed, no permission");
         return CHECK_PERMISSION_FAILED;
     }
-    if (authType == PIN) {
-        IAM_LOGE("CheckNorthPermission, type error");
-        return TYPE_NOT_SUPPORT;
-    }
     return SUCCESS;
 }
 
