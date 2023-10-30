@@ -128,10 +128,14 @@ bool UserAuthService::CheckAuthTrustLevel(AuthTrustLevel authTrustLevel)
 int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel)
 {
     IAM_LOGI("start");
-    ResultCode checkRet = CheckServicePermission(authType);
-    if (checkRet != SUCCESS) {
+    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
+        !IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
         IAM_LOGE("failed to check permission");
-        return checkRet;
+        return CHECK_PERMISSION_FAILED;
+    }
+    if (apiVersion <= API_VERSION_8 && authType == PIN) {
+        IAM_LOGE("authType not support");
+        return TYPE_NOT_SUPPORT;
     }
     if (!CheckAuthTrustLevel(authTrustLevel)) {
         IAM_LOGE("authTrustLevel is not in correct range");
@@ -257,27 +261,6 @@ void UserAuthService::SetProperty(int32_t userId, AuthType authType, const Attri
     callback->OnSetExecutorPropertyResult(result);
 }
 
-ResultCode UserAuthService::CheckNorthPermission(AuthType authType)
-{
-    if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
-        IAM_LOGE("CheckNorthPermission failed, no permission");
-        return CHECK_PERMISSION_FAILED;
-    }
-    if (authType == PIN) {
-        IAM_LOGE("CheckNorthPermission, type error");
-        return TYPE_NOT_SUPPORT;
-    }
-    return SUCCESS;
-}
-
-ResultCode UserAuthService::CheckServicePermission(AuthType authType)
-{
-    if (IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
-        return SUCCESS;
-    }
-    return CheckNorthPermission(authType);
-}
-
 std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(const std::vector<uint8_t> &challenge,
     AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback)
 {
@@ -309,10 +292,14 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
         return BAD_CONTEXT_ID;
     }
     Attributes extraInfo;
-    ResultCode checkRet = CheckNorthPermission(authType);
-    if (checkRet != SUCCESS) {
-        IAM_LOGE("CheckNorthPermission failed");
-        contextCallback->OnResult(checkRet, extraInfo);
+    if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
+    if (authType == PIN) {
+        IAM_LOGE("authType not support");
+        contextCallback->OnResult(TYPE_NOT_SUPPORT, extraInfo);
         return BAD_CONTEXT_ID;
     }
     int32_t userId;

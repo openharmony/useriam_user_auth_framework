@@ -51,8 +51,8 @@ UserAuthResultCode AuthInstanceV9::GetAvailableStatus(napi_env env, napi_callbac
         IAM_LOGE("napi_get_value_int32 fail:%{public}d", ret);
         return UserAuthResultCode::GENERAL_ERROR;
     }
-    if (!UserAuthNapiHelper::CheckAuthType(type)) {
-        IAM_LOGE("CheckAuthType fail");
+    if (!UserAuthNapiHelper::CheckUserAuthType(type)) {
+        IAM_LOGE("CheckUserAuthType fail");
         return UserAuthResultCode::TYPE_NOT_SUPPORT;
     }
     uint32_t level;
