@@ -321,13 +321,19 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
     para.atl = authTrustLevel;
     para.challenge = std::move(challenge);
     para.endAfterFirstFail = true;
+    return StartAuthContext(apiVersion, para, contextCallback);
+}
+
+uint64_t UserAuthService::StartAuthContext(int32_t apiVersion, ContextFactory::AuthContextPara para,
+    const std::shared_ptr<ContextCallback> &contextCallback)
+{
+    Attributes extraInfo;
     auto context = ContextFactory::CreateSimpleAuthContext(para, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
-
     contextCallback->SetCleaner(ContextHelper::Cleaner(context));
 
     if (!context->Start()) {
@@ -343,6 +349,7 @@ uint64_t UserAuthService::AuthUser(int32_t userId, const std::vector<uint8_t> &c
     AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback)
 {
     IAM_LOGI("start");
+    static const uint32_t innerApiVersion = 0x80000000;
     auto contextCallback = GetAuthContextCallback(challenge, authType, authTrustLevel, callback);
     if (contextCallback == nullptr) {
         IAM_LOGE("contextCallback is nullptr");
@@ -367,21 +374,7 @@ uint64_t UserAuthService::AuthUser(int32_t userId, const std::vector<uint8_t> &c
     para.atl = authTrustLevel;
     para.challenge = std::move(challenge);
     para.endAfterFirstFail = false;
-    auto context = ContextFactory::CreateSimpleAuthContext(para, contextCallback);
-    if (!ContextPool::Instance().Insert(context)) {
-        IAM_LOGE("failed to insert context");
-        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
-        return BAD_CONTEXT_ID;
-    }
-
-    contextCallback->SetCleaner(ContextHelper::Cleaner(context));
-
-    if (!context->Start()) {
-        IAM_LOGE("failed to start auth");
-        contextCallback->OnResult(context->GetLatestError(), extraInfo);
-        return BAD_CONTEXT_ID;
-    }
-    return context->GetContextId();
+    return StartAuthContext(innerApiVersion, para, contextCallback);
 }
 
 uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthType authType,
