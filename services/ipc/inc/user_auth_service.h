@@ -54,6 +54,8 @@ public:
     int32_t GetVersion(int32_t &version) override;
     int32_t Notice(NoticeType noticeType, const std::string &eventData) override;
     int32_t RegisterWidgetCallback(int32_t version, sptr<WidgetCallbackInterface> &callback) override;
+    uint64_t StartAuthContext(int32_t apiVersion, ContextFactory::AuthContextPara para,
+        const std::shared_ptr<ContextCallback> &contextCallback);
 
 protected:
     void OnStart() override;
