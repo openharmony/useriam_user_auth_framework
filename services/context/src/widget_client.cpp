@@ -112,6 +112,10 @@ void WidgetClient::SendCommand(const WidgetCommand &command)
 void WidgetClient::ReportWidgetResult(int32_t result, AuthType authType,
     int32_t lockoutDuration, int32_t remainAttempts)
 {
+    WidgetCommand::ExtraInfo extraInfo {
+        .callingBundleName = callingBundleName_,
+        .challenge = challenge_
+    };
     // sendCommand of CMD_NOTIFY_AUTH_RESULT
     WidgetCommand::Cmd cmd {
         .event = "CMD_NOTIFY_AUTH_RESULT",
@@ -119,7 +123,8 @@ void WidgetClient::ReportWidgetResult(int32_t result, AuthType authType,
         .type = AuthType2Str(authType),
         .result = result,
         .lockoutDuration = lockoutDuration,
-        .remainAttempts = remainAttempts
+        .remainAttempts = remainAttempts,
+        .extraInfo = extraInfo
     };
     if (authType == AuthType::FINGERPRINT && !sensorInfo_.empty()) {
         cmd.sensorInfo = sensorInfo_;
@@ -261,6 +266,16 @@ bool WidgetClient::IsValidNoticeType(const WidgetNotice &notice)
         return false;
     }
     return true;
+}
+
+void WidgetClient::SetChallenge(const std::vector<uint8_t> &challenge)
+{
+    challenge_ = challenge;
+}
+
+void WidgetClient::SetCallingBundleName(const std::string &callingBundleName)
+{
+    callingBundleName_ = callingBundleName;
 }
 } // namespace UserAuth
 } // namespace UserIam
