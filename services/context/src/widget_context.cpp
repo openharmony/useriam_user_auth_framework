@@ -184,6 +184,8 @@ bool WidgetContext::OnStart()
     WidgetClient::Instance().SetWidgetParam(para_.widgetParam);
     WidgetClient::Instance().SetAuthTypeList(para_.authTypeList);
     WidgetClient::Instance().SetWidgetSchedule(schedule_);
+    WidgetClient::Instance().SetChallenge(para_.challenge);
+    WidgetClient::Instance().SetCallingBundleName(para_.callingBundleName);
     schedule_->StartSchedule();
 
     IAM_LOGI("WidgetContext start success.");

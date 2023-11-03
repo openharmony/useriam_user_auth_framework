@@ -24,6 +24,7 @@
 
 namespace {
     const uint32_t TEST_USER_ID = 548781;
+    const std::string TEST_CALLER_BUNDLE_NAME = "com.ohos.useriam.authwidgettest";
 }
 
 namespace OHOS {
@@ -41,6 +42,12 @@ int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, int32_t &userId)
     }
     userId = TEST_USER_ID;
     return SUCCESS;
+}
+
+bool IpcCommon::GetCallingBundleName(IPCObjectStub &stub, std::string &bundleName)
+{
+    bundleName = TEST_CALLER_BUNDLE_NAME;
+    return true;
 }
 
 int32_t IpcCommon::GetActiveUserId(std::optional<int32_t> &userId)
