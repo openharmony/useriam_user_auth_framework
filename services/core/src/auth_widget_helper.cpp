@@ -124,7 +124,7 @@ bool AuthWidgetHelper::ParseAttributes(const Attributes &values, const AuthType 
 int32_t AuthWidgetHelper::CheckValidSolution(int32_t userId,
     const std::vector<AuthType> &authTypeList, const AuthTrustLevel &atl, std::vector<AuthType> &validTypeList)
 {
-    IAM_LOGE("start userId:%{public}d atl:%{public}u typeSize:%{public}zu", userId, atl, authTypeList.size());
+    IAM_LOGI("start userId:%{public}d atl:%{public}u typeSize:%{public}zu", userId, atl, authTypeList.size());
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi == nullptr) {
         IAM_LOGE("hdi interface is nullptr");
