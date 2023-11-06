@@ -119,7 +119,7 @@ bool UserAuthService::CheckAuthTrustLevel(AuthTrustLevel authTrustLevel)
 {
     if ((authTrustLevel != ATL1) && (authTrustLevel != ATL2) &&
         (authTrustLevel != ATL3) && (authTrustLevel != ATL4)) {
-        IAM_LOGE("authTrustLevel is support %{public}u", authTrustLevel);
+        IAM_LOGE("authTrustLevel not support %{public}u", authTrustLevel);
         return false;
     }
     return true;
