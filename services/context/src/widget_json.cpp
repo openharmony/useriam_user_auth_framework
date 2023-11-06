@@ -54,6 +54,10 @@ const std::string JSON_AUTH_NAVI_BTN_TEXT = "navigationButtonText";
 const std::string JSON_UI_EXTENSION_TYPE = "ability.want.params.uiExtensionType";
 const std::string JSON_USER_IAM_CMD_DATA = "useriamCmdData";
 
+const std::string JSON_CHALLENGE = "challenge";
+const std::string JSON_CALLER_BUNDLE_NAME = "callingBundleName";
+const std::string JSON_CMD_EXTRA_INFO = "extraInfo";
+
 // utils
 AuthType Str2AuthType(const std::string &strAuthType)
 {
@@ -175,6 +179,10 @@ void to_json(nlohmann::json &jsonCommand, const WidgetCommand &command)
         if (cmd.tip != "") {
             jsonPayload[JSON_AUTH_TIP] = cmd.tip;
         }
+        auto jsonCmdExtraInfo = nlohmann::json({{JSON_CHALLENGE, cmd.extraInfo.challenge},
+            {JSON_CALLER_BUNDLE_NAME, cmd.extraInfo.callingBundleName}});
+        jsonPayload[JSON_CMD_EXTRA_INFO] = jsonCmdExtraInfo;
+
         jsonCmd[JSON_AUTH_PAYLOAD] = jsonPayload;
         jsonCmdList.push_back(jsonCmd);
     }

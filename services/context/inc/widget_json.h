@@ -50,6 +50,11 @@ void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice);
 
 // WidgetCommand
 struct WidgetCommand {
+    struct ExtraInfo {
+        std::string callingBundleName {""};
+        std::vector<uint8_t> challenge {};
+    };
+
     struct Cmd {
         std::string event {""};
         std::string version {""};
@@ -60,6 +65,8 @@ struct WidgetCommand {
         int32_t remainAttempts = -1;
         std::string tip = {""};
         std::string sensorInfo {""};
+
+        ExtraInfo extraInfo;
     };
 
     uint64_t widgetContextId {0};

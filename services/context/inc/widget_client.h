@@ -54,6 +54,10 @@ public:
     void Reset();
     void ForceStopAuth();
 
+    // extra info
+    void SetChallenge(const std::vector<uint8_t> &challenge);
+    void SetCallingBundleName(const std::string &callingBundleName);
+
 private:
     WidgetClient() = default;
     void SendCommand(const WidgetCommand &command);
@@ -69,6 +73,8 @@ private:
     std::string pinSubType_ {""};
     std::string sensorInfo_ {""};
     uint32_t authTokenId_ {0};
+    std::vector<uint8_t> challenge_ {};
+    std::string callingBundleName_ {""};
 };
 } // namespace UserAuth
 } // namespace UserIam
