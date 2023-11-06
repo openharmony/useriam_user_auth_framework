@@ -74,6 +74,26 @@ int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, int32_t &userId)
     return SUCCESS;
 }
 
+bool IpcCommon::GetCallingBundleName(IPCObjectStub &stub, std::string &bundleName)
+{
+    uint32_t tokenId = GetAccessTokenId(stub);
+    using namespace Security::AccessToken;
+    ATokenTypeEnum callingType = AccessTokenKit::GetTokenTypeFlag(tokenId);
+    if (callingType != TOKEN_HAP) {
+        IAM_LOGE("failed to get calling type");
+        return false;
+    }
+    HapTokenInfo hapTokenInfo;
+    int result = AccessTokenKit::GetHapTokenInfo(tokenId, hapTokenInfo);
+    if (result != SUCCESS) {
+        IAM_LOGE("failed to get hap token info, result = %{public}d", result);
+        return false;
+    }
+    bundleName = hapTokenInfo.bundleName;
+    IAM_LOGI("get callingInfo, bundleName is %{public}s", bundleName.c_str());
+    return true;
+}
+
 int32_t IpcCommon::GetActiveUserId(std::optional<int32_t> &userId)
 {
     if (userId.has_value() && userId.value() != 0) {

@@ -561,6 +561,11 @@ uint64_t UserAuthService::StartWidgetContext(int32_t userId, const std::shared_p
     para.userId = userId;
     para.tokenId = IpcCommon::GetAccessTokenId(*this);
     para.callingUid = GetCallingUid();
+    std::string bundleName = "";
+    if (!IpcCommon::GetCallingBundleName(*this, bundleName)) {
+        IAM_LOGE("get calling bundle name failed");
+    }
+    para.callingBundleName = bundleName;
     if (!AuthWidgetHelper::InitWidgetContextParam(userId, authParam, validType, widgetParam, para)) {
         IAM_LOGE("init widgetContext failed");
         contextCallback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
