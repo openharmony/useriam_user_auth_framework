@@ -21,31 +21,57 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-struct UserAuthInfo {
-    uint64_t callingUid = 0;
-    int32_t authType = 0;
-    uint32_t atl = 0;
-    uint32_t authResult = 0;
-    std::string timeSpanString;
+struct UserAuthTrace {
+    std::string callerName;
     uint32_t sdkVersion = 0;
+    uint32_t atl = 0;
+    int32_t authType = 0;
+    int32_t authResult = -1;
+    uint64_t timeSpan = 0;
     uint32_t authWidgetType = 0;
 };
 
-struct PinAuthInfo {
+struct UserAuthFwkTrace {
+    std::string callerName;
+    uint64_t requestContextId = 0;
+    uint64_t authContextId = 0;
+    uint32_t atl = 0;
+    int32_t authType = 0;
+    int32_t authResult = -1;
+    uint64_t timeSpan = 0;
+};
+
+struct UserCredManagerTrace {
+    std::string callerName;
     int32_t userId = 0;
-    uint64_t callingUid = 0;
-    std::string authTimeString;
-    uint32_t authResult = 0;
-    uint32_t remainTime = 0;
-    uint32_t freezingTime = 0;
+    int32_t authType = 0;
+    uint32_t operationType = 0;
+    int32_t operationResult = -1;
+};
+
+struct UserCredChangeTrace {
+    std::string callerName;
+    uint64_t requestContextId = 0;
+    int32_t userId = 0;
+    int32_t authType = 0;
+    uint32_t operationType = 0;
+    int32_t operationResult = -1;
+    uint64_t timeSpan = 0;
+};
+
+struct TemplateChangeTrace {
+    uint64_t scheduleId = 0;
+    int32_t executorType = 0;
+    uint32_t changeType = 0;
+    std::string reason;
 };
 
 void ReportSystemFault(const std::string &timeString, const std::string &moudleName);
-void ReportTemplateChange(int32_t executorType, uint32_t changeType, const std::string &reason);
-void ReportBehaviorCredChange(int32_t userId, int32_t authType, uint32_t operationType, uint32_t optResult);
-void ReportSecurityCredChange(int32_t userId, int32_t authType, uint32_t operationType, uint32_t optResult);
-void ReportUserAuth(const UserAuthInfo &info);
-void ReportPinAuth(const PinAuthInfo &info);
+void ReportSecurityTemplateChange(const TemplateChangeTrace &info);
+void ReportBehaviorCredManager(const UserCredManagerTrace &info);
+void ReportSecurityCredChange(const UserCredChangeTrace &info);
+void ReportUserAuth(const UserAuthTrace &info);
+void ReportSecurityUserAuthFwk(const UserAuthFwkTrace &info);
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

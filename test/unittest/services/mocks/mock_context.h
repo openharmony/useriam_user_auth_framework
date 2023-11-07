@@ -35,18 +35,17 @@ public:
     MOCK_METHOD2(OnResult, void(int32_t resultCode, const Attributes &finalResult));
     MOCK_CONST_METHOD3(
         OnAcquireInfo, void(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg));
+    MOCK_METHOD1(SetTraceCallerName, void(std::string callerName));
+    MOCK_METHOD0(GetTraceCallerName, std::string());
+    MOCK_METHOD1(SetTraceRequestContextId, void(uint64_t requestContextId));
+    MOCK_METHOD1(SetTraceAuthContextId, void(uint64_t authContextId));
     MOCK_METHOD1(SetTraceUserId, void(int32_t userId));
     MOCK_METHOD1(SetTraceRemainTime, void(int32_t remainTime));
     MOCK_METHOD1(SetTraceFreezingTime, void(int32_t freezingTime));
     MOCK_METHOD1(SetTraceSdkVersion, void(int32_t version));
-    MOCK_METHOD1(SetTraceCallingUid, void(uint64_t callingUid));
-    MOCK_METHOD1(SetTraceAuthType, void(AuthType authType));
+    MOCK_METHOD1(SetTraceAuthType, void(int32_t authType));
     MOCK_METHOD1(SetTraceAuthTrustLevel, void(AuthTrustLevel atl));
-    MOCK_METHOD1(SetTraceCombinedAuthType, void(uint32_t authWidgetType));
-    MOCK_METHOD1(SetTraceSubAuth, void(bool isSubAuth));
-    MOCK_METHOD1(SetTraceWindowMode, void(WindowModeType windowMode));
     MOCK_METHOD1(SetTraceAuthWidgetType, void(uint32_t authWidgetType));
-    MOCK_METHOD1(SetTraceNavigation, void(bool hasNaviBnt));
     MOCK_METHOD1(SetCleaner, void(Context::ContextStopCallback callback));
 };
 

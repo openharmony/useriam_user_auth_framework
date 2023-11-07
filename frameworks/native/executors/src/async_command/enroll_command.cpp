@@ -62,8 +62,12 @@ ResultCode EnrollCommand::SendRequest()
 void EnrollCommand::OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo)
 {
     IAM_LOGI("%{public}s on result start", GetDescription());
-    UserIam::UserAuth::ReportTemplateChange(GetAuthType(),
-        TRACE_ADD_CREDENTIAL, "User Operation");
+    TemplateChangeTrace info = {};
+    info.scheduleId = scheduleId_;
+    info.executorType = GetAuthType();
+    info.changeType = TRACE_ADD_CREDENTIAL;
+    info.reason = "AddTemplate";
+    UserIam::UserAuth::ReportSecurityTemplateChange(info);
     std::vector<uint8_t> nonConstExtraInfo(extraInfo.begin(), extraInfo.end());
     auto authAttributes = Common::MakeShared<Attributes>();
     IF_FALSE_LOGE_AND_RETURN(authAttributes != nullptr);

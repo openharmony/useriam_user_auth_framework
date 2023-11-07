@@ -96,7 +96,7 @@ private:
 
     uint64_t contextId_ {0};
     std::string description_ {""};
-    std::shared_ptr<ContextCallback> callback_ {nullptr};
+    std::shared_ptr<ContextCallback> callerCallback_ {nullptr};
     bool hasStarted_ {false};
 
     int32_t latestError_ {ResultCode::GENERAL_ERROR};

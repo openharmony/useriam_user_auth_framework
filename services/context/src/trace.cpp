@@ -15,6 +15,7 @@
 
 #include "trace.h"
 
+#include <cinttypes>
 #include <sstream>
 #include "iam_logger.h"
 #include "iam_time.h"
@@ -32,9 +33,9 @@ Trace Trace::trace;
 Trace::Trace()
 {
     ContextCallbackNotifyListener::GetInstance().AddNotifier(ProcessCredChangeEvent);
+    ContextCallbackNotifyListener::GetInstance().AddNotifier(ProcessCredManagerEvent);
     ContextCallbackNotifyListener::GetInstance().AddNotifier(ProcessUserAuthEvent);
-    ContextCallbackNotifyListener::GetInstance().AddNotifier(ProcessPinAuthEvent);
-    ContextCallbackNotifyListener::GetInstance().AddNotifier(ProcessDelUserEvent);
+    ContextCallbackNotifyListener::GetInstance().AddNotifier(ProcessUserAuthFwkEvent);
 }
 
 Trace::~Trace()
@@ -43,105 +44,119 @@ Trace::~Trace()
 
 void Trace::ProcessCredChangeEvent(const ContextCallbackNotifyListener::MetaData &metaData)
 {
-    bool checkRet = metaData.operationType == TRACE_ADD_CREDENTIAL ||
+    if (!(metaData.operationType == TRACE_ADD_CREDENTIAL ||
         metaData.operationType == TRACE_DELETE_CREDENTIAL ||
-        metaData.operationType == TRACE_UPDATE_CREDENTIAL;
-    if (!checkRet) {
+        metaData.operationType == TRACE_UPDATE_CREDENTIAL ||
+        metaData.operationType == TRACE_DELETE_USER ||
+        metaData.operationType == TRACE_ENFORCE_DELETE_USER ||
+        metaData.operationType == TRACE_DELETE_REDUNDANCY)) {
         return;
     }
-    int32_t userId = 0;
-    int32_t authType = 0;
-    uint32_t operationType = metaData.operationType;
-    uint32_t optResult = 0;
+    UserCredChangeTrace securityInfo = {};
+    if (metaData.callerName.has_value()) {
+        securityInfo.callerName = metaData.callerName.value();
+    }
+    if (metaData.requestContextId.has_value()) {
+        securityInfo.requestContextId = metaData.requestContextId.value();
+    }
     if (metaData.userId.has_value()) {
-        userId = metaData.userId.value();
+        securityInfo.userId = metaData.userId.value();
     }
     if (metaData.authType.has_value()) {
-        authType = metaData.authType.value();
+        securityInfo.authType = metaData.authType.value();
     }
-    if (metaData.operationResult) {
-        optResult = metaData.operationResult;
-    }
-    ReportBehaviorCredChange(userId, authType, operationType, optResult);
-    ReportSecurityCredChange(userId, authType, operationType, optResult);
+    securityInfo.operationType = metaData.operationType;
+    securityInfo.operationResult = metaData.operationResult;
+    uint64_t timeSpan = std::chrono::duration_cast<std::chrono::milliseconds>(metaData.endTime -
+        metaData.startTime).count();
+    securityInfo.timeSpan = timeSpan;
+    ReportSecurityCredChange(securityInfo);
     IAM_LOGI("start to process cred change event");
 }
 
-void Trace::ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData)
+void Trace::ProcessCredManagerEvent(const ContextCallbackNotifyListener::MetaData &metaData)
 {
-    using namespace std::chrono;
-    bool checkRet = metaData.operationType == TRACE_AUTH_USER &&
-        (metaData.authType.has_value() || metaData.authWidgetType.has_value());
-    if (!checkRet) {
+    if (!(metaData.operationType == TRACE_ADD_CREDENTIAL ||
+        metaData.operationType == TRACE_DELETE_CREDENTIAL ||
+        metaData.operationType == TRACE_UPDATE_CREDENTIAL ||
+        metaData.operationType == TRACE_DELETE_USER ||
+        metaData.operationType == TRACE_ENFORCE_DELETE_USER)) {
         return;
     }
-    UserAuthInfo info = {};
-    if (metaData.callingUid.has_value()) {
-        info.callingUid = metaData.callingUid.value();
+    UserCredManagerTrace info = {};
+    if (metaData.callerName.has_value()) {
+        info.callerName = metaData.callerName.value();
+    }
+    if (metaData.userId.has_value()) {
+        info.userId = metaData.userId.value();
     }
     if (metaData.authType.has_value()) {
         info.authType = metaData.authType.value();
     }
-    if (metaData.authWidgetType.has_value()) {
-        info.authWidgetType = metaData.authWidgetType.value();
+    info.operationType = metaData.operationType;
+    info.operationResult = metaData.operationResult;
+    ReportBehaviorCredManager(info);
+    IAM_LOGI("start to process cred manager event");
+}
+
+void Trace::ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData)
+{
+    if (!(metaData.operationType == TRACE_AUTH_USER_ALL ||
+        metaData.operationType == TRACE_AUTH_USER_BEHAVIOR)) {
+        return;
+    }
+    UserAuthTrace info = {};
+    if (metaData.callerName.has_value()) {
+        info.callerName = metaData.callerName.value();
+    }
+    if (metaData.sdkVersion.has_value()) {
+        info.sdkVersion = metaData.sdkVersion.value();
     }
     if (metaData.atl.has_value()) {
         info.atl = metaData.atl.value();
     }
-    if (metaData.operationResult) {
-        info.authResult = metaData.operationResult;
+    if (metaData.authType.has_value() && metaData.operationResult == SUCCESS) {
+        info.authType = metaData.authType.value();
     }
-    auto timeSpan = duration_cast<milliseconds>(metaData.endTime - metaData.startTime);
-    std::ostringstream ss;
-    ss << timeSpan.count() << " ms";
-    info.timeSpanString = ss.str();
-    if (metaData.sdkVersion.has_value()) {
-        info.sdkVersion = metaData.sdkVersion.value();
+    info.authResult = metaData.operationResult;
+    uint64_t timeSpan = std::chrono::duration_cast<std::chrono::milliseconds>(metaData.endTime -
+        metaData.startTime).count();
+    info.timeSpan = timeSpan;
+    if (metaData.authWidgetType.has_value()) {
+        info.authWidgetType = metaData.authWidgetType.value();
     }
-
     ReportUserAuth(info);
     IAM_LOGI("start to process user auth event");
 }
 
-void Trace::ProcessPinAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData)
+void Trace::ProcessUserAuthFwkEvent(const ContextCallbackNotifyListener::MetaData &metaData)
 {
-    bool checkRet = metaData.operationType == TRACE_AUTH_USER && metaData.authType.has_value() &&
-        metaData.authType == PIN;
-    if (!checkRet) {
+    if (!(metaData.operationType == TRACE_AUTH_USER_ALL ||
+        metaData.operationType == TRACE_AUTH_USER_SECURITY)) {
         return;
     }
-    PinAuthInfo info = {};
-    if (metaData.userId.has_value()) {
-        info.userId = metaData.userId.value();
+    UserAuthFwkTrace securityInfo = {};
+    if (metaData.callerName.has_value()) {
+        securityInfo.callerName = metaData.callerName.value();
     }
-    if (metaData.callingUid.has_value()) {
-        info.callingUid = metaData.callingUid.value();
+    if (metaData.requestContextId.has_value()) {
+        securityInfo.requestContextId = metaData.requestContextId.value();
     }
-    auto timeSpan = std::chrono::duration_cast<std::chrono::milliseconds>(metaData.endTime - metaData.startTime);
-    std::ostringstream ss;
-    ss << timeSpan.count() << " ms";
-    info.authTimeString = ss.str();
-    if (metaData.operationResult) {
-        info.authResult = metaData.operationResult;
+    if (metaData.authContextId.has_value()) {
+        securityInfo.authContextId = metaData.authContextId.value();
     }
-    if (metaData.remainTime.has_value()) {
-        info.remainTime = metaData.remainTime.value();
+    if (metaData.atl.has_value()) {
+        securityInfo.atl = metaData.atl.value();
     }
-    if (metaData.freezingTime.has_value()) {
-        info.freezingTime = metaData.freezingTime.value();
+    if (metaData.authType.has_value()) {
+        securityInfo.authType = metaData.authType.value();
     }
-    ReportPinAuth(info);
-    IAM_LOGI("start to process pin auth event");
-}
-
-void Trace::ProcessDelUserEvent(const ContextCallbackNotifyListener::MetaData &metaData)
-{
-    OperationType type = metaData.operationType;
-    bool checkRet = type == TRACE_DELETE_USER || type == TRACE_ENFORCE_DELETE_USER;
-    if (!checkRet) {
-        return;
-    }
-    IAM_LOGI("start to process del user event");
+    securityInfo.authResult = metaData.operationResult;
+    uint64_t timeSpan = std::chrono::duration_cast<std::chrono::milliseconds>(metaData.endTime -
+        metaData.startTime).count();
+    securityInfo.timeSpan = timeSpan;
+    ReportSecurityUserAuthFwk(securityInfo);
+    IAM_LOGI("start to process user auth fwk event");
 }
 } // namespace UserAuth
 } // namespace UserIam

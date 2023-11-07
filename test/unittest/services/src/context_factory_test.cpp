@@ -58,7 +58,7 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateSimpleAuth_001, TestSize.Level0
     std::vector<uint8_t> challenge;
     sptr<UserAuthCallbackInterface> callback(new (std::nothrow) MockUserAuthCallback());
     ASSERT_NE(callback, nullptr);
-    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER);
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER_ALL);
     ContextFactory::AuthContextPara para = {};
     auto context = factory->CreateSimpleAuthContext(para, contextCallback);
     ASSERT_NE(context, nullptr);
@@ -73,7 +73,7 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateSimpleAuth_002, TestSize.Level0
     std::vector<uint8_t> challenge;
     // Error: callback is null
     sptr<UserAuthCallbackInterface> callback(nullptr);
-    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER);
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER_ALL);
     ContextFactory::AuthContextPara para = {};
     auto context = factory->CreateSimpleAuthContext(para, contextCallback);
     ASSERT_EQ(context, nullptr);

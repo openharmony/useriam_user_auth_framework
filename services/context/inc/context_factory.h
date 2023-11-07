@@ -49,7 +49,6 @@ public:
 
         int32_t userId {0};
         uint32_t tokenId {0};
-        int32_t callingUid {0};
         std::string callingBundleName {""};
         std::vector<uint8_t> challenge {};
         std::vector<AuthType> authTypeList {};

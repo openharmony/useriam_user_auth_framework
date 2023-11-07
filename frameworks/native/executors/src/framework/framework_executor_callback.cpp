@@ -217,7 +217,13 @@ ResultCode FrameworkExecutorCallback::ProcessDeleteTemplateCommand(const Attribu
     IamHitraceHelper traceHelper("hdi Delete");
     ResultCode ret = hdi->Delete(templateIdList);
     if (ret == ResultCode::SUCCESS) {
-        UserIam::UserAuth::ReportTemplateChange(executor->GetAuthType(), TRACE_DELETE_CREDENTIAL, "User Operation");
+        TemplateChangeTrace info = {};
+        info.changeType = TRACE_DELETE_CREDENTIAL;
+        std::string templateChangeReason = "";
+        properties.GetStringValue(Attributes::ATTR_TEMPLATE_CHANGE_REASON, templateChangeReason);
+        info.reason = templateChangeReason;
+        info.executorType = executor->GetAuthType();
+        UserIam::UserAuth::ReportSecurityTemplateChange(info);
     }
     return ret;
 }
