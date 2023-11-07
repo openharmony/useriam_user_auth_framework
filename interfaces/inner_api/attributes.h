@@ -112,6 +112,8 @@ public:
         ATTR_EXECUTOR_MATCHER,
         /** Access token ID, the value type is uint32_t. */
         ATTR_ACCESS_TOKEN_ID,
+        /** Template change reason, the value type is string */
+        ATTR_TEMPLATE_CHANGE_REASON,
     };
 
     /**

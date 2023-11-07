@@ -32,7 +32,7 @@ public:
 
 private:
     static bool GetUserAuthProfile(int32_t userId, const AuthType &authType,
-        ContextFactory::AuthWidgetContextPara::AuthProfile &profile, uint32_t callingUid);
+        ContextFactory::AuthWidgetContextPara::AuthProfile &profile);
     static bool ParseAttributes(const Attributes &values, const AuthType &authType,
         ContextFactory::AuthWidgetContextPara::AuthProfile &profile);
 };

@@ -26,7 +26,7 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 int32_t ResourceNodeUtils::NotifyExecutorToDeleteTemplates(
-    const std::vector<std::shared_ptr<CredentialInfoInterface>> &infos)
+    const std::vector<std::shared_ptr<CredentialInfoInterface>> &infos, std::string changeReasonTrace)
 {
     if (infos.size() == 0) {
         IAM_LOGE("bad infos, infos size is 0");
@@ -44,6 +44,7 @@ int32_t ResourceNodeUtils::NotifyExecutorToDeleteTemplates(
         Attributes properties;
         properties.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_DEL);
         properties.SetUint64Value(Attributes::ATTR_TEMPLATE_ID, info->GetTemplateId());
+        properties.SetStringValue(Attributes::ATTR_TEMPLATE_CHANGE_REASON, changeReasonTrace);
         IamHitraceHelper traceHelper("NotifyExecutorToDeleteTemplates");
         int32_t ret = resourceNode->SetProperty(properties);
         if (ret != SUCCESS) {
