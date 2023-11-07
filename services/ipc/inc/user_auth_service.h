@@ -54,18 +54,17 @@ public:
     int32_t GetVersion(int32_t &version) override;
     int32_t Notice(NoticeType noticeType, const std::string &eventData) override;
     int32_t RegisterWidgetCallback(int32_t version, sptr<WidgetCallbackInterface> &callback) override;
-    uint64_t StartAuthContext(int32_t apiVersion, ContextFactory::AuthContextPara para,
-        const std::shared_ptr<ContextCallback> &contextCallback);
 
 protected:
     void OnStart() override;
     void OnStop() override;
 
 private:
-    std::shared_ptr<ContextCallback> GetAuthContextCallback(const std::vector<uint8_t> &challenge, AuthType authType,
-        AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback);
-    std::shared_ptr<ContextCallback> GetAuthContextCallback(const AuthParam &authParam,
-        const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback);
+    std::shared_ptr<ContextCallback> GetAuthContextCallback(int32_t apiVersion,
+        const std::vector<uint8_t> &challenge, AuthType authType, AuthTrustLevel authTrustLevel,
+        sptr<UserAuthCallbackInterface> &callback);
+    std::shared_ptr<ContextCallback> GetAuthContextCallback(int32_t apiVersion,
+        const AuthParam &authParam, const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback);
     bool CheckAuthTrustLevel(AuthTrustLevel authTrustLevel);
     bool CheckSingeFaceOrFinger(const std::vector<AuthType> &authType);
     int32_t CheckAuthWidgetType(const std::vector<AuthType> &authType);
@@ -73,6 +72,8 @@ private:
         int32_t userId, const AuthParam &authParam, const WidgetParam &widgetParam, std::vector<AuthType> &validType);
     uint64_t StartWidgetContext(int32_t userId, const std::shared_ptr<ContextCallback> &contextCallback,
         const AuthParam &authParam, const WidgetParam &widgetParam, std::vector<AuthType> &validType);
+    uint64_t StartAuthContext(int32_t apiVersion, ContextFactory::AuthContextPara para,
+        const std::shared_ptr<ContextCallback> &contextCallback);
     bool Insert2ContextPool(const std::shared_ptr<Context> &context);
     bool CheckCallerIsSystemApp();
 };

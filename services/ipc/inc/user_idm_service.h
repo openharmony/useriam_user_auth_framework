@@ -26,6 +26,8 @@
 #include "system_ability_definition.h"
 
 #include "context.h"
+#include "context_factory.h"
+#include "credential_info_interface.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -62,8 +64,11 @@ private:
     void CancelCurrentEnrollIfExist();
     int32_t GetSecInfoInner(int32_t userId, SecUserInfo &secUserInfo);
     int32_t GetCredentialInfoInner(int32_t userId, AuthType authType, std::vector<CredentialInfo> &credInfoList);
-    void EnforceDelUserInner(int32_t userId);
+    int32_t EnforceDelUserInner(int32_t userId, std::shared_ptr<ContextCallback> callbackForTrace,
+        std::string changeReasonTrace);
     void ClearRedundancyCredentialInner();
+    void SetAuthTypeTrace(const std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos,
+        const std::shared_ptr<ContextCallback> &contextCallback);
     std::mutex mutex_;
 };
 } // namespace UserAuth

@@ -46,7 +46,8 @@ void ResourceNodeUtilsTest::TearDown()
 HWTEST_F(ResourceNodeUtilsTest, NotifyExecutorToDeleteTemplates001, TestSize.Level0)
 {
     std::vector<std::shared_ptr<CredentialInfoInterface>> infos;
-    int32_t result = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(infos);
+    std::string changeReason = "DeleteTemplate";
+    int32_t result = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(infos, changeReason);
     EXPECT_EQ(result, INVALID_PARAMETERS);
 }
 
@@ -58,7 +59,8 @@ HWTEST_F(ResourceNodeUtilsTest, NotifyExecutorToDeleteTemplates002, TestSize.Lev
 
     std::vector<std::shared_ptr<CredentialInfoInterface>> infos;
     infos.push_back(credInfo);
-    int32_t result = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(infos);
+    std::string changeReason = "DeleteTemplate";
+    int32_t result = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(infos, changeReason);
     EXPECT_EQ(result, SUCCESS);
 }
 
@@ -90,7 +92,8 @@ HWTEST_F(ResourceNodeUtilsTest, NotifyExecutorToDeleteTemplates003, TestSize.Lev
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode1));
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode2));
 
-    int32_t result = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(infos);
+    std::string changeReason = "DeleteTemplate";
+    int32_t result = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(infos, changeReason);
     EXPECT_EQ(result, SUCCESS);
     ResourceNodePool::Instance().DeleteAll();
 }

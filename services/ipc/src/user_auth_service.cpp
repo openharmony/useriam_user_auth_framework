@@ -212,10 +212,8 @@ void UserAuthService::GetProperty(int32_t userId, AuthType authType,
     }
 
     Attributes attr;
-    attr.SetInt32Value(Attributes::ATTR_AUTH_TYPE, authType);
     attr.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_GET);
     attr.SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIds);
-    attr.SetUint64Value(Attributes::ATTR_CALLER_UID, static_cast<uint64_t>(this->GetCallingUid()));
     attr.SetUint32ArrayValue(Attributes::ATTR_KEY_LIST, uint32Keys);
 
     int32_t result = resourceNode->GetProperty(attr, values);
@@ -261,24 +259,27 @@ void UserAuthService::SetProperty(int32_t userId, AuthType authType, const Attri
     callback->OnSetExecutorPropertyResult(result);
 }
 
-std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(const std::vector<uint8_t> &challenge,
-    AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback)
+std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(int32_t apiVersion,
+    const std::vector<uint8_t> &challenge, AuthType authType,
+    AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback)
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return nullptr;
     }
-    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER);
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER_ALL);
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
         Attributes extraInfo;
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return nullptr;
     }
-    auto callingUid = static_cast<uint64_t>(this->GetCallingUid());
-    contextCallback->SetTraceCallingUid(callingUid);
     contextCallback->SetTraceAuthType(authType);
     contextCallback->SetTraceAuthTrustLevel(authTrustLevel);
+    contextCallback->SetTraceAuthWidgetType(authType);
+    std::string callerName = IpcCommon::GetCallerName(*this);
+    contextCallback->SetTraceCallerName(callerName);
+    contextCallback->SetTraceSdkVersion(apiVersion);
     return contextCallback;
 }
 
@@ -286,7 +287,7 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
     AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback)
 {
     IAM_LOGI("start");
-    auto contextCallback = GetAuthContextCallback(challenge, authType, authTrustLevel, callback);
+    auto contextCallback = GetAuthContextCallback(apiVersion, challenge, authType, authTrustLevel, callback);
     if (contextCallback == nullptr) {
         IAM_LOGE("contextCallback is nullptr");
         return BAD_CONTEXT_ID;
@@ -329,11 +330,13 @@ uint64_t UserAuthService::StartAuthContext(int32_t apiVersion, ContextFactory::A
 {
     Attributes extraInfo;
     auto context = ContextFactory::CreateSimpleAuthContext(para, contextCallback);
-    if (!ContextPool::Instance().Insert(context)) {
+    if (context == nullptr || !ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
+    contextCallback->SetTraceRequestContextId(context->GetContextId());
+    contextCallback->SetTraceAuthContextId(context->GetContextId());
     contextCallback->SetCleaner(ContextHelper::Cleaner(context));
 
     if (!context->Start()) {
@@ -350,7 +353,7 @@ uint64_t UserAuthService::AuthUser(int32_t userId, const std::vector<uint8_t> &c
 {
     IAM_LOGI("start");
     static const uint32_t innerApiVersion = 0x80000000;
-    auto contextCallback = GetAuthContextCallback(challenge, authType, authTrustLevel, callback);
+    auto contextCallback = GetAuthContextCallback(innerApiVersion, challenge, authType, authTrustLevel, callback);
     if (contextCallback == nullptr) {
         IAM_LOGE("contextCallback is nullptr");
         return BAD_CONTEXT_ID;
@@ -558,9 +561,8 @@ uint64_t UserAuthService::StartWidgetContext(int32_t userId, const std::shared_p
 {
     Attributes extraInfo;
     ContextFactory::AuthWidgetContextPara para;
-    para.userId = userId;
     para.tokenId = IpcCommon::GetAccessTokenId(*this);
-    para.callingUid = GetCallingUid();
+
     std::string bundleName = "";
     if (!IpcCommon::GetCallingBundleName(*this, bundleName)) {
         IAM_LOGE("get calling bundle name failed");
@@ -572,11 +574,11 @@ uint64_t UserAuthService::StartWidgetContext(int32_t userId, const std::shared_p
         return BAD_CONTEXT_ID;
     }
     auto context = ContextFactory::CreateWidgetContext(para, contextCallback);
-    if (!Insert2ContextPool(context)) {
+    if (context == nullptr || !Insert2ContextPool(context)) {
         contextCallback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
-
+    contextCallback->SetTraceRequestContextId(context->GetContextId());
     contextCallback->SetCleaner(ContextHelper::Cleaner(context));
     if (!context->Start()) {
         int32_t errorCode = context->GetLatestError();
@@ -591,7 +593,7 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParam &authPa
     const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback)
 {
     IAM_LOGI("start %{public}d authTrustLevel:%{public}u", apiVersion, authParam.authTrustLevel);
-    auto contextCallback = GetAuthContextCallback(authParam, widgetParam, callback);
+    auto contextCallback = GetAuthContextCallback(apiVersion, authParam, widgetParam, callback);
     if (contextCallback == nullptr) {
         IAM_LOGE("contextCallback is nullptr");
         return BAD_CONTEXT_ID;
@@ -632,22 +634,23 @@ bool UserAuthService::Insert2ContextPool(const std::shared_ptr<Context> &context
     return ret;
 }
 
-std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(const AuthParam &authParam,
-    const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback)
+std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(int32_t apiVersion,
+    const AuthParam &authParam, const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback)
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return nullptr;
     }
-    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER);
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER_BEHAVIOR);
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
         Attributes extraInfo;
         callback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
         return nullptr;
     }
-    auto callingUid = static_cast<uint64_t>(this->GetCallingUid());
-    contextCallback->SetTraceCallingUid(callingUid);
+    std::string callerName = IpcCommon::GetCallerName(*this);
+    contextCallback->SetTraceCallerName(callerName);
+    contextCallback->SetTraceSdkVersion(apiVersion);
     contextCallback->SetTraceAuthTrustLevel(authParam.authTrustLevel);
 
     uint32_t authWidgetType = 0;

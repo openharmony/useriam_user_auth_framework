@@ -20,39 +20,47 @@ USERIAM_SYSTEM_FAULT:
 
 USERIAM_USER_CREDENTIAL_MANAGER:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: UserIdm, desc: credential manager message}
+  CALLER_NAME: {type: STRING, desc: caller name}
   USER_ID: {type: INT32, desc: user id}
-  AUTH_TYPE: {type: UINT32, desc: auth type}
+  AUTH_TYPE: {type: INT32, desc: auth type}
   OPERATION_TYPE: {type: UINT32, desc: operation type}
-  OPERATION_RESULT: {type: UINT32, desc: operation result}
+  OPERATION_RESULT: {type: INT32, desc: operation result}
 
 USERIAM_CREDENTIAL_CHANGE:
   __BASE: {type: SECURITY, level: CRITICAL, tag: UserIdm, desc: credential change message}
+  CALLER_NAME: {type: STRING, desc: caller name}
+  REQUEST_CONTEXTID: {type: UINT64, desc: context id}
   USER_ID: {type: INT32, desc: user id}
-  AUTH_TYPE: {type: UINT32, desc: auth type}
+  AUTH_TYPE: {type: INT32, desc: auth type}
   OPERATION_TYPE: {type: UINT32, desc: operation type}
-  OPERATION_RESULT: {type: UINT32, desc: operation result}
+  OPERATION_RESULT: {type: INT32, desc: operation result}
+  TIME_SPAN: {type: UINT64, desc: time span}
 
 USERIAM_TEMPLATE_CHANGE:
   __BASE: {type: SECURITY, level: CRITICAL, tag: UserIdm, desc: template change message}
+  SCHEDULE_ID: {type: UINT64, desc: schedule id}
   EXECUTOR_TYPE: {type: INT32, desc: executor type}
   CHANGE_TYPE: {type: UINT32, desc: change type}
   TRIGGER_REASON: {type: STRING, desc: trigger reason}
 
 USERIAM_USER_AUTH:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: UserAuth, desc: user auth message}
-  CALLING_ID: {type: UINT64, desc: calling id}
-  AUTH_TYPE: {type: UINT32, desc: auth type}
-  AUTH_TRUST_LEVEL: {type: UINT32, desc: auth trust level}
-  AUTH_RESULT: {type: UINT32, desc: auth result}
-  AUTH_TIME_SPAN: {type: STRING, desc: auth time span}
+  CALLER_NAME: {type: STRING, desc: caller name}
   SDK_VERSION: {type: UINT32, desc: sdk version}
+  AUTH_TRUST_LEVEL: {type: UINT32, desc: auth trust level}
+  AUTH_TYPE: {type: INT32, desc: auth type}
+  AUTH_RESULT: {type: INT32, desc: auth result}
+  AUTH_TIME_SPAN: {type: UINT64, desc: auth time span}
   AUTH_WIDGET_TYPE: {type: UINT32, desc: auth widget auth type and window mode}
 
-USERIAM_PIN_AUTH:
-  __BASE: {type: SECURITY, level: CRITICAL, tag: UserAuth, desc: pin auth message}
-  USER_ID: {type: INT32, desc: user id}
-  CALLING_ID: {type: UINT64, desc: calling id}
-  AUTH_TIME: {type: STRING, desc: auth time}
-  AUTH_RESULT: {type: UINT32, desc: auth result}
-  REMAIN_TIME: {type: UINT32, desc: remain time}
-  FREEXING_TIME: {type: UINT32, desc: freezing time}
+USERIAM_USER_AUTH_FWK:
+  __BASE: {type: SECURITY, level: CRITICAL, tag: UserAuth, desc: user auth security message}
+  CALLER_NAME: {type: STRING, desc: caller name}
+  REQUEST_CONTEXTID: {type: UINT64, desc: request context id}
+  AUTH_CONTEXTID: {type: UINT64, desc: auth context id}
+  AUTH_TRUST_LEVEL: {type: UINT32, desc: auth trust level}
+  AUTH_TYPE: {type: INT32, desc: auth type}
+  AUTH_RESULT: {type: INT32, desc: auth result}
+  AUTH_TIME_SPAN: {type: UINT64, desc: auth time span}
+
+  

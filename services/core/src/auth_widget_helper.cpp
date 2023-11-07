@@ -32,7 +32,7 @@ bool AuthWidgetHelper::InitWidgetContextParam(
 {
     for (auto &authType : validType) {
         ContextFactory::AuthWidgetContextPara::AuthProfile profile;
-        if (!GetUserAuthProfile(userId, authType, profile, para.callingUid)) {
+        if (!GetUserAuthProfile(userId, authType, profile)) {
             IAM_LOGE("get user auth profile failed");
             return false;
         }
@@ -43,6 +43,7 @@ bool AuthWidgetHelper::InitWidgetContextParam(
             WidgetClient::Instance().SetSensorInfo(profile.sensorInfo);
         }
     }
+    para.userId = userId;
     para.challenge = std::move(authParam.challenge);
     para.authTypeList = std::move(validType);
     para.atl = authParam.authTrustLevel;
@@ -54,7 +55,7 @@ bool AuthWidgetHelper::InitWidgetContextParam(
 }
 
 bool AuthWidgetHelper::GetUserAuthProfile(int32_t userId, const AuthType &authType,
-    ContextFactory::AuthWidgetContextPara::AuthProfile &profile, uint32_t callingUid)
+    ContextFactory::AuthWidgetContextPara::AuthProfile &profile)
 {
     Attributes values;
     auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType);
@@ -87,7 +88,6 @@ bool AuthWidgetHelper::GetUserAuthProfile(int32_t userId, const AuthType &authTy
     attr.SetInt32Value(Attributes::ATTR_AUTH_TYPE, authType);
     attr.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_GET);
     attr.SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIds);
-    attr.SetUint64Value(Attributes::ATTR_CALLER_UID, static_cast<uint64_t>(callingUid));
     attr.SetUint32ArrayValue(Attributes::ATTR_KEY_LIST, uint32Keys);
     int32_t result = resourceNode->GetProperty(attr, values);
     if (result != SUCCESS) {

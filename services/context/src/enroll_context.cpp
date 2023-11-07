@@ -14,6 +14,7 @@
  */
 #include "enroll_context.h"
 
+#include "hisysevent_adapter.h"
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
@@ -116,7 +117,7 @@ bool EnrollContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &sche
         IAM_LOGI("no credential to delete");
     } else {
         std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos = {infoToDel};
-        int32_t ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos);
+        int32_t ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos, "DeleteForUpdate");
         if (ret != SUCCESS) {
             IAM_LOGE("failed to delete executor info, error code : %{public}d", ret);
         }

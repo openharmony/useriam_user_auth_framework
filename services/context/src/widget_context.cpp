@@ -48,7 +48,7 @@ const std::string UI_EXTENSION_TYPE_SET = "sysDialog/userAuth";
 
 WidgetContext::WidgetContext(uint64_t contextId, const ContextFactory::AuthWidgetContextPara &para,
     std::shared_ptr<ContextCallback> callback)
-    : contextId_(contextId), description_("UserAuthWidget"), callback_(callback), hasStarted_(false),
+    : contextId_(contextId), description_("UserAuthWidget"), callerCallback_(callback), hasStarted_(false),
     latestError_(ResultCode::GENERAL_ERROR), para_(para), schedule_(nullptr), connection_(nullptr)
 {
 }
@@ -117,43 +117,35 @@ bool WidgetContext::BuildSchedule()
 }
 
 std::shared_ptr<ContextCallback> WidgetContext::GetAuthContextCallback(AuthType authType,
-    AuthTrustLevel authTrustLevel, sptr<IamCallbackInterface> &callback)
+    AuthTrustLevel authTrustLevel, sptr<IamCallbackInterface> &iamCallback)
 {
-    if (callback == nullptr) {
-        IAM_LOGE("callback is nullptr");
-        return nullptr;
-    }
-    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER);
-    if (contextCallback == nullptr) {
+    auto widgetCallback = ContextCallback::NewInstance(iamCallback, TRACE_AUTH_USER_SECURITY);
+    if (widgetCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
         Attributes extraInfo;
-        callback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
+        iamCallback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
         return nullptr;
     }
-    auto callingUid = static_cast<uint64_t>(para_.callingUid);
-    contextCallback->SetTraceCallingUid(callingUid);
-    contextCallback->SetTraceAuthTrustLevel(authTrustLevel);
-    return contextCallback;
+    widgetCallback->SetTraceCallerName(callerCallback_->GetTraceCallerName());
+    widgetCallback->SetTraceRequestContextId(contextId_);
+    widgetCallback->SetTraceAuthTrustLevel(authTrustLevel);
+    widgetCallback->SetTraceAuthType(authType);
+    return widgetCallback;
 }
 
 std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &challenge,
     AuthType authType, AuthTrustLevel authTrustLevel)
 {
-    if (callback_ == nullptr) {
-        IAM_LOGE("invalid widget context callback, failed to build task");
-        return nullptr;
-    }
+    IF_FALSE_LOGE_AND_RETURN_VAL(callerCallback_ != nullptr, nullptr);
     auto userId = para_.userId;
     auto tokenId = WidgetClient::Instance().GetAuthTokenId();
     IAM_LOGI("Real userId: %{public}d, Real tokenId: %{public}u", userId, tokenId);
     sptr<IamCallbackInterface> iamCallback(new (std::nothrow) WidgetContextCallbackImpl(weak_from_this(),
         static_cast<int32_t>(authType)));
-    auto contextCallback = GetAuthContextCallback(authType, authTrustLevel, iamCallback);
-    if (contextCallback == nullptr) {
-        IAM_LOGE("failed to get simple context callback");
-        return nullptr;
-    }
-    callback_->SetTraceUserId(userId);
+    IF_FALSE_LOGE_AND_RETURN_VAL(iamCallback != nullptr, nullptr);
+    auto widgetCallback = GetAuthContextCallback(authType, authTrustLevel, iamCallback);
+    IF_FALSE_LOGE_AND_RETURN_VAL(widgetCallback != nullptr, nullptr);
+
     ContextFactory::AuthContextPara para = {};
     para.tokenId = tokenId;
     para.userId = userId;
@@ -161,14 +153,15 @@ std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &ch
     para.atl = authTrustLevel;
     para.challenge = challenge;
     para.endAfterFirstFail = true;
-    auto context = ContextFactory::CreateSimpleAuthContext(para, contextCallback);
-    if (!ContextPool::Instance().Insert(context)) {
+    auto context = ContextFactory::CreateSimpleAuthContext(para, widgetCallback);
+    if (context == nullptr || !ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
         Attributes extraInfo;
-        callback_->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
+        widgetCallback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
         return nullptr;
     }
-    contextCallback->SetCleaner(ContextHelper::Cleaner(context));
+    widgetCallback->SetTraceAuthContextId(context->GetContextId());
+    widgetCallback->SetCleaner(ContextHelper::Cleaner(context));
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     return context;
 }
@@ -220,15 +213,13 @@ void WidgetContext::AuthResult(int32_t resultCode, int32_t at, const Attributes 
     }
     AuthType authType = static_cast<AuthType>(at);
     WidgetClient::Instance().ReportWidgetResult(resultCode, authType, freezingTime, remainTimes);
-    if (schedule_ == nullptr) {
-        IAM_LOGE("schedule is nullptr.");
-        return;
-    }
-
+    IF_FALSE_LOGE_AND_RETURN(schedule_ != nullptr);
+    IF_FALSE_LOGE_AND_RETURN(callerCallback_ != nullptr);
     IAM_LOGI("call schedule:");
     if (resultCode == ResultCode::SUCCESS) {
         finalResult.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authResultInfo_.token);
         authResultInfo_.authType = authType;
+        callerCallback_->SetTraceAuthType(authType);
         schedule_->SuccessAuth(authType);
     } else {
         // failed
@@ -376,26 +367,23 @@ void WidgetContext::End(const ResultCode &resultCode)
             IAM_LOGE("failed to release launch widget.");
         }
     }
-    if (callback_ == nullptr) {
-        IAM_LOGE("invalid callback");
-        return;
-    }
+    IF_FALSE_LOGE_AND_RETURN(callerCallback_ != nullptr);
     Attributes attr;
     if (resultCode == ResultCode::SUCCESS) {
         if (!attr.SetInt32Value(Attributes::ATTR_AUTH_TYPE, authResultInfo_.authType)) {
             IAM_LOGE("set auth type failed.");
-            callback_->OnResult(ResultCode::GENERAL_ERROR, attr);
+            callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
             return;
         }
         if (authResultInfo_.token.size() > 0) {
             if (!attr.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authResultInfo_.token)) {
                 IAM_LOGE("set signature token failed.");
-                callback_->OnResult(ResultCode::GENERAL_ERROR, attr);
+                callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
                 return;
             }
         }
     }
-    callback_->OnResult(resultCode, attr);
+    callerCallback_->OnResult(resultCode, attr);
 }
 
 void WidgetContext::StopAllRunTask()

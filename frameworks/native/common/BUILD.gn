@@ -71,6 +71,8 @@ ohos_source_set("dfx") {
 
   public_configs = [ ":dfx_config" ]
 
+  deps = [ "../../../common:iam_utils" ]
+
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",

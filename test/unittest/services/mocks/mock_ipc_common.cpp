@@ -140,6 +140,12 @@ void IpcCommon::SetSkipUserFlag(bool isSkip)
 {
     skipFlag_ = isSkip;
 }
+
+std::string IpcCommon::GetCallerName(IPCObjectStub &stub)
+{
+    std::string callerName = "";
+    return callerName;
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

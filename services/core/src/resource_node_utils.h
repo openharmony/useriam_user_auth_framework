@@ -27,7 +27,8 @@ namespace UserIam {
 namespace UserAuth {
 class ResourceNodeUtils {
 public:
-    static int32_t NotifyExecutorToDeleteTemplates(const std::vector<std::shared_ptr<CredentialInfoInterface>> &infos);
+    static int32_t NotifyExecutorToDeleteTemplates(const std::vector<std::shared_ptr<CredentialInfoInterface>> &infos,
+        std::string changeReasonTrace);
     static void SendMsgToExecutor(uint64_t executorIndex, int32_t commandId, const std::vector<uint8_t> &msg);
     static void SetCachedTemplates(uint64_t executorIndex,
         const std::vector<std::shared_ptr<CredentialInfoInterface>> &infos);
