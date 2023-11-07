@@ -35,15 +35,17 @@ class ContextCallbackNotifyListener {
 public:
     struct MetaData {
         OperationType operationType;
-        int32_t operationResult;
+        int32_t operationResult = -1;
         std::optional<int32_t> userId;
         std::optional<int32_t> remainTime;
         std::optional<int32_t> freezingTime;
         std::optional<int32_t> sdkVersion;
-        std::optional<uint64_t> callingUid;
+        std::optional<uint64_t> requestContextId;
+        std::optional<uint64_t> authContextId;
         std::optional<AuthTrustLevel> atl;
-        std::optional<AuthType> authType;
+        std::optional<int32_t> authType;
         std::optional<uint32_t> authWidgetType;
+        std::optional<std::string> callerName;
         std::chrono::time_point<std::chrono::steady_clock> startTime;
         std::chrono::time_point<std::chrono::steady_clock> endTime;
     };
@@ -60,15 +62,19 @@ class ContextCallback {
 public:
     static std::shared_ptr<ContextCallback> NewInstance(sptr<IamCallbackInterface> iamCallback,
         OperationType operationType);
+    static std::shared_ptr<ContextCallback> NewDummyInstance(OperationType operationType);
     virtual ~ContextCallback() = default;
     virtual void OnResult(int32_t resultCode, const Attributes &finalResult) = 0;
     virtual void OnAcquireInfo(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg) const = 0;
+    virtual void SetTraceCallerName(std::string callerName) = 0;
+    virtual std::string GetTraceCallerName() = 0;
+    virtual void SetTraceRequestContextId(uint64_t requestContextId) = 0;
+    virtual void SetTraceAuthContextId(uint64_t authContextId) = 0;
     virtual void SetTraceUserId(int32_t userId) = 0;
     virtual void SetTraceRemainTime(int32_t remainTime) = 0;
     virtual void SetTraceFreezingTime(int32_t freezingTime) = 0;
     virtual void SetTraceSdkVersion(int32_t version) = 0;
-    virtual void SetTraceCallingUid(uint64_t callingUid) = 0;
-    virtual void SetTraceAuthType(AuthType authType) = 0;
+    virtual void SetTraceAuthType(int32_t authType) = 0;
     virtual void SetTraceAuthWidgetType(uint32_t authWidgetType) = 0;
     virtual void SetTraceAuthTrustLevel(AuthTrustLevel atl) = 0;
     virtual void SetCleaner(Context::ContextStopCallback callback) = 0;

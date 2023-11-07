@@ -83,6 +83,30 @@ void ContextCallbackImpl::SetTraceRemainTime(int32_t remainTime)
     metaData_.remainTime = remainTime;
 }
 
+void ContextCallbackImpl::SetTraceCallerName(std::string callerName)
+{
+    metaData_.callerName = callerName;
+}
+
+std::string ContextCallbackImpl::GetTraceCallerName()
+{
+    if (!metaData_.callerName.has_value()) {
+        IAM_LOGI("metaData callerName is null");
+        return "";
+    }
+    return metaData_.callerName.value();
+}
+
+void ContextCallbackImpl::SetTraceRequestContextId(uint64_t requestContextId)
+{
+    metaData_.requestContextId = requestContextId;
+}
+
+void ContextCallbackImpl::SetTraceAuthContextId(uint64_t authContextId)
+{
+    metaData_.authContextId = authContextId;
+}
+
 void ContextCallbackImpl::SetTraceFreezingTime(int32_t freezingTime)
 {
     metaData_.freezingTime = freezingTime;
@@ -93,12 +117,7 @@ void ContextCallbackImpl::SetTraceSdkVersion(int32_t version)
     metaData_.sdkVersion = version;
 }
 
-void ContextCallbackImpl::SetTraceCallingUid(uint64_t callingUid)
-{
-    metaData_.callingUid = callingUid;
-}
-
-void ContextCallbackImpl::SetTraceAuthType(AuthType authType)
+void ContextCallbackImpl::SetTraceAuthType(int32_t authType)
 {
     metaData_.authType = authType;
 }
@@ -146,6 +165,38 @@ std::shared_ptr<ContextCallback> ContextCallback::NewInstance(sptr<IamCallbackIn
         return nullptr;
     }
     return UserIam::Common::MakeShared<ContextCallbackImpl>(iamCallback, operationType);
+}
+
+class IamDummyCallback : public IamCallbackInterface, public NoCopyable {
+public:
+    explicit IamDummyCallback() = default;
+    ~IamDummyCallback() override = default;
+    void OnResult(int32_t result, const Attributes &extraInfo) override
+    {
+        static_cast<void>(result);
+        static_cast<void>(extraInfo);
+    }
+    void OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo) override
+    {
+        static_cast<void>(module);
+        static_cast<void>(acquireInfo);
+        static_cast<void>(extraInfo);
+    }
+    sptr<IRemoteObject> AsObject() override
+    {
+        sptr<IRemoteObject> tmp(nullptr);
+        return tmp;
+    }
+};
+
+std::shared_ptr<ContextCallback> ContextCallback::NewDummyInstance(OperationType operationType)
+{
+    sptr<IamCallbackInterface> iamDummyCallback(new (std::nothrow) IamDummyCallback());
+    if (iamDummyCallback == nullptr) {
+        IAM_LOGE("iamDummyCallback is nullptr");
+        return nullptr;
+    }
+    return UserIam::Common::MakeShared<ContextCallbackImpl>(iamDummyCallback, operationType);
 }
 } // namespace UserAuth
 } // namespace UserIam

@@ -37,8 +37,12 @@ enum OperationType : uint32_t {
     TRACE_DELETE_USER = 2,
     TRACE_ENFORCE_DELETE_USER = 3,
     TRACE_UPDATE_CREDENTIAL = 4,
-    TRACE_AUTH_USER = 5,
+    TRACE_AUTH_USER_BEHAVIOR = 5,
     TRACE_IDENTIFY = 6,
+    TRACE_DELETE_REDUNDANCY = 7,
+    TRACE_AUTH_USER_SECURITY = 8,
+    TRACE_AUTH_USER_ALL = 9,
+    NO_NEED_TRACE = 10,
 };
 } // namespace UserAuth
 } // namespace UserIam

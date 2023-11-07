@@ -27,9 +27,9 @@ class Trace final : public NoCopyable {
 private:
     static Trace trace;
     static void ProcessCredChangeEvent(const ContextCallbackNotifyListener::MetaData &metaData);
+    static void ProcessCredManagerEvent(const ContextCallbackNotifyListener::MetaData &metaData);
     static void ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData);
-    static void ProcessPinAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData);
-    static void ProcessDelUserEvent(const ContextCallbackNotifyListener::MetaData &metaData);
+    static void ProcessUserAuthFwkEvent(const ContextCallbackNotifyListener::MetaData &metaData);
     Trace();
     ~Trace() override;
 };
