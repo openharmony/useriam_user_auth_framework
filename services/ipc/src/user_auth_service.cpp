@@ -322,6 +322,8 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
     para.atl = authTrustLevel;
     para.challenge = std::move(challenge);
     para.endAfterFirstFail = true;
+    para.callerName = contextCallback->GetTraceCallerName();
+    para.sdkVersion = apiVersion;
     return StartAuthContext(apiVersion, para, contextCallback);
 }
 
@@ -352,7 +354,7 @@ uint64_t UserAuthService::AuthUser(int32_t userId, const std::vector<uint8_t> &c
     AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback)
 {
     IAM_LOGI("start");
-    static const uint32_t innerApiVersion = 0x80000000;
+    static const int32_t innerApiVersion = 10000;
     auto contextCallback = GetAuthContextCallback(innerApiVersion, challenge, authType, authTrustLevel, callback);
     if (contextCallback == nullptr) {
         IAM_LOGE("contextCallback is nullptr");
@@ -377,6 +379,8 @@ uint64_t UserAuthService::AuthUser(int32_t userId, const std::vector<uint8_t> &c
     para.atl = authTrustLevel;
     para.challenge = std::move(challenge);
     para.endAfterFirstFail = false;
+    para.callerName = contextCallback->GetTraceCallerName();
+    para.sdkVersion = innerApiVersion;
     return StartAuthContext(innerApiVersion, para, contextCallback);
 }
 

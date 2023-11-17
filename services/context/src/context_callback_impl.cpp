@@ -117,6 +117,16 @@ void ContextCallbackImpl::SetTraceSdkVersion(int32_t version)
     metaData_.sdkVersion = version;
 }
 
+bool ContextCallbackImpl::GetTraceSdkVersion(int32_t &version)
+{
+    if (!metaData_.sdkVersion.has_value()) {
+        IAM_LOGI("metaData sdkVersion is null");
+        return false;
+    }
+    version = metaData_.sdkVersion.value();
+    return true;
+}
+
 void ContextCallbackImpl::SetTraceAuthType(int32_t authType)
 {
     metaData_.authType = authType;

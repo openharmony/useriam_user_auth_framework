@@ -37,6 +37,8 @@ public:
         uint32_t tokenId {0};
         std::vector<uint8_t> challenge;
         bool endAfterFirstFail;
+        std::string callerName;
+        int32_t sdkVersion;
     };
 
     struct AuthWidgetContextPara {

@@ -505,7 +505,7 @@ int32_t UserIdmService::EnforceDelUserInner(int32_t userId, std::shared_ptr<Cont
     ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos, changeReasonTrace);
     if (ret != SUCCESS) {
         IAM_LOGE("failed to delete executor info, error code : %{public}d", ret);
-        //EnforceDelUser return success for caller.
+        //The caller doesn't need to care executor delete result.
         return SUCCESS;
     }
 

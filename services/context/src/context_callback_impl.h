@@ -38,6 +38,7 @@ public:
     void SetTraceRemainTime(int32_t remainTime) override;
     void SetTraceFreezingTime(int32_t freezingTime) override;
     void SetTraceSdkVersion(int32_t version) override;
+    bool GetTraceSdkVersion(int32_t &version) override;
     void SetTraceAuthType(int32_t authType) override;
     void SetTraceAuthWidgetType(uint32_t authWidgetType) override;
     void SetTraceAuthTrustLevel(AuthTrustLevel atl) override;

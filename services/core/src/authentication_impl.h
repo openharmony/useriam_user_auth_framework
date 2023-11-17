@@ -27,7 +27,8 @@ namespace UserIam {
 namespace UserAuth {
 class AuthenticationImpl final : public Authentication, public NoCopyable {
 public:
-    AuthenticationImpl(uint64_t contextId, int32_t userId, AuthType authType, AuthTrustLevel atl);
+    AuthenticationImpl(uint64_t contextId, int32_t userId, AuthType authType, AuthTrustLevel atl,
+        std::string callerName, uint32_t sdkVersion);
     ~AuthenticationImpl() override;
 
     void SetExecutor(uint32_t executorIndex) override;
@@ -52,6 +53,8 @@ private:
     AuthType authType_;
     AuthTrustLevel atl_;
     bool endAfterFirstFail_ {false};
+    std::string callerName_;
+    int32_t sdkVersion_;
 
     uint32_t executorSensorHint {0};
     uint32_t executorIndex_ {0};

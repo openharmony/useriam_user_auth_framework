@@ -37,7 +37,8 @@ std::shared_ptr<Context> ContextFactory::CreateSimpleAuthContext(const AuthConte
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, nullptr);
     uint64_t newContextId = ContextPool::GetNewContextId();
-    auto auth = Common::MakeShared<AuthenticationImpl>(newContextId, para.userId, para.authType, para.atl);
+    auto auth = Common::MakeShared<AuthenticationImpl>(newContextId, para.userId, para.authType, para.atl,
+        para.callerName, para.sdkVersion);
     IF_FALSE_LOGE_AND_RETURN_VAL(auth != nullptr, nullptr);
     auth->SetChallenge(para.challenge);
     auth->SetAccessTokenId(para.tokenId);
