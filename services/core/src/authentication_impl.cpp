@@ -23,11 +23,14 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-AuthenticationImpl::AuthenticationImpl(uint64_t contextId, int32_t userId, AuthType authType, AuthTrustLevel atl)
+AuthenticationImpl::AuthenticationImpl(uint64_t contextId, int32_t userId, AuthType authType, AuthTrustLevel atl,
+    std::string callerName, uint32_t sdkVersion)
     : contextId_(contextId),
       userId_(userId),
       authType_(authType),
-      atl_(atl)
+      atl_(atl),
+      callerName_(callerName),
+      sdkVersion_(sdkVersion)
 {
 }
 
@@ -93,10 +96,12 @@ bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
         .authType = static_cast<HdiAuthType>(authType_),
         .executorSensorHint = executorSensorHint,
         .challenge = challenge_,
+        .callerName = callerName_,
+        .apiVersion = sdkVersion_,
     };
     std::vector<HdiScheduleInfo> infos;
     IamHitraceHelper traceHelper("hdi BeginAuthentication");
-    auto result = hdi->BeginAuthenticationV1_1(contextId_, solution, infos);
+    auto result = hdi->BeginAuthenticationV1_2(contextId_, solution, infos);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi BeginAuthentication failed, err is %{public}d", result);
         SetLatestError(result);

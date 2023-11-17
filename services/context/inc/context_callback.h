@@ -74,6 +74,7 @@ public:
     virtual void SetTraceRemainTime(int32_t remainTime) = 0;
     virtual void SetTraceFreezingTime(int32_t freezingTime) = 0;
     virtual void SetTraceSdkVersion(int32_t version) = 0;
+    virtual bool GetTraceSdkVersion(int32_t &version) = 0;
     virtual void SetTraceAuthType(int32_t authType) = 0;
     virtual void SetTraceAuthWidgetType(uint32_t authWidgetType) = 0;
     virtual void SetTraceAuthTrustLevel(AuthTrustLevel atl) = 0;
