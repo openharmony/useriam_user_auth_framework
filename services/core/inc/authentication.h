@@ -26,6 +26,17 @@ namespace UserIam {
 namespace UserAuth {
 class Authentication {
 public:
+    struct AuthenticationPara {
+        int32_t userId {0};
+        AuthType authType {ALL};
+        AuthTrustLevel atl {ATL1};
+        uint32_t tokenId {0};
+        std::vector<uint8_t> challenge;
+        bool endAfterFirstFail;
+        std::string callerName;
+        int32_t sdkVersion;
+    };
+
     struct AuthResultInfo {
         int32_t result;
         int32_t freezingTime;

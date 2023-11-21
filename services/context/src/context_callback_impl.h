@@ -31,14 +31,12 @@ public:
     void OnResult(int32_t resultCode, const Attributes &finalResult) override;
     void OnAcquireInfo(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg) const override;
     void SetTraceCallerName(std::string callerName) override;
-    std::string GetTraceCallerName() override;
     void SetTraceRequestContextId(uint64_t requestContextId) override;
     void SetTraceAuthContextId(uint64_t authContextId) override;
     void SetTraceUserId(int32_t userId) override;
     void SetTraceRemainTime(int32_t remainTime) override;
     void SetTraceFreezingTime(int32_t freezingTime) override;
     void SetTraceSdkVersion(int32_t version) override;
-    bool GetTraceSdkVersion(int32_t &version) override;
     void SetTraceAuthType(int32_t authType) override;
     void SetTraceAuthWidgetType(uint32_t authWidgetType) override;
     void SetTraceAuthTrustLevel(AuthTrustLevel atl) override;

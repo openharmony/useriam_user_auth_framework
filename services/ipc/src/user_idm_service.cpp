@@ -210,7 +210,9 @@ void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPar
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
-    std::string callerName = IpcCommon::GetCallerName(*this);
+    bool isBundleName = false;
+    std::string callerName = "";
+    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName));
     contextCallback->SetTraceCallerName(callerName);
     contextCallback->SetTraceUserId(userId);
     contextCallback->SetTraceAuthType(credPara.authType);
@@ -223,13 +225,17 @@ void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPar
 
     std::lock_guard<std::mutex> lock(mutex_);
     CancelCurrentEnrollIfExist();
-    ContextFactory::EnrollContextPara para = {};
+    Enrollment::EnrollmentPara para = {};
     para.authType = credPara.authType;
     para.userId = userId;
     para.pinType = credPara.pinType;
     para.tokenId = IpcCommon::GetAccessTokenId(*this);
     para.token = credPara.token;
     para.isUpdate = isUpdate;
+    para.sdkVersion = INNER_API_VERSION_10000;
+    if (isBundleName) {
+        para.callerName = callerName;
+    }
     auto context = ContextFactory::CreateEnrollContext(para, contextCallback);
     if (context == nullptr || !ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
@@ -319,7 +325,9 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInt
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return GENERAL_ERROR;
     }
-    contextCallback->SetTraceCallerName(IpcCommon::GetCallerName(*this));
+    bool isBundleName = false;
+    std::string callerName = "";
+    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName));
     contextCallback->SetTraceUserId(userId);
 
     if (!IpcCommon::CheckPermission(*this, ENFORCE_USER_IDM)) {
@@ -362,8 +370,9 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
-    std::string callerName = IpcCommon::GetCallerName(*this);
-    contextCallback->SetTraceCallerName(callerName);
+    bool isBundleName = false;
+    std::string callerName = "";
+    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName));
     contextCallback->SetTraceUserId(userId);
 
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
@@ -405,8 +414,9 @@ void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
-    std::string callerName = IpcCommon::GetCallerName(*this);
-    contextCallback->SetTraceCallerName(callerName);
+    bool isBundleName = false;
+    std::string callerName = "";
+    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName));
     contextCallback->SetTraceUserId(userId);
 
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
@@ -505,7 +515,7 @@ int32_t UserIdmService::EnforceDelUserInner(int32_t userId, std::shared_ptr<Cont
     ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos, changeReasonTrace);
     if (ret != SUCCESS) {
         IAM_LOGE("failed to delete executor info, error code : %{public}d", ret);
-        //The caller doesn't need to care executor delete result.
+        // The caller doesn't need to care executor delete result.
         return SUCCESS;
     }
 
@@ -528,6 +538,9 @@ void UserIdmService::ClearRedundancyCredentialInner()
         IAM_LOGE("no userInfo");
         return;
     }
+    bool isBundleName = false;
+    std::string callerName = "";
+    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName));
 
     for (const auto &iter : userInfos) {
         int32_t userId = iter->GetUserId();
@@ -537,7 +550,7 @@ void UserIdmService::ClearRedundancyCredentialInner()
             continue;
         }
         callbackForTrace->SetTraceUserId(userId);
-        callbackForTrace->SetTraceCallerName(IpcCommon::GetCallerName(*this));
+        callbackForTrace->SetTraceCallerName(callerName);
         std::vector<int32_t>::iterator it = std::find(accountInfo.begin(), accountInfo.end(), userId);
         if (it == accountInfo.end()) {
             ret = EnforceDelUserInner(userId, callbackForTrace, "DeleteRedundancy");

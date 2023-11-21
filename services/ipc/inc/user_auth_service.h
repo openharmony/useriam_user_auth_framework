@@ -70,12 +70,15 @@ private:
     int32_t CheckAuthWidgetType(const std::vector<AuthType> &authType);
     int32_t CheckAuthWidgetParam(
         int32_t userId, const AuthParam &authParam, const WidgetParam &widgetParam, std::vector<AuthType> &validType);
-    uint64_t StartWidgetContext(int32_t userId, const std::shared_ptr<ContextCallback> &contextCallback,
-        const AuthParam &authParam, const WidgetParam &widgetParam, std::vector<AuthType> &validType);
-    uint64_t StartAuthContext(int32_t apiVersion, ContextFactory::AuthContextPara para,
+    uint64_t StartWidgetContext(const std::shared_ptr<ContextCallback> &contextCallback, const AuthParam &authParam,
+        const WidgetParam &widgetParam, std::vector<AuthType> &validType,
+        ContextFactory::AuthWidgetContextPara &para);
+    uint64_t StartAuthContext(int32_t apiVersion, Authentication::AuthenticationPara para,
         const std::shared_ptr<ContextCallback> &contextCallback);
     bool Insert2ContextPool(const std::shared_ptr<Context> &context);
     bool CheckCallerIsSystemApp();
+    int32_t CheckAuthPermissionAndParam(int32_t authType, bool isBundleName, const std::string &callerName,
+        AuthTrustLevel authTrustLevel);
 };
 } // namespace UserAuth
 } // namespace UserIam
