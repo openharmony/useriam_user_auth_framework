@@ -44,12 +44,6 @@ int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, int32_t &userId)
     return SUCCESS;
 }
 
-bool IpcCommon::GetCallingBundleName(IPCObjectStub &stub, std::string &bundleName)
-{
-    bundleName = TEST_CALLER_BUNDLE_NAME;
-    return true;
-}
-
 int32_t IpcCommon::GetActiveUserId(std::optional<int32_t> &userId)
 {
     if (userId.has_value() && userId.value() != 0) {
@@ -141,10 +135,16 @@ void IpcCommon::SetSkipUserFlag(bool isSkip)
     skipFlag_ = isSkip;
 }
 
-std::string IpcCommon::GetCallerName(IPCObjectStub &stub)
+bool IpcCommon::GetCallerName(IPCObjectStub &stub, bool &isBundleName, std::string &callerName)
 {
-    std::string callerName = "";
-    return callerName;
+    callerName = "";
+    isBundleName = true;
+    return true;
+}
+
+bool IpcCommon::CheckForegroundApplication(const std::string &bundleName)
+{
+    return true;
 }
 } // namespace UserAuth
 } // namespace UserIam

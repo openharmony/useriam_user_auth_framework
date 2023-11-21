@@ -277,10 +277,30 @@ std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(int32_t
     contextCallback->SetTraceAuthType(authType);
     contextCallback->SetTraceAuthTrustLevel(authTrustLevel);
     contextCallback->SetTraceAuthWidgetType(authType);
-    std::string callerName = IpcCommon::GetCallerName(*this);
-    contextCallback->SetTraceCallerName(callerName);
     contextCallback->SetTraceSdkVersion(apiVersion);
     return contextCallback;
+}
+
+int32_t UserAuthService::CheckAuthPermissionAndParam(int32_t authType, bool isBundleName,
+    const std::string &callerName, AuthTrustLevel authTrustLevel)
+{
+    if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        return CHECK_PERMISSION_FAILED;
+    }
+    if (isBundleName && (!IpcCommon::CheckForegroundApplication(callerName))) {
+        IAM_LOGE("failed to check foreground application");
+        return CHECK_PERMISSION_FAILED;
+    }
+    if (authType == PIN) {
+        IAM_LOGE("authType not support");
+        return TYPE_NOT_SUPPORT;
+    }
+    if (!CheckAuthTrustLevel(authTrustLevel)) {
+        IAM_LOGE("authTrustLevel is not in correct range");
+        return TRUST_LEVEL_NOT_SUPPORT;
+    }
+    return SUCCESS;
 }
 
 uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &challenge,
@@ -292,15 +312,19 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
         IAM_LOGE("contextCallback is nullptr");
         return BAD_CONTEXT_ID;
     }
+    bool isBundleName = false;
+    std::string callerName = "";
     Attributes extraInfo;
-    if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
-        IAM_LOGE("failed to check permission");
-        contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
+    if ((!IpcCommon::GetCallerName(*this, isBundleName, callerName)) && isBundleName) {
+        IAM_LOGE("get bundle name fail");
+        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    if (authType == PIN) {
-        IAM_LOGE("authType not support");
-        contextCallback->OnResult(TYPE_NOT_SUPPORT, extraInfo);
+    contextCallback->SetTraceCallerName(callerName);
+    int32_t checkRet = CheckAuthPermissionAndParam(authType, isBundleName, callerName, authTrustLevel);
+    if (checkRet != SUCCESS) {
+        IAM_LOGE("check auth permission and param fail");
+        contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
     }
     int32_t userId;
@@ -310,24 +334,21 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
         return BAD_CONTEXT_ID;
     }
     contextCallback->SetTraceUserId(userId);
-    if (!CheckAuthTrustLevel(authTrustLevel)) {
-        IAM_LOGE("authTrustLevel is not in correct range");
-        contextCallback->OnResult(TRUST_LEVEL_NOT_SUPPORT, extraInfo);
-        return BAD_CONTEXT_ID;
-    }
-    ContextFactory::AuthContextPara para = {};
+    Authentication::AuthenticationPara para = {};
     para.tokenId = IpcCommon::GetAccessTokenId(*this);
     para.userId = userId;
     para.authType = authType;
     para.atl = authTrustLevel;
     para.challenge = std::move(challenge);
     para.endAfterFirstFail = true;
-    para.callerName = contextCallback->GetTraceCallerName();
+    if (isBundleName) {
+        para.callerName = callerName;
+    }
     para.sdkVersion = apiVersion;
     return StartAuthContext(apiVersion, para, contextCallback);
 }
 
-uint64_t UserAuthService::StartAuthContext(int32_t apiVersion, ContextFactory::AuthContextPara para,
+uint64_t UserAuthService::StartAuthContext(int32_t apiVersion, Authentication::AuthenticationPara para,
     const std::shared_ptr<ContextCallback> &contextCallback)
 {
     Attributes extraInfo;
@@ -354,14 +375,22 @@ uint64_t UserAuthService::AuthUser(int32_t userId, const std::vector<uint8_t> &c
     AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback)
 {
     IAM_LOGI("start");
-    static const int32_t innerApiVersion = 10000;
-    auto contextCallback = GetAuthContextCallback(innerApiVersion, challenge, authType, authTrustLevel, callback);
+    auto contextCallback = GetAuthContextCallback(INNER_API_VERSION_10000, challenge, authType, authTrustLevel,
+        callback);
     if (contextCallback == nullptr) {
         IAM_LOGE("contextCallback is nullptr");
         return BAD_CONTEXT_ID;
     }
     contextCallback->SetTraceUserId(userId);
     Attributes extraInfo;
+    bool isBundleName = false;
+    std::string callerName = "";
+    if ((!IpcCommon::GetCallerName(*this, isBundleName, callerName)) && isBundleName) {
+        IAM_LOGE("get bundle name fail");
+        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
+    contextCallback->SetTraceCallerName(callerName);
     if (!CheckAuthTrustLevel(authTrustLevel)) {
         IAM_LOGE("authTrustLevel is not in correct range");
         contextCallback->OnResult(TRUST_LEVEL_NOT_SUPPORT, extraInfo);
@@ -372,16 +401,18 @@ uint64_t UserAuthService::AuthUser(int32_t userId, const std::vector<uint8_t> &c
         contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    ContextFactory::AuthContextPara para = {};
+    Authentication::AuthenticationPara para = {};
     para.tokenId = IpcCommon::GetAccessTokenId(*this);
     para.userId = userId;
     para.authType = authType;
     para.atl = authTrustLevel;
     para.challenge = std::move(challenge);
     para.endAfterFirstFail = false;
-    para.callerName = contextCallback->GetTraceCallerName();
-    para.sdkVersion = innerApiVersion;
-    return StartAuthContext(innerApiVersion, para, contextCallback);
+    if (isBundleName) {
+        para.callerName = callerName;
+    }
+    para.sdkVersion = INNER_API_VERSION_10000;
+    return StartAuthContext(INNER_API_VERSION_10000, para, contextCallback);
 }
 
 uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthType authType,
@@ -411,7 +442,7 @@ uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthTy
         return BAD_CONTEXT_ID;
     }
 
-    ContextFactory::IdentifyContextPara para = {};
+    Identification::IdentificationPara para = {};
     para.tokenId = IpcCommon::GetAccessTokenId(*this);
     para.authType = authType;
     para.challenge = std::move(challenge);
@@ -560,19 +591,13 @@ int32_t UserAuthService::CheckAuthWidgetParam(
     return SUCCESS;
 }
 
-uint64_t UserAuthService::StartWidgetContext(int32_t userId, const std::shared_ptr<ContextCallback> &contextCallback,
-    const AuthParam &authParam, const WidgetParam &widgetParam, std::vector<AuthType> &validType)
+uint64_t UserAuthService::StartWidgetContext(const std::shared_ptr<ContextCallback> &contextCallback,
+    const AuthParam &authParam, const WidgetParam &widgetParam, std::vector<AuthType> &validType,
+    ContextFactory::AuthWidgetContextPara &para)
 {
     Attributes extraInfo;
-    ContextFactory::AuthWidgetContextPara para;
     para.tokenId = IpcCommon::GetAccessTokenId(*this);
-
-    std::string bundleName = "";
-    if (!IpcCommon::GetCallingBundleName(*this, bundleName)) {
-        IAM_LOGE("get calling bundle name failed");
-    }
-    para.callingBundleName = bundleName;
-    if (!AuthWidgetHelper::InitWidgetContextParam(userId, authParam, validType, widgetParam, para)) {
+    if (!AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para)) {
         IAM_LOGE("init widgetContext failed");
         contextCallback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
@@ -602,6 +627,10 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParam &authPa
         IAM_LOGE("contextCallback is nullptr");
         return BAD_CONTEXT_ID;
     }
+    bool isBundleName = false;
+    std::string callerName = "";
+    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName));
+    contextCallback->SetTraceCallerName(callerName);
     Attributes extraInfo;
     if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
         IAM_LOGE("CheckPermission failed");
@@ -621,7 +650,14 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParam &authPa
         contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    return StartWidgetContext(userId, contextCallback, authParam, widgetParam, validType);
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = userId;
+    if (isBundleName) {
+        para.callingBundleName = callerName;
+        para.callerName = callerName;
+    }
+    para.sdkVersion = apiVersion;
+    return StartWidgetContext(contextCallback, authParam, widgetParam, validType, para);
 }
 
 bool UserAuthService::Insert2ContextPool(const std::shared_ptr<Context> &context)
@@ -652,8 +688,6 @@ std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(int32_t
         callback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
         return nullptr;
     }
-    std::string callerName = IpcCommon::GetCallerName(*this);
-    contextCallback->SetTraceCallerName(callerName);
     contextCallback->SetTraceSdkVersion(apiVersion);
     contextCallback->SetTraceAuthTrustLevel(authParam.authTrustLevel);
 

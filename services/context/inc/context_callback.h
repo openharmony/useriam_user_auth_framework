@@ -67,14 +67,12 @@ public:
     virtual void OnResult(int32_t resultCode, const Attributes &finalResult) = 0;
     virtual void OnAcquireInfo(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg) const = 0;
     virtual void SetTraceCallerName(std::string callerName) = 0;
-    virtual std::string GetTraceCallerName() = 0;
     virtual void SetTraceRequestContextId(uint64_t requestContextId) = 0;
     virtual void SetTraceAuthContextId(uint64_t authContextId) = 0;
     virtual void SetTraceUserId(int32_t userId) = 0;
     virtual void SetTraceRemainTime(int32_t remainTime) = 0;
     virtual void SetTraceFreezingTime(int32_t freezingTime) = 0;
     virtual void SetTraceSdkVersion(int32_t version) = 0;
-    virtual bool GetTraceSdkVersion(int32_t &version) = 0;
     virtual void SetTraceAuthType(int32_t authType) = 0;
     virtual void SetTraceAuthWidgetType(uint32_t authWidgetType) = 0;
     virtual void SetTraceAuthTrustLevel(AuthTrustLevel atl) = 0;

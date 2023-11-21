@@ -22,25 +22,17 @@
 #include <string>
 
 #include "singleton.h"
+#include "authentication_impl.h"
+#include "enrollment_impl.h"
 #include "context.h"
 #include "context_callback.h"
+#include "identification_impl.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 class ContextFactory : public DelayedSingleton<ContextFactory> {
 public:
-    struct AuthContextPara {
-        int32_t userId {0};
-        AuthType authType {ALL};
-        AuthTrustLevel atl {ATL1};
-        uint32_t tokenId {0};
-        std::vector<uint8_t> challenge;
-        bool endAfterFirstFail;
-        std::string callerName;
-        int32_t sdkVersion;
-    };
-
     struct AuthWidgetContextPara {
         struct AuthProfile {
             int32_t pinSubType {0};
@@ -50,34 +42,21 @@ public:
         };
 
         int32_t userId {0};
+        int32_t sdkVersion {0};
         uint32_t tokenId {0};
         std::string callingBundleName {""};
+        std::string callerName {""};
         std::vector<uint8_t> challenge {};
         std::vector<AuthType> authTypeList {};
         AuthTrustLevel atl {ATL1};
         WidgetParam widgetParam {};
         std::map<AuthType, AuthProfile> authProfileMap {};
     };
-
-    struct IdentifyContextPara {
-        AuthType authType {ALL};
-        uint32_t tokenId {0};
-        std::vector<uint8_t> challenge;
-    };
-
-    struct EnrollContextPara {
-        int32_t userId {0};
-        AuthType authType {ALL};
-        PinSubType pinType {PIN_SIX};
-        bool isUpdate {false};
-        uint32_t tokenId {0};
-        std::vector<uint8_t> token;
-    };
-    static std::shared_ptr<Context> CreateSimpleAuthContext(const AuthContextPara &para,
+    static std::shared_ptr<Context> CreateSimpleAuthContext(const Authentication::AuthenticationPara &para,
         const std::shared_ptr<ContextCallback> &callback);
-    static std::shared_ptr<Context> CreateIdentifyContext(const IdentifyContextPara &para,
+    static std::shared_ptr<Context> CreateIdentifyContext(const Identification::IdentificationPara &para,
         const std::shared_ptr<ContextCallback> &callback);
-    static std::shared_ptr<Context> CreateEnrollContext(const EnrollContextPara &para,
+    static std::shared_ptr<Context> CreateEnrollContext(const Enrollment::EnrollmentPara &para,
         const std::shared_ptr<ContextCallback> &callback);
     static std::shared_ptr<Context> CreateWidgetAuthContext(std::shared_ptr<ContextCallback> callback);
     static std::shared_ptr<Context> CreateWidgetContext(const AuthWidgetContextPara &para,
