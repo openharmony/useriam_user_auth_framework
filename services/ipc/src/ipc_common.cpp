@@ -46,9 +46,6 @@ namespace {
     const std::vector<std::pair<int32_t, std::string>> enforceUserIdmWhiteLists = {
         {3058, "accountmgr"},
     };
-
-    const std::vector<std::pair<int32_t, std::string>> clearRedundancyIdmWhiteLists = {
-    };
 }
 
 int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, int32_t &userId)
@@ -162,8 +159,7 @@ bool IpcCommon::CheckPermission(IPCObjectStub &stub, Permission permission)
         case IS_SYSTEM_APP:
             return CheckCallerIsSystemApp(stub);
         case CLEAR_REDUNDANCY_PERMISSION:
-            return CheckDirectCaller(stub, PermissionString::ENFORCE_USER_IDM) &&
-                CheckNativeCallingProcessWhiteList(stub, permission);
+            return CheckDirectCaller(stub, PermissionString::ENFORCE_USER_IDM);
         default:
             IAM_LOGE("failed to check permission");
             return false;
@@ -196,7 +192,6 @@ std::vector<std::pair<int32_t, std::string>> IpcCommon::GetWhiteLists(Permission
         case ENFORCE_USER_IDM:
             return enforceUserIdmWhiteLists;
         case CLEAR_REDUNDANCY_PERMISSION:
-            return clearRedundancyIdmWhiteLists;
         case USE_USER_IDM_PERMISSION:
         case ACCESS_USER_AUTH_INTERNAL_PERMISSION:
         case ACCESS_BIOMETRIC_PERMISSION:
