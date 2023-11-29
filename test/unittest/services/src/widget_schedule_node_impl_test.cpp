@@ -117,6 +117,16 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplNaviPinAuth, TestSize
     widgetContext->LaunchWidget();
 }
 
+HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetParaInvalid, TestSize.Level0)
+{
+    auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
+    ASSERT_NE(schedule, nullptr);
+    schedule->SetCallback(widgetContext);
+    schedule->StartSchedule();
+    EXPECT_TRUE(schedule->WidgetParaInvalid());
+    widgetContext->LaunchWidget();
+}
+
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStopSchedule, TestSize.Level0)
 {
     auto schedule = std::make_shared<WidgetScheduleNodeImpl>();

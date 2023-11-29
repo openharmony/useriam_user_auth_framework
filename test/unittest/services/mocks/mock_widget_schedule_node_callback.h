@@ -31,6 +31,7 @@ public:
     MOCK_METHOD1(ExecuteAuthList, void(const std::set<AuthType> &authTypeList));
     MOCK_METHOD0(EndAuthAsCancel, void());
     MOCK_METHOD0(EndAuthAsNaviPin, void());
+    MOCK_METHOD0(EndAuthAsWidgetParaInvalid, void());
     MOCK_METHOD1(StopAuthList, void(const std::vector<AuthType> &authTypeList));
     MOCK_METHOD1(SuccessAuth, void(AuthType authType));
 };

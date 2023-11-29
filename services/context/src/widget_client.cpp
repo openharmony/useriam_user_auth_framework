@@ -93,6 +93,8 @@ ResultCode WidgetClient::OnNotice(NoticeType type, const std::string &eventData)
         }
     } else if (notice.event == NOTICE_EVENT_USER_NAVIGATION) {
         schedule_->NaviPinAuth();
+    } else if (notice.event == NOTICE_EVENT_WIDGET_PARA_INVALID) {
+        schedule_->WidgetParaInvalid();
     }
     return ResultCode::SUCCESS;
 }
@@ -262,7 +264,8 @@ bool WidgetClient::IsValidNoticeType(const WidgetNotice &notice)
 {
     if (notice.event != NOTICE_EVENT_AUTH_READY &&
         notice.event != NOTICE_EVENT_CANCEL_AUTH &&
-        notice.event != NOTICE_EVENT_USER_NAVIGATION) {
+        notice.event != NOTICE_EVENT_USER_NAVIGATION &&
+        notice.event != NOTICE_EVENT_WIDGET_PARA_INVALID) {
         return false;
     }
     return true;

@@ -37,7 +37,7 @@ public:
         S_WIDGET_INIT = 0,
         S_WIDGET_WAITING = 1,
         S_WIDGET_AUTH_RUNNING = 2,
-        S_WIDGET_AUTH_FINISHED = 3,
+        S_WIDGET_AUTH_FINISHED = 3
     };
 
     enum Event : uint32_t {
@@ -47,6 +47,7 @@ public:
         E_CANCEL_AUTH = 3,
         E_COMPLETE_AUTH = 4,
         E_NAVI_PIN_AUTH = 5,
+        E_WIDGET_PARA_INVALID = 6
     };
 
     virtual ~WidgetScheduleNode() = default;
@@ -56,6 +57,7 @@ public:
     virtual bool StopAuthList(const std::vector<AuthType> &authTypeList) = 0;
     virtual bool SuccessAuth(AuthType authType) = 0;
     virtual bool NaviPinAuth() = 0;
+    virtual bool WidgetParaInvalid() = 0;
     virtual void SetCallback(std::shared_ptr<WidgetScheduleNodeCallback> callback) = 0;
 };
 } // namespace UserAuth

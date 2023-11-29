@@ -66,6 +66,10 @@ std::shared_ptr<FiniteStateMachine> WidgetScheduleNodeImpl::MakeFiniteStateMachi
         [this](FiniteStateMachine &machine, uint32_t event) { OnStartAuth(machine, event); });
     builder->MakeTransition(S_WIDGET_AUTH_RUNNING, E_UPDATE_AUTH, S_WIDGET_AUTH_RUNNING,
         [this](FiniteStateMachine &machine, uint32_t event) { OnStopAuthList(machine, event); });
+    builder->MakeTransition(S_WIDGET_WAITING, E_WIDGET_PARA_INVALID, S_WIDGET_AUTH_FINISHED,
+        [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetParaInvalid(machine, event); });
+    builder->MakeTransition(S_WIDGET_AUTH_RUNNING, E_WIDGET_PARA_INVALID, S_WIDGET_AUTH_FINISHED,
+        [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetParaInvalid(machine, event); });
 
     return builder->Build();
 }
@@ -130,6 +134,12 @@ bool WidgetScheduleNodeImpl::NaviPinAuth()
     return TryKickMachine(E_NAVI_PIN_AUTH);
 }
 
+bool WidgetScheduleNodeImpl::WidgetParaInvalid()
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    return TryKickMachine(E_WIDGET_PARA_INVALID);
+}
+
 void WidgetScheduleNodeImpl::SetCallback(std::shared_ptr<WidgetScheduleNodeCallback> callback)
 {
     callback_ = callback;
@@ -189,6 +199,13 @@ void WidgetScheduleNodeImpl::OnNaviPinAuth(FiniteStateMachine &machine, uint32_t
     auto callback = callback_.lock();
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
     callback->EndAuthAsNaviPin();
+}
+
+void WidgetScheduleNodeImpl::OnWidgetParaInvalid(FiniteStateMachine &machine, uint32_t event)
+{
+    auto callback = callback_.lock();
+    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+    callback->EndAuthAsWidgetParaInvalid();
 }
 } // namespace UserAuth
 } // namespace UserIam
