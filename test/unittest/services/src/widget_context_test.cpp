@@ -218,6 +218,15 @@ HWTEST_F(WidgetContextTest, WidgetContextTestEndAuthAsNaviPin, TestSize.Level0)
     EXPECT_NE(widgetContext, nullptr);
 }
 
+HWTEST_F(WidgetContextTest, WidgetContextTestEndAuthAsWidgetParaInvalid, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    widgetContext->EndAuthAsWidgetParaInvalid();
+    EXPECT_NE(widgetContext, nullptr);
+}
+
 HWTEST_F(WidgetContextTest, WidgetContextTestStopAuthList_001, TestSize.Level0)
 {
     uint64_t contextId = 1;

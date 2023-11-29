@@ -60,6 +60,7 @@ public:
     void ExecuteAuthList(const std::set<AuthType> &authTypeList) override;
     void EndAuthAsCancel() override;
     void EndAuthAsNaviPin() override;
+    void EndAuthAsWidgetParaInvalid() override;
     void StopAuthList(const std::vector<AuthType> &authTypeList) override;
     void SuccessAuth(AuthType authType) override;
 

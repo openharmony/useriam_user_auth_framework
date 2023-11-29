@@ -43,6 +43,7 @@ public:
     bool StopAuthList(const std::vector<AuthType> &authTypeList) override;
     bool SuccessAuth(AuthType authType) override;
     bool NaviPinAuth() override;
+    bool WidgetParaInvalid() override;
     void SetCallback(std::shared_ptr<WidgetScheduleNodeCallback> callback) override;
 
 protected:
@@ -52,6 +53,7 @@ protected:
     void OnStopAuthList(FiniteStateMachine &machine, uint32_t event);
     void OnSuccessAuth(FiniteStateMachine &machine, uint32_t event);
     void OnNaviPinAuth(FiniteStateMachine &machine, uint32_t event);
+    void OnWidgetParaInvalid(FiniteStateMachine &machine, uint32_t event);
 
 private:
     std::shared_ptr<FiniteStateMachine> MakeFiniteStateMachine();
