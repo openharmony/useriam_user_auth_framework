@@ -204,12 +204,10 @@ void WidgetContext::AuthResult(int32_t resultCode, int32_t at, const Attributes 
     int32_t remainTimes = -1;
     int32_t freezingTime = -1;
     if (!finalResult.GetInt32Value(Attributes::ATTR_REMAIN_TIMES, remainTimes)) {
-        IAM_LOGE("get remainTimes failed.");
-        return;
+        IAM_LOGI("get remainTimes failed.");
     }
     if (!finalResult.GetInt32Value(Attributes::ATTR_FREEZING_TIME, freezingTime)) {
-        IAM_LOGE("get freezingTime failed.");
-        return;
+        IAM_LOGI("get freezingTime failed.");
     }
     AuthType authType = static_cast<AuthType>(at);
     WidgetClient::Instance().ReportWidgetResult(resultCode, authType, freezingTime, remainTimes);
@@ -273,6 +271,13 @@ void WidgetContext::EndAuthAsNaviPin()
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     // report CANCELED_FROM_WIDGET to App
     End(ResultCode::CANCELED_FROM_WIDGET);
+}
+
+void WidgetContext::EndAuthAsWidgetParaInvalid()
+{
+    IAM_LOGI("end auth as widget para invalid");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    End(ResultCode::INVALID_PARAMETERS);
 }
 
 void WidgetContext::StopAuthList(const std::vector<AuthType> &authTypeList)

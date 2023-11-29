@@ -35,6 +35,7 @@ public:
     virtual void ExecuteAuthList(const std::set<AuthType> &authTypeList) = 0;
     virtual void EndAuthAsCancel() = 0;
     virtual void EndAuthAsNaviPin() = 0;
+    virtual void EndAuthAsWidgetParaInvalid() = 0;
     virtual void StopAuthList(const std::vector<AuthType> &authTypeList) = 0;
     virtual void SuccessAuth(AuthType authType) = 0;
 };
