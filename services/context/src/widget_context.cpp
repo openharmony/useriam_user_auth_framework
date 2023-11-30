@@ -126,7 +126,7 @@ std::shared_ptr<ContextCallback> WidgetContext::GetAuthContextCallback(AuthType 
         iamCallback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
         return nullptr;
     }
-    widgetCallback->SetTraceCallerName(callerCallback_->GetTraceCallerName());
+    widgetCallback->SetTraceCallerName(para_.callerName);
     widgetCallback->SetTraceRequestContextId(contextId_);
     widgetCallback->SetTraceAuthTrustLevel(authTrustLevel);
     widgetCallback->SetTraceAuthType(authType);
@@ -146,13 +146,15 @@ std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &ch
     auto widgetCallback = GetAuthContextCallback(authType, authTrustLevel, iamCallback);
     IF_FALSE_LOGE_AND_RETURN_VAL(widgetCallback != nullptr, nullptr);
 
-    ContextFactory::AuthContextPara para = {};
+    Authentication::AuthenticationPara para = {};
     para.tokenId = tokenId;
     para.userId = userId;
     para.authType = authType;
     para.atl = authTrustLevel;
     para.challenge = challenge;
     para.endAfterFirstFail = true;
+    para.callerName = para_.callerName;
+    para.sdkVersion = para_.sdkVersion;
     auto context = ContextFactory::CreateSimpleAuthContext(para, widgetCallback);
     if (context == nullptr || !ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");

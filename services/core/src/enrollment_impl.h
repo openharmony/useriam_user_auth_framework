@@ -27,7 +27,7 @@ namespace UserIam {
 namespace UserAuth {
 class EnrollmentImpl final : public Enrollment, public NoCopyable {
 public:
-    EnrollmentImpl(int32_t userId, AuthType authType);
+    explicit EnrollmentImpl(EnrollmentPara enrollPara);
     ~EnrollmentImpl() override;
 
     void SetExecutorSensorHint(uint32_t executorSensorHint) override;
@@ -51,8 +51,7 @@ protected:
 private:
     bool GetSecUserId(std::optional<uint64_t> &secUserId);
 
-    int32_t userId_;
-    AuthType authType_;
+    EnrollmentPara enrollPara_;
     std::vector<uint8_t> authToken_;
     std::optional<uint64_t> secUserId_ {std::nullopt};
 

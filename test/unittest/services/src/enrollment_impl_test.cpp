@@ -58,23 +58,31 @@ void EnrollmentImplTest::TearDown()
 
 HWTEST_F(EnrollmentImplTest, EnrollmentHdiError, TestSize.Level0)
 {
-    constexpr int32_t userId = 0x11;
+    Enrollment::EnrollmentPara para = {};
+    para.userId = 0x11;
+    para.callerName = "com.ohos.test";
+    para.sdkVersion = 11;
+    para.authType = FACE;
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_CALL(*mock, BeginEnrollmentV1_1(userId, _, _, _)).WillRepeatedly(Return(1));
+    EXPECT_CALL(*mock, BeginEnrollmentV1_2(para.userId, _, _, _)).WillRepeatedly(Return(1));
 
-    auto enrollment = std::make_shared<EnrollmentImpl>(userId, FACE);
+    auto enrollment = std::make_shared<EnrollmentImpl>(para);
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
     EXPECT_FALSE(enrollment->Start(scheduleList, nullptr));
 }
 
 HWTEST_F(EnrollmentImplTest, EnrollmentHdiEmpty, TestSize.Level0)
 {
-    constexpr int32_t userId = 0x11;
+    Enrollment::EnrollmentPara para = {};
+    para.userId = 0x11;
+    para.callerName = "com.ohos.test";
+    para.sdkVersion = 11;
+    para.authType = FACE;
 
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_CALL(*mock, BeginEnrollmentV1_1(userId, _, _, _)).WillRepeatedly(Return(0));
+    EXPECT_CALL(*mock, BeginEnrollmentV1_2(para.userId, _, _, _)).WillRepeatedly(Return(0));
 
-    auto enroll = std::make_shared<EnrollmentImpl>(userId, FACE);
+    auto enroll = std::make_shared<EnrollmentImpl>(para);
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
     EXPECT_FALSE(enroll->Start(scheduleList, nullptr));
 }
@@ -87,12 +95,16 @@ HWTEST_F(EnrollmentImplTest, EnrollmentHdiEmpty, TestSize.Level0)
  */
 HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiError, TestSize.Level0)
 {
-    constexpr int32_t userId = 0x11;
+    Enrollment::EnrollmentPara para = {};
+    para.userId = 0x11;
+    para.callerName = "com.ohos.test";
+    para.sdkVersion = 11;
+    para.authType = FACE;
 
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_CALL(*mock, UpdateEnrollmentResult(userId, _, _)).WillRepeatedly(Return(1));
+    EXPECT_CALL(*mock, UpdateEnrollmentResult(para.userId, _, _)).WillRepeatedly(Return(1));
 
-    auto enroll = std::make_shared<EnrollmentImpl>(userId, FACE);
+    auto enroll = std::make_shared<EnrollmentImpl>(para);
     std::vector<uint8_t> scheduleResult = {1, 2, 3};
     uint64_t credentialId = 0;
     std::shared_ptr<CredentialInfoInterface> info = nullptr;
@@ -103,10 +115,13 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiError, TestSize.Level0)
 
 HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful_001, TestSize.Level0)
 {
-    constexpr int32_t userId = 0x11;
+    Enrollment::EnrollmentPara para = {};
+    para.userId = 0x11;
+    para.callerName = "com.ohos.test";
+    para.sdkVersion = 11;
+    para.authType = FACE;
     constexpr uint64_t credentialIdRet = 0x12;
     std::vector<uint8_t> scheduleResult = {1, 2, 3};
-
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
     auto fillUpInfos = [](HdiEnrollResultInfo &infoRet) {
         HdiCredentialInfo oldInfo = {
@@ -123,12 +138,13 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful_001, TestSize.Level0)
         };
         infoRet = info;
     };
-    EXPECT_CALL(*mock, UpdateEnrollmentResult(userId, _, _)).WillRepeatedly(DoAll(WithArg<2>(fillUpInfos), Return(0)));
+    EXPECT_CALL(*mock, UpdateEnrollmentResult(para.userId, _, _))
+        .WillRepeatedly(DoAll(WithArg<2>(fillUpInfos), Return(0)));
 
-    auto enroll = std::make_shared<EnrollmentImpl>(userId, FACE);
+    auto enroll = std::make_shared<EnrollmentImpl>(para);
     enroll->SetIsUpdate(true);
     HdiCredentialInfo oldInfo = {};
-    std::shared_ptr<CredentialInfoInterface> info = std::make_shared<CredentialInfoImpl>(userId, oldInfo);
+    std::shared_ptr<CredentialInfoInterface> info = std::make_shared<CredentialInfoImpl>(para.userId, oldInfo);
     uint64_t credentialId = 0;
     std::vector<uint8_t> rootSecret;
     std::optional<uint64_t> secUserId = std::nullopt;
@@ -147,10 +163,14 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful_001, TestSize.Level0)
 
 HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful_002, TestSize.Level0)
 {
-    int32_t userId = 1206;
+    Enrollment::EnrollmentPara para = {};
+    para.userId = 1206;
+    para.callerName = "com.ohos.test";
+    para.sdkVersion = 11;
+    para.authType = PIN;
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_CALL(*mock, UpdateEnrollmentResult(_, _, _)).WillRepeatedly(Return(0));
-    auto enroll = std::make_shared<EnrollmentImpl>(userId, FACE);
+    auto enroll = std::make_shared<EnrollmentImpl>(para);
     enroll->SetIsUpdate(false);
 
     std::vector<uint8_t> scheduleResult = {1, 2, 3};
@@ -178,7 +198,7 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful_002, TestSize.Level0)
             }
         );
 
-    enroll = std::make_shared<EnrollmentImpl>(userId, PIN);
+    enroll = std::make_shared<EnrollmentImpl>(para);
     enroll->SetIsUpdate(false);
     EXPECT_FALSE(enroll->Update(scheduleResult, credentialId, info, rootSecret, secUserId));
     EXPECT_FALSE(enroll->Update(scheduleResult, credentialId, info, rootSecret, secUserId));
@@ -186,16 +206,20 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful_002, TestSize.Level0)
 
 HWTEST_F(EnrollmentImplTest, EnrollmentImplTestStart_001, TestSize.Level0)
 {
-    constexpr uint64_t userId = 34567;
+    Enrollment::EnrollmentPara para = {};
+    para.userId = 0x11;
+    para.callerName = "com.ohos.test";
+    para.sdkVersion = 11;
+    para.authType = FACE;
     constexpr uint64_t executorIndex = 60;
-    
+
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, CancelEnrollment(_))
         .Times(2)
         .WillOnce(Return(HDF_SUCCESS))
         .WillOnce(Return(HDF_FAILURE));
-    EXPECT_CALL(*mockHdi, BeginEnrollmentV1_1(_, _, _, _))
+    EXPECT_CALL(*mockHdi, BeginEnrollmentV1_2(_, _, _, _))
         .WillRepeatedly(
             [](int32_t userId, const std::vector<uint8_t> &authToken, const HdiEnrollParam &param,
                 HdiScheduleInfo &info) {
@@ -219,7 +243,7 @@ HWTEST_F(EnrollmentImplTest, EnrollmentImplTestStart_001, TestSize.Level0)
     auto resourceNode = MockResourceNode::CreateWithExecuteIndex(executorIndex, FACE, ALL_IN_ONE);
     EXPECT_NE(resourceNode, nullptr);
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
-    auto enroll = std::make_shared<EnrollmentImpl>(userId, FACE);
+    auto enroll = std::make_shared<EnrollmentImpl>(para);
     EXPECT_NE(enroll, nullptr);
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
     auto callback = Common::MakeShared<MockScheduleNodeCallback>();
@@ -235,9 +259,13 @@ HWTEST_F(EnrollmentImplTest, EnrollmentImplTestStart_001, TestSize.Level0)
 
 HWTEST_F(EnrollmentImplTest, EnrollmentImplTestStart_002, TestSize.Level0)
 {
-    uint64_t userId = 34567;
+    Enrollment::EnrollmentPara para = {};
+    para.userId = 34567;
+    para.callerName = "com.ohos.test";
+    para.sdkVersion = 11;
+    para.authType = PIN;
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_CALL(*mock, BeginEnrollmentV1_1(_, _, _, _)).WillRepeatedly(Return(1));
+    EXPECT_CALL(*mock, BeginEnrollmentV1_2(_, _, _, _)).WillRepeatedly(Return(1));
     EXPECT_CALL(*mock, GetUserInfo(_, _, _, _))
         .WillOnce(Return(1))
         .WillRepeatedly(
@@ -254,7 +282,7 @@ HWTEST_F(EnrollmentImplTest, EnrollmentImplTestStart_002, TestSize.Level0)
             }
         );
 
-    auto enroll = std::make_shared<EnrollmentImpl>(userId, FACE);
+    auto enroll = std::make_shared<EnrollmentImpl>(para);
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
     auto callback = Common::MakeShared<MockScheduleNodeCallback>();
     EXPECT_FALSE(enroll->Start(scheduleList, callback));
@@ -262,7 +290,7 @@ HWTEST_F(EnrollmentImplTest, EnrollmentImplTestStart_002, TestSize.Level0)
     enroll->SetIsUpdate(true);
     EXPECT_FALSE(enroll->Start(scheduleList, callback));
 
-    enroll = std::make_shared<EnrollmentImpl>(userId, PIN);
+    enroll = std::make_shared<EnrollmentImpl>(para);
     enroll->SetIsUpdate(true);
     EXPECT_FALSE(enroll->Start(scheduleList, callback));
     EXPECT_FALSE(enroll->Start(scheduleList, callback));

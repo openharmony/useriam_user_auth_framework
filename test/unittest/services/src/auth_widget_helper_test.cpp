@@ -56,7 +56,6 @@ void AuthWidgetHelperTest::TearDown()
 
 HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam001, TestSize.Level0)
 {
-    int32_t userId = 1;
     AuthParam authParam;
     authParam.authType.push_back(FACE);
     authParam.authType.push_back(ALL);
@@ -67,13 +66,13 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam001, Te
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "确定";
     ContextFactory::AuthWidgetContextPara para;
+    para.userId = 1;
     std::vector<AuthType> validType;
-    EXPECT_TRUE(AuthWidgetHelper::InitWidgetContextParam(userId, authParam, validType, widgetParam, para));
+    EXPECT_TRUE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
 }
 
 HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam002, TestSize.Level0)
 {
-    int32_t userId = 1;
     AuthParam authParam;
     authParam.authType.push_back(FACE);
     authParam.authType.push_back(ALL);
@@ -84,8 +83,9 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam002, Te
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "确定";
     ContextFactory::AuthWidgetContextPara para;
+    para.userId = 1;
     std::vector<AuthType> validType = authParam.authType;
-    EXPECT_FALSE(AuthWidgetHelper::InitWidgetContextParam(userId, authParam, validType, widgetParam, para));
+    EXPECT_FALSE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
 }
 
 HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckValidSolution, TestSize.Level0)

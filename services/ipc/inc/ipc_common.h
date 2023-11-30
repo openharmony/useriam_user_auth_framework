@@ -42,13 +42,13 @@ class IpcCommon final : public NoCopyable {
 public:
     using Recipient = std::function<void()>;
     static int32_t GetCallingUserId(IPCObjectStub &stub, int32_t &userId);
-    static bool GetCallingBundleName(IPCObjectStub &stub, std::string &bundleName);
     static int32_t GetActiveUserId(std::optional<int32_t> &userId);
     static int32_t GetAllUserId(std::vector<int32_t> &userIds);
     static bool CheckPermission(IPCObjectStub &stub, Permission permission);
     static uint32_t GetAccessTokenId(IPCObjectStub &stub);
     static uint32_t GetTokenId(IPCObjectStub &stub);
-    static std::string GetCallerName(IPCObjectStub &stub);
+    static bool GetCallerName(IPCObjectStub &stub, bool &isBundleName, std::string &callerName);
+    static bool CheckForegroundApplication(const std::string &bundleName);
     class PeerDeathRecipient final : public IPCObjectProxy::DeathRecipient {
     public:
         explicit PeerDeathRecipient(Recipient &&recipient) : recipient_(std::forward<Recipient>(recipient))

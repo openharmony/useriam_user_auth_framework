@@ -23,11 +23,8 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-AuthenticationImpl::AuthenticationImpl(uint64_t contextId, int32_t userId, AuthType authType, AuthTrustLevel atl)
-    : contextId_(contextId),
-      userId_(userId),
-      authType_(authType),
-      atl_(atl)
+AuthenticationImpl::AuthenticationImpl(uint64_t contextId, const AuthenticationPara &authPara)
+    : contextId_(contextId), authPara_(authPara)
 {
 }
 
@@ -81,22 +78,25 @@ std::vector<Authentication::AuthExecutorMsg> AuthenticationImpl::GetAuthExecutor
 bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
     std::shared_ptr<ScheduleNodeCallback> callback)
 {
-    IAM_LOGE("UserId:%{public}d AuthType:%{public}d ATL:%{public}u", userId_, authType_, atl_);
+    IAM_LOGE("UserId:%{public}d AuthType:%{public}d ATL:%{public}u", authPara_.userId, authPara_.authType,
+        authPara_.atl);
     auto hdi = HdiWrapper::GetHdiInstance();
     if (!hdi) {
         IAM_LOGE("bad hdi");
         return false;
     }
     HdiAuthSolution solution = {
-        .userId = userId_,
-        .authTrustLevel = atl_,
-        .authType = static_cast<HdiAuthType>(authType_),
+        .userId = authPara_.userId,
+        .authTrustLevel = authPara_.atl,
+        .authType = static_cast<HdiAuthType>(authPara_.authType),
         .executorSensorHint = executorSensorHint,
         .challenge = challenge_,
+        .callerName = authPara_.callerName,
+        .apiVersion = authPara_.sdkVersion,
     };
     std::vector<HdiScheduleInfo> infos;
     IamHitraceHelper traceHelper("hdi BeginAuthentication");
-    auto result = hdi->BeginAuthenticationV1_1(contextId_, solution, infos);
+    auto result = hdi->BeginAuthenticationV1_2(contextId_, solution, infos);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi BeginAuthentication failed, err is %{public}d", result);
         SetLatestError(result);
