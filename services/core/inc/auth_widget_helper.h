@@ -24,8 +24,7 @@ namespace UserIam {
 namespace UserAuth {
 class AuthWidgetHelper {
 public:
-    static bool InitWidgetContextParam(
-        int32_t userId, const AuthParam &authParam, std::vector<AuthType> &validType,
+    static bool InitWidgetContextParam(const AuthParam &authParam, std::vector<AuthType> &validType,
         const WidgetParam &widgetParam, ContextFactory::AuthWidgetContextPara &para);
     static int32_t CheckValidSolution(int32_t userId,
         const std::vector<AuthType> &authTypeList, const AuthTrustLevel &atl, std::vector<AuthType> &validTypeList);

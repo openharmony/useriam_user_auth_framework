@@ -22,6 +22,8 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 const int32_t INVALID_AUTH_TYPE = -1;
+const int32_t INNER_API_VERSION_10000 = 10000;
+
 #define IAM_TRY(action0, action1) \
     do {                          \
         try {                     \

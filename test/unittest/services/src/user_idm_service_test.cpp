@@ -336,7 +336,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential002, TestSize.Level0)
         );
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, BeginEnrollmentV1_1(_, _, _, _)).WillRepeatedly(Return(HDF_FAILURE));
+    EXPECT_CALL(*mockHdi, BeginEnrollmentV1_2(_, _, _, _)).WillRepeatedly(Return(HDF_FAILURE));
     
     service.AddCredential(testUserId, testCredPara, testCallback, false);
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
@@ -368,7 +368,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential003, TestSize.Level0)
     
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, BeginEnrollmentV1_1(_, _, _, _))
+    EXPECT_CALL(*mockHdi, BeginEnrollmentV1_2(_, _, _, _))
         .WillOnce(
             [&context](int32_t userId, const std::vector<uint8_t> &authToken, const HdiEnrollParam &param,
                 HdiScheduleInfo &info) {
@@ -489,7 +489,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUpdateCredential002, TestSize.Level0)
             }
         );
     
-    EXPECT_CALL(*mockHdi, BeginEnrollmentV1_1(_, _, _, _)).WillOnce(Return(HDF_FAILURE));
+    EXPECT_CALL(*mockHdi, BeginEnrollmentV1_2(_, _, _, _)).WillOnce(Return(HDF_FAILURE));
 
     testCredPara.token = {1, 2, 3, 4};
     service.UpdateCredential(testUserId, testCredPara, testCallback);

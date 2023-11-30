@@ -16,8 +16,11 @@
 #include "ipc_common.h"
 #include "ipc_skeleton.h"
 #include "accesstoken_kit.h"
+#include "app_mgr_interface.h"
 #include "iam_common_defines.h"
 #include "iam_logger.h"
+#include "iservice_registry.h"
+#include "system_ability_definition.h"
 #include "tokenid_kit.h"
 #ifdef HAS_OS_ACCOUNT_PART
 #include "os_account_manager.h"
@@ -71,26 +74,6 @@ int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, int32_t &userId)
     return SUCCESS;
 }
 
-bool IpcCommon::GetCallingBundleName(IPCObjectStub &stub, std::string &bundleName)
-{
-    uint32_t tokenId = GetAccessTokenId(stub);
-    using namespace Security::AccessToken;
-    ATokenTypeEnum callingType = AccessTokenKit::GetTokenTypeFlag(tokenId);
-    if (callingType != TOKEN_HAP) {
-        IAM_LOGE("the caller is not a hap");
-        return false;
-    }
-    HapTokenInfo hapTokenInfo;
-    int result = AccessTokenKit::GetHapTokenInfo(tokenId, hapTokenInfo);
-    if (result != SUCCESS) {
-        IAM_LOGE("failed to get hap token info, result = %{public}d", result);
-        return false;
-    }
-    bundleName = hapTokenInfo.bundleName;
-    IAM_LOGI("get callingInfo, bundleName is %{public}s", bundleName.c_str());
-    return true;
-}
-
 int32_t IpcCommon::GetActiveUserId(std::optional<int32_t> &userId)
 {
     if (userId.has_value() && userId.value() != 0) {
@@ -135,6 +118,31 @@ int32_t IpcCommon::GetAllUserId(std::vector<int32_t> &userIds)
 #endif
 
     return SUCCESS;
+}
+
+bool IpcCommon::CheckForegroundApplication(const std::string &bundleName)
+{
+    sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgrClient == nullptr) {
+        IAM_LOGI("Get system ability manager failed");
+        return false;
+    }
+    sptr<AppExecFwk::IAppMgr> iAppManager =
+        iface_cast<AppExecFwk::IAppMgr>(samgrClient->GetSystemAbility(APP_MGR_SERVICE_ID));
+    if (iAppManager == nullptr) {
+        IAM_LOGI("Failed to get ability manager service");
+        return false;
+    }
+    std::vector<AppExecFwk::AppStateData> foregroundAppList;
+    iAppManager->GetForegroundApplications(foregroundAppList);
+    auto it = std::find_if(foregroundAppList.begin(), foregroundAppList.end(), [bundleName] (auto foregroundApp) {
+        return bundleName.compare(foregroundApp.bundleName) == 0;
+    });
+    if (it == foregroundAppList.end()) {
+        IAM_LOGI("app : %{public}s is not foreground", bundleName.c_str());
+        return false;
+    }
+    return true;
 }
 
 bool IpcCommon::CheckPermission(IPCObjectStub &stub, Permission permission)
@@ -270,27 +278,37 @@ bool IpcCommon::CheckCallerIsSystemApp(IPCObjectStub &stub)
     return false;
 }
 
-std::string IpcCommon::GetCallerName(IPCObjectStub &stub)
+bool IpcCommon::GetCallerName(IPCObjectStub &stub, bool &isBundleName, std::string &callerName)
 {
-    std::string callerName = "";
-    if (GetCallingBundleName(stub, callerName)) {
-        return callerName;
-    }
     uint32_t tokenId = GetAccessTokenId(stub);
     using namespace Security::AccessToken;
     ATokenTypeEnum callingType = AccessTokenKit::GetTokenTypeFlag(tokenId);
-    if (callingType != TOKEN_NATIVE) {
-        IAM_LOGE("the caller is not a native service");
-        return callerName;
+    if (callingType == TOKEN_HAP) {
+        isBundleName = true;
+        HapTokenInfo hapTokenInfo;
+        int result = AccessTokenKit::GetHapTokenInfo(tokenId, hapTokenInfo);
+        if (result != SUCCESS) {
+            IAM_LOGE("failed to get hap token info, result = %{public}d", result);
+            return false;
+        }
+        callerName = hapTokenInfo.bundleName;
+        IAM_LOGI("caller bundleName is %{public}s", callerName.c_str());
+        return true;
+    } else if (callingType == TOKEN_NATIVE) {
+        isBundleName = false;
+        NativeTokenInfo nativeTokenInfo;
+        int res = AccessTokenKit::GetNativeTokenInfo(tokenId, nativeTokenInfo);
+        if (res != SUCCESS) {
+            IAM_LOGE("failed to get native token info, res = %{public}d", res);
+            return false;
+        }
+        callerName = nativeTokenInfo.processName;
+        IAM_LOGI("caller processName is %{public}s", callerName.c_str());
+        return true;
     }
-    NativeTokenInfo nativeTokenInfo;
-    int res = AccessTokenKit::GetNativeTokenInfo(tokenId, nativeTokenInfo);
-    if (res != SUCCESS) {
-        IAM_LOGE("failed to get native token info, res = %{public}d", res);
-        return callerName;
-    }
-    callerName = nativeTokenInfo.processName;
-    return callerName;
+    isBundleName = false;
+    IAM_LOGI("caller is not a hap or a native");
+    return false;
 }
 } // namespace UserAuth
 } // namespace UserIam

@@ -26,11 +26,17 @@ namespace UserIam {
 namespace UserAuth {
 class Identification {
 public:
+    struct IdentificationPara {
+        AuthType authType {ALL};
+        uint32_t tokenId {0};
+        std::vector<uint8_t> challenge;
+    };
     struct IdentifyResultInfo {
         int32_t result;
         int32_t userId;
         std::vector<uint8_t> token;
     };
+
     virtual ~Identification() = default;
 
     virtual void SetExecutor(uint32_t executorIndex) = 0;

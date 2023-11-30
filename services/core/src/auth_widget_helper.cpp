@@ -26,13 +26,12 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 
-bool AuthWidgetHelper::InitWidgetContextParam(
-    int32_t userId, const AuthParam &authParam, std::vector<AuthType> &validType,
+bool AuthWidgetHelper::InitWidgetContextParam(const AuthParam &authParam, std::vector<AuthType> &validType,
     const WidgetParam &widgetParam, ContextFactory::AuthWidgetContextPara &para)
 {
     for (auto &authType : validType) {
         ContextFactory::AuthWidgetContextPara::AuthProfile profile;
-        if (!GetUserAuthProfile(userId, authType, profile)) {
+        if (!GetUserAuthProfile(para.userId, authType, profile)) {
             IAM_LOGE("get user auth profile failed");
             return false;
         }
@@ -43,7 +42,6 @@ bool AuthWidgetHelper::InitWidgetContextParam(
             WidgetClient::Instance().SetSensorInfo(profile.sensorInfo);
         }
     }
-    para.userId = userId;
     para.challenge = std::move(authParam.challenge);
     para.authTypeList = std::move(validType);
     para.atl = authParam.authTrustLevel;

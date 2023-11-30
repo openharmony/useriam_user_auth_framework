@@ -88,15 +88,6 @@ void ContextCallbackImpl::SetTraceCallerName(std::string callerName)
     metaData_.callerName = callerName;
 }
 
-std::string ContextCallbackImpl::GetTraceCallerName()
-{
-    if (!metaData_.callerName.has_value()) {
-        IAM_LOGI("metaData callerName is null");
-        return "";
-    }
-    return metaData_.callerName.value();
-}
-
 void ContextCallbackImpl::SetTraceRequestContextId(uint64_t requestContextId)
 {
     metaData_.requestContextId = requestContextId;

@@ -28,7 +28,8 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-EnrollmentImpl::EnrollmentImpl(int32_t userId, AuthType authType) : userId_(userId), authType_(authType)
+EnrollmentImpl::EnrollmentImpl(EnrollmentPara enrollPara)
+    : enrollPara_(enrollPara)
 {
 }
 
@@ -82,7 +83,7 @@ void EnrollmentImpl::SetIsUpdate(bool isUpdate)
 bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
     std::shared_ptr<ScheduleNodeCallback> callback)
 {
-    IAM_LOGE("UserId:%{public}d AuthType:%{public}d", userId_, authType_);
+    IAM_LOGE("UserId:%{public}d AuthType:%{public}d", enrollPara_.userId, enrollPara_.authType);
     auto hdi = HdiWrapper::GetHdiInstance();
     if (!hdi) {
         IAM_LOGE("bad hdi");
@@ -96,11 +97,13 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
 
     HdiScheduleInfo info = {};
     HdiEnrollParam param = {
-        .authType = static_cast<HdiAuthType>(authType_),
+        .authType = static_cast<HdiAuthType>(enrollPara_.authType),
         .executorSensorHint = executorSensorHint_,
+        .callerName = enrollPara_.callerName,
+        .apiVersion = enrollPara_.sdkVersion,
     };
     IamHitraceHelper traceHelper("hdi BeginEnrollment");
-    auto result = hdi->BeginEnrollmentV1_1(userId_, authToken_, param, info);
+    auto result = hdi->BeginEnrollmentV1_2(enrollPara_.userId, authToken_, param, info);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi BeginEnrollment failed, err is %{public}d", result);
         SetLatestError(result);
@@ -125,11 +128,11 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
 bool EnrollmentImpl::GetSecUserId(std::optional<uint64_t> &secUserId)
 {
     secUserId = std::nullopt;
-    if (authType_ != PIN) {
+    if (enrollPara_.authType != PIN) {
         IAM_LOGI("no need return sec user id");
         return true;
     }
-    auto userInfo = UserIdmDatabase::Instance().GetSecUserInfo(userId_);
+    auto userInfo = UserIdmDatabase::Instance().GetSecUserInfo(enrollPara_.userId);
     if (userInfo != nullptr) {
         secUserId = userInfo->GetSecUserId();
         return true;
@@ -140,9 +143,9 @@ bool EnrollmentImpl::GetSecUserId(std::optional<uint64_t> &secUserId)
         return false;
     }
 
-    IAM_LOGE("current user id %{public}d get fail", userId_);
+    IAM_LOGE("current user id %{public}d get fail", enrollPara_.userId);
     std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
-    if (UserIdmDatabase::Instance().DeleteUserEnforce(userId_, credInfos) != SUCCESS) {
+    if (UserIdmDatabase::Instance().DeleteUserEnforce(enrollPara_.userId, credInfos) != SUCCESS) {
         IAM_LOGE("failed to enforce delete user");
     }
     return false;
@@ -159,13 +162,14 @@ bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t
     }
 
     HdiEnrollResultInfo resultInfo = {};
-    auto result = hdi->UpdateEnrollmentResult(userId_, scheduleResult, resultInfo);
+    auto result = hdi->UpdateEnrollmentResult(enrollPara_.userId, scheduleResult, resultInfo);
     if (result != HDF_SUCCESS) {
-        IAM_LOGE("hdi UpdateEnrollmentResult failed, err is %{public}d, userId is %{public}d", result, userId_);
+        IAM_LOGE("hdi UpdateEnrollmentResult failed, err is %{public}d, userId is %{public}d", result,
+            enrollPara_.userId);
         SetLatestError(result);
         return false;
     }
-    IAM_LOGI("hdi UpdateEnrollmentResult success, userId is %{public}d", userId_);
+    IAM_LOGI("hdi UpdateEnrollmentResult success, userId is %{public}d", enrollPara_.userId);
 
     credentialId = resultInfo.credentialId;
     rootSecret = resultInfo.rootSecret;
@@ -181,7 +185,7 @@ bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t
         return true;
     }
 
-    info = Common::MakeShared<CredentialInfoImpl>(userId_, resultInfo.oldInfo);
+    info = Common::MakeShared<CredentialInfoImpl>(enrollPara_.userId, resultInfo.oldInfo);
     if (info == nullptr) {
         IAM_LOGE("bad alloc");
         return false;
@@ -202,7 +206,7 @@ bool EnrollmentImpl::Cancel()
         return false;
     }
 
-    auto result = hdi->CancelEnrollment(userId_);
+    auto result = hdi->CancelEnrollment(enrollPara_.userId);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi CancelEnrollment failed, err is %{public}d", result);
         SetLatestError(result);
