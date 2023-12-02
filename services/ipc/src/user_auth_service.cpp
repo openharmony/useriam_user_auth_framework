@@ -544,11 +544,6 @@ int32_t UserAuthService::CheckAuthWidgetParam(
         return INVALID_PARAMETERS;
     }
 
-    if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP) &&
-        (widgetParam.windowMode != WindowModeType::UNKNOWN_WINDOW_MODE)) {
-        IAM_LOGE("normal app can't set window mode.");
-        return INVALID_PARAMETERS;
-    }
     if (widgetParam.windowMode == FULLSCREEN && CheckSingeFaceOrFinger(validType)) {
         IAM_LOGE("Single fingerprint or single face does not support full screen");
         return INVALID_PARAMETERS;
@@ -599,6 +594,12 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParam &authPa
         return BAD_CONTEXT_ID;
     }
     Attributes extraInfo;
+    if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP) &&
+        (widgetParam.windowMode != WindowModeType::UNKNOWN_WINDOW_MODE)) {
+        IAM_LOGE("normal app can't set window mode.");
+        contextCallback->OnResult(INVALID_PARAMETERS, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
     if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
         IAM_LOGE("CheckPermission failed");
         contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
