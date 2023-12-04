@@ -25,6 +25,7 @@
 #include "context_callback.h"
 #include "context_factory.h"
 #include "context_pool.h"
+#include "iam_hitrace_helper.h"
 #include "resource_node_pool.h"
 #include "user_idm_database.h"
 
@@ -79,6 +80,7 @@ private:
     bool CheckCallerIsSystemApp();
     int32_t CheckAuthPermissionAndParam(int32_t authType, bool isBundleName, const std::string &callerName,
         AuthTrustLevel authTrustLevel);
+    std::shared_ptr<UserIam::UserAuth::IamHitraceHelper> connectWidgetHitrace_ {nullptr};
 };
 } // namespace UserAuth
 } // namespace UserIam
