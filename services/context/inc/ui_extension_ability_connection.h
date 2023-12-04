@@ -24,6 +24,7 @@
 #include "message_parcel.h"
 #include "nocopyable.h"
 
+#include "iam_hitrace_helper.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -40,9 +41,11 @@ public:
     void OnAbilityConnectDone(const AppExecFwk::ElementName &element,
         const sptr<IRemoteObject> &remoteObject, int32_t resultCode) override;
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int32_t resultCode) override;
+    void SetConnectAbilityHitrace(std::shared_ptr<UserIam::UserAuth::IamHitraceHelper> trace);
 
 private:
     std::string commandStr_;
+    std::shared_ptr<UserIam::UserAuth::IamHitraceHelper> connectAbilityHitrace_ {nullptr};
 };
 } // namespace UserAuth
 } // namespace UserIam
