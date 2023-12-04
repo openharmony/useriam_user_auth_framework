@@ -20,6 +20,7 @@
 #include "auth_common.h"
 #include "iam_check.h"
 #include "iam_logger.h"
+#include "iam_ptr.h"
 #include "iam_time.h"
 #include "nlohmann/json.hpp"
 #include "widget_callback_interface.h"
@@ -51,6 +52,7 @@ void WidgetClient::SetWidgetSchedule(const std::shared_ptr<WidgetScheduleNode> &
 ResultCode WidgetClient::OnNotice(NoticeType type, const std::string &eventData)
 {
     // handle notice from widget
+    sendCommandHitrace_ = nullptr;
     if (type != WIDGET_NOTICE) {
         IAM_LOGE("Invalid notice type");
         return ResultCode::INVALID_PARAMETERS;
@@ -105,6 +107,7 @@ void WidgetClient::SendCommand(const WidgetCommand &command)
         IAM_LOGE("SendCommand widget callback is null");
         return;
     }
+    sendCommandHitrace_ =  Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("SendCommandStart");
     nlohmann::json root = command;
     std::string cmdData = root.dump();
     IAM_LOGI("SendCommand cmdData: %{public}s", cmdData.c_str());

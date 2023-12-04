@@ -17,6 +17,7 @@
 #include "ability_manager_client.h"
 #include "iam_logger.h"
 #include "widget_client.h"
+#include "widget_context.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 constexpr int32_t SIGNAL_NUM = 3;
@@ -29,6 +30,7 @@ void UIExtensionAbilityConnection::OnAbilityConnectDone(const AppExecFwk::Elemen
     const sptr<IRemoteObject> &remoteObject, int32_t resultCode)
 {
     IAM_LOGI("on ability connected");
+    connectAbilityHitrace_ = nullptr;
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -48,7 +50,13 @@ void UIExtensionAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::Ele
     int32_t resultCode)
 {
     IAM_LOGI("on ability disconnected");
+    connectAbilityHitrace_ = nullptr;
     WidgetClient::Instance().ForceStopAuth();
+}
+
+void UIExtensionAbilityConnection::SetConnectAbilityHitrace(std::shared_ptr<UserIam::UserAuth::IamHitraceHelper> trace)
+{
+    connectAbilityHitrace_ = trace;
 }
 } // namespace UserAuth
 } // namespace UserIam

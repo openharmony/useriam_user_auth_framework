@@ -23,6 +23,7 @@
 
 #include "authentication_impl.h"
 #include "base_context.h"
+#include "iam_hitrace_helper.h"
 #include "widget_callback_interface.h"
 #include "widget_json.h"
 #include "widget_schedule_node.h"
@@ -75,6 +76,7 @@ private:
     uint32_t authTokenId_ {0};
     std::vector<uint8_t> challenge_ {};
     std::string callingBundleName_ {""};
+    std::shared_ptr<UserIam::UserAuth::IamHitraceHelper> sendCommandHitrace_ {nullptr};
 };
 } // namespace UserAuth
 } // namespace UserIam

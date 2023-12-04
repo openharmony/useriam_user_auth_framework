@@ -215,11 +215,11 @@ void WidgetContext::AuthResult(int32_t resultCode, int32_t at, const Attributes 
     WidgetClient::Instance().ReportWidgetResult(resultCode, authType, freezingTime, remainTimes);
     IF_FALSE_LOGE_AND_RETURN(schedule_ != nullptr);
     IF_FALSE_LOGE_AND_RETURN(callerCallback_ != nullptr);
+    callerCallback_->SetTraceAuthType(authType);
     IAM_LOGI("call schedule:");
     if (resultCode == ResultCode::SUCCESS) {
         finalResult.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authResultInfo_.token);
         authResultInfo_.authType = authType;
-        callerCallback_->SetTraceAuthType(authType);
         schedule_->SuccessAuth(authType);
     } else {
         // failed
@@ -322,6 +322,9 @@ int32_t WidgetContext::ConnectExtensionAbility(const AAFwk::Want &want, const st
         IAM_LOGE("new connection error.");
         return ERR_NO_MEMORY;
     }
+
+    connectAbilityHitrace_ = Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("ConnectAbilityStart");
+    connection_->SetConnectAbilityHitrace(connectAbilityHitrace_);
 
     std::string identity = IPCSkeleton::ResetCallingIdentity();
     auto ret = AAFwk::ExtensionManagerClient::GetInstance().ConnectServiceExtensionAbility(want, connection_, nullptr,
