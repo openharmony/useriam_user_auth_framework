@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,6 +30,7 @@ namespace {
 struct ResultCallbackV6Holder {
     std::shared_ptr<UserAuthCallbackV6> callback {nullptr};
     int32_t result {0};
+    napi_env env;
 };
 
 const std::map<int32_t, AuthenticationResult> g_result2ExecuteResult = {
@@ -75,18 +76,28 @@ void OnCallbackV6Work(uv_work_t *work, int status)
         DestoryWork(work);
         return;
     }
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(resultHolder->env, &scope);
+    if (scope == nullptr) {
+        IAM_LOGE("scope is invalid");
+        DestoryWork(work);
+        return;
+    }
     napi_status ret = resultHolder->callback->DoPromise(resultHolder->result);
     if (ret != napi_ok) {
         IAM_LOGE("DoPromise fail %{public}d", ret);
+        napi_close_handle_scope(resultHolder->env, scope);
         DestoryWork(work);
         return;
     }
     ret = resultHolder->callback->DoCallback(resultHolder->result);
     if (ret != napi_ok) {
         IAM_LOGE("DoCallback fail %{public}d", ret);
+        napi_close_handle_scope(resultHolder->env, scope);
         DestoryWork(work);
         return;
     }
+    napi_close_handle_scope(resultHolder->env, scope);
     DestoryWork(work);
     return;
 }
@@ -181,6 +192,7 @@ void UserAuthCallbackV6::OnResult(int32_t result, const Attributes &extraInfo)
         resultHolder->result = static_cast<int32_t>(res->second);
         IAM_LOGI("convert result %{public}d to execute result %{public}d", result, resultHolder->result);
     }
+    resultHolder->env = env_;
     work->data = reinterpret_cast<void *>(resultHolder);
     if (uv_queue_work(loop, work, [](uv_work_t *work) {}, OnCallbackV6Work) != 0) {
         IAM_LOGE("uv_queue_work fail");
