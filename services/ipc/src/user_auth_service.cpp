@@ -617,7 +617,6 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParam &authPa
     const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback)
 {
     IAM_LOGI("start %{public}d authTrustLevel:%{public}u", apiVersion, authParam.authTrustLevel);
-    connectWidgetHitrace_ =  Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("ConnectWidgetStart");
     auto contextCallback = GetAuthContextCallback(apiVersion, authParam, widgetParam, callback);
     if (contextCallback == nullptr) {
         IAM_LOGE("contextCallback is nullptr");
@@ -723,7 +722,6 @@ int32_t UserAuthService::Notice(NoticeType noticeType, const std::string &eventD
         IAM_LOGE("failed to check permission");
         return ResultCode::CHECK_PERMISSION_FAILED;
     }
-    connectWidgetHitrace_ = nullptr;
     return WidgetClient::Instance().OnNotice(noticeType, eventData);
 }
 
