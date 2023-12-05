@@ -49,7 +49,7 @@ ohos_shared_library("user_auth_extension") {
     "c_utils:utils",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
-    "ipc:ipc_napi_common",
+    "ipc:ipc_napi",
     "napi:ace_napi",
   ]
 
