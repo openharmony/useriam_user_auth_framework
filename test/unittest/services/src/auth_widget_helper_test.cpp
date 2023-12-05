@@ -98,7 +98,7 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckValidSolution, TestSize.
     authTypeList.push_back(FINGERPRINT);
     AuthTrustLevel atl = ATL3;
     std::vector<AuthType> validTypeList;
-    EXPECT_FALSE(AuthWidgetHelper::CheckValidSolution(userId, authTypeList, atl, validTypeList));
+    EXPECT_NE(AuthWidgetHelper::CheckValidSolution(userId, authTypeList, atl, validTypeList), SUCCESS);
 }
 } // namespace UserAuth
 } // namespace UserIam
