@@ -323,9 +323,6 @@ int32_t WidgetContext::ConnectExtensionAbility(const AAFwk::Want &want, const st
         return ERR_NO_MEMORY;
     }
 
-    connectAbilityHitrace_ = Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("ConnectAbilityStart");
-    connection_->SetConnectAbilityHitrace(connectAbilityHitrace_);
-
     std::string identity = IPCSkeleton::ResetCallingIdentity();
     auto ret = AAFwk::ExtensionManagerClient::GetInstance().ConnectServiceExtensionAbility(want, connection_, nullptr,
         DEFAULT_VALUE);
