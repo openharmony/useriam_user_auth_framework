@@ -310,11 +310,13 @@ void JsUserAuthExtension::OnCommand(const AAFwk::Want &want, bool restart, int s
     IAM_LOGD("JsUserAuthExtension onCommand end.");
 }
 
-void JsUserAuthExtension::OnForeground(const Want &want)
+void JsUserAuthExtension::OnForeground(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     IAM_LOGD("JsUserAuthExtension onForeground begin.");
-    Extension::OnForeground(want);
+    Extension::OnForeground(want, sessionInfo);
+
+    ForegroundWindow(want, sessionInfo);
 
     HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onForeground");
