@@ -11,4 +11,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-bootevent.useriam.fwkready="useriam:useriam:755"
+bootevent.useriam.fwkready=useriam:useriam:0755
+persist.useriam.enable.fingerprintauth=useriam:useriam:0775
