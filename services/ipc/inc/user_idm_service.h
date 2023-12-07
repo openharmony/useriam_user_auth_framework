@@ -60,6 +60,8 @@ protected:
     void OnStop() override;
 
 private:
+    bool CheckEnrollPermissionAndEnableStatus(
+        const std::shared_ptr<ContextCallback> &contextCallback, AuthType authType);
     int32_t CancelCurrentEnroll();
     void CancelCurrentEnrollIfExist();
     int32_t GetSecInfoInner(int32_t userId, SecUserInfo &secUserInfo);

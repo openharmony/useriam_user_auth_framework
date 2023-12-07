@@ -12,3 +12,4 @@
 # limitations under the License.
 
 bootevent.useriam.fwkready=false
+persist.useriam.enable.fingerprintauth=true

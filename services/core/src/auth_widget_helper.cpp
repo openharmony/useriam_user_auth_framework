@@ -17,6 +17,7 @@
 
 #include "iam_logger.h"
 #include "resource_node_pool.h"
+#include "system_param_manager.h"
 #include "user_idm_database.h"
 #include "widget_client.h"
 
@@ -132,12 +133,15 @@ int32_t AuthWidgetHelper::CheckValidSolution(int32_t userId,
     std::vector<HdiAuthType> validTypes;
     uint32_t inputAtl = atl;
     for (auto &type : authTypeList) {
+        if (!SystemParamManager::GetInstance().IsAuthTypeEnable(type)) {
+            IAM_LOGE("authType:%{public}d not enable", type);
+            continue;
+        }
         inputAuthType.emplace_back(static_cast<HdiAuthType>(type));
     }
     int32_t result = hdi->GetValidSolution(userId, inputAuthType, inputAtl, validTypes);
     if (result != SUCCESS) {
-        IAM_LOGE("failed to get current supported authTrustLevel from hdi result:%{public}d userId:%{public}d",
-            result, userId);
+        IAM_LOGE("GetValidSolution failed result:%{public}d userId:%{public}d", result, userId);
         return result;
     }
     validTypeList.clear();

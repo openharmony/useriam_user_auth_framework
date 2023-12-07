@@ -32,6 +32,7 @@
 #include "iam_time.h"
 #include "ipc_common.h"
 #include "ipc_skeleton.h"
+#include "system_param_manager.h"
 #include "widget_client.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
@@ -108,6 +109,7 @@ void UserAuthService::OnStart()
     if (!Publish(this)) {
         IAM_LOGE("failed to publish service");
     }
+    SystemParamManager::GetInstance().Start();
 }
 
 void UserAuthService::OnStop()
@@ -133,7 +135,8 @@ int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authTyp
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
     }
-    if (apiVersion <= API_VERSION_8 && authType == PIN) {
+    if ((apiVersion <= API_VERSION_8 && authType == PIN) ||
+        !SystemParamManager::GetInstance().IsAuthTypeEnable(authType)) {
         IAM_LOGE("authType not support");
         return TYPE_NOT_SUPPORT;
     }
@@ -292,7 +295,7 @@ int32_t UserAuthService::CheckAuthPermissionAndParam(int32_t authType, bool isBu
         IAM_LOGE("failed to check foreground application");
         return CHECK_PERMISSION_FAILED;
     }
-    if (authType == PIN) {
+    if ((authType == PIN) || !SystemParamManager::GetInstance().IsAuthTypeEnable(authType)) {
         IAM_LOGE("authType not support");
         return TYPE_NOT_SUPPORT;
     }
@@ -401,6 +404,11 @@ uint64_t UserAuthService::AuthUser(int32_t userId, const std::vector<uint8_t> &c
         contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
         return BAD_CONTEXT_ID;
     }
+    if (!SystemParamManager::GetInstance().IsAuthTypeEnable(authType)) {
+        IAM_LOGE("auth type not support");
+        contextCallback->OnResult(TYPE_NOT_SUPPORT, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
     Authentication::AuthenticationPara para = {};
     para.tokenId = IpcCommon::GetAccessTokenId(*this);
     para.userId = userId;
@@ -431,8 +439,8 @@ uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthTy
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    if (authType == PIN) {
-        IAM_LOGE("pin not support");
+    if ((authType == PIN) || !SystemParamManager::GetInstance().IsAuthTypeEnable(authType)) {
+        IAM_LOGE("type not support %{public}d", authType);
         contextCallback->OnResult(TYPE_NOT_SUPPORT, extraInfo);
         return BAD_CONTEXT_ID;
     }
