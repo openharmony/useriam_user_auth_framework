@@ -60,6 +60,7 @@ ohos_source_set("userauth_service_core") {
     "src/schedule_node_helper.cpp",
     "src/schedule_node_impl.cpp",
     "src/secure_user_info_impl.cpp",
+    "src/system_param_manager.cpp",
     "src/template_cache_manager.cpp",
     "src/user_idm_database_impl.cpp",
     "src/user_idm_session_controller_impl.cpp",

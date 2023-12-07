@@ -31,6 +31,7 @@
 #include "iam_common_defines.h"
 #include "resource_node_pool.h"
 #include "resource_node_utils.h"
+#include "system_param_manager.h"
 #include "user_idm_callback_proxy.h"
 #include "user_idm_database.h"
 #include "user_idm_session_controller.h"
@@ -197,6 +198,24 @@ int32_t UserIdmService::GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserIn
     return ret;
 }
 
+bool UserIdmService::CheckEnrollPermissionAndEnableStatus(
+    const std::shared_ptr<ContextCallback> &contextCallback, AuthType authType)
+{
+    Attributes extraInfo;
+    if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
+        return false;
+    }
+
+    if (!SystemParamManager::GetInstance().IsAuthTypeEnable(authType)) {
+        IAM_LOGE("authType not support");
+        contextCallback->OnResult(TYPE_NOT_SUPPORT, extraInfo);
+        return false;
+    }
+    return true;
+}
+
 void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPara,
     const sptr<IdmCallbackInterface> &callback, bool isUpdate)
 {
@@ -217,9 +236,8 @@ void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPar
     contextCallback->SetTraceUserId(userId);
     contextCallback->SetTraceAuthType(credPara.authType);
 
-    if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
-        IAM_LOGE("failed to check permission");
-        contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
+    if (!CheckEnrollPermissionAndEnableStatus(contextCallback, credPara.authType)) {
+        IAM_LOGE("CheckEnrollPermissionAndEnableStatus fail");
         return;
     }
 
