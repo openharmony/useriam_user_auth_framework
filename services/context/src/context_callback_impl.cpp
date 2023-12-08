@@ -83,7 +83,7 @@ void ContextCallbackImpl::SetTraceRemainTime(int32_t remainTime)
     metaData_.remainTime = remainTime;
 }
 
-void ContextCallbackImpl::SetTraceCallerName(std::string callerName)
+void ContextCallbackImpl::SetTraceCallerName(const std::string &callerName)
 {
     metaData_.callerName = callerName;
 }
