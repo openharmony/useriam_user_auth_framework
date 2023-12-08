@@ -338,8 +338,9 @@ void JsUserAuthExtension::ForegroundWindow(const AAFwk::Want &want, const sptr<A
         IAM_LOGE("Invalid sessionInfo.");
         return;
     }
-    auto obj = sessionInfo->sessionToken;
-    if (uiWindowMap_.find(obj) == uiWindowMap_.end()) {
+    IAM_LOGD("JsUserAuthExtension component id: %{public}" PRId64 ".", sessionInfo->uiExtensionComponentId);
+    auto componentId = sessionInfo->uiExtensionComponentId;
+    if (uiWindowMap_.find(componentId) == uiWindowMap_.end()) {
         sptr<Rosen::WindowOption> option(new (std::nothrow) Rosen::WindowOption());
         if (option == nullptr) {
             IAM_LOGE("JsUserAuthExtension failed to create window option");
@@ -368,15 +369,15 @@ void JsUserAuthExtension::ForegroundWindow(const AAFwk::Want &want, const sptr<A
             
         napi_ref tmpRef = nullptr;
         napi_create_reference(env, nativeContentSession, 1, &tmpRef);
-        contentSessions_.emplace(obj, reinterpret_cast<NativeReference *>(tmpRef));
+        contentSessions_.emplace(componentId, reinterpret_cast<NativeReference *>(tmpRef));
         napi_value argv[] = {napiWant, nativeContentSession};
         CallObjectMethod("onSessionCreate", argv, ARGC_TWO);
-        uiWindowMap_[obj] = uiWindow;
+        uiWindowMap_[componentId] = uiWindow;
     }
-    auto& uiWindow = uiWindowMap_[obj];
+    auto& uiWindow = uiWindowMap_[componentId];
     if (uiWindow) {
         uiWindow->Show();
-        foregroundWindows_.emplace(obj);
+        foregroundWindows_.emplace(componentId);
     }
     IAM_LOGD("JsUserAuthExtension foreground end.");
 }
@@ -388,15 +389,16 @@ void JsUserAuthExtension::BackgroundWindow(const sptr<AAFwk::SessionInfo> &sessi
         IAM_LOGE("Invalid sessionInfo.");
         return;
     }
-    auto obj = sessionInfo->sessionToken;
-    if (uiWindowMap_.find(obj) == uiWindowMap_.end()) {
+    IAM_LOGD("JsUserAuthExtension component id: %{public}" PRId64 ".", sessionInfo->uiExtensionComponentId);
+    auto componentId = sessionInfo->uiExtensionComponentId;
+    if (uiWindowMap_.find(componentId) == uiWindowMap_.end()) {
         IAM_LOGE("JsUserAuthExtension fail to find uiWindow");
         return;
     }
-    auto& uiWindow = uiWindowMap_[obj];
+    auto& uiWindow = uiWindowMap_[componentId];
     if (uiWindow) {
         uiWindow->Hide();
-        foregroundWindows_.erase(obj);
+        foregroundWindows_.erase(componentId);
     }
     IAM_LOGD("JsUserAuthExtension background end.");
 }
@@ -408,23 +410,24 @@ void JsUserAuthExtension::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionI
         IAM_LOGE("JsUserAuthExtension invalid sessionInfo.");
         return;
     }
-    auto obj = sessionInfo->sessionToken;
-    if (uiWindowMap_.find(obj) == uiWindowMap_.end()) {
+    IAM_LOGD("JsUserAuthExtension component id: %{public}" PRId64 ".", sessionInfo->uiExtensionComponentId);
+    auto componentId = sessionInfo->uiExtensionComponentId;
+    if (uiWindowMap_.find(componentId) == uiWindowMap_.end()) {
         IAM_LOGE("JsUserAuthExtension fail to find uiWindow");
         return;
     }
-    if (contentSessions_.find(obj) != contentSessions_.end() && contentSessions_[obj] != nullptr) {
+    if (contentSessions_.find(componentId) != contentSessions_.end() && contentSessions_[componentId] != nullptr) {
         HandleScope handleScope(jsRuntime_);
-        napi_value argv[] = {contentSessions_[obj]->GetNapiValue()};
+        napi_value argv[] = {contentSessions_[componentId]->GetNapiValue()};
         CallObjectMethod("onSessionDestroy", argv, ARGC_ONE);
     }
-    auto& uiWindow = uiWindowMap_[obj];
+    auto& uiWindow = uiWindowMap_[componentId];
     if (uiWindow) {
         uiWindow->Destroy();
     }
-    uiWindowMap_.erase(obj);
-    foregroundWindows_.erase(obj);
-    contentSessions_.erase(obj);
+    uiWindowMap_.erase(componentId);
+    foregroundWindows_.erase(componentId);
+    contentSessions_.erase(componentId);
     IAM_LOGD("JsUserAuthExtension destroy end.");
 }
 
