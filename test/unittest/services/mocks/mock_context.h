@@ -35,7 +35,7 @@ public:
     MOCK_METHOD2(OnResult, void(int32_t resultCode, const Attributes &finalResult));
     MOCK_CONST_METHOD3(
         OnAcquireInfo, void(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg));
-    MOCK_METHOD1(SetTraceCallerName, void(std::string callerName));
+    MOCK_METHOD1(SetTraceCallerName, void(const std::string &callerName));
     MOCK_METHOD1(SetTraceRequestContextId, void(uint64_t requestContextId));
     MOCK_METHOD1(SetTraceAuthContextId, void(uint64_t authContextId));
     MOCK_METHOD1(SetTraceUserId, void(int32_t userId));
