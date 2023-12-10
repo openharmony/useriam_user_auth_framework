@@ -317,6 +317,7 @@ ohos_source_set("userauth_services_ipc_fuzzer") {
     "../../../services/ipc/src/co_auth_service.cpp",
     "../../../services/ipc/src/executor_messenger_service.cpp",
     "../../../services/ipc/src/ipc_common.cpp",
+    "../../../services/ipc/src/publish_event_adapter_mock.cpp",
     "../../../services/ipc/src/user_auth_service.cpp",
     "../../../services/ipc/src/user_idm_service.cpp",
   ]
