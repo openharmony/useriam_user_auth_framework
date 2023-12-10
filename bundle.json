@@ -45,6 +45,7 @@
         "hdf_core",
         "hitrace",
         "c_utils",
+        "common_event_service",
         "window_manager"
       ],
       "third_party": [

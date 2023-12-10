@@ -25,6 +25,7 @@ config("userauth_service_core_config") {
     "inc",
     "src",
     "../context/inc",
+    "../ipc/inc",
   ]
 }
 

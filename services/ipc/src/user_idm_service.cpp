@@ -29,6 +29,7 @@
 #include "ipc_common.h"
 #include "ipc_skeleton.h"
 #include "iam_common_defines.h"
+#include "publish_event_adapter.h"
 #include "resource_node_pool.h"
 #include "resource_node_utils.h"
 #include "system_param_manager.h"
@@ -416,7 +417,7 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
         IAM_LOGE("failed to delete executor info, error code : %{public}d", ret);
     }
     IAM_LOGI("delete user end");
-
+    PublishEventAdapter::PublishDeletedEvent(userId);
     contextCallback->OnResult(ret, extraInfo);
 }
 
@@ -537,6 +538,7 @@ int32_t UserIdmService::EnforceDelUserInner(int32_t userId, std::shared_ptr<Cont
         return SUCCESS;
     }
 
+    PublishEventAdapter::PublishDeletedEvent(userId);
     IAM_LOGI("delete user success, userId:%{public}d", userId);
     return SUCCESS;
 }
