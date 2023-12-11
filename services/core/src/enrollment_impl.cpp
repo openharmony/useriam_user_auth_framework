@@ -19,6 +19,7 @@
 #include "iam_logger.h"
 #include "iam_ptr.h"
 
+#include "publish_event_adapter.h"
 #include "credential_info_impl.h"
 #include "schedule_node_helper.h"
 #include "user_idm_database.h"
@@ -120,6 +121,11 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
         IAM_LOGE("BuildFromHdi failed");
         return false;
     }
+    if (scheduleList.size() == 0 || scheduleList[0] == nullptr) {
+        IAM_LOGE("Bad Parameter!");
+        return false;
+    }
+    scheduleId_ = scheduleList[0]->GetScheduleId();
 
     running_ = true;
     return true;
@@ -180,6 +186,7 @@ bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t
             IAM_LOGE("enroll get secUserId fail");
             return false;
         }
+        PublishEventAdapter::PublishCreatedEvent(enrollPara_.userId, scheduleId_);
         IAM_LOGI("enroll not need to delete old cred");
         info = nullptr;
         return true;
@@ -190,6 +197,7 @@ bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t
         IAM_LOGE("bad alloc");
         return false;
     }
+    PublishEventAdapter::PublishUpdatedEvent(enrollPara_.userId, scheduleId_);
     return true;
 }
 
