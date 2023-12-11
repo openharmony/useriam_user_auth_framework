@@ -79,6 +79,7 @@ ohos_unittest("iam_services_test") {
     "../../../services/core/src/widget_schedule_node_impl.cpp",
     "../../../services/ipc/src/co_auth_service.cpp",
     "../../../services/ipc/src/executor_messenger_service.cpp",
+    "../../../services/ipc/src/publish_event_adapter_mock.cpp",
     "../../../services/ipc/src/user_auth_service.cpp",
     "../../../services/ipc/src/user_idm_service.cpp",
     "mocks/mock_ipc_common.cpp",

@@ -57,6 +57,7 @@ private:
 
     uint32_t executorSensorHint_ {0};
     uint32_t tokenId_ {0};
+    uint64_t scheduleId_ {0};
     PinSubType pinSubType_ {PinSubType::PIN_MAX};
     bool isUpdate_ {false};
     bool running_ {false};
