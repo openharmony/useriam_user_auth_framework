@@ -108,7 +108,7 @@ void WidgetClient::SendCommand(const WidgetCommand &command)
     }
     nlohmann::json root = command;
     std::string cmdData = root.dump();
-    IAM_LOGI("SendCommand cmdData: %{public}s", cmdData.c_str());
+    IAM_LOGI("SendCommand cmdData");
     widgetCallback_->SendCommand(cmdData);
 }
 
