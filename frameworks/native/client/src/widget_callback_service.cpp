@@ -45,7 +45,7 @@ WidgetCallbackService::~WidgetCallbackService()
 
 void WidgetCallbackService::SendCommand(const std::string &cmdData)
 {
-    IAM_LOGI("start, cmdData:%{public}s", cmdData.c_str());
+    IAM_LOGI("start");
     if (widgetCallback_ == nullptr) {
         IAM_LOGE("both widget callback is nullptr");
         return;
