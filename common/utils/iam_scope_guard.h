@@ -35,7 +35,11 @@ public:
     ~IamScopeGuard() override
     {
         if (action_ != nullptr) {
-            IAM_TRY(action_(), return);
+            try {
+                action_();
+            } catch (...) {
+                return;
+            }
         }
     }
 
