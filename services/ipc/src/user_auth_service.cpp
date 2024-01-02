@@ -567,13 +567,14 @@ int32_t UserAuthService::CheckAuthWidgetParam(
         IAM_LOGE("CheckValidSolution fail %{public}d", ret);
         return ret;
     }
-    static const size_t validSizeTwo = 2;
-    static const size_t validType0 = 0;
-    static const size_t validType1 = 1;
-    if (((validType.size() == validSizeTwo) &&
-            (validType[validType0] == AuthType::FACE) && (validType[validType1] == AuthType::FINGERPRINT)) ||
-        ((validType.size() == validSizeTwo) &&
-            (validType[validType0] == AuthType::FINGERPRINT) && (validType[validType1] == AuthType::FACE))) {
+    static const size_t authTypeTwo = 2;
+    static const size_t authType0 = 0;
+    static const size_t authType1 = 1;
+    std::vector<AuthType> authType = authParam.authType;
+    if (((authType.size() == authTypeTwo) &&
+            (authType[authType0] == AuthType::FACE) && (authType[authType1] == AuthType::FINGERPRINT)) ||
+        ((authType.size() == authTypeTwo) &&
+            (authType[authType0] == AuthType::FINGERPRINT) && (authType[authType1] == AuthType::FACE))) {
         IAM_LOGE("only face and finger not support");
         return INVALID_PARAMETERS;
     }
