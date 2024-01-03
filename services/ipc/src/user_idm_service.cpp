@@ -483,28 +483,31 @@ int UserIdmService::Dump(int fd, const std::vector<std::u16string> &args)
         dprintf(fd, "      -l: active user info dump.\n");
         return SUCCESS;
     }
-    if (arg0.compare("-l") == 0) {
-        std::optional<int32_t> activeUserId;
-        if (IpcCommon::GetActiveUserId(activeUserId) != SUCCESS) {
-            dprintf(fd, "Internal error.\n");
-            IAM_LOGE("failed to get active id");
-            return GENERAL_ERROR;
-        }
-        dprintf(fd, "Active user is %d\n", activeUserId.value());
-        auto userInfo = UserIdmDatabase::Instance().GetSecUserInfo(activeUserId.value());
-        if (userInfo != nullptr) {
-            auto enrolledInfo = userInfo->GetEnrolledInfo();
-            for (auto &info : enrolledInfo) {
-                if (info != nullptr) {
-                    dprintf(fd, "AuthType %s is enrolled.\n", Common::AuthTypeToStr(info->GetAuthType()));
-                }
-            }
-        }
+    if (arg0.compare("-l") != 0) {
+        IAM_LOGE("invalid option");
+        dprintf(fd, "Invalid option\n");
+        return GENERAL_ERROR;
+    }
+
+    std::optional<int32_t> activeUserId;
+    if (IpcCommon::GetActiveUserId(activeUserId) != SUCCESS) {
+        dprintf(fd, "Internal error.\n");
+        IAM_LOGE("failed to get active id");
+        return GENERAL_ERROR;
+    }
+    dprintf(fd, "Active user is %d\n", activeUserId.value());
+    auto userInfo = UserIdmDatabase::Instance().GetSecUserInfo(activeUserId.value());
+    if (userInfo == nullptr) {
+        IAM_LOGE("userInfo is null");
         return SUCCESS;
     }
-    IAM_LOGE("invalid option");
-    dprintf(fd, "Invalid option\n");
-    return GENERAL_ERROR;
+    auto enrolledInfo = userInfo->GetEnrolledInfo();
+    for (auto &info : enrolledInfo) {
+        if (info != nullptr) {
+            dprintf(fd, "AuthType %s is enrolled.\n", Common::AuthTypeToStr(info->GetAuthType()));
+        }
+    }
+    return SUCCESS;
 }
 
 void UserIdmService::SetAuthTypeTrace(const std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos,
