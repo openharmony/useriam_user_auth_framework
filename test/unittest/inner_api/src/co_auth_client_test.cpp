@@ -95,25 +95,21 @@ void CoAuthClientTest::CallRemoteObject(const std::shared_ptr<MockCoAuthService>
     EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
     EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
     EXPECT_CALL(*obj, AddDeathRecipient(_))
-        .WillRepeatedly(
-            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
-                dr = recipient;
-                return true;
-            }
-        );
+        .WillRepeatedly([&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+            dr = recipient;
+            return true;
+        });
 
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
-        .WillByDefault(
-            [&service, testExecutorIndex](uint32_t code, MessageParcel &data, MessageParcel &reply,
-                MessageOption &option) {
-                service->OnRemoteRequest(code, data, reply, option);
-                uint64_t executorIndex = 0;
-                EXPECT_TRUE(reply.ReadUint64(executorIndex));
-                EXPECT_EQ(executorIndex, testExecutorIndex);
-                return OHOS::NO_ERROR;
-            }
-        );
+        .WillByDefault([&service, testExecutorIndex](uint32_t code, MessageParcel &data, MessageParcel &reply,
+            MessageOption &option) {
+            service->OnRemoteRequest(code, data, reply, option);
+            uint64_t executorIndex = 0;
+            EXPECT_TRUE(reply.ReadUint64(executorIndex));
+            EXPECT_EQ(executorIndex, testExecutorIndex);
+            return OHOS::NO_ERROR;
+        });
 }
 
 HWTEST_F(CoAuthClientTest, CoAuthClientRegister_002, TestSize.Level0)
@@ -136,12 +132,10 @@ HWTEST_F(CoAuthClientTest, CoAuthClientRegister_004, TestSize.Level0)
     EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
     EXPECT_CALL(*obj, AddDeathRecipient(_))
         .WillOnce(Return(false))
-        .WillRepeatedly(
-            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
-                dr = recipient;
-                return true;
-            }
-        );
+        .WillRepeatedly([&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+            dr = recipient;
+            return true;
+        });
 
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).WillRepeatedly(Return(OHOS::NO_ERROR));
 
