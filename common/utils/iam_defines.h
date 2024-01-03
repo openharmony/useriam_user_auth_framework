@@ -24,15 +24,6 @@ namespace UserAuth {
 const int32_t INVALID_AUTH_TYPE = -1;
 const int32_t INNER_API_VERSION_10000 = 10000;
 
-#define IAM_TRY(action0, action1) \
-    do {                          \
-        try {                     \
-            action0;              \
-        } catch (...) {           \
-            action1;              \
-        }                         \
-    } while (0)
-
 enum OperationType : uint32_t {
     TRACE_ADD_CREDENTIAL = 0,
     TRACE_DELETE_CREDENTIAL = 1,
