@@ -343,6 +343,49 @@ HWTEST_F(StateMachineTest, MachineScheduleExpireNodeExpire, TestSize.Level0)
     handler->EnsureTask(nullptr);
 }
 
+void MakeTestMachine(std::shared_ptr<FiniteStateMachine::Builder> &machineBuilder,
+    MockFunction<void(FiniteStateMachine & machine, uint32_t event)> &action,
+    MockFunction<void(FiniteStateMachine & machine, uint32_t event)> &enter,
+    MockFunction<void(FiniteStateMachine & machine, uint32_t event)> &leave)
+{
+    machineBuilder
+        ->MakeTransition(STATE_INIT, EVENT_START_AUTH, STATE_VERIFY_STARING,
+        [&action](FiniteStateMachine &machine, uint32_t event) {
+        action.Call(machine, event);
+        machine.Schedule(EVENT_VERIFY_STARTED);
+        machine.Schedule(EVENT_COLLECT_STARTED);
+        })
+        ->MakeTransition(STATE_VERIFY_STARING, EVENT_VERIFY_STARTED, STATE_COLLECT_STARING,
+        [&action](FiniteStateMachine &machine, uint32_t event) { action.Call(machine, event); })
+        ->MakeTransition(STATE_COLLECT_STARING, EVENT_COLLECT_STARTED, STATE_AUTH_PROCESSING,
+        [&action](FiniteStateMachine &machine, uint32_t event) { action.Call(machine, event); })
+        ->MakeTransition(STATE_AUTH_PROCESSING, EVENT_USER_CANCEL, STATE_END,
+        [&action](FiniteStateMachine &machine, uint32_t event) { action.Call(machine, event); });
+
+    machineBuilder->MakeOnStateEnter(STATE_INIT,
+        [&enter](FiniteStateMachine &machine, uint32_t event) { enter.Call(machine, event); });
+    machineBuilder->MakeOnStateLeave(STATE_INIT,
+        [&leave](FiniteStateMachine &machine, uint32_t event) { leave.Call(machine, event); });
+
+    machineBuilder->MakeOnStateEnter(STATE_VERIFY_STARING,
+        [&enter](FiniteStateMachine &machine, uint32_t event) { enter.Call(machine, event); });
+    machineBuilder->MakeOnStateLeave(STATE_VERIFY_STARING,
+        [&leave](FiniteStateMachine &machine, uint32_t event) { leave.Call(machine, event); });
+
+    machineBuilder->MakeOnStateEnter(STATE_COLLECT_STARING,
+        [&enter](FiniteStateMachine &machine, uint32_t event) { enter.Call(machine, event); });
+    machineBuilder->MakeOnStateLeave(STATE_COLLECT_STARING,
+        [&leave](FiniteStateMachine &machine, uint32_t event) { leave.Call(machine, event); });
+
+    machineBuilder->MakeOnStateEnter(STATE_AUTH_PROCESSING,
+        [&enter](FiniteStateMachine &machine, uint32_t event) { enter.Call(machine, event); });
+    machineBuilder->MakeOnStateLeave(STATE_AUTH_PROCESSING,
+        [&leave](FiniteStateMachine &machine, uint32_t event) { leave.Call(machine, event); });
+
+    machineBuilder->MakeOnStateEnter(STATE_END,
+        [&enter](FiniteStateMachine &machine, uint32_t event) { enter.Call(machine, event); });
+}
+
 HWTEST_F(StateMachineTest, MachineScheduleEnterAndLeave, TestSize.Level0)
 {
     auto handler = ThreadHandler::GetSingleThreadInstance();
@@ -369,43 +412,7 @@ HWTEST_F(StateMachineTest, MachineScheduleEnterAndLeave, TestSize.Level0)
 
     auto machineBuilder = FiniteStateMachine::Builder::New("testMachine13", STATE_INIT);
     ASSERT_NE(machineBuilder, nullptr);
-
-    machineBuilder
-        ->MakeTransition(STATE_INIT, EVENT_START_AUTH, STATE_VERIFY_STARING,
-            [&action](FiniteStateMachine &machine, uint32_t event) {
-                action.Call(machine, event);
-                machine.Schedule(EVENT_VERIFY_STARTED);
-                machine.Schedule(EVENT_COLLECT_STARTED);
-            })
-        ->MakeTransition(STATE_VERIFY_STARING, EVENT_VERIFY_STARTED, STATE_COLLECT_STARING,
-            [&action](FiniteStateMachine &machine, uint32_t event) { action.Call(machine, event); })
-        ->MakeTransition(STATE_COLLECT_STARING, EVENT_COLLECT_STARTED, STATE_AUTH_PROCESSING,
-            [&action](FiniteStateMachine &machine, uint32_t event) { action.Call(machine, event); })
-        ->MakeTransition(STATE_AUTH_PROCESSING, EVENT_USER_CANCEL, STATE_END,
-            [&action](FiniteStateMachine &machine, uint32_t event) { action.Call(machine, event); });
-
-    machineBuilder->MakeOnStateEnter(STATE_INIT,
-        [&enter](FiniteStateMachine &machine, uint32_t event) { enter.Call(machine, event); });
-    machineBuilder->MakeOnStateLeave(STATE_INIT,
-        [&leave](FiniteStateMachine &machine, uint32_t event) { leave.Call(machine, event); });
-
-    machineBuilder->MakeOnStateEnter(STATE_VERIFY_STARING,
-        [&enter](FiniteStateMachine &machine, uint32_t event) { enter.Call(machine, event); });
-    machineBuilder->MakeOnStateLeave(STATE_VERIFY_STARING,
-        [&leave](FiniteStateMachine &machine, uint32_t event) { leave.Call(machine, event); });
-
-    machineBuilder->MakeOnStateEnter(STATE_COLLECT_STARING,
-        [&enter](FiniteStateMachine &machine, uint32_t event) { enter.Call(machine, event); });
-    machineBuilder->MakeOnStateLeave(STATE_COLLECT_STARING,
-        [&leave](FiniteStateMachine &machine, uint32_t event) { leave.Call(machine, event); });
-
-    machineBuilder->MakeOnStateEnter(STATE_AUTH_PROCESSING,
-        [&enter](FiniteStateMachine &machine, uint32_t event) { enter.Call(machine, event); });
-    machineBuilder->MakeOnStateLeave(STATE_AUTH_PROCESSING,
-        [&leave](FiniteStateMachine &machine, uint32_t event) { leave.Call(machine, event); });
-
-    machineBuilder->MakeOnStateEnter(STATE_END,
-        [&enter](FiniteStateMachine &machine, uint32_t event) { enter.Call(machine, event); });
+    MakeTestMachine(machineBuilder, action, enter, leave);
 
     auto machine = machineBuilder->Build();
     ASSERT_NE(machine, nullptr);

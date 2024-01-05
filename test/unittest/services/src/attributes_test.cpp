@@ -68,41 +68,32 @@ HWTEST_F(AttributesTest, AttributesSerialize, TestSize.Level0)
     Attributes attrs2(buff);
     EXPECT_THAT(attrs2.GetKeys(), ElementsAreArray(desired));
 
-    {
-        bool value;
-        EXPECT_TRUE(attrs2.GetBoolValue(Attributes::ATTR_RESULT_CODE, value));
-        EXPECT_EQ(value, true);
-    }
-    {
-        bool value;
-        EXPECT_TRUE(attrs2.GetBoolValue(Attributes::ATTR_SIGNATURE, value));
-        EXPECT_EQ(value, false);
-    }
-    {
-        uint64_t value;
-        EXPECT_TRUE(attrs2.GetUint64Value(Attributes::ATTR_SCHEDULE_ID, value));
-        EXPECT_EQ(value, UINT64_MAX);
-    }
-    {
-        std::vector<uint32_t> value;
-        EXPECT_TRUE(attrs2.GetUint32ArrayValue(Attributes::ATTR_REMAIN_TIMES, value));
-        EXPECT_THAT(value, ElementsAre(1, 3, 5, 7, 9));
-    }
-    {
-        uint32_t value;
-        EXPECT_TRUE(attrs2.GetUint32Value(Attributes::ATTR_SCHEDULE_MODE, value));
-        EXPECT_EQ(value, UINT32_MAX);
-    }
-    {
-        std::vector<uint64_t> value;
-        EXPECT_TRUE(attrs2.GetUint64ArrayValue(Attributes::ATTR_FREEZING_TIME, value));
-        EXPECT_THAT(value, ElementsAre(2, 4, 6, 8, 10));
-    }
-    {
-        std::string value;
-        EXPECT_TRUE(attrs2.GetStringValue(Attributes::ATTR_TEMPLATE_ID_LIST, value));
-        EXPECT_EQ(value, "iam");
-    }
+    bool boolValue;
+    EXPECT_TRUE(attrs2.GetBoolValue(Attributes::ATTR_RESULT_CODE, boolValue));
+    EXPECT_EQ(boolValue, true);
+
+    EXPECT_TRUE(attrs2.GetBoolValue(Attributes::ATTR_SIGNATURE, boolValue));
+    EXPECT_EQ(boolValue, false);
+
+    uint64_t u64Value;
+    EXPECT_TRUE(attrs2.GetUint64Value(Attributes::ATTR_SCHEDULE_ID, u64Value));
+    EXPECT_EQ(u64Value, UINT64_MAX);
+
+    std::vector<uint32_t> u32Vector;
+    EXPECT_TRUE(attrs2.GetUint32ArrayValue(Attributes::ATTR_REMAIN_TIMES, u32Vector));
+    EXPECT_THAT(u32Vector, ElementsAre(1, 3, 5, 7, 9));
+
+    uint32_t u32Value;
+    EXPECT_TRUE(attrs2.GetUint32Value(Attributes::ATTR_SCHEDULE_MODE, u32Value));
+    EXPECT_EQ(u32Value, UINT32_MAX);
+
+    std::vector<uint64_t> u64Vector;
+    EXPECT_TRUE(attrs2.GetUint64ArrayValue(Attributes::ATTR_FREEZING_TIME, u64Vector));
+    EXPECT_THAT(u64Vector, ElementsAre(2, 4, 6, 8, 10));
+
+    std::string str;
+    EXPECT_TRUE(attrs2.GetStringValue(Attributes::ATTR_TEMPLATE_ID_LIST, str));
+    EXPECT_EQ(str, "iam");
 }
 
 HWTEST_F(AttributesTest, AttributesBoolValue, TestSize.Level0)
@@ -397,56 +388,38 @@ HWTEST_F(AttributesTest, AttributesDeserializeMismatch, TestSize.Level0)
 HWTEST_F(AttributesTest, AttributesEmptyArrays, TestSize.Level0)
 {
     Attributes attrs1;
-    {
-        bool value = true;
-        EXPECT_TRUE(attrs1.SetBoolValue(Attributes::ATTR_RESULT_CODE, value));
-    }
-    {
-        std::vector<uint64_t> value;
-        EXPECT_TRUE(attrs1.SetUint64ArrayValue(Attributes::ATTR_SCHEDULE_ID, value));
-    }
-    {
-        std::vector<uint32_t> value;
-        EXPECT_TRUE(attrs1.SetUint32ArrayValue(Attributes::ATTR_REMAIN_TIMES, value));
-    }
-    {
-        std::vector<uint16_t> value;
-        EXPECT_TRUE(attrs1.SetUint16ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, value));
-    }
-    {
-        std::vector<uint8_t> value;
-        EXPECT_TRUE(attrs1.SetUint8ArrayValue(Attributes::ATTR_FREEZING_TIME, value));
-    }
+    bool value = true;
+    EXPECT_TRUE(attrs1.SetBoolValue(Attributes::ATTR_RESULT_CODE, value));
+
+    std::vector<uint64_t> u64Vector;
+    EXPECT_TRUE(attrs1.SetUint64ArrayValue(Attributes::ATTR_SCHEDULE_ID, u64Vector));
+
+    std::vector<uint32_t> u32Vector;
+    EXPECT_TRUE(attrs1.SetUint32ArrayValue(Attributes::ATTR_REMAIN_TIMES, u32Vector));
+
+    std::vector<uint16_t> u16Vector;
+    EXPECT_TRUE(attrs1.SetUint16ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, u16Vector));
+
+    std::vector<uint8_t> u8Vector;
+    EXPECT_TRUE(attrs1.SetUint8ArrayValue(Attributes::ATTR_FREEZING_TIME, u8Vector));
 
     auto buff = attrs1.Serialize();
     EXPECT_FALSE(buff.empty());
     Attributes attrs2(buff);
+    EXPECT_TRUE(attrs1.GetBoolValue(Attributes::ATTR_RESULT_CODE, value));
+    EXPECT_TRUE(value);
 
-    {
-        bool value = false;
-        EXPECT_TRUE(attrs1.GetBoolValue(Attributes::ATTR_RESULT_CODE, value));
-        EXPECT_TRUE(value);
-    }
-    {
-        std::vector<uint64_t> value;
-        EXPECT_TRUE(attrs1.GetUint64ArrayValue(Attributes::ATTR_SCHEDULE_ID, value));
-        EXPECT_THAT(value, IsEmpty());
-    }
-    {
-        std::vector<uint32_t> value;
-        EXPECT_TRUE(attrs1.GetUint32ArrayValue(Attributes::ATTR_REMAIN_TIMES, value));
-        EXPECT_THAT(value, IsEmpty());
-    }
-    {
-        std::vector<uint16_t> value;
-        EXPECT_TRUE(attrs1.GetUint16ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, value));
-        EXPECT_THAT(value, IsEmpty());
-    }
-    {
-        std::vector<uint8_t> value;
-        EXPECT_TRUE(attrs1.GetUint8ArrayValue(Attributes::ATTR_FREEZING_TIME, value));
-        EXPECT_THAT(value, IsEmpty());
-    }
+    EXPECT_TRUE(attrs1.GetUint64ArrayValue(Attributes::ATTR_SCHEDULE_ID, u64Vector));
+    EXPECT_THAT(u64Vector, IsEmpty());
+
+    EXPECT_TRUE(attrs1.GetUint32ArrayValue(Attributes::ATTR_REMAIN_TIMES, u32Vector));
+    EXPECT_THAT(u32Vector, IsEmpty());
+
+    EXPECT_TRUE(attrs1.GetUint16ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, u16Vector));
+    EXPECT_THAT(u16Vector, IsEmpty());
+
+    EXPECT_TRUE(attrs1.GetUint8ArrayValue(Attributes::ATTR_FREEZING_TIME, u8Vector));
+    EXPECT_THAT(u8Vector, IsEmpty());
 }
 
 HWTEST_F(AttributesTest, AttributesCopyAndMove, TestSize.Level0)
