@@ -181,24 +181,34 @@ bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t
     rootSecret = resultInfo.rootSecret;
     if (isUpdate_) {
         secUserId = secUserId_;
+        info = Common::MakeShared<CredentialInfoImpl>(enrollPara_.userId, resultInfo.oldInfo);
+        if (info == nullptr) {
+            IAM_LOGE("bad alloc");
+            return false;
+        }
     } else {
         if (!GetSecUserId(secUserId)) {
             IAM_LOGE("enroll get secUserId fail");
             return false;
         }
-        PublishEventAdapter::PublishCreatedEvent(enrollPara_.userId, scheduleId_);
         IAM_LOGI("enroll not need to delete old cred");
         info = nullptr;
-        return true;
     }
-
-    info = Common::MakeShared<CredentialInfoImpl>(enrollPara_.userId, resultInfo.oldInfo);
-    if (info == nullptr) {
-        IAM_LOGE("bad alloc");
-        return false;
-    }
-    PublishEventAdapter::PublishUpdatedEvent(enrollPara_.userId, scheduleId_);
+    PublishPinEvent();
     return true;
+}
+
+void EnrollmentImpl::PublishPinEvent()
+{
+    if (enrollPara_.authType != PIN) {
+        return;
+    }
+    IAM_LOGI("begin to publish pin event");
+    if (isUpdate_) {
+        PublishEventAdapter::PublishUpdatedEvent(enrollPara_.userId, scheduleId_);
+    } else {
+        PublishEventAdapter::PublishCreatedEvent(enrollPara_.userId, scheduleId_);
+    }
 }
 
 bool EnrollmentImpl::Cancel()
