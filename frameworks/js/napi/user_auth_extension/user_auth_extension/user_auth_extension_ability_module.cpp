@@ -22,8 +22,8 @@ extern const char _binary_user_auth_extension_ability_abc_end[];
 
 static napi_module g_module = {
     .nm_version = 0,
-    .nm_modname = "app.ability.UserAuthExtensionAbility",
-    .nm_filename = "app/ability/libuserauthextensionability_napi.so/user_auth_extension_ability.js"
+    .nm_filename = "app/ability/libuserauthextensionability_napi.so/user_auth_extension_ability.js",
+    .nm_modname = "app.ability.UserAuthExtensionAbility"
 };
 
 /*
