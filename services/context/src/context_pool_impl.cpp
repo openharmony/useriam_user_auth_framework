@@ -42,7 +42,7 @@ public:
     bool DeregisterContextPoolListener(const std::shared_ptr<ContextPoolListener> &listener) override;
 
 private:
-    mutable std::mutex poolMutex_;
+    mutable std::recursive_mutex poolMutex_;
     std::unordered_map<uint64_t, std::shared_ptr<Context>> contextMap_;
     std::set<std::shared_ptr<ContextPoolListener>> listenerSet_;
 };
@@ -53,7 +53,7 @@ bool ContextPoolImpl::Insert(const std::shared_ptr<Context> &context)
         IAM_LOGE("context is nullptr");
         return false;
     }
-    std::lock_guard<std::mutex> lock(poolMutex_);
+    std::lock_guard<std::recursive_mutex> lock(poolMutex_);
     uint64_t contextId = context->GetContextId();
     auto result = contextMap_.try_emplace(contextId, context);
     if (!result.second) {
@@ -69,7 +69,7 @@ bool ContextPoolImpl::Insert(const std::shared_ptr<Context> &context)
 
 bool ContextPoolImpl::Delete(uint64_t contextId)
 {
-    std::lock_guard<std::mutex> lock(poolMutex_);
+    std::lock_guard<std::recursive_mutex> lock(poolMutex_);
     auto iter = contextMap_.find(contextId);
     if (iter == contextMap_.end()) {
         IAM_LOGE("context not found");
@@ -88,7 +88,7 @@ bool ContextPoolImpl::Delete(uint64_t contextId)
 void ContextPoolImpl::CancelAll() const
 {
     IAM_LOGI("start");
-    std::lock_guard<std::mutex> lock(poolMutex_);
+    std::lock_guard<std::recursive_mutex> lock(poolMutex_);
     for (const auto &context : contextMap_) {
         if (context.second == nullptr) {
             continue;
@@ -102,7 +102,7 @@ void ContextPoolImpl::CancelAll() const
 
 std::weak_ptr<Context> ContextPoolImpl::Select(uint64_t contextId) const
 {
-    std::lock_guard<std::mutex> lock(poolMutex_);
+    std::lock_guard<std::recursive_mutex> lock(poolMutex_);
     std::weak_ptr<Context> result;
     auto iter = contextMap_.find(contextId);
     if (iter != contextMap_.end()) {
@@ -113,7 +113,7 @@ std::weak_ptr<Context> ContextPoolImpl::Select(uint64_t contextId) const
 
 std::vector<std::weak_ptr<Context>> ContextPoolImpl::Select(ContextType contextType) const
 {
-    std::lock_guard<std::mutex> lock(poolMutex_);
+    std::lock_guard<std::recursive_mutex> lock(poolMutex_);
     std::vector<std::weak_ptr<Context>> result;
     for (const auto &context : contextMap_) {
         if (context.second == nullptr) {
@@ -128,7 +128,7 @@ std::vector<std::weak_ptr<Context>> ContextPoolImpl::Select(ContextType contextT
 
 std::shared_ptr<ScheduleNode> ContextPoolImpl::SelectScheduleNodeByScheduleId(uint64_t scheduleId)
 {
-    std::lock_guard<std::mutex> lock(poolMutex_);
+    std::lock_guard<std::recursive_mutex> lock(poolMutex_);
     for (const auto &context : contextMap_) {
         if (context.second == nullptr) {
             continue;
@@ -147,14 +147,14 @@ bool ContextPoolImpl::RegisterContextPoolListener(const std::shared_ptr<ContextP
         IAM_LOGE("listener is nullptr");
         return false;
     }
-    std::lock_guard<std::mutex> lock(poolMutex_);
+    std::lock_guard<std::recursive_mutex> lock(poolMutex_);
     listenerSet_.insert(listener);
     return true;
 }
 
 bool ContextPoolImpl::DeregisterContextPoolListener(const std::shared_ptr<ContextPoolListener> &listener)
 {
-    std::lock_guard<std::mutex> lock(poolMutex_);
+    std::lock_guard<std::recursive_mutex> lock(poolMutex_);
     return listenerSet_.erase(listener) == 1;
 }
 
