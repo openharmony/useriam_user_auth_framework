@@ -333,7 +333,8 @@ int32_t GetExecutorAndMockStub(shared_ptr<Executor> &executor, shared_ptr<Execut
 
     mockExecutorHdi = MakeShared<MockIAuthExecutorHdi>();
     IF_FALSE_EXPECT_FAIL_AND_RETURN_VAL(mockExecutorHdi != nullptr, ResultCode::GENERAL_ERROR);
-    EXPECT_CALL(*mockExecutorHdi, GetExecutorInfo(_)).Times(Exactly(2)).WillRepeatedly([](ExecutorInfo &info) {
+    int32_t times = 2;
+    EXPECT_CALL(*mockExecutorHdi, GetExecutorInfo(_)).Times(Exactly(times)).WillRepeatedly([](ExecutorInfo &info) {
         return ResultCode::SUCCESS;
     });
     EXPECT_CALL(*mockExecutorHdi, OnRegisterFinish(_, _, _))
