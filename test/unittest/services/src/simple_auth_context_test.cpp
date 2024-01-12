@@ -447,7 +447,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_004, Test
 
 static void MockForContextCallback(std::shared_ptr<MockContextCallback> contextCallback)
 {
-    static const int32_t TEST_RESULT_CODE = 1;
+    static const int32_t TEST_RESULT_CODE = 7;
     static const int32_t TEST_FREEZING_TIME = 8;
     static const int32_t TEST_REMAIN_TIMES = 9;
     static std::vector<uint8_t> testSignature = {10, 11, 12, 13};
@@ -479,7 +479,7 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_005, Test
 {
     static const uint64_t testContestId = 2;
     static const std::vector<uint8_t> testScheduleResult = {3, 4, 5, 6};
-    static const int32_t testResultCode = 1;
+    static const int32_t testResultCode = 7;
     static const int32_t testFreezingTime = 8;
     static const int32_t testRemainTimes = 9;
     static const std::vector<uint8_t> testSignature = {10, 11, 12, 13};
