@@ -372,6 +372,56 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuth003, TestSize.Level0)
     IpcCommon::DeleteAllPermission();
 }
 
+static void MockForUserAuthHdi(std::shared_ptr<Context> &context, std::promise<void> &promise)
+{
+    const uint32_t testScheduleId = 20;
+    const uint32_t testExecutorIndex = 60;
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _))
+        .WillRepeatedly([&context](uint64_t contextId, const HdiAuthSolution &param,
+            std::vector<HdiScheduleInfo> &scheduleInfos) {
+            HdiScheduleInfo scheduleInfo = {};
+            scheduleInfo.authType = HdiAuthType::FACE;
+            scheduleInfo.scheduleId = testScheduleId;
+            HdiExecutorInfo executorInfo = {};
+            executorInfo.executorIndex = testExecutorIndex;
+            scheduleInfo.executors.push_back(executorInfo);
+            scheduleInfos.push_back(scheduleInfo);
+            context = ContextPool::Instance().Select(contextId).lock();
+            return HDF_SUCCESS;
+        });
+    
+    EXPECT_CALL(*mockHdi, UpdateAuthenticationResult(_, _, _)).WillOnce(Return(HDF_SUCCESS));
+    EXPECT_CALL(*mockHdi, CancelAuthentication(_))
+        .WillOnce([&promise](uint64_t contextId) {
+            promise.set_value();
+            return HDF_SUCCESS;
+        });
+}
+
+static void MockForAuthResourceNode(std::shared_ptr<MockResourceNode> &resourceNode)
+{
+    const uint32_t testScheduleId = 20;
+    const uint32_t testExecutorIndex = 60;
+    EXPECT_CALL(*resourceNode, GetExecutorIndex()).WillRepeatedly(Return(testExecutorIndex));
+    EXPECT_CALL(*resourceNode, GetAuthType()).WillRepeatedly(Return(FACE));
+    EXPECT_CALL(*resourceNode, GetExecutorRole()).WillRepeatedly(Return(ALL_IN_ONE));
+    EXPECT_CALL(*resourceNode, GetExecutorMatcher()).WillRepeatedly(Return(0));
+    EXPECT_CALL(*resourceNode, GetExecutorPublicKey()).WillRepeatedly(Return(std::vector<uint8_t>()));
+    EXPECT_CALL(*resourceNode, BeginExecute(_, _, _))
+        .WillOnce([](uint64_t scheduleId, const std::vector<uint8_t> &publicKey, const Attributes &command) {
+            auto messenger = ExecutorMessengerService::GetInstance();
+            EXPECT_NE(messenger, nullptr);
+            auto finalResult = Common::MakeShared<Attributes>();
+            EXPECT_NE(finalResult, nullptr);
+            std::vector<uint8_t> scheduleResult = {1, 2, 3, 4};
+            EXPECT_TRUE(finalResult->SetUint8ArrayValue(Attributes::ATTR_RESULT, scheduleResult));
+            EXPECT_EQ(messenger->Finish(testScheduleId, ALL_IN_ONE, SUCCESS, finalResult), SUCCESS);
+            return SUCCESS;
+        });
+}
+
 HWTEST_F(UserAuthServiceTest, UserAuthServiceAuth004, TestSize.Level0)
 {
     UserAuthService service(100, true);
@@ -396,53 +446,12 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuth004, TestSize.Level0)
         );
 
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
-    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _))
-        .WillRepeatedly(
-            [&context](uint64_t contextId, const HdiAuthSolution &param, std::vector<HdiScheduleInfo> &scheduleInfos) {
-                HdiScheduleInfo scheduleInfo = {};
-                scheduleInfo.authType = HdiAuthType::FACE;
-                scheduleInfo.scheduleId = 20;
-                HdiExecutorInfo executorInfo = {};
-                executorInfo.executorIndex = 60;
-                scheduleInfo.executors.push_back(executorInfo);
-                scheduleInfos.push_back(scheduleInfo);
-                context = ContextPool::Instance().Select(contextId).lock();
-                return HDF_SUCCESS;
-            }
-        );
-    
-    EXPECT_CALL(*mockHdi, UpdateAuthenticationResult(_, _, _)).WillOnce(Return(HDF_SUCCESS));
     std::promise<void> promise;
-    EXPECT_CALL(*mockHdi, CancelAuthentication(_))
-        .WillOnce(
-            [&promise](uint64_t contextId) {
-                promise.set_value();
-                return HDF_SUCCESS;
-            }
-        );
+    MockForUserAuthHdi(context, promise);
 
     auto resourceNode = Common::MakeShared<MockResourceNode>();
     EXPECT_NE(resourceNode, nullptr);
-    EXPECT_CALL(*resourceNode, GetExecutorIndex()).WillRepeatedly(Return(60));
-    EXPECT_CALL(*resourceNode, GetAuthType()).WillRepeatedly(Return(FACE));
-    EXPECT_CALL(*resourceNode, GetExecutorRole()).WillRepeatedly(Return(ALL_IN_ONE));
-    EXPECT_CALL(*resourceNode, GetExecutorMatcher()).WillRepeatedly(Return(0));
-    EXPECT_CALL(*resourceNode, GetExecutorPublicKey()).WillRepeatedly(Return(std::vector<uint8_t>()));
-    EXPECT_CALL(*resourceNode, BeginExecute(_, _, _))
-        .WillOnce(
-            [](uint64_t scheduleId, const std::vector<uint8_t> &publicKey, const Attributes &command) {
-                auto messenger = ExecutorMessengerService::GetInstance();
-                EXPECT_NE(messenger, nullptr);
-                auto finalResult = Common::MakeShared<Attributes>();
-                EXPECT_NE(finalResult, nullptr);
-                std::vector<uint8_t> scheduleResult = {1, 2, 3, 4};
-                EXPECT_TRUE(finalResult->SetUint8ArrayValue(Attributes::ATTR_RESULT, scheduleResult));
-                EXPECT_EQ(messenger->Finish(20, ALL_IN_ONE, SUCCESS, finalResult), SUCCESS);
-                return SUCCESS;
-            }
-        );
+    MockForAuthResourceNode(resourceNode);
     
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
 
@@ -530,53 +539,12 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser003, TestSize.Level0)
     EXPECT_EQ(contextId, 0);
 
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _))
-        .WillRepeatedly(
-            [&context](uint64_t contextId, const HdiAuthSolution &param, std::vector<HdiScheduleInfo> &scheduleInfos) {
-                HdiScheduleInfo scheduleInfo = {};
-                scheduleInfo.authType = HdiAuthType::FACE;
-                scheduleInfo.scheduleId = 30;
-                HdiExecutorInfo executorInfo = {};
-                executorInfo.executorIndex = 60;
-                scheduleInfo.executors.push_back(executorInfo);
-                scheduleInfos.push_back(scheduleInfo);
-                context = ContextPool::Instance().Select(contextId).lock();
-                return HDF_SUCCESS;
-            }
-        );
-    
-    EXPECT_CALL(*mockHdi, UpdateAuthenticationResult(_, _, _)).WillOnce(Return(HDF_SUCCESS));
     std::promise<void> promise;
-    EXPECT_CALL(*mockHdi, CancelAuthentication(_))
-        .WillOnce(
-            [&promise](uint64_t contextId) {
-                promise.set_value();
-                return HDF_SUCCESS;
-            }
-        );
+    MockForUserAuthHdi(context, promise);
 
     auto resourceNode = Common::MakeShared<MockResourceNode>();
     EXPECT_NE(resourceNode, nullptr);
-    EXPECT_CALL(*resourceNode, GetExecutorIndex()).WillRepeatedly(Return(60));
-    EXPECT_CALL(*resourceNode, GetAuthType()).WillRepeatedly(Return(FACE));
-    EXPECT_CALL(*resourceNode, GetExecutorRole()).WillRepeatedly(Return(ALL_IN_ONE));
-    EXPECT_CALL(*resourceNode, GetExecutorMatcher()).WillRepeatedly(Return(0));
-    EXPECT_CALL(*resourceNode, GetExecutorPublicKey()).WillRepeatedly(Return(std::vector<uint8_t>()));
-    EXPECT_CALL(*resourceNode, BeginExecute(_, _, _))
-        .WillOnce(
-            [](uint64_t scheduleId, const std::vector<uint8_t> &publicKey, const Attributes &command) {
-                auto messenger = ExecutorMessengerService::GetInstance();
-                EXPECT_NE(messenger, nullptr);
-                auto finalResult = Common::MakeShared<Attributes>();
-                EXPECT_NE(finalResult, nullptr);
-                std::vector<uint8_t> scheduleResult = {1, 2, 3, 4};
-                EXPECT_TRUE(finalResult->SetUint8ArrayValue(Attributes::ATTR_RESULT, scheduleResult));
-                EXPECT_EQ(messenger->Finish(30, ALL_IN_ONE, SUCCESS, finalResult), SUCCESS);
-                return SUCCESS;
-            }
-        );
+    MockForAuthResourceNode(resourceNode);
     
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
 
@@ -627,6 +595,32 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceIdentify002, TestSize.Level0)
     IpcCommon::DeleteAllPermission();
 }
 
+static void MockForIdentifyHdi(std::shared_ptr<Context> &context, std::promise<void> &promise)
+{
+    const uint32_t testExecutorIndex = 60;
+    const uint32_t testscheduleId = 20;
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, BeginIdentification(_, _, _, _, _))
+        .WillRepeatedly([&context](uint64_t contextId, HdiAuthType authType, const std::vector<uint8_t> &challenge,
+            uint32_t executorId, HdiScheduleInfo &scheduleInfo) {
+            scheduleInfo.authType = HdiAuthType::FACE;
+            scheduleInfo.scheduleId = testscheduleId;
+            HdiExecutorInfo executorInfo = {};
+            executorInfo.executorIndex = testExecutorIndex;
+            scheduleInfo.executors.push_back(executorInfo);
+            context = ContextPool::Instance().Select(contextId).lock();
+            return HDF_SUCCESS;
+        });
+    
+    EXPECT_CALL(*mockHdi, UpdateIdentificationResult(_, _, _)).WillOnce(Return(HDF_SUCCESS));
+    EXPECT_CALL(*mockHdi, CancelIdentification(_))
+        .WillOnce([&promise](uint64_t contextId) {
+            promise.set_value();
+            return HDF_SUCCESS;
+        });
+}
+
 HWTEST_F(UserAuthServiceTest, UserAuthServiceIdentify003, TestSize.Level0)
 {
     UserAuthService service(100, true);
@@ -658,52 +652,12 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceIdentify003, TestSize.Level0)
     EXPECT_EQ(contextId, 0);
 
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, BeginIdentification(_, _, _, _, _))
-        .WillRepeatedly(
-            [&context](uint64_t contextId, HdiAuthType authType, const std::vector<uint8_t> &challenge,
-                uint32_t executorId, HdiScheduleInfo &scheduleInfo) {
-                scheduleInfo.authType = HdiAuthType::FACE;
-                scheduleInfo.scheduleId = 50;
-                HdiExecutorInfo executorInfo = {};
-                executorInfo.executorIndex = 60;
-                scheduleInfo.executors.push_back(executorInfo);
-                context = ContextPool::Instance().Select(contextId).lock();
-                return HDF_SUCCESS;
-            }
-        );
-    
-    EXPECT_CALL(*mockHdi, UpdateIdentificationResult(_, _, _)).WillOnce(Return(HDF_SUCCESS));
     std::promise<void> promise;
-    EXPECT_CALL(*mockHdi, CancelIdentification(_))
-        .WillOnce(
-            [&promise](uint64_t contextId) {
-                promise.set_value();
-                return HDF_SUCCESS;
-            }
-        );
+    MockForIdentifyHdi(context, promise);
 
     auto resourceNode = Common::MakeShared<MockResourceNode>();
     EXPECT_NE(resourceNode, nullptr);
-    EXPECT_CALL(*resourceNode, GetExecutorIndex()).WillRepeatedly(Return(60));
-    EXPECT_CALL(*resourceNode, GetAuthType()).WillRepeatedly(Return(FACE));
-    EXPECT_CALL(*resourceNode, GetExecutorRole()).WillRepeatedly(Return(ALL_IN_ONE));
-    EXPECT_CALL(*resourceNode, GetExecutorMatcher()).WillRepeatedly(Return(0));
-    EXPECT_CALL(*resourceNode, GetExecutorPublicKey()).WillRepeatedly(Return(std::vector<uint8_t>()));
-    EXPECT_CALL(*resourceNode, BeginExecute(_, _, _))
-        .WillOnce(
-            [](uint64_t scheduleId, const std::vector<uint8_t> &publicKey, const Attributes &command) {
-                auto messenger = ExecutorMessengerService::GetInstance();
-                EXPECT_NE(messenger, nullptr);
-                auto finalResult = Common::MakeShared<Attributes>();
-                EXPECT_NE(finalResult, nullptr);
-                std::vector<uint8_t> scheduleResult = {1, 2, 3, 4};
-                EXPECT_TRUE(finalResult->SetUint8ArrayValue(Attributes::ATTR_RESULT, scheduleResult));
-                EXPECT_EQ(messenger->Finish(50, ALL_IN_ONE, SUCCESS, finalResult), SUCCESS);
-                return SUCCESS;
-            }
-        );
+    MockForAuthResourceNode(resourceNode);
     
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
 
