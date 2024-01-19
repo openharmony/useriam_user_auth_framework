@@ -66,6 +66,8 @@ public:
     std::weak_ptr<ResourceNode> GetVerifyExecutor() const override;
     std::optional<std::vector<uint64_t>> GetTemplateIdList() const override;
     State GetCurrentScheduleState() const override;
+    std::shared_ptr<ScheduleNodeCallback> GetScheduleCallback() override;
+    void ClearScheduleCallback() override;
     bool StartSchedule() override;
     bool StopSchedule() override;
     bool ContinueSchedule(ExecutorRole srcRole, ExecutorRole dstRole, uint64_t transNum,
@@ -93,7 +95,7 @@ private:
     void ProcessEndCollector(FiniteStateMachine &machine, uint32_t event);
     void ProcessEndVerifier(FiniteStateMachine &machine, uint32_t event);
 
-    void OnScheduleProcessing(FiniteStateMachine &machine, uint32_t event) const;
+    void OnScheduleProcessing(FiniteStateMachine &machine, uint32_t event);
     void OnScheduleFinished(FiniteStateMachine &machine, uint32_t event);
     uint32_t timerId_ {0};
     // members

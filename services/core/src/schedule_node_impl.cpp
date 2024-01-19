@@ -119,6 +119,18 @@ ScheduleNode::State ScheduleNodeImpl::GetCurrentScheduleState() const
     return static_cast<State>(machine_->GetCurrentState());
 }
 
+std::shared_ptr<ScheduleNodeCallback> ScheduleNodeImpl::GetScheduleCallback()
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    return info_.callback;
+}
+
+void ScheduleNodeImpl::ClearScheduleCallback()
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    info_.callback = nullptr;
+}
+
 bool ScheduleNodeImpl::StartSchedule()
 {
     iamHitraceHelper_ = Common::MakeShared<IamHitraceHelper>(GetDescription());
@@ -148,8 +160,9 @@ bool ScheduleNodeImpl::ContinueSchedule(ExecutorRole srcRole, ExecutorRole dstRo
         return false;
     }
 
-    if (info_.callback) {
-        info_.callback->OnScheduleProcessed(srcRole, GetAuthType(), msg);
+    std::shared_ptr<ScheduleNodeCallback> callback = GetScheduleCallback();
+    if (callback) {
+        callback->OnScheduleProcessed(srcRole, GetAuthType(), msg);
     }
 
     return true;
@@ -374,18 +387,20 @@ void ScheduleNodeImpl::ProcessEndVerifier(FiniteStateMachine &machine, uint32_t 
     machine.Schedule(E_VERIFY_STOPPED_SUCCESS);
 }
 
-void ScheduleNodeImpl::OnScheduleProcessing(FiniteStateMachine &machine, uint32_t event) const
+void ScheduleNodeImpl::OnScheduleProcessing(FiniteStateMachine &machine, uint32_t event)
 {
-    if (!info_.callback) {
+    std::shared_ptr<ScheduleNodeCallback> callback = GetScheduleCallback();
+    if (!callback) {
         return;
     }
-    info_.callback->OnScheduleStarted();
+    callback->OnScheduleStarted();
 }
 
 void ScheduleNodeImpl::OnScheduleFinished(FiniteStateMachine &machine, uint32_t event)
 {
     StopTimer();
-    if (!info_.callback) {
+    std::shared_ptr<ScheduleNodeCallback> callback = GetScheduleCallback();
+    if (!callback) {
         return;
     }
 
@@ -393,8 +408,8 @@ void ScheduleNodeImpl::OnScheduleFinished(FiniteStateMachine &machine, uint32_t 
 
     int32_t result = fwkResultCode_.value_or(executorResultCode_);
     IAM_LOGI("schedule result = %{public}d", result);
-    info_.callback->OnScheduleStoped(result, scheduleResult_);
-    info_.callback = nullptr;
+    callback->OnScheduleStoped(result, scheduleResult_);
+    ClearScheduleCallback();
 }
 } // namespace UserAuth
 } // namespace UserIam
