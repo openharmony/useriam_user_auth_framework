@@ -35,6 +35,8 @@ public:
     MOCK_CONST_METHOD0(GetVerifyExecutor, std::weak_ptr<ResourceNode>());
     MOCK_CONST_METHOD0(GetTemplateIdList, std::optional<std::vector<uint64_t>>());
     MOCK_CONST_METHOD0(GetCurrentScheduleState, State());
+    MOCK_METHOD0(GetScheduleCallback, std::shared_ptr<ScheduleNodeCallback>());
+    MOCK_METHOD0(ClearScheduleCallback, void());
 
     MOCK_METHOD1(RegisterScheduleCallback, bool(const std::shared_ptr<ScheduleNodeCallback> &callback));
     MOCK_METHOD1(SetExpiredTime, bool(uint32_t ms));

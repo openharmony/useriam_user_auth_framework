@@ -66,6 +66,8 @@ public:
     virtual std::weak_ptr<ResourceNode> GetVerifyExecutor() const = 0;
     virtual std::optional<std::vector<uint64_t>> GetTemplateIdList() const = 0;
     virtual State GetCurrentScheduleState() const = 0;
+    virtual std::shared_ptr<ScheduleNodeCallback> GetScheduleCallback() = 0;
+    virtual void ClearScheduleCallback() = 0;
     virtual bool StartSchedule() = 0;
     virtual bool StopSchedule() = 0;
     virtual bool ContinueSchedule(ExecutorRole srcRole, ExecutorRole dstRole, uint64_t transNum,
