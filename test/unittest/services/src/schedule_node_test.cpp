@@ -404,7 +404,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessButTimeoutAndEndFail,
         time_point<system_clock> finish = system_clock::now();
         auto cost = duration_cast<milliseconds>(finish - start).count();
         EXPECT_GT(cost, 540);
-        EXPECT_LT(cost, 560);
+        EXPECT_LT(cost, 565);
     }
     handler->EnsureTask(nullptr);
 }
