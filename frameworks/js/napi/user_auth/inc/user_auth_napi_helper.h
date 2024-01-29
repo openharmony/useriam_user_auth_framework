@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,6 +23,7 @@
 #include "nocopyable.h"
 
 #include "auth_common.h"
+#include "user_auth_client_impl.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -45,6 +46,7 @@ public:
     static napi_status SetUint32Property(napi_env env, napi_value obj, const char *name, uint32_t value);
     static napi_status SetUint8ArrayProperty(napi_env env,
         napi_value obj, const char *name, const std::vector<uint8_t> &value);
+    static napi_status SetEnrolledStateProperty(napi_env env, napi_value obj, const char *name, EnrolledState &value);
     static napi_status CallVoidNapiFunc(napi_env env, napi_ref funcRef, size_t argc, const napi_value *argv);
     static napi_value GetNamedProperty(napi_env env, napi_value value, const std::string &propertyName);
     static std::string GetStringFromValueUtf8(napi_env env, napi_value value);
