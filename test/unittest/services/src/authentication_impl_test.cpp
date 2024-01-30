@@ -146,10 +146,11 @@ HWTEST_F(AuthenticationImplTest, AuthenticationImplTestUpdate001, TestSize.Level
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, UpdateAuthenticationResult(_, _, _)).Times(1);
-    ON_CALL(*mockHdi, UpdateAuthenticationResult)
+    EXPECT_CALL(*mockHdi, UpdateAuthenticationResultWithEnrolledState(_, _, _, _)).Times(1);
+    ON_CALL(*mockHdi, UpdateAuthenticationResultWithEnrolledState)
         .WillByDefault(
-            [](uint64_t contextId, const std::vector<uint8_t> &scheduleResult, HdiAuthResultInfo &info) {
+            [](uint64_t contextId, const std::vector<uint8_t> &scheduleResult, HdiAuthResultInfo &info,
+                HdiEnrolledState &enrolledState) {
                 info.result = HDF_SUCCESS;
                 return HDF_SUCCESS;
             }
@@ -174,10 +175,11 @@ HWTEST_F(AuthenticationImplTest, AuthenticationImplTestUpdate002, TestSize.Level
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, UpdateAuthenticationResult(_, _, _)).Times(1);
-    ON_CALL(*mockHdi, UpdateAuthenticationResult)
+    EXPECT_CALL(*mockHdi, UpdateAuthenticationResultWithEnrolledState(_, _, _, _)).Times(1);
+    ON_CALL(*mockHdi, UpdateAuthenticationResultWithEnrolledState)
         .WillByDefault(
-            [](uint64_t contextId, const std::vector<uint8_t> &scheduleResult, HdiAuthResultInfo &info) {
+            [](uint64_t contextId, const std::vector<uint8_t> &scheduleResult, HdiAuthResultInfo &info,
+                HdiEnrolledState &enrolledState) {
                 info.result = HDF_FAILURE;
                 HdiExecutorSendMsg msg = {};
                 msg.commandId = 10;

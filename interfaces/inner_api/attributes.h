@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -114,6 +114,10 @@ public:
         ATTR_ACCESS_TOKEN_ID,
         /** Template change reason, the value type is string */
         ATTR_TEMPLATE_CHANGE_REASON,
+        /** Credential digest, the value type is uint16_t. */
+        ATTR_CREDENTIAL_DIGEST,
+        /** Credential count, the value type is uint16_t. */
+        ATTR_CREDENTIAL_COUNT,
     };
 
     /**

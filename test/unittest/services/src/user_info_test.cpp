@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -56,7 +56,7 @@ HWTEST_F(UserInfoTest, GetPinSubType, TestSize.Level0)
     constexpr uint64_t secUserId = 200;
     UserInfo info = {
         .secureUid = secUserId,
-        .pinSubType = static_cast<OHOS::HDI::UserAuth::V1_2::PinSubType>(pinSubType),
+        .pinSubType = static_cast<OHOS::HDI::UserAuth::V1_3::PinSubType>(pinSubType),
     };
     UserInfoImpl UserInfoImpl(userId, info);
     EXPECT_EQ(UserInfoImpl.GetPinSubType(), pinSubType);
@@ -69,7 +69,7 @@ HWTEST_F(UserInfoTest, GetSecUserId, TestSize.Level0)
     constexpr uint64_t secUserId = 200;
     UserInfo info = {
         .secureUid = secUserId,
-        .pinSubType = static_cast<OHOS::HDI::UserAuth::V1_2::PinSubType>(pinSubType),
+        .pinSubType = static_cast<OHOS::HDI::UserAuth::V1_3::PinSubType>(pinSubType),
     };
     UserInfoImpl UserInfoImpl(userId, info);
     uint64_t ret = UserInfoImpl.GetSecUserId();

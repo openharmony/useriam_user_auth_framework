@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -129,9 +129,10 @@ bool AuthenticationImpl::Update(const std::vector<uint8_t> &scheduleResult, Auth
     }
 
     HdiAuthResultInfo info;
-    auto result = hdi->UpdateAuthenticationResult(contextId_, scheduleResult, info);
+    HdiEnrolledState enrolledState;
+    auto result = hdi->UpdateAuthenticationResultWithEnrolledState(contextId_, scheduleResult, info, enrolledState);
     if (result != HDF_SUCCESS) {
-        IAM_LOGE("hdi UpdateAuthenticationResult failed, err is %{public}d", result);
+        IAM_LOGE("hdi UpdateAuthenticationResultWithEnrolledState failed, err is %{public}d", result);
         SetLatestError(result);
     }
 
@@ -145,6 +146,9 @@ bool AuthenticationImpl::Update(const std::vector<uint8_t> &scheduleResult, Auth
     resultInfo.remainTimes = info.remainAttempts;
     resultInfo.token = info.token;
     resultInfo.rootSecret = info.rootSecret;
+    resultInfo.credentialDigest = enrolledState.credentialDigest;
+    resultInfo.credentialCount = enrolledState.credentialCount;
+    resultInfo.sdkVersion = authPara_.sdkVersion;
 
     if (resultInfo.result != SUCCESS) {
         SetLatestError(resultInfo.result);
