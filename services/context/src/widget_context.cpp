@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -219,6 +219,8 @@ void WidgetContext::AuthResult(int32_t resultCode, int32_t at, const Attributes 
     IAM_LOGI("call schedule:");
     if (resultCode == ResultCode::SUCCESS) {
         finalResult.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authResultInfo_.token);
+        finalResult.GetUint16Value(Attributes::ATTR_CREDENTIAL_DIGEST, authResultInfo_.credentialDigest);
+        finalResult.GetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, authResultInfo_.credentialCount);
         authResultInfo_.authType = authType;
         schedule_->SuccessAuth(authType);
     } else {
@@ -388,6 +390,16 @@ void WidgetContext::End(const ResultCode &resultCode)
                 callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
                 return;
             }
+        }
+        if (!attr.SetUint16Value(Attributes::ATTR_CREDENTIAL_DIGEST, authResultInfo_.credentialDigest)) {
+            IAM_LOGE("set credential digest failed.");
+            callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
+            return;
+        }
+        if (!attr.SetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, authResultInfo_.credentialCount)) {
+            IAM_LOGE("set credential count failed.");
+            callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
+            return;
         }
     }
     callerCallback_->OnResult(resultCode, attr);

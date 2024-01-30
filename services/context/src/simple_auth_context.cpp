@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 #include <set>
 #include <vector>
 
+#include "auth_common.h"
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
@@ -188,6 +189,14 @@ void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInf
         IF_FALSE_LOGE_AND_RETURN(setFreezingTimeRet == true);
         bool setRemainTimesRet = finalResult.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, resultInfo.remainTimes);
         IF_FALSE_LOGE_AND_RETURN(setRemainTimesRet == true);
+        if (resultInfo.sdkVersion < INNER_API_VERSION_10000 && resultInfo.sdkVersion >= API_VERSION_10) {
+            bool setCredentialDigestRet = finalResult.SetUint16Value(Attributes::ATTR_CREDENTIAL_DIGEST,
+                resultInfo.credentialDigest);
+            IF_FALSE_LOGE_AND_RETURN(setCredentialDigestRet == true);
+            bool setCredentialCountRet = finalResult.SetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT,
+                resultInfo.credentialCount);
+            IF_FALSE_LOGE_AND_RETURN(setCredentialCountRet == true);
+        }
     }
 
     if (resultInfo.token.size() != 0) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -39,6 +39,54 @@ void UserAuthClientTest::SetUp()
 
 void UserAuthClientTest::TearDown()
 {
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientGetEnrolledState001, TestSize.Level0)
+{
+    AuthType testAuthType = FACE;
+    int32_t testApiVersion = 0;
+    EnrolledState testEnrolledState = {};
+
+    IpcClientUtils::ResetObj();
+    int32_t ret = UserAuthClientImpl::Instance().GetEnrolledState(testApiVersion, testAuthType, testEnrolledState);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientGetEnrolledState002, TestSize.Level0)
+{
+    AuthType testAuthType = FACE;
+    int32_t testApiVersion = 0;
+    EnrolledState testEnrolledState = {};
+
+    uint16_t credentialDigest = 23962;
+    uint16_t credentialCount = 1;
+
+    auto service = Common::MakeShared<MockUserAuthService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, GetEnrolledState(_, _, _)).Times(1);
+    ON_CALL(*service, GetEnrolledState)
+        .WillByDefault(
+            [&testApiVersion, &testAuthType, &credentialDigest, &credentialCount](int32_t apiVersion, AuthType authType,
+                EnrolledState &enrolledState) {
+                EXPECT_EQ(apiVersion, testApiVersion);
+                EXPECT_EQ(authType, testAuthType);
+
+                enrolledState.credentialDigest = credentialDigest;
+                enrolledState.credentialCount = credentialCount;
+                return SUCCESS;
+            }
+        );
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
+    CallRemoteObject(service, obj, dr);
+    int32_t ret = UserAuthClientImpl::Instance().GetEnrolledState(testApiVersion, testAuthType, testEnrolledState);
+    EXPECT_EQ(ret, SUCCESS);
+    EXPECT_EQ(testEnrolledState.credentialDigest, credentialDigest);
+    EXPECT_EQ(testEnrolledState.credentialCount, credentialCount);
+
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
+    IpcClientUtils::ResetObj();
 }
 
 HWTEST_F(UserAuthClientTest, UserAuthClientGetAvailableStatus001, TestSize.Level0)

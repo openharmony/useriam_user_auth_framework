@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -52,6 +52,85 @@ void UserAuthServiceTest::SetUp()
 void UserAuthServiceTest::TearDown()
 {
     MockIUserAuthInterface::Holder::GetInstance().Reset();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceGetEnrolledState001, TestSize.Level0)
+{
+    UserAuthService service(100, true);
+    int32_t testApiVersion = 12;
+    AuthType testAuthType = FACE;
+    EnrolledState testEnrolledState;
+    uint16_t expectCredentialDigest = 23962;
+    uint16_t expectCredentialCount = 1;
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetEnrolledState(_, _, _))
+        .Times(1)
+        .WillOnce(
+            [expectCredentialDigest, expectCredentialCount](int32_t userId, HdiAuthType authType,
+                HdiEnrolledState &hdiEnrolledState) {
+                hdiEnrolledState.credentialDigest = expectCredentialDigest;
+                hdiEnrolledState.credentialCount = expectCredentialCount;
+                return HDF_SUCCESS;
+            }
+        );
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    EXPECT_EQ(SUCCESS, service.GetEnrolledState(testApiVersion, testAuthType, testEnrolledState));
+    EXPECT_EQ(expectCredentialDigest, testEnrolledState.credentialDigest);
+    EXPECT_EQ(expectCredentialCount, testEnrolledState.credentialCount);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceGetEnrolledState002, TestSize.Level0)
+{
+    UserAuthService service(100, true);
+    int32_t testApiVersion = 12;
+    AuthType testAuthType = FACE;
+    EnrolledState testEnrolledState;
+    uint16_t expectCredentialDigest = 0;
+    uint16_t expectCredentialCount = 0;
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetEnrolledState(_, _, _))
+        .Times(1)
+        .WillOnce(
+            [](int32_t userId, HdiAuthType authType, HdiEnrolledState &hdiEnrolledState) {
+                return GENERAL_ERROR;
+            }
+        );
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    EXPECT_EQ(GENERAL_ERROR, service.GetEnrolledState(testApiVersion, testAuthType, testEnrolledState));
+    EXPECT_EQ(expectCredentialDigest, testEnrolledState.credentialDigest);
+    EXPECT_EQ(expectCredentialCount, testEnrolledState.credentialCount);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceGetEnrolledState003, TestSize.Level0)
+{
+    UserAuthService service(100, true);
+    int32_t testApiVersion = 10;
+    AuthType testAuthType = FACE;
+    EnrolledState testEnrolledState;
+    uint16_t expectCredentialDigest = 0;
+    uint16_t expectCredentialCount = 0;
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    EXPECT_EQ(TYPE_NOT_SUPPORT, service.GetEnrolledState(testApiVersion, testAuthType, testEnrolledState));
+    EXPECT_EQ(expectCredentialDigest, testEnrolledState.credentialDigest);
+    EXPECT_EQ(expectCredentialCount, testEnrolledState.credentialCount);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceGetEnrolledState004, TestSize.Level0)
+{
+    UserAuthService service(100, true);
+    int32_t testApiVersion = 10;
+    AuthType testAuthType = FACE;
+    EnrolledState testEnrolledState;
+    uint16_t expectCredentialDigest = 0;
+    uint16_t expectCredentialCount = 0;
+    EXPECT_EQ(CHECK_PERMISSION_FAILED, service.GetEnrolledState(testApiVersion, testAuthType, testEnrolledState));
+    EXPECT_EQ(expectCredentialDigest, testEnrolledState.credentialDigest);
+    EXPECT_EQ(expectCredentialCount, testEnrolledState.credentialCount);
 }
 
 HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus001, TestSize.Level0)
@@ -364,7 +443,7 @@ static void MockForUserAuthHdi(std::shared_ptr<Context> &context, std::promise<v
             return HDF_SUCCESS;
         });
     
-    EXPECT_CALL(*mockHdi, UpdateAuthenticationResult(_, _, _)).WillOnce(Return(HDF_SUCCESS));
+    EXPECT_CALL(*mockHdi, UpdateAuthenticationResultWithEnrolledState(_, _, _, _)).WillOnce(Return(HDF_SUCCESS));
     EXPECT_CALL(*mockHdi, CancelAuthentication(_))
         .WillOnce([&promise](uint64_t contextId) {
             promise.set_value();

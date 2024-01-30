@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -82,6 +82,9 @@ public:
             HdiScheduleInfo &info));
     MOCK_METHOD3(BeginAuthenticationV1_2,
         int32_t(uint64_t contextId, const HdiAuthSolution &param, std::vector<HdiScheduleInfo> &scheduleInfos));
+    MOCK_METHOD3(GetEnrolledState, int32_t(int32_t userId, HdiAuthType authType, HdiEnrolledState &hdiEnrolledState));
+    MOCK_METHOD4(UpdateAuthenticationResultWithEnrolledState, int32_t(uint64_t contextId,
+        const std::vector<uint8_t> &scheduleResult, HdiAuthResultInfo &info, HdiEnrolledState &enrolledState));
 };
 
 class MockIUserAuthInterface::Holder : public Singleton<MockIUserAuthInterface::Holder> {
