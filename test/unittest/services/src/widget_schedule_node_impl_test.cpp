@@ -70,6 +70,8 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStartSchedule, TestSi
     schedule->SetCallback(widgetContext);
     EXPECT_TRUE(schedule->StartSchedule());
     widgetContext->LaunchWidget();
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask(nullptr);
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStartAuthList, TestSize.Level0)
@@ -81,6 +83,8 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStartAuthList, TestSi
     schedule->StartSchedule();
     EXPECT_TRUE(schedule->StartAuthList(authTypeList));
     widgetContext->LaunchWidget();
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask(nullptr);
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStopAuthList, TestSize.Level0)
@@ -93,6 +97,8 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStopAuthList, TestSiz
     schedule->StartAuthList(authTypeList);
     EXPECT_TRUE(schedule->StopAuthList(authTypeList));
     widgetContext->LaunchWidget();
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask(nullptr);
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplSuccessAuth, TestSize.Level0)
@@ -105,6 +111,8 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplSuccessAuth, TestSize
     schedule->StartAuthList(authTypeList);
     EXPECT_TRUE(schedule->SuccessAuth(AuthType::PIN));
     widgetContext->LaunchWidget();
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask(nullptr);
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplNaviPinAuth, TestSize.Level0)
@@ -115,6 +123,8 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplNaviPinAuth, TestSize
     schedule->StartSchedule();
     EXPECT_TRUE(schedule->NaviPinAuth());
     widgetContext->LaunchWidget();
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask(nullptr);
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetParaInvalid, TestSize.Level0)
@@ -125,6 +135,8 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetParaInvalid, Te
     schedule->StartSchedule();
     EXPECT_TRUE(schedule->WidgetParaInvalid());
     widgetContext->LaunchWidget();
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask(nullptr);
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStopSchedule, TestSize.Level0)
@@ -135,6 +147,8 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStopSchedule, TestSiz
     schedule->StartSchedule();
     EXPECT_TRUE(schedule->StopSchedule());
     widgetContext->LaunchWidget();
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask(nullptr);
 }
 } // namespace UserAuth
 } // namespace UserIam
