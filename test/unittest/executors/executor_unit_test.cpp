@@ -47,6 +47,8 @@ using namespace OHOS::UserIam::UserAuth;
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+constexpr uint16_t EXPECT_CALL_TWO_TIMES = 2;
+
 class ExecutorUnitTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -98,16 +100,18 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnHdiConnectTest_001, TestSize.Level
         });
     auto executorHdi = MakeShared<MockIAuthExecutorHdi>();
     ASSERT_NE(executorHdi, nullptr);
-    EXPECT_CALL(*executorHdi, GetExecutorInfo(_)).Times(Exactly(2)).WillRepeatedly([&testInfo](ExecutorInfo &info) {
-        info.executorSensorHint = testInfo.executorSensorHint;
-        info.authType = testInfo.authType;
-        info.executorRole = testInfo.executorRole;
-        info.executorSensorHint = testInfo.executorSensorHint;
-        info.executorMatcher = testInfo.executorMatcher;
-        info.esl = testInfo.esl;
-        info.publicKey.assign(testInfo.publicKey.begin(), testInfo.publicKey.end());
-        return ResultCode::SUCCESS;
-    });
+    EXPECT_CALL(*executorHdi, GetExecutorInfo(_))
+        .Times(Exactly(EXPECT_CALL_TWO_TIMES))
+        .WillRepeatedly([&testInfo](ExecutorInfo &info) {
+            info.executorSensorHint = testInfo.executorSensorHint;
+            info.authType = testInfo.authType;
+            info.executorRole = testInfo.executorRole;
+            info.executorSensorHint = testInfo.executorSensorHint;
+            info.executorMatcher = testInfo.executorMatcher;
+            info.esl = testInfo.esl;
+            info.publicKey.assign(testInfo.publicKey.begin(), testInfo.publicKey.end());
+            return ResultCode::SUCCESS;
+        });
     auto executor = MakeShared<Executor>(executorMgrWrapper, executorHdi, testHdiId);
     ASSERT_NE(executor, nullptr);
     executor->OnHdiConnect();
@@ -140,15 +144,17 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnFrameworkReadyTest_001, TestSize.L
         });
     auto executorHdi = MakeShared<MockIAuthExecutorHdi>();
     ASSERT_NE(executorHdi, nullptr);
-    EXPECT_CALL(*executorHdi, GetExecutorInfo(_)).Times(Exactly(2)).WillRepeatedly([&testInfo](ExecutorInfo &info) {
-        info.authType = testInfo.authType;
-        info.executorRole = testInfo.executorRole;
-        info.executorSensorHint = testInfo.executorSensorHint;
-        info.executorMatcher = testInfo.executorMatcher;
-        info.esl = testInfo.esl;
-        info.publicKey.assign(testInfo.publicKey.begin(), testInfo.publicKey.end());
-        return ResultCode::SUCCESS;
-    });
+    EXPECT_CALL(*executorHdi, GetExecutorInfo(_))
+        .Times(Exactly(EXPECT_CALL_TWO_TIMES))
+        .WillRepeatedly([&testInfo](ExecutorInfo &info) {
+            info.authType = testInfo.authType;
+            info.executorRole = testInfo.executorRole;
+            info.executorSensorHint = testInfo.executorSensorHint;
+            info.executorMatcher = testInfo.executorMatcher;
+            info.esl = testInfo.esl;
+            info.publicKey.assign(testInfo.publicKey.begin(), testInfo.publicKey.end());
+            return ResultCode::SUCCESS;
+        });
     auto executor = MakeShared<Executor>(executorMgrWrapper, executorHdi, testHdiId);
     ASSERT_NE(executor, nullptr);
     executor->OnFrameworkReady();
@@ -189,9 +195,11 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnFrameworkReadyTest_003, TestSize.L
     EXPECT_CALL(*executorMgrWrapper, Register(_, _)).Times(Exactly(0));
     auto executorHdi = MakeShared<MockIAuthExecutorHdi>();
     ASSERT_NE(executorHdi, nullptr);
-    EXPECT_CALL(*executorHdi, GetExecutorInfo(_)).Times(Exactly(2)).WillRepeatedly([&testInfo](ExecutorInfo &info) {
-        return ResultCode::GENERAL_ERROR;
-    });
+    EXPECT_CALL(*executorHdi, GetExecutorInfo(_))
+        .Times(Exactly(EXPECT_CALL_TWO_TIMES))
+        .WillRepeatedly([&testInfo](ExecutorInfo &info) {
+            return ResultCode::GENERAL_ERROR;
+        });
     auto executor = MakeShared<Executor>(executorMgrWrapper, executorHdi, testHdiId);
     ASSERT_NE(executor, nullptr);
     executor->OnFrameworkReady();
@@ -210,15 +218,17 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnFrameworkReadyTest_004, TestSize.L
     };
     auto executorHdi = MakeShared<MockIAuthExecutorHdi>();
     ASSERT_NE(executorHdi, nullptr);
-    EXPECT_CALL(*executorHdi, GetExecutorInfo(_)).Times(Exactly(2)).WillRepeatedly([&testInfo](ExecutorInfo &info) {
-        info.executorSensorHint = testInfo.executorSensorHint;
-        info.authType = testInfo.authType;
-        info.executorRole = testInfo.executorRole;
-        info.executorMatcher = testInfo.executorMatcher;
-        info.esl = testInfo.esl;
-        info.publicKey.assign(testInfo.publicKey.begin(), testInfo.publicKey.end());
-        return ResultCode::SUCCESS;
-    });
+    EXPECT_CALL(*executorHdi, GetExecutorInfo(_))
+        .Times(Exactly(EXPECT_CALL_TWO_TIMES))
+        .WillRepeatedly([&testInfo](ExecutorInfo &info) {
+            info.executorSensorHint = testInfo.executorSensorHint;
+            info.authType = testInfo.authType;
+            info.executorRole = testInfo.executorRole;
+            info.executorMatcher = testInfo.executorMatcher;
+            info.esl = testInfo.esl;
+            info.publicKey.assign(testInfo.publicKey.begin(), testInfo.publicKey.end());
+            return ResultCode::SUCCESS;
+        });
     auto executor = MakeShared<Executor>(nullptr, executorHdi, testHdiId);
     ASSERT_NE(executor, nullptr);
     executor->OnFrameworkReady();
@@ -334,9 +344,11 @@ int32_t GetExecutorAndMockStub(shared_ptr<Executor> &executor, shared_ptr<Execut
 
     mockExecutorHdi = MakeShared<MockIAuthExecutorHdi>();
     IF_FALSE_EXPECT_FAIL_AND_RETURN_VAL(mockExecutorHdi != nullptr, ResultCode::GENERAL_ERROR);
-    EXPECT_CALL(*mockExecutorHdi, GetExecutorInfo(_)).Times(Exactly(2)).WillRepeatedly([](ExecutorInfo &info) {
-        return ResultCode::SUCCESS;
-    });
+    EXPECT_CALL(*mockExecutorHdi, GetExecutorInfo(_))
+        .Times(Exactly(EXPECT_CALL_TWO_TIMES))
+        .WillRepeatedly([](ExecutorInfo &info) {
+            return ResultCode::SUCCESS;
+        });
     EXPECT_CALL(*mockExecutorHdi, OnRegisterFinish(_, _, _))
         .Times(Exactly(1))
         .WillRepeatedly([](const std::vector<uint64_t> &templateIdList, const std::vector<uint8_t> &frameworkPublicKey,
@@ -437,14 +449,14 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_ExecutorDisconnectTest_001, TestSize
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
     EXPECT_CALL(*mockExecutorHdi, Enroll(_, _, _))
-        .Times(Exactly(2))
+        .Times(Exactly(EXPECT_CALL_TWO_TIMES))
         .WillRepeatedly(
             [](uint64_t scheduleId, const EnrollParam &param,
                 const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) { return ResultCode::SUCCESS; });
 
     EXPECT_CALL(*mockMessenger, SendData(_, _, _, _, _)).Times(Exactly(0));
     EXPECT_CALL(*mockMessenger, Finish(_, _, _, _))
-        .Times(Exactly(2))
+        .Times(Exactly(EXPECT_CALL_TWO_TIMES))
         .WillRepeatedly(
             [](uint64_t scheduleId, ExecutorRole srcRole, int32_t resultCode, const Attributes &finalResult) {
                 EXPECT_EQ(scheduleId, testScheduleId);
@@ -1201,7 +1213,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_CustomCommandTest_001,
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
     EXPECT_CALL(*mockExecutorHdi, SendCommand(_, _, _))
-        .Times(Exactly(2))
+        .Times(Exactly(EXPECT_CALL_TWO_TIMES))
         .WillOnce([](UserAuth::PropertyMode commandId, const std::vector<uint8_t> &extraInfo,
                       const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) {
             EXPECT_EQ(static_cast<int32_t>(commandId), testCommandId);
