@@ -51,6 +51,7 @@ protected:
 private:
     bool GetSecUserId(std::optional<uint64_t> &secUserId);
     void PublishPinEvent();
+    void PublishCredentialUpdateEvent();
 
     EnrollmentPara enrollPara_;
     std::vector<uint8_t> authToken_;
