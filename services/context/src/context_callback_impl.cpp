@@ -20,11 +20,15 @@
 #include "iam_logger.h"
 #include "iam_mem.h"
 #include "iam_ptr.h"
+#include "nlohmann/json.hpp"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+namespace {
+    constexpr int32_t USER_AUTH_TIP_SINGLE_AUTH_RESULT = 8;
+}
 ContextCallbackImpl::ContextCallbackImpl(sptr<IamCallbackInterface> iamCallback, OperationType operationType)
     : iamCallback_(iamCallback)
 {
@@ -36,7 +40,7 @@ ContextCallbackImpl::ContextCallbackImpl(sptr<IamCallbackInterface> iamCallback,
 }
 
 void ContextCallbackImpl::OnAcquireInfo(ExecutorRole src, int32_t moduleType,
-    const std::vector<uint8_t> &acquireMsg) const
+    const std::vector<uint8_t> &acquireMsg)
 {
     if (iamCallback_ == nullptr) {
         IAM_LOGE("iam callback is nullptr");
@@ -47,7 +51,39 @@ void ContextCallbackImpl::OnAcquireInfo(ExecutorRole src, int32_t moduleType,
     bool getAcquireInfoRet = attr.GetInt32Value(Attributes::ATTR_TIP_INFO, acquireInfo);
     IF_FALSE_LOGE_AND_RETURN(getAcquireInfoRet);
 
+    std::vector<uint8_t> extraInfo;
+    bool getExtraInfoRet = attr.GetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, extraInfo);
+    if (getExtraInfoRet) {
+        ProcessAuthResult(acquireInfo, extraInfo);
+    }
+
     iamCallback_->OnAcquireInfo(moduleType, acquireInfo, attr);
+}
+
+void ContextCallbackImpl::ProcessAuthResult(int32_t tip, const std::vector<uint8_t> &extraInfo)
+{
+    if (tip != USER_AUTH_TIP_SINGLE_AUTH_RESULT) {
+        return;
+    }
+    if (extraInfo.empty()) {
+        return;
+    }
+    std::string tipJson(reinterpret_cast<const char *>(extraInfo.data()), extraInfo.size());
+    IAM_LOGI("tipJson:%{public}s", tipJson.c_str());
+    auto root = nlohmann::json::parse(tipJson.c_str());
+    if (root.is_null() || root.is_discarded()) {
+        IAM_LOGE("root is null");
+    }
+    static const std::string tipJsonKeyAuthResult = "authResult";
+    int32_t authResult = 0;
+    if (root.find(tipJsonKeyAuthResult) != root.end() || root[tipJsonKeyAuthResult].is_number()) {
+        root.at(tipJsonKeyAuthResult).get_to(authResult);
+    }
+    metaData_.operationResult = authResult;
+    metaData_.endTime = std::chrono::steady_clock::now();
+    IAM_LOGI("fingerprint single auth result, tip: %{public}d, result: %{public}d", tip, authResult);
+    ContextCallbackNotifyListener::GetInstance().Process(metaData_);
+    return;
 }
 
 void ContextCallbackImpl::OnResult(int32_t resultCode, const Attributes &finalResult)
