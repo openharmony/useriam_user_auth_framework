@@ -24,10 +24,14 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
+const std::string TAG_USERID = "userId";
+const std::string TAG_AUTHTYPE = "authType";
+const std::string TAG_CREDENTIALCOUNT = "credentialCount";
 const std::string TAG_SCHEDULEID = "scheduleId";
 const std::string USER_PIN_CREATED_EVENT = "USER_PIN_CREATED_EVENT";
 const std::string USER_PIN_DELETED_EVENT = "USER_PIN_DELETED_EVENT";
 const std::string USER_PIN_UPDATED_EVENT = "USER_PIN_UPDATED_EVENT";
+const std::string USER_CREDENTIAL_UPDATED_EVENT = "USER_CREDENTIAL_UPDATED_EVENT";
 
 void PublishEvent(EventFwk::CommonEventData data)
 {
@@ -81,6 +85,20 @@ void PublishEventAdapter::PublishUpdatedEvent(int32_t userId, uint64_t scheduleI
     return;
 }
 
+void PublishEventAdapter::PublishCredentialUpdatedEvent(int32_t userId, int32_t authType, uint32_t credentialCount)
+{
+    EventFwk::Want want;
+    want.SetAction(USER_CREDENTIAL_UPDATED_EVENT);
+    want.SetParam(TAG_USERID, std::to_string(userId));
+    want.SetParam(TAG_AUTHTYPE, std::to_string(authType));
+    want.SetParam(TAG_CREDENTIALCOUNT, std::to_string(credentialCount));
+    EventFwk::CommonEventData data(want);
+    data.SetCode(0);
+    PublishEvent(data);
+    IAM_LOGI("PublishCredentialUpdatedEvent, userId: %{public}d, authType: %{public}d, credentialCount: %{public}u",
+        userId, authType, credentialCount);
+    return;
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

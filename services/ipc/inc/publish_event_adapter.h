@@ -26,6 +26,7 @@ public:
     static void PublishDeletedEvent(int32_t userId);
     static void PublishCreatedEvent(int32_t userId, uint64_t scheduleId);
     static void PublishUpdatedEvent(int32_t userId, uint64_t scheduleId);
+    static void PublishCredentialUpdatedEvent(int32_t userId, int32_t authType, uint32_t credentialCount);
 };
 } // namespace UserAuth
 } // namespace UserIam
