@@ -118,7 +118,7 @@ HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserIdmOnResult, TestSize.L
 
 HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserAuthOnAcquireInfo, TestSize.Level0)
 {
-    int32_t acquire = 8;
+    int32_t acquire = 9999;
     auto jsonExtraInfo = nlohmann::json({
         {"authResutlt", 0},
         {"authRemainAttempts", 5},

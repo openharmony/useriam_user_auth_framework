@@ -17,6 +17,7 @@
 #include <sstream>
 
 #include "iam_check.h"
+#include "iam_common_defines.h"
 #include "iam_logger.h"
 #include "iam_mem.h"
 #include "iam_ptr.h"
@@ -26,9 +27,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-namespace {
-    constexpr int32_t USER_AUTH_TIP_SINGLE_AUTH_RESULT = 8;
-}
 ContextCallbackImpl::ContextCallbackImpl(sptr<IamCallbackInterface> iamCallback, OperationType operationType)
     : iamCallback_(iamCallback)
 {
