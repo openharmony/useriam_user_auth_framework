@@ -60,11 +60,11 @@ void FiniteStateMachineImpl::Schedule(uint32_t event)
 void FiniteStateMachineImpl::ScheduleInner(FiniteStateMachine &machine)
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    uint32_t runTimes = 0;
-    while (true) {
+    for (uint32_t runTimes = 0; runTimes < FiniteStateMachineImpl::MAX_SCHEDULE_TIMES; runTimes++) {
         uint32_t event = 0;
         bool result = pendingEvents_.Pop(event);
         if (!result) {
+            IAM_LOGE("fsm %{public}s pop event fail", name_.c_str());
             break;
         }
 
@@ -82,8 +82,6 @@ void FiniteStateMachineImpl::ScheduleInner(FiniteStateMachine &machine)
 
         IAM_LOGI("fsm %{public}s schedule [state:%{public}u] + [event:%{public}u] -> [nextState:%{public}u]",
             name_.c_str(), oldState, event, currentState_);
-
-        ++runTimes;
         if (runTimes >= FiniteStateMachineImpl::MAX_SCHEDULE_TIMES) {
             IAM_LOGE("fsm %{public}s schedule too many times", name_.c_str());
             break;

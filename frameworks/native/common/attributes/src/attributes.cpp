@@ -93,6 +93,7 @@ private:
     static bool DecodeUint32ArrayValue(const std::vector<uint8_t> &src, std::vector<uint32_t> &dst);
     static bool DecodeUint16ArrayValue(const std::vector<uint8_t> &src, std::vector<uint16_t> &dst);
     static bool DecodeUint8ArrayValue(const std::vector<uint8_t> &src, std::vector<uint8_t> &dst);
+    static bool CheckAttributeLength(const uint8_t *curr, const uint8_t *end, uint32_t length);
     std::map<AttributeKey, const std::vector<uint8_t>> map_;
 };
 
@@ -127,13 +128,8 @@ Attributes::Impl::Impl(const std::vector<uint8_t> &raw)
         }
         curr += sizeof(uint32_t);
 
-        if (length % sizeof(uint8_t) != 0 || length > MAX_ATTR_LENGTH) {
-            IAM_LOGE("length format error, length = %{public}u", length);
-            return;
-        }
-
-        if (length > end - curr) {
-            IAM_LOGE("length too big, length = %{public}u", length);
+        if (!CheckAttributeLength(curr, end, length)) {
+            IAM_LOGE("check attribute length error");
             return;
         }
 
@@ -169,6 +165,19 @@ Attributes::Impl &Attributes::Impl::operator=(Attributes::Impl &&other) noexcept
 {
     map_ = std::move(other.map_);
     return *this;
+}
+
+bool Attributes::Impl::CheckAttributeLength(const uint8_t *curr, const uint8_t *end, uint32_t length)
+{
+    if (length % sizeof(uint8_t) != 0 || length > MAX_ATTR_LENGTH) {
+        IAM_LOGE("length format error, length = %{public}u", length);
+        return false;
+    }
+    if (length > end - curr) {
+        IAM_LOGE("length too big, length = %{public}u", length);
+        return false;
+    }
+    return true;
 }
 
 bool Attributes::Impl::SetBoolValue(AttributeKey key, bool value)
