@@ -129,7 +129,8 @@ int32_t AuthWidgetHelper::CheckValidSolution(int32_t userId,
         IAM_LOGE("hdi interface is nullptr");
         return GENERAL_ERROR;
     }
-    std::vector<HdiAuthType> inputAuthType, validTypes;
+    std::vector<HdiAuthType> inputAuthType;
+    std::vector<HdiAuthType> validTypes;
     uint32_t inputAtl = atl;
     IAM_LOGE("hdi interface authTypeList size is:%{public}zu", authTypeList.size());
     for (size_t index = 0; index < authTypeList.size(); index++) {

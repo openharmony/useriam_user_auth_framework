@@ -474,12 +474,10 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetVersion003, TestSize.Level0)
     EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
     EXPECT_CALL(*obj, AddDeathRecipient(_))
         .WillOnce(Return(false))
-        .WillRepeatedly(
-            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
-                dr = recipient;
-                return true;
-            }
-        );
+        .WillRepeatedly([&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+            dr = recipient;
+            return true;
+        });
 
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).WillRepeatedly(Return(OHOS::NO_ERROR));
 
@@ -624,12 +622,10 @@ void UserAuthClientTest::CallRemoteObject(const std::shared_ptr<MockUserAuthServ
     EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
     EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
     EXPECT_CALL(*obj, AddDeathRecipient(_))
-        .WillRepeatedly(
-            [&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
-                dr = recipient;
-                return true;
-            }
-        );
+        .WillRepeatedly([&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+            dr = recipient;
+            return true;
+        });
 
     IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
