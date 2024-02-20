@@ -17,6 +17,7 @@
 
 #include "context_callback_impl.h"
 #include "iam_ptr.h"
+#include "nlohmann/json.hpp"
 #include "mock_user_auth_callback.h"
 #include "mock_user_idm_callback.h"
 
@@ -113,6 +114,34 @@ HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserIdmOnResult, TestSize.L
     ASSERT_NE(contextCallback, nullptr);
     contextCallback->OnAcquireInfo(static_cast<ExecutorRole>(0), 0, testMsg);
     contextCallback->OnResult(testResult, *testAttr);
+}
+
+HWTEST_F(ContextCallbackImplTest, ContextCallbackImplUserAuthOnAcquireInfo, TestSize.Level0)
+{
+    int32_t acquire = 9999;
+    auto jsonExtraInfo = nlohmann::json({
+        {"authResutlt", 0},
+        {"authRemainAttempts", 5},
+        {"lockoutDuration", 0}});
+    std::string stringExtraInfo = jsonExtraInfo.dump();
+    const std::vector<uint8_t> extraInfo(stringExtraInfo.data(), stringExtraInfo.data() + stringExtraInfo.length());
+
+    auto testAttr = Common::MakeShared<Attributes>();
+    ASSERT_TRUE(testAttr != nullptr);
+    EXPECT_TRUE(testAttr->SetInt32Value(Attributes::ATTR_TIP_INFO, acquire));
+    EXPECT_TRUE(testAttr->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, extraInfo));
+    auto testMsg = testAttr->Serialize();
+
+    auto notify = [](const ContextCallbackNotifyListener::MetaData &metaData) { return; };
+    ContextCallbackNotifyListener::GetInstance().AddNotifier(notify);
+
+    sptr<MockIdmCallback> mockCallback(new (nothrow) MockIdmCallback());
+    ASSERT_TRUE(mockCallback != nullptr);
+    EXPECT_CALL(*mockCallback, OnAcquireInfo(_, _, _)).Times(1);
+    sptr<IdmCallbackInterface> callback = mockCallback;
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER_BEHAVIOR);
+    ASSERT_NE(contextCallback, nullptr);
+    contextCallback->OnAcquireInfo(static_cast<ExecutorRole>(0), 0, testMsg);
 }
 } // namespace UserAuth
 } // namespace UserIam

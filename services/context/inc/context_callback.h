@@ -65,7 +65,7 @@ public:
     static std::shared_ptr<ContextCallback> NewDummyInstance(OperationType operationType);
     virtual ~ContextCallback() = default;
     virtual void OnResult(int32_t resultCode, const Attributes &finalResult) = 0;
-    virtual void OnAcquireInfo(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg) const = 0;
+    virtual void OnAcquireInfo(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg) = 0;
     virtual void SetTraceCallerName(const std::string &callerName) = 0;
     virtual void SetTraceRequestContextId(uint64_t requestContextId) = 0;
     virtual void SetTraceAuthContextId(uint64_t authContextId) = 0;
@@ -77,6 +77,7 @@ public:
     virtual void SetTraceAuthWidgetType(uint32_t authWidgetType) = 0;
     virtual void SetTraceAuthTrustLevel(AuthTrustLevel atl) = 0;
     virtual void SetCleaner(Context::ContextStopCallback callback) = 0;
+    virtual void ProcessAuthResult(int32_t tip, const std::vector<uint8_t> &extraInfo) = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam

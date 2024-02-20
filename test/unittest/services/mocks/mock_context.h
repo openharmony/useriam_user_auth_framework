@@ -33,7 +33,7 @@ public:
     MOCK_METHOD2(NewInstance, std::shared_ptr<ContextCallback>(sptr<IamCallbackInterface> iamCallback,
         OperationType operationType));
     MOCK_METHOD2(OnResult, void(int32_t resultCode, const Attributes &finalResult));
-    MOCK_CONST_METHOD3(
+    MOCK_METHOD3(
         OnAcquireInfo, void(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg));
     MOCK_METHOD1(SetTraceCallerName, void(const std::string &callerName));
     MOCK_METHOD1(SetTraceRequestContextId, void(uint64_t requestContextId));
@@ -46,6 +46,7 @@ public:
     MOCK_METHOD1(SetTraceAuthTrustLevel, void(AuthTrustLevel atl));
     MOCK_METHOD1(SetTraceAuthWidgetType, void(uint32_t authWidgetType));
     MOCK_METHOD1(SetCleaner, void(Context::ContextStopCallback callback));
+    MOCK_METHOD2(ProcessAuthResult, void(int32_t tip, const std::vector<uint8_t> &extraInfo));
 };
 
 class MockContext final : public Context {

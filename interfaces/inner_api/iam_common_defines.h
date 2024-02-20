@@ -32,7 +32,7 @@ namespace UserIam {
 namespace UserAuth {
 /** Max length of challenge. */
 constexpr size_t MAX_CHALLENG_LEN = 32;
-
+constexpr int32_t USER_AUTH_TIP_SINGLE_AUTH_RESULT = 9999;
 /**
  * @brief Defines authentication type.
  */

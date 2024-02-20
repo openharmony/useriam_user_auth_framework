@@ -29,7 +29,7 @@ public:
     explicit ContextCallbackImpl(sptr<IamCallbackInterface> iamCallback, OperationType operationType);
     ~ContextCallbackImpl() override = default;
     void OnResult(int32_t resultCode, const Attributes &finalResult) override;
-    void OnAcquireInfo(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg) const override;
+    void OnAcquireInfo(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg) override;
     void SetTraceCallerName(const std::string &callerName) override;
     void SetTraceRequestContextId(uint64_t requestContextId) override;
     void SetTraceAuthContextId(uint64_t authContextId) override;
@@ -41,6 +41,7 @@ public:
     void SetTraceAuthWidgetType(uint32_t authWidgetType) override;
     void SetTraceAuthTrustLevel(AuthTrustLevel atl) override;
     void SetCleaner(Context::ContextStopCallback callback) override;
+    void ProcessAuthResult(int32_t tip, const std::vector<uint8_t> &extraInfo) override;
 
 private:
     sptr<IamCallbackInterface> iamCallback_ {nullptr};
