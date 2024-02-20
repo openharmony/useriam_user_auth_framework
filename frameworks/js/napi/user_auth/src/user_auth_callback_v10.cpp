@@ -66,14 +66,6 @@ void OnResultV10Work(uv_work_t *work, int status)
         DestoryResultWork(work);
         return;
     }
-    AuthType authType = AuthType(resultHolder->authType);
-    int32_t code = UserAuthClientImpl::Instance().GetEnrolledState(API_VERSION_12, authType,
-        resultHolder->enrolledState);
-    if (code != SUCCESS) {
-        IAM_LOGE("failed to get enrolledId info %{public}d", code);
-        DestoryResultWork(work);
-        return;
-    }
     napi_status ret = resultHolder->callback->DoResultCallback(resultHolder->result, resultHolder->token,
         resultHolder->authType, resultHolder->enrolledState);
     IAM_LOGD("DoResultCallback ret = %{public}d", ret);
@@ -154,10 +146,12 @@ napi_status UserAuthCallbackV10::DoResultCallback(int32_t result,
             return ret;
         }
     }
-    ret = UserAuthNapiHelper::SetEnrolledStateProperty(env_, eventInfo, "enrolledState", enrolledState);
-    if (ret != napi_ok) {
-        IAM_LOGE("SetEnrolledStateProperty failed %{public}d", ret);
-        return ret;
+    if (UserAuthResultCode(result) == UserAuthResultCode::SUCCESS) {
+        ret = UserAuthNapiHelper::SetEnrolledStateProperty(env_, eventInfo, "enrolledState", enrolledState);
+        if (ret != napi_ok) {
+            IAM_LOGE("SetEnrolledStateProperty failed %{public}d", ret);
+            return ret;
+        }
     }
     return UserAuthNapiHelper::CallVoidNapiFunc(env_, resultCallback->Get(), ARGS_ONE, &eventInfo);
 }
@@ -196,7 +190,12 @@ void UserAuthCallbackV10::OnResult(int32_t result, const Attributes &extraInfo)
     if (!extraInfo.GetInt32Value(Attributes::ATTR_AUTH_TYPE, resultHolder->authType)) {
         IAM_LOGE("ATTR_AUTH_TYPE is null");
     }
-
+    if (!extraInfo.GetUint16Value(Attributes::ATTR_CREDENTIAL_DIGEST, resultHolder->enrolledState.credentialDigest)) {
+        IAM_LOGE("ATTR_CREDENTIAL_DIGEST is null");
+    }
+    if (!extraInfo.GetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, resultHolder->enrolledState.credentialCount)) {
+        IAM_LOGE("ATTR_CREDENTIAL_COUNT is null");
+    }
     work->data = reinterpret_cast<void *>(resultHolder);
     if (uv_queue_work_with_qos(loop, work, [](uv_work_t *work) {}, OnResultV10Work, uv_qos_user_initiated) != 0) {
         IAM_LOGE("uv_queue_work_with_qos fail");

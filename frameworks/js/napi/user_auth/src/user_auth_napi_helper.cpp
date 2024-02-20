@@ -449,9 +449,9 @@ napi_status UserAuthNapiHelper::SetEnrolledStateProperty(napi_env env, napi_valu
         IAM_LOGE("napi_create_object failed %{public}d", ret);
         return ret;
     }
-    int32_t credentialDigest = static_cast<int32_t> (value.credentialDigest);
-    int32_t credentialCount = static_cast<int32_t> (value.credentialCount);
-    IAM_LOGI("get enrolledId info success, credentialDigest = %{public}d, credentialCount = %{public}d",
+    int32_t credentialDigest = static_cast<int32_t>(value.credentialDigest);
+    int32_t credentialCount = static_cast<int32_t>(value.credentialCount);
+    IAM_LOGI("get enrolled state success, credentialDigest = %{public}d, credentialCount = %{public}d",
         credentialDigest, credentialCount);
     ret = UserAuthNapiHelper::SetInt32Property(env, napiValue, "credentialDigest", credentialDigest);
     if (ret != napi_ok) {
