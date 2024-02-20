@@ -67,7 +67,7 @@ napi_value UserAuthInstanceV10::GetEnrolledState(napi_env env, napi_callback_inf
     EnrolledState enrolledState = {};
     int32_t code = UserAuthClientImpl::Instance().GetEnrolledState(API_VERSION_12, authType, enrolledState);
     if (code != SUCCESS) {
-        IAM_LOGE("failed to get enrolledId info %{public}d", code);
+        IAM_LOGE("failed to get enrolled state %{public}d", code);
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env,
             UserAuthResultCode(UserAuthNapiHelper::GetResultCodeV10(code))));
         return nullptr;
@@ -85,9 +85,9 @@ napi_value UserAuthInstanceV10::DoGetEnrolledStateResult(napi_env env, EnrolledS
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
         return nullptr;
     }
-    int32_t credentialDigest = static_cast<int32_t> (enrolledState.credentialDigest);
-    int32_t credentialCount = static_cast<int32_t> (enrolledState.credentialCount);
-    IAM_LOGI("get enrolledId info success, credentialDigest = %{public}d, credentialCount = %{public}d",
+    int32_t credentialDigest = static_cast<int32_t>(enrolledState.credentialDigest);
+    int32_t credentialCount = static_cast<int32_t>(enrolledState.credentialCount);
+    IAM_LOGI("get enrolled state success, credentialDigest = %{public}d, credentialCount = %{public}d",
         credentialDigest, credentialCount);
     ret = UserAuthNapiHelper::SetInt32Property(env, eventInfo, "credentialDigest", credentialDigest);
     if (ret != napi_ok) {
@@ -101,7 +101,7 @@ napi_value UserAuthInstanceV10::DoGetEnrolledStateResult(napi_env env, EnrolledS
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
         return nullptr;
     }
-    IAM_LOGI("get enrolledId info end");
+    IAM_LOGI("get enrolled state end");
     return eventInfo;
 }
 
