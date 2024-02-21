@@ -217,6 +217,7 @@ ohos_source_set("userauth_service_context_fuzzer") {
   sources = [
     "../../../services/context/src/base_context.cpp",
     "../../../services/context/src/context_callback_impl.cpp",
+    "../../../services/context/src/context_death_recipient.cpp",
     "../../../services/context/src/context_factory.cpp",
     "../../../services/context/src/context_helper.cpp",
     "../../../services/context/src/context_pool_impl.cpp",

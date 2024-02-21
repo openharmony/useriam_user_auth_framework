@@ -16,9 +16,11 @@
 
 #include <sstream>
 
+#include "context_death_recipient.h"
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
+#include "system_ability_definition.h"
 
 #define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
 namespace OHOS {
@@ -50,6 +52,16 @@ uint64_t BaseContext::GetContextId() const
     return contextId_;
 }
 
+sptr<IRemoteObject::DeathRecipient> BaseContext::GetDeathRecipient() const
+{
+    return deathRecipient_;
+}
+
+sptr<ApplicationStateObserverStub> BaseContext::GetAppStateObserver() const
+{
+    return appStateObserver_;
+}
+
 bool BaseContext::Start()
 {
     std::lock_guard<std::mutex> guard(mutex_);
@@ -58,6 +70,8 @@ bool BaseContext::Start()
         IAM_LOGI("%{public}s context has started, cannot start again", GetDescription());
         return false;
     }
+    AddDeathrecipient();
+    SubscribeAppState();
     hasStarted_ = true;
     return OnStart();
 }
@@ -65,6 +79,8 @@ bool BaseContext::Start()
 bool BaseContext::Stop()
 {
     IAM_LOGI("%{public}s start", GetDescription());
+    RemoveDeathrecipient();
+    UnSubscribeAppState();
     return OnStop();
 }
 
@@ -96,12 +112,147 @@ void BaseContext::OnScheduleProcessed(ExecutorRole src, int32_t moduleType, cons
 void BaseContext::OnScheduleStoped(int32_t resultCode, const std::shared_ptr<Attributes> &finalResult)
 {
     OnResult(resultCode, finalResult);
+    RemoveDeathrecipient();
+    UnSubscribeAppState();
     return;
 }
 
 const char *BaseContext::GetDescription() const
 {
     return description_.c_str();
+}
+
+void BaseContext::AddDeathrecipient()
+{
+    IAM_LOGI("%{public}s start", GetDescription());
+    IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
+
+    const sptr<IamCallbackInterface> &callback = callback_->GetIamCallback();
+    if (callback == nullptr) {
+        IAM_LOGE("callback_ is nullptr");
+        return;
+    }
+    auto obj = callback->AsObject();
+    if (obj == nullptr) {
+        IAM_LOGE("remote object is nullptr");
+        return;
+    }
+
+    sptr<IRemoteObject::DeathRecipient> dr(new (std::nothrow)ContextDeathRecipient(GetContextId()));
+    if ((dr == nullptr) || (!obj->AddDeathRecipient(dr))) {
+        IAM_LOGE("AddDeathRecipient failed");
+        return;
+    }
+
+    deathRecipient_ = dr;
+    return;
+}
+
+void BaseContext::RemoveDeathrecipient()
+{
+    IAM_LOGI("%{public}s start", GetDescription());
+    IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
+
+    if (deathRecipient_ == nullptr) {
+        IAM_LOGE("deathRecipient_ is nullptr");
+        return;
+    }
+
+    const sptr<IamCallbackInterface> &callback = callback_->GetIamCallback();
+    if (callback == nullptr) {
+        IAM_LOGE("callback_ is nullptr");
+        return;
+    }
+
+    auto obj = callback->AsObject();
+    if (obj == nullptr) {
+        IAM_LOGE("remote object is nullptr");
+        return;
+    }
+
+    obj->RemoveDeathRecipient(deathRecipient_);
+    deathRecipient_ = nullptr;
+    return;
+}
+
+sptr<IAppMgr> BaseContext::GetAppManagerInstance()
+{
+    IAM_LOGI("%{public}s start", GetDescription());
+    sptr<ISystemAbilityManager> systemAbilityManager =
+        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (systemAbilityManager == nullptr) {
+        IAM_LOGE("systemAbilityManager is nullptr");
+    }
+
+    sptr<IRemoteObject> object = systemAbilityManager->GetSystemAbility(APP_MGR_SERVICE_ID);
+    if (object == nullptr) {
+        IAM_LOGE("systemAbilityManager remote object is nullptr");
+    }
+
+    return iface_cast<IAppMgr>(object);
+}
+
+void BaseContext::SubscribeAppState()
+{
+    IAM_LOGI("%{public}s start", GetDescription());
+    IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
+
+    const std::string bundleName = callback_->GetCallerName();
+    if (bundleName.empty()) {
+        IAM_LOGE("bundleName is null");
+        return;
+    }
+
+    sptr<IAppMgr> appManager = GetAppManagerInstance();
+    if (appManager == nullptr) {
+        IAM_LOGE("GetAppManagerInstance failed");
+        return;
+    }
+
+    appStateObserver_ = new (std::nothrow)IamApplicationStateObserver(GetContextId(), bundleName);
+    if (appStateObserver_ == nullptr) {
+        IAM_LOGE("get appStateObserver failed");
+        return;
+    }
+
+    std::vector<std::string> bundleNameList;
+    bundleNameList.emplace_back(bundleName);
+    int32_t result = appManager->RegisterApplicationStateObserver(appStateObserver_, bundleNameList);
+    if (result != SUCCESS) {
+        IAM_LOGE("RegistApplicationStateObserver failed");
+        appStateObserver_ = nullptr;
+        return;
+    }
+
+    IAM_LOGI("SubscribeAppState success, contextId:****%{public}hx, bundleName:%{public}s",
+        static_cast<uint16_t>(GetContextId()), bundleName.c_str());
+    return;
+}
+
+void BaseContext::UnSubscribeAppState()
+{
+    IAM_LOGI("%{public}s start", GetDescription());
+    if (appStateObserver_ == nullptr) {
+        IAM_LOGE("appStateObserver_ is nullptr");
+        return;
+    }
+
+    sptr<IAppMgr> appManager = GetAppManagerInstance();
+    if (appManager == nullptr) {
+        IAM_LOGE("GetAppManagerInstance failed");
+        return;
+    }
+
+    int32_t result = appManager->UnregisterApplicationStateObserver(appStateObserver_);
+    if (result != SUCCESS) {
+        IAM_LOGE("UnregisterApplicationStateObserver failed");
+        return;
+    }
+
+    appStateObserver_ = nullptr;
+    IAM_LOGI("UnSubscribeAppState success, contextId:****%{public}hx",
+        static_cast<uint16_t>(GetContextId()));
+    return;
 }
 } // namespace UserAuth
 } // namespace UserIam

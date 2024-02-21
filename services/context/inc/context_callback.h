@@ -78,6 +78,8 @@ public:
     virtual void SetTraceAuthTrustLevel(AuthTrustLevel atl) = 0;
     virtual void SetCleaner(Context::ContextStopCallback callback) = 0;
     virtual void ProcessAuthResult(int32_t tip, const std::vector<uint8_t> &extraInfo) = 0;
+    virtual sptr<IamCallbackInterface> GetIamCallback() = 0;
+    virtual std::string GetCallerName() = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam

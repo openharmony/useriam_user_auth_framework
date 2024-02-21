@@ -19,6 +19,7 @@
 
 #include <gmock/gmock.h>
 
+#include "app_mgr_interface.h"
 #include "context.h"
 #include "context_callback.h"
 #include "iam_ptr.h"
@@ -27,6 +28,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+using namespace OHOS::AppExecFwk;
 class MockContextCallback : public ContextCallback {
 public:
     virtual ~MockContextCallback() = default;
@@ -47,6 +49,8 @@ public:
     MOCK_METHOD1(SetTraceAuthWidgetType, void(uint32_t authWidgetType));
     MOCK_METHOD1(SetCleaner, void(Context::ContextStopCallback callback));
     MOCK_METHOD2(ProcessAuthResult, void(int32_t tip, const std::vector<uint8_t> &extraInfo));
+    MOCK_METHOD0(GetIamCallback, sptr<IamCallbackInterface>());
+    MOCK_METHOD0(GetCallerName, std::string());
 };
 
 class MockContext final : public Context {
@@ -58,6 +62,11 @@ public:
     MOCK_CONST_METHOD1(GetScheduleNode, std::shared_ptr<ScheduleNode>(uint64_t scheduleId));
     MOCK_CONST_METHOD0(GetLatestError, int32_t());
     MOCK_CONST_METHOD0(GetTokenId, uint32_t());
+    MOCK_METHOD0(AddDeathrecipient, void());
+    MOCK_METHOD0(RemoveDeathrecipient, void());
+    MOCK_METHOD0(SubscribeAppState, void());
+    MOCK_METHOD0(UnSubscribeAppState, void());
+    MOCK_METHOD0(GetAppManagerInstance, sptr<IAppMgr>());
 
     static std::shared_ptr<Context> CreateWithContextId(uint64_t contextId)
     {
