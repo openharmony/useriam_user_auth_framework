@@ -36,6 +36,13 @@ void PublishEventAdapter::PublishUpdatedEvent(int32_t userId, uint64_t scheduleI
     (void)scheduleId;
 }
 
+void PublishEventAdapter::PublishCredentialUpdatedEvent(int32_t userId, int32_t authType, uint32_t credentialCount)
+{
+    (void)userId;
+    (void)authType;
+    (void)credentialCount;
+}
+
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

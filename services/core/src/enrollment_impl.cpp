@@ -195,6 +195,7 @@ bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t
         info = nullptr;
     }
     PublishPinEvent();
+    PublishCredentialUpdateEvent();
     return true;
 }
 
@@ -231,6 +232,16 @@ bool EnrollmentImpl::Cancel()
         return false;
     }
     return true;
+}
+
+void EnrollmentImpl::PublishCredentialUpdateEvent()
+{
+    IAM_LOGI("begin to publish credential update event");
+    std::vector<uint64_t> templateIds;
+    auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(enrollPara_.userId, enrollPara_.authType);
+
+    PublishEventAdapter::PublishCredentialUpdatedEvent(enrollPara_.userId, static_cast<int32_t>(enrollPara_.authType),
+        credentialInfos.size());
 }
 } // namespace UserAuth
 } // namespace UserIam
