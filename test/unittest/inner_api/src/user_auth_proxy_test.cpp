@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -45,6 +45,41 @@ void UserAuthProxyTest::SetUp()
 void UserAuthProxyTest::TearDown()
 {
 }
+
+HWTEST_F(UserAuthProxyTest, UserAuthProxyGetEnrolledState, TestSize.Level0)
+{
+    int32_t testApiVersion = 0;
+    AuthType testAuthType = FACE;
+    uint16_t credentialDigest = 23962;
+    uint16_t credentialCount = 1;
+    EnrolledState enrolledState;
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    EXPECT_NE(obj, nullptr);
+    auto proxy = Common::MakeShared<UserAuthProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+    auto service = Common::MakeShared<MockUserAuthService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, GetEnrolledState(_, _, _))
+        .Times(Exactly(1))
+        .WillOnce([testApiVersion, testAuthType, credentialDigest, credentialCount](int32_t apiVersion,
+            AuthType authType, EnrolledState &enrolledState) {
+            EXPECT_EQ(testApiVersion, apiVersion);
+            EXPECT_EQ(testAuthType, authType);
+            enrolledState.credentialDigest = credentialDigest;
+            enrolledState.credentialCount = credentialCount;
+            return SUCCESS;
+        });
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
+    ON_CALL(*obj, SendRequest)
+        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            service->OnRemoteRequest(code, data, reply, option);
+            return SUCCESS;
+        });
+    proxy->GetEnrolledState(testApiVersion, testAuthType, enrolledState);
+    EXPECT_EQ(credentialDigest, enrolledState.credentialDigest);
+    EXPECT_EQ(credentialCount, enrolledState.credentialCount);
+}
+
 
 HWTEST_F(UserAuthProxyTest, UserAuthProxyGetAvailableStatus, TestSize.Level0)
 {

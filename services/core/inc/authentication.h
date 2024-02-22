@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -43,6 +43,9 @@ public:
         int32_t remainTimes;
         std::vector<uint8_t> token;
         std::vector<uint8_t> rootSecret;
+        uint16_t credentialDigest{0};
+        uint16_t credentialCount{0};
+        int32_t sdkVersion{0};
     };
     struct AuthExecutorMsg {
         uint64_t executorIndex;

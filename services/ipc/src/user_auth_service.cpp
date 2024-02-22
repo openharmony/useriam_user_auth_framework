@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -760,6 +760,44 @@ int32_t UserAuthService::RegisterWidgetCallback(int32_t version, sptr<WidgetCall
     WidgetClient::Instance().SetWidgetCallback(callback);
     WidgetClient::Instance().SetAuthTokenId(tokenId);
     return ResultCode::SUCCESS;
+}
+
+int32_t UserAuthService::GetEnrolledState(int32_t apiVersion, AuthType authType,
+    EnrolledState &enrolledState)
+{
+    IAM_LOGE("start");
+
+    if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    if (apiVersion < API_VERSION_12 ||
+        !SystemParamManager::GetInstance().IsAuthTypeEnable(authType)) {
+        IAM_LOGE("failed to check apiVersion");
+        return TYPE_NOT_SUPPORT;
+    }
+
+    int32_t userId;
+    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
+        IAM_LOGE("failed to get callingUserId");
+        return GENERAL_ERROR;
+    }
+
+    auto hdi = HdiWrapper::GetHdiInstance();
+    if (hdi == nullptr) {
+        IAM_LOGE("hdi interface is nullptr");
+        return GENERAL_ERROR;
+    }
+    HdiEnrolledState hdiEnrolledState = {};
+    int32_t result = hdi->GetEnrolledState(userId, static_cast<HdiAuthType>(authType), hdiEnrolledState);
+    if (result != SUCCESS) {
+        IAM_LOGE("failed to get enrolled state,userId:%{public}d authType:%{public}d", userId, authType);
+        return result;
+    }
+    enrolledState.credentialDigest = hdiEnrolledState.credentialDigest;
+    enrolledState.credentialCount = hdiEnrolledState.credentialCount;
+    return SUCCESS;
 }
 
 } // namespace UserAuth

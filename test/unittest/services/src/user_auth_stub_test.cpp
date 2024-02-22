@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -39,6 +39,60 @@ void UserAuthStubTest::SetUp()
 
 void UserAuthStubTest::TearDown()
 {
+}
+
+HWTEST_F(UserAuthStubTest, UserAuthStubGetEnrolledStateStub001, TestSize.Level0)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    uint32_t code = UserAuthInterfaceCode::USER_AUTH_GET_ENROLLED_STATE;
+
+    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+
+    MockUserAuthService service;
+    EXPECT_EQ(READ_PARCEL_ERROR, service.OnRemoteRequest(code, data, reply, option));
+}
+
+HWTEST_F(UserAuthStubTest, UserAuthStubGetEnrolledStateStub002, TestSize.Level0)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MockUserAuthService service;
+    int32_t testApiVersion = 12;
+    AuthType testAuthType = FACE;
+    uint16_t expectCredentialDigest = 23962;
+    uint16_t expectCredentialCount = 1;
+    EXPECT_CALL(service, GetEnrolledState(_, _, _)).Times(1);
+    ON_CALL(service, GetEnrolledState)
+        .WillByDefault(
+            [testApiVersion, testAuthType, expectCredentialDigest, expectCredentialCount](int32_t apiVersion,
+                AuthType authType, EnrolledState &enrolledState) {
+                EXPECT_EQ(apiVersion, testApiVersion);
+                EXPECT_EQ(authType, testAuthType);
+                enrolledState.credentialDigest = expectCredentialDigest;
+                enrolledState.credentialCount = expectCredentialCount;
+                return SUCCESS;
+            }
+        );
+
+    MessageOption option(MessageOption::TF_SYNC);
+    uint32_t code = static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_GET_ENROLLED_STATE);
+
+    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteInt32(testApiVersion));
+    EXPECT_TRUE(data.WriteUint32(testAuthType));
+
+    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
+    int32_t result = FAIL;
+    EXPECT_TRUE(reply.ReadInt32(result));
+    EXPECT_EQ(SUCCESS, result);
+    uint16_t actualCredentialDigest;
+    EXPECT_TRUE(reply.ReadUint16(actualCredentialDigest));
+    EXPECT_EQ(expectCredentialDigest, actualCredentialDigest);
+    uint16_t actualCredentialCount;
+    EXPECT_TRUE(reply.ReadUint16(actualCredentialCount));
+    EXPECT_EQ(expectCredentialCount, actualCredentialCount);
 }
 
 HWTEST_F(UserAuthStubTest, UserAuthStubGetAvailableStatusStub001, TestSize.Level0)

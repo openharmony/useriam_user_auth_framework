@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -420,6 +420,22 @@ int32_t UserAuthClientImpl::Notice(NoticeType noticeType, const std::string &eve
     IAM_LOGI("UserAuthClientImpl::Notice noticeType:%{public}d, eventDat:%{public}s",
         static_cast<int32_t>(noticeType), eventData.c_str());
     return proxy->Notice(noticeType, eventData);
+}
+
+int32_t UserAuthClientImpl::GetEnrolledState(int32_t apiVersion, AuthType authType, EnrolledState &enrolledState)
+{
+    IAM_LOGI("start, apiVersion:%{public}d authType:%{public}d ", apiVersion, authType);
+    auto proxy = GetProxy();
+    if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
+        return GENERAL_ERROR;
+    }
+    int32_t ret = proxy->GetEnrolledState(apiVersion, authType, enrolledState);
+    if (ret != SUCCESS) {
+        IAM_LOGE("proxy GetEnrolledState failed");
+        return ret;
+    }
+    return ret;
 }
 } // namespace UserAuth
 } // namespace UserIam
