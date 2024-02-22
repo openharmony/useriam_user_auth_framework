@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -66,6 +66,8 @@ int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Messag
             return NoticeStub(data, reply);
         case UserAuthInterfaceCode::USER_AUTH_REG_WIDGET_CB:
             return RegisterWidgetCallbackStub(data, reply);
+        case UserAuthInterfaceCode::USER_AUTH_GET_ENROLLED_STATE:
+            return GetEnrolledStateStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -482,6 +484,51 @@ int32_t UserAuthStub::RegisterWidgetCallbackStub(MessageParcel &data, MessagePar
     }
     IAM_LOGI("RegisterWidgetCallbackStub success");
     return SUCCESS;
+}
+
+int32_t UserAuthStub::GetEnrolledStateStub(MessageParcel &data, MessageParcel &reply)
+{
+    IAM_LOGI("enter");
+    ON_SCOPE_EXIT(IAM_LOGI("leave"));
+    int32_t ret = GENERAL_ERROR;
+
+    int32_t apiVersion;
+    if (!data.ReadInt32(apiVersion)) {
+        IAM_LOGE("failed to read apiVersion");
+        static_cast<void>(reply.WriteInt32(ret));
+        return READ_PARCEL_ERROR;
+    }
+
+    int32_t authType;
+    if (!data.ReadInt32(authType)) {
+        static_cast<void>(reply.WriteInt32(ret));
+        IAM_LOGE("failed to read authType");
+        return READ_PARCEL_ERROR;
+    }
+    EnrolledState enrolledState = {};
+    int32_t result = GetEnrolledState(apiVersion, static_cast<AuthType>(authType), enrolledState);
+    if (result != SUCCESS) {
+        IAM_LOGE("failed to GetEnrolledState");
+        if (!reply.WriteInt32(result)) {
+            IAM_LOGE("failed to write ret");
+            return WRITE_PARCEL_ERROR;
+        }
+        return result;
+    }
+    ret = SUCCESS;
+    if (!reply.WriteInt32(ret)) {
+        IAM_LOGE("failed to write ret");
+        return WRITE_PARCEL_ERROR;
+    }
+    if (!reply.WriteUint16(enrolledState.credentialDigest)) {
+        IAM_LOGE("failed to write credentialDigest");
+        return WRITE_PARCEL_ERROR;
+    }
+    if (!reply.WriteUint16(enrolledState.credentialCount)) {
+        IAM_LOGE("failed to write credentialCount");
+        return WRITE_PARCEL_ERROR;
+    }
+    return result;
 }
 } // namespace UserAuth
 } // namespace UserIam

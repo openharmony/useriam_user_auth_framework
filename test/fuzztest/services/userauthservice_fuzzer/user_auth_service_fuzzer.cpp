@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -118,6 +118,16 @@ public:
 };
 
 UserAuthService g_userAuthService(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true);
+
+void FuzzGetEnrolledState(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    int32_t apiVersion = parcel.ReadInt32();
+    AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
+    EnrolledState enrolledState = {};
+    g_userAuthService.GetEnrolledState(apiVersion, authType, enrolledState);
+    IAM_LOGI("end");
+}
 
 void FuzzGetAvailableStatus(Parcel &parcel)
 {
@@ -276,6 +286,7 @@ void FuzzRegisterWidgetCallback(Parcel &parcel)
 
 using FuzzFunc = decltype(FuzzGetAvailableStatus);
 FuzzFunc *g_fuzzFuncs[] = {
+    FuzzGetEnrolledState,
     FuzzGetAvailableStatus,
     FuzzGetProperty,
     FuzzSetProperty,

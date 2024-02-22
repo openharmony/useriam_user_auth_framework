@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -42,6 +42,7 @@ constexpr int32_t API_VERSION_6 = 6;
 constexpr int32_t API_VERSION_8 = 8;
 constexpr int32_t API_VERSION_9 = 9;
 constexpr int32_t API_VERSION_10 = 10;
+constexpr int32_t API_VERSION_12 = 12;
 
 constexpr const char *NOTICE_EVENT_AUTH_READY = "EVENT_AUTH_TYPE_READY";
 constexpr const char *NOTICE_EVENT_CANCEL_AUTH = "EVENT_AUTH_USER_CANCEL";

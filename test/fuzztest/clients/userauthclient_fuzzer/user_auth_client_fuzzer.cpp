@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -93,6 +93,16 @@ public:
         static_cast<void>(cmdData);
     }
 };
+
+void FuzzClientGetEnrolledState(Parcel &parcel)
+{
+    IAM_LOGI("start");
+    auto apiVersion = parcel.ReadInt32();
+    auto authType = static_cast<AuthType>(parcel.ReadInt32());
+    EnrolledState enrolledState = {};
+    UserAuthClientImpl::Instance().GetEnrolledState(apiVersion, authType, enrolledState);
+    IAM_LOGI("end");
+}
 
 void FuzzClientGetAvailableStatus(Parcel &parcel)
 {
@@ -289,6 +299,7 @@ void FuzzSetPropCallbackServiceOnPropResult(Parcel &parcel)
 
 using FuzzFunc = decltype(FuzzClientGetAvailableStatus);
 FuzzFunc *g_fuzzFuncs[] = {
+    FuzzClientGetEnrolledState,
     FuzzClientGetAvailableStatus,
     FuzzClientGetProperty,
     FuzzClientSetProperty,

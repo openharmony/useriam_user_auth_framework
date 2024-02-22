@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -505,6 +505,54 @@ int32_t UserAuthProxy::RegisterWidgetCallback(int32_t version, sptr<WidgetCallba
         return READ_PARCEL_ERROR;
     }
     return result;
+}
+
+int32_t UserAuthProxy::GetEnrolledState(int32_t apiVersion, AuthType authType, EnrolledState &enrolledState)
+{
+    MessageParcel data;
+    MessageParcel reply;
+
+    if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
+        IAM_LOGE("failed to write descriptor");
+        return WRITE_PARCEL_ERROR;
+    }
+
+    if (!data.WriteInt32(apiVersion)) {
+        IAM_LOGE("failed to write apiVersion");
+        return WRITE_PARCEL_ERROR;
+    }
+    if (!data.WriteInt32(authType)) {
+        IAM_LOGE("failed to write authType");
+        return WRITE_PARCEL_ERROR;
+    }
+
+    bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_GET_ENROLLED_STATE, data, reply);
+    if (!ret) {
+        return GENERAL_ERROR;
+    }
+
+    int32_t result = GENERAL_ERROR;
+    if (!reply.ReadInt32(result)) {
+        IAM_LOGE("failed to read result");
+        return result;
+    }
+    if (result != SUCCESS) {
+        IAM_LOGE("failed to get enrolled state");
+        return result;
+    }
+    uint16_t credentialDigest;
+    if (!reply.ReadUint16(credentialDigest)) {
+        IAM_LOGE("failed to read result");
+        return GENERAL_ERROR;
+    }
+    uint16_t credentialCount;
+    if (!reply.ReadUint16(credentialCount)) {
+        IAM_LOGE("failed to read result");
+        return GENERAL_ERROR;
+    }
+    enrolledState.credentialDigest = credentialDigest;
+    enrolledState.credentialCount = credentialCount;
+    return SUCCESS;
 }
 } // namespace UserAuth
 } // namespace UserIam
