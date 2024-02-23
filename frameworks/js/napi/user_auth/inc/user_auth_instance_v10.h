@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -37,6 +37,7 @@ public:
     UserAuthResultCode Off(napi_env env, napi_callback_info info);
     UserAuthResultCode Start(napi_env env, napi_callback_info info);
     UserAuthResultCode Cancel(napi_env env, napi_callback_info info);
+    static napi_value GetEnrolledState(napi_env env, napi_callback_info info);
 
 private:
     UserAuthResultCode InitChallenge(napi_env env, napi_value value);
@@ -44,6 +45,7 @@ private:
     UserAuthResultCode InitAuthParam(napi_env env, napi_value value);
     UserAuthResultCode InitWidgetParam(napi_env env, napi_value value);
     std::shared_ptr<JsRefHolder> GetCallback(napi_env env, napi_value value);
+    static napi_value DoGetEnrolledStateResult(napi_env env, EnrolledState enrolledState);
 
     AuthParam authParam_;
     WidgetParam widgetParam_;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -39,7 +39,7 @@ public:
     void OnResult(int32_t result, const Attributes &extraInfo) override;
 
     napi_status DoResultCallback(int32_t result,
-        const std::vector<uint8_t> &token, int32_t authType);
+        const std::vector<uint8_t> &token, int32_t authType, EnrolledState enrolledState);
     void SetResultCallback(const std::shared_ptr<JsRefHolder> &resultCallback);
     void ClearResultCallback();
     bool HasResultCallback();
