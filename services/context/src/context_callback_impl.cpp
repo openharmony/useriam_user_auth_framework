@@ -71,12 +71,15 @@ void ContextCallbackImpl::ProcessAuthResult(int32_t tip, const std::vector<uint8
     auto root = nlohmann::json::parse(tipJson.c_str());
     if (root.is_null() || root.is_discarded()) {
         IAM_LOGE("root is null");
+        return;
     }
-    static const std::string tipJsonKeyAuthResult = "authResult";
+    const std::string tipJsonKeyAuthResult = "authResult";
     int32_t authResult = 0;
-    if (root.find(tipJsonKeyAuthResult) != root.end() || root[tipJsonKeyAuthResult].is_number()) {
-        root.at(tipJsonKeyAuthResult).get_to(authResult);
+    if (root.find(tipJsonKeyAuthResult) == root.end() || !(root[tipJsonKeyAuthResult].is_number())) {
+        IAM_LOGE("authResult is null or is not number");
+        return;
     }
+    root.at(tipJsonKeyAuthResult).get_to(authResult);
     metaData_.operationResult = authResult;
     metaData_.endTime = std::chrono::steady_clock::now();
     IAM_LOGI("fingerprint single auth result, tip: %{public}d, result: %{public}d", tip, authResult);
@@ -160,6 +163,19 @@ void ContextCallbackImpl::SetTraceAuthTrustLevel(AuthTrustLevel atl)
 void ContextCallbackImpl::SetCleaner(Context::ContextStopCallback callback)
 {
     stopCallback_ = callback;
+}
+
+sptr<IamCallbackInterface> ContextCallbackImpl::GetIamCallback()
+{
+    return iamCallback_;
+}
+
+std::string ContextCallbackImpl::GetCallerName()
+{
+    if (metaData_.callerName.has_value()) {
+        return metaData_.callerName.value();
+    }
+    return "";
 }
 
 ContextCallbackNotifyListener &ContextCallbackNotifyListener::GetInstance()

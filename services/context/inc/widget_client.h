@@ -22,7 +22,6 @@
 #include <vector>
 
 #include "authentication_impl.h"
-#include "base_context.h"
 #include "widget_callback_interface.h"
 #include "widget_json.h"
 #include "widget_schedule_node.h"

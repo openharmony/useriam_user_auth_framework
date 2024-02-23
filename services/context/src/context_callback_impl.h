@@ -42,6 +42,8 @@ public:
     void SetTraceAuthTrustLevel(AuthTrustLevel atl) override;
     void SetCleaner(Context::ContextStopCallback callback) override;
     void ProcessAuthResult(int32_t tip, const std::vector<uint8_t> &extraInfo) override;
+    sptr<IamCallbackInterface> GetIamCallback() override;
+    std::string GetCallerName() override;
 
 private:
     sptr<IamCallbackInterface> iamCallback_ {nullptr};
