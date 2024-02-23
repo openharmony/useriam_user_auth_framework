@@ -91,13 +91,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetEnrolledState002, TestSize.Level
     uint16_t expectCredentialCount = 0;
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetEnrolledState(_, _, _))
-        .Times(1)
-        .WillOnce(
-            [](int32_t userId, HdiAuthType authType, HdiEnrolledState &hdiEnrolledState) {
-                return GENERAL_ERROR;
-            }
-        );
+    EXPECT_CALL(*mockHdi, GetEnrolledState(_, _, _)).WillOnce(Return(GENERAL_ERROR));
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     EXPECT_EQ(GENERAL_ERROR, service.GetEnrolledState(testApiVersion, testAuthType, testEnrolledState));
     EXPECT_EQ(expectCredentialDigest, testEnrolledState.credentialDigest);
