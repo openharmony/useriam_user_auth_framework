@@ -528,13 +528,14 @@ int32_t UserAuthProxy::GetEnrolledState(int32_t apiVersion, AuthType authType, E
 
     bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_GET_ENROLLED_STATE, data, reply);
     if (!ret) {
+        IAM_LOGE("get enrolled state failed to send request");
         return GENERAL_ERROR;
     }
 
     int32_t result = GENERAL_ERROR;
     if (!reply.ReadInt32(result)) {
         IAM_LOGE("failed to read result");
-        return result;
+        return GENERAL_ERROR;
     }
     if (result != SUCCESS) {
         IAM_LOGE("failed to get enrolled state");
@@ -543,12 +544,12 @@ int32_t UserAuthProxy::GetEnrolledState(int32_t apiVersion, AuthType authType, E
     uint16_t credentialDigest;
     if (!reply.ReadUint16(credentialDigest)) {
         IAM_LOGE("failed to read result");
-        return GENERAL_ERROR;
+        return READ_PARCEL_ERROR;
     }
     uint16_t credentialCount;
     if (!reply.ReadUint16(credentialCount)) {
         IAM_LOGE("failed to read result");
-        return GENERAL_ERROR;
+        return READ_PARCEL_ERROR;
     }
     enrolledState.credentialDigest = credentialDigest;
     enrolledState.credentialCount = credentialCount;
