@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,6 +22,7 @@
 #include "iam_ptr.h"
 
 #include "user_auth_client_impl.h"
+#include "user_auth_napi_helper.h"
 
 #define LOG_LABEL Common::LABEL_USER_AUTH_NAPI
 
@@ -40,6 +41,68 @@ const std::string NOTICETYPE = "noticeType";
 namespace WidgetType {
     constexpr int32_t TITLE_MAX = 500;
     constexpr int32_t BUTTON_MAX = 60;
+}
+napi_value UserAuthInstanceV10::GetEnrolledState(napi_env env, napi_callback_info info)
+{
+    napi_value argv[ARGS_ONE] = {nullptr};
+    size_t argc = ARGS_ONE;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
+    if (argc != ARGS_ONE) {
+        IAM_LOGE("parms error");
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::OHOS_INVALID_PARAM));
+        return nullptr;
+    }
+    int32_t type;
+    if (UserAuthNapiHelper::GetInt32Value(env, argv[PARAM0], type) != napi_ok) {
+        IAM_LOGE("napi_get_value_int32 fail");
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        return nullptr;
+    }
+    if (!UserAuthNapiHelper::CheckUserAuthType(type)) {
+        IAM_LOGE("CheckUserAuthType fail");
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::TYPE_NOT_SUPPORT));
+        return nullptr;
+    }
+    AuthType authType = AuthType(type);
+    EnrolledState enrolledState = {};
+    int32_t code = UserAuthClientImpl::Instance().GetEnrolledState(API_VERSION_12, authType, enrolledState);
+    if (code != SUCCESS) {
+        IAM_LOGE("failed to get enrolled state %{public}d", code);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env,
+            UserAuthResultCode(UserAuthNapiHelper::GetResultCodeV10(code))));
+        return nullptr;
+    }
+    return DoGetEnrolledStateResult(env, enrolledState);
+}
+
+napi_value UserAuthInstanceV10::DoGetEnrolledStateResult(napi_env env, EnrolledState enrolledState)
+{
+    IAM_LOGI("start");
+    napi_value eventInfo;
+    napi_status ret = napi_create_object(env, &eventInfo);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_create_object failed %{public}d", ret);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        return nullptr;
+    }
+    int32_t credentialDigest = static_cast<int32_t>(enrolledState.credentialDigest);
+    int32_t credentialCount = static_cast<int32_t>(enrolledState.credentialCount);
+    IAM_LOGI("get enrolled state success, credentialDigest = %{public}d, credentialCount = %{public}d",
+        credentialDigest, credentialCount);
+    ret = UserAuthNapiHelper::SetInt32Property(env, eventInfo, "credentialDigest", credentialDigest);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_create_int32 failed %{public}d", ret);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        return nullptr;
+    }
+    ret = UserAuthNapiHelper::SetInt32Property(env, eventInfo, "credentialCount", credentialCount);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_create_int32 failed %{public}d", ret);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        return nullptr;
+    }
+    IAM_LOGI("get enrolled state end");
+    return eventInfo;
 }
 
 UserAuthInstanceV10::UserAuthInstanceV10(napi_env env) : callback_(Common::MakeShared<UserAuthCallbackV10>(env))

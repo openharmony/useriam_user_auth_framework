@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -431,6 +431,36 @@ napi_status UserAuthNapiHelper::SetUint8ArrayProperty(napi_env env,
     ret = napi_create_typedarray(env, napi_uint8_array, size, buffer, 0, &napiValue);
     if (ret != napi_ok) {
         IAM_LOGE("napi_create_typedarray failed %{public}d", ret);
+        return ret;
+    }
+    ret = napi_set_named_property(env, obj, name, napiValue);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_set_named_property failed %{public}d", ret);
+    }
+    return ret;
+}
+
+napi_status UserAuthNapiHelper::SetEnrolledStateProperty(napi_env env, napi_value obj,
+    const char *name, EnrolledState &value)
+{
+    napi_value napiValue = nullptr;
+    napi_status ret = napi_create_object(env, &napiValue);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_create_object failed %{public}d", ret);
+        return ret;
+    }
+    int32_t credentialDigest = static_cast<int32_t>(value.credentialDigest);
+    int32_t credentialCount = static_cast<int32_t>(value.credentialCount);
+    IAM_LOGI("get enrolled state success, credentialDigest = %{public}d, credentialCount = %{public}d",
+        credentialDigest, credentialCount);
+    ret = UserAuthNapiHelper::SetInt32Property(env, napiValue, "credentialDigest", credentialDigest);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_create_int32 failed %{public}d", ret);
+        return ret;
+    }
+    ret = UserAuthNapiHelper::SetInt32Property(env, napiValue, "credentialCount", credentialCount);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_create_int32 failed %{public}d", ret);
         return ret;
     }
     ret = napi_set_named_property(env, obj, name, napiValue);

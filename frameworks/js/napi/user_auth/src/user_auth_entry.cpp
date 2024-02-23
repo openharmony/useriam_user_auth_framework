@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -56,6 +56,12 @@ napi_value GetAvailableStatus(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
     return UserAuthImpl::GetAvailableStatus(env, info);
+}
+
+napi_value GetEnrolledState(napi_env env, napi_callback_info info)
+{
+    IAM_LOGI("start");
+    return UserAuthInstanceV10::GetEnrolledState(env, info);
 }
 
 napi_value GetAvailableStatusV9(napi_env env, napi_callback_info info)
@@ -922,6 +928,7 @@ napi_value UserAuthInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getAuthInstance", UserAuth::GetAuthInstanceV9),
         DECLARE_NAPI_FUNCTION("getUserAuthInstance", UserAuth::GetUserAuthInstanceV10),
         DECLARE_NAPI_FUNCTION("getUserAuthWidgetMgr", UserAuth::GetUserAuthWidgetMgrV10),
+        DECLARE_NAPI_FUNCTION("getEnrolledState", UserAuth::GetEnrolledState),
         DECLARE_NAPI_FUNCTION("sendNotice", UserAuth::SendNotice),
     };
     status = napi_define_properties(env, exports,
