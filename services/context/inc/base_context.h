@@ -23,12 +23,15 @@
 
 #include "nocopyable.h"
 
+#include "application_state_observer_stub.h"
+#include "app_mgr_interface.h"
 #include "context.h"
 #include "context_callback.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+using namespace OHOS::AppExecFwk;
 class BaseContext : public ScheduleNodeCallback,
                     public Context,
                     public std::enable_shared_from_this<BaseContext>,
@@ -44,6 +47,8 @@ public:
     void OnScheduleProcessed(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg) override;
     void OnScheduleStoped(int32_t resultCode, const std::shared_ptr<Attributes> &finalResult) override;
     int32_t GetLatestError() const override;
+    sptr<IRemoteObject::DeathRecipient> GetDeathRecipient() const;
+    sptr<ApplicationStateObserverStub> GetAppStateObserver() const;
 
 protected:
     void SetLatestError(int32_t error) override;
@@ -53,10 +58,17 @@ protected:
     virtual bool OnStop() = 0;
     std::shared_ptr<ContextCallback> callback_ = nullptr;
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList_;
+    sptr<IRemoteObject::DeathRecipient> deathRecipient_ = nullptr;
+    sptr<ApplicationStateObserverStub> appStateObserver_ = nullptr;
 
 private:
     bool Start() final;
     bool Stop() final;
+    void AddDeathrecipient() final;
+    void RemoveDeathrecipient() final;
+    void SubscribeAppState() final;
+    void UnSubscribeAppState() final;
+    sptr<IAppMgr> GetAppManagerInstance();
     uint64_t contextId_;
     std::string description_;
     bool hasStarted_ = false;
