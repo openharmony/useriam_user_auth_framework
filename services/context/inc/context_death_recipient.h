@@ -19,16 +19,22 @@
 #include <cstdint>
 #include <string>
 
-#include "application_state_observer_stub.h"
-#include "app_mgr_interface.h"
-#include "if_system_ability_manager.h"
-#include "iservice_registry.h"
+#include "context_callback.h"
 #include "nocopyable.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-using namespace OHOS::AppExecFwk;
+class ContextDeathRecipientManager {
+    public:
+        ContextDeathRecipientManager() = default;
+        ~ContextDeathRecipientManager() = default;
+        void AddDeathRecipient(std::shared_ptr<ContextCallback> &callback, uint64_t contextId);
+        void RemoveDeathRecipient(std::shared_ptr<ContextCallback> &callback);
+    protected:
+        sptr<IRemoteObject::DeathRecipient> deathRecipient_ = nullptr;
+};
+
 class ContextDeathRecipient : public IRemoteObject::DeathRecipient, public NoCopyable {
     public:
         ContextDeathRecipient(uint64_t contextId);
@@ -36,19 +42,6 @@ class ContextDeathRecipient : public IRemoteObject::DeathRecipient, public NoCop
         void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
     protected:
         uint64_t contextId_;
-};
-
-class IamApplicationStateObserver : public ApplicationStateObserverStub {
-    public:
-        IamApplicationStateObserver(const uint64_t contextId, const std::string bundleName);
-        ~IamApplicationStateObserver() override = default;
-        void OnAppStateChanged(const AppStateData &appStateData) override;
-        void OnForegroundApplicationChanged(const AppStateData &appStateData) override;
-        void OnAbilityStateChanged(const AbilityStateData &abilityStateData) override;
-    protected:
-        void ProcAppStateChanged();
-        const uint64_t contextId_;
-        const std::string bundleName_;
 };
 } // namespace UserAuth
 } // namespace UserIam

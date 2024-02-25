@@ -37,6 +37,7 @@ ohos_source_set("userauth_service_context") {
 
   sources = [
     "src/base_context.cpp",
+    "src/context_appstate_observer.cpp",
     "src/context_callback_impl.cpp",
     "src/context_death_recipient.cpp",
     "src/context_factory.cpp",

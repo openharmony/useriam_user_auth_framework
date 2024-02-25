@@ -62,11 +62,6 @@ public:
     MOCK_CONST_METHOD1(GetScheduleNode, std::shared_ptr<ScheduleNode>(uint64_t scheduleId));
     MOCK_CONST_METHOD0(GetLatestError, int32_t());
     MOCK_CONST_METHOD0(GetTokenId, uint32_t());
-    MOCK_METHOD0(AddDeathrecipient, void());
-    MOCK_METHOD0(RemoveDeathrecipient, void());
-    MOCK_METHOD0(SubscribeAppState, void());
-    MOCK_METHOD0(UnSubscribeAppState, void());
-    MOCK_METHOD0(GetAppManagerInstance, sptr<IAppMgr>());
 
     static std::shared_ptr<Context> CreateWithContextId(uint64_t contextId)
     {
