@@ -28,6 +28,8 @@
 #include "authentication_impl.h"
 #include "base_context.h"
 #include "context.h"
+#include "context_appstate_observer.h"
+#include "context_death_recipient.h"
 #include "context_factory.h"
 #include "in_process_call_wrapper.h"
 #include "iam_callback_interface.h"
@@ -42,6 +44,8 @@ using namespace OHOS::AppExecFwk;
 class WidgetContext : public WidgetScheduleNodeCallback,
                       public Context,
                       public std::enable_shared_from_this<WidgetContext>,
+                      public ContextDeathRecipientManager,
+                      public ContextAppStateObserverManager,
                       public NoCopyable {
 public:
     WidgetContext(uint64_t contextId, const ContextFactory::AuthWidgetContextPara &para,
@@ -56,8 +60,6 @@ public:
     std::shared_ptr<ScheduleNode> GetScheduleNode(uint64_t scheduleId) const override;
     uint32_t GetTokenId() const override;
     int32_t GetLatestError() const override;
-    sptr<IRemoteObject::DeathRecipient> GetDeathRecipient() const;
-    sptr<ApplicationStateObserverStub> GetAppStateObserver() const;
 
     // WidgetScheduleNodeCallback API
     bool LaunchWidget() override;
@@ -73,8 +75,6 @@ protected:
     virtual bool OnStart();
     virtual void OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr);
     virtual bool OnStop();
-    sptr<IRemoteObject::DeathRecipient> deathRecipient_ = nullptr;
-    sptr<ApplicationStateObserverStub> appStateObserver_ = nullptr;
 
 private:
     void SetLatestError(int32_t error) override;
@@ -90,11 +90,6 @@ private:
     void StopAllRunTask();
     std::string BuildStartCommand();
     std::shared_ptr<UserIam::UserAuth::IamHitraceHelper> connectAbilityHitrace_ {nullptr};
-    void AddDeathrecipient() final;
-    void RemoveDeathrecipient() final;
-    void SubscribeAppState() final;
-    void UnSubscribeAppState() final;
-    sptr<IAppMgr> GetAppManagerInstance();
 
 private:
     struct TaskInfo {
