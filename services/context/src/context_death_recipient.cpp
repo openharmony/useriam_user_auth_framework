@@ -25,6 +25,61 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+void ContextDeathRecipientManager::AddDeathRecipient(std::shared_ptr<ContextCallback> &callback, uint64_t contextId)
+{
+    IAM_LOGI("start");
+    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+
+    const sptr<IamCallbackInterface> iamCallback = callback->GetIamCallback();
+    if (iamCallback == nullptr) {
+        IAM_LOGE("callback_ is nullptr");
+        return;
+    }
+    auto obj = iamCallback->AsObject();
+    if (obj == nullptr) {
+        IAM_LOGE("remote object is nullptr");
+        return;
+    }
+
+    sptr<IRemoteObject::DeathRecipient> dr(new (std::nothrow) ContextDeathRecipient(contextId));
+    if ((dr == nullptr) || (!obj->AddDeathRecipient(dr))) {
+        IAM_LOGE("AddDeathRecipient failed");
+        return;
+    }
+
+    deathRecipient_ = dr;
+    IAM_LOGI("AddDeathRecipient success, contextId:****%{public}hx", static_cast<uint16_t>(contextId));
+    return;
+}
+
+void ContextDeathRecipientManager::RemoveDeathRecipient(std::shared_ptr<ContextCallback> &callback)
+{
+    IAM_LOGI("start");
+    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+
+    if (deathRecipient_ == nullptr) {
+        IAM_LOGE("deathRecipient_ is nullptr");
+        return;
+    }
+
+    const sptr<IamCallbackInterface> iamCallback = callback->GetIamCallback();
+    if (iamCallback == nullptr) {
+        IAM_LOGE("callback_ is nullptr");
+        return;
+    }
+
+    auto obj = iamCallback->AsObject();
+    if (obj == nullptr) {
+        IAM_LOGE("remote object is nullptr");
+        return;
+    }
+
+    obj->RemoveDeathRecipient(deathRecipient_);
+    deathRecipient_ = nullptr;
+    IAM_LOGI("RemoveDeathRecipient success");
+    return;
+}
+
 ContextDeathRecipient::ContextDeathRecipient(uint64_t contextId)
     : contextId_(contextId)
 {
@@ -33,7 +88,7 @@ ContextDeathRecipient::ContextDeathRecipient(uint64_t contextId)
 
 void ContextDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    IAM_LOGI("start");
+    IAM_LOGI("start, contextId: ****%{public}hx", static_cast<uint16_t>(contextId_));
     if (remote == nullptr) {
         IAM_LOGE("remote is nullptr");
         return;
@@ -48,68 +103,6 @@ void ContextDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
     if (!context->Stop()) {
         IAM_LOGE("failed to cancel enroll or auth");
         return;
-    }
-    return;
-}
-
-IamApplicationStateObserver::IamApplicationStateObserver(const uint64_t contextId,
-    const std::string bundleName) : contextId_(contextId), bundleName_(bundleName)
-{
-    IAM_LOGI("start");
-}
-
-
-void IamApplicationStateObserver::ProcAppStateChanged()
-{
-    IAM_LOGI("start");
-    auto context = ContextPool::Instance().Select(contextId_).lock();
-    if (context == nullptr) {
-        IAM_LOGE("context is nullptr");
-        return;
-    }
-    if (!context->Stop()) {
-        IAM_LOGE("failed to cancel enroll or auth");
-        return;
-    }
-    return;
-}
-
-void IamApplicationStateObserver::OnAppStateChanged(const AppStateData &appStateData)
-{
-    IAM_LOGI("start");
-    auto bundleName = appStateData.bundleName;
-    auto state = static_cast<ApplicationState>(appStateData.state);
-    IAM_LOGI("OnAppStateChanged, bundleName:%{public}s, state:%{public}d", bundleName.c_str(), state);
-
-    if (bundleName.compare(bundleName_) == 0 && state == ApplicationState::APP_STATE_BACKGROUND) {
-        ProcAppStateChanged();
-    }
-    return;
-}
-
-void IamApplicationStateObserver::OnForegroundApplicationChanged(const AppStateData &appStateData)
-{
-    IAM_LOGI("start");
-
-    auto bundleName = appStateData.bundleName;
-    auto state = static_cast<ApplicationState>(appStateData.state);
-    IAM_LOGI("OnForegroundApplicationChanged, bundleName:%{public}s, state:%{public}d", bundleName.c_str(), state);
-
-    if (bundleName.compare(bundleName_) == 0 && state == ApplicationState::APP_STATE_BACKGROUND) {
-        ProcAppStateChanged();
-    }
-    return;
-}
-
-void IamApplicationStateObserver::OnAbilityStateChanged(const AbilityStateData &abilityStateData)
-{
-    IAM_LOGI("start");
-    auto bundleName = abilityStateData.bundleName;
-    auto state = static_cast<AbilityState>(abilityStateData.abilityState);
-    IAM_LOGI("OnAbilityStateChanged, bundleName:%{public}s, state:%{public}d", bundleName.c_str(), state);
-
-    if (bundleName.compare(bundleName_) == 0 && state == AbilityState::ABILITY_STATE_BACKGROUND) {
-        ProcAppStateChanged();
     }
     return;
 }

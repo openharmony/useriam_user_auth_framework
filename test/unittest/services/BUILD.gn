@@ -45,6 +45,7 @@ ohos_unittest("iam_services_test") {
     "../../../services/base/src/relative_timer.cpp",
     "../../../services/base/src/thread_handler_impl.cpp",
     "../../../services/context/src/base_context.cpp",
+    "../../../services/context/src/context_appstate_observer.cpp",
     "../../../services/context/src/context_callback_impl.cpp",
     "../../../services/context/src/context_death_recipient.cpp",
     "../../../services/context/src/context_factory.cpp",
