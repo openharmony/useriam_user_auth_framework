@@ -69,8 +69,7 @@ private:
     bool CheckAuthTrustLevel(AuthTrustLevel authTrustLevel);
     bool CheckSingeFaceOrFinger(const std::vector<AuthType> &authType);
     int32_t CheckAuthWidgetType(const std::vector<AuthType> &authType);
-    int32_t CheckAuthWidgetParam(
-        int32_t userId, const AuthParam &authParam, const WidgetParam &widgetParam, std::vector<AuthType> &validType);
+    int32_t CheckAuthWidgetParam(int32_t userId, const AuthParam &authParam, const WidgetParam &widgetParam);
     uint64_t StartWidgetContext(const std::shared_ptr<ContextCallback> &contextCallback, const AuthParam &authParam,
         const WidgetParam &widgetParam, std::vector<AuthType> &validType,
         ContextFactory::AuthWidgetContextPara &para);
@@ -80,6 +79,10 @@ private:
     bool CheckCallerIsSystemApp();
     int32_t CheckAuthPermissionAndParam(int32_t authType, bool isBundleName, const std::string &callerName,
         AuthTrustLevel authTrustLevel);
+    int32_t CheckValidSolution(int32_t userId, const AuthParam &authParam, const WidgetParam &widgetParam,
+        std::vector<AuthType> &validType);
+    int32_t GetCallerNameAndUserId(ContextFactory::AuthWidgetContextPara &para,
+        std::shared_ptr<ContextCallback> contextCallback);
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,6 +28,8 @@ public:
         const WidgetParam &widgetParam, ContextFactory::AuthWidgetContextPara &para);
     static int32_t CheckValidSolution(int32_t userId,
         const std::vector<AuthType> &authTypeList, const AuthTrustLevel &atl, std::vector<AuthType> &validTypeList);
+    static int32_t CheckReuseUnlockResult(const ContextFactory::AuthWidgetContextPara &para,
+        const AuthParam &authParam, Attributes &extraInfo);
 
 private:
     static bool GetUserAuthProfile(int32_t userId, const AuthType &authType,

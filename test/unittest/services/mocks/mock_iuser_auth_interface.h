@@ -85,6 +85,7 @@ public:
     MOCK_METHOD3(GetEnrolledState, int32_t(int32_t userId, HdiAuthType authType, HdiEnrolledState &hdiEnrolledState));
     MOCK_METHOD4(UpdateAuthenticationResultWithEnrolledState, int32_t(uint64_t contextId,
         const std::vector<uint8_t> &scheduleResult, HdiAuthResultInfo &info, HdiEnrolledState &enrolledState));
+    MOCK_METHOD2(CheckReuseUnlockResult, int32_t(const HdiReuseUnlockInfo &info, std::vector<uint8_t> &token));
 };
 
 class MockIUserAuthInterface::Holder : public Singleton<MockIUserAuthInterface::Holder> {

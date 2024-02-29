@@ -45,6 +45,7 @@ using HdiCredentialInfo = OHOS::HDI::UserAuth::V1_3::CredentialInfo;
 using HdiEnrolledInfo = OHOS::HDI::UserAuth::V1_3::EnrolledInfo;
 using HdiEnrollResultInfo = OHOS::HDI::UserAuth::V1_3::EnrollResultInfo;
 using HdiEnrolledState = OHOS::HDI::UserAuth::V1_3::EnrolledState;
+using HdiReuseUnlockInfo  = OHOS::HDI::UserAuth::V1_3::ReuseUnlockInfo;
 
 using ScheduleInfoV1_1 = OHOS::HDI::UserAuth::V1_3::ScheduleInfoV1_1;
 using UserInfo = OHOS::HDI::UserAuth::V1_3::UserInfo;
