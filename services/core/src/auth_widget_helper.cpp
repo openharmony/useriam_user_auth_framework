@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "auth_widget_helper.h"
 
 #include "iam_logger.h"
+#include "iam_check.h"
 #include "resource_node_pool.h"
 #include "system_param_manager.h"
 #include "user_idm_database.h"
@@ -149,6 +150,44 @@ int32_t AuthWidgetHelper::CheckValidSolution(int32_t userId,
         IAM_LOGI("get valid authType:%{public}d", type);
         validTypeList.emplace_back(static_cast<AuthType>(type));
     }
+    return result;
+}
+
+int32_t AuthWidgetHelper::CheckReuseUnlockResult(const ContextFactory::AuthWidgetContextPara &para,
+    const AuthParam &authParam, Attributes &extraInfo)
+{
+    IAM_LOGI("start userId:%{public}d typeSize:%{public}zu", para.userId, authParam.authType.size());
+    if (authParam.reuseUnlockResult.reuseDuration > MAX_ALLOWABLE_REUSE_DURATION) {
+        IAM_LOGE("the reuse duration is too big");
+        return INVALID_PARAMETERS;
+    }
+    auto hdi = HdiWrapper::GetHdiInstance();
+    if (hdi == nullptr) {
+        IAM_LOGE("hdi interface is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    HdiReuseUnlockInfo unlockInfo = {};
+    unlockInfo.userId = para.userId;
+    unlockInfo.authTrustLevel = authParam.authTrustLevel;
+    for (auto &type : authParam.authType) {
+        unlockInfo.authTypes.emplace_back(static_cast<HdiAuthType>(type));
+    }
+    unlockInfo.challenge = authParam.challenge;
+    unlockInfo.callerName = para.callerName;
+    unlockInfo.apiVersion = para.sdkVersion;
+    unlockInfo.reuseUnlockResultMode = authParam.reuseUnlockResult.reuseMode;
+    unlockInfo.reuseUnlockResultDuration = authParam.reuseUnlockResult.reuseDuration;
+
+    std::vector<uint8_t> authToken;
+    int32_t result = hdi->CheckReuseUnlockResult(unlockInfo, authToken);
+    if (result == SUCCESS) {
+        IAM_LOGI("CheckReuseUnlockResult success");
+        bool setSignatureResult = extraInfo.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authToken);
+        IF_FALSE_LOGE_AND_RETURN_VAL(setSignatureResult == true, GENERAL_ERROR);
+        return SUCCESS;
+    }
+    IAM_LOGE("CheckReuseUnlockResult failed result:%{public}d userId:%{public}d", result, para.userId);
     return result;
 }
 } // namespace UserAuth

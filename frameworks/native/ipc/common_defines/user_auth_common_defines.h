@@ -38,6 +38,7 @@ namespace UserAuth {
 
 const std::string NOTICE_VERSION_STR = "1";
 const std::string CMD_NOTIFY_AUTH_START = "CMD_NOTIFY_AUTH_START";
+const uint32_t MAX_ALLOWABLE_REUSE_DURATION = 5 * 60 * 1000;
 
 /**
  * @brief Notice type for user authentication.
@@ -58,6 +59,29 @@ enum WindowModeType : int32_t {
     /**  Window mode type is not set */
     UNKNOWN_WINDOW_MODE = 3,
 };
+
+/**
+ * @brief The mode for reusing unlock authentication result.
+ */
+enum ReuseMode : uint32_t {
+    /** Authentication type relevant.The unlock authentication result can be reused only when the result is within
+     * valid duration as well as it comes from one of specified UserAuthTypes of the AuthParam. */
+    AUTH_TYPE_RELEVANT = 1,
+    /** Authentication type irrelevant.The unlock authentication result can be reused as long as the result is within
+     * valid duration. */
+    AUTH_TYPE_IRRELEVANT = 2,
+};
+
+/**
+ * @brief Reuse unlock authentication result.
+ */
+struct ReuseUnlockResult {
+    /** The mode for reusing unlock authentication result. */
+    ReuseMode reuseMode;
+    /** The allowable reuse duration.The value of duration should be between 0 and MAX_ALLOWABLE_REUSE_DURATION. */
+    uint64_t reuseDuration;
+};
+
 /**
  * @brief Auth parameter.
  */
@@ -68,6 +92,8 @@ struct AuthParam {
     std::vector<AuthType> authType;
     /** Trust level of authentication result. */
     AuthTrustLevel authTrustLevel;
+    /** Reuse unlock authentication result. */
+    ReuseUnlockResult reuseUnlockResult;
 };
 
 /**
