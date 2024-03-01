@@ -33,6 +33,15 @@ BaseContext::BaseContext(const std::string &type, uint64_t contextId, std::share
     std::ostringstream ss;
     ss << "Context(type:" << type << ", contextId:" << GET_MASKED_STRING(contextId_) << ")";
     description_ = ss.str();
+    AddDeathRecipient(callback_, contextId_);
+    SubscribeAppState(callback_, contextId_);
+}
+
+BaseContext::~BaseContext()
+{
+    IAM_LOGI("%{public}s start", GetDescription());
+    RemoveDeathRecipient(callback_);
+    UnSubscribeAppState();
 }
 
 void BaseContext::SetLatestError(int32_t error)
@@ -60,8 +69,6 @@ bool BaseContext::Start()
         IAM_LOGI("%{public}s context has started, cannot start again", GetDescription());
         return false;
     }
-    AddDeathRecipient(callback_, GetContextId());
-    SubscribeAppState(callback_, GetContextId());
     hasStarted_ = true;
     return OnStart();
 }
@@ -69,8 +76,6 @@ bool BaseContext::Start()
 bool BaseContext::Stop()
 {
     IAM_LOGI("%{public}s start", GetDescription());
-    RemoveDeathRecipient(callback_);
-    UnSubscribeAppState();
     return OnStop();
 }
 
@@ -102,8 +107,6 @@ void BaseContext::OnScheduleProcessed(ExecutorRole src, int32_t moduleType, cons
 void BaseContext::OnScheduleStoped(int32_t resultCode, const std::shared_ptr<Attributes> &finalResult)
 {
     OnResult(resultCode, finalResult);
-    RemoveDeathRecipient(callback_);
-    UnSubscribeAppState();
     return;
 }
 
