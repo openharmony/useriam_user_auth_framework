@@ -765,7 +765,7 @@ int32_t UserAuthService::RegisterWidgetCallback(int32_t version, sptr<WidgetCall
 int32_t UserAuthService::GetEnrolledState(int32_t apiVersion, AuthType authType,
     EnrolledState &enrolledState)
 {
-    IAM_LOGE("start");
+    IAM_LOGI("start");
 
     if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
         IAM_LOGE("failed to check permission");
