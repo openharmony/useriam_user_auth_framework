@@ -277,13 +277,19 @@ bool UserAuthProxy::WriteWidgetParam(MessageParcel &data, const AuthParam &authP
         IAM_LOGE("failed to write authTrustLevel");
         return false;
     }
-    if (!data.WriteUint32(authParam.reuseUnlockResult.reuseMode)) {
-        IAM_LOGE("failed to write reuseMode.");
+    if (!data.WriteBool(authParam.reuseUnlockResult.isReuse)) {
+        IAM_LOGE("failed to write isReuseUnlockResult");
         return false;
     }
-    if (!data.WriteUint64(authParam.reuseUnlockResult.reuseDuration)) {
-        IAM_LOGE("failed to write reuseDuration.");
-        return false;
+    if (authParam.reuseUnlockResult.isReuse) {
+        if (!data.WriteUint32(authParam.reuseUnlockResult.reuseMode)) {
+            IAM_LOGE("failed to write reuseMode.");
+            return false;
+        }
+        if (!data.WriteUint64(authParam.reuseUnlockResult.reuseDuration)) {
+            IAM_LOGE("failed to write reuseDuration.");
+            return false;
+        }
     }
 
     if (!data.WriteString(widgetParam.title)) {

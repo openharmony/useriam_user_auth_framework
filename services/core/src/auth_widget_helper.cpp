@@ -157,8 +157,11 @@ int32_t AuthWidgetHelper::CheckReuseUnlockResult(const ContextFactory::AuthWidge
     const AuthParam &authParam, Attributes &extraInfo)
 {
     IAM_LOGI("start userId:%{public}d typeSize:%{public}zu", para.userId, authParam.authType.size());
-    if (authParam.reuseUnlockResult.reuseDuration > MAX_ALLOWABLE_REUSE_DURATION) {
-        IAM_LOGE("the reuse duration is too big");
+    if (!authParam.reuseUnlockResult.isReuse || authParam.reuseUnlockResult.reuseDuration == 0 ||
+        authParam.reuseUnlockResult.reuseDuration > MAX_ALLOWABLE_REUSE_DURATION ||
+        (authParam.reuseUnlockResult.reuseMode != AUTH_TYPE_RELEVANT &&
+        authParam.reuseUnlockResult.reuseMode != AUTH_TYPE_IRRELEVANT)) {
+        IAM_LOGE("CheckReuseUnlockResult invalid param");
         return INVALID_PARAMETERS;
     }
     auto hdi = HdiWrapper::GetHdiInstance();
@@ -181,14 +184,18 @@ int32_t AuthWidgetHelper::CheckReuseUnlockResult(const ContextFactory::AuthWidge
 
     std::vector<uint8_t> authToken;
     int32_t result = hdi->CheckReuseUnlockResult(unlockInfo, authToken);
-    if (result == SUCCESS) {
-        IAM_LOGI("CheckReuseUnlockResult success");
-        bool setSignatureResult = extraInfo.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authToken);
-        IF_FALSE_LOGE_AND_RETURN_VAL(setSignatureResult == true, GENERAL_ERROR);
-        return SUCCESS;
+    if (result != SUCCESS) {
+        IAM_LOGE("CheckReuseUnlockResult failed result:%{public}d userId:%{public}d", result, para.userId);
+        return result;
     }
-    IAM_LOGE("CheckReuseUnlockResult failed result:%{public}d userId:%{public}d", result, para.userId);
-    return result;
+    if (authToken.empty()) {
+        IAM_LOGE("CheckReuseUnlockResult token is empty");
+        return GENERAL_ERROR;
+    }
+    bool setSignatureResult = extraInfo.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authToken);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setSignatureResult == true, GENERAL_ERROR);
+    IAM_LOGI("CheckReuseUnlockResult success");
+    return SUCCESS;
 }
 } // namespace UserAuth
 } // namespace UserIam

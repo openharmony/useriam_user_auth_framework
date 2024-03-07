@@ -38,7 +38,7 @@ namespace UserAuth {
 
 const std::string NOTICE_VERSION_STR = "1";
 const std::string CMD_NOTIFY_AUTH_START = "CMD_NOTIFY_AUTH_START";
-const uint32_t MAX_ALLOWABLE_REUSE_DURATION = 5 * 60 * 1000;
+const uint64_t MAX_ALLOWABLE_REUSE_DURATION = 5 * 60 * 1000;
 
 /**
  * @brief Notice type for user authentication.
@@ -76,10 +76,12 @@ enum ReuseMode : uint32_t {
  * @brief Reuse unlock authentication result.
  */
 struct ReuseUnlockResult {
+    /** Whether to reuse unlock result, ReuseUnlockResult is valid only when isReuse is true.*/
+    bool isReuse {false};
     /** The mode for reusing unlock authentication result. */
-    ReuseMode reuseMode;
+    ReuseMode reuseMode {AUTH_TYPE_IRRELEVANT};
     /** The allowable reuse duration.The value of duration should be between 0 and MAX_ALLOWABLE_REUSE_DURATION. */
-    uint64_t reuseDuration;
+    uint64_t reuseDuration {0};
 };
 
 /**
