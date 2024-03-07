@@ -345,7 +345,9 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
     para.challenge = std::move(challenge);
     para.endAfterFirstFail = true;
     if (isBundleName) {
-        para.callerName = callerName;
+        para.callerName = "B_" + callerName;
+    } else {
+        para.callerName = "N_" + callerName;
     }
     para.sdkVersion = apiVersion;
     return StartAuthContext(apiVersion, para, contextCallback);
@@ -417,7 +419,9 @@ uint64_t UserAuthService::AuthUser(int32_t userId, const std::vector<uint8_t> &c
     para.challenge = std::move(challenge);
     para.endAfterFirstFail = false;
     if (isBundleName) {
-        para.callerName = callerName;
+        para.callerName = "B_" + callerName;
+    } else {
+        para.callerName = "N_" + callerName;
     }
     para.sdkVersion = INNER_API_VERSION_10000;
     return StartAuthContext(INNER_API_VERSION_10000, para, contextCallback);
@@ -664,7 +668,9 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParam &authPa
     para.userId = userId;
     if (isBundleName) {
         para.callingBundleName = callerName;
-        para.callerName = callerName;
+        para.callerName = "B_" + callerName;
+    } else {
+        para.callerName = "N_" + callerName;
     }
     para.sdkVersion = apiVersion;
     return StartWidgetContext(contextCallback, authParam, widgetParam, validType, para);
