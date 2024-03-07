@@ -29,6 +29,7 @@ struct UserAuthTrace {
     int32_t authResult = -1;
     uint64_t timeSpan = 0;
     uint32_t authWidgetType = 0;
+    uint32_t reuseUnlockResultType = 0;
 };
 
 struct UserAuthFwkTrace {
@@ -39,6 +40,7 @@ struct UserAuthFwkTrace {
     int32_t authType = 0;
     int32_t authResult = -1;
     uint64_t timeSpan = 0;
+    uint32_t reuseUnlockResultType = 0;
 };
 
 struct UserCredManagerTrace {

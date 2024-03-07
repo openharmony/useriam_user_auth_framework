@@ -41,7 +41,6 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
-const uint64_t BAD_CONTEXT_ID = 0;
 const int32_t MINIMUM_VERSION = 0;
 const int32_t CURRENT_VERSION = 1;
 const uint32_t AUTH_TRUST_LEVEL_SYS = 1;
@@ -552,6 +551,11 @@ bool UserAuthService::CheckSingeFaceOrFinger(const std::vector<AuthType> &authTy
 int32_t UserAuthService::CheckAuthWidgetParam(int32_t userId, const AuthParam &authParam,
     const WidgetParam &widgetParam)
 {
+    if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP) &&
+        (widgetParam.windowMode != WindowModeType::UNKNOWN_WINDOW_MODE)) {
+        IAM_LOGE("normal app can't set window mode.");
+        return INVALID_PARAMETERS;
+    }
     int32_t ret = CheckAuthWidgetType(authParam.authType);
     if (ret != SUCCESS) {
         IAM_LOGE("CheckAuthWidgetType fail.");
@@ -642,7 +646,6 @@ int32_t UserAuthService::GetCallerNameAndUserId(ContextFactory::AuthWidgetContex
     Attributes extraInfo;
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("get callingUserId failed");
-        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return GENERAL_ERROR;
     }
     contextCallback->SetTraceUserId(userId);
@@ -668,12 +671,6 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParam &authPa
         return BAD_CONTEXT_ID;
     }
 
-    if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP) &&
-        (widgetParam.windowMode != WindowModeType::UNKNOWN_WINDOW_MODE)) {
-        IAM_LOGE("normal app can't set window mode.");
-        contextCallback->OnResult(INVALID_PARAMETERS, extraInfo);
-        return BAD_CONTEXT_ID;
-    }
     if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
         IAM_LOGE("CheckPermission failed");
         contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
@@ -686,12 +683,10 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParam &authPa
         return BAD_CONTEXT_ID;
     }
 
-    if (authParam.reuseUnlockResult.reuseDuration != 0) {
-        checkRet = AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo);
-        if (checkRet == SUCCESS) {
-            contextCallback->OnResult(checkRet, extraInfo);
-            return BAD_CONTEXT_ID;
-        }
+    if (AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo) == SUCCESS) {
+        IAM_LOGE("check reuse unlock result success");
+        contextCallback->OnResult(SUCCESS, extraInfo);
+        return REUSE_AUTH_RESULT_CONTEXT_ID;
     }
     std::vector<AuthType> validType;
     checkRet = CheckValidSolution(para.userId, authParam, widgetParam, validType);
@@ -748,7 +743,11 @@ std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(int32_t
     }
     IAM_LOGI("SetTraceAuthWidgetType %{public}08x", authWidgetType);
     contextCallback->SetTraceAuthWidgetType(authWidgetType);
-
+    uint32_t reuseUnlockResultType = 0;
+    if (authParam.reuseUnlockResult.isReuse) {
+        reuseUnlockResultType = authParam.reuseUnlockResult.reuseMode;
+    }
+    contextCallback->SetTraceReuseUnlockResultType(reuseUnlockResultType);
     return contextCallback;
 }
 

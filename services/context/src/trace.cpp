@@ -125,6 +125,9 @@ void Trace::ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &
     if (metaData.authWidgetType.has_value()) {
         info.authWidgetType = metaData.authWidgetType.value();
     }
+    if (metaData.reuseUnlockResultType.has_value()) {
+        info.reuseUnlockResultType = metaData.reuseUnlockResultType.value();
+    }
     ReportUserAuth(info);
     IAM_LOGI("start to process user auth event");
 }
@@ -155,6 +158,9 @@ void Trace::ProcessUserAuthFwkEvent(const ContextCallbackNotifyListener::MetaDat
     uint64_t timeSpan = std::chrono::duration_cast<std::chrono::milliseconds>(metaData.endTime -
         metaData.startTime).count();
     securityInfo.timeSpan = timeSpan;
+    if (metaData.reuseUnlockResultType.has_value()) {
+        securityInfo.reuseUnlockResultType = metaData.reuseUnlockResultType.value();
+    }
     ReportSecurityUserAuthFwk(securityInfo);
     IAM_LOGI("start to process user auth fwk event");
 }
