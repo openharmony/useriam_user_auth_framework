@@ -33,7 +33,7 @@
 
 #include "iam_logger.h"
 
-#define LOG_LABEL OHOS::UserIam::Common::LABEL_USER_AUTH_NAPI
+#define LOG_TAG "USER_AUTH_NAPI"
 
 namespace OHOS {
 namespace AbilityRuntime {

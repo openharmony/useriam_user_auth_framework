@@ -18,7 +18,7 @@
 #include "iam_logger.h"
 #include "widget_client.h"
 
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
+#define LOG_TAG "USER_AUTH_SA"
 constexpr int32_t SIGNAL_NUM = 3;
 
 namespace OHOS {

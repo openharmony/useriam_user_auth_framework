@@ -21,7 +21,7 @@
 #include "iam_time.h"
 #include "hisysevent_adapter.h"
 
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
+#define LOG_TAG "USER_AUTH_SA"
 
 using namespace OHOS::UserIam::UserAuth;
 

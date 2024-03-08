@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,48 +20,32 @@ namespace OHOS {
 namespace UserIam {
 namespace Common {
 #ifdef __FILE_NAME__
-#define IAM_LOG_FILE __FILE_NAME__
+#define USER_AUTH_FILE __FILE_NAME__
 #else
-#define IAM_LOG_FILE (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
+#define USER_AUTH_FILE (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
 #endif
 
-#ifdef LOG_LABEL
-#undef LOG_LABEL
+#ifdef LOG_DOMAIN
+#undef LOG_DOMAIN
 #endif
 
-#define ARGS(fmt, ...) "[%{public}s@%{public}s:%{public}d] " fmt, __FUNCTION__, IAM_LOG_FILE, __LINE__, ##__VA_ARGS__
-#define IAM_LOGD(...) OHOS::HiviewDFX::HiLog::Debug(LOG_LABEL, ARGS(__VA_ARGS__))
-#define IAM_LOGI(...) OHOS::HiviewDFX::HiLog::Info(LOG_LABEL, ARGS(__VA_ARGS__))
-#define IAM_LOGW(...) OHOS::HiviewDFX::HiLog::Warn(LOG_LABEL, ARGS(__VA_ARGS__))
-#define IAM_LOGE(...) OHOS::HiviewDFX::HiLog::Error(LOG_LABEL, ARGS(__VA_ARGS__))
-#define IAM_LOGF(...) OHOS::HiviewDFX::HiLog::Fatal(LOG_LABEL, ARGS(__VA_ARGS__))
+#define LOG_DOMAIN 0xD002401
 
-using HiLogLabel = OHOS::HiviewDFX::HiLogLabel;
+#ifdef LOG_TAG
+#undef LOG_TAG
+#endif
 
-// common
-constexpr unsigned int IAM_DOMAIN_ID_COMMON = 0xD002400;
-constexpr HiLogLabel LABEL_IAM_COMMON = {LOG_CORE, IAM_DOMAIN_ID_COMMON, "IAM_COMMON"};
+#define IAM_LOGD(fmt, ...) ((void)HILOG_IMPL(LOG_CORE, LOG_DEBUG, LOG_DOMAIN, LOG_TAG, \
+    "[%{public}s@%{public}s:%{public}d] " fmt, __FUNCTION__, USER_AUTH_FILE, __LINE__, ##__VA_ARGS__))
+#define IAM_LOGE(fmt, ...) ((void)HILOG_IMPL(LOG_CORE, LOG_ERROR, LOG_DOMAIN, LOG_TAG, \
+    "[%{public}s@%{public}s:%{public}d] " fmt, __FUNCTION__, USER_AUTH_FILE, __LINE__, ##__VA_ARGS__))
+#define IAM_LOGW(fmt, ...) ((void)HILOG_IMPL(LOG_CORE, LOG_WARN, LOG_DOMAIN, LOG_TAG, \
+    "[%{public}s@%{public}s:%{public}d] " fmt, __FUNCTION__, USER_AUTH_FILE, __LINE__, ##__VA_ARGS__))
+#define IAM_LOGI(fmt, ...) ((void)HILOG_IMPL(LOG_CORE, LOG_INFO, LOG_DOMAIN, LOG_TAG, \
+    "[%{public}s@%{public}s:%{public}d] " fmt, __FUNCTION__, USER_AUTH_FILE, __LINE__, ##__VA_ARGS__))
+#define IAM_LOGF(fmt, ...) ((void)HILOG_IMPL(LOG_CORE, LOG_FATAL, LOG_DOMAIN, LOG_TAG, \
+    "[%{public}s@%{public}s:%{public}d] " fmt, __FUNCTION__, USER_AUTH_FILE, __LINE__, ##__VA_ARGS__))
 
-// user idm
-constexpr unsigned int IAM_DOMAIN_ID_IDM = 0xD002401;
-constexpr HiLogLabel LABEL_USER_IDM_NAPI = {LOG_CORE, IAM_DOMAIN_ID_IDM, "USER_IDM_NAPI"};
-constexpr HiLogLabel LABEL_USER_IDM_SDK = {LOG_CORE, IAM_DOMAIN_ID_IDM, "USER_IDM_SDK"};
-constexpr HiLogLabel LABEL_USER_IDM_SA = {LOG_CORE, IAM_DOMAIN_ID_IDM, "USER_IDM_SA"};
-
-// user auth
-constexpr unsigned int IAM_DOMAIN_ID_USER = 0xD002402;
-constexpr HiLogLabel LABEL_USER_AUTH_NAPI = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_NAPI"};
-constexpr HiLogLabel LABEL_USER_AUTH_SDK = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_SDK"};
-constexpr HiLogLabel LABEL_USER_AUTH_SA = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_SA"};
-constexpr HiLogLabel LABEL_USER_AUTH_HDI = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_HDI"};
-constexpr HiLogLabel LABEL_USER_AUTH_EXECUTOR = {LOG_CORE, IAM_DOMAIN_ID_USER, "USER_AUTH_EXECUTOR"};
-
-// auth executor manager
-constexpr unsigned int IAM_DOMAIN_ID_AUTH_EXECUTOR_MGR = 0xD002431;
-constexpr HiLogLabel LABEL_AUTH_EXECUTOR_MGR_SDK = {
-    LOG_CORE, IAM_DOMAIN_ID_AUTH_EXECUTOR_MGR, "AUTH_EXECUTOR_MGR_SDK"};
-constexpr HiLogLabel LABEL_AUTH_EXECUTOR_MGR_SA = {
-    LOG_CORE, IAM_DOMAIN_ID_AUTH_EXECUTOR_MGR, "AUTH_EXECUTOR_MGR_SA"};
 } // namespace Common
 } // namespace UserIam
 } // namespace OHOS

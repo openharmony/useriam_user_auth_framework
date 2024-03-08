@@ -20,7 +20,7 @@
 #ifdef HAS_OS_ACCOUNT_PART
 #include "os_account_manager.h"
 #endif // HAS_OS_ACCOUNT_PART
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
+#define LOG_TAG "USER_AUTH_SA"
 
 namespace {
     const uint32_t TEST_USER_ID = 548781;

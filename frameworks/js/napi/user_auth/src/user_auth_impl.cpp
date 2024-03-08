@@ -28,7 +28,7 @@
 #include "user_auth_callback_v8.h"
 #include "user_auth_client_impl.h"
 
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_NAPI
+#define LOG_TAG "USER_AUTH_NAPI"
 
 namespace OHOS {
 namespace UserIam {
