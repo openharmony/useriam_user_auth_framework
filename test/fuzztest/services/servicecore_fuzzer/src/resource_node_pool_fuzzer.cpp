@@ -21,7 +21,7 @@
 #include "iam_logger.h"
 #include "iam_ptr.h"
 
-#define LOG_LABEL OHOS::UserIam::Common::LABEL_USER_AUTH_SA
+#define LOG_TAG "USER_AUTH_SA"
 
 
 namespace OHOS {

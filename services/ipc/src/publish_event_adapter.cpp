@@ -19,7 +19,7 @@
 #include "iam_logger.h"
 
 #ifndef LOG_LABEL
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
+#define LOG_TAG "USER_AUTH_SA"
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {

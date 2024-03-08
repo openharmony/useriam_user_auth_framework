@@ -22,7 +22,7 @@
 #include "ipc_client_utils.h"
 #include "user_idm_callback_service.h"
 
-#define LOG_LABEL UserIam::Common::LABEL_USER_IDM_SDK
+#define LOG_TAG "USER_IDM_SDK"
 
 namespace OHOS {
 namespace UserIam {

@@ -22,7 +22,7 @@
 
 #include "user_auth_client_impl.h"
 
-#define LOG_LABEL Common::LABEL_USER_AUTH_NAPI
+#define LOG_TAG "USER_AUTH_NAPI"
 
 namespace OHOS {
 namespace UserIam {

@@ -31,7 +31,7 @@
 #include "iam_ptr.h"
 #include "identify_command.h"
 
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_EXECUTOR
+#define LOG_TAG "USER_AUTH_EXECUTOR"
 
 namespace OHOS {
 namespace UserIam {

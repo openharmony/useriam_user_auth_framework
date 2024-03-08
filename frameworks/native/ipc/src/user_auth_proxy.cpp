@@ -20,7 +20,7 @@
 
 #include "iam_logger.h"
 
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SDK
+#define LOG_TAG "USER_AUTH_SDK"
 
 namespace OHOS {
 namespace UserIam {
