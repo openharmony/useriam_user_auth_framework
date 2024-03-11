@@ -161,7 +161,7 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_001, TestSize.Level0)
         auto &profile = item.second;
         typeList.push_back(AuthType2Str(at));
         WidgetCommand::Cmd cmd {
-            .event = "CMD_NOTIFY_AUTH_START",
+            .event = CMD_NOTIFY_AUTH_START,
             .version = "1",
             .type = AuthType2Str(at)
         };
@@ -193,12 +193,11 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_002, TestSize.Level0)
         auto &at = item.first;
         typeList.push_back(AuthType2Str(at));
         WidgetCommand::Cmd cmd {
-            .event = "CMD_NOTIFY_AUTH_RESULT",
+            .event = CMD_NOTIFY_AUTH_RESULT,
             .version = "1",
             .type = AuthType2Str(at)
         };
         cmd.sensorInfo = "sensorInfo";
-        cmd.tip = "tip";
         cmd.remainAttempts = -1;
         cmd.lockoutDuration = -1;
         widgetCommand.cmdList.push_back(cmd);
@@ -231,7 +230,7 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_003, TestSize.Level0)
         auto &profile = item.second;
         typeList.push_back(AuthType2Str(at));
         WidgetCommand::Cmd cmd {
-            .event = "CMD_NOTIFY_AUTH_START",
+            .event = CMD_NOTIFY_AUTH_START,
             .version = "1",
             .type = AuthType2Str(at)
         };
@@ -264,12 +263,11 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_004, TestSize.Level0)
         auto &at = item.first;
         typeList.push_back(AuthType2Str(at));
         WidgetCommand::Cmd cmd {
-            .event = "CMD_NOTIFY_AUTH_RESULT",
+            .event = CMD_NOTIFY_AUTH_RESULT,
             .version = "1",
             .type = AuthType2Str(at)
         };
         cmd.sensorInfo = "sensorInfo";
-        cmd.tip = "tip";
         widgetCmdParameters.useriamCmdData.cmdList.push_back(cmd);
     }
     widgetCmdParameters.useriamCmdData.typeList = typeList;
@@ -284,7 +282,7 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_005, TestSize.Level0)
 {
     WidgetNotice widgetNotice;
     widgetNotice.widgetContextId = 1;
-    widgetNotice.event = "CMD_NOTIFY_AUTH_START";
+    widgetNotice.event = CMD_NOTIFY_AUTH_START;
     widgetNotice.typeList.push_back("pin");
     widgetNotice.typeList.push_back("face");
     widgetNotice.typeList.push_back("fingerprint");
@@ -351,6 +349,20 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_012, TestSize.Level0)
     WidgetNotice notice = root.get<WidgetNotice>();
     EXPECT_EQ(notice.typeList.size(), static_cast<size_t>(1));
     EXPECT_EQ(notice.typeList[0], "pin");
+}
+
+HWTEST_F(WidgetJsonTest, WidgetJsonto_json_013, TestSize.Level0)
+{
+    auto root = nlohmann::json::parse("{\"payload\":{\"endAfterFirstFail\":123}}", nullptr, false);
+    WidgetNotice notice = root.get<WidgetNotice>();
+    EXPECT_EQ(notice.endAfterFirstFail, false);
+}
+
+HWTEST_F(WidgetJsonTest, WidgetJsonto_json_014, TestSize.Level0)
+{
+    auto root = nlohmann::json::parse("{\"payload\":{\"endAfterFirstFail\":true}}", nullptr, false);
+    WidgetNotice notice = root.get<WidgetNotice>();
+    EXPECT_EQ(notice.endAfterFirstFail, true);
 }
 } // namespace UserAuth
 } // namespace UserIam

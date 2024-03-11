@@ -38,6 +38,8 @@ namespace UserAuth {
 
 const std::string NOTICE_VERSION_STR = "1";
 const std::string CMD_NOTIFY_AUTH_START = "CMD_NOTIFY_AUTH_START";
+const std::string CMD_NOTIFY_AUTH_RESULT = "CMD_NOTIFY_AUTH_RESULT";
+const std::string CMD_NOTIFY_AUTH_TIP = "CMD_NOTIFY_AUTH_TIP";
 
 /**
  * @brief Notice type for user authentication.
