@@ -46,6 +46,7 @@ public:
     ResultCode OnNotice(NoticeType type, const std::string &eventData);
     void ReportWidgetResult(int32_t result, AuthType authType,
         int32_t lockoutDuration, int32_t remainAttempts);
+    void ReportWidgetTip(int32_t tipType, AuthType authType, std::vector<uint8_t> tipInfo);
 
     // others
     void SetPinSubType(const PinSubType &subType);

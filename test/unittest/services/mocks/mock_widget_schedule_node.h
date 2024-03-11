@@ -26,7 +26,7 @@ class MockWidgetScheduleNode final : public WidgetScheduleNode {
 public:
     MOCK_METHOD0(StartSchedule, bool());
     MOCK_METHOD0(StopSchedule, bool());
-    MOCK_METHOD1(StartAuthList, bool(const std::vector<AuthType> &));
+    MOCK_METHOD2(StartAuthList, bool(const std::vector<AuthType> &authTypeList, bool endAfterFirstFail));
     MOCK_METHOD1(StopAuthList, bool(const std::vector<AuthType> &));
     MOCK_METHOD1(SuccessAuth, bool(AuthType));
     MOCK_METHOD0(NaviPinAuth, bool());

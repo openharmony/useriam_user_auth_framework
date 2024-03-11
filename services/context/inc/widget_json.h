@@ -44,6 +44,7 @@ struct WidgetNotice {
     std::string event {""};
     std::string version {""};
     std::vector<std::string> typeList {};
+    bool endAfterFirstFail {false};
 };
 void to_json(nlohmann::json &jsonNotice, const WidgetNotice &notice);
 void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice);
@@ -63,8 +64,10 @@ struct WidgetCommand {
         int32_t result = -1;
         int32_t lockoutDuration = -1;
         int32_t remainAttempts = -1;
-        std::string tip = {""};
         std::string sensorInfo {""};
+
+        int32_t tipType = -1;
+        std::vector<uint8_t> tipInfo;
 
         ExtraInfo extraInfo;
     };

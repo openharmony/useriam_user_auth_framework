@@ -63,14 +63,15 @@ public:
 
     // WidgetScheduleNodeCallback API
     bool LaunchWidget() override;
-    void ExecuteAuthList(const std::set<AuthType> &authTypeList) override;
+    void ExecuteAuthList(const std::set<AuthType> &authTypeList, bool endAfterFirstFail) override;
     void EndAuthAsCancel() override;
     void EndAuthAsNaviPin() override;
     void EndAuthAsWidgetParaInvalid() override;
     void StopAuthList(const std::vector<AuthType> &authTypeList) override;
     void SuccessAuth(AuthType authType) override;
 
-    void AuthResult(int32_t resultCode, int32_t at, const Attributes &finalResult);
+    void AuthResult(int32_t resultCode, int32_t authType, const Attributes &finalResult);
+    void AuthTipInfo(int32_t tipInfo, int32_t authType, const Attributes &extraInfo);
 protected:
     virtual bool OnStart();
     virtual void OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr);
@@ -79,7 +80,7 @@ protected:
 private:
     void SetLatestError(int32_t error) override;
     std::shared_ptr<Context> BuildTask(const std::vector<uint8_t> &challenge,
-        AuthType authType, AuthTrustLevel authTrustLevel);
+        AuthType authType, AuthTrustLevel authTrustLevel, bool endAfterFirstFail);
     bool BuildSchedule();
     bool ConnectExtension();
     int32_t ConnectExtensionAbility(const AAFwk::Want &want, const std::string commandStr);
