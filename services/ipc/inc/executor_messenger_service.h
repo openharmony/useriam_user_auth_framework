@@ -24,6 +24,7 @@ namespace UserIam {
 namespace UserAuth {
 class ExecutorMessengerService : public ExecutorMessengerStub {
 public:
+    ExecutorMessengerService(bool serialInvokeFlag);
     static sptr<ExecutorMessengerService> GetInstance();
     int32_t SendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole, ExecutorRole dstRole,
         const std::vector<uint8_t> &msg) override;

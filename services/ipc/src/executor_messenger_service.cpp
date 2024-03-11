@@ -25,14 +25,15 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-ExecutorMessengerService::ExecutorMessengerService()
+ExecutorMessengerService::ExecutorMessengerService(bool serialInvokeFlag) : ExecutorMessengerStub(serialInvokeFlag)
 {
     IAM_LOGI("ExecutorMessengerService init");
 }
 
 sptr<ExecutorMessengerService> ExecutorMessengerService::GetInstance()
 {
-    static sptr<ExecutorMessengerService> instance(new (std::nothrow) ExecutorMessengerService());
+    bool serialInvokeFlag = true;
+    static sptr<ExecutorMessengerService> instance(new (std::nothrow) ExecutorMessengerService(serialInvokeFlag));
     if (instance == nullptr) {
         IAM_LOGE("instance is nullptr");
     }

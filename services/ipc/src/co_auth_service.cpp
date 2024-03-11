@@ -41,10 +41,11 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-REGISTER_SYSTEM_ABILITY_BY_ID(CoAuthService, SUBSYS_USERIAM_SYS_ABILITY_AUTHEXECUTORMGR, true);
+REGISTER_SYSTEM_ABILITY_BY_ID(CoAuthService, SUBSYS_USERIAM_SYS_ABILITY_AUTHEXECUTORMGR, true, true);
 constexpr int32_t USERIAM_IPC_THREAD_NUM = 4;
 
-CoAuthService::CoAuthService(int32_t systemAbilityId, bool runOnCreate) : SystemAbility(systemAbilityId, runOnCreate)
+CoAuthService::CoAuthService(int32_t systemAbilityId, bool runOnCreate, bool serialInvokeFlag)
+    : SystemAbility(systemAbilityId, runOnCreate), CoAuthStub(serialInvokeFlag)
 {
     IAM_LOGI("CoAuthService init");
 }
