@@ -26,6 +26,8 @@ namespace UserIam {
 namespace UserAuth {
 class ExecutorMessengerStub : public IRemoteStub<ExecutorMessengerInterface> {
 public:
+    ExecutorMessengerStub(bool serialInvokeFlag);
+    ~ExecutorMessengerStub() = default;
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
 private:

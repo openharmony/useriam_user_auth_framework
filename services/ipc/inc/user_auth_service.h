@@ -34,7 +34,7 @@ namespace UserAuth {
 class UserAuthService : public SystemAbility, public UserAuthStub, public NoCopyable {
 public:
     DECLARE_SYSTEM_ABILITY(UserAuthService);
-    explicit UserAuthService(int32_t systemAbilityId, bool runOnCreate = false);
+    explicit UserAuthService(int32_t systemAbilityId, bool runOnCreate = false, bool serialInvokeFlag = true);
     ~UserAuthService() override = default;
     int32_t GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel) override;
     void GetProperty(int32_t userId, AuthType authType,

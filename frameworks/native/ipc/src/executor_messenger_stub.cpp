@@ -27,6 +27,9 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+ExecutorMessengerStub::ExecutorMessengerStub(bool serialInvokeFlag) : IRemoteStub(serialInvokeFlag)
+{
+}
 int32_t ExecutorMessengerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
     MessageOption &option)
 {

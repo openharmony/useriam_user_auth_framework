@@ -27,6 +27,8 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+CoAuthStub::CoAuthStub(bool serialInvokeFlag) : IRemoteStub(serialInvokeFlag) {};
+
 int32_t CoAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     IAM_LOGD("CoAuthStub::OnRemoteRequest, cmd = %{public}u, flags = %{public}d", code, option.GetFlags());

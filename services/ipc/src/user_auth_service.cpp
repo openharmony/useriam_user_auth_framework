@@ -95,10 +95,12 @@ void GetResourceNodeByType(AuthType authType, std::vector<std::weak_ptr<Resource
 }
 } // namespace
 
-REGISTER_SYSTEM_ABILITY_BY_ID(UserAuthService, SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true);
+REGISTER_SYSTEM_ABILITY_BY_ID(UserAuthService, SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true, 
 
-UserAuthService::UserAuthService(int32_t systemAbilityId, bool runOnCreate)
-    : SystemAbility(systemAbilityId, runOnCreate)
+);
+
+UserAuthService::UserAuthService(int32_t systemAbilityId, bool runOnCreate, bool serialInvokeFlag)
+    : SystemAbility(systemAbilityId, runOnCreate), UserAuthStub(serialInvokeFlag);
 {
 }
 
