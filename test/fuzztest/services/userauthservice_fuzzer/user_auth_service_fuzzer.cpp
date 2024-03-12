@@ -31,7 +31,7 @@
 #ifdef LOG_LABEL
 #undef LOG_LABEL
 #endif
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
+#define LOG_TAG "USER_AUTH_SA"
 
 using namespace std;
 using namespace OHOS::UserIam::Common;

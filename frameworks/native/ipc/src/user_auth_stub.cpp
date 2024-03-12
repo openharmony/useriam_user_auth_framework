@@ -25,7 +25,7 @@
 #include "widget_callback_proxy.h"
 #include "user_auth_common_defines.h"
 
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
+#define LOG_TAG "USER_AUTH_SA"
 
 namespace OHOS {
 namespace UserIam {

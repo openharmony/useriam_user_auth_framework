@@ -21,8 +21,6 @@
 
 #include "securec.h"
 
-#define LOG_LABEL LABEL_IAM_COMMON
-
 namespace OHOS {
 namespace UserIam {
 namespace Common {

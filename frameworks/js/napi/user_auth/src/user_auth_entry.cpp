@@ -23,7 +23,7 @@
 #include "user_auth_widget_mgr_v10.h"
 #include "user_auth_client_impl.h"
 
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_NAPI
+#define LOG_TAG "USER_AUTH_NAPI"
 
 namespace OHOS {
 namespace UserIam {
