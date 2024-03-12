@@ -18,7 +18,7 @@
 #include "driver_manager.h"
 #include "iam_logger.h"
 
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_EXECUTOR
+#define LOG_TAG "USER_AUTH_EXECUTOR"
 
 namespace OHOS {
 namespace UserIam {

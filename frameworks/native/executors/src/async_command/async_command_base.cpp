@@ -28,7 +28,7 @@
 #include "iam_para2str.h"
 #include "iam_executor_framework_types.h"
 
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_EXECUTOR
+#define LOG_TAG "USER_AUTH_EXECUTOR"
 
 namespace OHOS {
 namespace UserIam {

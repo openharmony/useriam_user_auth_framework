@@ -19,7 +19,7 @@
 #include "iam_logger.h"
 #include "iam_ptr.h"
 
-#define LOG_LABEL UserIam::Common::LABEL_AUTH_EXECUTOR_MGR_SDK
+#define LOG_TAG "AUTH_EXECUTOR_MGR_SDK"
 
 namespace OHOS {
 namespace UserIam {
