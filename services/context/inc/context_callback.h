@@ -46,6 +46,7 @@ public:
         std::optional<int32_t> authType;
         std::optional<uint32_t> authWidgetType;
         std::optional<std::string> callerName;
+        std::optional<int32_t> callerType;
         std::chrono::time_point<std::chrono::steady_clock> startTime;
         std::chrono::time_point<std::chrono::steady_clock> endTime;
     };
@@ -77,6 +78,7 @@ public:
     virtual void SetTraceAuthWidgetType(uint32_t authWidgetType) = 0;
     virtual void SetTraceAuthTrustLevel(AuthTrustLevel atl) = 0;
     virtual void SetCleaner(Context::ContextStopCallback callback) = 0;
+    virtual void SetTraceCallerType(int32_t callerType) = 0;
     virtual void ProcessAuthResult(int32_t tip, const std::vector<uint8_t> &extraInfo) = 0;
     virtual sptr<IamCallbackInterface> GetIamCallback() = 0;
     virtual std::string GetCallerName() = 0;

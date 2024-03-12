@@ -278,7 +278,8 @@ bool IpcCommon::CheckCallerIsSystemApp(IPCObjectStub &stub)
     return false;
 }
 
-bool IpcCommon::GetCallerName(IPCObjectStub &stub, bool &isBundleName, std::string &callerName)
+bool IpcCommon::GetCallerName(IPCObjectStub &stub, bool &isBundleName, std::string &callerName,
+    int32_t &callerType)
 {
     uint32_t tokenId = GetAccessTokenId(stub);
     using namespace Security::AccessToken;
@@ -307,6 +308,7 @@ bool IpcCommon::GetCallerName(IPCObjectStub &stub, bool &isBundleName, std::stri
         return true;
     }
     isBundleName = false;
+    callerType = static_cast<int32_t>(callingType);
     IAM_LOGI("caller is not a hap or a native");
     return false;
 }

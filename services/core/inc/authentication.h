@@ -35,6 +35,7 @@ public:
         bool endAfterFirstFail;
         std::string callerName;
         int32_t sdkVersion;
+        int32_t callerType;
     };
 
     struct AuthResultInfo {

@@ -25,6 +25,7 @@
 #define USER_AUTH_CLIENT_CALLBACK_H
 
 #include "attributes.h"
+#include "iremote_broker.h"
 #include "user_auth_client_defines.h"
 
 namespace OHOS {
@@ -90,6 +91,21 @@ public:
      * @param extraInfo Other related information about set property.
      */
     virtual void OnResult(int32_t result, const Attributes &extraInfo) = 0;
+};
+
+class AuthEventListenerInterface : public IRemoteBroker {
+public:
+    /**
+     * @brief Notify the event of authencation success.
+     *
+     * @param userId The id of user who initiates authentication.
+     * @param authtype The authentication auth type{@link AuthType}.
+     * @param callerType The caller type who initiates authentication.
+     * @param callerName The caller name who initiates authentication.
+     */
+    virtual void OnNotifyAuthSuccessEvent(int32_t userId, AuthType authtype, int32_t callerType,
+        std::string &callerName) = 0;
+    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIam.UserAuth.EventListenerCallback");
 };
 } // namespace UserAuth
 } // namespace UserIam

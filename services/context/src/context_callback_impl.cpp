@@ -160,6 +160,11 @@ void ContextCallbackImpl::SetTraceAuthTrustLevel(AuthTrustLevel atl)
     metaData_.atl = atl;
 }
 
+void ContextCallbackImpl::SetTraceCallerType(int32_t callerType)
+{
+    metaData_.callerType = callerType;
+}
+
 void ContextCallbackImpl::SetCleaner(Context::ContextStopCallback callback)
 {
     stopCallback_ = callback;

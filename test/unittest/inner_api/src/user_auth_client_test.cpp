@@ -683,6 +683,97 @@ void UserAuthClientTest::CallRemoteObject(const std::shared_ptr<MockUserAuthServ
             return OHOS::NO_ERROR;
         });
 }
+
+HWTEST_F(UserAuthClientTest, UserAuthClientRegistUserAuthSuccessEventListener001, TestSize.Level0)
+{
+    std::vector<AuthType> authTypeList;
+    authTypeList.push_back(AuthType::PIN);
+    authTypeList.push_back(AuthType::FACE);
+    authTypeList.push_back(AuthType::FINGERPRINT);
+
+    sptr<AuthEventListenerInterface> testCallback = new MockAuthEventListenerService();
+    EXPECT_NE(testCallback, nullptr);
+
+    auto service = Common::MakeShared<MockUserAuthService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, RegistUserAuthSuccessEventListener(_, _)).Times(1);
+    ON_CALL(*service, RegistUserAuthSuccessEventListener)
+        .WillByDefault(
+            [](const std::vector<AuthType> &authType, const sptr<AuthEventListenerInterface> &callback) {
+                return SUCCESS;
+            }
+        );
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
+    CallRemoteObject(service, obj, dr);
+    int32_t ret = UserAuthClientImpl::Instance().RegistUserAuthSuccessEventListener(authTypeList, testCallback);
+    EXPECT_EQ(ret, SUCCESS);
+    dr->OnRemoteDied(obj);
+    IpcClientUtils::ResetObj();
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientRegistUserAuthSuccessEventListener002, TestSize.Level0)
+{
+    std::vector<AuthType> authTypeList;
+    authTypeList.push_back(AuthType::PIN);
+    authTypeList.push_back(AuthType::FACE);
+    authTypeList.push_back(AuthType::FINGERPRINT);
+
+    int32_t ret = UserAuthClientImpl::Instance().RegistUserAuthSuccessEventListener(authTypeList, nullptr);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientRegistUserAuthSuccessEventListener003, TestSize.Level0)
+{
+    std::vector<AuthType> authTypeList;
+    authTypeList.push_back(AuthType::PIN);
+    authTypeList.push_back(AuthType::FACE);
+    authTypeList.push_back(AuthType::FINGERPRINT);
+
+    sptr<AuthEventListenerInterface> testCallback = new MockAuthEventListenerService();
+    EXPECT_NE(testCallback, nullptr);
+
+    int32_t ret = UserAuthClientImpl::Instance().RegistUserAuthSuccessEventListener(authTypeList, testCallback);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientUnRegistUserAuthSuccessEventListener001, TestSize.Level0)
+{
+    sptr<AuthEventListenerInterface> testCallback = new MockAuthEventListenerService();
+    EXPECT_NE(testCallback, nullptr);
+
+    auto service = Common::MakeShared<MockUserAuthService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, UnRegistUserAuthSuccessEventListener(_)).Times(1);
+    ON_CALL(*service, UnRegistUserAuthSuccessEventListener)
+        .WillByDefault(
+            [](const sptr<AuthEventListenerInterface> &callback) {
+                return SUCCESS;
+            }
+        );
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
+    CallRemoteObject(service, obj, dr);
+    int32_t ret = UserAuthClientImpl::Instance().UnRegistUserAuthSuccessEventListener(testCallback);
+    EXPECT_EQ(ret, SUCCESS);
+    dr->OnRemoteDied(obj);
+    IpcClientUtils::ResetObj();
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientUnRegistUserAuthSuccessEventListener002, TestSize.Level0)
+{
+    int32_t ret = UserAuthClientImpl::Instance().UnRegistUserAuthSuccessEventListener(nullptr);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientUnRegistUserAuthSuccessEventListener003, TestSize.Level0)
+{
+    sptr<AuthEventListenerInterface> testCallback = new MockAuthEventListenerService();
+    EXPECT_NE(testCallback, nullptr);
+
+    int32_t ret = UserAuthClientImpl::Instance().UnRegistUserAuthSuccessEventListener(testCallback);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

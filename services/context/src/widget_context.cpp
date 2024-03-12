@@ -133,6 +133,7 @@ std::shared_ptr<ContextCallback> WidgetContext::GetAuthContextCallback(AuthType 
         return nullptr;
     }
     widgetCallback->SetTraceCallerName(para_.callerName);
+    widgetCallback->SetTraceCallerType(para_.callerType);
     widgetCallback->SetTraceRequestContextId(contextId_);
     widgetCallback->SetTraceAuthTrustLevel(authTrustLevel);
     widgetCallback->SetTraceAuthType(authType);
