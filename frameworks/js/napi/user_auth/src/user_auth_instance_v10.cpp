@@ -17,14 +17,16 @@
 
 #include <algorithm>
 #include <string>
+#include <cinttypes>
 
 #include "iam_logger.h"
 #include "iam_ptr.h"
 
 #include "user_auth_client_impl.h"
 #include "user_auth_napi_helper.h"
+#include "user_auth_common_defines.h"
 
-#define LOG_LABEL Common::LABEL_USER_AUTH_NAPI
+#define LOG_TAG "USER_AUTH_NAPI"
 
 namespace OHOS {
 namespace UserIam {
@@ -33,10 +35,13 @@ const std::string AUTH_EVENT_RESULT = "result";
 const std::string AUTH_PARAM_CHALLENGE = "challenge";
 const std::string AUTH_PARAM_AUTHTYPE = "authType";
 const std::string AUTH_PARAM_AUTHTRUSTLEVEL = "authTrustLevel";
+const std::string AUTH_PARAM_REUSEUNLOCKRESULT = "reuseUnlockResult";
 const std::string WIDGET_PARAM_TITLE = "title";
 const std::string WIDGET_PARAM_NAVIBTNTEXT = "navigationButtonText";
 const std::string WIDGET_PARAM_WINDOWMODE = "windowMode";
 const std::string NOTICETYPE = "noticeType";
+const std::string REUSEMODE = "reuseMode";
+const std::string REUSEDURATION = "reuseDuration";
 
 namespace WidgetType {
     constexpr int32_t TITLE_MAX = 500;
@@ -176,6 +181,64 @@ UserAuthResultCode UserAuthInstanceV10::InitAuthType(napi_env env, napi_value va
     return UserAuthResultCode::SUCCESS;
 }
 
+UserAuthResultCode UserAuthInstanceV10::InitAuthTrustLevel(napi_env env, napi_value value)
+{
+    napi_status ret = UserAuthNapiHelper::CheckNapiType(env, value, napi_null);
+    if (ret == napi_ok) {
+        IAM_LOGI("authTrustLevel is null");
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
+    }
+    uint32_t authTrustLevel;
+    ret = UserAuthNapiHelper::GetUint32Value(env, value, authTrustLevel);
+    if (ret != napi_ok) {
+        IAM_LOGE("GetUint32Value fail:%{public}d", ret);
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
+    }
+    if (!UserAuthNapiHelper::CheckAuthTrustLevel(authTrustLevel)) {
+        IAM_LOGE("AuthTrustLevel fail:%{public}u", authTrustLevel);
+        return UserAuthResultCode::TRUST_LEVEL_NOT_SUPPORT;
+    }
+    authParam_.authTrustLevel = AuthTrustLevel(authTrustLevel);
+    IAM_LOGI("authTrustLevel:%{public}u", authParam_.authTrustLevel);
+    return UserAuthResultCode::SUCCESS;
+}
+
+UserAuthResultCode UserAuthInstanceV10::InitReuseUnlockResult(napi_env env, napi_value value)
+{
+    uint32_t reuseMode;
+    uint32_t reuseDuration;
+    if (!UserAuthNapiHelper::HasNamedProperty(env, value, REUSEMODE)) {
+        IAM_LOGE("propertyName: %{public}s not exists.", REUSEMODE.c_str());
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
+    }
+    napi_value napi_reuseMode = UserAuthNapiHelper::GetNamedProperty(env, value, REUSEMODE);
+    napi_status ret = UserAuthNapiHelper::GetUint32Value(env, napi_reuseMode, reuseMode);
+    if (ret != napi_ok) {
+        IAM_LOGE("GetUint32Value fail:%{public}d", ret);
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
+    }
+    authParam_.reuseUnlockResult.reuseMode = ReuseMode(reuseMode);
+    if (!UserAuthNapiHelper::HasNamedProperty(env, value, REUSEDURATION)) {
+        IAM_LOGE("propertyName: %{public}s not exists.", REUSEDURATION.c_str());
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
+    }
+    napi_value napi_reuseDuration = UserAuthNapiHelper::GetNamedProperty(env, value, REUSEDURATION);
+    ret = UserAuthNapiHelper::GetUint32Value(env, napi_reuseDuration, reuseDuration);
+    if (ret != napi_ok) {
+        IAM_LOGE("GetUint32Value fail:%{public}d", ret);
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
+    }
+    authParam_.reuseUnlockResult.reuseDuration = reuseDuration;
+    if (!UserAuthNapiHelper::CheckReuseUnlockResult(authParam_.reuseUnlockResult)) {
+        IAM_LOGE("ReuseUnlockResult fail");
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
+    }
+    authParam_.reuseUnlockResult.isReuse = true;
+    IAM_LOGI("reuseMode: %{public}u, reuseDuration: %{public}" PRIu64, authParam_.reuseUnlockResult.reuseMode,
+        authParam_.reuseUnlockResult.reuseDuration);
+    return UserAuthResultCode::SUCCESS;
+}
+
 UserAuthResultCode UserAuthInstanceV10::InitAuthParam(napi_env env, napi_value value)
 {
     napi_status ret = UserAuthNapiHelper::CheckNapiType(env, value, napi_null);
@@ -210,20 +273,23 @@ UserAuthResultCode UserAuthInstanceV10::InitAuthParam(napi_env env, napi_value v
         IAM_LOGE("propertyName: %{public}s not exists.", AUTH_PARAM_AUTHTRUSTLEVEL.c_str());
         return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
-
-    napi_value napi_authTrustLeval = UserAuthNapiHelper::GetNamedProperty(env, value, AUTH_PARAM_AUTHTRUSTLEVEL);
-    uint32_t authTrustLevel;
-    ret = UserAuthNapiHelper::GetUint32Value(env, napi_authTrustLeval, authTrustLevel);
-    if (ret != napi_ok) {
-        IAM_LOGE("GetUint32Value fail:%{public}d", ret);
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+    napi_value napi_authTrustLevel = UserAuthNapiHelper::GetNamedProperty(env, value, AUTH_PARAM_AUTHTRUSTLEVEL);
+    errorCode = InitAuthTrustLevel(env, napi_authTrustLevel);
+    if (errorCode != UserAuthResultCode::SUCCESS) {
+        IAM_LOGE("InitAuthTrustLevel fail:%{public}d", errorCode);
+        return errorCode;
     }
-    if (!UserAuthNapiHelper::CheckAuthTrustLevel(authTrustLevel)) {
-        IAM_LOGE("AuthTrustLeval fail:%{public}d", errorCode);
-        return UserAuthResultCode::TRUST_LEVEL_NOT_SUPPORT;
+    if (UserAuthNapiHelper::HasNamedProperty(env, value, AUTH_PARAM_REUSEUNLOCKRESULT)) {
+        napi_value napi_reuseUnlockResult = UserAuthNapiHelper::GetNamedProperty(env, value,
+            AUTH_PARAM_REUSEUNLOCKRESULT);
+        errorCode = InitReuseUnlockResult(env, napi_reuseUnlockResult);
+        if (errorCode != UserAuthResultCode::SUCCESS) {
+            IAM_LOGE("InitReuseUnlockResult fail:%{public}d", errorCode);
+            return errorCode;
+        }
+    } else {
+        authParam_.reuseUnlockResult.isReuse = false;
     }
-    authParam_.authTrustLevel = AuthTrustLevel(authTrustLevel);
-
     return UserAuthResultCode::SUCCESS;
 }
 

@@ -36,7 +36,7 @@
 #include "resource_node_pool.h"
 #include "template_cache_manager.h"
 
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
+#define LOG_TAG "USER_AUTH_SA"
 
 namespace OHOS {
 namespace UserIam {

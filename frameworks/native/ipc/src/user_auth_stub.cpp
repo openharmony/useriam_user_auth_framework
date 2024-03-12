@@ -25,7 +25,7 @@
 #include "widget_callback_proxy.h"
 #include "user_auth_common_defines.h"
 
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
+#define LOG_TAG "USER_AUTH_SA"
 
 namespace OHOS {
 namespace UserIam {
@@ -508,32 +508,20 @@ int32_t UserAuthStub::GetEnrolledStateStub(MessageParcel &data, MessageParcel &r
 {
     IAM_LOGI("enter");
     ON_SCOPE_EXIT(IAM_LOGI("leave"));
-    int32_t ret = GENERAL_ERROR;
 
     int32_t apiVersion;
     if (!data.ReadInt32(apiVersion)) {
         IAM_LOGE("failed to read apiVersion");
-        static_cast<void>(reply.WriteInt32(ret));
         return READ_PARCEL_ERROR;
     }
 
     int32_t authType;
     if (!data.ReadInt32(authType)) {
-        static_cast<void>(reply.WriteInt32(ret));
         IAM_LOGE("failed to read authType");
         return READ_PARCEL_ERROR;
     }
     EnrolledState enrolledState = {};
-    int32_t result = GetEnrolledState(apiVersion, static_cast<AuthType>(authType), enrolledState);
-    if (result != SUCCESS) {
-        IAM_LOGE("failed to GetEnrolledState");
-        if (!reply.WriteInt32(result)) {
-            IAM_LOGE("failed to write ret");
-            return WRITE_PARCEL_ERROR;
-        }
-        return result;
-    }
-    ret = SUCCESS;
+    int32_t ret = GetEnrolledState(apiVersion, static_cast<AuthType>(authType), enrolledState);
     if (!reply.WriteInt32(ret)) {
         IAM_LOGE("failed to write ret");
         return WRITE_PARCEL_ERROR;
@@ -546,7 +534,7 @@ int32_t UserAuthStub::GetEnrolledStateStub(MessageParcel &data, MessageParcel &r
         IAM_LOGE("failed to write credentialCount");
         return WRITE_PARCEL_ERROR;
     }
-    return result;
+    return SUCCESS;
 }
 } // namespace UserAuth
 } // namespace UserIam

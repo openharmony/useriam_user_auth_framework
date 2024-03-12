@@ -26,7 +26,7 @@
 #include "co_auth_service.h"
 #include "executor_messenger_service.h"
 
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
+#define LOG_TAG "USER_AUTH_SA"
 
 using namespace std;
 

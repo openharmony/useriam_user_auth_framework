@@ -35,7 +35,7 @@
 #include "system_param_manager.h"
 #include "widget_client.h"
 
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
+#define LOG_TAG "USER_AUTH_SA"
 
 namespace OHOS {
 namespace UserIam {
@@ -344,7 +344,9 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
     para.challenge = std::move(challenge);
     para.endAfterFirstFail = true;
     if (isBundleName) {
-        para.callerName = callerName;
+        para.callerName = "B_" + callerName;
+    } else {
+        para.callerName = "N_" + callerName;
     }
     para.sdkVersion = apiVersion;
     return StartAuthContext(apiVersion, para, contextCallback);
@@ -416,7 +418,9 @@ uint64_t UserAuthService::AuthUser(int32_t userId, const std::vector<uint8_t> &c
     para.challenge = std::move(challenge);
     para.endAfterFirstFail = false;
     if (isBundleName) {
-        para.callerName = callerName;
+        para.callerName = "B_" + callerName;
+    } else {
+        para.callerName = "N_" + callerName;
     }
     para.sdkVersion = INNER_API_VERSION_10000;
     return StartAuthContext(INNER_API_VERSION_10000, para, contextCallback);
@@ -639,9 +643,10 @@ int32_t UserAuthService::GetCallerNameAndUserId(ContextFactory::AuthWidgetContex
     contextCallback->SetTraceCallerName(callerName);
     if (isBundleName) {
         para.callingBundleName = callerName;
+        para.callerName = "B_" + callerName;
+    } else {
+        para.callerName = "N_" + callerName;
     }
-    para.callerName = callerName;
-
     int32_t userId;
     Attributes extraInfo;
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
@@ -748,6 +753,7 @@ std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(int32_t
         reuseUnlockResultType = authParam.reuseUnlockResult.reuseMode;
     }
     contextCallback->SetTraceReuseUnlockResultType(reuseUnlockResultType);
+    contextCallback->SetTraceReuseUnlockResultDuration(authParam.reuseUnlockResult.reuseDuration);
     return contextCallback;
 }
 
@@ -797,7 +803,7 @@ int32_t UserAuthService::RegisterWidgetCallback(int32_t version, sptr<WidgetCall
 int32_t UserAuthService::GetEnrolledState(int32_t apiVersion, AuthType authType,
     EnrolledState &enrolledState)
 {
-    IAM_LOGE("start");
+    IAM_LOGI("start");
 
     if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
         IAM_LOGE("failed to check permission");

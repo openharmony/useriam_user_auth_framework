@@ -26,7 +26,7 @@
 #include "user_auth_callback_service.h"
 #include "widget_callback_service.h"
 
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SDK
+#define LOG_TAG "USER_AUTH_SDK"
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {

@@ -15,9 +15,12 @@
 
 #include "user_auth_extension.h"
 
-#include "hilog_wrapper.h"
 #include "js_user_auth_extension.h"
 #include "runtime.h"
+
+#include "iam_logger.h"
+
+#define LOG_TAG "USER_AUTH_NAPI"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -27,7 +30,7 @@ UserAuthExtension* UserAuthExtension::Create(const std::unique_ptr<Runtime>& run
     if (!runtime) {
         return new UserAuthExtension();
     }
-    HILOG_DEBUG("UserAuthExtension Create runtime");
+    IAM_LOGD("Create runtime");
     switch (runtime->GetLanguage()) {
         case Runtime::Language::JS:
             return JsUserAuthExtension::Create(runtime);
@@ -42,7 +45,7 @@ void UserAuthExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    HILOG_DEBUG("UserAuthExtension begin init");
+    IAM_LOGD("begin init");
     ExtensionBase<UIExtensionContext>::Init(record, application, handler, token);
 }
 
@@ -55,7 +58,7 @@ std::shared_ptr<UIExtensionContext> UserAuthExtension::CreateAndInitContext(
     std::shared_ptr<UIExtensionContext> context =
         ExtensionBase<UIExtensionContext>::CreateAndInitContext(record, application, handler, token);
     if (context == nullptr) {
-        HILOG_ERROR("UserAuthExtension CreateAndInitContext context is nullptr");
+        IAM_LOGE("CreateAndInitContext context is nullptr");
         return context;
     }
     return context;

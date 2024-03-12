@@ -37,7 +37,7 @@
 #include "user_idm_database.h"
 #include "user_idm_session_controller.h"
 
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
+#define LOG_TAG "USER_AUTH_SA"
 
 namespace OHOS {
 namespace UserIam {
@@ -253,7 +253,9 @@ void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPar
     para.isUpdate = isUpdate;
     para.sdkVersion = INNER_API_VERSION_10000;
     if (isBundleName) {
-        para.callerName = callerName;
+        para.callerName = "B_" + callerName;
+    } else {
+        para.callerName = "N_" + callerName;
     }
     auto context = ContextFactory::CreateEnrollContext(para, contextCallback);
     if (context == nullptr || !ContextPool::Instance().Insert(context)) {

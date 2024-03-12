@@ -28,6 +28,8 @@ ohos_shared_library("userauthservice") {
 
   deps = [ "../services/ipc:userauth_services_ipc" ]
 
+  external_deps = [ "hilog:libhilog" ]
+
   if (use_musl) {
     version_script = "user_auth_service_map"
   }

@@ -19,7 +19,7 @@
 #include "resource_node_pool.h"
 #include "iam_logger.h"
 
-#define LOG_LABEL OHOS::UserIam::Common::LABEL_USER_AUTH_SA
+#define LOG_TAG "USER_AUTH_SA"
 
 namespace OHOS {
 namespace UserIam {
