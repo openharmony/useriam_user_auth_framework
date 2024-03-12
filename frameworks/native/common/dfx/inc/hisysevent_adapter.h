@@ -29,6 +29,8 @@ struct UserAuthTrace {
     int32_t authResult = -1;
     uint64_t timeSpan = 0;
     uint32_t authWidgetType = 0;
+    int32_t userId = 0;
+    int32_t callerType = 0;
 };
 
 struct UserAuthFwkTrace {

@@ -17,6 +17,7 @@
 
 #include <cinttypes>
 #include <sstream>
+#include "auth_event_listener_manager.h"
 #include "iam_logger.h"
 #include "iam_time.h"
 #include "hisysevent_adapter.h"
@@ -118,6 +119,12 @@ void Trace::ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &
     if (metaData.authType.has_value() && metaData.operationResult == SUCCESS) {
         info.authType = metaData.authType.value();
     }
+    if (metaData.userId.has_value()) {
+        info.userId = metaData.userId.value();
+    }
+    if (metaData.callerType.has_value()) {
+        info.callerType = metaData.callerType.value();
+    }
     info.authResult = metaData.operationResult;
     uint64_t timeSpan = std::chrono::duration_cast<std::chrono::milliseconds>(metaData.endTime -
         metaData.startTime).count();
@@ -126,6 +133,10 @@ void Trace::ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &
         info.authWidgetType = metaData.authWidgetType.value();
     }
     ReportUserAuth(info);
+    if (info.authResult == SUCCESS) {
+        AuthEventListenerManager::GetInstance().OnNotifyAuthSuccessEvent(info.userId,
+            static_cast<AuthType>(info.authType), info.callerType, info.callerName);
+    }
     IAM_LOGI("start to process user auth event");
 }
 
