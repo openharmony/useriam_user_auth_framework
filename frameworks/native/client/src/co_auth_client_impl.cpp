@@ -22,7 +22,7 @@
 #include "iam_logger.h"
 #include "ipc_client_utils.h"
 
-#define LOG_LABEL UserIam::Common::LABEL_AUTH_EXECUTOR_MGR_SDK
+#define LOG_TAG "EXECUTOR_MGR_SDK"
 
 namespace OHOS {
 namespace UserIam {

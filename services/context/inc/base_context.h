@@ -39,7 +39,7 @@ class BaseContext : public ScheduleNodeCallback,
                     public NoCopyable {
 public:
     BaseContext(const std::string &type, uint64_t contextId, std::shared_ptr<ContextCallback> callback);
-    ~BaseContext() override = default;
+    ~BaseContext() override;
 
     uint64_t GetContextId() const override;
     std::shared_ptr<ScheduleNode> GetScheduleNode(uint64_t scheduleId) const override;

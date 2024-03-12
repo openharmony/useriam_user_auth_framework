@@ -34,6 +34,7 @@ public:
     static bool CheckUserAuthType(int32_t authType);
     static bool CheckAuthTrustLevel(uint32_t authTrustLevel);
     static napi_value GenerateBusinessErrorV9(napi_env env, UserAuthResultCode result);
+    static bool CheckReuseUnlockResult(ReuseUnlockResult reuseUnlockResult);
     static napi_status CheckNapiType(napi_env env, napi_value value, napi_valuetype type);
     static napi_status GetInt32Value(napi_env env, napi_value value, int32_t &out);
     static napi_status GetUint32Value(napi_env env, napi_value value, uint32_t &out);

@@ -24,7 +24,7 @@
 #include "executor.h"
 #include "mock_iexecutor_messenger.h"
 
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_EXECUTOR
+#define LOG_TAG "USER_AUTH_EXECUTOR"
 
 using namespace std;
 using namespace testing;

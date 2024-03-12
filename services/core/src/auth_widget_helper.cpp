@@ -15,6 +15,8 @@
 
 #include "auth_widget_helper.h"
 
+#include <cinttypes>
+
 #include "iam_logger.h"
 #include "iam_check.h"
 #include "resource_node_pool.h"
@@ -22,7 +24,7 @@
 #include "user_idm_database.h"
 #include "widget_client.h"
 
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
+#define LOG_TAG "USER_AUTH_SA"
 
 namespace OHOS {
 namespace UserIam {
@@ -156,7 +158,8 @@ int32_t AuthWidgetHelper::CheckValidSolution(int32_t userId,
 int32_t AuthWidgetHelper::CheckReuseUnlockResult(const ContextFactory::AuthWidgetContextPara &para,
     const AuthParam &authParam, Attributes &extraInfo)
 {
-    IAM_LOGI("start userId:%{public}d typeSize:%{public}zu", para.userId, authParam.authType.size());
+    IAM_LOGI("start userId:%{public}d, reuseMode:%{public}u, reuseDuration: %{public}" PRIu64 ".",
+        para.userId, authParam.reuseUnlockResult.reuseMode, authParam.reuseUnlockResult.reuseDuration);
     if (!authParam.reuseUnlockResult.isReuse || authParam.reuseUnlockResult.reuseDuration == 0 ||
         authParam.reuseUnlockResult.reuseDuration > MAX_ALLOWABLE_REUSE_DURATION ||
         (authParam.reuseUnlockResult.reuseMode != AUTH_TYPE_RELEVANT &&
@@ -179,7 +182,7 @@ int32_t AuthWidgetHelper::CheckReuseUnlockResult(const ContextFactory::AuthWidge
     unlockInfo.challenge = authParam.challenge;
     unlockInfo.callerName = para.callerName;
     unlockInfo.apiVersion = para.sdkVersion;
-    unlockInfo.reuseUnlockResultMode = authParam.reuseUnlockResult.reuseMode;
+    unlockInfo.reuseUnlockResultMode = static_cast<ReuseMode>(authParam.reuseUnlockResult.reuseMode);
     unlockInfo.reuseUnlockResultDuration = authParam.reuseUnlockResult.reuseDuration;
 
     std::vector<uint8_t> authToken;

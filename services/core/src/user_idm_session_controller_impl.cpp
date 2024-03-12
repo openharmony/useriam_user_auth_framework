@@ -24,7 +24,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
+#define LOG_TAG "USER_AUTH_SA"
 
 bool UserIdmSessionControllerImpl::OpenSession(int32_t userId, std::vector<uint8_t> &challenge)
 {

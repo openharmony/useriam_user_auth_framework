@@ -40,7 +40,7 @@
 #include "hisysevent_adapter.h"
 #include "system_ability_definition.h"
 
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
+#define LOG_TAG "USER_AUTH_SA"
 
 namespace OHOS {
 namespace UserIam {
@@ -53,11 +53,15 @@ WidgetContext::WidgetContext(uint64_t contextId, const ContextFactory::AuthWidge
     : contextId_(contextId), description_("UserAuthWidget"), callerCallback_(callback), hasStarted_(false),
     latestError_(ResultCode::GENERAL_ERROR), para_(para), schedule_(nullptr), connection_(nullptr)
 {
+    AddDeathRecipient(callerCallback_, contextId_);
+    SubscribeAppState(callerCallback_, contextId_);
 }
 
 WidgetContext::~WidgetContext()
 {
     IAM_LOGI("release WidgetContext");
+    RemoveDeathRecipient(callerCallback_);
+    UnSubscribeAppState();
 }
 
 bool WidgetContext::Start()
@@ -68,8 +72,6 @@ bool WidgetContext::Start()
         IAM_LOGI("%{public}s context has started, cannot start again", description_.c_str());
         return false;
     }
-    AddDeathRecipient(callerCallback_, GetContextId());
-    SubscribeAppState(callerCallback_, GetContextId());
     hasStarted_ = true;
     return OnStart();
 }
@@ -77,8 +79,6 @@ bool WidgetContext::Start()
 bool WidgetContext::Stop()
 {
     IAM_LOGI("%{public}s start", description_.c_str());
-    RemoveDeathRecipient(callerCallback_);
-    UnSubscribeAppState();
     return OnStop();
 }
 
@@ -409,8 +409,6 @@ void WidgetContext::End(const ResultCode &resultCode)
         }
     }
     callerCallback_->OnResult(resultCode, attr);
-    RemoveDeathRecipient(callerCallback_);
-    UnSubscribeAppState();
 }
 
 void WidgetContext::StopAllRunTask()

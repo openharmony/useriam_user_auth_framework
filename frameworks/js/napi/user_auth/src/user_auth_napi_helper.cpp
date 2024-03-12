@@ -17,6 +17,7 @@
 
 #include <string>
 #include <uv.h>
+#include <cinttypes>
 
 #include "securec.h"
 
@@ -25,7 +26,7 @@
 
 #include "iam_logger.h"
 
-#define LOG_LABEL Common::LABEL_USER_AUTH_NAPI
+#define LOG_TAG "USER_AUTH_NAPI"
 
 namespace OHOS {
 namespace UserIam {
@@ -569,6 +570,20 @@ bool UserAuthNapiHelper::CheckAuthTrustLevel(uint32_t authTrustLevel)
     if (authTrustLevel != AuthTrustLevel::ATL1 && authTrustLevel != AuthTrustLevel::ATL2 &&
         authTrustLevel != AuthTrustLevel::ATL3 && authTrustLevel != AuthTrustLevel::ATL4) {
         IAM_LOGE("authTrustLevel check fail:%{public}d", authTrustLevel);
+        return false;
+    }
+    return true;
+}
+
+bool UserAuthNapiHelper::CheckReuseUnlockResult(ReuseUnlockResult reuseUnlockResult)
+{
+    if (reuseUnlockResult.reuseMode != ReuseMode::AUTH_TYPE_RELEVANT &&
+        reuseUnlockResult.reuseMode != ReuseMode::AUTH_TYPE_IRRELEVANT) {
+        IAM_LOGE("reuseMode check fail:%{public}u", reuseUnlockResult.reuseMode);
+        return false;
+    }
+    if (reuseUnlockResult.reuseDuration <= 0 || reuseUnlockResult.reuseDuration > MAX_ALLOWABLE_REUSE_DURATION) {
+        IAM_LOGE("reuseDuration check fail:%{public}" PRIu64, reuseUnlockResult.reuseDuration);
         return false;
     }
     return true;

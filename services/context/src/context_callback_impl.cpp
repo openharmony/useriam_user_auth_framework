@@ -23,7 +23,7 @@
 #include "iam_ptr.h"
 #include "nlohmann/json.hpp"
 
-#define LOG_LABEL UserIam::Common::LABEL_USER_AUTH_SA
+#define LOG_TAG "USER_AUTH_SA"
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
@@ -163,6 +163,11 @@ void ContextCallbackImpl::SetTraceAuthTrustLevel(AuthTrustLevel atl)
 void ContextCallbackImpl::SetTraceReuseUnlockResultType(uint32_t reuseUnlockResultType)
 {
     metaData_.reuseUnlockResultType = reuseUnlockResultType;
+}
+
+void ContextCallbackImpl::SetTraceReuseUnlockResultDuration(uint32_t reuseUnlockResultDuration)
+{
+    metaData_.reuseUnlockResultDuration = reuseUnlockResultDuration;
 }
 
 void ContextCallbackImpl::SetCleaner(Context::ContextStopCallback callback)
