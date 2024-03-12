@@ -253,7 +253,9 @@ void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPar
     para.isUpdate = isUpdate;
     para.sdkVersion = INNER_API_VERSION_10000;
     if (isBundleName) {
-        para.callerName = callerName;
+        para.callerName = "B_" + callerName;
+    } else {
+        para.callerName = "N_" + callerName;
     }
     auto context = ContextFactory::CreateEnrollContext(para, contextCallback);
     if (context == nullptr || !ContextPool::Instance().Insert(context)) {
