@@ -82,7 +82,7 @@ private:
     int32_t CheckValidSolution(int32_t userId, const AuthParam &authParam, const WidgetParam &widgetParam,
         std::vector<AuthType> &validType);
     int32_t GetCallerNameAndUserId(ContextFactory::AuthWidgetContextPara &para,
-        std::shared_ptr<ContextCallback> contextCallback);
+        std::shared_ptr<ContextCallback> &contextCallback);
 };
 } // namespace UserAuth
 } // namespace UserIam

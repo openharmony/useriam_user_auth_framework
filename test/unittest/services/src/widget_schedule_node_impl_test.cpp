@@ -81,7 +81,7 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStartAuthList, TestSi
     std::vector<AuthType> authTypeList = {AuthType::ALL, AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT};
     schedule->SetCallback(widgetContext);
     schedule->StartSchedule();
-    EXPECT_TRUE(schedule->StartAuthList(authTypeList));
+    EXPECT_TRUE(schedule->StartAuthList(authTypeList, true));
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask(nullptr);
@@ -94,7 +94,7 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStopAuthList, TestSiz
     std::vector<AuthType> authTypeList = {AuthType::ALL, AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT};
     schedule->SetCallback(widgetContext);
     schedule->StartSchedule();
-    schedule->StartAuthList(authTypeList);
+    schedule->StartAuthList(authTypeList, false);
     EXPECT_TRUE(schedule->StopAuthList(authTypeList));
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
@@ -108,7 +108,7 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplSuccessAuth, TestSize
     std::vector<AuthType> authTypeList = {AuthType::ALL, AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT};
     schedule->SetCallback(widgetContext);
     schedule->StartSchedule();
-    schedule->StartAuthList(authTypeList);
+    schedule->StartAuthList(authTypeList, true);
     EXPECT_TRUE(schedule->SuccessAuth(AuthType::PIN));
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();

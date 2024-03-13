@@ -41,7 +41,7 @@ public:
     void SetTraceAuthWidgetType(uint32_t authWidgetType) override;
     void SetTraceAuthTrustLevel(AuthTrustLevel atl) override;
     void SetTraceReuseUnlockResultType(uint32_t reuseUnlockResultType) override;
-    void SetTraceReuseUnlockResultDuration(uint32_t reuseUnlockResultDuration) override;
+    void SetTraceReuseUnlockResultDuration(uint64_t reuseUnlockResultDuration) override;
     void SetCleaner(Context::ContextStopCallback callback) override;
     void ProcessAuthResult(int32_t tip, const std::vector<uint8_t> &extraInfo) override;
     sptr<IamCallbackInterface> GetIamCallback() override;

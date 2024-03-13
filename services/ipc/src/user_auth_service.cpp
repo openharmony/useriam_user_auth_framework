@@ -635,7 +635,7 @@ int32_t UserAuthService::CheckValidSolution(int32_t userId, const AuthParam &aut
 }
 
 int32_t UserAuthService::GetCallerNameAndUserId(ContextFactory::AuthWidgetContextPara &para,
-    std::shared_ptr<ContextCallback> contextCallback)
+    std::shared_ptr<ContextCallback> &contextCallback)
 {
     bool isBundleName = false;
     std::string callerName = "";
