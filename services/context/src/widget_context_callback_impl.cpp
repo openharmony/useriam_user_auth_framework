@@ -43,6 +43,11 @@ void WidgetContextCallbackImpl::OnResult(int32_t result, const Attributes &extra
 
 void WidgetContextCallbackImpl::OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo)
 {
+    std::lock_guard lock(mutex_);
+    auto widgetContext = widgetContext_.lock();
+    if (widgetContext != nullptr) {
+        widgetContext->AuthTipInfo(acquireInfo, authType_, extraInfo);
+    }
 }
 
 sptr<IRemoteObject> WidgetContextCallbackImpl::AsObject()
