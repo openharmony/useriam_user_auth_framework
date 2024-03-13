@@ -140,7 +140,7 @@ std::shared_ptr<ContextCallback> WidgetContext::GetAuthContextCallback(AuthType 
 }
 
 std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &challenge,
-    AuthType authType, AuthTrustLevel authTrustLevel)
+    AuthType authType, AuthTrustLevel authTrustLevel, bool endAfterFirstFail)
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(callerCallback_ != nullptr, nullptr);
     auto userId = para_.userId;
@@ -158,7 +158,7 @@ std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &ch
     para.authType = authType;
     para.atl = authTrustLevel;
     para.challenge = challenge;
-    para.endAfterFirstFail = true;
+    para.endAfterFirstFail = endAfterFirstFail;
     para.callerName = para_.callerName;
     para.sdkVersion = para_.sdkVersion;
     auto context = ContextFactory::CreateSimpleAuthContext(para, widgetCallback);
@@ -206,9 +206,9 @@ bool WidgetContext::OnStop()
     return true;
 }
 
-void WidgetContext::AuthResult(int32_t resultCode, int32_t at, const Attributes &finalResult)
+void WidgetContext::AuthResult(int32_t resultCode, int32_t authType, const Attributes &finalResult)
 {
-    IAM_LOGI("recv task result: %{public}d, authType: %{public}d", resultCode, at);
+    IAM_LOGI("recv task result: %{public}d, authType: %{public}d", resultCode, authType);
     int32_t remainTimes = -1;
     int32_t freezingTime = -1;
     if (!finalResult.GetInt32Value(Attributes::ATTR_REMAIN_TIMES, remainTimes)) {
@@ -217,23 +217,32 @@ void WidgetContext::AuthResult(int32_t resultCode, int32_t at, const Attributes 
     if (!finalResult.GetInt32Value(Attributes::ATTR_FREEZING_TIME, freezingTime)) {
         IAM_LOGI("get freezingTime failed.");
     }
-    AuthType authType = static_cast<AuthType>(at);
-    WidgetClient::Instance().ReportWidgetResult(resultCode, authType, freezingTime, remainTimes);
+    AuthType authTypeTmp = static_cast<AuthType>(authType);
+    WidgetClient::Instance().ReportWidgetResult(resultCode, authTypeTmp, freezingTime, remainTimes);
     IF_FALSE_LOGE_AND_RETURN(schedule_ != nullptr);
     IF_FALSE_LOGE_AND_RETURN(callerCallback_ != nullptr);
-    callerCallback_->SetTraceAuthType(authType);
+    callerCallback_->SetTraceAuthType(authTypeTmp);
     IAM_LOGI("call schedule:");
     if (resultCode == ResultCode::SUCCESS) {
         finalResult.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authResultInfo_.token);
         finalResult.GetUint16Value(Attributes::ATTR_CREDENTIAL_DIGEST, authResultInfo_.credentialDigest);
         finalResult.GetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, authResultInfo_.credentialCount);
-        authResultInfo_.authType = authType;
-        schedule_->SuccessAuth(authType);
+        authResultInfo_.authType = authTypeTmp;
+        schedule_->SuccessAuth(authTypeTmp);
     } else {
         // failed
         SetLatestError(resultCode);
-        schedule_->StopAuthList({authType});
+        schedule_->StopAuthList({authTypeTmp});
     }
+}
+
+void WidgetContext::AuthTipInfo(int32_t tipType, int32_t authType, const Attributes &extraInfo)
+{
+    IAM_LOGI("recv tip: %{public}d, authType: %{public}d", tipType, authType);
+    std::vector<uint8_t> tipInfo;
+    bool getTipInfoRet = extraInfo.GetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, tipInfo);
+    IF_FALSE_LOGE_AND_RETURN(getTipInfoRet);
+    WidgetClient::Instance().ReportWidgetTip(tipType, static_cast<AuthType>(authType), tipInfo);
 }
 
 // WidgetScheduleNodeCallback
@@ -247,13 +256,13 @@ bool WidgetContext::LaunchWidget()
     return true;
 }
 
-void WidgetContext::ExecuteAuthList(const std::set<AuthType> &authTypeList)
+void WidgetContext::ExecuteAuthList(const std::set<AuthType> &authTypeList, bool endAfterFirstFail)
 {
     IAM_LOGI("execute auth list");
     // create task, and start it
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     for (auto &authType : authTypeList) {
-        auto task = BuildTask(para_.challenge, authType, para_.atl);
+        auto task = BuildTask(para_.challenge, authType, para_.atl, endAfterFirstFail);
         if (task == nullptr) {
             IAM_LOGE("failed to create task, authType: %{public}s", AuthType2Str(authType).c_str());
             continue;

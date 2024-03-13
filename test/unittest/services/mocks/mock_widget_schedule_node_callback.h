@@ -28,7 +28,7 @@ namespace UserAuth {
 class MockWidgetScheduleNodeCallback final : public WidgetScheduleNodeCallback {
 public:
     MOCK_METHOD0(LaunchWidget, bool());
-    MOCK_METHOD1(ExecuteAuthList, void(const std::set<AuthType> &authTypeList));
+    MOCK_METHOD2(ExecuteAuthList, void(const std::set<AuthType> &authTypeList, bool endAfterFirstFail));
     MOCK_METHOD0(EndAuthAsCancel, void());
     MOCK_METHOD0(EndAuthAsNaviPin, void());
     MOCK_METHOD0(EndAuthAsWidgetParaInvalid, void());

@@ -39,7 +39,7 @@ public:
     ~WidgetScheduleNodeImpl() override = default;
     bool StartSchedule() override;
     bool StopSchedule() override;
-    bool StartAuthList(const std::vector<AuthType> &authTypeList) override;
+    bool StartAuthList(const std::vector<AuthType> &authTypeList, bool endAfterFirstFail) override;
     bool StopAuthList(const std::vector<AuthType> &authTypeList) override;
     bool SuccessAuth(AuthType authType) override;
     bool NaviPinAuth() override;
@@ -67,6 +67,7 @@ private:
     std::weak_ptr<WidgetScheduleNodeCallback> callback_;
     AuthType successAuthType_ {0};
     std::vector<AuthType> startAuthTypeList_;
+    bool endAfterFirstFail_ {false};
     std::vector<AuthType> stopAuthTypeList_;
     std::set<AuthType> runningAuthTypeSet_;
 };
