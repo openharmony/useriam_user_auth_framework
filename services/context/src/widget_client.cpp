@@ -85,7 +85,7 @@ ResultCode WidgetClient::OnNotice(NoticeType type, const std::string &eventData)
         return ResultCode::INVALID_PARAMETERS;
     }
     if (notice.event == NOTICE_EVENT_AUTH_READY) {
-        schedule_->StartAuthList(authTypeList);
+        schedule_->StartAuthList(authTypeList, notice.endAfterFirstFail);
     } else if (notice.event == NOTICE_EVENT_CANCEL_AUTH) {
         if (authTypeList.size() == 1 && authTypeList[0] == AuthType::ALL) {
             schedule_->StopSchedule();
@@ -96,6 +96,8 @@ ResultCode WidgetClient::OnNotice(NoticeType type, const std::string &eventData)
         schedule_->NaviPinAuth();
     } else if (notice.event == NOTICE_EVENT_WIDGET_PARA_INVALID) {
         schedule_->WidgetParaInvalid();
+    } else if (notice.event == NOTICE_EVENT_END) {
+        schedule_->StopAuthList(authTypeList);
     }
     return ResultCode::SUCCESS;
 }
@@ -121,7 +123,7 @@ void WidgetClient::ReportWidgetResult(int32_t result, AuthType authType,
     };
     // sendCommand of CMD_NOTIFY_AUTH_RESULT
     WidgetCommand::Cmd cmd {
-        .event = "CMD_NOTIFY_AUTH_RESULT",
+        .event = CMD_NOTIFY_AUTH_RESULT,
         .version = NOTICE_VERSION_STR,
         .type = AuthType2Str(authType),
         .result = result,
@@ -145,6 +147,23 @@ void WidgetClient::ReportWidgetResult(int32_t result, AuthType authType,
     if (!pinSubType_.empty()) {
         widgetCmd.pinSubType = pinSubType_;
     }
+    SendCommand(widgetCmd);
+}
+
+void WidgetClient::ReportWidgetTip(int32_t tipType, AuthType authType, std::vector<uint8_t> tipInfo)
+{
+    // sendCommand of CMD_NOTIFY_AUTH_TIP
+    WidgetCommand::Cmd cmd {
+        .event = CMD_NOTIFY_AUTH_TIP,
+        .version = NOTICE_VERSION_STR,
+        .type = AuthType2Str(authType),
+        .tipType = tipType,
+        .tipInfo = tipInfo
+    };
+    WidgetCommand widgetCmd {
+        .widgetContextId = widgetContextId_,
+        .cmdList = { cmd }
+    };
     SendCommand(widgetCmd);
 }
 
@@ -266,7 +285,8 @@ bool WidgetClient::IsValidNoticeType(const WidgetNotice &notice)
     if (notice.event != NOTICE_EVENT_AUTH_READY &&
         notice.event != NOTICE_EVENT_CANCEL_AUTH &&
         notice.event != NOTICE_EVENT_USER_NAVIGATION &&
-        notice.event != NOTICE_EVENT_WIDGET_PARA_INVALID) {
+        notice.event != NOTICE_EVENT_WIDGET_PARA_INVALID &&
+        notice.event != NOTICE_EVENT_END) {
         return false;
     }
     return true;

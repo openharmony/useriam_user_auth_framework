@@ -165,7 +165,7 @@ void ContextCallbackImpl::SetTraceReuseUnlockResultType(uint32_t reuseUnlockResu
     metaData_.reuseUnlockResultType = reuseUnlockResultType;
 }
 
-void ContextCallbackImpl::SetTraceReuseUnlockResultDuration(uint32_t reuseUnlockResultDuration)
+void ContextCallbackImpl::SetTraceReuseUnlockResultDuration(uint64_t reuseUnlockResultDuration)
 {
     metaData_.reuseUnlockResultDuration = reuseUnlockResultDuration;
 }

@@ -48,7 +48,7 @@ public:
     MOCK_METHOD1(SetTraceAuthTrustLevel, void(AuthTrustLevel atl));
     MOCK_METHOD1(SetTraceAuthWidgetType, void(uint32_t authWidgetType));
     MOCK_METHOD1(SetTraceReuseUnlockResultType, void(uint32_t reuseUnlockResultType));
-    MOCK_METHOD1(SetTraceReuseUnlockResultDuration, void(uint32_t reuseUnlockResultDuration));
+    MOCK_METHOD1(SetTraceReuseUnlockResultDuration, void(uint64_t reuseUnlockResultDuration));
     MOCK_METHOD1(SetCleaner, void(Context::ContextStopCallback callback));
     MOCK_METHOD2(ProcessAuthResult, void(int32_t tip, const std::vector<uint8_t> &extraInfo));
     MOCK_METHOD0(GetIamCallback, sptr<IamCallbackInterface>());

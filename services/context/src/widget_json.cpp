@@ -40,11 +40,13 @@ const std::string JSON_WIDGET_CTX_ID = "widgetContextId";
 const std::string JSON_AUTH_EVENT = "event";
 const std::string JSON_AUTH_VERSION = "version";
 const std::string JSON_AUTH_PAYLOAD = "payload";
+const std::string JSON_AUTH_END_AFTER_FIRST_FAIL = "endAfterFirstFail";
 const std::string JSON_LOCKOUT_DURATION = "lockoutDuration";
 const std::string JSON_REMAIN_ATTEMPTS = "remainAttempts";
 const std::string JSON_AUTH_RESULT = "result";
 const std::string JSON_SENSOR_INFO = "sensorInfo";
-const std::string JSON_AUTH_TIP = "tip";
+const std::string JSON_AUTH_TIP_TYPE = "tipType";
+const std::string JSON_AUTH_TIP_INFO = "tipInfo";
 const std::string JSON_AUTH_TITLE = "title";
 const std::string JSON_AUTH_CMD = "cmd";
 const std::string JSON_AUTH_PIN_SUB_TYPE = "pinSubType";
@@ -57,6 +59,63 @@ const std::string JSON_USER_IAM_CMD_DATA = "useriamCmdData";
 const std::string JSON_CHALLENGE = "challenge";
 const std::string JSON_CALLER_BUNDLE_NAME = "callingBundleName";
 const std::string JSON_CMD_EXTRA_INFO = "extraInfo";
+
+namespace {
+void GetJsonPayload(nlohmann::json &jsonPayload, const WidgetCommand::Cmd &cmd, bool setExtraInfo)
+{
+    jsonPayload[JSON_AUTH_TYPE] = cmd.type;
+    if (cmd.lockoutDuration != -1) {
+        jsonPayload[JSON_LOCKOUT_DURATION] = cmd.lockoutDuration;
+    }
+    if (cmd.remainAttempts != -1) {
+        jsonPayload[JSON_REMAIN_ATTEMPTS] = cmd.remainAttempts;
+    }
+    if (cmd.event == CMD_NOTIFY_AUTH_RESULT) {
+        jsonPayload[JSON_AUTH_RESULT] = cmd.result;
+    }
+    if (cmd.event == CMD_NOTIFY_AUTH_TIP) {
+        jsonPayload[JSON_AUTH_TIP_TYPE] = cmd.tipType;
+        jsonPayload[JSON_AUTH_TIP_INFO] = cmd.tipInfo;
+    }
+    if (!cmd.sensorInfo.empty()) {
+        jsonPayload[JSON_SENSOR_INFO] = cmd.sensorInfo;
+    }
+    if (setExtraInfo) {
+        auto jsonCmdExtraInfo = nlohmann::json({{JSON_CHALLENGE, cmd.extraInfo.challenge},
+        {JSON_CALLER_BUNDLE_NAME, cmd.extraInfo.callingBundleName}});
+        jsonPayload[JSON_CMD_EXTRA_INFO] = jsonCmdExtraInfo;
+    }
+}
+
+void GetJsonCmd(nlohmann::json &jsonCommand, const WidgetCommand &command, bool setExtraInfo)
+{
+    std::vector<nlohmann::json> jsonCmdList;
+    for (auto &cmd : command.cmdList) {
+        auto jsonCmd = nlohmann::json({{JSON_AUTH_EVENT, cmd.event},
+            {JSON_AUTH_VERSION, cmd.version}
+        });
+        nlohmann::json jsonPayload;
+        GetJsonPayload(jsonPayload, cmd, setExtraInfo);
+        jsonCmd[JSON_AUTH_PAYLOAD] = jsonPayload;
+        jsonCmdList.push_back(jsonCmd);
+    }
+
+    jsonCommand = nlohmann::json({{JSON_WIDGET_CTX_ID, command.widgetContextId},
+        {JSON_AUTH_TYPE, command.typeList},
+        {JSON_AUTH_TITLE, command.title},
+        {JSON_AUTH_CMD, jsonCmdList}
+    });
+    if (command.pinSubType != "") {
+        jsonCommand[JSON_AUTH_PIN_SUB_TYPE] = command.pinSubType;
+    }
+    if (command.windowModeType != "") {
+        jsonCommand[JSON_AUTH_WINDOW_MODE] = command.windowModeType;
+    }
+    if (command.navigationButtonText != "") {
+        jsonCommand[JSON_AUTH_NAVI_BTN_TEXT] = command.navigationButtonText;
+    }
+}
+}
 
 // utils
 AuthType Str2AuthType(const std::string &strAuthType)
@@ -125,7 +184,8 @@ std::string PinSubType2Str(const PinSubType &subType)
 
 void to_json(nlohmann::json &jsonNotice, const WidgetNotice &notice)
 {
-    auto type = nlohmann::json({{JSON_AUTH_TYPE, notice.typeList}});
+    auto type = nlohmann::json({{JSON_AUTH_TYPE, notice.typeList},
+        {JSON_AUTH_END_AFTER_FIRST_FAIL, notice.endAfterFirstFail}});
     jsonNotice = nlohmann::json({{JSON_WIDGET_CTX_ID, notice.widgetContextId},
         {JSON_AUTH_EVENT, notice.event},
         {JSON_AUTH_VERSION, notice.version},
@@ -143,8 +203,10 @@ void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice)
     if (jsonNotice.find(JSON_AUTH_VERSION) != jsonNotice.end() && jsonNotice[JSON_AUTH_VERSION].is_string()) {
         jsonNotice.at(JSON_AUTH_VERSION).get_to(notice.version);
     }
-    if (jsonNotice.find(JSON_AUTH_PAYLOAD) != jsonNotice.end() &&
-        jsonNotice[JSON_AUTH_PAYLOAD].find(JSON_AUTH_TYPE) != jsonNotice[JSON_AUTH_PAYLOAD].end() &&
+    if (jsonNotice.find(JSON_AUTH_PAYLOAD) == jsonNotice.end()) {
+        return;
+    }
+    if (jsonNotice[JSON_AUTH_PAYLOAD].find(JSON_AUTH_TYPE) != jsonNotice[JSON_AUTH_PAYLOAD].end() &&
         jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].is_array()) {
         for (size_t index = 0; index < jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].size(); index++) {
             if (!jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].at(index).is_string()) {
@@ -154,101 +216,26 @@ void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice)
             notice.typeList.emplace_back(jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].at(index).get<std::string>());
         }
     }
+    if ((jsonNotice[JSON_AUTH_PAYLOAD].find(JSON_AUTH_END_AFTER_FIRST_FAIL) !=
+            jsonNotice[JSON_AUTH_PAYLOAD].end()) &&
+        jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_END_AFTER_FIRST_FAIL].is_boolean()) {
+        jsonNotice[JSON_AUTH_PAYLOAD].at(JSON_AUTH_END_AFTER_FIRST_FAIL).get_to(notice.endAfterFirstFail);
+    }
 }
 
 void to_json(nlohmann::json &jsonCommand, const WidgetCommand &command)
 {
-    std::vector<nlohmann::json> jsonCmdList;
-    for (auto &cmd : command.cmdList) {
-        auto jsonCmd = nlohmann::json({{JSON_AUTH_EVENT, cmd.event},
-            {JSON_AUTH_VERSION, cmd.version}
-        });
-        auto jsonPayload = nlohmann::json({{JSON_AUTH_TYPE, cmd.type}});
-        if (cmd.lockoutDuration != -1) {
-            jsonPayload[JSON_LOCKOUT_DURATION] = cmd.lockoutDuration;
-        }
-        if (cmd.remainAttempts != -1) {
-            jsonPayload[JSON_REMAIN_ATTEMPTS] = cmd.remainAttempts;
-        }
-        if (cmd.event == "CMD_NOTIFY_AUTH_RESULT") {
-            jsonPayload[JSON_AUTH_RESULT] = cmd.result;
-        }
-        if (cmd.sensorInfo != "") {
-            jsonPayload[JSON_SENSOR_INFO] = cmd.sensorInfo;
-        }
-        if (cmd.tip != "") {
-            jsonPayload[JSON_AUTH_TIP] = cmd.tip;
-        }
-        auto jsonCmdExtraInfo = nlohmann::json({{JSON_CHALLENGE, cmd.extraInfo.challenge},
-            {JSON_CALLER_BUNDLE_NAME, cmd.extraInfo.callingBundleName}});
-        jsonPayload[JSON_CMD_EXTRA_INFO] = jsonCmdExtraInfo;
-
-        jsonCmd[JSON_AUTH_PAYLOAD] = jsonPayload;
-        jsonCmdList.push_back(jsonCmd);
-    }
-
-    jsonCommand = nlohmann::json({{JSON_WIDGET_CTX_ID, command.widgetContextId},
-        {JSON_AUTH_TYPE, command.typeList},
-        {JSON_AUTH_TITLE, command.title},
-        {JSON_AUTH_CMD, jsonCmdList}
-    });
-    if (command.pinSubType != "") {
-        jsonCommand[JSON_AUTH_PIN_SUB_TYPE] = command.pinSubType;
-    }
-    if (command.windowModeType != "") {
-        jsonCommand[JSON_AUTH_WINDOW_MODE] = command.windowModeType;
-    }
-    if (command.navigationButtonText != "") {
-        jsonCommand[JSON_AUTH_NAVI_BTN_TEXT] = command.navigationButtonText;
-    }
+    GetJsonCmd(jsonCommand, command, true);
 }
 
 // WidgetCmdParameters
 void to_json(nlohmann::json &jsWidgetCmdParam, const WidgetCmdParameters &widgetCmdParameters)
 {
-    std::vector<nlohmann::json> jsonCmdList;
-    for (auto &cmd : widgetCmdParameters.useriamCmdData.cmdList) {
-        auto jsonCmd = nlohmann::json({{JSON_AUTH_EVENT, cmd.event},
-            {JSON_AUTH_VERSION, cmd.version}
-        });
-        auto jsonPayload = nlohmann::json({{JSON_AUTH_TYPE, cmd.type}});
-        if (cmd.lockoutDuration != -1) {
-            jsonPayload[JSON_LOCKOUT_DURATION] = cmd.lockoutDuration;
-        }
-        if (cmd.remainAttempts != -1) {
-            jsonPayload[JSON_REMAIN_ATTEMPTS] = cmd.remainAttempts;
-        }
-        if (cmd.event == "CMD_NOTIFY_AUTH_RESULT") {
-            jsonPayload[JSON_AUTH_RESULT] = cmd.result;
-        }
-        if (cmd.sensorInfo != "") {
-            jsonPayload[JSON_SENSOR_INFO] = cmd.sensorInfo;
-        }
-        if (cmd.tip != "") {
-            jsonPayload[JSON_AUTH_TIP] = cmd.tip;
-        }
-        jsonCmd[JSON_AUTH_PAYLOAD] = jsonPayload;
-        jsonCmdList.push_back(jsonCmd);
-    }
-
-    auto jsCommand = nlohmann::json({{JSON_WIDGET_CTX_ID, widgetCmdParameters.useriamCmdData.widgetContextId},
-        {JSON_AUTH_TYPE, widgetCmdParameters.useriamCmdData.typeList},
-        {JSON_AUTH_TITLE, widgetCmdParameters.useriamCmdData.title},
-        {JSON_AUTH_CMD, jsonCmdList}
-    });
-
-    if (widgetCmdParameters.useriamCmdData.pinSubType != "") {
-        jsCommand[JSON_AUTH_PIN_SUB_TYPE] = widgetCmdParameters.useriamCmdData.pinSubType;
-    }
-    if (widgetCmdParameters.useriamCmdData.windowModeType != "") {
-        jsCommand[JSON_AUTH_WINDOW_MODE] = widgetCmdParameters.useriamCmdData.windowModeType;
-    }
-    if (widgetCmdParameters.useriamCmdData.navigationButtonText != "") {
-        jsCommand[JSON_AUTH_NAVI_BTN_TEXT] = widgetCmdParameters.useriamCmdData.navigationButtonText;
-    }
+    nlohmann::json jsonCommand;
+    GetJsonCmd(jsonCommand, widgetCmdParameters.useriamCmdData, false);
 
     jsWidgetCmdParam = nlohmann::json({{JSON_UI_EXTENSION_TYPE, widgetCmdParameters.uiExtensionType},
-        {JSON_USER_IAM_CMD_DATA, jsCommand}
+        {JSON_USER_IAM_CMD_DATA, jsonCommand}
     });
 }
 } // namespace UserAuth
