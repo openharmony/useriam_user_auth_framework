@@ -16,6 +16,7 @@
 #include "user_auth_stub_test.h"
 
 #include "iam_common_defines.h"
+#include "mock_auth_event_listener.h"
 #include "mock_user_auth_callback.h"
 #include "mock_user_auth_service.h"
 
@@ -502,6 +503,64 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetVersionStub, TestSize.Level0)
     int32_t version = -1;
     EXPECT_TRUE(reply.ReadInt32(version));
     EXPECT_EQ(version, testVersion);
+    int32_t result;
+    EXPECT_TRUE(reply.ReadInt32(result));
+    EXPECT_EQ(result, SUCCESS);
+}
+
+HWTEST_F(UserAuthStubTest, UserAuthStubRegistUserAuthSuccessEventListenerStub, TestSize.Level0)
+{
+    MockUserAuthService service;
+    sptr<MockAuthEventListenerService> callback(new (std::nothrow) MockAuthEventListenerService());
+    EXPECT_CALL(service, RegistUserAuthSuccessEventListener(_, _)).Times(1);
+    ON_CALL(service, RegistUserAuthSuccessEventListener)
+        .WillByDefault(
+            [](const std::vector<AuthType> &authType, const sptr<AuthEventListenerInterface> &callback) {
+                return SUCCESS;
+            }
+        );
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    uint32_t code = UserAuthInterfaceCode::USER_AUTH_REG_EVENT_LISTENER;
+
+    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+    std::vector<int32_t> authType;
+    authType.push_back(static_cast<int32_t>(PIN));
+    authType.push_back(static_cast<int32_t>(FACE));
+    authType.push_back(static_cast<int32_t>(FINGERPRINT));
+
+    EXPECT_TRUE(data.WriteInt32Vector(authType));
+    EXPECT_NE(callback->AsObject(), nullptr);
+    EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
+    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
+    int32_t result;
+    EXPECT_TRUE(reply.ReadInt32(result));
+    EXPECT_EQ(result, SUCCESS);
+}
+
+HWTEST_F(UserAuthStubTest, UserAuthStubUnRegistUserAuthSuccessEventListenerStub, TestSize.Level0)
+{
+    MockUserAuthService service;
+    sptr<MockAuthEventListenerService> callback(new (std::nothrow) MockAuthEventListenerService());
+    EXPECT_CALL(service, UnRegistUserAuthSuccessEventListener(_)).Times(1);
+    ON_CALL(service, UnRegistUserAuthSuccessEventListener)
+        .WillByDefault(
+            [](const sptr<AuthEventListenerInterface> &callback) {
+                return SUCCESS;
+            }
+        );
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    uint32_t code = UserAuthInterfaceCode::USER_AUTH_UNREG_EVENT_LISTENER;
+
+    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+    EXPECT_NE(callback->AsObject(), nullptr);
+    EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
+    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
     int32_t result;
     EXPECT_TRUE(reply.ReadInt32(result));
     EXPECT_EQ(result, SUCCESS);

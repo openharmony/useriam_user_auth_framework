@@ -44,6 +44,8 @@ private:
     bool ReadWidgetParam(MessageParcel &data, AuthParam &authParam, WidgetParam &widgetParam);
     int32_t RegisterWidgetCallbackStub(MessageParcel &data, MessageParcel &reply);
     int32_t GetEnrolledStateStub(MessageParcel &data, MessageParcel &reply);
+    int32_t RegistUserAuthSuccessEventListenerStub(MessageParcel &data, MessageParcel &reply);
+    int32_t UnRegistUserAuthSuccessEventListenerStub(MessageParcel &data, MessageParcel &reply);
 };
 } // namespace UserAuth
 } // namespace UserIam

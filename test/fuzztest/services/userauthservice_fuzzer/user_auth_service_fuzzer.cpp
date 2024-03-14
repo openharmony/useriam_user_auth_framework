@@ -25,6 +25,7 @@
 #include "iam_logger.h"
 #include "user_auth_service.h"
 #include "user_auth_common_defines.h"
+#include "user_auth_event_listener_stub.h"
 
 #undef private
 
@@ -114,6 +115,24 @@ public:
     {
         sptr<IRemoteObject> tmp(nullptr);
         return tmp;
+    }
+};
+
+class DummyAuthEventListener : public AuthEventListenerInterface {
+public:
+    ~DummyAuthEventListener() override = default;
+
+    sptr<IRemoteObject> AsObject() override
+    {
+        sptr<IRemoteObject> tmp(nullptr);
+        return tmp;
+    }
+
+    void OnNotifyAuthSuccessEvent(int32_t userId, AuthType authType, int32_t callerType,
+        std::string &callerName) override
+    {
+        IAM_LOGI("notify: userId: %{public}d, authType: %{public}d, callerName: %{public}s,"
+            "callerType: %{public}d", userId, static_cast<int32_t>(authType), callerName.c_str(), callerType);
     }
 };
 
@@ -284,6 +303,26 @@ void FuzzRegisterWidgetCallback(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzRegistUserAuthSuccessEventListener(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    std::vector<int32_t> authType;
+    std::vector<AuthType> authTypeList;
+    parcel.ReadInt32Vector(&authType);
+    for (const auto &iter : authType) {
+        authTypeList.push_back(static_cast<AuthType>(iter));
+    }
+
+    sptr<AuthEventListenerInterface> callback(nullptr);
+    if (parcel.ReadBool()) {
+        callback = sptr<AuthEventListenerInterface>(new (std::nothrow) DummyAuthEventListener());
+    }
+
+    g_userAuthService.RegistUserAuthSuccessEventListener(authTypeList, callback);
+    g_userAuthService.UnRegistUserAuthSuccessEventListener(callback);
+    IAM_LOGI("end");
+}
+
 using FuzzFunc = decltype(FuzzGetAvailableStatus);
 FuzzFunc *g_fuzzFuncs[] = {
     FuzzGetEnrolledState,
@@ -298,6 +337,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzAuthWidget,
     FuzzNotice,
     FuzzRegisterWidgetCallback,
+    FuzzRegistUserAuthSuccessEventListener,
 };
 
 void UserAuthFuzzTest(const uint8_t *data, size_t size)

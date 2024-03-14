@@ -555,6 +555,83 @@ int32_t UserAuthProxy::GetEnrolledState(int32_t apiVersion, AuthType authType, E
     enrolledState.credentialCount = credentialCount;
     return SUCCESS;
 }
+
+int32_t UserAuthProxy::RegistUserAuthSuccessEventListener(const std::vector<AuthType> &authType,
+    const sptr<AuthEventListenerInterface> &listener)
+{
+    if (listener == nullptr) {
+        IAM_LOGE("listener is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    MessageParcel data;
+    MessageParcel reply;
+    if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
+        IAM_LOGE("failed to write descriptor");
+        return WRITE_PARCEL_ERROR;
+    }
+
+    std::vector<int32_t> authTypeList;
+    for (auto &iter : authType) {
+        authTypeList.emplace_back(static_cast<int32_t>(iter));
+    }
+
+    if (!data.WriteInt32Vector(authTypeList)) {
+        IAM_LOGE("failed to write authType");
+        return WRITE_PARCEL_ERROR;
+    }
+
+    if (!data.WriteRemoteObject(listener->AsObject())) {
+        IAM_LOGE("failed to write listener");
+        return WRITE_PARCEL_ERROR;
+    }
+
+    bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_REG_EVENT_LISTENER, data, reply);
+    if (!ret) {
+        IAM_LOGE("failed to send register event listener callback IPC request");
+        return GENERAL_ERROR;
+    }
+
+    int32_t result = GENERAL_ERROR;
+    if (!reply.ReadInt32(result)) {
+        IAM_LOGE("failed to read result");
+        return READ_PARCEL_ERROR;
+    }
+    return result;
+}
+
+int32_t UserAuthProxy::UnRegistUserAuthSuccessEventListener(const sptr<AuthEventListenerInterface> &listener)
+{
+    if (listener == nullptr) {
+        IAM_LOGE("listener is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    MessageParcel data;
+    MessageParcel reply;
+    if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
+        IAM_LOGE("failed to write descriptor");
+        return WRITE_PARCEL_ERROR;
+    }
+
+    if (!data.WriteRemoteObject(listener->AsObject())) {
+        IAM_LOGE("failed to write listener");
+        return WRITE_PARCEL_ERROR;
+    }
+
+    bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_UNREG_EVENT_LISTENER, data, reply);
+    if (!ret) {
+        IAM_LOGE("failed to send register event listener callback IPC request");
+        return GENERAL_ERROR;
+    }
+
+    int32_t result = GENERAL_ERROR;
+    if (!reply.ReadInt32(result)) {
+        IAM_LOGE("failed to read result");
+        return READ_PARCEL_ERROR;
+    }
+    return result;
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

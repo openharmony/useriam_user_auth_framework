@@ -19,6 +19,7 @@
 #include <gmock/gmock.h>
 
 #include "user_auth_callback_stub.h"
+#include "user_auth_event_listener_stub.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -37,6 +38,12 @@ public:
 class MockSetExecutorPropertyCallbackService final : public SetExecutorPropertyCallbackStub {
 public:
     MOCK_METHOD1(OnSetExecutorPropertyResult, void(int32_t result));
+};
+
+class MockAuthEventListenerService final : public AuthEventListenerStub {
+public:
+    MOCK_METHOD4(OnNotifyAuthSuccessEvent, void(int32_t userId, AuthType authtype, int32_t callerType,
+        std::string &callerName));
 };
 } // namespace UserAuth
 } // namespace UserIam
