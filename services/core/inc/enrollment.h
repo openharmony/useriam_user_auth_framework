@@ -37,6 +37,7 @@ public:
         std::vector<uint8_t> token;
         std::string callerName;
         int32_t sdkVersion;
+        int32_t callerType;
     };
 
     virtual ~Enrollment() = default;

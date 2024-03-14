@@ -51,6 +51,7 @@ public:
     MOCK_METHOD2(ProcessAuthResult, void(int32_t tip, const std::vector<uint8_t> &extraInfo));
     MOCK_METHOD0(GetIamCallback, sptr<IamCallbackInterface>());
     MOCK_METHOD0(GetCallerName, std::string());
+    MOCK_METHOD1(SetTraceCallerType, void(int32_t callerType));
 };
 
 class MockContext final : public Context {

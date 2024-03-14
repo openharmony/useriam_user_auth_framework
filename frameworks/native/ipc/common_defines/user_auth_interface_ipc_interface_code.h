@@ -40,6 +40,9 @@ enum UserAuthInterfaceCode : uint32_t {
     USER_AUTH_ON_SEND_COMMAND,
     USER_AUTH_REG_WIDGET_CB,
     USER_AUTH_GET_ENROLLED_STATE,
+    USER_AUTH_REG_EVENT_LISTENER,
+    USER_AUTH_UNREG_EVENT_LISTENER,
+    USER_AUTH_EVENT_LISTENER_NOTIFY,
 };
 } // namespace UserAuth
 } // namespace UserIam

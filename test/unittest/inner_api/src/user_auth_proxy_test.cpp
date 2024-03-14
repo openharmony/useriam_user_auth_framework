@@ -20,6 +20,7 @@
 #include "mock_remote_object.h"
 #include "mock_user_auth_service.h"
 #include "mock_user_auth_client_callback.h"
+#include "mock_user_auth_callback_service.h"
 #include "mock_iuser_auth_widget_callback.h"
 #include "user_auth_callback_service.h"
 #include "widget_callback_service.h"
@@ -428,6 +429,58 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyRegisterWidgetCallback002, TestSize.Lev
     EXPECT_NE(proxy, nullptr);
     sptr<WidgetCallbackInterface> callback(nullptr);
     EXPECT_EQ(proxy->RegisterWidgetCallback(testVersion, callback), GENERAL_ERROR);
+}
+
+HWTEST_F(UserAuthProxyTest, UserAuthProxyRegistUserAuthSuccessEventListener001, TestSize.Level0)
+{
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    EXPECT_NE(obj, nullptr);
+    auto proxy = Common::MakeShared<UserAuthProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+
+    sptr<AuthEventListenerInterface> testCallback = new (std::nothrow) MockAuthEventListenerService();
+    auto service = Common::MakeShared<MockUserAuthService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, RegistUserAuthSuccessEventListener(_, _))
+        .Times(Exactly(1))
+        .WillOnce([](const std::vector<AuthType> &authType, const sptr<AuthEventListenerInterface> &callback) {
+            return SUCCESS;
+        });
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
+    ON_CALL(*obj, SendRequest)
+        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            service->OnRemoteRequest(code, data, reply, option);
+            return SUCCESS;
+        });
+    std::vector<AuthType> authTypeList;
+    authTypeList.push_back(AuthType::PIN);
+    authTypeList.push_back(AuthType::FACE);
+    authTypeList.push_back(AuthType::FINGERPRINT);
+    proxy->RegistUserAuthSuccessEventListener(authTypeList, testCallback);
+}
+
+HWTEST_F(UserAuthProxyTest, UserAuthProxyUnRegistUserAuthSuccessEventListener001, TestSize.Level0)
+{
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    EXPECT_NE(obj, nullptr);
+    auto proxy = Common::MakeShared<UserAuthProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+
+    sptr<AuthEventListenerInterface> testCallback = new (std::nothrow) MockAuthEventListenerService();
+    auto service = Common::MakeShared<MockUserAuthService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, UnRegistUserAuthSuccessEventListener(_))
+        .Times(Exactly(1))
+        .WillOnce([](const sptr<AuthEventListenerInterface> &callback) {
+            return SUCCESS;
+        });
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
+    ON_CALL(*obj, SendRequest)
+        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            service->OnRemoteRequest(code, data, reply, option);
+            return SUCCESS;
+        });
+    proxy->UnRegistUserAuthSuccessEventListener(testCallback);
 }
 } // namespace UserAuth
 } // namespace UserIam

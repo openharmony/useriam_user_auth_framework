@@ -19,6 +19,7 @@
 #include <gtest/gtest.h>
 #include "mock_ipc_client_utils.h"
 #include "mock_remote_object.h"
+#include "mock_user_auth_callback_service.h"
 #include "mock_user_auth_service.h"
 #include "mock_user_auth_client_callback.h"
 #include "mock_iuser_auth_widget_callback.h"
