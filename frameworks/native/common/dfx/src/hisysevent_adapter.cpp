@@ -122,14 +122,14 @@ void ReportUserAuth(const UserAuthTrace &info)
         STR_AUTH_RESULT, info.authResult,
         STR_TIME_SPAN, info.timeSpan,
         STR_AUTH_WIDGET_TYPE, info.authWidgetType,
-        STR_REUSE_UNLOCK_RESULT_TYPE, info.reuseUnlockResultType,
+        STR_REUSE_UNLOCK_RESULT_TYPE, info.reuseUnlockResultMode,
         STR_REUSE_UNLOCK_RESULT_DURATION, info.reuseUnlockResultDuration);
     if (ret != 0) {
         IAM_LOGE("hisysevent write failed! ret %{public}d, authType %{public}d, atl %{public}u, authResult %{public}d"
             ", timeSpan %{public}" PRIu64 ", sdkVersion %{public}u, authwidgetType %{public}u, callerName %{public}s"
-            ", reuseUnlockResultType %{public}u, reuseUnlockResultDuration %{public}" PRIu64 ".",
+            ", reuseUnlockResultMode %{public}u, reuseUnlockResultDuration %{public}" PRIu64 ".",
             ret, info.authType, info.atl, info.authResult, info.timeSpan, info.sdkVersion, info.authWidgetType,
-            info.callerName.c_str(), info.reuseUnlockResultType, info.reuseUnlockResultDuration);
+            info.callerName.c_str(), info.reuseUnlockResultMode, info.reuseUnlockResultDuration);
     }
 }
 

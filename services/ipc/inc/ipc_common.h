@@ -21,6 +21,7 @@
 #include <optional>
 #include <string>
 
+#include "iam_common_defines.h"
 #include "nocopyable.h"
 
 namespace OHOS {
@@ -47,7 +48,8 @@ public:
     static bool CheckPermission(IPCObjectStub &stub, Permission permission);
     static uint32_t GetAccessTokenId(IPCObjectStub &stub);
     static uint32_t GetTokenId(IPCObjectStub &stub);
-    static bool GetCallerName(IPCObjectStub &stub, bool &isBundleName, std::string &callerName);
+    static bool GetCallerName(IPCObjectStub &stub, bool &isBundleName, std::string &callerName,
+        int32_t &callerType);
     static bool CheckForegroundApplication(const std::string &bundleName);
     class PeerDeathRecipient final : public IPCObjectProxy::DeathRecipient {
     public:

@@ -24,6 +24,7 @@
 
 #include "attributes.h"
 #include "user_auth_callback_interface.h"
+#include "user_auth_client_callback.h"
 #include "user_auth_interface_ipc_interface_code.h"
 #include "widget_callback_interface.h"
 
@@ -61,6 +62,12 @@ public:
     virtual int32_t RegisterWidgetCallback(int32_t version, sptr<WidgetCallbackInterface> &callback) = 0;
 
     virtual int32_t GetEnrolledState(int32_t apiVersion, AuthType authType, EnrolledState &enrolledState) = 0;
+
+    virtual int32_t RegistUserAuthSuccessEventListener(const std::vector<AuthType> &authType,
+        const sptr<AuthEventListenerInterface> &listener) = 0;
+
+    virtual int32_t UnRegistUserAuthSuccessEventListener(
+        const sptr<AuthEventListenerInterface> &listener) = 0;
 
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIam.UserAuth.IUserAuth");
 };

@@ -51,6 +51,7 @@ public:
         AuthTrustLevel atl {ATL1};
         WidgetParam widgetParam {};
         std::map<AuthType, AuthProfile> authProfileMap {};
+        int32_t callerType {0};
     };
     static std::shared_ptr<Context> CreateSimpleAuthContext(const Authentication::AuthenticationPara &para,
         const std::shared_ptr<ContextCallback> &callback);

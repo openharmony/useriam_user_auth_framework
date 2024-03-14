@@ -15,7 +15,6 @@
 
 #include "mock_ipc_common.h"
 
-#include "iam_common_defines.h"
 #include "iam_logger.h"
 #ifdef HAS_OS_ACCOUNT_PART
 #include "os_account_manager.h"
@@ -135,10 +134,12 @@ void IpcCommon::SetSkipUserFlag(bool isSkip)
     skipFlag_ = isSkip;
 }
 
-bool IpcCommon::GetCallerName(IPCObjectStub &stub, bool &isBundleName, std::string &callerName)
+bool IpcCommon::GetCallerName(IPCObjectStub &stub, bool &isBundleName, std::string &callerName,
+    int32_t &callerType)
 {
     callerName = "";
     isBundleName = true;
+    callerType = 0;
     return true;
 }
 

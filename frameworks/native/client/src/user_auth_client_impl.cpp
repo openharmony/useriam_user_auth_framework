@@ -437,6 +437,53 @@ int32_t UserAuthClientImpl::GetEnrolledState(int32_t apiVersion, AuthType authTy
     }
     return ret;
 }
+
+int32_t UserAuthClientImpl::RegistUserAuthSuccessEventListener(const std::vector<AuthType> &authType,
+    const sptr<AuthEventListenerInterface> &listener)
+{
+    IAM_LOGI("start");
+    if (!listener) {
+        IAM_LOGE("listener is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    auto proxy = GetProxy();
+    if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    int32_t ret = proxy->RegistUserAuthSuccessEventListener(authType, listener);
+    if (ret != SUCCESS) {
+        IAM_LOGE("Regist userAuth success event listener failed");
+        return ret;
+    }
+
+    return SUCCESS;
+}
+
+int32_t UserAuthClientImpl::UnRegistUserAuthSuccessEventListener(const sptr<AuthEventListenerInterface> &listener)
+{
+    IAM_LOGI("start");
+    if (!listener) {
+        IAM_LOGE("listener is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    auto proxy = GetProxy();
+    if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    int32_t ret = proxy->UnRegistUserAuthSuccessEventListener(listener);
+    if (ret != SUCCESS) {
+        IAM_LOGE("unRegist userAuth success event listener failed");
+        return ret;
+    }
+
+    return SUCCESS;
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

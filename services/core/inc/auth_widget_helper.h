@@ -32,10 +32,19 @@ public:
         const AuthParam &authParam, Attributes &extraInfo);
 
 private:
+    static const uint32_t USER_AUTH_TOKEN_LEN = 148;
+    typedef struct {
+        uint32_t authType;
+        uint8_t authToken[USER_AUTH_TOKEN_LEN];
+        EnrolledState enrolledState;
+    } ReuseUnlockResult;
+
     static bool GetUserAuthProfile(int32_t userId, const AuthType &authType,
         ContextFactory::AuthWidgetContextPara::AuthProfile &profile);
     static bool ParseAttributes(const Attributes &values, const AuthType &authType,
         ContextFactory::AuthWidgetContextPara::AuthProfile &profile);
+    static int32_t SetReuseUnlockResult(int32_t apiVersion, const ReuseUnlockResult &reuseResult,
+        Attributes &extraInfo);
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -71,6 +71,8 @@ private:
     void ClearRedundancyCredentialInner();
     void SetAuthTypeTrace(const std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos,
         const std::shared_ptr<ContextCallback> &contextCallback);
+    void StartEnroll(Enrollment::EnrollmentPara &para,
+        const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo);
     std::mutex mutex_;
 };
 } // namespace UserAuth
