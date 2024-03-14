@@ -15,9 +15,9 @@
 
 #include "user_auth_napi_helper.h"
 
+#include <cinttypes>
 #include <string>
 #include <uv.h>
-#include <cinttypes>
 
 #include "securec.h"
 

@@ -47,6 +47,10 @@ public:
     int32_t Notice(NoticeType noticeType, const std::string &eventData) override;
     int32_t RegisterWidgetCallback(int32_t version, sptr<WidgetCallbackInterface> &callback) override;
     int32_t GetEnrolledState(int32_t apiVersion, AuthType authType, EnrolledState &enrolledState) override;
+    int32_t RegistUserAuthSuccessEventListener(const std::vector<AuthType> &authType,
+        const sptr<AuthEventListenerInterface> &listener) override;
+    int32_t UnRegistUserAuthSuccessEventListener(
+        const sptr<AuthEventListenerInterface> &listener) override;
 
 private:
     static inline BrokerDelegator<UserAuthProxy> delegator_;

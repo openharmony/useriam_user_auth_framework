@@ -217,6 +217,25 @@ bool UserIdmService::CheckEnrollPermissionAndEnableStatus(
     return true;
 }
 
+void UserIdmService::StartEnroll(Enrollment::EnrollmentPara &para,
+    const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo)
+{
+    auto context = ContextFactory::CreateEnrollContext(para, contextCallback);
+    if (context == nullptr || !ContextPool::Instance().Insert(context)) {
+        IAM_LOGE("failed to insert context");
+        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
+        return;
+    }
+    contextCallback->SetTraceRequestContextId(context->GetContextId());
+    auto cleaner = ContextHelper::Cleaner(context);
+    contextCallback->SetCleaner(cleaner);
+
+    if (!context->Start()) {
+        IAM_LOGE("failed to start enroll");
+        contextCallback->OnResult(context->GetLatestError(), extraInfo);
+    }
+}
+
 void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPara,
     const sptr<IdmCallbackInterface> &callback, bool isUpdate)
 {
@@ -232,8 +251,10 @@ void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPar
     }
     bool isBundleName = false;
     std::string callerName = "";
-    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName));
+    int32_t callerType = 0;
+    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName, callerType));
     contextCallback->SetTraceCallerName(callerName);
+    contextCallback->SetTraceCallerType(callerType);
     contextCallback->SetTraceUserId(userId);
     contextCallback->SetTraceAuthType(credPara.authType);
 
@@ -257,20 +278,8 @@ void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPar
     } else {
         para.callerName = "N_" + callerName;
     }
-    auto context = ContextFactory::CreateEnrollContext(para, contextCallback);
-    if (context == nullptr || !ContextPool::Instance().Insert(context)) {
-        IAM_LOGE("failed to insert context");
-        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
-        return;
-    }
-    contextCallback->SetTraceRequestContextId(context->GetContextId());
-    auto cleaner = ContextHelper::Cleaner(context);
-    contextCallback->SetCleaner(cleaner);
-
-    if (!context->Start()) {
-        IAM_LOGE("failed to start enroll");
-        contextCallback->OnResult(context->GetLatestError(), extraInfo);
-    }
+    para.callerType = callerType;
+    StartEnroll(para, contextCallback, extraInfo);
 }
 
 void UserIdmService::UpdateCredential(int32_t userId, const CredentialPara &credPara,
@@ -348,7 +357,8 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInt
     }
     bool isBundleName = false;
     std::string callerName = "";
-    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName));
+    int32_t callerType = 0;
+    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName, callerType));
     contextCallback->SetTraceUserId(userId);
 
     if (!IpcCommon::CheckPermission(*this, ENFORCE_USER_IDM)) {
@@ -393,7 +403,8 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
     }
     bool isBundleName = false;
     std::string callerName = "";
-    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName));
+    int32_t callerType = 0;
+    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName, callerType));
     contextCallback->SetTraceUserId(userId);
 
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
@@ -438,7 +449,8 @@ void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
     }
     bool isBundleName = false;
     std::string callerName = "";
-    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName));
+    int32_t callerType = 0;
+    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName, callerType));
     contextCallback->SetTraceUserId(userId);
 
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
@@ -569,7 +581,8 @@ void UserIdmService::ClearRedundancyCredentialInner()
     }
     bool isBundleName = false;
     std::string callerName = "";
-    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName));
+    int32_t callerType = 0;
+    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName, callerType));
 
     for (const auto &iter : userInfos) {
         int32_t userId = iter->GetUserId();
@@ -580,6 +593,7 @@ void UserIdmService::ClearRedundancyCredentialInner()
         }
         callbackForTrace->SetTraceUserId(userId);
         callbackForTrace->SetTraceCallerName(callerName);
+        callbackForTrace->SetTraceCallerType(callerType);
         std::vector<int32_t>::iterator it = std::find(accountInfo.begin(), accountInfo.end(), userId);
         if (it == accountInfo.end()) {
             ret = EnforceDelUserInner(userId, callbackForTrace, "DeleteRedundancy");

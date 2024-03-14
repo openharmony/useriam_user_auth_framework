@@ -48,6 +48,7 @@ ohos_source_set("userauth_service_core") {
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   sources = [
+    "src/auth_event_listener_manager.cpp",
     "src/auth_widget_helper.cpp",
     "src/authentication_impl.cpp",
     "src/credential_info_impl.cpp",

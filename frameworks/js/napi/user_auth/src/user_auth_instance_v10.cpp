@@ -16,8 +16,8 @@
 #include "user_auth_instance_v10.h"
 
 #include <algorithm>
-#include <string>
 #include <cinttypes>
+#include <string>
 
 #include "iam_logger.h"
 #include "iam_ptr.h"

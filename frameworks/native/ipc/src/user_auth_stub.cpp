@@ -22,6 +22,7 @@
 #include "iam_scope_guard.h"
 #include "iam_common_defines.h"
 #include "user_auth_callback_proxy.h"
+#include "user_auth_event_listener_proxy.h"
 #include "widget_callback_proxy.h"
 #include "user_auth_common_defines.h"
 
@@ -68,6 +69,10 @@ int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Messag
             return RegisterWidgetCallbackStub(data, reply);
         case UserAuthInterfaceCode::USER_AUTH_GET_ENROLLED_STATE:
             return GetEnrolledStateStub(data, reply);
+        case UserAuthInterfaceCode::USER_AUTH_REG_EVENT_LISTENER:
+            return RegistUserAuthSuccessEventListenerStub(data, reply);
+        case UserAuthInterfaceCode::USER_AUTH_UNREG_EVENT_LISTENER:
+            return UnRegistUserAuthSuccessEventListenerStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -299,11 +304,11 @@ bool UserAuthStub::ReadWidgetParam(MessageParcel &data, AuthParam &authParam, Wi
     authParam.authTrustLevel = static_cast<AuthTrustLevel>(authTrustLevel);
 
     if (!data.ReadBool(authParam.reuseUnlockResult.isReuse)) {
-        IAM_LOGE("failed to read isReuseUnlockResult");
+        IAM_LOGE("failed to read isReuse unlock result");
         return false;
     }
-    uint32_t reuseMode = AUTH_TYPE_IRRELEVANT;
     authParam.reuseUnlockResult.reuseDuration = 0;
+    uint32_t reuseMode = AUTH_TYPE_IRRELEVANT;
     if (authParam.reuseUnlockResult.isReuse) {
         if (!data.ReadUint32(reuseMode)) {
             IAM_LOGE("failed to read reuseMode");
@@ -534,6 +539,63 @@ int32_t UserAuthStub::GetEnrolledStateStub(MessageParcel &data, MessageParcel &r
         IAM_LOGE("failed to write credentialCount");
         return WRITE_PARCEL_ERROR;
     }
+    return SUCCESS;
+}
+
+int32_t UserAuthStub::RegistUserAuthSuccessEventListenerStub(MessageParcel &data, MessageParcel &reply)
+{
+    IAM_LOGI("enter");
+    ON_SCOPE_EXIT(IAM_LOGI("leave"));
+
+    std::vector<int32_t> authType;
+    if (!data.ReadInt32Vector(&authType)) {
+        IAM_LOGE("failed to read authTypeList");
+        return READ_PARCEL_ERROR;
+    }
+    sptr<IRemoteObject> obj = data.ReadRemoteObject();
+    if (obj == nullptr) {
+        IAM_LOGE("failed to read remote object");
+        return READ_PARCEL_ERROR;
+    }
+    sptr<AuthEventListenerInterface> listener = iface_cast<AuthEventListenerProxy>(obj);
+    if (listener == nullptr) {
+        IAM_LOGE("authEventListener listener is nullptr");
+        return GENERAL_ERROR;
+    }
+    std::vector<AuthType> authTypeList;
+    for (auto &iter : authType) {
+        authTypeList.emplace_back(static_cast<AuthType>(iter));
+    }
+    int32_t result = RegistUserAuthSuccessEventListener(authTypeList, listener);
+    if (!reply.WriteInt32(result)) {
+        IAM_LOGE("failed to write regist event listener result");
+        return WRITE_PARCEL_ERROR;
+    }
+    IAM_LOGI("RegistUserAuthSuccessEventListenerStub success");
+    return SUCCESS;
+}
+
+int32_t UserAuthStub::UnRegistUserAuthSuccessEventListenerStub(MessageParcel &data, MessageParcel &reply)
+{
+    IAM_LOGI("enter");
+    ON_SCOPE_EXIT(IAM_LOGI("leave"));
+
+    sptr<IRemoteObject> obj = data.ReadRemoteObject();
+    if (obj == nullptr) {
+        IAM_LOGE("failed to read remote object");
+        return READ_PARCEL_ERROR;
+    }
+    sptr<AuthEventListenerInterface> listener = iface_cast<AuthEventListenerProxy>(obj);
+    if (listener == nullptr) {
+        IAM_LOGE("authEventListener listener is nullptr");
+        return GENERAL_ERROR;
+    }
+    int32_t result = UnRegistUserAuthSuccessEventListener(listener);
+    if (!reply.WriteInt32(result)) {
+        IAM_LOGE("failed to write regist event listener result");
+        return WRITE_PARCEL_ERROR;
+    }
+    IAM_LOGI("UnRegistUserAuthSuccessEventListener success");
     return SUCCESS;
 }
 } // namespace UserAuth

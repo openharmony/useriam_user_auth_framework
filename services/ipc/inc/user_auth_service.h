@@ -55,6 +55,9 @@ public:
     int32_t Notice(NoticeType noticeType, const std::string &eventData) override;
     int32_t RegisterWidgetCallback(int32_t version, sptr<WidgetCallbackInterface> &callback) override;
     int32_t GetEnrolledState(int32_t apiVersion, AuthType authType, EnrolledState &enrolledState) override;
+    int32_t RegistUserAuthSuccessEventListener(const std::vector<AuthType> &authType,
+        const sptr<AuthEventListenerInterface> &listener) override;
+    int32_t UnRegistUserAuthSuccessEventListener(const sptr<AuthEventListenerInterface> &listener) override;
 
 protected:
     void OnStart() override;
@@ -79,6 +82,9 @@ private:
     bool CheckCallerIsSystemApp();
     int32_t CheckAuthPermissionAndParam(int32_t authType, bool isBundleName, const std::string &callerName,
         AuthTrustLevel authTrustLevel);
+    bool CheckAuthPermissionAndParam(AuthType authType, AuthTrustLevel authTrustLevel,
+        const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo);
+    bool CheckAuthTypeIsValid(std::vector<AuthType> authType);
     int32_t CheckValidSolution(int32_t userId, const AuthParam &authParam, const WidgetParam &widgetParam,
         std::vector<AuthType> &validType);
     int32_t GetCallerNameAndUserId(ContextFactory::AuthWidgetContextPara &para,

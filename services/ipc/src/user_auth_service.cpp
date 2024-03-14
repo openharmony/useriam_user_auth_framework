@@ -20,6 +20,7 @@
 
 #include "accesstoken_kit.h"
 #include "auth_common.h"
+#include "auth_event_listener_manager.h"
 #include "auth_widget_helper.h"
 #include "context_factory.h"
 #include "auth_common.h"
@@ -317,12 +318,14 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
     bool isBundleName = false;
     std::string callerName = "";
     Attributes extraInfo;
-    if ((!IpcCommon::GetCallerName(*this, isBundleName, callerName)) && isBundleName) {
+    int32_t callerType = 0;
+    if ((!IpcCommon::GetCallerName(*this, isBundleName, callerName, callerType)) && isBundleName) {
         IAM_LOGE("get bundle name fail");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
     contextCallback->SetTraceCallerName(callerName);
+    contextCallback->SetTraceCallerType(callerType);
     int32_t checkRet = CheckAuthPermissionAndParam(authType, isBundleName, callerName, authTrustLevel);
     if (checkRet != SUCCESS) {
         IAM_LOGE("check auth permission and param fail");
@@ -375,6 +378,27 @@ uint64_t UserAuthService::StartAuthContext(int32_t apiVersion, Authentication::A
     return context->GetContextId();
 }
 
+bool UserAuthService::CheckAuthPermissionAndParam(AuthType authType, AuthTrustLevel authTrustLevel,
+    const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo)
+{
+    if (!CheckAuthTrustLevel(authTrustLevel)) {
+        IAM_LOGE("authTrustLevel is not in correct range");
+        contextCallback->OnResult(TRUST_LEVEL_NOT_SUPPORT, extraInfo);
+        return false;
+    }
+    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
+        return false;
+    }
+    if (!SystemParamManager::GetInstance().IsAuthTypeEnable(authType)) {
+        IAM_LOGE("auth type not support");
+        contextCallback->OnResult(TYPE_NOT_SUPPORT, extraInfo);
+        return false;
+    }
+    return true;
+}
+
 uint64_t UserAuthService::AuthUser(int32_t userId, const std::vector<uint8_t> &challenge,
     AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback)
 {
@@ -389,25 +413,15 @@ uint64_t UserAuthService::AuthUser(int32_t userId, const std::vector<uint8_t> &c
     Attributes extraInfo;
     bool isBundleName = false;
     std::string callerName = "";
-    if ((!IpcCommon::GetCallerName(*this, isBundleName, callerName)) && isBundleName) {
+    int32_t callerType = 0;
+    if ((!IpcCommon::GetCallerName(*this, isBundleName, callerName, callerType)) && isBundleName) {
         IAM_LOGE("get bundle name fail");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
     contextCallback->SetTraceCallerName(callerName);
-    if (!CheckAuthTrustLevel(authTrustLevel)) {
-        IAM_LOGE("authTrustLevel is not in correct range");
-        contextCallback->OnResult(TRUST_LEVEL_NOT_SUPPORT, extraInfo);
-        return BAD_CONTEXT_ID;
-    }
-    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
-        IAM_LOGE("failed to check permission");
-        contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
-        return BAD_CONTEXT_ID;
-    }
-    if (!SystemParamManager::GetInstance().IsAuthTypeEnable(authType)) {
-        IAM_LOGE("auth type not support");
-        contextCallback->OnResult(TYPE_NOT_SUPPORT, extraInfo);
+    contextCallback->SetTraceCallerType(callerType);
+    if (CheckAuthPermissionAndParam(authType, authTrustLevel, contextCallback, extraInfo) == false) {
         return BAD_CONTEXT_ID;
     }
     Authentication::AuthenticationPara para = {};
@@ -422,6 +436,7 @@ uint64_t UserAuthService::AuthUser(int32_t userId, const std::vector<uint8_t> &c
     } else {
         para.callerName = "N_" + callerName;
     }
+    para.callerType = callerType;
     para.sdkVersion = INNER_API_VERSION_10000;
     return StartAuthContext(INNER_API_VERSION_10000, para, contextCallback);
 }
@@ -639,8 +654,11 @@ int32_t UserAuthService::GetCallerNameAndUserId(ContextFactory::AuthWidgetContex
 {
     bool isBundleName = false;
     std::string callerName = "";
-    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName));
+    int32_t callerType = 0;
+    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName, callerType));
     contextCallback->SetTraceCallerName(callerName);
+    contextCallback->SetTraceCallerType(callerType);
+    para.callerType = callerType;
     if (isBundleName) {
         para.callingBundleName = callerName;
         para.callerName = "B_" + callerName;
@@ -748,12 +766,14 @@ std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(int32_t
     }
     IAM_LOGI("SetTraceAuthWidgetType %{public}08x", authWidgetType);
     contextCallback->SetTraceAuthWidgetType(authWidgetType);
-    uint32_t reuseUnlockResultType = 0;
+    uint32_t traceReuseMode = 0;
+    uint64_t traceReuseDuration = 0;
     if (authParam.reuseUnlockResult.isReuse) {
-        reuseUnlockResultType = authParam.reuseUnlockResult.reuseMode;
+        traceReuseMode = authParam.reuseUnlockResult.reuseMode;
+        traceReuseDuration = authParam.reuseUnlockResult.reuseDuration;
     }
-    contextCallback->SetTraceReuseUnlockResultType(reuseUnlockResultType);
-    contextCallback->SetTraceReuseUnlockResultDuration(authParam.reuseUnlockResult.reuseDuration);
+    contextCallback->SetTraceReuseUnlockResultMode(traceReuseMode);
+    contextCallback->SetTraceReuseUnlockResultDuration(traceReuseDuration);
     return contextCallback;
 }
 
@@ -838,6 +858,63 @@ int32_t UserAuthService::GetEnrolledState(int32_t apiVersion, AuthType authType,
     return SUCCESS;
 }
 
+bool UserAuthService::CheckAuthTypeIsValid(std::vector<AuthType> authType)
+{
+    if (authType.empty()) {
+        return false;
+    }
+    for (const auto &iter : authType) {
+        if (iter != AuthType::PIN && iter != AuthType::FACE && iter != AuthType::FINGERPRINT) {
+            return false;
+        }
+    }
+    return true;
+}
+
+int32_t UserAuthService::RegistUserAuthSuccessEventListener(const std::vector<AuthType> &authType,
+    const sptr<AuthEventListenerInterface> &listener)
+{
+    IAM_LOGE("start");
+    IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
+
+    if (!CheckAuthTypeIsValid(authType)) {
+        IAM_LOGE("failed to check authType");
+        return INVALID_PARAMETERS;
+    }
+
+    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    int32_t result = AuthEventListenerManager::GetInstance().RegistUserAuthSuccessEventListener(authType, listener);
+    if (result != SUCCESS) {
+        IAM_LOGE("failed to regist auth event listener");
+        return result;
+    }
+
+    return SUCCESS;
+}
+
+int32_t UserAuthService::UnRegistUserAuthSuccessEventListener(
+    const sptr<AuthEventListenerInterface> &listener)
+{
+    IAM_LOGE("start");
+    IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
+
+    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    int32_t result = AuthEventListenerManager::GetInstance().UnRegistUserAuthSuccessEventListener(listener);
+    if (result != SUCCESS) {
+        IAM_LOGE("failed to unregist auth event listener");
+        return result;
+    }
+
+    return SUCCESS;
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
