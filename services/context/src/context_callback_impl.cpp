@@ -67,6 +67,10 @@ void ContextCallbackImpl::ProcessAuthResult(int32_t tip, const std::vector<uint8
         return;
     }
     std::string tipJson(reinterpret_cast<const char *>(extraInfo.data()), extraInfo.size());
+    if (!nlohmann::json::accept(tipJson)) {
+        IAM_LOGE("invalid format");
+        return;
+    }
     IAM_LOGI("tipJson:%{public}s", tipJson.c_str());
     auto root = nlohmann::json::parse(tipJson.c_str());
     if (root.is_null() || root.is_discarded()) {
