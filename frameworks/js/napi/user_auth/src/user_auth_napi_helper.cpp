@@ -15,6 +15,7 @@
 
 #include "user_auth_napi_helper.h"
 
+#include <cinttypes>
 #include <string>
 #include <uv.h>
 
@@ -569,6 +570,20 @@ bool UserAuthNapiHelper::CheckAuthTrustLevel(uint32_t authTrustLevel)
     if (authTrustLevel != AuthTrustLevel::ATL1 && authTrustLevel != AuthTrustLevel::ATL2 &&
         authTrustLevel != AuthTrustLevel::ATL3 && authTrustLevel != AuthTrustLevel::ATL4) {
         IAM_LOGE("authTrustLevel check fail:%{public}d", authTrustLevel);
+        return false;
+    }
+    return true;
+}
+
+bool UserAuthNapiHelper::CheckReuseUnlockResult(ReuseUnlockResult reuseUnlockResult)
+{
+    if (reuseUnlockResult.reuseMode != ReuseMode::AUTH_TYPE_RELEVANT &&
+        reuseUnlockResult.reuseMode != ReuseMode::AUTH_TYPE_IRRELEVANT) {
+        IAM_LOGE("reuseMode check fail:%{public}u", reuseUnlockResult.reuseMode);
+        return false;
+    }
+    if (reuseUnlockResult.reuseDuration <= 0 || reuseUnlockResult.reuseDuration > MAX_ALLOWABLE_REUSE_DURATION) {
+        IAM_LOGE("reuseDuration check fail:%{public}" PRIu64, reuseUnlockResult.reuseDuration);
         return false;
     }
     return true;

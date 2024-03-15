@@ -132,6 +132,12 @@ void Trace::ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &
     if (metaData.authWidgetType.has_value()) {
         info.authWidgetType = metaData.authWidgetType.value();
     }
+    if (metaData.reuseUnlockResultMode.has_value()) {
+        info.reuseUnlockResultMode = metaData.reuseUnlockResultMode.value();
+    }
+    if (metaData.reuseUnlockResultDuration.has_value()) {
+        info.reuseUnlockResultDuration = metaData.reuseUnlockResultDuration.value();
+    }
     ReportUserAuth(info);
     if (info.authResult == SUCCESS) {
         AuthEventListenerManager::GetInstance().OnNotifyAuthSuccessEvent(info.userId,

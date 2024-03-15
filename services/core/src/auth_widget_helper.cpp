@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,10 @@
 
 #include "auth_widget_helper.h"
 
+#include <cinttypes>
+#include "securec.h"
+
+#include "iam_check.h"
 #include "iam_logger.h"
 #include "resource_node_pool.h"
 #include "system_param_manager.h"
@@ -150,6 +154,80 @@ int32_t AuthWidgetHelper::CheckValidSolution(int32_t userId,
         validTypeList.emplace_back(static_cast<AuthType>(type));
     }
     return result;
+}
+
+int32_t AuthWidgetHelper::SetReuseUnlockResult(int32_t apiVersion, const ReuseUnlockResult &reuseResult,
+    Attributes &extraInfo)
+{
+    std::vector<uint8_t> authToken(reuseResult.authToken, reuseResult.authToken + USER_AUTH_TOKEN_LEN);
+    bool setSignatureResult = extraInfo.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authToken);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setSignatureResult == true, GENERAL_ERROR);
+    bool setAuthTypeResult = extraInfo.SetInt32Value(Attributes::ATTR_AUTH_TYPE,
+        static_cast<int32_t>(reuseResult.authType));
+    IF_FALSE_LOGE_AND_RETURN_VAL(setAuthTypeResult == true, GENERAL_ERROR);
+    bool setResultCodeRet = extraInfo.SetInt32Value(Attributes::ATTR_RESULT_CODE, SUCCESS);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setResultCodeRet == true, GENERAL_ERROR);
+    if (apiVersion < INNER_API_VERSION_10000) {
+        bool setCredentialDigestRet = extraInfo.SetUint16Value(Attributes::ATTR_CREDENTIAL_DIGEST,
+            reuseResult.enrolledState.credentialDigest & UINT16_MAX);
+        IF_FALSE_LOGE_AND_RETURN_VAL(setCredentialDigestRet == true, GENERAL_ERROR);
+        bool setCredentialCountRet = extraInfo.SetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT,
+            reuseResult.enrolledState.credentialCount);
+        IF_FALSE_LOGE_AND_RETURN_VAL(setCredentialCountRet == true, GENERAL_ERROR);
+    }
+    return SUCCESS;
+}
+
+int32_t AuthWidgetHelper::CheckReuseUnlockResult(const ContextFactory::AuthWidgetContextPara &para,
+    const AuthParam &authParam, Attributes &extraInfo)
+{
+    IAM_LOGI("start userId:%{public}d, reuseMode:%{public}u, reuseDuration: %{public}" PRIu64 ".",
+        para.userId, authParam.reuseUnlockResult.reuseMode, authParam.reuseUnlockResult.reuseDuration);
+    if (!authParam.reuseUnlockResult.isReuse || authParam.reuseUnlockResult.reuseDuration == 0 ||
+        authParam.reuseUnlockResult.reuseDuration > MAX_ALLOWABLE_REUSE_DURATION ||
+        (authParam.reuseUnlockResult.reuseMode != AUTH_TYPE_RELEVANT &&
+        authParam.reuseUnlockResult.reuseMode != AUTH_TYPE_IRRELEVANT)) {
+        IAM_LOGE("CheckReuseUnlockResult invalid param");
+        return INVALID_PARAMETERS;
+    }
+    auto hdi = HdiWrapper::GetHdiInstance();
+    if (hdi == nullptr) {
+        IAM_LOGE("hdi interface is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    HdiReuseUnlockInfo unlockInfo = {};
+    unlockInfo.userId = para.userId;
+    unlockInfo.authTrustLevel = authParam.authTrustLevel;
+    for (auto &type : authParam.authType) {
+        unlockInfo.authTypes.emplace_back(static_cast<HdiAuthType>(type));
+    }
+    unlockInfo.challenge = authParam.challenge;
+    unlockInfo.callerName = para.callerName;
+    unlockInfo.apiVersion = para.sdkVersion;
+    unlockInfo.reuseUnlockResultMode = authParam.reuseUnlockResult.reuseMode;
+    unlockInfo.reuseUnlockResultDuration = authParam.reuseUnlockResult.reuseDuration;
+
+    std::vector<uint8_t> reuseResultHdi;
+    int32_t result = hdi->CheckReuseUnlockResult(unlockInfo, reuseResultHdi);
+    if (result != SUCCESS) {
+        IAM_LOGE("CheckReuseUnlockResult failed result:%{public}d userId:%{public}d", result, para.userId);
+        return result;
+    }
+    if (reuseResultHdi.size() != sizeof(ReuseUnlockResult)) {
+        IAM_LOGE("bad reuse unlock result");
+        return GENERAL_ERROR;
+    }
+    ReuseUnlockResult reuseResult;
+    if (memcpy_s(&reuseResult, sizeof(ReuseUnlockResult), reuseResultHdi.data(),
+        sizeof(ReuseUnlockResult)) != SUCCESS) {
+        IAM_LOGE("copy reuse result failed");
+        reuseResultHdi.clear();
+        (void)memset_s(&reuseResult, sizeof(ReuseUnlockResult), 0, sizeof(ReuseUnlockResult));
+        return GENERAL_ERROR;
+    }
+    reuseResultHdi.clear();
+    return SetReuseUnlockResult(para.sdkVersion, reuseResult, extraInfo);
 }
 } // namespace UserAuth
 } // namespace UserIam
