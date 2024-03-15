@@ -530,15 +530,15 @@ int UserIdmService::Dump(int fd, const std::vector<std::u16string> &args)
 void UserIdmService::SetAuthTypeTrace(const std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos,
     const std::shared_ptr<ContextCallback> &contextCallback)
 {
-    int32_t authTypeTrace = 0;
+    uint32_t authTypeTrace = 0;
     for (const auto &credInfo : credInfos) {
         if (credInfo == nullptr) {
             IAM_LOGE("credInfo is nullptr");
             continue;
         }
-        authTypeTrace |= credInfo->GetAuthType();
+        authTypeTrace |= static_cast<uint32_t>(credInfo->GetAuthType());
     }
-    contextCallback->SetTraceAuthType(authTypeTrace);
+    contextCallback->SetTraceAuthType(static_cast<int32_t>(authTypeTrace));
 }
 
 int32_t UserIdmService::EnforceDelUserInner(int32_t userId, std::shared_ptr<ContextCallback> callbackForTrace,
