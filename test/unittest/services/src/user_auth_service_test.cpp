@@ -1622,7 +1622,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceRegistEventListerner_002, TestSize.
     std::vector<AuthType> authTypeList;
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     EXPECT_EQ(service.RegistUserAuthSuccessEventListener(authTypeList, testCallback),
-        ResultCode::CHECK_PERMISSION_FAILED);
+        ResultCode::INVALID_PARAMETERS);
     IpcCommon::DeleteAllPermission();
 }
 
