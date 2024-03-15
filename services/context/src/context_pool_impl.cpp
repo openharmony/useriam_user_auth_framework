@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -172,10 +172,12 @@ uint64_t ContextPool::GetNewContextId()
     unsigned char *contextIdPtr = static_cast<unsigned char *>(static_cast<void *>(&contextId));
     for (uint32_t i = 0; i < MAX_TRY_TIMES; i++) {
         RAND_bytes(contextIdPtr, sizeof(uint64_t));
-        if (contextId == 0 || ContextPool::Instance().Select(contextId).lock() != nullptr) {
+        if (contextId == 0 || contextId == REUSE_AUTH_RESULT_CONTEXT_ID ||
+            ContextPool::Instance().Select(contextId).lock() != nullptr) {
             IAM_LOGE("invalid or duplicate context id");
             continue;
         }
+        break;
     }
     return contextId;
 }

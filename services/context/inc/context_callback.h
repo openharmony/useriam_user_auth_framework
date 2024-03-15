@@ -49,6 +49,8 @@ public:
         std::optional<int32_t> callerType;
         std::chrono::time_point<std::chrono::steady_clock> startTime;
         std::chrono::time_point<std::chrono::steady_clock> endTime;
+        std::optional<uint32_t> reuseUnlockResultMode;
+        std::optional<uint64_t> reuseUnlockResultDuration;
     };
     using Notify = std::function<void(const MetaData &metaData)>;
     static ContextCallbackNotifyListener &GetInstance();
@@ -77,6 +79,8 @@ public:
     virtual void SetTraceAuthType(int32_t authType) = 0;
     virtual void SetTraceAuthWidgetType(uint32_t authWidgetType) = 0;
     virtual void SetTraceAuthTrustLevel(AuthTrustLevel atl) = 0;
+    virtual void SetTraceReuseUnlockResultMode(uint32_t reuseUnlockResultMode) = 0;
+    virtual void SetTraceReuseUnlockResultDuration(uint64_t reuseUnlockResultDuration) = 0;
     virtual void SetCleaner(Context::ContextStopCallback callback) = 0;
     virtual void SetTraceCallerType(int32_t callerType) = 0;
     virtual void ProcessAuthResult(int32_t tip, const std::vector<uint8_t> &extraInfo) = 0;

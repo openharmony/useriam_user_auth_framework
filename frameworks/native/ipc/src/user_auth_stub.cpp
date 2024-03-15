@@ -303,6 +303,24 @@ bool UserAuthStub::ReadWidgetParam(MessageParcel &data, AuthParam &authParam, Wi
     }
     authParam.authTrustLevel = static_cast<AuthTrustLevel>(authTrustLevel);
 
+    if (!data.ReadBool(authParam.reuseUnlockResult.isReuse)) {
+        IAM_LOGE("failed to read isReuse unlock result");
+        return false;
+    }
+    authParam.reuseUnlockResult.reuseDuration = 0;
+    uint32_t reuseMode = AUTH_TYPE_IRRELEVANT;
+    if (authParam.reuseUnlockResult.isReuse) {
+        if (!data.ReadUint32(reuseMode)) {
+            IAM_LOGE("failed to read reuseMode");
+            return false;
+        }
+        if (!data.ReadUint64(authParam.reuseUnlockResult.reuseDuration)) {
+            IAM_LOGE("failed to read reuseDuration");
+            return false;
+        }
+    }
+    authParam.reuseUnlockResult.reuseMode = static_cast<ReuseMode>(reuseMode);
+
     widgetParam.title = data.ReadString();
     widgetParam.navigationButtonText = data.ReadString();
     int32_t winMode;

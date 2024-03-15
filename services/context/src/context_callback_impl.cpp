@@ -169,6 +169,16 @@ void ContextCallbackImpl::SetTraceCallerType(int32_t callerType)
     metaData_.callerType = callerType;
 }
 
+void ContextCallbackImpl::SetTraceReuseUnlockResultMode(uint32_t reuseUnlockResultMode)
+{
+    metaData_.reuseUnlockResultMode = reuseUnlockResultMode;
+}
+
+void ContextCallbackImpl::SetTraceReuseUnlockResultDuration(uint64_t reuseUnlockResultDuration)
+{
+    metaData_.reuseUnlockResultDuration = reuseUnlockResultDuration;
+}
+
 void ContextCallbackImpl::SetCleaner(Context::ContextStopCallback callback)
 {
     stopCallback_ = callback;

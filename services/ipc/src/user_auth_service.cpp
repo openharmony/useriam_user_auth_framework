@@ -42,7 +42,6 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
-const uint64_t BAD_CONTEXT_ID = 0;
 const int32_t MINIMUM_VERSION = 0;
 const int32_t CURRENT_VERSION = 1;
 const uint32_t AUTH_TRUST_LEVEL_SYS = 1;
@@ -568,9 +567,14 @@ bool UserAuthService::CheckSingeFaceOrFinger(const std::vector<AuthType> &authTy
     return false;
 }
 
-int32_t UserAuthService::CheckAuthWidgetParam(
-    int32_t userId, const AuthParam &authParam, const WidgetParam &widgetParam, std::vector<AuthType> &validType)
+int32_t UserAuthService::CheckAuthWidgetParam(int32_t userId, const AuthParam &authParam,
+    const WidgetParam &widgetParam)
 {
+    if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP) &&
+        (widgetParam.windowMode != WindowModeType::UNKNOWN_WINDOW_MODE)) {
+        IAM_LOGE("normal app can't set window mode.");
+        return INVALID_PARAMETERS;
+    }
     int32_t ret = CheckAuthWidgetType(authParam.authType);
     if (ret != SUCCESS) {
         IAM_LOGE("CheckAuthWidgetType fail.");
@@ -579,12 +583,6 @@ int32_t UserAuthService::CheckAuthWidgetParam(
     if (!CheckAuthTrustLevel(authParam.authTrustLevel)) {
         IAM_LOGE("authTrustLevel is not in correct range");
         return ResultCode::TRUST_LEVEL_NOT_SUPPORT;
-    }
-    ret = AuthWidgetHelper::CheckValidSolution(
-        userId, authParam.authType, authParam.authTrustLevel, validType);
-    if (ret != SUCCESS) {
-        IAM_LOGE("CheckValidSolution fail %{public}d", ret);
-        return ret;
     }
     static const size_t authTypeTwo = 2;
     static const size_t authType0 = 0;
@@ -597,18 +595,8 @@ int32_t UserAuthService::CheckAuthWidgetParam(
         IAM_LOGE("only face and finger not support");
         return INVALID_PARAMETERS;
     }
-
     if (widgetParam.title.empty()) {
         IAM_LOGE("title is empty");
-        return INVALID_PARAMETERS;
-    }
-    if (!widgetParam.navigationButtonText.empty() && !CheckSingeFaceOrFinger(validType)) {
-        IAM_LOGE("navigationButtonText check fail, validType.size:%{public}zu", validType.size());
-        return INVALID_PARAMETERS;
-    }
-
-    if (widgetParam.windowMode == FULLSCREEN && CheckSingeFaceOrFinger(validType)) {
-        IAM_LOGE("Single fingerprint or single face does not support full screen");
         return INVALID_PARAMETERS;
     }
     return SUCCESS;
@@ -641,6 +629,53 @@ uint64_t UserAuthService::StartWidgetContext(const std::shared_ptr<ContextCallba
     return context->GetContextId();
 }
 
+int32_t UserAuthService::CheckValidSolution(int32_t userId, const AuthParam &authParam,
+    const WidgetParam &widgetParam, std::vector<AuthType> &validType)
+{
+    int32_t ret = AuthWidgetHelper::CheckValidSolution(
+        userId, authParam.authType, authParam.authTrustLevel, validType);
+    if (ret != SUCCESS) {
+        IAM_LOGE("CheckValidSolution fail %{public}d", ret);
+        return ret;
+    }
+    if (!widgetParam.navigationButtonText.empty() && !CheckSingeFaceOrFinger(validType)) {
+        IAM_LOGE("navigationButtonText check fail, validType.size:%{public}zu", validType.size());
+        return INVALID_PARAMETERS;
+    }
+    if (widgetParam.windowMode == FULLSCREEN && CheckSingeFaceOrFinger(validType)) {
+        IAM_LOGE("Single fingerprint or single face does not support full screen");
+        return INVALID_PARAMETERS;
+    }
+    return SUCCESS;
+}
+
+int32_t UserAuthService::GetCallerNameAndUserId(ContextFactory::AuthWidgetContextPara &para,
+    std::shared_ptr<ContextCallback> &contextCallback)
+{
+    bool isBundleName = false;
+    std::string callerName = "";
+    int32_t callerType = 0;
+    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName, callerType));
+    contextCallback->SetTraceCallerName(callerName);
+    contextCallback->SetTraceCallerType(callerType);
+    para.callerType = callerType;
+    if (isBundleName) {
+        para.callingBundleName = callerName;
+        para.callerName = "B_" + callerName;
+    } else {
+        para.callerName = "N_" + callerName;
+    }
+    int32_t userId;
+    Attributes extraInfo;
+    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
+        IAM_LOGE("get callingUserId failed");
+        return GENERAL_ERROR;
+    }
+    contextCallback->SetTraceUserId(userId);
+    para.userId = userId;
+    return SUCCESS;
+}
+
 uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParam &authParam,
     const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback)
 {
@@ -650,47 +685,39 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParam &authPa
         IAM_LOGE("contextCallback is nullptr");
         return BAD_CONTEXT_ID;
     }
-    bool isBundleName = false;
-    std::string callerName = "";
-    int32_t callerType = 0;
-    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName, callerType));
-    contextCallback->SetTraceCallerName(callerName);
-    contextCallback->SetTraceCallerType(callerType);
+    ContextFactory::AuthWidgetContextPara para;
+    para.sdkVersion = apiVersion;
     Attributes extraInfo;
-    if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP) &&
-        (widgetParam.windowMode != WindowModeType::UNKNOWN_WINDOW_MODE)) {
-        IAM_LOGE("normal app can't set window mode.");
-        contextCallback->OnResult(INVALID_PARAMETERS, extraInfo);
+    int32_t checkRet = GetCallerNameAndUserId(para, contextCallback);
+    if (checkRet != SUCCESS) {
+        contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
     }
+
     if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
         IAM_LOGE("CheckPermission failed");
         contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    int32_t userId;
-    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
-        IAM_LOGE("get callingUserId failed");
-        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
-        return BAD_CONTEXT_ID;
-    }
-    contextCallback->SetTraceUserId(userId);
-    std::vector<AuthType> validType;
-    int32_t checkRet = CheckAuthWidgetParam(userId, authParam, widgetParam, validType);
+    checkRet = CheckAuthWidgetParam(para.userId, authParam, widgetParam);
     if (checkRet != SUCCESS) {
+        IAM_LOGE("check auth widget param failed");
         contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    ContextFactory::AuthWidgetContextPara para;
-    para.userId = userId;
-    if (isBundleName) {
-        para.callingBundleName = callerName;
-        para.callerName = "B_" + callerName;
-    } else {
-        para.callerName = "N_" + callerName;
+
+    if (AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo) == SUCCESS) {
+        IAM_LOGE("check reuse unlock result success");
+        contextCallback->OnResult(SUCCESS, extraInfo);
+        return REUSE_AUTH_RESULT_CONTEXT_ID;
     }
-    para.callerType = callerType;
-    para.sdkVersion = apiVersion;
+    std::vector<AuthType> validType;
+    checkRet = CheckValidSolution(para.userId, authParam, widgetParam, validType);
+    if (checkRet != SUCCESS) {
+        IAM_LOGE("check valid solution failed");
+        contextCallback->OnResult(checkRet, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
     return StartWidgetContext(contextCallback, authParam, widgetParam, validType, para);
 }
 
@@ -739,7 +766,14 @@ std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(int32_t
     }
     IAM_LOGI("SetTraceAuthWidgetType %{public}08x", authWidgetType);
     contextCallback->SetTraceAuthWidgetType(authWidgetType);
-
+    uint32_t traceReuseMode = 0;
+    uint64_t traceReuseDuration = 0;
+    if (authParam.reuseUnlockResult.isReuse) {
+        traceReuseMode = authParam.reuseUnlockResult.reuseMode;
+        traceReuseDuration = authParam.reuseUnlockResult.reuseDuration;
+    }
+    contextCallback->SetTraceReuseUnlockResultMode(traceReuseMode);
+    contextCallback->SetTraceReuseUnlockResultDuration(traceReuseDuration);
     return contextCallback;
 }
 

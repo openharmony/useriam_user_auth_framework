@@ -1522,6 +1522,42 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_022, TestSize.Level0)
     IpcCommon::DeleteAllPermission();
 }
 
+HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_023, TestSize.Level0)
+{
+    UserAuthService service(100, true);
+    int32_t apiVersion = 10;
+    AuthParam authParam;
+    authParam.challenge.push_back(1);
+    authParam.authType.push_back(AuthType::FINGERPRINT);
+    authParam.authTrustLevel = ATL2;
+    authParam.reuseUnlockResult.isReuse = true;
+    authParam.reuseUnlockResult.reuseMode = AUTH_TYPE_IRRELEVANT;
+    authParam.reuseUnlockResult.reuseDuration = 5 * 60 *1000;
+    WidgetParam widgetParam;
+    widgetParam.title = "使用密码验证";
+    widgetParam.navigationButtonText = "";
+    widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
+    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    EXPECT_NE(testCallback, nullptr);
+    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetAuthTrustLevel(_, _, _)).Times(0);
+    EXPECT_CALL(*mockHdi, BeginAuthenticationV1_2(_, _, _)).Times(0);
+    EXPECT_CALL(*mockHdi, CheckReuseUnlockResult(_, _)).Times(1);
+    ON_CALL(*mockHdi, CheckReuseUnlockResult)
+        .WillByDefault(
+            [](const HdiReuseUnlockInfo &info, std::vector<uint8_t> &token) {
+                token.push_back(1);
+                return HDF_SUCCESS;
+            }
+        );
+    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
+    EXPECT_EQ(contextId, REUSE_AUTH_RESULT_CONTEXT_ID);
+    IpcCommon::DeleteAllPermission();
+}
+
 HWTEST_F(UserAuthServiceTest, UserAuthServiceNotice_001, TestSize.Level0)
 {
     UserAuthService service(100, true);

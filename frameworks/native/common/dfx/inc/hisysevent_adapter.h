@@ -31,6 +31,8 @@ struct UserAuthTrace {
     uint32_t authWidgetType = 0;
     int32_t userId = 0;
     int32_t callerType = 0;
+    uint32_t reuseUnlockResultMode = 0;
+    uint64_t reuseUnlockResultDuration = 0;
 };
 
 struct UserAuthFwkTrace {

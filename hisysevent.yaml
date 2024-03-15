@@ -52,6 +52,8 @@ USERIAM_USER_AUTH:
   AUTH_RESULT: {type: INT32, desc: auth result}
   AUTH_TIME_SPAN: {type: UINT64, desc: auth time span}
   AUTH_WIDGET_TYPE: {type: UINT32, desc: auth widget auth type and window mode}
+  REUSE_UNLOCK_RESULT_TYPE: {type: UINT32, desc: whether to reuse unlock result and reused mode}
+  REUSE_UNLOCK_RESULT_DURATION: {type: UINT64, desc: allowable reuse unlock result duration}
 
 USERIAM_USER_AUTH_FWK:
   __BASE: {type: SECURITY, level: CRITICAL, tag: UserAuth, desc: user auth security message}

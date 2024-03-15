@@ -19,6 +19,7 @@
 
 #include "iam_common_defines.h"
 #include "iam_logger.h"
+#include "mock_iuser_auth_interface.h"
 #include "mock_schedule_node.h"
 
 using namespace testing;
@@ -99,6 +100,60 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckValidSolution, TestSize.
     AuthTrustLevel atl = ATL3;
     std::vector<AuthType> validTypeList;
     EXPECT_FALSE(AuthWidgetHelper::CheckValidSolution(userId, authTypeList, atl, validTypeList));
+}
+
+HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckReuseUnlockResult001, TestSize.Level0)
+{
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 1;
+    Attributes extraInfo;
+    AuthParam authParam;
+    authParam.reuseUnlockResult.isReuse = false;
+    EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), INVALID_PARAMETERS);
+
+    authParam.reuseUnlockResult.isReuse = true;
+    authParam.reuseUnlockResult.reuseDuration = 0;
+    EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), INVALID_PARAMETERS);
+
+    authParam.reuseUnlockResult.reuseDuration = 6 * 60 * 1000;
+    EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), INVALID_PARAMETERS);
+}
+
+HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckReuseUnlockResult002, TestSize.Level0)
+{
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 1;
+    Attributes extraInfo;
+    AuthParam authParam;
+    authParam.reuseUnlockResult.isReuse = true;
+    authParam.reuseUnlockResult.reuseDuration = 5 * 60 * 1000;
+    authParam.reuseUnlockResult.reuseMode = AUTH_TYPE_RELEVANT;
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, CheckReuseUnlockResult(_, _)).Times(3);
+    ON_CALL(*mockHdi, CheckReuseUnlockResult)
+        .WillByDefault(
+            [](const HdiReuseUnlockInfo &info, std::vector<uint8_t> &token) {
+                return HDF_FAILURE;
+            }
+        );
+    EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), HDF_FAILURE);
+    ON_CALL(*mockHdi, CheckReuseUnlockResult)
+        .WillByDefault(
+            [](const HdiReuseUnlockInfo &info, std::vector<uint8_t> &token) {
+                return HDF_SUCCESS;
+            }
+        );
+    EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), GENERAL_ERROR);
+    ON_CALL(*mockHdi, CheckReuseUnlockResult)
+        .WillByDefault(
+            [](const HdiReuseUnlockInfo &info, std::vector<uint8_t> &token) {
+                token.push_back(1);
+                return HDF_SUCCESS;
+            }
+        );
+    EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), SUCCESS);
 }
 } // namespace UserAuth
 } // namespace UserIam
