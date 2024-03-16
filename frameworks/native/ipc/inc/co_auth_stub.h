@@ -27,7 +27,7 @@ namespace UserAuth {
 class CoAuthStub : public IRemoteStub<CoAuthInterface> {
 public:
     static constexpr uint64_t INVALID_EXECUTOR_INDEX = 0;
-    CoAuthStub(bool serialInvokeFlag);
+    CoAuthStub();
     ~CoAuthStub() override = default;
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 

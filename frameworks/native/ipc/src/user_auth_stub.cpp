@@ -33,7 +33,9 @@ namespace UserAuth {
 namespace {
     const uint32_t MAX_ATTR_COUNT = 512;
 } // namespace
-UserAuthStub::UserAuthStub(bool serialInvokeFlag) : IRemoteStub(serialInvokeFlag) {};
+
+// When true is passed into IRemoteStub, sa will process request serially.
+UserAuthStub::UserAuthStub() : IRemoteStub(true) {};
 
 int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {

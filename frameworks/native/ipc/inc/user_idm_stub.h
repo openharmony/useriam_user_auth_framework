@@ -26,7 +26,7 @@ namespace UserIam {
 namespace UserAuth {
 class UserIdmStub : public IRemoteStub<UserIdmInterface> {
 public:
-    UserIdmStub(bool serialInvokeFlag);
+    UserIdmStub();
     ~UserIdmStub() override = default;
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
