@@ -27,7 +27,9 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-CoAuthStub::CoAuthStub(bool serialInvokeFlag) : IRemoteStub(serialInvokeFlag) {};
+
+// When true is passed into IRemoteStub, sa will process request serially.
+CoAuthStub::CoAuthStub() : IRemoteStub(true) {};
 
 int32_t CoAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
