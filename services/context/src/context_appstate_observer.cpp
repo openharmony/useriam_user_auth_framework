@@ -46,7 +46,8 @@ sptr<IAppMgr> ContextAppStateObserverManager::GetAppManagerInstance()
     return iface_cast<IAppMgr>(object);
 }
 
-void ContextAppStateObserverManager::SubscribeAppState(std::shared_ptr<ContextCallback> &callback, uint64_t contextId)
+void ContextAppStateObserverManager::SubscribeAppState(const std::shared_ptr<ContextCallback> &callback,
+    const uint64_t contextId)
 {
     IAM_LOGI("start");
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
@@ -163,6 +164,18 @@ void ContextAppStateObserver::OnAbilityStateChanged(const AbilityStateData &abil
     IAM_LOGI("OnAbilityStateChanged, bundleName:%{public}s, state:%{public}d", bundleName.c_str(), state);
 
     if (bundleName.compare(bundleName_) == 0 && state == AbilityState::ABILITY_STATE_BACKGROUND) {
+        ProcAppStateChanged();
+    }
+    return;
+}
+
+void ContextAppStateObserver::OnProcessDied(const ProcessData &processData)
+{
+    IAM_LOGI("start, contextId: ****%{public}hx", static_cast<uint16_t>(contextId_));
+    auto bundleName = processData.bundleName;
+    IAM_LOGI("OnProcessDied, bundleName:%{public}s", bundleName.c_str());
+
+    if (bundleName.compare(bundleName_) == 0) {
         ProcAppStateChanged();
     }
     return;
