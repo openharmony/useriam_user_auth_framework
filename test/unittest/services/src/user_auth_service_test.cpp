@@ -1548,8 +1548,14 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_023, TestSize.Level0)
     EXPECT_CALL(*mockHdi, CheckReuseUnlockResult(_, _)).Times(1);
     ON_CALL(*mockHdi, CheckReuseUnlockResult)
         .WillByDefault(
-            [](const HdiReuseUnlockInfo &info, std::vector<uint8_t> &token) {
-                token.push_back(1);
+            [](const HdiReuseUnlockInfo &info, std::vector<uint8_t> &reuseResult) {
+                static const uint32_t USER_AUTH_TOKEN_LEN = 148;
+                struct ReuseUnlockResultHdi {
+                    uint32_t authType;
+                    uint8_t authToken[USER_AUTH_TOKEN_LEN];
+                    EnrolledState enrolledState;
+                };
+                reuseResult.resize(sizeof(ReuseUnlockResultHdi));
                 return HDF_SUCCESS;
             }
         );
