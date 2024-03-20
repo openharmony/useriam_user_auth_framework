@@ -33,10 +33,12 @@ class ContextAppStateObserverManager {
     public:
         ContextAppStateObserverManager() = default;
         ~ContextAppStateObserverManager() = default;
-        void SubscribeAppState(std::shared_ptr<ContextCallback> &callback, uint64_t contextId);
+        void SubscribeAppState(const std::shared_ptr<ContextCallback> &callback, const uint64_t contextId);
         void UnSubscribeAppState();
+
     protected:
         sptr<ApplicationStateObserverStub> appStateObserver_ = nullptr;
+
     private:
         sptr<IAppMgr> GetAppManagerInstance();
 };
@@ -48,6 +50,8 @@ class ContextAppStateObserver : public ApplicationStateObserverStub {
         void OnAppStateChanged(const AppStateData &appStateData) override;
         void OnForegroundApplicationChanged(const AppStateData &appStateData) override;
         void OnAbilityStateChanged(const AbilityStateData &abilityStateData) override;
+        void OnProcessDied(const ProcessData &processData) override;
+
     protected:
         void ProcAppStateChanged();
         const uint64_t contextId_;
