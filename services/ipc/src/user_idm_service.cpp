@@ -481,8 +481,10 @@ void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
     }
 
     contextCallback->OnResult(ret, extraInfo);
-    auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, oldInfo->GetAuthType());
-    PublishEventAdapter::PublishCredentialUpdatedEvent(userId, oldInfo->GetAuthType(), credentialInfos.size());
+    if (oldInfo != nullptr) {
+        auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, oldInfo->GetAuthType());
+        PublishEventAdapter::PublishCredentialUpdatedEvent(userId, oldInfo->GetAuthType(), credentialInfos.size());
+    }
 }
 
 int UserIdmService::Dump(int fd, const std::vector<std::u16string> &args)
