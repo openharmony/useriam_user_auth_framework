@@ -252,7 +252,7 @@ HWTEST_F(UserIdmDatabaseTest, DeleteUser001, TestSize.Level0)
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, DeleteUser(_, _, _)).WillRepeatedly(Return(1));
+    EXPECT_CALL(*mockHdi, DeleteUser(_, _, _, _)).WillRepeatedly(Return(1));
     int32_t result = UserIdmDatabase::Instance().DeleteUser(testUserId, testAuthToken, testCredInfos);
     EXPECT_EQ(result, 1);
 }
@@ -265,10 +265,11 @@ HWTEST_F(UserIdmDatabaseTest, DeleteUser002, TestSize.Level0)
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, DeleteUser(_, _, _)).Times(1);
+    EXPECT_CALL(*mockHdi, DeleteUser(_, _, _, _)).Times(1);
     ON_CALL(*mockHdi, DeleteUser)
         .WillByDefault(
-            [](int32_t userId, const std::vector<uint8_t> &authToken, std::vector<HdiCredentialInfo> &deletedInfos) {
+            [](int32_t userId, const std::vector<uint8_t> &authToken, std::vector<HdiCredentialInfo> &deletedInfos,
+            std::vector<uint8_t> &rootSecret) {
                 HdiCredentialInfo info = {};
                 info.authType = static_cast<HdiAuthType>(1);
                 info.credentialId = 10;

@@ -18,6 +18,7 @@
 
 #include "context_factory.h"
 #include "user_auth_common_defines.h"
+#include "user_auth_hdi.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -33,17 +34,12 @@ public:
 
 private:
     static const uint32_t USER_AUTH_TOKEN_LEN = 148;
-    typedef struct {
-        uint32_t authType;
-        uint8_t authToken[USER_AUTH_TOKEN_LEN];
-        EnrolledState enrolledState;
-    } ReuseUnlockResult;
 
     static bool GetUserAuthProfile(int32_t userId, const AuthType &authType,
         ContextFactory::AuthWidgetContextPara::AuthProfile &profile);
     static bool ParseAttributes(const Attributes &values, const AuthType &authType,
         ContextFactory::AuthWidgetContextPara::AuthProfile &profile);
-    static int32_t SetReuseUnlockResult(int32_t apiVersion, const ReuseUnlockResult &reuseResult,
+    static int32_t SetReuseUnlockResult(int32_t apiVersion, const HdiReuseUnlockInfo &info,
         Attributes &extraInfo);
 };
 } // namespace UserAuth
