@@ -125,6 +125,15 @@ public:
      */
     virtual int32_t UnRegistUserAuthSuccessEventListener(
         const sptr<AuthEventListenerInterface> &listener) = 0;
+
+    /**
+     * @brief set system parameter to iam.
+     *
+     * @param IamSystemParam System parameter.
+     * @param value The value of system param.
+     * @return Return unregist result(0:success; other:failed).
+     */
+    virtual int32_t SetIamSystemParam(const IamSystemParam param, const std::string &value) = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam
