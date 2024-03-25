@@ -16,40 +16,36 @@
 #ifndef USER_AUTH_HDI
 #define USER_AUTH_HDI
 
-#include "v1_3/iuser_auth_interface.h"
-#include "v1_3/user_auth_types.h"
-#include "v1_3/user_auth_interface_service.h"
+#include "v2_0/iuser_auth_interface.h"
+#include "v2_0/user_auth_types.h"
+#include "v2_0/user_auth_interface_service.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-using IUserAuthInterface = OHOS::HDI::UserAuth::V1_3::IUserAuthInterface;
-
-using HdiAuthType = OHOS::HDI::UserAuth::V1_3::AuthType;
-using HdiExecutorRole = OHOS::HDI::UserAuth::V1_3::ExecutorRole;
-using HdiExecutorSecureLevel = OHOS::HDI::UserAuth::V1_3::ExecutorSecureLevel;
-using HdiPinSubType = OHOS::HDI::UserAuth::V1_3::PinSubType;
-using HdiScheduleMode = OHOS::HDI::UserAuth::V1_3::ScheduleMode;
-using HdiExecutorRegisterInfo = OHOS::HDI::UserAuth::V1_3::ExecutorRegisterInfo;
-using HdiExecutorInfo = OHOS::HDI::UserAuth::V1_3::ExecutorInfo;
-using HdiScheduleInfoV1_0 = OHOS::HDI::UserAuth::V1_3::ScheduleInfo;
-using HdiScheduleInfo = OHOS::HDI::UserAuth::V1_3::ScheduleInfoV1_1;
-using HdiAuthSolutionV1_0 = OHOS::HDI::UserAuth::V1_3::AuthSolution;
-using HdiAuthSolution = OHOS::HDI::UserAuth::V1_3::AuthSolutionV1_2;
-using HdiExecutorSendMsg = OHOS::HDI::UserAuth::V1_3::ExecutorSendMsg;
-using HdiAuthResultInfo = OHOS::HDI::UserAuth::V1_3::AuthResultInfo;
-using HdiIdentifyResultInfo = OHOS::HDI::UserAuth::V1_3::IdentifyResultInfo;
-using HdiEnrollParamV1_0 = OHOS::HDI::UserAuth::V1_3::EnrollParam;
-using HdiEnrollParam = OHOS::HDI::UserAuth::V1_3::EnrollParamV1_2;
-using HdiCredentialInfo = OHOS::HDI::UserAuth::V1_3::CredentialInfo;
-using HdiEnrolledInfo = OHOS::HDI::UserAuth::V1_3::EnrolledInfo;
-using HdiEnrollResultInfo = OHOS::HDI::UserAuth::V1_3::EnrollResultInfo;
-using HdiEnrolledState = OHOS::HDI::UserAuth::V1_3::EnrolledState;
-using HdiReuseUnlockInfo = OHOS::HDI::UserAuth::V1_3::ReuseUnlockInfo;
-
-using ScheduleInfoV1_1 = OHOS::HDI::UserAuth::V1_3::ScheduleInfoV1_1;
-using UserInfo = OHOS::HDI::UserAuth::V1_3::UserInfo;
-using ExtUserInfo = OHOS::HDI::UserAuth::V1_3::ExtUserInfo;
+using IUserAuthInterface = OHOS::HDI::UserAuth::V2_0::IUserAuthInterface;
+using HdiAuthType = OHOS::HDI::UserAuth::V2_0::AuthType;
+using HdiExecutorRole = OHOS::HDI::UserAuth::V2_0::ExecutorRole;
+using HdiExecutorSecureLevel = OHOS::HDI::UserAuth::V2_0::ExecutorSecureLevel;
+using HdiPinSubType = OHOS::HDI::UserAuth::V2_0::PinSubType;
+using HdiScheduleMode = OHOS::HDI::UserAuth::V2_0::ScheduleMode;
+using HdiExecutorRegisterInfo = OHOS::HDI::UserAuth::V2_0::ExecutorRegisterInfo;
+using HdiExecutorInfo = OHOS::HDI::UserAuth::V2_0::ExecutorInfo;
+using HdiScheduleInfo = OHOS::HDI::UserAuth::V2_0::ScheduleInfo;
+using HdiAuthParam = OHOS::HDI::UserAuth::V2_0::AuthParam;
+using HdiExecutorSendMsg = OHOS::HDI::UserAuth::V2_0::ExecutorSendMsg;
+using HdiAuthResultInfo = OHOS::HDI::UserAuth::V2_0::AuthResultInfo;
+using HdiIdentifyResultInfo = OHOS::HDI::UserAuth::V2_0::IdentifyResultInfo;
+using HdiEnrollParam = OHOS::HDI::UserAuth::V2_0::EnrollParam;
+using HdiCredentialInfo = OHOS::HDI::UserAuth::V2_0::CredentialInfo;
+using HdiEnrolledInfo = OHOS::HDI::UserAuth::V2_0::EnrolledInfo;
+using HdiEnrollResultInfo = OHOS::HDI::UserAuth::V2_0::EnrollResultInfo;
+using HdiEnrolledState = OHOS::HDI::UserAuth::V2_0::EnrolledState;
+using HdiReuseUnlockInfo = OHOS::HDI::UserAuth::V2_0::ReuseUnlockInfo;
+using HdiReuseUnlockParam = OHOS::HDI::UserAuth::V2_0::ReuseUnlockParam;
+using HdiIMessageCallback = OHOS::HDI::UserAuth::V2_0::IMessageCallback;
+using UserInfo = OHOS::HDI::UserAuth::V2_0::UserInfo;
+using ExtUserInfo = OHOS::HDI::UserAuth::V2_0::ExtUserInfo;
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

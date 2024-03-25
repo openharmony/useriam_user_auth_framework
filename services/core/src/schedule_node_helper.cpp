@@ -72,6 +72,11 @@ bool ScheduleNodeHelper::ScheduleInfoToScheduleNode(const HdiScheduleInfo &info,
     if (para.tokenId.has_value()) {
         builder->SetAccessTokenId(para.tokenId.value());
     }
+
+    if (!info.executorMessages.empty()) {
+        builder->SetExtraInfo(info.executorMessages[0]);
+    }
+
     node = builder->SetAuthType(static_cast<AuthType>(info.authType))
         ->SetExecutorMatcher(info.executorMatcher)
         ->SetScheduleId(info.scheduleId)
@@ -81,7 +86,6 @@ bool ScheduleNodeHelper::ScheduleInfoToScheduleNode(const HdiScheduleInfo &info,
         ->SetPinSubType(para.pinSubType.value_or(PinSubType::PIN_MAX))
         ->SetScheduleCallback(callback)
         ->SetEndAfterFirstFail(para.endAfterFirstFail.value_or(false))
-        ->SetExtraInfo(info.extraInfo)
         ->Build();
     if (node == nullptr) {
         IAM_LOGE("builder failed");

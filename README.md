@@ -18,15 +18,15 @@ The userauth APIs support user authentication of the target Authentication Trust
 
 ```undefined
 //base/useriam/user_auth_framework
-├── frameworks			# Framework code
-├── interfaces			# Directory for storing external interfaces
-│   └── innerkits		# Header files exposed to the internal subsystems
-├── sa_profile			# Profile of the Service ability
-├── services			# Implementation of the Service ability
-├── test				# Directory for storing test code
-├── utils				# Directory for storing utility code
-├── bundle.json			# Component description file
-└── userauth.gni		# Build configuration
+├── frameworks          # Framework code
+├── interfaces          # Directory for storing external interfaces
+│   └── innerkits       # Header files exposed to the internal subsystems
+├── sa_profile          # Profile of the Service ability
+├── services            # Implementation of the Service ability
+├── test                # Directory for storing test code
+├── utils               # Directory for storing utility code
+├── bundle.json         # Component description file
+└── userauth.gni        # Build configuration
 ```
 
 

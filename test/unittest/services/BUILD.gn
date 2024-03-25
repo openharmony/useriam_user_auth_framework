@@ -150,7 +150,7 @@ ohos_unittest("iam_services_test") {
     "access_token:libtoken_setproc",
     "access_token:libtokenid_sdk",
     "c_utils:utils",
-    "drivers_interface_user_auth:libuser_auth_proxy_1.3",
+    "drivers_interface_user_auth:libuser_auth_proxy_2.0",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "init:libbeget_proxy",
