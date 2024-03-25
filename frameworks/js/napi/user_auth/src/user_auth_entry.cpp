@@ -885,6 +885,27 @@ napi_value WindowModeTypeConstructor(napi_env env)
     return windowModeType;
 }
 
+napi_value ReuseModeConstructor(napi_env env)
+{
+    napi_value reuseMode = nullptr;
+    napi_value auth_type_relevant = nullptr;
+    napi_value auth_type_irrelevant = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &reuseMode));
+    NAPI_CALL(env, napi_create_int32(env, ReuseMode::AUTH_TYPE_RELEVANT, &auth_type_relevant));
+    NAPI_CALL(env, napi_create_int32(env, ReuseMode::AUTH_TYPE_IRRELEVANT, &auth_type_irrelevant));
+    NAPI_CALL(env, napi_set_named_property(env, reuseMode, "AUTH_TYPE_RELEVANT", auth_type_relevant));
+    NAPI_CALL(env, napi_set_named_property(env, reuseMode, "AUTH_TYPE_IRRELEVANT", auth_type_irrelevant));
+    return reuseMode;
+}
+
+napi_value ConstantConstructor(napi_env env)
+{
+    napi_value staticValue = nullptr;
+    const int32_t MAX_ALLOWABLE_REUSE_DURATION = 300000;
+    NAPI_CALL(env, napi_create_int32(env, MAX_ALLOWABLE_REUSE_DURATION, &staticValue));
+    return staticValue;
+}
+
 napi_value GetCtor(napi_env env)
 {
     IAM_LOGI("start");
@@ -945,6 +966,16 @@ napi_value UserAuthInit(napi_env env, napi_value exports)
     return exports;
 }
 
+napi_value ConstantsExport(napi_env env, napi_value exports)
+{
+    napi_property_descriptor descriptors[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("MAX_ALLOWABLE_REUSE_DURATION", ConstantConstructor(env)),
+    };
+    NAPI_CALL(env, napi_define_properties(env, exports,
+        sizeof(descriptors) / sizeof(napi_property_descriptor), descriptors));
+    return exports;
+}
+
 napi_value EnumExport(napi_env env, napi_value exports)
 {
     napi_property_descriptor descriptors[] = {
@@ -958,10 +989,11 @@ napi_value EnumExport(napi_env env, napi_value exports)
         //add
         DECLARE_NAPI_PROPERTY("NoticeType", NoticeTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("WindowModeType", WindowModeTypeConstructor(env)),
+        DECLARE_NAPI_PROPERTY("ReuseMode", ReuseModeConstructor(env)),
     };
     NAPI_CALL(env, napi_define_properties(env, exports,
         sizeof(descriptors) / sizeof(napi_property_descriptor), descriptors));
-    return exports;
+    return ConstantsExport(env, exports);
 }
 
 napi_value ModuleInit(napi_env env, napi_value exports)
