@@ -18,6 +18,7 @@
 #include "ability_info.h"
 #include "ability_manager_client.h"
 #include "hitrace_meter.h"
+#include "js_data_struct_converter.h"
 #include "js_extension_common.h"
 #include "js_extension_context.h"
 #include "js_runtime.h"
@@ -214,9 +215,13 @@ void JsUserAuthExtension::OnStart(const AAFwk::Want &want)
     HandleScope handleScope(jsRuntime_);
     napi_env env = jsRuntime_.GetNapiEnv();
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
+    auto launchParam = Extension::GetLaunchParam();
+    if (InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
+        launchParam.launchReason = AAFwk::LaunchReason::LAUNCHREASON_INSIGHT_INTENT;
+    }
 
-    napi_value argv[] = {napiWant};
-    CallObjectMethod("onCreate", argv, ARGC_ONE);
+    napi_value argv[] = {CreateJsLaunchParam(env, launchParam), napiWant};
+    CallObjectMethod("onCreate", argv, ARGC_TWO);
     IAM_LOGD("JsUserAuthExtension onStart end.");
 }
 
