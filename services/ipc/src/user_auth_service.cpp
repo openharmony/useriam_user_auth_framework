@@ -697,7 +697,7 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParam &authPa
         contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    checkRet = CheckAuthWidgetParam(para.userId, authParam, widgetParam);
+    checkRet = CheckAuthPermissionAndParam(para.userId, authParam, widgetParam);
     if (checkRet != SUCCESS) {
         IAM_LOGE("check auth widget param failed");
         contextCallback->OnResult(checkRet, extraInfo);
