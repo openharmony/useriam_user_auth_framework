@@ -51,14 +51,6 @@ struct SetPropertyRequest {
     /** The attributes needed to set. */
     Attributes attrs {};
 };
-
-/**
- * @brief System param of iam.
- */
-enum IamSystemParam : uint32_t {
-    /** Pin validity period */
-    PIN_VALID_PERIOD = 1,
-};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

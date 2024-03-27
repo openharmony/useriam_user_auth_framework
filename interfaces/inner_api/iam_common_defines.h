@@ -165,8 +165,6 @@ enum ResultCode : int32_t {
     CANCELED_FROM_WIDGET = 11,
     /** The result is fail, because the hardware is not supported. */
     HARDWARE_NOT_SUPPORTED = 12,
-    /** The result is fail, because the pin credential is invalid. */
-    PIN_CRED_INVALIDITY = 13,
     /** The result is fail, because something wrong from system. */
     SYSTEM_ERROR_CODE_BEGIN = 1000,
     /** The result is fail, because something wrong from ipc. */
