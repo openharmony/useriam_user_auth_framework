@@ -567,13 +567,17 @@ bool UserAuthService::CheckSingeFaceOrFinger(const std::vector<AuthType> &authTy
     return false;
 }
 
-int32_t UserAuthService::CheckAuthWidgetParam(int32_t userId, const AuthParam &authParam,
+int32_t UserAuthService::CheckAuthPermissionAndParam(int32_t userId, const AuthParam &authParam,
     const WidgetParam &widgetParam)
 {
     if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP) &&
         (widgetParam.windowMode != WindowModeType::UNKNOWN_WINDOW_MODE)) {
         IAM_LOGE("normal app can't set window mode.");
         return INVALID_PARAMETERS;
+    }
+    if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
+        IAM_LOGE("CheckPermission failed");
+        return CHECK_PERMISSION_FAILED;
     }
     int32_t ret = CheckAuthWidgetType(authParam.authType);
     if (ret != SUCCESS) {
@@ -693,13 +697,7 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParam &authPa
         contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
     }
-
-    if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
-        IAM_LOGE("CheckPermission failed");
-        contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
-        return BAD_CONTEXT_ID;
-    }
-    checkRet = CheckAuthWidgetParam(para.userId, authParam, widgetParam);
+    checkRet = CheckAuthPermissionAndParam(para.userId, authParam, widgetParam);
     if (checkRet != SUCCESS) {
         IAM_LOGE("check auth widget param failed");
         contextCallback->OnResult(checkRet, extraInfo);
