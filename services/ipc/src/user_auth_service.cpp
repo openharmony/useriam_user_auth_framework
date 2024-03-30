@@ -154,18 +154,26 @@ int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authTyp
         IAM_LOGE("hdi interface is nullptr");
         return GENERAL_ERROR;
     }
-    uint32_t supportedAtl = AUTH_TRUST_LEVEL_SYS;
+    uint32_t outValue = AUTH_TRUST_LEVEL_SYS;
     int32_t result =
-        hdi->GetAuthTrustLevel(userId, static_cast<HdiAuthType>(authType), supportedAtl);
+        hdi->GetAuthTrustLevel(userId, static_cast<HdiAuthType>(authType), outValue);
     if (result != SUCCESS) {
         IAM_LOGE("failed to get current supported authTrustLevel from hdi apiVersion:%{public}d result:%{public}d",
             apiVersion, result);
         return result;
     }
+    static const uint32_t TWO_BYTE = 16;
+    uint16_t supportedAtl = outValue & 0xffff;
+    uint16_t resultOfQueryCred = (outValue >> TWO_BYTE) & 0xffff;
     if (authTrustLevel > supportedAtl) {
         IAM_LOGE("the current authTrustLevel does not support");
         return TRUST_LEVEL_NOT_SUPPORT;
     }
+    if (resultOfQueryCred == NOT_ENROLLED) {
+        IAM_LOGE("the type of credential has not been enrolled");
+        return NOT_ENROLLED;
+    }
+    IAM_LOGI("end success");
     return SUCCESS;
 }
 
