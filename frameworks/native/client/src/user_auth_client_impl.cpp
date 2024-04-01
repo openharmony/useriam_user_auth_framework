@@ -298,6 +298,18 @@ int32_t UserAuthClientImpl::GetVersion(int32_t &version)
     return proxy->GetVersion(version);
 }
 
+int32_t UserAuthClientImpl::SetGlobalConfigParam(const GlobalConfigParam &param)
+{
+    IAM_LOGI("start");
+    auto proxy = GetProxy();
+    if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    return proxy->SetGlobalConfigParam(param);
+}
+
 sptr<UserAuthInterface> UserAuthClientImpl::GetProxy()
 {
     std::lock_guard<std::mutex> lock(mutex_);

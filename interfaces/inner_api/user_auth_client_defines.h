@@ -71,7 +71,7 @@ struct GlobalConfigParam {
     union {
         /** Global config value of pin expired period. When pinExpiredPeriod equals to INVALID_PIN_EXPIRED_PERIOD,
           * userAuth won't check pin expired period */
-        int pinExpiredPeriod;
+        uint64_t pinExpiredPeriod;
     }
 }
 } // namespace UserAuth

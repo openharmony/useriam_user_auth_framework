@@ -921,6 +921,27 @@ int32_t UserAuthService::UnRegistUserAuthSuccessEventListener(
 
     return SUCCESS;
 }
+
+int32_t UserAuthService::SetGlobalConfigParam(const GlobalConfigParam &param)
+{
+    IAM_LOGE("start");
+    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    auto hdi = HdiWrapper::GetHdiInstance();
+    if (hdi == nullptr) {
+        IAM_LOGE("hdi interface is nullptr");
+        return GENERAL_ERROR;
+    }
+    int32_t result = hdi->SetGlobalConfigParam(param);
+    if (result != SUCCESS) {
+        IAM_LOGE("failed to Set global config param");
+        return result;
+    }
+    return SUCCESS;
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

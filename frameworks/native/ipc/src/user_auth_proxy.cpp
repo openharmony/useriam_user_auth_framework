@@ -646,6 +646,39 @@ int32_t UserAuthProxy::UnRegistUserAuthSuccessEventListener(const sptr<AuthEvent
     }
     return result;
 }
+
+int32_t UserAuthProxy::SetGlobalConfigParam(const GlobalConfigParam &param)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
+        IAM_LOGE("failed to write descriptor");
+        return WRITE_PARCEL_ERROR;
+    }
+    if (!data.WriteUInt32(param.type)) {
+        IAM_LOGE("failed to write GlobalConfigParam type");
+        return WRITE_PARCEL_ERROR;
+    }
+    if (param.type == GlobalConfigType::PIN_EXPIRED_PERIOD) {
+        IAM_LOGI("GlobalConfigType is pin expired period");
+        if (!data.WriteUInt64(param.pinExpiredPeriod)) {
+            IAM_LOGE("failed to write GlobalConfigParam pinExpiredPeriod");
+            return WRITE_PARCEL_ERROR;
+        }
+    }
+
+    bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_SET_CLOBAL_CONFIG_PARAM, data, reply);
+    if (!ret) {
+        IAM_LOGE("failed to set global config param IPC request");
+        return GENERAL_ERROR;
+    }
+    uint64_t result = GENERAL_ERROR;
+    if (!reply.ReadUint64(result)) {
+        IAM_LOGE("failed to read result");
+        return READ_PARCEL_ERROR;
+    }
+    return result;
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
