@@ -60,7 +60,8 @@
           "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth:userauth",
           "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth_extension/user_auth_extension:userauthextensionability_napi",
           "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth_extension/module_loader:user_auth_extension",
-          "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth_extension/module_loader:user_auth_extension_module"
+          "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth_extension/module_loader:user_auth_extension_module",
+          "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth_icon:userauthicon"
         ],
         "service_group": [
           "//base/useriam/user_auth_framework/sa_profile:useriam.init",
