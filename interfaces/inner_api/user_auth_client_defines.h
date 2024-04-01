@@ -30,6 +30,8 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+/** Invalid pin expired period. */
+constexpr size_t INVALID_PIN_EXPIRED_PERIOD = 0;
 /**
  * @brief Executor property needed to get.
  */
@@ -51,6 +53,27 @@ struct SetPropertyRequest {
     /** The attributes needed to set. */
     Attributes attrs {};
 };
+
+/**
+ * @brief Global config type.
+ */
+enum GlobalConfigType : uint32_t {
+    /** Pin expired period */
+    PIN_EXPIRED_PERIOD = 1,
+};
+
+/**
+ * @brief Global config param.
+ */
+struct GlobalConfigParam {
+    /** Global config type. */
+    GlobalConfigType type;
+    union {
+        /** Global config value of pin expired period. When pinExpiredPeriod equals to INVALID_PIN_EXPIRED_PERIOD,
+          * userAuth won't check pin expired period */
+        int pinExpiredPeriod;
+    }
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

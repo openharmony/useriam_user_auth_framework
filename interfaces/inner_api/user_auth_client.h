@@ -125,6 +125,14 @@ public:
      */
     virtual int32_t UnRegistUserAuthSuccessEventListener(
         const sptr<AuthEventListenerInterface> &listener) = 0;
+
+    /**
+     * @brief Set global config param.
+     *
+     * @param param The value of global config parameter.
+     * @return Return set result(0:success; other:failed).
+     */
+    virtual int32_t SetGlobalConfigParam(const GlobalConfigParam &param) = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam
