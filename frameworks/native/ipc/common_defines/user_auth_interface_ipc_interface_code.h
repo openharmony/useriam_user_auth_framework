@@ -43,6 +43,7 @@ enum UserAuthInterfaceCode : uint32_t {
     USER_AUTH_REG_EVENT_LISTENER,
     USER_AUTH_UNREG_EVENT_LISTENER,
     USER_AUTH_EVENT_LISTENER_NOTIFY,
+    USER_AUTH_SET_CLOBAL_CONFIG_PARAM,
 };
 } // namespace UserAuth
 } // namespace UserIam
