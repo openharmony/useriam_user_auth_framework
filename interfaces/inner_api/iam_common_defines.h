@@ -165,6 +165,8 @@ enum ResultCode : int32_t {
     CANCELED_FROM_WIDGET = 11,
     /** The result is fail, because the hardware is not supported. */
     HARDWARE_NOT_SUPPORTED = 12,
+    /** The result is fail, because the PIN_MIXED does not pass complexity check. */
+    COMPLEXITY_CHECK_FAILED = 14,
     /** The result is fail, because something wrong from system. */
     SYSTEM_ERROR_CODE_BEGIN = 1000,
     /** The result is fail, because something wrong from ipc. */

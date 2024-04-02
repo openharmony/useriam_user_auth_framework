@@ -72,7 +72,7 @@ private:
     bool CheckAuthTrustLevel(AuthTrustLevel authTrustLevel);
     bool CheckSingeFaceOrFinger(const std::vector<AuthType> &authType);
     int32_t CheckAuthWidgetType(const std::vector<AuthType> &authType);
-    int32_t CheckAuthWidgetParam(int32_t userId, const AuthParam &authParam, const WidgetParam &widgetParam);
+    int32_t CheckAuthPermissionAndParam(int32_t userId, const AuthParam &authParam, const WidgetParam &widgetParam);
     uint64_t StartWidgetContext(const std::shared_ptr<ContextCallback> &contextCallback, const AuthParam &authParam,
         const WidgetParam &widgetParam, std::vector<AuthType> &validType,
         ContextFactory::AuthWidgetContextPara &para);
