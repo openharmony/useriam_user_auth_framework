@@ -223,26 +223,6 @@ HWTEST_F(ContextAppStateObserverTest, OnAbilityStateChangedTest_003, TestSize.Le
     abilityStateData.bundleName = "com.homs.settings";
     appStateObserver->OnAbilityStateChanged(abilityStateData);
 }
-
-HWTEST_F(ContextAppStateObserverTest, OnProcessDiedTest_001, TestSize.Level0)
-{
-    uint64_t contextId = 1;
-    auto appStateObserver = new (std::nothrow) ContextAppStateObserver(contextId, "com.homs.settings");
-    ASSERT_NE(appStateObserver, nullptr);
-    ProcessData processData;
-    processData.bundleName = "com.homs.settings";
-    appStateObserver->OnProcessDied(processData);
-}
-
-HWTEST_F(ContextAppStateObserverTest, OnProcessDiedTest_002, TestSize.Level0)
-{
-    uint64_t contextId = 1;
-    auto appStateObserver = new (std::nothrow) ContextAppStateObserver(contextId, "com.homs.setting");
-    ASSERT_NE(appStateObserver, nullptr);
-    ProcessData processData;
-    processData.bundleName = "com.homs.settings";
-    appStateObserver->OnProcessDied(processData);
-}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
