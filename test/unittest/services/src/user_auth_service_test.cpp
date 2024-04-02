@@ -188,7 +188,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus003, TestSize.Lev
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAuthTrustLevel(_, _, _)).WillRepeatedly(
-        [](int32_t userId, HdiAuthType authType, uint32_t &outValue) {
+        [](int32_t userId, int32_t authType, uint32_t &outValue) {
         int atl = ATL4;
         int resultOfQueryCred = NOT_ENROLLED;
         static const uint32_t TWO_BYTE = 16;
