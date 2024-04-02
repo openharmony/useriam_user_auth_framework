@@ -40,7 +40,7 @@ std::shared_ptr<SecureUserInfoInterface> UserIdmDatabaseImpl::GetSecUserInfo(int
 
     std::vector<HdiEnrolledInfo> enrolledInfoVector;
     uint64_t secureUid = 0;
-    HdiPinSubType pinSubType;
+    int32_t pinSubType;
     int32_t ret = hdi->GetUserInfo(userId, secureUid, pinSubType, enrolledInfoVector);
     if (ret != HDF_SUCCESS) {
         IAM_LOGE("GetSecureInfo failed, error code : %{public}d", ret);
@@ -132,8 +132,9 @@ int32_t UserIdmDatabaseImpl::DeleteUser(int32_t userId, const std::vector<uint8_
     }
 
     std::vector<HdiCredentialInfo> hdiInfos;
+    std::vector<uint8_t> rootSecret;
     IamHitraceHelper traceHelper("hdi DeleteUser");
-    int32_t ret = hdi->DeleteUser(userId, authToken, hdiInfos);
+    int32_t ret = hdi->DeleteUser(userId, authToken, hdiInfos, rootSecret);
     if (ret != HDF_SUCCESS) {
         IAM_LOGE("failed to delete user, error code : %{public}d", ret);
         return ret;

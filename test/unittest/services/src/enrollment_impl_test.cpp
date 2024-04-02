@@ -64,7 +64,7 @@ HWTEST_F(EnrollmentImplTest, EnrollmentHdiError, TestSize.Level0)
     para.sdkVersion = 11;
     para.authType = FACE;
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_CALL(*mock, BeginEnrollmentV1_2(para.userId, _, _, _)).WillRepeatedly(Return(1));
+    EXPECT_CALL(*mock, BeginEnrollment(_, _, _)).WillRepeatedly(Return(1));
 
     auto enrollment = std::make_shared<EnrollmentImpl>(para);
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
@@ -80,7 +80,7 @@ HWTEST_F(EnrollmentImplTest, EnrollmentHdiEmpty, TestSize.Level0)
     para.authType = FACE;
 
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_CALL(*mock, BeginEnrollmentV1_2(para.userId, _, _, _)).WillRepeatedly(Return(0));
+    EXPECT_CALL(*mock, BeginEnrollment(_, _, _)).WillRepeatedly(Return(0));
 
     auto enroll = std::make_shared<EnrollmentImpl>(para);
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
@@ -219,9 +219,9 @@ HWTEST_F(EnrollmentImplTest, EnrollmentImplTestStart_001, TestSize.Level0)
         .Times(2)
         .WillOnce(Return(HDF_SUCCESS))
         .WillOnce(Return(HDF_FAILURE));
-    EXPECT_CALL(*mockHdi, BeginEnrollmentV1_2(_, _, _, _))
+    EXPECT_CALL(*mockHdi, BeginEnrollment(_, _, _))
         .WillRepeatedly(
-            [](int32_t userId, const std::vector<uint8_t> &authToken, const HdiEnrollParam &param,
+            [](const std::vector<uint8_t> &authToken, const HdiEnrollParam &param,
                 HdiScheduleInfo &info) {
                 info.authType = HdiAuthType::FACE;
                 info.executorMatcher = 10;
@@ -265,11 +265,11 @@ HWTEST_F(EnrollmentImplTest, EnrollmentImplTestStart_002, TestSize.Level0)
     para.sdkVersion = 11;
     para.authType = PIN;
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_CALL(*mock, BeginEnrollmentV1_2(_, _, _, _)).WillRepeatedly(Return(1));
+    EXPECT_CALL(*mock, BeginEnrollment(_, _, _)).WillRepeatedly(Return(1));
     EXPECT_CALL(*mock, GetUserInfo(_, _, _, _))
         .WillOnce(Return(1))
         .WillRepeatedly(
-            [](int32_t userId, uint64_t &secureUid, HdiPinSubType &pinSubType,
+            [](int32_t userId, uint64_t &secureUid, int32_t &pinSubType,
                 std::vector<HdiEnrolledInfo> &infos) {
                 secureUid = 1;
                 pinSubType = static_cast<HdiPinSubType>(10000);

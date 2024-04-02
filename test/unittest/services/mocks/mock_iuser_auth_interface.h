@@ -38,54 +38,44 @@ public:
     MOCK_METHOD1(DeleteExecutor, int32_t(uint64_t index));
     MOCK_METHOD2(OpenSession, int32_t(int32_t userId, std::vector<uint8_t> &challenge));
     MOCK_METHOD1(CloseSession, int32_t(int32_t userId));
-    MOCK_METHOD4(BeginEnrollment,
-        int32_t(int32_t userId, const std::vector<uint8_t> &authToken, const HdiEnrollParamV1_0 &param,
-            HdiScheduleInfoV1_0 &info));
     MOCK_METHOD3(UpdateEnrollmentResult, int32_t(int32_t userId, const std::vector<uint8_t> &scheduleResult,
                                              HdiEnrollResultInfo &info));
     MOCK_METHOD1(CancelEnrollment, int32_t(int32_t userId));
     MOCK_METHOD4(DeleteCredential,
         int32_t(int32_t userId, uint64_t credentialId, const std::vector<uint8_t> &authToken, HdiCredentialInfo &info));
-    MOCK_METHOD3(GetCredential, int32_t(int32_t userId, HdiAuthType authType, std::vector<HdiCredentialInfo> &infos));
-
+    MOCK_METHOD3(GetCredential, int32_t(int32_t userId, int32_t authType, std::vector<HdiCredentialInfo> &infos));
     MOCK_METHOD4(GetUserInfo,
-        int32_t(int32_t userId, uint64_t &secureUid, HdiPinSubType &pinSubType, std::vector<HdiEnrolledInfo> &infos));
-    MOCK_METHOD3(DeleteUser,
-        int32_t(int32_t userId, const std::vector<uint8_t> &authToken, std::vector<HdiCredentialInfo> &deletedInfos));
+        int32_t(int32_t userId, uint64_t &secureUid, int32_t &pinSubType, std::vector<HdiEnrolledInfo> &infos));
+    MOCK_METHOD4(DeleteUser,
+        int32_t(int32_t userId, const std::vector<uint8_t> &authToken, std::vector<HdiCredentialInfo> &deletedInfos,
+            std::vector<uint8_t> &rootSecret));
     MOCK_METHOD2(EnforceDeleteUser, int32_t(int32_t userId, std::vector<HdiCredentialInfo> &deletedInfos));
-    MOCK_METHOD3(BeginAuthentication,
-        int32_t(uint64_t contextId, const HdiAuthSolutionV1_0 &param, std::vector<HdiScheduleInfoV1_0> &scheduleInfos));
-    MOCK_METHOD3(UpdateAuthenticationResult,
-        int32_t(uint64_t contextId, const std::vector<uint8_t> &scheduleResult, HdiAuthResultInfo &info));
     MOCK_METHOD1(CancelAuthentication, int32_t(uint64_t contextId));
-    MOCK_METHOD5(BeginIdentification,
-        int32_t(uint64_t contextId, HdiAuthType authType, const std::vector<uint8_t> &challenge, uint32_t executorId,
-            HdiScheduleInfoV1_0 &scheduleInfo));
     MOCK_METHOD3(UpdateIdentificationResult,
         int32_t(uint64_t contextId, const std::vector<uint8_t> &scheduleResult, HdiIdentifyResultInfo &info));
     MOCK_METHOD1(CancelIdentification, int32_t(uint64_t contextId));
-    MOCK_METHOD3(GetAuthTrustLevel, int32_t(int32_t userId, HdiAuthType authType, uint32_t &authTrustLevel));
-    MOCK_METHOD4(GetValidSolution, int32_t(int32_t userId, const std::vector<HdiAuthType> &authTypes,
-                                       uint32_t authTrustLevel, std::vector<HdiAuthType> &validTypes));
-    MOCK_METHOD4(BeginEnrollmentV1_1,
-        int32_t(int32_t userId, const std::vector<uint8_t> &authToken, const HdiEnrollParamV1_0 &param,
-            HdiScheduleInfo &info));
-    MOCK_METHOD3(BeginAuthenticationV1_1,
-        int32_t(uint64_t contextId, const HdiAuthSolutionV1_0 &param, std::vector<HdiScheduleInfo> &scheduleInfos));
-    MOCK_METHOD5(BeginIdentificationV1_1,
-        int32_t(uint64_t contextId, HdiAuthType authType, const std::vector<uint8_t> &challenge, uint32_t executorId,
+    MOCK_METHOD3(GetAuthTrustLevel, int32_t(int32_t userId, int32_t authType, uint32_t& authTrustLevel));
+    MOCK_METHOD4(GetValidSolution, int32_t(int32_t userId, const std::vector<int32_t>& authTypes,
+        uint32_t authTrustLevel, std::vector<int32_t>& validTypes));
+    MOCK_METHOD5(BeginIdentification,
+        int32_t(uint64_t contextId, int32_t authType, const std::vector<uint8_t> &challenge, uint32_t executorId,
             HdiScheduleInfo &scheduleInfo));
     MOCK_METHOD1(GetAllUserInfo, int32_t(std::vector<UserInfo> &userInfos));
     MOCK_METHOD1(GetAllExtUserInfo, int32_t(std::vector<ExtUserInfo> &userInfos));
-    MOCK_METHOD4(BeginEnrollmentV1_2,
-        int32_t(int32_t userId, const std::vector<uint8_t> &authToken, const HdiEnrollParam &param,
-            HdiScheduleInfo &info));
-    MOCK_METHOD3(BeginAuthenticationV1_2,
-        int32_t(uint64_t contextId, const HdiAuthSolution &param, std::vector<HdiScheduleInfo> &scheduleInfos));
-    MOCK_METHOD3(GetEnrolledState, int32_t(int32_t userId, HdiAuthType authType, HdiEnrolledState &hdiEnrolledState));
-    MOCK_METHOD4(UpdateAuthenticationResultWithEnrolledState, int32_t(uint64_t contextId,
+    MOCK_METHOD3(BeginEnrollment,
+        int32_t(const std::vector<uint8_t> &authToken, const HdiEnrollParam &param, HdiScheduleInfo &info));
+    MOCK_METHOD3(BeginAuthentication,
+        int32_t(uint64_t contextId, const HdiAuthParam &param, std::vector<HdiScheduleInfo> &scheduleInfos));
+    MOCK_METHOD3(GetEnrolledState, int32_t(int32_t userId, int32_t authType, HdiEnrolledState &hdiEnrolledState));
+    MOCK_METHOD4(UpdateAuthenticationResult, int32_t(uint64_t contextId,
         const std::vector<uint8_t> &scheduleResult, HdiAuthResultInfo &info, HdiEnrolledState &enrolledState));
-    MOCK_METHOD2(CheckReuseUnlockResult, int32_t(const HdiReuseUnlockInfo &info, std::vector<uint8_t> &token));
+    MOCK_METHOD2(CheckReuseUnlockResult, int32_t(const HdiReuseUnlockParam& reuseParam, HdiReuseUnlockInfo& reuseInfo));
+    MOCK_METHOD3(SendMessage, int32_t(uint64_t scheduleId, int32_t srcRole, const std::vector<uint8_t>& msg));
+    MOCK_METHOD1(RegisterMessageCallback, int32_t(const sptr<HdiIMessageCallback>& messageCallback));
+    MOCK_METHOD3(GetLocalScheduleFromMessage, int32_t(const std::vector<uint8_t>& remoteDeviceId,
+        const std::vector<uint8_t>& message, HdiScheduleInfo& scheduleInfo));
+    MOCK_METHOD4(GetSignedExecutorInfo, int32_t(const std::vector<int32_t>& authTypes, int32_t executorRole,
+         const std::vector<uint8_t>& remoteDeviceId, std::vector<uint8_t>& signedExecutorInfo));
 };
 
 class MockIUserAuthInterface::Holder : public Singleton<MockIUserAuthInterface::Holder> {

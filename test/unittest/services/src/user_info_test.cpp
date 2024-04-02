@@ -56,7 +56,7 @@ HWTEST_F(UserInfoTest, GetPinSubType, TestSize.Level0)
     constexpr uint64_t secUserId = 200;
     UserInfo info = {
         .secureUid = secUserId,
-        .pinSubType = static_cast<OHOS::HDI::UserAuth::V1_3::PinSubType>(pinSubType),
+        .pinSubType = static_cast<OHOS::HDI::UserAuth::V2_0::PinSubType>(pinSubType),
     };
     UserInfoImpl UserInfoImpl(userId, info);
     EXPECT_EQ(UserInfoImpl.GetPinSubType(), pinSubType);
@@ -69,7 +69,7 @@ HWTEST_F(UserInfoTest, GetSecUserId, TestSize.Level0)
     constexpr uint64_t secUserId = 200;
     UserInfo info = {
         .secureUid = secUserId,
-        .pinSubType = static_cast<OHOS::HDI::UserAuth::V1_3::PinSubType>(pinSubType),
+        .pinSubType = static_cast<OHOS::HDI::UserAuth::V2_0::PinSubType>(pinSubType),
     };
     UserInfoImpl UserInfoImpl(userId, info);
     uint64_t ret = UserInfoImpl.GetSecUserId();

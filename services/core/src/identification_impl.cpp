@@ -78,7 +78,7 @@ bool IdentificationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
     HdiScheduleInfo info;
     IamHitraceHelper traceHelper("hdi BeginIdentification");
     auto result =
-        hdi->BeginIdentificationV1_1(contextId_, static_cast<HdiAuthType>(authType_), challenge_, executorIndex_, info);
+        hdi->BeginIdentification(contextId_, static_cast<HdiAuthType>(authType_), challenge_, executorIndex_, info);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi BeginAuthentication failed, err is %{public}d", result);
         SetLatestError(result);

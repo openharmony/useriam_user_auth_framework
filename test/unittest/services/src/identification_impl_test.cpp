@@ -60,7 +60,7 @@ HWTEST_F(IdentificationImplTest, IdentificationHdiError, TestSize.Level0)
 {
     constexpr uint64_t contextId = 0x1234567;
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_CALL(*mock, BeginIdentificationV1_1(contextId, _, _, _, _)).WillRepeatedly(Return(1));
+    EXPECT_CALL(*mock, BeginIdentification(contextId, _, _, _, _)).WillRepeatedly(Return(1));
 
     auto identification = std::make_shared<IdentificationImpl>(contextId, FACE);
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
@@ -71,7 +71,7 @@ HWTEST_F(IdentificationImplTest, IdentificationHdiEmpty, TestSize.Level0)
 {
     constexpr uint64_t contextId = 0x1234567;
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_CALL(*mock, BeginIdentificationV1_1(contextId, _, _, _, _)).WillRepeatedly(Return(0));
+    EXPECT_CALL(*mock, BeginIdentification(contextId, _, _, _, _)).WillRepeatedly(Return(0));
 
     auto enrollment = std::make_shared<IdentificationImpl>(contextId, FACE);
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
@@ -128,9 +128,9 @@ HWTEST_F(IdentificationImplTest, IdentificationTestStart, TestSize.Level0)
         .Times(2)
         .WillOnce(Return(HDF_SUCCESS))
         .WillOnce(Return(HDF_FAILURE));
-    EXPECT_CALL(*mockHdi, BeginIdentificationV1_1(_, _, _, _, _))
+    EXPECT_CALL(*mockHdi, BeginIdentification(_, _, _, _, _))
         .WillRepeatedly(
-            [](uint64_t contextId, HdiAuthType authType, const std::vector<uint8_t> &challenge, uint32_t executorId,
+            [](uint64_t contextId, int32_t authType, const std::vector<uint8_t> &challenge, uint32_t executorId,
                 HdiScheduleInfo &scheduleInfo) {
                 scheduleInfo.authType = HdiAuthType::FACE;
                 scheduleInfo.executorMatcher = 10;
