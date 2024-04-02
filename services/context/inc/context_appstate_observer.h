@@ -50,7 +50,6 @@ class ContextAppStateObserver : public ApplicationStateObserverStub {
         void OnAppStateChanged(const AppStateData &appStateData) override;
         void OnForegroundApplicationChanged(const AppStateData &appStateData) override;
         void OnAbilityStateChanged(const AbilityStateData &abilityStateData) override;
-        void OnProcessDied(const ProcessData &processData) override;
 
     protected:
         void ProcAppStateChanged();
