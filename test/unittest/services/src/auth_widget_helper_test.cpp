@@ -133,33 +133,21 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckReuseUnlockResult002, Te
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, CheckReuseUnlockResult(_, _)).Times(3);
     ON_CALL(*mockHdi, CheckReuseUnlockResult)
-        .WillByDefault(
-            [](const HdiReuseUnlockInfo &info, std::vector<uint8_t> &reuseResult) {
-                return HDF_FAILURE;
-            }
-        );
+        .WillByDefault(Return(HDF_FAILURE));
     EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), HDF_FAILURE);
     ON_CALL(*mockHdi, CheckReuseUnlockResult)
         .WillByDefault(
-            [](const HdiReuseUnlockInfo &info, std::vector<uint8_t> &reuseResult) {
-                return HDF_SUCCESS;
-            }
-        );
-    EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), GENERAL_ERROR);
-    ON_CALL(*mockHdi, CheckReuseUnlockResult)
-        .WillByDefault(
-            [](const HdiReuseUnlockInfo &info, std::vector<uint8_t> &reuseResult) {
-                static const uint32_t USER_AUTH_TOKEN_LEN = 148;
-                struct ReuseUnlockResultHdi {
-                    uint32_t authType;
-                    uint8_t authToken[USER_AUTH_TOKEN_LEN];
-                    EnrolledState enrolledState;
-                };
-                reuseResult.resize(sizeof(ReuseUnlockResultHdi));
+            [](const HdiReuseUnlockParam &info, HdiReuseUnlockInfo &reuseInfo) {
+                std::vector<uint8_t> token;
+                token.push_back(1);
                 return HDF_SUCCESS;
             }
         );
     EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), HDF_SUCCESS);
+    ON_CALL(*mockHdi, CheckReuseUnlockResult)
+        .WillByDefault(Return(HDF_SUCCESS));
+    EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), GENERAL_ERROR);
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
 } // namespace UserAuth
 } // namespace UserIam

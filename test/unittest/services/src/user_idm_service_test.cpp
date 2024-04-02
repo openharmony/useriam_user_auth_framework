@@ -172,7 +172,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo003, TestSize.Level0
     EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).Times(2);
     ON_CALL(*mockHdi, GetCredential)
         .WillByDefault(
-            [](int32_t userId, HdiAuthType authType, std::vector<HdiCredentialInfo> &infos) {
+            [](int32_t userId, int32_t authType, std::vector<HdiCredentialInfo> &infos) {
                 HdiCredentialInfo tempInfo = {
                     .credentialId = 1,
                     .executorIndex = 2,
@@ -189,7 +189,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo003, TestSize.Level0
         .Times(2)
         .WillOnce(Return(HDF_FAILURE))
         .WillOnce(
-            [](int32_t userId, uint64_t &secureUid, HdiPinSubType &pinSubType, std::vector<HdiEnrolledInfo> &infos) {
+            [](int32_t userId, uint64_t &secureUid, int32_t& pinSubType, std::vector<HdiEnrolledInfo> &infos) {
                 HdiEnrolledInfo info = {
                     .enrolledId = 0,
                     .authType = static_cast<HdiAuthType>(1),
@@ -222,7 +222,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo004, TestSize.Level0
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetCredential(_, _, _))
         .WillOnce(
-            [](int32_t userId, HdiAuthType authType, std::vector<HdiCredentialInfo> &infos) {
+            [](int32_t userId, int32_t authType, std::vector<HdiCredentialInfo> &infos) {
                 HdiCredentialInfo tempInfo = {
                     .credentialId = 1,
                     .executorIndex = 2,
@@ -278,7 +278,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetSecInfo002, TestSize.Level0)
         .Times(2)
         .WillOnce(Return(HDF_FAILURE))
         .WillOnce(
-            [](int32_t userId, uint64_t &secureUid, HdiPinSubType &pinSubType, std::vector<HdiEnrolledInfo> &infos) {
+            [](int32_t userId, uint64_t &secureUid, int32_t& pinSubType, std::vector<HdiEnrolledInfo> &infos) {
                 HdiEnrolledInfo info = {
                     .enrolledId = 0,
                     .authType = static_cast<HdiAuthType>(1),
@@ -336,7 +336,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential002, TestSize.Level0)
         );
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, BeginEnrollmentV1_2(_, _, _, _)).WillRepeatedly(Return(HDF_FAILURE));
+    EXPECT_CALL(*mockHdi, BeginEnrollment(_, _, _)).WillRepeatedly(Return(HDF_FAILURE));
     
     service.AddCredential(testUserId, testCredPara, testCallback, false);
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
@@ -350,8 +350,8 @@ static void MockForAddCredentialHdi(std::shared_ptr<Context> &context, std::prom
     const uint32_t testscheduleId = 20;
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, BeginEnrollmentV1_2(_, _, _, _))
-        .WillOnce([&context](int32_t userId, const std::vector<uint8_t> &authToken, const HdiEnrollParam &param,
+    EXPECT_CALL(*mockHdi, BeginEnrollment(_, _, _))
+        .WillOnce([&context](const std::vector<uint8_t> &authToken, const HdiEnrollParam &param,
             HdiScheduleInfo &info) {
             HdiExecutorInfo executorInfo = {};
             executorInfo.executorIndex = testExecutorIndex;
@@ -482,7 +482,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUpdateCredential002, TestSize.Level0)
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetCredential(_, _, _))
         .WillOnce(
-            [](int32_t userId, HdiAuthType authType, std::vector<HdiCredentialInfo> &infos) {
+            [](int32_t userId, int32_t authType, std::vector<HdiCredentialInfo> &infos) {
                 HdiCredentialInfo tempInfo = {
                     .credentialId = 1,
                     .executorIndex = 2,
@@ -496,7 +496,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUpdateCredential002, TestSize.Level0)
             }
         );
     
-    EXPECT_CALL(*mockHdi, BeginEnrollmentV1_2(_, _, _, _)).WillOnce(Return(HDF_FAILURE));
+    EXPECT_CALL(*mockHdi, BeginEnrollment(_, _, _)).WillOnce(Return(HDF_FAILURE));
 
     testCredPara.token = {1, 2, 3, 4};
     service.UpdateCredential(testUserId, testCredPara, testCallback);
@@ -611,7 +611,7 @@ static void MockForDelUserHdi()
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetUserInfo(_, _, _, _))
-        .WillRepeatedly([](int32_t userId, uint64_t &secureUid, HdiPinSubType &pinSubType,
+        .WillRepeatedly([](int32_t userId, uint64_t &secureUid, int32_t& pinSubType,
             std::vector<HdiEnrolledInfo> &infos) {
             HdiEnrolledInfo info = {
                 .enrolledId = 0,
@@ -689,7 +689,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelUser001, TestSize.Level0)
     
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, DeleteUser(_, _, _)).WillOnce(Return(HDF_FAILURE));
+    EXPECT_CALL(*mockHdi, DeleteUser(_, _, _, _)).WillOnce(Return(HDF_FAILURE));
 
     service.DelUser(testUserId, testAuthToken, testCallback);
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
@@ -741,9 +741,10 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelUser004, TestSize.Level0)
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, DeleteUser(_, _, _))
+    EXPECT_CALL(*mockHdi, DeleteUser(_, _, _, _))
         .WillOnce(
-            [](int32_t userId, const std::vector<uint8_t> &authToken, std::vector<HdiCredentialInfo> &deletedInfos) {
+            [](int32_t userId, const std::vector<uint8_t> &authToken, std::vector<HdiCredentialInfo> &deletedInfos,
+            std::vector<uint8_t> &rootSecret) {
                 HdiCredentialInfo info = {};
                 info.authType = static_cast<HdiAuthType>(1);
                 info.credentialId = 10;
@@ -853,7 +854,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceTestDump, TestSize.Level0)
         .Times(2)
         .WillOnce(Return(HDF_FAILURE))
         .WillOnce(
-            [](int32_t userId, uint64_t &secureUid, HdiPinSubType &pinSubType, std::vector<HdiEnrolledInfo> &infos) {
+            [](int32_t userId, uint64_t &secureUid, int32_t& pinSubType, std::vector<HdiEnrolledInfo> &infos) {
                 HdiEnrolledInfo info = {
                     .enrolledId = 0,
                     .authType = static_cast<HdiAuthType>(1),
