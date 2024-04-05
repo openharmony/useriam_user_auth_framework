@@ -164,17 +164,13 @@ int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authTyp
     }
     static const uint32_t TWO_BYTE = 16;
     uint16_t supportedAtl = outValue & 0xffff;
-    uint16_t resultOfQueryCred = (outValue >> TWO_BYTE) & 0xffff;
+    uint16_t resultOfCredState = (outValue >> TWO_BYTE) & 0xffff;
     if (authTrustLevel > supportedAtl) {
         IAM_LOGE("the current authTrustLevel does not support");
         return TRUST_LEVEL_NOT_SUPPORT;
     }
-    if (resultOfQueryCred == NOT_ENROLLED) {
-        IAM_LOGE("the type of credential has not been enrolled");
-        return NOT_ENROLLED;
-    }
-    IAM_LOGI("end success");
-    return SUCCESS;
+    IAM_LOGI("resultOfCredState is %{public}d", resultOfCredState);
+    return resultOfCredState;
 }
 
 void UserAuthService::GetProperty(int32_t userId, AuthType authType,

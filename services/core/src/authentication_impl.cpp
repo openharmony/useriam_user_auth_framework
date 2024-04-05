@@ -85,18 +85,18 @@ bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
         IAM_LOGE("bad hdi");
         return false;
     }
-    HdiAuthSolution solution = {
-        .userId = authPara_.userId,
-        .authTrustLevel = authPara_.atl,
-        .authType = static_cast<HdiAuthType>(authPara_.authType),
-        .executorSensorHint = executorSensorHint,
-        .challenge = challenge_,
-        .callerName = authPara_.callerName,
-        .apiVersion = authPara_.sdkVersion,
+    HdiAuthParam param = {
+        .baseParam.userId = authPara_.userId,
+        .baseParam.authTrustLevel = authPara_.atl,
+        .baseParam.executorSensorHint = executorSensorHint,
+        .baseParam.challenge = challenge_,
+        .baseParam.callerName = authPara_.callerName,
+        .baseParam.apiVersion = authPara_.sdkVersion,
+        .authType = static_cast<int32_t>(authPara_.authType),
     };
     std::vector<HdiScheduleInfo> infos;
     IamHitraceHelper traceHelper("hdi BeginAuthentication");
-    auto result = hdi->BeginAuthenticationV1_2(contextId_, solution, infos);
+    auto result = hdi->BeginAuthentication(contextId_, param, infos);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi BeginAuthentication failed, err is %{public}d", result);
         SetLatestError(result);
@@ -130,9 +130,9 @@ bool AuthenticationImpl::Update(const std::vector<uint8_t> &scheduleResult, Auth
 
     HdiAuthResultInfo info;
     HdiEnrolledState enrolledState;
-    auto result = hdi->UpdateAuthenticationResultWithEnrolledState(contextId_, scheduleResult, info, enrolledState);
+    auto result = hdi->UpdateAuthenticationResult(contextId_, scheduleResult, info, enrolledState);
     if (result != HDF_SUCCESS) {
-        IAM_LOGE("hdi UpdateAuthenticationResultWithEnrolledState failed, err is %{public}d", result);
+        IAM_LOGE("hdi UpdateAuthenticationResult failed, err is %{public}d", result);
         SetLatestError(result);
     }
 

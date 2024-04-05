@@ -68,7 +68,7 @@ int32_t ExecutorCallbackStub::OnMessengerReadyStub(MessageParcel &data, MessageP
         IAM_LOGE("failed to read publicKey");
         return READ_PARCEL_ERROR;
     }
-    if (!data.ReadUInt64Vector(&templateIds)) {
+    if (!data.ReadUint64Vector(&templateIds)) {
         IAM_LOGE("failed to read templateIds");
         return READ_PARCEL_ERROR;
     }

@@ -389,7 +389,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientCancelAuthentication002, TestSize.Lev
     IpcClientUtils::ResetObj();
 }
 
-HWTEST_F(UserAuthClientTest, UserAuthClientBeginIdentificationV1_1001, TestSize.Level0)
+HWTEST_F(UserAuthClientTest, UserAuthClientBeginIdentification_1001, TestSize.Level0)
 {
     std::vector<uint8_t> testChallenge = {4, 5, 6, 7, 3, 4, 1, 2};
     AuthType testAuthType = FACE;
@@ -405,7 +405,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginIdentificationV1_1001, TestSize.
     EXPECT_EQ(contextId, 0);
 }
 
-HWTEST_F(UserAuthClientTest, UserAuthClientBeginIdentificationV1_1002, TestSize.Level0)
+HWTEST_F(UserAuthClientTest, UserAuthClientBeginIdentification_1002, TestSize.Level0)
 {
     std::vector<uint8_t> testChallenge = {4, 5, 6, 7, 3, 4, 1, 2};
     AuthType testAuthType = FACE;

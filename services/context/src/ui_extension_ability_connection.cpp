@@ -43,6 +43,11 @@ void UIExtensionAbilityConnection::OnAbilityConnectDone(const AppExecFwk::Elemen
 
     int32_t errCode = remoteObject->SendRequest(IAbilityConnection::ON_ABILITY_CONNECT_DONE, data, reply, option);
     IAM_LOGI("AbilityConnectionWrapperProxy::OnAbilityConnectDone result %{public}d", errCode);
+    if (errCode != SUCCESS) {
+        IAM_LOGE("widget schedule error, stop auth");
+        connectAbilityHitrace_ = nullptr;
+        WidgetClient::Instance().ForceStopAuth();
+    }
 }
 
 void UIExtensionAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
