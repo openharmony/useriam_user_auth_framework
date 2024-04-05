@@ -73,7 +73,7 @@ int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Messag
             return RegistUserAuthSuccessEventListenerStub(data, reply);
         case UserAuthInterfaceCode::USER_AUTH_UNREG_EVENT_LISTENER:
             return UnRegistUserAuthSuccessEventListenerStub(data, reply);
-        case UserAuthInterfaceCode::PIN_EXPIRED_PERIOD:
+        case UserAuthInterfaceCode::USER_AUTH_SET_CLOBAL_CONFIG_PARAM:
             return SetGlobalConfigParamStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
@@ -608,14 +608,14 @@ int32_t UserAuthStub::SetGlobalConfigParamStub(MessageParcel &data, MessageParce
 
     GlobalConfigParam globalConfigParam = {};
     uint32_t globalConfigType;
-    if (!data.ReadUInt32(globalConfigType)) {
+    if (!data.ReadUint32(globalConfigType)) {
         IAM_LOGE("failed to read globalConfigType");
         return READ_PARCEL_ERROR;
     }
-    globalConfigParam.type = static_cast<GlobalConfigType>(globalConfigType)
+    globalConfigParam.type = static_cast<GlobalConfigType>(globalConfigType);
 
     if (globalConfigParam.type == GlobalConfigType::PIN_EXPIRED_PERIOD) {
-        if (!data.ReadUInt64(globalConfigParam.pinExpiredPeriod)) {
+        if (!data.ReadUint64(globalConfigParam.pinExpiredPeriod)) {
             IAM_LOGE("failed to read pinExpiredPeriod");
             return READ_PARCEL_ERROR;
         }

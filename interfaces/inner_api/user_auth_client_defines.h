@@ -72,8 +72,8 @@ struct GlobalConfigParam {
         /** Global config value of pin expired period. When pinExpiredPeriod equals to INVALID_PIN_EXPIRED_PERIOD,
           * userAuth won't check pin expired period */
         uint64_t pinExpiredPeriod;
-    }
-}
+    };
+};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

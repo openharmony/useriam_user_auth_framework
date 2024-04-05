@@ -46,6 +46,7 @@ private:
     int32_t GetEnrolledStateStub(MessageParcel &data, MessageParcel &reply);
     int32_t RegistUserAuthSuccessEventListenerStub(MessageParcel &data, MessageParcel &reply);
     int32_t UnRegistUserAuthSuccessEventListenerStub(MessageParcel &data, MessageParcel &reply);
+    int32_t SetGlobalConfigParamStub(MessageParcel &data, MessageParcel &reply);
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -122,7 +122,7 @@ ohos_source_set("userauth_service_base_fuzzer") {
 
   external_deps = [
     "c_utils:utils",
-    "drivers_interface_user_auth:libuser_auth_proxy_1.3",
+    "drivers_interface_user_auth:libuser_auth_proxy_2.0",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
@@ -180,7 +180,7 @@ ohos_source_set("userauth_service_core_fuzzer") {
 
   external_deps = [
     "c_utils:utils",
-    "drivers_interface_user_auth:libuser_auth_proxy_1.3",
+    "drivers_interface_user_auth:libuser_auth_proxy_2.0",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "init:libbeget_proxy",
@@ -340,7 +340,7 @@ ohos_source_set("userauth_services_ipc_fuzzer") {
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
     "c_utils:utils",
-    "drivers_interface_user_auth:libuser_auth_proxy_1.3",
+    "drivers_interface_user_auth:libuser_auth_proxy_2.0",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "init:libbegetutil",

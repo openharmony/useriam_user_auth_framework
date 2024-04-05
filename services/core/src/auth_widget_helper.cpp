@@ -133,15 +133,15 @@ int32_t AuthWidgetHelper::CheckValidSolution(int32_t userId,
         IAM_LOGE("hdi interface is nullptr");
         return GENERAL_ERROR;
     }
-    std::vector<HdiAuthType> inputAuthType;
-    std::vector<HdiAuthType> validTypes;
+    std::vector<int32_t> inputAuthType;
+    std::vector<int32_t> validTypes;
     uint32_t inputAtl = atl;
     for (auto &type : authTypeList) {
         if (!SystemParamManager::GetInstance().IsAuthTypeEnable(type)) {
             IAM_LOGE("authType:%{public}d not enable", type);
             continue;
         }
-        inputAuthType.emplace_back(static_cast<HdiAuthType>(type));
+        inputAuthType.emplace_back(static_cast<int32_t>(type));
     }
     int32_t result = hdi->GetValidSolution(userId, inputAuthType, inputAtl, validTypes);
     if (result != SUCCESS) {
@@ -156,23 +156,22 @@ int32_t AuthWidgetHelper::CheckValidSolution(int32_t userId,
     return result;
 }
 
-int32_t AuthWidgetHelper::SetReuseUnlockResult(int32_t apiVersion, const ReuseUnlockResult &reuseResult,
+int32_t AuthWidgetHelper::SetReuseUnlockResult(int32_t apiVersion, const HdiReuseUnlockInfo &info,
     Attributes &extraInfo)
 {
-    std::vector<uint8_t> authToken(reuseResult.authToken, reuseResult.authToken + USER_AUTH_TOKEN_LEN);
-    bool setSignatureResult = extraInfo.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authToken);
+    bool setSignatureResult = extraInfo.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, info.token);
     IF_FALSE_LOGE_AND_RETURN_VAL(setSignatureResult == true, GENERAL_ERROR);
     bool setAuthTypeResult = extraInfo.SetInt32Value(Attributes::ATTR_AUTH_TYPE,
-        static_cast<int32_t>(reuseResult.authType));
+        static_cast<int32_t>(info.authType));
     IF_FALSE_LOGE_AND_RETURN_VAL(setAuthTypeResult == true, GENERAL_ERROR);
     bool setResultCodeRet = extraInfo.SetInt32Value(Attributes::ATTR_RESULT_CODE, SUCCESS);
     IF_FALSE_LOGE_AND_RETURN_VAL(setResultCodeRet == true, GENERAL_ERROR);
     if (apiVersion < INNER_API_VERSION_10000) {
         bool setCredentialDigestRet = extraInfo.SetUint16Value(Attributes::ATTR_CREDENTIAL_DIGEST,
-            reuseResult.enrolledState.credentialDigest & UINT16_MAX);
+            info.enrolledState.credentialDigest & UINT16_MAX);
         IF_FALSE_LOGE_AND_RETURN_VAL(setCredentialDigestRet == true, GENERAL_ERROR);
         bool setCredentialCountRet = extraInfo.SetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT,
-            reuseResult.enrolledState.credentialCount);
+            info.enrolledState.credentialCount);
         IF_FALSE_LOGE_AND_RETURN_VAL(setCredentialCountRet == true, GENERAL_ERROR);
     }
     return SUCCESS;
@@ -196,38 +195,26 @@ int32_t AuthWidgetHelper::CheckReuseUnlockResult(const ContextFactory::AuthWidge
         return GENERAL_ERROR;
     }
 
-    HdiReuseUnlockInfo unlockInfo = {};
-    unlockInfo.userId = para.userId;
-    unlockInfo.authTrustLevel = authParam.authTrustLevel;
+    HdiReuseUnlockParam unlockParam = {};
+    unlockParam.baseParam.userId = para.userId;
+    unlockParam.baseParam.authTrustLevel = authParam.authTrustLevel;
     for (auto &type : authParam.authType) {
-        unlockInfo.authTypes.emplace_back(static_cast<HdiAuthType>(type));
+        unlockParam.authTypes.emplace_back(static_cast<HdiAuthType>(type));
     }
-    unlockInfo.challenge = authParam.challenge;
-    unlockInfo.callerName = para.callerName;
-    unlockInfo.apiVersion = para.sdkVersion;
-    unlockInfo.reuseUnlockResultMode = authParam.reuseUnlockResult.reuseMode;
-    unlockInfo.reuseUnlockResultDuration = authParam.reuseUnlockResult.reuseDuration;
+    unlockParam.baseParam.challenge = authParam.challenge;
+    unlockParam.baseParam.callerName = para.callerName;
+    unlockParam.baseParam.apiVersion = para.sdkVersion;
+    unlockParam.reuseUnlockResultMode = authParam.reuseUnlockResult.reuseMode;
+    unlockParam.reuseUnlockResultDuration = authParam.reuseUnlockResult.reuseDuration;
 
-    std::vector<uint8_t> reuseResultHdi;
-    int32_t result = hdi->CheckReuseUnlockResult(unlockInfo, reuseResultHdi);
+    HdiReuseUnlockInfo reuseResultInfo = {};
+    int32_t result = hdi->CheckReuseUnlockResult(unlockParam, reuseResultInfo);
     if (result != SUCCESS) {
         IAM_LOGE("CheckReuseUnlockResult failed result:%{public}d userId:%{public}d", result, para.userId);
         return result;
     }
-    if (reuseResultHdi.size() != sizeof(ReuseUnlockResult)) {
-        IAM_LOGE("bad reuse unlock result");
-        return GENERAL_ERROR;
-    }
-    ReuseUnlockResult reuseResult;
-    if (memcpy_s(&reuseResult, sizeof(ReuseUnlockResult), reuseResultHdi.data(),
-        sizeof(ReuseUnlockResult)) != SUCCESS) {
-        IAM_LOGE("copy reuse result failed");
-        reuseResultHdi.clear();
-        (void)memset_s(&reuseResult, sizeof(ReuseUnlockResult), 0, sizeof(ReuseUnlockResult));
-        return GENERAL_ERROR;
-    }
-    reuseResultHdi.clear();
-    return SetReuseUnlockResult(para.sdkVersion, reuseResult, extraInfo);
+
+    return SetReuseUnlockResult(para.sdkVersion, reuseResultInfo, extraInfo);
 }
 } // namespace UserAuth
 } // namespace UserIam

@@ -168,18 +168,6 @@ void ContextAppStateObserver::OnAbilityStateChanged(const AbilityStateData &abil
     }
     return;
 }
-
-void ContextAppStateObserver::OnProcessDied(const ProcessData &processData)
-{
-    IAM_LOGI("start, contextId: ****%{public}hx", static_cast<uint16_t>(contextId_));
-    auto bundleName = processData.bundleName;
-    IAM_LOGI("OnProcessDied, bundleName:%{public}s", bundleName.c_str());
-
-    if (bundleName.compare(bundleName_) == 0) {
-        ProcAppStateChanged();
-    }
-    return;
-}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

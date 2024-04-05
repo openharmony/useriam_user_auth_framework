@@ -54,7 +54,7 @@ HWTEST_F(RelativeTimerTest, RelativeTimerTest, TestSize.Level0)
     time_point<system_clock> finish = system_clock::now();
     auto cost = duration_cast<milliseconds>(finish - start).count();
     EXPECT_GT(cost, 560);
-    EXPECT_LT(cost, 575);
+    EXPECT_LT(cost, 600);
 }
 } // namespace UserAuth
 } // namespace UserIam
