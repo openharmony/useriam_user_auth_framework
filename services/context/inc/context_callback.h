@@ -52,10 +52,10 @@ public:
         std::optional<uint32_t> reuseUnlockResultMode;
         std::optional<uint64_t> reuseUnlockResultDuration;
     };
-    using Notify = std::function<void(const MetaData &metaData)>;
+    using Notify = std::function<void(const MetaData &metaData, TraceFlag flag)>;
     static ContextCallbackNotifyListener &GetInstance();
     void AddNotifier(const Notify &notify);
-    void Process(const MetaData &metaData);
+    void Process(const MetaData &metaData, TraceFlag flag);
 
 private:
     std::vector<Notify> notifierList_;

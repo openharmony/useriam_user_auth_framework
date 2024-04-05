@@ -43,8 +43,9 @@ Trace::~Trace()
 {
 }
 
-void Trace::ProcessCredChangeEvent(const ContextCallbackNotifyListener::MetaData &metaData)
+void Trace::ProcessCredChangeEvent(const ContextCallbackNotifyListener::MetaData &metaData, TraceFlag flag)
 {
+    static_cast<void>(flag);
     if (!(metaData.operationType == TRACE_ADD_CREDENTIAL ||
         metaData.operationType == TRACE_DELETE_CREDENTIAL ||
         metaData.operationType == TRACE_UPDATE_CREDENTIAL ||
@@ -75,8 +76,9 @@ void Trace::ProcessCredChangeEvent(const ContextCallbackNotifyListener::MetaData
     IAM_LOGI("start to process cred change event");
 }
 
-void Trace::ProcessCredManagerEvent(const ContextCallbackNotifyListener::MetaData &metaData)
+void Trace::ProcessCredManagerEvent(const ContextCallbackNotifyListener::MetaData &metaData, TraceFlag flag)
 {
+    static_cast<void>(flag);
     if (!(metaData.operationType == TRACE_ADD_CREDENTIAL ||
         metaData.operationType == TRACE_DELETE_CREDENTIAL ||
         metaData.operationType == TRACE_UPDATE_CREDENTIAL ||
@@ -100,10 +102,11 @@ void Trace::ProcessCredManagerEvent(const ContextCallbackNotifyListener::MetaDat
     IAM_LOGI("start to process cred manager event");
 }
 
-void Trace::ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData)
+void Trace::ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData, TraceFlag flag)
 {
     if (!(metaData.operationType == TRACE_AUTH_USER_ALL ||
-        metaData.operationType == TRACE_AUTH_USER_BEHAVIOR)) {
+        metaData.operationType == TRACE_AUTH_USER_BEHAVIOR) ||
+        (flag == TRACE_FLAG_NO_NEED_BEHAVIOR)) {
         return;
     }
     UserAuthTrace info = {};
@@ -146,8 +149,9 @@ void Trace::ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &
     IAM_LOGI("start to process user auth event");
 }
 
-void Trace::ProcessUserAuthFwkEvent(const ContextCallbackNotifyListener::MetaData &metaData)
+void Trace::ProcessUserAuthFwkEvent(const ContextCallbackNotifyListener::MetaData &metaData, TraceFlag flag)
 {
+    static_cast<void>(flag);
     if (!(metaData.operationType == TRACE_AUTH_USER_ALL ||
         metaData.operationType == TRACE_AUTH_USER_SECURITY)) {
         return;

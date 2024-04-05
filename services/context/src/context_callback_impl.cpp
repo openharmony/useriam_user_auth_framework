@@ -84,10 +84,14 @@ void ContextCallbackImpl::ProcessAuthResult(int32_t tip, const std::vector<uint8
         return;
     }
     root.at(tipJsonKeyAuthResult).get_to(authResult);
+    if (authResult == SUCCESS) {
+        IAM_LOGI("authResult is success");
+        return;
+    }
     metaData_.operationResult = authResult;
     metaData_.endTime = std::chrono::steady_clock::now();
     IAM_LOGI("fingerprint single auth result, tip: %{public}d, result: %{public}d", tip, authResult);
-    ContextCallbackNotifyListener::GetInstance().Process(metaData_);
+    ContextCallbackNotifyListener::GetInstance().Process(metaData_, TRACE_FLAG_NO_NEED_BEHAVIOR);
     return;
 }
 
@@ -108,7 +112,7 @@ void ContextCallbackImpl::OnResult(int32_t resultCode, const Attributes &finalRe
         iamCallback_->OnResult(resultCode, finalResult);
     }
 
-    ContextCallbackNotifyListener::GetInstance().Process(metaData_);
+    ContextCallbackNotifyListener::GetInstance().Process(metaData_, TRACE_FLAG_DEFAULT);
     if (stopCallback_ != nullptr) {
         stopCallback_();
     }
@@ -208,11 +212,11 @@ void ContextCallbackNotifyListener::AddNotifier(const Notify &notify)
     notifierList_.emplace_back(notify);
 }
 
-void ContextCallbackNotifyListener::Process(const MetaData &metaData)
+void ContextCallbackNotifyListener::Process(const MetaData &metaData, TraceFlag flag)
 {
     for (const auto &notify : notifierList_) {
         if (notify != nullptr) {
-            notify(metaData);
+            notify(metaData, flag);
         }
     }
 }
