@@ -48,8 +48,7 @@ public:
     static bool CheckPermission(IPCObjectStub &stub, Permission permission);
     static uint32_t GetAccessTokenId(IPCObjectStub &stub);
     static uint32_t GetTokenId(IPCObjectStub &stub);
-    static bool GetCallerName(IPCObjectStub &stub, bool &isBundleName, std::string &callerName,
-        int32_t &callerType);
+    static bool GetCallerName(IPCObjectStub &stub, std::string &callerName, int32_t &callerType);
     static bool CheckForegroundApplication(const std::string &bundleName);
     class PeerDeathRecipient final : public IPCObjectProxy::DeathRecipient {
     public:

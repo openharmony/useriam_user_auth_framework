@@ -292,14 +292,14 @@ std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(int32_t
     return contextCallback;
 }
 
-int32_t UserAuthService::CheckAuthPermissionAndParam(int32_t authType, bool isBundleName,
+int32_t UserAuthService::CheckAuthPermissionAndParam(int32_t authType, const int32_t &callerType,
     const std::string &callerName, AuthTrustLevel authTrustLevel)
 {
     if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
     }
-    if (isBundleName && (!IpcCommon::CheckForegroundApplication(callerName))) {
+    if (callerType == Security::AccessToken::TOKEN_HAP && (!IpcCommon::CheckForegroundApplication(callerName))) {
         IAM_LOGE("failed to check foreground application");
         return CHECK_PERMISSION_FAILED;
     }
@@ -323,18 +323,17 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
         IAM_LOGE("contextCallback is nullptr");
         return BAD_CONTEXT_ID;
     }
-    bool isBundleName = false;
     std::string callerName = "";
     Attributes extraInfo;
     int32_t callerType = 0;
-    if ((!IpcCommon::GetCallerName(*this, isBundleName, callerName, callerType)) && isBundleName) {
+    if ((!IpcCommon::GetCallerName(*this, callerName, callerType))) {
         IAM_LOGE("get bundle name fail");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
     contextCallback->SetTraceCallerName(callerName);
     contextCallback->SetTraceCallerType(callerType);
-    int32_t checkRet = CheckAuthPermissionAndParam(authType, isBundleName, callerName, authTrustLevel);
+    int32_t checkRet = CheckAuthPermissionAndParam(authType, callerType, callerName, authTrustLevel);
     if (checkRet != SUCCESS) {
         IAM_LOGE("check auth permission and param fail");
         contextCallback->OnResult(checkRet, extraInfo);
@@ -354,11 +353,8 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
     para.atl = authTrustLevel;
     para.challenge = std::move(challenge);
     para.endAfterFirstFail = true;
-    if (isBundleName) {
-        para.callerName = "B_" + callerName;
-    } else {
-        para.callerName = "N_" + callerName;
-    }
+    para.callerName = callerName;
+    para.callerType = callerType;
     para.sdkVersion = apiVersion;
     return StartAuthContext(apiVersion, para, contextCallback);
 }
@@ -419,11 +415,10 @@ uint64_t UserAuthService::AuthUser(int32_t userId, const std::vector<uint8_t> &c
     }
     contextCallback->SetTraceUserId(userId);
     Attributes extraInfo;
-    bool isBundleName = false;
     std::string callerName = "";
     int32_t callerType = 0;
-    if ((!IpcCommon::GetCallerName(*this, isBundleName, callerName, callerType)) && isBundleName) {
-        IAM_LOGE("get bundle name fail");
+    if ((!IpcCommon::GetCallerName(*this, callerName, callerType))) {
+        IAM_LOGE("get caller name fail");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
@@ -439,11 +434,7 @@ uint64_t UserAuthService::AuthUser(int32_t userId, const std::vector<uint8_t> &c
     para.atl = authTrustLevel;
     para.challenge = std::move(challenge);
     para.endAfterFirstFail = false;
-    if (isBundleName) {
-        para.callerName = "B_" + callerName;
-    } else {
-        para.callerName = "N_" + callerName;
-    }
+    para.callerName = callerName;
     para.callerType = callerType;
     para.sdkVersion = INNER_API_VERSION_10000;
     return StartAuthContext(INNER_API_VERSION_10000, para, contextCallback);
@@ -664,18 +655,15 @@ int32_t UserAuthService::CheckValidSolution(int32_t userId, const AuthParam &aut
 int32_t UserAuthService::GetCallerNameAndUserId(ContextFactory::AuthWidgetContextPara &para,
     std::shared_ptr<ContextCallback> &contextCallback)
 {
-    bool isBundleName = false;
     std::string callerName = "";
     int32_t callerType = 0;
-    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName, callerType));
+    static_cast<void>(IpcCommon::GetCallerName(*this, callerName, callerType));
     contextCallback->SetTraceCallerName(callerName);
     contextCallback->SetTraceCallerType(callerType);
+    para.callerName = callerName;
     para.callerType = callerType;
-    if (isBundleName) {
+    if (para.callerType == Security::AccessToken::TOKEN_HAP) {
         para.callingBundleName = callerName;
-        para.callerName = "B_" + callerName;
-    } else {
-        para.callerName = "N_" + callerName;
     }
     int32_t userId;
     Attributes extraInfo;

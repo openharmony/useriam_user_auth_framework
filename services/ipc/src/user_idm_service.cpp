@@ -249,10 +249,9 @@ void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPar
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
-    bool isBundleName = false;
     std::string callerName = "";
     int32_t callerType = 0;
-    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName, callerType));
+    static_cast<void>(IpcCommon::GetCallerName(*this, callerName, callerType));
     contextCallback->SetTraceCallerName(callerName);
     contextCallback->SetTraceCallerType(callerType);
     contextCallback->SetTraceUserId(userId);
@@ -273,11 +272,7 @@ void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPar
     para.token = credPara.token;
     para.isUpdate = isUpdate;
     para.sdkVersion = INNER_API_VERSION_10000;
-    if (isBundleName) {
-        para.callerName = "B_" + callerName;
-    } else {
-        para.callerName = "N_" + callerName;
-    }
+    para.callerName = callerName;
     para.callerType = callerType;
     StartEnroll(para, contextCallback, extraInfo);
 }
@@ -355,10 +350,11 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInt
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return GENERAL_ERROR;
     }
-    bool isBundleName = false;
     std::string callerName = "";
     int32_t callerType = 0;
-    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName, callerType));
+    static_cast<void>(IpcCommon::GetCallerName(*this, callerName, callerType));
+    contextCallback->SetTraceCallerType(callerType);
+    contextCallback->SetTraceCallerName(callerName);
     contextCallback->SetTraceUserId(userId);
 
     if (!IpcCommon::CheckPermission(*this, ENFORCE_USER_IDM)) {
@@ -401,10 +397,11 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
-    bool isBundleName = false;
     std::string callerName = "";
     int32_t callerType = 0;
-    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName, callerType));
+    static_cast<void>(IpcCommon::GetCallerName(*this, callerName, callerType));
+    contextCallback->SetTraceCallerName(callerName);
+    contextCallback->SetTraceCallerType(callerType);
     contextCallback->SetTraceUserId(userId);
 
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
@@ -447,10 +444,11 @@ void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
-    bool isBundleName = false;
     std::string callerName = "";
     int32_t callerType = 0;
-    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName, callerType));
+    static_cast<void>(IpcCommon::GetCallerName(*this, callerName, callerType));
+    contextCallback->SetTraceCallerName(callerName);
+    contextCallback->SetTraceCallerType(callerType);
     contextCallback->SetTraceUserId(userId);
 
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
@@ -581,10 +579,9 @@ void UserIdmService::ClearRedundancyCredentialInner()
         IAM_LOGE("no userInfo");
         return;
     }
-    bool isBundleName = false;
     std::string callerName = "";
     int32_t callerType = 0;
-    static_cast<void>(IpcCommon::GetCallerName(*this, isBundleName, callerName, callerType));
+    static_cast<void>(IpcCommon::GetCallerName(*this, callerName, callerType));
 
     for (const auto &iter : userInfos) {
         int32_t userId = iter->GetUserId();
