@@ -91,6 +91,7 @@ bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
         .baseParam.executorSensorHint = executorSensorHint,
         .baseParam.challenge = challenge_,
         .baseParam.callerName = authPara_.callerName,
+        .baseParam.callerType = authPara_.callerType,
         .baseParam.apiVersion = authPara_.sdkVersion,
         .authType = static_cast<int32_t>(authPara_.authType),
     };

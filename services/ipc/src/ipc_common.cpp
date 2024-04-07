@@ -278,14 +278,12 @@ bool IpcCommon::CheckCallerIsSystemApp(IPCObjectStub &stub)
     return false;
 }
 
-bool IpcCommon::GetCallerName(IPCObjectStub &stub, bool &isBundleName, std::string &callerName,
-    int32_t &callerType)
+bool IpcCommon::GetCallerName(IPCObjectStub &stub, std::string &callerName, int32_t &callerType)
 {
     uint32_t tokenId = GetAccessTokenId(stub);
     using namespace Security::AccessToken;
-    ATokenTypeEnum callingType = AccessTokenKit::GetTokenTypeFlag(tokenId);
-    if (callingType == TOKEN_HAP) {
-        isBundleName = true;
+    callerType = AccessTokenKit::GetTokenTypeFlag(tokenId);
+    if (callerType == TOKEN_HAP) {
         HapTokenInfo hapTokenInfo;
         int result = AccessTokenKit::GetHapTokenInfo(tokenId, hapTokenInfo);
         if (result != SUCCESS) {
@@ -295,8 +293,7 @@ bool IpcCommon::GetCallerName(IPCObjectStub &stub, bool &isBundleName, std::stri
         callerName = hapTokenInfo.bundleName;
         IAM_LOGI("caller bundleName is %{public}s", callerName.c_str());
         return true;
-    } else if (callingType == TOKEN_NATIVE) {
-        isBundleName = false;
+    } else if (callerType == TOKEN_NATIVE) {
         NativeTokenInfo nativeTokenInfo;
         int res = AccessTokenKit::GetNativeTokenInfo(tokenId, nativeTokenInfo);
         if (res != SUCCESS) {
@@ -307,8 +304,6 @@ bool IpcCommon::GetCallerName(IPCObjectStub &stub, bool &isBundleName, std::stri
         IAM_LOGI("caller processName is %{public}s", callerName.c_str());
         return true;
     }
-    isBundleName = false;
-    callerType = static_cast<int32_t>(callingType);
     IAM_LOGI("caller is not a hap or a native");
     return false;
 }
