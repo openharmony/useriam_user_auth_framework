@@ -27,6 +27,10 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+
+// When true is passed into IRemoteStub, sa will process request serially.
+CoAuthStub::CoAuthStub() : IRemoteStub(true) {};
+
 int32_t CoAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     IAM_LOGD("CoAuthStub::OnRemoteRequest, cmd = %{public}u, flags = %{public}d", code, option.GetFlags());

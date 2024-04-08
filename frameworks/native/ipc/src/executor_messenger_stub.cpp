@@ -27,6 +27,10 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+
+// When true is passed into IRemoteStub, sa will process request serially.
+ExecutorMessengerStub::ExecutorMessengerStub() : IRemoteStub(true) {};
+
 int32_t ExecutorMessengerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
     MessageOption &option)
 {
