@@ -35,6 +35,9 @@ namespace {
     const uint32_t MAX_ATTR_COUNT = 512;
 } // namespace
 
+// When true is passed into IRemoteStub, sa will process request serially.
+UserAuthStub::UserAuthStub() : IRemoteStub(true) {};
+
 int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     IAM_LOGD("cmd = %{public}u, flags = %{public}d", code, option.GetFlags());

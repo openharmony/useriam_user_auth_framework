@@ -26,7 +26,7 @@ namespace UserIam {
 namespace UserAuth {
 class UserAuthStub : public IRemoteStub<UserAuthInterface> {
 public:
-    UserAuthStub() = default;
+    UserAuthStub();
     ~UserAuthStub() override = default;
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
