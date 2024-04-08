@@ -108,9 +108,9 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiError, TestSize.Level0)
     std::vector<uint8_t> scheduleResult = {1, 2, 3};
     uint64_t credentialId = 0;
     std::shared_ptr<CredentialInfoInterface> info = nullptr;
-    std::vector<uint8_t> rootSecret;
+    std::shared_ptr<UpdatePinParamInterface> pinInfo = nullptr;
     std::optional<uint64_t> secUserId = std::nullopt;
-    EXPECT_FALSE(enroll->Update(scheduleResult, credentialId, info, rootSecret, secUserId));
+    EXPECT_FALSE(enroll->Update(scheduleResult, credentialId, info, pinInfo, secUserId));
 }
 
 HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful_001, TestSize.Level0)
@@ -146,9 +146,9 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful_001, TestSize.Level0)
     HdiCredentialInfo oldInfo = {};
     std::shared_ptr<CredentialInfoInterface> info = std::make_shared<CredentialInfoImpl>(para.userId, oldInfo);
     uint64_t credentialId = 0;
-    std::vector<uint8_t> rootSecret;
+    std::shared_ptr<UpdatePinParamInterface> pinInfo = nullptr;
     std::optional<uint64_t> secUserId = std::nullopt;
-    EXPECT_TRUE(enroll->Update(scheduleResult, credentialId, info, rootSecret, secUserId));
+    EXPECT_TRUE(enroll->Update(scheduleResult, credentialId, info, pinInfo, secUserId));
 
     // test return values
     EXPECT_EQ(credentialId, credentialIdRet);
@@ -175,10 +175,10 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful_002, TestSize.Level0)
 
     std::vector<uint8_t> scheduleResult = {1, 2, 3};
     std::shared_ptr<CredentialInfoInterface> info = nullptr;
+    std::shared_ptr<UpdatePinParamInterface> pinInfo = nullptr;
     uint64_t credentialId = 0;
-    std::vector<uint8_t> rootSecret;
     std::optional<uint64_t> secUserId = std::nullopt;
-    EXPECT_TRUE(enroll->Update(scheduleResult, credentialId, info, rootSecret, secUserId));
+    EXPECT_TRUE(enroll->Update(scheduleResult, credentialId, info, pinInfo, secUserId));
 
     EXPECT_CALL(*mock, GetUserInfo(_, _, _, _)).WillRepeatedly(Return(1));
     EXPECT_CALL(*mock, EnforceDeleteUser(_, _))
@@ -200,8 +200,8 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful_002, TestSize.Level0)
 
     enroll = std::make_shared<EnrollmentImpl>(para);
     enroll->SetIsUpdate(false);
-    EXPECT_FALSE(enroll->Update(scheduleResult, credentialId, info, rootSecret, secUserId));
-    EXPECT_FALSE(enroll->Update(scheduleResult, credentialId, info, rootSecret, secUserId));
+    EXPECT_FALSE(enroll->Update(scheduleResult, credentialId, info, pinInfo, secUserId));
+    EXPECT_FALSE(enroll->Update(scheduleResult, credentialId, info, pinInfo, secUserId));
 }
 
 HWTEST_F(EnrollmentImplTest, EnrollmentImplTestStart_001, TestSize.Level0)
