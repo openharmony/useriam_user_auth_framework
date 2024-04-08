@@ -123,7 +123,7 @@ int32_t UserIdmDatabaseImpl::DeleteCredentialInfo(int32_t userId, uint64_t crede
 }
 
 int32_t UserIdmDatabaseImpl::DeleteUser(int32_t userId, const std::vector<uint8_t> &authToken,
-    std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos)
+    std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos, std::vector<uint8_t> &rootSecret)
 {
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi == nullptr) {
@@ -132,7 +132,6 @@ int32_t UserIdmDatabaseImpl::DeleteUser(int32_t userId, const std::vector<uint8_
     }
 
     std::vector<HdiCredentialInfo> hdiInfos;
-    std::vector<uint8_t> rootSecret;
     IamHitraceHelper traceHelper("hdi DeleteUser");
     int32_t ret = hdi->DeleteUser(userId, authToken, hdiInfos, rootSecret);
     if (ret != HDF_SUCCESS) {

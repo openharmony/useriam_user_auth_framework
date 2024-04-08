@@ -39,9 +39,9 @@ protected:
 
 private:
     bool UpdateScheduleResult(const std::shared_ptr<Attributes> &scheduleResultAttr, uint64_t &credentialId,
-        std::vector<uint8_t> &rootSecret, std::optional<uint64_t> &secUserId);
+        std::shared_ptr<UpdatePinParamInterface> &pinInfo, std::optional<uint64_t> &secUserId);
     void InvokeResultCallback(int32_t resultCode, const uint64_t credentialId,
-        const std::vector<uint8_t> &rootSecret, std::optional<uint64_t> &secUserId) const;
+        const std::shared_ptr<UpdatePinParamInterface> &pinInfo, std::optional<uint64_t> &secUserId) const;
     std::shared_ptr<Enrollment> enroll_ = nullptr;
 };
 } // namespace UserAuth
