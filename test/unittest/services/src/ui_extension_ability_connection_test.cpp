@@ -13,12 +13,14 @@
  * limitations under the License.
  */
 
+#include "ability_manager_client.h"
 #include "ui_extension_ability_connection.h"
 
 #include <future>
 
 #include "mock_authentication.h"
 #include "mock_context.h"
+#include "mock_remote_object.h"
 #include "mock_resource_node.h"
 #include "mock_schedule_node.h"
 #include "user_auth_callback_proxy.h"
@@ -61,6 +63,25 @@ HWTEST_F(UIExtensionAbilityConnectionTest, UIExtensionAbilityConnectionTestOnAbi
     AppExecFwk::ElementName element;
     int32_t resultCode = 1;
     connection->OnAbilityDisconnectDone(element, resultCode);
+    EXPECT_NE(connection, nullptr);
+}
+
+HWTEST_F(UIExtensionAbilityConnectionTest, UIExtensionAbilityConnectionTestOnAbilityConnectDone, TestSize.Level0)
+{
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    EXPECT_NE(obj, nullptr);
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _))
+        .WillOnce(
+            [](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+                EXPECT_EQ(code, IAbilityConnection::ON_ABILITY_CONNECT_DONE);
+                EXPECT_TRUE(reply.WriteInt32(SUCCESS));
+                return GENERAL_ERROR;
+            }
+        );
+    auto connection = new UIExtensionAbilityConnection("connection");
+    AppExecFwk::ElementName element;
+    int32_t resultCode = 0;
+    connection->OnAbilityConnectDone(element, obj, resultCode);
     EXPECT_NE(connection, nullptr);
 }
 } // namespace UserAuth
