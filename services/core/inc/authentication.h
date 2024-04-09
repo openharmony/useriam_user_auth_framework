@@ -47,6 +47,7 @@ public:
         uint16_t credentialDigest{0};
         uint16_t credentialCount{0};
         int32_t sdkVersion{0};
+        int32_t userId;
     };
     struct AuthExecutorMsg {
         uint64_t executorIndex;
