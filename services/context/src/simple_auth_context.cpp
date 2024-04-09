@@ -197,6 +197,10 @@ void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInf
                 resultInfo.credentialCount);
             IF_FALSE_LOGE_AND_RETURN(setCredentialCountRet == true);
         }
+        
+        bool setUserIdRet = finalResult.SetInt32Value(Attributes::ATTR_USER_ID, resultInfo.userId);
+        IF_FALSE_LOGE_AND_RETURN(setUserIdRet == true);
+        IAM_LOGI("matched userId: %{public}d.", resultInfo.userId);
     }
 
     if (resultInfo.token.size() != 0) {

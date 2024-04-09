@@ -149,6 +149,7 @@ bool AuthenticationImpl::Update(const std::vector<uint8_t> &scheduleResult, Auth
     resultInfo.credentialDigest = enrolledState.credentialDigest;
     resultInfo.credentialCount = enrolledState.credentialCount;
     resultInfo.sdkVersion = authPara_.sdkVersion;
+    resultInfo.userId = info.userId;
 
     if (resultInfo.result != SUCCESS) {
         SetLatestError(resultInfo.result);
