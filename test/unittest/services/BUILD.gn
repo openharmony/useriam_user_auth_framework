@@ -37,6 +37,7 @@ ohos_unittest("iam_services_test") {
     "../../../frameworks/js/napi/user_auth/inc",
     "../../../frameworks/native/ipc/inc",
     "../../../frameworks/native/ipc/common_defines",
+    "../inner_api/mocks",
   ]
 
   sources = [
