@@ -59,7 +59,7 @@ int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, int32_t &userId)
     uint32_t tokenId = GetAccessTokenId(stub);
     using namespace Security::AccessToken;
     ATokenTypeEnum callingType = AccessTokenKit::GetTokenTypeFlag(tokenId);
-    if (callingType != TOKEN_HAP) {
+    if (callingType != ATokenTypeEnum::TOKEN_HAP) {
         IAM_LOGE("failed to get calling type");
         return TYPE_NOT_SUPPORT;
     }
@@ -217,7 +217,7 @@ bool IpcCommon::CheckNativeCallingProcessWhiteList(IPCObjectStub &stub, Permissi
     uint32_t tokenId = stub.GetCallingTokenID();
     using namespace Security::AccessToken;
     ATokenTypeEnum callingType = AccessTokenKit::GetTokenTypeFlag(tokenId);
-    if (callingType != TOKEN_NATIVE) {
+    if (callingType != ATokenTypeEnum::TOKEN_NATIVE) {
         IAM_LOGE("failed to get calling type");
         return false;
     }
@@ -271,7 +271,7 @@ bool IpcCommon::CheckCallerIsSystemApp(IPCObjectStub &stub)
     uint64_t fullTokenId = IPCSkeleton::GetCallingFullTokenID();
     bool checkRet = TokenIdKit::IsSystemAppByFullTokenID(fullTokenId);
     ATokenTypeEnum callingType = AccessTokenKit::GetTokenTypeFlag(callingTokenId);
-    if (checkRet && callingType == TOKEN_HAP) {
+    if (checkRet && callingType == ATokenTypeEnum::TOKEN_HAP) {
         IAM_LOGI("the caller is system application");
         return true;
     }
@@ -280,10 +280,12 @@ bool IpcCommon::CheckCallerIsSystemApp(IPCObjectStub &stub)
 
 bool IpcCommon::GetCallerName(IPCObjectStub &stub, std::string &callerName, int32_t &callerType)
 {
+    callerType = UserAuthCallerType::TOKEN_INVALID;
     uint32_t tokenId = GetAccessTokenId(stub);
     using namespace Security::AccessToken;
-    callerType = AccessTokenKit::GetTokenTypeFlag(tokenId);
-    if (callerType == TOKEN_HAP) {
+    ATokenTypeEnum callerTypeTemp = AccessTokenKit::GetTokenTypeFlag(tokenId);
+    if (callerTypeTemp == ATokenTypeEnum::TOKEN_HAP) {
+        callerType = UserAuthCallerType::TOKEN_HAP;
         HapTokenInfo hapTokenInfo;
         int result = AccessTokenKit::GetHapTokenInfo(tokenId, hapTokenInfo);
         if (result != SUCCESS) {
@@ -293,7 +295,8 @@ bool IpcCommon::GetCallerName(IPCObjectStub &stub, std::string &callerName, int3
         callerName = hapTokenInfo.bundleName;
         IAM_LOGI("caller bundleName is %{public}s", callerName.c_str());
         return true;
-    } else if (callerType == TOKEN_NATIVE) {
+    } else if (callerTypeTemp == ATokenTypeEnum::TOKEN_NATIVE) {
+        callerType = UserAuthCallerType::TOKEN_NATIVE;
         NativeTokenInfo nativeTokenInfo;
         int res = AccessTokenKit::GetNativeTokenInfo(tokenId, nativeTokenInfo);
         if (res != SUCCESS) {
