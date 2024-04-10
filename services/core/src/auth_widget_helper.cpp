@@ -203,6 +203,7 @@ int32_t AuthWidgetHelper::CheckReuseUnlockResult(const ContextFactory::AuthWidge
     }
     unlockParam.baseParam.challenge = authParam.challenge;
     unlockParam.baseParam.callerName = para.callerName;
+    unlockParam.baseParam.callerType = para.callerType;
     unlockParam.baseParam.apiVersion = para.sdkVersion;
     unlockParam.reuseUnlockResultMode = authParam.reuseUnlockResult.reuseMode;
     unlockParam.reuseUnlockResultDuration = authParam.reuseUnlockResult.reuseDuration;

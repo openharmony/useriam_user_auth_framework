@@ -101,6 +101,7 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
         .authType = static_cast<HdiAuthType>(enrollPara_.authType),
         .executorSensorHint = executorSensorHint_,
         .callerName = enrollPara_.callerName,
+        .callerType = enrollPara_.callerType,
         .apiVersion = enrollPara_.sdkVersion,
         .userId = enrollPara_.userId,
     };
