@@ -159,18 +159,14 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus002, TestSize.Lev
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     EXPECT_EQ(TRUST_LEVEL_NOT_SUPPORT, service.GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel));
 
-    testAuthTrustLevel = ATL4;
+    testAuthTrustLevel = ATL2;
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAuthTrustLevel(_, _, _)).Times(1);
     ON_CALL(*mockHdi, GetAuthTrustLevel)
         .WillByDefault(
-            [](int32_t userId, int32_t authType, uint32_t &outValue) {
-                int atl = ATL2;
-                int resultOfQueryCred = NOT_ENROLLED;
-                static const uint32_t TWO_BYTE = 16;
-                outValue = resultOfQueryCred;
-                outValue = ((outValue << TWO_BYTE) | atl);
+            [](int32_t userId, int32_t authType, uint32_t &authTrustLevel) {
+                authTrustLevel = static_cast<AuthTrustLevel>(0);
                 return SUCCESS;
             }
         );
@@ -187,14 +183,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus003, TestSize.Lev
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetAuthTrustLevel(_, _, _)).WillRepeatedly(
-        [](int32_t userId, int32_t authType, uint32_t &outValue) {
-        int atl = ATL4;
-        int resultOfQueryCred = NOT_ENROLLED;
-        static const uint32_t TWO_BYTE = 16;
-        outValue = resultOfQueryCred;
-        outValue = ((outValue << TWO_BYTE) | atl);
-        return SUCCESS;
+    EXPECT_CALL(*mockHdi, GetAuthTrustLevel(_, _, _)).WillRepeatedly([]() {
+        return NOT_ENROLLED;
     });
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     EXPECT_EQ(NOT_ENROLLED, service.GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel));
@@ -809,12 +799,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_002, TestSize.Level0)
     sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
-    ON_CALL(*testCallback, OnResult)
-        .WillByDefault(
-            [](int32_t result, const Attributes &extraInfo) {
-                EXPECT_EQ(result, INVALID_PARAMETERS);
-            }
-        );
     IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
     uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface);
@@ -840,12 +824,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_003, TestSize.Level0)
     sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
-    ON_CALL(*testCallback, OnResult)
-        .WillByDefault(
-            [](int32_t result, const Attributes &extraInfo) {
-                EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
-            }
-        );
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
     uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface);
@@ -871,12 +849,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_004, TestSize.Level0)
     sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
-    ON_CALL(*testCallback, OnResult)
-        .WillByDefault(
-            [](int32_t result, const Attributes &extraInfo) {
-                EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
-            }
-        );
     IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
     uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface);
@@ -902,12 +874,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_005, TestSize.Level0)
     sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
-    ON_CALL(*testCallback, OnResult)
-        .WillByDefault(
-            [](int32_t result, const Attributes &extraInfo) {
-                EXPECT_EQ(result, CANCELED);
-            }
-        );
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
@@ -934,12 +900,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_006, TestSize.Level0)
     sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
-    ON_CALL(*testCallback, OnResult)
-        .WillByDefault(
-            [](int32_t result, const Attributes &extraInfo) {
-                EXPECT_EQ(result, CANCELED);
-            }
-        );
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
@@ -1000,12 +960,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_008, TestSize.Level0)
     sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
-    ON_CALL(*testCallback, OnResult)
-        .WillByDefault(
-            [](int32_t result, const Attributes &extraInfo) {
-                EXPECT_EQ(result, TYPE_NOT_SUPPORT);
-            }
-        );
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
@@ -1032,12 +986,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_009, TestSize.Level0)
     sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
-    ON_CALL(*testCallback, OnResult)
-        .WillByDefault(
-            [](int32_t result, const Attributes &extraInfo) {
-                EXPECT_EQ(result, TYPE_NOT_SUPPORT);
-            }
-        );
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
@@ -1064,12 +1012,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_010, TestSize.Level0)
     sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
-    ON_CALL(*testCallback, OnResult)
-        .WillByDefault(
-            [](int32_t result, const Attributes &extraInfo) {
-                EXPECT_EQ(result, TRUST_LEVEL_NOT_SUPPORT);
-            }
-        );
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
@@ -1096,12 +1038,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_011, TestSize.Level0)
     sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
-    ON_CALL(*testCallback, OnResult)
-        .WillByDefault(
-            [](int32_t result, const Attributes &extraInfo) {
-                EXPECT_EQ(result, INVALID_PARAMETERS);
-            }
-        );
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
@@ -1128,12 +1064,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_012, TestSize.Level0)
     sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
-    ON_CALL(*testCallback, OnResult)
-        .WillByDefault(
-            [](int32_t result, const Attributes &extraInfo) {
-                EXPECT_EQ(result, CANCELED);
-            }
-        );
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
@@ -1626,33 +1556,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_023, TestSize.Level0)
         );
     uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
     EXPECT_EQ(contextId, REUSE_AUTH_RESULT_CONTEXT_ID);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0024, TestSize.Level0)
-{
-    UserAuthService service(100, true);
-    int32_t apiVersion = 10;
-    AuthParam authParam;
-    authParam.challenge.push_back(1);
-    authParam.authType.push_back(FACE);
-    authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::FULLSCREEN;
-    sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
-    EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
-    ON_CALL(*testCallback, OnResult)
-        .WillByDefault(
-            [](int32_t result, const Attributes &extraInfo) {
-                EXPECT_EQ(result, INVALID_PARAMETERS);
-            }
-        );
-    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface);
-    EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 

@@ -35,6 +35,9 @@ namespace {
     const uint32_t MAX_ATTR_COUNT = 512;
 } // namespace
 
+// When true is passed into IRemoteStub, sa will process request serially.
+UserAuthStub::UserAuthStub() : IRemoteStub(true) {};
+
 int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     IAM_LOGD("cmd = %{public}u, flags = %{public}d", code, option.GetFlags());
@@ -607,15 +610,15 @@ int32_t UserAuthStub::SetGlobalConfigParamStub(MessageParcel &data, MessageParce
     ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
     GlobalConfigParam globalConfigParam = {};
-    uint32_t globalConfigType;
-    if (!data.ReadUint32(globalConfigType)) {
+    int32_t globalConfigType;
+    if (!data.ReadInt32(globalConfigType)) {
         IAM_LOGE("failed to read globalConfigType");
         return READ_PARCEL_ERROR;
     }
     globalConfigParam.type = static_cast<GlobalConfigType>(globalConfigType);
 
     if (globalConfigParam.type == GlobalConfigType::PIN_EXPIRED_PERIOD) {
-        if (!data.ReadUint64(globalConfigParam.pinExpiredPeriod)) {
+        if (!data.ReadUint64(globalConfigParam.value.pinExpiredPeriod)) {
             IAM_LOGE("failed to read pinExpiredPeriod");
             return READ_PARCEL_ERROR;
         }
