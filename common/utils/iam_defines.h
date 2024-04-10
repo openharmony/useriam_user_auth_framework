@@ -37,6 +37,12 @@ enum OperationType : uint32_t {
     TRACE_AUTH_USER_ALL = 9,
     NO_NEED_TRACE = 10,
 };
+
+enum TraceFlag : uint32_t {
+    TRACE_FLAG_DEFAULT = 0,
+    TRACE_FLAG_NO_NEED_BEHAVIOR = 1,
+};
+
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
