@@ -80,7 +80,7 @@ private:
         const std::shared_ptr<ContextCallback> &contextCallback);
     bool Insert2ContextPool(const std::shared_ptr<Context> &context);
     bool CheckCallerIsSystemApp();
-    int32_t CheckAuthPermissionAndParam(int32_t authType, bool isBundleName, const std::string &callerName,
+    int32_t CheckAuthPermissionAndParam(int32_t authType, const int32_t &callerType, const std::string &callerName,
         AuthTrustLevel authTrustLevel);
     bool CheckAuthPermissionAndParam(AuthType authType, AuthTrustLevel authTrustLevel,
         const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo);
