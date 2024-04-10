@@ -154,23 +154,19 @@ int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authTyp
         IAM_LOGE("hdi interface is nullptr");
         return GENERAL_ERROR;
     }
-    uint32_t outValue = AUTH_TRUST_LEVEL_SYS;
+    uint32_t supportedAtl = AUTH_TRUST_LEVEL_SYS;
     int32_t result =
-        hdi->GetAuthTrustLevel(userId, static_cast<HdiAuthType>(authType), outValue);
+        hdi->GetAuthTrustLevel(userId, static_cast<HdiAuthType>(authType), supportedAtl);
     if (result != SUCCESS) {
         IAM_LOGE("failed to get current supported authTrustLevel from hdi apiVersion:%{public}d result:%{public}d",
             apiVersion, result);
         return result;
     }
-    static const uint32_t TWO_BYTE = 16;
-    uint16_t supportedAtl = outValue & 0xffff;
-    uint16_t resultOfCredState = (outValue >> TWO_BYTE) & 0xffff;
     if (authTrustLevel > supportedAtl) {
         IAM_LOGE("the current authTrustLevel does not support");
         return TRUST_LEVEL_NOT_SUPPORT;
     }
-    IAM_LOGI("resultOfCredState is %{public}d", resultOfCredState);
-    return resultOfCredState;
+    return SUCCESS;
 }
 
 void UserAuthService::GetProperty(int32_t userId, AuthType authType,
@@ -925,13 +921,22 @@ int32_t UserAuthService::SetGlobalConfigParam(const GlobalConfigParam &param)
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
     }
+    if (param.type != PIN_EXPIRED_PERIOD) {
+        IAM_LOGE("bad global config type");
+        return INVALID_PARAMETERS;
+    }
 
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi == nullptr) {
         IAM_LOGE("hdi interface is nullptr");
         return GENERAL_ERROR;
     }
-    int32_t result = hdi->SetGlobalConfigParam(param);
+    HdiGlobalConfigParam paramConfig = {};
+    if (param.type == PIN_EXPIRED_PERIOD) {
+        paramConfig.type = PIN_EXPIRED_PERIOD;
+        paramConfig.value.pinExpiredPeriod = param.value.pinExpiredPeriod;
+    }
+    int32_t result = hdi->SetGlobalConfigParam(paramConfig);
     if (result != SUCCESS) {
         IAM_LOGE("failed to Set global config param");
         return result;

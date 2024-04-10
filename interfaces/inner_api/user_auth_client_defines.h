@@ -57,9 +57,18 @@ struct SetPropertyRequest {
 /**
  * @brief Global config type.
  */
-enum GlobalConfigType : uint32_t {
+enum GlobalConfigType : int32_t {
     /** Pin expired period */
     PIN_EXPIRED_PERIOD = 1,
+};
+
+/**
+ * @brief Global config value.
+ */
+union GlobalConfigValue {
+    /** Global config value of pin expired period. When pinExpiredPeriod equals to INVALID_PIN_EXPIRED_PERIOD,
+      * userAuth won't check pin expired period */    
+    uint64_t pinExpiredPeriod;
 };
 
 /**
@@ -68,11 +77,8 @@ enum GlobalConfigType : uint32_t {
 struct GlobalConfigParam {
     /** Global config type. */
     GlobalConfigType type;
-    union {
-        /** Global config value of pin expired period. When pinExpiredPeriod equals to INVALID_PIN_EXPIRED_PERIOD,
-          * userAuth won't check pin expired period */
-        uint64_t pinExpiredPeriod;
-    };
+    /** Global config value. */
+    GlobalConfigValue value;
 };
 } // namespace UserAuth
 } // namespace UserIam

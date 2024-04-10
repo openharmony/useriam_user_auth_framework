@@ -118,6 +118,8 @@ public:
         ATTR_CREDENTIAL_DIGEST,
         /** Credential count, the value type is uint16_t. */
         ATTR_CREDENTIAL_COUNT,
+        /** Pin expired info, the value type is int32_t. */
+        ATTR_PIN_EXPIRED_INFO,
     };
 
     /**

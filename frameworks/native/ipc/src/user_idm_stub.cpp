@@ -27,6 +27,10 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+
+// When true is passed into IRemoteStub, sa will process request serially.
+UserIdmStub::UserIdmStub() : IRemoteStub(true) {};
+
 int32_t UserIdmStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     IAM_LOGI("cmd = %{public}u, flags= %{public}d", code, option.GetFlags());

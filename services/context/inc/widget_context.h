@@ -103,6 +103,7 @@ private:
         AuthType authType { 0 };
         uint16_t credentialDigest;
         uint16_t credentialCount;
+        int32_t pinExpiredInfo;
     };
 
     uint64_t contextId_ {0};
