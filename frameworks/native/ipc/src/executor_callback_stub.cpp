@@ -43,6 +43,8 @@ int32_t ExecutorCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data
             return OnSetPropertyStub(data, reply);
         case ExecutorCallbackInterfaceCode::ON_GET_PROPERTY:
             return OnGetPropertyStub(data, reply);
+        case ExecutorCallbackInterfaceCode::ON_SEND_DATA:
+            return OnSendDataStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -164,6 +166,29 @@ int32_t ExecutorCallbackStub::OnGetPropertyStub(MessageParcel &data, MessageParc
     std::vector<uint8_t> replyBuffer = values.Serialize();
     if (!reply.WriteUInt8Vector(replyBuffer)) {
         IAM_LOGE("failed to write replyBuffer");
+        return WRITE_PARCEL_ERROR;
+    }
+    return SUCCESS;
+}
+
+int32_t ExecutorCallbackStub::OnSendDataStub(MessageParcel &data, MessageParcel &reply)
+{
+    uint64_t scheduleId;
+    std::vector<uint8_t> buffer;
+
+    if (!data.ReadUint64(scheduleId)) {
+        IAM_LOGE("failed to read scheduleId");
+        return READ_PARCEL_ERROR;
+    }
+    if (!data.ReadUInt8Vector(&buffer)) {
+        IAM_LOGE("failed to read data");
+        return READ_PARCEL_ERROR;
+    }
+    Attributes dataAttr(buffer);
+
+    int32_t result = OnSendData(scheduleId, dataAttr);
+    if (!reply.WriteInt32(result)) {
+        IAM_LOGE("failed to write OnSendData result");
         return WRITE_PARCEL_ERROR;
     }
     return SUCCESS;

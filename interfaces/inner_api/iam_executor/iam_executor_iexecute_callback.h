@@ -68,6 +68,14 @@ public:
      * @param extraInfo Other related information about execute.
      */
     virtual void OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo) = 0;
+
+    /**
+     * @brief The callback send message information.
+     *
+     * @param destRole Destination role.
+     * @param msg Message.
+     */
+    virtual void OnMessage(int destRole, const std::vector<uint8_t> &msg) = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam

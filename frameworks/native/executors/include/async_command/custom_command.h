@@ -33,6 +33,7 @@ protected:
     ResultCode SendRequest() override;
     void OnAcquireInfoInner(int32_t acquire, const std::vector<uint8_t> &extraInfo) override;
     void OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo) override;
+    void OnMessageInner(int destRole, const std::vector<uint8_t> &msg) override;
 
 private:
     void SetResult(ResultCode resultCode);

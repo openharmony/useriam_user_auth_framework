@@ -41,6 +41,15 @@ public:
     DummyAuthExecutorHdi() = default;
     ~DummyAuthExecutorHdi() override = default;
 
+    ResultCode SendMessage(uint64_t scheduleId, int32_t srcRole, const std::vector<uint8_t> &msg) override
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (fuzzParcel_ == nullptr) {
+            return ResultCode::GENERAL_ERROR;
+        }
+        return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
+    }
+
     ResultCode GetExecutorInfo(ExecutorInfo &executorInfo) override
     {
         std::lock_guard<std::mutex> lock(mutex_);

@@ -17,6 +17,7 @@
 #define USER_AUTH_HDI
 
 #include "v2_0/iuser_auth_interface.h"
+#include "v2_0/message_callback_stub.h"
 #include "v2_0/user_auth_types.h"
 #include "v2_0/user_auth_interface_service.h"
 

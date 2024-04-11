@@ -133,6 +133,8 @@ enum PropertyMode : uint32_t {
     PROPERTY_MODE_UNFREEZE = 6,
     /** The property mode is set cached templates. */
     PROPERTY_MODE_SET_CACHED_TEMPLATES = 7,
+    /** The property mode is notify collector ready. */
+    PROPERTY_MODE_NOTIFY_COLLECTOR_READY = 8,
 };
 
 /**

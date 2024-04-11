@@ -67,6 +67,24 @@ public:
         const std::vector<uint8_t> &frameworkPublicKey, const std::vector<uint8_t> &extraInfo) = 0;
 
     /**
+     * @brief Cancel the action of executor.
+     *
+     * @param scheduleId Current working schedule ID.
+     * @return Return the result success or error code{@link ResultCode}.
+     */
+    virtual ResultCode Cancel(uint64_t scheduleId) = 0;
+
+    /**
+     * @brief Cancel the action of executor.
+     *
+     * @param scheduleId Current working schedule ID.
+     * @param srcRole Source role.
+     * @param msg Message.
+     * @return Return the result success or error code{@link ResultCode}.
+     */
+    virtual ResultCode SendMessage(uint64_t scheduleId, int32_t srcRole, const std::vector<uint8_t> &msg) = 0;
+
+    /**
      * @brief Begin enroll.
      *
      * @param scheduleId Current enroll schedule ID.
@@ -75,7 +93,7 @@ public:
      * @return Return the result success or error code{@link ResultCode}.
      */
     virtual ResultCode Enroll(uint64_t scheduleId, const EnrollParam &param,
-        const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) = 0;
+        const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj);
 
     /**
      * @brief Begin authenticate.
@@ -86,7 +104,18 @@ public:
      * @return Return the result success or error code{@link ResultCode}.
      */
     virtual ResultCode Authenticate(uint64_t scheduleId, const AuthenticateParam &param,
-        const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) = 0;
+        const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj);
+
+    /**
+     * @brief Begin collect.
+     *
+     * @param scheduleId Current collect schedule ID.
+     * @param param Collect param.
+     * @param callbackObj Callback of authenticate result.
+     * @return Return the result success or error code{@link ResultCode}.
+     */
+    virtual ResultCode Collect(uint64_t scheduleId, const CollectParam &param,
+        const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj);
 
     /**
      * @brief Begin identify.
@@ -97,7 +126,7 @@ public:
      * @return Return the result success or error code{@link ResultCode}.
      */
     virtual ResultCode Identify(uint64_t scheduleId, const IdentifyParam &param,
-        const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) = 0;
+        const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj);
 
     /**
      * @brief Delete.
@@ -105,15 +134,7 @@ public:
      * @param templateIdList Template ID list.
      * @return Return the result success or error code{@link ResultCode}.
      */
-    virtual ResultCode Delete(const std::vector<uint64_t> &templateIdList) = 0;
-
-    /**
-     * @brief Cancel the action of executor.
-     *
-     * @param scheduleId Current working schedule ID.
-     * @return Return the result success or error code{@link ResultCode}.
-     */
-    virtual ResultCode Cancel(uint64_t scheduleId) = 0;
+    virtual ResultCode Delete(const std::vector<uint64_t> &templateIdList);
 
     /**
      * @brief Send command.
@@ -124,7 +145,7 @@ public:
      * @return Return the result success or error code{@link ResultCode}.
      */
     virtual ResultCode SendCommand(PropertyMode commandId, const std::vector<uint8_t> &extraInfo,
-        const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) = 0;
+        const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj);
 
     /**
      * @brief Get property.
@@ -135,7 +156,7 @@ public:
      * @return Return the result success or error code{@link ResultCode}.
      */
     virtual ResultCode GetProperty(const std::vector<uint64_t> &templateIdList,
-        const std::vector<Attributes::AttributeKey> &keys, Property &property) = 0;
+        const std::vector<Attributes::AttributeKey> &keys, Property &property);
 
     /**
      * @brief Set cached templates.
@@ -143,7 +164,15 @@ public:
      * @param templateIdList Template id list.
      * @return Return the result success or error code{@link ResultCode}.
      */
-    virtual ResultCode SetCachedTemplates(const std::vector<uint64_t> &templateIdList) = 0;
+    virtual ResultCode SetCachedTemplates(const std::vector<uint64_t> &templateIdList);
+
+    /**
+     * @brief Notify collector ready.
+     *
+     * @param scheduleId Current collect schedule ID.
+     * @return Return the result success or error code{@link ResultCode}.
+     */
+    virtual ResultCode NotifyCollectorReady(uint64_t scheduleId);
 };
 } // namespace UserAuth
 } // namespace UserIam

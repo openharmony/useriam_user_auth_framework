@@ -77,33 +77,12 @@ void EnrollCommand::OnResultInner(ResultCode result, const std::vector<uint8_t> 
         authAttributes->SetUint8ArrayValue(Attributes::ATTR_RESULT, nonConstExtraInfo);
     IF_FALSE_LOGE_AND_RETURN(setAuthResultRet == true);
     iamHitraceHelper_ = nullptr;
-    int32_t ret = MessengerFinish(scheduleId_, ALL_IN_ONE, result, authAttributes);
+    int32_t ret = MessengerFinish(scheduleId_, result, authAttributes);
     if (ret != USERAUTH_SUCCESS) {
         IAM_LOGE("%{public}s call finish fail", GetDescription());
         return;
     }
     IAM_LOGI("%{public}s call finish success result %{public}d", GetDescription(), result);
-}
-
-void EnrollCommand::OnAcquireInfoInner(int32_t acquire, const std::vector<uint8_t> &extraInfo)
-{
-    IAM_LOGI("%{public}s on acquire info start", GetDescription());
-
-    Attributes attr;
-    bool setAcquireRet = attr.SetInt32Value(Attributes::ATTR_TIP_INFO, acquire);
-    IF_FALSE_LOGE_AND_RETURN(setAcquireRet);
-    bool setExtraInfoRet = attr.SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, extraInfo);
-    IF_FALSE_LOGE_AND_RETURN(setExtraInfoRet);
-
-    auto msg = AuthMessage::As(attr.Serialize());
-    IF_FALSE_LOGE_AND_RETURN(msg != nullptr);
-    int32_t ret = MessengerSendData(scheduleId_, transNum_, ALL_IN_ONE, SCHEDULER, msg);
-    ++transNum_;
-    if (ret != USERAUTH_SUCCESS) {
-        IAM_LOGE("%{public}s call SendData fail", GetDescription());
-        return;
-    }
-    IAM_LOGI("%{public}s call SendData success acquire %{public}d", GetDescription(), acquire);
 }
 } // namespace UserAuth
 } // namespace UserIam

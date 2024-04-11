@@ -83,6 +83,7 @@ int32_t CoAuthStub::ReadExecutorRegisterInfo(ExecutorRegisterInfo &executorInfo,
     uint32_t executorSensorHint;
     uint32_t executorMatcher;
     int32_t esl;
+    uint32_t maxTemplateAcl;
 
     if (!data.ReadInt32(authType)) {
         IAM_LOGE("failed to read authType");
@@ -104,6 +105,10 @@ int32_t CoAuthStub::ReadExecutorRegisterInfo(ExecutorRegisterInfo &executorInfo,
         IAM_LOGE("failed to read esl");
         return READ_PARCEL_ERROR;
     }
+    if (!data.ReadUint32(maxTemplateAcl)) {
+        IAM_LOGE("failed to read esl");
+        return READ_PARCEL_ERROR;
+    }
     if (!data.ReadUInt8Vector(&executorInfo.publicKey)) {
         IAM_LOGE("failed to read publicKey");
         return READ_PARCEL_ERROR;
@@ -113,6 +118,7 @@ int32_t CoAuthStub::ReadExecutorRegisterInfo(ExecutorRegisterInfo &executorInfo,
     executorInfo.executorRole = static_cast<ExecutorRole>(executorRole);
     executorInfo.executorSensorHint = executorSensorHint;
     executorInfo.executorMatcher = executorMatcher;
+    executorInfo.maxTemplateAcl = maxTemplateAcl;
     executorInfo.esl = static_cast<ExecutorSecureLevel>(esl);
     return SUCCESS;
 }

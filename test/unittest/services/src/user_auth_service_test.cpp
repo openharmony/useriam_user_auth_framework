@@ -463,7 +463,7 @@ static void MockForAuthResourceNode(std::shared_ptr<MockResourceNode> &resourceN
             EXPECT_NE(finalResult, nullptr);
             std::vector<uint8_t> scheduleResult = {1, 2, 3, 4};
             EXPECT_TRUE(finalResult->SetUint8ArrayValue(Attributes::ATTR_RESULT, scheduleResult));
-            EXPECT_EQ(messenger->Finish(testScheduleId, ALL_IN_ONE, SUCCESS, finalResult), SUCCESS);
+            EXPECT_EQ(messenger->Finish(testScheduleId, SUCCESS, finalResult), SUCCESS);
             return SUCCESS;
         });
 }

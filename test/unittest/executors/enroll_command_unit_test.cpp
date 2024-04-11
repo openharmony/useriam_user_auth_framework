@@ -68,11 +68,10 @@ HWTEST_F(EnrollCommandUnitTest, EnrollCommand_OnResultTest_001, TestSize.Level0)
 
     auto messenger = MakeShared<MockIExecutorMessenger>();
     ASSERT_NE(messenger, nullptr);
-    EXPECT_CALL(*messenger, Finish(_, _, _, _))
+    EXPECT_CALL(*messenger, Finish(_, _, _))
         .Times(Exactly(1))
-        .WillOnce([](uint64_t scheduleId, ExecutorRole srcRole, int32_t resultCode, const Attributes &finalResult) {
+        .WillOnce([](uint64_t scheduleId, int32_t resultCode, const Attributes &finalResult) {
             EXPECT_EQ(scheduleId, testScheduleId);
-            EXPECT_EQ(srcRole, ALL_IN_ONE);
             EXPECT_EQ(resultCode, testResultCode);
             uint32_t attrResultCode;
             EXPECT_EQ(finalResult.GetUint32Value(Attributes::ATTR_RESULT_CODE, attrResultCode), true);
@@ -98,9 +97,9 @@ HWTEST_F(EnrollCommandUnitTest, EnrollCommand_OnResultTest_002, TestSize.Level0)
 
     auto messenger = MakeShared<MockIExecutorMessenger>();
     ASSERT_NE(messenger, nullptr);
-    EXPECT_CALL(*messenger, Finish(_, _, _, _))
+    EXPECT_CALL(*messenger, Finish(_, _, _))
         .Times(Exactly(1))
-        .WillOnce([](uint64_t scheduleId, ExecutorRole srcRole, int32_t resultCode, const Attributes &finalResult) {
+        .WillOnce([](uint64_t scheduleId, int32_t resultCode, const Attributes &finalResult) {
             // return error
             return USERAUTH_ERROR;
         });
@@ -120,11 +119,10 @@ HWTEST_F(EnrollCommandUnitTest, EnrollCommand_OnResultTest_003, TestSize.Level0)
 
     auto messenger = MakeShared<MockIExecutorMessenger>();
     ASSERT_NE(messenger, nullptr);
-    EXPECT_CALL(*messenger, Finish(_, _, _, _))
+    EXPECT_CALL(*messenger, Finish(_, _, _))
         .Times(Exactly(1))
-        .WillOnce([](uint64_t scheduleId, ExecutorRole srcRole, int32_t resultCode, const Attributes &finalResult) {
+        .WillOnce([](uint64_t scheduleId, int32_t resultCode, const Attributes &finalResult) {
             EXPECT_EQ(scheduleId, testScheduleId);
-            EXPECT_EQ(srcRole, ALL_IN_ONE);
             EXPECT_EQ(resultCode, testResultCode);
             uint32_t attrResultCode;
             EXPECT_EQ(finalResult.GetUint32Value(Attributes::ATTR_RESULT_CODE, attrResultCode), true);
@@ -150,7 +148,7 @@ HWTEST_F(EnrollCommandUnitTest, EnrollCommand_OnResultTest_004, TestSize.Level0)
 
     auto messenger = MakeShared<MockIExecutorMessenger>();
     ASSERT_NE(messenger, nullptr);
-    EXPECT_CALL(*messenger, Finish(_, _, _, _)).Times(Exactly(1));
+    EXPECT_CALL(*messenger, Finish(_, _, _)).Times(Exactly(1));
     auto executor = Common::MakeShared<Executor>(nullptr, nullptr, 3);
     ASSERT_NE(executor, nullptr);
     Attributes attr;
@@ -169,13 +167,10 @@ HWTEST_F(EnrollCommandUnitTest, EnrollCommand_OnAcquireInfoTest_001, TestSize.Le
 
     auto messenger = MakeShared<MockIExecutorMessenger>();
     ASSERT_NE(messenger, nullptr);
-    EXPECT_CALL(*messenger, SendData(_, _, _, _, _))
+    EXPECT_CALL(*messenger, SendData(_, _, _))
         .Times(Exactly(1))
-        .WillOnce([](uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole, ExecutorRole dstRole,
-                      const std::shared_ptr<AuthMessage> &msg) {
+        .WillOnce([](uint64_t scheduleId, ExecutorRole dstRole, const std::shared_ptr<AuthMessage> &msg) {
             EXPECT_EQ(scheduleId, testScheduleId);
-            EXPECT_EQ(transNum, static_cast<uint64_t>(1));
-            EXPECT_EQ(srcRole, ALL_IN_ONE);
             EXPECT_EQ(dstRole, SCHEDULER);
             EXPECT_NE(msg, nullptr);
             std::vector<uint8_t> extraInfo;
@@ -197,9 +192,9 @@ HWTEST_F(EnrollCommandUnitTest, EnrollCommand_OnAcquireInfoTest_002, TestSize.Le
 
     auto messenger = MakeShared<MockIExecutorMessenger>();
     ASSERT_NE(messenger, nullptr);
-    EXPECT_CALL(*messenger, SendData(_, _, _, _, _))
+    EXPECT_CALL(*messenger, SendData(_, _, _))
         .Times(Exactly(1))
-        .WillOnce([](uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole, ExecutorRole dstRole,
+        .WillOnce([](uint64_t scheduleId, ExecutorRole dstRole,
                       const std::shared_ptr<AuthMessage> &msg) { return USERAUTH_ERROR; });
     auto executor = Common::MakeShared<Executor>(nullptr, nullptr, 3);
     ASSERT_NE(executor, nullptr);
@@ -217,21 +212,15 @@ HWTEST_F(EnrollCommandUnitTest, EnrollCommand_OnAcquireInfoTest_003, TestSize.Le
 
     auto messenger = MakeShared<MockIExecutorMessenger>();
     ASSERT_NE(messenger, nullptr);
-    EXPECT_CALL(*messenger, SendData(_, _, _, _, _))
+    EXPECT_CALL(*messenger, SendData(_, _, _))
         .Times(Exactly(3))
-        .WillOnce([](uint64_t scheduleId, uint64_t transNum, int32_t srcType, int32_t dstType,
-                      std::shared_ptr<AuthMessage> msg) {
-            EXPECT_EQ(transNum, static_cast<uint64_t>(1));
+        .WillOnce([](uint64_t scheduleId, int32_t dstType, std::shared_ptr<AuthMessage> msg) {
             return USERAUTH_SUCCESS;
         })
-        .WillOnce([](uint64_t scheduleId, uint64_t transNum, int32_t srcType, int32_t dstType,
-                      std::shared_ptr<AuthMessage> msg) {
-            EXPECT_EQ(transNum, static_cast<uint64_t>(2));
+        .WillOnce([](uint64_t scheduleId, int32_t dstType, std::shared_ptr<AuthMessage> msg) {
             return USERAUTH_ERROR;
         })
-        .WillOnce([](uint64_t scheduleId, uint64_t transNum, int32_t srcType, int32_t dstType,
-                      std::shared_ptr<AuthMessage> msg) {
-            EXPECT_EQ(transNum, static_cast<uint64_t>(3));
+        .WillOnce([](uint64_t scheduleId, int32_t dstType, std::shared_ptr<AuthMessage> msg) {
             return USERAUTH_SUCCESS;
         });
     auto executor = Common::MakeShared<Executor>(nullptr, nullptr, 3);
@@ -253,10 +242,10 @@ HWTEST_F(EnrollCommandUnitTest, EnrollCommand_MixTest_003, TestSize.Level0)
 
     auto messenger = MakeShared<MockIExecutorMessenger>();
     ASSERT_NE(messenger, nullptr);
-    EXPECT_CALL(*messenger, Finish(_, _, _, _)).Times(Exactly(1));
-    EXPECT_CALL(*messenger, SendData(_, _, _, _, _))
+    EXPECT_CALL(*messenger, Finish(_, _, _)).Times(Exactly(1));
+    EXPECT_CALL(*messenger, SendData(_, _, _))
         .Times(Exactly(3))
-        .WillRepeatedly([](uint64_t scheduleId, uint64_t transNum, int32_t srcType, int32_t dstType,
+        .WillRepeatedly([](uint64_t scheduleId, int32_t dstType,
                             std::shared_ptr<AuthMessage> msg) { return USERAUTH_SUCCESS; });
     auto executor = Common::MakeShared<Executor>(nullptr, nullptr, 3);
     ASSERT_NE(executor, nullptr);

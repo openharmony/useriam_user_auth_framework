@@ -30,7 +30,6 @@ namespace UserAuth {
 using namespace std;
 using namespace testing;
 using namespace testing::ext;
-
 void ContextAppStateObserverTest::SetUpTestCase()
 {
 }

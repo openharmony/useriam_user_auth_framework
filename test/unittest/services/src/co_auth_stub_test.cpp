@@ -51,6 +51,7 @@ HWTEST_F(CoAuthStubTest, CoAuthStubTestExecutorRegister001, TestSize.Level0)
     testInfo.executorSensorHint = 0;
     testInfo.executorMatcher = 0;
     testInfo.esl = ESL1;
+    testInfo.maxTemplateAcl = 0;
     testInfo.publicKey = {'a', 'b', 'c', 'd'};
 
     uint64_t testContextId = 124545;
@@ -79,6 +80,7 @@ HWTEST_F(CoAuthStubTest, CoAuthStubTestExecutorRegister001, TestSize.Level0)
     EXPECT_TRUE(data.WriteUint32(testInfo.executorSensorHint));
     EXPECT_TRUE(data.WriteUint32(testInfo.executorMatcher));
     EXPECT_TRUE(data.WriteInt32(testInfo.esl));
+    EXPECT_TRUE(data.WriteUint32(testInfo.maxTemplateAcl));
     EXPECT_TRUE(data.WriteUInt8Vector(testInfo.publicKey));
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
