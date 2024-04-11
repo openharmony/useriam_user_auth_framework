@@ -36,7 +36,6 @@ const std::string MANAGE_LOCAL_ACCOUNTS = "ohos.permission.MANAGE_LOCAL_ACCOUNTS
 const std::string VIBRATE = "ohos.permission.VIBRATE";
 const std::string GET_RUNNING_INFO = "ohos.permission.GET_RUNNING_INFO";
 const std::string START_SYSTEM_DIALOG = "ohos.permission.START_SYSTEM_DIALOG";
-const std::string RECEIVER_STARTUP_COMPLETED = "ohos.permission.RECEIVER_STARTUP_COMPLETED";
 const std::string RUNNING_STATE_OBSERVER = "ohos.permission.RUNNING_STATE_OBSERVER";
 const int32_t LOCATION_PERM_NUM = 8;
 
@@ -66,7 +65,6 @@ void ContextAppStateObserverTest::MockNativePermission()
         VIBRATE.c_str(),
         GET_RUNNING_INFO.c_str(),
         START_SYSTEM_DIALOG.c_str(),
-        RECEIVER_STARTUP_COMPLETED.c_str(),
         RUNNING_STATE_OBSERVER.c_str(),
     };
     NativeTokenInfoParams infoInstance = {
