@@ -34,6 +34,7 @@ ohos_shared_library("userauth_executors") {
   sources = [
     "src/async_command/async_command_base.cpp",
     "src/async_command/auth_command.cpp",
+    "src/async_command/collect_command.cpp",
     "src/async_command/custom_command.cpp",
     "src/async_command/enroll_command.cpp",
     "src/async_command/identify_command.cpp",
@@ -42,6 +43,7 @@ ohos_shared_library("userauth_executors") {
     "src/executor.cpp",
     "src/framework/executor_mgr_wrapper.cpp",
     "src/framework/framework_executor_callback.cpp",
+    "src/iauth_executor_hdi.cpp",
     "src/idriver_manager.cpp",
     "src/listener/auth_executor_mgr_status_listener.cpp",
     "src/listener/driver_manager_status_listener.cpp",

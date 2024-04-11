@@ -46,6 +46,8 @@ struct ExecutorInfo {
     uint32_t executorMatcher {0};
     /** Executor secure level. */
     ExecutorSecureLevel esl {0};
+    /** Max template acl. */
+    uint32_t maxTemplateAcl {0};
     /** Used to verify the result issued by the authenticator. */
     std::vector<uint8_t> publicKey {};
 };
@@ -67,26 +69,21 @@ public:
      * @brief Called by the executor, send authentication data to resource pool.
      *
      * @param scheduleId Specify the current schedule.
-     * @param transNum Properties of this operation.
-     * @param srcRole Source executor role.
      * @param dstRole Destination executor role.
      * @param msg Authentication message.
      * @return Return send data success or not(0:success; other:failed).
      */
-    virtual int32_t SendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole, ExecutorRole dstRole,
-        const std::shared_ptr<AuthMessage> &msg) = 0;
+    virtual int32_t SendData(uint64_t scheduleId, ExecutorRole dstRole, const std::shared_ptr<AuthMessage> &msg) = 0;
 
     /**
      * @brief Called by the executor, send finish data to resource pool.
      *
      * @param scheduleId Specify the current schedule.
-     * @param srcRole Source executor role.
-     * @param resultcode Authentication result code.
+     * @param resultCode Authentication result code.
      * @param finalResult Authentication final result.
      * @return Return finish success or not(0:success; other:failed).
      */
-    virtual int32_t Finish(uint64_t scheduleId, ExecutorRole srcRole, int32_t resultCode,
-        const Attributes &finalResult) = 0;
+    virtual int32_t Finish(uint64_t scheduleId, int32_t resultCode, const Attributes &finalResult) = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam

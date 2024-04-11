@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "auth_command.h"
+#include "collect_command.h"
 
 #include "iam_check.h"
 #include "iam_common_defines.h"
@@ -22,20 +22,20 @@
 #include "iam_para2str.h"
 #include "iam_ptr.h"
 
-#define LOG_TAG "USER_AUTH_EXECUTOR"
+#define LOG_TAG "USER_COLLECT_EXECUTOR"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-AuthCommand::AuthCommand(std::weak_ptr<Executor> executor, uint64_t scheduleId,
+CollectCommand::CollectCommand(std::weak_ptr<Executor> executor, uint64_t scheduleId,
     const Attributes &attributes, std::shared_ptr<ExecutorMessenger> executorMessenger)
-    : AsyncCommandBase("AUTH", scheduleId, executor, executorMessenger),
+    : AsyncCommandBase("COLLECT", scheduleId, executor, executorMessenger),
       attributes_(Common::MakeShared<Attributes>(attributes.Serialize())),
-      iamHitraceHelper_(Common::MakeShared<IamHitraceHelper>("AuthCommand"))
+      iamHitraceHelper_(Common::MakeShared<IamHitraceHelper>("CollectCommand"))
 {
 }
 
-ResultCode AuthCommand::SendRequest()
+ResultCode CollectCommand::SendRequest()
 {
     IAM_LOGI("%{public}s send request start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN_VAL(attributes_ != nullptr, ResultCode::GENERAL_ERROR);
@@ -43,27 +43,17 @@ ResultCode AuthCommand::SendRequest()
     auto hdi = GetExecutorHdi();
     IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, ResultCode::GENERAL_ERROR);
 
-    std::vector<uint64_t> templateIdList;
-    bool getTemplateIdListRet = attributes_->GetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIdList);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getTemplateIdListRet == true, ResultCode::GENERAL_ERROR);
-    uint32_t tokenId = 0;
-    bool getTokenIdRet = attributes_->GetUint32Value(Attributes::ATTR_ACCESS_TOKEN_ID, tokenId);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getTokenIdRet == true, ResultCode::GENERAL_ERROR);
-    bool endAfterFirstFail;
-    bool getEndAfterFirstFailRet = attributes_->GetBoolValue(Attributes::ATTR_END_AFTER_FIRST_FAIL, endAfterFirstFail);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getEndAfterFirstFailRet == true, ResultCode::GENERAL_ERROR);
     std::vector<uint8_t> extraInfo;
     bool getExtraInfoRet = attributes_->GetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, extraInfo);
     IF_FALSE_LOGE_AND_RETURN_VAL(getExtraInfoRet == true, ResultCode::GENERAL_ERROR);
 
-    IamHitraceHelper traceHelper("hdi Authenticate");
-    ResultCode ret = hdi->Authenticate(scheduleId_,
-        (AuthenticateParam) { tokenId, templateIdList, extraInfo, endAfterFirstFail }, shared_from_this());
-    IAM_LOGI("%{public}s authenticate result %{public}d", GetDescription(), ret);
+    IamHitraceHelper traceHelper("hdi collect");
+    ResultCode ret = hdi->Collect(scheduleId_, (CollectParam) { extraInfo }, shared_from_this());
+    IAM_LOGI("%{public}s collect result %{public}d", GetDescription(), ret);
     return ret;
 }
 
-void AuthCommand::OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo)
+void CollectCommand::OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo)
 {
     IAM_LOGI("%{public}s on result start", GetDescription());
 
@@ -72,9 +62,9 @@ void AuthCommand::OnResultInner(ResultCode result, const std::vector<uint8_t> &e
     IF_FALSE_LOGE_AND_RETURN(authAttributes != nullptr);
     bool setResultCodeRet = authAttributes->SetUint32Value(Attributes::ATTR_RESULT_CODE, result);
     IF_FALSE_LOGE_AND_RETURN(setResultCodeRet == true);
-    bool setAuthResultRet =
+    bool setCollectResultRet =
         authAttributes->SetUint8ArrayValue(Attributes::ATTR_RESULT, nonConstExtraInfo);
-    IF_FALSE_LOGE_AND_RETURN(setAuthResultRet == true);
+    IF_FALSE_LOGE_AND_RETURN(setCollectResultRet == true);
     iamHitraceHelper_ = nullptr;
     int32_t ret = MessengerFinish(scheduleId_, result, authAttributes);
     if (ret != USERAUTH_SUCCESS) {

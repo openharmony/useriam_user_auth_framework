@@ -27,9 +27,9 @@ namespace UserIam {
 namespace UserAuth {
 class ExecutorMessengerInterface : public IRemoteBroker {
 public:
-    virtual int32_t SendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole, ExecutorRole dstRole,
+    virtual int32_t SendData(uint64_t scheduleId, ExecutorRole dstRole,
         const std::vector<uint8_t> &msg) = 0;
-    virtual int32_t Finish(uint64_t scheduleId, ExecutorRole srcRole, ResultCode resultCode,
+    virtual int32_t Finish(uint64_t scheduleId, ResultCode resultCode,
         const std::shared_ptr<Attributes> &finalResult) = 0;
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIam.AuthResPool.IExecutor_Messenger");
 };

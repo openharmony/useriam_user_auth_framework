@@ -45,6 +45,7 @@ public:
     std::shared_ptr<IAuthExecutorHdi> GetExecutorHdi();
     const char *GetDescription();
     int32_t GetAuthType() const;
+    int32_t GetExecutorRole() const;
 
 private:
     void RegisterExecutorCallback(ExecutorInfo &executorInfo);
@@ -57,6 +58,7 @@ private:
     std::string description_;
     uint16_t hdiId_;
     int32_t authType_;
+    int32_t executorRole_;
 };
 } // namespace UserAuth
 } // namespace UserIam

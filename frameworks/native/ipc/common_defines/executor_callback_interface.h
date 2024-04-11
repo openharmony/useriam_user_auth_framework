@@ -34,6 +34,7 @@ public:
     virtual int32_t OnEndExecute(uint64_t scheduleId, const Attributes &command) = 0;
     virtual int32_t OnSetProperty(const Attributes &properties) = 0;
     virtual int32_t OnGetProperty(const Attributes &condition, Attributes &values) = 0;
+    virtual int32_t OnSendData(uint64_t scheduleId, const Attributes &data) = 0;
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIam.AuthResPool.ExecutorCallback");
 };
 } // namespace UserAuth

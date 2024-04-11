@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef IDENTIFY_COMMAND_H
-#define IDENTIFY_COMMAND_H
+#ifndef COLLECT_COMMAND_H
+#define COLLECT_COMMAND_H
 
 #include "iam_hitrace_helper.h"
 
@@ -23,11 +23,12 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class IdentifyCommand : public AsyncCommandBase {
+class CollectCommand : public AsyncCommandBase {
 public:
-    IdentifyCommand(std::weak_ptr<Executor> executor, uint64_t scheduleId, const Attributes &commandAttrs,
+    CollectCommand(std::weak_ptr<Executor> executor, uint64_t scheduleId,
+        const Attributes &commandAttrs,
         std::shared_ptr<ExecutorMessenger> executorMessenger);
-    ~IdentifyCommand() override = default;
+    ~CollectCommand() override = default;
 
 protected:
     ResultCode SendRequest() override;
@@ -41,4 +42,4 @@ private:
 } // namespace UserIam
 } // namespace OHOS
 
-#endif // IDENTIFY_COMMAND_H
+#endif // COLLECT_COMMAND_H

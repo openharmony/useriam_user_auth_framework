@@ -85,6 +85,16 @@ int32_t ExecutorCallbackService::OnGetProperty(const Attributes &condition, Attr
     }
     return callback_->OnGetProperty(condition, values);
 }
+
+int32_t ExecutorCallbackService::OnSendData(uint64_t scheduleId, const Attributes &data)
+{
+    IAM_LOGI("start");
+    if (callback_ == nullptr) {
+        IAM_LOGE("callback is nullptr");
+        return GENERAL_ERROR;
+    }
+    return callback_->OnSendData(scheduleId, data);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
