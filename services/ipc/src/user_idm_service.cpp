@@ -414,9 +414,15 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
     CancelCurrentEnrollIfExist();
 
     std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
-    int32_t ret = UserIdmDatabase::Instance().DeleteUser(userId, authToken, credInfos);
+    std::vector<uint8_t> rootSecret;
+    int32_t ret = UserIdmDatabase::Instance().DeleteUser(userId, authToken, credInfos, rootSecret);
     if (ret != SUCCESS) {
         IAM_LOGE("failed to delete user");
+        contextCallback->OnResult(ret, extraInfo);
+        return;
+    }
+    if (!extraInfo.SetUint8ArrayValue(Attributes::ATTR_OLD_ROOT_SECRET, rootSecret)) {
+        IAM_LOGE("set rootsecret to extraInfo failed");
         contextCallback->OnResult(ret, extraInfo);
         return;
     }
@@ -481,6 +487,7 @@ void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
     contextCallback->OnResult(ret, extraInfo);
     if (oldInfo != nullptr) {
         auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, oldInfo->GetAuthType());
+        PublishEventAdapter::PublishDeletedEvent(userId);
         PublishEventAdapter::PublishCredentialUpdatedEvent(userId, oldInfo->GetAuthType(), credentialInfos.size());
     }
 }
