@@ -69,11 +69,12 @@ HWTEST_F(UIExtensionAbilityConnectionTest, UIExtensionAbilityConnectionTestOnAbi
 HWTEST_F(UIExtensionAbilityConnectionTest, UIExtensionAbilityConnectionTestOnAbilityConnectDone, TestSize.Level0)
 {
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    uint32_t onAbilityConnectDone = 1;
     EXPECT_NE(obj, nullptr);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _))
         .WillOnce(
-            [](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-                EXPECT_EQ(code, IAbilityConnection::ON_ABILITY_CONNECT_DONE);
+            [&onAbilityConnectDone](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+                EXPECT_EQ(code, onAbilityConnectDone);
                 EXPECT_TRUE(reply.WriteInt32(SUCCESS));
                 return GENERAL_ERROR;
             }
