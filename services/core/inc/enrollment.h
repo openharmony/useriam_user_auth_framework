@@ -21,6 +21,7 @@
 #include <optional>
 
 #include "credential_info_interface.h"
+#include "update_pin_param_interface.h"
 #include "schedule_node.h"
 
 namespace OHOS {
@@ -50,7 +51,7 @@ public:
     virtual bool Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
         std::shared_ptr<ScheduleNodeCallback> callback) = 0;
     virtual bool Update(const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
-        std::shared_ptr<CredentialInfoInterface> &info, std::vector<uint8_t> &rootSecret,
+        std::shared_ptr<CredentialInfoInterface> &info, std::shared_ptr<UpdatePinParamInterface> &pinInfo,
         std::optional<uint64_t> &secUserId) = 0;
     virtual bool Cancel() = 0;
     virtual uint32_t GetAccessTokenId() const = 0;

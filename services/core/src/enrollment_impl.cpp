@@ -22,6 +22,7 @@
 #include "publish_event_adapter.h"
 #include "credential_info_impl.h"
 #include "schedule_node_helper.h"
+#include "update_pin_param_impl.h"
 #include "user_idm_database.h"
 
 #define LOG_TAG "USER_AUTH_SA"
@@ -160,7 +161,7 @@ bool EnrollmentImpl::GetSecUserId(std::optional<uint64_t> &secUserId)
 }
 
 bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
-    std::shared_ptr<CredentialInfoInterface> &info, std::vector<uint8_t> &rootSecret,
+    std::shared_ptr<CredentialInfoInterface> &info, std::shared_ptr<UpdatePinParamInterface> &pinInfo,
     std::optional<uint64_t> &secUserId)
 {
     auto hdi = HdiWrapper::GetHdiInstance();
@@ -180,7 +181,13 @@ bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t
     IAM_LOGI("hdi UpdateEnrollmentResult success, userId is %{public}d", enrollPara_.userId);
 
     credentialId = resultInfo.credentialId;
-    rootSecret = resultInfo.rootSecret;
+    pinInfo = Common::MakeShared<UpdatePinParamImpl>(resultInfo.oldInfo.credentialId, resultInfo.oldRootSecret,
+        resultInfo.rootSecret, resultInfo.authToken);
+    if (pinInfo == nullptr) {
+        IAM_LOGE("pinInfo bad alloc");
+        return false;
+    }
+
     if (isUpdate_) {
         secUserId = secUserId_;
         info = Common::MakeShared<CredentialInfoImpl>(enrollPara_.userId, resultInfo.oldInfo);
