@@ -46,8 +46,7 @@ public:
     static int32_t GetActiveUserId(std::optional<int32_t> &userId);
     static int32_t GetAllUserId(std::vector<int32_t> &userIds);
     static bool CheckPermission(IPCObjectStub &stub, Permission permission);
-    static bool GetCallerName(IPCObjectStub &stub, bool &isBundleName, std::string &callerName,
-        int32_t &callerType);
+    static bool GetCallerName(IPCObjectStub &stub, std::string &callerName, int32_t &callerType);
     static uint32_t GetAccessTokenId(IPCObjectStub &stub);
     static void SetAccessTokenId(uint32_t tokenId, bool isSetTokenId);
     static void AddPermission(Permission perm);

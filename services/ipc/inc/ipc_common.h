@@ -39,6 +39,12 @@ enum Permission {
     CLEAR_REDUNDANCY_PERMISSION,
 };
 
+enum UserAuthCallerType : int32_t {
+    TOKEN_INVALID = -1,
+    TOKEN_HAP = 0,
+    TOKEN_NATIVE,
+};
+
 class IpcCommon final : public NoCopyable {
 public:
     using Recipient = std::function<void()>;
@@ -48,8 +54,7 @@ public:
     static bool CheckPermission(IPCObjectStub &stub, Permission permission);
     static uint32_t GetAccessTokenId(IPCObjectStub &stub);
     static uint32_t GetTokenId(IPCObjectStub &stub);
-    static bool GetCallerName(IPCObjectStub &stub, bool &isBundleName, std::string &callerName,
-        int32_t &callerType);
+    static bool GetCallerName(IPCObjectStub &stub, std::string &callerName, int32_t &callerType);
     static bool CheckForegroundApplication(const std::string &bundleName);
     class PeerDeathRecipient final : public IPCObjectProxy::DeathRecipient {
     public:

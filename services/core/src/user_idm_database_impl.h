@@ -35,7 +35,7 @@ public:
     int32_t DeleteCredentialInfo(int32_t userId, uint64_t credentialId, const std::vector<uint8_t> &authToken,
         std::shared_ptr<CredentialInfoInterface> &credInfo) override;
     int32_t DeleteUser(int32_t userId, const std::vector<uint8_t> &authToken,
-        std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos) override;
+        std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos, std::vector<uint8_t> &rootSecret) override;
     int32_t DeleteUserEnforce(int32_t userId,
         std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos) override;
     std::vector<std::shared_ptr<UserInfoInterface>> GetAllExtUserInfo() override;

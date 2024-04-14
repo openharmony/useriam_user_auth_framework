@@ -19,6 +19,7 @@
 #include "mock_credential_info.h"
 #include "mock_enrollment.h"
 #include "mock_schedule_node.h"
+#include "mock_update_pin_param_info.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -60,7 +61,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_NullHdi, TestSize.Level0)
     ASSERT_NE(finalResult, nullptr);
     std::shared_ptr<MockContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
     ASSERT_NE(contextCallback, nullptr);
-    EXPECT_CALL(*contextCallback, OnResult(_, _)).Times(Exactly(1));
+    EXPECT_CALL(*contextCallback, OnResult(_, _)).Times(Exactly(0));
     // Error: enroll is null
     std::shared_ptr<Enrollment> enroll = nullptr;
 
@@ -372,7 +373,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_001, TestSize.Lev
     std::shared_ptr<MockContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
     ASSERT_NE(contextCallback, nullptr);
     EXPECT_CALL(*contextCallback, OnResult(_, _))
-        .Times(Exactly(1))
+        .Times(Exactly(0))
         .WillOnce([](int32_t resultCode, const Attributes &finalResult) {
             EXPECT_EQ(resultCode, testResultCode);
         });
@@ -395,7 +396,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_002, TestSize.Lev
     std::shared_ptr<MockContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
     ASSERT_NE(contextCallback, nullptr);
     EXPECT_CALL(*contextCallback, OnResult(_, _))
-        .Times(Exactly(1))
+        .Times(Exactly(0))
         .WillOnce([](int32_t resultCode, const Attributes &finalResult) {
             EXPECT_EQ(resultCode, ResultCode::GENERAL_ERROR);
         });
@@ -418,7 +419,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_003, TestSize.Lev
     std::shared_ptr<MockContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
     ASSERT_NE(contextCallback, nullptr);
     EXPECT_CALL(*contextCallback, OnResult(_, _))
-        .Times(Exactly(1))
+        .Times(Exactly(0))
         .WillOnce([](int32_t resultCode, const Attributes &finalResult) {
             EXPECT_EQ(resultCode, ResultCode::GENERAL_ERROR);
         });
@@ -444,9 +445,17 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_004, TestSize.Lev
     EXPECT_CALL(*mockEnroll, Update(_, _, _, _, _))
         .Times(Exactly(1))
         .WillOnce([](const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
-            std::shared_ptr<CredentialInfoInterface> &info, std::vector<uint8_t> &rootSecret,
+            std::shared_ptr<CredentialInfoInterface> &info, std::shared_ptr<UpdatePinParamInterface> &pinInfo,
             std::optional<uint64_t> &secUserId) {
             EXPECT_EQ(scheduleResult, testScheduleResult);
+            auto pinInfoTemp004 = Common::MakeShared<MockUpdatePinParamInfo>();
+            EXPECT_NE(pinInfoTemp004, nullptr);
+            std::vector<uint8_t> test = {1, 2, 3};
+            EXPECT_CALL(*pinInfoTemp004, GetOldCredentialId()).WillOnce(Return(0));
+            EXPECT_CALL(*pinInfoTemp004, GetOldRootSecret()).WillOnce(Return(test));
+            EXPECT_CALL(*pinInfoTemp004, GetRootSecret()).WillOnce(Return(test));
+            EXPECT_CALL(*pinInfoTemp004, GetAuthToken()).WillOnce(Return(test));
+            pinInfo = pinInfoTemp004;
             return false;
         });
     std::shared_ptr<MockContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
@@ -482,12 +491,19 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_005, TestSize.Lev
     EXPECT_CALL(*mockEnroll, Update(_, _, _, _, _))
         .Times(Exactly(1))
         .WillOnce([](const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
-            std::shared_ptr<CredentialInfoInterface> &info, std::vector<uint8_t> &rootSecret,
+            std::shared_ptr<CredentialInfoInterface> &info, std::shared_ptr<UpdatePinParamInterface> &pinInfo,
             std::optional<uint64_t> &secUserId) {
             EXPECT_EQ(scheduleResult, testScheduleResult);
             credentialId = testCredentialId;
             info = nullptr;
-            rootSecret = {};
+            auto pinInfoTemp005 = Common::MakeShared<MockUpdatePinParamInfo>();
+            EXPECT_NE(pinInfoTemp005, nullptr);
+            std::vector<uint8_t> test = {1, 2, 3};
+            EXPECT_CALL(*pinInfoTemp005, GetOldCredentialId()).WillOnce(Return(0));
+            EXPECT_CALL(*pinInfoTemp005, GetOldRootSecret()).WillOnce(Return(test));
+            EXPECT_CALL(*pinInfoTemp005, GetRootSecret()).WillOnce(Return(test));
+            EXPECT_CALL(*pinInfoTemp005, GetAuthToken()).WillOnce(Return(test));
+            pinInfo = pinInfoTemp005;
             return true;
         });
     std::shared_ptr<MockContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
@@ -527,15 +543,21 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_006, TestSize.Lev
     EXPECT_CALL(*mockEnroll, Update(_, _, _, _, _))
         .Times(Exactly(1))
         .WillOnce([](const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
-            std::shared_ptr<CredentialInfoInterface> &info, std::vector<uint8_t> &rootSecret,
+            std::shared_ptr<CredentialInfoInterface> &info, std::shared_ptr<UpdatePinParamInterface> &pinInfo,
             std::optional<uint64_t> &secUserId) {
             EXPECT_EQ(scheduleResult, testScheduleResult);
             credentialId = testCredentialId;
             auto credInfo = Common::MakeShared<MockCredentialInfo>();
             EXPECT_NE(credInfo, nullptr);
-            EXPECT_CALL(*credInfo, GetExecutorIndex()).WillOnce(Return(10));
             info = credInfo;
-            rootSecret = {1, 2, 3, 4};
+            auto pinInfoTemp006 = Common::MakeShared<MockUpdatePinParamInfo>();
+            EXPECT_NE(pinInfoTemp006, nullptr);
+            std::vector<uint8_t> test = {1, 2, 3};
+            EXPECT_CALL(*pinInfoTemp006, GetOldCredentialId()).WillOnce(Return(0));
+            EXPECT_CALL(*pinInfoTemp006, GetOldRootSecret()).WillOnce(Return(test));
+            EXPECT_CALL(*pinInfoTemp006, GetRootSecret()).WillOnce(Return(test));
+            EXPECT_CALL(*pinInfoTemp006, GetAuthToken()).WillOnce(Return(test));
+            pinInfo = pinInfoTemp006;
             secUserId = 0;
             return true;
         });
