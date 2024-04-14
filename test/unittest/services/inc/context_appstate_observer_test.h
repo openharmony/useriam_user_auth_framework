@@ -27,8 +27,6 @@ public:
     static void TearDownTestCase();
     void SetUp() override;
     void TearDown() override;
-    void MockNativePermission();
-    uint64_t tokenId_;
 };
 } // namespace UserAuth
 } // namespace UserIam
