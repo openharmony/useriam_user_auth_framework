@@ -30,14 +30,6 @@ namespace UserAuth {
 using namespace std;
 using namespace testing;
 using namespace testing::ext;
-const std::string ACCESS_AUTH_RESPOOL = "ohos.permission.ACCESS_AUTH_RESPOOL";
-const std::string ACROSS_LOCAL_ACCOUNTS_EXTENSION = "ohos.permission.INTERACT_ACROSS_LOCAL_ACCOUNTS_EXTENSION";
-const std::string MANAGE_LOCAL_ACCOUNTS = "ohos.permission.MANAGE_LOCAL_ACCOUNTS";
-const std::string VIBRATE = "ohos.permission.VIBRATE";
-const std::string GET_RUNNING_INFO = "ohos.permission.GET_RUNNING_INFO";
-const std::string START_SYSTEM_DIALOG = "ohos.permission.START_SYSTEM_DIALOG";
-const std::string RUNNING_STATE_OBSERVER = "ohos.permission.RUNNING_STATE_OBSERVER";
-const int32_t LOCATION_PERM_NUM = 8;
 
 void ContextAppStateObserverTest::SetUpTestCase()
 {
@@ -49,37 +41,10 @@ void ContextAppStateObserverTest::TearDownTestCase()
 
 void ContextAppStateObserverTest::SetUp()
 {
-    MockNativePermission();
 }
 
 void ContextAppStateObserverTest::TearDown()
 {
-}
-
-void ContextAppStateObserverTest::MockNativePermission()
-{
-    const char *perms[] = {
-        ACCESS_AUTH_RESPOOL.c_str(),
-        ACROSS_LOCAL_ACCOUNTS_EXTENSION.c_str(),
-        MANAGE_LOCAL_ACCOUNTS.c_str(),
-        VIBRATE.c_str(),
-        GET_RUNNING_INFO.c_str(),
-        START_SYSTEM_DIALOG.c_str(),
-        RUNNING_STATE_OBSERVER.c_str(),
-    };
-    NativeTokenInfoParams infoInstance = {
-        .dcapsNum = 0,
-        .permsNum = LOCATION_PERM_NUM,
-        .aclsNum = 0,
-        .dcaps = nullptr,
-        .perms = perms,
-        .acls = nullptr,
-        .processName = "ContextAppStateObserverTest",
-        .aplStr = "system_basic",
-    };
-    tokenId_ = GetAccessTokenId(&infoInstance);
-    SetSelfTokenID(tokenId_);
-    Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
 HWTEST_F(ContextAppStateObserverTest, SubscribeAppStateTest_001, TestSize.Level0)
