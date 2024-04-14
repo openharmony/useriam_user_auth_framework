@@ -122,7 +122,6 @@ void EnrollContext::InvokeResultCallback(int32_t resultCode, const uint64_t cred
 {
     IAM_LOGI("%{public}s start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
-    IF_FALSE_LOGE_AND_RETURN(pinInfo != nullptr);
     Attributes finalResult;
     if (secUserId.has_value()) {
         IAM_LOGI("%{public}s get sec user id has value", GetDescription());
@@ -131,22 +130,25 @@ void EnrollContext::InvokeResultCallback(int32_t resultCode, const uint64_t cred
     }
     bool setCredIdRet = finalResult.SetUint64Value(Attributes::ATTR_CREDENTIAL_ID, credentialId);
     IF_FALSE_LOGE_AND_RETURN(setCredIdRet == true);
-    bool setOldCredId = finalResult.SetUint64Value(Attributes::ATTR_OLD_CREDENTIAL_ID, pinInfo->GetOldCredentialId());
-    IF_FALSE_LOGE_AND_RETURN(setOldCredId == true);
-    std::vector<uint8_t> rootSecret = pinInfo->GetRootSecret();
-    if (rootSecret.size() != 0) {
-        bool setRootSecret = finalResult.SetUint8ArrayValue(Attributes::ATTR_ROOT_SECRET, rootSecret);
-        IF_FALSE_LOGE_AND_RETURN(setRootSecret == true);
-    }
-    std::vector<uint8_t> oldRootSecret = pinInfo->GetOldRootSecret();
-    if (oldRootSecret.size() != 0) {
-        bool setRet = finalResult.SetUint8ArrayValue(Attributes::ATTR_OLD_ROOT_SECRET, oldRootSecret);
-        IF_FALSE_LOGE_AND_RETURN(setRet == true);
-    }
-    std::vector<uint8_t> authToken = pinInfo->GetAuthToken();
-    if (authToken.size() != 0) {
-        bool setAuthToken = finalResult.SetUint8ArrayValue(Attributes::ATTR_AUTH_TOKEN, authToken);
-        IF_FALSE_LOGE_AND_RETURN(setAuthToken == true);
+    if (pinInfo != nullptr) {
+        bool setOldCredId = finalResult.SetUint64Value(Attributes::ATTR_OLD_CREDENTIAL_ID,
+            pinInfo->GetOldCredentialId());
+        IF_FALSE_LOGE_AND_RETURN(setOldCredId == true);
+        std::vector<uint8_t> rootSecret = pinInfo->GetRootSecret();
+        if (rootSecret.size() != 0) {
+            bool setRootSecret = finalResult.SetUint8ArrayValue(Attributes::ATTR_ROOT_SECRET, rootSecret);
+            IF_FALSE_LOGE_AND_RETURN(setRootSecret == true);
+        }
+        std::vector<uint8_t> oldRootSecret = pinInfo->GetOldRootSecret();
+        if (oldRootSecret.size() != 0) {
+            bool setRet = finalResult.SetUint8ArrayValue(Attributes::ATTR_OLD_ROOT_SECRET, oldRootSecret);
+            IF_FALSE_LOGE_AND_RETURN(setRet == true);
+        }
+        std::vector<uint8_t> authToken = pinInfo->GetAuthToken();
+        if (authToken.size() != 0) {
+            bool setAuthToken = finalResult.SetUint8ArrayValue(Attributes::ATTR_AUTH_TOKEN, authToken);
+            IF_FALSE_LOGE_AND_RETURN(setAuthToken == true);
+        }
     }
 
     callback_->OnResult(resultCode, finalResult);
