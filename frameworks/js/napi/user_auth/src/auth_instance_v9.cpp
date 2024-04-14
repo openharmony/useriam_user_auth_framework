@@ -69,6 +69,9 @@ UserAuthResultCode AuthInstanceV9::GetAvailableStatus(napi_env env, napi_callbac
     AuthTrustLevel authTrustLevel = AuthTrustLevel(level);
     int32_t status = UserAuthClientImpl::Instance().GetAvailableStatus(API_VERSION_9, authType, authTrustLevel);
     IAM_LOGI("result = %{public}d", status);
+    if (status == PIN_EXPIRED) {
+        return UserAuthResultCode::PIN_EXPIRED; 
+    }
     return UserAuthResultCode(UserAuthNapiHelper::GetResultCodeV9(status));
 }
 

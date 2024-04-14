@@ -97,6 +97,10 @@ public:
         ATTR_END_AFTER_FIRST_FAIL = 100038,
         /** tip info, the value type is int32_t. */
         ATTR_TIP_INFO = 100039,
+        /** Old root secret, the value type is std::vector<uint8_t>. */
+        ATTR_OLD_ROOT_SECRET = 100040,
+        /** Old credential ID, the value type is uint64_t. */
+        ATTR_OLD_CREDENTIAL_ID = 100041,
         /**
          * Private attrs.
          * User ID, the value type is int32_t.

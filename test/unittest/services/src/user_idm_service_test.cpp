@@ -854,7 +854,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceTestDump, TestSize.Level0)
         .Times(2)
         .WillOnce(Return(HDF_FAILURE))
         .WillOnce(
-            [](int32_t userId, uint64_t &secureUid, int32_t& pinSubType, std::vector<HdiEnrolledInfo> &infos) {
+            [](int32_t userId, uint64_t &secureUid, int32_t &pinSubType, std::vector<HdiEnrolledInfo> &infos) {
                 HdiEnrolledInfo info = {
                     .enrolledId = 0,
                     .authType = static_cast<HdiAuthType>(1),

@@ -134,11 +134,9 @@ void IpcCommon::SetSkipUserFlag(bool isSkip)
     skipFlag_ = isSkip;
 }
 
-bool IpcCommon::GetCallerName(IPCObjectStub &stub, bool &isBundleName, std::string &callerName,
-    int32_t &callerType)
+bool IpcCommon::GetCallerName(IPCObjectStub &stub, std::string &callerName, int32_t &callerType)
 {
     callerName = "";
-    isBundleName = true;
     callerType = 0;
     return true;
 }

@@ -68,16 +68,16 @@ void EnrollContext::OnResult(int32_t resultCode, const std::shared_ptr<Attribute
 {
     IAM_LOGI("%{public}s receive result code %{public}d", GetDescription(), resultCode);
     uint64_t credentialId = 0;
-    std::vector<uint8_t> rootSecret;
+    std::shared_ptr<UpdatePinParamInterface> pinInfo;
     std::optional<uint64_t> secUserId = std::nullopt;
-    bool updateRet = UpdateScheduleResult(scheduleResultAttr, credentialId, rootSecret, secUserId);
+    bool updateRet = UpdateScheduleResult(scheduleResultAttr, credentialId, pinInfo, secUserId);
     if (!updateRet) {
         IAM_LOGE("%{public}s UpdateScheduleResult fail", GetDescription());
         if (resultCode == SUCCESS) {
             resultCode = GetLatestError();
         }
     }
-    InvokeResultCallback(resultCode, credentialId, rootSecret, secUserId);
+    InvokeResultCallback(resultCode, credentialId, pinInfo, secUserId);
     IAM_LOGI("%{public}s on result %{public}d finish", GetDescription(), resultCode);
 }
 
@@ -99,7 +99,7 @@ bool EnrollContext::OnStop()
 }
 
 bool EnrollContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &scheduleResultAttr,
-    uint64_t &credentialId, std::vector<uint8_t> &rootSecret, std::optional<uint64_t> &secUserId)
+    uint64_t &credentialId, std::shared_ptr<UpdatePinParamInterface> &pinInfo, std::optional<uint64_t> &secUserId)
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(enroll_ != nullptr, false);
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleResultAttr != nullptr, false);
@@ -107,29 +107,22 @@ bool EnrollContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &sche
     bool getResultCodeRet = scheduleResultAttr->GetUint8ArrayValue(Attributes::ATTR_RESULT, scheduleResult);
     IF_FALSE_LOGE_AND_RETURN_VAL(getResultCodeRet == true, false);
     std::shared_ptr<CredentialInfoInterface> infoToDel;
-    bool updateRet = enroll_->Update(scheduleResult, credentialId, infoToDel, rootSecret, secUserId);
+    bool updateRet = enroll_->Update(scheduleResult, credentialId, infoToDel, pinInfo, secUserId);
     if (!updateRet) {
         IAM_LOGE("%{public}s enroll update fail", GetDescription());
         SetLatestError(enroll_->GetLatestError());
         return updateRet;
     }
-    if (infoToDel == nullptr) {
-        IAM_LOGI("no credential to delete");
-    } else {
-        std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos = {infoToDel};
-        int32_t ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos, "DeleteForUpdate");
-        if (ret != SUCCESS) {
-            IAM_LOGE("failed to delete executor info, error code : %{public}d", ret);
-        }
-    }
+
     return true;
 }
 
 void EnrollContext::InvokeResultCallback(int32_t resultCode, const uint64_t credentialId,
-    const std::vector<uint8_t> &rootSecret, std::optional<uint64_t> &secUserId) const
+    const std::shared_ptr<UpdatePinParamInterface> &pinInfo, std::optional<uint64_t> &secUserId) const
 {
     IAM_LOGI("%{public}s start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
+    IF_FALSE_LOGE_AND_RETURN(pinInfo != nullptr);
     Attributes finalResult;
     if (secUserId.has_value()) {
         IAM_LOGI("%{public}s get sec user id has value", GetDescription());
@@ -138,9 +131,22 @@ void EnrollContext::InvokeResultCallback(int32_t resultCode, const uint64_t cred
     }
     bool setCredIdRet = finalResult.SetUint64Value(Attributes::ATTR_CREDENTIAL_ID, credentialId);
     IF_FALSE_LOGE_AND_RETURN(setCredIdRet == true);
+    bool setOldCredId = finalResult.SetUint64Value(Attributes::ATTR_OLD_CREDENTIAL_ID, pinInfo->GetOldCredentialId());
+    IF_FALSE_LOGE_AND_RETURN(setOldCredId == true);
+    std::vector<uint8_t> rootSecret = pinInfo->GetRootSecret();
     if (rootSecret.size() != 0) {
         bool setRootSecret = finalResult.SetUint8ArrayValue(Attributes::ATTR_ROOT_SECRET, rootSecret);
         IF_FALSE_LOGE_AND_RETURN(setRootSecret == true);
+    }
+    std::vector<uint8_t> oldRootSecret = pinInfo->GetOldRootSecret();
+    if (oldRootSecret.size() != 0) {
+        bool setRet = finalResult.SetUint8ArrayValue(Attributes::ATTR_OLD_ROOT_SECRET, oldRootSecret);
+        IF_FALSE_LOGE_AND_RETURN(setRet == true);
+    }
+    std::vector<uint8_t> authToken = pinInfo->GetAuthToken();
+    if (authToken.size() != 0) {
+        bool setAuthToken = finalResult.SetUint8ArrayValue(Attributes::ATTR_AUTH_TOKEN, authToken);
+        IF_FALSE_LOGE_AND_RETURN(setAuthToken == true);
     }
 
     callback_->OnResult(resultCode, finalResult);

@@ -36,7 +36,7 @@ public:
     virtual int32_t DeleteCredentialInfo(int32_t userId, uint64_t credentialId,
         const std::vector<uint8_t> &authToken, std::shared_ptr<CredentialInfoInterface> &credInfo) = 0;
     virtual int32_t DeleteUser(int32_t userId, const std::vector<uint8_t> &authToken,
-        std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos) = 0;
+        std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos, std::vector<uint8_t> &rootSecret) = 0;
     virtual int32_t DeleteUserEnforce(int32_t userId,
         std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos) = 0;
     virtual std::vector<std::shared_ptr<UserInfoInterface>> GetAllExtUserInfo() = 0;
