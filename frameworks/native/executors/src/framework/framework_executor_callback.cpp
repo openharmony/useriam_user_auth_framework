@@ -127,6 +127,8 @@ ResultCode FrameworkExecutorCallback::OnSetPropertyInner(const Attributes &prope
         ret = ProcessDeleteTemplateCommand(properties);
     } else if (commandId == PROPERTY_MODE_SET_CACHED_TEMPLATES) {
         ret = ProcessSetCachedTemplates(properties);
+    } else if (commandId == PROPERTY_MODE_NOTIFY_COLLECTOR_READY) {
+        ret = ProcessNotifyExecutorReady(properties);
     } else {
         ret = ProcessCustomCommand(properties);
     }
@@ -143,6 +145,25 @@ int32_t FrameworkExecutorCallback::OnGetProperty(const Attributes &conditions, A
         results = std::move(*values);
     }
     return ret;
+}
+
+int32_t FrameworkExecutorCallback::OnSendData(uint64_t scheduleId, const Attributes &data)
+{
+    int32_t srcRole = 0;
+    bool getDestRoleRet = data.GetInt32Value(Attributes::ATTR_SRC_ROLE, srcRole);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getDestRoleRet == true, ResultCode::GENERAL_ERROR);
+    std::vector<uint8_t> extraInfo;
+    bool getExtraInfoRet = data.GetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, extraInfo);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getExtraInfoRet == true, ResultCode::GENERAL_ERROR);
+
+    auto executor = executor_.lock();
+    if (executor == nullptr) {
+        IAM_LOGE("executor has been released, process failed");
+        return ResultCode::GENERAL_ERROR;
+    }
+    auto hdi = executor->GetExecutorHdi();
+    IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, ResultCode::GENERAL_ERROR);
+    return hdi->SendMessage(scheduleId, srcRole, extraInfo);
 }
 
 ResultCode FrameworkExecutorCallback::OnGetPropertyInner(std::shared_ptr<Attributes> conditions,
@@ -244,6 +265,25 @@ ResultCode FrameworkExecutorCallback::ProcessSetCachedTemplates(const Attributes
     IF_FALSE_LOGE_AND_RETURN_VAL(getTemplateIdListRet == true, ResultCode::GENERAL_ERROR);
 
     return hdi->SetCachedTemplates(templateIdList);
+}
+
+ResultCode FrameworkExecutorCallback::ProcessNotifyExecutorReady(const Attributes &properties)
+{
+    IAM_LOGI("start");
+    auto executor = executor_.lock();
+    if (executor == nullptr) {
+        IAM_LOGE("executor has been released, process failed");
+        return ResultCode::GENERAL_ERROR;
+    }
+
+    auto hdi = executor->GetExecutorHdi();
+    IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, ResultCode::GENERAL_ERROR);
+
+    uint64_t scheduleId;
+    bool getScheduleIdRet = properties.GetUint64Value(Attributes::ATTR_SCHEDULE_ID, scheduleId);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getScheduleIdRet == true, ResultCode::GENERAL_ERROR);
+
+    return hdi->NotifyCollectorReady(scheduleId);
 }
 
 ResultCode FrameworkExecutorCallback::ProcessCustomCommand(const Attributes &properties)

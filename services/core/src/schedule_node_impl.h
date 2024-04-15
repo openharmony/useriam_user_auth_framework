@@ -70,8 +70,7 @@ public:
     void ClearScheduleCallback() override;
     bool StartSchedule() override;
     bool StopSchedule() override;
-    bool ContinueSchedule(ExecutorRole srcRole, ExecutorRole dstRole, uint64_t transNum,
-        const std::vector<uint8_t> &msg) override;
+    bool SendMessage(ExecutorRole dstRole, const std::vector<uint8_t> &msg) override;
     bool ContinueSchedule(ResultCode resultCode, const std::shared_ptr<Attributes> &finalResult) override;
 
 private:

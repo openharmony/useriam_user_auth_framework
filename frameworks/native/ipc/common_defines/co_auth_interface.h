@@ -36,6 +36,7 @@ public:
         uint32_t executorSensorHint; // for multiple sensors index
         uint32_t executorMatcher;    // for executors matcher
         ExecutorSecureLevel esl;
+        uint32_t maxTemplateAcl {0};
         std::vector<uint8_t> publicKey;
     };
 

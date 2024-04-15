@@ -30,10 +30,8 @@ class MockIExecutorMessenger : public ExecutorMessenger {
 public:
     virtual ~MockIExecutorMessenger() = default;
 
-    MOCK_METHOD5(SendData, int32_t(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole, ExecutorRole dstRole,
-                               const std::shared_ptr<AuthMessage> &msg));
-    MOCK_METHOD4(Finish,
-        int32_t(uint64_t scheduleId, ExecutorRole srcRole, int32_t resultCode, const Attributes &finalResult));
+    MOCK_METHOD3(SendData, int32_t(uint64_t scheduleId, ExecutorRole dstRole, const std::shared_ptr<AuthMessage> &msg));
+    MOCK_METHOD3(Finish, int32_t(uint64_t scheduleId, int32_t resultCode, const Attributes &finalResult));
 };
 } // namespace UserAuth
 } // namespace UserIam

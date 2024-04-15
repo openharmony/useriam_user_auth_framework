@@ -43,6 +43,7 @@ public:
     int32_t OnSetProperty(const Attributes &properties) override;
 
     int32_t OnGetProperty(const Attributes &conditions, Attributes &results) override;
+    int32_t OnSendData(uint64_t scheduleId, const Attributes &data) override;
 
 private:
     static uint32_t GenerateExecutorCallbackId();
@@ -58,6 +59,7 @@ private:
     ResultCode ProcessCancelCommand(uint64_t scheduleId);
     ResultCode ProcessDeleteTemplateCommand(const Attributes &properties);
     ResultCode ProcessSetCachedTemplates(const Attributes &properties);
+    ResultCode ProcessNotifyExecutorReady(const Attributes &properties);
     ResultCode ProcessCustomCommand(const Attributes &properties);
     ResultCode ProcessGetPropertyCommand(std::shared_ptr<Attributes> conditions, std::shared_ptr<Attributes> values);
     ResultCode FillPropertyToAttribute(const std::vector<Attributes::AttributeKey> &keyList, const Property property,

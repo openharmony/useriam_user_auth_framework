@@ -163,22 +163,20 @@ void FuzzScheduleNodeStopSchedule(Parcel &parcel)
     IAM_LOGI("end");
 }
 
-void FuzzScheduleNodeContinueSchedule001(Parcel &parcel)
+void FuzzScheduleNodeSendMessage(Parcel &parcel)
 {
     IAM_LOGI("start");
-    auto srcRole = static_cast<ExecutorRole>(parcel.ReadInt32());
     auto dstRole = static_cast<ExecutorRole>(parcel.ReadInt32());
-    uint64_t transNum = parcel.ReadUint64();
     std::vector<uint8_t> msg;
     Common::FillFuzzUint8Vector(parcel, msg);
     auto node = GetScheduleNode(parcel);
     if (node != nullptr) {
-        node->ContinueSchedule(srcRole, dstRole, transNum, msg);
+        node->SendMessage(dstRole, msg);
     }
     IAM_LOGI("end");
 }
 
-void FuzzScheduleNodeContinueSchedule002(Parcel &parcel)
+void FuzzScheduleNodeContinueSchedule(Parcel &parcel)
 {
     IAM_LOGI("start");
     auto resultCode = static_cast<ResultCode>(parcel.ReadInt32());
@@ -205,8 +203,8 @@ ScheduleNodeFuzzFunc *g_ScheduleNodeFuzzFuncs[] = {
     FuzzScheduleNodeGetCurrentScheduleState,
     FuzzScheduleNodeStartSchedule,
     FuzzScheduleNodeStopSchedule,
-    FuzzScheduleNodeContinueSchedule001,
-    FuzzScheduleNodeContinueSchedule002,
+    FuzzScheduleNodeSendMessage,
+    FuzzScheduleNodeContinueSchedule,
 };
 } // namespace
 

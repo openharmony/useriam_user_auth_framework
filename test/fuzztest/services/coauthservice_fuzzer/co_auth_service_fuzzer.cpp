@@ -45,11 +45,12 @@ std::u16string cmd[] = {u"-h", u"-lc", u"-ls", u"-c", u"-c [base system]", u"-s"
 class CoAuthServiceFuzzer : public ExecutorCallbackInterface {
 public:
     CoAuthServiceFuzzer(int32_t onBeginExecuteResult, int32_t onEndExecuteResult, int32_t onSetPropertyResult,
-        int32_t onGetPropertyResult)
+        int32_t onGetPropertyResult, int32_t onSendDataResult)
         : onBeginExecuteResult_(onBeginExecuteResult),
           onEndExecuteResult_(onEndExecuteResult),
           onSetPropertyResult_(onSetPropertyResult),
-          onGetPropertyResult_(onGetPropertyResult)
+          onGetPropertyResult_(onGetPropertyResult),
+          onSendDataResult_(onSendDataResult)
     {
     }
 
@@ -87,6 +88,12 @@ public:
         return onGetPropertyResult_;
     }
 
+    int32_t OnSendData(uint64_t scheduleId, const Attributes &data) override
+    {
+        IAM_LOGI("start");
+        return onSendDataResult_;
+    }
+
     sptr<IRemoteObject> AsObject() override
     {
         sptr<IRemoteObject> tmp(nullptr);
@@ -98,6 +105,7 @@ private:
     int32_t onEndExecuteResult_;
     int32_t onSetPropertyResult_;
     int32_t onGetPropertyResult_;
+    int32_t onSendDataResult_;
 };
 
 void FillFuzzExecutorRegisterInfo(Parcel &parcel, ExecutorRegisterInfo &executorInfo)
@@ -122,7 +130,8 @@ void FuzzRegister(Parcel &parcel)
     sptr<ExecutorCallbackInterface> callback(nullptr);
     if (parcel.ReadBool()) {
         callback = sptr<ExecutorCallbackInterface>(new (std::nothrow)
-            CoAuthServiceFuzzer(parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32()));
+            CoAuthServiceFuzzer(parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32(),
+                parcel.ReadInt32()));
     }
     g_coAuthService.ExecutorRegister(executorInfo, callback);
     IAM_LOGI("FuzzRegister end");
@@ -132,14 +141,12 @@ void FuzzSendData(Parcel &parcel)
 {
     IAM_LOGI("FuzzSendData begin");
     uint64_t scheduleId = parcel.ReadUint64();
-    uint64_t transNum = parcel.ReadUint64();
-    ExecutorRole srcRole = static_cast<ExecutorRole>(parcel.ReadInt32());
     ExecutorRole dstRole = static_cast<ExecutorRole>(parcel.ReadInt32());
     std::vector<uint8_t> msg;
     Common::FillFuzzUint8Vector(parcel, msg);
 
     if (executorMessengerService != nullptr) {
-        executorMessengerService->SendData(scheduleId, transNum, srcRole, dstRole, msg);
+        executorMessengerService->SendData(scheduleId, dstRole, msg);
     }
     IAM_LOGI("FuzzSendData end");
 }
@@ -148,12 +155,11 @@ void FuzzFinish(Parcel &parcel)
 {
     IAM_LOGI("FuzzFinish begin");
     uint64_t scheduleId = parcel.ReadUint64();
-    ExecutorRole srcRole = static_cast<ExecutorRole>(parcel.ReadInt32());
     ResultCode resultCode = static_cast<ResultCode>(parcel.ReadInt32());
     auto finalResult = Common::MakeShared<Attributes>();
 
     if (executorMessengerService != nullptr) {
-        executorMessengerService->Finish(scheduleId, srcRole, resultCode, finalResult);
+        executorMessengerService->Finish(scheduleId, resultCode, finalResult);
     }
     IAM_LOGI("FuzzFinish end");
 }

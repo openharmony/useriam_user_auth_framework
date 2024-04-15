@@ -34,6 +34,7 @@ public:
     int32_t OnEndExecute(uint64_t scheduleId, const Attributes &command) override;
     int32_t OnSetProperty(const Attributes &properties) override;
     int32_t OnGetProperty(const Attributes &condition, Attributes &values) override;
+    int32_t OnSendData(uint64_t scheduleId, const Attributes &data) override;
 
 private:
     std::shared_ptr<ExecutorRegisterCallback> callback_ {nullptr};

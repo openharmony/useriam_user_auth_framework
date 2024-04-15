@@ -19,6 +19,8 @@
 
 #include "nocopyable.h"
 
+#include "hdi_wrapper.h"
+#include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
 #include "iam_para2str.h"
@@ -152,19 +154,40 @@ bool ScheduleNodeImpl::StopSchedule()
     return TryKickMachine(E_STOP_AUTH);
 }
 
-bool ScheduleNodeImpl::ContinueSchedule(ExecutorRole srcRole, ExecutorRole dstRole, uint64_t transNum,
-    const std::vector<uint8_t> &msg)
+bool ScheduleNodeImpl::SendMessage(ExecutorRole dstRole, const std::vector<uint8_t> &msg)
 {
-    if (dstRole != SCHEDULER) {
-        IAM_LOGE("not supported yet");
-        return false;
+    Attributes attr(msg);
+    if (dstRole == SCHEDULER) {
+        int32_t tip;
+        if (attr.GetInt32Value(Attributes::ATTR_TIP_INFO, tip)) {
+            std::shared_ptr<ScheduleNodeCallback> callback = GetScheduleCallback();
+            IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, false);
+            callback->OnScheduleProcessed(dstRole, GetAuthType(), msg);
+            return true;
+        } else {
+            int srcRole;
+            std::vector<uint8_t> msg;
+            bool getAcquireRet = attr.GetInt32Value(Attributes::ATTR_SRC_ROLE, srcRole);
+            IF_FALSE_LOGE_AND_RETURN_VAL(getAcquireRet, false);
+            bool getExtraInfoRet = attr.GetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, msg);
+            IF_FALSE_LOGE_AND_RETURN_VAL(getExtraInfoRet, false);
+            auto hdi = HdiWrapper::GetHdiInstance();
+            IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, false);
+            int sendMsgRet = hdi->SendMessage(GetScheduleId(), srcRole, msg);
+            IF_FALSE_LOGE_AND_RETURN_VAL(sendMsgRet == HDF_SUCCESS, false);
+            return true;
+        }
     }
 
-    std::shared_ptr<ScheduleNodeCallback> callback = GetScheduleCallback();
-    if (callback) {
-        callback->OnScheduleProcessed(srcRole, GetAuthType(), msg);
+    std::shared_ptr<ResourceNode> node = nullptr;
+    if (dstRole == ALL_IN_ONE || dstRole == VERIFIER) {
+        node = info_.verifier.lock();
+    } else if (dstRole == COLLECTOR) {
+        node = info_.collector.lock();
     }
 
+    IF_FALSE_LOGE_AND_RETURN_VAL(node != nullptr, false);
+    node->SendData(GetScheduleId(), attr);
     return true;
 }
 
