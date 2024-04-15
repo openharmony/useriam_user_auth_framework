@@ -70,6 +70,14 @@ public:
         return SUCCESS;
     }
 
+    int32_t OnSendData(uint64_t scheduleId, const Attributes &data) override
+    {
+        IAM_LOGI("start");
+        static_cast<void>(scheduleId);
+        static_cast<void>(data);
+        return SUCCESS;
+    }
+
     sptr<IRemoteObject> AsObject() override
     {
         sptr<IRemoteObject> tmp(nullptr);

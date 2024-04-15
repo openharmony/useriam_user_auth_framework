@@ -42,20 +42,6 @@ enum UserAuthResult : int32_t {
 };
 
 /**
- * @brief Defines Template infomation.
- */
-struct TemplateInfo {
-    /** Executor type. */
-    uint32_t executorType;
-    /** Freezing time. */
-    int32_t freezingTime;
-    /** Remain time. */
-    int32_t remainTimes;
-    /** Extra Info. */
-    std::vector<uint8_t> extraInfo;
-};
-
-/**
  * @brief Defines Enroll parameter.
  */
 struct EnrollParam {
@@ -77,6 +63,14 @@ struct AuthenticateParam {
     std::vector<uint8_t> extraInfo;
     /** End after first fail. */
     bool endAfterFirstFail;
+};
+
+/**
+ * @brief Defines Collect parameter.
+ */
+struct CollectParam {
+    /** Extra info. */
+    std::vector<uint8_t> extraInfo;
 };
 
 /**

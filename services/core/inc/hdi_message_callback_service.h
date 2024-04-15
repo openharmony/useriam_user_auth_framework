@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,32 +13,24 @@
  * limitations under the License.
  */
 
-#ifndef IDENTIFY_COMMAND_H
-#define IDENTIFY_COMMAND_H
+#ifndef HDI_MESSAGE_CALLBACK_IMPL_H
+#define HDI_MESSAGE_CALLBACK_IMPL_H
 
-#include "iam_hitrace_helper.h"
-
-#include "async_command_base.h"
+#include "user_auth_hdi.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class IdentifyCommand : public AsyncCommandBase {
+class HdiMessageCallbackService : public HdiIMessageCallback {
 public:
-    IdentifyCommand(std::weak_ptr<Executor> executor, uint64_t scheduleId, const Attributes &commandAttrs,
-        std::shared_ptr<ExecutorMessenger> executorMessenger);
-    ~IdentifyCommand() override = default;
+    static sptr<HdiMessageCallbackService> GetInstance();
+    void OnHdiConnect();
 
-protected:
-    ResultCode SendRequest() override;
-    void OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo) override;
-
+    int32_t OnMessage(uint64_t scheduleId, int32_t destRole, const std::vector<uint8_t>& msg) override;
 private:
-    std::shared_ptr<Attributes> attributes_;
-    std::shared_ptr<IamHitraceHelper> iamHitraceHelper_;
+    ~HdiMessageCallbackService() override = default;
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-
-#endif // IDENTIFY_COMMAND_H
+#endif // HDI_MESSAGE_CALLBACK_IMPL_H

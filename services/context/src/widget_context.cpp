@@ -226,7 +226,7 @@ void WidgetContext::AuthResult(int32_t resultCode, int32_t authType, const Attri
     IAM_LOGI("call schedule:");
     if (resultCode == ResultCode::SUCCESS) {
         finalResult.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authResultInfo_.token);
-        finalResult.GetUint16Value(Attributes::ATTR_CREDENTIAL_DIGEST, authResultInfo_.credentialDigest);
+        finalResult.GetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, authResultInfo_.credentialDigest);
         finalResult.GetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, authResultInfo_.credentialCount);
         authResultInfo_.authType = authTypeTmp;
         schedule_->SuccessAuth(authTypeTmp);
@@ -407,7 +407,8 @@ void WidgetContext::End(const ResultCode &resultCode)
                 return;
             }
         }
-        if (!attr.SetUint16Value(Attributes::ATTR_CREDENTIAL_DIGEST, authResultInfo_.credentialDigest)) {
+        uint16_t credentialDigest = static_cast<uint16_t>(authResultInfo_.credentialDigest & UINT16_MAX);
+        if (!attr.SetUint16Value(Attributes::ATTR_CREDENTIAL_DIGEST, credentialDigest)) {
             IAM_LOGE("set credential digest failed.");
             callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
             return;

@@ -101,7 +101,7 @@ private:
     struct WidgetAuthResultInfo {
         std::vector<uint8_t> token {};
         AuthType authType { 0 };
-        uint16_t credentialDigest;
+        uint64_t credentialDigest;
         uint16_t credentialCount;
         int32_t pinExpiredInfo;
     };

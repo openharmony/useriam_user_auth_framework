@@ -29,8 +29,8 @@ ExecutorMessengerClient::ExecutorMessengerClient(const sptr<ExecutorMessengerInt
 {
 }
 
-int32_t ExecutorMessengerClient::SendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole,
-    ExecutorRole dstRole, const std::shared_ptr<AuthMessage> &msg)
+int32_t ExecutorMessengerClient::SendData(uint64_t scheduleId, ExecutorRole dstRole,
+    const std::shared_ptr<AuthMessage> &msg)
 {
     IAM_LOGI("start");
     if (messenger_ == nullptr) {
@@ -44,10 +44,10 @@ int32_t ExecutorMessengerClient::SendData(uint64_t scheduleId, uint64_t transNum
     } else {
         buffer = AuthMessageImpl::GetMsgBuffer(msg);
     }
-    return messenger_->SendData(scheduleId, transNum, srcRole, dstRole, buffer);
+    return messenger_->SendData(scheduleId, dstRole, buffer);
 }
 
-int32_t ExecutorMessengerClient::Finish(uint64_t scheduleId, ExecutorRole srcRole, int32_t resultCode,
+int32_t ExecutorMessengerClient::Finish(uint64_t scheduleId, int32_t resultCode,
     const Attributes &finalResult)
 {
     IAM_LOGI("start");
@@ -60,7 +60,7 @@ int32_t ExecutorMessengerClient::Finish(uint64_t scheduleId, ExecutorRole srcRol
         IAM_LOGE("failed to create attributes");
         return GENERAL_ERROR;
     }
-    return messenger_->Finish(scheduleId, srcRole, static_cast<ResultCode>(resultCode), attr);
+    return messenger_->Finish(scheduleId, static_cast<ResultCode>(resultCode), attr);
 }
 } // namespace UserAuth
 } // namespace UserIam

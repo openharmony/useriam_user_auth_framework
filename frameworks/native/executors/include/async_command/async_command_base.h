@@ -41,6 +41,7 @@ public:
     ResultCode StartProcess() override;
     void OnResult(ResultCode result) override;
     void OnResult(ResultCode result, const std::vector<uint8_t> &extraInfo) override;
+    void OnMessage(int destRole, const std::vector<uint8_t> &msg) override;
     void OnAcquireInfo(int32_t acquire, const std::vector<uint8_t> &extraInfo) override;
     int32_t GetAuthType();
 
@@ -48,11 +49,12 @@ protected:
     static uint32_t GenerateCommandId();
     virtual ResultCode SendRequest() = 0;
     virtual void OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo) = 0;
-    virtual void OnAcquireInfoInner(int32_t acquire, const std::vector<uint8_t> &extraInfo) = 0;
+    virtual void OnAcquireInfoInner(int32_t acquire, const std::vector<uint8_t> &extraInfo);
+    virtual void OnMessageInner(int destRole, const std::vector<uint8_t> &msg);
     std::shared_ptr<IAuthExecutorHdi> GetExecutorHdi();
-    int32_t MessengerSendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcType, ExecutorRole dstType,
+    int32_t MessengerSendData(uint64_t scheduleId, ExecutorRole dstType,
         std::shared_ptr<AuthMessage> msg);
-    int32_t MessengerFinish(uint64_t scheduleId, ExecutorRole srcType, int32_t resultCode,
+    int32_t MessengerFinish(uint64_t scheduleId, int32_t resultCode,
         std::shared_ptr<Attributes> finalResult);
 
     const char *GetDescription();

@@ -44,6 +44,7 @@ ohos_fuzztest("UserAuthDriverManagerFuzzTest") {
     "../../../../frameworks/native/executors/src/executor.cpp",
     "../../../../frameworks/native/executors/src/framework/executor_mgr_wrapper.cpp",
     "../../../../frameworks/native/executors/src/framework/framework_executor_callback.cpp",
+    "../../../../frameworks/native/executors/src/iauth_executor_hdi.cpp",
     "../../../../frameworks/native/executors/src/idriver_manager.cpp",
     "../../../../frameworks/native/executors/src/listener/auth_executor_mgr_status_listener.cpp",
     "../../../../frameworks/native/executors/src/listener/driver_manager_status_listener.cpp",

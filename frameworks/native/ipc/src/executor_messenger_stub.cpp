@@ -52,21 +52,11 @@ int32_t ExecutorMessengerStub::OnRemoteRequest(uint32_t code, MessageParcel &dat
 int32_t ExecutorMessengerStub::SendDataStub(MessageParcel &data, MessageParcel &reply)
 {
     uint64_t scheduleId;
-    uint64_t transNum;
-    int32_t srcRole;
     int32_t dstRole;
     std::vector<uint8_t> msg;
 
     if (!data.ReadUint64(scheduleId)) {
         IAM_LOGE("read scheduleId failed");
-        return READ_PARCEL_ERROR;
-    }
-    if (!data.ReadUint64(transNum)) {
-        IAM_LOGE("read transNum failed");
-        return READ_PARCEL_ERROR;
-    }
-    if (!data.ReadInt32(srcRole)) {
-        IAM_LOGE("read srcRole failed");
         return READ_PARCEL_ERROR;
     }
     if (!data.ReadInt32(dstRole)) {
@@ -78,8 +68,7 @@ int32_t ExecutorMessengerStub::SendDataStub(MessageParcel &data, MessageParcel &
         return GENERAL_ERROR;
     }
 
-    int32_t result =
-        SendData(scheduleId, transNum, static_cast<ExecutorRole>(srcRole), static_cast<ExecutorRole>(dstRole), msg);
+    int32_t result = SendData(scheduleId, static_cast<ExecutorRole>(dstRole), msg);
     if (!reply.WriteInt32(result)) {
         IAM_LOGE("write SendData result failed");
         return WRITE_PARCEL_ERROR;
@@ -90,16 +79,11 @@ int32_t ExecutorMessengerStub::SendDataStub(MessageParcel &data, MessageParcel &
 int32_t ExecutorMessengerStub::FinishStub(MessageParcel &data, MessageParcel &reply)
 {
     uint64_t scheduleId;
-    int32_t srcRole;
     int32_t resultCode;
     std::vector<uint8_t> attributes;
 
     if (!data.ReadUint64(scheduleId)) {
         IAM_LOGE("read scheduleId failed");
-        return READ_PARCEL_ERROR;
-    }
-    if (!data.ReadInt32(srcRole)) {
-        IAM_LOGE("read srcRole failed");
         return READ_PARCEL_ERROR;
     }
     if (!data.ReadInt32(resultCode)) {
@@ -113,7 +97,7 @@ int32_t ExecutorMessengerStub::FinishStub(MessageParcel &data, MessageParcel &re
     auto finalResult = Common::MakeShared<Attributes>(attributes);
     IF_FALSE_LOGE_AND_RETURN_VAL(finalResult != nullptr, WRITE_PARCEL_ERROR);
     int32_t result =
-        Finish(scheduleId, static_cast<ExecutorRole>(srcRole), static_cast<ResultCode>(resultCode), finalResult);
+        Finish(scheduleId, static_cast<ResultCode>(resultCode), finalResult);
     if (!reply.WriteInt32(result)) {
         IAM_LOGE("write Finish result failed");
         return WRITE_PARCEL_ERROR;
