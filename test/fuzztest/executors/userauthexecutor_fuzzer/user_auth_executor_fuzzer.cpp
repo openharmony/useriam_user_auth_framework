@@ -46,6 +46,15 @@ public:
     DummyAuthExecutorHdi() = default;
     ~DummyAuthExecutorHdi() override = default;
 
+    ResultCode SendMessage(uint64_t scheduleId, int32_t srcRole, const std::vector<uint8_t> &msg) override
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (fuzzParcel_ == nullptr) {
+            return ResultCode::GENERAL_ERROR;
+        }
+        return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
+    }
+
     ResultCode GetExecutorInfo(ExecutorInfo &executorInfo) override
     {
         std::lock_guard<std::mutex> lock(mutex_);
@@ -205,22 +214,17 @@ public:
 class DummyExecutorMessenger : public ExecutorMessenger {
 public:
     virtual ~DummyExecutorMessenger() = default;
-    int32_t SendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole, ExecutorRole dstRole,
-        const std::shared_ptr<AuthMessage> &msg) override
+    int32_t SendData(uint64_t scheduleId, ExecutorRole dstRole, const std::shared_ptr<AuthMessage> &msg) override
     {
         static_cast<void>(scheduleId);
-        static_cast<void>(transNum);
-        static_cast<void>(srcRole);
         static_cast<void>(dstRole);
         static_cast<void>(msg);
         return fuzzParcel_->ReadInt32();
     }
 
-    int32_t Finish(uint64_t scheduleId, ExecutorRole srcRole, int32_t resultCode,
-        const Attributes &finalResult) override
+    int32_t Finish(uint64_t scheduleId, int32_t resultCode, const Attributes &finalResult) override
     {
         static_cast<void>(scheduleId);
-        static_cast<void>(srcRole);
         static_cast<void>(resultCode);
         static_cast<void>(finalResult);
         return fuzzParcel_->ReadInt32();

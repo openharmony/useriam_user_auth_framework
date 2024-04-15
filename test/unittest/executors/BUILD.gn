@@ -38,6 +38,7 @@ ohos_unittest("iam_executors_test") {
   sources = [
     "../../../frameworks/native/executors/src/async_command/async_command_base.cpp",
     "../../../frameworks/native/executors/src/async_command/auth_command.cpp",
+    "../../../frameworks/native/executors/src/async_command/collect_command.cpp",
     "../../../frameworks/native/executors/src/async_command/custom_command.cpp",
     "../../../frameworks/native/executors/src/async_command/enroll_command.cpp",
     "../../../frameworks/native/executors/src/async_command/identify_command.cpp",
@@ -46,6 +47,7 @@ ohos_unittest("iam_executors_test") {
     "../../../frameworks/native/executors/src/executor.cpp",
     "../../../frameworks/native/executors/src/framework/executor_mgr_wrapper.cpp",
     "../../../frameworks/native/executors/src/framework/framework_executor_callback.cpp",
+    "../../../frameworks/native/executors/src/iauth_executor_hdi.cpp",
     "../../../frameworks/native/executors/src/idriver_manager.cpp",
     "../../../frameworks/native/executors/src/listener/auth_executor_mgr_status_listener.cpp",
     "../../../frameworks/native/executors/src/listener/driver_manager_status_listener.cpp",

@@ -56,8 +56,6 @@ HWTEST_F(ExecutorMessengerServiceTest, ExecutorMessengerServiceTest002, TestSize
     uint64_t testScheduleId1 = 1545;
     uint64_t testScheduleId2 = 1876;
     uint64_t testContextId = 78545;
-    uint64_t testTransNum = 8751;
-    ExecutorRole testSrcRole = SCHEDULER;
     ExecutorRole testDstRole = VERIFIER;
     ResultCode testResultCode = FAIL;
     std::shared_ptr<Attributes> testFinalResult = nullptr;
@@ -66,19 +64,19 @@ HWTEST_F(ExecutorMessengerServiceTest, ExecutorMessengerServiceTest002, TestSize
     auto service = ExecutorMessengerService::GetInstance();
     EXPECT_NE(service, nullptr);
     
-    int32_t result1 = service->SendData(testScheduleId1, testTransNum, testSrcRole, testDstRole, testMsg);
+    int32_t result1 = service->SendData(testScheduleId1, testDstRole, testMsg);
     EXPECT_EQ(result1, GENERAL_ERROR);
 
-    int32_t result2 = service->Finish(testScheduleId1, testSrcRole, testResultCode, testFinalResult);
+    int32_t result2 = service->Finish(testScheduleId1, testResultCode, testFinalResult);
     EXPECT_EQ(result2, GENERAL_ERROR);
 
     auto scheduleNode1 = MockScheduleNode::CreateWithScheduleId(testScheduleId1);
     EXPECT_NE(scheduleNode1, nullptr);
-    EXPECT_CALL(*scheduleNode1, ContinueSchedule(_, _, _, _)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*scheduleNode1, SendMessage(_,  _)).WillRepeatedly(Return(false));
     EXPECT_CALL(*scheduleNode1, ContinueSchedule(_, _)).WillRepeatedly(Return(false));
     auto scheduleNode2 = MockScheduleNode::CreateWithScheduleId(testScheduleId2);
     EXPECT_NE(scheduleNode2, nullptr);
-    EXPECT_CALL(*scheduleNode2, ContinueSchedule(_, _, _, _)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*scheduleNode2, SendMessage(_,  _)).WillRepeatedly(Return(true));
     EXPECT_CALL(*scheduleNode2, ContinueSchedule(_, _)).WillRepeatedly(Return(true));
     std::set<std::shared_ptr<ScheduleNode>> scheduleNodeSet;
     scheduleNodeSet.insert(scheduleNode1);
@@ -88,14 +86,14 @@ HWTEST_F(ExecutorMessengerServiceTest, ExecutorMessengerServiceTest002, TestSize
     EXPECT_NE(context, nullptr);
     EXPECT_TRUE(ContextPool::Instance().Insert(context));
 
-    result1 = service->SendData(testScheduleId1, testTransNum, testSrcRole, testDstRole, testMsg);
+    result1 = service->SendData(testScheduleId1, testDstRole, testMsg);
     EXPECT_EQ(result1, GENERAL_ERROR);
-    result1 = service->SendData(testScheduleId2, testTransNum, testSrcRole, testDstRole, testMsg);
+    result1 = service->SendData(testScheduleId2, testDstRole, testMsg);
     EXPECT_EQ(result1, SUCCESS);
 
-    result2 = service->Finish(testScheduleId1, testSrcRole, testResultCode, testFinalResult);
+    result2 = service->Finish(testScheduleId1, testResultCode, testFinalResult);
     EXPECT_EQ(result2, GENERAL_ERROR);
-    result2 = service->Finish(testScheduleId2, testSrcRole, testResultCode, testFinalResult);
+    result2 = service->Finish(testScheduleId2, testResultCode, testFinalResult);
     EXPECT_EQ(result2, SUCCESS);
 
     EXPECT_TRUE(ContextPool::Instance().Delete(testContextId));

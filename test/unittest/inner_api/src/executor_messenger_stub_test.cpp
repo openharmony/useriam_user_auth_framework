@@ -45,8 +45,6 @@ void ExecutorMessengerStubTest::TearDown()
 HWTEST_F(ExecutorMessengerStubTest, TestSendDataStub_001, TestSize.Level0)
 {
     uint64_t scheduleId = 6598;
-    uint64_t transNum = 8784;
-    ExecutorRole srcRole = SCHEDULER;
     ExecutorRole dstRole = COLLECTOR;
     std::vector<uint8_t> message = {1, 2, 4, 6};
 
@@ -57,14 +55,12 @@ HWTEST_F(ExecutorMessengerStubTest, TestSendDataStub_001, TestSize.Level0)
 
     EXPECT_TRUE(data.WriteInterfaceToken(ExecutorMessengerInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteUint64(scheduleId));
-    EXPECT_TRUE(data.WriteUint64(transNum));
-    EXPECT_TRUE(data.WriteInt32(srcRole));
     EXPECT_TRUE(data.WriteInt32(dstRole));
     EXPECT_TRUE(data.WriteUInt8Vector(message));
     
     auto service = Common::MakeShared<MockExecutorMessengerService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, SendData(_, _, _, _, _)).Times(1);
+    EXPECT_CALL(*service, SendData(_, _, _)).Times(1);
 
     EXPECT_EQ(service->OnRemoteRequest(code, data, reply, option), SUCCESS);
 }
@@ -72,7 +68,6 @@ HWTEST_F(ExecutorMessengerStubTest, TestSendDataStub_001, TestSize.Level0)
 HWTEST_F(ExecutorMessengerStubTest, TestFinishStub_001, TestSize.Level0)
 {
     uint64_t scheduleId = 6598;
-    ExecutorRole srcRole = SCHEDULER;
     ResultCode resultCode = SUCCESS;
     std::vector<uint8_t> finalResult = {1, 2, 4, 6};
 
@@ -83,13 +78,12 @@ HWTEST_F(ExecutorMessengerStubTest, TestFinishStub_001, TestSize.Level0)
 
     EXPECT_TRUE(data.WriteInterfaceToken(ExecutorMessengerInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteUint64(scheduleId));
-    EXPECT_TRUE(data.WriteInt32(srcRole));
     EXPECT_TRUE(data.WriteInt32(resultCode));
     EXPECT_TRUE(data.WriteUInt8Vector(finalResult));
 
     auto service = Common::MakeShared<MockExecutorMessengerService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, Finish(_, _, _, _)).Times(1);
+    EXPECT_CALL(*service, Finish(_, _, _)).Times(1);
 
     EXPECT_EQ(service->OnRemoteRequest(code, data, reply, option), SUCCESS);
 }

@@ -25,13 +25,13 @@ namespace UserAuth {
 class ExecutorMessengerService : public ExecutorMessengerStub {
 public:
     static sptr<ExecutorMessengerService> GetInstance();
-    int32_t SendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole, ExecutorRole dstRole,
+    int32_t SendData(uint64_t scheduleId, ExecutorRole dstRole,
         const std::vector<uint8_t> &msg) override;
-    int32_t Finish(uint64_t scheduleId, ExecutorRole srcRole, ResultCode resultCode,
+    int32_t Finish(uint64_t scheduleId, ResultCode resultCode,
         const std::shared_ptr<Attributes> &finalResult) override;
 
 private:
-    ExecutorMessengerService();
+    explicit ExecutorMessengerService();
     ~ExecutorMessengerService() override = default;
 };
 } // namespace UserAuth

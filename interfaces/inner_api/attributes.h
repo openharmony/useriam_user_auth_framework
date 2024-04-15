@@ -53,8 +53,10 @@ public:
         ATTR_ERROR_COUNT = 100008,
         /** Remain time, the value type is int32_t. */
         ATTR_REMAIN_TIMES = 100009,
+        ATTR_REMAIN_ATTEMPTS = ATTR_REMAIN_TIMES,
         /** Freezing time, the value type is int32_t. */
         ATTR_FREEZING_TIME = 100010,
+        ATTR_LOCKOUT_DURATION = ATTR_FREEZING_TIME,
         /** Session ID, the value type is uint64_t. */
         ATTR_SESSION_ID = 100014,
         /** Schedule version, the value type is uint32_t. */
@@ -101,6 +103,8 @@ public:
         ATTR_OLD_ROOT_SECRET = 100040,
         /** Old credential ID, the value type is uint64_t. */
         ATTR_OLD_CREDENTIAL_ID = 100041,
+        /** Source role, the value type is int32_t. */
+        ATTR_SRC_ROLE = 100042,
         /**
          * Private attrs.
          * User ID, the value type is int32_t.

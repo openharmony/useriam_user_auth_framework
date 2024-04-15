@@ -27,7 +27,7 @@ ExecutorMessengerProxy::ExecutorMessengerProxy(const sptr<IRemoteObject> &impl)
 {
 }
 
-int32_t ExecutorMessengerProxy::SendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole,
+int32_t ExecutorMessengerProxy::SendData(uint64_t scheduleId,
     ExecutorRole dstRole, const std::vector<uint8_t> &msg)
 {
     MessageParcel data;
@@ -39,14 +39,6 @@ int32_t ExecutorMessengerProxy::SendData(uint64_t scheduleId, uint64_t transNum,
     }
     if (!data.WriteUint64(scheduleId)) {
         IAM_LOGE("failed to write scheduleId");
-        return WRITE_PARCEL_ERROR;
-    }
-    if (!data.WriteUint64(transNum)) {
-        IAM_LOGE("failed to write transNum");
-        return WRITE_PARCEL_ERROR;
-    }
-    if (!data.WriteInt32(srcRole)) {
-        IAM_LOGE("failed to write srcRole");
         return WRITE_PARCEL_ERROR;
     }
     if (!data.WriteInt32(dstRole)) {
@@ -71,7 +63,7 @@ int32_t ExecutorMessengerProxy::SendData(uint64_t scheduleId, uint64_t transNum,
     return result;
 }
 
-int32_t ExecutorMessengerProxy::Finish(uint64_t scheduleId, ExecutorRole srcRole, ResultCode resultCode,
+int32_t ExecutorMessengerProxy::Finish(uint64_t scheduleId, ResultCode resultCode,
     const std::shared_ptr<Attributes> &finalResult)
 {
     if (finalResult == nullptr) {
@@ -87,10 +79,6 @@ int32_t ExecutorMessengerProxy::Finish(uint64_t scheduleId, ExecutorRole srcRole
     }
     if (!data.WriteUint64(scheduleId)) {
         IAM_LOGE("failed to write scheduleId");
-        return WRITE_PARCEL_ERROR;
-    }
-    if (!data.WriteInt32(srcRole)) {
-        IAM_LOGE("failed to write srcRole");
         return WRITE_PARCEL_ERROR;
     }
     if (!data.WriteInt32(resultCode)) {

@@ -49,6 +49,7 @@ public:
     int32_t EndExecute(uint64_t scheduleId, const Attributes &command) override;
     int32_t SetProperty(const Attributes &properties) override;
     int32_t GetProperty(const Attributes &condition, Attributes &values) override;
+    int32_t SendData(uint64_t scheduleId, const Attributes &data) override;
     void Detach() override;
     friend ResourceNode;
 
@@ -164,6 +165,16 @@ int32_t ResourceNodeImpl::GetProperty(const Attributes &condition, Attributes &v
     IAM_LOGI("start");
     if (callback_ != nullptr) {
         return callback_->OnGetProperty(condition, values);
+    }
+    return GENERAL_ERROR;
+}
+
+int32_t ResourceNodeImpl::SendData(uint64_t scheduleId, const Attributes &data)
+{
+    IAM_LOGI("start");
+    
+    if (callback_ != nullptr) {
+        return callback_->OnSendData(scheduleId, data);
     }
     return GENERAL_ERROR;
 }

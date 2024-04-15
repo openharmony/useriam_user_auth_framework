@@ -156,6 +156,7 @@ ohos_source_set("userauth_service_core_fuzzer") {
     "../../../services/core/src/credential_info_impl.cpp",
     "../../../services/core/src/enrolled_info_impl.cpp",
     "../../../services/core/src/enrollment_impl.cpp",
+    "../../../services/core/src/hdi_message_callback_service.cpp",
     "../../../services/core/src/identification_impl.cpp",
     "../../../services/core/src/resource_node_impl.cpp",
     "../../../services/core/src/resource_node_pool_impl.cpp",

@@ -34,6 +34,7 @@ private:
     int32_t OnEndExecuteStub(MessageParcel &data, MessageParcel &reply);
     int32_t OnSetPropertyStub(MessageParcel &data, MessageParcel &reply);
     int32_t OnGetPropertyStub(MessageParcel &data, MessageParcel &reply);
+    int32_t OnSendDataStub(MessageParcel &data, MessageParcel &reply);
 };
 } // namespace UserAuth
 } // namespace UserIam

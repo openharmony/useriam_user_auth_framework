@@ -41,6 +41,7 @@ Executor::Executor(std::shared_ptr<ExecutorMgrWrapper> executorMgrWrapper,
     ExecutorInfo executorInfo = {};
     IF_FALSE_LOGE_AND_RETURN(hdi->GetExecutorInfo(executorInfo) == ResultCode::SUCCESS);
     authType_ = executorInfo.authType;
+    executorRole_ = executorInfo.executorRole;
     std::ostringstream ss;
     uint32_t combineExecutorId =
         Common::CombineUint16ToUint32(hdiId_, static_cast<uint16_t>(executorInfo.executorSensorHint));
@@ -150,6 +151,11 @@ const char *Executor::GetDescription()
 int32_t Executor::GetAuthType() const
 {
     return authType_;
+}
+
+int32_t Executor::GetExecutorRole() const
+{
+    return executorRole_;
 }
 } // namespace UserAuth
 } // namespace UserIam

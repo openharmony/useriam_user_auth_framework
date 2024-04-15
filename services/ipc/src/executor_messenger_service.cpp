@@ -39,15 +39,14 @@ sptr<ExecutorMessengerService> ExecutorMessengerService::GetInstance()
     return instance;
 }
 
-int32_t ExecutorMessengerService::SendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole,
-    ExecutorRole dstRole, const std::vector<uint8_t> &msg)
+int32_t ExecutorMessengerService::SendData(uint64_t scheduleId, ExecutorRole dstRole, const std::vector<uint8_t> &msg)
 {
     auto scheduleNode = ContextPool::Instance().SelectScheduleNodeByScheduleId(scheduleId);
     if (scheduleNode == nullptr) {
         IAM_LOGE("selected schedule node is nullptr");
         return GENERAL_ERROR;
     }
-    bool result = scheduleNode->ContinueSchedule(srcRole, dstRole, transNum, msg);
+    bool result = scheduleNode->SendMessage(dstRole, msg);
     if (!result) {
         IAM_LOGE("continue schedule failed");
         return GENERAL_ERROR;
@@ -55,7 +54,7 @@ int32_t ExecutorMessengerService::SendData(uint64_t scheduleId, uint64_t transNu
     return SUCCESS;
 }
 
-int32_t ExecutorMessengerService::Finish(uint64_t scheduleId, ExecutorRole srcRole, ResultCode resultCode,
+int32_t ExecutorMessengerService::Finish(uint64_t scheduleId, ResultCode resultCode,
     const std::shared_ptr<Attributes> &finalResult)
 {
     auto scheduleNode = ContextPool::Instance().SelectScheduleNodeByScheduleId(scheduleId);

@@ -44,8 +44,6 @@ void ExecutorMessengerClientTest::TearDown()
 HWTEST_F(ExecutorMessengerClientTest, ExecutorMessengerClientTestSendData001, TestSize.Level0)
 {
     uint64_t testScheduleId = 6598;
-    uint64_t testTransNum = 8784;
-    ExecutorRole testSrcRole = SCHEDULER;
     ExecutorRole testDstRole = COLLECTOR;
     std::vector<uint8_t> message = {1, 2, 4, 6};
     std::shared_ptr<AuthMessage> testMsg = AuthMessage::As(message);
@@ -54,15 +52,13 @@ HWTEST_F(ExecutorMessengerClientTest, ExecutorMessengerClientTestSendData001, Te
     sptr<ExecutorMessengerInterface> testMessenger(nullptr);
     auto service = Common::MakeShared<ExecutorMessengerClient>(testMessenger);
     EXPECT_NE(service, nullptr);
-    int32_t result = service->SendData(testScheduleId, testTransNum, testSrcRole, testDstRole, testMsg);
+    int32_t result = service->SendData(testScheduleId, testDstRole, testMsg);
     EXPECT_EQ(result, GENERAL_ERROR);
 }
 
 HWTEST_F(ExecutorMessengerClientTest, ExecutorMessengerClientTestSendData002, TestSize.Level0)
 {
     uint64_t testScheduleId = 6598;
-    uint64_t testTransNum = 8784;
-    ExecutorRole testSrcRole = SCHEDULER;
     ExecutorRole testDstRole = COLLECTOR;
     std::shared_ptr<AuthMessage> testMsg = nullptr;
 
@@ -70,15 +66,13 @@ HWTEST_F(ExecutorMessengerClientTest, ExecutorMessengerClientTestSendData002, Te
     EXPECT_NE(testMessenger, nullptr);
     auto service = Common::MakeShared<ExecutorMessengerClient>(testMessenger);
     EXPECT_NE(service, nullptr);
-    int32_t result = service->SendData(testScheduleId, testTransNum, testSrcRole, testDstRole, testMsg);
+    int32_t result = service->SendData(testScheduleId, testDstRole, testMsg);
     EXPECT_EQ(result, GENERAL_ERROR);
 }
 
 HWTEST_F(ExecutorMessengerClientTest, ExecutorMessengerClientTestSendData003, TestSize.Level0)
 {
     uint64_t testScheduleId = 6598;
-    uint64_t testTransNum = 8784;
-    ExecutorRole testSrcRole = SCHEDULER;
     ExecutorRole testDstRole = COLLECTOR;
     std::vector<uint8_t> message = {1, 2, 4, 6};
     std::shared_ptr<AuthMessage> testMsg = AuthMessage::As(message);
@@ -86,61 +80,55 @@ HWTEST_F(ExecutorMessengerClientTest, ExecutorMessengerClientTestSendData003, Te
 
     sptr<MockExecutorMessengerService> testMessenger(new (std::nothrow) MockExecutorMessengerService());
     EXPECT_NE(testMessenger, nullptr);
-    EXPECT_CALL(*testMessenger, SendData(_, _, _, _, _)).Times(1);
+    EXPECT_CALL(*testMessenger, SendData(_, _, _)).Times(1);
     ON_CALL(*testMessenger, SendData)
         .WillByDefault(
-            [&testScheduleId, &testTransNum, &testSrcRole, &testDstRole, &message](uint64_t scheduleId,
-                uint64_t transNum, ExecutorRole srcRole, ExecutorRole dstRole, const std::vector<uint8_t> &msg) {
+            [&testScheduleId, &testDstRole, &message](uint64_t scheduleId, ExecutorRole dstRole,
+                const std::vector<uint8_t> &msg) {
                 EXPECT_EQ(scheduleId, testScheduleId);
-                EXPECT_EQ(transNum, testTransNum);
-                EXPECT_EQ(srcRole, testSrcRole);
-                EXPECT_EQ(dstRole, testDstRole);
                 EXPECT_THAT(msg, ElementsAreArray(message));
                 return SUCCESS;
             }
         );
     auto service = Common::MakeShared<ExecutorMessengerClient>(testMessenger);
     EXPECT_NE(service, nullptr);
-    int32_t result = service->SendData(testScheduleId, testTransNum, testSrcRole, testDstRole, testMsg);
+    int32_t result = service->SendData(testScheduleId, testDstRole, testMsg);
     EXPECT_EQ(result, SUCCESS);
 }
 
 HWTEST_F(ExecutorMessengerClientTest, ExecutorMessengerClientTestFinish001, TestSize.Level0)
 {
     uint64_t testScheduleId = 6598;
-    ExecutorRole testSrcRole = SCHEDULER;
     int32_t testResultCode = FAIL;
     Attributes finalResult;
 
     sptr<ExecutorMessengerInterface> testMessenger(nullptr);
     auto service = Common::MakeShared<ExecutorMessengerClient>(testMessenger);
     EXPECT_NE(service, nullptr);
-    int32_t result = service->Finish(testScheduleId, testSrcRole, testResultCode, finalResult);
+    int32_t result = service->Finish(testScheduleId, testResultCode, finalResult);
     EXPECT_EQ(result, GENERAL_ERROR);
 }
 
 HWTEST_F(ExecutorMessengerClientTest, ExecutorMessengerClientTestFinish002, TestSize.Level0)
 {
     uint64_t testScheduleId = 6598;
-    ExecutorRole testSrcRole = SCHEDULER;
     int32_t testResultCode = FAIL;
     Attributes finalResult;
 
     sptr<MockExecutorMessengerService> testMessenger(new (std::nothrow) MockExecutorMessengerService());
     EXPECT_NE(testMessenger, nullptr);
-    EXPECT_CALL(*testMessenger, Finish(_, _, _, _)).Times(1);
+    EXPECT_CALL(*testMessenger, Finish(_, _, _)).Times(1);
     ON_CALL(*testMessenger, Finish)
         .WillByDefault(
-            [&testScheduleId, &testSrcRole, &testResultCode](uint64_t scheduleId, ExecutorRole srcRole,
-                ResultCode resultCode, const std::shared_ptr<Attributes> &finalResult) {
+            [&testScheduleId, &testResultCode](uint64_t scheduleId, ResultCode resultCode,
+                const std::shared_ptr<Attributes> &finalResult) {
                 EXPECT_EQ(scheduleId, testScheduleId);
-                EXPECT_EQ(srcRole, testSrcRole);
                 EXPECT_EQ(resultCode, testResultCode);
                 return SUCCESS;
             }
         );
     auto service = Common::MakeShared<ExecutorMessengerClient>(testMessenger);
-    int32_t result = service->Finish(testScheduleId, testSrcRole, testResultCode, finalResult);
+    int32_t result = service->Finish(testScheduleId, testResultCode, finalResult);
     EXPECT_EQ(result, SUCCESS);
 }
 } // namespace UserAuth

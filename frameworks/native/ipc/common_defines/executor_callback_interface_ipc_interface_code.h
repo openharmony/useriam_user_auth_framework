@@ -26,6 +26,7 @@ enum ExecutorCallbackInterfaceCode : uint32_t {
     ON_END_EXECUTE,
     ON_SET_PROPERTY,
     ON_GET_PROPERTY,
+    ON_SEND_DATA,
 };
 } // namespace UserAuth
 } // namespace UserIam

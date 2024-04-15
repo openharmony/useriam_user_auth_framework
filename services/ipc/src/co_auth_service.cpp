@@ -22,12 +22,14 @@
 #include "string_ex.h"
 
 #include "executor_messenger_service.h"
+#include "hdi_message_callback_service.h"
 #include "hdi_wrapper.h"
 #include "hisysevent_adapter.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
 #include "iam_para2str.h"
 #include "ipc_common.h"
+#include "iam_check.h"
 #include "iam_time.h"
 #include "iam_common_defines.h"
 #include "ipc_skeleton.h"
@@ -125,6 +127,9 @@ void CoAuthService::Init()
             IAM_LOGI("delete all executors for hdi dead");
             UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "user_auth_hdi host");
         }));
+        auto callbackService = HdiMessageCallbackService::GetInstance();
+        IF_FALSE_LOGE_AND_RETURN(callbackService != nullptr);
+        callbackService->OnHdiConnect();
         IAM_LOGI("set fwk ready parameter");
         SetParameter("bootevent.useriam.fwkready", "false");
         SetParameter("bootevent.useriam.fwkready", "true");

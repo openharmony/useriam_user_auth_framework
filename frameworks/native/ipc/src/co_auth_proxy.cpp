@@ -51,6 +51,10 @@ int32_t CoAuthProxy::WriteExecutorInfo(const ExecutorRegisterInfo &info, Message
         IAM_LOGE("failed to write esl");
         return WRITE_PARCEL_ERROR;
     }
+    if (!data.WriteUint32(info.maxTemplateAcl)) {
+        IAM_LOGE("failed to write esl");
+        return WRITE_PARCEL_ERROR;
+    }
     if (!data.WriteUInt8Vector(info.publicKey)) {
         IAM_LOGE("failed to write publicKey");
         return WRITE_PARCEL_ERROR;

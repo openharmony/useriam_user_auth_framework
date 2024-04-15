@@ -78,6 +78,11 @@ void CustomCommand::OnAcquireInfoInner(int32_t acquire, const std::vector<uint8_
     IAM_LOGE("%{public}s not support", GetDescription());
 }
 
+void CustomCommand::OnMessageInner(int destRole, const std::vector<uint8_t> &msg)
+{
+    IAM_LOGE("%{public}s not support", GetDescription());
+}
+
 ResultCode CustomCommand::GetResult()
 {
     if (!future_.valid()) {

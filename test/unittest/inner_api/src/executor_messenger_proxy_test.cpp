@@ -55,20 +55,17 @@ HWTEST_F(ExecutorMessengerProxyTest, TestSendData_001, TestSize.Level0)
         );
     
     uint64_t scheduleId = 6598;
-    uint64_t transNum = 8784;
-    ExecutorRole srcRole = SCHEDULER;
     ExecutorRole dstRole = COLLECTOR;
     std::vector<uint8_t> message = {1, 2, 4, 6};
     
     auto proxy = Common::MakeShared<ExecutorMessengerProxy>(obj);
     EXPECT_NE(proxy, nullptr);
-    EXPECT_EQ(proxy->SendData(scheduleId, transNum, srcRole, dstRole, message), SUCCESS);
+    EXPECT_EQ(proxy->SendData(scheduleId, dstRole, message), SUCCESS);
 }
 
 HWTEST_F(ExecutorMessengerProxyTest, TestFinish_001, TestSize.Level0)
 {
     uint64_t scheduleId = 6598;
-    ExecutorRole srcRole = SCHEDULER;
     ResultCode resultCode = SUCCESS;
     std::shared_ptr<Attributes> finalResult = nullptr;
 
@@ -76,7 +73,7 @@ HWTEST_F(ExecutorMessengerProxyTest, TestFinish_001, TestSize.Level0)
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<ExecutorMessengerProxy>(obj);
     EXPECT_NE(proxy, nullptr);
-    EXPECT_EQ(proxy->Finish(scheduleId, srcRole, resultCode, finalResult), INVALID_PARAMETERS);
+    EXPECT_EQ(proxy->Finish(scheduleId, resultCode, finalResult), INVALID_PARAMETERS);
 }
 
 HWTEST_F(ExecutorMessengerProxyTest, TestFinish_002, TestSize.Level0)
@@ -93,14 +90,13 @@ HWTEST_F(ExecutorMessengerProxyTest, TestFinish_002, TestSize.Level0)
         );
 
     uint64_t scheduleId = 6598;
-    ExecutorRole srcRole = SCHEDULER;
     ResultCode resultCode = SUCCESS;
     std::shared_ptr<Attributes> finalResult = Common::MakeShared<Attributes>();
     EXPECT_NE(finalResult, nullptr);
 
     auto proxy = Common::MakeShared<ExecutorMessengerProxy>(obj);
     EXPECT_NE(proxy, nullptr);
-    EXPECT_EQ(proxy->Finish(scheduleId, srcRole, resultCode, finalResult), SUCCESS);
+    EXPECT_EQ(proxy->Finish(scheduleId, resultCode, finalResult), SUCCESS);
 }
 } // namespace UserAuth
 } // namespace UserIam

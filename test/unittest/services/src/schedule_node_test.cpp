@@ -569,11 +569,8 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneUserStopAndEndFailed, TestSi
     handler->EnsureTask(nullptr);
 }
 
-HWTEST_F(ScheduleNodeTest, ScheduleNodeTestContinueSchedule, TestSize.Level0)
+HWTEST_F(ScheduleNodeTest, ScheduleNodeTestSendMessage, TestSize.Level0)
 {
-    ExecutorRole testSrcRole = COLLECTOR;
-    ExecutorRole testDstRole = COLLECTOR;
-    uint64_t testTransNum = 58786;
     std::vector<uint8_t> testMsg;
 
     constexpr uint32_t EXECUTOR_INDEX = 0xAAAAAAA;
@@ -592,11 +589,15 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeTestContinueSchedule, TestSize.Level0)
     auto scheduleNode = builder->Build();
     EXPECT_NE(scheduleNode, nullptr);
 
-    EXPECT_FALSE(scheduleNode->ContinueSchedule(testSrcRole, testDstRole, testTransNum, testMsg));
+    ExecutorRole testDstRole = COLLECTOR;
+    EXPECT_TRUE(scheduleNode->SendMessage(testDstRole, testMsg));
     testDstRole = SCHEDULER;
     scheduleNode = builder->Build();
     EXPECT_NE(scheduleNode, nullptr);
-    EXPECT_TRUE(scheduleNode->ContinueSchedule(testSrcRole, testDstRole, testTransNum, testMsg));
+    Attributes attr;
+    EXPECT_TRUE(attr.SetInt32Value(Attributes::ATTR_TIP_INFO, 40));
+    testMsg = attr.Serialize();
+    EXPECT_FALSE(scheduleNode->SendMessage(testDstRole, testMsg));
     callback = Common::MakeShared<MockScheduleNodeCallback>();
     EXPECT_NE(callback, nullptr);
     EXPECT_CALL(*callback, OnScheduleProcessed(_, _, _)).Times(1);
@@ -604,7 +605,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeTestContinueSchedule, TestSize.Level0)
     builder->SetAuthType(FACE);
     scheduleNode = builder->Build();
     EXPECT_NE(scheduleNode, nullptr);
-    EXPECT_TRUE(scheduleNode->ContinueSchedule(testSrcRole, testDstRole, testTransNum, testMsg));
+    EXPECT_TRUE(scheduleNode->SendMessage(testDstRole, testMsg));
 }
 } // namespace UserAuth
 } // namespace UserIam

@@ -52,7 +52,10 @@ ohos_fuzztest("ServiceCoreFuzzTest") {
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
-  external_deps = [ "hilog:libhilog" ]
+  external_deps = [
+    "hdf_core:libhdi",
+    "hilog:libhilog",
+  ]
 
   subsystem_name = "useriam"
   part_name = "user_auth_framework"
