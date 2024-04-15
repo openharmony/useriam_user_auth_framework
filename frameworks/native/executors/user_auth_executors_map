@@ -15,6 +15,7 @@
     global:
     extern "C++" {
         OHOS::UserIam::UserAuth::IDriverManager::Start*;
+        OHOS::UserIam::UserAuth::IAuthExecutorHdi::*;
     };
     local:
         *;

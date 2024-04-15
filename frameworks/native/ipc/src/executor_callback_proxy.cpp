@@ -190,6 +190,38 @@ int32_t ExecutorCallbackProxy::OnGetProperty(const Attributes &condition, Attrib
     return result;
 }
 
+int32_t ExecutorCallbackProxy::OnSendData(uint64_t scheduleId, const Attributes &data)
+{
+    MessageParcel dataParcel;
+    MessageParcel reply;
+
+    if (!dataParcel.WriteInterfaceToken(ExecutorCallbackProxy::GetDescriptor())) {
+        IAM_LOGE("write descriptor failed");
+        return GENERAL_ERROR;
+    }
+    if (!dataParcel.WriteUint64(scheduleId)) {
+        IAM_LOGE("write scheduleId failed");
+        return GENERAL_ERROR;
+    }
+    auto attr = data.Serialize();
+    if (!dataParcel.WriteUInt8Vector(attr)) {
+        IAM_LOGE("write data failed");
+        return GENERAL_ERROR;
+    }
+
+    bool ret = SendRequest(ExecutorCallbackInterfaceCode::ON_SEND_DATA, dataParcel, reply);
+    if (!ret) {
+        IAM_LOGE("send request failed");
+        return GENERAL_ERROR;
+    }
+    int32_t result = GENERAL_ERROR;
+    if (!reply.ReadInt32(result)) {
+        IAM_LOGE("read request result failed");
+        return GENERAL_ERROR;
+    }
+    return result;
+}
+
 bool ExecutorCallbackProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply)
 {
     IAM_LOGI("code = %{public}u", code);

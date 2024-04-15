@@ -61,7 +61,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_NullHdi, TestSize.Level0)
     ASSERT_NE(finalResult, nullptr);
     std::shared_ptr<MockContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
     ASSERT_NE(contextCallback, nullptr);
-    EXPECT_CALL(*contextCallback, OnResult(_, _)).Times(Exactly(0));
+    EXPECT_CALL(*contextCallback, OnResult(_, _)).Times(Exactly(1));
     // Error: enroll is null
     std::shared_ptr<Enrollment> enroll = nullptr;
 
@@ -373,7 +373,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_001, TestSize.Lev
     std::shared_ptr<MockContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
     ASSERT_NE(contextCallback, nullptr);
     EXPECT_CALL(*contextCallback, OnResult(_, _))
-        .Times(Exactly(0))
+        .Times(Exactly(1))
         .WillOnce([](int32_t resultCode, const Attributes &finalResult) {
             EXPECT_EQ(resultCode, testResultCode);
         });
@@ -396,7 +396,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_002, TestSize.Lev
     std::shared_ptr<MockContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
     ASSERT_NE(contextCallback, nullptr);
     EXPECT_CALL(*contextCallback, OnResult(_, _))
-        .Times(Exactly(0))
+        .Times(Exactly(1))
         .WillOnce([](int32_t resultCode, const Attributes &finalResult) {
             EXPECT_EQ(resultCode, ResultCode::GENERAL_ERROR);
         });
@@ -419,7 +419,7 @@ HWTEST_F(EnrollContextTest, EnrollContextTest_OnScheduleStoped_003, TestSize.Lev
     std::shared_ptr<MockContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
     ASSERT_NE(contextCallback, nullptr);
     EXPECT_CALL(*contextCallback, OnResult(_, _))
-        .Times(Exactly(0))
+        .Times(Exactly(1))
         .WillOnce([](int32_t resultCode, const Attributes &finalResult) {
             EXPECT_EQ(resultCode, ResultCode::GENERAL_ERROR);
         });

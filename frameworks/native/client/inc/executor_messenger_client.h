@@ -25,9 +25,8 @@ namespace UserAuth {
 class ExecutorMessengerClient final : public ExecutorMessenger {
 public:
     explicit ExecutorMessengerClient(const sptr<ExecutorMessengerInterface> &messenger);
-    int32_t SendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole, ExecutorRole dstRole,
-        const std::shared_ptr<AuthMessage> &msg) override;
-    int32_t Finish(uint64_t scheduleId, ExecutorRole srcRole, int32_t resultCode,
+    int32_t SendData(uint64_t scheduleId, ExecutorRole dstRole, const std::shared_ptr<AuthMessage> &msg) override;
+    int32_t Finish(uint64_t scheduleId, int32_t resultCode,
         const Attributes &finalResult) override;
 
 private:

@@ -116,6 +116,14 @@ public:
         return SUCCESS;
     }
 
+    int32_t SendData(uint64_t scheduleId, const Attributes &data)
+    {
+        IAM_LOGI("start");
+        static_cast<void>(scheduleId);
+        static_cast<void>(data);
+        return SUCCESS;
+    }
+
     void Detach()
     {
         IAM_LOGI("start");

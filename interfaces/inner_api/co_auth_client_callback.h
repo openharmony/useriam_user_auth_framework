@@ -78,6 +78,15 @@ public:
      * @return Return get property success or not(0:success; other:failed).
      */
     virtual int32_t OnGetProperty(const Attributes &conditions, Attributes &results) = 0;
+
+    /**
+     * @brief Called by coAuth resource pool to send data.
+     *
+     * @param scheduleId Specify the current schedule.
+     * @param results The result of get property.
+     * @return data Data.
+     */
+    virtual int32_t OnSendData(uint64_t scheduleId, const Attributes &data) = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam

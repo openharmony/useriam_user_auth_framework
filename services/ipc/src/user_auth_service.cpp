@@ -839,7 +839,7 @@ int32_t UserAuthService::GetEnrolledState(int32_t apiVersion, AuthType authType,
         IAM_LOGE("failed to get enrolled state,userId:%{public}d authType:%{public}d", userId, authType);
         return result;
     }
-    enrolledState.credentialDigest = hdiEnrolledState.credentialDigest;
+    enrolledState.credentialDigest = static_cast<uint16_t>(hdiEnrolledState.credentialDigest & UINT16_MAX);
     enrolledState.credentialCount = hdiEnrolledState.credentialCount;
     return SUCCESS;
 }

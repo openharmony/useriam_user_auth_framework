@@ -107,7 +107,7 @@ export struct UserAuthIcon {
       return;
     }
     if ((!authTypes.includes(userAuth.UserAuthType.FACE)) &&
-      authTypes.includes(userAuth.UserAuthType.FINGERPRINT)){
+      authTypes.includes(userAuth.UserAuthType.FINGERPRINT)) {
       // Handle the situation where the authTypes parameter contains fingerprint type but not contains face type.
       this.authFlag = ICON_AVAILABLE;
       this.imageSource = FINGERPRINT_ICON_RESOURCE;
@@ -115,7 +115,7 @@ export struct UserAuthIcon {
     }
     if (authTypes.includes(userAuth.UserAuthType.FACE) &&
       authTypes.includes(userAuth.UserAuthType.FINGERPRINT) &&
-      authTypes.includes(userAuth.UserAuthType.PIN)){
+      authTypes.includes(userAuth.UserAuthType.PIN)) {
       // Handle the situation where the authTypes parameter contains face, fingerprint, and PIN types at the same time.
       this.handleAllAuthTypeCase(authTrustLevel);
       return;
@@ -186,13 +186,14 @@ export struct UserAuthIcon {
           .fillColor(this.iconColor)
           .onClick(() => {
             this.info('start handle click event.');
-            if(this.onIconClick !== undefined){
+            if(this.onIconClick !== undefined) {
               this.info('click event has response.');
               this.onIconClick();
             }
             if (this.authFlag === ICON_AVAILABLE) {
               try {
-                let userAuthInstance: userAuth.UserAuthInstance  = userAuth.getUserAuthInstance(this.authParam,this.widgetParam);
+                let userAuthInstance: userAuth.UserAuthInstance =
+                    userAuth.getUserAuthInstance(this.authParam,this.widgetParam);
                 let timer: number = setTimeout(() => {
                   this.error('auth timeout.');
                   userAuthInstance.cancel();

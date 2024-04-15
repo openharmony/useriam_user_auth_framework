@@ -73,28 +73,32 @@ public:
         static_cast<void>(results);
         return SUCCESS;
     }
+
+    int32_t OnSendData(uint64_t scheduleId, const Attributes &data)
+    {
+        IAM_LOGI("start");
+        static_cast<void>(scheduleId);
+        static_cast<void>(data);
+        return SUCCESS;
+    }
 };
 
 class DummyExecutorMessengerInterface final : public ExecutorMessengerInterface {
 public:
-    int32_t SendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcRole, ExecutorRole dstRole,
+    int32_t SendData(uint64_t scheduleId, ExecutorRole dstRole,
         const std::vector<uint8_t> &msg) override
     {
         IAM_LOGI("start");
         static_cast<void>(scheduleId);
-        static_cast<void>(transNum);
-        static_cast<void>(srcRole);
         static_cast<void>(dstRole);
         static_cast<void>(msg);
         return SUCCESS;
     }
 
-    int32_t Finish(uint64_t scheduleId, ExecutorRole srcRole, ResultCode resultCode,
-        const std::shared_ptr<Attributes> &finalResult) override
+    int32_t Finish(uint64_t scheduleId, ResultCode resultCode, const std::shared_ptr<Attributes> &finalResult) override
     {
         IAM_LOGI("start");
         static_cast<void>(scheduleId);
-        static_cast<void>(srcRole);
         static_cast<void>(resultCode);
         static_cast<void>(finalResult);
         return SUCCESS;
@@ -213,14 +217,12 @@ void FuzzExecutorMessengerClientSendData(Parcel &parcel)
 {
     IAM_LOGI("start");
     uint64_t scheduleId = parcel.ReadUint64();
-    uint64_t transNum = parcel.ReadUint64();
-    auto srcRole = static_cast<ExecutorRole>(parcel.ReadInt32());
     auto dstRole = static_cast<ExecutorRole>(parcel.ReadInt32());
     std::vector<uint8_t> testMessage;
     Common::FillFuzzUint8Vector(parcel, testMessage);
     auto msg = AuthMessage::As(testMessage);
     if (g_ExecutorMessengerClient != nullptr) {
-        g_ExecutorMessengerClient->SendData(scheduleId, transNum, srcRole, dstRole, msg);
+        g_ExecutorMessengerClient->SendData(scheduleId, dstRole, msg);
     }
     IAM_LOGI("end");
 }
@@ -229,13 +231,12 @@ void FuzzExecutorMessengerClientFinish(Parcel &parcel)
 {
     IAM_LOGI("start");
     uint64_t scheduleId = parcel.ReadUint64();
-    auto srcRole = static_cast<ExecutorRole>(parcel.ReadInt32());
     int32_t resultCode = parcel.ReadInt32();
     std::vector<uint8_t> attr;
     Common::FillFuzzUint8Vector(parcel, attr);
     Attributes finalResult(attr);
     if (g_ExecutorMessengerClient != nullptr) {
-        g_ExecutorMessengerClient->Finish(scheduleId, srcRole, resultCode, finalResult);
+        g_ExecutorMessengerClient->Finish(scheduleId, resultCode, finalResult);
     }
     IAM_LOGI("end");
 }

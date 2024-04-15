@@ -32,11 +32,9 @@ public:
 
 protected:
     ResultCode SendRequest() override;
-    void OnAcquireInfoInner(int32_t acquire, const std::vector<uint8_t> &extraInfo) override;
     void OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo) override;
 
 private:
-    uint32_t transNum_ = 1;
     std::shared_ptr<Attributes> attributes_;
     std::shared_ptr<IamHitraceHelper> iamHitraceHelper_;
 };

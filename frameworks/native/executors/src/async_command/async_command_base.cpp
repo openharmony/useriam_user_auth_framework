@@ -98,6 +98,59 @@ void AsyncCommandBase::OnAcquireInfo(int32_t acquire, const std::vector<uint8_t>
     OnAcquireInfoInner(acquire, extraInfo);
 }
 
+void AsyncCommandBase::OnAcquireInfoInner(int32_t acquire, const std::vector<uint8_t> &extraInfo)
+{
+    IAM_LOGI("%{public}s start", GetDescription());
+
+    Attributes attr;
+    bool setAcquireRet = attr.SetInt32Value(Attributes::ATTR_TIP_INFO, acquire);
+    IF_FALSE_LOGE_AND_RETURN(setAcquireRet);
+    bool setExtraInfoRet = attr.SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, extraInfo);
+    IF_FALSE_LOGE_AND_RETURN(setExtraInfoRet);
+
+    auto data = AuthMessage::As(attr.Serialize());
+    IF_FALSE_LOGE_AND_RETURN(data != nullptr);
+    int32_t ret = MessengerSendData(scheduleId_, SCHEDULER, data);
+    if (ret != USERAUTH_SUCCESS) {
+        IAM_LOGE("%{public}s call SendData fail", GetDescription());
+        return;
+    }
+    IAM_LOGI("%{public}s end, acquire %{public}d", GetDescription(), acquire);
+}
+
+void AsyncCommandBase::OnMessage(int destRole, const std::vector<uint8_t> &msg)
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    if (isFinished_) {
+        IAM_LOGE("command is finished, invocation of OnMessage is invalid");
+        return;
+    }
+    OnMessageInner(destRole, msg);
+}
+
+void AsyncCommandBase::OnMessageInner(int destRole, const std::vector<uint8_t> &msg)
+{
+    IAM_LOGI("%{public}s start", GetDescription());
+
+    std::shared_ptr<Executor> executor = executor_.lock();
+    IF_FALSE_LOGE_AND_RETURN(executor != nullptr);
+
+    Attributes attr;
+    bool setAcquireRet = attr.SetInt32Value(Attributes::ATTR_SRC_ROLE, executor->GetExecutorRole());
+    IF_FALSE_LOGE_AND_RETURN(setAcquireRet);
+    bool setExtraInfoRet = attr.SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, msg);
+    IF_FALSE_LOGE_AND_RETURN(setExtraInfoRet);
+
+    auto data = AuthMessage::As(attr.Serialize());
+    IF_FALSE_LOGE_AND_RETURN(data != nullptr);
+    int32_t ret = MessengerSendData(scheduleId_, static_cast<ExecutorRole>(destRole), data);
+    if (ret != USERAUTH_SUCCESS) {
+        IAM_LOGE("%{public}s call SendData fail", GetDescription());
+        return;
+    }
+    IAM_LOGI("%{public}s end, msg size %{public}uz", GetDescription(), msg.size());
+}
+
 int32_t AsyncCommandBase::GetAuthType()
 {
     auto executor = executor_.lock();
@@ -142,20 +195,20 @@ std::shared_ptr<IAuthExecutorHdi> AsyncCommandBase::GetExecutorHdi()
     return executor->GetExecutorHdi();
 }
 
-int32_t AsyncCommandBase::MessengerSendData(uint64_t scheduleId, uint64_t transNum, ExecutorRole srcType,
+int32_t AsyncCommandBase::MessengerSendData(uint64_t scheduleId,
     ExecutorRole dstType, std::shared_ptr<AuthMessage> msg)
 {
     auto messenger = executorMessenger_;
     IF_FALSE_LOGE_AND_RETURN_VAL(messenger != nullptr, USERAUTH_ERROR);
-    return messenger->SendData(scheduleId, transNum, srcType, dstType, msg);
+    return messenger->SendData(scheduleId, dstType, msg);
 }
 
-int32_t AsyncCommandBase::MessengerFinish(uint64_t scheduleId, ExecutorRole srcType, int32_t resultCode,
+int32_t AsyncCommandBase::MessengerFinish(uint64_t scheduleId, int32_t resultCode,
     std::shared_ptr<Attributes> finalResult)
 {
     auto messenger = executorMessenger_;
     IF_FALSE_LOGE_AND_RETURN_VAL(messenger != nullptr, USERAUTH_ERROR);
-    int32_t ret = messenger->Finish(scheduleId, srcType, resultCode, *finalResult);
+    int32_t ret = messenger->Finish(scheduleId, resultCode, *finalResult);
     executorMessenger_ = nullptr;
     return ret;
 }

@@ -191,7 +191,7 @@ void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInf
         bool setRemainTimesRet = finalResult.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, resultInfo.remainTimes);
         IF_FALSE_LOGE_AND_RETURN(setRemainTimesRet == true);
         if (resultInfo.sdkVersion < INNER_API_VERSION_10000) {
-            bool setCredentialDigestRet = finalResult.SetUint16Value(Attributes::ATTR_CREDENTIAL_DIGEST,
+            bool setCredentialDigestRet = finalResult.SetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST,
                 resultInfo.credentialDigest);
             IF_FALSE_LOGE_AND_RETURN(setCredentialDigestRet == true);
             bool setCredentialCountRet = finalResult.SetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT,

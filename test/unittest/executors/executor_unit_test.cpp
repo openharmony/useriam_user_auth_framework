@@ -367,8 +367,8 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_CommonErrorTest_001, 
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
-    EXPECT_CALL(*mockMessenger, SendData(_, _, _, _, _)).Times(Exactly(0));
-    EXPECT_CALL(*mockMessenger, Finish(_, _, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, SendData(_, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, Finish(_, _, _)).Times(Exactly(0));
 
     vector<uint8_t> uselessPublicKey;
     Attributes attr;
@@ -387,8 +387,8 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_CommonErrorTest_002, 
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
-    EXPECT_CALL(*mockMessenger, SendData(_, _, _, _, _)).Times(Exactly(0));
-    EXPECT_CALL(*mockMessenger, Finish(_, _, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, SendData(_, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, Finish(_, _, _)).Times(Exactly(0));
 
     vector<uint8_t> uselessPublicKey;
     auto commandAttrs = MakeShared<Attributes>();
@@ -410,8 +410,8 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_CommonErrorTest_003, 
     int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 
-    EXPECT_CALL(*mockMessenger, SendData(_, _, _, _, _)).Times(Exactly(0));
-    EXPECT_CALL(*mockMessenger, Finish(_, _, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, SendData(_, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, Finish(_, _, _)).Times(Exactly(0));
 
     vector<uint8_t> uselessPublicKey;
     auto commandAttrs = MakeShared<Attributes>();
@@ -442,13 +442,12 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_ExecutorDisconnectTest_001, TestSize
             [](uint64_t scheduleId, const EnrollParam &param,
                 const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) { return ResultCode::SUCCESS; });
 
-    EXPECT_CALL(*mockMessenger, SendData(_, _, _, _, _)).Times(Exactly(0));
-    EXPECT_CALL(*mockMessenger, Finish(_, _, _, _))
+    EXPECT_CALL(*mockMessenger, SendData(_, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, Finish(_, _, _))
         .Times(Exactly(2))
         .WillRepeatedly(
-            [](uint64_t scheduleId, ExecutorRole srcRole, int32_t resultCode, const Attributes &finalResult) {
+            [](uint64_t scheduleId, int32_t resultCode, const Attributes &finalResult) {
                 EXPECT_EQ(scheduleId, testScheduleId);
-                EXPECT_EQ(srcRole, static_cast<ExecutorRole>(ALL_IN_ONE));
                 EXPECT_EQ(resultCode, ResultCode::GENERAL_ERROR);
                 std::vector<uint8_t> extraInfo;
                 EXPECT_EQ(finalResult.GetUint8ArrayValue(Attributes::ATTR_RESULT, extraInfo), true);
@@ -497,8 +496,8 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_EnrollTest_001, TestS
             return ResultCode::SUCCESS;
         });
 
-    EXPECT_CALL(*mockMessenger, SendData(_, _, _, _, _)).Times(Exactly(0));
-    EXPECT_CALL(*mockMessenger, Finish(_, _, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, SendData(_, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, Finish(_, _, _)).Times(Exactly(0));
 
     vector<uint8_t> uselessPublicKey;
     auto commandAttrs = MakeShared<Attributes>();
@@ -524,8 +523,8 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_EnrollTest_002, TestS
 
     EXPECT_CALL(*mockExecutorHdi, Enroll(_, _, _)).Times(Exactly(0));
 
-    EXPECT_CALL(*mockMessenger, SendData(_, _, _, _, _)).Times(Exactly(0));
-    EXPECT_CALL(*mockMessenger, Finish(_, _, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, SendData(_, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, Finish(_, _, _)).Times(Exactly(0));
 
     vector<uint8_t> uselessPublicKey;
     auto commandAttrs = MakeShared<Attributes>();
@@ -550,8 +549,8 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_EnrollTest_003, TestS
 
     EXPECT_CALL(*mockExecutorHdi, Enroll(_, _, _)).Times(Exactly(0));
 
-    EXPECT_CALL(*mockMessenger, SendData(_, _, _, _, _)).Times(Exactly(0));
-    EXPECT_CALL(*mockMessenger, Finish(_, _, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, SendData(_, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, Finish(_, _, _)).Times(Exactly(0));
 
     vector<uint8_t> uselessPublicKey;
     auto commandAttrs = MakeShared<Attributes>();
@@ -594,8 +593,8 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_001, TestSiz
                 return ResultCode::SUCCESS;
             });
 
-    EXPECT_CALL(*mockMessenger, SendData(_, _, _, _, _)).Times(Exactly(0));
-    EXPECT_CALL(*mockMessenger, Finish(_, _, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, SendData(_, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, Finish(_, _, _)).Times(Exactly(0));
 
     vector<uint8_t> uselessPublicKey;
     auto commandAttrs = MakeShared<Attributes>();
@@ -623,8 +622,8 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_002, TestSiz
 
     EXPECT_CALL(*mockExecutorHdi, Authenticate(_, _, _)).Times(Exactly(0));
 
-    EXPECT_CALL(*mockMessenger, SendData(_, _, _, _, _)).Times(Exactly(0));
-    EXPECT_CALL(*mockMessenger, Finish(_, _, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, SendData(_, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, Finish(_, _, _)).Times(Exactly(0));
 
     vector<uint8_t> uselessPublicKey;
     auto commandAttrs = MakeShared<Attributes>();
@@ -649,8 +648,8 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_003, TestSiz
 
     EXPECT_CALL(*mockExecutorHdi, Authenticate(_, _, _)).Times(Exactly(0));
 
-    EXPECT_CALL(*mockMessenger, SendData(_, _, _, _, _)).Times(Exactly(0));
-    EXPECT_CALL(*mockMessenger, Finish(_, _, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, SendData(_, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, Finish(_, _, _)).Times(Exactly(0));
 
     vector<uint8_t> uselessPublicKey;
     auto commandAttrs = MakeShared<Attributes>();
@@ -677,8 +676,8 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_004, TestSiz
 
     EXPECT_CALL(*mockExecutorHdi, Authenticate(_, _, _)).Times(Exactly(0));
 
-    EXPECT_CALL(*mockMessenger, SendData(_, _, _, _, _)).Times(Exactly(0));
-    EXPECT_CALL(*mockMessenger, Finish(_, _, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, SendData(_, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, Finish(_, _, _)).Times(Exactly(0));
 
     vector<uint8_t> uselessPublicKey;
     auto commandAttrs = MakeShared<Attributes>();
@@ -717,8 +716,8 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_IdentifyTest_001, Tes
             return ResultCode::SUCCESS;
         });
 
-    EXPECT_CALL(*mockMessenger, SendData(_, _, _, _, _)).Times(Exactly(0));
-    EXPECT_CALL(*mockMessenger, Finish(_, _, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, SendData(_, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, Finish(_, _, _)).Times(Exactly(0));
 
     vector<uint8_t> uselessPublicKey;
     auto commandAttrs = MakeShared<Attributes>();
@@ -744,8 +743,8 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_IdentifyTest_002, Tes
 
     EXPECT_CALL(*mockExecutorHdi, Identify(_, _, _)).Times(Exactly(0));
 
-    EXPECT_CALL(*mockMessenger, SendData(_, _, _, _, _)).Times(Exactly(0));
-    EXPECT_CALL(*mockMessenger, Finish(_, _, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, SendData(_, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, Finish(_, _, _)).Times(Exactly(0));
 
     vector<uint8_t> uselessPublicKey;
     auto commandAttrs = MakeShared<Attributes>();
@@ -770,8 +769,8 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_IdentifyTest_003, Tes
 
     EXPECT_CALL(*mockExecutorHdi, Identify(_, _, _)).Times(Exactly(0));
 
-    EXPECT_CALL(*mockMessenger, SendData(_, _, _, _, _)).Times(Exactly(0));
-    EXPECT_CALL(*mockMessenger, Finish(_, _, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, SendData(_, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, Finish(_, _, _)).Times(Exactly(0));
 
     vector<uint8_t> uselessPublicKey;
     auto commandAttrs = MakeShared<Attributes>();
