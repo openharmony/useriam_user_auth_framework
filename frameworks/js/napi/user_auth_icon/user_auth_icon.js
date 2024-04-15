@@ -27,7 +27,7 @@ const FINGERPRINT_ICON_RESOURCE = 'sys.media.ohos_user_auth_icon_fingerprint';
 export class UserAuthIcon extends ViewPU {
     constructor(b1, c1, d1, e1 = -1, f1 = undefined, g1) {
         super(b1, d1, e1, g1);
-        if (typeof f1 === "function") {
+        if (typeof f1 === 'function') {
             this.paramsGenerator_ = f1;
         }
         this.authParam = {
@@ -39,9 +39,9 @@ export class UserAuthIcon extends ViewPU {
             title: ''
         };
         this.iconHeight = 64;
-        this.iconColor = { "id": -1, "type": 10001, params: ['sys.color.ohos_id_color_activated'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
+        this.iconColor = { 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_activated'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' };
         this.authFlag = ICON_UNAVAILABLE;
-        this.__imageSource = new ObservedPropertySimplePU('', this, "imageSource");
+        this.__imageSource = new ObservedPropertySimplePU('', this, 'imageSource');
         this.onAuthResult = (j1) => { };
         this.onIconClick = () => { };
         this.setInitiallyProvidedValue(c1);
@@ -164,7 +164,7 @@ export class UserAuthIcon extends ViewPU {
             Column.create();
         }, Column);
         this.observeComponentCreation2((d, e) => {
-            Image.create({ "id": this.imageSource, params: [], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
+            Image.create({ 'id': this.imageSource, params: [], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
             Image.width(this.iconHeight);
             Image.height(this.iconHeight);
             Image.fillColor(this.iconColor);
