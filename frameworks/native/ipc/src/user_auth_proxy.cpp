@@ -661,7 +661,7 @@ int32_t UserAuthProxy::SetGlobalConfigParam(const GlobalConfigParam &param)
     }
     if (param.type == GlobalConfigType::PIN_EXPIRED_PERIOD) {
         IAM_LOGI("GlobalConfigType is pin expired period");
-        if (!data.WriteUint64(param.value.pinExpiredPeriod)) {
+        if (!data.Writeint64(param.value.pinExpiredPeriod)) {
             IAM_LOGE("failed to write GlobalConfigParam pinExpiredPeriod");
             return WRITE_PARCEL_ERROR;
         }

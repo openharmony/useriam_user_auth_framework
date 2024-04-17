@@ -618,7 +618,7 @@ int32_t UserAuthStub::SetGlobalConfigParamStub(MessageParcel &data, MessageParce
     globalConfigParam.type = static_cast<GlobalConfigType>(globalConfigType);
 
     if (globalConfigParam.type == GlobalConfigType::PIN_EXPIRED_PERIOD) {
-        if (!data.ReadUint64(globalConfigParam.value.pinExpiredPeriod)) {
+        if (!data.Readint64(globalConfigParam.value.pinExpiredPeriod)) {
             IAM_LOGE("failed to read pinExpiredPeriod");
             return READ_PARCEL_ERROR;
         }
