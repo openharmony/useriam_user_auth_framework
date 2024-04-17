@@ -1098,7 +1098,7 @@ bool Attributes::GetInt32Value(AttributeKey key, int32_t &value) const
     return impl_->GetInt32Value(key, value);
 }
 
-bool Attributes::GetInt64Value(AttributeKey key, int32_t &value) const
+bool Attributes::GetInt64Value(AttributeKey key, int64_t &value) const
 {
     if (!impl_) {
         return false;
