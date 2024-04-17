@@ -536,7 +536,7 @@ int32_t UserAuthStub::GetEnrolledStateStub(MessageParcel &data, MessageParcel &r
         IAM_LOGE("failed to write ret");
         return WRITE_PARCEL_ERROR;
     }
-    if (!reply.WriteUint16(enrolledState.credentialDigest)) {
+    if (!reply.WriteUint64(enrolledState.credentialDigest)) {
         IAM_LOGE("failed to write credentialDigest");
         return WRITE_PARCEL_ERROR;
     }
@@ -618,7 +618,7 @@ int32_t UserAuthStub::SetGlobalConfigParamStub(MessageParcel &data, MessageParce
     globalConfigParam.type = static_cast<GlobalConfigType>(globalConfigType);
 
     if (globalConfigParam.type == GlobalConfigType::PIN_EXPIRED_PERIOD) {
-        if (!data.Readint64(globalConfigParam.value.pinExpiredPeriod)) {
+        if (!data.ReadInt64(globalConfigParam.value.pinExpiredPeriod)) {
             IAM_LOGE("failed to read pinExpiredPeriod");
             return READ_PARCEL_ERROR;
         }

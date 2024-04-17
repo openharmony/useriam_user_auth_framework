@@ -78,6 +78,7 @@ private:
     static bool EncodeUint16Value(uint16_t src, std::vector<uint8_t> &dst);
     static bool EncodeUint8Value(uint8_t src, std::vector<uint8_t> &dst);
     static bool EncodeInt32Value(int32_t src, std::vector<uint8_t> &dst);
+    static bool EncodeInt64Value(int64_t src, std::vector<uint8_t> &dst);
     static bool EncodeStringValue(const std::string &src, std::vector<uint8_t> &dst);
     static bool EncodeUint64ArrayValue(const std::vector<uint64_t> &src, std::vector<uint8_t> &dst);
     static bool EncodeUint32ArrayValue(const std::vector<uint32_t> &src, std::vector<uint8_t> &dst);
@@ -90,6 +91,7 @@ private:
     static bool DecodeUint16Value(const std::vector<uint8_t> &src, uint16_t &dst);
     static bool DecodeUint8Value(const std::vector<uint8_t> &src, uint8_t &dst);
     static bool DecodeInt32Value(const std::vector<uint8_t> &src, int32_t &dst);
+    static bool DecodeInt64Value(const std::vector<uint8_t> &src, int64_t &dst);
     static bool DecodeStringValue(const std::vector<uint8_t> &src, std::string &dst);
     static bool DecodeUint64ArrayValue(const std::vector<uint8_t> &src, std::vector<uint64_t> &dst);
     static bool DecodeUint32ArrayValue(const std::vector<uint8_t> &src, std::vector<uint32_t> &dst);
@@ -288,7 +290,7 @@ bool Attributes::Impl::SetInt64Value(AttributeKey key, int64_t value)
 {
     std::vector<uint8_t> dest;
     if (!EncodeInt64Value(value, dest)) {
-        IAM_LOGE("EncodeInt32Value error");
+        IAM_LOGE("EncodeInt64Value error");
         return false;
     }
 
@@ -492,7 +494,7 @@ bool Attributes::Impl::GetInt32Value(AttributeKey key, int32_t &value) const
     return true;
 }
 
-bool Attributes::Impl::GetInt64Value(AttributeKey key, int32_t &value) const
+bool Attributes::Impl::GetInt64Value(AttributeKey key, int64_t &value) const
 {
     auto iter = map_.find(key);
     if (iter == map_.end()) {
@@ -500,7 +502,7 @@ bool Attributes::Impl::GetInt64Value(AttributeKey key, int32_t &value) const
     }
 
     if (!DecodeInt64Value(iter->second, value)) {
-        IAM_LOGE("DecodeInt32Value error");
+        IAM_LOGE("DecodeInt64Value error");
         return false;
     }
 

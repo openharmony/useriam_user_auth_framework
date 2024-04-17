@@ -105,7 +105,7 @@ struct AuthParam {
  */
 struct EnrolledState {
     /** The credential digest. */
-    uint16_t credentialDigest {0};
+    uint64_t credentialDigest {0};
     /** The credential count */
     uint16_t credentialCount {0};
 };

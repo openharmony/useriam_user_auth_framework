@@ -190,7 +190,7 @@ void UserAuthCallbackV10::OnResult(int32_t result, const Attributes &extraInfo)
     if (!extraInfo.GetInt32Value(Attributes::ATTR_AUTH_TYPE, resultHolder->authType)) {
         IAM_LOGE("ATTR_AUTH_TYPE is null");
     }
-    if (!extraInfo.GetUint16Value(Attributes::ATTR_CREDENTIAL_DIGEST, resultHolder->enrolledState.credentialDigest)) {
+    if (!extraInfo.GetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, resultHolder->enrolledState.credentialDigest)) {
         IAM_LOGE("ATTR_CREDENTIAL_DIGEST is null");
     }
     if (!extraInfo.GetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, resultHolder->enrolledState.credentialCount)) {

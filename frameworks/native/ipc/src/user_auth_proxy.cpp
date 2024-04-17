@@ -555,8 +555,8 @@ int32_t UserAuthProxy::GetEnrolledState(int32_t apiVersion, AuthType authType, E
         IAM_LOGE("failed to get enrolled state");
         return result;
     }
-    uint16_t credentialDigest;
-    if (!reply.ReadUint16(credentialDigest)) {
+    uint64_t credentialDigest;
+    if (!reply.ReadUint64(credentialDigest)) {
         IAM_LOGE("failed to read result");
         return READ_PARCEL_ERROR;
     }
@@ -661,7 +661,7 @@ int32_t UserAuthProxy::SetGlobalConfigParam(const GlobalConfigParam &param)
     }
     if (param.type == GlobalConfigType::PIN_EXPIRED_PERIOD) {
         IAM_LOGI("GlobalConfigType is pin expired period");
-        if (!data.Writeint64(param.value.pinExpiredPeriod)) {
+        if (!data.WriteInt64(param.value.pinExpiredPeriod)) {
             IAM_LOGE("failed to write GlobalConfigParam pinExpiredPeriod");
             return WRITE_PARCEL_ERROR;
         }
