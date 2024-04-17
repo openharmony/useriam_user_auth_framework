@@ -26,7 +26,6 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
-
 struct ResultCallbackV10Holder {
     std::shared_ptr<UserAuthCallbackV10> callback {nullptr};
     int32_t result {0};
