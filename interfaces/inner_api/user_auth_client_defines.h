@@ -30,8 +30,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-/** Invalid pin expired period. */
-constexpr size_t INVALID_PIN_EXPIRED_PERIOD = 0;
 /**
  * @brief Executor property needed to get.
  */
@@ -66,9 +64,9 @@ enum GlobalConfigType : int32_t {
  * @brief Global config value.
  */
 union GlobalConfigValue {
-    /** Global config value of pin expired period. When pinExpiredPeriod equals to INVALID_PIN_EXPIRED_PERIOD,
+    /** Global config value of pin expired period. When pinExpiredPeriod <= 0,
       * userAuth won't check pin expired period */
-    uint64_t pinExpiredPeriod;
+    int64_t pinExpiredPeriod;
 };
 
 /**
