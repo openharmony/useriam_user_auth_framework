@@ -47,6 +47,7 @@ public:
         uint64_t credentialDigest{0};
         uint16_t credentialCount{0};
         int32_t sdkVersion{0};
+        int32_t userId;
         int32_t pinExpiredInfo;
     };
     struct AuthExecutorMsg {

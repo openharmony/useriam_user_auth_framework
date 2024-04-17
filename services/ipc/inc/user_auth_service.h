@@ -59,6 +59,7 @@ public:
         const sptr<AuthEventListenerInterface> &listener) override;
     int32_t UnRegistUserAuthSuccessEventListener(const sptr<AuthEventListenerInterface> &listener) override;
     int32_t SetGlobalConfigParam(const GlobalConfigParam &param) override;
+
 protected:
     void OnStart() override;
     void OnStop() override;
