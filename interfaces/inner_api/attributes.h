@@ -122,7 +122,7 @@ public:
         ATTR_ACCESS_TOKEN_ID,
         /** Template change reason, the value type is string */
         ATTR_TEMPLATE_CHANGE_REASON,
-        /** Credential digest, the value type is uint16_t. */
+        /** Credential digest, the value type is uint64_t. */
         ATTR_CREDENTIAL_DIGEST,
         /** Credential count, the value type is uint16_t. */
         ATTR_CREDENTIAL_COUNT,
@@ -240,7 +240,7 @@ public:
      * @param value The int64_t value.
      * @return Return success or not(true:success; false:failed).
      */
-    bool SetInt64Value(AttributeKey key, int32_t value);
+    bool SetInt64Value(AttributeKey key, int64_t value);
 
     /**
      * @brief Set string value.
@@ -357,7 +357,7 @@ public:
      * @param value Return int64_t value corresponding to key.
      * @return Return success or not(true:success; false:failed).
      */
-    bool GetInt64Value(AttributeKey key, int32_t &value) const;
+    bool GetInt64Value(AttributeKey key, int64_t &value) const;
 
     /**
      * @brief Get string value.

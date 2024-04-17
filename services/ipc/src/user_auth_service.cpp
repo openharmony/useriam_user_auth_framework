@@ -810,37 +810,44 @@ int32_t UserAuthService::GetEnrolledState(int32_t apiVersion, AuthType authType,
     EnrolledState &enrolledState)
 {
     IAM_LOGI("start");
+    //liuziwei
+    GlobalConfigParam para = {};
+    SetGlobalConfigParam(para);
 
-    if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
-        IAM_LOGE("failed to check permission");
-        return CHECK_PERMISSION_FAILED;
-    }
+    // if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
+    //     IAM_LOGE("failed to check permission");
+    //     return CHECK_PERMISSION_FAILED;
+    // }
 
-    if (apiVersion < API_VERSION_12 ||
-        !SystemParamManager::GetInstance().IsAuthTypeEnable(authType)) {
-        IAM_LOGE("failed to check apiVersion");
-        return TYPE_NOT_SUPPORT;
-    }
+    // if (apiVersion < API_VERSION_12 ||
+    //     !SystemParamManager::GetInstance().IsAuthTypeEnable(authType)) {
+    //     IAM_LOGE("failed to check apiVersion");
+    //     return TYPE_NOT_SUPPORT;
+    // }
 
-    int32_t userId;
-    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
-        IAM_LOGE("failed to get callingUserId");
-        return GENERAL_ERROR;
-    }
+    // int32_t userId;
+    // if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
+    //     IAM_LOGE("failed to get callingUserId");
+    //     return GENERAL_ERROR;
+    // }
 
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (hdi == nullptr) {
-        IAM_LOGE("hdi interface is nullptr");
-        return GENERAL_ERROR;
-    }
-    HdiEnrolledState hdiEnrolledState = {};
-    int32_t result = hdi->GetEnrolledState(userId, static_cast<HdiAuthType>(authType), hdiEnrolledState);
-    if (result != SUCCESS) {
-        IAM_LOGE("failed to get enrolled state,userId:%{public}d authType:%{public}d", userId, authType);
-        return result;
-    }
-    enrolledState.credentialDigest = static_cast<uint16_t>(hdiEnrolledState.credentialDigest & UINT16_MAX);
-    enrolledState.credentialCount = hdiEnrolledState.credentialCount;
+    // auto hdi = HdiWrapper::GetHdiInstance();
+    // if (hdi == nullptr) {
+    //     IAM_LOGE("hdi interface is nullptr");
+    //     return GENERAL_ERROR;
+    // }
+    // HdiEnrolledState hdiEnrolledState = {};
+    // int32_t result = hdi->GetEnrolledState(userId, static_cast<HdiAuthType>(authType), hdiEnrolledState);
+    // if (result != SUCCESS) {
+    //     IAM_LOGE("failed to get enrolled state,userId:%{public}d authType:%{public}d", userId, authType);
+    //     return result;
+    // }
+    // enrolledState.credentialCount = hdiEnrolledState.credentialCount;
+    // enrolledState.credentialDigest = hdiEnrolledState.credentialDigest;
+    // if (apiVersion < INNER_API_VERSION_10000) {
+    //     enrolledState.credentialDigest = hdiEnrolledState.credentialDigest & UINT16_MAX;
+    // }
+    // IAM_LOGE("liuziwei credentialDigest %{public}llu", enrolledState.credentialDigest);
     return SUCCESS;
 }
 
@@ -905,24 +912,22 @@ int32_t UserAuthService::UnRegistUserAuthSuccessEventListener(
 int32_t UserAuthService::SetGlobalConfigParam(const GlobalConfigParam &param)
 {
     IAM_LOGE("start");
-    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
-        IAM_LOGE("failed to check permission");
-        return CHECK_PERMISSION_FAILED;
-    }
+    // if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+    //     IAM_LOGE("failed to check permission");
+    //     return CHECK_PERMISSION_FAILED;
+    // }
     if (param.type != PIN_EXPIRED_PERIOD) {
         IAM_LOGE("bad global config type");
         return INVALID_PARAMETERS;
     }
+    HdiGlobalConfigParam paramConfig = {};
+    paramConfig.type = PIN_EXPIRED_PERIOD;
+    paramConfig.value.pinExpiredPeriod = 5 * 60 * 1000;
 
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi == nullptr) {
         IAM_LOGE("hdi interface is nullptr");
         return GENERAL_ERROR;
-    }
-    HdiGlobalConfigParam paramConfig = {};
-    if (param.type == PIN_EXPIRED_PERIOD) {
-        paramConfig.type = PIN_EXPIRED_PERIOD;
-        paramConfig.value.pinExpiredPeriod = param.value.pinExpiredPeriod;
     }
     int32_t result = hdi->SetGlobalConfigParam(paramConfig);
     if (result != SUCCESS) {

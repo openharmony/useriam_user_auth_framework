@@ -407,8 +407,13 @@ void WidgetContext::End(const ResultCode &resultCode)
                 return;
             }
         }
-        uint16_t credentialDigest = static_cast<uint16_t>(authResultInfo_.credentialDigest & UINT16_MAX);
-        if (!attr.SetUint16Value(Attributes::ATTR_CREDENTIAL_DIGEST, credentialDigest)) {
+        uint64_t credentialDigest = authResultInfo_.credentialDigest;
+        if (para_.sdkVersion < INNER_API_VERSION_10000) {
+            credentialDigest = authResultInfo_.credentialDigest & UINT16_MAX;
+        }
+        IAM_LOGE("liuziwei credentialDigest %{public}llu", credentialDigest);
+
+        if (!attr.SetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, credentialDigest)) {
             IAM_LOGE("set credential digest failed.");
             callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
             return;
