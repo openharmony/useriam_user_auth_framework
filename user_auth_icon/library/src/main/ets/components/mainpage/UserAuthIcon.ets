@@ -106,25 +106,33 @@ export struct UserAuthIcon {
       this.imageSource = FACE_ICON_RESOURCE;
       return;
     }
-    if ((!authTypes.includes(userAuth.UserAuthType.FACE)) &&
-      authTypes.includes(userAuth.UserAuthType.FINGERPRINT)) {
+    if ((!authTypes.includes(userAuth.UserAuthType.FACE)) && authTypes.includes(userAuth.UserAuthType.FINGERPRINT)) {
       // Handle the situation where the authTypes parameter contains fingerprint type but not contains face type.
       this.authFlag = ICON_AVAILABLE;
       this.imageSource = FINGERPRINT_ICON_RESOURCE;
       return;
     }
-    if (authTypes.includes(userAuth.UserAuthType.FACE) &&
-      authTypes.includes(userAuth.UserAuthType.FINGERPRINT) &&
+    if (authTypes.includes(userAuth.UserAuthType.FACE) && authTypes.includes(userAuth.UserAuthType.FINGERPRINT) &&
       authTypes.includes(userAuth.UserAuthType.PIN)) {
       // Handle the situation where the authTypes parameter contains face, fingerprint, and PIN types at the same time.
       this.handleAllAuthTypeCase(authTrustLevel);
+      return;
+    }
+    if (authTypes.includes(userAuth.UserAuthType.FACE) && authTypes.includes(userAuth.UserAuthType.FINGERPRINT) &&
+      !authTypes.includes(userAuth.UserAuthType.PIN)) {
+      // Handle the situation where the authTypes parameter contains face, fingerprint, but not contains PIN types at
+      // the same time.
+      this.authFlag = ICON_UNAVAILABLE;
+      this.info('incorrect parameters.');
+      this.onAuthResult({result: INVALID_PARAMETERS});
+      this.imageSource = '';
       return;
     }
     // Default processing, includes the situation where the authTypes parameter only contains face and fingerprint
     // types or the situation where the authTypes parameter only contains PIN type.
     this.authFlag = ICON_UNAVAILABLE;
     this.info('incorrect parameters.');
-    this.onAuthResult({result: INVALID_PARAMETERS});
+    this.onAuthResult({result: userAuth.UserAuthResultCode.TYPE_NOT_SUPPORT});
     this.imageSource = '';
     return;
   }
@@ -173,6 +181,13 @@ export struct UserAuthIcon {
 
   aboutToAppear(): void {
     this.info('before init image source.');
+    if (this.authParam.authType === undefined || this.authParam.authTrustLevel === undefined) {
+      this.authFlag = ICON_UNAVAILABLE;
+      this.info('incorrect parameters.');
+      this.onAuthResult({result: INVALID_PARAMETERS});
+      this.imageSource = '';
+      return;
+    }
     this.initImageSource(this.authParam.authType, this.authParam.authTrustLevel);
     this.info(`after init image source, imageSource = ${this.imageSource}.`);
   }
@@ -212,7 +227,12 @@ export struct UserAuthIcon {
                 this.info('auth start success.');
                 clearTimeout(timer);
               } catch (error) {
-                this.error(`auth catch error: ${error}.`);
+                if (error) {
+                  this.error(`auth catch error, code: ${error.code}, message: ${error.message}`);
+                  this.onAuthResult({result: error.code});
+                  return;
+                }
+                this.error('auth error.');
                 this.onAuthResult({result: userAuth.UserAuthResultCode.GENERAL_ERROR});
               }
             }
