@@ -24,6 +24,8 @@
 #include "mock_schedule_node_callback.h"
 #include "mock_authentication.h"
 
+constexpr int32_t TEST_USER_ID = 101;
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
@@ -152,6 +154,7 @@ HWTEST_F(AuthenticationImplTest, AuthenticationImplTestUpdate001, TestSize.Level
             [](uint64_t contextId, const std::vector<uint8_t> &scheduleResult, HdiAuthResultInfo &info,
                 HdiEnrolledState &enrolledState) {
                 info.result = HDF_SUCCESS;
+                info.userId = TEST_USER_ID;
                 return HDF_SUCCESS;
             }
         );
@@ -161,6 +164,7 @@ HWTEST_F(AuthenticationImplTest, AuthenticationImplTestUpdate001, TestSize.Level
     std::vector<uint8_t> scheduleResult;
     Authentication::AuthResultInfo info = {};
     EXPECT_TRUE(authentication->Update(scheduleResult, info));
+    EXPECT_EQ(info.userId, TEST_USER_ID);
 }
 
 HWTEST_F(AuthenticationImplTest, AuthenticationImplTestUpdate002, TestSize.Level0)
