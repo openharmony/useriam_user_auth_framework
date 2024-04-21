@@ -46,9 +46,7 @@
         "hitrace",
         "c_utils",
         "common_event_service",
-        "window_manager"
-      ],
-      "third_party": [
+        "window_manager",
         "openssl"
       ]
     },
