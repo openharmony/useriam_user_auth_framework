@@ -119,8 +119,6 @@ void SimpleAuthContext::OnResult(int32_t resultCode, const std::shared_ptr<Attri
         }
         resultInfo.result = resultCode;
     }
-    IAM_LOGE("liuziwei freezingTime %{public}d", resultInfo.freezingTime);
-    IAM_LOGE("liuziwei remainTimes %{public}d", resultInfo.remainTimes);
     if (NeedSetFreezingTimeAndRemainTimes(resultInfo.result)) {
         IAM_LOGI("need get freezing time and remain times");
         ResultCode result = SetFreezingTimeAndRemainTimes(resultInfo.freezingTime,
@@ -129,8 +127,6 @@ void SimpleAuthContext::OnResult(int32_t resultCode, const std::shared_ptr<Attri
             IAM_LOGE("fail to get freezing time and remain times");
         }
     }
-    IAM_LOGE("liuziweijjjjjjjjjjjjjjjjjjjjjjjjjjjjj freezingTime %{public}d", resultInfo.freezingTime);
-    IAM_LOGE("liuziweihhhhhhhhhhhhhhhhhhhhhhhhhhhhhh remainTimes %{public}d", resultInfo.remainTimes);
     InvokeResultCallback(resultInfo);
     SendAuthExecutorMsg();
     IAM_LOGI("%{public}s on result %{public}d finish", GetDescription(), resultCode);
@@ -187,33 +183,33 @@ void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInf
     Attributes finalResult;
     bool setResultCodeRet = finalResult.SetInt32Value(Attributes::ATTR_RESULT_CODE, resultInfo.result);
     IF_FALSE_LOGE_AND_RETURN(setResultCodeRet == true);
-    setResultCodeRet = finalResult.SetInt64Value(Attributes::ATTR_PIN_EXPIRED_INFO, resultInfo.pinExpiredInfo);
-    IF_FALSE_LOGE_AND_RETURN(setResultCodeRet == true);
-    IAM_LOGE("liuziwei pinExpiredInfo %{public}lld", resultInfo.pinExpiredInfo);
+    if (resultInfo.result == SUCCESS || resultInfo.result == PIN_EXPIRED) {
+        setResultCodeRet = finalResult.SetInt64Value(Attributes::ATTR_PIN_EXPIRED_INFO, resultInfo.pinExpiredInfo);
+        IF_FALSE_LOGE_AND_RETURN(setResultCodeRet == true);
+    }
     if (resultInfo.result == SUCCESS || NeedSetFreezingTimeAndRemainTimes(resultInfo.result)) {
         bool setFreezingTimeRet = finalResult.SetInt32Value(Attributes::ATTR_FREEZING_TIME, resultInfo.freezingTime);
         IF_FALSE_LOGE_AND_RETURN(setFreezingTimeRet == true);
         bool setRemainTimesRet = finalResult.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, resultInfo.remainTimes);
         IF_FALSE_LOGE_AND_RETURN(setRemainTimesRet == true);
-        if (resultInfo.sdkVersion > API_VERSION_9) {
-            uint64_t credentialDigest = resultInfo.credentialDigest;
-            if (resultInfo.sdkVersion < INNER_API_VERSION_10000) {
-                credentialDigest = resultInfo.credentialDigest & UINT16_MAX;
-            }
-            IAM_LOGE("liuziwei credentialDigest %{public}llu", credentialDigest);
-
-            bool setCredentialDigestRet = finalResult.SetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST,
-                resultInfo.credentialDigest);
-            IF_FALSE_LOGE_AND_RETURN(setCredentialDigestRet == true);
-            bool setCredentialCountRet = finalResult.SetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT,
-                resultInfo.credentialCount);
-            IF_FALSE_LOGE_AND_RETURN(setCredentialCountRet == true);
+    }
+    if (resultInfo.result == SUCCESS && resultInfo.sdkVersion > API_VERSION_9) {
+        uint64_t credentialDigest = resultInfo.credentialDigest;
+        if (resultInfo.sdkVersion < INNER_API_VERSION_10000) {
+            credentialDigest = resultInfo.credentialDigest & UINT16_MAX;
         }
+        bool setCredentialDigestRet = finalResult.SetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST,
+            resultInfo.credentialDigest);
+        IF_FALSE_LOGE_AND_RETURN(setCredentialDigestRet == true);
+        bool setCredentialCountRet = finalResult.SetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT,
+            resultInfo.credentialCount);
+        IF_FALSE_LOGE_AND_RETURN(setCredentialCountRet == true);
+    }
+    if (resultInfo.result == SUCCESS) {
         bool setUserIdRet = finalResult.SetInt32Value(Attributes::ATTR_USER_ID, resultInfo.userId);
         IF_FALSE_LOGE_AND_RETURN(setUserIdRet == true);
         IAM_LOGI("matched userId: %{public}d.", resultInfo.userId);
     }
-
     if (resultInfo.token.size() != 0) {
         bool setSignatureResult = finalResult.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, resultInfo.token);
         IF_FALSE_LOGE_AND_RETURN(setSignatureResult == true);

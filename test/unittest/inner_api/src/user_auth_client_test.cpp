@@ -774,6 +774,36 @@ HWTEST_F(UserAuthClientTest, UserAuthClientUnRegistUserAuthSuccessEventListener0
     int32_t ret = UserAuthClientImpl::Instance().UnRegistUserAuthSuccessEventListener(testCallback);
     EXPECT_EQ(ret, GENERAL_ERROR);
 }
+
+HWTEST_F(UserAuthClientTest, UserAuthClientSetGlobalConfigParam001, TestSize.Level0)
+{
+    GlobalConfigParam param = {};
+    int32_t ret = UserAuthClient::GetInstance().SetGlobalConfigParam(param);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientSetGlobalConfigParam002, TestSize.Level0)
+{
+    GlobalConfigParam param = {};
+    auto service = Common::MakeShared<MockUserAuthService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, SetGlobalConfigParam(_)).Times(1);
+    ON_CALL(*service, SetGlobalConfigParam)
+        .WillByDefault(
+            [](const GlobalConfigParam &param) {
+                return SUCCESS;
+            }
+        );
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
+    CallRemoteObject(service, obj, dr);
+    
+    int32_t ret = UserAuthClient::GetInstance().SetGlobalConfigParam(param);
+    EXPECT_EQ(ret, SUCCESS);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
+    IpcClientUtils::ResetObj();
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
