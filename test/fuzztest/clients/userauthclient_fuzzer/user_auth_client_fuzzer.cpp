@@ -297,6 +297,16 @@ void FuzzSetPropCallbackServiceOnPropResult(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzSetGlobalConfigParam(Parcel &parcel)
+{
+    IAM_LOGI("start");
+    GlobalConfigParam param = {};
+    param.value.pinExpiredPeriod = parcel.ReadUint64();
+    param.type = static_cast<GlobalConfigType>(parcel.ReadInt32());
+    UserAuthClientImpl::Instance().SetGlobalConfigParam(param);
+    IAM_LOGI("end");
+}
+
 using FuzzFunc = decltype(FuzzClientGetAvailableStatus);
 FuzzFunc *g_fuzzFuncs[] = {
     FuzzClientGetEnrolledState,
@@ -316,6 +326,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzUserAuthCallbackServiceOnAcquireInfo,
     FuzzGetPropCallbackServiceOnPropResult,
     FuzzSetPropCallbackServiceOnPropResult,
+    FuzzSetGlobalConfigParam,
 };
 
 void UserAuthClientFuzzTest(const uint8_t *data, size_t size)

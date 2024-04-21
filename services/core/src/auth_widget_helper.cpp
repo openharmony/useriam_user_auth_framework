@@ -170,7 +170,6 @@ int32_t AuthWidgetHelper::SetReuseUnlockResult(int32_t apiVersion, const HdiReus
     if (apiVersion < INNER_API_VERSION_10000) {
         credentialDigest = info.enrolledState.credentialDigest & UINT16_MAX;
     }
-    IAM_LOGE("liuziwei credentialDigest %{public}llu", credentialDigest);
     bool setCredentialDigestRet = extraInfo.SetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, credentialDigest);
     IF_FALSE_LOGE_AND_RETURN_VAL(setCredentialDigestRet == true, GENERAL_ERROR);
     bool setCredentialCountRet = extraInfo.SetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT,

@@ -268,7 +268,12 @@ void WidgetContext::ExecuteAuthList(const std::set<AuthType> &authTypeList, bool
             IAM_LOGE("failed to create task, authType: %{public}s", AuthType2Str(authType).c_str());
             continue;
         }
-        task->Start();
+        if (!task->Start()) {
+            IAM_LOGE("BeginAuthentication failed");
+            static const int32_t INVALID_VAL = -1;
+            WidgetClient::Instance().ReportWidgetResult(task->GetLatestError(), authType, INVALID_VAL, INVALID_VAL);
+            return;
+        }
         TaskInfo taskInfo {
             .authType = authType,
             .task = task
@@ -407,13 +412,7 @@ void WidgetContext::End(const ResultCode &resultCode)
                 return;
             }
         }
-        uint64_t credentialDigest = authResultInfo_.credentialDigest;
-        if (para_.sdkVersion < INNER_API_VERSION_10000) {
-            credentialDigest = authResultInfo_.credentialDigest & UINT16_MAX;
-        }
-        IAM_LOGE("liuziwei credentialDigest %{public}llu", credentialDigest);
-
-        if (!attr.SetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, credentialDigest)) {
+        if (!attr.SetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, authResultInfo_.credentialDigest)) {
             IAM_LOGE("set credential digest failed.");
             callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
             return;

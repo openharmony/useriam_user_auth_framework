@@ -1730,6 +1730,32 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceUnRegistEventListerner_004, TestSiz
     EXPECT_EQ(service.UnRegistUserAuthSuccessEventListener(testCallback), ResultCode::GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
 }
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam, TestSize.Level0)
+{
+    UserAuthService service(200, true);
+    GlobalConfigParam param = {};
+    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::CHECK_PERMISSION_FAILED);
+
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::INVALID_PARAMETERS);
+
+    param.type = PIN_EXPIRED_PERIOD;
+    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::GENERAL_ERROR);
+
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, SetGlobalConfigParam(_)).Times(1);
+    ON_CALL(*mockHdi, SetGlobalConfigParam)
+        .WillByDefault(
+            [](const HdiGlobalConfigParam &param) {
+                return HDF_SUCCESS;
+            }
+        );
+    EXPECT_EQ(service.SetGlobalConfigParam(param), HDF_SUCCESS);
+    IpcCommon::DeleteAllPermission();
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
