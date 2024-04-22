@@ -120,6 +120,25 @@ int32_t IpcCommon::GetAllUserId(std::vector<int32_t> &userIds)
     return SUCCESS;
 }
 
+int32_t IpcCommon::GetUserTypeByUserId(int32_t userId, int32_t &userType)
+{
+#ifdef HAS_OS_ACCOUNT_PART
+    AccountSA::OsAccountType osAccountType;
+    ErrCode ret = AccountSA::OsAccountManager::GetOsAccountType(userId, osAccountType);
+    if (ret != ERR_OK) {
+        IAM_LOGE("failed to get osAccountType for userId %d, error code: %d", userId, ret);
+        return TYPE_NOT_SUPPORT;
+    }
+    userType = static_cast<int32_t>(osAccountType);
+    IAM_LOGI("userType:%{public}d", userType);
+#else
+    const int32_t DEFAULT_OS_ACCOUNT_TYPE = 0;
+    userType = DEFAULT_OS_ACCOUNT_TYPE;
+#endif
+
+    return SUCCESS;
+}
+
 bool IpcCommon::CheckForegroundApplication(const std::string &bundleName)
 {
     sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();

@@ -15,10 +15,11 @@
 #include "enrollment_impl.h"
 
 #include "hdi_wrapper.h"
+#include "iam_check.h"
 #include "iam_hitrace_helper.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
-
+#include "ipc_common.h"
 #include "publish_event_adapter.h"
 #include "credential_info_impl.h"
 #include "schedule_node_helper.h"
@@ -98,6 +99,14 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
     }
 
     HdiScheduleInfo info = {};
+    int32_t userType;
+    int32_t ret = IpcCommon::GetUserTypeByUserId(enrollPara_.userId, userType);
+    if (ret != SUCCESS) {
+        IAM_LOGE("failed to get userType, err is %{public}d", ret);
+        return false;
+    }
+    // test data
+    userType = 2;
     HdiEnrollParam param = {
         .authType = static_cast<HdiAuthType>(enrollPara_.authType),
         .executorSensorHint = executorSensorHint_,
@@ -105,6 +114,7 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
         .callerType = enrollPara_.callerType,
         .apiVersion = enrollPara_.sdkVersion,
         .userId = enrollPara_.userId,
+        .userType = userType,
     };
     IamHitraceHelper traceHelper("hdi BeginEnrollment");
     auto result = hdi->BeginEnrollment(authToken_, param, info);
