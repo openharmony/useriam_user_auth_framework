@@ -29,7 +29,7 @@ namespace UserAuth {
 class CoAuthClientImpl final : public CoAuthClient, public NoCopyable {
 public:
     void Register(const ExecutorInfo &info, const std::shared_ptr<ExecutorRegisterCallback> &callback) override;
-    void Unregister(const ExecutorInfo &info) override;
+    void Unregister(uint64_t executorIndex) override;
 
 private:
     friend class CoAuthClient;

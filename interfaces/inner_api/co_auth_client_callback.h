@@ -39,8 +39,8 @@ public:
      * @param publicKey Public key of the framework.
      * @param templateIds Matched templateIds based on authType and executor info.
      */
-    virtual void OnMessengerReady(const std::shared_ptr<ExecutorMessenger> &messenger,
-        const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIds) = 0;
+    virtual void OnMessengerReady(uint64_t executorIndex, const std::shared_ptr<ExecutorMessenger> &messenger,
+        const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList) = 0;
 
     /**
      * @brief Called by coAuth resource pool to tell the executor to begin.

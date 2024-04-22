@@ -71,6 +71,8 @@ struct AuthenticateParam {
 struct CollectParam {
     /** Token id. */
     uint32_t tokenId;
+    /** Collector Token id. */
+    uint32_t collectorTokenId;
     /** Extra info. */
     std::vector<uint8_t> extraInfo;
 };

@@ -46,7 +46,8 @@ Executor::Executor(std::shared_ptr<ExecutorMgrWrapper> executorMgrWrapper,
     uint32_t combineExecutorId =
         Common::CombineUint16ToUint32(hdiId_, static_cast<uint16_t>(executorInfo.executorSensorHint));
     const uint32_t uint32HexWidth = 8;
-    ss << "Executor(Id:0x" << std::setfill('0') << std::setw(uint32HexWidth) << std::hex << combineExecutorId << ")";
+    ss << "Executor(Id:0x" << std::setfill('0') << std::setw(uint32HexWidth) << std::hex << combineExecutorId
+        << ", role:" << executorRole_ << ", authType:" << authType_ << ")";
     description_ = ss.str();
 }
 

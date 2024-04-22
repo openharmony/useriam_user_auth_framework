@@ -52,6 +52,19 @@ UserAuthCallbackService::UserAuthCallbackService(const std::shared_ptr<Identific
     CallbackManager::GetInstance().AddCallback(reinterpret_cast<uintptr_t>(this), action);
 }
 
+UserAuthCallbackService::UserAuthCallbackService(const std::shared_ptr<PrepareRemoteAuthCallback> &impl)
+    : prepareRemoteAuthCallback_(impl),
+    iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("UserAuth InnerKit"))
+{
+    CallbackManager::CallbackAction action = [impl]() {
+        if (impl != nullptr) {
+            IAM_LOGI("user auth service death, prepare remote auth callback return default result to caller");
+            impl->OnResult(GENERAL_ERROR);
+        }
+    };
+    CallbackManager::GetInstance().AddCallback(reinterpret_cast<uintptr_t>(this), action);
+}
+
 UserAuthCallbackService::~UserAuthCallbackService()
 {
     CallbackManager::GetInstance().RemoveCallback(reinterpret_cast<uintptr_t>(this));
@@ -64,8 +77,10 @@ void UserAuthCallbackService::OnResult(int32_t result, const Attributes &extraIn
         authCallback_->OnResult(result, extraInfo);
     } else if (identifyCallback_ != nullptr) {
         identifyCallback_->OnResult(result, extraInfo);
+    } else if (prepareRemoteAuthCallback_ != nullptr) {
+        prepareRemoteAuthCallback_->OnResult(result);
     } else {
-        IAM_LOGE("both auth and identify callback is nullptr");
+        IAM_LOGE("all callback is nullptr");
         return;
     }
     iamHitraceHelper_= nullptr;
@@ -78,8 +93,10 @@ void UserAuthCallbackService::OnAcquireInfo(int32_t module, int32_t acquireInfo,
         authCallback_->OnAcquireInfo(module, acquireInfo, extraInfo);
     } else if (identifyCallback_ != nullptr) {
         identifyCallback_->OnAcquireInfo(module, acquireInfo, extraInfo);
+    } else if (prepareRemoteAuthCallback_ != nullptr) {
+        IAM_LOGE("prepare remote auth callback not support acquire info");
     } else {
-        IAM_LOGE("both auth and identify callback is nullptr");
+        IAM_LOGE("all callback is nullptr");
         return;
     }
 }

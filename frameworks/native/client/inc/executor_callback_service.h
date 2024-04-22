@@ -27,8 +27,8 @@ class ExecutorCallbackService : public ExecutorCallbackStub {
 public:
     explicit ExecutorCallbackService(const std::shared_ptr<ExecutorRegisterCallback> &impl);
     ~ExecutorCallbackService() override = default;
-    void OnMessengerReady(sptr<ExecutorMessengerInterface> &messenger, const std::vector<uint8_t> &publicKey,
-        const std::vector<uint64_t> &templateIdList) override;
+    void OnMessengerReady(uint64_t executorIndex, sptr<ExecutorMessengerInterface> &messenger,
+        const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList) override;
     int32_t OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
         const Attributes &command) override;
     int32_t OnEndExecute(uint64_t scheduleId, const Attributes &command) override;

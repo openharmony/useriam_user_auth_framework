@@ -31,7 +31,7 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 
-bool AuthWidgetHelper::InitWidgetContextParam(const AuthParam &authParam, std::vector<AuthType> &validType,
+bool AuthWidgetHelper::InitWidgetContextParam(const AuthParamInner &authParam, std::vector<AuthType> &validType,
     const WidgetParam &widgetParam, ContextFactory::AuthWidgetContextPara &para)
 {
     for (auto &authType : validType) {
@@ -179,7 +179,7 @@ int32_t AuthWidgetHelper::SetReuseUnlockResult(int32_t apiVersion, const HdiReus
 }
 
 int32_t AuthWidgetHelper::CheckReuseUnlockResult(const ContextFactory::AuthWidgetContextPara &para,
-    const AuthParam &authParam, Attributes &extraInfo)
+    const AuthParamInner &authParam, Attributes &extraInfo)
 {
     IAM_LOGI("start userId:%{public}d, reuseMode:%{public}u, reuseDuration: %{public}" PRIu64 ".",
         para.userId, authParam.reuseUnlockResult.reuseMode, authParam.reuseUnlockResult.reuseDuration);
@@ -199,7 +199,7 @@ int32_t AuthWidgetHelper::CheckReuseUnlockResult(const ContextFactory::AuthWidge
     HdiReuseUnlockParam unlockParam = {};
     unlockParam.baseParam.userId = para.userId;
     unlockParam.baseParam.authTrustLevel = authParam.authTrustLevel;
-    for (auto &type : authParam.authType) {
+    for (auto &type : authParam.authTypes) {
         unlockParam.authTypes.emplace_back(static_cast<HdiAuthType>(type));
     }
     unlockParam.baseParam.challenge = authParam.challenge;

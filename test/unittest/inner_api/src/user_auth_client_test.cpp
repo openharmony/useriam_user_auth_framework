@@ -294,30 +294,32 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginNorthAuthentication002, TestSize
 
 HWTEST_F(UserAuthClientTest, UserAuthClientBeginAuthentication001, TestSize.Level0)
 {
-    int32_t testUserId = 84548;
-    std::vector<uint8_t> testChallenge = {1, 2, 3, 4, 8, 7, 5, 4};
-    AuthType testAuthType = PIN;
-    AuthTrustLevel testAtl = ATL1;
+    AuthParam testAuthParam = {
+        .userId = 84548,
+        .challenge = {1, 2, 3, 4, 8, 7, 5, 4},
+        .authType = PIN,
+        .authTrustLevel = ATL1
+    };
     std::shared_ptr<MockAuthenticationCallback> testCallback = nullptr;
-    uint64_t contextId = UserAuthClient::GetInstance().BeginAuthentication(testUserId, testChallenge,
-        testAuthType, testAtl, testCallback);
+    uint64_t contextId = UserAuthClient::GetInstance().BeginAuthentication(testAuthParam, testCallback);
     EXPECT_EQ(contextId, 0);
 
     IpcClientUtils::ResetObj();
     testCallback = Common::MakeShared<MockAuthenticationCallback>();
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
-    contextId = UserAuthClient::GetInstance().BeginAuthentication(testUserId, testChallenge,
-        testAuthType, testAtl, testCallback);
+    contextId = UserAuthClient::GetInstance().BeginAuthentication(testAuthParam, testCallback);
     EXPECT_EQ(contextId, 0);
 }
 
 HWTEST_F(UserAuthClientTest, UserAuthClientBeginAuthentication002, TestSize.Level0)
 {
-    int32_t testUserId = 84548;
-    std::vector<uint8_t> testChallenge = {1, 2, 3, 4, 8, 7, 5, 4};
-    AuthType testAuthType = PIN;
-    AuthTrustLevel testAtl = ATL1;
+    AuthParam testAuthParam = {
+        .userId = 84548,
+        .challenge = {1, 2, 3, 4, 8, 7, 5, 4},
+        .authType = PIN,
+        .authTrustLevel = ATL1,
+    };
     auto testCallback = Common::MakeShared<MockAuthenticationCallback>();
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
@@ -326,16 +328,15 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginAuthentication002, TestSize.Leve
 
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, AuthUser(_, _, _, _, _)).Times(1);
+    EXPECT_CALL(*service, AuthUser(_, _, _)).Times(1);
     ON_CALL(*service, AuthUser)
         .WillByDefault(
-            [&testUserId, &testChallenge, &testAuthType, &testAtl, &testContextId](int32_t userId,
-                const std::vector<uint8_t> &challenge, AuthType authType, AuthTrustLevel authTrustLevel,
-                sptr<UserAuthCallbackInterface> &callback) {
-                EXPECT_EQ(userId, testUserId);
-                EXPECT_THAT(challenge, ElementsAreArray(testChallenge));
-                EXPECT_EQ(authType, testAuthType);
-                EXPECT_EQ(authTrustLevel, testAtl);
+            [&testAuthParam, &testContextId](AuthParamInner &authParam,
+            std::optional<RemoteAuthParam> &remoteAuthParam, sptr<UserAuthCallbackInterface> &callback) {
+                EXPECT_EQ(authParam.userId, testAuthParam.userId);
+                EXPECT_THAT(authParam.challenge, ElementsAreArray(testAuthParam.challenge));
+                EXPECT_EQ(authParam.authType, testAuthParam.authType);
+                EXPECT_EQ(authParam.authTrustLevel, testAuthParam.authTrustLevel);
                 if (callback != nullptr) {
                     Attributes extraInfo;
                     callback->OnResult(SUCCESS, extraInfo);
@@ -347,8 +348,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginAuthentication002, TestSize.Leve
     sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
 
-    uint64_t contextId = UserAuthClient::GetInstance().BeginAuthentication(testUserId, testChallenge,
-        testAuthType, testAtl, testCallback);
+    uint64_t contextId = UserAuthClient::GetInstance().BeginAuthentication(testAuthParam, testCallback);
     EXPECT_EQ(contextId, testContextId);
     EXPECT_NE(dr, nullptr);
     dr->OnRemoteDied(obj);
@@ -546,7 +546,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetVersion003, TestSize.Level0)
 HWTEST_F(UserAuthClientTest, UserAuthClientBeginWidgetAuth001, TestSize.Level0)
 {
     static const int32_t apiVersion = 0;
-    AuthParam authParam;
+    AuthParamInner authParam;
     WidgetParam widgetParam;
     std::shared_ptr<MockAuthenticationCallback> testCallback = nullptr;
     testCallback = Common::MakeShared<MockAuthenticationCallback>();
@@ -558,7 +558,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginWidgetAuth001, TestSize.Level0)
 HWTEST_F(UserAuthClientTest, UserAuthClientBeginWidgetAuth002, TestSize.Level0)
 {
     static const int32_t apiVersion = 0;
-    AuthParam authParam;
+    AuthParamInner authParam;
     WidgetParam widgetParam;
     std::shared_ptr<MockAuthenticationCallback> testCallback = nullptr;
     uint64_t widgetAuth = UserAuthClientImpl::Instance().BeginWidgetAuth(apiVersion, authParam,
@@ -569,7 +569,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginWidgetAuth002, TestSize.Level0)
 HWTEST_F(UserAuthClientTest, UserAuthClientBeginWidgetAuth003, TestSize.Level0)
 {
     int32_t testVersion = 0;
-    AuthParam testParam = {};
+    AuthParamInner testParam = {};
     testParam.challenge = {0};
     testParam.authType = {ALL};
     WidgetParam testWidgetParam = {};
@@ -584,7 +584,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginWidgetAuth003, TestSize.Level0)
     ON_CALL(*service, AuthWidget)
         .WillByDefault(
             [&testVersion, &testParam, &testWidgetParam, &testContextVersion](int32_t apiVersion,
-            const AuthParam &authParam, const WidgetParam &widgetParam,
+            const AuthParamInner &authParam, const WidgetParam &widgetParam,
             sptr<UserAuthCallbackInterface> &callback) {
                 EXPECT_EQ(apiVersion, testVersion);
                 EXPECT_EQ(authParam.authType, testParam.authType);

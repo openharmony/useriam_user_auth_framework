@@ -19,10 +19,13 @@
 #include <mutex>
 #include <unordered_map>
 
+#include "device_manager_util.h"
 #include "hdi_wrapper.h"
+#include "iam_check.h"
 #include "iam_common_defines.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
+#include "remote_msg_util.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -43,6 +46,7 @@ public:
     uint64_t GetExecutorMatcher() const override;
     ExecutorSecureLevel GetExecutorEsl() const override;
     std::vector<uint8_t> GetExecutorPublicKey() const override;
+    std::string GetExecutorDeviceUdid() const override;
 
     int32_t BeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
         const Attributes &command) override;
@@ -66,6 +70,10 @@ ResourceNodeImpl::ResourceNodeImpl(ExecutorRegisterInfo info, std::shared_ptr<Ex
     : info_(std::move(info)),
       callback_(std::move(callback))
 {
+    if (info_.deviceUdid.empty()) {
+        bool setUdidRet = DeviceManagerUtil::GetInstance().GetLocalDeviceUdid(info_.deviceUdid);
+        IF_FALSE_LOGE_AND_RETURN(setUdidRet);
+    }
 }
 
 ResourceNodeImpl::~ResourceNodeImpl()
@@ -132,6 +140,11 @@ std::vector<uint8_t> ResourceNodeImpl::GetExecutorPublicKey() const
     return info_.publicKey;
 }
 
+std::string ResourceNodeImpl::GetExecutorDeviceUdid() const
+{
+    return info_.deviceUdid;
+}
+
 int32_t ResourceNodeImpl::BeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
     const Attributes &command)
 {
@@ -194,6 +207,8 @@ int32_t ResourceNodeImpl::SyncWithDriver(std::vector<uint64_t> &templateIdList, 
         .executorMatcher = info_.executorMatcher,
         .esl = static_cast<HdiExecutorSecureLevel>(info_.esl),
         .publicKey = info_.publicKey,
+        .deviceUdid = info_.deviceUdid,
+        .signedRemoteExecutorInfo = info_.signedRemoteExecutorInfo,
     };
 
     auto hdi = HdiWrapper::GetHdiInstance();

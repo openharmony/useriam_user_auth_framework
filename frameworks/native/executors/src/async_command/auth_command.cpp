@@ -53,7 +53,7 @@ ResultCode AuthCommand::SendRequest()
     bool getEndAfterFirstFailRet = attributes_->GetBoolValue(Attributes::ATTR_END_AFTER_FIRST_FAIL, endAfterFirstFail);
     IF_FALSE_LOGE_AND_RETURN_VAL(getEndAfterFirstFailRet == true, ResultCode::GENERAL_ERROR);
     std::vector<uint8_t> extraInfo;
-    bool getExtraInfoRet = attributes_->GetUint8ArrayValue(Attributes::ATTR_VERIFIER_MESSAGE, extraInfo);
+    bool getExtraInfoRet = attributes_->GetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, extraInfo);
     IF_FALSE_LOGE_AND_RETURN_VAL(getExtraInfoRet == true, ResultCode::GENERAL_ERROR);
     IAM_LOGI("%{public}s auth message len %{public}zu", GetDescription(), extraInfo.size());
 

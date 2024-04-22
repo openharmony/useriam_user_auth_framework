@@ -169,15 +169,15 @@ UserAuthResultCode UserAuthInstanceV10::InitAuthType(napi_env env, napi_value va
             IAM_LOGE("authType is illegal, %{public}d", value);
             return UserAuthResultCode::TYPE_NOT_SUPPORT;
         }
-        auto iter = std::find(authParam_.authType.begin(), authParam_.authType.end(), static_cast<AuthType>(value));
-        if (iter != authParam_.authType.end()) {
+        auto iter = std::find(authParam_.authTypes.begin(), authParam_.authTypes.end(), static_cast<AuthType>(value));
+        if (iter != authParam_.authTypes.end()) {
             IAM_LOGE("napi authType:%{public}d exist", value);
             return UserAuthResultCode::OHOS_INVALID_PARAM;
         }
-        authParam_.authType.push_back(static_cast<AuthType>(value));
+        authParam_.authTypes.push_back(static_cast<AuthType>(value));
     }
 
-    IAM_LOGI("authType size:%{public}zu", authParam_.authType.size());
+    IAM_LOGI("authType size:%{public}zu", authParam_.authTypes.size());
     return UserAuthResultCode::SUCCESS;
 }
 
@@ -366,7 +366,7 @@ UserAuthResultCode UserAuthInstanceV10::Init(napi_env env, napi_callback_info in
 
     UserAuthResultCode errCode = InitAuthParam(env, argv[PARAM0]);
     if (errCode != UserAuthResultCode::SUCCESS) {
-        IAM_LOGE("AuthParam type error, errorCode: %{public}d", errCode);
+        IAM_LOGE("AuthParamInner type error, errorCode: %{public}d", errCode);
         return errCode;
     }
 

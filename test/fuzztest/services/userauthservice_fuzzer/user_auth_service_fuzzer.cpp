@@ -136,7 +136,7 @@ public:
     }
 };
 
-UserAuthService g_userAuthService(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true);
+UserAuthService g_userAuthService;
 
 void FuzzGetEnrolledState(Parcel &parcel)
 {
@@ -215,16 +215,20 @@ void FuzzAuth(Parcel &parcel)
 void FuzzAuthUser(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    int32_t userId = parcel.ReadInt32();
     std::vector<uint8_t> challenge;
     FillFuzzUint8Vector(parcel, challenge);
-    AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
-    AuthTrustLevel authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32());
     sptr<UserAuthCallbackInterface> callback(nullptr);
     if (parcel.ReadBool()) {
         callback = sptr<UserAuthCallbackInterface>(new (nothrow) DummyUserAuthCallback());
     }
-    g_userAuthService.AuthUser(userId, challenge, authType, authTrustLevel, callback);
+    AuthParamInner param = {
+        .userId = parcel.ReadInt32(),
+        .challenge = challenge,
+        .authType = static_cast<AuthType>(parcel.ReadInt32()),
+        .authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32()),
+    };
+    std::optional<RemoteAuthParam> remoteAuthParam = std::nullopt;
+    g_userAuthService.AuthUser(param, remoteAuthParam, callback);
     IAM_LOGI("end");
 }
 
@@ -262,13 +266,13 @@ void FuzzAuthWidget(Parcel &parcel)
 {
     IAM_LOGI("begin");
     int32_t apiVersion = parcel.ReadInt32();
-    AuthParam authParam;
+    AuthParamInner authParam;
     WidgetParam widgetParam;
     FillFuzzUint8Vector(parcel, authParam.challenge);
     std::vector<int32_t> atList;
     parcel.ReadInt32Vector(&atList);
     for (auto at : atList) {
-        authParam.authType.push_back(static_cast<AuthType>(at));
+        authParam.authTypes.push_back(static_cast<AuthType>(at));
     }
     authParam.authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32());
     sptr<UserAuthCallbackInterface> callback(nullptr);

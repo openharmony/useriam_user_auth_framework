@@ -148,7 +148,7 @@ void AsyncCommandBase::OnMessageInner(int destRole, const std::vector<uint8_t> &
         IAM_LOGE("%{public}s call SendData fail", GetDescription());
         return;
     }
-    IAM_LOGI("%{public}s end, msg size %{public}uz", GetDescription(), msg.size());
+    IAM_LOGI("%{public}s end, msg size %{public}zu", GetDescription(), msg.size());
 }
 
 int32_t AsyncCommandBase::GetAuthType()

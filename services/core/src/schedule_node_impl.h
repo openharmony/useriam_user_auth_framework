@@ -40,6 +40,7 @@ public:
     struct ScheduleInfo {
         uint64_t scheduleId {0};
         std::optional<uint32_t> tokenId;
+        uint32_t collectorTokenId;
         PinSubType pinSubType {0};
         uint64_t contextId {0};
         uint64_t expiredTime {0};
@@ -51,7 +52,6 @@ public:
         std::weak_ptr<ResourceNode> verifier;
         std::shared_ptr<ThreadHandler> threadHandler;
         std::shared_ptr<ScheduleNodeCallback> callback;
-        std::shared_ptr<Attributes> parameters;
         bool endAfterFirstFail;
         std::vector<uint8_t> collectorMessage;
         std::vector<uint8_t> verifierMessage;
@@ -97,6 +97,10 @@ private:
 
     void OnScheduleProcessing(FiniteStateMachine &machine, uint32_t event);
     void OnScheduleFinished(FiniteStateMachine &machine, uint32_t event);
+
+    void GetScheduleAttribute(bool isVerifier, Attributes &attribute) const;
+
+    void NotifyCollectorReady();
     uint32_t timerId_ {0};
     // members
     ScheduleInfo info_;

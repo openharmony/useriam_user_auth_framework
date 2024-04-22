@@ -55,6 +55,9 @@ ohos_unittest("iam_services_test") {
     "../../../services/context/src/context_pool_impl.cpp",
     "../../../services/context/src/enroll_context.cpp",
     "../../../services/context/src/identify_context.cpp",
+    "../../../services/context/src/remote_auth_context.cpp",
+    "../../../services/context/src/remote_auth_invoker_context.cpp",
+    "../../../services/context/src/remote_iam_callback.cpp",
     "../../../services/context/src/simple_auth_context.cpp",
     "../../../services/context/src/trace.cpp",
     "../../../services/context/src/ui_extension_ability_connection.cpp",
@@ -70,6 +73,10 @@ ohos_unittest("iam_services_test") {
     "../../../services/core/src/enrollment_impl.cpp",
     "../../../services/core/src/hdi_message_callback_service.cpp",
     "../../../services/core/src/identification_impl.cpp",
+    "../../../services/core/src/remote_auth_service.cpp",
+    "../../../services/core/src/remote_executor_proxy.cpp",
+    "../../../services/core/src/remote_executor_stub.cpp",
+    "../../../services/core/src/remote_msg_util.cpp",
     "../../../services/core/src/resource_node_impl.cpp",
     "../../../services/core/src/resource_node_pool_impl.cpp",
     "../../../services/core/src/resource_node_utils.cpp",
@@ -147,6 +154,7 @@ ohos_unittest("iam_services_test") {
 
   deps = [
     "../../../common:iam_utils",
+    "../../../frameworks/native/client:userauth_client",
     "../../../frameworks/native/common:attributes",
     "../../../frameworks/native/common:dfx",
     "../../../frameworks/native/ipc:userauth_service_ipc",

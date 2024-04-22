@@ -29,6 +29,8 @@ class SimpleAuthContext : public BaseContext {
 public:
     SimpleAuthContext(uint64_t contextId, std::shared_ptr<Authentication> auth,
         std::shared_ptr<ContextCallback> callback);
+    SimpleAuthContext(const std::string &type, uint64_t contextId, std::shared_ptr<Authentication> auth,
+        std::shared_ptr<ContextCallback> callback);
     ~SimpleAuthContext() override = default;
     ContextType GetContextType() const override;
     uint32_t GetTokenId() const override;
@@ -38,6 +40,8 @@ protected:
     void OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr) override;
     bool OnStop() override;
 
+    std::shared_ptr<Authentication> auth_ = nullptr;
+
 private:
     bool UpdateScheduleResult(const std::shared_ptr<Attributes> &scheduleResultAttr,
         Authentication::AuthResultInfo &resultInfo);
@@ -45,7 +49,6 @@ private:
     void InvokeResultCallback(const Authentication::AuthResultInfo &resultInfo) const;
     bool NeedSetFreezingTimeAndRemainTimes(int32_t result) const;
     ResultCode SetFreezingTimeAndRemainTimes(int32_t &freezingTime, int32_t &remainTimes);
-    std::shared_ptr<Authentication> auth_ = nullptr;
 };
 } // namespace UserAuth
 } // namespace UserIam

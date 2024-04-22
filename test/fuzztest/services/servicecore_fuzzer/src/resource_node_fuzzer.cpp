@@ -28,8 +28,8 @@ namespace UserAuth {
 namespace {
 class DummyExecutorCallbackInterface final : public ExecutorCallbackInterface {
 public:
-    void OnMessengerReady(sptr<ExecutorMessengerInterface> &messenger, const std::vector<uint8_t> &publicKey,
-        const std::vector<uint64_t> &templateIdList) override
+    void OnMessengerReady(uint64_t executorIndex, sptr<ExecutorMessengerInterface> &messenger,
+        const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList) override
     {
         IAM_LOGI("start");
         static_cast<void>(messenger);

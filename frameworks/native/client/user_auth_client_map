@@ -14,7 +14,7 @@
 {
     global:
     extern "C++" {
-        OHOS::UserIam::UserAuth::CoAuthClient::GetInstance*;
+        OHOS::UserIam::UserAuth::CoAuthClient::*;
         OHOS::UserIam::UserAuth::UserAuthClientImpl::Instance*;
         OHOS::UserIam::UserAuth::UserAuthClientImpl::BeginNorthAuthentication*;
         OHOS::UserIam::UserAuth::UserAuthClientImpl::BeginWidgetAuth*;

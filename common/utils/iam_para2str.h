@@ -48,6 +48,11 @@ static inline const char *AuthTypeToStr(uint32_t authType)
     }
     return "unknown";
 }
+
+static inline const char *GetBoolStr(bool val)
+{
+    return val ? "true" : "false";
+}
 } // namespace Common
 } // namespace UserIam
 } // namespace OHOS

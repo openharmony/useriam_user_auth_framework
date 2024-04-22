@@ -33,6 +33,7 @@ public:
     ~ScheduleNodeBuilder() override = default;
     std::shared_ptr<Builder> SetScheduleId(uint64_t scheduleId) override;
     std::shared_ptr<Builder> SetAccessTokenId(uint32_t tokenId) override;
+    std::shared_ptr<Builder> SetCollectorTokenId(uint32_t collectorTokenId) override;
     std::shared_ptr<Builder> SetPinSubType(PinSubType pinSubType) override;
     std::shared_ptr<Builder> SetTemplateIdList(const std::vector<uint64_t> &templateIdList) override;
     std::shared_ptr<Builder> SetAuthType(AuthType authType) override;
@@ -40,7 +41,6 @@ public:
     std::shared_ptr<Builder> SetScheduleMode(ScheduleMode scheduleMode) override;
     std::shared_ptr<Builder> SetScheduleCallback(const std::shared_ptr<ScheduleNodeCallback> &callback) override;
     std::shared_ptr<Builder> SetExpiredTime(uint32_t ms) override;
-    std::shared_ptr<Builder> SetParametersAttributes(const std::shared_ptr<Attributes> &parameters) override;
     std::shared_ptr<Builder> SetThreadHandler(const std::shared_ptr<ThreadHandler> &threadHandler) override;
     std::shared_ptr<Builder> SetEndAfterFirstFail(const bool endAfterFirstFail) override;
     std::shared_ptr<Builder> SetVerifierMessage(const std::vector<uint8_t> &message) override;

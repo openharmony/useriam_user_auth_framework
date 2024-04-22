@@ -59,6 +59,14 @@ int32_t CoAuthProxy::WriteExecutorInfo(const ExecutorRegisterInfo &info, Message
         IAM_LOGE("failed to write publicKey");
         return WRITE_PARCEL_ERROR;
     }
+    if (!data.WriteString(info.deviceUdid)) {
+        IAM_LOGE("failed to write publicKey");
+        return WRITE_PARCEL_ERROR;
+    }
+    if (!data.WriteUInt8Vector(info.signedRemoteExecutorInfo)) {
+        IAM_LOGE("failed to write publicKey");
+        return WRITE_PARCEL_ERROR;
+    }
     return SUCCESS;
 }
 
@@ -97,6 +105,29 @@ uint64_t CoAuthProxy::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<Ex
         return BAD_CONTEXT_ID;
     }
     return result;
+}
+
+void CoAuthProxy::ExecutorUnregister(uint64_t executorIndex)
+{
+    IAM_LOGI("start");
+    MessageParcel data;
+    MessageParcel reply;
+
+    if (!data.WriteInterfaceToken(CoAuthProxy::GetDescriptor())) {
+        IAM_LOGE("failed to write descriptor");
+        return;
+    }
+
+    if (!data.WriteUint64(executorIndex)) {
+        IAM_LOGE("failed to write executorIndex");
+        return;
+    }
+
+    bool ret = SendRequest(CoAuthInterfaceCode::CO_AUTH_EXECUTOR_UNREGISTER, data, reply);
+    if (!ret) {
+        IAM_LOGE("failed to send request");
+        return;
+    }
 }
 
 bool CoAuthProxy::SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply)

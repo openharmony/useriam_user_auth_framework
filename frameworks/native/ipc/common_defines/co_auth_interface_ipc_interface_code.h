@@ -22,6 +22,7 @@ namespace UserIam {
 namespace UserAuth {
 enum CoAuthInterfaceCode : uint32_t {
     CO_AUTH_EXECUTOR_REGISTER = 0,
+    CO_AUTH_EXECUTOR_UNREGISTER = 1,
 };
 } // namespace UserAuth
 } // namespace UserIam

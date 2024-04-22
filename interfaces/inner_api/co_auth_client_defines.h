@@ -50,6 +50,10 @@ struct ExecutorInfo {
     uint32_t maxTemplateAcl {0};
     /** Used to verify the result issued by the authenticator. */
     std::vector<uint8_t> publicKey {};
+    /**< Device udid. */
+    std::string deviceUdid;
+    /**< signed remote executor info. */
+    std::vector<uint8_t> signedRemoteExecutorInfo;
 };
 
 class AuthMessage {
