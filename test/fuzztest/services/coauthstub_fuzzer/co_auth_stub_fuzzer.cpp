@@ -48,7 +48,7 @@ bool FuzzCoAuthStub(const uint8_t *rawData, size_t size)
         return false;
     }
 
-    CoAuthService coAuthService(SUBSYS_USERIAM_SYS_ABILITY_AUTHEXECUTORMGR, true);
+    CoAuthService coAuthService;
     for (uint32_t code = CO_AUTH_CODE_MIN; code < CO_AUTH_CODE_MAX; code++) {
         MessageParcel data;
         MessageParcel reply;

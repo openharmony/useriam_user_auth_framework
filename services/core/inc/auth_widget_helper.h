@@ -25,12 +25,12 @@ namespace UserIam {
 namespace UserAuth {
 class AuthWidgetHelper {
 public:
-    static bool InitWidgetContextParam(const AuthParam &authParam, std::vector<AuthType> &validType,
+    static bool InitWidgetContextParam(const AuthParamInner &authParam, std::vector<AuthType> &validType,
         const WidgetParam &widgetParam, ContextFactory::AuthWidgetContextPara &para);
     static int32_t CheckValidSolution(int32_t userId,
         const std::vector<AuthType> &authTypeList, const AuthTrustLevel &atl, std::vector<AuthType> &validTypeList);
     static int32_t CheckReuseUnlockResult(const ContextFactory::AuthWidgetContextPara &para,
-        const AuthParam &authParam, Attributes &extraInfo);
+        const AuthParamInner &authParam, Attributes &extraInfo);
 
 private:
     static const uint32_t USER_AUTH_TOKEN_LEN = 148;

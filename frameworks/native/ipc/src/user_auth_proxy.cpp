@@ -161,25 +161,99 @@ void UserAuthProxy::SetProperty(int32_t userId, AuthType authType, const Attribu
     }
 }
 
-bool UserAuthProxy::WriteAuthParam(MessageParcel &data, const std::vector<uint8_t> &challenge,
-    AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback)
+bool UserAuthProxy::WriteAuthParam(MessageParcel &data, const AuthParamInner &authParam)
 {
-    if (!data.WriteUInt8Vector(challenge)) {
-        IAM_LOGE("failed to write challenge");
-        return false;
-    }
-    if (!data.WriteInt32(authType)) {
+    if (!data.WriteInt32(authParam.userId)) {
         IAM_LOGE("failed to write authType");
         return false;
     }
-    if (!data.WriteUint32(authTrustLevel)) {
+    if (!data.WriteUInt8Vector(authParam.challenge)) {
+        IAM_LOGE("failed to write challenge");
+        return false;
+    }
+    if (!data.WriteInt32(authParam.authType)) {
+        IAM_LOGE("failed to write authType");
+        return false;
+    }
+    std::vector<int32_t> atList;
+    for (auto at : authParam.authTypes) {
+        atList.push_back(static_cast<int32_t>(at));
+    }
+    if (!data.WriteInt32Vector(atList)) {
+        IAM_LOGE("failed to write authTypeList");
+        return false;
+    }
+    if (!data.WriteUint32(authParam.authTrustLevel)) {
         IAM_LOGE("failed to write authTrustLevel");
         return false;
     }
-    if (!data.WriteRemoteObject(callback->AsObject())) {
-        IAM_LOGE("failed to write callback");
+    if (!data.WriteUint32(authParam.authIntent)) {
+        IAM_LOGE("failed to write authIntent");
         return false;
     }
+
+    return true;
+}
+
+bool UserAuthProxy::WriteRemoteAuthParam(MessageParcel &data, const std::optional<RemoteAuthParam> &remoteAuthParam)
+{
+    if (!data.WriteBool(remoteAuthParam.has_value())) {
+        IAM_LOGE("failed to write remoteAuthParam has value");
+        return false;
+    }
+
+    if (!remoteAuthParam.has_value()) {
+        return true;
+    }
+
+    if (!WriteOptionalString(data, remoteAuthParam.value().verifierNetworkId)) {
+        IAM_LOGE("failed to write verifierNetworkId");
+        return false;
+    }
+
+    if (!WriteOptionalString(data, remoteAuthParam.value().collectorNetworkId)) {
+        IAM_LOGE("failed to write collectorNetworkId");
+        return false;
+    }
+
+    if (!WriteOptionalUint32(data, remoteAuthParam.value().collectorTokenId)) {
+        IAM_LOGE("failed to write collectorTokenId");
+        return false;
+    }
+
+    return true;
+}
+
+bool UserAuthProxy::WriteOptionalString(MessageParcel &data, const std::optional<std::string> &str)
+{
+    if (!data.WriteBool(str.has_value())) {
+        IAM_LOGE("failed to write str has value");
+        return false;
+    }
+
+    if (str.has_value()) {
+        if (!data.WriteString(str.value())) {
+            IAM_LOGE("failed to write str");
+            return false;
+        }
+    }
+    return true;
+}
+
+bool UserAuthProxy::WriteOptionalUint32(MessageParcel &data, const std::optional<uint32_t> &val)
+{
+    if (!data.WriteBool(val.has_value())) {
+        IAM_LOGE("failed to write val has value");
+        return false;
+    }
+
+    if (val.has_value()) {
+        if (!data.WriteUint32(val.value())) {
+            IAM_LOGE("failed to write val");
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -197,14 +271,26 @@ uint64_t UserAuthProxy::Auth(int32_t apiVersion, const std::vector<uint8_t> &cha
         IAM_LOGE("failed to write descriptor");
         return BAD_CONTEXT_ID;
     }
-    if (!WriteAuthParam(data, challenge, authType, authTrustLevel, callback)) {
-        IAM_LOGE("failed to write auth param");
-        return BAD_CONTEXT_ID;
-    }
     if (!data.WriteInt32(apiVersion)) {
         IAM_LOGE("failed to write apiVersion");
         return BAD_CONTEXT_ID;
     }
+    AuthParamInner authParam = {
+        .userId = 0,
+        .challenge = challenge,
+        .authType = authType,
+        .authTrustLevel = authTrustLevel,
+    };
+    if (!WriteAuthParam(data, authParam)) {
+        IAM_LOGE("failed to write auth param");
+        return BAD_CONTEXT_ID;
+    }
+
+    if (!data.WriteRemoteObject(callback->AsObject())) {
+        IAM_LOGE("failed to write callback");
+        return BAD_CONTEXT_ID;
+    }
+
     bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_AUTH, data, reply);
     if (!ret) {
         IAM_LOGE("failed to send user auth IPC request");
@@ -217,7 +303,7 @@ uint64_t UserAuthProxy::Auth(int32_t apiVersion, const std::vector<uint8_t> &cha
     return result;
 }
 
-uint64_t UserAuthProxy::AuthWidget(int32_t apiVersion, const AuthParam &authParam,
+uint64_t UserAuthProxy::AuthWidget(int32_t apiVersion, const AuthParamInner &authParam,
     const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback)
 {
     if (callback == nullptr) {
@@ -259,14 +345,15 @@ uint64_t UserAuthProxy::AuthWidget(int32_t apiVersion, const AuthParam &authPara
     return result;
 }
 
-bool UserAuthProxy::WriteWidgetParam(MessageParcel &data, const AuthParam &authParam, const WidgetParam &widgetParam)
+bool UserAuthProxy::WriteWidgetParam(MessageParcel &data, const AuthParamInner &authParam,
+    const WidgetParam &widgetParam)
 {
     if (!data.WriteUInt8Vector(authParam.challenge)) {
         IAM_LOGE("failed to write challenge");
         return false;
     }
     std::vector<int32_t> atList;
-    for (auto at : authParam.authType) {
+    for (auto at : authParam.authTypes) {
         atList.push_back(static_cast<int32_t>(at));
     }
     if (!data.WriteInt32Vector(atList)) {
@@ -307,8 +394,8 @@ bool UserAuthProxy::WriteWidgetParam(MessageParcel &data, const AuthParam &authP
     return true;
 }
 
-uint64_t UserAuthProxy::AuthUser(int32_t userId, const std::vector<uint8_t> &challenge,
-    AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback)
+uint64_t UserAuthProxy::AuthUser(AuthParamInner &param, std::optional<RemoteAuthParam> &remoteAuthParam,
+    sptr<UserAuthCallbackInterface> &callback)
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
@@ -321,12 +408,19 @@ uint64_t UserAuthProxy::AuthUser(int32_t userId, const std::vector<uint8_t> &cha
         IAM_LOGE("failed to write descriptor");
         return BAD_CONTEXT_ID;
     }
-    if (!data.WriteInt32(userId)) {
-        IAM_LOGE("failed to write userId");
+
+    if (!WriteAuthParam(data, param)) {
+        IAM_LOGE("failed to write auth param");
         return BAD_CONTEXT_ID;
     }
-    if (!WriteAuthParam(data, challenge, authType, authTrustLevel, callback)) {
-        IAM_LOGE("failed to write auth param");
+
+    if (!WriteRemoteAuthParam(data, remoteAuthParam)) {
+        IAM_LOGE("failed to write remote auth param");
+        return BAD_CONTEXT_ID;
+    }
+
+    if (!data.WriteRemoteObject(callback->AsObject())) {
+        IAM_LOGE("failed to write callback");
         return BAD_CONTEXT_ID;
     }
 
@@ -549,7 +643,7 @@ int32_t UserAuthProxy::GetEnrolledState(int32_t apiVersion, AuthType authType, E
     int32_t result = GENERAL_ERROR;
     if (!reply.ReadInt32(result)) {
         IAM_LOGE("failed to read result");
-        return GENERAL_ERROR;
+        return READ_PARCEL_ERROR;
     }
     if (result != SUCCESS) {
         IAM_LOGE("failed to get enrolled state");
@@ -670,6 +764,41 @@ int32_t UserAuthProxy::SetGlobalConfigParam(const GlobalConfigParam &param)
     bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_SET_CLOBAL_CONFIG_PARAM, data, reply);
     if (!ret) {
         IAM_LOGE("failed to set global config param IPC request");
+        return GENERAL_ERROR;
+    }
+    int32_t result = GENERAL_ERROR;
+    if (!reply.ReadInt32(result)) {
+        IAM_LOGE("failed to read result");
+        return READ_PARCEL_ERROR;
+    }
+    return result;
+}
+
+int32_t UserAuthProxy::PrepareRemoteAuth(const std::string &networkId, sptr<UserAuthCallbackInterface> &callback)
+{
+    if (callback == nullptr) {
+        IAM_LOGE("callback is nullptr");
+        return GENERAL_ERROR;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+
+    if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
+        IAM_LOGE("failed to write descriptor");
+        return GENERAL_ERROR;
+    }
+    if (!data.WriteString(networkId)) {
+        IAM_LOGE("failed to write networkId");
+        return GENERAL_ERROR;
+    }
+    if (!data.WriteRemoteObject(callback->AsObject())) {
+        IAM_LOGE("failed to write callback");
+        return GENERAL_ERROR;
+    }
+
+    bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_PREPARE_REMOTE_AUTH, data, reply);
+    if (!ret) {
+        IAM_LOGE("failed to send prepare remote auth IPC request");
         return GENERAL_ERROR;
     }
     int32_t result = GENERAL_ERROR;

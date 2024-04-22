@@ -37,6 +37,8 @@ public:
     virtual void CancelAll() const = 0;
     virtual std::weak_ptr<Context> Select(uint64_t contextId) const = 0;
     virtual std::vector<std::weak_ptr<Context>> Select(ContextType contextType) const = 0;
+    virtual void InsertRemoteScheduleNode(std::shared_ptr<ScheduleNode> scheduleNode) = 0;
+    virtual void RemoveRemoteScheduleNode(std::shared_ptr<ScheduleNode> scheduleNode) = 0;
     virtual std::shared_ptr<ScheduleNode> SelectScheduleNodeByScheduleId(uint64_t scheduleId) = 0;
     virtual bool RegisterContextPoolListener(const std::shared_ptr<ContextPoolListener> &listener) = 0;
     virtual bool DeregisterContextPoolListener(const std::shared_ptr<ContextPoolListener> &listener) = 0;

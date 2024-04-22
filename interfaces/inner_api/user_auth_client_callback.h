@@ -107,6 +107,16 @@ public:
         std::string &callerName) = 0;
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIam.UserAuth.EventListenerCallback");
 };
+
+class PrepareRemoteAuthCallback {
+public:
+    /**
+     * @brief The callback return prepare remote auth result.
+     *
+     * @param result The result success or error code{@link ResultCode}.
+     */
+    virtual void OnResult(int32_t result) = 0;
+};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

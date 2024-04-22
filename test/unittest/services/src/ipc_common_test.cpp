@@ -69,7 +69,7 @@ void IpcCommonTest::TearDown()
 
 HWTEST_F(IpcCommonTest, IpcCommonTestGetTokenId, TestSize.Level0)
 {
-    UserAuthService service(100, true);
+    UserAuthService service;
     service.Notice(NoticeType::WIDGET_NOTICE, "PIN");
     EXPECT_NE(IpcCommon::GetTokenId(service), (uint32_t)0);
 }

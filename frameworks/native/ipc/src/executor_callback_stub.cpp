@@ -52,11 +52,18 @@ int32_t ExecutorCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data
 
 int32_t ExecutorCallbackStub::OnMessengerReadyStub(MessageParcel &data, MessageParcel &reply)
 {
+    uint64_t executorIndex;
+    if (!data.ReadUint64(executorIndex)) {
+        IAM_LOGE("failed to read publicKey");
+        return READ_PARCEL_ERROR;
+    }
+
     sptr<IRemoteObject> obj = data.ReadRemoteObject();
     if (obj == nullptr) {
         IAM_LOGE("failed to read remote object");
         return READ_PARCEL_ERROR;
     }
+
     sptr<ExecutorMessengerInterface> messenger = iface_cast<ExecutorMessengerProxy>(obj);
     if (messenger == nullptr) {
         IAM_LOGE("executor messenger is nullptr");
@@ -75,7 +82,7 @@ int32_t ExecutorCallbackStub::OnMessengerReadyStub(MessageParcel &data, MessageP
         return READ_PARCEL_ERROR;
     }
 
-    OnMessengerReady(messenger, publicKey, templateIds);
+    OnMessengerReady(executorIndex, messenger, publicKey, templateIds);
     return SUCCESS;
 }
 

@@ -50,7 +50,7 @@ HWTEST_F(ExecutorCallbackServiceTest, ExecutorCallbackServiceTestOnMessengerRead
     std::shared_ptr<ExecutorRegisterCallback> testCallback = nullptr;
     auto service = Common::MakeShared<ExecutorCallbackService>(testCallback);
     EXPECT_NE(service, nullptr);
-    service->OnMessengerReady(testMessenger, testPublicKey, testTemplateIdList);
+    service->OnMessengerReady(0, testMessenger, testPublicKey, testTemplateIdList);
 }
 
 HWTEST_F(ExecutorCallbackServiceTest, ExecutorCallbackServiceTestOnMessengerReady002, TestSize.Level0)
@@ -61,19 +61,20 @@ HWTEST_F(ExecutorCallbackServiceTest, ExecutorCallbackServiceTestOnMessengerRead
 
     auto testCallback = Common::MakeShared<MockExecutorRegisterCallback>();
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnMessengerReady(_, _, _)).Times(1);
+    EXPECT_CALL(*testCallback, OnMessengerReady(_, _, _, _)).Times(1);
     ON_CALL(*testCallback, OnMessengerReady)
         .WillByDefault(
-            [&testPublicKey, &testTemplateIdList](const std::shared_ptr<ExecutorMessenger> &messenger,
-                const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIds) {
+            [&testPublicKey, &testTemplateIdList](uint64_t executorIndex,
+            const std::shared_ptr<ExecutorMessenger> &messenger, const std::vector<uint8_t> &publicKey,
+            const std::vector<uint64_t> &templateIdList) {
                 EXPECT_NE(messenger, nullptr);
                 EXPECT_THAT(publicKey, ElementsAreArray(testPublicKey));
-                EXPECT_THAT(templateIds, ElementsAreArray(testTemplateIdList));
+                EXPECT_THAT(templateIdList, ElementsAreArray(testTemplateIdList));
             }
         );
     auto service = Common::MakeShared<ExecutorCallbackService>(testCallback);
     EXPECT_NE(service, nullptr);
-    service->OnMessengerReady(testMessenger, testPublicKey, testTemplateIdList);
+    service->OnMessengerReady(0, testMessenger, testPublicKey, testTemplateIdList);
 }
 
 HWTEST_F(ExecutorCallbackServiceTest, ExecutorCallbackServiceTestOnBeginExecute001, TestSize.Level0)

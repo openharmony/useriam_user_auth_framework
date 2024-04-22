@@ -31,10 +31,11 @@ public:
     MOCK_CONST_METHOD0(GetOwnerPid, uint32_t());
     MOCK_CONST_METHOD0(GetAuthType, AuthType());
     MOCK_CONST_METHOD0(GetExecutorRole, ExecutorRole());
-    MOCK_CONST_METHOD0(GetExecutorMatcher, uint64_t());
     MOCK_CONST_METHOD0(GetExecutorSensorHint, uint64_t());
+    MOCK_CONST_METHOD0(GetExecutorMatcher, uint64_t());
     MOCK_CONST_METHOD0(GetExecutorEsl, ExecutorSecureLevel());
     MOCK_CONST_METHOD0(GetExecutorPublicKey, std::vector<uint8_t>());
+    MOCK_CONST_METHOD0(GetExecutorDeviceUdid, std::string());
 
     MOCK_METHOD3(BeginExecute,
         int32_t(uint64_t scheduleId, const std::vector<uint8_t> &publicKey, const Attributes &command));
@@ -42,7 +43,6 @@ public:
     MOCK_METHOD1(SetProperty, int32_t(const Attributes &properties));
     MOCK_METHOD2(GetProperty, int32_t(const Attributes &condition, Attributes &values));
     MOCK_METHOD2(SendData, int32_t(uint64_t scheduleId, const Attributes &data));
-    MOCK_METHOD0(OnRegisterFinish, int32_t());
     MOCK_METHOD0(Detach, void());
 
     static std::shared_ptr<ResourceNode> CreateWithExecuteIndex(uint64_t executorId, bool detach = false)

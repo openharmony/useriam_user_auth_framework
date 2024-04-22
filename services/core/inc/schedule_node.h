@@ -81,6 +81,7 @@ public:
     virtual ~Builder() = default;
     virtual std::shared_ptr<Builder> SetScheduleId(uint64_t scheduleId) = 0;
     virtual std::shared_ptr<Builder> SetAccessTokenId(uint32_t tokenId) = 0;
+    virtual std::shared_ptr<Builder> SetCollectorTokenId(uint32_t collectorTokenId) = 0;
     virtual std::shared_ptr<Builder> SetPinSubType(PinSubType pinSubType) = 0;
     virtual std::shared_ptr<Builder> SetTemplateIdList(const std::vector<uint64_t> &templateIdList) = 0;
     virtual std::shared_ptr<Builder> SetAuthType(AuthType authType) = 0;
@@ -88,7 +89,6 @@ public:
     virtual std::shared_ptr<Builder> SetScheduleMode(ScheduleMode scheduleMode) = 0;
     virtual std::shared_ptr<Builder> SetScheduleCallback(const std::shared_ptr<ScheduleNodeCallback> &callback) = 0;
     virtual std::shared_ptr<Builder> SetExpiredTime(uint32_t ms) = 0;
-    virtual std::shared_ptr<Builder> SetParametersAttributes(const std::shared_ptr<Attributes> &parameters) = 0;
     virtual std::shared_ptr<Builder> SetThreadHandler(const std::shared_ptr<ThreadHandler> &threadHandler) = 0;
     virtual std::shared_ptr<Builder> SetEndAfterFirstFail(const bool endAfterFirstFail) = 0;
     virtual std::shared_ptr<Builder> SetCollectorMessage(const std::vector<uint8_t> &message) = 0;

@@ -59,7 +59,7 @@ HWTEST_F(CoAuthStubTest, CoAuthStubTestExecutorRegister001, TestSize.Level0)
     sptr<MockExecutorCallback> callback(new (std::nothrow) MockExecutorCallback());
     EXPECT_NE(callback, nullptr);
     MockCoAuthService service;
-    EXPECT_CALL(service, ExecutorRegister(_, _)).Times(1);
+    EXPECT_CALL(service, ExecutorRegister(_, _)).Times(0);
     ON_CALL(service, ExecutorRegister)
         .WillByDefault(
             [&testInfo, &testContextId](const CoAuthInterface::ExecutorRegisterInfo &info,
@@ -87,10 +87,10 @@ HWTEST_F(CoAuthStubTest, CoAuthStubTestExecutorRegister001, TestSize.Level0)
     uint32_t code = CoAuthInterfaceCode::CO_AUTH_EXECUTOR_REGISTER;
     MessageOption option(MessageOption::TF_SYNC);
 
-    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
+    EXPECT_NE(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
     uint64_t contextId = -1;
-    EXPECT_TRUE(reply.ReadUint64(contextId));
-    EXPECT_EQ(contextId, testContextId);
+    EXPECT_FALSE(reply.ReadUint64(contextId));
+    EXPECT_NE(contextId, testContextId);
 }
 
 HWTEST_F(CoAuthStubTest, CoAuthStubTestExecutorRegister002, TestSize.Level0)

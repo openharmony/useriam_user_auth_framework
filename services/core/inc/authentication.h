@@ -31,6 +31,7 @@ public:
         AuthType authType {ALL};
         AuthTrustLevel atl {ATL1};
         uint32_t tokenId {0};
+        uint32_t collectorTokenId {0};
         std::vector<uint8_t> challenge;
         bool endAfterFirstFail;
         std::string callerName;
@@ -49,6 +50,7 @@ public:
         int32_t sdkVersion{0};
         int32_t userId;
         int64_t pinExpiredInfo;
+        std::vector<uint8_t> remoteAuthResultMsg;
     };
     struct AuthExecutorMsg {
         uint64_t executorIndex;
@@ -61,6 +63,7 @@ public:
     virtual void SetChallenge(const std::vector<uint8_t> &challenge) = 0;
     virtual void SetAccessTokenId(uint32_t tokenId) = 0;
     virtual void SetEndAfterFirstFail(bool endAfterFirstFail) = 0;
+    virtual void SetCollectorUdid(std::string collectorUdid) = 0;
 
     virtual bool Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
         std::shared_ptr<ScheduleNodeCallback> callback) = 0;

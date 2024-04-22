@@ -33,6 +33,7 @@ public:
 
 private:
     int32_t ExecutorRegisterStub(MessageParcel &data, MessageParcel &reply);
+    int32_t ExecutorUnregisterStub(MessageParcel &data, MessageParcel &reply);
     int32_t ReadExecutorRegisterInfo(ExecutorRegisterInfo &executorInfo, MessageParcel &data);
 };
 } // namespace UserAuth

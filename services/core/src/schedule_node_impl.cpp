@@ -19,6 +19,7 @@
 
 #include "nocopyable.h"
 
+#include "attributes.h"
 #include "hdi_wrapper.h"
 #include "iam_check.h"
 #include "iam_logger.h"
@@ -39,38 +40,36 @@ ScheduleNodeImpl::ScheduleNodeImpl(ScheduleInfo &info) : info_(std::move(info))
         info_.threadHandler = ThreadHandler::GetSingleThreadInstance();
         machine_->SetThreadHandler(info_.threadHandler);
     }
-    if (info_.parameters == nullptr) {
-        info_.parameters = Common::MakeShared<Attributes>();
-    }
+}
 
-    if (info_.parameters == nullptr) {
-        return;
-    }
-
-    info_.parameters->SetInt32Value(Attributes::ATTR_SCHEDULE_MODE, info_.scheduleMode);
+void ScheduleNodeImpl::GetScheduleAttribute(bool isVerifier, Attributes &attribute) const
+{
+    attribute.SetInt32Value(Attributes::ATTR_SCHEDULE_MODE, info_.scheduleMode);
 
     if (info_.tokenId.has_value()) {
-        info_.parameters->SetUint32Value(Attributes::ATTR_ACCESS_TOKEN_ID, info_.tokenId.value());
+        attribute.SetUint32Value(Attributes::ATTR_ACCESS_TOKEN_ID, info_.tokenId.value());
     }
 
     if (info_.pinSubType != 0) {
-        info_.parameters->SetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, info_.pinSubType);
+        attribute.SetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, info_.pinSubType);
     }
 
-    info_.parameters->SetBoolValue(Attributes::ATTR_END_AFTER_FIRST_FAIL, info_.endAfterFirstFail);
-
-    info_.parameters->SetUint8ArrayValue(Attributes::ATTR_VERIFIER_MESSAGE, info_.verifierMessage);
-    info_.parameters->SetUint8ArrayValue(Attributes::ATTR_COLLECTOR_MESSAGE, info_.collectorMessage);
-    IAM_LOGI("verifer message length = %{public}zu, collector message length = %{public}zu",
+    attribute.SetUint32Value(Attributes::ATTR_COLLECTOR_TOKEN_ID, info_.collectorTokenId);
+    attribute.SetBoolValue(Attributes::ATTR_END_AFTER_FIRST_FAIL, info_.endAfterFirstFail);
+    IAM_LOGI("verifier message length = %{public}zu, collector message length = %{public}zu",
         info_.verifierMessage.size(), info_.collectorMessage.size());
 
-    if (info_.templateIdList.empty()) {
-        return;
+    if (isVerifier) {
+        attribute.SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, info_.verifierMessage);
+    } else {
+        attribute.SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, info_.collectorMessage);
     }
 
-    info_.parameters->SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, info_.templateIdList);
-    if (info_.templateIdList.size() == 1) {
-        info_.parameters->SetUint64Value(Attributes::ATTR_TEMPLATE_ID, *info_.templateIdList.begin());
+    if (!info_.templateIdList.empty()) {
+        attribute.SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, info_.templateIdList);
+        if (info_.templateIdList.size() == 1) {
+            attribute.SetUint64Value(Attributes::ATTR_TEMPLATE_ID, *info_.templateIdList.begin());
+        }
     }
 }
 
@@ -333,8 +332,9 @@ void ScheduleNodeImpl::ProcessBeginVerifier(FiniteStateMachine &machine, uint32_
         return;
     }
     auto peerPk = collector->GetExecutorPublicKey();
-
-    auto result = verifier->BeginExecute(info_.scheduleId, peerPk, *info_.parameters);
+    Attributes attr;
+    GetScheduleAttribute(true, attr);
+    auto result = verifier->BeginExecute(info_.scheduleId, peerPk, attr);
     if (result != SUCCESS) {
         IAM_LOGE("start verify failed, result = %{public}d", result);
         SetExecutorResultCode(result);
@@ -360,7 +360,39 @@ void ScheduleNodeImpl::ProcessBeginCollector(FiniteStateMachine &machine, uint32
         machine.Schedule(E_COLLECT_STARTED_SUCCESS);
         return;
     }
-    IAM_LOGE("distributed auth not supported yet");
+
+    auto peerPk = collector->GetExecutorPublicKey();
+    Attributes attr;
+    GetScheduleAttribute(false, attr);
+    auto result = collector->BeginExecute(info_.scheduleId, peerPk, attr);
+    if (result != SUCCESS) {
+        IAM_LOGE("start collect failed, result = %{public}d", result);
+        SetExecutorResultCode(result);
+        machine.Schedule(E_COLLECT_STARTED_FAILED);
+        return;
+    }
+    IAM_LOGI("start collect success");
+    machine.Schedule(E_COLLECT_STARTED_SUCCESS);
+    NotifyCollectorReady();
+}
+
+void ScheduleNodeImpl::NotifyCollectorReady()
+{
+    auto verifier = info_.verifier.lock();
+    if (verifier == nullptr) {
+        return;
+    }
+
+    Attributes attr;
+    bool setPropertyModeRet = attr.SetInt32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_NOTIFY_COLLECTOR_READY);
+    IF_FALSE_LOGE_AND_RETURN(setPropertyModeRet);
+    bool setScheduleIdRet = attr.SetUint64Value(Attributes::ATTR_SCHEDULE_ID, GetScheduleId());
+    IF_FALSE_LOGE_AND_RETURN(setScheduleIdRet);
+
+    int32_t ret = verifier->SetProperty(attr);
+    if (ret != SUCCESS) {
+        IAM_LOGE("notify collector ready failed, result = %{public}d", ret);
+    }
 }
 
 void ScheduleNodeImpl::ProcessVerifierBeginFailed(FiniteStateMachine &machine, uint32_t event)

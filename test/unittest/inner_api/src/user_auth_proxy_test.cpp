@@ -222,10 +222,13 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyAuth, TestSize.Level0)
 
 HWTEST_F(UserAuthProxyTest, UserAuthProxyAuthUser, TestSize.Level0)
 {
-    static const int32_t testUserId = 200;
-    static const AuthType testAuthType = FACE;
-    static const AuthTrustLevel testAtl = ATL1;
-    const std::vector<uint8_t> testChallenge = {1, 2, 3, 4};
+    AuthParamInner testAuthParamInner = {
+        .userId = 200,
+        .challenge = {1, 2, 3, 4},
+        .authType = FACE,
+        .authTrustLevel = ATL1,
+    };
+    std::optional<RemoteAuthParam> testRemoteAuthParam = std::nullopt;
 
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
@@ -236,14 +239,14 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyAuthUser, TestSize.Level0)
     sptr<UserAuthCallbackInterface> testCallback(new (std::nothrow) UserAuthCallbackService(authCallback));
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, AuthUser(_, _, _, _, _))
+    EXPECT_CALL(*service, AuthUser(_, _, _))
         .Times(Exactly(1))
-        .WillOnce([&testCallback](int32_t userId, const std::vector<uint8_t> &challenge,
-            AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) {
-            EXPECT_EQ(userId, testUserId);
-            EXPECT_THAT(challenge, ElementsAre(1, 2, 3, 4));
-            EXPECT_EQ(authType, testAuthType);
-            EXPECT_EQ(authTrustLevel, testAtl);
+        .WillOnce([&testCallback, &testAuthParamInner](AuthParamInner &authParam,
+            std::optional<RemoteAuthParam> &remoteAuthParam, sptr<UserAuthCallbackInterface> &callback) {
+            EXPECT_EQ(authParam.userId, testAuthParamInner.userId);
+            EXPECT_THAT(authParam.challenge, ElementsAre(1, 2, 3, 4));
+            EXPECT_EQ(authParam.authType, testAuthParamInner.authType);
+            EXPECT_EQ(authParam.authTrustLevel, testAuthParamInner.authTrustLevel);
             EXPECT_EQ(callback, testCallback);
             return 0;
         });
@@ -253,7 +256,7 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyAuthUser, TestSize.Level0)
             service->OnRemoteRequest(code, data, reply, option);
             return SUCCESS;
         });
-    proxy->AuthUser(testUserId, testChallenge, testAuthType, testAtl, testCallback);
+    proxy->AuthUser(testAuthParamInner, testRemoteAuthParam, testCallback);
 }
 
 HWTEST_F(UserAuthProxyTest, UserAuthProxyCancelAuthOrIdentify, TestSize.Level0)
@@ -316,7 +319,7 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyIdentify, TestSize.Level0)
 HWTEST_F(UserAuthProxyTest, UserAuthProxyAuthWidget001, TestSize.Level0)
 {
     static const int32_t testApiVersion = 0;
-    AuthParam authParam;
+    AuthParamInner authParam;
     WidgetParam widgetParam;
 
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
@@ -331,7 +334,7 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyAuthWidget001, TestSize.Level0)
     EXPECT_NE(service, nullptr);
     EXPECT_CALL(*service, AuthWidget(_, _, _, _))
         .Times(Exactly(1))
-        .WillOnce([&testCallback](int32_t apiVersion, const AuthParam &authParam, const WidgetParam &widgetParam,
+        .WillOnce([&testCallback](int32_t apiVersion, const AuthParamInner &authParam, const WidgetParam &widgetParam,
             sptr<UserAuthCallbackInterface> &callback) {
             EXPECT_EQ(apiVersion, testApiVersion);
             EXPECT_EQ(callback, testCallback);
@@ -349,7 +352,7 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyAuthWidget001, TestSize.Level0)
 HWTEST_F(UserAuthProxyTest, UserAuthProxyAuthWidget002, TestSize.Level0)
 {
     static const int32_t testApiVersion = 0;
-    AuthParam authParam;
+    AuthParamInner authParam;
     WidgetParam widgetParam;
 
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());

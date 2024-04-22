@@ -28,6 +28,7 @@ class UserAuthCallbackService : public UserAuthCallbackStub {
 public:
     explicit UserAuthCallbackService(const std::shared_ptr<AuthenticationCallback> &impl);
     explicit UserAuthCallbackService(const std::shared_ptr<IdentificationCallback> &impl);
+    explicit UserAuthCallbackService(const std::shared_ptr<PrepareRemoteAuthCallback> &impl);
     ~UserAuthCallbackService() override;
     void OnResult(int32_t result, const Attributes &extraInfo) override;
     void OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo) override;
@@ -35,6 +36,7 @@ public:
 private:
     std::shared_ptr<AuthenticationCallback> authCallback_ {nullptr};
     std::shared_ptr<IdentificationCallback> identifyCallback_ {nullptr};
+    std::shared_ptr<PrepareRemoteAuthCallback> prepareRemoteAuthCallback_ {nullptr};
     std::shared_ptr<UserIam::UserAuth::IamHitraceHelper> iamHitraceHelper_ {nullptr};
 };
 

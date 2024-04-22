@@ -17,6 +17,7 @@
 #define CO_AUTH_INTERFACE_H
 
 #include <cstdint>
+#include <vector>
 
 #include "executor_callback_interface.h"
 #include "iam_common_defines.h"
@@ -38,9 +39,12 @@ public:
         ExecutorSecureLevel esl;
         uint32_t maxTemplateAcl {0};
         std::vector<uint8_t> publicKey;
+        std::string deviceUdid;
+        std::vector<uint8_t> signedRemoteExecutorInfo;
     };
 
     virtual uint64_t ExecutorRegister(const ExecutorRegisterInfo &info, sptr<ExecutorCallbackInterface> &callback) = 0;
+    virtual void ExecutorUnregister(uint64_t executorIndex) = 0;
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.CoAuth.ICoAuth");
 };
 } // namespace UserAuth

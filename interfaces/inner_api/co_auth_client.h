@@ -57,7 +57,7 @@ public:
      *
      * @param info Information about executor which need to unregister from coAuth.
      */
-    virtual void Unregister(const ExecutorInfo &info) = 0;
+    virtual void Unregister(uint64_t executorIndex) = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -24,12 +24,44 @@
 #ifndef USER_AUTH_CLIENT_DEFINES_H
 #define USER_AUTH_CLIENT_DEFINES_H
 
+#include <vector>
+
 #include "attributes.h"
 #include "iam_common_defines.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+/**
+ * @brief Remote auth parameter.
+ */
+struct RemoteAuthParam {
+    /** verifier network id */
+    std::optional<std::string> verifierNetworkId;
+    /** collector network id */
+    std::optional<std::string> collectorNetworkId;
+    /** collector token id */
+    std::optional<uint32_t> collectorTokenId;
+};
+
+/**
+ * @brief Auth parameter.
+ */
+struct AuthParam {
+    /** user id */
+    int32_t userId;
+    /** challenge value */
+    std::vector<uint8_t> challenge;
+    /** Credential type for authentication. */
+    AuthType authType;
+    /** Trust level of authentication result. */
+    AuthTrustLevel authTrustLevel;
+    /** Auth intent. */
+    AuthIntent authIntent;
+    /** Remote auth parameter. */
+    std::optional<RemoteAuthParam> remoteAuthParam;
+};
+
 /**
  * @brief Executor property needed to get.
  */

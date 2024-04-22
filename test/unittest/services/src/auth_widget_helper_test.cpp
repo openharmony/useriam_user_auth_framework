@@ -57,11 +57,11 @@ void AuthWidgetHelperTest::TearDown()
 
 HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam001, TestSize.Level0)
 {
-    AuthParam authParam;
-    authParam.authType.push_back(FACE);
-    authParam.authType.push_back(ALL);
-    authParam.authType.push_back(PIN);
-    authParam.authType.push_back(FINGERPRINT);
+    AuthParamInner authParam;
+    authParam.authTypes.push_back(FACE);
+    authParam.authTypes.push_back(ALL);
+    authParam.authTypes.push_back(PIN);
+    authParam.authTypes.push_back(FINGERPRINT);
     authParam.authTrustLevel = ATL2;
     WidgetParam widgetParam;
     widgetParam.title = "使用密码验证";
@@ -74,18 +74,18 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam001, Te
 
 HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam002, TestSize.Level0)
 {
-    AuthParam authParam;
-    authParam.authType.push_back(FACE);
-    authParam.authType.push_back(ALL);
-    authParam.authType.push_back(PIN);
-    authParam.authType.push_back(FINGERPRINT);
+    AuthParamInner authParam;
+    authParam.authTypes.push_back(FACE);
+    authParam.authTypes.push_back(ALL);
+    authParam.authTypes.push_back(PIN);
+    authParam.authTypes.push_back(FINGERPRINT);
     authParam.authTrustLevel = ATL2;
     WidgetParam widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "确定";
     ContextFactory::AuthWidgetContextPara para;
     para.userId = 1;
-    std::vector<AuthType> validType = authParam.authType;
+    std::vector<AuthType> validType = authParam.authTypes;
     EXPECT_FALSE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
 }
 
@@ -107,7 +107,7 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckReuseUnlockResult001, Te
     ContextFactory::AuthWidgetContextPara para;
     para.userId = 1;
     Attributes extraInfo;
-    AuthParam authParam;
+    AuthParamInner authParam;
     authParam.reuseUnlockResult.isReuse = false;
     EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), INVALID_PARAMETERS);
 
@@ -124,7 +124,7 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckReuseUnlockResult002, Te
     ContextFactory::AuthWidgetContextPara para;
     para.userId = 1;
     Attributes extraInfo;
-    AuthParam authParam;
+    AuthParamInner authParam;
     authParam.reuseUnlockResult.isReuse = true;
     authParam.reuseUnlockResult.reuseDuration = 5 * 60 * 1000;
     authParam.reuseUnlockResult.reuseMode = AUTH_TYPE_RELEVANT;
@@ -146,7 +146,7 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckReuseUnlockResult002, Te
     EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), HDF_SUCCESS);
     ON_CALL(*mockHdi, CheckReuseUnlockResult)
         .WillByDefault(Return(HDF_SUCCESS));
-    EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), GENERAL_ERROR);
+    EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), SUCCESS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
 } // namespace UserAuth

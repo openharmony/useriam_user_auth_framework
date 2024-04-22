@@ -22,6 +22,7 @@
 
 #include "hdi_wrapper.h"
 #include "schedule_node.h"
+#include "schedule_node_builder.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -31,6 +32,7 @@ public:
     struct NodeOptionalPara {
         std::optional<uint32_t> expire;
         std::optional<uint32_t> tokenId;
+        uint32_t collectorTokenId;
         std::optional<PinSubType> pinSubType;
         std::optional<bool> endAfterFirstFail;
     };

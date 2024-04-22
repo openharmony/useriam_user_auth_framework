@@ -21,6 +21,7 @@
 
 #include "string_ex.h"
 
+#include "device_manager_util.h"
 #include "executor_messenger_service.h"
 #include "hdi_message_callback_service.h"
 #include "hdi_wrapper.h"
@@ -35,18 +36,39 @@
 #include "ipc_skeleton.h"
 #include "parameter.h"
 #include "relative_timer.h"
+#include "remote_connect_manager.h"
 #include "resource_node_pool.h"
 #include "template_cache_manager.h"
+#include "remote_msg_util.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-REGISTER_SYSTEM_ABILITY_BY_ID(CoAuthService, SUBSYS_USERIAM_SYS_ABILITY_AUTHEXECUTORMGR, true);
-constexpr int32_t USERIAM_IPC_THREAD_NUM = 4;
+namespace {
+const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(CoAuthService::GetInstance().get());
+} // namespace
 
-CoAuthService::CoAuthService(int32_t systemAbilityId, bool runOnCreate) : SystemAbility(systemAbilityId, runOnCreate)
+constexpr int32_t USERIAM_IPC_THREAD_NUM = 4;
+std::mutex CoAuthService::mutex_;
+std::shared_ptr<CoAuthService> CoAuthService::instance_ = nullptr;
+
+std::shared_ptr<CoAuthService> CoAuthService::GetInstance()
+{
+    if (instance_ == nullptr) {
+        std::lock_guard<std::mutex> guard(mutex_);
+        if (instance_ == nullptr) {
+            instance_ = Common::MakeShared<CoAuthService>();
+            if (instance_ == nullptr) {
+                IAM_LOGE("make share failed");
+            }
+        }
+    }
+    return instance_;
+}
+
+CoAuthService::CoAuthService() : SystemAbility(SUBSYS_USERIAM_SYS_ABILITY_AUTHEXECUTORMGR, true)
 {
     IAM_LOGI("CoAuthService init");
 }
@@ -98,8 +120,8 @@ uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<
     }
 
     sptr<ExecutorMessengerInterface> messenger = ExecutorMessengerService::GetInstance();
-    executorCallback->OnMessengerReady(messenger, fwkPublicKey, templateIdList);
     uint64_t executorIndex = resourceNode->GetExecutorIndex();
+    executorCallback->OnMessengerReady(executorIndex, messenger, fwkPublicKey, templateIdList);
     int32_t executorType = resourceNode->GetAuthType();
     IAM_LOGI("register successful, executorType is %{public}d, executorIndex is ****%{public}hx",
         executorType, static_cast<uint16_t>(executorIndex));
@@ -117,6 +139,19 @@ uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<
     return executorIndex;
 }
 
+void CoAuthService::ExecutorUnregister(uint64_t executorIndex)
+{
+    if (!IpcCommon::CheckPermission(*this, ACCESS_AUTH_RESPOOL)) {
+        IAM_LOGE("failed to check permission");
+        return;
+    }
+    if (!ResourceNodePool::Instance().Delete(executorIndex)) {
+        IAM_LOGE("delete resource node failed");
+        return;
+    }
+    IAM_LOGI("delete resource node success, executorIndex is ****%{public}hx", static_cast<uint16_t>(executorIndex));
+}
+
 void CoAuthService::Init()
 {
     auto hdi = HdiWrapper::GetHdiRemoteObjInstance();
@@ -127,6 +162,14 @@ void CoAuthService::Init()
             IAM_LOGI("delete all executors for hdi dead");
             UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "user_auth_hdi host");
         }));
+
+        std::string localUdid;
+        bool getLocalUdidRet = DeviceManagerUtil::GetInstance().GetLocalDeviceUdid(localUdid);
+        IF_FALSE_LOGE_AND_RETURN(getLocalUdidRet);
+        auto service = HdiWrapper::GetHdiInstance();
+        IF_FALSE_LOGE_AND_RETURN(service != nullptr);
+        int32_t initRet = service->Init(localUdid);
+        IF_FALSE_LOGE_AND_RETURN(initRet == HDF_SUCCESS);
         auto callbackService = HdiMessageCallbackService::GetInstance();
         IF_FALSE_LOGE_AND_RETURN(callbackService != nullptr);
         callbackService->OnHdiConnect();

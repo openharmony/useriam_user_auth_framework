@@ -56,8 +56,8 @@ public:
 
     virtual ~CoAuthServiceFuzzer() = default;
 
-    void OnMessengerReady(sptr<ExecutorMessengerInterface> &messenger, const std::vector<uint8_t> &publicKey,
-        const std::vector<uint64_t> &templateIdList) override
+    void OnMessengerReady(uint64_t executorIndex, sptr<ExecutorMessengerInterface> &messenger,
+        const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList) override
     {
         IAM_LOGI("start");
         return;
@@ -119,7 +119,7 @@ void FillFuzzExecutorRegisterInfo(Parcel &parcel, ExecutorRegisterInfo &executor
     IAM_LOGI("FillFuzzExecutorRegisterInfo success");
 }
 
-CoAuthService g_coAuthService(SUBSYS_USERIAM_SYS_ABILITY_AUTHEXECUTORMGR, true);
+CoAuthService g_coAuthService;
 sptr<ExecutorMessengerService> executorMessengerService = ExecutorMessengerService::GetInstance();
 
 void FuzzRegister(Parcel &parcel)

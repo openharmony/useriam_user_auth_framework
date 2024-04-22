@@ -36,10 +36,11 @@ const std::u16string EXECUTOR_CALLBACK_INTERFACE_TOKEN = u"ohos.UserIam.AuthResP
 
 class DummyExecutorRegisterCallback final : public ExecutorRegisterCallback {
 public:
-    void OnMessengerReady(const std::shared_ptr<ExecutorMessenger> &messenger,
+    void OnMessengerReady(uint64_t executorIndex, const std::shared_ptr<ExecutorMessenger> &messenger,
         const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIds)
     {
         IAM_LOGI("start");
+        static_cast<void>(executorIndex);
         static_cast<void>(messenger);
         static_cast<void>(publicKey);
         static_cast<void>(templateIds);

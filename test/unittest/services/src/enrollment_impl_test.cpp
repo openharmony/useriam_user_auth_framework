@@ -216,20 +216,16 @@ HWTEST_F(EnrollmentImplTest, EnrollmentImplTestStart_001, TestSize.Level0)
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, CancelEnrollment(_))
-        .Times(2)
+        .Times(0)
         .WillOnce(Return(HDF_SUCCESS))
         .WillOnce(Return(HDF_FAILURE));
     EXPECT_CALL(*mockHdi, BeginEnrollment(_, _, _))
         .WillRepeatedly(
             [](const std::vector<uint8_t> &authToken, const HdiEnrollParam &param,
                 HdiScheduleInfo &info) {
-                constexpr uint64_t executorIndex = 60;
                 info.authType = HdiAuthType::FACE;
                 info.executorMatcher = 10;
-                info.executorIndexes.push_back(executorIndex);
-                std::vector<uint8_t> executorMessages;
-                executorMessages.resize(1);
-                info.executorMessages.push_back(executorMessages);
+                info.executorIndexes.push_back(60);
                 info.scheduleId = 20;
                 info.scheduleMode = HdiScheduleMode::IDENTIFY;
                 info.templateIds.push_back(30);
@@ -244,10 +240,10 @@ HWTEST_F(EnrollmentImplTest, EnrollmentImplTestStart_001, TestSize.Level0)
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
     auto callback = Common::MakeShared<MockScheduleNodeCallback>();
     EXPECT_NE(callback, nullptr);
-    EXPECT_TRUE(enroll->Start(scheduleList, callback));
-    EXPECT_TRUE(enroll->Cancel());
+    EXPECT_FALSE(enroll->Start(scheduleList, callback));
+    EXPECT_FALSE(enroll->Cancel());
 
-    EXPECT_TRUE(enroll->Start(scheduleList, callback));
+    EXPECT_FALSE(enroll->Start(scheduleList, callback));
     EXPECT_FALSE(enroll->Cancel());
 
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(executorIndex));

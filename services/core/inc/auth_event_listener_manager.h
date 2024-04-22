@@ -16,10 +16,10 @@
 #ifndef IAM_AUTH_EVENT_LISTENER_MANAGER_H
 #define IAM_AUTH_EVENT_LISTENER_MANAGER_H
 
+#include "user_auth_interface.h"
+#include <map>
 #include <mutex>
 #include <set>
-#include <map>
-#include "user_auth_interface.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -38,10 +38,10 @@ public:
 
 protected:
     class AuthEventListenerDeathRecipient : public IRemoteObject::DeathRecipient, public NoCopyable {
-        public:
-            AuthEventListenerDeathRecipient() = default;
-            ~AuthEventListenerDeathRecipient() override = default;
-            void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    public:
+        AuthEventListenerDeathRecipient() = default;
+        ~AuthEventListenerDeathRecipient() override = default;
+        void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
     };
 
     AuthEventListenerManager() = default;
@@ -55,7 +55,9 @@ protected:
 
 private:
     struct FinderSet {
-        explicit FinderSet(sptr<IRemoteObject> remoteObject) : remoteObject_(remoteObject) {}
+        explicit FinderSet(sptr<IRemoteObject> remoteObject) : remoteObject_(remoteObject)
+        {
+        }
         bool operator()(sptr<AuthEventListenerInterface> listener)
         {
             return listener->AsObject() == remoteObject_;
@@ -64,7 +66,9 @@ private:
     };
 
     struct FinderMap {
-        explicit FinderMap(sptr<IRemoteObject> remoteObject) : remoteObject_(remoteObject) {}
+        explicit FinderMap(sptr<IRemoteObject> remoteObject) : remoteObject_(remoteObject)
+        {
+        }
         bool operator()(std::map<sptr<AuthEventListenerInterface>, sptr<DeathRecipient>>::value_type &pair)
         {
             return pair.first->AsObject() == remoteObject_;

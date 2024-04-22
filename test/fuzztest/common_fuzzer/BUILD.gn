@@ -158,6 +158,10 @@ ohos_source_set("userauth_service_core_fuzzer") {
     "../../../services/core/src/enrollment_impl.cpp",
     "../../../services/core/src/hdi_message_callback_service.cpp",
     "../../../services/core/src/identification_impl.cpp",
+    "../../../services/core/src/remote_auth_service.cpp",
+    "../../../services/core/src/remote_executor_proxy.cpp",
+    "../../../services/core/src/remote_executor_stub.cpp",
+    "../../../services/core/src/remote_msg_util.cpp",
     "../../../services/core/src/resource_node_impl.cpp",
     "../../../services/core/src/resource_node_pool_impl.cpp",
     "../../../services/core/src/resource_node_utils.cpp",
@@ -175,13 +179,22 @@ ohos_source_set("userauth_service_core_fuzzer") {
   ]
 
   deps = [
+    "../../../frameworks/native/client:userauth_client",
     "../common_fuzzer:attributes_fuzzer",
     "../common_fuzzer:dfx_fuzzer",
     "../common_fuzzer:userauth_service_base_fuzzer",
   ]
 
   external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_context_native",
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:app_manager",
+    "ability_runtime:extension_manager",
     "c_utils:utils",
+    "device_manager:devicemanagersdk",
     "drivers_interface_user_auth:libuser_auth_proxy_2.0",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
@@ -203,6 +216,7 @@ ohos_source_set("userauth_service_core_fuzzer") {
     "../../../common:iam_log_config",
     "../../../common:iam_utils_config",
     "../../../frameworks/native/ipc:userauth_client_ipc_config",
+    "../../../services/remote_connect:userauth_service_remote_connect_config",
   ]
 
   subsystem_name = "useriam"
@@ -228,6 +242,9 @@ ohos_source_set("userauth_service_context_fuzzer") {
     "../../../services/context/src/context_pool_impl.cpp",
     "../../../services/context/src/enroll_context.cpp",
     "../../../services/context/src/identify_context.cpp",
+    "../../../services/context/src/remote_auth_context.cpp",
+    "../../../services/context/src/remote_auth_invoker_context.cpp",
+    "../../../services/context/src/remote_iam_callback.cpp",
     "../../../services/context/src/simple_auth_context.cpp",
     "../../../services/context/src/trace.cpp",
     "../../../services/context/src/ui_extension_ability_connection.cpp",
@@ -249,8 +266,10 @@ ohos_source_set("userauth_service_context_fuzzer") {
     "ability_base:zuri",
     "ability_runtime:ability_context_native",
     "ability_runtime:abilitykit_native",
+    "ability_runtime:app_manager",
     "ability_runtime:extension_manager",
     "c_utils:utils",
+    "drivers_interface_user_auth:libuser_auth_proxy_2.0",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "init:libbegetutil",
@@ -266,6 +285,7 @@ ohos_source_set("userauth_service_context_fuzzer") {
     "../../../common:iam_log_config",
     "../../../common:iam_utils_config",
     "../../../frameworks/native/ipc:userauth_client_ipc_config",
+    "../../../services/remote_connect:userauth_service_remote_connect_config",
   ]
 
   subsystem_name = "useriam"

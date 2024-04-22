@@ -40,6 +40,7 @@ public:
     virtual uint64_t GetExecutorMatcher() const = 0;
     virtual ExecutorSecureLevel GetExecutorEsl() const = 0;
     virtual std::vector<uint8_t> GetExecutorPublicKey() const = 0;
+    virtual std::string GetExecutorDeviceUdid() const = 0;
     virtual int32_t BeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
         const Attributes &command) = 0;
     virtual int32_t EndExecute(uint64_t scheduleId, const Attributes &command) = 0;

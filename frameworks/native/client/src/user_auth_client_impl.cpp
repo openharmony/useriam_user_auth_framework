@@ -21,6 +21,7 @@
 #include "callback_manager.h"
 #include "iam_check.h"
 #include "iam_logger.h"
+#include "iam_para2str.h"
 #include "iam_ptr.h"
 #include "ipc_client_utils.h"
 #include "user_auth_callback_service.h"
@@ -173,10 +174,20 @@ void UserAuthClientImpl::SetProperty(int32_t userId, const SetPropertyRequest &r
     }
 }
 
-uint64_t UserAuthClientImpl::BeginAuthentication(int32_t userId, const std::vector<uint8_t> &challenge,
-    AuthType authType, AuthTrustLevel atl, const std::shared_ptr<AuthenticationCallback> &callback)
+uint64_t UserAuthClientImpl::BeginAuthentication(const AuthParam &authParam,
+    const std::shared_ptr<AuthenticationCallback> &callback)
 {
-    IAM_LOGI("start, userId:%{public}d authType:%{public}d atl:%{public}u", userId, authType, atl);
+    IAM_LOGI("start, userId:%{public}d authType:%{public}d atl:%{public}u remoteAuthParamHasValue:%{public}s",
+        authParam.userId, authParam.authType, authParam.authTrustLevel,
+        Common::GetBoolStr(authParam.remoteAuthParam.has_value()));
+    if (authParam.remoteAuthParam.has_value()) {
+        IAM_LOGI("verifierNetworkIdHasValue:%{public}s collectorNetworkIdHasValue:%{public}s"
+            "collectorTokenIdHasValue:%{public}s",
+            Common::GetBoolStr(authParam.remoteAuthParam->verifierNetworkId.has_value()),
+            Common::GetBoolStr(authParam.remoteAuthParam->collectorNetworkId.has_value()),
+            Common::GetBoolStr(authParam.remoteAuthParam->collectorTokenId.has_value()));
+    }
+
     if (!callback) {
         IAM_LOGE("auth callback is nullptr");
         return INVALID_SESSION_ID;
@@ -197,7 +208,15 @@ uint64_t UserAuthClientImpl::BeginAuthentication(int32_t userId, const std::vect
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return INVALID_SESSION_ID;
     }
-    return proxy->AuthUser(userId, challenge, authType, atl, wrapper);
+    AuthParamInner authParamInner = {
+        .userId = authParam.userId,
+        .challenge = authParam.challenge,
+        .authType = authParam.authType,
+        .authTrustLevel = authParam.authTrustLevel,
+        .authIntent = authParam.authIntent
+    };
+    std::optional<RemoteAuthParam> remoteAuthParam = authParam.remoteAuthParam;
+    return proxy->AuthUser(authParamInner, remoteAuthParam, wrapper);
 }
 
 uint64_t UserAuthClientImpl::BeginNorthAuthentication(int32_t apiVersion, const std::vector<uint8_t> &challenge,
@@ -372,11 +391,11 @@ UserAuthClient &UserAuthClient::GetInstance()
     return UserAuthClientImpl::Instance();
 }
 
-uint64_t UserAuthClientImpl::BeginWidgetAuth(int32_t apiVersion, const AuthParam &authParam,
+uint64_t UserAuthClientImpl::BeginWidgetAuth(int32_t apiVersion, const AuthParamInner &authParam,
     const WidgetParam &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback)
 {
     IAM_LOGI("start, apiVersion:%{public}d authTypeSize:%{public}zu authTrustLevel:%{public}u",
-        apiVersion, authParam.authType.size(), authParam.authTrustLevel);
+        apiVersion, authParam.authTypes.size(), authParam.authTrustLevel);
     // parameter verification
     if (!callback) {
         IAM_LOGE("auth callback is nullptr");
@@ -495,6 +514,32 @@ int32_t UserAuthClientImpl::UnRegistUserAuthSuccessEventListener(const sptr<Auth
     }
 
     return SUCCESS;
+}
+
+int32_t UserAuthClientImpl::PrepareRemoteAuth(const std::string &networkId,
+    const std::shared_ptr<PrepareRemoteAuthCallback> &callback)
+{
+    IAM_LOGI("start");
+    if (!callback) {
+        IAM_LOGE("prepare remote auth callback is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    auto proxy = GetProxy();
+    if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
+        callback->OnResult(GENERAL_ERROR);
+        return GENERAL_ERROR;
+    }
+
+    sptr<UserAuthCallbackInterface> wrapper(new (std::nothrow) UserAuthCallbackService(callback));
+    if (wrapper == nullptr) {
+        IAM_LOGE("failed to create wrapper");
+        callback->OnResult(GENERAL_ERROR);
+        return GENERAL_ERROR;
+    }
+
+    return proxy->PrepareRemoteAuth(networkId, wrapper);
 }
 } // namespace UserAuth
 } // namespace UserIam

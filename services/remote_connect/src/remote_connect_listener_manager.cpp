@@ -27,8 +27,8 @@ const char *GLOBAL_CONNECTION_NAME = "GLOBAL";
 }
 bool RemoteConnectListenerManager::ListenerInfo::operator==(const ListenerInfo &other) const
 {
-    bool compareRet = endPointName == other.endPointName ||
-        (connectionName == other.connectionName && connectionName == GLOBAL_CONNECTION_NAME);
+    bool compareRet = endPointName == other.endPointName &&
+        (connectionName == other.connectionName || connectionName == GLOBAL_CONNECTION_NAME);
     IAM_LOGI("Check listener connectionName:%{public}s, endPointName:%{public}s, compareRet:%{public}d",
         connectionName.c_str(), endPointName.c_str(), compareRet);
     return compareRet;
@@ -43,7 +43,7 @@ RemoteConnectListenerManager &RemoteConnectListenerManager::GetInstance()
 ResultCode RemoteConnectListenerManager::RegisterListener(const std::string &connectionName,
     const std::string &endPointName, const std::shared_ptr<ConnectionListener> &listener)
 {
-    std::lock_guard<std::mutex> lock(listenerMutex_);
+    std::lock_guard<std::recursive_mutex> lock(listenerMutex_);
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, GENERAL_ERROR);
     IAM_LOGI("RegisterListener connectionName:%{public}s, endPointName:%{public}s", connectionName.c_str(),
         endPointName.c_str());
@@ -62,14 +62,14 @@ ResultCode RemoteConnectListenerManager::RegisterListener(const std::string &con
 ResultCode RemoteConnectListenerManager::RegisterListener(const std::string &endPointName,
     const std::shared_ptr<ConnectionListener> &listener)
 {
-    std::lock_guard<std::mutex> lock(listenerMutex_);
+    std::lock_guard<std::recursive_mutex> lock(listenerMutex_);
     return RegisterListener(GLOBAL_CONNECTION_NAME, endPointName, listener);
 }
 
 ResultCode RemoteConnectListenerManager::UnregisterListener(const std::string &connectionName,
     const std::string &endPointName)
 {
-    std::lock_guard<std::mutex> lock(listenerMutex_);
+    std::lock_guard<std::recursive_mutex> lock(listenerMutex_);
     IAM_LOGI("UnregisterListener connectionName:%{public}s, endPointName:%{public}s", connectionName.c_str(),
         endPointName.c_str());
     ListenerInfo info = { connectionName, endPointName };
@@ -85,14 +85,14 @@ ResultCode RemoteConnectListenerManager::UnregisterListener(const std::string &c
 
 ResultCode RemoteConnectListenerManager::UnregisterListener(const std::string &endPointName)
 {
-    std::lock_guard<std::mutex> lock(listenerMutex_);
+    std::lock_guard<std::recursive_mutex> lock(listenerMutex_);
     return UnregisterListener(GLOBAL_CONNECTION_NAME, endPointName);
 }
 
 std::shared_ptr<ConnectionListener> RemoteConnectListenerManager::FindListener(const std::string &connectionName,
     const std::string &endPointName)
 {
-    std::lock_guard<std::mutex> lock(listenerMutex_);
+    std::lock_guard<std::recursive_mutex> lock(listenerMutex_);
     IAM_LOGI("FindListener connectionName:%{public}s, endPointName:%{public}s", connectionName.c_str(),
         endPointName.c_str());
     ListenerInfo info = { connectionName, endPointName };
@@ -107,7 +107,7 @@ std::shared_ptr<ConnectionListener> RemoteConnectListenerManager::FindListener(c
 
 void RemoteConnectListenerManager::OnConnectionDown(const std::string &connectionName)
 {
-    std::lock_guard<std::mutex> lock(listenerMutex_);
+    std::lock_guard<std::recursive_mutex> lock(listenerMutex_);
     IAM_LOGI("OnConnectionDown connectionName:%{public}s", connectionName.c_str());
     for (auto it = listeners_.begin(); it != listeners_.end(); ++it) {
         if (it->connectionName == connectionName) {

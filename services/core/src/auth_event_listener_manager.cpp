@@ -54,8 +54,7 @@ int32_t AuthEventListenerManager::RegistUserAuthSuccessEventListener(const std::
     return SUCCESS;
 }
 
-int32_t AuthEventListenerManager::UnRegistUserAuthSuccessEventListener(
-    const sptr<AuthEventListenerInterface> &listener)
+int32_t AuthEventListenerManager::UnRegistUserAuthSuccessEventListener(const sptr<AuthEventListenerInterface> &listener)
 {
     IAM_LOGI("start");
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, GENERAL_ERROR);
@@ -118,7 +117,8 @@ void AuthEventListenerManager::OnNotifyAuthSuccessEvent(int32_t userId, AuthType
         if (iter != nullptr) {
             iter->OnNotifyAuthSuccessEvent(userId, authType, callerType, callerName);
             IAM_LOGI("OnNotifyAuthSuccessEvent, userId: %{public}d, authType: %{public}d, callerName: %{public}s, "
-                "callerType: %{public}d", userId, static_cast<int32_t>(authType), callerName.c_str(), callerType);
+                     "callerType: %{public}d",
+                userId, static_cast<int32_t>(authType), callerName.c_str(), callerType);
         }
     }
 }
@@ -134,8 +134,7 @@ int32_t AuthEventListenerManager::AddDeathRecipient(const sptr<AuthEventListener
         return GENERAL_ERROR;
     }
 
-    auto iter = std::find_if(deathRecipientMap_.begin(), deathRecipientMap_.end(),
-        FinderMap(listener->AsObject()));
+    auto iter = std::find_if(deathRecipientMap_.begin(), deathRecipientMap_.end(), FinderMap(listener->AsObject()));
     if (iter != deathRecipientMap_.end()) {
         IAM_LOGE("deathRecipient is already registed");
         return SUCCESS;
@@ -163,8 +162,7 @@ int32_t AuthEventListenerManager::RemoveDeathRecipient(const sptr<AuthEventListe
         return GENERAL_ERROR;
     }
 
-    auto iter = std::find_if(deathRecipientMap_.begin(), deathRecipientMap_.end(),
-        FinderMap(listener->AsObject()));
+    auto iter = std::find_if(deathRecipientMap_.begin(), deathRecipientMap_.end(), FinderMap(listener->AsObject()));
     if (iter == deathRecipientMap_.end()) {
         IAM_LOGE("deathRecipient is not registed");
         return SUCCESS;

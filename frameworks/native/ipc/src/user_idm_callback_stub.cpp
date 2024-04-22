@@ -16,7 +16,6 @@
 #include "user_idm_callback_stub.h"
 
 #include "iam_logger.h"
-#include "iam_ptr.h"
 #include "user_idm_client_defines.h"
 
 #define LOG_TAG "USER_IDM_SDK"
