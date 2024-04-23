@@ -126,11 +126,6 @@ public:
         ATTR_CREDENTIAL_DIGEST,
         /** Credential count, the value type is uint16_t. */
         ATTR_CREDENTIAL_COUNT,
-        /**
-         * Private attrs.
-         * User TYPE, the value type is int32_t.
-         */
-        ATTR_USER_TYPE = 300009,
     };
 
     /**
