@@ -18,8 +18,6 @@
 #include "iam_logger.h"
 #ifdef HAS_OS_ACCOUNT_PART
 #include "os_account_manager.h"
-#include "user_auth_hdi.h"
-#include "os_account_info.h"
 #endif // HAS_OS_ACCOUNT_PART
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -92,26 +90,7 @@ int32_t IpcCommon::GetAllUserId(std::vector<int32_t> &userIds)
 
 int32_t IpcCommon::GetUserTypeByUserId(int32_t userId, int32_t &userType)
 {
-#ifdef HAS_OS_ACCOUNT_PART
-    AccountSA::OsAccountType osAccountType;
-    ErrCode ret = AccountSA::OsAccountManager::GetOsAccountType(userId, osAccountType);
-    if (ret != ERR_OK) {
-        IAM_LOGE("failed to get osAccountType for userId %d, error code: %d", userId, ret);
-        return TYPE_NOT_SUPPORT;
-    }
-    if (osAccountType == AccountSA::OsAccountType::PRIVATE) {
-        userType = static_cast<int32_t>(HdiUserType::PRIVATE);
-    } else if (userId == 100) {
-        userType = static_cast<int32_t>(HdiUserType::MAIN);
-    } else {
-        userType = static_cast<int32_t>(HdiUserType::SUB);
-    }
-    IAM_LOGI("userType:%{public}d", userType);
-#else
-    const int32_t DEFAULT_OS_ACCOUNT_TYPE = 0;
-    userType = DEFAULT_OS_ACCOUNT_TYPE;
-#endif
-
+    userType = 0;
     return SUCCESS;
 }
 

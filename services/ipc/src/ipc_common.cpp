@@ -126,7 +126,7 @@ static HdiUserType MapOsAccountTypeToUserType(AccountSA::OsAccountType osAccount
 {
     if (osAccountType == AccountSA::OsAccountType::PRIVATE) {
         return HdiUserType::PRIVATE;
-    } else if (userId == 100) {
+    } else if (userId == MAIN_USER_ID) {
         return HdiUserType::MAIN;
     } else {
         return HdiUserType::SUB;
@@ -142,7 +142,7 @@ int32_t IpcCommon::GetUserTypeByUserId(int32_t userId, int32_t &userType)
         IAM_LOGE("failed to get osAccountType for userId %d, error code: %d", userId, ret);
         return TYPE_NOT_SUPPORT;
     }
-    userType = static_cast<int32_t>(MapOsAccountTypeToUserType(osAccountType, userId));
+    userType = MapOsAccountTypeToUserType(osAccountType, userId);
     IAM_LOGI("userType:%{public}d", userType);
 #else
     const int32_t DEFAULT_OS_ACCOUNT_TYPE = 0;
