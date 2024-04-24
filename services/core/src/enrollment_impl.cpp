@@ -15,7 +15,6 @@
 #include "enrollment_impl.h"
 
 #include "hdi_wrapper.h"
-#include "iam_check.h"
 #include "iam_hitrace_helper.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
