@@ -105,8 +105,6 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
         IAM_LOGE("failed to get userType, err is %{public}d", ret);
         return false;
     }
-    // test data
-    userType = 2;
     HdiEnrollParam param = {
         .authType = static_cast<HdiAuthType>(enrollPara_.authType),
         .executorSensorHint = executorSensorHint_,
