@@ -33,6 +33,7 @@ namespace UserAuth {
 /** Max length of challenge. */
 constexpr size_t MAX_CHALLENG_LEN = 32;
 constexpr int32_t USER_AUTH_TIP_SINGLE_AUTH_RESULT = 9999;
+constexpr int INVALID_SOCKET_ID = -1;
 /**
  * @brief Defines authentication type.
  */
@@ -185,6 +186,12 @@ enum ResultCode : int32_t {
     INVALID_HDI_INTERFACE = 1006,
     /** The result is fail, because the caller app is not system. */
     CHECK_SYSTEM_APP_FAILED = 1007,
+    /** The result is fail, because something wrong when create socket. */
+    CREATE_SOCKET_FAILED = 1008,
+    /** The result is fail, because something wrong when listen socket. */
+    LISTEN_SOCKET_FAILED = 1009,
+    /** The result is fail, because something wrong when bind socket. */
+    BIND_SOCKET_FAILED = 1010,
     /** The result is fail, because something wrong from vendor. */
     VENDOR_ERROR_CODE_BEGIN = 10000,
 };

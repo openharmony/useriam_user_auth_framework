@@ -13,7 +13,6 @@
 
 import("//arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
 import("//build/ohos.gni")
-import("//foundation/arkui/ace_engine/ace_config.gni")
 
 es2abc_gen_abc("gen_user_auth_icon_abc") {
   src_js = rebase_path("user_auth_icon.js")
