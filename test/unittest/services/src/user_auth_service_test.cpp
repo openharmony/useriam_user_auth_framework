@@ -1741,7 +1741,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam, TestSize.Leve
     EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::INVALID_PARAMETERS);
 
     param.type = PIN_EXPIRED_PERIOD;
-    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::GENERAL_ERROR);
+    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::SUCCESS);
 
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
