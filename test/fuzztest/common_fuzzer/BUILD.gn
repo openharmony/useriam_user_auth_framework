@@ -241,7 +241,6 @@ ohos_source_set("userauth_service_context_fuzzer") {
     "../common_fuzzer:attributes_fuzzer",
     "../common_fuzzer:dfx_fuzzer",
     "../common_fuzzer:userauth_service_core_fuzzer",
-    "//third_party/openssl:libcrypto_shared",
   ]
 
   external_deps = [
@@ -256,6 +255,7 @@ ohos_source_set("userauth_service_context_fuzzer") {
     "hitrace:hitrace_meter",
     "init:libbegetutil",
     "napi:ace_napi",
+    "openssl:libcrypto_shared",
   ]
 
   public_configs =
