@@ -122,7 +122,7 @@ int32_t IpcCommon::GetAllUserId(std::vector<int32_t> &userIds)
     return SUCCESS;
 }
 
-static HdiUserType MapOsAccountTypeToUserType(AccountSA::OsAccountType osAccountType, int32_t userId)
+static HdiUserType MapOsAccountTypeToUserType(int32_t userId, AccountSA::OsAccountType osAccountType)
 {
     if (osAccountType == AccountSA::OsAccountType::PRIVATE) {
         return HdiUserType::PRIVATE;
@@ -142,7 +142,7 @@ int32_t IpcCommon::GetUserTypeByUserId(int32_t userId, int32_t &userType)
         IAM_LOGE("failed to get osAccountType for userId %d, error code: %d", userId, ret);
         return TYPE_NOT_SUPPORT;
     }
-    userType = MapOsAccountTypeToUserType(osAccountType, userId);
+    userType = MapOsAccountTypeToUserType(userId, osAccountType);
     IAM_LOGI("userType:%{public}d", userType);
 #else
     const int32_t DEFAULT_OS_ACCOUNT_TYPE = 0;
