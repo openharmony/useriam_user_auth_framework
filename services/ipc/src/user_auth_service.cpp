@@ -907,7 +907,7 @@ int32_t UserAuthService::UnRegistUserAuthSuccessEventListener(
 
 int32_t UserAuthService::SetGlobalConfigParam(const GlobalConfigParam &param)
 {
-    IAM_LOGE("start");
+    IAM_LOGI("start");
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;

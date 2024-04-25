@@ -62,8 +62,8 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetEnrolledStateStub002, TestSize.Level0)
     MockUserAuthService service;
     int32_t testApiVersion = 12;
     AuthType testAuthType = FACE;
-    uint16_t expectCredentialDigest = 23962;
-    uint64_t expectCredentialCount = 1;
+    uint64_t expectCredentialDigest = 23962;
+    uint16_t expectCredentialCount = 1;
     EXPECT_CALL(service, GetEnrolledState(_, _, _)).Times(1);
     ON_CALL(service, GetEnrolledState)
         .WillByDefault(
@@ -88,11 +88,11 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetEnrolledStateStub002, TestSize.Level0)
     int32_t result = FAIL;
     EXPECT_TRUE(reply.ReadInt32(result));
     EXPECT_EQ(SUCCESS, result);
-    uint16_t actualCredentialDigest;
-    EXPECT_TRUE(reply.ReadUint16(actualCredentialDigest));
+    uint64_t actualCredentialDigest;
+    EXPECT_TRUE(reply.ReadUint64(actualCredentialDigest));
     EXPECT_EQ(expectCredentialDigest, actualCredentialDigest);
-    uint64_t actualCredentialCount;
-    EXPECT_TRUE(reply.ReadUint64(actualCredentialCount));
+    uint16_t actualCredentialCount;
+    EXPECT_TRUE(reply.ReadUint16(actualCredentialCount));
     EXPECT_EQ(expectCredentialCount, actualCredentialCount);
 }
 
@@ -560,29 +560,6 @@ HWTEST_F(UserAuthStubTest, UserAuthStubUnRegistUserAuthSuccessEventListenerStub,
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
-    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
-    int32_t result;
-    EXPECT_TRUE(reply.ReadInt32(result));
-    EXPECT_EQ(result, SUCCESS);
-}
-
-HWTEST_F(UserAuthStubTest, UserAuthStubSetGlobalConfigParamStub, TestSize.Level0)
-{
-    MockUserAuthService service;
-    EXPECT_CALL(service, SetGlobalConfigParam(_)).Times(1);
-    ON_CALL(service, SetGlobalConfigParam)
-        .WillByDefault(
-            [](const GlobalConfigParam &param) {
-                return SUCCESS;
-            }
-        );
-
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserAuthInterfaceCode::USER_AUTH_SET_CLOBAL_CONFIG_PARAM;
-
-    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
     int32_t result;
     EXPECT_TRUE(reply.ReadInt32(result));

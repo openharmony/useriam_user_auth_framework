@@ -69,6 +69,8 @@ struct AuthenticateParam {
  * @brief Defines Collect parameter.
  */
 struct CollectParam {
+    /** Token id. */
+    uint32_t tokenId;
     /** Extra info. */
     std::vector<uint8_t> extraInfo;
 };
