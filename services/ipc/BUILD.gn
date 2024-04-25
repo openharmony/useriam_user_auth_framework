@@ -59,6 +59,7 @@ ohos_source_set("userauth_services_ipc") {
     "../../frameworks/native/common:dfx",
     "../../frameworks/native/ipc:userauth_service_ipc",
     "../context:userauth_service_context",
+    "../remote_connect:userauth_service_remote_connect",
   ]
 
   external_deps = [
@@ -66,6 +67,7 @@ ohos_source_set("userauth_services_ipc") {
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
     "c_utils:utils",
+    "device_manager:devicemanagersdk",
     "drivers_interface_user_auth:libuser_auth_proxy_2.0",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
@@ -92,6 +94,7 @@ ohos_source_set("userauth_services_ipc") {
     "../base:userauth_service_base_config",
     "../../common:iam_log_config",
     "../core:userauth_service_core_config",
+    "../remote_connect:userauth_service_remote_connect_config",
   ]
 
   subsystem_name = "useriam"

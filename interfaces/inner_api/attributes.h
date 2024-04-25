@@ -105,6 +105,22 @@ public:
         ATTR_OLD_CREDENTIAL_ID = 100041,
         /** Source role, the value type is int32_t. */
         ATTR_SRC_ROLE = 100042,
+        /** Message seqence num, the value type is int32_t. */
+        ATTR_MSG_SEQ_NUM = 100043,
+        /** Reply message, the value type is bool. */
+        ATTR_MSG_ACK = 100044,
+        /** Device udid, the value type is string. */
+        ATTR_MSG_SRC_UDID = 100045,
+        /** Source of messsage, the value type is string. */
+        ATTR_MSG_SRC_END_POINT = 100046,
+        /** Destination of message, the value type is string. */
+        ATTR_MSG_DEST_END_POINT = 100047,
+        /** Connection count, the value type is string. */
+        ATTR_CONNECTION_NAME = 100048,
+        /** Message version, the value type is uint32_t. */
+        ATTR_MSG_VERSION = 100049,
+        /** Collector network id. */
+        ATTR_COLLECTOR_NETWORK_ID = 100050,
         /**
          * Private attrs.
          * User ID, the value type is int32_t.

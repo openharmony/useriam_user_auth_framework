@@ -46,10 +46,10 @@
         "hitrace",
         "c_utils",
         "common_event_service",
-        "window_manager"
-      ],
-      "third_party": [
-        "openssl"
+        "window_manager",
+        "openssl",
+        "device_manager",
+        "dsoftbus"
       ]
     },
     "build": {
