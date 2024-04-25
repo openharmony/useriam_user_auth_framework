@@ -58,7 +58,6 @@ ohos_source_set("userauth_service_context") {
     "../../frameworks/native/common:attributes",
     "../../frameworks/native/common:dfx",
     "../../services/core:userauth_service_core",
-    "//third_party/openssl:libcrypto_shared",
   ]
 
   external_deps = [
@@ -74,6 +73,7 @@ ohos_source_set("userauth_service_context") {
     "hitrace:hitrace_meter",
     "init:libbegetutil",
     "napi:ace_napi",
+    "openssl:libcrypto_shared",
   ]
 
   public_configs = [ ":userauth_service_context_config" ]
