@@ -45,6 +45,8 @@ enum AuthType : int32_t {
     FACE = 2,
     /** Fingerprint authentication. */
     FINGERPRINT = 4,
+    /** recovery key authentication. */
+    RECOVERY_KEY = 8,
 };
 
 /**
