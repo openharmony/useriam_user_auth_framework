@@ -86,14 +86,16 @@ bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
         return false;
     }
     HdiAuthParam param = {
-        .baseParam.userId = authPara_.userId,
-        .baseParam.authTrustLevel = authPara_.atl,
-        .baseParam.executorSensorHint = executorSensorHint,
-        .baseParam.challenge = challenge_,
-        .baseParam.callerName = authPara_.callerName,
-        .baseParam.callerType = authPara_.callerType,
-        .baseParam.apiVersion = authPara_.sdkVersion,
-        .authType = static_cast<int32_t>(authPara_.authType),
+        .baseParam = {
+            .userId = authPara_.userId,
+            .authTrustLevel = authPara_.atl,
+            .executorSensorHint = executorSensorHint,
+            .challenge = challenge_,
+            .callerName = authPara_.callerName,
+            .callerType = authPara_.callerType,
+            .apiVersion = authPara_.sdkVersion,
+        },
+        .authType = authPara_.authType,
     };
     std::vector<HdiScheduleInfo> infos;
     IamHitraceHelper traceHelper("hdi BeginAuthentication");
