@@ -64,8 +64,8 @@ enum GlobalConfigType : int32_t {
  * @brief Global config value.
  */
 union GlobalConfigValue {
-    /** Global config value of pin expired period. When pinExpiredPeriod <= 0,
-      * userAuth won't check pin expired period */
+    /** Global config value of pin expired period.It's value should between 0 and 2^50.
+      * When pinExpiredPeriod <= 0, userAuth won't check pin expired period */
     int64_t pinExpiredPeriod;
 };
 

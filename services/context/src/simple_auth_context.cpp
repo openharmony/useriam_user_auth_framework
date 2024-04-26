@@ -199,7 +199,7 @@ void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInf
             credentialDigest = resultInfo.credentialDigest & UINT16_MAX;
         }
         bool setCredentialDigestRet = finalResult.SetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST,
-            resultInfo.credentialDigest);
+            credentialDigest);
         IF_FALSE_LOGE_AND_RETURN(setCredentialDigestRet == true);
         bool setCredentialCountRet = finalResult.SetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT,
             resultInfo.credentialCount);
