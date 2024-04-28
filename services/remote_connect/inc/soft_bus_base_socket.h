@@ -1,0 +1,92 @@
+/*
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef IAM_SOFT_BUS_SOCKET_H
+#define IAM_SOFT_BUS_SOCKET_H
+
+#include <cstdint>
+#include <map>
+#include <mutex>
+#include <set>
+#include <string>
+#include <vector>
+#include "socket.h"
+
+#include "attributes.h"
+#include "device_manager.h"
+#include "iam_logger.h"
+#include "iam_common_defines.h"
+#include "relative_timer.h"
+#include "remote_connect_listener.h"
+#include "soft_bus_message.h"
+
+#define LOG_TAG "USER_AUTH_SA"
+namespace OHOS {
+namespace UserIam {
+namespace UserAuth {
+class BaseSocket : public std::enable_shared_from_this<BaseSocket> {
+public:
+    BaseSocket(const int32_t socketId);
+    virtual ~BaseSocket() = default;
+    virtual int32_t GetSocketId();
+    virtual ResultCode SendMessage(const std::string &connectionName, const std::string &srcEndPoint,
+        const std::string &destEndPoint, const std::shared_ptr<Attributes> &attributes, MsgCallback &callback) = 0;
+    virtual ResultCode SendRequest(const int32_t socketId, const std::string &connectionName,
+        const std::string &srcEndPoint, const std::string &destEndPoint, const std::shared_ptr<Attributes> &attributes,
+        MsgCallback &callback);
+    virtual ResultCode SendResponse(const int32_t socketId, const std::string &connectionName,
+        const std::string &srcEndPoint, const std::string &destEndPoint, const std::shared_ptr<Attributes> &attributes,
+        uint32_t messageSeq);
+    virtual std::shared_ptr<SoftBusMessage> ParseMessage(const std::string &networkId,
+        void *message, uint32_t messageLen);
+    virtual ResultCode ProcDataReceive(const int32_t socketId, std::shared_ptr<SoftBusMessage> &softBusMessage);
+    virtual std::string GetConnectionName(uint32_t messageSeq);
+    virtual MsgCallback GetMsgCallback(uint32_t messageSeq);
+
+    virtual void OnBind(int32_t socketId, PeerSocketInfo info) = 0;
+    virtual void OnShutdown(int32_t socketId, ShutdownReason reason) = 0;
+    virtual void OnBytes(int32_t socketId, const void *data, uint32_t dataLen) = 0;
+    virtual void OnQos(int32_t socketId, QoSEvent eventId, const QosTV *qos, uint32_t qosCount) = 0;
+
+    virtual std::string GetConnectionName() = 0;
+    virtual std::string GetNetworkId() = 0;
+
+    struct CallbackInfo {
+        std::string connectionName;
+        MsgCallback msgCallback;
+        uint32_t timerId;
+    };
+
+private:
+    void InsertMsgCallback(uint32_t messageSeq, const std::string &connectionName,
+        MsgCallback &callback, uint32_t timerId);
+    void RemoveMsgCallback(uint32_t messageSeq);
+
+    uint32_t GetReplyTimer(uint32_t messageSeq);
+    uint32_t StartReplyTimer(uint32_t messageSeq);
+    void StoptReplyTimer(uint32_t messageSeq);
+    void ReplyTimerTimeOut(uint32_t messageSeq);
+    int32_t GetMessageeSeq();
+    ResultCode SetDeviceNetworkId(const std::string networkId, std::shared_ptr<Attributes> &attributes);
+
+    std::recursive_mutex callbackMutex_;
+    /* <messageSeq, CallbackInfo> */
+    std::map<uint32_t, CallbackInfo> callbackMap_;
+    int32_t socketId_;
+};
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
+#endif // IAM_SOFT_BUS_SOCKET_H

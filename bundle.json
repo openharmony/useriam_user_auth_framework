@@ -47,7 +47,9 @@
         "c_utils",
         "common_event_service",
         "window_manager",
-        "openssl"
+        "openssl",
+        "device_manager",
+        "dsoftbus"
       ]
     },
     "build": {
