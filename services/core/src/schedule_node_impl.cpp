@@ -58,7 +58,11 @@ ScheduleNodeImpl::ScheduleNodeImpl(ScheduleInfo &info) : info_(std::move(info))
     }
 
     info_.parameters->SetBoolValue(Attributes::ATTR_END_AFTER_FIRST_FAIL, info_.endAfterFirstFail);
-    info_.parameters->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, info_.extraInfo);
+
+    info_.parameters->SetUint8ArrayValue(Attributes::ATTR_VERIFIER_MESSAGE, info_.verifierMessage);
+    info_.parameters->SetUint8ArrayValue(Attributes::ATTR_COLLECTOR_MESSAGE, info_.collectorMessage);
+    IAM_LOGI("verifer message length = %{public}zu, collector message length = %{public}zu",
+        info_.verifierMessage.size(), info_.collectorMessage.size());
 
     if (info_.templateIdList.empty()) {
         return;

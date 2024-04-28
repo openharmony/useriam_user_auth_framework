@@ -45,7 +45,8 @@ private:
         const NodeOptionalPara &para, const std::shared_ptr<ScheduleNodeCallback> &callback = nullptr);
 
     static bool ScheduleInfoToExecutors(const HdiScheduleInfo &info, std::shared_ptr<ResourceNode> &collector,
-        std::shared_ptr<ResourceNode> &verifier);
+        std::shared_ptr<ResourceNode> &verifier, std::vector<uint8_t> &collectorMessage,
+        std::vector<uint8_t> &verifierMessage);
 };
 } // namespace UserAuth
 } // namespace UserIam

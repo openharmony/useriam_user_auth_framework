@@ -121,6 +121,10 @@ public:
         ATTR_MSG_VERSION = 100049,
         /** Collector network id. */
         ATTR_COLLECTOR_NETWORK_ID = 100050,
+        /** Verifier message, the value type is string. */
+        ATTR_VERIFIER_MESSAGE = 100051,
+        /** Collector message, the value type is string. */
+        ATTR_COLLECTOR_MESSAGE = 100052,
         /**
          * Private attrs.
          * User ID, the value type is int32_t.

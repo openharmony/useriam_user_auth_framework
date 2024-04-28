@@ -107,17 +107,13 @@ HWTEST_F(AuthenticationImplTest, AuthenticationInvalidExecutor, TestSize.Level0)
     constexpr int32_t scheduleId = 0x1122;
 
     auto fillInfoList = [](std::vector<HdiScheduleInfo> &scheduleInfos) {
-        HdiExecutorInfo executorInfo;
-        executorInfo.executorIndex = executorInfoIndex;
-
         HdiScheduleInfo scheduleInfo;
-
         scheduleInfo.scheduleId = scheduleId;
         scheduleInfo.templateIds = {0, 1, 2};
         scheduleInfo.authType = HdiAuthType::FACE;
         scheduleInfo.executorMatcher = 0;
         scheduleInfo.scheduleMode = HdiScheduleMode::ENROLL;
-        scheduleInfo.executors.push_back(executorInfo);
+        scheduleInfo.executorIndexes.push_back(executorInfoIndex);
 
         std::vector<HdiScheduleInfo> list;
         list.emplace_back(scheduleInfo);
@@ -263,17 +259,10 @@ HWTEST_F(AuthenticationImplTest, AuthenticationImplTestStart, TestSize.Level0)
         .WillRepeatedly(
             [](uint64_t contextId, const HdiAuthParam &param, std::vector<HdiScheduleInfo> &scheduleInfos) {
                 HdiScheduleInfo scheduleInfo = {};
+                constexpr uint64_t executorIndex = 60;
                 scheduleInfo.authType = HdiAuthType::FACE;
                 scheduleInfo.executorMatcher = 10;
-                HdiExecutorInfo executorInfo = {};
-                executorInfo.executorIndex = 60;
-                executorInfo.info.authType = HdiAuthType::FACE;
-                executorInfo.info.esl = HdiExecutorSecureLevel::ESL1;
-                executorInfo.info.executorMatcher = 10;
-                executorInfo.info.executorRole = HdiExecutorRole::ALL_IN_ONE;
-                executorInfo.info.executorSensorHint = 90;
-                executorInfo.info.publicKey = {1, 2, 3, 4};
-                scheduleInfo.executors.push_back(executorInfo);
+                scheduleInfo.executorIndexes.push_back(executorIndex);
                 scheduleInfo.scheduleId = 20;
                 scheduleInfo.scheduleMode = HdiScheduleMode::AUTH;
                 scheduleInfo.templateIds.push_back(30);

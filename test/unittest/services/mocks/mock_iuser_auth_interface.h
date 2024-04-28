@@ -31,7 +31,7 @@ namespace UserAuth {
 class MockIUserAuthInterface final : public IUserAuthInterface {
 public:
     class Holder;
-    MOCK_METHOD0(Init, int32_t());
+    MOCK_METHOD1(Init, int32_t(const std::string& deviceUdid));
 
     MOCK_METHOD4(AddExecutor, int32_t(const HdiExecutorRegisterInfo &info, uint64_t &index,
                                   std::vector<uint8_t> &publicKey, std::vector<uint64_t> &templateIds));
@@ -72,10 +72,13 @@ public:
     MOCK_METHOD2(CheckReuseUnlockResult, int32_t(const HdiReuseUnlockParam& reuseParam, HdiReuseUnlockInfo& reuseInfo));
     MOCK_METHOD3(SendMessage, int32_t(uint64_t scheduleId, int32_t srcRole, const std::vector<uint8_t>& msg));
     MOCK_METHOD1(RegisterMessageCallback, int32_t(const sptr<HdiIMessageCallback>& messageCallback));
-    MOCK_METHOD3(GetLocalScheduleFromMessage, int32_t(const std::vector<uint8_t>& remoteDeviceId,
-        const std::vector<uint8_t>& message, HdiScheduleInfo& scheduleInfo));
+    MOCK_METHOD3(GetLocalScheduleFromMessage, int32_t(const std::string& remoteUdid,
+        const std::vector<uint8_t>& message, HdiScheduleInfo &scheduleInfo));
     MOCK_METHOD4(GetSignedExecutorInfo, int32_t(const std::vector<int32_t>& authTypes, int32_t executorRole,
-         const std::vector<uint8_t>& remoteDeviceId, std::vector<uint8_t>& signedExecutorInfo));
+        const std::string& remoteUdid, std::vector<uint8_t>& signedExecutorInfo));
+    MOCK_METHOD1(PrepareRemoteAuth, int32_t(const std::string& remoteUdid));
+    MOCK_METHOD3(GetAuthResultFromMessage, int32_t(const std::string& remoteUdid, const std::vector<uint8_t>& message,
+        HdiAuthResultInfo &authResultInfo));
 };
 
 class MockIUserAuthInterface::Holder : public Singleton<MockIUserAuthInterface::Holder> {
