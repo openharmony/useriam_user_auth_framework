@@ -112,9 +112,15 @@ std::shared_ptr<Builder> ScheduleNodeBuilder::SetEndAfterFirstFail(const bool en
     return shared_from_this();
 }
 
-std::shared_ptr<Builder> ScheduleNodeBuilder::SetExtraInfo(const std::vector<uint8_t> &extraInfo)
+std::shared_ptr<Builder> ScheduleNodeBuilder::SetCollectorMessage(const std::vector<uint8_t> &message)
 {
-    info_.extraInfo = extraInfo;
+    info_.collectorMessage = message;
+    return shared_from_this();
+}
+
+std::shared_ptr<Builder> ScheduleNodeBuilder::SetVerifierMessage(const std::vector<uint8_t> &message)
+{
+    info_.verifierMessage = message;
     return shared_from_this();
 }
 

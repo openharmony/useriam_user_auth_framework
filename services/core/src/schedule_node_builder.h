@@ -43,7 +43,8 @@ public:
     std::shared_ptr<Builder> SetParametersAttributes(const std::shared_ptr<Attributes> &parameters) override;
     std::shared_ptr<Builder> SetThreadHandler(const std::shared_ptr<ThreadHandler> &threadHandler) override;
     std::shared_ptr<Builder> SetEndAfterFirstFail(const bool endAfterFirstFail) override;
-    std::shared_ptr<Builder> SetExtraInfo(const std::vector<uint8_t> &extraInfo) override;
+    std::shared_ptr<Builder> SetVerifierMessage(const std::vector<uint8_t> &message) override;
+    std::shared_ptr<Builder> SetCollectorMessage(const std::vector<uint8_t> &message) override;
 
     std::shared_ptr<ScheduleNode> Build() override;
 

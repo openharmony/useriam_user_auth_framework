@@ -223,17 +223,10 @@ HWTEST_F(EnrollmentImplTest, EnrollmentImplTestStart_001, TestSize.Level0)
         .WillRepeatedly(
             [](const std::vector<uint8_t> &authToken, const HdiEnrollParam &param,
                 HdiScheduleInfo &info) {
+                constexpr uint64_t executorIndex = 60;
                 info.authType = HdiAuthType::FACE;
                 info.executorMatcher = 10;
-                HdiExecutorInfo executorInfo = {};
-                executorInfo.executorIndex = 60;
-                executorInfo.info.authType = HdiAuthType::FACE;
-                executorInfo.info.esl = HdiExecutorSecureLevel::ESL1;
-                executorInfo.info.executorMatcher = 10;
-                executorInfo.info.executorRole = HdiExecutorRole::ALL_IN_ONE;
-                executorInfo.info.executorSensorHint = 90;
-                executorInfo.info.publicKey = {1, 2, 3, 4};
-                info.executors.push_back(executorInfo);
+                info.executorIndexes.push_back(executorIndex);
                 info.scheduleId = 20;
                 info.scheduleMode = HdiScheduleMode::IDENTIFY;
                 info.templateIds.push_back(30);

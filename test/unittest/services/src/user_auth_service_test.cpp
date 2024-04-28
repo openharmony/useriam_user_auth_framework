@@ -430,9 +430,7 @@ static void MockForUserAuthHdi(std::shared_ptr<Context> &context, std::promise<v
             HdiScheduleInfo scheduleInfo = {};
             scheduleInfo.authType = HdiAuthType::FACE;
             scheduleInfo.scheduleId = testScheduleId;
-            HdiExecutorInfo executorInfo = {};
-            executorInfo.executorIndex = testExecutorIndex;
-            scheduleInfo.executors.push_back(executorInfo);
+            scheduleInfo.executorIndexes.push_back(testExecutorIndex);
             scheduleInfos.push_back(scheduleInfo);
             context = ContextPool::Instance().Select(contextId).lock();
             return HDF_SUCCESS;
@@ -651,9 +649,7 @@ static void MockForIdentifyHdi(std::shared_ptr<Context> &context, std::promise<v
             uint32_t executorId, HdiScheduleInfo &scheduleInfo) {
             scheduleInfo.authType = HdiAuthType::FACE;
             scheduleInfo.scheduleId = testscheduleId;
-            HdiExecutorInfo executorInfo = {};
-            executorInfo.executorIndex = testExecutorIndex;
-            scheduleInfo.executors.push_back(executorInfo);
+            scheduleInfo.executorIndexes.push_back(testExecutorIndex);
             context = ContextPool::Instance().Select(contextId).lock();
             return HDF_SUCCESS;
         });
