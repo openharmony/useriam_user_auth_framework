@@ -94,21 +94,27 @@ export class UserAuthIcon extends ViewPU {
             this.imageSource = FACE_ICON_RESOURCE;
             return;
         }
-        if ((!v.includes(userAuth.UserAuthType.FACE)) &&
-            v.includes(userAuth.UserAuthType.FINGERPRINT)) {
+        if ((!v.includes(userAuth.UserAuthType.FACE)) && v.includes(userAuth.UserAuthType.FINGERPRINT)) {
             this.authFlag = ICON_AVAILABLE;
             this.imageSource = FINGERPRINT_ICON_RESOURCE;
             return;
         }
-        if (v.includes(userAuth.UserAuthType.FACE) &&
-            v.includes(userAuth.UserAuthType.FINGERPRINT) &&
+        if (v.includes(userAuth.UserAuthType.FACE) && v.includes(userAuth.UserAuthType.FINGERPRINT) &&
             v.includes(userAuth.UserAuthType.PIN)) {
             this.handleAllAuthTypeCase(w);
             return;
         }
+        if (v.includes(userAuth.UserAuthType.FACE) && v.includes(userAuth.UserAuthType.FINGERPRINT) &&
+            !v.includes(userAuth.UserAuthType.PIN)) {
+            this.authFlag = ICON_UNAVAILABLE;
+            this.info('incorrect parameters.');
+            this.onAuthResult({ result: INVALID_PARAMETERS });
+            this.imageSource = '';
+            return;
+        }
         this.authFlag = ICON_UNAVAILABLE;
         this.info('incorrect parameters.');
-        this.onAuthResult({ result: INVALID_PARAMETERS });
+        this.onAuthResult({ result: userAuth.UserAuthResultCode.TYPE_NOT_SUPPORT });
         this.imageSource = '';
         return;
     }
@@ -153,6 +159,13 @@ export class UserAuthIcon extends ViewPU {
     }
     aboutToAppear() {
         this.info('before init image source.');
+        if (this.authParam.authType === undefined || this.authParam.authTrustLevel === undefined) {
+            this.authFlag = ICON_UNAVAILABLE;
+            this.info('incorrect parameters.');
+            this.onAuthResult({ result: INVALID_PARAMETERS });
+            this.imageSource = '';
+            return;
+        }
         this.initImageSource(this.authParam.authType, this.authParam.authTrustLevel);
         this.info(`after init image source, imageSource = ${this.imageSource}.`);
     }
@@ -196,7 +209,12 @@ export class UserAuthIcon extends ViewPU {
                         clearTimeout(i);
                     }
                     catch (g) {
-                        this.error(`auth catch error: ${g}.`);
+                        if (g) {
+                            this.error(`auth catch error, code: ${g.code}, message: ${g.message}`);
+                            this.onAuthResult({ result: g.code });
+                            return;
+                        }
+                        this.error('auth error.');
                         this.onAuthResult({ result: userAuth.UserAuthResultCode.GENERAL_ERROR });
                     }
                 }
