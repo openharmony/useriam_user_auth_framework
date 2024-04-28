@@ -149,6 +149,7 @@ bool AuthenticationImpl::Update(const std::vector<uint8_t> &scheduleResult, Auth
     resultInfo.remainTimes = info.remainAttempts;
     resultInfo.token = info.token;
     resultInfo.rootSecret = info.rootSecret;
+    resultInfo.pinExpiredInfo = info.pinExpiredInfo;
     resultInfo.credentialDigest = enrolledState.credentialDigest;
     resultInfo.credentialCount = enrolledState.credentialCount;
     resultInfo.sdkVersion = authPara_.sdkVersion;

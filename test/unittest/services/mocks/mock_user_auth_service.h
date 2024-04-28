@@ -56,6 +56,7 @@ public:
     MOCK_METHOD2(RegistUserAuthSuccessEventListener, int32_t(const std::vector<AuthType> &authType,
         const sptr<AuthEventListenerInterface> &callback));
     MOCK_METHOD1(UnRegistUserAuthSuccessEventListener, int32_t(const sptr<AuthEventListenerInterface> &callback));
+    MOCK_METHOD1(SetGlobalConfigParam, int32_t(const GlobalConfigParam &param));
 };
 } // namespace UserAuth
 } // namespace UserIam

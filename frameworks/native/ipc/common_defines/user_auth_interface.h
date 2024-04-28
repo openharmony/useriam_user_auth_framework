@@ -69,6 +69,8 @@ public:
     virtual int32_t UnRegistUserAuthSuccessEventListener(
         const sptr<AuthEventListenerInterface> &listener) = 0;
 
+    virtual int32_t SetGlobalConfigParam(const GlobalConfigParam &param) = 0;
+
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIam.UserAuth.IUserAuth");
 };
 } // namespace UserAuth

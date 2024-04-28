@@ -843,8 +843,11 @@ int32_t UserAuthService::GetEnrolledState(int32_t apiVersion, AuthType authType,
         IAM_LOGE("failed to get enrolled state,userId:%{public}d authType:%{public}d", userId, authType);
         return result;
     }
-    enrolledState.credentialDigest = hdiEnrolledState.credentialDigest;
     enrolledState.credentialCount = hdiEnrolledState.credentialCount;
+    enrolledState.credentialDigest = hdiEnrolledState.credentialDigest;
+    if (apiVersion < INNER_API_VERSION_10000) {
+        enrolledState.credentialDigest = hdiEnrolledState.credentialDigest & UINT16_MAX;
+    }
     return SUCCESS;
 }
 
@@ -903,6 +906,34 @@ int32_t UserAuthService::UnRegistUserAuthSuccessEventListener(
         return result;
     }
 
+    return SUCCESS;
+}
+
+int32_t UserAuthService::SetGlobalConfigParam(const GlobalConfigParam &param)
+{
+    IAM_LOGI("start");
+    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        return CHECK_PERMISSION_FAILED;
+    }
+    if (param.type != PIN_EXPIRED_PERIOD) {
+        IAM_LOGE("bad global config type");
+        return INVALID_PARAMETERS;
+    }
+    HdiGlobalConfigParam paramConfig = {};
+    paramConfig.type = PIN_EXPIRED_PERIOD;
+    paramConfig.value.pinExpiredPeriod = param.value.pinExpiredPeriod;
+
+    auto hdi = HdiWrapper::GetHdiInstance();
+    if (hdi == nullptr) {
+        IAM_LOGE("hdi interface is nullptr");
+        return GENERAL_ERROR;
+    }
+    int32_t result = hdi->SetGlobalConfigParam(paramConfig);
+    if (result != SUCCESS) {
+        IAM_LOGE("failed to Set global config param");
+        return result;
+    }
     return SUCCESS;
 }
 } // namespace UserAuth

@@ -54,6 +54,7 @@ public:
         const sptr<AuthEventListenerInterface> &listener) override;
     int32_t UnRegistUserAuthSuccessEventListener(
         const sptr<AuthEventListenerInterface> &listener) override;
+    int32_t SetGlobalConfigParam(const GlobalConfigParam &param) override;
 
 private:
     ResultCode SetPropertyInner(int32_t userId, const SetPropertyRequest &request,
