@@ -43,12 +43,15 @@ ResultCode CollectCommand::SendRequest()
     auto hdi = GetExecutorHdi();
     IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, ResultCode::GENERAL_ERROR);
 
+    uint32_t tokenId = 0;
+    bool getTokenIdRet = attributes_->GetUint32Value(Attributes::ATTR_ACCESS_TOKEN_ID, tokenId);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getTokenIdRet == true, ResultCode::GENERAL_ERROR);
     std::vector<uint8_t> extraInfo;
     bool getExtraInfoRet = attributes_->GetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, extraInfo);
     IF_FALSE_LOGE_AND_RETURN_VAL(getExtraInfoRet == true, ResultCode::GENERAL_ERROR);
 
     IamHitraceHelper traceHelper("hdi collect");
-    ResultCode ret = hdi->Collect(scheduleId_, (CollectParam) { extraInfo }, shared_from_this());
+    ResultCode ret = hdi->Collect(scheduleId_, (CollectParam) { tokenId, extraInfo }, shared_from_this());
     IAM_LOGI("%{public}s collect result %{public}d", GetDescription(), ret);
     return ret;
 }
