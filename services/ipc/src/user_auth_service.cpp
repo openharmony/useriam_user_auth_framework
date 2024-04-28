@@ -34,7 +34,9 @@
 #include "ipc_common.h"
 #include "ipc_skeleton.h"
 #include "system_param_manager.h"
+#include "soft_bus_manager.h"
 #include "widget_client.h"
+#include "remote_connect_manager.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -110,11 +112,13 @@ void UserAuthService::OnStart()
         IAM_LOGE("failed to publish service");
     }
     SystemParamManager::GetInstance().Start();
+    SoftBusManager::GetInstance().Start();
 }
 
 void UserAuthService::OnStop()
 {
     IAM_LOGI("stop service");
+    SoftBusManager::GetInstance().Stop();
 }
 
 bool UserAuthService::CheckAuthTrustLevel(AuthTrustLevel authTrustLevel)
