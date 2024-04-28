@@ -44,10 +44,11 @@ public:
         int32_t remainTimes;
         std::vector<uint8_t> token;
         std::vector<uint8_t> rootSecret;
-        uint16_t credentialDigest{0};
+        uint64_t credentialDigest{0};
         uint16_t credentialCount{0};
         int32_t sdkVersion{0};
         int32_t userId;
+        int64_t pinExpiredInfo;
     };
     struct AuthExecutorMsg {
         uint64_t executorIndex;

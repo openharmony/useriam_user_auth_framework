@@ -323,6 +323,16 @@ void FuzzRegistUserAuthSuccessEventListener(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzSetGlobalConfigParam(Parcel &parcel)
+{
+    IAM_LOGI("start");
+    GlobalConfigParam param = {};
+    param.value.pinExpiredPeriod = parcel.ReadUint64();
+    param.type = static_cast<GlobalConfigType>(parcel.ReadInt32());
+    g_userAuthService.SetGlobalConfigParam(param);
+    IAM_LOGI("end");
+}
+
 using FuzzFunc = decltype(FuzzGetAvailableStatus);
 FuzzFunc *g_fuzzFuncs[] = {
     FuzzGetEnrolledState,
@@ -338,6 +348,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzNotice,
     FuzzRegisterWidgetCallback,
     FuzzRegistUserAuthSuccessEventListener,
+    FuzzSetGlobalConfigParam,
 };
 
 void UserAuthFuzzTest(const uint8_t *data, size_t size)

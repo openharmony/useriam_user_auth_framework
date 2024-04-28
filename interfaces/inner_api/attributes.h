@@ -138,10 +138,12 @@ public:
         ATTR_ACCESS_TOKEN_ID,
         /** Template change reason, the value type is string */
         ATTR_TEMPLATE_CHANGE_REASON,
-        /** Credential digest, the value type is uint16_t. */
+        /** Credential digest, the value type is uint64_t. */
         ATTR_CREDENTIAL_DIGEST,
         /** Credential count, the value type is uint16_t. */
         ATTR_CREDENTIAL_COUNT,
+        /** Pin expired info, the value type is int64_t and it's max value is 2^50. */
+        ATTR_PIN_EXPIRED_INFO,
     };
 
     /**
@@ -246,6 +248,15 @@ public:
      * @return Return success or not(true:success; false:failed).
      */
     bool SetInt32Value(AttributeKey key, int32_t value);
+
+    /**
+     * @brief Set int64_t value.
+     *
+     * @param key The attribute key.
+     * @param value The int64_t value.
+     * @return Return success or not(true:success; false:failed).
+     */
+    bool SetInt64Value(AttributeKey key, int64_t value);
 
     /**
      * @brief Set string value.
@@ -354,6 +365,15 @@ public:
      * @return Return success or not(true:success; false:failed).
      */
     bool GetInt32Value(AttributeKey key, int32_t &value) const;
+
+    /**
+     * @brief Get int64_t value.
+     *
+     * @param key The attribute key.
+     * @param value Return int64_t value corresponding to key.
+     * @return Return success or not(true:success; false:failed).
+     */
+    bool GetInt64Value(AttributeKey key, int64_t &value) const;
 
     /**
      * @brief Get string value.

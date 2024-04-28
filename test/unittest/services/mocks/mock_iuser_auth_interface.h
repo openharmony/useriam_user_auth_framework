@@ -76,6 +76,7 @@ public:
         const std::vector<uint8_t>& message, HdiScheduleInfo& scheduleInfo));
     MOCK_METHOD4(GetSignedExecutorInfo, int32_t(const std::vector<int32_t>& authTypes, int32_t executorRole,
          const std::vector<uint8_t>& remoteDeviceId, std::vector<uint8_t>& signedExecutorInfo));
+    MOCK_METHOD1(SetGlobalConfigParam, int32_t(const HdiGlobalConfigParam &param));
 };
 
 class MockIUserAuthInterface::Holder : public Singleton<MockIUserAuthInterface::Holder> {
