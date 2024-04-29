@@ -482,6 +482,30 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyUnRegistUserAuthSuccessEventListener001
         });
     proxy->UnRegistUserAuthSuccessEventListener(testCallback);
 }
+
+HWTEST_F(UserAuthProxyTest, UserAuthProxySetGlobalConfigParam001, TestSize.Level0)
+{
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    EXPECT_NE(obj, nullptr);
+    auto proxy = Common::MakeShared<UserAuthProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+
+    auto service = Common::MakeShared<MockUserAuthService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, SetGlobalConfigParam(_))
+        .Times(Exactly(1))
+        .WillOnce([](const GlobalConfigParam &param) {
+            return SUCCESS;
+        });
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
+    ON_CALL(*obj, SendRequest)
+        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            service->OnRemoteRequest(code, data, reply, option);
+            return SUCCESS;
+        });
+    GlobalConfigParam param = {};
+    proxy->SetGlobalConfigParam(param);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

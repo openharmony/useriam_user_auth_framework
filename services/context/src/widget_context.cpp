@@ -226,7 +226,7 @@ void WidgetContext::AuthResult(int32_t resultCode, int32_t authType, const Attri
     IAM_LOGI("call schedule:");
     if (resultCode == ResultCode::SUCCESS) {
         finalResult.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authResultInfo_.token);
-        finalResult.GetUint16Value(Attributes::ATTR_CREDENTIAL_DIGEST, authResultInfo_.credentialDigest);
+        finalResult.GetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, authResultInfo_.credentialDigest);
         finalResult.GetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, authResultInfo_.credentialCount);
         authResultInfo_.authType = authTypeTmp;
         schedule_->SuccessAuth(authTypeTmp);
@@ -268,7 +268,12 @@ void WidgetContext::ExecuteAuthList(const std::set<AuthType> &authTypeList, bool
             IAM_LOGE("failed to create task, authType: %{public}s", AuthType2Str(authType).c_str());
             continue;
         }
-        task->Start();
+        if (!task->Start()) {
+            IAM_LOGE("BeginAuthentication failed");
+            static const int32_t INVALID_VAL = -1;
+            WidgetClient::Instance().ReportWidgetResult(task->GetLatestError(), authType, INVALID_VAL, INVALID_VAL);
+            return;
+        }
         TaskInfo taskInfo {
             .authType = authType,
             .task = task
@@ -407,7 +412,7 @@ void WidgetContext::End(const ResultCode &resultCode)
                 return;
             }
         }
-        if (!attr.SetUint16Value(Attributes::ATTR_CREDENTIAL_DIGEST, authResultInfo_.credentialDigest)) {
+        if (!attr.SetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, authResultInfo_.credentialDigest)) {
             IAM_LOGE("set credential digest failed.");
             callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
             return;

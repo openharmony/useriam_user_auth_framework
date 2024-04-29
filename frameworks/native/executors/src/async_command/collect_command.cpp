@@ -47,8 +47,9 @@ ResultCode CollectCommand::SendRequest()
     bool getTokenIdRet = attributes_->GetUint32Value(Attributes::ATTR_ACCESS_TOKEN_ID, tokenId);
     IF_FALSE_LOGE_AND_RETURN_VAL(getTokenIdRet == true, ResultCode::GENERAL_ERROR);
     std::vector<uint8_t> extraInfo;
-    bool getExtraInfoRet = attributes_->GetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, extraInfo);
+    bool getExtraInfoRet = attributes_->GetUint8ArrayValue(Attributes::ATTR_COLLECTOR_MESSAGE, extraInfo);
     IF_FALSE_LOGE_AND_RETURN_VAL(getExtraInfoRet == true, ResultCode::GENERAL_ERROR);
+    IAM_LOGI("%{public}s collect message len %{public}zu", GetDescription(), extraInfo.size());
 
     IamHitraceHelper traceHelper("hdi collect");
     ResultCode ret = hdi->Collect(scheduleId_, (CollectParam) { tokenId, extraInfo }, shared_from_this());

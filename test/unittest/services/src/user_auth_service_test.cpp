@@ -431,6 +431,9 @@ static void MockForUserAuthHdi(std::shared_ptr<Context> &context, std::promise<v
             scheduleInfo.authType = HdiAuthType::FACE;
             scheduleInfo.scheduleId = testScheduleId;
             scheduleInfo.executorIndexes.push_back(testExecutorIndex);
+            std::vector<uint8_t> executorMessages;
+            executorMessages.resize(1);
+            scheduleInfo.executorMessages.push_back(executorMessages);
             scheduleInfos.push_back(scheduleInfo);
             context = ContextPool::Instance().Select(contextId).lock();
             return HDF_SUCCESS;
@@ -650,6 +653,9 @@ static void MockForIdentifyHdi(std::shared_ptr<Context> &context, std::promise<v
             scheduleInfo.authType = HdiAuthType::FACE;
             scheduleInfo.scheduleId = testscheduleId;
             scheduleInfo.executorIndexes.push_back(testExecutorIndex);
+            std::vector<uint8_t> executorMessages;
+            executorMessages.resize(1);
+            scheduleInfo.executorMessages.push_back(executorMessages);
             context = ContextPool::Instance().Select(contextId).lock();
             return HDF_SUCCESS;
         });
@@ -1724,6 +1730,32 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceUnRegistEventListerner_004, TestSiz
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     EXPECT_EQ(service.RegistUserAuthSuccessEventListener(authTypeList, testCallback), ResultCode::GENERAL_ERROR);
     EXPECT_EQ(service.UnRegistUserAuthSuccessEventListener(testCallback), ResultCode::GENERAL_ERROR);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam, TestSize.Level0)
+{
+    UserAuthService service(200, true);
+    GlobalConfigParam param = {};
+    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::CHECK_PERMISSION_FAILED);
+
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::INVALID_PARAMETERS);
+
+    param.type = PIN_EXPIRED_PERIOD;
+    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::SUCCESS);
+
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, SetGlobalConfigParam(_)).Times(1);
+    ON_CALL(*mockHdi, SetGlobalConfigParam)
+        .WillByDefault(
+            [](const HdiGlobalConfigParam &param) {
+                return HDF_SUCCESS;
+            }
+        );
+    EXPECT_EQ(service.SetGlobalConfigParam(param), HDF_SUCCESS);
     IpcCommon::DeleteAllPermission();
 }
 } // namespace UserAuth

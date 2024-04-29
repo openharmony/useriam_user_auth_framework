@@ -263,6 +263,9 @@ HWTEST_F(AuthenticationImplTest, AuthenticationImplTestStart, TestSize.Level0)
                 scheduleInfo.authType = HdiAuthType::FACE;
                 scheduleInfo.executorMatcher = 10;
                 scheduleInfo.executorIndexes.push_back(executorIndex);
+                std::vector<uint8_t> executorMessages;
+                executorMessages.resize(1);
+                scheduleInfo.executorMessages.push_back(executorMessages);
                 scheduleInfo.scheduleId = 20;
                 scheduleInfo.scheduleMode = HdiScheduleMode::AUTH;
                 scheduleInfo.templateIds.push_back(30);

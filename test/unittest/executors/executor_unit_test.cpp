@@ -460,7 +460,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_ExecutorDisconnectTest_001, TestSize
     ASSERT_NE(commandAttrs, nullptr);
     commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, ENROLL);
     commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_ACCESS_TOKEN_ID, testTokenId);
-    commandAttrs->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, testExtraInfo);
+    commandAttrs->SetUint8ArrayValue(Attributes::ATTR_VERIFIER_MESSAGE, testExtraInfo);
     ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, *commandAttrs);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
     ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, *commandAttrs);
@@ -504,7 +504,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_EnrollTest_001, TestS
     ASSERT_NE(commandAttrs, nullptr);
     commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, ENROLL);
     commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_ACCESS_TOKEN_ID, testTokenId);
-    commandAttrs->SetUint8ArrayValue(Attributes::AttributeKey::ATTR_EXTRA_INFO, testExtraInfo);
+    commandAttrs->SetUint8ArrayValue(Attributes::AttributeKey::ATTR_VERIFIER_MESSAGE, testExtraInfo);
     ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, *commandAttrs);
     ASSERT_NE(cmdCallback, nullptr);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
@@ -602,7 +602,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_001, TestSiz
     commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, AUTH);
     commandAttrs->SetUint64ArrayValue(Attributes::AttributeKey::ATTR_TEMPLATE_ID_LIST, testTemplateIdList);
     commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_ACCESS_TOKEN_ID, testTokenId);
-    commandAttrs->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, testExtraInfo);
+    commandAttrs->SetUint8ArrayValue(Attributes::ATTR_VERIFIER_MESSAGE, testExtraInfo);
     commandAttrs->SetBoolValue(Attributes::ATTR_END_AFTER_FIRST_FAIL, endAfterFirstFail);
     ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, *commandAttrs);
     ASSERT_NE(cmdCallback, nullptr);
@@ -724,7 +724,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_IdentifyTest_001, Tes
     ASSERT_NE(commandAttrs, nullptr);
     commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, IDENTIFY);
     commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_ACCESS_TOKEN_ID, testTokenId);
-    commandAttrs->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, testExtraInfo);
+    commandAttrs->SetUint8ArrayValue(Attributes::ATTR_VERIFIER_MESSAGE, testExtraInfo);
     ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, *commandAttrs);
     ASSERT_NE(cmdCallback, nullptr);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
