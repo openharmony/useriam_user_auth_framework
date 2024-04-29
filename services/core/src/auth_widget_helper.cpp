@@ -166,14 +166,15 @@ int32_t AuthWidgetHelper::SetReuseUnlockResult(int32_t apiVersion, const HdiReus
     IF_FALSE_LOGE_AND_RETURN_VAL(setAuthTypeResult == true, GENERAL_ERROR);
     bool setResultCodeRet = extraInfo.SetInt32Value(Attributes::ATTR_RESULT_CODE, SUCCESS);
     IF_FALSE_LOGE_AND_RETURN_VAL(setResultCodeRet == true, GENERAL_ERROR);
+    uint64_t credentialDigest = info.enrolledState.credentialDigest;
     if (apiVersion < INNER_API_VERSION_10000) {
-        bool setCredentialDigestRet = extraInfo.SetUint16Value(Attributes::ATTR_CREDENTIAL_DIGEST,
-            info.enrolledState.credentialDigest & UINT16_MAX);
-        IF_FALSE_LOGE_AND_RETURN_VAL(setCredentialDigestRet == true, GENERAL_ERROR);
-        bool setCredentialCountRet = extraInfo.SetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT,
-            info.enrolledState.credentialCount);
-        IF_FALSE_LOGE_AND_RETURN_VAL(setCredentialCountRet == true, GENERAL_ERROR);
+        credentialDigest = info.enrolledState.credentialDigest & UINT16_MAX;
     }
+    bool setCredentialDigestRet = extraInfo.SetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, credentialDigest);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setCredentialDigestRet == true, GENERAL_ERROR);
+    bool setCredentialCountRet = extraInfo.SetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT,
+        info.enrolledState.credentialCount);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setCredentialCountRet == true, GENERAL_ERROR);
     return SUCCESS;
 }
 

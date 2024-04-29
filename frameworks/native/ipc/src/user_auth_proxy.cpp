@@ -555,8 +555,8 @@ int32_t UserAuthProxy::GetEnrolledState(int32_t apiVersion, AuthType authType, E
         IAM_LOGE("failed to get enrolled state");
         return result;
     }
-    uint16_t credentialDigest;
-    if (!reply.ReadUint16(credentialDigest)) {
+    uint64_t credentialDigest;
+    if (!reply.ReadUint64(credentialDigest)) {
         IAM_LOGE("failed to read result");
         return READ_PARCEL_ERROR;
     }
@@ -639,6 +639,39 @@ int32_t UserAuthProxy::UnRegistUserAuthSuccessEventListener(const sptr<AuthEvent
         return GENERAL_ERROR;
     }
 
+    int32_t result = GENERAL_ERROR;
+    if (!reply.ReadInt32(result)) {
+        IAM_LOGE("failed to read result");
+        return READ_PARCEL_ERROR;
+    }
+    return result;
+}
+
+int32_t UserAuthProxy::SetGlobalConfigParam(const GlobalConfigParam &param)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
+        IAM_LOGE("failed to write descriptor");
+        return WRITE_PARCEL_ERROR;
+    }
+    if (!data.WriteInt32(param.type)) {
+        IAM_LOGE("failed to write GlobalConfigParam type");
+        return WRITE_PARCEL_ERROR;
+    }
+    if (param.type == GlobalConfigType::PIN_EXPIRED_PERIOD) {
+        IAM_LOGI("GlobalConfigType is pin expired period");
+        if (!data.WriteInt64(param.value.pinExpiredPeriod)) {
+            IAM_LOGE("failed to write GlobalConfigParam pinExpiredPeriod");
+            return WRITE_PARCEL_ERROR;
+        }
+    }
+
+    bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_SET_CLOBAL_CONFIG_PARAM, data, reply);
+    if (!ret) {
+        IAM_LOGE("failed to set global config param IPC request");
+        return GENERAL_ERROR;
+    }
     int32_t result = GENERAL_ERROR;
     if (!reply.ReadInt32(result)) {
         IAM_LOGE("failed to read result");

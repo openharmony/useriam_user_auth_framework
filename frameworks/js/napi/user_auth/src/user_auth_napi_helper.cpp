@@ -152,6 +152,9 @@ int32_t UserAuthNapiHelper::GetResultCodeV8(int32_t result)
     if (result == CHECK_PERMISSION_FAILED) {
         return static_cast<int32_t>(UserAuthResultCode::OHOS_CHECK_PERMISSION_FAILED);
     }
+    if (result == PIN_EXPIRED) {
+        return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
+    }
     if ((result < SUCCESS) || (result > NOT_ENROLLED)) {
         return GENERAL_ERROR;
     }
@@ -165,6 +168,9 @@ int32_t UserAuthNapiHelper::GetResultCodeV9(int32_t result)
     }
     if (result == INVALID_PARAMETERS) {
         return static_cast<int32_t>(UserAuthResultCode::OHOS_INVALID_PARAM);
+    }
+    if (result == PIN_EXPIRED) {
+        return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
     }
     if (result > (INT32_MAX - static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V9_MIN))) {
         return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
@@ -187,6 +193,9 @@ int32_t UserAuthNapiHelper::GetResultCodeV10(int32_t result)
     }
     if (result == CHECK_SYSTEM_APP_FAILED) {
         return static_cast<int32_t>(UserAuthResultCode::OHOS_CHECK_SYSTEM_APP_FAILED);
+    }
+    if (result == HARDWARE_NOT_SUPPORTED) {
+        return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
     }
     if (result > (INT32_MAX - static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V10_MIN))) {
         return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);

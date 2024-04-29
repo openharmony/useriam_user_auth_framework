@@ -76,6 +76,8 @@ int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Messag
             return RegistUserAuthSuccessEventListenerStub(data, reply);
         case UserAuthInterfaceCode::USER_AUTH_UNREG_EVENT_LISTENER:
             return UnRegistUserAuthSuccessEventListenerStub(data, reply);
+        case UserAuthInterfaceCode::USER_AUTH_SET_CLOBAL_CONFIG_PARAM:
+            return SetGlobalConfigParamStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -534,7 +536,7 @@ int32_t UserAuthStub::GetEnrolledStateStub(MessageParcel &data, MessageParcel &r
         IAM_LOGE("failed to write ret");
         return WRITE_PARCEL_ERROR;
     }
-    if (!reply.WriteUint16(enrolledState.credentialDigest)) {
+    if (!reply.WriteUint64(enrolledState.credentialDigest)) {
         IAM_LOGE("failed to write credentialDigest");
         return WRITE_PARCEL_ERROR;
     }
@@ -599,6 +601,34 @@ int32_t UserAuthStub::UnRegistUserAuthSuccessEventListenerStub(MessageParcel &da
         return WRITE_PARCEL_ERROR;
     }
     IAM_LOGI("UnRegistUserAuthSuccessEventListener success");
+    return SUCCESS;
+}
+
+int32_t UserAuthStub::SetGlobalConfigParamStub(MessageParcel &data, MessageParcel &reply)
+{
+    IAM_LOGI("enter");
+    ON_SCOPE_EXIT(IAM_LOGI("leave"));
+
+    GlobalConfigParam globalConfigParam = {};
+    int32_t globalConfigType;
+    if (!data.ReadInt32(globalConfigType)) {
+        IAM_LOGE("failed to read globalConfigType");
+        return READ_PARCEL_ERROR;
+    }
+    globalConfigParam.type = static_cast<GlobalConfigType>(globalConfigType);
+
+    if (globalConfigParam.type == GlobalConfigType::PIN_EXPIRED_PERIOD) {
+        if (!data.ReadInt64(globalConfigParam.value.pinExpiredPeriod)) {
+            IAM_LOGE("failed to read pinExpiredPeriod");
+            return READ_PARCEL_ERROR;
+        }
+    }
+
+    int32_t ret = SetGlobalConfigParam(globalConfigParam);
+    if (!reply.WriteInt32(ret)) {
+        IAM_LOGE("failed to write ret");
+        return WRITE_PARCEL_ERROR;
+    }
     return SUCCESS;
 }
 } // namespace UserAuth

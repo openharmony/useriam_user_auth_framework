@@ -50,6 +50,7 @@ const std::map<int32_t, AuthenticationResult> g_result2ExecuteResult = {
     {ResultCode::WRITE_PARCEL_ERROR, AuthenticationResult::GENERAL_ERROR},
     {ResultCode::READ_PARCEL_ERROR, AuthenticationResult::GENERAL_ERROR},
     {ResultCode::CHECK_PERMISSION_FAILED, AuthenticationResult::GENERAL_ERROR},
+    {ResultCode::PIN_EXPIRED, AuthenticationResult::GENERAL_ERROR},
 };
 
 void DestoryWork(uv_work_t *work)

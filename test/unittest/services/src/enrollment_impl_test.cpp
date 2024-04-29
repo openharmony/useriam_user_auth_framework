@@ -227,6 +227,9 @@ HWTEST_F(EnrollmentImplTest, EnrollmentImplTestStart_001, TestSize.Level0)
                 info.authType = HdiAuthType::FACE;
                 info.executorMatcher = 10;
                 info.executorIndexes.push_back(executorIndex);
+                std::vector<uint8_t> executorMessages;
+                executorMessages.resize(1);
+                info.executorMessages.push_back(executorMessages);
                 info.scheduleId = 20;
                 info.scheduleMode = HdiScheduleMode::IDENTIFY;
                 info.templateIds.push_back(30);
