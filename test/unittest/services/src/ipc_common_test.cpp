@@ -37,6 +37,8 @@ using namespace testing::ext;
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+constexpr int32_t USER_ID_MAIN = 100;
+constexpr int32_t USER_TYPE_PRIVATE = 2;
 
 class IpcCommonTest : public testing::Test {
 public:
@@ -70,6 +72,13 @@ HWTEST_F(IpcCommonTest, IpcCommonTestGetTokenId, TestSize.Level0)
     UserAuthService service(100, true);
     service.Notice(NoticeType::WIDGET_NOTICE, "PIN");
     EXPECT_NE(IpcCommon::GetTokenId(service), (uint32_t)0);
+}
+
+HWTEST_F(IpcCommonTest, IpcCommonTestGetUserTypeByUserId, TestSize.Level0)
+{
+    int32_t userType = USER_TYPE_PRIVATE;
+    EXPECT_EQ(IpcCommon::GetUserTypeByUserId(USER_ID_MAIN, userType), SUCCESS);
+    EXPECT_NE(userType, USER_TYPE_PRIVATE);
 }
 } // namespace UserAuth
 } // namespace UserIam

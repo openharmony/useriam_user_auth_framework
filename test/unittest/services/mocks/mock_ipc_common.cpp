@@ -88,6 +88,12 @@ int32_t IpcCommon::GetAllUserId(std::vector<int32_t> &userIds)
     return SUCCESS;
 }
 
+int32_t IpcCommon::GetUserTypeByUserId(int32_t userId, int32_t &userType)
+{
+    userType = 0;
+    return SUCCESS;
+}
+
 // for unittest only
 bool IpcCommon::CheckPermission(IPCObjectStub &stub, Permission permission)
 {
