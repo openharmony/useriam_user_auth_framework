@@ -16,6 +16,7 @@
 
 #include <cinttypes>
 
+#include "iam_check.h"
 #include "iam_logger.h"
 #include "resource_node_pool.h"
 
@@ -52,14 +53,15 @@ bool ScheduleNodeHelper::BuildFromHdi(const std::vector<HdiScheduleInfo> &infos,
 bool ScheduleNodeHelper::ScheduleInfoToScheduleNode(const HdiScheduleInfo &info, std::shared_ptr<ScheduleNode> &node,
     const NodeOptionalPara &para, const std::shared_ptr<ScheduleNodeCallback> &callback)
 {
-    if (info.executors.empty()) {
+    if (info.executorIndexes.empty()) {
         IAM_LOGE("executors empty");
         return false;
     }
     std::shared_ptr<ResourceNode> collector;
     std::shared_ptr<ResourceNode> verifier;
-
-    if (!ScheduleInfoToExecutors(info, collector, verifier)) {
+    std::vector<uint8_t> collectorMessage;
+    std::vector<uint8_t> verifierMessage;
+    if (!ScheduleInfoToExecutors(info, collector, verifier, collectorMessage, verifierMessage)) {
         IAM_LOGE("ScheduleInfoToExecutors error");
         return false;
     }
@@ -73,10 +75,6 @@ bool ScheduleNodeHelper::ScheduleInfoToScheduleNode(const HdiScheduleInfo &info,
         builder->SetAccessTokenId(para.tokenId.value());
     }
 
-    if (!info.executorMessages.empty()) {
-        builder->SetExtraInfo(info.executorMessages[0]);
-    }
-
     node = builder->SetAuthType(static_cast<AuthType>(info.authType))
         ->SetExecutorMatcher(info.executorMatcher)
         ->SetScheduleId(info.scheduleId)
@@ -86,6 +84,8 @@ bool ScheduleNodeHelper::ScheduleInfoToScheduleNode(const HdiScheduleInfo &info,
         ->SetPinSubType(para.pinSubType.value_or(PinSubType::PIN_MAX))
         ->SetScheduleCallback(callback)
         ->SetEndAfterFirstFail(para.endAfterFirstFail.value_or(false))
+        ->SetCollectorMessage(collectorMessage)
+        ->SetVerifierMessage(verifierMessage)
         ->Build();
     if (node == nullptr) {
         IAM_LOGE("builder failed");
@@ -95,26 +95,35 @@ bool ScheduleNodeHelper::ScheduleInfoToScheduleNode(const HdiScheduleInfo &info,
 }
 
 bool ScheduleNodeHelper::ScheduleInfoToExecutors(const HdiScheduleInfo &info, std::shared_ptr<ResourceNode> &collector,
-    std::shared_ptr<ResourceNode> &verifier)
+    std::shared_ptr<ResourceNode> &verifier, std::vector<uint8_t> &collectorMessage,
+    std::vector<uint8_t> &verifierMessage)
 {
-    for (const auto &executor : info.executors) {
-        auto resource = ResourceNodePool::Instance().Select(executor.executorIndex).lock();
+    IF_FALSE_LOGE_AND_RETURN_VAL(info.executorIndexes.size() == info.executorMessages.size(), false);
+    IF_FALSE_LOGE_AND_RETURN_VAL(info.executorIndexes.size() > 0, false);
+
+    for (uint32_t i = 0; i < info.executorIndexes.size(); i++) {
+        uint64_t executorIndex = info.executorIndexes[i];
+        auto resource = ResourceNodePool::Instance().Select(executorIndex).lock();
         if (resource == nullptr) {
-            IAM_LOGI("invalid executorId ****%{public}hx", static_cast<uint16_t>(executor.executorIndex));
+            IAM_LOGI("invalid executorId ****%{public}hx", static_cast<uint16_t>(executorIndex));
             return false;
         }
+        IAM_LOGI("executor role %{public}d", resource->GetExecutorRole());
         switch (resource->GetExecutorRole()) {
             case COLLECTOR: {
                 collector = resource;
+                collectorMessage = info.executorMessages[i];
                 break;
             }
             case VERIFIER: {
                 verifier = resource;
+                verifierMessage = info.executorMessages[i];
                 break;
             }
             case ALL_IN_ONE: {
                 collector = resource;
                 verifier = resource;
+                verifierMessage = info.executorMessages[i];
                 break;
             }
             default: {
