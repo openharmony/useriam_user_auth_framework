@@ -132,17 +132,13 @@ HWTEST_F(IdentificationImplTest, IdentificationTestStart, TestSize.Level0)
         .WillRepeatedly(
             [](uint64_t contextId, int32_t authType, const std::vector<uint8_t> &challenge, uint32_t executorId,
                 HdiScheduleInfo &scheduleInfo) {
+                constexpr uint64_t executorIndex = 60;
                 scheduleInfo.authType = HdiAuthType::FACE;
                 scheduleInfo.executorMatcher = 10;
-                HdiExecutorInfo executorInfo = {};
-                executorInfo.executorIndex = 60;
-                executorInfo.info.authType = HdiAuthType::FACE;
-                executorInfo.info.esl = HdiExecutorSecureLevel::ESL1;
-                executorInfo.info.executorMatcher = 10;
-                executorInfo.info.executorRole = HdiExecutorRole::ALL_IN_ONE;
-                executorInfo.info.executorSensorHint = 90;
-                executorInfo.info.publicKey = {1, 2, 3, 4};
-                scheduleInfo.executors.push_back(executorInfo);
+                scheduleInfo.executorIndexes.push_back(executorIndex);
+                std::vector<uint8_t> executorMessages;
+                executorMessages.resize(1);
+                scheduleInfo.executorMessages.push_back(executorMessages);
                 scheduleInfo.scheduleId = 20;
                 scheduleInfo.scheduleMode = HdiScheduleMode::IDENTIFY;
                 scheduleInfo.templateIds.push_back(30);

@@ -53,7 +53,8 @@ public:
         std::shared_ptr<ScheduleNodeCallback> callback;
         std::shared_ptr<Attributes> parameters;
         bool endAfterFirstFail;
-        std::vector<uint8_t> extraInfo;
+        std::vector<uint8_t> collectorMessage;
+        std::vector<uint8_t> verifierMessage;
     };
     explicit ScheduleNodeImpl(ScheduleInfo &info);
     ~ScheduleNodeImpl() override = default;
