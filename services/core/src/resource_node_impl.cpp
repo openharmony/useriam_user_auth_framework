@@ -209,6 +209,7 @@ int32_t ResourceNodeImpl::SyncWithDriver(std::vector<uint64_t> &templateIdList, 
         .publicKey = info_.publicKey,
         .deviceUdid = info_.deviceUdid,
         .signedRemoteExecutorInfo = info_.signedRemoteExecutorInfo,
+        .maxTemplateAcl = info_.maxTemplateAcl,
     };
 
     auto hdi = HdiWrapper::GetHdiInstance();

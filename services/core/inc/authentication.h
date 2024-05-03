@@ -37,6 +37,7 @@ public:
         std::string callerName;
         int32_t sdkVersion;
         int32_t callerType;
+        int32_t authIntent;
     };
 
     struct AuthResultInfo {
@@ -49,6 +50,7 @@ public:
         uint16_t credentialCount{0};
         int32_t sdkVersion{0};
         int32_t userId;
+        int32_t nextFailLockoutDuration;
         int64_t pinExpiredInfo;
         std::vector<uint8_t> remoteAuthResultMsg;
     };

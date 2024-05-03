@@ -30,7 +30,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-ResultCode SimpleAuthContext::SetFreezingTimeAndRemainTimes(int32_t &freezingTime, int32_t &remainTimes)
+ResultCode SimpleAuthContext::GetPropertyForAuthResult(Authentication::AuthResultInfo &resultInfo)
 {
     IAM_LOGI("start");
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_.size() == 1, GENERAL_ERROR);
@@ -42,25 +42,29 @@ ResultCode SimpleAuthContext::SetFreezingTimeAndRemainTimes(int32_t &freezingTim
 
     auto optionalTemplateIdList = scheduleNode->GetTemplateIdList();
     IF_FALSE_LOGE_AND_RETURN_VAL(optionalTemplateIdList.has_value(), GENERAL_ERROR);
-
     std::vector<uint64_t> templateIdList = optionalTemplateIdList.value();
 
     Attributes attr;
+    std::vector<uint32_t> keys = { Attributes::ATTR_FREEZING_TIME, Attributes::ATTR_REMAIN_TIMES,
+        Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION };
+    attr.SetUint32ArrayValue(Attributes::ATTR_KEY_LIST, keys);
     attr.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_GET);
     attr.SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIdList);
-    std::vector<uint32_t> keys = { Attributes::ATTR_FREEZING_TIME, Attributes::ATTR_REMAIN_TIMES };
-    attr.SetUint32ArrayValue(Attributes::ATTR_KEY_LIST, keys);
 
     Attributes values;
     int32_t ret = resourceNode->GetProperty(attr, values);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret == SUCCESS, GENERAL_ERROR);
 
-    bool getFreezingTimeRet = values.GetInt32Value(Attributes::ATTR_FREEZING_TIME, freezingTime);
+    bool getNextDurationRet = values.GetInt32Value(Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION,
+        resultInfo.nextFailLockoutDuration);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getNextDurationRet == true, GENERAL_ERROR);
+    bool getFreezingTimeRet = values.GetInt32Value(Attributes::ATTR_FREEZING_TIME, resultInfo.freezingTime);
     IF_FALSE_LOGE_AND_RETURN_VAL(getFreezingTimeRet == true, GENERAL_ERROR);
-    bool getRemainTimesRet = values.GetInt32Value(Attributes::ATTR_REMAIN_TIMES, remainTimes);
+    bool getRemainTimesRet = values.GetInt32Value(Attributes::ATTR_REMAIN_TIMES, resultInfo.remainTimes);
     IF_FALSE_LOGE_AND_RETURN_VAL(getRemainTimesRet == true, GENERAL_ERROR);
 
-    IAM_LOGI("set freezingTime:%{public}d and remainTimes:%{public}d success", freezingTime, remainTimes);
+    IAM_LOGI("success, nextFailLockoutDuration:%{public}d, freezingTime:%{public}d, remainTime:%{public}d",
+        resultInfo.nextFailLockoutDuration, resultInfo.freezingTime, resultInfo.remainTimes);
     return SUCCESS;
 }
 
@@ -125,12 +129,11 @@ void SimpleAuthContext::OnResult(int32_t resultCode, const std::shared_ptr<Attri
         }
         resultInfo.result = resultCode;
     }
+    static const uint32_t ONE_MINUTE = 1 * 60 * 1000;
+    resultInfo.nextFailLockoutDuration = ONE_MINUTE;
     if (NeedSetFreezingTimeAndRemainTimes(resultInfo.result)) {
-        IAM_LOGI("need get freezing time and remain times");
-        ResultCode result = SetFreezingTimeAndRemainTimes(resultInfo.freezingTime,
-            resultInfo.remainTimes);
-        if (result != SUCCESS) {
-            IAM_LOGE("fail to get freezing time and remain times");
+        if (GetPropertyForAuthResult(resultInfo) != SUCCESS) {
+            IAM_LOGE("GetPropertyForAuthResult failed");
         }
     }
     InvokeResultCallback(resultInfo);
@@ -182,6 +185,23 @@ bool SimpleAuthContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &
     return true;
 }
 
+bool SimpleAuthContext::SetCredentialDigest(const Authentication::AuthResultInfo &resultInfo,
+    Attributes &finalResult) const
+{
+    uint64_t credentialDigest = resultInfo.credentialDigest;
+    if (resultInfo.sdkVersion < INNER_API_VERSION_10000) {
+        credentialDigest = resultInfo.credentialDigest & UINT16_MAX;
+    }
+    bool setCredentialDigestRet = finalResult.SetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST,
+        credentialDigest);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setCredentialDigestRet == true, false);
+    bool setCredentialCountRet = finalResult.SetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT,
+        resultInfo.credentialCount);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setCredentialCountRet == true, false);
+
+    return true;
+}
+
 void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInfo &resultInfo) const
 {
     IAM_LOGI("%{public}s start", GetDescription());
@@ -189,6 +209,9 @@ void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInf
     Attributes finalResult;
     bool setResultCodeRet = finalResult.SetInt32Value(Attributes::ATTR_RESULT_CODE, resultInfo.result);
     IF_FALSE_LOGE_AND_RETURN(setResultCodeRet == true);
+    bool setNextDurationRet = finalResult.SetInt32Value(Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION,
+        resultInfo.nextFailLockoutDuration);
+    IF_FALSE_LOGE_AND_RETURN(setNextDurationRet == true);
     if (resultInfo.result == SUCCESS || resultInfo.result == PIN_EXPIRED) {
         setResultCodeRet = finalResult.SetInt64Value(Attributes::ATTR_PIN_EXPIRED_INFO, resultInfo.pinExpiredInfo);
         IF_FALSE_LOGE_AND_RETURN(setResultCodeRet == true);
@@ -200,16 +223,8 @@ void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInf
         IF_FALSE_LOGE_AND_RETURN(setRemainTimesRet == true);
     }
     if (resultInfo.result == SUCCESS && resultInfo.sdkVersion > API_VERSION_9) {
-        uint64_t credentialDigest = resultInfo.credentialDigest;
-        if (resultInfo.sdkVersion < INNER_API_VERSION_10000) {
-            credentialDigest = resultInfo.credentialDigest & UINT16_MAX;
-        }
-        bool setCredentialDigestRet = finalResult.SetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST,
-            credentialDigest);
-        IF_FALSE_LOGE_AND_RETURN(setCredentialDigestRet == true);
-        bool setCredentialCountRet = finalResult.SetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT,
-            resultInfo.credentialCount);
-        IF_FALSE_LOGE_AND_RETURN(setCredentialCountRet == true);
+        bool credentialDigest = SetCredentialDigest(resultInfo, finalResult);
+        IF_FALSE_LOGE_AND_RETURN(credentialDigest == true);
     }
     if (resultInfo.result == SUCCESS) {
         bool setUserIdRet = finalResult.SetInt32Value(Attributes::ATTR_USER_ID, resultInfo.userId);

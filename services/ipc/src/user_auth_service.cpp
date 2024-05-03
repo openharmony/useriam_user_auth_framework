@@ -50,7 +50,6 @@ namespace UserAuth {
 namespace {
 const int32_t MINIMUM_VERSION = 0;
 const int32_t CURRENT_VERSION = 1;
-const uint32_t AUTH_TRUST_LEVEL_SYS = 1;
 const int32_t USERIAM_IPC_THREAD_NUM = 4;
 const uint32_t MAX_AUTH_TYPE_SIZE = 3;
 const bool REMOTE_AUTH_SERVICE_RESULT = RemoteAuthService::GetInstance().Start();
@@ -78,7 +77,8 @@ bool IsTemplateIdListRequired(const std::vector<Attributes::AttributeKey> &keys)
     for (const auto &key : keys) {
         if (key == Attributes::AttributeKey::ATTR_PIN_SUB_TYPE ||
             key == Attributes::AttributeKey::ATTR_REMAIN_TIMES ||
-            key == Attributes::AttributeKey::ATTR_FREEZING_TIME) {
+            key == Attributes::AttributeKey::ATTR_FREEZING_TIME ||
+            key == Attributes::AttributeKey::ATTR_NEXT_FAIL_LOCKOUT_DURATION) {
             return true;
         }
     }
@@ -181,19 +181,14 @@ int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authTyp
         IAM_LOGE("hdi interface is nullptr");
         return GENERAL_ERROR;
     }
-    uint32_t supportedAtl = AUTH_TRUST_LEVEL_SYS;
-    int32_t result =
-        hdi->GetAuthTrustLevel(userId, static_cast<HdiAuthType>(authType), supportedAtl);
+    int32_t checkRet = GENERAL_ERROR;
+    int32_t result = hdi->GetAvailableStatus(userId, authType, authTrustLevel, checkRet);
     if (result != SUCCESS) {
-        IAM_LOGE("failed to get current supported authTrustLevel from hdi apiVersion:%{public}d result:%{public}d",
-            apiVersion, result);
-        return result;
+        IAM_LOGE("hdi GetAvailableStatus failed");
+        return GENERAL_ERROR;
     }
-    if (authTrustLevel > supportedAtl) {
-        IAM_LOGE("the current authTrustLevel does not support");
-        return TRUST_LEVEL_NOT_SUPPORT;
-    }
-    return SUCCESS;
+    IAM_LOGI("GetAvailableStatus result:%{public}d", checkRet);
+    return checkRet;
 }
 
 void UserAuthService::GetProperty(int32_t userId, AuthType authType,
@@ -375,6 +370,7 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
     para.callerName = callerName;
     para.callerType = callerType;
     para.sdkVersion = apiVersion;
+    para.authIntent = 0;
     return StartAuthContext(apiVersion, para, contextCallback);
 }
 
@@ -505,7 +501,7 @@ uint64_t UserAuthService::AuthUser(AuthParamInner &authParam, std::optional<Remo
     para.callerName = callerName;
     para.callerType = callerType;
     para.sdkVersion = INNER_API_VERSION_10000;
-
+    para.authIntent = 0;
     if (!remoteAuthParam.has_value()) {
         return StartAuthContext(INNER_API_VERSION_10000, para, contextCallback);
     }

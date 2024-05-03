@@ -187,6 +187,8 @@ public:
         ATTR_COLLECTOR_TOKEN_ID = 100082,
         /** Pin expired info, the value type is int64_t and it's max value is 2^50. */
         ATTR_PIN_EXPIRED_INFO = 100083,
+       /** next fail lockout duration, the value type is int32_t. */
+        ATTR_NEXT_FAIL_LOCKOUT_DURATION = 100084,
     };
 
     /**
