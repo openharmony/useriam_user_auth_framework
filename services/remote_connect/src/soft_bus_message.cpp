@@ -19,6 +19,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+const int32_t MESSAGE_VERSION = 0;
 SoftBusMessage::SoftBusMessage(int32_t messageSeq, const std::string &connectioneName,
     const std::string &srcEndPoint, const std::string &destEndPoint,
     const std::shared_ptr<Attributes> &attributes)
@@ -66,6 +67,8 @@ std::string SoftBusMessage::GetConnectionName()
 std::shared_ptr<Attributes> SoftBusMessage::CreateMessage(bool response)
 {
     IAM_LOGI("start.");
+    IF_FALSE_LOGE_AND_RETURN_VAL(attributes_ != nullptr, nullptr);
+
     auto attributes = Common::MakeShared<Attributes>(attributes_->Serialize());
     if (attributes == nullptr) {
         IAM_LOGE("attributes create fail");
@@ -92,7 +95,7 @@ std::shared_ptr<Attributes> SoftBusMessage::CreateMessage(bool response)
     ret = attributes->SetStringValue(Attributes::ATTR_CONNECTION_NAME, connectioneName_);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret, nullptr);
 
-    ret = attributes->SetUint32Value(Attributes::ATTR_MSG_VERSION, 0);
+    ret = attributes->SetUint32Value(Attributes::ATTR_MSG_VERSION, MESSAGE_VERSION);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret, nullptr);
 
     IAM_LOGE("CreateMessage success: messageSeq:%{public}u, isAck:%{public}d,"

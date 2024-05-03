@@ -21,6 +21,7 @@
 #include <map>
 #include <mutex>
 
+#include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_common_defines.h"
 #include "soft_bus_client_socket.h"
@@ -67,16 +68,22 @@ private:
     ResultCode ServiceSocketInit();
     void ServiceSocketUnInit();
 
-    ResultCode ServiceSocketListen();
-    int32_t ClientSocketInit(const std::string &connectionName, const std::string& networkId);
+    ResultCode ServiceSocketListen(const int32_t socketId);
+    int32_t ClientSocketInit(const std::string &connectionName, const std::string &networkId);
     ResultCode ClientSocketBind(const int32_t socketId);
-    bool CheckAndCopyStr(char* dest, uint32_t destLen, const std::string& src);
+    bool CheckAndCopyStr(char *dest, uint32_t destLen, const std::string &src);
     void AddConnection(const std::string &connectionName, std::shared_ptr<BaseSocket> &socket);
     void DeleteConnection(const std::string &connectionName);
     void AddSocket(const int32_t socketId, std::shared_ptr<BaseSocket> &socket);
     void DeleteSocket(const int32_t socketId);
+    void SetServerSocket(std::shared_ptr<BaseSocket> &socket);
+    void ClearServerSocket();
 
-    int32_t socketId_;
+    std::recursive_mutex mutex_;
+    bool inited_;
+
+    std::recursive_mutex ServerSocketMutex_;
+    std::shared_ptr<BaseSocket> serverSocket_;
 
     std::recursive_mutex socketMutex_;
     std::map<int32_t, std::shared_ptr<BaseSocket>> socketMap_;
@@ -84,11 +91,11 @@ private:
     std::recursive_mutex connectionMutex_;
     /* <ConnectionName, std::shared_ptr<BaseSocket>> */
     std::map<std::string, std::shared_ptr<BaseSocket>> clientSocketMap_;
-    std::shared_ptr<BaseSocket> serverSocket_;
 
-    std::recursive_mutex mutex_;
-    bool inited_;
+    std::recursive_mutex deviceManagerMutex_;
     sptr<DeviceManagerListener> deviceManagerServiceListener_;
+
+    std::recursive_mutex softBusMutex_;
     sptr<SoftBusListener> softBusServiceListener_;
 };
 } // namespace UserAuth
