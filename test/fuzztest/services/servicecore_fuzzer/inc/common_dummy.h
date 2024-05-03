@@ -83,6 +83,12 @@ public:
         return {};
     }
 
+    std::string GetExecutorDeviceUdid() const
+    {
+        IAM_LOGI("start");
+        return "";
+    }
+
     int32_t BeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
         const Attributes &command)
     {

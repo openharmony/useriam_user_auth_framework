@@ -27,6 +27,8 @@
 #include "context.h"
 #include "context_callback.h"
 #include "identification_impl.h"
+#include "remote_auth_context.h"
+#include "remote_auth_invoker_context.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -55,6 +57,10 @@ public:
     };
     static std::shared_ptr<Context> CreateSimpleAuthContext(const Authentication::AuthenticationPara &para,
         const std::shared_ptr<ContextCallback> &callback);
+    static std::shared_ptr<Context> CreateRemoteAuthContext(const Authentication::AuthenticationPara &para,
+        RemoteAuthContextParam &remoteAuthContextParam, const std::shared_ptr<ContextCallback> &callback);
+    static std::shared_ptr<Context> CreateRemoteAuthInvokerContext(AuthParamInner authParam,
+        RemoteAuthInvokerContextParam param, std::shared_ptr<ContextCallback> callback);
     static std::shared_ptr<Context> CreateIdentifyContext(const Identification::IdentificationPara &para,
         const std::shared_ptr<ContextCallback> &callback);
     static std::shared_ptr<Context> CreateEnrollContext(const Enrollment::EnrollmentPara &para,

@@ -52,7 +52,7 @@ public:
 
 private:
     std::vector<ListenerInfo> listeners_;
-    std::mutex listenerMutex_;
+    std::recursive_mutex listenerMutex_;
 };
 } // namespace UserAuth
 } // namespace UserIam

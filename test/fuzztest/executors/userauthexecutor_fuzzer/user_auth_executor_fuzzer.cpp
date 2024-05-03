@@ -332,13 +332,14 @@ void FuzzFrameworkOnMessengerReady(std::shared_ptr<Parcel> parcel)
     if (g_executorCallback == nullptr) {
         return;
     }
+    uint64_t executorIndex = parcel->ReadUint64();
     shared_ptr<ExecutorMessenger> messenger = nullptr;
     FillIExecutorMessenger(parcel, messenger);
     std::vector<uint8_t> publicKey;
     FillFuzzUint8Vector(*parcel, publicKey);
     std::vector<uint64_t> templateIds;
     FillFuzzUint64Vector(*parcel, templateIds);
-    g_executorCallback->OnMessengerReady(messenger, publicKey, templateIds);
+    g_executorCallback->OnMessengerReady(executorIndex, messenger, publicKey, templateIds);
     IAM_LOGI("end");
 }
 

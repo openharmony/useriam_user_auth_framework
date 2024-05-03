@@ -29,7 +29,7 @@ ExecutorCallbackService::ExecutorCallbackService(const std::shared_ptr<ExecutorR
 {
 }
 
-void ExecutorCallbackService::OnMessengerReady(sptr<ExecutorMessengerInterface> &messenger,
+void ExecutorCallbackService::OnMessengerReady(uint64_t executorIndex, sptr<ExecutorMessengerInterface> &messenger,
     const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList)
 {
     IAM_LOGI("start");
@@ -42,7 +42,7 @@ void ExecutorCallbackService::OnMessengerReady(sptr<ExecutorMessengerInterface> 
         IAM_LOGE("failed to create wrapper");
         return;
     }
-    callback_->OnMessengerReady(wrapper, publicKey, templateIdList);
+    callback_->OnMessengerReady(executorIndex, wrapper, publicKey, templateIdList);
 }
 
 int32_t ExecutorCallbackService::OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,

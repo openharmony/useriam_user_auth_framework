@@ -59,6 +59,7 @@ bool ScheduleNodeHelper::ScheduleInfoToScheduleNode(const HdiScheduleInfo &info,
     }
     std::shared_ptr<ResourceNode> collector;
     std::shared_ptr<ResourceNode> verifier;
+
     std::vector<uint8_t> collectorMessage;
     std::vector<uint8_t> verifierMessage;
     if (!ScheduleInfoToExecutors(info, collector, verifier, collectorMessage, verifierMessage)) {
@@ -66,11 +67,15 @@ bool ScheduleNodeHelper::ScheduleInfoToScheduleNode(const HdiScheduleInfo &info,
         return false;
     }
 
+    IAM_LOGI("collectorMessage size: %{public}zu, verifierMessage size  %{public}zu",
+        collectorMessage.size(), verifierMessage.size());
+
     auto builder = ScheduleNode::Builder::New(collector, verifier);
     if (builder == nullptr) {
         IAM_LOGE("invalid builder");
         return false;
     }
+
     if (para.tokenId.has_value()) {
         builder->SetAccessTokenId(para.tokenId.value());
     }
@@ -84,6 +89,7 @@ bool ScheduleNodeHelper::ScheduleInfoToScheduleNode(const HdiScheduleInfo &info,
         ->SetPinSubType(para.pinSubType.value_or(PinSubType::PIN_MAX))
         ->SetScheduleCallback(callback)
         ->SetEndAfterFirstFail(para.endAfterFirstFail.value_or(false))
+        ->SetCollectorTokenId(para.collectorTokenId)
         ->SetCollectorMessage(collectorMessage)
         ->SetVerifierMessage(verifierMessage)
         ->Build();

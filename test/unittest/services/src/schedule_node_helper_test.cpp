@@ -56,13 +56,12 @@ HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTest_001, TestSize.Level0)
 HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTest_002, TestSize.Level0)
 {
     std::vector<HdiScheduleInfo> scheduleInfoList;
-    constexpr uint64_t executorIndex1 = 60;
-    constexpr uint64_t executorIndex2 = 90;
     HdiScheduleInfo scheduleInfo = {};
     scheduleInfo.authType = HdiAuthType::FACE;
     scheduleInfo.executorMatcher = 10;
-    scheduleInfo.executorIndexes.push_back(executorIndex1);
-    scheduleInfo.executorIndexes.push_back(executorIndex2);
+    scheduleInfo.executorIndexes.push_back(60);
+
+    scheduleInfo.executorIndexes.push_back(90);
 
     scheduleInfo.scheduleId = 20;
     scheduleInfo.scheduleMode = HdiScheduleMode::AUTH;

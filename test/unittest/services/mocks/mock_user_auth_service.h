@@ -35,15 +35,14 @@ public:
     MOCK_METHOD4(SetProperty, void(int32_t userId, AuthType authType, const Attributes &attributes,
                                   sptr<SetExecutorPropertyCallbackInterface> &callback));
 
-    MOCK_METHOD5(AuthUser,
-        uint64_t(int32_t userId, const std::vector<uint8_t> &challenge, AuthType authType,
-            AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback));
+    MOCK_METHOD3(AuthUser, uint64_t(AuthParamInner &param, std::optional<RemoteAuthParam> &remoteAuthParam,
+        sptr<UserAuthCallbackInterface> &callback));
     
     MOCK_METHOD5(Auth,
         uint64_t(int32_t apiVersion, const std::vector<uint8_t> &challenge, AuthType authType,
             AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback));
 
-    MOCK_METHOD4(AuthWidget, uint64_t(int32_t apiVersion, const AuthParam &authParam,
+    MOCK_METHOD4(AuthWidget, uint64_t(int32_t apiVersion, const AuthParamInner &authParam,
         const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback));
 
     MOCK_METHOD3(Identify,
@@ -57,6 +56,7 @@ public:
         const sptr<AuthEventListenerInterface> &callback));
     MOCK_METHOD1(UnRegistUserAuthSuccessEventListener, int32_t(const sptr<AuthEventListenerInterface> &callback));
     MOCK_METHOD1(SetGlobalConfigParam, int32_t(const GlobalConfigParam &param));
+    MOCK_METHOD2(PrepareRemoteAuth, int32_t(const std::string &networkId, sptr<UserAuthCallbackInterface> &callback));
 };
 } // namespace UserAuth
 } // namespace UserIam

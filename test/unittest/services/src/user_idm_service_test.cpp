@@ -354,9 +354,6 @@ static void MockForAddCredentialHdi(std::shared_ptr<Context> &context, std::prom
         .WillOnce([&context](const std::vector<uint8_t> &authToken, const HdiEnrollParam &param,
             HdiScheduleInfo &info) {
             info.executorIndexes.push_back(testExecutorIndex);
-            std::vector<uint8_t> executorMessages;
-            executorMessages.resize(1);
-            info.executorMessages.push_back(executorMessages);
             info.scheduleId = testscheduleId;
             info.authType = HdiAuthType::FACE;
             auto contextList = ContextPool::Instance().Select(CONTEXT_ENROLL);

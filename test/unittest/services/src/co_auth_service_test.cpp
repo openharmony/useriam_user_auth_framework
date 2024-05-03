@@ -60,11 +60,11 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest001, TestSize.Level0)
     info.esl = ESL1;
     info.publicKey = {'a', 'b', 'c', 'd'};
     
-    auto service = Common::MakeShared<CoAuthService>(1, true);
+    auto service = Common::MakeShared<CoAuthService>();
     EXPECT_NE(service, nullptr);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*testCallback, OnMessengerReady(_, _, _)).Times(1);
+    EXPECT_CALL(*testCallback, OnMessengerReady(_, _, _, _)).Times(1);
     EXPECT_CALL(*mockHdi, AddExecutor(_, _, _, _))
         .Times(2)
         .WillOnce(Return(HDF_FAILURE))
@@ -88,7 +88,7 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest001, TestSize.Level0)
 
 HWTEST_F(CoAuthServiceTest, CoAuthServiceTest002, TestSize.Level0)
 {
-    auto service = Common::MakeShared<CoAuthService>(1, true);
+    auto service = Common::MakeShared<CoAuthService>();
     EXPECT_NE(service, nullptr);
 
     CoAuthInterface::ExecutorRegisterInfo info = {};
@@ -103,7 +103,7 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest003, TestSize.Level0)
     int testFd2 = 1;
     std::vector<std::u16string> testArgs;
 
-    auto service = Common::MakeShared<CoAuthService>(1, true);
+    auto service = Common::MakeShared<CoAuthService>();
     EXPECT_NE(service, nullptr);
 
     auto node = MockResourceNode::CreateWithExecuteIndex(20);

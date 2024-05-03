@@ -344,16 +344,15 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub002, TestSize.Level0)
     sptr<MockUserAuthCallback> callback(new (std::nothrow) MockUserAuthCallback());
     EXPECT_NE(callback, nullptr);
     MockUserAuthService service;
-    EXPECT_CALL(service, AuthUser(_, _, _, _, _)).Times(1);
+    EXPECT_CALL(service, AuthUser(_, _, _)).Times(1);
     ON_CALL(service, AuthUser)
         .WillByDefault(
-            [&testUserId, &testChallenge, &testAuthType, &testAtl, &testContextId](int32_t userId,
-                const std::vector<uint8_t> &challenge, AuthType authType, AuthTrustLevel authTrustLevel,
-                sptr<UserAuthCallbackInterface> &callback) {
-                EXPECT_EQ(userId, testUserId);
-                EXPECT_THAT(challenge, ElementsAreArray(testChallenge));
-                EXPECT_EQ(authType, testAuthType);
-                EXPECT_EQ(authTrustLevel, testAtl);
+            [&testUserId, &testChallenge, &testAuthType, &testAtl, &testContextId](AuthParamInner &authParam,
+            std::optional<RemoteAuthParam> &remoteAuthParam, sptr<UserAuthCallbackInterface> &callback) {
+                EXPECT_EQ(authParam.userId, testUserId);
+                EXPECT_THAT(authParam.challenge, ElementsAreArray(testChallenge));
+                EXPECT_EQ(authParam.authType, testAuthType);
+                EXPECT_EQ(authParam.authTrustLevel, testAtl);
                 if (callback != nullptr) {
                     Attributes attr;
                     callback->OnResult(SUCCESS, attr);

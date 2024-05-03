@@ -21,7 +21,6 @@
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
-#include "iam_ptr.h"
 #include "resource_node.h"
 #include "resource_node_utils.h"
 #include "schedule_node.h"
@@ -78,6 +77,13 @@ SimpleAuthContext::SimpleAuthContext(uint64_t contextId, std::shared_ptr<Authent
 {
 }
 
+SimpleAuthContext::SimpleAuthContext(const std::string &type, uint64_t contextId, std::shared_ptr<Authentication> auth,
+    std::shared_ptr<ContextCallback> callback)
+    : BaseContext(type, contextId, callback),
+      auth_(auth)
+{
+}
+
 ContextType SimpleAuthContext::GetContextType() const
 {
     return CONTEXT_SIMPLE_AUTH;
@@ -90,7 +96,7 @@ uint32_t SimpleAuthContext::GetTokenId() const
 
 bool SimpleAuthContext::OnStart()
 {
-    IAM_LOGI("%{public}s start", GetDescription());
+    IAM_LOGI("%{public}s start should not", GetDescription());
     IF_FALSE_LOGE_AND_RETURN_VAL(auth_ != nullptr, false);
     bool startRet = auth_->Start(scheduleList_, shared_from_this());
     if (!startRet) {
@@ -217,6 +223,11 @@ void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInf
     if (resultInfo.rootSecret.size() != 0) {
         bool setRootSecret = finalResult.SetUint8ArrayValue(Attributes::ATTR_ROOT_SECRET, resultInfo.rootSecret);
         IF_FALSE_LOGE_AND_RETURN(setRootSecret == true);
+    }
+    if (resultInfo.remoteAuthResultMsg.size() != 0) {
+        bool setRemoteAuthResultMsg = finalResult.SetUint8ArrayValue(Attributes::ATTR_SIGNED_AUTH_RESULT,
+            resultInfo.remoteAuthResultMsg);
+        IF_FALSE_LOGE_AND_RETURN(setRemoteAuthResultMsg == true);
     }
     callback_->OnResult(resultInfo.result, finalResult);
     IAM_LOGI("%{public}s invoke result callback success", GetDescription());

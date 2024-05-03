@@ -34,11 +34,11 @@ public:
         sptr<GetExecutorPropertyCallbackInterface> &callback) override;
     void SetProperty(int32_t userId, AuthType authType, const Attributes &attributes,
         sptr<SetExecutorPropertyCallbackInterface> &callback) override;
-    uint64_t AuthUser(int32_t userId, const std::vector<uint8_t> &challenge, AuthType authType,
-        AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) override;
+    uint64_t AuthUser(AuthParamInner &param, std::optional<RemoteAuthParam> &remoteAuthParam,
+        sptr<UserAuthCallbackInterface> &callback) override;
     uint64_t Auth(int32_t apiVersion, const std::vector<uint8_t> &challenge, AuthType authType,
         AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) override;
-    uint64_t AuthWidget(int32_t apiVersion, const AuthParam &authParam,
+    uint64_t AuthWidget(int32_t apiVersion, const AuthParamInner &authParam,
         const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback) override;
     uint64_t Identify(const std::vector<uint8_t> &challenge, AuthType authType,
         sptr<UserAuthCallbackInterface> &callback) override;
@@ -52,13 +52,16 @@ public:
     int32_t UnRegistUserAuthSuccessEventListener(
         const sptr<AuthEventListenerInterface> &listener) override;
     int32_t SetGlobalConfigParam(const GlobalConfigParam &param) override;
+    int32_t PrepareRemoteAuth(const std::string &networkId, sptr<UserAuthCallbackInterface> &callback) override;
 
 private:
     static inline BrokerDelegator<UserAuthProxy> delegator_;
-    bool WriteAuthParam(MessageParcel &data, const std::vector<uint8_t> &challenge,
-        AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback);
+    bool WriteAuthParam(MessageParcel &data, const AuthParamInner &authParam);
+    bool WriteRemoteAuthParam(MessageParcel &data, const std::optional<RemoteAuthParam> &remoteAuthParam);
+    bool WriteOptionalString(MessageParcel &data, const std::optional<std::string> &str);
+    bool WriteOptionalUint32(MessageParcel &data, const std::optional<uint32_t> &val);
     bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply);
-    bool WriteWidgetParam(MessageParcel &data, const AuthParam &authParam, const WidgetParam &widgetParam);
+    bool WriteWidgetParam(MessageParcel &data, const AuthParamInner &authParam, const WidgetParam &widgetParam);
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -36,6 +36,7 @@ ohos_fuzztest("UserAuthDriverManagerFuzzTest") {
   sources = [
     "../../../../frameworks/native/executors/src/async_command/async_command_base.cpp",
     "../../../../frameworks/native/executors/src/async_command/auth_command.cpp",
+    "../../../../frameworks/native/executors/src/async_command/collect_command.cpp",
     "../../../../frameworks/native/executors/src/async_command/custom_command.cpp",
     "../../../../frameworks/native/executors/src/async_command/enroll_command.cpp",
     "../../../../frameworks/native/executors/src/async_command/identify_command.cpp",

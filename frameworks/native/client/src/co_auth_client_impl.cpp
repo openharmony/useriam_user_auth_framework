@@ -47,6 +47,8 @@ void CoAuthClientImpl::Register(const ExecutorInfo &info, const std::shared_ptr<
     regInfo.executorMatcher = info.executorMatcher;
     regInfo.esl = info.esl;
     regInfo.publicKey = info.publicKey;
+    regInfo.deviceUdid = info.deviceUdid;
+    regInfo.signedRemoteExecutorInfo = info.signedRemoteExecutorInfo;
 
     sptr<ExecutorCallbackInterface> wrapper(new (std::nothrow) ExecutorCallbackService(callback));
     if (wrapper == nullptr) {
@@ -56,9 +58,16 @@ void CoAuthClientImpl::Register(const ExecutorInfo &info, const std::shared_ptr<
     proxy->ExecutorRegister(regInfo, wrapper);
 }
 
-void CoAuthClientImpl::Unregister(const ExecutorInfo &info)
+void CoAuthClientImpl::Unregister(uint64_t executorIndex)
 {
-    IAM_LOGI("start type:%{public}d role:%{public}d", info.authType, info.executorRole);
+    IAM_LOGI("start");
+
+    auto proxy = GetProxy();
+    if (!proxy) {
+        return;
+    }
+
+    proxy->ExecutorUnregister(executorIndex);
 }
 
 sptr<CoAuthInterface> CoAuthClientImpl::GetProxy()

@@ -47,11 +47,12 @@ public:
     bool SetInt32Value(AttributeKey key, int32_t value);
     bool SetInt64Value(AttributeKey key, int64_t value);
     bool SetStringValue(AttributeKey key, const std::string &value);
-    bool SetAttributesValue(AttributeKey key, const Impl &value);
+    bool SetAttributesValue(AttributeKey key, const Impl &array);
     bool SetUint64ArrayValue(AttributeKey key, const std::vector<uint64_t> &value);
     bool SetUint32ArrayValue(AttributeKey key, const std::vector<uint32_t> &value);
     bool SetUint16ArrayValue(AttributeKey key, const std::vector<uint16_t> &value);
     bool SetUint8ArrayValue(AttributeKey key, const std::vector<uint8_t> &value);
+    bool SetInt32ArrayValue(AttributeKey key, const std::vector<int32_t> &value);
 
     bool GetBoolValue(AttributeKey key, bool &value) const;
     bool GetUint64Value(AttributeKey key, uint64_t &value) const;
@@ -65,29 +66,32 @@ public:
     bool GetUint32ArrayValue(AttributeKey key, std::vector<uint32_t> &value) const;
     bool GetUint16ArrayValue(AttributeKey key, std::vector<uint16_t> &value) const;
     bool GetUint8ArrayValue(AttributeKey key, std::vector<uint8_t> &value) const;
-    bool GetAttributesValue(AttributeKey key, Impl &value) const;
+    bool GetInt32ArrayValue(AttributeKey key, std::vector<int32_t> &value) const;
+    bool GetAttributesValue(AttributeKey key, Impl &array) const;
     std::vector<uint8_t> Serialize() const;
     std::vector<AttributeKey> GetKeys() const;
+
+    static bool EncodeUint32Value(uint32_t src, std::vector<uint8_t> &dst);
+    static bool DecodeUint32Value(const std::vector<uint8_t> &src, uint32_t &dst);
 
 private:
     static constexpr uint32_t MAX_ATTR_LENGTH = 81920;
     static constexpr uint32_t MAX_ATTR_COUNT = 512;
     static bool EncodeBoolValue(bool src, std::vector<uint8_t> &dst);
     static bool EncodeUint64Value(uint64_t src, std::vector<uint8_t> &dst);
-    static bool EncodeUint32Value(uint32_t src, std::vector<uint8_t> &dst);
     static bool EncodeUint16Value(uint16_t src, std::vector<uint8_t> &dst);
     static bool EncodeUint8Value(uint8_t src, std::vector<uint8_t> &dst);
     static bool EncodeInt32Value(int32_t src, std::vector<uint8_t> &dst);
     static bool EncodeInt64Value(int64_t src, std::vector<uint8_t> &dst);
     static bool EncodeStringValue(const std::string &src, std::vector<uint8_t> &dst);
     static bool EncodeUint64ArrayValue(const std::vector<uint64_t> &src, std::vector<uint8_t> &dst);
+    static bool EncodeInt32ArrayValue(const std::vector<int32_t> &src, std::vector<uint8_t> &dst);
     static bool EncodeUint32ArrayValue(const std::vector<uint32_t> &src, std::vector<uint8_t> &dst);
     static bool EncodeUint16ArrayValue(const std::vector<uint16_t> &src, std::vector<uint8_t> &dst);
     static bool EncodeUint8ArrayValue(const std::vector<uint8_t> &src, std::vector<uint8_t> &dst);
 
     static bool DecodeBoolValue(const std::vector<uint8_t> &src, bool &dst);
     static bool DecodeUint64Value(const std::vector<uint8_t> &src, uint64_t &dst);
-    static bool DecodeUint32Value(const std::vector<uint8_t> &src, uint32_t &dst);
     static bool DecodeUint16Value(const std::vector<uint8_t> &src, uint16_t &dst);
     static bool DecodeUint8Value(const std::vector<uint8_t> &src, uint8_t &dst);
     static bool DecodeInt32Value(const std::vector<uint8_t> &src, int32_t &dst);
@@ -97,13 +101,14 @@ private:
     static bool DecodeUint32ArrayValue(const std::vector<uint8_t> &src, std::vector<uint32_t> &dst);
     static bool DecodeUint16ArrayValue(const std::vector<uint8_t> &src, std::vector<uint16_t> &dst);
     static bool DecodeUint8ArrayValue(const std::vector<uint8_t> &src, std::vector<uint8_t> &dst);
+    static bool DecodeInt32ArrayValue(const std::vector<uint8_t> &src, std::vector<int32_t> &dst);
     static bool CheckAttributeLength(const uint8_t *curr, const uint8_t *end, uint32_t length);
-    std::map<AttributeKey, const std::vector<uint8_t>> map_;
+    std::map<AttributeKey, std::vector<uint8_t>> map_;
 };
 
 Attributes::Impl::Impl(const std::vector<uint8_t> &raw)
 {
-    std::map<Attributes::AttributeKey, const std::vector<uint8_t>> out;
+    std::map<Attributes::AttributeKey, std::vector<uint8_t>> out;
 
     const uint8_t *curr = &raw.front();
     const uint8_t *end = &raw.back() + sizeof(uint8_t);
@@ -143,18 +148,18 @@ Attributes::Impl::Impl(const std::vector<uint8_t> &raw)
             return;
         }
 
-        auto ret = out.try_emplace(static_cast<Attributes::AttributeKey>(type), value);
+        auto ret = out.insert_or_assign(static_cast<Attributes::AttributeKey>(type), value);
         if (!ret.second) {
-            IAM_LOGE("emplace pair error, type is %{public}u", type);
+            IAM_LOGE("insert_or_assign pair error, type is %{public}u", type);
             return;
         }
 
         if (out.size() > MAX_ATTR_COUNT) {
-            IAM_LOGE("emplace pair error, size reach max");
+            IAM_LOGE("insert_or_assign pair error, size reach max");
             return;
         }
 
-        IAM_LOGD("emplace pair success, type is %{public}u", type);
+        IAM_LOGD("insert_or_assign pair success, type is %{public}u", type);
         curr += length;
     }
 
@@ -197,8 +202,8 @@ bool Attributes::Impl::SetBoolValue(AttributeKey key, bool value)
         return false;
     }
 
-    auto ret = map_.try_emplace(key, dest);
-    return ret.second;
+    map_.insert_or_assign(key, dest);
+    return true;
 }
 
 bool Attributes::Impl::SetUint64Value(AttributeKey key, uint64_t value)
@@ -214,8 +219,8 @@ bool Attributes::Impl::SetUint64Value(AttributeKey key, uint64_t value)
         return false;
     }
 
-    auto ret = map_.try_emplace(key, dest);
-    return ret.second;
+    map_.insert_or_assign(key, dest);
+    return true;
 }
 
 bool Attributes::Impl::SetUint32Value(AttributeKey key, uint32_t value)
@@ -231,8 +236,8 @@ bool Attributes::Impl::SetUint32Value(AttributeKey key, uint32_t value)
         return false;
     }
 
-    auto ret = map_.try_emplace(key, dest);
-    return ret.second;
+    map_.insert_or_assign(key, dest);
+    return true;
 }
 
 bool Attributes::Impl::SetUint16Value(AttributeKey key, uint16_t value)
@@ -248,8 +253,8 @@ bool Attributes::Impl::SetUint16Value(AttributeKey key, uint16_t value)
         return false;
     }
 
-    auto ret = map_.try_emplace(key, dest);
-    return ret.second;
+    map_.insert_or_assign(key, dest);
+    return true;
 }
 
 bool Attributes::Impl::SetUint8Value(AttributeKey key, uint8_t value)
@@ -265,8 +270,8 @@ bool Attributes::Impl::SetUint8Value(AttributeKey key, uint8_t value)
         return false;
     }
 
-    auto ret = map_.try_emplace(key, dest);
-    return ret.second;
+    map_[key] = dest;
+    return true;
 }
 
 bool Attributes::Impl::SetInt32Value(AttributeKey key, int32_t value)
@@ -282,8 +287,8 @@ bool Attributes::Impl::SetInt32Value(AttributeKey key, int32_t value)
         return false;
     }
 
-    auto ret = map_.try_emplace(key, dest);
-    return ret.second;
+    map_.insert_or_assign(key, dest);
+    return true;
 }
 
 bool Attributes::Impl::SetInt64Value(AttributeKey key, int64_t value)
@@ -316,8 +321,8 @@ bool Attributes::Impl::SetStringValue(AttributeKey key, const std::string &value
         return false;
     }
 
-    auto ret = map_.try_emplace(key, dest);
-    return ret.second;
+    map_.insert_or_assign(key, dest);
+    return true;
 }
 
 bool Attributes::Impl::SetUint64ArrayValue(AttributeKey key, const std::vector<uint64_t> &value)
@@ -333,8 +338,8 @@ bool Attributes::Impl::SetUint64ArrayValue(AttributeKey key, const std::vector<u
         return false;
     }
 
-    auto ret = map_.try_emplace(key, dest);
-    return ret.second;
+    map_.insert_or_assign(key, dest);
+    return true;
 }
 
 bool Attributes::Impl::SetUint32ArrayValue(AttributeKey key, const std::vector<uint32_t> &value)
@@ -350,8 +355,25 @@ bool Attributes::Impl::SetUint32ArrayValue(AttributeKey key, const std::vector<u
         return false;
     }
 
-    auto ret = map_.try_emplace(key, dest);
-    return ret.second;
+    map_.insert_or_assign(key, dest);
+    return true;
+}
+
+bool Attributes::Impl::SetInt32ArrayValue(AttributeKey key, const std::vector<int32_t> &value)
+{
+    std::vector<uint8_t> dest;
+    if (!EncodeInt32ArrayValue(value, dest)) {
+        IAM_LOGE("EncodeUint32ArrayValue error");
+        return false;
+    }
+
+    if (map_.size() > MAX_ATTR_COUNT) {
+        IAM_LOGE("attrs size reach max");
+        return false;
+    }
+
+    map_.insert_or_assign(key, dest);
+    return true;
 }
 
 bool Attributes::Impl::SetUint16ArrayValue(AttributeKey key, const std::vector<uint16_t> &value)
@@ -367,8 +389,8 @@ bool Attributes::Impl::SetUint16ArrayValue(AttributeKey key, const std::vector<u
         return false;
     }
 
-    auto ret = map_.try_emplace(key, dest);
-    return ret.second;
+    map_.insert_or_assign(key, dest);
+    return true;
 }
 
 bool Attributes::Impl::SetUint8ArrayValue(AttributeKey key, const std::vector<uint8_t> &value)
@@ -384,8 +406,8 @@ bool Attributes::Impl::SetUint8ArrayValue(AttributeKey key, const std::vector<ui
         return false;
     }
 
-    auto ret = map_.try_emplace(key, value);
-    return ret.second;
+    map_.insert_or_assign(key, dest);
+    return true;
 }
 
 bool Attributes::Impl::SetAttributesValue(Attributes::AttributeKey key, const Attributes::Impl &value)
@@ -400,8 +422,8 @@ bool Attributes::Impl::SetAttributesValue(Attributes::AttributeKey key, const At
         return false;
     }
 
-    auto ret = map_.try_emplace(key, dest);
-    return ret.second;
+    map_.insert_or_assign(key, dest);
+    return true;
 }
 
 bool Attributes::Impl::GetBoolValue(AttributeKey key, bool &value) const
@@ -547,6 +569,21 @@ bool Attributes::Impl::GetUint32ArrayValue(AttributeKey key, std::vector<uint32_
     }
 
     if (!DecodeUint32ArrayValue(iter->second, value)) {
+        IAM_LOGE("DecodeUint32ArrayValue error");
+        return false;
+    }
+
+    return true;
+}
+
+bool Attributes::Impl::GetInt32ArrayValue(AttributeKey key, std::vector<int32_t> &value) const
+{
+    auto iter = map_.find(key);
+    if (iter == map_.end()) {
+        return false;
+    }
+
+    if (!DecodeInt32ArrayValue(iter->second, value)) {
         IAM_LOGE("DecodeUint32ArrayValue error");
         return false;
     }
@@ -766,6 +803,23 @@ bool Attributes::Impl::EncodeUint16ArrayValue(const std::vector<uint16_t> &src, 
     return true;
 }
 
+bool Attributes::Impl::EncodeInt32ArrayValue(const std::vector<int32_t> &src, std::vector<uint8_t> &dst)
+{
+    auto size = src.size() * (sizeof(int32_t) / sizeof(uint8_t));
+    if (size > MAX_ATTR_LENGTH) {
+        return false;
+    }
+
+    std::vector<uint8_t> out(size);
+
+    if (!src.empty() &&
+        memcpy_s(out.data(), out.size() * sizeof(uint8_t), src.data(), src.size() * sizeof(int32_t)) != EOK) {
+        return false;
+    }
+    dst.swap(out);
+    return true;
+}
+
 bool Attributes::Impl::EncodeUint8ArrayValue(const std::vector<uint8_t> &src, std::vector<uint8_t> &dst)
 {
     if (src.size() > MAX_ATTR_LENGTH) {
@@ -925,6 +979,23 @@ bool Attributes::Impl::DecodeUint8ArrayValue(const std::vector<uint8_t> &src, st
     return true;
 }
 
+bool Attributes::Impl::DecodeInt32ArrayValue(const std::vector<uint8_t> &src, std::vector<int32_t> &dst)
+{
+    if (src.size() % (sizeof(int32_t) / sizeof(uint8_t)) != 0) {
+        return false;
+    }
+
+    std::vector<int32_t> out(src.size() / (sizeof(int32_t) / sizeof(uint8_t)));
+
+    if (!out.empty() &&
+        memcpy_s(out.data(), out.size() * sizeof(int32_t), src.data(), src.size() * sizeof(uint8_t)) != EOK) {
+        return false;
+    }
+
+    dst.swap(out);
+    return true;
+}
+
 Attributes::Attributes() : impl_(new (std::nothrow) Attributes::Impl())
 {
 }
@@ -1044,12 +1115,92 @@ bool Attributes::SetUint8ArrayValue(AttributeKey key, const std::vector<uint8_t>
     return impl_->SetUint8ArrayValue(key, value);
 }
 
+bool Attributes::SetInt32ArrayValue(AttributeKey key, const std::vector<int32_t> &value)
+{
+    if (!impl_) {
+        return false;
+    }
+    return impl_->SetInt32ArrayValue(key, value);
+}
+
 bool Attributes::SetAttributesValue(AttributeKey key, const Attributes &value)
 {
     if (!impl_) {
         return false;
     }
     return impl_->SetAttributesValue(key, *value.impl_);
+}
+
+bool Attributes::SetAttributesArrayValue(AttributeKey key, const std::vector<Attributes> &array)
+{
+    if (!impl_) {
+        return false;
+    }
+
+    std::vector<std::vector<uint8_t>> serializedArray;
+    for (auto &item : array) {
+        if (!item.impl_) {
+            return false;
+        }
+        serializedArray.push_back(item.Serialize());
+    }
+
+    uint32_t dataLen = 0;
+    for (auto &array : serializedArray) {
+        dataLen += (sizeof(uint32_t) + array.size());
+    }
+
+    std::vector<uint8_t> data;
+    data.reserve(dataLen);
+    for (auto &array : serializedArray) {
+        std::vector<uint8_t> arrayLen;
+        bool encodeRet = Attributes::Impl::EncodeUint32Value(array.size(), arrayLen);
+        if (!encodeRet) {
+            return false;
+        }
+        std::copy(arrayLen.begin(), arrayLen.end(), std::back_inserter(data));
+        std::copy(array.begin(), array.end(), std::back_inserter(data));
+    }
+
+    return impl_->SetUint8ArrayValue(key, data);
+}
+
+bool Attributes::GetAttributesArrayValue(AttributeKey key, std::vector<Attributes> &array) const
+{
+    if (!impl_) {
+        return false;
+    }
+
+    std::vector<uint8_t> data;
+    bool getDataRet = impl_->GetUint8ArrayValue(key, data);
+    if (!getDataRet) {
+        return false;
+    }
+
+    array.clear();
+    uint32_t i = 0;
+    while (i < data.size()) {
+        if (data.size() - i < sizeof(uint32_t)) {
+            return false;
+        }
+
+        std::vector<uint8_t> arrayLenData(data.begin() + i, data.begin() + i + sizeof(uint32_t));
+        uint32_t arrayLen;
+        bool decodeRet = Attributes::Impl::DecodeUint32Value(arrayLenData, arrayLen);
+        if (!decodeRet) {
+            return false;
+        }
+        i += sizeof(uint32_t);
+
+        if (data.size() - i < arrayLen) {
+            return false;
+        }
+
+        array.push_back(Attributes(std::vector<uint8_t>(data.begin() + i, data.begin() + i + arrayLen)));
+        i += arrayLen;
+    }
+
+    return true;
 }
 
 bool Attributes::GetBoolValue(AttributeKey key, bool &value) const
@@ -1146,6 +1297,14 @@ bool Attributes::GetUint8ArrayValue(AttributeKey key, std::vector<uint8_t> &valu
         return false;
     }
     return impl_->GetUint8ArrayValue(key, value);
+}
+
+bool Attributes::GetInt32ArrayValue(AttributeKey key, std::vector<int32_t> &value) const
+{
+    if (!impl_) {
+        return false;
+    }
+    return impl_->GetInt32ArrayValue(key, value);
 }
 
 bool Attributes::GetAttributesValue(AttributeKey key, Attributes &value) const

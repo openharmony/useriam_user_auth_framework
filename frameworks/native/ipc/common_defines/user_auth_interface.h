@@ -41,13 +41,13 @@ public:
     virtual void SetProperty(int32_t userId, AuthType authType, const Attributes &attributes,
         sptr<SetExecutorPropertyCallbackInterface> &callback) = 0;
 
-    virtual uint64_t AuthUser(int32_t userId, const std::vector<uint8_t> &challenge, AuthType authType,
-        AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) = 0;
+    virtual uint64_t AuthUser(AuthParamInner &param, std::optional<RemoteAuthParam> &remoteAuthParam,
+        sptr<UserAuthCallbackInterface> &callback) = 0;
 
     virtual uint64_t Auth(int32_t apiVersion, const std::vector<uint8_t> &challenge, AuthType authType,
         AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) = 0;
 
-    virtual uint64_t AuthWidget(int32_t apiVersion, const AuthParam &authParam,
+    virtual uint64_t AuthWidget(int32_t apiVersion, const AuthParamInner &authParam,
         const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback) = 0;
 
     virtual uint64_t Identify(const std::vector<uint8_t> &challenge, AuthType authType,
@@ -70,6 +70,8 @@ public:
         const sptr<AuthEventListenerInterface> &listener) = 0;
 
     virtual int32_t SetGlobalConfigParam(const GlobalConfigParam &param) = 0;
+
+    virtual int32_t PrepareRemoteAuth(const std::string &networkId, sptr<UserAuthCallbackInterface> &callback) = 0;
 
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIam.UserAuth.IUserAuth");
 };

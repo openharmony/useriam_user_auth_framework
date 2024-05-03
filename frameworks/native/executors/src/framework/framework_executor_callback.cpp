@@ -19,6 +19,7 @@
 #include <sstream>
 
 #include "auth_command.h"
+#include "collect_command.h"
 #include "custom_command.h"
 #include "enroll_command.h"
 #include "hisysevent_adapter.h"
@@ -94,8 +95,9 @@ ResultCode FrameworkExecutorCallback::OnEndExecuteInner(uint64_t scheduleId, con
     return ret;
 }
 
-void FrameworkExecutorCallback::OnMessengerReady(const std::shared_ptr<ExecutorMessenger> &messenger,
-    const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIds)
+void FrameworkExecutorCallback::OnMessengerReady(uint64_t executorIndex,
+    const std::shared_ptr<ExecutorMessenger> &messenger, const std::vector<uint8_t> &publicKey,
+    const std::vector<uint64_t> &templateIdList)
 {
     IAM_LOGI("%{public}s start", GetDescription());
     auto executor = executor_.lock();
@@ -107,7 +109,7 @@ void FrameworkExecutorCallback::OnMessengerReady(const std::shared_ptr<ExecutorM
     IF_FALSE_LOGE_AND_RETURN(hdi != nullptr);
     executorMessenger_ = messenger;
     std::vector<uint8_t> extraInfo;
-    hdi->OnRegisterFinish(templateIds, publicKey, extraInfo);
+    hdi->OnRegisterFinish(templateIdList, publicKey, extraInfo);
 }
 
 int32_t FrameworkExecutorCallback::OnSetProperty(const Attributes &properties)
@@ -195,7 +197,18 @@ ResultCode FrameworkExecutorCallback::ProcessEnrollCommand(uint64_t scheduleId, 
 
 ResultCode FrameworkExecutorCallback::ProcessAuthCommand(uint64_t scheduleId, const Attributes &properties)
 {
-    auto command = Common::MakeShared<AuthCommand>(executor_, scheduleId, properties, executorMessenger_);
+    auto executor = executor_.lock();
+    if (executor == nullptr) {
+        IAM_LOGE("executor has been released, process failed");
+        return ResultCode::GENERAL_ERROR;
+    }
+
+    std::shared_ptr<AsyncCommandBase> command = nullptr;
+    if (executor->GetExecutorRole() == COLLECTOR) {
+        command = Common::MakeShared<CollectCommand>(executor_, scheduleId, properties, executorMessenger_);
+    } else {
+        command = Common::MakeShared<AuthCommand>(executor_, scheduleId, properties, executorMessenger_);
+    }
     IF_FALSE_LOGE_AND_RETURN_VAL(command != nullptr, ResultCode::GENERAL_ERROR);
     return command->StartProcess();
 }

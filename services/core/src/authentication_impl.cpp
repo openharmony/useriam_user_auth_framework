@@ -65,6 +65,11 @@ void AuthenticationImpl::SetEndAfterFirstFail(bool endAfterFirstFail)
     endAfterFirstFail_ = endAfterFirstFail;
 }
 
+void AuthenticationImpl::SetCollectorUdid(std::string collectorUdid)
+{
+    collectorUdid_ = collectorUdid;
+}
+
 uint32_t AuthenticationImpl::GetAccessTokenId() const
 {
     return tokenId_;
@@ -78,7 +83,7 @@ std::vector<Authentication::AuthExecutorMsg> AuthenticationImpl::GetAuthExecutor
 bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
     std::shared_ptr<ScheduleNodeCallback> callback)
 {
-    IAM_LOGE("UserId:%{public}d AuthType:%{public}d ATL:%{public}u", authPara_.userId, authPara_.authType,
+    IAM_LOGI("UserId:%{public}d AuthType:%{public}d ATL:%{public}u", authPara_.userId, authPara_.authType,
         authPara_.atl);
     auto hdi = HdiWrapper::GetHdiInstance();
     if (!hdi) {
@@ -96,6 +101,7 @@ bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
             .apiVersion = authPara_.sdkVersion,
         },
         .authType = authPara_.authType,
+        .collectorUdid = collectorUdid_,
     };
     std::vector<HdiScheduleInfo> infos;
     IamHitraceHelper traceHelper("hdi BeginAuthentication");
@@ -113,6 +119,7 @@ bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
     ScheduleNodeHelper::NodeOptionalPara para;
     para.tokenId = tokenId_;
     para.endAfterFirstFail = endAfterFirstFail_;
+    para.collectorTokenId = authPara_.collectorTokenId;
 
     if (!ScheduleNodeHelper::BuildFromHdi(infos, callback, scheduleList, para)) {
         IAM_LOGE("BuildFromHdi failed");
@@ -154,6 +161,7 @@ bool AuthenticationImpl::Update(const std::vector<uint8_t> &scheduleResult, Auth
     resultInfo.credentialCount = enrolledState.credentialCount;
     resultInfo.sdkVersion = authPara_.sdkVersion;
     resultInfo.userId = info.userId;
+    resultInfo.remoteAuthResultMsg = info.remoteAuthResultMsg;
 
     if (resultInfo.result != SUCCESS) {
         SetLatestError(resultInfo.result);

@@ -22,13 +22,14 @@
 
 #include "executor_messenger_interface.h"
 #include "executor_callback_interface_ipc_interface_code.h"
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 class ExecutorCallbackInterface : public IRemoteBroker {
 public:
-    virtual void OnMessengerReady(sptr<ExecutorMessengerInterface> &messenger, const std::vector<uint8_t> &publicKey,
-        const std::vector<uint64_t> &templateIdList) = 0;
+    virtual void OnMessengerReady(uint64_t executorIndex, sptr<ExecutorMessengerInterface> &messenger,
+        const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList) = 0;
     virtual int32_t OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
         const Attributes &command) = 0;
     virtual int32_t OnEndExecute(uint64_t scheduleId, const Attributes &command) = 0;

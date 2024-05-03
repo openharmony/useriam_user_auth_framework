@@ -41,9 +41,23 @@ int32_t CoAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageP
     switch (code) {
         case CoAuthInterfaceCode::CO_AUTH_EXECUTOR_REGISTER:
             return ExecutorRegisterStub(data, reply);
+        case CoAuthInterfaceCode::CO_AUTH_EXECUTOR_UNREGISTER:
+            return ExecutorUnregisterStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
+}
+
+int32_t CoAuthStub::ExecutorUnregisterStub(MessageParcel &data, MessageParcel &reply)
+{
+    uint64_t executorIndex;
+    if (!data.ReadUint64(executorIndex)) {
+        IAM_LOGE("failed to read executorIndex");
+        return GENERAL_ERROR;
+    }
+
+    ExecutorUnregister(executorIndex);
+    return SUCCESS;
 }
 
 int32_t CoAuthStub::ExecutorRegisterStub(MessageParcel &data, MessageParcel &reply)
@@ -80,10 +94,7 @@ int32_t CoAuthStub::ReadExecutorRegisterInfo(ExecutorRegisterInfo &executorInfo,
 {
     int32_t authType;
     int32_t executorRole;
-    uint32_t executorSensorHint;
-    uint32_t executorMatcher;
     int32_t esl;
-    uint32_t maxTemplateAcl;
 
     if (!data.ReadInt32(authType)) {
         IAM_LOGE("failed to read authType");
@@ -93,11 +104,11 @@ int32_t CoAuthStub::ReadExecutorRegisterInfo(ExecutorRegisterInfo &executorInfo,
         IAM_LOGE("failed to read executorRole");
         return READ_PARCEL_ERROR;
     }
-    if (!data.ReadUint32(executorSensorHint)) {
+    if (!data.ReadUint32(executorInfo.executorSensorHint)) {
         IAM_LOGE("failed to read executorSensorHint");
         return READ_PARCEL_ERROR;
     }
-    if (!data.ReadUint32(executorMatcher)) {
+    if (!data.ReadUint32(executorInfo.executorMatcher)) {
         IAM_LOGE("failed to read executorMatcher");
         return READ_PARCEL_ERROR;
     }
@@ -105,7 +116,7 @@ int32_t CoAuthStub::ReadExecutorRegisterInfo(ExecutorRegisterInfo &executorInfo,
         IAM_LOGE("failed to read esl");
         return READ_PARCEL_ERROR;
     }
-    if (!data.ReadUint32(maxTemplateAcl)) {
+    if (!data.ReadUint32(executorInfo.maxTemplateAcl)) {
         IAM_LOGE("failed to read esl");
         return READ_PARCEL_ERROR;
     }
@@ -113,12 +124,17 @@ int32_t CoAuthStub::ReadExecutorRegisterInfo(ExecutorRegisterInfo &executorInfo,
         IAM_LOGE("failed to read publicKey");
         return READ_PARCEL_ERROR;
     }
+    if (!data.ReadString(executorInfo.deviceUdid)) {
+        IAM_LOGE("failed to read publicKey");
+        return READ_PARCEL_ERROR;
+    }
+    if (!data.ReadUInt8Vector(&executorInfo.signedRemoteExecutorInfo)) {
+        IAM_LOGE("failed to read publicKey");
+        return READ_PARCEL_ERROR;
+    }
 
     executorInfo.authType = static_cast<AuthType>(authType);
     executorInfo.executorRole = static_cast<ExecutorRole>(executorRole);
-    executorInfo.executorSensorHint = executorSensorHint;
-    executorInfo.executorMatcher = executorMatcher;
-    executorInfo.maxTemplateAcl = maxTemplateAcl;
     executorInfo.esl = static_cast<ExecutorSecureLevel>(esl);
     return SUCCESS;
 }

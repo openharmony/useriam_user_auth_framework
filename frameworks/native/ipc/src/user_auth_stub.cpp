@@ -78,6 +78,8 @@ int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Messag
             return UnRegistUserAuthSuccessEventListenerStub(data, reply);
         case UserAuthInterfaceCode::USER_AUTH_SET_CLOBAL_CONFIG_PARAM:
             return SetGlobalConfigParamStub(data, reply);
+        case UserAuthInterfaceCode::USER_AUTH_PREPARE_REMOTE_AUTH:
+            return PrepareRemoteAuthStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -207,21 +209,15 @@ int32_t UserAuthStub::AuthStub(MessageParcel &data, MessageParcel &reply)
     IAM_LOGI("enter");
     ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
-    std::vector<uint8_t> challenge;
-    int32_t authType;
-    uint32_t authTrustLevel;
     int32_t apiVersion;
+    if (!data.ReadInt32(apiVersion)) {
+        IAM_LOGE("failed to read apiVersion");
+        return READ_PARCEL_ERROR;
+    }
 
-    if (!data.ReadUInt8Vector(&challenge)) {
-        IAM_LOGE("failed to read challenge");
-        return READ_PARCEL_ERROR;
-    }
-    if (!data.ReadInt32(authType)) {
-        IAM_LOGE("failed to read authType");
-        return READ_PARCEL_ERROR;
-    }
-    if (!data.ReadUint32(authTrustLevel)) {
-        IAM_LOGE("failed to read authTrustLevel");
+    AuthParamInner authParam;
+    if (!ReadAuthParam(data, authParam)) {
+        IAM_LOGE("failed to read auth param");
         return READ_PARCEL_ERROR;
     }
 
@@ -235,13 +231,9 @@ int32_t UserAuthStub::AuthStub(MessageParcel &data, MessageParcel &reply)
         IAM_LOGE("UserAuthCallbackInterface is nullptr");
         return GENERAL_ERROR;
     }
-    if (!data.ReadInt32(apiVersion)) {
-        IAM_LOGE("failed to read apiVersion");
-        return READ_PARCEL_ERROR;
-    }
 
-    uint64_t contextId = Auth(apiVersion, challenge, static_cast<AuthType>(authType),
-        static_cast<AuthTrustLevel>(authTrustLevel), callback);
+    uint64_t contextId = Auth(apiVersion, authParam.challenge, authParam.authType, authParam.authTrustLevel,
+        callback);
     if (!reply.WriteUint64(contextId)) {
         IAM_LOGE("failed to write AuthUser result");
         return WRITE_PARCEL_ERROR;
@@ -254,7 +246,7 @@ int32_t UserAuthStub::AuthWidgetStub(MessageParcel &data, MessageParcel &reply)
     IAM_LOGI("enter");
     ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
-    AuthParam authParam;
+    AuthParamInner authParam;
     WidgetParam widgetParam;
     if (!ReadWidgetParam(data, authParam, widgetParam)) {
         IAM_LOGE("failed to read widget param");
@@ -286,7 +278,7 @@ int32_t UserAuthStub::AuthWidgetStub(MessageParcel &data, MessageParcel &reply)
     return ResultCode::SUCCESS;
 }
 
-bool UserAuthStub::ReadWidgetParam(MessageParcel &data, AuthParam &authParam, WidgetParam &widgetParam)
+bool UserAuthStub::ReadWidgetParam(MessageParcel &data, AuthParamInner &authParam, WidgetParam &widgetParam)
 {
     if (!data.ReadUInt8Vector(&authParam.challenge)) {
         IAM_LOGE("failed to read challenge");
@@ -298,7 +290,7 @@ bool UserAuthStub::ReadWidgetParam(MessageParcel &data, AuthParam &authParam, Wi
         return false;
     }
     for (auto at : atList) {
-        authParam.authType.push_back(static_cast<AuthType>(at));
+        authParam.authTypes.push_back(static_cast<AuthType>(at));
     }
 
     uint32_t authTrustLevel;
@@ -342,25 +334,15 @@ int32_t UserAuthStub::AuthUserStub(MessageParcel &data, MessageParcel &reply)
     IAM_LOGI("enter");
     ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
-    int32_t userId;
-    std::vector<uint8_t> challenge;
-    int32_t authType;
-    uint32_t authTrustLevel;
+    AuthParamInner authParam;
+    if (!ReadAuthParam(data, authParam)) {
+        IAM_LOGE("failed to read auth param");
+        return READ_PARCEL_ERROR;
+    }
 
-    if (!data.ReadInt32(userId)) {
-        IAM_LOGE("failed to read userId");
-        return READ_PARCEL_ERROR;
-    }
-    if (!data.ReadUInt8Vector(&challenge)) {
-        IAM_LOGE("failed to read challenge");
-        return READ_PARCEL_ERROR;
-    }
-    if (!data.ReadInt32(authType)) {
-        IAM_LOGE("failed to read authType");
-        return READ_PARCEL_ERROR;
-    }
-    if (!data.ReadUint32(authTrustLevel)) {
-        IAM_LOGE("failed to read authTrustLevel");
+    std::optional<RemoteAuthParam> remoteAuthParam;
+    if (!ReadRemoteAuthParam(data, remoteAuthParam)) {
+        IAM_LOGE("failed to read auth param");
         return READ_PARCEL_ERROR;
     }
 
@@ -375,8 +357,7 @@ int32_t UserAuthStub::AuthUserStub(MessageParcel &data, MessageParcel &reply)
         return GENERAL_ERROR;
     }
 
-    uint64_t contextId = AuthUser(userId, challenge, static_cast<AuthType>(authType),
-        static_cast<AuthTrustLevel>(authTrustLevel), callback);
+    uint64_t contextId = AuthUser(authParam, remoteAuthParam, callback);
     if (!reply.WriteUint64(contextId)) {
         IAM_LOGE("failed to write AuthUser result");
         return WRITE_PARCEL_ERROR;
@@ -630,6 +611,149 @@ int32_t UserAuthStub::SetGlobalConfigParamStub(MessageParcel &data, MessageParce
         return WRITE_PARCEL_ERROR;
     }
     return SUCCESS;
+}
+
+int32_t UserAuthStub::PrepareRemoteAuthStub(MessageParcel &data, MessageParcel &reply)
+{
+    IAM_LOGI("enter");
+    ON_SCOPE_EXIT(IAM_LOGI("leave"));
+
+    std::string networkId = data.ReadString();
+    sptr<IRemoteObject> obj = data.ReadRemoteObject();
+    if (obj == nullptr) {
+        IAM_LOGE("failed to read remote object");
+        return READ_PARCEL_ERROR;
+    }
+    sptr<UserAuthCallbackInterface> callback = iface_cast<UserAuthCallbackProxy>(obj);
+    if (callback == nullptr) {
+        IAM_LOGE("UserAuthCallbackInterface is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    int32_t result = PrepareRemoteAuth(networkId, callback);
+    if (!reply.WriteInt32(result)) {
+        IAM_LOGE("failed to write PrepareRemoteAuth result");
+        return WRITE_PARCEL_ERROR;
+    }
+
+    return SUCCESS;
+}
+
+bool UserAuthStub::ReadAuthParam(MessageParcel &data, AuthParamInner &authParam)
+{
+    if (!data.ReadInt32(authParam.userId)) {
+        IAM_LOGE("failed to read userId");
+        return false;
+    }
+    if (!data.ReadUInt8Vector(&authParam.challenge)) {
+        IAM_LOGE("failed to read challenge");
+        return false;
+    }
+    int32_t authTypeInt;
+    if (!data.ReadInt32(authTypeInt)) {
+        IAM_LOGE("failed to read authType");
+        return false;
+    }
+    authParam.authType = static_cast<AuthType>(authTypeInt);
+
+    std::vector<int32_t> authTypeInts;
+    if (!data.ReadInt32Vector(&authTypeInts)) {
+        IAM_LOGE("failed to read authTypeInts");
+        return false;
+    }
+
+    for (auto val : authTypeInts) {
+        authParam.authTypes.push_back(static_cast<AuthType>(val));
+    }
+
+    uint32_t authTrustLevelUint;
+    if (!data.ReadUint32(authTrustLevelUint)) {
+        IAM_LOGE("failed to read authTrustLevel");
+        return false;
+    }
+    authParam.authTrustLevel = static_cast<AuthTrustLevel>(authTrustLevelUint);
+
+    uint32_t authIntent;
+    if (!data.ReadUint32(authIntent)) {
+        IAM_LOGE("failed to write authIntent");
+        return false;
+    }
+    authParam.authIntent = static_cast<AuthIntent>(authIntent);
+
+    return true;
+}
+
+bool UserAuthStub::ReadRemoteAuthParam(MessageParcel &data, std::optional<RemoteAuthParam> &remoteAuthParam)
+{
+    bool hasRemoteAuthParam;
+    if (!data.ReadBool(hasRemoteAuthParam)) {
+        IAM_LOGE("failed to read hasRemoteAuthParam");
+        return false;
+    }
+
+    if (!hasRemoteAuthParam) {
+        remoteAuthParam = std::nullopt;
+        return true;
+    }
+    remoteAuthParam = RemoteAuthParam{};
+
+    if (!ReadOptionalString(data, remoteAuthParam->verifierNetworkId)) {
+        IAM_LOGE("failed to read verifierNetworkId");
+        return false;
+    }
+
+    if (!ReadOptionalString(data, remoteAuthParam->collectorNetworkId)) {
+        IAM_LOGE("failed to read collectorNetworkId");
+        return false;
+    }
+
+    if (!ReadOptionalUint32(data, remoteAuthParam->collectorTokenId)) {
+        IAM_LOGE("failed to read collectorTokenId");
+        return false;
+    }
+
+    return true;
+}
+
+bool UserAuthStub::ReadOptionalString(MessageParcel &data, std::optional<std::string> &str)
+{
+    bool hasStr;
+    if (!data.ReadBool(hasStr)) {
+        IAM_LOGE("failed to read hasStr");
+        return false;
+    }
+
+    if (hasStr) {
+        std::string readStr;
+        if (!data.ReadString(readStr)) {
+            IAM_LOGE("failed to read value");
+            return false;
+        }
+        str = readStr;
+    } else {
+        str = std::nullopt;
+    }
+    return true;
+}
+bool UserAuthStub::ReadOptionalUint32(MessageParcel &data, std::optional<uint32_t> &val)
+{
+    bool hasVal;
+    if (!data.ReadBool(hasVal)) {
+        IAM_LOGE("failed to read hasVal");
+        return false;
+    }
+
+    if (hasVal) {
+        uint32_t readValue;
+        if (!data.ReadUint32(readValue)) {
+            IAM_LOGE("failed to read data");
+            return false;
+        }
+        val = readValue;
+    } else {
+        val = std::nullopt;
+    }
+    return true;
 }
 } // namespace UserAuth
 } // namespace UserIam

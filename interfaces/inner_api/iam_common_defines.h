@@ -200,6 +200,18 @@ enum ResultCode : int32_t {
     /** The result is fail, because something wrong from vendor. */
     VENDOR_ERROR_CODE_BEGIN = 10000,
 };
+
+/**
+ * @brief The auth intent.
+ */
+enum AuthIntent : int {
+    /**< The auth intent is default. */
+    DEFAULT = 0,
+    /**< The auth intent is unlock. */
+    UNLOCK = 1,
+    /**< The auth intent is init. */
+    INIT = 2,
+};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
