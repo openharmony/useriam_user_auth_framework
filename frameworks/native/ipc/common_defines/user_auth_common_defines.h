@@ -31,6 +31,7 @@
 #include <vector>
 
 #include "iam_common_defines.h"
+#include "user_auth_client_defines.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -89,15 +90,21 @@ struct ReuseUnlockResult {
 /**
  * @brief Auth parameter.
  */
-struct AuthParam {
+struct AuthParamInner {
+    /** user id */
+    int32_t userId;
     /** challenge value */
     std::vector<uint8_t> challenge;
     /** Credential type for authentication. */
-    std::vector<AuthType> authType;
+    AuthType authType;
+    /** Credential type for authentication. */
+    std::vector<AuthType> authTypes;
     /** Trust level of authentication result. */
     AuthTrustLevel authTrustLevel;
     /** Reuse unlock authentication result. */
     ReuseUnlockResult reuseUnlockResult;
+    /** Auth intent. */
+    AuthIntent authIntent;
 };
 
 /**

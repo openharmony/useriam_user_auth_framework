@@ -41,12 +41,17 @@ private:
     int32_t CancelAuthOrIdentifyStub(MessageParcel &data, MessageParcel &reply);
     int32_t GetVersionStub(MessageParcel &data, MessageParcel &reply);
     int32_t NoticeStub(MessageParcel &data, MessageParcel &reply);
-    bool ReadWidgetParam(MessageParcel &data, AuthParam &authParam, WidgetParam &widgetParam);
+    bool ReadWidgetParam(MessageParcel &data, AuthParamInner &authParam, WidgetParam &widgetParam);
     int32_t RegisterWidgetCallbackStub(MessageParcel &data, MessageParcel &reply);
     int32_t GetEnrolledStateStub(MessageParcel &data, MessageParcel &reply);
     int32_t RegistUserAuthSuccessEventListenerStub(MessageParcel &data, MessageParcel &reply);
     int32_t UnRegistUserAuthSuccessEventListenerStub(MessageParcel &data, MessageParcel &reply);
     int32_t SetGlobalConfigParamStub(MessageParcel &data, MessageParcel &reply);
+    int32_t PrepareRemoteAuthStub(MessageParcel &data, MessageParcel &reply);
+    bool ReadAuthParam(MessageParcel &data, AuthParamInner &authParam);
+    bool ReadRemoteAuthParam(MessageParcel &data, std::optional<RemoteAuthParam> &remoteAuthParam);
+    bool ReadOptionalString(MessageParcel &data, std::optional<std::string> &str);
+    bool ReadOptionalUint32(MessageParcel &data, std::optional<uint32_t> &val);
 };
 } // namespace UserAuth
 } // namespace UserIam

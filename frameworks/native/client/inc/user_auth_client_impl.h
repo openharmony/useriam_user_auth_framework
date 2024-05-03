@@ -17,6 +17,7 @@
 #define USER_AUTH_CLIENT_IMPL_H
 
 #include <mutex>
+#include <optional>
 
 #include "nocopyable.h"
 
@@ -36,8 +37,8 @@ public:
         const std::shared_ptr<GetPropCallback> &callback) override;
     void SetProperty(int32_t userId, const SetPropertyRequest &request,
         const std::shared_ptr<SetPropCallback> &callback) override;
-    uint64_t BeginAuthentication(int32_t userId, const std::vector<uint8_t> &challenge, AuthType authType,
-        AuthTrustLevel atl, const std::shared_ptr<AuthenticationCallback> &callback) override;
+    uint64_t BeginAuthentication(const AuthParam &authParam,
+        const std::shared_ptr<AuthenticationCallback> &callback) override;
     uint64_t BeginNorthAuthentication(int32_t apiVersion, const std::vector<uint8_t> &challenge, AuthType authType,
         AuthTrustLevel atl, const std::shared_ptr<AuthenticationCallback> &callback);
     int32_t CancelAuthentication(uint64_t contextId) override;
@@ -45,7 +46,7 @@ public:
         const std::shared_ptr<IdentificationCallback> &callback) override;
     int32_t CancelIdentification(uint64_t contextId) override;
     int32_t GetVersion(int32_t &version);
-    uint64_t BeginWidgetAuth(int32_t apiVersion, const AuthParam &authParam,
+    uint64_t BeginWidgetAuth(int32_t apiVersion, const AuthParamInner &authParam,
         const WidgetParam &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback);
     int32_t SetWidgetCallback(int32_t version, const std::shared_ptr<IUserAuthWidgetCallback> &callback);
     int32_t Notice(NoticeType noticeType, const std::string &eventData);
@@ -55,6 +56,8 @@ public:
     int32_t UnRegistUserAuthSuccessEventListener(
         const sptr<AuthEventListenerInterface> &listener) override;
     int32_t SetGlobalConfigParam(const GlobalConfigParam &param) override;
+    int32_t PrepareRemoteAuth(const std::string &networkId,
+        const std::shared_ptr<PrepareRemoteAuthCallback> &callback) override;
 
 private:
     ResultCode SetPropertyInner(int32_t userId, const SetPropertyRequest &request,

@@ -52,6 +52,12 @@ std::shared_ptr<Builder> ScheduleNodeBuilder::SetAccessTokenId(uint32_t tokenId)
     return shared_from_this();
 }
 
+std::shared_ptr<Builder> ScheduleNodeBuilder::SetCollectorTokenId(uint32_t collectorTokenId)
+{
+    info_.collectorTokenId = collectorTokenId;
+    return shared_from_this();
+}
+
 std::shared_ptr<Builder> ScheduleNodeBuilder::SetPinSubType(PinSubType pinSubType)
 {
     info_.pinSubType = pinSubType;
@@ -91,12 +97,6 @@ std::shared_ptr<Builder> ScheduleNodeBuilder::SetScheduleCallback(const std::sha
 std::shared_ptr<Builder> ScheduleNodeBuilder::SetExpiredTime(uint32_t ms)
 {
     info_.expiredTime = ms;
-    return shared_from_this();
-}
-
-std::shared_ptr<Builder> ScheduleNodeBuilder::SetParametersAttributes(const std::shared_ptr<Attributes> &parameters)
-{
-    info_.parameters = parameters;
     return shared_from_this();
 }
 

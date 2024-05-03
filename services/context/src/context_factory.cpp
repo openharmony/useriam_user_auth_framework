@@ -23,6 +23,7 @@
 #include "identify_context.h"
 #include "simple_auth_context.h"
 #include "widget_context.h"
+#include "remote_msg_util.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -79,6 +80,38 @@ std::shared_ptr<Context> ContextFactory::CreateWidgetContext(const AuthWidgetCon
     IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, nullptr);
     uint64_t newContextId = ContextPool::GetNewContextId();
     return Common::MakeShared<WidgetContext>(newContextId, para, callback);
+}
+
+std::shared_ptr<Context> ContextFactory::CreateRemoteAuthContext(const Authentication::AuthenticationPara &para,
+    RemoteAuthContextParam &remoteAuthContextParam, const std::shared_ptr<ContextCallback> &callback)
+{
+    IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, nullptr);
+
+    uint64_t newContextId = ContextPool::GetNewContextId();
+    auto auth = Common::MakeShared<AuthenticationImpl>(newContextId, para);
+    IF_FALSE_LOGE_AND_RETURN_VAL(auth != nullptr, nullptr);
+    auth->SetChallenge(para.challenge);
+    auth->SetAccessTokenId(para.tokenId);
+
+    if (remoteAuthContextParam.connectionName == "") {
+        bool getConnectionNameRet = RemoteMsgUtil::GetConnectionName(newContextId,
+            remoteAuthContextParam.connectionName);
+        IF_FALSE_LOGE_AND_RETURN_VAL(getConnectionNameRet, nullptr);
+    }
+
+    return Common::MakeShared<RemoteAuthContext>(newContextId, auth, remoteAuthContextParam, callback);
+}
+
+std::shared_ptr<Context> ContextFactory::CreateRemoteAuthInvokerContext(AuthParamInner authParam,
+    RemoteAuthInvokerContextParam param, std::shared_ptr<ContextCallback> callback)
+{
+    IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, nullptr);
+
+    uint64_t newContextId = ContextPool::GetNewContextId();
+    bool getConnectionNameRet = RemoteMsgUtil::GetConnectionName(newContextId, param.connectionName);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getConnectionNameRet, nullptr);
+
+    return Common::MakeShared<RemoteAuthInvokerContext>(newContextId, authParam, param, callback);
 }
 } // namespace UserAuth
 } // namespace UserIam

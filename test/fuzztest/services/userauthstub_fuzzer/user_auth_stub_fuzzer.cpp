@@ -44,7 +44,7 @@ bool UserAuthStubFuzzTest(const uint8_t *rawData, size_t size)
         return false;
     }
 
-    UserAuthService userAuthService(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true);
+    auto service = UserAuthService::GetInstance();
     for (uint32_t code = USER_AUTH_CODE_MIN; code < USER_AUTH_CODE_MAX; code++) {
         MessageParcel data;
         MessageParcel reply;
@@ -54,12 +54,12 @@ bool UserAuthStubFuzzTest(const uint8_t *rawData, size_t size)
         data.WriteInterfaceToken(USER_AUTH_INTERFACE_TOKEN);
         data.WriteBuffer(rawData, size);
         data.RewindRead(0);
-        (void)userAuthService.OnRemoteRequest(code, data, reply, optionSync);
+        (void)service->OnRemoteRequest(code, data, reply, optionSync);
         // Async
         data.WriteInterfaceToken(USER_AUTH_INTERFACE_TOKEN);
         data.WriteBuffer(rawData, size);
         data.RewindRead(0);
-        (void)userAuthService.OnRemoteRequest(code, data, reply, optionAsync);
+        (void)service->OnRemoteRequest(code, data, reply, optionAsync);
     }
     return true;
 }

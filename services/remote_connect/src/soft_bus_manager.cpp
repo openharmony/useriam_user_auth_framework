@@ -434,7 +434,7 @@ ResultCode SoftBusManager::OpenConnection(const std::string &connectionName, con
     IAM_LOGI("start.");
     int32_t ret = SetFirstCallerTokenID(tokenId);
     if (ret != SUCCESS) {
-        IAM_LOGI("SetFirstCallerTokenID fail");
+        IAM_LOGE("SetFirstCallerTokenID fail");
     }
     int32_t socketId = ClientSocketInit(connectionName, networkId);
     if (socketId <= INVALID_SOCKET_ID) {

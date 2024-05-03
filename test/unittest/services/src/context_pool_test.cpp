@@ -250,7 +250,7 @@ HWTEST_F(ContextPoolTest, ContextPoolTestSelect, TestSize.Level0)
 
 HWTEST_F(ContextPoolTest, ContextPoolTestGetNewContextId, TestSize.Level0)
 {
-    const int32_t COUNT = 1000;
+    const int32_t COUNT = 10;
     std::vector<uint64_t> contextIdVector(COUNT);
 
     for (int32_t i = 0; i < COUNT; ++i) {

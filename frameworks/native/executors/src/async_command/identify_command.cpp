@@ -46,7 +46,7 @@ ResultCode IdentifyCommand::SendRequest()
     IF_FALSE_LOGE_AND_RETURN_VAL(getTokenIdRet == true, ResultCode::GENERAL_ERROR);
 
     std::vector<uint8_t> extraInfo;
-    bool getExtraInfoRet = attributes_->GetUint8ArrayValue(Attributes::ATTR_VERIFIER_MESSAGE, extraInfo);
+    bool getExtraInfoRet = attributes_->GetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, extraInfo);
     IF_FALSE_LOGE_AND_RETURN_VAL(getExtraInfoRet == true, ResultCode::GENERAL_ERROR);
 
     IamHitraceHelper traceHelper("hdi Identify");

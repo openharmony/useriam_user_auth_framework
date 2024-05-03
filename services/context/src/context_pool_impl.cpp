@@ -24,12 +24,16 @@
 
 #include "iam_logger.h"
 #include "iam_para2str.h"
+#include "iam_check.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+namespace {
+const uint32_t MAX_CONTEXT_NUM = 100;
+}
 class ContextPoolImpl final : public ContextPool, public Singleton<ContextPoolImpl> {
 public:
     bool Insert(const std::shared_ptr<Context> &context) override;
@@ -37,6 +41,8 @@ public:
     void CancelAll() const override;
     std::weak_ptr<Context> Select(uint64_t contextId) const override;
     std::vector<std::weak_ptr<Context>> Select(ContextType contextType) const override;
+    void InsertRemoteScheduleNode(std::shared_ptr<ScheduleNode> scheduleNode) override;
+    void RemoveRemoteScheduleNode(std::shared_ptr<ScheduleNode> scheduleNode) override;
     std::shared_ptr<ScheduleNode> SelectScheduleNodeByScheduleId(uint64_t scheduleId) override;
     bool RegisterContextPoolListener(const std::shared_ptr<ContextPoolListener> &listener) override;
     bool DeregisterContextPoolListener(const std::shared_ptr<ContextPoolListener> &listener) override;
@@ -45,6 +51,7 @@ private:
     mutable std::recursive_mutex poolMutex_;
     std::unordered_map<uint64_t, std::shared_ptr<Context>> contextMap_;
     std::set<std::shared_ptr<ContextPoolListener>> listenerSet_;
+    std::map<uint64_t, std::shared_ptr<ScheduleNode>> remoteScheduleNodeMap_;
 };
 
 bool ContextPoolImpl::Insert(const std::shared_ptr<Context> &context)
@@ -54,6 +61,10 @@ bool ContextPoolImpl::Insert(const std::shared_ptr<Context> &context)
         return false;
     }
     std::lock_guard<std::recursive_mutex> lock(poolMutex_);
+    if (contextMap_.size() >= MAX_CONTEXT_NUM) {
+        IAM_LOGE("context pool is full");
+        return false;
+    }
     uint64_t contextId = context->GetContextId();
     auto result = contextMap_.try_emplace(contextId, context);
     if (!result.second) {
@@ -126,6 +137,30 @@ std::vector<std::weak_ptr<Context>> ContextPoolImpl::Select(ContextType contextT
     return result;
 }
 
+void ContextPoolImpl::InsertRemoteScheduleNode(std::shared_ptr<ScheduleNode> scheduleNode)
+{
+    std::lock_guard<std::recursive_mutex> lock(poolMutex_);
+    IF_FALSE_LOGE_AND_RETURN(scheduleNode != nullptr);
+
+    if (remoteScheduleNodeMap_.find(scheduleNode->GetScheduleId()) != remoteScheduleNodeMap_.end()) {
+        IAM_LOGE("scheduleNode already exists");
+        return;
+    }
+
+    remoteScheduleNodeMap_[scheduleNode->GetScheduleId()] = scheduleNode;
+}
+
+void ContextPoolImpl::RemoveRemoteScheduleNode(std::shared_ptr<ScheduleNode> scheduleNode)
+{
+    std::lock_guard<std::recursive_mutex> lock(poolMutex_);
+    IF_FALSE_LOGE_AND_RETURN(scheduleNode != nullptr);
+
+    auto it = remoteScheduleNodeMap_.find(scheduleNode->GetScheduleId());
+    if (it != remoteScheduleNodeMap_.end()) {
+        remoteScheduleNodeMap_.erase(it);
+    }
+}
+
 std::shared_ptr<ScheduleNode> ContextPoolImpl::SelectScheduleNodeByScheduleId(uint64_t scheduleId)
 {
     std::lock_guard<std::recursive_mutex> lock(poolMutex_);
@@ -138,6 +173,12 @@ std::shared_ptr<ScheduleNode> ContextPoolImpl::SelectScheduleNodeByScheduleId(ui
             return node;
         }
     }
+
+    auto it = remoteScheduleNodeMap_.find(scheduleId);
+    if (it != remoteScheduleNodeMap_.end()) {
+        return it->second;
+    }
+    IAM_LOGE("not found");
     return nullptr;
 }
 

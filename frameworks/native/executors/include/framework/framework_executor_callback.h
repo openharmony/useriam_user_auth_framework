@@ -25,6 +25,7 @@
 #include "co_auth_client_callback.h"
 #include "executor.h"
 #include "iam_common_defines.h"
+#include "executor_messenger_interface.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -34,8 +35,8 @@ public:
     explicit FrameworkExecutorCallback(std::weak_ptr<Executor> executor);
     ~FrameworkExecutorCallback() override = default;
 
-    void OnMessengerReady(const std::shared_ptr<ExecutorMessenger> &messenger, const std::vector<uint8_t> &publicKey,
-        const std::vector<uint64_t> &templateIds) override;
+    void OnMessengerReady(uint64_t executorIndex, const std::shared_ptr<ExecutorMessenger> &messenger,
+        const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList) override;
 
     int32_t OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
         const Attributes &commandAttrs) override;

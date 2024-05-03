@@ -28,10 +28,13 @@ class CoAuthService : public SystemAbility, public CoAuthStub {
 public:
     static constexpr uint64_t DEFER_TIME = 2000;
     DECLARE_SYSTEM_ABILITY(CoAuthService);
-    explicit CoAuthService(int32_t systemAbilityId, bool runOnCreate = false);
+    static std::shared_ptr<CoAuthService> GetInstance();
+
+    CoAuthService();
     ~CoAuthService() override = default;
     int Dump(int fd, const std::vector<std::u16string> &args) override;
     uint64_t ExecutorRegister(const ExecutorRegisterInfo &info, sptr<ExecutorCallbackInterface> &callback) override;
+    void ExecutorUnregister(uint64_t executorIndex) override;
 
 protected:
     void OnStart() override;
@@ -39,6 +42,9 @@ protected:
 
 private:
     static void Init();
+
+    static std::mutex mutex_;
+    static std::shared_ptr<CoAuthService> instance_;
 };
 } // namespace UserAuth
 } // namespace UserIam

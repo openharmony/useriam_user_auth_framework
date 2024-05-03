@@ -29,6 +29,7 @@ public:
     explicit CoAuthProxy(const sptr<IRemoteObject> &impl);
     ~CoAuthProxy() override = default;
     uint64_t ExecutorRegister(const ExecutorRegisterInfo &info, sptr<ExecutorCallbackInterface> &callback) override;
+    void ExecutorUnregister(uint64_t executorIndex) override;
 
 private:
     static inline BrokerDelegator<CoAuthProxy> delegator_;

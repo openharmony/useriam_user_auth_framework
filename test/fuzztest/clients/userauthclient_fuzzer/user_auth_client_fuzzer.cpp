@@ -140,13 +140,13 @@ void FuzzClientSetProperty(Parcel &parcel)
 void FuzzClientBeginAuthentication001(Parcel &parcel)
 {
     IAM_LOGI("start");
-    int32_t userId = parcel.ReadInt32();
-    std::vector<uint8_t> challenge;
-    Common::FillFuzzUint8Vector(parcel, challenge);
-    auto authType = static_cast<AuthType>(parcel.ReadInt32());
-    auto atl = static_cast<AuthTrustLevel>(parcel.ReadUint32());
+    AuthParam authParam = {};
+    authParam.userId = parcel.ReadInt32();
+    Common::FillFuzzUint8Vector(parcel, authParam.challenge);
+    authParam.authType = static_cast<AuthType>(parcel.ReadInt32());
+    authParam.authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadUint32());
     auto callback = Common::MakeShared<DummyAuthenticationCallback>();
-    UserAuthClient::GetInstance().BeginAuthentication(userId, challenge, authType, atl, callback);
+    UserAuthClient::GetInstance().BeginAuthentication(authParam, callback);
     IAM_LOGI("end");
 }
 
@@ -203,13 +203,13 @@ void FuzzBeginWidgetAuth(Parcel &parcel)
 {
     IAM_LOGI("start");
     int32_t apiVersion = parcel.ReadInt32();
-    AuthParam authParam;
+    AuthParamInner authParam;
     WidgetParam widgetParam;
     Common::FillFuzzUint8Vector(parcel, authParam.challenge);
     std::vector<int32_t> atList;
     parcel.ReadInt32Vector(&atList);
     for (auto at : atList) {
-        authParam.authType.push_back(static_cast<AuthType>(at));
+        authParam.authTypes.push_back(static_cast<AuthType>(at));
     }
     authParam.authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32());
     widgetParam.title = parcel.ReadString();

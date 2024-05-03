@@ -383,7 +383,6 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessButTimeoutAndEndFail,
         builder->SetScheduleCallback(callback);
         auto parameters = Common::MakeShared<Attributes>();
         EXPECT_NE(parameters, nullptr);
-        builder->SetParametersAttributes(parameters);
         builder->SetTemplateIdList(TEMPLATE_LIST);
 
         auto scheduleNode = builder->Build();
@@ -433,8 +432,6 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessGetResult, TestSize.L
         builder->SetScheduleId(SCHEDULE_ID);
         builder->SetScheduleMode(IDENTIFY);
         builder->SetScheduleCallback(callback);
-        std::shared_ptr<Attributes> parameters = nullptr;
-        builder->SetParametersAttributes(parameters);
 
         auto scheduleNode = builder->Build();
         ASSERT_NE(scheduleNode, nullptr);

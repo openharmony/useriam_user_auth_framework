@@ -30,6 +30,7 @@ ohos_fuzztest("UserAuthStubFuzzTest") {
     "../../../../services/core/src",
     "../../../../services/context/inc",
     "../../../../services/ipc/inc",
+    "../../../../services/remote_connect/inc",
     "../../../../frameworks/native/ipc/inc",
     "../../../../frameworks/native/ipc/common_defines",
     "../../../../common/utils",
@@ -45,6 +46,10 @@ ohos_fuzztest("UserAuthStubFuzzTest") {
   ]
 
   external_deps = [
+    "ability_runtime:ability_context_native",
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:app_manager",
+    "ability_runtime:extension_manager",
     "c_utils:utils",
     "drivers_interface_user_auth:libuser_auth_proxy_2.0",
     "eventhandler:libeventhandler",

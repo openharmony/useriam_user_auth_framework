@@ -27,6 +27,7 @@
 #include "context_pool.h"
 #include "resource_node_pool.h"
 #include "user_idm_database.h"
+#include "attributes.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -34,7 +35,9 @@ namespace UserAuth {
 class UserAuthService : public SystemAbility, public UserAuthStub, public NoCopyable {
 public:
     DECLARE_SYSTEM_ABILITY(UserAuthService);
-    explicit UserAuthService(int32_t systemAbilityId, bool runOnCreate = false);
+    static std::shared_ptr<UserAuthService> GetInstance();
+
+    UserAuthService();
     ~UserAuthService() override = default;
     int32_t GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel) override;
     void GetProperty(int32_t userId, AuthType authType,
@@ -42,11 +45,11 @@ public:
         sptr<GetExecutorPropertyCallbackInterface> &callback) override;
     void SetProperty(int32_t userId, AuthType authType, const Attributes &attributes,
         sptr<SetExecutorPropertyCallbackInterface> &callback) override;
-    uint64_t AuthUser(int32_t userId, const std::vector<uint8_t> &challenge, AuthType authType,
-        AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) override;
+    uint64_t AuthUser(AuthParamInner &param, std::optional<RemoteAuthParam> &remoteAuthParam,
+        sptr<UserAuthCallbackInterface> &callback) override;
     uint64_t Auth(int32_t apiVersion, const std::vector<uint8_t> &challenge, AuthType authType,
         AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) override;
-    uint64_t AuthWidget(int32_t apiVersion, const AuthParam &authParam,
+    uint64_t AuthWidget(int32_t apiVersion, const AuthParamInner &authParam,
         const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback) override;
     uint64_t Identify(const std::vector<uint8_t> &challenge, AuthType authType,
         sptr<UserAuthCallbackInterface> &callback) override;
@@ -59,6 +62,9 @@ public:
         const sptr<AuthEventListenerInterface> &listener) override;
     int32_t UnRegistUserAuthSuccessEventListener(const sptr<AuthEventListenerInterface> &listener) override;
     int32_t SetGlobalConfigParam(const GlobalConfigParam &param) override;
+    int32_t PrepareRemoteAuth(const std::string &networkId, sptr<UserAuthCallbackInterface> &callback) override;
+    int32_t ProcStartRemoteAuthRequest(std::string connectionName, const std::shared_ptr<Attributes> &request,
+        std::shared_ptr<Attributes> &reply);
 
 protected:
     void OnStart() override;
@@ -69,16 +75,24 @@ private:
         const std::vector<uint8_t> &challenge, AuthType authType, AuthTrustLevel authTrustLevel,
         sptr<UserAuthCallbackInterface> &callback);
     std::shared_ptr<ContextCallback> GetAuthContextCallback(int32_t apiVersion,
-        const AuthParam &authParam, const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback);
+        const AuthParamInner &authParam, const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback);
     bool CheckAuthTrustLevel(AuthTrustLevel authTrustLevel);
     bool CheckSingeFaceOrFinger(const std::vector<AuthType> &authType);
     int32_t CheckAuthWidgetType(const std::vector<AuthType> &authType);
-    int32_t CheckAuthPermissionAndParam(int32_t userId, const AuthParam &authParam, const WidgetParam &widgetParam);
-    uint64_t StartWidgetContext(const std::shared_ptr<ContextCallback> &contextCallback, const AuthParam &authParam,
-        const WidgetParam &widgetParam, std::vector<AuthType> &validType,
+    int32_t CheckAuthPermissionAndParam(int32_t userId, const AuthParamInner &authParam,
+        const WidgetParam &widgetParam);
+    uint64_t StartWidgetContext(const std::shared_ptr<ContextCallback> &contextCallback,
+        const AuthParamInner &authParam, const WidgetParam &widgetParam, std::vector<AuthType> &validType,
         ContextFactory::AuthWidgetContextPara &para);
     uint64_t StartAuthContext(int32_t apiVersion, Authentication::AuthenticationPara para,
         const std::shared_ptr<ContextCallback> &contextCallback);
+    uint64_t AuthRemoteUser(AuthParamInner &authParam, Authentication::AuthenticationPara &para,
+        RemoteAuthParam &remoteAuthParam, const std::shared_ptr<ContextCallback> &contextCallback);
+    uint64_t StartRemoteAuthContext(Authentication::AuthenticationPara para,
+        RemoteAuthContextParam remoteAuthContextParam,
+        const std::shared_ptr<ContextCallback> &contextCallback);
+    uint64_t StartRemoteAuthInvokerContext(AuthParamInner authParam,
+        RemoteAuthInvokerContextParam &param, const std::shared_ptr<ContextCallback> &contextCallback);
     bool Insert2ContextPool(const std::shared_ptr<Context> &context);
     bool CheckCallerIsSystemApp();
     int32_t CheckAuthPermissionAndParam(int32_t authType, const int32_t &callerType, const std::string &callerName,
@@ -86,10 +100,14 @@ private:
     bool CheckAuthPermissionAndParam(AuthType authType, AuthTrustLevel authTrustLevel,
         const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo);
     bool CheckAuthTypeIsValid(std::vector<AuthType> authType);
-    int32_t CheckValidSolution(int32_t userId, const AuthParam &authParam, const WidgetParam &widgetParam,
+    int32_t CheckValidSolution(int32_t userId, const AuthParamInner &authParam, const WidgetParam &widgetParam,
         std::vector<AuthType> &validType);
     int32_t GetCallerNameAndUserId(ContextFactory::AuthWidgetContextPara &para,
         std::shared_ptr<ContextCallback> &contextCallback);
+    bool CompleteRemoteAuthParam(RemoteAuthParam &remoteAuthParam, const std::string &localNetworkId);
+
+    static std::mutex mutex_;
+    static std::shared_ptr<UserAuthService> instance_;
 };
 } // namespace UserAuth
 } // namespace UserIam

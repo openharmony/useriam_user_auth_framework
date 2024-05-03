@@ -45,6 +45,9 @@ ohos_source_set("userauth_service_context") {
     "src/context_pool_impl.cpp",
     "src/enroll_context.cpp",
     "src/identify_context.cpp",
+    "src/remote_auth_context.cpp",
+    "src/remote_auth_invoker_context.cpp",
+    "src/remote_iam_callback.cpp",
     "src/simple_auth_context.cpp",
     "src/trace.cpp",
     "src/ui_extension_ability_connection.cpp",
@@ -69,6 +72,7 @@ ohos_source_set("userauth_service_context") {
     "ability_runtime:app_manager",
     "ability_runtime:extension_manager",
     "c_utils:utils",
+    "drivers_interface_user_auth:libuser_auth_proxy_2.0",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "init:libbegetutil",
@@ -83,6 +87,7 @@ ohos_source_set("userauth_service_context") {
     "../../common:iam_log_config",
     "../../common:iam_utils_config",
     "../../frameworks/native/ipc:userauth_client_ipc_config",
+    "../remote_connect:userauth_service_remote_connect_config",
   ]
 
   subsystem_name = "useriam"

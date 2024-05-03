@@ -20,7 +20,6 @@
 #include "auth_common.h"
 #include "iam_check.h"
 #include "iam_logger.h"
-#include "iam_ptr.h"
 #include "iam_time.h"
 #include "nlohmann/json.hpp"
 #include "widget_callback_interface.h"

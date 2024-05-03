@@ -34,6 +34,7 @@ public:
     void SetChallenge(const std::vector<uint8_t> &challenge) override;
     void SetAccessTokenId(uint32_t tokenId) override;
     void SetEndAfterFirstFail(bool endAfterFirstFail) override;
+    void SetCollectorUdid(std::string collectorUdid) override;
 
     bool Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
         std::shared_ptr<ScheduleNodeCallback> callback) override;
@@ -60,6 +61,7 @@ private:
 
     int32_t latestError_ = ResultCode::GENERAL_ERROR;
     std::vector<Authentication::AuthExecutorMsg> authExecutorMsgs_ {};
+    std::string collectorUdid_ {};
 };
 } // namespace UserAuth
 } // namespace UserIam

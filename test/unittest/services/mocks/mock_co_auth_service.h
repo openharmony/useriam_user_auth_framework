@@ -27,6 +27,7 @@ class MockCoAuthService final : public CoAuthStub {
 public:
     MOCK_METHOD2(ExecutorRegister, uint64_t(const ExecutorRegisterInfo &info,
         sptr<ExecutorCallbackInterface> &callback));
+    MOCK_METHOD1(ExecutorUnregister, void(uint64_t executorIndex));
 };
 } // namespace UserAuth
 } // namespace UserIam
