@@ -98,6 +98,8 @@ void ServerSocket::OnQos(int32_t socketId, QoSEvent eventId, const QosTV *qos, u
 void ServerSocket::AddServerSocket(const int32_t socketId, const std::string &networkId)
 {
     IAM_LOGI("start.");
+    IF_FALSE_LOGE_AND_RETURN(socketId != INVALID_SOCKET_ID);
+
     std::lock_guard<std::recursive_mutex> lock(socketMutex_);
     auto iter = serverSocketBindMap_.find(socketId);
     if (iter == serverSocketBindMap_.end()) {
@@ -110,6 +112,8 @@ void ServerSocket::AddServerSocket(const int32_t socketId, const std::string &ne
 void ServerSocket::DeleteServerSocket(const int32_t socketId)
 {
     IAM_LOGI("start.");
+    IF_FALSE_LOGE_AND_RETURN(socketId != INVALID_SOCKET_ID);
+
     std::lock_guard<std::recursive_mutex> lock(socketMutex_);
     auto iter = serverSocketBindMap_.find(socketId);
     if (iter != serverSocketBindMap_.end()) {
@@ -120,6 +124,8 @@ void ServerSocket::DeleteServerSocket(const int32_t socketId)
 std::string ServerSocket::GetNetworkIdBySocketId(int32_t socketId)
 {
     IAM_LOGI("start.");
+    IF_FALSE_LOGE_AND_RETURN_VAL(socketId != INVALID_SOCKET_ID, "");
+
     std::lock_guard<std::recursive_mutex> lock(socketMutex_);
     std::string networkId;
     auto iter = serverSocketBindMap_.find(socketId);
@@ -132,6 +138,8 @@ std::string ServerSocket::GetNetworkIdBySocketId(int32_t socketId)
 void ServerSocket::AddClientConnection(const int32_t socketId, const std::string &connectionName)
 {
     IAM_LOGI("start.");
+    IF_FALSE_LOGE_AND_RETURN(socketId != INVALID_SOCKET_ID);
+
     std::lock_guard<std::recursive_mutex> lock(connectionMutex_);
     auto iter = clientConnectionMap_.find(socketId);
     if (iter == clientConnectionMap_.end()) {
@@ -142,6 +150,8 @@ void ServerSocket::AddClientConnection(const int32_t socketId, const std::string
 void ServerSocket::DeleteClientConnection(const int32_t socketId)
 {
     IAM_LOGI("start.");
+    IF_FALSE_LOGE_AND_RETURN(socketId != INVALID_SOCKET_ID);
+
     std::lock_guard<std::recursive_mutex> lock(connectionMutex_);
     auto iter = clientConnectionMap_.find(socketId);
     if (iter != clientConnectionMap_.end()) {
@@ -152,6 +162,8 @@ void ServerSocket::DeleteClientConnection(const int32_t socketId)
 std::string ServerSocket::GetClientConnectionName(const int32_t socketId)
 {
     IAM_LOGI("start.");
+    IF_FALSE_LOGE_AND_RETURN_VAL(socketId != INVALID_SOCKET_ID, "");
+
     std::lock_guard<std::recursive_mutex> lock(connectionMutex_);
     std::string ConnectionName;
     auto iter = clientConnectionMap_.find(socketId);
@@ -185,7 +197,6 @@ std::string ServerSocket::GetNetworkId()
 {
     return "";
 }
-
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
