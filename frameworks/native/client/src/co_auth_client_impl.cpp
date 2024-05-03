@@ -49,7 +49,7 @@ void CoAuthClientImpl::Register(const ExecutorInfo &info, const std::shared_ptr<
     regInfo.publicKey = info.publicKey;
     regInfo.deviceUdid = info.deviceUdid;
     regInfo.signedRemoteExecutorInfo = info.signedRemoteExecutorInfo;
-
+    regInfo.maxTemplateAcl = info.maxTemplateAcl;
     sptr<ExecutorCallbackInterface> wrapper(new (std::nothrow) ExecutorCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");

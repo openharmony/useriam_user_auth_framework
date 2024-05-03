@@ -54,9 +54,10 @@ public:
     MOCK_METHOD3(UpdateIdentificationResult,
         int32_t(uint64_t contextId, const std::vector<uint8_t> &scheduleResult, HdiIdentifyResultInfo &info));
     MOCK_METHOD1(CancelIdentification, int32_t(uint64_t contextId));
-    MOCK_METHOD3(GetAuthTrustLevel, int32_t(int32_t userId, int32_t authType, uint32_t &authTrustLevel));
-    MOCK_METHOD4(GetValidSolution, int32_t(int32_t userId, const std::vector<int32_t> &authTypes,
-        uint32_t authTrustLevel, std::vector<int32_t> &validTypes));
+    MOCK_METHOD4(GetAvailableStatus, int32_t(int32_t userId, int32_t authType, uint32_t authTrustLevel,
+        int32_t &checkRet));
+    MOCK_METHOD4(GetValidSolution, int32_t(int32_t userId, const std::vector<int32_t>& authTypes,
+        uint32_t authTrustLevel, std::vector<int32_t>& validTypes));
     MOCK_METHOD5(BeginIdentification,
         int32_t(uint64_t contextId, int32_t authType, const std::vector<uint8_t> &challenge, uint32_t executorId,
             HdiScheduleInfo &scheduleInfo));
