@@ -136,16 +136,16 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus001, TestSize.Lev
     AuthTrustLevel testAuthTrustLevel = ATL3;
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetAuthTrustLevel(_, _, _))
+    EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _))
         .Times(1)
         .WillOnce(
-            [](int32_t userId, int32_t authType, uint32_t &authTrustLevel) {
-                authTrustLevel = ATL1;
+            [](int32_t userId, int32_t authType, uint32_t authTrustLevel, int32_t &checkRet) {
+                checkRet = SUCCESS;
                 return HDF_SUCCESS;
             }
         );
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    EXPECT_NE(SUCCESS, service.GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel));
+    EXPECT_EQ(SUCCESS, service.GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel));
     IpcCommon::DeleteAllPermission();
 }
 
@@ -162,11 +162,11 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus002, TestSize.Lev
     testAuthTrustLevel = ATL2;
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetAuthTrustLevel(_, _, _)).Times(1);
-    ON_CALL(*mockHdi, GetAuthTrustLevel)
+    EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(1);
+    ON_CALL(*mockHdi, GetAvailableStatus)
         .WillByDefault(
-            [](int32_t userId, int32_t authType, uint32_t &authTrustLevel) {
-                authTrustLevel = static_cast<AuthTrustLevel>(0);
+            [](int32_t userId, int32_t authType, uint32_t authTrustLevel, int32_t &checkRet) {
+                checkRet = TRUST_LEVEL_NOT_SUPPORT;
                 return SUCCESS;
             }
         );
@@ -183,14 +183,14 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus003, TestSize.Lev
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetAuthTrustLevel(_, _, _)).WillRepeatedly([]() {
-        return NOT_ENROLLED;
+    EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).WillRepeatedly([]() {
+        return HDF_FAILURE;
     });
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    EXPECT_EQ(NOT_ENROLLED, service.GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel));
+    EXPECT_EQ(GENERAL_ERROR, service.GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel));
 
     testApiVersion = 9;
-    EXPECT_EQ(NOT_ENROLLED, service.GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel));
+    EXPECT_EQ(GENERAL_ERROR, service.GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel));
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1545,7 +1545,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_023, TestSize.Level0)
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetAuthTrustLevel(_, _, _)).Times(0);
+    EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
     EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _)).Times(0);
     EXPECT_CALL(*mockHdi, CheckReuseUnlockResult(_, _)).Times(1);
     ON_CALL(*mockHdi, CheckReuseUnlockResult)

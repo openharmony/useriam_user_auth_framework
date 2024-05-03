@@ -101,6 +101,8 @@ struct Property {
     std::string enrollmentProgress;
     /** Sensor info. */
     std::string sensorInfo;
+    /** Next fail lockout duration. */
+    int32_t nextFailLockoutDuration;
 };
 
 } // namespace UserAuth
