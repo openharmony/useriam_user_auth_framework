@@ -384,6 +384,12 @@ ResultCode FrameworkExecutorCallback::FillPropertyToAttribute(const std::vector<
                 IF_FALSE_LOGE_AND_RETURN_VAL(setSensorInfoRet == true, ResultCode::GENERAL_ERROR);
                 break;
             }
+            case Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION: {
+                bool setNextFailLockoutDurationRet = values->SetInt32Value(Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION,
+                    property.nextFailLockoutDuration);
+                IF_FALSE_LOGE_AND_RETURN_VAL(setNextFailLockoutDurationRet == true, ResultCode::GENERAL_ERROR);
+                break;
+            }
             default:
                 IAM_LOGE("key %{public}d is not recognized", key);
                 return ResultCode::GENERAL_ERROR;

@@ -162,6 +162,7 @@ std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &ch
     para.endAfterFirstFail = endAfterFirstFail;
     para.callerName = para_.callerName;
     para.sdkVersion = para_.sdkVersion;
+    para.authIntent = 0;
     auto context = ContextFactory::CreateSimpleAuthContext(para, widgetCallback);
     if (context == nullptr || !ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
