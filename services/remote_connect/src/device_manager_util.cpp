@@ -80,10 +80,8 @@ bool DeviceManagerUtil::GetNetworkIdByUdid(const std::string &udid, std::string 
 
     networkId = "";
     for (auto &device : deviceList) {
-        IAM_LOGI("deviceId:%{public}s, network:%{public}s", device.deviceId, device.networkId);
         std::string deviceUdid(device.deviceId);
         if (deviceUdid == udid) {
-            IAM_LOGI("target network:%{public}s", device.networkId);
             networkId = std::string(device.networkId);
             break;
         }
@@ -92,10 +90,8 @@ bool DeviceManagerUtil::GetNetworkIdByUdid(const std::string &udid, std::string 
         IAM_LOGE("networkId not found");
         return false;
     }
-    IAM_LOGI("GetNetworkIdByDeviceId networkId:%{public}s", networkId.c_str());
     return true;
 }
-
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

@@ -43,6 +43,8 @@ void BaseSocket::InsertMsgCallback(uint32_t messageSeq, const std::string &conne
     MsgCallback &callback, uint32_t timerId)
 {
     IAM_LOGI("start. messageSeq:%{public}u, timerId:%{public}u", messageSeq, timerId);
+    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+
     std::lock_guard<std::recursive_mutex> lock(callbackMutex_);
     CallbackInfo callbackInfo = {
         .connectionName = connectionName,
@@ -156,6 +158,8 @@ int32_t BaseSocket::GetMessageeSeq()
 ResultCode BaseSocket::SetDeviceNetworkId(const std::string networkId, std::shared_ptr<Attributes> &attributes)
 {
     IAM_LOGI("start.");
+    IF_FALSE_LOGE_AND_RETURN_VAL(attributes != nullptr, INVALID_PARAMETERS);
+
     bool setDeviceNetworkIdRet = attributes->SetStringValue(Attributes::ATTR_COLLECTOR_NETWORK_ID, networkId);
     if (setDeviceNetworkIdRet == false) {
         IAM_LOGE("SetStringValue fail");
@@ -170,8 +174,11 @@ ResultCode BaseSocket::SendRequest(const int32_t socketId, const std::string &co
     MsgCallback &callback)
 {
     IAM_LOGI("start.");
+    IF_FALSE_LOGE_AND_RETURN_VAL(attributes != nullptr, INVALID_PARAMETERS);
+    IF_FALSE_LOGE_AND_RETURN_VAL(socketId != INVALID_SOCKET_ID, INVALID_PARAMETERS);
+
     int32_t messageSeq = GetMessageeSeq();
-    std::shared_ptr<SoftBusMessage> softBusMessage = std::make_shared<SoftBusMessage>(messageSeq,
+    std::shared_ptr<SoftBusMessage> softBusMessage = Common::MakeShared<SoftBusMessage>(messageSeq,
         connectionName, srcEndPoint, destEndPoint, attributes);
     if (softBusMessage == nullptr) {
         IAM_LOGE("softBusMessage is nullptr");
@@ -207,7 +214,10 @@ ResultCode BaseSocket::SendResponse(const int32_t socketId, const std::string &c
     uint32_t messageSeq)
 {
     IAM_LOGI("start.");
-    std::shared_ptr<SoftBusMessage> softBusMessage = std::make_shared<SoftBusMessage>(messageSeq,
+    IF_FALSE_LOGE_AND_RETURN_VAL(attributes != nullptr, INVALID_PARAMETERS);
+    IF_FALSE_LOGE_AND_RETURN_VAL(socketId != INVALID_SOCKET_ID, INVALID_PARAMETERS);
+
+    std::shared_ptr<SoftBusMessage> softBusMessage = Common::MakeShared<SoftBusMessage>(messageSeq,
         connectionName, srcEndPoint, destEndPoint, attributes);
     if (softBusMessage == nullptr) {
         IAM_LOGE("softBusMessage is nullptr");
@@ -235,7 +245,10 @@ std::shared_ptr<SoftBusMessage> BaseSocket::ParseMessage(const std::string &netw
     void *message, uint32_t messageLen)
 {
     IAM_LOGI("start.");
-    std::shared_ptr<SoftBusMessage> softBusMessage = std::make_shared<SoftBusMessage>(0, "", "", "", nullptr);
+    IF_FALSE_LOGE_AND_RETURN_VAL(message != nullptr, nullptr);
+    IF_FALSE_LOGE_AND_RETURN_VAL(messageLen != 0, nullptr);
+
+    std::shared_ptr<SoftBusMessage> softBusMessage = Common::MakeShared<SoftBusMessage>(0, "", "", "", nullptr);
     if (softBusMessage == nullptr) {
         IAM_LOGE("softBusMessage is nullptr");
         return nullptr;
@@ -260,6 +273,9 @@ std::shared_ptr<SoftBusMessage> BaseSocket::ParseMessage(const std::string &netw
 ResultCode BaseSocket::ProcDataReceive(const int32_t socketId, std::shared_ptr<SoftBusMessage> &softBusMessage)
 {
     IAM_LOGI("start.");
+    IF_FALSE_LOGE_AND_RETURN_VAL(softBusMessage != nullptr, INVALID_PARAMETERS);
+    IF_FALSE_LOGE_AND_RETURN_VAL(socketId != INVALID_SOCKET_ID, INVALID_PARAMETERS);
+
     std::shared_ptr<Attributes> request = softBusMessage->GetAttributes();
     if (request == nullptr) {
         IAM_LOGE("GetAttributes fail");
