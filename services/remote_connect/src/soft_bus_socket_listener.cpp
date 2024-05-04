@@ -34,7 +34,7 @@ void SoftBusSocketListener::OnBind(int32_t socketId, PeerSocketInfo info)
 
 void SoftBusSocketListener::OnShutdown(int32_t socketId, ShutdownReason reason)
 {
-    IAM_LOGI("socket id %{public}d shutdown because %{public}u.", socketId, reason);
+    IAM_LOGI("socket id %{public}d shutdown because %{public}d.", socketId, reason);
     if (socketId <= INVALID_SOCKET_ID) {
         IAM_LOGE("socket id invalid.");
         return;
@@ -45,7 +45,7 @@ void SoftBusSocketListener::OnShutdown(int32_t socketId, ShutdownReason reason)
 
 void SoftBusSocketListener::OnClientBytes(int32_t socketId, const void *data, uint32_t dataLen)
 {
-    IAM_LOGI("socket fd %{public}d, recv len %{public}d.", socketId, dataLen);
+    IAM_LOGI("socket fd %{public}d, recv len %{public}u.", socketId, dataLen);
     if (socketId <= INVALID_SOCKET_ID) {
         IAM_LOGE("socket id invalid.");
         return;
@@ -55,11 +55,11 @@ void SoftBusSocketListener::OnClientBytes(int32_t socketId, const void *data, ui
 
 void SoftBusSocketListener::OnServerBytes(int32_t socketId, const void *data, uint32_t dataLen)
 {
+    IAM_LOGI("socket fd %{public}d, recv len %{public}u.", socketId, dataLen);
     if (socketId <= INVALID_SOCKET_ID) {
         IAM_LOGE("socket id invalid.");
         return;
     }
-    IAM_LOGI("socket fd %{public}d, recv len %{public}d.", socketId, dataLen);
     SoftBusManager::GetInstance().OnServerBytes(socketId, data, dataLen);
 }
 } // namespace UserAuth

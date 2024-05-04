@@ -26,8 +26,10 @@
 
 #include "attributes.h"
 #include "device_manager.h"
-#include "iam_logger.h"
+#include "iam_check.h"
 #include "iam_common_defines.h"
+#include "iam_logger.h"
+#include "iam_ptr.h"
 #include "relative_timer.h"
 #include "remote_connect_listener.h"
 #include "soft_bus_message.h"
@@ -40,20 +42,20 @@ class BaseSocket : public std::enable_shared_from_this<BaseSocket> {
 public:
     BaseSocket(const int32_t socketId);
     virtual ~BaseSocket() = default;
-    virtual int32_t GetSocketId();
+    int32_t GetSocketId();
     virtual ResultCode SendMessage(const std::string &connectionName, const std::string &srcEndPoint,
         const std::string &destEndPoint, const std::shared_ptr<Attributes> &attributes, MsgCallback &callback) = 0;
-    virtual ResultCode SendRequest(const int32_t socketId, const std::string &connectionName,
+    ResultCode SendRequest(const int32_t socketId, const std::string &connectionName,
         const std::string &srcEndPoint, const std::string &destEndPoint, const std::shared_ptr<Attributes> &attributes,
         MsgCallback &callback);
-    virtual ResultCode SendResponse(const int32_t socketId, const std::string &connectionName,
+    ResultCode SendResponse(const int32_t socketId, const std::string &connectionName,
         const std::string &srcEndPoint, const std::string &destEndPoint, const std::shared_ptr<Attributes> &attributes,
         uint32_t messageSeq);
-    virtual std::shared_ptr<SoftBusMessage> ParseMessage(const std::string &networkId,
+    std::shared_ptr<SoftBusMessage> ParseMessage(const std::string &networkId,
         void *message, uint32_t messageLen);
-    virtual ResultCode ProcDataReceive(const int32_t socketId, std::shared_ptr<SoftBusMessage> &softBusMessage);
-    virtual std::string GetConnectionName(uint32_t messageSeq);
-    virtual MsgCallback GetMsgCallback(uint32_t messageSeq);
+    ResultCode ProcDataReceive(const int32_t socketId, std::shared_ptr<SoftBusMessage> &softBusMessage);
+    std::string GetConnectionName(uint32_t messageSeq);
+    MsgCallback GetMsgCallback(uint32_t messageSeq);
 
     virtual void OnBind(int32_t socketId, PeerSocketInfo info) = 0;
     virtual void OnShutdown(int32_t socketId, ShutdownReason reason) = 0;
@@ -84,6 +86,7 @@ private:
     std::recursive_mutex callbackMutex_;
     /* <messageSeq, CallbackInfo> */
     std::map<uint32_t, CallbackInfo> callbackMap_;
+
     int32_t socketId_;
 };
 } // namespace UserAuth

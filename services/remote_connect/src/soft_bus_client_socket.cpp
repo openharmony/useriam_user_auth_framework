@@ -56,6 +56,9 @@ void ClientSocket::OnShutdown(int32_t socketId, ShutdownReason reason)
 void ClientSocket::OnBytes(int32_t socketId, const void *data, uint32_t dataLen)
 {
     IAM_LOGI("start, socket id is %{public}d", socketId);
+    IF_FALSE_LOGE_AND_RETURN(data != nullptr);
+    IF_FALSE_LOGE_AND_RETURN(dataLen != 0);
+
     std::string networkId = GetNetworkId();
     if (networkId.empty()) {
         IAM_LOGE("networkId id is null, socketId:%{public}d.", socketId);
