@@ -487,7 +487,6 @@ void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
     contextCallback->OnResult(ret, extraInfo);
     if (oldInfo != nullptr) {
         auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, oldInfo->GetAuthType());
-        PublishEventAdapter::PublishDeletedEvent(userId);
         PublishEventAdapter::PublishCredentialUpdatedEvent(userId, oldInfo->GetAuthType(), credentialInfos.size());
     }
 }
