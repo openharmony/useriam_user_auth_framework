@@ -212,10 +212,6 @@ void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInf
     bool setNextDurationRet = finalResult.SetInt32Value(Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION,
         resultInfo.nextFailLockoutDuration);
     IF_FALSE_LOGE_AND_RETURN(setNextDurationRet == true);
-    if (resultInfo.result == SUCCESS || resultInfo.result == PIN_EXPIRED) {
-        setResultCodeRet = finalResult.SetInt64Value(Attributes::ATTR_PIN_EXPIRED_INFO, resultInfo.pinExpiredInfo);
-        IF_FALSE_LOGE_AND_RETURN(setResultCodeRet == true);
-    }
     if (resultInfo.result == SUCCESS || NeedSetFreezingTimeAndRemainTimes(resultInfo.result)) {
         bool setFreezingTimeRet = finalResult.SetInt32Value(Attributes::ATTR_FREEZING_TIME, resultInfo.freezingTime);
         IF_FALSE_LOGE_AND_RETURN(setFreezingTimeRet == true);
@@ -230,6 +226,8 @@ void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInf
         bool setUserIdRet = finalResult.SetInt32Value(Attributes::ATTR_USER_ID, resultInfo.userId);
         IF_FALSE_LOGE_AND_RETURN(setUserIdRet == true);
         IAM_LOGI("matched userId: %{public}d.", resultInfo.userId);
+        bool setExpiredRet = finalResult.SetInt64Value(Attributes::ATTR_PIN_EXPIRED_INFO, resultInfo.pinExpiredInfo);
+        IF_FALSE_LOGE_AND_RETURN(setExpiredRet == true);
     }
     if (resultInfo.token.size() != 0) {
         bool setSignatureResult = finalResult.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, resultInfo.token);
