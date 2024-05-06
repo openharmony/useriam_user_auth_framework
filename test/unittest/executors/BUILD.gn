@@ -55,6 +55,7 @@ ohos_unittest("iam_executors_test") {
     "driver_manager_unit_test.cpp",
     "enroll_command_unit_test.cpp",
     "executor_unit_test.cpp",
+    "iauth_executor_hdi_test.cpp",
     "identify_command_unit_test.cpp",
   ]
 
