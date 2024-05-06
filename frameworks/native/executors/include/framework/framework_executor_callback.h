@@ -17,6 +17,7 @@
 #define FRAMEWORK_EXECUTOR_CALLBACK_H
 
 #include <cstdint>
+#include <mutex>
 #include <string>
 
 #include "nocopyable.h"
@@ -66,6 +67,7 @@ private:
     ResultCode FillPropertyToAttribute(const std::vector<Attributes::AttributeKey> &keyList, const Property property,
         std::shared_ptr<Attributes> values);
     const char *GetDescription();
+    std::recursive_mutex mutex_;
     std::shared_ptr<ExecutorMessenger> executorMessenger_;
     std::weak_ptr<Executor> executor_;
     std::string description_;

@@ -15,6 +15,7 @@
 
 #include "soft_bus_base_socket.h"
 
+#include <cinttypes>
 #include "remote_connect_listener_manager.h"
 
 #define LOG_TAG "USER_AUTH_SA"
@@ -50,6 +51,7 @@ void BaseSocket::InsertMsgCallback(uint32_t messageSeq, const std::string &conne
         .connectionName = connectionName,
         .msgCallback = callback,
         .timerId = timerId,
+        .sendTime = std::chrono::steady_clock::now()
     };
     callbackMap_.insert(std::pair<int32_t, CallbackInfo>(messageSeq, callbackInfo));
 }
@@ -77,12 +79,27 @@ MsgCallback BaseSocket::GetMsgCallback(uint32_t messageSeq)
 {
     IAM_LOGI("start. messageSeq:%{public}u", messageSeq);
     std::lock_guard<std::recursive_mutex> lock(callbackMutex_);
-    MsgCallback callback;
+    MsgCallback callback = nullptr;
     auto iter = callbackMap_.find(messageSeq);
     if (iter != callbackMap_.end()) {
         callback = iter->second.msgCallback;
     }
     return callback;
+}
+
+void BaseSocket::PrintTransferDuration(uint32_t messageSeq)
+{
+    std::lock_guard<std::recursive_mutex> lock(callbackMutex_);
+    auto iter = callbackMap_.find(messageSeq);
+    if (iter == callbackMap_.end()) {
+        IAM_LOGE("message seq not found");
+        return;
+    }
+
+    auto receiveAckTime = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(receiveAckTime - iter->second.sendTime);
+    IAM_LOGI("messageSeq:%{public}u duration:%{public}" PRIu64 "ms", messageSeq,
+        static_cast<uint64_t>(duration.count()));
 }
 
 uint32_t BaseSocket::GetReplyTimer(uint32_t messageSeq)
@@ -120,7 +137,7 @@ uint32_t BaseSocket::StartReplyTimer(uint32_t messageSeq)
     return timerId;
 }
 
-void BaseSocket::StoptReplyTimer(uint32_t messageSeq)
+void BaseSocket::StopReplyTimer(uint32_t messageSeq)
 {
     IAM_LOGI("start. messageSeq:%{public}u", messageSeq);
     uint32_t timerId = GetReplyTimer(messageSeq);
@@ -147,7 +164,7 @@ void BaseSocket::ReplyTimerTimeOut(uint32_t messageSeq)
     IAM_LOGI("reply timer is timeout, messageReq:%{public}u", messageSeq);
 }
 
-int32_t BaseSocket::GetMessageeSeq()
+int32_t BaseSocket::GetMessageSeq()
 {
     IAM_LOGI("start.");
     std::lock_guard<std::recursive_mutex> lock(g_seqMutex);
@@ -177,7 +194,7 @@ ResultCode BaseSocket::SendRequest(const int32_t socketId, const std::string &co
     IF_FALSE_LOGE_AND_RETURN_VAL(attributes != nullptr, INVALID_PARAMETERS);
     IF_FALSE_LOGE_AND_RETURN_VAL(socketId != INVALID_SOCKET_ID, INVALID_PARAMETERS);
 
-    int32_t messageSeq = GetMessageeSeq();
+    int32_t messageSeq = GetMessageSeq();
     std::shared_ptr<SoftBusMessage> softBusMessage = Common::MakeShared<SoftBusMessage>(messageSeq,
         connectionName, srcEndPoint, destEndPoint, attributes);
     if (softBusMessage == nullptr) {
@@ -285,6 +302,7 @@ ResultCode BaseSocket::ProcDataReceive(const int32_t socketId, std::shared_ptr<S
     uint32_t messageSeq = softBusMessage->GetMessageSeq();
     bool ack = softBusMessage->GetAckFlag();
     if (ack == true) {
+        PrintTransferDuration(messageSeq);
         MsgCallback callback = GetMsgCallback(messageSeq);
         if (callback == nullptr) {
             IAM_LOGE("GetMsgCallback fail");
@@ -292,7 +310,7 @@ ResultCode BaseSocket::ProcDataReceive(const int32_t socketId, std::shared_ptr<S
         }
         
         callback(request);
-        StoptReplyTimer(messageSeq);
+        StopReplyTimer(messageSeq);
         RemoveMsgCallback(messageSeq);
     } else {
         std::string connectionName = softBusMessage->GetConnectionName();

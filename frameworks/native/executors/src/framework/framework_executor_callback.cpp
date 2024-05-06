@@ -100,6 +100,7 @@ void FrameworkExecutorCallback::OnMessengerReady(uint64_t executorIndex,
     const std::vector<uint64_t> &templateIdList)
 {
     IAM_LOGI("%{public}s start", GetDescription());
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto executor = executor_.lock();
     if (executor == nullptr) {
         IAM_LOGE("executor has been released, process failed");
@@ -108,6 +109,7 @@ void FrameworkExecutorCallback::OnMessengerReady(uint64_t executorIndex,
     auto hdi = executor->GetExecutorHdi();
     IF_FALSE_LOGE_AND_RETURN(hdi != nullptr);
     executorMessenger_ = messenger;
+    executor->SetExecutorIndex(executorIndex);
     std::vector<uint8_t> extraInfo;
     hdi->OnRegisterFinish(templateIdList, publicKey, extraInfo);
 }
@@ -190,6 +192,7 @@ ResultCode FrameworkExecutorCallback::OnGetPropertyInner(std::shared_ptr<Attribu
 
 ResultCode FrameworkExecutorCallback::ProcessEnrollCommand(uint64_t scheduleId, const Attributes &properties)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto command = Common::MakeShared<EnrollCommand>(executor_, scheduleId, properties, executorMessenger_);
     IF_FALSE_LOGE_AND_RETURN_VAL(command != nullptr, ResultCode::GENERAL_ERROR);
     return command->StartProcess();
@@ -197,6 +200,7 @@ ResultCode FrameworkExecutorCallback::ProcessEnrollCommand(uint64_t scheduleId, 
 
 ResultCode FrameworkExecutorCallback::ProcessAuthCommand(uint64_t scheduleId, const Attributes &properties)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto executor = executor_.lock();
     if (executor == nullptr) {
         IAM_LOGE("executor has been released, process failed");
@@ -215,6 +219,7 @@ ResultCode FrameworkExecutorCallback::ProcessAuthCommand(uint64_t scheduleId, co
 
 ResultCode FrameworkExecutorCallback::ProcessIdentifyCommand(uint64_t scheduleId, const Attributes &properties)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto command = Common::MakeShared<IdentifyCommand>(executor_, scheduleId, properties, executorMessenger_);
     IF_FALSE_LOGE_AND_RETURN_VAL(command != nullptr, ResultCode::GENERAL_ERROR);
     return command->StartProcess();

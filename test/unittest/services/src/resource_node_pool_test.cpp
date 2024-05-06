@@ -65,7 +65,7 @@ HWTEST_F(ResourceNodePoolTest, ResourceNodePoolInsertNull, TestSize.Level0)
 HWTEST_F(ResourceNodePoolTest, ResourceNodePoolInsertDuplicateId, TestSize.Level0)
 {
     const uint64_t EXECUTOR_INDEX = 100;
-    auto resource1 = MockResourceNode::CreateWithExecuteIndex(EXECUTOR_INDEX, true);
+    auto resource1 = MockResourceNode::CreateWithExecuteIndex(EXECUTOR_INDEX);
     auto resource2 = MockResourceNode::CreateWithExecuteIndex(EXECUTOR_INDEX);
     ASSERT_NE(resource1, resource2);
     auto &pool = ResourceNodePool::Instance();
@@ -172,7 +172,7 @@ HWTEST_F(ResourceNodePoolTest, ResourceNodePoolListenerUpdate, TestSize.Level0)
     auto &pool = ResourceNodePool::Instance();
     const uint64_t EXECUTOR_INDEX1 = 300;
     const uint64_t EXECUTOR_INDEX2 = 300;
-    auto resource1 = MockResourceNode::CreateWithExecuteIndex(EXECUTOR_INDEX1, true);
+    auto resource1 = MockResourceNode::CreateWithExecuteIndex(EXECUTOR_INDEX1);
     auto resource2 = MockResourceNode::CreateWithExecuteIndex(EXECUTOR_INDEX2);
 
     MockFunction<void(MockResourceNodePoolListener::Action action, const std::shared_ptr<ResourceNode> &resource)>
@@ -191,7 +191,7 @@ HWTEST_F(ResourceNodePoolTest, ResourceNodePoolListenerUpdate, TestSize.Level0)
     EXPECT_EQ(pool.Insert(resource1), true);
     EXPECT_EQ(pool.Insert(resource2), true);
     EXPECT_EQ(pool.Delete(EXECUTOR_INDEX1), true);
-    EXPECT_EQ(pool.Delete(EXECUTOR_INDEX2), false);
+    EXPECT_EQ(pool.Delete(EXECUTOR_INDEX2), true);
 
     EXPECT_EQ(pool.DeregisterResourceNodePoolListener(listener), true);
 }

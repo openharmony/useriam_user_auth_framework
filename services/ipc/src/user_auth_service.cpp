@@ -52,6 +52,7 @@ const int32_t MINIMUM_VERSION = 0;
 const int32_t CURRENT_VERSION = 1;
 const int32_t USERIAM_IPC_THREAD_NUM = 4;
 const uint32_t MAX_AUTH_TYPE_SIZE = 3;
+const uint32_t NETWORK_ID_LENGTH = 64;
 const bool REMOTE_AUTH_SERVICE_RESULT = RemoteAuthService::GetInstance().Start();
 void GetTemplatesByAuthType(int32_t userId, AuthType authType, std::vector<uint64_t> &templateIds)
 {
@@ -506,9 +507,10 @@ uint64_t UserAuthService::AuthUser(AuthParamInner &authParam, std::optional<Remo
         return StartAuthContext(INNER_API_VERSION_10000, para, contextCallback);
     }
 
-    uint64_t contextId = AuthRemoteUser(authParam, para, remoteAuthParam.value(), contextCallback);
+    ResultCode failReason = GENERAL_ERROR;
+    uint64_t contextId = AuthRemoteUser(authParam, para, remoteAuthParam.value(), contextCallback, failReason);
     if (contextId == BAD_CONTEXT_ID) {
-        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
+        contextCallback->OnResult(failReason, extraInfo);
         return BAD_CONTEXT_ID;
     }
 
@@ -516,13 +518,9 @@ uint64_t UserAuthService::AuthUser(AuthParamInner &authParam, std::optional<Remo
     return contextId;
 }
 
-int32_t UserAuthService::PrepareRemoteAuth(const std::string &networkId, sptr<UserAuthCallbackInterface> &callback)
+int32_t UserAuthService::PrepareRemoteAuthInner(const std::string &networkId)
 {
     IAM_LOGI("start");
-    if (callback == nullptr) {
-        IAM_LOGE("callback is nullptr");
-        return INVALID_PARAMETERS;
-    }
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
@@ -538,20 +536,39 @@ int32_t UserAuthService::PrepareRemoteAuth(const std::string &networkId, sptr<Us
     int32_t ret = hdi->PrepareRemoteAuth(networkId);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret == HDF_SUCCESS, GENERAL_ERROR);
 
+    IAM_LOGI("success");
+    return SUCCESS;
+}
+
+int32_t UserAuthService::PrepareRemoteAuth(const std::string &networkId, sptr<UserAuthCallbackInterface> &callback)
+{
+    IAM_LOGI("start");
+    if (callback == nullptr) {
+        IAM_LOGE("callback is nullptr");
+        return INVALID_PARAMETERS;
+    }
+
+    int32_t ret = PrepareRemoteAuthInner(networkId);
+    if (ret != SUCCESS) {
+        IAM_LOGE("failed to prepare remote auth");
+    }
+
     Attributes attr;
-    callback->OnResult(SUCCESS, attr);
+    callback->OnResult(ret, attr);
 
     IAM_LOGI("success");
     return SUCCESS;
 }
 
 uint64_t UserAuthService::AuthRemoteUser(AuthParamInner &authParam, Authentication::AuthenticationPara &para,
-    RemoteAuthParam &remoteAuthParam, const std::shared_ptr<ContextCallback> &contextCallback)
+    RemoteAuthParam &remoteAuthParam, const std::shared_ptr<ContextCallback> &contextCallback, ResultCode &failReason)
 {
     IAM_LOGI("start");
+    failReason = GENERAL_ERROR;
 
     if (para.authType != PIN) {
         IAM_LOGE("Remote auth only support pin auth");
+        failReason = INVALID_PARAMETERS;
         return BAD_CONTEXT_ID;
     }
 
@@ -560,7 +577,11 @@ uint64_t UserAuthService::AuthRemoteUser(AuthParamInner &authParam, Authenticati
     IF_FALSE_LOGE_AND_RETURN_VAL(getNetworkIdRet, BAD_CONTEXT_ID);
 
     bool completeRet = CompleteRemoteAuthParam(remoteAuthParam, localNetworkId);
-    IF_FALSE_LOGE_AND_RETURN_VAL(completeRet, BAD_CONTEXT_ID);
+    if (!completeRet) {
+        IAM_LOGE("failed to complete remote auth param");
+        failReason = INVALID_PARAMETERS;
+        return BAD_CONTEXT_ID;
+    }
 
     if (remoteAuthParam.collectorTokenId.has_value()) {
         para.collectorTokenId = remoteAuthParam.collectorTokenId.value();
@@ -1093,6 +1114,17 @@ int32_t UserAuthService::SetGlobalConfigParam(const GlobalConfigParam &param)
 bool UserAuthService::CompleteRemoteAuthParam(RemoteAuthParam &remoteAuthParam, const std::string &localNetworkId)
 {
     IAM_LOGI("start");
+    if (remoteAuthParam.verifierNetworkId.has_value() && remoteAuthParam.verifierNetworkId->size() !=
+        NETWORK_ID_LENGTH) {
+        IAM_LOGE("invalid verifierNetworkId size");
+        return false;
+    }
+
+    if (remoteAuthParam.collectorNetworkId.has_value() && remoteAuthParam.collectorNetworkId->size() !=
+        NETWORK_ID_LENGTH) {
+        IAM_LOGE("invalid collectorNetworkId size");
+        return false;
+    }
 
     if (!remoteAuthParam.verifierNetworkId.has_value() && !remoteAuthParam.collectorNetworkId.has_value()) {
         IAM_LOGE("neither verifierNetworkId nor collectorNetworkId is set");

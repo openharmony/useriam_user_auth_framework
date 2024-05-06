@@ -42,6 +42,7 @@ public:
     void OnFrameworkReady();
     void AddCommand(std::shared_ptr<IAsyncCommand> command);
     void RemoveCommand(std::shared_ptr<IAsyncCommand> command);
+    void SetExecutorIndex(uint64_t executorIndex);
     std::shared_ptr<IAuthExecutorHdi> GetExecutorHdi();
     const char *GetDescription();
     int32_t GetAuthType() const;
@@ -49,9 +50,10 @@ public:
 
 private:
     void RegisterExecutorCallback(ExecutorInfo &executorInfo);
+    void UnregisterExecutorCallback();
     void RespondCallbackOnDisconnect();
     std::shared_ptr<ExecutorRegisterCallback> executorCallback_;
-    std::mutex mutex_;
+    std::recursive_mutex mutex_;
     std::set<std::shared_ptr<IAsyncCommand>> command2Respond_;
     std::shared_ptr<ExecutorMgrWrapper> executorMgrWrapper_;
     std::shared_ptr<IAuthExecutorHdi> executorHdi_;
@@ -59,6 +61,7 @@ private:
     uint16_t hdiId_;
     int32_t authType_;
     int32_t executorRole_;
+    std::optional<uint64_t> executorIndex_ = std::nullopt;
 };
 } // namespace UserAuth
 } // namespace UserIam

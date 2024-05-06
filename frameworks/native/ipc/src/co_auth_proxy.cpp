@@ -60,11 +60,11 @@ int32_t CoAuthProxy::WriteExecutorInfo(const ExecutorRegisterInfo &info, Message
         return WRITE_PARCEL_ERROR;
     }
     if (!data.WriteString(info.deviceUdid)) {
-        IAM_LOGE("failed to write publicKey");
+        IAM_LOGE("failed to write deviceUdid");
         return WRITE_PARCEL_ERROR;
     }
     if (!data.WriteUInt8Vector(info.signedRemoteExecutorInfo)) {
-        IAM_LOGE("failed to write publicKey");
+        IAM_LOGE("failed to write signedRemoteExecutorInfo");
         return WRITE_PARCEL_ERROR;
     }
     return SUCCESS;

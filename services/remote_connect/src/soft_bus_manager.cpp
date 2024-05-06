@@ -15,6 +15,7 @@
 
 #include "soft_bus_manager.h"
 
+#include <cinttypes>
 #include <string>
 #include <thread>
 #include "socket.h"
@@ -23,10 +24,12 @@
 #include "device_manager.h"
 #include "iam_logger.h"
 #include "iservice_registry.h"
+#include "remote_connect_listener_manager.h"
 #include "socket_factory.h"
 #include "soft_bus_base_socket.h"
 #include "soft_bus_socket_listener.h"
 #include "system_ability_definition.h"
+#include "thread_handler.h"
 #include "token_setproc.h"
 
 #define LOG_TAG "USER_AUTH_SA"
@@ -319,19 +322,19 @@ ResultCode SoftBusManager::ServiceSocketInit()
     };
     int32_t socketId = Socket(info);
     if (socketId <= INVALID_SOCKET_ID) {
-        IAM_LOGE("create service socket faild.");
+        IAM_LOGE("create service socket failed.");
         return CREATE_SOCKET_FAILED;
     }
 
     int ret = ServiceSocketListen(socketId);
     if (ret != SUCCESS) {
-        IAM_LOGE("socket listen faild, ret is %{public}d.", ret);
+        IAM_LOGE("socket listen failed, ret is %{public}d.", ret);
         return LISTEN_SOCKET_FAILED;
     }
 
     auto serverSocket = SocketFactory::CreateServerSocket(socketId);
     if (serverSocket == nullptr) {
-        IAM_LOGE("server socket create faild.");
+        IAM_LOGE("server socket create failed.");
         return GENERAL_ERROR;
     }
 
@@ -429,17 +432,17 @@ ResultCode SoftBusManager::ClientSocketBind(const int32_t socketId)
     return SUCCESS;
 }
 
-ResultCode SoftBusManager::OpenConnection(const std::string &connectionName, const uint32_t tokenId,
+ResultCode SoftBusManager::DoOpenConnectionInner(const std::string &connectionName, const uint32_t tokenId,
     const std::string &networkId)
 {
-    IAM_LOGI("start.");
     int32_t ret = SetFirstCallerTokenID(tokenId);
     if (ret != SUCCESS) {
-        IAM_LOGI("SetFirstCallerTokenID fail");
+        IAM_LOGE("SetFirstCallerTokenID fail");
     }
+
     int32_t socketId = ClientSocketInit(connectionName, networkId);
     if (socketId <= INVALID_SOCKET_ID) {
-        IAM_LOGE("create client socket faild.");
+        IAM_LOGE("create client socket failed.");
         return GENERAL_ERROR;
     }
 
@@ -461,6 +464,40 @@ ResultCode SoftBusManager::OpenConnection(const std::string &connectionName, con
     return SUCCESS;
 }
 
+void SoftBusManager::DoOpenConnection(const std::string &connectionName, const uint32_t tokenId,
+    const std::string &networkId)
+{
+    IAM_LOGI("start.");
+    auto beginTime = std::chrono::steady_clock::now();
+    ResultCode result = DoOpenConnectionInner(connectionName, tokenId, networkId);
+    auto endTime = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - beginTime);
+    IAM_LOGI("open connection duration %{public}" PRIu64, static_cast<uint64_t>(duration.count()));
+    if (result != SUCCESS) {
+        RemoteConnectListenerManager::GetInstance().OnConnectionDown(connectionName);
+        IAM_LOGE("DoOpenConnectionInner fail");
+        return;
+    }
+
+    RemoteConnectListenerManager::GetInstance().OnConnectionUp(connectionName);
+    IAM_LOGI("success.");
+}
+
+ResultCode SoftBusManager::OpenConnection(const std::string &connectionName, const uint32_t tokenId,
+    const std::string &networkId)
+{
+    IAM_LOGI("start.");
+
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    IF_FALSE_LOGE_AND_RETURN_VAL(handler != nullptr, GENERAL_ERROR);
+    handler->PostTask([=]() {
+        DoOpenConnection(connectionName, tokenId, networkId);
+    });
+
+    IAM_LOGI("Open connection %{public}s task added.", connectionName.c_str());
+    return SUCCESS;
+}
+
 ResultCode SoftBusManager::CloseConnection(const std::string &connectionName)
 {
     IAM_LOGI("start.");
@@ -476,6 +513,7 @@ ResultCode SoftBusManager::CloseConnection(const std::string &connectionName)
         return GENERAL_ERROR;
     }
 
+    RemoteConnectListenerManager::GetInstance().OnConnectionDown(connectionName);
     Shutdown(socketId);
     DeleteConnection(connectionName);
     IAM_LOGI("close socket success");
@@ -621,7 +659,6 @@ std::shared_ptr<BaseSocket> SoftBusManager::FindSocketBySocketId(const int32_t s
 
 bool SoftBusManager::CheckAndCopyStr(char *dest, uint32_t destLen, const std::string &src)
 {
-    IAM_LOGI("start.");
     if (destLen < src.length() + 1) {
         IAM_LOGE("Invalid src length");
         return false;

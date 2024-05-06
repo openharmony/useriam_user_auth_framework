@@ -51,8 +51,7 @@ public:
         IF_FALSE_LOGE_AND_RETURN(request != nullptr);
         IF_FALSE_LOGE_AND_RETURN(reply != nullptr);
 
-        IAM_LOGI("connectionName: %{public}s, srcEndPoint: %{public}s",
-            RemoteMsgUtil::GetConnectionNameStr(connectionName).c_str(), srcEndPoint.c_str());
+        IAM_LOGI("connectionName: %{public}s, srcEndPoint: %{public}s", connectionName.c_str(), srcEndPoint.c_str());
 
         std::shared_ptr<BaseContext> callbackSharedBase = callbackWeakBase_.lock();
         IF_FALSE_LOGE_AND_RETURN(callbackSharedBase != nullptr);
@@ -62,22 +61,19 @@ public:
 
     void OnConnectStatus(const std::string &connectionName, ConnectStatus connectStatus) override
     {
-        IAM_LOGI("connectionName: %{public}s, connectStatus %{public}d",
-            RemoteMsgUtil::GetConnectionNameStr(connectionName).c_str(), connectStatus);
+        IAM_LOGI("connectionName: %{public}s, connectStatus %{public}d", connectionName.c_str(), connectStatus);
 
-        IF_FALSE_LOGE_AND_RETURN(connectStatus == ConnectStatus::DISCONNECT);
         IF_FALSE_LOGE_AND_RETURN(threadHandler_ != nullptr);
-
         threadHandler_->PostTask(
             [connectionName, connectStatus, callbackWeakBase = callbackWeakBase_, callback = callback_, this]() {
                 IAM_LOGI("OnConnectStatus process begin");
                 auto callbackSharedBase = callbackWeakBase.lock();
                 IF_FALSE_LOGE_AND_RETURN(callbackSharedBase != nullptr);
 
-                callback_->OnConnectStatus(connectionName, connectStatus);
+                IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+                callback->OnConnectStatus(connectionName, connectStatus);
                 IAM_LOGI("OnConnectStatus process success");
             });
-
         IAM_LOGI("task posted");
     }
 
@@ -152,11 +148,16 @@ void RemoteAuthInvokerContext::OnConnectStatus(const std::string &connectionName
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     IAM_LOGI("start");
 
-    if (connectStatus == ConnectStatus::DISCONNECT) {
+    if (connectStatus == ConnectStatus::DISCONNECTED) {
         IAM_LOGI("connection is disconnected");
         Attributes attr;
         callback_->OnResult(ResultCode::GENERAL_ERROR, attr);
         return;
+    } else {
+        IAM_LOGI("connection is connected");
+        bool sendRequestRet = SendRequest();
+        IF_FALSE_LOGE_AND_RETURN(sendRequestRet);
+        IAM_LOGI("connection is connected processed");
     }
 }
 
@@ -173,9 +174,9 @@ bool RemoteAuthInvokerContext::OnStart()
     IAM_LOGI("start");
 
     cancelTimerId_ = RelativeTimer::GetInstance().Register(
-        [weak_ptr = weak_from_this(), this]() {
-            auto shared_ptr = weak_ptr.lock();
-            IF_FALSE_LOGE_AND_RETURN(shared_ptr != nullptr);
+        [weakThis = weak_from_this(), this]() {
+            auto sharedThis = weakThis.lock();
+            IF_FALSE_LOGE_AND_RETURN(sharedThis != nullptr);
             OnTimeOut();
         },
         TIME_OUT_MS);
@@ -196,9 +197,6 @@ bool RemoteAuthInvokerContext::OnStart()
     ResultCode connectResult =
         RemoteConnectionManager::GetInstance().OpenConnection(connectionName_, verifierNetworkId_, GetTokenId());
     IF_FALSE_LOGE_AND_RETURN_VAL(connectResult == SUCCESS, false);
-
-    bool sendRequestRet = SendRequest();
-    IF_FALSE_LOGE_AND_RETURN_VAL(sendRequestRet, false);
 
     IAM_LOGI("success");
     return true;
@@ -229,18 +227,18 @@ bool RemoteAuthInvokerContext::SendRequest()
         request_->SetStringValue(Attributes::ATTR_COLLECTOR_NETWORK_ID, collectorNetworkId_);
     IF_FALSE_LOGE_AND_RETURN_VAL(setCollectorNetworkIdRet, false);
 
-    MsgCallback msgCallback = [weak_ptr = weak_from_this(), this](const std::shared_ptr<Attributes> &reply) {
+    MsgCallback msgCallback = [weakThis = weak_from_this(), this](const std::shared_ptr<Attributes> &reply) {
         IF_FALSE_LOGE_AND_RETURN(reply != nullptr);
 
-        auto shared_ptr = weak_ptr.lock();
-        IF_FALSE_LOGE_AND_RETURN(shared_ptr != nullptr);
+        auto sharedThis = weakThis.lock();
+        IF_FALSE_LOGE_AND_RETURN(sharedThis != nullptr);
 
         int32_t resultCode;
         bool getResultCodeRet = reply->GetInt32Value(Attributes::ATTR_RESULT_CODE, resultCode);
         IF_FALSE_LOGE_AND_RETURN(getResultCodeRet);
 
         if (resultCode != ResultCode::SUCCESS) {
-            IAM_LOGE("get contextId failed");
+            IAM_LOGE("start remote auth failed");
             Attributes attr;
             callback_->OnResult(ResultCode::GENERAL_ERROR, attr);
             return;
@@ -326,8 +324,8 @@ int32_t RemoteAuthInvokerContext::ProcAuthResultMsg(Attributes &message)
         IF_FALSE_LOGE_AND_RETURN_VAL(setTokenRet, ResultCode::GENERAL_ERROR);
         bool setUserId = attr.SetInt32Value(Attributes::ATTR_USER_ID, authResultInfo.userId);
         IF_FALSE_LOGE_AND_RETURN_VAL(setUserId, ResultCode::GENERAL_ERROR);
-        IAM_LOGI("parsed auth result: %{public}d, lockout duration %{public}d, remain attempts %{public}d, "
-                 "token size %{public}zu, user id %{public}d",
+        IAM_LOGI("parsed auth result: %{public}d, lockout duration %{public}d, "
+            "remain attempts %{public}d, token size %{public}zu, user id %{public}d",
             resultCode, authResultInfo.lockoutDuration, authResultInfo.remainAttempts, authResultInfo.token.size(),
             authResultInfo.userId);
     } else if (resultCode == ResultCode::SUCCESS) {
@@ -347,6 +345,8 @@ int32_t RemoteAuthInvokerContext::ProcAuthResultMsg(Attributes &message)
 void RemoteAuthInvokerContext::OnTimeOut()
 {
     IAM_LOGI("timeout");
+    IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
+
     Attributes attr;
     callback_->OnResult(TIMEOUT, attr);
 }

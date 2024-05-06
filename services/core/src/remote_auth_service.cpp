@@ -41,7 +41,6 @@ public:
     bool Start() override;
     void OnMessage(const std::string &connectionName, const std::string &srcEndPoint,
         const std::shared_ptr<Attributes> &request, std::shared_ptr<Attributes> &reply) override;
-    void OnConnectStatus(const std::string &connectionName, ConnectStatus connectStatus) override;
 
     int32_t ProcStartRemoteAuthRequest(std::string connectionName, const std::shared_ptr<Attributes> &request,
         std::shared_ptr<Attributes> &reply) override;
@@ -68,20 +67,13 @@ public:
         IF_FALSE_LOGE_AND_RETURN(request != nullptr);
         IF_FALSE_LOGE_AND_RETURN(reply != nullptr);
 
-        IAM_LOGI("connectionName: %{public}s, srcEndPoint: %{public}s",
-            RemoteMsgUtil::GetConnectionNameStr(connectionName).c_str(), srcEndPoint.c_str());
+        IAM_LOGI("connectionName: %{public}s, srcEndPoint: %{public}s", connectionName.c_str(), srcEndPoint.c_str());
 
         RemoteAuthServiceImpl::GetInstance().OnMessage(connectionName, srcEndPoint, request, reply);
     }
 
     void OnConnectStatus(const std::string &connectionName, ConnectStatus connectStatus) override
     {
-        IAM_LOGI("connectionName: %{public}s, connectStatus %{public}d",
-            RemoteMsgUtil::GetConnectionNameStr(connectionName).c_str(), connectStatus);
-
-        IF_FALSE_LOGE_AND_RETURN(connectStatus == ConnectStatus::DISCONNECT);
-
-        RemoteAuthServiceImpl::GetInstance().OnConnectStatus(connectionName, connectStatus);
     }
 };
 
@@ -112,6 +104,7 @@ void RemoteAuthServiceImpl::OnMessage(const std::string &connectionName, const s
     std::lock_guard<std::recursive_mutex> lock(mutex_);
 
     IF_FALSE_LOGE_AND_RETURN(request != nullptr);
+    IF_FALSE_LOGE_AND_RETURN(reply != nullptr);
 
     int32_t msgType;
     bool getMsgTypeRet = request->GetInt32Value(Attributes::ATTR_MSG_TYPE, msgType);
@@ -143,10 +136,6 @@ void RemoteAuthServiceImpl::OnMessage(const std::string &connectionName, const s
     IF_FALSE_LOGE_AND_RETURN(setResultCodeRet);
 
     IAM_LOGI("success");
-}
-
-void RemoteAuthServiceImpl::OnConnectStatus(const std::string &connectionName, ConnectStatus connectStatus)
-{
 }
 
 int32_t RemoteAuthServiceImpl::ProcStartRemoteAuthRequest(std::string connectionName,
