@@ -29,9 +29,8 @@ namespace UserAuth {
 using MsgCallback = std::function<void(const std::shared_ptr<Attributes> &)>;
 
 enum ConnectStatus {
-    DISCONNECT = 0,
-    CONNECTING = 1,
-    CONNECTED = 2,
+    DISCONNECTED = 0,
+    CONNECTED = 1,
 };
 
 class ConnectionListener {

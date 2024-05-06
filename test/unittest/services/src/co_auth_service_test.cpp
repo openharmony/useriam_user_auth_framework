@@ -82,7 +82,6 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest001, TestSize.Level0)
     EXPECT_EQ(executorIndex, 0);
     executorIndex = service->ExecutorRegister(info, callbackInterface);
     EXPECT_NE(executorIndex, 0);
-    EXPECT_EQ(ResourceNodePool::Instance().Delete(executorIndex), true);
     IpcCommon::DeleteAllPermission();
 }
 

@@ -117,7 +117,7 @@ void AuthEventListenerManager::OnNotifyAuthSuccessEvent(int32_t userId, AuthType
         if (iter != nullptr) {
             iter->OnNotifyAuthSuccessEvent(userId, authType, callerType, callerName);
             IAM_LOGI("OnNotifyAuthSuccessEvent, userId: %{public}d, authType: %{public}d, callerName: %{public}s, "
-                     "callerType: %{public}d",
+                "callerType: %{public}d",
                 userId, static_cast<int32_t>(authType), callerName.c_str(), callerType);
         }
     }

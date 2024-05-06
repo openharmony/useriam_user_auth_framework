@@ -129,11 +129,6 @@ public:
         static_cast<void>(data);
         return SUCCESS;
     }
-
-    void Detach()
-    {
-        IAM_LOGI("start");
-    }
 };
 
 class DummyResourceNodePoolListener final : public ResourceNodePool::ResourceNodePoolListener {

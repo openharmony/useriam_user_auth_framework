@@ -87,7 +87,8 @@ private:
     uint64_t StartAuthContext(int32_t apiVersion, Authentication::AuthenticationPara para,
         const std::shared_ptr<ContextCallback> &contextCallback);
     uint64_t AuthRemoteUser(AuthParamInner &authParam, Authentication::AuthenticationPara &para,
-        RemoteAuthParam &remoteAuthParam, const std::shared_ptr<ContextCallback> &contextCallback);
+        RemoteAuthParam &remoteAuthParam, const std::shared_ptr<ContextCallback> &contextCallback,
+        ResultCode &failReason);
     uint64_t StartRemoteAuthContext(Authentication::AuthenticationPara para,
         RemoteAuthContextParam remoteAuthContextParam,
         const std::shared_ptr<ContextCallback> &contextCallback);
@@ -105,6 +106,7 @@ private:
     int32_t GetCallerNameAndUserId(ContextFactory::AuthWidgetContextPara &para,
         std::shared_ptr<ContextCallback> &contextCallback);
     bool CompleteRemoteAuthParam(RemoteAuthParam &remoteAuthParam, const std::string &localNetworkId);
+    int32_t PrepareRemoteAuthInner(const std::string &networkId);
 
     static std::mutex mutex_;
     static std::shared_ptr<UserAuthService> instance_;

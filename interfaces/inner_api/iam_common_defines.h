@@ -209,8 +209,6 @@ enum AuthIntent : int {
     DEFAULT = 0,
     /**< The auth intent is unlock. */
     UNLOCK = 1,
-    /**< The auth intent is init. */
-    INIT = 2,
 };
 } // namespace UserAuth
 } // namespace UserIam

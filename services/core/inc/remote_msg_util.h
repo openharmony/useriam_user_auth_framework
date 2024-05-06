@@ -52,7 +52,6 @@ enum MessageType {
 class RemoteMsgUtil {
 public:
     static bool GetConnectionName(uint64_t contextId, std::string &connectionName);
-    static std::string GetConnectionNameStr(const std::string &connectionName);
     static std::string GetExecutorProxyEndPointName();
     static std::string GetExecutorStubEndPointName();
     static std::string GetRemoteServiceEndPointName();
