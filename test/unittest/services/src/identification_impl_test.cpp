@@ -125,7 +125,7 @@ HWTEST_F(IdentificationImplTest, IdentificationTestStart, TestSize.Level0)
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, CancelIdentification(_))
-        .Times(0)
+        .Times(2)
         .WillOnce(Return(HDF_SUCCESS))
         .WillOnce(Return(HDF_FAILURE));
     EXPECT_CALL(*mockHdi, BeginIdentification(_, _, _, _, _))
@@ -135,6 +135,9 @@ HWTEST_F(IdentificationImplTest, IdentificationTestStart, TestSize.Level0)
                 scheduleInfo.authType = HdiAuthType::FACE;
                 scheduleInfo.executorMatcher = 10;
                 scheduleInfo.executorIndexes.push_back(60);
+                std::vector<uint8_t> executorMessages;
+                executorMessages.resize(1);
+                scheduleInfo.executorMessages.push_back(executorMessages);
                 scheduleInfo.scheduleId = 20;
                 scheduleInfo.scheduleMode = HdiScheduleMode::IDENTIFY;
                 scheduleInfo.templateIds.push_back(30);
@@ -149,10 +152,10 @@ HWTEST_F(IdentificationImplTest, IdentificationTestStart, TestSize.Level0)
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
     auto callback = Common::MakeShared<MockScheduleNodeCallback>();
     EXPECT_NE(callback, nullptr);
-    EXPECT_FALSE(identification->Start(scheduleList, callback));
-    EXPECT_FALSE(identification->Cancel());
+    EXPECT_TRUE(identification->Start(scheduleList, callback));
+    EXPECT_TRUE(identification->Cancel());
 
-    EXPECT_FALSE(identification->Start(scheduleList, callback));
+    EXPECT_TRUE(identification->Start(scheduleList, callback));
     EXPECT_FALSE(identification->Cancel());
 
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(executorIndex));

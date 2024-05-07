@@ -116,7 +116,9 @@ HWTEST_F(AuthenticationImplTest, AuthenticationInvalidExecutor, TestSize.Level0)
         scheduleInfo.executorMatcher = 0;
         scheduleInfo.scheduleMode = HdiScheduleMode::ENROLL;
         scheduleInfo.executorIndexes.push_back(executorInfoIndex);
-
+        std::vector<uint8_t> executorMessages;
+        executorMessages.resize(1);
+        scheduleInfo.executorMessages.push_back(executorMessages);
         std::vector<HdiScheduleInfo> list;
         list.emplace_back(scheduleInfo);
 
