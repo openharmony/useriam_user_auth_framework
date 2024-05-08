@@ -523,6 +523,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubRegistUserAuthSuccessEventListenerStub, T
 {
     MockUserAuthService service;
     sptr<MockAuthEventListenerService> callback(new (std::nothrow) MockAuthEventListenerService());
+    EXPECT_NE(callback, nullptr);
     EXPECT_CALL(service, RegistUserAuthSuccessEventListener(_, _)).Times(1);
     ON_CALL(service, RegistUserAuthSuccessEventListener)
         .WillByDefault(
@@ -555,6 +556,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubUnRegistUserAuthSuccessEventListenerStub,
 {
     MockUserAuthService service;
     sptr<MockAuthEventListenerService> callback(new (std::nothrow) MockAuthEventListenerService());
+    EXPECT_NE(callback, nullptr);
     EXPECT_CALL(service, UnRegistUserAuthSuccessEventListener(_)).Times(1);
     ON_CALL(service, UnRegistUserAuthSuccessEventListener)
         .WillByDefault(
