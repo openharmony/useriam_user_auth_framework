@@ -138,7 +138,6 @@ ohos_unittest("iam_services_test") {
     "src/state_machine_test.cpp",
     "src/ui_extension_ability_connection_test.cpp",
     "src/update_pin_param_test.cpp",
-    "src/user_auth_event_listener_stub_test.cpp",
     "src/user_auth_service_test.cpp",
     "src/user_auth_stub_test.cpp",
     "src/user_idm_database_test.cpp",
