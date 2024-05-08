@@ -273,6 +273,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthStub001, TestSize.Level0)
 
 HWTEST_F(UserAuthStubTest, UserAuthStubAuthStub002, TestSize.Level0)
 {
+    int32_t testUserId = 3467;
     int32_t testApiVersion = 9;
     std::vector<uint8_t> testChallenge = {1, 2, 4, 5};
     AuthType testAuthType = FACE;
@@ -305,14 +306,19 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthStub002, TestSize.Level0)
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     uint32_t code = UserAuthInterfaceCode::USER_AUTH_AUTH;
-
+    std::vector<int32_t> testAuthTypeInts;
+    testAuthTypeInts.push_back(static_cast<AuthType>(1));
+    uint32_t authIntent = 0;
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteInt32(testApiVersion));
+    EXPECT_TRUE(data.WriteInt32(testUserId));
     EXPECT_TRUE(data.WriteUInt8Vector(testChallenge));
     EXPECT_TRUE(data.WriteInt32(testAuthType));
+    EXPECT_TRUE(data.WriteInt32Vector(testAuthTypeInts));
     EXPECT_TRUE(data.WriteUint32(testAtl));
+    EXPECT_TRUE(data.WriteUint32(authIntent));
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
-    EXPECT_TRUE(data.WriteInt32(testApiVersion));
 
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
     uint64_t contextId = 0;
@@ -366,12 +372,18 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub002, TestSize.Level0)
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     uint32_t code = UserAuthInterfaceCode::USER_AUTH_AUTH_USER;
-
+    uint32_t testAuthTrustLevel = 0;
+    std::vector<int32_t> testAuthTypeInts;
+    testAuthTypeInts.push_back(static_cast<AuthType>(1));
+    uint32_t authIntent = 0;
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteInt32(testUserId));
     EXPECT_TRUE(data.WriteUInt8Vector(testChallenge));
     EXPECT_TRUE(data.WriteInt32(testAuthType));
+    EXPECT_TRUE(data.WriteInt32Vector(testAuthTypeInts));
     EXPECT_TRUE(data.WriteUint32(testAtl));
+    EXPECT_TRUE(data.WriteUint32(testAuthTrustLevel));
+    EXPECT_TRUE(data.WriteUint32(authIntent));
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
 
