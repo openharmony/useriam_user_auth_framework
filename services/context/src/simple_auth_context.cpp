@@ -36,17 +36,26 @@ ResultCode SimpleAuthContext::GetPropertyForAuthResult(Authentication::AuthResul
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_.size() == 1, GENERAL_ERROR);
     auto scheduleNode = scheduleList_[0];
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleNode != nullptr, GENERAL_ERROR);
+    if (scheduleNode->GetAuthType() == PIN) {
+        resultInfo.nextFailLockoutDuration = FIRST_LOCKOUT_DURATION_OF_PIN;
+    } else {
+        resultInfo.nextFailLockoutDuration = FIRST_LOCKOUT_DURATION_EXCEPT_PIN;
+    }
+    if (!NeedSetFreezingTimeAndRemainTimes(resultInfo.result)) {
+        IAM_LOGI("no need GetPropertyFromExecutor, nextLockDuration:%{public}d", resultInfo.nextFailLockoutDuration);
+        return SUCCESS;
+    }
 
     auto resourceNode = scheduleNode->GetVerifyExecutor().lock();
     IF_FALSE_LOGE_AND_RETURN_VAL(resourceNode != nullptr, GENERAL_ERROR);
-
     auto optionalTemplateIdList = scheduleNode->GetTemplateIdList();
     IF_FALSE_LOGE_AND_RETURN_VAL(optionalTemplateIdList.has_value(), GENERAL_ERROR);
     std::vector<uint64_t> templateIdList = optionalTemplateIdList.value();
-
+    std::vector<uint32_t> keys = { Attributes::ATTR_FREEZING_TIME, Attributes::ATTR_REMAIN_TIMES};
+    if (scheduleNode->GetAuthType() == PIN) {
+        keys.push_back(Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION);
+    }
     Attributes attr;
-    std::vector<uint32_t> keys = { Attributes::ATTR_FREEZING_TIME, Attributes::ATTR_REMAIN_TIMES,
-        Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION };
     attr.SetUint32ArrayValue(Attributes::ATTR_KEY_LIST, keys);
     attr.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_GET);
     attr.SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIdList);
@@ -55,9 +64,11 @@ ResultCode SimpleAuthContext::GetPropertyForAuthResult(Authentication::AuthResul
     int32_t ret = resourceNode->GetProperty(attr, values);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret == SUCCESS, GENERAL_ERROR);
 
-    bool getNextDurationRet = values.GetInt32Value(Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION,
-        resultInfo.nextFailLockoutDuration);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getNextDurationRet == true, GENERAL_ERROR);
+    if (scheduleNode->GetAuthType() == PIN) {
+        bool getNextDurationRet = values.GetInt32Value(Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION,
+            resultInfo.nextFailLockoutDuration);
+        IF_FALSE_LOGE_AND_RETURN_VAL(getNextDurationRet == true, GENERAL_ERROR);
+    }
     bool getFreezingTimeRet = values.GetInt32Value(Attributes::ATTR_FREEZING_TIME, resultInfo.freezingTime);
     IF_FALSE_LOGE_AND_RETURN_VAL(getFreezingTimeRet == true, GENERAL_ERROR);
     bool getRemainTimesRet = values.GetInt32Value(Attributes::ATTR_REMAIN_TIMES, resultInfo.remainTimes);
@@ -129,12 +140,8 @@ void SimpleAuthContext::OnResult(int32_t resultCode, const std::shared_ptr<Attri
         }
         resultInfo.result = resultCode;
     }
-    static const uint32_t ONE_MINUTE = 1 * 60 * 1000;
-    resultInfo.nextFailLockoutDuration = ONE_MINUTE;
-    if (NeedSetFreezingTimeAndRemainTimes(resultInfo.result)) {
-        if (GetPropertyForAuthResult(resultInfo) != SUCCESS) {
-            IAM_LOGE("GetPropertyForAuthResult failed");
-        }
+    if (GetPropertyForAuthResult(resultInfo) != SUCCESS) {
+        IAM_LOGE("GetPropertyForAuthResult failed");
     }
     InvokeResultCallback(resultInfo);
     SendAuthExecutorMsg();

@@ -49,9 +49,9 @@ private:
     std::recursive_mutex mutex_;
     std::shared_ptr<ConnectionListener> connectionCallback_ = nullptr;
     std::shared_ptr<ScheduleNode> remoteScheduleNode_ = nullptr;
-    uint64_t executorIndex_;
-    std::string connectionName_;
-    std::string endPointName_;
+    uint64_t executorIndex_ = 0;
+    std::string connectionName_ = "";
+    std::string endPointName_ = "";
 };
 } // namespace UserAuth
 } // namespace UserIam

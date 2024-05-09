@@ -52,13 +52,13 @@ public:
     std::shared_ptr<Attributes> ParseMessage(void *message, uint32_t messageLen);
 
 private:
-    uint32_t messageSeq_;
-    uint32_t messageVersion_;
-    std::string connectioneName_;
-    std::string srcEndPoint_;
-    std::string destEndPoint_;
-    std::shared_ptr<Attributes> attributes_;
-    bool isAck_;
+    uint32_t messageSeq_ = 0;
+    uint32_t messageVersion_ = 0;
+    std::string connectioneName_ = "";
+    std::string srcEndPoint_ = "";
+    std::string destEndPoint_ = "";
+    std::shared_ptr<Attributes> attributes_ = nullptr;
+    bool isAck_ = false;
 };
 } // namespace UserAuth
 } // namespace UserIam

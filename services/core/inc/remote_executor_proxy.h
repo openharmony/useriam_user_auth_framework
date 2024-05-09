@@ -60,10 +60,10 @@ private:
     std::shared_ptr<ExecutorMessenger> messenger_ = nullptr;
 
     uint64_t executorIndex_ = 0;
-    std::string connectionName_;
-    ExecutorInfo registerInfo_;
-    std::string endPointName_;
-    uint64_t scheduleId_;
+    std::string connectionName_ = "";
+    ExecutorInfo registerInfo_ = {};
+    std::string endPointName_ = "";
+    uint64_t scheduleId_ = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam
