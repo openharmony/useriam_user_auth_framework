@@ -80,7 +80,7 @@ private:
     void ClearServerSocket();
 
     std::recursive_mutex mutex_;
-    bool inited_;
+    bool inited_ = false;
 
     std::recursive_mutex ServerSocketMutex_;
     std::shared_ptr<BaseSocket> serverSocket_;
