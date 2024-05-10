@@ -16,6 +16,7 @@
 #ifndef IAM_SOFT_BUS_SOCKET_H
 #define IAM_SOFT_BUS_SOCKET_H
 
+#include <chrono>
 #include <cstdint>
 #include <map>
 #include <mutex>
@@ -38,6 +39,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+using time_point = std::chrono::steady_clock::time_point;
 class BaseSocket : public std::enable_shared_from_this<BaseSocket> {
 public:
     BaseSocket(const int32_t socketId);
@@ -69,6 +71,7 @@ public:
         std::string connectionName;
         MsgCallback msgCallback;
         uint32_t timerId;
+        time_point sendTime;
     };
 
 private:
@@ -78,10 +81,11 @@ private:
 
     uint32_t GetReplyTimer(uint32_t messageSeq);
     uint32_t StartReplyTimer(uint32_t messageSeq);
-    void StoptReplyTimer(uint32_t messageSeq);
+    void StopReplyTimer(uint32_t messageSeq);
     void ReplyTimerTimeOut(uint32_t messageSeq);
-    int32_t GetMessageeSeq();
+    int32_t GetMessageSeq();
     ResultCode SetDeviceNetworkId(const std::string networkId, std::shared_ptr<Attributes> &attributes);
+    void PrintTransferDuration(uint32_t messageSeq);
 
     std::recursive_mutex callbackMutex_;
     /* <messageSeq, CallbackInfo> */

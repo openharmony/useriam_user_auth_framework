@@ -35,7 +35,6 @@ public:
     virtual bool Start() = 0;
     virtual void OnMessage(const std::string &connectionName, const std::string &srcEndPoint,
         const std::shared_ptr<Attributes> &request, std::shared_ptr<Attributes> &reply) = 0;
-    virtual void OnConnectStatus(const std::string &connectionName, ConnectStatus connectStatus) = 0;
 
     virtual int32_t ProcStartRemoteAuthRequest(std::string connectionName, const std::shared_ptr<Attributes> &request,
         std::shared_ptr<Attributes> &reply) = 0;

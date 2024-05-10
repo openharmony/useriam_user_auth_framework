@@ -36,7 +36,7 @@ constexpr uint32_t TIME_OUT_MS = 3 * 60 * 1000; // 3min
 }
 class RemoteAuthContextMessageCallback : public ConnectionListener, public NoCopyable {
 public:
-    explicit RemoteAuthContextMessageCallback(std::weak_ptr<BaseContext> callbackWeakBase, RemoteAuthContext *callback)
+    RemoteAuthContextMessageCallback(std::weak_ptr<BaseContext> callbackWeakBase, RemoteAuthContext *callback)
         : callbackWeakBase_(callbackWeakBase),
           callback_(callback),
           threadHandler_(ThreadHandler::GetSingleThreadInstance())
@@ -51,28 +51,24 @@ public:
         IF_FALSE_LOGE_AND_RETURN(request != nullptr);
         IF_FALSE_LOGE_AND_RETURN(reply != nullptr);
 
-        IAM_LOGI("connectionName: %{public}s, srcEndPoint: %{public}s",
-            RemoteMsgUtil::GetConnectionNameStr(connectionName).c_str(), srcEndPoint.c_str());
+        IAM_LOGI("connectionName: %{public}s, srcEndPoint: %{public}s", connectionName.c_str(), srcEndPoint.c_str());
     }
 
     void OnConnectStatus(const std::string &connectionName, ConnectStatus connectStatus) override
     {
-        IAM_LOGI("connectionName: %{public}s, connectStatus %{public}d",
-            RemoteMsgUtil::GetConnectionNameStr(connectionName).c_str(), connectStatus);
+        IAM_LOGI("connectionName: %{public}s, connectStatus %{public}d", connectionName.c_str(), connectStatus);
 
         IF_FALSE_LOGE_AND_RETURN(threadHandler_ != nullptr);
-        IF_FALSE_LOGE_AND_RETURN(connectStatus == ConnectStatus::DISCONNECT);
-
         threadHandler_->PostTask(
             [connectionName, connectStatus, callbackWeakBase = callbackWeakBase_, callback = callback_, this]() {
                 IAM_LOGI("OnConnectStatus process begin");
                 auto callbackSharedBase = callbackWeakBase.lock();
                 IF_FALSE_LOGE_AND_RETURN(callbackSharedBase != nullptr);
 
-                callback_->OnConnectStatus(connectionName, connectStatus);
+                IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+                callback->OnConnectStatus(connectionName, connectStatus);
                 IAM_LOGI("OnConnectStatus process success");
             });
-
         IAM_LOGI("task posted");
     }
 
@@ -122,9 +118,9 @@ bool RemoteAuthContext::OnStart()
     IAM_LOGI("start");
 
     cancelTimerId_ = RelativeTimer::GetInstance().Register(
-        [weak_ptr = weak_from_this(), this]() {
-            auto shared_ptr = weak_ptr.lock();
-            IF_FALSE_LOGE_AND_RETURN(shared_ptr != nullptr);
+        [weakThis = weak_from_this(), this]() {
+            auto sharedThis = weakThis.lock();
+            IF_FALSE_LOGE_AND_RETURN(sharedThis != nullptr);
             OnTimeOut();
         },
         TIME_OUT_MS);
@@ -151,7 +147,6 @@ bool RemoteAuthContext::StartAuth()
     IF_FALSE_LOGE_AND_RETURN_VAL(executorInfos.size() > 0, false);
 
     IAM_LOGE("executorRole is %{public}d", executorInfos[0].executorRole);
-    executorInfos[0].executorRole = executorInfos[0].executorRole;
 
     remoteExecutorProxy_ = Common::MakeShared<RemoteExecutorProxy>(connectionName_, executorInfos[0]);
     IF_FALSE_LOGE_AND_RETURN_VAL(remoteExecutorProxy_ != nullptr, false);
@@ -172,6 +167,7 @@ bool RemoteAuthContext::StartAuth()
 void RemoteAuthContext::StartAuthDelayed()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
+    IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
     IAM_LOGI("start");
 
     bool ret = StartAuth();
@@ -205,11 +201,11 @@ bool RemoteAuthContext::SendQueryExecutorInfoMsg()
     bool getLocalUdidRet = DeviceManagerUtil::GetInstance().GetLocalDeviceUdid(localUdid);
     IF_FALSE_LOGE_AND_RETURN_VAL(getLocalUdidRet, false);
 
-    MsgCallback msgCallback = [weak_ptr = weak_from_this(), this](const std::shared_ptr<Attributes> &reply) {
+    MsgCallback msgCallback = [weakThis = weak_from_this(), this](const std::shared_ptr<Attributes> &reply) {
         IF_FALSE_LOGE_AND_RETURN(reply != nullptr);
 
-        auto shared_ptr = weak_ptr.lock();
-        IF_FALSE_LOGE_AND_RETURN(shared_ptr != nullptr);
+        auto sharedThis = weakThis.lock();
+        IF_FALSE_LOGE_AND_RETURN(sharedThis != nullptr);
 
         int32_t resultCode;
         bool getResultCodeRet = reply->GetInt32Value(Attributes::ATTR_RESULT_CODE, resultCode);
@@ -226,9 +222,9 @@ bool RemoteAuthContext::SendQueryExecutorInfoMsg()
 
         auto handler = ThreadHandler::GetSingleThreadInstance();
         IF_FALSE_LOGE_AND_RETURN(handler != nullptr);
-        handler->PostTask([weak_ptr = weak_from_this(), this]() {
-            auto shared_ptr = weak_ptr.lock();
-            IF_FALSE_LOGE_AND_RETURN(shared_ptr != nullptr);
+        handler->PostTask([weakThis = weak_from_this(), this]() {
+            auto sharedThis = weakThis.lock();
+            IF_FALSE_LOGE_AND_RETURN(sharedThis != nullptr);
             StartAuthDelayed();
         });
     };
@@ -258,9 +254,6 @@ bool RemoteAuthContext::SetupConnection()
         RemoteConnectionManager::GetInstance().OpenConnection(connectionName_, collectorNetworkId_, GetTokenId());
     IF_FALSE_LOGE_AND_RETURN_VAL(connectResult == SUCCESS, false);
 
-    bool sendMsgRet = SendQueryExecutorInfoMsg();
-    IF_FALSE_LOGE_AND_RETURN_VAL(sendMsgRet, false);
-
     IAM_LOGI("success");
     return true;
 }
@@ -270,18 +263,26 @@ void RemoteAuthContext::OnConnectStatus(const std::string &connectionName, Conne
     std::lock_guard<std::recursive_mutex> lock(mutex_);
 
     IF_FALSE_LOGE_AND_RETURN(connectionName_ == connectionName);
+    IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
 
-    if (connectStatus == ConnectStatus::DISCONNECT) {
+    if (connectStatus == ConnectStatus::DISCONNECTED) {
         IAM_LOGI("connection is disconnected");
         Attributes attr;
         callback_->OnResult(ResultCode::GENERAL_ERROR, attr);
         return;
+    } else {
+        IAM_LOGI("connection is connected");
+        bool sendMsgRet = SendQueryExecutorInfoMsg();
+        IF_FALSE_LOGE_AND_RETURN(sendMsgRet);
+        IAM_LOGI("connection is connected processed");
     }
 }
 
 void RemoteAuthContext::OnTimeOut()
 {
     IAM_LOGI("timeout");
+    IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
+
     Attributes attr;
     callback_->OnResult(TIMEOUT, attr);
 }

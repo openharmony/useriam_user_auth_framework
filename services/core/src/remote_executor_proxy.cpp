@@ -39,7 +39,6 @@ public:
     void OnMessengerReady(uint64_t executorIndex, const std::shared_ptr<ExecutorMessenger> &messenger,
         const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList) override
     {
-        std::lock_guard<std::recursive_mutex> lock(mutex_);
         auto callback = callback_.lock();
         IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
         callback->OnMessengerReady(executorIndex, messenger, publicKey, templateIdList);
@@ -48,14 +47,12 @@ public:
     int32_t OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
         const Attributes &commandAttrs) override
     {
-        std::lock_guard<std::recursive_mutex> lock(mutex_);
         auto callback = callback_.lock();
         IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, GENERAL_ERROR);
         return callback->OnBeginExecute(scheduleId, publicKey, commandAttrs);
     }
     int32_t OnEndExecute(uint64_t scheduleId, const Attributes &commandAttrs) override
     {
-        std::lock_guard<std::recursive_mutex> lock(mutex_);
         auto callback = callback_.lock();
         IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, GENERAL_ERROR);
         return callback->OnEndExecute(scheduleId, commandAttrs);
@@ -75,14 +72,12 @@ public:
 
     int32_t OnSendData(uint64_t scheduleId, const Attributes &data) override
     {
-        std::lock_guard<std::recursive_mutex> lock(mutex_);
         auto callback = callback_.lock();
         IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, GENERAL_ERROR);
         return callback->OnSendData(scheduleId, data);
     }
 
 private:
-    std::recursive_mutex mutex_;
     std::weak_ptr<RemoteExecutorProxy> callback_;
 };
 
@@ -101,8 +96,7 @@ public:
         IF_FALSE_LOGE_AND_RETURN(request != nullptr);
         IF_FALSE_LOGE_AND_RETURN(reply != nullptr);
 
-        IAM_LOGI("connectionName: %{public}s, srcEndPoint: %{public}s",
-            RemoteMsgUtil::GetConnectionNameStr(connectionName).c_str(), srcEndPoint.c_str());
+        IAM_LOGI("connectionName: %{public}s, srcEndPoint: %{public}s", connectionName.c_str(), srcEndPoint.c_str());
 
         auto callback = callback_.lock();
         IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
@@ -111,17 +105,16 @@ public:
 
     void OnConnectStatus(const std::string &connectionName, ConnectStatus connectStatus) override
     {
-        IAM_LOGI("connectionName: %{public}s, connectStatus %{public}d",
-            RemoteMsgUtil::GetConnectionNameStr(connectionName).c_str(), connectStatus);
+        IAM_LOGI("connectionName: %{public}s, connectStatus %{public}d", connectionName.c_str(), connectStatus);
 
-        IF_FALSE_LOGE_AND_RETURN(connectStatus == ConnectStatus::DISCONNECT);
+        IF_FALSE_LOGE_AND_RETURN(connectStatus == ConnectStatus::DISCONNECTED);
         IF_FALSE_LOGE_AND_RETURN(threadHandler_ != nullptr);
 
-        threadHandler_->PostTask([connectionName, connectStatus, callback = callback_, this]() {
+        threadHandler_->PostTask([connectionName, connectStatus, callback_ = callback_, this]() {
             IAM_LOGI("OnConnectStatus process begin");
-            auto callbackLocked = callback_.lock();
-            IF_FALSE_LOGE_AND_RETURN(callbackLocked != nullptr);
-            callbackLocked->OnConnectStatus(connectionName, connectStatus);
+            auto callback = callback_.lock();
+            IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+            callback->OnConnectStatus(connectionName, connectStatus);
             IAM_LOGI("OnConnectStatus process success");
         });
 
@@ -178,6 +171,8 @@ void RemoteExecutorProxy::OnMessage(const std::string &connectionName, const std
     IAM_LOGI("start");
 
     IF_FALSE_LOGE_AND_RETURN(connectionName_ == connectionName);
+    IF_FALSE_LOGE_AND_RETURN(request != nullptr);
+    IF_FALSE_LOGE_AND_RETURN(reply != nullptr);
 
     int32_t msgType;
     bool getMsgTypeRet = request->GetInt32Value(Attributes::ATTR_MSG_TYPE, msgType);
@@ -208,7 +203,7 @@ void RemoteExecutorProxy::OnConnectStatus(const std::string &connectionName, Con
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     IAM_LOGI("start");
 
-    if (connectStatus == ConnectStatus::DISCONNECT) {
+    if (connectStatus == ConnectStatus::DISCONNECTED) {
         OnErrorFinish();
     }
 
@@ -308,7 +303,19 @@ int32_t RemoteExecutorProxy::OnSendData(uint64_t scheduleId, const Attributes &d
     bool setScheduleIdRet = request->SetUint64Value(Attributes::ATTR_SCHEDULE_ID, scheduleId);
     IF_FALSE_LOGE_AND_RETURN_VAL(setScheduleIdRet, GENERAL_ERROR);
 
-    MsgCallback msgCallback = [](const std::shared_ptr<Attributes> &) { IAM_LOGI("message sent"); };
+    MsgCallback msgCallback = [weakThis = weak_from_this()](const std::shared_ptr<Attributes> &reply) {
+        int32_t resultCode;
+        bool getResultCodeRet = reply->GetInt32Value(Attributes::ATTR_RESULT_CODE, resultCode);
+        IF_FALSE_LOGE_AND_RETURN(getResultCodeRet);
+
+        if (resultCode != ResultCode::SUCCESS) {
+            IAM_LOGE("send data to executor failed");
+            auto sharedThis = weakThis.lock();
+            IF_FALSE_LOGE_AND_RETURN(sharedThis != nullptr);
+            sharedThis->OnErrorFinish();
+            return;
+        }
+    };
 
     ResultCode sendMsgRet = RemoteConnectionManager::GetInstance().SendMessage(connectionName_, endPointName_,
         RemoteMsgUtil::GetExecutorStubEndPointName(), request, msgCallback);

@@ -618,7 +618,12 @@ int32_t UserAuthStub::PrepareRemoteAuthStub(MessageParcel &data, MessageParcel &
     IAM_LOGI("enter");
     ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
-    std::string networkId = data.ReadString();
+    std::string networkId;
+    if (!data.ReadString(networkId)) {
+        IAM_LOGE("failed to read networkId");
+        return READ_PARCEL_ERROR;
+    }
+
     sptr<IRemoteObject> obj = data.ReadRemoteObject();
     if (obj == nullptr) {
         IAM_LOGE("failed to read remote object");
