@@ -42,9 +42,7 @@ public:
     }
     ~RemoteExecutorStubScheduleNode()
     {
-        IAM_LOGI("start");
         std::lock_guard<std::recursive_mutex> lock(mutex_);
-        IAM_LOGI("success");
     }
 
     uint64_t GetScheduleId() const override
@@ -143,8 +141,7 @@ public:
         IF_FALSE_LOGE_AND_RETURN(request != nullptr);
         IF_FALSE_LOGE_AND_RETURN(reply != nullptr);
 
-        IAM_LOGI("connectionName: %{public}s, srcEndPoint: %{public}s",
-            RemoteMsgUtil::GetConnectionNameStr(connectionName).c_str(), srcEndPoint.c_str());
+        IAM_LOGI("connectionName: %{public}s, srcEndPoint: %{public}s", connectionName.c_str(), srcEndPoint.c_str());
 
         auto callback = callback_.lock();
         IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
@@ -153,21 +150,22 @@ public:
 
     void OnConnectStatus(const std::string &connectionName, ConnectStatus connectStatus) override
     {
-        IAM_LOGI("connectionName: %{public}s, connectStatus %{public}d",
-            RemoteMsgUtil::GetConnectionNameStr(connectionName).c_str(), connectStatus);
+        IAM_LOGI("connectionName: %{public}s, connectStatus %{public}d", connectionName.c_str(), connectStatus);
 
-        IF_FALSE_LOGE_AND_RETURN(connectStatus == ConnectStatus::DISCONNECT);
+        IF_FALSE_LOGE_AND_RETURN(connectStatus == ConnectStatus::DISCONNECTED);
 
         IF_FALSE_LOGE_AND_RETURN(threadHandler_ != nullptr);
 
         threadHandler_->PostTask([scheduleId = scheduleId_]() {
             IAM_LOGI("OnConnectStatus process begin");
+
             auto request = Common::MakeShared<Attributes>();
             IF_FALSE_LOGE_AND_RETURN(request != nullptr);
             bool setScheduleIdRet = request->SetUint64Value(Attributes::ATTR_SCHEDULE_ID, scheduleId);
             IF_FALSE_LOGE_AND_RETURN(setScheduleIdRet);
 
             auto reply = Common::MakeShared<Attributes>();
+            IF_FALSE_LOGE_AND_RETURN(reply != nullptr);
             RemoteAuthService::GetInstance().ProcEndExecuteRequest(request, reply);
             IAM_LOGI("OnConnectStatus process success");
         });
@@ -258,6 +256,8 @@ void RemoteExecutorStub::OnMessage(const std::string &connectionName, const std:
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     IAM_LOGI("start");
+    IF_FALSE_LOGE_AND_RETURN(request != nullptr);
+    IF_FALSE_LOGE_AND_RETURN(reply != nullptr);
 
     int32_t msgType;
     bool getMsgTypeRet = request->GetInt32Value(Attributes::ATTR_MSG_TYPE, msgType);

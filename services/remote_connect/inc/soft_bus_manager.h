@@ -55,6 +55,8 @@ public:
     void OnQos(int32_t socketId, QoSEvent eventId, const QosTV *qos, uint32_t qosCount) {};
     void OnClientBytes(int32_t socketId, const void *data, uint32_t dataLen);
     void OnServerBytes(int32_t socketId, const void *data, uint32_t dataLen);
+    void DoOpenConnection(const std::string &connectionName, const uint32_t tokenId,
+        const std::string &networkId);
 
 private:
     SoftBusManager();
@@ -78,6 +80,8 @@ private:
     void DeleteSocket(const int32_t socketId);
     void SetServerSocket(std::shared_ptr<BaseSocket> &socket);
     void ClearServerSocket();
+    ResultCode DoOpenConnectionInner(const std::string &connectionName, const uint32_t tokenId,
+        const std::string &networkId);
 
     std::recursive_mutex mutex_;
     bool inited_;

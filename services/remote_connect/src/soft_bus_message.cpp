@@ -98,7 +98,14 @@ std::shared_ptr<Attributes> SoftBusMessage::CreateMessage(bool response)
     ret = attributes->SetUint32Value(Attributes::ATTR_MSG_VERSION, MESSAGE_VERSION);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret, nullptr);
 
-    IAM_LOGE("CreateMessage success: messageSeq:%{public}u, isAck:%{public}d,"
+    std::string udid;
+    bool getLocalUdidRet = DeviceManagerUtil::GetInstance().GetLocalDeviceUdid(udid);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getLocalUdidRet, nullptr);
+
+    ret = attributes->SetStringValue(Attributes::ATTR_MSG_SRC_UDID, udid);
+    IF_FALSE_LOGE_AND_RETURN_VAL(ret, nullptr);
+
+    IAM_LOGI("CreateMessage success: messageSeq:%{public}u, isAck:%{public}d,"
         " srcEndPoint:%{public}s, destEndPoint:%{public}s, connectionName:%{public}s",
         messageSeq_, response, srcEndPoint_.c_str(), destEndPoint_.c_str(), connectioneName_.c_str());
     
@@ -138,16 +145,9 @@ std::shared_ptr<Attributes> SoftBusMessage::ParseMessage(void *message, uint32_t
     ret = attributes->GetUint32Value(Attributes::ATTR_MSG_VERSION, messageVersion_);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret, nullptr);
 
-    std::string udid;
-    bool getLocalUdidRet = DeviceManagerUtil::GetInstance().GetLocalDeviceUdid(udid);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getLocalUdidRet, nullptr);
-
-    ret = attributes->SetStringValue(Attributes::ATTR_MSG_SRC_UDID, udid);
-    IF_FALSE_LOGE_AND_RETURN_VAL(ret, nullptr);
-
     attributes_ = attributes;
 
-    IAM_LOGE("ParseMessage success: messageSeq:%{public}u, isAck:%{public}d,"
+    IAM_LOGI("ParseMessage success: messageSeq:%{public}u, isAck:%{public}d,"
         " srcEndPoint:%{public}s, destEndPoint:%{public}s, connectionName:%{public}s",
         messageSeq_, isAck_, srcEndPoint_.c_str(), destEndPoint_.c_str(), connectioneName_.c_str());
     return attributes;

@@ -40,8 +40,12 @@ public:
     bool DeregisterResourceNodePoolListener(const std::shared_ptr<ResourceNodePoolListener> &listener) override;
 
 private:
+    struct ResourceNodeParam {
+        uint32_t count = 0;
+        std::shared_ptr<ResourceNode> node = nullptr;
+    };
     mutable std::recursive_mutex poolMutex_;
-    std::unordered_map<uint64_t, std::shared_ptr<ResourceNode>> resourceNodeMap_;
+    std::unordered_map<uint64_t, ResourceNodeParam> resourceNodeMap_;
     std::set<std::shared_ptr<ResourceNodePoolListener>> listenerSet_;
 };
 
@@ -54,22 +58,27 @@ bool ResourceNodePoolImpl::Insert(const std::shared_ptr<ResourceNode> &resource)
     std::lock_guard<std::recursive_mutex> lock(poolMutex_);
     uint64_t executorIndex = resource->GetExecutorIndex();
 
+    ResourceNodeParam nodeParam = {1, resource};
     auto iter = resourceNodeMap_.find(executorIndex);
-    if (iter != resourceNodeMap_.end() && iter->second != nullptr) {
-        iter->second->Detach();
+    if (iter != resourceNodeMap_.end()) {
+        if (nodeParam.count < UINT32_MAX) {
+            nodeParam.count = iter->second.count + 1;
+        }
     }
 
-    auto result = resourceNodeMap_.insert_or_assign(executorIndex, resource);
+    auto result = resourceNodeMap_.insert_or_assign(executorIndex, nodeParam);
     if (result.second) {
+        IAM_LOGI("insert resource node success");
         for (const auto &listener : listenerSet_) {
             if (listener != nullptr) {
-                listener->OnResourceNodePoolInsert(resource);
+                listener->OnResourceNodePoolInsert(nodeParam.node);
             }
         }
     } else {
+        IAM_LOGI("update resource node success, count: %{public}u", resourceNodeMap_[executorIndex].count);
         for (const auto &listener : listenerSet_) {
             if (listener != nullptr) {
-                listener->OnResourceNodePoolUpdate(resource);
+                listener->OnResourceNodePoolUpdate(nodeParam.node);
             }
         }
     }
@@ -84,7 +93,15 @@ bool ResourceNodePoolImpl::Delete(uint64_t executorIndex)
         IAM_LOGE("executor not found");
         return false;
     }
-    auto tempResource = iter->second;
+
+    if (iter->second.count > 1) {
+        iter->second.count--;
+        IAM_LOGI("resource node count %{public}u, no delete", iter->second.count);
+        return true;
+    }
+    IAM_LOGI("delete resource node");
+
+    auto tempResource = iter->second.node;
     resourceNodeMap_.erase(iter);
     for (const auto &listener : listenerSet_) {
         if (listener != nullptr) {
@@ -102,7 +119,7 @@ void ResourceNodePoolImpl::DeleteAll()
     for (auto &node : tempMap) {
         for (const auto &listener : listenerSet_) {
             if (listener != nullptr) {
-                listener->OnResourceNodePoolDelete(node.second);
+                listener->OnResourceNodePoolDelete(node.second.node);
             }
         }
     }
@@ -114,7 +131,7 @@ std::weak_ptr<ResourceNode> ResourceNodePoolImpl::Select(uint64_t executorIndex)
     std::weak_ptr<ResourceNode> result;
     auto iter = resourceNodeMap_.find(executorIndex);
     if (iter != resourceNodeMap_.end()) {
-        result = iter->second;
+        result = iter->second.node;
     }
     return result;
 }
@@ -127,7 +144,7 @@ void ResourceNodePoolImpl::Enumerate(std::function<void(const std::weak_ptr<Reso
     }
     std::lock_guard<std::recursive_mutex> lock(poolMutex_);
     for (auto &node : resourceNodeMap_) {
-        action(node.second);
+        action(node.second.node);
     }
 }
 

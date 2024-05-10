@@ -29,8 +29,6 @@ bool RemoteConnectListenerManager::ListenerInfo::operator==(const ListenerInfo &
 {
     bool compareRet = endPointName == other.endPointName &&
         (connectionName == other.connectionName || connectionName == GLOBAL_CONNECTION_NAME);
-    IAM_LOGI("Check listener connectionName:%{public}s, endPointName:%{public}s, compareRet:%{public}d",
-        connectionName.c_str(), endPointName.c_str(), compareRet);
     return compareRet;
 }
 
@@ -112,13 +110,26 @@ void RemoteConnectListenerManager::OnConnectionDown(const std::string &connectio
     for (auto it = listeners_.begin(); it != listeners_.end(); ++it) {
         if (it->connectionName == connectionName) {
             IAM_LOGI("notify listener endPointName:%{public}s", it->endPointName.c_str());
-            it->listener->OnConnectStatus(connectionName, ConnectStatus::DISCONNECT);
+            it->listener->OnConnectStatus(connectionName, ConnectStatus::DISCONNECTED);
         }
     }
     listeners_.erase(std::remove_if(listeners_.begin(), listeners_.end(),
         [&](ListenerInfo item) { return item.connectionName == connectionName; }),
         listeners_.end());
     IAM_LOGI("OnConnectionDown end");
+}
+
+void RemoteConnectListenerManager::OnConnectionUp(const std::string &connectionName)
+{
+    std::lock_guard<std::recursive_mutex> lock(listenerMutex_);
+    IAM_LOGI("OnConnectionUp connectionName:%{public}s", connectionName.c_str());
+    for (auto it = listeners_.begin(); it != listeners_.end(); ++it) {
+        if (it->connectionName == connectionName) {
+            IAM_LOGI("notify listener endPointName:%{public}s", it->endPointName.c_str());
+            it->listener->OnConnectStatus(connectionName, ConnectStatus::CONNECTED);
+        }
+    }
+    IAM_LOGI("OnConnectionUp end");
 }
 } // namespace UserAuth
 } // namespace UserIam

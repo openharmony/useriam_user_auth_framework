@@ -54,7 +54,6 @@ public:
     int32_t SetProperty(const Attributes &properties) override;
     int32_t GetProperty(const Attributes &condition, Attributes &values) override;
     int32_t SendData(uint64_t scheduleId, const Attributes &data) override;
-    void Detach() override;
     friend ResourceNode;
 
 private:
@@ -63,7 +62,6 @@ private:
     ExecutorRegisterInfo info_;
     std::shared_ptr<ExecutorCallbackInterface> callback_;
     uint64_t executeIndex_ {0};
-    bool synced {false};
 };
 
 ResourceNodeImpl::ResourceNodeImpl(ExecutorRegisterInfo info, std::shared_ptr<ExecutorCallbackInterface> callback)
@@ -78,9 +76,6 @@ ResourceNodeImpl::ResourceNodeImpl(ExecutorRegisterInfo info, std::shared_ptr<Ex
 
 ResourceNodeImpl::~ResourceNodeImpl()
 {
-    if (!synced) {
-        return;
-    }
     auto hdi = HdiWrapper::GetHdiInstance();
     if (!hdi) {
         IAM_LOGE("bad hdi");
@@ -192,12 +187,6 @@ int32_t ResourceNodeImpl::SendData(uint64_t scheduleId, const Attributes &data)
     return GENERAL_ERROR;
 }
 
-void ResourceNodeImpl::Detach()
-{
-    IAM_LOGI("start");
-    synced = false;
-}
-
 int32_t ResourceNodeImpl::SyncWithDriver(std::vector<uint64_t> &templateIdList, std::vector<uint8_t> &fwkPublicKey)
 {
     HdiExecutorRegisterInfo hdiInfo = {
@@ -206,10 +195,10 @@ int32_t ResourceNodeImpl::SyncWithDriver(std::vector<uint64_t> &templateIdList, 
         .executorSensorHint = info_.executorSensorHint,
         .executorMatcher = info_.executorMatcher,
         .esl = static_cast<HdiExecutorSecureLevel>(info_.esl),
+        .maxTemplateAcl = info_.maxTemplateAcl,
         .publicKey = info_.publicKey,
         .deviceUdid = info_.deviceUdid,
         .signedRemoteExecutorInfo = info_.signedRemoteExecutorInfo,
-        .maxTemplateAcl = info_.maxTemplateAcl,
     };
 
     auto hdi = HdiWrapper::GetHdiInstance();
@@ -223,7 +212,6 @@ int32_t ResourceNodeImpl::SyncWithDriver(std::vector<uint64_t> &templateIdList, 
         IAM_LOGE("hdi AddExecutor failed with code %{public}d", result);
         return GENERAL_ERROR;
     }
-    synced = true;
     IAM_LOGI("hdi AddExecutor ****%{public}hx success", static_cast<uint16_t>(executeIndex_));
     return SUCCESS;
 }

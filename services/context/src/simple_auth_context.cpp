@@ -100,7 +100,7 @@ uint32_t SimpleAuthContext::GetTokenId() const
 
 bool SimpleAuthContext::OnStart()
 {
-    IAM_LOGI("%{public}s start should not", GetDescription());
+    IAM_LOGI("%{public}s start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN_VAL(auth_ != nullptr, false);
     bool startRet = auth_->Start(scheduleList_, shared_from_this());
     if (!startRet) {

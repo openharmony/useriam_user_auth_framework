@@ -101,8 +101,8 @@ bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
             .apiVersion = authPara_.sdkVersion,
         },
         .authType = authPara_.authType,
-        .collectorUdid = collectorUdid_,
         .authIntent = authPara_.authIntent,
+        .collectorUdid = collectorUdid_,
     };
     std::vector<HdiScheduleInfo> infos;
     IamHitraceHelper traceHelper("hdi BeginAuthentication");

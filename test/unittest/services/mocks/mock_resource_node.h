@@ -43,9 +43,8 @@ public:
     MOCK_METHOD1(SetProperty, int32_t(const Attributes &properties));
     MOCK_METHOD2(GetProperty, int32_t(const Attributes &condition, Attributes &values));
     MOCK_METHOD2(SendData, int32_t(uint64_t scheduleId, const Attributes &data));
-    MOCK_METHOD0(Detach, void());
 
-    static std::shared_ptr<ResourceNode> CreateWithExecuteIndex(uint64_t executorId, bool detach = false)
+    static std::shared_ptr<ResourceNode> CreateWithExecuteIndex(uint64_t executorId)
     {
         using namespace testing;
         auto node = std::make_shared<MockResourceNode>();
@@ -54,7 +53,6 @@ public:
         EXPECT_CALL(*node, GetExecutorRole()).WillRepeatedly(Return(COLLECTOR));
         EXPECT_CALL(*node, GetExecutorMatcher()).WillRepeatedly(Return(0));
         EXPECT_CALL(*node, GetExecutorSensorHint()).WillRepeatedly(Return(0));
-        EXPECT_CALL(*node, Detach()).Times(detach ? 1 : 0);
         return node;
     }
 

@@ -29,6 +29,14 @@ void ExecutorMgrWrapper::Register(const ExecutorInfo &info, std::shared_ptr<Exec
     UserAuth::CoAuthClient::GetInstance().Register(info, callback);
     IPCSkeleton::SetCallingIdentity(callingIdentity);
 }
+
+void ExecutorMgrWrapper::Unregister(uint64_t executorIndex)
+{
+    // Same process service tokenId get processing
+    std::string callingIdentity = IPCSkeleton::ResetCallingIdentity();
+    UserAuth::CoAuthClient::GetInstance().Unregister(executorIndex);
+    IPCSkeleton::SetCallingIdentity(callingIdentity);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

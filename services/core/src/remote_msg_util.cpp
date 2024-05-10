@@ -15,6 +15,7 @@
 
 #include "remote_msg_util.h"
 
+#include <iomanip>
 #include <mutex>
 #include <sstream>
 #include <string>
@@ -33,6 +34,10 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+namespace {
+const uint32_t TRUCKED_UDID_LEN = 8;
+const uint32_t TRUCKED_CONTEXT_ID_LEN = 4;
+} // namespace
 bool RemoteMsgUtil::GetConnectionName(uint64_t contextId, std::string &connectionName)
 {
     std::string udid;
@@ -40,19 +45,10 @@ bool RemoteMsgUtil::GetConnectionName(uint64_t contextId, std::string &connectio
     IF_FALSE_LOGE_AND_RETURN_VAL(getLocalUdidRet, false);
 
     std::ostringstream oss;
-    oss << udid << "_Context_" << contextId;
+    oss << udid.substr(0, TRUCKED_UDID_LEN) << "_Context_";
+    oss << std::setw(TRUCKED_CONTEXT_ID_LEN) << std::setfill('0') << std::hex << static_cast<uint16_t>(contextId);
     connectionName = oss.str();
     return true;
-}
-
-std::string RemoteMsgUtil::GetConnectionNameStr(const std::string &connectionName)
-{
-    static const std::string key = "ContextId";
-    size_t pos = connectionName.find(key);
-    if (pos == std::string::npos) {
-        return "invalid";
-    }
-    return connectionName.substr(pos);
 }
 
 std::string RemoteMsgUtil::GetExecutorProxyEndPointName()
@@ -213,16 +209,16 @@ bool RemoteMsgUtil::GetQueryExecutorInfoReply(const std::vector<int32_t> authTyp
     std::string remoteUdid, Attributes &attr)
 {
     auto hdi = HdiWrapper::GetHdiInstance();
-    IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, GENERAL_ERROR);
-    IF_FALSE_LOGE_AND_RETURN_VAL(authTypes.size() == 1, GENERAL_ERROR);
+    IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, false);
+    IF_FALSE_LOGE_AND_RETURN_VAL(authTypes.size() == 1, false);
 
     std::vector<uint8_t> signedExecutorInfo;
     int32_t hdiRet = hdi->GetSignedExecutorInfo(authTypes, executorRole, remoteUdid, signedExecutorInfo);
-    IF_FALSE_LOGE_AND_RETURN_VAL(hdiRet == SUCCESS, GENERAL_ERROR);
+    IF_FALSE_LOGE_AND_RETURN_VAL(hdiRet == SUCCESS, false);
 
     std::string localUdid;
     bool getLocalUdidRet = DeviceManagerUtil::GetInstance().GetLocalDeviceUdid(localUdid);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getLocalUdidRet, GENERAL_ERROR);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getLocalUdidRet, false);
 
     std::vector<ExecutorInfo> executorInfoArray;
     ResourceNodePool::Instance().Enumerate([&](const std::weak_ptr<ResourceNode> &weakNode) {
@@ -247,7 +243,7 @@ bool RemoteMsgUtil::GetQueryExecutorInfoReply(const std::vector<int32_t> authTyp
 
     bool encodeQueryExecutorInfoReplyRet =
         RemoteMsgUtil::EncodeQueryExecutorInfoReply(executorInfoArray, signedExecutorInfo, attr);
-    IF_FALSE_LOGE_AND_RETURN_VAL(encodeQueryExecutorInfoReplyRet, GENERAL_ERROR);
+    IF_FALSE_LOGE_AND_RETURN_VAL(encodeQueryExecutorInfoReplyRet, false);
 
     IAM_LOGI("success");
     return true;

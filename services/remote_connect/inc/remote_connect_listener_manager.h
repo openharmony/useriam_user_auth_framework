@@ -41,6 +41,7 @@ public:
     std::shared_ptr<ConnectionListener> FindListener(const std::string &connectionName,
         const std::string &endPointName);
     void OnConnectionDown(const std::string &connectionName);
+    void OnConnectionUp(const std::string &connectionName);
 
     struct ListenerInfo {
         std::string connectionName;
