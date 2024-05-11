@@ -265,15 +265,19 @@ void RemoteAuthContext::OnConnectStatus(const std::string &connectionName, Conne
     IF_FALSE_LOGE_AND_RETURN(connectionName_ == connectionName);
     IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
 
+    Attributes attr;
     if (connectStatus == ConnectStatus::DISCONNECTED) {
         IAM_LOGI("connection is disconnected");
-        Attributes attr;
         callback_->OnResult(ResultCode::GENERAL_ERROR, attr);
         return;
     } else {
         IAM_LOGI("connection is connected");
         bool sendMsgRet = SendQueryExecutorInfoMsg();
-        IF_FALSE_LOGE_AND_RETURN(sendMsgRet);
+        if (!sendMsgRet) {
+            IAM_LOGE("SendQueryExecutorInfoMsg failed");
+            callback_->OnResult(GENERAL_ERROR, attr);
+            return;
+        }
         IAM_LOGI("connection is connected processed");
     }
 }

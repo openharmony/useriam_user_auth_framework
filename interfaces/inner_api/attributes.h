@@ -189,6 +189,8 @@ public:
         ATTR_PIN_EXPIRED_INFO = 100083,
        /** next fail lockout duration, the value type is int32_t. */
         ATTR_NEXT_FAIL_LOCKOUT_DURATION = 100084,
+       /** caller type, the value type is int32_t. */
+        ATTR_CALLER_TYPE = 100085,
     };
 
     /**

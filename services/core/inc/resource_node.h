@@ -47,6 +47,7 @@ public:
     virtual int32_t SetProperty(const Attributes &properties) = 0;
     virtual int32_t GetProperty(const Attributes &condition, Attributes &values) = 0;
     virtual int32_t SendData(uint64_t scheduleId, const Attributes &data) = 0;
+    virtual void Detach() = 0;
 
     static std::shared_ptr<ResourceNode> MakeNewResource(const ExecutorRegisterInfo &info,
         const std::shared_ptr<ExecutorCallbackInterface> &callback, std::vector<uint64_t> &templateIdList,
