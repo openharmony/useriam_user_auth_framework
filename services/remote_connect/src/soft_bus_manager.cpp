@@ -352,6 +352,7 @@ void SoftBusManager::ServiceSocketUnInit()
         IAM_LOGI("serverSocket is nullptr.");
         return;
     }
+    Shutdown(serverSocket->GetSocketId());
     DeleteSocket(serverSocket->GetSocketId());
     ClearServerSocket();
     IAM_LOGI("UnInitialize success");

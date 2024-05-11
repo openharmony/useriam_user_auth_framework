@@ -35,6 +35,8 @@ struct RemoteAuthInvokerContextParam {
     std::string collectorNetworkId;
     uint32_t tokenId;
     uint32_t collectorTokenId;
+    std::string callerName;
+    int32_t callerType;
 };
 
 class RemoteAuthInvokerContext : public BaseContext {
@@ -60,6 +62,7 @@ protected:
 private:
     int32_t ProcAuthTipMsg(Attributes &message);
     int32_t ProcAuthResultMsg(Attributes &message);
+    int32_t ProcAuthResultMsgInner(Attributes &message, int32_t &resultCode, Attributes &attr);
 
     bool SendRequest();
 
@@ -70,6 +73,8 @@ private:
     std::string verifierUdid_;
     uint32_t tokenId_;
     uint32_t collectorTokenId_;
+    std::string callerName_;
+    int32_t callerType_;
     std::shared_ptr<ContextCallback> callback_;
 
     std::recursive_mutex mutex_;

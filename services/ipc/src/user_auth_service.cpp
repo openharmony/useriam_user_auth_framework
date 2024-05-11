@@ -596,6 +596,8 @@ uint64_t UserAuthService::AuthRemoteUser(AuthParamInner &authParam, Authenticati
         remoteAuthInvokerContextParam.collectorNetworkId = remoteAuthParam.collectorNetworkId.value();
         remoteAuthInvokerContextParam.tokenId = para.tokenId;
         remoteAuthInvokerContextParam.collectorTokenId = para.collectorTokenId;
+        remoteAuthInvokerContextParam.callerName = para.callerName;
+        remoteAuthInvokerContextParam.callerType = para.callerType;
         IAM_LOGI("start remote auth invoker context");
         return StartRemoteAuthInvokerContext(authParam, remoteAuthInvokerContextParam, contextCallback);
     }
@@ -1185,6 +1187,11 @@ int32_t UserAuthService::ProcStartRemoteAuthRequest(std::string connectionName,
     para.collectorTokenId = collectorTokenId;
     para.challenge = authParam.challenge;
     para.sdkVersion = INNER_API_VERSION_10000;
+
+    bool getCallerNameRet = request->GetStringValue(Attributes::ATTR_CALLER_NAME, para.callerName);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getCallerNameRet, GENERAL_ERROR);
+    bool getCallerTypeRet = request->GetInt32Value(Attributes::ATTR_CALLER_TYPE, para.callerType);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getCallerTypeRet, GENERAL_ERROR);
 
     RemoteAuthContextParam remoteAuthContextParam;
     remoteAuthContextParam.authType = authParam.authType;
