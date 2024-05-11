@@ -130,12 +130,10 @@ void RemoteAuthServiceImpl::OnMessage(const std::string &connectionName, const s
             break;
     }
 
-    IF_FALSE_LOGE_AND_RETURN(resultCode == ResultCode::SUCCESS);
-
-    bool setResultCodeRet = reply->SetInt32Value(Attributes::ATTR_RESULT_CODE, ResultCode::SUCCESS);
+    bool setResultCodeRet = reply->SetInt32Value(Attributes::ATTR_RESULT_CODE, resultCode);
     IF_FALSE_LOGE_AND_RETURN(setResultCodeRet);
 
-    IAM_LOGI("success");
+    IAM_LOGI("success, msg result %{public}d", resultCode);
 }
 
 int32_t RemoteAuthServiceImpl::ProcStartRemoteAuthRequest(std::string connectionName,
