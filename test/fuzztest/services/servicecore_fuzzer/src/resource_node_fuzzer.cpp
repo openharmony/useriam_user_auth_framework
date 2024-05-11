@@ -256,6 +256,16 @@ void FuzzResourceNodeGetProperty(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzResourceNodeDetach(Parcel &parcel)
+{
+    IAM_LOGI("start");
+    auto node = GetResourceNode(parcel);
+    if (node != nullptr) {
+        node->Detach();
+    }
+    IAM_LOGI("end");
+}
+
 using ResourceNodeFuzzFunc = decltype(FuzzResourceNodeGetExecutorIndex);
 ResourceNodeFuzzFunc *g_ResourceNodeFuzzFuncs[] = {
     FuzzResourceNodeGetExecutorIndex,
@@ -271,6 +281,7 @@ ResourceNodeFuzzFunc *g_ResourceNodeFuzzFuncs[] = {
     FuzzResourceNodeEndExecute,
     FuzzResourceNodeSetProperty,
     FuzzResourceNodeGetProperty,
+    FuzzResourceNodeDetach,
 };
 } // namespace
 

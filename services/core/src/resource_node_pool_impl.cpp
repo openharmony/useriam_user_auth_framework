@@ -64,6 +64,7 @@ bool ResourceNodePoolImpl::Insert(const std::shared_ptr<ResourceNode> &resource)
         if (nodeParam.count < UINT32_MAX) {
             nodeParam.count = iter->second.count + 1;
         }
+        iter->second.node->Detach();
     }
 
     auto result = resourceNodeMap_.insert_or_assign(executorIndex, nodeParam);
