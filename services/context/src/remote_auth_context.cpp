@@ -172,9 +172,10 @@ void RemoteAuthContext::StartAuthDelayed()
 
     bool ret = StartAuth();
     if (!ret) {
-        IAM_LOGE("StartAuth failed");
+        IAM_LOGE("StartAuth failed, latest error %{public}d", GetLatestError());
         Attributes attr;
-        callback_->OnResult(GENERAL_ERROR, attr);
+        callback_->OnResult(GetLatestError(), attr);
+        return;
     }
     IAM_LOGI("success");
 }

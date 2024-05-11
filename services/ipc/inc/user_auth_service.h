@@ -91,7 +91,7 @@ private:
         ResultCode &failReason);
     uint64_t StartRemoteAuthContext(Authentication::AuthenticationPara para,
         RemoteAuthContextParam remoteAuthContextParam,
-        const std::shared_ptr<ContextCallback> &contextCallback);
+        const std::shared_ptr<ContextCallback> &contextCallback, int &lastError);
     uint64_t StartRemoteAuthInvokerContext(AuthParamInner authParam,
         RemoteAuthInvokerContextParam &param, const std::shared_ptr<ContextCallback> &contextCallback);
     bool Insert2ContextPool(const std::shared_ptr<Context> &context);
