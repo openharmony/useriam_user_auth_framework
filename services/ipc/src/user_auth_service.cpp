@@ -192,6 +192,31 @@ int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authTyp
     return checkRet;
 }
 
+void UserAuthService::FillGetPropertyKeys(AuthType authType, const std::vector<Attributes::AttributeKey> keys,
+    std::vector<uint32_t> &uint32Keys)
+{
+    uint32Keys.reserve(keys.size());
+    for (auto &key : keys) {
+        if (key == Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION && authType != PIN) {
+            continue;
+        }
+        uint32Keys.push_back(static_cast<uint32_t>(key));
+    }
+}
+
+void UserAuthService::FillGetPropertyValue(AuthType authType, const std::vector<Attributes::AttributeKey> keys,
+    Attributes &value)
+{
+    for (auto &key : keys) {
+        if (key == Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION && authType != PIN) {
+            if (!value.SetInt32Value(Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION, FIRST_LOCKOUT_DURATION_EXCEPT_PIN)) {
+                IAM_LOGE("set nextFailLockoutDuration failed, authType %{public}d", authType);
+            }
+            break;
+        }
+    }
+}
+
 void UserAuthService::GetProperty(int32_t userId, AuthType authType,
     const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallbackInterface> &callback)
 {
@@ -232,11 +257,7 @@ void UserAuthService::GetProperty(int32_t userId, AuthType authType,
     }
 
     std::vector<uint32_t> uint32Keys;
-    uint32Keys.reserve(keys.size());
-    for (auto &key : keys) {
-        uint32Keys.push_back(static_cast<uint32_t>(key));
-    }
-
+    FillGetPropertyKeys(authType, keys, uint32Keys);
     Attributes attr;
     attr.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_GET);
     attr.SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIds);
@@ -246,6 +267,8 @@ void UserAuthService::GetProperty(int32_t userId, AuthType authType,
     if (result != SUCCESS) {
         IAM_LOGE("failed to get property, result = %{public}d", result);
     }
+    FillGetPropertyValue(authType, keys, values);
+
     callback->OnGetExecutorPropertyResult(result, values);
 }
 
@@ -371,7 +394,7 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
     para.callerName = callerName;
     para.callerType = callerType;
     para.sdkVersion = apiVersion;
-    para.authIntent = 0;
+    para.authIntent = AuthIntent::DEFAULT;
     return StartAuthContext(apiVersion, para, contextCallback);
 }
 
@@ -502,7 +525,7 @@ uint64_t UserAuthService::AuthUser(AuthParamInner &authParam, std::optional<Remo
     para.callerName = callerName;
     para.callerType = callerType;
     para.sdkVersion = INNER_API_VERSION_10000;
-    para.authIntent = 0;
+    para.authIntent = authParam.authIntent;
     if (!remoteAuthParam.has_value()) {
         return StartAuthContext(INNER_API_VERSION_10000, para, contextCallback);
     }

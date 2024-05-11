@@ -25,6 +25,9 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+constexpr int32_t FIRST_LOCKOUT_DURATION_OF_PIN = 60 * 1000;
+constexpr int32_t FIRST_LOCKOUT_DURATION_EXCEPT_PIN = 30 * 1000;
+
 class SimpleAuthContext : public BaseContext {
 public:
     SimpleAuthContext(uint64_t contextId, std::shared_ptr<Authentication> auth,
