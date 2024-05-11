@@ -49,8 +49,8 @@ private:
     std::shared_ptr<JsRefHolder> GetCallback(napi_env env, napi_value value);
     static napi_value DoGetEnrolledStateResult(napi_env env, EnrolledState enrolledState);
 
-    AuthParamInner authParam_;
-    WidgetParam widgetParam_;
+    AuthParamInner authParam_ = {};
+    WidgetParam widgetParam_ = {};
 
     uint64_t contextId_ = 0;
     bool isAuthStarted_ = false;
