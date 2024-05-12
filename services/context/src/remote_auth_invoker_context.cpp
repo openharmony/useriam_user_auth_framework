@@ -250,9 +250,9 @@ bool RemoteAuthInvokerContext::SendRequest()
         IF_FALSE_LOGE_AND_RETURN(getResultCodeRet);
 
         if (resultCode != ResultCode::SUCCESS) {
-            IAM_LOGE("start remote auth failed");
+            IAM_LOGE("start remote auth failed %{public}d", resultCode);
             Attributes attr;
-            callback_->OnResult(ResultCode::GENERAL_ERROR, attr);
+            callback_->OnResult(resultCode, attr);
             return;
         }
 
