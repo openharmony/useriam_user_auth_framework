@@ -56,7 +56,7 @@ struct AuthParam {
     AuthType authType;
     /** Trust level of authentication result. */
     AuthTrustLevel authTrustLevel;
-    /** Auth intent. */
+    /** Auth intention. */
     AuthIntent authIntent;
     /** Remote auth parameter. */
     std::optional<RemoteAuthParam> remoteAuthParam;

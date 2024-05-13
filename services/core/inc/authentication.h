@@ -38,6 +38,7 @@ public:
         int32_t sdkVersion;
         int32_t callerType;
         int32_t authIntent;
+        bool isOsAccountVerified;
     };
 
     struct AuthResultInfo {

@@ -205,10 +205,12 @@ enum ResultCode : int32_t {
  * @brief The auth intent.
  */
 enum AuthIntent : int {
-    /**< The auth intent is default. */
+    /**< The auth intention is default. */
     DEFAULT = 0,
-    /**< The auth intent is unlock. */
+    /**< The auth intention is unlock. */
     UNLOCK = 1,
+    /**< The auth intention is silent auth. */
+    SILENT_AUTH = 2,
 };
 } // namespace UserAuth
 } // namespace UserIam
