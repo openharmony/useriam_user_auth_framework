@@ -93,6 +93,7 @@ public:
     virtual std::shared_ptr<Builder> SetEndAfterFirstFail(const bool endAfterFirstFail) = 0;
     virtual std::shared_ptr<Builder> SetCollectorMessage(const std::vector<uint8_t> &message) = 0;
     virtual std::shared_ptr<Builder> SetVerifierMessage(const std::vector<uint8_t> &message) = 0;
+    virtual std::shared_ptr<Builder> SetAuthIntent(int32_t authIntent) = 0;
     virtual std::shared_ptr<ScheduleNode> Build() = 0;
 };
 } // namespace UserAuth

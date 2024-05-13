@@ -342,6 +342,19 @@ bool IpcCommon::GetCallerName(IPCObjectStub &stub, std::string &callerName, int3
     IAM_LOGI("caller is not a hap or a native");
     return false;
 }
+
+bool IpcCommon::IsOsAccountVerified(int32_t userId)
+{
+    bool isOsAccountVerified = false;
+#ifdef HAS_OS_ACCOUNT_PART
+    ErrCode queryRet = AccountSA::OsAccountManager::IsOsAccountVerified(userId, isOsAccountVerified);
+    if (queryRet != ERR_OK) {
+        IAM_LOGE("failed to query account verified status");
+        return false;
+    }
+#endif
+    return isOsAccountVerified;
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

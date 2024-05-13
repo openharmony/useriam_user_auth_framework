@@ -42,6 +42,18 @@ enum UserAuthResult : int32_t {
 };
 
 /**
+ * @brief Defines Executor parameter.
+ */
+struct ExecutorParam {
+    /** Token id. */
+    uint32_t tokenId;
+    /** Auth intention. */
+    int32_t authIntent;
+    /** Schedule id. */
+    uint64_t scheduleId;
+};
+
+/**
  * @brief Defines Enroll parameter.
  */
 struct EnrollParam {
@@ -63,6 +75,7 @@ struct AuthenticateParam {
     std::vector<uint8_t> extraInfo;
     /** End after first fail. */
     bool endAfterFirstFail;
+    int32_t authIntent;
 };
 
 /**
