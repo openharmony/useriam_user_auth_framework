@@ -119,24 +119,28 @@ uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<
         return INVALID_EXECUTOR_INDEX;
     }
 
-    sptr<ExecutorMessengerInterface> messenger = ExecutorMessengerService::GetInstance();
     uint64_t executorIndex = resourceNode->GetExecutorIndex();
-    executorCallback->OnMessengerReady(executorIndex, messenger, fwkPublicKey, templateIdList);
-    int32_t executorType = resourceNode->GetAuthType();
-    IAM_LOGI("register successful, executorType is %{public}d, executorRole is %{public}d, "
-        "executorIndex is ****%{public}hx",
-        executorType, resourceNode->GetExecutorRole(), static_cast<uint16_t>(executorIndex));
-    if (auto obj = executorCallback->AsObject(); obj) {
-        obj->AddDeathRecipient(new (std::nothrow) IpcCommon::PeerDeathRecipient([executorIndex, executorType]() {
-            auto result = ResourceNodePool::Instance().Delete(executorIndex);
-            IAM_LOGI("delete executor %{public}s, executorIndex is ****%{public}hx", (result ? "succ" : "failed"),
-                static_cast<uint16_t>(executorIndex));
-            std::string executorDesc = "executor, type " + std::to_string(executorType);
-            UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), executorDesc);
-        }));
-    }
-    IAM_LOGI("update template cache after register success");
-    TemplateCacheManager::GetInstance().UpdateTemplateCache(resourceNode->GetAuthType());
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    IF_FALSE_LOGE_AND_RETURN_VAL(handler != nullptr, GENERAL_ERROR);
+    handler->PostTask([executorCallback, fwkPublicKey, templateIdList, resourceNode, executorIndex]() {
+        sptr<ExecutorMessengerInterface> messenger = ExecutorMessengerService::GetInstance();
+        executorCallback->OnMessengerReady(executorIndex, messenger, fwkPublicKey, templateIdList);
+        int32_t executorType = resourceNode->GetAuthType();
+        IAM_LOGI("register successful, executorType is %{public}d, executorRole is %{public}d, "
+            "executorIndex is ****%{public}hx",
+            executorType, resourceNode->GetExecutorRole(), static_cast<uint16_t>(executorIndex));
+        if (auto obj = executorCallback->AsObject(); obj) {
+            obj->AddDeathRecipient(new (std::nothrow) IpcCommon::PeerDeathRecipient([executorIndex, executorType]() {
+                auto result = ResourceNodePool::Instance().Delete(executorIndex);
+                IAM_LOGI("delete executor %{public}s, executorIndex is ****%{public}hx", (result ? "succ" : "failed"),
+                    static_cast<uint16_t>(executorIndex));
+                std::string executorDesc = "executor, type " + std::to_string(executorType);
+                UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), executorDesc);
+            }));
+        }
+        IAM_LOGI("update template cache after register success");
+        TemplateCacheManager::GetInstance().UpdateTemplateCache(resourceNode->GetAuthType());
+    });
     return executorIndex;
 }
 
