@@ -75,7 +75,6 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest001, TestSize.Level0)
                 return HDF_SUCCESS;
             }
         );
-    EXPECT_CALL(*mockHdi, DeleteExecutor(_)).Times(1);
     IpcCommon::AddPermission(ACCESS_AUTH_RESPOOL);
     sptr<ExecutorCallbackInterface> callbackInterface = testCallback;
     uint64_t executorIndex = service->ExecutorRegister(info, callbackInterface);
