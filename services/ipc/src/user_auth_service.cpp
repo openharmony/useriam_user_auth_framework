@@ -521,7 +521,7 @@ uint64_t UserAuthService::AuthUser(AuthParamInner &authParam, std::optional<Remo
     para.userId = authParam.userId;
     para.authType = authParam.authType;
     para.atl = authParam.authTrustLevel;
-    para.challenge = std::move(authParam.challenge);
+    para.challenge = authParam.challenge;
     para.endAfterFirstFail = false;
     para.callerName = callerName;
     para.callerType = callerType;
