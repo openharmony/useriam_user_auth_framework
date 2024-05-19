@@ -91,15 +91,13 @@ std::shared_ptr<ConnectionListener> RemoteConnectListenerManager::FindListener(c
     const std::string &endPointName)
 {
     std::lock_guard<std::recursive_mutex> lock(listenerMutex_);
-    IAM_LOGI("FindListener connectionName:%{public}s, endPointName:%{public}s", connectionName.c_str(),
-        endPointName.c_str());
     ListenerInfo info = { connectionName, endPointName };
     auto it = std::find(listeners_.begin(), listeners_.end(), info);
     if (it == listeners_.end()) {
-        IAM_LOGI("listener not exist");
+        IAM_LOGE("connectionName:%{public}s, endPointName:%{public}s, listener not exist", connectionName.c_str(),
+            endPointName.c_str());
         return nullptr;
     }
-    IAM_LOGI("listener exist");
     return it->listener;
 }
 
