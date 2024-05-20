@@ -19,6 +19,7 @@
 #include "hdi_wrapper.h"
 #include "iam_check.h"
 #include "iam_logger.h"
+#include "iam_para2str.h"
 #include "iam_ptr.h"
 #include "relative_timer.h"
 #include "remote_connect_manager.h"
@@ -107,6 +108,7 @@ RemoteAuthInvokerContext::~RemoteAuthInvokerContext()
     }
     RemoteConnectionManager::GetInstance().UnregisterConnectionListener(connectionName_, endPointName_);
     RemoteConnectionManager::GetInstance().CloseConnection(connectionName_);
+    IAM_LOGI("%{public}s destroyed", GetDescription());
 }
 
 ContextType RemoteAuthInvokerContext::GetContextType() const
@@ -136,7 +138,7 @@ void RemoteAuthInvokerContext::OnMessage(const std::string &connectionName, cons
             resultCode = ProcAuthResultMsg(*request);
             break;
         default:
-            IAM_LOGE("invalid msgType:%{public}d", msgType);
+            IAM_LOGE("%{public}s invalid msgType:%{public}d", GetDescription(), msgType);
             break;
     }
 
@@ -148,22 +150,22 @@ void RemoteAuthInvokerContext::OnMessage(const std::string &connectionName, cons
 void RemoteAuthInvokerContext::OnConnectStatus(const std::string &connectionName, ConnectStatus connectStatus)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    IAM_LOGI("start");
+    IAM_LOGI("%{public}s start", GetDescription());
 
     Attributes attr;
     if (connectStatus == ConnectStatus::DISCONNECTED) {
-        IAM_LOGI("connection is disconnected");
+        IAM_LOGI("%{public}s connection is disconnected", GetDescription());
         callback_->OnResult(ResultCode::GENERAL_ERROR, attr);
         return;
     } else {
-        IAM_LOGI("connection is connected");
+        IAM_LOGI("%{public}s connection is connected", GetDescription());
         bool sendRequestRet = SendRequest();
         if (!sendRequestRet) {
-            IAM_LOGE("SendRequest failed");
+            IAM_LOGE("%{public}s SendRequest failed", GetDescription());
             callback_->OnResult(GENERAL_ERROR, attr);
             return;
         }
-        IAM_LOGI("connection is connected processed");
+        IAM_LOGI("%{public}s connection is connected processed", GetDescription());
     }
 }
 
@@ -171,13 +173,14 @@ void RemoteAuthInvokerContext::SetVerifierContextId(uint64_t contextId)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     verifierContextId_ = contextId;
-    IAM_LOGI("verifierContextId set success");
+    IAM_LOGI("%{public}s set verifierContextId %{public}s success", GetDescription(),
+        GET_MASKED_STRING(contextId).c_str());
 }
 
 bool RemoteAuthInvokerContext::OnStart()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    IAM_LOGI("start");
+    IAM_LOGI("%{public}s start", GetDescription());
 
     cancelTimerId_ = RelativeTimer::GetInstance().Register(
         [weakThis = weak_from_this(), this]() {
@@ -204,14 +207,14 @@ bool RemoteAuthInvokerContext::OnStart()
         RemoteConnectionManager::GetInstance().OpenConnection(connectionName_, verifierNetworkId_, GetTokenId());
     IF_FALSE_LOGE_AND_RETURN_VAL(connectResult == SUCCESS, false);
 
-    IAM_LOGI("success");
+    IAM_LOGI("%{public}s success", GetDescription());
     return true;
 }
 
 bool RemoteAuthInvokerContext::SendRequest()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    IAM_LOGI("start");
+    IAM_LOGI("%{public}s start", GetDescription());
 
     request_ = Common::MakeShared<Attributes>();
     IF_FALSE_LOGE_AND_RETURN_VAL(request_ != nullptr, false);
@@ -250,7 +253,7 @@ bool RemoteAuthInvokerContext::SendRequest()
         IF_FALSE_LOGE_AND_RETURN(getResultCodeRet);
 
         if (resultCode != ResultCode::SUCCESS) {
-            IAM_LOGE("start remote auth failed %{public}d", resultCode);
+            IAM_LOGE("%{public}s start remote auth failed %{public}d", GetDescription(), resultCode);
             Attributes attr;
             callback_->OnResult(resultCode, attr);
             return;
@@ -261,37 +264,38 @@ bool RemoteAuthInvokerContext::SendRequest()
         IF_FALSE_LOGE_AND_RETURN(getContextIdRet);
 
         this->SetVerifierContextId(contextId);
+        IAM_LOGI("%{public}s start remote auth success %{public}d", GetDescription(), resultCode);
     };
     IF_FALSE_LOGE_AND_RETURN_VAL(request_ != nullptr, false);
     ResultCode sendMsgRet = RemoteConnectionManager::GetInstance().SendMessage(connectionName_, endPointName_,
         RemoteMsgUtil::GetRemoteServiceEndPointName(), request_, msgCallback);
     IF_FALSE_LOGE_AND_RETURN_VAL(sendMsgRet == SUCCESS, false);
 
-    IAM_LOGI("success");
+    IAM_LOGI("%{public}s success", GetDescription());
     return true;
 }
 
 void RemoteAuthInvokerContext::OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr)
 {
-    IAM_LOGE("this method is not supported");
+    IAM_LOGE("%{public}s this method is not supported", GetDescription());
 }
 
 bool RemoteAuthInvokerContext::OnStop()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    IAM_LOGI("canceled");
+    IAM_LOGI("%{public}s canceled", GetDescription());
     Attributes attr;
     callback_->OnResult(ResultCode::CANCELED, attr);
     // other module is canceled by disconnecting the connection
 
-    IAM_LOGI("success");
+    IAM_LOGI("%{public}s success", GetDescription());
     return true;
 }
 
 int32_t RemoteAuthInvokerContext::ProcAuthTipMsg(Attributes &message)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    IAM_LOGI("start");
+    IAM_LOGI("%{public}s start", GetDescription());
 
     int32_t destRole;
     bool getDestRoleRet = message.GetInt32Value(Attributes::ATTR_DEST_ROLE, destRole);
@@ -303,7 +307,7 @@ int32_t RemoteAuthInvokerContext::ProcAuthTipMsg(Attributes &message)
 
     callback_->OnAcquireInfo(static_cast<ExecutorRole>(destRole), tipInfo, message.Serialize());
 
-    IAM_LOGI("success");
+    IAM_LOGI("%{public}s success", GetDescription());
     return ResultCode::SUCCESS;
 }
 
@@ -332,15 +336,18 @@ int32_t RemoteAuthInvokerContext::ProcAuthResultMsgInner(Attributes &message, in
         IF_FALSE_LOGE_AND_RETURN_VAL(setTokenRet, ResultCode::GENERAL_ERROR);
         bool setUserId = attr.SetInt32Value(Attributes::ATTR_USER_ID, authResultInfo.userId);
         IF_FALSE_LOGE_AND_RETURN_VAL(setUserId, ResultCode::GENERAL_ERROR);
-        IAM_LOGI("parsed auth result: %{public}d, lockout duration %{public}d, "
-            "remain attempts %{public}d, token size %{public}zu, user id %{public}d",
-            resultCode, authResultInfo.lockoutDuration, authResultInfo.remainAttempts, authResultInfo.token.size(),
-            authResultInfo.userId);
+        IAM_LOGI("%{public}s parsed auth result: %{public}d, lockout duration "
+                 "%{public}d, "
+                 "remain attempts %{public}d, token size %{public}zu, user id "
+                 "%{public}d",
+            GetDescription(), resultCode, authResultInfo.lockoutDuration, authResultInfo.remainAttempts,
+            authResultInfo.token.size(), authResultInfo.userId);
     } else if (resultCode == ResultCode::SUCCESS) {
-        IAM_LOGE("remote auth result is empty");
+        IAM_LOGE("%{public}s remote auth result is empty, set result GENERAL_ERROR", GetDescription());
         resultCode = ResultCode::GENERAL_ERROR;
     }
 
+    IAM_LOGI("%{public}s result code %{public}d", GetDescription(), resultCode);
     bool setResultCodeRet = attr.SetInt32Value(Attributes::ATTR_RESULT, resultCode);
     IF_FALSE_LOGE_AND_RETURN_VAL(setResultCodeRet, ResultCode::GENERAL_ERROR);
 
@@ -350,7 +357,7 @@ int32_t RemoteAuthInvokerContext::ProcAuthResultMsgInner(Attributes &message, in
 int32_t RemoteAuthInvokerContext::ProcAuthResultMsg(Attributes &message)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    IAM_LOGI("start");
+    IAM_LOGI("%{public}s start", GetDescription());
 
     int32_t authResultCode = GENERAL_ERROR;
     Attributes attr;
@@ -359,13 +366,13 @@ int32_t RemoteAuthInvokerContext::ProcAuthResultMsg(Attributes &message)
 
     callback_->OnResult(authResultCode, attr);
 
-    IAM_LOGI("success");
+    IAM_LOGI("%{public}s success", GetDescription());
     return ret;
 }
 
 void RemoteAuthInvokerContext::OnTimeOut()
 {
-    IAM_LOGI("timeout");
+    IAM_LOGI("%{public}s timeout", GetDescription());
     IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
 
     Attributes attr;

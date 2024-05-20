@@ -55,24 +55,24 @@ static const int32_t MAX_ONBYTES_RECEIVED_DATA_LEN = 1024 * 1024 * 10;
 
 SoftBusManager::SoftBusManager()
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
 }
 
 SoftBusManager::~SoftBusManager()
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
 }
 
 SoftBusManager &SoftBusManager::GetInstance()
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     static SoftBusManager instance;
     return instance;
 }
 
 void SoftBusManager::Start()
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     std::unique_lock<std::recursive_mutex> lock(mutex_);
     if (inited_ == true) {
         IAM_LOGI("already initialized, skip");
@@ -93,7 +93,7 @@ void SoftBusManager::Start()
 
 void SoftBusManager::Stop()
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     std::unique_lock<std::recursive_mutex> lock(mutex_);
     if (inited_ == false) {
         IAM_LOGI("not inited, skip");
@@ -114,7 +114,7 @@ void SoftBusManager::Stop()
 
 ResultCode SoftBusManager::RegistDeviceManagerListener()
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     std::lock_guard<std::recursive_mutex> lock(deviceManagerMutex_);
     if (deviceManagerServiceListener_ != nullptr) {
         IAM_LOGI("deviceManagerServiceListener_ is not nullptr.");
@@ -154,7 +154,7 @@ ResultCode SoftBusManager::RegistDeviceManagerListener()
 
 ResultCode SoftBusManager::UnRegistDeviceManagerListener()
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     std::lock_guard<std::recursive_mutex> lock(deviceManagerMutex_);
     if (deviceManagerServiceListener_ == nullptr) {
         IAM_LOGI("deviceManagerServiceListener_ is nullptr.");
@@ -181,7 +181,7 @@ ResultCode SoftBusManager::UnRegistDeviceManagerListener()
 
 ResultCode SoftBusManager::RegistSoftBusListener()
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     std::lock_guard<std::recursive_mutex> lock(softBusMutex_);
     if (softBusServiceListener_ != nullptr) {
         IAM_LOGI("softBusServiceListener_ is not nullptr.");
@@ -221,7 +221,7 @@ ResultCode SoftBusManager::RegistSoftBusListener()
 
 ResultCode SoftBusManager::UnRegistSoftBusListener()
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     std::lock_guard<std::recursive_mutex> lock(softBusMutex_);
     if (softBusServiceListener_ == nullptr) {
         IAM_LOGI("softBusServiceListener_ is nullptr.");
@@ -247,7 +247,7 @@ ResultCode SoftBusManager::UnRegistSoftBusListener()
 
 ResultCode SoftBusManager::DeviceInit()
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     auto dmInitCallback = Common::MakeShared<IamDmInitCallback>();
     if (dmInitCallback == nullptr) {
         IAM_LOGE("dmInitCallback create fail");
@@ -265,7 +265,7 @@ ResultCode SoftBusManager::DeviceInit()
 
 void SoftBusManager::DeviceUnInit()
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     int32_t ret = DeviceManager::GetInstance().UnInitDeviceManager(USER_AUTH_PACKAGE_NAME);
     if (ret != SUCCESS) {
         IAM_LOGE("UnInitDeviceManager failed, code: %{public}d", ret);
@@ -276,7 +276,7 @@ void SoftBusManager::DeviceUnInit()
 
 ResultCode SoftBusManager::ServiceSocketListen(const int32_t socketId)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     QosTV serverQos[] = {
         { .qos = QOS_TYPE_MIN_BW,      .value = MIN_BW },
         { .qos = QOS_TYPE_MAX_LATENCY, .value = MAX_LATENCY },
@@ -301,7 +301,7 @@ ResultCode SoftBusManager::ServiceSocketListen(const int32_t socketId)
 
 ResultCode SoftBusManager::ServiceSocketInit()
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     std::string serviceName = USER_AUTH_SOCKET_NAME + "service";
     char name[SOCKET_NAME_MAX_LEN + 1];
     if (!CheckAndCopyStr(name, SOCKET_NAME_MAX_LEN, serviceName)) {
@@ -346,13 +346,12 @@ ResultCode SoftBusManager::ServiceSocketInit()
 
 void SoftBusManager::ServiceSocketUnInit()
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     auto serverSocket = GetServerSocket();
     if (serverSocket == nullptr) {
         IAM_LOGI("serverSocket is nullptr.");
         return;
     }
-    Shutdown(serverSocket->GetSocketId());
     DeleteSocket(serverSocket->GetSocketId());
     ClearServerSocket();
     IAM_LOGI("UnInitialize success");
@@ -360,7 +359,7 @@ void SoftBusManager::ServiceSocketUnInit()
 
 int32_t SoftBusManager::ClientSocketInit(const std::string &connectionName, const std::string &networkId)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     std::string clientName = USER_AUTH_SOCKET_NAME + connectionName;
     char name[SOCKET_NAME_MAX_LEN + 1];
     if (!CheckAndCopyStr(name, SOCKET_NAME_MAX_LEN, clientName)) {
@@ -400,7 +399,7 @@ int32_t SoftBusManager::ClientSocketInit(const std::string &connectionName, cons
 
 ResultCode SoftBusManager::ClientSocketBind(const int32_t socketId)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     QosTV clientQos[] = {
         { .qos = QOS_TYPE_MIN_BW,      .value = MIN_BW },
         { .qos = QOS_TYPE_MAX_LATENCY, .value = MAX_LATENCY },
@@ -468,26 +467,27 @@ ResultCode SoftBusManager::DoOpenConnectionInner(const std::string &connectionNa
 void SoftBusManager::DoOpenConnection(const std::string &connectionName, const uint32_t tokenId,
     const std::string &networkId)
 {
-    IAM_LOGI("start.");
+    IAM_LOGI("open connection %{public}s start.", connectionName.c_str());
     auto beginTime = std::chrono::steady_clock::now();
     ResultCode result = DoOpenConnectionInner(connectionName, tokenId, networkId);
     auto endTime = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - beginTime);
-    IAM_LOGI("open connection duration %{public}" PRIu64, static_cast<uint64_t>(duration.count()));
+    IAM_LOGI("connection %{public}s OpenConnectionDuration %{public}" PRIu64 " ms", connectionName.c_str(),
+        static_cast<uint64_t>(duration.count()));
     if (result != SUCCESS) {
         RemoteConnectListenerManager::GetInstance().OnConnectionDown(connectionName);
-        IAM_LOGE("DoOpenConnectionInner fail");
+        IAM_LOGE("open connection %{public}s fail", connectionName.c_str());
         return;
     }
 
     RemoteConnectListenerManager::GetInstance().OnConnectionUp(connectionName);
-    IAM_LOGI("success.");
+    IAM_LOGI("open connection %{public}s success.", connectionName.c_str());
 }
 
 ResultCode SoftBusManager::OpenConnection(const std::string &connectionName, const uint32_t tokenId,
     const std::string &networkId)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
 
     auto handler = ThreadHandler::GetSingleThreadInstance();
     IF_FALSE_LOGE_AND_RETURN_VAL(handler != nullptr, GENERAL_ERROR);
@@ -501,7 +501,7 @@ ResultCode SoftBusManager::OpenConnection(const std::string &connectionName, con
 
 ResultCode SoftBusManager::CloseConnection(const std::string &connectionName)
 {
-    IAM_LOGI("start.");
+    IAM_LOGI("close connection %{public}s start.", connectionName.c_str());
     std::shared_ptr<BaseSocket> clientSocket = FindClientSocket(connectionName);
     if (clientSocket == nullptr) {
         IAM_LOGE("clientSocket is nullptr");
@@ -515,9 +515,9 @@ ResultCode SoftBusManager::CloseConnection(const std::string &connectionName)
     }
 
     RemoteConnectListenerManager::GetInstance().OnConnectionDown(connectionName);
-    Shutdown(socketId);
+    DeleteSocket(socketId);
     DeleteConnection(connectionName);
-    IAM_LOGI("close socket success");
+    IAM_LOGI("close connection %{public}s socketId %{public}d success", connectionName.c_str(), socketId);
     return SUCCESS;
 }
 
@@ -525,15 +525,18 @@ ResultCode SoftBusManager::SendMessage(const std::string &connectionName,
     const std::string &srcEndPoint, const std::string &destEndPoint,
     const std::shared_ptr<Attributes> &attributes, MsgCallback &callback)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     IF_FALSE_LOGE_AND_RETURN_VAL(attributes != nullptr, INVALID_PARAMETERS);
 
     ResultCode ret = SUCCESS;
     auto serverSocket = GetServerSocket();
     if (serverSocket != nullptr) {
         ret = serverSocket->SendMessage(connectionName, srcEndPoint, destEndPoint, attributes, callback);
-        if (ret != SUCCESS) {
-            IAM_LOGI("serverSocket send message fail, ret:%{public}d", ret);
+        if (ret == SUCCESS) {
+            IAM_LOGI("SendMessage success");
+            return SUCCESS;
+        } else {
+            IAM_LOGI("try to send message using serverSocket fail, ret:%{public}d", ret);
         }
     }
 
@@ -541,7 +544,8 @@ ResultCode SoftBusManager::SendMessage(const std::string &connectionName,
     if (clientSocket != nullptr) {
         ret = clientSocket->SendMessage(connectionName, srcEndPoint, destEndPoint, attributes, callback);
         if (ret != SUCCESS) {
-            IAM_LOGI("clientSocket send message fail, ret:%{public}d", ret);
+            IAM_LOGE("clientSocket send message fail, ret:%{public}d", ret);
+            return GENERAL_ERROR;
         }
     }
 
@@ -587,6 +591,7 @@ void SoftBusManager::OnShutdown(int32_t socketId, ShutdownReason reason)
     clientSocket->OnShutdown(socketId, reason);
     DeleteSocket(socketId);
     DeleteConnection(clientSocket->GetConnectionName());
+    IAM_LOGI("shutdown socket id %{public}d success.", socketId);
 }
 
 void SoftBusManager::OnClientBytes(int32_t socketId, const void *data, uint32_t dataLen)
@@ -627,7 +632,7 @@ void SoftBusManager::OnServerBytes(int32_t socketId, const void *data, uint32_t 
 
 void SoftBusManager::AddSocket(const int32_t socketId, std::shared_ptr<BaseSocket> &socket)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     IF_FALSE_LOGE_AND_RETURN(socket != nullptr);
     IF_FALSE_LOGE_AND_RETURN(socketId != INVALID_SOCKET_ID);
 
@@ -637,16 +642,21 @@ void SoftBusManager::AddSocket(const int32_t socketId, std::shared_ptr<BaseSocke
 
 void SoftBusManager::DeleteSocket(const int32_t socketId)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     IF_FALSE_LOGE_AND_RETURN(socketId != INVALID_SOCKET_ID);
 
     std::lock_guard<std::recursive_mutex> lock(socketMutex_);
+    auto iter = socketMap_.find(socketId);
+    if (iter == socketMap_.end()) {
+        IAM_LOGE("socketId:%{public}d not found.", socketId);
+        return;
+    }
     socketMap_.erase(socketId);
 }
 
 std::shared_ptr<BaseSocket> SoftBusManager::FindSocketBySocketId(const int32_t socketId)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     IF_FALSE_LOGE_AND_RETURN_VAL(socketId != INVALID_SOCKET_ID, nullptr);
 
     std::lock_guard<std::recursive_mutex> lock(socketMutex_);
@@ -673,7 +683,7 @@ bool SoftBusManager::CheckAndCopyStr(char *dest, uint32_t destLen, const std::st
 
 void SoftBusManager::SetServerSocket(std::shared_ptr<BaseSocket> &socket)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     IF_FALSE_LOGE_AND_RETURN(socket != nullptr);
     std::lock_guard<std::recursive_mutex> lock(ServerSocketMutex_);
     serverSocket_ = socket;
@@ -681,14 +691,14 @@ void SoftBusManager::SetServerSocket(std::shared_ptr<BaseSocket> &socket)
 
 void SoftBusManager::ClearServerSocket()
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     std::lock_guard<std::recursive_mutex> lock(ServerSocketMutex_);
     serverSocket_ = nullptr;
 }
 
 void SoftBusManager::AddConnection(const std::string &connectionName, std::shared_ptr<BaseSocket> &socket)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     IF_FALSE_LOGE_AND_RETURN(socket != nullptr);
 
     std::lock_guard<std::recursive_mutex> lock(connectionMutex_);
@@ -697,14 +707,19 @@ void SoftBusManager::AddConnection(const std::string &connectionName, std::share
 
 void SoftBusManager::DeleteConnection(const std::string &connectionName)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     std::lock_guard<std::recursive_mutex> lock(connectionMutex_);
+    auto iter = clientSocketMap_.find(connectionName);
+    if (iter == clientSocketMap_.end()) {
+        IAM_LOGE("connectionName:%{public}s not found.", connectionName.c_str());
+        return;
+    }
     clientSocketMap_.erase(connectionName);
 }
 
 std::shared_ptr<BaseSocket> SoftBusManager::FindClientSocket(const std::string &connectionName)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     std::lock_guard<std::recursive_mutex> lock(connectionMutex_);
     std::shared_ptr<BaseSocket> clientSocket = nullptr;
     auto iter = clientSocketMap_.find(connectionName);

@@ -32,7 +32,13 @@ static uint32_t g_messageSeq = 0;
 BaseSocket::BaseSocket(const int32_t socketId)
     : socketId_(socketId)
 {
-    IAM_LOGI("base socket id is %{public}d.", socketId);
+    IAM_LOGI("create socket id %{public}d.", socketId_);
+}
+
+BaseSocket::~BaseSocket()
+{
+    Shutdown(socketId_);
+    IAM_LOGI("close socket id %{public}d.", socketId_);
 }
 
 int32_t BaseSocket::GetSocketId()
@@ -43,7 +49,7 @@ int32_t BaseSocket::GetSocketId()
 void BaseSocket::InsertMsgCallback(uint32_t messageSeq, const std::string &connectionName,
     MsgCallback &callback, uint32_t timerId)
 {
-    IAM_LOGI("start. messageSeq:%{public}u, timerId:%{public}u", messageSeq, timerId);
+    IAM_LOGD("start. messageSeq:%{public}u, timerId:%{public}u", messageSeq, timerId);
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
 
     std::lock_guard<std::recursive_mutex> lock(callbackMutex_);
@@ -58,14 +64,14 @@ void BaseSocket::InsertMsgCallback(uint32_t messageSeq, const std::string &conne
 
 void BaseSocket::RemoveMsgCallback(uint32_t messageSeq)
 {
-    IAM_LOGI("start. messageSeq:%{public}u", messageSeq);
+    IAM_LOGD("start. messageSeq:%{public}u", messageSeq);
     std::lock_guard<std::recursive_mutex> lock(callbackMutex_);
     callbackMap_.erase(messageSeq);
 }
 
 std::string BaseSocket::GetConnectionName(uint32_t messageSeq)
 {
-    IAM_LOGI("start. messageSeq:%{public}u", messageSeq);
+    IAM_LOGD("start. messageSeq:%{public}u", messageSeq);
     std::lock_guard<std::recursive_mutex> lock(callbackMutex_);
     std::string connectionName;
     auto iter = callbackMap_.find(messageSeq);
@@ -77,7 +83,7 @@ std::string BaseSocket::GetConnectionName(uint32_t messageSeq)
 
 MsgCallback BaseSocket::GetMsgCallback(uint32_t messageSeq)
 {
-    IAM_LOGI("start. messageSeq:%{public}u", messageSeq);
+    IAM_LOGD("start. messageSeq:%{public}u", messageSeq);
     std::lock_guard<std::recursive_mutex> lock(callbackMutex_);
     MsgCallback callback = nullptr;
     auto iter = callbackMap_.find(messageSeq);
@@ -98,13 +104,13 @@ void BaseSocket::PrintTransferDuration(uint32_t messageSeq)
 
     auto receiveAckTime = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(receiveAckTime - iter->second.sendTime);
-    IAM_LOGI("messageSeq:%{public}u duration:%{public}" PRIu64 "ms", messageSeq,
+    IAM_LOGI("messageSeq:%{public}u MessageTransferDuration:%{public}" PRIu64 " ms", messageSeq,
         static_cast<uint64_t>(duration.count()));
 }
 
 uint32_t BaseSocket::GetReplyTimer(uint32_t messageSeq)
 {
-    IAM_LOGI("start. messageSeq:%{public}u", messageSeq);
+    IAM_LOGD("start. messageSeq:%{public}u", messageSeq);
     std::lock_guard<std::recursive_mutex> lock(callbackMutex_);
     uint32_t timerId = 0;
     auto iter = callbackMap_.find(messageSeq);
@@ -116,7 +122,7 @@ uint32_t BaseSocket::GetReplyTimer(uint32_t messageSeq)
 
 uint32_t BaseSocket::StartReplyTimer(uint32_t messageSeq)
 {
-    IAM_LOGI("start. messageSeq:%{public}u", messageSeq);
+    IAM_LOGD("start. messageSeq:%{public}u", messageSeq);
     uint32_t timerId = GetReplyTimer(messageSeq);
     if (timerId != INVALID_TIMER_ID) {
         IAM_LOGI("timer is already start");
@@ -124,10 +130,10 @@ uint32_t BaseSocket::StartReplyTimer(uint32_t messageSeq)
     }
 
     timerId = RelativeTimer::GetInstance().Register(
-        [weakSelf = weak_from_this(), messageSeq] {
+        [weakSelf = weak_from_this(), messageSeq, socketId = socketId_] {
             auto self = weakSelf.lock();
             if (self == nullptr) {
-                IAM_LOGE("object is released");
+                IAM_LOGE("socket %{public}d is released", socketId);
                 return;
             }
             self->ReplyTimerTimeOut(messageSeq);
@@ -139,7 +145,7 @@ uint32_t BaseSocket::StartReplyTimer(uint32_t messageSeq)
 
 void BaseSocket::StopReplyTimer(uint32_t messageSeq)
 {
-    IAM_LOGI("start. messageSeq:%{public}u", messageSeq);
+    IAM_LOGD("start. messageSeq:%{public}u", messageSeq);
     uint32_t timerId = GetReplyTimer(messageSeq);
     if (timerId == INVALID_TIMER_ID) {
         IAM_LOGI("timer is already stop");
@@ -151,7 +157,7 @@ void BaseSocket::StopReplyTimer(uint32_t messageSeq)
 
 void BaseSocket::ReplyTimerTimeOut(uint32_t messageSeq)
 {
-    IAM_LOGI("start. messageSeq:%{public}u", messageSeq);
+    IAM_LOGD("start. messageSeq:%{public}u", messageSeq);
     std::string connectionName = GetConnectionName(messageSeq);
     if (connectionName.empty()) {
         IAM_LOGE("GetMsgCallback connectionName fail");
@@ -160,13 +166,12 @@ void BaseSocket::ReplyTimerTimeOut(uint32_t messageSeq)
 
     RemoteConnectListenerManager::GetInstance().OnConnectionDown(connectionName);
     RemoveMsgCallback(messageSeq);
-    Shutdown(GetSocketId());
     IAM_LOGI("reply timer is timeout, messageReq:%{public}u", messageSeq);
 }
 
 int32_t BaseSocket::GetMessageSeq()
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     std::lock_guard<std::recursive_mutex> lock(g_seqMutex);
     g_messageSeq++;
     return g_messageSeq;
@@ -174,7 +179,7 @@ int32_t BaseSocket::GetMessageSeq()
 
 ResultCode BaseSocket::SetDeviceNetworkId(const std::string networkId, std::shared_ptr<Attributes> &attributes)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     IF_FALSE_LOGE_AND_RETURN_VAL(attributes != nullptr, INVALID_PARAMETERS);
 
     bool setDeviceNetworkIdRet = attributes->SetStringValue(Attributes::ATTR_COLLECTOR_NETWORK_ID, networkId);
@@ -190,7 +195,7 @@ ResultCode BaseSocket::SendRequest(const int32_t socketId, const std::string &co
     const std::string &srcEndPoint, const std::string &destEndPoint, const std::shared_ptr<Attributes> &attributes,
     MsgCallback &callback)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     IF_FALSE_LOGE_AND_RETURN_VAL(attributes != nullptr, INVALID_PARAMETERS);
     IF_FALSE_LOGE_AND_RETURN_VAL(socketId != INVALID_SOCKET_ID, INVALID_PARAMETERS);
 
@@ -217,7 +222,7 @@ ResultCode BaseSocket::SendRequest(const int32_t socketId, const std::string &co
 
     uint32_t timerId = StartReplyTimer(messageSeq);
     if (timerId == INVALID_TIMER_ID) {
-        IAM_LOGE("create reply time fail");
+        IAM_LOGE("create reply timer fail");
         return GENERAL_ERROR;
     }
 
@@ -230,7 +235,7 @@ ResultCode BaseSocket::SendResponse(const int32_t socketId, const std::string &c
     const std::string &srcEndPoint, const std::string &destEndPoint, const std::shared_ptr<Attributes> &attributes,
     uint32_t messageSeq)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     IF_FALSE_LOGE_AND_RETURN_VAL(attributes != nullptr, INVALID_PARAMETERS);
     IF_FALSE_LOGE_AND_RETURN_VAL(socketId != INVALID_SOCKET_ID, INVALID_PARAMETERS);
 
@@ -261,7 +266,7 @@ ResultCode BaseSocket::SendResponse(const int32_t socketId, const std::string &c
 std::shared_ptr<SoftBusMessage> BaseSocket::ParseMessage(const std::string &networkId,
     void *message, uint32_t messageLen)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     IF_FALSE_LOGE_AND_RETURN_VAL(message != nullptr, nullptr);
     IF_FALSE_LOGE_AND_RETURN_VAL(messageLen != 0, nullptr);
 
@@ -283,13 +288,13 @@ std::shared_ptr<SoftBusMessage> BaseSocket::ParseMessage(const std::string &netw
         return nullptr;
     }
 
-    IAM_LOGI("ParseMessage success.");
+    IAM_LOGD("ParseMessage success.");
     return softBusMessage;
 }
 
 ResultCode BaseSocket::ProcDataReceive(const int32_t socketId, std::shared_ptr<SoftBusMessage> &softBusMessage)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     IF_FALSE_LOGE_AND_RETURN_VAL(softBusMessage != nullptr, INVALID_PARAMETERS);
     IF_FALSE_LOGE_AND_RETURN_VAL(socketId != INVALID_SOCKET_ID, INVALID_PARAMETERS);
 

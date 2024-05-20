@@ -554,10 +554,14 @@ int32_t UserAuthService::PrepareRemoteAuthInner(const std::string &networkId)
         return INVALID_PARAMETERS;
     }
 
+    std::string udid;
+    bool getUdidRet = DeviceManagerUtil::GetInstance().GetUdidByNetworkId(networkId, udid);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getUdidRet, GENERAL_ERROR);
+
     auto hdi = HdiWrapper::GetHdiInstance();
     IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, GENERAL_ERROR);
 
-    int32_t ret = hdi->PrepareRemoteAuth(networkId);
+    int32_t ret = hdi->PrepareRemoteAuth(udid);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret == HDF_SUCCESS, GENERAL_ERROR);
 
     IAM_LOGI("success");
