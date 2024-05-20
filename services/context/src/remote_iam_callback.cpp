@@ -25,16 +25,11 @@ namespace UserIam {
 namespace UserAuth {
 RemoteIamCallback::RemoteIamCallback(std::string &connectionName) : connectionName_(connectionName)
 {
+    endPointName_ = RemoteMsgUtil::GetRemoteCallbackEndPointName();
 }
 
 RemoteIamCallback::~RemoteIamCallback()
 {
-}
-
-bool RemoteIamCallback::Init()
-{
-    localEndPointName_ = RemoteMsgUtil::GetRemoteCallbackEndPointName();
-    return true;
 }
 
 void RemoteIamCallback::OnResult(int32_t result, const Attributes &extraInfo)
@@ -52,7 +47,7 @@ void RemoteIamCallback::OnResult(int32_t result, const Attributes &extraInfo)
 
     MsgCallback msgCallback = [](const std::shared_ptr<Attributes> &) { IAM_LOGI("message sent"); };
 
-    ResultCode sendMsgRet = RemoteConnectionManager::GetInstance().SendMessage(connectionName_, localEndPointName_,
+    ResultCode sendMsgRet = RemoteConnectionManager::GetInstance().SendMessage(connectionName_, endPointName_,
         RemoteMsgUtil::GetRemoteAuthInvokerContextEndPointName(), request, msgCallback);
     IF_FALSE_LOGE_AND_RETURN(sendMsgRet == ResultCode::SUCCESS);
 
@@ -77,7 +72,7 @@ void RemoteIamCallback::OnAcquireInfo(int32_t module, int32_t acquireInfo, const
 
     MsgCallback msgCallback = [](const std::shared_ptr<Attributes> &) { IAM_LOGI("message sent"); };
 
-    ResultCode sendMsgRet = RemoteConnectionManager::GetInstance().SendMessage(connectionName_, localEndPointName_,
+    ResultCode sendMsgRet = RemoteConnectionManager::GetInstance().SendMessage(connectionName_, endPointName_,
         RemoteMsgUtil::GetRemoteAuthInvokerContextEndPointName(), request, msgCallback);
     IF_FALSE_LOGE_AND_RETURN(sendMsgRet == ResultCode::SUCCESS);
 

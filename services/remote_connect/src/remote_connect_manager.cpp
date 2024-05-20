@@ -28,7 +28,7 @@ namespace UserAuth {
 using namespace OHOS::DistributedHardware;
 RemoteConnectionManager &RemoteConnectionManager::GetInstance()
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     static RemoteConnectionManager instance;
     return instance;
 }
@@ -36,40 +36,40 @@ RemoteConnectionManager &RemoteConnectionManager::GetInstance()
 ResultCode RemoteConnectionManager::OpenConnection(const std::string &connectionName,
     std::string remoteNetworkId, uint32_t tokenId)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     return SoftBusManager::GetInstance().OpenConnection(connectionName, tokenId, remoteNetworkId);
 }
 
 ResultCode RemoteConnectionManager::CloseConnection(const std::string &connectionName)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     return SoftBusManager::GetInstance().CloseConnection(connectionName);
 }
 
 ResultCode RemoteConnectionManager::RegisterConnectionListener(const std::string &connectionName,
     const std::string &endPointName, const std::shared_ptr<ConnectionListener> &listener)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     return RemoteConnectListenerManager::GetInstance().RegisterListener(connectionName, endPointName, listener);
 }
 
 ResultCode RemoteConnectionManager::RegisterConnectionListener(const std::string &endPointName,
     const std::shared_ptr<ConnectionListener> &listener)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     return RemoteConnectListenerManager::GetInstance().RegisterListener(endPointName, listener);
 }
 
 ResultCode RemoteConnectionManager::UnregisterConnectionListener(const std::string &connectionName,
     const std::string &endPointName)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     return RemoteConnectListenerManager::GetInstance().UnregisterListener(connectionName, endPointName);
 }
 
 ResultCode RemoteConnectionManager::UnregisterConnectionListener(const std::string &endPointName)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     return RemoteConnectListenerManager::GetInstance().UnregisterListener(endPointName);
 }
 
@@ -77,7 +77,7 @@ ResultCode RemoteConnectionManager::SendMessage(const std::string &connectionNam
     const std::string &srcEndPoint, const std::string &destEndPoint,
     const std::shared_ptr<Attributes> &attributes, MsgCallback &callback)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     return SoftBusManager::GetInstance().SendMessage(connectionName,
         srcEndPoint, destEndPoint, attributes, callback);
 }
