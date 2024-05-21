@@ -191,7 +191,7 @@ HWTEST_F(ResourceNodePoolTest, ResourceNodePoolListenerUpdate, TestSize.Level0)
     EXPECT_EQ(pool.Insert(resource1), true);
     EXPECT_EQ(pool.Insert(resource2), true);
     EXPECT_EQ(pool.Delete(EXECUTOR_INDEX1), true);
-    EXPECT_EQ(pool.Delete(EXECUTOR_INDEX2), false);
+    EXPECT_EQ(pool.Delete(EXECUTOR_INDEX2), true);
 
     EXPECT_EQ(pool.DeregisterResourceNodePoolListener(listener), true);
 }
