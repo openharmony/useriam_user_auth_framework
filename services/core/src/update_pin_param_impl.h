@@ -25,8 +25,8 @@ namespace UserIam {
 namespace UserAuth {
 class UpdatePinParamImpl final : public UpdatePinParamInterface, public NoCopyable {
 public:
-    UpdatePinParamImpl(uint64_t oldCredentialId, std::vector<uint8_t> &oldRootSecret, std::vector<uint8_t> &rootSecret,
-        std::vector<uint8_t> &authToken);
+    UpdatePinParamImpl(uint64_t oldCredentialId, const std::vector<uint8_t> &oldRootSecret,
+        const std::vector<uint8_t> &rootSecret, const std::vector<uint8_t> &authToken);
     uint64_t GetOldCredentialId() const override;
     std::vector<uint8_t> GetOldRootSecret() const override;
     std::vector<uint8_t> GetRootSecret() const override;
