@@ -90,19 +90,15 @@ struct SetPropertyRequest {
 enum GlobalConfigType : int32_t {
     /** Pin expired period */
     PIN_EXPIRED_PERIOD = 1,
-    /** DISABLE_FINGERPRINT */
-    DISABLE_FINGERPRINT_AUTH = 2,
 };
 
 /**
  * @brief Global config value.
  */
 union GlobalConfigValue {
-    /** Global config value of PIN_EXPIRED_PERIOD. It's value should between 0 and 2^50.
+    /** Global config value of pin expired period. It's value should between 0 and 2^50.
       * When pinExpiredPeriod <= 0, userAuth won't check pin expired period */
     int64_t pinExpiredPeriod;
-    /** Global config value of DISABLE_FINGERPRINT_AUTH. By default, the value is false and fingerprintAuth is enable.*/
-    bool disableFingerprintAuth;
 };
 
 /**
