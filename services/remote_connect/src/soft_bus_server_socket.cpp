@@ -78,16 +78,16 @@ void ServerSocket::OnBytes(int32_t socketId, const void *data, uint32_t dataLen)
         return;
     }
 
-    ResultCode ret = ProcDataReceive(socketId, softBusMessage);
-    if (ret != SUCCESS) {
-        IAM_LOGE("HandleDataReceive fail, socketId:%{public}d.", socketId);
-        return;
-    }
-
     bool ack = softBusMessage->GetAckFlag();
     std::string connectionName = softBusMessage->GetConnectionName();
     if (ack == false && !connectionName.empty()) {
         AddClientConnection(socketId, connectionName);
+    }
+
+    ResultCode ret = ProcDataReceive(socketId, softBusMessage);
+    if (ret != SUCCESS) {
+        IAM_LOGE("HandleDataReceive fail, socketId:%{public}d.", socketId);
+        return;
     }
 }
 
@@ -137,7 +137,7 @@ std::string ServerSocket::GetNetworkIdBySocketId(int32_t socketId)
 
 void ServerSocket::AddClientConnection(const int32_t socketId, const std::string &connectionName)
 {
-    IAM_LOGI("start, socketId %{public}d.", socketId);
+    IAM_LOGI("add socketId %{public}d connectionName %{public}s.", socketId, connectionName.c_str());
     IF_FALSE_LOGE_AND_RETURN(socketId != INVALID_SOCKET_ID);
 
     std::lock_guard<std::recursive_mutex> lock(connectionMutex_);
@@ -155,6 +155,8 @@ void ServerSocket::DeleteClientConnection(const int32_t socketId)
     std::lock_guard<std::recursive_mutex> lock(connectionMutex_);
     auto iter = clientConnectionMap_.find(socketId);
     if (iter != clientConnectionMap_.end()) {
+        std::string connectionName = iter->second;
+        IAM_LOGI("delete socketId %{public}d connectionName %{public}s.", socketId, connectionName.c_str());
         clientConnectionMap_.erase(iter);
     }
 }

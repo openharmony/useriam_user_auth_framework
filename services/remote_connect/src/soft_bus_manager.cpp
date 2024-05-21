@@ -530,23 +530,25 @@ ResultCode SoftBusManager::SendMessage(const std::string &connectionName,
 
     ResultCode ret = SUCCESS;
     auto serverSocket = GetServerSocket();
-    if (serverSocket != nullptr) {
-        ret = serverSocket->SendMessage(connectionName, srcEndPoint, destEndPoint, attributes, callback);
-        if (ret == SUCCESS) {
-            IAM_LOGI("SendMessage success");
-            return SUCCESS;
-        } else {
-            IAM_LOGI("try to send message using serverSocket fail, ret:%{public}d", ret);
-        }
+    IF_FALSE_LOGE_AND_RETURN_VAL(serverSocket != nullptr, GENERAL_ERROR);
+
+    ret = serverSocket->SendMessage(connectionName, srcEndPoint, destEndPoint, attributes, callback);
+    if (ret == SUCCESS) {
+        IAM_LOGI("SendMessage success");
+        return SUCCESS;
     }
+    IAM_LOGI("try to send message using serverSocket fail, ret:%{public}d", ret);
 
     std::shared_ptr<BaseSocket> clientSocket = FindClientSocket(connectionName);
-    if (clientSocket != nullptr) {
-        ret = clientSocket->SendMessage(connectionName, srcEndPoint, destEndPoint, attributes, callback);
-        if (ret != SUCCESS) {
-            IAM_LOGE("clientSocket send message fail, ret:%{public}d", ret);
-            return GENERAL_ERROR;
-        }
+    if (clientSocket == nullptr) {
+        IAM_LOGE("failed to find clientSocket");
+        return GENERAL_ERROR;
+    }
+
+    ret = clientSocket->SendMessage(connectionName, srcEndPoint, destEndPoint, attributes, callback);
+    if (ret != SUCCESS) {
+        IAM_LOGE("clientSocket send message fail, ret:%{public}d", ret);
+        return GENERAL_ERROR;
     }
 
     IAM_LOGI("SendMessage success.");
