@@ -132,15 +132,6 @@ public:
     virtual int32_t SetGlobalConfigParam(const GlobalConfigParam &param) = 0;
 
     /**
-     * @brief Set global config param.
-     *
-     * @param userId UserId list which need to set global config param.
-     * @param param The value of global config parameter.
-     * @return Return set result(0:success; other:failed).
-     */
-    virtual int32_t SetGlobalConfigParam(const std::vector<int32_t> &userId, const GlobalConfigParam &param) = 0;
-
-    /**
      * @brief Prepare remote authentication.
      * @param networkId Network id of remote device.
      * @param callback Callback of prepare remote authentication result.
