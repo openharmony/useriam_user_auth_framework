@@ -402,6 +402,26 @@ HWTEST_F(AttributesTest, AttributesSetAndGetAttributesArray, TestSize.Level0)
     EXPECT_TRUE(serializedAttrs1 == serializedOutAttrs1);
     EXPECT_TRUE(serializedAttrs2 == serializedOutAttrs2);
 }
+
+HWTEST_F(AttributesTest, AttributesSetAndGetAttributesArray01, TestSize.Level0)
+{
+    Attributes attrs1;
+    int64_t value1 = 1;
+    EXPECT_EQ(attrs1.SetInt64Value(Attributes::ATTR_EXECUTOR_REGISTER_INFO_LIST, value1), true);
+    EXPECT_EQ(attrs1.GetInt64Value(Attributes::ATTR_EXECUTOR_REGISTER_INFO_LIST, value1), true);
+    EXPECT_EQ(value1, 1);
+
+    Attributes setAttrs;
+    EXPECT_EQ(setAttrs.SetAttributesValue(Attributes::ATTR_EXECUTOR_REGISTER_INFO_LIST, attrs1), true);
+    Attributes attrs2;
+    EXPECT_EQ(setAttrs.GetAttributesValue(Attributes::ATTR_EXECUTOR_REGISTER_INFO_LIST, attrs2), true);
+
+    std::vector<int32_t> array1;
+    array1.push_back(1);
+    EXPECT_EQ(setAttrs.SetInt32ArrayValue(Attributes::ATTR_EXECUTOR_REGISTER_INFO_LIST, array1), true);
+    std::vector<int32_t> array2;
+    EXPECT_EQ(setAttrs.GetInt32ArrayValue(Attributes::ATTR_EXECUTOR_REGISTER_INFO_LIST, array2), true);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
