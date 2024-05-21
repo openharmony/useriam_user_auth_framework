@@ -130,7 +130,6 @@ public:
      * @return Return set result(0:success; other:failed).
      */
     virtual int32_t SetGlobalConfigParam(const GlobalConfigParam &param) = 0;
-
     /**
      * @brief Prepare remote authentication.
      * @param networkId Network id of remote device.
