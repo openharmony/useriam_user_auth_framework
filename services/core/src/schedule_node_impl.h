@@ -40,7 +40,7 @@ public:
     struct ScheduleInfo {
         uint64_t scheduleId {0};
         std::optional<uint32_t> tokenId;
-        uint32_t collectorTokenId;
+        uint32_t collectorTokenId {0};
         PinSubType pinSubType {0};
         uint64_t contextId {0};
         uint64_t expiredTime {0};
