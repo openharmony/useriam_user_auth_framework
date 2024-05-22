@@ -192,7 +192,7 @@ int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authTyp
     return checkRet;
 }
 
-void UserAuthService::FillGetPropertyKeys(AuthType authType, const std::vector<Attributes::AttributeKey> keys,
+void UserAuthService::FillGetPropertyKeys(AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
     std::vector<uint32_t> &uint32Keys)
 {
     uint32Keys.reserve(keys.size());
@@ -204,7 +204,7 @@ void UserAuthService::FillGetPropertyKeys(AuthType authType, const std::vector<A
     }
 }
 
-void UserAuthService::FillGetPropertyValue(AuthType authType, const std::vector<Attributes::AttributeKey> keys,
+void UserAuthService::FillGetPropertyValue(AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
     Attributes &value)
 {
     for (auto &key : keys) {
