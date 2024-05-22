@@ -16,6 +16,7 @@
 #ifndef USER_AUTH_NAPI_HELPER
 #define USER_AUTH_NAPI_HELPER
 
+#include <string>
 #include <vector>
 
 #include "napi/native_api.h"
@@ -34,6 +35,8 @@ public:
     static bool CheckUserAuthType(int32_t authType);
     static bool CheckAuthTrustLevel(uint32_t authTrustLevel);
     static napi_value GenerateBusinessErrorV9(napi_env env, UserAuthResultCode result);
+    static napi_value GenerateErrorMsg(napi_env env, UserAuthResultCode result, std::string errorMsg);
+    static UserAuthResultCode ThrowErrorMsg(napi_env env, UserAuthResultCode errorCode, std::string errorMsg);
     static bool CheckReuseUnlockResult(ReuseUnlockResult reuseUnlockResult);
     static napi_status CheckNapiType(napi_env env, napi_value value, napi_valuetype type);
     static napi_status GetInt32Value(napi_env env, napi_value value, int32_t &out);
