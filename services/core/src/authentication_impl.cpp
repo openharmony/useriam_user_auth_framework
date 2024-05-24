@@ -65,7 +65,7 @@ void AuthenticationImpl::SetEndAfterFirstFail(bool endAfterFirstFail)
     endAfterFirstFail_ = endAfterFirstFail;
 }
 
-void AuthenticationImpl::SetCollectorUdid(std::string collectorUdid)
+void AuthenticationImpl::SetCollectorUdid(std::string &collectorUdid)
 {
     collectorUdid_ = collectorUdid;
 }
