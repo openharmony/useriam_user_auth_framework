@@ -178,13 +178,13 @@ int32_t ServerSocket::GetSocketIdByClientConnectionName(const std::string &conne
 {
     std::lock_guard<std::recursive_mutex> lock(connectionMutex_);
     int32_t socketId = INVALID_SOCKET_ID;
-    auto item = std::find_if(clientConnectionMap_.begin(), clientConnectionMap_.end(),
-        [&connectionName](const std::pair<int32_t, std::string> &pair) {
-            return connectionName == pair.second;
-        });
-    if (item != clientConnectionMap_.end()) {
-        socketId = item->first;
+    for (const auto &iter : clientConnectionMap_) {
+        if (iter.second == connectionName) {
+            socketId = iter.first;
+            break;
+        }
     }
+
     return socketId;
 }
 
