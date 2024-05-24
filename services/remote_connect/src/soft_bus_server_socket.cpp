@@ -174,17 +174,17 @@ std::string ServerSocket::GetClientConnectionName(const int32_t socketId)
     return ConnectionName;
 }
 
-int32_t ServerSocket::GetSocketIdByClientConnectionName(const std::string &ConnectionName)
+int32_t ServerSocket::GetSocketIdByClientConnectionName(const std::string &connectionName)
 {
     std::lock_guard<std::recursive_mutex> lock(connectionMutex_);
     int32_t socketId = INVALID_SOCKET_ID;
-    for (auto &iter : clientConnectionMap_) {
-        if (iter.second == ConnectionName) {
-            socketId = iter.first;
-            break;
-        }
+    auto item = std::find_if(clientConnectionMap_.begin(), clientConnectionMap_.end(),
+        [&connectionName](const std::pair<int32_t, std::string> &pair) {
+            return connectionName == pair.second;
+        });
+    if (item != clientConnectionMap_.end()) {
+        socketId = item->first;
     }
-
     return socketId;
 }
 

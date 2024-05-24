@@ -196,7 +196,7 @@ void UserAuthService::FillGetPropertyKeys(AuthType authType, const std::vector<A
     std::vector<uint32_t> &uint32Keys)
 {
     uint32Keys.reserve(keys.size());
-    for (auto &key : keys) {
+    for (auto const &key : keys) {
         if (key == Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION && authType != PIN) {
             continue;
         }
@@ -207,7 +207,7 @@ void UserAuthService::FillGetPropertyKeys(AuthType authType, const std::vector<A
 void UserAuthService::FillGetPropertyValue(AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
     Attributes &value)
 {
-    for (auto &key : keys) {
+    for (auto const &key : keys) {
         if (key == Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION && authType != PIN) {
             if (!value.SetInt32Value(Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION, FIRST_LOCKOUT_DURATION_EXCEPT_PIN)) {
                 IAM_LOGE("set nextFailLockoutDuration failed, authType %{public}d", authType);
