@@ -110,10 +110,9 @@ public:
 
         IF_FALSE_LOGE_AND_RETURN(connectStatus == ConnectStatus::DISCONNECTED);
         IF_FALSE_LOGE_AND_RETURN(threadHandler_ != nullptr);
-
-        threadHandler_->PostTask([connectionName, connectStatus, callback_, this]() {
+        threadHandler_->PostTask([connectionName, connectStatus, callbackTemp = callback_, this]() {
             IAM_LOGI("OnConnectStatus process begin");
-            auto callback = callback_.lock();
+            auto callback = callbackTemp.lock();
             IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
             callback->OnConnectStatus(connectionName, connectStatus);
             IAM_LOGI("OnConnectStatus process success");
