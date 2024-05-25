@@ -64,7 +64,7 @@ void FiniteStateMachineImpl::ScheduleInner(FiniteStateMachine &machine)
         uint32_t event = 0;
         bool result = pendingEvents_.Pop(event);
         if (!result) {
-            IAM_LOGE("fsm %{public}s pop event fail", name_.c_str());
+            IAM_LOGI("fsm %{public}s pop event fail", name_.c_str());
             break;
         }
 

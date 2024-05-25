@@ -250,7 +250,7 @@ void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInf
         IF_FALSE_LOGE_AND_RETURN(setRemoteAuthResultMsg == true);
     }
     callback_->OnResult(resultInfo.result, finalResult);
-    IAM_LOGI("%{public}s invoke result callback success", GetDescription());
+    IAM_LOGI("%{public}s invoke result callback success, result %{public}d", GetDescription(), resultInfo.result);
 }
 } // namespace UserAuth
 } // namespace UserIam
