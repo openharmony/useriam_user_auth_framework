@@ -105,6 +105,29 @@ void GetResourceNodeByTypeAndRole(AuthType authType, ExecutorRole role,
             authTypeNodes.push_back(node);
         });
 }
+
+std::string GetAuthParamStr(AuthParamInner &authParam, std::optional<RemoteAuthParam> &remoteAuthParam)
+{
+    std::ostringstream authParamString;
+    authParamString << "userId:" << authParam.userId << " authType:" << authParam.authType
+                    << " atl:" << authParam.authTrustLevel;
+    if (remoteAuthParam.has_value()) {
+        const uint32_t NETWORK_ID_PRINT_LEN = 4;
+        const uint32_t TOKEN_ID_MIN_LEN = 2;
+        auto verifierNetworkIdStr = remoteAuthParam->verifierNetworkId.value_or("").substr(0, NETWORK_ID_PRINT_LEN);
+        auto collectorNetworkIdStr = remoteAuthParam->collectorNetworkId.value_or("").substr(0, NETWORK_ID_PRINT_LEN);
+        auto tokenIdStr = std::to_string(remoteAuthParam->collectorTokenId.value_or(0));
+        if (tokenIdStr.size() > TOKEN_ID_MIN_LEN) {
+            tokenIdStr = std::string(1, tokenIdStr[0]) + "****" + std::string(1, tokenIdStr[tokenIdStr.size() - 1]);
+        } else {
+            tokenIdStr = "";
+        }
+
+        authParamString << " isRemoteAuth:true" << " verifierNetworkId:" << verifierNetworkIdStr << "****"
+            " collectorNetworkId:" << collectorNetworkIdStr << "****" << " collectorTokenId:" << tokenIdStr;
+    }
+    return authParamString.str();
+}
 const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(UserAuthService::GetInstance().get());
 } // namespace
 std::mutex UserAuthService::mutex_;
@@ -492,9 +515,7 @@ bool UserAuthService::CheckAuthPermissionAndParam(AuthType authType, AuthTrustLe
 uint64_t UserAuthService::AuthUser(AuthParamInner &authParam, std::optional<RemoteAuthParam> &remoteAuthParam,
     sptr<UserAuthCallbackInterface> &callback)
 {
-    IAM_LOGI("start, userId:%{public}d authType:%{public}d atl:%{public}d remoteAuthParamHasValue:%{public}s",
-        authParam.userId, authParam.authType, authParam.authTrustLevel,
-        Common::GetBoolStr(remoteAuthParam.has_value()));
+    IAM_LOGI("start, %{public}s", GetAuthParamStr(authParam, remoteAuthParam).c_str());
     auto contextCallback = GetAuthContextCallback(INNER_API_VERSION_10000, authParam.challenge, authParam.authType,
         authParam.authTrustLevel, callback);
     if (contextCallback == nullptr) {
@@ -596,6 +617,12 @@ uint64_t UserAuthService::AuthRemoteUser(AuthParamInner &authParam, Authenticati
 
     if (para.authType != PIN) {
         IAM_LOGE("Remote auth only support pin auth");
+        failReason = INVALID_PARAMETERS;
+        return BAD_CONTEXT_ID;
+    }
+
+    if (authParam.userId == INVALID_USER_ID) {
+        IAM_LOGE("userid must be set for remote auth");
         failReason = INVALID_PARAMETERS;
         return BAD_CONTEXT_ID;
     }

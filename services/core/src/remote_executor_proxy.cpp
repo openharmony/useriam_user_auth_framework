@@ -249,7 +249,7 @@ int32_t RemoteExecutorProxy::OnBeginExecute(uint64_t scheduleId, const std::vect
             sharedSelf->OnErrorFinish(scheduleId);
             return;
         }
-        IAM_LOGE("scheduleId %{public}s begin execute success", GET_MASKED_STRING(scheduleId).c_str());
+        IAM_LOGI("scheduleId %{public}s begin execute success", GET_MASKED_STRING(scheduleId).c_str());
     };
 
     ResultCode sendMsgRet = RemoteConnectionManager::GetInstance().SendMessage(connectionName_, endPointName_,

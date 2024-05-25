@@ -138,7 +138,7 @@ bool RemoteAuthContext::OnStart()
 bool RemoteAuthContext::StartAuth()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    IAM_LOGI("%{public}s start", GetDescription());
+    IAM_LOGI("%{public}s start remote auth", GetDescription());
 
     IF_FALSE_LOGE_AND_RETURN_VAL(executorInfoMsg_.size() > 0, false);
 
@@ -159,8 +159,14 @@ bool RemoteAuthContext::StartAuth()
 
     auth_->SetCollectorUdid(collectorUdid);
 
-    IAM_LOGI("%{public}s StartAuth success", GetDescription());
-    return SimpleAuthContext::OnStart();
+    bool startAuthRet =  SimpleAuthContext::OnStart();
+    IF_FALSE_LOGE_AND_RETURN_VAL(startAuthRet, false);
+    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_.size() == 1, false);
+    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_[0] != nullptr, false);
+
+    IAM_LOGI("%{public}s start remote auth success, connectionName:%{public}s, scheduleId:%{public}s",
+        GetDescription(), connectionName_.c_str(), GET_MASKED_STRING(scheduleList_[0]->GetScheduleId()).c_str());
+    return true;
 }
 
 void RemoteAuthContext::StartAuthDelayed()
@@ -227,7 +233,7 @@ bool RemoteAuthContext::SendQueryExecutorInfoMsg()
             IF_FALSE_LOGE_AND_RETURN(sharedThis != nullptr);
             StartAuthDelayed();
         });
-        IAM_LOGE("%{public}s query executor info success", GetDescription());
+        IAM_LOGI("%{public}s query executor info success", GetDescription());
     };
 
     ResultCode sendMsgRet = RemoteConnectionManager::GetInstance().SendMessage(connectionName_, endPointName_,
