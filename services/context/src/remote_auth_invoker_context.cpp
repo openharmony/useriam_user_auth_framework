@@ -327,19 +327,22 @@ int32_t RemoteAuthInvokerContext::ProcAuthResultMsgInner(Attributes &message, in
         IF_FALSE_LOGE_AND_RETURN_VAL(hdiRet == SUCCESS, ResultCode::GENERAL_ERROR);
 
         resultCode = authResultInfo.result;
-        bool setLockOutDurationRet =
-            attr.SetInt32Value(Attributes::ATTR_LOCKOUT_DURATION, authResultInfo.lockoutDuration);
-        IF_FALSE_LOGE_AND_RETURN_VAL(setLockOutDurationRet, ResultCode::GENERAL_ERROR);
-        bool setRemainAttemptsRet = attr.SetInt32Value(Attributes::ATTR_REMAIN_ATTEMPTS, authResultInfo.remainAttempts);
-        IF_FALSE_LOGE_AND_RETURN_VAL(setRemainAttemptsRet, ResultCode::GENERAL_ERROR);
-        bool setTokenRet = attr.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authResultInfo.token);
-        IF_FALSE_LOGE_AND_RETURN_VAL(setTokenRet, ResultCode::GENERAL_ERROR);
-        bool setUserId = attr.SetInt32Value(Attributes::ATTR_USER_ID, authResultInfo.userId);
-        IF_FALSE_LOGE_AND_RETURN_VAL(setUserId, ResultCode::GENERAL_ERROR);
-        IAM_LOGI("%{public}s parsed auth result: %{public}d, lockout duration "
-                 "%{public}d, "
-                 "remain attempts %{public}d, token size %{public}zu, user id "
-                 "%{public}d",
+        if (resultCode == ResultCode::FAIL || resultCode == ResultCode::LOCKED) {
+            bool setLockOutDurationRet =
+                attr.SetInt32Value(Attributes::ATTR_LOCKOUT_DURATION, authResultInfo.lockoutDuration);
+            IF_FALSE_LOGE_AND_RETURN_VAL(setLockOutDurationRet, ResultCode::GENERAL_ERROR);
+            bool setRemainAttemptsRet = attr.SetInt32Value(Attributes::ATTR_REMAIN_ATTEMPTS,
+                authResultInfo.remainAttempts);
+            IF_FALSE_LOGE_AND_RETURN_VAL(setRemainAttemptsRet, ResultCode::GENERAL_ERROR);
+        }
+        if (resultCode == ResultCode::SUCCESS) {
+            bool setTokenRet = attr.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authResultInfo.token);
+            IF_FALSE_LOGE_AND_RETURN_VAL(setTokenRet, ResultCode::GENERAL_ERROR);
+            bool setUserId = attr.SetInt32Value(Attributes::ATTR_USER_ID, authResultInfo.userId);
+            IF_FALSE_LOGE_AND_RETURN_VAL(setUserId, ResultCode::GENERAL_ERROR);
+        }
+        IAM_LOGI("%{public}s parsed auth result: %{public}d, lockout duration %{public}d, "
+                 "remain attempts %{public}d, token size %{public}zu, user id %{public}d",
             GetDescription(), resultCode, authResultInfo.lockoutDuration, authResultInfo.remainAttempts,
             authResultInfo.token.size(), authResultInfo.userId);
     } else if (resultCode == ResultCode::SUCCESS) {
