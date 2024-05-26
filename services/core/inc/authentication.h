@@ -65,7 +65,7 @@ public:
     virtual void SetChallenge(const std::vector<uint8_t> &challenge) = 0;
     virtual void SetAccessTokenId(uint32_t tokenId) = 0;
     virtual void SetEndAfterFirstFail(bool endAfterFirstFail) = 0;
-    virtual void SetCollectorUdid(std::string collectorUdid) = 0;
+    virtual void SetCollectorUdid(std::string &collectorUdid) = 0;
 
     virtual bool Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
         std::shared_ptr<ScheduleNodeCallback> callback) = 0;
