@@ -102,7 +102,7 @@ bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
         },
         .authType = authPara_.authType,
         .authIntent = authPara_.authIntent,
-        .isOsAccountVerified = authPara_.endAfterFirstFail,
+        .isOsAccountVerified = false,
         .collectorUdid = collectorUdid_,
     };
     std::vector<HdiScheduleInfo> infos;
