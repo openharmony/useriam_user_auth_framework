@@ -56,7 +56,8 @@ UserAuthResultCode UserAuthWidgetMgr::Init(napi_env env, napi_callback_info info
     }
     if (argc != ARGS_ONE) {
         IAM_LOGE("invalid param, argc:%{public}zu", argc);
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The number of parameters should be 1";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
 
     int32_t version = 0;
@@ -64,7 +65,8 @@ UserAuthResultCode UserAuthWidgetMgr::Init(napi_env env, napi_callback_info info
     IAM_LOGI("UserAuthWidgetMgr version: %{public}d", version);
     if (ret != napi_ok) {
         IAM_LOGE("get version fail:%{public}d", ret);
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The type of \"version\" must be number.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
 
     if (version != WIDGET_NOTICE) {
@@ -108,7 +110,8 @@ UserAuthResultCode UserAuthWidgetMgr::On(napi_env env, napi_callback_info info)
     }
     if (argc != ARGS_TWO) {
         IAM_LOGE("invalid param, argc:%{public}zu", argc);
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The number of parameters should be 2";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     static const size_t maxLen = 10;
     char type[maxLen] = {0};
@@ -116,12 +119,14 @@ UserAuthResultCode UserAuthWidgetMgr::On(napi_env env, napi_callback_info info)
     ret = UserAuthNapiHelper::GetStrValue(env, argv[PARAM0], type, len);
     if (ret != napi_ok) {
         IAM_LOGE("GetStrValue fail:%{public}d", ret);
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The type of \"type\" must be string.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     auto callbackRef = GetCallback(env, argv[PARAM1]);
     if (callbackRef == nullptr || !callbackRef->IsValid()) {
         IAM_LOGE("GetCallback fail");
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The type of \"callback\" must be IAuthWidgetCallback.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     if (type == TYPE_COMMAND) {
         IAM_LOGI("SetResultCallback");
@@ -133,7 +138,8 @@ UserAuthResultCode UserAuthWidgetMgr::On(napi_env env, napi_callback_info info)
         return UserAuthResultCode::SUCCESS;
     } else {
         IAM_LOGE("invalid event:%{public}s", type);
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The value of \"type\" must be \"command\".";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
 }
 
@@ -152,7 +158,8 @@ UserAuthResultCode UserAuthWidgetMgr::Off(napi_env env, napi_callback_info info)
     }
     if (argc != ARGS_TWO && argc != ARGS_ONE) {
         IAM_LOGE("invalid param, argc:%{public}zu", argc);
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The number of parameters should be 2";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     static const size_t maxLen = 10;
     char type[maxLen] = {0};
@@ -160,14 +167,16 @@ UserAuthResultCode UserAuthWidgetMgr::Off(napi_env env, napi_callback_info info)
     ret = UserAuthNapiHelper::GetStrValue(env, argv[PARAM0], type, len);
     if (ret != napi_ok) {
         IAM_LOGE("GetStrValue fail:%{public}d", ret);
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The type of \"type\" must be string.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
 
     if (argc == ARGS_TWO) {
         auto callbackRef = GetCallback(env, argv[PARAM1]);
         if (callbackRef == nullptr || !callbackRef->IsValid()) {
             IAM_LOGE("GetCallback fail");
-            return UserAuthResultCode::OHOS_INVALID_PARAM;
+            std::string msgStr = "Parameter error. The type of \"callback\" must be IAuthCallback.";
+            return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
         }
     }
 
@@ -181,7 +190,8 @@ UserAuthResultCode UserAuthWidgetMgr::Off(napi_env env, napi_callback_info info)
         return UserAuthResultCode::SUCCESS;
     } else {
         IAM_LOGE("invalid event:%{public}s", type);
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The value of \"type\" must be \"command\".";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
 }
 } // namespace UserAuth

@@ -16,7 +16,6 @@
 #include "user_auth_napi_helper.h"
 
 #include <cinttypes>
-#include <string>
 #include <uv.h>
 
 #include "securec.h"
@@ -233,6 +232,37 @@ napi_value UserAuthNapiHelper::GenerateBusinessErrorV9(napi_env env, UserAuthRes
     NAPI_CALL(env, napi_set_named_property(env, businessError, "code", code));
 
     return businessError;
+}
+
+napi_value UserAuthNapiHelper::GenerateErrorMsg(napi_env env, UserAuthResultCode result, std::string errorMsg)
+{
+    napi_value code;
+    std::string msgStr;
+    auto res = g_resultV92Str.find(result);
+    if (res == g_resultV92Str.end()) {
+        IAM_LOGE("result %{public}d not found", static_cast<int32_t>(result));
+        msgStr = g_resultV92Str.at(UserAuthResultCode::GENERAL_ERROR);
+        NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR), &code));
+    } else {
+        msgStr = errorMsg;
+        NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(result), &code));
+    }
+    IAM_LOGI("error msg %{public}s", msgStr.c_str());
+
+    napi_value msg;
+    NAPI_CALL(env, napi_create_string_utf8(env, msgStr.c_str(), NAPI_AUTO_LENGTH, &msg));
+
+    napi_value businessError;
+    NAPI_CALL(env, napi_create_error(env, nullptr, msg, &businessError));
+    NAPI_CALL(env, napi_set_named_property(env, businessError, "code", code));
+
+    return businessError;
+}
+
+UserAuthResultCode UserAuthNapiHelper::ThrowErrorMsg(napi_env env, UserAuthResultCode errorCode, std::string errorMsg)
+{
+    napi_throw(env, UserAuthNapiHelper::GenerateErrorMsg(env, errorCode, errorMsg));
+    return errorCode;
 }
 
 napi_status UserAuthNapiHelper::CheckNapiType(napi_env env, napi_value value, napi_valuetype type)
