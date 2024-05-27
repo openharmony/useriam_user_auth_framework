@@ -43,7 +43,8 @@ UserAuthResultCode AuthInstanceV9::GetAvailableStatus(napi_env env, napi_callbac
     }
     if (argc != ARGS_TWO) {
         IAM_LOGE("invalid param, argc:%{public}zu", argc);
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The number of parameters should be 2.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     int32_t type;
     ret = napi_get_value_int32(env, argv[PARAM0], &type);
