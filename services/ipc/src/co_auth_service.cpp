@@ -178,9 +178,11 @@ void CoAuthService::Init()
         auto callbackService = HdiMessageCallbackService::GetInstance();
         IF_FALSE_LOGE_AND_RETURN(callbackService != nullptr);
         callbackService->OnHdiConnect();
-        IAM_LOGI("set fwk ready parameter");
+        ResourceNodePool::Instance().DeleteAll();
+        IAM_LOGI("set fwk ready parameter begin");
         SetParameter("bootevent.useriam.fwkready", "false");
         SetParameter("bootevent.useriam.fwkready", "true");
+        IAM_LOGI("set fwk ready parameter success");
     } else {
         RelativeTimer::GetInstance().Register(Init, DEFER_TIME);
     }
