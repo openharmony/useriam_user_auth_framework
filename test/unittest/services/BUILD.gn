@@ -185,6 +185,7 @@ ohos_unittest("iam_services_test") {
     "init:libbegetutil",
     "ipc:ipc_single",
     "napi:ace_napi",
+    "openssl:libcrypto_shared",
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",

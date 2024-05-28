@@ -201,6 +201,7 @@ ohos_source_set("userauth_service_core_fuzzer") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "openssl:libcrypto_shared",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
