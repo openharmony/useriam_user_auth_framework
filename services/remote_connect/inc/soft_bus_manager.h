@@ -67,7 +67,8 @@ private:
 
     ResultCode DeviceInit();
     void DeviceUnInit();
-    ResultCode ServiceSocketInit();
+    ResultCode DoServiceSocketInit();
+    void ServiceSocketInit();
     void ServiceSocketUnInit();
 
     ResultCode ServiceSocketListen(const int32_t socketId);

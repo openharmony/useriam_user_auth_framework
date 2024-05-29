@@ -96,6 +96,31 @@ void CoAuthService::OnStop()
     IAM_LOGI("Stop service");
 }
 
+void CoAuthService::AddExecutorDeathRecipient(uint64_t executorIndex,
+    std::shared_ptr<ExecutorCallbackInterface> callback)
+{
+    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+    auto obj = callback->AsObject();
+    IF_FALSE_LOGE_AND_RETURN(obj != nullptr);
+
+    obj->AddDeathRecipient(new (std::nothrow) IpcCommon::PeerDeathRecipient([executorIndex]() {
+        IAM_LOGE("executorCallback is down");
+        auto weakNode = ResourceNodePool::Instance().Select(executorIndex);
+        auto sharedNode = weakNode.lock();
+        if (sharedNode != nullptr) {
+            ContextPool::Instance().StopSchedule(sharedNode);
+            auto result = ResourceNodePool::Instance().Delete(executorIndex);
+            IAM_LOGI("delete executor %{public}s, executorIndex is ****%{public}hx authType is %{public}d "
+                "executorRole is %{public}d", (result ? "succ" : "failed"), static_cast<uint16_t>(executorIndex),
+                sharedNode->GetAuthType(), sharedNode->GetExecutorRole());
+        }
+
+        std::string executorDesc = "executor, type " + std::to_string(sharedNode->GetAuthType());
+        UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), executorDesc);
+        IAM_LOGI("executorCallback is down processed");
+    }));
+}
+
 uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<ExecutorCallbackInterface> &callback)
 {
     if (callback == nullptr) {
@@ -129,15 +154,7 @@ uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<
         IAM_LOGI("register successful, executorType is %{public}d, executorRole is %{public}d, "
             "executorIndex is ****%{public}hx",
             executorType, resourceNode->GetExecutorRole(), static_cast<uint16_t>(executorIndex));
-        if (auto obj = executorCallback->AsObject(); obj) {
-            obj->AddDeathRecipient(new (std::nothrow) IpcCommon::PeerDeathRecipient([executorIndex, executorType]() {
-                auto result = ResourceNodePool::Instance().Delete(executorIndex);
-                IAM_LOGI("delete executor %{public}s, executorIndex is ****%{public}hx", (result ? "succ" : "failed"),
-                    static_cast<uint16_t>(executorIndex));
-                std::string executorDesc = "executor, type " + std::to_string(executorType);
-                UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), executorDesc);
-            }));
-        }
+        AddExecutorDeathRecipient(executorIndex, executorCallback);
         IAM_LOGI("update template cache after register success");
         TemplateCacheManager::GetInstance().UpdateTemplateCache(resourceNode->GetAuthType());
     });
@@ -162,9 +179,10 @@ void CoAuthService::Init()
     auto hdi = HdiWrapper::GetHdiRemoteObjInstance();
     if (hdi) {
         hdi->AddDeathRecipient(new (std::nothrow) IpcCommon::PeerDeathRecipient([]() {
+            IAM_LOGE("user auth host is dead");
+            ContextPool::Instance().StopAllSchedule();
             ResourceNodePool::Instance().DeleteAll();
             RelativeTimer::GetInstance().Register(Init, DEFER_TIME);
-            IAM_LOGI("delete all executors for hdi dead");
             UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "user_auth_hdi host");
         }));
 

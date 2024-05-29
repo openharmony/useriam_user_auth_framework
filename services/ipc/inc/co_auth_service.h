@@ -42,6 +42,8 @@ protected:
 
 private:
     static void Init();
+    static void AddExecutorDeathRecipient(uint64_t executorIndex,
+        std::shared_ptr<ExecutorCallbackInterface> callback);
 
     static std::mutex mutex_;
     static std::shared_ptr<CoAuthService> instance_;
