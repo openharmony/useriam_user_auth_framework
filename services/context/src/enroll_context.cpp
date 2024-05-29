@@ -44,6 +44,11 @@ uint32_t EnrollContext::GetTokenId() const
     return enroll_->GetAccessTokenId();
 }
 
+int32_t EnrollContext::GetUserId() const
+{
+    return enroll_->GetUserId();
+}
+
 bool EnrollContext::OnStart()
 {
     IAM_LOGI("%{public}s start", GetDescription());

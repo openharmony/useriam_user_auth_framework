@@ -61,6 +61,11 @@ uint64_t BaseContext::GetContextId() const
     return contextId_;
 }
 
+int32_t BaseContext::GetUserId() const
+{
+    return INVALID_USER_ID;
+}
+
 bool BaseContext::Start()
 {
     std::lock_guard<std::mutex> guard(mutex_);

@@ -43,6 +43,7 @@ public:
     bool Cancel() override;
     uint32_t GetAccessTokenId() const override;
     int32_t GetLatestError() const override;
+    int32_t GetUserId() const override;
 
 protected:
     void SetLatestError(int32_t error) override;
