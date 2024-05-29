@@ -106,7 +106,7 @@ void GetResourceNodeByTypeAndRole(AuthType authType, ExecutorRole role,
         });
 }
 
-std::string GetAuthParamStr(AuthParamInner &authParam, std::optional<RemoteAuthParam> &remoteAuthParam)
+std::string GetAuthParamStr(const AuthParamInner &authParam, std::optional<RemoteAuthParam> &remoteAuthParam)
 {
     std::ostringstream authParamString;
     authParamString << "userId:" << authParam.userId << " authType:" << authParam.authType
