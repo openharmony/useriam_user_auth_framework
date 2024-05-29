@@ -19,6 +19,7 @@
 #include <cstdint>
 
 #include "context.h"
+#include "resource_node.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -35,6 +36,8 @@ public:
     virtual bool Insert(const std::shared_ptr<Context> &context) = 0;
     virtual bool Delete(uint64_t contextId) = 0;
     virtual void CancelAll() const = 0;
+    virtual void StopAllSchedule() const = 0;
+    virtual void StopSchedule(std::shared_ptr<ResourceNode> resourceNode) const = 0;
     virtual std::weak_ptr<Context> Select(uint64_t contextId) const = 0;
     virtual std::vector<std::weak_ptr<Context>> Select(ContextType contextType) const = 0;
     virtual void InsertRemoteScheduleNode(std::shared_ptr<ScheduleNode> scheduleNode) = 0;
