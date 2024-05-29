@@ -57,6 +57,8 @@ public:
     virtual std::shared_ptr<ScheduleNode> GetScheduleNode(uint64_t scheduleId) const = 0;
     virtual uint32_t GetTokenId() const = 0;
     virtual int32_t GetLatestError() const = 0;
+    virtual int32_t GetUserId() const = 0;
+
 protected:
     virtual void SetLatestError(int32_t error) = 0;
 };

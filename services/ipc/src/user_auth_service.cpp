@@ -106,7 +106,7 @@ void GetResourceNodeByTypeAndRole(AuthType authType, ExecutorRole role,
         });
 }
 
-std::string GetAuthParamStr(AuthParamInner &authParam, std::optional<RemoteAuthParam> &remoteAuthParam)
+std::string GetAuthParamStr(const AuthParamInner &authParam, std::optional<RemoteAuthParam> &remoteAuthParam)
 {
     std::ostringstream authParamString;
     authParamString << "userId:" << authParam.userId << " authType:" << authParam.authType
@@ -228,11 +228,11 @@ void UserAuthService::FillGetPropertyKeys(AuthType authType, const std::vector<A
 }
 
 void UserAuthService::FillGetPropertyValue(AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
-    Attributes &value)
+    Attributes &values)
 {
     for (const auto &key : keys) {
         if (key == Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION && authType != PIN) {
-            if (!value.SetInt32Value(Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION, FIRST_LOCKOUT_DURATION_EXCEPT_PIN)) {
+            if (!values.SetInt32Value(Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION, FIRST_LOCKOUT_DURATION_EXCEPT_PIN)) {
                 IAM_LOGE("set nextFailLockoutDuration failed, authType %{public}d", authType);
             }
             break;

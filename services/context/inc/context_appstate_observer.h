@@ -52,7 +52,7 @@ class ContextAppStateObserver : public ApplicationStateObserverStub {
         void OnAbilityStateChanged(const AbilityStateData &abilityStateData) override;
 
     protected:
-        void ProcAppStateChanged();
+        void ProcAppStateChanged(int32_t userId);
         const uint64_t contextId_;
         const std::string bundleName_;
 };

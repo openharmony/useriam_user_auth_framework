@@ -65,6 +65,7 @@ public:
     MOCK_CONST_METHOD1(GetScheduleNode, std::shared_ptr<ScheduleNode>(uint64_t scheduleId));
     MOCK_CONST_METHOD0(GetLatestError, int32_t());
     MOCK_CONST_METHOD0(GetTokenId, uint32_t());
+    MOCK_CONST_METHOD0(GetUserId, int32_t());
 
     static std::shared_ptr<Context> CreateWithContextId(uint64_t contextId)
     {

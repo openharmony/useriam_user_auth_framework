@@ -82,6 +82,11 @@ void EnrollmentImpl::SetIsUpdate(bool isUpdate)
     isUpdate_ = isUpdate;
 }
 
+int32_t EnrollmentImpl::GetUserId() const
+{
+    return enrollPara_.userId;
+}
+
 bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
     std::shared_ptr<ScheduleNodeCallback> callback)
 {
