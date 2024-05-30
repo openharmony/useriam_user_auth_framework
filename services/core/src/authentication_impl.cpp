@@ -75,6 +75,11 @@ uint32_t AuthenticationImpl::GetAccessTokenId() const
     return tokenId_;
 }
 
+int32_t AuthenticationImpl::GetUserId() const
+{
+    return authPara_.userId;
+}
+
 std::vector<Authentication::AuthExecutorMsg> AuthenticationImpl::GetAuthExecutorMsgs() const
 {
     return authExecutorMsgs_;

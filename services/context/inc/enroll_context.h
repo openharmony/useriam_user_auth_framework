@@ -31,6 +31,7 @@ public:
     ~EnrollContext() override = default;
     ContextType GetContextType() const override;
     uint32_t GetTokenId() const override;
+    int32_t GetUserId() const override;
 
 protected:
     bool OnStart() override;

@@ -60,6 +60,7 @@ public:
     std::shared_ptr<ScheduleNode> GetScheduleNode(uint64_t scheduleId) const override;
     uint32_t GetTokenId() const override;
     int32_t GetLatestError() const override;
+    int32_t GetUserId() const override;
 
     // WidgetScheduleNodeCallback API
     bool LaunchWidget() override;
