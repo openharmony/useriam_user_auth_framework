@@ -50,7 +50,7 @@ std::string GetSha256Str(const std::string &input)
     // Convert hash to hex string
     std::stringstream ss;
     for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i) {
-        ss << std::hex << std::setw(UINT8_WIDTH) << std::setfill('0') << (int)hash[i];
+        ss << std::hex << std::setw(UINT8_WIDTH) << std::setfill('0') << static_cast<uint32_t>(hash[i]);
     }
     return ss.str();
 }
