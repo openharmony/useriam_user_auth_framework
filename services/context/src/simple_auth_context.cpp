@@ -109,6 +109,11 @@ uint32_t SimpleAuthContext::GetTokenId() const
     return auth_->GetAccessTokenId();
 }
 
+int32_t SimpleAuthContext::GetUserId() const
+{
+    return auth_->GetUserId();
+}
+
 bool SimpleAuthContext::OnStart()
 {
     IAM_LOGI("%{public}s start", GetDescription());

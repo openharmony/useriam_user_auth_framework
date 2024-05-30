@@ -27,6 +27,10 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 using namespace OHOS::AppExecFwk;
+namespace {
+    constexpr std::uint32_t CONVERT_UID_TO_USERID = 200000;
+}
+
 sptr<IAppMgr> ContextAppStateObserverManager::GetAppManagerInstance()
 {
     IAM_LOGI("start");
@@ -115,12 +119,16 @@ ContextAppStateObserver::ContextAppStateObserver(const uint64_t contextId,
     IAM_LOGI("start");
 }
 
-void ContextAppStateObserver::ProcAppStateChanged()
+void ContextAppStateObserver::ProcAppStateChanged(int32_t userId)
 {
     IAM_LOGI("start");
     auto context = ContextPool::Instance().Select(contextId_).lock();
     if (context == nullptr) {
         IAM_LOGE("context is nullptr");
+        return;
+    }
+    if (context->GetUserId() != userId) {
+        IAM_LOGI("context userId is %{public}d, appStateChanged userId is %{public}d", context->GetUserId(), userId);
         return;
     }
     if (!context->Stop()) {
@@ -135,10 +143,12 @@ void ContextAppStateObserver::OnAppStateChanged(const AppStateData &appStateData
     IAM_LOGI("start, contextId: ****%{public}hx", static_cast<uint16_t>(contextId_));
     auto bundleName = appStateData.bundleName;
     auto state = static_cast<ApplicationState>(appStateData.state);
-    IAM_LOGI("OnAppStateChanged, bundleName:%{public}s, state:%{public}d", bundleName.c_str(), state);
+    int32_t userId = appStateData.uid / CONVERT_UID_TO_USERID;
+    IAM_LOGI("OnAppStateChanged, userId:%{public}d, bundleName:%{public}s, state:%{public}d", userId,
+        bundleName.c_str(), state);
 
     if (bundleName.compare(bundleName_) == 0 && state == ApplicationState::APP_STATE_BACKGROUND) {
-        ProcAppStateChanged();
+        ProcAppStateChanged(userId);
     }
     return;
 }
@@ -148,10 +158,12 @@ void ContextAppStateObserver::OnForegroundApplicationChanged(const AppStateData 
     IAM_LOGI("start, contextId: ****%{public}hx", static_cast<uint16_t>(contextId_));
     auto bundleName = appStateData.bundleName;
     auto state = static_cast<ApplicationState>(appStateData.state);
-    IAM_LOGI("OnForegroundApplicationChanged, bundleName:%{public}s, state:%{public}d", bundleName.c_str(), state);
+    int32_t userId = appStateData.uid / CONVERT_UID_TO_USERID;
+    IAM_LOGI("OnForegroundApplicationChanged, userId:%{public}d, bundleName:%{public}s, state:%{public}d", userId,
+        bundleName.c_str(), state);
 
     if (bundleName.compare(bundleName_) == 0 && state == ApplicationState::APP_STATE_BACKGROUND) {
-        ProcAppStateChanged();
+        ProcAppStateChanged(userId);
     }
     return;
 }
@@ -161,10 +173,12 @@ void ContextAppStateObserver::OnAbilityStateChanged(const AbilityStateData &abil
     IAM_LOGI("start, contextId: ****%{public}hx", static_cast<uint16_t>(contextId_));
     auto bundleName = abilityStateData.bundleName;
     auto state = static_cast<AbilityState>(abilityStateData.abilityState);
-    IAM_LOGI("OnAbilityStateChanged, bundleName:%{public}s, state:%{public}d", bundleName.c_str(), state);
+    int32_t userId = abilityStateData.uid / CONVERT_UID_TO_USERID;
+    IAM_LOGI("OnAbilityStateChanged, userId:%{public}d, bundleName:%{public}s, state:%{public}d", userId,
+        bundleName.c_str(), state);
 
     if (bundleName.compare(bundleName_) == 0 && state == AbilityState::ABILITY_STATE_BACKGROUND) {
-        ProcAppStateChanged();
+        ProcAppStateChanged(userId);
     }
     return;
 }
