@@ -27,6 +27,7 @@
 #include "remote_connect_listener_manager.h"
 #include "socket_factory.h"
 #include "soft_bus_base_socket.h"
+#include "softbus_error_code.h"
 #include "soft_bus_socket_listener.h"
 #include "system_ability_definition.h"
 #include "thread_handler.h"
@@ -48,7 +49,7 @@ static constexpr int32_t MAX_LATENCY = 30 * 1000; // 30s
 static constexpr int32_t MIN_LATENCY = 100; // 100ms
 static constexpr int32_t MAX_TIMEOUT = 3 * 60 * 1000; // 3min
 
-static constexpr int32_t BIND_SERVICE_MAX_RETRY_TIMES = 10;
+static constexpr int32_t BIND_SERVICE_MAX_RETRY_TIMES = 3;
 static constexpr int32_t BIND_SERVICE_SLEEP_TIMES_MS = 100; // 0.1s
 
 static const int32_t MAX_ONBYTES_RECEIVED_DATA_LEN = 1024 * 1024 * 10;
@@ -299,7 +300,26 @@ ResultCode SoftBusManager::ServiceSocketListen(const int32_t socketId)
     return SUCCESS;
 }
 
-ResultCode SoftBusManager::ServiceSocketInit()
+void SoftBusManager::ServiceSocketInit()
+{
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    IF_FALSE_LOGE_AND_RETURN(handler != nullptr);
+    handler->PostTask([=]() {
+        ResultCode ret = GENERAL_ERROR;
+        auto sleepTime = std::chrono::milliseconds(BIND_SERVICE_SLEEP_TIMES_MS);
+        for (int32_t retryTimes = 0; retryTimes < BIND_SERVICE_MAX_RETRY_TIMES; retryTimes++) {
+            ret = DoServiceSocketInit();
+            if (ret == SUCCESS) {
+                break;
+            }
+            std::this_thread::sleep_for(sleepTime);
+        }
+
+        IAM_LOGI("ServiceSocketInit result %{public}d.", ret);
+    });
+}
+
+ResultCode SoftBusManager::DoServiceSocketInit()
 {
     IAM_LOGD("start.");
     std::string serviceName = USER_AUTH_SOCKET_NAME + "service";
@@ -346,7 +366,7 @@ ResultCode SoftBusManager::ServiceSocketInit()
 
 void SoftBusManager::ServiceSocketUnInit()
 {
-    IAM_LOGD("start.");
+    IAM_LOGE("soft bus service is down.");
     auto serverSocket = GetServerSocket();
     if (serverSocket == nullptr) {
         IAM_LOGI("serverSocket is nullptr.");
@@ -354,6 +374,19 @@ void SoftBusManager::ServiceSocketUnInit()
     }
     DeleteSocket(serverSocket->GetSocketId());
     ClearServerSocket();
+
+    std::vector<int32_t> socketIds;
+    {
+        std::recursive_mutex socketMutex_;
+        for (const auto &iter : socketMap_) {
+            socketIds.push_back(iter.first);
+        }
+    }
+    for (int32_t socketId : socketIds) {
+        IAM_LOGE("service down shutdown socket %{public}d", socketId);
+        OnShutdown(socketId, SHUTDOWN_REASON_SERVICE_DIED);
+    }
+
     IAM_LOGI("UnInitialize success");
 }
 
@@ -411,20 +444,17 @@ ResultCode SoftBusManager::ClientSocketBind(const int32_t socketId)
     listener.OnBytes = SoftBusSocketListener::OnServerBytes;
     listener.OnQos = SoftBusSocketListener::OnQos;
 
-    int32_t ret = SUCCESS;
-    int32_t retryTimes = 0;
+    int32_t ret = SOFTBUS_INVALID_PARAM;
     auto sleepTime = std::chrono::milliseconds(BIND_SERVICE_SLEEP_TIMES_MS);
-    while (retryTimes < BIND_SERVICE_MAX_RETRY_TIMES) {
+    for (int32_t retryTimes = 0; retryTimes < BIND_SERVICE_MAX_RETRY_TIMES; retryTimes++) {
         ret = Bind(socketId, clientQos, QOS_LEN, &listener);
-        if (ret != SUCCESS) {
-            std::this_thread::sleep_for(sleepTime);
-            retryTimes++;
-            continue;
+        if (ret == SOFTBUS_OK) {
+            break;
         }
-        break;
+        std::this_thread::sleep_for(sleepTime);
     }
 
-    if (ret != SUCCESS) {
+    if (ret != SOFTBUS_OK) {
         IAM_LOGE("ClientSocketBind fail.");
         return GENERAL_ERROR;
     }

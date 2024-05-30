@@ -58,6 +58,7 @@ public:
     uint64_t GetContextId() const override;
     ContextType GetContextType() const override;
     std::shared_ptr<ScheduleNode> GetScheduleNode(uint64_t scheduleId) const override;
+    std::vector<std::shared_ptr<ScheduleNode>> GetScheduleNodes() const override;
     uint32_t GetTokenId() const override;
     int32_t GetLatestError() const override;
     int32_t GetUserId() const override;
