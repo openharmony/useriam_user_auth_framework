@@ -71,6 +71,7 @@ public:
     void ClearScheduleCallback() override;
     bool StartSchedule() override;
     bool StopSchedule() override;
+    bool StopSchedule(ResultCode errorCode) override;
     bool SendMessage(ExecutorRole dstRole, const std::vector<uint8_t> &msg) override;
     bool ContinueSchedule(ResultCode resultCode, const std::shared_ptr<Attributes> &finalResult) override;
 

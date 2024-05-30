@@ -36,9 +36,11 @@ namespace UserIam {
 namespace UserAuth {
 class RemoteExecutorStubScheduleNode : public ScheduleNode, public NoCopyable {
 public:
-    RemoteExecutorStubScheduleNode(HdiScheduleInfo &scheduleInfo, std::weak_ptr<RemoteExecutorStub> callback)
+    RemoteExecutorStubScheduleNode(HdiScheduleInfo &scheduleInfo, std::weak_ptr<RemoteExecutorStub> callback,
+        std::weak_ptr<ResourceNode> collectorExecutor)
         : scheduleId_(scheduleInfo.scheduleId),
-          callback_(callback)
+          callback_(callback),
+          collectorExecutor_(collectorExecutor)
     {
     }
     ~RemoteExecutorStubScheduleNode()
@@ -71,8 +73,7 @@ public:
     }
     std::weak_ptr<ResourceNode> GetCollectorExecutor() const override
     {
-        static std::weak_ptr<ResourceNode> nullNode;
-        return nullNode;
+        return collectorExecutor_;
     }
     std::weak_ptr<ResourceNode> GetVerifyExecutor() const override
     {
@@ -103,6 +104,17 @@ public:
     {
         return true;
     }
+    bool StopSchedule(ResultCode errorCode) override
+    {
+        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        IAM_LOGI("stop schedule errorCode %{public}d", errorCode);
+        auto finalResult = Common::MakeShared<Attributes>();
+        IF_FALSE_LOGE_AND_RETURN_VAL(finalResult != nullptr, false);
+        bool setResultCodeRet = finalResult->SetInt32Value(Attributes::ATTR_RESULT_CODE, errorCode);
+        IF_FALSE_LOGE_AND_RETURN_VAL(setResultCodeRet, false);
+
+        return ContinueSchedule(errorCode, finalResult);
+    }
     bool SendMessage(ExecutorRole dstRole, const std::vector<uint8_t> &msg) override
     {
         std::lock_guard<std::recursive_mutex> lock(mutex_);
@@ -124,6 +136,7 @@ private:
     std::recursive_mutex mutex_;
     uint64_t scheduleId_;
     std::weak_ptr<RemoteExecutorStub> callback_;
+    std::weak_ptr<ResourceNode> collectorExecutor_;
 };
 
 class RemoteExecutorStubMessageCallback : public ConnectionListener, public NoCopyable {
@@ -235,18 +248,18 @@ int32_t RemoteExecutorStub::ProcBeginExecuteRequest(Attributes &attr)
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleInfo.executorIndexes.size() == 1, GENERAL_ERROR);
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleInfo.executorMessages.size() == 1, GENERAL_ERROR);
 
-    remoteScheduleNode_ = Common::MakeShared<RemoteExecutorStubScheduleNode>(scheduleInfo, weak_from_this());
+    executorIndex_ = scheduleInfo.executorIndexes[0];
+    std::weak_ptr<ResourceNode> weakNode = ResourceNodePool::Instance().Select(executorIndex_);
+    std::shared_ptr<ResourceNode> node = weakNode.lock();
+    IF_FALSE_LOGE_AND_RETURN_VAL(node != nullptr, GENERAL_ERROR);
+
+    remoteScheduleNode_ = Common::MakeShared<RemoteExecutorStubScheduleNode>(scheduleInfo, weak_from_this(), node);
     IF_FALSE_LOGE_AND_RETURN_VAL(remoteScheduleNode_ != nullptr, GENERAL_ERROR);
 
     ContextPool::Instance().InsertRemoteScheduleNode(remoteScheduleNode_);
 
     bool setExtraInfo = attr.SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, scheduleInfo.executorMessages[0]);
     IF_FALSE_LOGE_AND_RETURN_VAL(setExtraInfo, GENERAL_ERROR);
-
-    executorIndex_ = scheduleInfo.executorIndexes[0];
-    std::weak_ptr<ResourceNode> weakNode = ResourceNodePool::Instance().Select(executorIndex_);
-    std::shared_ptr<ResourceNode> node = weakNode.lock();
-    IF_FALSE_LOGE_AND_RETURN_VAL(node != nullptr, GENERAL_ERROR);
 
     std::vector<uint8_t> publicKey;
     node->BeginExecute(scheduleInfo.scheduleId, publicKey, attr);
