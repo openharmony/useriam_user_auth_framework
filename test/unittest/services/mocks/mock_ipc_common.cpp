@@ -151,6 +151,11 @@ bool IpcCommon::CheckForegroundApplication(const std::string &bundleName)
 {
     return true;
 }
+
+bool IpcCommon::IsOsAccountVerified(int32_t userId)
+{
+    return true;
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

@@ -103,7 +103,7 @@ struct AuthParamInner {
     AuthTrustLevel authTrustLevel;
     /** Reuse unlock authentication result. */
     ReuseUnlockResult reuseUnlockResult;
-    /** Auth intent. */
+    /** Auth intention. */
     AuthIntent authIntent;
 };
 
