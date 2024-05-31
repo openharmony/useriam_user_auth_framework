@@ -43,7 +43,7 @@ using time_point = std::chrono::steady_clock::time_point;
 class BaseSocket : public std::enable_shared_from_this<BaseSocket> {
 public:
     BaseSocket(const int32_t socketId);
-    virtual ~BaseSocket() = default;
+    virtual ~BaseSocket();
     int32_t GetSocketId();
     virtual ResultCode SendMessage(const std::string &connectionName, const std::string &srcEndPoint,
         const std::string &destEndPoint, const std::shared_ptr<Attributes> &attributes, MsgCallback &callback) = 0;

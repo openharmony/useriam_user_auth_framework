@@ -473,7 +473,9 @@ napi_value SendNotice(napi_env env, napi_callback_info info)
     }
     if (argc != ARGS_TWO) {
         IAM_LOGE("invalid param, argc:%{public}zu", argc);
-        return ResultOfSendNotice(env, UserAuthResultCode::OHOS_INVALID_PARAM);
+        std::string msgStr = "Parameter error. The number of parameters should be 2";
+        napi_throw(env, UserAuthNapiHelper::GenerateErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr));
+        return nullptr;
     }
 
     NoticeType noticeType = NoticeType::WIDGET_NOTICE;
@@ -481,19 +483,25 @@ napi_value SendNotice(napi_env env, napi_callback_info info)
     ret = UserAuthNapiHelper::GetInt32Value(env, argv[PARAM0], noticeType_value);
     if (ret != napi_ok) {
         IAM_LOGE("GetStrValue fail:%{public}d", ret);
-        return ResultOfSendNotice(env, UserAuthResultCode::OHOS_INVALID_PARAM);
+        std::string msgStr = "Parameter error. The type of \"noticeType\" must be NoticeType.";
+        napi_throw(env, UserAuthNapiHelper::GenerateErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr));
+        return nullptr;
     }
     IAM_LOGI("recv SendNotice noticeType:%{public}d", noticeType_value);
 
     if (noticeType_value != WIDGET_NOTICE) {
-        return ResultOfSendNotice(env, UserAuthResultCode::OHOS_INVALID_PARAM);
+        std::string msgStr = "Parameter error. The value of \"noticeType\" must be NoticeType.WIDGET_NOTICE.";
+        napi_throw(env, UserAuthNapiHelper::GenerateErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr));
+        return nullptr;
     }
 
     std::string eventData = UserAuthNapiHelper::GetStringFromValueUtf8(env, argv[PARAM1]);
     IAM_LOGI("recv SendNotice eventData:%{public}s", eventData.c_str());
     if (!VerifyNoticeParam(eventData)) {
         IAM_LOGE("Invalid notice parameter");
-        return ResultOfSendNotice(env, UserAuthResultCode::OHOS_INVALID_PARAM);
+        std::string msgStr = "Parameter error. The value of \"eventData\" for WIDGET_NOTICE must be json string.";
+        napi_throw(env, UserAuthNapiHelper::GenerateErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr));
+        return nullptr;
     }
 
     int32_t result = UserAuthClientImpl::Instance().Notice(noticeType, eventData);

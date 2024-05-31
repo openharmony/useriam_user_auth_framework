@@ -33,6 +33,7 @@ ResultCode ServerSocket::SendMessage(const std::string &connectionName, const st
     IAM_LOGI("start.");
     int32_t socketId = GetSocketIdByClientConnectionName(connectionName);
     if (socketId == INVALID_SOCKET_ID) {
+        IAM_LOGE("socket id is invalid");
         return GENERAL_ERROR;
     }
 
@@ -77,16 +78,16 @@ void ServerSocket::OnBytes(int32_t socketId, const void *data, uint32_t dataLen)
         return;
     }
 
-    ResultCode ret = ProcDataReceive(socketId, softBusMessage);
-    if (ret != SUCCESS) {
-        IAM_LOGE("HandleDataReceive fail, socketId:%{public}d.", socketId);
-        return;
-    }
-
     bool ack = softBusMessage->GetAckFlag();
     std::string connectionName = softBusMessage->GetConnectionName();
     if (ack == false && !connectionName.empty()) {
         AddClientConnection(socketId, connectionName);
+    }
+
+    ResultCode ret = ProcDataReceive(socketId, softBusMessage);
+    if (ret != SUCCESS) {
+        IAM_LOGE("HandleDataReceive fail, socketId:%{public}d.", socketId);
+        return;
     }
 }
 
@@ -97,7 +98,7 @@ void ServerSocket::OnQos(int32_t socketId, QoSEvent eventId, const QosTV *qos, u
 
 void ServerSocket::AddServerSocket(const int32_t socketId, const std::string &networkId)
 {
-    IAM_LOGI("start.");
+    IAM_LOGI("start, socketId %{public}d.", socketId);
     IF_FALSE_LOGE_AND_RETURN(socketId != INVALID_SOCKET_ID);
 
     std::lock_guard<std::recursive_mutex> lock(socketMutex_);
@@ -111,7 +112,7 @@ void ServerSocket::AddServerSocket(const int32_t socketId, const std::string &ne
 
 void ServerSocket::DeleteServerSocket(const int32_t socketId)
 {
-    IAM_LOGI("start.");
+    IAM_LOGI("start, socketId %{public}d.", socketId);
     IF_FALSE_LOGE_AND_RETURN(socketId != INVALID_SOCKET_ID);
 
     std::lock_guard<std::recursive_mutex> lock(socketMutex_);
@@ -123,7 +124,6 @@ void ServerSocket::DeleteServerSocket(const int32_t socketId)
 
 std::string ServerSocket::GetNetworkIdBySocketId(int32_t socketId)
 {
-    IAM_LOGI("start.");
     IF_FALSE_LOGE_AND_RETURN_VAL(socketId != INVALID_SOCKET_ID, "");
 
     std::lock_guard<std::recursive_mutex> lock(socketMutex_);
@@ -137,7 +137,7 @@ std::string ServerSocket::GetNetworkIdBySocketId(int32_t socketId)
 
 void ServerSocket::AddClientConnection(const int32_t socketId, const std::string &connectionName)
 {
-    IAM_LOGI("start.");
+    IAM_LOGI("add socketId %{public}d connectionName %{public}s.", socketId, connectionName.c_str());
     IF_FALSE_LOGE_AND_RETURN(socketId != INVALID_SOCKET_ID);
 
     std::lock_guard<std::recursive_mutex> lock(connectionMutex_);
@@ -149,19 +149,20 @@ void ServerSocket::AddClientConnection(const int32_t socketId, const std::string
 
 void ServerSocket::DeleteClientConnection(const int32_t socketId)
 {
-    IAM_LOGI("start.");
+    IAM_LOGI("start, socketId %{public}d.", socketId);
     IF_FALSE_LOGE_AND_RETURN(socketId != INVALID_SOCKET_ID);
 
     std::lock_guard<std::recursive_mutex> lock(connectionMutex_);
     auto iter = clientConnectionMap_.find(socketId);
     if (iter != clientConnectionMap_.end()) {
+        std::string connectionName = iter->second;
+        IAM_LOGI("delete socketId %{public}d connectionName %{public}s.", socketId, connectionName.c_str());
         clientConnectionMap_.erase(iter);
     }
 }
 
 std::string ServerSocket::GetClientConnectionName(const int32_t socketId)
 {
-    IAM_LOGI("start.");
     IF_FALSE_LOGE_AND_RETURN_VAL(socketId != INVALID_SOCKET_ID, "");
 
     std::lock_guard<std::recursive_mutex> lock(connectionMutex_);
@@ -173,13 +174,12 @@ std::string ServerSocket::GetClientConnectionName(const int32_t socketId)
     return ConnectionName;
 }
 
-int32_t ServerSocket::GetSocketIdByClientConnectionName(const std::string &ConnectionName)
+int32_t ServerSocket::GetSocketIdByClientConnectionName(const std::string &connectionName)
 {
-    IAM_LOGI("start.");
     std::lock_guard<std::recursive_mutex> lock(connectionMutex_);
     int32_t socketId = INVALID_SOCKET_ID;
-    for (auto &iter : clientConnectionMap_) {
-        if (iter.second == ConnectionName) {
+    for (const auto &iter : clientConnectionMap_) {
+        if (iter.second == connectionName) {
             socketId = iter.first;
             break;
         }

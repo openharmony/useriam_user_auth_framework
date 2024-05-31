@@ -42,6 +42,7 @@ public:
     MOCK_METHOD1(SetExpiredTime, bool(uint32_t ms));
     MOCK_METHOD0(StartSchedule, bool());
     MOCK_METHOD0(StopSchedule, bool());
+    MOCK_METHOD1(StopSchedule, bool(ResultCode errorCode));
     MOCK_METHOD2(SendMessage, bool(ExecutorRole dstRole, const std::vector<uint8_t> &msg));
     MOCK_METHOD2(ContinueSchedule, bool(ResultCode resultCode, const std::shared_ptr<Attributes> &finalResult));
 

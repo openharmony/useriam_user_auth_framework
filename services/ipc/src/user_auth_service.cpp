@@ -105,6 +105,29 @@ void GetResourceNodeByTypeAndRole(AuthType authType, ExecutorRole role,
             authTypeNodes.push_back(node);
         });
 }
+
+std::string GetAuthParamStr(const AuthParamInner &authParam, std::optional<RemoteAuthParam> &remoteAuthParam)
+{
+    std::ostringstream authParamString;
+    authParamString << "userId:" << authParam.userId << " authType:" << authParam.authType
+                    << " atl:" << authParam.authTrustLevel;
+    if (remoteAuthParam.has_value()) {
+        const uint32_t NETWORK_ID_PRINT_LEN = 4;
+        const uint32_t TOKEN_ID_MIN_LEN = 2;
+        auto verifierNetworkIdStr = remoteAuthParam->verifierNetworkId.value_or("").substr(0, NETWORK_ID_PRINT_LEN);
+        auto collectorNetworkIdStr = remoteAuthParam->collectorNetworkId.value_or("").substr(0, NETWORK_ID_PRINT_LEN);
+        auto tokenIdStr = std::to_string(remoteAuthParam->collectorTokenId.value_or(0));
+        if (tokenIdStr.size() > TOKEN_ID_MIN_LEN) {
+            tokenIdStr = std::string(1, tokenIdStr[0]) + "****" + std::string(1, tokenIdStr[tokenIdStr.size() - 1]);
+        } else {
+            tokenIdStr = "";
+        }
+
+        authParamString << " isRemoteAuth:true" << " verifierNetworkId:" << verifierNetworkIdStr << "****"
+            " collectorNetworkId:" << collectorNetworkIdStr << "****" << " collectorTokenId:" << tokenIdStr;
+    }
+    return authParamString.str();
+}
 const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(UserAuthService::GetInstance().get());
 } // namespace
 std::mutex UserAuthService::mutex_;
@@ -192,11 +215,11 @@ int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authTyp
     return checkRet;
 }
 
-void UserAuthService::FillGetPropertyKeys(AuthType authType, const std::vector<Attributes::AttributeKey> keys,
+void UserAuthService::FillGetPropertyKeys(AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
     std::vector<uint32_t> &uint32Keys)
 {
     uint32Keys.reserve(keys.size());
-    for (auto &key : keys) {
+    for (const auto &key : keys) {
         if (key == Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION && authType != PIN) {
             continue;
         }
@@ -204,12 +227,12 @@ void UserAuthService::FillGetPropertyKeys(AuthType authType, const std::vector<A
     }
 }
 
-void UserAuthService::FillGetPropertyValue(AuthType authType, const std::vector<Attributes::AttributeKey> keys,
-    Attributes &value)
+void UserAuthService::FillGetPropertyValue(AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
+    Attributes &values)
 {
-    for (auto &key : keys) {
+    for (const auto &key : keys) {
         if (key == Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION && authType != PIN) {
-            if (!value.SetInt32Value(Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION, FIRST_LOCKOUT_DURATION_EXCEPT_PIN)) {
+            if (!values.SetInt32Value(Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION, FIRST_LOCKOUT_DURATION_EXCEPT_PIN)) {
                 IAM_LOGE("set nextFailLockoutDuration failed, authType %{public}d", authType);
             }
             break;
@@ -493,9 +516,7 @@ bool UserAuthService::CheckAuthPermissionAndParam(AuthType authType, AuthTrustLe
 uint64_t UserAuthService::AuthUser(AuthParamInner &authParam, std::optional<RemoteAuthParam> &remoteAuthParam,
     sptr<UserAuthCallbackInterface> &callback)
 {
-    IAM_LOGI("start, userId:%{public}d authType:%{public}d atl:%{public}d remoteAuthParamHasValue:%{public}s",
-        authParam.userId, authParam.authType, authParam.authTrustLevel,
-        Common::GetBoolStr(remoteAuthParam.has_value()));
+    IAM_LOGI("start, %{public}s", GetAuthParamStr(authParam, remoteAuthParam).c_str());
     auto contextCallback = GetAuthContextCallback(INNER_API_VERSION_10000, authParam.challenge, authParam.authType,
         authParam.authTrustLevel, callback);
     if (contextCallback == nullptr) {
@@ -522,7 +543,7 @@ uint64_t UserAuthService::AuthUser(AuthParamInner &authParam, std::optional<Remo
     para.userId = authParam.userId;
     para.authType = authParam.authType;
     para.atl = authParam.authTrustLevel;
-    para.challenge = std::move(authParam.challenge);
+    para.challenge = authParam.challenge;
     para.endAfterFirstFail = false;
     para.callerName = callerName;
     para.callerType = callerType;
@@ -556,10 +577,14 @@ int32_t UserAuthService::PrepareRemoteAuthInner(const std::string &networkId)
         return INVALID_PARAMETERS;
     }
 
+    std::string udid;
+    bool getUdidRet = DeviceManagerUtil::GetInstance().GetUdidByNetworkId(networkId, udid);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getUdidRet, GENERAL_ERROR);
+
     auto hdi = HdiWrapper::GetHdiInstance();
     IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, GENERAL_ERROR);
 
-    int32_t ret = hdi->PrepareRemoteAuth(networkId);
+    int32_t ret = hdi->PrepareRemoteAuth(udid);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret == HDF_SUCCESS, GENERAL_ERROR);
 
     IAM_LOGI("success");
@@ -594,6 +619,12 @@ uint64_t UserAuthService::AuthRemoteUser(AuthParamInner &authParam, Authenticati
 
     if (para.authType != PIN) {
         IAM_LOGE("Remote auth only support pin auth");
+        failReason = INVALID_PARAMETERS;
+        return BAD_CONTEXT_ID;
+    }
+
+    if (authParam.userId == INVALID_USER_ID) {
+        IAM_LOGE("userid must be set for remote auth");
         failReason = INVALID_PARAMETERS;
         return BAD_CONTEXT_ID;
     }

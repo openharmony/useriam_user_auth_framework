@@ -22,6 +22,7 @@
 #include "device_manager_util.h"
 #include "hdi_wrapper.h"
 #include "iam_defines.h"
+#include "iam_para2str.h"
 #include "iam_ptr.h"
 #include "remote_executor_stub.h"
 #include "remote_msg_util.h"
@@ -190,7 +191,7 @@ int32_t RemoteAuthServiceImpl::ProcBeginExecuteRequest(const std::shared_ptr<Att
     IF_FALSE_LOGE_AND_RETURN_VAL(getScheduleIdRet, GENERAL_ERROR);
 
     scheduleId2executorStub_.emplace(scheduleId, executorStub);
-    IAM_LOGI("success");
+    IAM_LOGI("scheduleId %{public}s begin execute success", GET_MASKED_STRING(scheduleId).c_str());
     return SUCCESS;
 }
 
@@ -207,7 +208,7 @@ int32_t RemoteAuthServiceImpl::ProcEndExecuteRequest(const std::shared_ptr<Attri
     auto it = scheduleId2executorStub_.find(scheduleId);
     IF_FALSE_LOGE_AND_RETURN_VAL(it != scheduleId2executorStub_.end(), GENERAL_ERROR);
     scheduleId2executorStub_.erase(it);
-    IAM_LOGI("success");
+    IAM_LOGI("scheduleId %{public}s end execute success", GET_MASKED_STRING(scheduleId).c_str());
     return SUCCESS;
 }
 

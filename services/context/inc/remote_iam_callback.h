@@ -27,15 +27,13 @@ public:
     RemoteIamCallback(std::string &connectionName);
     ~RemoteIamCallback() override;
 
-    bool Init();
-
     void OnResult(int32_t result, const Attributes &extraInfo) override;
     void OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo) override;
 
     sptr<IRemoteObject> AsObject() override;
 
 private:
-    std::string localEndPointName_;
+    std::string endPointName_;
     std::string connectionName_;
 };
 } // namespace UserAuth

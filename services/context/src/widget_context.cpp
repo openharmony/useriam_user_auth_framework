@@ -97,9 +97,20 @@ std::shared_ptr<ScheduleNode> WidgetContext::GetScheduleNode(uint64_t scheduleId
     return nullptr;
 }
 
+std::vector<std::shared_ptr<ScheduleNode>> WidgetContext::GetScheduleNodes() const
+{
+    std::vector<std::shared_ptr<ScheduleNode>> empty;
+    return empty;
+}
+
 uint32_t WidgetContext::GetTokenId() const
 {
     return para_.tokenId;
+}
+
+int32_t WidgetContext::GetUserId() const
+{
+    return INVALID_USER_ID;
 }
 
 int32_t WidgetContext::GetLatestError() const

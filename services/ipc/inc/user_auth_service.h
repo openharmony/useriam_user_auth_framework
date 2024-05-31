@@ -105,9 +105,9 @@ private:
         std::vector<AuthType> &validType);
     int32_t GetCallerNameAndUserId(ContextFactory::AuthWidgetContextPara &para,
         std::shared_ptr<ContextCallback> &contextCallback);
-    void FillGetPropertyKeys(AuthType authType, const std::vector<Attributes::AttributeKey> keys,
+    void FillGetPropertyKeys(AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
         std::vector<uint32_t> &uint32Keys);
-    void FillGetPropertyValue(AuthType authType, const std::vector<Attributes::AttributeKey> keys, Attributes &value);
+    void FillGetPropertyValue(AuthType authType, const std::vector<Attributes::AttributeKey> &keys, Attributes &values);
     bool CompleteRemoteAuthParam(RemoteAuthParam &remoteAuthParam, const std::string &localNetworkId);
     int32_t PrepareRemoteAuthInner(const std::string &networkId);
     bool GetAndUpateOsAccountVerifiedState(int32_t userId);

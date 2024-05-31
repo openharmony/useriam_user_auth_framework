@@ -97,6 +97,7 @@ RemoteAuthContext::~RemoteAuthContext()
     }
     RemoteConnectionManager::GetInstance().UnregisterConnectionListener(connectionName_, endPointName_);
     RemoteConnectionManager::GetInstance().CloseConnection(connectionName_);
+    IAM_LOGI("%{public}s destroy", GetDescription());
 }
 
 ContextType RemoteAuthContext::GetContextType() const
@@ -109,13 +110,13 @@ void RemoteAuthContext::SetExecutorInfoMsg(std::vector<uint8_t> msg)
     std::lock_guard<std::recursive_mutex> lock(mutex_);
 
     executorInfoMsg_ = msg;
-    IAM_LOGI("executorInfoMsg_ size is %{public}zu", executorInfoMsg_.size());
+    IAM_LOGI("%{public}s executorInfoMsg_ size is %{public}zu", GetDescription(), executorInfoMsg_.size());
 }
 
 bool RemoteAuthContext::OnStart()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    IAM_LOGI("start");
+    IAM_LOGI("%{public}s start", GetDescription());
 
     cancelTimerId_ = RelativeTimer::GetInstance().Register(
         [weakThis = weak_from_this(), this]() {
@@ -126,18 +127,18 @@ bool RemoteAuthContext::OnStart()
         TIME_OUT_MS);
 
     if (executorInfoMsg_.size() == 0) {
-        IAM_LOGI("SetupConnection");
+        IAM_LOGI("%{public}s SetupConnection", GetDescription());
         return SetupConnection();
     }
 
-    IAM_LOGI("StartAuth");
+    IAM_LOGI("%{public}s StartAuth", GetDescription());
     return StartAuth();
 }
 
 bool RemoteAuthContext::StartAuth()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    IAM_LOGI("start");
+    IAM_LOGI("%{public}s start remote auth", GetDescription());
 
     IF_FALSE_LOGE_AND_RETURN_VAL(executorInfoMsg_.size() > 0, false);
 
@@ -145,8 +146,6 @@ bool RemoteAuthContext::StartAuth()
     bool decodeRet = RemoteMsgUtil::DecodeQueryExecutorInfoReply(Attributes(executorInfoMsg_), executorInfos);
     IF_FALSE_LOGE_AND_RETURN_VAL(decodeRet, false);
     IF_FALSE_LOGE_AND_RETURN_VAL(executorInfos.size() > 0, false);
-
-    IAM_LOGE("executorRole is %{public}d", executorInfos[0].executorRole);
 
     remoteExecutorProxy_ = Common::MakeShared<RemoteExecutorProxy>(connectionName_, executorInfos[0]);
     IF_FALSE_LOGE_AND_RETURN_VAL(remoteExecutorProxy_ != nullptr, false);
@@ -160,30 +159,36 @@ bool RemoteAuthContext::StartAuth()
 
     auth_->SetCollectorUdid(collectorUdid);
 
-    IAM_LOGI("StartAuth success");
-    return SimpleAuthContext::OnStart();
+    bool startAuthRet =  SimpleAuthContext::OnStart();
+    IF_FALSE_LOGE_AND_RETURN_VAL(startAuthRet, false);
+    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_.size() == 1, false);
+    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_[0] != nullptr, false);
+
+    IAM_LOGI("%{public}s start remote auth success, connectionName:%{public}s, scheduleId:%{public}s",
+        GetDescription(), connectionName_.c_str(), GET_MASKED_STRING(scheduleList_[0]->GetScheduleId()).c_str());
+    return true;
 }
 
 void RemoteAuthContext::StartAuthDelayed()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
-    IAM_LOGI("start");
+    IAM_LOGI("%{public}s start", GetDescription());
 
     bool ret = StartAuth();
     if (!ret) {
-        IAM_LOGE("StartAuth failed, latest error %{public}d", GetLatestError());
+        IAM_LOGE("%{public}s StartAuth failed, latest error %{public}d", GetDescription(), GetLatestError());
         Attributes attr;
         callback_->OnResult(GetLatestError(), attr);
         return;
     }
-    IAM_LOGI("success");
+    IAM_LOGI("%{public}s success", GetDescription());
 }
 
 bool RemoteAuthContext::SendQueryExecutorInfoMsg()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    IAM_LOGI("start");
+    IAM_LOGI("%{public}s start", GetDescription());
 
     std::shared_ptr<Attributes> request = Common::MakeShared<Attributes>();
     IF_FALSE_LOGE_AND_RETURN_VAL(request != nullptr, false);
@@ -213,7 +218,7 @@ bool RemoteAuthContext::SendQueryExecutorInfoMsg()
         IF_FALSE_LOGE_AND_RETURN(getResultCodeRet);
 
         if (resultCode != SUCCESS) {
-            IAM_LOGE("query executor info failed");
+            IAM_LOGE("%{public}s query executor info failed", GetDescription());
             Attributes attr;
             callback_->OnResult(GENERAL_ERROR, attr);
             return;
@@ -228,20 +233,21 @@ bool RemoteAuthContext::SendQueryExecutorInfoMsg()
             IF_FALSE_LOGE_AND_RETURN(sharedThis != nullptr);
             StartAuthDelayed();
         });
+        IAM_LOGI("%{public}s query executor info success", GetDescription());
     };
 
     ResultCode sendMsgRet = RemoteConnectionManager::GetInstance().SendMessage(connectionName_, endPointName_,
         RemoteMsgUtil::GetRemoteServiceEndPointName(), request, msgCallback);
     IF_FALSE_LOGE_AND_RETURN_VAL(sendMsgRet == SUCCESS, false);
 
-    IAM_LOGI("success");
+    IAM_LOGI("%{public}s success", GetDescription());
     return true;
 }
 
 bool RemoteAuthContext::SetupConnection()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    IAM_LOGI("start");
+    IAM_LOGI("%{public}s start", GetDescription());
 
     std::shared_ptr<RemoteAuthContextMessageCallback> callback =
         Common::MakeShared<RemoteAuthContextMessageCallback>(shared_from_this(), this);
@@ -255,7 +261,7 @@ bool RemoteAuthContext::SetupConnection()
         RemoteConnectionManager::GetInstance().OpenConnection(connectionName_, collectorNetworkId_, GetTokenId());
     IF_FALSE_LOGE_AND_RETURN_VAL(connectResult == SUCCESS, false);
 
-    IAM_LOGI("success");
+    IAM_LOGI("%{public}s success", GetDescription());
     return true;
 }
 
@@ -268,24 +274,24 @@ void RemoteAuthContext::OnConnectStatus(const std::string &connectionName, Conne
 
     Attributes attr;
     if (connectStatus == ConnectStatus::DISCONNECTED) {
-        IAM_LOGI("connection is disconnected");
+        IAM_LOGI("%{public}s connection is disconnected", GetDescription());
         callback_->OnResult(ResultCode::GENERAL_ERROR, attr);
         return;
     } else {
-        IAM_LOGI("connection is connected");
+        IAM_LOGI("%{public}s connection is connected", GetDescription());
         bool sendMsgRet = SendQueryExecutorInfoMsg();
         if (!sendMsgRet) {
-            IAM_LOGE("SendQueryExecutorInfoMsg failed");
+            IAM_LOGE("%{public}s SendQueryExecutorInfoMsg failed", GetDescription());
             callback_->OnResult(GENERAL_ERROR, attr);
             return;
         }
-        IAM_LOGI("connection is connected processed");
+        IAM_LOGI("%{public}s connection is connected processed", GetDescription());
     }
 }
 
 void RemoteAuthContext::OnTimeOut()
 {
-    IAM_LOGI("timeout");
+    IAM_LOGI("%{public}s timeout", GetDescription());
     IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
 
     Attributes attr;

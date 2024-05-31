@@ -21,6 +21,7 @@
 #include "co_auth_client.h"
 #include "iam_check.h"
 #include "iam_logger.h"
+#include "iam_para2str.h"
 #include "iam_ptr.h"
 #include "thread_handler.h"
 
@@ -109,10 +110,9 @@ public:
 
         IF_FALSE_LOGE_AND_RETURN(connectStatus == ConnectStatus::DISCONNECTED);
         IF_FALSE_LOGE_AND_RETURN(threadHandler_ != nullptr);
-
-        threadHandler_->PostTask([connectionName, connectStatus, callback_ = callback_, this]() {
+        threadHandler_->PostTask([connectionName, connectStatus, callbackTemp = callback_, this]() {
             IAM_LOGI("OnConnectStatus process begin");
-            auto callback = callback_.lock();
+            auto callback = callbackTemp.lock();
             IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
             callback->OnConnectStatus(connectionName, connectStatus);
             IAM_LOGI("OnConnectStatus process success");
@@ -200,14 +200,6 @@ void RemoteExecutorProxy::OnMessage(const std::string &connectionName, const std
 
 void RemoteExecutorProxy::OnConnectStatus(const std::string &connectionName, ConnectStatus connectStatus)
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    IAM_LOGI("start");
-
-    if (connectStatus == ConnectStatus::DISCONNECTED) {
-        OnErrorFinish();
-    }
-
-    IAM_LOGI("success");
 }
 
 void RemoteExecutorProxy::OnMessengerReady(uint64_t executorIndex, const std::shared_ptr<ExecutorMessenger> &messenger,
@@ -225,7 +217,7 @@ int32_t RemoteExecutorProxy::OnBeginExecute(uint64_t scheduleId, const std::vect
     const Attributes &command)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    IAM_LOGI("start");
+    IAM_LOGI("start, scheduleId: %{public}s", GET_MASKED_STRING(scheduleId).c_str());
 
     std::shared_ptr<Attributes> request = Common::MakeShared<Attributes>(command.Serialize());
     IF_FALSE_LOGE_AND_RETURN_VAL(request != nullptr, GENERAL_ERROR);
@@ -243,7 +235,7 @@ int32_t RemoteExecutorProxy::OnBeginExecute(uint64_t scheduleId, const std::vect
     bool setScheduleDataRet = request->SetUint8ArrayValue(Attributes::ATTR_SCHEDULE_DATA, collectorMessage);
     IF_FALSE_LOGE_AND_RETURN_VAL(setScheduleDataRet, GENERAL_ERROR);
 
-    MsgCallback msgCallback = [self = weak_from_this()](const std::shared_ptr<Attributes> &reply) {
+    MsgCallback msgCallback = [self = weak_from_this(), scheduleId](const std::shared_ptr<Attributes> &reply) {
         IF_FALSE_LOGE_AND_RETURN(reply != nullptr);
 
         auto sharedSelf = self.lock();
@@ -252,23 +244,25 @@ int32_t RemoteExecutorProxy::OnBeginExecute(uint64_t scheduleId, const std::vect
         bool getResultCodeRet = reply->GetInt32Value(Attributes::ATTR_RESULT_CODE, resultCode);
         IF_FALSE_LOGE_AND_RETURN(getResultCodeRet);
         if (resultCode != ResultCode::SUCCESS) {
-            IAM_LOGE("begin execute failed");
-            sharedSelf->OnErrorFinish();
+            IAM_LOGE("scheduleId %{public}s begin execute failed", GET_MASKED_STRING(scheduleId).c_str());
+            sharedSelf->OnErrorFinish(scheduleId);
+            return;
         }
+        IAM_LOGI("scheduleId %{public}s begin execute success", GET_MASKED_STRING(scheduleId).c_str());
     };
 
     ResultCode sendMsgRet = RemoteConnectionManager::GetInstance().SendMessage(connectionName_, endPointName_,
         RemoteMsgUtil::GetRemoteServiceEndPointName(), request, msgCallback);
     IF_FALSE_LOGE_AND_RETURN_VAL(sendMsgRet == ResultCode::SUCCESS, GENERAL_ERROR);
 
-    IAM_LOGI("success");
+    IAM_LOGI("success, scheduleId %{public}s", GET_MASKED_STRING(scheduleId).c_str());
     return ResultCode::SUCCESS;
 }
 
 int32_t RemoteExecutorProxy::OnEndExecute(uint64_t scheduleId, const Attributes &command)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    IAM_LOGI("start");
+    IAM_LOGI("start, scheduleId: %{public}s", GET_MASKED_STRING(scheduleId).c_str());
 
     std::shared_ptr<Attributes> request = Common::MakeShared<Attributes>(command.Serialize());
     IF_FALSE_LOGE_AND_RETURN_VAL(request != nullptr, GENERAL_ERROR);
@@ -285,7 +279,7 @@ int32_t RemoteExecutorProxy::OnEndExecute(uint64_t scheduleId, const Attributes 
         RemoteMsgUtil::GetRemoteServiceEndPointName(), request, msgCallback);
     IF_FALSE_LOGE_AND_RETURN_VAL(sendMsgRet == ResultCode::SUCCESS, GENERAL_ERROR);
 
-    IAM_LOGI("success");
+    IAM_LOGI("success, scheduleId %{public}s", GET_MASKED_STRING(scheduleId).c_str());
     return ResultCode::SUCCESS;
 }
 
@@ -303,7 +297,7 @@ int32_t RemoteExecutorProxy::OnSendData(uint64_t scheduleId, const Attributes &d
     bool setScheduleIdRet = request->SetUint64Value(Attributes::ATTR_SCHEDULE_ID, scheduleId);
     IF_FALSE_LOGE_AND_RETURN_VAL(setScheduleIdRet, GENERAL_ERROR);
 
-    MsgCallback msgCallback = [weakThis = weak_from_this()](const std::shared_ptr<Attributes> &reply) {
+    MsgCallback msgCallback = [weakThis = weak_from_this(), scheduleId](const std::shared_ptr<Attributes> &reply) {
         int32_t resultCode;
         bool getResultCodeRet = reply->GetInt32Value(Attributes::ATTR_RESULT_CODE, resultCode);
         IF_FALSE_LOGE_AND_RETURN(getResultCodeRet);
@@ -312,7 +306,7 @@ int32_t RemoteExecutorProxy::OnSendData(uint64_t scheduleId, const Attributes &d
             IAM_LOGE("send data to executor failed");
             auto sharedThis = weakThis.lock();
             IF_FALSE_LOGE_AND_RETURN(sharedThis != nullptr);
-            sharedThis->OnErrorFinish();
+            sharedThis->OnErrorFinish(scheduleId);
             return;
         }
     };
@@ -333,7 +327,6 @@ int32_t RemoteExecutorProxy::ProcSendDataMsg(Attributes &data)
     uint64_t scheduleId;
     bool getScheduleIdRet = data.GetUint64Value(Attributes::ATTR_SCHEDULE_ID, scheduleId);
     IF_FALSE_LOGE_AND_RETURN_VAL(getScheduleIdRet, GENERAL_ERROR);
-    scheduleId_ = scheduleId;
 
     int32_t dstRole;
     bool getDstRoleRet = data.GetInt32Value(Attributes::ATTR_DEST_ROLE, dstRole);
@@ -342,6 +335,7 @@ int32_t RemoteExecutorProxy::ProcSendDataMsg(Attributes &data)
     auto msg = AuthMessage::As(data.Serialize());
     IF_FALSE_LOGE_AND_RETURN_VAL(msg != nullptr, GENERAL_ERROR);
 
+    IAM_LOGI("scheduleId %{public}s send data", GET_MASKED_STRING(scheduleId).c_str());
     IF_FALSE_LOGE_AND_RETURN_VAL(messenger_ != nullptr, GENERAL_ERROR);
     int32_t ret = messenger_->SendData(scheduleId, static_cast<ExecutorRole>(dstRole), msg);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret == SUCCESS, GENERAL_ERROR);
@@ -358,7 +352,6 @@ int32_t RemoteExecutorProxy::ProcFinishMsg(Attributes &data)
     uint64_t scheduleId;
     bool getScheduleIdRet = data.GetUint64Value(Attributes::ATTR_SCHEDULE_ID, scheduleId);
     IF_FALSE_LOGE_AND_RETURN_VAL(getScheduleIdRet, GENERAL_ERROR);
-    scheduleId_ = scheduleId;
 
     int32_t resultCode;
     bool getResultCodeRet = data.GetInt32Value(Attributes::ATTR_RESULT_CODE, resultCode);
@@ -366,21 +359,21 @@ int32_t RemoteExecutorProxy::ProcFinishMsg(Attributes &data)
 
     IF_FALSE_LOGE_AND_RETURN_VAL(messenger_ != nullptr, GENERAL_ERROR);
 
-    IAM_LOGI("receive result code %{public}d", resultCode);
+    IAM_LOGI("scheduleId %{public}s proc finish code %{public}d", GET_MASKED_STRING(scheduleId).c_str(), resultCode);
     int32_t ret = messenger_->Finish(scheduleId, static_cast<ResultCode>(resultCode), data);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret == SUCCESS, GENERAL_ERROR);
     IAM_LOGI("success");
     return ret;
 }
 
-void RemoteExecutorProxy::OnErrorFinish()
+void RemoteExecutorProxy::OnErrorFinish(uint64_t scheduleId)
 {
     IAM_LOGI("start");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
 
     Attributes request;
 
-    bool setScheduleIdRet = request.SetUint64Value(Attributes::ATTR_SCHEDULE_ID, scheduleId_);
+    bool setScheduleIdRet = request.SetUint64Value(Attributes::ATTR_SCHEDULE_ID, scheduleId);
     IF_FALSE_LOGE_AND_RETURN(setScheduleIdRet);
 
     bool setResultCodeRet = request.SetInt32Value(Attributes::ATTR_RESULT_CODE, ResultCode::GENERAL_ERROR);
