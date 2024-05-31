@@ -61,6 +61,11 @@ uint64_t BaseContext::GetContextId() const
     return contextId_;
 }
 
+int32_t BaseContext::GetUserId() const
+{
+    return INVALID_USER_ID;
+}
+
 bool BaseContext::Start()
 {
     std::lock_guard<std::mutex> guard(mutex_);
@@ -90,6 +95,11 @@ std::shared_ptr<ScheduleNode> BaseContext::GetScheduleNode(uint64_t scheduleId) 
         }
     }
     return nullptr;
+}
+
+std::vector<std::shared_ptr<ScheduleNode>> BaseContext::GetScheduleNodes() const
+{
+    return scheduleList_;
 }
 
 void BaseContext::OnScheduleStarted()

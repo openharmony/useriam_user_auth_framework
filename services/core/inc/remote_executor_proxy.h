@@ -47,7 +47,7 @@ public:
     int32_t OnEndExecute(uint64_t scheduleId, const Attributes &command);
     int32_t OnSendData(uint64_t scheduleId, const Attributes &data);
 
-    void OnErrorFinish();
+    void OnErrorFinish(uint64_t scheduleId);
 
 private:
     // ExecutorMessengerInterface
@@ -63,7 +63,6 @@ private:
     std::string connectionName_ = "";
     ExecutorInfo registerInfo_ = {};
     std::string endPointName_ = "";
-    uint64_t scheduleId_ = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam

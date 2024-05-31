@@ -65,7 +65,7 @@ void AuthenticationImpl::SetEndAfterFirstFail(bool endAfterFirstFail)
     endAfterFirstFail_ = endAfterFirstFail;
 }
 
-void AuthenticationImpl::SetCollectorUdid(std::string collectorUdid)
+void AuthenticationImpl::SetCollectorUdid(std::string &collectorUdid)
 {
     collectorUdid_ = collectorUdid;
 }
@@ -73,6 +73,11 @@ void AuthenticationImpl::SetCollectorUdid(std::string collectorUdid)
 uint32_t AuthenticationImpl::GetAccessTokenId() const
 {
     return tokenId_;
+}
+
+int32_t AuthenticationImpl::GetUserId() const
+{
+    return authPara_.userId;
 }
 
 std::vector<Authentication::AuthExecutorMsg> AuthenticationImpl::GetAuthExecutorMsgs() const

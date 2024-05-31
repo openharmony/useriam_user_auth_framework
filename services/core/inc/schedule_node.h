@@ -70,6 +70,7 @@ public:
     virtual void ClearScheduleCallback() = 0;
     virtual bool StartSchedule() = 0;
     virtual bool StopSchedule() = 0;
+    virtual bool StopSchedule(ResultCode errorCode) = 0;
     virtual bool SendMessage(ExecutorRole dstRole, const std::vector<uint8_t> &msg) = 0;
     virtual bool ContinueSchedule(ResultCode resultCode, const std::shared_ptr<Attributes> &finalResult) = 0;
 };

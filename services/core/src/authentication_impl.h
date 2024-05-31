@@ -34,7 +34,7 @@ public:
     void SetChallenge(const std::vector<uint8_t> &challenge) override;
     void SetAccessTokenId(uint32_t tokenId) override;
     void SetEndAfterFirstFail(bool endAfterFirstFail) override;
-    void SetCollectorUdid(std::string collectorUdid) override;
+    void SetCollectorUdid(std::string &collectorUdid) override;
 
     bool Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
         std::shared_ptr<ScheduleNodeCallback> callback) override;
@@ -43,6 +43,7 @@ public:
     bool Cancel() override;
     uint32_t GetAccessTokenId() const override;
     int32_t GetLatestError() const override;
+    int32_t GetUserId() const override;
 
 protected:
     void SetLatestError(int32_t error) override;

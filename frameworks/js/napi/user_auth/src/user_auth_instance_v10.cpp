@@ -54,7 +54,8 @@ napi_value UserAuthInstanceV10::GetEnrolledState(napi_env env, napi_callback_inf
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
     if (argc != ARGS_ONE) {
         IAM_LOGE("parms error");
-        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::OHOS_INVALID_PARAM));
+        std::string msgStr = "Parameter error. The number of parameters should be 1.";
+        napi_throw(env, UserAuthNapiHelper::GenerateErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr));
         return nullptr;
     }
     int32_t type;
@@ -127,12 +128,14 @@ UserAuthResultCode UserAuthInstanceV10::InitChallenge(napi_env env, napi_value v
     napi_status ret = UserAuthNapiHelper::CheckNapiType(env, value, napi_null);
     if (ret == napi_ok) {
         IAM_LOGI("challenge is null");
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The type of \"challenge\" must be Uint8Array.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     ret = UserAuthNapiHelper::GetUint8ArrayValue(env, value, MAX_CHALLENG_LEN, authParam_.challenge);
     if (ret != napi_ok) {
         IAM_LOGE("GetUint8ArrayValue fail:%{public}d", ret);
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The length of \"challenge\" connot exceed 32.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     IAM_LOGI("challenge size:%{public}zu", authParam_.challenge.size());
     return UserAuthResultCode::SUCCESS;
@@ -144,7 +147,8 @@ UserAuthResultCode UserAuthInstanceV10::InitAuthType(napi_env env, napi_value va
     napi_is_array(env, value, &isArray);
     if (!isArray) {
         IAM_LOGI("authType is not array");
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The type of \"authType\" must be array.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     uint32_t length = 0;
     napi_get_array_length(env, value, &length);
@@ -162,7 +166,8 @@ UserAuthResultCode UserAuthInstanceV10::InitAuthType(napi_env env, napi_value va
         napi_close_handle_scope(env, scope);
         if (ret != napi_ok) {
             IAM_LOGE("napi authType GetUint32Value fail:%{public}d", ret);
-            return UserAuthResultCode::OHOS_INVALID_PARAM;
+            std::string msgStr = "Parameter error. The type of \"authType\" must be number.";
+            return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
         }
         IAM_LOGI("napi get authType:%{public}d", value);
         if (!UserAuthNapiHelper::CheckUserAuthType(value)) {
@@ -172,7 +177,8 @@ UserAuthResultCode UserAuthInstanceV10::InitAuthType(napi_env env, napi_value va
         auto iter = std::find(authParam_.authTypes.begin(), authParam_.authTypes.end(), static_cast<AuthType>(value));
         if (iter != authParam_.authTypes.end()) {
             IAM_LOGE("napi authType:%{public}d exist", value);
-            return UserAuthResultCode::OHOS_INVALID_PARAM;
+            std::string msgStr = "Parameter error. The type of \"authType\" must be AuthType.";
+            return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
         }
         authParam_.authTypes.push_back(static_cast<AuthType>(value));
     }
@@ -186,13 +192,15 @@ UserAuthResultCode UserAuthInstanceV10::InitAuthTrustLevel(napi_env env, napi_va
     napi_status ret = UserAuthNapiHelper::CheckNapiType(env, value, napi_null);
     if (ret == napi_ok) {
         IAM_LOGI("authTrustLevel is null");
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The type of \"authTrustLevel\" must be number.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     uint32_t authTrustLevel;
     ret = UserAuthNapiHelper::GetUint32Value(env, value, authTrustLevel);
     if (ret != napi_ok) {
         IAM_LOGE("GetUint32Value fail:%{public}d", ret);
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The type of \"authTrustLevel\" must be number.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     if (!UserAuthNapiHelper::CheckAuthTrustLevel(authTrustLevel)) {
         IAM_LOGE("AuthTrustLevel fail:%{public}u", authTrustLevel);
@@ -209,29 +217,34 @@ UserAuthResultCode UserAuthInstanceV10::InitReuseUnlockResult(napi_env env, napi
     uint32_t reuseDuration;
     if (!UserAuthNapiHelper::HasNamedProperty(env, value, REUSEMODE)) {
         IAM_LOGE("propertyName: %{public}s not exists.", REUSEMODE.c_str());
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. \"reuseMode\" is a mandatory parameter and is left unspecified.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     napi_value napi_reuseMode = UserAuthNapiHelper::GetNamedProperty(env, value, REUSEMODE);
     napi_status ret = UserAuthNapiHelper::GetUint32Value(env, napi_reuseMode, reuseMode);
     if (ret != napi_ok) {
         IAM_LOGE("GetUint32Value fail:%{public}d", ret);
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The type of \"reuseMode\" must be number.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     authParam_.reuseUnlockResult.reuseMode = ReuseMode(reuseMode);
     if (!UserAuthNapiHelper::HasNamedProperty(env, value, REUSEDURATION)) {
         IAM_LOGE("propertyName: %{public}s not exists.", REUSEDURATION.c_str());
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. \"reuseDuration\" is a mandatory parameter and is left unspecified.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     napi_value napi_reuseDuration = UserAuthNapiHelper::GetNamedProperty(env, value, REUSEDURATION);
     ret = UserAuthNapiHelper::GetUint32Value(env, napi_reuseDuration, reuseDuration);
     if (ret != napi_ok) {
         IAM_LOGE("GetUint32Value fail:%{public}d", ret);
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The type of \"reuseDuration\" must be number.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     authParam_.reuseUnlockResult.reuseDuration = reuseDuration;
     if (!UserAuthNapiHelper::CheckReuseUnlockResult(authParam_.reuseUnlockResult)) {
         IAM_LOGE("ReuseUnlockResult fail");
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The type of \"reuseUnlockResult\" must be ReuseUnlockResult.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     authParam_.reuseUnlockResult.isReuse = true;
     IAM_LOGI("reuseMode: %{public}u, reuseDuration: %{public}" PRIu64, authParam_.reuseUnlockResult.reuseMode,
@@ -244,12 +257,14 @@ UserAuthResultCode UserAuthInstanceV10::InitAuthParam(napi_env env, napi_value v
     napi_status ret = UserAuthNapiHelper::CheckNapiType(env, value, napi_null);
     if (ret == napi_ok) {
         IAM_LOGI("authParam is null");
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. \"authParam\" is a mandatory parameter and is left unspecified.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
 
     if (!UserAuthNapiHelper::HasNamedProperty(env, value, AUTH_PARAM_CHALLENGE)) {
         IAM_LOGE("propertyName: %{public}s not exists.", AUTH_PARAM_CHALLENGE.c_str());
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. \"challenge\" is a mandatory parameter and is left unspecified.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     napi_value napi_challenge = UserAuthNapiHelper::GetNamedProperty(env, value, AUTH_PARAM_CHALLENGE);
     UserAuthResultCode errorCode = InitChallenge(env, napi_challenge);
@@ -260,7 +275,8 @@ UserAuthResultCode UserAuthInstanceV10::InitAuthParam(napi_env env, napi_value v
 
     if (!UserAuthNapiHelper::HasNamedProperty(env, value, AUTH_PARAM_AUTHTYPE)) {
         IAM_LOGE("propertyName: %{public}s not exists.", AUTH_PARAM_AUTHTYPE.c_str());
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. \"authType\" is a mandatory parameter and is left unspecified.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     napi_value napi_authType = UserAuthNapiHelper::GetNamedProperty(env, value, AUTH_PARAM_AUTHTYPE);
     errorCode = InitAuthType(env, napi_authType);
@@ -271,7 +287,8 @@ UserAuthResultCode UserAuthInstanceV10::InitAuthParam(napi_env env, napi_value v
 
     if (!UserAuthNapiHelper::HasNamedProperty(env, value, AUTH_PARAM_AUTHTRUSTLEVEL)) {
         IAM_LOGE("propertyName: %{public}s not exists.", AUTH_PARAM_AUTHTRUSTLEVEL.c_str());
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. \"authTrustLevel\" is a mandatory parameter and is left unspecified.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     napi_value napi_authTrustLevel = UserAuthNapiHelper::GetNamedProperty(env, value, AUTH_PARAM_AUTHTRUSTLEVEL);
     errorCode = InitAuthTrustLevel(env, napi_authTrustLevel);
@@ -279,10 +296,19 @@ UserAuthResultCode UserAuthInstanceV10::InitAuthParam(napi_env env, napi_value v
         IAM_LOGE("InitAuthTrustLevel fail:%{public}d", errorCode);
         return errorCode;
     }
+    errorCode = ProcessReuseUnlockResult(env, value);
+    if (errorCode != UserAuthResultCode::SUCCESS) {
+        return errorCode;
+    }
+    return UserAuthResultCode::SUCCESS;
+}
+
+UserAuthResultCode UserAuthInstanceV10::ProcessReuseUnlockResult(napi_env env, napi_value value)
+{
     if (UserAuthNapiHelper::HasNamedProperty(env, value, AUTH_PARAM_REUSEUNLOCKRESULT)) {
         napi_value napi_reuseUnlockResult = UserAuthNapiHelper::GetNamedProperty(env, value,
             AUTH_PARAM_REUSEUNLOCKRESULT);
-        errorCode = InitReuseUnlockResult(env, napi_reuseUnlockResult);
+        UserAuthResultCode errorCode = InitReuseUnlockResult(env, napi_reuseUnlockResult);
         if (errorCode != UserAuthResultCode::SUCCESS) {
             IAM_LOGE("InitReuseUnlockResult fail:%{public}d", errorCode);
             return errorCode;
@@ -298,17 +324,20 @@ UserAuthResultCode UserAuthInstanceV10::InitWidgetParam(napi_env env, napi_value
     napi_status ret = UserAuthNapiHelper::CheckNapiType(env, value, napi_null);
     if (ret == napi_ok) {
         IAM_LOGI("widgetParam is null");
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. \"widgetParam\" is a mandatory parameter and is left unspecified.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
 
     if (!UserAuthNapiHelper::HasNamedProperty(env, value, WIDGET_PARAM_TITLE)) {
         IAM_LOGE("propertyName: %{public}s not exists.", WIDGET_PARAM_TITLE.c_str());
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. \"title\" is a mandatory parameter and is left unspecified.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     std::string title = UserAuthNapiHelper::GetStringPropertyUtf8(env, value, WIDGET_PARAM_TITLE);
     if (title == "" || title.length() > WidgetType::TITLE_MAX) {
         IAM_LOGE("title is invalid. size: %{public}zu", title.length());
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The length of \"title\" connot exceed 500.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     widgetParam_.title = title;
 
@@ -316,18 +345,29 @@ UserAuthResultCode UserAuthInstanceV10::InitWidgetParam(napi_env env, napi_value
         std::string naviBtnTxt = UserAuthNapiHelper::GetStringPropertyUtf8(env, value, WIDGET_PARAM_NAVIBTNTEXT);
         if (naviBtnTxt == "" || naviBtnTxt.length() > WidgetType::BUTTON_MAX) {
             IAM_LOGE("navigation button text is invalid, size: %{public}zu", naviBtnTxt.length());
-            return UserAuthResultCode::OHOS_INVALID_PARAM;
+            std::string msgStr = "Parameter error. The length of \"navigationButtonText\" connot exceed 60.";
+            return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
         }
         widgetParam_.navigationButtonText = naviBtnTxt;
     }
 
+    UserAuthResultCode errorCode = ProcessWindowMode(env, value);
+    if (errorCode != UserAuthResultCode::SUCCESS) {
+        return errorCode;
+    }
+    return UserAuthResultCode::SUCCESS;
+}
+
+UserAuthResultCode UserAuthInstanceV10::ProcessWindowMode(napi_env env, napi_value value)
+{
     if (UserAuthNapiHelper::HasNamedProperty(env, value, WIDGET_PARAM_WINDOWMODE)) {
         napi_value napi_windowModeType = UserAuthNapiHelper::GetNamedProperty(env, value, WIDGET_PARAM_WINDOWMODE);
         uint32_t windowMode;
-        ret = UserAuthNapiHelper::GetUint32Value(env, napi_windowModeType, windowMode);
+        napi_status ret = UserAuthNapiHelper::GetUint32Value(env, napi_windowModeType, windowMode);
         if (ret != napi_ok) {
             IAM_LOGE("napi authType GetUint32Value fail:%{public}d", ret);
-            return UserAuthResultCode::OHOS_INVALID_PARAM;
+            std::string msgStr = "Parameter error. The type of \"windowMode\" must be number.";
+            return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
         }
         switch (windowMode) {
             case WindowModeType::DIALOG_BOX:
@@ -336,7 +376,8 @@ UserAuthResultCode UserAuthInstanceV10::InitWidgetParam(napi_env env, napi_value
                 break;
             default:
                 IAM_LOGE("windowMode type not support.");
-                return UserAuthResultCode::OHOS_INVALID_PARAM;
+                std::string msgStr = "Parameter error. The type of \"windowMode\" must be WindowModeType.";
+                return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
         }
     }
 
@@ -361,7 +402,8 @@ UserAuthResultCode UserAuthInstanceV10::Init(napi_env env, napi_callback_info in
     }
     if (argc != ARGS_TWO) {
         IAM_LOGE("invalid param, argc:%{public}zu", argc);
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Invalid authentication parameters. The number of parameters should be 2";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
 
     UserAuthResultCode errCode = InitAuthParam(env, argv[PARAM0]);
@@ -411,7 +453,8 @@ UserAuthResultCode UserAuthInstanceV10::On(napi_env env, napi_callback_info info
     }
     if (argc != ARGS_TWO) {
         IAM_LOGE("getAuthInstance on invalid param, argc:%{public}zu", argc);
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The number of parameters should be 2";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     static const size_t maxLen = 10;
     char str[maxLen] = {0};
@@ -419,12 +462,14 @@ UserAuthResultCode UserAuthInstanceV10::On(napi_env env, napi_callback_info info
     ret = UserAuthNapiHelper::GetStrValue(env, argv[PARAM0], str, len);
     if (ret != napi_ok) {
         IAM_LOGE("getAuthInstance on GetStrValue fail:%{public}d", ret);
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The type of \"type\" must be string.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     auto callbackRef = GetCallback(env, argv[PARAM1]);
     if (callbackRef == nullptr || !callbackRef->IsValid()) {
         IAM_LOGE("getAuthInstance on GetCallback fail");
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The type of \"callback\" must be IAuthCallback.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     if (str == AUTH_EVENT_RESULT) {
         IAM_LOGI("getAuthInstance on SetResultCallback");
@@ -436,7 +481,8 @@ UserAuthResultCode UserAuthInstanceV10::On(napi_env env, napi_callback_info info
         return UserAuthResultCode::SUCCESS;
     } else {
         IAM_LOGE("getAuthInstance on invalid event:%{public}s", str);
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The value of \"type\" must be \"result\".";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
 }
 
@@ -455,7 +501,8 @@ UserAuthResultCode UserAuthInstanceV10::Off(napi_env env, napi_callback_info inf
     }
     if (argc != ARGS_TWO && argc != ARGS_ONE) {
         IAM_LOGE("userAuthInstance off invalid param, argc:%{public}zu", argc);
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The number of parameters should be 1 or 2";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     static const size_t maxLen = 10;
     char str[maxLen] = {0};
@@ -463,14 +510,16 @@ UserAuthResultCode UserAuthInstanceV10::Off(napi_env env, napi_callback_info inf
     ret = UserAuthNapiHelper::GetStrValue(env, argv[PARAM0], str, len);
     if (ret != napi_ok) {
         IAM_LOGE("UserAuthResultCode off GetStrValue fail:%{public}d", ret);
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The type of \"type\" must be string.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
 
     if (argc == ARGS_TWO) {
         auto callbackRef = GetCallback(env, argv[PARAM1]);
         if (callbackRef == nullptr || !callbackRef->IsValid()) {
             IAM_LOGE("GetCallback fail");
-            return UserAuthResultCode::OHOS_INVALID_PARAM;
+            std::string msgStr = "Parameter error. The type of \"callback\" must be IAuthCallback.";
+            return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
         }
     }
 
@@ -484,7 +533,8 @@ UserAuthResultCode UserAuthInstanceV10::Off(napi_env env, napi_callback_info inf
         return UserAuthResultCode::SUCCESS;
     } else {
         IAM_LOGE("invalid event:%{public}s", str);
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The value of \"type\" must be \"result\".";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
 }
 
@@ -503,7 +553,8 @@ UserAuthResultCode UserAuthInstanceV10::Start(napi_env env, napi_callback_info i
     }
     if (argc != ARGS_ZERO) {
         IAM_LOGE("invalid param, argc:%{public}zu", argc);
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The number of parameters should be 0";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     std::lock_guard<std::mutex> guard(mutex_);
     if (isAuthStarted_) {
@@ -531,7 +582,8 @@ UserAuthResultCode UserAuthInstanceV10::Cancel(napi_env env, napi_callback_info 
     }
     if (argc != ARGS_ZERO) {
         IAM_LOGE("invalid param, argc:%{public}zu", argc);
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+        std::string msgStr = "Parameter error. The number of parameters should be 0";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     std::lock_guard<std::mutex> guard(mutex_);
     if (!isAuthStarted_) {

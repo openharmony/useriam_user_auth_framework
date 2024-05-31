@@ -44,7 +44,9 @@ private:
     UserAuthResultCode InitAuthType(napi_env env, napi_value value);
     UserAuthResultCode InitAuthTrustLevel(napi_env env, napi_value value);
     UserAuthResultCode InitReuseUnlockResult(napi_env env, napi_value value);
+    UserAuthResultCode ProcessReuseUnlockResult(napi_env env, napi_value value);
     UserAuthResultCode InitAuthParam(napi_env env, napi_value value);
+    UserAuthResultCode ProcessWindowMode(napi_env env, napi_value value);
     UserAuthResultCode InitWidgetParam(napi_env env, napi_value value);
     std::shared_ptr<JsRefHolder> GetCallback(napi_env env, napi_value value);
     static napi_value DoGetEnrolledStateResult(napi_env env, EnrolledState enrolledState);

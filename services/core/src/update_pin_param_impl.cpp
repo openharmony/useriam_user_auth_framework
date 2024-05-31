@@ -18,8 +18,8 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-UpdatePinParamImpl::UpdatePinParamImpl(uint64_t oldCredentialId, const std::vector<uint8_t> oldRootSecret,
-    const std::vector<uint8_t> rootSecret, const std::vector<uint8_t> authToken)
+UpdatePinParamImpl::UpdatePinParamImpl(uint64_t oldCredentialId, const std::vector<uint8_t> &oldRootSecret,
+    const std::vector<uint8_t> &rootSecret, const std::vector<uint8_t> &authToken)
     : oldCredentialId_(oldCredentialId), oldRootSecret_(oldRootSecret), rootSecret_(rootSecret), authToken_(authToken)
 {
 }

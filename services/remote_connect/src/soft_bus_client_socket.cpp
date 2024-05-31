@@ -30,9 +30,10 @@ ClientSocket::ClientSocket(const int32_t socketId)
 ResultCode ClientSocket::SendMessage(const std::string &connectionName, const std::string &srcEndPoint,
     const std::string &destEndPoint, const std::shared_ptr<Attributes> &attributes, MsgCallback &callback)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     int32_t socketId = GetSocketId();
     if (socketId == INVALID_SOCKET_ID) {
+        IAM_LOGE("socket id is invalid");
         return GENERAL_ERROR;
     }
 
@@ -55,7 +56,7 @@ void ClientSocket::OnShutdown(int32_t socketId, ShutdownReason reason)
 
 void ClientSocket::OnBytes(int32_t socketId, const void *data, uint32_t dataLen)
 {
-    IAM_LOGI("start, socket id is %{public}d", socketId);
+    IAM_LOGD("start, socket id is %{public}d", socketId);
     IF_FALSE_LOGE_AND_RETURN(data != nullptr);
     IF_FALSE_LOGE_AND_RETURN(dataLen != 0);
 

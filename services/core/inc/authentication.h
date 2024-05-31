@@ -66,7 +66,7 @@ public:
     virtual void SetChallenge(const std::vector<uint8_t> &challenge) = 0;
     virtual void SetAccessTokenId(uint32_t tokenId) = 0;
     virtual void SetEndAfterFirstFail(bool endAfterFirstFail) = 0;
-    virtual void SetCollectorUdid(std::string collectorUdid) = 0;
+    virtual void SetCollectorUdid(std::string &collectorUdid) = 0;
 
     virtual bool Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
         std::shared_ptr<ScheduleNodeCallback> callback) = 0;
@@ -75,6 +75,7 @@ public:
     virtual bool Cancel() = 0;
     virtual uint32_t GetAccessTokenId() const = 0;
     virtual int32_t GetLatestError() const = 0;
+    virtual int32_t GetUserId() const = 0;
 
 protected:
     virtual void SetLatestError(int32_t error) = 0;

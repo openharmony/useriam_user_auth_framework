@@ -152,9 +152,16 @@ bool ScheduleNodeImpl::StartSchedule()
 
 bool ScheduleNodeImpl::StopSchedule()
 {
+    return StopSchedule(CANCELED);
+}
+
+bool ScheduleNodeImpl::StopSchedule(ResultCode errorCode)
+{
     std::lock_guard<std::mutex> lock(mutex_);
 
-    SetFwkResultCode(CANCELED);
+    SetFwkResultCode(errorCode);
+    IAM_LOGI("stop schedule %{public}s, error code %{public}d", GET_MASKED_STRING(info_.scheduleId).c_str(),
+        errorCode);
     return TryKickMachine(E_STOP_AUTH);
 }
 
@@ -170,14 +177,14 @@ bool ScheduleNodeImpl::SendMessage(ExecutorRole dstRole, const std::vector<uint8
             return true;
         } else {
             int srcRole;
-            std::vector<uint8_t> msg;
+            std::vector<uint8_t> message;
             bool getAcquireRet = attr.GetInt32Value(Attributes::ATTR_SRC_ROLE, srcRole);
             IF_FALSE_LOGE_AND_RETURN_VAL(getAcquireRet, false);
-            bool getExtraInfoRet = attr.GetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, msg);
+            bool getExtraInfoRet = attr.GetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, message);
             IF_FALSE_LOGE_AND_RETURN_VAL(getExtraInfoRet, false);
             auto hdi = HdiWrapper::GetHdiInstance();
             IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, false);
-            int sendMsgRet = hdi->SendMessage(GetScheduleId(), srcRole, msg);
+            int sendMsgRet = hdi->SendMessage(GetScheduleId(), srcRole, message);
             IF_FALSE_LOGE_AND_RETURN_VAL(sendMsgRet == HDF_SUCCESS, false);
             return true;
         }
@@ -425,7 +432,15 @@ void ScheduleNodeImpl::ProcessEndCollector(FiniteStateMachine &machine, uint32_t
         machine.Schedule(E_COLLECT_STOPPED_SUCCESS);
         return;
     }
-    IAM_LOGE("distributed auth not supported yet");
+    Attributes attr;
+    auto result = collector->EndExecute(info_.scheduleId, attr);
+    if (result != SUCCESS) {
+        IAM_LOGE("end verify failed, result = %{public}d", result);
+        SetExecutorResultCode(result);
+        machine.Schedule(E_COLLECT_STOPPED_FAILED);
+        return;
+    }
+    machine.Schedule(E_COLLECT_STOPPED_SUCCESS);
 }
 
 void ScheduleNodeImpl::ProcessEndVerifier(FiniteStateMachine &machine, uint32_t event)

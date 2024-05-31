@@ -24,7 +24,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-constexpr int INVALID_USER_ID = INT_MAX;
 class TemplateCacheManager {
 public:
     static TemplateCacheManager &GetInstance();

@@ -22,6 +22,7 @@
 #include "device_manager_util.h"
 #include "hdi_wrapper.h"
 #include "iam_logger.h"
+#include "iam_para2str.h"
 #include "iam_ptr.h"
 #include "remote_auth_service.h"
 #include "remote_msg_util.h"
@@ -35,9 +36,11 @@ namespace UserIam {
 namespace UserAuth {
 class RemoteExecutorStubScheduleNode : public ScheduleNode, public NoCopyable {
 public:
-    RemoteExecutorStubScheduleNode(HdiScheduleInfo &scheduleInfo, std::weak_ptr<RemoteExecutorStub> callback)
+    RemoteExecutorStubScheduleNode(HdiScheduleInfo &scheduleInfo, std::weak_ptr<RemoteExecutorStub> callback,
+        std::weak_ptr<ResourceNode> collectorExecutor)
         : scheduleId_(scheduleInfo.scheduleId),
-          callback_(callback)
+          callback_(callback),
+          collectorExecutor_(collectorExecutor)
     {
     }
     ~RemoteExecutorStubScheduleNode()
@@ -70,8 +73,7 @@ public:
     }
     std::weak_ptr<ResourceNode> GetCollectorExecutor() const override
     {
-        static std::weak_ptr<ResourceNode> nullNode;
-        return nullNode;
+        return collectorExecutor_;
     }
     std::weak_ptr<ResourceNode> GetVerifyExecutor() const override
     {
@@ -102,6 +104,17 @@ public:
     {
         return true;
     }
+    bool StopSchedule(ResultCode errorCode) override
+    {
+        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        IAM_LOGI("stop schedule errorCode %{public}d", errorCode);
+        auto finalResult = Common::MakeShared<Attributes>();
+        IF_FALSE_LOGE_AND_RETURN_VAL(finalResult != nullptr, false);
+        bool setResultCodeRet = finalResult->SetInt32Value(Attributes::ATTR_RESULT_CODE, errorCode);
+        IF_FALSE_LOGE_AND_RETURN_VAL(setResultCodeRet, false);
+
+        return ContinueSchedule(errorCode, finalResult);
+    }
     bool SendMessage(ExecutorRole dstRole, const std::vector<uint8_t> &msg) override
     {
         std::lock_guard<std::recursive_mutex> lock(mutex_);
@@ -123,6 +136,7 @@ private:
     std::recursive_mutex mutex_;
     uint64_t scheduleId_;
     std::weak_ptr<RemoteExecutorStub> callback_;
+    std::weak_ptr<ResourceNode> collectorExecutor_;
 };
 
 class RemoteExecutorStubMessageCallback : public ConnectionListener, public NoCopyable {
@@ -150,14 +164,16 @@ public:
 
     void OnConnectStatus(const std::string &connectionName, ConnectStatus connectStatus) override
     {
-        IAM_LOGI("connectionName: %{public}s, connectStatus %{public}d", connectionName.c_str(), connectStatus);
+        IAM_LOGI("connectionName: %{public}s, connectStatus %{public}d, scheduleId "
+                 "%{public}s",
+            connectionName.c_str(), connectStatus, GET_MASKED_STRING(scheduleId_).c_str());
 
         IF_FALSE_LOGE_AND_RETURN(connectStatus == ConnectStatus::DISCONNECTED);
 
         IF_FALSE_LOGE_AND_RETURN(threadHandler_ != nullptr);
 
         threadHandler_->PostTask([scheduleId = scheduleId_]() {
-            IAM_LOGI("OnConnectStatus process begin");
+            IAM_LOGI("OnConnectStatus process begin, scheduleId %{public}s", GET_MASKED_STRING(scheduleId).c_str());
 
             auto request = Common::MakeShared<Attributes>();
             IF_FALSE_LOGE_AND_RETURN(request != nullptr);
@@ -167,7 +183,7 @@ public:
             auto reply = Common::MakeShared<Attributes>();
             IF_FALSE_LOGE_AND_RETURN(reply != nullptr);
             RemoteAuthService::GetInstance().ProcEndExecuteRequest(request, reply);
-            IAM_LOGI("OnConnectStatus process success");
+            IAM_LOGI("OnConnectStatus process success, scheduleId %{public}s", GET_MASKED_STRING(scheduleId).c_str());
         });
 
         IAM_LOGI("task posted");
@@ -203,6 +219,7 @@ int32_t RemoteExecutorStub::ProcBeginExecuteRequest(Attributes &attr)
     uint64_t scheduleId;
     bool getScheduleIdRet = attr.GetUint64Value(Attributes::ATTR_SCHEDULE_ID, scheduleId);
     IF_FALSE_LOGE_AND_RETURN_VAL(getScheduleIdRet, GENERAL_ERROR);
+    IAM_LOGI("scheduleId %{public}s begin execute", GET_MASKED_STRING(scheduleId).c_str());
 
     connectionCallback_ = Common::MakeShared<RemoteExecutorStubMessageCallback>(scheduleId, shared_from_this());
     IF_FALSE_LOGE_AND_RETURN_VAL(connectionCallback_ != nullptr, GENERAL_ERROR);
@@ -231,7 +248,12 @@ int32_t RemoteExecutorStub::ProcBeginExecuteRequest(Attributes &attr)
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleInfo.executorIndexes.size() == 1, GENERAL_ERROR);
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleInfo.executorMessages.size() == 1, GENERAL_ERROR);
 
-    remoteScheduleNode_ = Common::MakeShared<RemoteExecutorStubScheduleNode>(scheduleInfo, weak_from_this());
+    executorIndex_ = scheduleInfo.executorIndexes[0];
+    std::weak_ptr<ResourceNode> weakNode = ResourceNodePool::Instance().Select(executorIndex_);
+    std::shared_ptr<ResourceNode> node = weakNode.lock();
+    IF_FALSE_LOGE_AND_RETURN_VAL(node != nullptr, GENERAL_ERROR);
+
+    remoteScheduleNode_ = Common::MakeShared<RemoteExecutorStubScheduleNode>(scheduleInfo, weak_from_this(), node);
     IF_FALSE_LOGE_AND_RETURN_VAL(remoteScheduleNode_ != nullptr, GENERAL_ERROR);
 
     ContextPool::Instance().InsertRemoteScheduleNode(remoteScheduleNode_);
@@ -239,15 +261,10 @@ int32_t RemoteExecutorStub::ProcBeginExecuteRequest(Attributes &attr)
     bool setExtraInfo = attr.SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, scheduleInfo.executorMessages[0]);
     IF_FALSE_LOGE_AND_RETURN_VAL(setExtraInfo, GENERAL_ERROR);
 
-    executorIndex_ = scheduleInfo.executorIndexes[0];
-    std::weak_ptr<ResourceNode> weakNode = ResourceNodePool::Instance().Select(executorIndex_);
-    std::shared_ptr<ResourceNode> node = weakNode.lock();
-    IF_FALSE_LOGE_AND_RETURN_VAL(node != nullptr, GENERAL_ERROR);
-
     std::vector<uint8_t> publicKey;
     node->BeginExecute(scheduleInfo.scheduleId, publicKey, attr);
 
-    IAM_LOGI("success");
+    IAM_LOGI("scheduleId %{public}s begin execute success", GET_MASKED_STRING(scheduleId).c_str());
     return ResultCode::SUCCESS;
 }
 
@@ -283,7 +300,9 @@ void RemoteExecutorStub::OnMessage(const std::string &connectionName, const std:
 int32_t RemoteExecutorStub::OnMessage(ExecutorRole dstRole, const std::vector<uint8_t> &msg)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    IAM_LOGI("start");
+    IF_FALSE_LOGE_AND_RETURN_VAL(remoteScheduleNode_ != nullptr, GENERAL_ERROR);
+
+    IAM_LOGI("start, scheduleId %{public}s", GET_MASKED_STRING(remoteScheduleNode_->GetScheduleId()).c_str());
 
     std::shared_ptr<Attributes> request = Common::MakeShared<Attributes>(msg);
     IF_FALSE_LOGE_AND_RETURN_VAL(request != nullptr, GENERAL_ERROR);
@@ -303,7 +322,7 @@ int32_t RemoteExecutorStub::OnMessage(ExecutorRole dstRole, const std::vector<ui
         RemoteMsgUtil::GetExecutorProxyEndPointName(), request, msgCallback);
     IF_FALSE_LOGE_AND_RETURN_VAL(sendMsgRet == ResultCode::SUCCESS, GENERAL_ERROR);
 
-    IAM_LOGI("success");
+    IAM_LOGI("success, scheduleId %{public}s", GET_MASKED_STRING(remoteScheduleNode_->GetScheduleId()).c_str());
     return SUCCESS;
 }
 
@@ -314,6 +333,8 @@ int32_t RemoteExecutorStub::ContinueSchedule(ResultCode resultCode, const std::s
 
     IF_FALSE_LOGE_AND_RETURN_VAL(finalResult != nullptr, GENERAL_ERROR);
     IF_FALSE_LOGE_AND_RETURN_VAL(remoteScheduleNode_ != nullptr, GENERAL_ERROR);
+    IAM_LOGI("scheduleId %{public}s continue schedule",
+        GET_MASKED_STRING(remoteScheduleNode_->GetScheduleId()).c_str());
 
     std::shared_ptr<Attributes> request = Common::MakeShared<Attributes>(finalResult->Serialize());
     IF_FALSE_LOGE_AND_RETURN_VAL(request != nullptr, GENERAL_ERROR);
@@ -333,7 +354,8 @@ int32_t RemoteExecutorStub::ContinueSchedule(ResultCode resultCode, const std::s
         RemoteMsgUtil::GetExecutorProxyEndPointName(), request, msgCallback);
     IF_FALSE_LOGE_AND_RETURN_VAL(sendMsgRet == ResultCode::SUCCESS, GENERAL_ERROR);
 
-    IAM_LOGI("success");
+    IAM_LOGI("scheduleId %{public}s continue schedule success",
+        GET_MASKED_STRING(remoteScheduleNode_->GetScheduleId()).c_str());
     return SUCCESS;
 }
 
@@ -345,6 +367,7 @@ int32_t RemoteExecutorStub::ProcSendDataMsg(Attributes &attr)
     uint64_t scheduleId;
     bool getScheduleIdRet = attr.GetUint64Value(Attributes::ATTR_SCHEDULE_ID, scheduleId);
     IF_FALSE_LOGE_AND_RETURN_VAL(getScheduleIdRet, GENERAL_ERROR);
+    IAM_LOGI("scheduleId %{public}s proc send data", GET_MASKED_STRING(scheduleId).c_str());
 
     std::weak_ptr<ResourceNode> weakNode = ResourceNodePool::Instance().Select(executorIndex_);
     std::shared_ptr<ResourceNode> node = weakNode.lock();
@@ -353,7 +376,7 @@ int32_t RemoteExecutorStub::ProcSendDataMsg(Attributes &attr)
     int32_t ret = node->SendData(scheduleId, attr);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret == ResultCode::SUCCESS, GENERAL_ERROR);
 
-    IAM_LOGI("success");
+    IAM_LOGI("scheduleId %{public}s proc send data success", GET_MASKED_STRING(scheduleId).c_str());
     return ret;
 }
 

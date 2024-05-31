@@ -29,7 +29,7 @@ public:
     MOCK_METHOD1(SetChallenge, void(const std::vector<uint8_t> &challenge));
     MOCK_METHOD1(SetAccessTokenId, void(uint32_t tokenId));
     MOCK_METHOD1(SetEndAfterFirstFail, void(bool endAfterFirstFail));
-    MOCK_METHOD1(SetCollectorUdid, void(std::string collectorUdid));
+    MOCK_METHOD1(SetCollectorUdid, void(std::string &collectorUdid));
 
     MOCK_METHOD2(Start,
         bool(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList, std::shared_ptr<ScheduleNodeCallback> callback));
@@ -38,6 +38,7 @@ public:
     MOCK_METHOD0(Cancel, bool());
     MOCK_CONST_METHOD0(GetAccessTokenId, uint32_t());
     MOCK_CONST_METHOD0(GetLatestError, int32_t());
+    MOCK_CONST_METHOD0(GetUserId, int32_t());
 
 protected:
     MOCK_METHOD1(SetLatestError, void(int32_t error));

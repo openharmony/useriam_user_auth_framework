@@ -40,7 +40,7 @@ public:
     struct ScheduleInfo {
         uint64_t scheduleId {0};
         std::optional<uint32_t> tokenId;
-        uint32_t collectorTokenId;
+        uint32_t collectorTokenId {0};
         PinSubType pinSubType {0};
         uint64_t contextId {0};
         uint64_t expiredTime {0};
@@ -72,6 +72,7 @@ public:
     void ClearScheduleCallback() override;
     bool StartSchedule() override;
     bool StopSchedule() override;
+    bool StopSchedule(ResultCode errorCode) override;
     bool SendMessage(ExecutorRole dstRole, const std::vector<uint8_t> &msg) override;
     bool ContinueSchedule(ResultCode resultCode, const std::shared_ptr<Attributes> &finalResult) override;
 

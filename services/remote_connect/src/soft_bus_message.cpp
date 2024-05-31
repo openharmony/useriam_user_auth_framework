@@ -26,7 +26,7 @@ SoftBusMessage::SoftBusMessage(int32_t messageSeq, const std::string &connection
     : messageSeq_(messageSeq), connectioneName_(connectioneName), srcEndPoint_(srcEndPoint),
     destEndPoint_(destEndPoint), attributes_(attributes)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
 }
 
 uint32_t SoftBusMessage::GetMessageSeq()
@@ -66,7 +66,7 @@ std::string SoftBusMessage::GetConnectionName()
 
 std::shared_ptr<Attributes> SoftBusMessage::CreateMessage(bool response)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     IF_FALSE_LOGE_AND_RETURN_VAL(attributes_ != nullptr, nullptr);
 
     auto attributes = Common::MakeShared<Attributes>(attributes_->Serialize());
@@ -98,6 +98,9 @@ std::shared_ptr<Attributes> SoftBusMessage::CreateMessage(bool response)
     ret = attributes->SetUint32Value(Attributes::ATTR_MSG_VERSION, MESSAGE_VERSION);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret, nullptr);
 
+    int32_t msgType = -1;
+    attributes->GetInt32Value(Attributes::ATTR_MSG_TYPE, msgType); // ATTR_MSG_TYPE may be empty
+
     std::string udid;
     bool getLocalUdidRet = DeviceManagerUtil::GetInstance().GetLocalDeviceUdid(udid);
     IF_FALSE_LOGE_AND_RETURN_VAL(getLocalUdidRet, nullptr);
@@ -106,15 +109,15 @@ std::shared_ptr<Attributes> SoftBusMessage::CreateMessage(bool response)
     IF_FALSE_LOGE_AND_RETURN_VAL(ret, nullptr);
 
     IAM_LOGI("CreateMessage success: messageSeq:%{public}u, isAck:%{public}d,"
-        " srcEndPoint:%{public}s, destEndPoint:%{public}s, connectionName:%{public}s",
-        messageSeq_, response, srcEndPoint_.c_str(), destEndPoint_.c_str(), connectioneName_.c_str());
+        " connectionName:%{public}s, srcEndPoint:%{public}s, destEndPoint:%{public}s, msgType:%{public}d",
+        messageSeq_, response, connectioneName_.c_str(), srcEndPoint_.c_str(), destEndPoint_.c_str(), msgType);
     
     return attributes;
 }
 
 std::shared_ptr<Attributes> SoftBusMessage::ParseMessage(void *message, uint32_t messageLen)
 {
-    IAM_LOGI("start.");
+    IAM_LOGD("start.");
     if (message == nullptr || messageLen == 0) {
         IAM_LOGE("ParseMessage fail");
         return nullptr;
@@ -145,11 +148,13 @@ std::shared_ptr<Attributes> SoftBusMessage::ParseMessage(void *message, uint32_t
     ret = attributes->GetUint32Value(Attributes::ATTR_MSG_VERSION, messageVersion_);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret, nullptr);
 
+    int32_t msgType = -1;
+    attributes->GetInt32Value(Attributes::ATTR_MSG_TYPE, msgType); // ATTR_MSG_TYPE may be empty
     attributes_ = attributes;
 
     IAM_LOGI("ParseMessage success: messageSeq:%{public}u, isAck:%{public}d,"
-        " srcEndPoint:%{public}s, destEndPoint:%{public}s, connectionName:%{public}s",
-        messageSeq_, isAck_, srcEndPoint_.c_str(), destEndPoint_.c_str(), connectioneName_.c_str());
+        " connectionName:%{public}s, srcEndPoint:%{public}s, destEndPoint:%{public}s, msgType:%{public}d",
+        messageSeq_, isAck_, connectioneName_.c_str(), srcEndPoint_.c_str(), destEndPoint_.c_str(), msgType);
     return attributes;
 }
 } // namespace UserAuth
