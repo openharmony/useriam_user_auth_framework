@@ -92,6 +92,7 @@ bool ScheduleNodeHelper::ScheduleInfoToScheduleNode(const HdiScheduleInfo &info,
         ->SetCollectorTokenId(para.collectorTokenId)
         ->SetCollectorMessage(collectorMessage)
         ->SetVerifierMessage(verifierMessage)
+        ->SetAuthIntent(para.authIntent)
         ->Build();
     if (node == nullptr) {
         IAM_LOGE("builder failed");

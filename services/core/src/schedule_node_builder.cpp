@@ -124,6 +124,12 @@ std::shared_ptr<Builder> ScheduleNodeBuilder::SetVerifierMessage(const std::vect
     return shared_from_this();
 }
 
+std::shared_ptr<Builder> ScheduleNodeBuilder::SetAuthIntent(int32_t authIntent)
+{
+    info_.authIntent = authIntent;
+    return shared_from_this();
+}
+
 std::shared_ptr<ScheduleNode> ScheduleNodeBuilder::Build()
 {
     if (!CheckParameters()) {

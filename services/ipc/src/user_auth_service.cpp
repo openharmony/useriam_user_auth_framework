@@ -418,6 +418,7 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
     para.callerType = callerType;
     para.sdkVersion = apiVersion;
     para.authIntent = AuthIntent::DEFAULT;
+    para.isOsAccountVerified = GetAndUpateOsAccountVerifiedState(userId);
     return StartAuthContext(apiVersion, para, contextCallback);
 }
 
@@ -548,6 +549,7 @@ uint64_t UserAuthService::AuthUser(AuthParamInner &authParam, std::optional<Remo
     para.callerType = callerType;
     para.sdkVersion = INNER_API_VERSION_10000;
     para.authIntent = authParam.authIntent;
+    para.isOsAccountVerified = GetAndUpateOsAccountVerifiedState(authParam.userId);
     if (!remoteAuthParam.has_value()) {
         return StartAuthContext(INNER_API_VERSION_10000, para, contextCallback);
     }
@@ -1270,6 +1272,16 @@ int32_t UserAuthService::ProcStartRemoteAuthRequest(std::string connectionName,
 
     IAM_LOGI("success");
     return SUCCESS;
+}
+
+bool UserAuthService::GetAndUpateOsAccountVerifiedState(int32_t userId)
+{
+    IAM_LOGI("start");
+    if (osAccountVerifiedState_ == false) {
+        osAccountVerifiedState_ = IpcCommon::IsOsAccountVerified(userId);
+    }
+
+    return osAccountVerifiedState_;
 }
 } // namespace UserAuth
 } // namespace UserIam

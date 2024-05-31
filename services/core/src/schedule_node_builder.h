@@ -45,7 +45,7 @@ public:
     std::shared_ptr<Builder> SetEndAfterFirstFail(const bool endAfterFirstFail) override;
     std::shared_ptr<Builder> SetVerifierMessage(const std::vector<uint8_t> &message) override;
     std::shared_ptr<Builder> SetCollectorMessage(const std::vector<uint8_t> &message) override;
-
+    std::shared_ptr<Builder> SetAuthIntent(int32_t authIntent) override;
     std::shared_ptr<ScheduleNode> Build() override;
 
     static bool CheckExecutors(const std::shared_ptr<ResourceNode> &collector,

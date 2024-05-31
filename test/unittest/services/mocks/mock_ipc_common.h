@@ -55,6 +55,7 @@ public:
     static uint32_t GetTokenId(IPCObjectStub &stub);
     static void SetSkipUserFlag(bool isSkip);
     static bool CheckForegroundApplication(const std::string &bundleName);
+    static bool IsOsAccountVerified(int32_t userId);
 
 private:
     static std::set<Permission> permSet_;
