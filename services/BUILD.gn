@@ -14,7 +14,7 @@
 import("//build/ohos.gni")
 
 declare_args() {
-  useriam_fwk_enabled = true
+  user_auth_framework_enabled = true
 }
 
 ohos_shared_library("userauthservice") {
