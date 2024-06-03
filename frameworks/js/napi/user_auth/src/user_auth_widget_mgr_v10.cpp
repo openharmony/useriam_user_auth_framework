@@ -158,7 +158,7 @@ UserAuthResultCode UserAuthWidgetMgr::Off(napi_env env, napi_callback_info info)
     }
     if (argc != ARGS_TWO && argc != ARGS_ONE) {
         IAM_LOGE("invalid param, argc:%{public}zu", argc);
-        std::string msgStr = "Parameter error. The number of parameters should be 2";
+        std::string msgStr = "Parameter error. The number of parameters should be 1 or 2";
         return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     static const size_t maxLen = 10;
