@@ -189,7 +189,7 @@ void WidgetClient::SetWidgetCallback(const sptr<WidgetCallbackInterface> &callba
 void WidgetClient::SetAuthTokenId(uint32_t tokenId)
 {
     authTokenId_ = tokenId;
-    IAM_LOGI("WidgetClient SetAuthTokenId authTokenId: %{public}u", authTokenId_);
+    IAM_LOGI("WidgetClient SetAuthTokenId authTokenId: %{public}s", GET_MASKED_STRING(authTokenId_).c_str());
 }
 
 uint32_t WidgetClient::GetAuthTokenId() const
