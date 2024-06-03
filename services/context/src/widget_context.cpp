@@ -21,6 +21,7 @@
 #include "context_death_recipient.h"
 #include "iam_check.h"
 #include "iam_logger.h"
+#include "iam_para2str.h"
 #include "iam_ptr.h"
 #include "iam_time.h"
 #include "schedule_node.h"

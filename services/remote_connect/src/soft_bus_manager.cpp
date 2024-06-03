@@ -377,7 +377,7 @@ void SoftBusManager::ServiceSocketUnInit()
 
     std::vector<int32_t> socketIds;
     {
-        std::recursive_mutex socketMutex_;
+        std::lock_guard<std::recursive_mutex> lock(softBusMutex_);
         for (const auto &iter : socketMap_) {
             socketIds.push_back(iter.first);
         }
