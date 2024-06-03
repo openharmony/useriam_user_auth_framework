@@ -47,6 +47,7 @@ const std::map<UserAuthResultCode, std::string> g_resultV92Str = {
     {UserAuthResultCode::LOCKED, "Authentication is lockout."},
     {UserAuthResultCode::NOT_ENROLLED, "Authentication template has not been enrolled."},
     {UserAuthResultCode::CANCELED_FROM_WIDGET, "Authentication is canceled from widget."},
+    {UserAuthResultCode::PIN_EXPIRED, "Operation failed because of PIN expired."}
 };
 
 struct DeleteRefHolder {
@@ -152,7 +153,7 @@ int32_t UserAuthNapiHelper::GetResultCodeV8(int32_t result)
         return static_cast<int32_t>(UserAuthResultCode::OHOS_CHECK_PERMISSION_FAILED);
     }
     if (result == PIN_EXPIRED) {
-        return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
+        return GENERAL_ERROR;
     }
     if ((result < SUCCESS) || (result > NOT_ENROLLED)) {
         return GENERAL_ERROR;
