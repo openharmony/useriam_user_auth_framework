@@ -19,6 +19,7 @@
 #include "app_mgr_interface.h"
 #include "iam_common_defines.h"
 #include "iam_logger.h"
+#include "iam_para2str.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 #include "tokenid_kit.h"
