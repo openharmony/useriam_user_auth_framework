@@ -54,15 +54,17 @@ Executor::Executor(std::shared_ptr<ExecutorMgrWrapper> executorMgrWrapper,
 void Executor::OnHdiConnect()
 {
     IAM_LOGI("%{public}s start", GetDescription());
-    // register resource pool depends on hdi connect, after hid connect re-register resource pool
+    // register resource pool depends on hdi connect, after hdi connect re-register resource pool
     OnFrameworkReady();
 }
 
 void Executor::OnHdiDisconnect()
 {
     IAM_LOGI("%{public}s start", GetDescription());
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    executorHdi_ = nullptr;
+    {
+        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        executorHdi_ = nullptr;
+    }
     RespondCallbackOnDisconnect();
     UnregisterExecutorCallback();
 }
@@ -70,9 +72,8 @@ void Executor::OnHdiDisconnect()
 void Executor::OnFrameworkReady()
 {
     IAM_LOGI("%{public}s start", GetDescription());
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
     ExecutorInfo executorInfo = {};
-    auto hdi = executorHdi_;
+    auto hdi = GetExecutorHdi();
     if (hdi == nullptr) {
         IAM_LOGE("executorHdi_ is disconnected, skip framework ready process");
         return;
@@ -88,33 +89,54 @@ void Executor::OnFrameworkReady()
 void Executor::RegisterExecutorCallback(ExecutorInfo &executorInfo)
 {
     IAM_LOGI("%{public}s start", GetDescription());
+    std::lock_guard<std::recursive_mutex> lock(registerMutex_);
     uint32_t combineExecutorId =
         Common::CombineUint16ToUint32(hdiId_, static_cast<uint16_t>(executorInfo.executorSensorHint));
     executorInfo.executorSensorHint = combineExecutorId;
-    if (executorCallback_ == nullptr) {
-        auto localExecutorCallback = Common::MakeShared<FrameworkExecutorCallback>(weak_from_this());
-        IF_FALSE_LOGE_AND_RETURN(localExecutorCallback != nullptr);
-        executorCallback_ = localExecutorCallback;
+    std::shared_ptr<ExecutorRegisterCallback> executorCallback = nullptr;
+    {
+        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        if (executorCallback_ == nullptr) {
+            executorCallback_ = Common::MakeShared<FrameworkExecutorCallback>(weak_from_this());
+            IF_FALSE_LOGE_AND_RETURN(executorCallback_ != nullptr);
+        }
+        executorCallback = executorCallback_;
+
+        if (executorIndex_.has_value()) {
+            IAM_LOGI("%{public}s executor already registered, try unregister", GetDescription());
+            UnregisterExecutorCallback();
+        }
     }
     IF_FALSE_LOGE_AND_RETURN(executorMgrWrapper_ != nullptr);
-    executorMgrWrapper_->Register(executorInfo, executorCallback_);
-    IAM_LOGI("register executor callback ok, executor id %{public}s",
-        GET_MASKED_STRING(executorInfo.executorSensorHint).c_str());
+    uint64_t executorIndex = executorMgrWrapper_->Register(executorInfo, executorCallback);
+    IF_FALSE_LOGE_AND_RETURN(executorIndex != INVALID_EXECUTOR_INDEX);
+    {
+        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        executorIndex_ = executorIndex;
+    }
+    IAM_LOGI("%{public}s register executor callback ok, executor index %{public}s", GetDescription(),
+        GET_MASKED_STRING(executorIndex).c_str());
 }
 
 void Executor::UnregisterExecutorCallback()
 {
     IAM_LOGI("%{public}s start", GetDescription());
-
-    if (!executorIndex_.has_value()) {
-        IAM_LOGI("not registered, no need unregister");
-        return;
+    std::lock_guard<std::recursive_mutex> lock(registerMutex_);
+    uint64_t executorIndex = 0;
+    {
+        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        if (!executorIndex_.has_value()) {
+            IAM_LOGI("not registered, no need unregister");
+            return;
+        }
+        executorIndex = executorIndex_.value();
+        executorIndex_ = std::nullopt;
     }
 
     IF_FALSE_LOGE_AND_RETURN(executorMgrWrapper_ != nullptr);
-    executorMgrWrapper_->Unregister(executorIndex_.value());
-    executorIndex_ = std::nullopt;
-    IAM_LOGI("unregister executor callback ok");
+    executorMgrWrapper_->Unregister(executorIndex);
+    IAM_LOGI("%{public}s unregister executor callback ok, executor index %{public}s", GetDescription(),
+        GET_MASKED_STRING(executorIndex).c_str());
 }
 
 void Executor::AddCommand(std::shared_ptr<IAsyncCommand> command)
@@ -132,20 +154,13 @@ void Executor::RemoveCommand(std::shared_ptr<IAsyncCommand> command)
     command2Respond_.erase(command);
 }
 
-void Executor::SetExecutorIndex(uint64_t executorIndex)
-{
-    IAM_LOGI("%{public}s start", GetDescription());
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    executorIndex_ = executorIndex;
-}
-
 void Executor::RespondCallbackOnDisconnect()
 {
     IAM_LOGI("%{public}s start", GetDescription());
     std::set<std::shared_ptr<IAsyncCommand>> command2NotifyOnHdiDisconnect;
     {
         // cmd->OnHdiDisconnect will invoke RemoveCommand thus modify command2Respond_, make a copy before call
-        // OnHdiDisconnect
+        std::lock_guard<std::recursive_mutex> lock(mutex_);
         command2NotifyOnHdiDisconnect =
             std::set<std::shared_ptr<IAsyncCommand>>(command2Respond_.begin(), command2Respond_.end());
     }

@@ -27,7 +27,7 @@ namespace UserIam {
 namespace UserAuth {
 class MockExecutorRegisterCallback final : public ExecutorRegisterCallback {
 public:
-    MOCK_METHOD4(OnMessengerReady, void(uint64_t executorIndex, const std::shared_ptr<ExecutorMessenger> &messenger,
+    MOCK_METHOD3(OnMessengerReady, void(const std::shared_ptr<ExecutorMessenger> &messenger,
         const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList));
     MOCK_METHOD3(OnBeginExecute, int32_t(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
         const Attributes &commandAttrs));

@@ -49,8 +49,10 @@ public:
      *
      * @param info Information about executor which need to register into coAuth.
      * @param callback Callback of executor register.
+     *
+     * @return Executor index.
      */
-    virtual void Register(const ExecutorInfo &info, const std::shared_ptr<ExecutorRegisterCallback> &callback) = 0;
+    virtual uint64_t Register(const ExecutorInfo &info, const std::shared_ptr<ExecutorRegisterCallback> &callback) = 0;
 
     /**
      * @brief Executor secure unregister from coAuth resource pool.

@@ -27,17 +27,17 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-void CoAuthClientImpl::Register(const ExecutorInfo &info, const std::shared_ptr<ExecutorRegisterCallback> &callback)
+uint64_t CoAuthClientImpl::Register(const ExecutorInfo &info, const std::shared_ptr<ExecutorRegisterCallback> &callback)
 {
     IAM_LOGI("start type:%{public}d role:%{public}d", info.authType, info.executorRole);
     if (!callback) {
         IAM_LOGE("callback is nullptr");
-        return;
+        return INVALID_EXECUTOR_INDEX;
     }
 
     auto proxy = GetProxy();
     if (!proxy) {
-        return;
+        return INVALID_EXECUTOR_INDEX;
     }
 
     CoAuthInterface::ExecutorRegisterInfo regInfo;
@@ -53,9 +53,9 @@ void CoAuthClientImpl::Register(const ExecutorInfo &info, const std::shared_ptr<
     sptr<ExecutorCallbackInterface> wrapper(new (std::nothrow) ExecutorCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
-        return;
+        return INVALID_EXECUTOR_INDEX;
     }
-    proxy->ExecutorRegister(regInfo, wrapper);
+    return proxy->ExecutorRegister(regInfo, wrapper);
 }
 
 void CoAuthClientImpl::Unregister(uint64_t executorIndex)

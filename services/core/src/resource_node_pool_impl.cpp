@@ -21,6 +21,7 @@
 
 #include <singleton.h>
 
+#include "iam_check.h"
 #include "iam_logger.h"
 
 #define LOG_TAG "USER_AUTH_SA"
@@ -64,7 +65,7 @@ bool ResourceNodePoolImpl::Insert(const std::shared_ptr<ResourceNode> &resource)
         if (nodeParam.count < UINT32_MAX) {
             nodeParam.count = iter->second.count + 1;
         }
-        iter->second.node->Detach();
+        iter->second.node->DetachFromDriver();
     }
 
     auto result = resourceNodeMap_.insert_or_assign(executorIndex, nodeParam);
@@ -103,6 +104,9 @@ bool ResourceNodePoolImpl::Delete(uint64_t executorIndex)
     IAM_LOGI("delete resource node");
 
     auto tempResource = iter->second.node;
+    IF_FALSE_LOGE_AND_RETURN_VAL(tempResource != nullptr, false);
+    tempResource->DeleteFromDriver();
+
     resourceNodeMap_.erase(iter);
     for (const auto &listener : listenerSet_) {
         if (listener != nullptr) {
@@ -115,6 +119,13 @@ bool ResourceNodePoolImpl::Delete(uint64_t executorIndex)
 void ResourceNodePoolImpl::DeleteAll()
 {
     std::lock_guard<std::recursive_mutex> lock(poolMutex_);
+    IAM_LOGI("delete all resource node begin, node num %{public}zu", resourceNodeMap_.size());
+    for (auto &pair : resourceNodeMap_) {
+        auto node = pair.second.node;
+        if (node != nullptr) {
+            node->DeleteFromDriver();
+        }
+    }
     auto tempMap = resourceNodeMap_;
     resourceNodeMap_.clear();
     for (auto &node : tempMap) {
@@ -124,6 +135,7 @@ void ResourceNodePoolImpl::DeleteAll()
             }
         }
     }
+    IAM_LOGI("delete all resource node success");
 }
 
 std::weak_ptr<ResourceNode> ResourceNodePoolImpl::Select(uint64_t executorIndex) const
