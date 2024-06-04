@@ -52,8 +52,9 @@ private:
     void RegisterExecutorCallback(ExecutorInfo &executorInfo);
     void UnregisterExecutorCallback();
     void RespondCallbackOnDisconnect();
-    std::shared_ptr<ExecutorRegisterCallback> executorCallback_;
+    std::recursive_mutex registerMutex_;
     std::recursive_mutex mutex_;
+    std::shared_ptr<ExecutorRegisterCallback> executorCallback_;
     std::set<std::shared_ptr<IAsyncCommand>> command2Respond_;
     std::shared_ptr<ExecutorMgrWrapper> executorMgrWrapper_;
     std::shared_ptr<IAuthExecutorHdi> executorHdi_;

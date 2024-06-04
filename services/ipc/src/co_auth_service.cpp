@@ -16,7 +16,6 @@
 #include "co_auth_service.h"
 
 #include <cinttypes>
-#include <mutex>
 #include <thread>
 
 #include "string_ex.h"
@@ -51,13 +50,14 @@ const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(CoAuthService
 } // namespace
 
 constexpr int32_t USERIAM_IPC_THREAD_NUM = 4;
-std::mutex CoAuthService::mutex_;
+bool CoAuthService::isReady_ = false;
+std::recursive_mutex CoAuthService::mutex_;
 std::shared_ptr<CoAuthService> CoAuthService::instance_ = nullptr;
 
 std::shared_ptr<CoAuthService> CoAuthService::GetInstance()
 {
     if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> guard(mutex_);
+        std::lock_guard<std::recursive_mutex> guard(mutex_);
         if (instance_ == nullptr) {
             instance_ = Common::MakeShared<CoAuthService>();
             if (instance_ == nullptr) {
@@ -75,9 +75,8 @@ CoAuthService::CoAuthService() : SystemAbility(SUBSYS_USERIAM_SYS_ABILITY_AUTHEX
 
 void CoAuthService::OnStart()
 {
-    static std::mutex mutex;
     static uint32_t timerId = 0;
-    std::lock_guard<std::mutex> guard(mutex);
+    std::lock_guard<std::recursive_mutex> guard(mutex_);
     IAM_LOGI("Start service");
     IPCSkeleton::SetMaxWorkThreadNum(USERIAM_IPC_THREAD_NUM);
     if (!Publish(this)) {
@@ -94,6 +93,13 @@ void CoAuthService::OnStart()
 void CoAuthService::OnStop()
 {
     IAM_LOGI("Stop service");
+}
+
+void CoAuthService::SetIsReady(bool isReady)
+{
+    std::lock_guard<std::recursive_mutex> guard(mutex_);
+    isReady_ = isReady;
+    IAM_LOGI("Set isReady %{public}d", isReady);
 }
 
 void CoAuthService::AddExecutorDeathRecipient(uint64_t executorIndex, AuthType authType,
@@ -123,6 +129,7 @@ void CoAuthService::AddExecutorDeathRecipient(uint64_t executorIndex, AuthType a
 
 uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<ExecutorCallbackInterface> &callback)
 {
+    IAM_LOGI("register resource node begin");
     if (callback == nullptr) {
         IAM_LOGE("executor callback is nullptr");
         return INVALID_EXECUTOR_INDEX;
@@ -131,6 +138,13 @@ uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<
         IAM_LOGE("failed to check permission");
         return INVALID_EXECUTOR_INDEX;
     }
+    std::lock_guard<std::recursive_mutex> guard(mutex_);
+
+    if (!isReady_) {
+        IAM_LOGE("framework is not ready");
+        return INVALID_EXECUTOR_INDEX;
+    }
+
     std::vector<uint64_t> templateIdList;
     std::vector<uint8_t> fwkPublicKey;
     auto executorCallback = Common::SptrToStdSharedPtr<ExecutorCallbackInterface>(callback);
@@ -146,27 +160,36 @@ uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<
 
     uint64_t executorIndex = resourceNode->GetExecutorIndex();
     auto handler = ThreadHandler::GetSingleThreadInstance();
+    std::weak_ptr<ResourceNode> weakNode = resourceNode;
     IF_FALSE_LOGE_AND_RETURN_VAL(handler != nullptr, GENERAL_ERROR);
-    handler->PostTask([executorCallback, fwkPublicKey, templateIdList, resourceNode, executorIndex]() {
+    handler->PostTask([executorCallback, fwkPublicKey, templateIdList, weakNode, executorIndex]() {
+        auto resourceNode = weakNode.lock();
+        IF_FALSE_LOGE_AND_RETURN(resourceNode != nullptr);
         sptr<ExecutorMessengerInterface> messenger = ExecutorMessengerService::GetInstance();
-        executorCallback->OnMessengerReady(executorIndex, messenger, fwkPublicKey, templateIdList);
-        AuthType authType = resourceNode->GetAuthType();
+        executorCallback->OnMessengerReady(messenger, fwkPublicKey, templateIdList);
         IAM_LOGI("register successful, executorType is %{public}d, executorRole is %{public}d, "
             "executorIndex is ****%{public}hx",
-            authType, resourceNode->GetExecutorRole(), static_cast<uint16_t>(executorIndex));
-        AddExecutorDeathRecipient(executorIndex, authType, executorCallback);
+            resourceNode->GetAuthType(), resourceNode->GetExecutorRole(), static_cast<uint16_t>(executorIndex));
+        AddExecutorDeathRecipient(executorIndex, resourceNode->GetAuthType(), executorCallback);
         IAM_LOGI("update template cache after register success");
-        TemplateCacheManager::GetInstance().UpdateTemplateCache(authType);
+        TemplateCacheManager::GetInstance().UpdateTemplateCache(resourceNode->GetAuthType());
     });
     return executorIndex;
 }
 
 void CoAuthService::ExecutorUnregister(uint64_t executorIndex)
 {
+    IAM_LOGI("delete resource node begin");
     if (!IpcCommon::CheckPermission(*this, ACCESS_AUTH_RESPOOL)) {
         IAM_LOGE("failed to check permission");
         return;
     }
+    std::lock_guard<std::recursive_mutex> guard(mutex_);
+    if (!isReady_) {
+        IAM_LOGE("framework is not ready");
+        return;
+    }
+
     if (!ResourceNodePool::Instance().Delete(executorIndex)) {
         IAM_LOGE("delete resource node failed");
         return;
@@ -183,6 +206,7 @@ void CoAuthService::Init()
             ContextPool::Instance().StopAllSchedule();
             ResourceNodePool::Instance().DeleteAll();
             RelativeTimer::GetInstance().Register(Init, DEFER_TIME);
+            SetIsReady(false);
             UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "user_auth_hdi host");
         }));
 
@@ -196,11 +220,14 @@ void CoAuthService::Init()
         auto callbackService = HdiMessageCallbackService::GetInstance();
         IF_FALSE_LOGE_AND_RETURN(callbackService != nullptr);
         callbackService->OnHdiConnect();
-        ResourceNodePool::Instance().DeleteAll();
-        IAM_LOGI("set fwk ready parameter begin");
-        SetParameter("bootevent.useriam.fwkready", "false");
-        SetParameter("bootevent.useriam.fwkready", "true");
-        IAM_LOGI("set fwk ready parameter success");
+        {
+            std::lock_guard<std::recursive_mutex> guard(mutex_);
+            IAM_LOGI("set fwk ready parameter begin");
+            SetParameter("bootevent.useriam.fwkready", "false");
+            SetParameter("bootevent.useriam.fwkready", "true");
+            SetIsReady(true);
+            IAM_LOGI("set fwk ready parameter success");
+        }
     } else {
         RelativeTimer::GetInstance().Register(Init, DEFER_TIME);
     }

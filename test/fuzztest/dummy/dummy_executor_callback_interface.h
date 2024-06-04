@@ -26,7 +26,7 @@ namespace UserAuth {
 namespace {
 class DummyExecutorCallbackInterface : public ExecutorCallbackInterface {
 public:
-    void OnMessengerReady(uint64_t executorIndex, sptr<ExecutorMessengerInterface> &messenger,
+    void OnMessengerReady(sptr<ExecutorMessengerInterface> &messenger,
         const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList){};
     int32_t OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
         const Attributes &command)

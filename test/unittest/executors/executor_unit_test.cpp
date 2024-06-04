@@ -95,6 +95,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnHdiConnectTest_001, TestSize.Level
             EXPECT_EQ(info.esl, testInfo.esl);
             EXPECT_EQ(info.publicKey, testInfo.publicKey);
             EXPECT_NE(callback, nullptr);
+            return 0;
         });
     auto executorHdi = MakeShared<MockIAuthExecutorHdi>();
     ASSERT_NE(executorHdi, nullptr);
@@ -137,6 +138,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnFrameworkReadyTest_001, TestSize.L
             EXPECT_EQ(info.esl, testInfo.esl);
             EXPECT_EQ(info.publicKey, testInfo.publicKey);
             EXPECT_NE(callback, nullptr);
+            return 0;
         });
     auto executorHdi = MakeShared<MockIAuthExecutorHdi>();
     ASSERT_NE(executorHdi, nullptr);
@@ -325,13 +327,14 @@ int32_t GetExecutorAndMockStub(shared_ptr<Executor> &executor, shared_ptr<Execut
     EXPECT_CALL(*executorMgrWrapper, Register(_, _))
         .Times(Exactly(1))
         .WillOnce([&executorCallback, &mockMessenger](const ExecutorInfo &info,
-                      std::shared_ptr<ExecutorRegisterCallback> callback) {
+            std::shared_ptr<ExecutorRegisterCallback> callback) {
             EXPECT_NE(callback, nullptr);
             executorCallback = callback;
             auto messenger = MakeShared<MockIExecutorMessenger>();
             EXPECT_NE(messenger, nullptr);
             mockMessenger = messenger;
-            executorCallback->OnMessengerReady(0, messenger, testPublicKey, testTemplateIdList);
+            executorCallback->OnMessengerReady(messenger, testPublicKey, testTemplateIdList);
+            return 0;
         });
 
     mockExecutorHdi = MakeShared<MockIAuthExecutorHdi>();
@@ -572,7 +575,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_001, TestSiz
     static const std::vector<uint64_t> testTemplateIdList = {7, 8, 9};
     static const std::vector<uint8_t> testExtraInfo = {4, 5, 6};
     static const bool endAfterFirstFail = true;
-    static const bool testAuthIntent = true;
+    static int32_t authIntent = 1;
 
     shared_ptr<Executor> executor;
     shared_ptr<ExecutorRegisterCallback> executorCallback;
@@ -592,6 +595,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_001, TestSiz
                 EXPECT_EQ(param.templateIdList, testTemplateIdList);
                 EXPECT_EQ(param.extraInfo, testExtraInfo);
                 EXPECT_EQ(param.endAfterFirstFail, endAfterFirstFail);
+                EXPECT_EQ(param.authIntent, authIntent);
                 cmdCallback = callbackObj;
                 return ResultCode::SUCCESS;
             });
@@ -607,7 +611,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_001, TestSiz
     commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_ACCESS_TOKEN_ID, testTokenId);
     commandAttrs->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, testExtraInfo);
     commandAttrs->SetBoolValue(Attributes::ATTR_END_AFTER_FIRST_FAIL, endAfterFirstFail);
-    commandAttrs->SetInt32Value(Attributes::ATTR_AUTH_INTENTION, testAuthIntent);
+    commandAttrs->SetInt32Value(Attributes::ATTR_AUTH_INTENTION, authIntent);
     ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, *commandAttrs);
     ASSERT_NE(cmdCallback, nullptr);
     ASSERT_EQ(ret, ResultCode::SUCCESS);

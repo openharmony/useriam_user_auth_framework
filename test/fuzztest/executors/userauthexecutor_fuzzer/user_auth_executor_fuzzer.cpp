@@ -205,9 +205,10 @@ private:
 class DummyExecutorMgrWrapper : public ExecutorMgrWrapper {
 public:
     virtual ~DummyExecutorMgrWrapper() = default;
-    void Register(const ExecutorInfo &info, std::shared_ptr<ExecutorRegisterCallback> callback) override
+    uint64_t Register(const ExecutorInfo &info, std::shared_ptr<ExecutorRegisterCallback> callback) override
     {
         g_executorCallback = callback;
+        return 0;
     }
 };
 
@@ -332,14 +333,13 @@ void FuzzFrameworkOnMessengerReady(std::shared_ptr<Parcel> parcel)
     if (g_executorCallback == nullptr) {
         return;
     }
-    uint64_t executorIndex = parcel->ReadUint64();
     shared_ptr<ExecutorMessenger> messenger = nullptr;
     FillIExecutorMessenger(parcel, messenger);
     std::vector<uint8_t> publicKey;
     FillFuzzUint8Vector(*parcel, publicKey);
     std::vector<uint64_t> templateIds;
     FillFuzzUint64Vector(*parcel, templateIds);
-    g_executorCallback->OnMessengerReady(executorIndex, messenger, publicKey, templateIds);
+    g_executorCallback->OnMessengerReady(messenger, publicKey, templateIds);
     IAM_LOGI("end");
 }
 

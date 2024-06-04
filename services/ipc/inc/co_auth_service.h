@@ -35,6 +35,7 @@ public:
     int Dump(int fd, const std::vector<std::u16string> &args) override;
     uint64_t ExecutorRegister(const ExecutorRegisterInfo &info, sptr<ExecutorCallbackInterface> &callback) override;
     void ExecutorUnregister(uint64_t executorIndex) override;
+    static void SetIsReady(bool isReady); // for unit test
 
 protected:
     void OnStart() override;
@@ -45,7 +46,8 @@ private:
     static void AddExecutorDeathRecipient(uint64_t executorIndex, AuthType authType,
         std::shared_ptr<ExecutorCallbackInterface> callback);
 
-    static std::mutex mutex_;
+    static bool isReady_;
+    static std::recursive_mutex mutex_;
     static std::shared_ptr<CoAuthService> instance_;
 };
 } // namespace UserAuth

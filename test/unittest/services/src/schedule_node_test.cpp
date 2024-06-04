@@ -250,6 +250,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneFailed, TestSize.Level0)
     EXPECT_CALL(*callback, OnScheduleStoped(_, _)).Times(1);
 
     auto handler = ThreadHandler::GetSingleThreadInstance();
+    ASSERT_NE(handler, nullptr);
     {
         constexpr uint32_t EXECUTOR_INDEX = 0xAAAAAAA;
         constexpr uint32_t EXECUTOR_MATCHER = 0xDEEDBEEF;
@@ -283,6 +284,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccess, TestSize.Level0)
     EXPECT_CALL(*callback, OnScheduleStarted()).Times(1);
 
     auto handler = ThreadHandler::GetSingleThreadInstance();
+    ASSERT_NE(handler, nullptr);
     {
         constexpr uint32_t EXECUTOR_INDEX = 0xAAAAAAA;
         constexpr uint32_t EXECUTOR_MATCHER = 0xDEEDBEEF;
@@ -318,6 +320,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessButTimeout, TestSize.
             [&ensure](int32_t resultCode, const std::shared_ptr<Attributes> &finalResult) { ensure.set_value(); });
 
     auto handler = ThreadHandler::GetSingleThreadInstance();
+    ASSERT_NE(handler, nullptr);
     {
         constexpr uint32_t EXECUTOR_INDEX = 0xAAAAAAA;
         constexpr uint32_t EXECUTOR_MATCHER = 0xDEEDBEEF;
@@ -367,6 +370,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessButTimeoutAndEndFail,
             [&ensure](int32_t resultCode, const std::shared_ptr<Attributes> &finalResult) { ensure.set_value(); });
 
     auto handler = ThreadHandler::GetSingleThreadInstance();
+    ASSERT_NE(handler, nullptr);
     {
         constexpr uint32_t EXECUTOR_INDEX = 0xAAAAAAA;
         constexpr uint32_t EXECUTOR_MATCHER = 0xDEEDBEEF;
@@ -420,6 +424,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessGetResult, TestSize.L
             [&ensure](int32_t resultCode, const std::shared_ptr<Attributes> &finalResult) { ensure.set_value(); });
 
     auto handler = ThreadHandler::GetSingleThreadInstance();
+    ASSERT_NE(handler, nullptr);
     {
         constexpr uint32_t EXECUTOR_INDEX = 0xAAAAAAA;
         constexpr uint32_t EXECUTOR_MATCHER = 0xDEEDBEEF;
@@ -472,6 +477,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneUserStop, TestSize.Level0)
             [&ensure](int32_t resultCode, const std::shared_ptr<Attributes> &finalResult) { ensure.set_value(); });
 
     auto handler = ThreadHandler::GetSingleThreadInstance();
+    ASSERT_NE(handler, nullptr);
     {
         constexpr uint32_t EXECUTOR_INDEX = 0xAAAAAAA;
         constexpr uint32_t EXECUTOR_MATCHER = 0xDEEDBEEF;
@@ -524,6 +530,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneUserStopAndEndFailed, TestSi
             [&ensure](int32_t resultCode, const std::shared_ptr<Attributes> &finalResult) { ensure.set_value(); });
 
     auto handler = ThreadHandler::GetSingleThreadInstance();
+    ASSERT_NE(handler, nullptr);
     {
         constexpr uint32_t EXECUTOR_INDEX = 0xAAAAAAA;
         constexpr uint32_t EXECUTOR_MATCHER = 0xDEEDBEEF;

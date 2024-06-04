@@ -28,7 +28,7 @@ namespace UserIam {
 namespace UserAuth {
 class CoAuthClientImpl final : public CoAuthClient, public NoCopyable {
 public:
-    void Register(const ExecutorInfo &info, const std::shared_ptr<ExecutorRegisterCallback> &callback) override;
+    uint64_t Register(const ExecutorInfo &info, const std::shared_ptr<ExecutorRegisterCallback> &callback) override;
     void Unregister(uint64_t executorIndex) override;
 
 private:

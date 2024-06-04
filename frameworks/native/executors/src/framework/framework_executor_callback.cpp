@@ -95,9 +95,8 @@ ResultCode FrameworkExecutorCallback::OnEndExecuteInner(uint64_t scheduleId, con
     return ret;
 }
 
-void FrameworkExecutorCallback::OnMessengerReady(uint64_t executorIndex,
-    const std::shared_ptr<ExecutorMessenger> &messenger, const std::vector<uint8_t> &publicKey,
-    const std::vector<uint64_t> &templateIdList)
+void FrameworkExecutorCallback::OnMessengerReady(const std::shared_ptr<ExecutorMessenger> &messenger,
+    const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList)
 {
     IAM_LOGI("%{public}s start", GetDescription());
     std::lock_guard<std::recursive_mutex> lock(mutex_);
@@ -109,7 +108,6 @@ void FrameworkExecutorCallback::OnMessengerReady(uint64_t executorIndex,
     auto hdi = executor->GetExecutorHdi();
     IF_FALSE_LOGE_AND_RETURN(hdi != nullptr);
     executorMessenger_ = messenger;
-    executor->SetExecutorIndex(executorIndex);
     std::vector<uint8_t> extraInfo;
     hdi->OnRegisterFinish(templateIdList, publicKey, extraInfo);
 }

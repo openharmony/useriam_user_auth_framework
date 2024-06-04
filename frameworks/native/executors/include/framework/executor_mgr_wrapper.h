@@ -26,7 +26,7 @@ namespace UserAuth {
 class ExecutorMgrWrapper : public NoCopyable {
 public:
     ~ExecutorMgrWrapper() override = default;
-    virtual void Register(const ExecutorInfo &info, std::shared_ptr<ExecutorRegisterCallback> callback);
+    virtual uint64_t Register(const ExecutorInfo &info, std::shared_ptr<ExecutorRegisterCallback> callback);
     virtual void Unregister(uint64_t executorIndex);
 };
 } // namespace UserAuth

@@ -37,12 +37,12 @@ public:
     }
     ~RemoteExecutorProxyCallback() override = default;
 
-    void OnMessengerReady(uint64_t executorIndex, const std::shared_ptr<ExecutorMessenger> &messenger,
+    void OnMessengerReady(const std::shared_ptr<ExecutorMessenger> &messenger,
         const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList) override
     {
         auto callback = callback_.lock();
         IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
-        callback->OnMessengerReady(executorIndex, messenger, publicKey, templateIdList);
+        callback->OnMessengerReady(messenger, publicKey, templateIdList);
     }
 
     int32_t OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
@@ -145,20 +145,27 @@ RemoteExecutorProxy::~RemoteExecutorProxy()
 
 ResultCode RemoteExecutorProxy::Start()
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
     IAM_LOGI("start");
+    {
+        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        connectionCallback_ = Common::MakeShared<RemoteExecutorProxyMessageCallback>(weak_from_this());
+        IF_FALSE_LOGE_AND_RETURN_VAL(connectionCallback_ != nullptr, GENERAL_ERROR);
 
-    connectionCallback_ = Common::MakeShared<RemoteExecutorProxyMessageCallback>(weak_from_this());
-    IF_FALSE_LOGE_AND_RETURN_VAL(connectionCallback_ != nullptr, GENERAL_ERROR);
+        ResultCode registerResult = RemoteConnectionManager::GetInstance().RegisterConnectionListener(connectionName_,
+            endPointName_, connectionCallback_);
+        IF_FALSE_LOGE_AND_RETURN_VAL(registerResult == SUCCESS, GENERAL_ERROR);
 
-    ResultCode registerResult = RemoteConnectionManager::GetInstance().RegisterConnectionListener(connectionName_,
-        endPointName_, connectionCallback_);
-    IF_FALSE_LOGE_AND_RETURN_VAL(registerResult == SUCCESS, GENERAL_ERROR);
+        executorCallback_ = Common::MakeShared<RemoteExecutorProxyCallback>(weak_from_this());
+        IF_FALSE_LOGE_AND_RETURN_VAL(executorCallback_ != nullptr, GENERAL_ERROR);
+    }
 
-    executorCallback_ = Common::MakeShared<RemoteExecutorProxyCallback>(weak_from_this());
-    IF_FALSE_LOGE_AND_RETURN_VAL(executorCallback_ != nullptr, GENERAL_ERROR);
+    uint64_t executorIndex = CoAuthClient::GetInstance().Register(registerInfo_, executorCallback_);
+    IF_FALSE_LOGE_AND_RETURN_VAL(executorIndex != INVALID_EXECUTOR_INDEX, GENERAL_ERROR);
 
-    CoAuthClient::GetInstance().Register(registerInfo_, executorCallback_);
+    {
+        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        executorIndex_ = executorIndex;
+    }
 
     IAM_LOGI("success");
     return ResultCode::SUCCESS;
@@ -202,13 +209,12 @@ void RemoteExecutorProxy::OnConnectStatus(const std::string &connectionName, Con
 {
 }
 
-void RemoteExecutorProxy::OnMessengerReady(uint64_t executorIndex, const std::shared_ptr<ExecutorMessenger> &messenger,
+void RemoteExecutorProxy::OnMessengerReady(const std::shared_ptr<ExecutorMessenger> &messenger,
     const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     IAM_LOGI("start");
 
-    executorIndex_ = executorIndex;
     messenger_ = messenger;
     IAM_LOGI("success");
 }

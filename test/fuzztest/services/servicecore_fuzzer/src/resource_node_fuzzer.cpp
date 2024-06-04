@@ -28,7 +28,7 @@ namespace UserAuth {
 namespace {
 class DummyExecutorCallbackInterface final : public ExecutorCallbackInterface {
 public:
-    void OnMessengerReady(uint64_t executorIndex, sptr<ExecutorMessengerInterface> &messenger,
+    void OnMessengerReady(sptr<ExecutorMessengerInterface> &messenger,
         const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList) override
     {
         IAM_LOGI("start");
@@ -285,7 +285,7 @@ void FuzzResourceNodeDetach(Parcel &parcel)
     IAM_LOGI("start");
     auto node = GetResourceNode(parcel);
     if (node != nullptr) {
-        node->Detach();
+        node->DetachFromDriver();
     }
     IAM_LOGI("end");
 }
