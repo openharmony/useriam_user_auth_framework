@@ -96,14 +96,14 @@ void CoAuthService::OnStop()
     IAM_LOGI("Stop service");
 }
 
-void CoAuthService::AddExecutorDeathRecipient(uint64_t executorIndex,
+void CoAuthService::AddExecutorDeathRecipient(uint64_t executorIndex, AuthType authType,
     std::shared_ptr<ExecutorCallbackInterface> callback)
 {
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
     auto obj = callback->AsObject();
     IF_FALSE_LOGE_AND_RETURN(obj != nullptr);
 
-    obj->AddDeathRecipient(new (std::nothrow) IpcCommon::PeerDeathRecipient([executorIndex]() {
+    obj->AddDeathRecipient(new (std::nothrow) IpcCommon::PeerDeathRecipient([executorIndex, authType]() {
         IAM_LOGE("executorCallback is down");
         auto weakNode = ResourceNodePool::Instance().Select(executorIndex);
         auto sharedNode = weakNode.lock();
@@ -115,7 +115,7 @@ void CoAuthService::AddExecutorDeathRecipient(uint64_t executorIndex,
                 sharedNode->GetAuthType(), sharedNode->GetExecutorRole());
         }
 
-        std::string executorDesc = "executor, type " + std::to_string(sharedNode->GetAuthType());
+        std::string executorDesc = "executor, type " + std::to_string(authType);
         UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), executorDesc);
         IAM_LOGI("executorCallback is down processed");
     }));
@@ -150,13 +150,13 @@ uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<
     handler->PostTask([executorCallback, fwkPublicKey, templateIdList, resourceNode, executorIndex]() {
         sptr<ExecutorMessengerInterface> messenger = ExecutorMessengerService::GetInstance();
         executorCallback->OnMessengerReady(executorIndex, messenger, fwkPublicKey, templateIdList);
-        int32_t executorType = resourceNode->GetAuthType();
+        AuthType authType = resourceNode->GetAuthType();
         IAM_LOGI("register successful, executorType is %{public}d, executorRole is %{public}d, "
             "executorIndex is ****%{public}hx",
-            executorType, resourceNode->GetExecutorRole(), static_cast<uint16_t>(executorIndex));
-        AddExecutorDeathRecipient(executorIndex, executorCallback);
+            authType, resourceNode->GetExecutorRole(), static_cast<uint16_t>(executorIndex));
+        AddExecutorDeathRecipient(executorIndex, authType, executorCallback);
         IAM_LOGI("update template cache after register success");
-        TemplateCacheManager::GetInstance().UpdateTemplateCache(resourceNode->GetAuthType());
+        TemplateCacheManager::GetInstance().UpdateTemplateCache(authType);
     });
     return executorIndex;
 }
