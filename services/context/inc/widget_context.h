@@ -92,7 +92,6 @@ private:
         sptr<IamCallbackInterface> &callback);
     void StopAllRunTask();
     std::string BuildStartCommand();
-    std::shared_ptr<UserIam::UserAuth::IamHitraceHelper> connectAbilityHitrace_ {nullptr};
 
 private:
     struct TaskInfo {
