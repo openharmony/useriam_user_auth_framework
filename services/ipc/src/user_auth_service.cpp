@@ -1028,7 +1028,7 @@ int32_t UserAuthService::RegisterWidgetCallback(int32_t version, sptr<WidgetCall
     }
 
     uint32_t tokenId = IpcCommon::GetTokenId(*this);
-    IAM_LOGE("RegisterWidgetCallback tokenId %{public}u", tokenId);
+    IAM_LOGE("RegisterWidgetCallback tokenId %{public}s", GET_MASKED_STRING(tokenId).c_str());
 
     int32_t curVersion = std::stoi(NOTICE_VERSION_STR);
     if (version != curVersion) {
