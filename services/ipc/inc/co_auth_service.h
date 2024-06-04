@@ -42,7 +42,7 @@ protected:
 
 private:
     static void Init();
-    static void AddExecutorDeathRecipient(uint64_t executorIndex,
+    static void AddExecutorDeathRecipient(uint64_t executorIndex, AuthType authType,
         std::shared_ptr<ExecutorCallbackInterface> callback);
 
     static std::mutex mutex_;
