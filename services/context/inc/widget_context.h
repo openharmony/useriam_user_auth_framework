@@ -92,7 +92,6 @@ private:
         sptr<IamCallbackInterface> &callback);
     void StopAllRunTask();
     std::string BuildStartCommand();
-    
 
 private:
     struct TaskInfo {
