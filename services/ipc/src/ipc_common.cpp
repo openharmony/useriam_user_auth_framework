@@ -19,6 +19,7 @@
 #include "app_mgr_interface.h"
 #include "iam_common_defines.h"
 #include "iam_logger.h"
+#include "iam_para2str.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 #include "tokenid_kit.h"
@@ -209,9 +210,9 @@ bool IpcCommon::CheckPermission(IPCObjectStub &stub, Permission permission)
 uint32_t IpcCommon::GetAccessTokenId(IPCObjectStub &stub)
 {
     uint32_t tokenId = stub.GetFirstTokenID();
-    IAM_LOGI("get first caller tokenId: %{public}u", tokenId);
+    IAM_LOGI("get first caller tokenId: %{public}s", GET_MASKED_STRING(tokenId).c_str());
     if (tokenId == 0) {
-        IAM_LOGI("no first caller, get direct caller tokenId: %{public}u", tokenId);
+        IAM_LOGI("no first caller, get direct caller tokenId: %{public}s", GET_MASKED_STRING(tokenId).c_str());
         tokenId = stub.GetCallingTokenID();
     }
     return tokenId;
@@ -220,7 +221,7 @@ uint32_t IpcCommon::GetAccessTokenId(IPCObjectStub &stub)
 uint32_t IpcCommon::GetTokenId(IPCObjectStub &stub)
 {
     uint32_t tokenId = stub.GetCallingTokenID();
-    IAM_LOGI("get tokenId: %{public}u", tokenId);
+    IAM_LOGI("get tokenId: %{public}s", GET_MASKED_STRING(tokenId).c_str());
     return tokenId;
 }
 
