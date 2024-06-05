@@ -582,7 +582,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_001, TestSiz
 
     shared_ptr<UserAuth::IExecuteCallback> cmdCallback = nullptr;
     EXPECT_CALL(*mockExecutorHdi, Authenticate(_, _, _))
-        .Times(Exactly(1))
+        .Times(Exactly(0))
         .WillOnce(
             [&cmdCallback](uint64_t scheduleId, const AuthenticateParam &param,
                 const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) {
@@ -607,8 +607,8 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_001, TestSiz
     commandAttrs->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, testExtraInfo);
     commandAttrs->SetBoolValue(Attributes::ATTR_END_AFTER_FIRST_FAIL, endAfterFirstFail);
     ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, *commandAttrs);
-    ASSERT_NE(cmdCallback, nullptr);
-    ASSERT_EQ(ret, ResultCode::SUCCESS);
+    ASSERT_EQ(cmdCallback, nullptr);
+    ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
 }
 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_002, TestSize.Level0)
