@@ -215,6 +215,17 @@ void FuzzExecutorCallbackServiceOnGetProperty(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzExecutorCallbackServiceOnSendData(Parcel &parcel)
+{
+    IAM_LOGI("start");
+    uint64_t scheduleId = parcel.ReadUint64();
+    Attributes data;
+    if (g_ExecutorCallbackService != nullptr) {
+        g_ExecutorCallbackService->OnSendData(scheduleId, data);
+    }
+    IAM_LOGI("end");
+}
+
 void FuzzExecutorMessengerClientSendData(Parcel &parcel)
 {
     IAM_LOGI("start");
@@ -252,6 +263,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzExecutorCallbackServiceOnEndExecute,
     FuzzExecutorCallbackServiceOnSetProperty,
     FuzzExecutorCallbackServiceOnGetProperty,
+    FuzzExecutorCallbackServiceOnSendData,
     FuzzExecutorMessengerClientSendData,
     FuzzExecutorMessengerClientFinish,
 };

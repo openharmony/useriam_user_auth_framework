@@ -148,6 +148,17 @@ void FuzzGetEnrolledState(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzGetAvailableStatusOtherScene(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    int32_t apiVersion = 8;
+    int32_t pin = 1;
+    AuthType authType = static_cast<AuthType>(pin);
+    AuthTrustLevel authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32());
+    g_userAuthService.GetAvailableStatus(apiVersion, authType, authTrustLevel);
+    IAM_LOGI("end");
+}
+
 void FuzzGetAvailableStatus(Parcel &parcel)
 {
     IAM_LOGI("begin");
@@ -155,6 +166,7 @@ void FuzzGetAvailableStatus(Parcel &parcel)
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
     AuthTrustLevel authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32());
     g_userAuthService.GetAvailableStatus(apiVersion, authType, authTrustLevel);
+    FuzzGetAvailableStatusOtherScene(parcel);
     IAM_LOGI("end");
 }
 

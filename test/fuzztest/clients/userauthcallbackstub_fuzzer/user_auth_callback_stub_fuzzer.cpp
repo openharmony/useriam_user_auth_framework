@@ -29,13 +29,13 @@ namespace UserIam {
 namespace UserAuth {
 namespace {
 constexpr uint32_t USER_AUTH_CALLBACK_CODE_MIN = 7;
-constexpr uint32_t USER_AUTH_CALLBACK_CODE_MAX = 11;
+constexpr uint32_t USER_AUTH_CALLBACK_CODE_MAX = 12;
 const std::u16string USER_AUTH_CALLBACK_INTERFACE_TOKEN = u"ohos.UserIam.UserAuth.UserAuthCallback";
 constexpr uint32_t GET_PROPERTY_CALLBACK_CODE_MIN = 8;
-constexpr uint32_t GET_PROPERTY_CALLBACK_CODE_MAX = 9;
+constexpr uint32_t GET_PROPERTY_CALLBACK_CODE_MAX = 10;
 const std::u16string GET_PROPERTY_CALLBACK_INTERFACE_TOKEN = u"ohos.UserIam.UserAuth.GetExecutorPropertyCallback";
 constexpr uint32_t SET_PROPERTY_CALLBACK_CODE_MIN = 9;
-constexpr uint32_t SET_PROPERTY_CALLBACK_CODE_MAX = 10;
+constexpr uint32_t SET_PROPERTY_CALLBACK_CODE_MAX = 11;
 const std::u16string SET_PROPERTY_CALLBACK_INTERFACE_TOKEN = u"ohos.UserIam.UserAuth.SetExecutorPropertyCallback";
 
 class DummyGetPropCallback final : public GetPropCallback {

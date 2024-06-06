@@ -30,8 +30,8 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
-constexpr uint32_t EXECUTOR_CALLBACK_CODE_MIN = 1;
-constexpr uint32_t EXECUTOR_CALLBACK_CODE_MAX = 6;
+constexpr uint32_t EXECUTOR_CALLBACK_CODE_MIN = 0;
+constexpr uint32_t EXECUTOR_CALLBACK_CODE_MAX = 7;
 const std::u16string EXECUTOR_CALLBACK_INTERFACE_TOKEN = u"ohos.UserIam.AuthResPool.ExecutorCallback";
 
 class DummyExecutorRegisterCallback final : public ExecutorRegisterCallback {
