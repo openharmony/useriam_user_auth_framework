@@ -30,13 +30,13 @@ namespace UserIam {
 namespace UserAuth {
 namespace {
 constexpr uint32_t IDM_CALLBACK_CODE_MIN = 0;
-constexpr uint32_t IDM_CALLBACK_CODE_MAX = 2;
+constexpr uint32_t IDM_CALLBACK_CODE_MAX = 3;
 const std::u16string IDM_CALLBACK_INTERFACE_TOKEN = u"ohos.useridm.IIDMCallback";
 constexpr uint32_t GET_CREDINFO_CALLBACK_CODE_MIN = 0;
-constexpr uint32_t GET_CREDINFO_CALLBACK_CODE_MAX = 1;
+constexpr uint32_t GET_CREDINFO_CALLBACK_CODE_MAX = 2;
 const std::u16string GET_CREDINFO_CALLBACK_TOKEN = u"ohos.useridm.IGetInfoCallback";
 constexpr uint32_t GET_SECURE_USERINFO_CALLBACK_CODE_MIN = 0;
-constexpr uint32_t GET_SECURE_USERINFO_CALLBACK_CODE_MAX = 1;
+constexpr uint32_t GET_SECURE_USERINFO_CALLBACK_CODE_MAX = 2;
 const std::u16string GET_SECURE_USERINFO_CALLBACK_TOKEN = u"ohos.useridm.IGetSecInfoCallback";
 class DummyUserIdmClientCallback final : public UserIdmClientCallback {
 public:

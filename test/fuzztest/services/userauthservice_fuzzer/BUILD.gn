@@ -23,6 +23,8 @@ ohos_fuzztest("UserAuthServiceFuzzTest") {
     "-O0",
     "-Wno-unused-variable",
     "-fno-omit-frame-pointer",
+    "-Dprivate=public",
+    "-Dprotected=public",
   ]
   include_dirs = [
     "../../../../services/base/inc",
