@@ -572,6 +572,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_001, TestSiz
     static const std::vector<uint64_t> testTemplateIdList = {7, 8, 9};
     static const std::vector<uint8_t> testExtraInfo = {4, 5, 6};
     static const bool endAfterFirstFail = true;
+    static const bool testAuthIntent = true;
 
     shared_ptr<Executor> executor;
     shared_ptr<ExecutorRegisterCallback> executorCallback;
@@ -606,6 +607,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_001, TestSiz
     commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_ACCESS_TOKEN_ID, testTokenId);
     commandAttrs->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, testExtraInfo);
     commandAttrs->SetBoolValue(Attributes::ATTR_END_AFTER_FIRST_FAIL, endAfterFirstFail);
+    commandAttrs->SetInt32Value(Attributes::ATTR_AUTH_INTENTION, testAuthIntent);
     ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, *commandAttrs);
     ASSERT_NE(cmdCallback, nullptr);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
