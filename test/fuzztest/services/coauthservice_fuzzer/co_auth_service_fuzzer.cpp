@@ -20,6 +20,7 @@
 #include "co_auth_service.h"
 #include "executor_messenger_service.h"
 #include "executor_callback_interface.h"
+#include "mock_ipc_common.h"
 #include "iam_fuzz_test.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
@@ -137,6 +138,21 @@ void FuzzRegister(Parcel &parcel)
     IAM_LOGI("FuzzRegister end");
 }
 
+void FuzzOther(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    g_coAuthService.Init();
+
+    auto callback = Common::MakeShared<CoAuthServiceFuzzer>(parcel.ReadInt32(), parcel.ReadInt32(),
+        parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32());
+    uint64_t executorIndex = parcel.ReadUint64();
+    AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
+    g_coAuthService.AddExecutorDeathRecipient(executorIndex, authType, callback);
+    g_coAuthService.OnStart();
+    g_coAuthService.OnStop();
+    IAM_LOGI("end");
+}
+
 void FuzzSendData(Parcel &parcel)
 {
     IAM_LOGI("FuzzSendData begin");
@@ -184,6 +200,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzSendData,
     FuzzFinish,
     FuzzDump,
+    FuzzOther,
 };
 
 void CoAuthFuzzTest(const uint8_t *data, size_t size)

@@ -199,6 +199,16 @@ void FuzzResourceNodeGetExecutorPublicKey(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzResourceNodeGetExecutorDeviceUdid(Parcel &parcel)
+{
+    IAM_LOGI("start");
+    auto node = GetResourceNode(parcel);
+    if (node != nullptr) {
+        node->GetExecutorDeviceUdid();
+    }
+    IAM_LOGI("end");
+}
+
 void FuzzResourceNodeBeginExecute(Parcel &parcel)
 {
     IAM_LOGI("start");
@@ -211,6 +221,20 @@ void FuzzResourceNodeBeginExecute(Parcel &parcel)
     auto node = GetResourceNode(parcel);
     if (node != nullptr) {
         node->BeginExecute(scheduleId, publicKey, command);
+    }
+    IAM_LOGI("end");
+}
+
+void FuzzResourceNodeSendData(Parcel &parcel)
+{
+    IAM_LOGI("start");
+    uint64_t scheduleId = parcel.ReadUint64();
+    std::vector<uint8_t> attr;
+    Common::FillFuzzUint8Vector(parcel, attr);
+    Attributes data(attr);
+    auto node = GetResourceNode(parcel);
+    if (node != nullptr) {
+        node->SendData(scheduleId, data);
     }
     IAM_LOGI("end");
 }
@@ -277,10 +301,12 @@ ResourceNodeFuzzFunc *g_ResourceNodeFuzzFuncs[] = {
     FuzzResourceNodeGetExecutorMatcher,
     FuzzResourceNodeGetExecutorEsl,
     FuzzResourceNodeGetExecutorPublicKey,
+    FuzzResourceNodeGetExecutorDeviceUdid,
     FuzzResourceNodeBeginExecute,
     FuzzResourceNodeEndExecute,
     FuzzResourceNodeSetProperty,
     FuzzResourceNodeGetProperty,
+    FuzzResourceNodeSendData,
     FuzzResourceNodeDetach,
 };
 } // namespace
