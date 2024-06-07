@@ -19,7 +19,11 @@ group("iam_services_fuzztest") {
   deps = [
     "coauthservice_fuzzer:CoAuthServiceFuzzTest",
     "coauthstub_fuzzer:CoAuthStubFuzzTest",
+    "context/contextcallbackimpl_fuzzer:ContextCallbackImplFuzzTest",
+    "context/contextpoolimpl_fuzzer:ContextPoolImplFuzzTest",
+    "core/remoteexecutorstub_fuzzer:RemoteExecutorStubFuzzTest",
     "servicecore_fuzzer:ServiceCoreFuzzTest",
+    "softbus_fuzzer:SoftBusFuzzTest",
     "userauthservice_fuzzer:UserAuthServiceFuzzTest",
     "userauthstub_fuzzer:UserAuthStubFuzzTest",
     "useridmservice_fuzzer:UserIdmServiceFuzzTest",

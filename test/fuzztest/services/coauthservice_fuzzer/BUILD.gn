@@ -24,9 +24,12 @@ ohos_fuzztest("CoAuthServiceFuzzTest") {
     "-O0",
     "-Wno-unused-variable",
     "-fno-omit-frame-pointer",
+    "-Dprivate=public",
+    "-Dprotected=public",
   ]
 
   include_dirs = [
+    "../../dummy",
     "../../../../services/base/inc",
     "../../../../services/core/inc",
     "../../../../services/core/src",

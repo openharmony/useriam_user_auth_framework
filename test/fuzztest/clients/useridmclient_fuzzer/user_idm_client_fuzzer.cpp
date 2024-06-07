@@ -90,6 +90,7 @@ void FuzzClientAddCredential(Parcel &parcel)
     Common::FillFuzzUint8Vector(parcel, para.token);
     auto callback = Common::MakeShared<DummyUserIdmClientCallback>();
     UserIdmClient::GetInstance().AddCredential(userId, para, callback);
+    UserIdmClient::GetInstance().AddCredential(userId, para, nullptr);
     IAM_LOGI("end");
 }
 
@@ -102,6 +103,7 @@ void FuzzClientUpdateCredential(Parcel &parcel)
     Common::FillFuzzUint8Vector(parcel, para.token);
     auto callback = Common::MakeShared<DummyUserIdmClientCallback>();
     UserIdmClient::GetInstance().UpdateCredential(userId, para, callback);
+    UserIdmClient::GetInstance().UpdateCredential(userId, para, nullptr);
     IAM_LOGI("end");
 }
 
@@ -122,6 +124,7 @@ void FuzzClientDeleteCredential(Parcel &parcel)
     Common::FillFuzzUint8Vector(parcel, authToken);
     auto callback = Common::MakeShared<DummyUserIdmClientCallback>();
     UserIdmClient::GetInstance().DeleteCredential(userId, credentialId, authToken, callback);
+    UserIdmClient::GetInstance().DeleteCredential(userId, credentialId, authToken, nullptr);
     IAM_LOGI("end");
 }
 
@@ -133,6 +136,7 @@ void FuzzClientDeleteUser(Parcel &parcel)
     Common::FillFuzzUint8Vector(parcel, authToken);
     auto callback = Common::MakeShared<DummyUserIdmClientCallback>();
     UserIdmClient::GetInstance().DeleteUser(userId, authToken, callback);
+    UserIdmClient::GetInstance().DeleteUser(userId, authToken, nullptr);
     IAM_LOGI("end");
 }
 
@@ -142,6 +146,7 @@ void FuzzClientEraseUser(Parcel &parcel)
     int32_t userId = parcel.ReadInt32();
     auto callback = Common::MakeShared<DummyUserIdmClientCallback>();
     UserIdmClient::GetInstance().EraseUser(userId, callback);
+    UserIdmClient::GetInstance().EraseUser(userId, nullptr);
     IAM_LOGI("end");
 }
 
@@ -152,6 +157,7 @@ void FuzzClientGetCredentialInfo(Parcel &parcel)
     auto authType = static_cast<AuthType>(parcel.ReadInt32());
     auto callback = Common::MakeShared<DummyGetCredentialInfoCallback>();
     UserIdmClient::GetInstance().GetCredentialInfo(userId, authType, callback);
+    UserIdmClient::GetInstance().GetCredentialInfo(userId, authType, nullptr);
     IAM_LOGI("end");
 }
 
@@ -161,6 +167,16 @@ void FuzzClientGetSecUserInfo(Parcel &parcel)
     int32_t userId = parcel.ReadInt32();
     auto callback = Common::MakeShared<DummyGetSecUserInfoCallback>();
     UserIdmClient::GetInstance().GetSecUserInfo(userId, callback);
+    UserIdmClient::GetInstance().GetSecUserInfo(userId, nullptr);
+    IAM_LOGI("end");
+}
+
+void FuzzClientClearRedundancyCredential(Parcel &parcel)
+{
+    IAM_LOGI("start");
+    auto callback = Common::MakeShared<DummyUserIdmClientCallback>();
+    UserIdmClient::GetInstance().ClearRedundancyCredential(callback);
+    UserIdmClient::GetInstance().ClearRedundancyCredential(nullptr);
     IAM_LOGI("end");
 }
 
@@ -248,6 +264,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzIdmCallbackServiceOnAcquireInfo,
     FuzzCallbackServiceOnCredentialInfos,
     FuzzCallbackServiceOnSecureUserInfo,
+    FuzzClientClearRedundancyCredential,
 };
 
 void UserIdmClientFuzzTest(const uint8_t *data, size_t size)

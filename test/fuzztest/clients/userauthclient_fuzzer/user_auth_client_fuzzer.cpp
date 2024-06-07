@@ -85,6 +85,15 @@ public:
     }
 };
 
+class DummyPrepareRemoteAuthCallback final : public PrepareRemoteAuthCallback {
+public:
+    void OnResult(int32_t result)
+    {
+        IAM_LOGI("start");
+        static_cast<void>(result);
+    }
+};
+
 class DummyIUserAuthWidgetCallback final : public IUserAuthWidgetCallback {
 public:
     void SendCommand(const std::string &cmdData)
@@ -122,6 +131,7 @@ void FuzzClientGetProperty(Parcel &parcel)
     request.keys.push_back(static_cast<Attributes::AttributeKey>(parcel.ReadUint32()));
     auto callback = Common::MakeShared<DummyGetPropCallback>();
     UserAuthClient::GetInstance().GetProperty(userId, request, callback);
+    UserAuthClient::GetInstance().GetProperty(userId, request, nullptr);
     IAM_LOGI("end");
 }
 
@@ -134,6 +144,7 @@ void FuzzClientSetProperty(Parcel &parcel)
     request.mode = static_cast<PropertyMode>(parcel.ReadUint32());
     auto callback = Common::MakeShared<DummySetPropCallback>();
     UserAuthClient::GetInstance().SetProperty(userId, request, callback);
+    UserAuthClient::GetInstance().SetProperty(userId, request, nullptr);
     IAM_LOGI("end");
 }
 
@@ -147,6 +158,7 @@ void FuzzClientBeginAuthentication001(Parcel &parcel)
     authParam.authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadUint32());
     auto callback = Common::MakeShared<DummyAuthenticationCallback>();
     UserAuthClient::GetInstance().BeginAuthentication(authParam, callback);
+    UserAuthClient::GetInstance().BeginAuthentication(authParam, nullptr);
     IAM_LOGI("end");
 }
 
@@ -160,6 +172,7 @@ void FuzzClientBeginAuthentication002(Parcel &parcel)
     auto atl = static_cast<AuthTrustLevel>(parcel.ReadUint32());
     auto callback = Common::MakeShared<DummyAuthenticationCallback>();
     UserAuthClientImpl::Instance().BeginNorthAuthentication(apiVersion, challenge, authType, atl, callback);
+    UserAuthClientImpl::Instance().BeginNorthAuthentication(apiVersion, challenge, authType, atl, nullptr);
     IAM_LOGI("end");
 }
 
@@ -179,6 +192,7 @@ void FuzzClientBeginIdentification(Parcel &parcel)
     auto authType = static_cast<AuthType>(parcel.ReadInt32());
     auto callback = Common::MakeShared<DummyIdentificationCallback>();
     UserAuthClient::GetInstance().BeginIdentification(challenge, authType, callback);
+    UserAuthClient::GetInstance().BeginIdentification(challenge, authType, nullptr);
     IAM_LOGI("end");
 }
 
@@ -196,6 +210,44 @@ void FuzzClientGetVersion(Parcel &parcel)
     static_cast<void>(parcel.ReadInt32());
     int32_t version = -1;
     UserAuthClientImpl::Instance().GetVersion(version);
+    IAM_LOGI("end");
+}
+
+void FuzzClientRegistUserAuthSuccessEventListener(Parcel &parcel)
+{
+    IAM_LOGI("start");
+    std::vector<AuthType> authTypeList;
+    authTypeList.push_back(AuthType::PIN);
+    authTypeList.push_back(AuthType::FACE);
+    authTypeList.push_back(AuthType::FINGERPRINT);
+    sptr<AuthEventListenerInterface> listener = {};
+    UserAuthClientImpl::Instance().RegistUserAuthSuccessEventListener(authTypeList, listener);
+    IAM_LOGI("end");
+}
+
+void FuzzClientUnRegistUserAuthSuccessEventListener(Parcel &Parcel)
+{
+    IAM_LOGI("start");
+    sptr<AuthEventListenerInterface> listener = {};
+    UserAuthClientImpl::Instance().UnRegistUserAuthSuccessEventListener(listener);
+    IAM_LOGI("end");
+}
+
+void FuzzClientSetGlobalConfigParam(Parcel &parcel)
+{
+    IAM_LOGI("start");
+    GlobalConfigParam param = {};
+    UserAuthClientImpl::Instance().SetGlobalConfigParam(param);
+    IAM_LOGI("end");
+}
+
+void FuzzClientPrepareRemoteAuth(Parcel &parcel)
+{
+    IAM_LOGI("start");
+    std::string networkId = parcel.ReadString();
+    auto callback = Common::MakeShared<DummyPrepareRemoteAuthCallback>();
+    UserAuthClientImpl::Instance().PrepareRemoteAuth(networkId, callback);
+    UserAuthClientImpl::Instance().PrepareRemoteAuth(networkId, nullptr);
     IAM_LOGI("end");
 }
 
@@ -317,6 +369,10 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzClientBeginAuthentication002,
     FuzzClientCancelAuthentication,
     FuzzClientBeginIdentification,
+    FuzzClientRegistUserAuthSuccessEventListener,
+    FuzzClientUnRegistUserAuthSuccessEventListener,
+    FuzzClientSetGlobalConfigParam,
+    FuzzClientPrepareRemoteAuth,
     FuzzCancelIdentification,
     FuzzClientGetVersion,
     FuzzBeginWidgetAuth,

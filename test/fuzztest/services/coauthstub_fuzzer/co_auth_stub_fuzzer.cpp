@@ -34,11 +34,11 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
-constexpr uint32_t CO_AUTH_CODE_MIN = 1;
+constexpr uint32_t CO_AUTH_CODE_MIN = 0;
 constexpr uint32_t CO_AUTH_CODE_MAX = 6;
 const std::u16string CO_AUTH_INTERFACE_TOKEN = u"ohos.CoAuth.ICoAuth";
 constexpr uint32_t EXECUTOR_MESSENGER_CODE_MIN = 0;
-constexpr uint32_t EXECUTOR_MESSENGER_CODE_MAX = 2;
+constexpr uint32_t EXECUTOR_MESSENGER_CODE_MAX = 3;
 const std::u16string EXECUTOR_MESSENGER_INTERFACE_TOKEN = u"ohos.UserIam.AuthResPool.IExecutor_Messenger";
 
 bool FuzzCoAuthStub(const uint8_t *rawData, size_t size)

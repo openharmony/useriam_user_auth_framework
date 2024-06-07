@@ -115,9 +115,9 @@ ohos_source_set("userauth_service_base_fuzzer") {
   sources = [
     "../../../services/base/src/finite_state_machine_builder.cpp",
     "../../../services/base/src/finite_state_machine_impl.cpp",
-    "../../../services/base/src/hdi_wrapper.cpp",
     "../../../services/base/src/relative_timer.cpp",
     "../../../services/base/src/thread_handler_impl.cpp",
+    "../dummy/mock_iuser_auth_interface.cpp",
   ]
 
   external_deps = [
@@ -391,10 +391,10 @@ ohos_source_set("userauth_services_ipc_fuzzer") {
   sources = [
     "../../../services/ipc/src/co_auth_service.cpp",
     "../../../services/ipc/src/executor_messenger_service.cpp",
-    "../../../services/ipc/src/ipc_common.cpp",
     "../../../services/ipc/src/publish_event_adapter_mock.cpp",
     "../../../services/ipc/src/user_auth_service.cpp",
     "../../../services/ipc/src/user_idm_service.cpp",
+    "../dummy/mock_ipc_common.cpp",
   ]
 
   deps = [
