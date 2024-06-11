@@ -20,6 +20,7 @@
 #include "context_pool.h"
 #include "iam_check.h"
 #include "iam_logger.h"
+#include "iam_para2str.h"
 #include "iam_ptr.h"
 #include "iam_time.h"
 #include "schedule_node.h"
@@ -139,7 +140,7 @@ std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &ch
     IF_FALSE_LOGE_AND_RETURN_VAL(callerCallback_ != nullptr, nullptr);
     auto userId = para_.userId;
     auto tokenId = WidgetClient::Instance().GetAuthTokenId();
-    IAM_LOGI("Real userId: %{public}d, Real tokenId: %{public}u", userId, tokenId);
+    IAM_LOGI("Real userId: %{public}d, Real tokenId: %{public}s", userId, GET_MASKED_STRING(tokenId).c_str());
     sptr<IamCallbackInterface> iamCallback(new (std::nothrow) WidgetContextCallbackImpl(weak_from_this(),
         static_cast<int32_t>(authType)));
     IF_FALSE_LOGE_AND_RETURN_VAL(iamCallback != nullptr, nullptr);

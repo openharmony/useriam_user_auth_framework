@@ -28,6 +28,7 @@
 #include "iam_check.h"
 #include "iam_common_defines.h"
 #include "iam_logger.h"
+#include "iam_para2str.h"
 #include "iam_ptr.h"
 #include "iam_time.h"
 #include "ipc_common.h"
@@ -747,7 +748,7 @@ int32_t UserAuthService::RegisterWidgetCallback(int32_t version, sptr<WidgetCall
     }
 
     uint32_t tokenId = IpcCommon::GetTokenId(*this);
-    IAM_LOGE("RegisterWidgetCallback tokenId %{public}u", tokenId);
+    IAM_LOGE("RegisterWidgetCallback tokenId %{public}s", GET_MASKED_STRING(tokenId).c_str());
 
     int32_t curVersion = std::stoi(NOTICE_VERSION_STR);
     if (version != curVersion) {
