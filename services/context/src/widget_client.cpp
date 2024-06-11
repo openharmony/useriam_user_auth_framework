@@ -20,6 +20,7 @@
 #include "auth_common.h"
 #include "iam_check.h"
 #include "iam_logger.h"
+#include "iam_para2str.h"
 #include "iam_time.h"
 #include "nlohmann/json.hpp"
 #include "widget_callback_interface.h"
@@ -163,7 +164,7 @@ void WidgetClient::SetWidgetCallback(const sptr<WidgetCallbackInterface> &callba
 void WidgetClient::SetAuthTokenId(uint32_t tokenId)
 {
     authTokenId_ = tokenId;
-    IAM_LOGI("WidgetClient SetAuthTokenId authTokenId: %{public}u", authTokenId_);
+    IAM_LOGI("WidgetClient SetAuthTokenId authTokenId: %{public}s", GET_MASKED_STRING(authTokenId_).c_str());
 }
 
 uint32_t WidgetClient::GetAuthTokenId() const
