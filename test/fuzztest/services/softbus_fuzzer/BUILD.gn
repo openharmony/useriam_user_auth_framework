@@ -44,6 +44,8 @@ ohos_fuzztest("SoftBusFuzzTest") {
     "../../common_fuzzer:userauth_services_ipc_fuzzer",
   ]
 
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
   external_deps = [
     "access_token:libtoken_setproc",
     "c_utils:utils",
