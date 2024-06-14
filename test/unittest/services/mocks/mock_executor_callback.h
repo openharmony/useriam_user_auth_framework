@@ -27,7 +27,7 @@ class MockExecutorCallback final : public IRemoteStub<ExecutorCallbackInterface>
 public:
     MOCK_METHOD4(OnRemoteRequest,
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
-    MOCK_METHOD4(OnMessengerReady, void(uint64_t executorIndex, sptr<ExecutorMessengerInterface> &messenger,
+    MOCK_METHOD3(OnMessengerReady, void(sptr<ExecutorMessengerInterface> &messenger,
         const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList));
     MOCK_METHOD3(OnBeginExecute,
         int32_t(uint64_t scheduleId, const std::vector<uint8_t> &publicKey, const Attributes &command));

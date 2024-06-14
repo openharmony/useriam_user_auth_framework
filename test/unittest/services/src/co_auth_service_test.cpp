@@ -62,9 +62,10 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest001, TestSize.Level0)
     
     auto service = Common::MakeShared<CoAuthService>();
     EXPECT_NE(service, nullptr);
+    CoAuthService::SetIsReady(true);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*testCallback, OnMessengerReady(_, _, _, _)).Times(1);
+    EXPECT_CALL(*testCallback, OnMessengerReady(_, _, _)).Times(1);
     EXPECT_CALL(*mockHdi, AddExecutor(_, _, _, _))
         .Times(2)
         .WillOnce(Return(HDF_FAILURE))

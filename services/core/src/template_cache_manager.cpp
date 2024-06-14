@@ -210,14 +210,16 @@ TemplateCacheManager &TemplateCacheManager::GetInstance()
 
 void TemplateCacheManager::ProcessUserIdChange(const int newUserId)
 {
-    std::lock_guard<std::recursive_mutex> lock(recursiveMutex_);
-    if (newUserId == currUserId_) {
-        IAM_LOGE("same userId %{public}d", newUserId);
-        return;
-    }
+    {
+        std::lock_guard<std::recursive_mutex> lock(recursiveMutex_);
+        if (newUserId == currUserId_) {
+            IAM_LOGE("same userId %{public}d", newUserId);
+            return;
+        }
 
-    IAM_LOGI("begin");
-    currUserId_ = newUserId;
+        IAM_LOGI("begin");
+        currUserId_ = newUserId;
+    }
     UpdateTemplateCache(FACE);
     UpdateTemplateCache(FINGERPRINT);
     IAM_LOGI("done");
@@ -226,18 +228,22 @@ void TemplateCacheManager::ProcessUserIdChange(const int newUserId)
 
 void TemplateCacheManager::UpdateTemplateCache(AuthType authType)
 {
-    std::lock_guard<std::recursive_mutex> lock(recursiveMutex_);
     IAM_LOGI("start");
+    int32_t currUserId = 0;
+    {
+        std::lock_guard<std::recursive_mutex> lock(recursiveMutex_);
+        currUserId = currUserId_;
+    }
 
-    IF_FALSE_LOGE_AND_RETURN(currUserId_ != INVALID_USER_ID);
+    IF_FALSE_LOGE_AND_RETURN(currUserId != INVALID_USER_ID);
     if (authType != FACE && authType != FINGERPRINT) {
         IAM_LOGI("this auth type is not cached");
         return;
     }
 
-    auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(currUserId_, authType);
+    auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(currUserId, authType);
     if (credentialInfos.empty()) {
-        IAM_LOGI("user %{public}d has no credential type %{public}d", currUserId_, authType);
+        IAM_LOGI("user %{public}d has no credential type %{public}d", currUserId, authType);
         ResourceNodePool::Instance().Enumerate([authType](const std::weak_ptr<ResourceNode> &node) {
             auto nodeTmp = node.lock();
             IF_FALSE_LOGE_AND_RETURN(nodeTmp != nullptr);
@@ -253,7 +259,7 @@ void TemplateCacheManager::UpdateTemplateCache(AuthType authType)
     }
 
     IAM_LOGI("user %{public}d type %{public}d credential info size %{public}zu",
-        currUserId_, authType, credentialInfos.size());
+        currUserId, authType, credentialInfos.size());
     std::map<uint64_t, std::vector<std::shared_ptr<CredentialInfoInterface>>> id2Cred;
     ResultCode result = ResourceNodeUtils::ClassifyCredInfoByExecutor(credentialInfos, id2Cred);
     IF_FALSE_LOGE_AND_RETURN(result == SUCCESS);

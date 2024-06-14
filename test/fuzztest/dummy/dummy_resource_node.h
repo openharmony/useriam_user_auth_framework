@@ -87,7 +87,10 @@ public:
     {
         return 0;
     };
-    void Detach() {};
+    void DeleteFromDriver()
+    {};
+    void DetachFromDriver()
+    {};
 
     static std::shared_ptr<ResourceNode> MakeNewResource(const ExecutorRegisterInfo &info,
         const std::shared_ptr<ExecutorCallbackInterface> &callback, std::vector<uint64_t> &templateIdList,

@@ -76,6 +76,7 @@ HWTEST_F(ResourceNodePoolTest, ResourceNodePoolInsertDuplicateId, TestSize.Level
     EXPECT_EQ(pool.Select(EXECUTOR_INDEX).lock(), resource2);
 
     EXPECT_EQ(pool.Delete(EXECUTOR_INDEX), true);
+    EXPECT_EQ(pool.Delete(EXECUTOR_INDEX), true);
 }
 
 HWTEST_F(ResourceNodePoolTest, ResourceNodePoolDelete, TestSize.Level0)

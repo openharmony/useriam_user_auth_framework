@@ -52,12 +52,6 @@ int32_t ExecutorCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data
 
 int32_t ExecutorCallbackStub::OnMessengerReadyStub(MessageParcel &data, MessageParcel &reply)
 {
-    uint64_t executorIndex;
-    if (!data.ReadUint64(executorIndex)) {
-        IAM_LOGE("failed to read publicKey");
-        return READ_PARCEL_ERROR;
-    }
-
     sptr<IRemoteObject> obj = data.ReadRemoteObject();
     if (obj == nullptr) {
         IAM_LOGE("failed to read remote object");
@@ -82,7 +76,7 @@ int32_t ExecutorCallbackStub::OnMessengerReadyStub(MessageParcel &data, MessageP
         return READ_PARCEL_ERROR;
     }
 
-    OnMessengerReady(executorIndex, messenger, publicKey, templateIds);
+    OnMessengerReady(messenger, publicKey, templateIds);
     return SUCCESS;
 }
 

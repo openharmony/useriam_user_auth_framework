@@ -24,7 +24,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-void ExecutorCallbackProxy::OnMessengerReady(uint64_t executorIndex, sptr<ExecutorMessengerInterface> &messenger,
+void ExecutorCallbackProxy::OnMessengerReady(sptr<ExecutorMessengerInterface> &messenger,
     const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList)
 {
     if (messenger == nullptr) {
@@ -36,11 +36,6 @@ void ExecutorCallbackProxy::OnMessengerReady(uint64_t executorIndex, sptr<Execut
 
     if (!data.WriteInterfaceToken(ExecutorCallbackProxy::GetDescriptor())) {
         IAM_LOGE("failed to write descriptor");
-        return;
-    }
-
-    if (!data.WriteUint64(executorIndex)) {
-        IAM_LOGE("failed to write executorIndex");
         return;
     }
 

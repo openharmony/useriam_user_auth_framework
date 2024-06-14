@@ -27,7 +27,7 @@ using namespace OHOS::UserIam::UserAuth;
 class MockExecutorMgrWrapper : public ExecutorMgrWrapper {
 public:
     virtual ~MockExecutorMgrWrapper() = default;
-    MOCK_METHOD2(Register, void(const ExecutorInfo &info, std::shared_ptr<ExecutorRegisterCallback> callback));
+    MOCK_METHOD2(Register, uint64_t(const ExecutorInfo &info, std::shared_ptr<ExecutorRegisterCallback> callback));
 };
 } // namespace UserAuth
 } // namespace UserIam

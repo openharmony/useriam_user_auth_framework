@@ -54,16 +54,19 @@ public:
     int32_t SetProperty(const Attributes &properties) override;
     int32_t GetProperty(const Attributes &condition, Attributes &values) override;
     int32_t SendData(uint64_t scheduleId, const Attributes &data) override;
-    void Detach() override;
+    void DeleteFromDriver() override;
+    void DetachFromDriver() override;
     friend ResourceNode;
 
 private:
-    int32_t SyncWithDriver(std::vector<uint64_t> &templateIdList, std::vector<uint8_t> &fwkPublicKey);
+    int32_t AddToDriver(std::vector<uint64_t> &templateIdList, std::vector<uint8_t> &fwkPublicKey);
+    static void DeleteExecutorFromDriver(uint64_t executorIndex);
 
     ExecutorRegisterInfo info_;
     std::shared_ptr<ExecutorCallbackInterface> callback_;
-    uint64_t executeIndex_ {0};
-    bool synced {false};
+    uint64_t executorIndex_ {0};
+    std::recursive_mutex mutex_;
+    bool addedToDriver_ {false};
 };
 
 ResourceNodeImpl::ResourceNodeImpl(ExecutorRegisterInfo info, std::shared_ptr<ExecutorCallbackInterface> callback)
@@ -78,26 +81,16 @@ ResourceNodeImpl::ResourceNodeImpl(ExecutorRegisterInfo info, std::shared_ptr<Ex
 
 ResourceNodeImpl::~ResourceNodeImpl()
 {
-    if (!synced) {
-        return;
-    }
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (!hdi) {
-        IAM_LOGE("bad hdi");
+    if (!addedToDriver_) {
         return;
     }
 
-    auto result = hdi->DeleteExecutor(executeIndex_);
-    if (result != HDF_SUCCESS) {
-        IAM_LOGE("hdi DeleteExecutor ****%{public}hx with %{public}d", static_cast<uint16_t>(executeIndex_), result);
-        return;
-    }
-    IAM_LOGI("hdi DeleteExecutor ****%{public}hx success", static_cast<uint16_t>(executeIndex_));
+    DeleteExecutorFromDriver(executorIndex_);
 }
 
 uint64_t ResourceNodeImpl::GetExecutorIndex() const
 {
-    return executeIndex_;
+    return executorIndex_;
 }
 
 std::string ResourceNodeImpl::GetOwnerDeviceId() const
@@ -192,13 +185,24 @@ int32_t ResourceNodeImpl::SendData(uint64_t scheduleId, const Attributes &data)
     return GENERAL_ERROR;
 }
 
-void ResourceNodeImpl::Detach()
+void ResourceNodeImpl::DeleteFromDriver()
 {
     IAM_LOGI("start");
-    synced = false;
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (addedToDriver_) {
+        DeleteExecutorFromDriver(executorIndex_);
+    }
+    addedToDriver_ = false;
 }
 
-int32_t ResourceNodeImpl::SyncWithDriver(std::vector<uint64_t> &templateIdList, std::vector<uint8_t> &fwkPublicKey)
+void ResourceNodeImpl::DetachFromDriver()
+{
+    IAM_LOGI("start");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    addedToDriver_ = false;
+}
+
+int32_t ResourceNodeImpl::AddToDriver(std::vector<uint64_t> &templateIdList, std::vector<uint8_t> &fwkPublicKey)
 {
     HdiExecutorRegisterInfo hdiInfo = {
         .authType = static_cast<HdiAuthType>(info_.authType),
@@ -218,14 +222,30 @@ int32_t ResourceNodeImpl::SyncWithDriver(std::vector<uint64_t> &templateIdList, 
         return GENERAL_ERROR;
     }
 
-    int32_t result = hdi->AddExecutor(hdiInfo, executeIndex_, fwkPublicKey, templateIdList);
+    int32_t result = hdi->AddExecutor(hdiInfo, executorIndex_, fwkPublicKey, templateIdList);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi AddExecutor failed with code %{public}d", result);
         return GENERAL_ERROR;
     }
-    synced = true;
-    IAM_LOGI("hdi AddExecutor ****%{public}hx success", static_cast<uint16_t>(executeIndex_));
+    addedToDriver_ = true;
+    IAM_LOGI("hdi AddExecutor ****%{public}hx success", static_cast<uint16_t>(executorIndex_));
     return SUCCESS;
+}
+
+void ResourceNodeImpl::DeleteExecutorFromDriver(uint64_t executorIndex)
+{
+    auto hdi = HdiWrapper::GetHdiInstance();
+    if (!hdi) {
+        IAM_LOGE("bad hdi");
+        return;
+    }
+
+    auto result = hdi->DeleteExecutor(executorIndex);
+    if (result != HDF_SUCCESS) {
+        IAM_LOGE("hdi DeleteExecutor ****%{public}hx with %{public}d", static_cast<uint16_t>(executorIndex), result);
+        return;
+    }
+    IAM_LOGI("hdi DeleteExecutor ****%{public}hx success", static_cast<uint16_t>(executorIndex));
 }
 
 std::shared_ptr<ResourceNode> ResourceNode::MakeNewResource(const ExecutorRegisterInfo &info,
@@ -238,7 +258,7 @@ std::shared_ptr<ResourceNode> ResourceNode::MakeNewResource(const ExecutorRegist
         return nullptr;
     }
 
-    int32_t result = node->SyncWithDriver(templateIdList, fwkPublicKey);
+    int32_t result = node->AddToDriver(templateIdList, fwkPublicKey);
     if (result != 0) {
         IAM_LOGE("hdi error with %{public}d", result);
         return nullptr;
