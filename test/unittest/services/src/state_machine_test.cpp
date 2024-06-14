@@ -272,6 +272,7 @@ HWTEST_F(StateMachineTest, MachineScheduleContinues, TestSize.Level0)
     MockFunction<void(FiniteStateMachine & machine, uint32_t event)> action;
     EXPECT_CALL(action, Call(_, STATE_INIT)).Times(Exactly(3));
     auto handler = ThreadHandler::GetSingleThreadInstance();
+    ASSERT_NE(handler, nullptr);
     {
         auto machineBuilder = FiniteStateMachine::Builder::New("testMachine10", STATE_INIT);
         ASSERT_NE(machineBuilder, nullptr);

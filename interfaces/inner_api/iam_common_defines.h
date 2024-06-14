@@ -213,6 +213,8 @@ enum AuthIntent : int {
     /**< The auth intention is silent auth. */
     SILENT_AUTH = 2,
 };
+
+constexpr uint64_t INVALID_EXECUTOR_INDEX = 0;
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

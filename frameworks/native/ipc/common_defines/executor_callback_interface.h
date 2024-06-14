@@ -28,7 +28,7 @@ namespace UserIam {
 namespace UserAuth {
 class ExecutorCallbackInterface : public IRemoteBroker {
 public:
-    virtual void OnMessengerReady(uint64_t executorIndex, sptr<ExecutorMessengerInterface> &messenger,
+    virtual void OnMessengerReady(sptr<ExecutorMessengerInterface> &messenger,
         const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList) = 0;
     virtual int32_t OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
         const Attributes &command) = 0;

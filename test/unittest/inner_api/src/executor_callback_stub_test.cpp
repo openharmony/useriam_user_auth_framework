@@ -45,7 +45,6 @@ void ExecutorCallbackStubTest::TearDown()
 
 HWTEST_F(ExecutorCallbackStubTest, TestOnMessengerReadyStub_001, TestSize.Level0)
 {
-    uint64_t executorIndex = 0;
     sptr<MockExecutorMessengerService> messenger(new (std::nothrow) MockExecutorMessengerService());
     EXPECT_NE(messenger, nullptr);
     std::vector<uint8_t> publicKey;
@@ -57,14 +56,13 @@ HWTEST_F(ExecutorCallbackStubTest, TestOnMessengerReadyStub_001, TestSize.Level0
     uint32_t code = ExecutorCallbackInterfaceCode::ON_MESSENGER_READY;
 
     EXPECT_TRUE(data.WriteInterfaceToken(ExecutorCallbackInterface::GetDescriptor()));
-    EXPECT_TRUE(data.WriteUint64(executorIndex));
     EXPECT_TRUE(data.WriteRemoteObject(messenger->AsObject()));
     EXPECT_TRUE(data.WriteUInt8Vector(publicKey));
     EXPECT_TRUE(data.WriteUInt64Vector(templateIdList));
 
     auto service = Common::MakeShared<MockExecutorCallbackService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, OnMessengerReady(_, _, _, _)).Times(1);
+    EXPECT_CALL(*service, OnMessengerReady(_, _, _)).Times(1);
 
     EXPECT_EQ(service->OnRemoteRequest(code, data, reply, option), SUCCESS);
 }

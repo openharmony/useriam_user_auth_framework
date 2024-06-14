@@ -36,7 +36,7 @@ public:
     explicit FrameworkExecutorCallback(std::weak_ptr<Executor> executor);
     ~FrameworkExecutorCallback() override = default;
 
-    void OnMessengerReady(uint64_t executorIndex, const std::shared_ptr<ExecutorMessenger> &messenger,
+    void OnMessengerReady(const std::shared_ptr<ExecutorMessenger> &messenger,
         const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList) override;
 
     int32_t OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,

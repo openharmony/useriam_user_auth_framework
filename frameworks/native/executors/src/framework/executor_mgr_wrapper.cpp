@@ -22,12 +22,13 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-void ExecutorMgrWrapper::Register(const ExecutorInfo &info, std::shared_ptr<ExecutorRegisterCallback> callback)
+uint64_t ExecutorMgrWrapper::Register(const ExecutorInfo &info, std::shared_ptr<ExecutorRegisterCallback> callback)
 {
     // Same process service tokenId get processing
     std::string callingIdentity = IPCSkeleton::ResetCallingIdentity();
-    UserAuth::CoAuthClient::GetInstance().Register(info, callback);
+    uint64_t executorIndex = UserAuth::CoAuthClient::GetInstance().Register(info, callback);
     IPCSkeleton::SetCallingIdentity(callingIdentity);
+    return executorIndex;
 }
 
 void ExecutorMgrWrapper::Unregister(uint64_t executorIndex)

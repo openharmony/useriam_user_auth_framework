@@ -181,7 +181,7 @@ uint64_t UserAuthClientImpl::BeginAuthentication(const AuthParam &authParam,
         authParam.userId, authParam.authType, authParam.authTrustLevel,
         Common::GetBoolStr(authParam.remoteAuthParam.has_value()));
     if (authParam.remoteAuthParam.has_value()) {
-        IAM_LOGI("verifierNetworkIdHasValue:%{public}s collectorNetworkIdHasValue:%{public}s"
+        IAM_LOGI("verifierNetworkIdHasValue:%{public}s collectorNetworkIdHasValue:%{public}s "
             "collectorTokenIdHasValue:%{public}s",
             Common::GetBoolStr(authParam.remoteAuthParam->verifierNetworkId.has_value()),
             Common::GetBoolStr(authParam.remoteAuthParam->collectorNetworkId.has_value()),

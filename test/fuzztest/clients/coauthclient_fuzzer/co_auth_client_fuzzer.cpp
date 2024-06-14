@@ -32,11 +32,10 @@ namespace UserAuth {
 namespace {
 class DummyExecutorRegisterCallback final : public ExecutorRegisterCallback {
 public:
-    void OnMessengerReady(uint64_t executorIndex, const std::shared_ptr<ExecutorMessenger> &messenger,
+    void OnMessengerReady(const std::shared_ptr<ExecutorMessenger> &messenger,
         const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIds)
     {
         IAM_LOGI("start");
-        static_cast<void>(executorIndex);
         static_cast<void>(messenger);
         static_cast<void>(publicKey);
         static_cast<void>(templateIds);
@@ -150,14 +149,13 @@ auto g_ExecutorMessengerClient =
 void FuzzExecutorCallbackServiceOnMessengerReady(Parcel &parcel)
 {
     IAM_LOGI("start");
-    uint64_t executorIndex = parcel.ReadUint64();
     sptr<ExecutorMessengerInterface> messenger(new (std::nothrow) DummyExecutorMessengerInterface());
     std::vector<uint8_t> publicKey;
     Common::FillFuzzUint8Vector(parcel, publicKey);
     std::vector<uint64_t> templateIdList;
     Common::FillFuzzUint64Vector(parcel, templateIdList);
     if (g_ExecutorCallbackService != nullptr) {
-        g_ExecutorCallbackService->OnMessengerReady(executorIndex, messenger, publicKey, templateIdList);
+        g_ExecutorCallbackService->OnMessengerReady(messenger, publicKey, templateIdList);
     }
     IAM_LOGI("end");
 }

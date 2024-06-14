@@ -53,7 +53,7 @@ HWTEST_F(ExecutorCallbackProxyTest, TestOnMessengerReady_001, TestSize.Level0)
     auto proxy = Common::MakeShared<ExecutorCallbackProxy>(obj);
     EXPECT_NE(proxy, nullptr);
 
-    proxy->OnMessengerReady(0, messenger, publicKey, templateIdList);
+    proxy->OnMessengerReady(messenger, publicKey, templateIdList);
 }
 
 HWTEST_F(ExecutorCallbackProxyTest, TestOnMessengerReady_002, TestSize.Level0)
@@ -75,7 +75,7 @@ HWTEST_F(ExecutorCallbackProxyTest, TestOnMessengerReady_002, TestSize.Level0)
     EXPECT_NE(messenger, nullptr);
     std::vector<uint8_t> publicKey;
     std::vector<uint64_t> templateIdList;
-    proxy->OnMessengerReady(0, messenger, publicKey, templateIdList);
+    proxy->OnMessengerReady(messenger, publicKey, templateIdList);
 }
 
 HWTEST_F(ExecutorCallbackProxyTest, TestOnBeginExecute_001, TestSize.Level0)

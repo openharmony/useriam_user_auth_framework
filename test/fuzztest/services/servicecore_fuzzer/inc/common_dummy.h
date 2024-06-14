@@ -130,7 +130,12 @@ public:
         return SUCCESS;
     }
 
-    void Detach()
+    void DeleteFromDriver()
+    {
+        IAM_LOGI("start");
+    }
+
+    void DetachFromDriver()
     {
         IAM_LOGI("start");
     }
