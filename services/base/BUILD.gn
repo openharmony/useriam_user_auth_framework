@@ -38,6 +38,7 @@ ohos_source_set("userauth_service_base") {
     "src/hdi_wrapper.cpp",
     "src/relative_timer.cpp",
     "src/thread_handler_impl.cpp",
+    "src/thread_handler_manager.cpp",
   ]
 
   external_deps = [

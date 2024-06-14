@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "thread_handler.h"
+#include "thread_handler_impl.h"
 
 #include <cstdint>
 #include <functional>
@@ -20,8 +20,7 @@
 #include <memory>
 
 #include "nocopyable.h"
-#include "singleton.h"
-#include "thread_pool.h"
+#include "thread_handler_manager.h"
 
 #include "iam_logger.h"
 
@@ -31,19 +30,7 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 using namespace OHOS;
-
-class ThreadHandlerImpl : public ThreadHandler, public DelayedSingleton<ThreadHandlerImpl> {
-public:
-    ThreadHandlerImpl();
-    ~ThreadHandlerImpl() override;
-    void PostTask(const Task &task) override;
-    void EnsureTask(const Task &task) override;
-
-private:
-    OHOS::ThreadPool pool_;
-};
-
-ThreadHandlerImpl::ThreadHandlerImpl()
+ThreadHandlerImpl::ThreadHandlerImpl(std::string name, bool canSuspend) : pool_(name), canSuspend_(canSuspend)
 {
     pool_.Start(1);
 }
@@ -55,6 +42,11 @@ ThreadHandlerImpl::~ThreadHandlerImpl()
 
 void ThreadHandlerImpl::PostTask(const Task &task)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (isSuspended_) {
+        IAM_LOGE("is suspended");
+        return;
+    }
     pool_.AddTask(task);
 }
 
@@ -65,14 +57,24 @@ void ThreadHandlerImpl::EnsureTask(const Task &task)
         ensure.set_value();
         return;
     };
-    pool_.AddTask(task);
-    pool_.AddTask(callback);
+    PostTask(task);
+    PostTask(callback);
     ensure.get_future().get();
+}
+
+void ThreadHandlerImpl::Suspend()
+{
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (!canSuspend_) {
+        IAM_LOGE("can not suspend");
+        return;
+    }
+    isSuspended_ = true;
 }
 
 std::shared_ptr<ThreadHandler> ThreadHandler::GetSingleThreadInstance()
 {
-    return ThreadHandlerImpl::GetInstance();
+    return ThreadHandlerManager::GetInstance().GetThreadHandler(SINGLETON_THREAD_NAME);
 }
 } // namespace UserAuth
 } // namespace UserIam

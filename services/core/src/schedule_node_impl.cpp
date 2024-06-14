@@ -27,6 +27,7 @@
 #include "iam_para2str.h"
 #include "iam_common_defines.h"
 #include "relative_timer.h"
+#include "schedule_resource_node_listener.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -39,6 +40,13 @@ ScheduleNodeImpl::ScheduleNodeImpl(ScheduleInfo &info) : info_(std::move(info))
     if (machine_ && info_.threadHandler == nullptr) {
         info_.threadHandler = ThreadHandler::GetSingleThreadInstance();
         machine_->SetThreadHandler(info_.threadHandler);
+    }
+}
+
+ScheduleNodeImpl::~ScheduleNodeImpl()
+{
+    if (resourceNodePoolListener_ != nullptr) {
+        ResourceNodePool::Instance().DeregisterResourceNodePoolListener(resourceNodePoolListener_);
     }
 }
 
@@ -142,6 +150,10 @@ bool ScheduleNodeImpl::StartSchedule()
     iamHitraceHelper_ = Common::MakeShared<IamHitraceHelper>(GetDescription());
     {
         std::lock_guard<std::mutex> lock(mutex_);
+        resourceNodePoolListener_ = Common::MakeShared<ScheduleResourceNodeListener>(weak_from_this());
+        IF_FALSE_LOGE_AND_RETURN_VAL(resourceNodePoolListener_ != nullptr, false);
+        bool registerRet = ResourceNodePool::Instance().RegisterResourceNodePoolListener(resourceNodePoolListener_);
+        IF_FALSE_LOGE_AND_RETURN_VAL(registerRet, false);
         if (!TryKickMachine(E_START_AUTH)) {
             return false;
         }

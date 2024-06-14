@@ -129,7 +129,7 @@ private:
 RemoteExecutorProxy::RemoteExecutorProxy(std::string connectionName, ExecutorInfo registerInfo)
     : connectionName_(connectionName),
       registerInfo_(registerInfo),
-      endPointName_(RemoteMsgUtil::GetExecutorProxyEndPointName())
+      endPointName_(EXECUTOR_PROXY_ENDPOINT_NAME)
 {
 }
 
@@ -258,7 +258,7 @@ int32_t RemoteExecutorProxy::OnBeginExecute(uint64_t scheduleId, const std::vect
     };
 
     ResultCode sendMsgRet = RemoteConnectionManager::GetInstance().SendMessage(connectionName_, endPointName_,
-        RemoteMsgUtil::GetRemoteServiceEndPointName(), request, msgCallback);
+        REMOTE_SERVICE_ENDPOINT_NAME, request, msgCallback);
     IF_FALSE_LOGE_AND_RETURN_VAL(sendMsgRet == ResultCode::SUCCESS, GENERAL_ERROR);
 
     IAM_LOGI("success, scheduleId %{public}s", GET_MASKED_STRING(scheduleId).c_str());
@@ -282,7 +282,7 @@ int32_t RemoteExecutorProxy::OnEndExecute(uint64_t scheduleId, const Attributes 
     MsgCallback msgCallback = [](const std::shared_ptr<Attributes> &) { IAM_LOGI("message sent"); };
 
     ResultCode sendMsgRet = RemoteConnectionManager::GetInstance().SendMessage(connectionName_, endPointName_,
-        RemoteMsgUtil::GetRemoteServiceEndPointName(), request, msgCallback);
+        REMOTE_SERVICE_ENDPOINT_NAME, request, msgCallback);
     IF_FALSE_LOGE_AND_RETURN_VAL(sendMsgRet == ResultCode::SUCCESS, GENERAL_ERROR);
 
     IAM_LOGI("success, scheduleId %{public}s", GET_MASKED_STRING(scheduleId).c_str());
@@ -318,7 +318,7 @@ int32_t RemoteExecutorProxy::OnSendData(uint64_t scheduleId, const Attributes &d
     };
 
     ResultCode sendMsgRet = RemoteConnectionManager::GetInstance().SendMessage(connectionName_, endPointName_,
-        RemoteMsgUtil::GetExecutorStubEndPointName(), request, msgCallback);
+        EXECUTOR_STUB_ENDPOINT_NAME, request, msgCallback);
     IF_FALSE_LOGE_AND_RETURN_VAL(sendMsgRet == ResultCode::SUCCESS, GENERAL_ERROR);
 
     IAM_LOGI("success");

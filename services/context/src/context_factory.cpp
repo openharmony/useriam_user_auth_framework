@@ -22,6 +22,7 @@
 #include "iam_ptr.h"
 #include "identify_context.h"
 #include "simple_auth_context.h"
+#include "schedule_holder_context.h"
 #include "widget_context.h"
 #include "remote_msg_util.h"
 
@@ -112,6 +113,12 @@ std::shared_ptr<Context> ContextFactory::CreateRemoteAuthInvokerContext(AuthPara
     IF_FALSE_LOGE_AND_RETURN_VAL(getConnectionNameRet, nullptr);
 
     return Common::MakeShared<RemoteAuthInvokerContext>(newContextId, authParam, param, callback);
+}
+
+std::shared_ptr<Context> ContextFactory::CreateScheduleHolderContext(std::shared_ptr<ScheduleNode> scheduleNode)
+{
+    uint64_t newContextId = ContextPool::GetNewContextId();
+    return Common::MakeShared<ScheduleHolderContext>(newContextId, scheduleNode);
 }
 } // namespace UserAuth
 } // namespace UserIam

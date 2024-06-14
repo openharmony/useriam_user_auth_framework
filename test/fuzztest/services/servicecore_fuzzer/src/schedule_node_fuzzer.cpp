@@ -143,26 +143,6 @@ void FuzzScheduleNodeGetCurrentScheduleState(Parcel &parcel)
     IAM_LOGI("end");
 }
 
-void FuzzScheduleNodeGetScheduleCallback(Parcel &parcel)
-{
-    IAM_LOGI("start");
-    auto node = GetScheduleNode(parcel);
-    if (node != nullptr) {
-        node->GetScheduleCallback();
-    }
-    IAM_LOGI("end");
-}
-
-void FuzzScheduleNodeClearScheduleCallback(Parcel &parcel)
-{
-    IAM_LOGI("start");
-    auto node = GetScheduleNode(parcel);
-    if (node != nullptr) {
-        node->ClearScheduleCallback();
-    }
-    IAM_LOGI("end");
-}
-
 void FuzzScheduleNodeStartSchedule(Parcel &parcel)
 {
     IAM_LOGI("start");
@@ -225,9 +205,6 @@ ScheduleNodeFuzzFunc *g_ScheduleNodeFuzzFuncs[] = {
     FuzzScheduleNodeStopSchedule,
     FuzzScheduleNodeSendMessage,
     FuzzScheduleNodeContinueSchedule,
-    FuzzScheduleNodeGetScheduleCallback,
-    FuzzScheduleNodeClearScheduleCallback,
-
 };
 } // namespace
 

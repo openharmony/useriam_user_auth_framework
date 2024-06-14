@@ -16,6 +16,8 @@
 #ifndef REMOTE_EXECUTOR_STUB_H
 #define REMOTE_EXECUTOR_STUB_H
 
+#include <optional>
+
 #include "attributes.h"
 #include "co_auth_client_defines.h"
 #include "executor_callback_interface.h"
@@ -52,6 +54,7 @@ private:
     uint64_t executorIndex_ = 0;
     std::string connectionName_ = "";
     std::string endPointName_ = "";
+    std::optional<uint64_t> contextId_ = std::nullopt;
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -97,11 +97,6 @@ std::shared_ptr<ScheduleNode> BaseContext::GetScheduleNode(uint64_t scheduleId) 
     return nullptr;
 }
 
-std::vector<std::shared_ptr<ScheduleNode>> BaseContext::GetScheduleNodes() const
-{
-    return scheduleList_;
-}
-
 void BaseContext::OnScheduleStarted()
 {
     IAM_LOGI("%{public}s start", GetDescription());

@@ -43,7 +43,8 @@ enum ContextType {
     CONTEXT_IDENTIFY,
     WIDGET_AUTH_CONTEXT,
     REMOTE_AUTH_CONTEXT,
-    REMOTE_AUTH_INVOKER_CONTEXT
+    REMOTE_AUTH_INVOKER_CONTEXT,
+    SCHEDULE_HOLDER_CONTEXT,
 };
 
 class Context {
@@ -55,7 +56,6 @@ public:
     virtual uint64_t GetContextId() const = 0;
     virtual ContextType GetContextType() const = 0;
     virtual std::shared_ptr<ScheduleNode> GetScheduleNode(uint64_t scheduleId) const = 0;
-    virtual std::vector<std::shared_ptr<ScheduleNode>> GetScheduleNodes() const = 0;
     virtual uint32_t GetTokenId() const = 0;
     virtual int32_t GetLatestError() const = 0;
     virtual int32_t GetUserId() const = 0;
