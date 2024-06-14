@@ -21,11 +21,19 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+namespace {
+constexpr uint32_t MAX_DATA_LEN = 4096;
+}
 void SoftBusSocketListener::OnBind(int32_t socketId, PeerSocketInfo info)
 {
     IAM_LOGI("socket id is %{public}d.", socketId);
     if (socketId <= INVALID_SOCKET_ID) {
         IAM_LOGE("socket id invalid.");
+        return;
+    }
+
+    if (std::string(info.pkgName) != USER_AUTH_PACKAGE_NAME) {
+        IAM_LOGE("unexpected package name %{public}s.", info.pkgName);
         return;
     }
 
@@ -50,6 +58,12 @@ void SoftBusSocketListener::OnClientBytes(int32_t socketId, const void *data, ui
         IAM_LOGE("socket id invalid.");
         return;
     }
+
+    if (dataLen > MAX_DATA_LEN) {
+        IAM_LOGE("exceed max data length");
+        return;
+    }
+
     SoftBusManager::GetInstance().OnClientBytes(socketId, data, dataLen);
 }
 

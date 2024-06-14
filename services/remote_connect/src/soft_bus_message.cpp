@@ -20,10 +20,10 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 const int32_t MESSAGE_VERSION = 0;
-SoftBusMessage::SoftBusMessage(int32_t messageSeq, const std::string &connectioneName,
+SoftBusMessage::SoftBusMessage(int32_t messageSeq, const std::string &connectionName,
     const std::string &srcEndPoint, const std::string &destEndPoint,
     const std::shared_ptr<Attributes> &attributes)
-    : messageSeq_(messageSeq), connectioneName_(connectioneName), srcEndPoint_(srcEndPoint),
+    : messageSeq_(messageSeq), connectionName_(connectionName), srcEndPoint_(srcEndPoint),
     destEndPoint_(destEndPoint), attributes_(attributes)
 {
     IAM_LOGD("start");
@@ -61,10 +61,10 @@ std::string SoftBusMessage::GetDestEndPoint()
 
 std::string SoftBusMessage::GetConnectionName()
 {
-    return connectioneName_;
+    return connectionName_;
 }
 
-std::shared_ptr<Attributes> SoftBusMessage::CreateMessage(bool response)
+std::shared_ptr<Attributes> SoftBusMessage::CreateMessage(bool isAck)
 {
     IAM_LOGD("start.");
     IF_FALSE_LOGE_AND_RETURN_VAL(attributes_ != nullptr, nullptr);
@@ -78,7 +78,7 @@ std::shared_ptr<Attributes> SoftBusMessage::CreateMessage(bool response)
     bool ret = attributes->SetInt32Value(Attributes::ATTR_MSG_SEQ_NUM, messageSeq_);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret, nullptr);
 
-    if (response == true) {
+    if (isAck == true) {
         ret = attributes->SetBoolValue(Attributes::ATTR_MSG_ACK, true);
         IF_FALSE_LOGE_AND_RETURN_VAL(ret, nullptr);
     } else {
@@ -92,7 +92,7 @@ std::shared_ptr<Attributes> SoftBusMessage::CreateMessage(bool response)
     ret = attributes->SetStringValue(Attributes::ATTR_MSG_DEST_END_POINT, destEndPoint_);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret, nullptr);
 
-    ret = attributes->SetStringValue(Attributes::ATTR_CONNECTION_NAME, connectioneName_);
+    ret = attributes->SetStringValue(Attributes::ATTR_CONNECTION_NAME, connectionName_);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret, nullptr);
 
     ret = attributes->SetUint32Value(Attributes::ATTR_MSG_VERSION, MESSAGE_VERSION);
@@ -108,9 +108,9 @@ std::shared_ptr<Attributes> SoftBusMessage::CreateMessage(bool response)
     ret = attributes->SetStringValue(Attributes::ATTR_MSG_SRC_UDID, udid);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret, nullptr);
 
-    IAM_LOGI("CreateMessage success: messageSeq:%{public}u, isAck:%{public}d,"
-        " connectionName:%{public}s, srcEndPoint:%{public}s, destEndPoint:%{public}s, msgType:%{public}d",
-        messageSeq_, response, connectioneName_.c_str(), srcEndPoint_.c_str(), destEndPoint_.c_str(), msgType);
+    IAM_LOGI("CreateMessage success: messageSeq:%{public}u, connectionName:%{public}s, msgType:%{public}d, "
+        "isAck:%{public}d, srcEndPoint:%{public}s, destEndPoint:%{public}s",
+        messageSeq_, connectionName_.c_str(), msgType, isAck, srcEndPoint_.c_str(), destEndPoint_.c_str());
     
     return attributes;
 }
@@ -142,7 +142,7 @@ std::shared_ptr<Attributes> SoftBusMessage::ParseMessage(void *message, uint32_t
     ret = attributes->GetStringValue(Attributes::ATTR_MSG_DEST_END_POINT, destEndPoint_);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret, nullptr);
 
-    ret = attributes->GetStringValue(Attributes::ATTR_CONNECTION_NAME, connectioneName_);
+    ret = attributes->GetStringValue(Attributes::ATTR_CONNECTION_NAME, connectionName_);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret, nullptr);
 
     ret = attributes->GetUint32Value(Attributes::ATTR_MSG_VERSION, messageVersion_);
@@ -152,9 +152,9 @@ std::shared_ptr<Attributes> SoftBusMessage::ParseMessage(void *message, uint32_t
     attributes->GetInt32Value(Attributes::ATTR_MSG_TYPE, msgType); // ATTR_MSG_TYPE may be empty
     attributes_ = attributes;
 
-    IAM_LOGI("ParseMessage success: messageSeq:%{public}u, isAck:%{public}d,"
-        " connectionName:%{public}s, srcEndPoint:%{public}s, destEndPoint:%{public}s, msgType:%{public}d",
-        messageSeq_, isAck_, connectioneName_.c_str(), srcEndPoint_.c_str(), destEndPoint_.c_str(), msgType);
+    IAM_LOGI("ParseMessage success: messageSeq:%{public}u, connectionName:%{public}s, msgType:%{public}d, "
+        "isAck:%{public}d, srcEndPoint:%{public}s, destEndPoint:%{public}s",
+        messageSeq_, connectionName_.c_str(), msgType, isAck_, srcEndPoint_.c_str(), destEndPoint_.c_str());
     return attributes;
 }
 } // namespace UserAuth

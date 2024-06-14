@@ -25,7 +25,6 @@
 #include "iam_logger.h"
 #include "iam_para2str.h"
 #include "iam_check.h"
-#include "resource_node_pool.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -40,12 +39,8 @@ public:
     bool Insert(const std::shared_ptr<Context> &context) override;
     bool Delete(uint64_t contextId) override;
     void CancelAll() const override;
-    void StopAllSchedule() const override;
-    void StopSchedule(std::shared_ptr<ResourceNode> resourceNode) const override;
     std::weak_ptr<Context> Select(uint64_t contextId) const override;
     std::vector<std::weak_ptr<Context>> Select(ContextType contextType) const override;
-    void InsertRemoteScheduleNode(std::shared_ptr<ScheduleNode> scheduleNode) override;
-    void RemoveRemoteScheduleNode(std::shared_ptr<ScheduleNode> scheduleNode) override;
     std::shared_ptr<ScheduleNode> SelectScheduleNodeByScheduleId(uint64_t scheduleId) override;
     bool RegisterContextPoolListener(const std::shared_ptr<ContextPoolListener> &listener) override;
     bool DeregisterContextPoolListener(const std::shared_ptr<ContextPoolListener> &listener) override;
@@ -54,7 +49,6 @@ private:
     mutable std::recursive_mutex poolMutex_;
     std::unordered_map<uint64_t, std::shared_ptr<Context>> contextMap_;
     std::set<std::shared_ptr<ContextPoolListener>> listenerSet_;
-    std::map<uint64_t, std::shared_ptr<ScheduleNode>> remoteScheduleNodeMap_;
 };
 
 bool ContextPoolImpl::Insert(const std::shared_ptr<Context> &context)
@@ -114,62 +108,6 @@ void ContextPoolImpl::CancelAll() const
     }
 }
 
-void ContextPoolImpl::StopAllSchedule() const
-{
-    IAM_LOGI("start");
-    std::lock_guard<std::recursive_mutex> lock(poolMutex_);
-    ResourceNodePool::Instance().Enumerate([&](const std::weak_ptr<ResourceNode> &resource) {
-        auto node = resource.lock();
-        if (node == nullptr) {
-            return;
-        }
-        IAM_LOGI("stop schedule %{public}s", GET_MASKED_STRING(node->GetExecutorIndex()).c_str());
-        StopSchedule(node);
-    });
-    IAM_LOGI("end");
-}
-
-void ContextPoolImpl::StopSchedule(std::shared_ptr<ResourceNode> resourceNode) const
-{
-    IF_FALSE_LOGE_AND_RETURN(resourceNode != nullptr);
-
-    IAM_LOGI("start");
-    std::lock_guard<std::recursive_mutex> lock(poolMutex_);
-    for (const auto &pair : contextMap_) {
-        auto context = pair.second;
-        if (context == nullptr) {
-            continue;
-        }
-        auto nodes = context->GetScheduleNodes();
-        for (const auto &node : nodes) {
-            if (node == nullptr) {
-                continue;
-            }
-
-            auto collector = node->GetCollectorExecutor().lock();
-            auto verifier = node->GetVerifyExecutor().lock();
-            if (collector == resourceNode || verifier == resourceNode) {
-                IAM_LOGE("stop schedule %{public}s", GET_MASKED_STRING(node->GetScheduleId()).c_str());
-                node->StopSchedule(ResultCode::GENERAL_ERROR);
-            }
-        }
-    }
-
-    for (const auto &pair : remoteScheduleNodeMap_) {
-        auto node = pair.second;
-        if (node == nullptr) {
-            continue;
-        }
-        auto collector = node->GetCollectorExecutor().lock();
-        auto verifier = node->GetVerifyExecutor().lock();
-        if (collector == resourceNode || verifier == resourceNode) {
-            IAM_LOGE("stop remote schedule %{public}s", GET_MASKED_STRING(node->GetScheduleId()).c_str());
-            node->StopSchedule(ResultCode::GENERAL_ERROR);
-        }
-    }
-    IAM_LOGI("end");
-}
-
 std::weak_ptr<Context> ContextPoolImpl::Select(uint64_t contextId) const
 {
     std::lock_guard<std::recursive_mutex> lock(poolMutex_);
@@ -196,30 +134,6 @@ std::vector<std::weak_ptr<Context>> ContextPoolImpl::Select(ContextType contextT
     return result;
 }
 
-void ContextPoolImpl::InsertRemoteScheduleNode(std::shared_ptr<ScheduleNode> scheduleNode)
-{
-    std::lock_guard<std::recursive_mutex> lock(poolMutex_);
-    IF_FALSE_LOGE_AND_RETURN(scheduleNode != nullptr);
-
-    if (remoteScheduleNodeMap_.find(scheduleNode->GetScheduleId()) != remoteScheduleNodeMap_.end()) {
-        IAM_LOGE("scheduleNode already exists");
-        return;
-    }
-
-    remoteScheduleNodeMap_[scheduleNode->GetScheduleId()] = scheduleNode;
-}
-
-void ContextPoolImpl::RemoveRemoteScheduleNode(std::shared_ptr<ScheduleNode> scheduleNode)
-{
-    std::lock_guard<std::recursive_mutex> lock(poolMutex_);
-    IF_FALSE_LOGE_AND_RETURN(scheduleNode != nullptr);
-
-    auto it = remoteScheduleNodeMap_.find(scheduleNode->GetScheduleId());
-    if (it != remoteScheduleNodeMap_.end()) {
-        remoteScheduleNodeMap_.erase(it);
-    }
-}
-
 std::shared_ptr<ScheduleNode> ContextPoolImpl::SelectScheduleNodeByScheduleId(uint64_t scheduleId)
 {
     std::lock_guard<std::recursive_mutex> lock(poolMutex_);
@@ -233,10 +147,6 @@ std::shared_ptr<ScheduleNode> ContextPoolImpl::SelectScheduleNodeByScheduleId(ui
         }
     }
 
-    auto it = remoteScheduleNodeMap_.find(scheduleId);
-    if (it != remoteScheduleNodeMap_.end()) {
-        return it->second;
-    }
     IAM_LOGE("not found");
     return nullptr;
 }

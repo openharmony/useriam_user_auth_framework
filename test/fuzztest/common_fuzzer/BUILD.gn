@@ -117,6 +117,7 @@ ohos_source_set("userauth_service_base_fuzzer") {
     "../../../services/base/src/finite_state_machine_impl.cpp",
     "../../../services/base/src/relative_timer.cpp",
     "../../../services/base/src/thread_handler_impl.cpp",
+    "../../../services/base/src/thread_handler_manager.cpp",
     "../dummy/mock_iuser_auth_interface.cpp",
   ]
 
@@ -168,6 +169,7 @@ ohos_source_set("userauth_service_core_fuzzer") {
     "../../../services/core/src/schedule_node_builder.cpp",
     "../../../services/core/src/schedule_node_helper.cpp",
     "../../../services/core/src/schedule_node_impl.cpp",
+    "../../../services/core/src/schedule_resource_node_listener.cpp",
     "../../../services/core/src/secure_user_info_impl.cpp",
     "../../../services/core/src/system_param_manager.cpp",
     "../../../services/core/src/template_cache_manager.cpp",
@@ -246,6 +248,7 @@ ohos_source_set("userauth_service_context_fuzzer") {
     "../../../services/context/src/remote_auth_context.cpp",
     "../../../services/context/src/remote_auth_invoker_context.cpp",
     "../../../services/context/src/remote_iam_callback.cpp",
+    "../../../services/context/src/schedule_holder_context.cpp",
     "../../../services/context/src/simple_auth_context.cpp",
     "../../../services/context/src/trace.cpp",
     "../../../services/context/src/ui_extension_ability_connection.cpp",

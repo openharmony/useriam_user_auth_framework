@@ -25,6 +25,7 @@
 #include "remote_msg_util.h"
 #include "resource_node_utils.h"
 #include "thread_handler.h"
+#include "thread_handler_manager.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -86,7 +87,11 @@ RemoteAuthContext::RemoteAuthContext(uint64_t contextId, std::shared_ptr<Authent
       collectorNetworkId_(param.collectorNetworkId),
       executorInfoMsg_(param.executorInfoMsg)
 {
-    endPointName_ = RemoteMsgUtil::GetRemoteAuthContextEndPointName();
+    endPointName_ = REMOTE_AUTH_INVOKER_CONTEXT_ENDPOINT_NAME;
+    needSetupConnection_ = (executorInfoMsg_.size() == 0);
+    if (needSetupConnection_) {
+        ThreadHandlerManager::GetInstance().CreateThreadHandler(connectionName_);
+    }
 }
 
 RemoteAuthContext::~RemoteAuthContext()
@@ -96,7 +101,10 @@ RemoteAuthContext::~RemoteAuthContext()
         RelativeTimer::GetInstance().Unregister(cancelTimerId_.value());
     }
     RemoteConnectionManager::GetInstance().UnregisterConnectionListener(connectionName_, endPointName_);
-    RemoteConnectionManager::GetInstance().CloseConnection(connectionName_);
+    if (needSetupConnection_) {
+        RemoteConnectionManager::GetInstance().CloseConnection(connectionName_);
+        ThreadHandlerManager::GetInstance().DestroyThreadHandler(connectionName_);
+    }
     IAM_LOGI("%{public}s destroy", GetDescription());
 }
 
@@ -126,7 +134,7 @@ bool RemoteAuthContext::OnStart()
         },
         TIME_OUT_MS);
 
-    if (executorInfoMsg_.size() == 0) {
+    if (needSetupConnection_) {
         IAM_LOGI("%{public}s SetupConnection", GetDescription());
         return SetupConnection();
     }
@@ -159,7 +167,7 @@ bool RemoteAuthContext::StartAuth()
 
     auth_->SetCollectorUdid(collectorUdid);
 
-    bool startAuthRet =  SimpleAuthContext::OnStart();
+    bool startAuthRet = SimpleAuthContext::OnStart();
     IF_FALSE_LOGE_AND_RETURN_VAL(startAuthRet, false);
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_.size() == 1, false);
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_[0] != nullptr, false);
@@ -237,7 +245,7 @@ bool RemoteAuthContext::SendQueryExecutorInfoMsg()
     };
 
     ResultCode sendMsgRet = RemoteConnectionManager::GetInstance().SendMessage(connectionName_, endPointName_,
-        RemoteMsgUtil::GetRemoteServiceEndPointName(), request, msgCallback);
+        REMOTE_SERVICE_ENDPOINT_NAME, request, msgCallback);
     IF_FALSE_LOGE_AND_RETURN_VAL(sendMsgRet == SUCCESS, false);
 
     IAM_LOGI("%{public}s success", GetDescription());

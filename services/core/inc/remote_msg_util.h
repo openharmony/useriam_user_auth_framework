@@ -20,44 +20,16 @@
 #include "co_auth_client_defines.h"
 #include "iam_logger.h"
 #include "user_auth_common_defines.h"
+#include "remote_message.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-enum MessageType {
-    // collector remoteAuthService -> verifier remoteAuthService
-    START_REMOTE_AUTH = 1,
-
-    // verifier remoteAuthService callback -> collector remoteAuthInvokerContext
-    SEND_REMOTE_AUTH_TIP = 2,
-    SEND_REMOTE_AUTH_RESULT = 3,
-
-    // verifier remoteAuthInvokerContext -> collector remoteAuthService
-    QUERY_EXECUTOR_INFO = 4,
-
-    // verifier executor proxy -> collector remoteAuthService
-    BEGIN_EXECUTE = 5,
-    END_EXECUTE = 6,
-
-    // verifier executor proxy -> executor stub
-    SEND_DATA_TO_EXECUTOR = 7,
-
-    // collector executor stub -> verifier executor proxy
-    EXECUTOR_FINISH = 8,
-    EXECUTOR_SEND_DATA = 9,
-};
-
 class RemoteMsgUtil {
 public:
     static bool GetConnectionName(uint64_t contextId, std::string &connectionName);
-    static std::string GetExecutorProxyEndPointName();
-    static std::string GetExecutorStubEndPointName();
-    static std::string GetRemoteServiceEndPointName();
-    static std::string GetRemoteCallbackEndPointName();
-    static std::string GetRemoteAuthContextEndPointName();
-    static std::string GetRemoteAuthInvokerContextEndPointName();
 
     // QUERY_EXECUTOR_INFO
     static bool GetQueryExecutorInfoReply(const std::vector<int32_t> authTypes, int32_t executorRole,

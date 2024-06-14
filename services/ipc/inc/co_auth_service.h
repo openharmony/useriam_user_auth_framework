@@ -35,7 +35,7 @@ public:
     int Dump(int fd, const std::vector<std::u16string> &args) override;
     uint64_t ExecutorRegister(const ExecutorRegisterInfo &info, sptr<ExecutorCallbackInterface> &callback) override;
     void ExecutorUnregister(uint64_t executorIndex) override;
-    static void SetIsReady(bool isReady); // for unit test
+    static void SetIsReady(bool isReady);
 
 protected:
     void OnStart() override;

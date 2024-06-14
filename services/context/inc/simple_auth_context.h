@@ -51,7 +51,6 @@ private:
         Authentication::AuthResultInfo &resultInfo);
     void SendAuthExecutorMsg();
     void InvokeResultCallback(const Authentication::AuthResultInfo &resultInfo) const;
-    bool NeedSetFreezingTimeAndRemainTimes(int32_t result) const;
     ResultCode SetFreezingTimeAndRemainTimes(int32_t &freezingTime, int32_t &remainTimes);
     ResultCode GetPropertyForAuthResult(Authentication::AuthResultInfo &resultInfo);
     bool SetCredentialDigest(const Authentication::AuthResultInfo &resultInfo,

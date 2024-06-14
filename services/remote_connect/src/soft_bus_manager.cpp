@@ -31,6 +31,7 @@
 #include "soft_bus_socket_listener.h"
 #include "system_ability_definition.h"
 #include "thread_handler.h"
+#include "thread_handler_manager.h"
 #include "token_setproc.h"
 
 #define LOG_TAG "USER_AUTH_SA"
@@ -38,7 +39,6 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 using namespace OHOS::DistributedHardware;
-static const std::string USER_AUTH_PACKAGE_NAME = "ohos.useriam";
 static const std::string USER_AUTH_SOCKET_NAME = "ohos.useriam.";
 static constexpr uint32_t SOCKET_NAME_MAX_LEN = 256;
 static constexpr uint32_t PACKAGE_NAME_MAX_LEN = 256;
@@ -149,7 +149,7 @@ ResultCode SoftBusManager::RegistDeviceManagerListener()
     }
 
     deviceManagerServiceListener_ = deviceManagerListener;
-    IAM_LOGE("RegistDeviceManagerListener success.");
+    IAM_LOGI("RegistDeviceManagerListener success.");
     return SUCCESS;
 }
 
@@ -176,7 +176,7 @@ ResultCode SoftBusManager::UnRegistDeviceManagerListener()
     }
 
     deviceManagerServiceListener_ = nullptr;
-    IAM_LOGE("UnRegistDeviceManagerListener success.");
+    IAM_LOGI("UnRegistDeviceManagerListener success.");
     return SUCCESS;
 }
 
@@ -216,7 +216,7 @@ ResultCode SoftBusManager::RegistSoftBusListener()
     }
 
     softBusServiceListener_ = softBusListener;
-    IAM_LOGE("RegistSoftBusListener success.");
+    IAM_LOGI("RegistSoftBusListener success.");
     return SUCCESS;
 }
 
@@ -242,7 +242,7 @@ ResultCode SoftBusManager::UnRegistSoftBusListener()
     }
 
     softBusServiceListener_ = nullptr;
-    IAM_LOGE("UnRegistSoftBusListener success.");
+    IAM_LOGI("UnRegistSoftBusListener success.");
     return SUCCESS;
 }
 
@@ -484,13 +484,13 @@ ResultCode SoftBusManager::DoOpenConnectionInner(const std::string &connectionNa
 
     ret = ClientSocketBind(socketId);
     if (ret != SUCCESS) {
-        IAM_LOGE("client socket bind service success");
+        IAM_LOGE("client socket bind service fail");
         return GENERAL_ERROR;
     }
 
     AddConnection(connectionName, clientSocket);
     AddSocket(socketId, clientSocket);
-    IAM_LOGI("Bind service succeed, socketId is %{public}d.", socketId);
+    IAM_LOGI("Bind service success, connectionName:%{public}s socketId:%{public}d.", connectionName.c_str(), socketId);
     return SUCCESS;
 }
 
@@ -519,9 +519,7 @@ ResultCode SoftBusManager::OpenConnection(const std::string &connectionName, con
 {
     IAM_LOGD("start.");
 
-    auto handler = ThreadHandler::GetSingleThreadInstance();
-    IF_FALSE_LOGE_AND_RETURN_VAL(handler != nullptr, GENERAL_ERROR);
-    handler->PostTask([=]() {
+    ThreadHandlerManager::GetInstance().PostTask(connectionName, [=]() {
         DoOpenConnection(connectionName, tokenId, networkId);
     });
 
@@ -529,7 +527,7 @@ ResultCode SoftBusManager::OpenConnection(const std::string &connectionName, con
     return SUCCESS;
 }
 
-ResultCode SoftBusManager::CloseConnection(const std::string &connectionName)
+ResultCode SoftBusManager::DoCloseConnection(const std::string &connectionName)
 {
     IAM_LOGI("close connection %{public}s start.", connectionName.c_str());
     std::shared_ptr<BaseSocket> clientSocket = FindClientSocket(connectionName);
@@ -548,6 +546,18 @@ ResultCode SoftBusManager::CloseConnection(const std::string &connectionName)
     DeleteSocket(socketId);
     DeleteConnection(connectionName);
     IAM_LOGI("close connection %{public}s socketId %{public}d success", connectionName.c_str(), socketId);
+    return SUCCESS;
+}
+
+ResultCode SoftBusManager::CloseConnection(const std::string &connectionName)
+{
+    IAM_LOGD("start.");
+
+    ThreadHandlerManager::GetInstance().PostTask(connectionName, [=]() {
+        DoCloseConnection(connectionName);
+    });
+
+    IAM_LOGI("Close connection %{public}s task added.", connectionName.c_str());
     return SUCCESS;
 }
 

@@ -27,6 +27,7 @@ public:
     virtual ~ThreadHandler() = default;
     virtual void PostTask(const Task &task) = 0;
     virtual void EnsureTask(const Task &task) = 0;
+    virtual void Suspend() = 0;
     static std::shared_ptr<ThreadHandler> GetSingleThreadInstance();
 };
 } // namespace UserAuth

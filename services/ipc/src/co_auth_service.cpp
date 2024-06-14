@@ -114,7 +114,6 @@ void CoAuthService::AddExecutorDeathRecipient(uint64_t executorIndex, AuthType a
         auto weakNode = ResourceNodePool::Instance().Select(executorIndex);
         auto sharedNode = weakNode.lock();
         if (sharedNode != nullptr) {
-            ContextPool::Instance().StopSchedule(sharedNode);
             auto result = ResourceNodePool::Instance().Delete(executorIndex);
             IAM_LOGI("delete executor %{public}s, executorIndex is ****%{public}hx authType is %{public}d "
                 "executorRole is %{public}d", (result ? "succ" : "failed"), static_cast<uint16_t>(executorIndex),
@@ -203,7 +202,6 @@ void CoAuthService::Init()
     if (hdi) {
         hdi->AddDeathRecipient(new (std::nothrow) IpcCommon::PeerDeathRecipient([]() {
             IAM_LOGE("user auth host is dead");
-            ContextPool::Instance().StopAllSchedule();
             ResourceNodePool::Instance().DeleteAll();
             RelativeTimer::GetInstance().Register(Init, DEFER_TIME);
             SetIsReady(false);

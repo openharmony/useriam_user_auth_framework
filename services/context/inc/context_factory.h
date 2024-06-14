@@ -68,6 +68,7 @@ public:
     static std::shared_ptr<Context> CreateWidgetAuthContext(std::shared_ptr<ContextCallback> callback);
     static std::shared_ptr<Context> CreateWidgetContext(const AuthWidgetContextPara &para,
         std::shared_ptr<ContextCallback> callback);
+    static std::shared_ptr<Context> CreateScheduleHolderContext(std::shared_ptr<ScheduleNode> scheduleNode);
 };
 } // namespace UserAuth
 } // namespace UserIam
