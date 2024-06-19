@@ -15,6 +15,8 @@
 
 #include "co_auth_service_test.h"
 
+#include <future>
+
 #include "co_auth_service.h"
 #include "iam_ptr.h"
 #include "mock_executor_callback.h"
@@ -65,7 +67,13 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest001, TestSize.Level0)
     CoAuthService::SetIsReady(true);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*testCallback, OnMessengerReady(_, _, _)).Times(1);
+    std::promise<void> promise;
+    EXPECT_CALL(*testCallback, OnMessengerReady(_, _, _)).Times(1).WillOnce(
+        [&promise](sptr<ExecutorMessengerInterface> &messenger,
+        const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList) {
+            promise.set_value();
+        }
+    );
     EXPECT_CALL(*mockHdi, AddExecutor(_, _, _, _))
         .Times(2)
         .WillOnce(Return(HDF_FAILURE))
@@ -82,6 +90,7 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest001, TestSize.Level0)
     EXPECT_EQ(executorIndex, 0);
     executorIndex = service->ExecutorRegister(info, callbackInterface);
     EXPECT_NE(executorIndex, 0);
+    promise.get_future().get();
     EXPECT_EQ(ResourceNodePool::Instance().Delete(executorIndex), true);
     IpcCommon::DeleteAllPermission();
 }
