@@ -27,10 +27,6 @@
 #include "user_auth_callback_service.h"
 #include "widget_callback_service.h"
 
-#include <thread>
-#include <chrono>
-#include "xcollie_helper.h"
-
 #define LOG_TAG "USER_AUTH_SDK"
 namespace OHOS {
 namespace UserIam {
@@ -184,12 +180,6 @@ uint64_t UserAuthClientImpl::BeginAuthentication(const AuthParam &authParam,
     IAM_LOGI("start, userId:%{public}d authType:%{public}d atl:%{public}u remoteAuthParamHasValue:%{public}s",
         authParam.userId, authParam.authType, authParam.authTrustLevel,
         Common::GetBoolStr(authParam.remoteAuthParam.has_value()));
-    {
-        IAM_LOGI("start sleep 10s start");
-        Common::XCollieHelper xcollie("UserAuthBeginAuthentication", 5);
-        std::this_thread::sleep_for(std::chrono::seconds(10));
-        IAM_LOGI("start sleep 10s end");
-    }
     if (authParam.remoteAuthParam.has_value()) {
         IAM_LOGI("verifierNetworkIdHasValue:%{public}s collectorNetworkIdHasValue:%{public}s "
             "collectorTokenIdHasValue:%{public}s",
