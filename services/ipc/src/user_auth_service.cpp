@@ -42,6 +42,10 @@
 #include "remote_auth_service.h"
 #include "device_manager_util.h"
 
+#include <thread>
+#include <chrono>
+#include "xcollie_helper.h"
+
 #define LOG_TAG "USER_AUTH_SA"
 
 namespace OHOS {
@@ -517,6 +521,13 @@ uint64_t UserAuthService::AuthUser(AuthParamInner &authParam, std::optional<Remo
     sptr<UserAuthCallbackInterface> &callback)
 {
     IAM_LOGI("start, %{public}s", GetAuthParamStr(authParam, remoteAuthParam).c_str());
+    IAM_LOGI("start sleep 20s start");
+    {
+        Common::XCollieHelper xcollie("UserAuthBeginAuthentication", 5);
+        std::this_thread::sleep_for(std::chrono::seconds(20));
+    }
+    
+    IAM_LOGI("start sleep 20s end");
     auto contextCallback = GetAuthContextCallback(INNER_API_VERSION_10000, authParam.challenge, authParam.authType,
         authParam.authTrustLevel, callback);
     if (contextCallback == nullptr) {
