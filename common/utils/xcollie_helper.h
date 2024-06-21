@@ -27,12 +27,9 @@ public:
     XCollieHelper(const std::string &name, unsigned int timeout);
     ~XCollieHelper();
 private:
-    void CancelHdfXCollie();
-    
     int id_;
     const std::string name_;
     unsigned int timeout_;
-    bool isCanceled_;
 };
 } // namespace Common
 } // namespace UserIam
