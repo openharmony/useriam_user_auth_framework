@@ -36,6 +36,7 @@
 #include "user_idm_callback_proxy.h"
 #include "user_idm_database.h"
 #include "user_idm_session_controller.h"
+#include "xcollie_helper.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -66,6 +67,7 @@ void UserIdmService::OnStop()
 int32_t UserIdmService::OpenSession(int32_t userId, std::vector<uint8_t> &challenge)
 {
     IAM_LOGI("start");
+    Common::XCollieHelper xcollie(__FUNCTION__, 5);
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
@@ -91,6 +93,7 @@ int32_t UserIdmService::OpenSession(int32_t userId, std::vector<uint8_t> &challe
 void UserIdmService::CloseSession(int32_t userId)
 {
     IAM_LOGI("start");
+    Common::XCollieHelper xcollie(__FUNCTION__, 5);
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         return;
@@ -139,6 +142,7 @@ int32_t UserIdmService::GetCredentialInfoInner(int32_t userId, AuthType authType
 int32_t UserIdmService::GetCredentialInfo(int32_t userId, AuthType authType,
     const sptr<IdmGetCredInfoCallbackInterface> &callback)
 {
+    Common::XCollieHelper xcollie(__FUNCTION__, 5);
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return INVALID_PARAMETERS;
@@ -182,6 +186,7 @@ int32_t UserIdmService::GetSecInfoInner(int32_t userId, SecUserInfo &secUserInfo
 
 int32_t UserIdmService::GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserInfoCallbackInterface> &callback)
 {
+    Common::XCollieHelper xcollie(__FUNCTION__, 5);
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return INVALID_PARAMETERS;
@@ -239,6 +244,7 @@ void UserIdmService::StartEnroll(Enrollment::EnrollmentPara &para,
 void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPara,
     const sptr<IdmCallbackInterface> &callback, bool isUpdate)
 {
+    Common::XCollieHelper xcollie(__FUNCTION__, 5);
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
 
     Attributes extraInfo;
@@ -280,6 +286,7 @@ void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPar
 void UserIdmService::UpdateCredential(int32_t userId, const CredentialPara &credPara,
     const sptr<IdmCallbackInterface> &callback)
 {
+    Common::XCollieHelper xcollie(__FUNCTION__, 5);
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return;
@@ -298,6 +305,7 @@ void UserIdmService::UpdateCredential(int32_t userId, const CredentialPara &cred
 
 int32_t UserIdmService::Cancel(int32_t userId)
 {
+    Common::XCollieHelper xcollie(__FUNCTION__, 5);
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
@@ -341,6 +349,7 @@ int32_t UserIdmService::CancelCurrentEnroll()
 int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInterface> &callback)
 {
     IAM_LOGI("to delete userid: %{public}d", userId);
+    Common::XCollieHelper xcollie(__FUNCTION__, 5);
     IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, INVALID_PARAMETERS);
 
     Attributes extraInfo;
@@ -388,6 +397,7 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInt
 void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToken,
     const sptr<IdmCallbackInterface> &callback)
 {
+    Common::XCollieHelper xcollie(__FUNCTION__, 5);
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
 
     Attributes extraInfo;
@@ -441,6 +451,7 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
 void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
     const std::vector<uint8_t> &authToken, const sptr<IdmCallbackInterface> &callback)
 {
+    Common::XCollieHelper xcollie(__FUNCTION__, 5);
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
 
     Attributes extraInfo;
@@ -612,6 +623,7 @@ void UserIdmService::ClearRedundancyCredentialInner()
 void UserIdmService::ClearRedundancyCredential(const sptr<IdmCallbackInterface> &callback)
 {
     IAM_LOGE("start");
+    Common::XCollieHelper xcollie(__FUNCTION__, 5);
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
 
     Attributes extraInfo;
