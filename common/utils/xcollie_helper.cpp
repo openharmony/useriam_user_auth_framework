@@ -19,7 +19,7 @@
 #include "xcollie/xcollie.h"
 #include "xcollie/xcollie_define.h"
 
-#define LOG_TAG "USER_AUTH_XCOLLIE"
+#define LOG_TAG "USER_AUTH_SA"
 namespace OHOS {
 namespace UserIam {
 namespace Common {
@@ -27,13 +27,13 @@ XCollieHelper::XCollieHelper(const std::string &name, unsigned int timeout)
     : name_(name),
       timeout_(timeout)
 {
-    id_ = HiviewDFX::XCollie::GetInstance().SetTimer(name_, timeout_, nullptr, nullptr, HiviewDFX::XCOLLIE_FLAG_RECOVERY);
-    IAM_LOGI("start XCollie, name:%{public}s,timeout:%{public}u,id:%{public}d", name_.c_str(), timeout_, id_);
+    id_ = HiviewDFX::XCollie::GetInstance().SetTimer(name_, timeout_, nullptr, nullptr, HiviewDFX::XCOLLIE_FLAG_DEFAULT);
+    IAM_LOGI("start XCollie, name:%{public}s, timeout:%{public}u, id:%{public}d, flag:%{public}u", name_.c_str(), timeout_, id_, HiviewDFX::XCOLLIE_FLAG_DEFAULT);
 }
 
 XCollieHelper::~XCollieHelper()
 {
-    IAM_LOGI("cancel XCollie, name:%{public}s,timeout:%{public}u,id:%{public}d", name_.c_str(), timeout_, id_);
+    IAM_LOGI("cancel XCollie, name:%{public}s, timeout:%{public}u, id:%{public}d", name_.c_str(), timeout_, id_);
     HiviewDFX::XCollie::GetInstance().CancelTimer(id_);
 }
 } // namespace Common
