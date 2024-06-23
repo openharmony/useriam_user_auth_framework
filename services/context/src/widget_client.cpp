@@ -84,6 +84,12 @@ ResultCode WidgetClient::OnNotice(NoticeType type, const std::string &eventData)
         IAM_LOGE("Invalid auth type list");
         return ResultCode::INVALID_PARAMETERS;
     }
+    ProcessNotice(notice, authTypeList);
+    return ResultCode::SUCCESS;
+}
+
+void WidgetClient::ProcessNotice(const WidgetNotice &notice, std::vector<AuthType> &authTypeList)
+{
     if (notice.event == NOTICE_EVENT_AUTH_READY) {
         schedule_->StartAuthList(authTypeList, notice.endAfterFirstFail);
     } else if (notice.event == NOTICE_EVENT_CANCEL_AUTH) {
@@ -98,8 +104,13 @@ ResultCode WidgetClient::OnNotice(NoticeType type, const std::string &eventData)
         schedule_->WidgetParaInvalid();
     } else if (notice.event == NOTICE_EVENT_END) {
         schedule_->StopAuthList(authTypeList);
+    } else if (notice.event == NOTICE_EVENT_RELOAD) {
+        if ((authTypeList.size() == 1 && authTypeList[0] == AuthType::ALL) || authTypeList.size() != 1) {
+            schedule_->WidgetParaInvalid();
+        } else {
+            schedule_->WidgetReload(notice.orientation, notice.needRotate, authTypeList[0]);
+        }
     }
-    return ResultCode::SUCCESS;
 }
 
 void WidgetClient::SendCommand(const WidgetCommand &command)
@@ -286,6 +297,7 @@ bool WidgetClient::IsValidNoticeType(const WidgetNotice &notice)
         notice.event != NOTICE_EVENT_CANCEL_AUTH &&
         notice.event != NOTICE_EVENT_USER_NAVIGATION &&
         notice.event != NOTICE_EVENT_WIDGET_PARA_INVALID &&
+        notice.event != NOTICE_EVENT_RELOAD &&
         notice.event != NOTICE_EVENT_END) {
         return false;
     }

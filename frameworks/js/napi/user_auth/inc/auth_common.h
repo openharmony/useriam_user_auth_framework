@@ -49,6 +49,7 @@ constexpr const char *NOTICE_EVENT_CANCEL_AUTH = "EVENT_AUTH_USER_CANCEL";
 constexpr const char *NOTICE_EVENT_USER_NAVIGATION = "EVENT_AUTH_USER_NAVIGATION";
 constexpr const char *NOTICE_EVENT_WIDGET_PARA_INVALID = "EVENT_AUTH_WIDGET_PARA_INVALID";
 constexpr const char *NOTICE_EVENT_END = "EVENT_AUTH_END";
+constexpr const char *NOTICE_EVENT_RELOAD = "EVENT_AUTH_RELOAD";
 
 // For API6
 enum class AuthenticationResult : int32_t {
