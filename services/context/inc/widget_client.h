@@ -63,6 +63,7 @@ private:
     void SendCommand(const WidgetCommand &command);
     bool GetAuthTypeList(const WidgetNotice &notice, std::vector<AuthType> &authTypeList);
     bool IsValidNoticeType(const WidgetNotice &notice);
+    void ProcessNotice(const WidgetNotice &notice, std::vector<AuthType> &authTypeList);
 
 private:
     std::shared_ptr<WidgetScheduleNode> schedule_ {nullptr};

@@ -71,6 +71,8 @@ public:
     void EndAuthAsWidgetParaInvalid() override;
     void StopAuthList(const std::vector<AuthType> &authTypeList) override;
     void SuccessAuth(AuthType authType) override;
+    void AuthWidgetReload(uint32_t orientation, uint32_t needRotate, AuthType &rotateAuthType) override;
+    void AuthWidgetReloadInit() override;
 
     void AuthResult(int32_t resultCode, int32_t authType, const Attributes &finalResult);
     void AuthTipInfo(int32_t tipInfo, int32_t authType, const Attributes &extraInfo);
@@ -80,18 +82,24 @@ protected:
     virtual bool OnStop();
 
 private:
+    struct WidgetRotatePara {
+        bool isReload {false};
+        uint32_t orientation {0};
+        uint32_t needRotate {0};
+        AuthType rotateAuthType {0};
+    };
     void SetLatestError(int32_t error) override;
     std::shared_ptr<Context> BuildTask(const std::vector<uint8_t> &challenge,
         AuthType authType, AuthTrustLevel authTrustLevel, bool endAfterFirstFail);
     bool BuildSchedule();
-    bool ConnectExtension();
+    bool ConnectExtension(const WidgetRotatePara &widgetRotatePara);
     int32_t ConnectExtensionAbility(const AAFwk::Want &want, const std::string commandStr);
     bool DisconnectExtension();
     void End(const ResultCode &resultCode);
     std::shared_ptr<ContextCallback> GetAuthContextCallback(AuthType authType, AuthTrustLevel authTrustLevel,
         sptr<IamCallbackInterface> &callback);
     void StopAllRunTask();
-    std::string BuildStartCommand();
+    std::string BuildStartCommand(const WidgetRotatePara &widgetRotatePara);
 
 private:
     struct TaskInfo {
@@ -101,7 +109,7 @@ private:
 
     struct WidgetAuthResultInfo {
         std::vector<uint8_t> token {};
-        AuthType authType { 0 };
+        AuthType authType {0};
         uint64_t credentialDigest;
         uint16_t credentialCount;
         int64_t pinExpiredInfo;

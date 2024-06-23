@@ -48,6 +48,12 @@ namespace UserIam {
 namespace UserAuth {
 constexpr int32_t DEFAULT_VALUE = -1;
 const std::string UI_EXTENSION_TYPE_SET = "sysDialog/userAuth";
+const uint32_t ORIENTATION_LANDSCAPE = 1;
+const uint32_t ORIENTATION_PORTRAIT_INVERTED = 2;
+const uint32_t ORIENTATION_LANDSCAPE_INVERTED = 3;
+const std::string TO_PORTRAIT = "90";
+const std::string TO_INVERTED = "180";
+const std::string TO_PORTRAIT_INVERTED = "270";
 
 WidgetContext::WidgetContext(uint64_t contextId, const ContextFactory::AuthWidgetContextPara &para,
     std::shared_ptr<ContextCallback> callback)
@@ -263,7 +269,10 @@ void WidgetContext::AuthTipInfo(int32_t tipType, int32_t authType, const Attribu
 bool WidgetContext::LaunchWidget()
 {
     IAM_LOGI("launch widget");
-    if (!ConnectExtension()) {
+    WidgetRotatePara widgetRotatePara;
+    widgetRotatePara.isReload = false;
+    widgetRotatePara.needRotate = 0;
+    if (!ConnectExtension(widgetRotatePara)) {
         IAM_LOGE("failed to launch widget.");
         return false;
     }
@@ -318,6 +327,29 @@ void WidgetContext::EndAuthAsWidgetParaInvalid()
     End(ResultCode::INVALID_PARAMETERS);
 }
 
+void WidgetContext::AuthWidgetReloadInit()
+{
+    IAM_LOGI("auth widget reload init");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (!DisconnectExtension()) {
+        IAM_LOGE("failed to release launch widget");
+    }
+}
+
+void WidgetContext::AuthWidgetReload(uint32_t orientation, uint32_t needRotate, AuthType &rotateAuthType)
+{
+    IAM_LOGI("auth widget reload");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    WidgetRotatePara widgetRotatePara;
+    widgetRotatePara.isReload = true;
+    widgetRotatePara.orientation = orientation;
+    widgetRotatePara.needRotate = needRotate;
+    widgetRotatePara.rotateAuthType = rotateAuthType;
+    if (!ConnectExtension(widgetRotatePara)) {
+        IAM_LOGE("failed to reload widget");
+    }
+}
+
 void WidgetContext::StopAuthList(const std::vector<AuthType> &authTypeList)
 {
     IAM_LOGI("stop auth list");
@@ -367,9 +399,9 @@ int32_t WidgetContext::ConnectExtensionAbility(const AAFwk::Want &want, const st
     return ret;
 }
 
-bool WidgetContext::ConnectExtension()
+bool WidgetContext::ConnectExtension(const WidgetRotatePara &widgetRotatePara)
 {
-    std::string tmp = BuildStartCommand();
+    std::string tmp = BuildStartCommand(widgetRotatePara);
     IAM_LOGI("start command: %{public}s", tmp.c_str());
 
     AAFwk::Want want;
@@ -396,6 +428,7 @@ bool WidgetContext::DisconnectExtension()
         IAM_LOGE("disconnect extension ability failed ret: %{public}d.", ret);
         return false;
     }
+    connection_ = nullptr;
     return true;
 }
 
@@ -449,7 +482,7 @@ void WidgetContext::StopAllRunTask()
     runTaskInfoList_.clear();
 }
 
-std::string WidgetContext::BuildStartCommand()
+std::string WidgetContext::BuildStartCommand(const WidgetRotatePara &widgetRotatePara)
 {
     WidgetCmdParameters widgetCmdParameters;
     widgetCmdParameters.uiExtensionType = UI_EXTENSION_TYPE_SET;
@@ -479,7 +512,23 @@ std::string WidgetContext::BuildStartCommand()
         widgetCmdParameters.useriamCmdData.cmdList.push_back(cmd);
     }
     widgetCmdParameters.useriamCmdData.typeList = typeList;
-
+    if (widgetRotatePara.isReload) {
+        widgetCmdParameters.useriamCmdData.isReload = 1;
+        widgetCmdParameters.useriamCmdData.rotateAuthType = AuthType2Str(widgetRotatePara.rotateAuthType);
+    }
+    IAM_LOGI("needRotate: %{public}u, orientation: %{public}u", widgetRotatePara.needRotate,
+        widgetRotatePara.orientation);
+    if (widgetRotatePara.needRotate) {
+        if (widgetRotatePara.orientation == ORIENTATION_LANDSCAPE) {
+            widgetCmdParameters.uiExtNodeAngle = TO_PORTRAIT;
+        }
+        if (widgetRotatePara.orientation == ORIENTATION_PORTRAIT_INVERTED) {
+            widgetCmdParameters.uiExtNodeAngle = TO_INVERTED;
+        }
+        if (widgetRotatePara.orientation == ORIENTATION_LANDSCAPE_INVERTED) {
+            widgetCmdParameters.uiExtNodeAngle = TO_PORTRAIT_INVERTED;
+        }
+    }
     nlohmann::json root = widgetCmdParameters;
     std::string cmdData = root.dump();
     return cmdData;

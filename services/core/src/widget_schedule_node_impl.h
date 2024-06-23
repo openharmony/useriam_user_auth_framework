@@ -44,6 +44,7 @@ public:
     bool SuccessAuth(AuthType authType) override;
     bool NaviPinAuth() override;
     bool WidgetParaInvalid() override;
+    bool WidgetReload(uint32_t orientation, uint32_t needRotate, AuthType &rotateAuthType) override;
     void SetCallback(std::shared_ptr<WidgetScheduleNodeCallback> callback) override;
 
 protected:
@@ -54,6 +55,8 @@ protected:
     void OnSuccessAuth(FiniteStateMachine &machine, uint32_t event);
     void OnNaviPinAuth(FiniteStateMachine &machine, uint32_t event);
     void OnWidgetParaInvalid(FiniteStateMachine &machine, uint32_t event);
+    void OnWidgetReload(FiniteStateMachine &machine, uint32_t event);
+    void OnWidgetReloadInit(FiniteStateMachine &machine, uint32_t event);
 
 private:
     std::shared_ptr<FiniteStateMachine> MakeFiniteStateMachine();
@@ -70,6 +73,9 @@ private:
     bool endAfterFirstFail_ {false};
     std::vector<AuthType> stopAuthTypeList_;
     std::set<AuthType> runningAuthTypeSet_;
+    uint32_t orientation_;
+    uint32_t needRotate_;
+    AuthType rotateAuthType_ {0};
 };
 } // namespace UserAuth
 } // namespace UserIam
