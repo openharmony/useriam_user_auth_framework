@@ -21,7 +21,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace Common {
-
+constexpr unsigned int XCOLLIE_TIMEOUT_SECONDS = 5;
 class XCollieHelper {
 public:
     XCollieHelper(const std::string &name, unsigned int timeout);
