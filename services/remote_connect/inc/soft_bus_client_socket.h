@@ -16,17 +16,18 @@
 #ifndef IAM_SOFT_CLIENT_SOCKET_H
 #define IAM_SOFT_CLIENT_SOCKET_H
 
+#include <optional>
+
 #include "soft_bus_base_socket.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class ClientSocket : public BaseSocket,
-                     public std::enable_shared_from_this<ClientSocket> {
+class ClientSocket : public BaseSocket {
 public:
     ClientSocket(const int32_t socketId);
-    ~ClientSocket() override = default;
+    ~ClientSocket() override;
 
     ResultCode SendMessage(const std::string &connectionName, const std::string &srcEndPoint,
         const std::string &destEndPoint, const std::shared_ptr<Attributes> &attributes, MsgCallback &callback) override;
@@ -42,9 +43,13 @@ public:
     void SetNetworkId(const std::string &networkId);
 
 private:
+    void RefreshKeepAliveTimer();
+    void SendKeepAliveMessage();
+
     std::string connectionName_;
     std::string endPointName_;
     std::string networkId_;
+    std::optional<uint32_t> keepAliveTimerId_ = std::nullopt;
 };
 } // namespace UserAuth
 } // namespace UserIam

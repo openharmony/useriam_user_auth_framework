@@ -36,7 +36,7 @@ namespace UserAuth {
 class SoftBusMessage : public std::enable_shared_from_this<SoftBusMessage>,
                        public NoCopyable {
 public:
-    SoftBusMessage(int32_t messageSeq, const std::string &connectioneName,
+    SoftBusMessage(int32_t messageSeq, const std::string &connectionName,
         const std::string &srcEndPoint, const std::string &destEndPoint,
         const std::shared_ptr<Attributes> &attributes);
     ~SoftBusMessage() override = default;
@@ -54,7 +54,7 @@ public:
 private:
     uint32_t messageSeq_ = 0;
     uint32_t messageVersion_ = 0;
-    std::string connectioneName_ = "";
+    std::string connectionName_ = "";
     std::string srcEndPoint_ = "";
     std::string destEndPoint_ = "";
     std::shared_ptr<Attributes> attributes_ = nullptr;

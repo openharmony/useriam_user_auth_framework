@@ -41,7 +41,7 @@ ResultCode SimpleAuthContext::GetPropertyForAuthResult(Authentication::AuthResul
     } else {
         resultInfo.nextFailLockoutDuration = FIRST_LOCKOUT_DURATION_EXCEPT_PIN;
     }
-    if (!NeedSetFreezingTimeAndRemainTimes(resultInfo.result)) {
+    if (resultInfo.result != FAIL && resultInfo.result != LOCKED) {
         IAM_LOGI("no need GetPropertyFromExecutor, nextLockDuration:%{public}d", resultInfo.nextFailLockoutDuration);
         return SUCCESS;
     }
@@ -77,12 +77,6 @@ ResultCode SimpleAuthContext::GetPropertyForAuthResult(Authentication::AuthResul
     IAM_LOGI("success, nextFailLockoutDuration:%{public}d, freezingTime:%{public}d, remainTime:%{public}d",
         resultInfo.nextFailLockoutDuration, resultInfo.freezingTime, resultInfo.remainTimes);
     return SUCCESS;
-}
-
-bool SimpleAuthContext::NeedSetFreezingTimeAndRemainTimes(int32_t result) const
-{
-    static const std::set<int32_t> needSetCodes = { FAIL, LOCKED };
-    return needSetCodes.find(result) != needSetCodes.end();
 }
 
 SimpleAuthContext::SimpleAuthContext(uint64_t contextId, std::shared_ptr<Authentication> auth,
@@ -224,7 +218,7 @@ void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInf
     bool setNextDurationRet = finalResult.SetInt32Value(Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION,
         resultInfo.nextFailLockoutDuration);
     IF_FALSE_LOGE_AND_RETURN(setNextDurationRet == true);
-    if (resultInfo.result == SUCCESS || NeedSetFreezingTimeAndRemainTimes(resultInfo.result)) {
+    if (resultInfo.result == FAIL || resultInfo.result == LOCKED || resultInfo.result == SUCCESS) {
         bool setFreezingTimeRet = finalResult.SetInt32Value(Attributes::ATTR_FREEZING_TIME, resultInfo.freezingTime);
         IF_FALSE_LOGE_AND_RETURN(setFreezingTimeRet == true);
         bool setRemainTimesRet = finalResult.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, resultInfo.remainTimes);

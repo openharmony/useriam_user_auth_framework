@@ -22,8 +22,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class ServerSocket : public BaseSocket,
-                     public std::enable_shared_from_this<ServerSocket> {
+class ServerSocket : public BaseSocket {
 public:
     ServerSocket(const int32_t socketId);
     ~ServerSocket() override = default;

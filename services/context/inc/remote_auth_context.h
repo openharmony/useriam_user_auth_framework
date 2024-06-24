@@ -64,6 +64,7 @@ private:
     std::string collectorNetworkId_;
     std::vector<uint8_t> executorInfoMsg_;
 
+    bool needSetupConnection_;
     std::string endPointName_;
     std::shared_ptr<RemoteExecutorProxy> remoteExecutorProxy_ = nullptr;
     std::optional<uint32_t> cancelTimerId_;

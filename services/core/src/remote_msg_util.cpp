@@ -71,36 +71,6 @@ bool RemoteMsgUtil::GetConnectionName(uint64_t contextId, std::string &connectio
     return true;
 }
 
-std::string RemoteMsgUtil::GetExecutorProxyEndPointName()
-{
-    return "RemoteExecutorProxy";
-}
-
-std::string RemoteMsgUtil::GetExecutorStubEndPointName()
-{
-    return "RemoteExecutorStub";
-}
-
-std::string RemoteMsgUtil::GetRemoteServiceEndPointName()
-{
-    return "RemoteService";
-}
-
-std::string RemoteMsgUtil::GetRemoteCallbackEndPointName()
-{
-    return "RemoteCallback";
-}
-
-std::string RemoteMsgUtil::GetRemoteAuthContextEndPointName()
-{
-    return "RemoteAuthContext";
-}
-
-std::string RemoteMsgUtil::GetRemoteAuthInvokerContextEndPointName()
-{
-    return "RemoteAuthInvokerContext";
-}
-
 bool RemoteMsgUtil::EncodeQueryExecutorInfoReply(const std::vector<ExecutorInfo> &executorInfoArray,
     const std::vector<uint8_t> &signedRemoteExecutorInfo, Attributes &attr)
 {

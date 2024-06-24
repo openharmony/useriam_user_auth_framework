@@ -61,8 +61,6 @@ void FillTest(Parcel &parcel)
 
     ContextPool::Instance().CancelAll();
 
-    ContextPool::Instance().StopAllSchedule();
-
     ContextPool::Instance().Select(parcel.ReadUint64());
 
     ContextPool::Instance().Select(static_cast<ContextType>(parcel.ReadUint32()));

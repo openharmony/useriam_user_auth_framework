@@ -24,6 +24,7 @@
 #include "relative_timer.h"
 #include "remote_connect_manager.h"
 #include "thread_handler.h"
+#include "thread_handler_manager.h"
 #include "user_auth_hdi.h"
 
 #define LOG_TAG "USER_AUTH_SA"
@@ -97,7 +98,8 @@ RemoteAuthInvokerContext::RemoteAuthInvokerContext(uint64_t contextId, AuthParam
       callerType_(param.callerType),
       callback_(callback)
 {
-    endPointName_ = RemoteMsgUtil::GetRemoteAuthInvokerContextEndPointName();
+    endPointName_ = REMOTE_AUTH_INVOKER_CONTEXT_ENDPOINT_NAME;
+    ThreadHandlerManager::GetInstance().CreateThreadHandler(connectionName_);
 }
 
 RemoteAuthInvokerContext::~RemoteAuthInvokerContext()
@@ -108,7 +110,8 @@ RemoteAuthInvokerContext::~RemoteAuthInvokerContext()
     }
     RemoteConnectionManager::GetInstance().UnregisterConnectionListener(connectionName_, endPointName_);
     RemoteConnectionManager::GetInstance().CloseConnection(connectionName_);
-    IAM_LOGI("%{public}s destroyed", GetDescription());
+    ThreadHandlerManager::GetInstance().DestroyThreadHandler(connectionName_);
+    IAM_LOGI("%{public}s destroy", GetDescription());
 }
 
 ContextType RemoteAuthInvokerContext::GetContextType() const
@@ -193,7 +196,7 @@ bool RemoteAuthInvokerContext::OnStart()
     bool getUdidRet = DeviceManagerUtil::GetInstance().GetUdidByNetworkId(verifierNetworkId_, verifierUdid_);
     IF_FALSE_LOGE_AND_RETURN_VAL(getUdidRet, false);
 
-    endPointName_ = RemoteMsgUtil::GetRemoteAuthInvokerContextEndPointName();
+    endPointName_ = REMOTE_AUTH_INVOKER_CONTEXT_ENDPOINT_NAME;
 
     std::shared_ptr<RemoteAuthInvokerContextMessageCallback> callback =
         Common::MakeShared<RemoteAuthInvokerContextMessageCallback>(shared_from_this(), this);
@@ -268,7 +271,7 @@ bool RemoteAuthInvokerContext::SendRequest()
     };
     IF_FALSE_LOGE_AND_RETURN_VAL(request_ != nullptr, false);
     ResultCode sendMsgRet = RemoteConnectionManager::GetInstance().SendMessage(connectionName_, endPointName_,
-        RemoteMsgUtil::GetRemoteServiceEndPointName(), request_, msgCallback);
+        REMOTE_SERVICE_ENDPOINT_NAME, request_, msgCallback);
     IF_FALSE_LOGE_AND_RETURN_VAL(sendMsgRet == SUCCESS, false);
 
     IAM_LOGI("%{public}s success", GetDescription());
@@ -327,12 +330,12 @@ int32_t RemoteAuthInvokerContext::ProcAuthResultMsgInner(Attributes &message, in
         IF_FALSE_LOGE_AND_RETURN_VAL(hdiRet == SUCCESS, ResultCode::GENERAL_ERROR);
 
         resultCode = authResultInfo.result;
-        if (resultCode == ResultCode::FAIL || resultCode == ResultCode::LOCKED) {
+        if (resultCode == ResultCode::FAIL || resultCode == ResultCode::LOCKED || resultCode == ResultCode::SUCCESS) {
             bool setLockOutDurationRet =
                 attr.SetInt32Value(Attributes::ATTR_LOCKOUT_DURATION, authResultInfo.lockoutDuration);
             IF_FALSE_LOGE_AND_RETURN_VAL(setLockOutDurationRet, ResultCode::GENERAL_ERROR);
-            bool setRemainAttemptsRet = attr.SetInt32Value(Attributes::ATTR_REMAIN_ATTEMPTS,
-                authResultInfo.remainAttempts);
+            bool setRemainAttemptsRet =
+                attr.SetInt32Value(Attributes::ATTR_REMAIN_ATTEMPTS, authResultInfo.remainAttempts);
             IF_FALSE_LOGE_AND_RETURN_VAL(setRemainAttemptsRet, ResultCode::GENERAL_ERROR);
         }
         if (resultCode == ResultCode::SUCCESS) {
