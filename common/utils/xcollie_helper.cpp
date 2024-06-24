@@ -28,7 +28,7 @@ XCollieHelper::XCollieHelper(const std::string &name, unsigned int timeout)
       timeout_(timeout)
 {
     id_ = HiviewDFX::XCollie::GetInstance().SetTimer(name_, timeout_, nullptr, nullptr, HiviewDFX::XCOLLIE_FLAG_DEFAULT);
-    IAM_LOGI("start XCollie, name:%{public}s, timeout:%{public}u, id:%{public}d, flag:%{public}u", name_.c_str(), timeout_, id_, HiviewDFX::XCOLLIE_FLAG_DEFAULT);
+    IAM_LOGI("start XCollie, name:%{public}s, timeout:%{public}u, flag:%{public}u", name_.c_str(), timeout_, HiviewDFX::XCOLLIE_FLAG_DEFAULT);
 }
 
 XCollieHelper::~XCollieHelper()
