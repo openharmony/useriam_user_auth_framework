@@ -104,8 +104,6 @@ void RemoteMsgUtilFuzzTest(Parcel &parcel)
     uint64_t contextId = parcel.ReadUint64();
     std::string connectionName = parcel.ReadString();
     RemoteMsgUtil::GetConnectionName(contextId, connectionName);
-    RemoteMsgUtil::GetExecutorProxyEndPointName();
-    RemoteMsgUtil::GetExecutorStubEndPointName();
     AuthParamInner authParam;
     Attributes attr;
     RemoteMsgUtil::EncodeAuthParam(authParam, attr);

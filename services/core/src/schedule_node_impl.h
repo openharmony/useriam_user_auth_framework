@@ -24,7 +24,7 @@
 #include "iam_hitrace_helper.h"
 
 #include "finite_state_machine.h"
-#include "resource_node.h"
+#include "resource_node_pool.h"
 #include "schedule_node.h"
 #include "schedule_node_callback.h"
 
@@ -32,7 +32,7 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 class ScheduleNodeImpl final : public ScheduleNode,
-                               public std::enable_shared_from_this<ScheduleNodeImpl>,
+                               public std::enable_shared_from_this<ScheduleNode>,
                                public NoCopyable {
 public:
     friend class ScheduleNodeBuilder;
@@ -55,10 +55,10 @@ public:
         bool endAfterFirstFail;
         std::vector<uint8_t> collectorMessage;
         std::vector<uint8_t> verifierMessage;
-        int32_t authIntent {0};
+        int32_t authIntent;
     };
     explicit ScheduleNodeImpl(ScheduleInfo &info);
-    ~ScheduleNodeImpl() override = default;
+    ~ScheduleNodeImpl() override;
     uint64_t GetScheduleId() const override;
     uint64_t GetContextId() const override;
     AuthType GetAuthType() const override;
@@ -113,6 +113,7 @@ private:
     int32_t executorResultCode_ {GENERAL_ERROR};
     std::optional<int32_t> fwkResultCode_ {std::nullopt};
     std::shared_ptr<Attributes> scheduleResult_ {nullptr};
+    std::shared_ptr<ResourceNodePool::ResourceNodePoolListener> resourceNodePoolListener_ {nullptr};
 };
 } // namespace UserAuth
 } // namespace UserIam

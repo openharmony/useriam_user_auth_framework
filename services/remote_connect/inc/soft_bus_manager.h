@@ -32,6 +32,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+inline static const std::string USER_AUTH_PACKAGE_NAME = "ohos.useriam";
 class SoftBusManager {
 public:
     virtual ~SoftBusManager();
@@ -57,6 +58,7 @@ public:
     void OnServerBytes(int32_t socketId, const void *data, uint32_t dataLen);
     void DoOpenConnection(const std::string &connectionName, const uint32_t tokenId,
         const std::string &networkId);
+    ResultCode DoCloseConnection(const std::string &connectionName);
 
 private:
     SoftBusManager();

@@ -92,7 +92,7 @@ bool RemoteAuthServiceImpl::Start()
     static auto callback = Common::MakeShared<RemoteAuthServiceImplConnectionListener>();
     IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, false);
     ResultCode registerResult = RemoteConnectionManager::GetInstance().RegisterConnectionListener(
-        RemoteMsgUtil::GetRemoteServiceEndPointName(), callback);
+        REMOTE_SERVICE_ENDPOINT_NAME, callback);
     IF_FALSE_LOGE_AND_RETURN_VAL(registerResult == SUCCESS, false);
     IAM_LOGI("success");
     return true;
@@ -125,6 +125,9 @@ void RemoteAuthServiceImpl::OnMessage(const std::string &connectionName, const s
             break;
         case END_EXECUTE:
             resultCode = ProcEndExecuteRequest(request, reply);
+            break;
+        case KEEP_ALIVE:
+            resultCode = SUCCESS;
             break;
         default:
             IAM_LOGE("unsupported request type: %{public}d", msgType);

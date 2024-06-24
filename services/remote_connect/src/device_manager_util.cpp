@@ -39,6 +39,7 @@ bool DeviceManagerUtil::GetUdidByNetworkId(const std::string &networkId, std::st
 {
     int32_t ret = DeviceManager::GetInstance().GetUdidByNetworkId(USER_AUTH_PACKAGE_NAME, networkId, udid);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret == 0, false);
+    IF_FALSE_LOGE_AND_RETURN_VAL(!udid.empty(), false);
 
     return true;
 }
@@ -47,6 +48,7 @@ bool DeviceManagerUtil::GetLocalDeviceNetWorkId(std::string &networkId)
 {
     int32_t ret = DeviceManager::GetInstance().GetLocalDeviceNetWorkId(USER_AUTH_PACKAGE_NAME, networkId);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret == 0, false);
+    IF_FALSE_LOGE_AND_RETURN_VAL(!networkId.empty(), false);
 
     return true;
 }
