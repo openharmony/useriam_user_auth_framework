@@ -1144,19 +1144,34 @@ int32_t UserAuthService::UnRegistUserAuthSuccessEventListener(
 
 int32_t UserAuthService::SetGlobalConfigParam(const GlobalConfigParam &param)
 {
-    IAM_LOGI("start");
+    IAM_LOGI("start, GlobalConfigType is %{public}d", param.type);
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
     }
-    if (param.type != PIN_EXPIRED_PERIOD) {
-        IAM_LOGE("bad global config type");
+    if (param.userIds.size() > MAX_USER || param.authTypes.size() > MAX_AUTH_TYPE_LEN ||
+        param.authTypes.size() == 0) {
+        IAM_LOGE("bad global config param");
         return INVALID_PARAMETERS;
     }
-    HdiGlobalConfigParam paramConfig = {};
-    paramConfig.type = PIN_EXPIRED_PERIOD;
-    paramConfig.value.pinExpiredPeriod = param.value.pinExpiredPeriod;
 
+    HdiGlobalConfigParam paramConfig = {};
+    switch (param.type) {
+        case GlobalConfigType::PIN_EXPIRED_PERIOD:
+            paramConfig.value.pinExpiredPeriod = param.value.pinExpiredPeriod;
+            break;
+        case GlobalConfigType::ENABLE_STATUS:
+            paramConfig.value.enableStatus = param.value.enableStatus;
+            break;
+        default:
+            IAM_LOGE("bad global config type");
+            return INVALID_PARAMETERS;
+    }
+    paramConfig.type = static_cast<HdiGlobalConfigType>(param.type);
+    paramConfig.userIds = param.userIds;
+    for (const auto authType : param.authTypes) {
+        paramConfig.authTypes.push_back(authType);
+    }
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi == nullptr) {
         IAM_LOGE("hdi interface is nullptr");

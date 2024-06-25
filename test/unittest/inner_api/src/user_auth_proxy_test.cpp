@@ -495,6 +495,24 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxySetGlobalConfigParam001, TestSize.Level
 
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
+    ON_CALL(*obj, SendRequest)
+        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            service->OnRemoteRequest(code, data, reply, option);
+            return SUCCESS;
+        });
+    GlobalConfigParam param = {};
+    EXPECT_EQ(proxy->SetGlobalConfigParam(param), INVALID_PARAMETERS);
+}
+
+HWTEST_F(UserAuthProxyTest, UserAuthProxySetGlobalConfigParam002, TestSize.Level0)
+{
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    EXPECT_NE(obj, nullptr);
+    auto proxy = Common::MakeShared<UserAuthProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+
+    auto service = Common::MakeShared<MockUserAuthService>();
+    EXPECT_NE(service, nullptr);
     EXPECT_CALL(*service, SetGlobalConfigParam(_))
         .Times(Exactly(1))
         .WillOnce([](const GlobalConfigParam &param) {
@@ -504,10 +522,38 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxySetGlobalConfigParam001, TestSize.Level
     ON_CALL(*obj, SendRequest)
         .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
             service->OnRemoteRequest(code, data, reply, option);
+            return GENERAL_ERROR;
+        });
+    GlobalConfigParam param = {};
+    param.type = PIN_EXPIRED_PERIOD;
+    param.value.pinExpiredPeriod = 1;
+    EXPECT_EQ(proxy->SetGlobalConfigParam(param), GENERAL_ERROR);
+}
+
+HWTEST_F(UserAuthProxyTest, UserAuthProxySetGlobalConfigParam003, TestSize.Level0)
+{
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    EXPECT_NE(obj, nullptr);
+    auto proxy = Common::MakeShared<UserAuthProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+
+    auto service = Common::MakeShared<MockUserAuthService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, SetGlobalConfigParam(_))
+        .Times(Exactly(1))
+        .WillOnce([](const GlobalConfigParam &param) {
+            return GENERAL_ERROR;
+        });
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
+    ON_CALL(*obj, SendRequest)
+        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            service->OnRemoteRequest(code, data, reply, option);
             return SUCCESS;
         });
     GlobalConfigParam param = {};
-    proxy->SetGlobalConfigParam(param);
+    param.type = ENABLE_STATUS;
+    param.value.enableStatus = true;
+    EXPECT_EQ(proxy->SetGlobalConfigParam(param), GENERAL_ERROR);
 }
 } // namespace UserAuth
 } // namespace UserIam

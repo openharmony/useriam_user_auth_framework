@@ -787,19 +787,13 @@ HWTEST_F(UserAuthClientTest, UserAuthClientSetGlobalConfigParam002, TestSize.Lev
     GlobalConfigParam param = {};
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, SetGlobalConfigParam(_)).Times(1);
-    ON_CALL(*service, SetGlobalConfigParam)
-        .WillByDefault(
-            [](const GlobalConfigParam &param) {
-                return SUCCESS;
-            }
-        );
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
     
-    int32_t ret = UserAuthClient::GetInstance().SetGlobalConfigParam(param);
-    EXPECT_EQ(ret, SUCCESS);
+    EXPECT_EQ(UserAuthClient::GetInstance().SetGlobalConfigParam(param), INVALID_PARAMETERS);
+    param.type = ENABLE_STATUS;
+    EXPECT_EQ(UserAuthClient::GetInstance().SetGlobalConfigParam(param), SUCCESS);
     EXPECT_NE(dr, nullptr);
     dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
