@@ -31,14 +31,12 @@ XCollieHelper::XCollieHelper(const std::string &name, unsigned int timeout)
 {
     id_ = HiviewDFX::XCollie::GetInstance()
         .SetTimer(name_, timeout_, nullptr, nullptr, HiviewDFX::XCOLLIE_FLAG_DEFAULT);
-    IAM_LOGI("start XCollie, name:%{public}s, timeout:%{public}u", name_.c_str(), timeout_);
 }
 
 XCollieHelper::~XCollieHelper()
 {
-    IAM_LOGI("cancel XCollie, name:%{public}s", name_.c_str());
     HiviewDFX::XCollie::GetInstance().CancelTimer(id_);
 }
 } // namespace Common
-} // namespace UserIam
+} // namespace UserIam 
 } // namespace OHOS
