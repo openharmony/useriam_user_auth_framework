@@ -26,11 +26,9 @@ namespace OHOS {
 namespace UserIam {
 namespace Common {
 XCollieHelper::XCollieHelper(const std::string &name, unsigned int timeout)
-    : name_(name),
-      timeout_(timeout)
 {
     id_ = HiviewDFX::XCollie::GetInstance()
-        .SetTimer(name_, timeout_, nullptr, nullptr, HiviewDFX::XCOLLIE_FLAG_DEFAULT);
+        .SetTimer(name, timeout, nullptr, nullptr, HiviewDFX::XCOLLIE_FLAG_DEFAULT);
 }
 
 XCollieHelper::~XCollieHelper()

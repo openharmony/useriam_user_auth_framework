@@ -30,8 +30,6 @@ public:
 
 private:
     int id_;
-    const std::string name_;
-    unsigned int timeout_;
 };
 } // namespace Common
 } // namespace UserIam
