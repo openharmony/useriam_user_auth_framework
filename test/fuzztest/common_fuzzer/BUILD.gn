@@ -209,7 +209,6 @@ ohos_source_set("userauth_service_core_fuzzer") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "openssl:libcrypto_shared",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
@@ -287,7 +286,6 @@ ohos_source_set("userauth_service_context_fuzzer") {
     "hitrace:hitrace_meter",
     "init:libbegetutil",
     "napi:ace_napi",
-    "openssl:libcrypto_shared",
   ]
 
   public_configs =

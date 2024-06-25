@@ -75,7 +75,6 @@ ohos_fuzztest("ContextPoolImplFuzzTest") {
     "init:libbegetutil",
     "ipc:ipc_single",
     "napi:ace_napi",
-    "openssl:libcrypto_shared",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
