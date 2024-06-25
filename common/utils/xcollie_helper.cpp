@@ -3,7 +3,6 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -27,7 +26,8 @@ XCollieHelper::XCollieHelper(const std::string &name, unsigned int timeout)
     : name_(name),
       timeout_(timeout)
 {
-    id_ = HiviewDFX::XCollie::GetInstance().SetTimer(name_, timeout_, nullptr, nullptr, HiviewDFX::XCOLLIE_FLAG_DEFAULT);
+    id_ = HiviewDFX::XCollie::GetInstance()
+        .SetTimer(name_, timeout_, nullptr, nullptr, HiviewDFX::XCOLLIE_FLAG_DEFAULT);
     IAM_LOGI("start XCollie, name:%{public}s, timeout:%{public}u", name_.c_str(), timeout_);
 }
 
