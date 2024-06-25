@@ -40,6 +40,7 @@ ohos_fuzztest("SoftBusFuzzTest") {
   deps = [
     "../../common_fuzzer:attributes_fuzzer",
     "../../common_fuzzer:iam_test_fuzzer",
+    "../../common_fuzzer:iam_utils_fuzzer",
     "../../common_fuzzer:userauth_service_remote_connect_fuzzer",
     "../../common_fuzzer:userauth_services_ipc_fuzzer",
   ]
