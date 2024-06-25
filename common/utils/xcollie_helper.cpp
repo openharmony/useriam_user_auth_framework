@@ -36,5 +36,5 @@ XCollieHelper::~XCollieHelper()
     HiviewDFX::XCollie::GetInstance().CancelTimer(id_);
 }
 } // namespace Common
-} // namespace UserIam 
+} // namespace UserIam
 } // namespace OHOS
