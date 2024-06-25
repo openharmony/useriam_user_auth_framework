@@ -478,6 +478,7 @@ ohos_source_set("iam_utils_fuzzer") {
   sources = [
     "../../../common/utils/iam_mem.cpp",
     "../../../common/utils/iam_time.cpp",
+    "../../../common/utils/xcollie_helper.cpp",
   ]
 
   external_deps = [
