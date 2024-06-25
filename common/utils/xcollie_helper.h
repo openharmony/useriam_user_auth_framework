@@ -22,10 +22,12 @@ namespace OHOS {
 namespace UserIam {
 namespace Common {
 constexpr unsigned int API_CALL_TIMEOUT = 5; // 5s
+
 class XCollieHelper {
 public:
     XCollieHelper(const std::string &name, unsigned int timeout);
     ~XCollieHelper();
+
 private:
     int id_;
     const std::string name_;
