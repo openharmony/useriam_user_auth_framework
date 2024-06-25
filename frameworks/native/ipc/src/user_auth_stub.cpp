@@ -585,6 +585,28 @@ int32_t UserAuthStub::UnRegistUserAuthSuccessEventListenerStub(MessageParcel &da
     return SUCCESS;
 }
 
+ResultCode UserAuthStub::ReadGlobalConfigValue(MessageParcel &data, GlobalConfigParam &param)
+{
+    switch (param.type) {
+        case GlobalConfigType::PIN_EXPIRED_PERIOD:
+            if (!data.ReadInt64(param.value.pinExpiredPeriod)) {
+                IAM_LOGE("failed to read GlobalConfigParam pinExpiredPeriod");
+                return READ_PARCEL_ERROR;
+            }
+            break;
+        case GlobalConfigType::ENABLE_STATUS :
+            if (!data.ReadBool(param.value.enableStatus)) {
+                IAM_LOGE("failed to read GlobalConfigParam enableStatus");
+                return READ_PARCEL_ERROR;
+            }
+            break;
+        default:
+            IAM_LOGE("GlobalConfigType not support.");
+            return INVALID_PARAMETERS;
+    }
+    return SUCCESS;
+}
+
 int32_t UserAuthStub::SetGlobalConfigParamStub(MessageParcel &data, MessageParcel &reply)
 {
     IAM_LOGI("enter");
@@ -597,15 +619,24 @@ int32_t UserAuthStub::SetGlobalConfigParamStub(MessageParcel &data, MessageParce
         return READ_PARCEL_ERROR;
     }
     globalConfigParam.type = static_cast<GlobalConfigType>(globalConfigType);
-
-    if (globalConfigParam.type == GlobalConfigType::PIN_EXPIRED_PERIOD) {
-        if (!data.ReadInt64(globalConfigParam.value.pinExpiredPeriod)) {
-            IAM_LOGE("failed to read pinExpiredPeriod");
-            return READ_PARCEL_ERROR;
-        }
+    int32_t ret = ReadGlobalConfigValue(data, globalConfigParam);
+    if (ret != SUCCESS) {
+        IAM_LOGE("failed to ReadGlobalConfigValue");
+        return ret;
     }
-
-    int32_t ret = SetGlobalConfigParam(globalConfigParam);
+    if (!data.ReadInt32Vector(&globalConfigParam.userIds)) {
+        IAM_LOGE("failed to write userIds");
+        return READ_PARCEL_ERROR;
+    }
+    std::vector<int32_t> authTypeList;
+    if (!data.ReadInt32Vector(&authTypeList)) {
+        IAM_LOGE("failed to read authTypeList");
+        return READ_PARCEL_ERROR;
+    }
+    for (const auto &authType : authTypeList) {
+        globalConfigParam.authTypes.push_back(static_cast<AuthType>(authType));
+    }
+    ret = SetGlobalConfigParam(globalConfigParam);
     if (!reply.WriteInt32(ret)) {
         IAM_LOGE("failed to write ret");
         return WRITE_PARCEL_ERROR;
