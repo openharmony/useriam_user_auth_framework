@@ -39,6 +39,7 @@
 #include "resource_node_pool.h"
 #include "template_cache_manager.h"
 #include "remote_msg_util.h"
+#include "xcollie_helper.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -129,6 +130,7 @@ void CoAuthService::AddExecutorDeathRecipient(uint64_t executorIndex, AuthType a
 uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<ExecutorCallbackInterface> &callback)
 {
     IAM_LOGI("register resource node begin");
+    Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     if (callback == nullptr) {
         IAM_LOGE("executor callback is nullptr");
         return INVALID_EXECUTOR_INDEX;
@@ -179,6 +181,7 @@ uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<
 void CoAuthService::ExecutorUnregister(uint64_t executorIndex)
 {
     IAM_LOGI("delete resource node begin");
+    Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     if (!IpcCommon::CheckPermission(*this, ACCESS_AUTH_RESPOOL)) {
         IAM_LOGE("failed to check permission");
         return;

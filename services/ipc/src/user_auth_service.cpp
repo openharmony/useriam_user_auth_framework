@@ -41,6 +41,7 @@
 #include "remote_iam_callback.h"
 #include "remote_auth_service.h"
 #include "device_manager_util.h"
+#include "xcollie_helper.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -244,6 +245,7 @@ void UserAuthService::GetProperty(int32_t userId, AuthType authType,
     const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallbackInterface> &callback)
 {
     IAM_LOGI("start");
+    Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
     Attributes values;
 
@@ -299,6 +301,7 @@ void UserAuthService::SetProperty(int32_t userId, AuthType authType, const Attri
     sptr<SetExecutorPropertyCallbackInterface> &callback)
 {
     IAM_LOGI("start");
+    Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return;
@@ -517,6 +520,7 @@ uint64_t UserAuthService::AuthUser(AuthParamInner &authParam, std::optional<Remo
     sptr<UserAuthCallbackInterface> &callback)
 {
     IAM_LOGI("start, %{public}s", GetAuthParamStr(authParam, remoteAuthParam).c_str());
+    Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     auto contextCallback = GetAuthContextCallback(INNER_API_VERSION_10000, authParam.challenge, authParam.authType,
         authParam.authTrustLevel, callback);
     if (contextCallback == nullptr) {
@@ -594,6 +598,7 @@ int32_t UserAuthService::PrepareRemoteAuthInner(const std::string &networkId)
 int32_t UserAuthService::PrepareRemoteAuth(const std::string &networkId, sptr<UserAuthCallbackInterface> &callback)
 {
     IAM_LOGI("start");
+    Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return INVALID_PARAMETERS;
@@ -673,6 +678,7 @@ uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthTy
     sptr<UserAuthCallbackInterface> &callback)
 {
     IAM_LOGI("start");
+    Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
 
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
@@ -720,6 +726,7 @@ uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthTy
 int32_t UserAuthService::CancelAuthOrIdentify(uint64_t contextId)
 {
     IAM_LOGI("start");
+    Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     bool checkRet = !IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
         !IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION);
     if (checkRet) {
@@ -1101,6 +1108,7 @@ int32_t UserAuthService::RegistUserAuthSuccessEventListener(const std::vector<Au
     const sptr<AuthEventListenerInterface> &listener)
 {
     IAM_LOGE("start");
+    Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
 
     if (!CheckAuthTypeIsValid(authType)) {
@@ -1126,6 +1134,7 @@ int32_t UserAuthService::UnRegistUserAuthSuccessEventListener(
     const sptr<AuthEventListenerInterface> &listener)
 {
     IAM_LOGE("start");
+    Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
 
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
@@ -1145,6 +1154,7 @@ int32_t UserAuthService::UnRegistUserAuthSuccessEventListener(
 int32_t UserAuthService::SetGlobalConfigParam(const GlobalConfigParam &param)
 {
     IAM_LOGI("start");
+    Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
