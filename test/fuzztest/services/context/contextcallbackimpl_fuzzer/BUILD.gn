@@ -49,6 +49,7 @@ ohos_fuzztest("ContextCallbackImplFuzzTest") {
     "../../../common_fuzzer:attributes_fuzzer",
     "../../../common_fuzzer:dfx_fuzzer",
     "../../../common_fuzzer:iam_test_fuzzer",
+    "../../../common_fuzzer:iam_utils_fuzzer",
     "../../../common_fuzzer:userauth_service_base_fuzzer",
     "../../../common_fuzzer:userauth_service_context_fuzzer",
     "../../../common_fuzzer:userauth_service_core_fuzzer",
