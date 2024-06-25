@@ -14,11 +14,14 @@
  */
 
 #include "xcollie_helper.h"
-#include "iam_logger.h"
+
 #include "xcollie/xcollie.h"
 #include "xcollie/xcollie_define.h"
 
+#include "iam_logger.h"
+
 #define LOG_TAG "USER_AUTH_SA"
+
 namespace OHOS {
 namespace UserIam {
 namespace Common {
@@ -33,7 +36,7 @@ XCollieHelper::XCollieHelper(const std::string &name, unsigned int timeout)
 
 XCollieHelper::~XCollieHelper()
 {
-    IAM_LOGI("cancel XCollie, name:%{public}s, timeout:%{public}u, id:%{public}d", name_.c_str(), timeout_, id_);
+    IAM_LOGI("cancel XCollie, name:%{public}s", name_.c_str());
     HiviewDFX::XCollie::GetInstance().CancelTimer(id_);
 }
 } // namespace Common
