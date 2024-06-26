@@ -33,6 +33,8 @@ const std::string WINDOW_MODE_FULLSCREEN = "FULLSCREEN";
 const std::string PIN_SUB_TYPE_SIX = "PIN_SIX";
 const std::string PIN_SUB_TYPE_NUM = "PIN_NUMBER";
 const std::string PIN_SUB_TYPE_MIX = "PIN_MIXED";
+const std::string PIN_SUB_TYPE_FOUR = "PIN_FOUR";
+const std::string PIN_SUB_TYPE_PATTERN = "PIN_PATTERN";
 const std::string PIN_SUB_TYPE_MAX = "PIN_MAX";
 
 const std::string JSON_AUTH_TYPE = "type";
@@ -173,6 +175,8 @@ std::string PinSubType2Str(const PinSubType &subType)
     pinSubTypeMap.emplace(std::make_pair(PinSubType::PIN_SIX, PIN_SUB_TYPE_SIX));
     pinSubTypeMap.emplace(std::make_pair(PinSubType::PIN_NUMBER, PIN_SUB_TYPE_NUM));
     pinSubTypeMap.emplace(std::make_pair(PinSubType::PIN_MIXED, PIN_SUB_TYPE_MIX));
+    pinSubTypeMap.emplace(std::make_pair(PinSubType::PIN_FOUR, PIN_SUB_TYPE_FOUR));
+    pinSubTypeMap.emplace(std::make_pair(PinSubType::PIN_PATTERN, PIN_SUB_TYPE_PATTERN));
     pinSubTypeMap.emplace(std::make_pair(PinSubType::PIN_MAX, PIN_SUB_TYPE_MAX));
 
     std::string result = "";

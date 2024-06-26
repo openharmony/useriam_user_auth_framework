@@ -62,6 +62,10 @@ enum PinSubType : int32_t {
     PIN_NUMBER = 10001,
     /** Complex password with number and alphabet. */
     PIN_MIXED = 10002,
+    /** Digit password with fixed length of four*/
+    PIN_FOUR = 10003,
+    /** Pattern password*/
+    PIN_PATTERN = 10004,
     /** Max pin. */
     PIN_MAX,
 };
