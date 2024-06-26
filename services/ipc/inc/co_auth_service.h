@@ -18,8 +18,11 @@
 
 #include "co_auth_stub.h"
 
+#include "if_system_ability_manager.h"
+#include "iservice_registry.h"
 #include <system_ability.h>
 #include <system_ability_definition.h>
+#include "system_ability_listener.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -35,7 +38,8 @@ public:
     int Dump(int fd, const std::vector<std::u16string> &args) override;
     uint64_t ExecutorRegister(const ExecutorRegisterInfo &info, sptr<ExecutorCallbackInterface> &callback) override;
     void ExecutorUnregister(uint64_t executorIndex) override;
-    static void SetIsReady(bool isReady);
+    static void SetInitFlag(bool isInit);
+    static void SetAccessTokenReady(bool isReady);
 
 protected:
     void OnStart() override;
@@ -45,10 +49,20 @@ private:
     static void Init();
     static void AddExecutorDeathRecipient(uint64_t executorIndex, AuthType authType,
         std::shared_ptr<ExecutorCallbackInterface> callback);
+    ResultCode RegistAccessTokenListener();
+    ResultCode UnRegistAccessTokenListener();
+    static bool IsFwkReady();
+    static void NotifyFwkReady();
 
-    static bool isReady_;
+    static bool init_;
     static std::recursive_mutex mutex_;
     static std::shared_ptr<CoAuthService> instance_;
+
+    static std::recursive_mutex accessTokenReadyMutex_;
+    static bool accessTokenReady_;
+
+    static std::recursive_mutex accessTokenMutex_;
+    static sptr<AccessTokenListener> accessTokenListener_;
 };
 } // namespace UserAuth
 } // namespace UserIam

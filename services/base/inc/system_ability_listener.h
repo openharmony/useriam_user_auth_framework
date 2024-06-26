@@ -19,7 +19,6 @@
 #include "system_ability_status_change_stub.h"
 
 #include "iam_logger.h"
-#include "iam_common_defines.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 namespace OHOS {
@@ -55,6 +54,13 @@ public:
     SoftBusListener(std::string name, int32_t systemAbilityId,
          AddFunc addFunc, RemoveFunc removeFunc);
     ~SoftBusListener() override {};
+};
+
+class AccessTokenListener : public SystemAbilityListener {
+public:
+    AccessTokenListener(std::string name, int32_t systemAbilityId,
+         AddFunc addFunc, RemoveFunc removeFunc);
+    ~AccessTokenListener() override {};
 };
 } // namespace UserAuth
 } // namespace UserIam

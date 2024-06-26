@@ -64,7 +64,8 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest001, TestSize.Level0)
     
     auto service = Common::MakeShared<CoAuthService>();
     EXPECT_NE(service, nullptr);
-    CoAuthService::SetIsReady(true);
+    CoAuthService::SetInitFlag(true);
+    CoAuthService::SetAccessTokenReady(true);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     std::promise<void> promise;

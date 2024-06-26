@@ -67,6 +67,13 @@ SoftBusListener::SoftBusListener(std::string name, int32_t systemAbilityId,
 {
     IAM_LOGI("start.");
 }
+
+AccessTokenListener::AccessTokenListener(std::string name, int32_t systemAbilityId,
+    AddFunc addFunc, RemoveFunc removeFunc)
+    : SystemAbilityListener(name, systemAbilityId, addFunc, removeFunc)
+{
+    IAM_LOGI("start.");
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
