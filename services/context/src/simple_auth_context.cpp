@@ -232,6 +232,9 @@ void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInf
         bool setUserIdRet = finalResult.SetInt32Value(Attributes::ATTR_USER_ID, resultInfo.userId);
         IF_FALSE_LOGE_AND_RETURN(setUserIdRet == true);
         IAM_LOGI("matched userId: %{public}d.", resultInfo.userId);
+        bool setCredentialIdRet = finalResult.SetUint64Value(Attributes::ATTR_CREDENTIAL_ID, resultInfo.credentialId);
+        IF_FALSE_LOGE_AND_RETURN(setCredentialIdRet == true);
+        IAM_LOGI("matched credentialId: %{public}s.", GET_MASKED_STRING(resultInfo.credentialId).c_str());
         bool setExpiredRet = finalResult.SetInt64Value(Attributes::ATTR_PIN_EXPIRED_INFO, resultInfo.pinExpiredInfo);
         IF_FALSE_LOGE_AND_RETURN(setExpiredRet == true);
     }
