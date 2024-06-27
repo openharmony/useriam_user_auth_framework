@@ -122,33 +122,19 @@ ResultCode SoftBusManager::RegistDeviceManagerListener()
         return SUCCESS;
     }
 
-    auto sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (sam == nullptr) {
-        IAM_LOGE("sam is nullptr.");
-        return GENERAL_ERROR;
-    }
-
-    sptr<DeviceManagerListener> deviceManagerListener(
-        new (std::nothrow) DeviceManagerListener("device_manager",
-        DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID,
+    deviceManagerServiceListener_ = SystemAbilityListener::Subscribe(
+        "device_manager", DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID,
         []() {
             SoftBusManager::GetInstance().DeviceInit();
         },
         []() {
             SoftBusManager::GetInstance().DeviceUnInit();
-        }));
-    if (deviceManagerListener == nullptr) {
-        IAM_LOGE("listener is nullptr.");
+        });
+    if (deviceManagerServiceListener_ == nullptr) {
+        IAM_LOGE("deviceManagerServiceListener_ is nullptr.");
         return GENERAL_ERROR;
     }
 
-    int32_t ret = sam->SubscribeSystemAbility(DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID, deviceManagerListener);
-    if (ret != SUCCESS) {
-        IAM_LOGE("SubscribeSystemAbility fail.");
-        return GENERAL_ERROR;
-    }
-
-    deviceManagerServiceListener_ = deviceManagerListener;
     IAM_LOGI("RegistDeviceManagerListener success.");
     return SUCCESS;
 }
@@ -162,16 +148,10 @@ ResultCode SoftBusManager::UnRegistDeviceManagerListener()
         return SUCCESS;
     }
 
-    auto sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (sam == nullptr) {
-        IAM_LOGE("sam is nullptr.");
-        return GENERAL_ERROR;
-    }
-
-    int32_t ret = sam->UnSubscribeSystemAbility(DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID,
+    int32_t ret = SystemAbilityListener::UnSubscribe(DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID,
         deviceManagerServiceListener_);
     if (ret != SUCCESS) {
-        IAM_LOGE("UnSubscribeSystemAbility fail.");
+        IAM_LOGE("UnSubscribe service fail.");
         return GENERAL_ERROR;
     }
 
@@ -189,33 +169,19 @@ ResultCode SoftBusManager::RegistSoftBusListener()
         return SUCCESS;
     }
 
-    auto sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (sam == nullptr) {
-        IAM_LOGE("sam is nullptr.");
-        return GENERAL_ERROR;
-    }
-
-    sptr<SoftBusListener> softBusListener(
-        new (std::nothrow) SoftBusListener("softbus_server",
-        SOFTBUS_SERVER_SA_ID,
+    softBusServiceListener_ = SystemAbilityListener::Subscribe(
+        "softbus_server", SOFTBUS_SERVER_SA_ID,
         []() {
             SoftBusManager::GetInstance().ServiceSocketInit();
         },
         []() {
             SoftBusManager::GetInstance().ServiceSocketUnInit();
-        }));
-    if (softBusListener == nullptr) {
-        IAM_LOGE("listener is nullptr.");
+        });
+    if (softBusServiceListener_ == nullptr) {
+        IAM_LOGE("softBusServiceListener_ is nullptr.");
         return GENERAL_ERROR;
     }
 
-    int32_t ret = sam->SubscribeSystemAbility(SOFTBUS_SERVER_SA_ID, softBusListener);
-    if (ret != SUCCESS) {
-        IAM_LOGE("SubscribeSystemAbility fail.");
-        return GENERAL_ERROR;
-    }
-
-    softBusServiceListener_ = softBusListener;
     IAM_LOGI("RegistSoftBusListener success.");
     return SUCCESS;
 }
@@ -229,15 +195,9 @@ ResultCode SoftBusManager::UnRegistSoftBusListener()
         return SUCCESS;
     }
 
-    auto sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (sam == nullptr) {
-        IAM_LOGE("sam is nullptr.");
-        return GENERAL_ERROR;
-    }
-
-    int32_t ret = sam->UnSubscribeSystemAbility(SOFTBUS_SERVER_SA_ID, softBusServiceListener_);
+    int32_t ret = SystemAbilityListener::UnSubscribe(SOFTBUS_SERVER_SA_ID, softBusServiceListener_);
     if (ret != SUCCESS) {
-        IAM_LOGE("UnSubscribeSystemAbility fail.");
+        IAM_LOGE("UnSubscribe service fail.");
         return GENERAL_ERROR;
     }
 
