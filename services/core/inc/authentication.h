@@ -54,6 +54,7 @@ public:
         int32_t nextFailLockoutDuration;
         int64_t pinExpiredInfo;
         std::vector<uint8_t> remoteAuthResultMsg;
+        uint64_t credentialId;
     };
     struct AuthExecutorMsg {
         uint64_t executorIndex;
