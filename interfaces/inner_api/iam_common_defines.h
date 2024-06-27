@@ -36,6 +36,9 @@ constexpr int32_t USER_AUTH_TIP_SINGLE_AUTH_RESULT = 9999;
 constexpr int INVALID_SOCKET_ID = -1;
 constexpr int INVALID_USER_ID = -1;
 constexpr int32_t MAIN_USER_ID = 100;
+constexpr int32_t MAX_USER = 32;
+constexpr uint32_t MAX_AUTH_TYPE_SIZE = 4;
+
 /**
  * @brief Defines authentication type.
  */
