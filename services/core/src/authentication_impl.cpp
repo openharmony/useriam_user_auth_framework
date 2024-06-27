@@ -170,6 +170,7 @@ bool AuthenticationImpl::Update(const std::vector<uint8_t> &scheduleResult, Auth
     resultInfo.sdkVersion = authPara_.sdkVersion;
     resultInfo.userId = info.userId;
     resultInfo.remoteAuthResultMsg = info.remoteAuthResultMsg;
+    resultInfo.credentialId = info.credentialId;
 
     if (resultInfo.result != SUCCESS) {
         SetLatestError(resultInfo.result);
