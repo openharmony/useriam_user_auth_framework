@@ -55,7 +55,7 @@ public:
         bool endAfterFirstFail;
         std::vector<uint8_t> collectorMessage;
         std::vector<uint8_t> verifierMessage;
-        int32_t authIntent;
+        int32_t authIntent {0};
     };
     explicit ScheduleNodeImpl(ScheduleInfo &info);
     ~ScheduleNodeImpl() override;
