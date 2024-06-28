@@ -19,7 +19,7 @@
 #include "system_ability_status_change_stub.h"
 
 #include "iam_logger.h"
-#include "iam_common_defines.h"
+#include "iam_check.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 namespace OHOS {
@@ -35,26 +35,15 @@ public:
     
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+    static sptr<SystemAbilityListener> Subscribe(std::string name, int32_t systemAbilityId,
+         AddFunc addFunc, RemoveFunc removeFunc);
+    static int32_t UnSubscribe(int32_t systemAbilityId, sptr<SystemAbilityListener> &listener);
 
 private:
     std::string name_;
     int32_t systemAbilityId_;
     AddFunc addFunc_;
     RemoveFunc removeFunc_;
-};
-
-class DeviceManagerListener : public SystemAbilityListener {
-public:
-    DeviceManagerListener(std::string name, int32_t systemAbilityId,
-         AddFunc addFunc, RemoveFunc removeFunc);
-    ~DeviceManagerListener() override {};
-};
-
-class SoftBusListener : public SystemAbilityListener {
-public:
-    SoftBusListener(std::string name, int32_t systemAbilityId,
-         AddFunc addFunc, RemoveFunc removeFunc);
-    ~SoftBusListener() override {};
 };
 } // namespace UserAuth
 } // namespace UserIam
