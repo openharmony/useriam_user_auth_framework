@@ -50,7 +50,7 @@ ohos_source_set("userauth_service_remote_connect") {
   deps = [ "../../frameworks/native/common:attributes" ]
 
   external_deps = [
-    "access_token:libtoken_setproc",
+    "access_token:libtokensetproc_shared",
     "c_utils:utils",
     "device_manager:devicemanagersdk",
     "dsoftbus:softbus_client",
