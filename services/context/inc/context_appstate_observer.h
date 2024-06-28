@@ -33,14 +33,19 @@ class ContextAppStateObserverManager {
     public:
         ContextAppStateObserverManager() = default;
         ~ContextAppStateObserverManager() = default;
+        static ContextAppStateObserverManager &GetInstance();
+
         void SubscribeAppState(const std::shared_ptr<ContextCallback> &callback, const uint64_t contextId);
         void UnSubscribeAppState();
+        void SetScreenLockState(bool screenLockState);
+        bool GetScreenLockState();
 
     protected:
         sptr<ApplicationStateObserverStub> appStateObserver_ = nullptr;
 
     private:
         sptr<IAppMgr> GetAppManagerInstance();
+        bool isScreenLocked_ = false;
 };
 
 class ContextAppStateObserver : public ApplicationStateObserverStub {
