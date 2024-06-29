@@ -55,8 +55,8 @@ private:
 
     static std::shared_ptr<CoAuthService> instance_;
     std::recursive_mutex mutex_;
-    bool isReady_;
-    bool accessTokenReady_;
+    bool isReady_{false};
+    bool accessTokenReady_{false};
     sptr<SystemAbilityListener> accessTokenListener_;
 };
 } // namespace UserAuth
