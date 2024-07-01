@@ -44,13 +44,12 @@ ohos_source_set("userauth_service_remote_connect") {
     "src/soft_bus_message.cpp",
     "src/soft_bus_server_socket.cpp",
     "src/soft_bus_socket_listener.cpp",
-    "src/system_ability_listener.cpp",
   ]
 
   deps = [ "../../frameworks/native/common:attributes" ]
 
   external_deps = [
-    "access_token:libtoken_setproc",
+    "access_token:libtokensetproc_shared",
     "c_utils:utils",
     "device_manager:devicemanagersdk",
     "dsoftbus:softbus_client",

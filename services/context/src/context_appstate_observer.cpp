@@ -113,6 +113,23 @@ void ContextAppStateObserverManager::UnSubscribeAppState()
     return;
 }
 
+ContextAppStateObserverManager &ContextAppStateObserverManager::GetInstance()
+{
+    static ContextAppStateObserverManager instance;
+    return instance;
+}
+
+void ContextAppStateObserverManager::SetScreenLockState(bool screenLockState)
+{
+    IAM_LOGI("setScreenLockState: %{public}d", screenLockState);
+    isScreenLocked_ = screenLockState;
+}
+
+bool ContextAppStateObserverManager::GetScreenLockState()
+{
+    return isScreenLocked_;
+}
+
 ContextAppStateObserver::ContextAppStateObserver(const uint64_t contextId,
     const std::string bundleName) : contextId_(contextId), bundleName_(bundleName)
 {
@@ -129,6 +146,10 @@ void ContextAppStateObserver::ProcAppStateChanged(int32_t userId)
     }
     if (context->GetUserId() != userId) {
         IAM_LOGI("context userId is %{public}d, appStateChanged userId is %{public}d", context->GetUserId(), userId);
+        return;
+    }
+    if (ContextAppStateObserverManager::GetInstance().GetScreenLockState()) {
+        IAM_LOGI("the screen is currently locked, skip auth cancel");
         return;
     }
     if (!context->Stop()) {

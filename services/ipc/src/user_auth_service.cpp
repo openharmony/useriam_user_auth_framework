@@ -34,6 +34,7 @@
 #include "iam_time.h"
 #include "ipc_common.h"
 #include "ipc_skeleton.h"
+#include "keyguard_status_listener.h"
 #include "system_param_manager.h"
 #include "soft_bus_manager.h"
 #include "widget_client.h"
@@ -160,6 +161,7 @@ void UserAuthService::OnStart()
     }
     SystemParamManager::GetInstance().Start();
     SoftBusManager::GetInstance().Start();
+    KeyguardStatusListenerManager::GetInstance().RegisterKeyguardStatusSwitchCallback();
 }
 
 void UserAuthService::OnStop()
@@ -1152,7 +1154,8 @@ int32_t UserAuthService::UnRegistUserAuthSuccessEventListener(
 
 int32_t UserAuthService::SetGlobalConfigParam(const GlobalConfigParam &param)
 {
-    IAM_LOGI("start, GlobalConfigType is %{public}d", param.type);
+    IAM_LOGI("start, GlobalConfigType is %{public}d, userIds size %{public}zu, authTypes size %{public}zu",
+        param.type, param.userIds.size(), param.authTypes.size());
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("failed to check permission");

@@ -15,6 +15,9 @@
 
 #include "system_ability_listener.h"
 
+#include "if_system_ability_manager.h"
+#include "iservice_registry.h"
+
 #define LOG_TAG "USER_AUTH_SA"
 namespace OHOS {
 namespace UserIam {
@@ -54,18 +57,42 @@ void SystemAbilityListener::OnRemoveSystemAbility(int32_t systemAbilityId, const
     }
 }
 
-DeviceManagerListener::DeviceManagerListener(std::string name, int32_t systemAbilityId,
+sptr<SystemAbilityListener> SystemAbilityListener::Subscribe(std::string name, int32_t systemAbilityId,
     AddFunc addFunc, RemoveFunc removeFunc)
-    : SystemAbilityListener(name, systemAbilityId, addFunc, removeFunc)
 {
-    IAM_LOGI("start.");
+    IAM_LOGI("start name:%{public}s, systemAbilityId::%{public}d", name.c_str(), systemAbilityId);
+    auto sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    IF_FALSE_LOGE_AND_RETURN_VAL(sam != nullptr, nullptr);
+
+    sptr<SystemAbilityListener> listener(
+        new (std::nothrow) SystemAbilityListener(name, systemAbilityId, addFunc, removeFunc));
+    IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, nullptr);
+
+    int32_t ret = sam->SubscribeSystemAbility(systemAbilityId, listener);
+    if (ret != ERR_OK) {
+        IAM_LOGE("SubscribeSystemAbility fail, name:%{public}s, systemAbilityId::%{public}d",
+            name.c_str(), systemAbilityId);
+        return nullptr;
+    }
+
+    IAM_LOGI("Subscribe service name:%{public}s success", name.c_str());
+    return listener;
 }
 
-SoftBusListener::SoftBusListener(std::string name, int32_t systemAbilityId,
-    AddFunc addFunc, RemoveFunc removeFunc)
-    : SystemAbilityListener(name, systemAbilityId, addFunc, removeFunc)
+int32_t SystemAbilityListener::UnSubscribe(int32_t systemAbilityId, sptr<SystemAbilityListener> &listener)
 {
-    IAM_LOGI("start.");
+    IAM_LOGI("start systemAbilityId::%{public}d", systemAbilityId);
+    auto sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    IF_FALSE_LOGE_AND_RETURN_VAL(sam != nullptr, ERR_OK);
+
+    int32_t ret = sam->UnSubscribeSystemAbility(systemAbilityId, listener);
+    if (ret != ERR_OK) {
+        IAM_LOGE("UnSubscribeSystemAbility fail.");
+        return ret;
+    }
+
+    IAM_LOGI("UnSubscribe service success");
+    return ret;
 }
 } // namespace UserAuth
 } // namespace UserIam
