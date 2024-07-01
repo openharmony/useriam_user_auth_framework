@@ -100,10 +100,10 @@ private:
     std::map<std::string, std::shared_ptr<BaseSocket>> clientSocketMap_;
 
     std::recursive_mutex deviceManagerMutex_;
-    sptr<DeviceManagerListener> deviceManagerServiceListener_;
+    sptr<SystemAbilityListener> deviceManagerServiceListener_;
 
     std::recursive_mutex softBusMutex_;
-    sptr<SoftBusListener> softBusServiceListener_;
+    sptr<SystemAbilityListener> softBusServiceListener_;
 };
 } // namespace UserAuth
 } // namespace UserIam

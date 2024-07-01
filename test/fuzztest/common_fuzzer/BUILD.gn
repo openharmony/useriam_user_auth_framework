@@ -119,6 +119,7 @@ ohos_source_set("userauth_service_base_fuzzer") {
     "../../../services/base/src/finite_state_machine_builder.cpp",
     "../../../services/base/src/finite_state_machine_impl.cpp",
     "../../../services/base/src/relative_timer.cpp",
+    "../../../services/base/src/system_ability_listener.cpp",
     "../../../services/base/src/thread_handler_impl.cpp",
     "../../../services/base/src/thread_handler_manager.cpp",
     "../dummy/mock_iuser_auth_interface.cpp",
@@ -250,6 +251,7 @@ ohos_source_set("userauth_service_context_fuzzer") {
     "../../../services/context/src/context_pool_impl.cpp",
     "../../../services/context/src/enroll_context.cpp",
     "../../../services/context/src/identify_context.cpp",
+    "../../../services/context/src/keyguard_status_listener.cpp",
     "../../../services/context/src/remote_auth_context.cpp",
     "../../../services/context/src/remote_auth_invoker_context.cpp",
     "../../../services/context/src/remote_iam_callback.cpp",
@@ -278,6 +280,7 @@ ohos_source_set("userauth_service_context_fuzzer") {
     "ability_runtime:app_manager",
     "ability_runtime:extension_manager",
     "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
     "drivers_interface_user_auth:libuser_auth_proxy_2.0",
     "hicollie:libhicollie",
     "hilog:libhilog",
@@ -359,7 +362,6 @@ ohos_source_set("userauth_service_remote_connect_fuzzer") {
     "../../../services/remote_connect/src/soft_bus_message.cpp",
     "../../../services/remote_connect/src/soft_bus_server_socket.cpp",
     "../../../services/remote_connect/src/soft_bus_socket_listener.cpp",
-    "../../../services/remote_connect/src/system_ability_listener.cpp",
   ]
 
   deps = [ "../common_fuzzer:attributes_fuzzer" ]

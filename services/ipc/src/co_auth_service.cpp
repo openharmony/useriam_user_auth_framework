@@ -51,14 +51,13 @@ const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(CoAuthService
 } // namespace
 
 constexpr int32_t USERIAM_IPC_THREAD_NUM = 4;
-bool CoAuthService::isReady_ = false;
-std::recursive_mutex CoAuthService::mutex_;
 std::shared_ptr<CoAuthService> CoAuthService::instance_ = nullptr;
 
 std::shared_ptr<CoAuthService> CoAuthService::GetInstance()
 {
+    static std::recursive_mutex mutex;
     if (instance_ == nullptr) {
-        std::lock_guard<std::recursive_mutex> guard(mutex_);
+        std::lock_guard<std::recursive_mutex> guard(mutex);
         if (instance_ == nullptr) {
             instance_ = Common::MakeShared<CoAuthService>();
             if (instance_ == nullptr) {
@@ -89,11 +88,13 @@ void CoAuthService::OnStart()
         RelativeTimer::GetInstance().Unregister(timerId);
     }
     timerId = RelativeTimer::GetInstance().Register(Init, 0);
+    RegisterAccessTokenListener();
 }
 
 void CoAuthService::OnStop()
 {
     IAM_LOGI("Stop service");
+    UnRegisterAccessTokenListener();
 }
 
 void CoAuthService::SetIsReady(bool isReady)
@@ -101,6 +102,19 @@ void CoAuthService::SetIsReady(bool isReady)
     std::lock_guard<std::recursive_mutex> guard(mutex_);
     isReady_ = isReady;
     IAM_LOGI("Set isReady %{public}d", isReady);
+}
+
+void CoAuthService::SetAccessTokenReady(bool isReady)
+{
+    std::lock_guard<std::recursive_mutex> guard(mutex_);
+    accessTokenReady_ = isReady;
+    IAM_LOGI("Set accesstoken ready %{public}d", accessTokenReady_);
+}
+
+bool CoAuthService::IsFwkReady()
+{
+    std::lock_guard<std::recursive_mutex> guard(mutex_);
+    return isReady_ && accessTokenReady_;
 }
 
 void CoAuthService::AddExecutorDeathRecipient(uint64_t executorIndex, AuthType authType,
@@ -135,14 +149,15 @@ uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<
         IAM_LOGE("executor callback is nullptr");
         return INVALID_EXECUTOR_INDEX;
     }
-    if (!IpcCommon::CheckPermission(*this, ACCESS_AUTH_RESPOOL)) {
-        IAM_LOGE("failed to check permission");
+
+    std::lock_guard<std::recursive_mutex> guard(mutex_);
+    if (!IsFwkReady()) {
+        IAM_LOGE("framework is not ready");
         return INVALID_EXECUTOR_INDEX;
     }
-    std::lock_guard<std::recursive_mutex> guard(mutex_);
 
-    if (!isReady_) {
-        IAM_LOGE("framework is not ready");
+    if (!IpcCommon::CheckPermission(*this, ACCESS_AUTH_RESPOOL)) {
+        IAM_LOGE("failed to check permission");
         return INVALID_EXECUTOR_INDEX;
     }
 
@@ -182,13 +197,14 @@ void CoAuthService::ExecutorUnregister(uint64_t executorIndex)
 {
     IAM_LOGI("delete resource node begin");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
-    if (!IpcCommon::CheckPermission(*this, ACCESS_AUTH_RESPOOL)) {
-        IAM_LOGE("failed to check permission");
+    std::lock_guard<std::recursive_mutex> guard(mutex_);
+    if (!IsFwkReady()) {
+        IAM_LOGE("framework is not ready");
         return;
     }
-    std::lock_guard<std::recursive_mutex> guard(mutex_);
-    if (!isReady_) {
-        IAM_LOGE("framework is not ready");
+
+    if (!IpcCommon::CheckPermission(*this, ACCESS_AUTH_RESPOOL)) {
+        IAM_LOGE("failed to check permission");
         return;
     }
 
@@ -201,13 +217,26 @@ void CoAuthService::ExecutorUnregister(uint64_t executorIndex)
 
 void CoAuthService::Init()
 {
+    auto instance = CoAuthService::GetInstance();
+    if (instance == nullptr) {
+        IAM_LOGE("instance is nullptr");
+        return;
+    }
+    instance->AuthServiceInit();
+}
+
+void CoAuthService::AuthServiceInit()
+{
     auto hdi = HdiWrapper::GetHdiRemoteObjInstance();
     if (hdi) {
         hdi->AddDeathRecipient(new (std::nothrow) IpcCommon::PeerDeathRecipient([]() {
             IAM_LOGE("user auth host is dead");
             ResourceNodePool::Instance().DeleteAll();
             RelativeTimer::GetInstance().Register(Init, DEFER_TIME);
-            SetIsReady(false);
+            auto instance = CoAuthService::GetInstance();
+            if (instance != nullptr) {
+                instance->SetIsReady(false);
+            }
             UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "user_auth_hdi host");
         }));
 
@@ -221,14 +250,8 @@ void CoAuthService::Init()
         auto callbackService = HdiMessageCallbackService::GetInstance();
         IF_FALSE_LOGE_AND_RETURN(callbackService != nullptr);
         callbackService->OnHdiConnect();
-        {
-            std::lock_guard<std::recursive_mutex> guard(mutex_);
-            IAM_LOGI("set fwk ready parameter begin");
-            SetParameter("bootevent.useriam.fwkready", "false");
-            SetParameter("bootevent.useriam.fwkready", "true");
-            SetIsReady(true);
-            IAM_LOGI("set fwk ready parameter success");
-        }
+        SetIsReady(true);
+        NotifyFwkReady();
     } else {
         RelativeTimer::GetInstance().Register(Init, DEFER_TIME);
     }
@@ -262,6 +285,66 @@ int CoAuthService::Dump(int fd, const std::vector<std::u16string> &args)
     IAM_LOGE("invalid option");
     dprintf(fd, "Invalid option\n");
     return GENERAL_ERROR;
+}
+
+ResultCode CoAuthService::RegisterAccessTokenListener()
+{
+    IAM_LOGD("start.");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (accessTokenListener_ != nullptr) {
+        IAM_LOGI("accessTokenListener_ is not nullptr.");
+        return SUCCESS;
+    }
+
+    accessTokenListener_ = SystemAbilityListener::Subscribe("accesstoken_service", ACCESS_TOKEN_MANAGER_SERVICE_ID,
+        []() {
+            auto instance = CoAuthService::GetInstance();
+            if (instance == nullptr) {
+                IAM_LOGE("CoAuthService instance is nullptr.");
+                return;
+            }
+            instance->SetAccessTokenReady(true);
+            instance->NotifyFwkReady();
+        },
+        nullptr);
+    if (accessTokenListener_ == nullptr) {
+        IAM_LOGE("accessTokenListener_ is nullptr.");
+        return GENERAL_ERROR;
+    }
+
+    IAM_LOGI("RegisterAccessTokenListener success.");
+    return SUCCESS;
+}
+
+ResultCode CoAuthService::UnRegisterAccessTokenListener()
+{
+    IAM_LOGD("start.");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (accessTokenListener_ == nullptr) {
+        IAM_LOGI("accessTokenListener_ is nullptr.");
+        return SUCCESS;
+    }
+
+    int32_t ret = SystemAbilityListener::UnSubscribe(ACCESS_TOKEN_MANAGER_SERVICE_ID, accessTokenListener_);
+    if (ret != SUCCESS) {
+        IAM_LOGE("UnSubscribe service fail.");
+        return GENERAL_ERROR;
+    }
+
+    accessTokenListener_ = nullptr;
+    IAM_LOGI("UnRegisterAccessTokenListener success.");
+    return SUCCESS;
+}
+
+void CoAuthService::NotifyFwkReady()
+{
+    IAM_LOGD("start.");
+    if (IsFwkReady()) {
+        IAM_LOGI("set fwk ready parameter begin");
+        SetParameter("bootevent.useriam.fwkready", "false");
+        SetParameter("bootevent.useriam.fwkready", "true");
+        IAM_LOGI("set fwk ready parameter success");
+    }
 }
 } // namespace UserAuth
 } // namespace UserIam

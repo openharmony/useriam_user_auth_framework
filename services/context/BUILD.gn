@@ -45,6 +45,7 @@ ohos_source_set("userauth_service_context") {
     "src/context_pool_impl.cpp",
     "src/enroll_context.cpp",
     "src/identify_context.cpp",
+    "src/keyguard_status_listener.cpp",
     "src/remote_auth_context.cpp",
     "src/remote_auth_invoker_context.cpp",
     "src/remote_iam_callback.cpp",
