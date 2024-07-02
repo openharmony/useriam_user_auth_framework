@@ -35,6 +35,8 @@ namespace UserAuth {
 const std::string PIN_SUB_TYPE_SIX = "PIN_SIX";
 const std::string PIN_SUB_TYPE_NUMBER = "PIN_NUMBER";
 const std::string PIN_SUB_TYPE_MIXED = "PIN_MIXED";
+const std::string PIN_SUB_TYPE_FOUR = "PIN_FOUR";
+const std::string PIN_SUB_TYPE_PATTERN = "PIN_PATTERN";
 const std::string PIN_SUB_TYPE_MAX = "PIN_MAX";
 
 WidgetClient &WidgetClient::Instance()
@@ -236,6 +238,12 @@ void WidgetClient::SetPinSubType(const PinSubType &subType)
             break;
         case PinSubType::PIN_MAX:
             pinSubType_ = PIN_SUB_TYPE_MAX;
+            break;
+        case PinSubType::PIN_FOUR:
+            pinSubType_ = PIN_SUB_TYPE_FOUR;
+            break;
+        case PinSubType::PIN_PATTERN:
+            pinSubType_ = PIN_SUB_TYPE_PATTERN;
             break;
         default:
             break;
