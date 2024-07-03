@@ -179,6 +179,7 @@ ohos_unittest("iam_services_test") {
     "access_token:libtoken_setproc",
     "access_token:libtokenid_sdk",
     "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
     "device_manager:devicemanagersdk",
     "drivers_interface_user_auth:libuser_auth_proxy_2.0",
     "dsoftbus:softbus_client",
