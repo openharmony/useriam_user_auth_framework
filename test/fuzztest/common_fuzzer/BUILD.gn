@@ -280,6 +280,7 @@ ohos_source_set("userauth_service_context_fuzzer") {
     "ability_runtime:app_manager",
     "ability_runtime:extension_manager",
     "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
     "drivers_interface_user_auth:libuser_auth_proxy_2.0",
     "hicollie:libhicollie",
     "hilog:libhilog",
