@@ -150,6 +150,51 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStopSchedule, TestSiz
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask(nullptr);
 }
+
+HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetReload_0001, TestSize.Level0)
+{
+    auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
+    ASSERT_NE(schedule, nullptr);
+    schedule->SetCallback(widgetContext);
+    schedule->StartSchedule();
+    uint32_t orientation = 1;
+    uint32_t needRotate = 1;
+    AuthType rotateAuthType = PIN;
+    EXPECT_TRUE(schedule->WidgetReload(orientation, needRotate, rotateAuthType));
+    widgetContext->LaunchWidget();
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask(nullptr);
+}
+
+HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetReload_0002, TestSize.Level0)
+{
+    auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
+    ASSERT_NE(schedule, nullptr);
+    schedule->SetCallback(widgetContext);
+    schedule->StartSchedule();
+    uint32_t orientation = 2;
+    uint32_t needRotate = 1;
+    AuthType rotateAuthType = FINGERPRINT;
+    EXPECT_TRUE(schedule->WidgetReload(orientation, needRotate, rotateAuthType));
+    widgetContext->LaunchWidget();
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask(nullptr);
+}
+
+HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetReload_0003, TestSize.Level0)
+{
+    auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
+    ASSERT_NE(schedule, nullptr);
+    schedule->SetCallback(widgetContext);
+    schedule->StartSchedule();
+    uint32_t orientation = 3;
+    uint32_t needRotate = 1;
+    AuthType rotateAuthType = FACE;
+    EXPECT_TRUE(schedule->WidgetReload(orientation, needRotate, rotateAuthType));
+    widgetContext->LaunchWidget();
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask(nullptr);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

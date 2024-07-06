@@ -43,6 +43,8 @@ const std::string JSON_AUTH_EVENT = "event";
 const std::string JSON_AUTH_VERSION = "version";
 const std::string JSON_AUTH_PAYLOAD = "payload";
 const std::string JSON_AUTH_END_AFTER_FIRST_FAIL = "endAfterFirstFail";
+const std::string JSON_ORIENTATION = "orientation";
+const std::string JSON_NEED_ROTATE = "needRotate";
 const std::string JSON_LOCKOUT_DURATION = "lockoutDuration";
 const std::string JSON_REMAIN_ATTEMPTS = "remainAttempts";
 const std::string JSON_AUTH_RESULT = "result";
@@ -54,8 +56,11 @@ const std::string JSON_AUTH_CMD = "cmd";
 const std::string JSON_AUTH_PIN_SUB_TYPE = "pinSubType";
 const std::string JSON_AUTH_WINDOW_MODE = "windowModeType";
 const std::string JSON_AUTH_NAVI_BTN_TEXT = "navigationButtonText";
+const std::string JSON_WIDGET_IS_RELOAD = "isReload";
+const std::string JSON_WIDGET_ROTATE_AUTH_TYPE = "rotateAuthType";
 
 const std::string JSON_UI_EXTENSION_TYPE = "ability.want.params.uiExtensionType";
+const std::string JSON_UI_EXT_NODE_ANGLE = "ability.want.params.uiExtNodeAngle";
 const std::string JSON_USER_IAM_CMD_DATA = "useriamCmdData";
 
 const std::string JSON_CHALLENGE = "challenge";
@@ -116,6 +121,8 @@ void GetJsonCmd(nlohmann::json &jsonCommand, const WidgetCommand &command, bool 
     if (command.navigationButtonText != "") {
         jsonCommand[JSON_AUTH_NAVI_BTN_TEXT] = command.navigationButtonText;
     }
+    jsonCommand[JSON_WIDGET_IS_RELOAD] = command.isReload;
+    jsonCommand[JSON_WIDGET_ROTATE_AUTH_TYPE] = command.rotateAuthType;
 }
 }
 
@@ -192,6 +199,8 @@ void to_json(nlohmann::json &jsonNotice, const WidgetNotice &notice)
         {JSON_AUTH_END_AFTER_FIRST_FAIL, notice.endAfterFirstFail}});
     jsonNotice = nlohmann::json({{JSON_WIDGET_CTX_ID, notice.widgetContextId},
         {JSON_AUTH_EVENT, notice.event},
+        {JSON_ORIENTATION, notice.orientation},
+        {JSON_NEED_ROTATE, notice.needRotate},
         {JSON_AUTH_VERSION, notice.version},
         {JSON_AUTH_PAYLOAD, type}});
 }
@@ -203,6 +212,12 @@ void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice)
     }
     if (jsonNotice.find(JSON_AUTH_EVENT) != jsonNotice.end() && jsonNotice[JSON_AUTH_EVENT].is_string()) {
         jsonNotice.at(JSON_AUTH_EVENT).get_to(notice.event);
+    }
+    if (jsonNotice.find(JSON_ORIENTATION) != jsonNotice.end() && jsonNotice[JSON_ORIENTATION].is_number()) {
+        jsonNotice.at(JSON_ORIENTATION).get_to(notice.orientation);
+    }
+    if (jsonNotice.find(JSON_NEED_ROTATE) != jsonNotice.end() && jsonNotice[JSON_NEED_ROTATE].is_number()) {
+        jsonNotice.at(JSON_NEED_ROTATE).get_to(notice.needRotate);
     }
     if (jsonNotice.find(JSON_AUTH_VERSION) != jsonNotice.end() && jsonNotice[JSON_AUTH_VERSION].is_string()) {
         jsonNotice.at(JSON_AUTH_VERSION).get_to(notice.version);
@@ -239,6 +254,7 @@ void to_json(nlohmann::json &jsWidgetCmdParam, const WidgetCmdParameters &widget
     GetJsonCmd(jsonCommand, widgetCmdParameters.useriamCmdData, false);
 
     jsWidgetCmdParam = nlohmann::json({{JSON_UI_EXTENSION_TYPE, widgetCmdParameters.uiExtensionType},
+        {JSON_UI_EXT_NODE_ANGLE, widgetCmdParameters.uiExtNodeAngle},
         {JSON_USER_IAM_CMD_DATA, jsonCommand}
     });
 }
