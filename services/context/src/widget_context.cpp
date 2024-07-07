@@ -29,7 +29,6 @@
 #include "widget_schedule_node_impl.h"
 #include "widget_context_callback_impl.h"
 #include "widget_client.h"
-#include "widget_json.h"
 #include "bool_wrapper.h"
 #include "double_wrapper.h"
 #include "int_wrapper.h"
@@ -290,6 +289,10 @@ void WidgetContext::ExecuteAuthList(const std::set<AuthType> &authTypeList, bool
             WidgetClient::Instance().ReportWidgetResult(task->GetLatestError(), authType, INVALID_VAL, INVALID_VAL);
             return;
         }
+        if (authType == FACE) {
+            faceReload_ = 1;
+            IAM_LOGI("faceReload_: %{public}d", faceReload_);
+        }
         TaskInfo taskInfo {
             .authType = authType,
             .task = task
@@ -506,8 +509,20 @@ std::string WidgetContext::BuildStartCommand(const WidgetRotatePara &widgetRotat
         widgetCmdParameters.useriamCmdData.cmdList.push_back(cmd);
     }
     widgetCmdParameters.useriamCmdData.typeList = typeList;
+    ProcessRotatePara(widgetCmdParameters, widgetRotatePara);
+    nlohmann::json root = widgetCmdParameters;
+    std::string cmdData = root.dump();
+    return cmdData;
+}
+
+void WidgetContext::ProcessRotatePara(WidgetCmdParameters &widgetCmdParameters,
+    const WidgetRotatePara &widgetRotatePara)
+{
     if (widgetRotatePara.isReload) {
         widgetCmdParameters.useriamCmdData.isReload = 1;
+        if (widgetRotatePara.rotateAuthType == FACE) {
+            widgetCmdParameters.useriamCmdData.isReload = faceReload_;
+        }
         widgetCmdParameters.useriamCmdData.rotateAuthType = AuthType2Str(widgetRotatePara.rotateAuthType);
     }
     IAM_LOGI("needRotate: %{public}u, orientation: %{public}u", widgetRotatePara.needRotate,
@@ -523,9 +538,6 @@ std::string WidgetContext::BuildStartCommand(const WidgetRotatePara &widgetRotat
             widgetCmdParameters.uiExtNodeAngle = TO_PORTRAIT_INVERTED;
         }
     }
-    nlohmann::json root = widgetCmdParameters;
-    std::string cmdData = root.dump();
-    return cmdData;
 }
 } // namespace UserAuth
 } // namespace UserIam

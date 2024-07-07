@@ -34,6 +34,7 @@
 #include "in_process_call_wrapper.h"
 #include "iam_callback_interface.h"
 #include "nocopyable.h"
+#include "widget_json.h"
 #include "widget_schedule_node.h"
 #include "ui_extension_ability_connection.h"
 
@@ -99,6 +100,7 @@ private:
         sptr<IamCallbackInterface> &callback);
     void StopAllRunTask();
     std::string BuildStartCommand(const WidgetRotatePara &widgetRotatePara);
+    void ProcessRotatePara(WidgetCmdParameters &widgetCmdParameters, const WidgetRotatePara &widgetRotatePara);
 
 private:
     struct TaskInfo {
@@ -126,6 +128,7 @@ private:
     std::list<TaskInfo> runTaskInfoList_;
     sptr<UIExtensionAbilityConnection> connection_ {nullptr};
     WidgetAuthResultInfo authResultInfo_ {};
+    int32_t faceReload_ {0};
 };
 } // namespace UserAuth
 } // namespace UserIam
