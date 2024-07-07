@@ -238,6 +238,9 @@ void WidgetScheduleNodeImpl::OnWidgetReload(FiniteStateMachine &machine, uint32_
     auto callback = callback_.lock();
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
     IAM_LOGI("Widget need reload");
+    const uint32_t RELOAD_INIT_MS = 100;
+    auto sleepTime = std::chrono::milliseconds(RELOAD_INIT_MS);
+    std::this_thread::sleep_for(sleepTime);
     callback->AuthWidgetReload(orientation_, needRotate_, rotateAuthType_);
 }
 } // namespace UserAuth
