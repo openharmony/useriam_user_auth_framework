@@ -73,8 +73,8 @@ private:
     bool endAfterFirstFail_ {false};
     std::vector<AuthType> stopAuthTypeList_;
     std::set<AuthType> runningAuthTypeSet_;
-    uint32_t orientation_;
-    uint32_t needRotate_;
+    uint32_t orientation_ {0};
+    uint32_t needRotate_ {0};
     AuthType rotateAuthType_ {0};
 };
 } // namespace UserAuth
