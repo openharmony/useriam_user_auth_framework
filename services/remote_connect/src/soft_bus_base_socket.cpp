@@ -16,6 +16,7 @@
 #include "soft_bus_base_socket.h"
 
 #include <cinttypes>
+
 #include "remote_connect_listener_manager.h"
 
 #define LOG_TAG "USER_AUTH_SA"
@@ -292,6 +293,44 @@ std::shared_ptr<SoftBusMessage> BaseSocket::ParseMessage(const std::string &netw
     return softBusMessage;
 }
 
+void BaseSocket::ProcessMessage(std::shared_ptr<SoftBusMessage> softBusMessage, std::shared_ptr<Attributes> response)
+{
+    IF_FALSE_LOGE_AND_RETURN(softBusMessage != nullptr);
+    IF_FALSE_LOGE_AND_RETURN(response != nullptr);
+
+    bool setResultCode = response->SetInt32Value(Attributes::ATTR_RESULT_CODE, GENERAL_ERROR);
+    IF_FALSE_LOGE_AND_RETURN(setResultCode);
+
+    uint32_t messageVersion = softBusMessage->GetMessageVersion();
+    if (messageVersion != DEFAULT_MESSAGE_VERSION) {
+        IAM_LOGE("support message version %{public}u, receive message version %{public}u", DEFAULT_MESSAGE_VERSION,
+            messageVersion);
+        std::vector<uint32_t> supportedVersions = { DEFAULT_MESSAGE_VERSION };
+        bool setSupportedVersionsRet = response->SetUint32ArrayValue(Attributes::ATTR_SUPPORTED_MSG_VERSION,
+            supportedVersions);
+        IF_FALSE_LOGE_AND_RETURN(setSupportedVersionsRet);
+        return;
+    }
+
+    std::string connectionName = softBusMessage->GetConnectionName();
+    std::string srcEndPoint = softBusMessage->GetSrcEndPoint();
+    std::string destEndPoint = softBusMessage->GetDestEndPoint();
+
+    std::shared_ptr<ConnectionListener> connectionListener =
+        RemoteConnectListenerManager::GetInstance().FindListener(connectionName, destEndPoint);
+    if (connectionListener == nullptr) {
+        IAM_LOGE("connectionListener is nullptr");
+        return;
+    }
+
+    auto beginTime = std::chrono::steady_clock::now();
+    connectionListener->OnMessage(connectionName, destEndPoint, softBusMessage->GetAttributes(), response);
+    auto endTime = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - beginTime);
+    IAM_LOGI("messageSeq:%{public}u ProcessMessageDuration:%{public}" PRIu64 " ms", softBusMessage->GetMessageSeq(),
+        static_cast<uint64_t>(duration.count()));
+}
+
 ResultCode BaseSocket::ProcDataReceive(const int32_t socketId, std::shared_ptr<SoftBusMessage> &softBusMessage)
 {
     IAM_LOGD("start.");
@@ -327,19 +366,8 @@ ResultCode BaseSocket::ProcDataReceive(const int32_t socketId, std::shared_ptr<S
             IAM_LOGE("create fail");
             return GENERAL_ERROR;
         }
-        bool setResultCode = response->SetInt32Value(Attributes::ATTR_RESULT_CODE, GENERAL_ERROR);
-        if (setResultCode == false) {
-            IAM_LOGE("SetInt32Value fail");
-            return GENERAL_ERROR;
-        }
 
-        std::shared_ptr<ConnectionListener> connectionListener =
-            RemoteConnectListenerManager::GetInstance().FindListener(connectionName, destEndPoint);
-        if (connectionListener != nullptr) {
-            connectionListener->OnMessage(connectionName, destEndPoint, request, response);
-        } else {
-            IAM_LOGE("connectionListener is nullptr");
-        }
+        ProcessMessage(softBusMessage, response);
 
         SendResponse(socketId, connectionName, destEndPoint, srcEndPoint, response, messageSeq);
     }

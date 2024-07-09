@@ -37,6 +37,7 @@ public:
     static void OnQos(int32_t socketId, QoSEvent eventId, const QosTV *qos, uint32_t qosCount) {};
     static void OnClientBytes(int32_t socketId, const void *data, uint32_t dataLen);
     static void OnServerBytes(int32_t socketId, const void *data, uint32_t dataLen);
+    static bool OnNegotiate(int32_t socketId, PeerSocketInfo info);
 };
 } // namespace UserAuth
 } // namespace UserIam
