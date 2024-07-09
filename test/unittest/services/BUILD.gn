@@ -163,7 +163,6 @@ ohos_unittest("iam_services_test") {
     "../../../frameworks/native/common:dfx",
     "../../../frameworks/native/ipc:userauth_service_ipc",
     "//third_party/googletest:gmock",
-    "//third_party/openssl:libcrypto_shared",
   ]
 
   external_deps = [
@@ -190,7 +189,6 @@ ohos_unittest("iam_services_test") {
     "init:libbegetutil",
     "ipc:ipc_single",
     "napi:ace_napi",
-    "openssl:libcrypto_shared",
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
