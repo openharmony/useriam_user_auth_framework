@@ -86,6 +86,7 @@ private:
     int32_t GetMessageSeq();
     ResultCode SetDeviceNetworkId(const std::string networkId, std::shared_ptr<Attributes> &attributes);
     void PrintTransferDuration(uint32_t messageSeq);
+    void ProcessMessage(std::shared_ptr<SoftBusMessage> softBusMessage, std::shared_ptr<Attributes> response);
 
     std::recursive_mutex callbackMutex_;
     /* <messageSeq, CallbackInfo> */

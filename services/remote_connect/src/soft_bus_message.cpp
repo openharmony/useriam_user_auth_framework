@@ -19,7 +19,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-const int32_t MESSAGE_VERSION = 0;
 SoftBusMessage::SoftBusMessage(int32_t messageSeq, const std::string &connectionName,
     const std::string &srcEndPoint, const std::string &destEndPoint,
     const std::shared_ptr<Attributes> &attributes)
@@ -95,7 +94,7 @@ std::shared_ptr<Attributes> SoftBusMessage::CreateMessage(bool isAck)
     ret = attributes->SetStringValue(Attributes::ATTR_CONNECTION_NAME, connectionName_);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret, nullptr);
 
-    ret = attributes->SetUint32Value(Attributes::ATTR_MSG_VERSION, MESSAGE_VERSION);
+    ret = attributes->SetUint32Value(Attributes::ATTR_MSG_VERSION, DEFAULT_MESSAGE_VERSION);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret, nullptr);
 
     int32_t msgType = -1;
@@ -108,9 +107,10 @@ std::shared_ptr<Attributes> SoftBusMessage::CreateMessage(bool isAck)
     ret = attributes->SetStringValue(Attributes::ATTR_MSG_SRC_UDID, udid);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret, nullptr);
 
-    IAM_LOGI("CreateMessage success: messageSeq:%{public}u, connectionName:%{public}s, msgType:%{public}d, "
-        "isAck:%{public}d, srcEndPoint:%{public}s, destEndPoint:%{public}s",
-        messageSeq_, connectionName_.c_str(), msgType, isAck, srcEndPoint_.c_str(), destEndPoint_.c_str());
+    IAM_LOGI("CreateMessage success: messageVersion:%{public}u, messageSeq:%{public}u, connectionName:%{public}s, "
+        "msgType:%{public}d, isAck:%{public}d, srcEndPoint:%{public}s, destEndPoint:%{public}s",
+        DEFAULT_MESSAGE_VERSION, messageSeq_, connectionName_.c_str(), msgType, isAck, srcEndPoint_.c_str(),
+        destEndPoint_.c_str());
     
     return attributes;
 }
@@ -152,9 +152,10 @@ std::shared_ptr<Attributes> SoftBusMessage::ParseMessage(void *message, uint32_t
     attributes->GetInt32Value(Attributes::ATTR_MSG_TYPE, msgType); // ATTR_MSG_TYPE may be empty
     attributes_ = attributes;
 
-    IAM_LOGI("ParseMessage success: messageSeq:%{public}u, connectionName:%{public}s, msgType:%{public}d, "
-        "isAck:%{public}d, srcEndPoint:%{public}s, destEndPoint:%{public}s",
-        messageSeq_, connectionName_.c_str(), msgType, isAck_, srcEndPoint_.c_str(), destEndPoint_.c_str());
+    IAM_LOGI("ParseMessage success: messageVersion:%{public}u messageSeq:%{public}u, connectionName:%{public}s, "
+        "msgType:%{public}d, isAck:%{public}d, srcEndPoint:%{public}s, destEndPoint:%{public}s",
+        messageVersion_, messageSeq_, connectionName_.c_str(), msgType, isAck_, srcEndPoint_.c_str(),
+        destEndPoint_.c_str());
     return attributes;
 }
 } // namespace UserAuth
