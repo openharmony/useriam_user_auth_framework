@@ -83,7 +83,6 @@ ohos_fuzztest("RemoteAuthContextFuzzTest") {
     "hitrace:hitrace_meter",
     "init:libbegetutil",
     "napi:ace_napi",
-    "openssl:libcrypto_shared",
   ]
 
   subsystem_name = "useriam"
