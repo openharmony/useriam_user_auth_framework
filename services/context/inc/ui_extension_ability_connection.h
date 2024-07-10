@@ -45,8 +45,12 @@ public:
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int32_t resultCode) override;
 
 private:
+    void ReleaseUIExtensionComponent();
+
+private:
     std::string commandStr_;
     std::shared_ptr<IamHitraceHelper> connectAbilityHitrace_ {nullptr};
+    sptr<IRemoteObject> extRemoteObject_ {nullptr};
 };
 } // namespace UserAuth
 } // namespace UserIam
