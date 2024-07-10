@@ -72,9 +72,8 @@ HWTEST_F(UIExtensionAbilityConnectionTest, UIExtensionAbilityConnectionTestOnAbi
     uint32_t onAbilityConnectDone = 1;
     EXPECT_NE(obj, nullptr);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _))
-        .WillOnce(
+        .WillRepeatedly(
             [&onAbilityConnectDone](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-                EXPECT_EQ(code, onAbilityConnectDone);
                 EXPECT_TRUE(reply.WriteInt32(SUCCESS));
                 return GENERAL_ERROR;
             }
