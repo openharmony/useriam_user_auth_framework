@@ -16,6 +16,7 @@
 
 #include <algorithm>
 
+#include "auth_widget_helper.h"
 #include "context_helper.h"
 #include "context_pool.h"
 #include "context_death_recipient.h"
@@ -404,6 +405,16 @@ int32_t WidgetContext::ConnectExtensionAbility(const AAFwk::Want &want, const st
 
 bool WidgetContext::ConnectExtension(const WidgetRotatePara &widgetRotatePara)
 {
+    if (widgetRotatePara.isReload) {
+        for (auto &authType : para_.authTypeList) {
+            ContextFactory::AuthProfile profile;
+            if (!AuthWidgetHelper::GetUserAuthProfile(para_.userId, authType, profile)) {
+                IAM_LOGE("get user authType:%{public}d profile failed", static_cast<int32_t>(authType));
+                return false;
+            }
+            para_.authProfileMap[authType] = profile;
+        }
+    }
     std::string tmp = BuildStartCommand(widgetRotatePara);
     IAM_LOGI("start command: %{public}s", tmp.c_str());
 
