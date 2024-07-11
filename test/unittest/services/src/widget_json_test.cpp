@@ -67,12 +67,12 @@ void CreatePara(ContextFactory::AuthWidgetContextPara &para)
     para.widgetParam.title = "widgetParam";
     para.widgetParam.windowMode = DIALOG_BOX;
     para.widgetParam.navigationButtonText = "navigationButtonText";
-    ContextFactory::AuthWidgetContextPara::AuthProfile authProfile;
-    para.authProfileMap.insert(pair<AuthType, ContextFactory::AuthWidgetContextPara::AuthProfile>(ALL, authProfile));
-    para.authProfileMap.insert(pair<AuthType, ContextFactory::AuthWidgetContextPara::AuthProfile>(PIN, authProfile));
-    para.authProfileMap.insert(pair<AuthType, ContextFactory::AuthWidgetContextPara::AuthProfile>(FACE, authProfile));
+    ContextFactory::AuthProfile authProfile;
+    para.authProfileMap.insert(pair<AuthType, ContextFactory::AuthProfile>(ALL, authProfile));
+    para.authProfileMap.insert(pair<AuthType, ContextFactory::AuthProfile>(PIN, authProfile));
+    para.authProfileMap.insert(pair<AuthType, ContextFactory::AuthProfile>(FACE, authProfile));
     para.authProfileMap.insert(pair<AuthType,
-    ContextFactory::AuthWidgetContextPara::AuthProfile>(FINGERPRINT, authProfile));
+    ContextFactory::AuthProfile>(FINGERPRINT, authProfile));
 }
 
 HWTEST_F(WidgetJsonTest, WidgetJsonStr2AuthType_001, TestSize.Level0)

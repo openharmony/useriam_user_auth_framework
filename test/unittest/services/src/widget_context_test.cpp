@@ -205,7 +205,7 @@ HWTEST_F(WidgetContextTest, WidgetContextTestLaunchWidget_002, TestSize.Level0)
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
-    ContextFactory::AuthWidgetContextPara::AuthProfile contextPara;
+    ContextFactory::AuthProfile contextPara;
     para.authProfileMap[PIN] = contextPara;
     auto widgetContext = CreateWidgetContext(contextId, para);
     widgetContext->LaunchWidget();
@@ -218,7 +218,7 @@ HWTEST_F(WidgetContextTest, WidgetContextTestLaunchWidget_003, TestSize.Level0)
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
-    ContextFactory::AuthWidgetContextPara::AuthProfile authProfile;
+    ContextFactory::AuthProfile authProfile;
     authProfile.sensorInfo = "1";
     para.authProfileMap[AuthType::FINGERPRINT] = authProfile;
     auto widgetContext = CreateWidgetContext(contextId, para);
