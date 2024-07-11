@@ -72,7 +72,7 @@ public:
     void EndAuthAsWidgetParaInvalid() override;
     void StopAuthList(const std::vector<AuthType> &authTypeList) override;
     void SuccessAuth(AuthType authType) override;
-    void AuthWidgetReload(uint32_t orientation, uint32_t needRotate, AuthType &rotateAuthType) override;
+    bool AuthWidgetReload(uint32_t orientation, uint32_t needRotate, AuthType &rotateAuthType) override;
     void AuthWidgetReloadInit() override;
 
     void AuthResult(int32_t resultCode, int32_t authType, const Attributes &finalResult);
@@ -102,6 +102,7 @@ private:
     void StopAllRunTask();
     std::string BuildStartCommand(const WidgetRotatePara &widgetRotatePara);
     void ProcessRotatePara(WidgetCmdParameters &widgetCmdParameters, const WidgetRotatePara &widgetRotatePara);
+    bool isValidRotate(const WidgetRotatePara &widgetRotatePara);
 
 private:
     struct TaskInfo {
@@ -130,6 +131,7 @@ private:
     sptr<UIExtensionAbilityConnection> connection_ {nullptr};
     WidgetAuthResultInfo authResultInfo_ {};
     int32_t faceReload_ {0};
+    uint32_t widgetRotateOrientation_ {0};
 };
 } // namespace UserAuth
 } // namespace UserIam
