@@ -241,7 +241,10 @@ void WidgetScheduleNodeImpl::OnWidgetReload(FiniteStateMachine &machine, uint32_
     const uint32_t reloadInitMs = 100;
     auto sleepTime = std::chrono::milliseconds(reloadInitMs);
     std::this_thread::sleep_for(sleepTime);
-    callback->AuthWidgetReload(orientation_, needRotate_, rotateAuthType_);
+    if (!callback->AuthWidgetReload(orientation_, needRotate_, rotateAuthType_)) {
+        IAM_LOGE("Failed to reload widget, cancel Auth");
+        StopSchedule();
+    }
 }
 } // namespace UserAuth
 } // namespace UserIam

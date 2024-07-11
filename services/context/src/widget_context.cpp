@@ -54,6 +54,7 @@ const uint32_t ORIENTATION_LANDSCAPE_INVERTED = 3;
 const std::string TO_PORTRAIT = "90";
 const std::string TO_INVERTED = "180";
 const std::string TO_PORTRAIT_INVERTED = "270";
+const uint32_t NOT_SUPPORT_ORIENTATION_INVERTED = 2;
 
 WidgetContext::WidgetContext(uint64_t contextId, const ContextFactory::AuthWidgetContextPara &para,
     std::shared_ptr<ContextCallback> callback)
@@ -340,7 +341,7 @@ void WidgetContext::AuthWidgetReloadInit()
     }
 }
 
-void WidgetContext::AuthWidgetReload(uint32_t orientation, uint32_t needRotate, AuthType &rotateAuthType)
+bool WidgetContext::AuthWidgetReload(uint32_t orientation, uint32_t needRotate, AuthType &rotateAuthType)
 {
     IAM_LOGI("auth widget reload");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
@@ -349,9 +350,36 @@ void WidgetContext::AuthWidgetReload(uint32_t orientation, uint32_t needRotate, 
     widgetRotatePara.orientation = orientation;
     widgetRotatePara.needRotate = needRotate;
     widgetRotatePara.rotateAuthType = rotateAuthType;
+    if (!isValidRotate(widgetRotatePara)) {
+        IAM_LOGE("check rotate failed");
+        return false;
+    }
     if (!ConnectExtension(widgetRotatePara)) {
         IAM_LOGE("failed to reload widget");
+        return false;
     }
+    return true;
+}
+
+bool WidgetContext::isValidRotate(const WidgetRotatePara &widgetRotatePara)
+{
+    IAM_LOGI("check rotate, needRotate: %{public}u, orientation: %{public}u, orientation_: %{public}u",
+        widgetRotatePara.needRotate, widgetRotatePara.orientation, widgetRotateOrientation_);
+    if (widgetRotatePara.needRotate) {
+        if (widgetRotatePara.orientation == ORIENTATION_PORTRAIT_INVERTED) {
+            IAM_LOGI("not support");
+            return false;
+        }
+        if (widgetRotatePara.orientation > widgetRotateOrientation_ &&
+            widgetRotatePara.orientation - widgetRotateOrientation_ == NOT_SUPPORT_ORIENTATION_INVERTED) {
+            return false;
+        }
+        if (widgetRotatePara.orientation < widgetRotateOrientation_ &&
+            widgetRotateOrientation_ - widgetRotatePara.orientation == NOT_SUPPORT_ORIENTATION_INVERTED) {
+            return false;
+        }
+    }
+    return true;
 }
 
 void WidgetContext::StopAuthList(const std::vector<AuthType> &authTypeList)
@@ -544,6 +572,7 @@ void WidgetContext::ProcessRotatePara(WidgetCmdParameters &widgetCmdParameters,
     }
     IAM_LOGI("needRotate: %{public}u, orientation: %{public}u", widgetRotatePara.needRotate,
         widgetRotatePara.orientation);
+    widgetRotateOrientation_ = widgetRotatePara.orientation;
     if (widgetRotatePara.needRotate) {
         if (widgetRotatePara.orientation == ORIENTATION_LANDSCAPE) {
             widgetCmdParameters.uiExtNodeAngle = TO_PORTRAIT;
