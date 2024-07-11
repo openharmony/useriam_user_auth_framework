@@ -39,9 +39,12 @@ bool GenerateRand(uint8_t *data, size_t len)
         IAM_LOGE("open read file fail");
         return false;
     }
-    int32_t readLen = read(fd, data, len);
+    ssize_t readLen = read(fd, data, len);
     close(fd);
-    return static_cast<size_t>(readLen) == len;
+    if (readLen < 0) {
+        return false;
+    }
+    return static_cast<ssize_t>(readLen) == len;
 }
 }
 class ContextPoolImpl final : public ContextPool, public Singleton<ContextPoolImpl> {
