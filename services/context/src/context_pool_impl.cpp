@@ -42,6 +42,7 @@ bool GenerateRand(uint8_t *data, size_t len)
     ssize_t readLen = read(fd, data, len);
     close(fd);
     if (readLen < 0) {
+        IAM_LOGE("read file failed");
         return false;
     }
     return static_cast<size_t>(readLen) == len;
