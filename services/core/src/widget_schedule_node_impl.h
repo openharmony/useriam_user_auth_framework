@@ -44,7 +44,8 @@ public:
     bool SuccessAuth(AuthType authType) override;
     bool NaviPinAuth() override;
     bool WidgetParaInvalid() override;
-    bool WidgetReload(uint32_t orientation, uint32_t needRotate, AuthType &rotateAuthType) override;
+    bool WidgetReload(uint32_t orientation, uint32_t needRotate, uint32_t alreadyLoad,
+        AuthType &rotateAuthType) override;
     void SetCallback(std::shared_ptr<WidgetScheduleNodeCallback> callback) override;
 
 protected:
@@ -75,6 +76,7 @@ private:
     std::set<AuthType> runningAuthTypeSet_;
     uint32_t orientation_ {0};
     uint32_t needRotate_ {0};
+    uint32_t alreadyLoad_ {0};
     AuthType rotateAuthType_ {0};
 };
 } // namespace UserAuth
