@@ -32,7 +32,8 @@ public:
     MOCK_METHOD0(NaviPinAuth, bool());
     MOCK_METHOD0(WidgetParaInvalid, bool());
     MOCK_METHOD1(SetCallback, void(std::shared_ptr<WidgetScheduleNodeCallback>));
-    MOCK_METHOD3(WidgetReload, bool(uint32_t orientation, uint32_t needRotate, AuthType &rotateAuthType));
+    MOCK_METHOD4(WidgetReload, bool(uint32_t orientation, uint32_t needRotate, uint32_t alreadyLoad,
+        AuthType &rotateAuthType));
 };
 } // namespace UserAuth
 } // namespace UserIam

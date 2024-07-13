@@ -407,8 +407,9 @@ HWTEST_F(WidgetContextTest, WidgetContextTestAuthWidgetReload_0001, TestSize.Lev
     auto widgetContext = CreateWidgetContext(contextId, para);
     uint32_t orientation = 1;
     uint32_t needRotate = 1;
+    uint32_t alreadyLoad = 1;
     AuthType rotateAuthType = PIN;
-    widgetContext->AuthWidgetReload(orientation, needRotate, rotateAuthType);
+    widgetContext->AuthWidgetReload(orientation, needRotate, alreadyLoad, rotateAuthType);
     EXPECT_NE(widgetContext, nullptr);
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask(nullptr);
@@ -421,8 +422,9 @@ HWTEST_F(WidgetContextTest, WidgetContextTestAuthWidgetReload_0002, TestSize.Lev
     auto widgetContext = CreateWidgetContext(contextId, para);
     uint32_t orientation = 2;
     uint32_t needRotate = 1;
+    uint32_t alreadyLoad = 1;
     AuthType rotateAuthType = FINGERPRINT;
-    widgetContext->AuthWidgetReload(orientation, needRotate, rotateAuthType);
+    widgetContext->AuthWidgetReload(orientation, needRotate, alreadyLoad, rotateAuthType);
     EXPECT_NE(widgetContext, nullptr);
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask(nullptr);
@@ -435,8 +437,9 @@ HWTEST_F(WidgetContextTest, WidgetContextTestAuthWidgetReload_0003, TestSize.Lev
     auto widgetContext = CreateWidgetContext(contextId, para);
     uint32_t orientation = 3;
     uint32_t needRotate = 1;
+    uint32_t alreadyLoad = 1;
     AuthType rotateAuthType = FACE;
-    widgetContext->AuthWidgetReload(orientation, needRotate, rotateAuthType);
+    widgetContext->AuthWidgetReload(orientation, needRotate, alreadyLoad, rotateAuthType);
     EXPECT_NE(widgetContext, nullptr);
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask(nullptr);
