@@ -38,7 +38,8 @@ public:
     virtual void EndAuthAsWidgetParaInvalid() = 0;
     virtual void StopAuthList(const std::vector<AuthType> &authTypeList) = 0;
     virtual void SuccessAuth(AuthType authType) = 0;
-    virtual bool AuthWidgetReload(uint32_t orientation, uint32_t needRotate, AuthType &rotateAuthType) = 0;
+    virtual bool AuthWidgetReload(uint32_t orientation, uint32_t needRotate, uint32_t alreadyLoad,
+        AuthType &rotateAuthType) = 0;
     virtual void AuthWidgetReloadInit() = 0;
 };
 } // namespace UserAuth

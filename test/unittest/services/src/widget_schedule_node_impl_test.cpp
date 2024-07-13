@@ -159,8 +159,9 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetReload_0001, Te
     schedule->StartSchedule();
     uint32_t orientation = 1;
     uint32_t needRotate = 1;
+    uint32_t alreadyLoad = 1;
     AuthType rotateAuthType = PIN;
-    EXPECT_TRUE(schedule->WidgetReload(orientation, needRotate, rotateAuthType));
+    EXPECT_TRUE(schedule->WidgetReload(orientation, needRotate, alreadyLoad, rotateAuthType));
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask(nullptr);
@@ -174,8 +175,9 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetReload_0002, Te
     schedule->StartSchedule();
     uint32_t orientation = 2;
     uint32_t needRotate = 1;
+    uint32_t alreadyLoad = 1;
     AuthType rotateAuthType = FINGERPRINT;
-    EXPECT_TRUE(schedule->WidgetReload(orientation, needRotate, rotateAuthType));
+    EXPECT_TRUE(schedule->WidgetReload(orientation, needRotate, alreadyLoad, rotateAuthType));
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask(nullptr);
@@ -189,8 +191,9 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetReload_0003, Te
     schedule->StartSchedule();
     uint32_t orientation = 3;
     uint32_t needRotate = 1;
+    uint32_t alreadyLoad = 1;
     AuthType rotateAuthType = FACE;
-    EXPECT_TRUE(schedule->WidgetReload(orientation, needRotate, rotateAuthType));
+    EXPECT_TRUE(schedule->WidgetReload(orientation, needRotate, alreadyLoad, rotateAuthType));
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask(nullptr);

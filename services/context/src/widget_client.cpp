@@ -110,7 +110,7 @@ void WidgetClient::ProcessNotice(const WidgetNotice &notice, std::vector<AuthTyp
         if ((authTypeList.size() == 1 && authTypeList[0] == AuthType::ALL) || authTypeList.size() != 1) {
             schedule_->WidgetParaInvalid();
         } else {
-            schedule_->WidgetReload(notice.orientation, notice.needRotate, authTypeList[0]);
+            schedule_->WidgetReload(notice.orientation, notice.needRotate, notice.alreadyLoad, authTypeList[0]);
         }
     }
 }

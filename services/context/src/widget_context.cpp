@@ -335,7 +335,8 @@ void WidgetContext::AuthWidgetReloadInit()
     }
 }
 
-bool WidgetContext::AuthWidgetReload(uint32_t orientation, uint32_t needRotate, AuthType &rotateAuthType)
+bool WidgetContext::AuthWidgetReload(uint32_t orientation, uint32_t needRotate, uint32_t alreadyLoad,
+    AuthType &rotateAuthType)
 {
     IAM_LOGI("auth widget reload");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
@@ -343,7 +344,11 @@ bool WidgetContext::AuthWidgetReload(uint32_t orientation, uint32_t needRotate, 
     widgetRotatePara.isReload = true;
     widgetRotatePara.orientation = orientation;
     widgetRotatePara.needRotate = needRotate;
+    widgetRotatePara.alreadyLoad = alreadyLoad;
     widgetRotatePara.rotateAuthType = rotateAuthType;
+    if (alreadyLoad) {
+        widgetAlreadyLoad_ = 1;
+    }
     if (!isValidRotate(widgetRotatePara)) {
         IAM_LOGE("check rotate failed");
         return false;
@@ -360,9 +365,10 @@ bool WidgetContext::isValidRotate(const WidgetRotatePara &widgetRotatePara)
     IAM_LOGI("check rotate, needRotate: %{public}u, orientation: %{public}u, orientation_: %{public}u",
         widgetRotatePara.needRotate, widgetRotatePara.orientation, widgetRotateOrientation_);
     if (widgetRotatePara.needRotate) {
-        if (widgetRotatePara.orientation == ORIENTATION_PORTRAIT_INVERTED) {
-            IAM_LOGI("not support");
-            return false;
+        IAM_LOGI("check rotate, widgetAlreadyLoad_: %{public}u", widgetAlreadyLoad_);
+        if (widgetRotatePara.orientation == ORIENTATION_PORTRAIT_INVERTED && !widgetAlreadyLoad_) {
+            IAM_LOGI("only support first");
+            return true;
         }
         if (widgetRotatePara.orientation > widgetRotateOrientation_ &&
             widgetRotatePara.orientation - widgetRotateOrientation_ == NOT_SUPPORT_ORIENTATION_INVERTED) {
