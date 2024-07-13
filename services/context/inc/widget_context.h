@@ -71,7 +71,8 @@ public:
     void EndAuthAsWidgetParaInvalid() override;
     void StopAuthList(const std::vector<AuthType> &authTypeList) override;
     void SuccessAuth(AuthType authType) override;
-    bool AuthWidgetReload(uint32_t orientation, uint32_t needRotate, AuthType &rotateAuthType) override;
+    bool AuthWidgetReload(uint32_t orientation, uint32_t needRotate, uint32_t alreadyLoad,
+        AuthType &rotateAuthType) override;
     void AuthWidgetReloadInit() override;
 
     void AuthResult(int32_t resultCode, int32_t authType, const Attributes &finalResult);
@@ -86,6 +87,7 @@ private:
         bool isReload {false};
         uint32_t orientation {0};
         uint32_t needRotate {0};
+        uint32_t alreadyLoad {0};
         AuthType rotateAuthType {0};
     };
     void SetLatestError(int32_t error) override;
@@ -131,6 +133,7 @@ private:
     WidgetAuthResultInfo authResultInfo_ {};
     int32_t faceReload_ {0};
     uint32_t widgetRotateOrientation_ {0};
+    uint32_t widgetAlreadyLoad_ {0};
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -45,6 +45,7 @@ const std::string JSON_AUTH_PAYLOAD = "payload";
 const std::string JSON_AUTH_END_AFTER_FIRST_FAIL = "endAfterFirstFail";
 const std::string JSON_ORIENTATION = "orientation";
 const std::string JSON_NEED_ROTATE = "needRotate";
+const std::string JSON_ALREADY_LOAD = "alreadyLoad";
 const std::string JSON_LOCKOUT_DURATION = "lockoutDuration";
 const std::string JSON_REMAIN_ATTEMPTS = "remainAttempts";
 const std::string JSON_AUTH_RESULT = "result";
@@ -201,6 +202,7 @@ void to_json(nlohmann::json &jsonNotice, const WidgetNotice &notice)
         {JSON_AUTH_EVENT, notice.event},
         {JSON_ORIENTATION, notice.orientation},
         {JSON_NEED_ROTATE, notice.needRotate},
+        {JSON_ALREADY_LOAD, notice.alreadyLoad},
         {JSON_AUTH_VERSION, notice.version},
         {JSON_AUTH_PAYLOAD, type}});
 }
@@ -218,6 +220,9 @@ void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice)
     }
     if (jsonNotice.find(JSON_NEED_ROTATE) != jsonNotice.end() && jsonNotice[JSON_NEED_ROTATE].is_number()) {
         jsonNotice.at(JSON_NEED_ROTATE).get_to(notice.needRotate);
+    }
+    if (jsonNotice.find(JSON_ALREADY_LOAD) != jsonNotice.end() && jsonNotice[JSON_ALREADY_LOAD].is_number()) {
+        jsonNotice.at(JSON_ALREADY_LOAD).get_to(notice.alreadyLoad);
     }
     if (jsonNotice.find(JSON_AUTH_VERSION) != jsonNotice.end() && jsonNotice[JSON_AUTH_VERSION].is_string()) {
         jsonNotice.at(JSON_AUTH_VERSION).get_to(notice.version);

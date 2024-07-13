@@ -44,6 +44,7 @@ struct WidgetNotice {
     std::string event {""};
     uint32_t orientation {0};
     uint32_t needRotate {0};
+    uint32_t alreadyLoad {0};
     std::string version {""};
     std::vector<std::string> typeList {};
     bool endAfterFirstFail {false};

@@ -148,11 +148,13 @@ bool WidgetScheduleNodeImpl::WidgetParaInvalid()
     return TryKickMachine(E_WIDGET_PARA_INVALID);
 }
 
-bool WidgetScheduleNodeImpl::WidgetReload(uint32_t orientation, uint32_t needRotate, AuthType &rotateAuthType)
+bool WidgetScheduleNodeImpl::WidgetReload(uint32_t orientation, uint32_t needRotate, uint32_t alreadyLoad,
+    AuthType &rotateAuthType)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     orientation_ = orientation;
     needRotate_ = needRotate;
+    alreadyLoad_ = alreadyLoad;
     rotateAuthType_ = rotateAuthType;
     return TryKickMachine(E_WIDGET_RELOAD);
 }
@@ -241,7 +243,7 @@ void WidgetScheduleNodeImpl::OnWidgetReload(FiniteStateMachine &machine, uint32_
     const uint32_t reloadInitMs = 100;
     auto sleepTime = std::chrono::milliseconds(reloadInitMs);
     std::this_thread::sleep_for(sleepTime);
-    if (!callback->AuthWidgetReload(orientation_, needRotate_, rotateAuthType_)) {
+    if (!callback->AuthWidgetReload(orientation_, needRotate_, alreadyLoad_, rotateAuthType_)) {
         IAM_LOGE("Failed to reload widget, cancel Auth");
         StopSchedule();
     }

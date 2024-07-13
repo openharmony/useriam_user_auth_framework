@@ -60,7 +60,8 @@ public:
     virtual bool SuccessAuth(AuthType authType) = 0;
     virtual bool NaviPinAuth() = 0;
     virtual bool WidgetParaInvalid() = 0;
-    virtual bool WidgetReload(uint32_t orientation, uint32_t needRotate, AuthType &rotateAuthType) = 0;
+    virtual bool WidgetReload(uint32_t orientation, uint32_t needRotate, uint32_t alreadyLoad,
+        AuthType &rotateAuthType) = 0;
     virtual void SetCallback(std::shared_ptr<WidgetScheduleNodeCallback> callback) = 0;
 };
 } // namespace UserAuth
