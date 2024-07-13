@@ -33,9 +33,53 @@ KeyguardStatusListenerManager &KeyguardStatusListenerManager::GetInstance()
     return instance;
 }
 
+ResultCode KeyguardStatusListenerManager::RegisterCommonEventListener()
+{
+    IAM_LOGI("start");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (commonEventListener_ != nullptr) {
+        IAM_LOGI("commonEventListener_ is not nullptr");
+        return SUCCESS;
+    }
+    commonEventListener_ = SystemAbilityListener::Subscribe("common_event_service", COMMON_EVENT_SERVICE_ID,
+        [this]() {RegisterKeyguardStatusSwitchCallback();},
+        [this]() {UnRegisterKeyguardStatusSwitchCallback();});
+    if (commonEventListener_ == nullptr) {
+        IAM_LOGE("commonEventListener_ is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    IAM_LOGI("RegisterCommonEventListener success");
+    return SUCCESS;
+}
+
+ResultCode KeyguardStatusListenerManager::UnRegisterCommonEventListener()
+{
+    IAM_LOGI("start");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (commonEventListener_ == nullptr) {
+        IAM_LOGI("commonEventListener_ is nullptr");
+        return SUCCESS;
+    }
+
+    if (SystemAbilityListener::UnSubscribe(COMMON_EVENT_SERVICE_ID, commonEventListener_) != SUCCESS) {
+        IAM_LOGE("UnRegisterCommonEventListener failed");
+        return GENERAL_ERROR;
+    }
+
+    commonEventListener_ = nullptr;
+    IAM_LOGI("UnRegisterCommonEventListener success");
+    return SUCCESS;
+}
+
 void KeyguardStatusListenerManager::RegisterKeyguardStatusSwitchCallback()
 {
     IAM_LOGI("start");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (isRegisterKeyguardStatus_) {
+        IAM_LOGI("KeyguardStatusListener already registered");
+        return;
+    }
     EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_LOCKED);
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED);
@@ -44,7 +88,32 @@ void KeyguardStatusListenerManager::RegisterKeyguardStatusSwitchCallback()
     auto subscriber = std::make_shared<KeyguardStatusListener>(subscribeInfo);
     if (!EventFwk::CommonEventManager::SubscribeCommonEvent(subscriber)) {
         IAM_LOGE("SubscribeCommonEvent fail");
+        return;
     }
+    isRegisterKeyguardStatus_ = true;
+    IAM_LOGI("SubscribeCommonEvent success");
+}
+
+void KeyguardStatusListenerManager::UnRegisterKeyguardStatusSwitchCallback()
+{
+    IAM_LOGI("start");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (!isRegisterKeyguardStatus_) {
+        IAM_LOGI("KeyguardStatusListener already registered");
+        return;
+    }
+    EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_LOCKED);
+    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED);
+
+    EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
+    auto subscriber = std::make_shared<KeyguardStatusListener>(subscribeInfo);
+    if (!EventFwk::CommonEventManager::UnSubscribeCommonEvent(subscriber)) {
+        IAM_LOGE("UnSubscribeCommonEvent failed");
+        return;
+    }
+    isRegisterKeyguardStatus_ = false;
+    IAM_LOGI("UnSubscribeCommonEvent success");
 }
 
 void KeyguardStatusListener::OnReceiveEvent(const OHOS::EventFwk::CommonEventData &data)

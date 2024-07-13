@@ -161,13 +161,14 @@ void UserAuthService::OnStart()
     }
     SystemParamManager::GetInstance().Start();
     SoftBusManager::GetInstance().Start();
-    KeyguardStatusListenerManager::GetInstance().RegisterKeyguardStatusSwitchCallback();
+    KeyguardStatusListenerManager::GetInstance().RegisterCommonEventListener();
 }
 
 void UserAuthService::OnStop()
 {
     IAM_LOGI("stop service");
     SoftBusManager::GetInstance().Stop();
+    KeyguardStatusListenerManager::GetInstance().UnRegisterCommonEventListener();
 }
 
 bool UserAuthService::CheckAuthTrustLevel(AuthTrustLevel authTrustLevel)
