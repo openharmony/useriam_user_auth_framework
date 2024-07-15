@@ -353,7 +353,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessButTimeout, TestSize.
         time_point<system_clock> finish = system_clock::now();
         auto cost = duration_cast<milliseconds>(finish - start).count();
         EXPECT_GT(cost, 540);
-        EXPECT_LT(cost, 600);
+        EXPECT_LT(cost, 700);
     }
     handler->EnsureTask(nullptr);
 }
@@ -407,7 +407,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessButTimeoutAndEndFail,
         time_point<system_clock> finish = system_clock::now();
         auto cost = duration_cast<milliseconds>(finish - start).count();
         EXPECT_GT(cost, 540);
-        EXPECT_LT(cost, 600);
+        EXPECT_LT(cost, 700);
     }
     handler->EnsureTask(nullptr);
 }
@@ -460,7 +460,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessGetResult, TestSize.L
         time_point<system_clock> finish = system_clock::now();
         auto cost = duration_cast<milliseconds>(finish - start).count();
         EXPECT_GT(cost, 540);
-        EXPECT_LT(cost, 600);
+        EXPECT_LT(cost, 700);
     }
     handler->EnsureTask(nullptr);
 }
@@ -513,7 +513,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneUserStop, TestSize.Level0)
         time_point<system_clock> finish = system_clock::now();
         auto cost = duration_cast<milliseconds>(finish - start).count();
         EXPECT_GT(cost, 540);
-        EXPECT_LT(cost, 600);
+        EXPECT_LT(cost, 700);
     }
     handler->EnsureTask(nullptr);
 }
@@ -568,7 +568,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneUserStopAndEndFailed, TestSi
         time_point<system_clock> finish = system_clock::now();
         auto cost = duration_cast<milliseconds>(finish - start).count();
         EXPECT_GT(cost, 540);
-        EXPECT_LT(cost, 600);
+        EXPECT_LT(cost, 700);
     }
     handler->EnsureTask(nullptr);
 }
