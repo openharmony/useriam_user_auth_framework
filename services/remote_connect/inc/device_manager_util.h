@@ -24,6 +24,8 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+constexpr uint32_t DEFAULT_MESSAGE_VERSION = 0;
+
 class DeviceManagerUtil {
 public:
     static DeviceManagerUtil &GetInstance();

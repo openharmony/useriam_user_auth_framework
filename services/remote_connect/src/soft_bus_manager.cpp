@@ -249,6 +249,7 @@ ResultCode SoftBusManager::ServiceSocketListen(const int32_t socketId)
     listener.OnBind = SoftBusSocketListener::OnBind;
     listener.OnShutdown = SoftBusSocketListener::OnShutdown;
     listener.OnBytes = SoftBusSocketListener::OnClientBytes;
+    listener.OnNegotiate = SoftBusSocketListener::OnNegotiate;
 
     int32_t ret = Listen(socketId, serverQos, QOS_LEN, &listener);
     if (ret != SUCCESS) {
@@ -568,7 +569,7 @@ void SoftBusManager::OnBind(int32_t socketId, PeerSocketInfo info)
         IAM_LOGE("serverSocket is nullptr.");
         return;
     }
-    
+
     serverSocket->OnBind(socketId, info);
 }
 
