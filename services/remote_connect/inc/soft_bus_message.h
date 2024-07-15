@@ -16,8 +16,6 @@
 #ifndef IAM_SOFT_BUS_MESSAGE_H
 #define IAM_SOFT_BUS_MESSAGE_H
 
-#include "soft_bus_message.h"
-
 #include <cstdint>
 #include <vector>
 #include <string>
