@@ -19,6 +19,9 @@
 #include "common_event_manager.h"
 #include "common_event_subscriber.h"
 #include "common_event_support.h"
+#include "iam_common_defines.h"
+#include "system_ability_definition.h"
+#include "system_ability_listener.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -33,7 +36,16 @@ public:
     ~KeyguardStatusListenerManager() = default;
 
     static KeyguardStatusListenerManager &GetInstance();
+    ResultCode RegisterCommonEventListener();
+    ResultCode UnRegisterCommonEventListener();
+
+private:
     void RegisterKeyguardStatusSwitchCallback();
+    void UnRegisterKeyguardStatusSwitchCallback();
+
+    bool isRegisterKeyguardStatus_ = false;
+    sptr<SystemAbilityListener> commonEventListener_;
+    std::recursive_mutex mutex_;
 };
 
 class KeyguardStatusListener : public CommonEventSubscriber {
