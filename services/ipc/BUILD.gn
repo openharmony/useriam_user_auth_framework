@@ -48,6 +48,7 @@ ohos_source_set("userauth_services_ipc") {
   sources = [
     "src/co_auth_service.cpp",
     "src/executor_messenger_service.cpp",
+    "src/hdi_message_callback_service.cpp",
     "src/ipc_common.cpp",
     "src/user_auth_service.cpp",
     "src/user_idm_service.cpp",

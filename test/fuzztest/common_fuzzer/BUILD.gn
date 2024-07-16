@@ -157,12 +157,10 @@ ohos_source_set("userauth_service_core_fuzzer") {
 
   sources = [
     "../../../services/core/src/auth_event_listener_manager.cpp",
-    "../../../services/core/src/auth_widget_helper.cpp",
     "../../../services/core/src/authentication_impl.cpp",
     "../../../services/core/src/credential_info_impl.cpp",
     "../../../services/core/src/enrolled_info_impl.cpp",
     "../../../services/core/src/enrollment_impl.cpp",
-    "../../../services/core/src/hdi_message_callback_service.cpp",
     "../../../services/core/src/identification_impl.cpp",
     "../../../services/core/src/remote_auth_service.cpp",
     "../../../services/core/src/remote_executor_proxy.cpp",
@@ -241,6 +239,7 @@ ohos_source_set("userauth_service_context_fuzzer") {
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   sources = [
+    "../../../services/context/src/auth_widget_helper.cpp",
     "../../../services/context/src/base_context.cpp",
     "../../../services/context/src/context_appstate_observer.cpp",
     "../../../services/context/src/context_callback_impl.cpp",
@@ -402,6 +401,7 @@ ohos_source_set("userauth_services_ipc_fuzzer") {
   sources = [
     "../../../services/ipc/src/co_auth_service.cpp",
     "../../../services/ipc/src/executor_messenger_service.cpp",
+    "../../../services/ipc/src/hdi_message_callback_service.cpp",
     "../../../services/ipc/src/publish_event_adapter_mock.cpp",
     "../../../services/ipc/src/user_auth_service.cpp",
     "../../../services/ipc/src/user_idm_service.cpp",

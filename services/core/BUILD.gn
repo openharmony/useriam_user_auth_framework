@@ -49,12 +49,10 @@ ohos_source_set("userauth_service_core") {
 
   sources = [
     "src/auth_event_listener_manager.cpp",
-    "src/auth_widget_helper.cpp",
     "src/authentication_impl.cpp",
     "src/credential_info_impl.cpp",
     "src/enrolled_info_impl.cpp",
     "src/enrollment_impl.cpp",
-    "src/hdi_message_callback_service.cpp",
     "src/identification_impl.cpp",
     "src/remote_auth_service.cpp",
     "src/remote_executor_proxy.cpp",
