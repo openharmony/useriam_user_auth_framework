@@ -53,6 +53,35 @@ void FuzzSoftBusManagerSecond(SoftBusManager &softBusManager)
     IAM_LOGI("end");
 }
 
+void FuzzSoftBusBaseSocketSecond(Parcel &parcel)
+{
+    int32_t socketId = parcel.ReadInt32();
+    auto clientSocket = Common::MakeShared<ClientSocket>(socketId);
+    PeerSocketInfo info;
+    clientSocket->OnBind(socketId, info);
+    clientSocket->GetNetworkId();
+    std::string networkId = parcel.ReadString();
+    char message[] = "testMesage";
+    uint32_t messageLen = sizeof(message) / sizeof(char);
+    clientSocket->ParseMessage(networkId, message, messageLen);
+    ShutdownReason reason = SHUTDOWN_REASON_LOCAL;
+    clientSocket->OnShutdown(socketId, reason);
+    clientSocket->OnBytes(socketId, message, messageLen);
+    clientSocket->SetNetworkId(networkId);
+    clientSocket->SendKeepAliveMessage();
+    std::vector<uint8_t> attr;
+    Common::FillFuzzUint8Vector(parcel, attr);
+    auto attributes = Common::MakeShared<Attributes>(attr);
+    std::shared_ptr<SoftBusMessage> softBusMessage1 =
+        Common::MakeShared<SoftBusMessage>(0, networkId, networkId, networkId, attributes);
+    clientSocket->ProcDataReceive(socketId, softBusMessage1);
+    softBusMessage1->isAck_ = true;
+    clientSocket->ProcDataReceive(socketId, softBusMessage1);
+    softBusMessage1 =
+        Common::MakeShared<SoftBusMessage>(0, networkId, networkId, networkId, nullptr);
+    clientSocket->ProcDataReceive(socketId, softBusMessage1);
+}
+
 void FuzzSoftBusBaseSocketFisrst(Parcel &parcel)
 {
     IAM_LOGI("start");
@@ -65,7 +94,8 @@ void FuzzSoftBusBaseSocketFisrst(Parcel &parcel)
     std::vector<uint8_t> attr;
     Common::FillFuzzUint8Vector(parcel, attr);
     auto attributes = Common::MakeShared<Attributes>(attr);
-    MsgCallback callback = nullptr;
+    std::shared_ptr<Attributes> request = Common::MakeShared<Attributes>(attributes->Serialize());
+    MsgCallback callback = [](const std::shared_ptr<Attributes> &) { IAM_LOGI("message sent"); };
     clientSocket->SendMessage(connectionName, srcEndPoint, destEndPoint, attributes, callback);
     uint32_t messageSeq = parcel.ReadUint32();
     clientSocket->SendResponse(socketId, connectionName, srcEndPoint, destEndPoint, attributes, messageSeq);
@@ -82,6 +112,8 @@ void FuzzSoftBusBaseSocketFisrst(Parcel &parcel)
     clientSocket->GetMessageSeq();
     clientSocket->SetDeviceNetworkId(networkId, attributes);
     clientSocket->PrintTransferDuration(messageSeq);
+    clientSocket->SetConnectionName(connectionName);
+    FuzzSoftBusBaseSocketSecond(parcel);
     IAM_LOGI("end");
 }
 
@@ -103,6 +135,13 @@ void FuzzSoftBusServerSocketFisrst(Parcel &parcel)
     serverSocket->GetNetworkIdBySocketId(socketId);
     serverSocket->GetClientConnectionName(socketId);
     serverSocket->GetSocketIdByClientConnectionName(connectionName);
+    std::vector<uint8_t> attr;
+    Common::FillFuzzUint8Vector(parcel, attr);
+    auto attributes = Common::MakeShared<Attributes>(attr);
+    MsgCallback callback = nullptr;
+    serverSocket->SendMessage(connectionName, connectionName, connectionName, attributes, callback);
+    std::string data = parcel.ReadString();
+    serverSocket->OnBytes(socketId, &data, data.size());
     IAM_LOGI("end");
 }
 
@@ -110,7 +149,12 @@ void FuzzSoftBusManagerFisrst(Parcel &parcel)
 {
     IAM_LOGI("start");
     SoftBusManager softBusManager;
+    softBusManager.Stop();
     softBusManager.Start();
+    softBusManager.Start();
+    int32_t socketId = parcel.ReadInt32();
+    std::shared_ptr<BaseSocket> clientSocket1 = Common::MakeShared<ClientSocket>(socketId);
+    softBusManager.serverSocket_ = clientSocket1;
     uint32_t tokenId = parcel.ReadUint32();
     std::string networkId = parcel.ReadString();
     std::string connectionName = parcel.ReadString();
@@ -123,13 +167,15 @@ void FuzzSoftBusManagerFisrst(Parcel &parcel)
     MsgCallback callback = nullptr;
     softBusManager.SendMessage(connectionName, srcEndPoint, destEndPoint, attributes, callback);
     std::shared_ptr<BaseSocket> clientSocket = softBusManager.FindClientSocket(connectionName);
-    int32_t socketId = parcel.ReadInt32();
     PeerSocketInfo info;
     softBusManager.OnBind(socketId, info);
     ShutdownReason reason = SHUTDOWN_REASON_LOCAL;
     softBusManager.OnShutdown(socketId, reason);
-    softBusManager.OnClientBytes(socketId, nullptr, 0);
-    softBusManager.OnServerBytes(socketId, nullptr, 0);
+    int socketId1 = INVALID_SOCKET_ID;
+    softBusManager.OnShutdown(socketId1, reason);
+    std::string data = parcel.ReadString();
+    softBusManager.OnClientBytes(socketId, &data, data.size());
+    softBusManager.OnServerBytes(socketId, &data, data.size());
     softBusManager.DoOpenConnection(connectionName, tokenId, networkId);
     FuzzSoftBusManagerSecond(softBusManager);
     softBusManager.CloseConnection(connectionName);
@@ -137,11 +183,13 @@ void FuzzSoftBusManagerFisrst(Parcel &parcel)
     softBusManager.ClientSocketBind(socketId);
     std::string src = parcel.ReadString();
     softBusManager.CheckAndCopyStr(nullptr, 0, src);
-    softBusManager.AddConnection(connectionName, clientSocket);
+    softBusManager.AddConnection(connectionName, clientSocket1);
     softBusManager.DeleteConnection(connectionName);
-    softBusManager.AddSocket(socketId, clientSocket);
+    softBusManager.AddSocket(socketId, clientSocket1);
     softBusManager.DeleteSocket(socketId);
-    softBusManager.SetServerSocket(clientSocket);
+    softBusManager.SetServerSocket(clientSocket1);
+    softBusManager.SendMessage(connectionName, srcEndPoint, destEndPoint, attributes, callback);
+    softBusManager.DoCloseConnection(connectionName);
     IAM_LOGI("end");
 }
 
