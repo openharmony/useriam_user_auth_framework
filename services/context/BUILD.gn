@@ -36,6 +36,7 @@ ohos_source_set("userauth_service_context") {
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   sources = [
+    "src/auth_widget_helper.cpp",
     "src/base_context.cpp",
     "src/context_appstate_observer.cpp",
     "src/context_callback_impl.cpp",
