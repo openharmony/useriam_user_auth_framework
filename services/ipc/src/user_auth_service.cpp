@@ -450,31 +450,6 @@ uint64_t UserAuthService::StartAuthContext(int32_t apiVersion, Authentication::A
     return context->GetContextId();
 }
 
-uint64_t UserAuthService::StartRemoteAuthContext(Authentication::AuthenticationPara para,
-    RemoteAuthContextParam remoteAuthContextParam, const std::shared_ptr<ContextCallback> &contextCallback,
-    int &lastError)
-{
-    IAM_LOGI("start");
-    Attributes extraInfo;
-    std::shared_ptr<Context> context = ContextFactory::CreateRemoteAuthContext(para, remoteAuthContextParam,
-        contextCallback);
-    if (context == nullptr || !ContextPool::Instance().Insert(context)) {
-        IAM_LOGE("failed to insert context");
-        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
-        return BAD_CONTEXT_ID;
-    }
-    contextCallback->SetCleaner(ContextHelper::Cleaner(context));
-
-    if (!context->Start()) {
-        lastError = context->GetLatestError();
-        IAM_LOGE("failed to start auth errorCode:%{public}d", lastError);
-        return BAD_CONTEXT_ID;
-    }
-    lastError = SUCCESS;
-    IAM_LOGI("success");
-    return context->GetContextId();
-}
-
 uint64_t UserAuthService::StartRemoteAuthInvokerContext(AuthParamInner authParam,
     RemoteAuthInvokerContextParam &param, const std::shared_ptr<ContextCallback> &contextCallback)
 {
@@ -673,7 +648,8 @@ uint64_t UserAuthService::AuthRemoteUser(AuthParamInner &authParam, Authenticati
     remoteAuthContextParam.executorInfoMsg = {};
     int32_t dummyLastError = 0;
     IAM_LOGI("start remote auth context");
-    return StartRemoteAuthContext(para, remoteAuthContextParam, contextCallback, dummyLastError);
+    return RemoteAuthService::GetInstance().StartRemoteAuthContext(
+        para, remoteAuthContextParam, contextCallback, dummyLastError);
 }
 
 uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthType authType,
@@ -1252,58 +1228,6 @@ bool UserAuthService::CompleteRemoteAuthParam(RemoteAuthParam &remoteAuthParam, 
 
     IAM_LOGI("success");
     return true;
-}
-
-int32_t UserAuthService::ProcStartRemoteAuthRequest(std::string connectionName,
-    const std::shared_ptr<Attributes> &request, std::shared_ptr<Attributes> &reply)
-{
-    IAM_LOGI("start");
-    AuthParamInner authParam = {};
-    bool getAuthParamRet = RemoteMsgUtil::DecodeAuthParam(*request, authParam);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getAuthParamRet, GENERAL_ERROR);
-
-    std::string collectorNetworkId;
-    bool getCollectorNetworkIdRet = request->GetStringValue(Attributes::ATTR_COLLECTOR_NETWORK_ID, collectorNetworkId);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getCollectorNetworkIdRet, GENERAL_ERROR);
-
-    uint32_t collectorTokenId;
-    bool getCollectorTokenIdRet = request->GetUint32Value(Attributes::ATTR_COLLECTOR_TOKEN_ID, collectorTokenId);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getCollectorTokenIdRet, GENERAL_ERROR);
-
-    Authentication::AuthenticationPara para = {};
-    para.userId = authParam.userId;
-    para.authType = authParam.authType;
-    para.atl = authParam.authTrustLevel;
-    para.collectorTokenId = collectorTokenId;
-    para.challenge = authParam.challenge;
-    para.sdkVersion = INNER_API_VERSION_10000;
-
-    bool getCallerNameRet = request->GetStringValue(Attributes::ATTR_CALLER_NAME, para.callerName);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getCallerNameRet, GENERAL_ERROR);
-    bool getCallerTypeRet = request->GetInt32Value(Attributes::ATTR_CALLER_TYPE, para.callerType);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getCallerTypeRet, GENERAL_ERROR);
-
-    RemoteAuthContextParam remoteAuthContextParam;
-    remoteAuthContextParam.authType = authParam.authType;
-    remoteAuthContextParam.connectionName = connectionName;
-    remoteAuthContextParam.collectorNetworkId = collectorNetworkId;
-    remoteAuthContextParam.executorInfoMsg = request->Serialize();
-
-    sptr<IamCallbackInterface> callback(new RemoteIamCallback(connectionName));
-    IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, GENERAL_ERROR);
-
-    auto contextCallback = ContextCallback::NewInstance(callback, NO_NEED_TRACE);
-    IF_FALSE_LOGE_AND_RETURN_VAL(contextCallback != nullptr, GENERAL_ERROR);
-
-    int32_t lastError;
-    auto contextId = StartRemoteAuthContext(para, remoteAuthContextParam, contextCallback, lastError);
-    IF_FALSE_LOGE_AND_RETURN_VAL(contextId != BAD_CONTEXT_ID, lastError);
-
-    bool setContextIdRet = reply->SetUint64Value(Attributes::ATTR_CONTEXT_ID, contextId);
-    IF_FALSE_LOGE_AND_RETURN_VAL(setContextIdRet, GENERAL_ERROR);
-
-    IAM_LOGI("success");
-    return SUCCESS;
 }
 
 bool UserAuthService::GetAndUpateOsAccountVerifiedState(int32_t userId)
