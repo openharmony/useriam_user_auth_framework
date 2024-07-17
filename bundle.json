@@ -21,7 +21,7 @@
     "syscap": [
       "SystemCapability.UserIAM.UserAuth.Core"
     ],
-    "features": [],
+    "features": ["user_auth_framework_enabled"],
     "hisysevent_config": [
       "//base/useriam/user_auth_framework/hisysevent.yaml"
     ],
