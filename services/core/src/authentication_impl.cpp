@@ -128,6 +128,7 @@ bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
     para.endAfterFirstFail = endAfterFirstFail_;
     para.collectorTokenId = authPara_.collectorTokenId;
     para.authIntent = authPara_.authIntent;
+    para.userId = authPara_.userId;
 
     if (!ScheduleNodeHelper::BuildFromHdi(infos, callback, scheduleList, para)) {
         IAM_LOGE("BuildFromHdi failed");

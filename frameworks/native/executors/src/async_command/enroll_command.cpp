@@ -53,8 +53,12 @@ ResultCode EnrollCommand::SendRequest()
     bool getExtraInfoRet = attributes_->GetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, extraInfo);
     IF_FALSE_LOGE_AND_RETURN_VAL(getExtraInfoRet == true, ResultCode::GENERAL_ERROR);
 
+    int32_t userId;
+    bool getuserId = attributes_->GetInt32Value(Attributes::ATTR_USER_ID, userId);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getuserId == true, ResultCode::GENERAL_ERROR);
+
     IamHitraceHelper traceHelper("hdi Enroll");
-    ResultCode ret = hdi->Enroll(scheduleId_, (EnrollParam) { tokenId, extraInfo }, shared_from_this());
+    ResultCode ret = hdi->Enroll(scheduleId_, (EnrollParam) { tokenId, extraInfo, userId }, shared_from_this());
     IAM_LOGI("%{public}s enroll result %{public}d", GetDescription(), ret);
     return ret;
 }
