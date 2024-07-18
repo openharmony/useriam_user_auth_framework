@@ -43,6 +43,10 @@ enum TraceFlag : uint32_t {
     TRACE_FLAG_NO_NEED_BEHAVIOR = 1,
 };
 
+enum PriAuthIntent : uint32_t {
+    UNLOCK_CURRENT_ONLY = 10001,
+    SPECIFY_PIN_COMPLEXITY = 10002,
+};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

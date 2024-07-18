@@ -51,6 +51,8 @@ struct ExecutorParam {
     int32_t authIntent;
     /** Schedule id. */
     uint64_t scheduleId;
+    /** User id */
+    int32_t userId;
 };
 
 /**
@@ -61,6 +63,8 @@ struct EnrollParam {
     uint32_t tokenId;
     /** Extra info. */
     std::vector<uint8_t> extraInfo;
+    /** User id. */
+    int32_t userId;
 };
 
 /**
@@ -75,7 +79,10 @@ struct AuthenticateParam {
     std::vector<uint8_t> extraInfo;
     /** End after first fail. */
     bool endAfterFirstFail;
+    /** Auth intent. */
     int32_t authIntent;
+    /** User id. */
+    int32_t userId;
 };
 
 /**

@@ -175,7 +175,8 @@ std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &ch
     para.endAfterFirstFail = endAfterFirstFail;
     para.callerName = para_.callerName;
     para.sdkVersion = para_.sdkVersion;
-    para.authIntent = AuthIntent::DEFAULT;
+    //liuziwei
+    para.authIntent = PriAuthIntent::SPECIFY_PIN_COMPLEXITY;
     auto context = ContextFactory::CreateSimpleAuthContext(para, widgetCallback);
     if (context == nullptr || !ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
@@ -231,6 +232,10 @@ void WidgetContext::AuthResult(int32_t resultCode, int32_t authType, const Attri
     }
     if (!finalResult.GetInt32Value(Attributes::ATTR_FREEZING_TIME, freezingTime)) {
         IAM_LOGI("get freezingTime failed.");
+    }
+    if (resultCode == COMPLEXITY_CHECK_FAILED) {
+        IAM_LOGE("auth complexity check fail, convert to trust level not support");
+        resultCode = TRUST_LEVEL_NOT_SUPPORT;
     }
     AuthType authTypeTmp = static_cast<AuthType>(authType);
     WidgetClient::Instance().ReportWidgetResult(resultCode, authTypeTmp, freezingTime, remainTimes);

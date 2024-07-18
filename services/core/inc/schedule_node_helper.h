@@ -36,6 +36,7 @@ public:
         std::optional<PinSubType> pinSubType;
         std::optional<bool> endAfterFirstFail;
         int32_t authIntent;
+        int32_t userId;
     };
 
     static bool BuildFromHdi(const std::vector<HdiScheduleInfo> &infos, std::shared_ptr<ScheduleNodeCallback> callback,
