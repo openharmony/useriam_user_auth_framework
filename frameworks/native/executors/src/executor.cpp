@@ -89,7 +89,7 @@ void Executor::OnFrameworkReady()
 void Executor::RegisterExecutorCallback(ExecutorInfo &executorInfo)
 {
     IAM_LOGI("%{public}s start", GetDescription());
-    std::lock_guard<std::recursive_mutex> lock(registerMutex_);
+    std::lock_guard<std::recursive_mutex> lockRegister(registerMutex_);
     uint32_t combineExecutorId =
         Common::CombineUint16ToUint32(hdiId_, static_cast<uint16_t>(executorInfo.executorSensorHint));
     executorInfo.executorSensorHint = combineExecutorId;
@@ -121,7 +121,7 @@ void Executor::RegisterExecutorCallback(ExecutorInfo &executorInfo)
 void Executor::UnregisterExecutorCallback()
 {
     IAM_LOGI("%{public}s start", GetDescription());
-    std::lock_guard<std::recursive_mutex> lock(registerMutex_);
+    std::lock_guard<std::recursive_mutex> lockRegister(registerMutex_);
     uint64_t executorIndex = 0;
     {
         std::lock_guard<std::recursive_mutex> lock(mutex_);
