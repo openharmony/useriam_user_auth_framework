@@ -166,6 +166,7 @@ void FuzzSoftBusManagerFisrst(Parcel &parcel)
     auto attributes = Common::MakeShared<Attributes>(attr);
     MsgCallback callback = nullptr;
     softBusManager.SendMessage(connectionName, srcEndPoint, destEndPoint, attributes, callback);
+    softBusManager.FindClientSocket(connectionName);
     PeerSocketInfo info;
     softBusManager.OnBind(socketId, info);
     ShutdownReason reason = SHUTDOWN_REASON_LOCAL;
