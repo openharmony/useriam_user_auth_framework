@@ -313,6 +313,7 @@ void BaseSocket::ProcessMessage(std::shared_ptr<SoftBusMessage> softBusMessage, 
     }
 
     std::string connectionName = softBusMessage->GetConnectionName();
+    std::string srcEndPoint = softBusMessage->GetSrcEndPoint();
     std::string destEndPoint = softBusMessage->GetDestEndPoint();
 
     std::shared_ptr<ConnectionListener> connectionListener =
