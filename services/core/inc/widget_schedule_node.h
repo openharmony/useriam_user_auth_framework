@@ -55,7 +55,8 @@ public:
     virtual ~WidgetScheduleNode() = default;
     virtual bool StartSchedule() = 0;
     virtual bool StopSchedule() = 0;
-    virtual bool StartAuthList(const std::vector<AuthType> &authTypeList, bool endAfterFirstFail) = 0;
+    virtual bool StartAuthList(const std::vector<AuthType> &authTypeList, bool endAfterFirstFail,
+        AuthIntent authIntent) = 0;
     virtual bool StopAuthList(const std::vector<AuthType> &authTypeList) = 0;
     virtual bool SuccessAuth(AuthType authType) = 0;
     virtual bool NaviPinAuth() = 0;
