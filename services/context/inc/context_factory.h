@@ -54,6 +54,7 @@ public:
         WidgetParam widgetParam {};
         std::map<AuthType, AuthProfile> authProfileMap {};
         int32_t callerType {0};
+        std::string callingAppID {""};
     };
 
     static std::shared_ptr<Context> CreateSimpleAuthContext(const Authentication::AuthenticationPara &para,

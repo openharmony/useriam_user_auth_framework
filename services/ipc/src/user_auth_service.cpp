@@ -866,7 +866,7 @@ int32_t UserAuthService::CheckValidSolution(int32_t userId, const AuthParamInner
     return SUCCESS;
 }
 
-int32_t UserAuthService::GetCallerNameAndUserId(ContextFactory::AuthWidgetContextPara &para,
+int32_t UserAuthService::GetCallerInfo(ContextFactory::AuthWidgetContextPara &para,
     std::shared_ptr<ContextCallback> &contextCallback)
 {
     std::string callerName = "";
@@ -887,6 +887,9 @@ int32_t UserAuthService::GetCallerNameAndUserId(ContextFactory::AuthWidgetContex
     }
     contextCallback->SetTraceUserId(userId);
     para.userId = userId;
+    std::string callingAppID = "";
+    static_cast<void>(IpcCommon::GetCallingAppID(*this, callingAppID));
+    para.callingAppID = callingAppID;
     return SUCCESS;
 }
 
@@ -902,7 +905,7 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParamInner &a
     ContextFactory::AuthWidgetContextPara para;
     para.sdkVersion = apiVersion;
     Attributes extraInfo;
-    int32_t checkRet = GetCallerNameAndUserId(para, contextCallback);
+    int32_t checkRet = GetCallerInfo(para, contextCallback);
     if (checkRet != SUCCESS) {
         contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;

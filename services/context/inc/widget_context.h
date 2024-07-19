@@ -65,7 +65,8 @@ public:
 
     // WidgetScheduleNodeCallback API
     bool LaunchWidget() override;
-    void ExecuteAuthList(const std::set<AuthType> &authTypeList, bool endAfterFirstFail) override;
+    void ExecuteAuthList(const std::set<AuthType> &authTypeList, bool endAfterFirstFail,
+        AuthIntent authIntent) override;
     void EndAuthAsCancel() override;
     void EndAuthAsNaviPin() override;
     void EndAuthAsWidgetParaInvalid() override;
@@ -92,7 +93,7 @@ private:
     };
     void SetLatestError(int32_t error) override;
     std::shared_ptr<Context> BuildTask(const std::vector<uint8_t> &challenge,
-        AuthType authType, AuthTrustLevel authTrustLevel, bool endAfterFirstFail);
+        AuthType authType, AuthTrustLevel authTrustLevel, bool endAfterFirstFail, AuthIntent authIntent);
     bool BuildSchedule();
     bool ConnectExtension(const WidgetRotatePara &widgetRotatePara);
     int32_t ConnectExtensionAbility(const AAFwk::Want &want, const std::string commandStr);
