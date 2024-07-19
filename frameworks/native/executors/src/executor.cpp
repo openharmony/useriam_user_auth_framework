@@ -95,7 +95,7 @@ void Executor::RegisterExecutorCallback(ExecutorInfo &executorInfo)
     executorInfo.executorSensorHint = combineExecutorId;
     std::shared_ptr<ExecutorRegisterCallback> executorCallback = nullptr;
     {
-        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        std::lock_guard<std::recursive_mutex> lockCallback(mutex_);
         if (executorCallback_ == nullptr) {
             executorCallback_ = Common::MakeShared<FrameworkExecutorCallback>(weak_from_this());
             IF_FALSE_LOGE_AND_RETURN(executorCallback_ != nullptr);
@@ -111,7 +111,7 @@ void Executor::RegisterExecutorCallback(ExecutorInfo &executorInfo)
     uint64_t executorIndex = executorMgrWrapper_->Register(executorInfo, executorCallback);
     IF_FALSE_LOGE_AND_RETURN(executorIndex != INVALID_EXECUTOR_INDEX);
     {
-        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        std::lock_guard<std::recursive_mutex> lockExecutorIndex(mutex_);
         executorIndex_ = executorIndex;
     }
     IAM_LOGI("%{public}s register executor callback ok, executor index %{public}s", GetDescription(),
@@ -124,7 +124,7 @@ void Executor::UnregisterExecutorCallback()
     std::lock_guard<std::recursive_mutex> lockRegister(registerMutex_);
     uint64_t executorIndex = 0;
     {
-        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        std::lock_guard<std::recursive_mutex> lockExecutorIndex(mutex_);
         if (!executorIndex_.has_value()) {
             IAM_LOGI("not registered, no need unregister");
             return;
