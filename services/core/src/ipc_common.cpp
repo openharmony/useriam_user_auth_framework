@@ -23,6 +23,7 @@
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 #include "tokenid_kit.h"
+#include "parameters.h"
 #ifdef HAS_OS_ACCOUNT_PART
 #include "os_account_manager.h"
 #include "os_account_info.h"
@@ -313,6 +314,7 @@ bool IpcCommon::CheckCallerIsSystemApp(IPCObjectStub &stub)
 
 bool IpcCommon::GetCallerName(IPCObjectStub &stub, std::string &callerName, int32_t &callerType)
 {
+    const std::string DEVELOPER_MODE_STATE = "const.security.developermode.state";
     callerType = UserAuthCallerType::TOKEN_INVALID;
     uint32_t tokenId = GetAccessTokenId(stub);
     using namespace Security::AccessToken;
@@ -338,6 +340,13 @@ bool IpcCommon::GetCallerName(IPCObjectStub &stub, std::string &callerName, int3
         }
         callerName = nativeTokenInfo.processName;
         IAM_LOGI("caller processName is %{public}s", callerName.c_str());
+        return true;
+    } else if (callerTypeTemp == ATokenTypeEnum::TOKEN_SHELL &&
+        OHOS::system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
+        if (!CheckPermission(stub, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+            return false;
+        }
+        IAM_LOGI("caller is shell for develop mode");
         return true;
     }
     IAM_LOGI("caller is not a hap or a native");
