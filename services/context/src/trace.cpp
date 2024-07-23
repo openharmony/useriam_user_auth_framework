@@ -131,7 +131,7 @@ void Trace::ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &
     info.authResult = metaData.operationResult;
     uint64_t timeSpan = std::chrono::duration_cast<std::chrono::milliseconds>(metaData.endTime -
         metaData.startTime).count();
-    info.timeSpan = timeSpan;
+    info.authtimeSpan = timeSpan;
     if (metaData.authWidgetType.has_value()) {
         info.authWidgetType = metaData.authWidgetType.value();
     }
@@ -175,7 +175,7 @@ void Trace::ProcessUserAuthFwkEvent(const ContextCallbackNotifyListener::MetaDat
     securityInfo.authResult = metaData.operationResult;
     uint64_t timeSpan = std::chrono::duration_cast<std::chrono::milliseconds>(metaData.endTime -
         metaData.startTime).count();
-    securityInfo.timeSpan = timeSpan;
+    securityInfo.authtimeSpan = timeSpan;
     ReportSecurityUserAuthFwk(securityInfo);
     IAM_LOGI("start to process user auth fwk event");
 }
