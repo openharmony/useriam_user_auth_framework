@@ -122,6 +122,7 @@ ohos_source_set("userauth_service_base_fuzzer") {
     "../../../services/base/src/system_ability_listener.cpp",
     "../../../services/base/src/thread_handler_impl.cpp",
     "../../../services/base/src/thread_handler_manager.cpp",
+    "../../../services/base/src/thread_handler_singleton_impl.cpp",
     "../dummy/mock_iuser_auth_interface.cpp",
   ]
 
