@@ -100,7 +100,6 @@ private:
         std::vector<AuthType> &validType);
     int32_t GetCallerInfo(ContextFactory::AuthWidgetContextPara &para,
         std::shared_ptr<ContextCallback> &contextCallback);
-    int32_t GetCallingSystemAppId(ContextFactory::AuthWidgetContextPara &para);
     void FillGetPropertyKeys(AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
         std::vector<uint32_t> &uint32Keys);
     void FillGetPropertyValue(AuthType authType, const std::vector<Attributes::AttributeKey> &keys, Attributes &values);
