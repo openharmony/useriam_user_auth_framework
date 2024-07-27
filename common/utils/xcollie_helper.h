@@ -21,7 +21,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace Common {
-constexpr unsigned int API_CALL_TIMEOUT = 10; // 10s
+constexpr unsigned int API_CALL_TIMEOUT = 20; // 20s
 
 class XCollieHelper {
 public:
