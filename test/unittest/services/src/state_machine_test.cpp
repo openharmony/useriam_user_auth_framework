@@ -20,13 +20,16 @@
 #include "finite_state_machine.h"
 
 #include "mock_thread_handler.h"
+#include "relative_timer.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 using namespace testing;
 using namespace testing::ext;
-
+namespace {
+auto &timer = RelativeTimer::GetInstance();
+}
 enum State : uint32_t {
     STATE_INIT,
     STATE_VERIFY_STARING,
@@ -58,12 +61,12 @@ void StateMachineTest::TearDownTestCase()
 
 void StateMachineTest::SetUp()
 {
-    ThreadHandler::GetSingleThreadInstance()->EnsureTask(nullptr);
+    ThreadHandler::GetSingleThreadInstance()->EnsureTask([]() {});
 }
 
 void StateMachineTest::TearDown()
 {
-    ThreadHandler::GetSingleThreadInstance()->EnsureTask(nullptr);
+    ThreadHandler::GetSingleThreadInstance()->EnsureTask([]() {});
 }
 
 HWTEST_F(StateMachineTest, MachineCreateSelfReturn, TestSize.Level0)
@@ -285,7 +288,7 @@ HWTEST_F(StateMachineTest, MachineScheduleContinues, TestSize.Level0)
         machine->Schedule(STATE_INIT);
         machine->Schedule(STATE_INIT);
         machine->Schedule(STATE_INIT);
-        handler->EnsureTask(nullptr);
+        handler->EnsureTask([]() {});
     }
 }
 
@@ -307,7 +310,7 @@ HWTEST_F(StateMachineTest, MachineScheduleExpireNodeTimeout, TestSize.Level0)
         ASSERT_NE(machine, nullptr);
 
         machine->SetThreadHandler(handler);
-        handler->EnsureTask(nullptr);
+        handler->EnsureTask([]() {});
         machine->Schedule(STATE_INIT);
         machine->Schedule(STATE_INIT);
         machine->Schedule(STATE_INIT);
@@ -315,7 +318,7 @@ HWTEST_F(StateMachineTest, MachineScheduleExpireNodeTimeout, TestSize.Level0)
         machine->Schedule(STATE_INIT);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         machine = nullptr;
-        handler->EnsureTask(nullptr);
+        handler->EnsureTask([]() {});
     }
 }
 
@@ -341,7 +344,7 @@ HWTEST_F(StateMachineTest, MachineScheduleExpireNodeExpire, TestSize.Level0)
         machine->Schedule(STATE_INIT);
         machine = nullptr;
     }
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 void MakeTestMachine(std::shared_ptr<FiniteStateMachine::Builder> &machineBuilder,
@@ -419,13 +422,13 @@ HWTEST_F(StateMachineTest, MachineScheduleEnterAndLeave, TestSize.Level0)
     ASSERT_NE(machine, nullptr);
 
     machine->SetThreadHandler(handler);
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
     machine->Schedule(EVENT_START_AUTH);
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
     machine->Schedule(EVENT_USER_CANCEL);
     EXPECT_EQ(STATE_END, machine->EnsureCurrentState());
 
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 } // namespace UserAuth
 } // namespace UserIam
