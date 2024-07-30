@@ -552,6 +552,11 @@ std::string WidgetContext::BuildStartCommand(const WidgetRotatePara &widgetRotat
         }
         cmd.remainAttempts = profile.remainTimes;
         cmd.lockoutDuration = profile.freezingTime;
+        WidgetCommand::ExtraInfo extraInfo {
+            .callingBundleName = para_.callingBundleName,
+            .challenge = para_.challenge
+        };
+        cmd.extraInfo = extraInfo;
         widgetCmdParameters.useriamCmdData.cmdList.push_back(cmd);
     }
     widgetCmdParameters.useriamCmdData.typeList = typeList;
