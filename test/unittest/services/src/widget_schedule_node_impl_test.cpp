@@ -167,7 +167,7 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetReload_0001, Te
     EXPECT_TRUE(schedule->WidgetReload(orientation, needRotate, alreadyLoad, rotateAuthType));
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetReload_0002, TestSize.Level0)
@@ -183,7 +183,7 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetReload_0002, Te
     EXPECT_TRUE(schedule->WidgetReload(orientation, needRotate, alreadyLoad, rotateAuthType));
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetReload_0003, TestSize.Level0)
@@ -199,7 +199,7 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetReload_0003, Te
     EXPECT_TRUE(schedule->WidgetReload(orientation, needRotate, alreadyLoad, rotateAuthType));
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 } // namespace UserAuth
 } // namespace UserIam

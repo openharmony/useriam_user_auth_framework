@@ -401,7 +401,7 @@ HWTEST_F(WidgetContextTest, WidgetContextTestAuthWidgetReloadInit, TestSize.Leve
     widgetContext->AuthWidgetReloadInit();
     EXPECT_NE(widgetContext, nullptr);
     auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(WidgetContextTest, WidgetContextTestAuthWidgetReload_0001, TestSize.Level0)
@@ -416,7 +416,7 @@ HWTEST_F(WidgetContextTest, WidgetContextTestAuthWidgetReload_0001, TestSize.Lev
     widgetContext->AuthWidgetReload(orientation, needRotate, alreadyLoad, rotateAuthType);
     EXPECT_NE(widgetContext, nullptr);
     auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(WidgetContextTest, WidgetContextTestAuthWidgetReload_0002, TestSize.Level0)
@@ -431,7 +431,7 @@ HWTEST_F(WidgetContextTest, WidgetContextTestAuthWidgetReload_0002, TestSize.Lev
     widgetContext->AuthWidgetReload(orientation, needRotate, alreadyLoad, rotateAuthType);
     EXPECT_NE(widgetContext, nullptr);
     auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(WidgetContextTest, WidgetContextTestAuthWidgetReload_0003, TestSize.Level0)
@@ -446,7 +446,7 @@ HWTEST_F(WidgetContextTest, WidgetContextTestAuthWidgetReload_0003, TestSize.Lev
     widgetContext->AuthWidgetReload(orientation, needRotate, alreadyLoad, rotateAuthType);
     EXPECT_NE(widgetContext, nullptr);
     auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 } // namespace UserAuth
 } // namespace UserIam
