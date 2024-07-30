@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,7 +25,7 @@ constexpr static char USER_AUTH_EXTENSION_TYPE[] = "300";
 UserAuthExtensionModuleLoader::UserAuthExtensionModuleLoader() = default;
 UserAuthExtensionModuleLoader::~UserAuthExtensionModuleLoader() = default;
 
-Extension *UserAuthExtensionModuleLoader::Create(const std::unique_ptr<Runtime>& runtime) const
+Extension *UserAuthExtensionModuleLoader::Create(const std::unique_ptr<Runtime> &runtime) const
 {
     return UserAuthExtension::Create(runtime);
 }
@@ -40,7 +40,7 @@ std::map<std::string, std::string> UserAuthExtensionModuleLoader::GetParams()
     return params;
 }
 
-extern "C" __attribute__((visibility("default"))) void* OHOS_EXTENSION_GetExtensionModule()
+extern "C" __attribute__((visibility("default"))) void *OHOS_EXTENSION_GetExtensionModule()
 {
     return &UserAuthExtensionModuleLoader::GetInstance();
 }

@@ -175,8 +175,7 @@ std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &ch
     para.endAfterFirstFail = endAfterFirstFail;
     para.callerName = para_.callerName;
     para.sdkVersion = para_.sdkVersion;
-    //liuziwei
-    para.authIntent = PriAuthIntent::SPECIFY_PIN_COMPLEXITY;
+    para.authIntent = AuthIntent::DEFAULT;
     auto context = ContextFactory::CreateSimpleAuthContext(para, widgetCallback);
     if (context == nullptr || !ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
@@ -232,10 +231,6 @@ void WidgetContext::AuthResult(int32_t resultCode, int32_t authType, const Attri
     }
     if (!finalResult.GetInt32Value(Attributes::ATTR_FREEZING_TIME, freezingTime)) {
         IAM_LOGI("get freezingTime failed.");
-    }
-    if (resultCode == COMPLEXITY_CHECK_FAILED) {
-        IAM_LOGE("auth complexity check fail, convert to trust level not support");
-        resultCode = TRUST_LEVEL_NOT_SUPPORT;
     }
     AuthType authTypeTmp = static_cast<AuthType>(authType);
     WidgetClient::Instance().ReportWidgetResult(resultCode, authTypeTmp, freezingTime, remainTimes);
@@ -312,6 +307,10 @@ void WidgetContext::EndAuthAsCancel()
 {
     IAM_LOGI("end auth as cancel");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (latestError_ == COMPLEXITY_CHECK_FAILED) {
+        IAM_LOGE("complexity check failed");
+        return End(TRUST_LEVEL_NOT_SUPPORT);
+    }
     // report CANCELED to App
     End(ResultCode::CANCELED);
 }
@@ -470,6 +469,7 @@ bool WidgetContext::DisconnectExtension()
         IAM_LOGE("invalid connection handle");
         return false;
     }
+    connection_->ReleaseUIExtensionComponent();
     ErrCode ret = AAFwk::ExtensionManagerClient::GetInstance().DisconnectAbility(connection_);
     if (ret != ERR_OK) {
         IAM_LOGE("disconnect extension ability failed ret: %{public}d.", ret);

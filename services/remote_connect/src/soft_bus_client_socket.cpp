@@ -149,7 +149,12 @@ void ClientSocket::SendKeepAliveMessage()
     if (ret != SUCCESS) {
         IAM_LOGE("ConnectionName: %{public}s, send keep alive message failed, connection down",
             connectionName_.c_str());
-        ThreadHandlerManager::GetInstance().GetThreadHandler(SINGLETON_THREAD_NAME)->PostTask(
+        auto threadHandler = ThreadHandlerManager::GetInstance().GetThreadHandler(SINGLETON_THREAD_NAME);
+        if (threadHandler == nullptr) {
+            IAM_LOGE("ConnectionName: %{public}s, threadHandler is nullptr", connectionName_.c_str());
+            return;
+        }
+        threadHandler->PostTask(
             [connectionName = connectionName_]() {
                 RemoteConnectListenerManager::GetInstance().OnConnectionDown(connectionName);
                 IAM_LOGE("ConnectionName: %{public}s, set connection down", connectionName.c_str());

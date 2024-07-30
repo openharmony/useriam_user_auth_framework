@@ -44,6 +44,7 @@ constexpr char STR_AUTH_WIDGET_TYPE[] = "AUTH_WIDGET_TYPE";
 constexpr char STR_CALLER_NAME[] = "CALLER_NAME";
 constexpr char STR_REQUEST_CONTEXTID[] = "REQUEST_CONTEXTID";
 constexpr char STR_TIME_SPAN[] = "TIME_SPAN";
+constexpr char STR_AUTH_TIME_SPAN[] = "AUTH_TIME_SPAN";
 constexpr char STR_AUTH_CONTEXTID[] = "AUTH_CONTEXTID";
 constexpr char STR_SCHEDULE_ID[] = "SCHEDULE_ID";
 constexpr char STR_REUSE_UNLOCK_RESULT_TYPE[] = "REUSE_UNLOCK_RESULT_TYPE";
@@ -120,15 +121,16 @@ void ReportUserAuth(const UserAuthTrace &info)
         STR_AUTH_TRUST_LEVEL, info.atl,
         STR_AUTH_TYPE, info.authType,
         STR_AUTH_RESULT, info.authResult,
-        STR_TIME_SPAN, info.timeSpan,
+        STR_AUTH_TIME_SPAN, info.authtimeSpan,
         STR_AUTH_WIDGET_TYPE, info.authWidgetType,
         STR_REUSE_UNLOCK_RESULT_TYPE, info.reuseUnlockResultMode,
         STR_REUSE_UNLOCK_RESULT_DURATION, info.reuseUnlockResultDuration);
     if (ret != 0) {
-        IAM_LOGE("hisysevent write failed! ret %{public}d, authType %{public}d, atl %{public}u, authResult %{public}d"
-            ", timeSpan %{public}" PRIu64 ", sdkVersion %{public}u, authwidgetType %{public}u, callerName %{public}s"
-            ", reuseUnlockResultMode %{public}u, reuseUnlockResultDuration %{public}" PRIu64 ".",
-            ret, info.authType, info.atl, info.authResult, info.timeSpan, info.sdkVersion, info.authWidgetType,
+        IAM_LOGE("hisysevent write failed! ret %{public}d, authType %{public}d, atl %{public}u,"
+            " authResult %{public}d, authtimeSpan %{public}" PRIu64 ","
+            " sdkVersion %{public}u, authwidgetType %{public}u, callerName %{public}s,"
+            " reuseUnlockResultMode %{public}u, reuseUnlockResultDuration %{public}" PRIu64 ".",
+            ret, info.authType, info.atl, info.authResult, info.authtimeSpan, info.sdkVersion, info.authWidgetType,
             info.callerName.c_str(), info.reuseUnlockResultMode, info.reuseUnlockResultDuration);
     }
 }
@@ -143,11 +145,11 @@ void ReportSecurityUserAuthFwk(const UserAuthFwkTrace &info)
         STR_AUTH_TRUST_LEVEL, info.atl,
         STR_AUTH_TYPE, info.authType,
         STR_AUTH_RESULT, info.authResult,
-        STR_TIME_SPAN, info.timeSpan);
+        STR_AUTH_TIME_SPAN, info.authtimeSpan);
     if (ret != 0) {
         IAM_LOGE("hisysevent write failed! ret %{public}d, authType %{public}d, atl %{public}u, authResult %{public}d,"
-            "timeSpan %{public}" PRIu64 ", callerName %{public}s, requestContextId %{public}s, "
-            "authContextId %{public}s.", ret, info.authType, info.atl, info.authResult, info.timeSpan,
+            "authtimeSpan %{public}" PRIu64 ", callerName %{public}s, requestContextId %{public}s, "
+            "authContextId %{public}s.", ret, info.authType, info.atl, info.authResult, info.authtimeSpan,
             info.callerName.c_str(), GET_MASKED_STRING(info.requestContextId).c_str(),
             GET_MASKED_STRING(info.authContextId).c_str());
     }

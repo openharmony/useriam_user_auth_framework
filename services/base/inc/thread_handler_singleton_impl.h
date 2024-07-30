@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,37 +13,28 @@
  * limitations under the License.
  */
 
-#ifndef IAM_DEFINES_H
-#define IAM_DEFINES_H
+#ifndef IAM_THREAD_HANDLER_SINGLETON_IMPL_H
+#define IAM_THREAD_HANDLER_SINGLETON_IMPL_H
 
-#include <cstdint>
+#include <mutex>
+
+#include "nocopyable.h"
+
+#include "thread_handler.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-const int32_t INVALID_AUTH_TYPE = -1;
-const int32_t INNER_API_VERSION_10000 = 10000;
-
-enum OperationType : uint32_t {
-    TRACE_ADD_CREDENTIAL = 0,
-    TRACE_DELETE_CREDENTIAL = 1,
-    TRACE_DELETE_USER = 2,
-    TRACE_ENFORCE_DELETE_USER = 3,
-    TRACE_UPDATE_CREDENTIAL = 4,
-    TRACE_AUTH_USER_BEHAVIOR = 5,
-    TRACE_IDENTIFY = 6,
-    TRACE_DELETE_REDUNDANCY = 7,
-    TRACE_AUTH_USER_SECURITY = 8,
-    TRACE_AUTH_USER_ALL = 9,
-    NO_NEED_TRACE = 10,
+class ThreadHandlerSingletonImpl : public ThreadHandler, NoCopyable {
+public:
+    ThreadHandlerSingletonImpl() = default;
+    ~ThreadHandlerSingletonImpl() override = default;
+    void PostTask(const Task &task) override;
+    void EnsureTask(const Task &task) override;
+    void Suspend() override;
 };
-
-enum TraceFlag : uint32_t {
-    TRACE_FLAG_DEFAULT = 0,
-    TRACE_FLAG_NO_NEED_BEHAVIOR = 1,
-};
-
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // IAM_DEFINES_H
+
+#endif // IAM_THREAD_HANDLER_SINGLETON_IMPL_H
