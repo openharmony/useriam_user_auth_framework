@@ -43,8 +43,6 @@ public:
     void OnAbilityConnectDone(const AppExecFwk::ElementName &element,
         const sptr<IRemoteObject> &remoteObject, int32_t resultCode) override;
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int32_t resultCode) override;
-
-private:
     void ReleaseUIExtensionComponent();
 
 private:

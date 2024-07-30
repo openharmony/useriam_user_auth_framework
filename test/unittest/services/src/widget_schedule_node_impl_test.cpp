@@ -71,7 +71,7 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStartSchedule, TestSi
     EXPECT_TRUE(schedule->StartSchedule());
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStartAuthList, TestSize.Level0)
@@ -84,7 +84,7 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStartAuthList, TestSi
     EXPECT_TRUE(schedule->StartAuthList(authTypeList, true));
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStopAuthList, TestSize.Level0)
@@ -98,7 +98,7 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStopAuthList, TestSiz
     EXPECT_TRUE(schedule->StopAuthList(authTypeList));
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplSuccessAuth, TestSize.Level0)
@@ -112,7 +112,7 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplSuccessAuth, TestSize
     EXPECT_TRUE(schedule->SuccessAuth(AuthType::PIN));
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplNaviPinAuth, TestSize.Level0)
@@ -124,7 +124,7 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplNaviPinAuth, TestSize
     EXPECT_TRUE(schedule->NaviPinAuth());
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetParaInvalid, TestSize.Level0)
@@ -136,7 +136,7 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetParaInvalid, Te
     EXPECT_TRUE(schedule->WidgetParaInvalid());
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStopSchedule, TestSize.Level0)
@@ -148,7 +148,7 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStopSchedule, TestSiz
     EXPECT_TRUE(schedule->StopSchedule());
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetReload_0001, TestSize.Level0)
@@ -164,7 +164,7 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetReload_0001, Te
     EXPECT_TRUE(schedule->WidgetReload(orientation, needRotate, alreadyLoad, rotateAuthType));
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetReload_0002, TestSize.Level0)
@@ -180,7 +180,7 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetReload_0002, Te
     EXPECT_TRUE(schedule->WidgetReload(orientation, needRotate, alreadyLoad, rotateAuthType));
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetReload_0003, TestSize.Level0)
@@ -196,7 +196,7 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetReload_0003, Te
     EXPECT_TRUE(schedule->WidgetReload(orientation, needRotate, alreadyLoad, rotateAuthType));
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 } // namespace UserAuth
 } // namespace UserIam

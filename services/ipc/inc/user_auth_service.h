@@ -63,8 +63,6 @@ public:
     int32_t UnRegistUserAuthSuccessEventListener(const sptr<AuthEventListenerInterface> &listener) override;
     int32_t SetGlobalConfigParam(const GlobalConfigParam &param) override;
     int32_t PrepareRemoteAuth(const std::string &networkId, sptr<UserAuthCallbackInterface> &callback) override;
-    int32_t ProcStartRemoteAuthRequest(std::string connectionName, const std::shared_ptr<Attributes> &request,
-        std::shared_ptr<Attributes> &reply);
 
 protected:
     void OnStart() override;
@@ -89,9 +87,6 @@ private:
     uint64_t AuthRemoteUser(AuthParamInner &authParam, Authentication::AuthenticationPara &para,
         RemoteAuthParam &remoteAuthParam, const std::shared_ptr<ContextCallback> &contextCallback,
         ResultCode &failReason);
-    uint64_t StartRemoteAuthContext(Authentication::AuthenticationPara para,
-        RemoteAuthContextParam remoteAuthContextParam,
-        const std::shared_ptr<ContextCallback> &contextCallback, int &lastError);
     uint64_t StartRemoteAuthInvokerContext(AuthParamInner authParam,
         RemoteAuthInvokerContextParam &param, const std::shared_ptr<ContextCallback> &contextCallback);
     bool Insert2ContextPool(const std::shared_ptr<Context> &context);

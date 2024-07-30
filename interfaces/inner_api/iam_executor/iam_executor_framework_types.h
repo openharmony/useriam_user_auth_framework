@@ -79,7 +79,6 @@ struct AuthenticateParam {
     std::vector<uint8_t> extraInfo;
     /** End after first fail. */
     bool endAfterFirstFail;
-    /** Auth intent. */
     int32_t authIntent;
     /** User id. */
     int32_t userId;

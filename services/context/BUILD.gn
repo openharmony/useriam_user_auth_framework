@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -36,6 +36,7 @@ ohos_source_set("userauth_service_context") {
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   sources = [
+    "src/auth_widget_helper.cpp",
     "src/base_context.cpp",
     "src/context_appstate_observer.cpp",
     "src/context_callback_impl.cpp",
@@ -48,6 +49,8 @@ ohos_source_set("userauth_service_context") {
     "src/keyguard_status_listener.cpp",
     "src/remote_auth_context.cpp",
     "src/remote_auth_invoker_context.cpp",
+    "src/remote_auth_service.cpp",
+    "src/remote_executor_stub.cpp",
     "src/remote_iam_callback.cpp",
     "src/schedule_holder_context.cpp",
     "src/simple_auth_context.cpp",

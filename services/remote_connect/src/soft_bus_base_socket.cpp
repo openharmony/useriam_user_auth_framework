@@ -313,7 +313,6 @@ void BaseSocket::ProcessMessage(std::shared_ptr<SoftBusMessage> softBusMessage, 
     }
 
     std::string connectionName = softBusMessage->GetConnectionName();
-    std::string srcEndPoint = softBusMessage->GetSrcEndPoint();
     std::string destEndPoint = softBusMessage->GetDestEndPoint();
 
     std::shared_ptr<ConnectionListener> connectionListener =
@@ -352,7 +351,7 @@ ResultCode BaseSocket::ProcDataReceive(const int32_t socketId, std::shared_ptr<S
             IAM_LOGE("GetMsgCallback fail");
             return GENERAL_ERROR;
         }
-        
+
         callback(request);
         StopReplyTimer(messageSeq);
         RemoveMsgCallback(messageSeq);
@@ -360,7 +359,7 @@ ResultCode BaseSocket::ProcDataReceive(const int32_t socketId, std::shared_ptr<S
         std::string connectionName = softBusMessage->GetConnectionName();
         std::string srcEndPoint = softBusMessage->GetSrcEndPoint();
         std::string destEndPoint = softBusMessage->GetDestEndPoint();
-        
+
         std::shared_ptr<Attributes> response = Common::MakeShared<Attributes>();
         if (response == nullptr) {
             IAM_LOGE("create fail");
