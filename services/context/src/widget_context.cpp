@@ -467,11 +467,11 @@ bool WidgetContext::DisconnectExtension()
     }
     connection_->ReleaseUIExtensionComponent();
     ErrCode ret = AAFwk::ExtensionManagerClient::GetInstance().DisconnectAbility(connection_);
+    connection_ = nullptr;
     if (ret != ERR_OK) {
         IAM_LOGE("disconnect extension ability failed ret: %{public}d.", ret);
         return false;
     }
-    connection_ = nullptr;
     return true;
 }
 
