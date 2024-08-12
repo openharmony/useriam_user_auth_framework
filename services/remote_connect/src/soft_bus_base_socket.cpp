@@ -25,7 +25,7 @@ namespace UserIam {
 namespace UserAuth {
 using namespace OHOS::DistributedHardware;
 const std::string USERIAM_PACKAGE_NAME = "ohos.useriam";
-static constexpr uint32_t REPLY_TIMER_LEN_MS = 1 * 1000; // 1s
+static constexpr uint32_t REPLY_TIMER_LEN_MS = 5 * 1000; // 5s
 static constexpr uint32_t INVALID_TIMER_ID = 0;
 static std::recursive_mutex g_seqMutex;
 static uint32_t g_messageSeq = 0;
@@ -167,7 +167,7 @@ void BaseSocket::ReplyTimerTimeOut(uint32_t messageSeq)
 
     RemoteConnectListenerManager::GetInstance().OnConnectionDown(connectionName);
     RemoveMsgCallback(messageSeq);
-    IAM_LOGI("reply timer is timeout, messageReq:%{public}u", messageSeq);
+    IAM_LOGI("reply timer is timeout, messageSeq:%{public}u", messageSeq);
 }
 
 int32_t BaseSocket::GetMessageSeq()
