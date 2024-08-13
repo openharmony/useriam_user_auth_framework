@@ -437,6 +437,7 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
         return;
     }
     SetAuthTypeTrace(credInfos, contextCallback);
+    contextCallback->OnResult(ret, extraInfo);
 
     ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos, "DeleteUser");
     if (ret != SUCCESS) {
@@ -445,7 +446,6 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
     IAM_LOGI("delete user end");
     PublishEventAdapter::PublishDeletedEvent(userId);
     PublishEventAdapter::PublishCredentialUpdatedEvent(userId, PIN, 0);
-    contextCallback->OnResult(ret, extraInfo);
 }
 
 void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
