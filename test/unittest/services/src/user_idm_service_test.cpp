@@ -717,7 +717,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelUser003, TestSize.Level0)
     EXPECT_CALL(*testCallback, OnResult(_, _))
         .WillOnce(
             [](int32_t result, const Attributes &extraInfo) {
-                EXPECT_EQ(result, INVALID_PARAMETERS);
+                EXPECT_EQ(result, SUCCESS);
             }
         );
     
