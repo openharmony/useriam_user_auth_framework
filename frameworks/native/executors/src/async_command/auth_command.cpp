@@ -62,8 +62,8 @@ ResultCode AuthCommand::SendRequest()
     IF_FALSE_LOGE_AND_RETURN_VAL(getAuthIntent == true, ResultCode::GENERAL_ERROR);
 
     int32_t userId;
-    bool getuserId = attributes_->GetInt32Value(Attributes::ATTR_USER_ID, userId);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getuserId == true, ResultCode::GENERAL_ERROR);
+    bool getUserId = attributes_->GetInt32Value(Attributes::ATTR_USER_ID, userId);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getUserId == true, ResultCode::GENERAL_ERROR);
 
     IamHitraceHelper traceHelper("hdi Authenticate");
     ResultCode ret = hdi->Authenticate(scheduleId_,
