@@ -307,6 +307,10 @@ void WidgetContext::EndAuthAsCancel()
 {
     IAM_LOGI("end auth as cancel");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (latestError_ == COMPLEXITY_CHECK_FAILED) {
+        IAM_LOGE("complexity check failed");
+        return End(TRUST_LEVEL_NOT_SUPPORT);
+    }
     // report CANCELED to App
     End(ResultCode::CANCELED);
 }

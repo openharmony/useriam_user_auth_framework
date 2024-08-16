@@ -130,6 +130,12 @@ std::shared_ptr<Builder> ScheduleNodeBuilder::SetAuthIntent(int32_t authIntent)
     return shared_from_this();
 }
 
+std::shared_ptr<Builder> ScheduleNodeBuilder::SetUserId(int32_t userId)
+{
+    info_.userId = userId;
+    return shared_from_this();
+}
+
 std::shared_ptr<ScheduleNode> ScheduleNodeBuilder::Build()
 {
     if (!CheckParameters()) {
