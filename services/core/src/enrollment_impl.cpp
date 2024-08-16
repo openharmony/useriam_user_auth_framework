@@ -104,9 +104,8 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
 
     HdiScheduleInfo info = {};
     int32_t userType;
-    int32_t ret = IpcCommon::GetUserTypeByUserId(enrollPara_.userId, userType);
-    if (ret != SUCCESS) {
-        IAM_LOGE("failed to get userType, err is %{public}d", ret);
+    if (IpcCommon::GetUserTypeByUserId(enrollPara_.userId, userType) != SUCCESS) {
+        IAM_LOGE("failed to get userType");
         return false;
     }
     HdiEnrollParam param = {
@@ -131,6 +130,7 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
 
     ScheduleNodeHelper::NodeOptionalPara para;
     para.tokenId = tokenId_;
+    para.userId = enrollPara_.userId;
 
     if (!ScheduleNodeHelper::BuildFromHdi(infos, callback, scheduleList, para)) {
         IAM_LOGE("BuildFromHdi failed");
