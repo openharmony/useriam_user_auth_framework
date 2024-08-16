@@ -48,6 +48,8 @@ namespace UserIam {
 namespace UserAuth {
 constexpr int32_t DEFAULT_VALUE = -1;
 const std::string UI_EXTENSION_TYPE_SET = "sysDialog/userAuth";
+const uint32_t SYSDIALOG_ZORDER_DEFAULT = 1;
+const uint32_t SYSDIALOG_ZORDER_UPPER = 2;
 const uint32_t ORIENTATION_LANDSCAPE = 1;
 const uint32_t ORIENTATION_PORTRAIT_INVERTED = 2;
 const uint32_t ORIENTATION_LANDSCAPE_INVERTED = 3;
@@ -154,7 +156,7 @@ std::shared_ptr<ContextCallback> WidgetContext::GetAuthContextCallback(AuthType 
 }
 
 std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &challenge,
-    AuthType authType, AuthTrustLevel authTrustLevel, bool endAfterFirstFail)
+    AuthType authType, AuthTrustLevel authTrustLevel, bool endAfterFirstFail, AuthIntent authIntent)
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(callerCallback_ != nullptr, nullptr);
     auto userId = para_.userId;
@@ -175,7 +177,7 @@ std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &ch
     para.endAfterFirstFail = endAfterFirstFail;
     para.callerName = para_.callerName;
     para.sdkVersion = para_.sdkVersion;
-    para.authIntent = AuthIntent::DEFAULT;
+    para.authIntent = authIntent;
     auto context = ContextFactory::CreateSimpleAuthContext(para, widgetCallback);
     if (context == nullptr || !ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
@@ -274,13 +276,14 @@ bool WidgetContext::LaunchWidget()
     return true;
 }
 
-void WidgetContext::ExecuteAuthList(const std::set<AuthType> &authTypeList, bool endAfterFirstFail)
+void WidgetContext::ExecuteAuthList(const std::set<AuthType> &authTypeList, bool endAfterFirstFail,
+    AuthIntent authIntent)
 {
     IAM_LOGI("execute auth list");
     // create task, and start it
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     for (auto &authType : authTypeList) {
-        auto task = BuildTask(para_.challenge, authType, para_.atl, endAfterFirstFail);
+        auto task = BuildTask(para_.challenge, authType, para_.atl, endAfterFirstFail, authIntent);
         if (task == nullptr) {
             IAM_LOGE("failed to create task, authType: %{public}s", AuthType2Str(authType).c_str());
             continue;
@@ -541,6 +544,11 @@ std::string WidgetContext::BuildStartCommand(const WidgetRotatePara &widgetRotat
     if (it != para_.authProfileMap.end()) {
         widgetCmdParameters.useriamCmdData.pinSubType = PinSubType2Str(static_cast<PinSubType>(it->second.pinSubType));
     }
+    widgetCmdParameters.sysDialogZOrder = SYSDIALOG_ZORDER_DEFAULT;
+    if (ContextAppStateObserverManager::GetInstance().GetScreenLockState()) {
+        IAM_LOGI("the screen is currently locked, set zOrder");
+        widgetCmdParameters.sysDialogZOrder = SYSDIALOG_ZORDER_UPPER;
+    }
     std::vector<std::string> typeList;
     for (auto &item : para_.authProfileMap) {
         auto &at = item.first;
@@ -564,6 +572,7 @@ std::string WidgetContext::BuildStartCommand(const WidgetRotatePara &widgetRotat
         widgetCmdParameters.useriamCmdData.cmdList.push_back(cmd);
     }
     widgetCmdParameters.useriamCmdData.typeList = typeList;
+    widgetCmdParameters.useriamCmdData.callingAppID = para_.callingAppID;
     ProcessRotatePara(widgetCmdParameters, widgetRotatePara);
     nlohmann::json root = widgetCmdParameters;
     std::string cmdData = root.dump();

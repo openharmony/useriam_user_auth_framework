@@ -353,6 +353,26 @@ bool IpcCommon::GetCallerName(IPCObjectStub &stub, std::string &callerName, int3
     return false;
 }
 
+bool IpcCommon::GetCallingAppID(IPCObjectStub &stub, std::string &callingAppID)
+{
+    uint32_t tokenId = GetAccessTokenId(stub);
+    using namespace Security::AccessToken;
+    ATokenTypeEnum callerTypeTemp = AccessTokenKit::GetTokenTypeFlag(tokenId);
+    if (callerTypeTemp != ATokenTypeEnum::TOKEN_HAP) {
+        return false;
+    }
+
+    HapTokenInfo hapTokenInfo;
+    int result = AccessTokenKit::GetHapTokenInfo(tokenId, hapTokenInfo);
+    if (result != SUCCESS) {
+        IAM_LOGE("failed to get hap token info, result = %{public}d", result);
+        return false;
+    }
+    callingAppID = hapTokenInfo.appID;
+    IAM_LOGI("successed in getting caller app ID");
+    return true;
+}
+
 bool IpcCommon::IsOsAccountVerified(int32_t userId)
 {
     bool isOsAccountVerified = false;
