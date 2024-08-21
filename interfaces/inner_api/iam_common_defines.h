@@ -219,8 +219,6 @@ enum AuthIntent : int {
     UNLOCK = 1,
     /**< The auth intention is silent auth. */
     SILENT_AUTH = 2,
-    /**< The auth intention is pin complexity auth. */
-    PIN_COMPLEXITY = 10002,
 };
 
 constexpr uint64_t INVALID_EXECUTOR_INDEX = 0;
