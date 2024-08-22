@@ -84,7 +84,7 @@ private:
     void SetServerSocket(std::shared_ptr<BaseSocket> &socket);
     void ClearServerSocket();
     ResultCode DoOpenConnectionInner(const std::string &connectionName, const uint32_t tokenId,
-        const std::string &networkId);
+        const std::string &networkId, RemoteConnectOpenTrace &trace);
 
     std::recursive_mutex mutex_;
     bool inited_ = false;

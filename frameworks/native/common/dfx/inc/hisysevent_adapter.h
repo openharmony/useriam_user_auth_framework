@@ -33,6 +33,11 @@ struct UserAuthTrace {
     int32_t callerType = 0;
     uint32_t reuseUnlockResultMode = 0;
     uint64_t reuseUnlockResultDuration = 0;
+    bool isRemoteAuth = false;
+    std::string localUdid;
+    std::string remoteUdid;
+    std::string connectionName;
+    std::string authFinishReason;
 };
 
 struct UserAuthFwkTrace {
@@ -43,6 +48,11 @@ struct UserAuthFwkTrace {
     int32_t authType = 0;
     int32_t authResult = -1;
     uint64_t authtimeSpan = 0;
+    bool isRemoteAuth = false;
+    std::string localUdid;
+    std::string remoteUdid;
+    std::string connectionName;
+    std::string authFinishReason;
 };
 
 struct UserCredManagerTrace {
@@ -70,12 +80,38 @@ struct TemplateChangeTrace {
     std::string reason;
 };
 
+struct RemoteExecuteTrace {
+    uint64_t scheduleId = 0;
+    std::string connectionName;
+    int32_t operationResult = -1;
+};
+
+struct RemoteConnectOpenTrace {
+    std::string connectionName;
+    int32_t operationResult = -1;
+    uint64_t timeSpan = 0;
+    std::string networkId;
+    int32_t socketId = -1;
+};
+
+struct RemoteConnectFaultTrace {
+    std::string reason;
+    int32_t socketId = -1;
+    std::string connectionName;
+    int32_t msgType = -1;
+    uint32_t messageSeq = 0;
+    bool ack = false;
+};
+
 void ReportSystemFault(const std::string &timeString, const std::string &moudleName);
 void ReportSecurityTemplateChange(const TemplateChangeTrace &info);
 void ReportBehaviorCredManager(const UserCredManagerTrace &info);
 void ReportSecurityCredChange(const UserCredChangeTrace &info);
 void ReportUserAuth(const UserAuthTrace &info);
 void ReportSecurityUserAuthFwk(const UserAuthFwkTrace &info);
+void ReportRemoteExecuteProc(const RemoteExecuteTrace &info);
+void ReportRemoteConnectOpen(const RemoteConnectOpenTrace &info);
+void ReportConnectFaultTrace(const RemoteConnectFaultTrace &info);
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

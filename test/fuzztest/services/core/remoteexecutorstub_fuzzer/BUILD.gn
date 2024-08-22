@@ -36,6 +36,7 @@ ohos_fuzztest("RemoteExecutorStubFuzzTest") {
     "../../../../../services/ipc/inc",
     "../../../../../services/remote_connect/inc",
     "../../../../../frameworks/native/ipc/inc",
+    "../../../../../frameworks/native/common/dfx/inc",
     "../../../../../frameworks/native/ipc/common_defines",
     "../../../../../common/utils",
     "../../../../../common/logs",

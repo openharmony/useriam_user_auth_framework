@@ -21,6 +21,7 @@
 #include "attributes.h"
 #include "co_auth_client_defines.h"
 #include "executor_callback_interface.h"
+#include "hisysevent_adapter.h"
 #include "nocopyable.h"
 #include "remote_connect_manager.h"
 #include "schedule_node.h"
@@ -43,7 +44,7 @@ public:
     int32_t ContinueSchedule(ResultCode resultCode, const std::shared_ptr<Attributes> &finalResult);
 
     // ExecutorCallbackInterface
-    int32_t ProcBeginExecuteRequest(Attributes &attr);
+    int32_t ProcBeginExecuteRequest(Attributes &attr, RemoteExecuteTrace &trace);
 
 private:
     int32_t ProcSendDataMsg(Attributes &attr);

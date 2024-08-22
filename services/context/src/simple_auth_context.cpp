@@ -144,7 +144,7 @@ void SimpleAuthContext::OnResult(int32_t resultCode, const std::shared_ptr<Attri
     }
     InvokeResultCallback(resultInfo);
     SendAuthExecutorMsg();
-    IAM_LOGI("%{public}s on result %{public}d finish", GetDescription(), resultCode);
+    IAM_LOGI("%{public}s on result %{public}d finish", GetDescription(), resultInfo.result);
 }
 
 bool SimpleAuthContext::OnStop()
@@ -251,6 +251,7 @@ void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInf
             resultInfo.remoteAuthResultMsg);
         IF_FALSE_LOGE_AND_RETURN(setRemoteAuthResultMsg == true);
     }
+    callback_->SetTraceAuthFinishReason("SimpleAuthContext InvokeResultCallback");
     callback_->OnResult(resultInfo.result, finalResult);
     IAM_LOGI("%{public}s invoke result callback success, result %{public}d", GetDescription(), resultInfo.result);
 }
