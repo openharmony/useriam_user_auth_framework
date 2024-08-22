@@ -33,6 +33,8 @@ static uint32_t g_messageSeq = 0;
 BaseSocket::BaseSocket(const int32_t socketId)
     : socketId_(socketId)
 {
+    currTraceInfo_.msgType = -1;
+    currTraceInfo_.socketId = socketId;
     IAM_LOGI("create socket id %{public}d.", socketId_);
 }
 
@@ -45,6 +47,11 @@ BaseSocket::~BaseSocket()
 int32_t BaseSocket::GetSocketId()
 {
     return socketId_;
+}
+
+RemoteConnectFaultTrace BaseSocket::GetCurrTraceInfo()
+{
+    return currTraceInfo_;
 }
 
 void BaseSocket::InsertMsgCallback(uint32_t messageSeq, const std::string &connectionName,
@@ -164,6 +171,8 @@ void BaseSocket::ReplyTimerTimeOut(uint32_t messageSeq)
         IAM_LOGE("GetMsgCallback connectionName fail");
         return;
     }
+    currTraceInfo_.reason = "ack time out";
+    ReportConnectFaultTrace(currTraceInfo_);
 
     RemoteConnectListenerManager::GetInstance().OnConnectionDown(connectionName);
     RemoveMsgCallback(messageSeq);
@@ -192,6 +201,14 @@ ResultCode BaseSocket::SetDeviceNetworkId(const std::string networkId, std::shar
     return SUCCESS;
 }
 
+void BaseSocket::RefreshTraceInfo(const std::string &connectionName, int32_t msgType, bool ack, uint32_t messageSeq)
+{
+    currTraceInfo_.connectionName = connectionName;
+    currTraceInfo_.msgType = msgType;
+    currTraceInfo_.ack = ack;
+    currTraceInfo_.messageSeq = messageSeq;
+}
+
 ResultCode BaseSocket::SendRequest(const int32_t socketId, const std::string &connectionName,
     const std::string &srcEndPoint, const std::string &destEndPoint, const std::shared_ptr<Attributes> &attributes,
     MsgCallback &callback)
@@ -201,6 +218,9 @@ ResultCode BaseSocket::SendRequest(const int32_t socketId, const std::string &co
     IF_FALSE_LOGE_AND_RETURN_VAL(socketId != INVALID_SOCKET_ID, INVALID_PARAMETERS);
 
     int32_t messageSeq = GetMessageSeq();
+    int32_t msgType = -1;
+    attributes->GetInt32Value(Attributes::ATTR_MSG_TYPE, msgType);
+    RefreshTraceInfo(connectionName, msgType, false, messageSeq);
     std::shared_ptr<SoftBusMessage> softBusMessage = Common::MakeShared<SoftBusMessage>(messageSeq,
         connectionName, srcEndPoint, destEndPoint, attributes);
     if (softBusMessage == nullptr) {
@@ -239,6 +259,9 @@ ResultCode BaseSocket::SendResponse(const int32_t socketId, const std::string &c
     IAM_LOGD("start.");
     IF_FALSE_LOGE_AND_RETURN_VAL(attributes != nullptr, INVALID_PARAMETERS);
     IF_FALSE_LOGE_AND_RETURN_VAL(socketId != INVALID_SOCKET_ID, INVALID_PARAMETERS);
+    int32_t msgType = -1;
+    attributes->GetInt32Value(Attributes::ATTR_MSG_TYPE, msgType);
+    RefreshTraceInfo(connectionName, msgType, true, messageSeq);
 
     std::shared_ptr<SoftBusMessage> softBusMessage = Common::MakeShared<SoftBusMessage>(messageSeq,
         connectionName, srcEndPoint, destEndPoint, attributes);
@@ -282,6 +305,10 @@ std::shared_ptr<SoftBusMessage> BaseSocket::ParseMessage(const std::string &netw
         IAM_LOGE("parseMessage fail");
         return nullptr;
     }
+    int32_t msgType = -1;
+    attributes->GetInt32Value(Attributes::ATTR_MSG_TYPE, msgType);
+    RefreshTraceInfo(softBusMessage->GetConnectionName(), msgType, softBusMessage->GetAckFlag(),
+        softBusMessage->GetMessageSeq());
 
     int32_t ret = SetDeviceNetworkId(networkId, attributes);
     if (ret != SUCCESS) {

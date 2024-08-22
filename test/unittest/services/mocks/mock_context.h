@@ -54,6 +54,11 @@ public:
     MOCK_METHOD0(GetIamCallback, sptr<IamCallbackInterface>());
     MOCK_METHOD0(GetCallerName, std::string());
     MOCK_METHOD1(SetTraceCallerType, void(int32_t callerType));
+    MOCK_METHOD1(SetTraceIsRemoteAuth, void(bool isRemoteAuth));
+    MOCK_METHOD1(SetTraceRemoteUdid, void(const std::string &remoteUdid));
+    MOCK_METHOD1(SetTraceLocalUdid, void(const std::string &LocalUdid));
+    MOCK_METHOD1(SetTraceConnectionName, void(const std::string &connectionName));
+    MOCK_METHOD1(SetTraceAuthFinishReason, void(const std::string &authFinishReason));
 };
 
 class MockContext final : public Context {

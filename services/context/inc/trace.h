@@ -19,6 +19,7 @@
 #include "nocopyable.h"
 
 #include "context_callback.h"
+#include "hisysevent_adapter.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -28,6 +29,7 @@ private:
     static Trace trace;
     static void ProcessCredChangeEvent(const ContextCallbackNotifyListener::MetaData &metaData, TraceFlag flag);
     static void ProcessCredManagerEvent(const ContextCallbackNotifyListener::MetaData &metaData, TraceFlag flag);
+    static void CopyMetaDataToTraceInfo(const ContextCallbackNotifyListener::MetaData &metaData, UserAuthTrace &info);
     static void ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &metaData, TraceFlag flag);
     static void ProcessUserAuthFwkEvent(const ContextCallbackNotifyListener::MetaData &metaData, TraceFlag flag);
     Trace();

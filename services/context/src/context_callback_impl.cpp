@@ -183,6 +183,31 @@ void ContextCallbackImpl::SetTraceReuseUnlockResultDuration(uint64_t reuseUnlock
     metaData_.reuseUnlockResultDuration = reuseUnlockResultDuration;
 }
 
+void ContextCallbackImpl::SetTraceIsRemoteAuth(bool isRemoteAuth)
+{
+    metaData_.isRemoteAuth = isRemoteAuth;
+}
+
+void ContextCallbackImpl::SetTraceLocalUdid(const std::string &localUdid)
+{
+    metaData_.localUdid = localUdid;
+}
+
+void ContextCallbackImpl::SetTraceRemoteUdid(const std::string &remoteUdid)
+{
+    metaData_.remoteUdid = remoteUdid;
+}
+
+void ContextCallbackImpl::SetTraceConnectionName(const std::string &connectionName)
+{
+    metaData_.connectionName = connectionName;
+}
+
+void ContextCallbackImpl::SetTraceAuthFinishReason(const std::string &authFinishReason)
+{
+    metaData_.authFinishReason = authFinishReason;
+}
+
 void ContextCallbackImpl::SetCleaner(Context::ContextStopCallback callback)
 {
     stopCallback_ = callback;

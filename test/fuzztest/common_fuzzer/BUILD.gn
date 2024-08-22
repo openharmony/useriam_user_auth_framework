@@ -364,7 +364,10 @@ ohos_source_set("userauth_service_remote_connect_fuzzer") {
     "../../../services/remote_connect/src/soft_bus_socket_listener.cpp",
   ]
 
-  deps = [ "../common_fuzzer:attributes_fuzzer" ]
+  deps = [
+    "../common_fuzzer:attributes_fuzzer",
+    "../common_fuzzer:dfx_fuzzer",
+  ]
 
   external_deps = [
     "access_token:libtoken_setproc",

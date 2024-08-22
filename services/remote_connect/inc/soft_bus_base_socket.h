@@ -27,6 +27,7 @@
 
 #include "attributes.h"
 #include "device_manager.h"
+#include "hisysevent_adapter.h"
 #include "iam_check.h"
 #include "iam_common_defines.h"
 #include "iam_logger.h"
@@ -58,6 +59,7 @@ public:
     ResultCode ProcDataReceive(const int32_t socketId, std::shared_ptr<SoftBusMessage> &softBusMessage);
     std::string GetConnectionName(uint32_t messageSeq);
     MsgCallback GetMsgCallback(uint32_t messageSeq);
+    RemoteConnectFaultTrace GetCurrTraceInfo();
 
     virtual void OnBind(int32_t socketId, PeerSocketInfo info) = 0;
     virtual void OnShutdown(int32_t socketId, ShutdownReason reason) = 0;
@@ -87,12 +89,14 @@ private:
     ResultCode SetDeviceNetworkId(const std::string networkId, std::shared_ptr<Attributes> &attributes);
     void PrintTransferDuration(uint32_t messageSeq);
     void ProcessMessage(std::shared_ptr<SoftBusMessage> softBusMessage, std::shared_ptr<Attributes> response);
+    void RefreshTraceInfo(const std::string &connectionName, int32_t msgType, bool ack, uint32_t messageSeq);
 
     std::recursive_mutex callbackMutex_;
     /* <messageSeq, CallbackInfo> */
     std::map<uint32_t, CallbackInfo> callbackMap_;
 
-    int32_t socketId_;
+    int32_t socketId_ = -1;
+    RemoteConnectFaultTrace currTraceInfo_ = {};
 };
 } // namespace UserAuth
 } // namespace UserIam

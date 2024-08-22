@@ -51,6 +51,11 @@ public:
         std::chrono::time_point<std::chrono::steady_clock> endTime;
         std::optional<uint32_t> reuseUnlockResultMode;
         std::optional<uint64_t> reuseUnlockResultDuration;
+        std::optional<bool> isRemoteAuth;
+        std::optional<std::string> remoteUdid;
+        std::optional<std::string> localUdid;
+        std::optional<std::string> connectionName;
+        std::optional<std::string> authFinishReason;
     };
     using Notify = std::function<void(const MetaData &metaData, TraceFlag flag)>;
     static ContextCallbackNotifyListener &GetInstance();
@@ -83,6 +88,11 @@ public:
     virtual void SetTraceReuseUnlockResultDuration(uint64_t reuseUnlockResultDuration) = 0;
     virtual void SetCleaner(Context::ContextStopCallback callback) = 0;
     virtual void SetTraceCallerType(int32_t callerType) = 0;
+    virtual void SetTraceIsRemoteAuth(bool isRemoteAuth) = 0;
+    virtual void SetTraceLocalUdid(const std::string &localUdid) = 0;
+    virtual void SetTraceRemoteUdid(const std::string &remoteUdid) = 0;
+    virtual void SetTraceConnectionName(const std::string &connectionName) = 0;
+    virtual void SetTraceAuthFinishReason(const std::string &authFinishReason) = 0;
     virtual void ProcessAuthResult(int32_t tip, const std::vector<uint8_t> &extraInfo) = 0;
     virtual sptr<IamCallbackInterface> GetIamCallback() = 0;
     virtual std::string GetCallerName() = 0;
