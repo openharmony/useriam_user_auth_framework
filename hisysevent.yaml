@@ -59,10 +59,10 @@ USERIAM_USER_AUTH:
   REUSE_UNLOCK_RESULT_TYPE: {type: UINT32, desc: whether to reuse unlock result and reused mode}
   REUSE_UNLOCK_RESULT_DURATION: {type: UINT64, desc: allowable reuse unlock result duration}
   IS_REMOTE_AUTH: {type: BOOL, desc: is remote auth}
-  LOCAL_UDID: {type:STRING, desc: local udid mask}
-  REMOTE_UDID: {type:STRING, desc: remote udid mask}
-  CONNECTION_NAME: {type:STRING, desc: connection name}
-  AUTH_FINISH_REASON: {type:STRING, desc: auth finish reason}
+  LOCAL_UDID: {type: STRING, desc: local udid mask}
+  REMOTE_UDID: {type: STRING, desc: remote udid mask}
+  CONNECTION_NAME: {type: STRING, desc: connection name}
+  AUTH_FINISH_REASON: {type: STRING, desc: auth finish reason}
 
 USERIAM_USER_AUTH_FWK:
   __BASE: {type: SECURITY, level: CRITICAL, tag: UserAuth, desc: user auth security message}
@@ -75,22 +75,22 @@ USERIAM_USER_AUTH_FWK:
   AUTH_RESULT: {type: INT32, desc: auth result}
   AUTH_TIME_SPAN: {type: UINT64, desc: auth time span}
   IS_REMOTE_AUTH: {type: BOOL, desc: is remote auth}
-  LOCAL_UDID: {type:STRING, desc: local udid mask}
-  REMOTE_UDID: {type:STRING, desc: remote udid mask}
-  CONNECTION_NAME: {type:STRING, desc: connection name}
-  AUTH_FINISH_REASON: {type:STRING, desc: auth finish reason}
+  LOCAL_UDID: {type: STRING, desc: local udid mask}
+  REMOTE_UDID: {type: STRING, desc: remote udid mask}
+  CONNECTION_NAME: {type: STRING, desc: connection name}
+  AUTH_FINISH_REASON: {type: STRING, desc: auth finish reason}
 
 USERIAM_REMOTE_EXECUTE:
   __BASE: {type: SECURITY, level: CRITICAL, tag: UserAuth, desc: user auth remote execute message}
   OPERATION_TIME: {type: STRING, desc: operation time}
   SCHEDULE_ID: {type: UINT64, desc: schedule id}
-  CONNECTION_NAME: {type:STRING, desc: connection name}
+  CONNECTION_NAME: {type: STRING, desc: connection name}
   OPERATION_RESULT: {type: INT32, desc: operation result}
 
 USERIAM_REMOTE_CONNECT:
   __BASE: {type: SECURITY, level: CRITICAL, tag: UserAuth, desc: user auth remote connect message}
   OPERATION_TIME: {type: STRING, desc: operation time}
-  CONNECTION_NAME: {type:STRING, desc: connection name}
+  CONNECTION_NAME: {type: STRING, desc: connection name}
   OPERATION_RESULT: {type: INT32, desc: operation result}
   TIME_SPAN: {type: UINT64, desc: time span}
   NETWORK_ID: {type: STRING, desc: network id}
