@@ -52,7 +52,11 @@ void FuzzTest(Parcel &parcel)
 
     Attributes attr = Attributes();
     attr.SetUint64Value(Attributes::ATTR_SCHEDULE_ID, parcel.ReadUint64());
-    g_RemoteExecutorStub->ProcBeginExecuteRequest(attr);
+    RemoteExecuteTrace trace = {};
+    trace.scheduleId = parcel.ReadUint64();
+    trace.connectionName = parcel.ReadString();
+    trace.operationResult = parcel.ReadInt32();
+    g_RemoteExecutorStub->ProcBeginExecuteRequest(attr, trace);
 
     std::string connectionName = parcel.ReadString();
     std::string srcEndPoint = parcel.ReadString();

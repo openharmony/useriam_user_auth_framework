@@ -20,6 +20,7 @@ USERIAM_SYSTEM_FAULT:
 
 USERIAM_USER_CREDENTIAL_MANAGER:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: UserIdm, desc: credential manager message}
+  OPERATION_TIME: {type: STRING, desc: operation time}
   CALLER_NAME: {type: STRING, desc: caller name}
   USER_ID: {type: INT32, desc: user id}
   AUTH_TYPE: {type: INT32, desc: auth type}
@@ -28,6 +29,7 @@ USERIAM_USER_CREDENTIAL_MANAGER:
 
 USERIAM_CREDENTIAL_CHANGE:
   __BASE: {type: SECURITY, level: CRITICAL, tag: UserIdm, desc: credential change message}
+  OPERATION_TIME: {type: STRING, desc: operation time}
   CALLER_NAME: {type: STRING, desc: caller name}
   REQUEST_CONTEXTID: {type: UINT64, desc: context id}
   USER_ID: {type: INT32, desc: user id}
@@ -38,6 +40,7 @@ USERIAM_CREDENTIAL_CHANGE:
 
 USERIAM_TEMPLATE_CHANGE:
   __BASE: {type: SECURITY, level: CRITICAL, tag: UserIdm, desc: template change message}
+  OPERATION_TIME: {type: STRING, desc: operation time}
   SCHEDULE_ID: {type: UINT64, desc: schedule id}
   EXECUTOR_TYPE: {type: INT32, desc: executor type}
   CHANGE_TYPE: {type: UINT32, desc: change type}
@@ -45,6 +48,7 @@ USERIAM_TEMPLATE_CHANGE:
 
 USERIAM_USER_AUTH:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: UserAuth, desc: user auth message}
+  OPERATION_TIME: {type: STRING, desc: operation time}
   CALLER_NAME: {type: STRING, desc: caller name}
   SDK_VERSION: {type: UINT32, desc: sdk version}
   AUTH_TRUST_LEVEL: {type: UINT32, desc: auth trust level}
@@ -54,9 +58,15 @@ USERIAM_USER_AUTH:
   AUTH_WIDGET_TYPE: {type: UINT32, desc: auth widget auth type and window mode}
   REUSE_UNLOCK_RESULT_TYPE: {type: UINT32, desc: whether to reuse unlock result and reused mode}
   REUSE_UNLOCK_RESULT_DURATION: {type: UINT64, desc: allowable reuse unlock result duration}
+  IS_REMOTE_AUTH: {type: BOOL, desc: is remote auth}
+  LOCAL_UDID: {type: STRING, desc: local udid mask}
+  REMOTE_UDID: {type: STRING, desc: remote udid mask}
+  CONNECTION_NAME: {type: STRING, desc: connection name}
+  AUTH_FINISH_REASON: {type: STRING, desc: auth finish reason}
 
 USERIAM_USER_AUTH_FWK:
   __BASE: {type: SECURITY, level: CRITICAL, tag: UserAuth, desc: user auth security message}
+  OPERATION_TIME: {type: STRING, desc: operation time}
   CALLER_NAME: {type: STRING, desc: caller name}
   REQUEST_CONTEXTID: {type: UINT64, desc: request context id}
   AUTH_CONTEXTID: {type: UINT64, desc: auth context id}
@@ -64,5 +74,25 @@ USERIAM_USER_AUTH_FWK:
   AUTH_TYPE: {type: INT32, desc: auth type}
   AUTH_RESULT: {type: INT32, desc: auth result}
   AUTH_TIME_SPAN: {type: UINT64, desc: auth time span}
+  IS_REMOTE_AUTH: {type: BOOL, desc: is remote auth}
+  LOCAL_UDID: {type: STRING, desc: local udid mask}
+  REMOTE_UDID: {type: STRING, desc: remote udid mask}
+  CONNECTION_NAME: {type: STRING, desc: connection name}
+  AUTH_FINISH_REASON: {type: STRING, desc: auth finish reason}
 
+USERIAM_REMOTE_EXECUTE:
+  __BASE: {type: SECURITY, level: CRITICAL, tag: UserAuth, desc: user auth remote execute message}
+  OPERATION_TIME: {type: STRING, desc: operation time}
+  SCHEDULE_ID: {type: UINT64, desc: schedule id}
+  CONNECTION_NAME: {type: STRING, desc: connection name}
+  OPERATION_RESULT: {type: INT32, desc: operation result}
+
+USERIAM_REMOTE_CONNECT:
+  __BASE: {type: SECURITY, level: CRITICAL, tag: UserAuth, desc: user auth remote connect message}
+  OPERATION_TIME: {type: STRING, desc: operation time}
+  CONNECTION_NAME: {type: STRING, desc: connection name}
+  OPERATION_RESULT: {type: INT32, desc: operation result}
+  TIME_SPAN: {type: UINT64, desc: time span}
+  NETWORK_ID: {type: STRING, desc: network id}
+  SOCKET_ID: {type: STRING, desc: socket id}
   

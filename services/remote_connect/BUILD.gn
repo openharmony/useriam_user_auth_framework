@@ -46,7 +46,10 @@ ohos_source_set("userauth_service_remote_connect") {
     "src/soft_bus_socket_listener.cpp",
   ]
 
-  deps = [ "../../frameworks/native/common:attributes" ]
+  deps = [
+    "../../frameworks/native/common:attributes",
+    "../../frameworks/native/common:dfx",
+  ]
 
   external_deps = [
     "access_token:libtokensetproc_shared",

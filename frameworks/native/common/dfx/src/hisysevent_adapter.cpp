@@ -20,6 +20,7 @@
 #include "hisysevent.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
+#include "iam_time.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -49,6 +50,23 @@ constexpr char STR_AUTH_CONTEXTID[] = "AUTH_CONTEXTID";
 constexpr char STR_SCHEDULE_ID[] = "SCHEDULE_ID";
 constexpr char STR_REUSE_UNLOCK_RESULT_TYPE[] = "REUSE_UNLOCK_RESULT_TYPE";
 constexpr char STR_REUSE_UNLOCK_RESULT_DURATION[] = "REUSE_UNLOCK_RESULT_DURATION";
+constexpr char STR_IS_REMOTE_AUTH[] = "IS_REMOTE_AUTH";
+constexpr char STR_LOCAL_UDID[] = "LOCAL_UDID";
+constexpr char STR_REMOTE_UDID[] = "REMOTE_UDID";
+constexpr char STR_CONNECTION_NAME[] = "CONNECTION_NAME";
+constexpr char STR_NETWORK_ID[] = "NETWORK_ID";
+constexpr char STR_SOCKET_ID[] = "SOCKET_ID";
+constexpr char STR_AUTH_FINISH_REASON[] = "AUTH_FINISH_REASON";
+constexpr char STR_OPERATION_TIME[] = "OPERATION_TIME";
+
+static std::string MaskForStringId(const std::string &id)
+{
+    const int32_t MASK_WIDTH = 64;
+    if (id.length() != MASK_WIDTH) {
+        return "****";
+    }
+    return id.substr(0, MASK_WIDTH) + "**" + id.substr(id.length() - MASK_WIDTH, id.length());
+}
 
 void ReportSystemFault(const std::string &timeString, const std::string &moudleName)
 {
@@ -64,39 +82,41 @@ void ReportSystemFault(const std::string &timeString, const std::string &moudleN
 
 void ReportSecurityTemplateChange(const TemplateChangeTrace &info)
 {
+    std::string operationTime = Common::GetNowTimeString();
     int32_t ret = HiSysEventWrite(HiSysEvent::Domain::USERIAM_FWK, "USERIAM_TEMPLATE_CHANGE",
         HiSysEvent::EventType::SECURITY,
+        STR_OPERATION_TIME, operationTime,
         STR_SCHEDULE_ID, info.scheduleId,
         STR_EXECUTOR_TYPE, info.executorType,
         STR_CHANGE_TYPE, info.changeType,
         STR_TRIGGER_REASON, info.reason);
     if (ret != 0) {
-        IAM_LOGE("hisysevent write failed! ret %{public}d, executorType %{public}d, changeType %{public}u,"
-            "scheduleId %{public}s, trigger reason %{public}s.", ret, info.executorType, info.changeType,
-            GET_MASKED_STRING(info.scheduleId).c_str(), info.reason.c_str());
+        IAM_LOGE("hisysevent write failed! ret %{public}d", ret);
     }
 }
 
 void ReportBehaviorCredManager(const UserCredManagerTrace &info)
 {
+    std::string operationTime = Common::GetNowTimeString();
     int32_t ret = HiSysEventWrite(HiSysEvent::Domain::USERIAM_FWK, "USERIAM_USER_CREDENTIAL_MANAGER",
         HiSysEvent::EventType::BEHAVIOR,
+        STR_OPERATION_TIME, operationTime,
         STR_CALLER_NAME, info.callerName,
         STR_USER_ID, info.userId,
         STR_AUTH_TYPE, info.authType,
         STR_OPERATION_TYPE, info.operationType,
         STR_OPERATION_RESULT, info.operationResult);
     if (ret != 0) {
-        IAM_LOGE("hisysevent write failed! ret %{public}d, userId %{public}d, authType %{public}d,"
-            "operationType %{public}u, operationResult %{public}d, callerName %{public}s.", ret, info.userId,
-            info.authType, info.operationType, info.operationResult, info.callerName.c_str());
+            IAM_LOGE("hisysevent write failed! ret %{public}d", ret);
     }
 }
 
 void ReportSecurityCredChange(const UserCredChangeTrace &info)
 {
+    std::string operationTime = Common::GetNowTimeString();
     int32_t ret = HiSysEventWrite(HiSysEvent::Domain::USERIAM_FWK, "USERIAM_CREDENTIAL_CHANGE",
         HiSysEvent::EventType::SECURITY,
+        STR_OPERATION_TIME, operationTime,
         STR_CALLER_NAME, info.callerName,
         STR_REQUEST_CONTEXTID, info.requestContextId,
         STR_USER_ID, info.userId,
@@ -105,17 +125,16 @@ void ReportSecurityCredChange(const UserCredChangeTrace &info)
         STR_OPERATION_RESULT, info.operationResult,
         STR_TIME_SPAN, info.timeSpan);
     if (ret != 0) {
-        IAM_LOGE("hisysevent write failed! ret %{public}d, userId %{public}d, authType %{public}d,"
-            "operationType %{public}u, timeSpan %{public}" PRIu64 ", operationResult %{public}d, callerName %{public}s"
-            ", requestContextId %{public}s.", ret, info.userId, info.authType, info.operationType, info.timeSpan,
-            info.operationResult, info.callerName.c_str(),  GET_MASKED_STRING(info.requestContextId).c_str());
+        IAM_LOGE("hisysevent write failed! ret %{public}d", ret);
     }
 }
 
 void ReportUserAuth(const UserAuthTrace &info)
 {
+    std::string operationTime = Common::GetNowTimeString();
     int32_t ret = HiSysEventWrite(HiSysEvent::Domain::USERIAM_FWK, "USERIAM_USER_AUTH",
         HiSysEvent::EventType::BEHAVIOR,
+        STR_OPERATION_TIME, operationTime,
         STR_CALLER_NAME, info.callerName,
         STR_SDK_VERSION, info.sdkVersion,
         STR_AUTH_TRUST_LEVEL, info.atl,
@@ -124,35 +143,76 @@ void ReportUserAuth(const UserAuthTrace &info)
         STR_AUTH_TIME_SPAN, info.authtimeSpan,
         STR_AUTH_WIDGET_TYPE, info.authWidgetType,
         STR_REUSE_UNLOCK_RESULT_TYPE, info.reuseUnlockResultMode,
-        STR_REUSE_UNLOCK_RESULT_DURATION, info.reuseUnlockResultDuration);
+        STR_REUSE_UNLOCK_RESULT_DURATION, info.reuseUnlockResultDuration,
+        STR_IS_REMOTE_AUTH, info.isRemoteAuth,
+        STR_LOCAL_UDID, MaskForStringId(info.localUdid),
+        STR_REMOTE_UDID, MaskForStringId(info.remoteUdid),
+        STR_CONNECTION_NAME, info.connectionName,
+        STR_AUTH_FINISH_REASON, info.authFinishReason);
     if (ret != 0) {
-        IAM_LOGE("hisysevent write failed! ret %{public}d, authType %{public}d, atl %{public}u,"
-            " authResult %{public}d, authtimeSpan %{public}" PRIu64 ","
-            " sdkVersion %{public}u, authwidgetType %{public}u, callerName %{public}s,"
-            " reuseUnlockResultMode %{public}u, reuseUnlockResultDuration %{public}" PRIu64 ".",
-            ret, info.authType, info.atl, info.authResult, info.authtimeSpan, info.sdkVersion, info.authWidgetType,
-            info.callerName.c_str(), info.reuseUnlockResultMode, info.reuseUnlockResultDuration);
+        IAM_LOGE("hisysevent write failed! ret %{public}d", ret);
     }
 }
 
 void ReportSecurityUserAuthFwk(const UserAuthFwkTrace &info)
 {
+    std::string operationTime = Common::GetNowTimeString();
     int32_t ret = HiSysEventWrite(HiSysEvent::Domain::USERIAM_FWK, "USERIAM_USER_AUTH_FWK",
         HiSysEvent::EventType::SECURITY,
+        STR_OPERATION_TIME, operationTime,
         STR_CALLER_NAME, info.callerName,
         STR_REQUEST_CONTEXTID, info.requestContextId,
         STR_AUTH_CONTEXTID, info.authContextId,
         STR_AUTH_TRUST_LEVEL, info.atl,
         STR_AUTH_TYPE, info.authType,
         STR_AUTH_RESULT, info.authResult,
-        STR_AUTH_TIME_SPAN, info.authtimeSpan);
+        STR_AUTH_TIME_SPAN, info.authtimeSpan,
+        STR_IS_REMOTE_AUTH, info.isRemoteAuth,
+        STR_LOCAL_UDID, MaskForStringId(info.localUdid),
+        STR_REMOTE_UDID, MaskForStringId(info.remoteUdid),
+        STR_CONNECTION_NAME, info.connectionName,
+        STR_AUTH_FINISH_REASON, info.authFinishReason);
     if (ret != 0) {
-        IAM_LOGE("hisysevent write failed! ret %{public}d, authType %{public}d, atl %{public}u, authResult %{public}d,"
-            "authtimeSpan %{public}" PRIu64 ", callerName %{public}s, requestContextId %{public}s, "
-            "authContextId %{public}s.", ret, info.authType, info.atl, info.authResult, info.authtimeSpan,
-            info.callerName.c_str(), GET_MASKED_STRING(info.requestContextId).c_str(),
-            GET_MASKED_STRING(info.authContextId).c_str());
+        IAM_LOGE("hisysevent write failed! ret %{public}d", ret);
     }
+}
+
+void ReportRemoteExecuteProc(const RemoteExecuteTrace &info)
+{
+    std::string operationTime = Common::GetNowTimeString();
+    int32_t ret = HiSysEventWrite(HiSysEvent::Domain::USERIAM_FWK, "USERIAM_REMOTE_EXECUTE",
+        HiSysEvent::EventType::BEHAVIOR,
+        STR_OPERATION_TIME, operationTime,
+        STR_SCHEDULE_ID, info.scheduleId,
+        STR_CONNECTION_NAME, info.connectionName,
+        STR_OPERATION_RESULT, info.operationResult);
+    if (ret != 0) {
+        IAM_LOGE("hisysevent write failed! ret %{public}d", ret);
+    }
+}
+
+void ReportRemoteConnectOpen(const RemoteConnectOpenTrace &info)
+{
+    std::string operationTime = Common::GetNowTimeString();
+    int32_t ret = HiSysEventWrite(HiSysEvent::Domain::USERIAM_FWK, "USERIAM_REMOTE_CONNECT",
+        HiSysEvent::EventType::BEHAVIOR,
+        STR_OPERATION_TIME, operationTime,
+        STR_CONNECTION_NAME, info.connectionName,
+        STR_OPERATION_RESULT, info.operationResult,
+        STR_TIME_SPAN, info.timeSpan,
+        STR_NETWORK_ID, MaskForStringId(info.networkId),
+        STR_SOCKET_ID, info.socketId);
+    if (ret != 0) {
+        IAM_LOGE("hisysevent write failed! ret %{public}d", ret);
+    }
+}
+
+void ReportConnectFaultTrace(const RemoteConnectFaultTrace &info)
+{
+    std::ostringstream ss;
+    ss << "reason: " << info.reason << ", socketId: " << info.socketId << ", connectionName: " << info.connectionName
+        << ", msgType:" << info.msgType << ", messageSeq" << "ack:" << info.ack;
+    ReportSystemFault(Common::GetNowTimeString(), ss.str());
 }
 } // namespace UserAuth
 } // namespace UserIam

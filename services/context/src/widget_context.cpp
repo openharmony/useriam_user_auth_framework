@@ -182,6 +182,7 @@ std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &ch
     if (context == nullptr || !ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
         Attributes extraInfo;
+        widgetCallback->SetTraceAuthFinishReason("WidgetContext BuildTask insert context fail");
         widgetCallback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
         return nullptr;
     }
@@ -498,27 +499,32 @@ void WidgetContext::End(const ResultCode &resultCode)
     if (resultCode == ResultCode::SUCCESS) {
         if (!attr.SetInt32Value(Attributes::ATTR_AUTH_TYPE, authResultInfo_.authType)) {
             IAM_LOGE("set auth type failed.");
+            callerCallback_->SetTraceAuthFinishReason("WidgetContext End set authType fail");
             callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
             return;
         }
         if (authResultInfo_.token.size() > 0) {
             if (!attr.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authResultInfo_.token)) {
                 IAM_LOGE("set signature token failed.");
+                callerCallback_->SetTraceAuthFinishReason("WidgetContext End set token fail");
                 callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
                 return;
             }
         }
         if (!attr.SetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, authResultInfo_.credentialDigest)) {
             IAM_LOGE("set credential digest failed.");
+            callerCallback_->SetTraceAuthFinishReason("WidgetContext End set credentialDigest fail");
             callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
             return;
         }
         if (!attr.SetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, authResultInfo_.credentialCount)) {
             IAM_LOGE("set credential count failed.");
+            callerCallback_->SetTraceAuthFinishReason("WidgetContext End set credentialCount fail");
             callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
             return;
         }
     }
+    callerCallback_->SetTraceAuthFinishReason("WidgetContext End fail");
     callerCallback_->OnResult(resultCode, attr);
 }
 

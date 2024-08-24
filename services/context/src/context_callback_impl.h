@@ -42,8 +42,13 @@ public:
     void SetTraceAuthTrustLevel(AuthTrustLevel atl) override;
     void SetTraceReuseUnlockResultMode(uint32_t reuseUnlockResultMode) override;
     void SetTraceReuseUnlockResultDuration(uint64_t reuseUnlockResultDuration) override;
-    void SetCleaner(Context::ContextStopCallback callback) override;
     void SetTraceCallerType(int32_t callerType) override;
+    void SetTraceIsRemoteAuth(bool isRemoteAuth) override;
+    void SetTraceLocalUdid(const std::string &localUdid) override;
+    void SetTraceRemoteUdid(const std::string &remoteUdid) override;
+    void SetTraceConnectionName(const std::string &connectionName) override;
+    void SetTraceAuthFinishReason(const std::string &authFinishReason) override;
+    void SetCleaner(Context::ContextStopCallback callback) override;
     void ProcessAuthResult(int32_t tip, const std::vector<uint8_t> &extraInfo) override;
     sptr<IamCallbackInterface> GetIamCallback() override;
     std::string GetCallerName() override;
