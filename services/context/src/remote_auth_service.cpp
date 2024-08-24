@@ -60,6 +60,8 @@ public:
         const std::shared_ptr<ContextCallback> &contextCallback, int &lastError) override;
 
 private:
+    std::shared_ptr<ContextCallback> GetRemoteAuthContextCallback(std::string connectionName,
+        Authentication::AuthenticationPara para);
     std::recursive_mutex mutex_;
     std::map<uint64_t, std::shared_ptr<RemoteExecutorStub>> scheduleId2executorStub_;
 };
@@ -157,10 +159,13 @@ uint64_t RemoteAuthServiceImpl::StartRemoteAuthContext(Authentication::Authentic
         contextCallback);
     if (context == nullptr || !ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
+        contextCallback->SetTraceAuthFinishReason("RemoteAuthServiceImpl StartRemoteAuthContext insert context fail");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
     contextCallback->SetCleaner(ContextHelper::Cleaner(context));
+    contextCallback->SetTraceRequestContextId(context->GetContextId());
+    contextCallback->SetTraceAuthContextId(context->GetContextId());
 
     if (!context->Start()) {
         lastError = context->GetLatestError();
@@ -170,6 +175,23 @@ uint64_t RemoteAuthServiceImpl::StartRemoteAuthContext(Authentication::Authentic
     lastError = SUCCESS;
     IAM_LOGI("success");
     return context->GetContextId();
+}
+
+std::shared_ptr<ContextCallback> RemoteAuthServiceImpl::GetRemoteAuthContextCallback(std::string connectionName,
+    Authentication::AuthenticationPara para)
+{
+    sptr<IamCallbackInterface> callback(new RemoteIamCallback(connectionName));
+    IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, nullptr);
+
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER_ALL);
+    IF_FALSE_LOGE_AND_RETURN_VAL(contextCallback != nullptr, nullptr);
+    contextCallback->SetTraceUserId(para.userId);
+    contextCallback->SetTraceAuthType(para.authType);
+    contextCallback->SetTraceAuthTrustLevel(para.atl);
+    contextCallback->SetTraceSdkVersion(para.sdkVersion);
+    contextCallback->SetTraceCallerName(para.callerName);
+    contextCallback->SetTraceCallerType(para.callerType);
+    return contextCallback;
 }
 
 int32_t RemoteAuthServiceImpl::ProcStartRemoteAuthRequest(std::string connectionName,
@@ -208,10 +230,7 @@ int32_t RemoteAuthServiceImpl::ProcStartRemoteAuthRequest(std::string connection
     remoteAuthContextParam.collectorNetworkId = collectorNetworkId;
     remoteAuthContextParam.executorInfoMsg = request->Serialize();
 
-    sptr<IamCallbackInterface> callback(new RemoteIamCallback(connectionName));
-    IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, GENERAL_ERROR);
-
-    auto contextCallback = ContextCallback::NewInstance(callback, NO_NEED_TRACE);
+    auto contextCallback = GetRemoteAuthContextCallback(connectionName, para);
     IF_FALSE_LOGE_AND_RETURN_VAL(contextCallback != nullptr, GENERAL_ERROR);
 
     int32_t lastError;
@@ -259,15 +278,13 @@ int32_t RemoteAuthServiceImpl::ProcBeginExecuteRequest(const std::shared_ptr<Att
     std::shared_ptr<RemoteExecutorStub> executorStub = Common::MakeShared<RemoteExecutorStub>();
     IF_FALSE_LOGE_AND_RETURN_VAL(executorStub != nullptr, GENERAL_ERROR);
 
-    int32_t resultCode = executorStub->ProcBeginExecuteRequest(*request);
-    IF_FALSE_LOGE_AND_RETURN_VAL(resultCode == SUCCESS, GENERAL_ERROR);
+    RemoteExecuteTrace traceInfo;
+    traceInfo.operationResult = executorStub->ProcBeginExecuteRequest(*request, traceInfo);
+    ReportRemoteExecuteProc(traceInfo);
+    IF_FALSE_LOGE_AND_RETURN_VAL(traceInfo.operationResult == SUCCESS, GENERAL_ERROR);
 
-    uint64_t scheduleId;
-    bool getScheduleIdRet = request->GetUint64Value(Attributes::ATTR_SCHEDULE_ID, scheduleId);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getScheduleIdRet, GENERAL_ERROR);
-
-    scheduleId2executorStub_.emplace(scheduleId, executorStub);
-    IAM_LOGI("scheduleId %{public}s begin execute success", GET_MASKED_STRING(scheduleId).c_str());
+    scheduleId2executorStub_.emplace(traceInfo.scheduleId, executorStub);
+    IAM_LOGI("scheduleId %{public}s begin execute success", GET_MASKED_STRING(traceInfo.scheduleId).c_str());
     return SUCCESS;
 }
 

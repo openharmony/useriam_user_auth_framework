@@ -29,6 +29,7 @@ ohos_fuzztest("SoftBusFuzzTest") {
   include_dirs = [
     "../../../../services/inner_api",
     "../../../../frameworks/native/ipc/common_defines",
+    "../../../../frameworks/native/common/dfx/inc",
     "../../../../services/base/inc",
     "../../../../services/remote_connect/inc",
     "../../../../common/utils",

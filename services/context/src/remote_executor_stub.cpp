@@ -22,6 +22,7 @@
 #include "context_pool.h"
 #include "device_manager_util.h"
 #include "hdi_wrapper.h"
+#include "hisysevent_adapter.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
 #include "iam_ptr.h"
@@ -224,21 +225,21 @@ RemoteExecutorStub::~RemoteExecutorStub()
     IAM_LOGI("ConnectionName %{public}s RemoteExecutorStub destructed", connectionName_.c_str());
 }
 
-int32_t RemoteExecutorStub::ProcBeginExecuteRequest(Attributes &attr)
+int32_t RemoteExecutorStub::ProcBeginExecuteRequest(Attributes &attr, RemoteExecuteTrace &trace)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     IAM_LOGI("start");
 
-    uint64_t scheduleId;
-    bool getScheduleIdRet = attr.GetUint64Value(Attributes::ATTR_SCHEDULE_ID, scheduleId);
+    bool getScheduleIdRet = attr.GetUint64Value(Attributes::ATTR_SCHEDULE_ID, trace.scheduleId);
     IF_FALSE_LOGE_AND_RETURN_VAL(getScheduleIdRet, GENERAL_ERROR);
-    IAM_LOGI("scheduleId %{public}s begin execute", GET_MASKED_STRING(scheduleId).c_str());
+    IAM_LOGI("scheduleId %{public}s begin execute", GET_MASKED_STRING(trace.scheduleId).c_str());
 
-    connectionCallback_ = Common::MakeShared<RemoteExecutorStubMessageCallback>(scheduleId, shared_from_this());
+    connectionCallback_ = Common::MakeShared<RemoteExecutorStubMessageCallback>(trace.scheduleId, shared_from_this());
     IF_FALSE_LOGE_AND_RETURN_VAL(connectionCallback_ != nullptr, GENERAL_ERROR);
 
     bool getConnectionName = attr.GetStringValue(Attributes::ATTR_CONNECTION_NAME, connectionName_);
     IF_FALSE_LOGE_AND_RETURN_VAL(getConnectionName, GENERAL_ERROR);
+    trace.connectionName = connectionName_;
 
     ResultCode registerResult = RemoteConnectionManager::GetInstance().RegisterConnectionListener(connectionName_,
         endPointName_, connectionCallback_);
@@ -283,11 +284,11 @@ int32_t RemoteExecutorStub::ProcBeginExecuteRequest(Attributes &attr)
     IF_FALSE_LOGE_AND_RETURN_VAL(setExtraInfo, GENERAL_ERROR);
 
     std::vector<uint8_t> publicKey;
-    node->BeginExecute(scheduleInfo.scheduleId, publicKey, attr);
+    ret = node->BeginExecute(scheduleInfo.scheduleId, publicKey, attr);
 
-    IAM_LOGI("ConnectionName %{public}s scheduleId %{public}s begin execute success", connectionName_.c_str(),
-        GET_MASKED_STRING(scheduleId).c_str());
-    return ResultCode::SUCCESS;
+    IAM_LOGI("ConnectionName %{public}s scheduleId %{public}s begin execute ret %{public}d", connectionName_.c_str(),
+        GET_MASKED_STRING(trace.scheduleId).c_str(), ret);
+    return ret;
 }
 
 void RemoteExecutorStub::OnMessage(const std::string &connectionName, const std::string &srcEndPoint,
