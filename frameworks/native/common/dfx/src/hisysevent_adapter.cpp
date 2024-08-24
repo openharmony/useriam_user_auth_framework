@@ -61,8 +61,9 @@ constexpr char STR_OPERATION_TIME[] = "OPERATION_TIME";
 
 static std::string MaskForStringId(const std::string &id)
 {
-    const int32_t MASK_WIDTH = 64;
-    if (id.length() != MASK_WIDTH) {
+    const int32_t MASK_WIDTH = 2;
+    const int32_t STRING_ID_LENGTH = 64;
+    if (id.length() != STRING_ID_LENGTH) {
         return "****";
     }
     return id.substr(0, MASK_WIDTH) + "**" + id.substr(id.length() - MASK_WIDTH, id.length());
