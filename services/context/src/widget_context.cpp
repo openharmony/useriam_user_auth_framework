@@ -568,6 +568,9 @@ std::string WidgetContext::BuildStartCommand(const WidgetRotatePara &widgetRotat
         if (at == AuthType::FINGERPRINT && !profile.sensorInfo.empty()) {
             cmd.sensorInfo = profile.sensorInfo;
         }
+        if (para_.isPinExpired) {
+            cmd.result = PIN_EXPIRED;
+        }
         cmd.remainAttempts = profile.remainTimes;
         cmd.lockoutDuration = profile.freezingTime;
         WidgetCommand::ExtraInfo extraInfo {

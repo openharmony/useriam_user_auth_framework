@@ -81,7 +81,7 @@ void GetJsonPayload(nlohmann::json &jsonPayload, const WidgetCommand::Cmd &cmd)
     if (cmd.remainAttempts != -1) {
         jsonPayload[JSON_REMAIN_ATTEMPTS] = cmd.remainAttempts;
     }
-    if (cmd.event == CMD_NOTIFY_AUTH_RESULT) {
+    if (cmd.event == CMD_NOTIFY_AUTH_RESULT || cmd.result == PIN_EXPIRED) {
         jsonPayload[JSON_AUTH_RESULT] = cmd.result;
     }
     if (cmd.event == CMD_NOTIFY_AUTH_TIP) {

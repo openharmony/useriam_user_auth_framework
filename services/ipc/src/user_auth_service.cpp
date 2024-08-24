@@ -944,11 +944,15 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParamInner &a
     }
     std::vector<AuthType> validType;
     checkRet = CheckValidSolution(para.userId, authParam, widgetParam, validType);
-    if (checkRet != SUCCESS) {
+    if (checkRet != SUCCESS && checkRet != PIN_EXPIRED) {
         IAM_LOGE("check valid solution failed");
         contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget CheckValidSolution fail");
         contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
+    }
+    if (checkRet == PIN_EXPIRED) {
+        para.isPinExpired = true;
+        validType.emplace_back(AuthType::PIN);
     }
     return StartWidgetContext(contextCallback, authParam, widgetParam, validType, para);
 }
