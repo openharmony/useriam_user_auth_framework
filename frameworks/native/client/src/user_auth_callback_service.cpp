@@ -67,6 +67,8 @@ UserAuthCallbackService::UserAuthCallbackService(const std::shared_ptr<PrepareRe
 
 UserAuthCallbackService::~UserAuthCallbackService()
 {
+    IAM_LOGI("start");
+    iamHitraceHelper_= nullptr;
     CallbackManager::GetInstance().RemoveCallback(reinterpret_cast<uintptr_t>(this));
 }
 
