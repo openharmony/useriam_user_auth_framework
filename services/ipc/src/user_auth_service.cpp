@@ -352,6 +352,7 @@ std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(int32_t
         return nullptr;
     }
     contextCallback->SetTraceAuthType(authType);
+    contextCallback->SetTraceAuthWidgetType(authType);
     contextCallback->SetTraceAuthTrustLevel(authTrustLevel);
     contextCallback->SetTraceSdkVersion(apiVersion);
     return contextCallback;
