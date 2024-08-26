@@ -182,7 +182,7 @@ void ReportRemoteExecuteProc(const RemoteExecuteTrace &info)
 {
     std::string operationTime = Common::GetNowTimeString();
     int32_t ret = HiSysEventWrite(HiSysEvent::Domain::USERIAM_FWK, "USERIAM_REMOTE_EXECUTE",
-        HiSysEvent::EventType::BEHAVIOR,
+        HiSysEvent::EventType::SECURITY,
         STR_OPERATION_TIME, operationTime,
         STR_SCHEDULE_ID, info.scheduleId,
         STR_CONNECTION_NAME, info.connectionName,
@@ -196,7 +196,7 @@ void ReportRemoteConnectOpen(const RemoteConnectOpenTrace &info)
 {
     std::string operationTime = Common::GetNowTimeString();
     int32_t ret = HiSysEventWrite(HiSysEvent::Domain::USERIAM_FWK, "USERIAM_REMOTE_CONNECT",
-        HiSysEvent::EventType::BEHAVIOR,
+        HiSysEvent::EventType::SECURITY,
         STR_OPERATION_TIME, operationTime,
         STR_CONNECTION_NAME, info.connectionName,
         STR_OPERATION_RESULT, info.operationResult,

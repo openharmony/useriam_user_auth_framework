@@ -186,6 +186,7 @@ std::shared_ptr<ContextCallback> RemoteAuthServiceImpl::GetRemoteAuthContextCall
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER_ALL);
     IF_FALSE_LOGE_AND_RETURN_VAL(contextCallback != nullptr, nullptr);
     contextCallback->SetTraceUserId(para.userId);
+    contextCallback->SetTraceAuthWidgetType(para.authType);
     contextCallback->SetTraceAuthType(para.authType);
     contextCallback->SetTraceAuthTrustLevel(para.atl);
     contextCallback->SetTraceSdkVersion(para.sdkVersion);
