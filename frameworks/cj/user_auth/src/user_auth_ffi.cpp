@@ -20,27 +20,32 @@
 
 using namespace OHOS::UserIam::UserAuth;
 
-int32_t Ffi_UserAuth_GetAvailableStatus(const uint32_t authType, const uint32_t authTrustLevel) {
+int32_t FfiUserAuthGetAvailableStatus(const uint32_t authType, const uint32_t authTrustLevel)
+{
     constexpr int32_t API_VERSION_9 = 9;
     return UserAuthClientImpl::Instance().GetAvailableStatus(API_VERSION_9, AuthType(authType),
                                                              AuthTrustLevel(authTrustLevel));
 }
 
-int32_t Ffi_UserAuth_GetEnrolledState(const uint32_t authType, EnrolledState *enrolledState) {
+int32_t FfiUserAuthGetEnrolledState(const uint32_t authType, EnrolledState *enrolledState)
+{
     constexpr int32_t API_VERSION_12 = 12;
     return UserAuthClientImpl::Instance().GetEnrolledState(API_VERSION_12, AuthType(authType), *enrolledState);
 }
 
-UserAuthCallbackCj *Ffi_UserAuth_NewCb(void (*const callback)(CUserAuthResult)) {
+UserAuthCallbackCj *FfiUserAuthNewCb(void (*const callback)(CUserAuthResult))
+{
     return new UserAuthCallbackCj(CJLambda::Create(callback));
 }
 
-void Ffi_UserAuth_DeleteCb(const UserAuthCallbackCj *callbackPtr) {
+void FfiUserAuthDeleteCb(const UserAuthCallbackCj *callbackPtr)
+{
     delete callbackPtr;
 }
 
-uint64_t Ffi_UserAuth_Start(const CAuthParam &authParam, const CWidgetParam &widgetParam,
-                            UserAuthCallbackCj *callbackPtr) {
+uint64_t FfiUserAuthStart(const CAuthParam &authParam, const CWidgetParam &widgetParam,
+    UserAuthCallbackCj *callbackPtr)
+{
     constexpr int32_t API_VERSION_10 = 10;
     std::vector<AuthType> authTypes;
     for (int i = 0; i < authParam.authTypesLen; ++i) {
@@ -69,11 +74,12 @@ uint64_t Ffi_UserAuth_Start(const CAuthParam &authParam, const CWidgetParam &wid
     }
     const auto callback = std::shared_ptr<UserAuthCallbackCj>(
         callbackPtr, [](UserAuthCallbackCj *) {
-            /* dont free, resource will free in Ffi_UserAuth_DeleteCb */
+            /* don't free, resource will be freed in FfiUserAuthDeleteCb */
         });
     return UserAuthClientImpl::Instance().BeginWidgetAuth(API_VERSION_10, authParamInner, widgetInner, callback);
 }
 
-int32_t Ffi_UserAuth_Cancel(const uint64_t contextId) {
+int32_t FfiUserAuthCancel(const uint64_t contextId)
+{
     return UserAuthClientImpl::GetInstance().CancelAuthentication(contextId);
 }

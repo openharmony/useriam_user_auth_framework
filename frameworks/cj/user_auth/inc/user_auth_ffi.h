@@ -29,18 +29,18 @@ using OHOS::UserIam::UserAuth::UserAuthCallbackCj;
 #define FFI_EXPORT __attribute__((visibility("default")))
 
 extern "C" {
-FFI_EXPORT int32_t Ffi_UserAuth_GetAvailableStatus(uint32_t authType, uint32_t authTrustLevel);
+FFI_EXPORT int32_t FfiUserAuthGetAvailableStatus(uint32_t authType, uint32_t authTrustLevel);
 
-FFI_EXPORT int32_t Ffi_UserAuth_GetEnrolledState(uint32_t authType, EnrolledState *enrolledState);
+FFI_EXPORT int32_t FfiUserAuthGetEnrolledState(uint32_t authType, EnrolledState *enrolledState);
 
-FFI_EXPORT UserAuthCallbackCj *Ffi_UserAuth_NewCb(void (*callback)(CUserAuthResult));
+FFI_EXPORT UserAuthCallbackCj *FfiUserAuthNewCb(void (*callback)(CUserAuthResult));
 
-FFI_EXPORT void Ffi_UserAuth_DeleteCb(const UserAuthCallbackCj *callbackPtr);
+FFI_EXPORT void FfiUserAuthDeleteCb(const UserAuthCallbackCj *callbackPtr);
 
-FFI_EXPORT uint64_t Ffi_UserAuth_Start(const CAuthParam &authParam, const CWidgetParam &widgetParam,
-                                       UserAuthCallbackCj *callbackPtr);
+FFI_EXPORT uint64_t FfiUserAuthStart(const CAuthParam &authParam, const CWidgetParam &widgetParam,
+    UserAuthCallbackCj *callbackPtr);
 
-FFI_EXPORT int32_t Ffi_UserAuth_Cancel(uint64_t contextId);
+FFI_EXPORT int32_t FfiUserAuthCancel(uint64_t contextId);
 }
 
 
