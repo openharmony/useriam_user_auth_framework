@@ -17,13 +17,15 @@
 
 using namespace OHOS::UserIam::UserAuth;
 
-void UserAuthCallbackCj::OnAcquireInfo(const int32_t module, const uint32_t acquireInfo, const Attributes &extraInfo) {
+void UserAuthCallbackCj::OnAcquireInfo(const int32_t module, const uint32_t acquireInfo, const Attributes &extraInfo)
+{
     (void) module;
     (void) acquireInfo;
     (void) extraInfo;
 }
 
-void UserAuthCallbackCj::OnResult(const int32_t result, const Attributes &extraInfo) {
+void UserAuthCallbackCj::OnResult(const int32_t result, const Attributes &extraInfo)
+{
     if (this->onResult_ == nullptr) {
         return;
     }
@@ -36,7 +38,7 @@ void UserAuthCallbackCj::OnResult(const int32_t result, const Attributes &extraI
     CUserAuthResult ret = {
         .result = result,
         .token = token.data(),
-        .tokenLen = token.size(),
+        .tokenLen = static_cast<int64_t>(token.size()),
         .authType = static_cast<uint32_t>(authType),
     };
 
