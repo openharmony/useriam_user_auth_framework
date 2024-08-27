@@ -87,7 +87,7 @@ RemoteAuthContext::RemoteAuthContext(uint64_t contextId, std::shared_ptr<Authent
       collectorNetworkId_(param.collectorNetworkId),
       executorInfoMsg_(param.executorInfoMsg)
 {
-    endPointName_ = REMOTE_AUTH_INVOKER_CONTEXT_ENDPOINT_NAME;
+    endPointName_ = REMOTE_AUTH_CONTEXT_ENDPOINT_NAME;
     needSetupConnection_ = (executorInfoMsg_.size() == 0);
     if (needSetupConnection_) {
         ThreadHandlerManager::GetInstance().CreateThreadHandler(connectionName_);
