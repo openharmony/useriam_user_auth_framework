@@ -469,7 +469,7 @@ void SoftBusManager::DoOpenConnection(const std::string &connectionName, const u
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - beginTime);
     IAM_LOGI("connection %{public}s OpenConnectionDuration %{public}" PRIu64 " ms", connectionName.c_str(),
         static_cast<uint64_t>(duration.count()));
-    trace.timeSpan = duration.count();
+    trace.timeSpan = static_cast<uint64_t>(duration.count());
     trace.operationResult = result;
     ReportRemoteConnectOpen(trace);
 
