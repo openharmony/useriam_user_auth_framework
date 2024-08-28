@@ -323,7 +323,7 @@ UserAuthResultCode UserAuthInstanceV10::InitWidgetParam(napi_env env, napi_value
 {
     napi_status ret = UserAuthNapiHelper::CheckNapiType(env, value, napi_null);
     if (ret == napi_ok) {
-        IAM_LOGI("widgetParam is null");
+        IAM_LOGE("widgetParam is null");
         std::string msgStr = "Parameter error. \"widgetParam\" is a mandatory parameter and is left unspecified.";
         return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
