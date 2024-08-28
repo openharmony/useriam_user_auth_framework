@@ -1114,7 +1114,7 @@ bool UserAuthService::CheckAuthTypeIsValid(std::vector<AuthType> authType)
 int32_t UserAuthService::RegistUserAuthSuccessEventListener(const std::vector<AuthType> &authType,
     const sptr<AuthEventListenerInterface> &listener)
 {
-    IAM_LOGE("start");
+    IAM_LOGI("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
 
@@ -1140,7 +1140,7 @@ int32_t UserAuthService::RegistUserAuthSuccessEventListener(const std::vector<Au
 int32_t UserAuthService::UnRegistUserAuthSuccessEventListener(
     const sptr<AuthEventListenerInterface> &listener)
 {
-    IAM_LOGE("start");
+    IAM_LOGI("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
 
