@@ -344,7 +344,7 @@ void SoftBusManager::ServiceSocketUnInit()
         }
     }
     for (int32_t socketId : socketIds) {
-        IAM_LOGE("service down shutdown socket %{public}d", socketId);
+        IAM_LOGI("service down shutdown socket %{public}d", socketId);
         OnShutdown(socketId, SHUTDOWN_REASON_SERVICE_DIED);
     }
 
