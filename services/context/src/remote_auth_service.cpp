@@ -154,6 +154,7 @@ uint64_t RemoteAuthServiceImpl::StartRemoteAuthContext(Authentication::Authentic
     int &lastError)
 {
     IAM_LOGI("start");
+    IF_FALSE_LOGE_AND_RETURN_VAL(contextCallback != nullptr, BAD_CONTEXT_ID);
     Attributes extraInfo;
     std::shared_ptr<Context> context = ContextFactory::CreateRemoteAuthContext(para, remoteAuthContextParam,
         contextCallback);

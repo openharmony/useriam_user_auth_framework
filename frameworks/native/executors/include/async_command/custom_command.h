@@ -37,7 +37,7 @@ protected:
 
 private:
     void SetResult(ResultCode resultCode);
-    std::shared_ptr<Attributes> attributes_;
+    std::shared_ptr<Attributes> attributes_ {nullptr};
     ResultCode result_ = ResultCode::GENERAL_ERROR;
     std::promise<void> promise_;
     std::future<void> future_;

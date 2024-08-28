@@ -305,6 +305,7 @@ int32_t RemoteExecutorProxy::OnSendData(uint64_t scheduleId, const Attributes &d
 
     MsgCallback msgCallback = [weakThis = weak_from_this(), scheduleId](const std::shared_ptr<Attributes> &reply) {
         int32_t resultCode;
+        IF_FALSE_LOGE_AND_RETURN(reply != nullptr);
         bool getResultCodeRet = reply->GetInt32Value(Attributes::ATTR_RESULT_CODE, resultCode);
         IF_FALSE_LOGE_AND_RETURN(getResultCodeRet);
 

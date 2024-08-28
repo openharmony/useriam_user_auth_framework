@@ -29,6 +29,11 @@ void UIExtensionAbilityConnection::OnAbilityConnectDone(const AppExecFwk::Elemen
     const sptr<IRemoteObject> &remoteObject, int32_t resultCode)
 {
     IAM_LOGI("on ability connected");
+    if (remoteObject == nullptr) {
+        IAM_LOGE("remoteObject is nullptr");
+        WidgetClient::Instance().ForceStopAuth();
+        return;
+    }
     connectAbilityHitrace_ = nullptr;
     MessageParcel data;
     MessageParcel reply;
