@@ -68,8 +68,8 @@ void Trace::ProcessCredChangeEvent(const ContextCallbackNotifyListener::MetaData
     }
     securityInfo.operationType = metaData.operationType;
     securityInfo.operationResult = metaData.operationResult;
-    uint64_t timeSpan = std::chrono::duration_cast<std::chrono::milliseconds>(metaData.endTime -
-        metaData.startTime).count();
+    uint64_t timeSpan = static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(metaData.endTime -
+        metaData.startTime).count());
     securityInfo.timeSpan = timeSpan;
     ReportSecurityCredChange(securityInfo);
     IAM_LOGI("start to process cred change event");
@@ -122,8 +122,8 @@ void Trace::CopyMetaDataToTraceInfo(const ContextCallbackNotifyListener::MetaDat
         info.callerType = metaData.callerType.value();
     }
     info.authResult = metaData.operationResult;
-    uint64_t timeSpan = std::chrono::duration_cast<std::chrono::milliseconds>(metaData.endTime -
-        metaData.startTime).count();
+    uint64_t timeSpan = static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(metaData.endTime -
+        metaData.startTime).count());
     info.authtimeSpan = timeSpan;
     if (metaData.authWidgetType.has_value()) {
         info.authWidgetType = metaData.authWidgetType.value();
@@ -207,8 +207,8 @@ void Trace::ProcessUserAuthFwkEvent(const ContextCallbackNotifyListener::MetaDat
         securityInfo.authFinishReason = metaData.authFinishReason.value();
     }
     securityInfo.authResult = metaData.operationResult;
-    uint64_t timeSpan = std::chrono::duration_cast<std::chrono::milliseconds>(metaData.endTime -
-        metaData.startTime).count();
+    uint64_t timeSpan = static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(metaData.endTime -
+        metaData.startTime).count());
     securityInfo.authtimeSpan = timeSpan;
     ReportSecurityUserAuthFwk(securityInfo);
     IAM_LOGI("start to process user auth fwk event");
