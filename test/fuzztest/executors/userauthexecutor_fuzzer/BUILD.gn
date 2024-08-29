@@ -33,6 +33,7 @@ ohos_fuzztest("UserAuthExecutorFuzzTest") {
     "../../../../frameworks/native/executors/include/listener",
     "../../../../common/utils",
     "../../../../common/logs",
+    "../../../../interfaces/inner_api/iam_executor",
   ]
 
   sources = [
