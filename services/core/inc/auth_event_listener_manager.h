@@ -62,7 +62,7 @@ private:
         {
             return listener->AsObject() == remoteObject_;
         }
-        sptr<IRemoteObject> remoteObject_;
+        sptr<IRemoteObject> remoteObject_ {nullptr};
     };
 
     struct FinderMap {
@@ -73,7 +73,7 @@ private:
         {
             return pair.first->AsObject() == remoteObject_;
         }
-        sptr<IRemoteObject> remoteObject_;
+        sptr<IRemoteObject> remoteObject_ {nullptr};
     };
 };
 } // namespace UserAuth

@@ -199,6 +199,7 @@ bool WidgetContext::OnStart()
         IAM_LOGE("failed to create widget schedule");
         return false;
     }
+    IF_FALSE_LOGE_AND_RETURN_VAL(schedule_ != nullptr, false);
     WidgetClient::Instance().SetWidgetContextId(GetContextId());
     WidgetClient::Instance().SetWidgetParam(para_.widgetParam);
     WidgetClient::Instance().SetAuthTypeList(para_.authTypeList);
@@ -533,6 +534,10 @@ void WidgetContext::StopAllRunTask()
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     for (auto &taskInfo : runTaskInfoList_) {
         IAM_LOGI("stop task");
+        if (taskInfo.task == nullptr) {
+            IAM_LOGE("task is null");
+            continue;
+        }
         taskInfo.task->Stop();
     }
     runTaskInfoList_.clear();
