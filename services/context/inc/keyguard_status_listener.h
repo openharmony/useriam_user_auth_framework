@@ -44,7 +44,7 @@ private:
     void UnRegisterKeyguardStatusSwitchCallback();
 
     bool isRegisterKeyguardStatus_ = false;
-    sptr<SystemAbilityListener> commonEventListener_;
+    sptr<SystemAbilityListener> commonEventListener_ {nullptr};
     std::recursive_mutex mutex_;
 };
 

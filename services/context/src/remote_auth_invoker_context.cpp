@@ -58,6 +58,7 @@ public:
         std::shared_ptr<BaseContext> callbackSharedBase = callbackWeakBase_.lock();
         IF_FALSE_LOGE_AND_RETURN(callbackSharedBase != nullptr);
 
+        IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
         callback_->OnMessage(connectionName, srcEndPoint, request, reply);
     }
 
@@ -146,6 +147,7 @@ void RemoteAuthInvokerContext::OnMessage(const std::string &connectionName, cons
     }
 
     IF_FALSE_LOGE_AND_RETURN(resultCode == ResultCode::SUCCESS);
+    IF_FALSE_LOGE_AND_RETURN(reply != nullptr);
     bool setResultCodeRet = reply->SetInt32Value(Attributes::ATTR_RESULT_CODE, ResultCode::SUCCESS);
     IF_FALSE_LOGE_AND_RETURN(setResultCodeRet);
 }
@@ -320,6 +322,7 @@ int32_t RemoteAuthInvokerContext::ProcAuthTipMsg(Attributes &message)
     bool getAcquireInfoRet = message.GetInt32Value(Attributes::ATTR_TIP_INFO, tipInfo);
     IF_FALSE_LOGE_AND_RETURN_VAL(getAcquireInfoRet, ResultCode::GENERAL_ERROR);
 
+    IF_FALSE_LOGE_AND_RETURN_VAL(callback_ != nullptr, ResultCode::GENERAL_ERROR);
     callback_->OnAcquireInfo(static_cast<ExecutorRole>(destRole), tipInfo, message.Serialize());
 
     IAM_LOGI("%{public}s success", GetDescription());

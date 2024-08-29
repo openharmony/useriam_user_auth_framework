@@ -35,8 +35,8 @@ protected:
     void OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo) override;
 
 private:
-    std::shared_ptr<Attributes> attributes_;
-    std::shared_ptr<IamHitraceHelper> iamHitraceHelper_;
+    std::shared_ptr<Attributes> attributes_ {nullptr};
+    std::shared_ptr<IamHitraceHelper> iamHitraceHelper_ {nullptr};
 };
 } // namespace UserAuth
 } // namespace UserIam

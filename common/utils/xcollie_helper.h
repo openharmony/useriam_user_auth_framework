@@ -29,7 +29,7 @@ public:
     ~XCollieHelper();
 
 private:
-    int id_;
+    int id_ = -1;
 };
 } // namespace Common
 } // namespace UserIam

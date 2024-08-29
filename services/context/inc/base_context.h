@@ -62,7 +62,7 @@ protected:
 private:
     bool Start() final;
     bool Stop() final;
-    uint64_t contextId_;
+    uint64_t contextId_ = INVALID_CONTEXT_ID;
     std::string description_;
     bool hasStarted_ = false;
     std::mutex mutex_;
