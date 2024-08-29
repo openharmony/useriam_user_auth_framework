@@ -21,6 +21,8 @@
 #include "iam_fuzz_test.h"
 #include "iam_logger.h"
 #include "user_idm_service.h"
+#include "user_idm_callback_proxy.h"
+#include "dummy_iam_callback_interface.h"
 
 #undef private
 
@@ -251,6 +253,54 @@ void FuzzClearRedundancyCredential(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzClearRedundancyCredentialInner(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    g_UserIdmService.ClearRedundancyCredentialInner();
+    IAM_LOGI("end");
+}
+
+void FuzzEnforceDelUserInner(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    int32_t userId = 100;
+    sptr<IamCallbackInterface> iamCallback = sptr<IamCallbackInterface>(new (nothrow) DummyIamCallbackInterface);
+    std::shared_ptr<ContextCallback> callbackForTrace =
+        ContextCallback::NewInstance(iamCallback, TRACE_ENFORCE_DELETE_USER);
+    std::string changeReasonTrace = parcel.ReadString();
+    g_UserIdmService.EnforceDelUserInner(userId, callbackForTrace, changeReasonTrace);
+    IAM_LOGI("end");
+}
+
+void FuzzCancelCurrentEnroll(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    g_UserIdmService.CancelCurrentEnroll();
+    g_UserIdmService.CancelCurrentEnrollIfExist();
+    IAM_LOGI("end");
+}
+
+void FuzzStartEnroll(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    Enrollment::EnrollmentPara para = {};
+    sptr<IamCallbackInterface> iamCallback = sptr<IamCallbackInterface>(new (nothrow) DummyIamCallbackInterface);
+    std::shared_ptr<ContextCallback> contextCallback = ContextCallback::NewInstance(iamCallback, TRACE_ADD_CREDENTIAL);
+    Attributes extraInfo;
+    g_UserIdmService.StartEnroll(para, contextCallback, extraInfo);
+    IAM_LOGI("end");
+}
+
+void FuzzCheckEnrollPermissionAndEnableStatus(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    sptr<IamCallbackInterface> iamCallback = sptr<IamCallbackInterface>(new (nothrow) DummyIamCallbackInterface);
+    std::shared_ptr<ContextCallback> contextCallback = ContextCallback::NewInstance(iamCallback, TRACE_ADD_CREDENTIAL);
+    AuthType authType = PIN;
+    g_UserIdmService.CheckEnrollPermissionAndEnableStatus(contextCallback, authType);
+    IAM_LOGI("end");
+}
+
 using FuzzFunc = decltype(FuzzOpenSession);
 FuzzFunc *g_fuzzFuncs[] = {
     FuzzOpenSession,
@@ -265,6 +315,11 @@ FuzzFunc *g_fuzzFuncs[] = {
     DelCredential,
     FuzzClearRedundancyCredential,
     FuzzDump,
+    FuzzClearRedundancyCredentialInner,
+    FuzzEnforceDelUserInner,
+    FuzzCancelCurrentEnroll,
+    FuzzStartEnroll,
+    FuzzCheckEnrollPermissionAndEnableStatus,
 };
 
 void UserIdmFuzzTest(const uint8_t *data, size_t size)
