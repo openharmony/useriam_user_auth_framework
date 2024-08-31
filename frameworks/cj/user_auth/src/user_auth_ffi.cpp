@@ -52,7 +52,7 @@ uint64_t FfiUserAuthStart(const CAuthParam &authParam, const CWidgetParam &widge
         authTypes.push_back(AuthType(authParam.authTypes[i]));
     }
     AuthParamInner authParamInner{
-        .challenge = std::vector<uint8_t>(authParam.challenge, authParam.challenge + authParam.authTypesLen),
+        .challenge = std::vector<uint8_t>(authParam.challenge, authParam.challenge + authParam.challengeLen),
         .authTypes = authTypes,
         .authTrustLevel = AuthTrustLevel(authParam.authTrustLevel),
     };
