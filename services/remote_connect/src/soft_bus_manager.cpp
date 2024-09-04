@@ -249,6 +249,7 @@ ResultCode SoftBusManager::ServiceSocketListen(const int32_t socketId)
     listener.OnBind = SoftBusSocketListener::OnBind;
     listener.OnShutdown = SoftBusSocketListener::OnShutdown;
     listener.OnBytes = SoftBusSocketListener::OnClientBytes;
+    listener.OnNegotiate = SoftBusSocketListener::OnNegotiate;
 
     int32_t ret = Listen(socketId, serverQos, QOS_LEN, &listener);
     if (ret != SUCCESS) {
@@ -343,7 +344,7 @@ void SoftBusManager::ServiceSocketUnInit()
         }
     }
     for (int32_t socketId : socketIds) {
-        IAM_LOGE("service down shutdown socket %{public}d", socketId);
+        IAM_LOGI("service down shutdown socket %{public}d", socketId);
         OnShutdown(socketId, SHUTDOWN_REASON_SERVICE_DIED);
     }
 
@@ -423,8 +424,10 @@ ResultCode SoftBusManager::ClientSocketBind(const int32_t socketId)
 }
 
 ResultCode SoftBusManager::DoOpenConnectionInner(const std::string &connectionName, const uint32_t tokenId,
-    const std::string &networkId)
+    const std::string &networkId, RemoteConnectOpenTrace &trace)
 {
+    trace.connectionName = connectionName;
+    trace.networkId = networkId;
     int32_t ret = SetFirstCallerTokenID(tokenId);
     if (ret != SUCCESS) {
         IAM_LOGE("SetFirstCallerTokenID fail");
@@ -435,6 +438,7 @@ ResultCode SoftBusManager::DoOpenConnectionInner(const std::string &connectionNa
         IAM_LOGE("create client socket failed.");
         return GENERAL_ERROR;
     }
+    trace.socketId = socketId;
 
     auto clientSocket = SocketFactory::CreateClientSocket(socketId, connectionName, networkId);
     if (clientSocket == nullptr) {
@@ -458,12 +462,17 @@ void SoftBusManager::DoOpenConnection(const std::string &connectionName, const u
     const std::string &networkId)
 {
     IAM_LOGI("open connection %{public}s start.", connectionName.c_str());
+    RemoteConnectOpenTrace trace = {};
     auto beginTime = std::chrono::steady_clock::now();
-    ResultCode result = DoOpenConnectionInner(connectionName, tokenId, networkId);
+    ResultCode result = DoOpenConnectionInner(connectionName, tokenId, networkId, trace);
     auto endTime = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - beginTime);
     IAM_LOGI("connection %{public}s OpenConnectionDuration %{public}" PRIu64 " ms", connectionName.c_str(),
         static_cast<uint64_t>(duration.count()));
+    trace.timeSpan = static_cast<uint64_t>(duration.count());
+    trace.operationResult = result;
+    ReportRemoteConnectOpen(trace);
+
     if (result != SUCCESS) {
         RemoteConnectListenerManager::GetInstance().OnConnectionDown(connectionName);
         IAM_LOGE("open connection %{public}s fail", connectionName.c_str());
@@ -568,7 +577,7 @@ void SoftBusManager::OnBind(int32_t socketId, PeerSocketInfo info)
         IAM_LOGE("serverSocket is nullptr.");
         return;
     }
-    
+
     serverSocket->OnBind(socketId, info);
 }
 
@@ -583,6 +592,9 @@ void SoftBusManager::OnShutdown(int32_t socketId, ShutdownReason reason)
     auto serverSocket = GetServerSocket();
     if (serverSocket != nullptr) {
         serverSocket->OnShutdown(socketId, reason);
+        RemoteConnectFaultTrace serverSocketTrace = serverSocket->GetCurrTraceInfo();
+        serverSocketTrace.reason = "Shutdown:" + std::to_string(reason);
+        ReportConnectFaultTrace(serverSocketTrace);
     }
 
     auto clientSocket = FindSocketBySocketId(socketId);
@@ -593,6 +605,9 @@ void SoftBusManager::OnShutdown(int32_t socketId, ShutdownReason reason)
     clientSocket->OnShutdown(socketId, reason);
     DeleteSocket(socketId);
     DeleteConnection(clientSocket->GetConnectionName());
+    RemoteConnectFaultTrace clientSocketTrace = clientSocket->GetCurrTraceInfo();
+    clientSocketTrace.reason = "Shutdown:" + std::to_string(reason);
+    ReportConnectFaultTrace(clientSocketTrace);
     IAM_LOGI("shutdown socket id %{public}d success.", socketId);
 }
 

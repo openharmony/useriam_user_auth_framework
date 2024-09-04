@@ -24,6 +24,8 @@
 #include "iam_logger.h"
 #include "iam_ptr.h"
 #include "iam_executor_iauth_executor_hdi.h"
+#include "framework_executor_callback.h"
+#include "collect_command.h"
 
 #undef private
 
@@ -296,6 +298,34 @@ void FuzzExecutorGetDescription(std::shared_ptr<Parcel> parcel)
     IAM_LOGI("end");
 }
 
+void FuzzExecutorUnregisterExecutorCallback(std::shared_ptr<Parcel> parcel)
+{
+    IAM_LOGI("begin");
+    g_executor->UnregisterExecutorCallback();
+    IAM_LOGI("end");
+}
+
+void FuzzExecutorRespondCallbackOnDisconnect(std::shared_ptr<Parcel> parcel)
+{
+    IAM_LOGI("begin");
+    g_executor->RespondCallbackOnDisconnect();
+    IAM_LOGI("end");
+}
+
+void FuzzExecutorGetAuthType(std::shared_ptr<Parcel> parcel)
+{
+    IAM_LOGI("begin");
+    g_executor->GetAuthType();
+    IAM_LOGI("end");
+}
+
+void FuzzExecutorGetExecutorRole(std::shared_ptr<Parcel> parcel)
+{
+    IAM_LOGI("begin");
+    g_executor->GetExecutorRole();
+    IAM_LOGI("end");
+}
+
 void FillIExecutorMessenger(std::shared_ptr<Parcel> parcel, shared_ptr<ExecutorMessenger> &messenger)
 {
     bool fillNull = parcel->ReadBool();
@@ -324,6 +354,19 @@ void FillIAttributes(std::shared_ptr<Parcel> parcel, Attributes &attributes)
     attributes.GetUint64ArrayValue(Attributes::ATTR_EXTRA_INFO, templateIdList);
     attributes.SetUint64Value(Attributes::ATTR_CALLER_UID, parcel->ReadUint64());
     attributes.SetUint32Value(Attributes::ATTR_SCHEDULE_MODE, parcel->ReadUint32());
+}
+
+void FuzzExecutorCommand(std::shared_ptr<Parcel> parcel)
+{
+    IAM_LOGI("begin");
+    uint64_t scheduleId = parcel->ReadUint64();
+    Attributes properties;
+    FillIAttributes(parcel, properties);
+    std::shared_ptr<IAsyncCommand> command =
+        Common::MakeShared<CollectCommand>(g_executor, scheduleId, properties, g_executorMessenger);
+    g_executor->AddCommand(command);
+    g_executor->RemoveCommand(command);
+    IAM_LOGI("end");
 }
 
 void FuzzFrameworkOnMessengerReady(std::shared_ptr<Parcel> parcel)
@@ -413,6 +456,85 @@ void FuzzTriggerCallback(std::shared_ptr<Parcel> parcel)
     IAM_LOGI("end");
 }
 
+std::shared_ptr<FrameworkExecutorCallback> g_frameworkExecutorCallback =
+    UserIam::Common::MakeShared<FrameworkExecutorCallback>(g_executor);
+
+void FuzzOnSendData(std::shared_ptr<Parcel> parcel)
+{
+    IAM_LOGI("begin");
+    uint64_t scheduleId = parcel->ReadUint64();
+    Attributes data;
+    FillIAttributes(parcel, data);
+    g_frameworkExecutorCallback->OnSendData(scheduleId, data);
+    IAM_LOGI("end");
+}
+
+void FuzzProcessAuthCommand(std::shared_ptr<Parcel> parcel)
+{
+    IAM_LOGI("begin");
+    uint64_t scheduleId = parcel->ReadUint64();
+    Attributes properties;
+    FillIAttributes(parcel, properties);
+    g_frameworkExecutorCallback->ProcessAuthCommand(scheduleId, properties);
+    IAM_LOGI("end");
+}
+
+void FuzzProcessIdentifyCommand(std::shared_ptr<Parcel> parcel)
+{
+    IAM_LOGI("begin");
+    uint64_t scheduleId = parcel->ReadUint64();
+    Attributes properties;
+    FillIAttributes(parcel, properties);
+    g_frameworkExecutorCallback->ProcessIdentifyCommand(scheduleId, properties);
+    IAM_LOGI("end");
+}
+
+void FuzzProcessTemplateCommand(std::shared_ptr<Parcel> parcel)
+{
+    IAM_LOGI("begin");
+    Attributes properties;
+    FillIAttributes(parcel, properties);
+    g_frameworkExecutorCallback->ProcessDeleteTemplateCommand(properties);
+    g_frameworkExecutorCallback->ProcessSetCachedTemplates(properties);
+    IAM_LOGI("end");
+}
+
+void FuzzProcessNotifyExecutorReady(std::shared_ptr<Parcel> parcel)
+{
+    IAM_LOGI("begin");
+    Attributes properties;
+    FillIAttributes(parcel, properties);
+    g_frameworkExecutorCallback->ProcessNotifyExecutorReady(properties);
+    IAM_LOGI("end");
+}
+
+void FuzzProcessGetPropertyCommand(std::shared_ptr<Parcel> parcel)
+{
+    IAM_LOGI("begin");
+    std::shared_ptr<Attributes> conditions = UserIam::Common::MakeShared<Attributes>();
+    std::shared_ptr<Attributes> values = UserIam::Common::MakeShared<Attributes>();
+    g_frameworkExecutorCallback->ProcessGetPropertyCommand(conditions, values);
+    IAM_LOGI("end");
+}
+
+void FuzzFillPropertyToAttribute(std::shared_ptr<Parcel> parcel)
+{
+    IAM_LOGI("begin");
+    std::vector<Attributes::AttributeKey> keyList = {
+        Attributes::ATTR_PIN_SUB_TYPE,
+        Attributes::ATTR_FREEZING_TIME,
+        Attributes::ATTR_REMAIN_TIMES,
+        Attributes::ATTR_ENROLL_PROGRESS,
+        Attributes::ATTR_SENSOR_INFO,
+        Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION,
+        Attributes::ATTR_ROOT
+    };
+    Property property  = {};
+    std::shared_ptr<Attributes> values = UserIam::Common::MakeShared<Attributes>();
+    g_frameworkExecutorCallback->FillPropertyToAttribute(keyList, property, values);
+    IAM_LOGI("end");
+}
+
 using FuzzFunc = decltype(FuzzFrameworkOnGetProperty);
 FuzzFunc *g_fuzzFuncs[] = {
     FuzzExecutorResetExecutor,
@@ -421,12 +543,24 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzExecutorOnFrameworkReady,
     FuzzExecutorGetExecutorHdi,
     FuzzExecutorGetDescription,
+    FuzzExecutorUnregisterExecutorCallback,
+    FuzzExecutorRespondCallbackOnDisconnect,
+    FuzzExecutorGetAuthType,
+    FuzzExecutorGetExecutorRole,
+    FuzzExecutorCommand,
     FuzzFrameworkOnMessengerReady,
     FuzzFrameworkOnBeginExecute,
     FuzzFrameworkOnEndExecute,
     FuzzFrameworkOnSetProperty,
     FuzzFrameworkOnGetProperty,
     FuzzTriggerCallback,
+    FuzzOnSendData,
+    FuzzProcessAuthCommand,
+    FuzzProcessIdentifyCommand,
+    FuzzProcessTemplateCommand,
+    FuzzProcessNotifyExecutorReady,
+    FuzzProcessGetPropertyCommand,
+    FuzzFillPropertyToAttribute,
 };
 
 void UserAuthExecutorFuzzTest(const uint8_t *data, size_t size)

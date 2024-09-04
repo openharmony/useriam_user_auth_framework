@@ -84,13 +84,13 @@ private:
     void SetServerSocket(std::shared_ptr<BaseSocket> &socket);
     void ClearServerSocket();
     ResultCode DoOpenConnectionInner(const std::string &connectionName, const uint32_t tokenId,
-        const std::string &networkId);
+        const std::string &networkId, RemoteConnectOpenTrace &trace);
 
     std::recursive_mutex mutex_;
     bool inited_ = false;
 
     std::recursive_mutex ServerSocketMutex_;
-    std::shared_ptr<BaseSocket> serverSocket_;
+    std::shared_ptr<BaseSocket> serverSocket_ {nullptr};
 
     std::recursive_mutex socketMutex_;
     std::map<int32_t, std::shared_ptr<BaseSocket>> socketMap_;
@@ -100,10 +100,10 @@ private:
     std::map<std::string, std::shared_ptr<BaseSocket>> clientSocketMap_;
 
     std::recursive_mutex deviceManagerMutex_;
-    sptr<SystemAbilityListener> deviceManagerServiceListener_;
+    sptr<SystemAbilityListener> deviceManagerServiceListener_ {nullptr};
 
     std::recursive_mutex softBusMutex_;
-    sptr<SystemAbilityListener> softBusServiceListener_;
+    sptr<SystemAbilityListener> softBusServiceListener_ {nullptr};
 };
 } // namespace UserAuth
 } // namespace UserIam

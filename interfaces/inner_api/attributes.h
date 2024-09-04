@@ -193,6 +193,8 @@ public:
         ATTR_CALLER_TYPE = 100085,
         /* auth intention */
         ATTR_AUTH_INTENTION = 100086,
+        /** Supported message version, the value type is std::vector<uint32_t>. */
+        ATTR_SUPPORTED_MSG_VERSION = 100087,
     };
 
     /**
@@ -515,7 +517,7 @@ public:
 
 private:
     class Impl;
-    std::unique_ptr<Impl> impl_;
+    std::unique_ptr<Impl> impl_ {nullptr};
 };
 } // namespace UserAuth
 } // namespace UserIam

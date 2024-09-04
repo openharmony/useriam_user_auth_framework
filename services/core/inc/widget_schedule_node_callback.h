@@ -32,12 +32,16 @@ class WidgetScheduleNodeCallback {
 public:
     virtual ~WidgetScheduleNodeCallback() = default;
     virtual bool LaunchWidget() = 0;
-    virtual void ExecuteAuthList(const std::set<AuthType> &authTypeList, bool endAfterFirstFail) = 0;
+    virtual void ExecuteAuthList(const std::set<AuthType> &authTypeList, bool endAfterFirstFail,
+        AuthIntent authIntent) = 0;
     virtual void EndAuthAsCancel() = 0;
     virtual void EndAuthAsNaviPin() = 0;
     virtual void EndAuthAsWidgetParaInvalid() = 0;
     virtual void StopAuthList(const std::vector<AuthType> &authTypeList) = 0;
     virtual void SuccessAuth(AuthType authType) = 0;
+    virtual bool AuthWidgetReload(uint32_t orientation, uint32_t needRotate, uint32_t alreadyLoad,
+        AuthType &rotateAuthType) = 0;
+    virtual void AuthWidgetReloadInit() = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam

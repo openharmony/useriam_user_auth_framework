@@ -46,7 +46,7 @@ public:
     struct ListenerInfo {
         std::string connectionName;
         std::string endPointName;
-        std::shared_ptr<ConnectionListener> listener;
+        std::shared_ptr<ConnectionListener> listener {nullptr};
 
         bool operator==(const ListenerInfo &other) const;
     };

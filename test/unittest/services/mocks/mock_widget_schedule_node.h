@@ -26,12 +26,15 @@ class MockWidgetScheduleNode final : public WidgetScheduleNode {
 public:
     MOCK_METHOD0(StartSchedule, bool());
     MOCK_METHOD0(StopSchedule, bool());
-    MOCK_METHOD2(StartAuthList, bool(const std::vector<AuthType> &authTypeList, bool endAfterFirstFail));
+    MOCK_METHOD3(StartAuthList, bool(const std::vector<AuthType> &authTypeList, bool endAfterFirstFail,
+        AuthIntent authIntent));
     MOCK_METHOD1(StopAuthList, bool(const std::vector<AuthType> &));
     MOCK_METHOD1(SuccessAuth, bool(AuthType));
     MOCK_METHOD0(NaviPinAuth, bool());
     MOCK_METHOD0(WidgetParaInvalid, bool());
     MOCK_METHOD1(SetCallback, void(std::shared_ptr<WidgetScheduleNodeCallback>));
+    MOCK_METHOD4(WidgetReload, bool(uint32_t orientation, uint32_t needRotate, uint32_t alreadyLoad,
+        AuthType &rotateAuthType));
 };
 } // namespace UserAuth
 } // namespace UserIam

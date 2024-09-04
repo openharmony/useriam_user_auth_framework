@@ -34,6 +34,7 @@
 #include "in_process_call_wrapper.h"
 #include "iam_callback_interface.h"
 #include "nocopyable.h"
+#include "widget_json.h"
 #include "widget_schedule_node.h"
 #include "ui_extension_ability_connection.h"
 
@@ -64,12 +65,16 @@ public:
 
     // WidgetScheduleNodeCallback API
     bool LaunchWidget() override;
-    void ExecuteAuthList(const std::set<AuthType> &authTypeList, bool endAfterFirstFail) override;
+    void ExecuteAuthList(const std::set<AuthType> &authTypeList, bool endAfterFirstFail,
+        AuthIntent authIntent) override;
     void EndAuthAsCancel() override;
     void EndAuthAsNaviPin() override;
     void EndAuthAsWidgetParaInvalid() override;
     void StopAuthList(const std::vector<AuthType> &authTypeList) override;
     void SuccessAuth(AuthType authType) override;
+    bool AuthWidgetReload(uint32_t orientation, uint32_t needRotate, uint32_t alreadyLoad,
+        AuthType &rotateAuthType) override;
+    void AuthWidgetReloadInit() override;
 
     void AuthResult(int32_t resultCode, int32_t authType, const Attributes &finalResult);
     void AuthTipInfo(int32_t tipInfo, int32_t authType, const Attributes &extraInfo);
@@ -79,18 +84,27 @@ protected:
     virtual bool OnStop();
 
 private:
+    struct WidgetRotatePara {
+        bool isReload {false};
+        uint32_t orientation {0};
+        uint32_t needRotate {0};
+        uint32_t alreadyLoad {0};
+        AuthType rotateAuthType {0};
+    };
     void SetLatestError(int32_t error) override;
     std::shared_ptr<Context> BuildTask(const std::vector<uint8_t> &challenge,
-        AuthType authType, AuthTrustLevel authTrustLevel, bool endAfterFirstFail);
+        AuthType authType, AuthTrustLevel authTrustLevel, bool endAfterFirstFail, AuthIntent authIntent);
     bool BuildSchedule();
-    bool ConnectExtension();
+    bool ConnectExtension(const WidgetRotatePara &widgetRotatePara);
     int32_t ConnectExtensionAbility(const AAFwk::Want &want, const std::string commandStr);
     bool DisconnectExtension();
     void End(const ResultCode &resultCode);
     std::shared_ptr<ContextCallback> GetAuthContextCallback(AuthType authType, AuthTrustLevel authTrustLevel,
         sptr<IamCallbackInterface> &callback);
     void StopAllRunTask();
-    std::string BuildStartCommand();
+    std::string BuildStartCommand(const WidgetRotatePara &widgetRotatePara);
+    void ProcessRotatePara(WidgetCmdParameters &widgetCmdParameters, const WidgetRotatePara &widgetRotatePara);
+    bool isValidRotate(const WidgetRotatePara &widgetRotatePara);
 
 private:
     struct TaskInfo {
@@ -100,7 +114,7 @@ private:
 
     struct WidgetAuthResultInfo {
         std::vector<uint8_t> token {};
-        AuthType authType { 0 };
+        AuthType authType {0};
         uint64_t credentialDigest;
         uint16_t credentialCount;
         int64_t pinExpiredInfo;
@@ -118,6 +132,9 @@ private:
     std::list<TaskInfo> runTaskInfoList_;
     sptr<UIExtensionAbilityConnection> connection_ {nullptr};
     WidgetAuthResultInfo authResultInfo_ {};
+    int32_t faceReload_ {0};
+    uint32_t widgetRotateOrientation_ {0};
+    uint32_t widgetAlreadyLoad_ {0};
 };
 } // namespace UserAuth
 } // namespace UserIam

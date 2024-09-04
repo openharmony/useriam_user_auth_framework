@@ -36,7 +36,7 @@ public:
 
 private:
     OHOS::ThreadPool pool_;
-    bool canSuspend_;
+    bool canSuspend_ = false;
 
     std::recursive_mutex mutex_;
     bool isSuspended_ = false;

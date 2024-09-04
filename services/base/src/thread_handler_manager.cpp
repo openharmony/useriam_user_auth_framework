@@ -21,6 +21,7 @@
 #include "iam_logger.h"
 #include "iam_ptr.h"
 #include "thread_handler_impl.h"
+#include "thread_handler_singleton_impl.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -36,7 +37,7 @@ ThreadHandlerManager &ThreadHandlerManager::GetInstance()
 ThreadHandlerManager::ThreadHandlerManager()
 {
     threadHandlerMap_.emplace(SINGLETON_THREAD_NAME,
-        Common::MakeShared<ThreadHandlerImpl>(SINGLETON_THREAD_NAME, false));
+        Common::MakeShared<ThreadHandlerSingletonImpl>());
 }
 
 bool ThreadHandlerManager::CreateThreadHandler(const std::string &name)

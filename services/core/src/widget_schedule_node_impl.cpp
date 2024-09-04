@@ -70,6 +70,13 @@ std::shared_ptr<FiniteStateMachine> WidgetScheduleNodeImpl::MakeFiniteStateMachi
         [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetParaInvalid(machine, event); });
     builder->MakeTransition(S_WIDGET_AUTH_RUNNING, E_WIDGET_PARA_INVALID, S_WIDGET_AUTH_FINISHED,
         [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetParaInvalid(machine, event); });
+    // Add for AuthWidget rotate
+    builder->MakeTransition(S_WIDGET_AUTH_RUNNING, E_WIDGET_RELOAD, S_WIDGET_RELOAD_WAITING,
+        [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetReloadInit(machine, event); });
+    builder->MakeTransition(S_WIDGET_WAITING, E_WIDGET_RELOAD, S_WIDGET_RELOAD_WAITING,
+        [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetReloadInit(machine, event); });
+    builder->MakeTransition(S_WIDGET_RELOAD_WAITING, E_CANCEL_AUTH, S_WIDGET_WAITING,
+        [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetReload(machine, event); });
 
     return builder->Build();
 }
@@ -102,7 +109,8 @@ bool WidgetScheduleNodeImpl::StopSchedule()
     return TryKickMachine(E_CANCEL_AUTH);
 }
 
-bool WidgetScheduleNodeImpl::StartAuthList(const std::vector<AuthType> &authTypeList, bool endAfterFirstFail)
+bool WidgetScheduleNodeImpl::StartAuthList(const std::vector<AuthType> &authTypeList, bool endAfterFirstFail,
+    AuthIntent authIntent)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     startAuthTypeList_.clear();
@@ -111,6 +119,7 @@ bool WidgetScheduleNodeImpl::StartAuthList(const std::vector<AuthType> &authType
         IAM_LOGI("Command(type:%{public}d) on result start.", authType);
     }
     endAfterFirstFail_ = endAfterFirstFail;
+    authIntent_ = authIntent;
     return TryKickMachine(E_START_AUTH);
 }
 
@@ -139,6 +148,17 @@ bool WidgetScheduleNodeImpl::WidgetParaInvalid()
 {
     std::lock_guard<std::mutex> lock(mutex_);
     return TryKickMachine(E_WIDGET_PARA_INVALID);
+}
+
+bool WidgetScheduleNodeImpl::WidgetReload(uint32_t orientation, uint32_t needRotate, uint32_t alreadyLoad,
+    AuthType &rotateAuthType)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    orientation_ = orientation;
+    needRotate_ = needRotate;
+    alreadyLoad_ = alreadyLoad;
+    rotateAuthType_ = rotateAuthType;
+    return TryKickMachine(E_WIDGET_RELOAD);
 }
 
 void WidgetScheduleNodeImpl::SetCallback(std::shared_ptr<WidgetScheduleNodeCallback> callback)
@@ -174,7 +194,7 @@ void WidgetScheduleNodeImpl::OnStartAuth(FiniteStateMachine &machine, uint32_t e
             startAuthTypeSet.emplace(authType);
         }
     }
-    callback->ExecuteAuthList(startAuthTypeSet, endAfterFirstFail_);
+    callback->ExecuteAuthList(startAuthTypeSet, endAfterFirstFail_, authIntent_);
 }
 
 void WidgetScheduleNodeImpl::OnStopAuthList(FiniteStateMachine &machine, uint32_t event)
@@ -207,6 +227,28 @@ void WidgetScheduleNodeImpl::OnWidgetParaInvalid(FiniteStateMachine &machine, ui
     auto callback = callback_.lock();
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
     callback->EndAuthAsWidgetParaInvalid();
+}
+
+void WidgetScheduleNodeImpl::OnWidgetReloadInit(FiniteStateMachine &machine, uint32_t event)
+{
+    auto callback = callback_.lock();
+    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+    IAM_LOGI("Widget need reload, init");
+    callback->AuthWidgetReloadInit();
+}
+
+void WidgetScheduleNodeImpl::OnWidgetReload(FiniteStateMachine &machine, uint32_t event)
+{
+    auto callback = callback_.lock();
+    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+    IAM_LOGI("Widget need reload");
+    const uint32_t reloadInitMs = 100;
+    auto sleepTime = std::chrono::milliseconds(reloadInitMs);
+    std::this_thread::sleep_for(sleepTime);
+    if (!callback->AuthWidgetReload(orientation_, needRotate_, alreadyLoad_, rotateAuthType_)) {
+        IAM_LOGE("Failed to reload widget, cancel Auth");
+        StopSchedule();
+    }
 }
 } // namespace UserAuth
 } // namespace UserIam

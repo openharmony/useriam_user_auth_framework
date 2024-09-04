@@ -147,6 +147,12 @@ bool IpcCommon::GetCallerName(IPCObjectStub &stub, std::string &callerName, int3
     return true;
 }
 
+bool IpcCommon::GetCallingAppID(IPCObjectStub &stub, std::string &callingAppID)
+{
+    callingAppID = "";
+    return true;
+}
+
 bool IpcCommon::CheckForegroundApplication(const std::string &bundleName)
 {
     return true;

@@ -65,7 +65,9 @@ bool ResourceNodePoolImpl::Insert(const std::shared_ptr<ResourceNode> &resource)
         if (nodeParam.count < UINT32_MAX) {
             nodeParam.count = iter->second.count + 1;
         }
-        iter->second.node->DetachFromDriver();
+        if (iter->second.node != nullptr) {
+            iter->second.node->DetachFromDriver();
+        }
     }
 
     auto result = resourceNodeMap_.insert_or_assign(executorIndex, nodeParam);
@@ -120,7 +122,7 @@ void ResourceNodePoolImpl::DeleteAll()
 {
     std::lock_guard<std::recursive_mutex> lock(poolMutex_);
     IAM_LOGI("delete all resource node begin, node num %{public}zu", resourceNodeMap_.size());
-    for (auto &pair : resourceNodeMap_) {
+    for (const auto &pair : resourceNodeMap_) {
         auto node = pair.second.node;
         if (node != nullptr) {
             node->DeleteFromDriver();

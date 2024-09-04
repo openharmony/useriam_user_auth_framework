@@ -71,11 +71,11 @@ private:
     std::string verifierNetworkId_;
     std::string collectorNetworkId_;
     std::string verifierUdid_;
-    uint32_t tokenId_;
-    uint32_t collectorTokenId_;
+    uint32_t tokenId_ = 0;
+    uint32_t collectorTokenId_ = 0;
     std::string callerName_;
-    int32_t callerType_;
-    std::shared_ptr<ContextCallback> callback_;
+    int32_t callerType_ = -1;
+    std::shared_ptr<ContextCallback> callback_ {nullptr};
 
     std::recursive_mutex mutex_;
     std::shared_ptr<Attributes> request_ = nullptr;

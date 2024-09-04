@@ -159,13 +159,14 @@ void UserAuthService::OnStart()
         IAM_LOGE("failed to publish service");
     }
     SoftBusManager::GetInstance().Start();
-    KeyguardStatusListenerManager::GetInstance().RegisterKeyguardStatusSwitchCallback();
+    KeyguardStatusListenerManager::GetInstance().RegisterCommonEventListener();
 }
 
 void UserAuthService::OnStop()
 {
     IAM_LOGI("stop service");
     SoftBusManager::GetInstance().Stop();
+    KeyguardStatusListenerManager::GetInstance().UnRegisterCommonEventListener();
 }
 
 bool UserAuthService::CheckAuthTrustLevel(AuthTrustLevel authTrustLevel)
@@ -348,8 +349,8 @@ std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(int32_t
         return nullptr;
     }
     contextCallback->SetTraceAuthType(authType);
-    contextCallback->SetTraceAuthTrustLevel(authTrustLevel);
     contextCallback->SetTraceAuthWidgetType(authType);
+    contextCallback->SetTraceAuthTrustLevel(authTrustLevel);
     contextCallback->SetTraceSdkVersion(apiVersion);
     return contextCallback;
 }
@@ -390,6 +391,7 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
     int32_t callerType = 0;
     if ((!IpcCommon::GetCallerName(*this, callerName, callerType))) {
         IAM_LOGE("get bundle name fail");
+        contextCallback->SetTraceAuthFinishReason("UserAuthService Auth GetCallerName fail");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
@@ -398,12 +400,14 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
     int32_t checkRet = CheckAuthPermissionAndParam(authType, callerType, callerName, authTrustLevel);
     if (checkRet != SUCCESS) {
         IAM_LOGE("check auth permission and param fail");
+        contextCallback->SetTraceAuthFinishReason("UserAuthService Auth CheckAuthPermissionAndParam fail");
         contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
     }
     int32_t userId;
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("get callingUserId failed");
+        contextCallback->SetTraceAuthFinishReason("UserAuthService Auth GetCallingUserId fail");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
@@ -430,6 +434,7 @@ uint64_t UserAuthService::StartAuthContext(int32_t apiVersion, Authentication::A
     auto context = ContextFactory::CreateSimpleAuthContext(para, contextCallback);
     if (context == nullptr || !ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
+        contextCallback->SetTraceAuthFinishReason("UserAuthService Auth insert context fail");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
@@ -440,34 +445,10 @@ uint64_t UserAuthService::StartAuthContext(int32_t apiVersion, Authentication::A
     if (!context->Start()) {
         int32_t errorCode = context->GetLatestError();
         IAM_LOGE("failed to start auth apiVersion:%{public}d errorCode:%{public}d", apiVersion, errorCode);
+        contextCallback->SetTraceAuthFinishReason("UserAuthService Auth start context fail");
         contextCallback->OnResult(errorCode, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    return context->GetContextId();
-}
-
-uint64_t UserAuthService::StartRemoteAuthContext(Authentication::AuthenticationPara para,
-    RemoteAuthContextParam remoteAuthContextParam, const std::shared_ptr<ContextCallback> &contextCallback,
-    int &lastError)
-{
-    IAM_LOGI("start");
-    Attributes extraInfo;
-    std::shared_ptr<Context> context = ContextFactory::CreateRemoteAuthContext(para, remoteAuthContextParam,
-        contextCallback);
-    if (context == nullptr || !ContextPool::Instance().Insert(context)) {
-        IAM_LOGE("failed to insert context");
-        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
-        return BAD_CONTEXT_ID;
-    }
-    contextCallback->SetCleaner(ContextHelper::Cleaner(context));
-
-    if (!context->Start()) {
-        lastError = context->GetLatestError();
-        IAM_LOGE("failed to start auth errorCode:%{public}d", lastError);
-        return BAD_CONTEXT_ID;
-    }
-    lastError = SUCCESS;
-    IAM_LOGI("success");
     return context->GetContextId();
 }
 
@@ -479,14 +460,18 @@ uint64_t UserAuthService::StartRemoteAuthInvokerContext(AuthParamInner authParam
         contextCallback);
     if (context == nullptr || !ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
+        contextCallback->SetTraceAuthFinishReason("UserAuthService StartRemoteAuthInvokerContext insert context fail");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
     contextCallback->SetCleaner(ContextHelper::Cleaner(context));
+    contextCallback->SetTraceRequestContextId(context->GetContextId());
+    contextCallback->SetTraceAuthContextId(context->GetContextId());
 
     if (!context->Start()) {
         int32_t errorCode = context->GetLatestError();
         IAM_LOGE("failed to start auth errorCode:%{public}d", errorCode);
+        contextCallback->SetTraceAuthFinishReason("UserAuthService StartRemoteAuthInvokerContext start context fail");
         contextCallback->OnResult(errorCode, extraInfo);
         return BAD_CONTEXT_ID;
     }
@@ -498,11 +483,13 @@ bool UserAuthService::CheckAuthPermissionAndParam(AuthType authType, AuthTrustLe
 {
     if (!CheckAuthTrustLevel(authTrustLevel)) {
         IAM_LOGE("authTrustLevel is not in correct range");
+        contextCallback->SetTraceAuthFinishReason("UserAuthService AuthUser CheckAuthTrustLevel fail");
         contextCallback->OnResult(TRUST_LEVEL_NOT_SUPPORT, extraInfo);
         return false;
     }
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("failed to check permission");
+        contextCallback->SetTraceAuthFinishReason("UserAuthService AuthUser CheckPermission fail");
         contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
         return false;
     }
@@ -520,30 +507,28 @@ uint64_t UserAuthService::AuthUser(AuthParamInner &authParam, std::optional<Remo
         IAM_LOGE("contextCallback is nullptr");
         return BAD_CONTEXT_ID;
     }
+    contextCallback->SetTraceIsRemoteAuth(remoteAuthParam.has_value());
     contextCallback->SetTraceUserId(authParam.userId);
     Attributes extraInfo;
-    std::string callerName = "";
-    int32_t callerType = 0;
-    if ((!IpcCommon::GetCallerName(*this, callerName, callerType))) {
+    Authentication::AuthenticationPara para = {};
+    if ((!IpcCommon::GetCallerName(*this, para.callerName, para.callerType))) {
         IAM_LOGE("get caller name fail");
+        contextCallback->SetTraceAuthFinishReason("UserAuthService AuthUser GetCallerName fail");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    contextCallback->SetTraceCallerName(callerName);
-    contextCallback->SetTraceCallerType(callerType);
+    contextCallback->SetTraceCallerName(para.callerName);
+    contextCallback->SetTraceCallerType(para.callerType);
     if (CheckAuthPermissionAndParam(authParam.authType, authParam.authTrustLevel, contextCallback,
         extraInfo) == false) {
         return BAD_CONTEXT_ID;
     }
-    Authentication::AuthenticationPara para = {};
     para.tokenId = IpcCommon::GetAccessTokenId(*this);
     para.userId = authParam.userId;
     para.authType = authParam.authType;
     para.atl = authParam.authTrustLevel;
     para.challenge = authParam.challenge;
     para.endAfterFirstFail = false;
-    para.callerName = callerName;
-    para.callerType = callerType;
     para.sdkVersion = INNER_API_VERSION_10000;
     para.authIntent = authParam.authIntent;
     para.isOsAccountVerified = GetAndUpateOsAccountVerifiedState(authParam.userId);
@@ -554,6 +539,7 @@ uint64_t UserAuthService::AuthUser(AuthParamInner &authParam, std::optional<Remo
     ResultCode failReason = GENERAL_ERROR;
     uint64_t contextId = AuthRemoteUser(authParam, para, remoteAuthParam.value(), contextCallback, failReason);
     if (contextId == BAD_CONTEXT_ID) {
+        contextCallback->SetTraceAuthFinishReason("UserAuthService AuthRemoteUser fail");
         contextCallback->OnResult(failReason, extraInfo);
         return BAD_CONTEXT_ID;
     }
@@ -664,7 +650,8 @@ uint64_t UserAuthService::AuthRemoteUser(AuthParamInner &authParam, Authenticati
     remoteAuthContextParam.executorInfoMsg = {};
     int32_t dummyLastError = 0;
     IAM_LOGI("start remote auth context");
-    return StartRemoteAuthContext(para, remoteAuthContextParam, contextCallback, dummyLastError);
+    return RemoteAuthService::GetInstance().StartRemoteAuthContext(
+        para, remoteAuthContextParam, contextCallback, dummyLastError);
 }
 
 uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthType authType,
@@ -686,11 +673,13 @@ uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthTy
     }
     if (authType == PIN) {
         IAM_LOGE("type not support %{public}d", authType);
+        contextCallback->SetTraceAuthFinishReason("UserAuthService Identify IsAuthTypeEnable fail");
         contextCallback->OnResult(TYPE_NOT_SUPPORT, extraInfo);
         return BAD_CONTEXT_ID;
     }
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("failed to check permission");
+        contextCallback->SetTraceAuthFinishReason("UserAuthService Identify CheckPermission fail");
         contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
         return BAD_CONTEXT_ID;
     }
@@ -702,6 +691,7 @@ uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthTy
     auto context = ContextFactory::CreateIdentifyContext(para, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
+        contextCallback->SetTraceAuthFinishReason("UserAuthService Identify insert context fail");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
@@ -710,6 +700,7 @@ uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthTy
 
     if (!context->Start()) {
         IAM_LOGE("failed to start identify");
+        contextCallback->SetTraceAuthFinishReason("UserAuthService Identify start context fail");
         contextCallback->OnResult(context->GetLatestError(), extraInfo);
         return BAD_CONTEXT_ID;
     }
@@ -842,11 +833,13 @@ uint64_t UserAuthService::StartWidgetContext(const std::shared_ptr<ContextCallba
     para.tokenId = IpcCommon::GetAccessTokenId(*this);
     if (!AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para)) {
         IAM_LOGE("init widgetContext failed");
+        contextCallback->SetTraceAuthFinishReason("UserAuthService InitWidgetContextParam fail");
         contextCallback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
     auto context = ContextFactory::CreateWidgetContext(para, contextCallback);
     if (context == nullptr || !Insert2ContextPool(context)) {
+        contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget insert context fail");
         contextCallback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
@@ -855,6 +848,7 @@ uint64_t UserAuthService::StartWidgetContext(const std::shared_ptr<ContextCallba
     if (!context->Start()) {
         int32_t errorCode = context->GetLatestError();
         IAM_LOGE("start widget context fail %{public}d", errorCode);
+        contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget start context fail");
         contextCallback->OnResult(errorCode, extraInfo);
         return BAD_CONTEXT_ID;
     }
@@ -881,7 +875,7 @@ int32_t UserAuthService::CheckValidSolution(int32_t userId, const AuthParamInner
     return SUCCESS;
 }
 
-int32_t UserAuthService::GetCallerNameAndUserId(ContextFactory::AuthWidgetContextPara &para,
+int32_t UserAuthService::GetCallerInfo(ContextFactory::AuthWidgetContextPara &para,
     std::shared_ptr<ContextCallback> &contextCallback)
 {
     std::string callerName = "";
@@ -902,6 +896,9 @@ int32_t UserAuthService::GetCallerNameAndUserId(ContextFactory::AuthWidgetContex
     }
     contextCallback->SetTraceUserId(userId);
     para.userId = userId;
+    std::string callingAppID = "";
+    static_cast<void>(IpcCommon::GetCallingAppID(*this, callingAppID));
+    para.callingAppID = callingAppID;
     return SUCCESS;
 }
 
@@ -917,29 +914,37 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParamInner &a
     ContextFactory::AuthWidgetContextPara para;
     para.sdkVersion = apiVersion;
     Attributes extraInfo;
-    int32_t checkRet = GetCallerNameAndUserId(para, contextCallback);
+    int32_t checkRet = GetCallerInfo(para, contextCallback);
     if (checkRet != SUCCESS) {
+        contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget GetCallerInfo fail");
         contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
     }
     checkRet = CheckAuthPermissionAndParam(para.userId, authParam, widgetParam);
     if (checkRet != SUCCESS) {
         IAM_LOGE("check permission and auth widget param failed");
+        contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget CheckAuthPermissionAndParam fail");
         contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
     }
 
     if (AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo) == SUCCESS) {
         IAM_LOGE("check reuse unlock result success");
+        contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget CheckReuseUnlockResult success");
         contextCallback->OnResult(SUCCESS, extraInfo);
         return REUSE_AUTH_RESULT_CONTEXT_ID;
     }
     std::vector<AuthType> validType;
     checkRet = CheckValidSolution(para.userId, authParam, widgetParam, validType);
-    if (checkRet != SUCCESS) {
+    if (checkRet != SUCCESS && checkRet != PIN_EXPIRED) {
         IAM_LOGE("check valid solution failed");
+        contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget CheckValidSolution fail");
         contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
+    }
+    if (checkRet == PIN_EXPIRED) {
+        para.isPinExpired = true;
+        validType.emplace_back(AuthType::PIN);
     }
     return StartWidgetContext(contextCallback, authParam, widgetParam, validType, para);
 }
@@ -1099,7 +1104,7 @@ bool UserAuthService::CheckAuthTypeIsValid(std::vector<AuthType> authType)
 int32_t UserAuthService::RegistUserAuthSuccessEventListener(const std::vector<AuthType> &authType,
     const sptr<AuthEventListenerInterface> &listener)
 {
-    IAM_LOGE("start");
+    IAM_LOGI("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
 
@@ -1125,7 +1130,7 @@ int32_t UserAuthService::RegistUserAuthSuccessEventListener(const std::vector<Au
 int32_t UserAuthService::UnRegistUserAuthSuccessEventListener(
     const sptr<AuthEventListenerInterface> &listener)
 {
-    IAM_LOGE("start");
+    IAM_LOGI("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
 
@@ -1242,58 +1247,6 @@ bool UserAuthService::CompleteRemoteAuthParam(RemoteAuthParam &remoteAuthParam, 
 
     IAM_LOGI("success");
     return true;
-}
-
-int32_t UserAuthService::ProcStartRemoteAuthRequest(std::string connectionName,
-    const std::shared_ptr<Attributes> &request, std::shared_ptr<Attributes> &reply)
-{
-    IAM_LOGI("start");
-    AuthParamInner authParam = {};
-    bool getAuthParamRet = RemoteMsgUtil::DecodeAuthParam(*request, authParam);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getAuthParamRet, GENERAL_ERROR);
-
-    std::string collectorNetworkId;
-    bool getCollectorNetworkIdRet = request->GetStringValue(Attributes::ATTR_COLLECTOR_NETWORK_ID, collectorNetworkId);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getCollectorNetworkIdRet, GENERAL_ERROR);
-
-    uint32_t collectorTokenId;
-    bool getCollectorTokenIdRet = request->GetUint32Value(Attributes::ATTR_COLLECTOR_TOKEN_ID, collectorTokenId);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getCollectorTokenIdRet, GENERAL_ERROR);
-
-    Authentication::AuthenticationPara para = {};
-    para.userId = authParam.userId;
-    para.authType = authParam.authType;
-    para.atl = authParam.authTrustLevel;
-    para.collectorTokenId = collectorTokenId;
-    para.challenge = authParam.challenge;
-    para.sdkVersion = INNER_API_VERSION_10000;
-
-    bool getCallerNameRet = request->GetStringValue(Attributes::ATTR_CALLER_NAME, para.callerName);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getCallerNameRet, GENERAL_ERROR);
-    bool getCallerTypeRet = request->GetInt32Value(Attributes::ATTR_CALLER_TYPE, para.callerType);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getCallerTypeRet, GENERAL_ERROR);
-
-    RemoteAuthContextParam remoteAuthContextParam;
-    remoteAuthContextParam.authType = authParam.authType;
-    remoteAuthContextParam.connectionName = connectionName;
-    remoteAuthContextParam.collectorNetworkId = collectorNetworkId;
-    remoteAuthContextParam.executorInfoMsg = request->Serialize();
-
-    sptr<IamCallbackInterface> callback(new RemoteIamCallback(connectionName));
-    IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, GENERAL_ERROR);
-
-    auto contextCallback = ContextCallback::NewInstance(callback, NO_NEED_TRACE);
-    IF_FALSE_LOGE_AND_RETURN_VAL(contextCallback != nullptr, GENERAL_ERROR);
-
-    int32_t lastError;
-    auto contextId = StartRemoteAuthContext(para, remoteAuthContextParam, contextCallback, lastError);
-    IF_FALSE_LOGE_AND_RETURN_VAL(contextId != BAD_CONTEXT_ID, lastError);
-
-    bool setContextIdRet = reply->SetUint64Value(Attributes::ATTR_CONTEXT_ID, contextId);
-    IF_FALSE_LOGE_AND_RETURN_VAL(setContextIdRet, GENERAL_ERROR);
-
-    IAM_LOGI("success");
-    return SUCCESS;
 }
 
 bool UserAuthService::GetAndUpateOsAccountVerifiedState(int32_t userId)

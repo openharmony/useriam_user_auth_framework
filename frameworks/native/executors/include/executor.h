@@ -26,6 +26,7 @@
 #include "co_auth_client_callback.h"
 #include "executor_mgr_wrapper.h"
 #include "iasync_command.h"
+#include "iam_defines.h"
 #include "iam_executor_iauth_executor_hdi.h"
 
 namespace OHOS {
@@ -54,14 +55,14 @@ private:
     void RespondCallbackOnDisconnect();
     std::recursive_mutex registerMutex_;
     std::recursive_mutex mutex_;
-    std::shared_ptr<ExecutorRegisterCallback> executorCallback_;
+    std::shared_ptr<ExecutorRegisterCallback> executorCallback_ {nullptr};
     std::set<std::shared_ptr<IAsyncCommand>> command2Respond_;
-    std::shared_ptr<ExecutorMgrWrapper> executorMgrWrapper_;
-    std::shared_ptr<IAuthExecutorHdi> executorHdi_;
+    std::shared_ptr<ExecutorMgrWrapper> executorMgrWrapper_ {nullptr};
+    std::shared_ptr<IAuthExecutorHdi> executorHdi_ {nullptr};
     std::string description_;
-    uint16_t hdiId_;
-    int32_t authType_;
-    int32_t executorRole_;
+    uint16_t hdiId_ = 0;
+    int32_t authType_ = INVALID_AUTH_TYPE;
+    int32_t executorRole_ = -1;
     std::optional<uint64_t> executorIndex_ = std::nullopt;
 };
 } // namespace UserAuth

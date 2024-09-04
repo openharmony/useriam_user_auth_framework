@@ -43,6 +43,10 @@ const std::string JSON_AUTH_EVENT = "event";
 const std::string JSON_AUTH_VERSION = "version";
 const std::string JSON_AUTH_PAYLOAD = "payload";
 const std::string JSON_AUTH_END_AFTER_FIRST_FAIL = "endAfterFirstFail";
+const std::string JSON_AUTH_INTENT = "authIntent";
+const std::string JSON_ORIENTATION = "orientation";
+const std::string JSON_NEED_ROTATE = "needRotate";
+const std::string JSON_ALREADY_LOAD = "alreadyLoad";
 const std::string JSON_LOCKOUT_DURATION = "lockoutDuration";
 const std::string JSON_REMAIN_ATTEMPTS = "remainAttempts";
 const std::string JSON_AUTH_RESULT = "result";
@@ -54,16 +58,21 @@ const std::string JSON_AUTH_CMD = "cmd";
 const std::string JSON_AUTH_PIN_SUB_TYPE = "pinSubType";
 const std::string JSON_AUTH_WINDOW_MODE = "windowModeType";
 const std::string JSON_AUTH_NAVI_BTN_TEXT = "navigationButtonText";
+const std::string JSON_WIDGET_IS_RELOAD = "isReload";
+const std::string JSON_WIDGET_ROTATE_AUTH_TYPE = "rotateAuthType";
+const std::string JSON_WIDGET_CALLING_APP_ID = "callingAppID";
 
 const std::string JSON_UI_EXTENSION_TYPE = "ability.want.params.uiExtensionType";
+const std::string JSON_UI_EXT_NODE_ANGLE = "ability.want.params.uiExtNodeAngle";
 const std::string JSON_USER_IAM_CMD_DATA = "useriamCmdData";
+const std::string JSON_SYS_DIALOG_ZORDER = "sysDialogZOrder";
 
 const std::string JSON_CHALLENGE = "challenge";
 const std::string JSON_CALLER_BUNDLE_NAME = "callingBundleName";
 const std::string JSON_CMD_EXTRA_INFO = "extraInfo";
 
 namespace {
-void GetJsonPayload(nlohmann::json &jsonPayload, const WidgetCommand::Cmd &cmd, bool setExtraInfo)
+void GetJsonPayload(nlohmann::json &jsonPayload, const WidgetCommand::Cmd &cmd)
 {
     jsonPayload[JSON_AUTH_TYPE] = cmd.type;
     if (cmd.lockoutDuration != -1) {
@@ -72,7 +81,7 @@ void GetJsonPayload(nlohmann::json &jsonPayload, const WidgetCommand::Cmd &cmd, 
     if (cmd.remainAttempts != -1) {
         jsonPayload[JSON_REMAIN_ATTEMPTS] = cmd.remainAttempts;
     }
-    if (cmd.event == CMD_NOTIFY_AUTH_RESULT) {
+    if (cmd.event == CMD_NOTIFY_AUTH_RESULT || cmd.result == PIN_EXPIRED) {
         jsonPayload[JSON_AUTH_RESULT] = cmd.result;
     }
     if (cmd.event == CMD_NOTIFY_AUTH_TIP) {
@@ -82,14 +91,12 @@ void GetJsonPayload(nlohmann::json &jsonPayload, const WidgetCommand::Cmd &cmd, 
     if (!cmd.sensorInfo.empty()) {
         jsonPayload[JSON_SENSOR_INFO] = cmd.sensorInfo;
     }
-    if (setExtraInfo) {
-        auto jsonCmdExtraInfo = nlohmann::json({{JSON_CHALLENGE, cmd.extraInfo.challenge},
+    auto jsonCmdExtraInfo = nlohmann::json({{JSON_CHALLENGE, cmd.extraInfo.challenge},
         {JSON_CALLER_BUNDLE_NAME, cmd.extraInfo.callingBundleName}});
-        jsonPayload[JSON_CMD_EXTRA_INFO] = jsonCmdExtraInfo;
-    }
+    jsonPayload[JSON_CMD_EXTRA_INFO] = jsonCmdExtraInfo;
 }
 
-void GetJsonCmd(nlohmann::json &jsonCommand, const WidgetCommand &command, bool setExtraInfo)
+void GetJsonCmd(nlohmann::json &jsonCommand, const WidgetCommand &command)
 {
     std::vector<nlohmann::json> jsonCmdList;
     for (auto &cmd : command.cmdList) {
@@ -97,7 +104,7 @@ void GetJsonCmd(nlohmann::json &jsonCommand, const WidgetCommand &command, bool 
             {JSON_AUTH_VERSION, cmd.version}
         });
         nlohmann::json jsonPayload;
-        GetJsonPayload(jsonPayload, cmd, setExtraInfo);
+        GetJsonPayload(jsonPayload, cmd);
         jsonCmd[JSON_AUTH_PAYLOAD] = jsonPayload;
         jsonCmdList.push_back(jsonCmd);
     }
@@ -116,6 +123,9 @@ void GetJsonCmd(nlohmann::json &jsonCommand, const WidgetCommand &command, bool 
     if (command.navigationButtonText != "") {
         jsonCommand[JSON_AUTH_NAVI_BTN_TEXT] = command.navigationButtonText;
     }
+    jsonCommand[JSON_WIDGET_IS_RELOAD] = command.isReload;
+    jsonCommand[JSON_WIDGET_ROTATE_AUTH_TYPE] = command.rotateAuthType;
+    jsonCommand[JSON_WIDGET_CALLING_APP_ID] = command.callingAppID;
 }
 }
 
@@ -189,20 +199,41 @@ std::string PinSubType2Str(const PinSubType &subType)
 void to_json(nlohmann::json &jsonNotice, const WidgetNotice &notice)
 {
     auto type = nlohmann::json({{JSON_AUTH_TYPE, notice.typeList},
-        {JSON_AUTH_END_AFTER_FIRST_FAIL, notice.endAfterFirstFail}});
+        {JSON_AUTH_END_AFTER_FIRST_FAIL, notice.endAfterFirstFail},
+        {JSON_AUTH_INTENT, notice.authIntent}});
     jsonNotice = nlohmann::json({{JSON_WIDGET_CTX_ID, notice.widgetContextId},
         {JSON_AUTH_EVENT, notice.event},
+        {JSON_ORIENTATION, notice.orientation},
+        {JSON_NEED_ROTATE, notice.needRotate},
+        {JSON_ALREADY_LOAD, notice.alreadyLoad},
         {JSON_AUTH_VERSION, notice.version},
         {JSON_AUTH_PAYLOAD, type}});
 }
 
+bool isNumberItem(const nlohmann::json &jsonNotice, const std::string item)
+{
+    if (jsonNotice.find(item) != jsonNotice.end() && jsonNotice[item].is_number()) {
+        return true;
+    }
+    return false;
+}
+
 void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice)
 {
-    if (jsonNotice.find(JSON_WIDGET_CTX_ID) != jsonNotice.end() && jsonNotice[JSON_WIDGET_CTX_ID].is_number()) {
+    if (isNumberItem(jsonNotice, JSON_WIDGET_CTX_ID)) {
         jsonNotice.at(JSON_WIDGET_CTX_ID).get_to(notice.widgetContextId);
     }
     if (jsonNotice.find(JSON_AUTH_EVENT) != jsonNotice.end() && jsonNotice[JSON_AUTH_EVENT].is_string()) {
         jsonNotice.at(JSON_AUTH_EVENT).get_to(notice.event);
+    }
+    if (isNumberItem(jsonNotice, JSON_ORIENTATION)) {
+        jsonNotice.at(JSON_ORIENTATION).get_to(notice.orientation);
+    }
+    if (isNumberItem(jsonNotice, JSON_NEED_ROTATE)) {
+        jsonNotice.at(JSON_NEED_ROTATE).get_to(notice.needRotate);
+    }
+    if (isNumberItem(jsonNotice, JSON_ALREADY_LOAD)) {
+        jsonNotice.at(JSON_ALREADY_LOAD).get_to(notice.alreadyLoad);
     }
     if (jsonNotice.find(JSON_AUTH_VERSION) != jsonNotice.end() && jsonNotice[JSON_AUTH_VERSION].is_string()) {
         jsonNotice.at(JSON_AUTH_VERSION).get_to(notice.version);
@@ -225,20 +256,25 @@ void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice)
         jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_END_AFTER_FIRST_FAIL].is_boolean()) {
         jsonNotice[JSON_AUTH_PAYLOAD].at(JSON_AUTH_END_AFTER_FIRST_FAIL).get_to(notice.endAfterFirstFail);
     }
+    if (isNumberItem(jsonNotice[JSON_AUTH_PAYLOAD], JSON_AUTH_INTENT)) {
+        jsonNotice[JSON_AUTH_PAYLOAD].at(JSON_AUTH_INTENT).get_to(notice.authIntent);
+    }
 }
 
 void to_json(nlohmann::json &jsonCommand, const WidgetCommand &command)
 {
-    GetJsonCmd(jsonCommand, command, true);
+    GetJsonCmd(jsonCommand, command);
 }
 
 // WidgetCmdParameters
 void to_json(nlohmann::json &jsWidgetCmdParam, const WidgetCmdParameters &widgetCmdParameters)
 {
     nlohmann::json jsonCommand;
-    GetJsonCmd(jsonCommand, widgetCmdParameters.useriamCmdData, false);
+    GetJsonCmd(jsonCommand, widgetCmdParameters.useriamCmdData);
 
     jsWidgetCmdParam = nlohmann::json({{JSON_UI_EXTENSION_TYPE, widgetCmdParameters.uiExtensionType},
+        {JSON_SYS_DIALOG_ZORDER, widgetCmdParameters.sysDialogZOrder},
+        {JSON_UI_EXT_NODE_ANGLE, widgetCmdParameters.uiExtNodeAngle},
         {JSON_USER_IAM_CMD_DATA, jsonCommand}
     });
 }

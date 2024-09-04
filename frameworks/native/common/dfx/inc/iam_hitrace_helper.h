@@ -31,7 +31,7 @@ public:
 
 private:
     int32_t GetHiTraceTaskId();
-    int32_t taskId_;
+    int32_t taskId_ = -1;
     std::string value_;
 };
 } // namespace UserAuth

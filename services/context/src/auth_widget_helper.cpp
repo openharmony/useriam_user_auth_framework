@@ -34,7 +34,7 @@ bool AuthWidgetHelper::InitWidgetContextParam(const AuthParamInner &authParam, s
     const WidgetParam &widgetParam, ContextFactory::AuthWidgetContextPara &para)
 {
     for (auto &authType : validType) {
-        ContextFactory::AuthWidgetContextPara::AuthProfile profile;
+        ContextFactory::AuthProfile profile;
         if (!GetUserAuthProfile(para.userId, authType, profile)) {
             IAM_LOGE("get user auth profile failed");
             return false;
@@ -57,7 +57,7 @@ bool AuthWidgetHelper::InitWidgetContextParam(const AuthParamInner &authParam, s
 }
 
 bool AuthWidgetHelper::GetUserAuthProfile(int32_t userId, const AuthType &authType,
-    ContextFactory::AuthWidgetContextPara::AuthProfile &profile)
+    ContextFactory::AuthProfile &profile)
 {
     Attributes values;
     auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType);
@@ -75,6 +75,10 @@ bool AuthWidgetHelper::GetUserAuthProfile(int32_t userId, const AuthType &authTy
     std::vector<uint64_t> templateIds;
     templateIds.reserve(credentialInfos.size());
     for (auto &info : credentialInfos) {
+        if (info == nullptr) {
+            IAM_LOGE("info is null");
+            continue;
+        }
         templateIds.push_back(info->GetTemplateId());
     }
     std::vector<uint32_t> uint32Keys = {
@@ -100,7 +104,7 @@ bool AuthWidgetHelper::GetUserAuthProfile(int32_t userId, const AuthType &authTy
 }
 
 bool AuthWidgetHelper::ParseAttributes(const Attributes &values, const AuthType &authType,
-    ContextFactory::AuthWidgetContextPara::AuthProfile &profile)
+    ContextFactory::AuthProfile &profile)
 {
     if (authType == AuthType::PIN) {
         if (!values.GetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, profile.pinSubType)) {

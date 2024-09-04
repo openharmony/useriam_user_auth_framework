@@ -56,6 +56,7 @@ public:
     static uint32_t GetAccessTokenId(IPCObjectStub &stub);
     static uint32_t GetTokenId(IPCObjectStub &stub);
     static bool GetCallerName(IPCObjectStub &stub, std::string &callerName, int32_t &callerType);
+    static bool GetCallingAppID(IPCObjectStub &stub, std::string &callingAppID);
     static bool CheckForegroundApplication(const std::string &bundleName);
     static bool IsOsAccountVerified(int32_t userId);
     class PeerDeathRecipient final : public IPCObjectProxy::DeathRecipient {

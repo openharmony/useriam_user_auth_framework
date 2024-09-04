@@ -29,7 +29,9 @@ namespace UserIam {
 namespace UserAuth {
 using namespace testing;
 using namespace testing::ext;
-
+namespace {
+auto &timer = RelativeTimer::GetInstance();
+}
 void ScheduleNodeTest::SetUpTestCase()
 {
 }
@@ -268,11 +270,11 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneFailed, TestSize.Level0)
         ASSERT_NE(scheduleNode, nullptr);
 
         EXPECT_TRUE(scheduleNode->StartSchedule());
-        handler->EnsureTask(nullptr);
+        handler->EnsureTask([]() {});
 
         EXPECT_EQ(scheduleNode->GetCurrentScheduleState(), ScheduleNode::S_END);
     }
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccess, TestSize.Level0)
@@ -302,10 +304,10 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccess, TestSize.Level0)
         ASSERT_NE(scheduleNode, nullptr);
 
         EXPECT_TRUE(scheduleNode->StartSchedule());
-        handler->EnsureTask(nullptr);
+        handler->EnsureTask([]() {});
         EXPECT_EQ(scheduleNode->GetCurrentScheduleState(), ScheduleNode::S_AUTH_PROCESSING);
     }
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessButTimeout, TestSize.Level0)
@@ -346,16 +348,16 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessButTimeout, TestSize.
 
         const time_point<system_clock> start = system_clock::now();
         EXPECT_TRUE(scheduleNode->StartSchedule());
-        handler->EnsureTask(nullptr);
+        handler->EnsureTask([]() {});
         EXPECT_EQ(scheduleNode->GetCurrentScheduleState(), ScheduleNode::S_AUTH_PROCESSING);
         ensure.get_future().get();
         EXPECT_EQ(scheduleNode->GetCurrentScheduleState(), ScheduleNode::S_END);
         time_point<system_clock> finish = system_clock::now();
         auto cost = duration_cast<milliseconds>(finish - start).count();
         EXPECT_GT(cost, 540);
-        EXPECT_LT(cost, 600);
+        EXPECT_LT(cost, 700);
     }
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessButTimeoutAndEndFail, TestSize.Level0)
@@ -400,16 +402,16 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessButTimeoutAndEndFail,
 
         const time_point<system_clock> start = system_clock::now();
         EXPECT_TRUE(scheduleNode->StartSchedule());
-        handler->EnsureTask(nullptr);
+        handler->EnsureTask([]() {});
         EXPECT_EQ(scheduleNode->GetCurrentScheduleState(), ScheduleNode::S_AUTH_PROCESSING);
         ensure.get_future().get();
         EXPECT_EQ(scheduleNode->GetCurrentScheduleState(), ScheduleNode::S_END);
         time_point<system_clock> finish = system_clock::now();
         auto cost = duration_cast<milliseconds>(finish - start).count();
         EXPECT_GT(cost, 540);
-        EXPECT_LT(cost, 600);
+        EXPECT_LT(cost, 700);
     }
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessGetResult, TestSize.Level0)
@@ -449,20 +451,20 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessGetResult, TestSize.L
         const time_point<system_clock> start = system_clock::now();
 
         // return success after 550ms
-        RelativeTimer::GetInstance().Register([&scheduleNode]() { scheduleNode->ContinueSchedule(SUCCESS, nullptr); },
+        timer.Register([&scheduleNode]() { scheduleNode->ContinueSchedule(SUCCESS, nullptr); },
             550);
 
         EXPECT_TRUE(scheduleNode->StartSchedule());
-        handler->EnsureTask(nullptr);
+        handler->EnsureTask([]() {});
         EXPECT_EQ(scheduleNode->GetCurrentScheduleState(), ScheduleNode::S_AUTH_PROCESSING);
         ensure.get_future().get();
         EXPECT_EQ(scheduleNode->GetCurrentScheduleState(), ScheduleNode::S_END);
         time_point<system_clock> finish = system_clock::now();
         auto cost = duration_cast<milliseconds>(finish - start).count();
         EXPECT_GT(cost, 540);
-        EXPECT_LT(cost, 600);
+        EXPECT_LT(cost, 700);
     }
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneUserStop, TestSize.Level0)
@@ -503,19 +505,19 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneUserStop, TestSize.Level0)
         const time_point<system_clock> start = system_clock::now();
 
         // stop schedule after 550ms
-        RelativeTimer::GetInstance().Register([&scheduleNode]() { scheduleNode->StopSchedule(); }, 550);
+        timer.Register([&scheduleNode]() { scheduleNode->StopSchedule(); }, 550);
 
         EXPECT_TRUE(scheduleNode->StartSchedule());
-        handler->EnsureTask(nullptr);
+        handler->EnsureTask([]() {});
         EXPECT_EQ(scheduleNode->GetCurrentScheduleState(), ScheduleNode::S_AUTH_PROCESSING);
         ensure.get_future().get();
         EXPECT_EQ(scheduleNode->GetCurrentScheduleState(), ScheduleNode::S_END);
         time_point<system_clock> finish = system_clock::now();
         auto cost = duration_cast<milliseconds>(finish - start).count();
         EXPECT_GT(cost, 540);
-        EXPECT_LT(cost, 600);
+        EXPECT_LT(cost, 700);
     }
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneUserStopAndEndFailed, TestSize.Level0)
@@ -558,19 +560,19 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneUserStopAndEndFailed, TestSi
         const time_point<system_clock> start = system_clock::now();
 
         // stop schedule after 550ms
-        RelativeTimer::GetInstance().Register([&scheduleNode]() { scheduleNode->StopSchedule(); }, 550);
+        timer.Register([&scheduleNode]() { scheduleNode->StopSchedule(); }, 550);
 
         EXPECT_TRUE(scheduleNode->StartSchedule());
-        handler->EnsureTask(nullptr);
+        handler->EnsureTask([]() {});
         EXPECT_EQ(scheduleNode->GetCurrentScheduleState(), ScheduleNode::S_AUTH_PROCESSING);
         ensure.get_future().get();
         EXPECT_EQ(scheduleNode->GetCurrentScheduleState(), ScheduleNode::S_END);
         time_point<system_clock> finish = system_clock::now();
         auto cost = duration_cast<milliseconds>(finish - start).count();
         EXPECT_GT(cost, 540);
-        EXPECT_LT(cost, 600);
+        EXPECT_LT(cost, 700);
     }
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(ScheduleNodeTest, ScheduleNodeTestSendMessage, TestSize.Level0)

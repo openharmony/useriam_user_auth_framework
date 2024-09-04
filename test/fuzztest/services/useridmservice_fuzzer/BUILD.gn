@@ -24,6 +24,8 @@ ohos_fuzztest("UserIdmServiceFuzzTest") {
     "-O0",
     "-Wno-unused-variable",
     "-fno-omit-frame-pointer",
+    "-Dprivate=public",
+    "-Dprotected=public",
   ]
 
   include_dirs = [
@@ -37,6 +39,7 @@ ohos_fuzztest("UserIdmServiceFuzzTest") {
     "../../../../frameworks/native/ipc/common_defines",
     "../../../../common/utils",
     "../../../../common/logs",
+    "../../dummy/",
   ]
 
   sources = [ "user_idm_service_fuzzer.cpp" ]

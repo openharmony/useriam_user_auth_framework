@@ -20,8 +20,6 @@
 #include <sstream>
 #include <string>
 
-#include <openssl/sha.h>
-
 #include "device_manager.h"
 #include "device_manager_util.h"
 #include "hdi_wrapper.h"
@@ -36,37 +34,18 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
-const uint32_t TRUCKED_SHA_LEN = 8;
-const uint32_t TRUCKED_CONTEXT_ID_LEN = 4;
-const uint32_t UINT8_WIDTH = 2;
-std::string GetSha256Str(const std::string &input)
-{
-    unsigned char hash[SHA256_DIGEST_LENGTH];
-    SHA256_CTX sha256;
-    SHA256_Init(&sha256);
-    SHA256_Update(&sha256, input.c_str(), input.length());
-    SHA256_Final(hash, &sha256);
-
-    // Convert hash to hex string
-    std::stringstream ss;
-    for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i) {
-        ss << std::hex << std::setw(UINT8_WIDTH) << std::setfill('0') << static_cast<uint32_t>(hash[i]);
-    }
-    return ss.str();
-}
+const uint32_t TRUCKED_NETWORK_ID_PRINT_LEN = 4;
+const uint32_t TRUCKED_CONTEXT_ID_PRINT_LEN = 4;
 } // namespace
 bool RemoteMsgUtil::GetConnectionName(uint64_t contextId, std::string &connectionName)
 {
-    std::string udid;
-    bool getLocalUdidRet = DeviceManagerUtil::GetInstance().GetLocalDeviceUdid(udid);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getLocalUdidRet, false);
-
-    std::string prefixPlain = udid + ":" + std::to_string(contextId);
-    std::string prefixHashed = GetSha256Str(prefixPlain);
+    std::string networkId;
+    bool getLocalNetworkIdRet = DeviceManagerUtil::GetInstance().GetLocalDeviceNetWorkId(networkId);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getLocalNetworkIdRet, false);
 
     std::ostringstream oss;
-    oss << prefixHashed.substr(0, TRUCKED_SHA_LEN) << ":";
-    oss << std::setw(TRUCKED_CONTEXT_ID_LEN) << std::setfill('0') << std::hex << static_cast<uint16_t>(contextId);
+    oss << networkId.substr(0, TRUCKED_NETWORK_ID_PRINT_LEN) << ":";
+    oss << std::setw(TRUCKED_CONTEXT_ID_PRINT_LEN) << std::setfill('0') << std::hex << static_cast<uint16_t>(contextId);
     connectionName = oss.str();
     return true;
 }

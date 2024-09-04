@@ -78,6 +78,7 @@ std::shared_ptr<WidgetScheduleNode> WidgetClientTest::BuildSchedule()
     EXPECT_CALL(*schedule, StopAuthList).WillRepeatedly(Return(true));
     EXPECT_CALL(*schedule, SuccessAuth).WillRepeatedly(Return(true));
     EXPECT_CALL(*schedule, NaviPinAuth).WillRepeatedly(Return(true));
+    EXPECT_CALL(*schedule, WidgetReload).WillRepeatedly(Return(true));
     return schedule;
 }
 

@@ -16,6 +16,7 @@
 
 #include <algorithm>
 
+#include "auth_widget_helper.h"
 #include "context_helper.h"
 #include "context_pool.h"
 #include "context_death_recipient.h"
@@ -29,7 +30,6 @@
 #include "widget_schedule_node_impl.h"
 #include "widget_context_callback_impl.h"
 #include "widget_client.h"
-#include "widget_json.h"
 #include "bool_wrapper.h"
 #include "double_wrapper.h"
 #include "int_wrapper.h"
@@ -48,6 +48,15 @@ namespace UserIam {
 namespace UserAuth {
 constexpr int32_t DEFAULT_VALUE = -1;
 const std::string UI_EXTENSION_TYPE_SET = "sysDialog/userAuth";
+const uint32_t SYSDIALOG_ZORDER_DEFAULT = 1;
+const uint32_t SYSDIALOG_ZORDER_UPPER = 2;
+const uint32_t ORIENTATION_LANDSCAPE = 1;
+const uint32_t ORIENTATION_PORTRAIT_INVERTED = 2;
+const uint32_t ORIENTATION_LANDSCAPE_INVERTED = 3;
+const std::string TO_PORTRAIT = "90";
+const std::string TO_INVERTED = "180";
+const std::string TO_PORTRAIT_INVERTED = "270";
+const uint32_t NOT_SUPPORT_ORIENTATION_INVERTED = 2;
 
 WidgetContext::WidgetContext(uint64_t contextId, const ContextFactory::AuthWidgetContextPara &para,
     std::shared_ptr<ContextCallback> callback)
@@ -147,7 +156,7 @@ std::shared_ptr<ContextCallback> WidgetContext::GetAuthContextCallback(AuthType 
 }
 
 std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &challenge,
-    AuthType authType, AuthTrustLevel authTrustLevel, bool endAfterFirstFail)
+    AuthType authType, AuthTrustLevel authTrustLevel, bool endAfterFirstFail, AuthIntent authIntent)
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(callerCallback_ != nullptr, nullptr);
     auto userId = para_.userId;
@@ -168,11 +177,12 @@ std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &ch
     para.endAfterFirstFail = endAfterFirstFail;
     para.callerName = para_.callerName;
     para.sdkVersion = para_.sdkVersion;
-    para.authIntent = AuthIntent::DEFAULT;
+    para.authIntent = authIntent;
     auto context = ContextFactory::CreateSimpleAuthContext(para, widgetCallback);
     if (context == nullptr || !ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
         Attributes extraInfo;
+        widgetCallback->SetTraceAuthFinishReason("WidgetContext BuildTask insert context fail");
         widgetCallback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
         return nullptr;
     }
@@ -189,6 +199,7 @@ bool WidgetContext::OnStart()
         IAM_LOGE("failed to create widget schedule");
         return false;
     }
+    IF_FALSE_LOGE_AND_RETURN_VAL(schedule_ != nullptr, false);
     WidgetClient::Instance().SetWidgetContextId(GetContextId());
     WidgetClient::Instance().SetWidgetParam(para_.widgetParam);
     WidgetClient::Instance().SetAuthTypeList(para_.authTypeList);
@@ -257,20 +268,24 @@ void WidgetContext::AuthTipInfo(int32_t tipType, int32_t authType, const Attribu
 bool WidgetContext::LaunchWidget()
 {
     IAM_LOGI("launch widget");
-    if (!ConnectExtension()) {
+    WidgetRotatePara widgetRotatePara;
+    widgetRotatePara.isReload = false;
+    widgetRotatePara.needRotate = 0;
+    if (!ConnectExtension(widgetRotatePara)) {
         IAM_LOGE("failed to launch widget.");
         return false;
     }
     return true;
 }
 
-void WidgetContext::ExecuteAuthList(const std::set<AuthType> &authTypeList, bool endAfterFirstFail)
+void WidgetContext::ExecuteAuthList(const std::set<AuthType> &authTypeList, bool endAfterFirstFail,
+    AuthIntent authIntent)
 {
     IAM_LOGI("execute auth list");
     // create task, and start it
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     for (auto &authType : authTypeList) {
-        auto task = BuildTask(para_.challenge, authType, para_.atl, endAfterFirstFail);
+        auto task = BuildTask(para_.challenge, authType, para_.atl, endAfterFirstFail, authIntent);
         if (task == nullptr) {
             IAM_LOGE("failed to create task, authType: %{public}s", AuthType2Str(authType).c_str());
             continue;
@@ -280,6 +295,10 @@ void WidgetContext::ExecuteAuthList(const std::set<AuthType> &authTypeList, bool
             static const int32_t INVALID_VAL = -1;
             WidgetClient::Instance().ReportWidgetResult(task->GetLatestError(), authType, INVALID_VAL, INVALID_VAL);
             return;
+        }
+        if (authType == FACE) {
+            faceReload_ = 1;
+            IAM_LOGI("faceReload_: %{public}d", faceReload_);
         }
         TaskInfo taskInfo {
             .authType = authType,
@@ -293,6 +312,10 @@ void WidgetContext::EndAuthAsCancel()
 {
     IAM_LOGI("end auth as cancel");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (latestError_ == COMPLEXITY_CHECK_FAILED) {
+        IAM_LOGE("complexity check failed");
+        return End(TRUST_LEVEL_NOT_SUPPORT);
+    }
     // report CANCELED to App
     End(ResultCode::CANCELED);
 }
@@ -310,6 +333,62 @@ void WidgetContext::EndAuthAsWidgetParaInvalid()
     IAM_LOGI("end auth as widget para invalid");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     End(ResultCode::INVALID_PARAMETERS);
+}
+
+void WidgetContext::AuthWidgetReloadInit()
+{
+    IAM_LOGI("auth widget reload init");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (!DisconnectExtension()) {
+        IAM_LOGE("failed to release launch widget");
+    }
+}
+
+bool WidgetContext::AuthWidgetReload(uint32_t orientation, uint32_t needRotate, uint32_t alreadyLoad,
+    AuthType &rotateAuthType)
+{
+    IAM_LOGI("auth widget reload");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    WidgetRotatePara widgetRotatePara;
+    widgetRotatePara.isReload = true;
+    widgetRotatePara.orientation = orientation;
+    widgetRotatePara.needRotate = needRotate;
+    widgetRotatePara.alreadyLoad = alreadyLoad;
+    widgetRotatePara.rotateAuthType = rotateAuthType;
+    if (alreadyLoad) {
+        widgetAlreadyLoad_ = 1;
+    }
+    if (!isValidRotate(widgetRotatePara)) {
+        IAM_LOGE("check rotate failed");
+        return false;
+    }
+    if (!ConnectExtension(widgetRotatePara)) {
+        IAM_LOGE("failed to reload widget");
+        return false;
+    }
+    return true;
+}
+
+bool WidgetContext::isValidRotate(const WidgetRotatePara &widgetRotatePara)
+{
+    IAM_LOGI("check rotate, needRotate: %{public}u, orientation: %{public}u, orientation_: %{public}u",
+        widgetRotatePara.needRotate, widgetRotatePara.orientation, widgetRotateOrientation_);
+    if (widgetRotatePara.needRotate) {
+        IAM_LOGI("check rotate, widgetAlreadyLoad_: %{public}u", widgetAlreadyLoad_);
+        if (widgetRotatePara.orientation == ORIENTATION_PORTRAIT_INVERTED && !widgetAlreadyLoad_) {
+            IAM_LOGI("only support first");
+            return true;
+        }
+        if (widgetRotatePara.orientation > widgetRotateOrientation_ &&
+            widgetRotatePara.orientation - widgetRotateOrientation_ == NOT_SUPPORT_ORIENTATION_INVERTED) {
+            return false;
+        }
+        if (widgetRotatePara.orientation < widgetRotateOrientation_ &&
+            widgetRotateOrientation_ - widgetRotatePara.orientation == NOT_SUPPORT_ORIENTATION_INVERTED) {
+            return false;
+        }
+    }
+    return true;
 }
 
 void WidgetContext::StopAuthList(const std::vector<AuthType> &authTypeList)
@@ -361,9 +440,19 @@ int32_t WidgetContext::ConnectExtensionAbility(const AAFwk::Want &want, const st
     return ret;
 }
 
-bool WidgetContext::ConnectExtension()
+bool WidgetContext::ConnectExtension(const WidgetRotatePara &widgetRotatePara)
 {
-    std::string tmp = BuildStartCommand();
+    if (widgetRotatePara.isReload) {
+        for (auto &authType : para_.authTypeList) {
+            ContextFactory::AuthProfile profile;
+            if (!AuthWidgetHelper::GetUserAuthProfile(para_.userId, authType, profile)) {
+                IAM_LOGE("get user authType:%{public}d profile failed", static_cast<int32_t>(authType));
+                return false;
+            }
+            para_.authProfileMap[authType] = profile;
+        }
+    }
+    std::string tmp = BuildStartCommand(widgetRotatePara);
     IAM_LOGI("start command: %{public}s", tmp.c_str());
 
     AAFwk::Want want;
@@ -385,7 +474,9 @@ bool WidgetContext::DisconnectExtension()
         IAM_LOGE("invalid connection handle");
         return false;
     }
+    connection_->ReleaseUIExtensionComponent();
     ErrCode ret = AAFwk::ExtensionManagerClient::GetInstance().DisconnectAbility(connection_);
+    connection_ = nullptr;
     if (ret != ERR_OK) {
         IAM_LOGE("disconnect extension ability failed ret: %{public}d.", ret);
         return false;
@@ -409,27 +500,32 @@ void WidgetContext::End(const ResultCode &resultCode)
     if (resultCode == ResultCode::SUCCESS) {
         if (!attr.SetInt32Value(Attributes::ATTR_AUTH_TYPE, authResultInfo_.authType)) {
             IAM_LOGE("set auth type failed.");
+            callerCallback_->SetTraceAuthFinishReason("WidgetContext End set authType fail");
             callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
             return;
         }
         if (authResultInfo_.token.size() > 0) {
             if (!attr.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authResultInfo_.token)) {
                 IAM_LOGE("set signature token failed.");
+                callerCallback_->SetTraceAuthFinishReason("WidgetContext End set token fail");
                 callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
                 return;
             }
         }
         if (!attr.SetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, authResultInfo_.credentialDigest)) {
             IAM_LOGE("set credential digest failed.");
+            callerCallback_->SetTraceAuthFinishReason("WidgetContext End set credentialDigest fail");
             callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
             return;
         }
         if (!attr.SetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, authResultInfo_.credentialCount)) {
             IAM_LOGE("set credential count failed.");
+            callerCallback_->SetTraceAuthFinishReason("WidgetContext End set credentialCount fail");
             callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
             return;
         }
     }
+    callerCallback_->SetTraceAuthFinishReason("WidgetContext End fail");
     callerCallback_->OnResult(resultCode, attr);
 }
 
@@ -438,12 +534,16 @@ void WidgetContext::StopAllRunTask()
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     for (auto &taskInfo : runTaskInfoList_) {
         IAM_LOGI("stop task");
+        if (taskInfo.task == nullptr) {
+            IAM_LOGE("task is null");
+            continue;
+        }
         taskInfo.task->Stop();
     }
     runTaskInfoList_.clear();
 }
 
-std::string WidgetContext::BuildStartCommand()
+std::string WidgetContext::BuildStartCommand(const WidgetRotatePara &widgetRotatePara)
 {
     WidgetCmdParameters widgetCmdParameters;
     widgetCmdParameters.uiExtensionType = UI_EXTENSION_TYPE_SET;
@@ -454,6 +554,11 @@ std::string WidgetContext::BuildStartCommand()
     auto it = para_.authProfileMap.find(AuthType::PIN);
     if (it != para_.authProfileMap.end()) {
         widgetCmdParameters.useriamCmdData.pinSubType = PinSubType2Str(static_cast<PinSubType>(it->second.pinSubType));
+    }
+    widgetCmdParameters.sysDialogZOrder = SYSDIALOG_ZORDER_DEFAULT;
+    if (ContextAppStateObserverManager::GetInstance().GetScreenLockState()) {
+        IAM_LOGI("the screen is currently locked, set zOrder");
+        widgetCmdParameters.sysDialogZOrder = SYSDIALOG_ZORDER_UPPER;
     }
     std::vector<std::string> typeList;
     for (auto &item : para_.authProfileMap) {
@@ -468,15 +573,50 @@ std::string WidgetContext::BuildStartCommand()
         if (at == AuthType::FINGERPRINT && !profile.sensorInfo.empty()) {
             cmd.sensorInfo = profile.sensorInfo;
         }
+        if (para_.isPinExpired) {
+            cmd.result = PIN_EXPIRED;
+        }
         cmd.remainAttempts = profile.remainTimes;
         cmd.lockoutDuration = profile.freezingTime;
+        WidgetCommand::ExtraInfo extraInfo {
+            .callingBundleName = para_.callingBundleName,
+            .challenge = para_.challenge
+        };
+        cmd.extraInfo = extraInfo;
         widgetCmdParameters.useriamCmdData.cmdList.push_back(cmd);
     }
     widgetCmdParameters.useriamCmdData.typeList = typeList;
-
+    widgetCmdParameters.useriamCmdData.callingAppID = para_.callingAppID;
+    ProcessRotatePara(widgetCmdParameters, widgetRotatePara);
     nlohmann::json root = widgetCmdParameters;
     std::string cmdData = root.dump();
     return cmdData;
+}
+
+void WidgetContext::ProcessRotatePara(WidgetCmdParameters &widgetCmdParameters,
+    const WidgetRotatePara &widgetRotatePara)
+{
+    if (widgetRotatePara.isReload) {
+        widgetCmdParameters.useriamCmdData.isReload = 1;
+        if (widgetRotatePara.rotateAuthType == FACE) {
+            widgetCmdParameters.useriamCmdData.isReload = faceReload_;
+        }
+        widgetCmdParameters.useriamCmdData.rotateAuthType = AuthType2Str(widgetRotatePara.rotateAuthType);
+    }
+    IAM_LOGI("needRotate: %{public}u, orientation: %{public}u", widgetRotatePara.needRotate,
+        widgetRotatePara.orientation);
+    widgetRotateOrientation_ = widgetRotatePara.orientation;
+    if (widgetRotatePara.needRotate) {
+        if (widgetRotatePara.orientation == ORIENTATION_LANDSCAPE) {
+            widgetCmdParameters.uiExtNodeAngle = TO_PORTRAIT;
+        }
+        if (widgetRotatePara.orientation == ORIENTATION_PORTRAIT_INVERTED) {
+            widgetCmdParameters.uiExtNodeAngle = TO_INVERTED;
+        }
+        if (widgetRotatePara.orientation == ORIENTATION_LANDSCAPE_INVERTED) {
+            widgetCmdParameters.uiExtNodeAngle = TO_PORTRAIT_INVERTED;
+        }
+    }
 }
 } // namespace UserAuth
 } // namespace UserIam
