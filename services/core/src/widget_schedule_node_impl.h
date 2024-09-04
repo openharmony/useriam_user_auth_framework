@@ -39,11 +39,14 @@ public:
     ~WidgetScheduleNodeImpl() override = default;
     bool StartSchedule() override;
     bool StopSchedule() override;
-    bool StartAuthList(const std::vector<AuthType> &authTypeList, bool endAfterFirstFail) override;
+    bool StartAuthList(const std::vector<AuthType> &authTypeList, bool endAfterFirstFail,
+        AuthIntent authIntent) override;
     bool StopAuthList(const std::vector<AuthType> &authTypeList) override;
     bool SuccessAuth(AuthType authType) override;
     bool NaviPinAuth() override;
     bool WidgetParaInvalid() override;
+    bool WidgetReload(uint32_t orientation, uint32_t needRotate, uint32_t alreadyLoad,
+        AuthType &rotateAuthType) override;
     void SetCallback(std::shared_ptr<WidgetScheduleNodeCallback> callback) override;
 
 protected:
@@ -54,6 +57,8 @@ protected:
     void OnSuccessAuth(FiniteStateMachine &machine, uint32_t event);
     void OnNaviPinAuth(FiniteStateMachine &machine, uint32_t event);
     void OnWidgetParaInvalid(FiniteStateMachine &machine, uint32_t event);
+    void OnWidgetReload(FiniteStateMachine &machine, uint32_t event);
+    void OnWidgetReloadInit(FiniteStateMachine &machine, uint32_t event);
 
 private:
     std::shared_ptr<FiniteStateMachine> MakeFiniteStateMachine();
@@ -70,6 +75,11 @@ private:
     bool endAfterFirstFail_ {false};
     std::vector<AuthType> stopAuthTypeList_;
     std::set<AuthType> runningAuthTypeSet_;
+    uint32_t orientation_ {0};
+    uint32_t needRotate_ {0};
+    uint32_t alreadyLoad_ {0};
+    AuthType rotateAuthType_ {0};
+    AuthIntent authIntent_ {AuthIntent::DEFAULT};
 };
 } // namespace UserAuth
 } // namespace UserIam

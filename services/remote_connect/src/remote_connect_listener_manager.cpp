@@ -49,7 +49,7 @@ ResultCode RemoteConnectListenerManager::RegisterListener(const std::string &con
     ListenerInfo info = { connectionName, endPointName, listener };
     auto it = std::find(listeners_.begin(), listeners_.end(), info);
     if (it != listeners_.end()) {
-        IAM_LOGI("listener already exist");
+        IAM_LOGE("listener already exist");
         return GENERAL_ERROR;
     }
 
@@ -73,7 +73,7 @@ ResultCode RemoteConnectListenerManager::UnregisterListener(const std::string &c
     ListenerInfo info = { connectionName, endPointName };
     auto it = std::find(listeners_.begin(), listeners_.end(), info);
     if (it == listeners_.end()) {
-        IAM_LOGI("listener not exist");
+        IAM_LOGE("listener not exist");
         return GENERAL_ERROR;
     }
 
@@ -106,6 +106,10 @@ void RemoteConnectListenerManager::OnConnectionDown(const std::string &connectio
     std::lock_guard<std::recursive_mutex> lock(listenerMutex_);
     IAM_LOGI("OnConnectionDown connectionName:%{public}s", connectionName.c_str());
     for (auto it = listeners_.begin(); it != listeners_.end(); ++it) {
+        if (it->listener == nullptr) {
+            IAM_LOGE("it->listener is null");
+            continue;
+        }
         if (it->connectionName == connectionName) {
             IAM_LOGI("notify listener endPointName:%{public}s", it->endPointName.c_str());
             it->listener->OnConnectStatus(connectionName, ConnectStatus::DISCONNECTED);
@@ -123,6 +127,10 @@ void RemoteConnectListenerManager::OnConnectionUp(const std::string &connectionN
     IAM_LOGI("OnConnectionUp connectionName:%{public}s", connectionName.c_str());
     for (auto it = listeners_.begin(); it != listeners_.end(); ++it) {
         if (it->connectionName == connectionName) {
+            if (it->listener == nullptr) {
+                IAM_LOGE("it->listener is null");
+                continue;
+            }
             IAM_LOGI("notify listener endPointName:%{public}s", it->endPointName.c_str());
             it->listener->OnConnectStatus(connectionName, ConnectStatus::CONNECTED);
         }

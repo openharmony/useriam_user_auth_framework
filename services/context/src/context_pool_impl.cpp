@@ -15,12 +15,11 @@
 
 #include "context_pool.h"
 
+#include <fcntl.h>
 #include <mutex>
 #include <set>
 #include <singleton.h>
 #include <unordered_map>
-
-#include <openssl/rand.h>
 
 #include "iam_logger.h"
 #include "iam_para2str.h"
@@ -33,6 +32,21 @@ namespace UserIam {
 namespace UserAuth {
 namespace {
 const uint32_t MAX_CONTEXT_NUM = 100;
+bool GenerateRand(uint8_t *data, size_t len)
+{
+    int fd = open("/dev/random", O_RDONLY);
+    if (fd < 0) {
+        IAM_LOGE("open read file fail");
+        return false;
+    }
+    ssize_t readLen = read(fd, data, len);
+    close(fd);
+    if (readLen < 0) {
+        IAM_LOGE("read file failed");
+        return false;
+    }
+    return static_cast<size_t>(readLen) == len;
+}
 }
 class ContextPoolImpl final : public ContextPool, public Singleton<ContextPoolImpl> {
 public:
@@ -181,7 +195,11 @@ uint64_t ContextPool::GetNewContextId()
     uint64_t contextId = 0;
     unsigned char *contextIdPtr = static_cast<unsigned char *>(static_cast<void *>(&contextId));
     for (uint32_t i = 0; i < MAX_TRY_TIMES; i++) {
-        RAND_bytes(contextIdPtr, sizeof(uint64_t));
+        bool genRandRet = GenerateRand(contextIdPtr, sizeof(uint64_t));
+        if (!genRandRet) {
+            IAM_LOGE("generate rand fail");
+            return 0;
+        }
         if (contextId == 0 || contextId == REUSE_AUTH_RESULT_CONTEXT_ID ||
             ContextPool::Instance().Select(contextId).lock() != nullptr) {
             IAM_LOGE("invalid or duplicate context id");

@@ -21,6 +21,9 @@
 #include <string>
 
 #include "attributes.h"
+#include "authentication.h"
+#include "context_callback.h"
+#include "remote_auth_context.h"
 #include "remote_connect_manager.h"
 
 namespace OHOS {
@@ -44,6 +47,10 @@ public:
         std::shared_ptr<Attributes> &reply) = 0;
     virtual int32_t ProcEndExecuteRequest(const std::shared_ptr<Attributes> &request,
         std::shared_ptr<Attributes> &reply) = 0;
+
+    virtual uint64_t StartRemoteAuthContext(Authentication::AuthenticationPara para,
+        RemoteAuthContextParam remoteAuthContextParam,
+        const std::shared_ptr<ContextCallback> &contextCallback, int &lastError);
 };
 } // namespace UserAuth
 } // namespace UserIam

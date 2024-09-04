@@ -58,6 +58,7 @@ public:
         std::shared_ptr<BaseContext> callbackSharedBase = callbackWeakBase_.lock();
         IF_FALSE_LOGE_AND_RETURN(callbackSharedBase != nullptr);
 
+        IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
         callback_->OnMessage(connectionName, srcEndPoint, request, reply);
     }
 
@@ -146,6 +147,7 @@ void RemoteAuthInvokerContext::OnMessage(const std::string &connectionName, cons
     }
 
     IF_FALSE_LOGE_AND_RETURN(resultCode == ResultCode::SUCCESS);
+    IF_FALSE_LOGE_AND_RETURN(reply != nullptr);
     bool setResultCodeRet = reply->SetInt32Value(Attributes::ATTR_RESULT_CODE, ResultCode::SUCCESS);
     IF_FALSE_LOGE_AND_RETURN(setResultCodeRet);
 }
@@ -154,10 +156,12 @@ void RemoteAuthInvokerContext::OnConnectStatus(const std::string &connectionName
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     IAM_LOGI("%{public}s start", GetDescription());
+    IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
 
     Attributes attr;
     if (connectStatus == ConnectStatus::DISCONNECTED) {
         IAM_LOGI("%{public}s connection is disconnected", GetDescription());
+        callback_->SetTraceAuthFinishReason("RemoteAuthInvokerContext OnConnectStatus disconnected");
         callback_->OnResult(ResultCode::GENERAL_ERROR, attr);
         return;
     } else {
@@ -165,6 +169,7 @@ void RemoteAuthInvokerContext::OnConnectStatus(const std::string &connectionName
         bool sendRequestRet = SendRequest();
         if (!sendRequestRet) {
             IAM_LOGE("%{public}s SendRequest failed", GetDescription());
+            callback_->SetTraceAuthFinishReason("RemoteAuthInvokerContext OnConnectStatus send message fail");
             callback_->OnResult(GENERAL_ERROR, attr);
             return;
         }
@@ -195,7 +200,13 @@ bool RemoteAuthInvokerContext::OnStart()
 
     bool getUdidRet = DeviceManagerUtil::GetInstance().GetUdidByNetworkId(verifierNetworkId_, verifierUdid_);
     IF_FALSE_LOGE_AND_RETURN_VAL(getUdidRet, false);
-
+    IF_FALSE_LOGE_AND_RETURN_VAL(callback_ != nullptr, false);
+    callback_->SetTraceIsRemoteAuth(true);
+    callback_->SetTraceRemoteUdid(verifierUdid_);
+    callback_->SetTraceConnectionName(connectionName_);
+    std::string localUdid;
+    IF_FALSE_LOGE_AND_RETURN_VAL(DeviceManagerUtil::GetInstance().GetLocalDeviceUdid(localUdid), false);
+    callback_->SetTraceLocalUdid(localUdid);
     endPointName_ = REMOTE_AUTH_INVOKER_CONTEXT_ENDPOINT_NAME;
 
     std::shared_ptr<RemoteAuthInvokerContextMessageCallback> callback =
@@ -258,6 +269,7 @@ bool RemoteAuthInvokerContext::SendRequest()
         if (resultCode != ResultCode::SUCCESS) {
             IAM_LOGE("%{public}s start remote auth failed %{public}d", GetDescription(), resultCode);
             Attributes attr;
+            callback_->SetTraceAuthFinishReason("RemoteAuthInvokerContext START_REMOTE_AUTH fail");
             callback_->OnResult(resultCode, attr);
             return;
         }
@@ -288,6 +300,8 @@ bool RemoteAuthInvokerContext::OnStop()
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     IAM_LOGI("%{public}s canceled", GetDescription());
     Attributes attr;
+    IF_FALSE_LOGE_AND_RETURN_VAL(callback_ != nullptr, false);
+    callback_->SetTraceAuthFinishReason("RemoteAuthInvokerContext OnStop");
     callback_->OnResult(ResultCode::CANCELED, attr);
     // other module is canceled by disconnecting the connection
 
@@ -308,6 +322,7 @@ int32_t RemoteAuthInvokerContext::ProcAuthTipMsg(Attributes &message)
     bool getAcquireInfoRet = message.GetInt32Value(Attributes::ATTR_TIP_INFO, tipInfo);
     IF_FALSE_LOGE_AND_RETURN_VAL(getAcquireInfoRet, ResultCode::GENERAL_ERROR);
 
+    IF_FALSE_LOGE_AND_RETURN_VAL(callback_ != nullptr, ResultCode::GENERAL_ERROR);
     callback_->OnAcquireInfo(static_cast<ExecutorRole>(destRole), tipInfo, message.Serialize());
 
     IAM_LOGI("%{public}s success", GetDescription());
@@ -370,6 +385,7 @@ int32_t RemoteAuthInvokerContext::ProcAuthResultMsg(Attributes &message)
 
     int32_t ret = ProcAuthResultMsgInner(message, authResultCode, attr);
 
+    callback_->SetTraceAuthFinishReason("RemoteAuthInvokerContext ProcAuthResultMsg");
     callback_->OnResult(authResultCode, attr);
 
     IAM_LOGI("%{public}s success", GetDescription());
@@ -382,6 +398,7 @@ void RemoteAuthInvokerContext::OnTimeOut()
     IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
 
     Attributes attr;
+    callback_->SetTraceAuthFinishReason("RemoteAuthInvokerContext OnTimeOut");
     callback_->OnResult(TIMEOUT, attr);
 }
 } // namespace UserAuth

@@ -68,7 +68,7 @@ private:
         std::shared_ptr<Attributes> values);
     const char *GetDescription();
     std::recursive_mutex mutex_;
-    std::shared_ptr<ExecutorMessenger> executorMessenger_;
+    std::shared_ptr<ExecutorMessenger> executorMessenger_ {nullptr};
     std::weak_ptr<Executor> executor_;
     std::string description_;
 };

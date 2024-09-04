@@ -317,7 +317,7 @@ int32_t UserIdmService::CancelCurrentEnroll()
     int32_t ret = GENERAL_ERROR;
     for (const auto &context : contextList) {
         if (auto ctx = context.lock(); ctx != nullptr) {
-            IAM_LOGE("stop the old context %{public}s", GET_MASKED_STRING(ctx->GetContextId()).c_str());
+            IAM_LOGI("stop the old context %{public}s", GET_MASKED_STRING(ctx->GetContextId()).c_str());
             ctx->Stop();
             ContextPool::Instance().Delete(ctx->GetContextId());
             ret = SUCCESS;
@@ -418,6 +418,7 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
         return;
     }
     SetAuthTypeTrace(credInfos, contextCallback);
+    contextCallback->OnResult(ret, extraInfo);
 
     ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos, "DeleteUser");
     if (ret != SUCCESS) {
@@ -426,7 +427,6 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
     IAM_LOGI("delete user end");
     PublishEventAdapter::PublishDeletedEvent(userId);
     PublishEventAdapter::PublishCredentialUpdatedEvent(userId, PIN, 0);
-    contextCallback->OnResult(ret, extraInfo);
 }
 
 void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
@@ -564,7 +564,7 @@ int32_t UserIdmService::EnforceDelUserInner(int32_t userId, std::shared_ptr<Cont
 
 void UserIdmService::ClearRedundancyCredentialInner()
 {
-    IAM_LOGE("start");
+    IAM_LOGI("start");
     std::vector<int32_t> accountInfo;
     int32_t ret = IpcCommon::GetAllUserId(accountInfo);
     if (ret != SUCCESS) {
@@ -603,7 +603,7 @@ void UserIdmService::ClearRedundancyCredentialInner()
 
 void UserIdmService::ClearRedundancyCredential(const sptr<IdmCallbackInterface> &callback)
 {
-    IAM_LOGE("start");
+    IAM_LOGI("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
 

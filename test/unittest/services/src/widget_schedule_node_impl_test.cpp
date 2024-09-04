@@ -22,6 +22,7 @@
 #include "mock_context.h"
 #include "widget_context.h"
 #include "iam_ptr.h"
+#include "relative_timer.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -29,7 +30,9 @@ using namespace testing::ext;
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-
+namespace {
+auto &timer = RelativeTimer::GetInstance();
+}
 static std::shared_ptr<WidgetScheduleNodeCallback> widgetContext = nullptr;
 
 class WidgetScheduleNodeImplTest : public testing::Test {
@@ -71,7 +74,7 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStartSchedule, TestSi
     EXPECT_TRUE(schedule->StartSchedule());
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStartAuthList, TestSize.Level0)
@@ -81,10 +84,10 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStartAuthList, TestSi
     std::vector<AuthType> authTypeList = {AuthType::ALL, AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT};
     schedule->SetCallback(widgetContext);
     schedule->StartSchedule();
-    EXPECT_TRUE(schedule->StartAuthList(authTypeList, true));
+    EXPECT_TRUE(schedule->StartAuthList(authTypeList, true, AuthIntent::DEFAULT));
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStopAuthList, TestSize.Level0)
@@ -94,11 +97,11 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStopAuthList, TestSiz
     std::vector<AuthType> authTypeList = {AuthType::ALL, AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT};
     schedule->SetCallback(widgetContext);
     schedule->StartSchedule();
-    schedule->StartAuthList(authTypeList, false);
+    schedule->StartAuthList(authTypeList, false, AuthIntent::DEFAULT);
     EXPECT_TRUE(schedule->StopAuthList(authTypeList));
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplSuccessAuth, TestSize.Level0)
@@ -108,11 +111,11 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplSuccessAuth, TestSize
     std::vector<AuthType> authTypeList = {AuthType::ALL, AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT};
     schedule->SetCallback(widgetContext);
     schedule->StartSchedule();
-    schedule->StartAuthList(authTypeList, true);
+    schedule->StartAuthList(authTypeList, true, AuthIntent::DEFAULT);
     EXPECT_TRUE(schedule->SuccessAuth(AuthType::PIN));
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplNaviPinAuth, TestSize.Level0)
@@ -124,7 +127,7 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplNaviPinAuth, TestSize
     EXPECT_TRUE(schedule->NaviPinAuth());
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetParaInvalid, TestSize.Level0)
@@ -136,7 +139,7 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetParaInvalid, Te
     EXPECT_TRUE(schedule->WidgetParaInvalid());
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStopSchedule, TestSize.Level0)
@@ -148,7 +151,55 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplStopSchedule, TestSiz
     EXPECT_TRUE(schedule->StopSchedule());
     widgetContext->LaunchWidget();
     auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask(nullptr);
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetReload_0001, TestSize.Level0)
+{
+    auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
+    ASSERT_NE(schedule, nullptr);
+    schedule->SetCallback(widgetContext);
+    schedule->StartSchedule();
+    uint32_t orientation = 1;
+    uint32_t needRotate = 1;
+    uint32_t alreadyLoad = 1;
+    AuthType rotateAuthType = PIN;
+    EXPECT_TRUE(schedule->WidgetReload(orientation, needRotate, alreadyLoad, rotateAuthType));
+    widgetContext->LaunchWidget();
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetReload_0002, TestSize.Level0)
+{
+    auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
+    ASSERT_NE(schedule, nullptr);
+    schedule->SetCallback(widgetContext);
+    schedule->StartSchedule();
+    uint32_t orientation = 2;
+    uint32_t needRotate = 1;
+    uint32_t alreadyLoad = 1;
+    AuthType rotateAuthType = FINGERPRINT;
+    EXPECT_TRUE(schedule->WidgetReload(orientation, needRotate, alreadyLoad, rotateAuthType));
+    widgetContext->LaunchWidget();
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetReload_0003, TestSize.Level0)
+{
+    auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
+    ASSERT_NE(schedule, nullptr);
+    schedule->SetCallback(widgetContext);
+    schedule->StartSchedule();
+    uint32_t orientation = 3;
+    uint32_t needRotate = 1;
+    uint32_t alreadyLoad = 1;
+    AuthType rotateAuthType = FACE;
+    EXPECT_TRUE(schedule->WidgetReload(orientation, needRotate, alreadyLoad, rotateAuthType));
+    widgetContext->LaunchWidget();
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
 }
 } // namespace UserAuth
 } // namespace UserIam

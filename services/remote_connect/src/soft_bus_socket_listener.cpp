@@ -24,6 +24,22 @@ namespace UserAuth {
 namespace {
 constexpr uint32_t MAX_DATA_LEN = 4096;
 }
+
+bool SoftBusSocketListener::OnNegotiate(int32_t socketId, PeerSocketInfo info)
+{
+    if (socketId <= INVALID_SOCKET_ID) {
+        IAM_LOGE("socket id invalid.");
+        return false;
+    }
+
+    if (std::string(info.pkgName) != USER_AUTH_PACKAGE_NAME) {
+        IAM_LOGE("unexpected package name %{public}s.", info.pkgName);
+        return false;
+    }
+
+    return true;
+}
+
 void SoftBusSocketListener::OnBind(int32_t socketId, PeerSocketInfo info)
 {
     IAM_LOGI("socket id is %{public}d.", socketId);

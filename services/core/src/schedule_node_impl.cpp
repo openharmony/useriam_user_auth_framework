@@ -69,6 +69,7 @@ void ScheduleNodeImpl::GetScheduleAttribute(bool isVerifier, Attributes &attribu
 
     if (isVerifier) {
         attribute.SetInt32Value(Attributes::ATTR_AUTH_INTENTION, info_.authIntent);
+        attribute.SetInt32Value(Attributes::ATTR_USER_ID, info_.userId);
         attribute.SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, info_.verifierMessage);
     } else {
         attribute.SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, info_.collectorMessage);

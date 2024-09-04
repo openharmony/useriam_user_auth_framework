@@ -87,7 +87,7 @@ RemoteAuthContext::RemoteAuthContext(uint64_t contextId, std::shared_ptr<Authent
       collectorNetworkId_(param.collectorNetworkId),
       executorInfoMsg_(param.executorInfoMsg)
 {
-    endPointName_ = REMOTE_AUTH_INVOKER_CONTEXT_ENDPOINT_NAME;
+    endPointName_ = REMOTE_AUTH_CONTEXT_ENDPOINT_NAME;
     needSetupConnection_ = (executorInfoMsg_.size() == 0);
     if (needSetupConnection_) {
         ThreadHandlerManager::GetInstance().CreateThreadHandler(connectionName_);
@@ -165,6 +165,14 @@ bool RemoteAuthContext::StartAuth()
     bool getCollectorUdidRet = DeviceManagerUtil::GetInstance().GetUdidByNetworkId(collectorNetworkId_, collectorUdid);
     IF_FALSE_LOGE_AND_RETURN_VAL(getCollectorUdidRet, false);
 
+    IF_FALSE_LOGE_AND_RETURN_VAL(callback_ != nullptr, false);
+    callback_->SetTraceRemoteUdid(collectorUdid);
+    callback_->SetTraceIsRemoteAuth(true);
+    std::string localUdid;
+    IF_FALSE_LOGE_AND_RETURN_VAL(DeviceManagerUtil::GetInstance().GetLocalDeviceUdid(localUdid), false);
+    callback_->SetTraceLocalUdid(localUdid);
+    callback_->SetTraceConnectionName(connectionName_);
+    IF_FALSE_LOGE_AND_RETURN_VAL(auth_ != nullptr, false);
     auth_->SetCollectorUdid(collectorUdid);
 
     bool startAuthRet = SimpleAuthContext::OnStart();
@@ -187,6 +195,7 @@ void RemoteAuthContext::StartAuthDelayed()
     if (!ret) {
         IAM_LOGE("%{public}s StartAuth failed, latest error %{public}d", GetDescription(), GetLatestError());
         Attributes attr;
+        callback_->SetTraceAuthFinishReason("RemoteAuthContext StartAuthDelayed fail");
         callback_->OnResult(GetLatestError(), attr);
         return;
     }
@@ -204,7 +213,7 @@ bool RemoteAuthContext::SendQueryExecutorInfoMsg()
     bool setMsgTypeRet = request->SetInt32Value(Attributes::ATTR_MSG_TYPE, QUERY_EXECUTOR_INFO);
     IF_FALSE_LOGE_AND_RETURN_VAL(setMsgTypeRet, false);
 
-    std::vector<int32_t> authTypes = { static_cast<int32_t>(authType_) };
+    std::vector<int32_t> authTypes = { authType_ };
     bool setAuthTypesRet = request->SetInt32ArrayValue(Attributes::ATTR_AUTH_TYPES, authTypes);
     IF_FALSE_LOGE_AND_RETURN_VAL(setAuthTypesRet, false);
 
@@ -228,6 +237,7 @@ bool RemoteAuthContext::SendQueryExecutorInfoMsg()
         if (resultCode != SUCCESS) {
             IAM_LOGE("%{public}s query executor info failed", GetDescription());
             Attributes attr;
+            callback_->SetTraceAuthFinishReason("RemoteAuthContext SendQueryExecutorInfoMsg QUERY_EXECUTOR_INFO fail");
             callback_->OnResult(GENERAL_ERROR, attr);
             return;
         }
@@ -283,6 +293,7 @@ void RemoteAuthContext::OnConnectStatus(const std::string &connectionName, Conne
     Attributes attr;
     if (connectStatus == ConnectStatus::DISCONNECTED) {
         IAM_LOGI("%{public}s connection is disconnected", GetDescription());
+        callback_->SetTraceAuthFinishReason("RemoteAuthContext OnConnectStatus disconnected");
         callback_->OnResult(ResultCode::GENERAL_ERROR, attr);
         return;
     } else {
@@ -290,6 +301,7 @@ void RemoteAuthContext::OnConnectStatus(const std::string &connectionName, Conne
         bool sendMsgRet = SendQueryExecutorInfoMsg();
         if (!sendMsgRet) {
             IAM_LOGE("%{public}s SendQueryExecutorInfoMsg failed", GetDescription());
+            callback_->SetTraceAuthFinishReason("RemoteAuthContext OnConnectStatus send message fail");
             callback_->OnResult(GENERAL_ERROR, attr);
             return;
         }
@@ -303,6 +315,7 @@ void RemoteAuthContext::OnTimeOut()
     IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
 
     Attributes attr;
+    callback_->SetTraceAuthFinishReason("RemoteAuthContext OnTimeOut");
     callback_->OnResult(TIMEOUT, attr);
 }
 } // namespace UserAuth

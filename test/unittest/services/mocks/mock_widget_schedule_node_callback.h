@@ -28,12 +28,16 @@ namespace UserAuth {
 class MockWidgetScheduleNodeCallback final : public WidgetScheduleNodeCallback {
 public:
     MOCK_METHOD0(LaunchWidget, bool());
-    MOCK_METHOD2(ExecuteAuthList, void(const std::set<AuthType> &authTypeList, bool endAfterFirstFail));
+    MOCK_METHOD3(ExecuteAuthList, void(const std::set<AuthType> &authTypeList, bool endAfterFirstFail,
+        AuthIntent authIntent));
     MOCK_METHOD0(EndAuthAsCancel, void());
     MOCK_METHOD0(EndAuthAsNaviPin, void());
     MOCK_METHOD0(EndAuthAsWidgetParaInvalid, void());
     MOCK_METHOD1(StopAuthList, void(const std::vector<AuthType> &authTypeList));
     MOCK_METHOD1(SuccessAuth, void(AuthType authType));
+    MOCK_METHOD4(AuthWidgetReload, bool(uint32_t orientation, uint32_t needRotate, uint32_t alreadyLoad,
+        AuthType &rotateAuthType));
+    MOCK_METHOD0(AuthWidgetReloadInit, void());
 };
 } // namespace UserAuth
 } // namespace UserIam

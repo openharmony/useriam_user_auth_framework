@@ -37,7 +37,8 @@ public:
         S_WIDGET_INIT = 0,
         S_WIDGET_WAITING = 1,
         S_WIDGET_AUTH_RUNNING = 2,
-        S_WIDGET_AUTH_FINISHED = 3
+        S_WIDGET_AUTH_FINISHED = 3,
+        S_WIDGET_RELOAD_WAITING = 4
     };
 
     enum Event : uint32_t {
@@ -47,17 +48,21 @@ public:
         E_CANCEL_AUTH = 3,
         E_COMPLETE_AUTH = 4,
         E_NAVI_PIN_AUTH = 5,
-        E_WIDGET_PARA_INVALID = 6
+        E_WIDGET_PARA_INVALID = 6,
+        E_WIDGET_RELOAD = 7
     };
 
     virtual ~WidgetScheduleNode() = default;
     virtual bool StartSchedule() = 0;
     virtual bool StopSchedule() = 0;
-    virtual bool StartAuthList(const std::vector<AuthType> &authTypeList, bool endAfterFirstFail) = 0;
+    virtual bool StartAuthList(const std::vector<AuthType> &authTypeList, bool endAfterFirstFail,
+        AuthIntent authIntent) = 0;
     virtual bool StopAuthList(const std::vector<AuthType> &authTypeList) = 0;
     virtual bool SuccessAuth(AuthType authType) = 0;
     virtual bool NaviPinAuth() = 0;
     virtual bool WidgetParaInvalid() = 0;
+    virtual bool WidgetReload(uint32_t orientation, uint32_t needRotate, uint32_t alreadyLoad,
+        AuthType &rotateAuthType) = 0;
     virtual void SetCallback(std::shared_ptr<WidgetScheduleNodeCallback> callback) = 0;
 };
 } // namespace UserAuth

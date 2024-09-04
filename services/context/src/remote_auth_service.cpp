@@ -19,14 +19,17 @@
 #include "iam_logger.h"
 #include "iam_para2str.h"
 
+#include "context_factory.h"
+#include "context_helper.h"
+#include "context_pool.h"
 #include "device_manager_util.h"
 #include "hdi_wrapper.h"
 #include "iam_defines.h"
 #include "iam_para2str.h"
 #include "iam_ptr.h"
 #include "remote_executor_stub.h"
+#include "remote_iam_callback.h"
 #include "remote_msg_util.h"
-#include "user_auth_service.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -51,8 +54,14 @@ public:
         std::shared_ptr<Attributes> &reply) override;
     int32_t ProcEndExecuteRequest(const std::shared_ptr<Attributes> &request,
         std::shared_ptr<Attributes> &reply) override;
+    
+    uint64_t StartRemoteAuthContext(Authentication::AuthenticationPara para,
+        RemoteAuthContextParam remoteAuthContextParam,
+        const std::shared_ptr<ContextCallback> &contextCallback, int &lastError) override;
 
 private:
+    std::shared_ptr<ContextCallback> GetRemoteAuthContextCallback(std::string connectionName,
+        Authentication::AuthenticationPara para);
     std::recursive_mutex mutex_;
     std::map<uint64_t, std::shared_ptr<RemoteExecutorStub>> scheduleId2executorStub_;
 };
@@ -140,16 +149,101 @@ void RemoteAuthServiceImpl::OnMessage(const std::string &connectionName, const s
     IAM_LOGI("success, msg result %{public}d", resultCode);
 }
 
+uint64_t RemoteAuthServiceImpl::StartRemoteAuthContext(Authentication::AuthenticationPara para,
+    RemoteAuthContextParam remoteAuthContextParam, const std::shared_ptr<ContextCallback> &contextCallback,
+    int &lastError)
+{
+    IAM_LOGI("start");
+    IF_FALSE_LOGE_AND_RETURN_VAL(contextCallback != nullptr, BAD_CONTEXT_ID);
+    Attributes extraInfo;
+    std::shared_ptr<Context> context = ContextFactory::CreateRemoteAuthContext(para, remoteAuthContextParam,
+        contextCallback);
+    if (context == nullptr || !ContextPool::Instance().Insert(context)) {
+        IAM_LOGE("failed to insert context");
+        contextCallback->SetTraceAuthFinishReason("RemoteAuthServiceImpl StartRemoteAuthContext insert context fail");
+        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
+    contextCallback->SetCleaner(ContextHelper::Cleaner(context));
+    contextCallback->SetTraceRequestContextId(context->GetContextId());
+    contextCallback->SetTraceAuthContextId(context->GetContextId());
+
+    if (!context->Start()) {
+        lastError = context->GetLatestError();
+        IAM_LOGE("failed to start auth errorCode:%{public}d", lastError);
+        return BAD_CONTEXT_ID;
+    }
+    lastError = SUCCESS;
+    IAM_LOGI("success");
+    return context->GetContextId();
+}
+
+std::shared_ptr<ContextCallback> RemoteAuthServiceImpl::GetRemoteAuthContextCallback(std::string connectionName,
+    Authentication::AuthenticationPara para)
+{
+    sptr<IamCallbackInterface> callback(new RemoteIamCallback(connectionName));
+    IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, nullptr);
+
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER_ALL);
+    IF_FALSE_LOGE_AND_RETURN_VAL(contextCallback != nullptr, nullptr);
+    contextCallback->SetTraceUserId(para.userId);
+    contextCallback->SetTraceAuthWidgetType(para.authType);
+    contextCallback->SetTraceAuthType(para.authType);
+    contextCallback->SetTraceAuthTrustLevel(para.atl);
+    contextCallback->SetTraceSdkVersion(para.sdkVersion);
+    contextCallback->SetTraceCallerName(para.callerName);
+    contextCallback->SetTraceCallerType(para.callerType);
+    return contextCallback;
+}
+
 int32_t RemoteAuthServiceImpl::ProcStartRemoteAuthRequest(std::string connectionName,
     const std::shared_ptr<Attributes> &request, std::shared_ptr<Attributes> &reply)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     IAM_LOGI("start");
+    AuthParamInner authParam = {};
+    bool getAuthParamRet = RemoteMsgUtil::DecodeAuthParam(*request, authParam);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getAuthParamRet, GENERAL_ERROR);
 
-    auto service = UserAuthService::GetInstance();
-    IF_FALSE_LOGE_AND_RETURN_VAL(service != nullptr, GENERAL_ERROR);
+    std::string collectorNetworkId;
+    bool getCollectorNetworkIdRet = request->GetStringValue(Attributes::ATTR_COLLECTOR_NETWORK_ID, collectorNetworkId);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getCollectorNetworkIdRet, GENERAL_ERROR);
 
-    return service->ProcStartRemoteAuthRequest(connectionName, request, reply);
+    uint32_t collectorTokenId;
+    bool getCollectorTokenIdRet = request->GetUint32Value(Attributes::ATTR_COLLECTOR_TOKEN_ID, collectorTokenId);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getCollectorTokenIdRet, GENERAL_ERROR);
+
+    Authentication::AuthenticationPara para = {};
+    para.userId = authParam.userId;
+    para.authType = authParam.authType;
+    para.atl = authParam.authTrustLevel;
+    para.collectorTokenId = collectorTokenId;
+    para.challenge = authParam.challenge;
+    para.sdkVersion = INNER_API_VERSION_10000;
+
+    bool getCallerNameRet = request->GetStringValue(Attributes::ATTR_CALLER_NAME, para.callerName);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getCallerNameRet, GENERAL_ERROR);
+    bool getCallerTypeRet = request->GetInt32Value(Attributes::ATTR_CALLER_TYPE, para.callerType);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getCallerTypeRet, GENERAL_ERROR);
+
+    RemoteAuthContextParam remoteAuthContextParam;
+    remoteAuthContextParam.authType = authParam.authType;
+    remoteAuthContextParam.connectionName = connectionName;
+    remoteAuthContextParam.collectorNetworkId = collectorNetworkId;
+    remoteAuthContextParam.executorInfoMsg = request->Serialize();
+
+    auto contextCallback = GetRemoteAuthContextCallback(connectionName, para);
+    IF_FALSE_LOGE_AND_RETURN_VAL(contextCallback != nullptr, GENERAL_ERROR);
+
+    int32_t lastError;
+    auto contextId = StartRemoteAuthContext(para, remoteAuthContextParam, contextCallback, lastError);
+    IF_FALSE_LOGE_AND_RETURN_VAL(contextId != BAD_CONTEXT_ID, lastError);
+
+    bool setContextIdRet = reply->SetUint64Value(Attributes::ATTR_CONTEXT_ID, contextId);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setContextIdRet, GENERAL_ERROR);
+
+    IAM_LOGI("success");
+    return SUCCESS;
 }
 
 int32_t RemoteAuthServiceImpl::ProcQueryExecutorInfoRequest(const std::shared_ptr<Attributes> &request,
@@ -186,15 +280,13 @@ int32_t RemoteAuthServiceImpl::ProcBeginExecuteRequest(const std::shared_ptr<Att
     std::shared_ptr<RemoteExecutorStub> executorStub = Common::MakeShared<RemoteExecutorStub>();
     IF_FALSE_LOGE_AND_RETURN_VAL(executorStub != nullptr, GENERAL_ERROR);
 
-    int32_t resultCode = executorStub->ProcBeginExecuteRequest(*request);
-    IF_FALSE_LOGE_AND_RETURN_VAL(resultCode == SUCCESS, GENERAL_ERROR);
+    RemoteExecuteTrace traceInfo;
+    traceInfo.operationResult = executorStub->ProcBeginExecuteRequest(*request, traceInfo);
+    ReportRemoteExecuteProc(traceInfo);
+    IF_FALSE_LOGE_AND_RETURN_VAL(traceInfo.operationResult == SUCCESS, GENERAL_ERROR);
 
-    uint64_t scheduleId;
-    bool getScheduleIdRet = request->GetUint64Value(Attributes::ATTR_SCHEDULE_ID, scheduleId);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getScheduleIdRet, GENERAL_ERROR);
-
-    scheduleId2executorStub_.emplace(scheduleId, executorStub);
-    IAM_LOGI("scheduleId %{public}s begin execute success", GET_MASKED_STRING(scheduleId).c_str());
+    scheduleId2executorStub_.emplace(traceInfo.scheduleId, executorStub);
+    IAM_LOGI("scheduleId %{public}s begin execute success", GET_MASKED_STRING(traceInfo.scheduleId).c_str());
     return SUCCESS;
 }
 

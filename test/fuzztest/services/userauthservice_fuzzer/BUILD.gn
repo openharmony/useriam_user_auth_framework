@@ -37,6 +37,7 @@ ohos_fuzztest("UserAuthServiceFuzzTest") {
     "../../../../frameworks/native/ipc/common_defines",
     "../../../../common/utils",
     "../../../../common/logs",
+    "../../dummy",
   ]
 
   sources = [ "user_auth_service_fuzzer.cpp" ]

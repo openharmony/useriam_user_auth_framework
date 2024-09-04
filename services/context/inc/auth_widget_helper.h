@@ -31,14 +31,14 @@ public:
         const std::vector<AuthType> &authTypeList, const AuthTrustLevel &atl, std::vector<AuthType> &validTypeList);
     static int32_t CheckReuseUnlockResult(const ContextFactory::AuthWidgetContextPara &para,
         const AuthParamInner &authParam, Attributes &extraInfo);
+    static bool GetUserAuthProfile(int32_t userId, const AuthType &authType,
+        ContextFactory::AuthProfile &profile);
 
 private:
     static const uint32_t USER_AUTH_TOKEN_LEN = 148;
 
-    static bool GetUserAuthProfile(int32_t userId, const AuthType &authType,
-        ContextFactory::AuthWidgetContextPara::AuthProfile &profile);
     static bool ParseAttributes(const Attributes &values, const AuthType &authType,
-        ContextFactory::AuthWidgetContextPara::AuthProfile &profile);
+        ContextFactory::AuthProfile &profile);
     static int32_t SetReuseUnlockResult(int32_t apiVersion, const HdiReuseUnlockInfo &info,
         Attributes &extraInfo);
 };

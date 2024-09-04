@@ -35,14 +35,14 @@ namespace UserIam {
 namespace UserAuth {
 class ContextFactory : public DelayedSingleton<ContextFactory> {
 public:
-    struct AuthWidgetContextPara {
-        struct AuthProfile {
-            int32_t pinSubType {0};
-            std::string sensorInfo {""};
-            int32_t remainTimes {0};
-            int32_t freezingTime {0};
-        };
+    struct AuthProfile {
+        int32_t pinSubType {0};
+        std::string sensorInfo {""};
+        int32_t remainTimes {0};
+        int32_t freezingTime {0};
+    };
 
+    struct AuthWidgetContextPara {
         int32_t userId {0};
         int32_t sdkVersion {0};
         uint32_t tokenId {0};
@@ -54,7 +54,10 @@ public:
         WidgetParam widgetParam {};
         std::map<AuthType, AuthProfile> authProfileMap {};
         int32_t callerType {0};
+        std::string callingAppID {""};
+        bool isPinExpired {false};
     };
+
     static std::shared_ptr<Context> CreateSimpleAuthContext(const Authentication::AuthenticationPara &para,
         const std::shared_ptr<ContextCallback> &callback);
     static std::shared_ptr<Context> CreateRemoteAuthContext(const Authentication::AuthenticationPara &para,
