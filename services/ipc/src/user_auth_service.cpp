@@ -35,7 +35,6 @@
 #include "ipc_common.h"
 #include "ipc_skeleton.h"
 #include "keyguard_status_listener.h"
-#include "system_param_manager.h"
 #include "soft_bus_manager.h"
 #include "widget_client.h"
 #include "remote_msg_util.h"
@@ -159,7 +158,6 @@ void UserAuthService::OnStart()
     if (!Publish(this)) {
         IAM_LOGE("failed to publish service");
     }
-    SystemParamManager::GetInstance().Start();
     SoftBusManager::GetInstance().Start();
     KeyguardStatusListenerManager::GetInstance().RegisterCommonEventListener();
 }
@@ -189,8 +187,7 @@ int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authTyp
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
     }
-    if ((apiVersion <= API_VERSION_8 && authType == PIN) ||
-        !SystemParamManager::GetInstance().IsAuthTypeEnable(authType)) {
+    if (apiVersion <= API_VERSION_8 && authType == PIN) {
         IAM_LOGE("authType not support");
         return TYPE_NOT_SUPPORT;
     }
@@ -369,7 +366,7 @@ int32_t UserAuthService::CheckAuthPermissionAndParam(int32_t authType, const int
         IAM_LOGE("failed to check foreground application");
         return CHECK_PERMISSION_FAILED;
     }
-    if ((authType == PIN) || !SystemParamManager::GetInstance().IsAuthTypeEnable(authType)) {
+    if (authType == PIN) {
         IAM_LOGE("authType not support");
         return TYPE_NOT_SUPPORT;
     }
@@ -494,12 +491,6 @@ bool UserAuthService::CheckAuthPermissionAndParam(AuthType authType, AuthTrustLe
         IAM_LOGE("failed to check permission");
         contextCallback->SetTraceAuthFinishReason("UserAuthService AuthUser CheckPermission fail");
         contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
-        return false;
-    }
-    if (!SystemParamManager::GetInstance().IsAuthTypeEnable(authType)) {
-        IAM_LOGE("auth type not support");
-        contextCallback->SetTraceAuthFinishReason("UserAuthService AuthUser IsAuthTypeEnable fail");
-        contextCallback->OnResult(TYPE_NOT_SUPPORT, extraInfo);
         return false;
     }
     return true;
@@ -680,7 +671,7 @@ uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthTy
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    if ((authType == PIN) || !SystemParamManager::GetInstance().IsAuthTypeEnable(authType)) {
+    if (authType == PIN) {
         IAM_LOGE("type not support %{public}d", authType);
         contextCallback->SetTraceAuthFinishReason("UserAuthService Identify IsAuthTypeEnable fail");
         contextCallback->OnResult(TYPE_NOT_SUPPORT, extraInfo);
@@ -1067,8 +1058,7 @@ int32_t UserAuthService::GetEnrolledState(int32_t apiVersion, AuthType authType,
         return CHECK_PERMISSION_FAILED;
     }
 
-    if (apiVersion < API_VERSION_12 ||
-        !SystemParamManager::GetInstance().IsAuthTypeEnable(authType)) {
+    if (apiVersion < API_VERSION_12) {
         IAM_LOGE("failed to check apiVersion");
         return TYPE_NOT_SUPPORT;
     }

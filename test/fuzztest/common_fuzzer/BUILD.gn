@@ -174,7 +174,6 @@ ohos_source_set("userauth_service_core_fuzzer") {
     "../../../services/core/src/schedule_node_impl.cpp",
     "../../../services/core/src/schedule_resource_node_listener.cpp",
     "../../../services/core/src/secure_user_info_impl.cpp",
-    "../../../services/core/src/system_param_manager.cpp",
     "../../../services/core/src/update_pin_param_impl.cpp",
     "../../../services/core/src/user_idm_database_impl.cpp",
     "../../../services/core/src/user_idm_session_controller_impl.cpp",

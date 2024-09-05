@@ -21,7 +21,6 @@
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "resource_node_pool.h"
-#include "system_param_manager.h"
 #include "user_idm_database.h"
 #include "widget_client.h"
 
@@ -141,10 +140,6 @@ int32_t AuthWidgetHelper::CheckValidSolution(int32_t userId,
     std::vector<int32_t> validTypes;
     uint32_t inputAtl = atl;
     for (auto &type : authTypeList) {
-        if (!SystemParamManager::GetInstance().IsAuthTypeEnable(type)) {
-            IAM_LOGE("authType:%{public}d not enable", type);
-            continue;
-        }
         inputAuthType.emplace_back(static_cast<int32_t>(type));
     }
     int32_t result = hdi->GetValidSolution(userId, inputAuthType, inputAtl, validTypes);
