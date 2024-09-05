@@ -12,4 +12,3 @@
 # limitations under the License.
 
 bootevent.useriam.fwkready=useriam:useriam:0755
-persist.useriam.enable.fingerprintauth=useriam:useriam:0775

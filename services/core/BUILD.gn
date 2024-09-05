@@ -72,7 +72,6 @@ ohos_source_set("userauth_service_core") {
     "src/schedule_node_impl.cpp",
     "src/schedule_resource_node_listener.cpp",
     "src/secure_user_info_impl.cpp",
-    "src/system_param_manager.cpp",
     "src/update_pin_param_impl.cpp",
     "src/user_idm_database_impl.cpp",
     "src/user_idm_session_controller_impl.cpp",
