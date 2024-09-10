@@ -86,6 +86,16 @@ void Executor::OnFrameworkReady()
     RegisterExecutorCallback(executorInfo);
 }
 
+bool Executor::IsExecutorRegistered()
+{
+    std::lock_guard<std::recursive_mutex> lockExecutorIndex(mutex_);
+    if (executorIndex_.has_value()) {
+        IAM_LOGI("%{public}s executor already registered", GetDescription());
+        return true;
+    }
+    return false;
+}
+
 void Executor::RegisterExecutorCallback(ExecutorInfo &executorInfo)
 {
     IAM_LOGI("%{public}s start", GetDescription());
