@@ -102,6 +102,7 @@ void Executor::RegisterExecutorCallback(ExecutorInfo &executorInfo)
             IF_FALSE_LOGE_AND_RETURN(executorCallback_ != nullptr);
         }
         executorCallback = executorCallback_;
+
         if (executorIndex_.has_value()) {
             isExecutorRegistered = true;
         }
