@@ -44,6 +44,7 @@ public:
     void AddCommand(std::shared_ptr<IAsyncCommand> command);
     void RemoveCommand(std::shared_ptr<IAsyncCommand> command);
     void SetExecutorIndex(uint64_t executorIndex);
+    1
     std::shared_ptr<IAuthExecutorHdi> GetExecutorHdi();
     const char *GetDescription();
     int32_t GetAuthType() const;
@@ -53,7 +54,6 @@ private:
     void RegisterExecutorCallback(ExecutorInfo &executorInfo);
     void UnregisterExecutorCallback();
     void RespondCallbackOnDisconnect();
-    bool IsExecutorRegistered();
     std::recursive_mutex registerMutex_;
     std::recursive_mutex mutex_;
     std::shared_ptr<ExecutorRegisterCallback> executorCallback_ {nullptr};
