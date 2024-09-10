@@ -54,6 +54,7 @@ private:
     void RegisterExecutorCallback(ExecutorInfo &executorInfo);
     void UnregisterExecutorCallback();
     void RespondCallbackOnDisconnect();
+    bool IsExecutorRegistered();
     std::recursive_mutex registerMutex_;
     std::recursive_mutex mutex_;
     std::shared_ptr<ExecutorRegisterCallback> executorCallback_ {nullptr};
