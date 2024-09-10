@@ -86,16 +86,6 @@ void Executor::OnFrameworkReady()
     RegisterExecutorCallback(executorInfo);
 }
 
-bool Executor::IsExecutorRegistered()
-{
-    std::lock_guard<std::recursive_mutex> lockExecutorIndex(mutex_);
-    if (executorIndex_.has_value()) {
-        IAM_LOGI("%{public}s executor already registered", GetDescription());
-        return true;
-    }
-    return false;
-}
-
 void Executor::RegisterExecutorCallback(ExecutorInfo &executorInfo)
 {
     IAM_LOGI("%{public}s start", GetDescription());
@@ -104,6 +94,7 @@ void Executor::RegisterExecutorCallback(ExecutorInfo &executorInfo)
         Common::CombineUint16ToUint32(hdiId_, static_cast<uint16_t>(executorInfo.executorSensorHint));
     executorInfo.executorSensorHint = combineExecutorId;
     std::shared_ptr<ExecutorRegisterCallback> executorCallback = nullptr;
+    bool isExecutorRegistered = false;
     {
         std::lock_guard<std::recursive_mutex> lockCallback(mutex_);
         if (executorCallback_ == nullptr) {
@@ -111,8 +102,12 @@ void Executor::RegisterExecutorCallback(ExecutorInfo &executorInfo)
             IF_FALSE_LOGE_AND_RETURN(executorCallback_ != nullptr);
         }
         executorCallback = executorCallback_;
+
+        if (executorIndex_.has_value()) {
+            isExecutorRegistered = true;
+        }
     }
-    if (IsExecutorRegistered()) {
+    if (isExecutorRegistered) {
         IAM_LOGI("%{public}s executor already registered, try unregister", GetDescription());
         UnregisterExecutorCallback();
     }
