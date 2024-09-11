@@ -115,14 +115,16 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetAvailableStatusStub002, TestSize.Level
     AuthType testAuthType = FACE;
     AuthTrustLevel testAuthTrustLevel = ATL3;
     int32_t testApiVersion = 8;
-    EXPECT_CALL(service, GetAvailableStatus(_, _, _)).Times(1);
+    int32_t testUserId = 100;
+    EXPECT_CALL(service, GetAvailableStatus(_, _, _, _)).Times(1);
     ON_CALL(service, GetAvailableStatus)
         .WillByDefault(
-            [&testAuthType, &testAuthTrustLevel, &testApiVersion](int32_t apiVersion, AuthType authType,
-                AuthTrustLevel authTrustLevel) {
+            [&testApiVersion, &testUserId, &testAuthType, &testAuthTrustLevel](int32_t apiVersion, int32_t userId,
+                AuthType authType, AuthTrustLevel authTrustLevel) {
                 EXPECT_EQ(apiVersion, testApiVersion);
                 EXPECT_EQ(authType, testAuthType);
                 EXPECT_EQ(authTrustLevel, testAuthTrustLevel);
+                EXPECT_EQ(userId, testUserId);
                 return SUCCESS;
             }
         );

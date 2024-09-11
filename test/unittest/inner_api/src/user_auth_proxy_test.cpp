@@ -87,15 +87,16 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyGetAvailableStatus, TestSize.Level0)
     static const int32_t testApiVersion = 0;
     static const AuthType testAuthType = FACE;
     static const AuthTrustLevel testAuthTrustLevel = ATL3;
+    static const int32_t testUserId = 100;
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     auto proxy = Common::MakeShared<UserAuthProxy>(obj);
     EXPECT_NE(proxy, nullptr);
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, GetAvailableStatus(_, _, _))
+    EXPECT_CALL(*service, GetAvailableStatus(_, _, _, _))
         .Times(Exactly(1))
-        .WillOnce([](int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel) {
+        .WillOnce([](int32_t apiVersion, int32_t userId, AuthType authType, AuthTrustLevel authTrustLevel) {
             EXPECT_EQ(testApiVersion, apiVersion);
             EXPECT_EQ(testAuthType, authType);
             EXPECT_EQ(testAuthTrustLevel, authTrustLevel);
@@ -107,7 +108,7 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyGetAvailableStatus, TestSize.Level0)
             service->OnRemoteRequest(code, data, reply, option);
             return SUCCESS;
         });
-    proxy->GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel);
+    proxy->GetAvailableStatus(testApiVersion, testUserId, testAuthType, testAuthTrustLevel);
 }
 
 HWTEST_F(UserAuthProxyTest, UserAuthProxyGetProperty, TestSize.Level0)

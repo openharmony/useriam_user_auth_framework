@@ -118,7 +118,8 @@ void FuzzClientGetAvailableStatus(Parcel &parcel)
     IAM_LOGI("start");
     auto authType = static_cast<AuthType>(parcel.ReadInt32());
     auto atl = static_cast<AuthTrustLevel>(parcel.ReadUint32());
-    UserAuthClientImpl::Instance().GetAvailableStatus(authType, atl);
+    auto userId = static_cast<AuthTrustLevel>(parcel.ReadInt32());
+    UserAuthClientImpl::Instance().GetAvailableStatus(userId, authType, atl);
     IAM_LOGI("end");
 }
 
@@ -255,7 +256,7 @@ void FuzzBeginWidgetAuth(Parcel &parcel)
 {
     IAM_LOGI("start");
     int32_t apiVersion = parcel.ReadInt32();
-    AuthParamInner authParam;
+    WidgetAuthParam authParam;
     WidgetParam widgetParam;
     Common::FillFuzzUint8Vector(parcel, authParam.challenge);
     std::vector<int32_t> atList;

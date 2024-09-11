@@ -26,7 +26,8 @@ class MockUserAuthService final : public UserAuthStub {
 public:
     MOCK_METHOD3(GetEnrolledState, int32_t(int32_t apiVersion, AuthType authType, EnrolledState &enrolledState));
 
-    MOCK_METHOD3(GetAvailableStatus, int32_t(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel));
+    MOCK_METHOD4(GetAvailableStatus, int32_t(int32_t apiVersion, int32_t userId, AuthType authType,
+        AuthTrustLevel authTrustLevel));
 
     MOCK_METHOD4(GetProperty,
         void(int32_t userId, AuthType authType, const std::vector<Attributes::AttributeKey> &keys,

@@ -134,6 +134,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus001, TestSize.Lev
     int32_t testApiVersion = 8;
     AuthType testAuthType = FACE;
     AuthTrustLevel testAuthTrustLevel = ATL3;
+    int32_t testUserId = 100;
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _))
@@ -145,7 +146,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus001, TestSize.Lev
             }
         );
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    EXPECT_EQ(SUCCESS, service.GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel));
+    EXPECT_EQ(SUCCESS, service.GetAvailableStatus(testApiVersion, testUserId, testAuthType, testAuthTrustLevel));
     IpcCommon::DeleteAllPermission();
 }
 
@@ -154,10 +155,12 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus002, TestSize.Lev
     UserAuthService service;
     int32_t testApiVersion = 8;
     AuthType testAuthType = FACE;
+    int32_t testUserId = 100;
     AuthTrustLevel testAuthTrustLevel = static_cast<AuthTrustLevel>(90000);
 
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    EXPECT_EQ(TRUST_LEVEL_NOT_SUPPORT, service.GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel));
+    EXPECT_EQ(TRUST_LEVEL_NOT_SUPPORT, service.GetAvailableStatus(testApiVersion, testUserId, testAuthType,
+        testAuthTrustLevel));
 
     testAuthTrustLevel = ATL2;
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
@@ -170,7 +173,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus002, TestSize.Lev
                 return SUCCESS;
             }
         );
-    EXPECT_EQ(TRUST_LEVEL_NOT_SUPPORT, service.GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel));
+    EXPECT_EQ(TRUST_LEVEL_NOT_SUPPORT, service.GetAvailableStatus(testApiVersion, testUserId, testAuthType,
+        testAuthTrustLevel));
     IpcCommon::DeleteAllPermission();
 }
 
@@ -180,6 +184,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus003, TestSize.Lev
     int32_t testApiVersion = 8;
     AuthType testAuthType = FACE;
     AuthTrustLevel testAuthTrustLevel = ATL2;
+    int32_t testUserId = 100;
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
@@ -187,10 +192,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus003, TestSize.Lev
         return HDF_FAILURE;
     });
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    EXPECT_EQ(GENERAL_ERROR, service.GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel));
+    EXPECT_EQ(GENERAL_ERROR, service.GetAvailableStatus(testApiVersion, testUserId, testAuthType, testAuthTrustLevel));
 
     testApiVersion = 9;
-    EXPECT_EQ(GENERAL_ERROR, service.GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel));
+    EXPECT_EQ(GENERAL_ERROR, service.GetAvailableStatus(testApiVersion, testUserId, testAuthType, testAuthTrustLevel));
     IpcCommon::DeleteAllPermission();
 }
 
@@ -199,19 +204,20 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus004, TestSize.Lev
     int32_t testApiVersion = 8;
     AuthType testAuthType = PIN;
     AuthTrustLevel testAuthTrustLevel = ATL2;
+    int32_t testUserId = 100;
 
     auto service = Common::MakeShared<UserAuthService>();
     EXPECT_NE(service, nullptr);
-    int32_t ret = service->GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel);
+    int32_t ret = service->GetAvailableStatus(testApiVersion, testUserId, testAuthType, testAuthTrustLevel);
     EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
 
     testAuthType = FACE;
-    ret = service->GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel);
+    ret = service->GetAvailableStatus(testUserId, testApiVersion, testAuthType, testAuthTrustLevel);
     EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
 
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     testAuthTrustLevel = static_cast<AuthTrustLevel>(0);
-    ret = service->GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel);
+    ret = service->GetAvailableStatus(testApiVersion, testUserId, testAuthType, testAuthTrustLevel);
     EXPECT_EQ(ret, TRUST_LEVEL_NOT_SUPPORT);
     IpcCommon::DeleteAllPermission();
 }
