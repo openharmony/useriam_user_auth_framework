@@ -24,26 +24,30 @@
 namespace OHOS {
 namespace UserIam {
 namespace Common {
+
+const int32_t RESULT_SUCCESS = 0;
+const int32_t RESULT_FAIL = 1;
+
 int32_t UnpackUint64(const std::vector<uint8_t> &src, size_t index, uint64_t &data)
 {
     if ((src.size() < index) || (src.size() - index < sizeof(uint64_t))) {
-        return 1;
+        return RESULT_FAIL;
     }
     if (memcpy_s(static_cast<void *>(&data), sizeof(uint64_t), &src[index], sizeof(uint64_t)) != 0) {
-        return 1;
+        return RESULT_FAIL;
     }
-    return 0;
+    return RESULT_SUCCESS;
 }
 
 int32_t UnpackInt32(const std::vector<uint8_t> &src, size_t index, int32_t &data)
 {
     if ((src.size() < index) || (src.size() - index < sizeof(int32_t))) {
-        return 1;
+        return RESULT_FAIL;
     }
     if (memcpy_s(static_cast<void *>(&data), sizeof(int32_t), &src[index], sizeof(int32_t)) != 0) {
-        return 1;
+        return RESULT_FAIL;
     }
-    return 0;
+    return RESULT_SUCCESS;
 }
 } // namespace Common
 } // namespace UserIam
