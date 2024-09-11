@@ -41,7 +41,6 @@ const std::string NOTICE_VERSION_STR = "1";
 const std::string CMD_NOTIFY_AUTH_START = "CMD_NOTIFY_AUTH_START";
 const std::string CMD_NOTIFY_AUTH_RESULT = "CMD_NOTIFY_AUTH_RESULT";
 const std::string CMD_NOTIFY_AUTH_TIP = "CMD_NOTIFY_AUTH_TIP";
-const uint64_t MAX_ALLOWABLE_REUSE_DURATION = 5 * 60 * 1000;
 
 /**
  * @brief Notice type for user authentication.
@@ -49,42 +48,6 @@ const uint64_t MAX_ALLOWABLE_REUSE_DURATION = 5 * 60 * 1000;
 enum NoticeType : int32_t {
     /** notice from widget. */
     WIDGET_NOTICE = 1,
-};
-
-/**
- * @brief Window mode type for user authentication widget.
- */
-enum WindowModeType : int32_t {
-    /** Window mode type is dialog box. */
-    DIALOG_BOX = 1,
-    /**  Window mode type is full screen. */
-    FULLSCREEN = 2,
-    /**  Window mode type is not set */
-    UNKNOWN_WINDOW_MODE = 3,
-};
-
-/**
- * @brief The mode for reusing unlock authentication result.
- */
-enum ReuseMode : uint32_t {
-    /** Authentication type relevant.The unlock authentication result can be reused only when the result is within
-     * valid duration as well as it comes from one of specified UserAuthTypes of the AuthParam. */
-    AUTH_TYPE_RELEVANT = 1,
-    /** Authentication type irrelevant.The unlock authentication result can be reused as long as the result is within
-     * valid duration. */
-    AUTH_TYPE_IRRELEVANT = 2,
-};
-
-/**
- * @brief Reuse unlock authentication result.
- */
-struct ReuseUnlockResult {
-    /** Whether to reuse unlock result, ReuseUnlockResult is valid only when isReuse is true.*/
-    bool isReuse {false};
-    /** The mode for reusing unlock authentication result. */
-    ReuseMode reuseMode {AUTH_TYPE_IRRELEVANT};
-    /** The allowable reuse duration.The value of duration should be between 0 and MAX_ALLOWABLE_REUSE_DURATION. */
-    uint64_t reuseDuration {0};
 };
 
 /**
@@ -117,17 +80,6 @@ struct EnrolledState {
     uint16_t credentialCount {0};
 };
 
-/**
- * @brief Auth widget parameter.
- */
-struct WidgetParam {
-    /** Title of widget. */
-    std::string title;
-    /** The description text of navigation button. */
-    std::string navigationButtonText;
-    /** Full screen or not. */
-    WindowModeType windowMode;
-};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

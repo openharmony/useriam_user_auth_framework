@@ -81,10 +81,11 @@ void NorthAuthenticationCallback::OnResult(int32_t result, const Attributes &ext
 int32_t UserAuthClientImpl::GetAvailableStatus(AuthType authType, AuthTrustLevel authTrustLevel)
 {
     IAM_LOGI("start, authType:%{public}d authTrustLevel:%{public}u", authType, authTrustLevel);
-    return GetAvailableStatus(INT32_MAX, authType, authTrustLevel);
+    return GetNorthAvailableStatus(INT32_MAX, authType, authTrustLevel);
 }
 
-int32_t UserAuthClientImpl::GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel)
+int32_t UserAuthClientImpl::GetNorthAvailableStatus(int32_t apiVersion, AuthType authType,
+    AuthTrustLevel authTrustLevel)
 {
     IAM_LOGI("start, apiVersion:%{public}d authType:%{public}d authTrustLevel:%{public}u",
         apiVersion, authType, authTrustLevel);
@@ -93,7 +94,19 @@ int32_t UserAuthClientImpl::GetAvailableStatus(int32_t apiVersion, AuthType auth
         IAM_LOGE("proxy is nullptr");
         return GENERAL_ERROR;
     }
-    return proxy->GetAvailableStatus(apiVersion, authType, authTrustLevel);
+    return proxy->GetAvailableStatus(apiVersion, INVALID_USER_ID, authType, authTrustLevel);
+}
+
+int32_t UserAuthClientImpl::GetAvailableStatus(int32_t userId, AuthType authType, AuthTrustLevel authTrustLevel)
+{
+    IAM_LOGI("start, userId:%{public}d authType:%{public}d authTrustLevel:%{public}u",
+        userId, authType, authTrustLevel);
+    auto proxy = GetProxy();
+    if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
+        return GENERAL_ERROR;
+    }
+    return proxy->GetAvailableStatus(INNER_API_VERSION_10000, userId, authType, authTrustLevel);
 }
 
 void UserAuthClientImpl::GetProperty(int32_t userId, const GetPropertyRequest &request,
@@ -391,7 +404,7 @@ UserAuthClient &UserAuthClient::GetInstance()
     return UserAuthClientImpl::Instance();
 }
 
-uint64_t UserAuthClientImpl::BeginWidgetAuth(int32_t apiVersion, const AuthParamInner &authParam,
+uint64_t UserAuthClientImpl::BeginWidgetAuth(int32_t apiVersion, const WidgetAuthParam &authParam,
     const WidgetParam &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback)
 {
     IAM_LOGI("start, apiVersion:%{public}d authTypeSize:%{public}zu authTrustLevel:%{public}u",
@@ -416,7 +429,14 @@ uint64_t UserAuthClientImpl::BeginWidgetAuth(int32_t apiVersion, const AuthParam
         callback->OnResult(static_cast<int32_t>(ResultCode::GENERAL_ERROR), extraInfo);
         return INVALID_SESSION_ID;
     }
-    return proxy->AuthWidget(apiVersion, authParam, widgetParam, wrapper);
+    AuthParamInner authParamInner = {
+        .userId = authParam.userId,
+        .challenge = authParam.challenge,
+        .authTypes = authParam.authTypes,
+        .authTrustLevel = authParam.authTrustLevel,
+        .reuseUnlockResult = authParam.reuseUnlockResult,
+    };
+    return proxy->AuthWidget(apiVersion, authParamInner, widgetParam, wrapper);
 }
 
 int32_t UserAuthClientImpl::SetWidgetCallback(int32_t version, const std::shared_ptr<IUserAuthWidgetCallback> &callback)

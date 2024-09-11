@@ -34,7 +34,8 @@ UserAuthProxy::UserAuthProxy(const sptr<IRemoteObject> &object) : IRemoteProxy<U
 {
 }
 
-int32_t UserAuthProxy::GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel)
+int32_t UserAuthProxy::GetAvailableStatus(int32_t apiVersion, int32_t userId, AuthType authType,
+    AuthTrustLevel authTrustLevel)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -53,6 +54,10 @@ int32_t UserAuthProxy::GetAvailableStatus(int32_t apiVersion, AuthType authType,
     }
     if (!data.WriteInt32(apiVersion)) {
         IAM_LOGE("failed to write apiVersion");
+        return WRITE_PARCEL_ERROR;
+    }
+    if (!data.WriteInt32(userId)) {
+        IAM_LOGE("failed to write userId");
         return WRITE_PARCEL_ERROR;
     }
 

@@ -39,7 +39,8 @@ public:
 
     UserAuthService();
     ~UserAuthService() override = default;
-    int32_t GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel) override;
+    int32_t GetAvailableStatus(int32_t apiVersion, int32_t userId, AuthType authType,
+        AuthTrustLevel authTrustLevel) override;
     void GetProperty(int32_t userId, AuthType authType,
         const std::vector<Attributes::AttributeKey> &keys,
         sptr<GetExecutorPropertyCallbackInterface> &callback) override;

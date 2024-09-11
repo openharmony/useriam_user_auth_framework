@@ -179,7 +179,8 @@ bool UserAuthService::CheckAuthTrustLevel(AuthTrustLevel authTrustLevel)
     return true;
 }
 
-int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel)
+int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, int32_t userId, AuthType authType,
+    AuthTrustLevel authTrustLevel)
 {
     IAM_LOGI("start");
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
@@ -195,8 +196,7 @@ int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authTyp
         IAM_LOGE("authTrustLevel is not in correct range");
         return TRUST_LEVEL_NOT_SUPPORT;
     }
-    int32_t userId;
-    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
+    if (apiVersion != INNER_API_VERSION_10000 && IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("failed to get callingUserId");
         return GENERAL_ERROR;
     }

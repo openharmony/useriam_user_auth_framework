@@ -23,8 +23,8 @@ using namespace OHOS::UserIam::UserAuth;
 int32_t FfiUserAuthGetAvailableStatus(const uint32_t authType, const uint32_t authTrustLevel)
 {
     constexpr int32_t API_VERSION_9 = 9;
-    return UserAuthClientImpl::Instance().GetAvailableStatus(API_VERSION_9, AuthType(authType),
-                                                             AuthTrustLevel(authTrustLevel));
+    return UserAuthClientImpl::Instance().GetNorthAvailableStatus(API_VERSION_9, AuthType(authType),
+        AuthTrustLevel(authTrustLevel));
 }
 
 int32_t FfiUserAuthGetEnrolledState(const uint32_t authType, EnrolledState *enrolledState)
@@ -51,7 +51,7 @@ uint64_t FfiUserAuthStart(const CAuthParam &authParam, const CWidgetParam &widge
     for (int i = 0; i < authParam.authTypesLen; ++i) {
         authTypes.push_back(AuthType(authParam.authTypes[i]));
     }
-    AuthParamInner authParamInner{
+    WidgetAuthParam authParamInner{
         .challenge = std::vector<uint8_t>(authParam.challenge, authParam.challenge + authParam.challengeLen),
         .authTypes = authTypes,
         .authTrustLevel = AuthTrustLevel(authParam.authTrustLevel),
