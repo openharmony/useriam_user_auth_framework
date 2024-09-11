@@ -36,7 +36,7 @@ std::shared_ptr<BaseSocket> SocketFactory::CreateClientSocket(const int32_t sock
     }
 
     clientSocket->SetConnectionName(connectionName);
-    clientSocket->SetNetworkId(connectionName);
+    clientSocket->SetNetworkId(networkId);
     return clientSocket;
 }
 

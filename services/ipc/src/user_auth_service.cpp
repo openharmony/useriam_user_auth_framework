@@ -23,7 +23,6 @@
 #include "auth_event_listener_manager.h"
 #include "auth_widget_helper.h"
 #include "context_factory.h"
-#include "auth_common.h"
 #include "context_helper.h"
 #include "hdi_wrapper.h"
 #include "iam_check.h"

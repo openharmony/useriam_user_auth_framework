@@ -34,9 +34,6 @@ const std::string VERSION = "version";
 
 UserAuthWidgetMgr::UserAuthWidgetMgr(napi_env env) : callback_(Common::MakeShared<UserAuthWidgetCallback>(env))
 {
-    if (callback_ == nullptr) {
-        IAM_LOGE("get null callback");
-    }
 }
 
 UserAuthResultCode UserAuthWidgetMgr::Init(napi_env env, napi_callback_info info)

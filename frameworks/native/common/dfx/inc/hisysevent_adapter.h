@@ -103,7 +103,7 @@ struct RemoteConnectFaultTrace {
     bool ack = false;
 };
 
-void ReportSystemFault(const std::string &timeString, const std::string &moudleName);
+void ReportSystemFault(const std::string &timeString, const std::string &moduleName);
 void ReportSecurityTemplateChange(const TemplateChangeTrace &info);
 void ReportBehaviorCredManager(const UserCredManagerTrace &info);
 void ReportSecurityCredChange(const UserCredChangeTrace &info);
