@@ -105,11 +105,8 @@ private:
     void FillGetPropertyValue(AuthType authType, const std::vector<Attributes::AttributeKey> &keys, Attributes &values);
     bool CompleteRemoteAuthParam(RemoteAuthParam &remoteAuthParam, const std::string &localNetworkId);
     int32_t PrepareRemoteAuthInner(const std::string &networkId);
-    bool GetAndUpateOsAccountVerifiedState(int32_t userId);
     static std::mutex mutex_;
     static std::shared_ptr<UserAuthService> instance_;
-
-    bool osAccountVerifiedState_ = false;
 };
 } // namespace UserAuth
 } // namespace UserIam

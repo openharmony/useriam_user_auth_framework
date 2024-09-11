@@ -362,14 +362,6 @@ void FuzzPrepareRemoteAuth(Parcel &parcel)
     IAM_LOGI("end");
 }
 
-void FuzzGetAndUpateOsAccountVerifiedState(Parcel &parcel)
-{
-    IAM_LOGI("begin");
-    int32_t userId = parcel.ReadInt32();
-    g_userAuthService.GetAndUpateOsAccountVerifiedState(userId);
-    IAM_LOGI("end");
-}
-
 void FuzzCheckValidSolution(Parcel &parcel)
 {
     IAM_LOGI("begin");
@@ -559,7 +551,6 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzRegistUserAuthSuccessEventListener,
     FuzzSetGlobalConfigParam,
     FuzzPrepareRemoteAuth,
-    FuzzGetAndUpateOsAccountVerifiedState,
     FuzzCheckValidSolution,
     FuzzCompleteRemoteAuthParam,
     FuzzGetAuthContextCallback,
