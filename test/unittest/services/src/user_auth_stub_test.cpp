@@ -138,6 +138,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetAvailableStatusStub002, TestSize.Level
     EXPECT_TRUE(data.WriteInt32(testAuthType));
     EXPECT_TRUE(data.WriteUint32(testAuthTrustLevel));
     EXPECT_TRUE(data.WriteInt32(testApiVersion));
+    EXPECT_TRUE(data.WriteInt32(testUserId));
 
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
     int32_t result = FAIL;

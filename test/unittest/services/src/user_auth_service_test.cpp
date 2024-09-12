@@ -131,7 +131,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetEnrolledState004, TestSize.Level
 HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus001, TestSize.Level0)
 {
     UserAuthService service;
-    int32_t testApiVersion = 8;
+    int32_t testApiVersion = 10000;
     AuthType testAuthType = FACE;
     AuthTrustLevel testAuthTrustLevel = ATL3;
     int32_t testUserId = 100;
@@ -153,7 +153,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus001, TestSize.Lev
 HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus002, TestSize.Level0)
 {
     UserAuthService service;
-    int32_t testApiVersion = 8;
+    int32_t testApiVersion = 10000;
     AuthType testAuthType = FACE;
     int32_t testUserId = 100;
     AuthTrustLevel testAuthTrustLevel = static_cast<AuthTrustLevel>(90000);
@@ -181,7 +181,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus002, TestSize.Lev
 HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus003, TestSize.Level0)
 {
     UserAuthService service;
-    int32_t testApiVersion = 8;
+    int32_t testApiVersion = 10000;
     AuthType testAuthType = FACE;
     AuthTrustLevel testAuthTrustLevel = ATL2;
     int32_t testUserId = 100;
@@ -201,7 +201,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus003, TestSize.Lev
 
 HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus004, TestSize.Level0)
 {
-    int32_t testApiVersion = 8;
+    int32_t testApiVersion = 10000;
     AuthType testAuthType = PIN;
     AuthTrustLevel testAuthTrustLevel = ATL2;
     int32_t testUserId = 100;
