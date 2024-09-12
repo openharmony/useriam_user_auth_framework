@@ -101,7 +101,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetAvailableStatus001, TestSize.Level
 
 HWTEST_F(UserAuthClientTest, UserAuthClientGetAvailableStatus002, TestSize.Level0)
 {
-    int32_t testApiVersion = 9;
+    int32_t testApiVersion = 10000;
     AuthType testAuthType = FACE;
     AuthTrustLevel testAtl = ATL1;
 
