@@ -41,7 +41,7 @@ public:
 
 private:
     std::string name_;
-    int32_t systemAbilityId_;
+    int32_t systemAbilityId_ = -1;
     AddFunc addFunc_;
     RemoveFunc removeFunc_;
 };

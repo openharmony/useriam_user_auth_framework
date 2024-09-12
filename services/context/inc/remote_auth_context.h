@@ -59,15 +59,15 @@ private:
     bool SendQueryExecutorInfoMsg();
 
     std::recursive_mutex mutex_;
-    AuthType authType_;
+    int32_t authType_ = INVALID_AUTH_TYPE;
     std::string connectionName_;
     std::string collectorNetworkId_;
     std::vector<uint8_t> executorInfoMsg_;
 
-    bool needSetupConnection_;
+    bool needSetupConnection_ = false;
     std::string endPointName_;
     std::shared_ptr<RemoteExecutorProxy> remoteExecutorProxy_ = nullptr;
-    std::optional<uint32_t> cancelTimerId_;
+    std::optional<uint32_t> cancelTimerId_ = std::nullopt;
 };
 } // namespace UserAuth
 } // namespace UserIam
