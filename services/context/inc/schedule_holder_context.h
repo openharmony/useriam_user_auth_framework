@@ -47,7 +47,7 @@ protected:
     void SetLatestError(int32_t error) override;
 
 private:
-    uint64_t contextId_ = 0;
+    uint64_t contextId_ = INVALID_CONTEXT_ID;
     std::shared_ptr<ScheduleNode> scheduleNode_ = nullptr;
 };
 } // namespace UserAuth

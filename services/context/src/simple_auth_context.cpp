@@ -100,11 +100,13 @@ ContextType SimpleAuthContext::GetContextType() const
 
 uint32_t SimpleAuthContext::GetTokenId() const
 {
+    IF_FALSE_LOGE_AND_RETURN_VAL(auth_ != nullptr, 0);
     return auth_->GetAccessTokenId();
 }
 
 int32_t SimpleAuthContext::GetUserId() const
 {
+    IF_FALSE_LOGE_AND_RETURN_VAL(auth_ != nullptr, INVALID_USER_ID);
     return auth_->GetUserId();
 }
 

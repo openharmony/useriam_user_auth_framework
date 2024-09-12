@@ -41,11 +41,13 @@ ContextType EnrollContext::GetContextType() const
 
 uint32_t EnrollContext::GetTokenId() const
 {
+    IF_FALSE_LOGE_AND_RETURN_VAL(enroll_ != nullptr, 0);
     return enroll_->GetAccessTokenId();
 }
 
 int32_t EnrollContext::GetUserId() const
 {
+    IF_FALSE_LOGE_AND_RETURN_VAL(enroll_ != nullptr, INVALID_USER_ID);
     return enroll_->GetUserId();
 }
 

@@ -76,6 +76,10 @@ bool AuthWidgetHelper::GetUserAuthProfile(int32_t userId, const AuthType &authTy
     std::vector<uint64_t> templateIds;
     templateIds.reserve(credentialInfos.size());
     for (auto &info : credentialInfos) {
+        if (info == nullptr) {
+            IAM_LOGE("info is null");
+            continue;
+        }
         templateIds.push_back(info->GetTemplateId());
     }
     std::vector<uint32_t> uint32Keys = {
