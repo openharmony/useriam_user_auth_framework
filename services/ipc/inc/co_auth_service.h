@@ -57,7 +57,7 @@ private:
     std::recursive_mutex mutex_;
     bool isReady_{false};
     bool accessTokenReady_{false};
-    sptr<SystemAbilityListener> accessTokenListener_;
+    sptr<SystemAbilityListener> accessTokenListener_ {nullptr};
 };
 } // namespace UserAuth
 } // namespace UserIam
