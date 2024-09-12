@@ -37,6 +37,7 @@ ContextType IdentifyContext::GetContextType() const
 
 uint32_t IdentifyContext::GetTokenId() const
 {
+    IF_FALSE_LOGE_AND_RETURN_VAL(identify_ != nullptr, 0);
     return identify_->GetAccessTokenId();
 }
 

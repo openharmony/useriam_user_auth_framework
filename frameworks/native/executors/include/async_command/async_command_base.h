@@ -58,13 +58,13 @@ protected:
         std::shared_ptr<Attributes> finalResult);
 
     const char *GetDescription();
-    uint64_t scheduleId_;
+    uint64_t scheduleId_ = 0;
 
 private:
     void EndProcess();
     std::string description_;
     std::weak_ptr<Executor> executor_;
-    std::shared_ptr<ExecutorMessenger> executorMessenger_;
+    std::shared_ptr<ExecutorMessenger> executorMessenger_ {nullptr};
     std::mutex mutex_;
     bool isFinished_ = false;
 };

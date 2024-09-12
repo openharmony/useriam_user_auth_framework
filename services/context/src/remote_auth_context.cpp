@@ -165,6 +165,7 @@ bool RemoteAuthContext::StartAuth()
     bool getCollectorUdidRet = DeviceManagerUtil::GetInstance().GetUdidByNetworkId(collectorNetworkId_, collectorUdid);
     IF_FALSE_LOGE_AND_RETURN_VAL(getCollectorUdidRet, false);
 
+    IF_FALSE_LOGE_AND_RETURN_VAL(auth_ != nullptr, false);
     auth_->SetCollectorUdid(collectorUdid);
 
     bool startAuthRet = SimpleAuthContext::OnStart();
@@ -204,7 +205,7 @@ bool RemoteAuthContext::SendQueryExecutorInfoMsg()
     bool setMsgTypeRet = request->SetInt32Value(Attributes::ATTR_MSG_TYPE, QUERY_EXECUTOR_INFO);
     IF_FALSE_LOGE_AND_RETURN_VAL(setMsgTypeRet, false);
 
-    std::vector<int32_t> authTypes = { static_cast<int32_t>(authType_) };
+    std::vector<int32_t> authTypes = { authType_ };
     bool setAuthTypesRet = request->SetInt32ArrayValue(Attributes::ATTR_AUTH_TYPES, authTypes);
     IF_FALSE_LOGE_AND_RETURN_VAL(setAuthTypesRet, false);
 

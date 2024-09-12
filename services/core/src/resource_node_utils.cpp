@@ -34,6 +34,10 @@ int32_t ResourceNodeUtils::NotifyExecutorToDeleteTemplates(
     }
 
     for (const auto &info : infos) {
+        if (info == nullptr) {
+            IAM_LOGE("info is null");
+            continue;
+        }
         uint64_t executorIndex = info->GetExecutorIndex();
 
         auto resourceNode = ResourceNodePool::Instance().Select(executorIndex).lock();
@@ -89,6 +93,10 @@ void ResourceNodeUtils::SetCachedTemplates(uint64_t executorIndex,
 
     std::vector<uint64_t> templateIds;
     for (auto &info : infos) {
+        if (info == nullptr) {
+            IAM_LOGE("info is null");
+            continue;
+        }
         templateIds.push_back(info->GetTemplateId());
     }
 
