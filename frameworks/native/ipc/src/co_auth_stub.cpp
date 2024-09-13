@@ -117,7 +117,7 @@ int32_t CoAuthStub::ReadExecutorRegisterInfo(ExecutorRegisterInfo &executorInfo,
         return READ_PARCEL_ERROR;
     }
     if (!data.ReadUint32(executorInfo.maxTemplateAcl)) {
-        IAM_LOGE("failed to read esl");
+        IAM_LOGE("failed to read maxTemplateAcl");
         return READ_PARCEL_ERROR;
     }
     if (!data.ReadUInt8Vector(&executorInfo.publicKey)) {
@@ -125,11 +125,11 @@ int32_t CoAuthStub::ReadExecutorRegisterInfo(ExecutorRegisterInfo &executorInfo,
         return READ_PARCEL_ERROR;
     }
     if (!data.ReadString(executorInfo.deviceUdid)) {
-        IAM_LOGE("failed to read publicKey");
+        IAM_LOGE("failed to read deviceUdid");
         return READ_PARCEL_ERROR;
     }
     if (!data.ReadUInt8Vector(&executorInfo.signedRemoteExecutorInfo)) {
-        IAM_LOGE("failed to read publicKey");
+        IAM_LOGE("failed to read signedRemoteExecutorInfo");
         return READ_PARCEL_ERROR;
     }
 

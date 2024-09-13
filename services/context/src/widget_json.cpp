@@ -15,8 +15,11 @@
 
 #include <map>
 #include "iam_common_defines.h"
+#include "iam_logger.h"
 #include "user_auth_common_defines.h"
 #include "widget_json.h"
+
+#define LOG_TAG "USER_AUTH_SA"
 
 namespace OHOS {
 namespace UserIam {
@@ -132,42 +135,65 @@ void GetJsonCmd(nlohmann::json &jsonCommand, const WidgetCommand &command)
 // utils
 AuthType Str2AuthType(const std::string &strAuthType)
 {
-    std::map<std::string, AuthType> authTypeMap;
-    authTypeMap.emplace(std::make_pair(AUTH_TYPE_ALL, AuthType::ALL));
-    authTypeMap.emplace(std::make_pair(AUTH_TYPE_PIN, AuthType::PIN));
-    authTypeMap.emplace(std::make_pair(AUTH_TYPE_FACE, AuthType::FACE));
-    authTypeMap.emplace(std::make_pair(AUTH_TYPE_FINGER_PRINT, AuthType::FINGERPRINT));
-    auto result = AuthType::ALL;
-    if (authTypeMap.find(strAuthType) != authTypeMap.end()) {
-        result = authTypeMap[strAuthType];
+    AuthType authType = AuthType::ALL;
+    if (strAuthType.compare(AUTH_TYPE_ALL) == 0) {
+        authType = AuthType::ALL;
+    } else if (strAuthType.compare(AUTH_TYPE_PIN) == 0) {
+        authType = AuthType::PIN;
+    } else if (strAuthType.compare(AUTH_TYPE_FACE) == 0) {
+        authType = AuthType::FACE;
+    } else if (strAuthType.compare(AUTH_TYPE_FINGER_PRINT) == 0) {
+        authType = AuthType::FINGERPRINT;
+    } else {
+        IAM_LOGE("strAuthType: %{public}s", strAuthType.c_str());
     }
-    return result;
+    return authType;
 }
 
 std::string AuthType2Str(const AuthType &authType)
 {
-    std::map<int32_t, std::string> authTypeMap;
-    authTypeMap.emplace(std::make_pair(AuthType::ALL, AUTH_TYPE_ALL));
-    authTypeMap.emplace(std::make_pair(AuthType::PIN, AUTH_TYPE_PIN));
-    authTypeMap.emplace(std::make_pair(AuthType::FACE, AUTH_TYPE_FACE));
-    authTypeMap.emplace(std::make_pair(AuthType::FINGERPRINT, AUTH_TYPE_FINGER_PRINT));
-    std::string result = "";
-    if (authTypeMap.find(authType) != authTypeMap.end()) {
-        result = authTypeMap[authType];
+    std::string strAuthType = "";
+    switch (authType) {
+        case AuthType::ALL: {
+            strAuthType = AUTH_TYPE_ALL;
+            break;
+        }
+        case AuthType::PIN: {
+            strAuthType = AUTH_TYPE_PIN;
+            break;
+        }
+        case AuthType::FACE: {
+            strAuthType = AUTH_TYPE_FACE;
+            break;
+        }
+        case AuthType::FINGERPRINT: {
+            strAuthType = AUTH_TYPE_FINGER_PRINT;
+            break;
+        }
+        default: {
+            IAM_LOGE("authType: %{public}u", authType);
+        }
     }
-    return result;
+    return strAuthType;
 }
 
 std::string WinModeType2Str(const WindowModeType &winModeType)
 {
-    std::map<int32_t, std::string> winModeTypeMap;
-    winModeTypeMap.emplace(std::make_pair(WindowModeType::DIALOG_BOX, WINDOW_MODE_DIALOG));
-    winModeTypeMap.emplace(std::make_pair(WindowModeType::FULLSCREEN, WINDOW_MODE_FULLSCREEN));
-    std::string result = "";
-    if (winModeTypeMap.find(winModeType) != winModeTypeMap.end()) {
-        result = winModeTypeMap[winModeType];
+    std::string strWinModeType = "";
+    switch (winModeType) {
+        case WindowModeType::DIALOG_BOX: {
+            strWinModeType = WINDOW_MODE_DIALOG;
+            break;
+        }
+        case WindowModeType::FULLSCREEN: {
+            strWinModeType = WINDOW_MODE_FULLSCREEN;
+            break;
+        }
+        default: {
+            IAM_LOGE("winModeType: %{public}u", winModeType);
+        }
     }
-    return result;
+    return strWinModeType;
 }
 
 std::vector<AuthType> WidgetNotice::AuthTypeList() const
@@ -181,19 +207,37 @@ std::vector<AuthType> WidgetNotice::AuthTypeList() const
 
 std::string PinSubType2Str(const PinSubType &subType)
 {
-    std::map<PinSubType, std::string> pinSubTypeMap;
-    pinSubTypeMap.emplace(std::make_pair(PinSubType::PIN_SIX, PIN_SUB_TYPE_SIX));
-    pinSubTypeMap.emplace(std::make_pair(PinSubType::PIN_NUMBER, PIN_SUB_TYPE_NUM));
-    pinSubTypeMap.emplace(std::make_pair(PinSubType::PIN_MIXED, PIN_SUB_TYPE_MIX));
-    pinSubTypeMap.emplace(std::make_pair(PinSubType::PIN_FOUR, PIN_SUB_TYPE_FOUR));
-    pinSubTypeMap.emplace(std::make_pair(PinSubType::PIN_PATTERN, PIN_SUB_TYPE_PATTERN));
-    pinSubTypeMap.emplace(std::make_pair(PinSubType::PIN_MAX, PIN_SUB_TYPE_MAX));
-
-    std::string result = "";
-    if (pinSubTypeMap.find(subType) != pinSubTypeMap.end()) {
-        result = pinSubTypeMap[subType];
+    std::string strPinSubType = "";
+    switch (subType) {
+        case PinSubType::PIN_SIX: {
+            strPinSubType = PIN_SUB_TYPE_SIX;
+            break;
+        }
+        case PinSubType::PIN_NUMBER: {
+            strPinSubType = PIN_SUB_TYPE_NUM;
+            break;
+        }
+        case PinSubType::PIN_MIXED: {
+            strPinSubType = PIN_SUB_TYPE_MIX;
+            break;
+        }
+        case PinSubType::PIN_FOUR: {
+            strPinSubType = PIN_SUB_TYPE_FOUR;
+            break;
+        }
+        case PinSubType::PIN_PATTERN: {
+            strPinSubType = PIN_SUB_TYPE_PATTERN;
+            break;
+        }
+        case PinSubType::PIN_MAX: {
+            strPinSubType = PIN_SUB_TYPE_MAX;
+            break;
+        }
+        default: {
+            IAM_LOGE("subType: %{public}u", subType);
+        }
     }
-    return result;
+    return strPinSubType;
 }
 
 void to_json(nlohmann::json &jsonNotice, const WidgetNotice &notice)
