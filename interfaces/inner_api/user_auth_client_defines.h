@@ -88,10 +88,8 @@ struct SetPropertyRequest {
  * @brief Global config type.
  */
 enum GlobalConfigType : int32_t {
-    /** Pin expired period, valid only for pin. */
+    /** Pin expired period */
     PIN_EXPIRED_PERIOD = 1,
-    /** Enable specified authType capability. */
-    ENABLE_STATUS = 2,
 };
 
 /**
@@ -99,10 +97,8 @@ enum GlobalConfigType : int32_t {
  */
 union GlobalConfigValue {
     /** Global config value of pin expired period.It's value should between 0 and 2^50.
-      * When pinExpiredPeriod <= 0, userAuth won't check pin expired period. */
+      * When pinExpiredPeriod <= 0, userAuth won't check pin expired period */
     int64_t pinExpiredPeriod;
-    /** Enable specified authType capability. */
-    bool enableStatus;
 };
 
 /**
@@ -113,10 +109,6 @@ struct GlobalConfigParam {
     GlobalConfigType type;
     /** Global config value. */
     GlobalConfigValue value;
-    /** Specified userIds. GlobalConfigParam will be effect for all userspaces when the array is empty. */
-    std::vector<int32_t> userIds;
-    /** Specified authTypes. Should not empty. */
-    std::vector<AuthType> authTypes;
 };
 } // namespace UserAuth
 } // namespace UserIam
