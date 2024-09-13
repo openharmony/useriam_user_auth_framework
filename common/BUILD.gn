@@ -71,7 +71,6 @@ ohos_source_set("iam_utils") {
   ]
 
   sources = [
-    "utils/iam_mem.cpp",
     "utils/iam_time.cpp",
     "utils/xcollie_helper.cpp",
   ]

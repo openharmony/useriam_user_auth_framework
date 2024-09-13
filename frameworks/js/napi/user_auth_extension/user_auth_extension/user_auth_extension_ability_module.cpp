@@ -47,12 +47,12 @@ extern "C" __attribute__((visibility("default"))) void NAPI_app_ability_UserAuth
 }
 
 extern "C" __attribute__((visibility("default"))) void NAPI_app_ability_UserAuthExtensionAbility_GetABCCode(
-    const char **buf, int *buflen)
+    const char **buf, int *bufLen)
 {
     if (buf != nullptr) {
         *buf = _binary_user_auth_extension_ability_abc_start;
     }
-    if (buflen != nullptr) {
-        *buflen = _binary_user_auth_extension_ability_abc_end - _binary_user_auth_extension_ability_abc_start;
+    if (bufLen != nullptr) {
+        *bufLen = _binary_user_auth_extension_ability_abc_end - _binary_user_auth_extension_ability_abc_start;
     }
 }
