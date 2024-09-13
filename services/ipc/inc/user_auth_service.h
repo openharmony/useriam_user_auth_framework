@@ -41,6 +41,7 @@ public:
     ~UserAuthService() override = default;
     int32_t GetAvailableStatus(int32_t apiVersion, int32_t userId, AuthType authType,
         AuthTrustLevel authTrustLevel) override;
+    int32_t GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel) override;
     void GetProperty(int32_t userId, AuthType authType,
         const std::vector<Attributes::AttributeKey> &keys,
         sptr<GetExecutorPropertyCallbackInterface> &callback) override;
@@ -106,6 +107,8 @@ private:
     void FillGetPropertyValue(AuthType authType, const std::vector<Attributes::AttributeKey> &keys, Attributes &values);
     bool CompleteRemoteAuthParam(RemoteAuthParam &remoteAuthParam, const std::string &localNetworkId);
     int32_t PrepareRemoteAuthInner(const std::string &networkId);
+    int32_t GetAvailableStatusInner(int32_t apiVersion, int32_t userId, AuthType authType,
+        AuthTrustLevel authTrustLevel);
     static std::mutex mutex_;
     static std::shared_ptr<UserAuthService> instance_;
 };

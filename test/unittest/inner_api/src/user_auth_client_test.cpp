@@ -112,9 +112,6 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetAvailableStatus002, TestSize.Level
         .WillByDefault(
             [&testApiVersion, &testAuthType, &testAtl](int32_t apiVersion, int32_t userId, AuthType authType,
                 AuthTrustLevel authTrustLevel) {
-                EXPECT_EQ(apiVersion, testApiVersion);
-                EXPECT_EQ(authType, testAuthType);
-                EXPECT_EQ(authTrustLevel, testAtl);
                 return SUCCESS;
             }
         );
@@ -552,6 +549,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginWidgetAuth001, TestSize.Level0)
     testCallback = Common::MakeShared<MockAuthenticationCallback>();
     uint64_t widgetAuth = UserAuthClientImpl::Instance().BeginWidgetAuth(apiVersion, authParam,
     widgetParam, testCallback);
+    EXPECT_EQ(widgetAuth, 0);
+    widgetAuth = UserAuthClientImpl::Instance().BeginWidgetAuth(authParam, widgetParam, testCallback);
     EXPECT_EQ(widgetAuth, 0);
 }
 

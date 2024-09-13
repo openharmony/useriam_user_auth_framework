@@ -36,6 +36,8 @@ public:
     virtual int32_t GetAvailableStatus(int32_t apiVersion, int32_t userId, AuthType authType,
         AuthTrustLevel authTrustLevel) = 0;
 
+    virtual int32_t GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel) = 0;
+
     virtual void GetProperty(int32_t userId, AuthType authType,
         const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallbackInterface> &callback) = 0;
 

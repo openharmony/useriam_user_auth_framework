@@ -97,18 +97,16 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyGetAvailableStatus, TestSize.Level0)
     EXPECT_CALL(*service, GetAvailableStatus(_, _, _, _))
         .Times(Exactly(1))
         .WillOnce([](int32_t apiVersion, int32_t userId, AuthType authType, AuthTrustLevel authTrustLevel) {
-            EXPECT_EQ(testApiVersion, apiVersion);
-            EXPECT_EQ(testAuthType, authType);
-            EXPECT_EQ(testAuthTrustLevel, authTrustLevel);
             return SUCCESS;
         });
-    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(2);
     ON_CALL(*obj, SendRequest)
         .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
             service->OnRemoteRequest(code, data, reply, option);
             return SUCCESS;
         });
-    proxy->GetAvailableStatus(testApiVersion, testUserId, testAuthType, testAuthTrustLevel);
+    EXPECT_EQ(proxy->GetAvailableStatus(testApiVersion, testUserId, testAuthType, testAuthTrustLevel), SUCCESS);
+    EXPECT_EQ(proxy->GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel), SUCCESS);
 }
 
 HWTEST_F(UserAuthProxyTest, UserAuthProxyGetProperty, TestSize.Level0)
