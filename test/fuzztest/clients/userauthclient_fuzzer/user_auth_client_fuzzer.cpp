@@ -119,7 +119,10 @@ void FuzzClientGetAvailableStatus(Parcel &parcel)
     auto authType = static_cast<AuthType>(parcel.ReadInt32());
     auto atl = static_cast<AuthTrustLevel>(parcel.ReadUint32());
     auto userId = static_cast<AuthTrustLevel>(parcel.ReadInt32());
+    auto apiVersion = static_cast<AuthTrustLevel>(parcel.ReadInt32());
     UserAuthClientImpl::Instance().GetAvailableStatus(userId, authType, atl);
+    UserAuthClientImpl::Instance().GetNorthAvailableStatus(apiVersion, authType, atl);
+    UserAuthClientImpl::Instance().GetAvailableStatus(authType, atl);
     IAM_LOGI("end");
 }
 
@@ -270,6 +273,7 @@ void FuzzBeginWidgetAuth(Parcel &parcel)
     widgetParam.windowMode = static_cast<WindowModeType>(parcel.ReadInt32());
     auto callback = Common::MakeShared<DummyAuthenticationCallback>();
     UserAuthClientImpl::Instance().BeginWidgetAuth(apiVersion, authParam, widgetParam, callback);
+    UserAuthClientImpl::Instance().BeginWidgetAuth(authParam, widgetParam, callback);
     IAM_LOGI("end");
 }
 

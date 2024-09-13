@@ -194,6 +194,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus003, TestSize.Lev
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     EXPECT_EQ(GENERAL_ERROR, service.GetAvailableStatus(testApiVersion, testUserId, testAuthType, testAuthTrustLevel));
 
+    EXPECT_EQ(GENERAL_ERROR, service.GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel));
+
     testApiVersion = 9;
     EXPECT_EQ(GENERAL_ERROR, service.GetAvailableStatus(testApiVersion, testUserId, testAuthType, testAuthTrustLevel));
     IpcCommon::DeleteAllPermission();
@@ -209,6 +211,9 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus004, TestSize.Lev
     auto service = Common::MakeShared<UserAuthService>();
     EXPECT_NE(service, nullptr);
     int32_t ret = service->GetAvailableStatus(testApiVersion, testUserId, testAuthType, testAuthTrustLevel);
+    EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
+
+    ret = service->GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel);
     EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
 
     testAuthType = FACE;

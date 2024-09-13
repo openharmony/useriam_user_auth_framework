@@ -47,8 +47,10 @@ public:
         const std::shared_ptr<IdentificationCallback> &callback) override;
     int32_t CancelIdentification(uint64_t contextId) override;
     int32_t GetVersion(int32_t &version);
-    uint64_t BeginWidgetAuth(int32_t apiVersion, const WidgetAuthParam &authParam,
-        const WidgetParam &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback) override;
+    uint64_t BeginWidgetAuth(const WidgetAuthParam &authParam, const WidgetParam &widgetParam,
+        const std::shared_ptr<AuthenticationCallback> &callback) override;
+    uint64_t BeginWidgetAuth(int32_t apiVersion, const WidgetAuthParam &authParam, const WidgetParam &widgetParam,
+        const std::shared_ptr<AuthenticationCallback> &callback);
     int32_t SetWidgetCallback(int32_t version, const std::shared_ptr<IUserAuthWidgetCallback> &callback);
     int32_t Notice(NoticeType noticeType, const std::string &eventData);
     int32_t GetEnrolledState(int32_t apiVersion, AuthType authType, EnrolledState &enrolledState);
