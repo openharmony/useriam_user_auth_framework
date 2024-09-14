@@ -53,7 +53,7 @@ const std::map<int32_t, AuthenticationResult> g_result2ExecuteResult = {
     {ResultCode::PIN_EXPIRED, AuthenticationResult::GENERAL_ERROR},
 };
 
-void DestoryWork(uv_work_t *work)
+void DestroyWork(uv_work_t *work)
 {
     if (work == nullptr) {
         return;
@@ -74,32 +74,32 @@ void OnCallbackV6Work(uv_work_t *work, int status)
     ResultCallbackV6Holder *resultHolder = reinterpret_cast<ResultCallbackV6Holder *>(work->data);
     if (resultHolder == nullptr || resultHolder->callback == nullptr) {
         IAM_LOGE("resultHolder is invalid");
-        DestoryWork(work);
+        DestroyWork(work);
         return;
     }
     napi_handle_scope scope = nullptr;
     napi_open_handle_scope(resultHolder->env, &scope);
     if (scope == nullptr) {
         IAM_LOGE("scope is invalid");
-        DestoryWork(work);
+        DestroyWork(work);
         return;
     }
     napi_status ret = resultHolder->callback->DoPromise(resultHolder->result);
     if (ret != napi_ok) {
         IAM_LOGE("DoPromise fail %{public}d", ret);
         napi_close_handle_scope(resultHolder->env, scope);
-        DestoryWork(work);
+        DestroyWork(work);
         return;
     }
     ret = resultHolder->callback->DoCallback(resultHolder->result);
     if (ret != napi_ok) {
         IAM_LOGE("DoCallback fail %{public}d", ret);
         napi_close_handle_scope(resultHolder->env, scope);
-        DestoryWork(work);
+        DestroyWork(work);
         return;
     }
     napi_close_handle_scope(resultHolder->env, scope);
-    DestoryWork(work);
+    DestroyWork(work);
     return;
 }
 }
@@ -197,7 +197,7 @@ void UserAuthCallbackV6::OnResult(int32_t result, const Attributes &extraInfo)
     work->data = reinterpret_cast<void *>(resultHolder);
     if (uv_queue_work_with_qos(loop, work, [](uv_work_t *work) {}, OnCallbackV6Work, uv_qos_user_initiated) != 0) {
         IAM_LOGE("uv_queue_work_with_qos fail");
-        DestoryWork(work);
+        DestroyWork(work);
     }
 }
 } // namespace UserAuth

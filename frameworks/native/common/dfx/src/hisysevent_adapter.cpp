@@ -69,15 +69,15 @@ static std::string MaskForStringId(const std::string &id)
     return id.substr(0, MASK_WIDTH) + "**" + id.substr(id.length() - MASK_WIDTH, id.length());
 }
 
-void ReportSystemFault(const std::string &timeString, const std::string &moudleName)
+void ReportSystemFault(const std::string &timeString, const std::string &moduleName)
 {
     int32_t ret = HiSysEventWrite(HiSysEvent::Domain::USERIAM_FWK, "USERIAM_SYSTEM_FAULT",
         HiSysEvent::EventType::FAULT,
         STR_HAPPEN_TIME, timeString,
-        STR_MODULE_NAME, moudleName);
+        STR_MODULE_NAME, moduleName);
     if (ret != 0) {
-        IAM_LOGE("hisysevent write failed! ret %{public}d, timeString %{public}s, moudleName %{public}s.",
-            ret, timeString.c_str(), moudleName.c_str());
+        IAM_LOGE("hisysevent write failed! ret %{public}d, timeString %{public}s, moduleName %{public}s.",
+            ret, timeString.c_str(), moduleName.c_str());
     }
 }
 
