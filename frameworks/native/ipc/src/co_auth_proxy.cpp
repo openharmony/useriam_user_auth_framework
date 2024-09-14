@@ -52,7 +52,7 @@ int32_t CoAuthProxy::WriteExecutorInfo(const ExecutorRegisterInfo &info, Message
         return WRITE_PARCEL_ERROR;
     }
     if (!data.WriteUint32(info.maxTemplateAcl)) {
-        IAM_LOGE("failed to write esl");
+        IAM_LOGE("failed to write maxTemplateAcl");
         return WRITE_PARCEL_ERROR;
     }
     if (!data.WriteUInt8Vector(info.publicKey)) {

@@ -31,7 +31,7 @@ struct CallbackHolder {
     napi_env env;
 };
 
-void DestoryWork(uv_work_t *work)
+void DestroyWork(uv_work_t *work)
 {
     if (work == nullptr) {
         return;
@@ -52,25 +52,25 @@ void OnWork(uv_work_t *work, int status)
     CallbackHolder *holder = reinterpret_cast<CallbackHolder *>(work->data);
     if (holder == nullptr || holder->callback == nullptr) {
         IAM_LOGE("holder is invalid");
-        DestoryWork(work);
+        DestroyWork(work);
         return;
     }
     napi_handle_scope scope = nullptr;
     napi_open_handle_scope(holder->env, &scope);
     if (scope == nullptr) {
         IAM_LOGE("scope is invalid");
-        DestoryWork(work);
+        DestroyWork(work);
         return;
     }
     napi_status ret = holder->callback->DoCommandCallback(holder->cmdData);
     if (ret != napi_ok) {
         IAM_LOGE("DoResultCallback fail %{public}d", ret);
         napi_close_handle_scope(holder->env, scope);
-        DestoryWork(work);
+        DestroyWork(work);
         return;
     }
     napi_close_handle_scope(holder->env, scope);
-    DestoryWork(work);
+    DestroyWork(work);
 }
 }
 
@@ -152,7 +152,7 @@ void UserAuthWidgetCallback::SendCommand(const std::string &cmdData)
     work->data = reinterpret_cast<void *>(holder);
     if (uv_queue_work_with_qos(loop, work, [](uv_work_t *work) {}, OnWork, uv_qos_user_initiated) != 0) {
         IAM_LOGE("uv_queue_work_with_qos fail");
-        DestoryWork(work);
+        DestroyWork(work);
     }
 }
 } // namespace UserAuth
