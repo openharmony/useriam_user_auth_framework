@@ -93,7 +93,16 @@ int32_t UserAuthStub::GetAvailableStatusStub(MessageParcel &data, MessageParcel 
     int32_t authType;
     uint32_t authTrustLevel;
     int32_t apiVersion;
-
+    int32_t userId;
+    bool isSpecificUserId = false;
+    if (!data.ReadBool(isSpecificUserId)) {
+        IAM_LOGE("failed to read isSpecificUserId");
+        return READ_PARCEL_ERROR;
+    }
+    if (isSpecificUserId && !data.ReadInt32(userId)) {
+        IAM_LOGE("failed to read userId");
+        return READ_PARCEL_ERROR;
+    }
     if (!data.ReadInt32(authType)) {
         IAM_LOGE("failed to read authType");
         return READ_PARCEL_ERROR;
@@ -103,12 +112,19 @@ int32_t UserAuthStub::GetAvailableStatusStub(MessageParcel &data, MessageParcel 
         return READ_PARCEL_ERROR;
     }
     if (!data.ReadInt32(apiVersion)) {
-        IAM_LOGE("failed to read authType");
+        IAM_LOGE("failed to read apiVersion");
         return READ_PARCEL_ERROR;
     }
 
-    int32_t result = GetAvailableStatus(apiVersion,
-        static_cast<AuthType>(authType), static_cast<AuthTrustLevel>(authTrustLevel));
+    int32_t result = GENERAL_ERROR;
+    if (isSpecificUserId) {
+        result =  GetAvailableStatus(apiVersion, userId, static_cast<AuthType>(authType),
+            static_cast<AuthTrustLevel>(authTrustLevel));
+    } else {
+        result =  GetAvailableStatus(apiVersion, static_cast<AuthType>(authType),
+            static_cast<AuthTrustLevel>(authTrustLevel));
+    }
+
     if (!reply.WriteInt32(result)) {
         IAM_LOGE("failed to write GetAvailableStatus result");
         return WRITE_PARCEL_ERROR;

@@ -179,9 +179,23 @@ bool UserAuthService::CheckAuthTrustLevel(AuthTrustLevel authTrustLevel)
     return true;
 }
 
+int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, int32_t userId, AuthType authType,
+    AuthTrustLevel authTrustLevel)
+{
+    IAM_LOGI("start with userId");
+
+    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
+        !IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        return CHECK_PERMISSION_FAILED;
+    }
+    return GetAvailableStatusInner(apiVersion, userId, authType, authTrustLevel);
+}
+
 int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel)
 {
-    IAM_LOGI("start");
+    IAM_LOGI("start without userId");
+
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
         !IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
         IAM_LOGE("failed to check permission");
@@ -191,14 +205,20 @@ int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authTyp
         IAM_LOGE("authType not support");
         return TYPE_NOT_SUPPORT;
     }
+    int32_t userId = INVALID_USER_ID;
+    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
+        IAM_LOGE("failed to get userId");
+        return GENERAL_ERROR;
+    }
+    return GetAvailableStatusInner(apiVersion, userId, authType, authTrustLevel);
+}
+
+int32_t UserAuthService::GetAvailableStatusInner(int32_t apiVersion, int32_t userId, AuthType authType,
+    AuthTrustLevel authTrustLevel)
+{
     if (!CheckAuthTrustLevel(authTrustLevel)) {
         IAM_LOGE("authTrustLevel is not in correct range");
         return TRUST_LEVEL_NOT_SUPPORT;
-    }
-    int32_t userId;
-    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
-        IAM_LOGE("failed to get callingUserId");
-        return GENERAL_ERROR;
     }
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi == nullptr) {

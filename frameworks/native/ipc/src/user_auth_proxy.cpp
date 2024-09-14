@@ -34,15 +34,44 @@ UserAuthProxy::UserAuthProxy(const sptr<IRemoteObject> &object) : IRemoteProxy<U
 {
 }
 
-int32_t UserAuthProxy::GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel)
+int32_t UserAuthProxy::GetAvailableStatus(int32_t apiVersion, int32_t userId, AuthType authType,
+    AuthTrustLevel authTrustLevel)
 {
     MessageParcel data;
-    MessageParcel reply;
-
     if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
         IAM_LOGE("failed to write descriptor");
         return WRITE_PARCEL_ERROR;
     }
+    bool isSpecificUserId = true;
+    if (!data.WriteBool(isSpecificUserId)) {
+        IAM_LOGE("failed to write isSpecificUserId");
+        return WRITE_PARCEL_ERROR;
+    }
+    if (!data.WriteInt32(userId)) {
+        IAM_LOGE("failed to write userId");
+        return WRITE_PARCEL_ERROR;
+    }
+    return GetAvailableStatusInner(apiVersion, authType, authTrustLevel, data);
+}
+
+int32_t UserAuthProxy::GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
+        IAM_LOGE("failed to write descriptor");
+        return WRITE_PARCEL_ERROR;
+    }
+    bool isSpecificUserId = false;
+    if (!data.WriteBool(isSpecificUserId)) {
+        IAM_LOGE("failed to write isSpecificUserId");
+        return WRITE_PARCEL_ERROR;
+    }
+    return GetAvailableStatusInner(apiVersion, authType, authTrustLevel, data);
+}
+
+int32_t UserAuthProxy::GetAvailableStatusInner(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel,
+    MessageParcel &data)
+{
     if (!data.WriteInt32(authType)) {
         IAM_LOGE("failed to write authType");
         return WRITE_PARCEL_ERROR;
@@ -56,6 +85,7 @@ int32_t UserAuthProxy::GetAvailableStatus(int32_t apiVersion, AuthType authType,
         return WRITE_PARCEL_ERROR;
     }
 
+    MessageParcel reply;
     bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_GET_AVAILABLE_STATUS, data, reply);
     if (!ret) {
         IAM_LOGE("failed to send get available status IPC request");
