@@ -33,6 +33,9 @@ namespace UserIam {
 namespace UserAuth {
 class UserAuthInterface : public IRemoteBroker {
 public:
+    virtual int32_t GetAvailableStatus(int32_t apiVersion, int32_t userId, AuthType authType,
+        AuthTrustLevel authTrustLevel) = 0;
+
     virtual int32_t GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel) = 0;
 
     virtual void GetProperty(int32_t userId, AuthType authType,

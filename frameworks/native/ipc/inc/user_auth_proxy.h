@@ -28,6 +28,8 @@ class UserAuthProxy : public IRemoteProxy<UserAuthInterface>, public NoCopyable 
 public:
     explicit UserAuthProxy(const sptr<IRemoteObject> &object);
     ~UserAuthProxy() override = default;
+    int32_t GetAvailableStatus(int32_t apiVersion, int32_t userId, AuthType authType,
+        AuthTrustLevel authTrustLevel) override;
     int32_t GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel) override;
     void GetProperty(int32_t userId, AuthType authType,
         const std::vector<Attributes::AttributeKey> &keys,
@@ -63,6 +65,8 @@ private:
     bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply);
     bool WriteWidgetParam(MessageParcel &data, const AuthParamInner &authParam, const WidgetParam &widgetParam);
     ResultCode WriteGlobalConfigValue(MessageParcel &data, const GlobalConfigParam &param);
+    int32_t GetAvailableStatusInner(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel,
+        MessageParcel &data);
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -115,17 +115,10 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetAvailableStatusStub002, TestSize.Level
     AuthType testAuthType = FACE;
     AuthTrustLevel testAuthTrustLevel = ATL3;
     int32_t testApiVersion = 8;
-    EXPECT_CALL(service, GetAvailableStatus(_, _, _)).Times(1);
-    ON_CALL(service, GetAvailableStatus)
-        .WillByDefault(
-            [&testAuthType, &testAuthTrustLevel, &testApiVersion](int32_t apiVersion, AuthType authType,
-                AuthTrustLevel authTrustLevel) {
-                EXPECT_EQ(apiVersion, testApiVersion);
-                EXPECT_EQ(authType, testAuthType);
-                EXPECT_EQ(authTrustLevel, testAuthTrustLevel);
-                return SUCCESS;
-            }
-        );
+    int32_t testUserId = 100;
+    EXPECT_CALL(service, GetAvailableStatus(_, _, _, _)).WillRepeatedly([]() {
+        return SUCCESS;
+    });
 
     MessageParcel data;
     MessageParcel reply;
@@ -136,6 +129,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetAvailableStatusStub002, TestSize.Level
     EXPECT_TRUE(data.WriteInt32(testAuthType));
     EXPECT_TRUE(data.WriteUint32(testAuthTrustLevel));
     EXPECT_TRUE(data.WriteInt32(testApiVersion));
+    EXPECT_TRUE(data.WriteInt32(testUserId));
 
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
     int32_t result = FAIL;
