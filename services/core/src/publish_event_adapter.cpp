@@ -32,15 +32,10 @@ const std::string USER_PIN_CREATED_EVENT = "USER_PIN_CREATED_EVENT";
 const std::string USER_PIN_DELETED_EVENT = "USER_PIN_DELETED_EVENT";
 const std::string USER_PIN_UPDATED_EVENT = "USER_PIN_UPDATED_EVENT";
 const std::string USER_CREDENTIAL_UPDATED_EVENT = "USER_CREDENTIAL_UPDATED_EVENT";
-const std::string USERIAM_COMMON_EVENT_PERMISSION = "ohos.permission.USE_USER_IDM";
-const std::string USERIAM_COMMON_EVENT_SAMGR_PERMISSION = "ohos.permission.INTERACT_ACROSS_LOCAL_ACCOUNTS";
 
-void PublishEvent(EventFwk::CommonEventData data, const std::string permission)
+void PublishEvent(EventFwk::CommonEventData data)
 {
     EventFwk::CommonEventPublishInfo publishInfo;
-    std::vector<std::string> permissions;
-    permissions.push_back(permission);
-    publishInfo.SetSubscriberPermissions(permissions);
     publishInfo.SetSticky(false);
     if (!EventFwk::CommonEventManager::PublishCommonEvent(data, publishInfo)) {
         IAM_LOGE("PublishCommonEvent failed, eventAction is %{public}s", data.GetWant().GetAction().c_str());
@@ -56,7 +51,7 @@ void PublishEventAdapter::PublishDeletedEvent(int32_t userId)
     want.SetAction(USER_PIN_DELETED_EVENT);
     EventFwk::CommonEventData data(want);
     data.SetCode(userId);
-    PublishEvent(data, USERIAM_COMMON_EVENT_SAMGR_PERMISSION);
+    PublishEvent(data);
     return;
 }
 
@@ -71,7 +66,7 @@ void PublishEventAdapter::PublishCreatedEvent(int32_t userId, uint64_t scheduleI
     want.SetParam(TAG_SCHEDULEID, std::to_string(scheduleId));
     EventFwk::CommonEventData data(want);
     data.SetCode(userId);
-    PublishEvent(data, USERIAM_COMMON_EVENT_SAMGR_PERMISSION);
+    PublishEvent(data);
     return;
 }
 
@@ -86,7 +81,7 @@ void PublishEventAdapter::PublishUpdatedEvent(int32_t userId, uint64_t scheduleI
     want.SetParam(TAG_SCHEDULEID, std::to_string(scheduleId));
     EventFwk::CommonEventData data(want);
     data.SetCode(userId);
-    PublishEvent(data, USERIAM_COMMON_EVENT_SAMGR_PERMISSION);
+    PublishEvent(data);
     return;
 }
 
@@ -99,7 +94,7 @@ void PublishEventAdapter::PublishCredentialUpdatedEvent(int32_t userId, int32_t 
     want.SetParam(TAG_CREDENTIALCOUNT, std::to_string(credentialCount));
     EventFwk::CommonEventData data(want);
     data.SetCode(0);
-    PublishEvent(data, USERIAM_COMMON_EVENT_PERMISSION);
+    PublishEvent(data);
     IAM_LOGI("PublishCredentialUpdatedEvent, userId: %{public}d, authType: %{public}d, credentialCount: %{public}u",
         userId, authType, credentialCount);
     return;
