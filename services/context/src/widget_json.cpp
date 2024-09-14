@@ -69,7 +69,7 @@ const std::string JSON_CALLER_BUNDLE_NAME = "callingBundleName";
 const std::string JSON_CMD_EXTRA_INFO = "extraInfo";
 
 namespace {
-void GetJsonPayload(nlohmann::json &jsonPayload, const WidgetCommand::Cmd &cmd)
+void GetJsonPayload(nlohmann::json &jsonPayload, const WidgetCommand::Cmd &cmd, bool setExtraInfo)
 {
     jsonPayload[JSON_AUTH_TYPE] = cmd.type;
     if (cmd.lockoutDuration != -1) {
@@ -88,12 +88,14 @@ void GetJsonPayload(nlohmann::json &jsonPayload, const WidgetCommand::Cmd &cmd)
     if (!cmd.sensorInfo.empty()) {
         jsonPayload[JSON_SENSOR_INFO] = cmd.sensorInfo;
     }
-    auto jsonCmdExtraInfo = nlohmann::json({{JSON_CHALLENGE, cmd.extraInfo.challenge},
+    if (setExtraInfo) {
+        auto jsonCmdExtraInfo = nlohmann::json({{JSON_CHALLENGE, cmd.extraInfo.challenge},
         {JSON_CALLER_BUNDLE_NAME, cmd.extraInfo.callingBundleName}});
-    jsonPayload[JSON_CMD_EXTRA_INFO] = jsonCmdExtraInfo;
+        jsonPayload[JSON_CMD_EXTRA_INFO] = jsonCmdExtraInfo;
+    }
 }
 
-void GetJsonCmd(nlohmann::json &jsonCommand, const WidgetCommand &command)
+void GetJsonCmd(nlohmann::json &jsonCommand, const WidgetCommand &command, bool setExtraInfo)
 {
     std::vector<nlohmann::json> jsonCmdList;
     for (auto &cmd : command.cmdList) {
@@ -101,7 +103,7 @@ void GetJsonCmd(nlohmann::json &jsonCommand, const WidgetCommand &command)
             {JSON_AUTH_VERSION, cmd.version}
         });
         nlohmann::json jsonPayload;
-        GetJsonPayload(jsonPayload, cmd);
+        GetJsonPayload(jsonPayload, cmd, setExtraInfo);
         jsonCmd[JSON_AUTH_PAYLOAD] = jsonPayload;
         jsonCmdList.push_back(jsonCmd);
     }
@@ -247,14 +249,14 @@ void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice)
 
 void to_json(nlohmann::json &jsonCommand, const WidgetCommand &command)
 {
-    GetJsonCmd(jsonCommand, command);
+    GetJsonCmd(jsonCommand, command, true);
 }
 
 // WidgetCmdParameters
 void to_json(nlohmann::json &jsWidgetCmdParam, const WidgetCmdParameters &widgetCmdParameters)
 {
     nlohmann::json jsonCommand;
-    GetJsonCmd(jsonCommand, widgetCmdParameters.useriamCmdData);
+    GetJsonCmd(jsonCommand, widgetCmdParameters.useriamCmdData, false);
 
     jsWidgetCmdParam = nlohmann::json({{JSON_UI_EXTENSION_TYPE, widgetCmdParameters.uiExtensionType},
         {JSON_UI_EXT_NODE_ANGLE, widgetCmdParameters.uiExtNodeAngle},

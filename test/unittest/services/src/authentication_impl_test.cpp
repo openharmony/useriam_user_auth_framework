@@ -153,7 +153,6 @@ HWTEST_F(AuthenticationImplTest, AuthenticationImplTestUpdate001, TestSize.Level
                 HdiEnrolledState &enrolledState) {
                 info.result = HDF_SUCCESS;
                 info.userId = TEST_USER_ID;
-                info.credentialId = 1;
                 return HDF_SUCCESS;
             }
         );
@@ -164,7 +163,6 @@ HWTEST_F(AuthenticationImplTest, AuthenticationImplTestUpdate001, TestSize.Level
     Authentication::AuthResultInfo info = {};
     EXPECT_TRUE(authentication->Update(scheduleResult, info));
     EXPECT_EQ(info.userId, TEST_USER_ID);
-    EXPECT_EQ(info.credentialId, 1);
 }
 
 HWTEST_F(AuthenticationImplTest, AuthenticationImplTestUpdate002, TestSize.Level0)

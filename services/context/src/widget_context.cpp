@@ -468,11 +468,11 @@ bool WidgetContext::DisconnectExtension()
     }
     connection_->ReleaseUIExtensionComponent();
     ErrCode ret = AAFwk::ExtensionManagerClient::GetInstance().DisconnectAbility(connection_);
+    connection_ = nullptr;
     if (ret != ERR_OK) {
         IAM_LOGE("disconnect extension ability failed ret: %{public}d.", ret);
         return false;
     }
-    connection_ = nullptr;
     return true;
 }
 
@@ -557,11 +557,6 @@ std::string WidgetContext::BuildStartCommand(const WidgetRotatePara &widgetRotat
         }
         cmd.remainAttempts = profile.remainTimes;
         cmd.lockoutDuration = profile.freezingTime;
-        WidgetCommand::ExtraInfo extraInfo {
-            .callingBundleName = para_.callingBundleName,
-            .challenge = para_.challenge
-        };
-        cmd.extraInfo = extraInfo;
         widgetCmdParameters.useriamCmdData.cmdList.push_back(cmd);
     }
     widgetCmdParameters.useriamCmdData.typeList = typeList;
