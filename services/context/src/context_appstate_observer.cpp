@@ -67,7 +67,7 @@ void ContextAppStateObserverManager::SubscribeAppState(const std::shared_ptr<Con
         IAM_LOGE("GetAppManagerInstance failed");
         return;
     }
-                        
+
     appStateObserver_ = new (std::nothrow) ContextAppStateObserver(contextId, bundleName);
     if (appStateObserver_ == nullptr) {
         IAM_LOGE("get appStateObserver failed");

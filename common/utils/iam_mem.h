@@ -22,16 +22,6 @@
 namespace OHOS {
 namespace UserIam {
 namespace Common {
-template <typename T>
-inline void Pack(std::vector<uint8_t> &dst, const T &data)
-{
-    const uint8_t *src = static_cast<const uint8_t *>(static_cast<const void *>(&data));
-    dst.insert(dst.end(), src, src + sizeof(T));
-}
-
-int32_t UnpackUint64(const std::vector<uint8_t> &src, size_t index, uint64_t &data);
-int32_t UnpackInt32(const std::vector<uint8_t> &src, size_t index, int32_t &data);
-
 inline uint32_t CombineUint16ToUint32(uint16_t upper, uint16_t lower)
 {
     return (static_cast<uint32_t>(upper) << 16U) | lower;
