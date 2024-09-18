@@ -415,7 +415,15 @@ uint64_t UserAuthClientImpl::BeginWidgetAuth(const WidgetAuthParam &authParam, c
 {
     IAM_LOGI("start, authTypeSize:%{public}zu authTrustLevel:%{public}u", authParam.authTypes.size(),
         authParam.authTrustLevel);
-    return BeginWidgetAuth(INNER_API_VERSION_10000, authParam, widgetParam, callback);
+    AuthParamInner authParamInner = {
+        .userId = authParam.userId,
+        .isUserIdSpecified = true,
+        .challenge = authParam.challenge,
+        .authTypes = authParam.authTypes,
+        .authTrustLevel = authParam.authTrustLevel,
+        .reuseUnlockResult = authParam.reuseUnlockResult,
+    };
+    return BeginWidgetAuthInner(INNER_API_VERSION_10000, authParamInner, widgetParam, callback);
 }
 
 uint64_t UserAuthClientImpl::BeginWidgetAuth(int32_t apiVersion, const WidgetAuthParam &authParam,
@@ -423,7 +431,20 @@ uint64_t UserAuthClientImpl::BeginWidgetAuth(int32_t apiVersion, const WidgetAut
 {
     IAM_LOGI("start, apiVersion:%{public}d authTypeSize:%{public}zu authTrustLevel:%{public}u",
         apiVersion, authParam.authTypes.size(), authParam.authTrustLevel);
-    // parameter verification
+
+    AuthParamInner authParamInner = {
+        .isUserIdSpecified = false,
+        .challenge = authParam.challenge,
+        .authTypes = authParam.authTypes,
+        .authTrustLevel = authParam.authTrustLevel,
+        .reuseUnlockResult = authParam.reuseUnlockResult,
+    };
+    return BeginWidgetAuthInner(apiVersion, authParamInner, widgetParam, callback);
+}
+
+uint64_t UserAuthClientImpl::BeginWidgetAuthInner(int32_t apiVersion, const AuthParamInner &authParam,
+    const WidgetParam &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback)
+{
     if (!callback) {
         IAM_LOGE("auth callback is nullptr");
         return INVALID_SESSION_ID;
@@ -443,14 +464,7 @@ uint64_t UserAuthClientImpl::BeginWidgetAuth(int32_t apiVersion, const WidgetAut
         callback->OnResult(static_cast<int32_t>(ResultCode::GENERAL_ERROR), extraInfo);
         return INVALID_SESSION_ID;
     }
-    AuthParamInner authParamInner = {
-        .userId = authParam.userId,
-        .challenge = authParam.challenge,
-        .authTypes = authParam.authTypes,
-        .authTrustLevel = authParam.authTrustLevel,
-        .reuseUnlockResult = authParam.reuseUnlockResult,
-    };
-    return proxy->AuthWidget(apiVersion, authParamInner, widgetParam, wrapper);
+    return proxy->AuthWidget(apiVersion, authParam, widgetParam, wrapper);
 }
 
 int32_t UserAuthClientImpl::SetWidgetCallback(int32_t version, const std::shared_ptr<IUserAuthWidgetCallback> &callback)
