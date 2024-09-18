@@ -23,7 +23,6 @@
 #include "auth_event_listener_manager.h"
 #include "auth_widget_helper.h"
 #include "context_factory.h"
-#include "auth_common.h"
 #include "context_helper.h"
 #include "hdi_wrapper.h"
 #include "iam_check.h"
@@ -423,7 +422,7 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
         contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    int32_t userId;
+    int32_t userId = INVALID_USER_ID;
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("get callingUserId failed");
         contextCallback->SetTraceAuthFinishReason("UserAuthService Auth GetCallingUserId fail");
@@ -897,16 +896,13 @@ int32_t UserAuthService::CheckValidSolution(int32_t userId, const AuthParamInner
     return SUCCESS;
 }
 
-int32_t UserAuthService::GetCallerInfo(bool isUserIdSpecified, int32_t userId, ContextFactory::AuthWidgetContextPara &para,
-    std::shared_ptr<ContextCallback> &contextCallback)
+int32_t UserAuthService::GetCallerInfo(bool isUserIdSpecified, int32_t userId,
+    ContextFactory::AuthWidgetContextPara &para, std::shared_ptr<ContextCallback> &contextCallback)
 {
     static_cast<void>(IpcCommon::GetCallerName(*this, para.callerName, para.callerType));
     contextCallback->SetTraceCallerName(para.callerName);
     contextCallback->SetTraceCallerType(para.callerType);
     static_cast<void>(IpcCommon::GetCallingAppID(*this, para.callingAppID));
-    if (para.callerType == Security::AccessToken::TOKEN_HAP) {
-        para.callingBundleName = para.callerName;
-    }
 
     if (isUserIdSpecified) {
         para.userId = userId;
@@ -1082,7 +1078,7 @@ int32_t UserAuthService::GetEnrolledState(int32_t apiVersion, AuthType authType,
         return TYPE_NOT_SUPPORT;
     }
 
-    int32_t userId;
+    int32_t userId = INVALID_USER_ID;
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("failed to get callingUserId");
         return GENERAL_ERROR;

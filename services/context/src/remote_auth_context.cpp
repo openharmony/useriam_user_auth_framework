@@ -33,7 +33,7 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
-constexpr uint32_t TIME_OUT_MS = 3 * 60 * 1000; // 3min
+constexpr uint32_t SETUP_CONNECTION_TIME_OUT_MS = 3 * 60 * 1000; // 3min
 }
 class RemoteAuthContextMessageCallback : public ConnectionListener, public NoCopyable {
 public:
@@ -132,7 +132,7 @@ bool RemoteAuthContext::OnStart()
             IF_FALSE_LOGE_AND_RETURN(sharedThis != nullptr);
             OnTimeOut();
         },
-        TIME_OUT_MS);
+        SETUP_CONNECTION_TIME_OUT_MS);
 
     if (needSetupConnection_) {
         IAM_LOGI("%{public}s SetupConnection", GetDescription());

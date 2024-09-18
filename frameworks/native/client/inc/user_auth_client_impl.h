@@ -82,7 +82,6 @@ private:
     sptr<UserAuthInterface> proxy_ {nullptr};
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
     constexpr static int32_t MINIMUM_VERSION {0};
-    constexpr static uint64_t INVALID_SESSION_ID {0};
     std::mutex mutex_;
 };
 } // namespace UserAuth

@@ -121,8 +121,8 @@ int32_t UserAuthStub::GetAvailableStatusStub(MessageParcel &data, MessageParcel 
         result =  GetAvailableStatus(apiVersion, userId, static_cast<AuthType>(authType),
             static_cast<AuthTrustLevel>(authTrustLevel));
     } else {
-            result =  GetAvailableStatus(apiVersion, static_cast<AuthType>(authType),
-        static_cast<AuthTrustLevel>(authTrustLevel));
+        result =  GetAvailableStatus(apiVersion, static_cast<AuthType>(authType),
+            static_cast<AuthTrustLevel>(authTrustLevel));
     }
 
     if (!reply.WriteInt32(result)) {

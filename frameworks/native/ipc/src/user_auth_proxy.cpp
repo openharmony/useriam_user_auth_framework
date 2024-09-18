@@ -26,7 +26,6 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
-    const uint64_t BAD_CONTEXT_ID = 0;
     const uint32_t MAX_ATTR_COUNT = 512;
 } // namespace
 

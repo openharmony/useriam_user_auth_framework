@@ -59,7 +59,7 @@ void CallbackManagerImpl::OnServiceDeath()
     IAM_LOGI("start");
     std::lock_guard<std::mutex> lock(mutex_);
     for (const auto &item : callbackActionMap_) {
-        if (item.second) {
+        if (item.second != nullptr) {
             item.second();
         }
     }

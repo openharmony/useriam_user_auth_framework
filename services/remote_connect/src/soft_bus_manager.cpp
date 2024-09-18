@@ -75,7 +75,7 @@ void SoftBusManager::Start()
 {
     IAM_LOGD("start.");
     std::unique_lock<std::recursive_mutex> lock(mutex_);
-    if (inited_ == true) {
+    if (inited_) {
         IAM_LOGI("already initialized, skip");
         return;
     }
@@ -96,7 +96,7 @@ void SoftBusManager::Stop()
 {
     IAM_LOGD("start.");
     std::unique_lock<std::recursive_mutex> lock(mutex_);
-    if (inited_ == false) {
+    if (!inited_) {
         IAM_LOGI("not inited, skip");
         return;
     }

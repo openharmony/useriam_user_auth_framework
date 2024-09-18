@@ -29,7 +29,6 @@ public:
     MOCK_METHOD4(GetAvailableStatus, int32_t(int32_t apiVersion, int32_t userId, AuthType authType,
         AuthTrustLevel authTrustLevel));
 
-
     int32_t GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel)
     {
         return 0;

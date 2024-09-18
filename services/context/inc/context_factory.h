@@ -43,10 +43,9 @@ public:
     };
 
     struct AuthWidgetContextPara {
-        int32_t userId {0};
+        int32_t userId {INVALID_USER_ID};
         int32_t sdkVersion {0};
         uint32_t tokenId {0};
-        std::string callingBundleName {""};
         std::string callerName {""};
         std::vector<uint8_t> challenge {};
         std::vector<AuthType> authTypeList {};
