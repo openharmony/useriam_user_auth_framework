@@ -254,7 +254,7 @@ void to_json(nlohmann::json &jsonNotice, const WidgetNotice &notice)
         {JSON_AUTH_PAYLOAD, type}});
 }
 
-bool isNumberItem(const nlohmann::json &jsonNotice, const std::string item)
+bool isNumberItem(const nlohmann::json &jsonNotice, const std::string &item)
 {
     if (jsonNotice.find(item) != jsonNotice.end() && jsonNotice[item].is_number()) {
         return true;

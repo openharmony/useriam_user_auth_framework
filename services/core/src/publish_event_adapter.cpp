@@ -35,7 +35,7 @@ const std::string USER_CREDENTIAL_UPDATED_EVENT = "USER_CREDENTIAL_UPDATED_EVENT
 const std::string USERIAM_COMMON_EVENT_PERMISSION = "ohos.permission.USE_USER_IDM";
 const std::string USERIAM_COMMON_EVENT_SAMGR_PERMISSION = "ohos.permission.INTERACT_ACROSS_LOCAL_ACCOUNTS";
 
-void PublishEvent(EventFwk::CommonEventData data, const std::string permission)
+void PublishEvent(EventFwk::CommonEventData data, const std::string &permission)
 {
     EventFwk::CommonEventPublishInfo publishInfo;
     std::vector<std::string> permissions;
