@@ -46,7 +46,7 @@ public:
     void OnMessage(const std::string &connectionName, const std::string &srcEndPoint,
         const std::shared_ptr<Attributes> &request, std::shared_ptr<Attributes> &reply) override;
 
-    int32_t ProcStartRemoteAuthRequest(std::string connectionName, const std::shared_ptr<Attributes> &request,
+    int32_t ProcStartRemoteAuthRequest(const std::string &connectionName, const std::shared_ptr<Attributes> &request,
         std::shared_ptr<Attributes> &reply) override;
     int32_t ProcQueryExecutorInfoRequest(const std::shared_ptr<Attributes> &request,
         std::shared_ptr<Attributes> &reply) override;
@@ -196,7 +196,7 @@ std::shared_ptr<ContextCallback> RemoteAuthServiceImpl::GetRemoteAuthContextCall
     return contextCallback;
 }
 
-int32_t RemoteAuthServiceImpl::ProcStartRemoteAuthRequest(std::string connectionName,
+int32_t RemoteAuthServiceImpl::ProcStartRemoteAuthRequest(const std::string &connectionName,
     const std::shared_ptr<Attributes> &request, std::shared_ptr<Attributes> &reply)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
