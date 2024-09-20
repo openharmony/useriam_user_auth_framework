@@ -55,6 +55,7 @@ public:
         int32_t callerType {0};
         std::string callingAppID {""};
         bool isPinExpired {false};
+        bool isOsAccountVerified {false};
     };
 
     static std::shared_ptr<Context> CreateSimpleAuthContext(const Authentication::AuthenticationPara &para,
