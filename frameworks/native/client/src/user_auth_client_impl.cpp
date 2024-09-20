@@ -209,7 +209,7 @@ uint64_t UserAuthClientImpl::BeginAuthentication(const AuthParam &authParam,
 
     if (!callback) {
         IAM_LOGE("auth callback is nullptr");
-        return INVALID_SESSION_ID;
+        return BAD_CONTEXT_ID;
     }
 
     auto proxy = GetProxy();
@@ -217,7 +217,7 @@ uint64_t UserAuthClientImpl::BeginAuthentication(const AuthParam &authParam,
         IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
         callback->OnResult(GENERAL_ERROR, extraInfo);
-        return INVALID_SESSION_ID;
+        return BAD_CONTEXT_ID;
     }
 
     sptr<UserAuthCallbackInterface> wrapper(new (std::nothrow) UserAuthCallbackService(callback));
@@ -225,7 +225,7 @@ uint64_t UserAuthClientImpl::BeginAuthentication(const AuthParam &authParam,
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
         callback->OnResult(GENERAL_ERROR, extraInfo);
-        return INVALID_SESSION_ID;
+        return BAD_CONTEXT_ID;
     }
     AuthParamInner authParamInner = {
         .userId = authParam.userId,
@@ -244,7 +244,7 @@ uint64_t UserAuthClientImpl::BeginNorthAuthentication(int32_t apiVersion, const 
     IAM_LOGI("start, apiVersion:%{public}d authType:%{public}d atl:%{public}u", apiVersion, authType, atl);
     if (!callback) {
         IAM_LOGE("auth callback is nullptr");
-        return INVALID_SESSION_ID;
+        return BAD_CONTEXT_ID;
     }
 
     auto northCallback = Common::MakeShared<NorthAuthenticationCallback>(callback);
@@ -252,7 +252,7 @@ uint64_t UserAuthClientImpl::BeginNorthAuthentication(int32_t apiVersion, const 
         IAM_LOGE("auth callback is nullptr");
         Attributes extraInfo;
         callback->OnResult(GENERAL_ERROR, extraInfo);
-        return INVALID_SESSION_ID;
+        return BAD_CONTEXT_ID;
     }
 
     auto proxy = GetProxy();
@@ -260,7 +260,7 @@ uint64_t UserAuthClientImpl::BeginNorthAuthentication(int32_t apiVersion, const 
         IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
         callback->OnResult(GENERAL_ERROR, extraInfo);
-        return INVALID_SESSION_ID;
+        return BAD_CONTEXT_ID;
     }
 
     sptr<UserAuthCallbackInterface> wrapper(new (std::nothrow) UserAuthCallbackService(northCallback));
@@ -268,7 +268,7 @@ uint64_t UserAuthClientImpl::BeginNorthAuthentication(int32_t apiVersion, const 
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
         callback->OnResult(GENERAL_ERROR, extraInfo);
-        return INVALID_SESSION_ID;
+        return BAD_CONTEXT_ID;
     }
     return proxy->Auth(apiVersion, challenge, authType, atl, wrapper);
 }
@@ -291,7 +291,7 @@ uint64_t UserAuthClientImpl::BeginIdentification(const std::vector<uint8_t> &cha
     IAM_LOGI("start, authType:%{public}d", authType);
     if (!callback) {
         IAM_LOGE("identify callback is nullptr");
-        return INVALID_SESSION_ID;
+        return BAD_CONTEXT_ID;
     }
 
     auto proxy = GetProxy();
@@ -299,7 +299,7 @@ uint64_t UserAuthClientImpl::BeginIdentification(const std::vector<uint8_t> &cha
         IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
         callback->OnResult(GENERAL_ERROR, extraInfo);
-        return INVALID_SESSION_ID;
+        return BAD_CONTEXT_ID;
     }
 
     sptr<UserAuthCallbackInterface> wrapper(new (std::nothrow) UserAuthCallbackService(callback));
@@ -307,7 +307,7 @@ uint64_t UserAuthClientImpl::BeginIdentification(const std::vector<uint8_t> &cha
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
         callback->OnResult(GENERAL_ERROR, extraInfo);
-        return INVALID_SESSION_ID;
+        return BAD_CONTEXT_ID;
     }
     return proxy->Identify(challenge, authType, wrapper);
 }
@@ -415,7 +415,15 @@ uint64_t UserAuthClientImpl::BeginWidgetAuth(const WidgetAuthParam &authParam, c
 {
     IAM_LOGI("start, authTypeSize:%{public}zu authTrustLevel:%{public}u", authParam.authTypes.size(),
         authParam.authTrustLevel);
-    return BeginWidgetAuth(INNER_API_VERSION_10000, authParam, widgetParam, callback);
+    AuthParamInner authParamInner = {
+        .userId = authParam.userId,
+        .isUserIdSpecified = true,
+        .challenge = authParam.challenge,
+        .authTypes = authParam.authTypes,
+        .authTrustLevel = authParam.authTrustLevel,
+        .reuseUnlockResult = authParam.reuseUnlockResult,
+    };
+    return BeginWidgetAuthInner(INNER_API_VERSION_10000, authParamInner, widgetParam, callback);
 }
 
 uint64_t UserAuthClientImpl::BeginWidgetAuth(int32_t apiVersion, const WidgetAuthParam &authParam,
@@ -423,17 +431,30 @@ uint64_t UserAuthClientImpl::BeginWidgetAuth(int32_t apiVersion, const WidgetAut
 {
     IAM_LOGI("start, apiVersion:%{public}d authTypeSize:%{public}zu authTrustLevel:%{public}u",
         apiVersion, authParam.authTypes.size(), authParam.authTrustLevel);
-    // parameter verification
+
+    AuthParamInner authParamInner = {
+        .isUserIdSpecified = false,
+        .challenge = authParam.challenge,
+        .authTypes = authParam.authTypes,
+        .authTrustLevel = authParam.authTrustLevel,
+        .reuseUnlockResult = authParam.reuseUnlockResult,
+    };
+    return BeginWidgetAuthInner(apiVersion, authParamInner, widgetParam, callback);
+}
+
+uint64_t UserAuthClientImpl::BeginWidgetAuthInner(int32_t apiVersion, const AuthParamInner &authParam,
+    const WidgetParam &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback)
+{
     if (!callback) {
         IAM_LOGE("auth callback is nullptr");
-        return INVALID_SESSION_ID;
+        return BAD_CONTEXT_ID;
     }
     auto proxy = GetProxy();
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
         callback->OnResult(static_cast<int32_t>(ResultCode::GENERAL_ERROR), extraInfo);
-        return INVALID_SESSION_ID;
+        return BAD_CONTEXT_ID;
     }
 
     sptr<UserAuthCallbackInterface> wrapper(new (std::nothrow) UserAuthCallbackService(callback));
@@ -441,16 +462,9 @@ uint64_t UserAuthClientImpl::BeginWidgetAuth(int32_t apiVersion, const WidgetAut
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
         callback->OnResult(static_cast<int32_t>(ResultCode::GENERAL_ERROR), extraInfo);
-        return INVALID_SESSION_ID;
+        return BAD_CONTEXT_ID;
     }
-    AuthParamInner authParamInner = {
-        .userId = authParam.userId,
-        .challenge = authParam.challenge,
-        .authTypes = authParam.authTypes,
-        .authTrustLevel = authParam.authTrustLevel,
-        .reuseUnlockResult = authParam.reuseUnlockResult,
-    };
-    return proxy->AuthWidget(apiVersion, authParamInner, widgetParam, wrapper);
+    return proxy->AuthWidget(apiVersion, authParam, widgetParam, wrapper);
 }
 
 int32_t UserAuthClientImpl::SetWidgetCallback(int32_t version, const std::shared_ptr<IUserAuthWidgetCallback> &callback)

@@ -126,10 +126,11 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetAvailableStatusStub002, TestSize.Level
     uint32_t code = static_cast<uint32_t>(UserAuthInterfaceCode::USER_AUTH_GET_AVAILABLE_STATUS);
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteBool(true));
+    EXPECT_TRUE(data.WriteInt32(testUserId));
     EXPECT_TRUE(data.WriteInt32(testAuthType));
     EXPECT_TRUE(data.WriteUint32(testAuthTrustLevel));
     EXPECT_TRUE(data.WriteInt32(testApiVersion));
-    EXPECT_TRUE(data.WriteInt32(testUserId));
 
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
     int32_t result = FAIL;

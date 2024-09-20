@@ -16,6 +16,7 @@
 
 #include <algorithm>
 
+#include "accesstoken_kit.h"
 #include "auth_widget_helper.h"
 #include "context_helper.h"
 #include "context_pool.h"
@@ -205,7 +206,7 @@ bool WidgetContext::OnStart()
     WidgetClient::Instance().SetAuthTypeList(para_.authTypeList);
     WidgetClient::Instance().SetWidgetSchedule(schedule_);
     WidgetClient::Instance().SetChallenge(para_.challenge);
-    WidgetClient::Instance().SetCallingBundleName(para_.callingBundleName);
+    WidgetClient::Instance().SetCallingBundleName(GetCallingBundleName());
     schedule_->StartSchedule();
 
     IAM_LOGI("WidgetContext start success.");
@@ -579,7 +580,7 @@ std::string WidgetContext::BuildStartCommand(const WidgetRotatePara &widgetRotat
         cmd.remainAttempts = profile.remainTimes;
         cmd.lockoutDuration = profile.freezingTime;
         WidgetCommand::ExtraInfo extraInfo {
-            .callingBundleName = para_.callingBundleName,
+            .callingBundleName = GetCallingBundleName(),
             .challenge = para_.challenge
         };
         cmd.extraInfo = extraInfo;
@@ -617,6 +618,14 @@ void WidgetContext::ProcessRotatePara(WidgetCmdParameters &widgetCmdParameters,
             widgetCmdParameters.uiExtNodeAngle = TO_PORTRAIT_INVERTED;
         }
     }
+}
+
+std::string WidgetContext::GetCallingBundleName()
+{
+    if (para_.callerType == Security::AccessToken::TOKEN_HAP) {
+        return para_.callerName;
+    }
+    return "";
 }
 } // namespace UserAuth
 } // namespace UserIam

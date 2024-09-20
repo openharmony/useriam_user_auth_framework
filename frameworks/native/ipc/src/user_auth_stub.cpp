@@ -264,7 +264,12 @@ int32_t UserAuthStub::AuthWidgetStub(MessageParcel &data, MessageParcel &reply)
 
     AuthParamInner authParam;
     WidgetParam widgetParam;
-    if (!ReadWidgetParam(data, authParam, widgetParam)) {
+    if (!ReadWidgetAuthParam(data, authParam)) {
+        IAM_LOGE("failed to read widget auth param");
+        return ResultCode::READ_PARCEL_ERROR;
+    }
+
+    if (!ReadWidgetParam(data, widgetParam)) {
         IAM_LOGE("failed to read widget param");
         return ResultCode::READ_PARCEL_ERROR;
     }
@@ -294,8 +299,16 @@ int32_t UserAuthStub::AuthWidgetStub(MessageParcel &data, MessageParcel &reply)
     return ResultCode::SUCCESS;
 }
 
-bool UserAuthStub::ReadWidgetParam(MessageParcel &data, AuthParamInner &authParam, WidgetParam &widgetParam)
+bool UserAuthStub::ReadWidgetAuthParam(MessageParcel &data, AuthParamInner &authParam)
 {
+    if (!data.ReadInt32(authParam.userId)) {
+        IAM_LOGE("failed to read userId");
+        return false;
+    }
+    if (!data.ReadBool(authParam.isUserIdSpecified)) {
+        IAM_LOGE("failed to read isUserIdSpecified");
+        return false;
+    }
     if (!data.ReadUInt8Vector(&authParam.challenge)) {
         IAM_LOGE("failed to read challenge");
         return false;
@@ -333,9 +346,19 @@ bool UserAuthStub::ReadWidgetParam(MessageParcel &data, AuthParamInner &authPara
         }
     }
     authParam.reuseUnlockResult.reuseMode = static_cast<ReuseMode>(reuseMode);
+    return true;
+}
 
-    widgetParam.title = data.ReadString();
-    widgetParam.navigationButtonText = data.ReadString();
+bool UserAuthStub::ReadWidgetParam(MessageParcel &data, WidgetParam &widgetParam)
+{
+    if (!data.ReadString(widgetParam.title)) {
+        IAM_LOGE("failed to read title");
+        return READ_PARCEL_ERROR;
+    }
+    if (!data.ReadString(widgetParam.navigationButtonText)) {
+        IAM_LOGE("failed to read navigationButtonText");
+        return READ_PARCEL_ERROR;
+    }
     int32_t winMode;
     if (!data.ReadInt32(winMode)) {
         IAM_LOGE("failed to read window mode");

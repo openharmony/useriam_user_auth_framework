@@ -223,6 +223,36 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus004, TestSize.Lev
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     testAuthTrustLevel = static_cast<AuthTrustLevel>(0);
     ret = service->GetAvailableStatus(testApiVersion, testUserId, testAuthType, testAuthTrustLevel);
+    EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
+
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    testAuthTrustLevel = static_cast<AuthTrustLevel>(0);
+    ret = service->GetAvailableStatus(testApiVersion, testUserId, testAuthType, testAuthTrustLevel);
+    EXPECT_EQ(ret, TRUST_LEVEL_NOT_SUPPORT);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus005, TestSize.Level0)
+{
+    int32_t testApiVersion = 10000;
+    AuthType testAuthType = PIN;
+    AuthTrustLevel testAuthTrustLevel = ATL2;
+
+    auto service = Common::MakeShared<UserAuthService>();
+    EXPECT_NE(service, nullptr);
+    int32_t ret = service->GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel);
+    EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
+
+    ret = service->GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel);
+    EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
+
+    testAuthType = FACE;
+    ret = service->GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel);
+    EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
+
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    testAuthTrustLevel = static_cast<AuthTrustLevel>(0);
+    ret = service->GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel);
     EXPECT_EQ(ret, TRUST_LEVEL_NOT_SUPPORT);
     IpcCommon::DeleteAllPermission();
 }

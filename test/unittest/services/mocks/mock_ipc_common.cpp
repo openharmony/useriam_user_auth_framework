@@ -36,7 +36,7 @@ bool IpcCommon::skipFlag_ = false;
 
 int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, int32_t &userId)
 {
-    if (userId != 0 || skipFlag_) {
+    if (userId != INVALID_USER_ID || skipFlag_) {
         return FAIL;
     }
     userId = TEST_USER_ID;
