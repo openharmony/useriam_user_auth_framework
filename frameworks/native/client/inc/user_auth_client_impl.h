@@ -65,6 +65,8 @@ public:
 private:
     ResultCode SetPropertyInner(int32_t userId, const SetPropertyRequest &request,
         const std::shared_ptr<SetPropCallback> &callback);
+    uint64_t BeginWidgetAuthInner(int32_t apiVersion, const AuthParamInner &authParam,
+        const WidgetParam &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback);
 
     friend class UserAuthClient;
     UserAuthClientImpl() = default;
@@ -80,7 +82,6 @@ private:
     sptr<UserAuthInterface> proxy_ {nullptr};
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
     constexpr static int32_t MINIMUM_VERSION {0};
-    constexpr static uint64_t INVALID_SESSION_ID {0};
     std::mutex mutex_;
 };
 } // namespace UserAuth

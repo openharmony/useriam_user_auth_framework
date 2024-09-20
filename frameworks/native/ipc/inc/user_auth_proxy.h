@@ -63,7 +63,8 @@ private:
     bool WriteOptionalString(MessageParcel &data, const std::optional<std::string> &str);
     bool WriteOptionalUint32(MessageParcel &data, const std::optional<uint32_t> &val);
     bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply);
-    bool WriteWidgetParam(MessageParcel &data, const AuthParamInner &authParam, const WidgetParam &widgetParam);
+    bool WriteWidgetAuthParam(MessageParcel &data, const AuthParamInner &authParam);
+    bool WriteWidgetParam(MessageParcel &data, const WidgetParam &widgetParam);
     ResultCode WriteGlobalConfigValue(MessageParcel &data, const GlobalConfigParam &param);
     int32_t GetAvailableStatusInner(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel,
         MessageParcel &data);

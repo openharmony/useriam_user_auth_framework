@@ -57,9 +57,6 @@ namespace {
 
 int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, int32_t &userId)
 {
-    if (userId != 0) {
-        return SUCCESS;
-    }
     uint32_t tokenId = GetAccessTokenId(stub);
     using namespace Security::AccessToken;
     ATokenTypeEnum callingType = AccessTokenKit::GetTokenTypeFlag(tokenId);

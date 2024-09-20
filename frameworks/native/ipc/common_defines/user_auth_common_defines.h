@@ -41,6 +41,7 @@ const std::string NOTICE_VERSION_STR = "1";
 const std::string CMD_NOTIFY_AUTH_START = "CMD_NOTIFY_AUTH_START";
 const std::string CMD_NOTIFY_AUTH_RESULT = "CMD_NOTIFY_AUTH_RESULT";
 const std::string CMD_NOTIFY_AUTH_TIP = "CMD_NOTIFY_AUTH_TIP";
+const uint64_t BAD_CONTEXT_ID = 0;
 
 /**
  * @brief Notice type for user authentication.
@@ -56,6 +57,8 @@ enum NoticeType : int32_t {
 struct AuthParamInner {
     /** user id */
     int32_t userId;
+    /** is userId specified */
+    bool isUserIdSpecified;
     /** challenge value */
     std::vector<uint8_t> challenge;
     /** Credential type for authentication. */

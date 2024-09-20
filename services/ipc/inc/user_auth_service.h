@@ -79,8 +79,7 @@ private:
     bool CheckAuthTrustLevel(AuthTrustLevel authTrustLevel);
     bool CheckSingeFaceOrFinger(const std::vector<AuthType> &authType);
     int32_t CheckAuthWidgetType(const std::vector<AuthType> &authType);
-    int32_t CheckAuthPermissionAndParam(int32_t userId, const AuthParamInner &authParam,
-        const WidgetParam &widgetParam);
+    int32_t CheckAuthPermissionAndParam(const AuthParamInner &authParam, const WidgetParam &widgetParam);
     uint64_t StartWidgetContext(const std::shared_ptr<ContextCallback> &contextCallback,
         const AuthParamInner &authParam, const WidgetParam &widgetParam, std::vector<AuthType> &validType,
         ContextFactory::AuthWidgetContextPara &para);
@@ -100,7 +99,7 @@ private:
     bool CheckAuthTypeIsValid(std::vector<AuthType> authType);
     int32_t CheckValidSolution(int32_t userId, const AuthParamInner &authParam, const WidgetParam &widgetParam,
         std::vector<AuthType> &validType);
-    int32_t GetCallerInfo(ContextFactory::AuthWidgetContextPara &para,
+    int32_t GetCallerInfo(bool isUserIdSpecified, int32_t userId, ContextFactory::AuthWidgetContextPara &para,
         std::shared_ptr<ContextCallback> &contextCallback);
     void FillGetPropertyKeys(AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
         std::vector<uint32_t> &uint32Keys);

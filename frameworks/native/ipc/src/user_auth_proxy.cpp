@@ -26,7 +26,6 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
-    const uint64_t BAD_CONTEXT_ID = 0;
     const uint32_t MAX_ATTR_COUNT = 512;
 } // namespace
 
@@ -348,7 +347,12 @@ uint64_t UserAuthProxy::AuthWidget(int32_t apiVersion, const AuthParamInner &aut
         return BAD_CONTEXT_ID;
     }
 
-    if (!WriteWidgetParam(data, authParam, widgetParam)) {
+    if (!WriteWidgetAuthParam(data, authParam)) {
+        IAM_LOGE("failed to write widget auth param");
+        return BAD_CONTEXT_ID;
+    }
+
+    if (!WriteWidgetParam(data, widgetParam)) {
         IAM_LOGE("failed to write widget param");
         return BAD_CONTEXT_ID;
     }
@@ -375,9 +379,16 @@ uint64_t UserAuthProxy::AuthWidget(int32_t apiVersion, const AuthParamInner &aut
     return result;
 }
 
-bool UserAuthProxy::WriteWidgetParam(MessageParcel &data, const AuthParamInner &authParam,
-    const WidgetParam &widgetParam)
+bool UserAuthProxy::WriteWidgetAuthParam(MessageParcel &data, const AuthParamInner &authParam)
 {
+    if (!data.WriteInt32(authParam.userId)) {
+        IAM_LOGE("failed to write userId");
+        return false;
+    }
+    if (!data.WriteBool(authParam.isUserIdSpecified)) {
+        IAM_LOGE("failed to write isUserIdSpecified");
+        return false;
+    }
     if (!data.WriteUInt8Vector(authParam.challenge)) {
         IAM_LOGE("failed to write challenge");
         return false;
@@ -408,7 +419,11 @@ bool UserAuthProxy::WriteWidgetParam(MessageParcel &data, const AuthParamInner &
             return false;
         }
     }
+    return true;
+}
 
+bool UserAuthProxy::WriteWidgetParam(MessageParcel &data, const WidgetParam &widgetParam)
+{
     if (!data.WriteString(widgetParam.title)) {
         IAM_LOGE("failed to write title");
         return false;

@@ -105,6 +105,7 @@ private:
     std::string BuildStartCommand(const WidgetRotatePara &widgetRotatePara);
     void ProcessRotatePara(WidgetCmdParameters &widgetCmdParameters, const WidgetRotatePara &widgetRotatePara);
     bool isValidRotate(const WidgetRotatePara &widgetRotatePara);
+    std::string GetCallingBundleName();
 
 private:
     struct TaskInfo {

@@ -183,8 +183,7 @@ int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, int32_t userId, 
 {
     IAM_LOGI("start with userId");
 
-    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
-        !IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
+    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
     }
@@ -423,7 +422,7 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
         contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    int32_t userId;
+    int32_t userId = INVALID_USER_ID;
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("get callingUserId failed");
         contextCallback->SetTraceAuthFinishReason("UserAuthService Auth GetCallingUserId fail");
@@ -805,15 +804,18 @@ bool UserAuthService::CheckSingeFaceOrFinger(const std::vector<AuthType> &authTy
     return false;
 }
 
-int32_t UserAuthService::CheckAuthPermissionAndParam(int32_t userId, const AuthParamInner &authParam,
-    const WidgetParam &widgetParam)
+int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authParam, const WidgetParam &widgetParam)
 {
     if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP) &&
         (widgetParam.windowMode != WindowModeType::UNKNOWN_WINDOW_MODE)) {
         IAM_LOGE("normal app can't set window mode.");
         return INVALID_PARAMETERS;
     }
-    if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
+    if (!authParam.isUserIdSpecified && !IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
+        IAM_LOGE("CheckPermission failed");
+        return CHECK_PERMISSION_FAILED;
+    }
+    if (authParam.isUserIdSpecified && !IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("CheckPermission failed");
         return CHECK_PERMISSION_FAILED;
     }
@@ -894,30 +896,24 @@ int32_t UserAuthService::CheckValidSolution(int32_t userId, const AuthParamInner
     return SUCCESS;
 }
 
-int32_t UserAuthService::GetCallerInfo(ContextFactory::AuthWidgetContextPara &para,
-    std::shared_ptr<ContextCallback> &contextCallback)
+int32_t UserAuthService::GetCallerInfo(bool isUserIdSpecified, int32_t userId,
+    ContextFactory::AuthWidgetContextPara &para, std::shared_ptr<ContextCallback> &contextCallback)
 {
-    std::string callerName = "";
-    int32_t callerType = 0;
-    static_cast<void>(IpcCommon::GetCallerName(*this, callerName, callerType));
-    contextCallback->SetTraceCallerName(callerName);
-    contextCallback->SetTraceCallerType(callerType);
-    para.callerName = callerName;
-    para.callerType = callerType;
-    if (para.callerType == Security::AccessToken::TOKEN_HAP) {
-        para.callingBundleName = callerName;
+    static_cast<void>(IpcCommon::GetCallerName(*this, para.callerName, para.callerType));
+    contextCallback->SetTraceCallerName(para.callerName);
+    contextCallback->SetTraceCallerType(para.callerType);
+    static_cast<void>(IpcCommon::GetCallingAppID(*this, para.callingAppID));
+
+    if (isUserIdSpecified) {
+        para.userId = userId;
+        contextCallback->SetTraceUserId(para.userId);
+        return SUCCESS;
     }
-    int32_t userId;
-    Attributes extraInfo;
-    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
+    if (IpcCommon::GetCallingUserId(*this, para.userId) != SUCCESS) {
         IAM_LOGE("get callingUserId failed");
         return GENERAL_ERROR;
     }
-    contextCallback->SetTraceUserId(userId);
-    para.userId = userId;
-    std::string callingAppID = "";
-    static_cast<void>(IpcCommon::GetCallingAppID(*this, callingAppID));
-    para.callingAppID = callingAppID;
+    contextCallback->SetTraceUserId(para.userId);
     return SUCCESS;
 }
 
@@ -933,13 +929,13 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParamInner &a
     ContextFactory::AuthWidgetContextPara para;
     para.sdkVersion = apiVersion;
     Attributes extraInfo;
-    int32_t checkRet = GetCallerInfo(para, contextCallback);
+    int32_t checkRet = GetCallerInfo(authParam.isUserIdSpecified, authParam.userId, para, contextCallback);
     if (checkRet != SUCCESS) {
         contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget GetCallerInfo fail");
         contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    checkRet = CheckAuthPermissionAndParam(para.userId, authParam, widgetParam);
+    checkRet = CheckAuthPermissionAndParam(authParam, widgetParam);
     if (checkRet != SUCCESS) {
         IAM_LOGE("check permission and auth widget param failed");
         contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget CheckAuthPermissionAndParam fail");
@@ -1082,7 +1078,7 @@ int32_t UserAuthService::GetEnrolledState(int32_t apiVersion, AuthType authType,
         return TYPE_NOT_SUPPORT;
     }
 
-    int32_t userId;
+    int32_t userId = INVALID_USER_ID;
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("failed to get callingUserId");
         return GENERAL_ERROR;
