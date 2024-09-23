@@ -13,17 +13,19 @@
  * limitations under the License.
  */
 
+if (!('finalizeConstruction' in ViewPU.prototype)) {
+    Reflect.set(ViewPU.prototype, 'finalizeConstruction', () => { });
+}
 const hiLog = requireNapi('hilog');
 const userAuth = requireNapi('userIAM.userAuth');
-
 const DOMAIN = 0x0007;
 const TAG = 'useriam_auth_icon';
 const ICON_UNAVAILABLE = 0;
 const ICON_AVAILABLE = 1;
 const TIMEOUT_MILLISECONDS = 5000;
 const INVALID_PARAMETERS = 401;
-const FACE_ICON_RESOURCE = 'sys.media.ohos_user_auth_icon_face';
-const FINGERPRINT_ICON_RESOURCE = 'sys.media.ohos_user_auth_icon_fingerprint';
+const FACE_ICON_RESOURCE = 'sys.symbol.face';
+const FINGERPRINT_ICON_RESOURCE = 'sys.symbol.touchid';
 export class UserAuthIcon extends ViewPU {
     constructor(b1, c1, d1, e1 = -1, f1 = undefined, g1) {
         super(b1, d1, e1, g1);
@@ -42,9 +44,12 @@ export class UserAuthIcon extends ViewPU {
         this.iconColor = { 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_activated'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' };
         this.authFlag = ICON_UNAVAILABLE;
         this.__imageSource = new ObservedPropertySimplePU('', this, 'imageSource');
-        this.onAuthResult = (j1) => { };
-        this.onIconClick = () => { };
+        this.onAuthResult = (j1) => {
+        };
+        this.onIconClick = () => {
+        };
         this.setInitiallyProvidedValue(c1);
+        this.finalizeConstruction();
     }
     setInitiallyProvidedValue(a1) {
         if (a1.authParam !== undefined) {
@@ -177,11 +182,10 @@ export class UserAuthIcon extends ViewPU {
             Column.create();
         }, Column);
         this.observeComponentCreation2((d, e) => {
-            Image.create({ 'id': this.imageSource, params: [], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
-            Image.width(this.iconHeight);
-            Image.height(this.iconHeight);
-            Image.fillColor(this.iconColor);
-            Image.onClick(() => {
+            SymbolGlyph.create({ 'id': -1, 'type': -1, params: [this.imageSource], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+            SymbolGlyph.fontSize(this.iconHeight);
+            SymbolGlyph.fontColor([this.iconColor]);
+            SymbolGlyph.onClick(() => {
                 this.info('start handle click event.');
                 if (this.onIconClick !== undefined) {
                     this.info('click event has response.');
@@ -220,7 +224,7 @@ export class UserAuthIcon extends ViewPU {
                 }
                 this.info('end handle click event.');
             });
-        }, Image);
+        }, SymbolGlyph);
         Column.pop();
         Row.pop();
     }
