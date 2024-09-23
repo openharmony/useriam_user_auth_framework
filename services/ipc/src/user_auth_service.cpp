@@ -804,7 +804,8 @@ bool UserAuthService::CheckSingeFaceOrFinger(const std::vector<AuthType> &authTy
     return false;
 }
 
-int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authParam, const WidgetParam &widgetParam)
+int32_t UserAuthService::CheckAuthPermissionAndParam(const std::string &callerName, int32_t callerType,
+    const AuthParamInner &authParam, const WidgetParam &widgetParam)
 {
     if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP) &&
         (widgetParam.windowMode != WindowModeType::UNKNOWN_WINDOW_MODE)) {
@@ -817,6 +818,10 @@ int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authP
     }
     if (authParam.isUserIdSpecified && !IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("CheckPermission failed");
+        return CHECK_PERMISSION_FAILED;
+    }
+    if (callerType == Security::AccessToken::TOKEN_HAP && (!IpcCommon::CheckForegroundApplication(callerName))) {
+        IAM_LOGE("failed to check foreground application");
         return CHECK_PERMISSION_FAILED;
     }
     int32_t ret = CheckAuthWidgetType(authParam.authTypes);
@@ -936,7 +941,7 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParamInner &a
         contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    checkRet = CheckAuthPermissionAndParam(authParam, widgetParam);
+    checkRet = CheckAuthPermissionAndParam(para.callerName, para.callerType, authParam, widgetParam);
     if (checkRet != SUCCESS) {
         IAM_LOGE("check permission and auth widget param failed");
         contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget CheckAuthPermissionAndParam fail");
