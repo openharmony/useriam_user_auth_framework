@@ -29,13 +29,6 @@ void UIExtensionAbilityConnection::OnAbilityConnectDone(const AppExecFwk::Elemen
     const sptr<IRemoteObject> &remoteObject, int32_t resultCode)
 {
     IAM_LOGI("on ability connected");
-    if (!isConnectionValid_) {
-        IAM_LOGI("connection already release");
-        connectAbilityHitrace_ = nullptr;
-        ReleaseUIExtensionComponent();
-        WidgetClient::Instance().ForceStopAuth();
-        return;
-    }
     if (remoteObject == nullptr) {
         IAM_LOGE("remoteObject is nullptr");
         WidgetClient::Instance().ForceStopAuth();
@@ -84,7 +77,6 @@ void UIExtensionAbilityConnection::ReleaseUIExtensionComponent()
         IAM_LOGI("UIExtensionAbilityConnection::ReleaseUIExtensionComponent result %{public}d", errCode);
         extRemoteObject_ = nullptr;
     }
-    isConnectionValid_ = false;
 }
 } // namespace UserAuth
 } // namespace UserIam
