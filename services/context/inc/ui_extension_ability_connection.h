@@ -49,6 +49,7 @@ private:
     std::string commandStr_;
     std::shared_ptr<IamHitraceHelper> connectAbilityHitrace_ {nullptr};
     sptr<IRemoteObject> extRemoteObject_ {nullptr};
+    bool isConnectionValid_ {true};
 };
 } // namespace UserAuth
 } // namespace UserIam
