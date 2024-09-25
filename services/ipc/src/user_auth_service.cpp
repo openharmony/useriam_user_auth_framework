@@ -820,7 +820,8 @@ int32_t UserAuthService::CheckAuthPermissionAndParam(const std::string &callerNa
         IAM_LOGE("CheckPermission failed");
         return CHECK_PERMISSION_FAILED;
     }
-    if (callerType == Security::AccessToken::TOKEN_HAP && (!IpcCommon::CheckForegroundApplication(callerName))) {
+    if (callerType == Security::AccessToken::TOKEN_HAP && (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP)) &&
+        (!IpcCommon::CheckForegroundApplication(callerName))) {
         IAM_LOGE("failed to check foreground application");
         return CHECK_PERMISSION_FAILED;
     }
