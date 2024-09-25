@@ -19,6 +19,12 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 
+PublishEventAdapter &PublishEventAdapter::GetInstance()
+{
+    static PublishEventAdapter instance;
+    return instance;
+}
+
 void PublishEventAdapter::PublishDeletedEvent(int32_t userId)
 {
     (void)userId;
@@ -34,6 +40,13 @@ void PublishEventAdapter::PublishUpdatedEvent(int32_t userId, uint64_t scheduleI
 {
     (void)userId;
     (void)scheduleId;
+}
+
+void PublishEventAdapter::CachePinUpdateParam(int32_t userId, uint64_t scheduleId, uint64_t credentialId)
+{
+    userId_ = userId;
+    scheduleId_ = scheduleId;
+    credentialId_ = credentialId;
 }
 
 void PublishEventAdapter::PublishCredentialUpdatedEvent(int32_t userId, int32_t authType, uint32_t credentialCount)
