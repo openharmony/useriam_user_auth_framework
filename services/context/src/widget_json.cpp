@@ -212,7 +212,7 @@ void to_json(nlohmann::json &jsonNotice, const WidgetNotice &notice)
         {JSON_AUTH_PAYLOAD, type}});
 }
 
-bool isNumberItem(const nlohmann::json &jsonNotice, const std::string &item)
+bool isNumberItem(const nlohmann::json &jsonNotice, const std::string item)
 {
     if (jsonNotice.find(item) != jsonNotice.end() && jsonNotice[item].is_number()) {
         return true;
@@ -265,14 +265,14 @@ void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice)
 
 void to_json(nlohmann::json &jsonCommand, const WidgetCommand &command)
 {
-    GetJsonCmd(jsonCommand, command);
+    GetJsonCmd(jsonCommand, command, true);
 }
 
 // WidgetCmdParameters
 void to_json(nlohmann::json &jsWidgetCmdParam, const WidgetCmdParameters &widgetCmdParameters)
 {
     nlohmann::json jsonCommand;
-    GetJsonCmd(jsonCommand, widgetCmdParameters.useriamCmdData);
+    GetJsonCmd(jsonCommand, widgetCmdParameters.useriamCmdData, false);
 
     jsWidgetCmdParam = nlohmann::json({{JSON_UI_EXTENSION_TYPE, widgetCmdParameters.uiExtensionType},
         {JSON_SYS_DIALOG_ZORDER, widgetCmdParameters.sysDialogZOrder},
