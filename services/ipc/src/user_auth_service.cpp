@@ -888,9 +888,9 @@ int32_t UserAuthService::GetCallerInfo(ContextFactory::AuthWidgetContextPara &pa
     }
     contextCallback->SetTraceUserId(userId);
     para.userId = userId;
-	std::string callingAppID = "";
-	static_cast<void>(IpcCommon::GetCallingAppID(*this, callingAppID));
-	para.callingAppID = callingAppID;
+    std::string callingAppID = "";
+    static_cast<void>(IpcCommon::GetCallingAppID(*this, callingAppID));
+    para.callingAppID = callingAppID;
     return SUCCESS;
 }
 

@@ -578,7 +578,6 @@ HWTEST_F(UserAuthStubTest, UserAuthStubUnRegistUserAuthSuccessEventListenerStub,
     EXPECT_TRUE(reply.ReadInt32(result));
     EXPECT_EQ(result, SUCCESS);
 }
-}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

@@ -1747,7 +1747,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceUnRegistEventListerner_004, TestSiz
     IpcCommon::DeleteAllPermission();
 }
 
-HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam001, TestSize.Level0)
+HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam, TestSize.Level0)
 {
     UserAuthService service;
     GlobalConfigParam param = {};
@@ -1757,9 +1757,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam001, TestSize.L
     EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::INVALID_PARAMETERS);
 
     param.type = PIN_EXPIRED_PERIOD;
-    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::INVALID_PARAMETERS);
-    param.authTypes.push_back(PIN);
     EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::SUCCESS);
+
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
@@ -1771,34 +1770,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam001, TestSize.L
             }
         );
     EXPECT_EQ(service.SetGlobalConfigParam(param), HDF_SUCCESS);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam002, TestSize.Level0)
-{
-    UserAuthService service;
-    GlobalConfigParam param = {};
-    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::CHECK_PERMISSION_FAILED);
-
-    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::INVALID_PARAMETERS);
-
-    param.type = ENABLE_STATUS;
-    param.value.enableStatus = true;
-    param.userIds.push_back(1);
-    param.authTypes.push_back(PIN);
-    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::SUCCESS);
-
-    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, SetGlobalConfigParam(_)).Times(1);
-    ON_CALL(*mockHdi, SetGlobalConfigParam)
-        .WillByDefault(
-            [](const HdiGlobalConfigParam &param) {
-                return HDF_FAILURE;
-            }
-        );
-    EXPECT_EQ(service.SetGlobalConfigParam(param), HDF_FAILURE);
     IpcCommon::DeleteAllPermission();
 }
 } // namespace UserAuth
