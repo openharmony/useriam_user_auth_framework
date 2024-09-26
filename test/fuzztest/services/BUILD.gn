@@ -25,6 +25,7 @@ group("iam_services_fuzztest") {
     "core/remoteexecutorstub_fuzzer:RemoteExecutorStubFuzzTest",
     "servicecore_fuzzer:ServiceCoreFuzzTest",
     "softbus_fuzzer:SoftBusFuzzTest",
+    "templatecachemanager_fuzzer:TemplateCacheManagerFuzzTest",
     "userauthservice_fuzzer:UserAuthServiceFuzzTest",
     "userauthstub_fuzzer:UserAuthStubFuzzTest",
     "useridmservice_fuzzer:UserIdmServiceFuzzTest",

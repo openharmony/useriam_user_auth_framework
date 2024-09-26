@@ -96,7 +96,7 @@ void ServiceStatusListener::OnRemoveSystemAbility(int32_t systemAbilityId, const
         return;
     }
 
-    IAM_LOGE("os account service removed");
+    IAM_LOGI("os account service removed");
     OsAccountIdSubscriber::Unsubscribe();
     ContextPool::Instance().CancelAll();
     IAM_LOGI("os account service remove process finish");

@@ -887,6 +887,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_005, TestSize.Level0)
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
     uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    service.CancelAuthOrIdentify(conxtId);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -913,6 +914,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_006, TestSize.Level0)
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
     uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    service.CancelAuthOrIdentify(conxtId);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1077,6 +1079,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_012, TestSize.Level0)
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
     uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    service.CancelAuthOrIdentify(conxtId);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1178,6 +1181,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_015, TestSize.Level0)
     ResourceNodePool::Instance().Insert(nullptr);
     uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    service.CancelAuthOrIdentify(conxtId);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1228,6 +1232,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_016, TestSize.Level0)
     uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
+    service.CancelAuthOrIdentify(conxtId);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1279,6 +1284,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0017, TestSize.Level0)
     uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
+    service.CancelAuthOrIdentify(conxtId);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1329,6 +1335,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0018, TestSize.Level0)
     uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
+    service.CancelAuthOrIdentify(conxtId);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1380,6 +1387,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0019, TestSize.Level0)
     uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
+    service.CancelAuthOrIdentify(conxtId);
     IpcCommon::DeleteAllPermission();
 }
 

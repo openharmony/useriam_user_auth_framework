@@ -53,6 +53,7 @@ namespace {
 const int32_t MINIMUM_VERSION = 0;
 const int32_t CURRENT_VERSION = 1;
 const int32_t USERIAM_IPC_THREAD_NUM = 4;
+const uint32_t MAX_AUTH_TYPE_SIZE = 3;
 const uint32_t NETWORK_ID_LENGTH = 64;
 const bool REMOTE_AUTH_SERVICE_RESULT = RemoteAuthService::GetInstance().Start();
 void GetTemplatesByAuthType(int32_t userId, AuthType authType, std::vector<uint64_t> &templateIds)
@@ -866,7 +867,7 @@ int32_t UserAuthService::CheckValidSolution(int32_t userId, const AuthParamInner
     return SUCCESS;
 }
 
-int32_t UserAuthService::GetCallerNameAndUserId(ContextFactory::AuthWidgetContextPara &para,
+int32_t UserAuthService::GetCallerInfo(ContextFactory::AuthWidgetContextPara &para,
     std::shared_ptr<ContextCallback> &contextCallback)
 {
     std::string callerName = "";
@@ -887,6 +888,9 @@ int32_t UserAuthService::GetCallerNameAndUserId(ContextFactory::AuthWidgetContex
     }
     contextCallback->SetTraceUserId(userId);
     para.userId = userId;
+	std::string callingAppID = "";
+	static_cast<void>(IpcCommon::GetCallingAppID(*this, callingAppID));
+	para.callingAppID = callingAppID;
     return SUCCESS;
 }
 
@@ -902,7 +906,7 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParamInner &a
     ContextFactory::AuthWidgetContextPara para;
     para.sdkVersion = apiVersion;
     Attributes extraInfo;
-    int32_t checkRet = GetCallerNameAndUserId(para, contextCallback);
+    int32_t checkRet = GetCallerInfo(para, contextCallback);
     if (checkRet != SUCCESS) {
         contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
@@ -921,10 +925,14 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParamInner &a
     }
     std::vector<AuthType> validType;
     checkRet = CheckValidSolution(para.userId, authParam, widgetParam, validType);
-    if (checkRet != SUCCESS) {
+    if (checkRet != SUCCESS && checkRet != PIN_EXPIRED) {
         IAM_LOGE("check valid solution failed");
         contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
+    }
+    if (checkRet == PIN_EXPIRED) {
+        para.isPinExpired = true;
+        validType.emplace_back(AuthType::PIN);
     }
     return StartWidgetContext(contextCallback, authParam, widgetParam, validType, para);
 }
@@ -1085,7 +1093,7 @@ bool UserAuthService::CheckAuthTypeIsValid(std::vector<AuthType> authType)
 int32_t UserAuthService::RegistUserAuthSuccessEventListener(const std::vector<AuthType> &authType,
     const sptr<AuthEventListenerInterface> &listener)
 {
-    IAM_LOGE("start");
+    IAM_LOGI("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
 
@@ -1111,7 +1119,7 @@ int32_t UserAuthService::RegistUserAuthSuccessEventListener(const std::vector<Au
 int32_t UserAuthService::UnRegistUserAuthSuccessEventListener(
     const sptr<AuthEventListenerInterface> &listener)
 {
-    IAM_LOGE("start");
+    IAM_LOGI("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
 
@@ -1131,40 +1139,20 @@ int32_t UserAuthService::UnRegistUserAuthSuccessEventListener(
 
 int32_t UserAuthService::SetGlobalConfigParam(const GlobalConfigParam &param)
 {
-    IAM_LOGI("start, GlobalConfigType is %{public}d, userIds size %{public}zu, authTypes size %{public}zu",
-        param.type, param.userIds.size(), param.authTypes.size());
+    IAM_LOGI("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
     }
-    if (param.userIds.size() > MAX_USER || param.authTypes.size() > MAX_AUTH_TYPE_SIZE ||
-        param.authTypes.size() == 0) {
-        IAM_LOGE("bad global config param");
+    if (param.type != PIN_EXPIRED_PERIOD) {
+        IAM_LOGE("bad global config type");
         return INVALID_PARAMETERS;
     }
-
     HdiGlobalConfigParam paramConfig = {};
-    switch (param.type) {
-        case GlobalConfigType::PIN_EXPIRED_PERIOD:
-            if (param.authTypes.size() != 1 || param.authTypes[0] != PIN) {
-                IAM_LOGE("bad authTypes for PIN_EXPIRED_PERIOD");
-                return INVALID_PARAMETERS;
-            }
-            paramConfig.value.pinExpiredPeriod = param.value.pinExpiredPeriod;
-            break;
-        case GlobalConfigType::ENABLE_STATUS:
-            paramConfig.value.enableStatus = param.value.enableStatus;
-            break;
-        default:
-            IAM_LOGE("bad global config type");
-            return INVALID_PARAMETERS;
-    }
-    paramConfig.type = static_cast<HdiGlobalConfigType>(param.type);
-    paramConfig.userIds = param.userIds;
-    for (const auto authType : param.authTypes) {
-        paramConfig.authTypes.push_back(authType);
-    }
+    paramConfig.type = PIN_EXPIRED_PERIOD;
+    paramConfig.value.pinExpiredPeriod = param.value.pinExpiredPeriod;
+
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi == nullptr) {
         IAM_LOGE("hdi interface is nullptr");

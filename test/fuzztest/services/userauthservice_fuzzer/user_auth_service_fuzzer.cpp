@@ -26,6 +26,7 @@
 #include "user_auth_service.h"
 #include "user_auth_common_defines.h"
 #include "user_auth_event_listener_stub.h"
+#include "dummy_iam_callback_interface.h"
 
 #undef private
 
@@ -349,6 +350,190 @@ void FuzzSetGlobalConfigParam(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzPrepareRemoteAuth(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    std::string networkId = parcel.ReadString();
+    sptr<UserAuthCallbackInterface> callback(nullptr);
+    if (parcel.ReadBool()) {
+        callback = sptr<UserAuthCallbackInterface>(new (nothrow) DummyUserAuthCallback());
+    }
+    g_userAuthService.PrepareRemoteAuth(networkId, callback);
+    IAM_LOGI("end");
+}
+
+void FuzzCheckValidSolution(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    int32_t userId = parcel.ReadInt32();
+    std::vector<uint8_t> challenge;
+    FillFuzzUint8Vector(parcel, challenge);
+    AuthParamInner authParam = {
+        .userId = parcel.ReadInt32(),
+        .challenge = challenge,
+        .authType = static_cast<AuthType>(parcel.ReadInt32()),
+        .authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32()),
+    };
+    WidgetParam widgetParam;
+    widgetParam.title = parcel.ReadString();
+    widgetParam.navigationButtonText = parcel.ReadString();
+    widgetParam.windowMode = static_cast<WindowModeType>(parcel.ReadInt32());
+    std::vector<int32_t> authType;
+    std::vector<AuthType> validType;
+    parcel.ReadInt32Vector(&authType);
+    for (const auto &iter : authType) {
+        validType.push_back(static_cast<AuthType>(iter));
+    }
+    g_userAuthService.CheckValidSolution(userId, authParam, widgetParam, validType);
+    IAM_LOGI("end");
+}
+
+
+void FuzzCompleteRemoteAuthParam(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    RemoteAuthParam remoteAuthParam = {};
+    std::string localNetworkId = "1234567890123456789012345678901234567890123456789012345678901234";
+    remoteAuthParam.verifierNetworkId = std::nullopt;
+    g_userAuthService.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId);
+    remoteAuthParam.verifierNetworkId = "123";
+    remoteAuthParam.collectorNetworkId = "1234123456789012345678901234567890123456789012345678901234567890";
+    g_userAuthService.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId);
+    remoteAuthParam.verifierNetworkId = localNetworkId;
+    g_userAuthService.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId);
+    IAM_LOGI("end");
+}
+
+void FuzzGetAuthContextCallback(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    int32_t apiVersion = parcel.ReadInt32();
+    AuthParamInner authParam = {};
+    WidgetParam widgetParam = {};
+    sptr<UserAuthCallbackInterface> callback = sptr<UserAuthCallbackInterface>(new (nothrow) DummyUserAuthCallback);
+    g_userAuthService.GetAuthContextCallback(apiVersion, authParam, widgetParam, callback);
+    authParam.authTypes = {PIN, FACE, FINGERPRINT};
+    ReuseUnlockResult reuseUnlockResult = {};
+    reuseUnlockResult.isReuse = true;
+    authParam.reuseUnlockResult = reuseUnlockResult;
+    g_userAuthService.GetAuthContextCallback(apiVersion, authParam, widgetParam, callback);
+    IAM_LOGI("end");
+}
+
+void FuzzInsert2ContextPool(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    ContextFactory::AuthWidgetContextPara para = {};
+    auto context = ContextFactory::CreateWidgetContext(para, nullptr);
+    g_userAuthService.Insert2ContextPool(context);
+    IAM_LOGI("end");
+}
+
+void FuzzCheckAuthWidgetType(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    std::vector<AuthType> authType = {PIN, FACE, FINGERPRINT};
+    g_userAuthService.CheckAuthWidgetType(authType);
+    authType = {PIN, FACE, FINGERPRINT, RECOVERY_KEY};
+    g_userAuthService.CheckAuthWidgetType(authType);
+    IAM_LOGI("end");
+}
+
+void FuzzCheckSingeFaceOrFinger(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    std::vector<AuthType> authType = {PIN, FACE, FINGERPRINT};
+    g_userAuthService.CheckSingeFaceOrFinger(authType);
+    authType = {PIN};
+    g_userAuthService.CheckSingeFaceOrFinger(authType);
+    authType = {FACE};
+    g_userAuthService.CheckSingeFaceOrFinger(authType);
+    authType = {FINGERPRINT};
+    g_userAuthService.CheckSingeFaceOrFinger(authType);
+    IAM_LOGI("end");
+}
+
+void FuzzAuthRemoteUser(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    std::vector<uint8_t> challenge;
+    FillFuzzUint8Vector(parcel, challenge);
+    AuthParamInner authParam = {
+        .userId = INVALID_USER_ID,
+        .challenge = challenge,
+        .authType = static_cast<AuthType>(parcel.ReadInt32()),
+        .authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32()),
+    };
+    Authentication::AuthenticationPara para = {};
+    RemoteAuthParam remoteAuthParam = {};
+    sptr<IamCallbackInterface> iamCallback = sptr<IamCallbackInterface>(new (nothrow) DummyIamCallbackInterface);
+    std::shared_ptr<ContextCallback> contextCallback = ContextCallback::NewInstance(iamCallback, TRACE_ADD_CREDENTIAL);
+    ResultCode failReason = SUCCESS;
+    g_userAuthService.AuthRemoteUser(authParam, para, remoteAuthParam, contextCallback, failReason);
+    authParam.authType = PIN;
+    g_userAuthService.AuthRemoteUser(authParam, para, remoteAuthParam, contextCallback, failReason);
+    IAM_LOGI("end");
+}
+
+void FuzzFillGetPropertyValue(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    AuthType authType = PIN;
+    std::vector<Attributes::AttributeKey> keys = {Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION};
+    Attributes *values = new Attributes();
+    g_userAuthService.FillGetPropertyValue(authType, keys, *values);
+    authType = FACE;
+    g_userAuthService.FillGetPropertyValue(authType, keys, *values);
+    IAM_LOGI("end");
+}
+
+void FuzzFillGetPropertyKeys(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    AuthType authType = PIN;
+    std::vector<Attributes::AttributeKey> keys = {Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION};
+    std::vector<uint32_t> uint32Keys = {parcel.ReadInt32(), parcel.ReadInt32()};
+    g_userAuthService.FillGetPropertyKeys(authType, keys, uint32Keys);
+    authType = FACE;
+    g_userAuthService.FillGetPropertyKeys(authType, keys, uint32Keys);
+    IAM_LOGI("end");
+}
+
+void FuzzStartWidgetContext(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    sptr<IamCallbackInterface> iamCallback = sptr<IamCallbackInterface>(new (nothrow) DummyIamCallbackInterface);
+    std::shared_ptr<ContextCallback> contextCallback = ContextCallback::NewInstance(iamCallback, TRACE_ADD_CREDENTIAL);
+    AuthParamInner authParam = {};
+    WidgetParam widgetParam = {};
+    std::vector<AuthType> validType = {PIN};
+    ContextFactory::AuthWidgetContextPara para;
+    g_userAuthService.StartWidgetContext(contextCallback, authParam, widgetParam, validType, para);
+    IAM_LOGI("end");
+}
+
+void FuzzStartRemoteAuthInvokerContext(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    AuthParamInner authParam = {};
+    RemoteAuthInvokerContextParam param = {};
+    sptr<IamCallbackInterface> iamCallback = sptr<IamCallbackInterface>(new (nothrow) DummyIamCallbackInterface);
+    std::shared_ptr<ContextCallback> contextCallback = ContextCallback::NewInstance(iamCallback, TRACE_ADD_CREDENTIAL);
+    g_userAuthService.StartRemoteAuthInvokerContext(authParam, param, contextCallback);
+    IAM_LOGI("end");
+}
+
+void FuzzStartAuthContext(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    int32_t apiVersion = parcel.ReadInt32();
+    Authentication::AuthenticationPara para;
+    sptr<IamCallbackInterface> iamCallback = sptr<IamCallbackInterface>(new (nothrow) DummyIamCallbackInterface);
+    std::shared_ptr<ContextCallback> contextCallback = ContextCallback::NewInstance(iamCallback, TRACE_ADD_CREDENTIAL);
+    g_userAuthService.StartAuthContext(apiVersion, para, contextCallback);
+    IAM_LOGI("end");
+}
+
 using FuzzFunc = decltype(FuzzGetAvailableStatus);
 FuzzFunc *g_fuzzFuncs[] = {
     FuzzGetEnrolledState,
@@ -365,6 +550,19 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzRegisterWidgetCallback,
     FuzzRegistUserAuthSuccessEventListener,
     FuzzSetGlobalConfigParam,
+    FuzzPrepareRemoteAuth,
+    FuzzCheckValidSolution,
+    FuzzCompleteRemoteAuthParam,
+    FuzzGetAuthContextCallback,
+    FuzzInsert2ContextPool,
+    FuzzCheckAuthWidgetType,
+    FuzzCheckSingeFaceOrFinger,
+    FuzzAuthRemoteUser,
+    FuzzFillGetPropertyValue,
+    FuzzFillGetPropertyKeys,
+    FuzzStartWidgetContext,
+    FuzzStartRemoteAuthInvokerContext,
+    FuzzStartAuthContext,
 };
 
 void UserAuthFuzzTest(const uint8_t *data, size_t size)

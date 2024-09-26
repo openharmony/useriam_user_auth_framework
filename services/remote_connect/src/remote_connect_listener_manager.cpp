@@ -49,7 +49,7 @@ ResultCode RemoteConnectListenerManager::RegisterListener(const std::string &con
     ListenerInfo info = { connectionName, endPointName, listener };
     auto it = std::find(listeners_.begin(), listeners_.end(), info);
     if (it != listeners_.end()) {
-        IAM_LOGI("listener already exist");
+        IAM_LOGE("listener already exist");
         return GENERAL_ERROR;
     }
 
@@ -73,7 +73,7 @@ ResultCode RemoteConnectListenerManager::UnregisterListener(const std::string &c
     ListenerInfo info = { connectionName, endPointName };
     auto it = std::find(listeners_.begin(), listeners_.end(), info);
     if (it == listeners_.end()) {
-        IAM_LOGI("listener not exist");
+        IAM_LOGE("listener not exist");
         return GENERAL_ERROR;
     }
 

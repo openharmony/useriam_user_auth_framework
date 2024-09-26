@@ -61,9 +61,14 @@ ResultCode AuthCommand::SendRequest()
     bool getAuthIntent = attributes_->GetInt32Value(Attributes::ATTR_AUTH_INTENTION, authIntent);
     IF_FALSE_LOGE_AND_RETURN_VAL(getAuthIntent == true, ResultCode::GENERAL_ERROR);
 
+    int32_t userId;
+    bool getUserId = attributes_->GetInt32Value(Attributes::ATTR_USER_ID, userId);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getUserId == true, ResultCode::GENERAL_ERROR);
+
     IamHitraceHelper traceHelper("hdi Authenticate");
     ResultCode ret = hdi->Authenticate(scheduleId_,
-        (AuthenticateParam) { tokenId, templateIdList, extraInfo, endAfterFirstFail, authIntent}, shared_from_this());
+        (AuthenticateParam) { tokenId, templateIdList, extraInfo, endAfterFirstFail, authIntent, userId},
+        shared_from_this());
     IAM_LOGI("%{public}s authenticate result %{public}d", GetDescription(), ret);
     return ret;
 }
