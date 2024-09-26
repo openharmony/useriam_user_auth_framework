@@ -16,6 +16,7 @@
 #ifndef PUBLISH_EVENT_ADAPTER_H
 #define PUBLISH_EVENT_ADAPTER_H
 
+#include <mutex>
 #include <string>
 
 namespace OHOS {
@@ -23,10 +24,21 @@ namespace UserIam {
 namespace UserAuth {
 class PublishEventAdapter {
 public:
-    static void PublishDeletedEvent(int32_t userId);
-    static void PublishCreatedEvent(int32_t userId, uint64_t scheduleId);
-    static void PublishUpdatedEvent(int32_t userId, uint64_t scheduleId);
-    static void PublishCredentialUpdatedEvent(int32_t userId, int32_t authType, uint32_t credentialCount);
+    static PublishEventAdapter &GetInstance();
+    void PublishDeletedEvent(int32_t userId);
+    void PublishCreatedEvent(int32_t userId, uint64_t scheduleId);
+    void PublishUpdatedEvent(int32_t userId, uint64_t scheduleId);
+    void PublishCredentialUpdatedEvent(int32_t userId, int32_t authType, uint32_t credentialCount);
+    void CachePinUpdateParam(int32_t userId, uint64_t scheduleId, uint64_t credentialId);
+
+private:
+    PublishEventAdapter() = default;
+    ~PublishEventAdapter() = default;
+
+    std::mutex mutex_;
+    int32_t userId_ {0};
+    uint64_t scheduleId_ {0};
+    uint64_t credentialId_ {0};
 };
 } // namespace UserAuth
 } // namespace UserIam
