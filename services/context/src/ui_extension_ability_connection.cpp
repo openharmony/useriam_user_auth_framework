@@ -80,6 +80,7 @@ void UIExtensionAbilityConnection::ReleaseUIExtensionComponentInner()
         MessageParcel data;
         MessageParcel reply;
         MessageOption option;
+        option.SetFlags(MessageOption::TF_ASYNC);
         int32_t errCode = extRemoteObject_->SendRequest(IAbilityConnection::ON_REMOTE_STATE_CHANGED, data, reply,
             option);
         IAM_LOGI("release UIExtensionComponent result %{public}d", errCode);
