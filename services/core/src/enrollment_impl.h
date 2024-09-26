@@ -51,7 +51,7 @@ protected:
 
 private:
     bool GetSecUserId(std::optional<uint64_t> &secUserId);
-    void PublishPinEvent();
+    void PublishPinEvent(uint64_t credentialId);
     void PublishCredentialUpdateEvent();
 
     EnrollmentPara enrollPara_;
