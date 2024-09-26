@@ -93,7 +93,7 @@ ResultCode WidgetClient::OnNotice(NoticeType type, const std::string &eventData)
 void WidgetClient::ProcessNotice(const WidgetNotice &notice, std::vector<AuthType> &authTypeList)
 {
     if (notice.event == NOTICE_EVENT_AUTH_READY) {
-        schedule_->StartAuthList(authTypeList, notice.endAfterFirstFail);
+        schedule_->StartAuthList(authTypeList, notice.endAfterFirstFail, notice.authIntent);
     } else if (notice.event == NOTICE_EVENT_CANCEL_AUTH) {
         if (authTypeList.size() == 1 && authTypeList[0] == AuthType::ALL) {
             schedule_->StopSchedule();

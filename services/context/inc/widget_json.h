@@ -48,6 +48,7 @@ struct WidgetNotice {
     std::string version {""};
     std::vector<std::string> typeList {};
     bool endAfterFirstFail {false};
+    AuthIntent authIntent {AuthIntent::DEFAULT};
 };
 void to_json(nlohmann::json &jsonNotice, const WidgetNotice &notice);
 void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice);
@@ -84,6 +85,7 @@ struct WidgetCommand {
     std::vector<Cmd> cmdList {};
     int32_t isReload {0};
     std::string rotateAuthType {""};
+    std::string callingAppID {""};
 };
 
 void to_json(nlohmann::json &jsonCommand, const WidgetCommand &command);
@@ -93,6 +95,7 @@ struct WidgetCmdParameters {
     std::string uiExtensionType {""};
     WidgetCommand useriamCmdData {};
     std::string uiExtNodeAngle {""};
+    uint32_t sysDialogZOrder {0};
 };
 
 void to_json(nlohmann::json &jsonWidgetCmdParams, const WidgetCmdParameters &widgetCmdParameters);

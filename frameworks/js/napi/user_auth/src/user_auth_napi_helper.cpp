@@ -574,13 +574,13 @@ bool UserAuthNapiHelper::GetInt32Array(napi_env env, napi_value obj, std::vector
     vec.clear();
     uint32_t len;
     napi_get_array_length(env, obj, &len);
-    IAM_LOGE("GetInt32Array length: %{public}d", len);
+    IAM_LOGI("GetInt32Array length: %{public}d", len);
     for (uint32_t index = 0; index < len; index++) {
         napi_value value;
         uint32_t getValue;
         NAPI_CALL_BASE(env, napi_get_element(env, obj, index, &value), napi_undefined);
         NAPI_CALL_BASE(env, napi_get_value_uint32(env, value, &getValue), napi_undefined);
-        IAM_LOGE("vec[%{public}d]: %{public}d", index, len);
+        IAM_LOGI("vec[%{public}d]: %{public}d", index, len);
         vec.emplace_back(getValue);
     }
     return true;

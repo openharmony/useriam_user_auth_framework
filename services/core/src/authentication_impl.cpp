@@ -88,8 +88,8 @@ std::vector<Authentication::AuthExecutorMsg> AuthenticationImpl::GetAuthExecutor
 bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
     std::shared_ptr<ScheduleNodeCallback> callback)
 {
-    IAM_LOGI("UserId:%{public}d AuthType:%{public}d ATL:%{public}u", authPara_.userId, authPara_.authType,
-        authPara_.atl);
+    IAM_LOGI("UserId:%{public}d AuthType:%{public}d ATL:%{public}u authIntent:%{public}d",
+        authPara_.userId, authPara_.authType, authPara_.atl, authPara_.authIntent);
     auto hdi = HdiWrapper::GetHdiInstance();
     if (!hdi) {
         IAM_LOGE("bad hdi");
@@ -128,6 +128,7 @@ bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
     para.endAfterFirstFail = endAfterFirstFail_;
     para.collectorTokenId = authPara_.collectorTokenId;
     para.authIntent = authPara_.authIntent;
+    para.userId = authPara_.userId;
 
     if (!ScheduleNodeHelper::BuildFromHdi(infos, callback, scheduleList, para)) {
         IAM_LOGE("BuildFromHdi failed");

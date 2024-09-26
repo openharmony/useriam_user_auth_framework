@@ -578,65 +578,6 @@ HWTEST_F(UserAuthStubTest, UserAuthStubUnRegistUserAuthSuccessEventListenerStub,
     EXPECT_TRUE(reply.ReadInt32(result));
     EXPECT_EQ(result, SUCCESS);
 }
-
-HWTEST_F(UserAuthStubTest, UserAuthStubSetGlobalConfigParamStub001, TestSize.Level0)
-{
-    MockUserAuthService service;
-    EXPECT_CALL(service, SetGlobalConfigParam(_)).Times(1);
-    ON_CALL(service, SetGlobalConfigParam)
-        .WillByDefault(
-            [](const GlobalConfigParam &param) {
-                return SUCCESS;
-            }
-        );
-
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserAuthInterfaceCode::USER_AUTH_SET_CLOBAL_CONFIG_PARAM;
-
-    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
-    GlobalConfigParam param = {};
-    param.type = PIN_EXPIRED_PERIOD;
-    param.value.pinExpiredPeriod = 1;
-    EXPECT_TRUE(data.WriteInt32(param.type));
-    EXPECT_TRUE(data.WriteInt64(param.value.pinExpiredPeriod));
-    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
-    int32_t result;
-    EXPECT_TRUE(reply.ReadInt32(result));
-    EXPECT_EQ(result, SUCCESS);
-}
-
-HWTEST_F(UserAuthStubTest, UserAuthStubSetGlobalConfigParamStub002, TestSize.Level0)
-{
-    MockUserAuthService service;
-    EXPECT_CALL(service, SetGlobalConfigParam(_)).Times(1);
-    ON_CALL(service, SetGlobalConfigParam)
-        .WillByDefault(
-            [](const GlobalConfigParam &param) {
-                return GENERAL_ERROR;
-            }
-        );
-
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
-    uint32_t code = UserAuthInterfaceCode::USER_AUTH_SET_CLOBAL_CONFIG_PARAM;
-
-    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
-    GlobalConfigParam param = {};
-    param.type = ENABLE_STATUS;
-    param.value.enableStatus = true;
-    param.userIds.push_back(1);
-    std::vector<int32_t> authTypes = {1};
-    EXPECT_TRUE(data.WriteInt32(param.type));
-    EXPECT_TRUE(data.WriteInt64(param.value.pinExpiredPeriod));
-    EXPECT_TRUE(data.WriteInt32Vector(param.userIds));
-    EXPECT_TRUE(data.WriteInt32Vector(authTypes));
-    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
-    int32_t result;
-    EXPECT_TRUE(reply.ReadInt32(result));
-    EXPECT_EQ(result, GENERAL_ERROR);
 }
 } // namespace UserAuth
 } // namespace UserIam

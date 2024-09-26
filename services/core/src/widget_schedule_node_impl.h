@@ -39,7 +39,8 @@ public:
     ~WidgetScheduleNodeImpl() override = default;
     bool StartSchedule() override;
     bool StopSchedule() override;
-    bool StartAuthList(const std::vector<AuthType> &authTypeList, bool endAfterFirstFail) override;
+    bool StartAuthList(const std::vector<AuthType> &authTypeList, bool endAfterFirstFail,
+        AuthIntent authIntent) override;
     bool StopAuthList(const std::vector<AuthType> &authTypeList) override;
     bool SuccessAuth(AuthType authType) override;
     bool NaviPinAuth() override;
@@ -78,6 +79,7 @@ private:
     uint32_t needRotate_ {0};
     uint32_t alreadyLoad_ {0};
     AuthType rotateAuthType_ {0};
+    AuthIntent authIntent_ {AuthIntent::DEFAULT};
 };
 } // namespace UserAuth
 } // namespace UserIam

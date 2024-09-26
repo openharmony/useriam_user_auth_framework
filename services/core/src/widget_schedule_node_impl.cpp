@@ -109,7 +109,8 @@ bool WidgetScheduleNodeImpl::StopSchedule()
     return TryKickMachine(E_CANCEL_AUTH);
 }
 
-bool WidgetScheduleNodeImpl::StartAuthList(const std::vector<AuthType> &authTypeList, bool endAfterFirstFail)
+bool WidgetScheduleNodeImpl::StartAuthList(const std::vector<AuthType> &authTypeList, bool endAfterFirstFail,
+    AuthIntent authIntent)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     startAuthTypeList_.clear();
@@ -118,6 +119,7 @@ bool WidgetScheduleNodeImpl::StartAuthList(const std::vector<AuthType> &authType
         IAM_LOGI("Command(type:%{public}d) on result start.", authType);
     }
     endAfterFirstFail_ = endAfterFirstFail;
+    authIntent_ = authIntent;
     return TryKickMachine(E_START_AUTH);
 }
 
@@ -192,7 +194,7 @@ void WidgetScheduleNodeImpl::OnStartAuth(FiniteStateMachine &machine, uint32_t e
             startAuthTypeSet.emplace(authType);
         }
     }
-    callback->ExecuteAuthList(startAuthTypeSet, endAfterFirstFail_);
+    callback->ExecuteAuthList(startAuthTypeSet, endAfterFirstFail_, authIntent_);
 }
 
 void WidgetScheduleNodeImpl::OnStopAuthList(FiniteStateMachine &machine, uint32_t event)
