@@ -22,8 +22,8 @@ const ICON_UNAVAILABLE: number = 0;
 const ICON_AVAILABLE: number = 1;
 const TIMEOUT_MILLISECONDS: number = 5000;
 const INVALID_PARAMETERS: number = 401;
-const FACE_ICON_RESOURCE: string = 'sys.media.ohos_user_auth_icon_face';
-const FINGERPRINT_ICON_RESOURCE: string = 'sys.media.ohos_user_auth_icon_fingerprint';
+const FACE_ICON_RESOURCE: string = 'sys.symbol.face';
+const FINGERPRINT_ICON_RESOURCE: string = 'sys.symbol.touchid';
 
 /**
  * Declare UserAuthIcon, use for user authentication.
@@ -45,7 +45,6 @@ export struct UserAuthIcon {
     authType: [],
     authTrustLevel: userAuth.AuthTrustLevel.ATL1
   };
-
   /**
    * Set auth widget parameter.
    *
@@ -54,9 +53,8 @@ export struct UserAuthIcon {
    * @since 12
    */
   widgetParam: userAuth.WidgetParam = {
-    title:''
+    title: ''
   };
-
   /**
    * Set the height of the icon, width and height ratio 1:1.
    *
@@ -66,7 +64,6 @@ export struct UserAuthIcon {
    * @since 12
    */
   iconHeight?: Dimension = 64;
-
   /**
    * Set the color of the icon.
    *
@@ -76,10 +73,8 @@ export struct UserAuthIcon {
    * @since 12
    */
   iconColor?: ResourceColor = $r('sys.color.ohos_id_color_activated');
-
   authFlag: number = ICON_UNAVAILABLE;
   @State imageSource: string = '';
-
   /**
    * The authentication result code is returned through the callback.
    * If the authentication is passed, the authentication token and auth type will be returned.
@@ -89,15 +84,16 @@ export struct UserAuthIcon {
    * @syscap SystemCapability.UserIAM.UserAuth.Core
    * @since 12
    */
-  onAuthResult: (result: userAuth.UserAuthResult) => void = (result: userAuth.UserAuthResult) => {};
-
+  onAuthResult: (result: userAuth.UserAuthResult) => void = (result: userAuth.UserAuthResult) => {
+  };
   /**
    * When user click the icon, it will be returned through this callback.
    *
    * @syscap SystemCapability.UserIAM.UserAuth.Core
    * @since 12
    */
-  onIconClick:() => void = () => {};
+  onIconClick: () => void = () => {
+  };
 
   private initImageSource(authTypes: userAuth.UserAuthType[], authTrustLevel: userAuth.AuthTrustLevel): void {
     if (authTypes.includes(userAuth.UserAuthType.FACE) && (!authTypes.includes(userAuth.UserAuthType.FINGERPRINT))) {
@@ -124,7 +120,7 @@ export struct UserAuthIcon {
       // the same time.
       this.authFlag = ICON_UNAVAILABLE;
       this.info('incorrect parameters.');
-      this.onAuthResult({result: INVALID_PARAMETERS});
+      this.onAuthResult({ result: INVALID_PARAMETERS });
       this.imageSource = '';
       return;
     }
@@ -132,7 +128,7 @@ export struct UserAuthIcon {
     // types or the situation where the authTypes parameter only contains PIN type.
     this.authFlag = ICON_UNAVAILABLE;
     this.info('incorrect parameters.');
-    this.onAuthResult({result: userAuth.UserAuthResultCode.TYPE_NOT_SUPPORT});
+    this.onAuthResult({ result: userAuth.UserAuthResultCode.TYPE_NOT_SUPPORT });
     this.imageSource = '';
     return;
   }
@@ -184,7 +180,7 @@ export struct UserAuthIcon {
     if (this.authParam.authType === undefined || this.authParam.authTrustLevel === undefined) {
       this.authFlag = ICON_UNAVAILABLE;
       this.info('incorrect parameters.');
-      this.onAuthResult({result: INVALID_PARAMETERS});
+      this.onAuthResult({ result: INVALID_PARAMETERS });
       this.imageSource = '';
       return;
     }
@@ -195,24 +191,23 @@ export struct UserAuthIcon {
   build() {
     Row() {
       Column() {
-        Image($r(this.imageSource))
-          .width(this.iconHeight)
-          .height(this.iconHeight)
-          .fillColor(this.iconColor)
+        SymbolGlyph($r(this.imageSource))
+          .fontSize(this.iconHeight)
+          .fontColor([this.iconColor])
           .onClick(() => {
             this.info('start handle click event.');
-            if(this.onIconClick !== undefined) {
+            if (this.onIconClick !== undefined) {
               this.info('click event has response.');
               this.onIconClick();
             }
             if (this.authFlag === ICON_AVAILABLE) {
               try {
                 let userAuthInstance: userAuth.UserAuthInstance =
-                    userAuth.getUserAuthInstance(this.authParam,this.widgetParam);
+                  userAuth.getUserAuthInstance(this.authParam, this.widgetParam);
                 let timer: number = setTimeout(() => {
                   this.error('auth timeout.');
                   userAuthInstance.cancel();
-                  this.onAuthResult({result: userAuth.UserAuthResultCode.GENERAL_ERROR});
+                  this.onAuthResult({ result: userAuth.UserAuthResultCode.GENERAL_ERROR });
                 }, TIMEOUT_MILLISECONDS)
                 this.info('get userAuth instance success.');
                 userAuthInstance.on('result', {
@@ -229,11 +224,11 @@ export struct UserAuthIcon {
               } catch (error) {
                 if (error) {
                   this.error(`auth catch error, code: ${error.code}, message: ${error.message}`);
-                  this.onAuthResult({result: error.code});
+                  this.onAuthResult({ result: error.code });
                   return;
                 }
                 this.error('auth error.');
-                this.onAuthResult({result: userAuth.UserAuthResultCode.GENERAL_ERROR});
+                this.onAuthResult({ result: userAuth.UserAuthResultCode.GENERAL_ERROR });
               }
             }
             this.info('end handle click event.');
