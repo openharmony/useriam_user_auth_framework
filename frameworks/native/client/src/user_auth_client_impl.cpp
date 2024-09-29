@@ -423,7 +423,7 @@ uint64_t UserAuthClientImpl::BeginWidgetAuth(const WidgetAuthParam &authParam, c
         .authTrustLevel = authParam.authTrustLevel,
         .reuseUnlockResult = authParam.reuseUnlockResult,
     };
-    return BeginWidgetAuthInner(INNER_API_VERSION_10000, authParamInner, widgetParam, callback);
+    return BeginWidgetAuthInner(INNER_API_VERSION_20000, authParamInner, widgetParam, callback);
 }
 
 uint64_t UserAuthClientImpl::BeginWidgetAuth(int32_t apiVersion, const WidgetAuthParam &authParam,
