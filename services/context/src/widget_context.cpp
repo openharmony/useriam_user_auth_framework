@@ -177,6 +177,7 @@ std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &ch
     para.challenge = challenge;
     para.endAfterFirstFail = endAfterFirstFail;
     para.callerName = para_.callerName;
+    para.callerType = para_.callerType;
     para.sdkVersion = para_.sdkVersion;
     para.authIntent = authIntent;
     para.isOsAccountVerified = para_.isOsAccountVerified;
