@@ -120,7 +120,7 @@ void FillFuzzExecutorRegisterInfo(Parcel &parcel, ExecutorRegisterInfo &executor
     IAM_LOGI("FillFuzzExecutorRegisterInfo success");
 }
 
-CoAuthService g_coAuthService;
+std::shared_ptr<CoAuthService> g_coAuthService = CoAuthService::GetInstance();
 sptr<ExecutorMessengerService> executorMessengerService = ExecutorMessengerService::GetInstance();
 
 void FuzzRegister(Parcel &parcel)
@@ -134,22 +134,22 @@ void FuzzRegister(Parcel &parcel)
             CoAuthServiceFuzzer(parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32(),
                 parcel.ReadInt32()));
     }
-    g_coAuthService.ExecutorRegister(executorInfo, callback);
+    g_coAuthService->ExecutorRegister(executorInfo, callback);
     IAM_LOGI("FuzzRegister end");
 }
 
 void FuzzOther(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    g_coAuthService.Init();
+    g_coAuthService->Init();
 
     auto callback = Common::MakeShared<CoAuthServiceFuzzer>(parcel.ReadInt32(), parcel.ReadInt32(),
         parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32());
     uint64_t executorIndex = parcel.ReadUint64();
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
-    g_coAuthService.AddExecutorDeathRecipient(executorIndex, authType, callback);
-    g_coAuthService.OnStart();
-    g_coAuthService.OnStop();
+    g_coAuthService->AddExecutorDeathRecipient(executorIndex, authType, callback);
+    g_coAuthService->OnStart();
+    g_coAuthService->OnStop();
     IAM_LOGI("end");
 }
 
@@ -190,22 +190,22 @@ void FuzzDump(Parcel &parcel)
     for (uint32_t i = 0; i < msg.size(); i++) {
         args.push_back(cmd[msg[i] % CMD_LEN]);
     }
-    g_coAuthService.Dump(fd, args);
+    g_coAuthService->Dump(fd, args);
     IAM_LOGI("FuzzDump end");
 }
 
 void FuzzNotifyFwkReady(Parcel &parcel)
 {
     IAM_LOGI("FuzzNotifyFwkReady begin");
-    g_coAuthService.NotifyFwkReady();
+    g_coAuthService->NotifyFwkReady();
     IAM_LOGI("FuzzNotifyFwkReady end");
 }
 
 void FuzzUnRegisterAccessTokenListener(Parcel &parcel)
 {
     IAM_LOGI("FuzzNotifyFwkReady begin");
-    g_coAuthService.RegisterAccessTokenListener();
-    g_coAuthService.UnRegisterAccessTokenListener();
+    g_coAuthService->RegisterAccessTokenListener();
+    g_coAuthService->UnRegisterAccessTokenListener();
     IAM_LOGI("FuzzNotifyFwkReady end");
 }
 
