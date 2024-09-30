@@ -887,6 +887,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_005, TestSize.Level0)
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
     uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    service.CancelAuthOrIdentify(conxtId);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -913,6 +914,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_006, TestSize.Level0)
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
     uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    service.CancelAuthOrIdentify(conxtId);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1077,6 +1079,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_012, TestSize.Level0)
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
     uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    service.CancelAuthOrIdentify(conxtId);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1178,6 +1181,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_015, TestSize.Level0)
     ResourceNodePool::Instance().Insert(nullptr);
     uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    service.CancelAuthOrIdentify(conxtId);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1228,6 +1232,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_016, TestSize.Level0)
     uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
+    service.CancelAuthOrIdentify(conxtId);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1279,6 +1284,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0017, TestSize.Level0)
     uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
+    service.CancelAuthOrIdentify(conxtId);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1329,6 +1335,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0018, TestSize.Level0)
     uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
+    service.CancelAuthOrIdentify(conxtId);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1380,6 +1387,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0019, TestSize.Level0)
     uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
+    service.CancelAuthOrIdentify(conxtId);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1739,7 +1747,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceUnRegistEventListerner_004, TestSiz
     IpcCommon::DeleteAllPermission();
 }
 
-HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam001, TestSize.Level0)
+HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam, TestSize.Level0)
 {
     UserAuthService service;
     GlobalConfigParam param = {};
@@ -1749,9 +1757,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam001, TestSize.L
     EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::INVALID_PARAMETERS);
 
     param.type = PIN_EXPIRED_PERIOD;
-    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::INVALID_PARAMETERS);
-    param.authTypes.push_back(PIN);
     EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::SUCCESS);
+
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
@@ -1763,34 +1770,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam001, TestSize.L
             }
         );
     EXPECT_EQ(service.SetGlobalConfigParam(param), HDF_SUCCESS);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam002, TestSize.Level0)
-{
-    UserAuthService service;
-    GlobalConfigParam param = {};
-    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::CHECK_PERMISSION_FAILED);
-
-    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::INVALID_PARAMETERS);
-
-    param.type = ENABLE_STATUS;
-    param.value.enableStatus = true;
-    param.userIds.push_back(1);
-    param.authTypes.push_back(PIN);
-    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::SUCCESS);
-
-    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, SetGlobalConfigParam(_)).Times(1);
-    ON_CALL(*mockHdi, SetGlobalConfigParam)
-        .WillByDefault(
-            [](const HdiGlobalConfigParam &param) {
-                return HDF_FAILURE;
-            }
-        );
-    EXPECT_EQ(service.SetGlobalConfigParam(param), HDF_FAILURE);
     IpcCommon::DeleteAllPermission();
 }
 } // namespace UserAuth

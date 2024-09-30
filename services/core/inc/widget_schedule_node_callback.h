@@ -32,7 +32,8 @@ class WidgetScheduleNodeCallback {
 public:
     virtual ~WidgetScheduleNodeCallback() = default;
     virtual bool LaunchWidget() = 0;
-    virtual void ExecuteAuthList(const std::set<AuthType> &authTypeList, bool endAfterFirstFail) = 0;
+    virtual void ExecuteAuthList(const std::set<AuthType> &authTypeList, bool endAfterFirstFail,
+        AuthIntent authIntent) = 0;
     virtual void EndAuthAsCancel() = 0;
     virtual void EndAuthAsNaviPin() = 0;
     virtual void EndAuthAsWidgetParaInvalid() = 0;

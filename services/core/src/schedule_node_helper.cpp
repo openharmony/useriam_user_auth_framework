@@ -93,6 +93,7 @@ bool ScheduleNodeHelper::ScheduleInfoToScheduleNode(const HdiScheduleInfo &info,
         ->SetCollectorMessage(collectorMessage)
         ->SetVerifierMessage(verifierMessage)
         ->SetAuthIntent(para.authIntent)
+        ->SetUserId(para.userId)
         ->Build();
     if (node == nullptr) {
         IAM_LOGE("builder failed");
@@ -112,7 +113,7 @@ bool ScheduleNodeHelper::ScheduleInfoToExecutors(const HdiScheduleInfo &info, st
         uint64_t executorIndex = info.executorIndexes[i];
         auto resource = ResourceNodePool::Instance().Select(executorIndex).lock();
         if (resource == nullptr) {
-            IAM_LOGI("invalid executorId ****%{public}hx", static_cast<uint16_t>(executorIndex));
+            IAM_LOGE("invalid executorId ****%{public}hx", static_cast<uint16_t>(executorIndex));
             return false;
         }
         IAM_LOGI("executor role %{public}d", resource->GetExecutorRole());

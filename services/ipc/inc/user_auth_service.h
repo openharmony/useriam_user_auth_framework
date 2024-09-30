@@ -98,7 +98,7 @@ private:
     bool CheckAuthTypeIsValid(std::vector<AuthType> authType);
     int32_t CheckValidSolution(int32_t userId, const AuthParamInner &authParam, const WidgetParam &widgetParam,
         std::vector<AuthType> &validType);
-    int32_t GetCallerNameAndUserId(ContextFactory::AuthWidgetContextPara &para,
+    int32_t GetCallerInfo(ContextFactory::AuthWidgetContextPara &para,
         std::shared_ptr<ContextCallback> &contextCallback);
     void FillGetPropertyKeys(AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
         std::vector<uint32_t> &uint32Keys);

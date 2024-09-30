@@ -741,29 +741,6 @@ int32_t UserAuthProxy::UnRegistUserAuthSuccessEventListener(const sptr<AuthEvent
     return result;
 }
 
-ResultCode UserAuthProxy::WriteGlobalConfigValue(MessageParcel &data, const GlobalConfigParam &param)
-{
-    switch (param.type) {
-        case GlobalConfigType::PIN_EXPIRED_PERIOD:
-            if (!data.WriteInt64(param.value.pinExpiredPeriod)) {
-                IAM_LOGE("failed to write GlobalConfigParam pinExpiredPeriod");
-                return WRITE_PARCEL_ERROR;
-            }
-            break;
-        case GlobalConfigType::ENABLE_STATUS :
-            if (!data.WriteBool(param.value.enableStatus)) {
-                IAM_LOGE("failed to write GlobalConfigParam enableStatus");
-                return WRITE_PARCEL_ERROR;
-            }
-            break;
-        default:
-            IAM_LOGE("GlobalConfigType not support.");
-            return INVALID_PARAMETERS;
-    }
-    return SUCCESS;
-}
-
-
 int32_t UserAuthProxy::SetGlobalConfigParam(const GlobalConfigParam &param)
 {
     MessageParcel data;
@@ -776,29 +753,20 @@ int32_t UserAuthProxy::SetGlobalConfigParam(const GlobalConfigParam &param)
         IAM_LOGE("failed to write GlobalConfigParam type");
         return WRITE_PARCEL_ERROR;
     }
-    int32_t result = WriteGlobalConfigValue(data, param);
-    if (result != SUCCESS) {
-        IAM_LOGE("failed to WriteGlobalConfigValue");
-        return result;
+    if (param.type == GlobalConfigType::PIN_EXPIRED_PERIOD) {
+        IAM_LOGI("GlobalConfigType is pin expired period");
+        if (!data.WriteInt64(param.value.pinExpiredPeriod)) {
+            IAM_LOGE("failed to write GlobalConfigParam pinExpiredPeriod");
+            return WRITE_PARCEL_ERROR;
+        }
     }
-    if (!data.WriteInt32Vector(param.userIds)) {
-        IAM_LOGE("failed to write userIds");
-        return WRITE_PARCEL_ERROR;
-    }
-    std::vector<int32_t> authTypeList;
-    for (const auto &authType : param.authTypes) {
-        authTypeList.push_back(static_cast<int32_t>(authType));
-    }
-    if (!data.WriteInt32Vector(authTypeList)) {
-        IAM_LOGE("failed to write authTypeList");
-        return WRITE_PARCEL_ERROR;
-    }
+
     bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_SET_CLOBAL_CONFIG_PARAM, data, reply);
     if (!ret) {
         IAM_LOGE("failed to set global config param IPC request");
         return GENERAL_ERROR;
     }
-    result = GENERAL_ERROR;
+    int32_t result = GENERAL_ERROR;
     if (!reply.ReadInt32(result)) {
         IAM_LOGE("failed to read result");
         return READ_PARCEL_ERROR;

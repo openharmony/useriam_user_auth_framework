@@ -300,7 +300,7 @@ HWTEST_F(WidgetContextTest, WidgetContextTestStopAuthList_003, TestSize.Level0)
     std::set<AuthType> authTypeList;
     authTypeList.insert(FACE);
     authTypeList.insert(ALL);
-    widgetContext->ExecuteAuthList(authTypeList, false);
+    widgetContext->ExecuteAuthList(authTypeList, false, AuthIntent::DEFAULT);
 
     std::vector<AuthType> testTypeList = {ALL, PIN, FACE};
     widgetContext->StopAuthList(testTypeList);
@@ -344,7 +344,7 @@ HWTEST_F(WidgetContextTest, WidgetContextTestSuccessAuth_003, TestSize.Level0)
     auto widgetContext = CreateWidgetContext(contextId, para);
     std::set<AuthType> authTypeList;
     authTypeList.insert(FACE);
-    widgetContext->ExecuteAuthList(authTypeList, true);
+    widgetContext->ExecuteAuthList(authTypeList, true, AuthIntent::DEFAULT);
     AuthType authType = ALL;
     widgetContext->SuccessAuth(authType);
     EXPECT_NE(widgetContext, nullptr);
@@ -358,7 +358,7 @@ HWTEST_F(WidgetContextTest, WidgetContextTestExecuteAuthList_0001, TestSize.Leve
     ContextFactory::AuthWidgetContextPara para;
     auto widgetContext = Common::MakeShared<WidgetContext>(contextId, para, nullptr);
     std::set<AuthType> authTypeList;
-    widgetContext->ExecuteAuthList(authTypeList, false);
+    widgetContext->ExecuteAuthList(authTypeList, false, AuthIntent::DEFAULT);
     EXPECT_NE(widgetContext, nullptr);
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
@@ -371,7 +371,7 @@ HWTEST_F(WidgetContextTest, WidgetContextTestExecuteAuthList_0002, TestSize.Leve
     auto widgetContext = Common::MakeShared<WidgetContext>(contextId, para, nullptr);
     std::set<AuthType> authTypeList;
     authTypeList.insert(AuthType::PIN);
-    widgetContext->ExecuteAuthList(authTypeList, true);
+    widgetContext->ExecuteAuthList(authTypeList, true, AuthIntent::DEFAULT);
     EXPECT_NE(widgetContext, nullptr);
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
@@ -387,7 +387,7 @@ HWTEST_F(WidgetContextTest, WidgetContextTestExecuteAuthList_0003, TestSize.Leve
     auto widgetContext = Common::MakeShared<WidgetContext>(contextId, para, contextCallback);
     std::set<AuthType> authTypeList;
     authTypeList.insert(AuthType::PIN);
-    widgetContext->ExecuteAuthList(authTypeList, false);
+    widgetContext->ExecuteAuthList(authTypeList, false, AuthIntent::DEFAULT);
     EXPECT_NE(widgetContext, nullptr);
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
