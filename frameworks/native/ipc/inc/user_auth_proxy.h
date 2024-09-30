@@ -62,7 +62,6 @@ private:
     bool WriteOptionalUint32(MessageParcel &data, const std::optional<uint32_t> &val);
     bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply);
     bool WriteWidgetParam(MessageParcel &data, const AuthParamInner &authParam, const WidgetParam &widgetParam);
-    ResultCode WriteGlobalConfigValue(MessageParcel &data, const GlobalConfigParam &param);
 };
 } // namespace UserAuth
 } // namespace UserIam

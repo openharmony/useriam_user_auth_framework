@@ -194,6 +194,21 @@ void FuzzDump(Parcel &parcel)
     IAM_LOGI("FuzzDump end");
 }
 
+void FuzzNotifyFwkReady(Parcel &parcel)
+{
+    IAM_LOGI("FuzzNotifyFwkReady begin");
+    g_coAuthService.NotifyFwkReady();
+    IAM_LOGI("FuzzNotifyFwkReady end");
+}
+
+void FuzzUnRegisterAccessTokenListener(Parcel &parcel)
+{
+    IAM_LOGI("FuzzNotifyFwkReady begin");
+    g_coAuthService.RegisterAccessTokenListener();
+    g_coAuthService.UnRegisterAccessTokenListener();
+    IAM_LOGI("FuzzNotifyFwkReady end");
+}
+
 using FuzzFunc = decltype(FuzzRegister);
 FuzzFunc *g_fuzzFuncs[] = {
     FuzzRegister,
@@ -201,6 +216,8 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzFinish,
     FuzzDump,
     FuzzOther,
+    FuzzNotifyFwkReady,
+    FuzzUnRegisterAccessTokenListener,
 };
 
 void CoAuthFuzzTest(const uint8_t *data, size_t size)
