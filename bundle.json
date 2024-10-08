@@ -1,5 +1,5 @@
 {
-  "name": "@openharmony/user_auth_framework",
+  "name": "@ohos/user_auth_framework",
   "version": "4.0",
   "description": "User Authentication capability",
   "homePage": "https://gitee.com/openharmony",
@@ -49,7 +49,8 @@
         "common_event_service",
         "window_manager",
         "device_manager",
-        "dsoftbus"
+        "dsoftbus",
+        "ets_frontend"
       ]
     },
     "build": {
