@@ -114,7 +114,7 @@ uint32_t WidgetContext::GetTokenId() const
 
 int32_t WidgetContext::GetUserId() const
 {
-    return INVALID_USER_ID;
+    return para_.userId;
 }
 
 int32_t WidgetContext::GetLatestError() const
