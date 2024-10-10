@@ -15,6 +15,7 @@
 
 #include "co_auth_service_fuzzer.h"
 
+#include <cstdio>
 #include "parcel.h"
 
 #include "co_auth_service.h"
@@ -186,11 +187,18 @@ void FuzzDump(Parcel &parcel)
     std::vector<uint8_t> msg;
     Common::FillFuzzUint8Vector(parcel, msg);
     int32_t fd = parcel.ReadInt32();
-    std::vector<std::u16string> args;
-    for (uint32_t i = 0; i < msg.size(); i++) {
-        args.push_back(cmd[msg[i] % CMD_LEN]);
+    std::string fileName = to_string(fd) + ".txt";
+    FILE *file = fopen(fileName.c_str(), "w");
+    if (file != nullptr) {
+        fd = fileno(file);
+        std::vector<std::u16string> args;
+        for (uint32_t i = 0; i < msg.size(); i++) {
+            args.push_back(cmd[msg[i] % CMD_LEN]);
+        }
+        g_coAuthService->Dump(fd, args);
+        fclose(file);
+        remove(fileName.c_str());
     }
-    g_coAuthService->Dump(fd, args);
     IAM_LOGI("FuzzDump end");
 }
 
