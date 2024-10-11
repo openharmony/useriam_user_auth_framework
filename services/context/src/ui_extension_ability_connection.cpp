@@ -29,6 +29,13 @@ void UIExtensionAbilityConnection::OnAbilityConnectDone(const AppExecFwk::Elemen
     const sptr<IRemoteObject> &remoteObject, int32_t resultCode)
 {
     IAM_LOGI("on ability connected");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (!isConnectionRelease_) {
+        IAM_LOGE("connection already release");
+        ReleaseUIExtensionComponentInner();
+        WidgetClient::Instance().ForceStopAuth();
+        return;
+    }
     if (remoteObject == nullptr) {
         IAM_LOGE("remoteObject is nullptr");
         WidgetClient::Instance().ForceStopAuth();
@@ -47,11 +54,11 @@ void UIExtensionAbilityConnection::OnAbilityConnectDone(const AppExecFwk::Elemen
     data.WriteString16(Str8ToStr16(commandStr_));
     extRemoteObject_ = remoteObject;
     int32_t errCode = remoteObject->SendRequest(IAbilityConnection::ON_ABILITY_CONNECT_DONE, data, reply, option);
-    IAM_LOGI("UIExtensionAbilityConnection::OnAbilityConnectDone result %{public}d", errCode);
+    IAM_LOGI("connect ability result %{public}d", errCode);
     if (errCode != SUCCESS) {
         IAM_LOGE("widget schedule error, stop auth");
         connectAbilityHitrace_ = nullptr;
-        ReleaseUIExtensionComponent();
+        ReleaseUIExtensionComponentInner();
         WidgetClient::Instance().ForceStopAuth();
     }
 }
@@ -60,23 +67,33 @@ void UIExtensionAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::Ele
     int32_t resultCode)
 {
     IAM_LOGI("on ability disconnected");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     connectAbilityHitrace_ = nullptr;
-    ReleaseUIExtensionComponent();
+    ReleaseUIExtensionComponentInner();
     WidgetClient::Instance().ForceStopAuth();
+}
+
+void UIExtensionAbilityConnection::ReleaseUIExtensionComponentInner()
+{
+    IAM_LOGI("release UIExtensionComponent inner");
+    if (extRemoteObject_ != nullptr) {
+        MessageParcel data;
+        MessageParcel reply;
+        MessageOption option;
+        option.SetFlags(MessageOption::TF_ASYNC);
+        int32_t errCode = extRemoteObject_->SendRequest(IAbilityConnection::ON_REMOTE_STATE_CHANGED, data, reply,
+            option);
+        IAM_LOGI("release UIExtensionComponent result %{public}d", errCode);
+        extRemoteObject_ = nullptr;
+    }
+    isConnectionRelease_ = false;
 }
 
 void UIExtensionAbilityConnection::ReleaseUIExtensionComponent()
 {
     IAM_LOGI("release UIExtensionComponent");
-    if (extRemoteObject_ != nullptr) {
-        MessageParcel data;
-        MessageParcel reply;
-        MessageOption option;
-        int32_t errCode = extRemoteObject_->SendRequest(IAbilityConnection::ON_REMOTE_STATE_CHANGED, data, reply,
-            option);
-        IAM_LOGI("UIExtensionAbilityConnection::ReleaseUIExtensionComponent result %{public}d", errCode);
-        extRemoteObject_ = nullptr;
-    }
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    ReleaseUIExtensionComponentInner();
 }
 } // namespace UserAuth
 } // namespace UserIam

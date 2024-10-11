@@ -46,9 +46,13 @@ public:
     void ReleaseUIExtensionComponent();
 
 private:
+    void ReleaseUIExtensionComponentInner();
+
     std::string commandStr_;
     std::shared_ptr<IamHitraceHelper> connectAbilityHitrace_ {nullptr};
     sptr<IRemoteObject> extRemoteObject_ {nullptr};
+    std::recursive_mutex mutex_;
+    bool isConnectionRelease_ {true};
 };
 } // namespace UserAuth
 } // namespace UserIam
