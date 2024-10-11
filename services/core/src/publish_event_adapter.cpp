@@ -45,6 +45,12 @@ void PublishEvent(EventFwk::CommonEventData data)
 }
 } // namespace
 
+PublishEventAdapter &PublishEventAdapter::GetInstance()
+{
+    static PublishEventAdapter instance;
+    return instance;
+}
+
 void PublishEventAdapter::PublishDeletedEvent(int32_t userId)
 {
     EventFwk::Want want;
@@ -70,18 +76,28 @@ void PublishEventAdapter::PublishCreatedEvent(int32_t userId, uint64_t scheduleI
     return;
 }
 
-void PublishEventAdapter::PublishUpdatedEvent(int32_t userId, uint64_t scheduleId)
+void PublishEventAdapter::PublishUpdatedEvent(int32_t userId, uint64_t credentialId)
 {
-    if (scheduleId == 0) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (userId != userId_ || credentialId != credentialId_) {
         IAM_LOGE("Bad Parameter!");
         return;
     }
     EventFwk::Want want;
     want.SetAction(USER_PIN_UPDATED_EVENT);
-    want.SetParam(TAG_SCHEDULEID, std::to_string(scheduleId));
+    want.SetParam(TAG_SCHEDULEID, std::to_string(scheduleId_));
     EventFwk::CommonEventData data(want);
     data.SetCode(userId);
     PublishEvent(data);
+    return;
+}
+
+void PublishEventAdapter::CachePinUpdateParam(int32_t userId, uint64_t scheduleId, uint64_t credentialId)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    userId_ = userId;
+    scheduleId_ = scheduleId;
+    credentialId_ = credentialId;
     return;
 }
 

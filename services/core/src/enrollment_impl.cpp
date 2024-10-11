@@ -215,21 +215,21 @@ bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t
         IAM_LOGI("enroll not need to delete old cred");
         info = nullptr;
     }
-    PublishPinEvent();
+    PublishPinEvent(resultInfo.oldInfo.credentialId);
     PublishCredentialUpdateEvent();
     return true;
 }
 
-void EnrollmentImpl::PublishPinEvent()
+void EnrollmentImpl::PublishPinEvent(uint64_t credentialId)
 {
     if (enrollPara_.authType != PIN) {
         return;
     }
     IAM_LOGI("begin to publish pin event");
     if (isUpdate_) {
-        PublishEventAdapter::PublishUpdatedEvent(enrollPara_.userId, scheduleId_);
+        PublishEventAdapter::GetInstance().CachePinUpdateParam(enrollPara_.userId, scheduleId_, credentialId);
     } else {
-        PublishEventAdapter::PublishCreatedEvent(enrollPara_.userId, scheduleId_);
+        PublishEventAdapter::GetInstance().PublishCreatedEvent(enrollPara_.userId, scheduleId_);
     }
 }
 
@@ -258,10 +258,14 @@ bool EnrollmentImpl::Cancel()
 void EnrollmentImpl::PublishCredentialUpdateEvent()
 {
     IAM_LOGI("begin to publish credential update event");
+    if (isUpdate_ && enrollPara_.authType == PIN) {
+        IAM_LOGI("pin update");
+        return;
+    }
     auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(enrollPara_.userId, enrollPara_.authType);
 
-    PublishEventAdapter::PublishCredentialUpdatedEvent(enrollPara_.userId, static_cast<int32_t>(enrollPara_.authType),
-        credentialInfos.size());
+    PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(enrollPara_.userId,
+        static_cast<int32_t>(enrollPara_.authType), credentialInfos.size());
 }
 } // namespace UserAuth
 } // namespace UserIam
