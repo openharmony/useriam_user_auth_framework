@@ -444,8 +444,8 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
         IAM_LOGE("failed to delete executor info, error code : %{public}d", ret);
     }
     IAM_LOGI("delete user end");
-    PublishEventAdapter::PublishDeletedEvent(userId);
-    PublishEventAdapter::PublishCredentialUpdatedEvent(userId, PIN, 0);
+    PublishEventAdapter::GetInstance().PublishDeletedEvent(userId);
+    PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, PIN, 0);
 }
 
 void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
@@ -498,7 +498,9 @@ void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
     contextCallback->OnResult(ret, extraInfo);
     if (oldInfo != nullptr) {
         auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, oldInfo->GetAuthType());
-        PublishEventAdapter::PublishCredentialUpdatedEvent(userId, oldInfo->GetAuthType(), credentialInfos.size());
+        PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, oldInfo->GetAuthType(),
+            credentialInfos.size());
+        PublishEventAdapter::GetInstance().PublishUpdatedEvent(userId, credentialId);
     }
 }
 
@@ -575,8 +577,8 @@ int32_t UserIdmService::EnforceDelUserInner(int32_t userId, std::shared_ptr<Cont
         return SUCCESS;
     }
 
-    PublishEventAdapter::PublishDeletedEvent(userId);
-    PublishEventAdapter::PublishCredentialUpdatedEvent(userId, PIN, 0);
+    PublishEventAdapter::GetInstance().PublishDeletedEvent(userId);
+    PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, PIN, 0);
     IAM_LOGI("delete user success, userId:%{public}d", userId);
     return SUCCESS;
 }
