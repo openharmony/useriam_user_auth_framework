@@ -63,6 +63,7 @@ USERIAM_USER_AUTH:
   REMOTE_UDID: {type: STRING, desc: remote udid mask}
   CONNECTION_NAME: {type: STRING, desc: connection name}
   AUTH_FINISH_REASON: {type: STRING, desc: auth finish reason}
+  IS_BACKGROUND_APPLICATION: {type: BOOL, desc: is foreground application}
 
 USERIAM_USER_AUTH_FWK:
   __BASE: {type: SECURITY, level: CRITICAL, tag: UserAuth, desc: user auth security message}

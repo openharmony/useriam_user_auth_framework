@@ -48,6 +48,7 @@ public:
     void SetTraceRemoteUdid(const std::string &remoteUdid) override;
     void SetTraceConnectionName(const std::string &connectionName) override;
     void SetTraceAuthFinishReason(const std::string &authFinishReason) override;
+    void SetTraceIsBackgroundApplication(bool isBackgroundApplication) override;
     void SetCleaner(Context::ContextStopCallback callback) override;
     void ProcessAuthResult(int32_t tip, const std::vector<uint8_t> &extraInfo) override;
     sptr<IamCallbackInterface> GetIamCallback() override;
