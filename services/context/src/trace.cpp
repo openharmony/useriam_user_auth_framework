@@ -122,9 +122,8 @@ void Trace::CopyMetaDataToTraceInfo(const ContextCallbackNotifyListener::MetaDat
         info.callerType = metaData.callerType.value();
     }
     info.authResult = metaData.operationResult;
-    uint64_t timeSpan = static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(metaData.endTime -
+    info.authtimeSpan = static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(metaData.endTime -
         metaData.startTime).count());
-    info.authtimeSpan = timeSpan;
     if (metaData.authWidgetType.has_value()) {
         info.authWidgetType = metaData.authWidgetType.value();
     }
@@ -148,6 +147,9 @@ void Trace::CopyMetaDataToTraceInfo(const ContextCallbackNotifyListener::MetaDat
     }
     if (metaData.authFinishReason.has_value()) {
         info.authFinishReason = metaData.authFinishReason.value();
+    }
+    if (metaData.isBackgroundApplication.has_value()) {
+        info.isBackgroundApplication = metaData.isBackgroundApplication.value();
     }
 }
 
