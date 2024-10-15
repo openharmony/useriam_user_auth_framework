@@ -208,6 +208,11 @@ void ContextCallbackImpl::SetTraceAuthFinishReason(const std::string &authFinish
     metaData_.authFinishReason = authFinishReason;
 }
 
+void ContextCallbackImpl::SetTraceIsBackgroundApplication(bool isBackgroundApplication)
+{
+    metaData_.isBackgroundApplication = isBackgroundApplication;
+}
+
 void ContextCallbackImpl::SetCleaner(Context::ContextStopCallback callback)
 {
     stopCallback_ = callback;

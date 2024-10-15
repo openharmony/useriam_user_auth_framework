@@ -27,6 +27,7 @@
 #include "context_pool.h"
 #include "context_callback_impl.h"
 #include "simple_auth_context.h"
+#include "iam_common_defines.h"
 #include "iam_fuzz_test.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
@@ -34,6 +35,8 @@
 #include "remote_auth_invoker_context.h"
 #include "remote_iam_callback.h"
 #include "context_appstate_observer.h"
+#include "auth_widget_helper.h"
+#include "remote_auth_service.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -191,12 +194,87 @@ void RemoteIamCallbackFuzzTest(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzAuthWidgetHelper(Parcel &parcel)
+{
+    AuthParamInner authParam;
+    authParam.authTypes.push_back(FACE);
+    authParam.authTypes.push_back(ALL);
+    authParam.authTypes.push_back(PIN);
+    authParam.authTypes.push_back(FINGERPRINT);
+    authParam.authTrustLevel = ATL2;
+    WidgetParam widgetParam;
+    widgetParam.title = "使用密码验证";
+    widgetParam.navigationButtonText = "确定";
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = MAIN_USER_ID;
+    std::vector<AuthType> validType = {PIN, FACE, FINGERPRINT};
+    AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para);
+}
+
+void FuzzGetUserAuthProfile(Parcel &parcel)
+{
+    int32_t userId = MAIN_USER_ID;
+    AuthType authType = PIN;
+    ContextFactory::AuthProfile profile = {};
+    AuthWidgetHelper::GetUserAuthProfile(userId, authType, profile);
+}
+
+void FillIAttributes(Parcel &parcel, Attributes &attributes)
+{
+    bool fillNull = parcel.ReadBool();
+    if (fillNull) {
+        return;
+    }
+
+    attributes.SetUint64Value(Attributes::ATTR_TEMPLATE_ID, parcel.ReadUint64());
+    attributes.SetUint64Value(Attributes::ATTR_CALLER_UID, parcel.ReadUint64());
+    attributes.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, parcel.ReadUint32());
+    std::vector<uint64_t> templateIdList;
+    FillFuzzUint64Vector(parcel, templateIdList);
+    attributes.GetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIdList);
+    std::vector<uint8_t> extraInfo;
+    FillFuzzUint8Vector(parcel, extraInfo);
+    attributes.GetUint64ArrayValue(Attributes::ATTR_EXTRA_INFO, templateIdList);
+    attributes.SetUint64Value(Attributes::ATTR_CALLER_UID, parcel.ReadUint64());
+    attributes.SetUint32Value(Attributes::ATTR_SCHEDULE_MODE, parcel.ReadUint32());
+}
+
+void FuzzCheckValidSolution(Parcel &parcel)
+{
+    int32_t userId = MAIN_USER_ID;
+    std::vector<AuthType> authTypeList = {PIN, FACE, FINGERPRINT};
+    AuthTrustLevel atl = ATL2;
+    std::vector<AuthType> validTypeList = {PIN, FACE, FINGERPRINT};
+    AuthWidgetHelper::CheckValidSolution(userId, authTypeList, atl, validTypeList);
+}
+
+void FuzzCheckReuseUnlockResult(Parcel &parcel)
+{
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = MAIN_USER_ID;
+    std::vector<uint8_t> challenge;
+    FillFuzzUint8Vector(parcel, challenge);
+    AuthParamInner authParam = {
+        .userId = parcel.ReadInt32(),
+        .challenge = challenge,
+        .authType = static_cast<AuthType>(parcel.ReadInt32()),
+        .authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32()),
+    };
+    Attributes extraInfo;
+    FillIAttributes(parcel, extraInfo);
+    AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo);
+}
+
 using FuzzFunc = decltype(ContextAppStateObserverFuzzTest);
 FuzzFunc *g_fuzzFuncs[] = {
     ContextAppStateObserverFuzzTest,
     RemoteAuthContextFuzzTest,
     RemoteAuthInvokerContextFuzzTest,
     RemoteIamCallbackFuzzTest,
+    FuzzAuthWidgetHelper,
+    FuzzGetUserAuthProfile,
+    FuzzCheckValidSolution,
+    FuzzCheckReuseUnlockResult,
 };
 
 void RemoteAuthContextFuzzTest(const uint8_t *data, size_t size)

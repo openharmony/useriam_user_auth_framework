@@ -804,8 +804,8 @@ bool UserAuthService::CheckSingeFaceOrFinger(const std::vector<AuthType> &authTy
     return false;
 }
 
-int32_t UserAuthService::CheckAuthPermissionAndParam(const std::string &callerName, int32_t callerType,
-    const AuthParamInner &authParam, const WidgetParam &widgetParam)
+int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authParam, const WidgetParam &widgetParam,
+    bool isBackgroundApplication)
 {
     if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP) &&
         (widgetParam.windowMode != WindowModeType::UNKNOWN_WINDOW_MODE)) {
@@ -820,8 +820,7 @@ int32_t UserAuthService::CheckAuthPermissionAndParam(const std::string &callerNa
         IAM_LOGE("CheckPermission failed");
         return CHECK_PERMISSION_FAILED;
     }
-    if (callerType == Security::AccessToken::TOKEN_HAP && (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP)) &&
-        (!IpcCommon::CheckForegroundApplication(callerName))) {
+    if (isBackgroundApplication && (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP))) {
         IAM_LOGE("failed to check foreground application");
         return CHECK_PERMISSION_FAILED;
     }
@@ -904,12 +903,19 @@ int32_t UserAuthService::CheckValidSolution(int32_t userId, const AuthParamInner
 }
 
 int32_t UserAuthService::GetCallerInfo(bool isUserIdSpecified, int32_t userId,
-    ContextFactory::AuthWidgetContextPara &para, std::shared_ptr<ContextCallback> &contextCallback)
+    ContextFactory::AuthWidgetContextPara &para, bool &isBackgroundApplication,
+    std::shared_ptr<ContextCallback> &contextCallback)
 {
     static_cast<void>(IpcCommon::GetCallerName(*this, para.callerName, para.callerType));
     contextCallback->SetTraceCallerName(para.callerName);
     contextCallback->SetTraceCallerType(para.callerType);
     static_cast<void>(IpcCommon::GetCallingAppID(*this, para.callingAppID));
+
+    if (para.sdkVersion < INNER_API_VERSION_10000 && para.callerType == Security::AccessToken::TOKEN_HAP &&
+        (!IpcCommon::CheckForegroundApplication(para.callerName))) {
+        isBackgroundApplication = true;
+    }
+    contextCallback->SetTraceIsBackgroundApplication(isBackgroundApplication);
 
     if (isUserIdSpecified) {
         para.userId = userId;
@@ -936,13 +942,15 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParamInner &a
     ContextFactory::AuthWidgetContextPara para;
     para.sdkVersion = apiVersion;
     Attributes extraInfo;
-    int32_t checkRet = GetCallerInfo(authParam.isUserIdSpecified, authParam.userId, para, contextCallback);
+    bool isBackgroundApplication = false;
+    int32_t checkRet = GetCallerInfo(authParam.isUserIdSpecified, authParam.userId, para, isBackgroundApplication,
+        contextCallback);
     if (checkRet != SUCCESS) {
         contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget GetCallerInfo fail");
         contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    checkRet = CheckAuthPermissionAndParam(para.callerName, para.callerType, authParam, widgetParam);
+    checkRet = CheckAuthPermissionAndParam(authParam, widgetParam, isBackgroundApplication);
     if (checkRet != SUCCESS) {
         IAM_LOGE("check permission and auth widget param failed");
         contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget CheckAuthPermissionAndParam fail");

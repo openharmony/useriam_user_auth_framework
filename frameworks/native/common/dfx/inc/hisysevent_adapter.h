@@ -38,6 +38,7 @@ struct UserAuthTrace {
     std::string remoteUdid;
     std::string connectionName;
     std::string authFinishReason;
+    bool isBackgroundApplication = false;
 };
 
 struct UserAuthFwkTrace {
