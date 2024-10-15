@@ -58,6 +58,7 @@ constexpr char STR_NETWORK_ID[] = "NETWORK_ID";
 constexpr char STR_SOCKET_ID[] = "SOCKET_ID";
 constexpr char STR_AUTH_FINISH_REASON[] = "AUTH_FINISH_REASON";
 constexpr char STR_OPERATION_TIME[] = "OPERATION_TIME";
+constexpr char STR_IS_BACKGROUND_APPLICATION[] = "IS_BACKGROUND_APPLICATION";
 
 static std::string MaskForStringId(const std::string &id)
 {
@@ -149,7 +150,8 @@ void ReportUserAuth(const UserAuthTrace &info)
         STR_LOCAL_UDID, MaskForStringId(info.localUdid),
         STR_REMOTE_UDID, MaskForStringId(info.remoteUdid),
         STR_CONNECTION_NAME, info.connectionName,
-        STR_AUTH_FINISH_REASON, info.authFinishReason);
+        STR_AUTH_FINISH_REASON, info.authFinishReason,
+        STR_IS_BACKGROUND_APPLICATION, info.isBackgroundApplication);
     if (ret != 0) {
         IAM_LOGE("hisysevent write failed! ret %{public}d", ret);
     }
