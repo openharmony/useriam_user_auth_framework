@@ -32,10 +32,14 @@ const std::string USER_PIN_CREATED_EVENT = "USER_PIN_CREATED_EVENT";
 const std::string USER_PIN_DELETED_EVENT = "USER_PIN_DELETED_EVENT";
 const std::string USER_PIN_UPDATED_EVENT = "USER_PIN_UPDATED_EVENT";
 const std::string USER_CREDENTIAL_UPDATED_EVENT = "USER_CREDENTIAL_UPDATED_EVENT";
+const std::string USERIAM_COMMON_EVENT_PERMISSION = "ohos.permission.USE_USER_IDM";
 
 void PublishEvent(EventFwk::CommonEventData data)
 {
     EventFwk::CommonEventPublishInfo publishInfo;
+    std::vector<std::string> permissions;
+    permissions.push_back(USERIAM_COMMON_EVENT_PERMISSION);
+    publishInfo.SetSubscriberPermissions(permissions);
     publishInfo.SetSticky(false);
     if (!EventFwk::CommonEventManager::PublishCommonEvent(data, publishInfo)) {
         IAM_LOGE("PublishCommonEvent failed, eventAction is %{public}s", data.GetWant().GetAction().c_str());
