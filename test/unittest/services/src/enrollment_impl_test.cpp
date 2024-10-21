@@ -181,26 +181,7 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful_002, TestSize.Level0)
     EXPECT_TRUE(enroll->Update(scheduleResult, credentialId, info, pinInfo, secUserId));
 
     EXPECT_CALL(*mock, GetUserInfo(_, _, _, _)).WillRepeatedly(Return(1));
-    EXPECT_CALL(*mock, EnforceDeleteUser(_, _))
-        .WillOnce(Return(1))
-        .WillRepeatedly(
-            [](int32_t userId, std::vector<HdiCredentialInfo> &deletedInfos) {
-                HdiCredentialInfo info = {
-                    .credentialId = 1,
-                    .executorIndex = 2,
-                    .templateId = 3,
-                    .authType = static_cast<HdiAuthType>(1),
-                    .executorMatcher = 2,
-                    .executorSensorHint = 3,
-                };
-                deletedInfos.push_back(info);
-                return 0;
-            }
-        );
-
     enroll = std::make_shared<EnrollmentImpl>(para);
-    enroll->SetIsUpdate(false);
-    EXPECT_FALSE(enroll->Update(scheduleResult, credentialId, info, pinInfo, secUserId));
     EXPECT_FALSE(enroll->Update(scheduleResult, credentialId, info, pinInfo, secUserId));
 }
 

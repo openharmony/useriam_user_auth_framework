@@ -30,12 +30,12 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-std::shared_ptr<SecureUserInfoInterface> UserIdmDatabaseImpl::GetSecUserInfo(int32_t userId)
+int32_t UserIdmDatabaseImpl::GetSecUserInfo(int32_t userId, std::shared_ptr<SecureUserInfoInterface> &secUserInfo)
 {
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi == nullptr) {
         IAM_LOGE("bad hdi");
-        return nullptr;
+        return INVALID_HDI_INTERFACE;
     }
 
     std::vector<HdiEnrolledInfo> enrolledInfoVector;
@@ -44,7 +44,7 @@ std::shared_ptr<SecureUserInfoInterface> UserIdmDatabaseImpl::GetSecUserInfo(int
     int32_t ret = hdi->GetUserInfo(userId, secureUid, pinSubType, enrolledInfoVector);
     if (ret != HDF_SUCCESS) {
         IAM_LOGE("GetSecureInfo failed, error code : %{public}d", ret);
-        return nullptr;
+        return GENERAL_ERROR;
     }
 
     std::vector<std::shared_ptr<EnrolledInfoInterface>> infoRet;
@@ -54,46 +54,45 @@ std::shared_ptr<SecureUserInfoInterface> UserIdmDatabaseImpl::GetSecUserInfo(int
         auto enrolledInfo = Common::MakeShared<EnrolledInfoImpl>(userId, info);
         if (enrolledInfo == nullptr) {
             IAM_LOGE("bad alloc");
-            return nullptr;
+            return GENERAL_ERROR;
         }
         infoRet.emplace_back(enrolledInfo);
     }
-    auto secInfoRet = Common::MakeShared<SecureUserInfoImpl>(userId,
+    secUserInfo = Common::MakeShared<SecureUserInfoImpl>(userId,
         static_cast<PinSubType>(pinSubType), secureUid, infoRet);
-    if (secInfoRet == nullptr) {
+    if (secUserInfo == nullptr) {
         IAM_LOGE("bad alloc");
-        return nullptr;
+        return GENERAL_ERROR;
     }
-    return secInfoRet;
+    return SUCCESS;
 }
 
-std::vector<std::shared_ptr<CredentialInfoInterface>> UserIdmDatabaseImpl::GetCredentialInfo(int32_t userId,
-    AuthType authType)
+int32_t UserIdmDatabaseImpl::GetCredentialInfo(int32_t userId, AuthType authType,
+    std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos)
 {
-    std::vector<std::shared_ptr<CredentialInfoInterface>> infoRet;
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi == nullptr) {
         IAM_LOGE("bad hdi");
-        return infoRet;
+        return INVALID_HDI_INTERFACE;
     }
 
     std::vector<HdiCredentialInfo> hdiInfos;
     int32_t ret = hdi->GetCredential(userId, static_cast<HdiAuthType>(authType), hdiInfos);
     if (ret != HDF_SUCCESS) {
         IAM_LOGE("GetCredential failed, error code : %{public}d", ret);
-        return infoRet;
+        return GENERAL_ERROR;
     }
-    infoRet.reserve(hdiInfos.size());
+    credInfos.reserve(hdiInfos.size());
     for (const auto &hdiInfo : hdiInfos) {
         auto info = Common::MakeShared<CredentialInfoImpl>(userId, hdiInfo);
         if (info == nullptr) {
             IAM_LOGE("bad alloc");
-            return infoRet;
+            return GENERAL_ERROR;
         }
-        infoRet.emplace_back(info);
+        credInfos.emplace_back(info);
     }
 
-    return infoRet;
+    return SUCCESS;
 }
 
 int32_t UserIdmDatabaseImpl::DeleteCredentialInfo(int32_t userId, uint64_t credentialId,
