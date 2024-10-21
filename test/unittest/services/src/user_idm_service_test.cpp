@@ -259,7 +259,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetSecInfo001, TestSize.Level0)
     EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
     IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
     ret = service.GetSecInfo(testUserId, testCallback);
-    EXPECT_EQ(ret, INVALID_PARAMETERS);
+    EXPECT_EQ(ret, GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -294,7 +294,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetSecInfo002, TestSize.Level0)
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnSecureUserInfo(_)).Times(2);
     ret = service.GetSecInfo(testUserId, testCallback);
-    EXPECT_EQ(ret, INVALID_PARAMETERS);
+    EXPECT_EQ(ret, GENERAL_ERROR);
     ret = service.GetSecInfo(testUserId, testCallback);
     EXPECT_EQ(ret, SUCCESS);
     IpcCommon::DeleteAllPermission();
@@ -573,7 +573,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceEnforceDelUser001, TestSize.Level0)
         )
         .WillOnce(
             [](int32_t result, const Attributes &extraInfo) {
-                EXPECT_EQ(result, INVALID_PARAMETERS);
+                EXPECT_EQ(result, GENERAL_ERROR);
             }
         );
 
@@ -585,7 +585,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceEnforceDelUser001, TestSize.Level0)
     EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
     IpcCommon::AddPermission(ENFORCE_USER_IDM);
     ret = service.EnforceDelUser(testUserId, testCallback);
-    EXPECT_EQ(ret, INVALID_PARAMETERS);
+    EXPECT_EQ(ret, GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -873,7 +873,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceTestDump, TestSize.Level0)
     EXPECT_EQ(service.Dump(testFd2, testArgs), SUCCESS);
     testArgs.clear();
     testArgs.push_back(u"-l");
-    EXPECT_EQ(service.Dump(testFd2, testArgs), SUCCESS);
+    EXPECT_EQ(service.Dump(testFd2, testArgs), GENERAL_ERROR);
     EXPECT_EQ(service.Dump(testFd2, testArgs), SUCCESS);
     testArgs.clear();
     testArgs.push_back(u"-k");

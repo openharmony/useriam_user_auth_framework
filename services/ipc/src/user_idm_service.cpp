@@ -111,7 +111,15 @@ int32_t UserIdmService::GetCredentialInfoInner(int32_t userId, AuthType authType
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
     }
-    auto credInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType);
+
+    std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
+    int32_t ret = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType, credInfos);
+    if (ret != SUCCESS) {
+        IAM_LOGE("get credential fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret,
+            userId, authType);
+        return GENERAL_ERROR;
+    }
+
     if (credInfos.empty()) {
         IAM_LOGE("no cred enrolled");
         return NOT_ENROLLED;
@@ -126,7 +134,12 @@ int32_t UserIdmService::GetCredentialInfoInner(int32_t userId, AuthType authType
         info.templateId = credInfo->GetTemplateId();
         info.authType = credInfo->GetAuthType();
         if (info.authType == PIN) {
-            auto userInfo = UserIdmDatabase::Instance().GetSecUserInfo(userId);
+            std::shared_ptr<SecureUserInfoInterface> userInfo = nullptr;
+            int32_t ret = UserIdmDatabase::Instance().GetSecUserInfo(userId, userInfo);
+            if (ret != SUCCESS) {
+                IAM_LOGE("get secUserInfo fail, ret:%{public}d, userId:%{public}d", ret, userId);
+                return GENERAL_ERROR;
+            }
             if (userInfo == nullptr) {
                 IAM_LOGE("failed to get userInfo");
                 return GENERAL_ERROR;
@@ -165,7 +178,12 @@ int32_t UserIdmService::GetSecInfoInner(int32_t userId, SecUserInfo &secUserInfo
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
     }
-    auto userInfos = UserIdmDatabase::Instance().GetSecUserInfo(userId);
+    std::shared_ptr<SecureUserInfoInterface> userInfos = nullptr;
+    int32_t ret = UserIdmDatabase::Instance().GetSecUserInfo(userId, userInfos);
+    if (ret != SUCCESS) {
+        IAM_LOGE("get secUserInfo fail, ret:%{public}d, userId:%{public}d", ret, userId);
+        return GENERAL_ERROR;
+    }
     if (userInfos == nullptr) {
         IAM_LOGE("current userid %{public}d is not existed", userId);
         return INVALID_PARAMETERS;
@@ -273,7 +291,16 @@ void UserIdmService::UpdateCredential(int32_t userId, const CredentialPara &cred
         return;
     }
 
-    auto credInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, credPara.authType);
+    std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
+    int32_t ret = UserIdmDatabase::Instance().GetCredentialInfo(userId, credPara.authType, credInfos);
+    if (ret != SUCCESS) {
+        IAM_LOGE("get credential fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret,
+            userId, credPara.authType);
+        Attributes extraInfo;
+        callback->OnResult(GENERAL_ERROR, extraInfo);
+        return;
+    }
+
     if (credInfos.empty()) {
         IAM_LOGE("current userid %{public}d has no credential for type %{public}u", userId, credPara.authType);
         Attributes extraInfo;
@@ -355,14 +382,19 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInt
 
     std::lock_guard<std::mutex> lock(mutex_);
     CancelCurrentEnrollIfExist();
-
-    auto userInfo = UserIdmDatabase::Instance().GetSecUserInfo(userId);
+    std::shared_ptr<SecureUserInfoInterface> userInfo = nullptr;
+    int32_t ret = UserIdmDatabase::Instance().GetSecUserInfo(userId, userInfo);
+    if (ret != SUCCESS) {
+        IAM_LOGE("get secUserInfo fail, ret:%{public}d, userId:%{public}d", ret, userId);
+        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
+        return ret;
+    }
     if (userInfo == nullptr) {
         IAM_LOGE("current userid %{public}d is not existed", userId);
         contextCallback->OnResult(INVALID_PARAMETERS, extraInfo);
         return INVALID_PARAMETERS;
     }
-    int32_t ret = EnforceDelUserInner(userId, contextCallback, "EnforceDeleteUser");
+    ret = EnforceDelUserInner(userId, contextCallback, "EnforceDeleteUser");
     if (ret != SUCCESS) {
         IAM_LOGE("failed to enforce delete user");
         static_cast<void>(extraInfo.SetUint64Value(Attributes::ATTR_CREDENTIAL_ID, 0));
@@ -478,10 +510,7 @@ void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
 
     contextCallback->OnResult(ret, extraInfo);
     if (oldInfo != nullptr) {
-        auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, oldInfo->GetAuthType());
-        PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, oldInfo->GetAuthType(),
-            credentialInfos.size());
-        PublishEventAdapter::GetInstance().PublishUpdatedEvent(userId, credentialId);
+        PublishCommonEvent(userId, credentialId, oldInfo->GetAuthType());
     }
 }
 
@@ -513,7 +542,12 @@ int UserIdmService::Dump(int fd, const std::vector<std::u16string> &args)
         return GENERAL_ERROR;
     }
     dprintf(fd, "Active user is %d\n", activeUserId.value());
-    auto userInfo = UserIdmDatabase::Instance().GetSecUserInfo(activeUserId.value());
+    std::shared_ptr<SecureUserInfoInterface> userInfo = nullptr;
+    int32_t ret = UserIdmDatabase::Instance().GetSecUserInfo(activeUserId.value(), userInfo);
+    if (ret != SUCCESS) {
+        IAM_LOGE("get secUserInfo fail, ret:%{public}d, userId:%{public}d", ret, activeUserId.value());
+        return GENERAL_ERROR;
+    }
     if (userInfo == nullptr) {
         IAM_LOGE("userInfo is null");
         return SUCCESS;
@@ -630,6 +664,17 @@ void UserIdmService::ClearRedundancyCredential(const sptr<IdmCallbackInterface> 
     contextCallback->OnResult(SUCCESS, extraInfo);
 }
 
+void UserIdmService::PublishCommonEvent(int32_t userId, uint64_t credentialId, AuthType authType)
+{
+    std::vector<std::shared_ptr<CredentialInfoInterface>> credentialInfos;
+    int32_t ret = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType, credentialInfos);
+    if (ret != SUCCESS) {
+        IAM_LOGE("get credential fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret, userId, authType);
+        return;
+    }
+    PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, authType, credentialInfos.size());
+    PublishEventAdapter::GetInstance().PublishUpdatedEvent(userId, credentialId);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
