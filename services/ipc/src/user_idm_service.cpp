@@ -490,7 +490,6 @@ int UserIdmService::Dump(int fd, const std::vector<std::u16string> &args)
     IAM_LOGI("start");
     if (fd < 0) {
         IAM_LOGE("invalid parameters");
-        dprintf(fd, "Invalid parameters.\n");
         return INVALID_PARAMETERS;
     }
     std::string arg0 = (args.empty() ? "" : Str16ToStr8(args[0]));
