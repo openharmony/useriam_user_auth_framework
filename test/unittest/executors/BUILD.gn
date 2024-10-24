@@ -66,11 +66,11 @@ ohos_unittest("iam_executors_test") {
     "../../../frameworks/native/client:userauth_client",
     "../../../frameworks/native/common:attributes",
     "../../../frameworks/native/common:dfx",
-    "//third_party/googletest:gmock_main",
   ]
 
   external_deps = [
     "c_utils:utils",
+    "googletest:gmock_main",
     "hdf_core:libhdf_host",
     "hdf_core:libhdf_ipc_adapter",
     "hdf_core:libhdf_utils",
