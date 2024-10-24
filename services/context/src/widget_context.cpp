@@ -473,6 +473,7 @@ bool WidgetContext::DisconnectExtension()
         IAM_LOGE("invalid connection handle");
         return false;
     }
+    WidgetClient::Instance().ForceStopAuth();
     connection_->ReleaseUIExtensionComponent();
     ErrCode ret = AAFwk::ExtensionManagerClient::GetInstance().DisconnectAbility(connection_);
     connection_ = nullptr;
