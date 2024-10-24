@@ -32,8 +32,6 @@ void UIExtensionAbilityConnection::OnAbilityConnectDone(const AppExecFwk::Elemen
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (!isConnectionRelease_) {
         IAM_LOGE("connection already release");
-        ReleaseUIExtensionComponentInner();
-        WidgetClient::Instance().ForceStopAuth();
         return;
     }
     if (remoteObject == nullptr) {
@@ -69,7 +67,10 @@ void UIExtensionAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::Ele
     IAM_LOGI("on ability disconnected");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     connectAbilityHitrace_ = nullptr;
-    ReleaseUIExtensionComponentInner();
+    if (!isConnectionRelease_) {
+        IAM_LOGE("connection already release");
+        return;
+    }
     WidgetClient::Instance().ForceStopAuth();
 }
 
