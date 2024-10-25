@@ -826,6 +826,7 @@ uint64_t UserAuthService::StartWidgetContext(const std::shared_ptr<ContextCallba
 {
     Attributes extraInfo;
     para.tokenId = IpcCommon::GetAccessTokenId(*this);
+    para.isOsAccountVerified = IpcCommon::IsOsAccountVerified(para.userId);
     if (!AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para)) {
         IAM_LOGE("init widgetContext failed");
         contextCallback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
