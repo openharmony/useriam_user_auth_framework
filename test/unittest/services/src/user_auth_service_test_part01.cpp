@@ -21,6 +21,7 @@
 #include "iam_ptr.h"
 
 #include "executor_messenger_service.h"
+#include "accesstoken_kit.h"
 #include "mock_auth_event_listener.h"
 #include "mock_context.h"
 #include "mock_iuser_auth_interface.h"
@@ -258,6 +259,12 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAvailableStatus005, TestSize.Lev
     testAuthTrustLevel = static_cast<AuthTrustLevel>(0);
     ret = service->GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel);
     EXPECT_EQ(ret, TRUST_LEVEL_NOT_SUPPORT);
+    testAuthTrustLevel = ATL2;
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    testApiVersion = 2;
+    testAuthType = PIN;
+    ret = service->GetAvailableStatus(testApiVersion, testAuthType, testAuthTrustLevel);
+    EXPECT_EQ(ret, TYPE_NOT_SUPPORT);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -857,9 +864,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser004, TestSize.Level0)
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
     uint64_t contextId = service.AuthUser(authParam, remoteAuthParam, callbackInterface);
     EXPECT_EQ(contextId, 0);
-    param.collectorTokenId = 123123;
-    contextId = service.AuthUser(authParam, remoteAuthParam, callbackInterface);
-    EXPECT_EQ(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -904,6 +908,35 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser006, TestSize.Level0)
     RemoteAuthParam param = {};
     param.verifierNetworkId = "123";
     param.collectorNetworkId = "1233324321423412344134";
+    remoteAuthParam = param;
+    EXPECT_EQ(remoteAuthParam.has_value(), true);
+    sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback());
+    EXPECT_NE(testCallback, nullptr);
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
+    EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _)).Times(0);
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
+    uint64_t contextId = service.AuthUser(authParam, remoteAuthParam, callbackInterface);
+    EXPECT_EQ(contextId, 0);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser007, TestSize.Level0)
+{
+    UserAuthService service;
+    AuthParamInner authParam = {
+        .userId = -1,
+        .challenge = {1, 2, 3, 4},
+        .authType = PIN,
+        .authTrustLevel = ATL2,
+    };
+    std::optional<RemoteAuthParam> remoteAuthParam = {};
+    RemoteAuthParam param = {};
+    param.verifierNetworkId = "123";
+    param.collectorNetworkId = "1233324321423412344134";
+    param.collectorTokenId = 123123;
     remoteAuthParam = param;
     EXPECT_EQ(remoteAuthParam.has_value(), true);
     sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback());
@@ -1079,6 +1112,99 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetVersion, TestSize.Level0)
     EXPECT_EQ(service.GetVersion(version), SUCCESS);
     EXPECT_EQ(version, 1);
     IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceStartRemoteAuthInvokerContext, TestSize.Level0)
+{
+    UserAuthService service;
+    AuthParamInner authParam = {
+        .userId = 125,
+        .challenge = {1, 2, 3, 4},
+        .authType = FACE,
+        .authTrustLevel = ATL2,
+    };
+    RemoteAuthInvokerContextParam remoteAuthInvokerContextParam;
+    remoteAuthInvokerContextParam.connectionName = "";
+    remoteAuthInvokerContextParam.verifierNetworkId = "123";
+    remoteAuthInvokerContextParam.collectorNetworkId = "123123123";
+    remoteAuthInvokerContextParam.tokenId = 123;
+    remoteAuthInvokerContextParam.collectorTokenId = 123123;
+    remoteAuthInvokerContextParam.callerName = "4123";
+    remoteAuthInvokerContextParam.callerType = Security::AccessToken::TOKEN_HAP;
+    std::shared_ptr<ContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
+    ASSERT_NE(contextCallback, nullptr);
+    EXPECT_EQ(service.StartRemoteAuthInvokerContext(authParam, remoteAuthInvokerContextParam, contextCallback),
+    SUCCESS);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServicePrepareRemoteAuth_001, TestSize.Level0)
+{
+    UserAuthService service;
+    const std::string networkId = "12312312313";
+    sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback());
+    EXPECT_NE(testCallback, nullptr);
+    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
+    EXPECT_EQ(service.PrepareRemoteAuth(networkId, callbackInterface), SUCCESS);
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    EXPECT_EQ(service.PrepareRemoteAuth(networkId, callbackInterface), SUCCESS);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServicePrepareRemoteAuth_002, TestSize.Level0)
+{
+    UserAuthService service;
+    const std::string networkId = "";
+    sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback());
+    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    EXPECT_EQ(service.PrepareRemoteAuth(networkId, callbackInterface), SUCCESS);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCompleteRemoteAuthParam_001, TestSize.Level0)
+{
+    UserAuthService service;
+    const std::string localNetworkId = "1234567891123456789212345678931234567894123456789512345678961234";
+    RemoteAuthParam remoteAuthParam = {};
+    remoteAuthParam.verifierNetworkId = "1234567891123456789212345678931234567894123456789512345678961234";
+    remoteAuthParam.collectorNetworkId = "1234567891123456789212345678931234567894123456789512345678961234";
+    EXPECT_EQ(service.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId), false);
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCompleteRemoteAuthParam_002, TestSize.Level0)
+{
+    UserAuthService service;
+    const std::string localNetworkId = "1234567891123456789212345678931234567894123456789512345678961234";
+    RemoteAuthParam remoteAuthParam = {};
+    EXPECT_EQ(service.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId), false);
+    remoteAuthParam.verifierNetworkId = "123";
+    EXPECT_EQ(service.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId), false);
+    remoteAuthParam.verifierNetworkId = "1234567891123456789212345678931234567894123456789512345678961234";
+    EXPECT_EQ(service.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId), false);
+    remoteAuthParam.collectorNetworkId = "123";
+    EXPECT_EQ(service.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId), false);
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCompleteRemoteAuthParam_003, TestSize.Level0)
+{
+    UserAuthService service;
+    const std::string localNetworkId = "1234567891123456789212345678931234567894123456789512345678961234";
+    RemoteAuthParam remoteAuthParam = {};
+    remoteAuthParam.collectorNetworkId = "1234567891123456789212345678931234567894123456789512345678961234";
+    EXPECT_EQ(service.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId), false);
+    remoteAuthParam.verifierNetworkId = "1234567891123456789212345678931234567894123456789512345678961233";
+    remoteAuthParam.collectorNetworkId = "1234567891123456789212345678931234567894123456789512345678961233";
+    EXPECT_EQ(service.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId), false);
+    remoteAuthParam.verifierNetworkId = "1234567891123456789212345678931234567894123456789512345678961234";
+    remoteAuthParam.collectorNetworkId = "1234567891123456789212345678931234567894123456789512345678961234";
+    EXPECT_EQ(service.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId), false);
+    remoteAuthParam.verifierNetworkId = "1234567891123456789212345678931234567894123456789512345678961233";
+    remoteAuthParam.collectorNetworkId = "1234567891123456789212345678931234567894123456789512345678961234";
+    EXPECT_EQ(service.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId), true);
+    remoteAuthParam.verifierNetworkId = "1234567891123456789212345678931234567894123456789512345678961234";
+    remoteAuthParam.collectorNetworkId = "1234567891123456789212345678931234567894123456789512345678961233";
+    EXPECT_EQ(service.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId), true);
 }
 } // namespace UserAuth
 } // namespace UserIam
