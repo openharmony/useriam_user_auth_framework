@@ -1254,6 +1254,16 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceRegistEventListerner_004, TestSize.
     IpcCommon::DeleteAllPermission();
 }
 
+HWTEST_F(UserAuthServiceTest, UserAuthServiceRegistEventListerner_005, TestSize.Level0)
+{
+    UserAuthService service;
+    sptr<AuthEventListenerInterface> testCallback = new MockAuthEventListener();
+    std::vector<AuthType> authTypeList;
+    authTypeList.push_back(AuthType::ALL);
+    EXPECT_EQ(service.RegistUserAuthSuccessEventListener(authTypeList, testCallback), ResultCode::INVALID_PARAMETERS);
+    IpcCommon::DeleteAllPermission();
+}
+
 HWTEST_F(UserAuthServiceTest, UserAuthServiceUnRegistEventListerner_001, TestSize.Level0)
 {
     UserAuthService service;
@@ -1347,6 +1357,28 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam002, TestSize.L
             }
         );
     EXPECT_EQ(service.SetGlobalConfigParam(param), HDF_FAILURE);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam003, TestSize.Level0)
+{
+    UserAuthService service;
+    GlobalConfigParam param = {};
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::INVALID_PARAMETERS);
+
+    param.type = PIN_EXPIRED_PERIOD;
+    param.value.enableStatus = true;
+    param.userIds.push_back(1);
+    param.authTypes.push_back(ALL);
+    param.authTypes.push_back(PIN);
+    param.authTypes.push_back(FACE);
+    param.authTypes.push_back(FINGERPRINT);
+    param.authTypes.push_back(RECOVERY_KEY);
+    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::INVALID_PARAMETERS);
+    param.authTypes.clear();
+    param.authTypes.push_back(FACE);
+    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::INVALID_PARAMETERS);
     IpcCommon::DeleteAllPermission();
 }
 } // namespace UserAuth

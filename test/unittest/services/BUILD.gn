@@ -25,6 +25,11 @@ ohos_unittest("iam_services_test") {
     blocklist = "../../../cfi_blocklist.txt"
   }
   branch_protector_ret = "pac_ret"
+
+  cflags = [
+    "-Dprivate=public",
+    "-Dprotected=public",
+  ]
   include_dirs = [
     "inc",
     "mocks",
