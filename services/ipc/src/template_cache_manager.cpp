@@ -241,7 +241,14 @@ void TemplateCacheManager::UpdateTemplateCache(AuthType authType)
         return;
     }
 
-    auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(currUserId, authType);
+    std::vector<std::shared_ptr<CredentialInfoInterface>> credentialInfos;
+    int32_t ret = UserIdmDatabase::Instance().GetCredentialInfo(currUserId, authType, credentialInfos);
+    if (ret != SUCCESS) {
+        IAM_LOGE("get credential fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret,
+            currUserId, authType);
+        return;
+    }
+
     if (credentialInfos.empty()) {
         IAM_LOGI("user %{public}d has no credential type %{public}d", currUserId, authType);
         ResourceNodePool::Instance().Enumerate([authType](const std::weak_ptr<ResourceNode> &node) {

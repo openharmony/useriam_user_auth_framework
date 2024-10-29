@@ -109,6 +109,7 @@ private:
     int32_t PrepareRemoteAuthInner(const std::string &networkId);
     int32_t GetAvailableStatusInner(int32_t apiVersion, int32_t userId, AuthType authType,
         AuthTrustLevel authTrustLevel);
+    std::shared_ptr<ResourceNode> GetResourseNode(AuthType authType);
     static std::mutex mutex_;
     static std::shared_ptr<UserAuthService> instance_;
 };

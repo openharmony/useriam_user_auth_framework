@@ -71,6 +71,7 @@ private:
         const std::shared_ptr<ContextCallback> &contextCallback);
     void StartEnroll(Enrollment::EnrollmentPara &para,
         const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo);
+    void PublishCommonEvent(int32_t userId, uint64_t credentialId, AuthType authType);
     std::mutex mutex_;
 };
 } // namespace UserAuth

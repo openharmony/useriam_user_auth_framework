@@ -30,9 +30,9 @@ namespace UserAuth {
 class UserIdmDatabase {
 public:
     static UserIdmDatabase &Instance();
-    virtual std::shared_ptr<SecureUserInfoInterface> GetSecUserInfo(int32_t userId) = 0;
-    virtual std::vector<std::shared_ptr<CredentialInfoInterface>> GetCredentialInfo(int32_t userId,
-        AuthType authType) = 0;
+    virtual int32_t GetSecUserInfo(int32_t userId, std::shared_ptr<SecureUserInfoInterface> &secUserInfo) = 0;
+    virtual int32_t GetCredentialInfo(int32_t userId, AuthType authType,
+        std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos) = 0;
     virtual int32_t DeleteCredentialInfo(int32_t userId, uint64_t credentialId,
         const std::vector<uint8_t> &authToken, std::shared_ptr<CredentialInfoInterface> &credInfo) = 0;
     virtual int32_t DeleteUser(int32_t userId, const std::vector<uint8_t> &authToken,
