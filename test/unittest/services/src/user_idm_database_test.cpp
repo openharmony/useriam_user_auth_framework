@@ -45,7 +45,8 @@ HWTEST_F(UserIdmDatabaseTest, FailedGetSecUserInfo, TestSize.Level0)
     EXPECT_CALL(*mock, GetUserInfo(_, _, _, _)).WillRepeatedly(Return(1));
     auto &database = UserIdmDatabase::Instance();
     constexpr int32_t USER_ID = 100;
-    auto secUserInfo = database.GetSecUserInfo(USER_ID);
+    std::shared_ptr<SecureUserInfoInterface> secUserInfo = nullptr;
+    database.GetSecUserInfo(USER_ID, secUserInfo);
     EXPECT_EQ(secUserInfo, nullptr);
 }
 
@@ -68,7 +69,8 @@ HWTEST_F(UserIdmDatabaseTest, FailedGetSecUserInfoNoPin, TestSize.Level0)
         .WillRepeatedly(DoAll(SetArgReferee<1>(SECURE_UID), WithArg<3>(fillUpInfos), Return(0)));
 
     auto &database = UserIdmDatabase::Instance();
-    auto secUserInfo = database.GetSecUserInfo(USER_ID);
+    std::shared_ptr<SecureUserInfoInterface> secUserInfo = nullptr;
+    database.GetSecUserInfo(USER_ID, secUserInfo);
 
     EXPECT_NE(secUserInfo, nullptr);
 }
@@ -86,7 +88,8 @@ HWTEST_F(UserIdmDatabaseTest, FailedGetSecUserInfoNoEnrolledInfo, TestSize.Level
     EXPECT_CALL(*mock, GetUserInfo(USER_ID, _, _, _))
         .WillRepeatedly(DoAll(SetArgReferee<1>(SECURE_UID), WithArg<3>(fillUpInfos), Return(0)));
 
-    auto secUserInfo = UserIdmDatabase::Instance().GetSecUserInfo(USER_ID);
+    std::shared_ptr<SecureUserInfoInterface> secUserInfo = nullptr;
+    UserIdmDatabase::Instance().GetSecUserInfo(USER_ID, secUserInfo);
 
     // test EnrolledInfo is null
     EXPECT_NE(secUserInfo, nullptr);
@@ -118,7 +121,8 @@ HWTEST_F(UserIdmDatabaseTest, SuccessfulGetSecUserInfo, TestSize.Level0)
             WithArg<3>(fillUpInfos), Return(0)));
 
     auto &database = UserIdmDatabase::Instance();
-    auto secUserInfo = database.GetSecUserInfo(USER_ID);
+    std::shared_ptr<SecureUserInfoInterface> secUserInfo = nullptr;
+    database.GetSecUserInfo(USER_ID, secUserInfo);
     EXPECT_NE(secUserInfo, nullptr);
     EXPECT_EQ(USER_ID, secUserInfo->GetUserId());
     EXPECT_EQ(SECURE_UID, secUserInfo->GetSecUserId());
@@ -134,8 +138,8 @@ HWTEST_F(UserIdmDatabaseTest, FailedGetCredentialInfoVector, TestSize.Level0)
     AuthType authType = PIN;
     EXPECT_CALL(*mock, GetCredential(_, _, _)).WillRepeatedly(Return(1));
     auto &database = UserIdmDatabase::Instance();
-    std::vector<std::shared_ptr<CredentialInfoInterface>> info = {};
-    auto infoRet = database.GetCredentialInfo(USER_ID, authType);
+    std::vector<std::shared_ptr<CredentialInfoInterface>> infoRet = {};
+    database.GetCredentialInfo(USER_ID, authType, infoRet);
     EXPECT_EQ(infoRet.size(), 0U);
 }
 
@@ -170,7 +174,8 @@ HWTEST_F(UserIdmDatabaseTest, SuccessfulGetCredentialInfoVector, TestSize.Level0
     EXPECT_CALL(*mock, GetCredential(USER_ID, authType, _)).WillRepeatedly(DoAll(WithArg<2>(fillUpInfos), Return(0)));
     auto &database = UserIdmDatabase::Instance();
     AuthType authType1 = PIN;
-    auto info = database.GetCredentialInfo(USER_ID, authType1);
+    std::vector<std::shared_ptr<CredentialInfoInterface>> info = {};
+    database.GetCredentialInfo(USER_ID, authType1, info);
 
     // test return result
     EXPECT_EQ(info.size(), 2U);

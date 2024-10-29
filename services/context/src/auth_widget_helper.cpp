@@ -60,7 +60,13 @@ bool AuthWidgetHelper::GetUserAuthProfile(int32_t userId, const AuthType &authTy
     ContextFactory::AuthProfile &profile)
 {
     Attributes values;
-    auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType);
+    std::vector<std::shared_ptr<CredentialInfoInterface>> credentialInfos;
+    int32_t ret = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType, credentialInfos);
+    if (ret != SUCCESS) {
+        IAM_LOGE("get credential fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret,
+            userId, authType);
+        return false;
+    }
     if (credentialInfos.empty() || credentialInfos[0] == nullptr) {
         IAM_LOGE("user %{public}d has no credential type %{public}d", userId, authType);
         return false;
