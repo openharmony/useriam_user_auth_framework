@@ -101,7 +101,7 @@ private:
     void End(const ResultCode &resultCode);
     std::shared_ptr<ContextCallback> GetAuthContextCallback(AuthType authType, AuthTrustLevel authTrustLevel,
         sptr<IamCallbackInterface> &callback);
-    void StopAllRunTask();
+    void StopAllRunTask(const ResultCode &resultCode);
     std::string BuildStartCommand(const WidgetRotatePara &widgetRotatePara);
     void ProcessRotatePara(WidgetCmdParameters &widgetCmdParameters, const WidgetRotatePara &widgetRotatePara);
     bool isValidRotate(const WidgetRotatePara &widgetRotatePara);
