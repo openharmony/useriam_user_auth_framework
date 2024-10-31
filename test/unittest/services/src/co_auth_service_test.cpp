@@ -92,7 +92,7 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest001, TestSize.Level0)
     executorIndex = service->ExecutorRegister(info, callbackInterface);
     EXPECT_NE(executorIndex, 0);
     promise.get_future().get();
-    EXPECT_EQ(ResourceNodePool::Instance().Delete(executorIndex), true);
+    service->ExecutorUnregister(executorIndex);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -107,7 +107,55 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest002, TestSize.Level0)
     EXPECT_EQ(executorIndex, 0);
 }
 
-HWTEST_F(CoAuthServiceTest, CoAuthServiceTest003, TestSize.Level0)
+HWTEST_F(CoAuthServiceTest, CoAuthServiceTestExecutorRegister001, TestSize.Level0)
+{
+    sptr<MockExecutorCallback> testCallback(new (std::nothrow) MockExecutorCallback());
+    EXPECT_NE(testCallback, nullptr);
+
+    CoAuthInterface::ExecutorRegisterInfo info = {};
+    info.authType = FINGERPRINT;
+    info.executorRole = SCHEDULER;
+    info.executorSensorHint = 0;
+    info.executorMatcher = 0;
+    info.esl = ESL1;
+    info.publicKey = {'a', 'b', 'c', 'd'};
+    
+    auto service = Common::MakeShared<CoAuthService>();
+    EXPECT_NE(service, nullptr);
+    service->SetIsReady(false);
+    service->SetAccessTokenReady(false);
+    sptr<ExecutorCallbackInterface> callbackInterface = testCallback;
+    uint64_t executorIndex = service->ExecutorRegister(info, callbackInterface);
+    EXPECT_NE(executorIndex, INVALID_EXECUTOR_INDEX);
+    service->ExecutorUnregister(executorIndex);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(CoAuthServiceTest, CoAuthServiceTestExecutorRegister002, TestSize.Level0)
+{
+    sptr<MockExecutorCallback> testCallback(new (std::nothrow) MockExecutorCallback());
+    EXPECT_NE(testCallback, nullptr);
+
+    CoAuthInterface::ExecutorRegisterInfo info = {};
+    info.authType = FINGERPRINT;
+    info.executorRole = SCHEDULER;
+    info.executorSensorHint = 0;
+    info.executorMatcher = 0;
+    info.esl = ESL1;
+    info.publicKey = {'a', 'b', 'c', 'd'};
+    
+    auto service = Common::MakeShared<CoAuthService>();
+    EXPECT_NE(service, nullptr);
+    service->SetIsReady(true);
+    service->SetAccessTokenReady(true);
+    sptr<ExecutorCallbackInterface> callbackInterface = testCallback;
+    uint64_t executorIndex = service->ExecutorRegister(info, callbackInterface);
+    EXPECT_NE(executorIndex, INVALID_EXECUTOR_INDEX);
+    service->ExecutorUnregister(executorIndex);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(CoAuthServiceTest, CoAuthServiceTestDump, TestSize.Level0)
 {
     int testFd1 = -1;
     int testFd2 = 1;
@@ -132,6 +180,17 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest003, TestSize.Level0)
     EXPECT_EQ(service->Dump(testFd2, testArgs), GENERAL_ERROR);
 
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(20));
+}
+
+HWTEST_F(CoAuthServiceTest, CoAuthServiceTestRegisterAccessTokenListener, TestSize.Level0)
+{
+    auto service = Common::MakeShared<CoAuthService>();
+    EXPECT_NE(service, nullptr);
+    service->Init();
+    service->SetIsReady(true);
+    service->SetAccessTokenReady(true);
+    EXPECT_EQ(service->RegisterAccessTokenListener(), SUCCESS);
+    EXPECT_EQ(service->UnRegisterAccessTokenListener(), SUCCESS);
 }
 } // namespace UserAuth
 } // namespace UserIam
