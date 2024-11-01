@@ -253,6 +253,9 @@ void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInf
             resultInfo.remoteAuthResultMsg);
         IF_FALSE_LOGE_AND_RETURN(setRemoteAuthResultMsg == true);
     }
+    bool setReEnrollFlagRet = finalResult.SetBoolValue(Attributes::ATTR_RE_ENROLL_FLAG, resultInfo.reEnrollFlag);
+    IF_FALSE_LOGE_AND_RETURN(setReEnrollFlagRet == true);
+
     callback_->SetTraceAuthFinishReason("SimpleAuthContext InvokeResultCallback");
     callback_->OnResult(resultInfo.result, finalResult);
     IAM_LOGI("%{public}s invoke result callback success, result %{public}d", GetDescription(), resultInfo.result);

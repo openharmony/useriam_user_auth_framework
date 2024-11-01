@@ -172,6 +172,7 @@ bool AuthenticationImpl::Update(const std::vector<uint8_t> &scheduleResult, Auth
     resultInfo.userId = info.userId;
     resultInfo.remoteAuthResultMsg = info.remoteAuthResultMsg;
     resultInfo.credentialId = info.credentialId;
+    resultInfo.reEnrollFlag = info.reEnrollFlag;
 
     if (resultInfo.result != SUCCESS) {
         SetLatestError(resultInfo.result);
