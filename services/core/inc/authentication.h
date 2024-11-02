@@ -55,6 +55,7 @@ public:
         int64_t pinExpiredInfo;
         std::vector<uint8_t> remoteAuthResultMsg;
         uint64_t credentialId;
+        bool reEnrollFlag;
     };
     struct AuthExecutorMsg {
         uint64_t executorIndex;
