@@ -195,6 +195,8 @@ public:
         ATTR_AUTH_INTENTION = 100086,
         /** Supported message version, the value type is std::vector<uint32_t>. */
         ATTR_SUPPORTED_MSG_VERSION = 100087,
+        /* re-enroll flag, the value type is bool */
+        ATTR_RE_ENROLL_FLAG = 100088,
     };
 
     /**
