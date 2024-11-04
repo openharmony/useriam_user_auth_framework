@@ -232,11 +232,23 @@ HWTEST_F(WidgetContextTest, WidgetContextTestLaunchWidget_003, TestSize.Level0)
     handler->EnsureTask([]() {});
 }
 
-HWTEST_F(WidgetContextTest, WidgetContextTestEndAuthAsCancel, TestSize.Level0)
+HWTEST_F(WidgetContextTest, WidgetContextTestEndAuthAsCancel_001, TestSize.Level0)
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
     auto widgetContext = CreateWidgetContext(contextId, para);
+    widgetContext->EndAuthAsCancel();
+    EXPECT_NE(widgetContext, nullptr);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestEndAuthAsCancel_002, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    widgetContext->SetLatestError(COMPLEXITY_CHECK_FAILED);
     widgetContext->EndAuthAsCancel();
     EXPECT_NE(widgetContext, nullptr);
     auto handler = ThreadHandler::GetSingleThreadInstance();
@@ -447,6 +459,94 @@ HWTEST_F(WidgetContextTest, WidgetContextTestAuthWidgetReload_0003, TestSize.Lev
     EXPECT_NE(widgetContext, nullptr);
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestAuthWidgetReload_0004, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    uint32_t orientation = 2;
+    uint32_t needRotate = 1;
+    uint32_t alreadyLoad = 0;
+    AuthType rotateAuthType = FACE;
+    widgetContext->AuthWidgetReload(orientation, needRotate, alreadyLoad, rotateAuthType);
+    EXPECT_NE(widgetContext, nullptr);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestAuthWidgetReload_0005, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    uint32_t orientation = 3;
+    uint32_t needRotate = 1;
+    uint32_t alreadyLoad = 0;
+    AuthType rotateAuthType = FACE;
+    widgetContext->AuthWidgetReload(orientation, needRotate, alreadyLoad, rotateAuthType);
+    EXPECT_NE(widgetContext, nullptr);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestAuthWidgetReload_0006, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    uint32_t orientation = 1;
+    uint32_t needRotate = 1;
+    uint32_t alreadyLoad = 0;
+    AuthType rotateAuthType = FACE;
+    WidgetCmdParameters widgetCmdParameters;
+    WidgetContext::WidgetRotatePara widgetRotatePara;
+    widgetRotatePara.orientation = 3;
+    widgetRotatePara.isReload = 0;
+    widgetRotatePara.needRotate = 0;
+    widgetContext->ProcessRotatePara(widgetCmdParameters, widgetRotatePara);
+    widgetContext->AuthWidgetReload(orientation, needRotate, alreadyLoad, rotateAuthType);
+    EXPECT_NE(widgetContext, nullptr);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestProcessRotatePara, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    WidgetCmdParameters widgetCmdParameters;
+    WidgetContext::WidgetRotatePara widgetRotatePara;
+    widgetRotatePara.orientation = 2;
+    widgetRotatePara.isReload = 0;
+    widgetRotatePara.needRotate = 1;
+    widgetContext->ProcessRotatePara(widgetCmdParameters, widgetRotatePara);
+    EXPECT_NE(widgetContext, nullptr);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestGetUserId, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    widgetContext->GetUserId();
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestOnResult, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    std::shared_ptr<Attributes> scheduleResultAttr = Common::MakeShared<Attributes>();
+    EXPECT_NE(scheduleResultAttr, nullptr);
+    int32_t resultCode = 2;
+    widgetContext->OnResult(resultCode, scheduleResultAttr);
 }
 } // namespace UserAuth
 } // namespace UserIam

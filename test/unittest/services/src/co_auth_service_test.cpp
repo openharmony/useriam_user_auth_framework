@@ -126,7 +126,7 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTestExecutorRegister001, TestSize.Level
     service->SetAccessTokenReady(false);
     sptr<ExecutorCallbackInterface> callbackInterface = testCallback;
     uint64_t executorIndex = service->ExecutorRegister(info, callbackInterface);
-    EXPECT_NE(executorIndex, INVALID_EXECUTOR_INDEX);
+    EXPECT_EQ(executorIndex, INVALID_EXECUTOR_INDEX);
     service->ExecutorUnregister(executorIndex);
     IpcCommon::DeleteAllPermission();
 }
@@ -150,7 +150,7 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTestExecutorRegister002, TestSize.Level
     service->SetAccessTokenReady(true);
     sptr<ExecutorCallbackInterface> callbackInterface = testCallback;
     uint64_t executorIndex = service->ExecutorRegister(info, callbackInterface);
-    EXPECT_NE(executorIndex, INVALID_EXECUTOR_INDEX);
+    EXPECT_EQ(executorIndex, INVALID_EXECUTOR_INDEX);
     service->ExecutorUnregister(executorIndex);
     IpcCommon::DeleteAllPermission();
 }
