@@ -491,7 +491,6 @@ bool WidgetContext::DisconnectExtension()
 void WidgetContext::End(const ResultCode &resultCode)
 {
     IAM_LOGI("in End, resultCode: %{public}d", static_cast<int32_t>(resultCode));
-    WidgetClient::Instance().Reset();
     StopAllRunTask(resultCode);
     IF_FALSE_LOGE_AND_RETURN(callerCallback_ != nullptr);
     Attributes attr;
@@ -530,6 +529,7 @@ void WidgetContext::End(const ResultCode &resultCode)
 void WidgetContext::StopAllRunTask(const ResultCode &resultCode)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
+    WidgetClient::Instance().Reset();
     for (auto &taskInfo : runTaskInfoList_) {
         IAM_LOGI("stop task");
         if (taskInfo.task == nullptr) {
