@@ -56,13 +56,20 @@ const int32_t USERIAM_IPC_THREAD_NUM = 4;
 const uint32_t MAX_AUTH_TYPE_SIZE = 3;
 const uint32_t NETWORK_ID_LENGTH = 64;
 const bool REMOTE_AUTH_SERVICE_RESULT = RemoteAuthService::GetInstance().Start();
-void GetTemplatesByAuthType(int32_t userId, AuthType authType, std::vector<uint64_t> &templateIds)
+int32_t GetTemplatesByAuthType(int32_t userId, AuthType authType, std::vector<uint64_t> &templateIds)
 {
     templateIds.clear();
-    auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType);
+    std::vector<std::shared_ptr<CredentialInfoInterface>> credentialInfos;
+    int32_t ret = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType, credentialInfos);
+    if (ret != SUCCESS) {
+        IAM_LOGE("get credential fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret,
+            userId, authType);
+        return GENERAL_ERROR;
+    }
+
     if (credentialInfos.empty()) {
         IAM_LOGE("user %{public}d has no credential type %{public}d", userId, authType);
-        return;
+        return SUCCESS;
     }
     
     templateIds.reserve(credentialInfos.size());
@@ -73,6 +80,8 @@ void GetTemplatesByAuthType(int32_t userId, AuthType authType, std::vector<uint6
         }
         templateIds.push_back(info->GetTemplateId());
     }
+
+    return SUCCESS;
 }
 
 bool IsTemplateIdListRequired(const std::vector<Attributes::AttributeKey> &keys)
@@ -244,6 +253,25 @@ void UserAuthService::FillGetPropertyValue(AuthType authType, const std::vector<
     }
 }
 
+std::shared_ptr<ResourceNode> UserAuthService::GetResourseNode(AuthType authType)
+{
+    std::vector<std::weak_ptr<ResourceNode>> authTypeNodes;
+    GetResourceNodeByTypeAndRole(authType, ALL_IN_ONE, authTypeNodes);
+    if (authTypeNodes.size() != 1) {
+        IAM_LOGE("auth type %{public}d resource node num %{public}zu is not expected",
+            authType, authTypeNodes.size());
+        return nullptr;
+    }
+
+    auto resourceNode = authTypeNodes[0].lock();
+    if (resourceNode == nullptr) {
+        IAM_LOGE("resourceNode is nullptr");
+        return nullptr;
+    }
+
+    return resourceNode;
+}
+
 void UserAuthService::GetProperty(int32_t userId, AuthType authType,
     const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallbackInterface> &callback)
 {
@@ -260,7 +288,13 @@ void UserAuthService::GetProperty(int32_t userId, AuthType authType,
 
     std::vector<uint64_t> templateIds;
     if (IsTemplateIdListRequired(keys)) {
-        GetTemplatesByAuthType(userId, authType, templateIds);
+        int32_t ret = GetTemplatesByAuthType(userId, authType, templateIds);
+        if (ret != SUCCESS) {
+            IAM_LOGE("get templates fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret,
+                userId, authType);
+            callback->OnGetExecutorPropertyResult(GENERAL_ERROR, values);
+            return;
+        }
         if (templateIds.size() == 0) {
             IAM_LOGE("template id list is required, but templateIds size is 0");
             callback->OnGetExecutorPropertyResult(NOT_ENROLLED, values);
@@ -268,16 +302,7 @@ void UserAuthService::GetProperty(int32_t userId, AuthType authType,
         }
     }
 
-    std::vector<std::weak_ptr<ResourceNode>> authTypeNodes;
-    GetResourceNodeByTypeAndRole(authType, ALL_IN_ONE, authTypeNodes);
-    if (authTypeNodes.size() != 1) {
-        IAM_LOGE("auth type %{public}d resource node num %{public}zu is not expected",
-            authType, authTypeNodes.size());
-        callback->OnGetExecutorPropertyResult(GENERAL_ERROR, values);
-        return;
-    }
-
-    auto resourceNode = authTypeNodes[0].lock();
+    auto resourceNode = GetResourseNode(authType);
     if (resourceNode == nullptr) {
         IAM_LOGE("resourceNode is nullptr");
         callback->OnGetExecutorPropertyResult(GENERAL_ERROR, values);
@@ -781,8 +806,8 @@ bool UserAuthService::CheckSingeFaceOrFinger(const std::vector<AuthType> &authTy
     return false;
 }
 
-int32_t UserAuthService::CheckAuthPermissionAndParam(int32_t userId, const AuthParamInner &authParam,
-    const WidgetParam &widgetParam)
+int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authParam, const WidgetParam &widgetParam,
+    bool isBackgroundApplication)
 {
     if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP) &&
         (widgetParam.windowMode != WindowModeType::UNKNOWN_WINDOW_MODE)) {
@@ -868,7 +893,7 @@ int32_t UserAuthService::CheckValidSolution(int32_t userId, const AuthParamInner
 }
 
 int32_t UserAuthService::GetCallerInfo(ContextFactory::AuthWidgetContextPara &para,
-    std::shared_ptr<ContextCallback> &contextCallback)
+    std::shared_ptr<ContextCallback> &contextCallback, bool &isBackgroundApplication)
 {
     std::string callerName = "";
     int32_t callerType = 0;
@@ -880,6 +905,11 @@ int32_t UserAuthService::GetCallerInfo(ContextFactory::AuthWidgetContextPara &pa
     if (para.callerType == Security::AccessToken::TOKEN_HAP) {
         para.callingBundleName = callerName;
     }
+    if (para.sdkVersion < INNER_API_VERSION_10000 && para.callerType == Security::AccessToken::TOKEN_HAP &&
+        (!IpcCommon::CheckForegroundApplication(para.callerName))) {
+        isBackgroundApplication = true;
+    }
+    contextCallback->SetTraceIsBackgroundApplication(isBackgroundApplication);
     int32_t userId;
     Attributes extraInfo;
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
@@ -906,12 +936,13 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParamInner &a
     ContextFactory::AuthWidgetContextPara para;
     para.sdkVersion = apiVersion;
     Attributes extraInfo;
-    int32_t checkRet = GetCallerInfo(para, contextCallback);
+    bool isBackgroundApplication = false;
+    int32_t checkRet = GetCallerInfo(para, contextCallback, isBackgroundApplication);
     if (checkRet != SUCCESS) {
         contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    checkRet = CheckAuthPermissionAndParam(para.userId, authParam, widgetParam);
+    checkRet = CheckAuthPermissionAndParam(authParam, widgetParam, isBackgroundApplication);
     if (checkRet != SUCCESS) {
         IAM_LOGE("check permission and auth widget param failed");
         contextCallback->OnResult(checkRet, extraInfo);

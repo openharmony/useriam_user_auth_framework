@@ -77,8 +77,8 @@ private:
     bool CheckAuthTrustLevel(AuthTrustLevel authTrustLevel);
     bool CheckSingeFaceOrFinger(const std::vector<AuthType> &authType);
     int32_t CheckAuthWidgetType(const std::vector<AuthType> &authType);
-    int32_t CheckAuthPermissionAndParam(int32_t userId, const AuthParamInner &authParam,
-        const WidgetParam &widgetParam);
+    int32_t CheckAuthPermissionAndParam(const AuthParamInner &authParam, const WidgetParam &widgetParam,
+        bool isBackgroundApplication);
     uint64_t StartWidgetContext(const std::shared_ptr<ContextCallback> &contextCallback,
         const AuthParamInner &authParam, const WidgetParam &widgetParam, std::vector<AuthType> &validType,
         ContextFactory::AuthWidgetContextPara &para);
@@ -99,13 +99,14 @@ private:
     int32_t CheckValidSolution(int32_t userId, const AuthParamInner &authParam, const WidgetParam &widgetParam,
         std::vector<AuthType> &validType);
     int32_t GetCallerInfo(ContextFactory::AuthWidgetContextPara &para,
-        std::shared_ptr<ContextCallback> &contextCallback);
+        std::shared_ptr<ContextCallback> &contextCallback, bool &isBackgroundApplication);
     void FillGetPropertyKeys(AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
         std::vector<uint32_t> &uint32Keys);
     void FillGetPropertyValue(AuthType authType, const std::vector<Attributes::AttributeKey> &keys, Attributes &values);
     bool CompleteRemoteAuthParam(RemoteAuthParam &remoteAuthParam, const std::string &localNetworkId);
     int32_t PrepareRemoteAuthInner(const std::string &networkId);
     bool GetAndUpateOsAccountVerifiedState(int32_t userId);
+    std::shared_ptr<ResourceNode> GetResourseNode(AuthType authType);
     static std::mutex mutex_;
     static std::shared_ptr<UserAuthService> instance_;
 
