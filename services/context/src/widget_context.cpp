@@ -488,13 +488,7 @@ void WidgetContext::End(const ResultCode &resultCode)
 {
     IAM_LOGI("in End, resultCode: %{public}d", static_cast<int32_t>(resultCode));
     WidgetClient::Instance().Reset();
-    StopAllRunTask();
-    if (resultCode != ResultCode::SUCCESS) {
-        IAM_LOGI("Try to disconnect extesnion");
-        if (!DisconnectExtension()) {
-            IAM_LOGE("failed to release launch widget.");
-        }
-    }
+    StopAllRunTask(resultCode);
     IF_FALSE_LOGE_AND_RETURN(callerCallback_ != nullptr);
     Attributes attr;
     if (resultCode == ResultCode::SUCCESS) {
@@ -524,7 +518,7 @@ void WidgetContext::End(const ResultCode &resultCode)
     callerCallback_->OnResult(resultCode, attr);
 }
 
-void WidgetContext::StopAllRunTask()
+void WidgetContext::StopAllRunTask(const ResultCode &resultCode)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     for (auto &taskInfo : runTaskInfoList_) {
@@ -536,6 +530,12 @@ void WidgetContext::StopAllRunTask()
         taskInfo.task->Stop();
     }
     runTaskInfoList_.clear();
+    if (resultCode != ResultCode::SUCCESS) {
+        IAM_LOGI("Try to disconnect extesnion");
+        if (!DisconnectExtension()) {
+            IAM_LOGE("failed to release launch widget.");
+        }
+    }
 }
 
 std::string WidgetContext::BuildStartCommand(const WidgetRotatePara &widgetRotatePara)

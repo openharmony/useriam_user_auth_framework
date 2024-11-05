@@ -54,6 +54,7 @@ public:
     MOCK_METHOD0(GetIamCallback, sptr<IamCallbackInterface>());
     MOCK_METHOD0(GetCallerName, std::string());
     MOCK_METHOD1(SetTraceCallerType, void(int32_t callerType));
+    MOCK_METHOD1(SetTraceIsBackgroundApplication, void(const bool isBackgroundApplication));
 };
 
 class MockContext final : public Context {
