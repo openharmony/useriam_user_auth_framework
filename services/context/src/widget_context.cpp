@@ -77,8 +77,8 @@ WidgetContext::~WidgetContext()
 
 bool WidgetContext::Start()
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
     IAM_LOGI("%{public}s start", description_.c_str());
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (hasStarted_) {
         IAM_LOGI("%{public}s context has started, cannot start again", description_.c_str());
         return false;
@@ -231,6 +231,7 @@ bool WidgetContext::OnStop()
 void WidgetContext::AuthResult(int32_t resultCode, int32_t authType, const Attributes &finalResult)
 {
     IAM_LOGI("recv task result: %{public}d, authType: %{public}d", resultCode, authType);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     int32_t remainTimes = -1;
     int32_t freezingTime = -1;
     if (!finalResult.GetInt32Value(Attributes::ATTR_REMAIN_TIMES, remainTimes)) {
@@ -261,6 +262,7 @@ void WidgetContext::AuthResult(int32_t resultCode, int32_t authType, const Attri
 void WidgetContext::AuthTipInfo(int32_t tipType, int32_t authType, const Attributes &extraInfo)
 {
     IAM_LOGI("recv tip: %{public}d, authType: %{public}d", tipType, authType);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     std::vector<uint8_t> tipInfo;
     bool getTipInfoRet = extraInfo.GetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, tipInfo);
     IF_FALSE_LOGE_AND_RETURN(getTipInfoRet);
