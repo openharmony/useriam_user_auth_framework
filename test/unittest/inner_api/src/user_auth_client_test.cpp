@@ -352,6 +352,34 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginAuthentication002, TestSize.Leve
     IpcClientUtils::ResetObj();
 }
 
+HWTEST_F(UserAuthClientTest, UserAuthClientImplBeginAuthentication001, TestSize.Level0)
+{
+    std::optional<RemoteAuthParam> remoteAuthParam = {};
+    RemoteAuthParam param = {};
+    param.verifierNetworkId = "123";
+    param.collectorNetworkId = "1233324321423412344134";
+    remoteAuthParam = param;
+    AuthParam testAuthParam = {
+        .userId = 84548,
+        .challenge = {1, 2, 3, 4, 8, 7, 5, 4},
+        .authType = PIN,
+        .authTrustLevel = ATL1,
+        .remoteAuthParam = remoteAuthParam
+    };
+    std::shared_ptr<MockAuthenticationCallback> testCallback = nullptr;
+    testCallback = Common::MakeShared<MockAuthenticationCallback>();
+    uint64_t contextId = UserAuthClientImpl::GetInstance().BeginAuthentication(testAuthParam, testCallback);
+    EXPECT_EQ(contextId, 0);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientImplPrepareRemoteAuth, TestSize.Level0)
+{
+    const std::string networkId = "123";
+    std::shared_ptr<PrepareRemoteAuthCallback> testCallback = nullptr;
+    uint64_t contextId = UserAuthClientImpl::GetInstance().PrepareRemoteAuth(networkId, testCallback);
+    EXPECT_EQ(contextId, 2);
+}
+
 HWTEST_F(UserAuthClientTest, UserAuthClientCancelAuthentication001, TestSize.Level0)
 {
     uint64_t testContextId = 12345562;
@@ -797,6 +825,15 @@ HWTEST_F(UserAuthClientTest, UserAuthClientSetGlobalConfigParam002, TestSize.Lev
     EXPECT_NE(dr, nullptr);
     dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientGetNorthAvailableStatus, TestSize.Level0)
+{
+    AuthType testAuthType = FACE;
+    int32_t testApiVersion = 0;
+    AuthTrustLevel testAtl = ATL1;
+    int32_t ret = UserAuthClientImpl::Instance().GetNorthAvailableStatus(testApiVersion, testAuthType, testAtl);
+    EXPECT_EQ(ret, GENERAL_ERROR);
 }
 } // namespace UserAuth
 } // namespace UserIam
