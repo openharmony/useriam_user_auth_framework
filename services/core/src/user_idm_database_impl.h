@@ -29,9 +29,9 @@ class UserIdmDatabaseImpl : public UserIdmDatabase, public Singleton<UserIdmData
 public:
     UserIdmDatabaseImpl() = default;
     ~UserIdmDatabaseImpl() override = default;
-    std::shared_ptr<SecureUserInfoInterface> GetSecUserInfo(int32_t userId) override;
-    std::vector<std::shared_ptr<CredentialInfoInterface>> GetCredentialInfo(int32_t userId,
-        AuthType authType) override;
+    int32_t GetSecUserInfo(int32_t userId, std::shared_ptr<SecureUserInfoInterface> &secUserInfo) override;
+    int32_t GetCredentialInfo(int32_t userId, AuthType authType,
+        std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos) override;
     int32_t DeleteCredentialInfo(int32_t userId, uint64_t credentialId, const std::vector<uint8_t> &authToken,
         std::shared_ptr<CredentialInfoInterface> &credInfo) override;
     int32_t DeleteUser(int32_t userId, const std::vector<uint8_t> &authToken,

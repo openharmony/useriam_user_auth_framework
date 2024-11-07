@@ -33,6 +33,7 @@ struct UserAuthTrace {
     int32_t callerType = 0;
     uint32_t reuseUnlockResultMode = 0;
     uint64_t reuseUnlockResultDuration = 0;
+    bool isBackgroundApplication = false;
 };
 
 struct UserAuthFwkTrace {
