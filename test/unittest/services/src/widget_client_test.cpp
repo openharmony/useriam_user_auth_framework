@@ -422,6 +422,89 @@ HWTEST_F(WidgetClientTest, WidgetClientTestSetPinSubType, TestSize.Level0)
     WidgetClient::Instance().SetPinSubType((PinSubType)123);
     EXPECT_EQ(WidgetClient::Instance().GetAuthTokenId(), 0);
 }
+
+HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_001, TestSize.Level0)
+{
+    WidgetNotice widgetNotice;
+    widgetNotice.widgetContextId = 1;
+    widgetNotice.event = NOTICE_EVENT_WIDGET_PARA_INVALID;
+    widgetNotice.typeList.push_back("pin");
+    WidgetClient::Instance().Reset();
+    std::vector<AuthType> authTypeList;
+    authTypeList.emplace_back(AuthType::PIN);
+    WidgetClient::Instance().SetAuthTypeList(authTypeList);
+    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    EXPECT_NO_THROW(WidgetClient::Instance().ProcessNotice(widgetNotice, authTypeList));
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_002, TestSize.Level0)
+{
+    WidgetNotice widgetNotice;
+    widgetNotice.widgetContextId = 1;
+    widgetNotice.event = NOTICE_EVENT_END;
+    widgetNotice.typeList.push_back("pin");
+    WidgetClient::Instance().Reset();
+    std::vector<AuthType> authTypeList;
+    authTypeList.emplace_back(AuthType::PIN);
+    WidgetClient::Instance().SetAuthTypeList(authTypeList);
+    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    EXPECT_NO_THROW(WidgetClient::Instance().ProcessNotice(widgetNotice, authTypeList));
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_003, TestSize.Level0)
+{
+    WidgetNotice widgetNotice;
+    widgetNotice.widgetContextId = 1;
+    widgetNotice.event = NOTICE_EVENT_RELOAD;
+    widgetNotice.typeList.push_back("pin");
+    WidgetClient::Instance().Reset();
+    std::vector<AuthType> authTypeList;
+    authTypeList.emplace_back(AuthType::PIN);
+    WidgetClient::Instance().SetAuthTypeList(authTypeList);
+    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    EXPECT_NO_THROW(WidgetClient::Instance().ProcessNotice(widgetNotice, authTypeList));
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_004, TestSize.Level0)
+{
+    WidgetNotice widgetNotice;
+    widgetNotice.widgetContextId = 1;
+    widgetNotice.event = NOTICE_EVENT_RELOAD;
+    widgetNotice.typeList.push_back("pin");
+    WidgetClient::Instance().Reset();
+    std::vector<AuthType> authTypeList;
+    authTypeList.emplace_back(AuthType::ALL);
+    WidgetClient::Instance().SetAuthTypeList(authTypeList);
+    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    EXPECT_NO_THROW(WidgetClient::Instance().ProcessNotice(widgetNotice, authTypeList));
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_005, TestSize.Level0)
+{
+    WidgetNotice widgetNotice;
+    widgetNotice.widgetContextId = 1;
+    widgetNotice.event = NOTICE_EVENT_RELOAD;
+    widgetNotice.typeList.push_back("pin");
+    WidgetClient::Instance().Reset();
+    std::vector<AuthType> authTypeList;
+    authTypeList.emplace_back(AuthType::ALL);
+    authTypeList.emplace_back(AuthType::PIN);
+    WidgetClient::Instance().SetAuthTypeList(authTypeList);
+    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    EXPECT_NO_THROW(WidgetClient::Instance().ProcessNotice(widgetNotice, authTypeList));
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestSetPinSubType_001, TestSize.Level0)
+{
+    WidgetClient::Instance().Reset();
+    EXPECT_NO_THROW(WidgetClient::Instance().SetPinSubType(PinSubType::PIN_FOUR));
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestSetPinSubType_002, TestSize.Level0)
+{
+    WidgetClient::Instance().Reset();
+    EXPECT_NO_THROW(WidgetClient::Instance().SetPinSubType(PinSubType::PIN_PATTERN));
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

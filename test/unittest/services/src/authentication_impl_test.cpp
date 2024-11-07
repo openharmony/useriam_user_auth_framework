@@ -293,6 +293,21 @@ HWTEST_F(AuthenticationImplTest, AuthenticationImplTestStart, TestSize.Level0)
 
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(executorIndex));
 }
+
+HWTEST_F(AuthenticationImplTest, AuthenticationImplTestSetLatestError, TestSize.Level0)
+{
+    constexpr uint64_t contextId = 1234;
+    Authentication::AuthenticationPara para = {};
+    para.userId = 0x11;
+    para.callerName = "com.ohos.test";
+    para.sdkVersion = 11;
+    para.authType = FACE;
+    para.atl = ATL3;
+
+    auto authentication = std::make_shared<AuthenticationImpl>(contextId, para);
+    ASSERT_NE(authentication, nullptr);
+    authentication->SetLatestError(0);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
