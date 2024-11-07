@@ -17,6 +17,7 @@
 
 #include "iam_ptr.h"
 #include "user_idm_client.h"
+#include "user_idm_client_impl.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -514,6 +515,14 @@ HWTEST_F(UserIdmClientTest, UserIdmClientGetSecUserInfo002, TestSize.Level0)
     EXPECT_NE(dr, nullptr);
     dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
+}
+
+HWTEST_F(UserIdmClientTest, UserIdmClientImplClearRedundancyCredential, TestSize.Level0)
+{
+    std::shared_ptr<MockUserIdmClientCallback> testCallback = nullptr;
+    testCallback = Common::MakeShared<MockUserIdmClientCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_NO_THROW(UserIdmClient::GetInstance().ClearRedundancyCredential(testCallback));
 }
 
 void UserIdmClientTest::CallRemoteObject(const std::shared_ptr<MockUserIdmService> service,
