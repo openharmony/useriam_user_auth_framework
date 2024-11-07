@@ -56,7 +56,7 @@ HWTEST_F(AttributesTest, AttributesSerialize, TestSize.Level0)
 {
     const std::vector<Attributes::AttributeKey> desired = {Attributes::ATTR_RESULT_CODE, Attributes::ATTR_SIGNATURE,
         Attributes::ATTR_TEMPLATE_ID_LIST, Attributes::ATTR_REMAIN_TIMES, Attributes::ATTR_FREEZING_TIME,
-        Attributes::ATTR_SCHEDULE_ID, Attributes::ATTR_SCHEDULE_MODE};
+        Attributes::ATTR_SCHEDULE_ID, Attributes::ATTR_SCHEDULE_MODE, Attributes::ATTR_CREDENTIAL_DIGEST};
 
     Attributes attrs;
 
@@ -65,6 +65,7 @@ HWTEST_F(AttributesTest, AttributesSerialize, TestSize.Level0)
     EXPECT_TRUE(attrs.SetUint64Value(Attributes::ATTR_SCHEDULE_ID, UINT64_MAX));
     EXPECT_TRUE(attrs.SetUint32ArrayValue(Attributes::ATTR_REMAIN_TIMES, {1, 3, 5, 7, 9}));
     EXPECT_TRUE(attrs.SetUint32Value(Attributes::ATTR_SCHEDULE_MODE, UINT32_MAX));
+    EXPECT_TRUE(attrs.SetUint16Value(Attributes::ATTR_CREDENTIAL_DIGEST, UINT16_MAX));
     EXPECT_TRUE(attrs.SetUint64ArrayValue(Attributes::ATTR_FREEZING_TIME, {2, 4, 6, 8, 10}));
     EXPECT_TRUE(attrs.SetStringValue(Attributes::ATTR_TEMPLATE_ID_LIST, "iam"));
 
@@ -92,6 +93,10 @@ HWTEST_F(AttributesTest, AttributesSerialize, TestSize.Level0)
     EXPECT_TRUE(attrs2.GetUint32Value(Attributes::ATTR_SCHEDULE_MODE, u32Value));
     EXPECT_EQ(u32Value, UINT32_MAX);
 
+    uint16_t u16Value;
+    EXPECT_TRUE(attrs2.GetUint16Value(Attributes::ATTR_CREDENTIAL_DIGEST, u16Value));
+    EXPECT_EQ(u16Value, UINT16_MAX);
+
     std::vector<uint64_t> u64Vector;
     EXPECT_TRUE(attrs2.GetUint64ArrayValue(Attributes::ATTR_FREEZING_TIME, u64Vector));
     EXPECT_THAT(u64Vector, ElementsAre(2, 4, 6, 8, 10));
@@ -118,11 +123,14 @@ HWTEST_F(AttributesTest, AttributesBoolValue, TestSize.Level0)
 HWTEST_F(AttributesTest, AttributesUint64Value, TestSize.Level0)
 {
     Attributes attrs;
+    uint64_t value1;
+    uint64_t value2;
+    EXPECT_FALSE(attrs.GetUint64Value(Attributes::ATTR_RESULT_CODE, value1));
+    EXPECT_FALSE(attrs.GetUint64Value(Attributes::ATTR_SIGNATURE, value2));
+
     EXPECT_TRUE(attrs.SetUint64Value(Attributes::ATTR_RESULT_CODE, UINT32_MAX));
     EXPECT_TRUE(attrs.SetUint64Value(Attributes::ATTR_SIGNATURE, UINT64_MAX));
 
-    uint64_t value1;
-    uint64_t value2;
     EXPECT_TRUE(attrs.GetUint64Value(Attributes::ATTR_RESULT_CODE, value1));
     EXPECT_TRUE(attrs.GetUint64Value(Attributes::ATTR_SIGNATURE, value2));
     EXPECT_EQ(value1, UINT32_MAX);
@@ -160,11 +168,14 @@ HWTEST_F(AttributesTest, AttributesUint16Value, TestSize.Level0)
 HWTEST_F(AttributesTest, AttributesUint8Value, TestSize.Level0)
 {
     Attributes attrs;
-    EXPECT_TRUE(attrs.SetUint8Value(Attributes::ATTR_RESULT_CODE, 0));
-    EXPECT_TRUE(attrs.SetUint8Value(Attributes::ATTR_SIGNATURE, UINT8_MAX));
 
     uint8_t value1;
     uint8_t value2;
+    EXPECT_FALSE(attrs.GetUint8Value(Attributes::ATTR_RESULT_CODE, value1));
+    EXPECT_FALSE(attrs.GetUint8Value(Attributes::ATTR_SIGNATURE, value2));
+    EXPECT_TRUE(attrs.SetUint8Value(Attributes::ATTR_RESULT_CODE, 0));
+    EXPECT_TRUE(attrs.SetUint8Value(Attributes::ATTR_SIGNATURE, UINT8_MAX));
+
     EXPECT_TRUE(attrs.GetUint8Value(Attributes::ATTR_RESULT_CODE, value1));
     EXPECT_TRUE(attrs.GetUint8Value(Attributes::ATTR_SIGNATURE, value2));
     EXPECT_EQ(value1, 0);
@@ -223,9 +234,11 @@ HWTEST_F(AttributesTest, AttributesUint32ByteArray, TestSize.Level0)
         for (int i = 0; i < SIZE; i++) {
             array.push_back(UINT32_MAX - i);
         }
-        EXPECT_TRUE(attrs.SetUint32ArrayValue(Attributes::ATTR_FREEZING_TIME, array));
 
         std::vector<uint32_t> out;
+        EXPECT_FALSE(attrs.GetUint32ArrayValue(Attributes::ATTR_FREEZING_TIME, out));
+        EXPECT_TRUE(attrs.SetUint32ArrayValue(Attributes::ATTR_FREEZING_TIME, array));
+
         EXPECT_TRUE(attrs.GetUint32ArrayValue(Attributes::ATTR_FREEZING_TIME, out));
         EXPECT_THAT(out, ElementsAreArray(array));
     }
@@ -325,6 +338,7 @@ HWTEST_F(AttributesTest, AttributesEmptyArrays, TestSize.Level0)
     EXPECT_TRUE(attrs1.SetUint32ArrayValue(Attributes::ATTR_REMAIN_TIMES, u32Vector));
 
     std::vector<uint16_t> u16Vector;
+    EXPECT_FALSE(attrs1.GetUint16ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, u16Vector));
     EXPECT_TRUE(attrs1.SetUint16ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, u16Vector));
 
     std::vector<uint8_t> u8Vector;
@@ -412,14 +426,16 @@ HWTEST_F(AttributesTest, AttributesSetAndGetAttributesArray01, TestSize.Level0)
     EXPECT_EQ(value1, 1);
 
     Attributes setAttrs;
-    EXPECT_EQ(setAttrs.SetAttributesValue(Attributes::ATTR_EXECUTOR_REGISTER_INFO_LIST, attrs1), true);
     Attributes attrs2;
+    std::vector<int32_t> array2;
+    EXPECT_EQ(setAttrs.GetInt32ArrayValue(Attributes::ATTR_EXECUTOR_REGISTER_INFO_LIST, array2), false);
+    EXPECT_EQ(setAttrs.GetAttributesValue(Attributes::ATTR_EXECUTOR_REGISTER_INFO_LIST, attrs2), false);
+    EXPECT_EQ(setAttrs.SetAttributesValue(Attributes::ATTR_EXECUTOR_REGISTER_INFO_LIST, attrs1), true);
     EXPECT_EQ(setAttrs.GetAttributesValue(Attributes::ATTR_EXECUTOR_REGISTER_INFO_LIST, attrs2), true);
 
     std::vector<int32_t> array1;
     array1.push_back(1);
     EXPECT_EQ(setAttrs.SetInt32ArrayValue(Attributes::ATTR_EXECUTOR_REGISTER_INFO_LIST, array1), true);
-    std::vector<int32_t> array2;
     EXPECT_EQ(setAttrs.GetInt32ArrayValue(Attributes::ATTR_EXECUTOR_REGISTER_INFO_LIST, array2), true);
 }
 } // namespace UserAuth

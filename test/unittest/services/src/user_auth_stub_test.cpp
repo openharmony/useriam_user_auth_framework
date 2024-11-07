@@ -42,6 +42,19 @@ void UserAuthStubTest::TearDown()
 {
 }
 
+HWTEST_F(UserAuthStubTest, UserAuthStubDefault, TestSize.Level0)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    uint32_t code = UserAuthInterfaceCode::USER_AUTH_ON_SEND_COMMAND;
+
+    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+
+    MockUserAuthService service;
+    EXPECT_EQ(305, service.OnRemoteRequest(code, data, reply, option));
+}
+
 HWTEST_F(UserAuthStubTest, UserAuthStubGetEnrolledStateStub001, TestSize.Level0)
 {
     MessageParcel data;
@@ -388,6 +401,318 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub002, TestSize.Level0)
     EXPECT_EQ(contextId, testContextId);
 }
 
+HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub003, TestSize.Level0)
+{
+    int32_t testUserId = 3467;
+    std::vector<uint8_t> testChallenge = {1, 2, 5, 9};
+    AuthType testAuthType = FACE;
+    AuthTrustLevel testAtl = ATL2;
+    sptr<MockUserAuthCallback> callback(new (std::nothrow) MockUserAuthCallback());
+    EXPECT_NE(callback, nullptr);
+    MockUserAuthService service;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    uint32_t code = UserAuthInterfaceCode::USER_AUTH_AUTH_USER;
+    std::vector<int32_t> testAuthTypeInts;
+    testAuthTypeInts.push_back(static_cast<AuthType>(1));
+    uint32_t authIntent = 0;
+    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteInt32(testUserId));
+    EXPECT_TRUE(data.WriteUInt8Vector(testChallenge));
+    EXPECT_TRUE(data.WriteInt32(testAuthType));
+    EXPECT_TRUE(data.WriteInt32Vector(testAuthTypeInts));
+    EXPECT_TRUE(data.WriteUint32(testAtl));
+    EXPECT_TRUE(data.WriteUint32(authIntent));
+    EXPECT_NE(callback->AsObject(), nullptr);
+    EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
+    EXPECT_EQ(READ_PARCEL_ERROR, service.OnRemoteRequest(code, data, reply, option));
+}
+
+HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub004, TestSize.Level0)
+{
+    int32_t testUserId = 3467;
+    std::vector<uint8_t> testChallenge = {1, 2, 5, 9};
+    AuthType testAuthType = FACE;
+    AuthTrustLevel testAtl = ATL2;
+    uint64_t testContextId = 2346728;
+    sptr<MockUserAuthCallback> callback(new (std::nothrow) MockUserAuthCallback());
+    EXPECT_NE(callback, nullptr);
+    MockUserAuthService service;
+    EXPECT_CALL(service, AuthUser(_, _, _)).Times(1);
+    ON_CALL(service, AuthUser)
+        .WillByDefault(
+            [&testUserId, &testChallenge, &testAuthType, &testAtl, &testContextId](AuthParamInner &authParam,
+            std::optional<RemoteAuthParam> &remoteAuthParam, sptr<UserAuthCallbackInterface> &callback) {
+                EXPECT_THAT(authParam.challenge, ElementsAreArray(testChallenge));
+                if (callback != nullptr) {
+                    Attributes attr;
+                    callback->OnResult(SUCCESS, attr);
+                }
+                return testContextId;
+            }
+        );
+    EXPECT_CALL(*callback, OnResult(_, _)).Times(1);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    uint32_t code = UserAuthInterfaceCode::USER_AUTH_AUTH_USER;
+    std::vector<int32_t> testAuthTypeInts;
+    testAuthTypeInts.push_back(static_cast<AuthType>(1));
+    uint32_t authIntent = 0;
+    uint32_t collectorTokenId = 123;
+    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteInt32(testUserId));
+    EXPECT_TRUE(data.WriteUInt8Vector(testChallenge));
+    EXPECT_TRUE(data.WriteInt32(testAuthType));
+    EXPECT_TRUE(data.WriteInt32Vector(testAuthTypeInts));
+    EXPECT_TRUE(data.WriteUint32(testAtl));
+    EXPECT_TRUE(data.WriteUint32(authIntent));
+    EXPECT_TRUE(data.WriteBool(true));
+    EXPECT_TRUE(data.WriteBool(true));
+    EXPECT_TRUE(data.WriteString("verifierNetworkId"));
+    EXPECT_TRUE(data.WriteBool(true));
+    EXPECT_TRUE(data.WriteString("collectorNetworkId"));
+    EXPECT_TRUE(data.WriteBool(true));
+    EXPECT_TRUE(data.WriteUint32(collectorTokenId));
+    EXPECT_NE(callback->AsObject(), nullptr);
+    EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
+    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
+}
+
+HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub005, TestSize.Level0)
+{
+    int32_t testUserId = 3467;
+    std::vector<uint8_t> testChallenge = {1, 2, 5, 9};
+    AuthType testAuthType = FACE;
+    AuthTrustLevel testAtl = ATL2;
+    sptr<MockUserAuthCallback> callback(new (std::nothrow) MockUserAuthCallback());
+    EXPECT_NE(callback, nullptr);
+    MockUserAuthService service;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    uint32_t code = UserAuthInterfaceCode::USER_AUTH_AUTH_USER;
+    std::vector<int32_t> testAuthTypeInts;
+    testAuthTypeInts.push_back(static_cast<AuthType>(1));
+    uint32_t authIntent = 0;
+    uint32_t collectorTokenId = 123;
+    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteInt32(testUserId));
+    EXPECT_TRUE(data.WriteUInt8Vector(testChallenge));
+    EXPECT_TRUE(data.WriteInt32(testAuthType));
+    EXPECT_TRUE(data.WriteInt32Vector(testAuthTypeInts));
+    EXPECT_TRUE(data.WriteUint32(testAtl));
+    EXPECT_TRUE(data.WriteUint32(authIntent));
+    EXPECT_TRUE(data.WriteBool(true));
+    EXPECT_TRUE(data.WriteBool(true));
+    EXPECT_TRUE(data.WriteString("verifierNetworkId"));
+    EXPECT_TRUE(data.WriteBool(true));
+    EXPECT_TRUE(data.WriteString("collectorNetworkId"));
+    EXPECT_TRUE(data.WriteBool(false));
+    EXPECT_TRUE(data.WriteUint32(collectorTokenId));
+    EXPECT_NE(callback->AsObject(), nullptr);
+    EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
+    EXPECT_EQ(READ_PARCEL_ERROR, service.OnRemoteRequest(code, data, reply, option));
+}
+
+HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub006, TestSize.Level0)
+{
+    int32_t testUserId = 3467;
+    std::vector<uint8_t> testChallenge = {1, 2, 5, 9};
+    AuthType testAuthType = FACE;
+    AuthTrustLevel testAtl = ATL2;
+    sptr<MockUserAuthCallback> callback(new (std::nothrow) MockUserAuthCallback());
+    EXPECT_NE(callback, nullptr);
+    MockUserAuthService service;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    uint32_t code = UserAuthInterfaceCode::USER_AUTH_AUTH_USER;
+    std::vector<int32_t> testAuthTypeInts;
+    testAuthTypeInts.push_back(static_cast<AuthType>(1));
+    uint32_t authIntent = 0;
+    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteInt32(testUserId));
+    EXPECT_TRUE(data.WriteUInt8Vector(testChallenge));
+    EXPECT_TRUE(data.WriteInt32(testAuthType));
+    EXPECT_TRUE(data.WriteInt32Vector(testAuthTypeInts));
+    EXPECT_TRUE(data.WriteUint32(testAtl));
+    EXPECT_TRUE(data.WriteUint32(authIntent));
+    EXPECT_TRUE(data.WriteBool(true));
+    EXPECT_TRUE(data.WriteBool(true));
+    EXPECT_TRUE(data.WriteString("verifierNetworkId"));
+    EXPECT_TRUE(data.WriteBool(true));
+    EXPECT_TRUE(data.WriteString("collectorNetworkId"));
+    EXPECT_TRUE(data.WriteBool(false));
+    EXPECT_NE(callback->AsObject(), nullptr);
+    EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
+    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
+}
+
+HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub007, TestSize.Level0)
+{
+    int32_t testUserId = 3467;
+    std::vector<uint8_t> testChallenge = {1, 2, 5, 9};
+    AuthType testAuthType = FACE;
+    AuthTrustLevel testAtl = ATL2;
+    sptr<MockUserAuthCallback> callback(new (std::nothrow) MockUserAuthCallback());
+    EXPECT_NE(callback, nullptr);
+    MockUserAuthService service;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    uint32_t code = UserAuthInterfaceCode::USER_AUTH_AUTH_USER;
+    std::vector<int32_t> testAuthTypeInts;
+    testAuthTypeInts.push_back(static_cast<AuthType>(1));
+    uint32_t authIntent = 0;
+    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteInt32(testUserId));
+    EXPECT_TRUE(data.WriteUInt8Vector(testChallenge));
+    EXPECT_TRUE(data.WriteInt32(testAuthType));
+    EXPECT_TRUE(data.WriteInt32Vector(testAuthTypeInts));
+    EXPECT_TRUE(data.WriteUint32(testAtl));
+    EXPECT_TRUE(data.WriteUint32(authIntent));
+    EXPECT_TRUE(data.WriteBool(true));
+    EXPECT_TRUE(data.WriteBool(true));
+    EXPECT_TRUE(data.WriteString("verifierNetworkId"));
+    EXPECT_TRUE(data.WriteBool(true));
+    EXPECT_TRUE(data.WriteString("collectorNetworkId"));
+    EXPECT_NE(callback->AsObject(), nullptr);
+    EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
+    EXPECT_EQ(READ_PARCEL_ERROR, service.OnRemoteRequest(code, data, reply, option));
+}
+
+HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub008, TestSize.Level0)
+{
+    int32_t testUserId = 3467;
+    std::vector<uint8_t> testChallenge = {1, 2, 5, 9};
+    AuthType testAuthType = FACE;
+    AuthTrustLevel testAtl = ATL2;
+    sptr<MockUserAuthCallback> callback(new (std::nothrow) MockUserAuthCallback());
+    EXPECT_NE(callback, nullptr);
+    MockUserAuthService service;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    uint32_t code = UserAuthInterfaceCode::USER_AUTH_AUTH_USER;
+    std::vector<int32_t> testAuthTypeInts;
+    testAuthTypeInts.push_back(static_cast<AuthType>(1));
+    uint32_t authIntent = 0;
+    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteInt32(testUserId));
+    EXPECT_TRUE(data.WriteUInt8Vector(testChallenge));
+    EXPECT_TRUE(data.WriteInt32(testAuthType));
+    EXPECT_TRUE(data.WriteInt32Vector(testAuthTypeInts));
+    EXPECT_TRUE(data.WriteUint32(testAtl));
+    EXPECT_TRUE(data.WriteUint32(authIntent));
+    EXPECT_TRUE(data.WriteBool(true));
+    EXPECT_TRUE(data.WriteBool(true));
+    EXPECT_TRUE(data.WriteString("verifierNetworkId"));
+    EXPECT_TRUE(data.WriteBool(false));
+    EXPECT_TRUE(data.WriteString("collectorNetworkId"));
+    EXPECT_NE(callback->AsObject(), nullptr);
+    EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
+    EXPECT_EQ(READ_PARCEL_ERROR, service.OnRemoteRequest(code, data, reply, option));
+}
+
+HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub009, TestSize.Level0)
+{
+    int32_t testUserId = 3467;
+    std::vector<uint8_t> testChallenge = {1, 2, 5, 9};
+    AuthType testAuthType = FACE;
+    AuthTrustLevel testAtl = ATL2;
+    sptr<MockUserAuthCallback> callback(new (std::nothrow) MockUserAuthCallback());
+    EXPECT_NE(callback, nullptr);
+    MockUserAuthService service;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    uint32_t code = UserAuthInterfaceCode::USER_AUTH_AUTH_USER;
+    std::vector<int32_t> testAuthTypeInts;
+    testAuthTypeInts.push_back(static_cast<AuthType>(1));
+    uint32_t authIntent = 0;
+    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteInt32(testUserId));
+    EXPECT_TRUE(data.WriteUInt8Vector(testChallenge));
+    EXPECT_TRUE(data.WriteInt32(testAuthType));
+    EXPECT_TRUE(data.WriteInt32Vector(testAuthTypeInts));
+    EXPECT_TRUE(data.WriteUint32(testAtl));
+    EXPECT_TRUE(data.WriteUint32(authIntent));
+    EXPECT_TRUE(data.WriteBool(true));
+    EXPECT_TRUE(data.WriteBool(true));
+    EXPECT_TRUE(data.WriteString("verifierNetworkId"));
+    EXPECT_TRUE(data.WriteBool(true));
+    EXPECT_NE(callback->AsObject(), nullptr);
+    EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
+    EXPECT_EQ(READ_PARCEL_ERROR, service.OnRemoteRequest(code, data, reply, option));
+}
+
+HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub010, TestSize.Level0)
+{
+    int32_t testUserId = 3467;
+    std::vector<uint8_t> testChallenge = {1, 2, 5, 9};
+    AuthType testAuthType = FACE;
+    AuthTrustLevel testAtl = ATL2;
+    sptr<MockUserAuthCallback> callback(new (std::nothrow) MockUserAuthCallback());
+    EXPECT_NE(callback, nullptr);
+    MockUserAuthService service;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    uint32_t code = UserAuthInterfaceCode::USER_AUTH_AUTH_USER;
+    std::vector<int32_t> testAuthTypeInts;
+    testAuthTypeInts.push_back(static_cast<AuthType>(1));
+    uint32_t authIntent = 0;
+    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteInt32(testUserId));
+    EXPECT_TRUE(data.WriteUInt8Vector(testChallenge));
+    EXPECT_TRUE(data.WriteInt32(testAuthType));
+    EXPECT_TRUE(data.WriteInt32Vector(testAuthTypeInts));
+    EXPECT_TRUE(data.WriteUint32(testAtl));
+    EXPECT_TRUE(data.WriteUint32(authIntent));
+    EXPECT_TRUE(data.WriteBool(true));
+    EXPECT_NE(callback->AsObject(), nullptr);
+    EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
+    EXPECT_EQ(READ_PARCEL_ERROR, service.OnRemoteRequest(code, data, reply, option));
+}
+
+HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub011, TestSize.Level0)
+{
+    int32_t testUserId = 3467;
+    std::vector<uint8_t> testChallenge = {1, 2, 5, 9};
+    AuthType testAuthType = FACE;
+    AuthTrustLevel testAtl = ATL2;
+    sptr<MockAuthEventListenerService> callback(new (std::nothrow) MockAuthEventListenerService());
+    EXPECT_NE(callback, nullptr);
+    MockUserAuthService service;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    uint32_t code = UserAuthInterfaceCode::USER_AUTH_AUTH_USER;
+    std::vector<int32_t> testAuthTypeInts;
+    testAuthTypeInts.push_back(static_cast<AuthType>(1));
+    uint32_t authIntent = 0;
+    uint32_t collectorTokenId = 123;
+    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteInt32(testUserId));
+    EXPECT_TRUE(data.WriteUInt8Vector(testChallenge));
+    EXPECT_TRUE(data.WriteInt32(testAuthType));
+    EXPECT_TRUE(data.WriteInt32Vector(testAuthTypeInts));
+    EXPECT_TRUE(data.WriteUint32(testAtl));
+    EXPECT_TRUE(data.WriteUint32(authIntent));
+    EXPECT_TRUE(data.WriteBool(true));
+    EXPECT_TRUE(data.WriteBool(true));
+    EXPECT_TRUE(data.WriteString("verifierNetworkId"));
+    EXPECT_TRUE(data.WriteBool(true));
+    EXPECT_TRUE(data.WriteString("collectorNetworkId"));
+    EXPECT_TRUE(data.WriteBool(false));
+    EXPECT_TRUE(data.WriteUint32(collectorTokenId));
+    EXPECT_NE(callback->AsObject(), nullptr);
+    EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
+    EXPECT_EQ(GENERAL_ERROR, service.OnRemoteRequest(code, data, reply, option));
+}
+
 HWTEST_F(UserAuthStubTest, UserAuthStubIdentifyStub001, TestSize.Level0)
 {
     MessageParcel data;
@@ -474,6 +799,34 @@ HWTEST_F(UserAuthStubTest, UserAuthStubCancelAuthOrIdentifyStub002, TestSize.Lev
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     uint32_t code = UserAuthInterfaceCode::USER_AUTH_CANCEL_AUTH;
+
+    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteUint64(testContextId));
+
+    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
+    int32_t result = FAIL;
+    EXPECT_TRUE(reply.ReadInt32(result));
+    EXPECT_EQ(result, SUCCESS);
+}
+
+HWTEST_F(UserAuthStubTest, UserAuthStubCancelAuthOrIdentifyStub003, TestSize.Level0)
+{
+    uint64_t testContextId = 9346248;
+
+    MockUserAuthService service;
+    EXPECT_CALL(service, CancelAuthOrIdentify(_)).Times(1);
+    ON_CALL(service, CancelAuthOrIdentify)
+        .WillByDefault(
+            [&testContextId](uint64_t contextId) {
+                EXPECT_EQ(contextId, testContextId);
+                return SUCCESS;
+            }
+        );
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    uint32_t code = UserAuthInterfaceCode::USER_AUTH_CANCEL_IDENTIFY;
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteUint64(testContextId));
@@ -632,6 +985,65 @@ HWTEST_F(UserAuthStubTest, UserAuthStubSetGlobalConfigParamStub002, TestSize.Lev
     int32_t result;
     EXPECT_TRUE(reply.ReadInt32(result));
     EXPECT_EQ(result, GENERAL_ERROR);
+}
+
+HWTEST_F(UserAuthStubTest, UserAuthStubPrepareRemoteAuthStub_001, TestSize.Level0)
+{
+    MockUserAuthService service;
+    sptr<MockAuthEventListenerService> callback(new (std::nothrow) MockAuthEventListenerService());
+    EXPECT_NE(callback, nullptr);
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    uint32_t code = UserAuthInterfaceCode::USER_AUTH_PREPARE_REMOTE_AUTH;
+    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+    EXPECT_NE(callback->AsObject(), nullptr);
+    EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
+    EXPECT_EQ(READ_PARCEL_ERROR, service.OnRemoteRequest(code, data, reply, option));
+    int32_t result;
+    EXPECT_FALSE(reply.ReadInt32(result));
+    EXPECT_EQ(result, SUCCESS);
+}
+
+HWTEST_F(UserAuthStubTest, UserAuthStubPrepareRemoteAuthStub_002, TestSize.Level0)
+{
+    MockUserAuthService service;
+    sptr<MockAuthEventListenerService> callback(new (std::nothrow) MockAuthEventListenerService());
+    EXPECT_NE(callback, nullptr);
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    uint32_t code = UserAuthInterfaceCode::USER_AUTH_PREPARE_REMOTE_AUTH;
+    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteString("collectorNetworkId"));
+    EXPECT_NE(callback->AsObject(), nullptr);
+    EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
+    EXPECT_EQ(READ_PARCEL_ERROR, service.OnRemoteRequest(code, data, reply, option));
+    int32_t result;
+    EXPECT_FALSE(reply.ReadInt32(result));
+    EXPECT_EQ(result, SUCCESS);
+}
+
+HWTEST_F(UserAuthStubTest, UserAuthStubPrepareRemoteAuthStub_003, TestSize.Level0)
+{
+    MockUserAuthService service;
+    sptr<MockUserAuthCallback> callback(new (std::nothrow) MockUserAuthCallback());
+    EXPECT_NE(callback, nullptr);
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    uint32_t code = UserAuthInterfaceCode::USER_AUTH_PREPARE_REMOTE_AUTH;
+    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteString("collectorNetworkId"));
+    EXPECT_NE(callback->AsObject(), nullptr);
+    EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
+    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
+    int32_t result;
+    EXPECT_FALSE(reply.ReadInt32(result));
+    EXPECT_EQ(result, SUCCESS);
 }
 } // namespace UserAuth
 } // namespace UserIam
