@@ -129,9 +129,8 @@ void Trace::ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &
         info.callerType = metaData.callerType.value();
     }
     info.authResult = metaData.operationResult;
-    uint64_t timeSpan = std::chrono::duration_cast<std::chrono::milliseconds>(metaData.endTime -
-        metaData.startTime).count();
-    info.authtimeSpan = timeSpan;
+    info.authtimeSpan = static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(metaData.endTime -
+        metaData.startTime).count());
     if (metaData.authWidgetType.has_value()) {
         info.authWidgetType = metaData.authWidgetType.value();
     }
@@ -140,6 +139,9 @@ void Trace::ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &
     }
     if (metaData.reuseUnlockResultDuration.has_value()) {
         info.reuseUnlockResultDuration = metaData.reuseUnlockResultDuration.value();
+    }
+    if (metaData.isBackgroundApplication.has_value()) {
+        info.isBackgroundApplication = metaData.isBackgroundApplication.value();
     }
     ReportUserAuth(info);
     if (info.authResult == SUCCESS) {

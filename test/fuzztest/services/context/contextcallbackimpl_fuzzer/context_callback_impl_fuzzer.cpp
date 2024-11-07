@@ -101,6 +101,9 @@ void FillSet(Parcel &parcel)
     uint64_t reuseUnlockResultDuration = parcel.ReadUint64();
     g_ContextCallback->SetTraceReuseUnlockResultDuration(reuseUnlockResultDuration);
 
+    bool isBackgroundApplication = parcel.ReadBool();
+    g_ContextCallback->SetTraceIsBackgroundApplication(isBackgroundApplication);
+
     g_ContextCallback->SetCleaner(nullptr);
 
     int32_t callerType = parcel.ReadInt32();

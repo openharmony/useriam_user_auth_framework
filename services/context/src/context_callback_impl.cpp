@@ -183,6 +183,11 @@ void ContextCallbackImpl::SetTraceReuseUnlockResultDuration(uint64_t reuseUnlock
     metaData_.reuseUnlockResultDuration = reuseUnlockResultDuration;
 }
 
+void ContextCallbackImpl::SetTraceIsBackgroundApplication(bool isBackgroundApplication)
+{
+    metaData_.isBackgroundApplication = isBackgroundApplication;
+}
+
 void ContextCallbackImpl::SetCleaner(Context::ContextStopCallback callback)
 {
     stopCallback_ = callback;

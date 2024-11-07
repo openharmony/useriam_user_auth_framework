@@ -153,7 +153,12 @@ bool EnrollmentImpl::GetSecUserId(std::optional<uint64_t> &secUserId)
         IAM_LOGI("no need return sec user id");
         return true;
     }
-    auto userInfo = UserIdmDatabase::Instance().GetSecUserInfo(enrollPara_.userId);
+    std::shared_ptr<SecureUserInfoInterface> userInfo = nullptr;
+    int32_t ret = UserIdmDatabase::Instance().GetSecUserInfo(enrollPara_.userId, userInfo);
+    if (ret != SUCCESS) {
+        IAM_LOGE("get secUserInfo fail, ret:%{public}d, userId:%{public}d", ret, enrollPara_.userId);
+        return false;
+    }
     if (userInfo != nullptr) {
         secUserId = userInfo->GetSecUserId();
         return true;
@@ -262,7 +267,15 @@ void EnrollmentImpl::PublishCredentialUpdateEvent()
         IAM_LOGI("pin update");
         return;
     }
-    auto credentialInfos = UserIdmDatabase::Instance().GetCredentialInfo(enrollPara_.userId, enrollPara_.authType);
+
+    std::vector<std::shared_ptr<CredentialInfoInterface>> credentialInfos;
+    int32_t ret = UserIdmDatabase::Instance().GetCredentialInfo(enrollPara_.userId, enrollPara_.authType,
+        credentialInfos);
+    if (ret != SUCCESS) {
+        IAM_LOGE("get credential fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret,
+            enrollPara_.userId, enrollPara_.authType);
+        return;
+    }
 
     PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(enrollPara_.userId,
         static_cast<int32_t>(enrollPara_.authType), credentialInfos.size());
