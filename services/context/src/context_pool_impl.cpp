@@ -60,10 +60,34 @@ public:
     bool DeregisterContextPoolListener(const std::shared_ptr<ContextPoolListener> &listener) override;
 
 private:
+    void CheckPreemptContext(const std::shared_ptr<Context> &context);
     mutable std::recursive_mutex poolMutex_;
     std::unordered_map<uint64_t, std::shared_ptr<Context>> contextMap_;
     std::set<std::shared_ptr<ContextPoolListener>> listenerSet_;
 };
+
+void ContextPoolImpl::CheckPreemptContext(const std::shared_ptr<Context> &context)
+{
+    if (context->GetContextType() != ContextType::CONTEXT_SIMPLE_AUTH) {
+        return;
+    }
+    for (auto iter = contextMap_.begin(); iter != contextMap_.end(); iter++) {
+        if (iter->second == nullptr) {
+            IAM_LOGE("context is nullptr");
+            break;
+        }
+        if (iter->second->GetCallerName() == context->GetCallerName() &&
+            iter->second->GetAuthType() == context->GetAuthType() &&
+            iter->second->GetUserId() == context->GetUserId()) {
+            IAM_LOGE("contextId:%{public}hx is preempted, newContextId:%{public}hx, mapSize:%{public}zu,"
+                "callerName:%{public}s, userId:%{public}d, authType:%{public}d", static_cast<uint16_t>(iter->first),
+                static_cast<uint16_t>(context->GetContextId()), contextMap_.size(), context->GetCallerName().c_str(),
+                context->GetUserId(), context->GetAuthType());
+            iter->second->Stop();
+            break;
+        }
+    }
+}
 
 bool ContextPoolImpl::Insert(const std::shared_ptr<Context> &context)
 {
@@ -76,6 +100,7 @@ bool ContextPoolImpl::Insert(const std::shared_ptr<Context> &context)
         IAM_LOGE("context pool is full");
         return false;
     }
+    CheckPreemptContext(context);
     uint64_t contextId = context->GetContextId();
     auto result = contextMap_.try_emplace(contextId, context);
     if (!result.second) {

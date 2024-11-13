@@ -110,6 +110,18 @@ int32_t SimpleAuthContext::GetUserId() const
     return auth_->GetUserId();
 }
 
+int32_t SimpleAuthContext::GetAuthType() const
+{
+    IF_FALSE_LOGE_AND_RETURN_VAL(auth_ != nullptr, INVALID_AUTH_TYPE);
+    return auth_->GetAuthType();
+}
+
+std::string SimpleAuthContext::GetCallerName() const
+{
+    IF_FALSE_LOGE_AND_RETURN_VAL(callback_ != nullptr, "");
+    return callback_->GetCallerName();
+}
+
 bool SimpleAuthContext::OnStart()
 {
     IAM_LOGI("%{public}s start", GetDescription());

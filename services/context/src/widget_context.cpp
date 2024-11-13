@@ -118,6 +118,16 @@ int32_t WidgetContext::GetUserId() const
     return para_.userId;
 }
 
+int32_t WidgetContext::GetAuthType() const
+{
+    return INVALID_AUTH_TYPE;
+}
+
+std::string WidgetContext::GetCallerName() const
+{
+    return para_.callerName;
+}
+
 int32_t WidgetContext::GetLatestError() const
 {
     return latestError_;

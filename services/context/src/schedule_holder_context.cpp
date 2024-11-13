@@ -50,6 +50,18 @@ ContextType ScheduleHolderContext::GetContextType() const
     return ContextType::SCHEDULE_HOLDER_CONTEXT;
 }
 
+int32_t ScheduleHolderContext::GetAuthType() const
+{
+    IAM_LOGE("not implemented");
+    return 0;
+}
+
+std::string ScheduleHolderContext::GetCallerName() const
+{
+    IAM_LOGE("not implemented");
+    return "";
+}
+
 std::shared_ptr<ScheduleNode> ScheduleHolderContext::GetScheduleNode(uint64_t scheduleId) const
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleNode_ != nullptr, nullptr);
