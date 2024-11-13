@@ -438,6 +438,387 @@ HWTEST_F(AttributesTest, AttributesSetAndGetAttributesArray01, TestSize.Level0)
     EXPECT_EQ(setAttrs.SetInt32ArrayValue(Attributes::ATTR_EXECUTOR_REGISTER_INFO_LIST, array1), true);
     EXPECT_EQ(setAttrs.GetInt32ArrayValue(Attributes::ATTR_EXECUTOR_REGISTER_INFO_LIST, array2), true);
 }
+
+HWTEST_F(AttributesTest, AttributesEncodeAndDecodeUint64Value, TestSize.Level0)
+{
+    Attributes attrs;
+    uint64_t encode_val64 = UINT64_MAX;
+    uint64_t encode_val32 = UINT32_MAX;
+
+    EXPECT_TRUE(attrs.SetUint64Value(Attributes::ATTR_SIGNATURE, encode_val64));
+    EXPECT_TRUE(attrs.SetUint64Value(Attributes::ATTR_RESULT_CODE, encode_val32));
+     
+    uint64_t decode_val64;
+    uint64_t decode_val32;
+
+    EXPECT_TRUE(attrs.GetUint64Value(Attributes::ATTR_SIGNATURE, decode_val64));
+    EXPECT_TRUE(attrs.GetUint64Value(Attributes::ATTR_RESULT_CODE, decode_val32));
+
+    EXPECT_EQ(encode_val64, decode_val64);
+    EXPECT_EQ(encode_val32, decode_val32);
+}
+
+HWTEST_F(AttributesTest, AttributesEncodeAndDecodeUint32Value, TestSize.Level0)
+{
+    Attributes attrs;
+    uint32_t encode_val32 = UINT32_MAX;
+    uint32_t encode_val16 = UINT16_MAX;
+
+    EXPECT_TRUE(attrs.SetUint32Value(Attributes::ATTR_SIGNATURE, encode_val32));
+    EXPECT_TRUE(attrs.SetUint32Value(Attributes::ATTR_RESULT_CODE, encode_val16));
+    
+    uint32_t decode_val32;
+    uint32_t decode_val16;
+
+    EXPECT_TRUE(attrs.GetUint32Value(Attributes::ATTR_SIGNATURE, decode_val32));
+    EXPECT_TRUE(attrs.GetUint32Value(Attributes::ATTR_RESULT_CODE, decode_val16));
+
+    EXPECT_EQ(encode_val32, decode_val32);
+    EXPECT_EQ(encode_val16, decode_val16);
+}
+
+HWTEST_F(AttributesTest, AttributesEncodeAndDecodeUint16Value, TestSize.Level0)
+{
+    Attributes attrs;
+    uint16_t encode_val16 = UINT16_MAX;
+    uint16_t encode_val8 = UINT8_MAX;
+
+    EXPECT_TRUE(attrs.SetUint16Value(Attributes::ATTR_SIGNATURE, encode_val16));
+    EXPECT_TRUE(attrs.SetUint16Value(Attributes::ATTR_RESULT_CODE, encode_val8));
+
+    uint16_t decode_val16;
+    uint16_t decode_val8;
+
+    EXPECT_TRUE(attrs.GetUint16Value(Attributes::ATTR_SIGNATURE, decode_val16));
+    EXPECT_TRUE(attrs.GetUint16Value(Attributes::ATTR_RESULT_CODE, decode_val8));
+
+    EXPECT_EQ(encode_val16, decode_val16);
+    EXPECT_EQ(encode_val8, decode_val8);
+}
+
+HWTEST_F(AttributesTest, AttributesEncodeAndDecodeInt64Value, TestSize.Level0)
+{
+    Attributes attrs;
+    int64_t encode_val64 = INT64_MAX;
+    int64_t encode_val32 = INT32_MAX;
+
+    EXPECT_TRUE(attrs.SetInt64Value(Attributes::ATTR_EXECUTOR_REGISTER_INFO_LIST, encode_val64));
+    EXPECT_TRUE(attrs.SetInt64Value(Attributes::ATTR_PIN_EXPIRED_INFO, encode_val32));
+    
+    int64_t decode_val64;
+    int64_t decode_val32;
+
+    EXPECT_TRUE(attrs.GetInt64Value(Attributes::ATTR_EXECUTOR_REGISTER_INFO_LIST, decode_val64));
+    EXPECT_TRUE(attrs.GetInt64Value(Attributes::ATTR_PIN_EXPIRED_INFO, decode_val32));
+
+    EXPECT_EQ(encode_val64, decode_val64);
+    EXPECT_EQ(encode_val32, decode_val32);
+}
+
+HWTEST_F(AttributesTest, AttributesEncodeAndDecodeInt32Value, TestSize.Level0)
+{
+    Attributes attrs;
+    int32_t encode_val32 = INT32_MAX;
+    int32_t encode_val16 = INT16_MAX;
+
+    EXPECT_TRUE(attrs.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, encode_val32));
+    EXPECT_TRUE(attrs.SetInt32Value(Attributes::ATTR_TIP_INFO, encode_val16));
+
+    int32_t decode_val32;
+    int32_t decode_val16;
+
+    EXPECT_TRUE(attrs.GetInt32Value(Attributes::ATTR_REMAIN_TIMES, decode_val32));
+    EXPECT_TRUE(attrs.GetInt32Value(Attributes::ATTR_TIP_INFO, decode_val16));
+
+    EXPECT_EQ(encode_val32, decode_val32);
+    EXPECT_EQ(encode_val16, decode_val16);
+}
+
+HWTEST_F(AttributesTest, AttributesEncodeAndDecodeUint64Array, TestSize.Level0)
+{
+    {
+        Attributes attrs_outsize;
+        constexpr int ENCODE_ARRAY_OUT_SIZE = 81921;
+        std::vector<uint64_t> encode_outsize_array;
+        encode_outsize_array.reserve(ENCODE_ARRAY_OUT_SIZE);
+        for (int i = 0; i < ENCODE_ARRAY_OUT_SIZE; i++) {
+            encode_outsize_array.push_back(UINT64_MAX - i);
+        }
+        EXPECT_FALSE(attrs_outsize.SetUint64ArrayValue(Attributes::ATTR_LOCKED_TEMPLATES, encode_outsize_array));
+    }
+
+    {
+        Attributes attrs_empty;
+        std::vector<uint64_t> encode_empty_array;
+        std::vector<uint64_t> decode_empty_array;
+        EXPECT_TRUE(attrs_empty.SetUint64ArrayValue(Attributes::ATTR_LOCKED_TEMPLATES, encode_empty_array));
+        EXPECT_TRUE(attrs_empty.GetUint64ArrayValue(Attributes::ATTR_LOCKED_TEMPLATES, decode_empty_array));
+        EXPECT_THAT(encode_empty_array, decode_empty_array);
+    }
+
+    {
+        Attributes attrs;
+        constexpr int ARRAY_SIZE = 1024;
+        std::vector<uint64_t> encode_array;
+        std::vector<uint64_t> decode_array;
+        encode_array.reserve(ARRAY_SIZE);
+        for (int i = 0; i < ARRAY_SIZE; i++) {
+            encode_array.push_back(UINT64_MAX - i);
+        }
+        EXPECT_TRUE(attrs.SetUint64ArrayValue(Attributes::ATTR_LOCKED_TEMPLATES, encode_array));
+        EXPECT_TRUE(attrs.GetUint64ArrayValue(Attributes::ATTR_LOCKED_TEMPLATES, decode_array));
+        EXPECT_THAT(encode_array, decode_array);
+    }
+}
+
+HWTEST_F(AttributesTest, AttributesEncodeAndDecodeUint32Array, TestSize.Level0)
+{
+    {
+        Attributes attrs_outsize;
+        constexpr int ENCODE_ARRAY_OUT_SIZE = 81921;
+        std::vector<uint32_t> encode_outsize_array;
+        encode_outsize_array.reserve(ENCODE_ARRAY_OUT_SIZE);
+        for (int i = 0; i < ENCODE_ARRAY_OUT_SIZE; i++) {
+            encode_outsize_array.push_back(UINT32_MAX - i);
+        }
+        EXPECT_FALSE(attrs_outsize.SetUint32ArrayValue(Attributes::ATTR_KEY_LIST, encode_outsize_array));
+    }
+
+    {
+        Attributes attrs_empty;
+        std::vector<uint32_t> encode_empty_array;
+        std::vector<uint32_t> decode_empty_array;
+        EXPECT_TRUE(attrs_empty.SetUint32ArrayValue(Attributes::ATTR_KEY_LIST, encode_empty_array));
+        EXPECT_TRUE(attrs_empty.GetUint32ArrayValue(Attributes::ATTR_KEY_LIST, decode_empty_array));
+        EXPECT_THAT(encode_empty_array, decode_empty_array);
+    }
+
+    {
+        Attributes attrs;
+        constexpr int ARRAY_SIZE = 1024;
+        std::vector<uint32_t> encode_array;
+        std::vector<uint32_t> decode_array;
+        encode_array.reserve(ARRAY_SIZE);
+        for (int i = 0; i < ARRAY_SIZE; i++) {
+            encode_array.push_back(UINT32_MAX - i);
+        }
+        EXPECT_TRUE(attrs.SetUint32ArrayValue(Attributes::ATTR_KEY_LIST, encode_array));
+        EXPECT_TRUE(attrs.GetUint32ArrayValue(Attributes::ATTR_KEY_LIST, decode_array));
+        EXPECT_THAT(encode_array, decode_array);
+    }
+}
+
+HWTEST_F(AttributesTest, AttributesEncodeAndDecodeUint16Array, TestSize.Level0)
+{
+    {
+        Attributes attrs_outsize;
+        constexpr int ENCODE_ARRAY_OUT_SIZE = 81921;
+        std::vector<uint16_t> encode_outsize_array;
+        encode_outsize_array.reserve(ENCODE_ARRAY_OUT_SIZE);
+        for (int i = 0; i < ENCODE_ARRAY_OUT_SIZE; i++) {
+            encode_outsize_array.push_back(UINT16_MAX - i);
+        }
+        EXPECT_FALSE(attrs_outsize.SetUint16ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, encode_outsize_array));
+    }
+
+    {
+        Attributes attrs_empty;
+        std::vector<uint16_t> encode_empty_array;
+        std::vector<uint16_t> decode_empty_array;
+        EXPECT_TRUE(attrs_empty.SetUint16ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, encode_empty_array));
+        EXPECT_TRUE(attrs_empty.GetUint16ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, decode_empty_array));
+        EXPECT_THAT(encode_empty_array, decode_empty_array);
+    }
+
+    {
+        Attributes attrs;
+        constexpr int ARRAY_SIZE = 1024;
+        std::vector<uint16_t> encode_array;
+        std::vector<uint16_t> decode_array;
+        encode_array.reserve(ARRAY_SIZE);
+        for (int i = 0; i < ARRAY_SIZE; i++) {
+            encode_array.push_back(UINT16_MAX - i);
+        }
+        EXPECT_TRUE(attrs.SetUint16ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, encode_array));
+        EXPECT_TRUE(attrs.GetUint16ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, decode_array));
+        EXPECT_THAT(encode_array, decode_array);
+    }
+}
+
+HWTEST_F(AttributesTest, AttributesEncodeAndDecodeInt32Array, TestSize.Level0)
+{
+    {
+        Attributes attrs_outsize;
+        constexpr int ENCODE_ARRAY_OUT_SIZE = 81921;
+        std::vector<int32_t> encode_outsize_array;
+        encode_outsize_array.reserve(ENCODE_ARRAY_OUT_SIZE);
+        for (int i = 0; i < ENCODE_ARRAY_OUT_SIZE; i++) {
+            encode_outsize_array.push_back(INT32_MAX - i);
+        }
+        EXPECT_FALSE(attrs_outsize.SetInt32ArrayValue(Attributes::ATTR_AUTH_TYPES, encode_outsize_array));
+    }
+
+    {
+        Attributes attrs_empty;
+        std::vector<int32_t> encode_empty_array;
+        std::vector<int32_t> decode_empty_array;
+        EXPECT_TRUE(attrs_empty.SetInt32ArrayValue(Attributes::ATTR_AUTH_TYPES, encode_empty_array));
+        EXPECT_TRUE(attrs_empty.GetInt32ArrayValue(Attributes::ATTR_AUTH_TYPES, decode_empty_array));
+        EXPECT_THAT(encode_empty_array, decode_empty_array);
+    }
+
+    {
+        Attributes attrs;
+        constexpr int ARRAY_SIZE = 1024;
+        std::vector<int32_t> encode_array;
+        std::vector<int32_t> decode_array;
+        encode_array.reserve(ARRAY_SIZE);
+        for (int i = 0; i < ARRAY_SIZE; i++) {
+            encode_array.push_back(INT32_MAX - i);
+        }
+        EXPECT_TRUE(attrs.SetInt32ArrayValue(Attributes::ATTR_AUTH_TYPES, encode_array));
+        EXPECT_TRUE(attrs.GetInt32ArrayValue(Attributes::ATTR_AUTH_TYPES, decode_array));
+        EXPECT_THAT(encode_array, decode_array);
+    }
+}
+
+HWTEST_F(AttributesTest, AttributesSerializeAndDeserialize01, TestSize.Level0)
+{
+    Attributes attrs_serial;
+    EXPECT_TRUE(attrs_serial.SetUint64Value(Attributes::ATTR_SCHEDULE_ID, UINT64_MAX));
+    EXPECT_TRUE(attrs_serial.SetUint32Value(Attributes::ATTR_SCHEDULE_MODE, UINT32_MAX));
+    EXPECT_TRUE(attrs_serial.SetUint16Value(Attributes::ATTR_CREDENTIAL_DIGEST, UINT16_MAX));
+    EXPECT_TRUE(attrs_serial.SetUint64ArrayValue(Attributes::ATTR_FREEZING_TIME,
+    {UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX}));
+    EXPECT_TRUE(attrs_serial.SetUint32ArrayValue(Attributes::ATTR_KEY_LIST,
+    {UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX}));
+    EXPECT_TRUE(attrs_serial.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, INT32_MAX));
+    EXPECT_TRUE(attrs_serial.SetInt32ArrayValue(Attributes::ATTR_AUTH_TYPES,
+    {INT32_MAX, INT32_MAX, INT32_MAX, INT32_MAX, INT32_MAX}));
+    int64_t test_int64_val = 100;
+    EXPECT_TRUE(attrs_serial.SetInt64Value(Attributes::ATTR_PIN_EXPIRED_INFO, test_int64_val));
+    auto buffer = attrs_serial.Serialize();
+
+    Attributes attrs_deserial(buffer);
+    uint64_t u64_value;
+    EXPECT_TRUE(attrs_deserial.GetUint64Value(Attributes::ATTR_SCHEDULE_ID, u64_value));
+    EXPECT_EQ(u64_value, UINT64_MAX);
+
+    uint32_t u32_value;
+    EXPECT_TRUE(attrs_deserial.GetUint32Value(Attributes::ATTR_SCHEDULE_MODE, u32_value));
+    EXPECT_EQ(u32_value, UINT32_MAX);
+
+    uint16_t u16_value;
+    EXPECT_TRUE(attrs_deserial.GetUint16Value(Attributes::ATTR_CREDENTIAL_DIGEST, u16_value));
+    EXPECT_EQ(u16_value, UINT16_MAX);
+
+    std::vector<uint64_t> u64_vector;
+    EXPECT_TRUE(attrs_deserial.GetUint64ArrayValue(Attributes::ATTR_FREEZING_TIME, u64_vector));
+    EXPECT_THAT(u64_vector, ElementsAre(UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX));
+
+    std::vector<uint32_t> u32_vector;
+    EXPECT_TRUE(attrs_deserial.GetUint32ArrayValue(Attributes::ATTR_KEY_LIST, u32_vector));
+    EXPECT_THAT(u32_vector, ElementsAre(UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX));
+
+    int32_t int32_value;
+    EXPECT_TRUE(attrs_deserial.GetInt32Value(Attributes::ATTR_REMAIN_TIMES, int32_value));
+    EXPECT_EQ(int32_value, INT32_MAX);
+
+    std::vector<int32_t> int32_vector;
+    EXPECT_TRUE(attrs_deserial.GetInt32ArrayValue(Attributes::ATTR_AUTH_TYPES, int32_vector));
+    EXPECT_THAT(int32_vector, ElementsAre(INT32_MAX, INT32_MAX, INT32_MAX, INT32_MAX, INT32_MAX));
+
+    int64_t int64_value;
+    EXPECT_TRUE(attrs_deserial.GetInt64Value(Attributes::ATTR_PIN_EXPIRED_INFO, int64_value));
+    EXPECT_EQ(int64_value, 100);
+}
+
+HWTEST_F(AttributesTest, AttributesSerializeAndDeserialize02, TestSize.Level0)
+{
+    Attributes attrs_serial;
+    EXPECT_TRUE(attrs_serial.SetBoolValue(Attributes::ATTR_END_AFTER_FIRST_FAIL, true));
+    EXPECT_TRUE(attrs_serial.SetBoolValue(Attributes::ATTR_MSG_ACK, false));
+    EXPECT_TRUE(attrs_serial.SetUint32Value(Attributes::ATTR_SCHEDULE_MODE, UINT32_MAX));
+    EXPECT_TRUE(attrs_serial.SetUint32ArrayValue(Attributes::ATTR_KEY_LIST,
+    {UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX}));
+    EXPECT_TRUE(attrs_serial.SetStringValue(Attributes::ATTR_CALLER_NAME, "iam_unit_test"));
+    EXPECT_TRUE(attrs_serial.SetUint8Value(Attributes::ATTR_ROOT, UINT8_MAX));
+    EXPECT_TRUE(attrs_serial.SetUint8ArrayValue(Attributes::ATTR_DATA,
+    {UINT8_MAX, UINT8_MAX, UINT8_MAX, UINT8_MAX, UINT8_MAX}));
+    auto buffer = attrs_serial.Serialize();
+
+    Attributes attrs_deserial(buffer);
+    bool bool_valt;
+    EXPECT_TRUE(attrs_deserial.GetBoolValue(Attributes::ATTR_END_AFTER_FIRST_FAIL, bool_valt));
+    EXPECT_EQ(bool_valt, true);
+
+    bool bool_valf;
+    EXPECT_TRUE(attrs_deserial.GetBoolValue(Attributes::ATTR_MSG_ACK, bool_valf));
+    EXPECT_EQ(bool_valf, false);
+
+    uint32_t u32_value;
+    EXPECT_TRUE(attrs_deserial.GetUint32Value(Attributes::ATTR_SCHEDULE_MODE, u32_value));
+    EXPECT_EQ(u32_value, UINT32_MAX);
+
+    std::vector<uint32_t> u32_vector;
+    EXPECT_TRUE(attrs_deserial.GetUint32ArrayValue(Attributes::ATTR_KEY_LIST, u32_vector));
+    EXPECT_THAT(u32_vector, ElementsAre(UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX));
+
+    std::string str_value;
+    EXPECT_TRUE(attrs_deserial.GetStringValue(Attributes::ATTR_CALLER_NAME, str_value));
+    EXPECT_EQ(str_value, "iam_unit_test");
+
+    uint8_t u8_val;
+    EXPECT_TRUE(attrs_deserial.GetUint8Value(Attributes::ATTR_ROOT, u8_val));
+    EXPECT_EQ(u8_val, UINT8_MAX);
+
+    std::vector<uint8_t> u8_vector;
+    EXPECT_TRUE(attrs_deserial.GetUint8ArrayValue(Attributes::ATTR_DATA, u8_vector));
+    EXPECT_THAT(u8_vector, ElementsAre(UINT8_MAX, UINT8_MAX, UINT8_MAX, UINT8_MAX, UINT8_MAX));
+}
+
+HWTEST_F(AttributesTest, AttributesRawSerializeTest01, TestSize.Level0)
+{
+    std::vector<uint8_t> raw = {160, 134, 1, 0, 1, 0, 0, 0, 255, 175, 134,
+        1, 0, 14, 0, 0, 0, 105, 97, 109, 95, 117, 110, 105, 116, 95, 116,
+        101, 115, 116, 0, 180, 134, 1, 0, 5, 0, 0, 0, 255, 255,
+        255, 255, 255, 182, 134, 1, 0, 4, 0, 0, 0, 255, 255, 255,
+        255, 197, 134, 1, 0, 20, 0, 0, 0, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 198, 134, 1, 0, 1, 0, 0, 0, 1, 213, 134, 1, 0, 1,
+        0, 0, 0, 0};
+    
+    Attributes attrs(raw);
+    std::vector<uint8_t> buffer = attrs.Serialize();
+    for (int i = 0; i < buffer.size(); i++) {
+        EXPECT_THAT(raw[i], buffer[i]);
+    }
+}
+
+HWTEST_F(AttributesTest, AttributesRawSerializeTest03, TestSize.Level0)
+{
+    std::vector<uint8_t> raw = {169, 134, 1, 0, 4, 0, 0, 0, 255, 255, 255,
+        127, 170, 134, 1, 0, 40, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 177, 134, 1, 0,
+        8, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255, 182,
+        134, 1, 0, 4, 0, 0, 0, 255, 255, 255, 255, 197,
+        134, 1, 0, 20, 0, 0, 0, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+        255, 255, 255, 255, 210, 134, 1, 0, 2, 0, 0, 0, 255,
+        255, 234, 134, 1, 0, 20, 0, 0, 0, 255, 255, 255,
+        127, 255, 255, 255, 127, 255, 255, 255,
+        127, 255, 255, 255, 127, 255, 255, 255,
+        127, 243, 134, 1, 0, 8, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0};
+    
+    Attributes attrs(raw);
+    std::vector<uint8_t> buffer = attrs.Serialize();
+    for (int i = 0; i < buffer.size(); i++) {
+        EXPECT_THAT(raw[i], buffer[i]);
+    }
+}
+
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
