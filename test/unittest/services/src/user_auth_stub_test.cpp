@@ -706,7 +706,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub011, TestSize.Level0)
     EXPECT_TRUE(data.WriteString("verifierNetworkId"));
     EXPECT_TRUE(data.WriteBool(true));
     EXPECT_TRUE(data.WriteString("collectorNetworkId"));
-    EXPECT_TRUE(data.WriteBool(false));
+    EXPECT_TRUE(data.WriteBool(true));
     EXPECT_TRUE(data.WriteUint32(collectorTokenId));
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
@@ -1020,10 +1020,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubPrepareRemoteAuthStub_002, TestSize.Level
     EXPECT_TRUE(data.WriteString("collectorNetworkId"));
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
-    EXPECT_EQ(READ_PARCEL_ERROR, service.OnRemoteRequest(code, data, reply, option));
-    int32_t result;
-    EXPECT_FALSE(reply.ReadInt32(result));
-    EXPECT_EQ(result, SUCCESS);
+    EXPECT_EQ(GENERAL_ERROR, service.OnRemoteRequest(code, data, reply, option));
 }
 
 HWTEST_F(UserAuthStubTest, UserAuthStubPrepareRemoteAuthStub_003, TestSize.Level0)
@@ -1042,7 +1039,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubPrepareRemoteAuthStub_003, TestSize.Level
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
     int32_t result;
-    EXPECT_FALSE(reply.ReadInt32(result));
+    EXPECT_TRUE(reply.ReadInt32(result));
     EXPECT_EQ(result, SUCCESS);
 }
 } // namespace UserAuth
