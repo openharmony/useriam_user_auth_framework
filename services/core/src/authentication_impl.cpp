@@ -80,6 +80,11 @@ int32_t AuthenticationImpl::GetUserId() const
     return authPara_.userId;
 }
 
+int32_t AuthenticationImpl::GetAuthType() const
+{
+    return authPara_.authType;
+}
+
 std::vector<Authentication::AuthExecutorMsg> AuthenticationImpl::GetAuthExecutorMsgs() const
 {
     return authExecutorMsgs_;

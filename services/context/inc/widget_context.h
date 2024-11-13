@@ -62,6 +62,8 @@ public:
     uint32_t GetTokenId() const override;
     int32_t GetLatestError() const override;
     int32_t GetUserId() const override;
+    int32_t GetAuthType() const override;
+    std::string GetCallerName() const override;
 
     // WidgetScheduleNodeCallback API
     bool LaunchWidget() override;
