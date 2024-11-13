@@ -17,6 +17,7 @@
 
 #include <map>
 #include <memory>
+#include <endian.h>
 
 #include "iam_logger.h"
 #include "securec.h"
@@ -128,15 +129,16 @@ Attributes::Impl::Impl(const std::vector<uint8_t> &raw)
             IAM_LOGE("type copy error");
             return;
         }
-        curr += sizeof(uint32_t);
 
+        type = le32toh(type);
+        curr += sizeof(uint32_t);
         uint32_t length;
         if (memcpy_s(&length, sizeof(uint32_t), curr, sizeof(uint32_t)) != EOK) {
             IAM_LOGE("length copy error");
             return;
         }
+        length = le32toh(length);
         curr += sizeof(uint32_t);
-
         if (!CheckAttributeLength(curr, end, length)) {
             IAM_LOGE("check attribute length error");
             return;
@@ -684,7 +686,8 @@ bool Attributes::Impl::EncodeBoolValue(bool src, std::vector<uint8_t> &dst)
 bool Attributes::Impl::EncodeUint64Value(uint64_t src, std::vector<uint8_t> &dst)
 {
     std::vector<uint8_t> out(sizeof(uint64_t) / sizeof(uint8_t));
-    if (memcpy_s(out.data(), out.size(), &src, sizeof(src)) != EOK) {
+    uint64_t srcLe64 = htole64(src);
+    if (memcpy_s(out.data(), out.size(), &srcLe64, sizeof(srcLe64)) != EOK) {
         return false;
     }
     dst.swap(out);
@@ -694,7 +697,8 @@ bool Attributes::Impl::EncodeUint64Value(uint64_t src, std::vector<uint8_t> &dst
 bool Attributes::Impl::EncodeUint32Value(uint32_t src, std::vector<uint8_t> &dst)
 {
     std::vector<uint8_t> out(sizeof(uint32_t) / sizeof(uint8_t));
-    if (memcpy_s(out.data(), out.size(), &src, sizeof(src)) != EOK) {
+    uint32_t srcLe32 = htole32(src);
+    if (memcpy_s(out.data(), out.size(), &srcLe32, sizeof(srcLe32)) != EOK) {
         return false;
     }
     dst.swap(out);
@@ -704,7 +708,8 @@ bool Attributes::Impl::EncodeUint32Value(uint32_t src, std::vector<uint8_t> &dst
 bool Attributes::Impl::EncodeUint16Value(uint16_t src, std::vector<uint8_t> &dst)
 {
     std::vector<uint8_t> out(sizeof(uint16_t) / sizeof(uint8_t));
-    if (memcpy_s(out.data(), out.size(), &src, sizeof(src)) != EOK) {
+    uint16_t srcLe16 = htole16(src);
+    if (memcpy_s(out.data(), out.size(), &srcLe16, sizeof(srcLe16)) != EOK) {
         return false;
     }
     dst.swap(out);
@@ -722,7 +727,9 @@ bool Attributes::Impl::EncodeUint8Value(uint8_t src, std::vector<uint8_t> &dst)
 bool Attributes::Impl::EncodeInt32Value(int32_t src, std::vector<uint8_t> &dst)
 {
     std::vector<uint8_t> out(sizeof(int32_t) / sizeof(uint8_t));
-    if (memcpy_s(out.data(), out.size(), &src, sizeof(src)) != EOK) {
+
+    uint32_t srcLe32 = htole32(static_cast<uint32_t>(src));
+    if (memcpy_s(out.data(), out.size(), &srcLe32, sizeof(srcLe32)) != EOK) {
         return false;
     }
     dst.swap(out);
@@ -732,7 +739,9 @@ bool Attributes::Impl::EncodeInt32Value(int32_t src, std::vector<uint8_t> &dst)
 bool Attributes::Impl::EncodeInt64Value(int64_t src, std::vector<uint8_t> &dst)
 {
     std::vector<uint8_t> out(sizeof(int64_t) / sizeof(uint8_t));
-    if (memcpy_s(out.data(), out.size(), &src, sizeof(src)) != EOK) {
+
+    uint64_t srcLe64 = htole64(static_cast<uint64_t>(src));
+    if (memcpy_s(out.data(), out.size(), &srcLe64, sizeof(srcLe64)) != EOK) {
         return false;
     }
     dst.swap(out);
@@ -753,50 +762,60 @@ bool Attributes::Impl::EncodeStringValue(const std::string &src, std::vector<uin
 
 bool Attributes::Impl::EncodeUint64ArrayValue(const std::vector<uint64_t> &src, std::vector<uint8_t> &dst)
 {
-    auto size = src.size() * (sizeof(uint64_t) / sizeof(uint8_t));
-    if (size > MAX_ATTR_LENGTH) {
+    auto outSize = src.size() * (sizeof(uint64_t) / sizeof(uint8_t));
+    if (outSize > MAX_ATTR_LENGTH) {
         return false;
     }
-
-    std::vector<uint8_t> out(size);
-
+    std::vector<uint8_t> out(outSize);
+    std::vector<uint64_t> srcLe64(src.size());
+    for (uint32_t i = 0; i < src.size();i++) {
+        srcLe64[i] = htole64(src[i]);
+    }
     if (!src.empty() &&
-        memcpy_s(out.data(), out.size() * sizeof(uint8_t), src.data(), src.size() * sizeof(uint64_t)) != EOK) {
+        memcpy_s(out.data(), out.size() * sizeof(uint8_t), srcLe64.data(), srcLe64.size() * sizeof(uint64_t)) != EOK) {
         return false;
     }
-
     dst.swap(out);
     return true;
 }
 
 bool Attributes::Impl::EncodeUint32ArrayValue(const std::vector<uint32_t> &src, std::vector<uint8_t> &dst)
 {
-    auto size = src.size() * (sizeof(uint32_t) / sizeof(uint8_t));
-    if (size > MAX_ATTR_LENGTH) {
+    auto outSize = src.size() * (sizeof(uint32_t) / sizeof(uint8_t));
+    if (outSize > MAX_ATTR_LENGTH) {
         return false;
     }
 
-    std::vector<uint8_t> out(size);
+    std::vector<uint8_t> out(outSize);
+    std::vector<uint32_t> srcLe32(src.size());
+    for (uint32_t i = 0; i < src.size();i++) {
+        srcLe32[i] = htole32(src[i]);
+    }
 
     if (!src.empty() &&
-        memcpy_s(out.data(), out.size() * sizeof(uint8_t), src.data(), src.size() * sizeof(uint32_t)) != EOK) {
+        memcpy_s(out.data(), out.size() * sizeof(uint8_t), srcLe32.data(), srcLe32.size() * sizeof(uint32_t)) != EOK) {
         return false;
     }
+
     dst.swap(out);
     return true;
 }
 
 bool Attributes::Impl::EncodeUint16ArrayValue(const std::vector<uint16_t> &src, std::vector<uint8_t> &dst)
 {
-    auto size = src.size() * (sizeof(uint16_t) / sizeof(uint8_t));
-    if (size > MAX_ATTR_LENGTH) {
+    auto outSize = src.size() * (sizeof(uint16_t) / sizeof(uint8_t));
+    if (outSize > MAX_ATTR_LENGTH) {
         return false;
     }
 
-    std::vector<uint8_t> out(size);
+    std::vector<uint8_t> out(outSize);
+    std::vector<uint16_t> srcLe16(src.size());
+    for (uint32_t i = 0; i < src.size();i++) {
+        srcLe16[i] = htole16(src[i]);
+    }
 
     if (!src.empty() &&
-        memcpy_s(out.data(), out.size() * sizeof(uint8_t), src.data(), src.size() * sizeof(uint16_t)) != EOK) {
+        memcpy_s(out.data(), out.size() * sizeof(uint8_t), srcLe16.data(), srcLe16.size() * sizeof(uint16_t)) != EOK) {
         return false;
     }
     dst.swap(out);
@@ -805,17 +824,22 @@ bool Attributes::Impl::EncodeUint16ArrayValue(const std::vector<uint16_t> &src, 
 
 bool Attributes::Impl::EncodeInt32ArrayValue(const std::vector<int32_t> &src, std::vector<uint8_t> &dst)
 {
-    auto size = src.size() * (sizeof(int32_t) / sizeof(uint8_t));
-    if (size > MAX_ATTR_LENGTH) {
+    auto outSize = src.size() * (sizeof(int32_t) / sizeof(uint8_t));
+    if (outSize > MAX_ATTR_LENGTH) {
         return false;
     }
 
-    std::vector<uint8_t> out(size);
+    std::vector<uint8_t> out(outSize);
+    std::vector<uint32_t> srcLe32(src.size());
+    for (uint32_t i = 0; i < src.size();i++) {
+        srcLe32[i] = htole32(static_cast<uint32_t>(src[i]));
+    }
 
     if (!src.empty() &&
-        memcpy_s(out.data(), out.size() * sizeof(uint8_t), src.data(), src.size() * sizeof(int32_t)) != EOK) {
+        memcpy_s(out.data(), out.size() * sizeof(uint8_t), srcLe32.data(), srcLe32.size() * sizeof(int32_t)) != EOK) {
         return false;
     }
+
     dst.swap(out);
     return true;
 }
@@ -846,9 +870,11 @@ bool Attributes::Impl::DecodeUint64Value(const std::vector<uint8_t> &src, uint64
         return false;
     }
 
-    if (memcpy_s(&dst, sizeof(dst), src.data(), src.size() * sizeof(uint8_t)) != EOK) {
+    uint64_t dstLe64;
+    if (memcpy_s(&dstLe64, sizeof(dstLe64), src.data(), src.size() * sizeof(uint8_t)) != EOK) {
         return false;
     }
+    dst = le64toh(dstLe64);
     return true;
 }
 
@@ -857,9 +883,13 @@ bool Attributes::Impl::DecodeUint32Value(const std::vector<uint8_t> &src, uint32
     if (src.size() * sizeof(uint8_t) != sizeof(uint32_t)) {
         return false;
     }
-    if (memcpy_s(&dst, sizeof(dst), src.data(), src.size() * sizeof(uint8_t)) != EOK) {
+
+    uint32_t dstLe32;
+    if (memcpy_s(&dstLe32, sizeof(dstLe32), src.data(), src.size() * sizeof(uint8_t)) != EOK) {
         return false;
     }
+    dst = le32toh(dstLe32);
+
     return true;
 }
 
@@ -868,9 +898,12 @@ bool Attributes::Impl::DecodeUint16Value(const std::vector<uint8_t> &src, uint16
     if (src.size() * sizeof(uint8_t) != sizeof(uint16_t)) {
         return false;
     }
-    if (memcpy_s(&dst, sizeof(dst), src.data(), src.size() * sizeof(uint8_t)) != EOK) {
+
+    uint16_t dstLe16;
+    if (memcpy_s(&dstLe16, sizeof(dstLe16), src.data(), src.size() * sizeof(uint8_t)) != EOK) {
         return false;
     }
+    dst = le16toh(dstLe16);
     return true;
 }
 
@@ -888,9 +921,13 @@ bool Attributes::Impl::DecodeInt32Value(const std::vector<uint8_t> &src, int32_t
     if (src.size() * sizeof(uint8_t) != sizeof(int32_t)) {
         return false;
     }
-    if (memcpy_s(&dst, sizeof(dst), src.data(), src.size() * sizeof(uint8_t)) != EOK) {
+
+    uint32_t dstLe32;
+    if (memcpy_s(&dstLe32, sizeof(dstLe32), src.data(), src.size() * sizeof(uint8_t)) != EOK) {
         return false;
     }
+    dst = static_cast<int32_t>(le32toh(dstLe32));
+
     return true;
 }
 
@@ -899,9 +936,12 @@ bool Attributes::Impl::DecodeInt64Value(const std::vector<uint8_t> &src, int64_t
     if (src.size() * sizeof(uint8_t) != sizeof(int64_t)) {
         return false;
     }
-    if (memcpy_s(&dst, sizeof(dst), src.data(), src.size() * sizeof(uint8_t)) != EOK) {
+
+    uint64_t dstLe64;
+    if (memcpy_s(&dstLe64, sizeof(dstLe64), src.data(), src.size() * sizeof(uint8_t)) != EOK) {
         return false;
     }
+    dst = static_cast<int64_t>(le64toh(dstLe64));
     return true;
 }
 
@@ -934,6 +974,10 @@ bool Attributes::Impl::DecodeUint64ArrayValue(const std::vector<uint8_t> &src, s
         return false;
     }
 
+    for (uint32_t i = 0; i < out.size(); i++) {
+        out[i] = le64toh(out[i]);
+    }
+
     dst.swap(out);
     return true;
 }
@@ -951,6 +995,10 @@ bool Attributes::Impl::DecodeUint32ArrayValue(const std::vector<uint8_t> &src, s
         return false;
     }
 
+    for (uint32_t i = 0; i < out.size(); i++) {
+        out[i] = le32toh(out[i]);
+    }
+
     dst.swap(out);
     return true;
 }
@@ -966,6 +1014,10 @@ bool Attributes::Impl::DecodeUint16ArrayValue(const std::vector<uint8_t> &src, s
     if (!out.empty() &&
         memcpy_s(out.data(), out.size() * sizeof(uint16_t), src.data(), src.size() * sizeof(uint8_t)) != EOK) {
         return false;
+    }
+
+    for (uint32_t i = 0; i < out.size(); i++) {
+        out[i] = le16toh(out[i]);
     }
 
     dst.swap(out);
@@ -990,6 +1042,10 @@ bool Attributes::Impl::DecodeInt32ArrayValue(const std::vector<uint8_t> &src, st
     if (!out.empty() &&
         memcpy_s(out.data(), out.size() * sizeof(int32_t), src.data(), src.size() * sizeof(uint8_t)) != EOK) {
         return false;
+    }
+
+    for (uint32_t i = 0; i < out.size(); i++) {
+        out[i] = static_cast<int32_t>(le32toh(static_cast<uint32_t>(out[i])));
     }
 
     dst.swap(out);
