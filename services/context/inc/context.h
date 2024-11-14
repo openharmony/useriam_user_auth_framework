@@ -58,6 +58,8 @@ public:
     virtual uint32_t GetTokenId() const = 0;
     virtual int32_t GetLatestError() const = 0;
     virtual int32_t GetUserId() const = 0;
+    virtual int32_t GetAuthType() const = 0;
+    virtual std::string GetCallerName() const = 0;
 
 protected:
     virtual void SetLatestError(int32_t error) = 0;
