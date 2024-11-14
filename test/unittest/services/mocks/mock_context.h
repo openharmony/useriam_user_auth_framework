@@ -73,6 +73,8 @@ public:
     MOCK_CONST_METHOD0(GetLatestError, int32_t());
     MOCK_CONST_METHOD0(GetTokenId, uint32_t());
     MOCK_CONST_METHOD0(GetUserId, int32_t());
+    MOCK_CONST_METHOD0(GetAuthType, int32_t());
+    MOCK_CONST_METHOD0(GetCallerName, std::string());
 
     static std::shared_ptr<Context> CreateWithContextId(uint64_t contextId)
     {

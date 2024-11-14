@@ -66,6 +66,16 @@ int32_t BaseContext::GetUserId() const
     return INVALID_USER_ID;
 }
 
+int32_t BaseContext::GetAuthType() const
+{
+    return INVALID_AUTH_TYPE;
+}
+
+std::string BaseContext::GetCallerName() const
+{
+    return "";
+}
+
 bool BaseContext::Start()
 {
     std::lock_guard<std::mutex> guard(mutex_);
