@@ -185,7 +185,9 @@ int32_t AuthWidgetHelper::CheckReuseUnlockResult(const ContextFactory::AuthWidge
     if (!authParam.reuseUnlockResult.isReuse || authParam.reuseUnlockResult.reuseDuration == 0 ||
         authParam.reuseUnlockResult.reuseDuration > MAX_ALLOWABLE_REUSE_DURATION ||
         (authParam.reuseUnlockResult.reuseMode != AUTH_TYPE_RELEVANT &&
-        authParam.reuseUnlockResult.reuseMode != AUTH_TYPE_IRRELEVANT)) {
+        authParam.reuseUnlockResult.reuseMode != AUTH_TYPE_IRRELEVANT &&
+        authParam.reuseUnlockResult.reuseMode != CALLER_IRRELEVANT_AUTH_TYPE_RELEVANT &&
+        authParam.reuseUnlockResult.reuseMode != CALLER_IRRELEVANT_AUTH_TYPE_IRRELEVANT)) {
         IAM_LOGE("CheckReuseUnlockResult invalid param");
         return INVALID_PARAMETERS;
     }
