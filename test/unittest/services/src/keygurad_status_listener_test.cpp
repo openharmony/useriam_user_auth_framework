@@ -46,7 +46,7 @@ HWTEST_F(KeyguardStatusListenerTest, KeyguardStatusListenerTestRegisterListener,
     EXPECT_EQ(result, GENERAL_ERROR);
     EXPECT_NO_THROW(KeyguardStatusListenerManager::GetInstance().RegisterKeyguardStatusSwitchCallback());
     EXPECT_NO_THROW(KeyguardStatusListenerManager::GetInstance().UnRegisterKeyguardStatusSwitchCallback());
-    ResultCode result = KeyguardStatusListenerManager::GetInstance().UnRegisterCommonEventListener();
+    result = KeyguardStatusListenerManager::GetInstance().UnRegisterCommonEventListener();
     EXPECT_EQ(result, GENERAL_ERROR);
 }
 } // namespace UserAuth
