@@ -199,8 +199,13 @@ HWTEST_F(SoftBusManagerTest, SoftBusManagerTestOnShutdown_001, TestSize.Level0)
 {
     ShutdownReason reason = SHUTDOWN_REASON_UNKNOWN;
     EXPECT_NO_THROW(SoftBusManager::GetInstance().OnShutdown(-2, reason));
-    SoftBusManager::GetInstance().ClearServerSocket();
+    int32_t socketId = 100;
+    std::shared_ptr<BaseSocket> serverSocket = SocketFactory::CreateServerSocket(socketId);
+    SoftBusManager::GetInstance().AddSocket(socketId, serverSocket);
+    SoftBusManager::GetInstance().SetServerSocket(serverSocket);
     EXPECT_NO_THROW(SoftBusManager::GetInstance().OnShutdown(600, reason));
+    SoftBusManager::GetInstance().ServiceSocketUnInit();
+    SoftBusManager::GetInstance().DeleteSocket(socketId);
 }
 
 HWTEST_F(SoftBusManagerTest, SoftBusManagerTestOnServerBytes_002, TestSize.Level0)
