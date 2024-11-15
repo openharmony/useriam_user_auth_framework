@@ -43,11 +43,32 @@ void KeyguardStatusListenerTest::TearDown()
 HWTEST_F(KeyguardStatusListenerTest, KeyguardStatusListenerTestRegisterListener, TestSize.Level0)
 {
     ResultCode result = KeyguardStatusListenerManager::GetInstance().RegisterCommonEventListener();
-    EXPECT_EQ(result, GENERAL_ERROR);
+    EXPECT_EQ(result, SUCCESS);
+    result = KeyguardStatusListenerManager::GetInstance().RegisterCommonEventListener();
+    EXPECT_NO_THROW(KeyguardStatusListenerManager::GetInstance().RegisterKeyguardStatusSwitchCallback());
     EXPECT_NO_THROW(KeyguardStatusListenerManager::GetInstance().RegisterKeyguardStatusSwitchCallback());
     EXPECT_NO_THROW(KeyguardStatusListenerManager::GetInstance().UnRegisterKeyguardStatusSwitchCallback());
+    EXPECT_NO_THROW(KeyguardStatusListenerManager::GetInstance().UnRegisterKeyguardStatusSwitchCallback());
     result = KeyguardStatusListenerManager::GetInstance().UnRegisterCommonEventListener();
-    EXPECT_EQ(result, GENERAL_ERROR);
+    EXPECT_EQ(result, SUCCESS);
+    result = KeyguardStatusListenerManager::GetInstance().UnRegisterCommonEventListener();
+}
+
+HWTEST_F(KeyguardStatusListenerTest, KeyguardStatusListenerTestOnReceiveEvent, TestSize.Level0)
+{
+    EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_LOCKED);
+    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED);
+
+    EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
+    auto subscriber = std::make_shared<KeyguardStatusListener>(subscribeInfo);
+    EventFwk::Want want;
+    want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_LOCKED);
+    EventFwk::CommonEventData data(want);
+    EXPECT_NO_THROW(subscriber->OnReceiveEvent(data));
+    want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED);
+    EventFwk::CommonEventData data1(want);
+    EXPECT_NO_THROW(subscriber->OnReceiveEvent(data1));
 }
 } // namespace UserAuth
 } // namespace UserIam
