@@ -359,8 +359,8 @@ bool IpcCommon::GetCallingAppID(IPCObjectStub &stub, std::string &callingAppID)
         return false;
     }
 
-    HapTokenInfo hapTokenInfo;
-    int result = AccessTokenKit::GetHapTokenInfo(tokenId, hapTokenInfo);
+    HapTokenInfoExt hapTokenInfo;
+    int result = AccessTokenKit::GetHapTokenInfoExtension(tokenId, hapTokenInfo);
     if (result != SUCCESS) {
         IAM_LOGE("failed to get hap token info, result = %{public}d", result);
         return false;
