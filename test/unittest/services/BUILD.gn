@@ -137,6 +137,7 @@ ohos_unittest("iam_services_test") {
     "src/identification_impl_test.cpp",
     "src/identify_context_test.cpp",
     "src/ipc_common_test.cpp",
+    "src/keygurad_status_listener_test.cpp",
     "src/relative_timer_test.cpp",
     "src/resource_node_pool_test.cpp",
     "src/resource_node_test.cpp",
