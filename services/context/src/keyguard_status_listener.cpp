@@ -19,6 +19,7 @@
 #include "common_event_subscribe_info.h"
 #include "iam_logger.h"
 #include "matching_skills.h"
+#include "screen_unlock_after_auth_monitor.h"
 #include "singleton.h"
 #include "want.h"
 
@@ -125,6 +126,7 @@ void KeyguardStatusListener::OnReceiveEvent(const OHOS::EventFwk::CommonEventDat
         ContextAppStateObserverManager::GetInstance().SetScreenLockState(true);
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED) {
         ContextAppStateObserverManager::GetInstance().SetScreenLockState(false);
+        ScreenUnlockAfterAuthMonitor::GetInstance().OnScreenUnlocked();
     }
 };
 } // namespace UserAuth

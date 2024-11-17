@@ -96,4 +96,9 @@ USERIAM_REMOTE_CONNECT:
   TIME_SPAN: {type: UINT64, desc: time span}
   NETWORK_ID: {type: STRING, desc: network id}
   SOCKET_ID: {type: STRING, desc: socket id}
-  
+
+USERIAM_AUTH_SUCCESS_NO_UNLOCK:
+  __BASE: {type: FAULT, level: CRITICAL, tag: UserAuth, desc: user auth success no unlock message}
+  OPERATION_TIME: {type: STRING, desc: operation time}
+  USER_ID: {type: INT32, desc: user id}
+  AUTH_TYPE: {type: INT32, desc: auth type}
