@@ -156,7 +156,8 @@ void FuzzGetAvailableStatusOtherScene(Parcel &parcel)
     int32_t pin = 1;
     AuthType authType = static_cast<AuthType>(pin);
     AuthTrustLevel authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32());
-    g_userAuthService.GetAvailableStatus(apiVersion, authType, authTrustLevel);
+    int32_t userId = parcel.ReadInt32();
+    g_userAuthService.GetAvailableStatus(apiVersion, userId, authType, authTrustLevel);
     IAM_LOGI("end");
 }
 
@@ -166,7 +167,8 @@ void FuzzGetAvailableStatus(Parcel &parcel)
     int32_t apiVersion = parcel.ReadInt32();
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
     AuthTrustLevel authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32());
-    g_userAuthService.GetAvailableStatus(apiVersion, authType, authTrustLevel);
+    int32_t userId = parcel.ReadInt32();
+    g_userAuthService.GetAvailableStatus(apiVersion, userId, authType, authTrustLevel);
     FuzzGetAvailableStatusOtherScene(parcel);
     IAM_LOGI("end");
 }

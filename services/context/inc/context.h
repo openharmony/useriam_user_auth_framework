@@ -29,7 +29,6 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 constexpr uint64_t REUSE_AUTH_RESULT_CONTEXT_ID = 1;
-constexpr uint64_t BAD_CONTEXT_ID = 0;
 
 enum ContextState {
     STATE_INIT,

@@ -32,6 +32,8 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+const uint64_t MAX_ALLOWABLE_REUSE_DURATION = 5 * 60 * 1000;
+
 /**
  * @brief Remote auth parameter.
  */
@@ -60,6 +62,70 @@ struct AuthParam {
     AuthIntent authIntent;
     /** Remote auth parameter. */
     std::optional<RemoteAuthParam> remoteAuthParam;
+};
+
+/**
+ * @brief Window mode type for user authentication widget.
+ */
+enum WindowModeType : int32_t {
+    /** Window mode type is dialog box. */
+    DIALOG_BOX = 1,
+    /**  Window mode type is full screen. */
+    FULLSCREEN = 2,
+    /**  Window mode type is not set */
+    UNKNOWN_WINDOW_MODE = 3,
+};
+
+/**
+ * @brief The mode for reusing unlock authentication result.
+ */
+enum ReuseMode : uint32_t {
+    /** Authentication type relevant.The unlock authentication result can be reused only when the result is within
+     * valid duration as well as it comes from one of specified UserAuthTypes of the AuthParam. */
+    AUTH_TYPE_RELEVANT = 1,
+    /** Authentication type irrelevant.The unlock authentication result can be reused as long as the result is within
+     * valid duration. */
+    AUTH_TYPE_IRRELEVANT = 2,
+};
+
+/**
+ * @brief Reuse unlock authentication result.
+ */
+struct ReuseUnlockResult {
+    /** Whether to reuse unlock result, ReuseUnlockResult is valid only when isReuse is true.*/
+    bool isReuse {false};
+    /** The mode for reusing unlock authentication result. */
+    ReuseMode reuseMode {AUTH_TYPE_IRRELEVANT};
+    /** The allowable reuse duration.The value of duration should be between 0 and MAX_ALLOWABLE_REUSE_DURATION. */
+    uint64_t reuseDuration {0};
+};
+
+/**
+ * @brief Auth widget parameter.
+ */
+struct WidgetParam {
+    /** Title of widget. */
+    std::string title;
+    /** The description text of navigation button. */
+    std::string navigationButtonText;
+    /** Full screen or not. */
+    WindowModeType windowMode;
+};
+
+/**
+ * @brief Auth widget parameter.
+ */
+struct WidgetAuthParam {
+    /** user id */
+    int32_t userId;
+    /** challenge value */
+    std::vector<uint8_t> challenge;
+    /** Credential type for authentication. */
+    std::vector<AuthType> authTypes;
+    /** Trust level of authentication result. */
+    AuthTrustLevel authTrustLevel;
+    /** Reuse unlock authentication result. */
+    ReuseUnlockResult reuseUnlockResult;
 };
 
 /**

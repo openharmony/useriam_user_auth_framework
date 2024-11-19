@@ -93,7 +93,16 @@ int32_t UserAuthStub::GetAvailableStatusStub(MessageParcel &data, MessageParcel 
     int32_t authType;
     uint32_t authTrustLevel;
     int32_t apiVersion;
-
+    int32_t userId;
+    bool isSpecificUserId = false;
+    if (!data.ReadBool(isSpecificUserId)) {
+        IAM_LOGE("failed to read isSpecificUserId");
+        return READ_PARCEL_ERROR;
+    }
+    if (isSpecificUserId && !data.ReadInt32(userId)) {
+        IAM_LOGE("failed to read userId");
+        return READ_PARCEL_ERROR;
+    }
     if (!data.ReadInt32(authType)) {
         IAM_LOGE("failed to read authType");
         return READ_PARCEL_ERROR;
@@ -103,12 +112,19 @@ int32_t UserAuthStub::GetAvailableStatusStub(MessageParcel &data, MessageParcel 
         return READ_PARCEL_ERROR;
     }
     if (!data.ReadInt32(apiVersion)) {
-        IAM_LOGE("failed to read authType");
+        IAM_LOGE("failed to read apiVersion");
         return READ_PARCEL_ERROR;
     }
 
-    int32_t result = GetAvailableStatus(apiVersion,
-        static_cast<AuthType>(authType), static_cast<AuthTrustLevel>(authTrustLevel));
+    int32_t result = GENERAL_ERROR;
+    if (isSpecificUserId) {
+        result =  GetAvailableStatus(apiVersion, userId, static_cast<AuthType>(authType),
+            static_cast<AuthTrustLevel>(authTrustLevel));
+    } else {
+        result =  GetAvailableStatus(apiVersion, static_cast<AuthType>(authType),
+            static_cast<AuthTrustLevel>(authTrustLevel));
+    }
+
     if (!reply.WriteInt32(result)) {
         IAM_LOGE("failed to write GetAvailableStatus result");
         return WRITE_PARCEL_ERROR;
@@ -248,7 +264,12 @@ int32_t UserAuthStub::AuthWidgetStub(MessageParcel &data, MessageParcel &reply)
 
     AuthParamInner authParam;
     WidgetParam widgetParam;
-    if (!ReadWidgetParam(data, authParam, widgetParam)) {
+    if (!ReadWidgetAuthParam(data, authParam)) {
+        IAM_LOGE("failed to read widget auth param");
+        return ResultCode::READ_PARCEL_ERROR;
+    }
+
+    if (!ReadWidgetParam(data, widgetParam)) {
         IAM_LOGE("failed to read widget param");
         return ResultCode::READ_PARCEL_ERROR;
     }
@@ -278,8 +299,16 @@ int32_t UserAuthStub::AuthWidgetStub(MessageParcel &data, MessageParcel &reply)
     return ResultCode::SUCCESS;
 }
 
-bool UserAuthStub::ReadWidgetParam(MessageParcel &data, AuthParamInner &authParam, WidgetParam &widgetParam)
+bool UserAuthStub::ReadWidgetAuthParam(MessageParcel &data, AuthParamInner &authParam)
 {
+    if (!data.ReadInt32(authParam.userId)) {
+        IAM_LOGE("failed to read userId");
+        return false;
+    }
+    if (!data.ReadBool(authParam.isUserIdSpecified)) {
+        IAM_LOGE("failed to read isUserIdSpecified");
+        return false;
+    }
     if (!data.ReadUInt8Vector(&authParam.challenge)) {
         IAM_LOGE("failed to read challenge");
         return false;
@@ -317,9 +346,19 @@ bool UserAuthStub::ReadWidgetParam(MessageParcel &data, AuthParamInner &authPara
         }
     }
     authParam.reuseUnlockResult.reuseMode = static_cast<ReuseMode>(reuseMode);
+    return true;
+}
 
-    widgetParam.title = data.ReadString();
-    widgetParam.navigationButtonText = data.ReadString();
+bool UserAuthStub::ReadWidgetParam(MessageParcel &data, WidgetParam &widgetParam)
+{
+    if (!data.ReadString(widgetParam.title)) {
+        IAM_LOGE("failed to read title");
+        return READ_PARCEL_ERROR;
+    }
+    if (!data.ReadString(widgetParam.navigationButtonText)) {
+        IAM_LOGE("failed to read navigationButtonText");
+        return READ_PARCEL_ERROR;
+    }
     int32_t winMode;
     if (!data.ReadInt32(winMode)) {
         IAM_LOGE("failed to read window mode");
