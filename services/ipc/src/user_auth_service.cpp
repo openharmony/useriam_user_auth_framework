@@ -191,9 +191,22 @@ bool UserAuthService::CheckAuthTrustLevel(AuthTrustLevel authTrustLevel)
     return true;
 }
 
+int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, int32_t userId, AuthType authType,
+    AuthTrustLevel authTrustLevel)
+{
+    IAM_LOGI("start with userId");
+
+    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        return CHECK_PERMISSION_FAILED;
+    }
+    return GetAvailableStatusInner(apiVersion, userId, authType, authTrustLevel);
+}
+
 int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel)
 {
-    IAM_LOGI("start");
+    IAM_LOGI("start without userId");
+
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
         !IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
         IAM_LOGE("failed to check permission");
@@ -204,14 +217,20 @@ int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authTyp
         IAM_LOGE("authType not support");
         return TYPE_NOT_SUPPORT;
     }
+    int32_t userId = INVALID_USER_ID;
+    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
+        IAM_LOGE("failed to get userId");
+        return GENERAL_ERROR;
+    }
+    return GetAvailableStatusInner(apiVersion, userId, authType, authTrustLevel);
+}
+
+int32_t UserAuthService::GetAvailableStatusInner(int32_t apiVersion, int32_t userId, AuthType authType,
+    AuthTrustLevel authTrustLevel)
+{
     if (!CheckAuthTrustLevel(authTrustLevel)) {
         IAM_LOGE("authTrustLevel is not in correct range");
         return TRUST_LEVEL_NOT_SUPPORT;
-    }
-    int32_t userId;
-    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
-        IAM_LOGE("failed to get callingUserId");
-        return GENERAL_ERROR;
     }
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi == nullptr) {
@@ -431,7 +450,7 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
         contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    int32_t userId;
+    int32_t userId = INVALID_USER_ID;
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("get callingUserId failed");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
@@ -814,7 +833,11 @@ int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authP
         IAM_LOGE("normal app can't set window mode.");
         return INVALID_PARAMETERS;
     }
-    if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
+    if (!authParam.isUserIdSpecified && !IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
+        IAM_LOGE("CheckPermission failed");
+        return CHECK_PERMISSION_FAILED;
+    }
+    if (authParam.isUserIdSpecified && !IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("CheckPermission failed");
         return CHECK_PERMISSION_FAILED;
     }
@@ -893,35 +916,31 @@ int32_t UserAuthService::CheckValidSolution(int32_t userId, const AuthParamInner
     return SUCCESS;
 }
 
-int32_t UserAuthService::GetCallerInfo(ContextFactory::AuthWidgetContextPara &para,
-    std::shared_ptr<ContextCallback> &contextCallback, bool &isBackgroundApplication)
+int32_t UserAuthService::GetCallerInfo(bool isUserIdSpecified, int32_t userId,
+    ContextFactory::AuthWidgetContextPara &para, bool &isBackgroundApplication,
+    std::shared_ptr<ContextCallback> &contextCallback)
 {
-    std::string callerName = "";
-    int32_t callerType = 0;
-    static_cast<void>(IpcCommon::GetCallerName(*this, callerName, callerType));
-    contextCallback->SetTraceCallerName(callerName);
-    contextCallback->SetTraceCallerType(callerType);
-    para.callerName = callerName;
-    para.callerType = callerType;
-    if (para.callerType == Security::AccessToken::TOKEN_HAP) {
-        para.callingBundleName = callerName;
-    }
+    static_cast<void>(IpcCommon::GetCallerName(*this, para.callerName, para.callerType));
+    contextCallback->SetTraceCallerName(para.callerName);
+    contextCallback->SetTraceCallerType(para.callerType);
+    static_cast<void>(IpcCommon::GetCallingAppID(*this, para.callingAppID));
+
     if (para.sdkVersion < INNER_API_VERSION_10000 && para.callerType == Security::AccessToken::TOKEN_HAP &&
         (!IpcCommon::CheckForegroundApplication(para.callerName))) {
         isBackgroundApplication = true;
     }
     contextCallback->SetTraceIsBackgroundApplication(isBackgroundApplication);
-    int32_t userId;
-    Attributes extraInfo;
-    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
+
+    if (isUserIdSpecified) {
+        para.userId = userId;
+        contextCallback->SetTraceUserId(para.userId);
+        return SUCCESS;
+    }
+    if (IpcCommon::GetCallingUserId(*this, para.userId) != SUCCESS) {
         IAM_LOGE("get callingUserId failed");
         return GENERAL_ERROR;
     }
-    contextCallback->SetTraceUserId(userId);
-    para.userId = userId;
-    std::string callingAppID = "";
-    static_cast<void>(IpcCommon::GetCallingAppID(*this, callingAppID));
-    para.callingAppID = callingAppID;
+    contextCallback->SetTraceUserId(para.userId);
     return SUCCESS;
 }
 
@@ -938,7 +957,8 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParamInner &a
     para.sdkVersion = apiVersion;
     Attributes extraInfo;
     bool isBackgroundApplication = false;
-    int32_t checkRet = GetCallerInfo(para, contextCallback, isBackgroundApplication);
+    int32_t checkRet = GetCallerInfo(authParam.isUserIdSpecified, authParam.userId, para, isBackgroundApplication,
+        contextCallback);
     if (checkRet != SUCCESS) {
         contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
@@ -1084,7 +1104,7 @@ int32_t UserAuthService::GetEnrolledState(int32_t apiVersion, AuthType authType,
         return TYPE_NOT_SUPPORT;
     }
 
-    int32_t userId;
+    int32_t userId = INVALID_USER_ID;
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("failed to get callingUserId");
         return GENERAL_ERROR;

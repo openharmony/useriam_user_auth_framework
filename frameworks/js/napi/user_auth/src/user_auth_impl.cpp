@@ -70,7 +70,7 @@ napi_value UserAuthImpl::GetAvailableStatus(napi_env env, napi_callback_info inf
         NAPI_CALL(env, napi_create_int32(env, checkRet, &result));
         return result;
     }
-    int32_t status = UserAuthClientImpl::Instance().GetAvailableStatus(API_VERSION_8, authType, authTrustLevel);
+    int32_t status = UserAuthClientImpl::Instance().GetNorthAvailableStatus(API_VERSION_8, authType, authTrustLevel);
     IAM_LOGI("result = %{public}d", status);
     NAPI_CALL(env, napi_create_int32(env, UserAuthNapiHelper::GetResultCodeV8(status), &result));
     return result;

@@ -16,6 +16,7 @@
 
 #include <algorithm>
 
+#include "accesstoken_kit.h"
 #include "auth_widget_helper.h"
 #include "context_helper.h"
 #include "context_pool.h"
@@ -176,6 +177,7 @@ std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &ch
     para.challenge = challenge;
     para.endAfterFirstFail = endAfterFirstFail;
     para.callerName = para_.callerName;
+    para.callerType = para_.callerType;
     para.sdkVersion = para_.sdkVersion;
     para.authIntent = authIntent;
     para.isOsAccountVerified = para_.isOsAccountVerified;
@@ -205,7 +207,7 @@ bool WidgetContext::OnStart()
     WidgetClient::Instance().SetAuthTypeList(para_.authTypeList);
     WidgetClient::Instance().SetWidgetSchedule(schedule_);
     WidgetClient::Instance().SetChallenge(para_.challenge);
-    WidgetClient::Instance().SetCallingBundleName(para_.callingBundleName);
+    WidgetClient::Instance().SetCallingBundleName(GetCallingBundleName());
     schedule_->StartSchedule();
 
     IAM_LOGI("WidgetContext start success.");
@@ -228,6 +230,7 @@ bool WidgetContext::OnStop()
 void WidgetContext::AuthResult(int32_t resultCode, int32_t authType, const Attributes &finalResult)
 {
     IAM_LOGI("recv task result: %{public}d, authType: %{public}d", resultCode, authType);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     int32_t remainTimes = -1;
     int32_t freezingTime = -1;
     if (!finalResult.GetInt32Value(Attributes::ATTR_REMAIN_TIMES, remainTimes)) {
@@ -258,6 +261,7 @@ void WidgetContext::AuthResult(int32_t resultCode, int32_t authType, const Attri
 void WidgetContext::AuthTipInfo(int32_t tipType, int32_t authType, const Attributes &extraInfo)
 {
     IAM_LOGI("recv tip: %{public}d, authType: %{public}d", tipType, authType);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     std::vector<uint8_t> tipInfo;
     bool getTipInfoRet = extraInfo.GetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, tipInfo);
     IF_FALSE_LOGE_AND_RETURN(getTipInfoRet);
@@ -488,7 +492,6 @@ bool WidgetContext::DisconnectExtension()
 void WidgetContext::End(const ResultCode &resultCode)
 {
     IAM_LOGI("in End, resultCode: %{public}d", static_cast<int32_t>(resultCode));
-    WidgetClient::Instance().Reset();
     StopAllRunTask(resultCode);
     IF_FALSE_LOGE_AND_RETURN(callerCallback_ != nullptr);
     Attributes attr;
@@ -522,6 +525,7 @@ void WidgetContext::End(const ResultCode &resultCode)
 void WidgetContext::StopAllRunTask(const ResultCode &resultCode)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
+    WidgetClient::Instance().Reset();
     for (auto &taskInfo : runTaskInfoList_) {
         IAM_LOGI("stop task");
         if (taskInfo.task == nullptr) {
@@ -608,6 +612,14 @@ void WidgetContext::ProcessRotatePara(WidgetCmdParameters &widgetCmdParameters,
             widgetCmdParameters.uiExtNodeAngle = TO_PORTRAIT_INVERTED;
         }
     }
+}
+
+std::string WidgetContext::GetCallingBundleName()
+{
+    if (para_.callerType == Security::AccessToken::TOKEN_HAP) {
+        return para_.callerName;
+    }
+    return "";
 }
 } // namespace UserAuth
 } // namespace UserIam
