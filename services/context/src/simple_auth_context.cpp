@@ -21,10 +21,12 @@
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
+#include "iam_time.h"
 #include "resource_node.h"
 #include "resource_node_utils.h"
 #include "schedule_node.h"
 #include "schedule_node_callback.h"
+#include "screen_unlock_after_auth_monitor.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 namespace OHOS {
@@ -143,6 +145,7 @@ bool SimpleAuthContext::OnStart()
 
 void SimpleAuthContext::OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr)
 {
+    const std::string SYSTEM_UI_CALLER_NAME = "com.ohos.sceneboard";
     IAM_LOGI("%{public}s receive result code %{public}d", GetDescription(), resultCode);
     Authentication::AuthResultInfo resultInfo = {};
     bool updateRet = UpdateScheduleResult(scheduleResultAttr, resultInfo);
@@ -158,6 +161,10 @@ void SimpleAuthContext::OnResult(int32_t resultCode, const std::shared_ptr<Attri
     }
     InvokeResultCallback(resultInfo);
     SendAuthExecutorMsg();
+    if (GetCallerName() == SYSTEM_UI_CALLER_NAME && resultInfo.result == SUCCESS) {
+        ScreenUnlockAfterAuthMonitor::GetInstance().OnAuthSuccess(AuthSuccessData{GetUserId(), GetAuthType(),
+            Common::GetNowTimeString() });
+    }
     IAM_LOGI("%{public}s on result %{public}d finish", GetDescription(), resultInfo.result);
 }
 

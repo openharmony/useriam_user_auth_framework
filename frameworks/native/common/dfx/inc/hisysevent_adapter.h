@@ -104,6 +104,12 @@ struct RemoteConnectFaultTrace {
     bool ack = false;
 };
 
+struct ReportAuthSuccessNoUnlockTrace {
+    int32_t userId = 0;
+    int32_t authType = 0;
+    std::string receiveResultTime;
+};
+
 void ReportSystemFault(const std::string &timeString, const std::string &moduleName);
 void ReportSecurityTemplateChange(const TemplateChangeTrace &info);
 void ReportBehaviorCredManager(const UserCredManagerTrace &info);
@@ -113,6 +119,7 @@ void ReportSecurityUserAuthFwk(const UserAuthFwkTrace &info);
 void ReportRemoteExecuteProc(const RemoteExecuteTrace &info);
 void ReportRemoteConnectOpen(const RemoteConnectOpenTrace &info);
 void ReportConnectFaultTrace(const RemoteConnectFaultTrace &info);
+void ReportAuthSuccessNoUnlock(const ReportAuthSuccessNoUnlockTrace &info);
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

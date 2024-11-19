@@ -71,6 +71,7 @@ ohos_unittest("iam_services_test") {
     "../../../services/context/src/remote_executor_stub.cpp",
     "../../../services/context/src/remote_iam_callback.cpp",
     "../../../services/context/src/schedule_holder_context.cpp",
+    "../../../services/context/src/screen_unlock_after_auth_monitor.cpp",
     "../../../services/context/src/simple_auth_context.cpp",
     "../../../services/context/src/trace.cpp",
     "../../../services/context/src/ui_extension_ability_connection.cpp",
