@@ -217,6 +217,19 @@ void ReportConnectFaultTrace(const RemoteConnectFaultTrace &info)
         << ", msgType:" << info.msgType << ", messageSeq" << "ack:" << info.ack;
     ReportSystemFault(Common::GetNowTimeString(), ss.str());
 }
+
+void ReportAuthSuccessNoUnlock(const ReportAuthSuccessNoUnlockTrace &info)
+{
+    std::string operationTime = Common::GetNowTimeString();
+    int32_t ret = HiSysEventWrite(HiSysEvent::Domain::USERIAM_FWK, "USERIAM_AUTH_SUCCESS_NO_UNLOCK",
+        HiSysEvent::EventType::FAULT,
+        STR_OPERATION_TIME, info.receiveResultTime,
+        STR_USER_ID, info.userId,
+        STR_AUTH_TYPE, info.authType);
+    if (ret != 0) {
+        IAM_LOGE("hisysevent write failed! ret %{public}d", ret);
+    }
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
