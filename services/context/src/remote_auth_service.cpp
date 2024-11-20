@@ -26,7 +26,6 @@
 #include "context_pool.h"
 #include "device_manager_util.h"
 #include "hdi_wrapper.h"
-#include "iam_para2str.h"
 #include "remote_executor_stub.h"
 #include "remote_iam_callback.h"
 #include "remote_msg_util.h"

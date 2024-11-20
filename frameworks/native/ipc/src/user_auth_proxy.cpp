@@ -193,7 +193,7 @@ void UserAuthProxy::SetProperty(int32_t userId, AuthType authType, const Attribu
 bool UserAuthProxy::WriteAuthParam(MessageParcel &data, const AuthParamInner &authParam)
 {
     if (!data.WriteInt32(authParam.userId)) {
-        IAM_LOGE("failed to write authType");
+        IAM_LOGE("failed to write userId");
         return false;
     }
     if (!data.WriteUInt8Vector(authParam.challenge)) {
