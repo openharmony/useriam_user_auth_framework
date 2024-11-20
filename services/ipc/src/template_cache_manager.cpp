@@ -188,7 +188,7 @@ void OsAccountIdSubscriber::OnAccountsChanged(const int& id)
 std::shared_ptr<OsAccountIdSubscriber> OsAccountIdSubscriber::GetInstance()
 {
     OsAccountSubscribeInfo subscribeInfo;
-    subscribeInfo.SetOsAccountSubscribeType(OS_ACCOUNT_SUBSCRIBE_TYPE::ACTIVED);
+    subscribeInfo.SetOsAccountSubscribeType(OS_ACCOUNT_SUBSCRIBE_TYPE::ACTIVATED);
 
     static auto subscriber = Common::MakeShared<OsAccountIdSubscriber>(subscribeInfo);
     if (subscriber == nullptr) {
