@@ -897,11 +897,21 @@ napi_value ReuseModeConstructor(napi_env env)
     napi_value reuseMode = nullptr;
     napi_value auth_type_relevant = nullptr;
     napi_value auth_type_irrelevant = nullptr;
+    napi_value caller_irrelevant_auth_type_relevant = nullptr;
+    napi_value caller_irrelevant_auth_type_irrelevant = nullptr;
     NAPI_CALL(env, napi_create_object(env, &reuseMode));
     NAPI_CALL(env, napi_create_int32(env, ReuseMode::AUTH_TYPE_RELEVANT, &auth_type_relevant));
     NAPI_CALL(env, napi_create_int32(env, ReuseMode::AUTH_TYPE_IRRELEVANT, &auth_type_irrelevant));
+    NAPI_CALL(env, napi_create_int32(
+        env, ReuseMode::CALLER_IRRELEVANT_AUTH_TYPE_RELEVANT, &caller_irrelevant_auth_type_relevant));
+    NAPI_CALL(env, napi_create_int32(
+        env, ReuseMode::CALLER_IRRELEVANT_AUTH_TYPE_IRRELEVANT, &caller_irrelevant_auth_type_irrelevant));
     NAPI_CALL(env, napi_set_named_property(env, reuseMode, "AUTH_TYPE_RELEVANT", auth_type_relevant));
     NAPI_CALL(env, napi_set_named_property(env, reuseMode, "AUTH_TYPE_IRRELEVANT", auth_type_irrelevant));
+    NAPI_CALL(env, napi_set_named_property(
+        env, reuseMode, "CALLER_IRRELEVANT_AUTH_TYPE_RELEVANT", caller_irrelevant_auth_type_relevant));
+    NAPI_CALL(env, napi_set_named_property(
+        env, reuseMode, "CALLER_IRRELEVANT_AUTH_TYPE_IRRELEVANT", caller_irrelevant_auth_type_irrelevant));
     return reuseMode;
 }
 
