@@ -39,6 +39,8 @@ public:
 
     UserAuthService();
     ~UserAuthService() override = default;
+    int32_t GetAvailableStatus(int32_t apiVersion, int32_t userId, AuthType authType,
+        AuthTrustLevel authTrustLevel) override;
     int32_t GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel) override;
     void GetProperty(int32_t userId, AuthType authType,
         const std::vector<Attributes::AttributeKey> &keys,
@@ -98,8 +100,8 @@ private:
     bool CheckAuthTypeIsValid(std::vector<AuthType> authType);
     int32_t CheckValidSolution(int32_t userId, const AuthParamInner &authParam, const WidgetParam &widgetParam,
         std::vector<AuthType> &validType);
-    int32_t GetCallerInfo(ContextFactory::AuthWidgetContextPara &para,
-        std::shared_ptr<ContextCallback> &contextCallback, bool &isBackgroundApplication);
+    int32_t GetCallerInfo(bool isUserIdSpecified, int32_t userId, ContextFactory::AuthWidgetContextPara &para,
+        bool &isBackgroundApplication, std::shared_ptr<ContextCallback> &contextCallback);
     void FillGetPropertyKeys(AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
         std::vector<uint32_t> &uint32Keys);
     void FillGetPropertyValue(AuthType authType, const std::vector<Attributes::AttributeKey> &keys, Attributes &values);
@@ -107,6 +109,8 @@ private:
     int32_t PrepareRemoteAuthInner(const std::string &networkId);
     bool GetAndUpateOsAccountVerifiedState(int32_t userId);
     std::shared_ptr<ResourceNode> GetResourseNode(AuthType authType);
+    int32_t GetAvailableStatusInner(int32_t apiVersion, int32_t userId, AuthType authType,
+        AuthTrustLevel authTrustLevel);
     static std::mutex mutex_;
     static std::shared_ptr<UserAuthService> instance_;
 

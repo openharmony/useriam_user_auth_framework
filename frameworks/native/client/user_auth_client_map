@@ -19,6 +19,7 @@
         OHOS::UserIam::UserAuth::UserAuthClientImpl::BeginNorthAuthentication*;
         OHOS::UserIam::UserAuth::UserAuthClientImpl::BeginWidgetAuth*;
         OHOS::UserIam::UserAuth::UserAuthClientImpl::GetVersion*;
+        OHOS::UserIam::UserAuth::UserAuthClientImpl::GetNorthAvailableStatus*;
         OHOS::UserIam::UserAuth::UserAuthClientImpl::GetAvailableStatus*;
         OHOS::UserIam::UserAuth::UserAuthClientImpl::SetWidgetCallback*;
         OHOS::UserIam::UserAuth::UserAuthClientImpl::Notice*;
