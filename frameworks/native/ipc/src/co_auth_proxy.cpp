@@ -19,6 +19,7 @@
 
 #include "iam_common_defines.h"
 #include "iam_logger.h"
+#include "user_auth_common_defines.h"
 
 #define LOG_TAG "AUTH_EXECUTOR_MGR_SDK"
 
@@ -73,7 +74,6 @@ int32_t CoAuthProxy::WriteExecutorInfo(const ExecutorRegisterInfo &info, Message
 uint64_t CoAuthProxy::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<ExecutorCallbackInterface> &callback)
 {
     IAM_LOGI("start");
-    const uint64_t BAD_CONTEXT_ID = 0;
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return BAD_CONTEXT_ID;
