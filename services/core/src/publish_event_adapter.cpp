@@ -38,9 +38,7 @@ const std::string USERIAM_COMMON_EVENT_SAMGR_PERMISSION = "ohos.permission.INTER
 void PublishEvent(EventFwk::CommonEventData data, const std::string &permission)
 {
     EventFwk::CommonEventPublishInfo publishInfo;
-    std::vector<std::string> permissions;
-    permissions.push_back(permission);
-    publishInfo.SetSubscriberPermissions(permissions);
+    publishInfo.SetSubscriberPermissions({permission});
     publishInfo.SetSticky(false);
     if (!EventFwk::CommonEventManager::PublishCommonEvent(data, publishInfo)) {
         IAM_LOGE("PublishCommonEvent failed, eventAction is %{public}s", data.GetWant().GetAction().c_str());

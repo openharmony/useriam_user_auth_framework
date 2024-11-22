@@ -325,7 +325,7 @@ napi_status UserAuthNapiHelper::GetStrValue(napi_env env, napi_value value, char
     if (result != napi_ok) {
         IAM_LOGE("napi_get_value_string_utf8 fail");
     }
-    if (out != nullptr && maxLen > 0) {
+    if (maxLen > 0) {
         out[maxLen - 1] = '\0';
     }
     return result;

@@ -353,11 +353,11 @@ bool UserAuthStub::ReadWidgetParam(MessageParcel &data, WidgetParam &widgetParam
 {
     if (!data.ReadString(widgetParam.title)) {
         IAM_LOGE("failed to read title");
-        return READ_PARCEL_ERROR;
+        return false;
     }
     if (!data.ReadString(widgetParam.navigationButtonText)) {
         IAM_LOGE("failed to read navigationButtonText");
-        return READ_PARCEL_ERROR;
+        return false;
     }
     int32_t winMode;
     if (!data.ReadInt32(winMode)) {
@@ -493,7 +493,11 @@ int32_t UserAuthStub::NoticeStub(MessageParcel &data, MessageParcel &reply)
         IAM_LOGE("NoticeStub unsupport notice type");
         return ResultCode::GENERAL_ERROR;
     }
-    std::string eventData = data.ReadString();
+    std::string eventData;
+    if (!data.ReadString(eventData)) {
+        IAM_LOGE("failed to read eventData");
+        return ResultCode::READ_PARCEL_ERROR;
+    }
 
     int32_t result = Notice(noticeType, eventData);
     if (!reply.WriteInt32(result)) {
@@ -664,7 +668,7 @@ int32_t UserAuthStub::SetGlobalConfigParamStub(MessageParcel &data, MessageParce
         return ret;
     }
     if (!data.ReadInt32Vector(&globalConfigParam.userIds)) {
-        IAM_LOGE("failed to write userIds");
+        IAM_LOGE("failed to read userIds");
         return READ_PARCEL_ERROR;
     }
     std::vector<int32_t> authTypeList;

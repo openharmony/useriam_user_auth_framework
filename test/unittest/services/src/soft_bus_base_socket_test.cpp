@@ -200,6 +200,7 @@ HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestSendRequest, TestSize.Level
     std::string destEndPoint = "456";
     std::shared_ptr<Attributes> attributes = Common::MakeShared<Attributes>();
     ASSERT_NE(attributes, nullptr);
+    attributes->SetInt32Value(Attributes::ATTR_MSG_TYPE, 1);
     MsgCallback callback;
     EXPECT_EQ(baseSocket->SendRequest(socketId, connectionName, srcEndPoint, destEndPoint, attributes,
         callback), GENERAL_ERROR);
@@ -215,6 +216,7 @@ HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestSendResponse, TestSize.Leve
     std::string destEndPoint = "456";
     std::shared_ptr<Attributes> attributes = Common::MakeShared<Attributes>();
     ASSERT_NE(attributes, nullptr);
+    attributes->SetInt32Value(Attributes::ATTR_MSG_TYPE, 1);
     uint32_t messageSeq = 123;
     EXPECT_EQ(baseSocket->SendResponse(socketId, connectionName, srcEndPoint, destEndPoint, attributes,
         messageSeq), GENERAL_ERROR);
