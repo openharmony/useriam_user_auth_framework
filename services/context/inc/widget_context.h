@@ -106,8 +106,9 @@ private:
     void StopAllRunTask(const ResultCode &resultCode);
     std::string BuildStartCommand(const WidgetRotatePara &widgetRotatePara);
     void ProcessRotatePara(WidgetCmdParameters &widgetCmdParameters, const WidgetRotatePara &widgetRotatePara);
-    bool isValidRotate(const WidgetRotatePara &widgetRotatePara);
+    bool IsValidRotate(const WidgetRotatePara &widgetRotatePara);
     std::string GetCallingBundleName();
+    bool IsSupportFollowCallerUi();
 
 private:
     struct TaskInfo {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,6 +22,7 @@
 #include <vector>
 
 #include "authentication_impl.h"
+#include "modal_callback_interface.h"
 #include "widget_callback_interface.h"
 #include "widget_json.h"
 #include "widget_schedule_node.h"
@@ -36,7 +37,7 @@ public:
     // sets
     void SetWidgetSchedule(const std::shared_ptr<WidgetScheduleNode> &schedule);
     void SetWidgetContextId(uint64_t contextId);
-    void SetWidgetParam(const WidgetParam &param);
+    void SetWidgetParam(const WidgetParamInner &param);
     void SetAuthTypeList(const std::vector<AuthType> &authTypeList);
     void SetWidgetCallback(const sptr<WidgetCallbackInterface> &callback);
     void SetAuthTokenId(uint32_t tokenId);
@@ -58,6 +59,9 @@ public:
     void SetChallenge(const std::vector<uint8_t> &challenge);
     void SetCallingBundleName(const std::string &callingBundleName);
 
+    void SetModalCallback(const sptr<ModalCallbackInterface> &callback);
+    void LaunchModal(const std::string &commandData);
+
 private:
     WidgetClient() = default;
     void SendCommand(const WidgetCommand &command);
@@ -68,7 +72,7 @@ private:
 private:
     std::shared_ptr<WidgetScheduleNode> schedule_ {nullptr};
     uint64_t widgetContextId_ {0};
-    WidgetParam widgetParam_ {};
+    WidgetParamInner widgetParam_ {};
     std::vector<AuthType> authTypeList_ {};
     sptr<WidgetCallbackInterface> widgetCallback_ {nullptr};
     std::string pinSubType_ {""};
@@ -76,6 +80,7 @@ private:
     uint32_t authTokenId_ {0};
     std::vector<uint8_t> challenge_ {};
     std::string callingBundleName_ {""};
+    sptr<ModalCallbackInterface> modalCallback_ {nullptr};
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -83,6 +83,31 @@ struct EnrolledState {
     uint16_t credentialCount {0};
 };
 
+/**
+ * @brief Auth widget parameter.
+ */
+struct WidgetParamInner {
+    /** Title of widget. */
+    std::string title;
+    /** The description text of navigation button. */
+    std::string navigationButtonText;
+    /** Full screen or not. */
+    WindowModeType windowMode;
+    /** Default has't context. */
+    bool hasContext {false};
+};
+
+/**
+ * @brief Cancel reason for user authentication.
+ */
+enum CancelReason : int32_t {
+    /** notice from widget. */
+    ORIGINAL_CANCEL = 0,
+    /** notice from widget. */
+    MODAL_CREATE_ERROR = 1,
+    /** notice from widget. */
+    MODAL_RUN_ERROR = 2,
+};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

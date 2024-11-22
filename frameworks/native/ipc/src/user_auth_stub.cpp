@@ -21,6 +21,7 @@
 #include "iam_logger.h"
 #include "iam_scope_guard.h"
 #include "iam_common_defines.h"
+#include "modal_callback_proxy.h"
 #include "user_auth_callback_proxy.h"
 #include "user_auth_event_listener_proxy.h"
 #include "widget_callback_proxy.h"
@@ -263,7 +264,7 @@ int32_t UserAuthStub::AuthWidgetStub(MessageParcel &data, MessageParcel &reply)
     ON_SCOPE_EXIT(IAM_LOGI("leave"));
 
     AuthParamInner authParam;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     if (!ReadWidgetAuthParam(data, authParam)) {
         IAM_LOGE("failed to read widget auth param");
         return ResultCode::READ_PARCEL_ERROR;
@@ -285,13 +286,20 @@ int32_t UserAuthStub::AuthWidgetStub(MessageParcel &data, MessageParcel &reply)
         return ResultCode::GENERAL_ERROR;
     }
 
+    sptr<IRemoteObject> objModal = data.ReadRemoteObject();
+    if (objModal == nullptr) {
+        IAM_LOGE("failed to read remote object for modal callback");
+        return ResultCode::READ_PARCEL_ERROR;
+    }
+    sptr<ModalCallbackInterface> modalCallback = iface_cast<ModalCallbackProxy>(objModal);
+
     int32_t apiVersion;
     if (!data.ReadInt32(apiVersion)) {
         IAM_LOGE("failed to read apiVersion");
         return ResultCode::READ_PARCEL_ERROR;
     }
 
-    uint64_t contextId = AuthWidget(apiVersion, authParam, widgetParam, callback);
+    uint64_t contextId = AuthWidget(apiVersion, authParam, widgetParam, callback, modalCallback);
     if (!reply.WriteUint64(contextId)) {
         IAM_LOGE("failed to write contextId");
         return ResultCode::WRITE_PARCEL_ERROR;
@@ -349,7 +357,7 @@ bool UserAuthStub::ReadWidgetAuthParam(MessageParcel &data, AuthParamInner &auth
     return true;
 }
 
-bool UserAuthStub::ReadWidgetParam(MessageParcel &data, WidgetParam &widgetParam)
+bool UserAuthStub::ReadWidgetParam(MessageParcel &data, WidgetParamInner &widgetParam)
 {
     if (!data.ReadString(widgetParam.title)) {
         IAM_LOGE("failed to read title");
@@ -365,6 +373,10 @@ bool UserAuthStub::ReadWidgetParam(MessageParcel &data, WidgetParam &widgetParam
         return false;
     }
     widgetParam.windowMode = static_cast<WindowModeType>(winMode);
+    if (!data.ReadBool(widgetParam.hasContext)) {
+        IAM_LOGE("failed to read hasContext");
+        return false;
+    }
     return true;
 }
 
@@ -452,7 +464,14 @@ int32_t UserAuthStub::CancelAuthOrIdentifyStub(MessageParcel &data, MessageParce
         return READ_PARCEL_ERROR;
     }
 
-    int32_t result = CancelAuthOrIdentify(contextId);
+    int32_t cancelReason;
+
+    if (!data.ReadInt32(cancelReason)) {
+        IAM_LOGE("failed to read cancelReason");
+        return READ_PARCEL_ERROR;
+    }
+
+    int32_t result = CancelAuthOrIdentify(contextId, cancelReason);
     if (!reply.WriteInt32(result)) {
         IAM_LOGE("failed to write CancelAuthOrIdentify result");
         return WRITE_PARCEL_ERROR;

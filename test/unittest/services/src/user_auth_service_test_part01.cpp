@@ -1068,10 +1068,11 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCancelAuthOrIdentify_001, TestSize.
 {
     UserAuthService service;
     uint64_t testContextId = 12355236;
-    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId), CHECK_PERMISSION_FAILED);
+    int32_t cancelReason = 0;
+    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId, cancelReason), CHECK_PERMISSION_FAILED);
 
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId), GENERAL_ERROR);
+    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId, cancelReason), GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1080,6 +1081,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCancelAuthOrIdentify_002, TestSize.
     UserAuthService service;
     uint64_t testContextId = 0x5678;
     uint32_t tokenId = 0x1234;
+    int32_t cancelReason = 0;
 
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     IpcCommon::SetAccessTokenId(0, true);
@@ -1094,11 +1096,11 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCancelAuthOrIdentify_002, TestSize.
 
     EXPECT_TRUE(ContextPool::Instance().Insert(context));
 
-    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId), INVALID_CONTEXT_ID);
+    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId, cancelReason), INVALID_CONTEXT_ID);
     IpcCommon::SetAccessTokenId(tokenId, true);
 
-    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId), GENERAL_ERROR);
-    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId), SUCCESS);
+    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId, cancelReason), GENERAL_ERROR);
+    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId, cancelReason), SUCCESS);
     EXPECT_TRUE(ContextPool::Instance().Delete(testContextId));
     IpcCommon::DeleteAllPermission();
 }
