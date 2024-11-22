@@ -51,11 +51,11 @@ public:
         sptr<UserAuthCallbackInterface> &callback) override;
     uint64_t Auth(int32_t apiVersion, const std::vector<uint8_t> &challenge, AuthType authType,
         AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) override;
-    uint64_t AuthWidget(int32_t apiVersion, const AuthParamInner &authParam,
-        const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback) override;
+    uint64_t AuthWidget(int32_t apiVersion, const AuthParamInner &authParam, const WidgetParamInner &widgetParam,
+        sptr<UserAuthCallbackInterface> &callback, sptr<ModalCallbackInterface> &modalCallback) override;
     uint64_t Identify(const std::vector<uint8_t> &challenge, AuthType authType,
         sptr<UserAuthCallbackInterface> &callback) override;
-    int32_t CancelAuthOrIdentify(uint64_t contextId) override;
+    int32_t CancelAuthOrIdentify(uint64_t contextId, int32_t cancelReason) override;
     int32_t GetVersion(int32_t &version) override;
     int32_t Notice(NoticeType noticeType, const std::string &eventData) override;
     int32_t RegisterWidgetCallback(int32_t version, sptr<WidgetCallbackInterface> &callback) override;
@@ -74,15 +74,15 @@ private:
     std::shared_ptr<ContextCallback> GetAuthContextCallback(int32_t apiVersion,
         const std::vector<uint8_t> &challenge, AuthType authType, AuthTrustLevel authTrustLevel,
         sptr<UserAuthCallbackInterface> &callback);
-    std::shared_ptr<ContextCallback> GetAuthContextCallback(int32_t apiVersion,
-        const AuthParamInner &authParam, const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback);
+    std::shared_ptr<ContextCallback> GetAuthContextCallback(int32_t apiVersion, const AuthParamInner &authParam,
+        const WidgetParamInner &widgetParam, sptr<UserAuthCallbackInterface> &callback);
     bool CheckAuthTrustLevel(AuthTrustLevel authTrustLevel);
     bool CheckSingeFaceOrFinger(const std::vector<AuthType> &authType);
     int32_t CheckAuthWidgetType(const std::vector<AuthType> &authType);
-    int32_t CheckAuthPermissionAndParam(const AuthParamInner &authParam, const WidgetParam &widgetParam,
+    int32_t CheckAuthPermissionAndParam(const AuthParamInner &authParam, const WidgetParamInner &widgetParam,
         bool isBackgroundApplication);
     uint64_t StartWidgetContext(const std::shared_ptr<ContextCallback> &contextCallback,
-        const AuthParamInner &authParam, const WidgetParam &widgetParam, std::vector<AuthType> &validType,
+        const AuthParamInner &authParam, const WidgetParamInner &widgetParam, std::vector<AuthType> &validType,
         ContextFactory::AuthWidgetContextPara &para);
     uint64_t StartAuthContext(int32_t apiVersion, Authentication::AuthenticationPara para,
         const std::shared_ptr<ContextCallback> &contextCallback);
@@ -98,7 +98,7 @@ private:
     bool CheckAuthPermissionAndParam(AuthType authType, AuthTrustLevel authTrustLevel,
         const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo);
     bool CheckAuthTypeIsValid(std::vector<AuthType> authType);
-    int32_t CheckValidSolution(int32_t userId, const AuthParamInner &authParam, const WidgetParam &widgetParam,
+    int32_t CheckValidSolution(int32_t userId, const AuthParamInner &authParam, const WidgetParamInner &widgetParam,
         std::vector<AuthType> &validType);
     int32_t GetCallerInfo(bool isUserIdSpecified, int32_t userId, ContextFactory::AuthWidgetContextPara &para,
         bool &isBackgroundApplication, std::shared_ptr<ContextCallback> &contextCallback);

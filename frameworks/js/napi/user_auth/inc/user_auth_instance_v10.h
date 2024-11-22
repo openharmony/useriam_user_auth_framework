@@ -20,9 +20,12 @@
 
 #include "nocopyable.h"
 
+#include "ability.h"
+
 #include "auth_common.h"
 #include "auth_instance_v9.h"
 #include "user_auth_callback_v10.h"
+#include "user_auth_napi_client_impl.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -50,9 +53,11 @@ private:
     UserAuthResultCode InitWidgetParam(napi_env env, napi_value value);
     std::shared_ptr<JsRefHolder> GetCallback(napi_env env, napi_value value);
     static napi_value DoGetEnrolledStateResult(napi_env env, EnrolledState enrolledState);
+    UserAuthResultCode ProcessContext(napi_env env, napi_value value);
+    bool CheckUIContext(const std::shared_ptr<OHOS::AbilityRuntime::Context> context);
 
-    WidgetAuthParam authParam_ = {};
-    WidgetParam widgetParam_ = {};
+    AuthParamInner authParam_ = {};
+    UserAuthNapiClientImpl::WidgetParamNapi widgetParam_ = {};
 
     uint64_t contextId_ = 0;
     bool isAuthStarted_ = false;

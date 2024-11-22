@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,6 +26,21 @@ namespace UserIam {
 namespace UserAuth {
 UserAuthCallbackService::UserAuthCallbackService(const std::shared_ptr<AuthenticationCallback> &impl)
     : authCallback_(impl),
+    iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("UserAuth InnerKit"))
+{
+    CallbackManager::CallbackAction action = [impl]() {
+        if (impl != nullptr) {
+            IAM_LOGI("user auth service death, auth callback return default result to caller");
+            Attributes extraInfo;
+            impl->OnResult(GENERAL_ERROR, extraInfo);
+        }
+    };
+    CallbackManager::GetInstance().AddCallback(reinterpret_cast<uintptr_t>(this), action);
+}
+
+UserAuthCallbackService::UserAuthCallbackService(const std::shared_ptr<AuthenticationCallback> &impl,
+    const std::shared_ptr<UserAuthModalCallback> &modalCallback)
+    : authCallback_(impl), modalCallback_(modalCallback),
     iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("UserAuth InnerKit"))
 {
     CallbackManager::CallbackAction action = [impl]() {
@@ -76,6 +91,15 @@ void UserAuthCallbackService::OnResult(int32_t result, const Attributes &extraIn
 {
     IAM_LOGI("start, result:%{public}d", result);
     if (authCallback_ != nullptr) {
+        if (modalCallback_ != nullptr) {
+            IAM_LOGI("IsModalInit :%{public}d, IsModalDestroy :%{public}d", modalCallback_->IsModalInit(),
+                modalCallback_->IsModalDestroy());
+            if (modalCallback_->IsModalInit() && !modalCallback_->IsModalDestroy()) {
+                const uint32_t sleepTime = 100000;
+                usleep(sleepTime);
+                IAM_LOGI("process result continue");
+            }
+        }
         authCallback_->OnResult(result, extraInfo);
     } else if (identifyCallback_ != nullptr) {
         identifyCallback_->OnResult(result, extraInfo);

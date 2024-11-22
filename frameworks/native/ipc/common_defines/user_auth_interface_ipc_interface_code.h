@@ -45,6 +45,7 @@ enum UserAuthInterfaceCode : uint32_t {
     USER_AUTH_EVENT_LISTENER_NOTIFY,
     USER_AUTH_SET_CLOBAL_CONFIG_PARAM,
     USER_AUTH_PREPARE_REMOTE_AUTH,
+    USER_AUTH_AUTH_MODAL_SEND_COMMAND,
 };
 } // namespace UserAuth
 } // namespace UserIam
