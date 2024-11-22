@@ -265,7 +265,8 @@ void FuzzCancelAuthOrIdentify(Parcel &parcel)
 {
     IAM_LOGI("begin");
     uint64_t contextId = parcel.ReadUint64();
-    g_userAuthService.CancelAuthOrIdentify(contextId);
+    int32_t cancelReason = parcel.ReadInt32();
+    g_userAuthService.CancelAuthOrIdentify(contextId, cancelReason);
     IAM_LOGI("end");
 }
 
@@ -282,7 +283,7 @@ void FuzzAuthWidget(Parcel &parcel)
     IAM_LOGI("begin");
     int32_t apiVersion = parcel.ReadInt32();
     AuthParamInner authParam;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     FillFuzzUint8Vector(parcel, authParam.challenge);
     std::vector<int32_t> atList;
     parcel.ReadInt32Vector(&atList);
@@ -297,7 +298,8 @@ void FuzzAuthWidget(Parcel &parcel)
     if (parcel.ReadBool()) {
         callback = sptr<UserAuthCallbackInterface>(new (std::nothrow) DummyUserAuthCallback());
     }
-    g_userAuthService.AuthWidget(apiVersion, authParam, widgetParam, callback);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    g_userAuthService.AuthWidget(apiVersion, authParam, widgetParam, callback, testModalCallback);
     IAM_LOGI("end");
 }
 
@@ -376,7 +378,7 @@ void FuzzCheckValidSolution(Parcel &parcel)
         .authType = static_cast<AuthType>(parcel.ReadInt32()),
         .authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32()),
     };
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = parcel.ReadString();
     widgetParam.navigationButtonText = parcel.ReadString();
     widgetParam.windowMode = static_cast<WindowModeType>(parcel.ReadInt32());
@@ -411,7 +413,7 @@ void FuzzGetAuthContextCallback(Parcel &parcel)
     IAM_LOGI("begin");
     int32_t apiVersion = parcel.ReadInt32();
     AuthParamInner authParam = {};
-    WidgetParam widgetParam = {};
+    WidgetParamInner widgetParam = {};
     sptr<UserAuthCallbackInterface> callback = sptr<UserAuthCallbackInterface>(new (nothrow) DummyUserAuthCallback);
     g_userAuthService.GetAuthContextCallback(apiVersion, authParam, widgetParam, callback);
     authParam.authTypes = {PIN, FACE, FINGERPRINT};
@@ -507,7 +509,7 @@ void FuzzStartWidgetContext(Parcel &parcel)
     sptr<IamCallbackInterface> iamCallback = sptr<IamCallbackInterface>(new (nothrow) DummyIamCallbackInterface);
     std::shared_ptr<ContextCallback> contextCallback = ContextCallback::NewInstance(iamCallback, TRACE_ADD_CREDENTIAL);
     AuthParamInner authParam = {};
-    WidgetParam widgetParam = {};
+    WidgetParamInner widgetParam = {};
     std::vector<AuthType> validType = {PIN};
     ContextFactory::AuthWidgetContextPara para;
     g_userAuthService.StartWidgetContext(contextCallback, authParam, widgetParam, validType, para);

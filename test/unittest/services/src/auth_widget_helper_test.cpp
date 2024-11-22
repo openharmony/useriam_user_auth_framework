@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -63,7 +63,7 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam001, Te
     authParam.authTypes.push_back(PIN);
     authParam.authTypes.push_back(FINGERPRINT);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "确定";
     ContextFactory::AuthWidgetContextPara para;
@@ -80,7 +80,7 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam002, Te
     authParam.authTypes.push_back(PIN);
     authParam.authTypes.push_back(FINGERPRINT);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "确定";
     ContextFactory::AuthWidgetContextPara para;

@@ -784,13 +784,15 @@ HWTEST_F(UserAuthStubTest, UserAuthStubCancelAuthOrIdentifyStub001, TestSize.Lev
 HWTEST_F(UserAuthStubTest, UserAuthStubCancelAuthOrIdentifyStub002, TestSize.Level0)
 {
     uint64_t testContextId = 9346248;
+    int32_t testCancelReason = 0;
 
     MockUserAuthService service;
-    EXPECT_CALL(service, CancelAuthOrIdentify(_)).Times(1);
+    EXPECT_CALL(service, CancelAuthOrIdentify(_, _)).Times(1);
     ON_CALL(service, CancelAuthOrIdentify)
         .WillByDefault(
-            [&testContextId](uint64_t contextId) {
+            [&testContextId, &testCancelReason](uint64_t contextId, int32_t cancelReason) {
                 EXPECT_EQ(contextId, testContextId);
+                EXPECT_EQ(cancelReason, testCancelReason);
                 return SUCCESS;
             }
         );
@@ -802,6 +804,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubCancelAuthOrIdentifyStub002, TestSize.Lev
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteUint64(testContextId));
+    EXPECT_TRUE(data.WriteInt32(testCancelReason));
 
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
     int32_t result = FAIL;
@@ -812,13 +815,15 @@ HWTEST_F(UserAuthStubTest, UserAuthStubCancelAuthOrIdentifyStub002, TestSize.Lev
 HWTEST_F(UserAuthStubTest, UserAuthStubCancelAuthOrIdentifyStub003, TestSize.Level0)
 {
     uint64_t testContextId = 9346248;
+    int32_t testCancelReason = 0;
 
     MockUserAuthService service;
-    EXPECT_CALL(service, CancelAuthOrIdentify(_)).Times(1);
+    EXPECT_CALL(service, CancelAuthOrIdentify(_, _)).Times(1);
     ON_CALL(service, CancelAuthOrIdentify)
         .WillByDefault(
-            [&testContextId](uint64_t contextId) {
+            [&testContextId, &testCancelReason](uint64_t contextId, int32_t cancelReason) {
                 EXPECT_EQ(contextId, testContextId);
+                EXPECT_EQ(cancelReason, testCancelReason);
                 return SUCCESS;
             }
         );
@@ -830,6 +835,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubCancelAuthOrIdentifyStub003, TestSize.Lev
 
     EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
     EXPECT_TRUE(data.WriteUint64(testContextId));
+    EXPECT_TRUE(data.WriteInt32(testCancelReason));
 
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
     int32_t result = FAIL;
