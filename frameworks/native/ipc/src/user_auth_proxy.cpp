@@ -333,7 +333,8 @@ uint64_t UserAuthProxy::Auth(int32_t apiVersion, const std::vector<uint8_t> &cha
 }
 
 uint64_t UserAuthProxy::AuthWidget(int32_t apiVersion, const AuthParamInner &authParam,
-    const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback)
+    const WidgetParamInner &widgetParam, sptr<UserAuthCallbackInterface> &callback,
+    sptr<ModalCallbackInterface> &modalCallback)
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
@@ -359,6 +360,11 @@ uint64_t UserAuthProxy::AuthWidget(int32_t apiVersion, const AuthParamInner &aut
 
     if (!data.WriteRemoteObject(callback->AsObject())) {
         IAM_LOGE("failed to write callback");
+        return BAD_CONTEXT_ID;
+    }
+
+    if (!data.WriteRemoteObject(modalCallback->AsObject())) {
+        IAM_LOGE("failed to write modal callback");
         return BAD_CONTEXT_ID;
     }
 
@@ -422,7 +428,7 @@ bool UserAuthProxy::WriteWidgetAuthParam(MessageParcel &data, const AuthParamInn
     return true;
 }
 
-bool UserAuthProxy::WriteWidgetParam(MessageParcel &data, const WidgetParam &widgetParam)
+bool UserAuthProxy::WriteWidgetParam(MessageParcel &data, const WidgetParamInner &widgetParam)
 {
     if (!data.WriteString(widgetParam.title)) {
         IAM_LOGE("failed to write title");
@@ -434,6 +440,10 @@ bool UserAuthProxy::WriteWidgetParam(MessageParcel &data, const WidgetParam &wid
     }
     if (!data.WriteInt32(static_cast<int32_t>(widgetParam.windowMode))) {
         IAM_LOGE("failed to write window mode");
+        return false;
+    }
+    if (!data.WriteBool(widgetParam.hasContext)) {
+        IAM_LOGE("failed to write hasContext");
         return false;
     }
     return true;
@@ -520,7 +530,7 @@ uint64_t UserAuthProxy::Identify(const std::vector<uint8_t> &challenge, AuthType
     return result;
 }
 
-int32_t UserAuthProxy::CancelAuthOrIdentify(uint64_t contextId)
+int32_t UserAuthProxy::CancelAuthOrIdentify(uint64_t contextId, int32_t cancelReason)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -531,6 +541,10 @@ int32_t UserAuthProxy::CancelAuthOrIdentify(uint64_t contextId)
     }
     if (!data.WriteUint64(contextId)) {
         IAM_LOGE("failed to write contextId");
+        return GENERAL_ERROR;
+    }
+    if (!data.WriteInt32(cancelReason)) {
+        IAM_LOGE("failed to write cancelReason");
         return GENERAL_ERROR;
     }
 

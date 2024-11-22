@@ -41,6 +41,7 @@ ohos_source_set("userauth_client_ipc") {
     "src/co_auth_proxy.cpp",
     "src/executor_callback_stub.cpp",
     "src/executor_messenger_proxy.cpp",
+    "src/modal_callback_stub.cpp",
     "src/user_auth_callback_stub.cpp",
     "src/user_auth_event_listener_stub.cpp",
     "src/user_auth_proxy.cpp",
@@ -58,6 +59,14 @@ ohos_source_set("userauth_client_ipc") {
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   external_deps = [
+    "ability_base:want",
+    "ability_runtime:ability_context_native",
+    "ability_runtime:ability_manager",
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:app_context",
+    "ability_runtime:napi_base_context",
+    "ability_runtime:ui_extension",
+    "ace_engine:ace_uicontent",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_single",
@@ -88,6 +97,7 @@ ohos_source_set("userauth_service_ipc") {
     "src/co_auth_stub.cpp",
     "src/executor_callback_proxy.cpp",
     "src/executor_messenger_stub.cpp",
+    "src/modal_callback_proxy.cpp",
     "src/user_auth_callback_proxy.cpp",
     "src/user_auth_event_listener_proxy.cpp",
     "src/user_auth_stub.cpp",
@@ -105,6 +115,7 @@ ohos_source_set("userauth_service_ipc") {
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   external_deps = [
+    "ace_engine:ace_uicontent",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_single",

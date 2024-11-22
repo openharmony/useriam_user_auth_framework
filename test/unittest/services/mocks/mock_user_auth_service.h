@@ -18,6 +18,7 @@
 #include <gmock/gmock.h>
 
 #include "user_auth_stub.h"
+#include "modal_callback_stub.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -48,13 +49,14 @@ public:
         uint64_t(int32_t apiVersion, const std::vector<uint8_t> &challenge, AuthType authType,
             AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback));
 
-    MOCK_METHOD4(AuthWidget, uint64_t(int32_t apiVersion, const AuthParamInner &authParam,
-        const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback));
+    MOCK_METHOD5(AuthWidget, uint64_t(int32_t apiVersion, const AuthParamInner &authParam,
+        const WidgetParamInner &widgetParam, sptr<UserAuthCallbackInterface> &callback,
+        sptr<ModalCallbackInterface> &modalCallback));
 
     MOCK_METHOD3(Identify,
         uint64_t(const std::vector<uint8_t> &challenge, AuthType authType, sptr<UserAuthCallbackInterface> &callback));
 
-    MOCK_METHOD1(CancelAuthOrIdentify, int32_t(uint64_t contextId));
+    MOCK_METHOD2(CancelAuthOrIdentify, int32_t(uint64_t contextId, int32_t cancelReason));
     MOCK_METHOD1(GetVersion, int32_t(int32_t &version));
     MOCK_METHOD2(Notice, int32_t(NoticeType noticeType, const std::string &eventData));
     MOCK_METHOD2(RegisterWidgetCallback, int32_t(int32_t version, sptr<WidgetCallbackInterface> &callback));
