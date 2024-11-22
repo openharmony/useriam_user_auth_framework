@@ -955,9 +955,7 @@ bool Attributes::Impl::DecodeStringValue(const std::vector<uint8_t> &src, std::s
         return false;
     }
 
-    std::string out(static_cast<const char *>(static_cast<const void *>(src.data())));
-
-    dst.swap(out);
+    dst.assign(src.begin(), src.end() -1);
     return true;
 }
 

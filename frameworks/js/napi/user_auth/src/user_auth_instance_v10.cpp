@@ -334,8 +334,8 @@ UserAuthResultCode UserAuthInstanceV10::InitWidgetParam(napi_env env, napi_value
         return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     std::string title = UserAuthNapiHelper::GetStringPropertyUtf8(env, value, WIDGET_PARAM_TITLE);
-    if (title == "" || title.length() > WidgetType::TITLE_MAX) {
-        IAM_LOGE("title is invalid. size: %{public}zu", title.length());
+    if (title == "" || title.size() > WidgetType::TITLE_MAX) {
+        IAM_LOGE("title is invalid. size: %{public}zu", title.size());
         std::string msgStr = "Parameter error. The length of \"title\" connot exceed 500.";
         return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
@@ -343,8 +343,8 @@ UserAuthResultCode UserAuthInstanceV10::InitWidgetParam(napi_env env, napi_value
 
     if (UserAuthNapiHelper::HasNamedProperty(env, value, WIDGET_PARAM_NAVIBTNTEXT)) {
         std::string naviBtnTxt = UserAuthNapiHelper::GetStringPropertyUtf8(env, value, WIDGET_PARAM_NAVIBTNTEXT);
-        if (naviBtnTxt == "" || naviBtnTxt.length() > WidgetType::BUTTON_MAX) {
-            IAM_LOGE("navigation button text is invalid, size: %{public}zu", naviBtnTxt.length());
+        if (naviBtnTxt == "" || naviBtnTxt.size() > WidgetType::BUTTON_MAX) {
+            IAM_LOGE("navigation button text is invalid, size: %{public}zu", naviBtnTxt.size());
             std::string msgStr = "Parameter error. The length of \"navigationButtonText\" connot exceed 60.";
             return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
         }

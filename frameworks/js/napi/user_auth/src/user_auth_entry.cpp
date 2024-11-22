@@ -254,7 +254,7 @@ napi_status UnwrapAuthInstanceV10(napi_env env, napi_callback_info info, UserAut
         return ret;
     }
     if (*authInstanceV10 == nullptr) {
-        IAM_LOGE("authInstanceV9 is null");
+        IAM_LOGE("authInstanceV10 is null");
         return napi_generic_failure;
     }
     return ret;
