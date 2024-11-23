@@ -506,14 +506,17 @@ bool WidgetContext::DisconnectExtension()
 {
     IAM_LOGI("has context: %{public}d", para_.widgetParam.hasContext);
     if (para_.widgetParam.hasContext) {
-        // As modal application, need't release.
+        // As modal application release.
+        WidgetClient::Instance().CancelAuth();
+        WidgetClient::Instance().ReleaseModal();
         return true;
     }
+    // Default as modal system release.
     if (connection_ == nullptr) {
         IAM_LOGE("invalid connection handle");
         return false;
     }
-    WidgetClient::Instance().ForceStopAuth();
+    WidgetClient::Instance().CancelAuth();
     connection_->ReleaseUIExtensionComponent();
     ErrCode ret = AAFwk::ExtensionManagerClient::GetInstance().DisconnectAbility(connection_);
     connection_ = nullptr;
