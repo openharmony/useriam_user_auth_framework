@@ -43,7 +43,7 @@ void UserAuthModalCallback::SendCommand(uint64_t contextId, const std::string &c
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (context_ != nullptr) {
         IAM_LOGI("widgetParam context not null, process as modal application");
-        if (contextId == 0 && cmdData.empty()) {
+        if (contextId == 0 || cmdData.empty()) {
             IAM_LOGI("stop modal");
             isInitError_ = true;
             CancelAuthentication(contextId);
