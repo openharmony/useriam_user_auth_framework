@@ -41,6 +41,7 @@ const std::string AUTH_PARAM_CHALLENGE = "challenge";
 const std::string AUTH_PARAM_AUTHTYPE = "authType";
 const std::string AUTH_PARAM_AUTHTRUSTLEVEL = "authTrustLevel";
 const std::string AUTH_PARAM_REUSEUNLOCKRESULT = "reuseUnlockResult";
+const std::string AUTH_PARAM_USER_ID = "userId";
 const std::string WIDGET_PARAM_TITLE = "title";
 const std::string WIDGET_PARAM_NAVIBTNTEXT = "navigationButtonText";
 const std::string WIDGET_PARAM_WINDOWMODE = "windowMode";
@@ -123,6 +124,7 @@ UserAuthInstanceV10::UserAuthInstanceV10(napi_env env) : callback_(Common::MakeS
         IAM_LOGE("get null callback");
     }
     authParam_.authTrustLevel = AuthTrustLevel::ATL1;
+    authParam_.userId = INVALID_USER_ID;
     widgetParam_.navigationButtonText = "";
     widgetParam_.title = "";
     widgetParam_.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
@@ -258,6 +260,48 @@ UserAuthResultCode UserAuthInstanceV10::InitReuseUnlockResult(napi_env env, napi
     return UserAuthResultCode::SUCCESS;
 }
 
+UserAuthResultCode UserAuthInstanceV10::InitUserId(napi_env env, napi_value value)
+{
+    napi_status ret = UserAuthNapiHelper::GetInt32Value(env, value, authParam_.userId);
+    if (ret != napi_ok) {
+        IAM_LOGE("GetUint32Value fail:%{public}d", ret);
+        std::string msgStr = "Parameter error. The type of \"userId\" must be number.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
+    }
+    if (authParam_.userId < 0) {
+        IAM_LOGE("GetInt32Value fail:%{public}d", ret);
+        std::string msgStr = "Parameter error. The \"userId\" must be greater than or equal to 0";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
+    }
+    IAM_LOGI("InitUserId userId: %{public}d", authParam_.userId);
+    return UserAuthResultCode::SUCCESS;
+}
+ 
+UserAuthResultCode UserAuthInstanceV10::ProcessAuthTrustLevelAndUserId(napi_env env, napi_value value)
+{
+    if (!UserAuthNapiHelper::HasNamedProperty(env, value, AUTH_PARAM_AUTHTRUSTLEVEL)) {
+        IAM_LOGE("propertyName: %{public}s not exists.", AUTH_PARAM_AUTHTRUSTLEVEL.c_str());
+        std::string msgStr = "Parameter error. \"authTrustLevel\" is a mandatory parameter and is left unspecified.";
+        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
+    }
+    napi_value napi_authTrustLevel = UserAuthNapiHelper::GetNamedProperty(env, value, AUTH_PARAM_AUTHTRUSTLEVEL);
+    UserAuthResultCode errorCode = InitAuthTrustLevel(env, napi_authTrustLevel);
+    if (errorCode != UserAuthResultCode::SUCCESS) {
+        IAM_LOGE("InitAuthTrustLevel fail:%{public}d", errorCode);
+        return errorCode;
+    }
+ 
+    if (UserAuthNapiHelper::HasNamedProperty(env, value, AUTH_PARAM_USER_ID)) {
+        napi_value napi_userId = UserAuthNapiHelper::GetNamedProperty(env, value, AUTH_PARAM_USER_ID);
+        errorCode = InitUserId(env, napi_userId);
+        if (errorCode != UserAuthResultCode::SUCCESS) {
+            IAM_LOGE("InitUserId fail:%{public}d", errorCode);
+            return errorCode;
+        }
+    }
+    return UserAuthResultCode::SUCCESS;
+}
+
 UserAuthResultCode UserAuthInstanceV10::InitAuthParam(napi_env env, napi_value value)
 {
     napi_status ret = UserAuthNapiHelper::CheckNapiType(env, value, napi_null);
@@ -290,20 +334,15 @@ UserAuthResultCode UserAuthInstanceV10::InitAuthParam(napi_env env, napi_value v
         IAM_LOGE("InitAuthType fail:%{public}d", errorCode);
         return errorCode;
     }
-
-    if (!UserAuthNapiHelper::HasNamedProperty(env, value, AUTH_PARAM_AUTHTRUSTLEVEL)) {
-        IAM_LOGE("propertyName: %{public}s not exists.", AUTH_PARAM_AUTHTRUSTLEVEL.c_str());
-        std::string msgStr = "Parameter error. \"authTrustLevel\" is a mandatory parameter and is left unspecified.";
-        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
-    }
-    napi_value napi_authTrustLevel = UserAuthNapiHelper::GetNamedProperty(env, value, AUTH_PARAM_AUTHTRUSTLEVEL);
-    errorCode = InitAuthTrustLevel(env, napi_authTrustLevel);
-    if (errorCode != UserAuthResultCode::SUCCESS) {
-        IAM_LOGE("InitAuthTrustLevel fail:%{public}d", errorCode);
-        return errorCode;
-    }
+    
     errorCode = ProcessReuseUnlockResult(env, value);
     if (errorCode != UserAuthResultCode::SUCCESS) {
+        return errorCode;
+    }
+
+    errorCode = ProcessAuthTrustLevelAndUserId(env, value);
+    if (errorCode != UserAuthResultCode::SUCCESS) {
+        IAM_LOGE("ProcessAuthTrustLevelAndUserId fail:%{public}d", errorCode);
         return errorCode;
     }
     return UserAuthResultCode::SUCCESS;

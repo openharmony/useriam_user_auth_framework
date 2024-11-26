@@ -630,6 +630,7 @@ std::string WidgetContext::BuildStartCommand(const WidgetRotatePara &widgetRotat
     }
     widgetCmdParameters.useriamCmdData.typeList = typeList;
     widgetCmdParameters.useriamCmdData.callingAppID = para_.callingAppID;
+    widgetCmdParameters.useriamCmdData.userId = para_.userId;
     ProcessRotatePara(widgetCmdParameters, widgetRotatePara);
     nlohmann::json root = widgetCmdParameters;
     std::string cmdData = root.dump();
