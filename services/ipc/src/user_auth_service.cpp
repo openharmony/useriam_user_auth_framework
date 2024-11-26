@@ -68,7 +68,6 @@ int32_t GetTemplatesByAuthType(int32_t userId, AuthType authType, std::vector<ui
         IAM_LOGE("user %{public}d has no credential type %{public}d", userId, authType);
         return SUCCESS;
     }
-    
     templateIds.reserve(credentialInfos.size());
     for (auto &info : credentialInfos) {
         if (info == nullptr) {
@@ -834,6 +833,23 @@ bool UserAuthService::CheckSingeFaceOrFinger(const std::vector<AuthType> &authTy
     return false;
 }
 
+int32_t UserAuthService::CheckCallerPermissionForUserId(const AuthParamInner &authParam)
+{
+    int32_t userId = INVALID_USER_ID;
+    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
+        IAM_LOGE("failed to get callingUserId");
+        return GENERAL_ERROR;
+    }
+    if (IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+        return SUCCESS;
+    }
+    if (IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION) && authParam.userId == userId) {
+        return SUCCESS;
+    }
+    IAM_LOGE("CheckPermission failed");
+    return CHECK_PERMISSION_FAILED;
+}
+
 int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authParam,
     const WidgetParamInner &widgetParam, bool isBackgroundApplication)
 {
@@ -846,7 +862,7 @@ int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authP
         IAM_LOGE("CheckPermission failed");
         return CHECK_PERMISSION_FAILED;
     }
-    if (authParam.isUserIdSpecified && !IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+    if (authParam.isUserIdSpecified && CheckCallerPermissionForUserId(authParam) != SUCCESS) {
         IAM_LOGE("CheckPermission failed");
         return CHECK_PERMISSION_FAILED;
     }
