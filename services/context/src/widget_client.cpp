@@ -95,6 +95,10 @@ void WidgetClient::ProcessNotice(const WidgetNotice &notice, std::vector<AuthTyp
     if (notice.event == NOTICE_EVENT_AUTH_READY) {
         schedule_->StartAuthList(authTypeList, notice.endAfterFirstFail, notice.authIntent);
     } else if (notice.event == NOTICE_EVENT_CANCEL_AUTH) {
+        if (notice.widgetContextId != widgetContextId_) {
+            IAM_LOGE("Invalid widgetContextId ****%{public}hx", static_cast<uint16_t>(widgetContextId_));
+            return;
+        }
         if (authTypeList.size() == 1 && authTypeList[0] == AuthType::ALL) {
             schedule_->StopSchedule();
         } else {
@@ -227,11 +231,19 @@ void WidgetClient::Reset()
 
 void WidgetClient::ForceStopAuth()
 {
-    IAM_LOGE("Stop Auth process forcely by disconnect");
+    IAM_LOGE("stop auth process forcely by disconnect");
     if (widgetContextId_ != 0) {
         IAM_LOGE("widget context id hasn't been reset");
         UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "AuthWidget");
     }
+    if (schedule_ != nullptr) {
+        schedule_->StopSchedule();
+    }
+}
+
+void WidgetClient::CancelAuth()
+{
+    IAM_LOGE("cancel auth process forcely");
     if (schedule_ != nullptr) {
         schedule_->StopSchedule();
     }

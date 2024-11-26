@@ -53,6 +53,7 @@ public:
     void SetSensorInfo(const std::string &info);
     void Reset();
     void ForceStopAuth();
+    void CancelAuth();
 
     // extra info
     void SetChallenge(const std::vector<uint8_t> &challenge);
