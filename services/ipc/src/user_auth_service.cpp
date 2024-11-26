@@ -1001,7 +1001,20 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParamInner &a
         para.isPinExpired = true;
         validType.emplace_back(AuthType::PIN);
     }
+    ProcessWidgetSessionExclusive();
     return StartWidgetContext(contextCallback, authParam, widgetParam, validType, para);
+}
+
+void UserAuthService::ProcessWidgetSessionExclusive()
+{
+    auto contextList = ContextPool::Instance().Select(ContextType::WIDGET_AUTH_CONTEXT);
+    for (const auto &context : contextList) {
+        if (auto ctx = context.lock(); ctx != nullptr) {
+            IAM_LOGE("widget session exclusive, force stop the old context ****%{public}hx",
+                static_cast<uint16_t>(ctx->GetContextId()));
+            ctx->Stop();
+        }
+    }
 }
 
 bool UserAuthService::Insert2ContextPool(const std::shared_ptr<Context> &context)
