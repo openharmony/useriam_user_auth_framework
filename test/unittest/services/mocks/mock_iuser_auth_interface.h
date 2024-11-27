@@ -81,6 +81,7 @@ public:
     MOCK_METHOD1(SetGlobalConfigParam, int32_t(const HdiGlobalConfigParam &param));
     MOCK_METHOD3(GetAuthResultFromMessage, int32_t(
         const std::string &remoteUdid, const std::vector<uint8_t> &message, HdiAuthResultInfo &authResultInfo));
+    MOCK_METHOD2(GetCredentialById, int32_t(uint64_t credentialId, HdiCredentialInfo &info));
 };
 
 class MockIUserAuthInterface::Holder : public Singleton<MockIUserAuthInterface::Holder> {
