@@ -200,6 +200,16 @@ public:
     {
         return 0;
     }
+    int32_t VerifyAuthToken(const std::vector<uint8_t>& tokenIn, uint64_t allowableDuration,
+        HdiUserAuthTokenPlain &tokenPlainOut, std::vector<uint8_t>& rootSecret)
+    {
+        return RESULT_SUCCESS;
+    }
+
+    int32_t GetCredentialById(uint64_t credentialId, HdiCredentialInfo &info)
+    {
+        return RESULT_SUCCESS;
+    }
 };
 
 class MockIUserAuthInterface::Holder : public Singleton<MockIUserAuthInterface::Holder> {
