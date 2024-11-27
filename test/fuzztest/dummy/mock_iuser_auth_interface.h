@@ -200,6 +200,10 @@ public:
     {
         return 0;
     }
+    int32_t GetCredentialById(uint64_t credentialId, HdiCredentialInfo &info)
+    {
+        return 0;
+    }
 };
 
 class MockIUserAuthInterface::Holder : public Singleton<MockIUserAuthInterface::Holder> {
