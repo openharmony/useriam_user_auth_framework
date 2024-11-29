@@ -40,7 +40,7 @@ int32_t AuthEventListenerManager::RegistUserAuthSuccessEventListener(const std::
     IAM_LOGI("start");
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, GENERAL_ERROR);
 
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     int32_t result = AddDeathRecipient(listener);
     if (result != SUCCESS) {
         IAM_LOGE("AddDeathRecipient fail");
@@ -59,7 +59,7 @@ int32_t AuthEventListenerManager::UnRegistUserAuthSuccessEventListener(const spt
     IAM_LOGI("start");
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, GENERAL_ERROR);
 
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     int32_t result = RemoveDeathRecipient(listener);
     if (result != SUCCESS) {
         IAM_LOGE("RemoveDeathRecipient fail");
@@ -103,7 +103,7 @@ void AuthEventListenerManager::RemoveAuthSuccessEventListener(AuthType authType,
 
 std::set<sptr<AuthEventListenerInterface>> AuthEventListenerManager::GetListenerSet(AuthType authType)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     std::set<sptr<AuthEventListenerInterface>> listenerSet(eventListenerMap_[authType]);
     return listenerSet;
 }
@@ -183,6 +183,7 @@ int32_t AuthEventListenerManager::RemoveDeathRecipient(const sptr<AuthEventListe
 std::map<sptr<AuthEventListenerInterface>, sptr<DeathRecipient>> AuthEventListenerManager::GetDeathRecipientMap()
 {
     IAM_LOGI("start");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     return deathRecipientMap_;
 }
 
