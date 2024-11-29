@@ -49,7 +49,7 @@ protected:
     void AddAuthSuccessEventListener(AuthType authType, const sptr<AuthEventListenerInterface> &listener);
     void RemoveAuthSuccessEventListener(AuthType authType, const sptr<AuthEventListenerInterface> &listener);
     std::set<sptr<AuthEventListenerInterface>> GetListenerSet(AuthType authType);
-    std::mutex mutex_;
+    std::recursive_mutex mutex_;
     std::map<AuthType, std::set<sptr<AuthEventListenerInterface>>> eventListenerMap_;
     std::map<sptr<AuthEventListenerInterface>, sptr<DeathRecipient>> deathRecipientMap_;
 
