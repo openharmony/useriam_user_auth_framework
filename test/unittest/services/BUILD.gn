@@ -27,6 +27,7 @@ ohos_unittest("iam_services_test") {
   branch_protector_ret = "pac_ret"
 
   cflags = [
+    "-DIAM_TEST_ENABLE",
     "-Dprivate=public",
     "-Dprotected=public",
   ]

@@ -448,6 +448,9 @@ int32_t WidgetContext::ConnectExtensionAbility(const AAFwk::Want &want, const st
     }
 
     std::string identity = IPCSkeleton::ResetCallingIdentity();
+#ifdef IAM_TEST_ENABLE
+    return SUCCESS;
+#endif
     auto ret = AAFwk::ExtensionManagerClient::GetInstance().ConnectServiceExtensionAbility(want, connection_, nullptr,
         DEFAULT_VALUE);
     IPCSkeleton::SetCallingIdentity(identity);
