@@ -219,8 +219,7 @@ ResultCode BaseSocket::SendRequest(const int32_t socketId, const std::string &co
 
     int32_t messageSeq = GetMessageSeq();
     int32_t msgType = -1;
-    bool isGetVal = attributes->GetInt32Value(Attributes::ATTR_MSG_TYPE, msgType);
-    IF_FALSE_LOGE_AND_RETURN_VAL(isGetVal, INVALID_PARAMETERS);
+    attributes->GetInt32Value(Attributes::ATTR_MSG_TYPE, msgType);
     RefreshTraceInfo(connectionName, msgType, false, messageSeq);
     std::shared_ptr<SoftBusMessage> softBusMessage = Common::MakeShared<SoftBusMessage>(messageSeq,
         connectionName, srcEndPoint, destEndPoint, attributes);
@@ -261,8 +260,7 @@ ResultCode BaseSocket::SendResponse(const int32_t socketId, const std::string &c
     IF_FALSE_LOGE_AND_RETURN_VAL(attributes != nullptr, INVALID_PARAMETERS);
     IF_FALSE_LOGE_AND_RETURN_VAL(socketId != INVALID_SOCKET_ID, INVALID_PARAMETERS);
     int32_t msgType = -1;
-    bool isGetVal = attributes->GetInt32Value(Attributes::ATTR_MSG_TYPE, msgType);
-    IF_FALSE_LOGE_AND_RETURN_VAL(isGetVal, INVALID_PARAMETERS);
+    attributes->GetInt32Value(Attributes::ATTR_MSG_TYPE, msgType);
     RefreshTraceInfo(connectionName, msgType, true, messageSeq);
 
     std::shared_ptr<SoftBusMessage> softBusMessage = Common::MakeShared<SoftBusMessage>(messageSeq,
