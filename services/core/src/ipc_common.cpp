@@ -175,8 +175,7 @@ bool IpcCommon::CheckPermission(IPCObjectStub &stub, Permission permission)
 {
     switch (permission) {
         case MANAGE_USER_IDM_PERMISSION:
-            return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::MANAGE_USER_IDM_PERMISSION) &&
-                CheckNativeCallingProcessWhiteList(stub, permission);
+            return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::MANAGE_USER_IDM_PERMISSION);
         case USE_USER_IDM_PERMISSION:
             return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::USE_USER_IDM_PERMISSION);
         case ACCESS_USER_AUTH_INTERNAL_PERMISSION:
