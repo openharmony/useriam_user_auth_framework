@@ -45,11 +45,6 @@ namespace PermissionString {
 }
 
 namespace {
-    // process white list of allowing to call, <processUid, processName>
-    const std::vector<std::pair<int32_t, std::string>> manageUserIdmWhiteLists = {
-        {3058, "accountmgr"},
-    };
-
     const std::vector<std::pair<int32_t, std::string>> enforceUserIdmWhiteLists = {
         {3058, "accountmgr"},
     };
@@ -226,10 +221,9 @@ uint32_t IpcCommon::GetTokenId(IPCObjectStub &stub)
 std::vector<std::pair<int32_t, std::string>> IpcCommon::GetWhiteLists(Permission permission)
 {
     switch (permission) {
-        case MANAGE_USER_IDM_PERMISSION:
-            return manageUserIdmWhiteLists;
         case ENFORCE_USER_IDM:
             return enforceUserIdmWhiteLists;
+        case MANAGE_USER_IDM_PERMISSION:
         case CLEAR_REDUNDANCY_PERMISSION:
         case USE_USER_IDM_PERMISSION:
         case ACCESS_USER_AUTH_INTERNAL_PERMISSION:
