@@ -144,6 +144,12 @@ void UserAuthClientImpl::GetProperty(int32_t userId, const GetPropertyRequest &r
     proxy->GetProperty(userId, request.authType, request.keys, wrapper);
 }
 
+void UserAuthClientImpl::GetPropertyById(uint64_t credentialId, const std::vector<Attributes::AttributeKey> &keys,
+    const std::shared_ptr<GetPropCallback> &callback)
+{
+    return;
+}
+
 ResultCode UserAuthClientImpl::SetPropertyInner(int32_t userId, const SetPropertyRequest &request,
     const std::shared_ptr<SetPropCallback> &callback)
 {
