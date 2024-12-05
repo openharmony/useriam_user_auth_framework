@@ -47,6 +47,8 @@ private:
     UserAuthResultCode InitAuthType(napi_env env, napi_value value);
     UserAuthResultCode InitAuthTrustLevel(napi_env env, napi_value value);
     UserAuthResultCode InitReuseUnlockResult(napi_env env, napi_value value);
+    UserAuthResultCode InitUserId(napi_env env, napi_value value);
+    UserAuthResultCode ProcessAuthTrustLevelAndUserId(napi_env env, napi_value value);
     UserAuthResultCode ProcessReuseUnlockResult(napi_env env, napi_value value);
     UserAuthResultCode InitAuthParam(napi_env env, napi_value value);
     UserAuthResultCode ProcessWindowMode(napi_env env, napi_value value);

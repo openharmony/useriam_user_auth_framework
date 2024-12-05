@@ -86,6 +86,7 @@ struct WidgetCommand {
     int32_t isReload {0};
     std::string rotateAuthType {""};
     std::string callingAppID {""};
+    int32_t userId {-1};
 };
 
 void to_json(nlohmann::json &jsonCommand, const WidgetCommand &command);
