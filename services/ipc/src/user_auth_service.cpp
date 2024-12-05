@@ -835,15 +835,18 @@ bool UserAuthService::CheckSingeFaceOrFinger(const std::vector<AuthType> &authTy
 
 int32_t UserAuthService::CheckCallerPermissionForUserId(const AuthParamInner &authParam)
 {
+    // inner api caller
+    if (IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+        return SUCCESS;
+    }
+    // native api caller
     int32_t userId = INVALID_USER_ID;
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("failed to get callingUserId");
         return GENERAL_ERROR;
     }
-    if (IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
-        return SUCCESS;
-    }
-    if (IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION) && authParam.userId == userId) {
+    if (IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION) &&
+        (IpcCommon::CheckPermission(*this, IS_SYSTEM_APP) || authParam.userId == userId)) {
         return SUCCESS;
     }
     IAM_LOGE("CheckPermission failed");
