@@ -219,6 +219,7 @@ ResultCode BaseSocket::SendRequest(const int32_t socketId, const std::string &co
 
     int32_t messageSeq = GetMessageSeq();
     int32_t msgType = -1;
+    // remote pin authentication does not contain the msgType parameter, no need to check the result
     attributes->GetInt32Value(Attributes::ATTR_MSG_TYPE, msgType);
     RefreshTraceInfo(connectionName, msgType, false, messageSeq);
     std::shared_ptr<SoftBusMessage> softBusMessage = Common::MakeShared<SoftBusMessage>(messageSeq,
@@ -260,6 +261,7 @@ ResultCode BaseSocket::SendResponse(const int32_t socketId, const std::string &c
     IF_FALSE_LOGE_AND_RETURN_VAL(attributes != nullptr, INVALID_PARAMETERS);
     IF_FALSE_LOGE_AND_RETURN_VAL(socketId != INVALID_SOCKET_ID, INVALID_PARAMETERS);
     int32_t msgType = -1;
+    // remote pin authentication does not contain the msgType parameter, no need to check the result
     attributes->GetInt32Value(Attributes::ATTR_MSG_TYPE, msgType);
     RefreshTraceInfo(connectionName, msgType, true, messageSeq);
 
@@ -306,6 +308,7 @@ std::shared_ptr<SoftBusMessage> BaseSocket::ParseMessage(const std::string &netw
         return nullptr;
     }
     int32_t msgType = -1;
+    // remote pin authentication does not contain the msgType parameter, no need to check the result
     attributes->GetInt32Value(Attributes::ATTR_MSG_TYPE, msgType);
     RefreshTraceInfo(softBusMessage->GetConnectionName(), msgType, softBusMessage->GetAckFlag(),
         softBusMessage->GetMessageSeq());
