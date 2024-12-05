@@ -334,7 +334,6 @@ UserAuthResultCode UserAuthInstanceV10::InitAuthParam(napi_env env, napi_value v
         IAM_LOGE("InitAuthType fail:%{public}d", errorCode);
         return errorCode;
     }
-    
     errorCode = ProcessReuseUnlockResult(env, value);
     if (errorCode != UserAuthResultCode::SUCCESS) {
         return errorCode;
