@@ -31,8 +31,10 @@ public:
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
 private:
+    int32_t OnRemoteRequestExt(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t GetAvailableStatusStub(MessageParcel &data, MessageParcel &reply);
     int32_t GetPropertyStub(MessageParcel &data, MessageParcel &reply);
+    int32_t GetPropertyByIdStub(MessageParcel &data, MessageParcel &reply);
     int32_t SetPropertyStub(MessageParcel &data, MessageParcel &reply);
     int32_t AuthStub(MessageParcel &data, MessageParcel &reply);
     int32_t AuthWidgetStub(MessageParcel &data, MessageParcel &reply);

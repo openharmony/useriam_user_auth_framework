@@ -81,6 +81,17 @@ int32_t UserAuthStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Messag
         case UserAuthInterfaceCode::USER_AUTH_PREPARE_REMOTE_AUTH:
             return PrepareRemoteAuthStub(data, reply);
         default:
+            return OnRemoteRequestExt(code, data, reply, option);
+    }
+}
+
+int32_t UserAuthStub::OnRemoteRequestExt(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    switch (code) {
+        case UserAuthInterfaceCode::USER_AUTH_GET_PROPERTY_BY_ID:
+                return GetPropertyByIdStub(data, reply);
+        default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
 }
@@ -179,6 +190,51 @@ int32_t UserAuthStub::GetPropertyStub(MessageParcel &data, MessageParcel &reply)
     }
 
     GetProperty(userId, static_cast<AuthType>(authType), attrKeys, callback);
+    return SUCCESS;
+}
+
+int32_t UserAuthStub::GetPropertyByIdStub(MessageParcel &data, MessageParcel &reply)
+{
+    IAM_LOGI("enter");
+    ON_SCOPE_EXIT(IAM_LOGI("leave"));
+
+    uint64_t credentialId;
+    std::vector<uint32_t> keys;
+
+    if (!data.ReadUint64(credentialId)) {
+        IAM_LOGE("failed to read credentialId");
+        return READ_PARCEL_ERROR;
+    }
+    if (!data.ReadUInt32Vector(&keys)) {
+        IAM_LOGE("failed to read attribute keys");
+        return READ_PARCEL_ERROR;
+    }
+    std::vector<Attributes::AttributeKey> attrKeys;
+    if (keys.empty()) {
+        IAM_LOGE("the attribute key vector is empty");
+        return GENERAL_ERROR;
+    }
+    if (keys.size() > MAX_ATTR_COUNT) {
+        IAM_LOGE("the attribute key vector size exceed limit");
+        return GENERAL_ERROR;
+    }
+    attrKeys.resize(keys.size());
+    std::transform(keys.begin(), keys.end(), attrKeys.begin(), [](uint32_t key) {
+        return static_cast<Attributes::AttributeKey>(key);
+    });
+
+    sptr<IRemoteObject> obj = data.ReadRemoteObject();
+    if (obj == nullptr) {
+        IAM_LOGE("failed to read remote object");
+        return READ_PARCEL_ERROR;
+    }
+    sptr<GetExecutorPropertyCallbackInterface> callback = iface_cast<GetExecutorPropertyCallbackProxy>(obj);
+    if (callback == nullptr) {
+        IAM_LOGE("GetExecutorPropertyCallbackInterface is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    GetPropertyById(credentialId, attrKeys, callback);
     return SUCCESS;
 }
 

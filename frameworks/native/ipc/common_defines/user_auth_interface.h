@@ -40,6 +40,9 @@ public:
 
     virtual void GetProperty(int32_t userId, AuthType authType,
         const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallbackInterface> &callback) = 0;
+    
+    virtual void GetPropertyById(uint64_t credentialId, const std::vector<Attributes::AttributeKey> &keys,
+        sptr<GetExecutorPropertyCallbackInterface> &callback) = 0;
 
     virtual void SetProperty(int32_t userId, AuthType authType, const Attributes &attributes,
         sptr<SetExecutorPropertyCallbackInterface> &callback) = 0;

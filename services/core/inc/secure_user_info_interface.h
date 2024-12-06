@@ -30,7 +30,6 @@ class SecureUserInfoInterface {
 public:
     virtual ~SecureUserInfoInterface() = default;
     virtual int32_t GetUserId() const = 0;
-    virtual PinSubType GetPinSubType() const = 0;
     virtual uint64_t GetSecUserId() const = 0;
     virtual std::vector<std::shared_ptr<EnrolledInfoInterface>> GetEnrolledInfo() const = 0;
 };

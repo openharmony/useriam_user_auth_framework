@@ -21,6 +21,7 @@
 
 #include "enrollment.h"
 #include "schedule_node.h"
+#include "user_auth_hdi.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -53,6 +54,8 @@ private:
     bool GetSecUserId(std::optional<uint64_t> &secUserId);
     void PublishPinEvent(uint64_t credentialId);
     void PublishCredentialUpdateEvent();
+    bool StartSchedule(int32_t userId, HdiScheduleInfo &info,
+        std::vector<std::shared_ptr<ScheduleNode>> &scheduleList, std::shared_ptr<ScheduleNodeCallback> callback);
 
     EnrollmentPara enrollPara_;
     std::vector<uint8_t> authToken_;

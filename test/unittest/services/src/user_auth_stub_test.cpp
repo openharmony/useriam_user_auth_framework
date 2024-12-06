@@ -1042,6 +1042,60 @@ HWTEST_F(UserAuthStubTest, UserAuthStubPrepareRemoteAuthStub_003, TestSize.Level
     EXPECT_TRUE(reply.ReadInt32(result));
     EXPECT_EQ(result, SUCCESS);
 }
+
+HWTEST_F(UserAuthStubTest, UserAuthStubGetPropertyByIdStub001, TestSize.Level0)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    uint32_t code = UserAuthInterfaceCode::USER_AUTH_GET_PROPERTY_BY_ID;
+
+    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+
+    MockUserAuthService service;
+    EXPECT_EQ(READ_PARCEL_ERROR, service.OnRemoteRequest(code, data, reply, option));
+}
+
+HWTEST_F(UserAuthStubTest, UserAuthStubGetPropertyByIdStub002, TestSize.Level0)
+{
+    uint64_t testCredentialId = 1;
+    std::vector<Attributes::AttributeKey> testAttrKeys = {Attributes::ATTR_RESULT_CODE, Attributes::ATTR_SIGNATURE,
+        Attributes::ATTR_SCHEDULE_MODE};
+    std::vector<uint32_t> tempKeys;
+    for (auto &attrKey : testAttrKeys) {
+        tempKeys.push_back(static_cast<uint32_t>(attrKey));
+    }
+    sptr<MockGetExecutorPropertyCallback> callback(new (std::nothrow) MockGetExecutorPropertyCallback());
+    EXPECT_NE(callback, nullptr);
+    MockUserAuthService service;
+    EXPECT_CALL(service, GetPropertyById(_, _, _)).Times(1);
+    ON_CALL(service, GetPropertyById)
+        .WillByDefault(
+            [&testCredentialId, &testAttrKeys](uint64_t credentialId, const std::vector<Attributes::AttributeKey> &keys,
+            sptr<GetExecutorPropertyCallbackInterface> &callback) {
+                EXPECT_EQ(credentialId, testCredentialId);
+                EXPECT_THAT(keys, ElementsAreArray(testAttrKeys));
+                if (callback != nullptr) {
+                    Attributes attr;
+                    callback->OnGetExecutorPropertyResult(SUCCESS, attr);
+                }
+            }
+        );
+    EXPECT_CALL(*callback, OnGetExecutorPropertyResult(_, _)).Times(1);
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    uint32_t code = UserAuthInterfaceCode::USER_AUTH_GET_PROPERTY_BY_ID;
+
+    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteUint64(testCredentialId));
+    EXPECT_TRUE(data.WriteUInt32Vector(tempKeys));
+    EXPECT_NE(callback->AsObject(), nullptr);
+    EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
+    
+    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

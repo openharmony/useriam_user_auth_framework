@@ -33,6 +33,7 @@ public:
     virtual AuthType GetAuthType() const = 0;
     virtual uint32_t GetExecutorSensorHint() const = 0;
     virtual uint32_t GetExecutorMatcher() const = 0;
+    virtual PinSubType GetAuthSubType() const = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam

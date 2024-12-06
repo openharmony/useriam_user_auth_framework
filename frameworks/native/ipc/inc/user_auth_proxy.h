@@ -34,6 +34,8 @@ public:
     void GetProperty(int32_t userId, AuthType authType,
         const std::vector<Attributes::AttributeKey> &keys,
         sptr<GetExecutorPropertyCallbackInterface> &callback) override;
+    void GetPropertyById(uint64_t credentialId, const std::vector<Attributes::AttributeKey> &keys,
+        sptr<GetExecutorPropertyCallbackInterface> &callback) override;
     void SetProperty(int32_t userId, AuthType authType, const Attributes &attributes,
         sptr<SetExecutorPropertyCallbackInterface> &callback) override;
     uint64_t AuthUser(AuthParamInner &param, std::optional<RemoteAuthParam> &remoteAuthParam,
