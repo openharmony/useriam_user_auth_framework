@@ -88,7 +88,7 @@ void ReportSecurityTemplateChange(const TemplateChangeTrace &info)
     int32_t ret = HiSysEventWrite(HiSysEvent::Domain::USERIAM_FWK, "USERIAM_TEMPLATE_CHANGE",
         HiSysEvent::EventType::SECURITY,
         STR_OPERATION_TIME, operationTime,
-        STR_SCHEDULE_ID, info.scheduleId,
+        STR_SCHEDULE_ID, static_cast<uint16_t>(info.scheduleId),
         STR_EXECUTOR_TYPE, info.executorType,
         STR_CHANGE_TYPE, info.changeType,
         STR_TRIGGER_REASON, info.reason);
@@ -120,7 +120,7 @@ void ReportSecurityCredChange(const UserCredChangeTrace &info)
         HiSysEvent::EventType::SECURITY,
         STR_OPERATION_TIME, operationTime,
         STR_CALLER_NAME, info.callerName,
-        STR_REQUEST_CONTEXTID, info.requestContextId,
+        STR_REQUEST_CONTEXTID, static_cast<uint16_t>(info.requestContextId),
         STR_USER_ID, info.userId,
         STR_AUTH_TYPE, info.authType,
         STR_OPERATION_TYPE, info.operationType,
@@ -164,8 +164,8 @@ void ReportSecurityUserAuthFwk(const UserAuthFwkTrace &info)
         HiSysEvent::EventType::SECURITY,
         STR_OPERATION_TIME, operationTime,
         STR_CALLER_NAME, info.callerName,
-        STR_REQUEST_CONTEXTID, info.requestContextId,
-        STR_AUTH_CONTEXTID, info.authContextId,
+        STR_REQUEST_CONTEXTID, static_cast<uint16_t>(info.requestContextId),
+        STR_AUTH_CONTEXTID, static_cast<uint16_t>(info.authContextId),
         STR_AUTH_TRUST_LEVEL, info.atl,
         STR_AUTH_TYPE, info.authType,
         STR_AUTH_RESULT, info.authResult,
@@ -186,7 +186,7 @@ void ReportRemoteExecuteProc(const RemoteExecuteTrace &info)
     int32_t ret = HiSysEventWrite(HiSysEvent::Domain::USERIAM_FWK, "USERIAM_REMOTE_EXECUTE",
         HiSysEvent::EventType::SECURITY,
         STR_OPERATION_TIME, operationTime,
-        STR_SCHEDULE_ID, info.scheduleId,
+        STR_SCHEDULE_ID, static_cast<uint16_t>(info.scheduleId),
         STR_CONNECTION_NAME, info.connectionName,
         STR_OPERATION_RESULT, info.operationResult);
     if (ret != 0) {
@@ -204,7 +204,7 @@ void ReportRemoteConnectOpen(const RemoteConnectOpenTrace &info)
         STR_OPERATION_RESULT, info.operationResult,
         STR_TIME_SPAN, info.timeSpan,
         STR_NETWORK_ID, MaskForStringId(info.networkId),
-        STR_SOCKET_ID, info.socketId);
+        STR_SOCKET_ID, static_cast<uint16_t>(info.socketId));
     if (ret != 0) {
         IAM_LOGE("hisysevent write failed! ret %{public}d", ret);
     }
@@ -213,8 +213,9 @@ void ReportRemoteConnectOpen(const RemoteConnectOpenTrace &info)
 void ReportConnectFaultTrace(const RemoteConnectFaultTrace &info)
 {
     std::ostringstream ss;
-    ss << "reason: " << info.reason << ", socketId: " << info.socketId << ", connectionName: " << info.connectionName
-        << ", msgType:" << info.msgType << ", messageSeq" << "ack:" << info.ack;
+    ss << "reason: " << info.reason << ", socketId: " << static_cast<uint16_t>(info.socketId)
+        << ", connectionName: " << info.connectionName << ", msgType:" << info.msgType
+        << ", messageSeq" << "ack:" << info.ack;
     ReportSystemFault(Common::GetNowTimeString(), ss.str());
 }
 } // namespace UserAuth
