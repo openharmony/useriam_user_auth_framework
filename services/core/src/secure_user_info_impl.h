@@ -25,17 +25,15 @@ namespace UserIam {
 namespace UserAuth {
 class SecureUserInfoImpl final : public SecureUserInfoInterface, public NoCopyable {
 public:
-    SecureUserInfoImpl(int32_t userId, PinSubType subType, uint64_t secUserId,
+    SecureUserInfoImpl(int32_t userId, uint64_t secUserId,
         std::vector<std::shared_ptr<EnrolledInfoInterface>> &enrolledInfos);
     ~SecureUserInfoImpl() override = default;
     int32_t GetUserId() const override;
-    PinSubType GetPinSubType() const override;
     uint64_t GetSecUserId() const override;
     std::vector<std::shared_ptr<EnrolledInfoInterface>> GetEnrolledInfo() const override;
 
 private:
     int32_t userId_ {0};
-    PinSubType subType_ {PIN_SIX};
     uint64_t secUserId_ {0};
     std::vector<std::shared_ptr<EnrolledInfoInterface>> enrolledInfos_;
 };

@@ -40,6 +40,8 @@ public:
     virtual int32_t DeleteUserEnforce(int32_t userId,
         std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos) = 0;
     virtual std::vector<std::shared_ptr<UserInfoInterface>> GetAllExtUserInfo() = 0;
+    virtual int32_t GetCredentialInfoById(uint64_t credentialId,
+        std::shared_ptr<CredentialInfoInterface> &credInfo) = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam

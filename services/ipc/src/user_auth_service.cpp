@@ -118,7 +118,7 @@ std::string GetAuthParamStr(const AuthParamInner &authParam, std::optional<Remot
 {
     std::ostringstream authParamString;
     authParamString << "userId:" << authParam.userId << " authType:" << authParam.authType
-                    << " atl:" << authParam.authTrustLevel;
+                    << " authIntent:" << authParam.authIntent << " atl:" << authParam.authTrustLevel;
     if (remoteAuthParam.has_value()) {
         const uint32_t NETWORK_ID_PRINT_LEN = 4;
         const uint32_t TOKEN_ID_MIN_LEN = 2;
@@ -286,6 +286,33 @@ std::shared_ptr<ResourceNode> UserAuthService::GetResourseNode(AuthType authType
     return resourceNode;
 }
 
+void UserAuthService::GetPropertyInner(AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
+    sptr<GetExecutorPropertyCallbackInterface> &callback, std::vector<uint64_t> &templateIds)
+{
+    Attributes values;
+    auto resourceNode = GetResourseNode(authType);
+    if (resourceNode == nullptr) {
+        IAM_LOGE("resourceNode is nullptr");
+        callback->OnGetExecutorPropertyResult(GENERAL_ERROR, values);
+        return;
+    }
+
+    std::vector<uint32_t> uint32Keys;
+    FillGetPropertyKeys(authType, keys, uint32Keys);
+    Attributes attr;
+    attr.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_GET);
+    attr.SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIds);
+    attr.SetUint32ArrayValue(Attributes::ATTR_KEY_LIST, uint32Keys);
+
+    int32_t result = resourceNode->GetProperty(attr, values);
+    if (result != SUCCESS) {
+        IAM_LOGE("failed to get property, result = %{public}d", result);
+    }
+    FillGetPropertyValue(authType, keys, values);
+
+    callback->OnGetExecutorPropertyResult(result, values);
+}
+
 void UserAuthService::GetProperty(int32_t userId, AuthType authType,
     const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallbackInterface> &callback)
 {
@@ -316,27 +343,40 @@ void UserAuthService::GetProperty(int32_t userId, AuthType authType,
         }
     }
 
-    auto resourceNode = GetResourseNode(authType);
-    if (resourceNode == nullptr) {
-        IAM_LOGE("resourceNode is nullptr");
-        callback->OnGetExecutorPropertyResult(GENERAL_ERROR, values);
+    GetPropertyInner(authType, keys, callback, templateIds);
+}
+
+void UserAuthService::GetPropertyById(uint64_t credentialId, const std::vector<Attributes::AttributeKey> &keys,
+    sptr<GetExecutorPropertyCallbackInterface> &callback)
+{
+    IAM_LOGI("start");
+    Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
+    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+    Attributes values;
+
+    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        callback->OnGetExecutorPropertyResult(CHECK_PERMISSION_FAILED, values);
         return;
     }
 
-    std::vector<uint32_t> uint32Keys;
-    FillGetPropertyKeys(authType, keys, uint32Keys);
-    Attributes attr;
-    attr.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_GET);
-    attr.SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIds);
-    attr.SetUint32ArrayValue(Attributes::ATTR_KEY_LIST, uint32Keys);
-
-    int32_t result = resourceNode->GetProperty(attr, values);
-    if (result != SUCCESS) {
-        IAM_LOGE("failed to get property, result = %{public}d", result);
+    std::shared_ptr<CredentialInfoInterface> credInfo;
+    if (IsTemplateIdListRequired(keys)) {
+        int32_t ret = UserIdmDatabase::Instance().GetCredentialInfoById(credentialId, credInfo);
+        if (ret != SUCCESS) {
+            IAM_LOGE("get templates fail, ret:%{public}d", ret);
+            callback->OnGetExecutorPropertyResult(GENERAL_ERROR, values);
+            return;
+        }
+        if (credInfo == NULL) {
+            IAM_LOGE("template id list is required, but templateIds size is 0");
+            callback->OnGetExecutorPropertyResult(NOT_ENROLLED, values);
+            return;
+        }
     }
-    FillGetPropertyValue(authType, keys, values);
 
-    callback->OnGetExecutorPropertyResult(result, values);
+    std::vector<uint64_t> templateIds = { credInfo->GetTemplateId() };
+    GetPropertyInner(credInfo->GetAuthType(), keys, callback, templateIds);
 }
 
 void UserAuthService::SetProperty(int32_t userId, AuthType authType, const Attributes &attributes,

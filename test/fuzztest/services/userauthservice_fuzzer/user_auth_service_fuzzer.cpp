@@ -536,6 +536,26 @@ void FuzzStartAuthContext(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzGetPropertyById(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    constexpr uint32_t maxDataLen = 50;
+    uint64_t credentialId = parcel.ReadUint64();
+    std::vector<Attributes::AttributeKey> keys;
+    uint32_t keysLen = parcel.ReadUint32() % maxDataLen;
+    keys.reserve(keysLen);
+    for (uint32_t i = 0; i < keysLen; i++) {
+        keys.emplace_back(static_cast<Attributes::AttributeKey>(parcel.ReadInt32()));
+    }
+
+    sptr<GetExecutorPropertyCallbackInterface> callback(nullptr);
+    if (parcel.ReadBool()) {
+        callback = sptr<GetExecutorPropertyCallbackInterface>(new (std::nothrow) DummyGetExecutorPropertyCallback());
+    }
+    g_userAuthService.GetPropertyById(credentialId, keys, callback);
+    IAM_LOGI("end");
+}
+
 using FuzzFunc = decltype(FuzzGetAvailableStatus);
 FuzzFunc *g_fuzzFuncs[] = {
     FuzzGetEnrolledState,
@@ -565,6 +585,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzStartWidgetContext,
     FuzzStartRemoteAuthInvokerContext,
     FuzzStartAuthContext,
+    FuzzGetPropertyById,
 };
 
 void UserAuthFuzzTest(const uint8_t *data, size_t size)
