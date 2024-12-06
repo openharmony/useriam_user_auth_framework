@@ -53,7 +53,6 @@ ohos_source_set("userauth_service_context") {
     "src/remote_executor_stub.cpp",
     "src/remote_iam_callback.cpp",
     "src/schedule_holder_context.cpp",
-    "src/screen_unlock_after_auth_monitor.cpp",
     "src/simple_auth_context.cpp",
     "src/trace.cpp",
     "src/ui_extension_ability_connection.cpp",
