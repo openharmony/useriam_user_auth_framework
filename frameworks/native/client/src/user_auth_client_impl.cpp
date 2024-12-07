@@ -442,16 +442,15 @@ uint64_t UserAuthClientImpl::BeginWidgetAuth(const WidgetAuthParam &authParam, c
 uint64_t UserAuthClientImpl::BeginWidgetAuth(int32_t apiVersion, const WidgetAuthParam &authParam,
     const WidgetParam &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback)
 {
-    IAM_LOGI("start, apiVersion:%{public}d authTypeSize:%{public}zu authTrustLevel:%{public}u userId:%{public}d",
-        apiVersion, authParam.authTypes.size(), authParam.authTrustLevel, authParam.userId);
+    IAM_LOGI("start, apiVersion:%{public}d authTypeSize:%{public}zu authTrustLevel:%{public}u",
+        apiVersion, authParam.authTypes.size(), authParam.authTrustLevel);
 
     AuthParamInner authParamInner = {
-        .isUserIdSpecified = authParam.userId == INVALID_USER_ID ? false : true,
+        .isUserIdSpecified = false,
         .challenge = authParam.challenge,
         .authTypes = authParam.authTypes,
         .authTrustLevel = authParam.authTrustLevel,
         .reuseUnlockResult = authParam.reuseUnlockResult,
-        .userId = authParam.userId,
     };
     WidgetParamInner widgetParamInner = {
         .title = widgetParam.title,
