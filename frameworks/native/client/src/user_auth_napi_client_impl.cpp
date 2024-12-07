@@ -88,15 +88,16 @@ UserAuthNapiClientImpl &UserAuthNapiClientImpl::Instance()
 uint64_t UserAuthNapiClientImpl::BeginWidgetAuth(int32_t apiVersion, const AuthParamInner &authParam,
     const WidgetParamNapi &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback)
 {
-    IAM_LOGI("start, apiVersion: %{public}d authTypeSize: %{public}zu authTrustLevel: %{public}u",
-        apiVersion, authParam.authTypes.size(), authParam.authTrustLevel);
+    IAM_LOGI("start, apiVersion: %{public}d authTypeSize: %{public}zu authTrustLevel: %{public}u userId:%{public}d",
+        apiVersion, authParam.authTypes.size(), authParam.authTrustLevel, authParam.userId);
 
     AuthParamInner authParamInner = {
         .challenge = authParam.challenge,
         .authTypes = authParam.authTypes,
         .authTrustLevel = authParam.authTrustLevel,
         .reuseUnlockResult = authParam.reuseUnlockResult,
-        .isUserIdSpecified = false,
+        .isUserIdSpecified = authParam.userId == INVALID_USER_ID ? false : true,
+        .userId = authParam.userId,
     };
     WidgetParamInner widgetParamInner = {
         .title = widgetParam.title,
