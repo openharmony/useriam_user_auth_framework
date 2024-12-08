@@ -800,7 +800,8 @@ int32_t UserAuthService::CheckAuthWidgetType(const std::vector<AuthType> &authTy
         return INVALID_PARAMETERS;
     }
     for (auto &type : authType) {
-        if ((type != AuthType::PIN) && (type != AuthType::FACE) && (type != AuthType::FINGERPRINT)) {
+        if ((type != AuthType::PIN) && (type != AuthType::FACE) && (type != AuthType::FINGERPRINT) &&
+            (type != AuthType::PRIVATE_PIN)) {
             IAM_LOGE("unsupport auth type %{public}d", type);
             return TYPE_NOT_SUPPORT;
         }
@@ -808,6 +809,19 @@ int32_t UserAuthService::CheckAuthWidgetType(const std::vector<AuthType> &authTy
     std::set<AuthType> typeChecker(authType.begin(), authType.end());
     if (typeChecker.size() != authType.size()) {
         IAM_LOGE("duplicate auth type");
+        return INVALID_PARAMETERS;
+    }
+    bool hasPin = false;
+    bool hasPrivatePin = false;
+    for (const auto &iter : authType) {
+        if (iter == AuthType::PIN) {
+            hasPin = true;
+        } else if (iter == AuthType::PRIVATE_PIN) {
+            hasPrivatePin = true;
+        }
+    }
+    if (hasPin && hasPrivatePin) {
+        IAM_LOGE("pin and private pin not support");
         return INVALID_PARAMETERS;
     }
     return SUCCESS;
@@ -829,6 +843,28 @@ bool UserAuthService::CheckSingeFaceOrFinger(const std::vector<AuthType> &authTy
     return false;
 }
 
+int32_t UserAuthService::CheckCallerPermissionForPrivatePin(const AuthParamInner &authParam)
+{
+    bool hasPrivatePin = false;
+    for (auto &iter : authParam.authTypes) {
+        if (iter == AuthType::PRIVATE_PIN) {
+            hasPrivatePin = true;
+            break;
+        }
+    }
+    if (!hasPrivatePin) {
+        return SUCCESS;
+    }
+    if (IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+        return SUCCESS;
+    }
+    if (IpcCommon::CheckPermission(*this, IS_SYSTEM_APP)) {
+        return SUCCESS;
+    }
+    IAM_LOGE("CheckPermission failed");
+    return CHECK_PERMISSION_FAILED;
+}
+
 int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authParam, const WidgetParam &widgetParam,
     bool isBackgroundApplication)
 {
@@ -836,6 +872,10 @@ int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authP
         (widgetParam.windowMode != WindowModeType::UNKNOWN_WINDOW_MODE)) {
         IAM_LOGE("normal app can't set window mode.");
         return INVALID_PARAMETERS;
+    }
+    if (CheckCallerPermissionForPrivatePin(authParam) != SUCCESS) {
+        IAM_LOGE("CheckCallerPermissionForPrivatePin failed");
+        return CHECK_PERMISSION_FAILED;
     }
     if (!authParam.isUserIdSpecified && !IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
         IAM_LOGE("CheckPermission failed");
@@ -955,6 +995,28 @@ int32_t UserAuthService::GetCallerInfo(bool isUserIdSpecified, int32_t userId,
     return SUCCESS;
 }
 
+void UserAuthService::ProcessPinExpired(int32_t ret, const AuthParamInner &authParam,
+    std::vector<AuthType> &validType, ContextFactory::AuthWidgetContextPara &para)
+{
+    if (ret != PIN_EXPIRED) {
+        return;
+    }
+    para.isPinExpired = true;
+    bool hasPrivatePin = false;
+    for (auto &iter : authParam.authTypes) {
+        if (iter == AuthType::PRIVATE_PIN) {
+            hasPrivatePin = true;
+            break;
+        }
+    }
+    if (hasPrivatePin) {
+        validType.clear();
+        validType.emplace_back(AuthType::PRIVATE_PIN);
+    } else {
+        validType.emplace_back(AuthType::PIN);
+    }
+}
+
 uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParamInner &authParam,
     const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback)
 {
@@ -997,10 +1059,7 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParamInner &a
         contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    if (checkRet == PIN_EXPIRED) {
-        para.isPinExpired = true;
-        validType.emplace_back(AuthType::PIN);
-    }
+    ProcessPinExpired(checkRet, authParam, validType, para);
     ProcessWidgetSessionExclusive();
     return StartWidgetContext(contextCallback, authParam, widgetParam, validType, para);
 }
@@ -1162,7 +1221,8 @@ bool UserAuthService::CheckAuthTypeIsValid(std::vector<AuthType> authType)
         return false;
     }
     for (const auto &iter : authType) {
-        if (iter != AuthType::PIN && iter != AuthType::FACE && iter != AuthType::FINGERPRINT) {
+        if (iter != AuthType::PIN && iter != AuthType::FACE && iter != AuthType::FINGERPRINT &&
+            iter != AuthType::PRIVATE_PIN) {
             return false;
         }
     }
