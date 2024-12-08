@@ -859,13 +859,16 @@ napi_value UserAuthTypeConstructor(napi_env env)
     napi_value pin = nullptr;
     napi_value face = nullptr;
     napi_value fingerprint = nullptr;
+    napi_value privatePin = nullptr;
     NAPI_CALL(env, napi_create_object(env, &userAuthType));
     NAPI_CALL(env, napi_create_int32(env, AuthType::PIN, &pin));
     NAPI_CALL(env, napi_create_int32(env, AuthType::FACE, &face));
     NAPI_CALL(env, napi_create_int32(env, AuthType::FINGERPRINT, &fingerprint));
+    NAPI_CALL(env, napi_create_int32(env, AuthType::PRIVATE_PIN, &privatePin));
     NAPI_CALL(env, napi_set_named_property(env, userAuthType, "PIN", pin));
     NAPI_CALL(env, napi_set_named_property(env, userAuthType, "FACE", face));
     NAPI_CALL(env, napi_set_named_property(env, userAuthType, "FINGERPRINT", fingerprint));
+    NAPI_CALL(env, napi_set_named_property(env, userAuthType, "PRIVATE_PIN", privatePin));
     return userAuthType;
 }
 

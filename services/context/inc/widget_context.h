@@ -105,6 +105,7 @@ private:
         sptr<IamCallbackInterface> &callback);
     void StopAllRunTask(const ResultCode &resultCode);
     std::string BuildStartCommand(const WidgetRotatePara &widgetRotatePara);
+    void BuildStartPinSubType(WidgetCmdParameters &widgetCmdParameters);
     void ProcessRotatePara(WidgetCmdParameters &widgetCmdParameters, const WidgetRotatePara &widgetRotatePara);
     bool isValidRotate(const WidgetRotatePara &widgetRotatePara);
     std::string GetCallingBundleName();

@@ -53,6 +53,8 @@ enum AuthType : int32_t {
     FINGERPRINT = 4,
     /** recovery key authentication. */
     RECOVERY_KEY = 8,
+    /** Private pin authentication. */
+    PRIVATE_PIN = 16,
 };
 
 /**
