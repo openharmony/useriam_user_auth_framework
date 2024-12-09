@@ -170,11 +170,11 @@ int32_t UserIdmService::GetSecInfoInner(int32_t userId, SecUserInfo &secUserInfo
     int32_t ret = UserIdmDatabase::Instance().GetSecUserInfo(userId, userInfos);
     if (ret != SUCCESS) {
         IAM_LOGE("get secUserInfo fail, ret:%{public}d, userId:%{public}d", ret, userId);
-        return GENERAL_ERROR;
+        return ret;
     }
     if (userInfos == nullptr) {
         IAM_LOGE("current userid %{public}d is not existed", userId);
-        return INVALID_PARAMETERS;
+        return GENERAL_ERROR;
     }
     std::vector<std::shared_ptr<EnrolledInfoInterface>> enrolledInfos = userInfos->GetEnrolledInfo();
     for (const auto &enrolledInfo : enrolledInfos) {
@@ -374,13 +374,13 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInt
     int32_t ret = UserIdmDatabase::Instance().GetSecUserInfo(userId, userInfo);
     if (ret != SUCCESS) {
         IAM_LOGE("get secUserInfo fail, ret:%{public}d, userId:%{public}d", ret, userId);
-        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
+        contextCallback->OnResult(ret, extraInfo);
         return ret;
     }
     if (userInfo == nullptr) {
         IAM_LOGE("current userid %{public}d is not existed", userId);
-        contextCallback->OnResult(INVALID_PARAMETERS, extraInfo);
-        return INVALID_PARAMETERS;
+        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
+        return GENERAL_ERROR;
     }
     ret = EnforceDelUserInner(userId, contextCallback, "EnforceDeleteUser");
     if (ret != SUCCESS) {
