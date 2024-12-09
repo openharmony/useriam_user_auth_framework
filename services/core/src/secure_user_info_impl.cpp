@@ -18,20 +18,15 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-SecureUserInfoImpl::SecureUserInfoImpl(int32_t userId, PinSubType subType, uint64_t secUserId,
+SecureUserInfoImpl::SecureUserInfoImpl(int32_t userId, uint64_t secUserId,
     std::vector<std::shared_ptr<EnrolledInfoInterface>> &enrolledInfos)
-    : userId_(userId), subType_(subType), secUserId_(secUserId), enrolledInfos_(enrolledInfos)
+    : userId_(userId), secUserId_(secUserId), enrolledInfos_(enrolledInfos)
 {
 }
 
 int32_t SecureUserInfoImpl::GetUserId() const
 {
     return userId_;
-}
-
-PinSubType SecureUserInfoImpl::GetPinSubType() const
-{
-    return subType_;
 }
 
 uint64_t SecureUserInfoImpl::GetSecUserId() const

@@ -58,8 +58,7 @@ int32_t UserIdmDatabaseImpl::GetSecUserInfo(int32_t userId, std::shared_ptr<Secu
         }
         infoRet.emplace_back(enrolledInfo);
     }
-    secUserInfo = Common::MakeShared<SecureUserInfoImpl>(userId,
-        static_cast<PinSubType>(pinSubType), secureUid, infoRet);
+    secUserInfo = Common::MakeShared<SecureUserInfoImpl>(userId, secureUid, infoRet);
     if (secUserInfo == nullptr) {
         IAM_LOGE("bad alloc");
         return GENERAL_ERROR;
@@ -206,6 +205,37 @@ std::vector<std::shared_ptr<UserInfoInterface>> UserIdmDatabaseImpl::GetAllExtUs
     }
 
     return infoRet;
+}
+
+int32_t UserIdmDatabaseImpl::GetCredentialInfoById(uint64_t credentialId,
+    std::shared_ptr<CredentialInfoInterface> &credInfo)
+{
+    auto hdi = HdiWrapper::GetHdiInstance();
+    if (hdi == nullptr) {
+        IAM_LOGE("bad hdi");
+        return INVALID_HDI_INTERFACE;
+    }
+
+    HdiCredentialInfo hdiInfo;
+    int32_t ret = hdi->GetCredentialById(credentialId, hdiInfo);
+    if (ret != HDF_SUCCESS) {
+        IAM_LOGE("GetCredentialById failed, error code : %{public}d", ret);
+        return GENERAL_ERROR;
+    }
+
+    if (hdiInfo.credentialId != credentialId) {
+        IAM_LOGE("credential is not exist");
+        return NOT_ENROLLED;
+    }
+
+    auto info = Common::MakeShared<CredentialInfoImpl>(0, hdiInfo);
+    if (info == nullptr) {
+        IAM_LOGE("bad alloc");
+        return GENERAL_ERROR;
+    }
+
+    credInfo = info;
+    return SUCCESS;
 }
 
 UserIdmDatabase &UserIdmDatabase::Instance()

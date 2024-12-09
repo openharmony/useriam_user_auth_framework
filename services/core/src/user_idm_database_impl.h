@@ -39,6 +39,7 @@ public:
     int32_t DeleteUserEnforce(int32_t userId,
         std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos) override;
     std::vector<std::shared_ptr<UserInfoInterface>> GetAllExtUserInfo() override;
+    int32_t GetCredentialInfoById(uint64_t credentialId, std::shared_ptr<CredentialInfoInterface> &credInfo) override;
 };
 } // namespace UserAuth
 } // namespace UserIam

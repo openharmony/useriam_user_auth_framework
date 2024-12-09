@@ -37,6 +37,9 @@ public:
     MOCK_METHOD4(GetProperty,
         void(int32_t userId, AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
             sptr<GetExecutorPropertyCallbackInterface> &callback));
+    
+    MOCK_METHOD3(GetPropertyById, void(uint64_t credentialId, const std::vector<Attributes::AttributeKey> &keys,
+            sptr<GetExecutorPropertyCallbackInterface> &callback));
 
     MOCK_METHOD4(SetProperty, void(int32_t userId, AuthType authType, const Attributes &attributes,
                                   sptr<SetExecutorPropertyCallbackInterface> &callback));
