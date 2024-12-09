@@ -102,6 +102,7 @@ private:
         std::vector<AuthType> &validType);
     int32_t GetCallerInfo(bool isUserIdSpecified, int32_t userId, ContextFactory::AuthWidgetContextPara &para,
         bool &isBackgroundApplication, std::shared_ptr<ContextCallback> &contextCallback);
+    int32_t CheckCallerPermissionForPrivatePin(const AuthParamInner &authParam);
     void FillGetPropertyKeys(AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
         std::vector<uint32_t> &uint32Keys);
     void FillGetPropertyValue(AuthType authType, const std::vector<Attributes::AttributeKey> &keys, Attributes &values);
@@ -110,6 +111,8 @@ private:
     int32_t GetAvailableStatusInner(int32_t apiVersion, int32_t userId, AuthType authType,
         AuthTrustLevel authTrustLevel);
     std::shared_ptr<ResourceNode> GetResourseNode(AuthType authType);
+    void ProcessPinExpired(int32_t ret, const AuthParamInner &authParam, std::vector<AuthType> &validType,
+        ContextFactory::AuthWidgetContextPara &para);
     void ProcessWidgetSessionExclusive();
     static std::mutex mutex_;
     static std::shared_ptr<UserAuthService> instance_;
