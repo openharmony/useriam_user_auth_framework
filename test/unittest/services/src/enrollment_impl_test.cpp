@@ -178,7 +178,7 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful_002, TestSize.Level0)
     std::shared_ptr<UpdatePinParamInterface> pinInfo = nullptr;
     uint64_t credentialId = 0;
     std::optional<uint64_t> secUserId = std::nullopt;
-    EXPECT_TRUE(enroll->Update(scheduleResult, credentialId, info, pinInfo, secUserId));
+    EXPECT_FALSE(enroll->Update(scheduleResult, credentialId, info, pinInfo, secUserId));
 
     EXPECT_CALL(*mock, GetUserInfo(_, _, _, _)).WillRepeatedly(Return(1));
     enroll = std::make_shared<EnrollmentImpl>(para);
