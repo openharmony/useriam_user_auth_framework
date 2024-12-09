@@ -562,6 +562,17 @@ void WidgetContext::StopAllRunTask(const ResultCode &resultCode)
     }
 }
 
+void WidgetContext::BuildStartPinSubType(WidgetCmdParameters &widgetCmdParameters)
+{
+    auto it = para_.authProfileMap.find(AuthType::PIN);
+    if (it == para_.authProfileMap.end()) {
+        it = para_.authProfileMap.find(AuthType::PRIVATE_PIN);
+    }
+    if (it != para_.authProfileMap.end()) {
+        widgetCmdParameters.useriamCmdData.pinSubType = PinSubType2Str(static_cast<PinSubType>(it->second.pinSubType));
+    }
+}
+
 std::string WidgetContext::BuildStartCommand(const WidgetRotatePara &widgetRotatePara)
 {
     WidgetCmdParameters widgetCmdParameters;
@@ -570,10 +581,7 @@ std::string WidgetContext::BuildStartCommand(const WidgetRotatePara &widgetRotat
     widgetCmdParameters.useriamCmdData.title = para_.widgetParam.title;
     widgetCmdParameters.useriamCmdData.windowModeType = WinModeType2Str(para_.widgetParam.windowMode);
     widgetCmdParameters.useriamCmdData.navigationButtonText = para_.widgetParam.navigationButtonText;
-    auto it = para_.authProfileMap.find(AuthType::PIN);
-    if (it != para_.authProfileMap.end()) {
-        widgetCmdParameters.useriamCmdData.pinSubType = PinSubType2Str(static_cast<PinSubType>(it->second.pinSubType));
-    }
+    BuildStartPinSubType(widgetCmdParameters);
     widgetCmdParameters.sysDialogZOrder = SYSDIALOG_ZORDER_DEFAULT;
     if (ContextAppStateObserverManager::GetInstance().GetScreenLockState()) {
         IAM_LOGI("the screen is currently locked, set zOrder");
