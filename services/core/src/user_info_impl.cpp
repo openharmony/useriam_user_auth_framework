@@ -31,12 +31,6 @@ uint64_t UserInfoImpl::GetSecUserId() const
 {
     return userInfo_.secureUid;
 }
-
-PinSubType UserInfoImpl::GetPinSubType() const
-{
-    return static_cast<PinSubType>(userInfo_.pinSubType);
-}
-
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

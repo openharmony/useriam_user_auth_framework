@@ -30,7 +30,6 @@ public:
     ~UserInfoImpl() override = default;
     int32_t GetUserId() const override;
     uint64_t GetSecUserId() const override;
-    PinSubType GetPinSubType() const override;
 
 private:
     int32_t userId_ {0};

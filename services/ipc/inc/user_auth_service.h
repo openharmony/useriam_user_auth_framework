@@ -45,6 +45,8 @@ public:
     void GetProperty(int32_t userId, AuthType authType,
         const std::vector<Attributes::AttributeKey> &keys,
         sptr<GetExecutorPropertyCallbackInterface> &callback) override;
+    void GetPropertyById(uint64_t credentialId, const std::vector<Attributes::AttributeKey> &keys,
+        sptr<GetExecutorPropertyCallbackInterface> &callback) override;
     void SetProperty(int32_t userId, AuthType authType, const Attributes &attributes,
         sptr<SetExecutorPropertyCallbackInterface> &callback) override;
     uint64_t AuthUser(AuthParamInner &param, std::optional<RemoteAuthParam> &remoteAuthParam,
@@ -114,6 +116,8 @@ private:
     void ProcessPinExpired(int32_t ret, const AuthParamInner &authParam, std::vector<AuthType> &validType,
         ContextFactory::AuthWidgetContextPara &para);
     void ProcessWidgetSessionExclusive();
+    void GetPropertyInner(AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
+        sptr<GetExecutorPropertyCallbackInterface> &callback, std::vector<uint64_t> &templateIds);
     static std::mutex mutex_;
     static std::shared_ptr<UserAuthService> instance_;
 };

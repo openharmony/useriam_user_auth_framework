@@ -60,7 +60,8 @@ void UserIdmClientImpl::CloseSession(int32_t userId)
 void UserIdmClientImpl::AddCredential(int32_t userId, const CredentialParameters &para,
     const std::shared_ptr<UserIdmClientCallback> &callback)
 {
-    IAM_LOGI("start, userId:%{public}d authType:%{public}d", userId, para.authType);
+    IAM_LOGI("start, userId:%{public}d, authType:%{public}d, authSubType:%{public}d",
+        userId, para.authType, para.pinType.value_or(PIN_SIX));
     if (!callback) {
         IAM_LOGE("user idm client callback is nullptr");
         return;
@@ -90,7 +91,8 @@ void UserIdmClientImpl::AddCredential(int32_t userId, const CredentialParameters
 void UserIdmClientImpl::UpdateCredential(int32_t userId, const CredentialParameters &para,
     const std::shared_ptr<UserIdmClientCallback> &callback)
 {
-    IAM_LOGI("start, userId:%{public}d authType:%{public}d", userId, para.authType);
+    IAM_LOGI("start, userId:%{public}d, authType:%{public}d, authSubType:%{public}d",
+        userId, para.authType, para.pinType.value_or(PIN_SIX));
     if (!callback) {
         IAM_LOGE("user idm client callback is nullptr");
         return;
