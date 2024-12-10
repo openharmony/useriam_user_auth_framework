@@ -41,7 +41,7 @@ constexpr int32_t MAX_USER = 32;
 /**
  * @brief Defines authentication type.
  */
-constexpr uint32_t MAX_AUTH_TYPE_SIZE = 4;
+constexpr uint32_t MAX_AUTH_TYPE_SIZE = 5;
 enum AuthType : int32_t {
     /** All authentication types. */
     ALL = 0,
