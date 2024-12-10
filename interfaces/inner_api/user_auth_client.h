@@ -161,7 +161,7 @@ public:
      * @return Return context ID of authentication.
      */
     virtual uint64_t BeginWidgetAuth(const WidgetAuthParam &authParam, const WidgetParam &widgetParam,
-         const std::shared_ptr<AuthenticationCallback> &callback) = 0;
+        const std::shared_ptr<AuthenticationCallback> &callback) = 0;
 
     /**
      * @brief Get available status.

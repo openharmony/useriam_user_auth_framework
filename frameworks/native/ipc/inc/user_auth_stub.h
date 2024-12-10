@@ -56,6 +56,7 @@ private:
     bool ReadOptionalString(MessageParcel &data, std::optional<std::string> &str);
     bool ReadOptionalUint32(MessageParcel &data, std::optional<uint32_t> &val);
     ResultCode ReadGlobalConfigValue(MessageParcel &data, GlobalConfigParam &param);
+    int32_t VerifyAuthTokenStub(MessageParcel &data, MessageParcel &reply);
 };
 } // namespace UserAuth
 } // namespace UserIam

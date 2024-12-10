@@ -1416,6 +1416,83 @@ bool UserAuthService::CompleteRemoteAuthParam(RemoteAuthParam &remoteAuthParam, 
     IAM_LOGI("success");
     return true;
 }
+
+bool UserAuthService::GetAuthTokenAttr(const HdiUserAuthTokenPlain &tokenPlain, const std::vector<uint8_t> &rootSecret,
+    Attributes &extraInfo)
+{
+    bool setTokenVersionRet = extraInfo.SetUint32Value(Attributes::ATTR_TOKEN_VERSION, tokenPlain.version);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setTokenVersionRet == true, false);
+    bool setUserIdRet = extraInfo.SetInt32Value(Attributes::ATTR_USER_ID, tokenPlain.userId);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setUserIdRet == true, false);
+    bool setChallengeRet = extraInfo.SetUint8ArrayValue(Attributes::ATTR_CHALLENGE, tokenPlain.challenge);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setChallengeRet == true, false);
+    bool setTimeStampRet = extraInfo.SetUint64Value(Attributes::ATTR_TIME_STAMP, tokenPlain.timeInterval);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setTimeStampRet == true, false);
+    bool setTrustLevelRet = extraInfo.SetUint32Value(Attributes::ATTR_AUTH_TRUST_LEVEL, tokenPlain.authTrustLevel);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setTrustLevelRet == true, false);
+    bool setAuthTypeRet = extraInfo.SetInt32Value(Attributes::ATTR_AUTH_TYPE, tokenPlain.authType);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setAuthTypeRet == true, false);
+    bool setTokenTypeRet = extraInfo.SetInt32Value(Attributes::ATTR_TOKEN_TYPE, tokenPlain.tokenType);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setTokenTypeRet == true, false);
+    bool setSecureUidRet = extraInfo.SetUint64Value(Attributes::ATTR_SEC_USER_ID, tokenPlain.secureUid);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setSecureUidRet == true, false);
+    bool setEnrolledIdRet = extraInfo.SetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, tokenPlain.enrolledId);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setEnrolledIdRet == true, false);
+    bool setCredentialIdRet = extraInfo.SetUint64Value(Attributes::ATTR_CREDENTIAL_ID, tokenPlain.credentialId);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setCredentialIdRet == true, false);
+    if (rootSecret.size() != 0) {
+        bool setRootSecret = extraInfo.SetUint8ArrayValue(Attributes::ATTR_ROOT_SECRET, rootSecret);
+        IF_FALSE_LOGE_AND_RETURN_VAL(setRootSecret == true, false);
+    }
+    return true;
+}
+
+void UserAuthService::VerifyAuthToken(const std::vector<uint8_t> &tokenIn, uint64_t allowableDuration,
+    const sptr<VerifyTokenCallbackInterface> &callback)
+{
+    IAM_LOGI("start, duration:%{public}" PRIu64 ", tokenIn size:%{public}zu.", allowableDuration, tokenIn.size());
+    Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
+    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+
+    Attributes extraInfo;
+    if (tokenIn.size() == 0 || tokenIn.data() == nullptr || allowableDuration > MAX_TOKEN_ALLOWABLE_DURATION) {
+        IAM_LOGE("bad parameter");
+        callback->OnVerifyTokenResult(INVALID_PARAMETERS, extraInfo);
+        return;
+    }
+    if (!IpcCommon::CheckPermission(*this, USE_USER_ACCESS_MANAGER)) {
+        IAM_LOGE("failed to check permission");
+        callback->OnVerifyTokenResult(CHECK_PERMISSION_FAILED, extraInfo);
+        return;
+    }
+    if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP)) {
+        IAM_LOGE("caller is not systemApp.");
+        callback->OnVerifyTokenResult(CHECK_SYSTEM_APP_FAILED, extraInfo);
+        return;
+    }
+
+    auto hdi = HdiWrapper::GetHdiInstance();
+    if (hdi == nullptr) {
+        IAM_LOGE("hdi interface is nullptr");
+        callback->OnVerifyTokenResult(GENERAL_ERROR, extraInfo);
+        return;
+    }
+
+    HdiUserAuthTokenPlain tokenPlain = {};
+    std::vector<uint8_t> rootSecret = {};
+    int32_t result = hdi->VerifyAuthToken(tokenIn, allowableDuration, tokenPlain, rootSecret);
+    if (result != SUCCESS) {
+        IAM_LOGE("VerifyAuthToken failed result:%{public}d", result);
+        callback->OnVerifyTokenResult(result, extraInfo);
+        return;
+    }
+    if (!GetAuthTokenAttr(tokenPlain, rootSecret, extraInfo)) {
+        IAM_LOGE("GetAuthTokenAttr failed");
+        callback->OnVerifyTokenResult(GENERAL_ERROR, extraInfo);
+        return;
+    }
+    callback->OnVerifyTokenResult(SUCCESS, extraInfo);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

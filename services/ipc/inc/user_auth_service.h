@@ -67,6 +67,8 @@ public:
     int32_t UnRegistUserAuthSuccessEventListener(const sptr<AuthEventListenerInterface> &listener) override;
     int32_t SetGlobalConfigParam(const GlobalConfigParam &param) override;
     int32_t PrepareRemoteAuth(const std::string &networkId, sptr<UserAuthCallbackInterface> &callback) override;
+    void VerifyAuthToken(const std::vector<uint8_t> &tokenIn, uint64_t allowableDuration,
+        const sptr<VerifyTokenCallbackInterface> &callback) override;
 
 protected:
     void OnStart() override;
@@ -112,6 +114,8 @@ private:
     int32_t PrepareRemoteAuthInner(const std::string &networkId);
     int32_t GetAvailableStatusInner(int32_t apiVersion, int32_t userId, AuthType authType,
         AuthTrustLevel authTrustLevel);
+    bool GetAuthTokenAttr(const HdiUserAuthTokenPlain &tokenPlain, const std::vector<uint8_t> &rootSecret,
+        Attributes &extraInfo);
     std::shared_ptr<ResourceNode> GetResourseNode(AuthType authType);
     void ProcessPinExpired(int32_t ret, const AuthParamInner &authParam, std::vector<AuthType> &validType,
         ContextFactory::AuthWidgetContextPara &para);

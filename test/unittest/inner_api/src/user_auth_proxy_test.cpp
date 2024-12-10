@@ -19,10 +19,13 @@
 #include "user_auth_proxy.h"
 #include "mock_remote_object.h"
 #include "mock_user_auth_service.h"
+#include "mock_user_access_ctrl_callback_service.h"
+#include "mock_user_access_ctrl_client_callback.h"
 #include "mock_user_auth_client_callback.h"
 #include "mock_user_auth_callback_service.h"
 #include "mock_iuser_auth_widget_callback.h"
 #include "user_auth_callback_service.h"
+#include "user_access_ctrl_callback_service.h"
 #include "widget_callback_service.h"
 
 namespace OHOS {
@@ -555,7 +558,6 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxySetGlobalConfigParam003, TestSize.Level
     EXPECT_EQ(proxy->SetGlobalConfigParam(param), GENERAL_ERROR);
 }
 
-
 HWTEST_F(UserAuthProxyTest, UserAuthProxyGetPropertyById, TestSize.Level0)
 {
     static const uint64_t testCredentialId = 1;
@@ -588,6 +590,43 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxyGetPropertyById, TestSize.Level0)
             return SUCCESS;
         });
     proxy->GetPropertyById(testCredentialId, testKeys, testCallback);
+}
+
+HWTEST_F(UserAuthProxyTest, UserAuthProxyVerifyAuthToken001, TestSize.Level0)
+{
+    std::vector<uint8_t> testTokenIn = {};
+    uint64_t testAllowableDuration = 0;
+
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    EXPECT_NE(obj, nullptr);
+    auto proxy = Common::MakeShared<UserAuthProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+
+    auto callback = Common::MakeShared<MockVerifyTokenCallback>();
+    EXPECT_NE(callback, nullptr);
+    sptr<VerifyTokenCallbackInterface> testCallback =
+        new (std::nothrow) VerifyTokenCallbackService(callback);
+
+    auto service = Common::MakeShared<MockUserAuthService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, VerifyAuthToken(_, _, _)).Times(Exactly(1));
+    ON_CALL(*service, VerifyAuthToken)
+        .WillByDefault(
+            [&testTokenIn, &testAllowableDuration, &testCallback]
+            (const std::vector<uint8_t> &tokenIn, uint64_t allowableDuration,
+                const sptr<VerifyTokenCallbackInterface> &callback) {
+                EXPECT_EQ(testTokenIn, tokenIn);
+                EXPECT_EQ(testAllowableDuration, allowableDuration);
+            }
+        );
+
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
+    ON_CALL(*obj, SendRequest)
+        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            service->OnRemoteRequest(code, data, reply, option);
+            return SUCCESS;
+        });
+    proxy->VerifyAuthToken(testTokenIn, testAllowableDuration, testCallback);
 }
 } // namespace UserAuth
 } // namespace UserIam

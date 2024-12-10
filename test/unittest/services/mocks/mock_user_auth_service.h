@@ -66,6 +66,8 @@ public:
     MOCK_METHOD1(UnRegistUserAuthSuccessEventListener, int32_t(const sptr<AuthEventListenerInterface> &callback));
     MOCK_METHOD1(SetGlobalConfigParam, int32_t(const GlobalConfigParam &param));
     MOCK_METHOD2(PrepareRemoteAuth, int32_t(const std::string &networkId, sptr<UserAuthCallbackInterface> &callback));
+    MOCK_METHOD3(VerifyAuthToken, void(const std::vector<uint8_t> &tokenIn, uint64_t allowableDuration,
+        const sptr<VerifyTokenCallbackInterface> &callback));
 };
 } // namespace UserAuth
 } // namespace UserIam
