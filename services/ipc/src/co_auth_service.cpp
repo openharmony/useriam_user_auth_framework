@@ -277,6 +277,7 @@ int CoAuthService::Dump(int fd, const std::vector<std::u16string> &args)
             if (nodeTmp != nullptr) {
                 dprintf(fd, "ExecutorIndex is: %" PRIx64 ".\n", nodeTmp->GetExecutorIndex());
                 dprintf(fd, "ExecutorType is: %s.\n", Common::AuthTypeToStr(nodeTmp->GetAuthType()));
+                dprintf(fd, "ExecutorRole is: %s.\n", Common::ExecutorRoleToStr(nodeTmp->GetExecutorRole()));
             }
         });
         return SUCCESS;

@@ -43,8 +43,17 @@ static inline std::string GetPointerNullStateString(void *p)
 static inline const char *AuthTypeToStr(uint32_t authType)
 {
     static std::map<uint32_t, std::string> typeNames = {{0, "All"}, {1, "Pin"}, {2, "Face"},
-        {4, "Fingerprint"}, {8, "RecoveryKey"}};
+        {4, "Fingerprint"}, {8, "RecoveryKey"}, {16, "PrivatePin"}};
     if (auto iter = typeNames.find(authType); iter != typeNames.end()) {
+        return iter->second.c_str();
+    }
+    return "unknown";
+}
+
+static inline const char *ExecutorRoleToStr(uint32_t executorRole)
+{
+    static std::map<uint32_t, std::string> typeNames = {{1, "Collector"}, {2, "Verifier"}, {3, "AllInOne"}};
+    if (auto iter = typeNames.find(executorRole); iter != typeNames.end()) {
         return iter->second.c_str();
     }
     return "unknown";
