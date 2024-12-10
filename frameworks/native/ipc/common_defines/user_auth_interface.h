@@ -23,6 +23,7 @@
 #include "refbase.h"
 
 #include "attributes.h"
+#include "user_access_ctrl_callback_interface.h"
 #include "user_auth_callback_interface.h"
 #include "user_auth_client_callback.h"
 #include "user_auth_interface_ipc_interface_code.h"
@@ -78,6 +79,9 @@ public:
     virtual int32_t SetGlobalConfigParam(const GlobalConfigParam &param) = 0;
 
     virtual int32_t PrepareRemoteAuth(const std::string &networkId, sptr<UserAuthCallbackInterface> &callback) = 0;
+
+    virtual void VerifyAuthToken(const std::vector<uint8_t> &tokenIn, uint64_t allowableDuration,
+        const sptr<VerifyTokenCallbackInterface> &callback) = 0;
 
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIam.UserAuth.IUserAuth");
 };

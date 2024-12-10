@@ -934,6 +934,45 @@ int32_t UserAuthProxy::PrepareRemoteAuth(const std::string &networkId, sptr<User
     }
     return result;
 }
+
+void UserAuthProxy::VerifyAuthToken(const std::vector<uint8_t> &tokenIn, uint64_t allowableDuration,
+    const sptr<VerifyTokenCallbackInterface> &callback)
+{
+    if (callback == nullptr) {
+        IAM_LOGE("callback is nullptr");
+        return;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    Attributes extraInfo;
+
+    if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
+        IAM_LOGE("failed to write descriptor");
+        callback->OnVerifyTokenResult(WRITE_PARCEL_ERROR, extraInfo);
+        return;
+    }
+    if (!data.WriteUInt8Vector(tokenIn)) {
+        IAM_LOGE("failed to write tokenIn");
+        callback->OnVerifyTokenResult(WRITE_PARCEL_ERROR, extraInfo);
+        return;
+    }
+    if (!data.WriteUint64(allowableDuration)) {
+        IAM_LOGE("failed to write allowableDuration");
+        callback->OnVerifyTokenResult(WRITE_PARCEL_ERROR, extraInfo);
+        return;
+    }
+    if (!data.WriteRemoteObject(callback->AsObject())) {
+        IAM_LOGE("failed to write callback");
+        callback->OnVerifyTokenResult(WRITE_PARCEL_ERROR, extraInfo);
+        return;
+    }
+
+    bool ret = SendRequest(UserAuthInterfaceCode::USER_ACCESS_CTRL_VERIFY_AUTH_TOKEN, data, reply);
+    if (!ret) {
+        IAM_LOGE("failed to send verify token IPC request");
+        callback->OnVerifyTokenResult(GENERAL_ERROR, extraInfo);
+    }
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

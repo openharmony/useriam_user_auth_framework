@@ -38,6 +38,7 @@ enum Permission {
     SUPPORT_USER_AUTH,
     IS_SYSTEM_APP,
     CLEAR_REDUNDANCY_PERMISSION,
+    USE_USER_ACCESS_MANAGER,
 };
 
 class IpcCommon final : public NoCopyable {

@@ -35,8 +35,6 @@ public:
         ContextFactory::AuthProfile &profile);
 
 private:
-    static const uint32_t USER_AUTH_TOKEN_LEN = 148;
-
     static bool ParseAttributes(const Attributes &values, const AuthType &authType,
         ContextFactory::AuthProfile &profile);
     static int32_t SetReuseUnlockResult(int32_t apiVersion, const HdiReuseUnlockInfo &info,

@@ -29,6 +29,7 @@
         OHOS::UserIam::UserAuth::Attributes*;
         OHOS::UserIam::UserAuth::UserAuthClientImpl::GetEnrolledState*;
         OHOS::UserIam::UserAuth::AuthEventListenerStub::OnRemoteRequest*;
+        OHOS::UserIam::UserAuth::UserAccessCtrlClient::GetInstance*;
     };
     local:
         *;
