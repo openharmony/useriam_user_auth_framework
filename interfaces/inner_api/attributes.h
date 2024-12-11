@@ -201,6 +201,8 @@ public:
         ATTR_TOKEN_VERSION = 100089,
         /* Token type of token, the value type is int32_t. */
         ATTR_TOKEN_TYPE = 100090,
+        /* Token time interval between sign and verify, the value type is int64_t. */
+        ATTR_TOKEN_TIME_INTERVAL = 100091,
     };
 
     /**
