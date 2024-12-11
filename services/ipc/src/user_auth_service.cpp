@@ -1426,7 +1426,7 @@ bool UserAuthService::GetAuthTokenAttr(const HdiUserAuthTokenPlain &tokenPlain, 
     IF_FALSE_LOGE_AND_RETURN_VAL(setUserIdRet == true, false);
     bool setChallengeRet = extraInfo.SetUint8ArrayValue(Attributes::ATTR_CHALLENGE, tokenPlain.challenge);
     IF_FALSE_LOGE_AND_RETURN_VAL(setChallengeRet == true, false);
-    bool setTimeStampRet = extraInfo.SetUint64Value(Attributes::ATTR_TIME_STAMP, tokenPlain.timeInterval);
+    bool setTimeStampRet = extraInfo.SetUint64Value(Attributes::ATTR_TOKEN_TIME_INTERVAL, tokenPlain.timeInterval);
     IF_FALSE_LOGE_AND_RETURN_VAL(setTimeStampRet == true, false);
     bool setTrustLevelRet = extraInfo.SetUint32Value(Attributes::ATTR_AUTH_TRUST_LEVEL, tokenPlain.authTrustLevel);
     IF_FALSE_LOGE_AND_RETURN_VAL(setTrustLevelRet == true, false);
