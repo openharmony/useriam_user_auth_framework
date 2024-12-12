@@ -361,6 +361,7 @@ void UserAuthService::GetPropertyById(uint64_t credentialId, const std::vector<A
     }
 
     std::shared_ptr<CredentialInfoInterface> credInfo;
+    std::vector<uint64_t> templateIds;
     if (IsTemplateIdListRequired(keys)) {
         int32_t ret = UserIdmDatabase::Instance().GetCredentialInfoById(credentialId, credInfo);
         if (ret != SUCCESS) {
@@ -373,9 +374,9 @@ void UserAuthService::GetPropertyById(uint64_t credentialId, const std::vector<A
             callback->OnGetExecutorPropertyResult(NOT_ENROLLED, values);
             return;
         }
+        templateIds.push_back(credInfo->GetTemplateId());
     }
 
-    std::vector<uint64_t> templateIds = { credInfo->GetTemplateId() };
     GetPropertyInner(credInfo->GetAuthType(), keys, callback, templateIds);
 }
 
