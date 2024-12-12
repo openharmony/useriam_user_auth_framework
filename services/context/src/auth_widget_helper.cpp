@@ -77,7 +77,6 @@ bool AuthWidgetHelper::GetUserAuthProfile(int32_t userId, const AuthType &authTy
         IAM_LOGE("resourceNode is nullptr");
         return false;
     }
-
     std::vector<uint64_t> templateIds;
     templateIds.reserve(credentialInfos.size());
     for (auto &info : credentialInfos) {
@@ -88,14 +87,15 @@ bool AuthWidgetHelper::GetUserAuthProfile(int32_t userId, const AuthType &authTy
         templateIds.push_back(info->GetTemplateId());
     }
     std::vector<uint32_t> uint32Keys = {
-        Attributes::ATTR_SENSOR_INFO,
         Attributes::ATTR_REMAIN_TIMES,
         Attributes::ATTR_FREEZING_TIME
     };
     if (authType == AuthType::PIN || authType == AuthType::PRIVATE_PIN) {
         uint32Keys.push_back(Attributes::ATTR_PIN_SUB_TYPE);
     }
-
+    if (authType == AuthType::FINGERPRINT) {
+        uint32Keys.push_back(Attributes::ATTR_SENSOR_INFO);
+    }
     Attributes attr;
     attr.SetInt32Value(Attributes::ATTR_AUTH_TYPE, authType);
     attr.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_GET);
@@ -118,7 +118,8 @@ bool AuthWidgetHelper::ParseAttributes(const Attributes &values, const AuthType 
             return false;
         }
     }
-    if (!values.GetStringValue(Attributes::ATTR_SENSOR_INFO, profile.sensorInfo)) {
+    if (authType == AuthType::FINGERPRINT && (!values.GetStringValue(Attributes::ATTR_SENSOR_INFO,
+        profile.sensorInfo))) {
         IAM_LOGE("get ATTR_SENSOR_INFO failed");
         return false;
     }
