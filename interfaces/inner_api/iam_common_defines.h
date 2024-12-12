@@ -187,6 +187,10 @@ enum ResultCode : int32_t {
     PIN_EXPIRED = 13,
     /** The result is fail, because the PIN_MIXED does not pass complexity check. */
     COMPLEXITY_CHECK_FAILED = 14,
+    /** The result is fail, because the authToken integrity check failed. */
+    AUTH_TOKEN_CHECK_FAILED = 15,
+    /** The result is fail, because the authToken has expired. */
+    AUTH_TOKEN_EXPIRED = 16,
     /** The result is fail, because something wrong from system. */
     SYSTEM_ERROR_CODE_BEGIN = 1000,
     /** The result is fail, because something wrong from ipc. */
