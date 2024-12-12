@@ -19,19 +19,19 @@
 #include "modal_callback_stub.h"
 
 #include "iam_hitrace_helper.h"
-#include "user_auth_modal_callback.h"
+#include "user_auth_modal_client_callback.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 class ModalCallbackService : public ModalCallbackStub {
 public:
-    explicit ModalCallbackService(const std::shared_ptr<UserAuthModalCallback> &impl);
+    explicit ModalCallbackService(const std::shared_ptr<UserAuthModalClientCallback> &impl);
     ~ModalCallbackService() override;
     void SendCommand(uint64_t contextId, const std::string &cmdData) override;
 
 private:
-    std::shared_ptr<UserAuthModalCallback> modalCallback_ {nullptr};
+    std::shared_ptr<UserAuthModalClientCallback> modalCallback_ {nullptr};
     std::shared_ptr<UserIam::UserAuth::IamHitraceHelper> iamHitraceHelper_ {nullptr};
 };
 } // namespace UserAuth

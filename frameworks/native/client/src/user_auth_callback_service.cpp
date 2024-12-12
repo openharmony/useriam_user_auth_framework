@@ -39,7 +39,7 @@ UserAuthCallbackService::UserAuthCallbackService(const std::shared_ptr<Authentic
 }
 
 UserAuthCallbackService::UserAuthCallbackService(const std::shared_ptr<AuthenticationCallback> &impl,
-    const std::shared_ptr<UserAuthModalCallback> &modalCallback)
+    const std::shared_ptr<UserAuthModalClientCallback> &modalCallback)
     : authCallback_(impl), modalCallback_(modalCallback),
     iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("UserAuth InnerKit"))
 {

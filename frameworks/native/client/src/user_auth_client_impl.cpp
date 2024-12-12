@@ -27,6 +27,7 @@
 #include "ipc_client_utils.h"
 #include "modal_callback_service.h"
 #include "user_auth_callback_service.h"
+#include "user_auth_modal_inner_callback.h"
 #include "widget_callback_service.h"
 
 #define LOG_TAG "USER_AUTH_SDK"
@@ -485,7 +486,7 @@ uint64_t UserAuthClientImpl::BeginWidgetAuthInner(int32_t apiVersion, const Auth
     }
 
     // modal
-    const std::shared_ptr<UserAuthModalCallback> &modalCallback = Common::MakeShared<UserAuthModalCallback>(nullptr);
+    const std::shared_ptr<UserAuthModalInnerCallback> &modalCallback = Common::MakeShared<UserAuthModalInnerCallback>();
     sptr<ModalCallbackInterface> wrapperModal(new (std::nothrow) ModalCallbackService(modalCallback));
     if (wrapperModal == nullptr) {
         IAM_LOGE("failed to create wrapper for modal");

@@ -24,7 +24,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-ModalCallbackService::ModalCallbackService(const std::shared_ptr<UserAuthModalCallback> &impl)
+ModalCallbackService::ModalCallbackService(const std::shared_ptr<UserAuthModalClientCallback> &impl)
     : modalCallback_(impl),
     iamHitraceHelper_(Common::MakeShared<UserIam::UserAuth::IamHitraceHelper>("UserAuthWidget"))
 {
