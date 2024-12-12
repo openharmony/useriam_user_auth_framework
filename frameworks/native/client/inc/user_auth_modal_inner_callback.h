@@ -13,28 +13,26 @@
  * limitations under the License.
  */
 
-#ifndef MOCK_USER_AUTH_MODAL_CALLBACK_H
-#define MOCK_USER_AUTH_MODAL_CALLBACK_H
-
-#include <gmock/gmock.h>
+#ifndef USER_AUTH_MODAL_INNER_CALLBACK_H
+#define USER_AUTH_MODAL_INNER_CALLBACK_H
 
 #include "user_auth_modal_client_callback.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockUserAuthModalCallback final : public UserAuthModalClientCallback {
+class UserAuthModalInnerCallback : public UserAuthModalClientCallback {
 public:
-    MockUserAuthModalCallback();
-    virtual ~MockUserAuthModalCallback() = default;
-    MOCK_METHOD2(SendCommand, void(uint64_t contextId, const std::string &cmdData));
-    MOCK_METHOD0(IsModalInit, bool());
-    MOCK_METHOD0(IsModalDestroy, bool());
+    explicit UserAuthModalInnerCallback();
+    ~UserAuthModalInnerCallback();
+    void SendCommand(uint64_t contextId, const std::string &cmdData) override;
+    bool IsModalInit() override;
+    bool IsModalDestroy() override;
 
 private:
-    MOCK_METHOD1(CancelAuthentication, void(uint64_t contextId));
+    void CancelAuthentication(uint64_t contextId) override;
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // MOCK_USER_AUTH_MODAL_CALLBACK_H
+#endif // USER_AUTH_MODAL_INNER_CALLBACK_H

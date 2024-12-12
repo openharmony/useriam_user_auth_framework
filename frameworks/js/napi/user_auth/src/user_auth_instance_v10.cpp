@@ -28,8 +28,8 @@
 #include "iam_ptr.h"
 
 #include "user_auth_client_impl.h"
-#include "user_auth_napi_helper.h"
 #include "user_auth_common_defines.h"
+#include "user_auth_napi_helper.h"
 
 #define LOG_TAG "USER_AUTH_NAPI"
 
@@ -427,7 +427,8 @@ UserAuthResultCode UserAuthInstanceV10::ProcessContext(napi_env env, napi_value 
         }
         auto context = OHOS::AbilityRuntime::GetStageModeContext(env, napi_uiContext);
         if (CheckUIContext(context)) {
-            widgetParam_.context = context;
+            context_ = context;
+            widgetParam_.hasContext = true;
             IAM_LOGI("widgetParam has valid uiContext");
         } else {
             // Default as modal system
@@ -668,8 +669,13 @@ UserAuthResultCode UserAuthInstanceV10::Start(napi_env env, napi_callback_info i
         IAM_LOGE("auth already started");
         return UserAuthResultCode::GENERAL_ERROR;
     }
+    if (context_ != nullptr) {
+        modalCallback_ = Common::MakeShared<UserAuthModalCallback>(context_);
+    } else {
+        modalCallback_ = Common::MakeShared<UserAuthModalCallback>(nullptr);
+    }
     contextId_ = UserAuthNapiClientImpl::Instance().BeginWidgetAuth(API_VERSION_10,
-        authParam_, widgetParam_, callback_);
+        authParam_, widgetParam_, callback_, modalCallback_);
     isAuthStarted_ = true;
     return UserAuthResultCode::SUCCESS;
 }

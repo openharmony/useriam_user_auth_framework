@@ -25,6 +25,7 @@
 #include "auth_common.h"
 #include "auth_instance_v9.h"
 #include "user_auth_callback_v10.h"
+#include "user_auth_modal_callback.h"
 #include "user_auth_napi_client_impl.h"
 
 namespace OHOS {
@@ -65,6 +66,8 @@ private:
     bool isAuthStarted_ = false;
     std::mutex mutex_;
     std::shared_ptr<UserAuthCallbackV10> callback_ = nullptr;
+    std::shared_ptr<UserAuthModalCallback> modalCallback_ = nullptr;
+    std::shared_ptr<AbilityRuntime::Context> context_ = nullptr;
 };
 } // namespace UserAuth
 } // namespace UserIam
