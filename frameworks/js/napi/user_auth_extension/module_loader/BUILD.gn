@@ -46,6 +46,7 @@ ohos_shared_library("user_auth_extension") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_napi",
+    "ipc:ipc_single",
     "napi:ace_napi",
   ]
 
@@ -81,6 +82,8 @@ ohos_shared_library("user_auth_extension_module") {
     "ability_runtime:runtime",
     "ability_runtime:ui_extension",
     "hilog:libhilog",
+    "ipc:ipc_napi",
+    "ipc:ipc_single",
     "napi:ace_napi",
   ]
 
