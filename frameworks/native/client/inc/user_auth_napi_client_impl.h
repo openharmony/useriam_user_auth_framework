@@ -20,11 +20,10 @@
 
 #include "nocopyable.h"
 
-#include "ui_content.h"
-
 #include "user_auth_client_callback.h"
 #include "user_auth_client_defines.h"
 #include "user_auth_interface.h"
+#include "user_auth_modal_client_callback.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -41,19 +40,20 @@ public:
         std::string navigationButtonText;
         /** Full screen or not. */
         WindowModeType windowMode;
-        /** UI context of caller hap. */
-        std::shared_ptr<AbilityRuntime::Context> context;
+        /** Default has't context. */
+        bool hasContext {false};
     };
 
     static UserAuthNapiClientImpl& Instance();
     uint64_t BeginWidgetAuth(int32_t apiVersion, const AuthParamInner &authParam, const WidgetParamNapi &widgetParam,
-        const std::shared_ptr<AuthenticationCallback> &callback);
+        const std::shared_ptr<AuthenticationCallback> &callback,
+        const std::shared_ptr<UserAuthModalClientCallback> &modalCallback);
     int32_t CancelAuthentication(uint64_t contextId, int32_t cancelReason);
 
 private:
     uint64_t BeginWidgetAuthInner(int32_t apiVersion, const AuthParamInner &authParam,
         const WidgetParamInner &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback,
-        const std::shared_ptr<AbilityRuntime::Context> context);
+        const std::shared_ptr<UserAuthModalClientCallback> &modalCallback);
 
     UserAuthNapiClientImpl() = default;
     ~UserAuthNapiClientImpl() override = default;

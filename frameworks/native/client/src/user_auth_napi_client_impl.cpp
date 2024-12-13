@@ -86,36 +86,35 @@ UserAuthNapiClientImpl &UserAuthNapiClientImpl::Instance()
 }
 
 uint64_t UserAuthNapiClientImpl::BeginWidgetAuth(int32_t apiVersion, const AuthParamInner &authParam,
-    const WidgetParamNapi &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback)
+    const WidgetParamNapi &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback,
+    const std::shared_ptr<UserAuthModalClientCallback> &modalCallback)
 {
     IAM_LOGI("start, apiVersion: %{public}d authTypeSize: %{public}zu authTrustLevel: %{public}u userId:%{public}d",
         apiVersion, authParam.authTypes.size(), authParam.authTrustLevel, authParam.userId);
 
     AuthParamInner authParamInner = {
+        .userId = authParam.userId,
+        .isUserIdSpecified = authParam.userId == INVALID_USER_ID ? false : true,
         .challenge = authParam.challenge,
         .authTypes = authParam.authTypes,
         .authTrustLevel = authParam.authTrustLevel,
         .reuseUnlockResult = authParam.reuseUnlockResult,
-        .isUserIdSpecified = authParam.userId == INVALID_USER_ID ? false : true,
-        .userId = authParam.userId,
     };
     WidgetParamInner widgetParamInner = {
         .title = widgetParam.title,
         .navigationButtonText = widgetParam.navigationButtonText,
         .windowMode = widgetParam.windowMode,
+        .hasContext = widgetParam.hasContext,
     };
-    if (widgetParam.context != nullptr) {
-        widgetParamInner.hasContext = true;
-    }
     IAM_LOGI("has context: %{public}d", widgetParamInner.hasContext);
-    return BeginWidgetAuthInner(apiVersion, authParamInner, widgetParamInner, callback, widgetParam.context);
+    return BeginWidgetAuthInner(apiVersion, authParamInner, widgetParamInner, callback, modalCallback);
 }
 
 uint64_t UserAuthNapiClientImpl::BeginWidgetAuthInner(int32_t apiVersion, const AuthParamInner &authParam,
     const WidgetParamInner &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback,
-    const std::shared_ptr<AbilityRuntime::Context> context)
+    const std::shared_ptr<UserAuthModalClientCallback> &modalCallback)
 {
-    if (!callback) {
+    if (!callback || !modalCallback) {
         IAM_LOGE("auth callback is nullptr");
         return BAD_CONTEXT_ID;
     }
@@ -127,10 +126,7 @@ uint64_t UserAuthNapiClientImpl::BeginWidgetAuthInner(int32_t apiVersion, const 
         return BAD_CONTEXT_ID;
     }
 
-    // modal
-    const std::shared_ptr<UserAuthModalCallback> &modalCallback = Common::MakeShared<UserAuthModalCallback>(context);
-
-    sptr<UserAuthCallbackInterface> wrapper(new (std::nothrow) UserAuthCallbackService(callback));
+    sptr<UserAuthCallbackInterface> wrapper(new (std::nothrow) UserAuthCallbackService(callback, modalCallback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;

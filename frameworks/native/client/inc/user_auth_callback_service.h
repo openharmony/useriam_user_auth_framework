@@ -20,7 +20,7 @@
 
 #include "iam_hitrace_helper.h"
 #include "user_auth_client_callback.h"
-#include "user_auth_modal_callback.h"
+#include "user_auth_modal_client_callback.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -29,7 +29,7 @@ class UserAuthCallbackService : public UserAuthCallbackStub {
 public:
     explicit UserAuthCallbackService(const std::shared_ptr<AuthenticationCallback> &impl);
     explicit UserAuthCallbackService(const std::shared_ptr<AuthenticationCallback> &impl,
-        const std::shared_ptr<UserAuthModalCallback> &modalCallback);
+        const std::shared_ptr<UserAuthModalClientCallback> &modalCallback);
     explicit UserAuthCallbackService(const std::shared_ptr<IdentificationCallback> &impl);
     explicit UserAuthCallbackService(const std::shared_ptr<PrepareRemoteAuthCallback> &impl);
     ~UserAuthCallbackService() override;
@@ -38,7 +38,7 @@ public:
 
 private:
     std::shared_ptr<AuthenticationCallback> authCallback_ {nullptr};
-    std::shared_ptr<UserAuthModalCallback> modalCallback_ {nullptr};
+    std::shared_ptr<UserAuthModalClientCallback> modalCallback_ {nullptr};
     std::shared_ptr<IdentificationCallback> identifyCallback_ {nullptr};
     std::shared_ptr<PrepareRemoteAuthCallback> prepareRemoteAuthCallback_ {nullptr};
     std::shared_ptr<UserIam::UserAuth::IamHitraceHelper> iamHitraceHelper_ {nullptr};

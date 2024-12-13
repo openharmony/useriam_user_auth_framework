@@ -24,6 +24,7 @@
 #include "modal_callback_service.h"
 #include "user_auth_client_impl.h"
 #include "user_auth_callback_service.h"
+#include "user_auth_modal_inner_callback.h"
 #include "user_auth_napi_client_impl.h"
 
 #define LOG_TAG "USER_AUTH_SDK"
@@ -297,7 +298,8 @@ void FuzzNapiBeginWidgetAuth(Parcel &parcel)
     widgetParam.navigationButtonText = parcel.ReadString();
     widgetParam.windowMode = static_cast<WindowModeType>(parcel.ReadInt32());
     auto callback = Common::MakeShared<DummyAuthenticationCallback>();
-    UserAuthNapiClientImpl::Instance().BeginWidgetAuth(apiVersion, authParam, widgetParam, callback);
+    std::shared_ptr<UserAuthModalInnerCallback> modalCallback = Common::MakeShared<UserAuthModalInnerCallback>();
+    UserAuthNapiClientImpl::Instance().BeginWidgetAuth(apiVersion, authParam, widgetParam, callback, modalCallback);
     IAM_LOGI("end");
 }
 

@@ -19,23 +19,24 @@
 #include <string>
 
 #include "modal_extension_callback.h"
+#include "user_auth_modal_client_callback.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class UserAuthModalCallback {
+class UserAuthModalCallback : public UserAuthModalClientCallback {
 public:
     explicit UserAuthModalCallback(const std::shared_ptr<AbilityRuntime::Context> context);
     ~UserAuthModalCallback();
-    void SendCommand(uint64_t contextId, const std::string &cmdData);
-    bool IsModalInit();
-    bool IsModalDestroy();
+    void SendCommand(uint64_t contextId, const std::string &cmdData) override;
+    bool IsModalInit() override;
+    bool IsModalDestroy() override;
 
 private:
+    void CancelAuthentication(uint64_t contextId) override;
     Ace::UIContent* InitAndGetUIContent(const std::shared_ptr<OHOS::AbilityRuntime::Context> context);
     bool CreateUIExtension(const std::shared_ptr<OHOS::AbilityRuntime::Context> context, uint64_t contextId,
         const std::string &cmdData);
-    void CancelAuthentication(uint64_t contextId);
 
     std::shared_ptr<AbilityRuntime::Context> context_ {nullptr};
     std::shared_ptr<ModalExtensionCallback> uiExtCallback_ {nullptr};

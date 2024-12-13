@@ -13,28 +13,25 @@
  * limitations under the License.
  */
 
-#ifndef MOCK_USER_AUTH_MODAL_CALLBACK_H
-#define MOCK_USER_AUTH_MODAL_CALLBACK_H
+#ifndef USER_AUTH_MODAL_CLIENT_CALLBACK_H
+#define USER_AUTH_MODAL_CLIENT_CALLBACK_H
 
-#include <gmock/gmock.h>
-
-#include "user_auth_modal_client_callback.h"
+#include <string>
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockUserAuthModalCallback final : public UserAuthModalClientCallback {
+class UserAuthModalClientCallback {
 public:
-    MockUserAuthModalCallback();
-    virtual ~MockUserAuthModalCallback() = default;
-    MOCK_METHOD2(SendCommand, void(uint64_t contextId, const std::string &cmdData));
-    MOCK_METHOD0(IsModalInit, bool());
-    MOCK_METHOD0(IsModalDestroy, bool());
+    virtual ~UserAuthModalClientCallback() = default;
+    virtual void SendCommand(uint64_t contextId, const std::string &cmdData) = 0;
+    virtual bool IsModalInit() = 0;
+    virtual bool IsModalDestroy() = 0;
 
 private:
-    MOCK_METHOD1(CancelAuthentication, void(uint64_t contextId));
+    virtual void CancelAuthentication(uint64_t contextId) = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // MOCK_USER_AUTH_MODAL_CALLBACK_H
+#endif // USER_AUTH_MODAL_CLIENT_CALLBACK_H
