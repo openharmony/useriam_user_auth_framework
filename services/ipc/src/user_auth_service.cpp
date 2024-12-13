@@ -361,22 +361,22 @@ void UserAuthService::GetPropertyById(uint64_t credentialId, const std::vector<A
     }
 
     std::shared_ptr<CredentialInfoInterface> credInfo;
-    if (IsTemplateIdListRequired(keys)) {
-        int32_t ret = UserIdmDatabase::Instance().GetCredentialInfoById(credentialId, credInfo);
-        if (ret != SUCCESS) {
-            IAM_LOGE("get templates fail, ret:%{public}d", ret);
-            callback->OnGetExecutorPropertyResult(GENERAL_ERROR, values);
-            return;
-        }
-        if (credInfo == NULL) {
-            IAM_LOGE("template id list is required, but templateIds size is 0");
-            callback->OnGetExecutorPropertyResult(NOT_ENROLLED, values);
-            return;
-        }
+    std::vector<uint64_t> templateIds;
+    int32_t ret = UserIdmDatabase::Instance().GetCredentialInfoById(credentialId, credInfo);
+    if (ret != SUCCESS) {
+        IAM_LOGE("get credentialInfp fail, ret:%{public}d", ret);
+        callback->OnGetExecutorPropertyResult(ret, values);
+        return;
+    }
+    if (credInfo == nullptr) {
+        IAM_LOGE("credential is nullptr");
+        callback->OnGetExecutorPropertyResult(GENERAL_ERROR, values);
+        return;
     }
 
-    std::vector<uint64_t> templateIds = { credInfo->GetTemplateId() };
-    GetPropertyInner(credInfo->GetAuthType(), keys, callback, templateIds);
+    AuthType authType = credInfo->GetAuthType();
+    templateIds.push_back(credInfo->GetTemplateId());
+    GetPropertyInner(authType, keys, callback, templateIds);
 }
 
 void UserAuthService::SetProperty(int32_t userId, AuthType authType, const Attributes &attributes,

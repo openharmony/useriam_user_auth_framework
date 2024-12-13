@@ -213,28 +213,22 @@ int32_t UserIdmDatabaseImpl::GetCredentialInfoById(uint64_t credentialId,
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi == nullptr) {
         IAM_LOGE("bad hdi");
-        return INVALID_HDI_INTERFACE;
+        return GENERAL_ERROR;
     }
 
     HdiCredentialInfo hdiInfo;
     int32_t ret = hdi->GetCredentialById(credentialId, hdiInfo);
     if (ret != HDF_SUCCESS) {
         IAM_LOGE("GetCredentialById failed, error code : %{public}d", ret);
-        return GENERAL_ERROR;
+        return ret;
     }
 
-    if (hdiInfo.credentialId != credentialId) {
-        IAM_LOGE("credential is not exist");
-        return NOT_ENROLLED;
-    }
-
-    auto info = Common::MakeShared<CredentialInfoImpl>(0, hdiInfo);
-    if (info == nullptr) {
+    credInfo = Common::MakeShared<CredentialInfoImpl>(0, hdiInfo);
+    if (credInfo == nullptr) {
         IAM_LOGE("bad alloc");
         return GENERAL_ERROR;
     }
 
-    credInfo = info;
     return SUCCESS;
 }
 
