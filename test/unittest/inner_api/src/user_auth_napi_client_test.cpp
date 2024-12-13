@@ -17,6 +17,7 @@
 
 #include "iam_ptr.h"
 #include "modal_callback_service.h"
+#include "user_auth_modal_inner_callback.h"
 #include "user_auth_napi_client_impl.h"
 
 namespace OHOS {
@@ -48,8 +49,9 @@ HWTEST_F(UserAuthNapiClientTest, UserAuthNapiClientBeginWidgetAuth001, TestSize.
     UserAuthNapiClientImpl::WidgetParamNapi widgetParam;
     std::shared_ptr<MockAuthenticationCallback> testCallback = nullptr;
     testCallback = Common::MakeShared<MockAuthenticationCallback>();
+    std::shared_ptr<UserAuthModalInnerCallback> testModalCallback = Common::MakeShared<UserAuthModalInnerCallback>();
     uint64_t widgetAuth = UserAuthNapiClientImpl::Instance().BeginWidgetAuth(apiVersion, authParam,
-        widgetParam, testCallback);
+        widgetParam, testCallback, testModalCallback);
     EXPECT_EQ(widgetAuth, 0);
 }
 
@@ -90,8 +92,9 @@ HWTEST_F(UserAuthNapiClientTest, UserAuthNapiClientBeginWidgetAuth002, TestSize.
     AuthParamInner testAuthParam = {};
     UserAuthNapiClientImpl::WidgetParamNapi testWidgetParam = {};
     testWidgetParam.title = "title";
+    std::shared_ptr<UserAuthModalInnerCallback> testModalCallback = Common::MakeShared<UserAuthModalInnerCallback>();
     uint64_t widgetAuth = UserAuthNapiClientImpl::Instance().BeginWidgetAuth(testVersion, testAuthParam,
-        testWidgetParam, testCallback);
+        testWidgetParam, testCallback, testModalCallback);
     EXPECT_EQ(widgetAuth, testContextVersion);
     dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
