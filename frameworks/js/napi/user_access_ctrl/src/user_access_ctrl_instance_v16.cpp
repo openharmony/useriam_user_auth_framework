@@ -62,7 +62,7 @@ napi_value UserAccessCtrlInstanceV16::VerifyAuthToken(napi_env env, napi_callbac
         return nullptr;
     }
     uint32_t duration;
-    if (UserAuth::UserAuthNapiHelper::GetUint32Value(envm, argv[PARAM1], duration) != napi_ok) {
+    if (UserAuth::UserAuthNapiHelper::GetUint32Value(env, argv[PARAM1], duration) != napi_ok) {
         IAM_LOGE("GetUint32Value fail");
         std::string msgStr = "Parameter error. The type of \"allowableDuration\" must be number.";
         napi_throw(env, UserAuth::UserAuthNapiHelper::GenerateErrorMsg(env,
