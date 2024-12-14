@@ -884,6 +884,37 @@ bool UserAuthService::CheckSingeFaceOrFinger(const std::vector<AuthType> &authTy
     return false;
 }
 
+bool UserAuthService::CheckPrivatePinEnroll(const std::vector<AuthType> &authType, std::vector<AuthType> &validType)
+{
+    bool hasPrivatePin = false;
+    for (auto &iter : authType) {
+        if (iter == AuthType::PRIVATE_PIN) {
+            hasPrivatePin = true;
+            break;
+        }
+    }
+    if (!hasPrivatePin) {
+        return true;
+    }
+    const size_t sizeTwo = 2;
+    bool hasFace = false;
+    bool hasFinger = false;
+    for (const auto &iter : validType) {
+        if (iter == AuthType::FACE) {
+            hasFace = true;
+        } else if (iter == AuthType::FINGERPRINT) {
+            hasFinger = true;
+        }
+        if (hasFace && hasFinger) {
+            break;
+        }
+    }
+    if (validType.size() == sizeTwo && hasFace && hasFinger) {
+        return false;
+    }
+    return true;
+}
+
 int32_t UserAuthService::CheckCallerPermissionForPrivatePin(const AuthParamInner &authParam)
 {
     bool hasPrivatePin = false;
@@ -1003,6 +1034,10 @@ int32_t UserAuthService::CheckValidSolution(int32_t userId, const AuthParamInner
     }
     if (widgetParam.windowMode == FULLSCREEN && CheckSingeFaceOrFinger(validType)) {
         IAM_LOGE("Single fingerprint or single face does not support full screen");
+        return INVALID_PARAMETERS;
+    }
+    if (!CheckPrivatePinEnroll(authParam.authTypes, validType)) {
+        IAM_LOGE("check privatePin enroll error");
         return INVALID_PARAMETERS;
     }
     return SUCCESS;
