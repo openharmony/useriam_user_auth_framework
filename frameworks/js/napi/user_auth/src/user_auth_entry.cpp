@@ -743,7 +743,7 @@ napi_value UserAuthResultCodeConstructor(napi_env env)
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "CANCELED_FROM_WIDGET", canceledFromWidget));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "AUTH_TOKEN_CHECK_FAILED", authTokenCheckFailed));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "AUTH_TOKEN_EXPIRED", authTokenExpired));
-        return resultCode;
+    return resultCode;
 }
 
 napi_value AuthenticationResultConstructor(napi_env env)
