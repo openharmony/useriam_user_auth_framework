@@ -80,6 +80,7 @@ private:
         const AuthParamInner &authParam, const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback);
     bool CheckAuthTrustLevel(AuthTrustLevel authTrustLevel);
     bool CheckSingeFaceOrFinger(const std::vector<AuthType> &authType);
+    bool CheckPrivatePinEnroll(const std::vector<AuthType> &authType, std::vector<AuthType> &validType);
     int32_t CheckAuthWidgetType(const std::vector<AuthType> &authType);
     int32_t CheckAuthPermissionAndParam(const AuthParamInner &authParam, const WidgetParam &widgetParam,
         bool isBackgroundApplication);
