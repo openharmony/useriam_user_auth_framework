@@ -81,6 +81,7 @@ ohos_source_set("userauth_client_ipc_fuzzer") {
     "../../../frameworks/native/ipc/src/co_auth_proxy.cpp",
     "../../../frameworks/native/ipc/src/executor_callback_stub.cpp",
     "../../../frameworks/native/ipc/src/executor_messenger_proxy.cpp",
+    "../../../frameworks/native/ipc/src/user_access_ctrl_callback_stub.cpp",
     "../../../frameworks/native/ipc/src/user_auth_callback_stub.cpp",
     "../../../frameworks/native/ipc/src/user_auth_event_listener_stub.cpp",
     "../../../frameworks/native/ipc/src/user_auth_proxy.cpp",
@@ -287,6 +288,7 @@ ohos_source_set("userauth_service_context_fuzzer") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "init:libbegetutil",
+    "ipc:ipc_single",
     "napi:ace_napi",
   ]
 
@@ -317,6 +319,7 @@ ohos_source_set("userauth_service_ipc_fuzzer") {
     "../../../frameworks/native/ipc/src/co_auth_stub.cpp",
     "../../../frameworks/native/ipc/src/executor_callback_proxy.cpp",
     "../../../frameworks/native/ipc/src/executor_messenger_stub.cpp",
+    "../../../frameworks/native/ipc/src/user_access_ctrl_callback_proxy.cpp",
     "../../../frameworks/native/ipc/src/user_auth_callback_proxy.cpp",
     "../../../frameworks/native/ipc/src/user_auth_event_listener_proxy.cpp",
     "../../../frameworks/native/ipc/src/user_auth_stub.cpp",
@@ -429,6 +432,7 @@ ohos_source_set("userauth_services_ipc_fuzzer") {
     "c_utils:utils",
     "device_manager:devicemanagersdk",
     "drivers_interface_user_auth:libuser_auth_proxy_3.0",
+    "dsoftbus:softbus_client",
     "hicollie:libhicollie",
     "hilog:libhilog",
     "hitrace:hitrace_meter",

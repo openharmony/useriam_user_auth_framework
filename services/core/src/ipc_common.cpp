@@ -23,7 +23,6 @@
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 #include "tokenid_kit.h"
-#include "parameters.h"
 #ifdef HAS_OS_ACCOUNT_PART
 #include "os_account_manager.h"
 #include "os_account_info.h"
@@ -42,6 +41,7 @@ namespace PermissionString {
     const std::string ACCESS_AUTH_RESPOOL = "ohos.permission.ACCESS_AUTH_RESPOOL";
     const std::string ENFORCE_USER_IDM = "ohos.permission.ENFORCE_USER_IDM";
     const std::string SUPPORT_USER_AUTH = "ohos.permission.SUPPORT_USER_AUTH";
+    const std::string USE_USER_ACCESS_MANAGER = "ohos.permission.USE_USER_ACCESS_MANAGER";
 }
 
 namespace {
@@ -193,6 +193,8 @@ bool IpcCommon::CheckPermission(IPCObjectStub &stub, Permission permission)
             return CheckCallerIsSystemApp(stub);
         case CLEAR_REDUNDANCY_PERMISSION:
             return CheckDirectCaller(stub, PermissionString::ENFORCE_USER_IDM);
+        case USE_USER_ACCESS_MANAGER:
+            return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::USE_USER_ACCESS_MANAGER);
         default:
             IAM_LOGE("failed to check permission");
             return false;
@@ -230,6 +232,7 @@ std::vector<std::pair<int32_t, std::string>> IpcCommon::GetWhiteLists(Permission
         case ACCESS_AUTH_RESPOOL:
         case SUPPORT_USER_AUTH:
         case IS_SYSTEM_APP:
+        case USE_USER_ACCESS_MANAGER:
         default:
             IAM_LOGE("the permission has no white lists");
             return {};
@@ -304,7 +307,6 @@ bool IpcCommon::CheckCallerIsSystemApp(IPCObjectStub &stub)
 
 bool IpcCommon::GetCallerName(IPCObjectStub &stub, std::string &callerName, int32_t &callerType)
 {
-    const std::string DEVELOPER_MODE_STATE = "const.security.developermode.state";
     callerType = UserAuthCallerType::TOKEN_INVALID;
     uint32_t tokenId = GetAccessTokenId(stub);
     using namespace Security::AccessToken;
@@ -330,13 +332,6 @@ bool IpcCommon::GetCallerName(IPCObjectStub &stub, std::string &callerName, int3
         }
         callerName = nativeTokenInfo.processName;
         IAM_LOGI("caller processName is %{public}s", callerName.c_str());
-        return true;
-    } else if (callerTypeTemp == ATokenTypeEnum::TOKEN_SHELL &&
-        OHOS::system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
-        if (!CheckPermission(stub, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
-            return false;
-        }
-        IAM_LOGI("caller is shell for develop mode");
         return true;
     }
     IAM_LOGI("caller is not a hap or a native");

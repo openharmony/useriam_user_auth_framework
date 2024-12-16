@@ -108,15 +108,14 @@ void UserAuthProxy::GetProperty(int32_t userId, AuthType authType,
     MessageParcel data;
     MessageParcel reply;
 
+    if (keys.empty() || keys.size() > MAX_ATTR_COUNT) {
+        IAM_LOGE("the attribute key vector is bad param, key size:%{public}zu", keys.size());
+        Attributes attr;
+        callback->OnGetExecutorPropertyResult(INVALID_PARAMETERS, attr);
+        return;
+    }
+
     std::vector<uint32_t> attrKeys;
-    if (keys.empty()) {
-        IAM_LOGE("the attribute key vector is empty");
-        return;
-    }
-    if (keys.size() > MAX_ATTR_COUNT) {
-        IAM_LOGE("the attribute key vector size exceed limit");
-        return;
-    }
     attrKeys.resize(keys.size());
     std::transform(keys.begin(), keys.end(), attrKeys.begin(), [](Attributes::AttributeKey key) {
         return static_cast<uint32_t>(key);
@@ -161,15 +160,14 @@ void UserAuthProxy::GetPropertyById(uint64_t credentialId, const std::vector<Att
     MessageParcel data;
     MessageParcel reply;
 
+    if (keys.empty() || keys.size() > MAX_ATTR_COUNT) {
+        IAM_LOGE("the attribute key vector is bad param, key size:%{public}zu", keys.size());
+        Attributes attr;
+        callback->OnGetExecutorPropertyResult(INVALID_PARAMETERS, attr);
+        return;
+    }
+
     std::vector<uint32_t> attrKeys;
-    if (keys.empty()) {
-        IAM_LOGE("the attribute key vector is empty");
-        return;
-    }
-    if (keys.size() > MAX_ATTR_COUNT) {
-        IAM_LOGE("the attribute key vector size exceed limit");
-        return;
-    }
     attrKeys.resize(keys.size());
     std::transform(keys.begin(), keys.end(), attrKeys.begin(), [](Attributes::AttributeKey key) {
         return static_cast<uint32_t>(key);
@@ -933,6 +931,45 @@ int32_t UserAuthProxy::PrepareRemoteAuth(const std::string &networkId, sptr<User
         return READ_PARCEL_ERROR;
     }
     return result;
+}
+
+void UserAuthProxy::VerifyAuthToken(const std::vector<uint8_t> &tokenIn, uint64_t allowableDuration,
+    const sptr<VerifyTokenCallbackInterface> &callback)
+{
+    if (callback == nullptr) {
+        IAM_LOGE("callback is nullptr");
+        return;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    Attributes extraInfo;
+
+    if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
+        IAM_LOGE("failed to write descriptor");
+        callback->OnVerifyTokenResult(WRITE_PARCEL_ERROR, extraInfo);
+        return;
+    }
+    if (!data.WriteUInt8Vector(tokenIn)) {
+        IAM_LOGE("failed to write tokenIn");
+        callback->OnVerifyTokenResult(WRITE_PARCEL_ERROR, extraInfo);
+        return;
+    }
+    if (!data.WriteUint64(allowableDuration)) {
+        IAM_LOGE("failed to write allowableDuration");
+        callback->OnVerifyTokenResult(WRITE_PARCEL_ERROR, extraInfo);
+        return;
+    }
+    if (!data.WriteRemoteObject(callback->AsObject())) {
+        IAM_LOGE("failed to write callback");
+        callback->OnVerifyTokenResult(WRITE_PARCEL_ERROR, extraInfo);
+        return;
+    }
+
+    bool ret = SendRequest(UserAuthInterfaceCode::USER_ACCESS_CTRL_VERIFY_AUTH_TOKEN, data, reply);
+    if (!ret) {
+        IAM_LOGE("failed to send verify token IPC request");
+        callback->OnVerifyTokenResult(GENERAL_ERROR, extraInfo);
+    }
 }
 } // namespace UserAuth
 } // namespace UserIam
