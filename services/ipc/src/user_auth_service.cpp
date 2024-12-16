@@ -925,7 +925,7 @@ int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authP
         IAM_LOGE("CheckPermission failed");
         return CHECK_PERMISSION_FAILED;
     }
-    if (isBackgroundApplication && (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP))) {
+    if (isBackgroundApplication && (!IpcCommon::CheckPermission(*this, USER_AUTH_FROM_BACKGROUND))) {
         IAM_LOGE("failed to check foreground application");
         return CHECK_PERMISSION_FAILED;
     }
