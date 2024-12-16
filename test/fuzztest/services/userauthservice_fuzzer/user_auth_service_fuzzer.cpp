@@ -137,6 +137,23 @@ public:
     }
 };
 
+class DummyVerifyTokenCallback : public VerifyTokenCallbackInterface {
+public:
+    ~DummyVerifyTokenCallback() override = default;
+
+    void OnVerifyTokenResult(int32_t result, const Attributes &attributes) override
+    {
+        IAM_LOGI("start");
+        return;
+    }
+
+    sptr<IRemoteObject> AsObject() override
+    {
+        sptr<IRemoteObject> tmp(nullptr);
+        return tmp;
+    }
+};
+
 UserAuthService g_userAuthService;
 
 void FuzzGetEnrolledState(Parcel &parcel)
@@ -556,6 +573,20 @@ void FuzzGetPropertyById(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzVerifyAuthToken(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    uint64_t allowableDuration = parcel.ReadUint64();
+    std::vector<uint8_t> tokenIn = {};
+    Common::FillFuzzUint8Vector(parcel, tokenIn);
+    sptr<VerifyTokenCallbackInterface> callback(nullptr);
+    if (parcel.ReadBool()) {
+        callback = sptr<VerifyTokenCallbackInterface>(new (std::nothrow) DummyVerifyTokenCallback());
+    }
+    g_userAuthService.VerifyAuthToken(tokenIn, allowableDuration, callback);
+    IAM_LOGI("end");
+}
+
 using FuzzFunc = decltype(FuzzGetAvailableStatus);
 FuzzFunc *g_fuzzFuncs[] = {
     FuzzGetEnrolledState,
@@ -586,6 +617,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzStartRemoteAuthInvokerContext,
     FuzzStartAuthContext,
     FuzzGetPropertyById,
+    FuzzVerifyAuthToken,
 };
 
 void UserAuthFuzzTest(const uint8_t *data, size_t size)
