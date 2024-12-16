@@ -162,7 +162,8 @@ void GetCallbackResult(const UserAuth::Attributes &extraInfo, ResultCallbackV16H
     if (!extraInfo.GetInt32Value(UserAuth::Attributes::ATTR_USER_ID, resultHolder->authToken.userId)) {
         IAM_LOGE("ATTR_USER_ID is null");
     }
-    if (!extraInfo.GetUint64Value(UserAuth::Attributes::ATTR_TOKEN_TIME_INTERVAL, resultHolder->authToken.timeInterval)) {
+    if (!extraInfo.GetUint64Value(UserAuth::Attributes::ATTR_TOKEN_TIME_INTERVAL,
+        resultHolder->authToken.timeInterval)) {
         IAM_LOGE("ATTR_TOKEN_TIME_INTERVAL is null");
     }
     if (!extraInfo.GetUint64Value(UserAuth::Attributes::ATTR_SEC_USER_ID, resultHolder->authToken.secureUid)) {

@@ -28,11 +28,11 @@ ohos_shared_library("useraccessctrl") {
   include_dirs = [ "inc" ]
 
   sources = [
-    "src/user_access_ctrl_entry.cpp",
+    "../user_auth/src/user_auth_napi_helper.cpp",
     "src/user_access_ctrl_callback_v16.cpp",
+    "src/user_access_ctrl_entry.cpp",
     "src/user_access_ctrl_instance_v16.cpp",
     "src/user_access_ctrl_napi_helper.cpp",
-    "../user_auth/src/user_auth_napi_helper.cpp",
   ]
 
   deps = [
