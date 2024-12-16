@@ -18,6 +18,7 @@
 #include "iam_common_defines.h"
 #include "mock_auth_event_listener.h"
 #include "mock_user_auth_callback.h"
+#include "mock_user_access_ctrl_callback.h"
 #include "mock_user_auth_service.h"
 
 namespace OHOS {
@@ -1094,6 +1095,51 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetPropertyByIdStub002, TestSize.Level0)
     EXPECT_NE(callback->AsObject(), nullptr);
     EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
     
+    EXPECT_EQ(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
+}
+
+HWTEST_F(UserAuthStubTest, UserAuthStubVerifyAuthTokenStub001, TestSize.Level0)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    uint32_t code = UserAuthInterfaceCode::USER_ACCESS_CTRL_VERIFY_AUTH_TOKEN;
+
+    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+
+    MockUserAuthService service;
+    EXPECT_EQ(READ_PARCEL_ERROR, service.OnRemoteRequest(code, data, reply, option));
+}
+
+HWTEST_F(UserAuthStubTest, UserAuthStubVerifyAuthTokenStub002, TestSize.Level0)
+{
+    std::vector<uint8_t> testTokenIn = {};
+    uint64_t testAllowableDuration = 0;
+
+    sptr<MockVerifyTokenCallback> testCallback(new (std::nothrow) MockVerifyTokenCallback());
+    EXPECT_NE(testCallback, nullptr);
+    MockUserAuthService service;
+    EXPECT_CALL(service, VerifyAuthToken(_, _, _)).Times(1);
+    ON_CALL(service, VerifyAuthToken)
+        .WillByDefault(
+            [&testTokenIn, &testAllowableDuration, &testCallback](const std::vector<uint8_t> &tokenIn,
+                uint64_t allowableDuration, const sptr<VerifyTokenCallbackInterface> &callback) {
+                EXPECT_EQ(tokenIn, testTokenIn);
+                EXPECT_EQ(allowableDuration, testAllowableDuration);
+            }
+        );
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    uint32_t code = UserAuthInterfaceCode::USER_ACCESS_CTRL_VERIFY_AUTH_TOKEN;
+
+    EXPECT_TRUE(data.WriteInterfaceToken(UserAuthInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteUInt8Vector(testTokenIn));
+    EXPECT_TRUE(data.WriteUint64(testAllowableDuration));
+    EXPECT_NE(testCallback->AsObject(), nullptr);
+    EXPECT_TRUE(data.WriteRemoteObject(testCallback->AsObject()));
+
     EXPECT_EQ(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
 }
 } // namespace UserAuth

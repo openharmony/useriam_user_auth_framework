@@ -127,7 +127,7 @@ public:
         ATTR_ACCESS_TOKEN_ID = 100048,
         /** Template change reason, the value type is string. */
         ATTR_TEMPLATE_CHANGE_REASON = 100049,
-        /** Credential digest, the value type is uint16_t. */
+        /** Credential digest, the value type is uint64_t. */
         ATTR_CREDENTIAL_DIGEST = 100050,
         /** Credential count, the value type is uint16_t. */
         ATTR_CREDENTIAL_COUNT = 100051,
@@ -197,6 +197,12 @@ public:
         ATTR_SUPPORTED_MSG_VERSION = 100087,
         /* re-enroll flag, the value type is bool */
         ATTR_RE_ENROLL_FLAG = 100088,
+        /* Token version, the value type is uint32_t. */
+        ATTR_TOKEN_VERSION = 100089,
+        /* Token type of token, the value type is int32_t. */
+        ATTR_TOKEN_TYPE = 100090,
+        /* Token time interval between sign and verify, the value type is int64_t. */
+        ATTR_TOKEN_TIME_INTERVAL = 100091,
     };
 
     /**
