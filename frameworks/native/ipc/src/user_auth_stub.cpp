@@ -21,6 +21,7 @@
 #include "iam_logger.h"
 #include "iam_scope_guard.h"
 #include "iam_common_defines.h"
+#include "user_access_ctrl_callback_proxy.h"
 #include "user_auth_callback_proxy.h"
 #include "user_auth_event_listener_proxy.h"
 #include "widget_callback_proxy.h"
@@ -91,6 +92,8 @@ int32_t UserAuthStub::OnRemoteRequestExt(uint32_t code, MessageParcel &data,
     switch (code) {
         case UserAuthInterfaceCode::USER_AUTH_GET_PROPERTY_BY_ID:
                 return GetPropertyByIdStub(data, reply);
+        case UserAuthInterfaceCode::USER_ACCESS_CTRL_VERIFY_AUTH_TOKEN:
+            return VerifyAuthTokenStub(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -889,6 +892,37 @@ bool UserAuthStub::ReadOptionalUint32(MessageParcel &data, std::optional<uint32_
         val = std::nullopt;
     }
     return true;
+}
+
+int32_t UserAuthStub::VerifyAuthTokenStub(MessageParcel &data, MessageParcel &reply)
+{
+    IAM_LOGI("enter");
+    ON_SCOPE_EXIT(IAM_LOGI("leave"));
+
+    std::vector<uint8_t> tokenIn = {};
+    uint64_t allowableDuration = 0;
+    if (!data.ReadUInt8Vector(&tokenIn)) {
+        IAM_LOGE("failed to read tokenIn");
+        return READ_PARCEL_ERROR;
+    }
+    if (!data.ReadUint64(allowableDuration)) {
+        IAM_LOGE("failed to read allowableDuration");
+        return READ_PARCEL_ERROR;
+    }
+
+    sptr<IRemoteObject> obj = data.ReadRemoteObject();
+    if (obj == nullptr) {
+        IAM_LOGE("failed to read remote object");
+        return READ_PARCEL_ERROR;
+    }
+    sptr<VerifyTokenCallbackInterface> callback = iface_cast<VerifyTokenCallbackProxy>(obj);
+    if (callback == nullptr) {
+        IAM_LOGE("VerifyTokenCallbackInterface is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    VerifyAuthToken(tokenIn, allowableDuration, callback);
+    return SUCCESS;
 }
 } // namespace UserAuth
 } // namespace UserIam

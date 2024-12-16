@@ -57,6 +57,8 @@ public:
         const sptr<AuthEventListenerInterface> &listener) override;
     int32_t SetGlobalConfigParam(const GlobalConfigParam &param) override;
     int32_t PrepareRemoteAuth(const std::string &networkId, sptr<UserAuthCallbackInterface> &callback) override;
+    void VerifyAuthToken(const std::vector<uint8_t> &tokenIn, uint64_t allowableDuration,
+        const sptr<VerifyTokenCallbackInterface> &callback) override;
 
 private:
     static inline BrokerDelegator<UserAuthProxy> delegator_;

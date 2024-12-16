@@ -25,6 +25,7 @@
 #include "mock_context.h"
 #include "mock_iuser_auth_interface.h"
 #include "mock_ipc_common.h"
+#include "mock_user_access_ctrl_callback.h"
 #include "mock_user_auth_callback.h"
 #include "mock_user_auth_service.h"
 #include "mock_resource_node.h"
@@ -1379,6 +1380,33 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam003, TestSize.L
     param.authTypes.clear();
     param.authTypes.push_back(FACE);
     EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::INVALID_PARAMETERS);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceVerifyAuthToken001, TestSize.Level0)
+{
+    UserAuthService service;
+    std::vector<uint8_t> testTokenIn = {};
+    testTokenIn.resize(1);
+    uint64_t allowableDuration = 0;
+
+    sptr<MockVerifyTokenCallback> testCallback(nullptr);
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, VerifyAuthToken(_, _, _, _))
+        .WillOnce([](const std::vector<uint8_t>& tokenIn, uint64_t allowableDuration,
+            HdiUserAuthTokenPlain &tokenPlainOut, std::vector<uint8_t>& rootSecret) {
+            return HDF_SUCCESS;
+        });
+
+    testCallback = sptr<MockVerifyTokenCallback>(new (std::nothrow) MockVerifyTokenCallback());
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnVerifyTokenResult(_, _)).Times(1);
+    IpcCommon::AddPermission(USE_USER_ACCESS_MANAGER);
+    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    sptr<VerifyTokenCallbackInterface> callbackInterface = testCallback;
+    service.VerifyAuthToken(testTokenIn, allowableDuration, callbackInterface);
     IpcCommon::DeleteAllPermission();
 }
 } // namespace UserAuth
