@@ -108,15 +108,14 @@ void UserAuthProxy::GetProperty(int32_t userId, AuthType authType,
     MessageParcel data;
     MessageParcel reply;
 
+    if (keys.empty() || keys.size() > MAX_ATTR_COUNT) {
+        IAM_LOGE("the attribute key vector is bad param, key size:%{public}zu", keys.size());
+        Attributes attr;
+        callback->OnGetExecutorPropertyResult(INVALID_PARAMETERS, attr);
+        return;
+    }
+
     std::vector<uint32_t> attrKeys;
-    if (keys.empty()) {
-        IAM_LOGE("the attribute key vector is empty");
-        return;
-    }
-    if (keys.size() > MAX_ATTR_COUNT) {
-        IAM_LOGE("the attribute key vector size exceed limit");
-        return;
-    }
     attrKeys.resize(keys.size());
     std::transform(keys.begin(), keys.end(), attrKeys.begin(), [](Attributes::AttributeKey key) {
         return static_cast<uint32_t>(key);
@@ -161,15 +160,14 @@ void UserAuthProxy::GetPropertyById(uint64_t credentialId, const std::vector<Att
     MessageParcel data;
     MessageParcel reply;
 
+    if (keys.empty() || keys.size() > MAX_ATTR_COUNT) {
+        IAM_LOGE("the attribute key vector is bad param, key size:%{public}zu", keys.size());
+        Attributes attr;
+        callback->OnGetExecutorPropertyResult(INVALID_PARAMETERS, attr);
+        return;
+    }
+
     std::vector<uint32_t> attrKeys;
-    if (keys.empty()) {
-        IAM_LOGE("the attribute key vector is empty");
-        return;
-    }
-    if (keys.size() > MAX_ATTR_COUNT) {
-        IAM_LOGE("the attribute key vector size exceed limit");
-        return;
-    }
     attrKeys.resize(keys.size());
     std::transform(keys.begin(), keys.end(), attrKeys.begin(), [](Attributes::AttributeKey key) {
         return static_cast<uint32_t>(key);
