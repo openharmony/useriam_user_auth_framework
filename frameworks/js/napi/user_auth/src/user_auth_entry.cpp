@@ -709,6 +709,8 @@ napi_value UserAuthResultCodeConstructor(napi_env env)
     napi_value locked = nullptr;
     napi_value notEnrolled = nullptr;
     napi_value canceledFromWidget = nullptr;
+    napi_value authTokenCheckFailed = nullptr;
+    napi_value authTokenExpired = nullptr;
     NAPI_CALL(env, napi_create_object(env, &resultCode));
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::SUCCESS), &success));
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::FAIL), &fail));
@@ -724,6 +726,10 @@ napi_value UserAuthResultCodeConstructor(napi_env env)
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::NOT_ENROLLED), &notEnrolled));
     NAPI_CALL(env, napi_create_int32(env,
         static_cast<int32_t>(UserAuthResultCode::CANCELED_FROM_WIDGET), &canceledFromWidget));
+    NAPI_CALL(env, napi_create_int32(env,
+        static_cast<int32_t>(UserAuthResultCode::AUTH_TOKEN_CHECK_FAILED), &authTokenCheckFailed));
+    NAPI_CALL(env, napi_create_int32(env,
+        static_cast<int32_t>(UserAuthResultCode::AUTH_TOKEN_EXPIRED), &authTokenExpired));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "SUCCESS", success));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "FAIL", fail));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "GENERAL_ERROR", generalError));
@@ -735,6 +741,8 @@ napi_value UserAuthResultCodeConstructor(napi_env env)
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "LOCKED", locked));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "NOT_ENROLLED", notEnrolled));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "CANCELED_FROM_WIDGET", canceledFromWidget));
+    NAPI_CALL(env, napi_set_named_property(env, resultCode, "AUTH_TOKEN_CHECK_FAILED", authTokenCheckFailed));
+    NAPI_CALL(env, napi_set_named_property(env, resultCode, "AUTH_TOKEN_EXPIRED", authTokenExpired));
     return resultCode;
 }
 
