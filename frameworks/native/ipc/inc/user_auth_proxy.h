@@ -43,10 +43,11 @@ public:
     uint64_t Auth(int32_t apiVersion, const std::vector<uint8_t> &challenge, AuthType authType,
         AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) override;
     uint64_t AuthWidget(int32_t apiVersion, const AuthParamInner &authParam,
-        const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback) override;
+        const WidgetParamInner &widgetParam, sptr<UserAuthCallbackInterface> &callback,
+        sptr<ModalCallbackInterface> &modalCallback) override;
     uint64_t Identify(const std::vector<uint8_t> &challenge, AuthType authType,
         sptr<UserAuthCallbackInterface> &callback) override;
-    int32_t CancelAuthOrIdentify(uint64_t contextId) override;
+    int32_t CancelAuthOrIdentify(uint64_t contextId, int32_t cancelReason) override;
     int32_t GetVersion(int32_t &version) override;
     int32_t Notice(NoticeType noticeType, const std::string &eventData) override;
     int32_t RegisterWidgetCallback(int32_t version, sptr<WidgetCallbackInterface> &callback) override;
@@ -68,7 +69,7 @@ private:
     bool WriteOptionalUint32(MessageParcel &data, const std::optional<uint32_t> &val);
     bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply);
     bool WriteWidgetAuthParam(MessageParcel &data, const AuthParamInner &authParam);
-    bool WriteWidgetParam(MessageParcel &data, const WidgetParam &widgetParam);
+    bool WriteWidgetParam(MessageParcel &data, const WidgetParamInner &widgetParam);
     ResultCode WriteGlobalConfigValue(MessageParcel &data, const GlobalConfigParam &param);
     int32_t GetAvailableStatusInner(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel,
         MessageParcel &data);

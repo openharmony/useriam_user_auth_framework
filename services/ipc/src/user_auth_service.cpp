@@ -790,7 +790,7 @@ uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthTy
     return context->GetContextId();
 }
 
-int32_t UserAuthService::CancelAuthOrIdentify(uint64_t contextId)
+int32_t UserAuthService::CancelAuthOrIdentify(uint64_t contextId, int32_t cancelReason)
 {
     IAM_LOGI("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
@@ -809,6 +809,11 @@ int32_t UserAuthService::CancelAuthOrIdentify(uint64_t contextId)
     if (context->GetTokenId() != IpcCommon::GetAccessTokenId(*this)) {
         IAM_LOGE("failed to check tokenId");
         return INVALID_CONTEXT_ID;
+    }
+
+    if (cancelReason == CancelReason::MODAL_CREATE_ERROR || cancelReason == CancelReason::MODAL_RUN_ERROR) {
+        IAM_LOGE("widget modal fault");
+        UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "AuthWidget");
     }
 
     if (!context->Stop()) {
@@ -936,8 +941,8 @@ int32_t UserAuthService::CheckCallerPermissionForPrivatePin(const AuthParamInner
     return CHECK_PERMISSION_FAILED;
 }
 
-int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authParam, const WidgetParam &widgetParam,
-    bool isBackgroundApplication)
+int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authParam,
+    const WidgetParamInner &widgetParam, bool isBackgroundApplication)
 {
     if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP) &&
         (widgetParam.windowMode != WindowModeType::UNKNOWN_WINDOW_MODE)) {
@@ -988,7 +993,7 @@ int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authP
 }
 
 uint64_t UserAuthService::StartWidgetContext(const std::shared_ptr<ContextCallback> &contextCallback,
-    const AuthParamInner &authParam, const WidgetParam &widgetParam, std::vector<AuthType> &validType,
+    const AuthParamInner &authParam, const WidgetParamInner &widgetParam, std::vector<AuthType> &validType,
     ContextFactory::AuthWidgetContextPara &para)
 {
     Attributes extraInfo;
@@ -1019,7 +1024,7 @@ uint64_t UserAuthService::StartWidgetContext(const std::shared_ptr<ContextCallba
 }
 
 int32_t UserAuthService::CheckValidSolution(int32_t userId, const AuthParamInner &authParam,
-    const WidgetParam &widgetParam, std::vector<AuthType> &validType)
+    const WidgetParamInner &widgetParam, std::vector<AuthType> &validType)
 {
     int32_t ret = AuthWidgetHelper::CheckValidSolution(
         userId, authParam.authTypes, authParam.authTrustLevel, validType);
@@ -1093,7 +1098,8 @@ void UserAuthService::ProcessPinExpired(int32_t ret, const AuthParamInner &authP
 }
 
 uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParamInner &authParam,
-    const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback)
+    const WidgetParamInner &widgetParam, sptr<UserAuthCallbackInterface> &callback,
+    sptr<ModalCallbackInterface> &modalCallback)
 {
     IAM_LOGI("start %{public}d authTrustLevel:%{public}u", apiVersion, authParam.authTrustLevel);
     auto contextCallback = GetAuthContextCallback(apiVersion, authParam, widgetParam, callback);
@@ -1136,6 +1142,9 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParamInner &a
     }
     ProcessPinExpired(checkRet, authParam, validType, para);
     ProcessWidgetSessionExclusive();
+    if (modalCallback != nullptr && widgetParam.hasContext) {
+        WidgetClient::Instance().SetModalCallback(modalCallback);
+    }
     return StartWidgetContext(contextCallback, authParam, widgetParam, validType, para);
 }
 
@@ -1166,7 +1175,7 @@ bool UserAuthService::Insert2ContextPool(const std::shared_ptr<Context> &context
 }
 
 std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(int32_t apiVersion,
-    const AuthParamInner &authParam, const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback)
+    const AuthParamInner &authParam, const WidgetParamInner &widgetParam, sptr<UserAuthCallbackInterface> &callback)
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");

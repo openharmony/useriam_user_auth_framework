@@ -44,7 +44,7 @@ private:
     int32_t GetVersionStub(MessageParcel &data, MessageParcel &reply);
     int32_t NoticeStub(MessageParcel &data, MessageParcel &reply);
     bool ReadWidgetAuthParam(MessageParcel &data, AuthParamInner &authParam);
-    bool ReadWidgetParam(MessageParcel &data, WidgetParam &widgetParam);
+    bool ReadWidgetParam(MessageParcel &data, WidgetParamInner &widgetParam);
     int32_t RegisterWidgetCallbackStub(MessageParcel &data, MessageParcel &reply);
     int32_t GetEnrolledStateStub(MessageParcel &data, MessageParcel &reply);
     int32_t RegistUserAuthSuccessEventListenerStub(MessageParcel &data, MessageParcel &reply);

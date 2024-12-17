@@ -31,7 +31,7 @@ namespace UserIam {
 namespace UserAuth {
 
 bool AuthWidgetHelper::InitWidgetContextParam(const AuthParamInner &authParam, std::vector<AuthType> &validType,
-    const WidgetParam &widgetParam, ContextFactory::AuthWidgetContextPara &para)
+    const WidgetParamInner &widgetParam, ContextFactory::AuthWidgetContextPara &para)
 {
     for (auto &authType : validType) {
         ContextFactory::AuthProfile profile;
