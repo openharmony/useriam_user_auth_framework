@@ -86,6 +86,12 @@ enum ReuseMode : uint32_t {
     /** Authentication type irrelevant.The unlock authentication result can be reused as long as the result is within
      * valid duration. */
     AUTH_TYPE_IRRELEVANT = 2,
+    /** Caller irrelevant authentication type relevant.The unlock authentication result can be reused only when the
+     * result is within valid duration as well as it comes from one of specified UserAuthTypes of the AuthParam. */
+    CALLER_IRRELEVANT_AUTH_TYPE_RELEVANT = 3,
+    /** Caller irrelevant authentication type irrelevant.The unlock authentication result can be reused as long as the
+     * result is within valid duration. */
+    CALLER_IRRELEVANT_AUTH_TYPE_IRRELEVANT = 4,
 };
 
 /**
