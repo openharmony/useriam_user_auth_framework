@@ -34,18 +34,18 @@ namespace {
 const uint32_t MAX_CONTEXT_NUM = 100;
 bool GenerateRand(uint8_t *data, size_t len)
 {
-    int fd = open("/dev/random", O_RDONLY);
-    if (fd < 0) {
-        IAM_LOGE("open read file fail");
+    FILE *fp = fopen("/dev/random", "rb");
+    if (fp == nullptr) {
+        IAM_LOGE("fopen read file fail");
         return false;
     }
-    ssize_t readLen = read(fd, data, len);
-    close(fd);
-    if (readLen < 0) {
-        IAM_LOGE("read file failed");
+    size_t readLen = fread(data, sizeof(uint8_t), len, fp);
+    (void)fclose(fp);
+    if (readLen != len) {
+        IAM_LOGE("fread file failed");
         return false;
     }
-    return static_cast<size_t>(readLen) == len;
+    return true;
 }
 }
 class ContextPoolImpl final : public ContextPool, public Singleton<ContextPoolImpl> {
