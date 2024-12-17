@@ -47,6 +47,7 @@ enum UserAuthInterfaceCode : uint32_t {
     USER_AUTH_PREPARE_REMOTE_AUTH,
     USER_AUTH_GET_PROPERTY_BY_ID,
     USER_ACCESS_CTRL_VERIFY_AUTH_TOKEN,
+    USER_AUTH_AUTH_MODAL_SEND_COMMAND,
 };
 } // namespace UserAuth
 } // namespace UserIam
