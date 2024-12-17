@@ -618,7 +618,9 @@ bool UserAuthNapiHelper::CheckAuthTrustLevel(uint32_t authTrustLevel)
 bool UserAuthNapiHelper::CheckReuseUnlockResult(ReuseUnlockResult reuseUnlockResult)
 {
     if (reuseUnlockResult.reuseMode != ReuseMode::AUTH_TYPE_RELEVANT &&
-        reuseUnlockResult.reuseMode != ReuseMode::AUTH_TYPE_IRRELEVANT) {
+        reuseUnlockResult.reuseMode != ReuseMode::AUTH_TYPE_IRRELEVANT &&
+        reuseUnlockResult.reuseMode != ReuseMode::CALLER_IRRELEVANT_AUTH_TYPE_RELEVANT &&
+        reuseUnlockResult.reuseMode != ReuseMode::CALLER_IRRELEVANT_AUTH_TYPE_IRRELEVANT) {
         IAM_LOGE("reuseMode check fail:%{public}u", reuseUnlockResult.reuseMode);
         return false;
     }
