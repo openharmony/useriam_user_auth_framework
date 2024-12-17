@@ -47,7 +47,9 @@ const std::map<UserAuthResultCode, std::string> g_resultV92Str = {
     {UserAuthResultCode::LOCKED, "Authentication is lockout."},
     {UserAuthResultCode::NOT_ENROLLED, "Authentication template has not been enrolled."},
     {UserAuthResultCode::CANCELED_FROM_WIDGET, "Authentication is canceled from widget."},
-    {UserAuthResultCode::PIN_EXPIRED, "Operation failed because of PIN expired."}
+    {UserAuthResultCode::PIN_EXPIRED, "Operation failed because of PIN expired."},
+    {UserAuthResultCode::AUTH_TOKEN_CHECK_FAILED, "Operation failed because of authToken integrity check failed."},
+    {UserAuthResultCode::AUTH_TOKEN_EXPIRED, "Operation failed because of authToken has expired."}
 };
 
 struct DeleteRefHolder {
