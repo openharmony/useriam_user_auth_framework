@@ -89,12 +89,11 @@ uint64_t UserAuthNapiClientImpl::BeginWidgetAuth(int32_t apiVersion, const AuthP
     const WidgetParamNapi &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback,
     const std::shared_ptr<UserAuthModalClientCallback> &modalCallback)
 {
-    IAM_LOGI("start, apiVersion: %{public}d authTypeSize: %{public}zu authTrustLevel: %{public}u userId:%{public}d",
-        apiVersion, authParam.authTypes.size(), authParam.authTrustLevel, authParam.userId);
+    IAM_LOGI("start, apiVersion: %{public}d authTypeSize: %{public}zu authTrustLevel: %{public}u",
+        apiVersion, authParam.authTypes.size(), authParam.authTrustLevel);
 
     AuthParamInner authParamInner = {
-        .userId = authParam.userId,
-        .isUserIdSpecified = authParam.userId == INVALID_USER_ID ? false : true,
+        .isUserIdSpecified = false,
         .challenge = authParam.challenge,
         .authTypes = authParam.authTypes,
         .authTrustLevel = authParam.authTrustLevel,
