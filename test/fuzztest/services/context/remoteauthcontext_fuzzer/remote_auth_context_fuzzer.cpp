@@ -202,7 +202,7 @@ void FuzzAuthWidgetHelper(Parcel &parcel)
     authParam.authTypes.push_back(PIN);
     authParam.authTypes.push_back(FINGERPRINT);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "确定";
     ContextFactory::AuthWidgetContextPara para;

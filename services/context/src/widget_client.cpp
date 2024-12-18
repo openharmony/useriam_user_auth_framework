@@ -189,7 +189,7 @@ void WidgetClient::SetWidgetContextId(uint64_t contextId)
     widgetContextId_ = contextId;
 }
 
-void WidgetClient::SetWidgetParam(const WidgetParam &param)
+void WidgetClient::SetWidgetParam(const WidgetParamInner &param)
 {
     widgetParam_ = param;
 }
@@ -227,6 +227,7 @@ void WidgetClient::Reset()
     widgetCallback_ = nullptr;
     pinSubType_.clear();
     sensorInfo_.clear();
+    modalCallback_ = nullptr;
 }
 
 void WidgetClient::ForceStopAuth()
@@ -332,6 +333,29 @@ void WidgetClient::SetChallenge(const std::vector<uint8_t> &challenge)
 void WidgetClient::SetCallingBundleName(const std::string &callingBundleName)
 {
     callingBundleName_ = callingBundleName;
+}
+
+void WidgetClient::SetModalCallback(const sptr<ModalCallbackInterface> &callback)
+{
+    IAM_LOGI("set modal callback");
+    modalCallback_ = callback;
+}
+
+void WidgetClient::LaunchModal(const std::string &commandData)
+{
+    IAM_LOGI("launch modal command: %{public}s", commandData.c_str());
+    if (modalCallback_ != nullptr) {
+        modalCallback_->SendCommand(widgetContextId_, commandData);
+    }
+}
+
+void WidgetClient::ReleaseModal()
+{
+    IAM_LOGI("release modal");
+    if (modalCallback_ != nullptr) {
+        std::string cmdData = "";
+        modalCallback_->SendCommand(widgetContextId_, cmdData);
+    }
 }
 } // namespace UserAuth
 } // namespace UserIam

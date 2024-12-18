@@ -68,7 +68,7 @@ private:
     ResultCode SetPropertyInner(int32_t userId, const SetPropertyRequest &request,
         const std::shared_ptr<SetPropCallback> &callback);
     uint64_t BeginWidgetAuthInner(int32_t apiVersion, const AuthParamInner &authParam,
-        const WidgetParam &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback);
+        const WidgetParamInner &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback);
 
     friend class UserAuthClient;
     UserAuthClientImpl() = default;

@@ -41,6 +41,7 @@
 #include "refbase.h"
 #include "hisysevent_adapter.h"
 #include "system_ability_definition.h"
+#include "parameters.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -58,6 +59,7 @@ const std::string TO_PORTRAIT = "90";
 const std::string TO_INVERTED = "180";
 const std::string TO_PORTRAIT_INVERTED = "270";
 const uint32_t NOT_SUPPORT_ORIENTATION_INVERTED = 2;
+const std::string SUPPORT_FOLLOW_CALLER_UI = "const.useriam.authWidget.supportFollowCallerUi";
 
 WidgetContext::WidgetContext(uint64_t contextId, const ContextFactory::AuthWidgetContextPara &para,
     std::shared_ptr<ContextCallback> callback)
@@ -373,7 +375,7 @@ bool WidgetContext::AuthWidgetReload(uint32_t orientation, uint32_t needRotate, 
     if (alreadyLoad) {
         widgetAlreadyLoad_ = 1;
     }
-    if (!isValidRotate(widgetRotatePara)) {
+    if (!IsValidRotate(widgetRotatePara)) {
         IAM_LOGE("check rotate failed");
         return false;
     }
@@ -384,7 +386,7 @@ bool WidgetContext::AuthWidgetReload(uint32_t orientation, uint32_t needRotate, 
     return true;
 }
 
-bool WidgetContext::isValidRotate(const WidgetRotatePara &widgetRotatePara)
+bool WidgetContext::IsValidRotate(const WidgetRotatePara &widgetRotatePara)
 {
     IAM_LOGI("check rotate, needRotate: %{public}u, orientation: %{public}u, orientation_: %{public}u",
         widgetRotatePara.needRotate, widgetRotatePara.orientation, widgetRotateOrientation_);
@@ -458,8 +460,17 @@ int32_t WidgetContext::ConnectExtensionAbility(const AAFwk::Want &want, const st
     return ret;
 }
 
+bool WidgetContext::IsSupportFollowCallerUi()
+{
+    bool isSupportFollowCallerUi = OHOS::system::GetParameter(SUPPORT_FOLLOW_CALLER_UI, "false") == "true";
+    IAM_LOGI("is support follow caller UI: %{public}d", isSupportFollowCallerUi);
+    return isSupportFollowCallerUi;
+}
+
 bool WidgetContext::ConnectExtension(const WidgetRotatePara &widgetRotatePara)
 {
+    IAM_LOGI("connect extension start");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (widgetRotatePara.isReload) {
         for (auto &authType : para_.authTypeList) {
             ContextFactory::AuthProfile profile;
@@ -470,14 +481,22 @@ bool WidgetContext::ConnectExtension(const WidgetRotatePara &widgetRotatePara)
             para_.authProfileMap[authType] = profile;
         }
     }
-    std::string tmp = BuildStartCommand(widgetRotatePara);
-    IAM_LOGI("start command: %{public}s", tmp.c_str());
+    std::string commandData = BuildStartCommand(widgetRotatePara);
+    IAM_LOGI("start command: %{public}s", commandData.c_str());
 
+    IAM_LOGI("has context: %{public}d", para_.widgetParam.hasContext);
+    if (para_.widgetParam.hasContext && IsSupportFollowCallerUi()) {
+        // As modal application
+        // No need do anything, caller death has process; only process timeout for widget.
+        WidgetClient::Instance().LaunchModal(commandData);
+        return true;
+    }
+    // Default as modal system
     AAFwk::Want want;
     std::string bundleName = "com.ohos.systemui";
     std::string abilityName = "com.ohos.systemui.dialog";
     want.SetElementName(bundleName, abilityName);
-    auto ret = ConnectExtensionAbility(want, tmp);
+    auto ret = ConnectExtensionAbility(want, commandData);
     if (ret != ERR_OK) {
         UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "userauthservice");
         IAM_LOGE("ConnectExtensionAbility failed.");
@@ -488,6 +507,14 @@ bool WidgetContext::ConnectExtension(const WidgetRotatePara &widgetRotatePara)
 
 bool WidgetContext::DisconnectExtension()
 {
+    IAM_LOGI("has context: %{public}d", para_.widgetParam.hasContext);
+    if (para_.widgetParam.hasContext) {
+        // As modal application release.
+        WidgetClient::Instance().CancelAuth();
+        WidgetClient::Instance().ReleaseModal();
+        return true;
+    }
+    // Default as modal system release.
     if (connection_ == nullptr) {
         IAM_LOGE("invalid connection handle");
         return false;
