@@ -19,12 +19,17 @@
 #include <cinttypes>
 #include <string>
 
+#include "napi_base_context.h"
+#include "ui_content.h"
+#include "ui_extension_context.h"
+#include "ui_holder_extension_context.h"
+
 #include "iam_logger.h"
 #include "iam_ptr.h"
 
 #include "user_auth_client_impl.h"
-#include "user_auth_napi_helper.h"
 #include "user_auth_common_defines.h"
+#include "user_auth_napi_helper.h"
 
 #define LOG_TAG "USER_AUTH_NAPI"
 
@@ -39,6 +44,7 @@ const std::string AUTH_PARAM_REUSEUNLOCKRESULT = "reuseUnlockResult";
 const std::string WIDGET_PARAM_TITLE = "title";
 const std::string WIDGET_PARAM_NAVIBTNTEXT = "navigationButtonText";
 const std::string WIDGET_PARAM_WINDOWMODE = "windowMode";
+const std::string WIDGET_PARAM_CONTEXT = "uiContext";
 const std::string NOTICETYPE = "noticeType";
 const std::string REUSEMODE = "reuseMode";
 const std::string REUSEDURATION = "reuseDuration";
@@ -355,6 +361,42 @@ UserAuthResultCode UserAuthInstanceV10::InitWidgetParam(napi_env env, napi_value
     if (errorCode != UserAuthResultCode::SUCCESS) {
         return errorCode;
     }
+    errorCode = ProcessContext(env, value);
+    if (errorCode != UserAuthResultCode::SUCCESS) {
+        return errorCode;
+    }
+    return UserAuthResultCode::SUCCESS;
+}
+
+UserAuthResultCode UserAuthInstanceV10::ProcessContext(napi_env env, napi_value value)
+{
+    IAM_LOGI("process uiContext");
+    if (UserAuthNapiHelper::HasNamedProperty(env, value, WIDGET_PARAM_CONTEXT)) {
+        IAM_LOGI("widgetParam has uiContext");
+        napi_value napi_uiContext = UserAuthNapiHelper::GetNamedProperty(env, value, WIDGET_PARAM_CONTEXT);
+        napi_status ret = UserAuthNapiHelper::CheckNapiType(env, napi_uiContext, napi_object);
+        if (ret != napi_ok) {
+            IAM_LOGE("get uiContext fail: %{public}d", ret);
+            std::string msgStr = "Parameter error. The type of \"uiContext\" must be context.";
+            return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
+        }
+        bool stageMode = false;
+        ret = OHOS::AbilityRuntime::IsStageContext(env, napi_uiContext, stageMode);
+        if (ret != napi_ok) {
+            IAM_LOGE("uiContext must be stage mode: %{public}d", ret);
+            std::string msgStr = "Parameter error. The type of \"uiContext\" must be stage mode.";
+            return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
+        }
+        auto context = OHOS::AbilityRuntime::GetStageModeContext(env, napi_uiContext);
+        if (CheckUIContext(context)) {
+            context_ = context;
+            widgetParam_.hasContext = true;
+            IAM_LOGI("widgetParam has valid uiContext");
+        } else {
+            // Default as modal system
+            IAM_LOGI("widgetParam has invalid uiContext, not base on valid AbilityContext or UIExtensionContext.");
+        }
+    }
     return UserAuthResultCode::SUCCESS;
 }
 
@@ -385,6 +427,34 @@ UserAuthResultCode UserAuthInstanceV10::ProcessWindowMode(napi_env env, napi_val
         widgetParam_.title.c_str(), widgetParam_.navigationButtonText.c_str(),
         static_cast<uint32_t>(widgetParam_.windowMode));
     return UserAuthResultCode::SUCCESS;
+}
+
+bool UserAuthInstanceV10::CheckUIContext(const std::shared_ptr<AbilityRuntime::Context> context)
+{
+    if (context == nullptr) {
+        IAM_LOGE("get context failed");
+        return false;
+    }
+
+    auto abilityContext = AbilityRuntime::Context::ConvertTo<AbilityRuntime::AbilityContext>(context);
+    if (abilityContext == nullptr) {
+        IAM_LOGE("abilityContext is null");
+        auto holderContext = AbilityRuntime::Context::ConvertTo<AbilityRuntime::UIHolderExtensionContext>(context);
+        if (holderContext == nullptr) {
+            IAM_LOGE("uiExtensionContext is null");
+            return false;
+        }
+        if (holderContext->GetUIContent() == nullptr) {
+            IAM_LOGE("uiContent is null");
+            return false;
+        }
+    } else {
+        if (abilityContext->GetUIContent() == nullptr) {
+            IAM_LOGE("uiContent is null");
+            return false;
+        }
+    }
+    return true;
 }
 
 UserAuthResultCode UserAuthInstanceV10::Init(napi_env env, napi_callback_info info)
@@ -561,8 +631,9 @@ UserAuthResultCode UserAuthInstanceV10::Start(napi_env env, napi_callback_info i
         IAM_LOGE("auth already started");
         return UserAuthResultCode::GENERAL_ERROR;
     }
-    contextId_ = UserAuthClientImpl::Instance().BeginWidgetAuth(API_VERSION_10,
-        authParam_, widgetParam_, callback_);
+    modalCallback_ = Common::MakeShared<UserAuthModalCallback>(context_);
+    contextId_ = UserAuthNapiClientImpl::Instance().BeginWidgetAuth(API_VERSION_10,
+        authParam_, widgetParam_, callback_, modalCallback_);
     isAuthStarted_ = true;
     return UserAuthResultCode::SUCCESS;
 }

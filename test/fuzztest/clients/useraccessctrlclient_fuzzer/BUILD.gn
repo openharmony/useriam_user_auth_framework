@@ -44,10 +44,12 @@ ohos_fuzztest("UserAccessCtrlClientFuzzTest") {
     "../../../../frameworks/native/client/src/executor_callback_service.cpp",
     "../../../../frameworks/native/client/src/executor_messenger_client.cpp",
     "../../../../frameworks/native/client/src/ipc_client_utils.cpp",
+    "../../../../frameworks/native/client/src/modal_callback_service.cpp",
     "../../../../frameworks/native/client/src/user_access_ctrl_callback_service.cpp",
     "../../../../frameworks/native/client/src/user_access_ctrl_client_impl.cpp",
     "../../../../frameworks/native/client/src/user_auth_callback_service.cpp",
     "../../../../frameworks/native/client/src/user_auth_client_impl.cpp",
+    "../../../../frameworks/native/client/src/user_auth_modal_inner_callback.cpp",
     "../../../../frameworks/native/client/src/user_idm_callback_service.cpp",
     "../../../../frameworks/native/client/src/user_idm_client_impl.cpp",
     "../../../../frameworks/native/client/src/widget_callback_service.cpp",
@@ -64,6 +66,13 @@ ohos_fuzztest("UserAccessCtrlClientFuzzTest") {
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   external_deps = [
+    "ability_runtime:ability_context_native",
+    "ability_runtime:ability_manager",
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:app_context",
+    "ability_runtime:napi_base_context",
+    "ability_runtime:ui_extension",
+    "ace_engine:ace_uicontent",
     "hilog:libhilog",
     "ipc:ipc_single",
     "napi:ace_napi",

@@ -25,7 +25,9 @@
 #include "iam_para2str.h"
 #include "iam_ptr.h"
 #include "ipc_client_utils.h"
+#include "modal_callback_service.h"
 #include "user_auth_callback_service.h"
+#include "user_auth_modal_inner_callback.h"
 #include "widget_callback_service.h"
 
 #define LOG_TAG "USER_AUTH_SDK"
@@ -310,7 +312,7 @@ int32_t UserAuthClientImpl::CancelAuthentication(uint64_t contextId)
         return GENERAL_ERROR;
     }
 
-    return proxy->CancelAuthOrIdentify(contextId);
+    return proxy->CancelAuthOrIdentify(contextId, CancelReason::ORIGINAL_CANCEL);
 }
 
 uint64_t UserAuthClientImpl::BeginIdentification(const std::vector<uint8_t> &challenge, AuthType authType,
@@ -349,7 +351,7 @@ int32_t UserAuthClientImpl::CancelIdentification(uint64_t contextId)
         return GENERAL_ERROR;
     }
 
-    return proxy->CancelAuthOrIdentify(contextId);
+    return proxy->CancelAuthOrIdentify(contextId, CancelReason::ORIGINAL_CANCEL);
 }
 
 int32_t UserAuthClientImpl::GetVersion(int32_t &version)
@@ -451,7 +453,13 @@ uint64_t UserAuthClientImpl::BeginWidgetAuth(const WidgetAuthParam &authParam, c
         .authTrustLevel = authParam.authTrustLevel,
         .reuseUnlockResult = authParam.reuseUnlockResult,
     };
-    return BeginWidgetAuthInner(INNER_API_VERSION_20000, authParamInner, widgetParam, callback);
+    WidgetParamInner widgetParamInner = {
+        .title = widgetParam.title,
+        .navigationButtonText = widgetParam.navigationButtonText,
+        .windowMode = widgetParam.windowMode,
+        .hasContext = false,
+    };
+    return BeginWidgetAuthInner(INNER_API_VERSION_20000, authParamInner, widgetParamInner, callback);
 }
 
 uint64_t UserAuthClientImpl::BeginWidgetAuth(int32_t apiVersion, const WidgetAuthParam &authParam,
@@ -467,11 +475,17 @@ uint64_t UserAuthClientImpl::BeginWidgetAuth(int32_t apiVersion, const WidgetAut
         .authTrustLevel = authParam.authTrustLevel,
         .reuseUnlockResult = authParam.reuseUnlockResult,
     };
-    return BeginWidgetAuthInner(apiVersion, authParamInner, widgetParam, callback);
+    WidgetParamInner widgetParamInner = {
+        .title = widgetParam.title,
+        .navigationButtonText = widgetParam.navigationButtonText,
+        .windowMode = widgetParam.windowMode,
+        .hasContext = false,
+    };
+    return BeginWidgetAuthInner(apiVersion, authParamInner, widgetParamInner, callback);
 }
 
 uint64_t UserAuthClientImpl::BeginWidgetAuthInner(int32_t apiVersion, const AuthParamInner &authParam,
-    const WidgetParam &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback)
+    const WidgetParamInner &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback)
 {
     if (!callback) {
         IAM_LOGE("auth callback is nullptr");
@@ -492,7 +506,17 @@ uint64_t UserAuthClientImpl::BeginWidgetAuthInner(int32_t apiVersion, const Auth
         callback->OnResult(static_cast<int32_t>(ResultCode::GENERAL_ERROR), extraInfo);
         return BAD_CONTEXT_ID;
     }
-    return proxy->AuthWidget(apiVersion, authParam, widgetParam, wrapper);
+
+    // modal
+    const std::shared_ptr<UserAuthModalInnerCallback> &modalCallback = Common::MakeShared<UserAuthModalInnerCallback>();
+    sptr<ModalCallbackInterface> wrapperModal(new (std::nothrow) ModalCallbackService(modalCallback));
+    if (wrapperModal == nullptr) {
+        IAM_LOGE("failed to create wrapper for modal");
+        Attributes extraInfo;
+        callback->OnResult(static_cast<int32_t>(ResultCode::GENERAL_ERROR), extraInfo);
+        return BAD_CONTEXT_ID;
+    }
+    return proxy->AuthWidget(apiVersion, authParam, widgetParam, wrapper, wrapperModal);
 }
 
 int32_t UserAuthClientImpl::SetWidgetCallback(int32_t version, const std::shared_ptr<IUserAuthWidgetCallback> &callback)

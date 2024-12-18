@@ -98,7 +98,7 @@ HWTEST_F(WidgetClientTest, WidgetClientTestSetWidgetSchedule_0002, TestSize.Leve
 
 HWTEST_F(WidgetClientTest, WidgetClientTestSetWidgetParam, TestSize.Level0)
 {
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     WidgetClient::Instance().SetWidgetParam(widgetParam);
     EXPECT_EQ(widgetParam.title, "");
 }

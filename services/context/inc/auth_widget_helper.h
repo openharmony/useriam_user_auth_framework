@@ -26,7 +26,7 @@ namespace UserAuth {
 class AuthWidgetHelper {
 public:
     static bool InitWidgetContextParam(const AuthParamInner &authParam, std::vector<AuthType> &validType,
-        const WidgetParam &widgetParam, ContextFactory::AuthWidgetContextPara &para);
+        const WidgetParamInner &widgetParam, ContextFactory::AuthWidgetContextPara &para);
     static int32_t CheckValidSolution(int32_t userId,
         const std::vector<AuthType> &authTypeList, const AuthTrustLevel &atl, std::vector<AuthType> &validTypeList);
     static int32_t CheckReuseUnlockResult(const ContextFactory::AuthWidgetContextPara &para,

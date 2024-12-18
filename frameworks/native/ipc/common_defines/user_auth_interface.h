@@ -23,6 +23,7 @@
 #include "refbase.h"
 
 #include "attributes.h"
+#include "modal_callback_interface.h"
 #include "user_access_ctrl_callback_interface.h"
 #include "user_auth_callback_interface.h"
 #include "user_auth_client_callback.h"
@@ -55,12 +56,13 @@ public:
         AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) = 0;
 
     virtual uint64_t AuthWidget(int32_t apiVersion, const AuthParamInner &authParam,
-        const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback) = 0;
+        const WidgetParamInner &widgetParam, sptr<UserAuthCallbackInterface> &callback,
+        sptr<ModalCallbackInterface> &modalCallback) = 0;
 
     virtual uint64_t Identify(const std::vector<uint8_t> &challenge, AuthType authType,
         sptr<UserAuthCallbackInterface> &callback) = 0;
 
-    virtual int32_t CancelAuthOrIdentify(uint64_t contextId) = 0;
+    virtual int32_t CancelAuthOrIdentify(uint64_t contextId, int32_t cancelReason) = 0;
 
     virtual int32_t GetVersion(int32_t &version) = 0;
 

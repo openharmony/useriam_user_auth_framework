@@ -25,6 +25,7 @@
 #include "mock_context.h"
 #include "mock_iuser_auth_interface.h"
 #include "mock_ipc_common.h"
+#include "mock_modal_callback.h"
 #include "mock_user_access_ctrl_callback.h"
 #include "mock_user_auth_callback.h"
 #include "mock_user_auth_service.h"
@@ -50,12 +51,14 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_001, TestSize.Level0)
     authParam.challenge.push_back(4);
     authParam.authTypes.push_back(FACE);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "确定";
 
     sptr<UserAuthCallbackInterface> testUserAuthCallback(nullptr);
-    EXPECT_EQ(service.AuthWidget(apiVersion, authParam, widgetParam, testUserAuthCallback), (uint64_t)0);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    EXPECT_EQ(service.AuthWidget(apiVersion, authParam, widgetParam, testUserAuthCallback, testModalCallback),
+        (uint64_t)0);
 }
 
 HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_002, TestSize.Level0)
@@ -69,7 +72,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_002, TestSize.Level0)
     authParam.challenge.push_back(4);
     authParam.authTypes.push_back(FACE);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::FULLSCREEN;
@@ -78,7 +81,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_002, TestSize.Level0)
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -94,7 +98,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_003, TestSize.Level0)
     authParam.challenge.push_back(4);
     authParam.authTypes.push_back(FACE);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::FULLSCREEN;
@@ -103,7 +107,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_003, TestSize.Level0)
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -119,7 +124,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_004, TestSize.Level0)
     authParam.challenge.push_back(4);
     authParam.authTypes.push_back(FACE);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
@@ -128,7 +133,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_004, TestSize.Level0)
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -144,7 +150,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_005, TestSize.Level0)
     authParam.challenge.push_back(4);
     authParam.authTypes.push_back(FACE);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
@@ -154,9 +160,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_005, TestSize.Level0)
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
-    service.CancelAuthOrIdentify(conxtId);
+    service.CancelAuthOrIdentify(conxtId, 0);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -171,7 +178,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_006, TestSize.Level0)
     authParam.challenge.push_back(4);
     authParam.authTypes.push_back(FACE);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
@@ -181,9 +188,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_006, TestSize.Level0)
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
-    service.CancelAuthOrIdentify(conxtId);
+    service.CancelAuthOrIdentify(conxtId, 0);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -197,7 +205,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_007, TestSize.Level0)
     authParam.challenge.push_back(3);
     authParam.challenge.push_back(4);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
@@ -209,14 +217,15 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_007, TestSize.Level0)
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
 
     authParam.authTypes.push_back(FACE);
     authParam.authTypes.push_back(FACE);
     authParam.authTypes.push_back(FACE);
     authParam.authTypes.push_back(FACE);
-    conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface);
+    conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -232,7 +241,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_008, TestSize.Level0)
     authParam.challenge.push_back(4);
     authParam.authTypes.push_back(static_cast<AuthType>(5));
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
@@ -242,7 +251,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_008, TestSize.Level0)
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -258,7 +268,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_009, TestSize.Level0)
     authParam.challenge.push_back(4);
     authParam.authTypes.push_back(AuthType::ALL);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
@@ -268,7 +278,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_009, TestSize.Level0)
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -284,7 +295,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_010, TestSize.Level0)
     authParam.challenge.push_back(4);
     authParam.authTypes.push_back(AuthType::PIN);
     authParam.authTrustLevel = (AuthTrustLevel)50000;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
@@ -294,7 +305,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_010, TestSize.Level0)
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -310,7 +322,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_011, TestSize.Level0)
     authParam.challenge.push_back(4);
     authParam.authTypes.push_back(AuthType::PIN);
     authParam.authTrustLevel = ATL1;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
@@ -320,7 +332,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_011, TestSize.Level0)
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -336,7 +349,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_012, TestSize.Level0)
     authParam.challenge.push_back(4);
     authParam.authTypes.push_back(AuthType::PIN);
     authParam.authTrustLevel = ATL1;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "WidgetParamTitle";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
@@ -346,9 +359,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_012, TestSize.Level0)
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
-    service.CancelAuthOrIdentify(conxtId);
+    service.CancelAuthOrIdentify(conxtId, 0);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -363,7 +377,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_013, TestSize.Level0)
     authParam.challenge.push_back(4);
     authParam.authTypes.push_back(FACE);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
@@ -377,7 +391,12 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_013, TestSize.Level0)
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _)).WillRepeatedly(Return(FAIL));
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
+    sptr<ModalCallbackInterface> modalCallback = new MockModalCallback();
+    EXPECT_NE(modalCallback, nullptr);
+    auto *testModalCallback = static_cast<MockModalCallback *>(modalCallback.GetRefPtr());
+    EXPECT_NE(testModalCallback, nullptr);
+    EXPECT_CALL(*testModalCallback, SendCommand(_, _)).Times(0);
+    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, modalCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -393,7 +412,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_014, TestSize.Level0)
     authParam.challenge.push_back(4);
     authParam.authTypes.push_back(FACE);
     authParam.authTrustLevel = (AuthTrustLevel)50000;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
@@ -404,7 +423,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_014, TestSize.Level0)
     EXPECT_CALL(*tempCallback, OnResult(_, _)).Times(1);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -420,7 +440,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_015, TestSize.Level0)
     authParam.challenge.push_back(4);
     authParam.authTypes.push_back(AuthType::FINGERPRINT);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::FULLSCREEN;
@@ -448,9 +468,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_015, TestSize.Level0)
         }
     );
     ResourceNodePool::Instance().Insert(nullptr);
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
-    service.CancelAuthOrIdentify(conxtId);
+    service.CancelAuthOrIdentify(conxtId, 0);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -462,7 +483,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_016, TestSize.Level0)
     authParam.challenge.push_back(1);
     authParam.authTypes.push_back(AuthType::PIN);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
@@ -498,10 +519,11 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_016, TestSize.Level0)
             return SUCCESS;
         }
     );
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
-    service.CancelAuthOrIdentify(conxtId);
+    service.CancelAuthOrIdentify(conxtId, 0);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -513,9 +535,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0017, TestSize.Level0)
     authParam.challenge.push_back(1);
     authParam.authTypes.push_back(AuthType::FINGERPRINT);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
     sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
@@ -550,10 +571,11 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0017, TestSize.Level0)
             return SUCCESS;
         }
     );
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
-    service.CancelAuthOrIdentify(conxtId);
+    service.CancelAuthOrIdentify(conxtId, 0);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -565,7 +587,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0018, TestSize.Level0)
     authParam.challenge.push_back(1);
     authParam.authTypes.push_back(AuthType::FINGERPRINT);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
@@ -601,10 +623,11 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0018, TestSize.Level0)
             return SUCCESS;
         }
     );
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
-    service.CancelAuthOrIdentify(conxtId);
+    service.CancelAuthOrIdentify(conxtId, 0);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -616,12 +639,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0019, TestSize.Level0)
     authParam.challenge.push_back(1);
     authParam.authTypes.push_back(AuthType::FINGERPRINT);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
     sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
-    EXPECT_NE(testCallback, nullptr);
     auto *tempCallback = static_cast<MockUserAuthCallback *>(testCallback.GetRefPtr());
     EXPECT_NE(tempCallback, nullptr);
     EXPECT_CALL(*tempCallback, OnResult(_, _)).Times(1);
@@ -653,10 +674,11 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0019, TestSize.Level0)
             return SUCCESS;
         }
     );
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
-    service.CancelAuthOrIdentify(conxtId);
+    service.CancelAuthOrIdentify(conxtId, 0);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -668,7 +690,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0020, TestSize.Level0)
     authParam.challenge.push_back(1);
     authParam.authTypes.push_back(AuthType::PIN);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
@@ -703,7 +725,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0020, TestSize.Level0)
             return SUCCESS;
         }
     );
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
     IpcCommon::DeleteAllPermission();
@@ -717,7 +740,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0021, TestSize.Level0)
     authParam.challenge.push_back(1);
     authParam.authTypes.push_back(AuthType::ALL);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
@@ -752,7 +775,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0021, TestSize.Level0)
             return SUCCESS;
         }
     );
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
     IpcCommon::DeleteAllPermission();
@@ -766,7 +790,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_022, TestSize.Level0)
     authParam.challenge.push_back(1);
     authParam.authTypes.push_back(AuthType::FINGERPRINT);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
@@ -801,7 +825,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_022, TestSize.Level0)
             return SUCCESS;
         }
     );
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
     EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
     IpcCommon::DeleteAllPermission();
@@ -818,7 +843,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_023, TestSize.Level0)
     authParam.reuseUnlockResult.isReuse = true;
     authParam.reuseUnlockResult.reuseMode = AUTH_TYPE_IRRELEVANT;
     authParam.reuseUnlockResult.reuseDuration = 5 * 60 *1000;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
@@ -839,7 +864,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_023, TestSize.Level0)
                 return HDF_SUCCESS;
             }
         );
-    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
     EXPECT_EQ(contextId, REUSE_AUTH_RESULT_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -852,7 +878,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_024, TestSize.Level0)
     authParam.challenge.push_back(1);
     authParam.authTypes.push_back(AuthType::FACE);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "确定";
     widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
@@ -864,7 +890,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_024, TestSize.Level0)
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
     EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _)).Times(0);
-    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
     EXPECT_EQ(contextId, BAD_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -877,7 +904,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_025, TestSize.Level0)
     authParam.challenge.push_back(1);
     authParam.authTypes.push_back(AuthType::FACE);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "确定";
     widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
@@ -896,7 +923,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_025, TestSize.Level0)
                 return PIN_EXPIRED;
             }
         );
-    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
     EXPECT_EQ(contextId, BAD_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -909,7 +937,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_026, TestSize.Level0)
     authParam.challenge.push_back(1);
     authParam.authTypes.push_back(AuthType::FACE);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::FULLSCREEN;
@@ -930,7 +958,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_026, TestSize.Level0)
                 return HDF_SUCCESS;
             }
         );
-    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
     EXPECT_EQ(contextId, BAD_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -943,7 +972,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_027, TestSize.Level0)
     authParam.challenge.push_back(1);
     authParam.authTypes.push_back(AuthType::FINGERPRINT);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::FULLSCREEN;
@@ -964,7 +993,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_027, TestSize.Level0)
                 return HDF_SUCCESS;
             }
         );
-    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
     EXPECT_EQ(contextId, BAD_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -977,7 +1007,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_028, TestSize.Level0)
     authParam.challenge.push_back(1);
     authParam.authTypes.push_back(AuthType::PIN);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::FULLSCREEN;
@@ -998,7 +1028,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_028, TestSize.Level0)
                 return HDF_SUCCESS;
             }
         );
-    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
     EXPECT_EQ(contextId, BAD_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -1012,7 +1043,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_029, TestSize.Level0)
     authParam.authTypes.push_back(AuthType::PIN);
     authParam.authTrustLevel = ATL2;
     authParam.isUserIdSpecified = true;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::FULLSCREEN;
@@ -1033,7 +1064,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_029, TestSize.Level0)
                 return HDF_SUCCESS;
             }
         );
-    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
     EXPECT_EQ(contextId, BAD_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -1047,7 +1079,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_030, TestSize.Level0)
     authParam.authTypes.push_back(AuthType::PIN);
     authParam.authTrustLevel = ATL2;
     authParam.isUserIdSpecified = true;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::FULLSCREEN;
@@ -1068,7 +1100,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_030, TestSize.Level0)
                 return HDF_SUCCESS;
             }
         );
-    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
     EXPECT_EQ(contextId, BAD_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -1082,7 +1115,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_031, TestSize.Level0)
     authParam.authTypes.push_back(AuthType::FACE);
     authParam.authTypes.push_back(AuthType::FINGERPRINT);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::FULLSCREEN;
@@ -1094,7 +1127,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_031, TestSize.Level0)
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
     EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _)).Times(0);
-    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
     EXPECT_EQ(contextId, BAD_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -1108,7 +1142,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_032, TestSize.Level0)
     authParam.authTypes.push_back(AuthType::FINGERPRINT);
     authParam.authTypes.push_back(AuthType::FACE);
     authParam.authTrustLevel = ATL2;
-    WidgetParam widgetParam;
+    WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::FULLSCREEN;
@@ -1120,7 +1154,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_032, TestSize.Level0)
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
     EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _)).Times(0);
-    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
     EXPECT_EQ(contextId, BAD_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
