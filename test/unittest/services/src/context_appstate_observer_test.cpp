@@ -99,6 +99,30 @@ HWTEST_F(ContextAppStateObserverTest, UnSubscribeAppStateTest_002, TestSize.Leve
     appStateObserverManager->appStateObserver_ = nullptr;
 }
 
+HWTEST_F(ContextAppStateObserverTest, ScreenLockStateTest_001, TestSize.Level0)
+{
+    auto appStateObserverManager = Common::MakeShared<ContextAppStateObserverManager>();
+    ASSERT_NE(appStateObserverManager, nullptr);
+    bool screenLockState = true;
+    int32_t userId = 1;
+    appStateObserverManager->RemoveScreenLockState(userId);
+    screenLockState = appStateObserverManager->GetScreenLockState(userId);
+    ASSERT_EQ(screenLockState, false);
+    screenLockState = true;
+    appStateObserverManager->SetScreenLockState(screenLockState, userId);
+    int32_t userId2 = 2;
+    appStateObserverManager->SetScreenLockState(screenLockState, userId2);
+    screenLockState = appStateObserverManager->GetScreenLockState(userId);
+    ASSERT_EQ(screenLockState, true);
+    screenLockState = false;
+    appStateObserverManager->SetScreenLockState(screenLockState, userId);
+    screenLockState = appStateObserverManager->GetScreenLockState(userId);
+    ASSERT_EQ(screenLockState, false);
+    appStateObserverManager->RemoveScreenLockState(userId2);
+    screenLockState = appStateObserverManager->GetScreenLockState(userId2);
+    ASSERT_EQ(screenLockState, false);
+}
+
 HWTEST_F(ContextAppStateObserverTest, OnAppStateChangedTest_001, TestSize.Level0)
 {
     uint64_t contextId = 1;

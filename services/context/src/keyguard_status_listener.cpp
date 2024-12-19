@@ -17,9 +17,11 @@
 
 #include "context_appstate_observer.h"
 #include "common_event_subscribe_info.h"
+#include "credential_info_interface.h"
 #include "iam_logger.h"
 #include "matching_skills.h"
 #include "singleton.h"
+#include "user_idm_database.h"
 #include "want.h"
 
 #define LOG_TAG "USER_AUTH_SA"
@@ -119,12 +121,29 @@ void KeyguardStatusListenerManager::UnRegisterKeyguardStatusSwitchCallback()
 void KeyguardStatusListener::OnReceiveEvent(const OHOS::EventFwk::CommonEventData &data)
 {
     std::string action = data.GetWant().GetAction();
-    IAM_LOGI("OnReceiveEvent %{public}s", action.c_str());
+    int32_t userId = data.GetWant().GetIntParam("userId", INVALID_USER_ID);
+    IAM_LOGI("OnReceiveEvent %{public}s, userId = %{public}d", action.c_str(), userId);
+    if (userId == INVALID_USER_ID) {
+        IAM_LOGE("Event userId invalid");
+        return;
+    }
+
+    std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
+    int32_t ret = UserIdmDatabase::Instance().GetCredentialInfo(userId, PIN, credInfos);
+    if (ret != SUCCESS) {
+        IAM_LOGE("get credential fail, ret:%{public}d, userId:%{public}d", ret, userId);
+        return;
+    }
+    if (credInfos.empty()) {
+        IAM_LOGE("no cred enrolled, don't SetScreenLockState");
+        ContextAppStateObserverManager::GetInstance().RemoveScreenLockState(userId);
+        return;
+    }
 
     if (action == EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_LOCKED) {
-        ContextAppStateObserverManager::GetInstance().SetScreenLockState(true);
+        ContextAppStateObserverManager::GetInstance().SetScreenLockState(true, userId);
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED) {
-        ContextAppStateObserverManager::GetInstance().SetScreenLockState(false);
+        ContextAppStateObserverManager::GetInstance().SetScreenLockState(false, userId);
     }
 };
 } // namespace UserAuth
