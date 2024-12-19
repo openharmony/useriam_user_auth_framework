@@ -18,6 +18,7 @@
 #include "string_ex.h"
 #include "accesstoken_kit.h"
 
+#include "context_appstate_observer.h"
 #include "context_helper.h"
 #include "context_pool.h"
 #include "hdi_wrapper.h"
@@ -432,6 +433,7 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
         contextCallback->OnResult(ret, extraInfo);
         return;
     }
+    ContextAppStateObserverManager::GetInstance().RemoveScreenLockState(userId);
     if (!extraInfo.SetUint8ArrayValue(Attributes::ATTR_OLD_ROOT_SECRET, rootSecret)) {
         IAM_LOGE("set rootsecret to extraInfo failed");
         contextCallback->OnResult(ret, extraInfo);
@@ -571,6 +573,7 @@ int32_t UserIdmService::EnforceDelUserInner(int32_t userId, std::shared_ptr<Cont
         IAM_LOGE("failed to enforce delete user, ret:%{public}d", ret);
         return ret;
     }
+    ContextAppStateObserverManager::GetInstance().RemoveScreenLockState(userId);
     SetAuthTypeTrace(credInfos, callbackForTrace);
     ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos, changeReasonTrace);
     if (ret != SUCCESS) {

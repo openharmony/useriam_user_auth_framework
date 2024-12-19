@@ -17,6 +17,8 @@
 #define IAM_CONTEXT_APPSTATE_OBSERVER_H
 
 #include <cstdint>
+#include <map>
+#include <mutex>
 #include <string>
 
 #include "application_state_observer_stub.h"
@@ -37,15 +39,17 @@ class ContextAppStateObserverManager {
 
         void SubscribeAppState(const std::shared_ptr<ContextCallback> &callback, const uint64_t contextId);
         void UnSubscribeAppState();
-        void SetScreenLockState(bool screenLockState);
-        bool GetScreenLockState();
+        void SetScreenLockState(bool screenLockState, int32_t userId);
+        void RemoveScreenLockState(int32_t userId);
+        bool GetScreenLockState(int32_t userId);
 
     protected:
         sptr<ApplicationStateObserverStub> appStateObserver_ = nullptr;
 
     private:
         sptr<IAppMgr> GetAppManagerInstance();
-        bool isScreenLocked_ = false;
+        std::mutex mutex_;
+        std::map<int32_t, bool> screenLockedMap_;
 };
 
 class ContextAppStateObserver : public ApplicationStateObserverStub {
