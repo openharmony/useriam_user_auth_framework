@@ -20,11 +20,11 @@
 
 #include "user_auth_common_defines.h"
 
-using OHOS::UserIam::UserAuth::CAuthParam;
-using OHOS::UserIam::UserAuth::CUserAuthResult;
-using OHOS::UserIam::UserAuth::CWidgetParam;
+using OHOS::UserIam::UserAuth::CjAuthParam;
+using OHOS::UserIam::UserAuth::CjUserAuthCallback;
+using OHOS::UserIam::UserAuth::CjUserAuthResult;
+using OHOS::UserIam::UserAuth::CjWidgetParam;
 using OHOS::UserIam::UserAuth::EnrolledState;
-using OHOS::UserIam::UserAuth::UserAuthCallbackCj;
 
 #define FFI_EXPORT __attribute__((visibility("default")))
 
@@ -33,12 +33,12 @@ FFI_EXPORT int32_t FfiUserAuthGetAvailableStatus(uint32_t authType, uint32_t aut
 
 FFI_EXPORT int32_t FfiUserAuthGetEnrolledState(uint32_t authType, EnrolledState *enrolledState);
 
-FFI_EXPORT UserAuthCallbackCj *FfiUserAuthNewCb(void (*callback)(CUserAuthResult));
+FFI_EXPORT CjUserAuthCallback *FfiUserAuthNewCb(void (*callback)(CjUserAuthResult));
 
-FFI_EXPORT void FfiUserAuthDeleteCb(const UserAuthCallbackCj *callbackPtr);
+FFI_EXPORT void FfiUserAuthDeleteCb(const CjUserAuthCallback *callbackPtr);
 
-FFI_EXPORT uint64_t FfiUserAuthStart(const CAuthParam &authParam, const CWidgetParam &widgetParam,
-    UserAuthCallbackCj *callbackPtr);
+FFI_EXPORT uint64_t FfiUserAuthStart(const CjAuthParam &authParam, const CjWidgetParam &widgetParam,
+    CjUserAuthCallback *callbackPtr);
 
 FFI_EXPORT int32_t FfiUserAuthCancel(uint64_t contextId);
 }
