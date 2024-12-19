@@ -123,12 +123,12 @@ std::string GetAuthParamStr(const AuthParamInner &authParam, std::optional<Remot
     authParamString << "userId:" << authParam.userId << " authType:" << authParam.authType
                     << " atl:" << authParam.authTrustLevel;
     if (remoteAuthParam.has_value()) {
-        const uint32_t NETWORK_ID_PRINT_LEN = 4;
-        const uint32_t TOKEN_ID_MIN_LEN = 2;
-        auto verifierNetworkIdStr = remoteAuthParam->verifierNetworkId.value_or("").substr(0, NETWORK_ID_PRINT_LEN);
-        auto collectorNetworkIdStr = remoteAuthParam->collectorNetworkId.value_or("").substr(0, NETWORK_ID_PRINT_LEN);
+        const uint32_t networkIdPrintLen = 4;
+        const uint32_t tokenIdMinLen = 2;
+        auto verifierNetworkIdStr = remoteAuthParam->verifierNetworkId.value_or("").substr(0, networkIdPrintLen);
+        auto collectorNetworkIdStr = remoteAuthParam->collectorNetworkId.value_or("").substr(0, networkIdPrintLen);
         auto tokenIdStr = std::to_string(remoteAuthParam->collectorTokenId.value_or(0));
-        if (tokenIdStr.size() > TOKEN_ID_MIN_LEN) {
+        if (tokenIdStr.size() > tokenIdMinLen) {
             tokenIdStr = std::string(1, tokenIdStr[0]) + "****" + std::string(1, tokenIdStr[tokenIdStr.size() - 1]);
         } else {
             tokenIdStr = "";

@@ -466,14 +466,14 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_OnScheduleStoped_004, Test
 
 static void MockForContextCallback(std::shared_ptr<MockContextCallback> contextCallback)
 {
-    static const int32_t TEST_RESULT_CODE = 1;
-    static const int32_t TEST_FREEZING_TIME = 8;
-    static const int32_t TEST_REMAIN_TIMES = 9;
+    static const int32_t testResultCode = 1;
+    static const int32_t testFreezingTime = 8;
+    static const int32_t testRemainTimes = 9;
     static std::vector<uint8_t> testSignature = {10, 11, 12, 13};
     EXPECT_CALL(*contextCallback, OnResult(_, _))
         .Times(Exactly(1))
         .WillOnce([](int32_t resultCode, const Attributes &finalResult) {
-            EXPECT_EQ(resultCode, TEST_RESULT_CODE);
+            EXPECT_EQ(resultCode, testResultCode);
             uint32_t attrResultCode;
             int32_t freezingTime;
             int32_t remainTimes;
@@ -487,9 +487,9 @@ static void MockForContextCallback(std::shared_ptr<MockContextCallback> contextC
             ret = finalResult.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, signature);
             EXPECT_EQ(ret, true);
 
-            EXPECT_EQ(resultCode, TEST_RESULT_CODE);
-            EXPECT_EQ(freezingTime, TEST_FREEZING_TIME);
-            EXPECT_EQ(remainTimes, TEST_REMAIN_TIMES);
+            EXPECT_EQ(resultCode, testResultCode);
+            EXPECT_EQ(freezingTime, testFreezingTime);
+            EXPECT_EQ(remainTimes, testRemainTimes);
             EXPECT_EQ(signature, testSignature);
         });
 }
