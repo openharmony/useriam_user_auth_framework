@@ -23,7 +23,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-struct CAuthParam {
+struct CjAuthParam {
     uint8_t *challenge;
     int64_t challengeLen;
     uint32_t *authTypes;
@@ -34,12 +34,12 @@ struct CAuthParam {
     uint64_t reuseDuration;
 };
 
-struct CWidgetParam {
+struct CjWidgetParam {
     const char *title;
     const char *navigationButtonText;
 };
 
-struct CUserAuthResult {
+struct CjUserAuthResult {
     int32_t result;
     uint8_t *token;
     int64_t tokenLen;
@@ -48,16 +48,16 @@ struct CUserAuthResult {
     uint16_t credentialCount;
 };
 
-class UserAuthCallbackCj final : public AuthenticationCallback {
+class CjUserAuthCallback final : public AuthenticationCallback {
 public:
-    UserAuthCallbackCj() = default;
-    explicit UserAuthCallbackCj(const std::function<void(CUserAuthResult)> &onResult) : onResult_(onResult) {}
-    virtual ~UserAuthCallbackCj() = default;
+    CjUserAuthCallback() = default;
+    explicit CjUserAuthCallback(const std::function<void(CjUserAuthResult)> &onResult) : onResult_(onResult) {}
+    virtual ~CjUserAuthCallback() = default;
     void OnResult(int32_t result, const Attributes &extraInfo) override;
     void OnAcquireInfo(int32_t module, uint32_t acquireInfo, const Attributes &extraInfo) override;
 
 private:
-    std::function<void(CUserAuthResult)> onResult_;
+    std::function<void(CjUserAuthResult)> onResult_;
 };
 
 } // namespace UserAuth
