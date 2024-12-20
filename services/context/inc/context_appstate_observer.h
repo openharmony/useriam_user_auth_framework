@@ -54,7 +54,6 @@ class ContextAppStateObserver : public ApplicationStateObserverStub {
         ~ContextAppStateObserver() override = default;
         void OnAppStateChanged(const AppStateData &appStateData) override;
         void OnForegroundApplicationChanged(const AppStateData &appStateData) override;
-        void OnAbilityStateChanged(const AbilityStateData &abilityStateData) override;
 
     protected:
         void ProcAppStateChanged(int32_t userId);
