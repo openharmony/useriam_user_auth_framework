@@ -941,6 +941,26 @@ int32_t UserAuthService::CheckCallerPermissionForPrivatePin(const AuthParamInner
     return CHECK_PERMISSION_FAILED;
 }
 
+int32_t UserAuthService::CheckCallerPermissionForUserId(const AuthParamInner &authParam)
+{
+    // inner api caller
+    if (IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+        return SUCCESS;
+    }
+    // native api caller
+    int32_t userId = INVALID_USER_ID;
+    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
+        IAM_LOGE("failed to get callingUserId");
+        return GENERAL_ERROR;
+    }
+    if (IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION) &&
+        (IpcCommon::CheckPermission(*this, IS_SYSTEM_APP) || authParam.userId == userId)) {
+        return SUCCESS;
+    }
+    IAM_LOGE("CheckPermission failed");
+    return CHECK_PERMISSION_FAILED;
+}
+
 int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authParam,
     const WidgetParamInner &widgetParam, bool isBackgroundApplication)
 {
@@ -957,7 +977,7 @@ int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authP
         IAM_LOGE("CheckPermission failed");
         return CHECK_PERMISSION_FAILED;
     }
-    if (authParam.isUserIdSpecified && !IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+    if (authParam.isUserIdSpecified && CheckCallerPermissionForUserId(authParam) != SUCCESS) {
         IAM_LOGE("CheckPermission failed");
         return CHECK_PERMISSION_FAILED;
     }
