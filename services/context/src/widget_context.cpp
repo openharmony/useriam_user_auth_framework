@@ -571,7 +571,6 @@ void WidgetContext::End(const ResultCode &resultCode)
 void WidgetContext::StopAllRunTask(const ResultCode &resultCode)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    WidgetClient::Instance().Reset();
     for (auto &taskInfo : runTaskInfoList_) {
         IAM_LOGI("stop task");
         if (taskInfo.task == nullptr) {
@@ -587,6 +586,7 @@ void WidgetContext::StopAllRunTask(const ResultCode &resultCode)
             IAM_LOGE("failed to release launch widget.");
         }
     }
+    WidgetClient::Instance().Reset();
 }
 
 void WidgetContext::BuildStartPinSubType(WidgetCmdParameters &widgetCmdParameters)
