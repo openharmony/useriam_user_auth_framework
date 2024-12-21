@@ -38,34 +38,35 @@ std::optional<std::vector<uint64_t>> SimpleAuthContext::GetPropertyTemplateIds(
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_.size() == 1, std::nullopt);
     auto scheduleNode = scheduleList_[0];
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleNode != nullptr, std::nullopt);
-    if (scheduleNode->GetAuthType() == PRIVATE_PIN) {
-        std::vector<uint64_t> templateIds;
-        std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
-        int32_t ret = UserIdmDatabase::Instance().GetCredentialInfo(resultInfo.userId, scheduleNode->GetAuthType(),
-            credInfos);
-        if (ret != SUCCESS) {
-            IAM_LOGE("get credential fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret,
-                resultInfo.userId, scheduleNode->GetAuthType());
-            return std::nullopt;
-        }
-
-        for (auto &iter : credInfos) {
-            if (scheduleNode->GetAuthIntent() == QUESTION_AUTH) {
-                if (iter->GetAuthSubType() == PIN_QUESTION) {
-                    templateIds.push_back(iter->GetTemplateId());
-                    break;
-                }
-            } else {
-                if (iter->GetAuthSubType() != PIN_QUESTION) {
-                    templateIds.push_back(iter->GetTemplateId());
-                    break;
-                }
-            }
-        }
-        return templateIds;
+    if (scheduleNode->GetAuthType() != PRIVATE_PIN) {
+        return scheduleNode->GetTemplateIdList();
     }
 
-    return scheduleNode->GetTemplateIdList();
+    std::vector<uint64_t> templateIds;
+    std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
+    int32_t ret = UserIdmDatabase::Instance().GetCredentialInfo(resultInfo.userId, scheduleNode->GetAuthType(),
+        credInfos);
+    if (ret != SUCCESS) {
+        IAM_LOGE("get credential fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret,
+            resultInfo.userId, scheduleNode->GetAuthType());
+        return std::nullopt;
+    }
+
+    for (auto &iter : credInfos) {
+        if (scheduleNode->GetAuthIntent() == QUESTION_AUTH) {
+            if (iter->GetAuthSubType() == PIN_QUESTION) {
+                templateIds.push_back(iter->GetTemplateId());
+                break;
+            }
+        } else {
+            if (iter->GetAuthSubType() != PIN_QUESTION) {
+                templateIds.push_back(iter->GetTemplateId());
+                break;
+            }
+        }
+    }
+
+    return templateIds;
 }
 
 ResultCode SimpleAuthContext::GetPropertyForAuthResult(Authentication::AuthResultInfo &resultInfo)
