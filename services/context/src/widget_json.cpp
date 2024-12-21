@@ -43,6 +43,7 @@ const std::string PIN_SUB_TYPE_MAX = "PIN_MAX";
 
 const std::string JSON_AUTH_TYPE = "type";
 const std::string JSON_WIDGET_CTX_ID = "widgetContextId";
+const std::string JSON_WIDGET_CTX_ID_STR = "widgetContextIdStr";
 const std::string JSON_AUTH_EVENT = "event";
 const std::string JSON_AUTH_VERSION = "version";
 const std::string JSON_AUTH_PAYLOAD = "payload";
@@ -117,7 +118,8 @@ void GetJsonCmd(nlohmann::json &jsonCommand, const WidgetCommand &command)
     jsonCommand = nlohmann::json({{JSON_WIDGET_CTX_ID, command.widgetContextId},
         {JSON_AUTH_TYPE, command.typeList},
         {JSON_AUTH_TITLE, command.title},
-        {JSON_AUTH_CMD, jsonCmdList}
+        {JSON_AUTH_CMD, jsonCmdList},
+        {JSON_WIDGET_CTX_ID_STR, command.widgetContextIdStr}
     });
     if (command.pinSubType != "") {
         jsonCommand[JSON_AUTH_PIN_SUB_TYPE] = command.pinSubType;
