@@ -605,6 +605,7 @@ std::string WidgetContext::BuildStartCommand(const WidgetRotatePara &widgetRotat
     WidgetCmdParameters widgetCmdParameters;
     widgetCmdParameters.uiExtensionType = UI_EXTENSION_TYPE_SET;
     widgetCmdParameters.useriamCmdData.widgetContextId = GetContextId();
+    widgetCmdParameters.useriamCmdData.widgetContextIdStr = std::to_string(GetContextId());
     widgetCmdParameters.useriamCmdData.title = para_.widgetParam.title;
     widgetCmdParameters.useriamCmdData.windowModeType = WinModeType2Str(para_.widgetParam.windowMode);
     widgetCmdParameters.useriamCmdData.navigationButtonText = para_.widgetParam.navigationButtonText;
