@@ -33,18 +33,18 @@ int32_t FfiUserAuthGetEnrolledState(const uint32_t authType, EnrolledState *enro
     return UserAuthClientImpl::Instance().GetEnrolledState(API_VERSION_12, AuthType(authType), *enrolledState);
 }
 
-UserAuthCallbackCj *FfiUserAuthNewCb(void (*const callback)(CUserAuthResult))
+CjUserAuthCallback *FfiUserAuthNewCb(void (*const callback)(CjUserAuthResult))
 {
-    return new UserAuthCallbackCj(CJLambda::Create(callback));
+    return new CjUserAuthCallback(CJLambda::Create(callback));
 }
 
-void FfiUserAuthDeleteCb(const UserAuthCallbackCj *callbackPtr)
+void FfiUserAuthDeleteCb(const CjUserAuthCallback *callbackPtr)
 {
     delete callbackPtr;
 }
 
-uint64_t FfiUserAuthStart(const CAuthParam &authParam, const CWidgetParam &widgetParam,
-    UserAuthCallbackCj *callbackPtr)
+uint64_t FfiUserAuthStart(const CjAuthParam &authParam, const CjWidgetParam &widgetParam,
+    CjUserAuthCallback *callbackPtr)
 {
     constexpr int32_t API_VERSION_10 = 10;
     std::vector<AuthType> authTypes;
@@ -71,11 +71,11 @@ uint64_t FfiUserAuthStart(const CAuthParam &authParam, const CWidgetParam &widge
     };
     if (callbackPtr == nullptr) {
         return UserAuthClientImpl::Instance().BeginWidgetAuth(API_VERSION_10, authParamInner, widgetInner,
-                                                              std::make_shared<UserAuthCallbackCj>());
+                                                              std::make_shared<CjUserAuthCallback>());
     }
-    const auto callback = std::shared_ptr<UserAuthCallbackCj>(
-        callbackPtr, [](UserAuthCallbackCj *) {
-            /* don't free, resource will be freed in FfiUserAuthDeleteCb */
+    const auto callback = std::shared_ptr<CjUserAuthCallback>(
+        callbackPtr, [](CjUserAuthCallback *) {
+             // don't free, resource will be freed in FfiUserAuthDeleteCb
         });
     return UserAuthClientImpl::Instance().BeginWidgetAuth(API_VERSION_10, authParamInner, widgetInner, callback);
 }
