@@ -1064,6 +1064,16 @@ int32_t UserAuthService::CheckValidSolution(int32_t userId, const AuthParamInner
         IAM_LOGE("check privatePin enroll error");
         return INVALID_PARAMETERS;
     }
+    if (!IpcCommon::IsOsAccountVerified(authParam.userId)) {
+        IAM_LOGI("auth userId: %{public}u, biometric authentication has been filtered.", authParam.userId);
+        validType.erase(std::remove_if(validType.begin(), validType.end(), [](AuthType authType) {
+            return authType != AuthType::PIN && authType != AuthType::PRIVATE_PIN;
+            }), validType.end());
+    }
+    if (validType.empty()) {
+        IAM_LOGE("validType size is 0");
+        return TYPE_NOT_SUPPORT;
+    }
     return SUCCESS;
 }
 
