@@ -17,7 +17,10 @@
 
 #include <uv.h>
 
+#include "napi/native_node_api.h"
+
 #include "iam_logger.h"
+#include "iam_ptr.h"
 
 #include "user_auth_napi_helper.h"
 
@@ -52,56 +55,6 @@ const std::map<int32_t, AuthenticationResult> g_result2ExecuteResult = {
     {ResultCode::CHECK_PERMISSION_FAILED, AuthenticationResult::GENERAL_ERROR},
     {ResultCode::PIN_EXPIRED, AuthenticationResult::GENERAL_ERROR},
 };
-
-void DestroyWork(uv_work_t *work)
-{
-    if (work == nullptr) {
-        return;
-    }
-    if (work->data != nullptr) {
-        delete (reinterpret_cast<ResultCallbackV6Holder *>(work->data));
-    }
-    delete work;
-}
-
-void OnCallbackV6Work(uv_work_t *work, int status)
-{
-    IAM_LOGI("start");
-    if (work == nullptr) {
-        IAM_LOGE("work is null");
-        return;
-    }
-    ResultCallbackV6Holder *resultHolder = reinterpret_cast<ResultCallbackV6Holder *>(work->data);
-    if (resultHolder == nullptr || resultHolder->callback == nullptr) {
-        IAM_LOGE("resultHolder is invalid");
-        DestroyWork(work);
-        return;
-    }
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(resultHolder->env, &scope);
-    if (scope == nullptr) {
-        IAM_LOGE("scope is invalid");
-        DestroyWork(work);
-        return;
-    }
-    napi_status ret = resultHolder->callback->DoPromise(resultHolder->result);
-    if (ret != napi_ok) {
-        IAM_LOGE("DoPromise fail %{public}d", ret);
-        napi_close_handle_scope(resultHolder->env, scope);
-        DestroyWork(work);
-        return;
-    }
-    ret = resultHolder->callback->DoCallback(resultHolder->result);
-    if (ret != napi_ok) {
-        IAM_LOGE("DoCallback fail %{public}d", ret);
-        napi_close_handle_scope(resultHolder->env, scope);
-        DestroyWork(work);
-        return;
-    }
-    napi_close_handle_scope(resultHolder->env, scope);
-    DestroyWork(work);
-    return;
-}
 }
 
 UserAuthCallbackV6::UserAuthCallbackV6(napi_env env,
@@ -164,6 +117,35 @@ void UserAuthCallbackV6::OnAcquireInfo(int32_t module, uint32_t acquireInfo,
     IAM_LOGI("start module:%{public}d acquireInfo:%{public}u", module, acquireInfo);
 }
 
+void OnCallbackV6Work(std::shared_ptr<ResultCallbackV6Holder> resultHolder)
+{
+    IAM_LOGI("start");
+    if (resultHolder == nullptr || resultHolder->callback == nullptr) {
+        IAM_LOGE("resultHolder is invalid");
+        return;
+    }
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(resultHolder->env, &scope);
+    if (scope == nullptr) {
+        IAM_LOGE("scope is invalid");
+        return;
+    }
+    napi_status ret = resultHolder->callback->DoPromise(resultHolder->result);
+    if (ret != napi_ok) {
+        IAM_LOGE("DoPromise fail %{public}d", ret);
+        napi_close_handle_scope(resultHolder->env, scope);
+        return;
+    }
+    ret = resultHolder->callback->DoCallback(resultHolder->result);
+    if (ret != napi_ok) {
+        IAM_LOGE("DoCallback fail %{public}d", ret);
+        napi_close_handle_scope(resultHolder->env, scope);
+        return;
+    }
+    napi_close_handle_scope(resultHolder->env, scope);
+    return;
+}
+
 void UserAuthCallbackV6::OnResult(int32_t result, const Attributes &extraInfo)
 {
     IAM_LOGI("start, result:%{public}d", result);
@@ -173,15 +155,9 @@ void UserAuthCallbackV6::OnResult(int32_t result, const Attributes &extraInfo)
         IAM_LOGE("napi_get_uv_event_loop fail");
         return;
     }
-    uv_work_t *work = new (std::nothrow) uv_work_t;
-    if (work == nullptr) {
-        IAM_LOGE("work is null");
-        return;
-    }
-    ResultCallbackV6Holder *resultHolder = new (std::nothrow) ResultCallbackV6Holder();
+    std::shared_ptr<ResultCallbackV6Holder> resultHolder = Common::MakeShared<ResultCallbackV6Holder>();
     if (resultHolder == nullptr) {
         IAM_LOGE("resultHolder is null");
-        delete work;
         return;
     }
     resultHolder->callback = shared_from_this();
@@ -194,10 +170,11 @@ void UserAuthCallbackV6::OnResult(int32_t result, const Attributes &extraInfo)
         IAM_LOGI("convert result %{public}d to execute result %{public}d", result, resultHolder->result);
     }
     resultHolder->env = env_;
-    work->data = reinterpret_cast<void *>(resultHolder);
-    if (uv_queue_work_with_qos(loop, work, [](uv_work_t *work) {}, OnCallbackV6Work, uv_qos_user_initiated) != 0) {
-        IAM_LOGE("uv_queue_work_with_qos fail");
-        DestroyWork(work);
+    auto task = [resultHolder] () {
+        OnCallbackV6Work(resultHolder);
+    };
+    if (napi_status::napi_ok != napi_send_event(env_, task, napi_eprio_immediate)) {
+        IAM_LOGE("napi_send_event: Failed to SendEvent");
     }
 }
 } // namespace UserAuth

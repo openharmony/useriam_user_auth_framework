@@ -17,6 +17,9 @@
 
 #include <uv.h>
 
+#include "napi/native_node_api.h"
+
+#include "iam_ptr.h"
 #include "iam_logger.h"
 #include "user_auth_client_impl.h"
 
@@ -34,44 +37,6 @@ struct ResultCallbackV10Holder {
     EnrolledState enrolledState {};
     napi_env env {nullptr};
 };
-
-void DestoryResultWork(uv_work_t *work)
-{
-    if (work == nullptr) {
-        return;
-    }
-    if (work->data != nullptr) {
-        delete (reinterpret_cast<ResultCallbackV10Holder *>(work->data));
-    }
-    delete work;
-}
-
-void OnResultV10Work(uv_work_t *work, int status)
-{
-    IAM_LOGI("start");
-    if (work == nullptr) {
-        IAM_LOGE("work is null");
-        return;
-    }
-    ResultCallbackV10Holder *resultHolder = reinterpret_cast<ResultCallbackV10Holder *>(work->data);
-    if (resultHolder == nullptr || resultHolder->callback == nullptr) {
-        IAM_LOGE("resultHolder is invalid");
-        DestoryResultWork(work);
-        return;
-    }
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(resultHolder->env, &scope);
-    if (scope == nullptr) {
-        IAM_LOGE("scope is invalid");
-        DestoryResultWork(work);
-        return;
-    }
-    napi_status ret = resultHolder->callback->DoResultCallback(resultHolder->result, resultHolder->token,
-        resultHolder->authType, resultHolder->enrolledState);
-    IAM_LOGD("DoResultCallback ret = %{public}d", ret);
-    napi_close_handle_scope(resultHolder->env, scope);
-    DestoryResultWork(work);
-}
 }
 
 UserAuthCallbackV10::UserAuthCallbackV10(napi_env env) : env_(env)
@@ -171,15 +136,9 @@ void UserAuthCallbackV10::OnResult(int32_t result, const Attributes &extraInfo)
         IAM_LOGE("napi_get_uv_event_loop fail");
         return;
     }
-    uv_work_t *work = new (std::nothrow) uv_work_t;
-    if (work == nullptr) {
-        IAM_LOGE("work is null");
-        return;
-    }
-    ResultCallbackV10Holder *resultHolder = new (std::nothrow) ResultCallbackV10Holder();
+    std::shared_ptr<ResultCallbackV10Holder> resultHolder = Common::MakeShared<ResultCallbackV10Holder>();
     if (resultHolder == nullptr) {
         IAM_LOGE("resultHolder is null");
-        delete work;
         return;
     }
     resultHolder->callback = shared_from_this();
@@ -197,10 +156,25 @@ void UserAuthCallbackV10::OnResult(int32_t result, const Attributes &extraInfo)
     if (!extraInfo.GetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, resultHolder->enrolledState.credentialCount)) {
         IAM_LOGE("ATTR_CREDENTIAL_COUNT is null");
     }
-    work->data = reinterpret_cast<void *>(resultHolder);
-    if (uv_queue_work_with_qos(loop, work, [](uv_work_t *work) {}, OnResultV10Work, uv_qos_user_initiated) != 0) {
-        IAM_LOGE("uv_queue_work_with_qos fail");
-        DestoryResultWork(work);
+    auto task = [resultHolder] () {
+        IAM_LOGI("start");
+        if (resultHolder == nullptr || resultHolder->callback == nullptr) {
+            IAM_LOGE("resultHolder is invalid");
+            return;
+        }
+        napi_handle_scope scope = nullptr;
+        napi_open_handle_scope(resultHolder->env, &scope);
+        if (scope == nullptr) {
+            IAM_LOGE("scope is invalid");
+            return;
+        }
+        napi_status ret = resultHolder->callback->DoResultCallback(resultHolder->result, resultHolder->token,
+            resultHolder->authType, resultHolder->enrolledState);
+        IAM_LOGD("DoResultCallback ret = %{public}d", ret);
+        napi_close_handle_scope(resultHolder->env, scope);
+    };
+    if (napi_status::napi_ok != napi_send_event(env_, task, napi_eprio_immediate)) {
+        IAM_LOGE("napi_send_event: Failed to SendEvent");
     }
 }
 } // namespace UserAuth

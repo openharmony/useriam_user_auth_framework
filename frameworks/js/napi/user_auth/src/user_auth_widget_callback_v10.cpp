@@ -17,7 +17,10 @@
 
 #include <uv.h>
 
+#include "napi/native_node_api.h"
+
 #include "iam_logger.h"
+#include "iam_ptr.h"
 
 #define LOG_TAG "USER_AUTH_NAPI"
 
@@ -30,48 +33,6 @@ struct CallbackHolder {
     std::string cmdData;
     napi_env env;
 };
-
-void DestroyWork(uv_work_t *work)
-{
-    if (work == nullptr) {
-        return;
-    }
-    if (work->data != nullptr) {
-        delete (reinterpret_cast<CallbackHolder *>(work->data));
-    }
-    delete work;
-}
-
-void OnWork(uv_work_t *work, int status)
-{
-    IAM_LOGI("start");
-    if (work == nullptr) {
-        IAM_LOGE("work is null");
-        return;
-    }
-    CallbackHolder *holder = reinterpret_cast<CallbackHolder *>(work->data);
-    if (holder == nullptr || holder->callback == nullptr) {
-        IAM_LOGE("holder is invalid");
-        DestroyWork(work);
-        return;
-    }
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(holder->env, &scope);
-    if (scope == nullptr) {
-        IAM_LOGE("scope is invalid");
-        DestroyWork(work);
-        return;
-    }
-    napi_status ret = holder->callback->DoCommandCallback(holder->cmdData);
-    if (ret != napi_ok) {
-        IAM_LOGE("DoResultCallback fail %{public}d", ret);
-        napi_close_handle_scope(holder->env, scope);
-        DestroyWork(work);
-        return;
-    }
-    napi_close_handle_scope(holder->env, scope);
-    DestroyWork(work);
-}
 }
 
 UserAuthWidgetCallback::UserAuthWidgetCallback(napi_env env) : env_(env)
@@ -134,25 +95,36 @@ void UserAuthWidgetCallback::SendCommand(const std::string &cmdData)
         IAM_LOGE("napi_get_uv_event_loop fail");
         return;
     }
-    uv_work_t *work = new (std::nothrow) uv_work_t;
-    if (work == nullptr) {
-        IAM_LOGE("work is null");
-        return;
-    }
-    CallbackHolder *holder = new (std::nothrow) CallbackHolder();
+    std::shared_ptr<CallbackHolder> holder = Common::MakeShared<CallbackHolder>();
     if (holder == nullptr) {
         IAM_LOGE("holder is null");
-        delete work;
         return;
     }
     holder->callback = shared_from_this();
     holder->cmdData = cmdData;
     holder->env = env_;
-
-    work->data = reinterpret_cast<void *>(holder);
-    if (uv_queue_work_with_qos(loop, work, [](uv_work_t *work) {}, OnWork, uv_qos_user_initiated) != 0) {
-        IAM_LOGE("uv_queue_work_with_qos fail");
-        DestroyWork(work);
+    auto task = [holder] () {
+        IAM_LOGI("start");
+        if (holder == nullptr || holder->callback == nullptr) {
+            IAM_LOGE("holder is invalid");
+            return;
+        }
+        napi_handle_scope scope = nullptr;
+        napi_open_handle_scope(holder->env, &scope);
+        if (scope == nullptr) {
+            IAM_LOGE("scope is invalid");
+            return;
+        }
+        napi_status ret = holder->callback->DoCommandCallback(holder->cmdData);
+        if (ret != napi_ok) {
+            IAM_LOGE("DoResultCallback fail %{public}d", ret);
+            napi_close_handle_scope(holder->env, scope);
+            return;
+        }
+        napi_close_handle_scope(holder->env, scope);
+    };
+    if (napi_status::napi_ok != napi_send_event(env_, task, napi_eprio_immediate)) {
+        IAM_LOGE("napi_send_event: Failed to SendEvent");
     }
 }
 } // namespace UserAuth
