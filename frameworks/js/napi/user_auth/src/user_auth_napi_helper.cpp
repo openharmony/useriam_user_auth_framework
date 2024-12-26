@@ -22,8 +22,10 @@
 
 #include "napi/native_api.h"
 #include "napi/native_common.h"
+#include "napi/native_node_api.h"
 
 #include "iam_logger.h"
+#include "iam_ptr.h"
 
 #define LOG_TAG "USER_AUTH_NAPI"
 
@@ -56,39 +58,6 @@ struct DeleteRefHolder {
     napi_env env {nullptr};
     napi_ref ref {nullptr};
 };
-
-void DestoryDeleteWork(uv_work_t *work)
-{
-    if (work == nullptr) {
-        return;
-    }
-    if (work->data != nullptr) {
-        delete (reinterpret_cast<DeleteRefHolder *>(work->data));
-    }
-    delete work;
-}
-
-void OnDeleteRefWork(uv_work_t *work, int status)
-{
-    IAM_LOGI("start");
-    if (work == nullptr) {
-        IAM_LOGE("work is null");
-        return;
-    }
-    DeleteRefHolder *deleteRefHolder = reinterpret_cast<DeleteRefHolder *>(work->data);
-    if (deleteRefHolder == nullptr) {
-        IAM_LOGE("deleteRefHolder is invalid");
-        DestoryDeleteWork(work);
-        return;
-    }
-    napi_status ret = napi_delete_reference(deleteRefHolder->env, deleteRefHolder->ref);
-    if (ret != napi_ok) {
-        IAM_LOGE("napi_delete_reference fail %{public}d", ret);
-        DestoryDeleteWork(work);
-        return;
-    }
-    DestoryDeleteWork(work);
-}
 }
 
 JsRefHolder::JsRefHolder(napi_env env, napi_value value)
@@ -119,23 +88,27 @@ JsRefHolder::~JsRefHolder()
         IAM_LOGE("napi_get_uv_event_loop fail");
         return;
     }
-    uv_work_t *work = new (std::nothrow) uv_work_t;
-    if (work == nullptr) {
-        IAM_LOGE("work is null");
-        return;
-    }
-    DeleteRefHolder *deleteRefHolder = new (std::nothrow) DeleteRefHolder();
+    std::shared_ptr<DeleteRefHolder> deleteRefHolder = Common::MakeShared<DeleteRefHolder>();
     if (deleteRefHolder == nullptr) {
         IAM_LOGE("deleteRefHolder is null");
-        delete work;
         return;
     }
     deleteRefHolder->env = env_;
     deleteRefHolder->ref = ref_;
-    work->data = reinterpret_cast<void *>(deleteRefHolder);
-    if (uv_queue_work_with_qos(loop, work, [](uv_work_t *work) {}, OnDeleteRefWork, uv_qos_user_initiated) != 0) {
-        IAM_LOGE("uv_qos_user_initiated fail");
-        DestoryDeleteWork(work);
+    auto task = [deleteRefHolder] () {
+        IAM_LOGI("start");
+        if (deleteRefHolder == nullptr) {
+            IAM_LOGE("deleteRefHolder is invalid");
+            return;
+        }
+        napi_status ret = napi_delete_reference(deleteRefHolder->env, deleteRefHolder->ref);
+        if (ret != napi_ok) {
+            IAM_LOGE("napi_delete_reference fail %{public}d", ret);
+            return;
+        }
+    };
+    if (napi_status::napi_ok != napi_send_event(env_, task, napi_eprio_immediate)) {
+        IAM_LOGE("napi_send_event: Failed to SendEvent");
     }
 }
 
