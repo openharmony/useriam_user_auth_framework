@@ -33,6 +33,7 @@ const std::string AUTH_TYPE_PRIVATE_PIN = "privatePin";
 
 const std::string WINDOW_MODE_DIALOG = "DIALOG_BOX";
 const std::string WINDOW_MODE_FULLSCREEN = "FULLSCREEN";
+const std::string WINDOW_MODE_NONE_INTERRUPTION_DIALOG_BOX = "NONE_INTERRUPTION_DIALOG_BOX";
 
 const std::string PIN_SUB_TYPE_SIX = "PIN_SIX";
 const std::string PIN_SUB_TYPE_NUM = "PIN_NUMBER";
@@ -198,6 +199,10 @@ std::string WinModeType2Str(const WindowModeType &winModeType)
         }
         case WindowModeType::FULLSCREEN: {
             strWinModeType = WINDOW_MODE_FULLSCREEN;
+            break;
+        }
+        case WindowModeType::NONE_INTERRUPTION_DIALOG_BOX: {
+            strWinModeType = WINDOW_MODE_NONE_INTERRUPTION_DIALOG_BOX;
             break;
         }
         default: {
