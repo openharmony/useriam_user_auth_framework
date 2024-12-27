@@ -42,6 +42,7 @@ namespace PermissionString {
     const std::string ENFORCE_USER_IDM = "ohos.permission.ENFORCE_USER_IDM";
     const std::string SUPPORT_USER_AUTH = "ohos.permission.SUPPORT_USER_AUTH";
     const std::string USE_USER_ACCESS_MANAGER = "ohos.permission.USE_USER_ACCESS_MANAGER";
+    const std::string USER_AUTH_FROM_BACKGROUND = "ohos.permission.USER_AUTH_FROM_BACKGROUND";
 }
 
 namespace {
@@ -195,6 +196,8 @@ bool IpcCommon::CheckPermission(IPCObjectStub &stub, Permission permission)
             return CheckDirectCaller(stub, PermissionString::ENFORCE_USER_IDM);
         case USE_USER_ACCESS_MANAGER:
             return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::USE_USER_ACCESS_MANAGER);
+        case USER_AUTH_FROM_BACKGROUND:
+            return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::USER_AUTH_FROM_BACKGROUND);
         default:
             IAM_LOGE("failed to check permission");
             return false;
@@ -233,6 +236,7 @@ std::vector<std::pair<int32_t, std::string>> IpcCommon::GetWhiteLists(Permission
         case SUPPORT_USER_AUTH:
         case IS_SYSTEM_APP:
         case USE_USER_ACCESS_MANAGER:
+        case USER_AUTH_FROM_BACKGROUND:
         default:
             IAM_LOGE("the permission has no white lists");
             return {};
