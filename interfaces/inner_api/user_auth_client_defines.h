@@ -74,6 +74,8 @@ enum WindowModeType : int32_t {
     FULLSCREEN = 2,
     /**  Window mode type is not set */
     UNKNOWN_WINDOW_MODE = 3,
+    /**  Window mode type is none interruption dialog box. */
+    NONE_INTERRUPTION_DIALOG_BOX = 4
 };
 
 /**

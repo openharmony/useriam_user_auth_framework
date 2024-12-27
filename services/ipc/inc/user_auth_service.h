@@ -104,6 +104,7 @@ private:
     bool CheckAuthPermissionAndParam(AuthType authType, AuthTrustLevel authTrustLevel,
         const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo);
     bool CheckAuthTypeIsValid(std::vector<AuthType> authType);
+    int32_t CheckWindowMode(const WidgetParamInner &widgetParam);
     int32_t CheckValidSolution(int32_t userId, const AuthParamInner &authParam, const WidgetParamInner &widgetParam,
         std::vector<AuthType> &validType);
     int32_t GetCallerInfo(bool isUserIdSpecified, int32_t userId, ContextFactory::AuthWidgetContextPara &para,
