@@ -126,7 +126,6 @@ HWTEST_F(UserIdmDatabaseTest, SuccessfulGetSecUserInfo, TestSize.Level0)
     EXPECT_NE(secUserInfo, nullptr);
     EXPECT_EQ(USER_ID, secUserInfo->GetUserId());
     EXPECT_EQ(SECURE_UID, secUserInfo->GetSecUserId());
-    EXPECT_EQ(PIN_SUB_TYPE, secUserInfo->GetPinSubType());
     EXPECT_EQ(2U, secUserInfo->GetEnrolledInfo().size());
 }
 

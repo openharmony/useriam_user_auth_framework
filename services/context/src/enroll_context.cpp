@@ -107,6 +107,7 @@ bool EnrollContext::OnStop()
 bool EnrollContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &scheduleResultAttr,
     uint64_t &credentialId, std::shared_ptr<UpdatePinParamInterface> &pinInfo, std::optional<uint64_t> &secUserId)
 {
+    IAM_LOGI("%{public}s start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN_VAL(enroll_ != nullptr, false);
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleResultAttr != nullptr, false);
     std::vector<uint8_t> scheduleResult;
@@ -118,6 +119,17 @@ bool EnrollContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &sche
         IAM_LOGE("%{public}s enroll update fail", GetDescription());
         SetLatestError(enroll_->GetLatestError());
         return updateRet;
+    }
+    if (infoToDel == nullptr) {
+        IAM_LOGI("no credential to delete");
+    } else {
+        if (infoToDel->GetAuthType() != PIN) {
+            std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos = {infoToDel};
+            int32_t ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos, "DeleteForUpdate");
+            if (ret != SUCCESS) {
+                IAM_LOGE("failed to delete executor info, error code : %{public}d", ret);
+            }
+        }
     }
 
     return true;

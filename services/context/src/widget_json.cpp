@@ -15,8 +15,11 @@
 
 #include <map>
 #include "iam_common_defines.h"
+#include "iam_logger.h"
 #include "user_auth_common_defines.h"
 #include "widget_json.h"
+
+#define LOG_TAG "USER_AUTH_SA"
 
 namespace OHOS {
 namespace UserIam {
@@ -26,6 +29,7 @@ const std::string AUTH_TYPE_PIN = "pin";
 const std::string AUTH_TYPE_FACE = "face";
 const std::string AUTH_TYPE_FINGER_PRINT = "fingerprint";
 const std::string AUTH_TYPE_ALL = "all";
+const std::string AUTH_TYPE_PRIVATE_PIN = "privatePin";
 
 const std::string WINDOW_MODE_DIALOG = "DIALOG_BOX";
 const std::string WINDOW_MODE_FULLSCREEN = "FULLSCREEN";
@@ -134,30 +138,52 @@ void GetJsonCmd(nlohmann::json &jsonCommand, const WidgetCommand &command, bool 
 // utils
 AuthType Str2AuthType(const std::string &strAuthType)
 {
-    std::map<std::string, AuthType> authTypeMap;
-    authTypeMap.emplace(std::make_pair(AUTH_TYPE_ALL, AuthType::ALL));
-    authTypeMap.emplace(std::make_pair(AUTH_TYPE_PIN, AuthType::PIN));
-    authTypeMap.emplace(std::make_pair(AUTH_TYPE_FACE, AuthType::FACE));
-    authTypeMap.emplace(std::make_pair(AUTH_TYPE_FINGER_PRINT, AuthType::FINGERPRINT));
-    auto result = AuthType::ALL;
-    if (authTypeMap.find(strAuthType) != authTypeMap.end()) {
-        result = authTypeMap[strAuthType];
+    AuthType authType = AuthType::ALL;
+    if (strAuthType.compare(AUTH_TYPE_ALL) == 0) {
+        authType = AuthType::ALL;
+    } else if (strAuthType.compare(AUTH_TYPE_PIN) == 0) {
+        authType = AuthType::PIN;
+    } else if (strAuthType.compare(AUTH_TYPE_FACE) == 0) {
+        authType = AuthType::FACE;
+    } else if (strAuthType.compare(AUTH_TYPE_FINGER_PRINT) == 0) {
+        authType = AuthType::FINGERPRINT;
+    } else if (strAuthType.compare(AUTH_TYPE_PRIVATE_PIN) == 0) {
+        authType = AuthType::PRIVATE_PIN;
+    } else {
+        IAM_LOGE("strAuthType: %{public}s", strAuthType.c_str());
     }
-    return result;
+    return authType;
 }
 
 std::string AuthType2Str(const AuthType &authType)
 {
-    std::map<int32_t, std::string> authTypeMap;
-    authTypeMap.emplace(std::make_pair(AuthType::ALL, AUTH_TYPE_ALL));
-    authTypeMap.emplace(std::make_pair(AuthType::PIN, AUTH_TYPE_PIN));
-    authTypeMap.emplace(std::make_pair(AuthType::FACE, AUTH_TYPE_FACE));
-    authTypeMap.emplace(std::make_pair(AuthType::FINGERPRINT, AUTH_TYPE_FINGER_PRINT));
-    std::string result = "";
-    if (authTypeMap.find(authType) != authTypeMap.end()) {
-        result = authTypeMap[authType];
+    std::string strAuthType = "";
+    switch (authType) {
+        case AuthType::ALL: {
+            strAuthType = AUTH_TYPE_ALL;
+            break;
+        }
+        case AuthType::PIN: {
+            strAuthType = AUTH_TYPE_PIN;
+            break;
+        }
+        case AuthType::FACE: {
+            strAuthType = AUTH_TYPE_FACE;
+            break;
+        }
+        case AuthType::FINGERPRINT: {
+            strAuthType = AUTH_TYPE_FINGER_PRINT;
+            break;
+        }
+        case AuthType::PRIVATE_PIN: {
+            strAuthType = AUTH_TYPE_PRIVATE_PIN;
+            break;
+        }
+        default: {
+            IAM_LOGE("authType: %{public}u", authType);
+        }
     }
-    return result;
+    return strAuthType;
 }
 
 std::string WinModeType2Str(const WindowModeType &winModeType)
