@@ -895,11 +895,16 @@ napi_value WindowModeTypeConstructor(napi_env env)
     napi_value windowModeType = nullptr;
     napi_value dialog_box = nullptr;
     napi_value fullscreen = nullptr;
+    napi_value none_interruption_dialog_box = nullptr;
     NAPI_CALL(env, napi_create_object(env, &windowModeType));
     NAPI_CALL(env, napi_create_int32(env, WindowModeType::DIALOG_BOX, &dialog_box));
     NAPI_CALL(env, napi_create_int32(env, WindowModeType::FULLSCREEN, &fullscreen));
+    NAPI_CALL(env, napi_create_int32(env, WindowModeType::NONE_INTERRUPTION_DIALOG_BOX,
+        &none_interruption_dialog_box));
     NAPI_CALL(env, napi_set_named_property(env, windowModeType, "DIALOG_BOX", dialog_box));
     NAPI_CALL(env, napi_set_named_property(env, windowModeType, "FULLSCREEN", fullscreen));
+    NAPI_CALL(env, napi_set_named_property(env, windowModeType, "NONE_INTERRUPTION_DIALOG_BOX",
+        none_interruption_dialog_box));
     return windowModeType;
 }
 
