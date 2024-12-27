@@ -90,7 +90,8 @@ int32_t EnrollmentImpl::GetUserId() const
 bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
     std::shared_ptr<ScheduleNodeCallback> callback)
 {
-    IAM_LOGE("UserId:%{public}d AuthType:%{public}d", enrollPara_.userId, enrollPara_.authType);
+    IAM_LOGE("UserId:%{public}d, AuthType:%{public}d, pinSubType:%{public}d",
+        enrollPara_.userId, enrollPara_.authType, enrollPara_.pinType);
     auto hdi = HdiWrapper::GetHdiInstance();
     if (!hdi) {
         IAM_LOGE("bad hdi");
@@ -116,6 +117,7 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
         .apiVersion = enrollPara_.sdkVersion,
         .userId = enrollPara_.userId,
         .userType = userType,
+        .authSubType = enrollPara_.pinType,
     };
     IamHitraceHelper traceHelper("hdi BeginEnrollment");
     auto result = hdi->BeginEnrollment(authToken_, param, info);
@@ -125,25 +127,7 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
         return false;
     }
 
-    std::vector<HdiScheduleInfo> infos = {};
-    infos.emplace_back(info);
-
-    ScheduleNodeHelper::NodeOptionalPara para;
-    para.tokenId = tokenId_;
-    para.userId = enrollPara_.userId;
-
-    if (!ScheduleNodeHelper::BuildFromHdi(infos, callback, scheduleList, para)) {
-        IAM_LOGE("BuildFromHdi failed");
-        return false;
-    }
-    if (scheduleList.size() == 0 || scheduleList[0] == nullptr) {
-        IAM_LOGE("Bad Parameter!");
-        return false;
-    }
-    scheduleId_ = scheduleList[0]->GetScheduleId();
-
-    running_ = true;
-    return true;
+    return StartSchedule(enrollPara_.userId, info, scheduleList, callback);
 }
 
 bool EnrollmentImpl::GetSecUserId(std::optional<uint64_t> &secUserId)
@@ -279,6 +263,31 @@ void EnrollmentImpl::PublishCredentialUpdateEvent()
 
     PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(enrollPara_.userId,
         static_cast<int32_t>(enrollPara_.authType), credentialInfos.size());
+}
+
+bool EnrollmentImpl::StartSchedule(int32_t userId, HdiScheduleInfo &info,
+    std::vector<std::shared_ptr<ScheduleNode>> &scheduleList, std::shared_ptr<ScheduleNodeCallback> callback)
+{
+    IAM_LOGI("start");
+    std::vector<HdiScheduleInfo> infos = {};
+    infos.emplace_back(info);
+
+    ScheduleNodeHelper::NodeOptionalPara para;
+    para.tokenId = tokenId_;
+    para.userId = userId;
+
+    if (!ScheduleNodeHelper::BuildFromHdi(infos, callback, scheduleList, para)) {
+        IAM_LOGE("BuildFromHdi failed");
+        return false;
+    }
+    if (scheduleList.size() == 0 || scheduleList[0] == nullptr) {
+        IAM_LOGE("Bad Parameter!");
+        return false;
+    }
+
+    scheduleId_ = scheduleList[0]->GetScheduleId();
+    running_ = true;
+    return true;
 }
 } // namespace UserAuth
 } // namespace UserIam

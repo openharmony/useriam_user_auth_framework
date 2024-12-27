@@ -45,6 +45,8 @@ public:
     void GetProperty(int32_t userId, AuthType authType,
         const std::vector<Attributes::AttributeKey> &keys,
         sptr<GetExecutorPropertyCallbackInterface> &callback) override;
+    void GetPropertyById(uint64_t credentialId, const std::vector<Attributes::AttributeKey> &keys,
+        sptr<GetExecutorPropertyCallbackInterface> &callback) override;
     void SetProperty(int32_t userId, AuthType authType, const Attributes &attributes,
         sptr<SetExecutorPropertyCallbackInterface> &callback) override;
     uint64_t AuthUser(AuthParamInner &param, std::optional<RemoteAuthParam> &remoteAuthParam,
@@ -78,6 +80,7 @@ private:
         const AuthParamInner &authParam, const WidgetParam &widgetParam, sptr<UserAuthCallbackInterface> &callback);
     bool CheckAuthTrustLevel(AuthTrustLevel authTrustLevel);
     bool CheckSingeFaceOrFinger(const std::vector<AuthType> &authType);
+    bool CheckPrivatePinEnroll(const std::vector<AuthType> &authType, std::vector<AuthType> &validType);
     int32_t CheckAuthWidgetType(const std::vector<AuthType> &authType);
     int32_t CheckAuthPermissionAndParam(const AuthParamInner &authParam, const WidgetParam &widgetParam,
         bool isBackgroundApplication);
@@ -102,6 +105,7 @@ private:
         std::vector<AuthType> &validType);
     int32_t GetCallerInfo(bool isUserIdSpecified, int32_t userId, ContextFactory::AuthWidgetContextPara &para,
         bool &isBackgroundApplication, std::shared_ptr<ContextCallback> &contextCallback);
+    int32_t CheckCallerPermissionForPrivatePin(const AuthParamInner &authParam);
     void FillGetPropertyKeys(AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
         std::vector<uint32_t> &uint32Keys);
     void FillGetPropertyValue(AuthType authType, const std::vector<Attributes::AttributeKey> &keys, Attributes &values);
@@ -111,6 +115,10 @@ private:
     std::shared_ptr<ResourceNode> GetResourseNode(AuthType authType);
     int32_t GetAvailableStatusInner(int32_t apiVersion, int32_t userId, AuthType authType,
         AuthTrustLevel authTrustLevel);
+    void ProcessPinExpired(int32_t ret, const AuthParamInner &authParam, std::vector<AuthType> &validType,
+        ContextFactory::AuthWidgetContextPara &para);
+    void GetPropertyInner(AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
+        sptr<GetExecutorPropertyCallbackInterface> &callback, std::vector<uint64_t> &templateIds);
     static std::mutex mutex_;
     static std::shared_ptr<UserAuthService> instance_;
 

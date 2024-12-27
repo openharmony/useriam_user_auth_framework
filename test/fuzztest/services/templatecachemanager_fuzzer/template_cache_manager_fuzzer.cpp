@@ -76,7 +76,6 @@ void TemplateCacheManagerFuzzTest(const uint8_t *data, size_t size)
     fuzzFunc(parcel);
     return;
 }
-
 } // namespace
 } // namespace UserAuth
 } // namespace UserIam

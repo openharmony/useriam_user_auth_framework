@@ -55,6 +55,8 @@ private:
     ResultCode GetPropertyForAuthResult(Authentication::AuthResultInfo &resultInfo);
     bool SetCredentialDigest(const Authentication::AuthResultInfo &resultInfo,
         Attributes &finalResult) const;
+    std::optional<std::vector<uint64_t>> GetPropertyTemplateIds(
+        Authentication::AuthResultInfo &resultInfo);
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -148,6 +148,23 @@ HWTEST_F(CredentialInfoTest, GetExecutorMatcher, TestSize.Level0)
     uint32_t ret = CredentialInfoImpl.GetExecutorMatcher();
     EXPECT_EQ(ret, info.executorMatcher);
 }
+
+HWTEST_F(CredentialInfoTest, GetAuthSubType, TestSize.Level0)
+{
+    int32_t userId = 100;
+    HdiCredentialInfo info = {
+        .credentialId = 1,
+        .executorIndex = 2,
+        .templateId = 3,
+        .authType = static_cast<HdiAuthType>(4),
+        .executorMatcher = 5,
+        .executorSensorHint = 6,
+        .authSubType = PIN_SIX,
+    };
+    CredentialInfoImpl CredentialInfoImpl(userId, info);
+    HdiPinSubType ret = static_cast<HdiPinSubType>(CredentialInfoImpl.GetAuthSubType());
+    EXPECT_EQ(static_cast<HdiPinSubType>(ret), static_cast<uint32_t>(info.authSubType));
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

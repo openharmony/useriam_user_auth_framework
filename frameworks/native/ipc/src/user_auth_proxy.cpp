@@ -108,15 +108,14 @@ void UserAuthProxy::GetProperty(int32_t userId, AuthType authType,
     MessageParcel data;
     MessageParcel reply;
 
+    if (keys.empty() || keys.size() > MAX_ATTR_COUNT) {
+        IAM_LOGE("the attribute key vector is bad param, key size:%{public}zu", keys.size());
+        Attributes attr;
+        callback->OnGetExecutorPropertyResult(INVALID_PARAMETERS, attr);
+        return;
+    }
+
     std::vector<uint32_t> attrKeys;
-    if (keys.empty()) {
-        IAM_LOGE("the attribute key vector is empty");
-        return;
-    }
-    if (keys.size() > MAX_ATTR_COUNT) {
-        IAM_LOGE("the attribute key vector size exceed limit");
-        return;
-    }
     attrKeys.resize(keys.size());
     std::transform(keys.begin(), keys.end(), attrKeys.begin(), [](Attributes::AttributeKey key) {
         return static_cast<uint32_t>(key);
@@ -146,6 +145,54 @@ void UserAuthProxy::GetProperty(int32_t userId, AuthType authType,
     bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_GET_PROPERTY, data, reply);
     if (!ret) {
         IAM_LOGE("failed to send get property IPC request");
+        Attributes attr;
+        callback->OnGetExecutorPropertyResult(GENERAL_ERROR, attr);
+    }
+}
+
+void UserAuthProxy::GetPropertyById(uint64_t credentialId, const std::vector<Attributes::AttributeKey> &keys,
+    sptr<GetExecutorPropertyCallbackInterface> &callback)
+{
+    if (callback == nullptr) {
+        IAM_LOGE("callback is nullptr");
+        return;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+
+    if (keys.empty() || keys.size() > MAX_ATTR_COUNT) {
+        IAM_LOGE("the attribute key vector is bad param, key size:%{public}zu", keys.size());
+        Attributes attr;
+        callback->OnGetExecutorPropertyResult(INVALID_PARAMETERS, attr);
+        return;
+    }
+
+    std::vector<uint32_t> attrKeys;
+    attrKeys.resize(keys.size());
+    std::transform(keys.begin(), keys.end(), attrKeys.begin(), [](Attributes::AttributeKey key) {
+        return static_cast<uint32_t>(key);
+    });
+
+    if (!data.WriteInterfaceToken(UserAuthProxy::GetDescriptor())) {
+        IAM_LOGE("failed to write descriptor");
+        return;
+    }
+    if (!data.WriteUint64(credentialId)) {
+        IAM_LOGE("failed to write credentialId");
+        return;
+    }
+    if (!data.WriteUInt32Vector(attrKeys)) {
+        IAM_LOGE("failed to write keys");
+        return;
+    }
+    if (!data.WriteRemoteObject(callback->AsObject())) {
+        IAM_LOGE("failed to write callback");
+        return;
+    }
+
+    bool ret = SendRequest(UserAuthInterfaceCode::USER_AUTH_GET_PROPERTY_BY_ID, data, reply);
+    if (!ret) {
+        IAM_LOGE("failed to send get propertyById IPC request");
         Attributes attr;
         callback->OnGetExecutorPropertyResult(GENERAL_ERROR, attr);
     }

@@ -598,7 +598,7 @@ bool UserAuthNapiHelper::CheckAuthType(int32_t authType)
 bool UserAuthNapiHelper::CheckUserAuthType(int32_t authType)
 {
     if (authType != AuthType::PIN && authType != AuthType::FACE &&
-        authType != AuthType::FINGERPRINT) {
+        authType != AuthType::FINGERPRINT && authType != AuthType::PRIVATE_PIN) {
         IAM_LOGE("authType check fail:%{public}d", authType);
         return false;
     }

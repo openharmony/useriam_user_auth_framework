@@ -28,7 +28,8 @@ namespace UserAuth {
 int32_t ResourceNodeUtils::NotifyExecutorToDeleteTemplates(
     const std::vector<std::shared_ptr<CredentialInfoInterface>> &infos, std::string changeReasonTrace)
 {
-    if (infos.size() == 0) {
+    IAM_LOGI("start");
+    if (infos.empty()) {
         IAM_LOGE("bad infos, infos size is 0");
         return INVALID_PARAMETERS;
     }

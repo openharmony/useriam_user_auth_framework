@@ -39,6 +39,7 @@ constexpr int32_t MAIN_USER_ID = 100;
 /**
  * @brief Defines authentication type.
  */
+constexpr uint32_t MAX_AUTH_TYPE_SIZE = 5;
 enum AuthType : int32_t {
     /** All authentication types. */
     ALL = 0,
@@ -48,8 +49,10 @@ enum AuthType : int32_t {
     FACE = 2,
     /** Fingerprint authentication. */
     FINGERPRINT = 4,
-    /** recovery key authentication. */
+    /** Recovery key authentication. */
     RECOVERY_KEY = 8,
+    /** Private pin authentication. */
+    PRIVATE_PIN = 16,
 };
 
 /**
@@ -66,6 +69,8 @@ enum PinSubType : int32_t {
     PIN_FOUR = 10003,
     /** Pattern password*/
     PIN_PATTERN = 10004,
+    /** Password protection question */
+    PIN_QUESTION = 10005,
     /** Max pin. */
     PIN_MAX,
 };
@@ -216,6 +221,8 @@ enum AuthIntent : int {
     UNLOCK = 1,
     /**< The auth intention is silent auth. */
     SILENT_AUTH = 2,
+    /**< The auth intention is question auth. */
+    QUESTION_AUTH = 3,
 };
 
 constexpr uint64_t INVALID_EXECUTOR_INDEX = 0;

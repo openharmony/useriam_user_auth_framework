@@ -225,7 +225,6 @@ void FillIAttributes(Parcel &parcel, Attributes &attributes)
     if (fillNull) {
         return;
     }
-
     attributes.SetUint64Value(Attributes::ATTR_TEMPLATE_ID, parcel.ReadUint64());
     attributes.SetUint64Value(Attributes::ATTR_CALLER_UID, parcel.ReadUint64());
     attributes.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, parcel.ReadUint32());

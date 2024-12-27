@@ -70,6 +70,7 @@ public:
     std::optional<std::vector<uint64_t>> GetTemplateIdList() const override;
     State GetCurrentScheduleState() const override;
     std::shared_ptr<ScheduleNodeCallback> GetScheduleCallback() override;
+    int32_t GetAuthIntent() const override;
     void ClearScheduleCallback() override;
     bool StartSchedule() override;
     bool StopSchedule() override;

@@ -508,6 +508,41 @@ HWTEST_F(UserAuthProxyTest, UserAuthProxySetGlobalConfigParam001, TestSize.Level
     GlobalConfigParam param = {};
     proxy->SetGlobalConfigParam(param);
 }
+
+
+HWTEST_F(UserAuthProxyTest, UserAuthProxyGetPropertyById, TestSize.Level0)
+{
+    static const uint64_t testCredentialId = 1;
+    std::vector<Attributes::AttributeKey> testKeys = {Attributes::ATTR_RESULT_CODE, Attributes::ATTR_SIGNATURE,
+        Attributes::ATTR_SCHEDULE_MODE};
+
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    EXPECT_NE(obj, nullptr);
+    auto proxy = Common::MakeShared<UserAuthProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+    auto getPropCallback = Common::MakeShared<MockGetPropCallback>();
+    EXPECT_NE(getPropCallback, nullptr);
+    sptr<GetExecutorPropertyCallbackInterface> testCallback(
+        new (std::nothrow) GetExecutorPropertyCallbackService(getPropCallback));
+    auto service = Common::MakeShared<MockUserAuthService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, GetPropertyById(_, _, _))
+        .Times(Exactly(1))
+        .WillOnce([&testCallback](uint64_t credentialId,
+            const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallbackInterface> &callback) {
+            EXPECT_EQ(credentialId, testCredentialId);
+            EXPECT_THAT(keys, ElementsAre(Attributes::ATTR_RESULT_CODE, Attributes::ATTR_SIGNATURE,
+                    Attributes::ATTR_SCHEDULE_MODE));
+            EXPECT_EQ(callback, testCallback);
+        });
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
+    ON_CALL(*obj, SendRequest)
+        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            service->OnRemoteRequest(code, data, reply, option);
+            return SUCCESS;
+        });
+    proxy->GetPropertyById(testCredentialId, testKeys, testCallback);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
