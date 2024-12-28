@@ -119,30 +119,15 @@ ContextAppStateObserverManager &ContextAppStateObserverManager::GetInstance()
     return instance;
 }
 
-void ContextAppStateObserverManager::SetScreenLockState(bool screenLockState, int32_t userId)
+void ContextAppStateObserverManager::SetScreenLockState(bool screenLockState)
 {
-    std::lock_guard<std::mutex> guard(mutex_);
-    IAM_LOGI("setScreenLockState: %{public}d, userId: %{public}d", screenLockState, userId);
-    screenLockedMap_.insert_or_assign(userId, screenLockState);
+    IAM_LOGI("setScreenLockState: %{public}d", screenLockState);
+    isScreenLocked_ = screenLockState;
 }
 
-bool ContextAppStateObserverManager::GetScreenLockState(int32_t userId)
+bool ContextAppStateObserverManager::GetScreenLockState()
 {
-    std::lock_guard<std::mutex> guard(mutex_);
-    bool screenLockState = false;
-    auto iter = screenLockedMap_.find(userId);
-    if (iter != screenLockedMap_.end()) {
-        screenLockState = iter->second;
-    }
-    IAM_LOGI("getScreenLockState: %{public}d, userId: %{public}d", screenLockState, userId);
-    return screenLockState;
-}
-
-void ContextAppStateObserverManager::RemoveScreenLockState(int32_t userId)
-{
-    std::lock_guard<std::mutex> guard(mutex_);
-    IAM_LOGI("RemoveScreenLockState userId: %{public}d", userId);
-    screenLockedMap_.erase(userId);
+    return isScreenLocked_;
 }
 
 ContextAppStateObserver::ContextAppStateObserver(const uint64_t contextId,
@@ -163,7 +148,7 @@ void ContextAppStateObserver::ProcAppStateChanged(int32_t userId)
         IAM_LOGI("context userId is %{public}d, appStateChanged userId is %{public}d", context->GetUserId(), userId);
         return;
     }
-    if (ContextAppStateObserverManager::GetInstance().GetScreenLockState(userId)) {
+    if (ContextAppStateObserverManager::GetInstance().GetScreenLockState()) {
         IAM_LOGI("the screen is currently locked, skip auth cancel");
         return;
     }

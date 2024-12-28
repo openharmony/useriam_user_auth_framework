@@ -611,7 +611,7 @@ std::string WidgetContext::BuildStartCommand(const WidgetRotatePara &widgetRotat
     widgetCmdParameters.useriamCmdData.navigationButtonText = para_.widgetParam.navigationButtonText;
     BuildStartPinSubType(widgetCmdParameters);
     widgetCmdParameters.sysDialogZOrder = SYSDIALOG_ZORDER_DEFAULT;
-    if (ContextAppStateObserverManager::GetInstance().GetScreenLockState(para_.userId)) {
+    if (ContextAppStateObserverManager::GetInstance().GetScreenLockState()) {
         IAM_LOGI("the screen is currently locked, set zOrder");
         widgetCmdParameters.sysDialogZOrder = SYSDIALOG_ZORDER_UPPER;
     }
