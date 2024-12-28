@@ -33,7 +33,7 @@ UserAuthModalInnerCallback::~UserAuthModalInnerCallback()
 void UserAuthModalInnerCallback::SendCommand(uint64_t contextId, const std::string &cmdData)
 {
     IAM_LOGI("SendCommand start");
-    CancelAuthentication(contextId);
+    CancelAuthentication(contextId, CancelReason::MODAL_CREATE_ERROR);
     IAM_LOGI("invalid request");
 }
 
@@ -49,11 +49,10 @@ bool UserAuthModalInnerCallback::IsModalDestroy()
     return false;
 }
 
-void UserAuthModalInnerCallback::CancelAuthentication(uint64_t contextId)
+void UserAuthModalInnerCallback::CancelAuthentication(uint64_t contextId, int32_t cancelReason)
 {
     // cancel for failed
-    int32_t code = UserAuthNapiClientImpl::Instance().CancelAuthentication(contextId,
-        CancelReason::MODAL_CREATE_ERROR);
+    int32_t code = UserAuthNapiClientImpl::Instance().CancelAuthentication(contextId, cancelReason);
     IAM_LOGI("CancelAuthentication, code: %{public}d, contextId: ****%{public}hx", code,
         static_cast<uint16_t>(contextId));
 }

@@ -42,11 +42,17 @@ void UserAuthModalCallback::SendCommand(uint64_t contextId, const std::string &c
     IAM_LOGI("SendCommand start");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (context_ != nullptr) {
-        IAM_LOGI("widgetParam context not null, process as modal application");
-        if (contextId == 0 || cmdData.empty()) {
+        if (contextId == contextId_ && cmdData.empty()) {
             IAM_LOGI("stop modal");
             isInitError_ = true;
-            CancelAuthentication(contextId);
+            CancelAuthentication(contextId, CancelReason::ORIGINAL_CANCEL);
+            return;
+        }
+        IAM_LOGI("widgetParam context not null, process as modal application");
+        if (contextId == 0 || cmdData.empty()) {
+            IAM_LOGI("stop modal for invalid request");
+            isInitError_ = true;
+            CancelAuthentication(contextId, CancelReason::MODAL_CREATE_ERROR);
             return;
         }
         contextId_ = contextId;
@@ -55,7 +61,7 @@ void UserAuthModalCallback::SendCommand(uint64_t contextId, const std::string &c
         if (!createModalRet) {
             IAM_LOGE("create modal error, createModalRet: %{public}d", createModalRet);
             isInitError_ = true;
-            CancelAuthentication(contextId);
+            CancelAuthentication(contextId, CancelReason::MODAL_CREATE_ERROR);
             return;
         }
         IAM_LOGI("create modal success");
@@ -165,7 +171,7 @@ bool UserAuthModalCallback::CreateUIExtension(const std::shared_ptr<OHOS::Abilit
     return true;
 }
 
-void UserAuthModalCallback::CancelAuthentication(uint64_t contextId)
+void UserAuthModalCallback::CancelAuthentication(uint64_t contextId, int32_t cancelReason)
 {
     // cancel for failed
     int32_t code = UserAuthNapiClientImpl::Instance().CancelAuthentication(contextId,

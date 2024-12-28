@@ -29,7 +29,7 @@ public:
     virtual bool IsModalDestroy() = 0;
 
 private:
-    virtual void CancelAuthentication(uint64_t contextId) = 0;
+    virtual void CancelAuthentication(uint64_t contextId, int32_t cancelReason) = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam
