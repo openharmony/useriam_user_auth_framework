@@ -32,6 +32,7 @@ public:
     MOCK_CONST_METHOD0(GetAuthType, AuthType());
     MOCK_CONST_METHOD0(GetExecutorSensorHint, uint32_t());
     MOCK_CONST_METHOD0(GetExecutorMatcher, uint32_t());
+    MOCK_CONST_METHOD0(GetAuthSubType, PinSubType());
 };
 } // namespace UserAuth
 } // namespace UserIam

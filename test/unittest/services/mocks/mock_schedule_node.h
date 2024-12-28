@@ -36,6 +36,7 @@ public:
     MOCK_CONST_METHOD0(GetTemplateIdList, std::optional<std::vector<uint64_t>>());
     MOCK_CONST_METHOD0(GetCurrentScheduleState, State());
     MOCK_METHOD0(GetScheduleCallback, std::shared_ptr<ScheduleNodeCallback>());
+    MOCK_CONST_METHOD0(GetAuthIntent, int32_t());
     MOCK_METHOD0(ClearScheduleCallback, void());
 
     MOCK_METHOD1(RegisterScheduleCallback, bool(const std::shared_ptr<ScheduleNodeCallback> &callback));

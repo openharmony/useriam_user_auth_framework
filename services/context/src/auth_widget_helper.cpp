@@ -41,7 +41,7 @@ bool AuthWidgetHelper::InitWidgetContextParam(const AuthParamInner &authParam, s
             return false;
         }
         para.authProfileMap[authType] = profile;
-        if (authType == AuthType::PIN) {
+        if (authType == AuthType::PIN || authType == AuthType::PRIVATE_PIN) {
             WidgetClient::Instance().SetPinSubType(static_cast<PinSubType>(profile.pinSubType));
         } else if (authType == AuthType::FINGERPRINT) {
             WidgetClient::Instance().SetSensorInfo(profile.sensorInfo);
@@ -93,7 +93,7 @@ bool AuthWidgetHelper::GetUserAuthProfile(int32_t userId, const AuthType &authTy
         Attributes::ATTR_REMAIN_TIMES,
         Attributes::ATTR_FREEZING_TIME
     };
-    if (authType == AuthType::PIN) {
+    if (authType == AuthType::PIN || authType == AuthType::PRIVATE_PIN) {
         uint32Keys.push_back(Attributes::ATTR_PIN_SUB_TYPE);
     }
 
@@ -113,7 +113,7 @@ bool AuthWidgetHelper::GetUserAuthProfile(int32_t userId, const AuthType &authTy
 bool AuthWidgetHelper::ParseAttributes(const Attributes &values, const AuthType &authType,
     ContextFactory::AuthProfile &profile)
 {
-    if (authType == AuthType::PIN) {
+    if (authType == AuthType::PIN || authType == AuthType::PRIVATE_PIN) {
         if (!values.GetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, profile.pinSubType)) {
             IAM_LOGE("get ATTR_PIN_SUB_TYPE failed");
             return false;

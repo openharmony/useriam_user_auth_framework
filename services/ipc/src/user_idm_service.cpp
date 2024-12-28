@@ -112,7 +112,7 @@ int32_t UserIdmService::GetCredentialInfoInner(int32_t userId, AuthType authType
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
     }
-    
+
     std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
     int32_t ret = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType, credInfos);
     if (ret != SUCCESS) {
@@ -134,19 +134,7 @@ int32_t UserIdmService::GetCredentialInfoInner(int32_t userId, AuthType authType
         info.credentialId = credInfo->GetCredentialId();
         info.templateId = credInfo->GetTemplateId();
         info.authType = credInfo->GetAuthType();
-        if (info.authType == PIN) {
-            std::shared_ptr<SecureUserInfoInterface> userInfo = nullptr;
-            int32_t ret = UserIdmDatabase::Instance().GetSecUserInfo(userId, userInfo);
-            if (ret != SUCCESS) {
-                IAM_LOGE("get secUserInfo fail, ret:%{public}d, userId:%{public}d", ret, userId);
-                return GENERAL_ERROR;
-            }
-            if (userInfo == nullptr) {
-                IAM_LOGE("failed to get userInfo");
-                return GENERAL_ERROR;
-            }
-            info.pinType = userInfo->GetPinSubType();
-        }
+        info.pinType = credInfo->GetAuthSubType();
         credInfoList.push_back(info);
     }
     return SUCCESS;

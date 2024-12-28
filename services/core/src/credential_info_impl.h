@@ -35,6 +35,7 @@ public:
     AuthType GetAuthType() const override;
     uint32_t GetExecutorSensorHint() const override;
     uint32_t GetExecutorMatcher() const override;
+    PinSubType GetAuthSubType() const override;
 
 private:
     int32_t userId_;
