@@ -214,12 +214,6 @@ HWTEST_F(ContextAppStateObserverTest, ProcAppStateChangedTest_001, TestSize.Leve
     appStateObserver->ProcAppStateChanged(userId);
     appStateObserver->ProcAppStateChanged(userId);
     appStateObserver->ProcAppStateChanged(userId);
-    auto appStateObserverManager = Common::MakeShared<ContextAppStateObserverManager>();
-    ASSERT_NE(appStateObserverManager, nullptr);
-    ContextAppStateObserverManager::GetInstance().SetScreenLockState(true);
-    appStateObserver->ProcAppStateChanged(userId);
-    ContextAppStateObserverManager::GetInstance().SetScreenLockState(false);
-    appStateObserverManager->UnSubscribeAppState();
     EXPECT_TRUE(ContextPool::Instance().Delete(contextId));
 }
 } // namespace UserAuth

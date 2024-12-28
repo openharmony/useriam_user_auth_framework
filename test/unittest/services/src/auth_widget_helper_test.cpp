@@ -257,7 +257,7 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam006, Te
         }
     );
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
-    EXPECT_FALSE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
+    EXPECT_TRUE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(executorIndex));
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }

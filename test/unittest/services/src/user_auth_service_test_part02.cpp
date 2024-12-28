@@ -1471,6 +1471,14 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceVerifyAuthToken003, TestSize.Level0
 
     sptr<MockVerifyTokenCallback> testCallback(nullptr);
 
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, VerifyAuthToken(_, _, _, _))
+        .WillOnce([](const std::vector<uint8_t>& tokenIn, uint64_t allowableDuration,
+            HdiUserAuthTokenPlain &tokenPlainOut, std::vector<uint8_t>& rootSecret) {
+            return HDF_SUCCESS;
+        });
+
     testCallback = sptr<MockVerifyTokenCallback>(new (std::nothrow) MockVerifyTokenCallback());
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnVerifyTokenResult(_, _)).Times(2);
