@@ -17,10 +17,14 @@
 
 #include <future>
 
+#include <gtest/gtest.h>
 #include "iam_common_defines.h"
 #include "iam_logger.h"
 #include "mock_iuser_auth_interface.h"
 #include "mock_schedule_node.h"
+#include "mock_resource_node.h"
+#include "resource_node_pool.h"
+#include "iam_ptr.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -89,7 +93,315 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam002, Te
     EXPECT_FALSE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
 }
 
-HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckValidSolution, TestSize.Level0)
+HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam003, TestSize.Level0)
+{
+    AuthParamInner authParam;
+    authParam.authTypes.push_back(PIN);
+    authParam.authTrustLevel = ATL2;
+    WidgetParamInner widgetParam;
+    widgetParam.title = "使用密码验证";
+    widgetParam.navigationButtonText = "确定";
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 1;
+    std::vector<AuthType> validType = authParam.authTypes;
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).WillOnce(Return(HDF_FAILURE));
+    EXPECT_FALSE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
+    EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).WillOnce(Return(HDF_SUCCESS));
+    EXPECT_FALSE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
+    constexpr uint64_t executorIndex = 61;
+    auto fillUpInfos = [](std::vector<HdiCredentialInfo> &list) {
+        std::vector<HdiCredentialInfo> infos = {};
+        HdiCredentialInfo temp = {
+            .credentialId = 1,
+            .executorIndex = executorIndex,
+            .templateId = 3,
+            .authType = static_cast<HdiAuthType>(1),
+            .executorMatcher = 2,
+            .executorSensorHint = 3,
+        };
+        infos.push_back(temp);
+        list.swap(infos);
+    };
+    EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).WillRepeatedly(DoAll(WithArg<2>(fillUpInfos), Return(0)));
+    EXPECT_FALSE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
+    auto resourceNode = MockResourceNode::CreateWithExecuteIndex(executorIndex, PIN, ALL_IN_ONE);
+    EXPECT_NE(resourceNode, nullptr);
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
+    EXPECT_FALSE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
+    EXPECT_TRUE(ResourceNodePool::Instance().Delete(executorIndex));
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
+}
+
+HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam004, TestSize.Level0)
+{
+    AuthParamInner authParam;
+    authParam.authTypes.push_back(PRIVATE_PIN);
+    authParam.authTrustLevel = ATL2;
+    WidgetParamInner widgetParam;
+    widgetParam.title = "使用密码验证";
+    widgetParam.navigationButtonText = "确定";
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 1;
+    std::vector<AuthType> validType = authParam.authTypes;
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    constexpr uint64_t executorIndex = 61;
+    auto fillUpInfos = [](std::vector<HdiCredentialInfo> &list) {
+        std::vector<HdiCredentialInfo> infos = {};
+        HdiCredentialInfo temp = {
+            .credentialId = 1,
+            .executorIndex = executorIndex,
+            .templateId = 3,
+            .authType = static_cast<HdiAuthType>(16),
+            .executorMatcher = 2,
+            .executorSensorHint = 3,
+        };
+        infos.push_back(temp);
+        list.swap(infos);
+    };
+    EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).WillRepeatedly(DoAll(WithArg<2>(fillUpInfos), Return(0)));
+    auto resourceNode = MockResourceNode::CreateWithExecuteIndex(executorIndex, PRIVATE_PIN, ALL_IN_ONE);
+    EXPECT_NE(resourceNode, nullptr);
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
+    EXPECT_FALSE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
+    EXPECT_TRUE(ResourceNodePool::Instance().Delete(executorIndex));
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
+}
+
+HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam005, TestSize.Level0)
+{
+    AuthParamInner authParam;
+    authParam.authTypes.push_back(FINGERPRINT);
+    authParam.authTrustLevel = ATL2;
+    WidgetParamInner widgetParam;
+    widgetParam.title = "使用密码验证";
+    widgetParam.navigationButtonText = "确定";
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 1;
+    std::vector<AuthType> validType = authParam.authTypes;
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    constexpr uint64_t executorIndex = 61;
+    auto fillUpInfos = [](std::vector<HdiCredentialInfo> &list) {
+        std::vector<HdiCredentialInfo> infos = {};
+        HdiCredentialInfo temp = {
+            .credentialId = 1,
+            .executorIndex = executorIndex,
+            .templateId = 3,
+            .authType = static_cast<HdiAuthType>(4),
+            .executorMatcher = 2,
+            .executorSensorHint = 3,
+        };
+        infos.push_back(temp);
+        list.swap(infos);
+    };
+    EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).WillRepeatedly(DoAll(WithArg<2>(fillUpInfos), Return(0)));
+    auto resourceNode = Common::MakeShared<MockResourceNode>();
+    EXPECT_CALL(*resourceNode, GetExecutorIndex()).WillRepeatedly(Return(executorIndex));
+    EXPECT_NE(resourceNode, nullptr);
+    ON_CALL(*resourceNode, GetProperty).WillByDefault(
+        [](const Attributes &condition, Attributes &values) {
+            values.SetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, 10001);
+            values.SetStringValue(Attributes::ATTR_SENSOR_INFO, "test");
+            values.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, 5);
+            values.SetInt32Value(Attributes::ATTR_FREEZING_TIME, 0);
+            return SUCCESS;
+        }
+    );
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
+    EXPECT_TRUE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
+    EXPECT_TRUE(ResourceNodePool::Instance().Delete(executorIndex));
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
+}
+
+HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam006, TestSize.Level0)
+{
+    AuthParamInner authParam;
+    authParam.authTypes.push_back(FINGERPRINT);
+    authParam.authTrustLevel = ATL2;
+    WidgetParamInner widgetParam;
+    widgetParam.title = "使用密码验证";
+    widgetParam.navigationButtonText = "确定";
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 1;
+    std::vector<AuthType> validType = authParam.authTypes;
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    constexpr uint64_t executorIndex = 61;
+    auto fillUpInfos = [](std::vector<HdiCredentialInfo> &list) {
+        std::vector<HdiCredentialInfo> infos = {};
+        HdiCredentialInfo temp = {
+            .credentialId = 1,
+            .executorIndex = executorIndex,
+            .templateId = 3,
+            .authType = static_cast<HdiAuthType>(4),
+            .executorMatcher = 2,
+            .executorSensorHint = 3,
+        };
+        infos.push_back(temp);
+        list.swap(infos);
+    };
+    EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).WillRepeatedly(DoAll(WithArg<2>(fillUpInfos), Return(0)));
+    auto resourceNode = Common::MakeShared<MockResourceNode>();
+    EXPECT_CALL(*resourceNode, GetExecutorIndex()).WillRepeatedly(Return(executorIndex));
+    EXPECT_NE(resourceNode, nullptr);
+    ON_CALL(*resourceNode, GetProperty).WillByDefault(
+        [](const Attributes &condition, Attributes &values) {
+            values.SetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, 10001);
+            values.SetStringValue(Attributes::ATTR_SENSOR_INFO, "test");
+            values.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, 5);
+            values.SetInt32Value(Attributes::ATTR_FREEZING_TIME, 0);
+            return HDF_ERR_INVALID_PARAM;
+        }
+    );
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
+    EXPECT_TRUE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
+    EXPECT_TRUE(ResourceNodePool::Instance().Delete(executorIndex));
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
+}
+
+HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam007, TestSize.Level0)
+{
+    AuthParamInner authParam;
+    authParam.authTypes.push_back(FINGERPRINT);
+    authParam.authTrustLevel = ATL2;
+    WidgetParamInner widgetParam;
+    widgetParam.title = "使用密码验证";
+    widgetParam.navigationButtonText = "确定";
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 1;
+    std::vector<AuthType> validType = authParam.authTypes;
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    constexpr uint64_t executorIndex = 61;
+    auto fillUpInfos = [](std::vector<HdiCredentialInfo> &list) {
+        std::vector<HdiCredentialInfo> infos = {};
+        HdiCredentialInfo temp = {
+            .credentialId = 1,
+            .executorIndex = executorIndex,
+            .templateId = 3,
+            .authType = static_cast<HdiAuthType>(4),
+            .executorMatcher = 2,
+            .executorSensorHint = 3,
+        };
+        infos.push_back(temp);
+        list.swap(infos);
+    };
+    EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).WillRepeatedly(DoAll(WithArg<2>(fillUpInfos), Return(0)));
+    auto resourceNode = Common::MakeShared<MockResourceNode>();
+    EXPECT_CALL(*resourceNode, GetExecutorIndex()).WillRepeatedly(Return(executorIndex));
+    EXPECT_NE(resourceNode, nullptr);
+    ON_CALL(*resourceNode, GetProperty).WillByDefault(
+        [](const Attributes &condition, Attributes &values) {
+            values.SetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, 10001);
+            values.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, 5);
+            values.SetInt32Value(Attributes::ATTR_FREEZING_TIME, 0);
+            return SUCCESS;
+        }
+    );
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
+    EXPECT_FALSE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
+    EXPECT_TRUE(ResourceNodePool::Instance().Delete(executorIndex));
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
+}
+
+HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam008, TestSize.Level0)
+{
+    AuthParamInner authParam;
+    authParam.authTypes.push_back(PIN);
+    authParam.authTrustLevel = ATL2;
+    WidgetParamInner widgetParam;
+    widgetParam.title = "使用密码验证";
+    widgetParam.navigationButtonText = "确定";
+    widgetParam.windowMode = WindowModeType::DIALOG_BOX;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 1;
+    std::vector<AuthType> validType = authParam.authTypes;
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    constexpr uint64_t executorIndex = 61;
+    auto fillUpInfos = [](std::vector<HdiCredentialInfo> &list) {
+        std::vector<HdiCredentialInfo> infos = {};
+        HdiCredentialInfo temp = {
+            .credentialId = 1,
+            .executorIndex = executorIndex,
+            .templateId = 3,
+            .authType = static_cast<HdiAuthType>(1),
+            .executorMatcher = 2,
+            .executorSensorHint = 3,
+        };
+        infos.push_back(temp);
+        list.swap(infos);
+    };
+    EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).WillRepeatedly(DoAll(WithArg<2>(fillUpInfos), Return(0)));
+    auto resourceNode = Common::MakeShared<MockResourceNode>();
+    EXPECT_CALL(*resourceNode, GetExecutorIndex()).WillRepeatedly(Return(executorIndex));
+    EXPECT_NE(resourceNode, nullptr);
+    ON_CALL(*resourceNode, GetProperty).WillByDefault(
+        [](const Attributes &condition, Attributes &values) {
+            values.SetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, 10001);
+            values.SetStringValue(Attributes::ATTR_SENSOR_INFO, "test");
+            values.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, 5);
+            values.SetInt32Value(Attributes::ATTR_FREEZING_TIME, 0);
+            return SUCCESS;
+        }
+    );
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
+    EXPECT_TRUE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
+    EXPECT_TRUE(ResourceNodePool::Instance().Delete(executorIndex));
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
+}
+
+HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam009, TestSize.Level0)
+{
+    AuthParamInner authParam;
+    authParam.authTypes.push_back(PRIVATE_PIN);
+    authParam.authTrustLevel = ATL2;
+    WidgetParamInner widgetParam;
+    widgetParam.title = "使用密码验证";
+    widgetParam.navigationButtonText = "确定";
+    widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 1;
+    std::vector<AuthType> validType = authParam.authTypes;
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    constexpr uint64_t executorIndex = 61;
+    auto fillUpInfos = [](std::vector<HdiCredentialInfo> &list) {
+        std::vector<HdiCredentialInfo> infos = {};
+        HdiCredentialInfo temp = {
+            .credentialId = 1,
+            .executorIndex = executorIndex,
+            .templateId = 3,
+            .authType = static_cast<HdiAuthType>(16),
+            .executorMatcher = 2,
+            .executorSensorHint = 3,
+        };
+        infos.push_back(temp);
+        list.swap(infos);
+    };
+    EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).WillRepeatedly(DoAll(WithArg<2>(fillUpInfos), Return(0)));
+    auto resourceNode = Common::MakeShared<MockResourceNode>();
+    EXPECT_CALL(*resourceNode, GetExecutorIndex()).WillRepeatedly(Return(executorIndex));
+    EXPECT_NE(resourceNode, nullptr);
+    ON_CALL(*resourceNode, GetProperty).WillByDefault(
+        [](const Attributes &condition, Attributes &values) {
+            values.SetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, 10001);
+            values.SetStringValue(Attributes::ATTR_SENSOR_INFO, "test");
+            values.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, 5);
+            values.SetInt32Value(Attributes::ATTR_FREEZING_TIME, 0);
+            return SUCCESS;
+        }
+    );
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
+    EXPECT_TRUE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
+    EXPECT_TRUE(ResourceNodePool::Instance().Delete(executorIndex));
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
+}
+
+HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckValidSolution001, TestSize.Level0)
 {
     int32_t userId = 1;
     std::vector<AuthType> authTypeList;
@@ -100,6 +412,23 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckValidSolution, TestSize.
     AuthTrustLevel atl = ATL3;
     std::vector<AuthType> validTypeList;
     EXPECT_FALSE(AuthWidgetHelper::CheckValidSolution(userId, authTypeList, atl, validTypeList));
+}
+
+HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckValidSolution002, TestSize.Level0)
+{
+    int32_t userId = 1;
+    std::vector<AuthType> authTypeList;
+    authTypeList.push_back(FACE);
+    authTypeList.push_back(ALL);
+    authTypeList.push_back(PIN);
+    authTypeList.push_back(FINGERPRINT);
+    AuthTrustLevel atl = ATL3;
+    std::vector<AuthType> validTypeList;
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _)).WillOnce(Return(HDF_FAILURE));
+    EXPECT_TRUE(AuthWidgetHelper::CheckValidSolution(userId, authTypeList, atl, validTypeList));
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
 
 HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckReuseUnlockResult001, TestSize.Level0)
@@ -131,7 +460,7 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckReuseUnlockResult002, Te
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, CheckReuseUnlockResult(_, _)).Times(3);
+    EXPECT_CALL(*mockHdi, CheckReuseUnlockResult(_, _)).Times(5);
     ON_CALL(*mockHdi, CheckReuseUnlockResult)
         .WillByDefault(Return(HDF_FAILURE));
     EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), HDF_FAILURE);
@@ -147,7 +476,31 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckReuseUnlockResult002, Te
     ON_CALL(*mockHdi, CheckReuseUnlockResult)
         .WillByDefault(Return(HDF_SUCCESS));
     EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), SUCCESS);
+
+    para.sdkVersion = 10001;
+    authParam.authTypes.push_back(FINGERPRINT);
+    ON_CALL(*mockHdi, CheckReuseUnlockResult).WillByDefault(Return(HDF_SUCCESS));
+    EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), SUCCESS);
+
+    authParam.reuseUnlockResult.isReuse = true;
+    authParam.reuseUnlockResult.reuseDuration = 4 * 60 * 1000;
+    authParam.reuseUnlockResult.reuseMode = CALLER_IRRELEVANT_AUTH_TYPE_IRRELEVANT;
+    EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), SUCCESS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
+}
+
+HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestParseAttributes001, TestSize.Level0)
+{
+    Attributes attributes;
+    attributes.SetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, 10001);
+    attributes.SetStringValue(Attributes::ATTR_SENSOR_INFO, "test");
+    attributes.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, 5);
+    attributes.SetInt32Value(Attributes::ATTR_FREEZING_TIME, 0);
+    AuthType authType = PIN;
+    ContextFactory::AuthProfile authProfile;
+    EXPECT_EQ(AuthWidgetHelper::ParseAttributes(attributes, authType, authProfile), true);
+    authType = ALL;
+    EXPECT_EQ(AuthWidgetHelper::ParseAttributes(attributes, authType, authProfile), true);
 }
 } // namespace UserAuth
 } // namespace UserIam
