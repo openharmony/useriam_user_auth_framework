@@ -143,6 +143,34 @@ void UserAuthClientImpl::GetProperty(int32_t userId, const GetPropertyRequest &r
     proxy->GetProperty(userId, request.authType, request.keys, wrapper);
 }
 
+void UserAuthClientImpl::GetPropertyById(uint64_t credentialId, const std::vector<Attributes::AttributeKey> &keys,
+    const std::shared_ptr<GetPropCallback> &callback)
+{
+    IAM_LOGI("start");
+    if (!callback) {
+        IAM_LOGE("get prop callback is nullptr");
+        return;
+    }
+
+    auto proxy = GetProxy();
+    if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
+        Attributes extraInfo;
+        callback->OnResult(GENERAL_ERROR, extraInfo);
+        return;
+    }
+
+    sptr<GetExecutorPropertyCallbackInterface> wrapper(
+        new (std::nothrow) GetExecutorPropertyCallbackService(callback));
+    if (wrapper == nullptr) {
+        IAM_LOGE("failed to create wrapper");
+        Attributes extraInfo;
+        callback->OnResult(GENERAL_ERROR, extraInfo);
+        return;
+    }
+    proxy->GetPropertyById(credentialId, keys, wrapper);
+}
+
 ResultCode UserAuthClientImpl::SetPropertyInner(int32_t userId, const SetPropertyRequest &request,
     const std::shared_ptr<SetPropCallback> &callback)
 {
@@ -196,9 +224,9 @@ void UserAuthClientImpl::SetProperty(int32_t userId, const SetPropertyRequest &r
 uint64_t UserAuthClientImpl::BeginAuthentication(const AuthParam &authParam,
     const std::shared_ptr<AuthenticationCallback> &callback)
 {
-    IAM_LOGI("start, userId:%{public}d authType:%{public}d atl:%{public}u remoteAuthParamHasValue:%{public}s",
-        authParam.userId, authParam.authType, authParam.authTrustLevel,
-        Common::GetBoolStr(authParam.remoteAuthParam.has_value()));
+    IAM_LOGI("start, userId:%{public}d, authType:%{public}d, atl:%{public}u, authIntent:%{public}u,"
+        "remoteAuthParamHasValue:%{public}s", authParam.userId, authParam.authType, authParam.authTrustLevel,
+        authParam.authIntent, Common::GetBoolStr(authParam.remoteAuthParam.has_value()));
     if (authParam.remoteAuthParam.has_value()) {
         IAM_LOGI("verifierNetworkIdHasValue:%{public}s collectorNetworkIdHasValue:%{public}s "
             "collectorTokenIdHasValue:%{public}s",

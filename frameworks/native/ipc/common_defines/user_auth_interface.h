@@ -35,11 +35,14 @@ class UserAuthInterface : public IRemoteBroker {
 public:
     virtual int32_t GetAvailableStatus(int32_t apiVersion, int32_t userId, AuthType authType,
         AuthTrustLevel authTrustLevel) = 0;
-        
+
     virtual int32_t GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel) = 0;
 
     virtual void GetProperty(int32_t userId, AuthType authType,
         const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallbackInterface> &callback) = 0;
+    
+    virtual void GetPropertyById(uint64_t credentialId, const std::vector<Attributes::AttributeKey> &keys,
+        sptr<GetExecutorPropertyCallbackInterface> &callback) = 0;
 
     virtual void SetProperty(int32_t userId, AuthType authType, const Attributes &attributes,
         sptr<SetExecutorPropertyCallbackInterface> &callback) = 0;

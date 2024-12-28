@@ -26,7 +26,6 @@ class MockSecureUserInfo final : public SecureUserInfoInterface {
 public:
     ~MockSecureUserInfo() override = default;
     MOCK_CONST_METHOD0(GetUserId, int32_t());
-    MOCK_CONST_METHOD0(GetPinSubType, PinSubType());
     MOCK_CONST_METHOD0(GetSecUserId, uint64_t());
     MOCK_CONST_METHOD0(GetEnrolledInfo, std::vector<std::shared_ptr<EnrolledInfoInterface>>());
 };

@@ -140,6 +140,11 @@ std::shared_ptr<ScheduleNodeCallback> ScheduleNodeImpl::GetScheduleCallback()
     return info_.callback;
 }
 
+int32_t ScheduleNodeImpl::GetAuthIntent() const
+{
+    return info_.authIntent;
+}
+
 void ScheduleNodeImpl::ClearScheduleCallback()
 {
     std::lock_guard<std::mutex> lock(mutex_);

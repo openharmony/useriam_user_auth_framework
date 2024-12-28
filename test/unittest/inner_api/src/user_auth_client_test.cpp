@@ -804,6 +804,54 @@ HWTEST_F(UserAuthClientTest, UserAuthClientSetGlobalConfigParam002, TestSize.Lev
     dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
+
+HWTEST_F(UserAuthClientTest, UserAuthClientGetPropertyById001, TestSize.Level0)
+{
+    uint64_t testCredentialId = 1;
+    std::vector<Attributes::AttributeKey> testKeys;
+
+    std::shared_ptr<MockGetPropCallback> testCallback = nullptr;
+    UserAuthClient::GetInstance().GetPropertyById(testCredentialId, testKeys, testCallback);
+
+    IpcClientUtils::ResetObj();
+    testCallback = Common::MakeShared<MockGetPropCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
+    UserAuthClient::GetInstance().GetPropertyById(testCredentialId, testKeys, testCallback);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientGetPropertyById002, TestSize.Level0)
+{
+    uint64_t testCredentialId = 1;
+    std::vector<Attributes::AttributeKey> testKeys = {Attributes::ATTR_RESULT_CODE, Attributes::ATTR_SIGNATURE};
+
+    auto testCallback = Common::MakeShared<MockGetPropCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
+
+    auto service = Common::MakeShared<MockUserAuthService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, GetPropertyById(_, _, _)).Times(1);
+    ON_CALL(*service, GetPropertyById)
+        .WillByDefault(
+            [&testCredentialId, &testKeys](uint64_t credentialId, const std::vector<Attributes::AttributeKey> &keys,
+            sptr<GetExecutorPropertyCallbackInterface> &callback) {
+                EXPECT_EQ(credentialId, testCredentialId);
+                EXPECT_THAT(keys, ElementsAreArray(testKeys));
+                if (callback != nullptr) {
+                    Attributes extraInfo;
+                    callback->OnGetExecutorPropertyResult(SUCCESS, extraInfo);
+                }
+            }
+        );
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
+    CallRemoteObject(service, obj, dr);
+    UserAuthClient::GetInstance().GetPropertyById(testCredentialId, testKeys, testCallback);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
+    IpcClientUtils::ResetObj();
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

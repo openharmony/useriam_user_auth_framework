@@ -53,7 +53,6 @@ namespace {
 const int32_t MINIMUM_VERSION = 0;
 const int32_t CURRENT_VERSION = 1;
 const int32_t USERIAM_IPC_THREAD_NUM = 4;
-const uint32_t MAX_AUTH_TYPE_SIZE = 3;
 const uint32_t NETWORK_ID_LENGTH = 64;
 const bool REMOTE_AUTH_SERVICE_RESULT = RemoteAuthService::GetInstance().Start();
 int32_t GetTemplatesByAuthType(int32_t userId, AuthType authType, std::vector<uint64_t> &templateIds)
@@ -121,7 +120,7 @@ std::string GetAuthParamStr(const AuthParamInner &authParam, std::optional<Remot
 {
     std::ostringstream authParamString;
     authParamString << "userId:" << authParam.userId << " authType:" << authParam.authType
-                    << " atl:" << authParam.authTrustLevel;
+                    << " authIntent:" << authParam.authIntent << " atl:" << authParam.authTrustLevel;
     if (remoteAuthParam.has_value()) {
         const uint32_t networkIdPrintLen = 4;
         const uint32_t tokenIdMinLen = 2;
@@ -291,6 +290,33 @@ std::shared_ptr<ResourceNode> UserAuthService::GetResourseNode(AuthType authType
     return resourceNode;
 }
 
+void UserAuthService::GetPropertyInner(AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
+    sptr<GetExecutorPropertyCallbackInterface> &callback, std::vector<uint64_t> &templateIds)
+{
+    Attributes values;
+    auto resourceNode = GetResourseNode(authType);
+    if (resourceNode == nullptr) {
+        IAM_LOGE("resourceNode is nullptr");
+        callback->OnGetExecutorPropertyResult(GENERAL_ERROR, values);
+        return;
+    }
+
+    std::vector<uint32_t> uint32Keys;
+    FillGetPropertyKeys(authType, keys, uint32Keys);
+    Attributes attr;
+    attr.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_GET);
+    attr.SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIds);
+    attr.SetUint32ArrayValue(Attributes::ATTR_KEY_LIST, uint32Keys);
+
+    int32_t result = resourceNode->GetProperty(attr, values);
+    if (result != SUCCESS) {
+        IAM_LOGE("failed to get property, result = %{public}d", result);
+    }
+    FillGetPropertyValue(authType, keys, values);
+
+    callback->OnGetExecutorPropertyResult(result, values);
+}
+
 void UserAuthService::GetProperty(int32_t userId, AuthType authType,
     const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallbackInterface> &callback)
 {
@@ -321,27 +347,40 @@ void UserAuthService::GetProperty(int32_t userId, AuthType authType,
         }
     }
 
-    auto resourceNode = GetResourseNode(authType);
-    if (resourceNode == nullptr) {
-        IAM_LOGE("resourceNode is nullptr");
+    GetPropertyInner(authType, keys, callback, templateIds);
+}
+
+void UserAuthService::GetPropertyById(uint64_t credentialId, const std::vector<Attributes::AttributeKey> &keys,
+    sptr<GetExecutorPropertyCallbackInterface> &callback)
+{
+    IAM_LOGI("start");
+    Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
+    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+    Attributes values;
+
+    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        callback->OnGetExecutorPropertyResult(CHECK_PERMISSION_FAILED, values);
+        return;
+    }
+
+    std::shared_ptr<CredentialInfoInterface> credInfo;
+    std::vector<uint64_t> templateIds;
+    int32_t ret = UserIdmDatabase::Instance().GetCredentialInfoById(credentialId, credInfo);
+    if (ret != SUCCESS) {
+        IAM_LOGE("get credentialInfp fail, ret:%{public}d", ret);
+        callback->OnGetExecutorPropertyResult(ret, values);
+        return;
+    }
+    if (credInfo == nullptr) {
+        IAM_LOGE("credential is nullptr");
         callback->OnGetExecutorPropertyResult(GENERAL_ERROR, values);
         return;
     }
 
-    std::vector<uint32_t> uint32Keys;
-    FillGetPropertyKeys(authType, keys, uint32Keys);
-    Attributes attr;
-    attr.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, PROPERTY_MODE_GET);
-    attr.SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIds);
-    attr.SetUint32ArrayValue(Attributes::ATTR_KEY_LIST, uint32Keys);
-
-    int32_t result = resourceNode->GetProperty(attr, values);
-    if (result != SUCCESS) {
-        IAM_LOGE("failed to get property, result = %{public}d", result);
-    }
-    FillGetPropertyValue(authType, keys, values);
-
-    callback->OnGetExecutorPropertyResult(result, values);
+    AuthType authType = credInfo->GetAuthType();
+    templateIds.push_back(credInfo->GetTemplateId());
+    GetPropertyInner(authType, keys, callback, templateIds);
 }
 
 void UserAuthService::SetProperty(int32_t userId, AuthType authType, const Attributes &attributes,
@@ -796,7 +835,8 @@ int32_t UserAuthService::CheckAuthWidgetType(const std::vector<AuthType> &authTy
         return INVALID_PARAMETERS;
     }
     for (auto &type : authType) {
-        if ((type != AuthType::PIN) && (type != AuthType::FACE) && (type != AuthType::FINGERPRINT)) {
+        if ((type != AuthType::PIN) && (type != AuthType::FACE) && (type != AuthType::FINGERPRINT) &&
+            (type != AuthType::PRIVATE_PIN)) {
             IAM_LOGE("unsupport auth type %{public}d", type);
             return TYPE_NOT_SUPPORT;
         }
@@ -804,6 +844,19 @@ int32_t UserAuthService::CheckAuthWidgetType(const std::vector<AuthType> &authTy
     std::set<AuthType> typeChecker(authType.begin(), authType.end());
     if (typeChecker.size() != authType.size()) {
         IAM_LOGE("duplicate auth type");
+        return INVALID_PARAMETERS;
+    }
+    bool hasPin = false;
+    bool hasPrivatePin = false;
+    for (const auto &iter : authType) {
+        if (iter == AuthType::PIN) {
+            hasPin = true;
+        } else if (iter == AuthType::PRIVATE_PIN) {
+            hasPrivatePin = true;
+        }
+    }
+    if (hasPin && hasPrivatePin) {
+        IAM_LOGE("pin and private pin not support");
         return INVALID_PARAMETERS;
     }
     return SUCCESS;
@@ -825,6 +878,59 @@ bool UserAuthService::CheckSingeFaceOrFinger(const std::vector<AuthType> &authTy
     return false;
 }
 
+bool UserAuthService::CheckPrivatePinEnroll(const std::vector<AuthType> &authType, std::vector<AuthType> &validType)
+{
+    bool hasPrivatePin = false;
+    for (auto &iter : authType) {
+        if (iter == AuthType::PRIVATE_PIN) {
+            hasPrivatePin = true;
+            break;
+        }
+    }
+    if (!hasPrivatePin) {
+        return true;
+    }
+    const size_t sizeTwo = 2;
+    bool hasFace = false;
+    bool hasFinger = false;
+    for (const auto &iter : validType) {
+        if (iter == AuthType::FACE) {
+            hasFace = true;
+        } else if (iter == AuthType::FINGERPRINT) {
+            hasFinger = true;
+        }
+        if (hasFace && hasFinger) {
+            break;
+        }
+    }
+    if (validType.size() == sizeTwo && hasFace && hasFinger) {
+        return false;
+    }
+    return true;
+}
+
+int32_t UserAuthService::CheckCallerPermissionForPrivatePin(const AuthParamInner &authParam)
+{
+    bool hasPrivatePin = false;
+    for (auto &iter : authParam.authTypes) {
+        if (iter == AuthType::PRIVATE_PIN) {
+            hasPrivatePin = true;
+            break;
+        }
+    }
+    if (!hasPrivatePin) {
+        return SUCCESS;
+    }
+    if (IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+        return SUCCESS;
+    }
+    if (IpcCommon::CheckPermission(*this, IS_SYSTEM_APP)) {
+        return SUCCESS;
+    }
+    IAM_LOGE("CheckPermission failed");
+    return CHECK_PERMISSION_FAILED;
+}
+
 int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authParam, const WidgetParam &widgetParam,
     bool isBackgroundApplication)
 {
@@ -832,6 +938,10 @@ int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authP
         (widgetParam.windowMode != WindowModeType::UNKNOWN_WINDOW_MODE)) {
         IAM_LOGE("normal app can't set window mode.");
         return INVALID_PARAMETERS;
+    }
+    if (CheckCallerPermissionForPrivatePin(authParam) != SUCCESS) {
+        IAM_LOGE("CheckCallerPermissionForPrivatePin failed");
+        return CHECK_PERMISSION_FAILED;
     }
     if (!authParam.isUserIdSpecified && !IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
         IAM_LOGE("CheckPermission failed");
@@ -913,6 +1023,10 @@ int32_t UserAuthService::CheckValidSolution(int32_t userId, const AuthParamInner
         IAM_LOGE("Single fingerprint or single face does not support full screen");
         return INVALID_PARAMETERS;
     }
+    if (!CheckPrivatePinEnroll(authParam.authTypes, validType)) {
+        IAM_LOGE("check privatePin enroll error");
+        return INVALID_PARAMETERS;
+    }
     return SUCCESS;
 }
 
@@ -942,6 +1056,28 @@ int32_t UserAuthService::GetCallerInfo(bool isUserIdSpecified, int32_t userId,
     }
     contextCallback->SetTraceUserId(para.userId);
     return SUCCESS;
+}
+
+void UserAuthService::ProcessPinExpired(int32_t ret, const AuthParamInner &authParam,
+    std::vector<AuthType> &validType, ContextFactory::AuthWidgetContextPara &para)
+{
+    if (ret != PIN_EXPIRED) {
+        return;
+    }
+    para.isPinExpired = true;
+    bool hasPrivatePin = false;
+    for (auto &iter : authParam.authTypes) {
+        if (iter == AuthType::PRIVATE_PIN) {
+            hasPrivatePin = true;
+            break;
+        }
+    }
+    if (hasPrivatePin) {
+        validType.clear();
+        validType.emplace_back(AuthType::PRIVATE_PIN);
+    } else {
+        validType.emplace_back(AuthType::PIN);
+    }
 }
 
 uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParamInner &authParam,
@@ -982,10 +1118,7 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParamInner &a
         contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    if (checkRet == PIN_EXPIRED) {
-        para.isPinExpired = true;
-        validType.emplace_back(AuthType::PIN);
-    }
+    ProcessPinExpired(checkRet, authParam, validType, para);
     return StartWidgetContext(contextCallback, authParam, widgetParam, validType, para);
 }
 
@@ -1135,7 +1268,8 @@ bool UserAuthService::CheckAuthTypeIsValid(std::vector<AuthType> authType)
         return false;
     }
     for (const auto &iter : authType) {
-        if (iter != AuthType::PIN && iter != AuthType::FACE && iter != AuthType::FINGERPRINT) {
+        if (iter != AuthType::PIN && iter != AuthType::FACE && iter != AuthType::FINGERPRINT &&
+            iter != AuthType::PRIVATE_PIN) {
             return false;
         }
     }

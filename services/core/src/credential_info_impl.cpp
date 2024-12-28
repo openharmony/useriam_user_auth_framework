@@ -56,6 +56,11 @@ uint32_t CredentialInfoImpl::GetExecutorMatcher() const
 {
     return info_.executorMatcher;
 }
+
+PinSubType CredentialInfoImpl::GetAuthSubType() const
+{
+    return static_cast<PinSubType>(info_.authSubType);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

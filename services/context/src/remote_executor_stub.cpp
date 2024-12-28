@@ -99,6 +99,10 @@ public:
     {
         return nullptr;
     }
+    int32_t GetAuthIntent() const override
+    {
+        return 0;
+    }
     void ClearScheduleCallback() override
     {
         return;
