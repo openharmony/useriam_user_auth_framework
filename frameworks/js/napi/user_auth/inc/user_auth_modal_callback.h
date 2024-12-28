@@ -33,7 +33,7 @@ public:
     bool IsModalDestroy() override;
 
 private:
-    void CancelAuthentication(uint64_t contextId) override;
+    void CancelAuthentication(uint64_t contextId, int32_t cancelReason) override;
     Ace::UIContent* InitAndGetUIContent(const std::shared_ptr<OHOS::AbilityRuntime::Context> context);
     bool CreateUIExtension(const std::shared_ptr<OHOS::AbilityRuntime::Context> context, uint64_t contextId,
         const std::string &cmdData);
