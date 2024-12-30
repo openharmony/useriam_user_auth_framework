@@ -159,6 +159,9 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_005, TestSize.Level0)
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _)).WillRepeatedly(Return(FAIL));
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
     sptr<ModalCallbackInterface> testModalCallback(nullptr);
     uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
@@ -182,6 +185,9 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_006, TestSize.Level0)
     widgetParam.title = "使用密码验证";
     widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _)).WillRepeatedly(Return(FAIL));
     sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
@@ -358,6 +364,9 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_012, TestSize.Level0)
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _)).WillRepeatedly(Return(FAIL));
     sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
     sptr<ModalCallbackInterface> testModalCallback(nullptr);
     uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
@@ -453,6 +462,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_015, TestSize.Level0)
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _)).WillRepeatedly(Return(FAIL));
     ON_CALL(*mockHdi, GetCredential).WillByDefault(
         [](int32_t userId, int32_t authType, std::vector<HdiCredentialInfo> &infos) {
             HdiCredentialInfo tempInfo = {
@@ -485,18 +495,17 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_016, TestSize.Level0)
     authParam.authTrustLevel = ATL2;
     WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
     sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
     auto *tempCallback = static_cast<MockUserAuthCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
     EXPECT_CALL(*tempCallback, OnResult(_, _)).Times(1);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     int32_t acquire = 20;
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _)).WillRepeatedly(Return(FAIL));
     ON_CALL(*mockHdi, GetCredential).WillByDefault(
         [](int32_t userId, int32_t authType, std::vector<HdiCredentialInfo> &infos) {
             HdiCredentialInfo tempInfo = {
@@ -541,13 +550,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0017, TestSize.Level0)
     sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
     auto *tempCallback = static_cast<MockUserAuthCallback *>(testCallback.GetRefPtr());
-    EXPECT_NE(tempCallback, nullptr);
     EXPECT_CALL(*tempCallback, OnResult(_, _)).Times(1);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     int32_t acquire = 20;
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _)).WillRepeatedly(Return(FAIL));
     ON_CALL(*mockHdi, GetCredential).WillByDefault(
         [](int32_t userId, int32_t authType, std::vector<HdiCredentialInfo> &infos) {
             HdiCredentialInfo tempInfo = {
@@ -589,7 +598,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0018, TestSize.Level0)
     authParam.authTrustLevel = ATL2;
     WidgetParamInner widgetParam;
     widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
     widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
     sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
@@ -601,6 +609,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0018, TestSize.Level0)
     int32_t acquire = 20;
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _)).WillRepeatedly(Return(FAIL));
     ON_CALL(*mockHdi, GetCredential).WillByDefault(
         [](int32_t userId, int32_t authType, std::vector<HdiCredentialInfo> &infos) {
             HdiCredentialInfo tempInfo = {
@@ -651,6 +660,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0019, TestSize.Level0)
     int32_t acquire = 20;
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _)).WillRepeatedly(Return(FAIL));
     ON_CALL(*mockHdi, GetCredential).WillByDefault(
         [](int32_t userId, int32_t authType, std::vector<HdiCredentialInfo> &infos) {
             HdiCredentialInfo tempInfo = {
@@ -1468,17 +1478,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceVerifyAuthToken003, TestSize.Level0
     std::vector<uint8_t> testTokenIn = {};
     testTokenIn.resize(1);
     uint64_t allowableDuration = 0;
-
     sptr<MockVerifyTokenCallback> testCallback(nullptr);
-
-    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, VerifyAuthToken(_, _, _, _))
-        .WillOnce([](const std::vector<uint8_t>& tokenIn, uint64_t allowableDuration,
-            HdiUserAuthTokenPlain &tokenPlainOut, std::vector<uint8_t>& rootSecret) {
-            return HDF_SUCCESS;
-        });
-
     testCallback = sptr<MockVerifyTokenCallback>(new (std::nothrow) MockVerifyTokenCallback());
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnVerifyTokenResult(_, _)).Times(2);
