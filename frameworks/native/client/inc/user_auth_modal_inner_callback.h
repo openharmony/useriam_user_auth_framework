@@ -30,7 +30,7 @@ public:
     bool IsModalDestroy() override;
 
 private:
-    void CancelAuthentication(uint64_t contextId) override;
+    void CancelAuthentication(uint64_t contextId, int32_t cancelReason) override;
 };
 } // namespace UserAuth
 } // namespace UserIam
