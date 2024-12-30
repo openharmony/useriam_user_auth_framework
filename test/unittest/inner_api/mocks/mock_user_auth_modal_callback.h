@@ -32,7 +32,7 @@ public:
     MOCK_METHOD0(IsModalDestroy, bool());
 
 private:
-    MOCK_METHOD1(CancelAuthentication, void(uint64_t contextId));
+    MOCK_METHOD2(CancelAuthentication, void(uint64_t contextId, int32_t cancelReason));
 };
 } // namespace UserAuth
 } // namespace UserIam
