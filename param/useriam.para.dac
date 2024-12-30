@@ -12,3 +12,7 @@
 # limitations under the License.
 
 bootevent.useriam.fwkready=useriam:useriam:0755
+useriam.isCredentialChecked=useriam:useriam:0755
+useriam.isPinEnrolled=useriam:useriam:0755
+useriam.isStopped=useriam:useriam:0755
+useriam.isCalled=useriam:useriam:0755
