@@ -17,8 +17,11 @@
 
 #include <uv.h>
 
+#include "napi/native_node_api.h"
+
 #include "iam_check.h"
 #include "iam_logger.h"
+#include "iam_ptr.h"
 
 #define LOG_TAG "USER_ACCESS_CTRL_NAPI"
 
@@ -32,48 +35,6 @@ struct ResultCallbackV16Holder {
     AuthToken authToken {};
     napi_env env {nullptr};
 };
-
-void DestroyResultWork(uv_work_t *work)
-{
-    if (work == nullptr) {
-        return;
-    }
-    if (work->data != nullptr) {
-        delete (reinterpret_cast<ResultCallbackV16Holder *>(work->data));
-    }
-    delete work;
-}
-
-void OnResultV16Work(uv_work_t *work, int status)
-{
-    IAM_LOGI("start");
-    if (work == nullptr) {
-        IAM_LOGE("work is null");
-        return;
-    }
-    ResultCallbackV16Holder *resultHolder = reinterpret_cast<ResultCallbackV16Holder *>(work -> data);
-    if (resultHolder == nullptr || resultHolder->callback == nullptr) {
-        IAM_LOGE("resultHolder is invalid");
-        DestroyResultWork(work);
-        return;
-    }
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(resultHolder->env, &scope);
-    if (scope == nullptr) {
-        IAM_LOGE("scope is invalid");
-        DestroyResultWork(work);
-        return;
-    }
-    napi_status ret = resultHolder->callback->DoResultPromise(resultHolder->result, resultHolder->authToken);
-    if (ret != napi_ok) {
-        IAM_LOGE("DoResultPromise fail %{public}d", ret);
-        napi_close_handle_scope(resultHolder->env, scope);
-        DestroyResultWork(work);
-        return;
-    }
-    napi_close_handle_scope(resultHolder->env, scope);
-    DestroyResultWork(work);
-}
 }
 
 UserAccessCtrlCallbackV16::UserAccessCtrlCallbackV16(napi_env env, napi_deferred promise)
@@ -144,7 +105,7 @@ napi_status UserAccessCtrlCallbackV16::DoResultPromise(int32_t result, AuthToken
     return ret;
 }
 
-void GetCallbackResult(const UserAuth::Attributes &extraInfo, ResultCallbackV16Holder *resultHolder)
+void GetCallbackResult(const UserAuth::Attributes &extraInfo, std::shared_ptr<ResultCallbackV16Holder> resultHolder)
 {
     if (!extraInfo.GetUint8ArrayValue(UserAuth::Attributes::ATTR_CHALLENGE, resultHolder->authToken.challenge)) {
         IAM_LOGE("ATTR_CHALLENGE is null");
@@ -186,25 +147,37 @@ void UserAccessCtrlCallbackV16::OnResult(int32_t result, const UserAuth::Attribu
         IAM_LOGE("napi_get_uv_event_loop fail");
         return;
     }
-    uv_work_t *work = new (std::nothrow) uv_work_t;
-    if (work == nullptr) {
-        IAM_LOGE("work is null");
-        return;
-    }
-    ResultCallbackV16Holder *resultHolder = new (std::nothrow) ResultCallbackV16Holder();
+    std::shared_ptr<ResultCallbackV16Holder> resultHolder = Common::MakeShared<ResultCallbackV16Holder>();
     if (resultHolder == nullptr) {
         IAM_LOGE("resultHolder is null");
-        delete work;
         return;
     }
     resultHolder->callback = shared_from_this();
     resultHolder->result = UserAccessCtrlNapiHelper::GetResultCodeV16(result);
     resultHolder->env = env_;
     GetCallbackResult(extraInfo, resultHolder);
-    work->data = reinterpret_cast<void *>(resultHolder);
-    if (uv_queue_work_with_qos(loop, work, [](uv_work_t *work) {}, OnResultV16Work, uv_qos_user_initiated) != 0) {
-        IAM_LOGE("uv_queue_work_with_qos fail");
-        DestroyResultWork(work);
+    auto task = [resultHolder] () {
+        IAM_LOGI("start");
+        if (resultHolder == nullptr || resultHolder->callback == nullptr) {
+            IAM_LOGE("resultHolder is invalid");
+            return;
+        }
+        napi_handle_scope scope = nullptr;
+        napi_open_handle_scope(resultHolder->env, &scope);
+        if (scope == nullptr) {
+            IAM_LOGE("scope is invalid");
+            return;
+        }
+        napi_status ret = resultHolder->callback->DoResultPromise(resultHolder->result, resultHolder->authToken);
+        if (ret != napi_ok) {
+            IAM_LOGE("DoResultPromise fail %{public}d", ret);
+            napi_close_handle_scope(resultHolder->env, scope);
+            return;
+        }
+        napi_close_handle_scope(resultHolder->env, scope);
+    };
+    if (napi_status::napi_ok != napi_send_event(env_, task, napi_eprio_immediate)) {
+        IAM_LOGE("napi_send_event: Failed to SendEvent");
     }
 }
 } // namespace UserAccessCtrl
