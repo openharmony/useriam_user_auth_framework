@@ -108,7 +108,7 @@ private:
     int32_t CheckValidSolution(int32_t userId, const AuthParamInner &authParam, const WidgetParamInner &widgetParam,
         std::vector<AuthType> &validType);
     int32_t GetCallerInfo(bool isUserIdSpecified, int32_t userId, ContextFactory::AuthWidgetContextPara &para,
-        bool &isBackgroundApplication, std::shared_ptr<ContextCallback> &contextCallback);
+        std::shared_ptr<ContextCallback> &contextCallback);
     int32_t CheckCallerPermissionForPrivatePin(const AuthParamInner &authParam);
     void FillGetPropertyKeys(AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
         std::vector<uint32_t> &uint32Keys);

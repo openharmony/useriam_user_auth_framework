@@ -1093,8 +1093,7 @@ int32_t UserAuthService::CheckValidSolution(int32_t userId, const AuthParamInner
 }
 
 int32_t UserAuthService::GetCallerInfo(bool isUserIdSpecified, int32_t userId,
-    ContextFactory::AuthWidgetContextPara &para, bool &isBackgroundApplication,
-    std::shared_ptr<ContextCallback> &contextCallback)
+    ContextFactory::AuthWidgetContextPara &para, std::shared_ptr<ContextCallback> &contextCallback)
 {
     static_cast<void>(IpcCommon::GetCallerName(*this, para.callerName, para.callerType));
     contextCallback->SetTraceCallerName(para.callerName);
@@ -1103,9 +1102,9 @@ int32_t UserAuthService::GetCallerInfo(bool isUserIdSpecified, int32_t userId,
 
     if (para.sdkVersion < INNER_API_VERSION_10000 && para.callerType == Security::AccessToken::TOKEN_HAP &&
         (!IpcCommon::CheckForegroundApplication(para.callerName))) {
-        isBackgroundApplication = true;
+        para.isBackgroundApplication = true;
     }
-    contextCallback->SetTraceIsBackgroundApplication(isBackgroundApplication);
+    contextCallback->SetTraceIsBackgroundApplication(para.isBackgroundApplication);
 
     if (isUserIdSpecified) {
         para.userId = userId;
@@ -1155,15 +1154,13 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParamInner &a
     ContextFactory::AuthWidgetContextPara para;
     para.sdkVersion = apiVersion;
     Attributes extraInfo;
-    bool isBackgroundApplication = false;
-    int32_t checkRet = GetCallerInfo(authParam.isUserIdSpecified, authParam.userId, para, isBackgroundApplication,
-        contextCallback);
+    int32_t checkRet = GetCallerInfo(authParam.isUserIdSpecified, authParam.userId, para, contextCallback);
     if (checkRet != SUCCESS) {
         contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget GetCallerInfo fail");
         contextCallback->OnResult(checkRet, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    checkRet = CheckAuthPermissionAndParam(authParam, widgetParam, isBackgroundApplication);
+    checkRet = CheckAuthPermissionAndParam(authParam, widgetParam, para.isBackgroundApplication);
     if (checkRet != SUCCESS) {
         IAM_LOGE("check permission and auth widget param failed");
         contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget CheckAuthPermissionAndParam fail");
