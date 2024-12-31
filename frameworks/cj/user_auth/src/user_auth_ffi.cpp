@@ -52,10 +52,10 @@ uint64_t FfiUserAuthStart(const CjAuthParam &authParam, const CjWidgetParam &wid
         authTypes.push_back(AuthType(authParam.authTypes[i]));
     }
     WidgetAuthParam authParamInner{
+        .userId = INVALID_USER_ID,
         .challenge = std::vector<uint8_t>(authParam.challenge, authParam.challenge + authParam.challengeLen),
         .authTypes = authTypes,
         .authTrustLevel = AuthTrustLevel(authParam.authTrustLevel),
-        .userId = INVALID_USER_ID,
     };
     if (authParam.isReuse) {
         authParamInner.reuseUnlockResult = {
