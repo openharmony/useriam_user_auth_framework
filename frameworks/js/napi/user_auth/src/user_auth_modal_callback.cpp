@@ -174,10 +174,9 @@ bool UserAuthModalCallback::CreateUIExtension(const std::shared_ptr<OHOS::Abilit
 void UserAuthModalCallback::CancelAuthentication(uint64_t contextId, int32_t cancelReason)
 {
     // cancel for failed
-    int32_t code = UserAuthNapiClientImpl::Instance().CancelAuthentication(contextId,
-        CancelReason::MODAL_CREATE_ERROR);
-    IAM_LOGI("CancelAuthentication, code: %{public}d, contextId: ****%{public}hx", code,
-        static_cast<uint16_t>(contextId));
+    int32_t code = UserAuthNapiClientImpl::Instance().CancelAuthentication(contextId, cancelReason);
+    IAM_LOGI("CancelAuthentication, code: %{public}d, contextId: ****%{public}hx, code: %{public}d", code,
+        static_cast<uint16_t>(contextId), cancelReason);
     if (uiExtCallback_ != nullptr) {
         IAM_LOGI("release modal");
         isInitError_ = true;
