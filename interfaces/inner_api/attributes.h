@@ -397,7 +397,7 @@ public:
 
 private:
     class Impl;
-    std::unique_ptr<Impl> impl_;
+    std::unique_ptr<Impl> impl_ {nullptr};
 };
 } // namespace UserAuth
 } // namespace UserIam
