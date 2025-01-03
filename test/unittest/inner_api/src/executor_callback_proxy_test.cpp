@@ -170,6 +170,27 @@ HWTEST_F(ExecutorCallbackProxyTest, TestOnGetProperty_001, TestSize.Level0)
     EXPECT_EQ(proxy->OnGetProperty(condition, values), SUCCESS);
     EXPECT_EQ(proxy->OnGetProperty(condition, values), GENERAL_ERROR);
 }
+
+HWTEST_F(ExecutorCallbackProxyTest, TestOnSendData_001, TestSize.Level0)
+{
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    EXPECT_NE(obj, nullptr);
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _))
+        .WillOnce(
+            [](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+                EXPECT_EQ(code, ExecutorCallbackInterfaceCode::ON_SEND_DATA);
+                EXPECT_TRUE(reply.WriteInt32(SUCCESS));
+                return OHOS::NO_ERROR;
+            }
+        );
+    
+    auto proxy = Common::MakeShared<ExecutorCallbackProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+
+    uint64_t scheduleId = 321562;
+    Attributes command;
+    EXPECT_EQ(proxy->OnSendData(scheduleId, command), SUCCESS);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
