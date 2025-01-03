@@ -95,7 +95,7 @@ HWTEST_F(UserIdmProxyTest, UserIdmProxyCloseSession, TestSize.Level0)
     proxy->CloseSession(testUserId);
 }
 
-HWTEST_F(UserIdmProxyTest, UserIdmProxyGetCredentialInfo, TestSize.Level0)
+HWTEST_F(UserIdmProxyTest, UserIdmProxyGetCredentialInfo001, TestSize.Level0)
 {
     static const int32_t testUserId = 200;
     static const AuthType testAuthType = PIN;
@@ -125,10 +125,22 @@ HWTEST_F(UserIdmProxyTest, UserIdmProxyGetCredentialInfo, TestSize.Level0)
             service->OnRemoteRequest(code, data, reply, option);
             return SUCCESS;
         });
-    proxy->GetCredentialInfo(testUserId, testAuthType, testCallback);
+    EXPECT_EQ(proxy->GetCredentialInfo(testUserId, testAuthType, testCallback), SUCCESS);
 }
 
-HWTEST_F(UserIdmProxyTest, UserIdmProxyGetSecInfo, TestSize.Level0)
+HWTEST_F(UserIdmProxyTest, UserIdmProxyGetCredentialInfo002, TestSize.Level0)
+{
+    static const int32_t testUserId = 200;
+    static const AuthType testAuthType = PIN;
+
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    EXPECT_NE(obj, nullptr);
+    auto proxy = Common::MakeShared<UserIdmProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+    EXPECT_EQ(proxy->GetCredentialInfo(testUserId, testAuthType, nullptr), GENERAL_ERROR);
+}
+
+HWTEST_F(UserIdmProxyTest, UserIdmProxyGetSecInfo001, TestSize.Level0)
 {
     static const int32_t testUserId = 200;
 
@@ -155,10 +167,21 @@ HWTEST_F(UserIdmProxyTest, UserIdmProxyGetSecInfo, TestSize.Level0)
             service->OnRemoteRequest(code, data, reply, option);
             return SUCCESS;
         });
-    proxy->GetSecInfo(testUserId, testCallback);
+    EXPECT_EQ(proxy->GetSecInfo(testUserId, testCallback), SUCCESS);
 }
 
-HWTEST_F(UserIdmProxyTest, UserIdmProxyAddCredential, TestSize.Level0)
+HWTEST_F(UserIdmProxyTest, UserIdmProxyGetSecInfo002, TestSize.Level0)
+{
+    static const int32_t testUserId = 200;
+
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    EXPECT_NE(obj, nullptr);
+    auto proxy = Common::MakeShared<UserIdmProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+    EXPECT_EQ(proxy->GetSecInfo(testUserId, nullptr), GENERAL_ERROR);
+}
+
+HWTEST_F(UserIdmProxyTest, UserIdmProxyAddCredential001, TestSize.Level0)
 {
     static const int32_t testUserId = 200;
     UserIdmInterface::CredentialPara testCredPara = {};
@@ -194,7 +217,22 @@ HWTEST_F(UserIdmProxyTest, UserIdmProxyAddCredential, TestSize.Level0)
     proxy->AddCredential(testUserId, testCredPara, testCallback, false);
 }
 
-HWTEST_F(UserIdmProxyTest, UserIdmProxyUpdateCredential, TestSize.Level0)
+HWTEST_F(UserIdmProxyTest, UserIdmProxyAddCredential002, TestSize.Level0)
+{
+    static const int32_t testUserId = 200;
+    UserIdmInterface::CredentialPara testCredPara = {};
+    testCredPara.authType = FACE;
+    testCredPara.pinType = PIN_SIX;
+    testCredPara.token = {1, 2, 3, 4};
+
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    EXPECT_NE(obj, nullptr);
+    auto proxy = Common::MakeShared<UserIdmProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+    proxy->AddCredential(testUserId, testCredPara, nullptr, false);
+}
+
+HWTEST_F(UserIdmProxyTest, UserIdmProxyUpdateCredential001, TestSize.Level0)
 {
     static const int32_t testUserId = 200;
     UserIdmInterface::CredentialPara testCredPara = {};
@@ -230,6 +268,21 @@ HWTEST_F(UserIdmProxyTest, UserIdmProxyUpdateCredential, TestSize.Level0)
     proxy->UpdateCredential(testUserId, testCredPara, testCallback);
 }
 
+HWTEST_F(UserIdmProxyTest, UserIdmProxyUpdateCredential002, TestSize.Level0)
+{
+    static const int32_t testUserId = 200;
+    UserIdmInterface::CredentialPara testCredPara = {};
+    testCredPara.authType = FACE;
+    testCredPara.pinType = PIN_SIX;
+    testCredPara.token = {1, 2, 3, 4};
+
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    EXPECT_NE(obj, nullptr);
+    auto proxy = Common::MakeShared<UserIdmProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+    proxy->UpdateCredential(testUserId, testCredPara, nullptr);
+}
+
 HWTEST_F(UserIdmProxyTest, UserIdmProxyCancel, TestSize.Level0)
 {
     static const int32_t testUserId = 200;
@@ -255,7 +308,7 @@ HWTEST_F(UserIdmProxyTest, UserIdmProxyCancel, TestSize.Level0)
     proxy->Cancel(testUserId);
 }
 
-HWTEST_F(UserIdmProxyTest, UserIdmProxyEnforceDelUser, TestSize.Level0)
+HWTEST_F(UserIdmProxyTest, UserIdmProxyEnforceDelUser001, TestSize.Level0)
 {
     static const int32_t testUserId = 200;
 
@@ -281,10 +334,21 @@ HWTEST_F(UserIdmProxyTest, UserIdmProxyEnforceDelUser, TestSize.Level0)
             service->OnRemoteRequest(code, data, reply, option);
             return SUCCESS;
         });
-    proxy->EnforceDelUser(testUserId, testCallback);
+    EXPECT_EQ(proxy->EnforceDelUser(testUserId, testCallback), SUCCESS);
 }
 
-HWTEST_F(UserIdmProxyTest, UserIdmProxyDelUser, TestSize.Level0)
+HWTEST_F(UserIdmProxyTest, UserIdmProxyEnforceDelUser002, TestSize.Level0)
+{
+    static const int32_t testUserId = 200;
+
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    EXPECT_NE(obj, nullptr);
+    auto proxy = Common::MakeShared<UserIdmProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+    EXPECT_EQ(proxy->EnforceDelUser(testUserId, nullptr), GENERAL_ERROR);
+}
+
+HWTEST_F(UserIdmProxyTest, UserIdmProxyDelUser001, TestSize.Level0)
 {
     static const int32_t testUserId = 200;
     static const std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
@@ -316,7 +380,19 @@ HWTEST_F(UserIdmProxyTest, UserIdmProxyDelUser, TestSize.Level0)
     proxy->DelUser(testUserId, testAuthToken, testCallback);
 }
 
-HWTEST_F(UserIdmProxyTest, UserIdmProxyDelCredential, TestSize.Level0)
+HWTEST_F(UserIdmProxyTest, UserIdmProxyDelUser002, TestSize.Level0)
+{
+    static const int32_t testUserId = 200;
+    static const std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
+
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    EXPECT_NE(obj, nullptr);
+    auto proxy = Common::MakeShared<UserIdmProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+    proxy->DelUser(testUserId, testAuthToken, nullptr);
+}
+
+HWTEST_F(UserIdmProxyTest, UserIdmProxyDelCredential001, TestSize.Level0)
 {
     static const int32_t testUserId = 200;
     static const uint64_t testCredentialId = 300;
@@ -348,6 +424,54 @@ HWTEST_F(UserIdmProxyTest, UserIdmProxyDelCredential, TestSize.Level0)
             return SUCCESS;
         });
     proxy->DelCredential(testUserId, testCredentialId, testAuthToken, testCallback);
+}
+
+HWTEST_F(UserIdmProxyTest, UserIdmProxyDelCredential002, TestSize.Level0)
+{
+    static const int32_t testUserId = 200;
+    static const uint64_t testCredentialId = 300;
+    static const std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
+
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    EXPECT_NE(obj, nullptr);
+    auto proxy = Common::MakeShared<UserIdmProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+    proxy->DelCredential(testUserId, testCredentialId, testAuthToken, nullptr);
+}
+
+HWTEST_F(UserIdmProxyTest, UserIdmProxyClearRedundancyCredential001, TestSize.Level0)
+{
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    EXPECT_NE(obj, nullptr);
+    auto proxy = Common::MakeShared<UserIdmProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+    auto idmCallback = Common::MakeShared<MockUserIdmClientCallback>();
+    EXPECT_NE(idmCallback, nullptr);
+    sptr<IdmCallbackInterface> testCallback(new (std::nothrow) IdmCallbackService(idmCallback));
+    auto service = Common::MakeShared<MockUserIdmService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, ClearRedundancyCredential(_))
+        .Times(Exactly(1))
+        .WillOnce([&testCallback](const sptr<IdmCallbackInterface> &callback) {
+            return SUCCESS;
+        });
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
+    ON_CALL(*obj, SendRequest)
+        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            service->OnRemoteRequest(code, data, reply, option);
+            return SUCCESS;
+        });
+    proxy->ClearRedundancyCredential(testCallback);
+}
+
+HWTEST_F(UserIdmProxyTest, UserIdmProxyClearRedundancyCredential002, TestSize.Level0)
+{
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    EXPECT_NE(obj, nullptr);
+    auto proxy = Common::MakeShared<UserIdmProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+    auto idmCallback = Common::MakeShared<MockUserIdmClientCallback>();
+    proxy->ClearRedundancyCredential(nullptr);
 }
 } // namespace UserAuth
 } // namespace UserIam

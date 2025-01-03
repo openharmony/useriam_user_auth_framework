@@ -148,6 +148,27 @@ HWTEST_F(ExecutorCallbackStubTest, TestOnGetPropertyStub_001, TestSize.Level0)
 
     EXPECT_EQ(service->OnRemoteRequest(code, data, reply, option), SUCCESS);
 }
+
+HWTEST_F(ExecutorCallbackStubTest, TestOnSendDataStub_001, TestSize.Level0)
+{
+    uint64_t scheduleId = 231527;
+    std::vector<uint8_t> command;
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    uint32_t code = ExecutorCallbackInterfaceCode::ON_SEND_DATA;
+
+    EXPECT_TRUE(data.WriteInterfaceToken(ExecutorCallbackInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteUint64(scheduleId));
+    EXPECT_TRUE(data.WriteUInt8Vector(command));
+
+    auto service = Common::MakeShared<MockExecutorCallbackService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, OnSendData(_, _)).Times(1);
+
+    EXPECT_EQ(service->OnRemoteRequest(code, data, reply, option), SUCCESS);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
