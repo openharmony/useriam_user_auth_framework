@@ -203,7 +203,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo003, TestSize.Level0
     
     IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
     int32_t ret = service.GetCredentialInfo(testUserId, testAuthType, testCallback);
-    EXPECT_EQ(ret, GENERAL_ERROR);
+    EXPECT_EQ(ret, SUCCESS);
     ret = service.GetCredentialInfo(testUserId, testAuthType, testCallback);
     EXPECT_EQ(ret, SUCCESS);
     IpcCommon::DeleteAllPermission();
