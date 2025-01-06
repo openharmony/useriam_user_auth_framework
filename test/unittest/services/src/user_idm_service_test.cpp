@@ -185,22 +185,6 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo003, TestSize.Level0
                 return HDF_SUCCESS;
             }
         );
-    EXPECT_CALL(*mockHdi, GetUserInfo(_, _, _, _))
-        .Times(2)
-        .WillOnce(Return(HDF_FAILURE))
-        .WillOnce(
-            [](int32_t userId, uint64_t &secureUid, int32_t& pinSubType, std::vector<HdiEnrolledInfo> &infos) {
-                HdiEnrolledInfo info = {
-                    .enrolledId = 0,
-                    .authType = static_cast<HdiAuthType>(1),
-                };
-                infos.push_back(info);
-                pinSubType = static_cast<HdiPinSubType>(10000);
-                secureUid = 4542;
-                return HDF_SUCCESS;
-            }
-        );
-    
     IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
     int32_t ret = service.GetCredentialInfo(testUserId, testAuthType, testCallback);
     EXPECT_EQ(ret, SUCCESS);
