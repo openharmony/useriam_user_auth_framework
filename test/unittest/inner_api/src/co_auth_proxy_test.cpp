@@ -85,6 +85,31 @@ HWTEST_F(CoAuthProxyTest, CoAuthProxyExecutorRegister, TestSize.Level0)
         });
     proxy->ExecutorRegister(testInfo, testCallback);
 }
+
+HWTEST_F(CoAuthProxyTest, CoAuthProxyExecutorUnRegister, TestSize.Level0)
+{
+    uint64_t testExecutorIndex = 73265;
+
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    EXPECT_NE(obj, nullptr);
+    auto proxy = Common::MakeShared<CoAuthProxy>(obj);
+    EXPECT_NE(proxy, nullptr);
+    auto service = Common::MakeShared<MockCoAuthService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, ExecutorUnregister(_))
+        .Times(Exactly(1))
+        .WillOnce(
+            [&testExecutorIndex](uint64_t executorIndex) {
+            return;
+        });
+    EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
+    ON_CALL(*obj, SendRequest)
+        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            service->OnRemoteRequest(code, data, reply, option);
+            return OHOS::NO_ERROR;
+        });
+    proxy->ExecutorUnregister(testExecutorIndex);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

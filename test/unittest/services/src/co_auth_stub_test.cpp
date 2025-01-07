@@ -117,6 +117,80 @@ HWTEST_F(CoAuthStubTest, CoAuthStubTestExecutorRegister003, TestSize.Level0)
     MockCoAuthService service;
     EXPECT_EQ(READ_PARCEL_ERROR, service.OnRemoteRequest(code, data, reply, option));
 }
+
+HWTEST_F(CoAuthStubTest, CoAuthStubTestExecutorRegister004, TestSize.Level0)
+{
+    MessageParcel data;
+    MessageParcel reply;
+
+    CoAuthInterface::ExecutorRegisterInfo testInfo = {};
+    testInfo.authType = PIN;
+    testInfo.executorRole = SCHEDULER;
+    testInfo.executorSensorHint = 0;
+    testInfo.executorMatcher = 0;
+    testInfo.esl = ESL1;
+    testInfo.maxTemplateAcl = 0;
+    testInfo.publicKey = {'a', 'b', 'c', 'd'};
+
+    uint64_t testContextId = 124545;
+
+    sptr<MockExecutorCallback> callback(new (std::nothrow) MockExecutorCallback());
+    EXPECT_NE(callback, nullptr);
+    MockCoAuthService service;
+    EXPECT_CALL(service, ExecutorRegister(_, _)).Times(0);
+    ON_CALL(service, ExecutorRegister)
+        .WillByDefault(
+            [&testInfo, &testContextId](const CoAuthInterface::ExecutorRegisterInfo &info,
+                sptr<ExecutorCallbackInterface> &callback) {
+                EXPECT_EQ(info.authType, testInfo.authType);
+                EXPECT_EQ(info.executorRole, testInfo.executorRole);
+                EXPECT_EQ(info.executorSensorHint, testInfo.executorSensorHint);
+                EXPECT_EQ(info.executorMatcher, testInfo.executorMatcher);
+                EXPECT_EQ(info.esl, testInfo.esl);
+                EXPECT_THAT(info.publicKey, ElementsAreArray(testInfo.publicKey));
+                return INVALID_EXECUTOR_INDEX;
+            }
+        );
+
+    EXPECT_TRUE(data.WriteInterfaceToken(CoAuthInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteInt32(testInfo.authType));
+    EXPECT_TRUE(data.WriteInt32(testInfo.executorRole));
+    EXPECT_TRUE(data.WriteUint32(testInfo.executorSensorHint));
+    EXPECT_TRUE(data.WriteUint32(testInfo.executorMatcher));
+    EXPECT_TRUE(data.WriteInt32(testInfo.esl));
+    EXPECT_TRUE(data.WriteUint32(testInfo.maxTemplateAcl));
+    EXPECT_TRUE(data.WriteUInt8Vector(testInfo.publicKey));
+    EXPECT_NE(callback->AsObject(), nullptr);
+    EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
+    uint32_t code = CoAuthInterfaceCode::CO_AUTH_EXECUTOR_REGISTER;
+    MessageOption option(MessageOption::TF_SYNC);
+
+    EXPECT_NE(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
+}
+
+HWTEST_F(CoAuthStubTest, CoAuthStubTestExecutorUnRegister001, TestSize.Level0)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    uint64_t testExecutorIndex = 6;
+    data.WriteUint64(testExecutorIndex);
+    sptr<MockExecutorCallback> callback(new (std::nothrow) MockExecutorCallback());
+    EXPECT_NE(callback, nullptr);
+    MockCoAuthService service;
+    EXPECT_CALL(service, ExecutorUnregister(_)).Times(0);
+    ON_CALL(service, ExecutorUnregister)
+        .WillByDefault([](uint64_t executorIndex) {
+                return;
+            }
+        );
+    EXPECT_TRUE(data.WriteUint64(testExecutorIndex));
+    EXPECT_NE(callback->AsObject(), nullptr);
+    EXPECT_TRUE(data.WriteRemoteObject(callback->AsObject()));
+    uint32_t code = CoAuthInterfaceCode::CO_AUTH_EXECUTOR_UNREGISTER;
+    MessageOption option(MessageOption::TF_SYNC);
+
+    EXPECT_NE(SUCCESS, service.OnRemoteRequest(code, data, reply, option));
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
