@@ -16,6 +16,7 @@
 #ifndef USER_AUTH_HDI
 #define USER_AUTH_HDI
 
+#include "accesstoken_kit.h"
 #include "v3_0/iuser_auth_interface.h"
 #include "v3_0/message_callback_stub.h"
 #include "v3_0/user_auth_types.h"
@@ -24,6 +25,26 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+enum HdiCallerType : int32_t {
+    HDI_CALLER_TYPE_INVALID = -1,
+    HDI_CALLER_TYPE_HAP = 0,
+    HDI_CALLER_TYPE_NATIVE,
+};
+
+static inline HdiCallerType ConvertATokenTypeToCallerType(int32_t in)
+{
+    static const std::map<int32_t, HdiCallerType> data = {
+        {Security::AccessToken::TOKEN_INVALID, HdiCallerType::HDI_CALLER_TYPE_INVALID},
+        {Security::AccessToken::TOKEN_HAP, HdiCallerType::HDI_CALLER_TYPE_HAP},
+        {Security::AccessToken::TOKEN_NATIVE, HdiCallerType::HDI_CALLER_TYPE_NATIVE},
+    };
+    auto it = data.find(in);
+    if (it == data.end()) {
+        return HDI_CALLER_TYPE_INVALID;
+    }
+    return it->second;
+}
+
 using IUserAuthInterface = OHOS::HDI::UserAuth::V3_0::IUserAuthInterface;
 using HdiAuthType = OHOS::HDI::UserAuth::V3_0::AuthType;
 using HdiExecutorRole = OHOS::HDI::UserAuth::V3_0::ExecutorRole;

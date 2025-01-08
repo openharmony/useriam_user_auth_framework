@@ -471,7 +471,7 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
     }
     std::string callerName = "";
     Attributes extraInfo;
-    int32_t callerType = 0;
+    int32_t callerType = Security::AccessToken::TOKEN_INVALID;
     if ((!IpcCommon::GetCallerName(*this, callerName, callerType))) {
         IAM_LOGE("get bundle name fail");
         contextCallback->SetTraceAuthFinishReason("UserAuthService Auth GetCallerName fail");
@@ -1551,7 +1551,14 @@ void UserAuthService::VerifyAuthToken(const std::vector<uint8_t> &tokenIn, uint6
         callback->OnVerifyTokenResult(CHECK_PERMISSION_FAILED, extraInfo);
         return;
     }
-    if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP)) {
+    std::string callerName = "";
+    int32_t callerType = Security::AccessToken::TOKEN_INVALID;
+    if ((!IpcCommon::GetCallerName(*this, callerName, callerType))) {
+        IAM_LOGE("GetCallerName fail");
+        callback->OnVerifyTokenResult(GENERAL_ERROR, extraInfo);
+        return;
+    }
+    if (callerType == Security::AccessToken::TOKEN_HAP && !IpcCommon::CheckPermission(*this, IS_SYSTEM_APP)) {
         IAM_LOGE("caller is not systemApp.");
         callback->OnVerifyTokenResult(CHECK_SYSTEM_APP_FAILED, extraInfo);
         return;
