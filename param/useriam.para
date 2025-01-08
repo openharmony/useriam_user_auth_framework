@@ -12,7 +12,7 @@
 # limitations under the License.
 
 bootevent.useriam.fwkready=false
-useriam.isCredentialChecked=false
-useriam.isPinEnrolled=false
-useriam.isStopped=false
+persist.useriam.isPinEnrolled=false
 useriam.isCalled=false
+useriam.isCredentialChecked=false
+useriam.isStopped=false
