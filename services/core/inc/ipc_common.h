@@ -41,12 +41,6 @@ enum Permission {
     USER_AUTH_FROM_BACKGROUND,
 };
 
-enum UserAuthCallerType : int32_t {
-    TOKEN_INVALID = -1,
-    TOKEN_HAP = 0,
-    TOKEN_NATIVE,
-};
-
 class IpcCommon final : public NoCopyable {
 public:
     using Recipient = std::function<void()>;
