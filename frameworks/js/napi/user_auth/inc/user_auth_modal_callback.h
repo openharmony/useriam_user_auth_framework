@@ -37,6 +37,7 @@ private:
     Ace::UIContent* InitAndGetUIContent(const std::shared_ptr<OHOS::AbilityRuntime::Context> context);
     bool CreateUIExtension(const std::shared_ptr<OHOS::AbilityRuntime::Context> context, uint64_t contextId,
         const std::string &cmdData);
+    void ReleaseModal();
 
     std::shared_ptr<AbilityRuntime::Context> context_ {nullptr};
     std::shared_ptr<ModalExtensionCallback> uiExtCallback_ {nullptr};

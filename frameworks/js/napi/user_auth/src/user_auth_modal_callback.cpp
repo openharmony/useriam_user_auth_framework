@@ -44,8 +44,7 @@ void UserAuthModalCallback::SendCommand(uint64_t contextId, const std::string &c
     if (context_ != nullptr) {
         if (contextId == contextId_ && cmdData.empty()) {
             IAM_LOGI("stop modal");
-            isInitError_ = true;
-            CancelAuthentication(contextId, CancelReason::ORIGINAL_CANCEL);
+            ReleaseModal();
             return;
         }
         IAM_LOGI("widgetParam context not null, process as modal application");
@@ -177,6 +176,12 @@ void UserAuthModalCallback::CancelAuthentication(uint64_t contextId, int32_t can
     int32_t code = UserAuthNapiClientImpl::Instance().CancelAuthentication(contextId, cancelReason);
     IAM_LOGI("CancelAuthentication, code: %{public}d, contextId: ****%{public}hx, code: %{public}d", code,
         static_cast<uint16_t>(contextId), cancelReason);
+    ReleaseModal();
+}
+
+void UserAuthModalCallback::ReleaseModal()
+{
+    // release modal widget
     if (uiExtCallback_ != nullptr) {
         IAM_LOGI("release modal");
         isInitError_ = true;
