@@ -510,7 +510,7 @@ bool WidgetContext::ConnectExtension(const WidgetRotatePara &widgetRotatePara)
 bool WidgetContext::DisconnectExtension()
 {
     IAM_LOGI("has context: %{public}d", para_.widgetParam.hasContext);
-    if (para_.widgetParam.hasContext) {
+    if (para_.widgetParam.hasContext && IsSupportFollowCallerUi()) {
         // As modal application release.
         WidgetClient::Instance().CancelAuth();
         WidgetClient::Instance().ReleaseModal();
