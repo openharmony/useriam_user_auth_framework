@@ -109,11 +109,16 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
         IAM_LOGE("failed to get userType");
         return false;
     }
+    HdiCallerType callerType = ConvertATokenTypeToCallerType(enrollPara_.callerType);
+    if (callerType == HDI_CALLER_TYPE_INVALID) {
+        IAM_LOGE("ConvertATokenTypeToCallerType failed, ATokenType:%{public}d", enrollPara_.callerType);
+        return false;
+    }
     HdiEnrollParam param = {
         .authType = static_cast<HdiAuthType>(enrollPara_.authType),
         .executorSensorHint = executorSensorHint_,
         .callerName = enrollPara_.callerName,
-        .callerType = enrollPara_.callerType,
+        .callerType = callerType,
         .apiVersion = enrollPara_.sdkVersion,
         .userId = enrollPara_.userId,
         .userType = userType,
