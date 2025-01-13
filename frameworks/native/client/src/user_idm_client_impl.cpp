@@ -18,6 +18,7 @@
 #include "system_ability_definition.h"
 
 #include "callback_manager.h"
+#include "load_mode_client_util.h"
 #include "iam_logger.h"
 #include "ipc_client_utils.h"
 #include "user_idm_callback_service.h"
@@ -99,9 +100,11 @@ void UserIdmClientImpl::UpdateCredential(int32_t userId, const CredentialParamet
     }
     auto proxy = GetProxy();
     if (!proxy) {
-        IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
-        callback->OnResult(GENERAL_ERROR, extraInfo);
+        int32_t result = LoadModeUtil::GetProxyNullResultCode(__func__, std::vector<std::string>({
+            MANAGE_USER_IDM_PERMISSION
+        }));
+        callback->OnResult(result, extraInfo);
         return;
     }
 
@@ -218,7 +221,6 @@ int32_t UserIdmClientImpl::GetCredentialInfo(int32_t userId, AuthType authType,
 
     auto proxy = GetProxy();
     if (!proxy) {
-        IAM_LOGE("proxy is nullptr");
         std::vector<CredentialInfo> infoList;
         callback->OnCredentialInfo(GENERAL_ERROR, infoList);
         return GENERAL_ERROR;
@@ -244,10 +246,12 @@ int32_t UserIdmClientImpl::GetSecUserInfo(int32_t userId, const std::shared_ptr<
 
     auto proxy = GetProxy();
     if (!proxy) {
-        IAM_LOGE("proxy is nullptr");
+        int32_t result = LoadModeUtil::GetProxyNullResultCode(__func__, std::vector<std::string>({
+            USE_USER_IDM_PERMISSION
+        }));
         SecUserInfo info = {};
-        callback->OnSecUserInfo(GENERAL_ERROR, info);
-        return GENERAL_ERROR;
+        callback->OnSecUserInfo(result, info);
+        return result;
     }
 
     sptr<IdmGetSecureUserInfoCallbackInterface> wrapper(

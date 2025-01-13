@@ -37,6 +37,7 @@ public:
     ~DriverManager() override = default;
     int32_t Start(const std::map<std::string, HdiConfig> &hdiName2Config);
     void OnFrameworkReady();
+    void OnFrameworkDown();
     void OnAllHdiDisconnect();
     void SubscribeHdiDriverStatus();
     std::shared_ptr<Driver> GetDriverByServiceName(const std::string &serviceName);

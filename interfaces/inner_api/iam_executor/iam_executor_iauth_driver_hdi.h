@@ -56,6 +56,11 @@ public:
      * @brief On hdi disconnect.
      */
     virtual void OnHdiDisconnect() = 0;
+
+    /**
+     * @brief On framework down.
+     */
+    virtual void OnFrameworkDown() {};
 };
 } // namespace UserAuth
 } // namespace UserIam

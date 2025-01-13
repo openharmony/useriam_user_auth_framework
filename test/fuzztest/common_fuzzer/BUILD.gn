@@ -204,6 +204,7 @@ ohos_source_set("userauth_service_core_fuzzer") {
     "c_utils:utils",
     "device_manager:devicemanagersdk",
     "drivers_interface_user_auth:libuser_auth_proxy_3.0",
+    "hdf_core:libhdi",
     "hicollie:libhicollie",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
@@ -226,6 +227,7 @@ ohos_source_set("userauth_service_core_fuzzer") {
     "../../../common:iam_utils_config",
     "../../../frameworks/native/ipc:userauth_client_ipc_config",
     "../../../services/remote_connect:userauth_service_remote_connect_config",
+    "../../../services/load_mode:userauth_service_load_mode_config",
   ]
 
   subsystem_name = "useriam"
@@ -266,6 +268,9 @@ ohos_source_set("userauth_service_context_fuzzer") {
     "../../../services/context/src/widget_context.cpp",
     "../../../services/context/src/widget_context_callback_impl.cpp",
     "../../../services/context/src/widget_json.cpp",
+    "../../../services/core/src/system_param_manager.cpp",
+    "../../../services/load_mode/src/load_mode_handler.cpp",
+    "../../../services/load_mode/src/load_mode_handler_default.cpp",
   ]
 
   deps = [
@@ -303,6 +308,7 @@ ohos_source_set("userauth_service_context_fuzzer") {
     "../../../common:iam_utils_config",
     "../../../frameworks/native/ipc:userauth_client_ipc_config",
     "../../../services/remote_connect:userauth_service_remote_connect_config",
+    "../../../services/load_mode:userauth_service_load_mode_config",
   ]
 
   subsystem_name = "useriam"
@@ -414,6 +420,7 @@ ohos_source_set("userauth_services_ipc_fuzzer") {
     "../../../services/ipc/src/co_auth_service.cpp",
     "../../../services/ipc/src/executor_messenger_service.cpp",
     "../../../services/ipc/src/hdi_message_callback_service.cpp",
+    "../../../services/ipc/src/service_init_manager.cpp",
     "../../../services/ipc/src/template_cache_manager.cpp",
     "../../../services/ipc/src/user_auth_service.cpp",
     "../../../services/ipc/src/user_idm_service.cpp",
@@ -436,6 +443,7 @@ ohos_source_set("userauth_services_ipc_fuzzer") {
     "device_manager:devicemanagersdk",
     "drivers_interface_user_auth:libuser_auth_proxy_3.0",
     "dsoftbus:softbus_client",
+    "hdf_core:libhdi",
     "hicollie:libhicollie",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
@@ -456,6 +464,7 @@ ohos_source_set("userauth_services_ipc_fuzzer") {
     "../../../common:iam_log_config",
     "../../../services/core:userauth_service_core_config",
     "../../../services/remote_connect:userauth_service_remote_connect_config",
+    "../../../services/load_mode:userauth_service_load_mode_config",
   ]
 
   subsystem_name = "useriam"

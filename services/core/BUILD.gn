@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("../../user_auth_framework.gni")
 
 if (!defined(global_parts_info) ||
     defined(global_parts_info.account_os_account)) {
@@ -72,12 +73,26 @@ ohos_source_set("userauth_service_core") {
     "src/schedule_node_impl.cpp",
     "src/schedule_resource_node_listener.cpp",
     "src/secure_user_info_impl.cpp",
+    "src/system_param_manager.cpp",
     "src/update_pin_param_impl.cpp",
     "src/user_idm_database_impl.cpp",
     "src/user_idm_session_controller_impl.cpp",
     "src/user_info_impl.cpp",
     "src/widget_schedule_node_impl.cpp",
   ]
+
+  defines = []
+  sources += [ "../load_mode/src/load_mode_handler.cpp" ]
+  if (user_auth_framework_enable_dynamic_load) {
+    sources += [
+      "../load_mode/src/driver_load_manager.cpp",
+      "../load_mode/src/load_mode_handler_dynamic.cpp",
+      "../load_mode/src/service_unload_manager.cpp",
+    ]
+    defines += [ "ENABLE_DYNAMIC_LOAD" ]
+  } else {
+    sources += [ "../load_mode/src/load_mode_handler_default.cpp" ]
+  }
 
   deps = [
     "../../frameworks/native/client:userauth_client",
@@ -121,6 +136,7 @@ ohos_source_set("userauth_service_core") {
     "../../common:iam_utils_config",
     "../../frameworks/native/ipc:userauth_client_ipc_config",
     "../remote_connect:userauth_service_remote_connect_config",
+    "../load_mode:userauth_service_load_mode_config",
   ]
 
   subsystem_name = "useriam"
