@@ -1,0 +1,29 @@
+{
+    "process": "useriam",
+    "systemability": [
+        {
+            "name": 921,
+            "libpath": "libuserauthservice.z.so",
+            "run-on-create": false,
+            "distributed": false,
+            "recycle-delaytime": 1,
+            "dump_level": 1,
+            "start-on-demand": {
+                "param": [
+                    {
+                        "name":"useriam.startSa",
+                        "value":"true"
+                    }
+                ]
+            },
+            "stop-on-demand": {
+                "param": [
+                    {
+                        "name":"useriam.stopSa",
+                        "value":"true"
+                    }
+                ]
+            }
+        }
+    ]
+}

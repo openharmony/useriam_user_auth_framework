@@ -19,6 +19,7 @@
 
 #include "auth_common.h"
 #include "callback_manager.h"
+#include "load_mode_client_util.h"
 #include "iam_check.h"
 #include "iam_defines.h"
 #include "iam_logger.h"
@@ -86,8 +87,10 @@ int32_t UserAuthClientImpl::GetAvailableStatus(AuthType authType, AuthTrustLevel
     IAM_LOGI("start, authType:%{public}d authTrustLevel:%{public}u", authType, authTrustLevel);
     auto proxy = GetProxy();
     if (!proxy) {
-        IAM_LOGE("proxy is nullptr");
-        return GENERAL_ERROR;
+        return LoadModeUtil::GetProxyNullResultCode(__func__, std::vector<std::string>({
+            ACCESS_USER_AUTH_INTERNAL_PERMISSION,
+            ACCESS_BIOMETRIC_PERMISSION
+        }));
     }
     return proxy->GetAvailableStatus(INNER_API_VERSION_10000, authType, authTrustLevel);
 }
@@ -99,8 +102,10 @@ int32_t UserAuthClientImpl::GetNorthAvailableStatus(int32_t apiVersion, AuthType
         apiVersion, authType, authTrustLevel);
     auto proxy = GetProxy();
     if (!proxy) {
-        IAM_LOGE("proxy is nullptr");
-        return GENERAL_ERROR;
+        return LoadModeUtil::GetProxyNullResultCode(__func__, std::vector<std::string>({
+            ACCESS_USER_AUTH_INTERNAL_PERMISSION,
+            ACCESS_BIOMETRIC_PERMISSION
+        }));
     }
     return proxy->GetAvailableStatus(apiVersion, authType, authTrustLevel);
 }
@@ -111,8 +116,9 @@ int32_t UserAuthClientImpl::GetAvailableStatus(int32_t userId, AuthType authType
         userId, authType, authTrustLevel);
     auto proxy = GetProxy();
     if (!proxy) {
-        IAM_LOGE("proxy is nullptr");
-        return GENERAL_ERROR;
+        return LoadModeUtil::GetProxyNullResultCode(__func__, std::vector<std::string>({
+            ACCESS_USER_AUTH_INTERNAL_PERMISSION
+        }));
     }
     return proxy->GetAvailableStatus(INNER_API_VERSION_10000, userId, authType, authTrustLevel);
 }
@@ -128,9 +134,11 @@ void UserAuthClientImpl::GetProperty(int32_t userId, const GetPropertyRequest &r
 
     auto proxy = GetProxy();
     if (!proxy) {
-        IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
-        callback->OnResult(GENERAL_ERROR, extraInfo);
+        int32_t result = LoadModeUtil::GetProxyNullResultCode(__func__, std::vector<std::string>({
+            ACCESS_USER_AUTH_INTERNAL_PERMISSION
+        }));
+        callback->OnResult(result, extraInfo);
         return;
     }
 
@@ -156,9 +164,11 @@ void UserAuthClientImpl::GetPropertyById(uint64_t credentialId, const std::vecto
 
     auto proxy = GetProxy();
     if (!proxy) {
-        IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
-        callback->OnResult(GENERAL_ERROR, extraInfo);
+        int32_t result = LoadModeUtil::GetProxyNullResultCode(__func__, std::vector<std::string>({
+            ACCESS_USER_AUTH_INTERNAL_PERMISSION
+        }));
+        callback->OnResult(result, extraInfo);
         return;
     }
 
@@ -178,8 +188,10 @@ ResultCode UserAuthClientImpl::SetPropertyInner(int32_t userId, const SetPropert
 {
     auto proxy = GetProxy();
     if (!proxy) {
-        IAM_LOGE("proxy is nullptr");
-        return GENERAL_ERROR;
+        int32_t result = LoadModeUtil::GetProxyNullResultCode(__func__, std::vector<std::string>({
+            ACCESS_USER_AUTH_INTERNAL_PERMISSION
+        }));
+        return (ResultCode)result;
     }
 
     auto keys = request.attrs.GetKeys();
@@ -244,9 +256,11 @@ uint64_t UserAuthClientImpl::BeginAuthentication(const AuthParam &authParam,
 
     auto proxy = GetProxy();
     if (!proxy) {
-        IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
-        callback->OnResult(GENERAL_ERROR, extraInfo);
+        int32_t result = LoadModeUtil::GetProxyNullResultCode(__func__, std::vector<std::string>({
+            ACCESS_USER_AUTH_INTERNAL_PERMISSION
+        }));
+        callback->OnResult(result, extraInfo);
         return BAD_CONTEXT_ID;
     }
 
@@ -287,9 +301,11 @@ uint64_t UserAuthClientImpl::BeginNorthAuthentication(int32_t apiVersion, const 
 
     auto proxy = GetProxy();
     if (!proxy) {
-        IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
-        callback->OnResult(GENERAL_ERROR, extraInfo);
+        int32_t result = LoadModeUtil::GetProxyNullResultCode(__func__, std::vector<std::string>({
+            ACCESS_BIOMETRIC_PERMISSION
+        }));
+        callback->OnResult(result, extraInfo);
         return BAD_CONTEXT_ID;
     }
 
@@ -326,9 +342,11 @@ uint64_t UserAuthClientImpl::BeginIdentification(const std::vector<uint8_t> &cha
 
     auto proxy = GetProxy();
     if (!proxy) {
-        IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
-        callback->OnResult(GENERAL_ERROR, extraInfo);
+        int32_t result = LoadModeUtil::GetProxyNullResultCode(__func__, std::vector<std::string>({
+            ACCESS_USER_AUTH_INTERNAL_PERMISSION
+        }));
+        callback->OnResult(result, extraInfo);
         return BAD_CONTEXT_ID;
     }
 
@@ -493,9 +511,12 @@ uint64_t UserAuthClientImpl::BeginWidgetAuthInner(int32_t apiVersion, const Auth
     }
     auto proxy = GetProxy();
     if (!proxy) {
-        IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
-        callback->OnResult(static_cast<int32_t>(ResultCode::GENERAL_ERROR), extraInfo);
+        int32_t result = LoadModeUtil::GetProxyNullResultCode(__func__, std::vector<std::string>({
+            ACCESS_USER_AUTH_INTERNAL_PERMISSION,
+            ACCESS_BIOMETRIC_PERMISSION
+        }));
+        callback->OnResult(result, extraInfo);
         return BAD_CONTEXT_ID;
     }
 
@@ -558,8 +579,9 @@ int32_t UserAuthClientImpl::GetEnrolledState(int32_t apiVersion, AuthType authTy
     IAM_LOGI("start, apiVersion:%{public}d authType:%{public}d ", apiVersion, authType);
     auto proxy = GetProxy();
     if (!proxy) {
-        IAM_LOGE("proxy is nullptr");
-        return GENERAL_ERROR;
+        return LoadModeUtil::GetProxyNullResultCode(__func__, std::vector<std::string>({
+            ACCESS_BIOMETRIC_PERMISSION
+        }));
     }
     int32_t ret = proxy->GetEnrolledState(apiVersion, authType, enrolledState);
     if (ret != SUCCESS) {

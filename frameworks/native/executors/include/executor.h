@@ -38,9 +38,8 @@ public:
         uint16_t hdiId);
     ~Executor() override = default;
 
-    void OnHdiConnect();
     void OnHdiDisconnect();
-    void OnFrameworkReady();
+    void Register();
     void AddCommand(std::shared_ptr<IAsyncCommand> command);
     void RemoveCommand(std::shared_ptr<IAsyncCommand> command);
     void SetExecutorIndex(uint64_t executorIndex);

@@ -33,10 +33,13 @@
 #include "iam_time.h"
 #include "iam_common_defines.h"
 #include "ipc_skeleton.h"
+#include "load_mode_handler.h"
 #include "parameter.h"
 #include "relative_timer.h"
 #include "remote_connect_manager.h"
 #include "resource_node_pool.h"
+#include "service_init_manager.h"
+#include "system_param_manager.h"
 #include "template_cache_manager.h"
 #include "remote_msg_util.h"
 #include "xcollie_helper.h"
@@ -75,26 +78,21 @@ CoAuthService::CoAuthService() : SystemAbility(SUBSYS_USERIAM_SYS_ABILITY_AUTHEX
 
 void CoAuthService::OnStart()
 {
-    static uint32_t timerId = 0;
     std::lock_guard<std::recursive_mutex> guard(mutex_);
-    IAM_LOGI("Start service");
+    IAM_LOGI("Sa start CoAuthService");
     IPCSkeleton::SetMaxWorkThreadNum(USERIAM_IPC_THREAD_NUM);
     if (!Publish(this)) {
         IAM_LOGE("Failed to publish service");
         return;
     }
 
-    if (timerId != 0) {
-        RelativeTimer::GetInstance().Unregister(timerId);
-    }
-    timerId = RelativeTimer::GetInstance().Register(Init, 0);
-    RegisterAccessTokenListener();
+    ServiceInitManager::GetInstance().OnCoAuthServiceStart();
 }
 
 void CoAuthService::OnStop()
 {
-    IAM_LOGI("Stop service");
-    UnRegisterAccessTokenListener();
+    IAM_LOGI("Sa stop CoAuthService");
+    ServiceInitManager::GetInstance().OnCoAuthServiceStop();
 }
 
 void CoAuthService::SetIsReady(bool isReady)
@@ -117,14 +115,14 @@ bool CoAuthService::IsFwkReady()
     return isReady_ && accessTokenReady_;
 }
 
-void CoAuthService::AddExecutorDeathRecipient(uint64_t executorIndex, AuthType authType,
+void CoAuthService::AddExecutorDeathRecipient(uint64_t executorIndex, AuthType authType, ExecutorRole role,
     std::shared_ptr<ExecutorCallbackInterface> callback)
 {
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
     auto obj = callback->AsObject();
     IF_FALSE_LOGE_AND_RETURN(obj != nullptr);
 
-    obj->AddDeathRecipient(new (std::nothrow) IpcCommon::PeerDeathRecipient([executorIndex, authType]() {
+    obj->AddDeathRecipient(new (std::nothrow) IpcCommon::PeerDeathRecipient([executorIndex, authType, role]() {
         IAM_LOGE("executorCallback is down");
         auto weakNode = ResourceNodePool::Instance().Select(executorIndex);
         auto sharedNode = weakNode.lock();
@@ -134,7 +132,7 @@ void CoAuthService::AddExecutorDeathRecipient(uint64_t executorIndex, AuthType a
                 "executorRole is %{public}d", (result ? "succ" : "failed"), static_cast<uint16_t>(executorIndex),
                 sharedNode->GetAuthType(), sharedNode->GetExecutorRole());
         }
-
+        LoadModeHandler::GetInstance().OnExecutorUnregistered(authType, role);
         std::string executorDesc = "executor, type " + std::to_string(authType);
         UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), executorDesc);
         IAM_LOGI("executorCallback is down processed");
@@ -186,7 +184,10 @@ uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<
         IAM_LOGI("register successful, executorType is %{public}d, executorRole is %{public}d, "
             "executorIndex is ****%{public}hx",
             resourceNode->GetAuthType(), resourceNode->GetExecutorRole(), static_cast<uint16_t>(executorIndex));
-        AddExecutorDeathRecipient(executorIndex, resourceNode->GetAuthType(), executorCallback);
+        LoadModeHandler::GetInstance().OnExecutorRegistered(resourceNode->GetAuthType(),
+            resourceNode->GetExecutorRole());
+        AddExecutorDeathRecipient(executorIndex, resourceNode->GetAuthType(), resourceNode->GetExecutorRole(),
+            executorCallback);
         IAM_LOGI("update template cache after register success");
         TemplateCacheManager::GetInstance().UpdateTemplateCache(resourceNode->GetAuthType());
     });
@@ -208,6 +209,13 @@ void CoAuthService::ExecutorUnregister(uint64_t executorIndex)
         return;
     }
 
+    {
+        auto resourceNode = ResourceNodePool::Instance().Select(executorIndex).lock();
+        IF_FALSE_LOGE_AND_RETURN(resourceNode != nullptr);
+        LoadModeHandler::GetInstance().OnExecutorUnregistered(resourceNode->GetAuthType(),
+            resourceNode->GetExecutorRole());
+    }
+
     if (!ResourceNodePool::Instance().Delete(executorIndex)) {
         IAM_LOGE("delete resource node failed");
         return;
@@ -217,25 +225,48 @@ void CoAuthService::ExecutorUnregister(uint64_t executorIndex)
 
 void CoAuthService::Init()
 {
+    IAM_LOGI("Init coauth service");
+    SystemParamManager::GetInstance().SetParam(FWK_READY_KEY, FALSE_STR);
+    SystemParamManager::GetInstance().SetParam(IS_PIN_FUNCTION_READY_KEY, FALSE_STR);
     auto instance = CoAuthService::GetInstance();
     if (instance == nullptr) {
         IAM_LOGE("instance is nullptr");
         return;
     }
+    instance->RemoveInitTask();
     instance->AuthServiceInit();
+    IAM_LOGI("Init coauth service success");
+}
+
+void CoAuthService::AddInitTask(uint32_t delayTime)
+{
+    std::lock_guard<std::recursive_mutex> guard(mutex_);
+    RemoveInitTask();
+    initTimerId_ = RelativeTimer::GetInstance().Register(Init, delayTime);
+    IAM_LOGI("add init task, delayTime is %{public}u", delayTime);
+}
+
+void CoAuthService::RemoveInitTask()
+{
+    std::lock_guard<std::recursive_mutex> guard(mutex_);
+    if (initTimerId_.has_value()) {
+        RelativeTimer::GetInstance().Unregister(initTimerId_.value());
+        initTimerId_ = std::nullopt;
+    }
 }
 
 void CoAuthService::AuthServiceInit()
 {
     auto hdi = HdiWrapper::GetHdiRemoteObjInstance();
     if (hdi) {
+        IAM_LOGI("hdi started");
         hdi->AddDeathRecipient(new (std::nothrow) IpcCommon::PeerDeathRecipient([]() {
             IAM_LOGE("user auth host is dead");
             ResourceNodePool::Instance().DeleteAll();
-            RelativeTimer::GetInstance().Register(Init, DEFER_TIME);
             auto instance = CoAuthService::GetInstance();
             if (instance != nullptr) {
                 instance->SetIsReady(false);
+                instance->AddInitTask(DEFER_TIME);
             }
             UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "user_auth_hdi host");
         }));
@@ -253,7 +284,8 @@ void CoAuthService::AuthServiceInit()
         SetIsReady(true);
         NotifyFwkReady();
     } else {
-        RelativeTimer::GetInstance().Register(Init, DEFER_TIME);
+        IAM_LOGI("hdi is null, retry after %{public}u ms", DEFER_TIME);
+        AddInitTask(DEFER_TIME);
     }
 }
 
@@ -340,10 +372,7 @@ void CoAuthService::NotifyFwkReady()
 {
     IAM_LOGD("start.");
     if (IsFwkReady()) {
-        IAM_LOGI("set fwk ready parameter begin");
-        SetParameter("bootevent.useriam.fwkready", "false");
-        SetParameter("bootevent.useriam.fwkready", "true");
-        IAM_LOGI("set fwk ready parameter success");
+        LoadModeHandler::GetInstance().OnFwkReady();
     }
 }
 } // namespace UserAuth

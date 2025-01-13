@@ -52,6 +52,7 @@ void AuthExecutorMgrStatusListener::OnRemoveSystemAbility(int32_t systemAbilityI
 
     UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "user_auth_framework");
     IAM_LOGE("auth executor mgr SA removed");
+    DriverManager::GetInstance().OnFrameworkDown();
 }
 } // namespace UserAuth
 } // namespace UserIam

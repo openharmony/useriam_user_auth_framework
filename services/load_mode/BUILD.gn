@@ -11,6 +11,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-declare_args() {
-  user_auth_framework_enable_dynamic_load = false
+import("//build/ohos.gni")
+import("../../user_auth_framework.gni")
+
+config("userauth_service_load_mode_config") {
+  include_dirs = [ "inc" ]
 }

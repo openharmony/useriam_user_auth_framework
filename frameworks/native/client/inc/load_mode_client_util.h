@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,40 +13,24 @@
  * limitations under the License.
  */
 
-#ifndef EXECUTOR_DRIVER_H
-#define EXECUTOR_DRIVER_H
+#ifndef LOAD_MODE_UTIL_H
+#define LOAD_MODE_UTIL_H
 
 #include <string>
 #include <vector>
 
-#include "nocopyable.h"
-
-#include "executor.h"
-#include "iam_executor_idriver_manager.h"
-
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class Driver : public NoCopyable {
+inline const std::string ACCESS_USER_AUTH_INTERNAL_PERMISSION = "ohos.permission.ACCESS_USER_AUTH_INTERNAL";
+inline const std::string ACCESS_BIOMETRIC_PERMISSION = "ohos.permission.ACCESS_BIOMETRIC";
+inline const std::string MANAGE_USER_IDM_PERMISSION = "ohos.permission.MANAGE_USER_IDM";
+inline const std::string USE_USER_IDM_PERMISSION = "ohos.permission.USE_USER_IDM";
+class LoadModeUtil {
 public:
-    Driver(const std::string &serviceName, HdiConfig hdiConfig);
-    ~Driver() override = default;
-
-    void OnHdiConnect();
-    void OnHdiDisconnect();
-    void OnFrameworkReady();
-    void OnFrameworkDown();
-
-private:
-    std::mutex mutex_;
-    std::string serviceName_;
-    HdiConfig hdiConfig_;
-    bool hdiConnected_ = false;
-    bool isFwkReady_ = false;
-    std::vector<std::shared_ptr<Executor>> executorList_;
+    static int32_t GetProxyNullResultCode(const char *funcName, const std::vector<std::string> &permissions);
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-
-#endif // EXECUTOR_DRIVER_H
+#endif // LOAD_MODE_UTIL_H
