@@ -15,15 +15,11 @@
 
 #include "driver_load_manager.h"
 
+#include "idevmgr_hdi.h"
+
 #include "iam_check.h"
 #include "iam_logger.h"
 
-#include "idevmgr_hdi.h"
-#include "iservice_registry.h"
-#include "iservmgr_hdi.h"
-#include "system_ability_definition.h"
-
-#include "co_auth_service.h"
 #include "relative_timer.h"
 #include "system_param_manager.h"
 
@@ -32,29 +28,10 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-using namespace HDI;
-using namespace HDI::ServiceManager::V1_0;
+namespace {
 using namespace HDI::DeviceManager::V1_0;
 const char *SERVICE_NAME = "user_auth_interface_service";
-class DriverManagerStatusListener : public ServStatListenerStub {
-public:
-    DriverManagerStatusListener() = default;
-    ~DriverManagerStatusListener() override = default;
-
-    void OnReceive(const ServiceStatus &status) override
-    {
-        if (status.serviceName != SERVICE_NAME) {
-            return;
-        }
-
-        IAM_LOGI("receive service %{public}s status %{public}d", status.serviceName.c_str(), status.status);
-        if (status.status == SERVIE_STATUS_START) {
-            DriverLoadManager::GetInstance().OnServiceStart();
-        } else if (status.status == SERVIE_STATUS_STOP) {
-            DriverLoadManager::GetInstance().OnServiceStop();
-        }
-    }
-};
+}
 
 DriverLoadManager &DriverLoadManager::GetInstance()
 {
@@ -68,18 +45,6 @@ void DriverLoadManager::Init()
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (isInit_) {
         return;
-    }
-
-    if (driverManagerStatusListener_ == nullptr) {
-        driverManagerStatusListener_ = SystemAbilityListener::Subscribe(
-            "DriverLoadManager", DEVICE_SERVICE_MANAGER_SA_ID,
-            []() { DriverLoadManager::GetInstance().OnDriverManagerAdd(); }, nullptr);
-        IF_FALSE_LOGE_AND_RETURN(driverManagerStatusListener_ != nullptr);
-    }
-
-    if (driverStatusListener_ == nullptr) {
-        driverStatusListener_ = new (std::nothrow) DriverManagerStatusListener();
-        IF_FALSE_LOGE_AND_RETURN(driverStatusListener_ != nullptr);
     }
 
     SystemParamManager::GetInstance().WatchParam(STOP_SA_KEY, [](const std::string &value) {
@@ -100,28 +65,7 @@ void DriverLoadManager::OnTimeout()
     ProcessServiceStatus();
 }
 
-void DriverLoadManager::OnDriverManagerAdd()
-{
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    IAM_LOGI("start");
-    IF_FALSE_LOGE_AND_RETURN(driverStatusListener_ != nullptr);
-
-    auto servMgr = IServiceManager::Get();
-    IF_FALSE_LOGE_AND_RETURN(servMgr != nullptr);
-
-    (void)servMgr->UnregisterServiceStatusListener(driverStatusListener_);
-    int32_t ret = servMgr->RegisterServiceStatusListener(driverStatusListener_, DEVICE_CLASS_USERAUTH);
-    IF_FALSE_LOGE_AND_RETURN(ret == 0);
-
-    auto service = servMgr->GetService(SERVICE_NAME);
-    isDriverRunning_ = (service != nullptr);
-    IAM_LOGI("service %{public}s running: %{public}d", SERVICE_NAME, isDriverRunning_);
-
-    ProcessServiceStatus();
-    IAM_LOGI("end");
-}
-
-void DriverLoadManager::OnServiceStart()
+void DriverLoadManager::OnDriverStart()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     IAM_LOGI("service start");
@@ -129,7 +73,7 @@ void DriverLoadManager::OnServiceStart()
     ProcessServiceStatus();
 }
 
-void DriverLoadManager::OnServiceStop()
+void DriverLoadManager::OnDriverStop()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     IAM_LOGI("service stop");

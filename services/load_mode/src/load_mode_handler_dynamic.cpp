@@ -171,6 +171,18 @@ void LoadModeHandlerDynamic::RefreshIsPinEnrolled()
 
     SystemParamManager::GetInstance().SetParam(IS_PIN_ENROLLED_KEY, isPinEnrolled_ ? TRUE_STR : FALSE_STR);
 }
+
+void LoadModeHandlerDynamic::OnDriverStart()
+{
+    IAM_LOGI("on driver start");
+    DriverLoadManager::GetInstance().OnDriverStart();
+}
+
+void LoadModeHandlerDynamic::OnDriverStop()
+{
+    IAM_LOGI("on driver stop");
+    DriverLoadManager::GetInstance().OnDriverStop();
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

@@ -83,6 +83,7 @@ ohos_unittest("iam_services_test") {
     "../../../services/core/src/auth_event_listener_manager.cpp",
     "../../../services/core/src/authentication_impl.cpp",
     "../../../services/core/src/credential_info_impl.cpp",
+    "../../../services/core/src/driver_state_manager.cpp",
     "../../../services/core/src/enrolled_info_impl.cpp",
     "../../../services/core/src/enrollment_impl.cpp",
     "../../../services/core/src/identification_impl.cpp",

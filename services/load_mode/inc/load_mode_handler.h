@@ -34,6 +34,8 @@ public:
     virtual void OnCredentialDeleted(AuthType authType) = 0;
     virtual void OnPinAuthServiceReady() = 0;
     virtual void OnPinAuthServiceStop() = 0;
+    virtual void OnDriverStart() = 0;
+    virtual void OnDriverStop() = 0;
 
 protected:
     LoadModeHandler() = default;

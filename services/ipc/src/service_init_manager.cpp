@@ -19,10 +19,12 @@
 #include "iam_logger.h"
 
 #include "co_auth_service.h"
+#include "driver_state_manager.h"
 #include "keyguard_status_listener.h"
 #include "load_mode_handler.h"
 #include "remote_auth_service.h"
 #include "soft_bus_manager.h"
+#include "system_param_manager.h"
 
 #define IAM_LOG_TAG "USER_AUTH_SA"
 
@@ -107,7 +109,9 @@ void ServiceInitManager::CheckAllServiceStart()
     auto coAuthService = CoAuthService::GetInstance();
     IF_FALSE_LOGE_AND_RETURN(coAuthService != nullptr);
     coAuthService->RegisterAccessTokenListener();
-    coAuthService->AddInitTask(0);
+
+    const auto &driverStateManager = DriverStateManager::GetInstance();
+    (void)driverStateManager;
 
     IAM_LOGI("all service start, init global instance end");
 }

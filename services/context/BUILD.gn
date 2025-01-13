@@ -66,6 +66,7 @@ ohos_source_set("userauth_service_context") {
     "../../frameworks/native/common:attributes",
     "../../frameworks/native/common:dfx",
     "../../services/core:userauth_service_core",
+    "../../services/load_mode:userauth_service_load_mode",
   ]
 
   external_deps = [

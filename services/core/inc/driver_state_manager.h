@@ -13,37 +13,40 @@
  * limitations under the License.
  */
 
-#ifndef LOAD_MODE_HANDLER_DEFAULT_H
-#define LOAD_MODE_HANDLER_DEFAULT_H
-
-#include "load_mode_handler.h"
+#ifndef DRIVER_STATE_MANAGER_H
+#define DRIVER_STATE_MANAGER_H
 
 #include <mutex>
+#include <optional>
+
+#include "iservstat_listener_hdi.h"
+#include "system_ability_listener.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class LoadModeHandlerDefault : public LoadModeHandler {
+using ServStatListenerStub = HDI::ServiceManager::V1_0::ServStatListenerStub;
+class DriverStateManager {
 public:
-    LoadModeHandlerDefault();
-    ~LoadModeHandlerDefault() override = default;
+    static DriverStateManager &GetInstance();
 
-    void Init() override;
-    void OnFwkReady() override;
-    void OnExecutorRegistered(AuthType authType, ExecutorRole executorRole) override;
-    void OnExecutorUnregistered(AuthType authType, ExecutorRole executorRole) override;
-    void OnCredentialEnrolled(AuthType authType) override;
-    void OnCredentialDeleted(AuthType authType) override;
-    void OnPinAuthServiceReady() override;
-    void OnPinAuthServiceStop() override;
-    void OnDriverStart() override;
-    void OnDriverStop() override;
+    void Init();
+    void OnDriverManagerAdd();
+    void OnDriverManagerRemove();
+    void OnDriverStart();
+    void OnDriverStop();
 
 private:
+    DriverStateManager() = default;
+    ~DriverStateManager() = default;
+
     bool isInit_ = false;
     std::recursive_mutex mutex_;
+    sptr<SystemAbilityListener> driverManagerStatusListener_ = nullptr;
+    sptr<ServStatListenerStub> driverStatusListener_ = nullptr;
+    std::optional<bool> isDriverRunning_ {std::nullopt};
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // LOAD_MODE_HANDLER_DEFAULT_H
+#endif // DRIVER_STATE_MANAGER_H
