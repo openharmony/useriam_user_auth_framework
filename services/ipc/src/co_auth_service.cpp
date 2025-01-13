@@ -223,70 +223,40 @@ void CoAuthService::ExecutorUnregister(uint64_t executorIndex)
     IAM_LOGI("delete resource node success, executorIndex is ****%{public}hx", static_cast<uint16_t>(executorIndex));
 }
 
-void CoAuthService::Init()
+void CoAuthService::OnDriverStart()
 {
-    IAM_LOGI("Init coauth service");
-    SystemParamManager::GetInstance().SetParam(FWK_READY_KEY, FALSE_STR);
-    SystemParamManager::GetInstance().SetParam(IS_PIN_FUNCTION_READY_KEY, FALSE_STR);
-    auto instance = CoAuthService::GetInstance();
-    if (instance == nullptr) {
-        IAM_LOGE("instance is nullptr");
+    std::lock_guard<std::recursive_mutex> guard(mutex_);
+    IAM_LOGI("process driver start begin");
+    if (isReady_) {
+        IAM_LOGI("already ready");
         return;
     }
-    instance->RemoveInitTask();
-    instance->AuthServiceInit();
-    IAM_LOGI("Init coauth service success");
+    std::string localUdid;
+    bool getLocalUdidRet = DeviceManagerUtil::GetInstance().GetLocalDeviceUdid(localUdid);
+    IF_FALSE_LOGE_AND_RETURN(getLocalUdidRet);
+    auto service = HdiWrapper::GetHdiInstance();
+    IF_FALSE_LOGE_AND_RETURN(service != nullptr);
+    int32_t initRet = service->Init(localUdid);
+    IF_FALSE_LOGE_AND_RETURN(initRet == HDF_SUCCESS);
+    auto callbackService = HdiMessageCallbackService::GetInstance();
+    IF_FALSE_LOGE_AND_RETURN(callbackService != nullptr);
+    callbackService->OnHdiConnect();
+    SetIsReady(true);
+    NotifyFwkReady();
+    IAM_LOGI("process driver start success");
 }
 
-void CoAuthService::AddInitTask(uint32_t delayTime)
+void CoAuthService::OnDriverStop()
 {
     std::lock_guard<std::recursive_mutex> guard(mutex_);
-    RemoveInitTask();
-    initTimerId_ = RelativeTimer::GetInstance().Register(Init, delayTime);
-    IAM_LOGI("add init task, delayTime is %{public}u", delayTime);
-}
-
-void CoAuthService::RemoveInitTask()
-{
-    std::lock_guard<std::recursive_mutex> guard(mutex_);
-    if (initTimerId_.has_value()) {
-        RelativeTimer::GetInstance().Unregister(initTimerId_.value());
-        initTimerId_ = std::nullopt;
+    IAM_LOGE("process driver stop begin");
+    if (isReady_) {
+        IAM_LOGI("service is ready, clear status");
+        ResourceNodePool::Instance().DeleteAll();
+        UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "user_auth_hdi host");
+        SetIsReady(false);
     }
-}
-
-void CoAuthService::AuthServiceInit()
-{
-    auto hdi = HdiWrapper::GetHdiRemoteObjInstance();
-    if (hdi) {
-        IAM_LOGI("hdi started");
-        hdi->AddDeathRecipient(new (std::nothrow) IpcCommon::PeerDeathRecipient([]() {
-            IAM_LOGE("user auth host is dead");
-            ResourceNodePool::Instance().DeleteAll();
-            auto instance = CoAuthService::GetInstance();
-            if (instance != nullptr) {
-                instance->SetIsReady(false);
-                instance->AddInitTask(DEFER_TIME);
-            }
-            UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "user_auth_hdi host");
-        }));
-
-        std::string localUdid;
-        bool getLocalUdidRet = DeviceManagerUtil::GetInstance().GetLocalDeviceUdid(localUdid);
-        IF_FALSE_LOGE_AND_RETURN(getLocalUdidRet);
-        auto service = HdiWrapper::GetHdiInstance();
-        IF_FALSE_LOGE_AND_RETURN(service != nullptr);
-        int32_t initRet = service->Init(localUdid);
-        IF_FALSE_LOGE_AND_RETURN(initRet == HDF_SUCCESS);
-        auto callbackService = HdiMessageCallbackService::GetInstance();
-        IF_FALSE_LOGE_AND_RETURN(callbackService != nullptr);
-        callbackService->OnHdiConnect();
-        SetIsReady(true);
-        NotifyFwkReady();
-    } else {
-        IAM_LOGI("hdi is null, retry after %{public}u ms", DEFER_TIME);
-        AddInitTask(DEFER_TIME);
-    }
+    IAM_LOGI("process driver stop success");
 }
 
 int CoAuthService::Dump(int fd, const std::vector<std::u16string> &args)

@@ -39,6 +39,8 @@ public:
     void OnCredentialDeleted(AuthType authType) override;
     void OnPinAuthServiceReady() override;
     void OnPinAuthServiceStop() override;
+    void OnDriverStart() override;
+    void OnDriverStop() override;
 
 private:
     bool AnyUserHasPinCredential();
@@ -47,7 +49,7 @@ private:
 
     bool isInit_ = false;
     std::recursive_mutex mutex_;
-    bool isPinEnrolled_;
+    bool isPinEnrolled_ = false;
     sptr<SystemAbilityListener> pinAuthServiceListener_ = nullptr;
     bool isExecutorRegistered_ = false;
     bool isPinAuthServiceReady_ = false;

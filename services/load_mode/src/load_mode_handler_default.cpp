@@ -73,6 +73,14 @@ void LoadModeHandlerDefault::OnPinAuthServiceReady()
 void LoadModeHandlerDefault::OnPinAuthServiceStop()
 {
 }
+
+void LoadModeHandlerDefault::OnDriverStart()
+{
+}
+
+void LoadModeHandlerDefault::OnDriverStop()
+{
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

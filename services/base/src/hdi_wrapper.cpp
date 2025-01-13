@@ -25,19 +25,7 @@ namespace UserIam {
 namespace UserAuth {
 sptr<IUserAuthInterface> HdiWrapper::GetHdi()
 {
-    static sptr<IUserAuthInterface> hdi = nullptr;
-    static std::mutex mutex;
-
-    std::lock_guard<std::mutex> lock(mutex);
-    if (hdi != nullptr) {
-        auto remoteObject = HDI::hdi_objcast<IUserAuthInterface>(hdi);
-        if (remoteObject != nullptr && !remoteObject->IsObjectDead()) {
-            return hdi;
-        }
-    }
-
-    hdi = IUserAuthInterface::Get();
-    return hdi;
+    return IUserAuthInterface::Get();
 }
 
 std::shared_ptr<IUserAuthInterface> HdiWrapper::GetHdiInstance()
