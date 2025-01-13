@@ -13,6 +13,7 @@
 
 bootevent.useriam.fwkready=false
 persist.useriam.isPinEnrolled=false
-useriam.isCalled=false
 useriam.isCredentialChecked=false
-useriam.isStopped=false
+useriam.isPinFunctionReady=false
+useriam.startSa=false
+useriam.stopSa=false
