@@ -13,6 +13,7 @@
 
 bootevent.useriam.fwkready=useriam:useriam:0755
 persist.useriam.isPinEnrolled=useriam:useriam:0755
-useriam.isCalled=useriam:useriam:0755
 useriam.isCredentialChecked=useriam:useriam:0755
-useriam.isStopped=useriam:useriam:0755
+useriam.isPinFunctionReady=useriam:useriam:0755
+useriam.startSa=useriam:useriam:0555
+useriam.stopSa=useriam:useriam:0755
