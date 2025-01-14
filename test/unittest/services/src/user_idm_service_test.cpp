@@ -293,7 +293,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential001, TestSize.Level0)
     testCredPara.pinType = PIN_SIX;
     testCredPara.token = {1, 2, 3, 4};
     sptr<IdmCallbackInterface> testCallback(nullptr);
-    service.AddCredential(testUserId, testCredPara, testCallback, false);
+    EXPECT_NO_THROW(service.AddCredential(testUserId, testCredPara, testCallback, false));
 }
 
 HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential002, TestSize.Level0)
@@ -688,7 +688,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelUser002, TestSize.Level0)
     int32_t testUserId = 15486465;
     std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
     sptr<IdmCallbackInterface> testCallback(nullptr);
-    service.DelUser(testUserId, testAuthToken, testCallback);
+    EXPECT_NO_THROW(service.DelUser(testUserId, testAuthToken, testCallback));
 }
 
 HWTEST_F(UserIdmServiceTest, UserIdmServiceDelUser003, TestSize.Level0)
@@ -786,7 +786,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelCredential002, TestSize.Level0)
     uint64_t testCredentialId = 23424;
     std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
     sptr<IdmCallbackInterface> testCallback(nullptr);
-    service.DelCredential(testUserId, testCredentialId, testAuthToken, testCallback);
+    EXPECT_NO_THROW(service.DelCredential(testUserId, testCredentialId, testAuthToken, testCallback));
 }
 
 HWTEST_F(UserIdmServiceTest, UserIdmServiceDelCredential003, TestSize.Level0)
