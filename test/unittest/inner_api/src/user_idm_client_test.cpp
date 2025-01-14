@@ -82,7 +82,7 @@ HWTEST_F(UserIdmClientTest, UserIdmClientCloseSession001, TestSize.Level0)
     int32_t testUserId = 200;
 
     IpcClientUtils::ResetObj();
-    UserIdmClient::GetInstance().CloseSession(testUserId);
+    EXPECT_NO_THROW(UserIdmClient::GetInstance().CloseSession(testUserId));
 }
 
 HWTEST_F(UserIdmClientTest, UserIdmClientCloseSession002, TestSize.Level0)
