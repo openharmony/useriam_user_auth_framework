@@ -44,6 +44,8 @@ public:
     uint64_t GetContextId() const override;
     std::shared_ptr<ScheduleNode> GetScheduleNode(uint64_t scheduleId) const override;
     int32_t GetUserId() const override;
+    int32_t GetAuthType() const override;
+    std::string GetCallerName() const override;
 
     void OnScheduleStarted() override;
     void OnScheduleProcessed(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg) override;
