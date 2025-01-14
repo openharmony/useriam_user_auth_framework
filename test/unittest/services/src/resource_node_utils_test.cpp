@@ -104,7 +104,7 @@ HWTEST_F(ResourceNodeUtilsTest, SendMsgToExecutor001, TestSize.Level0)
     int32_t commandId = 1250;
     std::vector<uint8_t> testMsg = {1, 2, 3, 4};
 
-    ResourceNodeUtils::SendMsgToExecutor(testIndex, commandId, testMsg);
+    EXPECT_NO_THROW(ResourceNodeUtils::SendMsgToExecutor(testIndex, commandId, testMsg));
 }
 
 HWTEST_F(ResourceNodeUtilsTest, SendMsgToExecutor002, TestSize.Level0)
