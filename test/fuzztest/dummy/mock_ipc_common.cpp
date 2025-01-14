@@ -162,6 +162,11 @@ bool IpcCommon::IsOsAccountVerified(int32_t userId)
 {
     return true;
 }
+
+int32_t IpcCommon::GetDirectCallerType(IPCObjectStub &stub)
+{
+    return 0;
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
