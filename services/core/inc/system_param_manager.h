@@ -26,7 +26,7 @@ public:
     static SystemParamManager &GetInstance();
     void SetPinEnrolledParam(bool pinEnrolled);
     void SetCredentialCheckedParam(bool credentialChecked);
-    void SetStopParam(bool procesStop);
+    void SetStopParam(bool processStop);
     void SetFuncReadyParam(bool funcReady);
     bool GetCredentialCheckedParam();
 
