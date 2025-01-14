@@ -309,6 +309,11 @@ bool IpcCommon::CheckCallerIsSystemApp(IPCObjectStub &stub)
     return false;
 }
 
+int32_t IpcCommon::GetDirectCallerType(IPCObjectStub &stub)
+{
+    return Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(stub.GetCallingTokenID());
+}
+
 bool IpcCommon::GetCallerName(IPCObjectStub &stub, std::string &callerName, int32_t &callerType)
 {
     uint32_t tokenId = GetAccessTokenId(stub);

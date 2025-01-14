@@ -1551,14 +1551,8 @@ void UserAuthService::VerifyAuthToken(const std::vector<uint8_t> &tokenIn, uint6
         callback->OnVerifyTokenResult(CHECK_PERMISSION_FAILED, extraInfo);
         return;
     }
-    std::string callerName = "";
-    int32_t callerType = Security::AccessToken::TOKEN_INVALID;
-    if ((!IpcCommon::GetCallerName(*this, callerName, callerType))) {
-        IAM_LOGE("GetCallerName fail");
-        callback->OnVerifyTokenResult(GENERAL_ERROR, extraInfo);
-        return;
-    }
-    if (callerType == Security::AccessToken::TOKEN_HAP && !IpcCommon::CheckPermission(*this, IS_SYSTEM_APP)) {
+    if (IpcCommon::GetDirectCallerType(*this) != Security::AccessToken::TOKEN_NATIVE &&
+        !IpcCommon::CheckPermission(*this, IS_SYSTEM_APP)) {
         IAM_LOGE("caller is not systemApp.");
         callback->OnVerifyTokenResult(CHECK_SYSTEM_APP_FAILED, extraInfo);
         return;

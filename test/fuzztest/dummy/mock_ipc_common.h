@@ -58,6 +58,7 @@ public:
     static void SetSkipUserFlag(bool isSkip);
     static bool CheckForegroundApplication(const std::string &bundleName);
     static bool IsOsAccountVerified(int32_t userId);
+    static int32_t GetDirectCallerType(IPCObjectStub &stub);
 
 private:
     static std::set<Permission> permSet_;

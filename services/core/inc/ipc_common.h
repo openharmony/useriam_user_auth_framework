@@ -55,6 +55,7 @@ public:
     static bool GetCallingAppID(IPCObjectStub &stub, std::string &callingAppID);
     static bool CheckForegroundApplication(const std::string &bundleName);
     static bool IsOsAccountVerified(int32_t userId);
+    static int32_t GetDirectCallerType(IPCObjectStub &stub);
     class PeerDeathRecipient final : public IPCObjectProxy::DeathRecipient {
     public:
         explicit PeerDeathRecipient(Recipient &&recipient) : recipient_(std::forward<Recipient>(recipient))
