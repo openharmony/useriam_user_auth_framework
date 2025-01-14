@@ -430,9 +430,6 @@ int32_t UserIdmService::CancelCurrentEnroll()
 
 int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInterface> &callback)
 {
-#ifdef ENABLE_DYNAMIC_LOAD
-    UpdateTimer();
-#endif
     IAM_LOGI("to delete userid: %{public}d", userId);
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, INVALID_PARAMETERS);
@@ -487,9 +484,6 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInt
 void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToken,
     const sptr<IdmCallbackInterface> &callback)
 {
-#ifdef ENABLE_DYNAMIC_LOAD
-    UpdateTimer();
-#endif
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
 
@@ -548,9 +542,6 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
 void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
     const std::vector<uint8_t> &authToken, const sptr<IdmCallbackInterface> &callback)
 {
-#ifdef ENABLE_DYNAMIC_LOAD
-    UpdateTimer();
-#endif
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
 
