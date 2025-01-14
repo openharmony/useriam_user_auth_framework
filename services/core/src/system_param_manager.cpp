@@ -71,10 +71,10 @@ void SystemParamManager::SetCredentialCheckedParam(bool credentialChecked)
 void SystemParamManager::SetStopParam(bool processStop)
 {
     if (processStop) {
-        SetParameter("useriam.isStopped", "false");
-        SetParameter("useriam.isStopped", "true");
+        SetParameter("useriam.stopSa", "false");
+        SetParameter("useriam.stopSa", "true");
     } else {
-        SetParameter("useriam.isStopped", "false");
+        SetParameter("useriam.stopSa", "false");
     }
     IAM_LOGI("set process stop parameter success, %{public}d", processStop);
 }
@@ -83,10 +83,10 @@ void SystemParamManager::SetFuncReadyParam(bool funcReady)
 {
     IAM_LOGI("start");
     if (funcReady) {
-        SetParameter("useriam.functionReady", "false");
-        SetParameter("useriam.functionReady", "true");
+        SetParameter("useriam.isPinFunctionReady", "false");
+        SetParameter("useriam.isPinFunctionReady", "true");
     } else {
-        SetParameter("useriam.functionReady", "false");
+        SetParameter("useriam.isPinFunctionReady", "false");
     }
     IAM_LOGI("set func ready parameter success, %{public}d", funcReady);
 }
