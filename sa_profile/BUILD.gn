@@ -31,7 +31,7 @@ ohos_prebuilt_etc("useriam.init") {
   } else {
     source = "default/useriam.cfg"
   }
-  
+
   relative_install_dir = "init"
 
   subsystem_name = "useriam"
