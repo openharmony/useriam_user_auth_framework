@@ -434,7 +434,7 @@ HWTEST_F(UserIdmClientTest, UserIdmClientGetCredentialInfo001, TestSize.Level0)
     IpcClientUtils::ResetObj();
     testCallback = Common::MakeShared<MockGetCredentialInfoCallback>();
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnCredentialInfo(_)).Times(1);
+    EXPECT_CALL(*testCallback, OnCredentialInfo(_, _)).Times(1);
     ret = UserIdmClient::GetInstance().GetCredentialInfo(testUserId, testAuthType, testCallback);
     EXPECT_EQ(ret, GENERAL_ERROR);
 }
@@ -445,7 +445,7 @@ HWTEST_F(UserIdmClientTest, UserIdmClientGetCredentialInfo002, TestSize.Level0)
     AuthType testAuthType = PIN;
     auto testCallback = Common::MakeShared<MockGetCredentialInfoCallback>();
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnCredentialInfo(_)).Times(1);
+    EXPECT_CALL(*testCallback, OnCredentialInfo(_, _)).Times(1);
 
     auto service = Common::MakeShared<MockUserIdmService>();
     EXPECT_NE(service, nullptr);
@@ -458,7 +458,7 @@ HWTEST_F(UserIdmClientTest, UserIdmClientGetCredentialInfo002, TestSize.Level0)
                 EXPECT_EQ(authType, testAuthType);
                 if (callback != nullptr) {
                     std::vector<CredentialInfo> credInfoList;
-                    callback->OnCredentialInfos(credInfoList);
+                    callback->OnCredentialInfos(SUCCESS, credInfoList);
                 }
                 return SUCCESS;
             }

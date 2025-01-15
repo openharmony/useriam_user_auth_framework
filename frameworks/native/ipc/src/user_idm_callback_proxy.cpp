@@ -101,7 +101,7 @@ bool IdmCallbackProxy::SendRequest(uint32_t code, MessageParcel &data, MessagePa
     return true;
 }
 
-void IdmGetCredentialInfoProxy::OnCredentialInfos(const std::vector<CredentialInfo> &credInfoList)
+void IdmGetCredentialInfoProxy::OnCredentialInfos(int32_t result, const std::vector<CredentialInfo> &credInfoList)
 {
     IAM_LOGI("start, cred info vector size: %{public}zu", credInfoList.size());
 
@@ -110,6 +110,10 @@ void IdmGetCredentialInfoProxy::OnCredentialInfos(const std::vector<CredentialIn
 
     if (!data.WriteInterfaceToken(IdmGetCredentialInfoProxy::GetDescriptor())) {
         IAM_LOGE("failed to write descriptor");
+        return;
+    }
+    if (!data.WriteInt32(result)) {
+        IAM_LOGE("failed to write result");
         return;
     }
     if (!data.WriteUint32(credInfoList.size())) {

@@ -25,7 +25,7 @@ namespace UserIam {
 namespace UserAuth {
 class MockGetCredentialInfoCallback final : public GetCredentialInfoCallback {
 public:
-    MOCK_METHOD1(OnCredentialInfo, void(const std::vector<CredentialInfo> &infoList));
+    MOCK_METHOD1(OnCredentialInfo, void(int32_t result, const std::vector<CredentialInfo> &infoList));
 };
 
 class MockGetSecUserInfoCallback final : public GetSecUserInfoCallback {

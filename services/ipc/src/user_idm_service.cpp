@@ -228,7 +228,7 @@ int32_t UserIdmService::GetCredentialInfo(int32_t userId, AuthType authType,
         IAM_LOGE("GetCredentialInfoInner fail, ret: %{public}d", ret);
         credInfoList.clear();
     }
-    callback->OnCredentialInfos(credInfoList);
+    callback->OnCredentialInfos(ret, credInfoList);
 
     return ret;
 }

@@ -43,7 +43,7 @@ std::u16string cmd[] = {u"-h", u"-lc", u"-ls", u"-c", u"-c [base system]", u"-s"
 
 class DummyIdmGetCredentialInfoCallback : public IdmGetCredInfoCallbackInterface {
 public:
-    void OnCredentialInfos(const std::vector<CredentialInfo> &credInfoList) override
+    void OnCredentialInfos(int32_t result, const std::vector<CredentialInfo> &credInfoList) override
     {
         IAM_LOGI("start");
         return;

@@ -49,9 +49,10 @@ public:
 
 class DummyGetCredentialInfoCallback final : public GetCredentialInfoCallback {
 public:
-    void OnCredentialInfo(const std::vector<CredentialInfo> &infoList)
+    void OnCredentialInfo(int32_t result, const std::vector<CredentialInfo> &infoList)
     {
         IAM_LOGI("start");
+        static_cast<void>(result);
         static_cast<void>(infoList);
     }
 };
@@ -225,9 +226,9 @@ void FuzzCallbackServiceOnCredentialInfos(Parcel &parcel)
     info.templateId = parcel.ReadUint64();
     info.pinType = static_cast<PinSubType>(parcel.ReadInt32());
     std::vector<CredentialInfo> credInfoList = {info};
-
+    int32_t result = parcel.ReadInt32();
     if (g_IdmGetCredInfoCallbackService != nullptr) {
-        g_IdmGetCredInfoCallbackService->OnCredentialInfos(credInfoList);
+        g_IdmGetCredInfoCallbackService->OnCredentialInfos(result, credInfoList);
     }
     IAM_LOGI("end");
 }

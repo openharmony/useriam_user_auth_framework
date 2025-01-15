@@ -94,7 +94,7 @@ HWTEST_F(UserIdmCallbackServiceTest, IdmGetCredInfoCallbackServiceTest001, TestS
     std::shared_ptr<GetCredentialInfoCallback> getCredInfoCallback = nullptr;
     auto service = Common::MakeShared<IdmGetCredInfoCallbackService>(getCredInfoCallback);
     EXPECT_NE(service, nullptr);
-    service->OnCredentialInfos(credInfoList);
+    service->OnCredentialInfos(SUCCESS, credInfoList);
 }
 
 HWTEST_F(UserIdmCallbackServiceTest, IdmGetCredInfoCallbackServiceTest002, TestSize.Level0)
@@ -118,7 +118,7 @@ HWTEST_F(UserIdmCallbackServiceTest, IdmGetCredInfoCallbackServiceTest002, TestS
 
     auto service = Common::MakeShared<IdmGetCredInfoCallbackService>(getCredInfoCallback);
     EXPECT_NE(service, nullptr);
-    service->OnCredentialInfos(credInfoList);
+    service->OnCredentialInfos(SUCCESS, credInfoList);
 }
 
 HWTEST_F(UserIdmCallbackServiceTest, IdmGetSecureUserInfoCallbackServiceTest001, TestSize.Level0)
