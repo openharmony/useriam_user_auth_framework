@@ -39,6 +39,7 @@ public:
     MOCK_CONST_METHOD0(GetAccessTokenId, uint32_t());
     MOCK_CONST_METHOD0(GetLatestError, int32_t());
     MOCK_CONST_METHOD0(GetUserId, int32_t());
+    MOCK_CONST_METHOD0(GetAuthType, int32_t());
 
 protected:
     MOCK_METHOD1(SetLatestError, void(int32_t error));
