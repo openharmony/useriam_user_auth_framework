@@ -12,7 +12,6 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("../../user_auth_framework.gni")
 
 if (!defined(global_parts_info) ||
     defined(global_parts_info.account_os_account)) {
@@ -56,11 +55,6 @@ ohos_source_set("userauth_services_ipc") {
     "../context:userauth_service_context",
     "../remote_connect:userauth_service_remote_connect",
   ]
-
-  defines = []
-  if (user_auth_framework_enable_dynamic_load) {
-    defines += [ "ENABLE_DYNAMIC_LOAD" ]
-  }
 
   external_deps = [
     "ability_runtime:app_manager",
