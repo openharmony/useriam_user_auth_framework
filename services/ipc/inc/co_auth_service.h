@@ -58,6 +58,10 @@ private:
     bool isReady_{false};
     bool accessTokenReady_{false};
     sptr<SystemAbilityListener> accessTokenListener_ {nullptr};
+#ifdef ENABLE_DYNAMIC_LOAD
+    static bool CheckPinEnrolledStatus();
+    static void CheckCredential();
+#endif
 };
 } // namespace UserAuth
 } // namespace UserIam

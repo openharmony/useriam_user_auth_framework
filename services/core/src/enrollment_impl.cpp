@@ -22,6 +22,7 @@
 #include "publish_event_adapter.h"
 #include "credential_info_impl.h"
 #include "schedule_node_helper.h"
+#include "system_param_manager.h"
 #include "update_pin_param_impl.h"
 #include "user_idm_database.h"
 
@@ -175,7 +176,9 @@ bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t
         IAM_LOGE("bad hdi");
         return false;
     }
-
+#ifdef ENABLE_DYNAMIC_LOAD
+    SystemParamManager::GetInstance().SetPinEnrolledParam(true);
+#endif
     HdiEnrollResultInfo resultInfo = {};
     auto result = hdi->UpdateEnrollmentResult(enrollPara_.userId, scheduleResult, resultInfo);
     if (result != HDF_SUCCESS) {
