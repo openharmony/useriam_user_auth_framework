@@ -88,7 +88,7 @@ HWTEST_F(UserIdmCallbackProxyTest, TestOnCredentialInfos_001, TestSize.Level0)
 {
     auto service = Common::MakeShared<MockIdmGetCredInfoCallbackService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, OnCredentialInfos(_))
+    EXPECT_CALL(*service, OnCredentialInfos(_, _))
         .WillOnce(
             [](const std::vector<CredentialInfo> &credInfoList) {
                 EXPECT_EQ(credInfoList.size(), 3);
@@ -118,8 +118,7 @@ HWTEST_F(UserIdmCallbackProxyTest, TestOnCredentialInfos_001, TestSize.Level0)
     CredentialInfo info2 = {FACE, std::nullopt, 100, 200};
     CredentialInfo info3 = {FINGERPRINT, std::nullopt, 1000, 2000};
     std::vector<CredentialInfo> credInfoList = {info1, info2, info3};
-
-    proxy->OnCredentialInfos(credInfoList);
+    proxy->OnCredentialInfos(SUCCESS, credInfoList);
 }
 
 HWTEST_F(UserIdmCallbackProxyTest, TestOnSecureUserInfo_001, TestSize.Level0)

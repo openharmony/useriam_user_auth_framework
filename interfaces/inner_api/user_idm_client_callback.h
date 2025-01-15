@@ -36,9 +36,10 @@ public:
     /**
      * @brief The callback return get credential info result.
      *
+     * @param result The result success or error code{@link ResultCode}.
      * @param infoList The credential info list.
      */
-    virtual void OnCredentialInfo(const std::vector<CredentialInfo> &infoList) = 0;
+    virtual void OnCredentialInfo(int32_t result, const std::vector<CredentialInfo> &infoList) = 0;
 };
 
 class GetSecUserInfoCallback {

@@ -135,7 +135,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo001, TestSize.Level0
 
     sptr<MockIdmGetCredentialInfoCallback> testCallback(new (std::nothrow) MockIdmGetCredentialInfoCallback());
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnCredentialInfos(_)).Times(2);
+    EXPECT_CALL(*testCallback, OnCredentialInfos(_, _)).Times(2);
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
@@ -165,7 +165,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo003, TestSize.Level0
     AuthType testAuthType = PIN;
     sptr<MockIdmGetCredentialInfoCallback> testCallback(new (std::nothrow) MockIdmGetCredentialInfoCallback());
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnCredentialInfos(_)).Times(2);
+    EXPECT_CALL(*testCallback, OnCredentialInfos(_, _)).Times(2);
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
@@ -200,7 +200,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo004, TestSize.Level0
     AuthType testAuthType = PIN;
     sptr<MockIdmGetCredentialInfoCallback> testCallback(new (std::nothrow) MockIdmGetCredentialInfoCallback());
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnCredentialInfos(_)).Times(1);
+    EXPECT_CALL(*testCallback, OnCredentialInfos(_, _)).Times(1);
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);

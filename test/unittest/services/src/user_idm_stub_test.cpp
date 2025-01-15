@@ -159,12 +159,12 @@ HWTEST_F(UserIdmStubTest, UserIdmStubGetCredentialInfoStub002, TestSize.Level0)
                 EXPECT_EQ(authType, testAuthType);
                 if (callback != nullptr) {
                     std::vector<CredentialInfo> credInfoList;
-                    callback->OnCredentialInfos(credInfoList);
+                    callback->OnCredentialInfos(SUCCESS, credInfoList);
                 }
                 return SUCCESS;
             }
         );
-    EXPECT_CALL(*callback, OnCredentialInfos(_)).Times(1);
+    EXPECT_CALL(*callback, OnCredentialInfos(_, _)).Times(1);
 
     MessageParcel data;
     MessageParcel reply;

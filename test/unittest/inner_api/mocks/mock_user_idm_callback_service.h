@@ -31,7 +31,7 @@ public:
 
 class MockIdmGetCredInfoCallbackService final : public IdmGetCredInfoCallbackStub {
 public:
-    MOCK_METHOD1(OnCredentialInfos, void(const std::vector<CredentialInfo> &credInfoList));
+    MOCK_METHOD1(OnCredentialInfos, void(int32_t result, const std::vector<CredentialInfo> &credInfoList));
 };
 
 class MockIdmGetSecureUserInfoCallbackService final : public IdmGetSecureUserInfoCallbackStub {

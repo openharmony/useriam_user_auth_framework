@@ -45,7 +45,7 @@ public:
     {
     }
     ~IdmGetCredentialInfoProxy() override = default;
-    void OnCredentialInfos(const std::vector<CredentialInfo> &credInfoList) override;
+    void OnCredentialInfos(int32_t result, const std::vector<CredentialInfo> &credInfoList) override;
 
 private:
     bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply);

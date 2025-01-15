@@ -97,7 +97,7 @@ HWTEST_F(UserIdmCallbackStubTest, TestOnCredentialInfosStub_001, TestSize.Level0
 
     auto service = Common::MakeShared<MockIdmGetCredInfoCallbackService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, OnCredentialInfos(_))
+    EXPECT_CALL(*service, OnCredentialInfos(_, _))
         .WillOnce(
             [](const std::vector<CredentialInfo> &credInfoList) {
                 EXPECT_EQ(credInfoList.size(), 0);
@@ -119,7 +119,7 @@ HWTEST_F(UserIdmCallbackStubTest, TestOnCredentialInfosStub_002, TestSize.Level0
 
     auto service = Common::MakeShared<MockIdmGetCredInfoCallbackService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, OnCredentialInfos(_))
+    EXPECT_CALL(*service, OnCredentialInfos(_, _))
         .WillOnce(
             [](const std::vector<CredentialInfo> &credInfoList) {
                 EXPECT_EQ(credInfoList.size(), 0);

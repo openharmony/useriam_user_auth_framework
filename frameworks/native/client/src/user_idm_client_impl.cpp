@@ -220,7 +220,7 @@ int32_t UserIdmClientImpl::GetCredentialInfo(int32_t userId, AuthType authType,
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
         std::vector<CredentialInfo> infoList;
-        callback->OnCredentialInfo(infoList);
+        callback->OnCredentialInfo(GENERAL_ERROR, infoList);
         return GENERAL_ERROR;
     }
 
@@ -228,7 +228,7 @@ int32_t UserIdmClientImpl::GetCredentialInfo(int32_t userId, AuthType authType,
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         std::vector<CredentialInfo> infoList;
-        callback->OnCredentialInfo(infoList);
+        callback->OnCredentialInfo(GENERAL_ERROR, infoList);
         return GENERAL_ERROR;
     }
     return proxy->GetCredentialInfo(userId, authType, wrapper);
