@@ -133,7 +133,7 @@ int32_t UserIdmStub::GetCredentialInfoStub(MessageParcel &data, MessageParcel &r
 
     int32_t ret = GetCredentialInfo(userId, static_cast<AuthType>(authType), callback);
     static_cast<void>(reply.WriteInt32(ret));
-    return ret;
+    return SUCCESS;
 }
 
 int32_t UserIdmStub::GetSecInfoStub(MessageParcel &data, MessageParcel &reply)
@@ -155,7 +155,7 @@ int32_t UserIdmStub::GetSecInfoStub(MessageParcel &data, MessageParcel &reply)
 
     int32_t ret = GetSecInfo(userId, callback);
     static_cast<void>(reply.WriteInt32(ret));
-    return ret;
+    return SUCCESS;
 }
 
 int32_t UserIdmStub::AddCredentialStub(MessageParcel &data, MessageParcel &reply)
@@ -259,7 +259,7 @@ int32_t UserIdmStub::CancelStub(MessageParcel &data, MessageParcel &reply)
 
     int32_t ret = Cancel(userId);
     static_cast<void>(reply.WriteInt32(ret));
-    return ret;
+    return SUCCESS;
 }
 
 int32_t UserIdmStub::EnforceDelUserStub(MessageParcel &data, MessageParcel &reply)
@@ -281,7 +281,7 @@ int32_t UserIdmStub::EnforceDelUserStub(MessageParcel &data, MessageParcel &repl
 
     int32_t ret = EnforceDelUser(userId, callback);
     static_cast<void>(reply.WriteInt32(ret));
-    return ret;
+    return SUCCESS;
 }
 
 int32_t UserIdmStub::DelUserStub(MessageParcel &data, [[maybe_unused]] MessageParcel &reply)
