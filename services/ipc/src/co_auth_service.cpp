@@ -37,11 +37,8 @@
 #include "relative_timer.h"
 #include "remote_connect_manager.h"
 #include "resource_node_pool.h"
-#include "system_param_manager.h"
 #include "template_cache_manager.h"
 #include "remote_msg_util.h"
-#include "user_idm_database.h"
-#include "user_idm_service.h"
 #include "xcollie_helper.h"
 
 #define LOG_TAG "USER_AUTH_SA"
@@ -140,9 +137,6 @@ void CoAuthService::AddExecutorDeathRecipient(uint64_t executorIndex, AuthType a
 
         std::string executorDesc = "executor, type " + std::to_string(authType);
         UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), executorDesc);
-#ifdef ENABLE_DYNAMIC_LOAD
-        SystemParamManager::GetInstance().SetFuncReadyParam(false);
-#endif
         IAM_LOGI("executorCallback is down processed");
     }));
 }
@@ -193,56 +187,11 @@ uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<
             "executorIndex is ****%{public}hx",
             resourceNode->GetAuthType(), resourceNode->GetExecutorRole(), static_cast<uint16_t>(executorIndex));
         AddExecutorDeathRecipient(executorIndex, resourceNode->GetAuthType(), executorCallback);
-#ifdef ENABLE_DYNAMIC_LOAD
-        SystemParamManager::GetInstance().SetFuncReadyParam(true);
-#endif
         IAM_LOGI("update template cache after register success");
         TemplateCacheManager::GetInstance().UpdateTemplateCache(resourceNode->GetAuthType());
     });
     return executorIndex;
 }
-
-#ifdef ENABLE_DYNAMIC_LOAD
-void CoAuthService::CheckCredential()
-{
-    if (!SystemParamManager::GetInstance().GetCredentialCheckedParam()) {
-        if (!CheckPinEnrolledStatus()) {
-            SystemParamManager::GetInstance().SetStopParam(true);
-        }
-        IAM_LOGI("set credential checked param begin");
-        SystemParamManager::GetInstance().SetCredentialCheckedParam(true);
-        IAM_LOGI("set credential checked param success");
-    }
-}
-
-bool CoAuthService::CheckPinEnrolledStatus()
-{
-    auto userInfos = UserIdmDatabase::Instance().GetAllExtUserInfo();
-    bool condition = false;
-    for (const auto &iter : userInfos) {
-        int32_t userId = iter->GetUserId();
-        std::vector<std::shared_ptr<CredentialInfoInterface>> credentialInfos;
-        AuthType authType = AuthType::PIN;
-        int32_t ret = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType, credentialInfos);
-        IAM_LOGI("check user %{public}d credential type %{public}d", userId, authType);
-        if (ret != SUCCESS) {
-            IAM_LOGI("get credential fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret,
-                userId, authType);
-            continue;
-        } else {
-            IAM_LOGI("user has pin enrolled!");
-        }
-
-        if (credentialInfos.empty()) {
-            IAM_LOGI("user %{public}d has no credential type %{public}d", userId, authType);
-            continue;
-        }
-        condition = true;
-    }
-    return condition;
-}
-#endif
-
 
 void CoAuthService::ExecutorUnregister(uint64_t executorIndex)
 {
@@ -303,9 +252,6 @@ void CoAuthService::AuthServiceInit()
         callbackService->OnHdiConnect();
         SetIsReady(true);
         NotifyFwkReady();
-#ifdef ENABLE_DYNAMIC_LOAD
-        CheckCredential();
-#endif
     } else {
         RelativeTimer::GetInstance().Register(Init, DEFER_TIME);
     }

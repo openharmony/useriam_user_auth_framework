@@ -73,13 +73,6 @@ private:
         const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo);
     void PublishCommonEvent(int32_t userId, uint64_t credentialId, AuthType authType);
     std::mutex mutex_;
-#ifdef ENABLE_DYNAMIC_LOAD
-    std::optional<uint32_t> interfaceIdleTimerId_;
-    std::recursive_mutex recur_mutex_;
-    static void CheckForStopProcess();
-    static bool CheckPinEnrolled();
-    void UpdateTimer();
-#endif
 };
 } // namespace UserAuth
 } // namespace UserIam
