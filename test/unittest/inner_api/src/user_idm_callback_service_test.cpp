@@ -106,7 +106,7 @@ HWTEST_F(UserIdmCallbackServiceTest, IdmGetCredInfoCallbackServiceTest002, TestS
 
     auto getCredInfoCallback = Common::MakeShared<MockGetCredentialInfoCallback>();
     EXPECT_NE(getCredInfoCallback, nullptr);
-    EXPECT_CALL(*getCredInfoCallback, OnCredentialInfo(_))
+    EXPECT_CALL(*getCredInfoCallback, OnCredentialInfo(_, _))
         .WillOnce(
             [](int32_t result, const std::vector<CredentialInfo> &infoList) {
                 EXPECT_EQ(infoList.size(), 3);
