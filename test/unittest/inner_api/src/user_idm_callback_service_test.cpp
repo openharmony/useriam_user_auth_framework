@@ -108,7 +108,7 @@ HWTEST_F(UserIdmCallbackServiceTest, IdmGetCredInfoCallbackServiceTest002, TestS
     EXPECT_NE(getCredInfoCallback, nullptr);
     EXPECT_CALL(*getCredInfoCallback, OnCredentialInfo(_))
         .WillOnce(
-            [](const std::vector<CredentialInfo> &infoList) {
+            [](int32_t result, const std::vector<CredentialInfo> &infoList) {
                 EXPECT_EQ(infoList.size(), 3);
                 EXPECT_EQ(infoList[0].authType, PIN);
                 EXPECT_EQ(infoList[1].authType, FACE);
