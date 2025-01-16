@@ -90,7 +90,7 @@ HWTEST_F(UserIdmCallbackProxyTest, TestOnCredentialInfos_001, TestSize.Level0)
     EXPECT_NE(service, nullptr);
     EXPECT_CALL(*service, OnCredentialInfos(_, _))
         .WillOnce(
-            [](const std::vector<CredentialInfo> &credInfoList) {
+            [](int32_t result, const std::vector<CredentialInfo> &credInfoList) {
                 EXPECT_EQ(credInfoList.size(), 3);
                 EXPECT_EQ(credInfoList[0].authType, PIN);
                 EXPECT_EQ(credInfoList[1].authType, FACE);
