@@ -30,7 +30,7 @@ public:
 
 class MockGetSecUserInfoCallback final : public GetSecUserInfoCallback {
 public:
-    MOCK_METHOD1(OnSecUserInfo, void(const SecUserInfo &info));
+    MOCK_METHOD3(OnSecUserInfo, void(int32_t result, const SecUserInfo &info));
 };
 
 class MockUserIdmClientCallback final : public UserIdmClientCallback {

@@ -58,7 +58,7 @@ public:
 
 class DummyIdmGetSecureUserInfoCallback : public IdmGetSecureUserInfoCallbackInterface {
 public:
-    void OnSecureUserInfo(const SecUserInfo &secUserInfo) override
+    void OnSecureUserInfo(int32_t result, const SecUserInfo &secUserInfo) override
     {
         IAM_LOGI("start");
         return;

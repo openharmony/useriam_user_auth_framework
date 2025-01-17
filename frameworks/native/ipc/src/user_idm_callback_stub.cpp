@@ -216,15 +216,19 @@ ResultCode IdmGetSecureUserInfoCallbackStub::ReadSecureUserInfo(MessageParcel &d
 int32_t IdmGetSecureUserInfoCallbackStub::OnSecureUserInfoStub(MessageParcel &data, MessageParcel &reply)
 {
     IAM_LOGI("start");
+    int32_t result = GENERAL_ERROR;
+    if (!data.ReadInt32(result)) {
+        IAM_LOGE("failed to read result");
+        return READ_PARCEL_ERROR;
+    }
     SecUserInfo secUserInfo = {};
-
     if (ReadSecureUserInfo(data, secUserInfo) != SUCCESS) {
         IAM_LOGE("ReadSecureUserInfo fail");
         secUserInfo.secureUid = 0;
         secUserInfo.enrolledInfo.clear();
     }
 
-    OnSecureUserInfo(secUserInfo);
+    OnSecureUserInfo(result, secUserInfo);
     return SUCCESS;
 }
 } // namespace UserAuth

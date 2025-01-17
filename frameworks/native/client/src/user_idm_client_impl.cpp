@@ -246,7 +246,7 @@ int32_t UserIdmClientImpl::GetSecUserInfo(int32_t userId, const std::shared_ptr<
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
         SecUserInfo info = {};
-        callback->OnSecUserInfo(info);
+        callback->OnSecUserInfo(GENERAL_ERROR, info);
         return GENERAL_ERROR;
     }
 
@@ -255,7 +255,7 @@ int32_t UserIdmClientImpl::GetSecUserInfo(int32_t userId, const std::shared_ptr<
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         SecUserInfo info = {};
-        callback->OnSecUserInfo(info);
+        callback->OnSecUserInfo(GENERAL_ERROR, info);
         return GENERAL_ERROR;
     }
     return proxy->GetSecInfo(userId, wrapper);

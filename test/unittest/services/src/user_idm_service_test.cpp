@@ -233,7 +233,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetSecInfo001, TestSize.Level0)
 
     sptr<MockIdmGetSecureUserInfoCallback> testCallback(new (std::nothrow) MockIdmGetSecureUserInfoCallback());
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnSecureUserInfo(_)).Times(2);
+    EXPECT_CALL(*testCallback, OnSecureUserInfo(_, _)).Times(2);
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
@@ -276,7 +276,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetSecInfo002, TestSize.Level0)
     
     testCallback = sptr<MockIdmGetSecureUserInfoCallback>(new (std::nothrow) MockIdmGetSecureUserInfoCallback());
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnSecureUserInfo(_)).Times(2);
+    EXPECT_CALL(*testCallback, OnSecureUserInfo(_, _)).Times(2);
     ret = service.GetSecInfo(testUserId, testCallback);
     EXPECT_EQ(ret, GENERAL_ERROR);
     ret = service.GetSecInfo(testUserId, testCallback);

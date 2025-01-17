@@ -59,7 +59,7 @@ public:
     {
     }
     ~IdmGetSecureUserInfoProxy() override = default;
-    void OnSecureUserInfo(const SecUserInfo &secUserInfo) override;
+    void OnSecureUserInfo(int32_t result, const SecUserInfo &secUserInfo) override;
 
 private:
     static inline BrokerDelegator<IdmGetSecureUserInfoProxy> delegator_;
