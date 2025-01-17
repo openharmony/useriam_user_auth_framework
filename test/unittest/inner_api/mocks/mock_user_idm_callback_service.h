@@ -36,7 +36,7 @@ public:
 
 class MockIdmGetSecureUserInfoCallbackService final : public IdmGetSecureUserInfoCallbackStub {
 public:
-    MOCK_METHOD1(OnSecureUserInfo, void(const SecUserInfo &secUserInfo));
+    MOCK_METHOD2(OnSecureUserInfo, void(int32_t result, const SecUserInfo &secUserInfo));
 };
 } // namespace UserAuth
 } // namespace UserIam

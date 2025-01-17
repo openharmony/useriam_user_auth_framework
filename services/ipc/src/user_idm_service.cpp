@@ -281,7 +281,7 @@ int32_t UserIdmService::GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserIn
         secUserInfo.secureUid = 0;
         secUserInfo.enrolledInfo.clear();
     }
-    callback->OnSecureUserInfo(secUserInfo);
+    callback->OnSecureUserInfo(ret, secUserInfo);
 
     return ret;
 }

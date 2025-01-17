@@ -34,7 +34,7 @@ public:
 
 class MockIdmGetSecureUserInfoCallback final : public IRemoteStub<IdmGetSecureUserInfoCallbackInterface> {
 public:
-    MOCK_METHOD1(OnSecureUserInfo, void(const SecUserInfo &secUserInfo));
+    MOCK_METHOD2(OnSecureUserInfo, void(int32_t result, const SecUserInfo &secUserInfo));
     MOCK_METHOD4(OnRemoteRequest,
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
 };

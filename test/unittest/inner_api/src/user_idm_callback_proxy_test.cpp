@@ -125,9 +125,9 @@ HWTEST_F(UserIdmCallbackProxyTest, TestOnSecureUserInfo_001, TestSize.Level0)
 {
     auto service = Common::MakeShared<MockIdmGetSecureUserInfoCallbackService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, OnSecureUserInfo(_))
+    EXPECT_CALL(*service, OnSecureUserInfo(_, _))
         .WillOnce(
-            [](const SecUserInfo &secUserInfo) {
+            [](int32_t result, const SecUserInfo &secUserInfo) {
                 EXPECT_EQ(secUserInfo.secureUid, 1000);
                 EXPECT_EQ(secUserInfo.enrolledInfo.size(), 2);
                 EXPECT_EQ(secUserInfo.enrolledInfo[0].authType, FACE);
@@ -153,7 +153,8 @@ HWTEST_F(UserIdmCallbackProxyTest, TestOnSecureUserInfo_001, TestSize.Level0)
     SecUserInfo secUserInfo = {};
     secUserInfo.secureUid = 1000;
     secUserInfo.enrolledInfo = {{FACE, 10}, {FINGERPRINT, 20}};
-    proxy->OnSecureUserInfo(secUserInfo);
+    int32_t result = 0;
+    proxy->OnSecureUserInfo(SUCCESS, secUserInfo);
 }
 } // namespace UserAuth
 } // namespace UserIam

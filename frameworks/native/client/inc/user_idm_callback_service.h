@@ -50,7 +50,7 @@ class IdmGetSecureUserInfoCallbackService : public IdmGetSecureUserInfoCallbackS
 public:
     explicit IdmGetSecureUserInfoCallbackService(const std::shared_ptr<GetSecUserInfoCallback> &impl);
     ~IdmGetSecureUserInfoCallbackService() override;
-    void OnSecureUserInfo(const SecUserInfo &secUserInfo) override;
+    void OnSecureUserInfo(int32_t result, const SecUserInfo &secUserInfo) override;
 
 private:
     std::shared_ptr<GetSecUserInfoCallback> getSecInfoCallback_ {nullptr};

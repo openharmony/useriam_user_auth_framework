@@ -211,12 +211,13 @@ HWTEST_F(UserIdmStubTest, UserIdmStubGetSecInfoStub002, TestSize.Level0)
                 EXPECT_EQ(userId, testUserId);
                 if (callback != nullptr) {
                     SecUserInfo secUserInfo = {};
-                    callback->OnSecureUserInfo(secUserInfo);
+                    int32_t result = 0;
+                    callback->OnSecureUserInfo(result, secUserInfo);
                 }
                 return SUCCESS;
             }
         );
-    EXPECT_CALL(*callback, OnSecureUserInfo(_)).Times(1);
+    EXPECT_CALL(*callback, OnSecureUserInfo(_, _)).Times(1);
 
     MessageParcel data;
     MessageParcel reply;

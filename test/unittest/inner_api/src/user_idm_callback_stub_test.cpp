@@ -92,8 +92,10 @@ HWTEST_F(UserIdmCallbackStubTest, TestOnCredentialInfosStub_001, TestSize.Level0
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     uint32_t code = IdmGetCredInfoCallbackInterfaceCode::ON_GET_INFO;
+    int32_t result = 0;
 
     EXPECT_TRUE(data.WriteInterfaceToken(IdmGetCredInfoCallbackInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteInt32(result));
 
     auto service = Common::MakeShared<MockIdmGetCredInfoCallbackService>();
     EXPECT_NE(service, nullptr);
@@ -113,8 +115,10 @@ HWTEST_F(UserIdmCallbackStubTest, TestOnCredentialInfosStub_002, TestSize.Level0
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     uint32_t code = IdmGetCredInfoCallbackInterfaceCode::ON_GET_INFO;
+    int32_t result = 0;
 
     EXPECT_TRUE(data.WriteInterfaceToken(IdmGetCredInfoCallbackInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteInt32(result));
     EXPECT_TRUE(data.WriteUint32(1000));
 
     auto service = Common::MakeShared<MockIdmGetCredInfoCallbackService>();
@@ -135,13 +139,15 @@ HWTEST_F(UserIdmCallbackStubTest, TestOnSecureUserInfoStub_001, TestSize.Level0)
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     uint32_t code = IdmGetSecureUserInfoCallbackInterfaceCode::ON_GET_SEC_INFO;
+    int32_t result = 0;
 
     EXPECT_TRUE(data.WriteInterfaceToken(IdmGetSecureUserInfoCallbackInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteInt32(result));
     auto service = Common::MakeShared<MockIdmGetSecureUserInfoCallbackService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, OnSecureUserInfo(_))
+    EXPECT_CALL(*service, OnSecureUserInfo(_, _))
         .WillOnce(
-            [](const SecUserInfo &secUserInfo) {
+            [](int32_t result, const SecUserInfo &secUserInfo) {
                 EXPECT_EQ(secUserInfo.secureUid, 0);
                 EXPECT_EQ(secUserInfo.enrolledInfo.size(), 0);
             }
@@ -156,16 +162,18 @@ HWTEST_F(UserIdmCallbackStubTest, TestOnSecureUserInfoStub_002, TestSize.Level0)
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     uint32_t code = IdmGetSecureUserInfoCallbackInterfaceCode::ON_GET_SEC_INFO;
+    int32_t result = 0;
 
     EXPECT_TRUE(data.WriteInterfaceToken(IdmGetSecureUserInfoCallbackInterface::GetDescriptor()));
+    EXPECT_TRUE(data.WriteInt32(result));
     EXPECT_TRUE(data.WriteUint64(20));
     EXPECT_TRUE(data.WriteUint32(1000));
 
     auto service = Common::MakeShared<MockIdmGetSecureUserInfoCallbackService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, OnSecureUserInfo(_))
+    EXPECT_CALL(*service, OnSecureUserInfo(_, _))
         .WillOnce(
-            [](const SecUserInfo &secUserInfo) {
+            [](int32_t result, const SecUserInfo &secUserInfo) {
                 EXPECT_EQ(secUserInfo.secureUid, 0);
                 EXPECT_EQ(secUserInfo.enrolledInfo.size(), 0);
             }

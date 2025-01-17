@@ -47,9 +47,10 @@ public:
     /**
      * @brief The callback return get security user info result.
      *
+     * @param result The result success or error code{@link ResultCode}.
      * @param info The security user info.
      */
-    virtual void OnSecUserInfo(const SecUserInfo &info) = 0;
+    virtual void OnSecUserInfo(int32_t result, const SecUserInfo &info) = 0;
 };
 
 class UserIdmClientCallback {

@@ -484,7 +484,7 @@ HWTEST_F(UserIdmClientTest, UserIdmClientGetSecUserInfo001, TestSize.Level0)
     IpcClientUtils::ResetObj();
     testCallback = Common::MakeShared<MockGetSecUserInfoCallback>();
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnSecUserInfo(_)).Times(1);
+    EXPECT_CALL(*testCallback, OnSecUserInfo(_, _)).Times(1);
     ret = UserIdmClient::GetInstance().GetSecUserInfo(testUserId, testCallback);
     EXPECT_EQ(ret, GENERAL_ERROR);
 }

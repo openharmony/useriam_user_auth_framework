@@ -124,20 +124,19 @@ HWTEST_F(UserIdmCallbackServiceTest, IdmGetCredInfoCallbackServiceTest002, TestS
 HWTEST_F(UserIdmCallbackServiceTest, IdmGetSecureUserInfoCallbackServiceTest001, TestSize.Level0)
 {
     SecUserInfo secUserInfo = {};
-
     std::shared_ptr<GetSecUserInfoCallback> getSecInfoCallback = nullptr;
     auto service = Common::MakeShared<IdmGetSecureUserInfoCallbackService>(getSecInfoCallback);
     EXPECT_NE(service, nullptr);
-    service->OnSecureUserInfo(secUserInfo);
+    service->OnSecureUserInfo(SUCCESS, secUserInfo);
 }
 
 HWTEST_F(UserIdmCallbackServiceTest, IdmGetSecureUserInfoCallbackServiceTest002, TestSize.Level0)
 {
     auto getSecInfoCallback = Common::MakeShared<MockGetSecUserInfoCallback>();
     EXPECT_NE(getSecInfoCallback, nullptr);
-    EXPECT_CALL(*getSecInfoCallback, OnSecUserInfo(_))
+    EXPECT_CALL(*getSecInfoCallback, OnSecUserInfo(_, _))
         .WillOnce(
-            [](const SecUserInfo &info) {
+            [](int32_t result, const SecUserInfo &info) {
                 EXPECT_EQ(info.secureUid, 1000);
                 EXPECT_EQ(info.enrolledInfo.size(), 2);
                 EXPECT_EQ(info.enrolledInfo[0].authType, FACE);
@@ -153,7 +152,7 @@ HWTEST_F(UserIdmCallbackServiceTest, IdmGetSecureUserInfoCallbackServiceTest002,
     SecUserInfo secUserInfo = {};
     secUserInfo.secureUid = 1000;
     secUserInfo.enrolledInfo = {{FACE, 10}, {FINGERPRINT, 20}};
-    service->OnSecureUserInfo(secUserInfo);
+    service->OnSecureUserInfo(SUCCESS, secUserInfo);
 }
 } // namespace UserAuth
 } // namespace UserIam
