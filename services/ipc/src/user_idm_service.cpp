@@ -30,12 +30,11 @@
 #include "ipc_common.h"
 #include "ipc_skeleton.h"
 #include "iam_common_defines.h"
-#include "parameter.h"
+#include "load_mode_handler.h"
 #include "publish_event_adapter.h"
-#include "relative_timer.h"
 #include "resource_node_pool.h"
 #include "resource_node_utils.h"
-#include "system_param_manager.h"
+#include "service_init_manager.h"
 #include "user_idm_callback_proxy.h"
 #include "user_idm_database.h"
 #include "user_idm_session_controller.h"
@@ -48,92 +47,29 @@ namespace UserIam {
 namespace UserAuth {
 REGISTER_SYSTEM_ABILITY_BY_ID(UserIdmService, SUBSYS_USERIAM_SYS_ABILITY_USERIDM, true);
 constexpr int32_t USERIAM_IPC_THREAD_NUM = 4;
-#ifdef ENABLE_DYNAMIC_LOAD
-constexpr uint32_t WAIT_TIME_UNTIL_STOP = 600000;
-#endif
-
 UserIdmService::UserIdmService(int32_t systemAbilityId, bool runOnCreate) : SystemAbility(systemAbilityId, runOnCreate)
 {
 }
 
 void UserIdmService::OnStart()
 {
-    IAM_LOGI("start service");
+    IAM_LOGI("Sa start UserIdmService");
     IPCSkeleton::SetMaxWorkThreadNum(USERIAM_IPC_THREAD_NUM);
     if (!Publish(this)) {
         IAM_LOGE("failed to publish service");
     }
-#ifdef ENABLE_DYNAMIC_LOAD
-    if (SystemParamManager::GetInstance().GetCredentialCheckedParam()) {
-        UpdateTimer();
-    }
-#endif
+    ServiceInitManager::GetInstance().OnIdmServiceStart();
 }
-
-#ifdef ENABLE_DYNAMIC_LOAD
-void UserIdmService::UpdateTimer()
-{
-    IAM_LOGI("update the timer");
-    std::lock_guard<std::recursive_mutex> lock(recur_mutex_);
-    if (interfaceIdleTimerId_.has_value()) {
-        IAM_LOGI("unregister the old timer");
-        RelativeTimer::GetInstance().Unregister(interfaceIdleTimerId_.value());
-    }
-    IAM_LOGI("register the new timer begin");
-    interfaceIdleTimerId_ = RelativeTimer::GetInstance().Register(CheckForStopProcess, WAIT_TIME_UNTIL_STOP);
-    IAM_LOGI("register the new timer success");
-}
-
-void UserIdmService::CheckForStopProcess()
-{
-    IAM_LOGI("time out, begin to check whether to stop the process or not");
-    bool condition = CheckPinEnrolled();
-    if (!condition) {
-        IAM_LOGI("pin has not been enrolled, stop the process");
-        SystemParamManager::GetInstance().SetStopParam(true);
-        IAM_LOGI("stop the process successfully");
-    }
-}
-
-bool UserIdmService::CheckPinEnrolled()
-{
-    auto userInfos = UserIdmDatabase::Instance().GetAllExtUserInfo();
-    bool condition = false;
-    for (const auto &iter : userInfos) {
-        int32_t userId = iter->GetUserId();
-        std::vector<std::shared_ptr<CredentialInfoInterface>> credentialInfos;
-        AuthType authType = AuthType::PIN;
-        int32_t ret = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType, credentialInfos);
-        IAM_LOGI("check user %{public}d credential type %{public}d", userId, authType);
-        if (ret != SUCCESS) {
-            IAM_LOGI("get credential fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret,
-                userId, authType);
-            continue;
-        } else {
-            IAM_LOGI("user has pin enrolled!");
-        }
-
-        if (credentialInfos.empty()) {
-            IAM_LOGI("user %{public}d has no credential type %{public}d", userId, authType);
-            continue;
-        }
-        condition = true;
-    }
-    return condition;
-}
-#endif
 
 void UserIdmService::OnStop()
 {
-    IAM_LOGI("stop service");
+    IAM_LOGI("Sa stop UserIdmService");
+    ServiceInitManager::GetInstance().OnIdmServiceStop();
 }
 
 int32_t UserIdmService::OpenSession(int32_t userId, std::vector<uint8_t> &challenge)
 {
     IAM_LOGI("start");
-#ifdef ENABLE_DYNAMIC_LOAD
-    UpdateTimer();
-#endif
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
@@ -160,9 +96,6 @@ int32_t UserIdmService::OpenSession(int32_t userId, std::vector<uint8_t> &challe
 void UserIdmService::CloseSession(int32_t userId)
 {
     IAM_LOGI("start");
-#ifdef ENABLE_DYNAMIC_LOAD
-    UpdateTimer();
-#endif
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
@@ -213,9 +146,6 @@ int32_t UserIdmService::GetCredentialInfoInner(int32_t userId, AuthType authType
 int32_t UserIdmService::GetCredentialInfo(int32_t userId, AuthType authType,
     const sptr<IdmGetCredInfoCallbackInterface> &callback)
 {
-#ifdef ENABLE_DYNAMIC_LOAD
-    UpdateTimer();
-#endif
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
@@ -265,9 +195,6 @@ int32_t UserIdmService::GetSecInfoInner(int32_t userId, SecUserInfo &secUserInfo
 
 int32_t UserIdmService::GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserInfoCallbackInterface> &callback)
 {
-#ifdef ENABLE_DYNAMIC_LOAD
-    UpdateTimer();
-#endif
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
@@ -308,9 +235,6 @@ void UserIdmService::StartEnroll(Enrollment::EnrollmentPara &para,
 void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPara,
     const sptr<IdmCallbackInterface> &callback, bool isUpdate)
 {
-#ifdef ENABLE_DYNAMIC_LOAD
-    UpdateTimer();
-#endif
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
 
@@ -353,9 +277,6 @@ void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPar
 void UserIdmService::UpdateCredential(int32_t userId, const CredentialPara &credPara,
     const sptr<IdmCallbackInterface> &callback)
 {
-#ifdef ENABLE_DYNAMIC_LOAD
-    UpdateTimer();
-#endif
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
@@ -384,9 +305,6 @@ void UserIdmService::UpdateCredential(int32_t userId, const CredentialPara &cred
 
 int32_t UserIdmService::Cancel(int32_t userId)
 {
-#ifdef ENABLE_DYNAMIC_LOAD
-    UpdateTimer();
-#endif
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
@@ -433,6 +351,7 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInt
     IAM_LOGI("to delete userid: %{public}d", userId);
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, INVALID_PARAMETERS);
+
     Attributes extraInfo;
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ENFORCE_DELETE_USER);
     if (contextCallback == nullptr) {
@@ -452,6 +371,7 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInt
         contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
         return CHECK_PERMISSION_FAILED;
     }
+
     std::lock_guard<std::mutex> lock(mutex_);
     CancelCurrentEnrollIfExist();
     std::shared_ptr<SecureUserInfoInterface> userInfo = nullptr;
@@ -473,11 +393,9 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInt
         contextCallback->OnResult(ret, extraInfo);
         return ret;
     }
+
     IAM_LOGI("delete user success");
     contextCallback->OnResult(SUCCESS, extraInfo);
-#ifdef ENABLE_DYNAMIC_LOAD
-    SystemParamManager::GetInstance().SetPinEnrolledParam(false);
-#endif
     return SUCCESS;
 }
 
@@ -534,9 +452,7 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
     IAM_LOGI("delete user end");
     PublishEventAdapter::GetInstance().PublishDeletedEvent(userId);
     PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, PIN, 0);
-#ifdef ENABLE_DYNAMIC_LOAD
-    SystemParamManager::GetInstance().SetPinEnrolledParam(false);
-#endif
+    LoadModeHandler::GetInstance().OnCredentialDeleted(PIN);
 }
 
 void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
@@ -672,6 +588,7 @@ int32_t UserIdmService::EnforceDelUserInner(int32_t userId, std::shared_ptr<Cont
 
     PublishEventAdapter::GetInstance().PublishDeletedEvent(userId);
     PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, PIN, 0);
+    LoadModeHandler::GetInstance().OnCredentialDeleted(PIN);
     IAM_LOGI("delete user success, userId:%{public}d", userId);
     return SUCCESS;
 }
@@ -718,9 +635,6 @@ void UserIdmService::ClearRedundancyCredentialInner()
 void UserIdmService::ClearRedundancyCredential(const sptr<IdmCallbackInterface> &callback)
 {
     IAM_LOGI("start");
-#ifdef ENABLE_DYNAMIC_LOAD
-    UpdateTimer();
-#endif
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
 

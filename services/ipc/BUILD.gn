@@ -12,7 +12,6 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("../../user_auth_framework.gni")
 
 if (!defined(global_parts_info) ||
     defined(global_parts_info.account_os_account)) {
@@ -43,6 +42,7 @@ ohos_source_set("userauth_services_ipc") {
     "src/co_auth_service.cpp",
     "src/executor_messenger_service.cpp",
     "src/hdi_message_callback_service.cpp",
+    "src/service_init_manager.cpp",
     "src/template_cache_manager.cpp",
     "src/user_auth_service.cpp",
     "src/user_idm_service.cpp",
@@ -56,11 +56,6 @@ ohos_source_set("userauth_services_ipc") {
     "../context:userauth_service_context",
     "../remote_connect:userauth_service_remote_connect",
   ]
-
-  defines = []
-  if (user_auth_framework_enable_dynamic_load) {
-    defines += [ "ENABLE_DYNAMIC_LOAD" ]
-  }
 
   external_deps = [
     "ability_runtime:app_manager",
@@ -88,6 +83,7 @@ ohos_source_set("userauth_services_ipc") {
     "../../common:iam_log_config",
     "../core:userauth_service_core_config",
     "../remote_connect:userauth_service_remote_connect_config",
+    "../load_mode:userauth_service_load_mode_config",
   ]
 
   subsystem_name = "useriam"

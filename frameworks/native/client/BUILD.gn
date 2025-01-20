@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("../../../user_auth_framework.gni")
 
 config("userauth_client_config") {
   include_dirs = [
@@ -44,6 +45,7 @@ ohos_shared_library("userauth_client") {
     "src/executor_callback_service.cpp",
     "src/executor_messenger_client.cpp",
     "src/ipc_client_utils.cpp",
+    "src/load_mode_client_util.cpp",
     "src/modal_callback_service.cpp",
     "src/user_access_ctrl_callback_service.cpp",
     "src/user_access_ctrl_client_impl.cpp",
@@ -55,6 +57,12 @@ ohos_shared_library("userauth_client") {
     "src/user_idm_client_impl.cpp",
     "src/widget_callback_service.cpp",
   ]
+
+  defines = []
+
+  if (user_auth_framework_enable_dynamic_load) {
+    defines += [ "ENABLE_DYNAMIC_LOAD" ]
+  }
 
   configs = [
     "../../../common:iam_log_config",
@@ -81,8 +89,12 @@ ohos_shared_library("userauth_client") {
   }
 
   external_deps = [
+    "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "hilog:libhilog",
+    "init:libbeget_proxy",
+    "init:libbegetutil",
+    "ipc:ipc_single",
     "ipc:ipc_single",
     "napi:ace_napi",
     "samgr:samgr_proxy",

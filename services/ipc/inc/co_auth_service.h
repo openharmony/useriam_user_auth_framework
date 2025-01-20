@@ -18,6 +18,8 @@
 
 #include "co_auth_stub.h"
 
+#include <optional>
+
 #include <system_ability.h>
 #include <system_ability_definition.h>
 #include "system_ability_listener.h"
@@ -27,7 +29,7 @@ namespace UserIam {
 namespace UserAuth {
 class CoAuthService : public SystemAbility, public CoAuthStub {
 public:
-    static constexpr uint64_t DEFER_TIME = 2000;
+    static constexpr uint32_t DEFER_TIME = 100;
     DECLARE_SYSTEM_ABILITY(CoAuthService);
     static std::shared_ptr<CoAuthService> GetInstance();
 
@@ -38,6 +40,10 @@ public:
     void ExecutorUnregister(uint64_t executorIndex) override;
     void SetIsReady(bool isReady);
     void SetAccessTokenReady(bool isReady);
+    void AddInitTask(uint32_t delayTime);
+    void RemoveInitTask();
+    ResultCode RegisterAccessTokenListener();
+    ResultCode UnRegisterAccessTokenListener();
 
 protected:
     void OnStart() override;
@@ -45,11 +51,9 @@ protected:
 
 private:
     static void Init();
-    static void AddExecutorDeathRecipient(uint64_t executorIndex, AuthType authType,
+    static void AddExecutorDeathRecipient(uint64_t executorIndex, AuthType authType, ExecutorRole role,
         std::shared_ptr<ExecutorCallbackInterface> callback);
     void AuthServiceInit();
-    ResultCode RegisterAccessTokenListener();
-    ResultCode UnRegisterAccessTokenListener();
     void NotifyFwkReady();
     bool IsFwkReady();
 
@@ -58,10 +62,7 @@ private:
     bool isReady_{false};
     bool accessTokenReady_{false};
     sptr<SystemAbilityListener> accessTokenListener_ {nullptr};
-#ifdef ENABLE_DYNAMIC_LOAD
-    static bool CheckPinEnrolledStatus();
-    static void CheckCredential();
-#endif
+    std::optional<uint64_t> initTimerId_ {std::nullopt};
 };
 } // namespace UserAuth
 } // namespace UserIam

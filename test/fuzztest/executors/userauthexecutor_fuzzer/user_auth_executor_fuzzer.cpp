@@ -256,13 +256,6 @@ void FuzzExecutorResetExecutor(std::shared_ptr<Parcel> parcel)
     IAM_LOGI("end");
 }
 
-void FuzzExecutorOnHdiConnect(std::shared_ptr<Parcel> parcel)
-{
-    IAM_LOGI("begin");
-    g_executor->OnHdiConnect();
-    IAM_LOGI("end");
-}
-
 void FuzzExecutorOnHdiDisconnect(std::shared_ptr<Parcel> parcel)
 {
     IAM_LOGI("begin");
@@ -277,10 +270,10 @@ void FuzzExecutorOnHdiDisconnect(std::shared_ptr<Parcel> parcel)
     IAM_LOGI("end");
 }
 
-void FuzzExecutorOnFrameworkReady(std::shared_ptr<Parcel> parcel)
+void FuzzExecutorRegister(std::shared_ptr<Parcel> parcel)
 {
     IAM_LOGI("begin");
-    g_executor->OnFrameworkReady();
+    g_executor->Register();
     IAM_LOGI("end");
 }
 
@@ -538,9 +531,8 @@ void FuzzFillPropertyToAttribute(std::shared_ptr<Parcel> parcel)
 using FuzzFunc = decltype(FuzzFrameworkOnGetProperty);
 FuzzFunc *g_fuzzFuncs[] = {
     FuzzExecutorResetExecutor,
-    FuzzExecutorOnHdiConnect,
     FuzzExecutorOnHdiDisconnect,
-    FuzzExecutorOnFrameworkReady,
+    FuzzExecutorRegister,
     FuzzExecutorGetExecutorHdi,
     FuzzExecutorGetDescription,
     FuzzExecutorUnregisterExecutorCallback,

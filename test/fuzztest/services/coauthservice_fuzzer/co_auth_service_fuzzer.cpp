@@ -148,7 +148,8 @@ void FuzzOther(Parcel &parcel)
         parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32());
     uint64_t executorIndex = parcel.ReadUint64();
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
-    g_coAuthService->AddExecutorDeathRecipient(executorIndex, authType, callback);
+    ExecutorRole executorRole = static_cast<ExecutorRole>(parcel.ReadInt32());
+    g_coAuthService->AddExecutorDeathRecipient(executorIndex, authType, executorRole, callback);
     g_coAuthService->OnStart();
     g_coAuthService->OnStop();
     IAM_LOGI("end");

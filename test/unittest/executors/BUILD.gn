@@ -81,6 +81,7 @@ ohos_unittest("iam_executors_test") {
     "hdf_core:libhdi",
     "hilog:libhilog",
     "init:libbeget_proxy",
+    "init:libbegetutil",
     "ipc:ipc_single",
     "samgr:samgr_proxy",
   ]

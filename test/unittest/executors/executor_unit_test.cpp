@@ -111,7 +111,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnHdiConnectTest_001, TestSize.Level
     });
     auto executor = MakeShared<Executor>(executorMgrWrapper, executorHdi, testHdiId);
     ASSERT_NE(executor, nullptr);
-    executor->OnHdiConnect();
+    executor->Register();
 }
 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnFrameworkReadyTest_001, TestSize.Level0)
@@ -153,7 +153,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnFrameworkReadyTest_001, TestSize.L
     });
     auto executor = MakeShared<Executor>(executorMgrWrapper, executorHdi, testHdiId);
     ASSERT_NE(executor, nullptr);
-    executor->OnFrameworkReady();
+    executor->Register();
 }
 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnFrameworkReadyTest_002, TestSize.Level0)
@@ -172,7 +172,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnFrameworkReadyTest_002, TestSize.L
     EXPECT_CALL(*executorMgrWrapper, Register(_, _)).Times(Exactly(0));
     auto executor = MakeShared<Executor>(executorMgrWrapper, nullptr, testHdiId);
     ASSERT_NE(executor, nullptr);
-    executor->OnFrameworkReady();
+    executor->Register();
 }
 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnFrameworkReadyTest_003, TestSize.Level0)
@@ -196,7 +196,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnFrameworkReadyTest_003, TestSize.L
     });
     auto executor = MakeShared<Executor>(executorMgrWrapper, executorHdi, testHdiId);
     ASSERT_NE(executor, nullptr);
-    executor->OnFrameworkReady();
+    executor->Register();
 }
 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnFrameworkReadyTest_004, TestSize.Level0)
@@ -223,7 +223,7 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnFrameworkReadyTest_004, TestSize.L
     });
     auto executor = MakeShared<Executor>(nullptr, executorHdi, testHdiId);
     ASSERT_NE(executor, nullptr);
-    executor->OnFrameworkReady();
+    executor->Register();
 }
 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_CommandTest_001, TestSize.Level0)
@@ -353,7 +353,7 @@ int32_t GetExecutorAndMockStub(shared_ptr<Executor> &executor, shared_ptr<Execut
 
     executor = MakeShared<Executor>(executorMgrWrapper, mockExecutorHdi, testHdiId);
     IF_FALSE_EXPECT_FAIL_AND_RETURN_VAL(executor != nullptr, ResultCode::GENERAL_ERROR);
-    executor->OnFrameworkReady();
+    executor->Register();
 
     IF_FALSE_EXPECT_FAIL_AND_RETURN_VAL(executorCallback != nullptr, ResultCode::GENERAL_ERROR);
     IF_FALSE_EXPECT_FAIL_AND_RETURN_VAL(mockMessenger != nullptr, ResultCode::GENERAL_ERROR);

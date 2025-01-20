@@ -34,6 +34,7 @@
 #include "ipc_common.h"
 #include "ipc_skeleton.h"
 #include "keyguard_status_listener.h"
+#include "service_init_manager.h"
 #include "soft_bus_manager.h"
 #include "widget_client.h"
 #include "remote_msg_util.h"
@@ -52,7 +53,6 @@ const int32_t MINIMUM_VERSION = 0;
 const int32_t CURRENT_VERSION = 1;
 const int32_t USERIAM_IPC_THREAD_NUM = 4;
 const uint32_t NETWORK_ID_LENGTH = 64;
-const bool REMOTE_AUTH_SERVICE_RESULT = RemoteAuthService::GetInstance().Start();
 int32_t GetTemplatesByAuthType(int32_t userId, AuthType authType, std::vector<uint64_t> &templateIds)
 {
     templateIds.clear();
@@ -161,20 +161,18 @@ UserAuthService::UserAuthService()
 
 void UserAuthService::OnStart()
 {
-    IAM_LOGI("start service");
+    IAM_LOGI("Sa start UserAuthService");
     IPCSkeleton::SetMaxWorkThreadNum(USERIAM_IPC_THREAD_NUM);
     if (!Publish(this)) {
         IAM_LOGE("failed to publish service");
     }
-    SoftBusManager::GetInstance().Start();
-    KeyguardStatusListenerManager::GetInstance().RegisterCommonEventListener();
+    ServiceInitManager::GetInstance().OnUserAuthServiceStart();
 }
 
 void UserAuthService::OnStop()
 {
-    IAM_LOGI("stop service");
-    SoftBusManager::GetInstance().Stop();
-    KeyguardStatusListenerManager::GetInstance().UnRegisterCommonEventListener();
+    IAM_LOGI("Sa stop UserAuthService");
+    ServiceInitManager::GetInstance().OnUserAuthServiceStop();
 }
 
 bool UserAuthService::CheckAuthTrustLevel(AuthTrustLevel authTrustLevel)

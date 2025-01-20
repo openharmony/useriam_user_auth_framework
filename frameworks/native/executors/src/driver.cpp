@@ -61,8 +61,20 @@ void Driver::OnHdiConnect()
             continue;
         }
         executorList_.push_back(executor);
-        executor->OnHdiConnect();
         IAM_LOGI("add executor %{public}s success", executor->GetDescription());
+    }
+
+    if (!isFwkReady_) {
+        IAM_LOGE("fwk not ready, skip");
+        return;
+    }
+
+    for (const auto &executor : executorList_) {
+        if (executor == nullptr) {
+            IAM_LOGE("executor is null");
+            continue;
+        }
+        executor->Register();
     }
     IAM_LOGI("success");
 }
@@ -86,16 +98,36 @@ void Driver::OnHdiDisconnect()
     IAM_LOGI("success");
 }
 
+void Driver::OnFrameworkDown()
+{
+    IAM_LOGI("start");
+    std::lock_guard<std::mutex> lock(mutex_);
+    isFwkReady_ = false;
+    IF_FALSE_LOGE_AND_RETURN(hdiConfig_.driver != nullptr);
+    hdiConfig_.driver->OnFrameworkDown();
+    IAM_LOGI("success");
+}
+
 void Driver::OnFrameworkReady()
 {
     IAM_LOGI("start");
     std::lock_guard<std::mutex> lock(mutex_);
+    if (isFwkReady_) {
+        IAM_LOGI("already fwk ready, skip");
+        return;
+    }
+    isFwkReady_ = true;
+    if (!hdiConnected_) {
+        IAM_LOGE("hdi not connected, skip");
+        return;
+    }
+
     for (const auto &executor : executorList_) {
         if (executor == nullptr) {
             IAM_LOGE("executor is null");
             continue;
         }
-        executor->OnFrameworkReady();
+        executor->Register();
     }
     IAM_LOGI("success");
 }
