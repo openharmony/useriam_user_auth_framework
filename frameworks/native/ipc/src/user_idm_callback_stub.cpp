@@ -150,12 +150,17 @@ ResultCode IdmGetCredInfoCallbackStub::ReadCredentialInfoList(MessageParcel &dat
 int32_t IdmGetCredInfoCallbackStub::OnCredentialInfosStub(MessageParcel &data, MessageParcel &reply)
 {
     IAM_LOGI("start");
+    int32_t result = GENERAL_ERROR;
+    if (!data.ReadInt32(result)) {
+        IAM_LOGE("failed to read result");
+        return READ_PARCEL_ERROR;
+    }
     std::vector<CredentialInfo> credInfoList;
     if (ReadCredentialInfoList(data, credInfoList) != SUCCESS) {
         IAM_LOGE("ReadCredentialInfoList fail");
         credInfoList.clear();
     }
-    OnCredentialInfos(credInfoList);
+    OnCredentialInfos(result, credInfoList);
     return SUCCESS;
 }
 
@@ -211,15 +216,19 @@ ResultCode IdmGetSecureUserInfoCallbackStub::ReadSecureUserInfo(MessageParcel &d
 int32_t IdmGetSecureUserInfoCallbackStub::OnSecureUserInfoStub(MessageParcel &data, MessageParcel &reply)
 {
     IAM_LOGI("start");
+    int32_t result = GENERAL_ERROR;
+    if (!data.ReadInt32(result)) {
+        IAM_LOGE("failed to read result");
+        return READ_PARCEL_ERROR;
+    }
     SecUserInfo secUserInfo = {};
-
     if (ReadSecureUserInfo(data, secUserInfo) != SUCCESS) {
         IAM_LOGE("ReadSecureUserInfo fail");
         secUserInfo.secureUid = 0;
         secUserInfo.enrolledInfo.clear();
     }
 
-    OnSecureUserInfo(secUserInfo);
+    OnSecureUserInfo(result, secUserInfo);
     return SUCCESS;
 }
 } // namespace UserAuth

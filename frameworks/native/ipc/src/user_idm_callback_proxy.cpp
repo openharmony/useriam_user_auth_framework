@@ -101,7 +101,7 @@ bool IdmCallbackProxy::SendRequest(uint32_t code, MessageParcel &data, MessagePa
     return true;
 }
 
-void IdmGetCredentialInfoProxy::OnCredentialInfos(const std::vector<CredentialInfo> &credInfoList)
+void IdmGetCredentialInfoProxy::OnCredentialInfos(int32_t result, const std::vector<CredentialInfo> &credInfoList)
 {
     IAM_LOGI("start, cred info vector size: %{public}zu", credInfoList.size());
 
@@ -110,6 +110,10 @@ void IdmGetCredentialInfoProxy::OnCredentialInfos(const std::vector<CredentialIn
 
     if (!data.WriteInterfaceToken(IdmGetCredentialInfoProxy::GetDescriptor())) {
         IAM_LOGE("failed to write descriptor");
+        return;
+    }
+    if (!data.WriteInt32(result)) {
+        IAM_LOGE("failed to write result");
         return;
     }
     if (!data.WriteUint32(credInfoList.size())) {
@@ -164,10 +168,6 @@ ResultCode IdmGetSecureUserInfoProxy::WriteSecureUserInfo(MessageParcel &data, c
 
 {
     IAM_LOGI("start");
-    if (!data.WriteInterfaceToken(IdmGetSecureUserInfoProxy::GetDescriptor())) {
-        IAM_LOGE("failed to write descriptor");
-        return WRITE_PARCEL_ERROR;
-    }
     if (!data.WriteUint64(secUserInfo.secureUid)) {
         IAM_LOGE("failed to write secureUid");
         return WRITE_PARCEL_ERROR;
@@ -191,12 +191,20 @@ ResultCode IdmGetSecureUserInfoProxy::WriteSecureUserInfo(MessageParcel &data, c
     return SUCCESS;
 }
 
-void IdmGetSecureUserInfoProxy::OnSecureUserInfo(const SecUserInfo &secUserInfo)
+void IdmGetSecureUserInfoProxy::OnSecureUserInfo(int32_t result, const SecUserInfo &secUserInfo)
 {
     IAM_LOGI("start");
 
     MessageParcel data;
     MessageParcel reply;
+    if (!data.WriteInterfaceToken(IdmGetSecureUserInfoProxy::GetDescriptor())) {
+        IAM_LOGE("failed to write descriptor");
+        return;
+    }
+    if (!data.WriteInt32(result)) {
+        IAM_LOGE("failed to write result");
+        return;
+    }
     if (WriteSecureUserInfo(data, secUserInfo) != SUCCESS) {
         IAM_LOGE("WriteSecureUserInfo fail");
         return;

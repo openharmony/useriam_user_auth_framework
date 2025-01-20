@@ -31,12 +31,12 @@ public:
 
 class MockIdmGetCredInfoCallbackService final : public IdmGetCredInfoCallbackStub {
 public:
-    MOCK_METHOD1(OnCredentialInfos, void(const std::vector<CredentialInfo> &credInfoList));
+    MOCK_METHOD2(OnCredentialInfos, void(int32_t result, const std::vector<CredentialInfo> &credInfoList));
 };
 
 class MockIdmGetSecureUserInfoCallbackService final : public IdmGetSecureUserInfoCallbackStub {
 public:
-    MOCK_METHOD1(OnSecureUserInfo, void(const SecUserInfo &secUserInfo));
+    MOCK_METHOD2(OnSecureUserInfo, void(int32_t result, const SecUserInfo &secUserInfo));
 };
 } // namespace UserAuth
 } // namespace UserIam
