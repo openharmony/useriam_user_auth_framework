@@ -88,9 +88,9 @@ HWTEST_F(UserIdmCallbackProxyTest, TestOnCredentialInfos_001, TestSize.Level0)
 {
     auto service = Common::MakeShared<MockIdmGetCredInfoCallbackService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, OnCredentialInfos(_))
+    EXPECT_CALL(*service, OnCredentialInfos(_, _))
         .WillOnce(
-            [](const std::vector<CredentialInfo> &credInfoList) {
+            [](int32_t result, const std::vector<CredentialInfo> &credInfoList) {
                 EXPECT_EQ(credInfoList.size(), 3);
                 EXPECT_EQ(credInfoList[0].authType, PIN);
                 EXPECT_EQ(credInfoList[1].authType, FACE);
@@ -118,17 +118,16 @@ HWTEST_F(UserIdmCallbackProxyTest, TestOnCredentialInfos_001, TestSize.Level0)
     CredentialInfo info2 = {FACE, std::nullopt, 100, 200};
     CredentialInfo info3 = {FINGERPRINT, std::nullopt, 1000, 2000};
     std::vector<CredentialInfo> credInfoList = {info1, info2, info3};
-
-    proxy->OnCredentialInfos(credInfoList);
+    proxy->OnCredentialInfos(SUCCESS, credInfoList);
 }
 
 HWTEST_F(UserIdmCallbackProxyTest, TestOnSecureUserInfo_001, TestSize.Level0)
 {
     auto service = Common::MakeShared<MockIdmGetSecureUserInfoCallbackService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, OnSecureUserInfo(_))
+    EXPECT_CALL(*service, OnSecureUserInfo(_, _))
         .WillOnce(
-            [](const SecUserInfo &secUserInfo) {
+            [](int32_t result, const SecUserInfo &secUserInfo) {
                 EXPECT_EQ(secUserInfo.secureUid, 1000);
                 EXPECT_EQ(secUserInfo.enrolledInfo.size(), 2);
                 EXPECT_EQ(secUserInfo.enrolledInfo[0].authType, FACE);
@@ -154,7 +153,7 @@ HWTEST_F(UserIdmCallbackProxyTest, TestOnSecureUserInfo_001, TestSize.Level0)
     SecUserInfo secUserInfo = {};
     secUserInfo.secureUid = 1000;
     secUserInfo.enrolledInfo = {{FACE, 10}, {FINGERPRINT, 20}};
-    proxy->OnSecureUserInfo(secUserInfo);
+    proxy->OnSecureUserInfo(SUCCESS, secUserInfo);
 }
 } // namespace UserAuth
 } // namespace UserIam

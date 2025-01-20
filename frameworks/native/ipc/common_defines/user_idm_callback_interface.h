@@ -36,7 +36,7 @@ public:
     /*
      * return all registered credential information.
      */
-    virtual void OnCredentialInfos(const std::vector<CredentialInfo> &credInfoList) = 0;
+    virtual void OnCredentialInfos(int32_t result, const std::vector<CredentialInfo> &credInfoList) = 0;
 
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.useridm.IGetInfoCallback");
 };
@@ -46,7 +46,7 @@ public:
     /*
      * return all registered security information.
      */
-    virtual void OnSecureUserInfo(const SecUserInfo &secUserInfo) = 0;
+    virtual void OnSecureUserInfo(int32_t result, const SecUserInfo &secUserInfo) = 0;
 
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.useridm.IGetSecInfoCallback");
 };

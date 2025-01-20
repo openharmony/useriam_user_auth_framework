@@ -71,7 +71,7 @@ IdmGetCredInfoCallbackService::IdmGetCredInfoCallbackService(
         if (impl != nullptr) {
             IAM_LOGI("user idm service death, return default cred info result to caller");
             std::vector<CredentialInfo> infoList;
-            impl->OnCredentialInfo(infoList);
+            impl->OnCredentialInfo(GENERAL_ERROR, infoList);
         }
     };
     CallbackManager::GetInstance().AddCallback(reinterpret_cast<uintptr_t>(this), action);
@@ -82,7 +82,7 @@ IdmGetCredInfoCallbackService::~IdmGetCredInfoCallbackService()
     CallbackManager::GetInstance().RemoveCallback(reinterpret_cast<uintptr_t>(this));
 }
 
-void IdmGetCredInfoCallbackService::OnCredentialInfos(const std::vector<CredentialInfo> &credInfoList)
+void IdmGetCredInfoCallbackService::OnCredentialInfos(int32_t result, const std::vector<CredentialInfo> &credInfoList)
 {
     IAM_LOGI("start, cred info vector size:%{public}zu", credInfoList.size());
     if (getCredInfoCallback_ == nullptr) {
@@ -90,7 +90,7 @@ void IdmGetCredInfoCallbackService::OnCredentialInfos(const std::vector<Credenti
         return;
     }
 
-    getCredInfoCallback_->OnCredentialInfo(credInfoList);
+    getCredInfoCallback_->OnCredentialInfo(result, credInfoList);
 }
 
 IdmGetSecureUserInfoCallbackService::IdmGetSecureUserInfoCallbackService(
@@ -100,7 +100,7 @@ IdmGetSecureUserInfoCallbackService::IdmGetSecureUserInfoCallbackService(
         if (impl != nullptr) {
             IAM_LOGI("user idm service death, return default secure info to caller");
             SecUserInfo info = {};
-            impl->OnSecUserInfo(info);
+            impl->OnSecUserInfo(GENERAL_ERROR, info);
         }
     };
     CallbackManager::GetInstance().AddCallback(reinterpret_cast<uintptr_t>(this), action);
@@ -111,7 +111,7 @@ IdmGetSecureUserInfoCallbackService::~IdmGetSecureUserInfoCallbackService()
     CallbackManager::GetInstance().RemoveCallback(reinterpret_cast<uintptr_t>(this));
 }
 
-void IdmGetSecureUserInfoCallbackService::OnSecureUserInfo(const SecUserInfo &secUserInfo)
+void IdmGetSecureUserInfoCallbackService::OnSecureUserInfo(int32_t result, const SecUserInfo &secUserInfo)
 {
     IAM_LOGI("start, enrolled info vector size:%{public}zu", secUserInfo.enrolledInfo.size());
     if (getSecInfoCallback_ == nullptr) {
@@ -119,7 +119,7 @@ void IdmGetSecureUserInfoCallbackService::OnSecureUserInfo(const SecUserInfo &se
         return;
     }
 
-    getSecInfoCallback_->OnSecUserInfo(secUserInfo);
+    getSecInfoCallback_->OnSecUserInfo(result, secUserInfo);
 }
 } // namespace UserAuth
 } // namespace UserIam

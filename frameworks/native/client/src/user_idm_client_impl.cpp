@@ -220,7 +220,7 @@ int32_t UserIdmClientImpl::GetCredentialInfo(int32_t userId, AuthType authType,
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
         std::vector<CredentialInfo> infoList;
-        callback->OnCredentialInfo(infoList);
+        callback->OnCredentialInfo(GENERAL_ERROR, infoList);
         return GENERAL_ERROR;
     }
 
@@ -228,7 +228,7 @@ int32_t UserIdmClientImpl::GetCredentialInfo(int32_t userId, AuthType authType,
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         std::vector<CredentialInfo> infoList;
-        callback->OnCredentialInfo(infoList);
+        callback->OnCredentialInfo(GENERAL_ERROR, infoList);
         return GENERAL_ERROR;
     }
     return proxy->GetCredentialInfo(userId, authType, wrapper);
@@ -246,7 +246,7 @@ int32_t UserIdmClientImpl::GetSecUserInfo(int32_t userId, const std::shared_ptr<
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
         SecUserInfo info = {};
-        callback->OnSecUserInfo(info);
+        callback->OnSecUserInfo(GENERAL_ERROR, info);
         return GENERAL_ERROR;
     }
 
@@ -255,7 +255,7 @@ int32_t UserIdmClientImpl::GetSecUserInfo(int32_t userId, const std::shared_ptr<
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         SecUserInfo info = {};
-        callback->OnSecUserInfo(info);
+        callback->OnSecUserInfo(GENERAL_ERROR, info);
         return GENERAL_ERROR;
     }
     return proxy->GetSecInfo(userId, wrapper);

@@ -58,18 +58,20 @@ public:
 
 class DummyGetCredentialInfoCallback final : public GetCredentialInfoCallback {
 public:
-    void OnCredentialInfo(const std::vector<CredentialInfo> &infoList)
+    void OnCredentialInfo(int32_t result, const std::vector<CredentialInfo> &infoList)
     {
         IAM_LOGI("start");
+        static_cast<void>(result);
         static_cast<void>(infoList);
     }
 };
 
 class DummyGetSecUserInfoCallback final : public GetSecUserInfoCallback {
 public:
-    void OnSecUserInfo(const SecUserInfo &info)
+    void OnSecUserInfo(int32_t result, const SecUserInfo &info)
     {
         IAM_LOGI("start");
+        static_cast<void>(result);
         static_cast<void>(info);
     }
 };

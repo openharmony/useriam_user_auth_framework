@@ -94,7 +94,7 @@ HWTEST_F(UserIdmCallbackServiceTest, IdmGetCredInfoCallbackServiceTest001, TestS
     std::shared_ptr<GetCredentialInfoCallback> getCredInfoCallback = nullptr;
     auto service = Common::MakeShared<IdmGetCredInfoCallbackService>(getCredInfoCallback);
     EXPECT_NE(service, nullptr);
-    service->OnCredentialInfos(credInfoList);
+    service->OnCredentialInfos(SUCCESS, credInfoList);
 }
 
 HWTEST_F(UserIdmCallbackServiceTest, IdmGetCredInfoCallbackServiceTest002, TestSize.Level0)
@@ -106,9 +106,9 @@ HWTEST_F(UserIdmCallbackServiceTest, IdmGetCredInfoCallbackServiceTest002, TestS
 
     auto getCredInfoCallback = Common::MakeShared<MockGetCredentialInfoCallback>();
     EXPECT_NE(getCredInfoCallback, nullptr);
-    EXPECT_CALL(*getCredInfoCallback, OnCredentialInfo(_))
+    EXPECT_CALL(*getCredInfoCallback, OnCredentialInfo(_, _))
         .WillOnce(
-            [](const std::vector<CredentialInfo> &infoList) {
+            [](int32_t result, const std::vector<CredentialInfo> &infoList) {
                 EXPECT_EQ(infoList.size(), 3);
                 EXPECT_EQ(infoList[0].authType, PIN);
                 EXPECT_EQ(infoList[1].authType, FACE);
@@ -118,26 +118,25 @@ HWTEST_F(UserIdmCallbackServiceTest, IdmGetCredInfoCallbackServiceTest002, TestS
 
     auto service = Common::MakeShared<IdmGetCredInfoCallbackService>(getCredInfoCallback);
     EXPECT_NE(service, nullptr);
-    service->OnCredentialInfos(credInfoList);
+    service->OnCredentialInfos(SUCCESS, credInfoList);
 }
 
 HWTEST_F(UserIdmCallbackServiceTest, IdmGetSecureUserInfoCallbackServiceTest001, TestSize.Level0)
 {
     SecUserInfo secUserInfo = {};
-
     std::shared_ptr<GetSecUserInfoCallback> getSecInfoCallback = nullptr;
     auto service = Common::MakeShared<IdmGetSecureUserInfoCallbackService>(getSecInfoCallback);
     EXPECT_NE(service, nullptr);
-    service->OnSecureUserInfo(secUserInfo);
+    service->OnSecureUserInfo(SUCCESS, secUserInfo);
 }
 
 HWTEST_F(UserIdmCallbackServiceTest, IdmGetSecureUserInfoCallbackServiceTest002, TestSize.Level0)
 {
     auto getSecInfoCallback = Common::MakeShared<MockGetSecUserInfoCallback>();
     EXPECT_NE(getSecInfoCallback, nullptr);
-    EXPECT_CALL(*getSecInfoCallback, OnSecUserInfo(_))
+    EXPECT_CALL(*getSecInfoCallback, OnSecUserInfo(_, _))
         .WillOnce(
-            [](const SecUserInfo &info) {
+            [](int32_t result, const SecUserInfo &info) {
                 EXPECT_EQ(info.secureUid, 1000);
                 EXPECT_EQ(info.enrolledInfo.size(), 2);
                 EXPECT_EQ(info.enrolledInfo[0].authType, FACE);
@@ -153,7 +152,7 @@ HWTEST_F(UserIdmCallbackServiceTest, IdmGetSecureUserInfoCallbackServiceTest002,
     SecUserInfo secUserInfo = {};
     secUserInfo.secureUid = 1000;
     secUserInfo.enrolledInfo = {{FACE, 10}, {FINGERPRINT, 20}};
-    service->OnSecureUserInfo(secUserInfo);
+    service->OnSecureUserInfo(SUCCESS, secUserInfo);
 }
 } // namespace UserAuth
 } // namespace UserIam
