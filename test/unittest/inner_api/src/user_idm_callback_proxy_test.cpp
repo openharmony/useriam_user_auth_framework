@@ -153,7 +153,6 @@ HWTEST_F(UserIdmCallbackProxyTest, TestOnSecureUserInfo_001, TestSize.Level0)
     SecUserInfo secUserInfo = {};
     secUserInfo.secureUid = 1000;
     secUserInfo.enrolledInfo = {{FACE, 10}, {FINGERPRINT, 20}};
-    int32_t result = 0;
     proxy->OnSecureUserInfo(SUCCESS, secUserInfo);
 }
 } // namespace UserAuth
