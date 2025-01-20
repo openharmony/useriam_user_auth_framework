@@ -14,15 +14,15 @@
  */
 #include "enrollment_impl.h"
 
+#include "credential_info_impl.h"
 #include "hdi_wrapper.h"
 #include "iam_hitrace_helper.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
 #include "ipc_common.h"
+#include "load_mode_handler.h"
 #include "publish_event_adapter.h"
-#include "credential_info_impl.h"
 #include "schedule_node_helper.h"
-#include "system_param_manager.h"
 #include "update_pin_param_impl.h"
 #include "user_idm_database.h"
 
@@ -31,8 +31,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-EnrollmentImpl::EnrollmentImpl(EnrollmentPara enrollPara)
-    : enrollPara_(enrollPara)
+EnrollmentImpl::EnrollmentImpl(EnrollmentPara enrollPara) : enrollPara_(enrollPara)
 {
 }
 
@@ -91,8 +90,8 @@ int32_t EnrollmentImpl::GetUserId() const
 bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
     std::shared_ptr<ScheduleNodeCallback> callback)
 {
-    IAM_LOGE("UserId:%{public}d, AuthType:%{public}d, pinSubType:%{public}d",
-        enrollPara_.userId, enrollPara_.authType, enrollPara_.pinType);
+    IAM_LOGE("UserId:%{public}d, AuthType:%{public}d, pinSubType:%{public}d", enrollPara_.userId, enrollPara_.authType,
+        enrollPara_.pinType);
     auto hdi = HdiWrapper::GetHdiInstance();
     if (!hdi) {
         IAM_LOGE("bad hdi");
@@ -176,11 +175,10 @@ bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t
         IAM_LOGE("bad hdi");
         return false;
     }
-#ifdef ENABLE_DYNAMIC_LOAD
-    SystemParamManager::GetInstance().SetPinEnrolledParam(true);
-#endif
+
     HdiEnrollResultInfo resultInfo = {};
     auto result = hdi->UpdateEnrollmentResult(enrollPara_.userId, scheduleResult, resultInfo);
+    LoadModeHandler::GetInstance().OnCredentialEnrolled(enrollPara_.authType);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi UpdateEnrollmentResult failed, err is %{public}d, userId is %{public}d", result,
             enrollPara_.userId);
@@ -261,11 +259,11 @@ void EnrollmentImpl::PublishCredentialUpdateEvent()
     }
 
     std::vector<std::shared_ptr<CredentialInfoInterface>> credentialInfos;
-    int32_t ret = UserIdmDatabase::Instance().GetCredentialInfo(enrollPara_.userId, enrollPara_.authType,
-        credentialInfos);
+    int32_t ret =
+        UserIdmDatabase::Instance().GetCredentialInfo(enrollPara_.userId, enrollPara_.authType, credentialInfos);
     if (ret != SUCCESS) {
-        IAM_LOGE("get credential fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret,
-            enrollPara_.userId, enrollPara_.authType);
+        IAM_LOGE("get credential fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret, enrollPara_.userId,
+            enrollPara_.authType);
         return;
     }
 

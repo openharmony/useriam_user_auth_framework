@@ -35,6 +35,21 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+namespace {
+std::string GetParam(const std::string &key, const std::string &defaultValue)
+{
+    constexpr uint32_t MAX_VALUE_LEN = 128;
+    char valueBuffer[MAX_VALUE_LEN] = { 0 };
+    int32_t ret = GetParameter(key.c_str(), defaultValue.c_str(), valueBuffer, MAX_VALUE_LEN);
+    if (ret < 0) {
+        IAM_LOGE("get param failed, key %{public}s, ret %{public}d, use default value %{public}s", key.c_str(), ret,
+            defaultValue.c_str());
+        return defaultValue;
+    }
+    IAM_LOGI("get param key %{public}s value %{public}s", key.c_str(), valueBuffer);
+    return std::string(valueBuffer);
+}
+}
 using namespace HDI::ServiceManager::V1_0;
 const char IAM_EVENT_KEY[] = "bootevent.useriam.fwkready";
 DriverManager::DriverManager()
@@ -51,6 +66,9 @@ int32_t DriverManager::Start(const std::map<std::string, HdiConfig> &hdiName2Con
         return USERAUTH_ERROR;
     }
     std::lock_guard<std::mutex> lock(mutex_);
+    bool isFwkReady = GetParam(IAM_EVENT_KEY, "false") == "true";
+    auto servMgr = IServiceManager::Get();
+    IF_FALSE_LOGE_AND_RETURN_VAL(servMgr != nullptr, USERAUTH_ERROR);
     for (auto const &[hdiName, config] : hdiName2Config) {
         if (serviceName2Driver_.find(hdiName) != serviceName2Driver_.end()) {
             IAM_LOGI("%{public}s already added, skip", hdiName.c_str());
@@ -62,7 +80,14 @@ int32_t DriverManager::Start(const std::map<std::string, HdiConfig> &hdiName2Con
             continue;
         }
         serviceName2Driver_[hdiName] = driver;
-        driver->OnHdiConnect();
+        auto service = servMgr->GetService(hdiName.c_str());
+        if (service != nullptr) {
+            driver->OnHdiConnect();
+        }
+        if (isFwkReady) {
+            driver->OnFrameworkReady();
+        }
+
         IAM_LOGI("add driver %{public}s", hdiName.c_str());
     }
     IAM_LOGI("success");
@@ -176,10 +201,12 @@ void DriverManager::SubscribeFrameworkReadyEvent()
             return;
         }
         if (strcmp(value, "true")) {
-            IAM_LOGE("event value is not true");
-            return;
+            IAM_LOGI("event value is not true");
+            DriverManager::GetInstance().OnFrameworkDown();
+        } else {
+            IAM_LOGI("event value is true");
+            DriverManager::GetInstance().OnFrameworkReady();
         }
-        DriverManager::GetInstance().OnFrameworkReady();
     };
     int32_t ret = WatchParameter(IAM_EVENT_KEY, eventCallback, nullptr);
     if (ret != USERAUTH_SUCCESS) {
@@ -223,6 +250,20 @@ void DriverManager::OnFrameworkReady()
             continue;
         }
         pair.second->OnFrameworkReady();
+    }
+    IAM_LOGI("success");
+}
+
+void DriverManager::OnFrameworkDown()
+{
+    IAM_LOGI("start");
+    std::lock_guard<std::mutex> lock(mutex_);
+    for (auto const &pair : serviceName2Driver_) {
+        if (pair.second == nullptr) {
+            IAM_LOGE("pair.second is null");
+            continue;
+        }
+        pair.second->OnFrameworkDown();
     }
     IAM_LOGI("success");
 }

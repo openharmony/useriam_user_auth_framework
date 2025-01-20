@@ -13,29 +13,47 @@
  * limitations under the License.
  */
 
-#ifndef SYSTEM_PARAM_MANAGER
-#define SYSTEM_PARAM_MANAGER
+#ifndef SYSTEM_PARAM_MANAGER_H
+#define SYSTEM_PARAM_MANAGER_H
 
 #include <mutex>
+#include <vector>
+
+#include "parameter.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+inline const char *TRUE_STR = "true";
+inline const char *FALSE_STR = "false";
+
+inline const char *FWK_READY_KEY = "bootevent.useriam.fwkready";
+inline const char *IS_PIN_ENROLLED_KEY = "persist.useriam.isPinEnrolled";
+inline const char *IS_CREDENTIAL_CHECKED_KEY = "useriam.isCredentialChecked";
+inline const char *IS_PIN_FUNCTION_READY_KEY = "useriam.isPinFunctionReady";
+inline const char *STOP_SA_KEY = "useriam.stopSa";
+inline const char *START_SA_KEY = "useriam.startSa";
+
 class SystemParamManager {
 public:
     static SystemParamManager &GetInstance();
-    void SetPinEnrolledParam(bool pinEnrolled);
-    void SetCredentialCheckedParam(bool credentialChecked);
-    void SetStopParam(bool processStop);
-    void SetFuncReadyParam(bool funcReady);
-    bool GetCredentialCheckedParam();
+
+    std::string GetParam(const std::string &key, const std::string &defaultValue);
+    void SetParam(const std::string &key, const std::string &value);
+    void SetParamTwice(const std::string &key, const std::string &value1, const std::string &value2);
+    typedef void (*SystemParamCallback)(const std::string &value);
+    void WatchParam(const std::string &key, SystemParamCallback callback);
+    void OnParamChange(const std::string &key, const std::string &value);
 
 private:
-    SystemParamManager();
+    SystemParamManager() = default;
     ~SystemParamManager() = default;
+
+    std::recursive_mutex mutex_;
+    std::vector<std::pair<std::string, SystemParamCallback>> keyCallbackVec_;
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
 
-#endif // SYSTEM_PARAM_MANAGER
+#endif // SYSTEM_PARAM_MANAGER_H

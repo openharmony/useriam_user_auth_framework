@@ -16,22 +16,30 @@ import("//build/ohos/sa_profile/sa_profile.gni")
 import("../user_auth_framework.gni")
 
 ohos_sa_profile("userauth_sa_profile") {
-  sources = [
-    "901.json",
-    "921.json",
-    "931.json",
-  ]
+  sources = []
+  if (user_auth_framework_enable_dynamic_load) {
+    sources += [
+      "dynamic_load/901.json",
+      "dynamic_load/921.json",
+      "dynamic_load/931.json",
+    ]
+  } else {
+    sources += [
+      "default/901.json",
+      "default/921.json",
+      "default/931.json",
+    ]
+  }
 
   part_name = "user_auth_framework"
 }
 
 ohos_prebuilt_etc("useriam.init") {
   if (user_auth_framework_enable_dynamic_load) {
-    source = "wearable/useriam.cfg"
+    source = "dynamic_load/useriam.cfg"
   } else {
     source = "default/useriam.cfg"
   }
-
   relative_install_dir = "init"
 
   subsystem_name = "useriam"

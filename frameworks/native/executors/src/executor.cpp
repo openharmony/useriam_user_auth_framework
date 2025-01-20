@@ -51,13 +51,6 @@ Executor::Executor(std::shared_ptr<ExecutorMgrWrapper> executorMgrWrapper,
     description_ = ss.str();
 }
 
-void Executor::OnHdiConnect()
-{
-    IAM_LOGI("%{public}s start", GetDescription());
-    // register resource pool depends on hdi connect, after hdi connect re-register resource pool
-    OnFrameworkReady();
-}
-
 void Executor::OnHdiDisconnect()
 {
     IAM_LOGI("%{public}s start", GetDescription());
@@ -69,7 +62,7 @@ void Executor::OnHdiDisconnect()
     UnregisterExecutorCallback();
 }
 
-void Executor::OnFrameworkReady()
+void Executor::Register()
 {
     IAM_LOGI("%{public}s start", GetDescription());
     ExecutorInfo executorInfo = {};
