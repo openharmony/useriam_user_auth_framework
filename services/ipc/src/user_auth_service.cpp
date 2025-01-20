@@ -1401,7 +1401,7 @@ int32_t UserAuthService::SetGlobalConfigParam(const GlobalConfigParam &param)
         param.type, param.userIds.size(), param.authTypes.size());
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
-        !IpcCommon::CheckPermission(*this, ENT_DEVICE_MGR)) {
+        !IpcCommon::CheckPermission(*this, ENTERPRISE_DEVICE_MGR)) {
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
     }
