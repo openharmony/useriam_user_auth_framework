@@ -475,7 +475,7 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
     }
     std::string callerName = "";
     Attributes extraInfo;
-    int32_t callerType = 0;
+    int32_t callerType = Security::AccessToken::TOKEN_INVALID;
     if ((!IpcCommon::GetCallerName(*this, callerName, callerType))) {
         IAM_LOGE("get bundle name fail");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);

@@ -77,11 +77,6 @@ void ContextAppStateObserverFuzzTest(Parcel &parcel)
 
     contextApp->OnForegroundApplicationChanged(appStateData);
 
-    AbilityStateData abilityStateData;
-    abilityStateData.abilityState = static_cast<int32_t>(AbilityState::ABILITY_STATE_BACKGROUND);
-    abilityStateData.bundleName = "com.homs.settings";
-    contextApp->OnAbilityStateChanged(abilityStateData);
-
     int32_t userId = parcel.ReadInt32();
     contextApp->ProcAppStateChanged(userId);
     IAM_LOGI("end");

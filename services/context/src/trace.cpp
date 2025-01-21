@@ -17,7 +17,6 @@
 
 #include <cinttypes>
 #include <sstream>
-#include "auth_event_listener_manager.h"
 #include "iam_logger.h"
 #include "iam_time.h"
 #include "hisysevent_adapter.h"
@@ -144,10 +143,6 @@ void Trace::ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &
         info.isBackgroundApplication = metaData.isBackgroundApplication.value();
     }
     ReportUserAuth(info);
-    if (info.authResult == SUCCESS) {
-        AuthEventListenerManager::GetInstance().OnNotifyAuthSuccessEvent(info.userId,
-            static_cast<AuthType>(info.authType), info.callerType, info.callerName);
-    }
     IAM_LOGI("start to process user auth event");
 }
 
