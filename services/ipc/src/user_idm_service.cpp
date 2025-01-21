@@ -262,7 +262,7 @@ void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPar
         return;
     }
     std::string callerName = "";
-    int32_t callerType = 0;
+    int32_t callerType = Security::AccessToken::TOKEN_INVALID;
     static_cast<void>(IpcCommon::GetCallerName(*this, callerName, callerType));
     contextCallback->SetTraceCallerName(callerName);
     contextCallback->SetTraceCallerType(callerType);
@@ -375,7 +375,7 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInt
         return GENERAL_ERROR;
     }
     std::string callerName = "";
-    int32_t callerType = 0;
+    int32_t callerType = Security::AccessToken::TOKEN_INVALID;
     static_cast<void>(IpcCommon::GetCallerName(*this, callerName, callerType));
     contextCallback->SetTraceCallerType(callerType);
     contextCallback->SetTraceCallerName(callerName);
@@ -428,7 +428,7 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
         return;
     }
     std::string callerName = "";
-    int32_t callerType = 0;
+    int32_t callerType = Security::AccessToken::TOKEN_INVALID;
     static_cast<void>(IpcCommon::GetCallerName(*this, callerName, callerType));
     contextCallback->SetTraceCallerName(callerName);
     contextCallback->SetTraceCallerType(callerType);
@@ -482,7 +482,7 @@ void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
         return;
     }
     std::string callerName = "";
-    int32_t callerType = 0;
+    int32_t callerType = Security::AccessToken::TOKEN_INVALID;
     static_cast<void>(IpcCommon::GetCallerName(*this, callerName, callerType));
     contextCallback->SetTraceCallerName(callerName);
     contextCallback->SetTraceCallerType(callerType);
@@ -621,7 +621,7 @@ void UserIdmService::ClearRedundancyCredentialInner()
         return;
     }
     std::string callerName = "";
-    int32_t callerType = 0;
+    int32_t callerType = Security::AccessToken::TOKEN_INVALID;
     static_cast<void>(IpcCommon::GetCallerName(*this, callerName, callerType));
 
     for (const auto &iter : userInfos) {
