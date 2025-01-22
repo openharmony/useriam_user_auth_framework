@@ -47,7 +47,7 @@ private:
 
     bool isInit_ = false;
     std::recursive_mutex mutex_;
-    bool isPinEnrolled_;
+    bool isPinEnrolled_ = false;
     sptr<SystemAbilityListener> pinAuthServiceListener_ = nullptr;
     bool isExecutorRegistered_ = false;
     bool isPinAuthServiceReady_ = false;
