@@ -20,6 +20,7 @@
 #include <memory>
 
 #include "authentication.h"
+#include "hdi_wrapper.h"
 #include "schedule_node.h"
 
 namespace OHOS {
@@ -50,11 +51,12 @@ protected:
     void SetLatestError(int32_t error) override;
 
 private:
+    bool GetAuthParam(HdiAuthParam &param);
     uint64_t contextId_;
     AuthenticationPara authPara_;
     bool endAfterFirstFail_ {false};
 
-    uint32_t executorSensorHint {0};
+    uint32_t executorSensorHint_ {0};
     uint32_t executorIndex_ {0};
     std::vector<uint8_t> challenge_ {};
     uint32_t tokenId_ {0};

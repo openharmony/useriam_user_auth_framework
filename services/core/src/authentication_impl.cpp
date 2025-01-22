@@ -14,7 +14,6 @@
  */
 #include "authentication_impl.h"
 
-#include "hdi_wrapper.h"
 #include "iam_hitrace_helper.h"
 #include "iam_logger.h"
 #include "schedule_node_helper.h"
@@ -90,6 +89,31 @@ std::vector<Authentication::AuthExecutorMsg> AuthenticationImpl::GetAuthExecutor
     return authExecutorMsgs_;
 }
 
+bool AuthenticationImpl::GetAuthParam(HdiAuthParam &param)
+{
+    HdiCallerType callerType = ConvertATokenTypeToCallerType(authPara_.callerType);
+    if (callerType == HDI_CALLER_TYPE_INVALID) {
+        IAM_LOGE("ConvertATokenTypeToCallerType failed, ATokenType:%{public}d", authPara_.callerType);
+        return false;
+    }
+    param = {
+        .baseParam = {
+            .userId = authPara_.userId,
+            .authTrustLevel = authPara_.atl,
+            .executorSensorHint = executorSensorHint_,
+            .challenge = challenge_,
+            .callerName = authPara_.callerName,
+            .callerType = callerType,
+            .apiVersion = authPara_.sdkVersion,
+        },
+        .authType = authPara_.authType,
+        .authIntent = authPara_.authIntent,
+        .isOsAccountVerified = authPara_.isOsAccountVerified,
+        .collectorUdid = collectorUdid_,
+    };
+    return true;
+}
+
 bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
     std::shared_ptr<ScheduleNodeCallback> callback)
 {
@@ -100,21 +124,12 @@ bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
         IAM_LOGE("bad hdi");
         return false;
     }
-    HdiAuthParam param = {
-        .baseParam = {
-            .userId = authPara_.userId,
-            .authTrustLevel = authPara_.atl,
-            .executorSensorHint = executorSensorHint,
-            .challenge = challenge_,
-            .callerName = authPara_.callerName,
-            .callerType = authPara_.callerType,
-            .apiVersion = authPara_.sdkVersion,
-        },
-        .authType = authPara_.authType,
-        .authIntent = authPara_.authIntent,
-        .isOsAccountVerified = authPara_.isOsAccountVerified,
-        .collectorUdid = collectorUdid_,
-    };
+    HdiAuthParam param = {};
+    if (!GetAuthParam(param)) {
+        IAM_LOGE("GetAuthParam failed");
+        return false;
+    }
+
     std::vector<HdiScheduleInfo> infos;
     IamHitraceHelper traceHelper("hdi BeginAuthentication");
     auto result = hdi->BeginAuthentication(contextId_, param, infos);
