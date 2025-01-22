@@ -223,6 +223,7 @@ void FuzzStart(std::shared_ptr<Parcel> parcel)
     IAM_LOGI("begin");
     // driver manager forbids multiple invoke of Start(), it's config must be valid
     Singleton<UserAuth::DriverManager>::GetInstance().Start(GLOBAL_HDI_NAME_TO_CONFIG);
+    Singleton<UserAuth::DriverManager>::GetInstance().SubscribeHdiDriverStatus();
     IAM_LOGI("end");
 }
 
@@ -237,13 +238,6 @@ void FuzzOnAllHdiDisconnect(std::shared_ptr<Parcel> parcel)
 {
     IAM_LOGI("begin");
     Singleton<UserAuth::DriverManager>::GetInstance().OnAllHdiDisconnect();
-    IAM_LOGI("end");
-}
-
-void FuzzSubscribeHdiDriverStatus(std::shared_ptr<Parcel> parcel)
-{
-    IAM_LOGI("begin");
-    Singleton<UserAuth::DriverManager>::GetInstance().SubscribeHdiDriverStatus();
     IAM_LOGI("end");
 }
 
@@ -285,7 +279,6 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzStart,
     FuzzOnFrameworkReady,
     FuzzOnAllHdiDisconnect,
-    FuzzSubscribeHdiDriverStatus,
     FuzzGetDriverByServiceName,
     FuzzDriverConnect,
     FuzzDriverDisconnect,
