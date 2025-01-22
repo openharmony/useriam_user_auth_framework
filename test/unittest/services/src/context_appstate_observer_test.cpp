@@ -152,39 +152,6 @@ HWTEST_F(ContextAppStateObserverTest, OnForegroundApplicationChangedTest_003, Te
     appStateData.bundleName = "com.homs.settings";
     appStateObserver->OnForegroundApplicationChanged(appStateData);
 }
-
-HWTEST_F(ContextAppStateObserverTest, OnAbilityStateChangedTest_001, TestSize.Level0)
-{
-    uint64_t contextId = 1;
-    auto appStateObserver = new (std::nothrow) ContextAppStateObserver(contextId, "com.homs.setting");
-    ASSERT_NE(appStateObserver, nullptr);
-    AbilityStateData abilityStateData;
-    abilityStateData.abilityState = static_cast<int32_t>(AbilityState::ABILITY_STATE_BACKGROUND);
-    abilityStateData.bundleName = "com.homs.settings";
-    appStateObserver->OnAbilityStateChanged(abilityStateData);
-}
-
-HWTEST_F(ContextAppStateObserverTest, OnAbilityStateChangedTest_002, TestSize.Level0)
-{
-    uint64_t contextId = 1;
-    auto appStateObserver = new (std::nothrow) ContextAppStateObserver(contextId, "com.homs.settings");
-    ASSERT_NE(appStateObserver, nullptr);
-    AbilityStateData abilityStateData;
-    abilityStateData.abilityState = static_cast<int32_t>(AbilityState::ABILITY_STATE_FOREGROUND);
-    abilityStateData.bundleName = "com.homs.settings";
-    appStateObserver->OnAbilityStateChanged(abilityStateData);
-}
-
-HWTEST_F(ContextAppStateObserverTest, OnAbilityStateChangedTest_003, TestSize.Level0)
-{
-    uint64_t contextId = 1;
-    auto appStateObserver = new (std::nothrow) ContextAppStateObserver(contextId, "com.homs.setting");
-    ASSERT_NE(appStateObserver, nullptr);
-    AbilityStateData abilityStateData;
-    abilityStateData.abilityState = static_cast<int32_t>(AbilityState::ABILITY_STATE_BACKGROUND);
-    abilityStateData.bundleName = "com.homs.settings";
-    appStateObserver->OnAbilityStateChanged(abilityStateData);
-}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

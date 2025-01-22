@@ -16,6 +16,7 @@
 
 #include <sstream>
 
+#include "auth_event_listener_manager.h"
 #include "iam_check.h"
 #include "iam_common_defines.h"
 #include "iam_logger.h"
@@ -111,11 +112,30 @@ void ContextCallbackImpl::OnResult(int32_t resultCode, const Attributes &finalRe
     if (iamCallback_ != nullptr) {
         iamCallback_->OnResult(resultCode, finalResult);
     }
+    HandleAuthSuccessResult(resultCode, finalResult);
 
     ContextCallbackNotifyListener::GetInstance().Process(metaData_, TRACE_FLAG_DEFAULT);
     if (stopCallback_ != nullptr) {
         stopCallback_();
     }
+}
+
+void ContextCallbackImpl::HandleAuthSuccessResult(int32_t resultCode, const Attributes &finalResult)
+{
+    if (resultCode != SUCCESS) {
+        return;
+    }
+    if (!metaData_.authType.has_value() || !metaData_.callerType.has_value() || !metaData_.callerName.has_value()) {
+        IAM_LOGE("bad metaData");
+        return;
+    }
+    int32_t userId = INVALID_USER_ID;
+    if (!finalResult.GetInt32Value(Attributes::ATTR_USER_ID, userId)) {
+        IAM_LOGE("get userId failed");
+        return;
+    }
+    AuthEventListenerManager::GetInstance().OnNotifyAuthSuccessEvent(userId,
+        static_cast<AuthType>(metaData_.authType.value()), metaData_.callerType.value(), metaData_.callerName.value());
 }
 
 void ContextCallbackImpl::SetTraceUserId(int32_t userId)

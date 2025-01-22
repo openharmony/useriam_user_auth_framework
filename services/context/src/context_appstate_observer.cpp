@@ -188,21 +188,6 @@ void ContextAppStateObserver::OnForegroundApplicationChanged(const AppStateData 
     }
     return;
 }
-
-void ContextAppStateObserver::OnAbilityStateChanged(const AbilityStateData &abilityStateData)
-{
-    IAM_LOGI("start, contextId: ****%{public}hx", static_cast<uint16_t>(contextId_));
-    auto bundleName = abilityStateData.bundleName;
-    auto state = static_cast<AbilityState>(abilityStateData.abilityState);
-    int32_t userId = abilityStateData.uid / CONVERT_UID_TO_USERID;
-    IAM_LOGI("OnAbilityStateChanged, userId:%{public}d, bundleName:%{public}s, state:%{public}d", userId,
-        bundleName.c_str(), state);
-
-    if (bundleName.compare(bundleName_) == 0 && state == AbilityState::ABILITY_STATE_BACKGROUND) {
-        ProcAppStateChanged(userId);
-    }
-    return;
-}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
