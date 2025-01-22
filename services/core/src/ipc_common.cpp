@@ -232,16 +232,6 @@ std::vector<std::pair<int32_t, std::string>> IpcCommon::GetWhiteLists(Permission
     switch (permission) {
         case ENFORCE_USER_IDM:
             return enforceUserIdmWhiteLists;
-        case MANAGE_USER_IDM_PERMISSION:
-        case CLEAR_REDUNDANCY_PERMISSION:
-        case USE_USER_IDM_PERMISSION:
-        case ACCESS_USER_AUTH_INTERNAL_PERMISSION:
-        case ACCESS_BIOMETRIC_PERMISSION:
-        case ACCESS_AUTH_RESPOOL:
-        case SUPPORT_USER_AUTH:
-        case IS_SYSTEM_APP:
-        case USE_USER_ACCESS_MANAGER:
-        case USER_AUTH_FROM_BACKGROUND:
         case ENTERPRISE_DEVICE_MGR:
             return EDM_WHITE_LIST;
         default:
