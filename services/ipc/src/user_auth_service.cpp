@@ -934,10 +934,10 @@ int32_t UserAuthService::CheckCallerPermissionForPrivatePin(const AuthParamInner
 int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authParam, const WidgetParam &widgetParam,
     bool isBackgroundApplication)
 {
-    if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP) &&
-        (widgetParam.windowMode != WindowModeType::UNKNOWN_WINDOW_MODE)) {
-        IAM_LOGE("normal app can't set window mode.");
-        return INVALID_PARAMETERS;
+    int32_t checkRet = CheckWindowMode(widgetParam);
+    if (checkRet != SUCCESS) {
+        IAM_LOGE("CheckWindowMode failed");
+        return checkRet;
     }
     if (CheckCallerPermissionForPrivatePin(authParam) != SUCCESS) {
         IAM_LOGE("CheckCallerPermissionForPrivatePin failed");
@@ -973,6 +973,21 @@ int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authP
     }
     if (widgetParam.title.empty()) {
         IAM_LOGE("title is empty");
+        return INVALID_PARAMETERS;
+    }
+    return SUCCESS;
+}
+
+int32_t UserAuthService::CheckWindowMode(const WidgetParam &widgetParam)
+{
+    if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP) &&
+        (widgetParam.windowMode == WindowModeType::NONE_INTERRUPTION_DIALOG_BOX)) {
+        IAM_LOGE("the caller is not a system application.");
+        return CHECK_SYSTEM_APP_FAILED;
+    }
+    if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP) &&
+        (widgetParam.windowMode != WindowModeType::UNKNOWN_WINDOW_MODE)) {
+        IAM_LOGE("normal app can't set window mode.");
         return INVALID_PARAMETERS;
     }
     return SUCCESS;
