@@ -39,7 +39,10 @@ ohos_shared_library("cj_userauth_ffi") {
 
   deps = [ "../../native/client:userauth_client" ]
 
-  external_deps = [ "napi:cj_bind_native" ]
+  external_deps = [
+    "ipc:ipc_core",
+    "napi:cj_bind_native",
+  ]
 
   innerapi_tags = [ "platformsdk" ]
   subsystem_name = "useriam"
