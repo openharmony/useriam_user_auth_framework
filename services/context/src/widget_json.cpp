@@ -33,6 +33,7 @@ const std::string AUTH_TYPE_PRIVATE_PIN = "privatePin";
 
 const std::string WINDOW_MODE_DIALOG = "DIALOG_BOX";
 const std::string WINDOW_MODE_FULLSCREEN = "FULLSCREEN";
+const std::string WINDOW_MODE_NONE_INTERRUPTION_DIALOG_BOX = "NONE_INTERRUPTION_DIALOG_BOX";
 
 const std::string PIN_SUB_TYPE_SIX = "PIN_SIX";
 const std::string PIN_SUB_TYPE_NUM = "PIN_NUMBER";
@@ -43,6 +44,7 @@ const std::string PIN_SUB_TYPE_MAX = "PIN_MAX";
 
 const std::string JSON_AUTH_TYPE = "type";
 const std::string JSON_WIDGET_CTX_ID = "widgetContextId";
+const std::string JSON_WIDGET_CTX_ID_STR = "widgetContextIdStr";
 const std::string JSON_AUTH_EVENT = "event";
 const std::string JSON_AUTH_VERSION = "version";
 const std::string JSON_AUTH_PAYLOAD = "payload";
@@ -118,7 +120,8 @@ void GetJsonCmd(nlohmann::json &jsonCommand, const WidgetCommand &command, bool 
     jsonCommand = nlohmann::json({{JSON_WIDGET_CTX_ID, command.widgetContextId},
         {JSON_AUTH_TYPE, command.typeList},
         {JSON_AUTH_TITLE, command.title},
-        {JSON_AUTH_CMD, jsonCmdList}
+        {JSON_AUTH_CMD, jsonCmdList},
+        {JSON_WIDGET_CTX_ID_STR, command.widgetContextIdStr}
     });
     if (command.pinSubType != "") {
         jsonCommand[JSON_AUTH_PIN_SUB_TYPE] = command.pinSubType;
@@ -191,6 +194,8 @@ std::string WinModeType2Str(const WindowModeType &winModeType)
     std::map<int32_t, std::string> winModeTypeMap;
     winModeTypeMap.emplace(std::make_pair(WindowModeType::DIALOG_BOX, WINDOW_MODE_DIALOG));
     winModeTypeMap.emplace(std::make_pair(WindowModeType::FULLSCREEN, WINDOW_MODE_FULLSCREEN));
+    winModeTypeMap.emplace(std::make_pair(WindowModeType::NONE_INTERRUPTION_DIALOG_BOX,
+        WINDOW_MODE_NONE_INTERRUPTION_DIALOG_BOX));
     std::string result = "";
     if (winModeTypeMap.find(winModeType) != winModeTypeMap.end()) {
         result = winModeTypeMap[winModeType];
