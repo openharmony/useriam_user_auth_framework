@@ -17,3 +17,67 @@ import("../../user_auth_framework.gni")
 config("userauth_service_load_mode_config") {
   include_dirs = [ "inc" ]
 }
+
+ohos_source_set("userauth_service_load_mode") {
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
+
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
+  include_dirs = [ "inc" ]
+
+  sources = [ "src/load_mode_handler.cpp" ]
+
+  defines = []
+
+  if (user_auth_framework_enable_dynamic_load) {
+    sources += [
+      "src/driver_load_manager.cpp",
+      "src/load_mode_handler_dynamic.cpp",
+      "src/service_unload_manager.cpp",
+    ]
+    defines += [ "ENABLE_DYNAMIC_LOAD" ]
+  } else {
+    sources += [ "src/load_mode_handler_default.cpp" ]
+  }
+
+  deps = [
+    "../../frameworks/native/client:userauth_client",
+    "../../frameworks/native/common:attributes",
+    "../../frameworks/native/common:dfx",
+    "../../services/base:userauth_service_base",
+  ]
+
+  external_deps = [
+    "ability_runtime:app_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libtokenid_sdk",
+    "c_utils:utils",
+    "device_manager:devicemanagersdk",
+    "drivers_interface_user_auth:libuser_auth_proxy_3.0",
+    "hdf_core:libhdi",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+
+  configs = [
+    "../../common:iam_log_config",
+    "../../common:iam_utils_config",
+    "../core:userauth_service_core_config",
+  ]
+
+  subsystem_name = "useriam"
+  part_name = "user_auth_framework"
+}
