@@ -186,7 +186,7 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTestRegisterAccessTokenListener, TestSi
 {
     auto service = Common::MakeShared<CoAuthService>();
     EXPECT_NE(service, nullptr);
-    service->Init();
+    service->OnDriverStart();
     service->SetIsReady(true);
     service->SetAccessTokenReady(true);
     EXPECT_EQ(service->RegisterAccessTokenListener(), SUCCESS);

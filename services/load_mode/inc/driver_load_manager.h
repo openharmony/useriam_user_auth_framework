@@ -31,9 +31,9 @@ public:
 
     void Init();
     void OnTimeout();
-    void OnDriverManagerAdd();
-    void OnServiceStart();
-    void OnServiceStop();
+    void OnDriverStart();
+    void OnDriverStop();
+
     void OnSaStopping(bool isStopping);
 
 private:

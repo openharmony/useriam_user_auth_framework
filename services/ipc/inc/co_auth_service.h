@@ -40,8 +40,8 @@ public:
     void ExecutorUnregister(uint64_t executorIndex) override;
     void SetIsReady(bool isReady);
     void SetAccessTokenReady(bool isReady);
-    void AddInitTask(uint32_t delayTime);
-    void RemoveInitTask();
+    void OnDriverStart();
+    void OnDriverStop();
     ResultCode RegisterAccessTokenListener();
     ResultCode UnRegisterAccessTokenListener();
 
@@ -50,7 +50,6 @@ protected:
     void OnStop() override;
 
 private:
-    static void Init();
     static void AddExecutorDeathRecipient(uint64_t executorIndex, AuthType authType, ExecutorRole role,
         std::shared_ptr<ExecutorCallbackInterface> callback);
     void AuthServiceInit();

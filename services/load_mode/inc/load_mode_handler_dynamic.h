@@ -39,6 +39,8 @@ public:
     void OnCredentialDeleted(AuthType authType) override;
     void OnPinAuthServiceReady() override;
     void OnPinAuthServiceStop() override;
+    void OnDriverStart() override;
+    void OnDriverStop() override;
 
 private:
     bool AnyUserHasPinCredential();

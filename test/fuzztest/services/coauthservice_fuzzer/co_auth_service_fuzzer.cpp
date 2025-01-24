@@ -142,7 +142,7 @@ void FuzzRegister(Parcel &parcel)
 void FuzzOther(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    g_coAuthService->Init();
+    g_coAuthService->OnDriverStart();
 
     auto callback = Common::MakeShared<CoAuthServiceFuzzer>(parcel.ReadInt32(), parcel.ReadInt32(),
         parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32());
