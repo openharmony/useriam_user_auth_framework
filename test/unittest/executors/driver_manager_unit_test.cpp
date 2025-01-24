@@ -140,6 +140,27 @@ HWTEST_F(DriverManagerUnitTest, DriverManagerTest_005, TestSize.Level0)
     DriverManager::GetInstance().OnAllHdiDisconnect();
     DriverManager::GetInstance().OnAllHdiDisconnect();
 }
+
+HWTEST_F(DriverManagerUnitTest, DriverManager_OnFrameworkDownTest_001, TestSize.Level0)
+{
+    std::string serviceName = "mockDriver";
+    HdiConfig config = {};
+    config.id = 10;
+    config.driver = Common::MakeShared<MockIAuthDriverHdi>();
+    std::map<std::string, HdiConfig> hdiName2Config;
+    hdiName2Config.emplace(serviceName, config);
+    EXPECT_EQ(DriverManager::GetInstance().HdiConfigIsValid(hdiName2Config), true);
+    DriverManager::GetInstance().serviceName2Driver_.emplace(serviceName, nullptr);
+    EXPECT_EQ(DriverManager::GetInstance().Start(hdiName2Config), USERAUTH_SUCCESS);
+    config.driver->OnFrameworkDown();
+    DriverManager::GetInstance().OnFrameworkDown();
+    for (auto const &pair : DriverManager::GetInstance().serviceName2Driver_) {
+        if (pair.second == nullptr) {
+            continue;
+        }
+        EXPECT_EQ(pair.second->isFwkReady_, false);
+    }
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
