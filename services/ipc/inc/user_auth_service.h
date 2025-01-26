@@ -96,6 +96,7 @@ private:
         RemoteAuthInvokerContextParam &param, const std::shared_ptr<ContextCallback> &contextCallback);
     bool Insert2ContextPool(const std::shared_ptr<Context> &context);
     bool CheckCallerIsSystemApp();
+    int32_t CheckWindowMode(const WidgetParam &widgetParam);
     int32_t CheckAuthPermissionAndParam(int32_t authType, const int32_t &callerType, const std::string &callerName,
         AuthTrustLevel authTrustLevel);
     bool CheckAuthPermissionAndParam(AuthType authType, AuthTrustLevel authTrustLevel,

@@ -372,6 +372,7 @@ UserAuthResultCode UserAuthInstanceV10::ProcessWindowMode(napi_env env, napi_val
         switch (windowMode) {
             case WindowModeType::DIALOG_BOX:
             case WindowModeType::FULLSCREEN:
+            case WindowModeType::NONE_INTERRUPTION_DIALOG_BOX:
                 widgetParam_.windowMode = static_cast<WindowModeType>(windowMode);
                 break;
             default:
