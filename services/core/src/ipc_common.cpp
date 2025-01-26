@@ -69,8 +69,8 @@ int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, int32_t &userId)
         IAM_LOGE("failed to get hap token info, result = %{public}d", result);
         return TYPE_NOT_SUPPORT;
     }
-    userId = static_cast<int32_t>(hapTokenInfo.userID);
-    IAM_LOGI("get callingUserId is %{public}d", userId);
+    userId = hapTokenInfo.userID == 0 ? MAIN_USER_ID : static_cast<int32_t>(hapTokenInfo.userID);
+    IAM_LOGI("get callingUserId is %{public}d", hapTokenInfo.userID);
     return SUCCESS;
 }
 
