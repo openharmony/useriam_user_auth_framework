@@ -39,6 +39,8 @@ enum Permission {
     IS_SYSTEM_APP,
     CLEAR_REDUNDANCY_PERMISSION,
     USE_USER_ACCESS_MANAGER,
+    USER_AUTH_FROM_BACKGROUND,
+    ENTERPRISE_DEVICE_MGR,
 };
 
 class IpcCommon final : public NoCopyable {
