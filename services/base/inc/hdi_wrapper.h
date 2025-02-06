@@ -29,9 +29,6 @@ class HdiWrapper {
 public:
     static std::shared_ptr<IUserAuthInterface> GetHdiInstance();
     static sptr<IRemoteObject> GetHdiRemoteObjInstance();
-
-private:
-    static sptr<IUserAuthInterface> GetHdi();
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -19,6 +19,7 @@
 
 #include "driver_load_manager.h"
 #include "iam_logger.h"
+#include "os_account_manager.h"
 #include "service_unload_manager.h"
 #include "system_param_manager.h"
 #include "user_idm_database.h"
@@ -104,7 +105,7 @@ void LoadModeHandlerDynamic::OnPinAuthServiceStop()
     IAM_LOGI("on pin auth service stop");
     isPinAuthServiceReady_ = false;
 
-    SystemParamManager::GetInstance().SetParam(IS_PIN_FUNCTION_READY_KEY, FALSE_STR);
+    RefreshIsPinFunctionReady();
     bool isPinEnrolled = SystemParamManager::GetInstance().GetParam(IS_PIN_ENROLLED_KEY, FALSE_STR) == TRUE_STR;
     if (isPinEnrolled) {
         IAM_LOGI("pin auth service down, pin enrolled, wait fwk ready");
@@ -146,21 +147,36 @@ void LoadModeHandlerDynamic::OnCredentialDeleted(AuthType authType)
 
 bool LoadModeHandlerDynamic::AnyUserHasPinCredential()
 {
-    // assume that dynamic mode only has main user
-    std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
-    int32_t getCredRet = UserIdmDatabase::Instance().GetCredentialInfo(MAIN_USER_ID, AuthType::PIN, credInfos);
-    if (getCredRet != SUCCESS) {
-        // it's possible that the user has no credential
-        IAM_LOGI("failed to get credential info ret %{public}d", getCredRet);
+    std::vector<AccountSA::OsAccountInfo> OsAccountInfo;
+    ErrCode errCode = AccountSA::OsAccountManager::QueryAllCreatedOsAccounts(osAccountInfos);
+    if (errCode != ERR_OK) {
+        IAM_LOGE("QueryAllCreatedOsAccounts fail, errCode = %{public}d", errCode);
         return false;
     }
-    if (!credInfos.empty()) {
-        IAM_LOGI("user %{public}d pin credential number %{public}zu", MAIN_USER_ID, credInfos.size());
-        return true;
+
+    std::vector<int32_t> allCreatedUserId;
+    for (auto &info : osAccountInfos) {
+        allCreatedUserId.push_back(info.GetLocal());
     }
 
-    IAM_LOGI("user %{public}d has no pin credential", MAIN_USER_ID);
-    return false;
+    bool isAnyUserWithPinCredential = false;
+    for (int32_t userId : allCreatedUserId) {
+        std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
+        int32_t getCredRet = UserIdmDatabase::Instance().GetCredentialInfo(userId, AuthType::PIN, credInfos);
+        if (getCredRet != SUCCESS) {
+            // it's possible that the user has no credential
+            IAM_LOGI("failed to get credential info ret %{public}d", getCredRet);
+            continue;
+        }
+
+        if (!credInfos.empty()) {
+            IAM_LOGI("user %{public}d pin credential number %{public}zu", userId, credInfos.size());
+            isAnyUserWithPinCredential = true;
+            continue;
+        }
+        IAM_LOGI("user %{public}d has no pin credential", MAIN_USER_ID);
+    }
+    return isAnyUserWithPinCredential;
 }
 
 void LoadModeHandlerDynamic::RefreshIsPinEnrolled()

@@ -61,7 +61,6 @@ private:
     bool isReady_{false};
     bool accessTokenReady_{false};
     sptr<SystemAbilityListener> accessTokenListener_ {nullptr};
-    std::optional<uint64_t> initTimerId_ {std::nullopt};
 };
 } // namespace UserAuth
 } // namespace UserIam
