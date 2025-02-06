@@ -69,14 +69,7 @@ void Driver::OnHdiConnect()
         return;
     }
 
-    for (const auto &executor : executorList_) {
-        if (executor == nullptr) {
-            IAM_LOGE("executor is null");
-            continue;
-        }
-        executor->Register();
-    }
-    IAM_LOGI("success");
+    RegisterExecutors();
 }
 
 void Driver::OnHdiDisconnect()
@@ -122,6 +115,11 @@ void Driver::OnFrameworkReady()
         return;
     }
 
+    RegisterExecutors();
+}
+
+void Driver::RegisterExecutors()
+{
     for (const auto &executor : executorList_) {
         if (executor == nullptr) {
             IAM_LOGE("executor is null");

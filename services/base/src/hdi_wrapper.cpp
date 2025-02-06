@@ -23,14 +23,9 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-sptr<IUserAuthInterface> HdiWrapper::GetHdi()
-{
-    return IUserAuthInterface::Get();
-}
-
 std::shared_ptr<IUserAuthInterface> HdiWrapper::GetHdiInstance()
 {
-    auto hdi = GetHdi();
+    auto hdi = IUserAuthInterface::Get();
     if (!hdi) {
         return nullptr;
     }
@@ -39,7 +34,7 @@ std::shared_ptr<IUserAuthInterface> HdiWrapper::GetHdiInstance()
 
 sptr<IRemoteObject> HdiWrapper::GetHdiRemoteObjInstance()
 {
-    auto hdi = GetHdi();
+    auto hdi = IUserAuthInterface::Get();
     if (!hdi) {
         return sptr<IRemoteObject>(nullptr);
     }
