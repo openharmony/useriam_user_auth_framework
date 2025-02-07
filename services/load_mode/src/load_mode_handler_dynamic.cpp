@@ -159,7 +159,6 @@ bool LoadModeHandlerDynamic::AnyUserHasPinCredential()
         allCreatedUserId.push_back(info.GetLocal());
     }
 
-    bool isAnyUserWithPinCredential = false;
     for (int32_t userId : allCreatedUserId) {
         std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
         int32_t getCredRet = UserIdmDatabase::Instance().GetCredentialInfo(userId, AuthType::PIN, credInfos);
@@ -171,12 +170,11 @@ bool LoadModeHandlerDynamic::AnyUserHasPinCredential()
 
         if (!credInfos.empty()) {
             IAM_LOGI("user %{public}d pin credential number %{public}zu", userId, credInfos.size());
-            isAnyUserWithPinCredential = true;
-            continue;
+            return true;
         }
-        IAM_LOGI("user %{public}d has no pin credential", MAIN_USER_ID);
+        IAM_LOGI("user %{public}d has no pin credential", userId);
     }
-    return isAnyUserWithPinCredential;
+    return false;
 }
 
 void LoadModeHandlerDynamic::RefreshIsPinEnrolled()
