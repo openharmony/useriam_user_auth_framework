@@ -38,14 +38,14 @@ public:
     void OnFrameworkDown();
 
 private:
+    void RegisterExecutors();
+
     std::mutex mutex_;
     std::string serviceName_;
     HdiConfig hdiConfig_;
     bool hdiConnected_ = false;
     bool isFwkReady_ = false;
     std::vector<std::shared_ptr<Executor>> executorList_;
-
-    void RegisterExecutors();
 };
 } // namespace UserAuth
 } // namespace UserIam
