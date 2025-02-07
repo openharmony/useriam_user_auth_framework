@@ -82,8 +82,8 @@ int32_t LoadModeUtil::GetProxyNullResultCode(const char *funcName, const std::ve
 #else
 int32_t LoadModeUtil::GetProxyNullResultCode(const char *funcName, const std::vector<std::string> &permissions)
 {
-    (void)funcName;
-    (void)permissions;
+    static_cast<void>(funcName);
+    static_cast<void>(permissions);
     IAM_LOGE("proxy is nullptr");
     return GENERAL_ERROR;
 }

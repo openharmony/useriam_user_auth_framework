@@ -38,6 +38,8 @@ public:
     void OnFrameworkDown();
 
 private:
+    void RegisterExecutors();
+
     std::mutex mutex_;
     std::string serviceName_;
     HdiConfig hdiConfig_;
