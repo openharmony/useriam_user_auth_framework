@@ -147,19 +147,15 @@ void LoadModeHandlerDynamic::OnCredentialDeleted(AuthType authType)
 
 bool LoadModeHandlerDynamic::AnyUserHasPinCredential()
 {
-    std::vector<AccountSA::OsAccountInfo> OsAccountInfo;
-    ErrCode errCode = AccountSA::OsAccountManager::QueryAllCreatedOsAccounts(osAccountInfos);
+    std::vector<AccountSA::OsAccountInfo> osAccountInfo;
+    ErrCode errCode = AccountSA::OsAccountManager::QueryAllCreatedOsAccounts(osAccountInfo);
     if (errCode != ERR_OK) {
         IAM_LOGE("QueryAllCreatedOsAccounts fail, errCode = %{public}d", errCode);
         return false;
     }
 
-    std::vector<int32_t> allCreatedUserId;
-    for (auto &info : osAccountInfos) {
-        allCreatedUserId.push_back(info.GetLocal());
-    }
-
-    for (int32_t userId : allCreatedUserId) {
+    for (auto &info : osAccountInfo) {
+        int32_t userId = info.GetLocalId();
         std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
         int32_t getCredRet = UserIdmDatabase::Instance().GetCredentialInfo(userId, AuthType::PIN, credInfos);
         if (getCredRet != SUCCESS) {
