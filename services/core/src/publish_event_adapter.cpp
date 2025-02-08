@@ -97,7 +97,7 @@ void PublishEventAdapter::PublishUpdatedEvent(int32_t userId, uint64_t credentia
     data.SetCode(userId);
     PublishEvent(data, USERIAM_COMMON_EVENT_SAMGR_PERMISSION);
     IAM_LOGE("PublishUpdatedEvent, userId: %{public}d, scheduleId: %{public}s",
-        userId, GET_MASKED_STRING(credentialId).c_str());    
+        userId, GET_MASKED_STRING(credentialId).c_str());
     return;
 }
 
