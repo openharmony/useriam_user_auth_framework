@@ -62,7 +62,7 @@ void PublishEventAdapter::PublishDeletedEvent(int32_t userId)
     EventFwk::CommonEventData data(want);
     data.SetCode(userId);
     PublishEvent(data, USERIAM_COMMON_EVENT_SAMGR_PERMISSION);
-    IAM_LOGE("PublishCreatedEvent, userId: %{public}d", userId);
+    IAM_LOGE("PublishDeletedEvent, userId: %{public}d", userId);
     return;
 }
 
@@ -96,7 +96,7 @@ void PublishEventAdapter::PublishUpdatedEvent(int32_t userId, uint64_t credentia
     EventFwk::CommonEventData data(want);
     data.SetCode(userId);
     PublishEvent(data, USERIAM_COMMON_EVENT_SAMGR_PERMISSION);
-    IAM_LOGE("PublishCreatedEvent, userId: %{public}d, scheduleId: %{public}s",
+    IAM_LOGE("PublishUpdatedEvent, userId: %{public}d, scheduleId: %{public}s",
         userId, GET_MASKED_STRING(credentialId).c_str());    
     return;
 }
