@@ -17,6 +17,7 @@
 
 #include "common_event_manager.h"
 #include "iam_logger.h"
+#include "iam_para2str.h"
 
 #ifndef LOG_LABEL
 #define LOG_TAG "USER_AUTH_SA"
@@ -61,6 +62,7 @@ void PublishEventAdapter::PublishDeletedEvent(int32_t userId)
     EventFwk::CommonEventData data(want);
     data.SetCode(userId);
     PublishEvent(data, USERIAM_COMMON_EVENT_SAMGR_PERMISSION);
+    IAM_LOGE("PublishDeletedEvent, userId: %{public}d", userId);
     return;
 }
 
@@ -76,6 +78,8 @@ void PublishEventAdapter::PublishCreatedEvent(int32_t userId, uint64_t scheduleI
     EventFwk::CommonEventData data(want);
     data.SetCode(userId);
     PublishEvent(data, USERIAM_COMMON_EVENT_SAMGR_PERMISSION);
+    IAM_LOGE("PublishCreatedEvent, userId: %{public}d, scheduleId: %{public}s",
+        userId, GET_MASKED_STRING(scheduleId).c_str());
     return;
 }
 
@@ -92,6 +96,8 @@ void PublishEventAdapter::PublishUpdatedEvent(int32_t userId, uint64_t credentia
     EventFwk::CommonEventData data(want);
     data.SetCode(userId);
     PublishEvent(data, USERIAM_COMMON_EVENT_SAMGR_PERMISSION);
+    IAM_LOGE("PublishUpdatedEvent, userId: %{public}d, credentialId: %{public}s",
+        userId, GET_MASKED_STRING(credentialId).c_str());
     return;
 }
 
@@ -114,7 +120,7 @@ void PublishEventAdapter::PublishCredentialUpdatedEvent(int32_t userId, int32_t 
     EventFwk::CommonEventData data(want);
     data.SetCode(0);
     PublishEvent(data, USERIAM_COMMON_EVENT_PERMISSION);
-    IAM_LOGI("PublishCredentialUpdatedEvent, userId: %{public}d, authType: %{public}d, credentialCount: %{public}u",
+    IAM_LOGE("PublishCredentialUpdatedEvent, userId: %{public}d, authType: %{public}d, credentialCount: %{public}u",
         userId, authType, credentialCount);
     return;
 }
