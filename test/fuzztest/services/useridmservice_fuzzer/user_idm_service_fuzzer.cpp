@@ -21,6 +21,7 @@
 
 #include "iam_fuzz_test.h"
 #include "iam_logger.h"
+#include "iam_ptr.h"
 #include "user_idm_service.h"
 #include "user_idm_callback_proxy.h"
 #include "dummy_iam_callback_interface.h"
@@ -264,7 +265,9 @@ void FuzzClearRedundancyCredential(Parcel &parcel)
 void FuzzClearRedundancyCredentialInner(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    g_UserIdmService.ClearRedundancyCredentialInner();
+    std::string callerName = parcel.ReadString();
+    int32_t callerType = parcel.ReadInt32();
+    g_UserIdmService.ClearRedundancyCredentialInner(callerName, callerType);
     IAM_LOGI("end");
 }
 

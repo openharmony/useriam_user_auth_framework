@@ -239,13 +239,6 @@ void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPar
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
 
     Attributes extraInfo;
-    int32_t ret = ClearRedundancyCredentialInner();
-    if (ret != SUCCESS) {
-        IAM_LOGE("clearRedundancyCredentialInner fail, ret:%{public}d, ", ret);
-        IAM_LOGE->OnResult(ret, extraInfo);
-        return;
-    }
-
     auto contextCallback = ContextCallback::NewInstance(callback,
         isUpdate ? TRACE_UPDATE_CREDENTIAL : TRACE_ADD_CREDENTIAL);
     if (contextCallback == nullptr) {
@@ -253,6 +246,7 @@ void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPar
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
+
     std::string callerName = "";
     int32_t callerType = Security::AccessToken::TOKEN_INVALID;
     static_cast<void>(IpcCommon::GetCallerName(*this, callerName, callerType));
@@ -263,6 +257,13 @@ void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPar
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
+        return;
+    }
+
+    int32_t ret = ClearRedundancyCredentialInner(callerName, callerType);
+    if (ret != SUCCESS) {
+        IAM_LOGE("clearRedundancyCredentialInner fail, ret:%{public}d, ", ret);
+        contextCallback->OnResult(ret, extraInfo);
         return;
     }
 
@@ -600,7 +601,7 @@ int32_t UserIdmService::EnforceDelUserInner(int32_t userId, std::shared_ptr<Cont
     return SUCCESS;
 }
 
-int32_t UserIdmService::ClearRedundancyCredentialInner()
+int32_t UserIdmService::ClearRedundancyCredentialInner(const std::string &callerName, int32_t callerType)
 {
     IAM_LOGI("start");
     std::vector<int32_t> accountInfo;
@@ -621,9 +622,6 @@ int32_t UserIdmService::ClearRedundancyCredentialInner()
         IAM_LOGE("no userInfo");
         return SUCCESS;
     }
-    std::string callerName = "";
-    int32_t callerType = Security::AccessToken::TOKEN_INVALID;
-    static_cast<void>(IpcCommon::GetCallerName(*this, callerName, callerType));
 
     for (const auto &iter : userInfos) {
         int32_t userId = iter->GetUserId();
@@ -643,7 +641,6 @@ int32_t UserIdmService::ClearRedundancyCredentialInner()
             IAM_LOGE("ClearRedundancytCredential, userId: %{public}d", userId);
         }
     }
-
     return SUCCESS;
 }
 
@@ -654,12 +651,18 @@ void UserIdmService::ClearRedundancyCredential(const sptr<IdmCallbackInterface> 
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
 
     Attributes extraInfo;
-    auto contextCallback = ContextCallback::NewInstance(callback, NO_NEED_TRACE);
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_DELETE_REDUNDANCY);
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
+
+    std::string callerName = "";
+    int32_t callerType = Security::AccessToken::TOKEN_INVALID;
+    static_cast<void>(IpcCommon::GetCallerName(*this, callerName, callerType));
+    contextCallback->SetTraceCallerName(callerName);
+    contextCallback->SetTraceCallerType(callerType);
 
     if (!IpcCommon::CheckPermission(*this, CLEAR_REDUNDANCY_PERMISSION)) {
         IAM_LOGE("failed to check permission");
@@ -670,13 +673,11 @@ void UserIdmService::ClearRedundancyCredential(const sptr<IdmCallbackInterface> 
     std::lock_guard<std::mutex> lock(mutex_);
     CancelCurrentEnrollIfExist();
 
-    int32_t ret = ClearRedundancyCredentialInner();
+    int32_t ret = ClearRedundancyCredentialInner(callerName, callerType);
     if (ret != SUCCESS) {
         IAM_LOGE("clearRedundancyCredentialInner fail, ret:%{public}d, ", ret);
-        contextCallback->OnResult(ret, extraInfo);
-        return;
     }
-    contextCallback->OnResult(SUCCESS, extraInfo);
+    contextCallback->OnResult(ret, extraInfo);
 }
 
 void UserIdmService::PublishCommonEvent(int32_t userId, uint64_t credentialId, AuthType authType)
