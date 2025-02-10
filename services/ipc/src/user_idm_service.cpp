@@ -239,6 +239,13 @@ void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPar
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
 
     Attributes extraInfo;
+    int32_t ret = ClearRedundancyCredentialInner();
+    if (ret != SUCCESS) {
+        IAM_LOGE("clearRedundancyCredentialInner fail, ret:%{public}d, ", ret);
+        IAM_LOGE->OnResult(ret, extraInfo);
+        return;
+    }
+
     auto contextCallback = ContextCallback::NewInstance(callback,
         isUpdate ? TRACE_UPDATE_CREDENTIAL : TRACE_ADD_CREDENTIAL);
     if (contextCallback == nullptr) {
@@ -593,20 +600,26 @@ int32_t UserIdmService::EnforceDelUserInner(int32_t userId, std::shared_ptr<Cont
     return SUCCESS;
 }
 
-void UserIdmService::ClearRedundancyCredentialInner()
+int32_t UserIdmService::ClearRedundancyCredentialInner()
 {
     IAM_LOGI("start");
     std::vector<int32_t> accountInfo;
     int32_t ret = IpcCommon::GetAllUserId(accountInfo);
     if (ret != SUCCESS) {
         IAM_LOGE("GetAllUserId failed");
-        return;
+        return IPC_ERROR;
     }
 
-    auto userInfos = UserIdmDatabase::Instance().GetAllExtUserInfo();
+    std::vector<std::shared_ptr<UserInfoInterface>> userInfos;
+    ret = UserIdmDatabase::Instance().GetAllExtUserInfo(userInfos);
+    if (ret != SUCCESS) {
+        IAM_LOGE("GetAllExtUserInfo failed");
+        return GENERAL_ERROR;
+    }
+
     if (userInfos.empty()) {
         IAM_LOGE("no userInfo");
-        return;
+        return SUCCESS;
     }
     std::string callerName = "";
     int32_t callerType = Security::AccessToken::TOKEN_INVALID;
@@ -630,6 +643,8 @@ void UserIdmService::ClearRedundancyCredentialInner()
             IAM_LOGE("ClearRedundancytCredential, userId: %{public}d", userId);
         }
     }
+
+    return SUCCESS;
 }
 
 void UserIdmService::ClearRedundancyCredential(const sptr<IdmCallbackInterface> &callback)
@@ -655,7 +670,12 @@ void UserIdmService::ClearRedundancyCredential(const sptr<IdmCallbackInterface> 
     std::lock_guard<std::mutex> lock(mutex_);
     CancelCurrentEnrollIfExist();
 
-    this->ClearRedundancyCredentialInner();
+    int32_t ret = ClearRedundancyCredentialInner();
+    if (ret != SUCCESS) {
+        IAM_LOGE("clearRedundancyCredentialInner fail, ret:%{public}d, ", ret);
+        contextCallback->OnResult(ret, extraInfo);
+        return;
+    }
     contextCallback->OnResult(SUCCESS, extraInfo);
 }
 
