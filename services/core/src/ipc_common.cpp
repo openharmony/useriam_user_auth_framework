@@ -69,8 +69,19 @@ int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, int32_t &userId)
         IAM_LOGE("failed to get hap token info, result = %{public}d", result);
         return TYPE_NOT_SUPPORT;
     }
-    userId = (hapTokenInfo.userID == 0) ? MAIN_USER_ID : static_cast<int32_t>(hapTokenInfo.userID);
-    IAM_LOGI("hapUserId is %{public}d, userId is %{public}d", hapTokenInfo.userID, userId);
+    if (userId != 0) {
+        IAM_LOGI("hap is not in user0, userId = %{public}d", hapTokenInfo.userID);
+        return SUCCESS;
+    }
+
+#ifdef HAS_OS_ACCOUNT_PART
+    result = AccountSA::OsAccountManager::GetForegroundOsAccountLocalId(userId);
+    if (result != SUCCESS) {
+        IAM_LOGE("GetForegroundOsAccountLocalId failed result = %{public}d", result);
+        return TYPE_NOT_SUPPORT;
+    }
+#endif
+    IAM_LOGI("hapUserId is %{public}d, ForegroundUserId is %{public}d", hapTokenInfo.userID, userId);
     return SUCCESS;
 }
 
@@ -214,8 +225,8 @@ uint32_t IpcCommon::GetAccessTokenId(IPCObjectStub &stub)
     uint32_t tokenId = stub.GetFirstTokenID();
     IAM_LOGI("get first caller tokenId: %{public}s", GET_MASKED_STRING(tokenId).c_str());
     if (tokenId == 0) {
-        IAM_LOGI("no first caller, get direct caller tokenId: %{public}s", GET_MASKED_STRING(tokenId).c_str());
         tokenId = stub.GetCallingTokenID();
+        IAM_LOGI("no first caller, get direct caller tokenId: %{public}s", GET_MASKED_STRING(tokenId).c_str());
     }
     return tokenId;
 }
@@ -242,7 +253,7 @@ std::vector<std::pair<int32_t, std::string>> IpcCommon::GetWhiteLists(Permission
 
 bool IpcCommon::CheckNativeCallingProcessWhiteList(IPCObjectStub &stub, Permission permission)
 {
-    uint32_t tokenId = stub.GetCallingTokenID();
+    uint32_t tokenId = GetTokenId(stub);
     using namespace Security::AccessToken;
     ATokenTypeEnum callingType = AccessTokenKit::GetTokenTypeFlag(tokenId);
     if (callingType != Security::AccessToken::TOKEN_NATIVE) {
@@ -271,7 +282,7 @@ bool IpcCommon::CheckNativeCallingProcessWhiteList(IPCObjectStub &stub, Permissi
 bool IpcCommon::CheckDirectCallerAndFirstCallerIfSet(IPCObjectStub &stub, const std::string &permission)
 {
     uint32_t firstTokenId = stub.GetFirstTokenID();
-    uint32_t callingTokenId = stub.GetCallingTokenID();
+    uint32_t callingTokenId = GetTokenId(stub);
     using namespace Security::AccessToken;
     if ((firstTokenId != 0 && AccessTokenKit::VerifyAccessToken(firstTokenId, permission) != RET_SUCCESS) ||
         AccessTokenKit::VerifyAccessToken(callingTokenId, permission) != RET_SUCCESS) {
@@ -283,7 +294,7 @@ bool IpcCommon::CheckDirectCallerAndFirstCallerIfSet(IPCObjectStub &stub, const 
 
 bool IpcCommon::CheckDirectCaller(IPCObjectStub &stub, const std::string &permission)
 {
-    uint32_t callingTokenId = stub.GetCallingTokenID();
+    uint32_t callingTokenId = GetTokenId(stub);
     using namespace Security::AccessToken;
     if (AccessTokenKit::VerifyAccessToken(callingTokenId, permission) != RET_SUCCESS) {
         IAM_LOGE("failed to check permission");
@@ -294,7 +305,7 @@ bool IpcCommon::CheckDirectCaller(IPCObjectStub &stub, const std::string &permis
 
 bool IpcCommon::CheckCallerIsSystemApp(IPCObjectStub &stub)
 {
-    uint32_t callingTokenId = stub.GetCallingTokenID();
+    uint32_t callingTokenId = GetTokenId(stub);
     using namespace Security::AccessToken;
     uint64_t fullTokenId = IPCSkeleton::GetCallingFullTokenID();
     bool checkRet = TokenIdKit::IsSystemAppByFullTokenID(fullTokenId);
@@ -308,7 +319,7 @@ bool IpcCommon::CheckCallerIsSystemApp(IPCObjectStub &stub)
 
 int32_t IpcCommon::GetDirectCallerType(IPCObjectStub &stub)
 {
-    return Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(stub.GetCallingTokenID());
+    return Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(GetTokenId(stub));
 }
 
 bool IpcCommon::GetCallerName(IPCObjectStub &stub, std::string &callerName, int32_t &callerType)
