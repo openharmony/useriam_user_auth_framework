@@ -30,8 +30,7 @@ public:
     virtual void OnFwkReady() = 0;
     virtual void OnExecutorRegistered(AuthType authType, ExecutorRole executorRole) = 0;
     virtual void OnExecutorUnregistered(AuthType authType, ExecutorRole executorRole) = 0;
-    virtual void OnCredentialEnrolled(AuthType authType) = 0;
-    virtual void OnCredentialDeleted(AuthType authType) = 0;
+    virtual void OnCredentialUpdated(AuthType authType) = 0;
     virtual void OnPinAuthServiceReady() = 0;
     virtual void OnPinAuthServiceStop() = 0;
     virtual void OnDriverStart() = 0;

@@ -32,8 +32,7 @@ public:
     void OnFwkReady() override;
     void OnExecutorRegistered(AuthType authType, ExecutorRole executorRole) override;
     void OnExecutorUnregistered(AuthType authType, ExecutorRole executorRole) override;
-    void OnCredentialEnrolled(AuthType authType) override;
-    void OnCredentialDeleted(AuthType authType) override;
+    void OnCredentialUpdated(AuthType authType) override;
     void OnPinAuthServiceReady() override;
     void OnPinAuthServiceStop() override;
     void OnDriverStart() override;
