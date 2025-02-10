@@ -21,6 +21,7 @@
 #include "iam_logger.h"
 #include "iam_ptr.h"
 #include "ipc_client_utils.h"
+#include "load_mode_client_util.h"
 #include "modal_callback_service.h"
 #include "user_auth_callback_service.h"
 
@@ -122,7 +123,10 @@ uint64_t UserAuthNapiClientImpl::BeginWidgetAuthInner(int32_t apiVersion, const 
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
         Attributes extraInfo;
-        callback->OnResult(static_cast<int32_t>(ResultCode::GENERAL_ERROR), extraInfo);
+        int32_t result = LoadModeUtil::GetProxyNullResultCode(__func__, std::vector<std::string>({
+            ACCESS_BIOMETRIC_PERMISSION
+        }));
+        callback->OnResult(result, extraInfo);
         return BAD_CONTEXT_ID;
     }
 
