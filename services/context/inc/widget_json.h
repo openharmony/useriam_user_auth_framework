@@ -86,6 +86,7 @@ struct WidgetCommand {
     int32_t isReload {0};
     std::string rotateAuthType {""};
     std::string callingAppID {""};
+    std::string callingProcessName {""};
     int32_t userId {-1};
     std::string widgetContextIdStr {""};
 };
