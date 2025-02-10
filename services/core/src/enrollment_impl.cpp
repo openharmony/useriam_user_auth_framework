@@ -178,7 +178,6 @@ bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t
 
     HdiEnrollResultInfo resultInfo = {};
     auto result = hdi->UpdateEnrollmentResult(enrollPara_.userId, scheduleResult, resultInfo);
-    LoadModeHandler::GetInstance().OnCredentialEnrolled(enrollPara_.authType);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi UpdateEnrollmentResult failed, err is %{public}d, userId is %{public}d", result,
             enrollPara_.userId);

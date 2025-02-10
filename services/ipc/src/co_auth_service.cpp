@@ -21,6 +21,7 @@
 #include "string_ex.h"
 
 #include "device_manager_util.h"
+#include "driver_state_manager.h"
 #include "executor_messenger_service.h"
 #include "hdi_message_callback_service.h"
 #include "hdi_wrapper.h"
@@ -74,6 +75,12 @@ std::shared_ptr<CoAuthService> CoAuthService::GetInstance()
 CoAuthService::CoAuthService() : SystemAbility(SUBSYS_USERIAM_SYS_ABILITY_AUTHEXECUTORMGR, true)
 {
     IAM_LOGI("CoAuthService init");
+    DriverStateManager::GetInstance().RegisterDriverStartCallback([this]() {
+        this->OnDriverStart();
+    });
+    DriverStateManager::GetInstance().RegisterDriverStopCallback([this]() {
+        this->OnDriverStop();
+    });
 }
 
 void CoAuthService::OnStart()

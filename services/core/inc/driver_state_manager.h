@@ -29,12 +29,15 @@ using ServStatListenerStub = HDI::ServiceManager::V1_0::ServStatListenerStub;
 class DriverStateManager {
 public:
     static DriverStateManager &GetInstance();
+    using DriverUpdateCallback = std::function<void()>;
 
     void Init();
     void OnDriverManagerAdd();
     void OnDriverManagerRemove();
     void OnDriverStart();
     void OnDriverStop();
+    void RegisterDriverStartCallback(const DriverUpdateCallback& callback);
+    void RegisterDriverStopCallback(const DriverUpdateCallback& callback);
 
 private:
     DriverStateManager() = default;
@@ -45,6 +48,8 @@ private:
     sptr<SystemAbilityListener> driverManagerStatusListener_ = nullptr;
     sptr<ServStatListenerStub> driverStatusListener_ = nullptr;
     std::optional<bool> isDriverRunning_ {std::nullopt};
+    std::vector<DriverUpdateCallback> startCallbacks_;
+    std::vector<DriverUpdateCallback> stopCallbacks_;
 };
 } // namespace UserAuth
 } // namespace UserIam
