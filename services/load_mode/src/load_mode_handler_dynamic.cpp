@@ -37,7 +37,7 @@ class CredentialUpdatedListener : public EventFwk::CommonEventSubscriber,
     public std::enable_shared_from_this<CredentialUpdatedListener> {
 public:
     explicit CredentialUpdatedListener(const EventFwk::CommonEventSubscribeInfo &subscribeInfo)
-        : EventFwk::CommonEventSubscriber(subscribeInfo){}
+        : EventFwk::CommonEventSubscriber(subscribeInfo) {}
     ~CredentialUpdatedListener() = default;
     
     void OnReceiveEvent(const EventFwk::CommonEventData &eventData) override
