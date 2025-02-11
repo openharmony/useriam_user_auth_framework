@@ -110,6 +110,7 @@ private:
     bool IsValidRotate(const WidgetRotatePara &widgetRotatePara);
     std::string GetCallingBundleName();
     bool IsSupportFollowCallerUi();
+    void SetSysDialogZOrder(WidgetCmdParameters &widgetCmdParameters);
 
 private:
     struct TaskInfo {
