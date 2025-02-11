@@ -21,7 +21,12 @@
 #include <mutex>
 #include <optional>
 
+#include "common_event_manager.h"
+#include "common_event_subscriber.h"
+#include "common_event_support.h"
 #include "system_ability_listener.h"
+#include "system_ability_status_change_stub.h"
+#include "user_auth_service_status_listener.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -40,7 +45,8 @@ public:
     void OnPinAuthServiceStop() override;
     void OnDriverStart() override;
     void OnDriverStop() override;
-    void SubscribeCredentialUpdatedListener();
+    void SubscribeCredentialUpdatedListener() override;
+    void SubscribeCommonEventServiceListener();
 
 private:
     bool AnyUserHasPinCredential();
@@ -53,6 +59,7 @@ private:
     sptr<SystemAbilityListener> pinAuthServiceListener_ = nullptr;
     bool isExecutorRegistered_ = false;
     bool isPinAuthServiceReady_ = false;
+    sptr<UserAuthServicesStatusListener> commonEventServiceListener_ = nullptr;
 };
 } // namespace UserAuth
 } // namespace UserIam

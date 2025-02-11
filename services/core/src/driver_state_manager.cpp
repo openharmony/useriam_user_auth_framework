@@ -143,8 +143,8 @@ void DriverStateManager::OnDriverStop()
         std::lock_guard<std::recursive_mutex> lock(mutex_);
         IAM_LOGI("driver stop");
         if (isDriverRunning_.has_value() && isDriverRunning_.value() == false) {
-        IAM_LOGI("driver already stop");
-        return;
+            IAM_LOGI("driver already stop");
+            return;
         }
         isDriverRunning_ = false;
         SystemParamManager::GetInstance().SetParam(FWK_READY_KEY, FALSE_STR);
