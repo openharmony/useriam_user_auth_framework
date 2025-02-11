@@ -60,6 +60,7 @@ const std::string TO_INVERTED = "180";
 const std::string TO_PORTRAIT_INVERTED = "270";
 const uint32_t NOT_SUPPORT_ORIENTATION_INVERTED = 2;
 const std::string SUPPORT_FOLLOW_CALLER_UI = "const.useriam.authWidget.supportFollowCallerUi";
+const std::string FIND_PROCESS_NAME = "findnetwork";
 
 WidgetContext::WidgetContext(uint64_t contextId, const ContextFactory::AuthWidgetContextPara &para,
     std::shared_ptr<ContextCallback> callback)
@@ -469,6 +470,19 @@ bool WidgetContext::IsSupportFollowCallerUi()
     return isSupportFollowCallerUi;
 }
 
+void WidgetContext::SetSysDialogZOrder(WidgetCmdParameters &widgetCmdParameters)
+{
+    if (ContextAppStateObserverManager::GetInstance().GetScreenLockState(para_.userId)) {
+        IAM_LOGI("the screen is currently locked, set zOrder");
+        widgetCmdParameters.sysDialogZOrder = SYSDIALOG_ZORDER_UPPER;
+    }
+    if ((para_.callerName == FIND_PROCESS_NAME) && (para_.callerType == Security::AccessToken::TOKEN_NATIVE)) {
+        IAM_LOGI("is on shutdown screen, set zOrder");
+        widgetCmdParameters.useriamCmdData.callingProcessName = para_.callerName;
+        widgetCmdParameters.sysDialogZOrder = SYSDIALOG_ZORDER_UPPER;
+    }
+}
+
 bool WidgetContext::ConnectExtension(const WidgetRotatePara &widgetRotatePara)
 {
     IAM_LOGI("connect extension start");
@@ -613,10 +627,7 @@ std::string WidgetContext::BuildStartCommand(const WidgetRotatePara &widgetRotat
     widgetCmdParameters.useriamCmdData.navigationButtonText = para_.widgetParam.navigationButtonText;
     BuildStartPinSubType(widgetCmdParameters);
     widgetCmdParameters.sysDialogZOrder = SYSDIALOG_ZORDER_DEFAULT;
-    if (ContextAppStateObserverManager::GetInstance().GetScreenLockState(para_.userId)) {
-        IAM_LOGI("the screen is currently locked, set zOrder");
-        widgetCmdParameters.sysDialogZOrder = SYSDIALOG_ZORDER_UPPER;
-    }
+    SetSysDialogZOrder(widgetCmdParameters);
     std::vector<std::string> typeList;
     for (auto &item : para_.authProfileMap) {
         auto &at = item.first;
