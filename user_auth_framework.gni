@@ -12,5 +12,5 @@
 # limitations under the License.
 
 declare_args() {
-  user_auth_framework_enable_dynamic_load = true
+  user_auth_framework_enable_dynamic_load = false
 }

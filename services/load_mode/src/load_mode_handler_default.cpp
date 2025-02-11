@@ -76,6 +76,14 @@ void LoadModeHandlerDefault::OnDriverStart()
 void LoadModeHandlerDefault::OnDriverStop()
 {
 }
+
+void LoadModeHandlerDefault::SubscribeCredentialUpdatedListener()
+{
+}
+
+void LoadModeHandlerDefault::OnStartSa()
+{
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

@@ -37,6 +37,8 @@ public:
     void OnPinAuthServiceStop() override;
     void OnDriverStart() override;
     void OnDriverStop() override;
+    void SubscribeCredentialUpdatedListener() override;
+    void OnStartSa() override;
 
 private:
     bool isInit_ = false;

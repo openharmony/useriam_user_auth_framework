@@ -56,7 +56,6 @@ LoadModeHandlerDynamic::LoadModeHandlerDynamic()
     IAM_LOGI("sa load mode is dynamic");
     
     SubscribeCommonEventServiceListener();
-    OnCredentialUpdated(PIN);
     SubscribeCredentialUpdatedListener();
     
     DriverStateManager::GetInstance().RegisterDriverStartCallback([this]() {
@@ -82,13 +81,19 @@ void LoadModeHandlerDynamic::SubscribeCredentialUpdatedListener()
 void LoadModeHandlerDynamic::SubscribeCommonEventServiceListener()
 {
     IAM_LOGI("enter");
-    commonEventServiceListener_ = 
-        UserAuthServicesStatusListener::Subscribe("CommonEventService", COMMON_EVENT_SERVICE_ID,
-            []() {
-                GetInstance().SubscribeCredentialUpdatedListener();
-            },
-            nullptr);
+    commonEventServiceListener_ = SystemAbilityListener::Subscribe(
+        "CommonEventService", COMMON_EVENT_SERVICE_ID,
+        []() {
+            GetInstance().OnStartSa();
+        },
+        nullptr);
     IF_FALSE_LOGE_AND_RETURN(commonEventServiceListener_ != nullptr);
+}
+
+void LoadModeHandlerDynamic::OnStartSa()
+{
+    GetInstance().SubscribeCredentialUpdatedListener();
+    OnCredentialUpdated(PIN);
 }
 
 void LoadModeHandlerDynamic::Init()
