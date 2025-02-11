@@ -43,6 +43,7 @@ ohos_source_set("userauth_service_load_mode") {
       "src/driver_load_manager.cpp",
       "src/load_mode_handler_dynamic.cpp",
       "src/service_unload_manager.cpp",
+      "src/user_auth_service_status_listener.cpp",
     ]
     defines += [ "ENABLE_DYNAMIC_LOAD" ]
   } else {

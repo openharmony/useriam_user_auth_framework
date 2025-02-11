@@ -35,6 +35,7 @@ public:
     virtual void OnPinAuthServiceStop() = 0;
     virtual void OnDriverStart() = 0;
     virtual void OnDriverStop() = 0;
+    virtual void SubscribeCredentialUpdatedListener() = 0;
 
 protected:
     LoadModeHandler() = default;

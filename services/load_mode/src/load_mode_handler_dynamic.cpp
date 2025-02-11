@@ -17,9 +17,6 @@
 
 #include "system_ability_definition.h"
 
-#include "common_event_manager.h"
-#include "common_event_subscriber.h"
-#include "common_event_support.h"
 #include "driver_load_manager.h"
 #include "driver_state_manager.h"
 #include "iam_logger.h"
@@ -50,9 +47,6 @@ public:
         }
         IAM_LOGI("receive event %{public}s", action.c_str());
         std::string authType_ = want.GetStringParam("authType");
-        if (authType_ != "PIN") {
-            return;
-        }
         LoadModeHandler::GetInstance().OnCredentialUpdated(PIN);
     }
 };
@@ -61,6 +55,8 @@ LoadModeHandlerDynamic::LoadModeHandlerDynamic()
 {
     IAM_LOGI("sa load mode is dynamic");
     
+    SubscribeCommonEventServiceListener();
+    OnCredentialUpdated(PIN);
     SubscribeCredentialUpdatedListener();
     
     DriverStateManager::GetInstance().RegisterDriverStartCallback([this]() {
@@ -81,6 +77,18 @@ void LoadModeHandlerDynamic::SubscribeCredentialUpdatedListener()
     IF_FALSE_LOGE_AND_RETURN(credentialUpdatedListener != nullptr);
     bool subscribeRet = EventFwk::CommonEventManager::SubscribeCommonEvent(credentialUpdatedListener);
     IF_FALSE_LOGE_AND_RETURN(subscribeRet == true);
+}
+
+void LoadModeHandlerDynamic::SubscribeCommonEventServiceListener()
+{
+    IAM_LOGI("enter");
+    commonEventServiceListener_ = 
+        UserAuthServicesStatusListener::Subscribe("CommonEventService", COMMON_EVENT_SERVICE_ID,
+            []() {
+                GetInstance().SubscribeCredentialUpdatedListener();
+            },
+            nullptr);
+    IF_FALSE_LOGE_AND_RETURN(commonEventServiceListener_ != nullptr);
 }
 
 void LoadModeHandlerDynamic::Init()
