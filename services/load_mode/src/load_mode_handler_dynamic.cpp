@@ -46,8 +46,11 @@ public:
             return;
         }
         IAM_LOGI("receive event %{public}s", action.c_str());
-        std::string authType = want.GetStringParam("authType");
-        LoadModeHandler::GetInstance().OnCredentialUpdated(authType);
+        std::string authType_ = want.GetStringParam("authType");
+        if (authType_ != std::to_string(PIN)) {
+            return;
+        }
+        LoadModeHandler::GetInstance().OnCredentialUpdated(PIN);
     }
 };
 
