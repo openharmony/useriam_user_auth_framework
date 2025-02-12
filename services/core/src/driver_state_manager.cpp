@@ -117,10 +117,10 @@ void DriverStateManager::OnDriverManagerRemove()
 
 void DriverStateManager::OnDriverStart()
 {
+    IAM_LOGI("driver start");
     std::vector<DriverUpdateCallback> startCallbacksTemp;
     {
         std::lock_guard<std::recursive_mutex> lock(mutex_);
-        IAM_LOGI("driver start");
         if (isDriverRunning_.has_value() && isDriverRunning_.value()) {
             IAM_LOGI("driver already start");
             return;
@@ -140,10 +140,10 @@ void DriverStateManager::OnDriverStart()
 
 void DriverStateManager::OnDriverStop()
 {
+    IAM_LOGI("driver stop");
     std::vector<DriverUpdateCallback> stopCallbacksTemp;
     {
         std::lock_guard<std::recursive_mutex> lock(mutex_);
-        IAM_LOGI("driver stop");
         if (!(isDriverRunning_.has_value() && isDriverRunning_.value())) {
             IAM_LOGI("driver already stop");
             return;
