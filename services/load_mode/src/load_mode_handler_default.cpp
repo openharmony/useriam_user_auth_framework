@@ -81,7 +81,7 @@ void LoadModeHandlerDefault::SubscribeCredentialUpdatedListener()
 {
 }
 
-void LoadModeHandlerDefault::OnStartSa()
+void LoadModeHandlerDefault::OnCommonEventSaStart()
 {
 }
 } // namespace UserAuth

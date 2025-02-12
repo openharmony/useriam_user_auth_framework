@@ -36,7 +36,7 @@ public:
     virtual void OnDriverStart() = 0;
     virtual void OnDriverStop() = 0;
     virtual void SubscribeCredentialUpdatedListener() = 0;
-    virtual void OnStartSa() = 0;
+    virtual void OnCommonEventSaStart() = 0;
 
 protected:
     LoadModeHandler() = default;
