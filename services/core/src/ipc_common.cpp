@@ -63,14 +63,14 @@ int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, int32_t &userId)
         IAM_LOGE("failed to get calling type");
         return TYPE_NOT_SUPPORT;
     }
-    HapTokenInfo hapTokenInfo;
-    int result = AccessTokenKit::GetHapTokenInfo(tokenId, hapTokenInfo);
+    HapTokenInfo hapInfo;
+    int result = AccessTokenKit::GetHapTokenInfo(tokenId, hapInfo);
     if (result != SUCCESS) {
         IAM_LOGE("failed to get hap token info, result = %{public}d", result);
         return TYPE_NOT_SUPPORT;
     }
     if (userId != 0) {
-        IAM_LOGI("hap is not in user0, userId = %{public}d", hapTokenInfo.userID);
+        IAM_LOGI("hap is not in user0, userId = %{public}d", hapInfo.userID);
         return SUCCESS;
     }
 
@@ -81,7 +81,7 @@ int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, int32_t &userId)
         return TYPE_NOT_SUPPORT;
     }
 #endif
-    IAM_LOGI("hapUserId is %{public}d, ForegroundUserId is %{public}d", hapTokenInfo.userID, userId);
+    IAM_LOGI("hapUserId is %{public}d, ForegroundUserId is %{public}d", hapInfo.userID, userId);
     return SUCCESS;
 }
 
