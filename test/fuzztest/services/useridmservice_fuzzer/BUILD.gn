@@ -50,6 +50,8 @@ ohos_fuzztest("UserIdmServiceFuzzTest") {
     "../../common_fuzzer:userauth_services_ipc_fuzzer",
   ]
 
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
   external_deps = [
     "ability_runtime:ability_context_native",
     "ability_runtime:abilitykit_native",

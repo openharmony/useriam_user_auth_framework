@@ -183,33 +183,31 @@ int32_t UserIdmDatabaseImpl::DeleteUserEnforce(int32_t userId,
     return SUCCESS;
 }
 
-std::vector<std::shared_ptr<UserInfoInterface>> UserIdmDatabaseImpl::GetAllExtUserInfo()
+int32_t UserIdmDatabaseImpl::GetAllExtUserInfo(std::vector<std::shared_ptr<UserInfoInterface>> &userInfos)
 {
-    std::vector<std::shared_ptr<UserInfoInterface>> infoRet;
-
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi == nullptr) {
         IAM_LOGE("bad hdi");
-        return infoRet;
+        return INVALID_HDI_INTERFACE;
     }
 
-    std::vector<ExtUserInfo> userInfos;
-    int32_t ret = hdi->GetAllExtUserInfo(userInfos);
+    std::vector<ExtUserInfo> hdiUserInfos;
+    int32_t ret = hdi->GetAllExtUserInfo(hdiUserInfos);
     if (ret != HDF_SUCCESS) {
         IAM_LOGE("GetAllExtUserInfo failed, error code :%{public}d", ret);
-        return infoRet;
+        return ret;
     }
 
-    for (const auto &iter : userInfos) {
+    for (const auto &iter : hdiUserInfos) {
         auto userInfo = Common::MakeShared<UserInfoImpl>(iter.userId, iter.userInfo);
         if (userInfo == nullptr) {
             IAM_LOGE("bad alloc");
-            return infoRet;
+            return GENERAL_ERROR;
         }
-        infoRet.emplace_back(userInfo);
+        userInfos.emplace_back(userInfo);
     }
 
-    return infoRet;
+    return SUCCESS;
 }
 
 int32_t UserIdmDatabaseImpl::GetCredentialInfoById(uint64_t credentialId,
