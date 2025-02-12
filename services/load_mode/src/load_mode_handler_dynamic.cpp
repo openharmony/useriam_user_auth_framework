@@ -74,6 +74,7 @@ void LoadModeHandlerDynamic::SubscribeCredentialUpdatedListener()
     EventFwk::MatchingSkills matchSkills;
     matchSkills.AddEvent("USER_CREDENTIAL_UPDATED_EVENT");
     EventFwk::CommonEventSubscribeInfo subscribeInfo(matchSkills);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (credentialUpdatedListener_ == nullptr) {
         credentialUpdatedListener_ = std::make_shared<CredentialUpdatedListener>(subscribeInfo);
     }
@@ -85,6 +86,7 @@ void LoadModeHandlerDynamic::SubscribeCredentialUpdatedListener()
 void LoadModeHandlerDynamic::SubscribeCommonEventServiceListener()
 {
     IAM_LOGI("enter");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     commonEventServiceListener_ = SystemAbilityListener::Subscribe(
         "CommonEventService", COMMON_EVENT_SERVICE_ID,
         []() {
