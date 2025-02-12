@@ -38,7 +38,7 @@ public:
     void OnDriverStart() override;
     void OnDriverStop() override;
     void SubscribeCredentialUpdatedListener() override;
-    void OnStartSa() override;
+    void OnCommonEventSaStart() override;
 
 private:
     bool isInit_ = false;

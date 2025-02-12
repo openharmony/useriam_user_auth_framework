@@ -46,8 +46,8 @@ public:
             return;
         }
         IAM_LOGI("receive event %{public}s", action.c_str());
-        std::string authType_ = want.GetStringParam("authType");
-        LoadModeHandler::GetInstance().OnCredentialUpdated(PIN);
+        std::string authType = want.GetStringParam("authType");
+        LoadModeHandler::GetInstance().OnCredentialUpdated(authType);
     }
 };
 
@@ -71,7 +71,9 @@ void LoadModeHandlerDynamic::SubscribeCredentialUpdatedListener()
     EventFwk::MatchingSkills matchSkills;
     matchSkills.AddEvent("USER_CREDENTIAL_UPDATED_EVENT");
     EventFwk::CommonEventSubscribeInfo subscribeInfo(matchSkills);
-    credentialUpdatedListener_ = std::make_shared<CredentialUpdatedListener>(subscribeInfo);
+    if (credentialUpdatedListener_ == nullptr) {
+        credentialUpdatedListener_ = std::make_shared<CredentialUpdatedListener>(subscribeInfo);
+    }
     IF_FALSE_LOGE_AND_RETURN(credentialUpdatedListener_ != nullptr);
     bool subscribeRet = EventFwk::CommonEventManager::SubscribeCommonEvent(credentialUpdatedListener_);
     IF_FALSE_LOGE_AND_RETURN(subscribeRet == true);
@@ -83,13 +85,13 @@ void LoadModeHandlerDynamic::SubscribeCommonEventServiceListener()
     commonEventServiceListener_ = SystemAbilityListener::Subscribe(
         "CommonEventService", COMMON_EVENT_SERVICE_ID,
         []() {
-            GetInstance().OnStartSa();
+            GetInstance().OnCommonEventSaStart();
         },
         nullptr);
     IF_FALSE_LOGE_AND_RETURN(commonEventServiceListener_ != nullptr);
 }
 
-void LoadModeHandlerDynamic::OnStartSa()
+void LoadModeHandlerDynamic::OnCommonEventSaStart()
 {
     SubscribeCredentialUpdatedListener();
     OnCredentialUpdated(PIN);
