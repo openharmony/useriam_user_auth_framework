@@ -121,7 +121,7 @@ void DriverStateManager::OnDriverStart()
     {
         std::lock_guard<std::recursive_mutex> lock(mutex_);
         IAM_LOGI("driver start");
-        if (isDriverRunning_.has_value() && isDriverRunning_.value() == true) {
+        if (isDriverRunning_.has_value() && isDriverRunning_.value()) {
             IAM_LOGI("driver already start");
             return;
         }
@@ -130,7 +130,9 @@ void DriverStateManager::OnDriverStart()
     }
 
     for (auto& callback : startCallbacksTemp) {
-        callback();
+        if (callback != nullptr) {
+            callback();
+        }
     }
 
     IAM_LOGI("driver start processed");
@@ -142,7 +144,7 @@ void DriverStateManager::OnDriverStop()
     {
         std::lock_guard<std::recursive_mutex> lock(mutex_);
         IAM_LOGI("driver stop");
-        if (isDriverRunning_.has_value() && isDriverRunning_.value() == false) {
+        if (!(isDriverRunning_.has_value() && isDriverRunning_.value())) {
             IAM_LOGI("driver already stop");
             return;
         }
@@ -153,7 +155,9 @@ void DriverStateManager::OnDriverStop()
     }
 
     for (const auto& callback : stopCallbacksTemp) {
-        callback();
+        if (callback != nullptr) {
+            callback();
+        }
     }
 
     IAM_LOGI("driver stop processed");

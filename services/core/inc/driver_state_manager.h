@@ -36,8 +36,8 @@ public:
     void OnDriverManagerRemove();
     void OnDriverStart();
     void OnDriverStop();
-    void RegisterDriverStartCallback(const DriverUpdateCallback& callback);
-    void RegisterDriverStopCallback(const DriverUpdateCallback& callback);
+    void RegisterDriverStartCallback(const DriverUpdateCallback &callback);
+    void RegisterDriverStopCallback(const DriverUpdateCallback &callback);
 
 private:
     DriverStateManager() = default;
