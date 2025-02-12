@@ -76,10 +76,20 @@ CoAuthService::CoAuthService() : SystemAbility(SUBSYS_USERIAM_SYS_ABILITY_AUTHEX
 {
     IAM_LOGI("CoAuthService init");
     DriverStateManager::GetInstance().RegisterDriverStartCallback([this]() {
-        this->OnDriverStart();
+        std::shared_ptr instance = CoAuthService::GetInstance();
+        if (instance == nullptr) {
+            IAM_LOGE("CoAuthService instance is null");
+            return;
+        }
+        instance->OnDriverStart();
     });
     DriverStateManager::GetInstance().RegisterDriverStopCallback([this]() {
-        this->OnDriverStop();
+        std::shared_ptr instance = CoAuthService::GetInstance();
+        if (instance == nullptr) {
+            IAM_LOGE("CoAuthService instance is null");
+            return;
+        }
+        instance->OnDriverStop();
     });
 }
 

@@ -25,6 +25,9 @@
 #include "system_param_manager.h"
 #include "user_idm_database.h"
 
+#include "iam_logger.h"
+#include "iam_ptr.h"
+
 #define LOG_TAG "USER_AUTH_SA"
 
 namespace OHOS {
@@ -46,8 +49,8 @@ public:
             return;
         }
         IAM_LOGI("receive event %{public}s", action.c_str());
-        std::string authType_ = want.GetStringParam("authType");
-        if (authType_ != std::to_string(PIN)) {
+        std::string authType = want.GetStringParam("authType");
+        if (authType != std::to_string(PIN)) {
             return;
         }
         LoadModeHandler::GetInstance().OnCredentialUpdated(PIN);
@@ -61,10 +64,10 @@ LoadModeHandlerDynamic::LoadModeHandlerDynamic()
     SubscribeCommonEventServiceListener();
     
     DriverStateManager::GetInstance().RegisterDriverStartCallback([this]() {
-        this->OnDriverStart();
+        LoadModeHandler::GetInstance().OnDriverStart();
     });
     DriverStateManager::GetInstance().RegisterDriverStopCallback([this]() {
-        this->OnDriverStop();
+        LoadModeHandler::GetInstance().OnDriverStop();
     });
 }
 
@@ -76,7 +79,7 @@ void LoadModeHandlerDynamic::SubscribeCredentialUpdatedListener()
     EventFwk::CommonEventSubscribeInfo subscribeInfo(matchSkills);
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (credentialUpdatedListener_ == nullptr) {
-        credentialUpdatedListener_ = std::make_shared<CredentialUpdatedListener>(subscribeInfo);
+        credentialUpdatedListener_ = Common::MakeShared<CredentialUpdatedListener>(subscribeInfo);
     }
     IF_FALSE_LOGE_AND_RETURN(credentialUpdatedListener_ != nullptr);
     bool subscribeRet = EventFwk::CommonEventManager::SubscribeCommonEvent(credentialUpdatedListener_);
