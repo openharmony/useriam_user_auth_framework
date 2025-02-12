@@ -63,10 +63,10 @@ LoadModeHandlerDynamic::LoadModeHandlerDynamic()
     
     SubscribeCommonEventServiceListener();
     
-    DriverStateManager::GetInstance().RegisterDriverStartCallback([this]() {
+    DriverStateManager::GetInstance().RegisterDriverStartCallback([]() {
         LoadModeHandler::GetInstance().OnDriverStart();
     });
-    DriverStateManager::GetInstance().RegisterDriverStopCallback([this]() {
+    DriverStateManager::GetInstance().RegisterDriverStopCallback([]() {
         LoadModeHandler::GetInstance().OnDriverStop();
     });
 }
