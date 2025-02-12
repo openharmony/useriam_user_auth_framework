@@ -56,7 +56,6 @@ LoadModeHandlerDynamic::LoadModeHandlerDynamic()
     IAM_LOGI("sa load mode is dynamic");
     
     SubscribeCommonEventServiceListener();
-    SubscribeCredentialUpdatedListener();
     
     DriverStateManager::GetInstance().RegisterDriverStartCallback([this]() {
         this->OnDriverStart();
@@ -72,9 +71,9 @@ void LoadModeHandlerDynamic::SubscribeCredentialUpdatedListener()
     EventFwk::MatchingSkills matchSkills;
     matchSkills.AddEvent("USER_CREDENTIAL_UPDATED_EVENT");
     EventFwk::CommonEventSubscribeInfo subscribeInfo(matchSkills);
-    auto credentialUpdatedListener = std::make_shared<CredentialUpdatedListener>(subscribeInfo);
-    IF_FALSE_LOGE_AND_RETURN(credentialUpdatedListener != nullptr);
-    bool subscribeRet = EventFwk::CommonEventManager::SubscribeCommonEvent(credentialUpdatedListener);
+    credentialUpdatedListener_ = std::make_shared<CredentialUpdatedListener>(subscribeInfo);
+    IF_FALSE_LOGE_AND_RETURN(credentialUpdatedListener_ != nullptr);
+    bool subscribeRet = EventFwk::CommonEventManager::SubscribeCommonEvent(credentialUpdatedListener_);
     IF_FALSE_LOGE_AND_RETURN(subscribeRet == true);
 }
 
@@ -92,7 +91,7 @@ void LoadModeHandlerDynamic::SubscribeCommonEventServiceListener()
 
 void LoadModeHandlerDynamic::OnStartSa()
 {
-    GetInstance().SubscribeCredentialUpdatedListener();
+    SubscribeCredentialUpdatedListener();
     OnCredentialUpdated(PIN);
 }
 
