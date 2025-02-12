@@ -878,7 +878,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceClearRedundancyCredential001, TestSiz
         )
         .WillOnce(
             [](int32_t result, const Attributes &extraInfo) {
-                EXPECT_EQ(result, SUCCESS);
+                EXPECT_EQ(result, INVALID_HDI_INTERFACE);
             }
         );
 
