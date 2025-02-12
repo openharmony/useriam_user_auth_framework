@@ -163,16 +163,20 @@ void DriverStateManager::OnDriverStop()
     IAM_LOGI("driver stop processed");
 }
 
-void DriverStateManager::RegisterDriverStartCallback(const DriverUpdateCallback& callback)
+void DriverStateManager::RegisterDriverStartCallback(const DriverUpdateCallback &callback)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    startCallbacks_.push_back(callback);
+    if (callback != nullptr) {
+        startCallbacks_.push_back(callback);
+    }
 }
 
-void DriverStateManager::RegisterDriverStopCallback(const DriverUpdateCallback& callback)
+void DriverStateManager::RegisterDriverStopCallback(const DriverUpdateCallback &callback)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    stopCallbacks_.push_back(callback);
+    if (callback != nullptr) {
+        stopCallbacks_.push_back(callback);
+    }
 }
 } // namespace UserAuth
 } // namespace UserIam
