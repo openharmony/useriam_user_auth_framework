@@ -203,7 +203,7 @@ void LoadModeHandlerDynamic::OnCredentialUpdated(AuthType authType)
     if (authType != AuthType::PIN) {
         return;
     }
-    IAM_LOGI("on credential deleted authType %{public}d", authType);
+    IAM_LOGI("on credential updated authType %{public}d", authType);
     RefreshIsPinEnrolled();
 }
 
