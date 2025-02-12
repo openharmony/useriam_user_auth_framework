@@ -246,7 +246,6 @@ void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPar
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
-
     std::string callerName = "";
     int32_t callerType = Security::AccessToken::TOKEN_INVALID;
     static_cast<void>(IpcCommon::GetCallerName(*this, callerName, callerType));
@@ -257,13 +256,6 @@ void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPar
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
-        return;
-    }
-
-    int32_t ret = ClearRedundancyCredentialInner(callerName, callerType);
-    if (ret != SUCCESS) {
-        IAM_LOGE("clearRedundancyCredentialInner fail, ret:%{public}d, ", ret);
-        contextCallback->OnResult(ret, extraInfo);
         return;
     }
 
@@ -615,7 +607,7 @@ int32_t UserIdmService::ClearRedundancyCredentialInner(const std::string &caller
     ret = UserIdmDatabase::Instance().GetAllExtUserInfo(userInfos);
     if (ret != SUCCESS) {
         IAM_LOGE("GetAllExtUserInfo failed");
-        return GENERAL_ERROR;
+        return INVALID_HDI_INTERFACE;
     }
 
     if (userInfos.empty()) {
