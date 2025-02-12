@@ -60,6 +60,7 @@ private:
     bool isExecutorRegistered_ = false;
     bool isPinAuthServiceReady_ = false;
     sptr<OHOS::SystemAbilityStatusChangeStub> commonEventServiceListener_ = nullptr;
+    std::shared_ptr<EventFwk::CommonEventSubscriber> credentialUpdatedListener_ = nullptr;
 };
 } // namespace UserAuth
 } // namespace UserIam
