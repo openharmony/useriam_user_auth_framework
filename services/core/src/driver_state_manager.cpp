@@ -129,7 +129,7 @@ void DriverStateManager::OnDriverStart()
         startCallbacksTemp = startCallbacks_;
     }
 
-    for (auto& callback : startCallbacksTemp) {
+    for (auto &callback : startCallbacksTemp) {
         if (callback != nullptr) {
             callback();
         }
@@ -154,7 +154,7 @@ void DriverStateManager::OnDriverStop()
         stopCallbacksTemp = stopCallbacks_;
     }
 
-    for (const auto& callback : stopCallbacksTemp) {
+    for (const auto &callback : stopCallbacksTemp) {
         if (callback != nullptr) {
             callback();
         }
