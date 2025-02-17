@@ -55,7 +55,7 @@ RemoteConnectFaultTrace BaseSocket::GetCurrTraceInfo()
 }
 
 void BaseSocket::InsertMsgCallback(uint32_t messageSeq, const std::string &connectionName,
-    MsgCallback &callback, uint32_t timerId)
+    const MsgCallback &callback, uint32_t timerId)
 {
     IAM_LOGD("start. messageSeq:%{public}u, timerId:%{public}u", messageSeq, timerId);
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
@@ -209,21 +209,20 @@ void BaseSocket::RefreshTraceInfo(const std::string &connectionName, int32_t msg
     currTraceInfo_.messageSeq = messageSeq;
 }
 
-ResultCode BaseSocket::SendRequest(const int32_t socketId, const std::string &connectionName,
-    const std::string &srcEndPoint, const std::string &destEndPoint, const std::shared_ptr<Attributes> &attributes,
-    MsgCallback &callback)
+ResultCode BaseSocket::SendRequest(const ConnectionInfo &connectionInfo)
 {
     IAM_LOGD("start.");
-    IF_FALSE_LOGE_AND_RETURN_VAL(attributes != nullptr, INVALID_PARAMETERS);
-    IF_FALSE_LOGE_AND_RETURN_VAL(socketId != INVALID_SOCKET_ID, INVALID_PARAMETERS);
+    IF_FALSE_LOGE_AND_RETURN_VAL(connectionInfo.attributes != nullptr, INVALID_PARAMETERS);
+    IF_FALSE_LOGE_AND_RETURN_VAL(connectionInfo.socketId != INVALID_SOCKET_ID, INVALID_PARAMETERS);
 
     int32_t messageSeq = GetMessageSeq();
     int32_t msgType = -1;
     // remote pin authentication may not contain the msgType parameter, no need to check the result
-    attributes->GetInt32Value(Attributes::ATTR_MSG_TYPE, msgType);
-    RefreshTraceInfo(connectionName, msgType, false, messageSeq);
+    connectionInfo.attributes->GetInt32Value(Attributes::ATTR_MSG_TYPE, msgType);
+    RefreshTraceInfo(connectionInfo.connectionName, msgType, false, messageSeq);
     std::shared_ptr<SoftBusMessage> softBusMessage = Common::MakeShared<SoftBusMessage>(messageSeq,
-        connectionName, srcEndPoint, destEndPoint, attributes);
+        connectionInfo.connectionName, connectionInfo.srcEndPoint, connectionInfo.destEndPoint,
+        connectionInfo.attributes);
     if (softBusMessage == nullptr) {
         IAM_LOGE("softBusMessage is nullptr");
         return GENERAL_ERROR;
@@ -236,7 +235,7 @@ ResultCode BaseSocket::SendRequest(const int32_t socketId, const std::string &co
     }
 
     std::vector<uint8_t> data = request->Serialize();
-    int ret = SendBytes(socketId, data.data(), data.size());
+    int ret = SendBytes(connectionInfo.socketId, data.data(), data.size());
     if (ret != SUCCESS) {
         IAM_LOGE("fail to send message, result= %{public}d", ret);
         return GENERAL_ERROR;
@@ -248,7 +247,7 @@ ResultCode BaseSocket::SendRequest(const int32_t socketId, const std::string &co
         return GENERAL_ERROR;
     }
 
-    InsertMsgCallback(messageSeq, connectionName, callback, timerId);
+    InsertMsgCallback(messageSeq, connectionInfo.connectionName, connectionInfo.callback, timerId);
     IAM_LOGI("SendRequest success.");
     return SUCCESS;
 }
