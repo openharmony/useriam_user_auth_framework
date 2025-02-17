@@ -37,7 +37,15 @@ ResultCode ServerSocket::SendMessage(const std::string &connectionName, const st
         return GENERAL_ERROR;
     }
 
-    return SendRequest(socketId, connectionName, srcEndPoint, destEndPoint, attributes, callback);
+    const ConnectionInfo connectionInfo = {
+        .socketId = socketId,
+        .connectionName = connectionName,
+        .srcEndPoint = srcEndPoint,
+        .destEndPoint = destEndPoint,
+        .attributes = attributes,
+        .callback = callback
+    };
+    return SendRequest(connectionInfo);
 }
 
 void ServerSocket::OnBind(int32_t socketId, PeerSocketInfo info)

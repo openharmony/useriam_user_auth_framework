@@ -43,14 +43,21 @@ namespace UserAuth {
 using time_point = std::chrono::steady_clock::time_point;
 class BaseSocket : public std::enable_shared_from_this<BaseSocket> {
 public:
+    struct ConnectionInfo {
+        int32_t socketId;
+        std::string connectionName;
+        std::string srcEndPoint;
+        std::string destEndPoint;
+        std::shared_ptr<Attributes> attributes;
+        MsgCallback callback;
+    };
+
     BaseSocket(const int32_t socketId);
     virtual ~BaseSocket();
     int32_t GetSocketId();
     virtual ResultCode SendMessage(const std::string &connectionName, const std::string &srcEndPoint,
         const std::string &destEndPoint, const std::shared_ptr<Attributes> &attributes, MsgCallback &callback) = 0;
-    ResultCode SendRequest(const int32_t socketId, const std::string &connectionName,
-        const std::string &srcEndPoint, const std::string &destEndPoint, const std::shared_ptr<Attributes> &attributes,
-        MsgCallback &callback);
+    ResultCode SendRequest(const ConnectionInfo &connectionInfo);
     ResultCode SendResponse(const int32_t socketId, const std::string &connectionName,
         const std::string &srcEndPoint, const std::string &destEndPoint, const std::shared_ptr<Attributes> &attributes,
         uint32_t messageSeq);
@@ -78,7 +85,7 @@ public:
 
 private:
     void InsertMsgCallback(uint32_t messageSeq, const std::string &connectionName,
-        MsgCallback &callback, uint32_t timerId);
+        const MsgCallback &callback, uint32_t timerId);
     void RemoveMsgCallback(uint32_t messageSeq);
 
     uint32_t GetReplyTimer(uint32_t messageSeq);
