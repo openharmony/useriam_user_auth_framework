@@ -202,8 +202,15 @@ HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestSendRequest, TestSize.Level
     ASSERT_NE(attributes, nullptr);
     attributes->SetInt32Value(Attributes::ATTR_MSG_TYPE, 1);
     MsgCallback callback;
-    EXPECT_EQ(baseSocket->SendRequest(socketId, connectionName, srcEndPoint, destEndPoint, attributes,
-        callback), GENERAL_ERROR);
+    const BaseSocket::ConnectionInfo connectionInfo = {
+        .socketId = socketId,
+        .connectionName = connectionName,
+        .srcEndPoint = srcEndPoint,
+        .destEndPoint = destEndPoint,
+        .attributes = attributes,
+        .callback = callback
+    };
+    EXPECT_EQ(baseSocket->SendRequest(connectionInfo), GENERAL_ERROR);
     delete baseSocket;
 }
 
