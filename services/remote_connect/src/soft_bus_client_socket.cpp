@@ -52,7 +52,15 @@ ResultCode ClientSocket::SendMessage(const std::string &connectionName, const st
     }
 
     RefreshKeepAliveTimer();
-    return SendRequest(socketId, connectionName, srcEndPoint, destEndPoint, attributes, callback);
+    const ConnectionInfo connectionInfo = {
+        .socketId = socketId,
+        .connectionName = connectionName,
+        .srcEndPoint = srcEndPoint,
+        .destEndPoint = destEndPoint,
+        .attributes = attributes,
+        .callback = callback
+    };
+    return SendRequest(connectionInfo);
 }
 
 void ClientSocket::OnQos(int32_t socketId, QoSEvent eventId, const QosTV *qos, uint32_t qosCount)
