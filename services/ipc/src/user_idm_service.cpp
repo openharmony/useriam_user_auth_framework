@@ -452,6 +452,7 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
     IAM_LOGI("delete user end");
     PublishEventAdapter::GetInstance().PublishDeletedEvent(userId);
     PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, PIN, 0);
+    LoadModeHandler::GetInstance().OnCredentialDeleted(PIN);
 }
 
 void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
@@ -587,6 +588,7 @@ int32_t UserIdmService::EnforceDelUserInner(int32_t userId, std::shared_ptr<Cont
 
     PublishEventAdapter::GetInstance().PublishDeletedEvent(userId);
     PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, PIN, 0);
+    LoadModeHandler::GetInstance().OnCredentialDeleted(PIN);
     IAM_LOGI("delete user success, userId:%{public}d", userId);
     return SUCCESS;
 }

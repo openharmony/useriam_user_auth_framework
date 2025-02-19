@@ -32,13 +32,12 @@ public:
     void OnFwkReady() override;
     void OnExecutorRegistered(AuthType authType, ExecutorRole executorRole) override;
     void OnExecutorUnregistered(AuthType authType, ExecutorRole executorRole) override;
-    void OnCredentialUpdated(AuthType authType) override;
+    void OnCredentialEnrolled(AuthType authType) override;
+    void OnCredentialDeleted(AuthType authType) override;
     void OnPinAuthServiceReady() override;
     void OnPinAuthServiceStop() override;
     void OnDriverStart() override;
     void OnDriverStop() override;
-    void SubscribeCredentialUpdatedListener() override;
-    void OnCommonEventSaStart() override;
 
 private:
     bool isInit_ = false;

@@ -117,66 +117,37 @@ void DriverStateManager::OnDriverManagerRemove()
 
 void DriverStateManager::OnDriverStart()
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     IAM_LOGI("driver start");
-    std::vector<DriverUpdateCallback> startCallbacksTemp;
-    {
-        std::lock_guard<std::recursive_mutex> lock(mutex_);
-        if (isDriverRunning_.has_value() && isDriverRunning_.value()) {
-            IAM_LOGI("driver already start");
-            return;
-        }
-        isDriverRunning_ = true;
-        startCallbacksTemp = startCallbacks_;
+    if (isDriverRunning_.has_value() && isDriverRunning_.value() == true) {
+        IAM_LOGI("driver already start");
+        return;
     }
-
-    for (auto &callback : startCallbacksTemp) {
-        if (callback != nullptr) {
-            callback();
-        }
-    }
-
+    isDriverRunning_ = true;
+    LoadModeHandler::GetInstance().OnDriverStart();
+    auto coAuthService = CoAuthService::GetInstance();
+    IF_FALSE_LOGE_AND_RETURN(coAuthService != nullptr);
+    coAuthService->OnDriverStart();
     IAM_LOGI("driver start processed");
 }
 
 void DriverStateManager::OnDriverStop()
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     IAM_LOGI("driver stop");
-    std::vector<DriverUpdateCallback> stopCallbacksTemp;
-    {
-        std::lock_guard<std::recursive_mutex> lock(mutex_);
-        if (!(isDriverRunning_.has_value() && isDriverRunning_.value())) {
-            IAM_LOGI("driver already stop");
-            return;
-        }
-        isDriverRunning_ = false;
-        SystemParamManager::GetInstance().SetParam(FWK_READY_KEY, FALSE_STR);
-        SystemParamManager::GetInstance().SetParam(IS_PIN_FUNCTION_READY_KEY, FALSE_STR);
-        stopCallbacksTemp = stopCallbacks_;
+    if (isDriverRunning_.has_value() && isDriverRunning_.value() == false) {
+        IAM_LOGI("driver already stop");
+        return;
     }
+    isDriverRunning_ = false;
+    SystemParamManager::GetInstance().SetParam(FWK_READY_KEY, FALSE_STR);
+    SystemParamManager::GetInstance().SetParam(IS_PIN_FUNCTION_READY_KEY, FALSE_STR);
 
-    for (const auto &callback : stopCallbacksTemp) {
-        if (callback != nullptr) {
-            callback();
-        }
-    }
-
+    auto coAuthService = CoAuthService::GetInstance();
+    IF_FALSE_LOGE_AND_RETURN(coAuthService != nullptr);
+    coAuthService->OnDriverStop();
+    LoadModeHandler::GetInstance().OnDriverStop();
     IAM_LOGI("driver stop processed");
-}
-
-void DriverStateManager::RegisterDriverStartCallback(const DriverUpdateCallback &callback)
-{
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    if (callback != nullptr) {
-        startCallbacks_.push_back(callback);
-    }
-}
-
-void DriverStateManager::RegisterDriverStopCallback(const DriverUpdateCallback &callback)
-{
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    if (callback != nullptr) {
-        stopCallbacks_.push_back(callback);
-    }
 }
 } // namespace UserAuth
 } // namespace UserIam
