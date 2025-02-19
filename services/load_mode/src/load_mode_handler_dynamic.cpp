@@ -18,91 +18,20 @@
 #include "system_ability_definition.h"
 
 #include "driver_load_manager.h"
-#include "driver_state_manager.h"
 #include "iam_logger.h"
 #include "os_account_manager.h"
 #include "service_unload_manager.h"
 #include "system_param_manager.h"
 #include "user_idm_database.h"
 
-#include "iam_logger.h"
-#include "iam_ptr.h"
-
 #define LOG_TAG "USER_AUTH_SA"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class CredentialUpdatedListener : public EventFwk::CommonEventSubscriber,
-    public std::enable_shared_from_this<CredentialUpdatedListener> {
-public:
-    explicit CredentialUpdatedListener(const EventFwk::CommonEventSubscribeInfo &subscribeInfo)
-        : EventFwk::CommonEventSubscriber(subscribeInfo) {}
-    ~CredentialUpdatedListener() = default;
-    
-    void OnReceiveEvent(const EventFwk::CommonEventData &eventData) override
-    {
-        IAM_LOGI("start");
-        const EventFwk::Want &want = eventData.GetWant();
-        std::string action = want.GetAction();
-        if (action != "USER_CREDENTIAL_UPDATED_EVENT") {
-            return;
-        }
-        IAM_LOGI("receive event %{public}s", action.c_str());
-        std::string authType = want.GetStringParam("authType");
-        if (authType != std::to_string(PIN)) {
-            return;
-        }
-        LoadModeHandler::GetInstance().OnCredentialUpdated(PIN);
-    }
-};
-
 LoadModeHandlerDynamic::LoadModeHandlerDynamic()
 {
     IAM_LOGI("sa load mode is dynamic");
-    
-    SubscribeCommonEventServiceListener();
-    
-    DriverStateManager::GetInstance().RegisterDriverStartCallback([]() {
-        LoadModeHandler::GetInstance().OnDriverStart();
-    });
-    DriverStateManager::GetInstance().RegisterDriverStopCallback([]() {
-        LoadModeHandler::GetInstance().OnDriverStop();
-    });
-}
-
-void LoadModeHandlerDynamic::SubscribeCredentialUpdatedListener()
-{
-    IAM_LOGI("start");
-    EventFwk::MatchingSkills matchSkills;
-    matchSkills.AddEvent("USER_CREDENTIAL_UPDATED_EVENT");
-    EventFwk::CommonEventSubscribeInfo subscribeInfo(matchSkills);
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    if (credentialUpdatedListener_ == nullptr) {
-        credentialUpdatedListener_ = Common::MakeShared<CredentialUpdatedListener>(subscribeInfo);
-    }
-    IF_FALSE_LOGE_AND_RETURN(credentialUpdatedListener_ != nullptr);
-    bool subscribeRet = EventFwk::CommonEventManager::SubscribeCommonEvent(credentialUpdatedListener_);
-    IF_FALSE_LOGE_AND_RETURN(subscribeRet == true);
-}
-
-void LoadModeHandlerDynamic::SubscribeCommonEventServiceListener()
-{
-    IAM_LOGI("enter");
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    commonEventServiceListener_ = SystemAbilityListener::Subscribe(
-        "CommonEventService", COMMON_EVENT_SERVICE_ID,
-        []() {
-            GetInstance().OnCommonEventSaStart();
-        },
-        nullptr);
-    IF_FALSE_LOGE_AND_RETURN(commonEventServiceListener_ != nullptr);
-}
-
-void LoadModeHandlerDynamic::OnCommonEventSaStart()
-{
-    SubscribeCredentialUpdatedListener();
-    OnCredentialUpdated(PIN);
 }
 
 void LoadModeHandlerDynamic::Init()
@@ -198,12 +127,21 @@ void LoadModeHandlerDynamic::RefreshIsPinFunctionReady()
     SystemParamManager::GetInstance().SetParam(IS_PIN_FUNCTION_READY_KEY, isPinFunctionReady ? TRUE_STR : FALSE_STR);
 }
 
-void LoadModeHandlerDynamic::OnCredentialUpdated(AuthType authType)
+void LoadModeHandlerDynamic::OnCredentialEnrolled(AuthType authType)
 {
     if (authType != AuthType::PIN) {
         return;
     }
-    IAM_LOGI("on credential updated authType %{public}d", authType);
+    IAM_LOGI("on credential enrolled authType %{public}d", authType);
+    RefreshIsPinEnrolled();
+}
+
+void LoadModeHandlerDynamic::OnCredentialDeleted(AuthType authType)
+{
+    if (authType != AuthType::PIN) {
+        return;
+    }
+    IAM_LOGI("on credential deleted authType %{public}d", authType);
     RefreshIsPinEnrolled();
 }
 

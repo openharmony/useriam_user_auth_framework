@@ -56,7 +56,12 @@ void LoadModeHandlerDefault::OnExecutorUnregistered(AuthType authType, ExecutorR
     (void)executorRole;
 }
 
-void LoadModeHandlerDefault::OnCredentialUpdated(AuthType authType)
+void LoadModeHandlerDefault::OnCredentialEnrolled(AuthType authType)
+{
+    (void)authType;
+}
+
+void LoadModeHandlerDefault::OnCredentialDeleted(AuthType authType)
 {
     (void)authType;
 }
@@ -74,14 +79,6 @@ void LoadModeHandlerDefault::OnDriverStart()
 }
 
 void LoadModeHandlerDefault::OnDriverStop()
-{
-}
-
-void LoadModeHandlerDefault::SubscribeCredentialUpdatedListener()
-{
-}
-
-void LoadModeHandlerDefault::OnCommonEventSaStart()
 {
 }
 } // namespace UserAuth
