@@ -19,10 +19,12 @@ group("iam_clients_fuzztest") {
   deps = [
     "coauthclient_fuzzer:CoAuthClientFuzzTest",
     "executorcallbackstub_fuzzer:ExecutorCallbackStubFuzzTest",
+    "modalcallbackstub_fuzzer:ModalCallbackStubFuzzTest",
     "useraccessctrlclient_fuzzer:UserAccessCtrlClientFuzzTest",
     "userauthcallbackstub_fuzzer:UserAuthCallbackStubFuzzTest",
     "userauthclient_fuzzer:UserAuthClientFuzzTest",
     "useridmclient_fuzzer:UserIdmClientFuzzTest",
     "useridmclientstub_fuzzer:UserIdmClientStubFuzzTest",
+    "widgetcallbackstub_fuzzer:WidgetCallbackStubFuzzTest",
   ]
 }
