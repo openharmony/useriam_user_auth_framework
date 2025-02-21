@@ -110,8 +110,7 @@ void ServiceInitManager::CheckAllServiceStart()
     IF_FALSE_LOGE_AND_RETURN(coAuthService != nullptr);
     coAuthService->RegisterAccessTokenListener();
 
-    const auto &driverStateManager = DriverStateManager::GetInstance();
-    (void)driverStateManager;
+    DriverStateManager::GetInstance().StartSubscribe();
 
     IAM_LOGI("all service start, init global instance end");
 }
