@@ -21,7 +21,11 @@
 #include <mutex>
 #include <optional>
 
+#include "common_event_manager.h"
+#include "common_event_subscriber.h"
+#include "common_event_support.h"
 #include "system_ability_listener.h"
+#include "system_ability_status_change_stub.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -35,12 +39,14 @@ public:
     void OnFwkReady() override;
     void OnExecutorRegistered(AuthType authType, ExecutorRole executorRole) override;
     void OnExecutorUnregistered(AuthType authType, ExecutorRole executorRole) override;
-    void OnCredentialEnrolled(AuthType authType) override;
-    void OnCredentialDeleted(AuthType authType) override;
+    void OnCredentialUpdated(AuthType authType) override;
     void OnPinAuthServiceReady() override;
     void OnPinAuthServiceStop() override;
     void OnDriverStart() override;
     void OnDriverStop() override;
+    void SubscribeCredentialUpdatedListener() override;
+    void OnCommonEventSaStart() override;
+    void SubscribeCommonEventServiceListener();
 
 private:
     bool AnyUserHasPinCredential();
@@ -53,6 +59,8 @@ private:
     sptr<SystemAbilityListener> pinAuthServiceListener_ = nullptr;
     bool isExecutorRegistered_ = false;
     bool isPinAuthServiceReady_ = false;
+    sptr<OHOS::SystemAbilityStatusChangeStub> commonEventServiceListener_ = nullptr;
+    std::shared_ptr<EventFwk::CommonEventSubscriber> credentialUpdatedListener_ = nullptr;
 };
 } // namespace UserAuth
 } // namespace UserIam
