@@ -194,6 +194,53 @@ HWTEST_F(WidgetContextTest, WidgetContextTestAuthResult_0005, TestSize.Level0)
     handler->EnsureTask([]() {});
 }
 
+HWTEST_F(WidgetContextTest, WidgetContextTestAuthResult_0006, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_TRUE(widgetContext->Start());
+    Attributes finalResult;
+    finalResult.SetInt32Value(Attributes::ATTR_AUTH_TYPE, PIN);
+    widgetContext->AuthResult(ResultCode::COMPLEXITY_CHECK_FAILED, 1, finalResult);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestAuthResult_0007, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_TRUE(widgetContext->Start());
+    Attributes finalResult;
+    std::vector<uint8_t> token = {1, 1};
+    finalResult.SetInt32Value(Attributes::ATTR_AUTH_TYPE, PIN);
+    finalResult.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, token);
+    widgetContext->AuthResult(ResultCode::COMPLEXITY_CHECK_FAILED, 1, finalResult);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestAuthResult_0008, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_TRUE(widgetContext->Start());
+    Attributes finalResult;
+    std::vector<uint8_t> token = {1, 1};
+    finalResult.SetInt32Value(Attributes::ATTR_AUTH_TYPE, PIN);
+    finalResult.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, token);
+    finalResult.SetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, 1);
+    widgetContext->AuthResult(ResultCode::COMPLEXITY_CHECK_FAILED, 1, finalResult);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
 HWTEST_F(WidgetContextTest, WidgetContextTestLaunchWidget_001, TestSize.Level0)
 {
     uint64_t contextId = 1;
@@ -358,6 +405,19 @@ HWTEST_F(WidgetContextTest, WidgetContextTestSuccessAuth_003, TestSize.Level0)
     authTypeList.insert(FACE);
     widgetContext->ExecuteAuthList(authTypeList, true, AuthIntent::DEFAULT);
     AuthType authType = ALL;
+    widgetContext->SuccessAuth(authType);
+    EXPECT_NE(widgetContext, nullptr);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestSuccessAuth_004, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    AuthType authType = ALL;
+    widgetContext->SetLatestError(ResultCode::COMPLEXITY_CHECK_FAILED);
     widgetContext->SuccessAuth(authType);
     EXPECT_NE(widgetContext, nullptr);
     auto handler = ThreadHandler::GetSingleThreadInstance();
