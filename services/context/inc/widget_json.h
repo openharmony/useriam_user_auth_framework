@@ -87,8 +87,8 @@ struct WidgetCommand {
     std::string rotateAuthType {""};
     std::string callingAppID {""};
     std::string callingProcessName {""};
-    int32_t userId {-1};
     std::string widgetContextIdStr {""};
+    int32_t userId {-1};
 };
 
 void to_json(nlohmann::json &jsonCommand, const WidgetCommand &command);
