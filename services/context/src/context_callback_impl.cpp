@@ -122,7 +122,8 @@ void ContextCallbackImpl::OnResult(int32_t resultCode, const Attributes &finalRe
 
 void ContextCallbackImpl::HandleAuthSuccessResult(int32_t resultCode, const Attributes &finalResult)
 {
-    if (resultCode != SUCCESS) {
+    if (resultCode != SUCCESS || (metaData_.operationType != TRACE_AUTH_USER_ALL &&
+        metaData_.operationType != TRACE_AUTH_USER_BEHAVIOR)) {
         return;
     }
     if (!metaData_.authType.has_value() || !metaData_.callerType.has_value() || !metaData_.callerName.has_value()) {
