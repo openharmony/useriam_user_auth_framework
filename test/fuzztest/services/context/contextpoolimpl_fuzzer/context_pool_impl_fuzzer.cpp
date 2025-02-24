@@ -53,7 +53,7 @@ void FillTest(Parcel &parcel)
     auto dummyAuth = MakeShared<DummyAuthentication>();
     auto contextCallback = MakeShared<ContextCallbackImpl>(new (std::nothrow) DummyIamCallbackInterface(),
         static_cast<OperationType>(OPERATION_TYPE));
-    auto context = MakeShared<SimpleAuthContext>(parcel.ReadUint64(), dummyAuth, contextCallback);
+    auto context = MakeShared<SimpleAuthContext>(parcel.ReadUint64(), dummyAuth, contextCallback, true);
 
     ContextPool::Instance().Insert(context);
 

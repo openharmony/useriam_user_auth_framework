@@ -88,7 +88,7 @@ private:
 
 RemoteAuthInvokerContext::RemoteAuthInvokerContext(uint64_t contextId, AuthParamInner authParam,
     RemoteAuthInvokerContextParam param, std::shared_ptr<ContextCallback> callback)
-    : BaseContext("RemoteAuthInvokerContext", contextId, callback),
+    : BaseContext("RemoteAuthInvokerContext", contextId, callback, true),
       authParam_(authParam),
       connectionName_(param.connectionName),
       verifierNetworkId_(param.verifierNetworkId),

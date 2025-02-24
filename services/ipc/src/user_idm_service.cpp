@@ -214,9 +214,9 @@ int32_t UserIdmService::GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserIn
 }
 
 void UserIdmService::StartEnroll(Enrollment::EnrollmentPara &para,
-    const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo)
+    const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo, bool needSubscribeAppState)
 {
-    auto context = ContextFactory::CreateEnrollContext(para, contextCallback);
+    auto context = ContextFactory::CreateEnrollContext(para, contextCallback, needSubscribeAppState);
     if (context == nullptr || !ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
@@ -271,7 +271,8 @@ void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPar
     para.sdkVersion = INNER_API_VERSION_10000;
     para.callerName = callerName;
     para.callerType = callerType;
-    StartEnroll(para, contextCallback, extraInfo);
+    bool needSubscribeAppState = !IpcCommon::CheckPermission(*this, USER_AUTH_FROM_BACKGROUND);
+    StartEnroll(para, contextCallback, extraInfo, needSubscribeAppState);
 }
 
 void UserIdmService::UpdateCredential(int32_t userId, const CredentialPara &credPara,

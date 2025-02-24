@@ -119,15 +119,15 @@ ResultCode SimpleAuthContext::GetPropertyForAuthResult(Authentication::AuthResul
 }
 
 SimpleAuthContext::SimpleAuthContext(uint64_t contextId, std::shared_ptr<Authentication> auth,
-    std::shared_ptr<ContextCallback> callback)
-    : BaseContext("SimpleAuth", contextId, callback),
+    std::shared_ptr<ContextCallback> callback, bool needSubscribeAppState)
+    : BaseContext("SimpleAuth", contextId, callback, needSubscribeAppState),
       auth_(auth)
 {
 }
 
 SimpleAuthContext::SimpleAuthContext(const std::string &type, uint64_t contextId, std::shared_ptr<Authentication> auth,
     std::shared_ptr<ContextCallback> callback)
-    : BaseContext(type, contextId, callback),
+    : BaseContext(type, contextId, callback, true),
       auth_(auth)
 {
 }

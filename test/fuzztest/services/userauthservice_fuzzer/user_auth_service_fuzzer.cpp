@@ -551,7 +551,7 @@ void FuzzStartAuthContext(Parcel &parcel)
     Authentication::AuthenticationPara para;
     sptr<IamCallbackInterface> iamCallback = sptr<IamCallbackInterface>(new (nothrow) DummyIamCallbackInterface);
     std::shared_ptr<ContextCallback> contextCallback = ContextCallback::NewInstance(iamCallback, TRACE_ADD_CREDENTIAL);
-    g_userAuthService.StartAuthContext(apiVersion, para, contextCallback);
+    g_userAuthService.StartAuthContext(apiVersion, para, contextCallback, true);
     IAM_LOGI("end");
 }
 
