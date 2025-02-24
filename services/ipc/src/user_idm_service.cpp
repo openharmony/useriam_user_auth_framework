@@ -605,24 +605,27 @@ int32_t UserIdmService::EnforceDelUserInner(int32_t userId, std::shared_ptr<Cont
     return SUCCESS;
 }
 
-void UserIdmService::ClearRedundancyCredentialInner()
+int32_t UserIdmService::ClearRedundancyCredentialInner(const std::string &callerName, int32_t callerType)
 {
     IAM_LOGI("start");
     std::vector<int32_t> accountInfo;
     int32_t ret = IpcCommon::GetAllUserId(accountInfo);
     if (ret != SUCCESS) {
         IAM_LOGE("GetAllUserId failed");
-        return;
+        return IPC_ERROR;
     }
 
-    auto userInfos = UserIdmDatabase::Instance().GetAllExtUserInfo();
+    std::vector<std::shared_ptr<UserInfoInterface>> userInfos;
+    ret = UserIdmDatabase::Instance().GetAllExtUserInfo(userInfos);
+    if (ret != SUCCESS) {
+        IAM_LOGE("GetAllExtUserInfo failed");
+        return INVALID_HDI_INTERFACE;
+    }
+
     if (userInfos.empty()) {
         IAM_LOGE("no userInfo");
-        return;
+        return SUCCESS;
     }
-    std::string callerName = "";
-    int32_t callerType = Security::AccessToken::TOKEN_INVALID;
-    static_cast<void>(IpcCommon::GetCallerName(*this, callerName, callerType));
 
     for (const auto &iter : userInfos) {
         int32_t userId = iter->GetUserId();
@@ -642,6 +645,7 @@ void UserIdmService::ClearRedundancyCredentialInner()
             IAM_LOGE("ClearRedundancytCredential, userId: %{public}d", userId);
         }
     }
+    return SUCCESS;
 }
 
 void UserIdmService::ClearRedundancyCredential(const sptr<IdmCallbackInterface> &callback)
@@ -651,12 +655,18 @@ void UserIdmService::ClearRedundancyCredential(const sptr<IdmCallbackInterface> 
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
 
     Attributes extraInfo;
-    auto contextCallback = ContextCallback::NewInstance(callback, NO_NEED_TRACE);
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_DELETE_REDUNDANCY);
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
+
+    std::string callerName = "";
+    int32_t callerType = Security::AccessToken::TOKEN_INVALID;
+    static_cast<void>(IpcCommon::GetCallerName(*this, callerName, callerType));
+    contextCallback->SetTraceCallerName(callerName);
+    contextCallback->SetTraceCallerType(callerType);
 
     if (!IpcCommon::CheckPermission(*this, CLEAR_REDUNDANCY_PERMISSION)) {
         IAM_LOGE("failed to check permission");
@@ -667,8 +677,11 @@ void UserIdmService::ClearRedundancyCredential(const sptr<IdmCallbackInterface> 
     std::lock_guard<std::mutex> lock(mutex_);
     CancelCurrentEnrollIfExist();
 
-    this->ClearRedundancyCredentialInner();
-    contextCallback->OnResult(SUCCESS, extraInfo);
+    int32_t ret = ClearRedundancyCredentialInner(callerName, callerType);
+    if (ret != SUCCESS) {
+        IAM_LOGE("clearRedundancyCredentialInner fail, ret:%{public}d, ", ret);
+    }
+    contextCallback->OnResult(ret, extraInfo);
 }
 
 void UserIdmService::PublishCommonEvent(int32_t userId, uint64_t credentialId, AuthType authType)
