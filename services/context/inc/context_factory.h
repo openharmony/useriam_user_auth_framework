@@ -60,7 +60,7 @@ public:
     };
 
     static std::shared_ptr<Context> CreateSimpleAuthContext(const Authentication::AuthenticationPara &para,
-        const std::shared_ptr<ContextCallback> &callback);
+        const std::shared_ptr<ContextCallback> &callback, bool needSubscribeAppState);
     static std::shared_ptr<Context> CreateRemoteAuthContext(const Authentication::AuthenticationPara &para,
         RemoteAuthContextParam &remoteAuthContextParam, const std::shared_ptr<ContextCallback> &callback);
     static std::shared_ptr<Context> CreateRemoteAuthInvokerContext(AuthParamInner authParam,
@@ -68,7 +68,7 @@ public:
     static std::shared_ptr<Context> CreateIdentifyContext(const Identification::IdentificationPara &para,
         const std::shared_ptr<ContextCallback> &callback);
     static std::shared_ptr<Context> CreateEnrollContext(const Enrollment::EnrollmentPara &para,
-        const std::shared_ptr<ContextCallback> &callback);
+        const std::shared_ptr<ContextCallback> &callback, bool needSubscribeAppState);
     static std::shared_ptr<Context> CreateWidgetAuthContext(std::shared_ptr<ContextCallback> callback);
     static std::shared_ptr<Context> CreateWidgetContext(const AuthWidgetContextPara &para,
         std::shared_ptr<ContextCallback> callback);

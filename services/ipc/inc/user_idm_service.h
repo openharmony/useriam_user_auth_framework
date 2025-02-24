@@ -70,7 +70,7 @@ private:
     void SetAuthTypeTrace(const std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos,
         const std::shared_ptr<ContextCallback> &contextCallback);
     void StartEnroll(Enrollment::EnrollmentPara &para,
-        const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo);
+        const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo, bool needSubscribeAppState);
     void PublishCommonEvent(int32_t userId, uint64_t credentialId, AuthType authType);
     std::mutex mutex_;
 };

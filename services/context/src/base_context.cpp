@@ -26,7 +26,8 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-BaseContext::BaseContext(const std::string &type, uint64_t contextId, std::shared_ptr<ContextCallback> callback)
+BaseContext::BaseContext(const std::string &type, uint64_t contextId, std::shared_ptr<ContextCallback> callback,
+    bool needSubscribeAppState)
     : callback_(callback),
       contextId_(contextId)
 {
@@ -34,7 +35,9 @@ BaseContext::BaseContext(const std::string &type, uint64_t contextId, std::share
     ss << "Context(type:" << type << ", contextId:" << GET_MASKED_STRING(contextId_) << ")";
     description_ = ss.str();
     AddDeathRecipient(callback_, contextId_);
-    SubscribeAppState(callback_, contextId_);
+    if (needSubscribeAppState) {
+        SubscribeAppState(callback_, contextId_);
+    }
 }
 
 BaseContext::~BaseContext()

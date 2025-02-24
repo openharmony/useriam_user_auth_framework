@@ -25,7 +25,7 @@ namespace UserIam {
 namespace UserAuth {
 IdentifyContext::IdentifyContext(uint64_t contextId, std::shared_ptr<Identification> identify,
     std::shared_ptr<ContextCallback> callback)
-    : BaseContext("Identify", contextId, callback),
+    : BaseContext("Identify", contextId, callback, true),
       identify_(identify)
 {
 }

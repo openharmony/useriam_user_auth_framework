@@ -60,7 +60,7 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateSimpleAuth_001, TestSize.Level0
     ASSERT_NE(callback, nullptr);
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER_ALL);
     Authentication::AuthenticationPara para = {};
-    auto context = factory->CreateSimpleAuthContext(para, contextCallback);
+    auto context = factory->CreateSimpleAuthContext(para, contextCallback, true);
     ASSERT_NE(context, nullptr);
     EXPECT_NE(context->GetContextId(), 0U);
     ASSERT_EQ(context->GetContextType(), CONTEXT_SIMPLE_AUTH);
@@ -75,7 +75,7 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateSimpleAuth_002, TestSize.Level0
     sptr<UserAuthCallbackInterface> callback(nullptr);
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER_ALL);
     Authentication::AuthenticationPara para = {};
-    auto context = factory->CreateSimpleAuthContext(para, contextCallback);
+    auto context = factory->CreateSimpleAuthContext(para, contextCallback, true);
     ASSERT_EQ(context, nullptr);
 }
 
@@ -116,7 +116,7 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateEnrollContext_001, TestSize.Lev
     ASSERT_NE(callback, nullptr);
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
     Enrollment::EnrollmentPara para = {};
-    auto context = factory->CreateEnrollContext(para, contextCallback);
+    auto context = factory->CreateEnrollContext(para, contextCallback, true);
     ASSERT_NE(context, nullptr);
     EXPECT_NE(context->GetContextId(), 0U);
     ASSERT_EQ(context->GetContextType(), CONTEXT_ENROLL);
@@ -131,7 +131,7 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateEnrollContext_002, TestSize.Lev
     sptr<IdmCallbackInterface> callback(nullptr);
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ADD_CREDENTIAL);
     Enrollment::EnrollmentPara para = {};
-    auto context = factory->CreateEnrollContext(para, contextCallback);
+    auto context = factory->CreateEnrollContext(para, contextCallback, true);
     ASSERT_EQ(context, nullptr);
 }
 
