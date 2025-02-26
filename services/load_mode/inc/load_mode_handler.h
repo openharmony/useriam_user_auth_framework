@@ -37,6 +37,9 @@ public:
     virtual void OnDriverStop() = 0;
     virtual void SubscribeCredentialUpdatedListener() = 0;
     virtual void OnCommonEventSaStart() = 0;
+    virtual void StartCheckServiceReadyTimer() = 0;
+    virtual void CancelCheckServiceReadyTimer() = 0;
+    virtual void TriggerAllServiceStart() = 0;
 
 protected:
     LoadModeHandler() = default;

@@ -21,6 +21,7 @@
 #include "driver_state_manager.h"
 #include "iam_logger.h"
 #include "os_account_manager.h"
+#include "relative_timer.h"
 #include "service_unload_manager.h"
 #include "system_param_manager.h"
 #include "user_idm_database.h"
@@ -33,6 +34,8 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+constexpr uint32_t WAIT_TIME_FOR_SERVICE_READY = 5000;
+
 class CredentialUpdatedListener : public EventFwk::CommonEventSubscriber {
 public:
     explicit CredentialUpdatedListener(const EventFwk::CommonEventSubscribeInfo &subscribeInfo)
@@ -253,6 +256,46 @@ void LoadModeHandlerDynamic::OnDriverStop()
 {
     IAM_LOGI("on driver stop");
     DriverLoadManager::GetInstance().OnDriverStop();
+}
+
+void LoadModeHandlerDynamic::StartCheckServiceReadyTimer()
+{
+    IAM_LOGI("start");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (checkServiceReadyTimerId_.has_value()) {
+        IAM_LOGI("timer already start");
+        return;
+    }
+
+    checkServiceReadyTimerId_ = RelativeTimer::GetInstance().Register([]() {
+        LoadModeHandler::GetInstance().TriggerAllServiceStart();
+    }, WAIT_TIME_FOR_SERVICE_READY);
+}
+
+void LoadModeHandlerDynamic::CancelCheckServiceReadyTimer()
+{
+    IAM_LOGI("start");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (!checkServiceReadyTimerId_.has_value()) {
+        IAM_LOGI("timer is null");
+        return;
+    }
+
+    RelativeTimer::GetInstance().Unregister(checkServiceReadyTimerId_.value());
+    checkServiceReadyTimerId_ = std::nullopt;
+}
+
+void LoadModeHandlerDynamic::TriggerAllServiceStart()
+{
+    IAM_LOGI("start");
+    CancelCheckServiceReadyTimer();
+    if (SystemParamManager::GetInstance().GetParam(STOP_SA_KEY, FALSE_STR) == TRUE_STR) {
+        IAM_LOGE("service already stop");
+        return;
+    }
+
+    IAM_LOGI("trigger all service start");
+    SystemParamManager::GetInstance().SetParamTwice(START_SA_KEY, FALSE_STR, TRUE_STR);
 }
 } // namespace UserAuth
 } // namespace UserIam
