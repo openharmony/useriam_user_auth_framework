@@ -39,6 +39,9 @@ public:
     void OnDriverStop() override;
     void SubscribeCredentialUpdatedListener() override;
     void OnCommonEventSaStart() override;
+    void StartCheckServiceReadyTimer() override;
+    void CancelCheckServiceReadyTimer() override;
+    void TriggerAllServiceStart() override;
 
 private:
     bool isInit_ = false;
