@@ -93,8 +93,11 @@ void ServiceInitManager::CheckAllServiceStart()
         isIdmServiceStart_, isCoAuthServiceStart_, isUserAuthServiceStart_, isAllServiceStart);
 
     if (!isAllServiceStart) {
+        LoadModeHandler::GetInstance().StartCheckServiceReadyTimer();
         return;
     }
+
+    LoadModeHandler::GetInstance().CancelCheckServiceReadyTimer();
 
     IAM_LOGI("all service start, init global instance begin");
 

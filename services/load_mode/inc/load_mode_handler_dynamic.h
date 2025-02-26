@@ -46,6 +46,9 @@ public:
     void OnDriverStop() override;
     void SubscribeCredentialUpdatedListener() override;
     void OnCommonEventSaStart() override;
+    void StartCheckServiceReadyTimer() override;
+    void CancelCheckServiceReadyTimer() override;
+    void TriggerAllServiceStart() override;
     void SubscribeCommonEventServiceListener();
 
 private:
@@ -61,6 +64,7 @@ private:
     bool isPinAuthServiceReady_ = false;
     sptr<OHOS::SystemAbilityStatusChangeStub> commonEventServiceListener_ = nullptr;
     std::shared_ptr<EventFwk::CommonEventSubscriber> credentialUpdatedListener_ = nullptr;
+    std::optional<uint32_t> checkServiceReadyTimerId_ = std::nullopt;
 };
 } // namespace UserAuth
 } // namespace UserIam

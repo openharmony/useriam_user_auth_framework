@@ -84,6 +84,18 @@ void LoadModeHandlerDefault::SubscribeCredentialUpdatedListener()
 void LoadModeHandlerDefault::OnCommonEventSaStart()
 {
 }
+
+void LoadModeHandlerDefault::StartCheckServiceReadyTimer()
+{
+}
+
+void LoadModeHandlerDefault::CancelCheckServiceReadyTimer()
+{
+}
+
+void LoadModeHandlerDefault::TriggerAllServiceStart()
+{
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
