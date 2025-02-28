@@ -505,14 +505,14 @@ uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &c
     para.sdkVersion = apiVersion;
     para.authIntent = AuthIntent::DEFAULT;
     para.isOsAccountVerified = IpcCommon::IsOsAccountVerified(userId);
-    return StartAuthContext(apiVersion, para, contextCallback);
+    return StartAuthContext(apiVersion, para, contextCallback, true);
 }
 
 uint64_t UserAuthService::StartAuthContext(int32_t apiVersion, Authentication::AuthenticationPara para,
-    const std::shared_ptr<ContextCallback> &contextCallback)
+    const std::shared_ptr<ContextCallback> &contextCallback, bool needSubscribeAppState)
 {
     Attributes extraInfo;
-    auto context = ContextFactory::CreateSimpleAuthContext(para, contextCallback);
+    auto context = ContextFactory::CreateSimpleAuthContext(para, contextCallback, needSubscribeAppState);
     if (context == nullptr || !ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
         contextCallback->SetTraceAuthFinishReason("UserAuthService Auth insert context fail");
@@ -614,7 +614,8 @@ uint64_t UserAuthService::AuthUser(AuthParamInner &authParam, std::optional<Remo
     para.authIntent = authParam.authIntent;
     para.isOsAccountVerified = IpcCommon::IsOsAccountVerified(authParam.userId);
     if (!remoteAuthParam.has_value()) {
-        return StartAuthContext(INNER_API_VERSION_10000, para, contextCallback);
+        bool needSubscribeAppState = !IpcCommon::CheckPermission(*this, USER_AUTH_FROM_BACKGROUND);
+        return StartAuthContext(INNER_API_VERSION_10000, para, contextCallback, needSubscribeAppState);
     }
 
     ResultCode failReason = GENERAL_ERROR;

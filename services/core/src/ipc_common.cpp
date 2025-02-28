@@ -212,7 +212,7 @@ bool IpcCommon::CheckPermission(IPCObjectStub &stub, Permission permission)
         case USE_USER_ACCESS_MANAGER:
             return CheckDirectCaller(stub, PermissionString::USE_USER_ACCESS_MANAGER);
         case USER_AUTH_FROM_BACKGROUND:
-            return CheckDirectCaller(stub, PermissionString::USER_AUTH_FROM_BACKGROUND);
+            return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::USER_AUTH_FROM_BACKGROUND);
         case ENTERPRISE_DEVICE_MGR:
             return CheckNativeCallingProcessWhiteList(stub, permission);
         default:

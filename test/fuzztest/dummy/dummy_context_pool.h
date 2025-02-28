@@ -60,7 +60,7 @@ public:
         auto dummyAuthentication = Common::MakeShared<DummyAuthentication>();
         auto contextCallback = Common::MakeShared<ContextCallbackImpl>(new (std::nothrow) DummyIamCallbackInterface(),
         static_cast<UserAuth::OperationType>(OPERATIONTYPE));
-        auto context = Common::MakeShared<SimpleAuthContext>(CONTEXT_ID, dummyAuthentication, contextCallback);
+        auto context = Common::MakeShared<SimpleAuthContext>(CONTEXT_ID, dummyAuthentication, contextCallback, true);
         return context;
     };
     std::vector<std::weak_ptr<Context>> Select(ContextType contextType) const

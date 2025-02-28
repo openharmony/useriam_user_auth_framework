@@ -38,7 +38,8 @@ class BaseContext : public ScheduleNodeCallback,
                     public ContextAppStateObserverManager,
                     public NoCopyable {
 public:
-    BaseContext(const std::string &type, uint64_t contextId, std::shared_ptr<ContextCallback> callback);
+    BaseContext(const std::string &type, uint64_t contextId, std::shared_ptr<ContextCallback> callback,
+        bool needSubscribeAppState);
     ~BaseContext() override;
 
     uint64_t GetContextId() const override;

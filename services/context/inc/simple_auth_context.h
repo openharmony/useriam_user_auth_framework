@@ -31,7 +31,7 @@ constexpr int32_t FIRST_LOCKOUT_DURATION_EXCEPT_PIN = 30 * 1000;
 class SimpleAuthContext : public BaseContext {
 public:
     SimpleAuthContext(uint64_t contextId, std::shared_ptr<Authentication> auth,
-        std::shared_ptr<ContextCallback> callback);
+        std::shared_ptr<ContextCallback> callback, bool needSubscribeAppState);
     SimpleAuthContext(const std::string &type, uint64_t contextId, std::shared_ptr<Authentication> auth,
         std::shared_ptr<ContextCallback> callback);
     ~SimpleAuthContext() override = default;

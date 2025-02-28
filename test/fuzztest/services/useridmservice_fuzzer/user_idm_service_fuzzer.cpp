@@ -298,7 +298,7 @@ void FuzzStartEnroll(Parcel &parcel)
     sptr<IamCallbackInterface> iamCallback = sptr<IamCallbackInterface>(new (nothrow) DummyIamCallbackInterface);
     std::shared_ptr<ContextCallback> contextCallback = ContextCallback::NewInstance(iamCallback, TRACE_ADD_CREDENTIAL);
     Attributes extraInfo;
-    g_UserIdmService.StartEnroll(para, contextCallback, extraInfo);
+    g_UserIdmService.StartEnroll(para, contextCallback, extraInfo, true);
     IAM_LOGI("end");
 }
 

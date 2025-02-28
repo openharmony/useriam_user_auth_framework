@@ -91,7 +91,7 @@ private:
         const AuthParamInner &authParam, const WidgetParamInner &widgetParam, std::vector<AuthType> &validType,
         ContextFactory::AuthWidgetContextPara &para);
     uint64_t StartAuthContext(int32_t apiVersion, Authentication::AuthenticationPara para,
-        const std::shared_ptr<ContextCallback> &contextCallback);
+        const std::shared_ptr<ContextCallback> &contextCallback, bool needSubscribeAppState);
     uint64_t AuthRemoteUser(AuthParamInner &authParam, Authentication::AuthenticationPara &para,
         RemoteAuthParam &remoteAuthParam, const std::shared_ptr<ContextCallback> &contextCallback,
         ResultCode &failReason);
