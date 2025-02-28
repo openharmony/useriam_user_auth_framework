@@ -190,7 +190,29 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTestRegisterAccessTokenListener, TestSi
     service->SetIsReady(true);
     service->SetAccessTokenReady(true);
     EXPECT_EQ(service->RegisterAccessTokenListener(), SUCCESS);
+    EXPECT_EQ(service->RegisterAccessTokenListener(), SUCCESS);
     EXPECT_EQ(service->UnRegisterAccessTokenListener(), SUCCESS);
+    EXPECT_EQ(service->UnRegisterAccessTokenListener(), SUCCESS);
+}
+
+HWTEST_F(CoAuthServiceTest, CoAuthServiceTestNotifyFwkReady, TestSize.Level0)
+{
+    auto service = Common::MakeShared<CoAuthService>();
+    EXPECT_NE(service, nullptr);
+    service->SetIsReady(false);
+    EXPECT_NO_THROW(service->NotifyFwkReady());
+    service->SetIsReady(true);
+    EXPECT_NO_THROW(service->NotifyFwkReady());
+}
+
+HWTEST_F(CoAuthServiceTest, CoAuthServiceTestOnDriverStop, TestSize.Level0)
+{
+    auto service = Common::MakeShared<CoAuthService>();
+    EXPECT_NE(service, nullptr);
+    service->SetIsReady(true);
+    EXPECT_NO_THROW(service->OnDriverStart());
+    EXPECT_NO_THROW(service->OnDriverStop());
+    EXPECT_NO_THROW(service->OnDriverStop());
 }
 } // namespace UserAuth
 } // namespace UserIam
