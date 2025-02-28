@@ -154,6 +154,7 @@ ohos_unittest("iam_services_test") {
     "src/secure_user_info_test.cpp",
     "src/simple_auth_context_test.cpp",
     "src/soft_bus_base_socket_test.cpp",
+    "src/soft_bus_client_socket_test.cpp",
     "src/soft_bus_manager_test.cpp",
     "src/soft_bus_server_socket_test.cpp",
     "src/state_machine_test.cpp",

@@ -333,6 +333,42 @@ HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestProcDataReceive_005, TestSi
     delete baseSocket;
 }
 
+HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestProcDataReceive_006, TestSize.Level0)
+{
+    int32_t socketId = 1;
+    BaseSocketTest *baseSocket = new BaseSocketTest(socketId);
+    const std::string connectionName = "connectionName";
+    const std::string srcEndPoint = "srcEndPoint";
+    const std::string destEndPoint = "destEndPoint";
+    std::shared_ptr<Attributes> attributes = Common::MakeShared<Attributes>();
+    ASSERT_NE(attributes, nullptr);
+    attributes->SetInt32Value(Attributes::ATTR_MSG_TYPE, 1);
+    attributes->SetBoolValue(Attributes::ATTR_MSG_ACK, true);
+    std::shared_ptr<SoftBusMessage> softBusMessage = Common::MakeShared<SoftBusMessage>(0, connectionName, srcEndPoint,
+        destEndPoint, attributes);
+    ResultCode result = baseSocket->ProcDataReceive(socketId, softBusMessage);
+    ASSERT_EQ(result, 0);
+    delete baseSocket;
+}
+
+HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestProcDataReceive_007, TestSize.Level0)
+{
+    int32_t socketId = 1;
+    BaseSocketTest *baseSocket = new BaseSocketTest(socketId);
+    const std::string connectionName = "connectionName";
+    const std::string srcEndPoint = "srcEndPoint";
+    const std::string destEndPoint = "destEndPoint";
+    std::shared_ptr<Attributes> attributes = Common::MakeShared<Attributes>();
+    ASSERT_NE(attributes, nullptr);
+    attributes->SetInt32Value(Attributes::ATTR_MSG_TYPE, 1);
+    attributes->SetBoolValue(Attributes::ATTR_MSG_ACK, false);
+    std::shared_ptr<SoftBusMessage> softBusMessage = Common::MakeShared<SoftBusMessage>(0, connectionName, srcEndPoint,
+        destEndPoint, attributes);
+    ResultCode result = baseSocket->ProcDataReceive(socketId, softBusMessage);
+    ASSERT_EQ(result, 0);
+    delete baseSocket;
+}
+
 HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestParseMessage_004, TestSize.Level0)
 {
     std::shared_ptr<SoftBusMessage> softBusMessage = Common::MakeShared<SoftBusMessage>(0, "", "", "", nullptr);
