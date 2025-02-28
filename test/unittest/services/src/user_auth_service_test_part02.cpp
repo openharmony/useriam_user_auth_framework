@@ -1169,6 +1169,72 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_032, TestSize.Level0)
     EXPECT_EQ(contextId, BAD_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_033, TestSize.Level0)
+{
+    UserAuthService service;
+    int32_t apiVersion = 10;
+    AuthParamInner authParam;
+    authParam.challenge.push_back(1);
+    authParam.authTypes.push_back(AuthType::FINGERPRINT);
+    authParam.authTypes.push_back(AuthType::FACE);
+    authParam.authTypes.push_back(AuthType::PRIVATE_PIN);
+    authParam.authTrustLevel = ATL2;
+    WidgetParamInner widgetParam;
+    widgetParam.title = "使用密码验证";
+    widgetParam.navigationButtonText = "test";
+    widgetParam.windowMode = WindowModeType::DIALOG_BOX;
+    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    EXPECT_NE(testCallback, nullptr);
+    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
+    EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _)).Times(0);
+    sptr<ModalCallbackInterface> testModalCallback(nullptr);
+    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
+    EXPECT_EQ(contextId, BAD_CONTEXT_ID);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckPrivatePinEnroll001, TestSize.Level0)
+{
+    UserAuthService service;
+    std::vector<AuthType> authTypeList;
+    authTypeList.push_back(AuthType::FINGERPRINT);
+    authTypeList.push_back(AuthType::FACE);
+    authTypeList.push_back(AuthType::PRIVATE_PIN);
+    std::vector<AuthType> validAuthTypeList;
+    validAuthTypeList.push_back(AuthType::FINGERPRINT);
+    validAuthTypeList.push_back(AuthType::FACE);
+    EXPECT_EQ(service.CheckPrivatePinEnroll(authTypeList, validAuthTypeList), false);
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckPrivatePinEnroll002, TestSize.Level0)
+{
+    UserAuthService service;
+    std::vector<AuthType> authTypeList;
+    authTypeList.push_back(AuthType::FACE);
+    authTypeList.push_back(AuthType::PRIVATE_PIN);
+    std::vector<AuthType> validAuthTypeList;
+    validAuthTypeList.push_back(AuthType::FINGERPRINT);
+    validAuthTypeList.push_back(AuthType::FACE);
+    EXPECT_EQ(service.CheckPrivatePinEnroll(authTypeList, validAuthTypeList), true);
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckPrivatePinEnroll003, TestSize.Level0)
+{
+    UserAuthService service;
+    std::vector<AuthType> authTypeList;
+    authTypeList.push_back(AuthType::FINGERPRINT);
+    authTypeList.push_back(AuthType::PRIVATE_PIN);
+    std::vector<AuthType> validAuthTypeList;
+    validAuthTypeList.push_back(AuthType::FINGERPRINT);
+    validAuthTypeList.push_back(AuthType::FACE);
+    EXPECT_EQ(service.CheckPrivatePinEnroll(authTypeList, validAuthTypeList), true);
+}
+
 HWTEST_F(UserAuthServiceTest, UserAuthServiceNotice_001, TestSize.Level0)
 {
     UserAuthService service;
