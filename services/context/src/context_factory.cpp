@@ -32,7 +32,7 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 std::shared_ptr<Context> ContextFactory::CreateSimpleAuthContext(const Authentication::AuthenticationPara &para,
-    const std::shared_ptr<ContextCallback> &callback)
+    const std::shared_ptr<ContextCallback> &callback, bool needSubscribeAppState)
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, nullptr);
     uint64_t newContextId = ContextPool::GetNewContextId();
@@ -41,7 +41,7 @@ std::shared_ptr<Context> ContextFactory::CreateSimpleAuthContext(const Authentic
     auth->SetChallenge(para.challenge);
     auth->SetAccessTokenId(para.tokenId);
     auth->SetEndAfterFirstFail(para.endAfterFirstFail);
-    return Common::MakeShared<SimpleAuthContext>(newContextId, auth, callback);
+    return Common::MakeShared<SimpleAuthContext>(newContextId, auth, callback, needSubscribeAppState);
 }
 
 std::shared_ptr<Context> ContextFactory::CreateIdentifyContext(const Identification::IdentificationPara &para,
@@ -57,7 +57,7 @@ std::shared_ptr<Context> ContextFactory::CreateIdentifyContext(const Identificat
 }
 
 std::shared_ptr<Context> ContextFactory::CreateEnrollContext(const Enrollment::EnrollmentPara &para,
-    const std::shared_ptr<ContextCallback> &callback)
+    const std::shared_ptr<ContextCallback> &callback, bool needSubscribeAppState)
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, nullptr);
     uint64_t newContextId = ContextPool::GetNewContextId();
@@ -67,7 +67,7 @@ std::shared_ptr<Context> ContextFactory::CreateEnrollContext(const Enrollment::E
     enroll->SetAccessTokenId(para.tokenId);
     enroll->SetPinSubType(para.pinType);
     enroll->SetIsUpdate(para.isUpdate);
-    return Common::MakeShared<EnrollContext>(newContextId, enroll, callback);
+    return Common::MakeShared<EnrollContext>(newContextId, enroll, callback, needSubscribeAppState);
 }
 
 std::shared_ptr<Context> ContextFactory::CreateWidgetAuthContext(std::shared_ptr<ContextCallback> callback)
