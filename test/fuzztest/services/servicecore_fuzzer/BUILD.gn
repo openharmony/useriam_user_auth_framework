@@ -56,8 +56,10 @@ ohos_fuzztest("ServiceCoreFuzzTest") {
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   external_deps = [
+    "c_utils:utils",
     "hdf_core:libhdi",
     "hilog:libhilog",
+    "ipc:ipc_core",
   ]
 
   subsystem_name = "useriam"

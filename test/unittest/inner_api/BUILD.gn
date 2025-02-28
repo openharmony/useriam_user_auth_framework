@@ -109,6 +109,7 @@ ohos_unittest("iam_inner_api_test") {
     "init:libbegetutil",
     "ipc:ipc_single",
     "napi:ace_napi",
+    "samgr:samgr_proxy",
   ]
 
   module_out_path = "useriam/user_auth_framework"
