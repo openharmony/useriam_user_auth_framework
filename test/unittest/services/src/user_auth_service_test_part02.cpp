@@ -1215,10 +1215,11 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckPrivatePinEnroll002, TestSize.
 {
     UserAuthService service;
     std::vector<AuthType> authTypeList;
+    authTypeList.push_back(AuthType::FINGERPRINT);
     authTypeList.push_back(AuthType::FACE);
     authTypeList.push_back(AuthType::PRIVATE_PIN);
     std::vector<AuthType> validAuthTypeList;
-    validAuthTypeList.push_back(AuthType::FINGERPRINT);
+    validAuthTypeList.push_back(AuthType::PRIVATE_PIN);
     validAuthTypeList.push_back(AuthType::FACE);
     EXPECT_EQ(service.CheckPrivatePinEnroll(authTypeList, validAuthTypeList), true);
 }
@@ -1228,10 +1229,11 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckPrivatePinEnroll003, TestSize.
     UserAuthService service;
     std::vector<AuthType> authTypeList;
     authTypeList.push_back(AuthType::FINGERPRINT);
+    authTypeList.push_back(AuthType::FACE);
     authTypeList.push_back(AuthType::PRIVATE_PIN);
     std::vector<AuthType> validAuthTypeList;
     validAuthTypeList.push_back(AuthType::FINGERPRINT);
-    validAuthTypeList.push_back(AuthType::FACE);
+    validAuthTypeList.push_back(AuthType::PRIVATE_PIN);
     EXPECT_EQ(service.CheckPrivatePinEnroll(authTypeList, validAuthTypeList), true);
 }
 
