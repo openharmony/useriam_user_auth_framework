@@ -29,16 +29,16 @@ public:
     void OnIsPinEnrolledChange(bool isPinEnrolled);
     void OnStartSaChange(bool startSa);
     void OnFwkReady(bool &isStopSa);
+    void StartSubscribe();
 
 private:
     ServiceUnloadManager() = default;
     ~ServiceUnloadManager() = default;
-    void Init();
     void RestartTimer();
     void StopTimer();
 
     std::recursive_mutex mutex_;
-    bool isInit_ = false;
+    bool isSubscribed_ = false;
     std::optional<int32_t> timerId_ = std::nullopt;
     bool isPinEnrolled_ = false;
     bool startSa_ = false;

@@ -92,6 +92,8 @@ void ServiceInitManager::CheckAllServiceStart()
              "service start: %{public}d",
         isIdmServiceStart_, isCoAuthServiceStart_, isUserAuthServiceStart_, isAllServiceStart);
 
+    LoadModeHandler::GetInstance().StartSubscribe();
+
     if (!isAllServiceStart) {
         LoadModeHandler::GetInstance().StartCheckServiceReadyTimer();
         return;
@@ -100,9 +102,6 @@ void ServiceInitManager::CheckAllServiceStart()
     LoadModeHandler::GetInstance().CancelCheckServiceReadyTimer();
 
     IAM_LOGI("all service start, init global instance begin");
-
-    const auto &loadModeHandler = LoadModeHandler::GetInstance();
-    (void)loadModeHandler;
 
     SoftBusManager::GetInstance().Start();
     KeyguardStatusListenerManager::GetInstance().RegisterCommonEventListener();
