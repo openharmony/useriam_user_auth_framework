@@ -36,14 +36,13 @@ const char *SERVICE_NAME = "user_auth_interface_service";
 DriverLoadManager &DriverLoadManager::GetInstance()
 {
     static DriverLoadManager instance;
-    instance.Init();
     return instance;
 }
 
-void DriverLoadManager::Init()
+void DriverLoadManager::StartSubscribe()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    if (isInit_) {
+    if (isSubscribed_) {
         return;
     }
 
@@ -54,7 +53,7 @@ void DriverLoadManager::Init()
     OnSaStopping(SystemParamManager::GetInstance().GetParam(STOP_SA_KEY, FALSE_STR) == TRUE_STR);
 
     IAM_LOGI("success");
-    isInit_ = true;
+    isSubscribed_ = true;
 }
 
 void DriverLoadManager::OnTimeout()
@@ -90,6 +89,7 @@ void DriverLoadManager::OnSaStopping(bool isStopping)
 
 bool DriverLoadManager::LoadDriver()
 {
+    IAM_LOGI("start");
     auto devMgr = IDeviceManager::Get();
     IF_FALSE_LOGE_AND_RETURN_VAL(devMgr != nullptr, false);
 
@@ -104,6 +104,7 @@ bool DriverLoadManager::LoadDriver()
 
 bool DriverLoadManager::UnloadDriver()
 {
+    IAM_LOGI("start");
     auto devMgr = IDeviceManager::Get();
     IF_FALSE_LOGE_AND_RETURN_VAL(devMgr != nullptr, false);
 
