@@ -185,12 +185,15 @@ void SimpleAuthContext::OnResult(int32_t resultCode, const std::shared_ptr<Attri
     IAM_LOGI("%{public}s receive result code %{public}d", GetDescription(), resultCode);
     Authentication::AuthResultInfo resultInfo = {};
     bool updateRet = UpdateScheduleResult(scheduleResultAttr, resultInfo);
+    IAM_LOGI("update result %{public}d, resultInfo result %{public}d", updateRet, resultInfo.result);
     if (!updateRet) {
         IAM_LOGE("%{public}s UpdateScheduleResult fail", GetDescription());
         if (resultCode == SUCCESS) {
             resultCode = GetLatestError();
         }
         resultInfo.result = resultCode;
+    } else if (resultCode != resultInfo.result) {
+        resultInfo.result = (resultInfo.result == SUCCESS ? resultCode : resultInfo.result);
     }
     if (GetPropertyForAuthResult(resultInfo) != SUCCESS) {
         IAM_LOGE("GetPropertyForAuthResult failed");
@@ -277,7 +280,7 @@ void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInf
         bool setRemainTimesRet = finalResult.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, resultInfo.remainTimes);
         IF_FALSE_LOGE_AND_RETURN(setRemainTimesRet == true);
     }
-    if (resultInfo.result == SUCCESS && resultInfo.sdkVersion > API_VERSION_9) {
+    if ((resultInfo.result == SUCCESS || resultInfo.token.size() != 0) && resultInfo.sdkVersion > API_VERSION_9) {
         bool credentialDigest = SetCredentialDigest(resultInfo, finalResult);
         IF_FALSE_LOGE_AND_RETURN(credentialDigest == true);
     }
@@ -292,6 +295,7 @@ void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInf
         IF_FALSE_LOGE_AND_RETURN(setExpiredRet == true);
     }
     if (resultInfo.token.size() != 0) {
+        IAM_LOGI("result token size: %{public}zu.", resultInfo.token.size());
         bool setSignatureResult = finalResult.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, resultInfo.token);
         IF_FALSE_LOGE_AND_RETURN(setSignatureResult == true);
     }
