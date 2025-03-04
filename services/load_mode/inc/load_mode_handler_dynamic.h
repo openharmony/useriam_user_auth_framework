@@ -35,7 +35,6 @@ public:
     LoadModeHandlerDynamic();
     ~LoadModeHandlerDynamic() override = default;
 
-    void Init() override;
     void OnFwkReady() override;
     void OnExecutorRegistered(AuthType authType, ExecutorRole executorRole) override;
     void OnExecutorUnregistered(AuthType authType, ExecutorRole executorRole) override;
@@ -49,6 +48,7 @@ public:
     void StartCheckServiceReadyTimer() override;
     void CancelCheckServiceReadyTimer() override;
     void TriggerAllServiceStart() override;
+    void StartSubscribe() override;
     void SubscribeCommonEventServiceListener();
 
 private:
@@ -56,7 +56,7 @@ private:
     void RefreshIsPinEnrolled();
     void RefreshIsPinFunctionReady();
 
-    bool isInit_ = false;
+    bool isSubscribed_ = false;
     std::recursive_mutex mutex_;
     bool isPinEnrolled_ = false;
     sptr<SystemAbilityListener> pinAuthServiceListener_ = nullptr;

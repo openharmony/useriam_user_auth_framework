@@ -107,17 +107,15 @@ void LoadModeHandlerDynamic::OnCommonEventSaStart()
     OnCredentialUpdated(PIN);
 }
 
-void LoadModeHandlerDynamic::Init()
+void LoadModeHandlerDynamic::StartSubscribe()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    if (isInit_) {
+    if (isSubscribed_) {
         return;
     }
 
-    const auto &driverLoadManager = DriverLoadManager::GetInstance();
-    (void)driverLoadManager;
-    const auto &serviceUnloadManager = ServiceUnloadManager::GetInstance();
-    (void)serviceUnloadManager;
+    DriverLoadManager::GetInstance().StartSubscribe();
+    ServiceUnloadManager::GetInstance().StartSubscribe();
 
     if (pinAuthServiceListener_ == nullptr) {
         pinAuthServiceListener_ = SystemAbilityListener::Subscribe(
@@ -126,8 +124,10 @@ void LoadModeHandlerDynamic::Init()
             []() { LoadModeHandler::GetInstance().OnPinAuthServiceStop(); });
     }
 
+    IF_FALSE_LOGE_AND_RETURN(pinAuthServiceListener_ != nullptr);
+
     IAM_LOGI("init load mode handler dynamic success");
-    isInit_ = true;
+    isSubscribed_ = true;
 }
 
 void LoadModeHandlerDynamic::OnFwkReady()

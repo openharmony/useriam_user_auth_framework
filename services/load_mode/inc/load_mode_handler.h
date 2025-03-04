@@ -25,8 +25,6 @@ class LoadModeHandler {
 public:
     static LoadModeHandler &GetInstance();
 
-    virtual void Init() = 0;
-
     virtual void OnFwkReady() = 0;
     virtual void OnExecutorRegistered(AuthType authType, ExecutorRole executorRole) = 0;
     virtual void OnExecutorUnregistered(AuthType authType, ExecutorRole executorRole) = 0;
@@ -40,6 +38,7 @@ public:
     virtual void StartCheckServiceReadyTimer() = 0;
     virtual void CancelCheckServiceReadyTimer() = 0;
     virtual void TriggerAllServiceStart() = 0;
+    virtual void StartSubscribe() = 0;
 
 protected:
     LoadModeHandler() = default;
