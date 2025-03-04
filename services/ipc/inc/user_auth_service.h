@@ -114,7 +114,8 @@ private:
         std::vector<uint32_t> &uint32Keys);
     void FillGetPropertyValue(AuthType authType, const std::vector<Attributes::AttributeKey> &keys, Attributes &values);
     bool CompleteRemoteAuthParam(RemoteAuthParam &remoteAuthParam, const std::string &localNetworkId);
-    int32_t PrepareRemoteAuthInner(const std::string &networkId);
+    int32_t PrepareRemoteAuthInner(const std::string &networkId, sptr<UserAuthCallbackInterface> &callback);
+    int32_t DoPrepareRemoteAuth(const std::string &networkId);
     int32_t GetAvailableStatusInner(int32_t apiVersion, int32_t userId, AuthType authType,
         AuthTrustLevel authTrustLevel);
     bool GetAuthTokenAttr(const HdiUserAuthTokenPlain &tokenPlain, const std::vector<uint8_t> &rootSecret,
