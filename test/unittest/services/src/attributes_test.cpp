@@ -421,9 +421,10 @@ HWTEST_F(AttributesTest, AttributesSetAndGetAttributesArray01, TestSize.Level0)
 {
     Attributes attrs1;
     int64_t value1 = 1;
-    EXPECT_EQ(attrs1.SetInt64Value(Attributes::ATTR_EXECUTOR_REGISTER_INFO_LIST, value1), true);
+    int64_t value2 = 2;
+    EXPECT_EQ(attrs1.SetInt64Value(Attributes::ATTR_EXECUTOR_REGISTER_INFO_LIST, value2), true);
     EXPECT_EQ(attrs1.GetInt64Value(Attributes::ATTR_EXECUTOR_REGISTER_INFO_LIST, value1), true);
-    EXPECT_EQ(value1, 1);
+    EXPECT_EQ(value1, value2);
 
     Attributes setAttrs;
     Attributes attrs2;
