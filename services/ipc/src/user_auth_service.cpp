@@ -630,17 +630,9 @@ uint64_t UserAuthService::AuthUser(AuthParamInner &authParam, std::optional<Remo
     return contextId;
 }
 
-int32_t UserAuthService::PrepareRemoteAuthInner(const std::string &networkId)
+int32_t UserAuthService::DoPrepareRemoteAuth(const std::string &networkId)
 {
     IAM_LOGI("start");
-    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
-        IAM_LOGE("failed to check permission");
-        return CHECK_PERMISSION_FAILED;
-    }
-    if (networkId.empty()) {
-        IAM_LOGE("networkId is empty");
-        return INVALID_PARAMETERS;
-    }
 
     std::string udid;
     bool getUdidRet = DeviceManagerUtil::GetInstance().GetUdidByNetworkId(networkId, udid);
@@ -656,6 +648,47 @@ int32_t UserAuthService::PrepareRemoteAuthInner(const std::string &networkId)
     return SUCCESS;
 }
 
+int32_t UserAuthService::PrepareRemoteAuthInner(const std::string &networkId, sptr<UserAuthCallbackInterface> &callback)
+{
+    if (networkId.empty()) {
+        IAM_LOGE("networkId is empty");
+        return INVALID_PARAMETERS;
+    }
+
+    if (callback == nullptr) {
+        IAM_LOGE("callback is nullptr");
+        return INVALID_PARAMETERS;
+    }
+
+    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    IF_FALSE_LOGE_AND_RETURN_VAL(handler != nullptr, GENERAL_ERROR);
+
+    handler->PostTask([networkId, callback]() {
+        Attributes attr;
+
+        auto service = UserAuthService::GetInstance();
+        if (service == nullptr) {
+            IAM_LOGE("service is nullptr");
+            callback->OnResult(GENERAL_ERROR, attr);
+            return;
+        }
+
+        int32_t ret = service->DoPrepareRemoteAuth(networkId);
+        if (ret != SUCCESS) {
+            IAM_LOGE("failed to prepare remote auth");
+        }
+
+        callback->OnResult(ret, attr);
+    });
+
+    return SUCCESS;
+}
+
 int32_t UserAuthService::PrepareRemoteAuth(const std::string &networkId, sptr<UserAuthCallbackInterface> &callback)
 {
     IAM_LOGI("start");
@@ -665,15 +698,14 @@ int32_t UserAuthService::PrepareRemoteAuth(const std::string &networkId, sptr<Us
         return INVALID_PARAMETERS;
     }
 
-    int32_t ret = PrepareRemoteAuthInner(networkId);
+    int32_t ret = PrepareRemoteAuthInner(networkId, callback);
     if (ret != SUCCESS) {
         IAM_LOGE("failed to prepare remote auth");
+        Attributes attr;
+        callback->OnResult(ret, attr);
     }
 
-    Attributes attr;
-    callback->OnResult(ret, attr);
-
-    IAM_LOGI("success");
+    IAM_LOGI("end");
     return SUCCESS;
 }
 
