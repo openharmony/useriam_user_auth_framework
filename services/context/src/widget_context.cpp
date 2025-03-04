@@ -261,11 +261,15 @@ void WidgetContext::AuthResult(int32_t resultCode, int32_t authType, const Attri
     IF_FALSE_LOGE_AND_RETURN(callerCallback_ != nullptr);
     callerCallback_->SetTraceAuthType(authTypeTmp);
     IAM_LOGI("call schedule:");
-    if (resultCode == ResultCode::SUCCESS) {
+    if (resultCode == ResultCode::SUCCESS || resultCode == ResultCode::COMPLEXITY_CHECK_FAILED) {
         finalResult.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authResultInfo_.token);
         finalResult.GetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, authResultInfo_.credentialDigest);
         finalResult.GetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, authResultInfo_.credentialCount);
         authResultInfo_.authType = authTypeTmp;
+        IAM_LOGI("widget token size: %{public}zu.", authResultInfo_.token.size());
+        if (resultCode != ResultCode::SUCCESS) {
+            SetLatestError(resultCode);
+        }
         schedule_->SuccessAuth(authTypeTmp);
     } else {
         // failed
@@ -436,6 +440,11 @@ void WidgetContext::SuccessAuth(AuthType authType)
     IAM_LOGI("success auth. authType:%{public}d", static_cast<int32_t>(authType));
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     // report success to App
+    if (latestError_ == ResultCode::COMPLEXITY_CHECK_FAILED) {
+        IAM_LOGE("complexity check failed");
+        End(TRUST_LEVEL_NOT_SUPPORT);
+        return;
+    }
     End(ResultCode::SUCCESS);
 }
 
@@ -552,7 +561,7 @@ void WidgetContext::End(const ResultCode &resultCode)
     StopAllRunTask(resultCode);
     IF_FALSE_LOGE_AND_RETURN(callerCallback_ != nullptr);
     Attributes attr;
-    if (resultCode == ResultCode::SUCCESS) {
+    if (resultCode == ResultCode::SUCCESS || authResultInfo_.token.size() != 0) {
         if (!attr.SetInt32Value(Attributes::ATTR_AUTH_TYPE, authResultInfo_.authType)) {
             IAM_LOGE("set auth type failed.");
             callerCallback_->SetTraceAuthFinishReason("WidgetContext End set authType fail");
@@ -567,6 +576,7 @@ void WidgetContext::End(const ResultCode &resultCode)
                 return;
             }
         }
+        IAM_LOGI("in End, token size: %{public}zu.", authResultInfo_.token.size());
         if (!attr.SetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, authResultInfo_.credentialDigest)) {
             IAM_LOGE("set credential digest failed.");
             callerCallback_->SetTraceAuthFinishReason("WidgetContext End set credentialDigest fail");

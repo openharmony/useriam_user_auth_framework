@@ -112,7 +112,7 @@ napi_status UserAuthCallbackV10::DoResultCallback(int32_t result,
             return ret;
         }
     }
-    if (UserAuthResultCode(result) == UserAuthResultCode::SUCCESS) {
+    if (UserAuthResultCode(result) == UserAuthResultCode::SUCCESS || !token.empty()) {
         ret = UserAuthNapiHelper::SetEnrolledStateProperty(env_, eventInfo, "enrolledState", enrolledState);
         if (ret != napi_ok) {
             IAM_LOGE("SetEnrolledStateProperty failed %{public}d", ret);
@@ -156,6 +156,7 @@ void UserAuthCallbackV10::OnResult(int32_t result, const Attributes &extraInfo)
     if (!extraInfo.GetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, resultHolder->enrolledState.credentialCount)) {
         IAM_LOGE("ATTR_CREDENTIAL_COUNT is null");
     }
+    IAM_LOGI("result token size: %{public}zu.", resultHolder->token.size());
     auto task = [resultHolder] () {
         IAM_LOGI("start");
         if (resultHolder == nullptr || resultHolder->callback == nullptr) {
