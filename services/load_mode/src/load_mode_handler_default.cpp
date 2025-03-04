@@ -28,14 +28,14 @@ LoadModeHandlerDefault::LoadModeHandlerDefault()
     IAM_LOGI("sa load mode is default");
 }
 
-void LoadModeHandlerDefault::Init()
+void LoadModeHandlerDefault::StartSubscribe()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    if (isInit_) {
+    if (isSubscribed_) {
         return;
     }
 
-    isInit_ = true;
+    isSubscribed_ = true;
 }
 
 void LoadModeHandlerDefault::OnFwkReady()

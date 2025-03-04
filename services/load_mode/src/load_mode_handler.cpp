@@ -36,7 +36,6 @@ LoadModeHandler &LoadModeHandler::GetInstance()
     static LoadModeHandlerDefault instance;
 #endif
 
-    instance.Init();
     return instance;
 }
 } // namespace UserAuth

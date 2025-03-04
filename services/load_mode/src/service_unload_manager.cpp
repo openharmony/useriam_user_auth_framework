@@ -28,15 +28,14 @@ namespace UserAuth {
 ServiceUnloadManager &ServiceUnloadManager::GetInstance()
 {
     static ServiceUnloadManager instance;
-    instance.Init();
     return instance;
 }
 
-void ServiceUnloadManager::Init()
+void ServiceUnloadManager::StartSubscribe()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-    if (isInit_) {
+    if (isSubscribed_) {
         return;
     }
 
@@ -64,7 +63,7 @@ void ServiceUnloadManager::Init()
     bool startSa = SystemParamManager::GetInstance().GetParam(START_SA_KEY, FALSE_STR) == TRUE_STR;
     OnStartSaChange(startSa);
 
-    isInit_ = true;
+    isSubscribed_ = true;
 }
 
 void ServiceUnloadManager::OnTimeout()

@@ -29,7 +29,7 @@ class DriverLoadManager {
 public:
     static DriverLoadManager &GetInstance();
 
-    void Init();
+    void StartSubscribe();
     void OnTimeout();
     void OnDriverStart();
     void OnDriverStop();
@@ -44,7 +44,7 @@ private:
     bool LoadDriver();
     bool UnloadDriver();
 
-    bool isInit_ = false;
+    bool isSubscribed_ = false;
     std::recursive_mutex mutex_;
     sptr<SystemAbilityListener> driverManagerStatusListener_ = nullptr;
     sptr<ServStatListenerStub> driverStatusListener_ = nullptr;
