@@ -58,7 +58,6 @@ const uint32_t ORIENTATION_LANDSCAPE_INVERTED = 3;
 const std::string TO_PORTRAIT = "90";
 const std::string TO_INVERTED = "180";
 const std::string TO_PORTRAIT_INVERTED = "270";
-const uint32_t NOT_SUPPORT_ORIENTATION_INVERTED = 2;
 const std::string SUPPORT_FOLLOW_CALLER_UI = "const.useriam.authWidget.supportFollowCallerUi";
 
 WidgetContext::WidgetContext(uint64_t contextId, const ContextFactory::AuthWidgetContextPara &para,
@@ -388,21 +387,13 @@ bool WidgetContext::AuthWidgetReload(uint32_t orientation, uint32_t needRotate, 
 
 bool WidgetContext::IsValidRotate(const WidgetRotatePara &widgetRotatePara)
 {
-    IAM_LOGI("check rotate, needRotate: %{public}u, orientation: %{public}u, orientation_: %{public}u",
-        widgetRotatePara.needRotate, widgetRotatePara.orientation, widgetRotateOrientation_);
+    IAM_LOGI("check rotate, needRotate: %{public}u, orientation: %{public}u", widgetRotatePara.needRotate,
+        widgetRotatePara.orientation);
     if (widgetRotatePara.needRotate) {
         IAM_LOGI("check rotate, widgetAlreadyLoad_: %{public}u", widgetAlreadyLoad_);
         if (widgetRotatePara.orientation == ORIENTATION_PORTRAIT_INVERTED && !widgetAlreadyLoad_) {
             IAM_LOGI("only support first");
             return true;
-        }
-        if (widgetRotatePara.orientation > widgetRotateOrientation_ &&
-            widgetRotatePara.orientation - widgetRotateOrientation_ == NOT_SUPPORT_ORIENTATION_INVERTED) {
-            return false;
-        }
-        if (widgetRotatePara.orientation < widgetRotateOrientation_ &&
-            widgetRotateOrientation_ - widgetRotatePara.orientation == NOT_SUPPORT_ORIENTATION_INVERTED) {
-            return false;
         }
     }
     return true;
@@ -661,7 +652,6 @@ void WidgetContext::ProcessRotatePara(WidgetCmdParameters &widgetCmdParameters,
     }
     IAM_LOGI("needRotate: %{public}u, orientation: %{public}u", widgetRotatePara.needRotate,
         widgetRotatePara.orientation);
-    widgetRotateOrientation_ = widgetRotatePara.orientation;
     if (widgetRotatePara.needRotate) {
         if (widgetRotatePara.orientation == ORIENTATION_LANDSCAPE) {
             widgetCmdParameters.uiExtNodeAngle = TO_PORTRAIT;

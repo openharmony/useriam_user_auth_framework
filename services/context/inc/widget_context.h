@@ -138,7 +138,6 @@ private:
     sptr<UIExtensionAbilityConnection> connection_ {nullptr};
     WidgetAuthResultInfo authResultInfo_ {};
     int32_t faceReload_ {0};
-    uint32_t widgetRotateOrientation_ {0};
     uint32_t widgetAlreadyLoad_ {0};
 };
 } // namespace UserAuth
