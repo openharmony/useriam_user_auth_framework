@@ -136,6 +136,7 @@ void GetJsonCmd(nlohmann::json &jsonCommand, const WidgetCommand &command, bool 
     jsonCommand[JSON_WIDGET_IS_RELOAD] = command.isReload;
     jsonCommand[JSON_WIDGET_ROTATE_AUTH_TYPE] = command.rotateAuthType;
     jsonCommand[JSON_WIDGET_CALLING_APP_ID] = command.callingAppID;
+    jsonCommand[JSON_WIDGET_CALLING_PROCESS_NAME] = command.callingProcessName;
 }
 }
 
