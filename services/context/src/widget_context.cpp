@@ -58,6 +58,7 @@ const std::string TO_PORTRAIT = "90";
 const std::string TO_INVERTED = "180";
 const std::string TO_PORTRAIT_INVERTED = "270";
 const uint32_t NOT_SUPPORT_ORIENTATION_INVERTED = 2;
+const std::string FIND_PROCESS_NAME = "findnetwork";
 
 WidgetContext::WidgetContext(uint64_t contextId, const ContextFactory::AuthWidgetContextPara &para,
     std::shared_ptr<ContextCallback> callback)
