@@ -453,6 +453,7 @@ void WidgetContext::SetSysDialogZOrder(WidgetCmdParameters &widgetCmdParameters)
     }
     if ((para_.callerName == FIND_PROCESS_NAME) && (para_.callerType == Security::AccessToken::TOKEN_NATIVE)) {
         IAM_LOGI("is on shutdown screen, set zOrder");
+        widgetCmdParameters.useriamCmdData.callingProcessName = para_.callerName;
         widgetCmdParameters.sysDialogZOrder = SYSDIALOG_ZORDER_UPPER;
     }
 }
