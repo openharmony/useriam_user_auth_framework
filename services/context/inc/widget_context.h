@@ -106,7 +106,7 @@ private:
     void ProcessRotatePara(WidgetCmdParameters &widgetCmdParameters, const WidgetRotatePara &widgetRotatePara);
     bool isValidRotate(const WidgetRotatePara &widgetRotatePara);
     std::string GetCallingBundleName();
-    void SetSysDialogZOrder(WidgetCmdParaMeters &widgetCmdParameters);
+    void SetSysDialogZOrder(WidgetCmdParameters &widgetCmdParameters);
 
 private:
     struct TaskInfo {
