@@ -60,6 +60,7 @@ const std::string JSON_AUTH_WINDOW_MODE = "windowModeType";
 const std::string JSON_AUTH_NAVI_BTN_TEXT = "navigationButtonText";
 const std::string JSON_WIDGET_IS_RELOAD = "isReload";
 const std::string JSON_WIDGET_ROTATE_AUTH_TYPE = "rotateAuthType";
+const std::string JSON_WIDGET_CALLING_PROCESS_NAME = "callingProcessName";
 const std::string JSON_WIDGET_CALLING_APP_ID = "callingAppID";
 
 const std::string JSON_UI_EXTENSION_TYPE = "ability.want.params.uiExtensionType";
@@ -128,6 +129,7 @@ void GetJsonCmd(nlohmann::json &jsonCommand, const WidgetCommand &command, bool 
     jsonCommand[JSON_WIDGET_IS_RELOAD] = command.isReload;
     jsonCommand[JSON_WIDGET_ROTATE_AUTH_TYPE] = command.rotateAuthType;
     jsonCommand[JSON_WIDGET_CALLING_APP_ID] = command.callingAppID;
+    jsonCommand[JSON_WIDGET_CALLING_PROCESS_NAME] = command.callingProcessName;
 }
 }
 
