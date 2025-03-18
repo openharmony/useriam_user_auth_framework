@@ -71,7 +71,7 @@ public:
     void OnAccountsChanged(const int& id) override;
 };
 
-HWTEST_F(TemplateCacheManagerTest, TemplateCacheManagerTest_001, TestSize.Level0)
+HWTEST_F(TemplateCacheManagerTest, TemplateCacheManagerTest_001, TestSize.Level1)
 {
     EXPECT_NO_THROW({
         TemplateCacheManager::GetInstance().UpdateTemplateCache(PIN);
@@ -81,7 +81,7 @@ HWTEST_F(TemplateCacheManagerTest, TemplateCacheManagerTest_001, TestSize.Level0
     });
 }
 
-HWTEST_F(TemplateCacheManagerTest, TemplateCacheManagerTestOnAddSystemAbility, TestSize.Level0)
+HWTEST_F(TemplateCacheManagerTest, TemplateCacheManagerTestOnAddSystemAbility, TestSize.Level1)
 {
     int32_t systemAbilityId = 1;
     const std::string deviceId = "123";
@@ -90,7 +90,7 @@ HWTEST_F(TemplateCacheManagerTest, TemplateCacheManagerTestOnAddSystemAbility, T
     });
 }
 
-HWTEST_F(TemplateCacheManagerTest, TemplateCacheManagerTestOnRemoveSystemAbility_001, TestSize.Level0)
+HWTEST_F(TemplateCacheManagerTest, TemplateCacheManagerTestOnRemoveSystemAbility_001, TestSize.Level1)
 {
     int32_t systemAbilityId = 1;
     const std::string deviceId = "123";
@@ -99,7 +99,7 @@ HWTEST_F(TemplateCacheManagerTest, TemplateCacheManagerTestOnRemoveSystemAbility
     });
 }
 
-HWTEST_F(TemplateCacheManagerTest, TemplateCacheManagerTestOnRemoveSystemAbility_002, TestSize.Level0)
+HWTEST_F(TemplateCacheManagerTest, TemplateCacheManagerTestOnRemoveSystemAbility_002, TestSize.Level1)
 {
     int32_t systemAbilityId = 200;
     const std::string deviceId = "123";
@@ -108,14 +108,14 @@ HWTEST_F(TemplateCacheManagerTest, TemplateCacheManagerTestOnRemoveSystemAbility
     });
 }
 
-HWTEST_F(TemplateCacheManagerTest, TemplateCacheManagerTestUnsubscribe, TestSize.Level0)
+HWTEST_F(TemplateCacheManagerTest, TemplateCacheManagerTestUnsubscribe, TestSize.Level1)
 {
     EXPECT_NO_THROW({
         OsAccountIdSubscriber::GetInstance()->Unsubscribe();
     });
 }
 
-HWTEST_F(TemplateCacheManagerTest, TemplateCacheManagerTestOnAccountsChanged, TestSize.Level0)
+HWTEST_F(TemplateCacheManagerTest, TemplateCacheManagerTestOnAccountsChanged, TestSize.Level1)
 {
     const int id = 1;
     EXPECT_NO_THROW({

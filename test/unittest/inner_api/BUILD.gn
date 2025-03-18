@@ -112,7 +112,7 @@ ohos_unittest("iam_inner_api_test") {
     "samgr:samgr_proxy",
   ]
 
-  module_out_path = "useriam/user_auth_framework"
+  module_out_path = "user_auth_framework/user_auth_framework"
 
   subsystem_name = "useriam"
   part_name = "user_auth_framework"
