@@ -48,13 +48,13 @@ void ScheduleNodeTest::TearDown()
 {
 }
 
-HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderWithNullptr, TestSize.Level0)
+HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderWithNullptr, TestSize.Level1)
 {
     auto builder = ScheduleNode::Builder::New(nullptr, nullptr);
     EXPECT_EQ(builder, nullptr);
 }
 
-HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderOneCollectorFailed, TestSize.Level0)
+HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderOneCollectorFailed, TestSize.Level1)
 {
     {
         auto faceCollector = MockResourceNode::CreateWithExecuteIndex(1, FACE, COLLECTOR);
@@ -107,7 +107,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderOneCollectorFailed, TestSize.Level
     }
 }
 
-HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderOneCollectorSuccess, TestSize.Level0)
+HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderOneCollectorSuccess, TestSize.Level1)
 {
     {
         auto faceAllInOne = MockResourceNode::CreateWithExecuteIndex(1, FACE, ALL_IN_ONE);
@@ -121,7 +121,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderOneCollectorSuccess, TestSize.Leve
     }
 }
 
-HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderTwoExecutorsFailed, TestSize.Level0)
+HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderTwoExecutorsFailed, TestSize.Level1)
 {
     {
         auto faceCollector = MockResourceNode::CreateWithExecuteIndex(1, FACE, COLLECTOR);
@@ -151,7 +151,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderTwoExecutorsFailed, TestSize.Level
     }
 }
 
-HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderTwoExecutorsSuccess, TestSize.Level0)
+HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderTwoExecutorsSuccess, TestSize.Level1)
 {
     {
         auto faceCollector = MockResourceNode::CreateWithExecuteIndex(1, FACE, COLLECTOR);
@@ -167,7 +167,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderTwoExecutorsSuccess, TestSize.Leve
     }
 }
 
-HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderMismatchAuthType, TestSize.Level0)
+HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderMismatchAuthType, TestSize.Level1)
 {
     {
         auto faceAllInOne = MockResourceNode::CreateWithExecuteIndex(1, FACE, ALL_IN_ONE);
@@ -187,7 +187,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderMismatchAuthType, TestSize.Level0)
     }
 }
 
-HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderOtherParameters, TestSize.Level0)
+HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderOtherParameters, TestSize.Level1)
 {
     {
         constexpr uint32_t EXECUTOR_MATCHER = 0xDEEDBEEF;
@@ -217,7 +217,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderOtherParameters, TestSize.Level0)
     }
 }
 
-HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderOtherParametersNoTemplate, TestSize.Level0)
+HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderOtherParametersNoTemplate, TestSize.Level1)
 {
     {
         constexpr uint32_t EXECUTOR_MATCHER = 0xDEEDBEEF;
@@ -242,7 +242,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderOtherParametersNoTemplate, TestSiz
     }
 }
 
-HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneFailed, TestSize.Level0)
+HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneFailed, TestSize.Level1)
 {
     MockExecutorCallback executor;
     EXPECT_CALL(executor, OnBeginExecute(_, _, _)).WillOnce(Return(1));
@@ -277,7 +277,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneFailed, TestSize.Level0)
     handler->EnsureTask([]() {});
 }
 
-HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccess, TestSize.Level0)
+HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccess, TestSize.Level1)
 {
     MockExecutorCallback executor;
     EXPECT_CALL(executor, OnBeginExecute(_, _, _)).WillOnce(Return(0));
@@ -310,7 +310,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccess, TestSize.Level0)
     handler->EnsureTask([]() {});
 }
 
-HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessButTimeout, TestSize.Level0)
+HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessButTimeout, TestSize.Level1)
 {
     using namespace std::chrono;
 
@@ -360,7 +360,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessButTimeout, TestSize.
     handler->EnsureTask([]() {});
 }
 
-HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessButTimeoutAndEndFail, TestSize.Level0)
+HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessButTimeoutAndEndFail, TestSize.Level1)
 {
     using namespace std::chrono;
 
@@ -414,7 +414,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessButTimeoutAndEndFail,
     handler->EnsureTask([]() {});
 }
 
-HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessGetResult, TestSize.Level0)
+HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessGetResult, TestSize.Level1)
 {
     using namespace std::chrono;
 
@@ -467,7 +467,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneSuccessGetResult, TestSize.L
     handler->EnsureTask([]() {});
 }
 
-HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneUserStop, TestSize.Level0)
+HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneUserStop, TestSize.Level1)
 {
     using namespace std::chrono;
 
@@ -520,7 +520,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneUserStop, TestSize.Level0)
     handler->EnsureTask([]() {});
 }
 
-HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneUserStopAndEndFailed, TestSize.Level0)
+HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneUserStopAndEndFailed, TestSize.Level1)
 {
     using namespace std::chrono;
 
@@ -575,7 +575,7 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneUserStopAndEndFailed, TestSi
     handler->EnsureTask([]() {});
 }
 
-HWTEST_F(ScheduleNodeTest, ScheduleNodeTestSendMessage, TestSize.Level0)
+HWTEST_F(ScheduleNodeTest, ScheduleNodeTestSendMessage, TestSize.Level1)
 {
     std::vector<uint8_t> testMsg;
 
