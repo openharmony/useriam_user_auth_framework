@@ -221,7 +221,7 @@ ohos_unittest("iam_services_test") {
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
-  module_out_path = "useriam/user_auth_framework"
+  module_out_path = "user_auth_framework/user_auth_framework"
 
   subsystem_name = "useriam"
   part_name = "user_auth_framework"
