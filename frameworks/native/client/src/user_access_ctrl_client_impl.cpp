@@ -43,7 +43,7 @@ void UserAccessCtrlClientImpl::VerifyAuthToken(const std::vector<uint8_t> &token
         return;
     }
 
-    sptr<VerifyTokenCallbackInterface> wrapper(new (std::nothrow) VerifyTokenCallbackService(callback));
+    sptr<IVerifyTokenCallback> wrapper(new (std::nothrow) VerifyTokenCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
@@ -53,7 +53,7 @@ void UserAccessCtrlClientImpl::VerifyAuthToken(const std::vector<uint8_t> &token
     proxy->VerifyAuthToken(tokenIn, allowableDuration, wrapper);
 }
 
-sptr<UserAuthInterface> UserAccessCtrlClientImpl::GetProxy()
+sptr<IUserAuth> UserAccessCtrlClientImpl::GetProxy()
 {
     std::lock_guard<std::mutex> lock(mutex_);
     if (proxy_ != nullptr) {
@@ -70,7 +70,7 @@ sptr<UserAuthInterface> UserAccessCtrlClientImpl::GetProxy()
         return proxy_;
     }
 
-    proxy_ = iface_cast<UserAuthInterface>(obj);
+    proxy_ = iface_cast<IUserAuth>(obj);
     deathRecipient_ = dr;
     return proxy_;
 }

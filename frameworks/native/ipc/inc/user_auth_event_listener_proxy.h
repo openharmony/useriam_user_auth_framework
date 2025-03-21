@@ -17,7 +17,7 @@
 #define USER_AUTH_EVENT_LISTERNR_PROXY_H
 
 #include <iremote_proxy.h>
-#include "user_auth_client_callback.h"
+#include "auth_event_listener_interface.h"
 
 namespace OHOS {
 namespace UserIam {

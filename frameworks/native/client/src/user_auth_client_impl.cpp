@@ -92,7 +92,8 @@ int32_t UserAuthClientImpl::GetAvailableStatus(AuthType authType, AuthTrustLevel
             ACCESS_BIOMETRIC_PERMISSION
         }));
     }
-    return proxy->GetAvailableStatus(INNER_API_VERSION_10000, authType, authTrustLevel);
+    return proxy->GetAvailableStatus(INNER_API_VERSION_10000, static_cast<int32_t>(authType),
+        static_cast<uint32_t>(authTrustLevel));
 }
 
 int32_t UserAuthClientImpl::GetNorthAvailableStatus(int32_t apiVersion, AuthType authType,
@@ -107,7 +108,8 @@ int32_t UserAuthClientImpl::GetNorthAvailableStatus(int32_t apiVersion, AuthType
             ACCESS_BIOMETRIC_PERMISSION
         }));
     }
-    return proxy->GetAvailableStatus(apiVersion, authType, authTrustLevel);
+    return proxy->GetAvailableStatus(apiVersion, static_cast<int32_t>(authType),
+        static_cast<uint32_t>(authTrustLevel));
 }
 
 int32_t UserAuthClientImpl::GetAvailableStatus(int32_t userId, AuthType authType, AuthTrustLevel authTrustLevel)
@@ -120,7 +122,8 @@ int32_t UserAuthClientImpl::GetAvailableStatus(int32_t userId, AuthType authType
             ACCESS_USER_AUTH_INTERNAL_PERMISSION
         }));
     }
-    return proxy->GetAvailableStatus(INNER_API_VERSION_10000, userId, authType, authTrustLevel);
+    return proxy->GetAvailableStatus(INNER_API_VERSION_10000, userId, static_cast<int32_t>(authType),
+        static_cast<uint32_t>(authTrustLevel));
 }
 
 void UserAuthClientImpl::GetProperty(int32_t userId, const GetPropertyRequest &request,
@@ -142,7 +145,7 @@ void UserAuthClientImpl::GetProperty(int32_t userId, const GetPropertyRequest &r
         return;
     }
 
-    sptr<GetExecutorPropertyCallbackInterface> wrapper(
+    sptr<IGetExecutorPropertyCallback> wrapper(
         new (std::nothrow) GetExecutorPropertyCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
@@ -150,7 +153,19 @@ void UserAuthClientImpl::GetProperty(int32_t userId, const GetPropertyRequest &r
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
-    proxy->GetProperty(userId, request.authType, request.keys, wrapper);
+
+    std::vector<uint32_t> attrkeys;
+    attrkeys.resize(request.keys.size());
+    std::transform(request.keys.begin(), request.keys.end(), attrkeys.begin(), [](Attributes::AttributeKey key) {
+        return static_cast<uint32_t>(key);
+    });
+    auto ret = proxy->GetProperty(userId, static_cast<int32_t>(request.authType), attrkeys, wrapper);
+    if (ret != SUCCESS) {
+        IAM_LOGE("GetProperty fail, ret:%{public}d", ret);
+        Attributes extraInfo;
+        callback->OnResult(GENERAL_ERROR, extraInfo);
+        return;
+    }
 }
 
 void UserAuthClientImpl::GetPropertyById(uint64_t credentialId, const std::vector<Attributes::AttributeKey> &keys,
@@ -172,7 +187,7 @@ void UserAuthClientImpl::GetPropertyById(uint64_t credentialId, const std::vecto
         return;
     }
 
-    sptr<GetExecutorPropertyCallbackInterface> wrapper(
+    sptr<IGetExecutorPropertyCallback> wrapper(
         new (std::nothrow) GetExecutorPropertyCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
@@ -180,7 +195,18 @@ void UserAuthClientImpl::GetPropertyById(uint64_t credentialId, const std::vecto
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
-    proxy->GetPropertyById(credentialId, keys, wrapper);
+    std::vector<uint32_t> attrkeys;
+    attrkeys.resize(keys.size());
+    std::transform(keys.begin(), keys.end(), attrkeys.begin(), [](Attributes::AttributeKey key) {
+        return static_cast<uint32_t>(key);
+    });
+    auto ret = proxy->GetPropertyById(credentialId, attrkeys, wrapper);
+    if (ret != SUCCESS) {
+        IAM_LOGE("GetPropertyById fail, ret:%{public}d", ret);
+        Attributes extraInfo;
+        callback->OnResult(GENERAL_ERROR, extraInfo);
+        return;
+    }
 }
 
 ResultCode UserAuthClientImpl::SetPropertyInner(int32_t userId, const SetPropertyRequest &request,
@@ -210,10 +236,14 @@ ResultCode UserAuthClientImpl::SetPropertyInner(int32_t userId, const SetPropert
     bool setArrayRet = attr.SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, extraInfo);
     IF_FALSE_LOGE_AND_RETURN_VAL(setArrayRet, GENERAL_ERROR);
 
-    sptr<SetExecutorPropertyCallbackInterface> wrapper(
+    sptr<ISetExecutorPropertyCallback> wrapper(
         new (std::nothrow) SetExecutorPropertyCallbackService(callback));
     IF_FALSE_LOGE_AND_RETURN_VAL(wrapper != nullptr, GENERAL_ERROR);
-    proxy->SetProperty(userId, request.authType, attr, wrapper);
+    auto ret = proxy->SetProperty(userId, static_cast<int32_t>(request.authType), attr.Serialize(), wrapper);
+    if (ret != SUCCESS) {
+        IAM_LOGE("SetProperty fail, ret:%{public}d", ret);
+        return (ResultCode)ret;
+    }
     return SUCCESS;
 }
 
@@ -264,22 +294,31 @@ uint64_t UserAuthClientImpl::BeginAuthentication(const AuthParam &authParam,
         return BAD_CONTEXT_ID;
     }
 
-    sptr<UserAuthCallbackInterface> wrapper(new (std::nothrow) UserAuthCallbackService(callback));
+    sptr<IIamCallback> wrapper(new (std::nothrow) UserAuthCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    AuthParamInner authParamInner = {
+    uint64_t contextId = BAD_CONTEXT_ID;
+    IpcAuthParamInner ipcAuthParamInner = {
         .userId = authParam.userId,
         .challenge = authParam.challenge,
-        .authType = authParam.authType,
-        .authTrustLevel = authParam.authTrustLevel,
-        .authIntent = authParam.authIntent
+        .authType = static_cast<int32_t>(authParam.authType),
+        .authTrustLevel = static_cast<int32_t>(authParam.authTrustLevel),
+        .authIntent = static_cast<int32_t>(authParam.authIntent),
     };
-    std::optional<RemoteAuthParam> remoteAuthParam = authParam.remoteAuthParam;
-    return proxy->AuthUser(authParamInner, remoteAuthParam, wrapper);
+    IpcRemoteAuthParam ipcRemoteAuthParam = {};
+    InitIpcRemoteAuthParam(authParam.remoteAuthParam, ipcRemoteAuthParam);
+    auto ret = proxy->AuthUser(ipcAuthParamInner, ipcRemoteAuthParam, wrapper, contextId);
+    if (ret != SUCCESS) {
+        IAM_LOGE("AuthUser fail, ret:%{public}d", ret);
+        Attributes extraInfo;
+        callback->OnResult(GENERAL_ERROR, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
+    return contextId;
 }
 
 uint64_t UserAuthClientImpl::BeginNorthAuthentication(int32_t apiVersion, const std::vector<uint8_t> &challenge,
@@ -309,14 +348,27 @@ uint64_t UserAuthClientImpl::BeginNorthAuthentication(int32_t apiVersion, const 
         return BAD_CONTEXT_ID;
     }
 
-    sptr<UserAuthCallbackInterface> wrapper(new (std::nothrow) UserAuthCallbackService(northCallback));
+    sptr<IIamCallback> wrapper(new (std::nothrow) UserAuthCallbackService(northCallback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    return proxy->Auth(apiVersion, challenge, authType, atl, wrapper);
+    uint64_t contextId = BAD_CONTEXT_ID;
+    IpcAuthParamInner authParamInner = {
+        .challenge = challenge,
+        .authType = static_cast<int32_t>(authType),
+        .authTrustLevel = static_cast<int32_t>(atl)
+    };
+    auto ret = proxy->Auth(apiVersion, authParamInner, wrapper, contextId);
+    if (ret != SUCCESS) {
+        IAM_LOGE("Auth fail, ret:%{public}d", ret);
+        Attributes extraInfo;
+        callback->OnResult(GENERAL_ERROR, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
+    return contextId;
 }
 
 int32_t UserAuthClientImpl::CancelAuthentication(uint64_t contextId)
@@ -350,14 +402,22 @@ uint64_t UserAuthClientImpl::BeginIdentification(const std::vector<uint8_t> &cha
         return BAD_CONTEXT_ID;
     }
 
-    sptr<UserAuthCallbackInterface> wrapper(new (std::nothrow) UserAuthCallbackService(callback));
+    sptr<IIamCallback> wrapper(new (std::nothrow) UserAuthCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
         callback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    return proxy->Identify(challenge, authType, wrapper);
+    uint64_t contextId = BAD_CONTEXT_ID;
+    auto ret = proxy->Identify(challenge, static_cast<int32_t>(authType), wrapper, contextId);
+    if (ret != SUCCESS) {
+        IAM_LOGE("Identify fail, ret:%{public}d", ret);
+        Attributes extraInfo;
+        callback->OnResult(GENERAL_ERROR, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
+    return contextId;
 }
 
 int32_t UserAuthClientImpl::CancelIdentification(uint64_t contextId)
@@ -392,11 +452,12 @@ int32_t UserAuthClientImpl::SetGlobalConfigParam(const GlobalConfigParam &param)
         IAM_LOGE("proxy is nullptr");
         return GENERAL_ERROR;
     }
-
-    return proxy->SetGlobalConfigParam(param);
+    IpcGlobalConfigParam ipcGlobalConfigParam = {};
+    InitIpcGlobalConfigParam(param, ipcGlobalConfigParam);
+    return proxy->SetGlobalConfigParam(ipcGlobalConfigParam);
 }
 
-sptr<UserAuthInterface> UserAuthClientImpl::GetProxy()
+sptr<IUserAuth> UserAuthClientImpl::GetProxy()
 {
     std::lock_guard<std::mutex> lock(mutex_);
     if (proxy_ != nullptr) {
@@ -413,7 +474,7 @@ sptr<UserAuthInterface> UserAuthClientImpl::GetProxy()
         return proxy_;
     }
 
-    proxy_ = iface_cast<UserAuthInterface>(obj);
+    proxy_ = iface_cast<IUserAuth>(obj);
     deathRecipient_ = dr;
     return proxy_;
 }
@@ -520,7 +581,7 @@ uint64_t UserAuthClientImpl::BeginWidgetAuthInner(int32_t apiVersion, const Auth
         return BAD_CONTEXT_ID;
     }
 
-    sptr<UserAuthCallbackInterface> wrapper(new (std::nothrow) UserAuthCallbackService(callback));
+    sptr<IIamCallback> wrapper(new (std::nothrow) UserAuthCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
@@ -530,14 +591,26 @@ uint64_t UserAuthClientImpl::BeginWidgetAuthInner(int32_t apiVersion, const Auth
 
     // modal
     const std::shared_ptr<UserAuthModalInnerCallback> &modalCallback = Common::MakeShared<UserAuthModalInnerCallback>();
-    sptr<ModalCallbackInterface> wrapperModal(new (std::nothrow) ModalCallbackService(modalCallback));
+    sptr<IModalCallback> wrapperModal(new (std::nothrow) ModalCallbackService(modalCallback));
     if (wrapperModal == nullptr) {
         IAM_LOGE("failed to create wrapper for modal");
         Attributes extraInfo;
         callback->OnResult(static_cast<int32_t>(ResultCode::GENERAL_ERROR), extraInfo);
         return BAD_CONTEXT_ID;
     }
-    return proxy->AuthWidget(apiVersion, authParam, widgetParam, wrapper, wrapperModal);
+    IpcAuthParamInner ipcAuthParamInner = {};
+    IpcWidgetParamInner ipcWidgetParamInner = {};
+    InitIpcAuthParam(authParam, ipcAuthParamInner);
+    InitIpcWidgetParam(widgetParam, ipcWidgetParamInner);
+    uint64_t contextId = BAD_CONTEXT_ID;
+    auto ret = proxy->AuthWidget(apiVersion, ipcAuthParamInner, ipcWidgetParamInner, wrapper, wrapperModal, contextId);
+    if (ret != SUCCESS) {
+        IAM_LOGE("AuthWidget fail, ret:%{public}d", ret);
+        Attributes extraInfo;
+        callback->OnResult(static_cast<int32_t>(ResultCode::GENERAL_ERROR), extraInfo);
+        return BAD_CONTEXT_ID;
+    }
+    return contextId;
 }
 
 int32_t UserAuthClientImpl::SetWidgetCallback(int32_t version, const std::shared_ptr<IUserAuthWidgetCallback> &callback)
@@ -553,7 +626,7 @@ int32_t UserAuthClientImpl::SetWidgetCallback(int32_t version, const std::shared
         return GENERAL_ERROR;
     }
 
-    sptr<WidgetCallbackInterface> wrapper(new (std::nothrow) WidgetCallbackService(callback));
+    sptr<IWidgetCallback> wrapper(new (std::nothrow) WidgetCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         return GENERAL_ERROR;
@@ -571,7 +644,7 @@ int32_t UserAuthClientImpl::Notice(NoticeType noticeType, const std::string &eve
     }
     IAM_LOGI("UserAuthClientImpl::Notice noticeType:%{public}d, eventDat:%{public}s",
         static_cast<int32_t>(noticeType), eventData.c_str());
-    return proxy->Notice(noticeType, eventData);
+    return proxy->Notice(static_cast<int32_t>(noticeType), eventData);
 }
 
 int32_t UserAuthClientImpl::GetEnrolledState(int32_t apiVersion, AuthType authType, EnrolledState &enrolledState)
@@ -583,12 +656,15 @@ int32_t UserAuthClientImpl::GetEnrolledState(int32_t apiVersion, AuthType authTy
             ACCESS_BIOMETRIC_PERMISSION
         }));
     }
-    int32_t ret = proxy->GetEnrolledState(apiVersion, authType, enrolledState);
+    IpcEnrolledState ipcEnrolledState = {};
+    int32_t ret = proxy->GetEnrolledState(apiVersion, static_cast<int32_t>(authType), ipcEnrolledState);
     if (ret != SUCCESS) {
         IAM_LOGE("proxy GetEnrolledState failed");
         return ret;
     }
-    return ret;
+    enrolledState.credentialCount = ipcEnrolledState.credentialCount;
+    enrolledState.credentialDigest = ipcEnrolledState.credentialDigest;
+    return SUCCESS;
 }
 
 int32_t UserAuthClientImpl::RegistUserAuthSuccessEventListener(const std::vector<AuthType> &authType,
@@ -605,8 +681,12 @@ int32_t UserAuthClientImpl::RegistUserAuthSuccessEventListener(const std::vector
         IAM_LOGE("proxy is nullptr");
         return GENERAL_ERROR;
     }
-
-    int32_t ret = proxy->RegistUserAuthSuccessEventListener(authType, listener);
+    std::vector<int32_t> authTypes;
+    authTypes.resize(authType.size());
+    std::transform(authType.begin(), authType.end(), authTypes.begin(), [](AuthType authType) {
+        return static_cast<int32_t>(authType);
+    });
+    int32_t ret = proxy->RegistUserAuthSuccessEventListener(authTypes, listener);
     if (ret != SUCCESS) {
         IAM_LOGE("Regist userAuth success event listener failed");
         return ret;
@@ -654,7 +734,7 @@ int32_t UserAuthClientImpl::PrepareRemoteAuth(const std::string &networkId,
         return GENERAL_ERROR;
     }
 
-    sptr<UserAuthCallbackInterface> wrapper(new (std::nothrow) UserAuthCallbackService(callback));
+    sptr<IIamCallback> wrapper(new (std::nothrow) UserAuthCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         callback->OnResult(GENERAL_ERROR);
@@ -662,6 +742,74 @@ int32_t UserAuthClientImpl::PrepareRemoteAuth(const std::string &networkId,
     }
 
     return proxy->PrepareRemoteAuth(networkId, wrapper);
+}
+
+void UserAuthClientImpl::InitIpcRemoteAuthParam(const std::optional<RemoteAuthParam> &remoteAuthParam,
+    IpcRemoteAuthParam &ipcRemoteAuthParam)
+{
+    ipcRemoteAuthParam.isHasRemoteAuthParam = false;
+    ipcRemoteAuthParam.isHasVerifierNetworkId = false;
+    ipcRemoteAuthParam.isHasCollectorNetworkId = false;
+    ipcRemoteAuthParam.isHasCollectorTokenId = false;
+    if (remoteAuthParam.has_value()) {
+        ipcRemoteAuthParam.isHasRemoteAuthParam = true;
+        if (remoteAuthParam.value().verifierNetworkId.has_value()) {
+            ipcRemoteAuthParam.isHasVerifierNetworkId = true;
+            ipcRemoteAuthParam.verifierNetworkId = remoteAuthParam.value().verifierNetworkId.value();
+        }
+        if (remoteAuthParam.value().collectorNetworkId.has_value()) {
+            ipcRemoteAuthParam.isHasCollectorNetworkId = true;
+            ipcRemoteAuthParam.collectorNetworkId = remoteAuthParam.value().collectorNetworkId.value();
+        }
+        if (remoteAuthParam.value().collectorTokenId.has_value()) {
+            ipcRemoteAuthParam.isHasCollectorTokenId = true;
+            ipcRemoteAuthParam.collectorTokenId = remoteAuthParam.value().collectorTokenId.value();
+        }
+    }
+}
+
+void UserAuthClientImpl::InitIpcGlobalConfigParam(const GlobalConfigParam &globalConfigParam,
+    IpcGlobalConfigParam &ipcGlobalConfigParam)
+{
+    ipcGlobalConfigParam.type = static_cast<int32_t>(globalConfigParam.type);
+    if (globalConfigParam.type == PIN_EXPIRED_PERIOD) {
+        ipcGlobalConfigParam.value.pinExpiredPeriod = globalConfigParam.value.pinExpiredPeriod;
+    } else if (globalConfigParam.type == ENABLE_STATUS) {
+        ipcGlobalConfigParam.value.enableStatus = globalConfigParam.value.enableStatus;
+    }
+    ipcGlobalConfigParam.userIds = globalConfigParam.userIds;
+    ipcGlobalConfigParam.authTypes.resize(globalConfigParam.authTypes.size());
+    std::transform(globalConfigParam.authTypes.begin(), globalConfigParam.authTypes.end(),
+        ipcGlobalConfigParam.authTypes.begin(), [](AuthType authType) {
+        return static_cast<int32_t>(authType);
+    });
+}
+
+void UserAuthClientImpl::InitIpcAuthParam(const AuthParamInner &authParam,
+    IpcAuthParamInner &ipcAuthParamInner)
+{
+    ipcAuthParamInner.userId = authParam.userId;
+    ipcAuthParamInner.isUserIdSpecified = authParam.isUserIdSpecified;
+    ipcAuthParamInner.challenge = authParam.challenge;
+    ipcAuthParamInner.authType = static_cast<int32_t>(authParam.authType);
+    ipcAuthParamInner.authTypes.resize(authParam.authTypes.size());
+    std::transform(authParam.authTypes.begin(), authParam.authTypes.end(),
+        ipcAuthParamInner.authTypes.begin(), [](AuthType authType) {
+        return static_cast<int32_t>(authType);
+    });
+    ipcAuthParamInner.authTrustLevel = static_cast<uint32_t>(authParam.authTrustLevel);
+    ipcAuthParamInner.authIntent = static_cast<int32_t>(authParam.authIntent);
+    ipcAuthParamInner.reuseUnlockResult.isReuse = authParam.reuseUnlockResult.isReuse;
+    ipcAuthParamInner.reuseUnlockResult.reuseDuration = authParam.reuseUnlockResult.reuseDuration;
+}
+
+void UserAuthClientImpl::InitIpcWidgetParam(const WidgetParamInner &widgetParam,
+    IpcWidgetParamInner &ipcWidgetParamInner)
+{
+    ipcWidgetParamInner.title = widgetParam.title;
+    ipcWidgetParamInner.navigationButtonText = widgetParam.navigationButtonText;
+    ipcWidgetParamInner.windowMode = static_cast<int32_t>(widgetParam.windowMode);
+    ipcWidgetParamInner.hasContext = widgetParam.hasContext;
 }
 } // namespace UserAuth
 } // namespace UserIam

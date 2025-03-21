@@ -28,7 +28,9 @@ class WidgetCallbackService : public WidgetCallbackStub {
 public:
     explicit WidgetCallbackService(const std::shared_ptr<IUserAuthWidgetCallback> &impl);
     ~WidgetCallbackService() override;
-    void SendCommand(const std::string &cmdData) override;
+    int32_t SendCommand(const std::string &cmdData) override;
+    int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;
+    int32_t CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result) override;
 
 private:
     std::shared_ptr<IUserAuthWidgetCallback> widgetCallback_ {nullptr};

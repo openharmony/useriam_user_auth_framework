@@ -22,8 +22,8 @@
 #include <vector>
 
 #include "authentication_impl.h"
-#include "modal_callback_interface.h"
-#include "widget_callback_interface.h"
+#include "imodal_callback.h"
+#include "iwidget_callback.h"
 #include "widget_json.h"
 #include "widget_schedule_node.h"
 
@@ -39,7 +39,7 @@ public:
     void SetWidgetContextId(uint64_t contextId);
     void SetWidgetParam(const WidgetParamInner &param);
     void SetAuthTypeList(const std::vector<AuthType> &authTypeList);
-    void SetWidgetCallback(const sptr<WidgetCallbackInterface> &callback);
+    void SetWidgetCallback(const sptr<IWidgetCallback> &callback);
     void SetAuthTokenId(uint32_t tokenId);
     uint32_t GetAuthTokenId() const;
 
@@ -60,7 +60,7 @@ public:
     void SetChallenge(const std::vector<uint8_t> &challenge);
     void SetCallingBundleName(const std::string &callingBundleName);
 
-    void SetModalCallback(const sptr<ModalCallbackInterface> &callback);
+    void SetModalCallback(const sptr<IModalCallback> &callback);
     void LaunchModal(const std::string &commandData);
     void ReleaseModal();
 
@@ -76,13 +76,13 @@ private:
     uint64_t widgetContextId_ {0};
     WidgetParamInner widgetParam_ {};
     std::vector<AuthType> authTypeList_ {};
-    sptr<WidgetCallbackInterface> widgetCallback_ {nullptr};
+    sptr<IWidgetCallback> widgetCallback_ {nullptr};
     std::string pinSubType_ {""};
     std::string sensorInfo_ {""};
     uint32_t authTokenId_ {0};
     std::vector<uint8_t> challenge_ {};
     std::string callingBundleName_ {""};
-    sptr<ModalCallbackInterface> modalCallback_ {nullptr};
+    sptr<IModalCallback> modalCallback_ {nullptr};
 };
 } // namespace UserAuth
 } // namespace UserIam

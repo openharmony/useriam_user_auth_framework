@@ -25,7 +25,7 @@
 
 #include "context.h"
 #include "iam_defines.h"
-#include "iam_callback_interface.h"
+#include "iiam_callback.h"
 #include "user_auth_common_defines.h"
 
 namespace OHOS {
@@ -69,7 +69,7 @@ private:
 
 class ContextCallback {
 public:
-    static std::shared_ptr<ContextCallback> NewInstance(sptr<IamCallbackInterface> iamCallback,
+    static std::shared_ptr<ContextCallback> NewInstance(sptr<IIamCallback> iamCallback,
         OperationType operationType);
     static std::shared_ptr<ContextCallback> NewDummyInstance(OperationType operationType);
     virtual ~ContextCallback() = default;
@@ -96,7 +96,7 @@ public:
     virtual void SetTraceAuthFinishReason(const std::string &authFinishReason) = 0;
     virtual void SetTraceIsBackgroundApplication(bool isBackgroundApplication) = 0;
     virtual void ProcessAuthResult(int32_t tip, const std::vector<uint8_t> &extraInfo) = 0;
-    virtual sptr<IamCallbackInterface> GetIamCallback() = 0;
+    virtual sptr<IIamCallback> GetIamCallback() = 0;
     virtual std::string GetCallerName() = 0;
 };
 } // namespace UserAuth

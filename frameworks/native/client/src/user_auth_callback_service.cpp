@@ -87,9 +87,10 @@ UserAuthCallbackService::~UserAuthCallbackService()
     CallbackManager::GetInstance().RemoveCallback(reinterpret_cast<uintptr_t>(this));
 }
 
-void UserAuthCallbackService::OnResult(int32_t result, const Attributes &extraInfo)
+int32_t UserAuthCallbackService::OnResult(int32_t resultCode, const std::vector<uint8_t> &extraInfo)
 {
-    IAM_LOGI("start, result:%{public}d", result);
+    IAM_LOGI("start, result:%{public}d", resultCode);
+    Attributes attribute(extraInfo);
     if (authCallback_ != nullptr) {
         if (modalCallback_ != nullptr) {
             IAM_LOGI("IsModalInit :%{public}d, IsModalDestroy :%{public}d", modalCallback_->IsModalInit(),
@@ -100,31 +101,47 @@ void UserAuthCallbackService::OnResult(int32_t result, const Attributes &extraIn
                 IAM_LOGI("process result continue");
             }
         }
-        authCallback_->OnResult(result, extraInfo);
+        authCallback_->OnResult(resultCode, attribute);
     } else if (identifyCallback_ != nullptr) {
-        identifyCallback_->OnResult(result, extraInfo);
+        identifyCallback_->OnResult(resultCode, attribute);
     } else if (prepareRemoteAuthCallback_ != nullptr) {
-        prepareRemoteAuthCallback_->OnResult(result);
+        prepareRemoteAuthCallback_->OnResult(resultCode);
     } else {
         IAM_LOGE("all callback is nullptr");
-        return;
+        return GENERAL_ERROR;
     }
     iamHitraceHelper_= nullptr;
+    return SUCCESS;
 }
 
-void UserAuthCallbackService::OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo)
+int32_t UserAuthCallbackService::OnAcquireInfo(int32_t module, int32_t acquireInfo,
+    const std::vector<uint8_t> &extraInfo)
 {
     IAM_LOGI("start, module:%{public}d acquireInfo:%{public}d", module, acquireInfo);
+    Attributes attribute(extraInfo);
     if (authCallback_ != nullptr) {
-        authCallback_->OnAcquireInfo(module, acquireInfo, extraInfo);
+        authCallback_->OnAcquireInfo(module, acquireInfo, attribute);
     } else if (identifyCallback_ != nullptr) {
-        identifyCallback_->OnAcquireInfo(module, acquireInfo, extraInfo);
+        identifyCallback_->OnAcquireInfo(module, acquireInfo, attribute);
     } else if (prepareRemoteAuthCallback_ != nullptr) {
         IAM_LOGE("prepare remote auth callback not support acquire info");
     } else {
         IAM_LOGE("all callback is nullptr");
-        return;
+        return GENERAL_ERROR;
     }
+    return SUCCESS;
+}
+
+int32_t UserAuthCallbackService::CallbackEnter([[maybe_unused]] uint32_t code)
+{
+    IAM_LOGI("start, code:%{public}u", code);
+    return SUCCESS;
+}
+
+int32_t UserAuthCallbackService::CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result)
+{
+    IAM_LOGI("leave, code:%{public}u, result:%{public}d", code, result);
+    return SUCCESS;
 }
 
 GetExecutorPropertyCallbackService::GetExecutorPropertyCallbackService(const std::shared_ptr<GetPropCallback> &impl)
@@ -145,14 +162,30 @@ GetExecutorPropertyCallbackService::~GetExecutorPropertyCallbackService()
     CallbackManager::GetInstance().RemoveCallback(reinterpret_cast<uintptr_t>(this));
 }
 
-void GetExecutorPropertyCallbackService::OnGetExecutorPropertyResult(int32_t result, const Attributes &attributes)
+int32_t GetExecutorPropertyCallbackService::OnGetExecutorPropertyResult(int32_t resultCode,
+    const std::vector<uint8_t> &attributes)
 {
-    IAM_LOGI("start, result:%{public}d", result);
+    IAM_LOGI("start, result:%{public}d", resultCode);
     if (getPropCallback_ == nullptr) {
         IAM_LOGE("get prop callback is nullptr");
-        return;
+        return GENERAL_ERROR;
     }
-    getPropCallback_->OnResult(result, attributes);
+    Attributes attribute(attributes);
+    getPropCallback_->OnResult(resultCode, attribute);
+    return SUCCESS;
+}
+
+int32_t GetExecutorPropertyCallbackService::CallbackEnter([[maybe_unused]] uint32_t code)
+{
+    IAM_LOGI("start, code:%{public}u", code);
+    return SUCCESS;
+}
+
+int32_t GetExecutorPropertyCallbackService::CallbackExit([[maybe_unused]] uint32_t code,
+    [[maybe_unused]] int32_t result)
+{
+    IAM_LOGI("leave, code:%{public}u, result:%{public}d", code, result);
+    return SUCCESS;
 }
 
 SetExecutorPropertyCallbackService::SetExecutorPropertyCallbackService(const std::shared_ptr<SetPropCallback> &impl)
@@ -173,15 +206,29 @@ SetExecutorPropertyCallbackService::~SetExecutorPropertyCallbackService()
     CallbackManager::GetInstance().RemoveCallback(reinterpret_cast<uintptr_t>(this));
 }
 
-void SetExecutorPropertyCallbackService::OnSetExecutorPropertyResult(int32_t result)
+int32_t SetExecutorPropertyCallbackService::OnSetExecutorPropertyResult(int32_t resultCode)
 {
-    IAM_LOGI("start, result:%{public}d", result);
+    IAM_LOGI("start, result:%{public}d", resultCode);
     if (setPropCallback_ == nullptr) {
         IAM_LOGE("set prop callback is nullptr");
-        return;
+        return GENERAL_ERROR;
     }
     Attributes attr;
-    setPropCallback_->OnResult(result, attr);
+    setPropCallback_->OnResult(resultCode, attr);
+    return SUCCESS;
+}
+
+int32_t SetExecutorPropertyCallbackService::CallbackEnter([[maybe_unused]] uint32_t code)
+{
+    IAM_LOGI("start, code:%{public}u", code);
+    return SUCCESS;
+}
+
+int32_t SetExecutorPropertyCallbackService::CallbackExit([[maybe_unused]] uint32_t code,
+    [[maybe_unused]] int32_t result)
+{
+    IAM_LOGI("leave, code:%{public}u, result:%{public}d", code, result);
+    return SUCCESS;
 }
 } // namespace UserAuth
 } // namespace UserIam

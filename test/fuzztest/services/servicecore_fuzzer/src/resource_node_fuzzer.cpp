@@ -26,19 +26,20 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
-class DummyExecutorCallbackInterface final : public ExecutorCallbackInterface {
+class DummyExecutorCallbackInterface final : public IExecutorCallback {
 public:
-    void OnMessengerReady(sptr<ExecutorMessengerInterface> &messenger,
+    int32_t OnMessengerReady(const sptr<IExecutorMessenger> &messenger,
         const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList) override
     {
         IAM_LOGI("start");
         static_cast<void>(messenger);
         static_cast<void>(publicKey);
         static_cast<void>(templateIdList);
+        return SUCCESS;
     }
 
     int32_t OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
-        const Attributes &command) override
+        const std::vector<uint8_t> &command) override
     {
         IAM_LOGI("start");
         static_cast<void>(scheduleId);
@@ -47,7 +48,7 @@ public:
         return SUCCESS;
     }
 
-    int32_t OnEndExecute(uint64_t scheduleId, const Attributes &command) override
+    int32_t OnEndExecute(uint64_t scheduleId, const std::vector<uint8_t> &command) override
     {
         IAM_LOGI("start");
         static_cast<void>(scheduleId);
@@ -55,14 +56,14 @@ public:
         return SUCCESS;
     }
 
-    int32_t OnSetProperty(const Attributes &properties) override
+    int32_t OnSetProperty(const std::vector<uint8_t> &properties) override
     {
         IAM_LOGI("start");
         static_cast<void>(properties);
         return SUCCESS;
     }
 
-    int32_t OnGetProperty(const Attributes &condition, Attributes &values) override
+    int32_t OnGetProperty(const std::vector<uint8_t> &condition, std::vector<uint8_t> &values) override
     {
         IAM_LOGI("start");
         static_cast<void>(condition);
@@ -70,7 +71,7 @@ public:
         return SUCCESS;
     }
 
-    int32_t OnSendData(uint64_t scheduleId, const Attributes &data) override
+    int32_t OnSendData(uint64_t scheduleId, const std::vector<uint8_t> &data) override
     {
         IAM_LOGI("start");
         static_cast<void>(scheduleId);

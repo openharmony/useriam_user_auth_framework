@@ -40,50 +40,62 @@ namespace UserAuth {
 using namespace testing;
 using namespace testing::ext;
 
+static void InitIpcAuthParamInner(IpcAuthParamInner &authParam,
+    std::vector<uint8_t> &challenge, std::vector<int32_t> &authTypes, int32_t authTrustLevel)
+{
+    authParam.challenge = challenge;
+    authParam.authTypes = authTypes;
+    authParam.authTrustLevel = authTrustLevel;
+}
+
+static void InitIpcWidgetParamInner(IpcWidgetParamInner &widgetParam,
+    const std::string &title, const std::string &navigationButtonText, int32_t windowMode)
+{
+    widgetParam.title = title;
+    widgetParam.navigationButtonText = navigationButtonText;
+    widgetParam.windowMode = windowMode;
+}
+
 HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_001, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.challenge.push_back(2);
-    authParam.challenge.push_back(3);
-    authParam.challenge.push_back(4);
-    authParam.authTypes.push_back(FACE);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "确定";
-
-    sptr<UserAuthCallbackInterface> testUserAuthCallback(nullptr);
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    EXPECT_EQ(service.AuthWidget(apiVersion, authParam, widgetParam, testUserAuthCallback, testModalCallback),
-        (uint64_t)0);
+    std::vector<uint8_t> challenge = {1, 2, 3, 4};
+    std::vector<int32_t> authTypes = {FACE};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "确定", 0);
+    sptr<IIamCallback> testUserAuthCallback(nullptr);
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testUserAuthCallback, testModalCallback,
+        contextId);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+    EXPECT_EQ(contextId, (uint64_t)0);
 }
 
 HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_002, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.challenge.push_back(2);
-    authParam.challenge.push_back(3);
-    authParam.challenge.push_back(4);
-    authParam.authTypes.push_back(FACE);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::FULLSCREEN;
+    std::vector<uint8_t> challenge = {1, 2, 3, 4};
+    std::vector<int32_t> authTypes = {FACE};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::FULLSCREEN);
     sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
-    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
-    EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    sptr<IIamCallback> callbackInterface = testCallback;
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
+        contextId);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
+    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -91,25 +103,23 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_003, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.challenge.push_back(2);
-    authParam.challenge.push_back(3);
-    authParam.challenge.push_back(4);
-    authParam.authTypes.push_back(FACE);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::FULLSCREEN;
+    std::vector<uint8_t> challenge = {1, 2, 3, 4};
+    std::vector<int32_t> authTypes = {FACE};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::FULLSCREEN);
     sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
-    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
-    EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    sptr<IIamCallback> callbackInterface = testCallback;
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
+        contextId);
+    EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
+    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -117,25 +127,23 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_004, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.challenge.push_back(2);
-    authParam.challenge.push_back(3);
-    authParam.challenge.push_back(4);
-    authParam.authTypes.push_back(FACE);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
+    std::vector<uint8_t> challenge = {1, 2, 3, 4};
+    std::vector<int32_t> authTypes = {FACE};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::UNKNOWN_WINDOW_MODE);
     sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
-    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
-    EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    sptr<IIamCallback> callbackInterface = testCallback;
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
+        contextId);
+    EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
+    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -143,17 +151,12 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_005, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.challenge.push_back(2);
-    authParam.challenge.push_back(3);
-    authParam.challenge.push_back(4);
-    authParam.authTypes.push_back(FACE);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
+    std::vector<uint8_t> challenge = {1, 2, 3, 4};
+    std::vector<int32_t> authTypes = {FACE};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::UNKNOWN_WINDOW_MODE);
     sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
@@ -162,11 +165,14 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_005, TestSize.Level0)
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _)).WillRepeatedly(Return(FAIL));
-    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
-    EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
-    service.CancelAuthOrIdentify(conxtId, 0);
+    sptr<IIamCallback> callbackInterface = testCallback;
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
+        contextId);
+    EXPECT_EQ(ret, FAIL);
+    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
+    service.CancelAuthOrIdentify(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -174,17 +180,12 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_006, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.challenge.push_back(2);
-    authParam.challenge.push_back(3);
-    authParam.challenge.push_back(4);
-    authParam.authTypes.push_back(FACE);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
+    std::vector<uint8_t> challenge = {1, 2, 3, 4};
+    std::vector<int32_t> authTypes = {FACE};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::UNKNOWN_WINDOW_MODE);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _)).WillRepeatedly(Return(FAIL));
@@ -193,11 +194,14 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_006, TestSize.Level0)
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
-    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
-    EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
-    service.CancelAuthOrIdentify(conxtId, 0);
+    sptr<IIamCallback> callbackInterface = testCallback;
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
+        contextId);
+    EXPECT_EQ(ret, FAIL);
+    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
+    service.CancelAuthOrIdentify(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -205,16 +209,12 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_007, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.challenge.push_back(2);
-    authParam.challenge.push_back(3);
-    authParam.challenge.push_back(4);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
+    std::vector<uint8_t> challenge = {1, 2, 3, 4};
+    std::vector<int32_t> authTypes;
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::UNKNOWN_WINDOW_MODE);
     sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(2);
@@ -222,17 +222,22 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_007, TestSize.Level0)
     IpcCommon::GetCallingUserId(service, userId);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
-    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
-    EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    sptr<IIamCallback> callbackInterface = testCallback;
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
+        contextId);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
+    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
 
     authParam.authTypes.push_back(FACE);
     authParam.authTypes.push_back(FACE);
     authParam.authTypes.push_back(FACE);
     authParam.authTypes.push_back(FACE);
-    conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
-    EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
+        contextId);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
+    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -240,26 +245,24 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_008, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.challenge.push_back(2);
-    authParam.challenge.push_back(3);
-    authParam.challenge.push_back(4);
-    authParam.authTypes.push_back(static_cast<AuthType>(5));
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
+    std::vector<uint8_t> challenge = {1, 2, 3, 4};
+    std::vector<int32_t> authTypes = {5};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::UNKNOWN_WINDOW_MODE);
     sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
-    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
-    EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    sptr<IIamCallback> callbackInterface = testCallback;
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
+        contextId);
+    EXPECT_EQ(ret, TYPE_NOT_SUPPORT);
+    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -267,26 +270,24 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_009, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.challenge.push_back(2);
-    authParam.challenge.push_back(3);
-    authParam.challenge.push_back(4);
-    authParam.authTypes.push_back(AuthType::ALL);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
+    std::vector<uint8_t> challenge = {1, 2, 3, 4};
+    std::vector<int32_t> authTypes = {ALL};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::UNKNOWN_WINDOW_MODE);
     sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
-    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
-    EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    sptr<IIamCallback> callbackInterface = testCallback;
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
+        contextId);
+    EXPECT_EQ(ret, TYPE_NOT_SUPPORT);
+    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -294,26 +295,24 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_010, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.challenge.push_back(2);
-    authParam.challenge.push_back(3);
-    authParam.challenge.push_back(4);
-    authParam.authTypes.push_back(AuthType::PIN);
-    authParam.authTrustLevel = (AuthTrustLevel)50000;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
+    std::vector<uint8_t> challenge = {1, 2, 3, 4};
+    std::vector<int32_t> authTypes = {PIN};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, 50000);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::UNKNOWN_WINDOW_MODE);
     sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
-    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
-    EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    sptr<IIamCallback> callbackInterface = testCallback;
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
+        contextId);
+    EXPECT_EQ(ret, TRUST_LEVEL_NOT_SUPPORT);
+    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -321,26 +320,24 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_011, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.challenge.push_back(2);
-    authParam.challenge.push_back(3);
-    authParam.challenge.push_back(4);
-    authParam.authTypes.push_back(AuthType::PIN);
-    authParam.authTrustLevel = ATL1;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
+    std::vector<uint8_t> challenge = {1, 2, 3, 4};
+    std::vector<int32_t> authTypes = {PIN};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL1);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::UNKNOWN_WINDOW_MODE);
     sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
-    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
-    EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    sptr<IIamCallback> callbackInterface = testCallback;
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
+        contextId);
+    EXPECT_EQ(ret, TYPE_NOT_SUPPORT);
+    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -348,17 +345,12 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_012, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.challenge.push_back(2);
-    authParam.challenge.push_back(3);
-    authParam.challenge.push_back(4);
-    authParam.authTypes.push_back(AuthType::PIN);
-    authParam.authTrustLevel = ATL1;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "WidgetParamTitle";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
+    std::vector<uint8_t> challenge = {1, 2, 3, 4};
+    std::vector<int32_t> authTypes = {PIN};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL1);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "WidgetParamTitle", "", WindowModeType::UNKNOWN_WINDOW_MODE);
     sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
@@ -367,11 +359,14 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_012, TestSize.Level0)
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _)).WillRepeatedly(Return(FAIL));
-    sptr<UserAuthCallbackInterface> callbackInterface = testCallback;
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback);
-    EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
-    service.CancelAuthOrIdentify(conxtId, 0);
+    sptr<IIamCallback> callbackInterface = testCallback;
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
+        contextId);
+    EXPECT_EQ(ret, FAIL);
+    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
+    service.CancelAuthOrIdentify(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -379,18 +374,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_013, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.challenge.push_back(2);
-    authParam.challenge.push_back(3);
-    authParam.challenge.push_back(4);
-    authParam.authTypes.push_back(FACE);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    std::vector<uint8_t> challenge = {1, 2, 3, 4};
+    std::vector<int32_t> authTypes = {FACE};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::UNKNOWN_WINDOW_MODE);
+    sptr<IIamCallback> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
     auto *tempCallback = static_cast<MockUserAuthCallback *>(testCallback.GetRefPtr());
     EXPECT_NE(tempCallback, nullptr);
@@ -400,13 +390,16 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_013, TestSize.Level0)
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _)).WillRepeatedly(Return(FAIL));
-    sptr<ModalCallbackInterface> modalCallback = new MockModalCallback();
+    sptr<IModalCallback> modalCallback = new MockModalCallback();
     EXPECT_NE(modalCallback, nullptr);
     auto *testModalCallback = static_cast<MockModalCallback *>(modalCallback.GetRefPtr());
     EXPECT_NE(testModalCallback, nullptr);
     EXPECT_CALL(*testModalCallback, SendCommand(_, _)).Times(0);
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, modalCallback);
-    EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, modalCallback,
+        contextId);
+    EXPECT_EQ(ret, FAIL);
+    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -414,27 +407,25 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_014, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.challenge.push_back(2);
-    authParam.challenge.push_back(3);
-    authParam.challenge.push_back(4);
-    authParam.authTypes.push_back(FACE);
-    authParam.authTrustLevel = (AuthTrustLevel)50000;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    std::vector<uint8_t> challenge = {1, 2, 3, 4};
+    std::vector<int32_t> authTypes = {FACE};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, 50000);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::UNKNOWN_WINDOW_MODE);
+    sptr<IIamCallback> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
     auto *tempCallback = static_cast<MockUserAuthCallback *>(testCallback.GetRefPtr());
     EXPECT_NE(tempCallback, nullptr);
     EXPECT_CALL(*tempCallback, OnResult(_, _)).Times(1);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
-    EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback,
+        contextId);
+    EXPECT_EQ(ret, TRUST_LEVEL_NOT_SUPPORT);
+    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -442,18 +433,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_015, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.challenge.push_back(2);
-    authParam.challenge.push_back(3);
-    authParam.challenge.push_back(4);
-    authParam.authTypes.push_back(AuthType::FINGERPRINT);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::FULLSCREEN;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    std::vector<uint8_t> challenge = {1, 2, 3, 4};
+    std::vector<int32_t> authTypes = {FINGERPRINT};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::FULLSCREEN);
+    sptr<IIamCallback> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
     auto *tempCallback = static_cast<MockUserAuthCallback *>(testCallback.GetRefPtr());
     EXPECT_NE(tempCallback, nullptr);
@@ -478,10 +464,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_015, TestSize.Level0)
         }
     );
     ResourceNodePool::Instance().Insert(nullptr);
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
-    EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
-    service.CancelAuthOrIdentify(conxtId, 0);
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback,
+        contextId);
+    EXPECT_EQ(ret, FAIL);
+    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
+    service.CancelAuthOrIdentify(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -489,20 +478,18 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_016, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.authTypes.push_back(AuthType::PIN);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    std::vector<uint8_t> challenge = {1};
+    std::vector<int32_t> authTypes = {PIN};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::UNKNOWN_WINDOW_MODE);
+    sptr<IIamCallback> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
     auto *tempCallback = static_cast<MockUserAuthCallback *>(testCallback.GetRefPtr());
     EXPECT_CALL(*tempCallback, OnResult(_, _)).Times(1);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
-    int32_t acquire = 20;
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _)).WillRepeatedly(Return(FAIL));
@@ -523,16 +510,17 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_016, TestSize.Level0)
     auto resourceNode1 = Common::MakeShared<MockResourceNode>();
     EXPECT_CALL(*resourceNode1, GetExecutorIndex()).WillRepeatedly(Return(0));
     ResourceNodePool::Instance().Insert(resourceNode1);
-    ON_CALL(*resourceNode1, GetProperty).WillByDefault(
-        [acquire](const Attributes &condition, Attributes &values) {
+    ON_CALL(*resourceNode1, GetProperty).WillByDefault([](const Attributes &condition, Attributes &values) {
             return SUCCESS;
         }
     );
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
-    EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
+    EXPECT_EQ(ret, FAIL);
+    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
-    service.CancelAuthOrIdentify(conxtId, 0);
+    service.CancelAuthOrIdentify(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -540,20 +528,18 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0017, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.authTypes.push_back(AuthType::FINGERPRINT);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    std::vector<uint8_t> challenge = {1};
+    std::vector<int32_t> authTypes = {FINGERPRINT};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::UNKNOWN_WINDOW_MODE);
+    sptr<IIamCallback> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
     auto *tempCallback = static_cast<MockUserAuthCallback *>(testCallback.GetRefPtr());
     EXPECT_CALL(*tempCallback, OnResult(_, _)).Times(1);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
-    int32_t acquire = 20;
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _)).WillRepeatedly(Return(FAIL));
@@ -574,17 +560,18 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0017, TestSize.Level0)
     auto resourceNode1 = Common::MakeShared<MockResourceNode>();
     EXPECT_CALL(*resourceNode1, GetExecutorIndex()).WillRepeatedly(Return(0));
     ResourceNodePool::Instance().Insert(resourceNode1);
-    ON_CALL(*resourceNode1, GetProperty).WillByDefault(
-        [acquire](const Attributes &condition, Attributes &values) {
+    ON_CALL(*resourceNode1, GetProperty).WillByDefault([](const Attributes &condition, Attributes &values) {
             values.SetStringValue(Attributes::ATTR_PIN_SUB_TYPE, "test");
             return SUCCESS;
         }
     );
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
-    EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
+    EXPECT_EQ(ret, FAIL);
+    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
-    service.CancelAuthOrIdentify(conxtId, 0);
+    service.CancelAuthOrIdentify(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -592,14 +579,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0018, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.authTypes.push_back(AuthType::FINGERPRINT);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    std::vector<uint8_t> challenge = {1};
+    std::vector<int32_t> authTypes = {FINGERPRINT};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::UNKNOWN_WINDOW_MODE);
+    sptr<IIamCallback> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
     auto *tempCallback = static_cast<MockUserAuthCallback *>(testCallback.GetRefPtr());
     EXPECT_NE(tempCallback, nullptr);
@@ -625,18 +611,19 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0018, TestSize.Level0)
     auto resourceNode1 = Common::MakeShared<MockResourceNode>();
     EXPECT_CALL(*resourceNode1, GetExecutorIndex()).WillRepeatedly(Return(0));
     ResourceNodePool::Instance().Insert(resourceNode1);
-    ON_CALL(*resourceNode1, GetProperty).WillByDefault(
-        [acquire](const Attributes &condition, Attributes &values) {
+    ON_CALL(*resourceNode1, GetProperty).WillByDefault([acquire](const Attributes &condition, Attributes &values) {
             values.SetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, acquire);
             values.SetStringValue(Attributes::ATTR_SENSOR_INFO, "test");
             return SUCCESS;
         }
     );
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
-    EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
+    EXPECT_EQ(ret, FAIL);
+    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
-    service.CancelAuthOrIdentify(conxtId, 0);
+    service.CancelAuthOrIdentify(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -644,14 +631,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0019, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.authTypes.push_back(AuthType::FINGERPRINT);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    std::vector<uint8_t> challenge = {1};
+    std::vector<int32_t> authTypes = {FINGERPRINT};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::UNKNOWN_WINDOW_MODE);
+    sptr<IIamCallback> testCallback = new MockUserAuthCallback();
     auto *tempCallback = static_cast<MockUserAuthCallback *>(testCallback.GetRefPtr());
     EXPECT_NE(tempCallback, nullptr);
     EXPECT_CALL(*tempCallback, OnResult(_, _)).Times(1);
@@ -676,19 +662,20 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0019, TestSize.Level0)
     auto resourceNode1 = Common::MakeShared<MockResourceNode>();
     EXPECT_CALL(*resourceNode1, GetExecutorIndex()).WillRepeatedly(Return(0));
     ResourceNodePool::Instance().Insert(resourceNode1);
-    ON_CALL(*resourceNode1, GetProperty).WillByDefault(
-        [acquire](const Attributes &condition, Attributes &values) {
+    ON_CALL(*resourceNode1, GetProperty).WillByDefault([acquire](const Attributes &condition, Attributes &values) {
             values.SetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, acquire);
             values.SetStringValue(Attributes::ATTR_SENSOR_INFO, "test");
             values.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, acquire);
             return SUCCESS;
         }
     );
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
-    EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
+    EXPECT_EQ(ret, FAIL);
+    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
-    service.CancelAuthOrIdentify(conxtId, 0);
+    service.CancelAuthOrIdentify(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -696,15 +683,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0020, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.authTypes.push_back(AuthType::PIN);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    std::vector<uint8_t> challenge = {1};
+    std::vector<int32_t> authTypes = {PIN};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::UNKNOWN_WINDOW_MODE);
+    sptr<IIamCallback> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
@@ -735,9 +720,11 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0020, TestSize.Level0)
             return SUCCESS;
         }
     );
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
-    EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
+    EXPECT_EQ(ret, TYPE_NOT_SUPPORT);
+    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
     IpcCommon::DeleteAllPermission();
 }
@@ -746,15 +733,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0021, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.authTypes.push_back(AuthType::ALL);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    std::vector<uint8_t> challenge = {1};
+    std::vector<int32_t> authTypes = {ALL};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::UNKNOWN_WINDOW_MODE);
+    sptr<IIamCallback> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
@@ -785,9 +770,11 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0021, TestSize.Level0)
             return SUCCESS;
         }
     );
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
-    EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
+    EXPECT_EQ(ret, TYPE_NOT_SUPPORT);
+    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
     IpcCommon::DeleteAllPermission();
 }
@@ -796,15 +783,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_022, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.authTypes.push_back(AuthType::FINGERPRINT);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    std::vector<uint8_t> challenge = {1};
+    std::vector<int32_t> authTypes = {FINGERPRINT};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::UNKNOWN_WINDOW_MODE);
+    sptr<IIamCallback> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
@@ -835,9 +820,11 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_022, TestSize.Level0)
             return SUCCESS;
         }
     );
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t conxtId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
-    EXPECT_NE(conxtId, INVALID_CONTEXT_ID);
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
+    EXPECT_EQ(ret, TYPE_NOT_SUPPORT);
+    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
     IpcCommon::DeleteAllPermission();
 }
@@ -846,18 +833,16 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_023, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.authTypes.push_back(AuthType::FINGERPRINT);
-    authParam.authTrustLevel = ATL2;
+    std::vector<uint8_t> challenge = {1};
+    std::vector<int32_t> authTypes = {FINGERPRINT};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
     authParam.reuseUnlockResult.isReuse = true;
     authParam.reuseUnlockResult.reuseMode = AUTH_TYPE_IRRELEVANT;
     authParam.reuseUnlockResult.reuseDuration = 5 * 60 *1000;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::UNKNOWN_WINDOW_MODE);
+    sptr<IIamCallback> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
@@ -874,8 +859,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_023, TestSize.Level0)
                 return HDF_SUCCESS;
             }
         );
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
+    EXPECT_EQ(ret, SUCCESS);
     EXPECT_EQ(contextId, REUSE_AUTH_RESULT_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -884,15 +871,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_024, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.authTypes.push_back(AuthType::FACE);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "确定";
-    widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    std::vector<uint8_t> challenge = {1};
+    std::vector<int32_t> authTypes = {FACE};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "确定", WindowModeType::UNKNOWN_WINDOW_MODE);
+    sptr<IIamCallback> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
@@ -900,8 +885,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_024, TestSize.Level0)
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
     EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _)).Times(0);
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
+    EXPECT_EQ(ret, TYPE_NOT_SUPPORT);
     EXPECT_EQ(contextId, BAD_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -910,15 +897,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_025, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.authTypes.push_back(AuthType::FACE);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "确定";
-    widgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    std::vector<uint8_t> challenge = {1};
+    std::vector<int32_t> authTypes = {FACE};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "确定", WindowModeType::UNKNOWN_WINDOW_MODE);
+    sptr<IIamCallback> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
@@ -933,8 +918,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_025, TestSize.Level0)
                 return PIN_EXPIRED;
             }
         );
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
+    EXPECT_EQ(ret, GENERAL_ERROR);
     EXPECT_EQ(contextId, BAD_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -943,15 +930,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_026, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.authTypes.push_back(AuthType::FACE);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::FULLSCREEN;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    std::vector<uint8_t> challenge = {1};
+    std::vector<int32_t> authTypes = {FACE};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::FULLSCREEN);
+    sptr<IIamCallback> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
@@ -968,8 +953,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_026, TestSize.Level0)
                 return HDF_SUCCESS;
             }
         );
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
     EXPECT_EQ(contextId, BAD_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -978,15 +965,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_027, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.authTypes.push_back(AuthType::FINGERPRINT);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::FULLSCREEN;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    std::vector<uint8_t> challenge = {1};
+    std::vector<int32_t> authTypes = {FINGERPRINT};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::FULLSCREEN);
+    sptr<IIamCallback> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
@@ -1003,8 +988,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_027, TestSize.Level0)
                 return HDF_SUCCESS;
             }
         );
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
     EXPECT_EQ(contextId, BAD_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -1013,15 +1000,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_028, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.authTypes.push_back(AuthType::PIN);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::FULLSCREEN;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    std::vector<uint8_t> challenge = {1};
+    std::vector<int32_t> authTypes = {PIN};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::FULLSCREEN);
+    sptr<IIamCallback> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
@@ -1038,8 +1023,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_028, TestSize.Level0)
                 return HDF_SUCCESS;
             }
         );
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
+    EXPECT_EQ(ret, GENERAL_ERROR);
     EXPECT_EQ(contextId, BAD_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -1048,16 +1035,14 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_029, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.authTypes.push_back(AuthType::PIN);
-    authParam.authTrustLevel = ATL2;
+    std::vector<uint8_t> challenge = {1};
+    std::vector<int32_t> authTypes = {PIN};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
     authParam.isUserIdSpecified = true;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::FULLSCREEN;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::FULLSCREEN);
+    sptr<IIamCallback> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
@@ -1074,8 +1059,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_029, TestSize.Level0)
                 return HDF_SUCCESS;
             }
         );
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
+    EXPECT_EQ(ret, GENERAL_ERROR);
     EXPECT_EQ(contextId, BAD_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -1084,16 +1071,14 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_030, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.authTypes.push_back(AuthType::PIN);
-    authParam.authTrustLevel = ATL2;
+    std::vector<uint8_t> challenge = {1};
+    std::vector<int32_t> authTypes = {PIN};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
     authParam.isUserIdSpecified = true;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::FULLSCREEN;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::FULLSCREEN);
+    sptr<IIamCallback> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
@@ -1110,8 +1095,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_030, TestSize.Level0)
                 return HDF_SUCCESS;
             }
         );
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
     EXPECT_EQ(contextId, BAD_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -1120,16 +1107,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_031, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.authTypes.push_back(AuthType::FACE);
-    authParam.authTypes.push_back(AuthType::FINGERPRINT);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::FULLSCREEN;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    std::vector<uint8_t> challenge = {1};
+    std::vector<int32_t> authTypes = {FACE, FINGERPRINT};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::FULLSCREEN);
+    sptr<IIamCallback> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
@@ -1137,8 +1121,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_031, TestSize.Level0)
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
     EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _)).Times(0);
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
     EXPECT_EQ(contextId, BAD_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -1147,16 +1133,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_032, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.authTypes.push_back(AuthType::FINGERPRINT);
-    authParam.authTypes.push_back(AuthType::FACE);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "";
-    widgetParam.windowMode = WindowModeType::FULLSCREEN;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    std::vector<uint8_t> challenge = {1};
+    std::vector<int32_t> authTypes = {FINGERPRINT, FACE};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::FULLSCREEN);
+    sptr<IIamCallback> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
@@ -1164,8 +1147,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_032, TestSize.Level0)
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
     EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _)).Times(0);
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
     EXPECT_EQ(contextId, BAD_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -1174,17 +1159,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_033, TestSize.Level0)
 {
     UserAuthService service;
     int32_t apiVersion = 10;
-    AuthParamInner authParam;
-    authParam.challenge.push_back(1);
-    authParam.authTypes.push_back(AuthType::FINGERPRINT);
-    authParam.authTypes.push_back(AuthType::FACE);
-    authParam.authTypes.push_back(AuthType::PRIVATE_PIN);
-    authParam.authTrustLevel = ATL2;
-    WidgetParamInner widgetParam;
-    widgetParam.title = "使用密码验证";
-    widgetParam.navigationButtonText = "test";
-    widgetParam.windowMode = WindowModeType::DIALOG_BOX;
-    sptr<UserAuthCallbackInterface> testCallback = new MockUserAuthCallback();
+    std::vector<uint8_t> challenge = {1};
+    std::vector<int32_t> authTypes = {FINGERPRINT, FACE, PRIVATE_PIN};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "test", WindowModeType::DIALOG_BOX);
+    sptr<IIamCallback> testCallback = new MockUserAuthCallback();
     EXPECT_NE(testCallback, nullptr);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
@@ -1192,8 +1173,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_033, TestSize.Level0)
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
     EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _)).Times(0);
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    uint64_t contextId = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback);
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
+    EXPECT_EQ(ret, TYPE_NOT_SUPPORT);
     EXPECT_EQ(contextId, BAD_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
@@ -1241,7 +1224,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceNotice_001, TestSize.Level0)
 {
     UserAuthService service;
     IpcCommon::AddPermission(SUPPORT_USER_AUTH);
-    int32_t ret = service.Notice(NoticeType::WIDGET_NOTICE, "PIN");
+    int32_t ret = service.Notice(static_cast<int32_t>(NoticeType::WIDGET_NOTICE), "PIN");
     EXPECT_NE(ret, ResultCode::SUCCESS);
     IpcCommon::DeleteAllPermission();
 }
@@ -1250,7 +1233,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceNotice_002, TestSize.Level0)
 {
     UserAuthService service;
     IpcCommon::AddPermission(IS_SYSTEM_APP);
-    int32_t ret = service.Notice(NoticeType::WIDGET_NOTICE, "PIN");
+    int32_t ret = service.Notice(static_cast<int32_t>(NoticeType::WIDGET_NOTICE), "PIN");
     EXPECT_EQ(ret, ResultCode::CHECK_PERMISSION_FAILED);
     IpcCommon::DeleteAllPermission();
 }
@@ -1260,7 +1243,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceNotice_003, TestSize.Level0)
     UserAuthService service;
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(SUPPORT_USER_AUTH);
-    int32_t ret = service.Notice(NoticeType::WIDGET_NOTICE, "PIN");
+    int32_t ret = service.Notice(static_cast<int32_t>(NoticeType::WIDGET_NOTICE), "PIN");
     EXPECT_EQ(ret, ResultCode::INVALID_PARAMETERS);
     IpcCommon::DeleteAllPermission();
 }
@@ -1268,14 +1251,14 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceNotice_003, TestSize.Level0)
 HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterWidgetCallback_001, TestSize.Level0)
 {
     UserAuthService service;
-    sptr<WidgetCallbackInterface> testCallback = nullptr;
+    sptr<IWidgetCallback> testCallback = nullptr;
     EXPECT_EQ(service.RegisterWidgetCallback(1, testCallback), ResultCode::CHECK_SYSTEM_APP_FAILED);
 }
 
 HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterWidgetCallback_002, TestSize.Level0)
 {
     UserAuthService service;
-    sptr<WidgetCallbackInterface> testCallback = nullptr;
+    sptr<IWidgetCallback> testCallback = nullptr;
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     EXPECT_EQ(service.RegisterWidgetCallback(1, testCallback), ResultCode::CHECK_PERMISSION_FAILED);
     IpcCommon::DeleteAllPermission();
@@ -1284,7 +1267,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterWidgetCallback_002, TestSiz
 HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterWidgetCallback_003, TestSize.Level0)
 {
     UserAuthService service;
-    sptr<WidgetCallbackInterface> testCallback = nullptr;
+    sptr<IWidgetCallback> testCallback = nullptr;
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(SUPPORT_USER_AUTH);
     EXPECT_EQ(service.RegisterWidgetCallback(2, testCallback), ResultCode::INVALID_PARAMETERS);
@@ -1294,7 +1277,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterWidgetCallback_003, TestSiz
 HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterWidgetCallback_004, TestSize.Level0)
 {
     UserAuthService service;
-    sptr<WidgetCallbackInterface> testCallback = nullptr;
+    sptr<IWidgetCallback> testCallback = nullptr;
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(SUPPORT_USER_AUTH);
     EXPECT_EQ(service.RegisterWidgetCallback(1, testCallback), ResultCode::INVALID_PARAMETERS);
@@ -1304,7 +1287,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterWidgetCallback_004, TestSiz
 HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterWidgetCallback_005, TestSize.Level0)
 {
     UserAuthService service;
-    sptr<WidgetCallbackInterface> testCallback = new MockWidgetCallbackInterface();
+    sptr<IWidgetCallback> testCallback = new MockIWidgetCallback();
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(SUPPORT_USER_AUTH);
     EXPECT_EQ(service.RegisterWidgetCallback(1, testCallback), ResultCode::SUCCESS);
@@ -1314,7 +1297,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterWidgetCallback_005, TestSiz
 HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterWidgetCallback_006, TestSize.Level0)
 {
     UserAuthService service;
-    sptr<WidgetCallbackInterface> testCallback = nullptr;
+    sptr<IWidgetCallback> testCallback = nullptr;
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     EXPECT_EQ(service.RegisterWidgetCallback(1, testCallback), ResultCode::CHECK_PERMISSION_FAILED);
     IpcCommon::DeleteAllPermission();
@@ -1324,7 +1307,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceRegistEventListerner_001, TestSize.
 {
     UserAuthService service;
     sptr<AuthEventListenerInterface> testCallback = nullptr;
-    std::vector<AuthType> authTypeList;
+    std::vector<int32_t> authTypeList;
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     EXPECT_EQ(service.RegistUserAuthSuccessEventListener(authTypeList, testCallback), ResultCode::INVALID_PARAMETERS);
     IpcCommon::DeleteAllPermission();
@@ -1334,7 +1317,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceRegistEventListerner_002, TestSize.
 {
     UserAuthService service;
     sptr<AuthEventListenerInterface> testCallback = new MockAuthEventListener();
-    std::vector<AuthType> authTypeList;
+    std::vector<int32_t> authTypeList;
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     EXPECT_EQ(service.RegistUserAuthSuccessEventListener(authTypeList, testCallback),
         ResultCode::INVALID_PARAMETERS);
@@ -1345,10 +1328,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceRegistEventListerner_003, TestSize.
 {
     UserAuthService service;
     sptr<AuthEventListenerInterface> testCallback = new MockAuthEventListener();
-    std::vector<AuthType> authTypeList;
-    authTypeList.push_back(AuthType::PIN);
-    authTypeList.push_back(AuthType::FACE);
-    authTypeList.push_back(AuthType::FINGERPRINT);
+    std::vector<int32_t> authTypeList;
+    authTypeList.push_back(static_cast<int32_t>(AuthType::PIN));
+    authTypeList.push_back(static_cast<int32_t>(AuthType::FACE));
+    authTypeList.push_back(static_cast<int32_t>(AuthType::FINGERPRINT));
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     EXPECT_EQ(service.RegistUserAuthSuccessEventListener(authTypeList, testCallback),
         ResultCode::CHECK_PERMISSION_FAILED);
@@ -1359,12 +1342,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceRegistEventListerner_004, TestSize.
 {
     UserAuthService service;
     sptr<AuthEventListenerInterface> testCallback = new MockAuthEventListener();
-    std::vector<AuthType> authTypeList;
-    authTypeList.push_back(AuthType::PIN);
-    authTypeList.push_back(AuthType::FACE);
-    authTypeList.push_back(AuthType::FINGERPRINT);
+    std::vector<int32_t> authTypeList;
+    authTypeList.push_back(static_cast<int32_t>(AuthType::PIN));
+    authTypeList.push_back(static_cast<int32_t>(AuthType::FACE));
+    authTypeList.push_back(static_cast<int32_t>(AuthType::FINGERPRINT));
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    EXPECT_EQ(service.RegistUserAuthSuccessEventListener(authTypeList, testCallback), ResultCode::GENERAL_ERROR);
+    EXPECT_EQ(service.RegistUserAuthSuccessEventListener(authTypeList, testCallback),
+        ResultCode::GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1372,9 +1356,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceRegistEventListerner_005, TestSize.
 {
     UserAuthService service;
     sptr<AuthEventListenerInterface> testCallback = new MockAuthEventListener();
-    std::vector<AuthType> authTypeList;
-    authTypeList.push_back(AuthType::ALL);
-    EXPECT_EQ(service.RegistUserAuthSuccessEventListener(authTypeList, testCallback), ResultCode::INVALID_PARAMETERS);
+    std::vector<int32_t> authTypeList;
+    authTypeList.push_back(static_cast<int32_t>(AuthType::PIN));
+    EXPECT_EQ(service.RegistUserAuthSuccessEventListener(authTypeList, testCallback),
+        ResultCode::CHECK_PERMISSION_FAILED);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1409,10 +1394,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceUnRegistEventListerner_004, TestSiz
 {
     UserAuthService service;
     sptr<AuthEventListenerInterface> testCallback = new MockAuthEventListener();
-    std::vector<AuthType> authTypeList;
-    authTypeList.push_back(AuthType::PIN);
-    authTypeList.push_back(AuthType::FACE);
-    authTypeList.push_back(AuthType::FINGERPRINT);
+    std::vector<int32_t> authTypeList;
+    authTypeList.push_back(static_cast<int32_t>(AuthType::PIN));
+    authTypeList.push_back(static_cast<int32_t>(AuthType::FACE));
+    authTypeList.push_back(static_cast<int32_t>(AuthType::FINGERPRINT));
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     EXPECT_EQ(service.RegistUserAuthSuccessEventListener(authTypeList, testCallback), ResultCode::GENERAL_ERROR);
     EXPECT_EQ(service.UnRegistUserAuthSuccessEventListener(testCallback), ResultCode::GENERAL_ERROR);
@@ -1422,7 +1407,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceUnRegistEventListerner_004, TestSiz
 HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam001, TestSize.Level0)
 {
     UserAuthService service;
-    GlobalConfigParam param = {};
+    IpcGlobalConfigParam param = {};
     EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::CHECK_PERMISSION_FAILED);
 
     IpcCommon::AddPermission(ENTERPRISE_DEVICE_MGR);
@@ -1450,7 +1435,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam001, TestSize.L
 HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam002, TestSize.Level0)
 {
     UserAuthService service;
-    GlobalConfigParam param = {};
+    IpcGlobalConfigParam param = {};
     EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::CHECK_PERMISSION_FAILED);
 
     IpcCommon::AddPermission(ENTERPRISE_DEVICE_MGR);
@@ -1479,7 +1464,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam002, TestSize.L
 HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam003, TestSize.Level0)
 {
     UserAuthService service;
-    GlobalConfigParam param = {};
+    IpcGlobalConfigParam param = {};
     IpcCommon::AddPermission(ENTERPRISE_DEVICE_MGR);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::INVALID_PARAMETERS);
@@ -1521,7 +1506,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceVerifyAuthToken001, TestSize.Level0
     EXPECT_CALL(*testCallback, OnVerifyTokenResult(_, _)).Times(1);
     IpcCommon::AddPermission(USE_USER_ACCESS_MANAGER);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
-    sptr<VerifyTokenCallbackInterface> callbackInterface = testCallback;
+    sptr<IVerifyTokenCallback> callbackInterface = testCallback;
     service.VerifyAuthToken(testTokenIn, allowableDuration, callbackInterface);
     IpcCommon::DeleteAllPermission();
 }
@@ -1535,8 +1520,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceVerifyAuthToken002, TestSize.Level0
     testCallback = sptr<MockVerifyTokenCallback>(new (std::nothrow) MockVerifyTokenCallback());
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnVerifyTokenResult(_, _)).Times(2);
-    sptr<VerifyTokenCallbackInterface> callbackInterface = testCallback;
-    service.VerifyAuthToken(testTokenIn, allowableDuration, callbackInterface);
+    sptr<IVerifyTokenCallback> callbackInterface = testCallback;
+    EXPECT_EQ(service.VerifyAuthToken(testTokenIn, allowableDuration, callbackInterface), INVALID_PARAMETERS);
 
     testTokenIn.resize(1);
     allowableDuration = 25 * 60 * 60 * 1000;
@@ -1553,11 +1538,11 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceVerifyAuthToken003, TestSize.Level0
     testCallback = sptr<MockVerifyTokenCallback>(new (std::nothrow) MockVerifyTokenCallback());
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnVerifyTokenResult(_, _)).Times(2);
-    sptr<VerifyTokenCallbackInterface> callbackInterface = testCallback;
+    sptr<IVerifyTokenCallback> callbackInterface = testCallback;
     service.VerifyAuthToken(testTokenIn, allowableDuration, callbackInterface);
 
     IpcCommon::AddPermission(USE_USER_ACCESS_MANAGER);
-    service.VerifyAuthToken(testTokenIn, allowableDuration, callbackInterface);
+    EXPECT_EQ(service.VerifyAuthToken(testTokenIn, allowableDuration, callbackInterface), CHECK_SYSTEM_APP_FAILED);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1583,8 +1568,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceVerifyAuthToken004, TestSize.Level0
     EXPECT_CALL(*testCallback, OnVerifyTokenResult(_, _)).Times(1);
     IpcCommon::AddPermission(USE_USER_ACCESS_MANAGER);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
-    sptr<VerifyTokenCallbackInterface> callbackInterface = testCallback;
-    service.VerifyAuthToken(testTokenIn, allowableDuration, callbackInterface);
+    sptr<IVerifyTokenCallback> callbackInterface = testCallback;
+    EXPECT_EQ(service.VerifyAuthToken(testTokenIn, allowableDuration, callbackInterface), HDF_FAILURE);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1611,8 +1596,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceVerifyAuthToken005, TestSize.Level0
     EXPECT_CALL(*testCallback, OnVerifyTokenResult(_, _)).Times(1);
     IpcCommon::AddPermission(USE_USER_ACCESS_MANAGER);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
-    sptr<VerifyTokenCallbackInterface> callbackInterface = testCallback;
-    service.VerifyAuthToken(testTokenIn, allowableDuration, callbackInterface);
+    sptr<IVerifyTokenCallback> callbackInterface = testCallback;
+    EXPECT_EQ(service.VerifyAuthToken(testTokenIn, allowableDuration, callbackInterface), SUCCESS);
     IpcCommon::DeleteAllPermission();
 }
 } // namespace UserAuth

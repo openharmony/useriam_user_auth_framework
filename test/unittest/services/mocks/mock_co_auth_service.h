@@ -25,9 +25,11 @@ namespace UserIam {
 namespace UserAuth {
 class MockCoAuthService final : public CoAuthStub {
 public:
-    MOCK_METHOD2(ExecutorRegister, uint64_t(const ExecutorRegisterInfo &info,
-        sptr<ExecutorCallbackInterface> &callback));
-    MOCK_METHOD1(ExecutorUnregister, void(uint64_t executorIndex));
+    MOCK_METHOD3(ExecutorRegister, int32_t(const IpcExecutorRegisterInfo &ipcExecutorRegisterInfo,
+        const sptr<IExecutorCallback> &executorCallback, uint64_t &executorIndex));
+    MOCK_METHOD1(ExecutorUnregister, int32_t(uint64_t executorIndex));
+    MOCK_METHOD1(CallbackEnter, int32_t(uint32_t code));
+    MOCK_METHOD2(CallbackExit, int32_t(uint32_t code, int32_t result));
 };
 } // namespace UserAuth
 } // namespace UserIam

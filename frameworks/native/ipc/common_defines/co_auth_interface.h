@@ -19,17 +19,16 @@
 #include <cstdint>
 #include <vector>
 
-#include "executor_callback_interface.h"
+#include "iexecutor_callback.h"
 #include "iam_common_defines.h"
 
-#include "co_auth_interface_ipc_interface_code.h"
 #include "iremote_broker.h"
 #include "refbase.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class CoAuthInterface : public IRemoteBroker {
+class CoAuthInterface {
 public:
     struct ExecutorRegisterInfo {
         AuthType authType;
@@ -42,10 +41,6 @@ public:
         std::string deviceUdid;
         std::vector<uint8_t> signedRemoteExecutorInfo;
     };
-
-    virtual uint64_t ExecutorRegister(const ExecutorRegisterInfo &info, sptr<ExecutorCallbackInterface> &callback) = 0;
-    virtual void ExecutorUnregister(uint64_t executorIndex) = 0;
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.CoAuth.ICoAuth");
 };
 } // namespace UserAuth
 } // namespace UserIam

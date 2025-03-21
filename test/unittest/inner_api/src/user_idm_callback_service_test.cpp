@@ -52,8 +52,8 @@ HWTEST_F(UserIdmCallbackServiceTest, UserIdmCallbackServiceTest001, TestSize.Lev
     std::shared_ptr<UserIdmClientCallback> idmClientCallback = nullptr;
     auto service = Common::MakeShared<IdmCallbackService>(idmClientCallback);
     EXPECT_NE(service, nullptr);
-    service->OnResult(testResult, testExtraInfo);
-    service->OnAcquireInfo(testModule, testAcquireInfo, testExtraInfo);
+    service->OnResult(testResult, testExtraInfo.Serialize());
+    service->OnAcquireInfo(testModule, testAcquireInfo, testExtraInfo.Serialize());
 }
 
 HWTEST_F(UserIdmCallbackServiceTest, UserIdmCallbackServiceTest002, TestSize.Level0)
@@ -83,13 +83,13 @@ HWTEST_F(UserIdmCallbackServiceTest, UserIdmCallbackServiceTest002, TestSize.Lev
         );
     auto service = Common::MakeShared<IdmCallbackService>(idmClientCallback);
     EXPECT_NE(service, nullptr);
-    service->OnResult(testResult, testExtraInfo);
-    service->OnAcquireInfo(testModule, testAcquireInfo, testExtraInfo);
+    service->OnResult(testResult, testExtraInfo.Serialize());
+    service->OnAcquireInfo(testModule, testAcquireInfo, testExtraInfo.Serialize());
 }
 
 HWTEST_F(UserIdmCallbackServiceTest, IdmGetCredInfoCallbackServiceTest001, TestSize.Level0)
 {
-    std::vector<CredentialInfo> credInfoList;
+    std::vector<IpcCredentialInfo> credInfoList;
 
     std::shared_ptr<GetCredentialInfoCallback> getCredInfoCallback = nullptr;
     auto service = Common::MakeShared<IdmGetCredInfoCallbackService>(getCredInfoCallback);
@@ -99,10 +99,10 @@ HWTEST_F(UserIdmCallbackServiceTest, IdmGetCredInfoCallbackServiceTest001, TestS
 
 HWTEST_F(UserIdmCallbackServiceTest, IdmGetCredInfoCallbackServiceTest002, TestSize.Level0)
 {
-    CredentialInfo info1 = {PIN, PIN_SIX, 10, 20};
-    CredentialInfo info2 = {FACE, std::nullopt, 100, 200};
-    CredentialInfo info3 = {FINGERPRINT, std::nullopt, 1000, 2000};
-    std::vector<CredentialInfo> credInfoList = {info1, info2, info3};
+    IpcCredentialInfo info1 = {PIN, PIN_SIX, 10, 20};
+    IpcCredentialInfo info2 = {FACE, 0, 100, 200};
+    IpcCredentialInfo info3 = {FINGERPRINT, 0, 1000, 2000};
+    std::vector<IpcCredentialInfo> credInfoList = {info1, info2, info3};
 
     auto getCredInfoCallback = Common::MakeShared<MockGetCredentialInfoCallback>();
     EXPECT_NE(getCredInfoCallback, nullptr);
@@ -123,7 +123,7 @@ HWTEST_F(UserIdmCallbackServiceTest, IdmGetCredInfoCallbackServiceTest002, TestS
 
 HWTEST_F(UserIdmCallbackServiceTest, IdmGetSecureUserInfoCallbackServiceTest001, TestSize.Level0)
 {
-    SecUserInfo secUserInfo = {};
+    IpcSecUserInfo secUserInfo = {};
     std::shared_ptr<GetSecUserInfoCallback> getSecInfoCallback = nullptr;
     auto service = Common::MakeShared<IdmGetSecureUserInfoCallbackService>(getSecInfoCallback);
     EXPECT_NE(service, nullptr);
@@ -149,7 +149,7 @@ HWTEST_F(UserIdmCallbackServiceTest, IdmGetSecureUserInfoCallbackServiceTest002,
     auto service = Common::MakeShared<IdmGetSecureUserInfoCallbackService>(getSecInfoCallback);
     EXPECT_NE(service, nullptr);
 
-    SecUserInfo secUserInfo = {};
+    IpcSecUserInfo secUserInfo = {};
     secUserInfo.secureUid = 1000;
     secUserInfo.enrolledInfo = {{FACE, 10}, {FINGERPRINT, 20}};
     service->OnSecureUserInfo(SUCCESS, secUserInfo);

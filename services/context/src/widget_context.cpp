@@ -153,13 +153,13 @@ bool WidgetContext::BuildSchedule()
 }
 
 std::shared_ptr<ContextCallback> WidgetContext::GetAuthContextCallback(AuthType authType,
-    AuthTrustLevel authTrustLevel, sptr<IamCallbackInterface> &iamCallback)
+    AuthTrustLevel authTrustLevel, sptr<IIamCallback> &iamCallback)
 {
     auto widgetCallback = ContextCallback::NewInstance(iamCallback, TRACE_AUTH_USER_SECURITY);
     if (widgetCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
         Attributes extraInfo;
-        iamCallback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
+        iamCallback->OnResult(ResultCode::GENERAL_ERROR, extraInfo.Serialize());
         return nullptr;
     }
     widgetCallback->SetTraceCallerName(para_.callerName);
@@ -177,7 +177,7 @@ std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &ch
     auto userId = para_.userId;
     auto tokenId = WidgetClient::Instance().GetAuthTokenId();
     IAM_LOGI("Real userId: %{public}d, Real tokenId: %{public}s", userId, GET_MASKED_STRING(tokenId).c_str());
-    sptr<IamCallbackInterface> iamCallback(new (std::nothrow) WidgetContextCallbackImpl(weak_from_this(),
+    sptr<IIamCallback> iamCallback(new (std::nothrow) WidgetContextCallbackImpl(weak_from_this(),
         static_cast<int32_t>(authType)));
     IF_FALSE_LOGE_AND_RETURN_VAL(iamCallback != nullptr, nullptr);
     auto widgetCallback = GetAuthContextCallback(authType, authTrustLevel, iamCallback);

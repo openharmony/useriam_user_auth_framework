@@ -16,7 +16,7 @@
 #ifndef IAM_AUTH_EVENT_LISTENER_MANAGER_H
 #define IAM_AUTH_EVENT_LISTENER_MANAGER_H
 
-#include "user_auth_interface.h"
+#include "iuser_auth.h"
 #include <map>
 #include <mutex>
 #include <set>
