@@ -17,9 +17,11 @@
 #define CO_AUTH_SERVICE_H
 
 #include "co_auth_stub.h"
+#include "co_auth_interface.h"
 
 #include <optional>
 
+#include "resource_node_pool.h"
 #include <system_ability.h>
 #include <system_ability_definition.h>
 #include "system_ability_listener.h"
@@ -27,6 +29,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+using ExecutorRegisterInfo = CoAuthInterface::ExecutorRegisterInfo;
 class CoAuthService : public SystemAbility, public CoAuthStub {
 public:
     static constexpr uint32_t DEFER_TIME = 100;
@@ -36,14 +39,17 @@ public:
     CoAuthService();
     ~CoAuthService() override = default;
     int Dump(int fd, const std::vector<std::u16string> &args) override;
-    uint64_t ExecutorRegister(const ExecutorRegisterInfo &info, sptr<ExecutorCallbackInterface> &callback) override;
-    void ExecutorUnregister(uint64_t executorIndex) override;
+    int32_t ExecutorRegister(const IpcExecutorRegisterInfo &ipcExecutorRegisterInfo,
+        const sptr<IExecutorCallback> &executorCallback, uint64_t &executorIndex) override;
+    int32_t ExecutorUnregister(uint64_t executorIndex) override;
     void SetIsReady(bool isReady);
     void SetAccessTokenReady(bool isReady);
     void OnDriverStart();
     void OnDriverStop();
     ResultCode RegisterAccessTokenListener();
     ResultCode UnRegisterAccessTokenListener();
+    int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;
+    int32_t CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result) override;
 
 protected:
     void OnStart() override;
@@ -51,10 +57,15 @@ protected:
 
 private:
     static void AddExecutorDeathRecipient(uint64_t executorIndex, AuthType authType, ExecutorRole role,
-        std::shared_ptr<ExecutorCallbackInterface> callback);
+        std::shared_ptr<IExecutorCallback> callback);
     void AuthServiceInit();
     void NotifyFwkReady();
     bool IsFwkReady();
+    int32_t ProcExecutorRegisterSuccess(std::shared_ptr<ResourceNode> &resourceNode,
+        const std::shared_ptr<IExecutorCallback> &callback, std::vector<uint64_t> &templateIdList,
+        std::vector<uint8_t> &fwkPublicKey);
+    void InitExecutorRegisterInfo(const IpcExecutorRegisterInfo &ipcExecutorRegisterInfo,
+        ExecutorRegisterInfo &executorRegisterInfo);
 
     static std::shared_ptr<CoAuthService> instance_;
     std::recursive_mutex mutex_;

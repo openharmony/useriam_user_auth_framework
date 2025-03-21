@@ -93,14 +93,14 @@ public:
     {};
 
     static std::shared_ptr<ResourceNode> MakeNewResource(const ExecutorRegisterInfo &info,
-        const std::shared_ptr<ExecutorCallbackInterface> &callback, std::vector<uint64_t> &templateIdList,
+        const std::shared_ptr<IExecutorCallback> &callback, std::vector<uint64_t> &templateIdList,
         std::vector<uint8_t> &fwkPublicKey)
         {
             return nullptr;
         };
     
     static std::shared_ptr<ResourceNode> CreateWithExecuteIndex(uint64_t executorId, AuthType authType,
-        ExecutorRole executorRole, ExecutorCallbackInterface &callback)
+        ExecutorRole executorRole, IExecutorCallback &callback)
     {
         auto node = std::make_shared<DummyResourceNode>();
         return node;

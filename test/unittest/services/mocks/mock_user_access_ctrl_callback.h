@@ -18,16 +18,16 @@
 #include <gmock/gmock.h>
 #include <iremote_stub.h>
 
-#include "user_access_ctrl_callback_interface.h"
+#include "iverify_token_callback.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockVerifyTokenCallback final : public IRemoteStub<VerifyTokenCallbackInterface> {
+class MockVerifyTokenCallback final : public IRemoteStub<IVerifyTokenCallback> {
 public:
     MOCK_METHOD4(OnRemoteRequest,
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
-    MOCK_METHOD2(OnVerifyTokenResult, void(int32_t result, const Attributes &extraInfo));
+    MOCK_METHOD2(OnVerifyTokenResult, int32_t(int32_t result, const std::vector<uint8_t> &extraInfo));
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -30,7 +30,7 @@ void ContextDeathRecipientManager::AddDeathRecipient(std::shared_ptr<ContextCall
     IAM_LOGI("start");
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
 
-    const sptr<IamCallbackInterface> iamCallback = callback->GetIamCallback();
+    const sptr<IIamCallback> iamCallback = callback->GetIamCallback();
     if (iamCallback == nullptr) {
         IAM_LOGE("callback_ is nullptr");
         return;
@@ -62,7 +62,7 @@ void ContextDeathRecipientManager::RemoveDeathRecipient(std::shared_ptr<ContextC
         return;
     }
 
-    const sptr<IamCallbackInterface> iamCallback = callback->GetIamCallback();
+    const sptr<IIamCallback> iamCallback = callback->GetIamCallback();
     if (iamCallback == nullptr) {
         IAM_LOGE("callback_ is nullptr");
         return;

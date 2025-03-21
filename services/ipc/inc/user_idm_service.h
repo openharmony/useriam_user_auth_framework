@@ -28,6 +28,7 @@
 #include "context.h"
 #include "context_factory.h"
 #include "credential_info_interface.h"
+#include "user_idm_client_defines.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -39,21 +40,24 @@ public:
     ~UserIdmService() override = default;
     int Dump(int fd, const std::vector<std::u16string> &args) override;
     int32_t OpenSession(int32_t userId, std::vector<uint8_t> &challenge) override;
-    void CloseSession(int32_t userId) override;
-    int32_t GetCredentialInfo(int32_t userId, AuthType authType,
-        const sptr<IdmGetCredInfoCallbackInterface> &callback) override;
-    int32_t GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserInfoCallbackInterface> &callback) override;
-    void AddCredential(int32_t userId, const CredentialPara &credPara,
-        const sptr<IdmCallbackInterface> &callback, bool isUpdate) override;
-    void UpdateCredential(int32_t userId, const CredentialPara &credPara,
-        const sptr<IdmCallbackInterface> &callback) override;
+    int32_t CloseSession(int32_t userId) override;
+    int32_t GetCredentialInfo(int32_t userId, int32_t authType,
+        const sptr<IIdmGetCredInfoCallback> &idmGetCredInfoCallbac) override;
+    int32_t GetSecInfo(int32_t userId,
+        const sptr<IIdmGetSecureUserInfoCallback> &idmGetSecureUserInfoCallback) override;
+    int32_t AddCredential(int32_t userId, const IpcCredentialPara &ipcCredentialPara,
+        const sptr<IIamCallback> &IdmCallback, bool isUpdate) override;
+    int32_t UpdateCredential(int32_t userId, const IpcCredentialPara &ipcCredentialPara,
+        const sptr<IIamCallback> &IdmCallback) override;
     int32_t Cancel(int32_t userId) override;
-    int32_t EnforceDelUser(int32_t userId, const sptr<IdmCallbackInterface> &callback) override;
-    void DelUser(int32_t userId, const std::vector<uint8_t> authToken,
-        const sptr<IdmCallbackInterface> &callback) override;
-    void DelCredential(int32_t userId, uint64_t credentialId, const std::vector<uint8_t> &authToken,
-        const sptr<IdmCallbackInterface> &callback) override;
-    void ClearRedundancyCredential(const sptr<IdmCallbackInterface> &callback) override;
+    int32_t EnforceDelUser(int32_t userId, const sptr<IIamCallback> &IdmCallback) override;
+    int32_t DelUser(int32_t userId, const std::vector<uint8_t> &authToken,
+        const sptr<IIamCallback> &IdmCallback) override;
+    int32_t DelCredential(int32_t userId, uint64_t credentialId, const std::vector<uint8_t> &authToken,
+        const sptr<IIamCallback> &IdmCallback) override;
+    int32_t ClearRedundancyCredential(const sptr<IIamCallback> &IdmCallback) override;
+    int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;
+    int32_t CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result) override;
 
 protected:
     void OnStart() override;
@@ -69,7 +73,7 @@ private:
     int32_t ClearRedundancyCredentialInner(const std::string &callerName, int32_t callerType);
     void SetAuthTypeTrace(const std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos,
         const std::shared_ptr<ContextCallback> &contextCallback);
-    void StartEnroll(Enrollment::EnrollmentPara &para,
+    int32_t StartEnroll(Enrollment::EnrollmentPara &para,
         const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo, bool needSubscribeAppState);
     void PublishCommonEvent(int32_t userId, uint64_t credentialId, AuthType authType);
     std::mutex mutex_;

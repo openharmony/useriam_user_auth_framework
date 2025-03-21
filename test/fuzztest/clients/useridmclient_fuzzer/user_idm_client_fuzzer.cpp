@@ -199,7 +199,7 @@ void FuzzIdmCallbackServiceOnResult(Parcel &parcel)
     Common::FillFuzzUint8Vector(parcel, attr);
     Attributes extraInfo(attr);
     if (g_IdmCallbackService != nullptr) {
-        g_IdmCallbackService->OnResult(result, extraInfo);
+        g_IdmCallbackService->OnResult(result, extraInfo.Serialize());
     }
     IAM_LOGI("end");
 }
@@ -213,7 +213,7 @@ void FuzzIdmCallbackServiceOnAcquireInfo(Parcel &parcel)
     Common::FillFuzzUint8Vector(parcel, attr);
     Attributes extraInfo(attr);
     if (g_IdmCallbackService != nullptr) {
-        g_IdmCallbackService->OnAcquireInfo(module, acquireInfo, extraInfo);
+        g_IdmCallbackService->OnAcquireInfo(module, acquireInfo, extraInfo.Serialize());
     }
     IAM_LOGI("end");
 }
@@ -221,12 +221,12 @@ void FuzzIdmCallbackServiceOnAcquireInfo(Parcel &parcel)
 void FuzzCallbackServiceOnCredentialInfos(Parcel &parcel)
 {
     IAM_LOGI("start");
-    CredentialInfo info = {};
+    IpcCredentialInfo info = {};
     info.authType = static_cast<AuthType>(parcel.ReadInt32());
     info.credentialId = parcel.ReadUint64();
     info.templateId = parcel.ReadUint64();
     info.pinType = static_cast<PinSubType>(parcel.ReadInt32());
-    std::vector<CredentialInfo> credInfoList = {info};
+    std::vector<IpcCredentialInfo> credInfoList = {info};
     int32_t result = parcel.ReadInt32();
     if (g_IdmGetCredInfoCallbackService != nullptr) {
         g_IdmGetCredInfoCallbackService->OnCredentialInfos(result, credInfoList);
@@ -237,12 +237,12 @@ void FuzzCallbackServiceOnCredentialInfos(Parcel &parcel)
 void FuzzCallbackServiceOnSecureUserInfo(Parcel &parcel)
 {
     IAM_LOGI("start");
-    SecUserInfo secUserInfo = {};
+    IpcSecUserInfo secUserInfo = {};
     secUserInfo.secureUid = parcel.ReadUint64();
-    EnrolledInfo info = {};
-    info.authType = static_cast<AuthType>(parcel.ReadInt32());
+    IpcEnrolledInfo info = {};
+    info.authType = parcel.ReadInt32();
     info.enrolledId = parcel.ReadUint64();
-    secUserInfo.enrolledInfo = {info};
+    secUserInfo.enrolledInfo.push_back(info);
     int32_t result = parcel.ReadInt32();
 
     if (g_IdmGetSecureUserInfoCallbackService != nullptr) {

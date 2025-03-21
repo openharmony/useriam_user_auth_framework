@@ -22,8 +22,10 @@
 #include "nocopyable.h"
 
 #include "user_auth_client.h"
-#include "user_auth_interface.h"
+#include "iuser_auth.h"
 #include "iuser_auth_widget_callback.h"
+#include "user_auth_types.h"
+#include "user_auth_common_defines.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -69,6 +71,12 @@ private:
         const std::shared_ptr<SetPropCallback> &callback);
     uint64_t BeginWidgetAuthInner(int32_t apiVersion, const AuthParamInner &authParam,
         const WidgetParamInner &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback);
+    void InitIpcRemoteAuthParam(const std::optional<RemoteAuthParam> &remoteAuthParam,
+        IpcRemoteAuthParam &ipcRemoteAuthParam);
+    void InitIpcGlobalConfigParam(const GlobalConfigParam &globalConfigParam,
+        IpcGlobalConfigParam &ipcGlobalConfigParam);
+    void InitIpcAuthParam(const AuthParamInner &authParam, IpcAuthParamInner &ipcAuthParam);
+    void InitIpcWidgetParam(const WidgetParamInner &widgetParam, IpcWidgetParamInner &ipcWidgetParam);
 
     friend class UserAuthClient;
     UserAuthClientImpl() = default;
@@ -80,8 +88,8 @@ private:
         void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
     };
     void ResetProxy(const wptr<IRemoteObject> &remote);
-    sptr<UserAuthInterface> GetProxy();
-    sptr<UserAuthInterface> proxy_ {nullptr};
+    sptr<IUserAuth> GetProxy();
+    sptr<IUserAuth> proxy_ {nullptr};
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
     constexpr static int32_t MINIMUM_VERSION {0};
     std::mutex mutex_;

@@ -29,71 +29,94 @@ ExecutorCallbackService::ExecutorCallbackService(const std::shared_ptr<ExecutorR
 {
 }
 
-void ExecutorCallbackService::OnMessengerReady(sptr<ExecutorMessengerInterface> &messenger,
+int32_t ExecutorCallbackService::OnMessengerReady(const sptr<IExecutorMessenger> &messenger,
     const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList)
 {
     IAM_LOGI("start");
     if (callback_ == nullptr) {
         IAM_LOGE("callback is nullptr");
-        return;
+        return GENERAL_ERROR;
     }
     auto wrapper = Common::MakeShared<ExecutorMessengerClient>(messenger);
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
-        return;
+        return GENERAL_ERROR;
     }
     callback_->OnMessengerReady(wrapper, publicKey, templateIdList);
+    return SUCCESS;
 }
 
 int32_t ExecutorCallbackService::OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
-    const Attributes &command)
+    const std::vector<uint8_t> &command)
 {
     IAM_LOGI("start");
     if (callback_ == nullptr) {
         IAM_LOGE("callback is nullptr");
         return GENERAL_ERROR;
     }
-    return callback_->OnBeginExecute(scheduleId, publicKey, command);
+    Attributes attributes(command);
+    return callback_->OnBeginExecute(scheduleId, publicKey, attributes);
 }
 
-int32_t ExecutorCallbackService::OnEndExecute(uint64_t scheduleId, const Attributes &command)
+int32_t ExecutorCallbackService::OnEndExecute(uint64_t scheduleId, const std::vector<uint8_t> &command)
 {
     IAM_LOGI("start");
     if (callback_ == nullptr) {
         IAM_LOGE("callback is nullptr");
         return GENERAL_ERROR;
     }
-    return callback_->OnEndExecute(scheduleId, command);
+    Attributes attributes(command);
+    return callback_->OnEndExecute(scheduleId, attributes);
 }
 
-int32_t ExecutorCallbackService::OnSetProperty(const Attributes &properties)
+int32_t ExecutorCallbackService::OnSetProperty(const std::vector<uint8_t> &properties)
 {
     IAM_LOGI("start");
     if (callback_ == nullptr) {
         IAM_LOGE("callback is nullptr");
         return GENERAL_ERROR;
     }
-    return callback_->OnSetProperty(properties);
+    Attributes attributes(properties);
+    return callback_->OnSetProperty(attributes);
 }
 
-int32_t ExecutorCallbackService::OnGetProperty(const Attributes &condition, Attributes &values)
+int32_t ExecutorCallbackService::OnGetProperty(const std::vector<uint8_t> &condition, std::vector<uint8_t> &values)
 {
     IAM_LOGI("start");
     if (callback_ == nullptr) {
         IAM_LOGE("callback is nullptr");
         return GENERAL_ERROR;
     }
-    return callback_->OnGetProperty(condition, values);
+    Attributes conditionAttr(condition);
+    Attributes valuesAttr;
+    auto ret = callback_->OnGetProperty(conditionAttr, valuesAttr);
+    if (ret == SUCCESS) {
+        values = valuesAttr.Serialize();
+    }
+    return ret;
 }
 
-int32_t ExecutorCallbackService::OnSendData(uint64_t scheduleId, const Attributes &data)
+int32_t ExecutorCallbackService::OnSendData(uint64_t scheduleId, const std::vector<uint8_t> &extraInfo)
 {
     IAM_LOGI("start");
     if (callback_ == nullptr) {
         IAM_LOGE("callback is nullptr");
         return GENERAL_ERROR;
     }
-    return callback_->OnSendData(scheduleId, data);
+    Attributes attributes(extraInfo);
+    return callback_->OnSendData(scheduleId, attributes);
+}
+
+int32_t ExecutorCallbackService::CallbackEnter([[maybe_unused]] uint32_t code)
+{
+    IAM_LOGI("start, code:%{public}u", code);
+    return SUCCESS;
+}
+
+int32_t ExecutorCallbackService::CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result)
+{
+    IAM_LOGI("leave, code:%{public}u, result:%{public}d", code, result);
+    return SUCCESS;
 }
 } // namespace UserAuth
 } // namespace UserIam

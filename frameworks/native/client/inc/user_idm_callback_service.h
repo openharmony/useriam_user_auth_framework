@@ -16,7 +16,9 @@
 #ifndef USER_IDM_CALLBACK_SERVICE_H
 #define USER_IDM_CALLBACK_SERVICE_H
 
-#include "user_idm_callback_stub.h"
+#include "iam_callback_stub.h"
+#include "idm_get_cred_info_callback_stub.h"
+#include "idm_get_secure_user_info_callback_stub.h"
 
 #include "iam_hitrace_helper.h"
 #include "user_idm_client_callback.h"
@@ -24,12 +26,14 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class IdmCallbackService : public IdmCallbackStub {
+class IdmCallbackService : public IamCallbackStub {
 public:
     explicit IdmCallbackService(const std::shared_ptr<UserIdmClientCallback> &impl);
     ~IdmCallbackService() override;
-    void OnResult(int32_t result, const Attributes &extraInfo) override;
-    void OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo) override;
+    int32_t OnResult(int32_t resultCode, const std::vector<uint8_t> &extraInfo) override;
+    int32_t OnAcquireInfo(int32_t module, int32_t acquireInfo, const std::vector<uint8_t> &extraInfo) override;
+    int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;
+    int32_t CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result) override;
 
 private:
     std::shared_ptr<UserIdmClientCallback> idmClientCallback_ {nullptr};
@@ -40,7 +44,9 @@ class IdmGetCredInfoCallbackService : public IdmGetCredInfoCallbackStub {
 public:
     explicit IdmGetCredInfoCallbackService(const std::shared_ptr<GetCredentialInfoCallback> &impl);
     ~IdmGetCredInfoCallbackService() override;
-    void OnCredentialInfos(int32_t result, const std::vector<CredentialInfo> &credInfoList) override;
+    int32_t OnCredentialInfos(int32_t resultCode, const std::vector<IpcCredentialInfo> &credInfoList) override;
+    int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;
+    int32_t CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result) override;
 
 private:
     std::shared_ptr<GetCredentialInfoCallback> getCredInfoCallback_ {nullptr};
@@ -50,7 +56,9 @@ class IdmGetSecureUserInfoCallbackService : public IdmGetSecureUserInfoCallbackS
 public:
     explicit IdmGetSecureUserInfoCallbackService(const std::shared_ptr<GetSecUserInfoCallback> &impl);
     ~IdmGetSecureUserInfoCallbackService() override;
-    void OnSecureUserInfo(int32_t result, const SecUserInfo &secUserInfo) override;
+    int32_t OnSecureUserInfo(int32_t resultCode, const IpcSecUserInfo &ipcSecUserInfo) override;
+    int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;
+    int32_t CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result) override;
 
 private:
     std::shared_ptr<GetSecUserInfoCallback> getSecInfoCallback_ {nullptr};

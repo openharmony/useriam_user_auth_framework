@@ -23,7 +23,7 @@
 #include "iam_para2str.h"
 #include "iam_time.h"
 #include "nlohmann/json.hpp"
-#include "widget_callback_interface.h"
+#include "iwidget_callback.h"
 #include "hisysevent_adapter.h"
 
 #define LOG_TAG "USER_AUTH_SA"
@@ -199,7 +199,7 @@ void WidgetClient::SetAuthTypeList(const std::vector<AuthType> &authTypeList)
     authTypeList_ = authTypeList;
 }
 
-void WidgetClient::SetWidgetCallback(const sptr<WidgetCallbackInterface> &callback)
+void WidgetClient::SetWidgetCallback(const sptr<IWidgetCallback> &callback)
 {
     widgetCallback_ = callback;
 }
@@ -335,7 +335,7 @@ void WidgetClient::SetCallingBundleName(const std::string &callingBundleName)
     callingBundleName_ = callingBundleName;
 }
 
-void WidgetClient::SetModalCallback(const sptr<ModalCallbackInterface> &callback)
+void WidgetClient::SetModalCallback(const sptr<IModalCallback> &callback)
 {
     IAM_LOGI("set modal callback");
     modalCallback_ = callback;
