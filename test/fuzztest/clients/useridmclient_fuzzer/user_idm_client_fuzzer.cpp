@@ -78,7 +78,7 @@ public:
         static_cast<void>(eventType);
         static_cast<void>(credentialId);
     }
-}
+};
 
 void FuzzClientOpenSession(Parcel &parcel)
 {
@@ -195,7 +195,7 @@ void FuzzClientClearRedundancyCredential(Parcel &parcel)
     IAM_LOGI("end");
 }
 
-void FuzzClientRegisterCredChangeEventListener(Parcel &parcel)
+void FuzzClientRegistCredChangeEventListener(Parcel &parcel)
 {
     IAM_LOGI("start");
     std::vector<AuthType> authTypeList;
@@ -203,15 +203,15 @@ void FuzzClientRegisterCredChangeEventListener(Parcel &parcel)
     authTypeList.push_back(AuthType::FACE);
     authTypeList.push_back(AuthType::FINGERPRINT);
     auto listener = Common::MakeShared<DummyCredChangeEventListener>();
-    UserIdmClient::GetInstance().RegisterCredChangeEventListener(authTypeList, listener);
+    UserIdmClient::GetInstance().RegistCredChangeEventListener(authTypeList, listener);
     IAM_LOGI("end");
 }
 
-void FuzzClientUnRegistUserAuthSuccessEventListener(Parcel &Parcel)
+void FuzzClientUnRegistCredChangeEventListener(Parcel &Parcel)
 {
     IAM_LOGI("start");
     auto listener = Common::MakeShared<DummyCredChangeEventListener>();
-    UserIdmClient::Instance().UnRegisterCredChangeEventListener(listener);
+    UserIdmClient::GetInstance().UnRegistCredChangeEventListener(listener);
     IAM_LOGI("end");
 }
 
@@ -301,8 +301,8 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzCallbackServiceOnCredentialInfos,
     FuzzCallbackServiceOnSecureUserInfo,
     FuzzClientClearRedundancyCredential,
-    FuzzClientRegistUserAuthSuccessEventListener,
-    FuzzClientUnRegistUserAuthSuccessEventListener,
+    FuzzClientRegistCredChangeEventListener,
+    FuzzClientUnRegistCredChangeEventListener,
 };
 
 void UserIdmClientFuzzTest(const uint8_t *data, size_t size)
