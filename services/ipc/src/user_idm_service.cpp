@@ -21,6 +21,7 @@
 #include "context_appstate_observer.h"
 #include "context_helper.h"
 #include "context_pool.h"
+#include "event_listener_manager.h"
 #include "hdi_wrapper.h"
 #include "iam_check.h"
 #include "iam_logger.h"
@@ -681,6 +682,56 @@ void UserIdmService::PublishCommonEvent(int32_t userId, uint64_t credentialId, A
     }
     PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, authType, credentialInfos.size());
     PublishEventAdapter::GetInstance().PublishUpdatedEvent(userId, credentialId);
+}
+
+int32_t UserIdmService::RegistCredChangeEventListener(const std::vector<AuthType> &authType,
+    const sptr<EventListenerInterface> &listener)
+{
+    IAM_LOGI("start");
+    Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
+    IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
+    IF_FALSE_LOGE_AND_RETURN_VAL(!authType.empty(), INVALID_PARAMETERS);
+    for (const auto &iter : authType) {
+        if (iter != AuthType::PIN && iter != AuthType::FACE && iter != AuthType::FINGERPRINT) {
+            IAM_LOGE("bad authType: %{public}d", iter);
+            return INVALID_PARAMETERS;
+        }
+    }
+
+    if (!IpcCommon::CheckPermission(*this, USE_USER_IDM_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    int32_t result = CredChangeEventListenerManager::GetInstance().RegistEventListener(authType,
+        IpcCommon::GetAccessTokenId(*this), listener);
+    if (result != SUCCESS) {
+        IAM_LOGE("failed to regist cred change event listener");
+        return result;
+    }
+
+    return SUCCESS;
+}
+
+int32_t UserIdmService::UnRegistCredChangeEventListener(const sptr<EventListenerInterface> &listener)
+{
+    IAM_LOGI("start");
+    Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
+    IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
+
+    if (!IpcCommon::CheckPermission(*this, USE_USER_IDM_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    int32_t result = CredChangeEventListenerManager::GetInstance().UnRegistEventListener(
+        IpcCommon::GetAccessTokenId(*this), listener);
+    if (result != SUCCESS) {
+        IAM_LOGE("failed to unregist cred change event listener");
+        return result;
+    }
+
+    return SUCCESS;
 }
 } // namespace UserAuth
 } // namespace UserIam

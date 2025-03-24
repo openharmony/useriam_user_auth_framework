@@ -115,14 +115,15 @@ public:
     virtual int32_t CancelIdentification(uint64_t contextId) = 0;
 
     /**
-     * @brief Regist authentication success event listener, support repeated registration.
+     * @brief Regist authentication success event listener, support repeated registration. Note that you need to listen
+     *        useriam process status, and if the process is restarted abnormally, need to re-register the listener.
      *
      * @param authType Auth type list supported by executor, auth type include PIN, FACE, FINGERPRINT.
      * @param listener Callback of authentication success event.
      * @return Return regist result(0:success; other:failed).
      */
     virtual int32_t RegistUserAuthSuccessEventListener(const std::vector<AuthType> &authType,
-        const sptr<AuthEventListenerInterface> &listener) = 0;
+        const std::shared_ptr<AuthSuccessEventListener> &listener) = 0;
 
     /**
      * @brief unRegist authentication success event listener.
@@ -131,7 +132,7 @@ public:
      * @return Return unregist result(0:success; other:failed).
      */
     virtual int32_t UnRegistUserAuthSuccessEventListener(
-        const sptr<AuthEventListenerInterface> &listener) = 0;
+        const std::shared_ptr<AuthSuccessEventListener> &listener) = 0;
 
     /**
      * @brief Set global config param.

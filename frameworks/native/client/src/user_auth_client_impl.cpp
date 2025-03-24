@@ -19,6 +19,7 @@
 
 #include "auth_common.h"
 #include "callback_manager.h"
+#include "event_listener_callback_service.h"
 #include "load_mode_client_util.h"
 #include "iam_check.h"
 #include "iam_defines.h"
@@ -592,7 +593,7 @@ int32_t UserAuthClientImpl::GetEnrolledState(int32_t apiVersion, AuthType authTy
 }
 
 int32_t UserAuthClientImpl::RegistUserAuthSuccessEventListener(const std::vector<AuthType> &authType,
-    const sptr<AuthEventListenerInterface> &listener)
+    const std::shared_ptr<AuthSuccessEventListener> &listener)
 {
     IAM_LOGI("start");
     if (!listener) {
@@ -606,7 +607,10 @@ int32_t UserAuthClientImpl::RegistUserAuthSuccessEventListener(const std::vector
         return GENERAL_ERROR;
     }
 
-    int32_t ret = proxy->RegistUserAuthSuccessEventListener(authType, listener);
+    sptr<EventListenerCallbackService> wrapper(new (std::nothrow) EventListenerCallbackService(listener));
+    IF_FALSE_LOGE_AND_RETURN_VAL(wrapper != nullptr, GENERAL_ERROR);
+
+    int32_t ret = proxy->RegistUserAuthSuccessEventListener(authType, wrapper);
     if (ret != SUCCESS) {
         IAM_LOGE("Regist userAuth success event listener failed");
         return ret;
@@ -615,7 +619,7 @@ int32_t UserAuthClientImpl::RegistUserAuthSuccessEventListener(const std::vector
     return SUCCESS;
 }
 
-int32_t UserAuthClientImpl::UnRegistUserAuthSuccessEventListener(const sptr<AuthEventListenerInterface> &listener)
+int32_t UserAuthClientImpl::UnRegistUserAuthSuccessEventListener(const std::shared_ptr<AuthSuccessEventListener> &listener)
 {
     IAM_LOGI("start");
     if (!listener) {
@@ -629,7 +633,10 @@ int32_t UserAuthClientImpl::UnRegistUserAuthSuccessEventListener(const sptr<Auth
         return GENERAL_ERROR;
     }
 
-    int32_t ret = proxy->UnRegistUserAuthSuccessEventListener(listener);
+    sptr<EventListenerCallbackService> wrapper(new (std::nothrow) EventListenerCallbackService(listener));
+    IF_FALSE_LOGE_AND_RETURN_VAL(wrapper != nullptr, GENERAL_ERROR);
+
+    int32_t ret = proxy->UnRegistUserAuthSuccessEventListener(wrapper);
     if (ret != SUCCESS) {
         IAM_LOGE("unRegist userAuth success event listener failed");
         return ret;

@@ -20,7 +20,7 @@
 
 #include "accesstoken_kit.h"
 #include "auth_common.h"
-#include "auth_event_listener_manager.h"
+#include "event_listener_manager.h"
 #include "auth_widget_helper.h"
 #include "context_factory.h"
 #include "context_helper.h"
@@ -1380,7 +1380,7 @@ bool UserAuthService::CheckAuthTypeIsValid(std::vector<AuthType> authType)
 }
 
 int32_t UserAuthService::RegistUserAuthSuccessEventListener(const std::vector<AuthType> &authType,
-    const sptr<AuthEventListenerInterface> &listener)
+    const sptr<EventListenerInterface> &listener)
 {
     IAM_LOGI("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
@@ -1396,7 +1396,8 @@ int32_t UserAuthService::RegistUserAuthSuccessEventListener(const std::vector<Au
         return CHECK_PERMISSION_FAILED;
     }
 
-    int32_t result = AuthEventListenerManager::GetInstance().RegistUserAuthSuccessEventListener(authType, listener);
+    int32_t result = AuthEventListenerManager::GetInstance().RegistEventListener(authType,
+        IpcCommon::GetAccessTokenId(*this), listener);
     if (result != SUCCESS) {
         IAM_LOGE("failed to regist auth event listener");
         return result;
@@ -1405,8 +1406,7 @@ int32_t UserAuthService::RegistUserAuthSuccessEventListener(const std::vector<Au
     return SUCCESS;
 }
 
-int32_t UserAuthService::UnRegistUserAuthSuccessEventListener(
-    const sptr<AuthEventListenerInterface> &listener)
+int32_t UserAuthService::UnRegistUserAuthSuccessEventListener(const sptr<EventListenerInterface> &listener)
 {
     IAM_LOGI("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
@@ -1417,7 +1417,8 @@ int32_t UserAuthService::UnRegistUserAuthSuccessEventListener(
         return CHECK_PERMISSION_FAILED;
     }
 
-    int32_t result = AuthEventListenerManager::GetInstance().UnRegistUserAuthSuccessEventListener(listener);
+    int32_t result =
+        AuthEventListenerManager::GetInstance().UnRegistEventListener(IpcCommon::GetAccessTokenId(*this), listener);
     if (result != SUCCESS) {
         IAM_LOGE("failed to unregist auth event listener");
         return result;
