@@ -990,7 +990,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceRegistEventListerner_004, TestSize.Le
     authTypeList.push_back(AuthType::PIN);
     authTypeList.push_back(AuthType::FACE);
     authTypeList.push_back(AuthType::FINGERPRINT);
-    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
     EXPECT_EQ(service.RegistCredChangeEventListener(authTypeList, testCallback), ResultCode::GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
 }
@@ -1027,7 +1027,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUnRegistEventListerner_003, TestSize.
 {
     UserIdmService service(123123, true);
     sptr<EventListenerInterface> testCallback = new MockEventListener();
-    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
     EXPECT_EQ(service.UnRegistCredChangeEventListener(testCallback), ResultCode::GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
 }
@@ -1040,12 +1040,11 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUnRegistEventListerner_004, TestSize.
     authTypeList.push_back(AuthType::PIN);
     authTypeList.push_back(AuthType::FACE);
     authTypeList.push_back(AuthType::FINGERPRINT);
-    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
     EXPECT_EQ(service.RegistCredChangeEventListener(authTypeList, testCallback), ResultCode::GENERAL_ERROR);
     EXPECT_EQ(service.UnRegistCredChangeEventListener(testCallback), ResultCode::GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
 }
-
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

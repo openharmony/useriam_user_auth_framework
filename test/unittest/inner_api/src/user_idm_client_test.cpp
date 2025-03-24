@@ -609,7 +609,7 @@ HWTEST_F(UserIdmClientTest, UserIdmClientUnRegistCredChangeEventListener002, Tes
 
 HWTEST_F(UserIdmClientTest, UserIdmClientUnRegistCredChangeEventListener003, TestSize.Level0)
 {
-    auto testCallback = Common::MakeShared<MockUserIdmService>();
+    auto testCallback = Common::MakeShared<MockCredChangeEventListener>();
     EXPECT_NE(testCallback, nullptr);
 
     int32_t ret = UserIdmClient::GetInstance().UnRegistCredChangeEventListener(testCallback);

@@ -93,9 +93,9 @@ public:
     }
 };
 
-class DummyCredChangeListener : public EventListenerInterface {
+class DummyCredChangeEventListener : public EventListenerInterface {
 public:
-    ~DummyCredChangeListener() override = default;
+    ~DummyCredChangeEventListener() override = default;
 
     sptr<IRemoteObject> AsObject() override
     {
