@@ -46,11 +46,11 @@ HWTEST_F(EventListenerManagerTest, EventListenerManagerTestRegistEventListener, 
     std::vector<AuthType> authType = { AuthType::PIN };
     uint32_t tokenId = 1;
     sptr<EventListenerInterface> testCallback = new MockEventListener();
-    EXPECT_EQ(AuthEventListenerManager::GetInstance.RegistEventListener(authType, tokenId, nullptr), GENERAL_ERROR);
+    EXPECT_EQ(AuthEventListenerManager::GetInstance().RegistEventListener(authType, tokenId, nullptr), GENERAL_ERROR);
     EXPECT_NO_THROW(AuthEventListenerManager::GetInstance().RegistEventListener(authType, tokenId, testCallback));
     AuthEventListenerManager::GetInstance().GetListenerSet(authType[0]);
 
-    EXPECT_EQ(CredChangeEventListenerManager::GetInstance.RegistEventListener(authType, tokenId, nullptr), GENERAL_ERROR);
+    EXPECT_EQ(CredChangeEventListenerManager::GetInstance().RegistEventListener(authType, tokenId, nullptr), GENERAL_ERROR);
     EXPECT_NO_THROW(CredChangeEventListenerManager::GetInstance().RegistEventListener(authType, tokenId, testCallback));
     CredChangeEventListenerManager::GetInstance().GetListenerSet(authType[0]);
 }
@@ -59,10 +59,10 @@ HWTEST_F(EventListenerManagerTest, EventListenerManagerTestAddAuthSuccessEventLi
 {
     uint32_t tokenId = 1;
     sptr<EventListenerInterface> testCallback = new MockEventListener();
-    EXPECT_EQ(AuthEventListenerManager::GetInstance.UnRegistEventListener(authType, tokenId, nullptr), GENERAL_ERROR);
+    EXPECT_EQ(AuthEventListenerManager::GetInstance().UnRegistEventListener(authType, tokenId, nullptr), GENERAL_ERROR);
     EXPECT_NO_THROW(AuthEventListenerManager::GetInstance().UnRegistEventListener(authType, tokenId, testCallback));
 
-    EXPECT_EQ(CredChangeEventListenerManager::GetInstance.UnRegistEventListener(authType, tokenId, nullptr), GENERAL_ERROR);
+    EXPECT_EQ(CredChangeEventListenerManager::GetInstance().UnRegistEventListener(authType, tokenId, nullptr), GENERAL_ERROR);
     EXPECT_NO_THROW(CredChangeEventListenerManager::GetInstance().UnRegistEventListener(authType, tokenId, testCallback));
 }
 

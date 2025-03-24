@@ -119,7 +119,6 @@ public:
     }
 };
 
-
 void FuzzClientGetEnrolledState(Parcel &parcel)
 {
     IAM_LOGI("start");
