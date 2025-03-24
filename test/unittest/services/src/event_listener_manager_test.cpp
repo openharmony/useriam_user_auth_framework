@@ -55,18 +55,18 @@ HWTEST_F(EventListenerManagerTest, EventListenerManagerTestRegistEventListener, 
     CredChangeEventListenerManager::GetInstance().GetListenerSet(authType[0]);
 }
 
-HWTEST_F(EventListenerManagerTest, EventListenerManagerTestAddAuthSuccessEventListener, TestSize.Level0)
+HWTEST_F(EventListenerManagerTest, EventListenerManagerTestUnRegistEventListener, TestSize.Level0)
 {
     uint32_t tokenId = 1;
     sptr<EventListenerInterface> testCallback = new MockEventListener();
-    EXPECT_EQ(AuthEventListenerManager::GetInstance().UnRegistEventListener(authType, tokenId, nullptr), GENERAL_ERROR);
+    EXPECT_EQ(AuthEventListenerManager::GetInstance().UnRegistEventListener(tokenId, nullptr), GENERAL_ERROR);
     EXPECT_NO_THROW(AuthEventListenerManager::GetInstance().UnRegistEventListener(authType, tokenId, testCallback));
 
-    EXPECT_EQ(CredChangeEventListenerManager::GetInstance().UnRegistEventListener(authType, tokenId, nullptr), GENERAL_ERROR);
-    EXPECT_NO_THROW(CredChangeEventListenerManager::GetInstance().UnRegistEventListener(authType, tokenId, testCallback));
+    EXPECT_EQ(CredChangeEventListenerManager::GetInstance().UnRegistEventListener(tokenId, nullptr), GENERAL_ERROR);
+    EXPECT_NO_THROW(CredChangeEventListenerManager::GetInstance().UnRegistEventListener(tokenId, testCallback));
 }
 
-HWTEST_F(EventListenerManagerTest, EventListenerManagerTestAddAuthSuccessEventListener, TestSize.Level0)
+HWTEST_F(EventListenerManagerTest, EventListenerManagerTestAddEventListener, TestSize.Level0)
 {
     sptr<EventListenerInterface> testCallback = new MockEventListener();
     AuthType authType = AuthType::PIN;
@@ -74,7 +74,7 @@ HWTEST_F(EventListenerManagerTest, EventListenerManagerTestAddAuthSuccessEventLi
     EXPECT_NO_THROW(CredChangeEventListenerManager::GetInstance().AddEventListener(authType, testCallback));
 }
 
-HWTEST_F(EventListenerManagerTest, EventListenerManagerTestRemoveAuthSuccessEventListener, TestSize.Level0)
+HWTEST_F(EventListenerManagerTest, EventListenerManagerTestRemoveEventListener, TestSize.Level0)
 {
     sptr<EventListenerInterface> testCallback = new MockEventListener();
     AuthType authType = AuthType::PIN;
