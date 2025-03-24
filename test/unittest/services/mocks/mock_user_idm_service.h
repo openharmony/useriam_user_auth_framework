@@ -41,6 +41,9 @@ public:
     MOCK_METHOD4(DelCredential, void(int32_t userId, uint64_t credentialId,
                                     const std::vector<uint8_t> &authToken, const sptr<IdmCallbackInterface> &callback));
     MOCK_METHOD1(ClearRedundancyCredential, void(const sptr<IdmCallbackInterface> &callback));
+    MOCK_METHOD2(RegistCredChangeEventListener, int32_t(const std::vector<AuthType> &authType,
+        const sptr<EventListenerInterface> &callback));
+    MOCK_METHOD1(UnRegistCredChangeEventListener, int32_t(const sptr<EventListenerInterface> &callback));
 };
 } // namespace UserAuth
 } // namespace UserIam

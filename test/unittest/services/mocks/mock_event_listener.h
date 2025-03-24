@@ -12,32 +12,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef IAM_MOCK_AUTH_EVENT_LISTENER_INTERFACE_H
-#define IAM_MOCK_AUTH_EVENT_LISTENER_INTERFACE_H
+#ifndef IAM_MOCK_EVENT_LISTENER_INTERFACE_H
+#define IAM_MOCK_EVENT_LISTENER_INTERFACE_H
 
 #include <gmock/gmock.h>
 
+#include "event_listener_stub.h"
 #include "user_auth_client_callback.h"
-#include "user_auth_event_listener_stub.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockAuthEventListener final : public AuthEventListenerInterface {
+class MockEventListener final : public EventListenerInterface {
 public:
     MOCK_METHOD0(AsObject, sptr<IRemoteObject>());
-    MOCK_METHOD4(OnNotifyAuthSuccessEvent, void(int32_t userId, AuthType authtype, int32_t callerType,
+    MOCK_METHOD4(OnNotifyAuthSuccessEvent, void(int32_t userId, AuthType authType, int32_t callerType,
         std::string &callerName));
+    MOCK_METHOD4(OnNotifyCredChangeEvent, void(int32_t userId, AuthType authType, CredChangeEventType eventType,
+        uint64_t credentialId));
 };
 
-class MockAuthEventListenerService final : public IRemoteStub<AuthEventListenerInterface> {
+class MockEventListenerService final : public IRemoteStub<EventListenerInterface> {
 public:
     MOCK_METHOD4(OnRemoteRequest,
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
-    MOCK_METHOD4(OnNotifyAuthSuccessEvent, void(int32_t userId, AuthType authtype, int32_t callerType,
+    MOCK_METHOD4(OnNotifyAuthSuccessEvent, void(int32_t userId, AuthType authType, int32_t callerType,
         std::string &callerName));
+    MOCK_METHOD4(OnNotifyCredChangeEvent, void(int32_t userId, AuthType authType, CredChangeEventType eventType,
+        uint64_t credentialId));
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // IAM_MOCK_AUTH_EVENT_LISTENER_INTERFACE_H
+#endif // IAM_MOCK_EVENT_LISTENER_INTERFACE_H

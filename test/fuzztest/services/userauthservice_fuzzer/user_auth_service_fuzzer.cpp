@@ -25,7 +25,6 @@
 #include "iam_logger.h"
 #include "user_auth_service.h"
 #include "user_auth_common_defines.h"
-#include "user_auth_event_listener_stub.h"
 #include "dummy_iam_callback_interface.h"
 
 #undef private
@@ -119,7 +118,7 @@ public:
     }
 };
 
-class DummyAuthEventListener : public AuthEventListenerInterface {
+class DummyAuthEventListener : public EventListenerInterface {
 public:
     ~DummyAuthEventListener() override = default;
 
@@ -135,6 +134,8 @@ public:
         IAM_LOGI("notify: userId: %{public}d, authType: %{public}d, callerName: %{public}s,"
             "callerType: %{public}d", userId, static_cast<int32_t>(authType), callerName.c_str(), callerType);
     }
+    void OnNotifyCredChangeEvent(int32_t userId, AuthType authType, CredChangeEventType eventType,
+        uint64_t credentialId) override {}
 };
 
 class DummyVerifyTokenCallback : public VerifyTokenCallbackInterface {
@@ -351,9 +352,9 @@ void FuzzRegistUserAuthSuccessEventListener(Parcel &parcel)
         authTypeList.push_back(static_cast<AuthType>(iter));
     }
 
-    sptr<AuthEventListenerInterface> callback(nullptr);
+    sptr<EventListenerInterface> callback(nullptr);
     if (parcel.ReadBool()) {
-        callback = sptr<AuthEventListenerInterface>(new (std::nothrow) DummyAuthEventListener());
+        callback = sptr<EventListenerInterface>(new (std::nothrow) DummyAuthEventListener());
     }
 
     g_userAuthService.RegistUserAuthSuccessEventListener(authTypeList, callback);

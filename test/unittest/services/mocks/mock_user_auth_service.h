@@ -64,8 +64,8 @@ public:
     MOCK_METHOD2(Notice, int32_t(NoticeType noticeType, const std::string &eventData));
     MOCK_METHOD2(RegisterWidgetCallback, int32_t(int32_t version, sptr<WidgetCallbackInterface> &callback));
     MOCK_METHOD2(RegistUserAuthSuccessEventListener, int32_t(const std::vector<AuthType> &authType,
-        const sptr<AuthEventListenerInterface> &callback));
-    MOCK_METHOD1(UnRegistUserAuthSuccessEventListener, int32_t(const sptr<AuthEventListenerInterface> &callback));
+        const sptr<EventListenerInterface> &callback));
+    MOCK_METHOD1(UnRegistUserAuthSuccessEventListener, int32_t(const sptr<EventListenerInterface> &callback));
     MOCK_METHOD1(SetGlobalConfigParam, int32_t(const GlobalConfigParam &param));
     MOCK_METHOD2(PrepareRemoteAuth, int32_t(const std::string &networkId, sptr<UserAuthCallbackInterface> &callback));
     MOCK_METHOD3(VerifyAuthToken, void(const std::vector<uint8_t> &tokenIn, uint64_t allowableDuration,

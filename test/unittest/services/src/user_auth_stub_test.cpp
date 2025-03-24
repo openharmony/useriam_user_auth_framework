@@ -16,7 +16,7 @@
 #include "user_auth_stub_test.h"
 
 #include "iam_common_defines.h"
-#include "mock_auth_event_listener.h"
+#include "mock_event_listener.h"
 #include "mock_user_auth_callback.h"
 #include "mock_user_access_ctrl_callback.h"
 #include "mock_user_auth_service.h"
@@ -684,7 +684,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubAuthUserStub011, TestSize.Level0)
     std::vector<uint8_t> testChallenge = {1, 2, 5, 9};
     AuthType testAuthType = FACE;
     AuthTrustLevel testAtl = ATL2;
-    sptr<MockAuthEventListenerService> callback(new (std::nothrow) MockAuthEventListenerService());
+    sptr<MockEventListenerService> callback(new (std::nothrow) MockEventListenerService());
     EXPECT_NE(callback, nullptr);
     MockUserAuthService service;
     MessageParcel data;
@@ -877,7 +877,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubGetVersionStub, TestSize.Level0)
 HWTEST_F(UserAuthStubTest, UserAuthStubRegistUserAuthSuccessEventListenerStub, TestSize.Level0)
 {
     MockUserAuthService service;
-    sptr<MockAuthEventListenerService> callback(new (std::nothrow) MockAuthEventListenerService());
+    sptr<MockEventListenerService> callback(new (std::nothrow) MockEventListenerService());
     EXPECT_NE(callback, nullptr);
     EXPECT_CALL(service, RegistUserAuthSuccessEventListener(_, _)).Times(1);
     ON_CALL(service, RegistUserAuthSuccessEventListener)
@@ -910,7 +910,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubRegistUserAuthSuccessEventListenerStub, T
 HWTEST_F(UserAuthStubTest, UserAuthStubUnRegistUserAuthSuccessEventListenerStub, TestSize.Level0)
 {
     MockUserAuthService service;
-    sptr<MockAuthEventListenerService> callback(new (std::nothrow) MockAuthEventListenerService());
+    sptr<MockEventListenerService> callback(new (std::nothrow) MockEventListenerService());
     EXPECT_NE(callback, nullptr);
     EXPECT_CALL(service, UnRegistUserAuthSuccessEventListener(_)).Times(1);
     ON_CALL(service, UnRegistUserAuthSuccessEventListener)
@@ -997,7 +997,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubSetGlobalConfigParamStub002, TestSize.Lev
 HWTEST_F(UserAuthStubTest, UserAuthStubPrepareRemoteAuthStub_001, TestSize.Level0)
 {
     MockUserAuthService service;
-    sptr<MockAuthEventListenerService> callback(new (std::nothrow) MockAuthEventListenerService());
+    sptr<MockEventListenerService> callback(new (std::nothrow) MockEventListenerService());
     EXPECT_NE(callback, nullptr);
 
     MessageParcel data;
@@ -1016,7 +1016,7 @@ HWTEST_F(UserAuthStubTest, UserAuthStubPrepareRemoteAuthStub_001, TestSize.Level
 HWTEST_F(UserAuthStubTest, UserAuthStubPrepareRemoteAuthStub_002, TestSize.Level0)
 {
     MockUserAuthService service;
-    sptr<MockAuthEventListenerService> callback(new (std::nothrow) MockAuthEventListenerService());
+    sptr<MockEventListenerService> callback(new (std::nothrow) MockEventListenerService());
     EXPECT_NE(callback, nullptr);
 
     MessageParcel data;

@@ -44,6 +44,12 @@ class MockSetPropCallback final : public SetPropCallback {
 public:
     MOCK_METHOD2(OnResult, void(int32_t result, const Attributes &extraInfo));
 };
+
+class MockAuthEventListener final : public AuthSuccessEventListener {
+public:
+    MOCK_METHOD4(OnNotifyAuthSuccessEvent, void(int32_t userId, AuthType authType, int32_t callerType,
+        std::string &callerName));
+};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
