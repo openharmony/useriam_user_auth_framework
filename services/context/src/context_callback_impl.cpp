@@ -16,7 +16,7 @@
 
 #include <sstream>
 
-#include "auth_event_listener_manager.h"
+#include "event_listener_manager.h"
 #include "iam_check.h"
 #include "iam_common_defines.h"
 #include "iam_logger.h"
@@ -113,6 +113,7 @@ void ContextCallbackImpl::OnResult(int32_t resultCode, const Attributes &finalRe
         iamCallback_->OnResult(resultCode, finalResult);
     }
     HandleAuthSuccessResult(resultCode, finalResult);
+    HandleCredChangeResult(resultCode, finalResult);
 
     ContextCallbackNotifyListener::GetInstance().Process(metaData_, TRACE_FLAG_DEFAULT);
     if (stopCallback_ != nullptr) {
@@ -137,6 +138,36 @@ void ContextCallbackImpl::HandleAuthSuccessResult(int32_t resultCode, const Attr
     }
     AuthEventListenerManager::GetInstance().OnNotifyAuthSuccessEvent(userId,
         static_cast<AuthType>(metaData_.authType.value()), metaData_.callerType.value(), metaData_.callerName.value());
+}
+
+void ContextCallbackImpl::HandleCredChangeResult(int32_t resultCode, const Attributes &finalResult)
+{
+    if (resultCode != SUCCESS) {
+        return;
+    }
+
+    CredChangeEventType changeType = INVALID_EVENT_TYPE;
+    if (metaData_.operationType == TRACE_ADD_CREDENTIAL) {
+        changeType = ADD_CRED;
+    } else if (metaData_.operationType == TRACE_UPDATE_CREDENTIAL) {
+        changeType = UPDATE_CRED;
+    } else {
+        return;
+    }
+
+    if (!metaData_.authType.has_value() || !metaData_.userId.has_value()) {
+        IAM_LOGE("bad metaData");
+        return;
+    }
+
+    uint64_t credentialId = 0;
+    if (!finalResult.GetUint64Value(Attributes::ATTR_CREDENTIAL_ID, credentialId)) {
+        IAM_LOGE("get credentialId failed");
+        return;
+    }
+
+    CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(metaData_.userId.value(),
+        static_cast<AuthType>(metaData_.authType.value()), changeType, credentialId);
 }
 
 void ContextCallbackImpl::SetTraceUserId(int32_t userId)

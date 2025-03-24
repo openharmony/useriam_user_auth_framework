@@ -57,9 +57,9 @@ public:
     int32_t Notice(NoticeType noticeType, const std::string &eventData);
     int32_t GetEnrolledState(int32_t apiVersion, AuthType authType, EnrolledState &enrolledState);
     int32_t RegistUserAuthSuccessEventListener(const std::vector<AuthType> &authType,
-        const sptr<AuthEventListenerInterface> &listener) override;
+        const std::shared_ptr<AuthSuccessEventListener> &listener) override;
     int32_t UnRegistUserAuthSuccessEventListener(
-        const sptr<AuthEventListenerInterface> &listener) override;
+        const std::shared_ptr<AuthSuccessEventListener> &listener) override;
     int32_t SetGlobalConfigParam(const GlobalConfigParam &param) override;
     int32_t PrepareRemoteAuth(const std::string &networkId,
         const std::shared_ptr<PrepareRemoteAuthCallback> &callback) override;

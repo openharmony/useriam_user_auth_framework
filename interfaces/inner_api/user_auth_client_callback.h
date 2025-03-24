@@ -25,7 +25,6 @@
 #define USER_AUTH_CLIENT_CALLBACK_H
 
 #include "attributes.h"
-#include "iremote_broker.h"
 #include "user_auth_client_defines.h"
 
 namespace OHOS {
@@ -93,7 +92,7 @@ public:
     virtual void OnResult(int32_t result, const Attributes &extraInfo) = 0;
 };
 
-class AuthEventListenerInterface : public IRemoteBroker {
+class AuthSuccessEventListener {
 public:
     /**
      * @brief Notify the event of authencation success.
@@ -105,7 +104,6 @@ public:
      */
     virtual void OnNotifyAuthSuccessEvent(int32_t userId, AuthType authtype, int32_t callerType,
         std::string &callerName) = 0;
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.UserIam.UserAuth.EventListenerCallback");
 };
 
 class PrepareRemoteAuthCallback {

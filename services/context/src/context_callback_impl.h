@@ -56,6 +56,7 @@ public:
 
 private:
     void HandleAuthSuccessResult(int32_t resultCode, const Attributes &finalResult);
+    void HandleCredChangeResult(int32_t resultCode, const Attributes &finalResult);
     sptr<IamCallbackInterface> iamCallback_ {nullptr};
     Context::ContextStopCallback stopCallback_ {nullptr};
     ContextCallbackNotifyListener::MetaData metaData_;

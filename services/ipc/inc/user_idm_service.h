@@ -54,6 +54,9 @@ public:
     void DelCredential(int32_t userId, uint64_t credentialId, const std::vector<uint8_t> &authToken,
         const sptr<IdmCallbackInterface> &callback) override;
     void ClearRedundancyCredential(const sptr<IdmCallbackInterface> &callback) override;
+    int32_t RegistCredChangeEventListener(const std::vector<AuthType> &authType,
+        const sptr<EventListenerInterface> &listener) override;
+    int32_t UnRegistCredChangeEventListener(const sptr<EventListenerInterface> &listener) override;
 
 protected:
     void OnStart() override;

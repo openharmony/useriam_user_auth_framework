@@ -158,6 +158,25 @@ public:
      * @return Return delete userInfo success or not(0:success; other:failed).
      */
     virtual void ClearRedundancyCredential(const std::shared_ptr<UserIdmClientCallback> &callback) = 0;
+
+    /**
+     * @brief Regist cred change event listener, support repeated registration. Note that you need to listen useriam
+     *        process status, and if the process is restarted abnormally, need to re-register the listener.
+     *
+     * @param authType Auth type list supported by executor, auth type include PIN, FACE, FINGERPRINT.
+     * @param listener Callback of cred change success event.
+     * @return Return regist result(0:success; other:failed).
+     */
+    virtual int32_t RegistCredChangeEventListener(const std::vector<AuthType> &authType,
+        const std::shared_ptr<CredChangeEventListener> &listener) = 0;
+
+    /**
+     * @brief unRegist cred change event listener.
+     *
+     * @param listener Callback of cred change event.
+     * @return Return unregist result(0:success; other:failed).
+     */
+    virtual int32_t UnRegistCredChangeEventListener(const std::shared_ptr<CredChangeEventListener> &listener) = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam

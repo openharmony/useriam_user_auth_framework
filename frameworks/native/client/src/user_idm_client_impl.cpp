@@ -18,6 +18,7 @@
 #include "system_ability_definition.h"
 
 #include "callback_manager.h"
+#include "event_listener_callback_service.h"
 #include "load_mode_client_util.h"
 #include "iam_logger.h"
 #include "ipc_client_utils.h"
@@ -330,6 +331,65 @@ void UserIdmClientImpl::ClearRedundancyCredential(const std::shared_ptr<UserIdmC
     }
 
     proxy->ClearRedundancyCredential(wrapper);
+}
+
+int32_t UserIdmClientImpl::RegistCredChangeEventListener(const std::vector<AuthType> &authType,
+    const std::shared_ptr<CredChangeEventListener> &listener)
+{
+    IAM_LOGI("start");
+    if (!listener) {
+        IAM_LOGE("listener is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    auto proxy = GetProxy();
+    if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    sptr<EventListenerCallbackService> wrapper(new (std::nothrow) EventListenerCallbackService(listener));
+    if (!wrapper) {
+        IAM_LOGE("wrapper is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    int32_t ret = proxy->RegistCredChangeEventListener(authType, wrapper);
+    if (ret != SUCCESS) {
+        IAM_LOGE("Regist cred change event listener failed");
+        return ret;
+    }
+
+    return SUCCESS;
+}
+
+int32_t UserIdmClientImpl::UnRegistCredChangeEventListener(const std::shared_ptr<CredChangeEventListener> &listener)
+{
+    IAM_LOGI("start");
+    if (!listener) {
+        IAM_LOGE("listener is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    auto proxy = GetProxy();
+    if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    sptr<EventListenerCallbackService> wrapper(new (std::nothrow) EventListenerCallbackService(listener));
+    if (!wrapper) {
+        IAM_LOGE("wrapper is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    int32_t ret = proxy->UnRegistCredChangeEventListener(wrapper);
+    if (ret != SUCCESS) {
+        IAM_LOGE("unRegist cred change event listener failed");
+        return ret;
+    }
+
+    return SUCCESS;
 }
 
 void UserIdmClientImpl::UserIdmImplDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)

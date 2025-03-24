@@ -91,7 +91,6 @@
               "user_auth_client.h",
               "user_auth_client_callback.h",
               "user_auth_client_defines.h",
-              "user_auth_event_listener_stub.h",
               "user_idm_client.h",
               "user_idm_client_callback.h",
               "user_idm_client_defines.h"
