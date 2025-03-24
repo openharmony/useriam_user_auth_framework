@@ -98,11 +98,11 @@ public:
      * @brief Notify the event of authencation success.
      *
      * @param userId The id of user who initiates authentication.
-     * @param authtype The authentication auth type{@link AuthType}.
+     * @param authType The authentication auth type{@link AuthType}.
      * @param callerType The caller type who initiates authentication.
      * @param callerName The caller name who initiates authentication.
      */
-    virtual void OnNotifyAuthSuccessEvent(int32_t userId, AuthType authtype, int32_t callerType,
+    virtual void OnNotifyAuthSuccessEvent(int32_t userId, AuthType authType, int32_t callerType,
         std::string &callerName) = 0;
 };
 

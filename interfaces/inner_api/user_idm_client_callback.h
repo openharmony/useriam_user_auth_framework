@@ -79,7 +79,7 @@ public:
      * @brief Notify the event of cred change.
      *
      * @param userId The id of user who change cred.
-     * @param authtype The authentication auth type{@link AuthType}.
+     * @param authType The authentication auth type{@link AuthType}.
      * @param eventType eventType of cred change, such as addCred and updateCred.
      * @param credentialId The credentialId generated during credChange process.
      */

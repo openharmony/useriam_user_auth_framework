@@ -21,7 +21,7 @@
 #include "iam_ptr.h"
 
 #include "executor_messenger_service.h"
-#include "mock_auth_event_listener.h"
+#include "mock_event_listener.h"
 #include "mock_context.h"
 #include "mock_iuser_auth_interface.h"
 #include "mock_ipc_common.h"
@@ -1323,7 +1323,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterWidgetCallback_006, TestSiz
 HWTEST_F(UserAuthServiceTest, UserAuthServiceRegistEventListerner_001, TestSize.Level0)
 {
     UserAuthService service;
-    sptr<AuthEventListenerInterface> testCallback = nullptr;
+    sptr<EventListenerInterface> testCallback = nullptr;
     std::vector<AuthType> authTypeList;
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     EXPECT_EQ(service.RegistUserAuthSuccessEventListener(authTypeList, testCallback), ResultCode::INVALID_PARAMETERS);
@@ -1333,7 +1333,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceRegistEventListerner_001, TestSize.
 HWTEST_F(UserAuthServiceTest, UserAuthServiceRegistEventListerner_002, TestSize.Level0)
 {
     UserAuthService service;
-    sptr<AuthEventListenerInterface> testCallback = new MockAuthEventListener();
+    sptr<EventListenerInterface> testCallback = new MockEventListener();
     std::vector<AuthType> authTypeList;
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     EXPECT_EQ(service.RegistUserAuthSuccessEventListener(authTypeList, testCallback),
@@ -1344,7 +1344,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceRegistEventListerner_002, TestSize.
 HWTEST_F(UserAuthServiceTest, UserAuthServiceRegistEventListerner_003, TestSize.Level0)
 {
     UserAuthService service;
-    sptr<AuthEventListenerInterface> testCallback = new MockAuthEventListener();
+    sptr<EventListenerInterface> testCallback = new MockEventListener();
     std::vector<AuthType> authTypeList;
     authTypeList.push_back(AuthType::PIN);
     authTypeList.push_back(AuthType::FACE);
@@ -1358,7 +1358,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceRegistEventListerner_003, TestSize.
 HWTEST_F(UserAuthServiceTest, UserAuthServiceRegistEventListerner_004, TestSize.Level0)
 {
     UserAuthService service;
-    sptr<AuthEventListenerInterface> testCallback = new MockAuthEventListener();
+    sptr<EventListenerInterface> testCallback = new MockEventListener();
     std::vector<AuthType> authTypeList;
     authTypeList.push_back(AuthType::PIN);
     authTypeList.push_back(AuthType::FACE);
@@ -1371,7 +1371,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceRegistEventListerner_004, TestSize.
 HWTEST_F(UserAuthServiceTest, UserAuthServiceRegistEventListerner_005, TestSize.Level0)
 {
     UserAuthService service;
-    sptr<AuthEventListenerInterface> testCallback = new MockAuthEventListener();
+    sptr<EventListenerInterface> testCallback = new MockEventListener();
     std::vector<AuthType> authTypeList;
     authTypeList.push_back(AuthType::ALL);
     EXPECT_EQ(service.RegistUserAuthSuccessEventListener(authTypeList, testCallback), ResultCode::INVALID_PARAMETERS);
@@ -1381,7 +1381,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceRegistEventListerner_005, TestSize.
 HWTEST_F(UserAuthServiceTest, UserAuthServiceUnRegistEventListerner_001, TestSize.Level0)
 {
     UserAuthService service;
-    sptr<AuthEventListenerInterface> testCallback = nullptr;
+    sptr<EventListenerInterface> testCallback = nullptr;
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     EXPECT_EQ(service.UnRegistUserAuthSuccessEventListener(testCallback), ResultCode::INVALID_PARAMETERS);
     IpcCommon::DeleteAllPermission();
@@ -1390,7 +1390,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceUnRegistEventListerner_001, TestSiz
 HWTEST_F(UserAuthServiceTest, UserAuthServiceUnRegistEventListerner_002, TestSize.Level0)
 {
     UserAuthService service;
-    sptr<AuthEventListenerInterface> testCallback = new MockAuthEventListener();
+    sptr<EventListenerInterface> testCallback = new MockEventListener();
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     EXPECT_EQ(service.UnRegistUserAuthSuccessEventListener(testCallback), ResultCode::CHECK_PERMISSION_FAILED);
     IpcCommon::DeleteAllPermission();
@@ -1399,7 +1399,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceUnRegistEventListerner_002, TestSiz
 HWTEST_F(UserAuthServiceTest, UserAuthServiceUnRegistEventListerner_003, TestSize.Level0)
 {
     UserAuthService service;
-    sptr<AuthEventListenerInterface> testCallback = new MockAuthEventListener();
+    sptr<EventListenerInterface> testCallback = new MockEventListener();
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     EXPECT_EQ(service.UnRegistUserAuthSuccessEventListener(testCallback), ResultCode::GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
@@ -1408,7 +1408,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceUnRegistEventListerner_003, TestSiz
 HWTEST_F(UserAuthServiceTest, UserAuthServiceUnRegistEventListerner_004, TestSize.Level0)
 {
     UserAuthService service;
-    sptr<AuthEventListenerInterface> testCallback = new MockAuthEventListener();
+    sptr<EventListenerInterface> testCallback = new MockEventListener();
     std::vector<AuthType> authTypeList;
     authTypeList.push_back(AuthType::PIN);
     authTypeList.push_back(AuthType::FACE);

@@ -12,15 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef AUTH_EVENT_LISTENER_MANAGER_TEST
-#define AUTH_EVENT_LISTENER_MANAGER_TEST
+#ifndef EVENT_LISTENER_MANAGER_TEST
+#define EVENT_LISTENER_MANAGER_TEST
 
 #include <gtest/gtest.h>
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class AuthEventListenerManagerTest : public testing::Test {
+class EventListenerManagerTest : public testing::Test {
 public:
     static void SetUpTestCase();
 
@@ -34,4 +34,4 @@ public:
 } // namespace UserIam
 } // namespace OHOS
 
-#endif // AUTH_EVENT_LISTENER_MANAGER_TEST
+#endif // EVENT_LISTENER_MANAGER_TEST

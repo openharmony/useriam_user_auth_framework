@@ -38,6 +38,12 @@ public:
     MOCK_METHOD2(OnResult, void(int32_t result, const Attributes &extraInfo));
     MOCK_METHOD3(OnAcquireInfo, void(int32_t module, uint32_t acquireInfo, const Attributes &extraInfo));
 };
+
+class MockCredChangeEventListener final : public CredChangeEventListener {
+public:
+    MOCK_METHOD4(OnNotifyCredChangeEvent, void(int32_t userId, AuthType authType, CredChangeEventType eventType,
+        uint64_t credentialId));
+};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

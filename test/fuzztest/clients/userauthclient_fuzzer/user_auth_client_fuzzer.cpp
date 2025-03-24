@@ -107,6 +107,19 @@ public:
     }
 };
 
+class DummyAuthSuccessEventListener final : public AuthSuccessEventListener {
+public:
+    void OnNotifyAuthSuccessEvent(int32_t userId, AuthType authType, int32_t callerType, std::string &callerName) 
+    {
+        IAM_LOGI("start");
+        static_cast<void>(userId);
+        static_cast<void>(authType);
+        static_cast<void>(callerType);
+        static_cast<void>(callerName);
+    }
+};
+
+
 void FuzzClientGetEnrolledState(Parcel &parcel)
 {
     IAM_LOGI("start");
@@ -228,7 +241,7 @@ void FuzzClientRegistUserAuthSuccessEventListener(Parcel &parcel)
     authTypeList.push_back(AuthType::PIN);
     authTypeList.push_back(AuthType::FACE);
     authTypeList.push_back(AuthType::FINGERPRINT);
-    sptr<AuthEventListenerInterface> listener = {};
+    auto listener = Common::MakeShared<DummyAuthSuccessEventListener>();
     UserAuthClientImpl::Instance().RegistUserAuthSuccessEventListener(authTypeList, listener);
     IAM_LOGI("end");
 }
@@ -236,7 +249,7 @@ void FuzzClientRegistUserAuthSuccessEventListener(Parcel &parcel)
 void FuzzClientUnRegistUserAuthSuccessEventListener(Parcel &Parcel)
 {
     IAM_LOGI("start");
-    sptr<AuthEventListenerInterface> listener = {};
+    auto listener = Common::MakeShared<DummyAuthSuccessEventListener>();
     UserAuthClientImpl::Instance().UnRegistUserAuthSuccessEventListener(listener);
     IAM_LOGI("end");
 }
