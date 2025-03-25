@@ -43,6 +43,7 @@ void UIExtensionAbilityConnection::OnAbilityConnectDone(const AppExecFwk::Elemen
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
+    option.SetFlags(MessageOption::TF_ASYNC);
     data.WriteInt32(SIGNAL_NUM);
     data.WriteString16(u"bundleName");
     data.WriteString16(u"com.ohos.useriam.authwidget");
