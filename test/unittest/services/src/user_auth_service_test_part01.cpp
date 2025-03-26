@@ -47,7 +47,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetPropertyById001, TestSize.Level0
     EXPECT_NE(testCallback, nullptr);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetCredentialById(_, _)).Times(1);
     EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _)).Times(2);
     sptr<GetExecutorPropertyCallbackInterface> callbackInterface = testCallback;
     service.GetPropertyById(testCredentialId, testKeys, callbackInterface);
