@@ -36,10 +36,6 @@ constexpr int32_t USER_AUTH_TIP_SINGLE_AUTH_RESULT = 9999;
 constexpr int INVALID_SOCKET_ID = -1;
 constexpr int INVALID_USER_ID = -1;
 constexpr int32_t MAIN_USER_ID = 100;
-constexpr int32_t MAX_USER = 32;
-/** Max value of verifyAuthToken allowable duration. */
-constexpr uint32_t MAX_TOKEN_ALLOWABLE_DURATION = 24 * 60 * 60 * 1000;
-
 /**
  * @brief Defines authentication type.
  */
@@ -77,6 +73,8 @@ enum PinSubType : int32_t {
     PIN_QUESTION = 10005,
     /** Max pin. */
     PIN_MAX,
+    /** Default pin. */
+    PIN_DEFAULT = 0,
 };
 
 /**
@@ -189,10 +187,6 @@ enum ResultCode : int32_t {
     PIN_EXPIRED = 13,
     /** The result is fail, because the PIN_MIXED does not pass complexity check. */
     COMPLEXITY_CHECK_FAILED = 14,
-    /** The result is fail, because the token integrity check failed. */
-    AUTH_TOKEN_CHECK_FAILED = 15,
-    /** The result is fail, because the token is expired. */
-    AUTH_TOKEN_EXPIRED = 16,
     /** The result is fail, because something wrong from system. */
     SYSTEM_ERROR_CODE_BEGIN = 1000,
     /** The result is fail, because something wrong from ipc. */
