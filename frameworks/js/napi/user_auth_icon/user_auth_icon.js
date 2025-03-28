@@ -174,6 +174,45 @@ export class UserAuthIcon extends ViewPU {
         this.initImageSource(this.authParam.authType, this.authParam.authTrustLevel);
         this.info(`after init image source, imageSource = ${this.imageSource}.`);
     }
+    onclick() {
+        this.info('start handle click event.');
+        if (this.onIconClick !== undefined) {
+            this.info('click event has response.');
+            this.onIconClick();
+        }
+        if (this.authFlag === ICON_AVAILABLE) {
+            try {
+                let b = userAuth.getUserAuthInstance(this.authParam, this.widgetParam);
+                let h1 = setTimeout(() => {
+                    this.error('auth timeout.');
+                    b.cancel();
+                    this.onAuthResult({ result: userAuth.UserAuthResultCode.GENERAL_ERROR });
+                }, TIMEOUT_MILLISECONDS);
+                this.info('get userAuth instance success.');
+                b.on('result', {
+                    onResult: (m1) => {
+                        this.info(`userAuthInstance callback result = ${JSON.stringify(m1)}.`);
+                        this.onAuthResult(m1);
+                        b.off('result');
+                    }
+                });
+                this.info('auth before start.');
+                b.start();
+                this.info('auth start success.');
+                clearTimeout(h1);
+            }
+            catch (a) {
+                if (a) {
+                    this.error(`auth catch error, code: ${a.code}, message: ${a.message}`);
+                    this.onAuthResult({ result: a.code });
+                    return;
+                }
+                this.error('auth error.');
+                this.onAuthResult({ result: userAuth.UserAuthResultCode.GENERAL_ERROR });
+            }
+        }
+        this.info('end handle click event.');
+    }
     initialRender() {
         this.observeComponentCreation2((n, o) => {
             Row.create();
@@ -185,45 +224,7 @@ export class UserAuthIcon extends ViewPU {
             SymbolGlyph.create({ 'id': -1, 'type': -1, params: [this.imageSource], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
             SymbolGlyph.fontSize(this.iconHeight);
             SymbolGlyph.fontColor([this.iconColor]);
-            SymbolGlyph.onClick(() => {
-                this.info('start handle click event.');
-                if (this.onIconClick !== undefined) {
-                    this.info('click event has response.');
-                    this.onIconClick();
-                }
-                if (this.authFlag === ICON_AVAILABLE) {
-                    try {
-                        let h = userAuth.getUserAuthInstance(this.authParam, this.widgetParam);
-                        let i = setTimeout(() => {
-                            this.error('auth timeout.');
-                            h.cancel();
-                            this.onAuthResult({ result: userAuth.UserAuthResultCode.GENERAL_ERROR });
-                        }, TIMEOUT_MILLISECONDS);
-                        this.info('get userAuth instance success.');
-                        h.on('result', {
-                            onResult: (k) => {
-                                this.info(`userAuthInstance callback result = ${JSON.stringify(k)}.`);
-                                this.onAuthResult(k);
-                                h.off('result');
-                            }
-                        });
-                        this.info('auth before start.');
-                        h.start();
-                        this.info('auth start success.');
-                        clearTimeout(i);
-                    }
-                    catch (g) {
-                        if (g) {
-                            this.error(`auth catch error, code: ${g.code}, message: ${g.message}`);
-                            this.onAuthResult({ result: g.code });
-                            return;
-                        }
-                        this.error('auth error.');
-                        this.onAuthResult({ result: userAuth.UserAuthResultCode.GENERAL_ERROR });
-                    }
-                }
-                this.info('end handle click event.');
-            });
+            SymbolGlyph.onClick(() => this.onclick());
         }, SymbolGlyph);
         Column.pop();
         Row.pop();

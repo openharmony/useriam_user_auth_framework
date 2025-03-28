@@ -188,51 +188,53 @@ export struct UserAuthIcon {
     this.info(`after init image source, imageSource = ${this.imageSource}.`);
   }
 
+   onclick(): void {
+    this.info('start handle click event.');
+    if (this.onIconClick !== undefined) {
+      this.info('click event has response.');
+      this.onIconClick();
+    }
+    if (this.authFlag === ICON_AVAILABLE) {
+      try {
+        let userAuthInstance: userAuth.UserAuthInstance =
+          userAuth.getUserAuthInstance(this.authParam, this.widgetParam);
+        let timer: number = setTimeout(() => {
+          this.error('auth timeout.');
+          userAuthInstance.cancel();
+          this.onAuthResult({ result: userAuth.UserAuthResultCode.GENERAL_ERROR });
+        }, TIMEOUT_MILLISECONDS)
+        this.info('get userAuth instance success.');
+        userAuthInstance.on('result', {
+          onResult: (result) => {
+            this.info(`userAuthInstance callback result = ${JSON.stringify(result)}.`);
+            this.onAuthResult(result);
+            userAuthInstance.off('result');
+          }
+        });
+        this.info('auth before start.');
+        userAuthInstance.start();
+        this.info('auth start success.');
+        clearTimeout(timer);
+      } catch (error) {
+        if (error) {
+          this.error(`auth catch error, code: ${error.code}, message: ${error.message}`);
+          this.onAuthResult({ result: error.code });
+          return;
+        }
+        this.error('auth error.');
+        this.onAuthResult({ result: userAuth.UserAuthResultCode.GENERAL_ERROR });
+      }
+    }
+    this.info('end handle click event.');
+  }
+
   build() {
     Row() {
       Column() {
         SymbolGlyph($r(this.imageSource))
           .fontSize(this.iconHeight)
           .fontColor([this.iconColor])
-          .onClick(() => {
-            this.info('start handle click event.');
-            if (this.onIconClick !== undefined) {
-              this.info('click event has response.');
-              this.onIconClick();
-            }
-            if (this.authFlag === ICON_AVAILABLE) {
-              try {
-                let userAuthInstance: userAuth.UserAuthInstance =
-                  userAuth.getUserAuthInstance(this.authParam, this.widgetParam);
-                let timer: number = setTimeout(() => {
-                  this.error('auth timeout.');
-                  userAuthInstance.cancel();
-                  this.onAuthResult({ result: userAuth.UserAuthResultCode.GENERAL_ERROR });
-                }, TIMEOUT_MILLISECONDS)
-                this.info('get userAuth instance success.');
-                userAuthInstance.on('result', {
-                  onResult: (result) => {
-                    this.info(`userAuthInstance callback result = ${JSON.stringify(result)}.`);
-                    this.onAuthResult(result);
-                    userAuthInstance.off('result');
-                  }
-                });
-                this.info('auth before start.');
-                userAuthInstance.start();
-                this.info('auth start success.');
-                clearTimeout(timer);
-              } catch (error) {
-                if (error) {
-                  this.error(`auth catch error, code: ${error.code}, message: ${error.message}`);
-                  this.onAuthResult({ result: error.code });
-                  return;
-                }
-                this.error('auth error.');
-                this.onAuthResult({ result: userAuth.UserAuthResultCode.GENERAL_ERROR });
-              }
-            }
-            this.info('end handle click event.');
-          })
+          .onClick(() => this.onclick())
       }
     }
   }
