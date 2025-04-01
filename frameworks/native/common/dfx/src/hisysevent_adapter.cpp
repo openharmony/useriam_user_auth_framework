@@ -62,12 +62,12 @@ constexpr char STR_IS_BACKGROUND_APPLICATION[] = "IS_BACKGROUND_APPLICATION";
 
 static std::string MaskForStringId(const std::string &id)
 {
-    const int32_t MASK_WIDTH = 2;
-    const int32_t STRING_ID_LENGTH = 64;
-    if (id.length() != STRING_ID_LENGTH) {
+    const int32_t maskWidth = 2;
+    const int32_t stringIdLength = 64;
+    if (id.length() != stringIdLength) {
         return "****";
     }
-    return id.substr(0, MASK_WIDTH) + "**" + id.substr(id.length() - MASK_WIDTH, id.length());
+    return id.substr(0, maskWidth) + "**" + id.substr(id.length() - maskWidth, id.length());
 }
 
 void ReportSystemFault(const std::string &timeString, const std::string &moduleName)
