@@ -17,9 +17,10 @@
 #include "widget_schedule_node_impl.h"
 
 #include <future>
+#include "iam_callback_proxy.h"
 #include "iam_check.h"
 #include "widget_json.h"
-#include "widget_callback_interface.h"
+#include "iwidget_callback.h"
 
 #include "mock_authentication.h"
 #include "mock_context.h"
@@ -28,7 +29,6 @@
 #include "mock_resource_node.h"
 #include "mock_schedule_node.h"
 #include "schedule_node_impl.h"
-#include "user_auth_callback_proxy.h"
 #include "widget_schedule_node.h"
 
 

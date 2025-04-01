@@ -18,6 +18,7 @@
 #include "callback_manager.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
+#include "iam_common_defines.h"
 
 #define LOG_TAG "USER_ACCESS_CTRL_SDK"
 
@@ -42,15 +43,28 @@ VerifyTokenCallbackService::~VerifyTokenCallbackService()
     CallbackManager::GetInstance().RemoveCallback(reinterpret_cast<uintptr_t>(this));
 }
 
-void VerifyTokenCallbackService::OnVerifyTokenResult(int32_t result, const Attributes &attributes)
+int32_t VerifyTokenCallbackService::OnVerifyTokenResult(int32_t resultCode, const std::vector<uint8_t> &extraInfo)
 {
-    IAM_LOGI("start, verify token result: %{public}d", result);
+    IAM_LOGI("start, verify token result: %{public}d", resultCode);
     if (verifyTokenCallback_ == nullptr) {
         IAM_LOGE("verifyTokenCallback is nullptr");
-        return;
+        return GENERAL_ERROR;
     }
+    Attributes attributes(extraInfo);
+    verifyTokenCallback_->OnResult(resultCode, attributes);
+    return SUCCESS;
+}
 
-    verifyTokenCallback_->OnResult(result, attributes);
+int32_t VerifyTokenCallbackService::CallbackEnter([[maybe_unused]] uint32_t code)
+{
+    IAM_LOGI("start, code:%{public}u", code);
+    return SUCCESS;
+}
+
+int32_t VerifyTokenCallbackService::CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result)
+{
+    IAM_LOGI("leave, code:%{public}u, result:%{public}d", code, result);
+    return SUCCESS;
 }
 } // namespace UserAuth
 } // namespace UserIam

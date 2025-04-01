@@ -18,31 +18,39 @@
 #include <gmock/gmock.h>
 #include <iremote_stub.h>
 
-#include "user_auth_callback_interface.h"
+#include "iiam_callback.h"
+#include "iget_executor_property_callback.h"
+#include "iset_executor_property_callback.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockUserAuthCallback final : public IRemoteStub<UserAuthCallbackInterface> {
+class MockUserAuthCallback final : public IRemoteStub<IIamCallback> {
 public:
     MOCK_METHOD4(OnRemoteRequest,
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
-    MOCK_METHOD2(OnResult, void(int32_t result, const Attributes &extraInfo));
-    MOCK_METHOD3(OnAcquireInfo, void(int32_t module, int32_t acquireInfo, const Attributes &extraInfo));
+    MOCK_METHOD2(OnResult, int32_t(int32_t resultCode, const std::vector<uint8_t> &extraInfo));
+    MOCK_METHOD3(OnAcquireInfo, int32_t(int32_t module, int32_t acquireInfo, const std::vector<uint8_t> &extraInfo));
+    MOCK_METHOD1(CallbackEnter, int32_t(uint32_t code));
+    MOCK_METHOD2(CallbackExit, int32_t(uint32_t code, int32_t result));
 };
 
-class MockGetExecutorPropertyCallback final : public IRemoteStub<GetExecutorPropertyCallbackInterface> {
+class MockGetExecutorPropertyCallback final : public IRemoteStub<IGetExecutorPropertyCallback> {
 public:
     MOCK_METHOD4(OnRemoteRequest,
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
-    MOCK_METHOD2(OnGetExecutorPropertyResult, void(int32_t result, const Attributes &attributes));
+    MOCK_METHOD2(OnGetExecutorPropertyResult, int32_t(int32_t resultCode, const std::vector<uint8_t> &attributes));
+    MOCK_METHOD1(CallbackEnter, int32_t(uint32_t code));
+    MOCK_METHOD2(CallbackExit, int32_t(uint32_t code, int32_t result));
 };
 
-class MockSetExecutorPropertyCallback final : public IRemoteStub<SetExecutorPropertyCallbackInterface> {
+class MockSetExecutorPropertyCallback final : public IRemoteStub<ISetExecutorPropertyCallback> {
 public:
     MOCK_METHOD4(OnRemoteRequest,
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
-    MOCK_METHOD1(OnSetExecutorPropertyResult, void(int32_t result));
+    MOCK_METHOD1(OnSetExecutorPropertyResult, int32_t(int32_t result));
+    MOCK_METHOD1(CallbackEnter, int32_t(uint32_t code));
+    MOCK_METHOD2(CallbackExit, int32_t(uint32_t code, int32_t result));
 };
 } // namespace UserAuth
 } // namespace UserIam

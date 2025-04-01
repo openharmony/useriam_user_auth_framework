@@ -179,11 +179,11 @@ void RemoteIamCallbackFuzzTest(Parcel &parcel)
     auto remoteCallback = MakeShared<RemoteIamCallback>(connectionName);
     int32_t result = parcel.ReadInt32();
     Attributes extraInfo;
-    remoteCallback->OnResult(result, extraInfo);
+    remoteCallback->OnResult(result, extraInfo.Serialize());
 
     int32_t module = parcel.ReadInt32();
     int32_t acquireInfo = parcel.ReadInt32();
-    remoteCallback->OnAcquireInfo(module, acquireInfo, extraInfo);
+    remoteCallback->OnAcquireInfo(module, acquireInfo, extraInfo.Serialize());
 
     remoteCallback->AsObject();
     IAM_LOGI("end");

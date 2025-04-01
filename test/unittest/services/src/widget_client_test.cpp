@@ -16,11 +16,12 @@
 #include "widget_client.h"
 
 #include <future>
+#include "iam_callback_proxy.h"
 #include "auth_common.h"
 #include "iam_check.h"
 #include "iam_ptr.h"
 #include "widget_json.h"
-#include "widget_callback_interface.h"
+#include "iwidget_callback.h"
 
 #include "mock_authentication.h"
 #include "mock_context.h"
@@ -29,7 +30,6 @@
 #include "mock_widget_schedule_node.h"
 #include "mock_widget_callback_interface.h"
 #include "schedule_node_impl.h"
-#include "user_auth_callback_proxy.h"
 #include "widget_schedule_node.h"
 #include "widget_callback_proxy.h"
 
@@ -105,7 +105,7 @@ HWTEST_F(WidgetClientTest, WidgetClientTestSetWidgetParam, TestSize.Level0)
 
 HWTEST_F(WidgetClientTest, WidgetClientTestSetWidgetCallback, TestSize.Level0)
 {
-    sptr<WidgetCallbackInterface> testCallback = nullptr;
+    sptr<IWidgetCallback> testCallback = nullptr;
     WidgetClient::Instance().SetWidgetCallback(testCallback);
     EXPECT_EQ(testCallback, nullptr);
 }
@@ -388,7 +388,7 @@ HWTEST_F(WidgetClientTest, WidgetClientTestReportWidgetResult_0005, TestSize.Lev
     authTypeList.emplace_back(AuthType::PIN);
     WidgetClient::Instance().SetAuthTypeList(authTypeList);
     WidgetClient::Instance().SetPinSubType(PinSubType::PIN_NUMBER);
-    sptr<MockWidgetCallbackInterface> widgetCallback(new (std::nothrow) MockWidgetCallbackInterface);
+    sptr<MockIWidgetCallback> widgetCallback(new (std::nothrow) MockIWidgetCallback);
     EXPECT_NE(widgetCallback, nullptr);
     EXPECT_CALL(*widgetCallback, SendCommand);
     WidgetClient::Instance().SetWidgetCallback(widgetCallback);

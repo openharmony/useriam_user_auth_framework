@@ -54,12 +54,12 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest001, TestSize.Level0)
     sptr<MockExecutorCallback> testCallback(new (std::nothrow) MockExecutorCallback());
     EXPECT_NE(testCallback, nullptr);
 
-    CoAuthInterface::ExecutorRegisterInfo info = {};
-    info.authType = FINGERPRINT;
-    info.executorRole = SCHEDULER;
+    IpcExecutorRegisterInfo info = {};
+    info.authType = static_cast<int32_t>(FINGERPRINT);
+    info.executorRole = static_cast<int32_t>(SCHEDULER);
     info.executorSensorHint = 0;
     info.executorMatcher = 0;
-    info.esl = ESL1;
+    info.esl = static_cast<int32_t>(ESL1);
     info.publicKey = {'a', 'b', 'c', 'd'};
     
     auto service = Common::MakeShared<CoAuthService>();
@@ -70,9 +70,10 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest001, TestSize.Level0)
     EXPECT_NE(mockHdi, nullptr);
     std::promise<void> promise;
     EXPECT_CALL(*testCallback, OnMessengerReady(_, _, _)).Times(1).WillOnce(
-        [&promise](sptr<ExecutorMessengerInterface> &messenger,
+        [&promise](const sptr<IExecutorMessenger> &messenger,
         const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList) {
             promise.set_value();
+            return SUCCESS;
         }
     );
     EXPECT_CALL(*mockHdi, AddExecutor(_, _, _, _))
@@ -86,13 +87,14 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest001, TestSize.Level0)
             }
         );
     IpcCommon::AddPermission(ACCESS_AUTH_RESPOOL);
-    sptr<ExecutorCallbackInterface> callbackInterface = testCallback;
-    uint64_t executorIndex = service->ExecutorRegister(info, callbackInterface);
+    sptr<IExecutorCallback> callbackInterface = testCallback;
+    uint64_t executorIndex = 0;
+    EXPECT_EQ(service->ExecutorRegister(info, callbackInterface, executorIndex), GENERAL_ERROR);
     EXPECT_EQ(executorIndex, 0);
-    executorIndex = service->ExecutorRegister(info, callbackInterface);
+    EXPECT_EQ(service->ExecutorRegister(info, callbackInterface, executorIndex), SUCCESS);
     EXPECT_NE(executorIndex, 0);
     promise.get_future().get();
-    service->ExecutorUnregister(executorIndex);
+    EXPECT_EQ(service->ExecutorUnregister(executorIndex), SUCCESS);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -101,9 +103,10 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTest002, TestSize.Level0)
     auto service = Common::MakeShared<CoAuthService>();
     EXPECT_NE(service, nullptr);
 
-    CoAuthInterface::ExecutorRegisterInfo info = {};
-    sptr<ExecutorCallbackInterface> testCallback(nullptr);
-    uint64_t executorIndex = service->ExecutorRegister(info, testCallback);
+    IpcExecutorRegisterInfo info = {};
+    sptr<IExecutorCallback> testCallback(nullptr);
+    uint64_t executorIndex = 0;
+    EXPECT_EQ(service->ExecutorRegister(info, testCallback, executorIndex), INVALID_PARAMETERS);
     EXPECT_EQ(executorIndex, 0);
 }
 
@@ -112,22 +115,23 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTestExecutorRegister001, TestSize.Level
     sptr<MockExecutorCallback> testCallback(new (std::nothrow) MockExecutorCallback());
     EXPECT_NE(testCallback, nullptr);
 
-    CoAuthInterface::ExecutorRegisterInfo info = {};
-    info.authType = FINGERPRINT;
-    info.executorRole = SCHEDULER;
+    IpcExecutorRegisterInfo info = {};
+    info.authType = static_cast<int32_t>(FINGERPRINT);
+    info.executorRole = static_cast<int32_t>(SCHEDULER);
     info.executorSensorHint = 0;
     info.executorMatcher = 0;
-    info.esl = ESL1;
+    info.esl = static_cast<int32_t>(ESL1);
     info.publicKey = {'a', 'b', 'c', 'd'};
     
     auto service = Common::MakeShared<CoAuthService>();
     EXPECT_NE(service, nullptr);
     service->SetIsReady(false);
     service->SetAccessTokenReady(false);
-    sptr<ExecutorCallbackInterface> callbackInterface = testCallback;
-    uint64_t executorIndex = service->ExecutorRegister(info, callbackInterface);
+    sptr<IExecutorCallback> callbackInterface = testCallback;
+    uint64_t executorIndex = 0;
+    EXPECT_EQ(service->ExecutorRegister(info, callbackInterface, executorIndex), GENERAL_ERROR);
     EXPECT_EQ(executorIndex, INVALID_EXECUTOR_INDEX);
-    service->ExecutorUnregister(executorIndex);
+    EXPECT_EQ(service->ExecutorUnregister(executorIndex), SUCCESS);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -136,22 +140,23 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTestExecutorRegister002, TestSize.Level
     sptr<MockExecutorCallback> testCallback(new (std::nothrow) MockExecutorCallback());
     EXPECT_NE(testCallback, nullptr);
 
-    CoAuthInterface::ExecutorRegisterInfo info = {};
-    info.authType = FINGERPRINT;
-    info.executorRole = SCHEDULER;
+    IpcExecutorRegisterInfo info = {};
+    info.authType = static_cast<int32_t>(FINGERPRINT);
+    info.executorRole = static_cast<int32_t>(SCHEDULER);
     info.executorSensorHint = 0;
     info.executorMatcher = 0;
-    info.esl = ESL1;
+    info.esl = static_cast<int32_t>(ESL1);
     info.publicKey = {'a', 'b', 'c', 'd'};
     
     auto service = Common::MakeShared<CoAuthService>();
     EXPECT_NE(service, nullptr);
     service->SetIsReady(true);
     service->SetAccessTokenReady(true);
-    sptr<ExecutorCallbackInterface> callbackInterface = testCallback;
-    uint64_t executorIndex = service->ExecutorRegister(info, callbackInterface);
+    sptr<IExecutorCallback> callbackInterface = testCallback;
+    uint64_t executorIndex = 0;
+    EXPECT_EQ(service->ExecutorRegister(info, callbackInterface, executorIndex), CHECK_PERMISSION_FAILED);
     EXPECT_EQ(executorIndex, INVALID_EXECUTOR_INDEX);
-    service->ExecutorUnregister(executorIndex);
+    EXPECT_EQ(service->ExecutorUnregister(executorIndex), CHECK_PERMISSION_FAILED);
     IpcCommon::DeleteAllPermission();
 }
 

@@ -17,7 +17,8 @@
 
 #include "iam_logger.h"
 #include "iam_common_defines.h"
-#include "user_auth_interface.h"
+#include "iuser_auth.h"
+#include "user_auth_interface_ipc_interface_code.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 

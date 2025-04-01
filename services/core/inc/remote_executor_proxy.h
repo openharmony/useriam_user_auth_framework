@@ -21,7 +21,7 @@
 #include "attributes.h"
 #include "co_auth_client_callback.h"
 #include "co_auth_client_defines.h"
-#include "executor_callback_interface.h"
+#include "iexecutor_callback.h"
 #include "remote_connect_manager.h"
 #include "remote_msg_util.h"
 
@@ -40,7 +40,7 @@ public:
         const std::shared_ptr<Attributes> &request, std::shared_ptr<Attributes> &reply);
     void OnConnectStatus(const std::string &connectionName, ConnectStatus connectStatus);
 
-    // ExecutorCallbackInterface
+    // IExecutorCallback
     void OnMessengerReady(const std::shared_ptr<ExecutorMessenger> &messenger,
         const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList);
     int32_t OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey, const Attributes &command);
@@ -50,7 +50,7 @@ public:
     void OnErrorFinish(uint64_t scheduleId);
 
 private:
-    // ExecutorMessengerInterface
+    // ExecutorMessenger
     int32_t ProcSendDataMsg(Attributes &data);
     int32_t ProcFinishMsg(Attributes &data);
 

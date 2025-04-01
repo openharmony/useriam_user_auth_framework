@@ -67,7 +67,7 @@ HWTEST_F(WidgetContextCallbackImplTest, WidgetContextCallbackImplOnResult_001, T
     ASSERT_NE(contextCallback, nullptr);
     int32_t result = 1;
     Attributes extraInfo;
-    contextCallback->OnResult(result, extraInfo);
+    contextCallback->OnResult(result, extraInfo.Serialize());
     ASSERT_EQ(para.tokenId, 0);
 }
 
@@ -79,7 +79,7 @@ HWTEST_F(WidgetContextCallbackImplTest, WidgetContextCallbackImplOnResult_002, T
     ASSERT_NE(contextCallback, nullptr);
     int32_t result = 1;
     Attributes extraInfo;
-    contextCallback->OnResult(result, extraInfo);
+    contextCallback->OnResult(result, extraInfo.Serialize());
 }
 
 HWTEST_F(WidgetContextCallbackImplTest, WidgetContextCallbackImplOnAcquireInfo_003, TestSize.Level0)
@@ -96,7 +96,7 @@ HWTEST_F(WidgetContextCallbackImplTest, WidgetContextCallbackImplOnAcquireInfo_0
     int32_t module = 0;
     int32_t acquireInfo = 0;
     Attributes extraInfo;
-    contextCallback->OnAcquireInfo(module, acquireInfo, extraInfo);
+    contextCallback->OnAcquireInfo(module, acquireInfo, extraInfo.Serialize());
 
     sptr<IRemoteObject> object = contextCallback->AsObject();
     EXPECT_EQ(object, nullptr);

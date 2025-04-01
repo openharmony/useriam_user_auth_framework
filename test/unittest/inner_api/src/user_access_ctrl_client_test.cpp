@@ -64,9 +64,10 @@ HWTEST_F(UserAccessCtrlClientTest, UserAccessCtrlClientVerifyAuthToken002, TestS
         .WillByDefault(
             [&testTokenIn, &testAllowableDuration, &testCallback]
             (const std::vector<uint8_t> &tokenIn, uint64_t allowableDuration,
-                const sptr<VerifyTokenCallbackInterface> &callback) {
+                const sptr<IVerifyTokenCallback> &callback) {
                 EXPECT_EQ(testTokenIn, tokenIn);
                 EXPECT_EQ(testAllowableDuration, allowableDuration);
+                return SUCCESS;
             }
         );
 

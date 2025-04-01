@@ -43,25 +43,41 @@ IdmCallbackService::~IdmCallbackService()
     CallbackManager::GetInstance().RemoveCallback(reinterpret_cast<uintptr_t>(this));
 }
 
-void IdmCallbackService::OnResult(int32_t result, const Attributes &extraInfo)
+int32_t IdmCallbackService::OnResult(int32_t resultCode, const std::vector<uint8_t> &extraInfo)
 {
-    IAM_LOGI("start, result:%{public}d", result);
+    IAM_LOGI("start, result:%{public}d", resultCode);
     iamHitraceHelper_ = nullptr;
     if (idmClientCallback_ == nullptr) {
         IAM_LOGE("idm client callback is nullptr");
-        return;
+        return GENERAL_ERROR;
     }
-    idmClientCallback_->OnResult(result, extraInfo);
+    Attributes attribute(extraInfo);
+    idmClientCallback_->OnResult(resultCode, attribute);
+    return SUCCESS;
 }
 
-void IdmCallbackService::OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo)
+int32_t IdmCallbackService::OnAcquireInfo(int32_t module, int32_t acquireInfo, const std::vector<uint8_t> &extraInfo)
 {
     IAM_LOGI("start, module:%{public}d acquireInfo:%{public}d", module, acquireInfo);
     if (idmClientCallback_ == nullptr) {
         IAM_LOGE("idm client callback is nullptr");
-        return;
+        return GENERAL_ERROR;
     }
-    idmClientCallback_->OnAcquireInfo(module, static_cast<uint32_t>(acquireInfo), extraInfo);
+    Attributes attribute(extraInfo);
+    idmClientCallback_->OnAcquireInfo(module, static_cast<uint32_t>(acquireInfo), attribute);
+    return SUCCESS;
+}
+
+int32_t IdmCallbackService::CallbackEnter([[maybe_unused]] uint32_t code)
+{
+    IAM_LOGI("start, code:%{public}u", code);
+    return SUCCESS;
+}
+
+int32_t IdmCallbackService::CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result)
+{
+    IAM_LOGI("leave, code:%{public}u, result:%{public}d", code, result);
+    return SUCCESS;
 }
 
 IdmGetCredInfoCallbackService::IdmGetCredInfoCallbackService(
@@ -82,15 +98,41 @@ IdmGetCredInfoCallbackService::~IdmGetCredInfoCallbackService()
     CallbackManager::GetInstance().RemoveCallback(reinterpret_cast<uintptr_t>(this));
 }
 
-void IdmGetCredInfoCallbackService::OnCredentialInfos(int32_t result, const std::vector<CredentialInfo> &credInfoList)
+int32_t IdmGetCredInfoCallbackService::OnCredentialInfos(int32_t resultCode,
+    const std::vector<IpcCredentialInfo> &ipcCredInfoList)
 {
-    IAM_LOGI("start, cred info vector size:%{public}zu", credInfoList.size());
+    IAM_LOGI("start, cred info vector size:%{public}zu", ipcCredInfoList.size());
     if (getCredInfoCallback_ == nullptr) {
         IAM_LOGE("getCredInfoCallback is nullptr");
-        return;
+        return GENERAL_ERROR;
     }
 
-    getCredInfoCallback_->OnCredentialInfo(result, credInfoList);
+    std::vector<CredentialInfo> credInfoList;
+    for (auto &iter : ipcCredInfoList) {
+        CredentialInfo credentialInfo;
+        credentialInfo.authType = static_cast<AuthType>(iter.authType);
+        credentialInfo.pinType = std::nullopt;
+        if (credentialInfo.authType == PIN) {
+            credentialInfo.pinType= static_cast<PinSubType>(iter.pinType);
+        }
+        credentialInfo.credentialId = iter.credentialId;
+        credentialInfo.templateId = iter.credentialId;
+        credInfoList.push_back(credentialInfo);
+    }
+    getCredInfoCallback_->OnCredentialInfo(resultCode, credInfoList);
+    return SUCCESS;
+}
+
+int32_t IdmGetCredInfoCallbackService::CallbackEnter([[maybe_unused]] uint32_t code)
+{
+    IAM_LOGI("start, code:%{public}u", code);
+    return SUCCESS;
+}
+
+int32_t IdmGetCredInfoCallbackService::CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result)
+{
+    IAM_LOGI("leave, code:%{public}u, result:%{public}d", code, result);
+    return SUCCESS;
 }
 
 IdmGetSecureUserInfoCallbackService::IdmGetSecureUserInfoCallbackService(
@@ -111,15 +153,37 @@ IdmGetSecureUserInfoCallbackService::~IdmGetSecureUserInfoCallbackService()
     CallbackManager::GetInstance().RemoveCallback(reinterpret_cast<uintptr_t>(this));
 }
 
-void IdmGetSecureUserInfoCallbackService::OnSecureUserInfo(int32_t result, const SecUserInfo &secUserInfo)
+int32_t IdmGetSecureUserInfoCallbackService::OnSecureUserInfo(int32_t resultCode, const IpcSecUserInfo &ipcSecUserInfo)
 {
-    IAM_LOGI("start, enrolled info vector size:%{public}zu", secUserInfo.enrolledInfo.size());
+    IAM_LOGI("start, enrolled info vector size:%{public}zu", ipcSecUserInfo.enrolledInfo.size());
     if (getSecInfoCallback_ == nullptr) {
         IAM_LOGE("getSecInfoCallback_ is nullptr");
-        return;
+        return GENERAL_ERROR;
     }
 
-    getSecInfoCallback_->OnSecUserInfo(result, secUserInfo);
+    SecUserInfo secUserInfo = {};
+    secUserInfo.secureUid = ipcSecUserInfo.secureUid;
+    for (auto &iter : ipcSecUserInfo.enrolledInfo) {
+        EnrolledInfo enrolledInfo;
+        enrolledInfo.authType = static_cast<AuthType>(iter.authType);
+        enrolledInfo.enrolledId = iter.enrolledId;
+        secUserInfo.enrolledInfo.push_back(enrolledInfo);
+    }
+    getSecInfoCallback_->OnSecUserInfo(resultCode, secUserInfo);
+    return SUCCESS;
+}
+
+int32_t IdmGetSecureUserInfoCallbackService::CallbackEnter([[maybe_unused]] uint32_t code)
+{
+    IAM_LOGI("start, code:%{public}u", code);
+    return SUCCESS;
+}
+
+int32_t IdmGetSecureUserInfoCallbackService::CallbackExit([[maybe_unused]] uint32_t code,
+    [[maybe_unused]] int32_t result)
+{
+    IAM_LOGI("leave, code:%{public}u, result:%{public}d", code, result);
+    return SUCCESS;
 }
 } // namespace UserAuth
 } // namespace UserIam

@@ -17,15 +17,17 @@
 
 #include <gmock/gmock.h>
 
-#include "widget_callback_interface.h"
+#include "iwidget_callback.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockWidgetCallbackInterface final : public WidgetCallbackInterface {
+class MockIWidgetCallback final : public IWidgetCallback {
 public:
-    MOCK_METHOD1(SendCommand, void(const std::string &cmdData));
+    MOCK_METHOD1(SendCommand, int32_t(const std::string &cmdData));
     MOCK_METHOD0(AsObject, sptr<IRemoteObject>());
+    MOCK_METHOD1(CallbackEnter, int32_t(uint32_t code));
+    MOCK_METHOD2(CallbackExit, int32_t(uint32_t code, int32_t result));
 };
 } // namespace UserAuth
 } // namespace UserIam

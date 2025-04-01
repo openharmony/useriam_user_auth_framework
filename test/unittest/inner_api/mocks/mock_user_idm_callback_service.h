@@ -18,25 +18,31 @@
 
 #include <gmock/gmock.h>
 
-#include "user_idm_callback_stub.h"
+#include "iam_callback_stub.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockIdmCallbackService final : public IdmCallbackStub {
+class MockIdmCallbackService final : public IamCallbackStub {
 public:
-    MOCK_METHOD2(OnResult, void(int32_t result, const Attributes &extraInfo));
-    MOCK_METHOD3(OnAcquireInfo, void(int32_t module, int32_t acquireInfo, const Attributes &extraInfo));
+    MOCK_METHOD2(OnResult, int32_t(int32_t resultCode, const std::vector<uint8_t> &extraInfo));
+    MOCK_METHOD3(OnAcquireInfo, int32_t(int32_t module, int32_t acquireInfo, const std::vector<uint8_t> &extraInfo));
+    MOCK_METHOD1(CallbackEnter, int32_t(uint32_t code));
+    MOCK_METHOD2(CallbackExit, int32_t(uint32_t code, int32_t result));
 };
 
 class MockIdmGetCredInfoCallbackService final : public IdmGetCredInfoCallbackStub {
 public:
-    MOCK_METHOD2(OnCredentialInfos, void(int32_t result, const std::vector<CredentialInfo> &credInfoList));
+    MOCK_METHOD2(OnCredentialInfos, int32_t(int32_t result, const std::vector<IpcCredentialInfo> &credInfoList));
+    MOCK_METHOD1(CallbackEnter, int32_t(uint32_t code));
+    MOCK_METHOD2(CallbackExit, int32_t(uint32_t code, int32_t result));
 };
 
 class MockIdmGetSecureUserInfoCallbackService final : public IdmGetSecureUserInfoCallbackStub {
 public:
-    MOCK_METHOD2(OnSecureUserInfo, void(int32_t result, const SecUserInfo &secUserInfo));
+    MOCK_METHOD2(OnSecureUserInfo, int32_t(int32_t resultCodeCode, const IpcSecUserInfo &secUserInfo));
+    MOCK_METHOD1(CallbackEnter, int32_t(uint32_t code));
+    MOCK_METHOD2(CallbackExit, int32_t(uint32_t code, int32_t result));
 };
 } // namespace UserAuth
 } // namespace UserIam

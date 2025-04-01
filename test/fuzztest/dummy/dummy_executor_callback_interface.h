@@ -16,7 +16,7 @@
 #ifndef DUMMY_EXECUTOR_CALLBACK_INTERFACE_H
 #define DUMMY_EXECUTOR_CALLBACK_INTERFACE_H
 
-#include "executor_callback_interface.h"
+#include "iexecutor_callback.h"
 
 #undef private
 
@@ -24,28 +24,31 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
-class DummyExecutorCallbackInterface : public ExecutorCallbackInterface {
+class DummyExecutorCallbackInterface : public IExecutorCallback {
 public:
-    void OnMessengerReady(sptr<ExecutorMessengerInterface> &messenger,
-        const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList){};
-    int32_t OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
-        const Attributes &command)
+    int32_t OnMessengerReady(const sptr<IExecutorMessenger> &messenger,
+        const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList)
         {
             return 0;
         };
-    int32_t OnEndExecute(uint64_t scheduleId, const Attributes &command)
+    int32_t OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
+        const std::vector<uint8_t> &command)
+        {
+            return 0;
+        };
+    int32_t OnEndExecute(uint64_t scheduleId, const std::vector<uint8_t> &command)
     {
         return 0;
     };
-    int32_t OnSetProperty(const Attributes &properties)
+    int32_t OnSetProperty(const std::vector<uint8_t> &properties)
     {
         return 0;
     };
-    int32_t OnGetProperty(const Attributes &condition, Attributes &values)
+    int32_t OnGetProperty(const std::vector<uint8_t> &condition, std::vector<uint8_t> &values)
     {
         return 0;
     };
-    int32_t OnSendData(uint64_t scheduleId, const Attributes &data)
+    int32_t OnSendData(uint64_t scheduleId, const std::vector<uint8_t> &data)
     {
         return 0;
     };

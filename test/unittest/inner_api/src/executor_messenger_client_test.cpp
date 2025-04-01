@@ -49,7 +49,7 @@ HWTEST_F(ExecutorMessengerClientTest, ExecutorMessengerClientTestSendData001, Te
     std::shared_ptr<AuthMessage> testMsg = AuthMessage::As(message);
     EXPECT_NE(testMsg, nullptr);
 
-    sptr<ExecutorMessengerInterface> testMessenger(nullptr);
+    sptr<IExecutorMessenger> testMessenger(nullptr);
     auto service = Common::MakeShared<ExecutorMessengerClient>(testMessenger);
     EXPECT_NE(service, nullptr);
     int32_t result = service->SendData(testScheduleId, testDstRole, testMsg);
@@ -83,7 +83,7 @@ HWTEST_F(ExecutorMessengerClientTest, ExecutorMessengerClientTestSendData003, Te
     EXPECT_CALL(*testMessenger, SendData(_, _, _)).Times(1);
     ON_CALL(*testMessenger, SendData)
         .WillByDefault(
-            [&testScheduleId, &testDstRole, &message](uint64_t scheduleId, ExecutorRole dstRole,
+            [&testScheduleId, &testDstRole, &message](uint64_t scheduleId, int32_t dstRole,
                 const std::vector<uint8_t> &msg) {
                 EXPECT_EQ(scheduleId, testScheduleId);
                 EXPECT_THAT(msg, ElementsAreArray(message));
@@ -102,7 +102,7 @@ HWTEST_F(ExecutorMessengerClientTest, ExecutorMessengerClientTestFinish001, Test
     int32_t testResultCode = FAIL;
     Attributes finalResult;
 
-    sptr<ExecutorMessengerInterface> testMessenger(nullptr);
+    sptr<IExecutorMessenger> testMessenger(nullptr);
     auto service = Common::MakeShared<ExecutorMessengerClient>(testMessenger);
     EXPECT_NE(service, nullptr);
     int32_t result = service->Finish(testScheduleId, testResultCode, finalResult);
@@ -120,8 +120,8 @@ HWTEST_F(ExecutorMessengerClientTest, ExecutorMessengerClientTestFinish002, Test
     EXPECT_CALL(*testMessenger, Finish(_, _, _)).Times(1);
     ON_CALL(*testMessenger, Finish)
         .WillByDefault(
-            [&testScheduleId, &testResultCode](uint64_t scheduleId, ResultCode resultCode,
-                const std::shared_ptr<Attributes> &finalResult) {
+            [&testScheduleId, &testResultCode](uint64_t scheduleId, int32_t resultCode,
+                const std::vector<uint8_t> &finalResult) {
                 EXPECT_EQ(scheduleId, testScheduleId);
                 EXPECT_EQ(resultCode, testResultCode);
                 return SUCCESS;

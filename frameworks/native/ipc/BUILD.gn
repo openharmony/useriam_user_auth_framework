@@ -11,13 +11,43 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//build/config/components/idl_tool/idl.gni")
 import("//build/ohos.gni")
 
 config("userauth_client_ipc_config") {
   include_dirs = [
     "inc",
     "common_defines",
+    "${target_gen_dir}",
   ]
+}
+
+idl_gen_interface("auth_user_ipc_interface") {
+  sources = [
+    "idl/ICoAuth.idl",
+    "idl/IUserAuth.idl",
+    "idl/IUserIdm.idl",
+  ]
+
+  sources_common = [ "UserAuthTypes.idl" ]
+
+  sources_callback = [
+    "IExecutorCallback.idl",
+    "IExecutorMessenger.idl",
+    "IGetExecutorPropertyCallback.idl",
+    "IIamCallback.idl",
+    "IIdmGetCredInfoCallback.idl",
+    "IIdmGetSecureUserInfoCallback.idl",
+    "IModalCallback.idl",
+    "ISetExecutorPropertyCallback.idl",
+    "IVerifyTokenCallback.idl",
+    "IWidgetCallback.idl",
+  ]
+
+  log_domainid = "0xD002401"
+  log_tag = "USER_AUTH_SA"
+  subsystem_name = "useriam"
+  part_name = "user_auth_framework"
 }
 
 ohos_source_set("userauth_client_ipc") {
@@ -37,19 +67,31 @@ ohos_source_set("userauth_client_ipc") {
     "../../../interfaces/inner_api",
   ]
 
-  sources = [
-    "src/co_auth_proxy.cpp",
-    "src/executor_callback_stub.cpp",
-    "src/executor_messenger_proxy.cpp",
-    "src/modal_callback_stub.cpp",
-    "src/user_access_ctrl_callback_stub.cpp",
-    "src/user_auth_callback_stub.cpp",
-    "src/user_auth_event_listener_stub.cpp",
-    "src/user_auth_proxy.cpp",
-    "src/user_idm_callback_stub.cpp",
-    "src/user_idm_proxy.cpp",
-    "src/widget_callback_stub.cpp",
-  ]
+  sources = [ "src/user_auth_event_listener_stub.cpp" ]
+
+  output_file_path = get_target_outputs(":auth_user_ipc_interface")
+  sources += filter_include(output_file_path, [ "*co_auth_proxy.cpp" ])
+  sources += filter_include(output_file_path, [ "*executor_callback_stub.cpp" ])
+  sources +=
+      filter_include(output_file_path, [ "*executor_messenger_proxy.cpp" ])
+  sources +=
+      filter_include(output_file_path, [ "*user_auth_event_listener_stub.cpp" ])
+  sources += filter_include(output_file_path, [ "*iam_callback_stub.cpp" ])
+  sources += filter_include(output_file_path, [ "*user_auth_proxy.cpp" ])
+  sources += filter_include(output_file_path, [ "*user_idm_proxy.cpp" ])
+  sources += filter_include(output_file_path, [ "*widget_callback_stub.cpp" ])
+  sources += filter_include(output_file_path, [ "*modal_callback_stub.cpp" ])
+  sources +=
+      filter_include(output_file_path, [ "*verify_token_callback_stub.cpp" ])
+  sources += filter_include(output_file_path,
+                            [ "*get_executor_property_callback_stub.cpp" ])
+  sources += filter_include(output_file_path,
+                            [ "*set_executor_property_callback_stub.cpp" ])
+  sources += filter_include(output_file_path,
+                            [ "*idm_get_cred_info_callback_stub.cpp" ])
+  sources += filter_include(output_file_path,
+                            [ "*idm_get_secure_user_info_callback_stub.cpp" ])
+  sources += filter_include(output_file_path, [ "*user_auth_types.cpp" ])
 
   configs = [
     "../../../common:iam_log_config",
@@ -58,6 +100,8 @@ ohos_source_set("userauth_client_ipc") {
 
   public_configs = [ ":userauth_client_ipc_config" ]
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
+  deps = [ ":auth_user_ipc_interface" ]
 
   external_deps = [
     "c_utils:utils",
@@ -86,19 +130,32 @@ ohos_source_set("userauth_service_ipc") {
     "../../../interfaces/inner_api",
   ]
 
-  sources = [
-    "src/co_auth_stub.cpp",
-    "src/executor_callback_proxy.cpp",
-    "src/executor_messenger_stub.cpp",
-    "src/modal_callback_proxy.cpp",
-    "src/user_access_ctrl_callback_proxy.cpp",
-    "src/user_auth_callback_proxy.cpp",
-    "src/user_auth_event_listener_proxy.cpp",
-    "src/user_auth_stub.cpp",
-    "src/user_idm_callback_proxy.cpp",
-    "src/user_idm_stub.cpp",
-    "src/widget_callback_proxy.cpp",
-  ]
+  sources = [ "src/user_auth_event_listener_proxy.cpp" ]
+
+  output_file_path = get_target_outputs(":auth_user_ipc_interface")
+  sources += filter_include(output_file_path, [ "*co_auth_stub.cpp" ])
+  sources +=
+      filter_include(output_file_path, [ "*executor_callback_proxy.cpp" ])
+  sources +=
+      filter_include(output_file_path, [ "*executor_messenger_stub.cpp" ])
+  sources += filter_include(output_file_path, [ "*modal_callback_proxy.cpp" ])
+  sources += filter_include(output_file_path,
+                            [ "*user_access_ctrl_callback_proxy.cpp" ])
+  sources += filter_include(output_file_path, [ "*iam_callback_proxy.cpp" ])
+  sources += filter_include(output_file_path, [ "*user_auth_stub.cpp" ])
+  sources += filter_include(output_file_path, [ "*user_idm_stub.cpp" ])
+  sources += filter_include(output_file_path, [ "*widget_callback_proxy.cpp" ])
+  sources +=
+      filter_include(output_file_path, [ "*verify_token_callback_proxy.cpp" ])
+  sources += filter_include(output_file_path,
+                            [ "*get_executor_property_callback_proxy.cpp" ])
+  sources += filter_include(output_file_path,
+                            [ "*set_executor_property_callback_proxy.cpp" ])
+  sources += filter_include(output_file_path,
+                            [ "*idm_get_cred_info_callback_proxy.cpp" ])
+  sources += filter_include(output_file_path,
+                            [ "*idm_get_secure_user_info_callback_proxy.cpp" ])
+  sources += filter_include(output_file_path, [ "*user_auth_types.cpp" ])
 
   configs = [
     "../../../common:iam_log_config",
@@ -107,6 +164,162 @@ ohos_source_set("userauth_service_ipc") {
 
   public_configs = [ ":userauth_client_ipc_config" ]
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
+  deps = [ ":auth_user_ipc_interface" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_single",
+  ]
+
+  subsystem_name = "useriam"
+  part_name = "user_auth_framework"
+}
+
+ohos_source_set("iam_inner_api") {
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "../../../cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
+  include_dirs = [
+    "inc",
+    "common_defines",
+    "../../../interfaces/inner_api",
+  ]
+
+  sources = [
+    "src/user_auth_event_listener_proxy.cpp",
+    "src/user_auth_event_listener_stub.cpp",
+  ]
+
+  output_file_path = get_target_outputs(":auth_user_ipc_interface")
+  sources += filter_include(output_file_path, [ "*.cpp" ])
+
+  configs = [
+    "../../../common:iam_log_config",
+    "../../../common:iam_utils_config",
+  ]
+
+  public_configs = [ ":userauth_client_ipc_config" ]
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
+  deps = [ ":auth_user_ipc_interface" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_single",
+  ]
+
+  subsystem_name = "useriam"
+  part_name = "user_auth_framework"
+}
+
+ohos_source_set("userauth_client_ipc_fuzzer") {
+  branch_protector_ret = "pac_ret"
+  include_dirs = [
+    "inc",
+    "common_defines",
+    "../../../interfaces/inner_api",
+  ]
+
+  sources = [ "src/user_auth_event_listener_stub.cpp" ]
+
+  output_file_path = get_target_outputs(":auth_user_ipc_interface")
+  sources += filter_include(output_file_path, [ "*co_auth_proxy.cpp" ])
+  sources += filter_include(output_file_path, [ "*executor_callback_stub.cpp" ])
+  sources +=
+      filter_include(output_file_path, [ "*executor_messenger_proxy.cpp" ])
+  sources +=
+      filter_include(output_file_path, [ "*user_auth_event_listener_stub.cpp" ])
+  sources += filter_include(output_file_path, [ "*iam_callback_stub.cpp" ])
+  sources += filter_include(output_file_path, [ "*user_auth_proxy.cpp" ])
+  sources += filter_include(output_file_path, [ "*user_idm_proxy.cpp" ])
+  sources += filter_include(output_file_path, [ "*widget_callback_stub.cpp" ])
+  sources += filter_include(output_file_path, [ "*modal_callback_stub.cpp" ])
+  sources +=
+      filter_include(output_file_path, [ "*verify_token_callback_stub.cpp" ])
+  sources += filter_include(output_file_path,
+                            [ "*get_executor_property_callback_stub.cpp" ])
+  sources += filter_include(output_file_path,
+                            [ "*set_executor_property_callback_stub.cpp" ])
+  sources += filter_include(output_file_path,
+                            [ "*idm_get_cred_info_callback_stub.cpp" ])
+  sources += filter_include(output_file_path,
+                            [ "*idm_get_secure_user_info_callback_stub.cpp" ])
+  sources += filter_include(output_file_path, [ "*user_auth_types.cpp" ])
+
+  configs = [
+    "../../../common:iam_log_config",
+    "../../../common:iam_utils_config",
+  ]
+
+  public_configs = [ ":userauth_client_ipc_config" ]
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
+  deps = [ ":auth_user_ipc_interface" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_single",
+  ]
+
+  subsystem_name = "useriam"
+  part_name = "user_auth_framework"
+}
+
+ohos_source_set("userauth_service_ipc_fuzzer") {
+  branch_protector_ret = "pac_ret"
+  include_dirs = [
+    "inc",
+    "common_defines",
+    "../../../interfaces/inner_api",
+  ]
+
+  sources = [ "src/user_auth_event_listener_proxy.cpp" ]
+
+  output_file_path = get_target_outputs(":auth_user_ipc_interface")
+  sources += filter_include(output_file_path, [ "*co_auth_stub.cpp" ])
+  sources +=
+      filter_include(output_file_path, [ "*executor_callback_proxy.cpp" ])
+  sources +=
+      filter_include(output_file_path, [ "*executor_messenger_stub.cpp" ])
+  sources += filter_include(output_file_path, [ "*modal_callback_proxy.cpp" ])
+  sources += filter_include(output_file_path,
+                            [ "*user_access_ctrl_callback_proxy.cpp" ])
+  sources += filter_include(output_file_path, [ "*iam_callback_proxy.cpp" ])
+  sources += filter_include(output_file_path, [ "*user_auth_stub.cpp" ])
+  sources += filter_include(output_file_path, [ "*user_idm_stub.cpp" ])
+  sources += filter_include(output_file_path, [ "*widget_callback_proxy.cpp" ])
+  sources +=
+      filter_include(output_file_path, [ "*verify_token_callback_proxy.cpp" ])
+  sources += filter_include(output_file_path,
+                            [ "*get_executor_property_callback_proxy.cpp" ])
+  sources += filter_include(output_file_path,
+                            [ "*set_executor_property_callback_proxy.cpp" ])
+  sources += filter_include(output_file_path,
+                            [ "*idm_get_cred_info_callback_proxy.cpp" ])
+  sources += filter_include(output_file_path,
+                            [ "*idm_get_secure_user_info_callback_proxy.cpp" ])
+  sources += filter_include(output_file_path, [ "*user_auth_types.cpp" ])
+
+  configs = [
+    "../../../common:iam_log_config",
+    "../../../common:iam_utils_config",
+  ]
+
+  public_configs = [ ":userauth_client_ipc_config" ]
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
+  deps = [ ":auth_user_ipc_interface" ]
 
   external_deps = [
     "c_utils:utils",

@@ -18,16 +18,18 @@
 #include <gmock/gmock.h>
 #include <iremote_stub.h>
 
-#include "modal_callback_interface.h"
+#include "imodal_callback.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockModalCallback final : public IRemoteStub<ModalCallbackInterface> {
+class MockModalCallback final : public IRemoteStub<IModalCallback> {
 public:
     MOCK_METHOD4(OnRemoteRequest,
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
-    MOCK_METHOD2(SendCommand, void(uint64_t contextId, const std::string &cmdData));
+    MOCK_METHOD2(SendCommand, int32_t(uint64_t contextId, const std::string &cmdData));
+    MOCK_METHOD1(CallbackEnter, int32_t(uint32_t code));
+    MOCK_METHOD2(CallbackExit, int32_t(uint32_t code, int32_t result));
 };
 } // namespace UserAuth
 } // namespace UserIam
