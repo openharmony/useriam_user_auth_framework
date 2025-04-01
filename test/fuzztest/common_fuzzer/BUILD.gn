@@ -69,48 +69,6 @@ ohos_source_set("dfx_fuzzer") {
   part_name = "user_auth_framework"
 }
 
-ohos_source_set("userauth_client_ipc_fuzzer") {
-  branch_protector_ret = "pac_ret"
-  include_dirs = [
-    "../../../frameworks/native/ipc/inc",
-    "../../../frameworks/native/ipc/common_defines",
-    "../../../interfaces/inner_api",
-  ]
-
-  sources = [
-    "../../../frameworks/native/ipc/src/co_auth_proxy.cpp",
-    "../../../frameworks/native/ipc/src/executor_callback_stub.cpp",
-    "../../../frameworks/native/ipc/src/executor_messenger_proxy.cpp",
-    "../../../frameworks/native/ipc/src/modal_callback_stub.cpp",
-    "../../../frameworks/native/ipc/src/user_access_ctrl_callback_stub.cpp",
-    "../../../frameworks/native/ipc/src/user_auth_callback_stub.cpp",
-    "../../../frameworks/native/ipc/src/user_auth_event_listener_stub.cpp",
-    "../../../frameworks/native/ipc/src/user_auth_proxy.cpp",
-    "../../../frameworks/native/ipc/src/user_idm_callback_stub.cpp",
-    "../../../frameworks/native/ipc/src/user_idm_proxy.cpp",
-    "../../../frameworks/native/ipc/src/widget_callback_stub.cpp",
-  ]
-
-  configs = [
-    "../../../common:iam_log_config",
-    "../../../common:iam_utils_config",
-  ]
-
-  public_configs =
-      [ "../../../frameworks/native/ipc:userauth_client_ipc_config" ]
-  remove_configs = [ "//build/config/compiler:no_exceptions" ]
-
-  external_deps = [
-    "c_utils:utils",
-    "hicollie:libhicollie",
-    "hilog:libhilog",
-    "ipc:ipc_single",
-  ]
-
-  subsystem_name = "useriam"
-  part_name = "user_auth_framework"
-}
-
 ohos_source_set("userauth_service_base_fuzzer") {
   branch_protector_ret = "pac_ret"
   include_dirs = [ "../../../services/base/inc" ]
@@ -317,48 +275,6 @@ ohos_source_set("userauth_service_context_fuzzer") {
   part_name = "user_auth_framework"
 }
 
-ohos_source_set("userauth_service_ipc_fuzzer") {
-  branch_protector_ret = "pac_ret"
-  include_dirs = [
-    "../../../frameworks/native/ipc/inc",
-    "../../../frameworks/native/ipc/common_defines",
-    "../../../interfaces/inner_api",
-  ]
-
-  sources = [
-    "../../../frameworks/native/ipc/src/co_auth_stub.cpp",
-    "../../../frameworks/native/ipc/src/executor_callback_proxy.cpp",
-    "../../../frameworks/native/ipc/src/executor_messenger_stub.cpp",
-    "../../../frameworks/native/ipc/src/modal_callback_proxy.cpp",
-    "../../../frameworks/native/ipc/src/user_access_ctrl_callback_proxy.cpp",
-    "../../../frameworks/native/ipc/src/user_auth_callback_proxy.cpp",
-    "../../../frameworks/native/ipc/src/user_auth_event_listener_proxy.cpp",
-    "../../../frameworks/native/ipc/src/user_auth_stub.cpp",
-    "../../../frameworks/native/ipc/src/user_idm_callback_proxy.cpp",
-    "../../../frameworks/native/ipc/src/user_idm_stub.cpp",
-    "../../../frameworks/native/ipc/src/widget_callback_proxy.cpp",
-  ]
-
-  configs = [
-    "../../../common:iam_log_config",
-    "../../../common:iam_utils_config",
-  ]
-
-  public_configs =
-      [ "../../../frameworks/native/ipc:userauth_client_ipc_config" ]
-  remove_configs = [ "//build/config/compiler:no_exceptions" ]
-
-  external_deps = [
-    "c_utils:utils",
-    "hicollie:libhicollie",
-    "hilog:libhilog",
-    "ipc:ipc_single",
-  ]
-
-  subsystem_name = "useriam"
-  part_name = "user_auth_framework"
-}
-
 ohos_source_set("userauth_service_remote_connect_fuzzer") {
   include_dirs = [ "inc" ]
 
@@ -429,12 +345,15 @@ ohos_source_set("userauth_services_ipc_fuzzer") {
     "../dummy/mock_ipc_common.cpp",
   ]
 
+  public_configs =
+      [ "../../../frameworks/native/ipc:userauth_client_ipc_config" ]
+
   deps = [
+    "../../../frameworks/native/ipc:userauth_service_ipc_fuzzer",
     "../common_fuzzer:attributes_fuzzer",
     "../common_fuzzer:dfx_fuzzer",
     "../common_fuzzer:iam_utils_fuzzer",
     "../common_fuzzer:userauth_service_context_fuzzer",
-    "../common_fuzzer:userauth_service_ipc_fuzzer",
     "../common_fuzzer:userauth_service_remote_connect_fuzzer",
   ]
 

@@ -28,7 +28,9 @@ class ModalCallbackService : public ModalCallbackStub {
 public:
     explicit ModalCallbackService(const std::shared_ptr<UserAuthModalClientCallback> &impl);
     ~ModalCallbackService() override;
-    void SendCommand(uint64_t contextId, const std::string &cmdData) override;
+    int32_t SendCommand(uint64_t contextId, const std::string &cmdData) override;
+    int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;
+    int32_t CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result) override;
 
 private:
     std::shared_ptr<UserAuthModalClientCallback> modalCallback_ {nullptr};

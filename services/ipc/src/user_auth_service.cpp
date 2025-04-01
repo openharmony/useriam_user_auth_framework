@@ -68,7 +68,7 @@ int32_t GetTemplatesByAuthType(int32_t userId, AuthType authType, std::vector<ui
         IAM_LOGE("user %{public}d has no credential type %{public}d", userId, authType);
         return SUCCESS;
     }
-    
+
     templateIds.reserve(credentialInfos.size());
     for (auto &info : credentialInfos) {
         if (info == nullptr) {
@@ -156,7 +156,7 @@ std::shared_ptr<UserAuthService> UserAuthService::GetInstance()
 }
 
 UserAuthService::UserAuthService()
-    : SystemAbility(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true)
+    : SystemAbility(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true), UserAuthStub(true)
 {}
 
 void UserAuthService::OnStart()
@@ -185,8 +185,8 @@ bool UserAuthService::CheckAuthTrustLevel(AuthTrustLevel authTrustLevel)
     return true;
 }
 
-int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, int32_t userId, AuthType authType,
-    AuthTrustLevel authTrustLevel)
+int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, int32_t userId, int32_t authType,
+    uint32_t authTrustLevel)
 {
     IAM_LOGI("start with userId");
 
@@ -194,10 +194,11 @@ int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, int32_t userId, 
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
     }
-    return GetAvailableStatusInner(apiVersion, userId, authType, authTrustLevel);
+    return GetAvailableStatusInner(apiVersion, userId, static_cast<AuthType>(authType),
+        static_cast<AuthTrustLevel>(authTrustLevel));
 }
 
-int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel)
+int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, int32_t authType, uint32_t authTrustLevel)
 {
     IAM_LOGI("start without userId");
 
@@ -206,7 +207,7 @@ int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authTyp
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
     }
-    if (apiVersion <= API_VERSION_8 && authType == PIN) {
+    if (apiVersion <= API_VERSION_8 && static_cast<AuthType>(authType) == PIN) {
         IAM_LOGE("authType not support");
         return TYPE_NOT_SUPPORT;
     }
@@ -215,7 +216,8 @@ int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, AuthType authTyp
         IAM_LOGE("failed to get userId");
         return GENERAL_ERROR;
     }
-    return GetAvailableStatusInner(apiVersion, userId, authType, authTrustLevel);
+    return GetAvailableStatusInner(apiVersion, userId, static_cast<AuthType>(authType),
+        static_cast<AuthTrustLevel>(authTrustLevel));
 }
 
 int32_t UserAuthService::GetAvailableStatusInner(int32_t apiVersion, int32_t userId, AuthType authType,
@@ -284,15 +286,15 @@ std::shared_ptr<ResourceNode> UserAuthService::GetResourseNode(AuthType authType
     return resourceNode;
 }
 
-void UserAuthService::GetPropertyInner(AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
-    sptr<GetExecutorPropertyCallbackInterface> &callback, std::vector<uint64_t> &templateIds)
+int32_t UserAuthService::GetPropertyInner(AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
+    const sptr<IGetExecutorPropertyCallback> &getExecutorPropertyCallback, std::vector<uint64_t> &templateIds)
 {
     Attributes values;
     auto resourceNode = GetResourseNode(authType);
     if (resourceNode == nullptr) {
         IAM_LOGE("resourceNode is nullptr");
-        callback->OnGetExecutorPropertyResult(GENERAL_ERROR, values);
-        return;
+        getExecutorPropertyCallback->OnGetExecutorPropertyResult(GENERAL_ERROR, values.Serialize());
+        return GENERAL_ERROR;
     }
 
     std::vector<uint32_t> uint32Keys;
@@ -308,54 +310,60 @@ void UserAuthService::GetPropertyInner(AuthType authType, const std::vector<Attr
     }
     FillGetPropertyValue(authType, keys, values);
 
-    callback->OnGetExecutorPropertyResult(result, values);
+    getExecutorPropertyCallback->OnGetExecutorPropertyResult(result, values.Serialize());
+    return result;
 }
 
-void UserAuthService::GetProperty(int32_t userId, AuthType authType,
-    const std::vector<Attributes::AttributeKey> &keys, sptr<GetExecutorPropertyCallbackInterface> &callback)
+int32_t UserAuthService::GetProperty(int32_t userId, int32_t authType,
+    const std::vector<uint32_t> &keys, const sptr<IGetExecutorPropertyCallback> &getExecutorPropertyCallback)
 {
     IAM_LOGI("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
-    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getExecutorPropertyCallback != nullptr, INVALID_PARAMETERS);
     Attributes values;
 
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("failed to check permission");
-        callback->OnGetExecutorPropertyResult(CHECK_PERMISSION_FAILED, values);
-        return;
+        getExecutorPropertyCallback->OnGetExecutorPropertyResult(CHECK_PERMISSION_FAILED, values.Serialize());
+        return CHECK_PERMISSION_FAILED;
     }
 
+    std::vector<Attributes::AttributeKey> attrKeys;
+    attrKeys.resize(keys.size());
+    std::transform(keys.begin(), keys.end(), attrKeys.begin(), [](uint32_t key) {
+        return static_cast<Attributes::AttributeKey>(key);
+    });
     std::vector<uint64_t> templateIds;
-    if (IsTemplateIdListRequired(keys)) {
-        int32_t ret = GetTemplatesByAuthType(userId, authType, templateIds);
+    if (IsTemplateIdListRequired(attrKeys)) {
+        int32_t ret = GetTemplatesByAuthType(userId, static_cast<AuthType>(authType), templateIds);
         if (ret != SUCCESS) {
             IAM_LOGE("get templates fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret,
                 userId, authType);
-            callback->OnGetExecutorPropertyResult(GENERAL_ERROR, values);
-            return;
+            getExecutorPropertyCallback->OnGetExecutorPropertyResult(GENERAL_ERROR, values.Serialize());
+            return ret;
         }
         if (templateIds.size() == 0) {
             IAM_LOGE("template id list is required, but templateIds size is 0");
-            callback->OnGetExecutorPropertyResult(NOT_ENROLLED, values);
-            return;
+            getExecutorPropertyCallback->OnGetExecutorPropertyResult(NOT_ENROLLED, values.Serialize());
+            return SUCCESS;
         }
     }
 
-    GetPropertyInner(authType, keys, callback, templateIds);
+    return GetPropertyInner(static_cast<AuthType>(authType), attrKeys, getExecutorPropertyCallback, templateIds);
 }
 
-void UserAuthService::GetPropertyById(uint64_t credentialId, const std::vector<Attributes::AttributeKey> &keys,
-    sptr<GetExecutorPropertyCallbackInterface> &callback)
+int32_t UserAuthService::GetPropertyById(uint64_t credentialId, const std::vector<uint32_t> &keys,
+    const sptr<IGetExecutorPropertyCallback> &getExecutorPropertyCallback)
 {
     IAM_LOGI("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
-    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getExecutorPropertyCallback != nullptr, INVALID_PARAMETERS);
     Attributes values;
 
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("failed to check permission");
-        callback->OnGetExecutorPropertyResult(CHECK_PERMISSION_FAILED, values);
-        return;
+        getExecutorPropertyCallback->OnGetExecutorPropertyResult(CHECK_PERMISSION_FAILED, values.Serialize());
+        return CHECK_PERMISSION_FAILED;
     }
 
     std::shared_ptr<CredentialInfoInterface> credInfo;
@@ -363,70 +371,77 @@ void UserAuthService::GetPropertyById(uint64_t credentialId, const std::vector<A
     int32_t ret = UserIdmDatabase::Instance().GetCredentialInfoById(credentialId, credInfo);
     if (ret != SUCCESS) {
         IAM_LOGE("get credentialInfp fail, ret:%{public}d", ret);
-        callback->OnGetExecutorPropertyResult(ret, values);
-        return;
+        getExecutorPropertyCallback->OnGetExecutorPropertyResult(ret, values.Serialize());
+        return ret;
     }
     if (credInfo == nullptr) {
         IAM_LOGE("credential is nullptr");
-        callback->OnGetExecutorPropertyResult(GENERAL_ERROR, values);
-        return;
+        getExecutorPropertyCallback->OnGetExecutorPropertyResult(GENERAL_ERROR, values.Serialize());
+        return SUCCESS;
     }
 
+    std::vector<Attributes::AttributeKey> attrKeys;
+    attrKeys.resize(keys.size());
+    std::transform(keys.begin(), keys.end(), attrKeys.begin(), [](uint32_t key) {
+        return static_cast<Attributes::AttributeKey>(key);
+    });
     AuthType authType = credInfo->GetAuthType();
     templateIds.push_back(credInfo->GetTemplateId());
-    GetPropertyInner(authType, keys, callback, templateIds);
+    return GetPropertyInner(authType, attrKeys, getExecutorPropertyCallback, templateIds);
 }
 
-void UserAuthService::SetProperty(int32_t userId, AuthType authType, const Attributes &attributes,
-    sptr<SetExecutorPropertyCallbackInterface> &callback)
+int32_t UserAuthService::SetProperty(int32_t userId, int32_t authType, const std::vector<uint8_t> &attributes,
+    const sptr<ISetExecutorPropertyCallback> &setExecutorPropertyCallback)
 {
     IAM_LOGI("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
-    if (callback == nullptr) {
+    if (setExecutorPropertyCallback == nullptr) {
         IAM_LOGE("callback is nullptr");
-        return;
+        return INVALID_PARAMETERS;
     }
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("permission check failed");
-        callback->OnSetExecutorPropertyResult(CHECK_PERMISSION_FAILED);
-        return;
+        setExecutorPropertyCallback->OnSetExecutorPropertyResult(CHECK_PERMISSION_FAILED);
+        return CHECK_PERMISSION_FAILED;
     }
 
     std::vector<std::weak_ptr<ResourceNode>> authTypeNodes;
-    GetResourceNodeByTypeAndRole(authType, ALL_IN_ONE, authTypeNodes);
+    GetResourceNodeByTypeAndRole(static_cast<AuthType>(authType), ALL_IN_ONE, authTypeNodes);
     if (authTypeNodes.size() != 1) {
         IAM_LOGE("auth type %{public}d resource node num %{public}zu is not expected",
             authType, authTypeNodes.size());
-        callback->OnSetExecutorPropertyResult(GENERAL_ERROR);
-        return;
+        setExecutorPropertyCallback->OnSetExecutorPropertyResult(GENERAL_ERROR);
+        return SUCCESS;
     }
 
     auto resourceNode = authTypeNodes[0].lock();
     if (resourceNode == nullptr) {
         IAM_LOGE("resourceNode is nullptr");
-        callback->OnSetExecutorPropertyResult(GENERAL_ERROR);
-        return;
+        setExecutorPropertyCallback->OnSetExecutorPropertyResult(GENERAL_ERROR);
+        return SUCCESS;
     }
-    int32_t result = resourceNode->SetProperty(attributes);
+    const Attributes properties(attributes);
+    int32_t result = resourceNode->SetProperty(properties);
     if (result != SUCCESS) {
         IAM_LOGE("set property failed, result = %{public}d", result);
     }
-    callback->OnSetExecutorPropertyResult(result);
+    setExecutorPropertyCallback->OnSetExecutorPropertyResult(result);
+    return result;
 }
 
 std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(int32_t apiVersion,
     const std::vector<uint8_t> &challenge, AuthType authType,
-    AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback)
+    AuthTrustLevel authTrustLevel, const sptr<IIamCallback> &userAuthCallback)
 {
-    if (callback == nullptr) {
+    if (userAuthCallback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return nullptr;
     }
-    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER_ALL);
+    auto contextCallback = ContextCallback::NewInstance(userAuthCallback, TRACE_AUTH_USER_ALL);
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
         Attributes extraInfo;
-        callback->OnResult(GENERAL_ERROR, extraInfo);
+        userAuthCallback->OnResult(GENERAL_ERROR, extraInfo.Serialize());
         return nullptr;
     }
     contextCallback->SetTraceAuthType(authType);
@@ -458,54 +473,66 @@ int32_t UserAuthService::CheckAuthPermissionAndParam(int32_t authType, const int
     return SUCCESS;
 }
 
-uint64_t UserAuthService::Auth(int32_t apiVersion, const std::vector<uint8_t> &challenge,
-    AuthType authType, AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback)
+int32_t UserAuthService::StartAuth(int32_t apiVersion, Authentication::AuthenticationPara &para,
+    std::shared_ptr<ContextCallback> &contextCallback, uint64_t &contextId)
 {
     IAM_LOGI("start");
-    auto contextCallback = GetAuthContextCallback(apiVersion, challenge, authType, authTrustLevel, callback);
+    contextId = StartAuthContext(apiVersion, para, contextCallback, true);
+    if (contextId == BAD_CONTEXT_ID) {
+        IAM_LOGE("StartAuthContext fail");
+        return GENERAL_ERROR;
+    }
+    return SUCCESS;
+}
+
+int32_t UserAuthService::Auth(int32_t apiVersion, const IpcAuthParamInner &ipcAuthParamInner,
+    const sptr<IIamCallback> &userAuthCallback, uint64_t &contextId)
+{
+    IAM_LOGI("start");
+    auto contextCallback = GetAuthContextCallback(apiVersion, ipcAuthParamInner.challenge,
+        static_cast<AuthType>(ipcAuthParamInner.authType),
+        static_cast<AuthTrustLevel>(ipcAuthParamInner.authTrustLevel), userAuthCallback);
     if (contextCallback == nullptr) {
         IAM_LOGE("contextCallback is nullptr");
-        return BAD_CONTEXT_ID;
+        return GENERAL_ERROR;
     }
     std::string callerName = "";
     Attributes extraInfo;
-    int32_t callerType = Security::AccessToken::TOKEN_INVALID;
-    if ((!IpcCommon::GetCallerName(*this, callerName, callerType))) {
+    Authentication::AuthenticationPara para = {};
+    if ((!IpcCommon::GetCallerName(*this, para.callerName, para.callerType))) {
         IAM_LOGE("get bundle name fail");
         contextCallback->SetTraceAuthFinishReason("UserAuthService Auth GetCallerName fail");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
-        return BAD_CONTEXT_ID;
+        return GENERAL_ERROR;
     }
-    contextCallback->SetTraceCallerName(callerName);
-    contextCallback->SetTraceCallerType(callerType);
-    int32_t checkRet = CheckAuthPermissionAndParam(authType, callerType, callerName, authTrustLevel);
+    contextCallback->SetTraceCallerName(para.callerName);
+    contextCallback->SetTraceCallerType(para.callerType);
+    int32_t checkRet = CheckAuthPermissionAndParam(static_cast<AuthType>(ipcAuthParamInner.authType), para.callerType,
+        para.callerName, static_cast<AuthTrustLevel>(ipcAuthParamInner.authTrustLevel));
     if (checkRet != SUCCESS) {
         IAM_LOGE("check auth permission and param fail");
         contextCallback->SetTraceAuthFinishReason("UserAuthService Auth CheckAuthPermissionAndParam fail");
         contextCallback->OnResult(checkRet, extraInfo);
-        return BAD_CONTEXT_ID;
+        return checkRet;
     }
     int32_t userId = INVALID_USER_ID;
     if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
         IAM_LOGE("get callingUserId failed");
         contextCallback->SetTraceAuthFinishReason("UserAuthService Auth GetCallingUserId fail");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
-        return BAD_CONTEXT_ID;
+        return CHECK_PERMISSION_FAILED;
     }
     contextCallback->SetTraceUserId(userId);
-    Authentication::AuthenticationPara para = {};
     para.tokenId = IpcCommon::GetAccessTokenId(*this);
     para.userId = userId;
-    para.authType = authType;
-    para.atl = authTrustLevel;
-    para.challenge = std::move(challenge);
+    para.authType = static_cast<AuthType>(ipcAuthParamInner.authType);
+    para.atl = static_cast<AuthTrustLevel>(ipcAuthParamInner.authTrustLevel);
+    para.challenge = std::move(ipcAuthParamInner.challenge);
     para.endAfterFirstFail = true;
-    para.callerName = callerName;
-    para.callerType = callerType;
     para.sdkVersion = apiVersion;
     para.authIntent = AuthIntent::DEFAULT;
     para.isOsAccountVerified = IpcCommon::IsOsAccountVerified(userId);
-    return StartAuthContext(apiVersion, para, contextCallback, true);
+    return StartAuth(apiVersion, para, contextCallback, contextId);
 }
 
 uint64_t UserAuthService::StartAuthContext(int32_t apiVersion, Authentication::AuthenticationPara para,
@@ -577,16 +604,48 @@ bool UserAuthService::CheckAuthPermissionAndParam(AuthType authType, AuthTrustLe
     return true;
 }
 
-uint64_t UserAuthService::AuthUser(AuthParamInner &authParam, std::optional<RemoteAuthParam> &remoteAuthParam,
-    sptr<UserAuthCallbackInterface> &callback)
+int32_t UserAuthService::StartAuthUser(AuthParamInner &authParam, std::optional<RemoteAuthParam> &remoteAuthParam,
+    Authentication::AuthenticationPara &para, std::shared_ptr<ContextCallback> &contextCallback, uint64_t &contextId)
 {
-    IAM_LOGI("start, %{public}s", GetAuthParamStr(authParam, remoteAuthParam).c_str());
+    Attributes extraInfo;
+    if (!remoteAuthParam.has_value()) {
+        bool needSubscribeAppState = !IpcCommon::CheckPermission(*this, USER_AUTH_FROM_BACKGROUND);
+        contextId = StartAuthContext(INNER_API_VERSION_10000, para, contextCallback, needSubscribeAppState);
+        if (contextId == BAD_CONTEXT_ID) {
+            IAM_LOGE("StartAuthContext fail");
+            return GENERAL_ERROR;
+        }
+        return SUCCESS;
+    }
+
+    ResultCode failReason = GENERAL_ERROR;
+    contextId = AuthRemoteUser(authParam, para, remoteAuthParam.value(), contextCallback, failReason);
+    if (contextId == BAD_CONTEXT_ID) {
+        contextCallback->SetTraceAuthFinishReason("UserAuthService AuthRemoteUser fail");
+        contextCallback->OnResult(failReason, extraInfo);
+        return failReason;
+    }
+
+    IAM_LOGI("success");
+    return SUCCESS;
+}
+
+int32_t UserAuthService::AuthUser(const IpcAuthParamInner &ipcAuthParamInner,
+    const IpcRemoteAuthParam &ipcRemoteAuthParam, const sptr<IIamCallback> &userAuthCallback,
+    uint64_t &contextId)
+{
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
+    contextId = BAD_CONTEXT_ID;
+    AuthParamInner authParam = {};
+    std::optional<RemoteAuthParam> remoteAuthParam = std::nullopt;
+    InitAuthParam(ipcAuthParamInner, authParam);
+    InitRemoteAuthParam(ipcRemoteAuthParam, remoteAuthParam);
+    IAM_LOGI("start, %{public}s", GetAuthParamStr(authParam, remoteAuthParam).c_str());
     auto contextCallback = GetAuthContextCallback(INNER_API_VERSION_10000, authParam.challenge, authParam.authType,
-        authParam.authTrustLevel, callback);
+        authParam.authTrustLevel, userAuthCallback);
     if (contextCallback == nullptr) {
         IAM_LOGE("contextCallback is nullptr");
-        return BAD_CONTEXT_ID;
+        return GENERAL_ERROR;
     }
     contextCallback->SetTraceIsRemoteAuth(remoteAuthParam.has_value());
     contextCallback->SetTraceUserId(authParam.userId);
@@ -596,13 +655,13 @@ uint64_t UserAuthService::AuthUser(AuthParamInner &authParam, std::optional<Remo
         IAM_LOGE("get caller name fail");
         contextCallback->SetTraceAuthFinishReason("UserAuthService AuthUser GetCallerName fail");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
-        return BAD_CONTEXT_ID;
+        return GENERAL_ERROR;
     }
     contextCallback->SetTraceCallerName(para.callerName);
     contextCallback->SetTraceCallerType(para.callerType);
     if (CheckAuthPermissionAndParam(authParam.authType, authParam.authTrustLevel, contextCallback,
         extraInfo) == false) {
-        return BAD_CONTEXT_ID;
+        return CHECK_PERMISSION_FAILED;
     }
     para.tokenId = IpcCommon::GetAccessTokenId(*this);
     para.userId = authParam.userId;
@@ -613,21 +672,7 @@ uint64_t UserAuthService::AuthUser(AuthParamInner &authParam, std::optional<Remo
     para.sdkVersion = INNER_API_VERSION_10000;
     para.authIntent = authParam.authIntent;
     para.isOsAccountVerified = IpcCommon::IsOsAccountVerified(authParam.userId);
-    if (!remoteAuthParam.has_value()) {
-        bool needSubscribeAppState = !IpcCommon::CheckPermission(*this, USER_AUTH_FROM_BACKGROUND);
-        return StartAuthContext(INNER_API_VERSION_10000, para, contextCallback, needSubscribeAppState);
-    }
-
-    ResultCode failReason = GENERAL_ERROR;
-    uint64_t contextId = AuthRemoteUser(authParam, para, remoteAuthParam.value(), contextCallback, failReason);
-    if (contextId == BAD_CONTEXT_ID) {
-        contextCallback->SetTraceAuthFinishReason("UserAuthService AuthRemoteUser fail");
-        contextCallback->OnResult(failReason, extraInfo);
-        return BAD_CONTEXT_ID;
-    }
-
-    IAM_LOGI("success");
-    return contextId;
+    return StartAuthUser(authParam, remoteAuthParam, para, contextCallback, contextId);
 }
 
 int32_t UserAuthService::DoPrepareRemoteAuth(const std::string &networkId)
@@ -648,7 +693,8 @@ int32_t UserAuthService::DoPrepareRemoteAuth(const std::string &networkId)
     return SUCCESS;
 }
 
-int32_t UserAuthService::PrepareRemoteAuthInner(const std::string &networkId, sptr<UserAuthCallbackInterface> &callback)
+int32_t UserAuthService::PrepareRemoteAuthInner(const std::string &networkId,
+    const sptr<IIamCallback> &callback)
 {
     if (networkId.empty()) {
         IAM_LOGE("networkId is empty");
@@ -674,7 +720,7 @@ int32_t UserAuthService::PrepareRemoteAuthInner(const std::string &networkId, sp
         auto service = UserAuthService::GetInstance();
         if (service == nullptr) {
             IAM_LOGE("service is nullptr");
-            callback->OnResult(GENERAL_ERROR, attr);
+            callback->OnResult(GENERAL_ERROR, attr.Serialize());
             return;
         }
 
@@ -683,13 +729,14 @@ int32_t UserAuthService::PrepareRemoteAuthInner(const std::string &networkId, sp
             IAM_LOGE("failed to prepare remote auth");
         }
 
-        callback->OnResult(ret, attr);
+        callback->OnResult(ret, attr.Serialize());
     });
 
     return SUCCESS;
 }
 
-int32_t UserAuthService::PrepareRemoteAuth(const std::string &networkId, sptr<UserAuthCallbackInterface> &callback)
+int32_t UserAuthService::PrepareRemoteAuth(const std::string &networkId,
+    const sptr<IIamCallback> &callback)
 {
     IAM_LOGI("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
@@ -702,7 +749,7 @@ int32_t UserAuthService::PrepareRemoteAuth(const std::string &networkId, sptr<Us
     if (ret != SUCCESS) {
         IAM_LOGE("failed to prepare remote auth");
         Attributes attr;
-        callback->OnResult(ret, attr);
+        callback->OnResult(ret, attr.Serialize());
     }
 
     IAM_LOGI("end");
@@ -768,46 +815,46 @@ uint64_t UserAuthService::AuthRemoteUser(AuthParamInner &authParam, Authenticati
         para, remoteAuthContextParam, contextCallback, dummyLastError);
 }
 
-uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthType authType,
-    sptr<UserAuthCallbackInterface> &callback)
+int32_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, int32_t authType,
+    const sptr<IIamCallback> &userAuthCallback, uint64_t &contextId)
 {
     IAM_LOGI("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
-
-    if (callback == nullptr) {
+    contextId = BAD_CONTEXT_ID;
+    if (userAuthCallback == nullptr) {
         IAM_LOGE("callback is nullptr");
-        return BAD_CONTEXT_ID;
+        return INVALID_PARAMETERS;
     }
     Attributes extraInfo;
-    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_IDENTIFY);
+    auto contextCallback = ContextCallback::NewInstance(userAuthCallback, TRACE_IDENTIFY);
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
-        callback->OnResult(GENERAL_ERROR, extraInfo);
-        return BAD_CONTEXT_ID;
+        userAuthCallback->OnResult(GENERAL_ERROR, extraInfo.Serialize());
+        return GENERAL_ERROR;
     }
-    if (authType == PIN) {
+    if (static_cast<AuthType>(authType) == PIN) {
         IAM_LOGE("type not support %{public}d", authType);
         contextCallback->SetTraceAuthFinishReason("UserAuthService Identify IsAuthTypeEnable fail");
         contextCallback->OnResult(TYPE_NOT_SUPPORT, extraInfo);
-        return BAD_CONTEXT_ID;
+        return GENERAL_ERROR;
     }
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         contextCallback->SetTraceAuthFinishReason("UserAuthService Identify CheckPermission fail");
         contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
-        return BAD_CONTEXT_ID;
+        return CHECK_PERMISSION_FAILED;
     }
 
     Identification::IdentificationPara para = {};
     para.tokenId = IpcCommon::GetAccessTokenId(*this);
-    para.authType = authType;
+    para.authType = static_cast<AuthType>(authType);
     para.challenge = std::move(challenge);
     auto context = ContextFactory::CreateIdentifyContext(para, contextCallback);
     if (!ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
         contextCallback->SetTraceAuthFinishReason("UserAuthService Identify insert context fail");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
-        return BAD_CONTEXT_ID;
+        return GENERAL_ERROR;
     }
 
     contextCallback->SetCleaner(ContextHelper::Cleaner(context));
@@ -816,9 +863,10 @@ uint64_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, AuthTy
         IAM_LOGE("failed to start identify");
         contextCallback->SetTraceAuthFinishReason("UserAuthService Identify start context fail");
         contextCallback->OnResult(context->GetLatestError(), extraInfo);
-        return BAD_CONTEXT_ID;
+        return GENERAL_ERROR;
     }
-    return context->GetContextId();
+    contextId = context->GetContextId();
+    return SUCCESS;
 }
 
 int32_t UserAuthService::CancelAuthOrIdentify(uint64_t contextId, int32_t cancelReason)
@@ -1165,15 +1213,44 @@ void UserAuthService::ProcessPinExpired(int32_t ret, const AuthParamInner &authP
     }
 }
 
-uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParamInner &authParam,
-    const WidgetParamInner &widgetParam, sptr<UserAuthCallbackInterface> &callback,
-    sptr<ModalCallbackInterface> &modalCallback)
+int32_t UserAuthService::StartAuthWidget(AuthParamInner &authParam, WidgetParamInner &widgetParam,
+    ContextFactory::AuthWidgetContextPara &para, std::shared_ptr<ContextCallback> &contextCallback,
+    uint64_t &contextId)
 {
-    IAM_LOGI("start %{public}d authTrustLevel:%{public}u", apiVersion, authParam.authTrustLevel);
-    auto contextCallback = GetAuthContextCallback(apiVersion, authParam, widgetParam, callback);
+    IAM_LOGI("start");
+    Attributes extraInfo;
+    std::vector<AuthType> validType;
+    int32_t checkRet = CheckValidSolution(para.userId, authParam, widgetParam, validType);
+    if (checkRet != SUCCESS && checkRet != PIN_EXPIRED) {
+        IAM_LOGE("check valid solution failed");
+        contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget CheckValidSolution fail");
+        contextCallback->OnResult(checkRet, extraInfo);
+        return checkRet;
+    }
+    ProcessPinExpired(checkRet, authParam, validType, para);
+    ProcessWidgetSessionExclusive();
+
+    contextId = StartWidgetContext(contextCallback, authParam, widgetParam, validType, para);
+    if (contextId == BAD_CONTEXT_ID) {
+        IAM_LOGE("StartWidgetContext fail");
+        return GENERAL_ERROR;
+    }
+    return SUCCESS;
+}
+
+int32_t UserAuthService::AuthWidget(int32_t apiVersion, const IpcAuthParamInner &ipcAuthParamInner,
+    const IpcWidgetParamInner &ipcWidgetParamInner, const sptr<IIamCallback> &userAuthCallback,
+    const sptr<IModalCallback> &modalCallback, uint64_t &contextId)
+{
+    IAM_LOGI("start %{public}d authTrustLevel:%{public}u", apiVersion, ipcAuthParamInner.authTrustLevel);
+    AuthParamInner authParam = {};
+    WidgetParamInner widgetParam = {};
+    InitAuthParam(ipcAuthParamInner, authParam);
+    InitWidgetParam(ipcWidgetParamInner, widgetParam);
+    auto contextCallback = GetAuthContextCallback(apiVersion, authParam, widgetParam, userAuthCallback);
     if (contextCallback == nullptr) {
         IAM_LOGE("contextCallback is nullptr");
-        return BAD_CONTEXT_ID;
+        return GENERAL_ERROR;
     }
     ContextFactory::AuthWidgetContextPara para;
     para.sdkVersion = apiVersion;
@@ -1182,36 +1259,29 @@ uint64_t UserAuthService::AuthWidget(int32_t apiVersion, const AuthParamInner &a
     if (checkRet != SUCCESS) {
         contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget GetCallerInfo fail");
         contextCallback->OnResult(checkRet, extraInfo);
-        return BAD_CONTEXT_ID;
+        return checkRet;
     }
     checkRet = CheckAuthPermissionAndParam(authParam, widgetParam, para.isBackgroundApplication);
     if (checkRet != SUCCESS) {
         IAM_LOGE("check permission and auth widget param failed");
         contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget CheckAuthPermissionAndParam fail");
         contextCallback->OnResult(checkRet, extraInfo);
-        return BAD_CONTEXT_ID;
+        return checkRet;
     }
 
     if (AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo) == SUCCESS) {
         IAM_LOGE("check reuse unlock result success");
         contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget CheckReuseUnlockResult success");
         contextCallback->OnResult(SUCCESS, extraInfo);
-        return REUSE_AUTH_RESULT_CONTEXT_ID;
+        contextId = REUSE_AUTH_RESULT_CONTEXT_ID;
+        return SUCCESS;
     }
-    std::vector<AuthType> validType;
-    checkRet = CheckValidSolution(para.userId, authParam, widgetParam, validType);
-    if (checkRet != SUCCESS && checkRet != PIN_EXPIRED) {
-        IAM_LOGE("check valid solution failed");
-        contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget CheckValidSolution fail");
-        contextCallback->OnResult(checkRet, extraInfo);
-        return BAD_CONTEXT_ID;
-    }
-    ProcessPinExpired(checkRet, authParam, validType, para);
-    ProcessWidgetSessionExclusive();
+
     if (modalCallback != nullptr && widgetParam.hasContext) {
         WidgetClient::Instance().SetModalCallback(modalCallback);
     }
-    return StartWidgetContext(contextCallback, authParam, widgetParam, validType, para);
+
+    return StartAuthWidget(authParam, widgetParam, para, contextCallback, contextId);
 }
 
 void UserAuthService::ProcessWidgetSessionExclusive()
@@ -1241,7 +1311,8 @@ bool UserAuthService::Insert2ContextPool(const std::shared_ptr<Context> &context
 }
 
 std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(int32_t apiVersion,
-    const AuthParamInner &authParam, const WidgetParamInner &widgetParam, sptr<UserAuthCallbackInterface> &callback)
+    const AuthParamInner &authParam, const WidgetParamInner &widgetParam,
+    const sptr<IIamCallback> &callback)
 {
     if (callback == nullptr) {
         IAM_LOGE("callback is nullptr");
@@ -1251,7 +1322,7 @@ std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(int32_t
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
         Attributes extraInfo;
-        callback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
+        callback->OnResult(ResultCode::GENERAL_ERROR, extraInfo.Serialize());
         return nullptr;
     }
     contextCallback->SetTraceSdkVersion(apiVersion);
@@ -1282,7 +1353,7 @@ std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(int32_t
     return contextCallback;
 }
 
-int32_t UserAuthService::Notice(NoticeType noticeType, const std::string &eventData)
+int32_t UserAuthService::Notice(int32_t noticeType, const std::string &eventData)
 {
     IAM_LOGI("start");
     if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP)) {
@@ -1294,10 +1365,10 @@ int32_t UserAuthService::Notice(NoticeType noticeType, const std::string &eventD
         IAM_LOGE("failed to check permission");
         return ResultCode::CHECK_PERMISSION_FAILED;
     }
-    return WidgetClient::Instance().OnNotice(noticeType, eventData);
+    return WidgetClient::Instance().OnNotice(static_cast<NoticeType>(noticeType), eventData);
 }
 
-int32_t UserAuthService::RegisterWidgetCallback(int32_t version, sptr<WidgetCallbackInterface> &callback)
+int32_t UserAuthService::RegisterWidgetCallback(int32_t version, const sptr<IWidgetCallback> &widgetCallback)
 {
     if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP)) {
         IAM_LOGE("the caller is not a system application");
@@ -1316,17 +1387,17 @@ int32_t UserAuthService::RegisterWidgetCallback(int32_t version, sptr<WidgetCall
     if (version != curVersion) {
         return ResultCode::INVALID_PARAMETERS;
     }
-    if (callback == nullptr) {
+    if (widgetCallback == nullptr) {
         IAM_LOGE("callback is nullptr");
         return ResultCode::INVALID_PARAMETERS;
     }
-    WidgetClient::Instance().SetWidgetCallback(callback);
+    WidgetClient::Instance().SetWidgetCallback(widgetCallback);
     WidgetClient::Instance().SetAuthTokenId(tokenId);
     return ResultCode::SUCCESS;
 }
 
-int32_t UserAuthService::GetEnrolledState(int32_t apiVersion, AuthType authType,
-    EnrolledState &enrolledState)
+int32_t UserAuthService::GetEnrolledState(int32_t apiVersion, int32_t authType,
+    IpcEnrolledState &ipcEnrolledState)
 {
     IAM_LOGI("start");
 
@@ -1357,10 +1428,10 @@ int32_t UserAuthService::GetEnrolledState(int32_t apiVersion, AuthType authType,
         IAM_LOGE("failed to get enrolled state,userId:%{public}d authType:%{public}d", userId, authType);
         return result;
     }
-    enrolledState.credentialCount = hdiEnrolledState.credentialCount;
-    enrolledState.credentialDigest = hdiEnrolledState.credentialDigest;
+    ipcEnrolledState.credentialCount = hdiEnrolledState.credentialCount;
+    ipcEnrolledState.credentialDigest = hdiEnrolledState.credentialDigest;
     if (apiVersion < INNER_API_VERSION_10000) {
-        enrolledState.credentialDigest = hdiEnrolledState.credentialDigest & UINT16_MAX;
+        ipcEnrolledState.credentialDigest = hdiEnrolledState.credentialDigest & UINT16_MAX;
     }
     return SUCCESS;
 }
@@ -1379,14 +1450,19 @@ bool UserAuthService::CheckAuthTypeIsValid(std::vector<AuthType> authType)
     return true;
 }
 
-int32_t UserAuthService::RegistUserAuthSuccessEventListener(const std::vector<AuthType> &authType,
+int32_t UserAuthService::RegistUserAuthSuccessEventListener(const std::vector<int32_t> &authType,
     const sptr<AuthEventListenerInterface> &listener)
 {
     IAM_LOGI("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
+    std::vector<AuthType> authTypes;
+    authTypes.resize(authType.size());
+    std::transform(authType.begin(), authType.end(), authTypes.begin(), [](int32_t key) {
+        return static_cast<AuthType>(key);
+    });
 
-    if (!CheckAuthTypeIsValid(authType)) {
+    if (!CheckAuthTypeIsValid(authTypes)) {
         IAM_LOGE("failed to check authType");
         return INVALID_PARAMETERS;
     }
@@ -1396,7 +1472,7 @@ int32_t UserAuthService::RegistUserAuthSuccessEventListener(const std::vector<Au
         return CHECK_PERMISSION_FAILED;
     }
 
-    int32_t result = AuthEventListenerManager::GetInstance().RegistUserAuthSuccessEventListener(authType, listener);
+    int32_t result = AuthEventListenerManager::GetInstance().RegistUserAuthSuccessEventListener(authTypes, listener);
     if (result != SUCCESS) {
         IAM_LOGE("failed to regist auth event listener");
         return result;
@@ -1426,42 +1502,42 @@ int32_t UserAuthService::UnRegistUserAuthSuccessEventListener(
     return SUCCESS;
 }
 
-int32_t UserAuthService::SetGlobalConfigParam(const GlobalConfigParam &param)
+int32_t UserAuthService::SetGlobalConfigParam(const IpcGlobalConfigParam &ipcGlobalConfigParam)
 {
     IAM_LOGI("start, GlobalConfigType is %{public}d, userIds size %{public}zu, authTypes size %{public}zu",
-        param.type, param.userIds.size(), param.authTypes.size());
+        ipcGlobalConfigParam.type, ipcGlobalConfigParam.userIds.size(), ipcGlobalConfigParam.authTypes.size());
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION) ||
         !IpcCommon::CheckPermission(*this, ENTERPRISE_DEVICE_MGR)) {
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
     }
-    if (param.userIds.size() > MAX_USER || param.authTypes.size() > MAX_AUTH_TYPE_SIZE ||
-        param.authTypes.size() == 0) {
+    if (ipcGlobalConfigParam.userIds.size() > MAX_USER || ipcGlobalConfigParam.authTypes.size() > MAX_AUTH_TYPE_SIZE ||
+        ipcGlobalConfigParam.authTypes.size() == 0) {
         IAM_LOGE("bad global config param");
         return INVALID_PARAMETERS;
     }
 
     HdiGlobalConfigParam paramConfig = {};
-    switch (param.type) {
+    switch (static_cast<GlobalConfigType>(ipcGlobalConfigParam.type)) {
         case GlobalConfigType::PIN_EXPIRED_PERIOD:
-            if (param.authTypes.size() != 1 || param.authTypes[0] != PIN) {
+            if (ipcGlobalConfigParam.authTypes.size() != 1 || ipcGlobalConfigParam.authTypes[0] != PIN) {
                 IAM_LOGE("bad authTypes for PIN_EXPIRED_PERIOD");
                 return INVALID_PARAMETERS;
             }
-            paramConfig.value.pinExpiredPeriod = param.value.pinExpiredPeriod;
+            paramConfig.value.pinExpiredPeriod = ipcGlobalConfigParam.value.pinExpiredPeriod;
             break;
         case GlobalConfigType::ENABLE_STATUS:
-            paramConfig.value.enableStatus = param.value.enableStatus;
+            paramConfig.value.enableStatus = ipcGlobalConfigParam.value.enableStatus;
             break;
         default:
             IAM_LOGE("bad global config type");
             return INVALID_PARAMETERS;
     }
-    paramConfig.type = static_cast<HdiGlobalConfigType>(param.type);
-    paramConfig.userIds = param.userIds;
-    for (const auto authType : param.authTypes) {
-        paramConfig.authTypes.push_back(authType);
+    paramConfig.type = static_cast<HdiGlobalConfigType>(ipcGlobalConfigParam.type);
+    paramConfig.userIds = ipcGlobalConfigParam.userIds;
+    for (const auto authType : ipcGlobalConfigParam.authTypes) {
+        paramConfig.authTypes.push_back(static_cast<AuthType>(authType));
     }
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi == nullptr) {
@@ -1558,36 +1634,36 @@ bool UserAuthService::GetAuthTokenAttr(const HdiUserAuthTokenPlain &tokenPlain, 
     return true;
 }
 
-void UserAuthService::VerifyAuthToken(const std::vector<uint8_t> &tokenIn, uint64_t allowableDuration,
-    const sptr<VerifyTokenCallbackInterface> &callback)
+int32_t UserAuthService::VerifyAuthToken(const std::vector<uint8_t> &tokenIn, uint64_t allowableDuration,
+    const sptr<IVerifyTokenCallback> &verifyTokenCallback)
 {
     IAM_LOGI("start, duration:%{public}" PRIu64 ", tokenIn size:%{public}zu.", allowableDuration, tokenIn.size());
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
-    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+    IF_FALSE_LOGE_AND_RETURN_VAL(verifyTokenCallback != nullptr, INVALID_PARAMETERS);
 
     Attributes extraInfo;
     if (tokenIn.size() == 0 || tokenIn.data() == nullptr || allowableDuration > MAX_TOKEN_ALLOWABLE_DURATION) {
         IAM_LOGE("bad parameter");
-        callback->OnVerifyTokenResult(INVALID_PARAMETERS, extraInfo);
-        return;
+        verifyTokenCallback->OnVerifyTokenResult(INVALID_PARAMETERS, extraInfo.Serialize());
+        return INVALID_PARAMETERS;
     }
     if (!IpcCommon::CheckPermission(*this, USE_USER_ACCESS_MANAGER)) {
         IAM_LOGE("failed to check permission");
-        callback->OnVerifyTokenResult(CHECK_PERMISSION_FAILED, extraInfo);
-        return;
+        verifyTokenCallback->OnVerifyTokenResult(CHECK_PERMISSION_FAILED, extraInfo.Serialize());
+        return CHECK_PERMISSION_FAILED;
     }
     if (IpcCommon::GetDirectCallerType(*this) != Security::AccessToken::TOKEN_NATIVE &&
         !IpcCommon::CheckPermission(*this, IS_SYSTEM_APP)) {
         IAM_LOGE("caller is not systemApp.");
-        callback->OnVerifyTokenResult(CHECK_SYSTEM_APP_FAILED, extraInfo);
-        return;
+        verifyTokenCallback->OnVerifyTokenResult(CHECK_SYSTEM_APP_FAILED, extraInfo.Serialize());
+        return CHECK_SYSTEM_APP_FAILED;
     }
 
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi == nullptr) {
         IAM_LOGE("hdi interface is nullptr");
-        callback->OnVerifyTokenResult(GENERAL_ERROR, extraInfo);
-        return;
+        verifyTokenCallback->OnVerifyTokenResult(GENERAL_ERROR, extraInfo.Serialize());
+        return GENERAL_ERROR;
     }
 
     HdiUserAuthTokenPlain tokenPlain = {};
@@ -1595,15 +1671,74 @@ void UserAuthService::VerifyAuthToken(const std::vector<uint8_t> &tokenIn, uint6
     int32_t result = hdi->VerifyAuthToken(tokenIn, allowableDuration, tokenPlain, rootSecret);
     if (result != SUCCESS) {
         IAM_LOGE("VerifyAuthToken failed result:%{public}d", result);
-        callback->OnVerifyTokenResult(result, extraInfo);
-        return;
+        verifyTokenCallback->OnVerifyTokenResult(result, extraInfo.Serialize());
+        return result;
     }
     if (!GetAuthTokenAttr(tokenPlain, rootSecret, extraInfo)) {
         IAM_LOGE("GetAuthTokenAttr failed");
-        callback->OnVerifyTokenResult(GENERAL_ERROR, extraInfo);
-        return;
+        verifyTokenCallback->OnVerifyTokenResult(GENERAL_ERROR, extraInfo.Serialize());
+        return GENERAL_ERROR;
     }
-    callback->OnVerifyTokenResult(SUCCESS, extraInfo);
+    verifyTokenCallback->OnVerifyTokenResult(SUCCESS, extraInfo.Serialize());
+    return SUCCESS;
+}
+
+void UserAuthService::InitAuthParam(const IpcAuthParamInner &ipcAuthParam, AuthParamInner &authParam)
+{
+    authParam.userId = ipcAuthParam.userId;
+    authParam.isUserIdSpecified = ipcAuthParam.isUserIdSpecified;
+    authParam.challenge = ipcAuthParam.challenge;
+    authParam.authType = static_cast<AuthType>(ipcAuthParam.authType);
+    authParam.authTypes.resize(ipcAuthParam.authTypes.size());
+    std::transform(ipcAuthParam.authTypes.begin(), ipcAuthParam.authTypes.end(),
+        authParam.authTypes.begin(), [](int32_t authType) {
+        return static_cast<AuthType>(authType);
+    });
+    authParam.authTrustLevel = static_cast<AuthTrustLevel>(ipcAuthParam.authTrustLevel);
+    authParam.authIntent = static_cast<AuthIntent>(ipcAuthParam.authIntent);
+    authParam.reuseUnlockResult.isReuse = ipcAuthParam.reuseUnlockResult.isReuse;
+    authParam.reuseUnlockResult.reuseMode = static_cast<ReuseMode>(ipcAuthParam.reuseUnlockResult.reuseMode);
+    authParam.reuseUnlockResult.reuseDuration = ipcAuthParam.reuseUnlockResult.reuseDuration;
+}
+
+void UserAuthService::InitRemoteAuthParam(const IpcRemoteAuthParam &ipcRemoteAuthParam,
+    std::optional<RemoteAuthParam> &remoteAuthParam)
+{
+    if (ipcRemoteAuthParam.isHasRemoteAuthParam) {
+        remoteAuthParam = RemoteAuthParam{};
+        remoteAuthParam->verifierNetworkId = std::nullopt;
+        remoteAuthParam->collectorNetworkId = std::nullopt;
+        remoteAuthParam->collectorTokenId = std::nullopt;
+        if (ipcRemoteAuthParam.isHasVerifierNetworkId) {
+            remoteAuthParam->verifierNetworkId = ipcRemoteAuthParam.verifierNetworkId;
+        }
+        if (ipcRemoteAuthParam.isHasCollectorNetworkId) {
+            remoteAuthParam->collectorNetworkId = ipcRemoteAuthParam.collectorNetworkId;
+        }
+        if (ipcRemoteAuthParam.isHasCollectorTokenId) {
+            remoteAuthParam->collectorTokenId = ipcRemoteAuthParam.collectorTokenId;
+        }
+    }
+}
+
+void UserAuthService::InitWidgetParam(const IpcWidgetParamInner &ipcWidgetParam, WidgetParamInner &widgetParam)
+{
+    widgetParam.title = ipcWidgetParam.title;
+    widgetParam.navigationButtonText = ipcWidgetParam.navigationButtonText;
+    widgetParam.windowMode = static_cast<WindowModeType>(ipcWidgetParam.windowMode);
+    widgetParam.hasContext = ipcWidgetParam.hasContext;
+}
+
+int32_t UserAuthService::CallbackEnter([[maybe_unused]] uint32_t code)
+{
+    IAM_LOGI("start, code:%{public}u", code);
+    return SUCCESS;
+}
+
+int32_t UserAuthService::CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result)
+{
+    IAM_LOGI("leave, code:%{public}u, result:%{public}d", code, result);
+    return SUCCESS;
 }
 } // namespace UserAuth
 } // namespace UserIam

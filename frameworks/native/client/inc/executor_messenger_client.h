@@ -17,20 +17,20 @@
 #define EXECUTOR_MESSENGER_CLIENT_H
 
 #include "co_auth_client_defines.h"
-#include "executor_messenger_interface.h"
+#include "iexecutor_messenger.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 class ExecutorMessengerClient final : public ExecutorMessenger {
 public:
-    explicit ExecutorMessengerClient(const sptr<ExecutorMessengerInterface> &messenger);
+    explicit ExecutorMessengerClient(const sptr<IExecutorMessenger> &messenger);
     int32_t SendData(uint64_t scheduleId, ExecutorRole dstRole, const std::shared_ptr<AuthMessage> &msg) override;
     int32_t Finish(uint64_t scheduleId, int32_t resultCode,
         const Attributes &finalResult) override;
 
 private:
-    sptr<ExecutorMessengerInterface> messenger_ {nullptr};
+    sptr<IExecutorMessenger> messenger_ {nullptr};
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -26,9 +26,11 @@ namespace UserIam {
 namespace UserAuth {
 class MockExecutorMessengerService final : public ExecutorMessengerStub {
 public:
-    MOCK_METHOD3(SendData, int32_t(uint64_t scheduleId, ExecutorRole dstRole, const std::vector<uint8_t> &msg));
-    MOCK_METHOD3(Finish, int32_t(uint64_t scheduleId, ResultCode resultCode,
-        const std::shared_ptr<Attributes> &finalResult));
+    MOCK_METHOD3(SendData, int32_t(uint64_t scheduleId, int32_t dstRole, const std::vector<uint8_t> &msg));
+    MOCK_METHOD3(Finish, int32_t(uint64_t scheduleId, int32_t resultCode,
+        const std::vector<uint8_t> &finalResult));
+    MOCK_METHOD1(CallbackEnter, int32_t(uint32_t code));
+    MOCK_METHOD2(CallbackExit, int32_t(uint32_t code, int32_t result));
 };
 } // namespace UserAuth
 } // namespace UserIam

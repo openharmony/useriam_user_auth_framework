@@ -180,7 +180,7 @@ uint64_t RemoteAuthServiceImpl::StartRemoteAuthContext(Authentication::Authentic
 std::shared_ptr<ContextCallback> RemoteAuthServiceImpl::GetRemoteAuthContextCallback(std::string connectionName,
     Authentication::AuthenticationPara para)
 {
-    sptr<IamCallbackInterface> callback(new RemoteIamCallback(connectionName));
+    sptr<IIamCallback> callback(new RemoteIamCallback(connectionName));
     IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, nullptr);
 
     auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER_ALL);

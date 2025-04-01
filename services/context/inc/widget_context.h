@@ -32,7 +32,7 @@
 #include "context_death_recipient.h"
 #include "context_factory.h"
 #include "in_process_call_wrapper.h"
-#include "iam_callback_interface.h"
+#include "iiam_callback.h"
 #include "nocopyable.h"
 #include "widget_json.h"
 #include "widget_schedule_node.h"
@@ -102,7 +102,7 @@ private:
     bool DisconnectExtension();
     void End(const ResultCode &resultCode);
     std::shared_ptr<ContextCallback> GetAuthContextCallback(AuthType authType, AuthTrustLevel authTrustLevel,
-        sptr<IamCallbackInterface> &callback);
+        sptr<IIamCallback> &callback);
     void StopAllRunTask(const ResultCode &resultCode);
     std::string BuildStartCommand(const WidgetRotatePara &widgetRotatePara);
     void BuildStartPinSubType(WidgetCmdParameters &widgetCmdParameters);

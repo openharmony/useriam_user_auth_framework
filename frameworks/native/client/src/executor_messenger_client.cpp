@@ -24,7 +24,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-ExecutorMessengerClient::ExecutorMessengerClient(const sptr<ExecutorMessengerInterface> &messenger)
+ExecutorMessengerClient::ExecutorMessengerClient(const sptr<IExecutorMessenger> &messenger)
     : messenger_(messenger)
 {
 }
@@ -55,12 +55,7 @@ int32_t ExecutorMessengerClient::Finish(uint64_t scheduleId, int32_t resultCode,
         IAM_LOGE("messenger is nullptr");
         return GENERAL_ERROR;
     }
-    auto attr = Common::MakeShared<Attributes>(finalResult.Serialize());
-    if (attr == nullptr) {
-        IAM_LOGE("failed to create attributes");
-        return GENERAL_ERROR;
-    }
-    return messenger_->Finish(scheduleId, static_cast<ResultCode>(resultCode), attr);
+    return messenger_->Finish(scheduleId, static_cast<ResultCode>(resultCode), finalResult.Serialize());
 }
 } // namespace UserAuth
 } // namespace UserIam

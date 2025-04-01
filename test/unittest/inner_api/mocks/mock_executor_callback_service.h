@@ -25,14 +25,16 @@ namespace UserIam {
 namespace UserAuth {
 class MockExecutorCallbackService final : public ExecutorCallbackStub {
 public:
-    MOCK_METHOD3(OnMessengerReady, void(sptr<ExecutorMessengerInterface> &messenger,
+    MOCK_METHOD3(OnMessengerReady, int32_t(const sptr<IExecutorMessenger> &messenger,
         const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList));
     MOCK_METHOD3(OnBeginExecute, int32_t(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
         const Attributes &command));
-    MOCK_METHOD2(OnEndExecute, int32_t(uint64_t scheduleId, const Attributes &command));
-    MOCK_METHOD1(OnSetProperty, int32_t(const Attributes &properties));
-    MOCK_METHOD2(OnGetProperty, int32_t(const Attributes &condition, Attributes &values));
-    MOCK_METHOD2(OnSendData, int32_t(uint64_t scheduleId, const Attributes &data));
+    MOCK_METHOD2(OnEndExecute, int32_t(uint64_t scheduleId, const std::vector<uint8_t> &command));
+    MOCK_METHOD1(OnSetProperty, int32_t(const std::vector<uint8_t> &properties));
+    MOCK_METHOD2(OnGetProperty, int32_t(const std::vector<uint8_t> &condition, std::vector<uint8_t> &values));
+    MOCK_METHOD2(OnSendData, int32_t(uint64_t scheduleId, const std::vector<uint8_t> &data));
+    MOCK_METHOD1(CallbackEnter, int32_t(uint32_t code));
+    MOCK_METHOD2(CallbackExit, int32_t(uint32_t code, int32_t result));
 };
 } // namespace UserAuth
 } // namespace UserIam

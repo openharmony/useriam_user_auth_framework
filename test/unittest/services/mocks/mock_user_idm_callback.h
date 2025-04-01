@@ -20,31 +20,39 @@
 #include <gmock/gmock.h>
 #include <iremote_stub.h>
 
-#include "user_idm_callback_interface.h"
+#include "iiam_callback.h"
+#include "iidm_get_cred_info_callback.h"
+#include "iidm_get_secure_user_info_callback.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockIdmGetCredentialInfoCallback final : public IRemoteStub<IdmGetCredInfoCallbackInterface> {
+class MockIdmGetCredentialInfoCallback final : public IRemoteStub<IIdmGetCredInfoCallback> {
 public:
-    MOCK_METHOD2(OnCredentialInfos, void(int32_t result, const std::vector<CredentialInfo> &credInfoList));
+    MOCK_METHOD2(OnCredentialInfos, int32_t(int32_t result, const std::vector<IpcCredentialInfo> &credInfoList));
     MOCK_METHOD4(OnRemoteRequest,
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
+    MOCK_METHOD1(CallbackEnter, int32_t(uint32_t code));
+    MOCK_METHOD2(CallbackExit, int32_t(uint32_t code, int32_t result));
 };
 
-class MockIdmGetSecureUserInfoCallback final : public IRemoteStub<IdmGetSecureUserInfoCallbackInterface> {
+class MockIdmGetSecureUserInfoCallback final : public IRemoteStub<IIdmGetSecureUserInfoCallback> {
 public:
-    MOCK_METHOD2(OnSecureUserInfo, void(int32_t result, const SecUserInfo &secUserInfo));
+    MOCK_METHOD2(OnSecureUserInfo, int32_t(int32_t resultCodeCode, const IpcSecUserInfo &secUserInfo));
     MOCK_METHOD4(OnRemoteRequest,
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
+    MOCK_METHOD1(CallbackEnter, int32_t(uint32_t code));
+    MOCK_METHOD2(CallbackExit, int32_t(uint32_t code, int32_t result));
 };
 
-class MockIdmCallback final : public IRemoteStub<IdmCallbackInterface> {
+class MockIdmCallback final : public IRemoteStub<IIamCallback> {
 public:
-    MOCK_METHOD2(OnResult, void(int32_t result, const Attributes &extraInfo));
-    MOCK_METHOD3(OnAcquireInfo, void(int32_t module, int32_t acquire, const Attributes &extraInfo));
+    MOCK_METHOD2(OnResult, int32_t(int32_t resultCode, const std::vector<uint8_t> &extraInfo));
+    MOCK_METHOD3(OnAcquireInfo, int32_t(int32_t module, int32_t acquire, const std::vector<uint8_t> &extraInfo));
     MOCK_METHOD4(OnRemoteRequest,
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
+    MOCK_METHOD1(CallbackEnter, int32_t(uint32_t code));
+    MOCK_METHOD2(CallbackExit, int32_t(uint32_t code, int32_t result));
 };
 } // namespace UserAuth
 } // namespace UserIam

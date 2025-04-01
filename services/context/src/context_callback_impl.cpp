@@ -28,13 +28,13 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-ContextCallbackImpl::ContextCallbackImpl(sptr<IamCallbackInterface> iamCallback, OperationType operationType)
+ContextCallbackImpl::ContextCallbackImpl(sptr<IIamCallback> iamCallback, OperationType operationType)
     : iamCallback_(iamCallback)
 {
     metaData_.operationType = operationType;
     metaData_.startTime = std::chrono::steady_clock::now();
     std::ostringstream ss;
-    ss << "IDM(operation:" << operationType << ")";
+    ss << "IAM(operation:" << operationType << ")";
     iamHitraceHelper_ = Common::MakeShared<IamHitraceHelper>(ss.str());
 }
 
@@ -56,7 +56,7 @@ void ContextCallbackImpl::OnAcquireInfo(ExecutorRole src, int32_t moduleType,
         ProcessAuthResult(acquireInfo, extraInfo);
     }
 
-    iamCallback_->OnAcquireInfo(moduleType, acquireInfo, attr);
+    iamCallback_->OnAcquireInfo(moduleType, acquireInfo, acquireMsg);
 }
 
 void ContextCallbackImpl::ProcessAuthResult(int32_t tip, const std::vector<uint8_t> &extraInfo)
@@ -110,7 +110,7 @@ void ContextCallbackImpl::OnResult(int32_t resultCode, const Attributes &finalRe
     metaData_.endTime = std::chrono::steady_clock::now();
 
     if (iamCallback_ != nullptr) {
-        iamCallback_->OnResult(resultCode, finalResult);
+        iamCallback_->OnResult(resultCode, finalResult.Serialize());
     }
     HandleAuthSuccessResult(resultCode, finalResult);
 
@@ -239,7 +239,7 @@ void ContextCallbackImpl::SetCleaner(Context::ContextStopCallback callback)
     stopCallback_ = callback;
 }
 
-sptr<IamCallbackInterface> ContextCallbackImpl::GetIamCallback()
+sptr<IIamCallback> ContextCallbackImpl::GetIamCallback()
 {
     return iamCallback_;
 }
@@ -272,7 +272,7 @@ void ContextCallbackNotifyListener::Process(const MetaData &metaData, TraceFlag 
     }
 }
 
-std::shared_ptr<ContextCallback> ContextCallback::NewInstance(sptr<IamCallbackInterface> iamCallback,
+std::shared_ptr<ContextCallback> ContextCallback::NewInstance(sptr<IIamCallback> iamCallback,
     OperationType operationType)
 {
     if (iamCallback == nullptr) {
@@ -282,20 +282,22 @@ std::shared_ptr<ContextCallback> ContextCallback::NewInstance(sptr<IamCallbackIn
     return UserIam::Common::MakeShared<ContextCallbackImpl>(iamCallback, operationType);
 }
 
-class IamDummyCallback : public IamCallbackInterface, public NoCopyable {
+class IamDummyCallback : public IIamCallback, public NoCopyable {
 public:
     explicit IamDummyCallback() = default;
     ~IamDummyCallback() override = default;
-    void OnResult(int32_t result, const Attributes &extraInfo) override
+    int32_t OnResult(int32_t resultCode, const std::vector<uint8_t> &extraInfo) override
     {
-        static_cast<void>(result);
+        static_cast<void>(resultCode);
         static_cast<void>(extraInfo);
+        return SUCCESS;
     }
-    void OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo) override
+    int32_t OnAcquireInfo(int32_t module, int32_t acquireInfo, const std::vector<uint8_t> &extraInfo) override
     {
         static_cast<void>(module);
         static_cast<void>(acquireInfo);
         static_cast<void>(extraInfo);
+        return SUCCESS;
     }
     sptr<IRemoteObject> AsObject() override
     {
@@ -306,7 +308,7 @@ public:
 
 std::shared_ptr<ContextCallback> ContextCallback::NewDummyInstance(OperationType operationType)
 {
-    sptr<IamCallbackInterface> iamDummyCallback(new (std::nothrow) IamDummyCallback());
+    sptr<IIamCallback> iamDummyCallback(new (std::nothrow) IamDummyCallback());
     if (iamDummyCallback == nullptr) {
         IAM_LOGE("iamDummyCallback is nullptr");
         return nullptr;

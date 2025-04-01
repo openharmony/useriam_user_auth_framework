@@ -54,29 +54,16 @@ ohos_unittest("iam_inner_api_test") {
     "mocks/mock_ipc_client_utils.cpp",
     "src/callback_manager_impl_test.cpp",
     "src/co_auth_client_test.cpp",
-    "src/co_auth_proxy_test.cpp",
-    "src/executor_callback_proxy_test.cpp",
     "src/executor_callback_service_test.cpp",
-    "src/executor_callback_stub_test.cpp",
     "src/executor_messenger_client_test.cpp",
-    "src/executor_messenger_proxy_test.cpp",
-    "src/executor_messenger_stub_test.cpp",
     "src/user_access_ctrl_client_test.cpp",
-    "src/user_auth_callback_proxy_test.cpp",
     "src/user_auth_callback_service_test.cpp",
-    "src/user_auth_callback_stub_test.cpp",
     "src/user_auth_client_test.cpp",
     "src/user_auth_event_listener_stub_test.cpp",
     "src/user_auth_napi_client_test.cpp",
-    "src/user_auth_proxy_test.cpp",
-    "src/user_idm_callback_proxy_test.cpp",
     "src/user_idm_callback_service_test.cpp",
-    "src/user_idm_callback_stub_test.cpp",
     "src/user_idm_client_test.cpp",
-    "src/user_idm_proxy_test.cpp",
-    "src/widget_callback_proxy_test.cpp",
     "src/widget_callback_service_test.cpp",
-    "src/widget_callback_stub_test.cpp",
   ]
 
   configs = [
@@ -89,8 +76,7 @@ ohos_unittest("iam_inner_api_test") {
   deps = [
     "../../../frameworks/native/common:attributes",
     "../../../frameworks/native/common:dfx",
-    "../../../frameworks/native/ipc:userauth_client_ipc",
-    "../../../frameworks/native/ipc:userauth_service_ipc",
+    "../../../frameworks/native/ipc:iam_inner_api",
   ]
 
   external_deps = [

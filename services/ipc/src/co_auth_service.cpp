@@ -38,7 +38,6 @@
 #include "parameter.h"
 #include "relative_timer.h"
 #include "remote_connect_manager.h"
-#include "resource_node_pool.h"
 #include "service_init_manager.h"
 #include "system_param_manager.h"
 #include "template_cache_manager.h"
@@ -72,7 +71,8 @@ std::shared_ptr<CoAuthService> CoAuthService::GetInstance()
     return instance_;
 }
 
-CoAuthService::CoAuthService() : SystemAbility(SUBSYS_USERIAM_SYS_ABILITY_AUTHEXECUTORMGR, true)
+CoAuthService::CoAuthService()
+    : SystemAbility(SUBSYS_USERIAM_SYS_ABILITY_AUTHEXECUTORMGR, true), CoAuthStub(true)
 {
     IAM_LOGI("CoAuthService init");
     DriverStateManager::GetInstance().RegisterDriverStartCallback([]() {
@@ -133,7 +133,7 @@ bool CoAuthService::IsFwkReady()
 }
 
 void CoAuthService::AddExecutorDeathRecipient(uint64_t executorIndex, AuthType authType, ExecutorRole role,
-    std::shared_ptr<ExecutorCallbackInterface> callback)
+    std::shared_ptr<IExecutorCallback> callback)
 {
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
     auto obj = callback->AsObject();
@@ -156,88 +156,104 @@ void CoAuthService::AddExecutorDeathRecipient(uint64_t executorIndex, AuthType a
     }));
 }
 
-uint64_t CoAuthService::ExecutorRegister(const ExecutorRegisterInfo &info, sptr<ExecutorCallbackInterface> &callback)
+int32_t CoAuthService::ProcExecutorRegisterSuccess(std::shared_ptr<ResourceNode> &resourceNode,
+    const std::shared_ptr<IExecutorCallback> &callback, std::vector<uint64_t> &templateIdList,
+    std::vector<uint8_t> &fwkPublicKey)
 {
-    IAM_LOGI("register resource node begin");
-    Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
-    if (callback == nullptr) {
-        IAM_LOGE("executor callback is nullptr");
-        return INVALID_EXECUTOR_INDEX;
-    }
-
-    std::lock_guard<std::recursive_mutex> guard(mutex_);
-    if (!IsFwkReady()) {
-        IAM_LOGE("framework is not ready");
-        return INVALID_EXECUTOR_INDEX;
-    }
-
-    if (!IpcCommon::CheckPermission(*this, ACCESS_AUTH_RESPOOL)) {
-        IAM_LOGE("failed to check permission");
-        return INVALID_EXECUTOR_INDEX;
-    }
-
-    std::vector<uint64_t> templateIdList;
-    std::vector<uint8_t> fwkPublicKey;
-    auto executorCallback = Common::SptrToStdSharedPtr<ExecutorCallbackInterface>(callback);
-    auto resourceNode = ResourceNode::MakeNewResource(info, executorCallback, templateIdList, fwkPublicKey);
-    if (resourceNode == nullptr) {
-        IAM_LOGE("create resource node failed");
-        return INVALID_EXECUTOR_INDEX;
-    }
-    if (!ResourceNodePool::Instance().Insert(resourceNode)) {
-        IAM_LOGE("insert resource node failed");
-        return INVALID_EXECUTOR_INDEX;
-    }
-
+    IAM_LOGI("start");
     uint64_t executorIndex = resourceNode->GetExecutorIndex();
     auto handler = ThreadHandler::GetSingleThreadInstance();
     std::weak_ptr<ResourceNode> weakNode = resourceNode;
     IF_FALSE_LOGE_AND_RETURN_VAL(handler != nullptr, GENERAL_ERROR);
-    handler->PostTask([executorCallback, fwkPublicKey, templateIdList, weakNode, executorIndex]() {
+    handler->PostTask([callback, fwkPublicKey, templateIdList, weakNode, executorIndex]() {
         auto resourceNode = weakNode.lock();
         IF_FALSE_LOGE_AND_RETURN(resourceNode != nullptr);
-        sptr<ExecutorMessengerInterface> messenger = ExecutorMessengerService::GetInstance();
-        executorCallback->OnMessengerReady(messenger, fwkPublicKey, templateIdList);
+        sptr<IExecutorMessenger> messenger = ExecutorMessengerService::GetInstance();
+        callback->OnMessengerReady(messenger, fwkPublicKey, templateIdList);
         IAM_LOGI("register successful, executorType is %{public}d, executorRole is %{public}d, "
             "executorIndex is ****%{public}hx",
             resourceNode->GetAuthType(), resourceNode->GetExecutorRole(), static_cast<uint16_t>(executorIndex));
         LoadModeHandler::GetInstance().OnExecutorRegistered(resourceNode->GetAuthType(),
             resourceNode->GetExecutorRole());
         AddExecutorDeathRecipient(executorIndex, resourceNode->GetAuthType(), resourceNode->GetExecutorRole(),
-            executorCallback);
+            callback);
         IAM_LOGI("update template cache after register success");
         TemplateCacheManager::GetInstance().UpdateTemplateCache(resourceNode->GetAuthType());
     });
-    return executorIndex;
+
+    return SUCCESS;
 }
 
-void CoAuthService::ExecutorUnregister(uint64_t executorIndex)
+int32_t CoAuthService::ExecutorRegister(const IpcExecutorRegisterInfo &ipcExecutorRegisterInfo,
+    const sptr<IExecutorCallback> &executorCallback, uint64_t &executorIndex)
+{
+    IAM_LOGI("register resource node begin");
+    executorIndex = INVALID_EXECUTOR_INDEX;
+    Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
+    if (executorCallback == nullptr) {
+        IAM_LOGE("executor callback is nullptr");
+        return INVALID_PARAMETERS;
+    }
+
+    std::lock_guard<std::recursive_mutex> guard(mutex_);
+    if (!IsFwkReady()) {
+        IAM_LOGE("framework is not ready");
+        return GENERAL_ERROR;
+    }
+
+    if (!IpcCommon::CheckPermission(*this, ACCESS_AUTH_RESPOOL)) {
+        IAM_LOGE("failed to check permission");
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    std::vector<uint64_t> templateIdList;
+    std::vector<uint8_t> fwkPublicKey;
+    ExecutorRegisterInfo executorRegisterInfo = {};
+    InitExecutorRegisterInfo(ipcExecutorRegisterInfo, executorRegisterInfo);
+    sptr<IExecutorCallback> tempCallBack = executorCallback;
+    auto callback = Common::SptrToStdSharedPtr<IExecutorCallback>(tempCallBack);
+    auto resourceNode = ResourceNode::MakeNewResource(executorRegisterInfo, callback,
+        templateIdList, fwkPublicKey);
+    if (resourceNode == nullptr) {
+        IAM_LOGE("create resource node failed");
+        return GENERAL_ERROR;
+    }
+    if (!ResourceNodePool::Instance().Insert(resourceNode)) {
+        IAM_LOGE("insert resource node failed");
+        return GENERAL_ERROR;
+    }
+    executorIndex = resourceNode->GetExecutorIndex();
+    return ProcExecutorRegisterSuccess(resourceNode, callback, templateIdList, fwkPublicKey);
+}
+
+int32_t CoAuthService::ExecutorUnregister(uint64_t executorIndex)
 {
     IAM_LOGI("delete resource node begin");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     std::lock_guard<std::recursive_mutex> guard(mutex_);
     if (!IsFwkReady()) {
         IAM_LOGE("framework is not ready");
-        return;
+        return SUCCESS;
     }
 
     if (!IpcCommon::CheckPermission(*this, ACCESS_AUTH_RESPOOL)) {
         IAM_LOGE("failed to check permission");
-        return;
+        return CHECK_PERMISSION_FAILED;
     }
 
     {
         auto resourceNode = ResourceNodePool::Instance().Select(executorIndex).lock();
-        IF_FALSE_LOGE_AND_RETURN(resourceNode != nullptr);
+        IF_FALSE_LOGE_AND_RETURN_VAL(resourceNode != nullptr, GENERAL_ERROR);
         LoadModeHandler::GetInstance().OnExecutorUnregistered(resourceNode->GetAuthType(),
             resourceNode->GetExecutorRole());
     }
 
     if (!ResourceNodePool::Instance().Delete(executorIndex)) {
         IAM_LOGE("delete resource node failed");
-        return;
+        return GENERAL_ERROR;
     }
     IAM_LOGI("delete resource node success, executorIndex is ****%{public}hx", static_cast<uint16_t>(executorIndex));
+    return SUCCESS;
 }
 
 void CoAuthService::OnDriverStart()
@@ -361,6 +377,32 @@ void CoAuthService::NotifyFwkReady()
     if (IsFwkReady()) {
         LoadModeHandler::GetInstance().OnFwkReady();
     }
+}
+
+void CoAuthService::InitExecutorRegisterInfo(const IpcExecutorRegisterInfo &ipcExecutorRegisterInfo,
+    ExecutorRegisterInfo &executorRegisterInfo)
+{
+    executorRegisterInfo.authType = static_cast<AuthType>(ipcExecutorRegisterInfo.authType);
+    executorRegisterInfo.executorRole = static_cast<ExecutorRole>(ipcExecutorRegisterInfo.executorRole);
+    executorRegisterInfo.executorSensorHint = ipcExecutorRegisterInfo.executorSensorHint;
+    executorRegisterInfo.executorMatcher = ipcExecutorRegisterInfo.executorMatcher;
+    executorRegisterInfo.esl = static_cast<ExecutorSecureLevel>(ipcExecutorRegisterInfo.esl);
+    executorRegisterInfo.maxTemplateAcl = ipcExecutorRegisterInfo.maxTemplateAcl;
+    executorRegisterInfo.publicKey = ipcExecutorRegisterInfo.publicKey;
+    executorRegisterInfo.deviceUdid = ipcExecutorRegisterInfo.deviceUdid;
+    executorRegisterInfo.signedRemoteExecutorInfo = ipcExecutorRegisterInfo.signedRemoteExecutorInfo;
+}
+
+int32_t CoAuthService::CallbackEnter([[maybe_unused]] uint32_t code)
+{
+    IAM_LOGI("start, code:%{public}u", code);
+    return SUCCESS;
+}
+
+int32_t CoAuthService::CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result)
+{
+    IAM_LOGI("leave, code:%{public}u, result:%{public}d", code, result);
+    return SUCCESS;
 }
 } // namespace UserAuth
 } // namespace UserIam

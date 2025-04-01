@@ -27,15 +27,16 @@ class ExecutorCallbackService : public ExecutorCallbackStub {
 public:
     explicit ExecutorCallbackService(const std::shared_ptr<ExecutorRegisterCallback> &impl);
     ~ExecutorCallbackService() override = default;
-    void OnMessengerReady(sptr<ExecutorMessengerInterface> &messenger,
+    int32_t OnMessengerReady(const sptr<IExecutorMessenger> &messenger,
         const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList) override;
     int32_t OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
-        const Attributes &command) override;
-    int32_t OnEndExecute(uint64_t scheduleId, const Attributes &command) override;
-    int32_t OnSetProperty(const Attributes &properties) override;
-    int32_t OnGetProperty(const Attributes &condition, Attributes &values) override;
-    int32_t OnSendData(uint64_t scheduleId, const Attributes &data) override;
-
+        const std::vector<uint8_t> &command) override;
+    int32_t OnEndExecute(uint64_t scheduleId, const std::vector<uint8_t> &command) override;
+    int32_t OnSetProperty(const std::vector<uint8_t> &properties) override;
+    int32_t OnGetProperty(const std::vector<uint8_t> &condition, std::vector<uint8_t> &values) override;
+    int32_t OnSendData(uint64_t scheduleId, const std::vector<uint8_t> &extraInfo) override;
+    int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;
+    int32_t CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result) override;
 private:
     std::shared_ptr<ExecutorRegisterCallback> callback_ {nullptr};
 };

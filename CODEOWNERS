@@ -11,19 +11,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#any change to frameworks/native/ipc/common_defines/co_auth_interface_ipc_interface_code.h needs to be reviewed by @leonchan5
-frameworks/native/ipc/common_defines/co_auth_interface_ipc_interface_code.h @leonchan5
-#any change to frameworks/native/ipc/common_defines/executor_callback_interface_ipc_interface_code.h needs to be reviewed by @leonchan5
-frameworks/native/ipc/common_defines/executor_callback_interface_ipc_interface_code.h @leonchan5
-#any change to frameworks/native/ipc/common_defines/executor_messenger_interface_ipc_interface_code.h needs to be reviewed by @leonchan5
-frameworks/native/ipc/common_defines/executor_messenger_interface_ipc_interface_code.h @leonchan5
-#any change to frameworks/native/ipc/common_defines/idm_callback_interface_ipc_interface_code.h needs to be reviewed by @leonchan5
-frameworks/native/ipc/common_defines/idm_callback_interface_ipc_interface_code.h @leonchan5
-#any change to frameworks/native/ipc/common_defines/idm_get_cred_info_callback_interface_ipc_interface_code.h needs to be reviewed by @leonchan5
-frameworks/native/ipc/common_defines/idm_get_cred_info_callback_interface_ipc_interface_code.h @leonchan5
-#any change to frameworks/native/ipc/common_defines/idm_get_secure_user_info_callback_interface_ipc_interface_code.h needs to be reviewed by @leonchan5
-frameworks/native/ipc/common_defines/idm_get_secure_user_info_callback_interface_ipc_interface_code.h @leonchan5
-#any change to frameworks/native/ipc/common_defines/user_auth_interface_ipc_interface_code.h needs to be reviewed by @leonchan5
-frameworks/native/ipc/common_defines/user_auth_interface_ipc_interface_code.h @leonchan5
-#any change to frameworks/native/ipc/common_defines/user_idm_interface_ipc_interface_code.h needs to be reviewed by @leonchan5
-frameworks/native/ipc/common_defines/user_idm_interface_ipc_interface_code.h @leonchan5
+#any change to frameworks/native/ipc/idl/ICoAuth.idl needs to be reviewed by @leonchan5
+frameworks/native/ipc/idl/ICoAuth.idl
+#any change to frameworks/native/ipc/idl/IUserAuth.idl needs to be reviewed by @leonchan5
+frameworks/native/ipc/idl/IUserAuth.idl
+#any change to frameworks/native/ipc/idl/IUserIdm.idl needs to be reviewed by @leonchan5
+frameworks/native/ipc/idl/IUserIdm.idl
+#any change to frameworks/native/ipc/idl/IExecutorCallback.idl needs to be reviewed by @leonchan5
+frameworks/native/ipc/idl/IExecutorCallback.idl
+#any change to frameworks/native/ipc/idl/IExecutorMessenger.idl needs to be reviewed by @leonchan5
+frameworks/native/ipc/idl/IExecutorMessenger.idl
+#any change to frameworks/native/ipc/idl/IGetExecutorPropertyCallback.idl needs to be reviewed by @leonchan5
+frameworks/native/ipc/idl/IGetExecutorPropertyCallback.idl
+#any change to frameworks/native/ipc/idl/IIamCallback.idl needs to be reviewed by @leonchan5
+frameworks/native/ipc/idl/IIamCallback.idl
+#any change to frameworks/native/ipc/idl/IIdmGetCredInfoCallback.idl needs to be reviewed by @leonchan5
+frameworks/native/ipc/idl/IIdmGetCredInfoCallback.idl
+#any change to frameworks/native/ipc/idl/IIdmGetSecureUserInfoCallback.idl needs to be reviewed by @leonchan5
+frameworks/native/ipc/idl/IIdmGetSecureUserInfoCallback.idl
+#any change to frameworks/native/ipc/idl/IModalCallback.idl needs to be reviewed by @leonchan5
+frameworks/native/ipc/idl/IModalCallback.idl
+#any change to frameworks/native/ipc/idl/ISetExecutorPropertyCallback.idl needs to be reviewed by @leonchan5
+frameworks/native/ipc/idl/ISetExecutorPropertyCallback.idl
+#any change to frameworks/native/ipc/idl/IVerifyTokenCallback.idl needs to be reviewed by @leonchan5
+frameworks/native/ipc/idl/IVerifyTokenCallback.idl
+#any change to frameworks/native/ipc/idl/IWidgetCallback.idl needs to be reviewed by @leonchan5
+frameworks/native/ipc/idl/IWidgetCallback.idl

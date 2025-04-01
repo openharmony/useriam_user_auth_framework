@@ -39,36 +39,39 @@ public:
 
     UserAuthService();
     ~UserAuthService() override = default;
-    int32_t GetAvailableStatus(int32_t apiVersion, int32_t userId, AuthType authType,
-        AuthTrustLevel authTrustLevel) override;
-    int32_t GetAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel) override;
-    void GetProperty(int32_t userId, AuthType authType,
-        const std::vector<Attributes::AttributeKey> &keys,
-        sptr<GetExecutorPropertyCallbackInterface> &callback) override;
-    void GetPropertyById(uint64_t credentialId, const std::vector<Attributes::AttributeKey> &keys,
-        sptr<GetExecutorPropertyCallbackInterface> &callback) override;
-    void SetProperty(int32_t userId, AuthType authType, const Attributes &attributes,
-        sptr<SetExecutorPropertyCallbackInterface> &callback) override;
-    uint64_t AuthUser(AuthParamInner &param, std::optional<RemoteAuthParam> &remoteAuthParam,
-        sptr<UserAuthCallbackInterface> &callback) override;
-    uint64_t Auth(int32_t apiVersion, const std::vector<uint8_t> &challenge, AuthType authType,
-        AuthTrustLevel authTrustLevel, sptr<UserAuthCallbackInterface> &callback) override;
-    uint64_t AuthWidget(int32_t apiVersion, const AuthParamInner &authParam, const WidgetParamInner &widgetParam,
-        sptr<UserAuthCallbackInterface> &callback, sptr<ModalCallbackInterface> &modalCallback) override;
-    uint64_t Identify(const std::vector<uint8_t> &challenge, AuthType authType,
-        sptr<UserAuthCallbackInterface> &callback) override;
+    int32_t GetAvailableStatus(int32_t apiVersion, int32_t userId, int32_t authType,
+        uint32_t authTrustLevel) override;
+    int32_t GetAvailableStatus(int32_t apiVersion, int32_t authType, uint32_t authTrustLevel) override;
+    int32_t GetProperty(int32_t userId, int32_t authType, const std::vector<uint32_t> &keys,
+        const sptr<IGetExecutorPropertyCallback> &getExecutorPropertyCallback) override;
+    int32_t GetPropertyById(uint64_t credentialId, const std::vector<uint32_t> &keys,
+        const sptr<IGetExecutorPropertyCallback> &getExecutorPropertyCallback) override;
+    int32_t SetProperty(int32_t userId, int32_t authType, const std::vector<uint8_t> &attributes,
+        const sptr<ISetExecutorPropertyCallback> &setExecutorPropertyCallback) override;
+    int32_t AuthUser(const IpcAuthParamInner &ipcAuthParamInner, const IpcRemoteAuthParam &ipcRemoteAuthParam,
+        const sptr<IIamCallback> &userAuthCallback, uint64_t &contextId) override;
+    int32_t Auth(int32_t apiVersion, const IpcAuthParamInner &ipcAuthParamInner,
+        const sptr<IIamCallback> &userAuthCallback, uint64_t &contextI) override;
+    int32_t AuthWidget(int32_t apiVersion, const IpcAuthParamInner &ipcAuthParamInner,
+        const IpcWidgetParamInner &ipcWidgetParamInner, const sptr<IIamCallback> &userAuthCallback,
+        const sptr<IModalCallback> &modalCallback, uint64_t &contextId) override;
+    int32_t Identify(const std::vector<uint8_t> &challenge, int32_t authType,
+        const sptr<IIamCallback> &userAuthCallback, uint64_t &contextId) override;
     int32_t CancelAuthOrIdentify(uint64_t contextId, int32_t cancelReason) override;
     int32_t GetVersion(int32_t &version) override;
-    int32_t Notice(NoticeType noticeType, const std::string &eventData) override;
-    int32_t RegisterWidgetCallback(int32_t version, sptr<WidgetCallbackInterface> &callback) override;
-    int32_t GetEnrolledState(int32_t apiVersion, AuthType authType, EnrolledState &enrolledState) override;
-    int32_t RegistUserAuthSuccessEventListener(const std::vector<AuthType> &authType,
+    int32_t Notice(int32_t noticeType, const std::string &eventData) override;
+    int32_t RegisterWidgetCallback(int32_t version, const sptr<IWidgetCallback> &widgetCallback) override;
+    int32_t GetEnrolledState(int32_t apiVersion, int32_t authType, IpcEnrolledState &ipcEnrolledState) override;
+    int32_t RegistUserAuthSuccessEventListener(const std::vector<int32_t> &authType,
         const sptr<AuthEventListenerInterface> &listener) override;
     int32_t UnRegistUserAuthSuccessEventListener(const sptr<AuthEventListenerInterface> &listener) override;
-    int32_t SetGlobalConfigParam(const GlobalConfigParam &param) override;
-    int32_t PrepareRemoteAuth(const std::string &networkId, sptr<UserAuthCallbackInterface> &callback) override;
-    void VerifyAuthToken(const std::vector<uint8_t> &tokenIn, uint64_t allowableDuration,
-        const sptr<VerifyTokenCallbackInterface> &callback) override;
+    int32_t SetGlobalConfigParam(const IpcGlobalConfigParam &ipcGlobalConfigParam) override;
+    int32_t PrepareRemoteAuth(const std::string &networkId,
+        const sptr<IIamCallback> &userAuthCallback) override;
+    int32_t VerifyAuthToken(const std::vector<uint8_t> &tokenIn, uint64_t allowableDuration,
+        const sptr<IVerifyTokenCallback> &verifyTokenCallback) override;
+    int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;
+    int32_t CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result) override;
 
 protected:
     void OnStart() override;
@@ -77,9 +80,9 @@ protected:
 private:
     std::shared_ptr<ContextCallback> GetAuthContextCallback(int32_t apiVersion,
         const std::vector<uint8_t> &challenge, AuthType authType, AuthTrustLevel authTrustLevel,
-        sptr<UserAuthCallbackInterface> &callback);
+        const sptr<IIamCallback> &callback);
     std::shared_ptr<ContextCallback> GetAuthContextCallback(int32_t apiVersion, const AuthParamInner &authParam,
-        const WidgetParamInner &widgetParam, sptr<UserAuthCallbackInterface> &callback);
+        const WidgetParamInner &widgetParam, const sptr<IIamCallback> &callback);
     bool CheckAuthTrustLevel(AuthTrustLevel authTrustLevel);
     bool CheckSingeFaceOrFinger(const std::vector<AuthType> &authType);
     bool CheckPrivatePinEnroll(const std::vector<AuthType> &authType, std::vector<AuthType> &validType);
@@ -114,7 +117,7 @@ private:
         std::vector<uint32_t> &uint32Keys);
     void FillGetPropertyValue(AuthType authType, const std::vector<Attributes::AttributeKey> &keys, Attributes &values);
     bool CompleteRemoteAuthParam(RemoteAuthParam &remoteAuthParam, const std::string &localNetworkId);
-    int32_t PrepareRemoteAuthInner(const std::string &networkId, sptr<UserAuthCallbackInterface> &callback);
+    int32_t PrepareRemoteAuthInner(const std::string &networkId, const sptr<IIamCallback> &callback);
     int32_t DoPrepareRemoteAuth(const std::string &networkId);
     int32_t GetAvailableStatusInner(int32_t apiVersion, int32_t userId, AuthType authType,
         AuthTrustLevel authTrustLevel);
@@ -124,8 +127,20 @@ private:
     void ProcessPinExpired(int32_t ret, const AuthParamInner &authParam, std::vector<AuthType> &validType,
         ContextFactory::AuthWidgetContextPara &para);
     void ProcessWidgetSessionExclusive();
-    void GetPropertyInner(AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
-        sptr<GetExecutorPropertyCallbackInterface> &callback, std::vector<uint64_t> &templateIds);
+    int32_t GetPropertyInner(AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
+        const sptr<IGetExecutorPropertyCallback> &callback, std::vector<uint64_t> &templateIds);
+    int32_t StartAuth(int32_t apiVersion, Authentication::AuthenticationPara &para,
+        std::shared_ptr<ContextCallback> &contextCallback, uint64_t &contextId);
+    int32_t StartAuthUser(AuthParamInner &authParam, std::optional<RemoteAuthParam> &remoteAuthParam,
+        Authentication::AuthenticationPara &para, std::shared_ptr<ContextCallback> &contextCallback,
+        uint64_t &contextId);
+    int32_t StartAuthWidget(AuthParamInner &authParam, WidgetParamInner &widgetParam,
+        ContextFactory::AuthWidgetContextPara &para, std::shared_ptr<ContextCallback> &contextCallback,
+        uint64_t &contextId);
+    void InitAuthParam(const IpcAuthParamInner &ipcAuthParam, AuthParamInner &authParam);
+    void InitRemoteAuthParam(const IpcRemoteAuthParam &ipcRemoteAuthParam,
+        std::optional<RemoteAuthParam> &remoteAuthParam);
+    void InitWidgetParam(const IpcWidgetParamInner &ipcWidgetParam, WidgetParamInner &widgetParam);
     static std::mutex mutex_;
     static std::shared_ptr<UserAuthService> instance_;
 };

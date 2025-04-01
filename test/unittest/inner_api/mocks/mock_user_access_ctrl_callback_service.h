@@ -18,14 +18,16 @@
 
 #include <gmock/gmock.h>
 
-#include "user_access_ctrl_callback_stub.h"
+#include "verify_token_callback_stub.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 class MockVerifyTokenCallbackService final : public VerifyTokenCallbackStub {
 public:
-    MOCK_METHOD2(OnVerifyTokenResult, void(int32_t result, const Attributes &extraInfo));
+    MOCK_METHOD2(OnVerifyTokenResult, int32_t(int32_t result, const std::vector<uint8_t> &extraInfo));
+    MOCK_METHOD1(CallbackEnter, int32_t(uint32_t code));
+    MOCK_METHOD2(CallbackExit, int32_t(uint32_t code, int32_t result));
 };
 } // namespace UserAuth
 } // namespace UserIam
