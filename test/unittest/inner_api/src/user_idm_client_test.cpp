@@ -549,6 +549,48 @@ void UserIdmClientTest::CallRemoteObject(const std::shared_ptr<MockUserIdmServic
             return OHOS::NO_ERROR;
         });
 }
+
+HWTEST_F(UserIdmClientTest, UserIdmClientGetCredentialInfoSync001, TestSize.Level0)
+{
+    int32_t testUserId = 200;
+    AuthType testAuthType = PIN;
+    std::vector<CredentialInfo> credentialInfoList;
+    int32_t ret = UserIdmClient::GetInstance().GetCredentialInfoSync(testUserId, testAuthType, credentialInfoList);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+
+    IpcClientUtils::ResetObj();
+    ret = UserIdmClient::GetInstance().GetCredentialInfoSync(testUserId, testAuthType, credentialInfoList);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+}
+
+HWTEST_F(UserIdmClientTest, UserIdmClientGetCredentialInfoSync002, TestSize.Level0)
+{
+    int32_t testUserId = 200;
+    AuthType testAuthType = PIN;
+    std::vector<CredentialInfo> credentialInfoList;
+
+    auto service = Common::MakeShared<MockUserIdmService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, GetCredentialInfoSync(_, _, _)).Times(1);
+    ON_CALL(*service, GetCredentialInfoSync)
+        .WillByDefault(
+            [&testUserId, &testAuthType](int32_t userId, int32_t authType,
+                std::vector<IpcCredentialInfo> &credentialInfoList) {
+                EXPECT_EQ(userId, testUserId);
+                EXPECT_EQ(authType, testAuthType);
+                return SUCCESS;
+            }
+        );
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
+    CallRemoteObject(service, obj, dr);
+
+    int32_t ret = UserIdmClient::GetInstance().GetCredentialInfoSync(testUserId, testAuthType, credentialInfoList);
+    EXPECT_EQ(ret, SUCCESS);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
+    IpcClientUtils::ResetObj();
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

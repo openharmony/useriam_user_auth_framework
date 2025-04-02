@@ -302,6 +302,17 @@ void FuzzStartEnroll(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzGetCredentialInfoSync(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    int32_t userId = parcel.ReadInt32();
+    auto authType = static_cast<AuthType>(parcel.ReadInt32());
+    std::vector<IpcCredentialInfo> credentialInfoList;
+    g_UserIdmService.GetCredentialInfoSync(userId, authType, credentialInfoList);
+    IAM_LOGI("end");
+}
+
+
 using FuzzFunc = decltype(FuzzOpenSession);
 FuzzFunc *g_fuzzFuncs[] = {
     FuzzOpenSession,
@@ -320,6 +331,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzEnforceDelUserInner,
     FuzzCancelCurrentEnroll,
     FuzzStartEnroll,
+    FuzzGetCredentialInfoSync,
 };
 
 void UserIdmFuzzTest(const uint8_t *data, size_t size)
