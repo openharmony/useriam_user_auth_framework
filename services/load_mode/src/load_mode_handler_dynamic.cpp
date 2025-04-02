@@ -19,7 +19,7 @@
 
 #include "driver_load_manager.h"
 #include "driver_state_manager.h"
-#include "iam_logger.h"
+#include "hisysevent_adapter.h"
 #include "os_account_manager.h"
 #include "relative_timer.h"
 #include "service_unload_manager.h"
@@ -109,6 +109,7 @@ void LoadModeHandlerDynamic::OnCommonEventSaStart()
 
 void LoadModeHandlerDynamic::StartSubscribe()
 {
+    IAM_LOGI("start");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (isSubscribed_) {
         return;
@@ -126,14 +127,14 @@ void LoadModeHandlerDynamic::StartSubscribe()
 
     IF_FALSE_LOGE_AND_RETURN(pinAuthServiceListener_ != nullptr);
 
-    IAM_LOGI("init load mode handler dynamic success");
     isSubscribed_ = true;
+    IAM_LOGI("start subscribe success");
 }
 
 void LoadModeHandlerDynamic::OnFwkReady()
 {
     IAM_LOGI("fwk ready");
-    RefreshIsPinEnrolled();
+    RefreshIsPinEnrolled(true);
     SystemParamManager::GetInstance().SetParam(IS_CREDENTIAL_CHECKED_KEY, TRUE_STR);
     bool isStopSa = false;
     ServiceUnloadManager::GetInstance().OnFwkReady(isStopSa);
@@ -206,7 +207,7 @@ void LoadModeHandlerDynamic::OnCredentialUpdated(AuthType authType)
         return;
     }
     IAM_LOGI("on credential updated authType %{public}d", authType);
-    RefreshIsPinEnrolled();
+    RefreshIsPinEnrolled(false);
 }
 
 bool LoadModeHandlerDynamic::AnyUserHasPinCredential()
@@ -237,11 +238,23 @@ bool LoadModeHandlerDynamic::AnyUserHasPinCredential()
     return false;
 }
 
-void LoadModeHandlerDynamic::RefreshIsPinEnrolled()
+void LoadModeHandlerDynamic::RefreshIsPinEnrolled(bool shouldReportBigData)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     isPinEnrolled_ = AnyUserHasPinCredential();
     IAM_LOGI("is pin enrolled %{public}s", isPinEnrolled_ ? TRUE_STR : FALSE_STR);
+    if (shouldReportBigData) {
+        bool isPinEnrolled = SystemParamManager::GetInstance().GetParam(IS_PIN_ENROLLED_KEY, FALSE_STR) == TRUE_STR;
+        if (isPinEnrolled_ != isPinEnrolled) {
+            bool preStatus = isPinEnrolled;
+            bool updatedStatus = isPinEnrolled_;
+            IsCredentialEnrolledMismatchTrace isCredentialEnrolledMismatchTraceInfo = {};
+            isCredentialEnrolledMismatchTraceInfo.authType = AuthType::PIN;
+            isCredentialEnrolledMismatchTraceInfo.preStatus = preStatus;
+            isCredentialEnrolledMismatchTraceInfo.updatedStatus = updatedStatus;
+            UserIam::UserAuth::ReportIsCredentialEnrolledMismatch(isCredentialEnrolledMismatchTraceInfo);
+        }
+    }
 
     SystemParamManager::GetInstance().SetParam(IS_PIN_ENROLLED_KEY, isPinEnrolled_ ? TRUE_STR : FALSE_STR);
 }

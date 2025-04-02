@@ -53,7 +53,7 @@ public:
 
 private:
     bool AnyUserHasPinCredential();
-    void RefreshIsPinEnrolled();
+    void RefreshIsPinEnrolled(bool shouldReportBigData);
     void RefreshIsPinFunctionReady();
 
     bool isSubscribed_ = false;
