@@ -210,13 +210,13 @@ void LoadModeHandlerDynamic::OnCredentialUpdated(AuthType authType)
     RefreshIsPinEnrolled(false);
 }
 
-bool LoadModeHandlerDynamic::AnyUserHasPinCredential()
+std::optional<bool> LoadModeHandlerDynamic::AnyUserHasPinCredential()
 {
     std::vector<AccountSA::OsAccountInfo> osAccountInfo;
     ErrCode errCode = AccountSA::OsAccountManager::QueryAllCreatedOsAccounts(osAccountInfo);
     if (errCode != ERR_OK) {
         IAM_LOGE("QueryAllCreatedOsAccounts fail, errCode = %{public}d", errCode);
-        return false;
+        return std::nullopt;
     }
 
     for (auto &info : osAccountInfo) {
@@ -226,6 +226,9 @@ bool LoadModeHandlerDynamic::AnyUserHasPinCredential()
         if (getCredRet != SUCCESS) {
             // it's possible that the user has no credential
             IAM_LOGI("failed to get credential info ret %{public}d", getCredRet);
+            if (getCredRet == INVALID_HDI_INTERFACE) {
+                return std::nullopt;
+            }
             continue;
         }
 
@@ -241,7 +244,13 @@ bool LoadModeHandlerDynamic::AnyUserHasPinCredential()
 void LoadModeHandlerDynamic::RefreshIsPinEnrolled(bool shouldReportBigData)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    isPinEnrolled_ = AnyUserHasPinCredential();
+    auto ret = AnyUserHasPinCredential();
+    if (!ret.has_value()) {
+        IAM_LOGE("fail to refresh isPinEnrolled");
+        return;
+    }
+
+    isPinEnrolled_ = *ret;
     IAM_LOGI("is pin enrolled %{public}s", isPinEnrolled_ ? TRUE_STR : FALSE_STR);
     if (shouldReportBigData) {
         bool isPinEnrolled = SystemParamManager::GetInstance().GetParam(IS_PIN_ENROLLED_KEY, FALSE_STR) == TRUE_STR;
