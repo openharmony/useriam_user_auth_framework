@@ -17,5 +17,5 @@ import UserAuthTypes;
 option_stub_hooks on;
 
 interface OHOS.UserIam.UserAuth.IIdmGetCredInfoCallback {
-    void OnCredentialInfos([in] int resultCode, [in] IpcCredentialInfo[] credInfoList);
+    [oneway] void OnCredentialInfos([in] int resultCode, [in] IpcCredentialInfo[] credInfoList);
 }
