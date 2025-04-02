@@ -52,7 +52,7 @@ public:
     void SubscribeCommonEventServiceListener();
 
 private:
-    bool AnyUserHasPinCredential();
+    std::optional<bool> AnyUserHasPinCredential();
     void RefreshIsPinEnrolled(bool shouldReportBigData);
     void RefreshIsPinFunctionReady();
 
