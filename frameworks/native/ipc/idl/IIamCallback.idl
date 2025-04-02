@@ -16,7 +16,7 @@
 option_stub_hooks on;
 
 interface OHOS.UserIam.UserAuth.IIamCallback {
-    void OnResult([in] int resultCode, [in] unsigned char[] extraInfo);
+    [oneway] void OnResult([in] int resultCode, [in] unsigned char[] extraInfo);
 
-    void OnAcquireInfo([in] int module, [in] int acquireInfo, [in] unsigned char[] extraInfo);
+    [oneway] void OnAcquireInfo([in] int module, [in] int acquireInfo, [in] unsigned char[] extraInfo);
 }
