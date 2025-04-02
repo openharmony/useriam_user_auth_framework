@@ -711,6 +711,36 @@ int32_t UserIdmService::ClearRedundancyCredential(const sptr<IIamCallback> &idmC
     return ret;
 }
 
+int32_t UserIdmService::GetCredentialInfoSync(int32_t userId, int32_t authType,
+    std::vector<IpcCredentialInfo> &ipcCredentialInfoList)
+{
+    IAM_LOGI("start");
+    Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
+    std::vector<CredentialInfo> credentialInfoList;
+    int32_t ret = GetCredentialInfoInner(userId, static_cast<AuthType>(authType), credentialInfoList);
+    if (ret == NOT_ENROLLED) {
+        credentialInfoList.clear();
+        ret = SUCCESS;
+    }
+
+    if (ret != SUCCESS) {
+        IAM_LOGE("GetCredentialInfoInner fail, ret: %{public}d", ret);
+        credentialInfoList.clear();
+    }
+
+    for (auto &iter : credentialInfoList) {
+        IpcCredentialInfo ipcCredInfo;
+        ipcCredInfo.authType = static_cast<int32_t>(iter.authType);
+        ipcCredInfo.pinType = static_cast<int32_t>(iter.pinType.value_or(PIN_SIX));
+        ipcCredInfo.credentialId = iter.credentialId;
+        ipcCredInfo.templateId = iter.credentialId;
+        ipcCredentialInfoList.push_back(ipcCredInfo);
+    }
+
+    IAM_LOGI("GetCredentialInfoSync success, credential num:%{public}zu", ipcCredentialInfoList.size());
+    return ret;
+}
+
 void UserIdmService::PublishCommonEvent(int32_t userId, uint64_t credentialId, AuthType authType)
 {
     std::vector<std::shared_ptr<CredentialInfoInterface>> credentialInfos;

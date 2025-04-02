@@ -111,10 +111,7 @@ int32_t IdmGetCredInfoCallbackService::OnCredentialInfos(int32_t resultCode,
     for (auto &iter : ipcCredInfoList) {
         CredentialInfo credentialInfo;
         credentialInfo.authType = static_cast<AuthType>(iter.authType);
-        credentialInfo.pinType = std::nullopt;
-        if (credentialInfo.authType == PIN) {
-            credentialInfo.pinType= static_cast<PinSubType>(iter.pinType);
-        }
+        credentialInfo.pinType = static_cast<PinSubType>(iter.pinType);
         credentialInfo.credentialId = iter.credentialId;
         credentialInfo.templateId = iter.credentialId;
         credInfoList.push_back(credentialInfo);

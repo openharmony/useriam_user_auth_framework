@@ -42,6 +42,8 @@ public:
     MOCK_METHOD4(DelCredential, int32_t(int32_t userId, uint64_t credentialId, const std::vector<uint8_t> &authToken,
         const sptr<IIamCallback> &IdmCallback));
     MOCK_METHOD1(ClearRedundancyCredential, int32_t(const sptr<IIamCallback> &IdmCallback));
+    MOCK_METHOD3(GetCredentialInfoSync, int32_t(int32_t userId, int32_t authType,
+        std::vector<IpcCredentialInfo> &ipcCredentialInfoList));
     MOCK_METHOD1(CallbackEnter, int32_t(uint32_t code));
     MOCK_METHOD2(CallbackExit, int32_t(uint32_t code, int32_t result));
 };
