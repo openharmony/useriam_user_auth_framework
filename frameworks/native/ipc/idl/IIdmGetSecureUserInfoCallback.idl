@@ -17,5 +17,5 @@ import UserAuthTypes;
 option_stub_hooks on;
 
 interface OHOS.UserIam.UserAuth.IIdmGetSecureUserInfoCallback {
-    void OnSecureUserInfo([in] int resultCode, [in] IpcSecUserInfo secUserInfo);
+    [oneway] void OnSecureUserInfo([in] int resultCode, [in] IpcSecUserInfo secUserInfo);
 }

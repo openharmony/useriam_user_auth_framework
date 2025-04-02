@@ -16,5 +16,5 @@
 option_stub_hooks on;
 
 interface OHOS.UserIam.UserAuth.IVerifyTokenCallback {
-    void OnVerifyTokenResult([in] int resultCode, [in] unsigned char[] extraInfo);
+     [oneway] void OnVerifyTokenResult([in] int resultCode, [in] unsigned char[] extraInfo);
 }
