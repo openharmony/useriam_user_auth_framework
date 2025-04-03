@@ -26,7 +26,7 @@ namespace UserIam {
 namespace UserAuth {
 class ContextCallbackImpl : public ContextCallback, public NoCopyable {
 public:
-    explicit ContextCallbackImpl(sptr<IamCallbackInterface> iamCallback, OperationType operationType);
+    explicit ContextCallbackImpl(sptr<IIamCallback> iamCallback, OperationType operationType);
     ~ContextCallbackImpl() override = default;
     void OnResult(int32_t resultCode, const Attributes &finalResult) override;
     void OnAcquireInfo(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg) override;
@@ -51,13 +51,13 @@ public:
     void SetTraceIsBackgroundApplication(bool isBackgroundApplication) override;
     void SetCleaner(Context::ContextStopCallback callback) override;
     void ProcessAuthResult(int32_t tip, const std::vector<uint8_t> &extraInfo) override;
-    sptr<IamCallbackInterface> GetIamCallback() override;
+    sptr<IIamCallback> GetIamCallback() override;
     std::string GetCallerName() override;
 
 private:
     void HandleAuthSuccessResult(int32_t resultCode, const Attributes &finalResult);
     void HandleCredChangeResult(int32_t resultCode, const Attributes &finalResult);
-    sptr<IamCallbackInterface> iamCallback_ {nullptr};
+    sptr<IIamCallback> iamCallback_ {nullptr};
     Context::ContextStopCallback stopCallback_ {nullptr};
     ContextCallbackNotifyListener::MetaData metaData_;
     std::shared_ptr<IamHitraceHelper> iamHitraceHelper_;

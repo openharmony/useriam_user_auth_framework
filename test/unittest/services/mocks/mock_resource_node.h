@@ -60,7 +60,7 @@ public:
     }
 
     static std::shared_ptr<ResourceNode> CreateWithExecuteIndex(uint64_t executorId, AuthType authType,
-        ExecutorRole executorRole, ExecutorCallbackInterface &callback)
+        ExecutorRole executorRole, IExecutorCallback &callback)
     {
         using namespace testing;
         auto node = std::make_shared<MockResourceNode>();
@@ -77,10 +77,10 @@ public:
         ON_CALL(*node, BeginExecute)
             .WillByDefault(
                 [&callback](uint64_t scheduleId, const std::vector<uint8_t> &publicKey, const Attributes &command) {
-                    return callback.OnBeginExecute(scheduleId, publicKey, command);
+                    return callback.OnBeginExecute(scheduleId, publicKey, command.Serialize());
                 });
         ON_CALL(*node, EndExecute).WillByDefault([&callback](uint64_t scheduleId, const Attributes &command) {
-            return callback.OnEndExecute(scheduleId, command);
+            return callback.OnEndExecute(scheduleId, command.Serialize());
         });
 
         return node;

@@ -103,7 +103,7 @@ public:
      * @param callerName The caller name who initiates authentication.
      */
     virtual void OnNotifyAuthSuccessEvent(int32_t userId, AuthType authType, int32_t callerType,
-        std::string &callerName) = 0;
+        const std::string &callerName) = 0;
 };
 
 class PrepareRemoteAuthCallback {

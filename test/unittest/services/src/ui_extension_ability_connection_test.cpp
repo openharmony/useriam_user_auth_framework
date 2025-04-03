@@ -18,12 +18,12 @@
 
 #include <future>
 
+#include "iam_callback_proxy.h"
 #include "mock_authentication.h"
 #include "mock_context.h"
 #include "mock_remote_object.h"
 #include "mock_resource_node.h"
 #include "mock_schedule_node.h"
-#include "user_auth_callback_proxy.h"
 
 using namespace testing;
 using namespace testing::ext;

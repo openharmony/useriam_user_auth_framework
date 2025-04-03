@@ -22,8 +22,10 @@
 
 #include "user_auth_client_callback.h"
 #include "user_auth_client_defines.h"
-#include "user_auth_interface.h"
+#include "iuser_auth.h"
 #include "user_auth_modal_client_callback.h"
+#include "user_auth_types.h"
+#include "user_auth_common_defines.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -54,6 +56,8 @@ private:
     uint64_t BeginWidgetAuthInner(int32_t apiVersion, const AuthParamInner &authParam,
         const WidgetParamInner &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback,
         const std::shared_ptr<UserAuthModalClientCallback> &modalCallback);
+    void InitIpcAuthParam(const AuthParamInner &authParam, IpcAuthParamInner &ipcWidgetParamInner);
+    void InitIpcWidgetParam(const WidgetParamInner &widgetParam, IpcWidgetParamInner &ipcWidgetParamInner);
 
     UserAuthNapiClientImpl() = default;
     ~UserAuthNapiClientImpl() override = default;
@@ -64,8 +68,8 @@ private:
         void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
     };
     void ResetProxy(const wptr<IRemoteObject> &remote);
-    sptr<UserAuthInterface> GetProxy();
-    sptr<UserAuthInterface> proxy_ {nullptr};
+    sptr<IUserAuth> GetProxy();
+    sptr<IUserAuth> proxy_ {nullptr};
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
     constexpr static int32_t MINIMUM_VERSION {0};
     std::mutex mutex_;

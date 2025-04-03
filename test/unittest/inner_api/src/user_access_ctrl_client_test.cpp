@@ -15,6 +15,7 @@
 
 #include "user_access_ctrl_client_test.h"
 
+#include "iam_common_defines.h"
 #include "iam_ptr.h"
 #include "user_access_ctrl_client.h"
 #include "user_access_ctrl_client_impl.h"
@@ -64,9 +65,10 @@ HWTEST_F(UserAccessCtrlClientTest, UserAccessCtrlClientVerifyAuthToken002, TestS
         .WillByDefault(
             [&testTokenIn, &testAllowableDuration, &testCallback]
             (const std::vector<uint8_t> &tokenIn, uint64_t allowableDuration,
-                const sptr<VerifyTokenCallbackInterface> &callback) {
+                const sptr<IVerifyTokenCallback> &callback) {
                 EXPECT_EQ(testTokenIn, tokenIn);
                 EXPECT_EQ(testAllowableDuration, allowableDuration);
+                return SUCCESS;
             }
         );
 

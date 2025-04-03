@@ -18,6 +18,7 @@
 #include "callback_manager.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
+#include "iam_common_defines.h"
 
 #define LOG_TAG "USER_AUTH_SDK"
 
@@ -43,15 +44,28 @@ WidgetCallbackService::~WidgetCallbackService()
     CallbackManager::GetInstance().RemoveCallback(reinterpret_cast<uintptr_t>(this));
 }
 
-void WidgetCallbackService::SendCommand(const std::string &cmdData)
+int32_t WidgetCallbackService::SendCommand(const std::string &cmdData)
 {
     IAM_LOGI("start");
     if (widgetCallback_ == nullptr) {
         IAM_LOGE("both widget callback is nullptr");
-        return;
+        return GENERAL_ERROR;
     }
     widgetCallback_->SendCommand(cmdData);
     iamHitraceHelper_= nullptr;
+    return SUCCESS;
+}
+
+int32_t WidgetCallbackService::CallbackEnter([[maybe_unused]] uint32_t code)
+{
+    IAM_LOGI("start, code:%{public}u", code);
+    return SUCCESS;
+}
+
+int32_t WidgetCallbackService::CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result)
+{
+    IAM_LOGI("leave, code:%{public}u, result:%{public}d", code, result);
+    return SUCCESS;
 }
 } // namespace UserAuth
 } // namespace UserIam

@@ -17,18 +17,18 @@
 #define REMOTE_IAM_CALLBACK_H
 
 #include "attributes.h"
-#include "iam_callback_interface.h"
+#include "iiam_callback.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class RemoteIamCallback : public IamCallbackInterface {
+class RemoteIamCallback : public IIamCallback {
 public:
     RemoteIamCallback(std::string &connectionName);
     ~RemoteIamCallback() override;
 
-    void OnResult(int32_t result, const Attributes &extraInfo) override;
-    void OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo) override;
+    int32_t OnResult(int32_t resultCode, const std::vector<uint8_t> &extraInfo) override;
+    int32_t OnAcquireInfo(int32_t module, int32_t acquireInfo, const std::vector<uint8_t> &extraInfo) override;
 
     sptr<IRemoteObject> AsObject() override;
 

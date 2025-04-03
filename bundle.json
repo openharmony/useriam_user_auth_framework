@@ -67,7 +67,6 @@
           "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth_extension/module_loader:user_auth_extension",
           "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth_extension/module_loader:user_auth_extension_module",
           "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth_icon:userauthicon",
-          "//base/useriam/user_auth_framework/frameworks/cj/user_auth:cj_userauth_ffi",
           "//base/useriam/user_auth_framework/frameworks/js/napi/user_access_ctrl:useraccessctrl"
          ],
         "service_group": [
@@ -110,6 +109,13 @@
               "iam_executor_iexecute_callback.h"
             ],
             "header_base": "//base/useriam/user_auth_framework/interfaces/inner_api/iam_executor/"
+          }
+        },
+        {
+          "name": "//base/useriam/user_auth_framework/frameworks/cj/user_auth:cj_userauth_ffi",
+          "header": {
+            "header_files": [],
+            "header_base": "//base/useriam/user_auth_framework/frameworks/cj/user_auth/inc"
           }
         }
       ],

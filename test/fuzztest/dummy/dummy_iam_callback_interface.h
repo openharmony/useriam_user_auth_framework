@@ -16,7 +16,7 @@
 #ifndef DUMMY_IAM_CALLBACK_INTERFACE_H
 #define DUMMY_IAM_CALLBACK_INTERFACE_H
 
-#include "iam_callback_interface.h"
+#include "iiam_callback.h"
 
 #undef private
 
@@ -24,11 +24,15 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
-class DummyIamCallbackInterface : public IamCallbackInterface {
-    void OnResult(int32_t result, const Attributes &extraInfo) override
-    {};
-    void OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo) override
-    {};
+class DummyIamCallbackInterface : public IIamCallback {
+    int32_t OnResult(int32_t result, const std::vector<uint8_t> &extraInfo) override
+    {
+        return 0;
+    };
+    int32_t OnAcquireInfo(int32_t module, int32_t acquireInfo, const std::vector<uint8_t> &extraInfo) override
+    {
+        return 0;
+    };
     sptr<IRemoteObject> AsObject() override
     {
         return nullptr;

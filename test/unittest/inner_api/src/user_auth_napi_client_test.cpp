@@ -66,23 +66,25 @@ HWTEST_F(UserAuthNapiClientTest, UserAuthNapiClientBeginWidgetAuth002, TestSize.
     auto testCallback = Common::MakeShared<MockAuthenticationCallback>();
     EXPECT_NE(testCallback, nullptr);
 
-    uint64_t testContextVersion = 1;
+    uint64_t testContextId = 1;
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, AuthWidget(_, _, _, _, _)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*service, AuthWidget(_, _, _, _, _, _)).Times(1);
     ON_CALL(*service, AuthWidget)
         .WillByDefault(
-            [&testVersion, &testParam, &testWidgetParamInner, &testContextVersion](int32_t apiVersion,
-            const AuthParamInner &authParam, const WidgetParamInner &widgetParam,
-            sptr<UserAuthCallbackInterface> &callback, sptr<ModalCallbackInterface> &modalCallback) {
+            [&testVersion, &testParam, &testWidgetParamInner, &testContextId](int32_t apiVersion,
+            const IpcAuthParamInner &authParam, const IpcWidgetParamInner &widgetParam,
+            const sptr<IIamCallback> &callback, const sptr<IModalCallback> &modalCallback,
+            uint64_t &contextId) {
                 EXPECT_EQ(apiVersion, testVersion);
-                EXPECT_EQ(authParam.authTypes, testParam.authTypes);
+                EXPECT_EQ(authParam.authTypes[0], static_cast<int32_t>(testParam.authTypes[0]));
                 EXPECT_EQ(widgetParam.title, testWidgetParamInner.title);
                 if (callback != nullptr) {
                     Attributes extraInfo;
-                    callback->OnResult(static_cast<int32_t>(ResultCode::GENERAL_ERROR), extraInfo);
+                    callback->OnResult(static_cast<int32_t>(ResultCode::GENERAL_ERROR), extraInfo.Serialize());
                 }
-                return testContextVersion;
+                contextId = testContextId;
+                return SUCCESS;
             }
         );
 
@@ -90,12 +92,14 @@ HWTEST_F(UserAuthNapiClientTest, UserAuthNapiClientBeginWidgetAuth002, TestSize.
     sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
     AuthParamInner testAuthParam = {};
+    testAuthParam.challenge = {0};
+    testAuthParam.authTypes = {ALL};
     UserAuthNapiClientImpl::WidgetParamNapi testWidgetParam = {};
     testWidgetParam.title = "title";
     std::shared_ptr<UserAuthModalInnerCallback> testModalCallback = Common::MakeShared<UserAuthModalInnerCallback>();
     uint64_t widgetAuth = UserAuthNapiClientImpl::Instance().BeginWidgetAuth(testVersion, testAuthParam,
         testWidgetParam, testCallback, testModalCallback);
-    EXPECT_EQ(widgetAuth, testContextVersion);
+    EXPECT_EQ(widgetAuth, testContextId);
     dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
@@ -126,23 +130,25 @@ HWTEST_F(UserAuthNapiClientTest, UserAuthNapiClientBeginWidgetAuth004, TestSize.
     auto testCallback = Common::MakeShared<MockAuthenticationCallback>();
     EXPECT_NE(testCallback, nullptr);
 
-    uint64_t testContextVersion = 1;
+    uint64_t testContextId = 1;
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, AuthWidget(_, _, _, _, _)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*service, AuthWidget(_, _, _, _, _, _)).Times(1);
     ON_CALL(*service, AuthWidget)
         .WillByDefault(
-            [&testVersion, &testParam, &testWidgetParamInner, &testContextVersion](int32_t apiVersion,
-            const AuthParamInner &authParam, const WidgetParamInner &widgetParam,
-            sptr<UserAuthCallbackInterface> &callback, sptr<ModalCallbackInterface> &modalCallback) {
+            [&testVersion, &testParam, &testWidgetParamInner, &testContextId](int32_t apiVersion,
+            const IpcAuthParamInner &authParam, const IpcWidgetParamInner &widgetParam,
+            const sptr<IIamCallback> &callback, const sptr<IModalCallback> &modalCallback,
+            uint64_t &contextId) {
                 EXPECT_EQ(apiVersion, testVersion);
-                EXPECT_EQ(authParam.authTypes, testParam.authTypes);
+                EXPECT_EQ(authParam.authTypes[0], static_cast<int32_t>(testParam.authTypes[0]));
                 EXPECT_EQ(widgetParam.title, testWidgetParamInner.title);
                 if (callback != nullptr) {
                     Attributes extraInfo;
-                    callback->OnResult(static_cast<int32_t>(ResultCode::GENERAL_ERROR), extraInfo);
+                    callback->OnResult(static_cast<int32_t>(ResultCode::GENERAL_ERROR), extraInfo.Serialize());
                 }
-                return testContextVersion;
+                contextId = testContextId;
+                return SUCCESS;
             }
         );
 
@@ -150,12 +156,14 @@ HWTEST_F(UserAuthNapiClientTest, UserAuthNapiClientBeginWidgetAuth004, TestSize.
     sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
     AuthParamInner testAuthParam = {};
+    testAuthParam.challenge = {0};
+    testAuthParam.authTypes = {ALL};
     UserAuthNapiClientImpl::WidgetParamNapi testWidgetParam = {};
     testWidgetParam.title = "title";
     std::shared_ptr<UserAuthModalInnerCallback> testModalCallback = Common::MakeShared<UserAuthModalInnerCallback>();
     uint64_t widgetAuth = UserAuthNapiClientImpl::Instance().BeginWidgetAuth(testVersion, testAuthParam,
         testWidgetParam, testCallback, testModalCallback);
-    EXPECT_EQ(widgetAuth, testContextVersion);
+    EXPECT_EQ(widgetAuth, testContextId);
     dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }

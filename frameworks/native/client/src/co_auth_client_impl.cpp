@@ -27,6 +27,19 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+void CoAuthClientImpl::InitIpcExecutorInfo(const ExecutorInfo &info, IpcExecutorRegisterInfo &ipcExecutorRegisterInfo)
+{
+    ipcExecutorRegisterInfo.authType = static_cast<int32_t>(info.authType);
+    ipcExecutorRegisterInfo.executorRole = static_cast<int32_t>(info.executorRole);
+    ipcExecutorRegisterInfo.executorSensorHint = static_cast<uint32_t>(info.executorSensorHint);
+    ipcExecutorRegisterInfo.executorMatcher = static_cast<uint32_t>(info.executorMatcher);
+    ipcExecutorRegisterInfo.esl = static_cast<int32_t>(info.esl);
+    ipcExecutorRegisterInfo.publicKey = info.publicKey;
+    ipcExecutorRegisterInfo.deviceUdid = info.deviceUdid;
+    ipcExecutorRegisterInfo.signedRemoteExecutorInfo = info.signedRemoteExecutorInfo;
+    ipcExecutorRegisterInfo.maxTemplateAcl = static_cast<uint32_t>(info.maxTemplateAcl);
+}
+
 uint64_t CoAuthClientImpl::Register(const ExecutorInfo &info, const std::shared_ptr<ExecutorRegisterCallback> &callback)
 {
     IAM_LOGI("start type:%{public}d role:%{public}d", info.authType, info.executorRole);
@@ -40,22 +53,21 @@ uint64_t CoAuthClientImpl::Register(const ExecutorInfo &info, const std::shared_
         return INVALID_EXECUTOR_INDEX;
     }
 
-    CoAuthInterface::ExecutorRegisterInfo regInfo;
-    regInfo.authType = info.authType;
-    regInfo.executorRole = info.executorRole;
-    regInfo.executorSensorHint = info.executorSensorHint;
-    regInfo.executorMatcher = info.executorMatcher;
-    regInfo.esl = info.esl;
-    regInfo.publicKey = info.publicKey;
-    regInfo.deviceUdid = info.deviceUdid;
-    regInfo.signedRemoteExecutorInfo = info.signedRemoteExecutorInfo;
-    regInfo.maxTemplateAcl = info.maxTemplateAcl;
-    sptr<ExecutorCallbackInterface> wrapper(new (std::nothrow) ExecutorCallbackService(callback));
+    IpcExecutorRegisterInfo regInfo = {};
+    InitIpcExecutorInfo(info, regInfo);
+    sptr<IExecutorCallback> wrapper(new (std::nothrow) ExecutorCallbackService(callback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         return INVALID_EXECUTOR_INDEX;
     }
-    return proxy->ExecutorRegister(regInfo, wrapper);
+    uint64_t executorIndex = INVALID_EXECUTOR_INDEX;
+    auto ret = proxy->ExecutorRegister(regInfo, wrapper, executorIndex);
+    if (ret != SUCCESS) {
+        IAM_LOGE("ExecutorRegister fail, ret:%{public}d", ret);
+        return INVALID_EXECUTOR_INDEX;
+    }
+
+    return executorIndex;
 }
 
 void CoAuthClientImpl::Unregister(uint64_t executorIndex)
@@ -67,10 +79,14 @@ void CoAuthClientImpl::Unregister(uint64_t executorIndex)
         return;
     }
 
-    proxy->ExecutorUnregister(executorIndex);
+    auto ret = proxy->ExecutorUnregister(executorIndex);
+    if (ret != SUCCESS) {
+        IAM_LOGE("ExecutorUnregister fail, ret:%{public}d", ret);
+        return;
+    }
 }
 
-sptr<CoAuthInterface> CoAuthClientImpl::GetProxy()
+sptr<ICoAuth> CoAuthClientImpl::GetProxy()
 {
     std::lock_guard<std::mutex> lock(mutex_);
     if (proxy_ != nullptr) {
@@ -87,7 +103,7 @@ sptr<CoAuthInterface> CoAuthClientImpl::GetProxy()
         return proxy_;
     }
 
-    proxy_ = iface_cast<CoAuthInterface>(obj);
+    proxy_ = iface_cast<ICoAuth>(obj);
     deathRecipient_ = dr;
     return proxy_;
 }

@@ -17,23 +17,25 @@
 #define EVENT_LISTENER_CALLBACK_SERVICE_H
 
 #include <string>
-#include "event_listener_stub.h"
+#include "event_listener_callback_stub.h"
 #include "user_auth_client_callback.h"
 #include "user_idm_client_callback.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class EventListenerCallbackService : public EventListenerStub {
+class EventListenerCallbackService : public EventListenerCallbackStub {
 public:
     explicit EventListenerCallbackService(const std::shared_ptr<AuthSuccessEventListener> &impl);
     explicit EventListenerCallbackService(const std::shared_ptr<CredChangeEventListener> &impl);
     ~EventListenerCallbackService() override;
 
-    void OnNotifyAuthSuccessEvent(int32_t userId, AuthType authType, int32_t callerType,
-        std::string &callerName) override;
-    void OnNotifyCredChangeEvent(int32_t userId, AuthType authType, CredChangeEventType eventType,
+    int32_t OnNotifyAuthSuccessEvent(int32_t userId, int32_t authType, int32_t callerType,
+        const std::string &callerName) override;
+    int32_t OnNotifyCredChangeEvent(int32_t userId, int32_t authType, int32_t eventType,
         uint64_t credentialId) override;
+    int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;
+    int32_t CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result) override;
 
 private:
     std::shared_ptr<AuthSuccessEventListener> authSuccessEventListener_ {nullptr};

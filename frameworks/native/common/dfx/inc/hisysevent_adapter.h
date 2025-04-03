@@ -104,6 +104,16 @@ struct RemoteConnectFaultTrace {
     bool ack = false;
 };
 
+struct SaLoadDriverFailureTrace {
+    int32_t errCode = -1;
+};
+
+struct IsCredentialEnrolledMismatchTrace {
+    int32_t authType = 0;
+    bool preStatus = false;
+    bool updatedStatus = false;
+};
+
 void ReportSystemFault(const std::string &timeString, const std::string &moduleName);
 void ReportSecurityTemplateChange(const TemplateChangeTrace &info);
 void ReportBehaviorCredManager(const UserCredManagerTrace &info);
@@ -113,6 +123,8 @@ void ReportSecurityUserAuthFwk(const UserAuthFwkTrace &info);
 void ReportRemoteExecuteProc(const RemoteExecuteTrace &info);
 void ReportRemoteConnectOpen(const RemoteConnectOpenTrace &info);
 void ReportConnectFaultTrace(const RemoteConnectFaultTrace &info);
+void ReportSaLoadDriverFailure(const SaLoadDriverFailureTrace &info);
+void ReportIsCredentialEnrolledMismatch(const IsCredentialEnrolledMismatchTrace &info);
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

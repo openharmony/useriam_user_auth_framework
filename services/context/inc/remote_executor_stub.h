@@ -20,7 +20,7 @@
 
 #include "attributes.h"
 #include "co_auth_client_defines.h"
-#include "executor_callback_interface.h"
+#include "iexecutor_callback.h"
 #include "hisysevent_adapter.h"
 #include "nocopyable.h"
 #include "remote_connect_manager.h"
@@ -43,7 +43,7 @@ public:
     int32_t OnMessage(ExecutorRole dstRole, const std::vector<uint8_t> &msg);
     int32_t ContinueSchedule(ResultCode resultCode, const std::shared_ptr<Attributes> &finalResult);
 
-    // ExecutorCallbackInterface
+    // IExecutorCallback
     int32_t ProcBeginExecuteRequest(Attributes &attr, RemoteExecuteTrace &trace);
 
 private:

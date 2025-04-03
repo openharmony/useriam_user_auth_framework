@@ -52,8 +52,8 @@ HWTEST_F(UserAuthCallbackServiceTest, UserAuthCallbackServiceTest001, TestSize.L
     std::shared_ptr<AuthenticationCallback> authCallback = nullptr;
     auto service = Common::MakeShared<UserAuthCallbackService>(authCallback);
     EXPECT_NE(service, nullptr);
-    service->OnResult(testResult, testExtraInfo);
-    service->OnAcquireInfo(testModule, testAcquireInfo, testExtraInfo);
+    service->OnResult(testResult, testExtraInfo.Serialize());
+    service->OnAcquireInfo(testModule, testAcquireInfo, testExtraInfo.Serialize());
 }
 
 HWTEST_F(UserAuthCallbackServiceTest, UserAuthCallbackServiceTest002, TestSize.Level0)
@@ -83,8 +83,8 @@ HWTEST_F(UserAuthCallbackServiceTest, UserAuthCallbackServiceTest002, TestSize.L
         );
     auto service = Common::MakeShared<UserAuthCallbackService>(authCallback);
     EXPECT_NE(service, nullptr);
-    service->OnResult(testResult, testExtraInfo);
-    service->OnAcquireInfo(testModule, testAcquireInfo, testExtraInfo);
+    service->OnResult(testResult, testExtraInfo.Serialize());
+    service->OnAcquireInfo(testModule, testAcquireInfo, testExtraInfo.Serialize());
 }
 
 HWTEST_F(UserAuthCallbackServiceTest, UserAuthCallbackServiceTest003, TestSize.Level0)
@@ -114,8 +114,8 @@ HWTEST_F(UserAuthCallbackServiceTest, UserAuthCallbackServiceTest003, TestSize.L
         );
     auto service = Common::MakeShared<UserAuthCallbackService>(identifyCallback);
     EXPECT_NE(service, nullptr);
-    service->OnResult(testResult, testExtraInfo);
-    service->OnAcquireInfo(testModule, testAcquireInfo, testExtraInfo);
+    service->OnResult(testResult, testExtraInfo.Serialize());
+    service->OnAcquireInfo(testModule, testAcquireInfo, testExtraInfo.Serialize());
 }
 
 HWTEST_F(UserAuthCallbackServiceTest, GetExecutorPropertyCallbackServiceTest001, TestSize.Level0)
@@ -126,7 +126,7 @@ HWTEST_F(UserAuthCallbackServiceTest, GetExecutorPropertyCallbackServiceTest001,
     std::shared_ptr<GetPropCallback> getPropCallback = nullptr;
     auto service = Common::MakeShared<GetExecutorPropertyCallbackService>(getPropCallback);
     EXPECT_NE(service, nullptr);
-    service->OnGetExecutorPropertyResult(testResult, testAttr);
+    service->OnGetExecutorPropertyResult(testResult, testAttr.Serialize());
 }
 
 HWTEST_F(UserAuthCallbackServiceTest, GetExecutorPropertyCallbackServiceTest002, TestSize.Level0)
@@ -145,7 +145,7 @@ HWTEST_F(UserAuthCallbackServiceTest, GetExecutorPropertyCallbackServiceTest002,
         );
     auto service = Common::MakeShared<GetExecutorPropertyCallbackService>(getPropCallback);
     EXPECT_NE(service, nullptr);
-    service->OnGetExecutorPropertyResult(testResult, testAttr);
+    service->OnGetExecutorPropertyResult(testResult, testAttr.Serialize());
 }
 
 HWTEST_F(UserAuthCallbackServiceTest, SetExecutorPropertyCallbackServiceTest001, TestSize.Level0)

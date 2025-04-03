@@ -58,7 +58,7 @@ HWTEST_F(ExecutorMessengerServiceTest, ExecutorMessengerServiceTest002, TestSize
     uint64_t testContextId = 78545;
     ExecutorRole testDstRole = VERIFIER;
     ResultCode testResultCode = FAIL;
-    std::shared_ptr<Attributes> testFinalResult = nullptr;
+    std::vector<uint8_t> testFinalResult;
     std::vector<uint8_t> testMsg = {1, 2, 3, 4};
 
     auto service = ExecutorMessengerService::GetInstance();

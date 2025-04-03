@@ -28,7 +28,7 @@ namespace UserIam {
 namespace UserAuth {
 using DeathRecipient = IRemoteObject::DeathRecipient;
 int32_t EventListenerManager::RegistEventListener(const std::vector<AuthType> &authType, uint32_t tokenId,
-    const sptr<EventListenerInterface> &listener)
+    const sptr<IEventListenerCallback> &listener)
 {
     IAM_LOGI("start");
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, GENERAL_ERROR);
@@ -47,7 +47,7 @@ int32_t EventListenerManager::RegistEventListener(const std::vector<AuthType> &a
     return SUCCESS;
 }
 
-int32_t EventListenerManager::UnRegistEventListener(uint32_t tokenId, const sptr<EventListenerInterface> &listener)
+int32_t EventListenerManager::UnRegistEventListener(uint32_t tokenId, const sptr<IEventListenerCallback> &listener)
 {
     IAM_LOGI("start");
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, GENERAL_ERROR);
@@ -66,7 +66,7 @@ int32_t EventListenerManager::UnRegistEventListener(uint32_t tokenId, const sptr
     return SUCCESS;
 }
 
-void EventListenerManager::AddEventListener(AuthType authType, const sptr<EventListenerInterface> &listener)
+void EventListenerManager::AddEventListener(AuthType authType, const sptr<IEventListenerCallback> &listener)
 {
     IAM_LOGI("AddEventListener, authType:%{public}d", static_cast<int32_t>(authType));
     auto iter = std::find_if(eventListenerMap_[authType].begin(), eventListenerMap_[authType].end(),
@@ -79,7 +79,7 @@ void EventListenerManager::AddEventListener(AuthType authType, const sptr<EventL
     IAM_LOGI("AddEventListener success");
 }
 
-void EventListenerManager::RemoveEventListener(AuthType authType, const sptr<EventListenerInterface> &listener)
+void EventListenerManager::RemoveEventListener(AuthType authType, const sptr<IEventListenerCallback> &listener)
 {
     IAM_LOGI("RemoveEventListener, authType:%{public}d", static_cast<int32_t>(authType));
     auto iter = std::find_if(eventListenerMap_[authType].begin(), eventListenerMap_[authType].end(),
@@ -92,15 +92,15 @@ void EventListenerManager::RemoveEventListener(AuthType authType, const sptr<Eve
     IAM_LOGI("RemoveEventListener success");
 }
 
-std::set<sptr<EventListenerInterface>> EventListenerManager::GetListenerSet(AuthType authType)
+std::set<sptr<IEventListenerCallback>> EventListenerManager::GetListenerSet(AuthType authType)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    std::set<sptr<EventListenerInterface>> listenerSet(eventListenerMap_[authType]);
+    std::set<sptr<IEventListenerCallback>> listenerSet(eventListenerMap_[authType]);
     return listenerSet;
 }
 
 int32_t EventListenerManager::AddDeathRecipient(EventListenerManager *manager, uint32_t tokenId,
-    const sptr<EventListenerInterface> &listener)
+    const sptr<IEventListenerCallback> &listener)
 {
     IAM_LOGI("start");
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, GENERAL_ERROR);
@@ -150,7 +150,7 @@ int32_t EventListenerManager::RemoveDeathRecipient(uint32_t tokenId)
     return SUCCESS;
 }
 
-std::map<uint32_t, std::pair<sptr<EventListenerInterface>, sptr<DeathRecipient>>> EventListenerManager::GetDeathRecipientMap()
+std::map<uint32_t, std::pair<sptr<IEventListenerCallback>, sptr<DeathRecipient>>> EventListenerManager::GetDeathRecipientMap()
 {
     IAM_LOGI("start");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
@@ -188,10 +188,10 @@ AuthEventListenerManager &AuthEventListenerManager::GetInstance()
 }
 
 void AuthEventListenerManager::OnNotifyAuthSuccessEvent(int32_t userId, AuthType authType, int32_t callerType,
-    std::string &callerName)
+    const std::string &callerName)
 {
     IAM_LOGI("start");
-    std::set<sptr<EventListenerInterface>> listenerSetTemp = GetListenerSet(authType);
+    std::set<sptr<IEventListenerCallback>> listenerSetTemp = GetListenerSet(authType);
     for (auto &iter : listenerSetTemp) {
         if (iter != nullptr) {
             iter->OnNotifyAuthSuccessEvent(userId, authType, callerType, callerName);
@@ -210,7 +210,7 @@ void CredChangeEventListenerManager::OnNotifyCredChangeEvent(int32_t userId, Aut
     uint64_t credentialId)
 {
     IAM_LOGI("start");
-    std::set<sptr<EventListenerInterface>> listenerSetTemp = GetListenerSet(authType);
+    std::set<sptr<IEventListenerCallback>> listenerSetTemp = GetListenerSet(authType);
     for (auto &iter : listenerSetTemp) {
         if (iter != nullptr) {
             iter->OnNotifyCredChangeEvent(userId, authType, eventType, credentialId);

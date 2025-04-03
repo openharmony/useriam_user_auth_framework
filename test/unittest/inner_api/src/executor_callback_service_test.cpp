@@ -43,7 +43,7 @@ void ExecutorCallbackServiceTest::TearDown()
 
 HWTEST_F(ExecutorCallbackServiceTest, ExecutorCallbackServiceTestOnMessengerReady001, TestSize.Level0)
 {
-    sptr<ExecutorMessengerInterface> testMessenger(nullptr);
+    sptr<IExecutorMessenger> testMessenger(nullptr);
     std::vector<uint8_t> testPublicKey = {1, 2, 3, 4};
     std::vector<uint64_t> testTemplateIdList = {12, 13, 14, 15};
 
@@ -55,7 +55,7 @@ HWTEST_F(ExecutorCallbackServiceTest, ExecutorCallbackServiceTestOnMessengerRead
 
 HWTEST_F(ExecutorCallbackServiceTest, ExecutorCallbackServiceTestOnMessengerReady002, TestSize.Level0)
 {
-    sptr<ExecutorMessengerInterface> testMessenger(nullptr);
+    sptr<IExecutorMessenger> testMessenger(nullptr);
     std::vector<uint8_t> testPublicKey = {1, 2, 3, 4};
     std::vector<uint64_t> testTemplateIdList = {12, 13, 14, 15};
 
@@ -86,7 +86,7 @@ HWTEST_F(ExecutorCallbackServiceTest, ExecutorCallbackServiceTestOnBeginExecute0
     std::shared_ptr<ExecutorRegisterCallback> testCallback = nullptr;
     auto service = Common::MakeShared<ExecutorCallbackService>(testCallback);
     EXPECT_NE(service, nullptr);
-    int32_t result = service->OnBeginExecute(testScheduleId, testPublicKey, testCommand);
+    int32_t result = service->OnBeginExecute(testScheduleId, testPublicKey, testCommand.Serialize());
     EXPECT_EQ(result, GENERAL_ERROR);
 }
 
@@ -110,7 +110,7 @@ HWTEST_F(ExecutorCallbackServiceTest, ExecutorCallbackServiceTestOnBeginExecute0
         );
     auto service = Common::MakeShared<ExecutorCallbackService>(testCallback);
     EXPECT_NE(service, nullptr);
-    int32_t result = service->OnBeginExecute(testScheduleId, testPublicKey, testCommand);
+    int32_t result = service->OnBeginExecute(testScheduleId, testPublicKey, testCommand.Serialize());
     EXPECT_EQ(result, SUCCESS);
 }
 
@@ -122,7 +122,7 @@ HWTEST_F(ExecutorCallbackServiceTest, ExecutorCallbackServiceTestOnEndExecute001
     std::shared_ptr<ExecutorRegisterCallback> testCallback = nullptr;
     auto service = Common::MakeShared<ExecutorCallbackService>(testCallback);
     EXPECT_NE(service, nullptr);
-    int32_t result = service->OnEndExecute(testScheduleId, testCommand);
+    int32_t result = service->OnEndExecute(testScheduleId, testCommand.Serialize());
     EXPECT_EQ(result, GENERAL_ERROR);
 }
 
@@ -143,7 +143,7 @@ HWTEST_F(ExecutorCallbackServiceTest, ExecutorCallbackServiceTestOnEndExecute002
         );
     auto service = Common::MakeShared<ExecutorCallbackService>(testCallback);
     EXPECT_NE(service, nullptr);
-    int32_t result = service->OnEndExecute(testScheduleId, testCommand);
+    int32_t result = service->OnEndExecute(testScheduleId, testCommand.Serialize());
     EXPECT_EQ(result, SUCCESS);
 }
 
@@ -154,7 +154,7 @@ HWTEST_F(ExecutorCallbackServiceTest, ExecutorCallbackServiceTestOnSetProperty00
     std::shared_ptr<ExecutorRegisterCallback> testCallback = nullptr;
     auto service = Common::MakeShared<ExecutorCallbackService>(testCallback);
     EXPECT_NE(service, nullptr);
-    int32_t result = service->OnSetProperty(testProperties);
+    int32_t result = service->OnSetProperty(testProperties.Serialize());
     EXPECT_EQ(result, GENERAL_ERROR);
 }
 
@@ -173,26 +173,26 @@ HWTEST_F(ExecutorCallbackServiceTest, ExecutorCallbackServiceTestOnSetProperty00
         );
     auto service = Common::MakeShared<ExecutorCallbackService>(testCallback);
     EXPECT_NE(service, nullptr);
-    int32_t result = service->OnSetProperty(testProperties);
+    int32_t result = service->OnSetProperty(testProperties.Serialize());
     EXPECT_EQ(result, SUCCESS);
 }
 
 HWTEST_F(ExecutorCallbackServiceTest, ExecutorCallbackServiceTestOnGetProperty001, TestSize.Level0)
 {
     Attributes testCondition;
-    Attributes testValues;
+    std::vector<uint8_t> testValues;
 
     std::shared_ptr<ExecutorRegisterCallback> testCallback = nullptr;
     auto service = Common::MakeShared<ExecutorCallbackService>(testCallback);
     EXPECT_NE(service, nullptr);
-    int32_t result = service->OnGetProperty(testCondition, testValues);
+    int32_t result = service->OnGetProperty(testCondition.Serialize(), testValues);
     EXPECT_EQ(result, GENERAL_ERROR);
 }
 
 HWTEST_F(ExecutorCallbackServiceTest, ExecutorCallbackServiceTestOnGetProperty002, TestSize.Level0)
 {
     Attributes testCondition;
-    Attributes testValues;
+    std::vector<uint8_t> testValues;
     int32_t testCode = 544857;
 
     auto testCallback = Common::MakeShared<MockExecutorRegisterCallback>();
@@ -207,10 +207,11 @@ HWTEST_F(ExecutorCallbackServiceTest, ExecutorCallbackServiceTestOnGetProperty00
         );
     auto service = Common::MakeShared<ExecutorCallbackService>(testCallback);
     EXPECT_NE(service, nullptr);
-    int32_t result = service->OnGetProperty(testCondition, testValues);
+    int32_t result = service->OnGetProperty(testCondition.Serialize(), testValues);
     EXPECT_EQ(result, SUCCESS);
     int32_t code = 0;
-    EXPECT_TRUE(testValues.GetInt32Value(Attributes::ATTR_RESULT_CODE, code));
+    Attributes attribute(testValues);
+    EXPECT_TRUE(attribute.GetInt32Value(Attributes::ATTR_RESULT_CODE, code));
     EXPECT_EQ(code, testCode);
 }
 } // namespace UserAuth

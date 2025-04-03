@@ -34,7 +34,7 @@ namespace UserIam {
 namespace UserAuth {
 class ResourceNodeImpl : public ResourceNode, public NoCopyable {
 public:
-    ResourceNodeImpl(ExecutorRegisterInfo info, std::shared_ptr<ExecutorCallbackInterface> callback);
+    ResourceNodeImpl(ExecutorRegisterInfo info, std::shared_ptr<IExecutorCallback> callback);
     ~ResourceNodeImpl() override;
 
     uint64_t GetExecutorIndex() const override;
@@ -63,13 +63,13 @@ private:
     static void DeleteExecutorFromDriver(uint64_t executorIndex);
 
     ExecutorRegisterInfo info_;
-    std::shared_ptr<ExecutorCallbackInterface> callback_;
+    std::shared_ptr<IExecutorCallback> callback_;
     uint64_t executorIndex_ {0};
     std::recursive_mutex mutex_;
     bool addedToDriver_ {false};
 };
 
-ResourceNodeImpl::ResourceNodeImpl(ExecutorRegisterInfo info, std::shared_ptr<ExecutorCallbackInterface> callback)
+ResourceNodeImpl::ResourceNodeImpl(ExecutorRegisterInfo info, std::shared_ptr<IExecutorCallback> callback)
     : info_(std::move(info)),
       callback_(std::move(callback))
 {
@@ -143,7 +143,7 @@ int32_t ResourceNodeImpl::BeginExecute(uint64_t scheduleId, const std::vector<ui
 {
     IAM_LOGI("start");
     if (callback_ != nullptr) {
-        return callback_->OnBeginExecute(scheduleId, publicKey, command);
+        return callback_->OnBeginExecute(scheduleId, publicKey, command.Serialize());
     }
     return GENERAL_ERROR;
 }
@@ -152,7 +152,7 @@ int32_t ResourceNodeImpl::EndExecute(uint64_t scheduleId, const Attributes &comm
 {
     IAM_LOGI("start");
     if (callback_ != nullptr) {
-        return callback_->OnEndExecute(scheduleId, command);
+        return callback_->OnEndExecute(scheduleId, command.Serialize());
     }
     return GENERAL_ERROR;
 }
@@ -161,7 +161,7 @@ int32_t ResourceNodeImpl::SetProperty(const Attributes &properties)
 {
     IAM_LOGI("start");
     if (callback_ != nullptr) {
-        return callback_->OnSetProperty(properties);
+        return callback_->OnSetProperty(properties.Serialize());
     }
     return GENERAL_ERROR;
 }
@@ -170,7 +170,12 @@ int32_t ResourceNodeImpl::GetProperty(const Attributes &condition, Attributes &v
 {
     IAM_LOGI("start");
     if (callback_ != nullptr) {
-        return callback_->OnGetProperty(condition, values);
+        std::vector<uint8_t> attribute;
+        auto ret = callback_->OnGetProperty(condition.Serialize(), attribute);
+        if (ret == SUCCESS) {
+            values = Attributes(attribute);
+        }
+        return ret;
     }
     return GENERAL_ERROR;
 }
@@ -180,7 +185,7 @@ int32_t ResourceNodeImpl::SendData(uint64_t scheduleId, const Attributes &data)
     IAM_LOGI("start");
     
     if (callback_ != nullptr) {
-        return callback_->OnSendData(scheduleId, data);
+        return callback_->OnSendData(scheduleId, data.Serialize());
     }
     return GENERAL_ERROR;
 }
@@ -249,7 +254,7 @@ void ResourceNodeImpl::DeleteExecutorFromDriver(uint64_t executorIndex)
 }
 
 std::shared_ptr<ResourceNode> ResourceNode::MakeNewResource(const ExecutorRegisterInfo &info,
-    const std::shared_ptr<ExecutorCallbackInterface> &callback, std::vector<uint64_t> &templateIdList,
+    const std::shared_ptr<IExecutorCallback> &callback, std::vector<uint64_t> &templateIdList,
     std::vector<uint8_t> &fwkPublicKey)
 {
     auto node = Common::MakeShared<ResourceNodeImpl>(info, callback);

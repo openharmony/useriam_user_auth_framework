@@ -16,9 +16,10 @@
 #ifndef IAM_EVENT_LISTENER_MANAGER_H
 #define IAM_EVENT_LISTENER_MANAGER_H
 
-#include "user_auth_interface.h"
-#include "user_idm_interface.h"
+#include "iuser_auth.h"
+#include "iuser_idm.h"
 #include "user_idm_client_defines.h"
+#include "event_listener_callback_stub.h"
 #include <map>
 #include <mutex>
 #include <set>
@@ -32,12 +33,12 @@ public:
     EventListenerManager() = default;
     ~EventListenerManager() = default;
     int32_t RegistEventListener(const std::vector<AuthType> &authType, uint32_t tokenId,
-        const sptr<EventListenerInterface> &listener);
-    int32_t UnRegistEventListener(uint32_t tokenId, const sptr<EventListenerInterface> &listener);
+        const sptr<IEventListenerCallback> &listener);
+    int32_t UnRegistEventListener(uint32_t tokenId, const sptr<IEventListenerCallback> &listener);
     int32_t AddDeathRecipient(EventListenerManager *manager, uint32_t tokenId,
-        const sptr<EventListenerInterface> &listener);
+        const sptr<IEventListenerCallback> &listener);
     int32_t RemoveDeathRecipient(uint32_t tokenId);
-    std::map<uint32_t, std::pair<sptr<EventListenerInterface>, sptr<DeathRecipient>>> GetDeathRecipientMap();
+    std::map<uint32_t, std::pair<sptr<IEventListenerCallback>, sptr<DeathRecipient>>> GetDeathRecipientMap();
 
 protected:
     class EventListenerDeathRecipient : public IRemoteObject::DeathRecipient, public NoCopyable {
@@ -50,19 +51,19 @@ protected:
         EventListenerManager *eventListenerManager_;
     };
 
-    void AddEventListener(AuthType authType, const sptr<EventListenerInterface> &listener);
-    void RemoveEventListener(AuthType authType, const sptr<EventListenerInterface> &listener);
-    std::set<sptr<EventListenerInterface>> GetListenerSet(AuthType authType);
+    void AddEventListener(AuthType authType, const sptr<IEventListenerCallback> &listener);
+    void RemoveEventListener(AuthType authType, const sptr<IEventListenerCallback> &listener);
+    std::set<sptr<IEventListenerCallback>> GetListenerSet(AuthType authType);
     std::recursive_mutex mutex_;
-    std::map<AuthType, std::set<sptr<EventListenerInterface>>> eventListenerMap_;
-    std::map<uint32_t, std::pair<sptr<EventListenerInterface>, sptr<DeathRecipient>>> deathRecipientMap_;
+    std::map<AuthType, std::set<sptr<IEventListenerCallback>>> eventListenerMap_;
+    std::map<uint32_t, std::pair<sptr<IEventListenerCallback>, sptr<DeathRecipient>>> deathRecipientMap_;
 
 private:
     struct FinderSet {
         explicit FinderSet(sptr<IRemoteObject> remoteObject) : remoteObject_(remoteObject)
         {
         }
-        bool operator()(sptr<EventListenerInterface> listener)
+        bool operator()(sptr<IEventListenerCallback> listener)
         {
             return listener->AsObject() == remoteObject_;
         }
@@ -73,7 +74,8 @@ private:
 class AuthEventListenerManager : public EventListenerManager {
 public:
     static AuthEventListenerManager &GetInstance();
-    void OnNotifyAuthSuccessEvent(int32_t userId, AuthType authType, int32_t callerType, std::string &callerName);
+    void OnNotifyAuthSuccessEvent(int32_t userId, AuthType authType, int32_t callerType,
+        const std::string &callerName);
 };
 
 class CredChangeEventListenerManager : public EventListenerManager {
