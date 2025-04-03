@@ -16,7 +16,7 @@
 #ifndef USER_ACCESS_CTRL_CALLBACK_SERVICE_H
 #define USER_ACCESS_CTRL_CALLBACK_SERVICE_H
 
-#include "user_access_ctrl_callback_stub.h"
+#include "verify_token_callback_stub.h"
 
 #include "iam_hitrace_helper.h"
 #include "user_access_ctrl_client_callback.h"
@@ -28,7 +28,9 @@ class VerifyTokenCallbackService : public VerifyTokenCallbackStub {
 public:
     explicit VerifyTokenCallbackService(const std::shared_ptr<VerifyTokenCallback> &impl);
     ~VerifyTokenCallbackService() override;
-    void OnVerifyTokenResult(int32_t result, const Attributes &attributes) override;
+    int32_t OnVerifyTokenResult(int32_t resultCode, const std::vector<uint8_t> &extraInfo) override;
+    int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;
+    int32_t CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result) override;
 
 private:
     std::shared_ptr<VerifyTokenCallback> verifyTokenCallback_ {nullptr};

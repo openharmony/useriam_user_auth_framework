@@ -20,8 +20,10 @@
 
 #include "nocopyable.h"
 
+#include "ico_auth.h"
 #include "co_auth_client.h"
 #include "co_auth_interface.h"
+#include "user_auth_types.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -36,6 +38,7 @@ private:
     CoAuthClientImpl() = default;
     ~CoAuthClientImpl() override = default;
     static CoAuthClientImpl &Instance();
+    void InitIpcExecutorInfo(const ExecutorInfo &info, IpcExecutorRegisterInfo &ipcExecutorRegisterInfo);
     class CoAuthImplDeathRecipient : public IRemoteObject::DeathRecipient, public NoCopyable {
     public:
         CoAuthImplDeathRecipient() = default;
@@ -43,8 +46,8 @@ private:
         void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
     };
     void ResetProxy(const wptr<IRemoteObject> &remote);
-    sptr<CoAuthInterface> GetProxy();
-    sptr<CoAuthInterface> proxy_ {nullptr};
+    sptr<ICoAuth> GetProxy();
+    sptr<ICoAuth> proxy_ {nullptr};
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
     std::mutex mutex_;
 };

@@ -67,10 +67,10 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetEnrolledState002, TestSize.Level0)
     EXPECT_CALL(*service, GetEnrolledState(_, _, _)).Times(1);
     ON_CALL(*service, GetEnrolledState)
         .WillByDefault(
-            [&testApiVersion, &testAuthType, &credentialDigest, &credentialCount](int32_t apiVersion, AuthType authType,
-                EnrolledState &enrolledState) {
+            [&testApiVersion, &testAuthType, &credentialDigest, &credentialCount](int32_t apiVersion, int32_t authType,
+            IpcEnrolledState &enrolledState) {
                 EXPECT_EQ(apiVersion, testApiVersion);
-                EXPECT_EQ(authType, testAuthType);
+                EXPECT_EQ(authType, static_cast<AuthType>(testAuthType));
 
                 enrolledState.credentialDigest = credentialDigest;
                 enrolledState.credentialCount = credentialCount;
@@ -111,8 +111,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetAvailableStatus002, TestSize.Level
     EXPECT_CALL(*service, GetAvailableStatus(_, _, _, _)).Times(1);
     ON_CALL(*service, GetAvailableStatus)
         .WillByDefault(
-            [&testApiVersion, &testAuthType, &testAtl](int32_t apiVersion, int32_t userId, AuthType authType,
-                AuthTrustLevel authTrustLevel) {
+            [&testApiVersion, &testAuthType, &testAtl](int32_t apiVersion, int32_t userId, int32_t authType,
+                uint32_t authTrustLevel) {
                 return SUCCESS;
             }
         );
@@ -157,16 +157,23 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetProperty002, TestSize.Level0)
     EXPECT_CALL(*service, GetProperty(_, _, _, _)).Times(1);
     ON_CALL(*service, GetProperty)
         .WillByDefault(
-            [&testUserId, &testRequest](int32_t userId, AuthType authType,
-                const std::vector<Attributes::AttributeKey> &keys,
-                sptr<GetExecutorPropertyCallbackInterface> &callback) {
+            [&testUserId, &testRequest](int32_t userId, int32_t authType,
+                const std::vector<uint32_t> &keys, const sptr<IGetExecutorPropertyCallback> &callback) {
                 EXPECT_EQ(userId, testUserId);
-                EXPECT_EQ(authType, testRequest.authType);
-                EXPECT_THAT(keys, ElementsAreArray(testRequest.keys));
+                EXPECT_EQ(authType, static_cast<AuthType>(testRequest.authType));
+                std::vector<uint32_t> attrkeys;
+                attrkeys.resize(testRequest.keys.size());
+                std::transform(testRequest.keys.begin(), testRequest.keys.end(), attrkeys.begin(),
+                    [](Attributes::AttributeKey key) {
+                    return static_cast<uint32_t>(key);
+                });
+
+                EXPECT_THAT(keys, ElementsAreArray(attrkeys));
                 if (callback != nullptr) {
                     Attributes extraInfo;
-                    callback->OnGetExecutorPropertyResult(SUCCESS, extraInfo);
+                    callback->OnGetExecutorPropertyResult(SUCCESS, extraInfo.Serialize());
                 }
+                return SUCCESS;
             }
         );
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
@@ -208,13 +215,14 @@ HWTEST_F(UserAuthClientTest, UserAuthClientSetProperty002, TestSize.Level0)
     EXPECT_CALL(*service, SetProperty(_, _, _, _)).Times(1);
     ON_CALL(*service, SetProperty)
         .WillByDefault(
-            [&testUserId, &testRequest](int32_t userId, AuthType authType, const Attributes &attributes,
-                sptr<SetExecutorPropertyCallbackInterface> &callback) {
+            [&testUserId, &testRequest](int32_t userId, int32_t authType, const std::vector<uint8_t> &attributes,
+            const sptr<ISetExecutorPropertyCallback> &callback) {
                 EXPECT_EQ(userId, testUserId);
-                EXPECT_EQ(authType, testRequest.authType);
+                EXPECT_EQ(authType, static_cast<AuthType>(testRequest.authType));
                 if (callback != nullptr) {
                     callback->OnSetExecutorPropertyResult(SUCCESS);
                 }
+                return SUCCESS;
             }
         );
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
@@ -261,21 +269,22 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginNorthAuthentication002, TestSize
 
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, Auth(_, _, _, _, _)).Times(1);
+    EXPECT_CALL(*service, Auth(_, _, _, _)).Times(1);
     ON_CALL(*service, Auth)
         .WillByDefault(
             [&testApiVersion, &testChallenge, &testAuthType, &testAtl, &testContextId](int32_t apiVersion,
-                const std::vector<uint8_t> &challenge, AuthType authType, AuthTrustLevel authTrustLevel,
-                sptr<UserAuthCallbackInterface> &callback) {
+            const IpcAuthParamInner &ipcAuthParamInner, const sptr<IIamCallback> &callback,
+            uint64_t &contextId) {
                 EXPECT_EQ(apiVersion, testApiVersion);
-                EXPECT_THAT(challenge, ElementsAreArray(testChallenge));
-                EXPECT_EQ(authType, testAuthType);
-                EXPECT_EQ(authTrustLevel, testAtl);
+                EXPECT_THAT(ipcAuthParamInner.challenge, ElementsAreArray(testChallenge));
+                EXPECT_EQ(ipcAuthParamInner.authType, static_cast<AuthType>(testAuthType));
+                EXPECT_EQ(ipcAuthParamInner.authTrustLevel, testAtl);
                 if (callback != nullptr) {
                     Attributes extraInfo;
-                    callback->OnResult(SUCCESS, extraInfo);
+                    callback->OnResult(SUCCESS, extraInfo.Serialize());
                 }
-                return testContextId;
+                contextId = testContextId;
+                return SUCCESS;
             }
         );
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
@@ -326,20 +335,22 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginAuthentication002, TestSize.Leve
 
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, AuthUser(_, _, _)).Times(1);
+    EXPECT_CALL(*service, AuthUser(_, _, _, _)).Times(1);
     ON_CALL(*service, AuthUser)
         .WillByDefault(
-            [&testAuthParam, &testContextId](AuthParamInner &authParam,
-            std::optional<RemoteAuthParam> &remoteAuthParam, sptr<UserAuthCallbackInterface> &callback) {
+            [&testAuthParam, &testContextId](const IpcAuthParamInner &authParam,
+            const IpcRemoteAuthParam &remoteAuthParam, const sptr<IIamCallback> &callback,
+            uint64_t &contextId) {
                 EXPECT_EQ(authParam.userId, testAuthParam.userId);
                 EXPECT_THAT(authParam.challenge, ElementsAreArray(testAuthParam.challenge));
                 EXPECT_EQ(authParam.authType, testAuthParam.authType);
                 EXPECT_EQ(authParam.authTrustLevel, testAuthParam.authTrustLevel);
                 if (callback != nullptr) {
                     Attributes extraInfo;
-                    callback->OnResult(SUCCESS, extraInfo);
+                    callback->OnResult(SUCCESS, extraInfo.Serialize());
                 }
-                return testContextId;
+                contextId = testContextId;
+                return SUCCESS;
             }
         );
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
@@ -445,18 +456,19 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginIdentification_1002, TestSize.Le
 
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, Identify(_, _, _)).Times(1);
+    EXPECT_CALL(*service, Identify(_, _, _, _)).Times(1);
     ON_CALL(*service, Identify)
         .WillByDefault(
             [&testChallenge, &testAuthType, &testContextId](const std::vector<uint8_t> &challenge,
-                AuthType authType, sptr<UserAuthCallbackInterface> &callback) {
+                int32_t authType, const sptr<IIamCallback> &callback, uint64_t &contextId) {
                 EXPECT_THAT(challenge, ElementsAreArray(testChallenge));
-                EXPECT_EQ(authType, testAuthType);
+                EXPECT_EQ(authType, static_cast<AuthType>(testAuthType));
                 if (callback != nullptr) {
                     Attributes extraInfo;
-                    callback->OnResult(SUCCESS, extraInfo);
+                    callback->OnResult(SUCCESS, extraInfo.Serialize());
                 }
-                return testContextId;
+                contextId = testContextId;
+                return SUCCESS;
             }
         );
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
@@ -563,8 +575,8 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetVersion003, TestSize.Level0)
 
     int32_t version;
     EXPECT_EQ(UserAuthClientImpl::Instance().GetVersion(version), GENERAL_ERROR);
-    EXPECT_EQ(UserAuthClientImpl::Instance().GetVersion(version), GENERAL_ERROR);
-    EXPECT_EQ(UserAuthClientImpl::Instance().GetVersion(version), GENERAL_ERROR);
+    EXPECT_EQ(UserAuthClientImpl::Instance().GetVersion(version), SUCCESS);
+    EXPECT_EQ(UserAuthClientImpl::Instance().GetVersion(version), SUCCESS);
 
     EXPECT_NE(dr, nullptr);
     sptr<IRemoteObject> remote(nullptr);
@@ -594,7 +606,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginWidgetAuth002, TestSize.Level0)
     WidgetParam widgetParam;
     std::shared_ptr<MockAuthenticationCallback> testCallback = nullptr;
     uint64_t widgetAuth = UserAuthClientImpl::Instance().BeginWidgetAuth(apiVersion, authParam,
-    widgetParam, testCallback);
+        widgetParam, testCallback);
     EXPECT_EQ(widgetAuth, 0);
 }
 
@@ -609,23 +621,25 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginWidgetAuth003, TestSize.Level0)
     auto testCallback = Common::MakeShared<MockAuthenticationCallback>();
     EXPECT_NE(testCallback, nullptr);
 
-    uint64_t testContextVersion = 1;
+    uint64_t testContextId = 1;
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, AuthWidget(_, _, _, _, _)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*service, AuthWidget(_, _, _, _, _, _)).Times(1);
     ON_CALL(*service, AuthWidget)
         .WillByDefault(
-            [&testVersion, &testParam, &testWidgetParamInner, &testContextVersion](int32_t apiVersion,
-            const AuthParamInner &authParam, const WidgetParamInner &widgetParam,
-            sptr<UserAuthCallbackInterface> &callback, sptr<ModalCallbackInterface> &modalCallback) {
+            [&testVersion, &testParam, &testWidgetParamInner, &testContextId](int32_t apiVersion,
+            const IpcAuthParamInner &authParam, const IpcWidgetParamInner &widgetParam,
+            const sptr<IIamCallback> &callback, const sptr<IModalCallback> &modalCallback,
+            uint64_t &contextId) {
                 EXPECT_EQ(apiVersion, testVersion);
-                EXPECT_EQ(authParam.authTypes, testParam.authTypes);
+                EXPECT_EQ(authParam.authTypes[0], static_cast<int32_t>(testParam.authTypes[0]));
                 EXPECT_EQ(widgetParam.title, testWidgetParamInner.title);
                 if (callback != nullptr) {
                     Attributes extraInfo;
-                    callback->OnResult(static_cast<int32_t>(ResultCode::GENERAL_ERROR), extraInfo);
+                    callback->OnResult(static_cast<int32_t>(ResultCode::SUCCESS), extraInfo.Serialize());
                 }
-                return testContextVersion;
+                contextId = testContextId;
+                return SUCCESS;
             }
         );
 
@@ -633,11 +647,13 @@ HWTEST_F(UserAuthClientTest, UserAuthClientBeginWidgetAuth003, TestSize.Level0)
     sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
     WidgetAuthParam testAuthParam = {};
+    testAuthParam.challenge = {0};
+    testAuthParam.authTypes = {ALL};
     WidgetParam testWidgetParam = {};
     testWidgetParam.title = "title";
     uint64_t widgetAuth = UserAuthClientImpl::Instance().BeginWidgetAuth(testVersion, testAuthParam,
         testWidgetParam, testCallback);
-    EXPECT_EQ(widgetAuth, testContextVersion);
+    EXPECT_EQ(widgetAuth, testContextId);
     dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
@@ -665,15 +681,14 @@ HWTEST_F(UserAuthClientTest, UserAuthClientSetWidgetCallback003, TestSize.Level0
     auto testCallback = Common::MakeShared<MockIUserAuthWidgetCallback>();
     EXPECT_NE(testCallback, nullptr);
 
-    uint64_t testContextVersion = 1;
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, RegisterWidgetCallback(_, _)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*service, RegisterWidgetCallback(_, _)).Times(1);
     ON_CALL(*service, RegisterWidgetCallback)
         .WillByDefault(
-            [&testVersion, &testContextVersion](int32_t version, sptr<WidgetCallbackInterface> &callback) {
+            [&testVersion](int32_t version, const sptr<IWidgetCallback> &callback) {
                 EXPECT_EQ(version, testVersion);
-                return testContextVersion;
+                return SUCCESS;
             }
         );
 
@@ -681,7 +696,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientSetWidgetCallback003, TestSize.Level0
     sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
     uint64_t widgetAuth = UserAuthClientImpl::Instance().SetWidgetCallback(testVersion, testCallback);
-    EXPECT_EQ(widgetAuth, testContextVersion);
+    EXPECT_EQ(widgetAuth, SUCCESS);
     dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
@@ -734,7 +749,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientRegistUserAuthSuccessEventListener001
     EXPECT_CALL(*service, RegistUserAuthSuccessEventListener(_, _)).Times(1);
     ON_CALL(*service, RegistUserAuthSuccessEventListener)
         .WillByDefault(
-            [](const std::vector<AuthType> &authType, const sptr<EventListenerInterface> &callback) {
+            [](const std::vector<int32_t> &authType, const sptr<IEventListenerCallback> &callback) {
                 return SUCCESS;
             }
         );
@@ -782,7 +797,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientUnRegistUserAuthSuccessEventListener0
     EXPECT_CALL(*service, UnRegistUserAuthSuccessEventListener(_)).Times(1);
     ON_CALL(*service, UnRegistUserAuthSuccessEventListener)
         .WillByDefault(
-            [](const sptr<EventListenerInterface> &callback) {
+            [](const sptr<IEventListenerCallback> &callback) {
                 return SUCCESS;
             }
         );
@@ -825,8 +840,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientSetGlobalConfigParam002, TestSize.Lev
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
-    
-    EXPECT_EQ(UserAuthClient::GetInstance().SetGlobalConfigParam(param), INVALID_PARAMETERS);
+
     param.type = ENABLE_STATUS;
     EXPECT_EQ(UserAuthClient::GetInstance().SetGlobalConfigParam(param), SUCCESS);
     EXPECT_NE(dr, nullptr);
@@ -873,14 +887,21 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetPropertyById002, TestSize.Level0)
     EXPECT_CALL(*service, GetPropertyById(_, _, _)).Times(1);
     ON_CALL(*service, GetPropertyById)
         .WillByDefault(
-            [&testCredentialId, &testKeys](uint64_t credentialId, const std::vector<Attributes::AttributeKey> &keys,
-            sptr<GetExecutorPropertyCallbackInterface> &callback) {
+            [&testCredentialId, &testKeys](uint64_t credentialId, const std::vector<uint32_t> &keys,
+            const sptr<IGetExecutorPropertyCallback> &callback) {
                 EXPECT_EQ(credentialId, testCredentialId);
-                EXPECT_THAT(keys, ElementsAreArray(testKeys));
+                std::vector<uint32_t> attrkeys;
+                attrkeys.resize(testKeys.size());
+                std::transform(testKeys.begin(), testKeys.end(), attrkeys.begin(), [](Attributes::AttributeKey key) {
+                    return static_cast<uint32_t>(key);
+                });
+
+                EXPECT_THAT(keys, ElementsAreArray(attrkeys));
                 if (callback != nullptr) {
                     Attributes extraInfo;
-                    callback->OnGetExecutorPropertyResult(SUCCESS, extraInfo);
+                    callback->OnGetExecutorPropertyResult(SUCCESS, extraInfo.Serialize());
                 }
+                return SUCCESS;
             }
         );
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());

@@ -17,28 +17,29 @@
 
 #include <gmock/gmock.h>
 
-#include "event_listener_stub.h"
+#include "event_listener_callback_stub.h"
 #include "user_auth_client_callback.h"
+#include "iam_common_defines.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockEventListener final : public EventListenerInterface {
+class MockEventListener final : public IEventListenerCallback {
 public:
     MOCK_METHOD0(AsObject, sptr<IRemoteObject>());
-    MOCK_METHOD4(OnNotifyAuthSuccessEvent, void(int32_t userId, AuthType authType, int32_t callerType,
-        std::string &callerName));
-    MOCK_METHOD4(OnNotifyCredChangeEvent, void(int32_t userId, AuthType authType, CredChangeEventType eventType,
+    MOCK_METHOD4(OnNotifyAuthSuccessEvent, int32_t(int32_t userId, int32_t authType, int32_t callerType,
+        const std::string &callerName));
+    MOCK_METHOD4(OnNotifyCredChangeEvent, int32_t(int32_t userId, int32_t authType, int32_t eventType,
         uint64_t credentialId));
 };
 
-class MockEventListenerService final : public IRemoteStub<EventListenerInterface> {
+class MockEventListenerService final : public IRemoteStub<IEventListenerCallback> {
 public:
     MOCK_METHOD4(OnRemoteRequest,
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
-    MOCK_METHOD4(OnNotifyAuthSuccessEvent, void(int32_t userId, AuthType authType, int32_t callerType,
-        std::string &callerName));
-    MOCK_METHOD4(OnNotifyCredChangeEvent, void(int32_t userId, AuthType authType, CredChangeEventType eventType,
+    MOCK_METHOD4(OnNotifyAuthSuccessEvent, int32_t(int32_t userId, int32_t authType, int32_t callerType,
+        const std::string &callerName));
+    MOCK_METHOD4(OnNotifyCredChangeEvent, int32_t(int32_t userId, int32_t authType, int32_t eventType,
         uint64_t credentialId));
 };
 } // namespace UserAuth

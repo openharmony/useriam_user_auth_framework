@@ -24,12 +24,13 @@
 #include "load_mode_client_util.h"
 #include "modal_callback_service.h"
 #include "user_auth_callback_service.h"
+#include "user_auth_common_defines.h"
 
 #define LOG_TAG "USER_AUTH_SDK"
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-sptr<UserAuthInterface> UserAuthNapiClientImpl::GetProxy()
+sptr<IUserAuth> UserAuthNapiClientImpl::GetProxy()
 {
     std::lock_guard<std::mutex> lock(mutex_);
     if (proxy_ != nullptr) {
@@ -46,7 +47,7 @@ sptr<UserAuthInterface> UserAuthNapiClientImpl::GetProxy()
         return proxy_;
     }
 
-    proxy_ = iface_cast<UserAuthInterface>(obj);
+    proxy_ = iface_cast<IUserAuth>(obj);
     deathRecipient_ = dr;
     return proxy_;
 }
@@ -130,7 +131,7 @@ uint64_t UserAuthNapiClientImpl::BeginWidgetAuthInner(int32_t apiVersion, const 
         return BAD_CONTEXT_ID;
     }
 
-    sptr<UserAuthCallbackInterface> wrapper(new (std::nothrow) UserAuthCallbackService(callback, modalCallback));
+    sptr<IIamCallback> wrapper(new (std::nothrow) UserAuthCallbackService(callback, modalCallback));
     if (wrapper == nullptr) {
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
@@ -139,14 +140,26 @@ uint64_t UserAuthNapiClientImpl::BeginWidgetAuthInner(int32_t apiVersion, const 
     }
 
     // modal
-    sptr<ModalCallbackInterface> wrapperModal(new (std::nothrow) ModalCallbackService(modalCallback));
+    sptr<IModalCallback> wrapperModal(new (std::nothrow) ModalCallbackService(modalCallback));
     if (wrapperModal == nullptr) {
         IAM_LOGE("failed to create wrapper for modal");
         Attributes extraInfo;
         callback->OnResult(static_cast<int32_t>(ResultCode::GENERAL_ERROR), extraInfo);
         return BAD_CONTEXT_ID;
     }
-    return proxy->AuthWidget(apiVersion, authParam, widgetParam, wrapper, wrapperModal);
+    uint64_t contextId = BAD_CONTEXT_ID;
+    IpcAuthParamInner ipcAuthParam = {};
+    IpcWidgetParamInner ipcWidgetParam = {};
+    InitIpcAuthParam(authParam, ipcAuthParam);
+    InitIpcWidgetParam(widgetParam, ipcWidgetParam);
+    auto ret = proxy->AuthWidget(apiVersion, ipcAuthParam, ipcWidgetParam, wrapper, wrapperModal, contextId);
+    if (ret != SUCCESS) {
+        IAM_LOGE("AuthWidget fail, ret:%{public}d", ret);
+        Attributes extraInfo;
+        callback->OnResult(static_cast<int32_t>(ResultCode::GENERAL_ERROR), extraInfo);
+        return BAD_CONTEXT_ID;
+    }
+    return contextId;
 }
 
 int32_t UserAuthNapiClientImpl::CancelAuthentication(uint64_t contextId, int32_t cancelReason)
@@ -159,6 +172,34 @@ int32_t UserAuthNapiClientImpl::CancelAuthentication(uint64_t contextId, int32_t
     }
 
     return proxy->CancelAuthOrIdentify(contextId, cancelReason);
+}
+
+void UserAuthNapiClientImpl::InitIpcAuthParam(const AuthParamInner &authParam,
+    IpcAuthParamInner &ipcAuthParamInner)
+{
+    ipcAuthParamInner.userId = authParam.userId;
+    ipcAuthParamInner.isUserIdSpecified = authParam.isUserIdSpecified;
+    ipcAuthParamInner.challenge = authParam.challenge;
+    ipcAuthParamInner.authType = static_cast<int32_t>(authParam.authType);
+    ipcAuthParamInner.authTypes.resize(authParam.authTypes.size());
+    std::transform(authParam.authTypes.begin(), authParam.authTypes.end(),
+        ipcAuthParamInner.authTypes.begin(), [](AuthType authType) {
+        return static_cast<int32_t>(authType);
+    });
+    ipcAuthParamInner.authTrustLevel = static_cast<int32_t>(authParam.authTrustLevel);
+    ipcAuthParamInner.authIntent = static_cast<int32_t>(authParam.authIntent);
+    ipcAuthParamInner.reuseUnlockResult.isReuse = authParam.reuseUnlockResult.isReuse;
+    ipcAuthParamInner.reuseUnlockResult.reuseMode = authParam.reuseUnlockResult.reuseMode;
+    ipcAuthParamInner.reuseUnlockResult.reuseDuration = authParam.reuseUnlockResult.reuseDuration;
+}
+
+void UserAuthNapiClientImpl::InitIpcWidgetParam(const WidgetParamInner &widgetParam,
+    IpcWidgetParamInner &ipcWidgetParamInner)
+{
+    ipcWidgetParamInner.title = widgetParam.title;
+    ipcWidgetParamInner.navigationButtonText = widgetParam.navigationButtonText;
+    ipcWidgetParamInner.windowMode = static_cast<int32_t>(widgetParam.windowMode);
+    ipcWidgetParamInner.hasContext = widgetParam.hasContext;
 }
 } // namespace UserAuth
 } // namespace UserIam

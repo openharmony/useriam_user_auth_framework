@@ -19,11 +19,11 @@
 #include "parcel.h"
 #include "securec.h"
 
+#include "iam_callback_proxy.h"
 #include "iam_fuzz_test.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
 #include "user_idm_service.h"
-#include "user_idm_callback_proxy.h"
 #include "dummy_iam_callback_interface.h"
 
 #undef private
@@ -42,12 +42,12 @@ std::u16string cmd[] = {u"-h", u"-lc", u"-ls", u"-c", u"-c [base system]", u"-s"
     u"-e", u"--net", u"--storage", u"-p", u"-p [pid]", u"--cpuusage [pid]", u"cified pid", u"--cpufreq", u"--mem [pid]",
     u"--zip", u"--mem-smaps pid [-v]"};
 
-class DummyIdmGetCredentialInfoCallback : public IdmGetCredInfoCallbackInterface {
+class DummyIdmGetCredentialInfoCallback : public IIdmGetCredInfoCallback {
 public:
-    void OnCredentialInfos(int32_t result, const std::vector<CredentialInfo> &credInfoList) override
+    int32_t OnCredentialInfos(int32_t result, const std::vector<IpcCredentialInfo> &credInfoList) override
     {
         IAM_LOGI("start");
-        return;
+        return SUCCESS;
     }
 
     sptr<IRemoteObject> AsObject() override
@@ -57,12 +57,12 @@ public:
     }
 };
 
-class DummyIdmGetSecureUserInfoCallback : public IdmGetSecureUserInfoCallbackInterface {
+class DummyIdmGetSecureUserInfoCallback : public IIdmGetSecureUserInfoCallback {
 public:
-    void OnSecureUserInfo(int32_t result, const SecUserInfo &secUserInfo) override
+    int32_t OnSecureUserInfo(int32_t result, const IpcSecUserInfo &secUserInfo) override
     {
         IAM_LOGI("start");
-        return;
+        return SUCCESS;
     }
 
     sptr<IRemoteObject> AsObject() override
@@ -72,18 +72,18 @@ public:
     }
 };
 
-class DummyIdmCallback : public IdmCallbackInterface {
+class DummyIdmCallback : public IIamCallback {
 public:
-    void OnResult(int32_t result, const Attributes &reqRet) override
+    int32_t OnResult(int32_t result, const std::vector<uint8_t> &reqRet) override
     {
         IAM_LOGI("start");
-        return;
+        return SUCCESS;
     }
 
-    void OnAcquireInfo(int32_t module, int32_t acquire, const Attributes &reqRet) override
+    int32_t OnAcquireInfo(int32_t module, int32_t acquire, const std::vector<uint8_t> &reqRet) override
     {
         IAM_LOGI("start");
-        return;
+        return SUCCESS;
     }
 
     sptr<IRemoteObject> AsObject() override
@@ -93,7 +93,7 @@ public:
     }
 };
 
-class DummyCredChangeEventListener : public EventListenerInterface {
+class DummyCredChangeEventListener : public IEventListenerCallback {
 public:
     ~DummyCredChangeEventListener() override = default;
 
@@ -103,14 +103,18 @@ public:
         return tmp;
     }
 
-    void OnNotifyAuthSuccessEvent(int32_t userId, AuthType authType, int32_t callerType,
-        std::string &callerName) override
+    int32_t OnNotifyAuthSuccessEvent(int32_t userId, int32_t authType, int32_t callerType,
+        const std::string &callerName) override
     {
-        IAM_LOGI("notify: userId: %{public}d, authType: %{public}d, callerName: %{public}s,"
-            "callerType: %{public}d", userId, static_cast<int32_t>(authType), callerName.c_str(), callerType);
+        IAM_LOGI("start");
+        return SUCCESS;
     }
-    void OnNotifyCredChangeEvent(int32_t userId, AuthType authType, CredChangeEventType eventType,
-        uint64_t credentialId) override {}
+    int32_t OnNotifyCredChangeEvent(int32_t userId, int32_t authType, int32_t eventType,
+        uint64_t credentialId) override
+    {
+        IAM_LOGI("start");
+        return SUCCESS;
+    }
 };
 
 int32_t GetFuzzOptionalUserId(Parcel &parcel)
@@ -121,29 +125,29 @@ int32_t GetFuzzOptionalUserId(Parcel &parcel)
     return 0;
 }
 
-sptr<IdmGetCredInfoCallbackInterface> GetFuzzIdmGetCredentialInfoCallback(Parcel &parcel)
+sptr<IIdmGetCredInfoCallback> GetFuzzIdmGetCredentialInfoCallback(Parcel &parcel)
 {
-    sptr<IdmGetCredInfoCallbackInterface> tmp(nullptr);
+    sptr<IIdmGetCredInfoCallback> tmp(nullptr);
     if (parcel.ReadBool()) {
-        tmp = sptr<IdmGetCredInfoCallbackInterface>(new (std::nothrow) DummyIdmGetCredentialInfoCallback());
+        tmp = sptr<IIdmGetCredInfoCallback>(new (std::nothrow) DummyIdmGetCredentialInfoCallback());
     }
     return tmp;
 }
 
-sptr<IdmGetSecureUserInfoCallbackInterface> GetFuzzIdmGetSecureUserInfoCallback(Parcel &parcel)
+sptr<IIdmGetSecureUserInfoCallback> GetFuzzIdmGetSecureUserInfoCallback(Parcel &parcel)
 {
-    sptr<IdmGetSecureUserInfoCallbackInterface> tmp(nullptr);
+    sptr<IIdmGetSecureUserInfoCallback> tmp(nullptr);
     if (parcel.ReadBool()) {
-        tmp = sptr<IdmGetSecureUserInfoCallbackInterface>(new (std::nothrow) DummyIdmGetSecureUserInfoCallback());
+        tmp = sptr<IIdmGetSecureUserInfoCallback>(new (std::nothrow) DummyIdmGetSecureUserInfoCallback());
     }
     return tmp;
 }
 
-sptr<IdmCallbackInterface> GetFuzzIdmCallback(Parcel &parcel)
+sptr<IIamCallback> GetFuzzIdmCallback(Parcel &parcel)
 {
-    sptr<IdmCallbackInterface> tmp(nullptr);
+    sptr<IIamCallback> tmp(nullptr);
     if (parcel.ReadBool()) {
-        tmp = sptr<IdmCallbackInterface>(new (std::nothrow) DummyIdmCallback());
+        tmp = sptr<IIamCallback>(new (std::nothrow) DummyIdmCallback());
     }
     return tmp;
 }
@@ -172,8 +176,8 @@ void FuzzGetCredentialInfo(Parcel &parcel)
 {
     IAM_LOGI("begin");
     int32_t userId = GetFuzzOptionalUserId(parcel);
-    AuthType authType = static_cast<AuthType>(parcel.ReadUint32());
-    sptr<IdmGetCredInfoCallbackInterface> callback = GetFuzzIdmGetCredentialInfoCallback(parcel);
+    int32_t authType = parcel.ReadUint32();
+    sptr<IIdmGetCredInfoCallback> callback = GetFuzzIdmGetCredentialInfoCallback(parcel);
     g_UserIdmService.GetCredentialInfo(userId, authType, callback);
     IAM_LOGI("end");
 }
@@ -182,7 +186,7 @@ void FuzzGetSecInfo(Parcel &parcel)
 {
     IAM_LOGI("begin");
     int32_t userId = GetFuzzOptionalUserId(parcel);
-    sptr<IdmGetSecureUserInfoCallbackInterface> callback = GetFuzzIdmGetSecureUserInfoCallback(parcel);
+    sptr<IIdmGetSecureUserInfoCallback> callback = GetFuzzIdmGetSecureUserInfoCallback(parcel);
     g_UserIdmService.GetSecInfo(userId, callback);
     IAM_LOGI("end");
 }
@@ -191,11 +195,11 @@ void FuzzAddCredential(Parcel &parcel)
 {
     IAM_LOGI("begin");
     int32_t userId = parcel.ReadInt32();
-    UserIdmInterface::CredentialPara para = {};
-    para.authType = static_cast<AuthType>(parcel.ReadInt32());
-    para.pinType = static_cast<PinSubType>(parcel.ReadInt32());
+    IpcCredentialPara para = {};
+    para.authType = parcel.ReadInt32();
+    para.pinType = parcel.ReadInt32();
     FillFuzzUint8Vector(parcel, para.token);
-    sptr<IdmCallbackInterface> callback = GetFuzzIdmCallback(parcel);
+    sptr<IIamCallback> callback = GetFuzzIdmCallback(parcel);
     g_UserIdmService.AddCredential(userId, para, callback, false);
     IAM_LOGI("end");
 }
@@ -204,11 +208,11 @@ void FuzzUpdateCredential(Parcel &parcel)
 {
     IAM_LOGI("begin");
     int32_t userId = parcel.ReadInt32();
-    UserIdmInterface::CredentialPara para = {};
-    para.authType = static_cast<AuthType>(parcel.ReadInt32());
-    para.pinType = static_cast<PinSubType>(parcel.ReadInt32());
+    IpcCredentialPara para = {};
+    para.authType = parcel.ReadInt32();
+    para.pinType = parcel.ReadInt32();
     FillFuzzUint8Vector(parcel, para.token);
-    sptr<IdmCallbackInterface> callback = GetFuzzIdmCallback(parcel);
+    sptr<IIamCallback> callback = GetFuzzIdmCallback(parcel);
     g_UserIdmService.UpdateCredential(userId, para, callback);
     IAM_LOGI("end");
 }
@@ -225,7 +229,7 @@ void FuzzEnforceDelUser(Parcel &parcel)
 {
     IAM_LOGI("begin");
     int32_t userId = parcel.ReadInt32();
-    sptr<IdmCallbackInterface> callback = GetFuzzIdmCallback(parcel);
+    sptr<IIamCallback> callback = GetFuzzIdmCallback(parcel);
     g_UserIdmService.EnforceDelUser(userId, callback);
     IAM_LOGI("end");
 }
@@ -236,7 +240,7 @@ void FuzzDelUser(Parcel &parcel)
     int32_t userId = parcel.ReadInt32();
     std::vector<uint8_t> authToken;
     FillFuzzUint8Vector(parcel, authToken);
-    sptr<IdmCallbackInterface> callback = GetFuzzIdmCallback(parcel);
+    sptr<IIamCallback> callback = GetFuzzIdmCallback(parcel);
     g_UserIdmService.DelUser(userId, authToken, callback);
     IAM_LOGI("end");
 }
@@ -269,7 +273,7 @@ void DelCredential(Parcel &parcel)
     uint64_t credentialId = parcel.ReadUint64();
     std::vector<uint8_t> authToken;
     FillFuzzUint8Vector(parcel, authToken);
-    sptr<IdmCallbackInterface> callback = GetFuzzIdmCallback(parcel);
+    sptr<IIamCallback> callback = GetFuzzIdmCallback(parcel);
     g_UserIdmService.DelCredential(userId, credentialId, authToken, callback);
     IAM_LOGI("end");
 }
@@ -277,7 +281,7 @@ void DelCredential(Parcel &parcel)
 void FuzzClearRedundancyCredential(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    sptr<IdmCallbackInterface> callback = GetFuzzIdmCallback(parcel);
+    sptr<IIamCallback> callback = GetFuzzIdmCallback(parcel);
     g_UserIdmService.ClearRedundancyCredential(callback);
     IAM_LOGI("end");
 }
@@ -295,7 +299,7 @@ void FuzzEnforceDelUserInner(Parcel &parcel)
 {
     IAM_LOGI("begin");
     int32_t userId = 100;
-    sptr<IamCallbackInterface> iamCallback = sptr<IamCallbackInterface>(new (nothrow) DummyIamCallbackInterface);
+    sptr<IIamCallback> iamCallback = sptr<IIamCallback>(new (nothrow) DummyIamCallbackInterface);
     std::shared_ptr<ContextCallback> callbackForTrace =
         ContextCallback::NewInstance(iamCallback, TRACE_ENFORCE_DELETE_USER);
     std::string changeReasonTrace = parcel.ReadString();
@@ -315,7 +319,7 @@ void FuzzStartEnroll(Parcel &parcel)
 {
     IAM_LOGI("begin");
     Enrollment::EnrollmentPara para = {};
-    sptr<IamCallbackInterface> iamCallback = sptr<IamCallbackInterface>(new (nothrow) DummyIamCallbackInterface);
+    sptr<IIamCallback> iamCallback = sptr<IIamCallback>(new (nothrow) DummyIamCallbackInterface);
     std::shared_ptr<ContextCallback> contextCallback = ContextCallback::NewInstance(iamCallback, TRACE_ADD_CREDENTIAL);
     Attributes extraInfo;
     g_UserIdmService.StartEnroll(para, contextCallback, extraInfo, true);
@@ -326,15 +330,15 @@ void FuzzRegistCredChangeEventListener(Parcel &parcel)
 {
     IAM_LOGI("begin");
     std::vector<int32_t> authType;
-    std::vector<AuthType> authTypeList;
+    std::vector<int32_t> authTypeList;
     parcel.ReadInt32Vector(&authType);
     for (const auto &iter : authType) {
         authTypeList.push_back(static_cast<AuthType>(iter));
     }
 
-    sptr<EventListenerInterface> callback(nullptr);
+    sptr<IEventListenerCallback> callback(nullptr);
     if (parcel.ReadBool()) {
-        callback = sptr<EventListenerInterface>(new (std::nothrow) DummyCredChangeEventListener());
+        callback = sptr<IEventListenerCallback>(new (std::nothrow) DummyCredChangeEventListener());
     }
 
     g_UserIdmService.RegistCredChangeEventListener(authTypeList, callback);

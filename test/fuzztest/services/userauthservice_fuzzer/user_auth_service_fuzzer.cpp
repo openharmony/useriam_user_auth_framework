@@ -42,25 +42,25 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
-class DummyUserAuthCallback : public UserAuthCallbackInterface {
+class DummyUserAuthCallback : public IIamCallback {
 public:
     ~DummyUserAuthCallback() override = default;
 
-    void OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo) override
+    int32_t OnAcquireInfo(int32_t module, int32_t acquireInfo, const std::vector<uint8_t> &extraInfo) override
     {
         IAM_LOGI("start");
         static_cast<void>(module);
         static_cast<void>(acquireInfo);
         static_cast<void>(extraInfo);
-        return;
+        return SUCCESS;
     }
 
-    void OnResult(int32_t result, const Attributes &extraInfo) override
+    int32_t OnResult(int32_t result, const std::vector<uint8_t> &extraInfo) override
     {
         IAM_LOGI("start");
         static_cast<void>(result);
         static_cast<void>(extraInfo);
-        return;
+        return SUCCESS;
     }
 
     sptr<IRemoteObject> AsObject() override
@@ -70,14 +70,14 @@ public:
     }
 };
 
-class DummyGetExecutorPropertyCallback : public GetExecutorPropertyCallbackInterface {
+class DummyGetExecutorPropertyCallback : public IGetExecutorPropertyCallback {
 public:
     ~DummyGetExecutorPropertyCallback() override = default;
 
-    void OnGetExecutorPropertyResult(int32_t result, const Attributes &attributes) override
+    int32_t OnGetExecutorPropertyResult(int32_t result, const std::vector<uint8_t> &attributes) override
     {
         IAM_LOGI("start");
-        return;
+        return SUCCESS;
     }
 
     sptr<IRemoteObject> AsObject() override
@@ -87,14 +87,14 @@ public:
     }
 };
 
-class DummySetExecutorPropertyCallback : public SetExecutorPropertyCallbackInterface {
+class DummySetExecutorPropertyCallback : public ISetExecutorPropertyCallback {
 public:
     ~DummySetExecutorPropertyCallback() override = default;
 
-    void OnSetExecutorPropertyResult(int32_t result) override
+    int32_t OnSetExecutorPropertyResult(int32_t resultCode) override
     {
         IAM_LOGI("start");
-        return;
+        return SUCCESS;
     }
 
     sptr<IRemoteObject> AsObject() override
@@ -104,11 +104,12 @@ public:
     }
 };
 
-class DummyWidgetCallback : public WidgetCallbackInterface {
+class DummyWidgetCallback : public IWidgetCallback {
 public:
-    void SendCommand(const std::string &cmdData) override
+    int32_t SendCommand(const std::string &cmdData) override
     {
         IAM_LOGI("start");
+        return SUCCESS;
     }
 
     sptr<IRemoteObject> AsObject() override
@@ -118,7 +119,7 @@ public:
     }
 };
 
-class DummyAuthEventListener : public EventListenerInterface {
+class DummyAuthEventListener : public IEventListenerCallback {
 public:
     ~DummyAuthEventListener() override = default;
 
@@ -128,24 +129,28 @@ public:
         return tmp;
     }
 
-    void OnNotifyAuthSuccessEvent(int32_t userId, AuthType authType, int32_t callerType,
-        std::string &callerName) override
+    int32_t OnNotifyAuthSuccessEvent(int32_t userId, int32_t authType, int32_t callerType,
+        const std::string &callerName) override
     {
-        IAM_LOGI("notify: userId: %{public}d, authType: %{public}d, callerName: %{public}s,"
-            "callerType: %{public}d", userId, static_cast<int32_t>(authType), callerName.c_str(), callerType);
+        IAM_LOGI("start");
+        return SUCCESS;
     }
-    void OnNotifyCredChangeEvent(int32_t userId, AuthType authType, CredChangeEventType eventType,
-        uint64_t credentialId) override {}
+    int32_t OnNotifyCredChangeEvent(int32_t userId, int32_t authType, int32_t eventType,
+        uint64_t credentialId) override
+    {
+        IAM_LOGI("start");
+        return SUCCESS;
+    }
 };
 
-class DummyVerifyTokenCallback : public VerifyTokenCallbackInterface {
+class DummyVerifyTokenCallback : public IVerifyTokenCallback {
 public:
     ~DummyVerifyTokenCallback() override = default;
 
-    void OnVerifyTokenResult(int32_t result, const Attributes &attributes) override
+    int32_t OnVerifyTokenResult(int32_t result, const std::vector<uint8_t> &attributes) override
     {
         IAM_LOGI("start");
-        return;
+        return SUCCESS;
     }
 
     sptr<IRemoteObject> AsObject() override
@@ -161,8 +166,8 @@ void FuzzGetEnrolledState(Parcel &parcel)
 {
     IAM_LOGI("begin");
     int32_t apiVersion = parcel.ReadInt32();
-    AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
-    EnrolledState enrolledState = {};
+    int32_t authType = parcel.ReadInt32();
+    IpcEnrolledState enrolledState = {};
     g_userAuthService.GetEnrolledState(apiVersion, authType, enrolledState);
     IAM_LOGI("end");
 }
@@ -172,10 +177,9 @@ void FuzzGetAvailableStatusOtherScene(Parcel &parcel)
     IAM_LOGI("begin");
     int32_t apiVersion = 8;
     int32_t pin = 1;
-    AuthType authType = static_cast<AuthType>(pin);
-    AuthTrustLevel authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32());
+    int32_t authTrustLevel = parcel.ReadInt32();
     int32_t userId = parcel.ReadInt32();
-    g_userAuthService.GetAvailableStatus(apiVersion, userId, authType, authTrustLevel);
+    g_userAuthService.GetAvailableStatus(apiVersion, userId, pin, authTrustLevel);
     IAM_LOGI("end");
 }
 
@@ -183,8 +187,8 @@ void FuzzGetAvailableStatus(Parcel &parcel)
 {
     IAM_LOGI("begin");
     int32_t apiVersion = parcel.ReadInt32();
-    AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
-    AuthTrustLevel authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32());
+    int32_t authType = parcel.ReadInt32();
+    int32_t authTrustLevel = parcel.ReadInt32();
     int32_t userId = parcel.ReadInt32();
     g_userAuthService.GetAvailableStatus(apiVersion, userId, authType, authTrustLevel);
     FuzzGetAvailableStatusOtherScene(parcel);
@@ -196,17 +200,17 @@ void FuzzGetProperty(Parcel &parcel)
     IAM_LOGI("begin");
     constexpr uint32_t maxDataLen = 50;
     int32_t userId = parcel.ReadInt32();
-    AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
-    std::vector<Attributes::AttributeKey> keys;
+    int32_t authType = parcel.ReadInt32();
+    std::vector<uint32_t> keys;
     uint32_t keysLen = parcel.ReadUint32() % maxDataLen;
     keys.reserve(keysLen);
     for (uint32_t i = 0; i < keysLen; i++) {
-        keys.emplace_back(static_cast<Attributes::AttributeKey>(parcel.ReadInt32()));
+        keys.emplace_back(parcel.ReadUint32());
     }
 
-    sptr<GetExecutorPropertyCallbackInterface> callback(nullptr);
+    sptr<IGetExecutorPropertyCallback> callback(nullptr);
     if (parcel.ReadBool()) {
-        callback = sptr<GetExecutorPropertyCallbackInterface>(new (std::nothrow) DummyGetExecutorPropertyCallback());
+        callback = sptr<IGetExecutorPropertyCallback>(new (std::nothrow) DummyGetExecutorPropertyCallback());
     }
     g_userAuthService.GetProperty(userId, authType, keys, callback);
     IAM_LOGI("end");
@@ -220,12 +224,12 @@ void FuzzSetProperty(Parcel &parcel)
     vector<uint8_t> attributesRaw;
     FillFuzzUint8Vector(parcel, attributesRaw);
     Attributes attributes(attributesRaw);
-    sptr<SetExecutorPropertyCallbackInterface> callback(nullptr);
+    sptr<ISetExecutorPropertyCallback> callback(nullptr);
     if (parcel.ReadBool()) {
-        callback = sptr<SetExecutorPropertyCallbackInterface>(new (nothrow) DummySetExecutorPropertyCallback());
+        callback = sptr<ISetExecutorPropertyCallback>(new (nothrow) DummySetExecutorPropertyCallback());
     }
 
-    g_userAuthService.SetProperty(userId, authType, attributes, callback);
+    g_userAuthService.SetProperty(userId, authType, attributes.Serialize(), callback);
     IAM_LOGI("end");
 }
 
@@ -235,13 +239,16 @@ void FuzzAuth(Parcel &parcel)
     int32_t apiVersion = parcel.ReadInt32();
     std::vector<uint8_t> challenge;
     FillFuzzUint8Vector(parcel, challenge);
-    AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
-    AuthTrustLevel authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32());
-    sptr<UserAuthCallbackInterface> callback(nullptr);
+    IpcAuthParamInner ipcAuthParamInner = {};
+    ipcAuthParamInner.challenge = challenge;
+    ipcAuthParamInner.authType = parcel.ReadInt32();
+    ipcAuthParamInner.authTrustLevel =  parcel.ReadInt32();
+    sptr<IIamCallback> callback(nullptr);
     if (parcel.ReadBool()) {
-        callback = sptr<UserAuthCallbackInterface>(new (std::nothrow) DummyUserAuthCallback());
+        callback = sptr<IIamCallback>(new (std::nothrow) DummyUserAuthCallback());
     }
-    g_userAuthService.Auth(apiVersion, challenge, authType, authTrustLevel, callback);
+    uint64_t contextId = 0;
+    g_userAuthService.Auth(apiVersion, ipcAuthParamInner, callback, contextId);
     IAM_LOGI("end");
 }
 
@@ -250,18 +257,21 @@ void FuzzAuthUser(Parcel &parcel)
     IAM_LOGI("begin");
     std::vector<uint8_t> challenge;
     FillFuzzUint8Vector(parcel, challenge);
-    sptr<UserAuthCallbackInterface> callback(nullptr);
+    sptr<IIamCallback> callback(nullptr);
     if (parcel.ReadBool()) {
-        callback = sptr<UserAuthCallbackInterface>(new (nothrow) DummyUserAuthCallback());
+        callback = sptr<IIamCallback>(new (nothrow) DummyUserAuthCallback());
     }
-    AuthParamInner param = {
+    IpcAuthParamInner param = {
         .userId = parcel.ReadInt32(),
         .challenge = challenge,
-        .authType = static_cast<AuthType>(parcel.ReadInt32()),
-        .authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32()),
+        .authType = parcel.ReadInt32(),
+        .authTrustLevel = parcel.ReadInt32(),
     };
-    std::optional<RemoteAuthParam> remoteAuthParam = std::nullopt;
-    g_userAuthService.AuthUser(param, remoteAuthParam, callback);
+    IpcRemoteAuthParam remoteAuthParam = {
+        .isHasRemoteAuthParam = false,
+    };
+    uint64_t contextId = 0;
+    g_userAuthService.AuthUser(param, remoteAuthParam, callback, contextId);
     IAM_LOGI("end");
 }
 
@@ -270,12 +280,13 @@ void FuzzIdentify(Parcel &parcel)
     IAM_LOGI("begin");
     std::vector<uint8_t> challenge;
     FillFuzzUint8Vector(parcel, challenge);
-    AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
-    sptr<UserAuthCallbackInterface> callback(nullptr);
+    int32_t authType = parcel.ReadInt32();
+    sptr<IIamCallback> callback(nullptr);
     if (parcel.ReadBool()) {
-        callback = sptr<UserAuthCallbackInterface>(new (nothrow) DummyUserAuthCallback());
+        callback = sptr<IIamCallback>(new (nothrow) DummyUserAuthCallback());
     }
-    g_userAuthService.Identify(challenge, authType, callback);
+    uint64_t contextId = 0;
+    g_userAuthService.Identify(challenge, authType, callback, contextId);
     IAM_LOGI("end");
 }
 
@@ -300,31 +311,29 @@ void FuzzAuthWidget(Parcel &parcel)
 {
     IAM_LOGI("begin");
     int32_t apiVersion = parcel.ReadInt32();
-    AuthParamInner authParam;
-    WidgetParamInner widgetParam;
+    IpcAuthParamInner authParam;
+    IpcWidgetParamInner widgetParam;
     FillFuzzUint8Vector(parcel, authParam.challenge);
     std::vector<int32_t> atList;
-    parcel.ReadInt32Vector(&atList);
-    for (auto at : atList) {
-        authParam.authTypes.push_back(static_cast<AuthType>(at));
-    }
-    authParam.authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32());
-    sptr<UserAuthCallbackInterface> callback(nullptr);
+    parcel.ReadInt32Vector(&authParam.authTypes);
+    authParam.authTrustLevel = parcel.ReadInt32();
+    sptr<IIamCallback> callback(nullptr);
     widgetParam.title = parcel.ReadString();
     widgetParam.navigationButtonText = parcel.ReadString();
-    widgetParam.windowMode = static_cast<WindowModeType>(parcel.ReadInt32());
+    widgetParam.windowMode = parcel.ReadInt32();
     if (parcel.ReadBool()) {
-        callback = sptr<UserAuthCallbackInterface>(new (std::nothrow) DummyUserAuthCallback());
+        callback = sptr<IIamCallback>(new (std::nothrow) DummyUserAuthCallback());
     }
-    sptr<ModalCallbackInterface> testModalCallback(nullptr);
-    g_userAuthService.AuthWidget(apiVersion, authParam, widgetParam, callback, testModalCallback);
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    g_userAuthService.AuthWidget(apiVersion, authParam, widgetParam, callback, testModalCallback, contextId);
     IAM_LOGI("end");
 }
 
 void FuzzNotice(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    NoticeType noticeType = static_cast<NoticeType>(parcel.ReadInt32());
+    int32_t noticeType = parcel.ReadInt32();
     std::string eventData = parcel.ReadString();
     g_userAuthService.Notice(noticeType, eventData);
     IAM_LOGI("end");
@@ -334,9 +343,9 @@ void FuzzRegisterWidgetCallback(Parcel &parcel)
 {
     IAM_LOGI("begin");
     int32_t version = parcel.ReadInt32();
-    sptr<WidgetCallbackInterface> callback(nullptr);
+    sptr<IWidgetCallback> callback(nullptr);
     if (parcel.ReadBool()) {
-        callback = sptr<WidgetCallbackInterface>(new (std::nothrow) DummyWidgetCallback());
+        callback = sptr<IWidgetCallback>(new (std::nothrow) DummyWidgetCallback());
     }
     g_userAuthService.RegisterWidgetCallback(version, callback);
     IAM_LOGI("end");
@@ -346,15 +355,15 @@ void FuzzRegistUserAuthSuccessEventListener(Parcel &parcel)
 {
     IAM_LOGI("begin");
     std::vector<int32_t> authType;
-    std::vector<AuthType> authTypeList;
+    std::vector<int32_t> authTypeList;
     parcel.ReadInt32Vector(&authType);
     for (const auto &iter : authType) {
         authTypeList.push_back(static_cast<AuthType>(iter));
     }
 
-    sptr<EventListenerInterface> callback(nullptr);
+    sptr<IEventListenerCallback> callback(nullptr);
     if (parcel.ReadBool()) {
-        callback = sptr<EventListenerInterface>(new (std::nothrow) DummyAuthEventListener());
+        callback = sptr<IEventListenerCallback>(new (std::nothrow) DummyAuthEventListener());
     }
 
     g_userAuthService.RegistUserAuthSuccessEventListener(authTypeList, callback);
@@ -365,9 +374,9 @@ void FuzzRegistUserAuthSuccessEventListener(Parcel &parcel)
 void FuzzSetGlobalConfigParam(Parcel &parcel)
 {
     IAM_LOGI("start");
-    GlobalConfigParam param = {};
+    IpcGlobalConfigParam param = {};
     param.value.pinExpiredPeriod = parcel.ReadUint64();
-    param.type = static_cast<GlobalConfigType>(parcel.ReadInt32());
+    param.type = parcel.ReadInt32();
     g_userAuthService.SetGlobalConfigParam(param);
     IAM_LOGI("end");
 }
@@ -376,9 +385,9 @@ void FuzzPrepareRemoteAuth(Parcel &parcel)
 {
     IAM_LOGI("begin");
     std::string networkId = parcel.ReadString();
-    sptr<UserAuthCallbackInterface> callback(nullptr);
+    sptr<IIamCallback> callback(nullptr);
     if (parcel.ReadBool()) {
-        callback = sptr<UserAuthCallbackInterface>(new (nothrow) DummyUserAuthCallback());
+        callback = sptr<IIamCallback>(new (nothrow) DummyUserAuthCallback());
     }
     g_userAuthService.PrepareRemoteAuth(networkId, callback);
     IAM_LOGI("end");
@@ -432,7 +441,7 @@ void FuzzGetAuthContextCallback(Parcel &parcel)
     int32_t apiVersion = parcel.ReadInt32();
     AuthParamInner authParam = {};
     WidgetParamInner widgetParam = {};
-    sptr<UserAuthCallbackInterface> callback = sptr<UserAuthCallbackInterface>(new (nothrow) DummyUserAuthCallback);
+    sptr<IIamCallback> callback = sptr<IIamCallback>(new (nothrow) DummyUserAuthCallback);
     g_userAuthService.GetAuthContextCallback(apiVersion, authParam, widgetParam, callback);
     authParam.authTypes = {PIN, FACE, FINGERPRINT};
     ReuseUnlockResult reuseUnlockResult = {};
@@ -488,7 +497,7 @@ void FuzzAuthRemoteUser(Parcel &parcel)
     };
     Authentication::AuthenticationPara para = {};
     RemoteAuthParam remoteAuthParam = {};
-    sptr<IamCallbackInterface> iamCallback = sptr<IamCallbackInterface>(new (nothrow) DummyIamCallbackInterface);
+    sptr<IIamCallback> iamCallback = sptr<IIamCallback>(new (nothrow) DummyIamCallbackInterface);
     std::shared_ptr<ContextCallback> contextCallback = ContextCallback::NewInstance(iamCallback, TRACE_ADD_CREDENTIAL);
     ResultCode failReason = SUCCESS;
     g_userAuthService.AuthRemoteUser(authParam, para, remoteAuthParam, contextCallback, failReason);
@@ -524,7 +533,7 @@ void FuzzFillGetPropertyKeys(Parcel &parcel)
 void FuzzStartWidgetContext(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    sptr<IamCallbackInterface> iamCallback = sptr<IamCallbackInterface>(new (nothrow) DummyIamCallbackInterface);
+    sptr<IIamCallback> iamCallback = sptr<IIamCallback>(new (nothrow) DummyIamCallbackInterface);
     std::shared_ptr<ContextCallback> contextCallback = ContextCallback::NewInstance(iamCallback, TRACE_ADD_CREDENTIAL);
     AuthParamInner authParam = {};
     WidgetParamInner widgetParam = {};
@@ -539,7 +548,7 @@ void FuzzStartRemoteAuthInvokerContext(Parcel &parcel)
     IAM_LOGI("begin");
     AuthParamInner authParam = {};
     RemoteAuthInvokerContextParam param = {};
-    sptr<IamCallbackInterface> iamCallback = sptr<IamCallbackInterface>(new (nothrow) DummyIamCallbackInterface);
+    sptr<IIamCallback> iamCallback = sptr<IIamCallback>(new (nothrow) DummyIamCallbackInterface);
     std::shared_ptr<ContextCallback> contextCallback = ContextCallback::NewInstance(iamCallback, TRACE_ADD_CREDENTIAL);
     g_userAuthService.StartRemoteAuthInvokerContext(authParam, param, contextCallback);
     IAM_LOGI("end");
@@ -550,7 +559,7 @@ void FuzzStartAuthContext(Parcel &parcel)
     IAM_LOGI("begin");
     int32_t apiVersion = parcel.ReadInt32();
     Authentication::AuthenticationPara para;
-    sptr<IamCallbackInterface> iamCallback = sptr<IamCallbackInterface>(new (nothrow) DummyIamCallbackInterface);
+    sptr<IIamCallback> iamCallback = sptr<IIamCallback>(new (nothrow) DummyIamCallbackInterface);
     std::shared_ptr<ContextCallback> contextCallback = ContextCallback::NewInstance(iamCallback, TRACE_ADD_CREDENTIAL);
     g_userAuthService.StartAuthContext(apiVersion, para, contextCallback, true);
     IAM_LOGI("end");
@@ -561,16 +570,16 @@ void FuzzGetPropertyById(Parcel &parcel)
     IAM_LOGI("begin");
     constexpr uint32_t maxDataLen = 50;
     uint64_t credentialId = parcel.ReadUint64();
-    std::vector<Attributes::AttributeKey> keys;
+    std::vector<uint32_t> keys;
     uint32_t keysLen = parcel.ReadUint32() % maxDataLen;
     keys.reserve(keysLen);
     for (uint32_t i = 0; i < keysLen; i++) {
-        keys.emplace_back(static_cast<Attributes::AttributeKey>(parcel.ReadInt32()));
+        keys.emplace_back(parcel.ReadUint32());
     }
 
-    sptr<GetExecutorPropertyCallbackInterface> callback(nullptr);
+    sptr<IGetExecutorPropertyCallback> callback(nullptr);
     if (parcel.ReadBool()) {
-        callback = sptr<GetExecutorPropertyCallbackInterface>(new (std::nothrow) DummyGetExecutorPropertyCallback());
+        callback = sptr<IGetExecutorPropertyCallback>(new (std::nothrow) DummyGetExecutorPropertyCallback());
     }
     g_userAuthService.GetPropertyById(credentialId, keys, callback);
     IAM_LOGI("end");
@@ -582,9 +591,9 @@ void FuzzVerifyAuthToken(Parcel &parcel)
     uint64_t allowableDuration = parcel.ReadUint64();
     std::vector<uint8_t> tokenIn = {};
     Common::FillFuzzUint8Vector(parcel, tokenIn);
-    sptr<VerifyTokenCallbackInterface> callback(nullptr);
+    sptr<IVerifyTokenCallback> callback(nullptr);
     if (parcel.ReadBool()) {
-        callback = sptr<VerifyTokenCallbackInterface>(new (std::nothrow) DummyVerifyTokenCallback());
+        callback = sptr<IVerifyTokenCallback>(new (std::nothrow) DummyVerifyTokenCallback());
     }
     g_userAuthService.VerifyAuthToken(tokenIn, allowableDuration, callback);
     IAM_LOGI("end");

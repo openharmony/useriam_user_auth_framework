@@ -48,7 +48,7 @@ public:
 class MockAuthSuccessEventListener final : public AuthSuccessEventListener {
 public:
     MOCK_METHOD4(OnNotifyAuthSuccessEvent, void(int32_t userId, AuthType authType, int32_t callerType,
-        std::string &callerName));
+        const std::string &callerName));
 };
 } // namespace UserAuth
 } // namespace UserIam

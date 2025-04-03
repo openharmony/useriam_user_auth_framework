@@ -20,8 +20,9 @@
 #include <memory>
 #include <vector>
 
+#include "attributes.h"
 #include "co_auth_interface.h"
-#include "executor_callback_interface.h"
+#include "iexecutor_callback.h"
 #include "iam_common_defines.h"
 
 namespace OHOS {
@@ -51,7 +52,7 @@ public:
     virtual void DetachFromDriver() = 0;
 
     static std::shared_ptr<ResourceNode> MakeNewResource(const ExecutorRegisterInfo &info,
-        const std::shared_ptr<ExecutorCallbackInterface> &callback, std::vector<uint64_t> &templateIdList,
+        const std::shared_ptr<IExecutorCallback> &callback, std::vector<uint64_t> &templateIdList,
         std::vector<uint8_t> &fwkPublicKey);
 };
 } // namespace UserAuth

@@ -13,13 +13,14 @@
  * limitations under the License.
  */
 
-#include "user_auth_event_listener_stub.h"
+#include "user_auth_event_listener_callback_stub.h"
 
 #include <cinttypes>
 
 #include "iam_logger.h"
 #include "mock_user_auth_callback_service.h"
-#include "user_auth_interface.h"
+#include "iuser_auth.h"
+#include "user_auth_interface_ipc_interface_code.h"
 
 using namespace testing;
 using namespace testing::ext;

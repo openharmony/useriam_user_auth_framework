@@ -96,3 +96,13 @@ USERIAM_REMOTE_CONNECT:
   TIME_SPAN: {type: UINT64, desc: time span}
   NETWORK_ID: {type: STRING, desc: network id}
   SOCKET_ID: {type: STRING, desc: socket id}
+
+SA_LOAD_DRIVER_FAILURE:
+  __BASE: {type: FAULT, level: CRITICAL, tag: UserAuth, desc: user auth Sa load Driver fail}
+  ERROR_CODE: {type: INT32, desc: error code}
+
+IS_CREDENTIAL_ENROLLED_MISMATCH:
+  __BASE: {type: STATISTIC, level: CRITICAL, tag: UserAuth, desc: credential judgement system param mismatches actual credential}
+  AUTH_TYPE: {type: INT32, desc: auth type}
+  PREVIOUS_STATUS: {type: BOOL, desc: system param value before update}
+  UPDATED_STATUS: {type: BOOL, desc: system param value updated}

@@ -123,8 +123,8 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceCloseSession, TestSize.Level0)
         .WillOnce(Return(HDF_SUCCESS))
         .WillOnce(Return(HDF_FAILURE));
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
-    service.CloseSession(testUserId);
-    service.CloseSession(testUserId);
+    EXPECT_EQ(service.CloseSession(testUserId), SUCCESS);
+    EXPECT_EQ(service.CloseSession(testUserId), GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -141,10 +141,10 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo001, TestSize.Level0
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).WillOnce(Return(HDF_FAILURE));
-    int32_t ret = service.GetCredentialInfo(testUserId, testAuthType, testCallback);
+    int32_t ret = service.GetCredentialInfo(testUserId, static_cast<AuthType>(testAuthType), testCallback);
     EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
     IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
-    ret = service.GetCredentialInfo(testUserId, testAuthType, testCallback);
+    ret = service.GetCredentialInfo(testUserId, static_cast<AuthType>(testAuthType), testCallback);
     EXPECT_EQ(ret, GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
 }
@@ -154,8 +154,8 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo002, TestSize.Level0
     UserIdmService service(123123, true);
     int32_t testUserId = 0;
     AuthType testAuthType = PIN;
-    sptr<IdmGetCredInfoCallbackInterface> testCallback(nullptr);
-    int32_t ret = service.GetCredentialInfo(testUserId, testAuthType, testCallback);
+    sptr<IIdmGetCredInfoCallback> testCallback(nullptr);
+    int32_t ret = service.GetCredentialInfo(testUserId, static_cast<AuthType>(testAuthType), testCallback);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
 }
 
@@ -187,9 +187,9 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo003, TestSize.Level0
             }
         );
     IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
-    int32_t ret = service.GetCredentialInfo(testUserId, testAuthType, testCallback);
+    int32_t ret = service.GetCredentialInfo(testUserId, static_cast<AuthType>(testAuthType), testCallback);
     EXPECT_EQ(ret, SUCCESS);
-    ret = service.GetCredentialInfo(testUserId, testAuthType, testCallback);
+    ret = service.GetCredentialInfo(testUserId, static_cast<AuthType>(testAuthType), testCallback);
     EXPECT_EQ(ret, SUCCESS);
     IpcCommon::DeleteAllPermission();
 }
@@ -222,7 +222,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo004, TestSize.Level0
         );
 
     IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
-    int32_t ret = service.GetCredentialInfo(testUserId, testAuthType, testCallback);
+    int32_t ret = service.GetCredentialInfo(testUserId, static_cast<AuthType>(testAuthType), testCallback);
     EXPECT_EQ(ret, SUCCESS);
     IpcCommon::DeleteAllPermission();
 }
@@ -289,19 +289,19 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential001, TestSize.Level0)
 {
     UserIdmService service(123123, true);
     int32_t testUserId = 15457;
-    UserIdmInterface::CredentialPara testCredPara = {};
+    IpcCredentialPara testCredPara = {};
     testCredPara.authType = PIN;
     testCredPara.pinType = PIN_SIX;
     testCredPara.token = {1, 2, 3, 4};
-    sptr<IdmCallbackInterface> testCallback(nullptr);
-    EXPECT_NO_THROW(service.AddCredential(testUserId, testCredPara, testCallback, false));
+    sptr<IIamCallback> testCallback(nullptr);
+    EXPECT_EQ(service.AddCredential(testUserId, testCredPara, testCallback, false), INVALID_PARAMETERS);
 }
 
 HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential002, TestSize.Level0)
 {
     UserIdmService service(123123, true);
     int32_t testUserId = 15457;
-    UserIdmInterface::CredentialPara testCredPara = {};
+    IpcCredentialPara testCredPara = {};
     testCredPara.authType = PIN;
     testCredPara.pinType = PIN_SIX;
     testCredPara.token = {1, 2, 3, 4};
@@ -310,22 +310,24 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential002, TestSize.Level0)
     EXPECT_CALL(*testCallback, OnResult(_, _))
         .Times(2)
         .WillOnce(
-            [](int32_t result, const Attributes &extraInfo) {
+            [](int32_t result, const std::vector<uint8_t> &extraInfo) {
                 EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
+                return SUCCESS;
             }
         )
         .WillOnce(
-            [](int32_t result, const Attributes &extraInfo) {
+            [](int32_t result, const std::vector<uint8_t> &extraInfo) {
                 EXPECT_EQ(result, HDF_FAILURE);
+                return SUCCESS;
             }
         );
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, BeginEnrollment(_, _, _)).WillRepeatedly(Return(HDF_FAILURE));
     
-    service.AddCredential(testUserId, testCredPara, testCallback, false);
+    EXPECT_EQ(service.AddCredential(testUserId, testCredPara, testCallback, false), CHECK_PERMISSION_FAILED);
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
-    service.AddCredential(testUserId, testCredPara, testCallback, false);
+    EXPECT_EQ(service.AddCredential(testUserId, testCredPara, testCallback, false), GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -376,7 +378,7 @@ static void MockForIdmResourceNode(std::shared_ptr<MockResourceNode> &resourceNo
             EXPECT_NE(finalResult, nullptr);
             std::vector<uint8_t> scheduleResult = {1, 2, 3, 4};
             EXPECT_TRUE(finalResult->SetUint8ArrayValue(Attributes::ATTR_RESULT, scheduleResult));
-            EXPECT_EQ(messenger->Finish(testScheduleId, SUCCESS, finalResult), SUCCESS);
+            EXPECT_EQ(messenger->Finish(testScheduleId, SUCCESS, finalResult->Serialize()), SUCCESS);
             return SUCCESS;
         });
 }
@@ -385,7 +387,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential003, TestSize.Level0)
 {
     UserIdmService service(123123, true);
     int32_t testUserId = 15457;
-    UserIdmInterface::CredentialPara testCredPara = {};
+    IpcCredentialPara testCredPara = {};
     testCredPara.authType = FACE;
     testCredPara.pinType = PIN_SIX;
     testCredPara.token = {1, 2, 3, 4};
@@ -395,11 +397,12 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential003, TestSize.Level0)
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _))
         .WillOnce(
-            [&context](int32_t result, const Attributes &extraInfo) {
+            [&context](int32_t result, const std::vector<uint8_t> &extraInfo) {
                 EXPECT_EQ(result, SUCCESS);
                 if (context != nullptr) {
                     context->Stop();
                 }
+                return SUCCESS;
             }
         );
     std::promise<void> promise;
@@ -412,7 +415,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential003, TestSize.Level0)
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
 
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
-    service.AddCredential(testUserId, testCredPara, testCallback, false);
+    EXPECT_EQ(service.AddCredential(testUserId, testCredPara, testCallback, false), SUCCESS);
     promise.get_future().get();
 
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(60));
@@ -423,7 +426,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUpdateCredential001, TestSize.Level0)
 {
     UserIdmService service(123123, true);
     int32_t testUserId = 1548545;
-    UserIdmInterface::CredentialPara testCredPara = {};
+    IpcCredentialPara testCredPara = {};
     testCredPara.authType = FACE;
     testCredPara.pinType = PIN_SIX;
     testCredPara.token = {1, 2, 3, 4};
@@ -431,15 +434,16 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUpdateCredential001, TestSize.Level0)
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _))
         .WillOnce(
-            [](int32_t result, const Attributes &extraInfo) {
+            [](int32_t result, const std::vector<uint8_t> &extraInfo) {
                 EXPECT_EQ(result, NOT_ENROLLED);
+                return SUCCESS;
             }
         );
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).WillRepeatedly(Return(HDF_SUCCESS));
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
-    service.UpdateCredential(testUserId, testCredPara, testCallback);
+    EXPECT_EQ(service.UpdateCredential(testUserId, testCredPara, testCallback), SUCCESS);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -447,20 +451,21 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUpdateCredential002, TestSize.Level0)
 {
     UserIdmService service(123123, true);
     int32_t testUserId = 1548545;
-    UserIdmInterface::CredentialPara testCredPara = {};
+    IpcCredentialPara testCredPara = {};
     testCredPara.authType = FACE;
     testCredPara.pinType = PIN_SIX;
     sptr<MockIdmCallback> testCallback(nullptr);
 
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
-    service.UpdateCredential(testUserId, testCredPara, testCallback);
+    EXPECT_EQ(service.UpdateCredential(testUserId, testCredPara, testCallback), INVALID_PARAMETERS);
 
     testCallback = sptr<MockIdmCallback>(new (std::nothrow) MockIdmCallback());
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _))
         .WillOnce(
-            [](int32_t result, const Attributes &extraInfo) {
+            [](int32_t result, const std::vector<uint8_t> &extraInfo) {
                 EXPECT_EQ(result, HDF_FAILURE);
+                return SUCCESS;
             }
         );
     
@@ -485,7 +490,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUpdateCredential002, TestSize.Level0)
     EXPECT_CALL(*mockHdi, BeginEnrollment(_, _, _)).WillOnce(Return(HDF_FAILURE));
 
     testCredPara.token = {1, 2, 3, 4};
-    service.UpdateCredential(testUserId, testCredPara, testCallback);
+    EXPECT_EQ(service.UpdateCredential(testUserId, testCredPara, testCallback), GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -552,13 +557,15 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceEnforceDelUser001, TestSize.Level0)
     EXPECT_CALL(*testCallback, OnResult(_, _))
         .Times(2)
         .WillOnce(
-            [](int32_t result, const Attributes &extraInfo) {
+            [](int32_t result, const std::vector<uint8_t> &extraInfo) {
                 EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
+                return SUCCESS;
             }
         )
         .WillOnce(
-            [](int32_t result, const Attributes &extraInfo) {
+            [](int32_t result, const std::vector<uint8_t> &extraInfo) {
                 EXPECT_EQ(result, GENERAL_ERROR);
+                return SUCCESS;
             }
         );
 
@@ -578,7 +585,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceEnforceDelUser002, TestSize.Level0)
 {
     UserIdmService service(123123, true);
     int32_t testUserId = 15485;
-    sptr<IdmCallbackInterface> testCallback(nullptr);
+    sptr<IIamCallback> testCallback(nullptr);
     int32_t ret = service.EnforceDelUser(testUserId, testCallback);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
 }
@@ -634,13 +641,15 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceEnforceDelUser003, TestSize.Level0)
     EXPECT_CALL(*testCallback, OnResult(_, _))
         .Times(2)
         .WillOnce(
-            [](int32_t result, const Attributes &extraInfo) {
+            [](int32_t result, const std::vector<uint8_t> &extraInfo) {
                 EXPECT_EQ(result, HDF_FAILURE);
+                return SUCCESS;
             }
         )
         .WillOnce(
-            [](int32_t result, const Attributes &extraInfo) {
+            [](int32_t result, const std::vector<uint8_t> &extraInfo) {
                 EXPECT_EQ(result, SUCCESS);
+                return SUCCESS;
             }
         );
     MockForDelUserHdi();
@@ -663,13 +672,15 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelUser001, TestSize.Level0)
     EXPECT_CALL(*testCallback, OnResult(_, _))
         .Times(2)
         .WillOnce(
-            [](int32_t result, const Attributes &extraInfo) {
+            [](int32_t result, const std::vector<uint8_t> &extraInfo) {
                 EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
+                return SUCCESS;
             }
         )
         .WillOnce(
-            [](int32_t result, const Attributes &extraInfo) {
+            [](int32_t result, const std::vector<uint8_t> &extraInfo) {
                 EXPECT_EQ(result, HDF_FAILURE);
+                return SUCCESS;
             }
         );
     
@@ -677,9 +688,9 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelUser001, TestSize.Level0)
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, DeleteUser(_, _, _, _)).WillOnce(Return(HDF_FAILURE));
 
-    service.DelUser(testUserId, testAuthToken, testCallback);
+    EXPECT_EQ(service.DelUser(testUserId, testAuthToken, testCallback), CHECK_PERMISSION_FAILED);
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
-    service.DelUser(testUserId, testAuthToken, testCallback);
+    EXPECT_EQ(service.DelUser(testUserId, testAuthToken, testCallback), HDF_FAILURE);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -688,8 +699,8 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelUser002, TestSize.Level0)
     UserIdmService service(123123, true);
     int32_t testUserId = 15486465;
     std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
-    sptr<IdmCallbackInterface> testCallback(nullptr);
-    EXPECT_NO_THROW(service.DelUser(testUserId, testAuthToken, testCallback));
+    sptr<IIamCallback> testCallback(nullptr);
+    EXPECT_EQ(service.DelUser(testUserId, testAuthToken, testCallback), INVALID_PARAMETERS);
 }
 
 HWTEST_F(UserIdmServiceTest, UserIdmServiceDelUser003, TestSize.Level0)
@@ -701,13 +712,14 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelUser003, TestSize.Level0)
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _))
         .WillOnce(
-            [](int32_t result, const Attributes &extraInfo) {
+            [](int32_t result, const std::vector<uint8_t> &extraInfo) {
                 EXPECT_EQ(result, SUCCESS);
+                return SUCCESS;
             }
         );
     
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
-    service.DelUser(testUserId, testAuthToken, testCallback);
+    EXPECT_EQ(service.DelUser(testUserId, testAuthToken, testCallback), SUCCESS);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -720,8 +732,9 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelUser004, TestSize.Level0)
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _))
         .WillOnce(
-            [](int32_t result, const Attributes &extraInfo) {
+            [](int32_t result, const std::vector<uint8_t> &extraInfo) {
                 EXPECT_EQ(result, SUCCESS);
+                return SUCCESS;
             }
         );
 
@@ -744,7 +757,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelUser004, TestSize.Level0)
         );
     
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
-    service.DelUser(testUserId, testAuthToken, testCallback);
+    EXPECT_EQ(service.DelUser(testUserId, testAuthToken, testCallback), SUCCESS);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -760,13 +773,15 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelCredential001, TestSize.Level0)
     EXPECT_CALL(*testCallback, OnResult(_, _))
         .Times(2)
         .WillOnce(
-            [](int32_t result, const Attributes &extraInfo) {
+            [](int32_t result, const std::vector<uint8_t> &extraInfo) {
                 EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
+                return SUCCESS;
             }
         )
         .WillOnce(
-            [](int32_t result, const Attributes &extraInfo) {
+            [](int32_t result, const std::vector<uint8_t> &extraInfo) {
                 EXPECT_EQ(result, HDF_FAILURE);
+                return SUCCESS;
             }
         );
 
@@ -774,9 +789,11 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelCredential001, TestSize.Level0)
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, DeleteCredential(_, _, _, _)).WillOnce(Return(HDF_FAILURE));
 
-    service.DelCredential(testUserId, testCredentialId, testAuthToken, testCallback);
+    EXPECT_EQ(service.DelCredential(testUserId, testCredentialId, testAuthToken, testCallback),
+        CHECK_PERMISSION_FAILED);
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
-    service.DelCredential(testUserId, testCredentialId, testAuthToken, testCallback);
+    EXPECT_EQ(service.DelCredential(testUserId, testCredentialId, testAuthToken, testCallback),
+        HDF_FAILURE);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -786,8 +803,8 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelCredential002, TestSize.Level0)
     int32_t testUserId = 1548865;
     uint64_t testCredentialId = 23424;
     std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
-    sptr<IdmCallbackInterface> testCallback(nullptr);
-    EXPECT_NO_THROW(service.DelCredential(testUserId, testCredentialId, testAuthToken, testCallback));
+    sptr<IIamCallback> testCallback(nullptr);
+    EXPECT_EQ(service.DelCredential(testUserId, testCredentialId, testAuthToken, testCallback), INVALID_PARAMETERS);
 }
 
 HWTEST_F(UserIdmServiceTest, UserIdmServiceDelCredential003, TestSize.Level0)
@@ -801,8 +818,9 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelCredential003, TestSize.Level0)
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnResult(_, _))
         .WillOnce(
-            [](int32_t result, const Attributes &extraInfo) {
+            [](int32_t result, const std::vector<uint8_t> &extraInfo) {
                 EXPECT_EQ(result, SUCCESS);
+                return SUCCESS;
             }
         );
 
@@ -822,7 +840,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelCredential003, TestSize.Level0)
         );
     
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
-    service.DelCredential(testUserId, testCredentialId, testAuthToken, testCallback);
+    EXPECT_EQ(service.DelCredential(testUserId, testCredentialId, testAuthToken, testCallback), SUCCESS);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -873,13 +891,15 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceClearRedundancyCredential001, TestSiz
     EXPECT_CALL(*testCallback, OnResult(_, _))
         .Times(2)
         .WillOnce(
-            [](int32_t result, const Attributes &extraInfo) {
+            [](int32_t result, const std::vector<uint8_t> &extraInfo) {
                 EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
+                return SUCCESS;
             }
         )
         .WillOnce(
-            [](int32_t result, const Attributes &extraInfo) {
+            [](int32_t result, const std::vector<uint8_t> &extraInfo) {
                 EXPECT_EQ(result, INVALID_HDI_INTERFACE);
+                return SUCCESS;
             }
         );
 
@@ -887,9 +907,9 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceClearRedundancyCredential001, TestSiz
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAllExtUserInfo(_)).WillOnce(Return(HDF_FAILURE));
 
-    service.ClearRedundancyCredential(testCallback);
+    EXPECT_EQ(service.ClearRedundancyCredential(testCallback), CHECK_PERMISSION_FAILED);
     IpcCommon::AddPermission(CLEAR_REDUNDANCY_PERMISSION);
-    service.ClearRedundancyCredential(testCallback);
+    EXPECT_EQ(service.ClearRedundancyCredential(testCallback), INVALID_HDI_INTERFACE);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -901,13 +921,15 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceClearRedundancyCredential002, TestSiz
     EXPECT_CALL(*testCallback, OnResult(_, _))
         .Times(2)
         .WillOnce(
-            [](int32_t result, const Attributes &extraInfo) {
+            [](int32_t result, const std::vector<uint8_t> &extraInfo) {
                 EXPECT_EQ(result, HDF_SUCCESS);
+                return SUCCESS;
             }
         )
         .WillOnce(
-            [](int32_t result, const Attributes &extraInfo) {
+            [](int32_t result, const std::vector<uint8_t> &extraInfo) {
                 EXPECT_EQ(result, HDF_SUCCESS);
+                return SUCCESS;
             }
         );
 
@@ -916,9 +938,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceClearRedundancyCredential002, TestSiz
     EXPECT_CALL(*mockHdi, GetAllExtUserInfo(_))
         .WillRepeatedly(
             [](std::vector<ExtUserInfo> &userInfos) {
-                ExtUserInfo info = {
-                    .userId = 100,
-                };
+                ExtUserInfo info = { .userId = 100, };
                 userInfos.push_back(info);
                 return HDF_SUCCESS;
             }
@@ -942,16 +962,16 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceClearRedundancyCredential002, TestSiz
         );
 
     IpcCommon::AddPermission(CLEAR_REDUNDANCY_PERMISSION);
-    service.ClearRedundancyCredential(testCallback);
-    service.ClearRedundancyCredential(testCallback);
+    EXPECT_EQ(service.ClearRedundancyCredential(testCallback), SUCCESS);
+    EXPECT_EQ(service.ClearRedundancyCredential(testCallback), SUCCESS);
     IpcCommon::DeleteAllPermission();
 }
 
 HWTEST_F(UserIdmServiceTest, UserIdmServiceRegistEventListerner_001, TestSize.Level0)
 {
     UserIdmService service(123123, true);
-    sptr<EventListenerInterface> testCallback = nullptr;
-    std::vector<AuthType> authTypeList;
+    sptr<IEventListenerCallback> testCallback = nullptr;
+    std::vector<int32_t> authTypeList;
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     EXPECT_EQ(service.RegistCredChangeEventListener(authTypeList, testCallback), ResultCode::INVALID_PARAMETERS);
     IpcCommon::DeleteAllPermission();
@@ -960,8 +980,8 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceRegistEventListerner_001, TestSize.Le
 HWTEST_F(UserIdmServiceTest, UserIdmServiceRegistEventListerner_002, TestSize.Level0)
 {
     UserIdmService service(123123, true);
-    sptr<EventListenerInterface> testCallback = new MockEventListener();
-    std::vector<AuthType> authTypeList;
+    sptr<IEventListenerCallback> testCallback = new MockEventListener();
+    std::vector<int32_t> authTypeList;
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     EXPECT_EQ(service.RegistCredChangeEventListener(authTypeList, testCallback),
         ResultCode::INVALID_PARAMETERS);
@@ -971,8 +991,8 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceRegistEventListerner_002, TestSize.Le
 HWTEST_F(UserIdmServiceTest, UserIdmServiceRegistEventListerner_003, TestSize.Level0)
 {
     UserIdmService service(123123, true);
-    sptr<EventListenerInterface> testCallback = new MockEventListener();
-    std::vector<AuthType> authTypeList;
+    sptr<IEventListenerCallback> testCallback = new MockEventListener();
+    std::vector<int32_t> authTypeList;
     authTypeList.push_back(AuthType::PIN);
     authTypeList.push_back(AuthType::FACE);
     authTypeList.push_back(AuthType::FINGERPRINT);
@@ -985,8 +1005,8 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceRegistEventListerner_003, TestSize.Le
 HWTEST_F(UserIdmServiceTest, UserIdmServiceRegistEventListerner_004, TestSize.Level0)
 {
     UserIdmService service(123123, true);
-    sptr<EventListenerInterface> testCallback = new MockEventListener();
-    std::vector<AuthType> authTypeList;
+    sptr<IEventListenerCallback> testCallback = new MockEventListener();
+    std::vector<int32_t> authTypeList;
     authTypeList.push_back(AuthType::PIN);
     authTypeList.push_back(AuthType::FACE);
     authTypeList.push_back(AuthType::FINGERPRINT);
@@ -998,8 +1018,8 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceRegistEventListerner_004, TestSize.Le
 HWTEST_F(UserIdmServiceTest, UserIdmServiceRegistEventListerner_005, TestSize.Level0)
 {
     UserIdmService service(123123, true);
-    sptr<EventListenerInterface> testCallback = new MockEventListener();
-    std::vector<AuthType> authTypeList;
+    sptr<IEventListenerCallback> testCallback = new MockEventListener();
+    std::vector<int32_t> authTypeList;
     authTypeList.push_back(AuthType::ALL);
     EXPECT_EQ(service.RegistCredChangeEventListener(authTypeList, testCallback), ResultCode::INVALID_PARAMETERS);
     IpcCommon::DeleteAllPermission();
@@ -1008,7 +1028,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceRegistEventListerner_005, TestSize.Le
 HWTEST_F(UserIdmServiceTest, UserIdmServiceUnRegistEventListerner_001, TestSize.Level0)
 {
     UserIdmService service(123123, true);
-    sptr<EventListenerInterface> testCallback = nullptr;
+    sptr<IEventListenerCallback> testCallback = nullptr;
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     EXPECT_EQ(service.UnRegistCredChangeEventListener(testCallback), ResultCode::INVALID_PARAMETERS);
     IpcCommon::DeleteAllPermission();
@@ -1017,7 +1037,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUnRegistEventListerner_001, TestSize.
 HWTEST_F(UserIdmServiceTest, UserIdmServiceUnRegistEventListerner_002, TestSize.Level0)
 {
     UserIdmService service(123123, true);
-    sptr<EventListenerInterface> testCallback = new MockEventListener();
+    sptr<IEventListenerCallback> testCallback = new MockEventListener();
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     EXPECT_EQ(service.UnRegistCredChangeEventListener(testCallback), ResultCode::CHECK_PERMISSION_FAILED);
     IpcCommon::DeleteAllPermission();
@@ -1026,7 +1046,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUnRegistEventListerner_002, TestSize.
 HWTEST_F(UserIdmServiceTest, UserIdmServiceUnRegistEventListerner_003, TestSize.Level0)
 {
     UserIdmService service(123123, true);
-    sptr<EventListenerInterface> testCallback = new MockEventListener();
+    sptr<IEventListenerCallback> testCallback = new MockEventListener();
     IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
     EXPECT_EQ(service.UnRegistCredChangeEventListener(testCallback), ResultCode::GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
@@ -1035,8 +1055,8 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUnRegistEventListerner_003, TestSize.
 HWTEST_F(UserIdmServiceTest, UserIdmServiceUnRegistEventListerner_004, TestSize.Level0)
 {
     UserIdmService service(123123, true);
-    sptr<EventListenerInterface> testCallback = new MockEventListener();
-    std::vector<AuthType> authTypeList;
+    sptr<IEventListenerCallback> testCallback = new MockEventListener();
+    std::vector<int32_t> authTypeList;
     authTypeList.push_back(AuthType::PIN);
     authTypeList.push_back(AuthType::FACE);
     authTypeList.push_back(AuthType::FINGERPRINT);

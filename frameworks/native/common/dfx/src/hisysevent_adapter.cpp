@@ -59,15 +59,18 @@ constexpr char STR_SOCKET_ID[] = "SOCKET_ID";
 constexpr char STR_AUTH_FINISH_REASON[] = "AUTH_FINISH_REASON";
 constexpr char STR_OPERATION_TIME[] = "OPERATION_TIME";
 constexpr char STR_IS_BACKGROUND_APPLICATION[] = "IS_BACKGROUND_APPLICATION";
+constexpr char STR_ERROR_CODE[] = "ERROR_CODE";
+constexpr char STR_PREVIOUS_STATUS[] = "PREVIOUS_STATUS";
+constexpr char STR_UPDATED_STATUS[] = "UPDATED_STATUS";
 
 static std::string MaskForStringId(const std::string &id)
 {
-    const int32_t MASK_WIDTH = 2;
-    const int32_t STRING_ID_LENGTH = 64;
-    if (id.length() != STRING_ID_LENGTH) {
+    const int32_t maskWidth = 2;
+    const int32_t stringIdLength = 64;
+    if (id.length() != stringIdLength) {
         return "****";
     }
-    return id.substr(0, MASK_WIDTH) + "**" + id.substr(id.length() - MASK_WIDTH, id.length());
+    return id.substr(0, maskWidth) + "**" + id.substr(id.length() - maskWidth, id.length());
 }
 
 void ReportSystemFault(const std::string &timeString, const std::string &moduleName)
@@ -217,6 +220,28 @@ void ReportConnectFaultTrace(const RemoteConnectFaultTrace &info)
         << ", connectionName: " << info.connectionName << ", msgType:" << info.msgType
         << ", messageSeq" << "ack:" << info.ack;
     ReportSystemFault(Common::GetNowTimeString(), ss.str());
+}
+
+void ReportSaLoadDriverFailure(const SaLoadDriverFailureTrace &info)
+{
+    int32_t ret = HiSysEventWrite(HiSysEvent::Domain::USERIAM_FWK, "SA_LOAD_DRIVER_FAILURE",
+        HiSysEvent::EventType::FAULT,
+        STR_ERROR_CODE, info.errCode);
+    if (ret != 0) {
+        IAM_LOGE("hisysevent write failed! ret %{public}d", ret);
+    }
+}
+
+void ReportIsCredentialEnrolledMismatch(const IsCredentialEnrolledMismatchTrace &info)
+{
+    int32_t ret = HiSysEventWrite(HiSysEvent::Domain::USERIAM_FWK, "IS_CREDENTIAL_ENROLLED_MISMATCH",
+        HiSysEvent::EventType::STATISTIC,
+        STR_AUTH_TYPE, info.authType,
+        STR_PREVIOUS_STATUS, info.preStatus,
+        STR_UPDATED_STATUS, info.updatedStatus);
+    if (ret != 0) {
+        IAM_LOGE("hisysevent write failed! ret %{public}d", ret);
+    }
 }
 } // namespace UserAuth
 } // namespace UserIam

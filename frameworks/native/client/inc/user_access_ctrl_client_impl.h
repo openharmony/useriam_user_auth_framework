@@ -21,7 +21,7 @@
 #include "nocopyable.h"
 
 #include "user_access_ctrl_client.h"
-#include "user_auth_interface.h"
+#include "iuser_auth.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -43,8 +43,8 @@ private:
         void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
     };
     void ResetProxy(const wptr<IRemoteObject> &remote);
-    sptr<UserAuthInterface> GetProxy();
-    sptr<UserAuthInterface> proxy_ {nullptr};
+    sptr<IUserAuth> GetProxy();
+    sptr<IUserAuth> proxy_ {nullptr};
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
     std::mutex mutex_;
 };

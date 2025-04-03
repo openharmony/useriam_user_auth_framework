@@ -32,7 +32,7 @@ using namespace OHOS::AppExecFwk;
 class MockContextCallback : public ContextCallback {
 public:
     virtual ~MockContextCallback() = default;
-    MOCK_METHOD2(NewInstance, std::shared_ptr<ContextCallback>(sptr<IamCallbackInterface> iamCallback,
+    MOCK_METHOD2(NewInstance, std::shared_ptr<ContextCallback>(sptr<IIamCallback> iamCallback,
         OperationType operationType));
     MOCK_METHOD2(OnResult, void(int32_t resultCode, const Attributes &finalResult));
     MOCK_METHOD3(
@@ -51,7 +51,7 @@ public:
     MOCK_METHOD1(SetTraceReuseUnlockResultDuration, void(uint64_t reuseUnlockResultDuration));
     MOCK_METHOD1(SetCleaner, void(Context::ContextStopCallback callback));
     MOCK_METHOD2(ProcessAuthResult, void(int32_t tip, const std::vector<uint8_t> &extraInfo));
-    MOCK_METHOD0(GetIamCallback, sptr<IamCallbackInterface>());
+    MOCK_METHOD0(GetIamCallback, sptr<IIamCallback>());
     MOCK_METHOD0(GetCallerName, std::string());
     MOCK_METHOD1(SetTraceCallerType, void(int32_t callerType));
     MOCK_METHOD1(SetTraceIsRemoteAuth, void(bool isRemoteAuth));

@@ -19,6 +19,7 @@
 
 #include "iam_logger.h"
 #include "iam_common_defines.h"
+#include "iam_ptr.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -39,14 +40,14 @@ sptr<ExecutorMessengerService> ExecutorMessengerService::GetInstance()
     return instance;
 }
 
-int32_t ExecutorMessengerService::SendData(uint64_t scheduleId, ExecutorRole dstRole, const std::vector<uint8_t> &msg)
+int32_t ExecutorMessengerService::SendData(uint64_t scheduleId, int32_t dstRole, const std::vector<uint8_t> &msg)
 {
     auto scheduleNode = ContextPool::Instance().SelectScheduleNodeByScheduleId(scheduleId);
     if (scheduleNode == nullptr) {
         IAM_LOGE("selected schedule node is nullptr");
         return GENERAL_ERROR;
     }
-    bool result = scheduleNode->SendMessage(dstRole, msg);
+    bool result = scheduleNode->SendMessage(static_cast<ExecutorRole>(dstRole), msg);
     if (!result) {
         IAM_LOGE("continue schedule failed");
         return GENERAL_ERROR;
@@ -54,19 +55,38 @@ int32_t ExecutorMessengerService::SendData(uint64_t scheduleId, ExecutorRole dst
     return SUCCESS;
 }
 
-int32_t ExecutorMessengerService::Finish(uint64_t scheduleId, ResultCode resultCode,
-    const std::shared_ptr<Attributes> &finalResult)
+int32_t ExecutorMessengerService::Finish(uint64_t scheduleId, int32_t resultCode,
+    const std::vector<uint8_t> &finalResult)
 {
     auto scheduleNode = ContextPool::Instance().SelectScheduleNodeByScheduleId(scheduleId);
     if (scheduleNode == nullptr) {
         IAM_LOGE("selected schedule node is nullptr");
         return GENERAL_ERROR;
     }
-    bool result = scheduleNode->ContinueSchedule(resultCode, finalResult);
+
+    auto attributes = Common::MakeShared<Attributes>(finalResult);
+    if (attributes == nullptr) {
+        IAM_LOGE("failed to create attributes");
+        return GENERAL_ERROR;
+    }
+
+    bool result = scheduleNode->ContinueSchedule(static_cast<ResultCode>(resultCode), attributes);
     if (!result) {
         IAM_LOGE("continue schedule failed");
         return GENERAL_ERROR;
     }
+    return SUCCESS;
+}
+
+int32_t ExecutorMessengerService::CallbackEnter([[maybe_unused]] uint32_t code)
+{
+    IAM_LOGI("start, code:%{public}u", code);
+    return SUCCESS;
+}
+
+int32_t ExecutorMessengerService::CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result)
+{
+    IAM_LOGI("leave, code:%{public}u, result:%{public}d", code, result);
     return SUCCESS;
 }
 } // namespace UserAuth

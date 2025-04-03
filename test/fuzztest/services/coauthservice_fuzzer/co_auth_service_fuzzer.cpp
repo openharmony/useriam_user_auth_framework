@@ -20,7 +20,7 @@
 
 #include "co_auth_service.h"
 #include "executor_messenger_service.h"
-#include "executor_callback_interface.h"
+#include "iexecutor_callback.h"
 #include "mock_ipc_common.h"
 #include "iam_fuzz_test.h"
 #include "iam_logger.h"
@@ -44,7 +44,7 @@ std::u16string cmd[] = {u"-h", u"-lc", u"-ls", u"-c", u"-c [base system]", u"-s"
     u"-e", u"--net", u"--storage", u"-p", u"-p [pid]", u"--cpuusage [pid]", u"cified pid", u"--cpufreq", u"--mem [pid]",
     u"--zip", u"--mem-smaps pid [-v]"};
 
-class CoAuthServiceFuzzer : public ExecutorCallbackInterface {
+class CoAuthServiceFuzzer : public IExecutorCallback {
 public:
     CoAuthServiceFuzzer(int32_t onBeginExecuteResult, int32_t onEndExecuteResult, int32_t onSetPropertyResult,
         int32_t onGetPropertyResult, int32_t onSendDataResult)
@@ -58,39 +58,39 @@ public:
 
     virtual ~CoAuthServiceFuzzer() = default;
 
-    void OnMessengerReady(sptr<ExecutorMessengerInterface> &messenger,
+    int32_t OnMessengerReady(const sptr<IExecutorMessenger> &messenger,
         const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList) override
     {
         IAM_LOGI("start");
-        return;
+        return SUCCESS;
     }
 
     int32_t OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
-        const Attributes &command) override
+        const std::vector<uint8_t> &command) override
     {
         IAM_LOGI("start");
         return onBeginExecuteResult_;
     }
 
-    int32_t OnEndExecute(uint64_t scheduleId, const Attributes &command) override
+    int32_t OnEndExecute(uint64_t scheduleId, const std::vector<uint8_t> &command) override
     {
         IAM_LOGI("start");
         return onEndExecuteResult_;
     }
 
-    int32_t OnSetProperty(const Attributes &properties) override
+    int32_t OnSetProperty(const std::vector<uint8_t> &properties) override
     {
         IAM_LOGI("start");
         return onSetPropertyResult_;
     }
 
-    int32_t OnGetProperty(const Attributes &condition, Attributes &values) override
+    int32_t OnGetProperty(const std::vector<uint8_t> &condition, std::vector<uint8_t> &values) override
     {
         IAM_LOGI("start");
         return onGetPropertyResult_;
     }
 
-    int32_t OnSendData(uint64_t scheduleId, const Attributes &data) override
+    int32_t OnSendData(uint64_t scheduleId, const std::vector<uint8_t> &data) override
     {
         IAM_LOGI("start");
         return onSendDataResult_;
@@ -110,7 +110,7 @@ private:
     int32_t onSendDataResult_;
 };
 
-void FillFuzzExecutorRegisterInfo(Parcel &parcel, ExecutorRegisterInfo &executorInfo)
+void FillFuzzExecutorRegisterInfo(Parcel &parcel, IpcExecutorRegisterInfo &executorInfo)
 {
     executorInfo.authType = static_cast<UserIam::UserAuth::AuthType>(parcel.ReadInt32());
     executorInfo.executorRole = static_cast<UserIam::UserAuth::ExecutorRole>(parcel.ReadInt32());
@@ -127,15 +127,16 @@ sptr<ExecutorMessengerService> executorMessengerService = ExecutorMessengerServi
 void FuzzRegister(Parcel &parcel)
 {
     IAM_LOGI("FuzzRegister begin");
-    ExecutorRegisterInfo executorInfo;
+    IpcExecutorRegisterInfo executorInfo;
     FillFuzzExecutorRegisterInfo(parcel, executorInfo);
-    sptr<ExecutorCallbackInterface> callback(nullptr);
+    sptr<IExecutorCallback> callback(nullptr);
     if (parcel.ReadBool()) {
-        callback = sptr<ExecutorCallbackInterface>(new (std::nothrow)
+        callback = sptr<IExecutorCallback>(new (std::nothrow)
             CoAuthServiceFuzzer(parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32(),
                 parcel.ReadInt32()));
     }
-    g_coAuthService->ExecutorRegister(executorInfo, callback);
+    uint64_t executorIndex = 0;
+    g_coAuthService->ExecutorRegister(executorInfo, callback, executorIndex);
     IAM_LOGI("FuzzRegister end");
 }
 
@@ -177,7 +178,7 @@ void FuzzFinish(Parcel &parcel)
     auto finalResult = Common::MakeShared<Attributes>();
 
     if (executorMessengerService != nullptr) {
-        executorMessengerService->Finish(scheduleId, resultCode, finalResult);
+        executorMessengerService->Finish(scheduleId, resultCode, finalResult->Serialize());
     }
     IAM_LOGI("FuzzFinish end");
 }

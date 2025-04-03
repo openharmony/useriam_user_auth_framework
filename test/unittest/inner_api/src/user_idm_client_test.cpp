@@ -96,7 +96,7 @@ HWTEST_F(UserIdmClientTest, UserIdmClientCloseSession002, TestSize.Level0)
         .WillByDefault(
             [&testUserId](int32_t userId) {
                 EXPECT_EQ(userId, testUserId);
-                return;
+                return SUCCESS;
             }
         );
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
@@ -170,16 +170,17 @@ HWTEST_F(UserIdmClientTest, UserIdmClientAddCredential002, TestSize.Level0)
     EXPECT_CALL(*service, AddCredential(_, _, _, _)).Times(1);
     ON_CALL(*service, AddCredential)
         .WillByDefault(
-            [&testUserId, &testPara](int32_t userId, const UserIdmInterface::CredentialPara &credPara,
-                const sptr<IdmCallbackInterface> &callback, bool isUpdate) {
+            [&testUserId, &testPara](int32_t userId, const IpcCredentialPara &credPara,
+                const sptr<IIamCallback> &callback, bool isUpdate) {
                 EXPECT_EQ(userId, testUserId);
                 EXPECT_EQ(credPara.authType, testPara.authType);
                 EXPECT_THAT(credPara.token, ElementsAreArray(testPara.token));
                 EXPECT_EQ(isUpdate, false);
                 if (callback != nullptr) {
                     Attributes extraInfo;
-                    callback->OnResult(SUCCESS, extraInfo);
+                    callback->OnResult(SUCCESS, extraInfo.Serialize());
                 }
+                return SUCCESS;
             }
         );
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
@@ -222,8 +223,8 @@ HWTEST_F(UserIdmClientTest, UserIdmClientUpdateCredential002, TestSize.Level0)
     EXPECT_CALL(*service, UpdateCredential(_, _, _)).Times(1);
     ON_CALL(*service, UpdateCredential)
         .WillByDefault(
-            [&testUserId, &testPara](int32_t userId, const UserIdmInterface::CredentialPara &credPara,
-                const sptr<IdmCallbackInterface> &callback) {
+            [&testUserId, &testPara](int32_t userId, const IpcCredentialPara &credPara,
+                const sptr<IIamCallback> &callback) {
                 EXPECT_EQ(userId, testUserId);
                 EXPECT_EQ(credPara.authType, testPara.authType);
                 EXPECT_TRUE(testPara.pinType.has_value());
@@ -231,8 +232,9 @@ HWTEST_F(UserIdmClientTest, UserIdmClientUpdateCredential002, TestSize.Level0)
                 EXPECT_THAT(credPara.token, ElementsAreArray(testPara.token));
                 if (callback != nullptr) {
                     Attributes extraInfo;
-                    callback->OnResult(SUCCESS, extraInfo);
+                    callback->OnResult(SUCCESS, extraInfo.Serialize());
                 }
+                return SUCCESS;
             }
         );
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
@@ -309,14 +311,15 @@ HWTEST_F(UserIdmClientTest, UserIdmClientDeleteCredential002, TestSize.Level0)
     ON_CALL(*service, DelCredential)
         .WillByDefault(
             [&testUserId, &testCredentialId, &testAuthToken](int32_t userId, uint64_t credentialId,
-                const std::vector<uint8_t> &authToken, const sptr<IdmCallbackInterface> &callback) {
+                const std::vector<uint8_t> &authToken, const sptr<IIamCallback> &callback) {
                 EXPECT_EQ(userId, testUserId);
                 EXPECT_EQ(credentialId, testCredentialId);
                 EXPECT_THAT(authToken, ElementsAreArray(testAuthToken));
                 if (callback != nullptr) {
                     Attributes extraInfo;
-                    callback->OnResult(SUCCESS, extraInfo);
+                    callback->OnResult(SUCCESS, extraInfo.Serialize());
                 }
+                return SUCCESS;
             }
         );
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
@@ -357,13 +360,14 @@ HWTEST_F(UserIdmClientTest, UserIdmClientDeleteUser002, TestSize.Level0)
     ON_CALL(*service, DelUser)
         .WillByDefault(
             [&testUserId, &testAuthToken](int32_t userId, const std::vector<uint8_t> authToken,
-                const sptr<IdmCallbackInterface> &callback) {
+                const sptr<IIamCallback> &callback) {
                 EXPECT_EQ(userId, testUserId);
                 EXPECT_THAT(authToken, ElementsAreArray(testAuthToken));
                 if (callback != nullptr) {
                     Attributes extraInfo;
-                    callback->OnResult(SUCCESS, extraInfo);
+                    callback->OnResult(SUCCESS, extraInfo.Serialize());
                 }
+                return SUCCESS;
             }
         );
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
@@ -403,11 +407,11 @@ HWTEST_F(UserIdmClientTest, UserIdmClientEraseUser002, TestSize.Level0)
     EXPECT_CALL(*service, EnforceDelUser(_, _)).Times(1);
     ON_CALL(*service, EnforceDelUser)
         .WillByDefault(
-            [&testUserId](int32_t userId, const sptr<IdmCallbackInterface> &callback) {
+            [&testUserId](int32_t userId, const sptr<IIamCallback> &callback) {
                 EXPECT_EQ(userId, testUserId);
                 if (callback != nullptr) {
                     Attributes extraInfo;
-                    callback->OnResult(SUCCESS, extraInfo);
+                    callback->OnResult(SUCCESS, extraInfo.Serialize());
                 }
                 return SUCCESS;
             }
@@ -452,12 +456,12 @@ HWTEST_F(UserIdmClientTest, UserIdmClientGetCredentialInfo002, TestSize.Level0)
     EXPECT_CALL(*service, GetCredentialInfo(_, _, _)).Times(1);
     ON_CALL(*service, GetCredentialInfo)
         .WillByDefault(
-            [&testUserId, &testAuthType](int32_t userId, AuthType authType,
-                const sptr<IdmGetCredInfoCallbackInterface> &callback) {
+            [&testUserId, &testAuthType](int32_t userId, int32_t authType,
+                const sptr<IIdmGetCredInfoCallback> &callback) {
                 EXPECT_EQ(userId, testUserId);
-                EXPECT_EQ(authType, testAuthType);
+                EXPECT_EQ(authType, static_cast<int32_t>(testAuthType));
                 if (callback != nullptr) {
-                    std::vector<CredentialInfo> credInfoList;
+                    std::vector<IpcCredentialInfo> credInfoList;
                     callback->OnCredentialInfos(SUCCESS, credInfoList);
                 }
                 return SUCCESS;
@@ -500,7 +504,7 @@ HWTEST_F(UserIdmClientTest, UserIdmClientGetSecUserInfo002, TestSize.Level0)
     EXPECT_CALL(*service, GetSecInfo(_, _)).Times(1);
     ON_CALL(*service, GetSecInfo)
         .WillByDefault(
-            [&testUserId](int32_t userId, const sptr<IdmGetSecureUserInfoCallbackInterface> &callback) {
+            [&testUserId](int32_t userId, const sptr<IIdmGetSecureUserInfoCallback> &callback) {
                 EXPECT_EQ(userId, testUserId);
                 EXPECT_NE(callback, nullptr);
                 return SUCCESS;
@@ -540,7 +544,7 @@ HWTEST_F(UserIdmClientTest, UserIdmClientRegistCredChangeEventListener001, TestS
     EXPECT_CALL(*service, RegistCredChangeEventListener(_, _)).Times(1);
     ON_CALL(*service, RegistCredChangeEventListener)
         .WillByDefault(
-            [](const std::vector<AuthType> &authType, const sptr<EventListenerInterface> &callback) {
+            [](const std::vector<int32_t> &authType, const sptr<IEventListenerCallback> &callback) {
                 return SUCCESS;
             }
         );
@@ -588,7 +592,7 @@ HWTEST_F(UserIdmClientTest, UserIdmClientUnRegistCredChangeEventListener001, Tes
     EXPECT_CALL(*service, UnRegistCredChangeEventListener(_)).Times(1);
     ON_CALL(*service, UnRegistCredChangeEventListener)
         .WillByDefault(
-            [](const sptr<EventListenerInterface> &callback) {
+            [](const sptr<IEventListenerCallback> &callback) {
                 return SUCCESS;
             }
         );

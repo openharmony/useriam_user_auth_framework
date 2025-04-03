@@ -58,28 +58,44 @@ EventListenerCallbackService::~EventListenerCallbackService()
     CallbackManager::GetInstance().RemoveCallback(reinterpret_cast<uintptr_t>(this));
 }
 
-void EventListenerCallbackService::OnNotifyAuthSuccessEvent(int32_t userId, AuthType authType, int32_t callerType,
-    std::string &callerName)
+int32_t EventListenerCallbackService::OnNotifyAuthSuccessEvent(int32_t userId, int32_t authType, int32_t callerType,
+    const std::string &callerName)
 {
     IAM_LOGI("start, userId:%{public}d, authType:%{public}d, callerName:%{public}s, callerType:%{public}d",
-        userId, static_cast<int32_t>(authType), callerName.c_str(), callerType);
+        userId, authType, callerName.c_str(), callerType);
     if (authSuccessEventListener_ == nullptr) {
         IAM_LOGE("authSuccessEventListener_ is null");
-        return;
+        return GENERAL_ERROR;
     }
-    authSuccessEventListener_->OnNotifyAuthSuccessEvent(userId, authType, callerType, callerName);
+    authSuccessEventListener_->OnNotifyAuthSuccessEvent(userId, static_cast<AuthType>(authType), callerType,
+        callerName);
+    return SUCCESS;
 }
 
-void EventListenerCallbackService::OnNotifyCredChangeEvent(int32_t userId, AuthType authType,
-    CredChangeEventType eventType, uint64_t credentialId)
+int32_t EventListenerCallbackService::OnNotifyCredChangeEvent(int32_t userId, int32_t authType, int32_t eventType,
+    uint64_t credentialId)
 {
     IAM_LOGI("start, userId:%{public}d, authType:%{public}d, eventType:%{public}d, credentialId:%{public}u",
-        userId, static_cast<int32_t>(authType), eventType, static_cast<uint16_t>(credentialId));
+        userId, authType, eventType, static_cast<uint16_t>(credentialId));
     if (credChangeEventListener_ == nullptr) {
         IAM_LOGE("credChangeEventListener_ is null");
-        return;
+        return GENERAL_ERROR;
     }
-    credChangeEventListener_->OnNotifyCredChangeEvent(userId, authType, eventType, credentialId);
+    credChangeEventListener_->OnNotifyCredChangeEvent(userId, static_cast<AuthType>(authType),
+        static_cast<CredChangeEventType>(eventType), credentialId);
+    return SUCCESS;
+}
+
+int32_t EventListenerCallbackService::CallbackEnter([[maybe_unused]] uint32_t code)
+{
+    IAM_LOGI("start, code:%{public}u", code);
+    return SUCCESS;
+}
+
+int32_t EventListenerCallbackService::CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result)
+{
+    IAM_LOGI("leave, code:%{public}u, result:%{public}d", code, result);
+    return SUCCESS;
 }
 } // namespace UserAuth
 } // namespace UserIam

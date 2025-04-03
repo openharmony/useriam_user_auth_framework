@@ -121,7 +121,7 @@ HWTEST_F(ResourceNodeTest, ResourceNodeTest001, TestSize.Level0)
     ExecutorRegisterInfo info = {};
     std::vector<uint64_t> templateIdList;
     std::vector<uint8_t> fwkPublicKey;
-    std::shared_ptr<ExecutorCallbackInterface> testCallback = nullptr;
+    std::shared_ptr<IExecutorCallback> testCallback = nullptr;
     auto node = ResourceNode::MakeNewResource(info, testCallback, templateIdList, fwkPublicKey);
     EXPECT_NE(node, nullptr);
 

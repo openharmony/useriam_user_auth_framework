@@ -109,7 +109,7 @@ public:
 
 class DummyAuthSuccessEventListener final : public AuthSuccessEventListener {
 public:
-    void OnNotifyAuthSuccessEvent(int32_t userId, AuthType authType, int32_t callerType, std::string &callerName)
+    void OnNotifyAuthSuccessEvent(int32_t userId, AuthType authType, int32_t callerType, const std::string &callerName)
     {
         IAM_LOGI("start");
         static_cast<void>(userId);
@@ -350,7 +350,7 @@ void FuzzUserAuthCallbackServiceOnResult(Parcel &parcel)
     Common::FillFuzzUint8Vector(parcel, attr);
     Attributes extraInfo(attr);
     if (g_UserAuthCallbackService != nullptr) {
-        g_UserAuthCallbackService->OnResult(result, extraInfo);
+        g_UserAuthCallbackService->OnResult(result, extraInfo.Serialize());
     }
     IAM_LOGI("end");
 }
@@ -364,7 +364,7 @@ void FuzzUserAuthCallbackServiceOnAcquireInfo(Parcel &parcel)
     Common::FillFuzzUint8Vector(parcel, attr);
     Attributes extraInfo(attr);
     if (g_UserAuthCallbackService != nullptr) {
-        g_UserAuthCallbackService->OnAcquireInfo(result, acquireInfo, extraInfo);
+        g_UserAuthCallbackService->OnAcquireInfo(result, acquireInfo, extraInfo.Serialize());
     }
     IAM_LOGI("end");
 }
@@ -377,7 +377,7 @@ void FuzzGetPropCallbackServiceOnPropResult(Parcel &parcel)
     Common::FillFuzzUint8Vector(parcel, attr);
     Attributes extraInfo(attr);
     if (g_GetPropCallbackService != nullptr) {
-        g_GetPropCallbackService->OnGetExecutorPropertyResult(result, extraInfo);
+        g_GetPropCallbackService->OnGetExecutorPropertyResult(result, extraInfo.Serialize());
     }
     IAM_LOGI("end");
 }

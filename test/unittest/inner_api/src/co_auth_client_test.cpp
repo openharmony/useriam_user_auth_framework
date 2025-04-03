@@ -61,18 +61,19 @@ HWTEST_F(CoAuthClientTest, CoAuthClientRegister_001, TestSize.Level0)
 
     auto service = Common::MakeShared<MockCoAuthService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, ExecutorRegister(_, _)).Times(1);
+    EXPECT_CALL(*service, ExecutorRegister(_, _, _)).Times(1);
     ON_CALL(*service, ExecutorRegister)
         .WillByDefault(
-            [&testInfo, &testExecutorIndex](const CoAuthInterface::ExecutorRegisterInfo &info,
-                sptr<ExecutorCallbackInterface> &callback) {
+            [&testInfo, &testExecutorIndex](const IpcExecutorRegisterInfo &info,
+                const sptr<IExecutorCallback> &callback, uint64_t &executorIndex) {
                 EXPECT_EQ(testInfo.authType, info.authType);
                 EXPECT_EQ(testInfo.executorRole, info.executorRole);
                 EXPECT_EQ(testInfo.executorSensorHint, info.executorSensorHint);
                 EXPECT_EQ(testInfo.executorMatcher, info.executorMatcher);
                 EXPECT_EQ(testInfo.esl, info.esl);
                 EXPECT_THAT(testInfo.publicKey, ElementsAreArray(info.publicKey));
-                return testExecutorIndex;
+                executorIndex = testExecutorIndex;
+                return SUCCESS;
             }
         );
     
@@ -106,6 +107,8 @@ void CoAuthClientTest::CallRemoteObject(const std::shared_ptr<MockCoAuthService>
             MessageOption &option) {
             service->OnRemoteRequest(code, data, reply, option);
             uint64_t executorIndex = 0;
+            int32_t ret = 0;
+            EXPECT_TRUE(reply.ReadInt32(ret));
             EXPECT_TRUE(reply.ReadUint64(executorIndex));
             EXPECT_EQ(executorIndex, testExecutorIndex);
             return OHOS::NO_ERROR;

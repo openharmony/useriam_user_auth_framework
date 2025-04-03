@@ -26,7 +26,7 @@
 #include "co_auth_client_callback.h"
 #include "executor.h"
 #include "iam_common_defines.h"
-#include "executor_messenger_interface.h"
+#include "iexecutor_messenger.h"
 
 namespace OHOS {
 namespace UserIam {

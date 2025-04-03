@@ -16,16 +16,18 @@
 #ifndef USER_AUTH_CALLBACK_SERVICE_H
 #define USER_AUTH_CALLBACK_SERVICE_H
 
-#include "user_auth_callback_stub.h"
+#include "iam_callback_stub.h"
 
 #include "iam_hitrace_helper.h"
+#include "get_executor_property_callback_stub.h"
+#include "set_executor_property_callback_stub.h"
 #include "user_auth_client_callback.h"
 #include "user_auth_modal_client_callback.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class UserAuthCallbackService : public UserAuthCallbackStub {
+class UserAuthCallbackService : public IamCallbackStub {
 public:
     explicit UserAuthCallbackService(const std::shared_ptr<AuthenticationCallback> &impl);
     explicit UserAuthCallbackService(const std::shared_ptr<AuthenticationCallback> &impl,
@@ -33,8 +35,10 @@ public:
     explicit UserAuthCallbackService(const std::shared_ptr<IdentificationCallback> &impl);
     explicit UserAuthCallbackService(const std::shared_ptr<PrepareRemoteAuthCallback> &impl);
     ~UserAuthCallbackService() override;
-    void OnResult(int32_t result, const Attributes &extraInfo) override;
-    void OnAcquireInfo(int32_t module, int32_t acquireInfo, const Attributes &extraInfo) override;
+    int32_t OnResult(int32_t resultCode, const std::vector<uint8_t> &extraInfo) override;
+    int32_t OnAcquireInfo(int32_t module, int32_t acquireInfo, const std::vector<uint8_t> &extraInfo) override;
+    int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;
+    int32_t CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result) override;
 
 private:
     std::shared_ptr<AuthenticationCallback> authCallback_ {nullptr};
@@ -48,7 +52,9 @@ class GetExecutorPropertyCallbackService : public GetExecutorPropertyCallbackStu
 public:
     explicit GetExecutorPropertyCallbackService(const std::shared_ptr<GetPropCallback> &impl);
     ~GetExecutorPropertyCallbackService() override;
-    void OnGetExecutorPropertyResult(int32_t result, const Attributes &attributes) override;
+    int32_t OnGetExecutorPropertyResult(int32_t resultCode, const std::vector<uint8_t> &attributes) override;
+    int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;
+    int32_t CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result) override;
 
 private:
     std::shared_ptr<GetPropCallback> getPropCallback_ {nullptr};
@@ -58,7 +64,9 @@ class SetExecutorPropertyCallbackService : public SetExecutorPropertyCallbackStu
 public:
     explicit SetExecutorPropertyCallbackService(const std::shared_ptr<SetPropCallback> &impl);
     ~SetExecutorPropertyCallbackService() override;
-    void OnSetExecutorPropertyResult(int32_t result) override;
+    int32_t OnSetExecutorPropertyResult(int32_t resultCode) override;
+    int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;
+    int32_t CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result) override;
 
 private:
     std::shared_ptr<SetPropCallback> setPropCallback_ {nullptr};

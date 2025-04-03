@@ -23,6 +23,7 @@
 #include "context_pool.h"
 #include "event_listener_manager.h"
 #include "hdi_wrapper.h"
+#include "iam_callback_proxy.h"
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
@@ -36,7 +37,6 @@
 #include "resource_node_pool.h"
 #include "resource_node_utils.h"
 #include "service_init_manager.h"
-#include "user_idm_callback_proxy.h"
 #include "user_idm_database.h"
 #include "user_idm_session_controller.h"
 #include "xcollie_helper.h"
@@ -48,7 +48,8 @@ namespace UserIam {
 namespace UserAuth {
 REGISTER_SYSTEM_ABILITY_BY_ID(UserIdmService, SUBSYS_USERIAM_SYS_ABILITY_USERIDM, true);
 constexpr int32_t USERIAM_IPC_THREAD_NUM = 4;
-UserIdmService::UserIdmService(int32_t systemAbilityId, bool runOnCreate) : SystemAbility(systemAbilityId, runOnCreate)
+UserIdmService::UserIdmService(int32_t systemAbilityId, bool runOnCreate)
+    : SystemAbility(systemAbilityId, runOnCreate), UserIdmStub(true)
 {
 }
 
@@ -94,18 +95,20 @@ int32_t UserIdmService::OpenSession(int32_t userId, std::vector<uint8_t> &challe
     return SUCCESS;
 }
 
-void UserIdmService::CloseSession(int32_t userId)
+int32_t UserIdmService::CloseSession(int32_t userId)
 {
     IAM_LOGI("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
-        return;
+        return CHECK_PERMISSION_FAILED;
     }
 
     if (!UserIdmSessionController::Instance().CloseSession(userId)) {
         IAM_LOGE("failed to get close session");
+        return GENERAL_ERROR;
     }
+    return SUCCESS;
 }
 
 int32_t UserIdmService::GetCredentialInfoInner(int32_t userId, AuthType authType,
@@ -144,8 +147,8 @@ int32_t UserIdmService::GetCredentialInfoInner(int32_t userId, AuthType authType
     return SUCCESS;
 }
 
-int32_t UserIdmService::GetCredentialInfo(int32_t userId, AuthType authType,
-    const sptr<IdmGetCredInfoCallbackInterface> &callback)
+int32_t UserIdmService::GetCredentialInfo(int32_t userId, int32_t authType,
+    const sptr<IIdmGetCredInfoCallback> &callback)
 {
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     if (callback == nullptr) {
@@ -153,14 +156,27 @@ int32_t UserIdmService::GetCredentialInfo(int32_t userId, AuthType authType,
         return INVALID_PARAMETERS;
     }
 
+    std::vector<IpcCredentialInfo> ipcCredInfoList;
     std::vector<CredentialInfo> credInfoList;
-    int32_t ret = GetCredentialInfoInner(userId, authType, credInfoList);
+    int32_t ret = GetCredentialInfoInner(userId, static_cast<AuthType>(authType), credInfoList);
     if (ret != SUCCESS) {
         IAM_LOGE("GetCredentialInfoInner fail, ret: %{public}d", ret);
         credInfoList.clear();
     }
-    callback->OnCredentialInfos(ret, credInfoList);
+    
+    for (auto &iter : credInfoList) {
+        IpcCredentialInfo ipcCredInfo;
+        ipcCredInfo.authType = static_cast<int32_t>(iter.authType);
+        ipcCredInfo.pinType = static_cast<int32_t>(iter.pinType.value_or(PIN_SIX));
+        ipcCredInfo.credentialId = iter.credentialId;
+        ipcCredInfo.templateId = iter.templateId;
+        ipcCredInfoList.push_back(ipcCredInfo);
+    }
 
+    auto retCode = callback->OnCredentialInfos(ret, ipcCredInfoList);
+    if (retCode != SUCCESS) {
+        IAM_LOGE("OnCredentialInfos fail, ret: %{public}d", retCode);
+    }
     return ret;
 }
 
@@ -194,7 +210,7 @@ int32_t UserIdmService::GetSecInfoInner(int32_t userId, SecUserInfo &secUserInfo
     return SUCCESS;
 }
 
-int32_t UserIdmService::GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserInfoCallbackInterface> &callback)
+int32_t UserIdmService::GetSecInfo(int32_t userId, const sptr<IIdmGetSecureUserInfoCallback> &callback)
 {
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     if (callback == nullptr) {
@@ -202,6 +218,7 @@ int32_t UserIdmService::GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserIn
         return INVALID_PARAMETERS;
     }
 
+    IpcSecUserInfo ipcSecUserInfo;
     SecUserInfo secUserInfo = {};
     int32_t ret = GetSecInfoInner(userId, secUserInfo);
     if (ret != SUCCESS) {
@@ -209,19 +226,34 @@ int32_t UserIdmService::GetSecInfo(int32_t userId, const sptr<IdmGetSecureUserIn
         secUserInfo.secureUid = 0;
         secUserInfo.enrolledInfo.clear();
     }
-    callback->OnSecureUserInfo(ret, secUserInfo);
 
+    for (auto &iter : secUserInfo.enrolledInfo) {
+        IpcEnrolledInfo ipcEnrolledInfo;
+        ipcEnrolledInfo.authType = static_cast<int32_t>(iter.authType);
+        ipcEnrolledInfo.enrolledId = iter.enrolledId;
+        ipcSecUserInfo.enrolledInfo.push_back(ipcEnrolledInfo);
+    }
+
+    auto retCode = callback->OnSecureUserInfo(ret, ipcSecUserInfo);
+    if (retCode != SUCCESS) {
+        IAM_LOGE("OnSecureUserInfo fail, ret: %{public}d", retCode);
+    }
     return ret;
 }
 
-void UserIdmService::StartEnroll(Enrollment::EnrollmentPara &para,
+int32_t UserIdmService::StartEnroll(Enrollment::EnrollmentPara &para,
     const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo, bool needSubscribeAppState)
 {
+    if (!para.isUpdate && para.authType == PIN && !para.token.empty()) {
+        IAM_LOGI("auth type is pin, clear token");
+        para.token.clear();
+    }
+
     auto context = ContextFactory::CreateEnrollContext(para, contextCallback, needSubscribeAppState);
     if (context == nullptr || !ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
-        return;
+        return GENERAL_ERROR;
     }
     contextCallback->SetTraceRequestContextId(context->GetContextId());
     auto cleaner = ContextHelper::Cleaner(context);
@@ -230,22 +262,24 @@ void UserIdmService::StartEnroll(Enrollment::EnrollmentPara &para,
     if (!context->Start()) {
         IAM_LOGE("failed to start enroll");
         contextCallback->OnResult(context->GetLatestError(), extraInfo);
+        return GENERAL_ERROR;
     }
+    return SUCCESS;
 }
 
-void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPara,
-    const sptr<IdmCallbackInterface> &callback, bool isUpdate)
+int32_t UserIdmService::AddCredential(int32_t userId, const IpcCredentialPara &ipcCredentialPara,
+    const sptr<IIamCallback> &idmCallback, bool isUpdate)
 {
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
-    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+    IF_FALSE_LOGE_AND_RETURN_VAL(idmCallback != nullptr, INVALID_PARAMETERS);
 
     Attributes extraInfo;
-    auto contextCallback = ContextCallback::NewInstance(callback,
+    auto contextCallback = ContextCallback::NewInstance(idmCallback,
         isUpdate ? TRACE_UPDATE_CREDENTIAL : TRACE_ADD_CREDENTIAL);
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
-        callback->OnResult(GENERAL_ERROR, extraInfo);
-        return;
+        idmCallback->OnResult(GENERAL_ERROR, extraInfo.Serialize());
+        return GENERAL_ERROR;
     }
     std::string callerName = "";
     int32_t callerType = Security::AccessToken::TOKEN_INVALID;
@@ -253,56 +287,58 @@ void UserIdmService::AddCredential(int32_t userId, const CredentialPara &credPar
     contextCallback->SetTraceCallerName(callerName);
     contextCallback->SetTraceCallerType(callerType);
     contextCallback->SetTraceUserId(userId);
-    contextCallback->SetTraceAuthType(credPara.authType);
+    contextCallback->SetTraceAuthType(static_cast<AuthType>(ipcCredentialPara.authType));
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
-        return;
+        return CHECK_PERMISSION_FAILED;
     }
 
     std::lock_guard<std::mutex> lock(mutex_);
     CancelCurrentEnrollIfExist();
     Enrollment::EnrollmentPara para = {};
-    para.authType = credPara.authType;
+    para.authType = static_cast<AuthType>(ipcCredentialPara.authType);
     para.userId = userId;
-    para.pinType = credPara.pinType;
+    para.pinType = static_cast<PinSubType>(ipcCredentialPara.pinType);
     para.tokenId = IpcCommon::GetAccessTokenId(*this);
-    para.token = credPara.token;
+    para.token = ipcCredentialPara.token;
     para.isUpdate = isUpdate;
     para.sdkVersion = INNER_API_VERSION_10000;
     para.callerName = callerName;
     para.callerType = callerType;
     bool needSubscribeAppState = !IpcCommon::CheckPermission(*this, USER_AUTH_FROM_BACKGROUND);
-    StartEnroll(para, contextCallback, extraInfo, needSubscribeAppState);
+    return StartEnroll(para, contextCallback, extraInfo, needSubscribeAppState);
 }
 
-void UserIdmService::UpdateCredential(int32_t userId, const CredentialPara &credPara,
-    const sptr<IdmCallbackInterface> &callback)
+int32_t UserIdmService::UpdateCredential(int32_t userId, const IpcCredentialPara &ipcCredentialPara,
+    const sptr<IIamCallback> &idmCallback)
 {
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
-    if (callback == nullptr) {
+    if (idmCallback == nullptr) {
         IAM_LOGE("callback is nullptr");
-        return;
+        return INVALID_PARAMETERS;
     }
 
     std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
-    int32_t ret = UserIdmDatabase::Instance().GetCredentialInfo(userId, credPara.authType, credInfos);
+    int32_t ret = UserIdmDatabase::Instance().GetCredentialInfo(userId,
+        static_cast<AuthType>(ipcCredentialPara.authType), credInfos);
     if (ret != SUCCESS) {
-        IAM_LOGE("get credential fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret,
-            userId, credPara.authType);
+        IAM_LOGE("get credential fail, ret:%{public}d, userId:%{public}d, authType:%{public}d",
+            ret, userId, ipcCredentialPara.authType);
         Attributes extraInfo;
-        callback->OnResult(GENERAL_ERROR, extraInfo);
-        return;
+        idmCallback->OnResult(GENERAL_ERROR, extraInfo.Serialize());
+        return GENERAL_ERROR;
     }
 
     if (credInfos.empty()) {
-        IAM_LOGE("current userid %{public}d has no credential for type %{public}u", userId, credPara.authType);
+        IAM_LOGE("current userid %{public}d has no credential for type %{public}u",
+            userId, ipcCredentialPara.authType);
         Attributes extraInfo;
-        callback->OnResult(NOT_ENROLLED, extraInfo);
-        return;
+        idmCallback->OnResult(NOT_ENROLLED, extraInfo.Serialize());
+        return SUCCESS;
     }
 
-    AddCredential(userId, credPara, callback, true);
+    return AddCredential(userId, ipcCredentialPara, idmCallback, true);
 }
 
 int32_t UserIdmService::Cancel(int32_t userId)
@@ -348,17 +384,17 @@ int32_t UserIdmService::CancelCurrentEnroll()
     return ret;
 }
 
-int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInterface> &callback)
+int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IIamCallback> &idmCallback)
 {
     IAM_LOGI("to delete userid: %{public}d", userId);
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
-    IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, INVALID_PARAMETERS);
+    IF_FALSE_LOGE_AND_RETURN_VAL(idmCallback != nullptr, INVALID_PARAMETERS);
 
     Attributes extraInfo;
-    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_ENFORCE_DELETE_USER);
+    auto contextCallback = ContextCallback::NewInstance(idmCallback, TRACE_ENFORCE_DELETE_USER);
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
-        callback->OnResult(GENERAL_ERROR, extraInfo);
+        idmCallback->OnResult(GENERAL_ERROR, extraInfo.Serialize());
         return GENERAL_ERROR;
     }
     std::string callerName = "";
@@ -401,18 +437,18 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IdmCallbackInt
     return SUCCESS;
 }
 
-void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToken,
-    const sptr<IdmCallbackInterface> &callback)
+int32_t UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> &authToken,
+    const sptr<IIamCallback> &idmCallback)
 {
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
-    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+    IF_FALSE_LOGE_AND_RETURN_VAL(idmCallback != nullptr, INVALID_PARAMETERS);
 
     Attributes extraInfo;
-    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_DELETE_USER);
+    auto contextCallback = ContextCallback::NewInstance(idmCallback, TRACE_DELETE_USER);
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
-        callback->OnResult(GENERAL_ERROR, extraInfo);
-        return;
+        idmCallback->OnResult(GENERAL_ERROR, extraInfo.Serialize());
+        return GENERAL_ERROR;
     }
     std::string callerName = "";
     int32_t callerType = Security::AccessToken::TOKEN_INVALID;
@@ -424,7 +460,7 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
-        return;
+        return CHECK_PERMISSION_FAILED;
     }
 
     std::lock_guard<std::mutex> lock(mutex_);
@@ -436,13 +472,13 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
     if (ret != SUCCESS) {
         IAM_LOGE("failed to delete user");
         contextCallback->OnResult(ret, extraInfo);
-        return;
+        return ret;
     }
     ContextAppStateObserverManager::GetInstance().RemoveScreenLockState(userId);
     if (!extraInfo.SetUint8ArrayValue(Attributes::ATTR_OLD_ROOT_SECRET, rootSecret)) {
         IAM_LOGE("set rootsecret to extraInfo failed");
         contextCallback->OnResult(ret, extraInfo);
-        return;
+        return ret;
     }
     SetAuthTypeTrace(credInfos, contextCallback);
     contextCallback->OnResult(ret, extraInfo);
@@ -454,20 +490,21 @@ void UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> authToke
     IAM_LOGI("delete user end");
     PublishEventAdapter::GetInstance().PublishDeletedEvent(userId);
     PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, PIN, 0);
+    return SUCCESS;
 }
 
-void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
-    const std::vector<uint8_t> &authToken, const sptr<IdmCallbackInterface> &callback)
+int32_t UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
+    const std::vector<uint8_t> &authToken, const sptr<IIamCallback> &idmCallback)
 {
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
-    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+    IF_FALSE_LOGE_AND_RETURN_VAL(idmCallback != nullptr, INVALID_PARAMETERS);
 
     Attributes extraInfo;
-    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_DELETE_CREDENTIAL);
+    auto contextCallback = ContextCallback::NewInstance(idmCallback, TRACE_DELETE_CREDENTIAL);
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
-        callback->OnResult(GENERAL_ERROR, extraInfo);
-        return;
+        idmCallback->OnResult(GENERAL_ERROR, extraInfo.Serialize());
+        return GENERAL_ERROR;
     }
     std::string callerName = "";
     int32_t callerType = Security::AccessToken::TOKEN_INVALID;
@@ -479,7 +516,7 @@ void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
     if (!IpcCommon::CheckPermission(*this, MANAGE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
-        return;
+        return CHECK_PERMISSION_FAILED;
     }
 
     std::lock_guard<std::mutex> lock(mutex_);
@@ -490,7 +527,7 @@ void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
     if (ret != SUCCESS) {
         IAM_LOGE("failed to delete CredentialInfo");
         contextCallback->OnResult(ret, extraInfo);
-        return;
+        return ret;
     }
     if (oldInfo != nullptr) {
         contextCallback->SetTraceAuthType(oldInfo->GetAuthType());
@@ -507,6 +544,8 @@ void UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
     if (oldInfo != nullptr) {
         PublishCommonEvent(userId, credentialId, oldInfo->GetAuthType());
     }
+
+    return SUCCESS;
 }
 
 int UserIdmService::Dump(int fd, const std::vector<std::u16string> &args)
@@ -636,18 +675,18 @@ int32_t UserIdmService::ClearRedundancyCredentialInner(const std::string &caller
     return SUCCESS;
 }
 
-void UserIdmService::ClearRedundancyCredential(const sptr<IdmCallbackInterface> &callback)
+int32_t UserIdmService::ClearRedundancyCredential(const sptr<IIamCallback> &idmCallback)
 {
     IAM_LOGI("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
-    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+    IF_FALSE_LOGE_AND_RETURN_VAL(idmCallback != nullptr, INVALID_PARAMETERS);
 
     Attributes extraInfo;
-    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_DELETE_REDUNDANCY);
+    auto contextCallback = ContextCallback::NewInstance(idmCallback, TRACE_DELETE_REDUNDANCY);
     if (contextCallback == nullptr) {
         IAM_LOGE("failed to construct context callback");
-        callback->OnResult(GENERAL_ERROR, extraInfo);
-        return;
+        idmCallback->OnResult(GENERAL_ERROR, extraInfo.Serialize());
+        return GENERAL_ERROR;
     }
 
     std::string callerName = "";
@@ -659,7 +698,7 @@ void UserIdmService::ClearRedundancyCredential(const sptr<IdmCallbackInterface> 
     if (!IpcCommon::CheckPermission(*this, CLEAR_REDUNDANCY_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         contextCallback->OnResult(CHECK_PERMISSION_FAILED, extraInfo);
-        return;
+        return CHECK_PERMISSION_FAILED;
     }
 
     std::lock_guard<std::mutex> lock(mutex_);
@@ -670,6 +709,7 @@ void UserIdmService::ClearRedundancyCredential(const sptr<IdmCallbackInterface> 
         IAM_LOGE("clearRedundancyCredentialInner fail, ret:%{public}d, ", ret);
     }
     contextCallback->OnResult(ret, extraInfo);
+    return ret;
 }
 
 void UserIdmService::PublishCommonEvent(int32_t userId, uint64_t credentialId, AuthType authType)
@@ -684,18 +724,21 @@ void UserIdmService::PublishCommonEvent(int32_t userId, uint64_t credentialId, A
     PublishEventAdapter::GetInstance().PublishUpdatedEvent(userId, credentialId);
 }
 
-int32_t UserIdmService::RegistCredChangeEventListener(const std::vector<AuthType> &authType,
-    const sptr<EventListenerInterface> &listener)
+int32_t UserIdmService::RegistCredChangeEventListener(const std::vector<int32_t> &authType,
+    const sptr<IEventListenerCallback> &listener)
 {
     IAM_LOGI("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
     IF_FALSE_LOGE_AND_RETURN_VAL(!authType.empty(), INVALID_PARAMETERS);
+    std::vector<AuthType> authTypes;
+    authTypes.resize(authType.size());
     for (const auto &iter : authType) {
         if (iter != AuthType::PIN && iter != AuthType::FACE && iter != AuthType::FINGERPRINT) {
             IAM_LOGE("bad authType: %{public}d", iter);
             return INVALID_PARAMETERS;
         }
+        authTypes.push_back(static_cast<AuthType>(iter));
     }
 
     if (!IpcCommon::CheckPermission(*this, USE_USER_IDM_PERMISSION)) {
@@ -703,7 +746,7 @@ int32_t UserIdmService::RegistCredChangeEventListener(const std::vector<AuthType
         return CHECK_PERMISSION_FAILED;
     }
 
-    int32_t result = CredChangeEventListenerManager::GetInstance().RegistEventListener(authType,
+    int32_t result = CredChangeEventListenerManager::GetInstance().RegistEventListener(authTypes,
         IpcCommon::GetAccessTokenId(*this), listener);
     if (result != SUCCESS) {
         IAM_LOGE("failed to regist cred change event listener");
@@ -713,7 +756,7 @@ int32_t UserIdmService::RegistCredChangeEventListener(const std::vector<AuthType
     return SUCCESS;
 }
 
-int32_t UserIdmService::UnRegistCredChangeEventListener(const sptr<EventListenerInterface> &listener)
+int32_t UserIdmService::UnRegistCredChangeEventListener(const sptr<IEventListenerCallback> &listener)
 {
     IAM_LOGI("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
@@ -730,7 +773,18 @@ int32_t UserIdmService::UnRegistCredChangeEventListener(const sptr<EventListener
         IAM_LOGE("failed to unregist cred change event listener");
         return result;
     }
+    return SUCCESS;
+}
 
+int32_t UserIdmService::CallbackEnter([[maybe_unused]] uint32_t code)
+{
+    IAM_LOGI("start, code:%{public}u", code);
+    return SUCCESS;
+}
+
+int32_t UserIdmService::CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result)
+{
+    IAM_LOGI("leave, code:%{public}u, result:%{public}d", code, result);
     return SUCCESS;
 }
 } // namespace UserAuth

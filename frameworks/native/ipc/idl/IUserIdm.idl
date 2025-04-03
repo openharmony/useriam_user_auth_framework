@@ -1,0 +1,55 @@
+/*
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import UserAuthTypes;
+import IIdmGetCredInfoCallback;
+import IIdmGetSecureUserInfoCallback;
+import IIamCallback;
+import IEventListenerCallback;
+
+option_stub_hooks on;
+
+interface OHOS.UserIam.UserAuth.IUserIdm {
+    void OpenSession([in] int userId, [out] unsigned char[] challenge);
+
+    void CloseSession([in] int userId);
+
+    void GetCredentialInfo([in] int userId, [in] int authType,
+        [in] IIdmGetCredInfoCallback idmGetCredInfoCallback);
+
+    void GetSecInfo([in] int userId, [in] IIdmGetSecureUserInfoCallback IdmGetSecureUserInfoCallback);
+
+    void AddCredential([in] int userId, [in] IpcCredentialPara ipcCredentialPara,
+        [in] IIamCallback idmCallback, [in] boolean isUpdate);
+
+    void UpdateCredential([in] int userId, [in] IpcCredentialPara ipcCredentialPara,
+        [in] IIamCallback idmCallback);
+
+    void Cancel([in] int userId);
+
+    void EnforceDelUser([in] int userId, [in] IIamCallback idmCallback);
+
+    void DelUser([in] int userId, [in] unsigned char[] authToken,
+        [in] IIamCallback idmCallback);
+
+    void DelCredential([in] int userId, [in] unsigned long credentialId,
+        [in] unsigned char[] authToken, [in] IIamCallback idmCallback);
+
+    void ClearRedundancyCredential([in] IIamCallback idmCallback);
+
+    void RegistCredChangeEventListener([in] int[] authType, [in] IEventListenerCallback listener);
+
+    void UnRegistCredChangeEventListener([in] IEventListenerCallback listener);
+}

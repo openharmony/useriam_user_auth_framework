@@ -18,25 +18,34 @@
 
 #include <gmock/gmock.h>
 
-#include "user_auth_callback_stub.h"
+#include "iam_callback_stub.h"
+#include "get_executor_property_callback_stub.h"
+#include "set_executor_property_callback_stub.h"
+#include "iam_callback_stub.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockUserAuthCallbackService final : public UserAuthCallbackStub {
+class MockUserAuthCallbackService final : public IamCallbackStub {
 public:
-    MOCK_METHOD2(OnResult, void(int32_t result, const Attributes &extraInfo));
-    MOCK_METHOD3(OnAcquireInfo, void(int32_t module, int32_t acquireInfo, const Attributes &extraInfo));
+    MOCK_METHOD2(OnResult, int32_t(int32_t resultCode, const std::vector<uint8_t> &extraInfo));
+    MOCK_METHOD3(OnAcquireInfo, int32_t(int32_t module, int32_t acquireInfo, const std::vector<uint8_t> &extraInfo));
+    MOCK_METHOD1(CallbackEnter, int32_t(uint32_t code));
+    MOCK_METHOD2(CallbackExit, int32_t(uint32_t code, int32_t result));
 };
 
 class MockGetExecutorPropertyCallbackService final : public GetExecutorPropertyCallbackStub {
 public:
-    MOCK_METHOD2(OnGetExecutorPropertyResult, void(int32_t result, const Attributes &attributes));
+    MOCK_METHOD2(OnGetExecutorPropertyResult, int32_t(int32_t resultCode, const std::vector<uint8_t> &attributes));
+    MOCK_METHOD1(CallbackEnter, int32_t(uint32_t code));
+    MOCK_METHOD2(CallbackExit, int32_t(uint32_t code, int32_t result));
 };
 
 class MockSetExecutorPropertyCallbackService final : public SetExecutorPropertyCallbackStub {
 public:
-    MOCK_METHOD1(OnSetExecutorPropertyResult, void(int32_t result));
+    MOCK_METHOD1(OnSetExecutorPropertyResult, int32_t(int32_t resultCode));
+    MOCK_METHOD1(CallbackEnter, int32_t(uint32_t code));
+    MOCK_METHOD2(CallbackExit, int32_t(uint32_t code, int32_t result));
 };
 } // namespace UserAuth
 } // namespace UserIam
