@@ -251,6 +251,17 @@ void FuzzCallbackServiceOnSecureUserInfo(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzClientGetCredentialInfoSync(Parcel &parcel)
+{
+    IAM_LOGI("start");
+    int32_t userId = parcel.ReadInt32();
+    auto authType = static_cast<AuthType>(parcel.ReadInt32());
+    std::vector<CredentialInfo> credentialInfoList;
+    UserIdmClient::GetInstance().GetCredentialInfoSync(userId, authType, credentialInfoList);
+    IAM_LOGI("end");
+}
+
+
 using FuzzFunc = decltype(FuzzClientOpenSession);
 FuzzFunc *g_fuzzFuncs[] = {
     FuzzClientOpenSession,
@@ -268,6 +279,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzCallbackServiceOnCredentialInfos,
     FuzzCallbackServiceOnSecureUserInfo,
     FuzzClientClearRedundancyCredential,
+    FuzzClientGetCredentialInfoSync,
 };
 
 void UserIdmClientFuzzTest(const uint8_t *data, size_t size)
