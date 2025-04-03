@@ -150,6 +150,7 @@ void ServiceUnloadManager::OnFwkReady(bool &isStopSa)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     isStopSa = false;
+    isPinEnrolled_ = SystemParamManager::GetInstance().GetParam(IS_PIN_ENROLLED_KEY, FALSE_STR) == TRUE_STR;
     if (isPinEnrolled_) {
         IAM_LOGI("fwk ready, isPinEnrolled is true, sa should be running");
         return;
