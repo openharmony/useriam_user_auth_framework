@@ -46,4 +46,7 @@ interface OHOS.UserIam.UserAuth.IUserIdm {
         [in] unsigned char[] authToken, [in] IIamCallback idmCallback);
 
     void ClearRedundancyCredential([in] IIamCallback idmCallback);
+
+    void GetCredentialInfoSync([in] int userId, [in] int authType,
+        [out] IpcCredentialInfo[] credentialInfoList);
 }

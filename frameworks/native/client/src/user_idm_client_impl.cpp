@@ -365,6 +365,36 @@ void UserIdmClientImpl::ClearRedundancyCredential(const std::shared_ptr<UserIdmC
     }
 }
 
+int32_t UserIdmClientImpl::GetCredentialInfoSync(int32_t userId, AuthType authType,
+    std::vector<CredentialInfo> &credentialInfoList)
+{
+    IAM_LOGI("start, userId:%{public}d authType:%{public}d", userId, authType);
+    auto proxy = GetProxy();
+    if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    std::vector<IpcCredentialInfo> ipcCredInfoList;
+    auto ret = proxy->GetCredentialInfoSync(userId, authType, ipcCredInfoList);
+    if (ret != SUCCESS) {
+        IAM_LOGE("GetCredentialInfoSync fail, ret:%{public}d", ret);
+        return GENERAL_ERROR;
+    }
+
+    for (auto &iter : ipcCredInfoList) {
+        CredentialInfo credentialInfo;
+        credentialInfo.authType = static_cast<AuthType>(iter.authType);
+        credentialInfo.pinType= static_cast<PinSubType>(iter.pinType);
+        credentialInfo.credentialId = iter.credentialId;
+        credentialInfo.templateId = iter.credentialId;
+        credentialInfoList.push_back(credentialInfo);
+    }
+
+    IAM_LOGI("GetCredentialInfoSync success, credential num:%{public}zu", credentialInfoList.size());
+    return SUCCESS;
+}
+
 void UserIdmClientImpl::UserIdmImplDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     IAM_LOGI("start");
