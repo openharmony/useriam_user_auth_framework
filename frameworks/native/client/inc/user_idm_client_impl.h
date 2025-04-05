@@ -48,6 +48,8 @@ public:
     int32_t RegistCredChangeEventListener(const std::vector<AuthType> &authType,
         const std::shared_ptr<CredChangeEventListener> &listener) override;
     int32_t UnRegistCredChangeEventListener(const std::shared_ptr<CredChangeEventListener> &listener) override;
+    int32_t GetCredentialInfoSync(int32_t userId, AuthType authType,
+        std::vector<CredentialInfo> &credentialInfoList) override;
 
 private:
     friend class UserIdmClient;

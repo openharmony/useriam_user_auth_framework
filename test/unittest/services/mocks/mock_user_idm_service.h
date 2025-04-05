@@ -45,6 +45,8 @@ public:
     MOCK_METHOD2(RegistCredChangeEventListener, int32_t(const std::vector<int32_t> &authType,
         const sptr<IEventListenerCallback> &callback));
     MOCK_METHOD1(UnRegistCredChangeEventListener, int32_t(const sptr<IEventListenerCallback> &callback));
+    MOCK_METHOD3(GetCredentialInfoSync, int32_t(int32_t userId, int32_t authType,
+        std::vector<IpcCredentialInfo> &ipcCredentialInfoList));
     MOCK_METHOD1(CallbackEnter, int32_t(uint32_t code));
     MOCK_METHOD2(CallbackExit, int32_t(uint32_t code, int32_t result));
 };
