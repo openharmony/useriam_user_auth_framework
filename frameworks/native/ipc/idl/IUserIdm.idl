@@ -52,4 +52,7 @@ interface OHOS.UserIam.UserAuth.IUserIdm {
     void RegistCredChangeEventListener([in] int[] authType, [in] IEventListenerCallback listener);
 
     void UnRegistCredChangeEventListener([in] IEventListenerCallback listener);
+
+    void GetCredentialInfoSync([in] int userId, [in] int authType,
+        [out] IpcCredentialInfo[] credentialInfoList);
 }
