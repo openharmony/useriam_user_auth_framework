@@ -54,7 +54,8 @@
         "window_manager",
         "device_manager",
         "dsoftbus",
-        "ets_frontend"
+        "ets_frontend",
+        "runtime_core"
       ]
     },
     "build": {
@@ -68,7 +69,8 @@
           "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth_extension/module_loader:user_auth_extension_module",
           "//base/useriam/user_auth_framework/frameworks/js/napi/user_auth_icon:userauthicon",
           "//base/useriam/user_auth_framework/frameworks/cj/user_auth:cj_userauth_ffi",
-          "//base/useriam/user_auth_framework/frameworks/js/napi/user_access_ctrl:useraccessctrl"
+          "//base/useriam/user_auth_framework/frameworks/js/napi/user_access_ctrl:useraccessctrl",
+          "//base/useriam/user_auth_framework/frameworks/ets/ani:user_auth_framework_ani"
          ],
         "service_group": [
           "//base/useriam/user_auth_framework/sa_profile:useriam.init",

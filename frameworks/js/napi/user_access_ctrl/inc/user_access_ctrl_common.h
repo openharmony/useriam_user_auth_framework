@@ -45,12 +45,6 @@ struct AuthToken {
     uint64_t enrolledId {0};
     uint64_t credentialId {0};
 };
-
-enum AuthTokenType: int32_t {
-    TOKEN_TYPE_LOCAL_AUTH = 0,
-    TOKEN_TYPE_LOCAL_RESIGN = 1,
-    TOKEN_TYPE_LOCAL_COAUTH = 2,
-};
 } // namespace OHOS
 } // namespace UserIam
 } // namespace UserAccessCtrl
