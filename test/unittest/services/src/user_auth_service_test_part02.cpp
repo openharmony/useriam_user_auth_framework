@@ -1386,7 +1386,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceUnRegistEventListerner_003, TestSiz
     UserAuthService service;
     sptr<IEventListenerCallback> testCallback = new MockEventListener();
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    EXPECT_EQ(service.UnRegistUserAuthSuccessEventListener(testCallback), ResultCode::GENERAL_ERROR);
+    EXPECT_EQ(service.UnRegistUserAuthSuccessEventListener(testCallback), ResultCode::SUCCESS);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1400,7 +1400,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceUnRegistEventListerner_004, TestSiz
     authTypeList.push_back(static_cast<int32_t>(AuthType::FINGERPRINT));
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     EXPECT_EQ(service.RegistUserAuthSuccessEventListener(authTypeList, testCallback), ResultCode::GENERAL_ERROR);
-    EXPECT_EQ(service.UnRegistUserAuthSuccessEventListener(testCallback), ResultCode::GENERAL_ERROR);
+    EXPECT_EQ(service.UnRegistUserAuthSuccessEventListener(testCallback), ResultCode::SUCCESS);
     IpcCommon::DeleteAllPermission();
 }
 

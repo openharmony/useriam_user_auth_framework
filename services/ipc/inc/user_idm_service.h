@@ -81,6 +81,7 @@ private:
     int32_t StartEnroll(Enrollment::EnrollmentPara &para,
         const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo, bool needSubscribeAppState);
     void PublishCommonEvent(int32_t userId, uint64_t credentialId, AuthType authType);
+    bool CheckAuthTypeIsValid(std::vector<AuthType> authType);
     std::mutex mutex_;
 };
 } // namespace UserAuth

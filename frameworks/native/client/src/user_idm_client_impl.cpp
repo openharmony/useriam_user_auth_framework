@@ -407,7 +407,11 @@ int32_t UserIdmClientImpl::UnRegistCredChangeEventListener(const std::shared_ptr
         IAM_LOGE("listener is nullptr");
         return GENERAL_ERROR;
     }
-
+    auto proxy = GetProxy();
+    if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
+        return GENERAL_ERROR;
+    }
     sptr<EventListenerCallbackService> wrapper(new (std::nothrow) EventListenerCallbackService(listener));
     if (!wrapper) {
         IAM_LOGE("wrapper is nullptr");
@@ -419,7 +423,6 @@ int32_t UserIdmClientImpl::UnRegistCredChangeEventListener(const std::shared_ptr
         IAM_LOGE("unRegist cred change event listener failed");
         return ret;
     }
-    
     return SUCCESS;
 }
 

@@ -88,6 +88,12 @@ enum CredChangeEventType : int32_t {
     ADD_CRED = 1,
     /** Cred change type is update credential. */
     UPDATE_CRED = 2,
+    /** Cred change type is delete credential. */
+    DEL_CRED = 3,
+    /** Cred change type is delete user. */
+    DEL_USER = 4,
+    /** Cred change type is enforce delete user. */
+    ENFORCE_DEL_USER = 5,
 };
 } // namespace UserAuth
 } // namespace UserIam

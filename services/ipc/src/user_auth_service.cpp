@@ -919,17 +919,7 @@ int32_t UserAuthService::GetVersion(int32_t &version)
 
 int32_t UserAuthService::CheckAuthWidgetType(const std::vector<AuthType> &authType)
 {
-    if (authType.empty() || (authType.size() > MAX_AUTH_TYPE_SIZE)) {
-        IAM_LOGE("invalid authType size:%{public}zu", authType.size());
-        return INVALID_PARAMETERS;
-    }
-    for (auto &type : authType) {
-        if ((type != AuthType::PIN) && (type != AuthType::FACE) && (type != AuthType::FINGERPRINT) &&
-            (type != AuthType::PRIVATE_PIN)) {
-            IAM_LOGE("unsupport auth type %{public}d", type);
-            return TYPE_NOT_SUPPORT;
-        }
-    }
+    IF_FALSE_LOGE_AND_RETURN_VAL(CheckAuthTypeIsValid(authType), INVALID_PARAMETERS);
     std::set<AuthType> typeChecker(authType.begin(), authType.end());
     if (typeChecker.size() != authType.size()) {
         IAM_LOGE("duplicate auth type");
@@ -1438,12 +1428,13 @@ int32_t UserAuthService::GetEnrolledState(int32_t apiVersion, int32_t authType,
 
 bool UserAuthService::CheckAuthTypeIsValid(std::vector<AuthType> authType)
 {
-    if (authType.empty()) {
+    if (authType.empty() || (authType.size() > MAX_AUTH_TYPE_SIZE)) {
+        IAM_LOGE("invalid authType size:%{public}zu", authType.size());
         return false;
     }
     for (const auto &iter : authType) {
-        if (iter != AuthType::PIN && iter != AuthType::FACE && iter != AuthType::FINGERPRINT &&
-            iter != AuthType::PRIVATE_PIN) {
+        if (AUTH_TYPE_WHITE_SET.find(iter) == AUTH_TYPE_WHITE_SET.end()) {
+            IAM_LOGE("authType check fail:%{public}d", static_cast<int32_t>(iter));
             return false;
         }
     }
@@ -1461,11 +1452,7 @@ int32_t UserAuthService::RegistUserAuthSuccessEventListener(const std::vector<in
     std::transform(authType.begin(), authType.end(), authTypes.begin(), [](int32_t key) {
         return static_cast<AuthType>(key);
     });
-
-    if (!CheckAuthTypeIsValid(authTypes)) {
-        IAM_LOGE("failed to check authType");
-        return INVALID_PARAMETERS;
-    }
+    IF_FALSE_LOGE_AND_RETURN_VAL(CheckAuthTypeIsValid(authTypes), INVALID_PARAMETERS);
 
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("failed to check permission");

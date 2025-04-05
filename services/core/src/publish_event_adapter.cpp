@@ -16,6 +16,7 @@
 #include "publish_event_adapter.h"
 
 #include "common_event_manager.h"
+#include "event_listener_manager.h"
 #include "iam_logger.h"
 
 #ifndef LOG_LABEL
@@ -86,6 +87,7 @@ void PublishEventAdapter::PublishUpdatedEvent(int32_t userId, uint64_t credentia
         IAM_LOGE("Bad Parameter!");
         return;
     }
+    CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(userId, PIN, UPDATE_CRED, credentialId);
     EventFwk::Want want;
     want.SetAction(USER_PIN_UPDATED_EVENT);
     want.SetParam(TAG_SCHEDULEID, std::to_string(scheduleId_));
