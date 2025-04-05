@@ -26,6 +26,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <set>
 
 namespace OHOS {
 namespace UserIam {
@@ -59,6 +60,8 @@ enum AuthType : int32_t {
     /** Private pin authentication. */
     PRIVATE_PIN = 16,
 };
+const std::set<AuthType> AUTH_TYPE_WHITE_SET =
+    {AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT, AuthType::PRIVATE_PIN};
 
 /**
  * @brief Defines pin auth's subtype.

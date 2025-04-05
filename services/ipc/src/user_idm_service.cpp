@@ -490,6 +490,7 @@ int32_t UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> &auth
     IAM_LOGI("delete user end");
     PublishEventAdapter::GetInstance().PublishDeletedEvent(userId);
     PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, PIN, 0);
+    CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(userId, PIN, DEL_USER, 0);
     return SUCCESS;
 }
 
@@ -628,6 +629,7 @@ int32_t UserIdmService::EnforceDelUserInner(int32_t userId, std::shared_ptr<Cont
 
     PublishEventAdapter::GetInstance().PublishDeletedEvent(userId);
     PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, PIN, 0);
+    CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(userId, PIN, ENFORCE_DEL_USER, 0);
     IAM_LOGI("delete user success, userId:%{public}d", userId);
     return SUCCESS;
 }
@@ -752,6 +754,25 @@ void UserIdmService::PublishCommonEvent(int32_t userId, uint64_t credentialId, A
     }
     PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, authType, credentialInfos.size());
     PublishEventAdapter::GetInstance().PublishUpdatedEvent(userId, credentialId);
+    if (authType != PIN) {
+        CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(
+            userId, authType, DEL_CRED, credentialId);
+    }
+}
+
+bool UserIdmService::CheckAuthTypeIsValid(std::vector<AuthType> authType)
+{
+    if (authType.empty() || (authType.size() > MAX_AUTH_TYPE_SIZE)) {
+        IAM_LOGE("invalid authType size:%{public}zu", authType.size());
+        return false;
+    }
+    for (const auto &iter : authType) {
+        if (AUTH_TYPE_WHITE_SET.find(iter) == AUTH_TYPE_WHITE_SET.end()) {
+            IAM_LOGE("authType check fail:%{public}d", static_cast<int32_t>(iter));
+            return false;
+        }
+    }
+    return true;
 }
 
 int32_t UserIdmService::RegistCredChangeEventListener(const std::vector<int32_t> &authType,
@@ -763,13 +784,10 @@ int32_t UserIdmService::RegistCredChangeEventListener(const std::vector<int32_t>
     IF_FALSE_LOGE_AND_RETURN_VAL(!authType.empty(), INVALID_PARAMETERS);
     std::vector<AuthType> authTypes;
     authTypes.resize(authType.size());
-    for (const auto &iter : authType) {
-        if (iter != AuthType::PIN && iter != AuthType::FACE && iter != AuthType::FINGERPRINT) {
-            IAM_LOGE("bad authType: %{public}d", iter);
-            return INVALID_PARAMETERS;
-        }
-        authTypes.push_back(static_cast<AuthType>(iter));
-    }
+    std::transform(authType.begin(), authType.end(), authTypes.begin(), [](int32_t key) {
+        return static_cast<AuthType>(key);
+    });
+    IF_FALSE_LOGE_AND_RETURN_VAL(CheckAuthTypeIsValid(authTypes), INVALID_PARAMETERS);
 
     if (!IpcCommon::CheckPermission(*this, USE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");

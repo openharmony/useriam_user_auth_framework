@@ -59,9 +59,9 @@ int32_t EventListenerManager::UnRegistEventListener(uint32_t tokenId, const sptr
         return result;
     }
 
-    RemoveEventListener(AuthType::PIN, listener);
-    RemoveEventListener(AuthType::FACE, listener);
-    RemoveEventListener(AuthType::FINGERPRINT, listener);
+    for (auto authType : AUTH_TYPE_WHITE_SET) {
+        RemoveEventListener(authType, listener);
+    }
     IAM_LOGI("UnRegistEventListener success, deathRecipientMap size: %{public}zu", deathRecipientMap_.size());
     return SUCCESS;
 }
