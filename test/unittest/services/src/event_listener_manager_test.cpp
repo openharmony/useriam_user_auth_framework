@@ -50,7 +50,8 @@ HWTEST_F(EventListenerManagerTest, EventListenerManagerTestRegistEventListener, 
     EXPECT_NO_THROW(AuthEventListenerManager::GetInstance().RegistEventListener(authType, tokenId, testCallback));
     AuthEventListenerManager::GetInstance().GetListenerSet(authType[0]);
 
-    EXPECT_EQ(CredChangeEventListenerManager::GetInstance().RegistEventListener(authType, tokenId, nullptr), GENERAL_ERROR);
+    EXPECT_EQ(CredChangeEventListenerManager::GetInstance().RegistEventListener(authType, tokenId, nullptr),
+        GENERAL_ERROR);
     EXPECT_NO_THROW(CredChangeEventListenerManager::GetInstance().RegistEventListener(authType, tokenId, testCallback));
     CredChangeEventListenerManager::GetInstance().GetListenerSet(authType[0]);
 }
