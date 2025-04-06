@@ -32,9 +32,9 @@ idl_gen_interface("auth_user_ipc_interface") {
   sources_common = [ "UserAuthTypes.idl" ]
 
   sources_callback = [
-    "IEventListenerCallback.idl",
     "IExecutorCallback.idl",
     "IExecutorMessenger.idl",
+    "IEventListenerCallback.idl",
     "IGetExecutorPropertyCallback.idl",
     "IIamCallback.idl",
     "IIdmGetCredInfoCallback.idl",
