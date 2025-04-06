@@ -27,7 +27,8 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-using DeathRecipient = IRemoteObject::DeathRecipient;
+using DeathRecipientMap =
+    std::map<uint32_t, std::pair<sptr<IEventListenerCallback>, sptr<IRemoteObject::DeathRecipient>>>;
 class EventListenerManager {
 public:
     EventListenerManager() = default;
@@ -38,7 +39,7 @@ public:
     int32_t AddDeathRecipient(EventListenerManager *manager, uint32_t tokenId,
         const sptr<IEventListenerCallback> &listener);
     int32_t RemoveDeathRecipient(uint32_t tokenId);
-    std::map<uint32_t, std::pair<sptr<IEventListenerCallback>, sptr<DeathRecipient>>> GetDeathRecipientMap();
+    DeathRecipientMap GetDeathRecipientMap();
 
 protected:
     class EventListenerDeathRecipient : public IRemoteObject::DeathRecipient, public NoCopyable {
@@ -56,7 +57,7 @@ protected:
     std::set<sptr<IEventListenerCallback>> GetListenerSet(AuthType authType);
     std::recursive_mutex mutex_;
     std::map<AuthType, std::set<sptr<IEventListenerCallback>>> eventListenerMap_;
-    std::map<uint32_t, std::pair<sptr<IEventListenerCallback>, sptr<DeathRecipient>>> deathRecipientMap_;
+    DeathRecipientMap deathRecipientMap_;
 
 private:
     struct FinderSet {
