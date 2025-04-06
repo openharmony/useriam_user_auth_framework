@@ -207,8 +207,8 @@ CredChangeEventListenerManager &CredChangeEventListenerManager::GetInstance()
     return credChangeEventListenerManager;
 }
 
-void CredChangeEventListenerManager::OnNotifyCredChangeEvent(int32_t userId, AuthType authType, CredChangeEventType eventType,
-    uint64_t credentialId)
+void CredChangeEventListenerManager::OnNotifyCredChangeEvent(int32_t userId, AuthType authType,
+    CredChangeEventType eventType, uint64_t credentialId)
 {
     IAM_LOGI("start");
     std::set<sptr<IEventListenerCallback>> listenerSetTemp = GetListenerSet(authType);
