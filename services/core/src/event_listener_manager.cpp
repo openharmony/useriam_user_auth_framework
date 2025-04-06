@@ -150,7 +150,8 @@ int32_t EventListenerManager::RemoveDeathRecipient(uint32_t tokenId)
     return SUCCESS;
 }
 
-std::map<uint32_t, std::pair<sptr<IEventListenerCallback>, sptr<DeathRecipient>>> EventListenerManager::GetDeathRecipientMap()
+std::map<uint32_t,
+    std::pair<sptr<IEventListenerCallback>, sptr<DeathRecipient>>> EventListenerManager::GetDeathRecipientMap()
 {
     IAM_LOGI("start");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
