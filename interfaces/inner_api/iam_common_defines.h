@@ -38,7 +38,6 @@ constexpr int INVALID_SOCKET_ID = -1;
 constexpr int INVALID_USER_ID = -1;
 constexpr int32_t MAIN_USER_ID = 100;
 constexpr int32_t MAX_USER = 32;
-constexpr int32_t INVALID_AUTH_TYPE = -1;
 /** Max value of verifyAuthToken allowable duration. */
 constexpr uint32_t MAX_TOKEN_ALLOWABLE_DURATION = 24 * 60 * 60 * 1000;
 
@@ -59,9 +58,12 @@ enum AuthType : int32_t {
     RECOVERY_KEY = 8,
     /** Private pin authentication. */
     PRIVATE_PIN = 16,
+    INVALID_AUTH_TYPE = -1;
 };
-const std::set<AuthType> AUTH_TYPE_WHITE_SET = {AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT,
+const std::set<AuthType> WIDGET_AUTH_TYPE_WHITE_SET = {AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT,
     AuthType::PRIVATE_PIN};
+const std::set<AuthType> INNER_AUTH_TYPE_WHITE_SET = {AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT,
+    AuthType::RECOVERY_KEY, AuthType::PRIVATE_PIN};
 
 /**
  * @brief Defines pin auth's subtype.

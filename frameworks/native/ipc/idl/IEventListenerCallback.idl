@@ -15,9 +15,9 @@
 option_stub_hooks on;
 
 interface OHOS.UserIam.UserAuth.IEventListenerCallback {
-    void OnNotifyAuthSuccessEvent([in] int userId, [in] int authType, [in] int callerType,
+    [oneway] void OnNotifyAuthSuccessEvent([in] int userId, [in] int authType, [in] int callerType,
         [in] String callerName);
 
-    void OnNotifyCredChangeEvent([in] int userId, [in] int authType, [in] int eventType,
+    [oneway] void OnNotifyCredChangeEvent([in] int userId, [in] int authType, [in] int eventType,
         [in] unsigned long credentialId);
 }

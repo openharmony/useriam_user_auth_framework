@@ -572,7 +572,7 @@ bool UserAuthNapiHelper::CheckAuthType(int32_t authType)
 
 bool UserAuthNapiHelper::CheckUserAuthType(int32_t authType)
 {
-    if (AUTH_TYPE_WHITE_SET.find(static_cast<AuthType>(authType)) == AUTH_TYPE_WHITE_SET.end()) {
+    if (WIDGET_AUTH_TYPE_WHITE_SET.find(static_cast<AuthType>(authType)) == WIDGET_AUTH_TYPE_WHITE_SET.end()) {
         IAM_LOGE("authType check fail:%{public}d", authType);
         return false;
     }

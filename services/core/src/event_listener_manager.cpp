@@ -59,7 +59,7 @@ int32_t EventListenerManager::UnRegistEventListener(uint32_t tokenId, const sptr
         return result;
     }
 
-    for (auto authType : AUTH_TYPE_WHITE_SET) {
+    for (auto authType : INNER_AUTH_TYPE_WHITE_SET) {
         RemoveEventListener(authType, listener);
     }
     IAM_LOGI("UnRegistEventListener success, deathRecipientMap size: %{public}zu", deathRecipientMap_.size());
