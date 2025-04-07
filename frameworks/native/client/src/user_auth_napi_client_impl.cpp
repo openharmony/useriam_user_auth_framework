@@ -155,8 +155,6 @@ uint64_t UserAuthNapiClientImpl::BeginWidgetAuthInner(int32_t apiVersion, const 
     auto ret = proxy->AuthWidget(apiVersion, ipcAuthParam, ipcWidgetParam, wrapper, wrapperModal, contextId);
     if (ret != SUCCESS) {
         IAM_LOGE("AuthWidget fail, ret:%{public}d", ret);
-        Attributes extraInfo;
-        callback->OnResult(static_cast<int32_t>(ResultCode::GENERAL_ERROR), extraInfo);
         return BAD_CONTEXT_ID;
     }
     return contextId;
