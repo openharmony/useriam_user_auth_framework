@@ -760,14 +760,14 @@ void UserIdmService::PublishCommonEvent(int32_t userId, uint64_t credentialId, A
     }
 }
 
-bool UserIdmService::CheckAuthTypeIsValid(std::vector<AuthType> authType)
+bool UserIdmService::CheckInnerAuthTypeIsValid(std::vector<AuthType> authType)
 {
     if (authType.empty() || (authType.size() > MAX_AUTH_TYPE_SIZE)) {
         IAM_LOGE("invalid authType size:%{public}zu", authType.size());
         return false;
     }
     for (const auto &iter : authType) {
-        if (AUTH_TYPE_WHITE_SET.find(iter) == AUTH_TYPE_WHITE_SET.end()) {
+        if (INNER_AUTH_TYPE_WHITE_SET.find(iter) == INNER_AUTH_TYPE_WHITE_SET.end()) {
             IAM_LOGE("authType check fail:%{public}d", static_cast<int32_t>(iter));
             return false;
         }
@@ -787,7 +787,7 @@ int32_t UserIdmService::RegistCredChangeEventListener(const std::vector<int32_t>
     std::transform(authType.begin(), authType.end(), authTypes.begin(), [](int32_t key) {
         return static_cast<AuthType>(key);
     });
-    IF_FALSE_LOGE_AND_RETURN_VAL(CheckAuthTypeIsValid(authTypes), INVALID_PARAMETERS);
+    IF_FALSE_LOGE_AND_RETURN_VAL(CheckInnerAuthTypeIsValid(authTypes), INVALID_PARAMETERS);
 
     if (!IpcCommon::CheckPermission(*this, USE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");

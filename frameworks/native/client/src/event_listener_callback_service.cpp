@@ -32,8 +32,8 @@ EventListenerCallbackService::EventListenerCallbackService(
             IAM_LOGI("auth success event listener service death, return default result to caller");
             int32_t invalidCallerType = -1;
             std::string invalidCallerName = "";
-            impl->OnNotifyAuthSuccessEvent(INVALID_USER_ID, static_cast<AuthType>(INVALID_AUTH_TYPE),
-                invalidCallerType, invalidCallerName);
+            impl->OnNotifyAuthSuccessEvent(INVALID_USER_ID, INVALID_AUTH_TYPE, invalidCallerType
+                invalidCallerName);
         }
     };
     CallbackManager::GetInstance().AddCallback(reinterpret_cast<uintptr_t>(this), action);
@@ -46,8 +46,8 @@ EventListenerCallbackService::EventListenerCallbackService(
         if (impl != nullptr) {
             IAM_LOGI("cred change event listener service death, return default result to caller");
             uint64_t invalidCredentialId = 0;
-            impl->OnNotifyCredChangeEvent(INVALID_USER_ID, static_cast<AuthType>(INVALID_AUTH_TYPE),
-                INVALID_EVENT_TYPE, invalidCredentialId);
+            impl->OnNotifyCredChangeEvent(INVALID_USER_ID, INVALID_AUTH_TYPE, INVALID_EVENT_TYPE,
+                invalidCredentialId);
         }
     };
     CallbackManager::GetInstance().AddCallback(reinterpret_cast<uintptr_t>(this), action);
