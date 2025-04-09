@@ -232,7 +232,7 @@ int32_t UserIdmService::GetSecInfo(int32_t userId, const sptr<IIdmGetSecureUserI
         ipcEnrolledInfo.enrolledId = iter.enrolledId;
         ipcSecUserInfo.enrolledInfo.push_back(ipcEnrolledInfo);
     }
-
+    ipcSecUserInfo.secureUid = secUserInfo.secureUid;
     auto retCode = callback->OnSecureUserInfo(ret, ipcSecUserInfo);
     if (retCode != SUCCESS) {
         IAM_LOGE("OnSecureUserInfo fail, ret: %{public}d", retCode);
