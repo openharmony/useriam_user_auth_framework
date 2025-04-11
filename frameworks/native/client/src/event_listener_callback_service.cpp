@@ -32,7 +32,7 @@ EventListenerCallbackService::EventListenerCallbackService(
             IAM_LOGI("auth success event listener service death, return default result to caller");
             int32_t invalidCallerType = -1;
             std::string invalidCallerName = "";
-            impl->OnNotifyAuthSuccessEvent(INVALID_USER_ID, INVALID_AUTH_TYPE, invalidCallerType
+            impl->OnNotifyAuthSuccessEvent(INVALID_USER_ID, INVALID_AUTH_TYPE, invalidCallerType,
                 invalidCallerName);
         }
     };

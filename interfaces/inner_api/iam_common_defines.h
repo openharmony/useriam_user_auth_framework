@@ -58,7 +58,7 @@ enum AuthType : int32_t {
     RECOVERY_KEY = 8,
     /** Private pin authentication. */
     PRIVATE_PIN = 16,
-    INVALID_AUTH_TYPE = -1;
+    INVALID_AUTH_TYPE = -1,
 };
 const std::set<AuthType> WIDGET_AUTH_TYPE_WHITE_SET = {AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT,
     AuthType::PRIVATE_PIN};
