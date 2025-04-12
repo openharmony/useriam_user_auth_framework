@@ -767,7 +767,7 @@ bool UserIdmService::CheckInnerAuthTypeIsValid(std::vector<AuthType> authType)
         return false;
     }
     for (const auto &iter : authType) {
-        if (INNER_AUTH_TYPE_WHITE_SET.find(iter) == INNER_AUTH_TYPE_WHITE_SET.end()) {
+        if (INNER_AUTH_TYPE_VALID_SET.find(iter) == INNER_AUTH_TYPE_VALID_SET.end()) {
             IAM_LOGE("authType check fail:%{public}d", static_cast<int32_t>(iter));
             return false;
         }
@@ -794,8 +794,7 @@ int32_t UserIdmService::RegistCredChangeEventListener(const std::vector<int32_t>
         return CHECK_PERMISSION_FAILED;
     }
 
-    int32_t result = CredChangeEventListenerManager::GetInstance().RegistEventListener(authTypes,
-        IpcCommon::GetAccessTokenId(*this), listener);
+    int32_t result = CredChangeEventListenerManager::GetInstance().RegistEventListener(authTypes, listener);
     if (result != SUCCESS) {
         IAM_LOGE("failed to regist cred change event listener");
         return result;
@@ -815,8 +814,7 @@ int32_t UserIdmService::UnRegistCredChangeEventListener(const sptr<IEventListene
         return CHECK_PERMISSION_FAILED;
     }
 
-    int32_t result = CredChangeEventListenerManager::GetInstance().UnRegistEventListener(
-        IpcCommon::GetAccessTokenId(*this), listener);
+    int32_t result = CredChangeEventListenerManager::GetInstance().UnRegistEventListener(listener);
     if (result != SUCCESS) {
         IAM_LOGE("failed to unregist cred change event listener");
         return result;

@@ -27,14 +27,14 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 using DeathRecipient = IRemoteObject::DeathRecipient;
-int32_t EventListenerManager::RegistEventListener(const std::vector<AuthType> &authType, uint32_t tokenId,
+int32_t EventListenerManager::RegistEventListener(const std::vector<AuthType> &authType,
     const sptr<IEventListenerCallback> &listener)
 {
     IAM_LOGI("start");
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, GENERAL_ERROR);
 
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    int32_t result = AddDeathRecipient(this, tokenId, listener);
+    int32_t result = AddDeathRecipient(this, listener);
     if (result != SUCCESS) {
         IAM_LOGE("AddDeathRecipient fail");
         return result;
@@ -43,26 +43,26 @@ int32_t EventListenerManager::RegistEventListener(const std::vector<AuthType> &a
     for (const auto &iter : authType) {
         AddEventListener(iter, listener);
     }
-    IAM_LOGI("RegistEventListener success, deathRecipientMap size: %{public}zu", deathRecipientMap_.size());
+    IAM_LOGI("RegistEventListener success");
     return SUCCESS;
 }
 
-int32_t EventListenerManager::UnRegistEventListener(uint32_t tokenId, const sptr<IEventListenerCallback> &listener)
+int32_t EventListenerManager::UnRegistEventListener(const sptr<IEventListenerCallback> &listener)
 {
     IAM_LOGI("start");
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, GENERAL_ERROR);
 
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    int32_t result = RemoveDeathRecipient(tokenId);
+    int32_t result = RemoveDeathRecipient(listener);
     if (result != SUCCESS) {
         IAM_LOGE("RemoveDeathRecipient fail");
         return result;
     }
 
-    for (auto authType : INNER_AUTH_TYPE_WHITE_SET) {
+    for (auto authType : INNER_AUTH_TYPE_VALID_SET) {
         RemoveEventListener(authType, listener);
     }
-    IAM_LOGI("UnRegistEventListener success, deathRecipientMap size: %{public}zu", deathRecipientMap_.size());
+    IAM_LOGI("RegistEventListener success");
     return SUCCESS;
 }
 
@@ -76,7 +76,7 @@ void EventListenerManager::AddEventListener(AuthType authType, const sptr<IEvent
         return;
     }
     eventListenerMap_[authType].insert(listener);
-    IAM_LOGI("AddEventListener success");
+    IAM_LOGI("AddEventListener success eventListenerMap_ size:%{public}zu", eventListenerMap_[authType].size());
 }
 
 void EventListenerManager::RemoveEventListener(AuthType authType, const sptr<IEventListenerCallback> &listener)
@@ -89,7 +89,7 @@ void EventListenerManager::RemoveEventListener(AuthType authType, const sptr<IEv
         return;
     }
     eventListenerMap_[authType].erase(listener);
-    IAM_LOGI("RemoveEventListener success");
+    IAM_LOGI("RemoveEventListener success eventListenerMap_ size:%{public}zu", eventListenerMap_[authType].size());
 }
 
 std::set<sptr<IEventListenerCallback>> EventListenerManager::GetListenerSet(AuthType authType)
@@ -99,7 +99,7 @@ std::set<sptr<IEventListenerCallback>> EventListenerManager::GetListenerSet(Auth
     return listenerSet;
 }
 
-int32_t EventListenerManager::AddDeathRecipient(EventListenerManager *manager, uint32_t tokenId,
+int32_t EventListenerManager::AddDeathRecipient(EventListenerManager *manager,
     const sptr<IEventListenerCallback> &listener)
 {
     IAM_LOGI("start");
@@ -111,7 +111,7 @@ int32_t EventListenerManager::AddDeathRecipient(EventListenerManager *manager, u
         return GENERAL_ERROR;
     }
 
-    auto iter = deathRecipientMap_.find(tokenId);
+    auto iter = std::find_if(deathRecipientMap_.begin(), deathRecipientMap_.end(), FinderMap(listener->AsObject()));
     if (iter != deathRecipientMap_.end()) {
         IAM_LOGE("deathRecipient is already registed");
         return SUCCESS;
@@ -123,34 +123,41 @@ int32_t EventListenerManager::AddDeathRecipient(EventListenerManager *manager, u
         return GENERAL_ERROR;
     }
 
-    deathRecipientMap_.emplace(tokenId, std::make_pair(listener, dr));
-    IAM_LOGI("AddDeathRecipient success");
+    deathRecipientMap_.emplace(listener, dr);
+    IAM_LOGI("AddDeathRecipient success, deathRecipientMap size:%{public}zu", deathRecipientMap_.size());
     return SUCCESS;
 }
 
-int32_t EventListenerManager::RemoveDeathRecipient(uint32_t tokenId)
+int32_t EventListenerManager::RemoveDeathRecipient(const sptr<IEventListenerCallback> &listener)
 {
     IAM_LOGI("start");
-    auto iter = deathRecipientMap_.find(tokenId);
+    IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, GENERAL_ERROR);
+
+    auto obj = listener->AsObject();
+    if (obj == nullptr) {
+        IAM_LOGE("remote object is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    auto iter = std::find_if(deathRecipientMap_.begin(), deathRecipientMap_.end(), FinderMap(listener->AsObject()));
     if (iter == deathRecipientMap_.end()) {
         IAM_LOGE("deathRecipient is not registed");
         return SUCCESS;
     }
 
-    sptr<DeathRecipient> deathRecipient = iter->second.second;
-    IF_FALSE_LOGE_AND_RETURN_VAL(deathRecipient != nullptr, GENERAL_ERROR);
-    auto listener = iter->second.first;
-    IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, GENERAL_ERROR);
-    auto obj = listener->AsObject();
-    IF_FALSE_LOGE_AND_RETURN_VAL(obj != nullptr, GENERAL_ERROR);
+    sptr<DeathRecipient> deathRecipient = iter->second;
+    if (deathRecipient == nullptr) {
+        IAM_LOGE("deathRecipient is nullptr");
+        return GENERAL_ERROR;
+    }
 
     obj->RemoveDeathRecipient(deathRecipient);
-    deathRecipientMap_.erase(tokenId);
-    IAM_LOGI("RemoveDeathRecipient success");
+    deathRecipientMap_.erase(listener);
+    IAM_LOGI("RemoveDeathRecipient success, deathRecipientMap size:%{public}zu", deathRecipientMap_.size());
     return SUCCESS;
 }
 
-DeathRecipientMap EventListenerManager::GetDeathRecipientMap()
+std::map<sptr<IEventListenerCallback>, sptr<DeathRecipient>> EventListenerManager::GetDeathRecipientMap()
 {
     IAM_LOGI("start");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
@@ -170,8 +177,8 @@ void EventListenerManager::EventListenerDeathRecipient::OnRemoteDied(const wptr<
 
     auto deathRecipientMap = eventListenerManager_->GetDeathRecipientMap();
     for (auto &iter : deathRecipientMap) {
-        if (iter.second.first != nullptr && remote == iter.second.first->AsObject()) {
-            int32_t result = eventListenerManager_->UnRegistEventListener(iter.first, iter.second.first);
+        if (iter.first != nullptr && remote == iter.first->AsObject()) {
+            int32_t result = eventListenerManager_->UnRegistEventListener(iter.first);
             if (result != SUCCESS) {
                 IAM_LOGE("UnRegistEventListener fail");
                 return;

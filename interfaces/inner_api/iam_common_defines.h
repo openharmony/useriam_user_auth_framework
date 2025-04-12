@@ -60,9 +60,9 @@ enum AuthType : int32_t {
     PRIVATE_PIN = 16,
     INVALID_AUTH_TYPE = -1,
 };
-const std::set<AuthType> WIDGET_AUTH_TYPE_WHITE_SET = {AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT,
+const std::set<AuthType> WIDGET_AUTH_TYPE_VALID_SET = {AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT,
     AuthType::PRIVATE_PIN};
-const std::set<AuthType> INNER_AUTH_TYPE_WHITE_SET = {AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT,
+const std::set<AuthType> INNER_AUTH_TYPE_VALID_SET = {AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT,
     AuthType::RECOVERY_KEY, AuthType::PRIVATE_PIN};
 
 /**

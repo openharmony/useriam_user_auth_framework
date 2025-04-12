@@ -924,7 +924,7 @@ int32_t UserAuthService::CheckAuthWidgetType(const std::vector<AuthType> &authTy
         return false;
     }
     for (const auto &iter : authType) {
-        if (WIDGET_AUTH_TYPE_WHITE_SET.find(iter) == WIDGET_AUTH_TYPE_WHITE_SET.end()) {
+        if (WIDGET_AUTH_TYPE_VALID_SET.find(iter) == WIDGET_AUTH_TYPE_VALID_SET.end()) {
             IAM_LOGE("authType check fail:%{public}d", static_cast<int32_t>(iter));
             return false;
         }
@@ -1442,7 +1442,7 @@ bool UserAuthService::CheckInnerAuthTypeIsValid(std::vector<AuthType> authType)
         return false;
     }
     for (const auto &iter : authType) {
-        if (INNER_AUTH_TYPE_WHITE_SET.find(iter) == INNER_AUTH_TYPE_WHITE_SET.end()) {
+        if (INNER_AUTH_TYPE_VALID_SET.find(iter) == INNER_AUTH_TYPE_VALID_SET.end()) {
             IAM_LOGE("authType check fail:%{public}d", static_cast<int32_t>(iter));
             return false;
         }
@@ -1469,7 +1469,7 @@ int32_t UserAuthService::RegistUserAuthSuccessEventListener(const std::vector<in
     }
 
     int32_t result = AuthEventListenerManager::GetInstance().RegistEventListener(authTypes,
-        IpcCommon::GetAccessTokenId(*this), listener);
+        listener);
     if (result != SUCCESS) {
         IAM_LOGE("failed to regist auth event listener");
         return result;
@@ -1489,8 +1489,7 @@ int32_t UserAuthService::UnRegistUserAuthSuccessEventListener(const sptr<IEventL
         return CHECK_PERMISSION_FAILED;
     }
 
-    int32_t result =
-        AuthEventListenerManager::GetInstance().UnRegistEventListener(IpcCommon::GetAccessTokenId(*this), listener);
+    int32_t result = AuthEventListenerManager::GetInstance().UnRegistEventListener(listener);
     if (result != SUCCESS) {
         IAM_LOGE("failed to unregist auth event listener");
         return result;
