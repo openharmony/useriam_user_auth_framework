@@ -44,27 +44,25 @@ void EventListenerManagerTest::TearDown()
 HWTEST_F(EventListenerManagerTest, EventListenerManagerTestRegistEventListener, TestSize.Level0)
 {
     std::vector<AuthType> authType = { AuthType::PIN };
-    uint32_t tokenId = 1;
     sptr<IEventListenerCallback> testCallback = new MockEventListener();
-    EXPECT_EQ(AuthEventListenerManager::GetInstance().RegistEventListener(authType, tokenId, nullptr), GENERAL_ERROR);
-    EXPECT_NO_THROW(AuthEventListenerManager::GetInstance().RegistEventListener(authType, tokenId, testCallback));
+    EXPECT_EQ(AuthEventListenerManager::GetInstance().RegistEventListener(authType, nullptr), GENERAL_ERROR);
+    EXPECT_NO_THROW(AuthEventListenerManager::GetInstance().RegistEventListener(authType, testCallback));
     AuthEventListenerManager::GetInstance().GetListenerSet(authType[0]);
 
-    EXPECT_EQ(CredChangeEventListenerManager::GetInstance().RegistEventListener(authType, tokenId, nullptr),
+    EXPECT_EQ(CredChangeEventListenerManager::GetInstance().RegistEventListener(authType, nullptr),
         GENERAL_ERROR);
-    EXPECT_NO_THROW(CredChangeEventListenerManager::GetInstance().RegistEventListener(authType, tokenId, testCallback));
+    EXPECT_NO_THROW(CredChangeEventListenerManager::GetInstance().RegistEventListener(authType, testCallback));
     CredChangeEventListenerManager::GetInstance().GetListenerSet(authType[0]);
 }
 
 HWTEST_F(EventListenerManagerTest, EventListenerManagerTestUnRegistEventListener, TestSize.Level0)
 {
-    uint32_t tokenId = 1;
     sptr<IEventListenerCallback> testCallback = new MockEventListener();
-    EXPECT_EQ(AuthEventListenerManager::GetInstance().UnRegistEventListener(tokenId, nullptr), GENERAL_ERROR);
-    EXPECT_NO_THROW(AuthEventListenerManager::GetInstance().UnRegistEventListener(tokenId, testCallback));
+    EXPECT_EQ(AuthEventListenerManager::GetInstance().UnRegistEventListener(nullptr), GENERAL_ERROR);
+    EXPECT_NO_THROW(AuthEventListenerManager::GetInstance().UnRegistEventListener(testCallback));
 
-    EXPECT_EQ(CredChangeEventListenerManager::GetInstance().UnRegistEventListener(tokenId, nullptr), GENERAL_ERROR);
-    EXPECT_NO_THROW(CredChangeEventListenerManager::GetInstance().UnRegistEventListener(tokenId, testCallback));
+    EXPECT_EQ(CredChangeEventListenerManager::GetInstance().UnRegistEventListener(nullptr), GENERAL_ERROR);
+    EXPECT_NO_THROW(CredChangeEventListenerManager::GetInstance().UnRegistEventListener(testCallback));
 }
 
 HWTEST_F(EventListenerManagerTest, EventListenerManagerTestAddEventListener, TestSize.Level0)
@@ -85,9 +83,11 @@ HWTEST_F(EventListenerManagerTest, EventListenerManagerTestRemoveEventListener, 
 
 HWTEST_F(EventListenerManagerTest, EventListenerManagerTestRemoveDeathRecipient, TestSize.Level0)
 {
-    uint32_t tokenId = 0;
-    EXPECT_NO_THROW(AuthEventListenerManager::GetInstance().RemoveDeathRecipient(tokenId));
-    EXPECT_NO_THROW(CredChangeEventListenerManager::GetInstance().RemoveDeathRecipient(tokenId));
+    sptr<IEventListenerCallback> testCallback = new MockEventListener();
+    EXPECT_NO_THROW(AuthEventListenerManager::GetInstance().RemoveDeathRecipient(testCallback));
+    EXPECT_NO_THROW(AuthEventListenerManager::GetInstance().RemoveDeathRecipient(nullptr));
+    EXPECT_NO_THROW(CredChangeEventListenerManager::GetInstance().RemoveDeathRecipient(testCallback));
+    EXPECT_NO_THROW(CredChangeEventListenerManager::GetInstance().RemoveDeathRecipient(nullptr));
 }
 } // namespace UserAuth
 } // namespace UserIam

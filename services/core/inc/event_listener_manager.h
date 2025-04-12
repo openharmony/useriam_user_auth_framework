@@ -27,19 +27,15 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-using DeathRecipientMap =
-    std::map<uint32_t, std::pair<sptr<IEventListenerCallback>, sptr<IRemoteObject::DeathRecipient>>>;
 class EventListenerManager {
 public:
     EventListenerManager() = default;
     ~EventListenerManager() = default;
-    int32_t RegistEventListener(const std::vector<AuthType> &authType, uint32_t tokenId,
-        const sptr<IEventListenerCallback> &listener);
-    int32_t UnRegistEventListener(uint32_t tokenId, const sptr<IEventListenerCallback> &listener);
-    int32_t AddDeathRecipient(EventListenerManager *manager, uint32_t tokenId,
-        const sptr<IEventListenerCallback> &listener);
-    int32_t RemoveDeathRecipient(uint32_t tokenId);
-    DeathRecipientMap GetDeathRecipientMap();
+    int32_t RegistEventListener(const std::vector<AuthType> &authType, const sptr<IEventListenerCallback> &listener);
+    int32_t UnRegistEventListener(const sptr<IEventListenerCallback> &listener);
+    int32_t AddDeathRecipient(EventListenerManager *manager, const sptr<IEventListenerCallback> &listener);
+    int32_t RemoveDeathRecipient(const sptr<IEventListenerCallback> &listener);
+    std::map<sptr<IEventListenerCallback>, sptr<DeathRecipient>> GetDeathRecipientMap();
 
 protected:
     class EventListenerDeathRecipient : public IRemoteObject::DeathRecipient, public NoCopyable {
@@ -57,7 +53,7 @@ protected:
     std::set<sptr<IEventListenerCallback>> GetListenerSet(AuthType authType);
     std::recursive_mutex mutex_;
     std::map<AuthType, std::set<sptr<IEventListenerCallback>>> eventListenerMap_;
-    DeathRecipientMap deathRecipientMap_;
+    std::map<sptr<IEventListenerCallback>, sptr<DeathRecipient>> deathRecipientMap_;
 
 private:
     struct FinderSet {
@@ -67,6 +63,16 @@ private:
         bool operator()(sptr<IEventListenerCallback> listener)
         {
             return listener->AsObject() == remoteObject_;
+        }
+        sptr<IRemoteObject> remoteObject_ {nullptr};
+    };
+    struct FinderMap {
+        explicit FinderMap(sptr<IRemoteObject> remoteObject) : remoteObject_(remoteObject)
+        {
+        }
+        bool operator()(std::map<sptr<IEventListenerCallback>, sptr<DeathRecipient>>::value_type &pair)
+        {
+            return pair.first->AsObject() == remoteObject_;
         }
         sptr<IRemoteObject> remoteObject_ {nullptr};
     };
