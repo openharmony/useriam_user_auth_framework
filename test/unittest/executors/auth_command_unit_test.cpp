@@ -260,6 +260,25 @@ HWTEST_F(AuthCommandUnitTest, AuthCommand_MixTest_003, TestSize.Level0)
     command->OnAcquireInfo(testAcquire, testExtraInfo);
     command->OnAcquireInfo(testAcquire, testExtraInfo);
 }
+
+HWTEST_F(AuthCommandUnitTest, AuthCommand_MixTest_004, TestSize.Level0)
+{
+    auto messenger = MakeShared<MockIExecutorMessenger>();
+    ASSERT_NE(messenger, nullptr);
+    auto executor = Common::MakeShared<Executor>(nullptr, nullptr, 3);
+    ASSERT_NE(executor, nullptr);
+    Attributes attr;
+    
+    uint64_t testScheduleId = 0;
+    auto command = Common::MakeShared<AuthCommand>(executor, testScheduleId, attr, nullptr);
+    int destRole = 0;
+    std::vector<uint8_t> msg = {};
+    command->OnMessage(destRole, msg);
+    command->OnHdiDisconnect();
+    command->GetAuthType();
+    command->EndProcess();
+    command->GetExecutorHdi();
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
