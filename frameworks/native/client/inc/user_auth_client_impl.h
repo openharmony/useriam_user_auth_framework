@@ -21,9 +21,10 @@
 
 #include "nocopyable.h"
 
-#include "user_auth_client.h"
+#include "event_listener_callback_service.h"
 #include "iuser_auth.h"
 #include "iuser_auth_widget_callback.h"
+#include "user_auth_client.h"
 #include "user_auth_types.h"
 #include "user_auth_common_defines.h"
 
@@ -58,7 +59,7 @@ public:
     int32_t SetWidgetCallback(int32_t version, const std::shared_ptr<IUserAuthWidgetCallback> &callback);
     int32_t Notice(NoticeType noticeType, const std::string &eventData);
     int32_t GetEnrolledState(int32_t apiVersion, AuthType authType, EnrolledState &enrolledState);
-    int32_t RegistUserAuthSuccessEventListener(const std::vector<AuthType> &authType,
+    int32_t RegistUserAuthSuccessEventListener(const std::vector<AuthType> &authTypes,
         const std::shared_ptr<AuthSuccessEventListener> &listener) override;
     int32_t UnRegistUserAuthSuccessEventListener(
         const std::shared_ptr<AuthSuccessEventListener> &listener) override;

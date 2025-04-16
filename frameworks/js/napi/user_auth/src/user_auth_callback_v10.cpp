@@ -101,6 +101,7 @@ napi_status UserAuthCallbackV10::DoResultCallback(int32_t result,
             return ret;
         }
     }
+
     if (WIDGET_AUTH_TYPE_VALID_SET.find(static_cast<AuthType>(authType)) != WIDGET_AUTH_TYPE_VALID_SET.end()) {
         ret = UserAuthNapiHelper::SetInt32Property(env_, eventInfo, "authType", authType);
         if (ret != napi_ok) {

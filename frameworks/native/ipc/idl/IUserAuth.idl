@@ -62,7 +62,7 @@ interface OHOS.UserIam.UserAuth.IUserAuth {
 
     void GetEnrolledState([in] int apiVersion, [in] int authType, [out] IpcEnrolledState ipcEnrolledState);
 
-    void RegistUserAuthSuccessEventListener([in] int[] authType, [in] IEventListenerCallback listener);
+    void RegistUserAuthSuccessEventListener([in] IEventListenerCallback listener);
 
     void UnRegistUserAuthSuccessEventListener([in] IEventListenerCallback listener);
 

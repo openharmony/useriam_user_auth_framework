@@ -20,9 +20,10 @@
 
 #include "nocopyable.h"
 
-#include "user_idm_client.h"
+#include "event_listener_callback_service.h"
 #include "iuser_idm.h"
 #include "user_auth_types.h"
+#include "user_idm_client.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -45,7 +46,7 @@ public:
         const std::shared_ptr<GetCredentialInfoCallback> &callback) override;
     int32_t GetSecUserInfo(int32_t userId, const std::shared_ptr<GetSecUserInfoCallback> &callback) override;
     void ClearRedundancyCredential(const std::shared_ptr<UserIdmClientCallback> &callback) override;
-    int32_t RegistCredChangeEventListener(const std::vector<AuthType> &authType,
+    int32_t RegistCredChangeEventListener(const std::vector<AuthType> &authTypes,
         const std::shared_ptr<CredChangeEventListener> &listener) override;
     int32_t UnRegistCredChangeEventListener(const std::shared_ptr<CredChangeEventListener> &listener) override;
     int32_t GetCredentialInfoSync(int32_t userId, AuthType authType,
