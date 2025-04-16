@@ -17,29 +17,52 @@
 #define EVENT_LISTENER_CALLBACK_SERVICE_H
 
 #include <string>
+#include <map>
+#include <set>
+
 #include "event_listener_callback_stub.h"
+#include "iuser_auth.h"
+#include "iuser_idm.h"
 #include "user_auth_client_callback.h"
 #include "user_idm_client_callback.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class EventListenerCallbackService : public EventListenerCallbackStub {
+class EventListenerCallbackManager {
 public:
-    explicit EventListenerCallbackService(const std::shared_ptr<AuthSuccessEventListener> &impl);
-    explicit EventListenerCallbackService(const std::shared_ptr<CredChangeEventListener> &impl);
-    ~EventListenerCallbackService() override;
-
-    int32_t OnNotifyAuthSuccessEvent(int32_t userId, int32_t authType, int32_t callerType,
-        const std::string &callerName) override;
-    int32_t OnNotifyCredChangeEvent(int32_t userId, int32_t authType, int32_t eventType,
-        uint64_t credentialId) override;
-    int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;
-    int32_t CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result) override;
+    static EventListenerCallbackManager &GetInstance();
+    int32_t AddUserAuthSuccessEventListener(const sptr<IUserAuth> proxy, const std::vector<AuthType> &authTypes,
+        const std::shared_ptr<AuthSuccessEventListener> &listener);
+    int32_t RemoveUserAuthSuccessEventListener(const sptr<IUserAuth> proxy,
+        const std::shared_ptr<AuthSuccessEventListener> &listener);
+    int32_t AddCredChangeEventListener(const sptr<IUserIdm> proxy, const std::vector<AuthType> &authTypes,
+        const std::shared_ptr<CredChangeEventListener> &listener);
+    int32_t RemoveCredChangeEventListener(const sptr<IUserIdm> proxy,
+        const std::shared_ptr<CredChangeEventListener> &listener);
+    std::set<std::shared_ptr<AuthSuccessEventListener>> GetAuthEventListenerSet(AuthType authType);
+    std::set<std::shared_ptr<CredChangeEventListener>> GetCredEventListenerSet(AuthType authType);
 
 private:
-    std::shared_ptr<AuthSuccessEventListener> authSuccessEventListener_ {nullptr};
-    std::shared_ptr<CredChangeEventListener> credChangeEventListener_ {nullptr};
+    class EventListenerCallbackImpl : public EventListenerCallbackStub {
+    public:
+        explicit EventListenerCallbackImpl() = default;
+        ~EventListenerCallbackImpl() override = default;
+
+        int32_t OnNotifyAuthSuccessEvent(int32_t userId, int32_t authType, int32_t callerType,
+            const std::string &callerName) override;
+        int32_t OnNotifyCredChangeEvent(int32_t userId, int32_t authType, int32_t eventType,
+            uint64_t credentialId) override;
+        int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;
+        int32_t CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result) override;
+    };
+
+    EventListenerCallbackManager();
+    ~EventListenerCallbackManager();
+    sptr<EventListenerCallbackImpl> eventListenerCallbackImpl_ = nullptr;
+    std::recursive_mutex eventListenerMutex_;
+    std::map<AuthType, std::set<std::shared_ptr<AuthSuccessEventListener>>> authEventListenerMap_ = {};
+    std::map<AuthType, std::set<std::shared_ptr<CredChangeEventListener>>> credEventListenerMap_ = {};
 };
 } // namespace UserAuth
 } // namespace UserIam

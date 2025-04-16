@@ -56,8 +56,7 @@ public:
     int32_t DelCredential(int32_t userId, uint64_t credentialId, const std::vector<uint8_t> &authToken,
         const sptr<IIamCallback> &IdmCallback) override;
     int32_t ClearRedundancyCredential(const sptr<IIamCallback> &IdmCallback) override;
-    int32_t RegistCredChangeEventListener(const std::vector<int32_t> &authType,
-        const sptr<IEventListenerCallback> &listener) override;
+    int32_t RegistCredChangeEventListener(const sptr<IEventListenerCallback> &listener) override;
     int32_t UnRegistCredChangeEventListener(const sptr<IEventListenerCallback> &listener) override;
     int32_t GetCredentialInfoSync(int32_t userId, int32_t authType,
         std::vector<IpcCredentialInfo> &ipcCredentialInfoList)override;
@@ -81,7 +80,6 @@ private:
     int32_t StartEnroll(Enrollment::EnrollmentPara &para,
         const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo, bool needSubscribeAppState);
     void PublishCommonEvent(int32_t userId, uint64_t credentialId, AuthType authType);
-    bool CheckInnerAuthTypeIsValid(std::vector<AuthType> authType);
     std::mutex mutex_;
 };
 } // namespace UserAuth

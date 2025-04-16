@@ -118,11 +118,11 @@ public:
      * @brief Regist authentication success event listener, support repeated registration. Note that you need to listen
      *        useriam process status, and if the process is restarted abnormally, need to re-register the listener.
      *
-     * @param authType Auth type list supported by executor, auth type include PIN, FACE, FINGERPRINT.
+     * @param authTypes Auth type list supported by executor, auth type include PIN, FACE, FINGERPRINT.
      * @param listener Callback of authentication success event.
      * @return Return regist result(0:success; other:failed).
      */
-    virtual int32_t RegistUserAuthSuccessEventListener(const std::vector<AuthType> &authType,
+    virtual int32_t RegistUserAuthSuccessEventListener(const std::vector<AuthType> &authTypes,
         const std::shared_ptr<AuthSuccessEventListener> &listener) = 0;
 
     /**

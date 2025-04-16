@@ -27,8 +27,7 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 using DeathRecipient = IRemoteObject::DeathRecipient;
-int32_t EventListenerManager::RegistEventListener(const std::vector<AuthType> &authType,
-    const sptr<IEventListenerCallback> &listener)
+int32_t EventListenerManager::RegistEventListener(const sptr<IEventListenerCallback> &listener)
 {
     IAM_LOGI("start");
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, GENERAL_ERROR);
@@ -37,14 +36,8 @@ int32_t EventListenerManager::RegistEventListener(const std::vector<AuthType> &a
     int32_t result = AddDeathRecipient(this, listener);
     if (result != SUCCESS) {
         IAM_LOGE("AddDeathRecipient fail");
-        return result;
     }
-
-    for (const auto &iter : authType) {
-        AddEventListener(iter, listener);
-    }
-    IAM_LOGI("RegistEventListener success");
-    return SUCCESS;
+    return result;
 }
 
 int32_t EventListenerManager::UnRegistEventListener(const sptr<IEventListenerCallback> &listener)
@@ -56,47 +49,8 @@ int32_t EventListenerManager::UnRegistEventListener(const sptr<IEventListenerCal
     int32_t result = RemoveDeathRecipient(listener);
     if (result != SUCCESS) {
         IAM_LOGE("RemoveDeathRecipient fail");
-        return result;
     }
-
-    for (auto authType : INNER_AUTH_TYPE_VALID_SET) {
-        RemoveEventListener(authType, listener);
-    }
-    IAM_LOGI("RegistEventListener success");
-    return SUCCESS;
-}
-
-void EventListenerManager::AddEventListener(AuthType authType, const sptr<IEventListenerCallback> &listener)
-{
-    IAM_LOGI("AddEventListener, authType:%{public}d", static_cast<int32_t>(authType));
-    auto iter = std::find_if(eventListenerMap_[authType].begin(), eventListenerMap_[authType].end(),
-        FinderSet(listener->AsObject()));
-    if (iter != eventListenerMap_[authType].end()) {
-        IAM_LOGE("listener is already registed");
-        return;
-    }
-    eventListenerMap_[authType].insert(listener);
-    IAM_LOGI("AddEventListener success eventListenerMap_ size:%{public}zu", eventListenerMap_[authType].size());
-}
-
-void EventListenerManager::RemoveEventListener(AuthType authType, const sptr<IEventListenerCallback> &listener)
-{
-    IAM_LOGI("RemoveEventListener, authType:%{public}d", static_cast<int32_t>(authType));
-    auto iter = std::find_if(eventListenerMap_[authType].begin(), eventListenerMap_[authType].end(),
-        FinderSet(listener->AsObject()));
-    if (iter == eventListenerMap_[authType].end()) {
-        IAM_LOGE("listener is not registed");
-        return;
-    }
-    eventListenerMap_[authType].erase(listener);
-    IAM_LOGI("RemoveEventListener success eventListenerMap_ size:%{public}zu", eventListenerMap_[authType].size());
-}
-
-std::set<sptr<IEventListenerCallback>> EventListenerManager::GetListenerSet(AuthType authType)
-{
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    std::set<sptr<IEventListenerCallback>> listenerSet(eventListenerMap_[authType]);
-    return listenerSet;
+    return result;
 }
 
 int32_t EventListenerManager::AddDeathRecipient(EventListenerManager *manager,
@@ -111,8 +65,9 @@ int32_t EventListenerManager::AddDeathRecipient(EventListenerManager *manager,
         return GENERAL_ERROR;
     }
 
-    auto iter = std::find_if(deathRecipientMap_.begin(), deathRecipientMap_.end(), FinderMap(listener->AsObject()));
-    if (iter != deathRecipientMap_.end()) {
+    auto iter = std::find_if(listenerDeathRecipientMap_.begin(), listenerDeathRecipientMap_.end(),
+        FinderMap(listener->AsObject()));
+    if (iter != listenerDeathRecipientMap_.end()) {
         IAM_LOGE("deathRecipient is already registed");
         return SUCCESS;
     }
@@ -123,8 +78,8 @@ int32_t EventListenerManager::AddDeathRecipient(EventListenerManager *manager,
         return GENERAL_ERROR;
     }
 
-    deathRecipientMap_.emplace(listener, dr);
-    IAM_LOGI("AddDeathRecipient success, deathRecipientMap size:%{public}zu", deathRecipientMap_.size());
+    listenerDeathRecipientMap_.emplace(listener, dr);
+    IAM_LOGI("AddDeathRecipient success, listenerSize:%{public}zu", listenerDeathRecipientMap_.size());
     return SUCCESS;
 }
 
@@ -139,8 +94,9 @@ int32_t EventListenerManager::RemoveDeathRecipient(const sptr<IEventListenerCall
         return GENERAL_ERROR;
     }
 
-    auto iter = std::find_if(deathRecipientMap_.begin(), deathRecipientMap_.end(), FinderMap(listener->AsObject()));
-    if (iter == deathRecipientMap_.end()) {
+    auto iter = std::find_if(listenerDeathRecipientMap_.begin(), listenerDeathRecipientMap_.end(),
+        FinderMap(listener->AsObject()));
+    if (iter == listenerDeathRecipientMap_.end()) {
         IAM_LOGE("deathRecipient is not registed");
         return SUCCESS;
     }
@@ -152,16 +108,16 @@ int32_t EventListenerManager::RemoveDeathRecipient(const sptr<IEventListenerCall
     }
 
     obj->RemoveDeathRecipient(deathRecipient);
-    deathRecipientMap_.erase(listener);
-    IAM_LOGI("RemoveDeathRecipient success, deathRecipientMap size:%{public}zu", deathRecipientMap_.size());
+    listenerDeathRecipientMap_.erase(iter);
+    IAM_LOGI("RemoveDeathRecipient success, listenerSize:%{public}zu", listenerDeathRecipientMap_.size());
     return SUCCESS;
 }
 
-std::map<sptr<IEventListenerCallback>, sptr<DeathRecipient>> EventListenerManager::GetDeathRecipientMap()
+std::map<sptr<IEventListenerCallback>, sptr<DeathRecipient>> EventListenerManager::GetListenerDeathRecipientMap()
 {
     IAM_LOGI("start");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    return deathRecipientMap_;
+    return listenerDeathRecipientMap_;
 }
 
 EventListenerManager::EventListenerDeathRecipient::EventListenerDeathRecipient(EventListenerManager *manager)
@@ -175,7 +131,7 @@ void EventListenerManager::EventListenerDeathRecipient::OnRemoteDied(const wptr<
         return;
     }
 
-    auto deathRecipientMap = eventListenerManager_->GetDeathRecipientMap();
+    auto deathRecipientMap = eventListenerManager_->GetListenerDeathRecipientMap();
     for (auto &iter : deathRecipientMap) {
         if (iter.first != nullptr && remote == iter.first->AsObject()) {
             int32_t result = eventListenerManager_->UnRegistEventListener(iter.first);
@@ -198,10 +154,10 @@ void AuthEventListenerManager::OnNotifyAuthSuccessEvent(int32_t userId, AuthType
     const std::string &callerName)
 {
     IAM_LOGI("start");
-    std::set<sptr<IEventListenerCallback>> listenerSetTemp = GetListenerSet(authType);
+    auto listenerSetTemp = GetListenerDeathRecipientMap();
     for (auto &iter : listenerSetTemp) {
-        if (iter != nullptr) {
-            iter->OnNotifyAuthSuccessEvent(userId, authType, callerType, callerName);
+        if (iter.first != nullptr) {
+            iter.first->OnNotifyAuthSuccessEvent(userId, authType, callerType, callerName);
         }
     }
 }
@@ -217,10 +173,10 @@ void CredChangeEventListenerManager::OnNotifyCredChangeEvent(int32_t userId, Aut
     CredChangeEventType eventType, uint64_t credentialId)
 {
     IAM_LOGI("start");
-    std::set<sptr<IEventListenerCallback>> listenerSetTemp = GetListenerSet(authType);
+    auto listenerSetTemp = GetListenerDeathRecipientMap();
     for (auto &iter : listenerSetTemp) {
-        if (iter != nullptr) {
-            iter->OnNotifyCredChangeEvent(userId, authType, eventType, credentialId);
+        if (iter.first != nullptr) {
+            iter.first->OnNotifyCredChangeEvent(userId, authType, eventType, credentialId);
         }
     }
 }

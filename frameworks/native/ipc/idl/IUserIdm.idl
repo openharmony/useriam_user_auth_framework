@@ -49,7 +49,7 @@ interface OHOS.UserIam.UserAuth.IUserIdm {
 
     void ClearRedundancyCredential([in] IIamCallback idmCallback);
 
-    void RegistCredChangeEventListener([in] int[] authType, [in] IEventListenerCallback listener);
+    void RegistCredChangeEventListener([in] IEventListenerCallback listener);
 
     void UnRegistCredChangeEventListener([in] IEventListenerCallback listener);
 

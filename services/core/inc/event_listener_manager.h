@@ -27,15 +27,16 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+using DeathRecipient = IRemoteObject::DeathRecipient;
 class EventListenerManager {
 public:
     EventListenerManager() = default;
     ~EventListenerManager() = default;
-    int32_t RegistEventListener(const std::vector<AuthType> &authType, const sptr<IEventListenerCallback> &listener);
+    int32_t RegistEventListener(const sptr<IEventListenerCallback> &listener);
     int32_t UnRegistEventListener(const sptr<IEventListenerCallback> &listener);
     int32_t AddDeathRecipient(EventListenerManager *manager, const sptr<IEventListenerCallback> &listener);
     int32_t RemoveDeathRecipient(const sptr<IEventListenerCallback> &listener);
-    std::map<sptr<IEventListenerCallback>, sptr<DeathRecipient>> GetDeathRecipientMap();
+    std::map<sptr<IEventListenerCallback>, sptr<DeathRecipient>> GetListenerDeathRecipientMap();
 
 protected:
     class EventListenerDeathRecipient : public IRemoteObject::DeathRecipient, public NoCopyable {
@@ -48,24 +49,10 @@ protected:
         EventListenerManager *eventListenerManager_;
     };
 
-    void AddEventListener(AuthType authType, const sptr<IEventListenerCallback> &listener);
-    void RemoveEventListener(AuthType authType, const sptr<IEventListenerCallback> &listener);
-    std::set<sptr<IEventListenerCallback>> GetListenerSet(AuthType authType);
     std::recursive_mutex mutex_;
-    std::map<AuthType, std::set<sptr<IEventListenerCallback>>> eventListenerMap_;
-    std::map<sptr<IEventListenerCallback>, sptr<DeathRecipient>> deathRecipientMap_;
+    std::map<sptr<IEventListenerCallback>, sptr<DeathRecipient>> listenerDeathRecipientMap_;
 
 private:
-    struct FinderSet {
-        explicit FinderSet(sptr<IRemoteObject> remoteObject) : remoteObject_(remoteObject)
-        {
-        }
-        bool operator()(sptr<IEventListenerCallback> listener)
-        {
-            return listener->AsObject() == remoteObject_;
-        }
-        sptr<IRemoteObject> remoteObject_ {nullptr};
-    };
     struct FinderMap {
         explicit FinderMap(sptr<IRemoteObject> remoteObject) : remoteObject_(remoteObject)
         {

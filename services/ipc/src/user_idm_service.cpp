@@ -760,41 +760,18 @@ void UserIdmService::PublishCommonEvent(int32_t userId, uint64_t credentialId, A
     }
 }
 
-bool UserIdmService::CheckInnerAuthTypeIsValid(std::vector<AuthType> authType)
-{
-    if (authType.empty() || (authType.size() > MAX_AUTH_TYPE_SIZE)) {
-        IAM_LOGE("invalid authType size:%{public}zu", authType.size());
-        return false;
-    }
-    for (const auto &iter : authType) {
-        if (INNER_AUTH_TYPE_VALID_SET.find(iter) == INNER_AUTH_TYPE_VALID_SET.end()) {
-            IAM_LOGE("authType check fail:%{public}d", static_cast<int32_t>(iter));
-            return false;
-        }
-    }
-    return true;
-}
-
-int32_t UserIdmService::RegistCredChangeEventListener(const std::vector<int32_t> &authType,
-    const sptr<IEventListenerCallback> &listener)
+int32_t UserIdmService::RegistCredChangeEventListener(const sptr<IEventListenerCallback> &listener)
 {
     IAM_LOGI("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
-    IF_FALSE_LOGE_AND_RETURN_VAL(!authType.empty(), INVALID_PARAMETERS);
-    std::vector<AuthType> authTypes;
-    authTypes.resize(authType.size());
-    std::transform(authType.begin(), authType.end(), authTypes.begin(), [](int32_t key) {
-        return static_cast<AuthType>(key);
-    });
-    IF_FALSE_LOGE_AND_RETURN_VAL(CheckInnerAuthTypeIsValid(authTypes), INVALID_PARAMETERS);
 
     if (!IpcCommon::CheckPermission(*this, USE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
     }
 
-    int32_t result = CredChangeEventListenerManager::GetInstance().RegistEventListener(authTypes, listener);
+    int32_t result = CredChangeEventListenerManager::GetInstance().RegistEventListener(listener);
     if (result != SUCCESS) {
         IAM_LOGE("failed to regist cred change event listener");
         return result;

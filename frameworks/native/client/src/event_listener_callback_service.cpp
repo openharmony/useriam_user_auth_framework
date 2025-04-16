@@ -16,6 +16,7 @@
 #include "event_listener_callback_service.h"
 
 #include "callback_manager.h"
+#include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
 
@@ -24,75 +25,186 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-EventListenerCallbackService::EventListenerCallbackService(
-    const std::shared_ptr<AuthSuccessEventListener> &impl) : authSuccessEventListener_(impl)
+EventListenerCallbackManager::EventListenerCallbackManager()
 {
-    CallbackManager::CallbackAction action = [impl]() {
-        if (impl != nullptr) {
-            IAM_LOGI("auth success event listener service death, return default result to caller");
-            int32_t invalidCallerType = -1;
-            std::string invalidCallerName = "";
-            impl->OnNotifyAuthSuccessEvent(INVALID_USER_ID, INVALID_AUTH_TYPE, invalidCallerType,
-                invalidCallerName);
-        }
+    CallbackManager::CallbackAction action = [this]() {
+        IAM_LOGI("userauthservice death, clear caller map and register again");
+        std::lock_guard<std::recursive_mutex> lock(eventListenerMutex_);
+        authEventListenerMap_.clear();
+        credEventListenerMap_.clear();
     };
     CallbackManager::GetInstance().AddCallback(reinterpret_cast<uintptr_t>(this), action);
 }
 
-EventListenerCallbackService::EventListenerCallbackService(
-    const std::shared_ptr<CredChangeEventListener> &impl) : credChangeEventListener_(impl)
-{
-    CallbackManager::CallbackAction action = [impl]() {
-        if (impl != nullptr) {
-            IAM_LOGI("cred change event listener service death, return default result to caller");
-            uint64_t invalidCredentialId = 0;
-            impl->OnNotifyCredChangeEvent(INVALID_USER_ID, INVALID_AUTH_TYPE, INVALID_EVENT_TYPE,
-                invalidCredentialId);
-        }
-    };
-    CallbackManager::GetInstance().AddCallback(reinterpret_cast<uintptr_t>(this), action);
-}
-
-EventListenerCallbackService::~EventListenerCallbackService()
+EventListenerCallbackManager::~EventListenerCallbackManager()
 {
     CallbackManager::GetInstance().RemoveCallback(reinterpret_cast<uintptr_t>(this));
 }
 
-int32_t EventListenerCallbackService::OnNotifyAuthSuccessEvent(int32_t userId, int32_t authType, int32_t callerType,
-    const std::string &callerName)
+int32_t EventListenerCallbackManager::AddUserAuthSuccessEventListener(const sptr<IUserAuth> proxy,
+    const std::vector<AuthType> &authTypes, const std::shared_ptr<AuthSuccessEventListener> &listener)
 {
-    IAM_LOGI("start, userId:%{public}d, authType:%{public}d, callerName:%{public}s, callerType:%{public}d",
-        userId, authType, callerName.c_str(), callerType);
-    if (authSuccessEventListener_ == nullptr) {
-        IAM_LOGE("authSuccessEventListener_ is null");
-        return GENERAL_ERROR;
+    IF_FALSE_LOGE_AND_RETURN_VAL(proxy != nullptr, GENERAL_ERROR);
+    IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
+
+    std::lock_guard<std::recursive_mutex> lock(eventListenerMutex_);
+    if (eventListenerCallbackImpl_ == nullptr) {
+        eventListenerCallbackImpl_ = new (std::nothrow) EventListenerCallbackImpl();
+        IF_FALSE_LOGE_AND_RETURN_VAL(eventListenerCallbackImpl_ != nullptr, GENERAL_ERROR);
+        auto ret = proxy->RegistUserAuthSuccessEventListener(eventListenerCallbackImpl_);
+        IF_FALSE_LOGE_AND_RETURN_VAL(ret == SUCCESS, ret);
     }
-    authSuccessEventListener_->OnNotifyAuthSuccessEvent(userId, static_cast<AuthType>(authType), callerType,
-        callerName);
+
+    for (auto authType : authTypes) {
+        auto addCount = authEventListenerMap_[authType].insert(listener);
+        IAM_LOGI("AddEventListener addCount:%{public}d, authType:%{public}d, listenerSize:%{public}zu",
+            addCount.second, static_cast<int32_t>(authType), authEventListenerMap_[authType].size());
+    }
     return SUCCESS;
 }
 
-int32_t EventListenerCallbackService::OnNotifyCredChangeEvent(int32_t userId, int32_t authType, int32_t eventType,
-    uint64_t credentialId)
+int32_t EventListenerCallbackManager::RemoveUserAuthSuccessEventListener(const sptr<IUserAuth> proxy,
+    const std::shared_ptr<AuthSuccessEventListener> &listener)
 {
-    IAM_LOGI("start, userId:%{public}d, authType:%{public}d, eventType:%{public}d, credentialId:%{public}u",
-        userId, authType, eventType, static_cast<uint16_t>(credentialId));
-    if (credChangeEventListener_ == nullptr) {
-        IAM_LOGE("credChangeEventListener_ is null");
-        return GENERAL_ERROR;
+    IF_FALSE_LOGE_AND_RETURN_VAL(proxy != nullptr, GENERAL_ERROR);
+    IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
+
+    std::lock_guard<std::recursive_mutex> lock(eventListenerMutex_);
+    auto mapIter = authEventListenerMap_.begin();
+    while (mapIter != authEventListenerMap_.end()) {
+        int32_t eraseCount = mapIter->second.erase(listener);
+        IAM_LOGI("RemoveEventListener eraseCount:%{public}d, authType:%{public}d, listenerSize:%{public}zu",
+            eraseCount, mapIter->first, mapIter->second.size());
+        if (mapIter->second.size() == 0) {
+            mapIter = authEventListenerMap_.erase(mapIter);
+        } else {
+            mapIter++;
+        }
     }
-    credChangeEventListener_->OnNotifyCredChangeEvent(userId, static_cast<AuthType>(authType),
-        static_cast<CredChangeEventType>(eventType), credentialId);
+
+    if (authEventListenerMap_.size() == 0 && credEventListenerMap_.size() == 0) {
+        auto ret = proxy->UnRegistUserAuthSuccessEventListener(eventListenerCallbackImpl_);
+        eventListenerCallbackImpl_ = nullptr;
+        return ret;
+    }
     return SUCCESS;
 }
 
-int32_t EventListenerCallbackService::CallbackEnter([[maybe_unused]] uint32_t code)
+int32_t EventListenerCallbackManager::AddCredChangeEventListener(const sptr<IUserIdm> proxy,
+    const std::vector<AuthType> &authTypes, const std::shared_ptr<CredChangeEventListener> &listener)
+{
+    IF_FALSE_LOGE_AND_RETURN_VAL(proxy != nullptr, GENERAL_ERROR);
+    IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
+
+    std::lock_guard<std::recursive_mutex> lock(eventListenerMutex_);
+    if (eventListenerCallbackImpl_ == nullptr) {
+        eventListenerCallbackImpl_ = new (std::nothrow) EventListenerCallbackImpl();
+        IF_FALSE_LOGE_AND_RETURN_VAL(eventListenerCallbackImpl_ != nullptr, GENERAL_ERROR);
+        auto ret = proxy->RegistCredChangeEventListener(eventListenerCallbackImpl_);
+        IF_FALSE_LOGE_AND_RETURN_VAL(ret == SUCCESS, ret);
+    }
+
+    for (auto authType : authTypes) {
+        auto addCount = credEventListenerMap_[authType].insert(listener);
+        IAM_LOGI("AddEventListener addCount:%{public}d, authType:%{public}d, listenerSize:%{public}zu",
+            addCount.second, static_cast<int32_t>(authType), credEventListenerMap_[authType].size());
+    }
+    return SUCCESS;
+}
+
+int32_t EventListenerCallbackManager::RemoveCredChangeEventListener(const sptr<IUserIdm> proxy,
+    const std::shared_ptr<CredChangeEventListener> &listener)
+{
+    IF_FALSE_LOGE_AND_RETURN_VAL(proxy != nullptr, GENERAL_ERROR);
+    IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
+
+    std::lock_guard<std::recursive_mutex> lock(eventListenerMutex_);
+    auto mapIter = credEventListenerMap_.begin();
+    while (mapIter != credEventListenerMap_.end()) {
+        int32_t eraseCount = mapIter->second.erase(listener);
+        IAM_LOGI("RemoveEventListener eraseCount:%{public}d, authType:%{public}d, listenerSize:%{public}zu",
+            eraseCount, mapIter->first, mapIter->second.size());
+        if (mapIter->second.size() == 0) {
+            mapIter = credEventListenerMap_.erase(mapIter);
+        } else {
+            mapIter++;
+        }
+    }
+
+    if (credEventListenerMap_.size() == 0 && authEventListenerMap_.size() == 0) {
+        auto ret = proxy->UnRegistCredChangeEventListener(eventListenerCallbackImpl_);
+        eventListenerCallbackImpl_ = nullptr;
+        return ret;
+    }
+    return SUCCESS;
+}
+
+std::set<std::shared_ptr<AuthSuccessEventListener>> EventListenerCallbackManager::GetAuthEventListenerSet(AuthType authType)
+{
+    std::lock_guard<std::recursive_mutex> lock(eventListenerMutex_);
+    if (authEventListenerMap_.find(authType) != authEventListenerMap_.end()) {
+        return authEventListenerMap_[authType];
+    }
+    return {};
+}
+
+std::set<std::shared_ptr<CredChangeEventListener>> EventListenerCallbackManager::GetCredEventListenerSet(AuthType authType)
+{
+    std::lock_guard<std::recursive_mutex> lock(eventListenerMutex_);
+    if (credEventListenerMap_.find(authType) != credEventListenerMap_.end()) {
+        return credEventListenerMap_[authType];
+    }
+    return {};
+}
+
+EventListenerCallbackManager &EventListenerCallbackManager::GetInstance()
+{
+    static EventListenerCallbackManager eventListenerCallbackManager;
+    return eventListenerCallbackManager;
+}
+
+int32_t EventListenerCallbackManager::EventListenerCallbackImpl::OnNotifyAuthSuccessEvent(int32_t userId, int32_t authType,
+    int32_t callerType, const std::string &callerName)
+{
+    IAM_LOGI("OnNotifyAuthSuccessEvent, userId:%{public}d, authType:%{public}d, callerName:%{public}s,"
+        "callerType:%{public}d", userId, authType, callerName.c_str(), callerType);
+    auto eventListenerSet =
+        EventListenerCallbackManager::GetInstance().GetAuthEventListenerSet(static_cast<AuthType>(authType));
+    for (const auto &listener : eventListenerSet) {
+        if (listener == nullptr) {
+            IAM_LOGE("authListener is nullptr");
+            continue;
+        }
+        listener->OnNotifyAuthSuccessEvent(userId, static_cast<AuthType>(authType), callerType, callerName);
+    }
+    return SUCCESS;
+}
+
+int32_t EventListenerCallbackManager::EventListenerCallbackImpl::OnNotifyCredChangeEvent(int32_t userId, int32_t authType,
+    int32_t eventType, uint64_t credentialId)
+{
+    IAM_LOGI("OnNotifyCredChangeEvent, userId:%{public}d, authType:%{public}d, eventType:%{public}d,"
+        "credentialId:%{public}u", userId, authType, eventType, static_cast<uint16_t>(credentialId));
+    auto eventListenerSet =
+        EventListenerCallbackManager::GetInstance().GetCredEventListenerSet(static_cast<AuthType>(authType));
+    for (const auto &listener : eventListenerSet) {
+        if (listener == nullptr) {
+            IAM_LOGE("credListener is nullptr");
+            continue;
+        }
+        listener->OnNotifyCredChangeEvent(userId, static_cast<AuthType>(authType), static_cast<CredChangeEventType>(eventType),
+            credentialId);
+    }
+    return SUCCESS;
+}
+
+int32_t EventListenerCallbackManager::EventListenerCallbackImpl::CallbackEnter([[maybe_unused]] uint32_t code)
 {
     IAM_LOGI("start, code:%{public}u", code);
     return SUCCESS;
 }
 
-int32_t EventListenerCallbackService::CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result)
+int32_t EventListenerCallbackManager::EventListenerCallbackImpl::CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result)
 {
     IAM_LOGI("leave, code:%{public}u, result:%{public}d", code, result);
     return SUCCESS;

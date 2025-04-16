@@ -20,6 +20,7 @@
 #include "callback_manager.h"
 #include "event_listener_callback_service.h"
 #include "load_mode_client_util.h"
+#include "iam_check.h"
 #include "iam_logger.h"
 #include "ipc_client_utils.h"
 #include "user_idm_callback_service.h"
@@ -366,64 +367,25 @@ void UserIdmClientImpl::ClearRedundancyCredential(const std::shared_ptr<UserIdmC
     }
 }
 
-int32_t UserIdmClientImpl::RegistCredChangeEventListener(const std::vector<AuthType> &authType,
+int32_t UserIdmClientImpl::RegistCredChangeEventListener(const std::vector<AuthType> &authTypes,
     const std::shared_ptr<CredChangeEventListener> &listener)
 {
     IAM_LOGI("start");
-    if (!listener) {
-        IAM_LOGE("listener is nullptr");
-        return GENERAL_ERROR;
-    }
 
     auto proxy = GetProxy();
-    if (!proxy) {
-        IAM_LOGE("proxy is nullptr");
-        return GENERAL_ERROR;
-    }
-    std::vector<int32_t> authTypes;
-    authTypes.resize(authType.size());
-    std::transform(authType.begin(), authType.end(), authTypes.begin(), [](AuthType authType) {
-        return static_cast<int32_t>(authType);
-    });
-    sptr<EventListenerCallbackService> wrapper(new (std::nothrow) EventListenerCallbackService(listener));
-    if (!wrapper) {
-        IAM_LOGE("wrapper is nullptr");
-        return GENERAL_ERROR;
-    }
+    IF_FALSE_LOGE_AND_RETURN_VAL(proxy != nullptr, GENERAL_ERROR);
 
-    int32_t ret = proxy->RegistCredChangeEventListener(authTypes, wrapper);
-    if (ret != SUCCESS) {
-        IAM_LOGE("Regist cred change event listener failed");
-        return ret;
-    }
-
-    return SUCCESS;
+    return EventListenerCallbackManager::GetInstance().AddCredChangeEventListener(proxy, authTypes, listener);
 }
 
 int32_t UserIdmClientImpl::UnRegistCredChangeEventListener(const std::shared_ptr<CredChangeEventListener> &listener)
 {
     IAM_LOGI("start");
-    if (!listener) {
-        IAM_LOGE("listener is nullptr");
-        return GENERAL_ERROR;
-    }
-    auto proxy = GetProxy();
-    if (!proxy) {
-        IAM_LOGE("proxy is nullptr");
-        return GENERAL_ERROR;
-    }
-    sptr<EventListenerCallbackService> wrapper(new (std::nothrow) EventListenerCallbackService(listener));
-    if (!wrapper) {
-        IAM_LOGE("wrapper is nullptr");
-        return GENERAL_ERROR;
-    }
 
-    int32_t ret = proxy->UnRegistCredChangeEventListener(wrapper);
-    if (ret != SUCCESS) {
-        IAM_LOGE("unRegist cred change event listener failed");
-        return ret;
-    }
-    return SUCCESS;
+    auto proxy = GetProxy();
+    IF_FALSE_LOGE_AND_RETURN_VAL(proxy != nullptr, GENERAL_ERROR);
+
+    return EventListenerCallbackManager::GetInstance().RemoveCredChangeEventListener(proxy, listener);
 }
 
 int32_t UserIdmClientImpl::GetCredentialInfoSync(int32_t userId, AuthType authType,
@@ -446,7 +408,7 @@ int32_t UserIdmClientImpl::GetCredentialInfoSync(int32_t userId, AuthType authTy
     for (auto &iter : ipcCredInfoList) {
         CredentialInfo credentialInfo;
         credentialInfo.authType = static_cast<AuthType>(iter.authType);
-        credentialInfo.pinType= static_cast<PinSubType>(iter.pinType);
+        credentialInfo.pinType = static_cast<PinSubType>(iter.pinType);
         credentialInfo.credentialId = iter.credentialId;
         credentialInfo.templateId = iter.credentialId;
         credentialInfoList.push_back(credentialInfo);
