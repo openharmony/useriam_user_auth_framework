@@ -1012,6 +1012,42 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser007, TestSize.Level0)
     IpcCommon::DeleteAllPermission();
 }
 
+HWTEST_F(UserAuthServiceTest, UserAuthServiceInitRemoteAuthParam_001, TestSize.Level0)
+{
+    UserAuthService service;
+    IpcRemoteAuthParam ipcRemoteAuthParam = {
+        .isHasVerifierNetworkId = true,
+        .isHasRemoteAuthParam = true,
+        .isHasCollectorNetworkId = true,
+        .isHasCollectorTokenId = true,
+        .verifierNetworkId = "123",
+        .collectorNetworkId = "1233324321423412344134",
+        .collectorTokenId = 123123,
+    };
+    std::optional<RemoteAuthParam> remoteAuthParam = {};
+    RemoteAuthParam param = {};
+    param.verifierNetworkId = "123";
+    param.collectorNetworkId = "1233324321423412344134";
+    remoteAuthParam = param;
+    EXPECT_NO_THROW(service.InitRemoteAuthParam(ipcRemoteAuthParam, remoteAuthParam));
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceProcessPinExpired_001, TestSize.Level0)
+{
+    UserAuthService service;
+    int ret = PIN_EXPIRED;
+    AuthParamInner authParam = {
+        .authTypes = {FACE, PIN, PRIVATE_PIN},
+        .authTrustLevel = ATL2,
+        .isUserIdSpecified = true,
+    };
+    std::vector<AuthType> validType = {FACE, PIN, PRIVATE_PIN};
+    ContextFactory::AuthWidgetContextPara para = {
+        .isPinExpired = true
+    };
+    EXPECT_NO_THROW(service.ProcessPinExpired(ret, authParam, validType, para));
+}
+
 HWTEST_F(UserAuthServiceTest, UserAuthServiceIdentify001, TestSize.Level0)
 {
     UserAuthService service;
