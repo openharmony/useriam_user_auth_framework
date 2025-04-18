@@ -48,10 +48,10 @@ int32_t EventListenerCallbackManager::AddUserAuthSuccessEventListener(const sptr
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
 
     std::lock_guard<std::recursive_mutex> lock(eventListenerMutex_);
-    if (eventListenerCallbackImpl_ == nullptr) {
-        eventListenerCallbackImpl_ = new (std::nothrow) EventListenerCallbackImpl();
-        IF_FALSE_LOGE_AND_RETURN_VAL(eventListenerCallbackImpl_ != nullptr, GENERAL_ERROR);
-        auto ret = proxy->RegistUserAuthSuccessEventListener(eventListenerCallbackImpl_);
+    if (authEventListenerCallbackImpl_ == nullptr) {
+        authEventListenerCallbackImpl_ = new (std::nothrow) EventListenerCallbackImpl();
+        IF_FALSE_LOGE_AND_RETURN_VAL(authEventListenerCallbackImpl_ != nullptr, GENERAL_ERROR);
+        auto ret = proxy->RegistUserAuthSuccessEventListener(authEventListenerCallbackImpl_);
         IF_FALSE_LOGE_AND_RETURN_VAL(ret == SUCCESS, ret);
     }
 
@@ -83,8 +83,8 @@ int32_t EventListenerCallbackManager::RemoveUserAuthSuccessEventListener(const s
     }
 
     if (authEventListenerMap_.size() == 0 && credEventListenerMap_.size() == 0) {
-        auto ret = proxy->UnRegistUserAuthSuccessEventListener(eventListenerCallbackImpl_);
-        eventListenerCallbackImpl_ = nullptr;
+        auto ret = proxy->UnRegistUserAuthSuccessEventListener(authEventListenerCallbackImpl_);
+        authEventListenerCallbackImpl_ = nullptr;
         return ret;
     }
     return SUCCESS;
@@ -97,10 +97,10 @@ int32_t EventListenerCallbackManager::AddCredChangeEventListener(const sptr<IUse
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
 
     std::lock_guard<std::recursive_mutex> lock(eventListenerMutex_);
-    if (eventListenerCallbackImpl_ == nullptr) {
-        eventListenerCallbackImpl_ = new (std::nothrow) EventListenerCallbackImpl();
-        IF_FALSE_LOGE_AND_RETURN_VAL(eventListenerCallbackImpl_ != nullptr, GENERAL_ERROR);
-        auto ret = proxy->RegistCredChangeEventListener(eventListenerCallbackImpl_);
+    if (credEventListenerCallbackImpl_ == nullptr) {
+        credEventListenerCallbackImpl_ = new (std::nothrow) EventListenerCallbackImpl();
+        IF_FALSE_LOGE_AND_RETURN_VAL(credEventListenerCallbackImpl_ != nullptr, GENERAL_ERROR);
+        auto ret = proxy->RegistCredChangeEventListener(credEventListenerCallbackImpl_);
         IF_FALSE_LOGE_AND_RETURN_VAL(ret == SUCCESS, ret);
     }
 
@@ -132,8 +132,8 @@ int32_t EventListenerCallbackManager::RemoveCredChangeEventListener(const sptr<I
     }
 
     if (credEventListenerMap_.size() == 0 && authEventListenerMap_.size() == 0) {
-        auto ret = proxy->UnRegistCredChangeEventListener(eventListenerCallbackImpl_);
-        eventListenerCallbackImpl_ = nullptr;
+        auto ret = proxy->UnRegistCredChangeEventListener(credEventListenerCallbackImpl_);
+        credEventListenerCallbackImpl_ = nullptr;
         return ret;
     }
     return SUCCESS;
