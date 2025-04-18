@@ -92,8 +92,6 @@ void UserIdmClientImpl::AddCredential(int32_t userId, const CredentialParameters
     auto ret = proxy->AddCredential(userId, credPara, wrapper, false);
     if (ret != SUCCESS) {
         IAM_LOGE("AddCredential fail, ret:%{public}d", ret);
-        Attributes extraInfo;
-        callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
 }
@@ -131,8 +129,6 @@ void UserIdmClientImpl::UpdateCredential(int32_t userId, const CredentialParamet
     auto ret = proxy->UpdateCredential(userId, credPara, wrapper);
     if (ret != SUCCESS) {
         IAM_LOGE("UpdateCredential fail, ret:%{public}d", ret);
-        Attributes extraInfo;
-        callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
 }
@@ -175,8 +171,6 @@ void UserIdmClientImpl::DeleteCredential(int32_t userId, uint64_t credentialId, 
     auto ret = proxy->DelCredential(userId, credentialId, authToken, wrapper);
     if (ret != SUCCESS) {
         IAM_LOGE("DelCredential fail, ret:%{public}d", ret);
-        Attributes extraInfo;
-        callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
 }
@@ -207,8 +201,6 @@ void UserIdmClientImpl::DeleteUser(int32_t userId, const std::vector<uint8_t> &a
     auto ret = proxy->DelUser(userId, authToken, wrapper);
     if (ret != SUCCESS) {
         IAM_LOGE("DelUser fail, ret:%{public}d", ret);
-        Attributes extraInfo;
-        callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
 }
@@ -359,8 +351,6 @@ void UserIdmClientImpl::ClearRedundancyCredential(const std::shared_ptr<UserIdmC
     auto ret = proxy->ClearRedundancyCredential(wrapper);
     if (ret != SUCCESS) {
         IAM_LOGE("ClearRedundancyCredential fail, ret:%{public}d", ret);
-        Attributes extraInfo;
-        callback->OnResult(GENERAL_ERROR, extraInfo);
         return;
     }
 }
