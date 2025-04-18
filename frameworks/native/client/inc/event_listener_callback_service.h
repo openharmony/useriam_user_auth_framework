@@ -59,7 +59,8 @@ private:
 
     EventListenerCallbackManager();
     ~EventListenerCallbackManager();
-    sptr<EventListenerCallbackImpl> eventListenerCallbackImpl_ = nullptr;
+    sptr<EventListenerCallbackImpl> authEventListenerCallbackImpl_ = nullptr;
+    sptr<EventListenerCallbackImpl> credEventListenerCallbackImpl_ = nullptr;
     std::recursive_mutex eventListenerMutex_;
     std::map<AuthType, std::set<std::shared_ptr<AuthSuccessEventListener>>> authEventListenerMap_ = {};
     std::map<AuthType, std::set<std::shared_ptr<CredChangeEventListener>>> credEventListenerMap_ = {};
