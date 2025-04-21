@@ -1181,6 +1181,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_033, TestSize.Level0)
     IpcCommon::DeleteAllPermission();
 }
 
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthTypeIsVtrealid_001, TestSize.Level0)
+{
+    UserAuthService service;
+    std::vector<AuthType> validType = {RECOVERY_KEY};
+    EXPECT_EQ(service.CheckAuthTypeIsValid(validType), false);
+}
+
 HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckPrivatePinEnroll001, TestSize.Level0)
 {
     UserAuthService service;
