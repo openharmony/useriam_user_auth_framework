@@ -31,6 +31,7 @@ namespace UserIam {
 namespace UserAuth {
 class VerifyTokenCallback {
 public:
+    virtual ~VerifyTokenCallback() = default;
     /**
      * @brief The callback return verify token result.
      *

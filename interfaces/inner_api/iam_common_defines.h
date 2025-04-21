@@ -156,6 +156,18 @@ enum PropertyMode : uint32_t {
 };
 
 /**
+ * @brief Defines auth token type.
+ */
+enum AuthTokenType: int32_t {
+    /** The auth token type is local auth. */
+    TOKEN_TYPE_LOCAL_AUTH = 0,
+    /** The auth token type is local resign. */
+    TOKEN_TYPE_LOCAL_RESIGN = 1,
+    /** The auth token type is local coauth. */
+    TOKEN_TYPE_LOCAL_COAUTH = 2,
+};
+
+/**
  * @brief The result code.
  */
 enum ResultCode : int32_t {
