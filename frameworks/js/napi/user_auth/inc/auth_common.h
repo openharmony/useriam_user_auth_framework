@@ -18,7 +18,6 @@
 
 #include <map>
 #include <vector>
-#include <set>
 
 #include "napi/native_api.h"
 #include "napi/native_common.h"
