@@ -354,19 +354,12 @@ void FuzzRegisterWidgetCallback(Parcel &parcel)
 void FuzzRegistUserAuthSuccessEventListener(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    std::vector<int32_t> authType;
-    std::vector<int32_t> authTypeList;
-    parcel.ReadInt32Vector(&authType);
-    for (const auto &iter : authType) {
-        authTypeList.push_back(static_cast<AuthType>(iter));
-    }
-
     sptr<IEventListenerCallback> callback(nullptr);
     if (parcel.ReadBool()) {
         callback = sptr<IEventListenerCallback>(new (std::nothrow) DummyAuthEventListener());
     }
 
-    g_userAuthService.RegistUserAuthSuccessEventListener(authTypeList, callback);
+    g_userAuthService.RegistUserAuthSuccessEventListener(callback);
     g_userAuthService.UnRegistUserAuthSuccessEventListener(callback);
     IAM_LOGI("end");
 }

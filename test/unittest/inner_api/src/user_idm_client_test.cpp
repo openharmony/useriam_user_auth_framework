@@ -541,10 +541,10 @@ HWTEST_F(UserIdmClientTest, UserIdmClientRegistCredChangeEventListener001, TestS
 
     auto service = Common::MakeShared<MockUserIdmService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, RegistCredChangeEventListener(_, _)).Times(1);
+    EXPECT_CALL(*service, RegistCredChangeEventListener(_)).Times(1);
     ON_CALL(*service, RegistCredChangeEventListener)
         .WillByDefault(
-            [](const std::vector<int32_t> &authType, const sptr<IEventListenerCallback> &callback) {
+            [](const sptr<IEventListenerCallback> &callback) {
                 return SUCCESS;
             }
         );

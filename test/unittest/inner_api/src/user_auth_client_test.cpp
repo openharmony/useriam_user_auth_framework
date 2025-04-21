@@ -746,10 +746,10 @@ HWTEST_F(UserAuthClientTest, UserAuthClientRegistUserAuthSuccessEventListener001
 
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, RegistUserAuthSuccessEventListener(_, _)).Times(1);
+    EXPECT_CALL(*service, RegistUserAuthSuccessEventListener(_)).Times(1);
     ON_CALL(*service, RegistUserAuthSuccessEventListener)
         .WillByDefault(
-            [](const std::vector<int32_t> &authType, const sptr<IEventListenerCallback> &callback) {
+            [](const sptr<IEventListenerCallback> &callback) {
                 return SUCCESS;
             }
         );

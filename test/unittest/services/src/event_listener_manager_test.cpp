@@ -43,16 +43,13 @@ void EventListenerManagerTest::TearDown()
 
 HWTEST_F(EventListenerManagerTest, EventListenerManagerTestRegistEventListener, TestSize.Level0)
 {
-    std::vector<AuthType> authType = { AuthType::PIN };
     sptr<IEventListenerCallback> testCallback = new MockEventListener();
-    EXPECT_EQ(AuthEventListenerManager::GetInstance().RegistEventListener(authType, nullptr), GENERAL_ERROR);
-    EXPECT_NO_THROW(AuthEventListenerManager::GetInstance().RegistEventListener(authType, testCallback));
-    AuthEventListenerManager::GetInstance().GetListenerSet(authType[0]);
+    EXPECT_EQ(AuthEventListenerManager::GetInstance().RegistEventListener(nullptr), GENERAL_ERROR);
+    EXPECT_NO_THROW(AuthEventListenerManager::GetInstance().RegistEventListener(testCallback));
 
-    EXPECT_EQ(CredChangeEventListenerManager::GetInstance().RegistEventListener(authType, nullptr),
+    EXPECT_EQ(CredChangeEventListenerManager::GetInstance().RegistEventListener(nullptr),
         GENERAL_ERROR);
-    EXPECT_NO_THROW(CredChangeEventListenerManager::GetInstance().RegistEventListener(authType, testCallback));
-    CredChangeEventListenerManager::GetInstance().GetListenerSet(authType[0]);
+    EXPECT_NO_THROW(CredChangeEventListenerManager::GetInstance().RegistEventListener(testCallback));
 }
 
 HWTEST_F(EventListenerManagerTest, EventListenerManagerTestUnRegistEventListener, TestSize.Level0)
@@ -63,22 +60,6 @@ HWTEST_F(EventListenerManagerTest, EventListenerManagerTestUnRegistEventListener
 
     EXPECT_EQ(CredChangeEventListenerManager::GetInstance().UnRegistEventListener(nullptr), GENERAL_ERROR);
     EXPECT_NO_THROW(CredChangeEventListenerManager::GetInstance().UnRegistEventListener(testCallback));
-}
-
-HWTEST_F(EventListenerManagerTest, EventListenerManagerTestAddEventListener, TestSize.Level0)
-{
-    sptr<IEventListenerCallback> testCallback = new MockEventListener();
-    AuthType authType = AuthType::PIN;
-    EXPECT_NO_THROW(AuthEventListenerManager::GetInstance().AddEventListener(authType, testCallback));
-    EXPECT_NO_THROW(CredChangeEventListenerManager::GetInstance().AddEventListener(authType, testCallback));
-}
-
-HWTEST_F(EventListenerManagerTest, EventListenerManagerTestRemoveEventListener, TestSize.Level0)
-{
-    sptr<IEventListenerCallback> testCallback = new MockEventListener();
-    AuthType authType = AuthType::PIN;
-    EXPECT_NO_THROW(AuthEventListenerManager::GetInstance().RemoveEventListener(authType, testCallback));
-    EXPECT_NO_THROW(CredChangeEventListenerManager::GetInstance().RemoveEventListener(authType, testCallback));
 }
 
 HWTEST_F(EventListenerManagerTest, EventListenerManagerTestRemoveDeathRecipient, TestSize.Level0)

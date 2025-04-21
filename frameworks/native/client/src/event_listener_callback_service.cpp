@@ -25,30 +25,14 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-EventListenerCallbackManager::EventListenerCallbackManager()
-{
-    CallbackManager::CallbackAction action = [this]() {
-        IAM_LOGI("userauthservice death, clear caller map and register again");
-        std::lock_guard<std::recursive_mutex> lock(eventListenerMutex_);
-        authEventListenerMap_.clear();
-        credEventListenerMap_.clear();
-    };
-    CallbackManager::GetInstance().AddCallback(reinterpret_cast<uintptr_t>(this), action);
-}
-
-EventListenerCallbackManager::~EventListenerCallbackManager()
-{
-    CallbackManager::GetInstance().RemoveCallback(reinterpret_cast<uintptr_t>(this));
-}
-
-int32_t EventListenerCallbackManager::AddUserAuthSuccessEventListener(const sptr<IUserAuth> proxy,
+int32_t EventListenerCallbackManager::AddUserAuthSuccessEventListener(const sptr<IUserAuth> &proxy,
     const std::vector<AuthType> &authTypes, const std::shared_ptr<AuthSuccessEventListener> &listener)
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(proxy != nullptr, GENERAL_ERROR);
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
 
     std::lock_guard<std::recursive_mutex> lock(eventListenerMutex_);
-    if (authEventListenerCallbackImpl_ == nullptr) {
+    if (authEventListenerMap_.size() = 0) {
         authEventListenerCallbackImpl_ = new (std::nothrow) EventListenerCallbackImpl();
         IF_FALSE_LOGE_AND_RETURN_VAL(authEventListenerCallbackImpl_ != nullptr, GENERAL_ERROR);
         auto ret = proxy->RegistUserAuthSuccessEventListener(authEventListenerCallbackImpl_);
@@ -63,7 +47,7 @@ int32_t EventListenerCallbackManager::AddUserAuthSuccessEventListener(const sptr
     return SUCCESS;
 }
 
-int32_t EventListenerCallbackManager::RemoveUserAuthSuccessEventListener(const sptr<IUserAuth> proxy,
+int32_t EventListenerCallbackManager::RemoveUserAuthSuccessEventListener(const sptr<IUserAuth> &proxy,
     const std::shared_ptr<AuthSuccessEventListener> &listener)
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(proxy != nullptr, GENERAL_ERROR);
@@ -82,7 +66,7 @@ int32_t EventListenerCallbackManager::RemoveUserAuthSuccessEventListener(const s
         }
     }
 
-    if (authEventListenerMap_.size() == 0 && credEventListenerMap_.size() == 0) {
+    if (authEventListenerMap_.size() == 0) {
         auto ret = proxy->UnRegistUserAuthSuccessEventListener(authEventListenerCallbackImpl_);
         authEventListenerCallbackImpl_ = nullptr;
         return ret;
@@ -90,14 +74,14 @@ int32_t EventListenerCallbackManager::RemoveUserAuthSuccessEventListener(const s
     return SUCCESS;
 }
 
-int32_t EventListenerCallbackManager::AddCredChangeEventListener(const sptr<IUserIdm> proxy,
+int32_t EventListenerCallbackManager::AddCredChangeEventListener(const sptr<IUserIdm> &proxy,
     const std::vector<AuthType> &authTypes, const std::shared_ptr<CredChangeEventListener> &listener)
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(proxy != nullptr, GENERAL_ERROR);
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
 
     std::lock_guard<std::recursive_mutex> lock(eventListenerMutex_);
-    if (credEventListenerCallbackImpl_ == nullptr) {
+    if (credEventListenerMap_.size() == 0) {
         credEventListenerCallbackImpl_ = new (std::nothrow) EventListenerCallbackImpl();
         IF_FALSE_LOGE_AND_RETURN_VAL(credEventListenerCallbackImpl_ != nullptr, GENERAL_ERROR);
         auto ret = proxy->RegistCredChangeEventListener(credEventListenerCallbackImpl_);
@@ -112,7 +96,7 @@ int32_t EventListenerCallbackManager::AddCredChangeEventListener(const sptr<IUse
     return SUCCESS;
 }
 
-int32_t EventListenerCallbackManager::RemoveCredChangeEventListener(const sptr<IUserIdm> proxy,
+int32_t EventListenerCallbackManager::RemoveCredChangeEventListener(const sptr<IUserIdm> &proxy,
     const std::shared_ptr<CredChangeEventListener> &listener)
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(proxy != nullptr, GENERAL_ERROR);
@@ -131,7 +115,7 @@ int32_t EventListenerCallbackManager::RemoveCredChangeEventListener(const sptr<I
         }
     }
 
-    if (credEventListenerMap_.size() == 0 && authEventListenerMap_.size() == 0) {
+    if (credEventListenerMap_.size() == 0) {
         auto ret = proxy->UnRegistCredChangeEventListener(credEventListenerCallbackImpl_);
         credEventListenerCallbackImpl_ = nullptr;
         return ret;
@@ -155,6 +139,14 @@ std::set<std::shared_ptr<CredChangeEventListener>> EventListenerCallbackManager:
         return credEventListenerMap_[authType];
     }
     return {};
+}
+
+void EventListenerCallbackManager::OnServiceDeath()
+{
+    IAM_LOGI("userauthservice death, clear caller map and register again");
+    std::lock_guard<std::recursive_mutex> lock(eventListenerMutex_);
+    authEventListenerMap_.clear();
+    credEventListenerMap_.clear();
 }
 
 EventListenerCallbackManager &EventListenerCallbackManager::GetInstance()
