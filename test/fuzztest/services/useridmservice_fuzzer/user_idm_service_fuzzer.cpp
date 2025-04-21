@@ -329,19 +329,12 @@ void FuzzStartEnroll(Parcel &parcel)
 void FuzzRegistCredChangeEventListener(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    std::vector<int32_t> authType;
-    std::vector<int32_t> authTypeList;
-    parcel.ReadInt32Vector(&authType);
-    for (const auto &iter : authType) {
-        authTypeList.push_back(static_cast<AuthType>(iter));
-    }
-
     sptr<IEventListenerCallback> callback(nullptr);
     if (parcel.ReadBool()) {
         callback = sptr<IEventListenerCallback>(new (std::nothrow) DummyCredChangeEventListener());
     }
 
-    g_UserIdmService.RegistCredChangeEventListener(authTypeList, callback);
+    g_UserIdmService.RegistCredChangeEventListener(callback);
     g_UserIdmService.UnRegistCredChangeEventListener(callback);
     IAM_LOGI("end");
 }

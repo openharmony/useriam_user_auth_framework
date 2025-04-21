@@ -505,6 +505,7 @@ void UserAuthClientImpl::UserAuthImplDeathRecipient::OnRemoteDied(const wptr<IRe
         return;
     }
     CallbackManager::GetInstance().OnServiceDeath();
+    EventListenerCallbackManager::GetInstance().OnServiceDeath();
     UserAuthClientImpl::Instance().ResetProxy(remote);
 }
 

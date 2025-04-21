@@ -971,20 +971,8 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceRegistEventListerner_001, TestSize.Le
 {
     UserIdmService service(123123, true);
     sptr<IEventListenerCallback> testCallback = nullptr;
-    std::vector<int32_t> authTypeList;
     IpcCommon::AddPermission(IS_SYSTEM_APP);
-    EXPECT_EQ(service.RegistCredChangeEventListener(authTypeList, testCallback), ResultCode::INVALID_PARAMETERS);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserIdmServiceTest, UserIdmServiceRegistEventListerner_002, TestSize.Level0)
-{
-    UserIdmService service(123123, true);
-    sptr<IEventListenerCallback> testCallback = new MockEventListener();
-    std::vector<int32_t> authTypeList;
-    IpcCommon::AddPermission(IS_SYSTEM_APP);
-    EXPECT_EQ(service.RegistCredChangeEventListener(authTypeList, testCallback),
-        ResultCode::INVALID_PARAMETERS);
+    EXPECT_EQ(service.RegistCredChangeEventListener(testCallback), ResultCode::INVALID_PARAMETERS);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -992,12 +980,8 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceRegistEventListerner_003, TestSize.Le
 {
     UserIdmService service(123123, true);
     sptr<IEventListenerCallback> testCallback = new MockEventListener();
-    std::vector<int32_t> authTypeList;
-    authTypeList.push_back(AuthType::PIN);
-    authTypeList.push_back(AuthType::FACE);
-    authTypeList.push_back(AuthType::FINGERPRINT);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
-    EXPECT_EQ(service.RegistCredChangeEventListener(authTypeList, testCallback),
+    EXPECT_EQ(service.RegistCredChangeEventListener(testCallback),
         ResultCode::CHECK_PERMISSION_FAILED);
     IpcCommon::DeleteAllPermission();
 }
@@ -1006,22 +990,8 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceRegistEventListerner_004, TestSize.Le
 {
     UserIdmService service(123123, true);
     sptr<IEventListenerCallback> testCallback = new MockEventListener();
-    std::vector<int32_t> authTypeList;
-    authTypeList.push_back(AuthType::PIN);
-    authTypeList.push_back(AuthType::FACE);
-    authTypeList.push_back(AuthType::FINGERPRINT);
     IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
-    EXPECT_EQ(service.RegistCredChangeEventListener(authTypeList, testCallback), ResultCode::GENERAL_ERROR);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserIdmServiceTest, UserIdmServiceRegistEventListerner_005, TestSize.Level0)
-{
-    UserIdmService service(123123, true);
-    sptr<IEventListenerCallback> testCallback = new MockEventListener();
-    std::vector<int32_t> authTypeList;
-    authTypeList.push_back(AuthType::ALL);
-    EXPECT_EQ(service.RegistCredChangeEventListener(authTypeList, testCallback), ResultCode::INVALID_PARAMETERS);
+    EXPECT_EQ(service.RegistCredChangeEventListener(testCallback), ResultCode::GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1056,12 +1026,8 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUnRegistEventListerner_004, TestSize.
 {
     UserIdmService service(123123, true);
     sptr<IEventListenerCallback> testCallback = new MockEventListener();
-    std::vector<int32_t> authTypeList;
-    authTypeList.push_back(AuthType::PIN);
-    authTypeList.push_back(AuthType::FACE);
-    authTypeList.push_back(AuthType::FINGERPRINT);
     IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
-    EXPECT_EQ(service.RegistCredChangeEventListener(authTypeList, testCallback), ResultCode::GENERAL_ERROR);
+    EXPECT_EQ(service.RegistCredChangeEventListener(testCallback), ResultCode::GENERAL_ERROR);
     EXPECT_EQ(service.UnRegistCredChangeEventListener(testCallback), ResultCode::GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
 }

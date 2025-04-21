@@ -32,14 +32,17 @@ namespace UserAuth {
 class EventListenerCallbackManager {
 public:
     static EventListenerCallbackManager &GetInstance();
-    int32_t AddUserAuthSuccessEventListener(const sptr<IUserAuth> proxy, const std::vector<AuthType> &authTypes,
+    int32_t AddUserAuthSuccessEventListener(const sptr<IUserAuth> &proxy, const std::vector<AuthType> &authTypes,
         const std::shared_ptr<AuthSuccessEventListener> &listener);
-    int32_t RemoveUserAuthSuccessEventListener(const sptr<IUserAuth> proxy,
+    int32_t RemoveUserAuthSuccessEventListener(const sptr<IUserAuth> &proxy,
         const std::shared_ptr<AuthSuccessEventListener> &listener);
-    int32_t AddCredChangeEventListener(const sptr<IUserIdm> proxy, const std::vector<AuthType> &authTypes,
+    int32_t AddCredChangeEventListener(const sptr<IUserIdm> &proxy, const std::vector<AuthType> &authTypes,
         const std::shared_ptr<CredChangeEventListener> &listener);
-    int32_t RemoveCredChangeEventListener(const sptr<IUserIdm> proxy,
+    int32_t RemoveCredChangeEventListener(const sptr<IUserIdm> &proxy,
         const std::shared_ptr<CredChangeEventListener> &listener);
+    void OnServiceDeath();
+
+protected:
     std::set<std::shared_ptr<AuthSuccessEventListener>> GetAuthEventListenerSet(AuthType authType);
     std::set<std::shared_ptr<CredChangeEventListener>> GetCredEventListenerSet(AuthType authType);
 
@@ -57,8 +60,8 @@ private:
         int32_t CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result) override;
     };
 
-    EventListenerCallbackManager();
-    ~EventListenerCallbackManager();
+    EventListenerCallbackManager() = default;
+    ~EventListenerCallbackManager() = default;
     sptr<EventListenerCallbackImpl> authEventListenerCallbackImpl_ = nullptr;
     sptr<EventListenerCallbackImpl> credEventListenerCallbackImpl_ = nullptr;
     std::recursive_mutex eventListenerMutex_;

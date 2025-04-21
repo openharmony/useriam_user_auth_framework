@@ -426,6 +426,7 @@ void UserIdmClientImpl::UserIdmImplDeathRecipient::OnRemoteDied(const wptr<IRemo
         return;
     }
     CallbackManager::GetInstance().OnServiceDeath();
+    EventListenerCallbackManager::GetInstance().OnServiceDeath();
     UserIdmClientImpl::Instance().ResetProxy(remote);
 }
 
