@@ -572,6 +572,8 @@ bool UserAuthNapiHelper::CheckAuthType(int32_t authType)
 
 bool UserAuthNapiHelper::CheckUserAuthType(int32_t authType)
 {
+    const std::set<AuthType> WIDGET_AUTH_TYPE_VALID_SET = {AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT,
+        AuthType::PRIVATE_PIN};
     if (WIDGET_AUTH_TYPE_VALID_SET.find(static_cast<AuthType>(authType)) == WIDGET_AUTH_TYPE_VALID_SET.end()) {
         IAM_LOGE("authType check fail:%{public}d", authType);
         return false;
