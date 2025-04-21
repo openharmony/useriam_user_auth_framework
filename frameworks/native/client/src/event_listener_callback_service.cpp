@@ -32,7 +32,7 @@ int32_t EventListenerCallbackManager::AddUserAuthSuccessEventListener(const sptr
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
 
     std::lock_guard<std::recursive_mutex> lock(eventListenerMutex_);
-    if (authEventListenerMap_.size() = 0) {
+    if (authEventListenerMap_.size() == 0) {
         authEventListenerCallbackImpl_ = new (std::nothrow) EventListenerCallbackImpl();
         IF_FALSE_LOGE_AND_RETURN_VAL(authEventListenerCallbackImpl_ != nullptr, GENERAL_ERROR);
         auto ret = proxy->RegistUserAuthSuccessEventListener(authEventListenerCallbackImpl_);
