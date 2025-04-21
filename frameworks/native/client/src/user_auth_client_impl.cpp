@@ -36,6 +36,7 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
+    const uint32_t MAX_ATTR_COUNT = 512;
 class NorthAuthenticationCallback : public AuthenticationCallback, public NoCopyable {
 public:
     explicit NorthAuthenticationCallback(std::shared_ptr<AuthenticationCallback> innerCallback);
@@ -154,6 +155,13 @@ void UserAuthClientImpl::GetProperty(int32_t userId, const GetPropertyRequest &r
         return;
     }
 
+    if (request.keys.empty() || request.keys.size() > MAX_ATTR_COUNT) {
+        IAM_LOGE("the attribute key vector is bad param, key size:%{public}zu", request.keys.size());
+        Attributes attr;
+        callback->OnResult(INVALID_PARAMETERS, attr);
+        return;
+    }
+
     std::vector<uint32_t> attrkeys;
     attrkeys.resize(request.keys.size());
     std::transform(request.keys.begin(), request.keys.end(), attrkeys.begin(), [](Attributes::AttributeKey key) {
@@ -193,6 +201,12 @@ void UserAuthClientImpl::GetPropertyById(uint64_t credentialId, const std::vecto
         IAM_LOGE("failed to create wrapper");
         Attributes extraInfo;
         callback->OnResult(GENERAL_ERROR, extraInfo);
+        return;
+    }
+    if (keys.empty() || keys.size() > MAX_ATTR_COUNT) {
+        IAM_LOGE("the attribute key vector is bad param, key size:%{public}zu", keys.size());
+        Attributes attr;
+        callback->OnResult(INVALID_PARAMETERS, attr);
         return;
     }
     std::vector<uint32_t> attrkeys;
@@ -314,8 +328,6 @@ uint64_t UserAuthClientImpl::BeginAuthentication(const AuthParam &authParam,
     auto ret = proxy->AuthUser(ipcAuthParamInner, ipcRemoteAuthParam, wrapper, contextId);
     if (ret != SUCCESS) {
         IAM_LOGE("AuthUser fail, ret:%{public}d", ret);
-        Attributes extraInfo;
-        callback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
     return contextId;
@@ -364,8 +376,6 @@ uint64_t UserAuthClientImpl::BeginNorthAuthentication(int32_t apiVersion, const 
     auto ret = proxy->Auth(apiVersion, authParamInner, wrapper, contextId);
     if (ret != SUCCESS) {
         IAM_LOGE("Auth fail, ret:%{public}d", ret);
-        Attributes extraInfo;
-        callback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
     return contextId;
@@ -413,8 +423,6 @@ uint64_t UserAuthClientImpl::BeginIdentification(const std::vector<uint8_t> &cha
     auto ret = proxy->Identify(challenge, static_cast<int32_t>(authType), wrapper, contextId);
     if (ret != SUCCESS) {
         IAM_LOGE("Identify fail, ret:%{public}d", ret);
-        Attributes extraInfo;
-        callback->OnResult(GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
     return contextId;
@@ -607,8 +615,6 @@ uint64_t UserAuthClientImpl::BeginWidgetAuthInner(int32_t apiVersion, const Auth
     auto ret = proxy->AuthWidget(apiVersion, ipcAuthParamInner, ipcWidgetParamInner, wrapper, wrapperModal, contextId);
     if (ret != SUCCESS) {
         IAM_LOGE("AuthWidget fail, ret:%{public}d", ret);
-        Attributes extraInfo;
-        callback->OnResult(static_cast<int32_t>(ResultCode::GENERAL_ERROR), extraInfo);
         return BAD_CONTEXT_ID;
     }
     return contextId;

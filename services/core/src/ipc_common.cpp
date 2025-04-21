@@ -43,14 +43,12 @@ namespace PermissionString {
     const std::string SUPPORT_USER_AUTH = "ohos.permission.SUPPORT_USER_AUTH";
     const std::string USE_USER_ACCESS_MANAGER = "ohos.permission.USE_USER_ACCESS_MANAGER";
     const std::string USER_AUTH_FROM_BACKGROUND = "ohos.permission.USER_AUTH_FROM_BACKGROUND";
+    const std::string ENTERPRISE_DEVICE_MGR = "ohos.permission.MANAGE_EDM_POLICY";
 }
 
 namespace {
     const std::vector<std::pair<int32_t, std::string>> enforceUserIdmWhiteLists = {
         {3058, "accountmgr"},
-    };
-    const std::vector<std::pair<int32_t, std::string>> EDM_WHITE_LIST = {
-        {3057, "edm"},
     };
 }
 
@@ -214,7 +212,7 @@ bool IpcCommon::CheckPermission(IPCObjectStub &stub, Permission permission)
         case USER_AUTH_FROM_BACKGROUND:
             return CheckDirectCallerAndFirstCallerIfSet(stub, PermissionString::USER_AUTH_FROM_BACKGROUND);
         case ENTERPRISE_DEVICE_MGR:
-            return CheckNativeCallingProcessWhiteList(stub, permission);
+            return CheckDirectCaller(stub, PermissionString::ENTERPRISE_DEVICE_MGR);
         default:
             IAM_LOGE("failed to check permission");
             return false;
@@ -244,8 +242,6 @@ std::vector<std::pair<int32_t, std::string>> IpcCommon::GetWhiteLists(Permission
     switch (permission) {
         case ENFORCE_USER_IDM:
             return enforceUserIdmWhiteLists;
-        case ENTERPRISE_DEVICE_MGR:
-            return EDM_WHITE_LIST;
         default:
             IAM_LOGE("the permission has no white lists");
             return {};

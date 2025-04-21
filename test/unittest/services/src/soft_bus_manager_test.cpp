@@ -229,7 +229,48 @@ HWTEST_F(SoftBusManagerTest, SoftBusManagerTestOnServerBytes_003, TestSize.Level
         SoftBusManager::GetInstance().ClearServerSocket();
         SoftBusManager::GetInstance().OnServerBytes(socketId, data, dataLen);
         SoftBusManager::GetInstance().OnServerBytes(socketId, data, dataLen);
+        SoftBusManager::GetInstance().OnClientBytes(socketId, nullptr, dataLen);
+        SoftBusManager::GetInstance().OnServerBytes(socketId, nullptr, dataLen);
     });
+}
+
+HWTEST_F(SoftBusManagerTest, SoftBusManagerTestOnClientBytes_001, TestSize.Level0)
+{
+    int32_t socketId = -2;
+    const void *data = new char[10];
+    uint32_t dataLen = 3;
+    static const int32_t MAX_ONBYTES_RECEIVED_DATA_LEN = 1024 * 1024 * 10;
+    std::string connectionName = "testConnection1";
+    const std::string networkId = "networkId1";
+    EXPECT_NO_THROW({
+        SoftBusManager::GetInstance().ClearServerSocket();
+        SoftBusManager::GetInstance().OnClientBytes(socketId, data, dataLen);
+        SoftBusManager::GetInstance().OnServerBytes(socketId, data, dataLen);
+    });
+    socketId = 0;
+    SoftBusManager::GetInstance().OnClientBytes(socketId, data, dataLen);
+    SoftBusManager::GetInstance().OnServerBytes(socketId, data, dataLen);
+    socketId = 100;
+    SoftBusManager::GetInstance().OnClientBytes(socketId, data, dataLen);
+    SoftBusManager::GetInstance().OnServerBytes(socketId, data, dataLen);
+    dataLen = 0;
+    SoftBusManager::GetInstance().OnClientBytes(socketId, data, dataLen);
+    SoftBusManager::GetInstance().OnServerBytes(socketId, data, dataLen);
+    dataLen = MAX_ONBYTES_RECEIVED_DATA_LEN + 1;
+    SoftBusManager::GetInstance().OnClientBytes(socketId, data, dataLen);
+    SoftBusManager::GetInstance().OnServerBytes(socketId, data, dataLen);
+    dataLen = 3;
+    SoftBusManager::GetInstance().OnClientBytes(socketId, data, dataLen);
+    SoftBusManager::GetInstance().OnServerBytes(socketId, data, dataLen);
+    while (connectionName.length() <= 257) {
+        connectionName += "testConnection1";
+    }
+    SoftBusManager::GetInstance().ClientSocketInit(connectionName, networkId);
+    SoftBusManager::GetInstance().DoServiceSocketInit();
+    SoftBusManager::GetInstance().RegistDeviceManagerListener();
+    SoftBusManager::GetInstance().RegistDeviceManagerListener();
+    SoftBusManager::GetInstance().DeviceInit();
+    SoftBusManager::GetInstance().DeviceUnInit();
 }
 } // namespace UserAuth
 } // namespace UserIam

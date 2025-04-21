@@ -20,6 +20,8 @@
 #include "iam_logger.h"
 #include "iam_mem.h"
 #include "iam_ptr.h"
+#include "collect_command.h"
+#include "async_command_base.h"
 
 #include "executor.h"
 #include "mock_iexecutor_messenger.h"
@@ -260,6 +262,22 @@ HWTEST_F(EnrollCommandUnitTest, EnrollCommand_MixTest_003, TestSize.Level0)
     command->OnResult(testResultCode);
     command->OnAcquireInfo(testAcquire, testExtraInfo);
     command->OnAcquireInfo(testAcquire, testExtraInfo);
+}
+
+HWTEST_F(EnrollCommandUnitTest, CollectCommand_MixTest_001, TestSize.Level0)
+{
+    uint16_t hdiId = 3;
+    auto executor = Common::MakeShared<Executor>(nullptr, nullptr, hdiId);
+    ASSERT_NE(executor, nullptr);
+
+    uint64_t scheduleId = 0;
+    Attributes attributes;
+    std::shared_ptr<ExecutorMessenger> executorMessenger = {};
+    CollectCommand collectCommand = { executor, scheduleId, attributes, executorMessenger };
+    collectCommand.SendRequest();
+    ResultCode result = ResultCode::SUCCESS;
+    std::vector<uint8_t> extraInfo = {};
+    collectCommand.OnResultInner(result, extraInfo);
 }
 } // namespace UserAuth
 } // namespace UserIam
