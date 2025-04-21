@@ -923,6 +923,8 @@ int32_t UserAuthService::CheckAuthWidgetType(const std::vector<AuthType> &authTy
         IAM_LOGE("invalid authType size:%{public}zu", authType.size());
         return false;
     }
+    const std::set<AuthType> WIDGET_AUTH_TYPE_VALID_SET = {AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT,
+        AuthType::PRIVATE_PIN};
     for (const auto &iter : authType) {
         if (WIDGET_AUTH_TYPE_VALID_SET.find(iter) == WIDGET_AUTH_TYPE_VALID_SET.end()) {
             IAM_LOGE("authType check fail:%{public}d", static_cast<int32_t>(iter));
