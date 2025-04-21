@@ -114,15 +114,15 @@ HWTEST_F(SystemParamManagerTest, WatchParamTest_002, TestSize.Level0)
 HWTEST_F(SystemParamManagerTest, OnParamChangeTest_001, TestSize.Level0)
 {
     std::string oldParamStr = SystemParamManager::GetInstance().GetParam(IS_CREDENTIAL_CHECKED_KEY, FALSE_STR);
-    SystemParamManager::GetInstance().OnParamChange(IS_CREDENTIAL_CHECKED_KEY, TRUE_STR);
-    SystemParamManager::GetInstance().OnParamChange(IS_CREDENTIAL_CHECKED_KEY, oldParamStr);
+    EXPECT_NO_THROW(SystemParamManager::GetInstance().OnParamChange(IS_CREDENTIAL_CHECKED_KEY, TRUE_STR));
+    EXPECT_NO_THROW(SystemParamManager::GetInstance().OnParamChange(IS_CREDENTIAL_CHECKED_KEY, oldParamStr));
 }
 
 HWTEST_F(SystemParamManagerTest, OnParamChangeTest_002, TestSize.Level0)
 {
     const std::string UNKNOWN_PARAM_CHANGE = "useriam.unknownParamChange";
-    SystemParamManager::GetInstance().OnParamChange(UNKNOWN_PARAM_CHANGE, TRUE_STR);
-    SystemParamManager::GetInstance().OnParamChange(UNKNOWN_PARAM_CHANGE, FALSE_STR);
+    EXPECT_NO_THROW(SystemParamManager::GetInstance().OnParamChange(UNKNOWN_PARAM_CHANGE, TRUE_STR));
+    EXPECT_NO_THROW(SystemParamManager::GetInstance().OnParamChange(UNKNOWN_PARAM_CHANGE, FALSE_STR));
 }
 } // namespace UserAuth
 } // namespace UserIam
