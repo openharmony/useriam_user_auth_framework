@@ -123,7 +123,8 @@ int32_t EventListenerCallbackManager::RemoveCredChangeEventListener(const sptr<I
     return SUCCESS;
 }
 
-std::set<std::shared_ptr<AuthSuccessEventListener>> EventListenerCallbackManager::GetAuthEventListenerSet(AuthType authType)
+std::set<std::shared_ptr<AuthSuccessEventListener>> EventListenerCallbackManager::GetAuthEventListenerSet(
+    AuthType authType)
 {
     std::lock_guard<std::recursive_mutex> lock(eventListenerMutex_);
     if (authEventListenerMap_.find(authType) != authEventListenerMap_.end()) {
@@ -132,7 +133,8 @@ std::set<std::shared_ptr<AuthSuccessEventListener>> EventListenerCallbackManager
     return {};
 }
 
-std::set<std::shared_ptr<CredChangeEventListener>> EventListenerCallbackManager::GetCredEventListenerSet(AuthType authType)
+std::set<std::shared_ptr<CredChangeEventListener>> EventListenerCallbackManager::GetCredEventListenerSet(
+    AuthType authType)
 {
     std::lock_guard<std::recursive_mutex> lock(eventListenerMutex_);
     if (credEventListenerMap_.find(authType) != credEventListenerMap_.end()) {
@@ -155,8 +157,8 @@ EventListenerCallbackManager &EventListenerCallbackManager::GetInstance()
     return eventListenerCallbackManager;
 }
 
-int32_t EventListenerCallbackManager::EventListenerCallbackImpl::OnNotifyAuthSuccessEvent(int32_t userId, int32_t authType,
-    int32_t callerType, const std::string &callerName)
+int32_t EventListenerCallbackManager::EventListenerCallbackImpl::OnNotifyAuthSuccessEvent(int32_t userId,
+    int32_t authType, int32_t callerType, const std::string &callerName)
 {
     IAM_LOGI("OnNotifyAuthSuccessEvent, userId:%{public}d, authType:%{public}d, callerName:%{public}s,"
         "callerType:%{public}d", userId, authType, callerName.c_str(), callerType);
@@ -172,8 +174,8 @@ int32_t EventListenerCallbackManager::EventListenerCallbackImpl::OnNotifyAuthSuc
     return SUCCESS;
 }
 
-int32_t EventListenerCallbackManager::EventListenerCallbackImpl::OnNotifyCredChangeEvent(int32_t userId, int32_t authType,
-    int32_t eventType, uint64_t credentialId)
+int32_t EventListenerCallbackManager::EventListenerCallbackImpl::OnNotifyCredChangeEvent(int32_t userId,
+    int32_t authType, int32_t eventType, uint64_t credentialId)
 {
     IAM_LOGI("OnNotifyCredChangeEvent, userId:%{public}d, authType:%{public}d, eventType:%{public}d,"
         "credentialId:%{public}u", userId, authType, eventType, static_cast<uint16_t>(credentialId));
@@ -184,8 +186,8 @@ int32_t EventListenerCallbackManager::EventListenerCallbackImpl::OnNotifyCredCha
             IAM_LOGE("credListener is nullptr");
             continue;
         }
-        listener->OnNotifyCredChangeEvent(userId, static_cast<AuthType>(authType), static_cast<CredChangeEventType>(eventType),
-            credentialId);
+        listener->OnNotifyCredChangeEvent(userId, static_cast<AuthType>(authType),
+            static_cast<CredChangeEventType>(eventType), credentialId);
     }
     return SUCCESS;
 }
@@ -196,7 +198,8 @@ int32_t EventListenerCallbackManager::EventListenerCallbackImpl::CallbackEnter([
     return SUCCESS;
 }
 
-int32_t EventListenerCallbackManager::EventListenerCallbackImpl::CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result)
+int32_t EventListenerCallbackManager::EventListenerCallbackImpl::CallbackExit([[maybe_unused]] uint32_t code,
+    [[maybe_unused]] int32_t result)
 {
     IAM_LOGI("leave, code:%{public}u, result:%{public}d", code, result);
     return SUCCESS;
