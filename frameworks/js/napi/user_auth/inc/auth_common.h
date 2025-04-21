@@ -51,8 +51,6 @@ constexpr const char *NOTICE_EVENT_USER_NAVIGATION = "EVENT_AUTH_USER_NAVIGATION
 constexpr const char *NOTICE_EVENT_WIDGET_PARA_INVALID = "EVENT_AUTH_WIDGET_PARA_INVALID";
 constexpr const char *NOTICE_EVENT_END = "EVENT_AUTH_END";
 constexpr const char *NOTICE_EVENT_RELOAD = "EVENT_AUTH_RELOAD";
-const std::set<AuthType> WIDGET_AUTH_TYPE_VALID_SET = {AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT,
-    AuthType::PRIVATE_PIN};
 
 // For API6
 enum class AuthenticationResult : int32_t {
