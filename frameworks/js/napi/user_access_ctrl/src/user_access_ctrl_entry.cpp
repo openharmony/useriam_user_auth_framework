@@ -25,7 +25,7 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAccessCtrl {
 namespace {
-
+using AuthTokenType = UserAuth::AuthTokenType;
 napi_value VerifyAuthToken(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
