@@ -126,7 +126,147 @@ HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestRemoveMsgCallback, TestSize
     delete baseSocket;
 }
 
-HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestGetMsgCallback, TestSize.Level0)
+HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestGetConnectName, TestSize.Level0)
+{
+    int32_t socketId = 1;
+    BaseSocketTest *baseSocket = new BaseSocketTest(socketId);
+    uint32_t messageSeq = 123;
+    const std::string connectionName = "connectionName";
+    MsgCallback callback;
+    uint32_t timerId = 456;
+    BaseSocket::CallbackInfo callbackInfo = {
+        .connectionName = connectionName,
+        .msgCallback = callback,
+        .timerId = timerId,
+        .sendTime = std::chrono::steady_clock::now()
+    };
+    baseSocket->callbackMap_.insert(std::pair<int32_t, BaseSocket::CallbackInfo>(messageSeq, callbackInfo));
+    EXPECT_NO_THROW(baseSocket->BaseSocket::GetConnectionName(messageSeq));
+    EXPECT_NO_THROW(baseSocket->RemoveMsgCallback(messageSeq));
+    delete baseSocket;
+}
+
+HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestGetMsgCallback_001, TestSize.Level0)
+{
+    int32_t socketId = 1;
+    BaseSocketTest *baseSocket = new BaseSocketTest(socketId);
+    uint32_t messageSeq = 123;
+    const std::string connectionName = "connectionName";
+    MsgCallback callback;
+    uint32_t timerId = 456;
+    BaseSocket::CallbackInfo callbackInfo = {
+        .connectionName = connectionName,
+        .msgCallback = callback,
+        .timerId = timerId,
+        .sendTime = std::chrono::steady_clock::now()
+    };
+    baseSocket->callbackMap_.insert(std::pair<int32_t, BaseSocket::CallbackInfo>(messageSeq, callbackInfo));
+    EXPECT_NO_THROW(baseSocket->GetMsgCallback(messageSeq));
+    EXPECT_NO_THROW(baseSocket->RemoveMsgCallback(messageSeq));
+    delete baseSocket;
+}
+
+HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestPrintTransferDuration_001, TestSize.Level0)
+{
+    int32_t socketId = 1;
+    BaseSocketTest *baseSocket = new BaseSocketTest(socketId);
+    uint32_t messageSeq = 123;
+    const std::string connectionName = "connectionName";
+    MsgCallback callback;
+    uint32_t timerId = 456;
+    BaseSocket::CallbackInfo callbackInfo = {
+        .connectionName = connectionName,
+        .msgCallback = callback,
+        .timerId = timerId,
+        .sendTime = std::chrono::steady_clock::now()
+    };
+    baseSocket->callbackMap_.insert(std::pair<int32_t, BaseSocket::CallbackInfo>(messageSeq, callbackInfo));
+    EXPECT_NO_THROW(baseSocket->PrintTransferDuration(messageSeq));
+    EXPECT_NO_THROW(baseSocket->RemoveMsgCallback(messageSeq));
+    delete baseSocket;
+}
+
+HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestGetReplyTimer_001, TestSize.Level0)
+{
+    int32_t socketId = 1;
+    BaseSocketTest *baseSocket = new BaseSocketTest(socketId);
+    uint32_t messageSeq = 123;
+    const std::string connectionName = "connectionName";
+    MsgCallback callback;
+    uint32_t timerId = 456;
+    BaseSocket::CallbackInfo callbackInfo = {
+        .connectionName = connectionName,
+        .msgCallback = callback,
+        .timerId = timerId,
+        .sendTime = std::chrono::steady_clock::now()
+    };
+    baseSocket->callbackMap_.insert(std::pair<int32_t, BaseSocket::CallbackInfo>(messageSeq, callbackInfo));
+    EXPECT_NO_THROW(baseSocket->GetReplyTimer(messageSeq));
+    EXPECT_NO_THROW(baseSocket->RemoveMsgCallback(messageSeq));
+    delete baseSocket;
+}
+
+HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestStartReplyTimer_001, TestSize.Level0)
+{
+    int32_t socketId = 1;
+    BaseSocketTest *baseSocket = new BaseSocketTest(socketId);
+    uint32_t messageSeq = 123;
+    const std::string connectionName = "connectionName";
+    MsgCallback callback;
+    uint32_t timerId = 456;
+    BaseSocket::CallbackInfo callbackInfo = {
+        .connectionName = connectionName,
+        .msgCallback = callback,
+        .timerId = timerId,
+        .sendTime = std::chrono::steady_clock::now()
+    };
+    baseSocket->callbackMap_.insert(std::pair<int32_t, BaseSocket::CallbackInfo>(messageSeq, callbackInfo));
+    EXPECT_NO_THROW(baseSocket->StartReplyTimer(messageSeq));
+    EXPECT_NO_THROW(baseSocket->RemoveMsgCallback(messageSeq));
+    delete baseSocket;
+}
+
+HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestStopReplyTimer_001, TestSize.Level0)
+{
+    int32_t socketId = 1;
+    BaseSocketTest *baseSocket = new BaseSocketTest(socketId);
+    uint32_t messageSeq = 123;
+    const std::string connectionName = "connectionName";
+    MsgCallback callback;
+    uint32_t timerId = 456;
+    BaseSocket::CallbackInfo callbackInfo = {
+        .connectionName = connectionName,
+        .msgCallback = callback,
+        .timerId = timerId,
+        .sendTime = std::chrono::steady_clock::now()
+    };
+    baseSocket->callbackMap_.insert(std::pair<int32_t, BaseSocket::CallbackInfo>(messageSeq, callbackInfo));
+    EXPECT_NO_THROW(baseSocket->StopReplyTimer(messageSeq));
+    EXPECT_NO_THROW(baseSocket->RemoveMsgCallback(messageSeq));
+    delete baseSocket;
+}
+
+HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestReplyTimerTimeOut_001, TestSize.Level0)
+{
+    int32_t socketId = 1;
+    BaseSocketTest *baseSocket = new BaseSocketTest(socketId);
+    uint32_t messageSeq = 123;
+    const std::string connectionName = "connectionName";
+    MsgCallback callback;
+    uint32_t timerId = 456;
+    BaseSocket::CallbackInfo callbackInfo = {
+        .connectionName = connectionName,
+        .msgCallback = callback,
+        .timerId = timerId,
+        .sendTime = std::chrono::steady_clock::now()
+    };
+    baseSocket->callbackMap_.insert(std::pair<int32_t, BaseSocket::CallbackInfo>(messageSeq, callbackInfo));
+    EXPECT_NO_THROW(baseSocket->ReplyTimerTimeOut(messageSeq));
+    EXPECT_NO_THROW(baseSocket->RemoveMsgCallback(messageSeq));
+    delete baseSocket;
+}
+
+HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestGetMsgCallback_002, TestSize.Level0)
 {
     int32_t socketId = 1;
     BaseSocketTest *baseSocket = new BaseSocketTest(socketId);
@@ -135,7 +275,7 @@ HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestGetMsgCallback, TestSize.Le
     delete baseSocket;
 }
 
-HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestPrintTransferDuration, TestSize.Level0)
+HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestPrintTransferDuration_002, TestSize.Level0)
 {
     int32_t socketId = 1;
     BaseSocketTest *baseSocket = new BaseSocketTest(socketId);
@@ -144,7 +284,7 @@ HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestPrintTransferDuration, Test
     delete baseSocket;
 }
 
-HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestGetReplyTimer, TestSize.Level0)
+HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestGetReplyTimer_002, TestSize.Level0)
 {
     int32_t socketId = 1;
     BaseSocketTest *baseSocket = new BaseSocketTest(socketId);
@@ -153,7 +293,7 @@ HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestGetReplyTimer, TestSize.Lev
     delete baseSocket;
 }
 
-HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestStartReplyTimer, TestSize.Level0)
+HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestStartReplyTimer_002, TestSize.Level0)
 {
     int32_t socketId = 1;
     BaseSocketTest *baseSocket = new BaseSocketTest(socketId);
@@ -162,7 +302,7 @@ HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestStartReplyTimer, TestSize.L
     delete baseSocket;
 }
 
-HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestStopReplyTimer, TestSize.Level0)
+HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestStopReplyTimer_002, TestSize.Level0)
 {
     int32_t socketId = 1;
     BaseSocketTest *baseSocket = new BaseSocketTest(socketId);
@@ -171,7 +311,7 @@ HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestStopReplyTimer, TestSize.Le
     delete baseSocket;
 }
 
-HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestReplyTimerTimeOut, TestSize.Level0)
+HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestReplyTimerTimeOut_002, TestSize.Level0)
 {
     int32_t socketId = 1;
     BaseSocketTest *baseSocket = new BaseSocketTest(socketId);
@@ -277,6 +417,18 @@ HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestProcessMessage_001, TestSiz
     delete baseSocket;
 }
 
+HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestProcessMessage_002, TestSize.Level0)
+{
+    int32_t socketId = 1;
+    BaseSocketTest *baseSocket = new BaseSocketTest(socketId);
+    std::shared_ptr<SoftBusMessage> softBusMessage = Common::MakeShared<SoftBusMessage>(0, "", "", "", nullptr);
+    std::shared_ptr<Attributes> attributes = Common::MakeShared<Attributes>();
+    ASSERT_NE(attributes, nullptr);
+    softBusMessage->messageVersion_ = DEFAULT_MESSAGE_VERSION + 1;
+    EXPECT_NO_THROW(baseSocket->ProcessMessage(softBusMessage, attributes));
+    delete baseSocket;
+}
+
 HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestProcDataReceive_001, TestSize.Level0)
 {
     int32_t socketId = 1;
@@ -366,6 +518,25 @@ HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestProcDataReceive_007, TestSi
         destEndPoint, attributes);
     ResultCode result = baseSocket->ProcDataReceive(socketId, softBusMessage);
     ASSERT_EQ(result, 0);
+    delete baseSocket;
+}
+
+HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestProcDataReceive_008, TestSize.Level0)
+{
+    int32_t socketId = 1;
+    BaseSocketTest *baseSocket = new BaseSocketTest(socketId);
+    const std::string connectionName = "connectionName";
+    const std::string srcEndPoint = "srcEndPoint";
+    const std::string destEndPoint = "destEndPoint";
+    std::shared_ptr<Attributes> attributes = Common::MakeShared<Attributes>();
+    ASSERT_NE(attributes, nullptr);
+    attributes->SetInt32Value(Attributes::ATTR_MSG_TYPE, 1);
+    attributes->SetBoolValue(Attributes::ATTR_MSG_ACK, true);
+    std::shared_ptr<SoftBusMessage> softBusMessage = Common::MakeShared<SoftBusMessage>(0, connectionName, srcEndPoint,
+        destEndPoint, attributes);
+    softBusMessage->isAck_ = true;
+    ResultCode result = baseSocket->ProcDataReceive(socketId, softBusMessage);
+    ASSERT_EQ(result, 2);
     delete baseSocket;
 }
 
