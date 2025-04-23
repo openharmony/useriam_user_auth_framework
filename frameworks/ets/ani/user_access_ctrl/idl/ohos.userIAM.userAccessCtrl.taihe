@@ -15,7 +15,7 @@
 
 @!namespace("@ohos.userIAM.userAccessCtrl", "userAccessCtrl")
 
-from ohos.userIAM.userAuth use AuthTrustLevel, UserAuthType as UserAuthType;
+from ohos.userIAM.userAuth.userAuth use AuthTrustLevel, UserAuthType as UserAuthType;
 
 @!sts_inject("""
 static { loadLibrary("useraccessctrl_ani.z"); }

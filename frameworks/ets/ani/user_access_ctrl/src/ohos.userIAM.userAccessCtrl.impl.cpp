@@ -32,7 +32,7 @@
 #define LOG_TAG "USER_ACCESS_CTRL_ANI"
 
 namespace userAccessCtrl = ohos::userIAM::userAccessCtrl;
-namespace userAuth = ohos::userIAM::userAuth;
+namespace userAuth = ohos::userIAM::userAuth::userAuth;
 namespace UserAuth = OHOS::UserIam::UserAuth;
 using namespace taihe;
 using namespace OHOS::UserIam::Common;

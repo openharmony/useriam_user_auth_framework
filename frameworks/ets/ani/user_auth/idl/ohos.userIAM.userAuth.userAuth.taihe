@@ -1,0 +1,130 @@
+/*
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
+@!namespace("@ohos.userIAM.userAuth", "userAuth")
+ 
+@!sts_inject("""
+static { loadLibrary("userauth_ani"); }
+const MAX_ALLOWABLE_REUSE_DURATION : int = 300000;
+""")
+ 
+enum UserAuthType : i32 {
+    PIN = 1,
+    FACE = 2,
+    FINGERPRINT = 4,
+    PRIVATE_PIN = 16
+}
+ 
+enum AuthTrustLevel : i32 {
+    ATL1 = 10000,
+    ATL2 = 20000,
+    ATL3 = 30000,
+    ATL4 = 40000
+}
+ 
+enum WindowModeType : i32 {
+    DIALOG_BOX = 1,
+    FULLSCREEN = 2
+}
+ 
+enum ReuseMode : i32 {
+    AUTH_TYPE_RELEVANT = 1,
+    AUTH_TYPE_IRRELEVANT = 2,
+    CALLER_IRRELEVANT_AUTH_TYPE_RELEVANT = 3,
+    CALLER_IRRELEVANT_AUTH_TYPE_IRRELEVANT = 4
+}
+ 
+enum NoticeType : i32 {
+    WIDGET_NOTICE = 1
+}
+ 
+enum UserAuthResultCode : i32 {
+    SUCCESS = 12500000,
+    FAIL = 12500001,
+    GENERAL_ERROR = 12500002,
+    CANCELED = 12500003,
+    TIMEOUT = 12500004,
+    TYPE_NOT_SUPPORT = 12500005,
+    TRUST_LEVEL_NOT_SUPPORT = 12500006,
+    BUSY = 12500007,
+    LOCKED = 12500009,
+    NOT_ENROLLED = 12500010,
+    CANCELED_FROM_WIDGET = 12500011,
+    PIN_EXPIRED = 12500013,
+    AUTH_TOKEN_CHECK_FAILED = 12500015,
+    AUTH_TOKEN_EXPIRED = 12500016
+}
+ 
+struct EnrolledState {
+    credentialDigest: f64;
+    credentialCount: f64;
+}
+ 
+struct ReuseUnlockResult {
+    reuseMode: ReuseMode;
+    reuseDuration: f64;
+}
+ 
+struct AuthParam {
+    challenge: @typedarray Array<u8>;
+    authType: Array<UserAuthType>;
+    authTrustLevel: AuthTrustLevel;
+    reuseUnlockResult: Optional<ReuseUnlockResult>;
+    userId: Optional<f64>;
+}
+ 
+struct WidgetParam {
+    title: String;
+    navigationButtonText: Optional<String>;
+    windowMode: Optional<WindowModeType>;
+    uiContext: Optional<@sts_type("Context") Opaque>;
+}
+ 
+struct UserAuthResult {
+    result: f64;
+    token: Optional<@typedarray Array<u8>>;
+    authType: Optional<UserAuthType>;
+    enrolledState: Optional<EnrolledState>;
+}
+ 
+struct IAuthCallback {
+    onResult: (result: UserAuthResult) => void;
+}
+ 
+struct IAuthWidgetCallback {
+    sendCommand: (cmdData: String) => void;
+}
+ 
+interface UserAuthInstance {
+    on(type: String, callback: IAuthCallback): void;
+    off(type: String, callback: Optional<IAuthCallback>): void;
+    start(): void;
+    cancel(): void;
+}
+ 
+interface UserAuthWidgetMgr {
+    on(type: String, callback: IAuthWidgetCallback): void;
+    off(type: String, callback: Optional<IAuthWidgetCallback>): void;
+}
+ 
+function GetAvailableStatus(authType: UserAuthType, authTrustLevel: AuthTrustLevel): void;
+ 
+function GetEnrolledState(authType: UserAuthType): EnrolledState;
+ 
+function GetUserAuthInstance(authParam: AuthParam, widgetParam: WidgetParam): UserAuthInstance;
+ 
+function SendNotice(noticeType: NoticeType, eventData: String): void;
+ 
+function GetUserAuthWidgetMgr(version: f64): UserAuthWidgetMgr;
