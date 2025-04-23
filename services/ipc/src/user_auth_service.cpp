@@ -20,7 +20,7 @@
 
 #include "accesstoken_kit.h"
 #include "auth_common.h"
-#include "auth_event_listener_manager.h"
+#include "event_listener_manager.h"
 #include "auth_widget_helper.h"
 #include "context_factory.h"
 #include "context_helper.h"
@@ -921,13 +921,14 @@ int32_t UserAuthService::CheckAuthWidgetType(const std::vector<AuthType> &authTy
 {
     if (authType.empty() || (authType.size() > MAX_AUTH_TYPE_SIZE)) {
         IAM_LOGE("invalid authType size:%{public}zu", authType.size());
-        return INVALID_PARAMETERS;
+        return false;
     }
-    for (auto &type : authType) {
-        if ((type != AuthType::PIN) && (type != AuthType::FACE) && (type != AuthType::FINGERPRINT) &&
-            (type != AuthType::PRIVATE_PIN)) {
-            IAM_LOGE("unsupport auth type %{public}d", type);
-            return TYPE_NOT_SUPPORT;
+    const std::set<AuthType> WIDGET_AUTH_TYPE_VALID_SET = {AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT,
+        AuthType::PRIVATE_PIN};
+    for (const auto &iter : authType) {
+        if (WIDGET_AUTH_TYPE_VALID_SET.find(iter) == WIDGET_AUTH_TYPE_VALID_SET.end()) {
+            IAM_LOGE("authType check fail:%{public}d", static_cast<int32_t>(iter));
+            return false;
         }
     }
     std::set<AuthType> typeChecker(authType.begin(), authType.end());
@@ -1436,43 +1437,18 @@ int32_t UserAuthService::GetEnrolledState(int32_t apiVersion, int32_t authType,
     return SUCCESS;
 }
 
-bool UserAuthService::CheckAuthTypeIsValid(std::vector<AuthType> authType)
-{
-    if (authType.empty()) {
-        return false;
-    }
-    for (const auto &iter : authType) {
-        if (iter != AuthType::PIN && iter != AuthType::FACE && iter != AuthType::FINGERPRINT &&
-            iter != AuthType::PRIVATE_PIN) {
-            return false;
-        }
-    }
-    return true;
-}
-
-int32_t UserAuthService::RegistUserAuthSuccessEventListener(const std::vector<int32_t> &authType,
-    const sptr<AuthEventListenerInterface> &listener)
+int32_t UserAuthService::RegistUserAuthSuccessEventListener(const sptr<IEventListenerCallback> &listener)
 {
     IAM_LOGI("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     IF_FALSE_LOGE_AND_RETURN_VAL(listener != nullptr, INVALID_PARAMETERS);
-    std::vector<AuthType> authTypes;
-    authTypes.resize(authType.size());
-    std::transform(authType.begin(), authType.end(), authTypes.begin(), [](int32_t key) {
-        return static_cast<AuthType>(key);
-    });
-
-    if (!CheckAuthTypeIsValid(authTypes)) {
-        IAM_LOGE("failed to check authType");
-        return INVALID_PARAMETERS;
-    }
 
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
     }
 
-    int32_t result = AuthEventListenerManager::GetInstance().RegistUserAuthSuccessEventListener(authTypes, listener);
+    int32_t result = AuthEventListenerManager::GetInstance().RegistEventListener(listener);
     if (result != SUCCESS) {
         IAM_LOGE("failed to regist auth event listener");
         return result;
@@ -1481,8 +1457,7 @@ int32_t UserAuthService::RegistUserAuthSuccessEventListener(const std::vector<in
     return SUCCESS;
 }
 
-int32_t UserAuthService::UnRegistUserAuthSuccessEventListener(
-    const sptr<AuthEventListenerInterface> &listener)
+int32_t UserAuthService::UnRegistUserAuthSuccessEventListener(const sptr<IEventListenerCallback> &listener)
 {
     IAM_LOGI("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
@@ -1493,7 +1468,7 @@ int32_t UserAuthService::UnRegistUserAuthSuccessEventListener(
         return CHECK_PERMISSION_FAILED;
     }
 
-    int32_t result = AuthEventListenerManager::GetInstance().UnRegistUserAuthSuccessEventListener(listener);
+    int32_t result = AuthEventListenerManager::GetInstance().UnRegistEventListener(listener);
     if (result != SUCCESS) {
         IAM_LOGE("failed to unregist auth event listener");
         return result;

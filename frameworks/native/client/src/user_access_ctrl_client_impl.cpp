@@ -18,6 +18,7 @@
 #include "system_ability_definition.h"
 
 #include "callback_manager.h"
+#include "iam_common_defines.h"
 #include "iam_logger.h"
 #include "ipc_client_utils.h"
 #include "user_access_ctrl_callback_service.h"

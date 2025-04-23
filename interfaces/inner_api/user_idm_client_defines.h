@@ -77,6 +77,24 @@ struct CredentialParameters {
     /** Auth token. */
     std::vector<uint8_t> token {};
 };
+
+/**
+ * @brief Cred change event type.
+ */
+enum CredChangeEventType : int32_t {
+    /** Cred change type is invalid. */
+    INVALID_EVENT_TYPE = -1,
+    /** Cred change type is add credential. */
+    ADD_CRED = 1,
+    /** Cred change type is update credential. */
+    UPDATE_CRED = 2,
+    /** Cred change type is delete credential. */
+    DEL_CRED = 3,
+    /** Cred change type is delete user. */
+    DEL_USER = 4,
+    /** Cred change type is enforce delete user. */
+    ENFORCE_DEL_USER = 5,
+};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

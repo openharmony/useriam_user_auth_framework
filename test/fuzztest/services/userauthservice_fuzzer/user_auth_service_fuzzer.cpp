@@ -25,7 +25,6 @@
 #include "iam_logger.h"
 #include "user_auth_service.h"
 #include "user_auth_common_defines.h"
-#include "user_auth_event_listener_stub.h"
 #include "dummy_iam_callback_interface.h"
 
 #undef private
@@ -120,7 +119,7 @@ public:
     }
 };
 
-class DummyAuthEventListener : public AuthEventListenerInterface {
+class DummyAuthEventListener : public IEventListenerCallback {
 public:
     ~DummyAuthEventListener() override = default;
 
@@ -130,11 +129,17 @@ public:
         return tmp;
     }
 
-    void OnNotifyAuthSuccessEvent(int32_t userId, AuthType authType, int32_t callerType,
-        std::string &callerName) override
+    int32_t OnNotifyAuthSuccessEvent(int32_t userId, int32_t authType, int32_t callerType,
+        const std::string &callerName) override
     {
-        IAM_LOGI("notify: userId: %{public}d, authType: %{public}d, callerName: %{public}s,"
-            "callerType: %{public}d", userId, static_cast<int32_t>(authType), callerName.c_str(), callerType);
+        IAM_LOGI("start");
+        return SUCCESS;
+    }
+    int32_t OnNotifyCredChangeEvent(int32_t userId, int32_t authType, int32_t eventType,
+        uint64_t credentialId) override
+    {
+        IAM_LOGI("start");
+        return SUCCESS;
     }
 };
 
@@ -349,15 +354,12 @@ void FuzzRegisterWidgetCallback(Parcel &parcel)
 void FuzzRegistUserAuthSuccessEventListener(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    std::vector<int32_t> authType;
-    parcel.ReadInt32Vector(&authType);
-
-    sptr<AuthEventListenerInterface> callback(nullptr);
+    sptr<IEventListenerCallback> callback(nullptr);
     if (parcel.ReadBool()) {
-        callback = sptr<AuthEventListenerInterface>(new (std::nothrow) DummyAuthEventListener());
+        callback = sptr<IEventListenerCallback>(new (std::nothrow) DummyAuthEventListener());
     }
 
-    g_userAuthService.RegistUserAuthSuccessEventListener(authType, callback);
+    g_userAuthService.RegistUserAuthSuccessEventListener(callback);
     g_userAuthService.UnRegistUserAuthSuccessEventListener(callback);
     IAM_LOGI("end");
 }

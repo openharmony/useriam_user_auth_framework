@@ -42,6 +42,7 @@ ohos_fuzztest("UserIdmClientFuzzTest") {
     "../../../../frameworks/native/client/src/auth_message_impl.cpp",
     "../../../../frameworks/native/client/src/callback_manager_impl.cpp",
     "../../../../frameworks/native/client/src/co_auth_client_impl.cpp",
+    "../../../../frameworks/native/client/src/event_listener_callback_service.cpp",
     "../../../../frameworks/native/client/src/executor_callback_service.cpp",
     "../../../../frameworks/native/client/src/executor_messenger_client.cpp",
     "../../../../frameworks/native/client/src/ipc_client_utils.cpp",

@@ -22,7 +22,6 @@
 #include "get_executor_property_callback_stub.h"
 #include "set_executor_property_callback_stub.h"
 #include "iam_callback_stub.h"
-#include "user_auth_event_listener_stub.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -47,12 +46,6 @@ public:
     MOCK_METHOD1(OnSetExecutorPropertyResult, int32_t(int32_t resultCode));
     MOCK_METHOD1(CallbackEnter, int32_t(uint32_t code));
     MOCK_METHOD2(CallbackExit, int32_t(uint32_t code, int32_t result));
-};
-
-class MockAuthEventListenerService final : public AuthEventListenerStub {
-public:
-    MOCK_METHOD4(OnNotifyAuthSuccessEvent, void(int32_t userId, AuthType authtype, int32_t callerType,
-        std::string &callerName));
 };
 } // namespace UserAuth
 } // namespace UserIam

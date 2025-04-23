@@ -62,9 +62,8 @@ public:
     int32_t Notice(int32_t noticeType, const std::string &eventData) override;
     int32_t RegisterWidgetCallback(int32_t version, const sptr<IWidgetCallback> &widgetCallback) override;
     int32_t GetEnrolledState(int32_t apiVersion, int32_t authType, IpcEnrolledState &ipcEnrolledState) override;
-    int32_t RegistUserAuthSuccessEventListener(const std::vector<int32_t> &authType,
-        const sptr<AuthEventListenerInterface> &listener) override;
-    int32_t UnRegistUserAuthSuccessEventListener(const sptr<AuthEventListenerInterface> &listener) override;
+    int32_t RegistUserAuthSuccessEventListener(const sptr<IEventListenerCallback> &listener) override;
+    int32_t UnRegistUserAuthSuccessEventListener(const sptr<IEventListenerCallback> &listener) override;
     int32_t SetGlobalConfigParam(const IpcGlobalConfigParam &ipcGlobalConfigParam) override;
     int32_t PrepareRemoteAuth(const std::string &networkId,
         const sptr<IIamCallback> &userAuthCallback) override;
@@ -106,7 +105,6 @@ private:
         AuthTrustLevel authTrustLevel);
     bool CheckAuthPermissionAndParam(AuthType authType, AuthTrustLevel authTrustLevel,
         const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo);
-    bool CheckAuthTypeIsValid(std::vector<AuthType> authType);
     int32_t CheckWindowMode(const WidgetParamInner &widgetParam);
     int32_t CheckValidSolution(int32_t userId, const AuthParamInner &authParam, const WidgetParamInner &widgetParam,
         std::vector<AuthType> &validType);

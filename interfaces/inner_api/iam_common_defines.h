@@ -45,6 +45,8 @@ constexpr uint32_t MAX_TOKEN_ALLOWABLE_DURATION = 24 * 60 * 60 * 1000;
  */
 constexpr uint32_t MAX_AUTH_TYPE_SIZE = 5;
 enum AuthType : int32_t {
+    /** Default authType. */
+    INVALID_AUTH_TYPE = -1,
     /** All authentication types. */
     ALL = 0,
     /** Pin authentication. */
@@ -63,6 +65,8 @@ enum AuthType : int32_t {
  * @brief Defines pin auth's subtype.
  */
 enum PinSubType : int32_t {
+    /** Default pin sub type. */
+    DEFAULT_PIN_SUB_TYPE = 0,
     /** Digit password with fixed length of six. */
     PIN_SIX = 10000,
     /** Digit password with unfixed length. */

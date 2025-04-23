@@ -15,6 +15,7 @@
 
 #include "user_access_ctrl_client_test.h"
 
+#include "iam_common_defines.h"
 #include "iam_ptr.h"
 #include "user_access_ctrl_client.h"
 #include "user_access_ctrl_client_impl.h"

@@ -56,6 +56,8 @@ public:
     int32_t DelCredential(int32_t userId, uint64_t credentialId, const std::vector<uint8_t> &authToken,
         const sptr<IIamCallback> &IdmCallback) override;
     int32_t ClearRedundancyCredential(const sptr<IIamCallback> &IdmCallback) override;
+    int32_t RegistCredChangeEventListener(const sptr<IEventListenerCallback> &listener) override;
+    int32_t UnRegistCredChangeEventListener(const sptr<IEventListenerCallback> &listener) override;
     int32_t GetCredentialInfoSync(int32_t userId, int32_t authType,
         std::vector<IpcCredentialInfo> &ipcCredentialInfoList)override;
     int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;

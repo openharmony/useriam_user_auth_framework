@@ -18,7 +18,9 @@
 #include "system_ability_definition.h"
 
 #include "callback_manager.h"
+#include "event_listener_callback_service.h"
 #include "load_mode_client_util.h"
+#include "iam_check.h"
 #include "iam_logger.h"
 #include "ipc_client_utils.h"
 #include "user_idm_callback_service.h"
@@ -355,6 +357,27 @@ void UserIdmClientImpl::ClearRedundancyCredential(const std::shared_ptr<UserIdmC
     }
 }
 
+int32_t UserIdmClientImpl::RegistCredChangeEventListener(const std::vector<AuthType> &authTypes,
+    const std::shared_ptr<CredChangeEventListener> &listener)
+{
+    IAM_LOGI("start");
+
+    auto proxy = GetProxy();
+    IF_FALSE_LOGE_AND_RETURN_VAL(proxy != nullptr, GENERAL_ERROR);
+
+    return EventListenerCallbackManager::GetInstance().AddCredChangeEventListener(proxy, authTypes, listener);
+}
+
+int32_t UserIdmClientImpl::UnRegistCredChangeEventListener(const std::shared_ptr<CredChangeEventListener> &listener)
+{
+    IAM_LOGI("start");
+
+    auto proxy = GetProxy();
+    IF_FALSE_LOGE_AND_RETURN_VAL(proxy != nullptr, GENERAL_ERROR);
+
+    return EventListenerCallbackManager::GetInstance().RemoveCredChangeEventListener(proxy, listener);
+}
+
 int32_t UserIdmClientImpl::GetCredentialInfoSync(int32_t userId, AuthType authType,
     std::vector<CredentialInfo> &credentialInfoList)
 {
@@ -375,7 +398,7 @@ int32_t UserIdmClientImpl::GetCredentialInfoSync(int32_t userId, AuthType authTy
     for (auto &iter : ipcCredInfoList) {
         CredentialInfo credentialInfo;
         credentialInfo.authType = static_cast<AuthType>(iter.authType);
-        credentialInfo.pinType= static_cast<PinSubType>(iter.pinType);
+        credentialInfo.pinType = static_cast<PinSubType>(iter.pinType);
         credentialInfo.credentialId = iter.credentialId;
         credentialInfo.templateId = iter.credentialId;
         credentialInfoList.push_back(credentialInfo);
@@ -393,6 +416,7 @@ void UserIdmClientImpl::UserIdmImplDeathRecipient::OnRemoteDied(const wptr<IRemo
         return;
     }
     CallbackManager::GetInstance().OnServiceDeath();
+    EventListenerCallbackManager::GetInstance().OnServiceDeath();
     UserIdmClientImpl::Instance().ResetProxy(remote);
 }
 

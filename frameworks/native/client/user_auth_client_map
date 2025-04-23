@@ -28,7 +28,6 @@
         OHOS::UserIam::UserAuth::UserIdmClient::GetInstance*;
         OHOS::UserIam::UserAuth::Attributes*;
         OHOS::UserIam::UserAuth::UserAuthClientImpl::GetEnrolledState*;
-        OHOS::UserIam::UserAuth::AuthEventListenerStub::OnRemoteRequest*;
         OHOS::UserIam::UserAuth::UserAccessCtrlClient::GetInstance*;
         OHOS::UserIam::UserAuth::UserAuthNapiClientImpl::Instance*;
         OHOS::UserIam::UserAuth::UserAuthNapiClientImpl::BeginWidgetAuth*;

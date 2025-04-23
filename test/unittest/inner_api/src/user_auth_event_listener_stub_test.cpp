@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "user_auth_event_listener_stub.h"
+#include "user_auth_event_listener_callback_stub.h"
 
 #include <cinttypes>
 

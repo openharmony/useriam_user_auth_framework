@@ -513,6 +513,7 @@ void UserAuthClientImpl::UserAuthImplDeathRecipient::OnRemoteDied(const wptr<IRe
         return;
     }
     CallbackManager::GetInstance().OnServiceDeath();
+    EventListenerCallbackManager::GetInstance().OnServiceDeath();
     UserAuthClientImpl::Instance().ResetProxy(remote);
 }
 
@@ -673,55 +674,26 @@ int32_t UserAuthClientImpl::GetEnrolledState(int32_t apiVersion, AuthType authTy
     return SUCCESS;
 }
 
-int32_t UserAuthClientImpl::RegistUserAuthSuccessEventListener(const std::vector<AuthType> &authType,
-    const sptr<AuthEventListenerInterface> &listener)
+int32_t UserAuthClientImpl::RegistUserAuthSuccessEventListener(const std::vector<AuthType> &authTypes,
+    const std::shared_ptr<AuthSuccessEventListener> &listener)
 {
     IAM_LOGI("start");
-    if (!listener) {
-        IAM_LOGE("listener is nullptr");
-        return GENERAL_ERROR;
-    }
 
     auto proxy = GetProxy();
-    if (!proxy) {
-        IAM_LOGE("proxy is nullptr");
-        return GENERAL_ERROR;
-    }
-    std::vector<int32_t> authTypes;
-    authTypes.resize(authType.size());
-    std::transform(authType.begin(), authType.end(), authTypes.begin(), [](AuthType authType) {
-        return static_cast<int32_t>(authType);
-    });
-    int32_t ret = proxy->RegistUserAuthSuccessEventListener(authTypes, listener);
-    if (ret != SUCCESS) {
-        IAM_LOGE("Regist userAuth success event listener failed");
-        return ret;
-    }
+    IF_FALSE_LOGE_AND_RETURN_VAL(proxy != nullptr, GENERAL_ERROR);
 
-    return SUCCESS;
+    return EventListenerCallbackManager::GetInstance().AddUserAuthSuccessEventListener(proxy, authTypes, listener);
 }
 
-int32_t UserAuthClientImpl::UnRegistUserAuthSuccessEventListener(const sptr<AuthEventListenerInterface> &listener)
+int32_t UserAuthClientImpl::UnRegistUserAuthSuccessEventListener(
+    const std::shared_ptr<AuthSuccessEventListener> &listener)
 {
     IAM_LOGI("start");
-    if (!listener) {
-        IAM_LOGE("listener is nullptr");
-        return GENERAL_ERROR;
-    }
 
     auto proxy = GetProxy();
-    if (!proxy) {
-        IAM_LOGE("proxy is nullptr");
-        return GENERAL_ERROR;
-    }
+    IF_FALSE_LOGE_AND_RETURN_VAL(proxy != nullptr, GENERAL_ERROR);
 
-    int32_t ret = proxy->UnRegistUserAuthSuccessEventListener(listener);
-    if (ret != SUCCESS) {
-        IAM_LOGE("unRegist userAuth success event listener failed");
-        return ret;
-    }
-
-    return SUCCESS;
+    return EventListenerCallbackManager::GetInstance().RemoveUserAuthSuccessEventListener(proxy, listener);
 }
 
 int32_t UserAuthClientImpl::PrepareRemoteAuth(const std::string &networkId,

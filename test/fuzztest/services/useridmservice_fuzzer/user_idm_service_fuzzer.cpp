@@ -93,6 +93,30 @@ public:
     }
 };
 
+class DummyCredChangeEventListener : public IEventListenerCallback {
+public:
+    ~DummyCredChangeEventListener() override = default;
+
+    sptr<IRemoteObject> AsObject() override
+    {
+        sptr<IRemoteObject> tmp(nullptr);
+        return tmp;
+    }
+
+    int32_t OnNotifyAuthSuccessEvent(int32_t userId, int32_t authType, int32_t callerType,
+        const std::string &callerName) override
+    {
+        IAM_LOGI("start");
+        return SUCCESS;
+    }
+    int32_t OnNotifyCredChangeEvent(int32_t userId, int32_t authType, int32_t eventType,
+        uint64_t credentialId) override
+    {
+        IAM_LOGI("start");
+        return SUCCESS;
+    }
+};
+
 int32_t GetFuzzOptionalUserId(Parcel &parcel)
 {
     if (parcel.ReadBool()) {
@@ -302,6 +326,19 @@ void FuzzStartEnroll(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzRegistCredChangeEventListener(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    sptr<IEventListenerCallback> callback(nullptr);
+    if (parcel.ReadBool()) {
+        callback = sptr<IEventListenerCallback>(new (std::nothrow) DummyCredChangeEventListener());
+    }
+
+    g_UserIdmService.RegistCredChangeEventListener(callback);
+    g_UserIdmService.UnRegistCredChangeEventListener(callback);
+    IAM_LOGI("end");
+}
+
 void FuzzGetCredentialInfoSync(Parcel &parcel)
 {
     IAM_LOGI("begin");
@@ -311,7 +348,6 @@ void FuzzGetCredentialInfoSync(Parcel &parcel)
     g_UserIdmService.GetCredentialInfoSync(userId, authType, credentialInfoList);
     IAM_LOGI("end");
 }
-
 
 using FuzzFunc = decltype(FuzzOpenSession);
 FuzzFunc *g_fuzzFuncs[] = {
@@ -331,6 +367,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzEnforceDelUserInner,
     FuzzCancelCurrentEnroll,
     FuzzStartEnroll,
+    FuzzRegistCredChangeEventListener,
     FuzzGetCredentialInfoSync,
 };
 
