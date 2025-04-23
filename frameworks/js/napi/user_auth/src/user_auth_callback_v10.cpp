@@ -102,10 +102,7 @@ napi_status UserAuthCallbackV10::DoResultCallback(int32_t result,
         }
     }
 
-    if (authType == AuthType::PIN ||
-        authType == AuthType::FACE ||
-        authType == AuthType::FINGERPRINT ||
-        authType == AuthType::PRIVATE_PIN) {
+    if (UserAuthNapiHelper::CheckUserAuthType(authType)) {
         ret = UserAuthNapiHelper::SetInt32Property(env_, eventInfo, "authType", authType);
         if (ret != napi_ok) {
             IAM_LOGE("napi_create_int32 failed %{public}d", ret);

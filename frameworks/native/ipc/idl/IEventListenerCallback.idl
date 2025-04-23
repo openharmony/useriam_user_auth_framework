@@ -12,10 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+option_stub_hooks on;
 
-#ifndef AUTH_EVENT_LISTENER_INTERFACE_H
-#define AUTH_EVENT_LISTENER_INTERFACE_H
+interface OHOS.UserIam.UserAuth.IEventListenerCallback {
+    [oneway] void OnNotifyAuthSuccessEvent([in] int userId, [in] int authType, [in] int callerType,
+        [in] String callerName);
 
-#include "user_auth_client_callback.h"
-
-#endif // AUTH_EVENT_LISTENER_INTERFACE_H
+    [oneway] void OnNotifyCredChangeEvent([in] int userId, [in] int authType, [in] int eventType,
+        [in] unsigned long credentialId);
+}

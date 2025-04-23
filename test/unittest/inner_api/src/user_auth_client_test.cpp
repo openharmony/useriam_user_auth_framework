@@ -741,15 +741,15 @@ HWTEST_F(UserAuthClientTest, UserAuthClientRegistUserAuthSuccessEventListener001
     authTypeList.push_back(AuthType::FACE);
     authTypeList.push_back(AuthType::FINGERPRINT);
 
-    sptr<AuthEventListenerInterface> testCallback = new MockAuthEventListenerService();
+    auto testCallback = Common::MakeShared<MockAuthSuccessEventListener>();
     EXPECT_NE(testCallback, nullptr);
 
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, RegistUserAuthSuccessEventListener(_, _)).Times(1);
+    EXPECT_CALL(*service, RegistUserAuthSuccessEventListener(_)).Times(1);
     ON_CALL(*service, RegistUserAuthSuccessEventListener)
         .WillByDefault(
-            [](const std::vector<int32_t> &authType, const sptr<AuthEventListenerInterface> &callback) {
+            [](const sptr<IEventListenerCallback> &callback) {
                 return SUCCESS;
             }
         );
@@ -780,7 +780,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientRegistUserAuthSuccessEventListener003
     authTypeList.push_back(AuthType::FACE);
     authTypeList.push_back(AuthType::FINGERPRINT);
 
-    sptr<AuthEventListenerInterface> testCallback = new MockAuthEventListenerService();
+    auto testCallback = Common::MakeShared<MockAuthSuccessEventListener>();
     EXPECT_NE(testCallback, nullptr);
 
     int32_t ret = UserAuthClientImpl::Instance().RegistUserAuthSuccessEventListener(authTypeList, testCallback);
@@ -789,7 +789,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientRegistUserAuthSuccessEventListener003
 
 HWTEST_F(UserAuthClientTest, UserAuthClientUnRegistUserAuthSuccessEventListener001, TestSize.Level0)
 {
-    sptr<AuthEventListenerInterface> testCallback = new MockAuthEventListenerService();
+    auto testCallback = Common::MakeShared<MockAuthSuccessEventListener>();
     EXPECT_NE(testCallback, nullptr);
 
     auto service = Common::MakeShared<MockUserAuthService>();
@@ -797,7 +797,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientUnRegistUserAuthSuccessEventListener0
     EXPECT_CALL(*service, UnRegistUserAuthSuccessEventListener(_)).Times(1);
     ON_CALL(*service, UnRegistUserAuthSuccessEventListener)
         .WillByDefault(
-            [](const sptr<AuthEventListenerInterface> &callback) {
+            [](const sptr<IEventListenerCallback> &callback) {
                 return SUCCESS;
             }
         );
@@ -818,7 +818,7 @@ HWTEST_F(UserAuthClientTest, UserAuthClientUnRegistUserAuthSuccessEventListener0
 
 HWTEST_F(UserAuthClientTest, UserAuthClientUnRegistUserAuthSuccessEventListener003, TestSize.Level0)
 {
-    sptr<AuthEventListenerInterface> testCallback = new MockAuthEventListenerService();
+    auto testCallback = Common::MakeShared<MockAuthSuccessEventListener>();
     EXPECT_NE(testCallback, nullptr);
 
     int32_t ret = UserAuthClientImpl::Instance().UnRegistUserAuthSuccessEventListener(testCallback);

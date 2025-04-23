@@ -15,6 +15,7 @@
 #include "enrollment_impl.h"
 
 #include "credential_info_impl.h"
+#include "event_listener_manager.h"
 #include "hdi_wrapper.h"
 #include "iam_hitrace_helper.h"
 #include "iam_logger.h"
@@ -216,14 +217,18 @@ bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t
 
 void EnrollmentImpl::PublishPinEvent(uint64_t credentialId)
 {
-    if (enrollPara_.authType != PIN) {
-        return;
-    }
-    IAM_LOGI("begin to publish pin event");
-    if (isUpdate_) {
+    if (!isUpdate_ && enrollPara_.authType != PIN) {
+        CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(enrollPara_.userId,
+            enrollPara_.authType, ADD_CRED, credentialId);
+    } else if (!isUpdate_ && enrollPara_.authType == PIN) {
+        PublishEventAdapter::GetInstance().PublishCreatedEvent(enrollPara_.userId, scheduleId_);
+        CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(enrollPara_.userId,
+            enrollPara_.authType, ADD_CRED, credentialId);
+    } else if (isUpdate_ && enrollPara_.authType == PIN) {
         PublishEventAdapter::GetInstance().CachePinUpdateParam(enrollPara_.userId, scheduleId_, credentialId);
     } else {
-        PublishEventAdapter::GetInstance().PublishCreatedEvent(enrollPara_.userId, scheduleId_);
+        CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(enrollPara_.userId,
+            enrollPara_.authType, UPDATE_CRED, credentialId);
     }
 }
 

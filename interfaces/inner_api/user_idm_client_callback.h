@@ -72,6 +72,20 @@ public:
      */
     virtual void OnResult(int32_t result, const Attributes &extraInfo) = 0;
 };
+
+class CredChangeEventListener {
+public:
+    /**
+     * @brief Notify the event of cred change.
+     *
+     * @param userId The id of user who change cred.
+     * @param authType The authentication auth type{@link AuthType}.
+     * @param eventType eventType of cred change, such as addCred and updateCred.
+     * @param credentialId The credentialId generated during credChange process.
+     */
+    virtual void OnNotifyCredChangeEvent(int32_t userId, AuthType authType, CredChangeEventType eventType,
+        uint64_t credentialId) = 0;
+};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

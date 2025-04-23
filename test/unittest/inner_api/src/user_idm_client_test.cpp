@@ -529,6 +529,97 @@ HWTEST_F(UserIdmClientTest, UserIdmClientImplClearRedundancyCredential, TestSize
     EXPECT_NO_THROW(UserIdmClient::GetInstance().ClearRedundancyCredential(testCallback));
 }
 
+HWTEST_F(UserIdmClientTest, UserIdmClientRegistCredChangeEventListener001, TestSize.Level0)
+{
+    std::vector<AuthType> authTypeList;
+    authTypeList.push_back(AuthType::PIN);
+    authTypeList.push_back(AuthType::FACE);
+    authTypeList.push_back(AuthType::FINGERPRINT);
+
+    auto testCallback = Common::MakeShared<MockCredChangeEventListener>();
+    EXPECT_NE(testCallback, nullptr);
+
+    auto service = Common::MakeShared<MockUserIdmService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, RegistCredChangeEventListener(_)).Times(1);
+    ON_CALL(*service, RegistCredChangeEventListener)
+        .WillByDefault(
+            [](const sptr<IEventListenerCallback> &callback) {
+                return SUCCESS;
+            }
+        );
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
+    CallRemoteObject(service, obj, dr);
+    int32_t ret = UserIdmClient::GetInstance().RegistCredChangeEventListener(authTypeList, testCallback);
+    EXPECT_EQ(ret, SUCCESS);
+    dr->OnRemoteDied(obj);
+    IpcClientUtils::ResetObj();
+}
+
+HWTEST_F(UserIdmClientTest, UserIdmClientRegistCredChangeEventListener002, TestSize.Level0)
+{
+    std::vector<AuthType> authTypeList;
+    authTypeList.push_back(AuthType::PIN);
+    authTypeList.push_back(AuthType::FACE);
+    authTypeList.push_back(AuthType::FINGERPRINT);
+
+    int32_t ret = UserIdmClient::GetInstance().RegistCredChangeEventListener(authTypeList, nullptr);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+}
+
+HWTEST_F(UserIdmClientTest, UserIdmClientRegistCredChangeEventListener003, TestSize.Level0)
+{
+    std::vector<AuthType> authTypeList;
+    authTypeList.push_back(AuthType::PIN);
+    authTypeList.push_back(AuthType::FACE);
+    authTypeList.push_back(AuthType::FINGERPRINT);
+
+    auto testCallback = Common::MakeShared<MockCredChangeEventListener>();
+    EXPECT_NE(testCallback, nullptr);
+
+    int32_t ret = UserIdmClient::GetInstance().RegistCredChangeEventListener(authTypeList, testCallback);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+}
+
+HWTEST_F(UserIdmClientTest, UserIdmClientUnRegistCredChangeEventListener001, TestSize.Level0)
+{
+    auto testCallback = Common::MakeShared<MockCredChangeEventListener>();
+    EXPECT_NE(testCallback, nullptr);
+
+    auto service = Common::MakeShared<MockUserIdmService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, UnRegistCredChangeEventListener(_)).Times(1);
+    ON_CALL(*service, UnRegistCredChangeEventListener)
+        .WillByDefault(
+            [](const sptr<IEventListenerCallback> &callback) {
+                return SUCCESS;
+            }
+        );
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
+    CallRemoteObject(service, obj, dr);
+    int32_t ret = UserIdmClient::GetInstance().UnRegistCredChangeEventListener(testCallback);
+    EXPECT_EQ(ret, SUCCESS);
+    dr->OnRemoteDied(obj);
+    IpcClientUtils::ResetObj();
+}
+
+HWTEST_F(UserIdmClientTest, UserIdmClientUnRegistCredChangeEventListener002, TestSize.Level0)
+{
+    int32_t ret = UserIdmClient::GetInstance().UnRegistCredChangeEventListener(nullptr);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+}
+
+HWTEST_F(UserIdmClientTest, UserIdmClientUnRegistCredChangeEventListener003, TestSize.Level0)
+{
+    auto testCallback = Common::MakeShared<MockCredChangeEventListener>();
+    EXPECT_NE(testCallback, nullptr);
+
+    int32_t ret = UserIdmClient::GetInstance().UnRegistCredChangeEventListener(testCallback);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+}
+
 void UserIdmClientTest::CallRemoteObject(const std::shared_ptr<MockUserIdmService> service,
     const sptr<MockRemoteObject> &obj, sptr<IRemoteObject::DeathRecipient> &dr)
 {

@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-interface OHOS.UserIam.UserAuth.AuthEventListenerInterface;
-
 import UserAuthTypes;
 import IGetExecutorPropertyCallback;
 import ISetExecutorPropertyCallback;
@@ -22,6 +20,8 @@ import IIamCallback;
 import IWidgetCallback;
 import IVerifyTokenCallback;
 import IModalCallback;
+import IEventListenerCallback;
+
 option_stub_hooks on;
 
 interface OHOS.UserIam.UserAuth.IUserAuth {
@@ -62,9 +62,9 @@ interface OHOS.UserIam.UserAuth.IUserAuth {
 
     void GetEnrolledState([in] int apiVersion, [in] int authType, [out] IpcEnrolledState ipcEnrolledState);
 
-    void RegistUserAuthSuccessEventListener([in] int[] authType, [in] AuthEventListenerInterface listener);
+    void RegistUserAuthSuccessEventListener([in] IEventListenerCallback listener);
 
-    void UnRegistUserAuthSuccessEventListener([in] AuthEventListenerInterface listener);
+    void UnRegistUserAuthSuccessEventListener([in] IEventListenerCallback listener);
 
     void SetGlobalConfigParam([in] IpcGlobalConfigParam ipcGlobalConfigParam);
 

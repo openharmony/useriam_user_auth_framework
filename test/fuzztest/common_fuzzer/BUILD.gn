@@ -119,12 +119,12 @@ ohos_source_set("userauth_service_core_fuzzer") {
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   sources = [
-    "../../../services/core/src/auth_event_listener_manager.cpp",
     "../../../services/core/src/authentication_impl.cpp",
     "../../../services/core/src/credential_info_impl.cpp",
     "../../../services/core/src/driver_state_manager.cpp",
     "../../../services/core/src/enrolled_info_impl.cpp",
     "../../../services/core/src/enrollment_impl.cpp",
+    "../../../services/core/src/event_listener_manager.cpp",
     "../../../services/core/src/identification_impl.cpp",
     "../../../services/core/src/publish_event_adapter_mock.cpp",
     "../../../services/core/src/remote_executor_proxy.cpp",

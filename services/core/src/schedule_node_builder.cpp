@@ -171,7 +171,7 @@ bool ScheduleNodeBuilder::CheckExecutors(const std::shared_ptr<ResourceNode> &co
     }
 
     if (collector->GetAuthType() != verifier->GetAuthType()) {
-        IAM_LOGE("collector_ && verifier authtype mismatch");
+        IAM_LOGE("collector_ && verifier authType mismatch");
         return false;
     }
 

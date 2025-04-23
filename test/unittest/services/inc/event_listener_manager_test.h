@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,18 +12,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef EVENT_LISTENER_MANAGER_TEST
+#define EVENT_LISTENER_MANAGER_TEST
 
-#ifndef USER_AUTH_INTERFACE_IPC_INTERFACE_CODE_H
-#define USER_AUTH_INTERFACE_IPC_INTERFACE_CODE_H
+#include <gtest/gtest.h>
 
-/* SAID: 921 */
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-enum UserAuthInterfaceCode : uint32_t {
-    USER_AUTH_EVENT_LISTENER_NOTIFY,
+class EventListenerManagerTest : public testing::Test {
+public:
+    static void SetUpTestCase();
+
+    static void TearDownTestCase();
+
+    void SetUp() override;
+
+    void TearDown() override;
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // USER_AUTH_INTERFACE_IPC_INTERFACE_CODE_H
+
+#endif // EVENT_LISTENER_MANAGER_TEST
