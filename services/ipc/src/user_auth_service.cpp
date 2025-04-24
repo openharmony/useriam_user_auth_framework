@@ -1216,7 +1216,7 @@ void UserAuthService::ProcessPinExpired(int32_t ret, const AuthParamInner &authP
 
 int32_t UserAuthService::StartAuthWidget(AuthParamInner &authParam, WidgetParamInner &widgetParam,
     ContextFactory::AuthWidgetContextPara &para, std::shared_ptr<ContextCallback> &contextCallback,
-    uint64_t &contextId)
+    const sptr<IModalCallback> &modalCallback, uint64_t &contextId)
 {
     IAM_LOGI("start");
     Attributes extraInfo;
@@ -1230,6 +1230,9 @@ int32_t UserAuthService::StartAuthWidget(AuthParamInner &authParam, WidgetParamI
     }
     ProcessPinExpired(checkRet, authParam, validType, para);
     ProcessWidgetSessionExclusive();
+    if (modalCallback != nullptr && widgetParam.hasContext) {
+        WidgetClient::Instance().SetModalCallback(modalCallback);
+    }
 
     contextId = StartWidgetContext(contextCallback, authParam, widgetParam, validType, para);
     if (contextId == BAD_CONTEXT_ID) {
@@ -1278,11 +1281,7 @@ int32_t UserAuthService::AuthWidget(int32_t apiVersion, const IpcAuthParamInner 
         return SUCCESS;
     }
 
-    if (modalCallback != nullptr && widgetParam.hasContext) {
-        WidgetClient::Instance().SetModalCallback(modalCallback);
-    }
-
-    return StartAuthWidget(authParam, widgetParam, para, contextCallback, contextId);
+    return StartAuthWidget(authParam, widgetParam, para, contextCallback, modalCallback, contextId);
 }
 
 void UserAuthService::ProcessWidgetSessionExclusive()

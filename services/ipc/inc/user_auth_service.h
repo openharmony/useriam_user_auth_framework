@@ -134,7 +134,7 @@ private:
         uint64_t &contextId);
     int32_t StartAuthWidget(AuthParamInner &authParam, WidgetParamInner &widgetParam,
         ContextFactory::AuthWidgetContextPara &para, std::shared_ptr<ContextCallback> &contextCallback,
-        uint64_t &contextId);
+        const sptr<IModalCallback> &modalCallback, uint64_t &contextId);
     void InitAuthParam(const IpcAuthParamInner &ipcAuthParam, AuthParamInner &authParam);
     void InitRemoteAuthParam(const IpcRemoteAuthParam &ipcRemoteAuthParam,
         std::optional<RemoteAuthParam> &remoteAuthParam);
