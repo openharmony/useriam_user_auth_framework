@@ -141,7 +141,7 @@ std::string ResourceNodeImpl::GetExecutorDeviceUdid() const
 int32_t ResourceNodeImpl::BeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
     const Attributes &command)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     if (callback_ != nullptr) {
         return callback_->OnBeginExecute(scheduleId, publicKey, command.Serialize());
     }
@@ -150,7 +150,7 @@ int32_t ResourceNodeImpl::BeginExecute(uint64_t scheduleId, const std::vector<ui
 
 int32_t ResourceNodeImpl::EndExecute(uint64_t scheduleId, const Attributes &command)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     if (callback_ != nullptr) {
         return callback_->OnEndExecute(scheduleId, command.Serialize());
     }
@@ -159,7 +159,7 @@ int32_t ResourceNodeImpl::EndExecute(uint64_t scheduleId, const Attributes &comm
 
 int32_t ResourceNodeImpl::SetProperty(const Attributes &properties)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     if (callback_ != nullptr) {
         return callback_->OnSetProperty(properties.Serialize());
     }
@@ -168,7 +168,7 @@ int32_t ResourceNodeImpl::SetProperty(const Attributes &properties)
 
 int32_t ResourceNodeImpl::GetProperty(const Attributes &condition, Attributes &values)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     if (callback_ != nullptr) {
         std::vector<uint8_t> attribute;
         auto ret = callback_->OnGetProperty(condition.Serialize(), attribute);
@@ -182,7 +182,7 @@ int32_t ResourceNodeImpl::GetProperty(const Attributes &condition, Attributes &v
 
 int32_t ResourceNodeImpl::SendData(uint64_t scheduleId, const Attributes &data)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     
     if (callback_ != nullptr) {
         return callback_->OnSendData(scheduleId, data.Serialize());

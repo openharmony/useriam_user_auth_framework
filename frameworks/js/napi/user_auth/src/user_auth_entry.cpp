@@ -448,7 +448,7 @@ static bool VerifyNoticeParam(const std::string &eventData)
         IAM_LOGE("Invalid payload exist in notice data");
         return false;
     }
-    IAM_LOGI("valid notice parameter");
+    IAM_LOGD("valid notice parameter");
     return true;
 }
 
@@ -486,7 +486,6 @@ napi_value SendNotice(napi_env env, napi_callback_info info)
         napi_throw(env, UserAuthNapiHelper::GenerateErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr));
         return nullptr;
     }
-    IAM_LOGI("recv SendNotice noticeType:%{public}d", noticeType_value);
 
     if (noticeType_value != WIDGET_NOTICE) {
         std::string msgStr = "Parameter error. The value of \"noticeType\" must be NoticeType.WIDGET_NOTICE.";
@@ -495,7 +494,7 @@ napi_value SendNotice(napi_env env, napi_callback_info info)
     }
 
     std::string eventData = UserAuthNapiHelper::GetStringFromValueUtf8(env, argv[PARAM1]);
-    IAM_LOGI("recv SendNotice eventData:%{public}s", eventData.c_str());
+    IAM_LOGI("recv SendNotice type:%{public}d, eventData:%{public}s", noticeType_value, eventData.c_str());
     if (!VerifyNoticeParam(eventData)) {
         IAM_LOGE("Invalid notice parameter");
         std::string msgStr = "Parameter error. The value of \"eventData\" for WIDGET_NOTICE must be json string.";
@@ -509,7 +508,7 @@ napi_value SendNotice(napi_env env, napi_callback_info info)
         IAM_LOGE("SendNotice fail. result: %{public}d, errCode: %{public}d", result, errCode);
         return ResultOfSendNotice(env, errCode);
     }
-    IAM_LOGI("end SendNotice");
+    IAM_LOGD("end SendNotice");
     return nullptr;
 }
 
@@ -611,7 +610,7 @@ napi_value GetUserAuthWidgetMgrV10(napi_env env, napi_callback_info info)
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, code));
         return nullptr;
     }
-    IAM_LOGI("end");
+    IAM_LOGD("end");
     return userAuthWidgetMgrV10;
 }
 

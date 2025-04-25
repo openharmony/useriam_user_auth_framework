@@ -101,7 +101,7 @@ IdmGetCredInfoCallbackService::~IdmGetCredInfoCallbackService()
 int32_t IdmGetCredInfoCallbackService::OnCredentialInfos(int32_t resultCode,
     const std::vector<IpcCredentialInfo> &ipcCredInfoList)
 {
-    IAM_LOGI("start, cred info vector size:%{public}zu", ipcCredInfoList.size());
+    IAM_LOGD("start, cred info vector size:%{public}zu", ipcCredInfoList.size());
     if (getCredInfoCallback_ == nullptr) {
         IAM_LOGE("getCredInfoCallback is nullptr");
         return GENERAL_ERROR;

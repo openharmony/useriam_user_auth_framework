@@ -162,7 +162,7 @@ void Trace::ProcessUserAuthEvent(const ContextCallbackNotifyListener::MetaData &
     UserAuthTrace info = {};
     CopyMetaDataToTraceInfo(metaData, info);
     ReportUserAuth(info);
-    IAM_LOGI("start to process user auth event");
+    IAM_LOGD("start to process user auth event");
 }
 
 void Trace::ProcessUserAuthFwkEvent(const ContextCallbackNotifyListener::MetaData &metaData, TraceFlag flag)
@@ -208,7 +208,7 @@ void Trace::ProcessUserAuthFwkEvent(const ContextCallbackNotifyListener::MetaDat
         metaData.startTime).count());
     securityInfo.authtimeSpan = timeSpan;
     ReportSecurityUserAuthFwk(securityInfo);
-    IAM_LOGI("start to process user auth fwk event");
+    IAM_LOGD("start to process user auth fwk event");
 }
 } // namespace UserAuth
 } // namespace UserIam

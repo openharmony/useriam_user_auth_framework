@@ -27,7 +27,7 @@ namespace UserIam {
 namespace UserAuth {
 void ContextDeathRecipientManager::AddDeathRecipient(std::shared_ptr<ContextCallback> &callback, uint64_t contextId)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
 
     const sptr<IIamCallback> iamCallback = callback->GetIamCallback();
@@ -48,13 +48,13 @@ void ContextDeathRecipientManager::AddDeathRecipient(std::shared_ptr<ContextCall
     }
 
     deathRecipient_ = dr;
-    IAM_LOGI("AddDeathRecipient success, contextId:****%{public}hx", static_cast<uint16_t>(contextId));
+    IAM_LOGD("AddDeathRecipient success, contextId:****%{public}hx", static_cast<uint16_t>(contextId));
     return;
 }
 
 void ContextDeathRecipientManager::RemoveDeathRecipient(std::shared_ptr<ContextCallback> &callback)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
 
     if (deathRecipient_ == nullptr) {
@@ -76,14 +76,14 @@ void ContextDeathRecipientManager::RemoveDeathRecipient(std::shared_ptr<ContextC
 
     obj->RemoveDeathRecipient(deathRecipient_);
     deathRecipient_ = nullptr;
-    IAM_LOGI("RemoveDeathRecipient success");
+    IAM_LOGD("RemoveDeathRecipient success");
     return;
 }
 
 ContextDeathRecipient::ContextDeathRecipient(uint64_t contextId)
     : contextId_(contextId)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
 }
 
 void ContextDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)

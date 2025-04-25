@@ -35,7 +35,7 @@ IdentifyCommand::IdentifyCommand(std::weak_ptr<Executor> executor, uint64_t sche
 
 ResultCode IdentifyCommand::SendRequest()
 {
-    IAM_LOGI("%{public}s send request start", GetDescription());
+    IAM_LOGD("%{public}s send request start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN_VAL(attributes_ != nullptr, ResultCode::GENERAL_ERROR);
 
     auto hdi = GetExecutorHdi();
@@ -57,7 +57,7 @@ ResultCode IdentifyCommand::SendRequest()
 
 void IdentifyCommand::OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo)
 {
-    IAM_LOGI("%{public}s on result start", GetDescription());
+    IAM_LOGD("%{public}s on result start", GetDescription());
 
     std::vector<uint8_t> nonConstExtraInfo(extraInfo.begin(), extraInfo.end());
     auto authAttributes = Common::MakeShared<Attributes>();

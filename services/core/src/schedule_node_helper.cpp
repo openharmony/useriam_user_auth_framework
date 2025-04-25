@@ -67,7 +67,7 @@ bool ScheduleNodeHelper::ScheduleInfoToScheduleNode(const HdiScheduleInfo &info,
         return false;
     }
 
-    IAM_LOGI("collectorMessage size: %{public}zu, verifierMessage size  %{public}zu",
+    IAM_LOGD("collectorMessage size: %{public}zu, verifierMessage size %{public}zu",
         collectorMessage.size(), verifierMessage.size());
 
     auto builder = ScheduleNode::Builder::New(collector, verifier);
