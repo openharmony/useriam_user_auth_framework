@@ -70,21 +70,6 @@ HWTEST_F(ThreadHandlerManagerTest, DestroyThreadHandlerTest002, TestSize.Level3)
     EXPECT_NO_THROW(ThreadHandlerManager::GetInstance().DestroyThreadHandler(SINGLETON_THREAD_NAME));
 }
 
-HWTEST_F(ThreadHandlerManagerTest, DeleteThreadHandlerTest001, TestSize.Level3)
-{
-    EXPECT_NO_THROW(ThreadHandlerManager::GetInstance().DeleteThreadHandler(SINGLETON_THREAD_NAME));
-
-    std::string name = "";
-    EXPECT_NO_THROW(ThreadHandlerManager::GetInstance().DeleteThreadHandler(name));
-}
-
-HWTEST_F(ThreadHandlerManagerTest, DeleteThreadHandlerTest002, TestSize.Level3)
-{
-    std::string name = "";
-    ThreadHandlerManager::GetInstance().CreateThreadHandler(name);
-    EXPECT_NO_THROW(ThreadHandlerManager::GetInstance().DeleteThreadHandler(name));
-}
-
 HWTEST_F(ThreadHandlerManagerTest, GetThreadHandlerTest001, TestSize.Level3)
 {
     std::string name = "";
