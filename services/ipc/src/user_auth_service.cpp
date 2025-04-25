@@ -294,7 +294,7 @@ int32_t UserAuthService::GetPropertyInner(AuthType authType, const std::vector<A
     if (resourceNode == nullptr) {
         IAM_LOGE("resourceNode is nullptr");
         getExecutorPropertyCallback->OnGetExecutorPropertyResult(GENERAL_ERROR, values.Serialize());
-        return GENERAL_ERROR;
+        return SUCCESS;
     }
 
     std::vector<uint32_t> uint32Keys;
@@ -311,7 +311,7 @@ int32_t UserAuthService::GetPropertyInner(AuthType authType, const std::vector<A
     FillGetPropertyValue(authType, keys, values);
 
     getExecutorPropertyCallback->OnGetExecutorPropertyResult(result, values.Serialize());
-    return result;
+    return SUCCESS;
 }
 
 int32_t UserAuthService::GetProperty(int32_t userId, int32_t authType,
@@ -325,7 +325,7 @@ int32_t UserAuthService::GetProperty(int32_t userId, int32_t authType,
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         getExecutorPropertyCallback->OnGetExecutorPropertyResult(CHECK_PERMISSION_FAILED, values.Serialize());
-        return CHECK_PERMISSION_FAILED;
+        return SUCCESS;
     }
 
     std::vector<Attributes::AttributeKey> attrKeys;
@@ -340,7 +340,7 @@ int32_t UserAuthService::GetProperty(int32_t userId, int32_t authType,
             IAM_LOGE("get templates fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret,
                 userId, authType);
             getExecutorPropertyCallback->OnGetExecutorPropertyResult(GENERAL_ERROR, values.Serialize());
-            return ret;
+            return SUCCESS;
         }
         if (templateIds.size() == 0) {
             IAM_LOGE("template id list is required, but templateIds size is 0");
@@ -363,7 +363,7 @@ int32_t UserAuthService::GetPropertyById(uint64_t credentialId, const std::vecto
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         getExecutorPropertyCallback->OnGetExecutorPropertyResult(CHECK_PERMISSION_FAILED, values.Serialize());
-        return CHECK_PERMISSION_FAILED;
+        return SUCCESS;
     }
 
     std::shared_ptr<CredentialInfoInterface> credInfo;
@@ -372,7 +372,7 @@ int32_t UserAuthService::GetPropertyById(uint64_t credentialId, const std::vecto
     if (ret != SUCCESS) {
         IAM_LOGE("get credentialInfp fail, ret:%{public}d", ret);
         getExecutorPropertyCallback->OnGetExecutorPropertyResult(ret, values.Serialize());
-        return ret;
+        return SUCCESS;
     }
     if (credInfo == nullptr) {
         IAM_LOGE("credential is nullptr");
