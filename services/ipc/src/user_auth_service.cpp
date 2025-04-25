@@ -188,7 +188,7 @@ bool UserAuthService::CheckAuthTrustLevel(AuthTrustLevel authTrustLevel)
 int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, int32_t userId, int32_t authType,
     uint32_t authTrustLevel)
 {
-    IAM_LOGI("start with userId");
+    IAM_LOGD("start with userId");
 
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("failed to check permission");
@@ -200,7 +200,7 @@ int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, int32_t userId, 
 
 int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, int32_t authType, uint32_t authTrustLevel)
 {
-    IAM_LOGI("start without userId");
+    IAM_LOGD("start without userId");
 
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
         !IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
@@ -317,7 +317,7 @@ int32_t UserAuthService::GetPropertyInner(AuthType authType, const std::vector<A
 int32_t UserAuthService::GetProperty(int32_t userId, int32_t authType,
     const std::vector<uint32_t> &keys, const sptr<IGetExecutorPropertyCallback> &getExecutorPropertyCallback)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     IF_FALSE_LOGE_AND_RETURN_VAL(getExecutorPropertyCallback != nullptr, INVALID_PARAMETERS);
     Attributes values;
@@ -355,7 +355,7 @@ int32_t UserAuthService::GetProperty(int32_t userId, int32_t authType,
 int32_t UserAuthService::GetPropertyById(uint64_t credentialId, const std::vector<uint32_t> &keys,
     const sptr<IGetExecutorPropertyCallback> &getExecutorPropertyCallback)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     IF_FALSE_LOGE_AND_RETURN_VAL(getExecutorPropertyCallback != nullptr, INVALID_PARAMETERS);
     Attributes values;
@@ -393,7 +393,7 @@ int32_t UserAuthService::GetPropertyById(uint64_t credentialId, const std::vecto
 int32_t UserAuthService::SetProperty(int32_t userId, int32_t authType, const std::vector<uint8_t> &attributes,
     const sptr<ISetExecutorPropertyCallback> &setExecutorPropertyCallback)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     if (setExecutorPropertyCallback == nullptr) {
         IAM_LOGE("callback is nullptr");
@@ -871,7 +871,7 @@ int32_t UserAuthService::Identify(const std::vector<uint8_t> &challenge, int32_t
 
 int32_t UserAuthService::CancelAuthOrIdentify(uint64_t contextId, int32_t cancelReason)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     bool checkRet = !IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
         !IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION);

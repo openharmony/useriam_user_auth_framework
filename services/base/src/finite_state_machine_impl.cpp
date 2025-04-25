@@ -48,7 +48,7 @@ void FiniteStateMachineImpl::Schedule(uint32_t event)
         return;
     }
     pendingEvents_.Push(event);
-    IAM_LOGI("fsm %{public}s new schedule event input:%{public}u", name_.c_str(), event);
+    IAM_LOGD("fsm %{public}s new schedule event input:%{public}u", name_.c_str(), event);
     threadHandler_->PostTask([self = weak_from_this(), this]() {
         if (auto machine = self.lock(); machine != nullptr) {
             Inner inner(machine);
@@ -64,7 +64,7 @@ void FiniteStateMachineImpl::ScheduleInner(FiniteStateMachine &machine)
         uint32_t event = 0;
         bool result = pendingEvents_.Pop(event);
         if (!result) {
-            IAM_LOGI("fsm %{public}s pop event fail", name_.c_str());
+            IAM_LOGD("fsm %{public}s pop event fail", name_.c_str());
             break;
         }
 

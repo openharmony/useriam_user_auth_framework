@@ -81,7 +81,7 @@ napi_status UserAuthCallbackV10::DoResultCallback(int32_t result,
     if (resultCallback == nullptr) {
         return napi_ok;
     }
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     napi_value eventInfo;
     napi_status ret = napi_create_object(env_, &eventInfo);
     if (ret != napi_ok) {
@@ -126,7 +126,7 @@ void UserAuthCallbackV10::OnAcquireInfo(int32_t module, uint32_t acquireInfo,
 
 void UserAuthCallbackV10::OnResult(int32_t result, const Attributes &extraInfo)
 {
-    IAM_LOGI("start, result:%{public}d", result);
+    IAM_LOGD("start, result:%{public}d", result);
     uv_loop_s *loop;
     napi_status napiStatus = napi_get_uv_event_loop(env_, &loop);
     if (napiStatus != napi_ok || loop == nullptr) {
@@ -155,7 +155,7 @@ void UserAuthCallbackV10::OnResult(int32_t result, const Attributes &extraInfo)
     }
     IAM_LOGI("result token size: %{public}zu.", resultHolder->token.size());
     auto task = [resultHolder] () {
-        IAM_LOGI("start");
+        IAM_LOGD("start");
         if (resultHolder == nullptr || resultHolder->callback == nullptr) {
             IAM_LOGE("resultHolder is invalid");
             return;

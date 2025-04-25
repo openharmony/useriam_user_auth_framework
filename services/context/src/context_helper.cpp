@@ -30,7 +30,7 @@ ContextHelper::Cleaner::Cleaner(const std::shared_ptr<Context> &context)
 
 void ContextHelper::Cleaner::operator()()
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     if (contextId_ == 0) {
         IAM_LOGD("invalid context Id");
     }

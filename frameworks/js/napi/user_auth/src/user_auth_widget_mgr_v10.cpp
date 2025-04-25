@@ -72,7 +72,7 @@ UserAuthResultCode UserAuthWidgetMgr::Init(napi_env env, napi_callback_info info
     }
     version_ = version;
     int32_t result = UserAuthClientImpl::Instance().SetWidgetCallback(version_, callback_);
-    IAM_LOGI("version SetWidgetCallback result: %{public}d", result);
+    IAM_LOGD("version SetWidgetCallback result: %{public}d", result);
     return static_cast<UserAuthResultCode>(UserAuthNapiHelper::GetResultCodeV10(result));
 }
 

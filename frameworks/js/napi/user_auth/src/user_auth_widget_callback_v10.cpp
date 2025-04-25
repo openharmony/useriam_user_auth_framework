@@ -76,7 +76,7 @@ napi_status UserAuthWidgetCallback::DoCommandCallback(const std::string &cmdData
     if (commandCallback == nullptr) {
         return napi_ok;
     }
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     napi_value eventInfo = nullptr;
     napi_status ret = napi_create_string_utf8(env_, cmdData.c_str(), cmdData.size(), &eventInfo);
     if (ret != napi_ok) {
@@ -88,7 +88,7 @@ napi_status UserAuthWidgetCallback::DoCommandCallback(const std::string &cmdData
 
 void UserAuthWidgetCallback::SendCommand(const std::string &cmdData)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     uv_loop_s *loop;
     napi_status napiStatus = napi_get_uv_event_loop(env_, &loop);
     if (napiStatus != napi_ok || loop == nullptr) {

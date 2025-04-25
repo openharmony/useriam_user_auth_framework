@@ -367,7 +367,7 @@ void ScheduleNodeImpl::ProcessBeginVerifier(FiniteStateMachine &machine, uint32_
         machine.Schedule(E_VERIFY_STARTED_FAILED);
         return;
     }
-    IAM_LOGI("start verify success");
+    IAM_LOGD("start verify success");
     machine.Schedule(E_VERIFY_STARTED_SUCCESS);
 }
 
@@ -382,7 +382,7 @@ void ScheduleNodeImpl::ProcessBeginCollector(FiniteStateMachine &machine, uint32
         return;
     }
     if (collector == verifier) {
-        IAM_LOGI("all in one schedule, just wait the result");
+        IAM_LOGD("all in one schedule, just wait the result");
         machine.Schedule(E_COLLECT_STARTED_SUCCESS);
         return;
     }
@@ -397,7 +397,7 @@ void ScheduleNodeImpl::ProcessBeginCollector(FiniteStateMachine &machine, uint32
         machine.Schedule(E_COLLECT_STARTED_FAILED);
         return;
     }
-    IAM_LOGI("start collect success");
+    IAM_LOGD("start collect success");
     machine.Schedule(E_COLLECT_STARTED_SUCCESS);
     NotifyCollectorReady();
 }
@@ -500,7 +500,7 @@ void ScheduleNodeImpl::OnScheduleFinished(FiniteStateMachine &machine, uint32_t 
     iamHitraceHelper_ = nullptr;
 
     int32_t result = fwkResultCode_.value_or(executorResultCode_);
-    IAM_LOGI("schedule result = %{public}d", result);
+    IAM_LOGD("schedule result = %{public}d", result);
     callback->OnScheduleStoped(result, scheduleResult_);
     ClearScheduleCallback();
 }
