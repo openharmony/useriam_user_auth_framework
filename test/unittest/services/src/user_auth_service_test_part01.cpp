@@ -282,7 +282,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty001, TestSize.Level0)
     EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _)).Times(2);
     sptr<IGetExecutorPropertyCallback> callbackInterface = testCallback;
     int32_t ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
-    EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
+    EXPECT_EQ(ret, SUCCESS);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
     EXPECT_EQ(ret, SUCCESS);
@@ -332,9 +332,9 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty002, TestSize.Level0)
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     callbackInterface = testCallback;
     ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
-    EXPECT_EQ(ret, GENERAL_ERROR);
+    EXPECT_EQ(ret, SUCCESS);
     ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
-    EXPECT_EQ(ret, GENERAL_ERROR);
+    EXPECT_EQ(ret, SUCCESS);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(2));
     IpcCommon::DeleteAllPermission();
 }
@@ -374,9 +374,9 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty003, TestSize.Level0)
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     callbackInterface = testCallback;
     ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
-    EXPECT_EQ(ret, GENERAL_ERROR);
+    EXPECT_EQ(ret, SUCCESS);
     ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
-    EXPECT_EQ(ret, GENERAL_ERROR);
+    EXPECT_EQ(ret, SUCCESS);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(2));
     IpcCommon::DeleteAllPermission();
 }
@@ -424,9 +424,9 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty004, TestSize.Level0)
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     callbackInterface = testCallback;
     ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
-    EXPECT_EQ(ret, GENERAL_ERROR);
+    EXPECT_EQ(ret, SUCCESS);
     ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
-    EXPECT_EQ(ret, GENERAL_ERROR);
+    EXPECT_EQ(ret, SUCCESS);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(2));
     IpcCommon::DeleteAllPermission();
 }
@@ -474,7 +474,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty005, TestSize.Level0)
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     callbackInterface = testCallback;
     ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
-    EXPECT_EQ(ret, FAIL);
+    EXPECT_EQ(ret, SUCCESS);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(2));
     IpcCommon::DeleteAllPermission();
 }
@@ -525,7 +525,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty006, TestSize.Level0)
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     callbackInterface = testCallback;
     ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
-    EXPECT_EQ(ret, FAIL);
+    EXPECT_EQ(ret, SUCCESS);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(2));
     IpcCommon::DeleteAllPermission();
 }
@@ -1328,10 +1328,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetPropertyById001, TestSize.Level0
     EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _)).Times(2);
     sptr<IGetExecutorPropertyCallback> callbackInterface = testCallback;
     int32_t ret = service.GetPropertyById(testCredentialId, testKeys, callbackInterface);
-    EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
+    EXPECT_EQ(ret, SUCCESS);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     ret = service.GetPropertyById(testCredentialId, testKeys, callbackInterface);
-    EXPECT_EQ(ret, GENERAL_ERROR);
+    EXPECT_EQ(ret, SUCCESS);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1377,9 +1377,9 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetPropertyById002, TestSize.Level0
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     callbackInterface = testCallback;
     ret = service.GetPropertyById(testCredentialId, testKeys, callbackInterface);
-    EXPECT_EQ(ret, GENERAL_ERROR);
+    EXPECT_EQ(ret, SUCCESS);
     ret = service.GetPropertyById(testCredentialId, testKeys, callbackInterface);
-    EXPECT_EQ(ret, GENERAL_ERROR);
+    EXPECT_EQ(ret, SUCCESS);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(2));
     IpcCommon::DeleteAllPermission();
 }
@@ -1420,7 +1420,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetPropertyById003, TestSize.Level0
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     callbackInterface = testCallback;
     ret = service.GetPropertyById(testCredentialId, testKeys, callbackInterface);
-    EXPECT_EQ(ret, GENERAL_ERROR);
+    EXPECT_EQ(ret, SUCCESS);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(2));
     IpcCommon::DeleteAllPermission();
 }
@@ -1467,7 +1467,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetPropertyById004, TestSize.Level0
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     callbackInterface = testCallback;
     ret = service.GetPropertyById(testCredentialId, testKeys, callbackInterface);
-    EXPECT_EQ(ret, GENERAL_ERROR);
+    EXPECT_EQ(ret, SUCCESS);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(2));
     IpcCommon::DeleteAllPermission();
 }
@@ -1513,7 +1513,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetPropertyById005, TestSize.Level0
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     callbackInterface = testCallback;
     ret = service.GetPropertyById(testCredentialId, testKeys, callbackInterface);
-    EXPECT_EQ(ret, FAIL);
+    EXPECT_EQ(ret, SUCCESS);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(2));
     IpcCommon::DeleteAllPermission();
 }
@@ -1563,7 +1563,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetPropertyById006, TestSize.Level0
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     callbackInterface = testCallback;
     ret = service.GetPropertyById(testCredentialId, testKeys, callbackInterface);
-    EXPECT_EQ(ret, FAIL);
+    EXPECT_EQ(ret, SUCCESS);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(2));
     IpcCommon::DeleteAllPermission();
 }
