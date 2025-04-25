@@ -26,12 +26,12 @@ IamHitraceHelper::IamHitraceHelper(std::string value)
     : taskId_(GetHiTraceTaskId()),
       value_(std::move(value))
 {
-    StartAsyncTrace(HITRACE_TAG_USERIAM, value_, taskId_);
+    StartAsyncTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USERIAM, value_.c_str(), taskId_, "");
 }
 
 IamHitraceHelper::~IamHitraceHelper()
 {
-    FinishAsyncTrace(HITRACE_TAG_USERIAM, value_, taskId_);
+    FinishAsyncTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USERIAM, value_.c_str(), taskId_);
 }
 
 int32_t IamHitraceHelper::GetHiTraceTaskId()
