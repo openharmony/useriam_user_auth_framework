@@ -56,8 +56,8 @@ int32_t EventListenerCallbackManager::RemoveUserAuthSuccessEventListener(const s
     std::lock_guard<std::recursive_mutex> lock(eventListenerMutex_);
     auto mapIter = authEventListenerMap_.begin();
     while (mapIter != authEventListenerMap_.end()) {
-        int32_t eraseCount = mapIter->second.erase(listener);
-        IAM_LOGI("RemoveEventListener eraseCount:%{public}d, authType:%{public}d, listenerSize:%{public}zu",
+        size_t eraseCount = mapIter->second.erase(listener);
+        IAM_LOGI("RemoveEventListener eraseCount:%{public}zu, authType:%{public}d, listenerSize:%{public}zu",
             eraseCount, mapIter->first, mapIter->second.size());
         if (mapIter->second.size() == 0) {
             mapIter = authEventListenerMap_.erase(mapIter);
@@ -105,8 +105,8 @@ int32_t EventListenerCallbackManager::RemoveCredChangeEventListener(const sptr<I
     std::lock_guard<std::recursive_mutex> lock(eventListenerMutex_);
     auto mapIter = credEventListenerMap_.begin();
     while (mapIter != credEventListenerMap_.end()) {
-        int32_t eraseCount = mapIter->second.erase(listener);
-        IAM_LOGI("RemoveEventListener eraseCount:%{public}d, authType:%{public}d, listenerSize:%{public}zu",
+        size_t eraseCount = mapIter->second.erase(listener);
+        IAM_LOGI("RemoveEventListener eraseCount:%{public}zu, authType:%{public}d, listenerSize:%{public}zu",
             eraseCount, mapIter->first, mapIter->second.size());
         if (mapIter->second.size() == 0) {
             mapIter = credEventListenerMap_.erase(mapIter);
