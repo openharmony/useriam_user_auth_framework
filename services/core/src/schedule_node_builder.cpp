@@ -142,7 +142,7 @@ std::shared_ptr<ScheduleNode> ScheduleNodeBuilder::Build()
         IAM_LOGE("checkParameters error");
         return nullptr;
     }
-    IAM_LOGI("scheduleNode builder start to build");
+    IAM_LOGD("scheduleNode builder start to build");
     info_.collector = collector_;
     info_.verifier = verifier_;
     return Common::MakeShared<ScheduleNodeImpl>(info_);

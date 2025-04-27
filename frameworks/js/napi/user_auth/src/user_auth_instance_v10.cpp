@@ -90,7 +90,7 @@ napi_value UserAuthInstanceV10::GetEnrolledState(napi_env env, napi_callback_inf
 
 napi_value UserAuthInstanceV10::DoGetEnrolledStateResult(napi_env env, EnrolledState enrolledState)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     napi_value eventInfo;
     napi_status ret = napi_create_object(env, &eventInfo);
     if (ret != napi_ok) {
@@ -114,7 +114,7 @@ napi_value UserAuthInstanceV10::DoGetEnrolledStateResult(napi_env env, EnrolledS
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
         return nullptr;
     }
-    IAM_LOGI("get enrolled state end");
+    IAM_LOGD("get enrolled state end");
     return eventInfo;
 }
 

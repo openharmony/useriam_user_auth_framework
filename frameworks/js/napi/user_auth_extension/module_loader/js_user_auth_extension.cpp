@@ -31,14 +31,14 @@ JsUserAuthExtension *JsUserAuthExtension::Create(const std::unique_ptr<Runtime> 
 
 JsUserAuthExtension::JsUserAuthExtension(const std::unique_ptr<Runtime> &runtime)
 {
-    IAM_LOGI("JsUserAuthExtension constructor.");
+    IAM_LOGD("JsUserAuthExtension constructor.");
     auto uiExtensionBaseImpl = std::make_shared<JsUIExtensionBase>(runtime);
     SetUIExtensionBaseImpl(std::move(uiExtensionBaseImpl));
 }
 
 JsUserAuthExtension::~JsUserAuthExtension()
 {
-    IAM_LOGI("JsUserAuthExtension destructor.");
+    IAM_LOGD("JsUserAuthExtension destructor.");
 }
 }
 }

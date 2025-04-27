@@ -81,7 +81,7 @@ JsRefHolder::~JsRefHolder()
         IAM_LOGI("invalid");
         return;
     }
-    IAM_LOGI("delete reference");
+    IAM_LOGD("delete reference");
     uv_loop_s *loop;
     napi_status napiStatus = napi_get_uv_event_loop(env_, &loop);
     if (napiStatus != napi_ok || loop == nullptr) {

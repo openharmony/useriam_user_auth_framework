@@ -42,14 +42,14 @@ private:
 
 void CallbackManagerImpl::AddCallback(uintptr_t key, CallbackAction &action)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     std::lock_guard<std::mutex> lock(mutex_);
     callbackActionMap_.emplace(key, action);
 }
 
 void CallbackManagerImpl::RemoveCallback(uintptr_t key)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     std::lock_guard<std::mutex> lock(mutex_);
     callbackActionMap_.erase(key);
 }

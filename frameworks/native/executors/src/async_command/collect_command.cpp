@@ -37,7 +37,7 @@ CollectCommand::CollectCommand(std::weak_ptr<Executor> executor, uint64_t schedu
 
 ResultCode CollectCommand::SendRequest()
 {
-    IAM_LOGI("%{public}s send request start", GetDescription());
+    IAM_LOGD("%{public}s send request start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN_VAL(attributes_ != nullptr, ResultCode::GENERAL_ERROR);
 
     auto hdi = GetExecutorHdi();
@@ -49,17 +49,17 @@ ResultCode CollectCommand::SendRequest()
     std::vector<uint8_t> extraInfo;
     bool getExtraInfoRet = attributes_->GetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, extraInfo);
     IF_FALSE_LOGE_AND_RETURN_VAL(getExtraInfoRet == true, ResultCode::GENERAL_ERROR);
-    IAM_LOGI("%{public}s collect message len %{public}zu", GetDescription(), extraInfo.size());
+    IAM_LOGD("%{public}s collect message len %{public}zu", GetDescription(), extraInfo.size());
 
     IamHitraceHelper traceHelper("hdi collect");
     ResultCode ret = hdi->Collect(scheduleId_, (CollectParam) { 0, collectorTokenId, extraInfo }, shared_from_this());
-    IAM_LOGI("%{public}s collect result %{public}d", GetDescription(), ret);
+    IAM_LOGD("%{public}s collect result %{public}d", GetDescription(), ret);
     return ret;
 }
 
 void CollectCommand::OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo)
 {
-    IAM_LOGI("%{public}s on result start", GetDescription());
+    IAM_LOGD("%{public}s on result start", GetDescription());
 
     std::vector<uint8_t> nonConstExtraInfo(extraInfo.begin(), extraInfo.end());
     auto authAttributes = Common::MakeShared<Attributes>();
@@ -75,7 +75,7 @@ void CollectCommand::OnResultInner(ResultCode result, const std::vector<uint8_t>
         IAM_LOGE("%{public}s call finish fail", GetDescription());
         return;
     }
-    IAM_LOGI("%{public}s call finish success result %{public}d", GetDescription(), result);
+    IAM_LOGD("%{public}s call finish success result %{public}d", GetDescription(), result);
 }
 } // namespace UserAuth
 } // namespace UserIam

@@ -41,7 +41,7 @@ CustomCommand::CustomCommand(std::weak_ptr<Executor> executor, const Attributes 
 
 ResultCode CustomCommand::SendRequest()
 {
-    IAM_LOGI("%{public}s send request start", GetDescription());
+    IAM_LOGD("%{public}s send request start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN_VAL(attributes_ != nullptr, ResultCode::GENERAL_ERROR);
 
     auto hdi = GetExecutorHdi();
@@ -63,13 +63,13 @@ ResultCode CustomCommand::SendRequest()
         return ret;
     }
 
-    IAM_LOGI("%{public}s send command result success", GetDescription());
+    IAM_LOGD("%{public}s send command result success", GetDescription());
     return ResultCode::SUCCESS;
 }
 
 void CustomCommand::OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo)
 {
-    IAM_LOGI("%{public}s on result start", GetDescription());
+    IAM_LOGD("%{public}s on result start", GetDescription());
     SetResult(result);
 }
 
@@ -89,14 +89,14 @@ ResultCode CustomCommand::GetResult()
         IAM_LOGE("%{public}s get result before request send, error", GetDescription());
         return ResultCode::GENERAL_ERROR;
     }
-    IAM_LOGI("%{public}s begin wait future", GetDescription());
+    IAM_LOGD("%{public}s begin wait future", GetDescription());
     static const std::chrono::seconds maxWaitTime(1);
     auto ret = future_.wait_for(maxWaitTime);
     if (ret != std::future_status::ready) {
         IAM_LOGE("%{public}s future timeout", GetDescription());
         return ResultCode::TIMEOUT;
     }
-    IAM_LOGI("%{public}s get result %{public}d", GetDescription(), result_);
+    IAM_LOGD("%{public}s get result %{public}d", GetDescription(), result_);
     return result_;
 }
 

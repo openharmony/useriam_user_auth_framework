@@ -72,14 +72,14 @@ void UserAuthModalCallback::SendCommand(uint64_t contextId, const std::string &c
 
 bool UserAuthModalCallback::IsModalInit()
 {
-    IAM_LOGI("get is modal init");
+    IAM_LOGD("get is modal init");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     return isInit_;
 }
 
 bool UserAuthModalCallback::IsModalDestroy()
 {
-    IAM_LOGI("get is modal on destroy");
+    IAM_LOGD("get is modal on destroy");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (isInitError_ || (uiExtCallback_ != nullptr && uiExtCallback_->IsModalDestroy())) {
         IAM_LOGI("modal on destroy");

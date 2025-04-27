@@ -114,7 +114,7 @@ int32_t UserIdmService::CloseSession(int32_t userId)
 int32_t UserIdmService::GetCredentialInfoInner(int32_t userId, AuthType authType,
     std::vector<CredentialInfo> &credInfoList)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     if (!IpcCommon::CheckPermission(*this, USE_USER_IDM_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;

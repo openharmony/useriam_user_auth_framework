@@ -33,7 +33,7 @@ namespace {
 
 sptr<IAppMgr> ContextAppStateObserverManager::GetAppManagerInstance()
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     sptr<ISystemAbilityManager> systemAbilityManager =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (systemAbilityManager == nullptr) {
@@ -53,7 +53,7 @@ sptr<IAppMgr> ContextAppStateObserverManager::GetAppManagerInstance()
 void ContextAppStateObserverManager::SubscribeAppState(const std::shared_ptr<ContextCallback> &callback,
     const uint64_t contextId)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
 
     const std::string bundleName = callback->GetCallerName();
@@ -90,7 +90,7 @@ void ContextAppStateObserverManager::SubscribeAppState(const std::shared_ptr<Con
 
 void ContextAppStateObserverManager::UnSubscribeAppState()
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     if (appStateObserver_ == nullptr) {
         IAM_LOGE("appStateObserver_ is nullptr");
         return;
@@ -148,12 +148,12 @@ void ContextAppStateObserverManager::RemoveScreenLockState(int32_t userId)
 ContextAppStateObserver::ContextAppStateObserver(const uint64_t contextId,
     const std::string bundleName) : contextId_(contextId), bundleName_(bundleName)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
 }
 
 void ContextAppStateObserver::ProcAppStateChanged(int32_t userId)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     auto context = ContextPool::Instance().Select(contextId_).lock();
     if (context == nullptr) {
         IAM_LOGE("context is nullptr");
@@ -176,12 +176,11 @@ void ContextAppStateObserver::ProcAppStateChanged(int32_t userId)
 
 void ContextAppStateObserver::OnAppStateChanged(const AppStateData &appStateData)
 {
-    IAM_LOGI("start, contextId: ****%{public}hx", static_cast<uint16_t>(contextId_));
     auto bundleName = appStateData.bundleName;
     auto state = static_cast<ApplicationState>(appStateData.state);
     int32_t userId = appStateData.uid / CONVERT_UID_TO_USERID;
-    IAM_LOGI("OnAppStateChanged, userId:%{public}d, bundleName:%{public}s, state:%{public}d", userId,
-        bundleName.c_str(), state);
+    IAM_LOGI("OnAppStateChanged, contextId: ****%{public}hx, userId:%{public}d, bundleName:%{public}s, "
+        "state:%{public}d", static_cast<uint16_t>(contextId_), userId, bundleName.c_str(), state);
 
     if (bundleName.compare(bundleName_) == 0 && state == ApplicationState::APP_STATE_BACKGROUND) {
         ProcAppStateChanged(userId);
@@ -191,12 +190,11 @@ void ContextAppStateObserver::OnAppStateChanged(const AppStateData &appStateData
 
 void ContextAppStateObserver::OnForegroundApplicationChanged(const AppStateData &appStateData)
 {
-    IAM_LOGI("start, contextId: ****%{public}hx", static_cast<uint16_t>(contextId_));
     auto bundleName = appStateData.bundleName;
     auto state = static_cast<ApplicationState>(appStateData.state);
     int32_t userId = appStateData.uid / CONVERT_UID_TO_USERID;
-    IAM_LOGI("OnForegroundApplicationChanged, userId:%{public}d, bundleName:%{public}s, state:%{public}d", userId,
-        bundleName.c_str(), state);
+    IAM_LOGI("OnForegroundApplicationChanged, contextId: ****%{public}hx, userId:%{public}d, bundleName:%{public}s, "
+        "state:%{public}d", static_cast<uint16_t>(contextId_), userId, bundleName.c_str(), state);
 
     if (bundleName.compare(bundleName_) == 0 && state == ApplicationState::APP_STATE_BACKGROUND) {
         ProcAppStateChanged(userId);

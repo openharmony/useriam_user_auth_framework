@@ -138,7 +138,7 @@ void Executor::UnregisterExecutorCallback()
 
 void Executor::AddCommand(std::shared_ptr<IAsyncCommand> command)
 {
-    IAM_LOGI("%{public}s start", GetDescription());
+    IAM_LOGD("%{public}s start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN(command != nullptr);
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     command2Respond_.insert(command);
@@ -146,7 +146,7 @@ void Executor::AddCommand(std::shared_ptr<IAsyncCommand> command)
 
 void Executor::RemoveCommand(std::shared_ptr<IAsyncCommand> command)
 {
-    IAM_LOGI("%{public}s start", GetDescription());
+    IAM_LOGD("%{public}s start", GetDescription());
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     command2Respond_.erase(command);
 }

@@ -82,14 +82,14 @@ UserAuthCallbackService::UserAuthCallbackService(const std::shared_ptr<PrepareRe
 
 UserAuthCallbackService::~UserAuthCallbackService()
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     iamHitraceHelper_= nullptr;
     CallbackManager::GetInstance().RemoveCallback(reinterpret_cast<uintptr_t>(this));
 }
 
 int32_t UserAuthCallbackService::OnResult(int32_t resultCode, const std::vector<uint8_t> &extraInfo)
 {
-    IAM_LOGI("start, result:%{public}d", resultCode);
+    IAM_LOGD("start, result:%{public}d", resultCode);
     Attributes attribute(extraInfo);
     if (authCallback_ != nullptr) {
         if (modalCallback_ != nullptr) {
@@ -117,7 +117,7 @@ int32_t UserAuthCallbackService::OnResult(int32_t resultCode, const std::vector<
 int32_t UserAuthCallbackService::OnAcquireInfo(int32_t module, int32_t acquireInfo,
     const std::vector<uint8_t> &extraInfo)
 {
-    IAM_LOGI("start, module:%{public}d acquireInfo:%{public}d", module, acquireInfo);
+    IAM_LOGD("start, module:%{public}d acquireInfo:%{public}d", module, acquireInfo);
     Attributes attribute(extraInfo);
     if (authCallback_ != nullptr) {
         authCallback_->OnAcquireInfo(module, acquireInfo, attribute);
@@ -165,7 +165,7 @@ GetExecutorPropertyCallbackService::~GetExecutorPropertyCallbackService()
 int32_t GetExecutorPropertyCallbackService::OnGetExecutorPropertyResult(int32_t resultCode,
     const std::vector<uint8_t> &attributes)
 {
-    IAM_LOGI("start, result:%{public}d", resultCode);
+    IAM_LOGD("start, result:%{public}d", resultCode);
     if (getPropCallback_ == nullptr) {
         IAM_LOGE("get prop callback is nullptr");
         return GENERAL_ERROR;
@@ -208,7 +208,7 @@ SetExecutorPropertyCallbackService::~SetExecutorPropertyCallbackService()
 
 int32_t SetExecutorPropertyCallbackService::OnSetExecutorPropertyResult(int32_t resultCode)
 {
-    IAM_LOGI("start, result:%{public}d", resultCode);
+    IAM_LOGD("start, result:%{public}d", resultCode);
     if (setPropCallback_ == nullptr) {
         IAM_LOGE("set prop callback is nullptr");
         return GENERAL_ERROR;

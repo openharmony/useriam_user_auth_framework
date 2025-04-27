@@ -222,10 +222,10 @@ bool IpcCommon::CheckPermission(IPCObjectStub &stub, Permission permission)
 uint32_t IpcCommon::GetAccessTokenId(IPCObjectStub &stub)
 {
     uint32_t tokenId = stub.GetFirstTokenID();
-    IAM_LOGI("get first caller tokenId: %{public}s", GET_MASKED_STRING(tokenId).c_str());
+    IAM_LOGD("get first caller tokenId: %{public}s", GET_MASKED_STRING(tokenId).c_str());
     if (tokenId == 0) {
         tokenId = stub.GetCallingTokenID();
-        IAM_LOGI("no first caller, get direct caller tokenId: %{public}s", GET_MASKED_STRING(tokenId).c_str());
+        IAM_LOGD("no first caller, get direct caller tokenId: %{public}s", GET_MASKED_STRING(tokenId).c_str());
     }
     return tokenId;
 }
@@ -233,7 +233,7 @@ uint32_t IpcCommon::GetAccessTokenId(IPCObjectStub &stub)
 uint32_t IpcCommon::GetTokenId(IPCObjectStub &stub)
 {
     uint32_t tokenId = stub.GetCallingTokenID();
-    IAM_LOGI("get tokenId: %{public}s", GET_MASKED_STRING(tokenId).c_str());
+    IAM_LOGD("get tokenId: %{public}s", GET_MASKED_STRING(tokenId).c_str());
     return tokenId;
 }
 
