@@ -32,7 +32,7 @@ ExecutorCallbackService::ExecutorCallbackService(const std::shared_ptr<ExecutorR
 int32_t ExecutorCallbackService::OnMessengerReady(const sptr<IExecutorMessenger> &messenger,
     const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     if (callback_ == nullptr) {
         IAM_LOGE("callback is nullptr");
         return GENERAL_ERROR;
@@ -49,7 +49,7 @@ int32_t ExecutorCallbackService::OnMessengerReady(const sptr<IExecutorMessenger>
 int32_t ExecutorCallbackService::OnBeginExecute(uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
     const std::vector<uint8_t> &command)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     if (callback_ == nullptr) {
         IAM_LOGE("callback is nullptr");
         return GENERAL_ERROR;
@@ -60,7 +60,7 @@ int32_t ExecutorCallbackService::OnBeginExecute(uint64_t scheduleId, const std::
 
 int32_t ExecutorCallbackService::OnEndExecute(uint64_t scheduleId, const std::vector<uint8_t> &command)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     if (callback_ == nullptr) {
         IAM_LOGE("callback is nullptr");
         return GENERAL_ERROR;
@@ -71,7 +71,7 @@ int32_t ExecutorCallbackService::OnEndExecute(uint64_t scheduleId, const std::ve
 
 int32_t ExecutorCallbackService::OnSetProperty(const std::vector<uint8_t> &properties)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     if (callback_ == nullptr) {
         IAM_LOGE("callback is nullptr");
         return GENERAL_ERROR;
@@ -82,7 +82,7 @@ int32_t ExecutorCallbackService::OnSetProperty(const std::vector<uint8_t> &prope
 
 int32_t ExecutorCallbackService::OnGetProperty(const std::vector<uint8_t> &condition, std::vector<uint8_t> &values)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     if (callback_ == nullptr) {
         IAM_LOGE("callback is nullptr");
         return GENERAL_ERROR;
@@ -98,7 +98,7 @@ int32_t ExecutorCallbackService::OnGetProperty(const std::vector<uint8_t> &condi
 
 int32_t ExecutorCallbackService::OnSendData(uint64_t scheduleId, const std::vector<uint8_t> &extraInfo)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     if (callback_ == nullptr) {
         IAM_LOGE("callback is nullptr");
         return GENERAL_ERROR;

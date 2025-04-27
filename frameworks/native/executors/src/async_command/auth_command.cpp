@@ -37,7 +37,7 @@ AuthCommand::AuthCommand(std::weak_ptr<Executor> executor, uint64_t scheduleId,
 
 ResultCode AuthCommand::SendRequest()
 {
-    IAM_LOGI("%{public}s send request start", GetDescription());
+    IAM_LOGD("%{public}s send request start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN_VAL(attributes_ != nullptr, ResultCode::GENERAL_ERROR);
 
     auto hdi = GetExecutorHdi();
@@ -55,7 +55,7 @@ ResultCode AuthCommand::SendRequest()
     std::vector<uint8_t> extraInfo;
     bool getExtraInfoRet = attributes_->GetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, extraInfo);
     IF_FALSE_LOGE_AND_RETURN_VAL(getExtraInfoRet == true, ResultCode::GENERAL_ERROR);
-    IAM_LOGI("%{public}s auth message len %{public}zu", GetDescription(), extraInfo.size());
+    IAM_LOGD("%{public}s auth message len %{public}zu", GetDescription(), extraInfo.size());
 
     int32_t authIntent;
     bool getAuthIntent = attributes_->GetInt32Value(Attributes::ATTR_AUTH_INTENTION, authIntent);
@@ -69,13 +69,13 @@ ResultCode AuthCommand::SendRequest()
     ResultCode ret = hdi->Authenticate(scheduleId_,
         (AuthenticateParam) { tokenId, templateIdList, extraInfo, endAfterFirstFail, authIntent, userId},
         shared_from_this());
-    IAM_LOGI("%{public}s authenticate result %{public}d", GetDescription(), ret);
+    IAM_LOGD("%{public}s authenticate result %{public}d", GetDescription(), ret);
     return ret;
 }
 
 void AuthCommand::OnResultInner(ResultCode result, const std::vector<uint8_t> &extraInfo)
 {
-    IAM_LOGI("%{public}s on result start", GetDescription());
+    IAM_LOGD("%{public}s on result start", GetDescription());
 
     std::vector<uint8_t> nonConstExtraInfo(extraInfo.begin(), extraInfo.end());
     auto authAttributes = Common::MakeShared<Attributes>();
@@ -91,7 +91,7 @@ void AuthCommand::OnResultInner(ResultCode result, const std::vector<uint8_t> &e
         IAM_LOGE("%{public}s call finish fail", GetDescription());
         return;
     }
-    IAM_LOGI("%{public}s call finish success result %{public}d", GetDescription(), result);
+    IAM_LOGD("%{public}s call finish success result %{public}d", GetDescription(), result);
 }
 } // namespace UserAuth
 } // namespace UserIam

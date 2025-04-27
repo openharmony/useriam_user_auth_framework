@@ -74,14 +74,14 @@ WidgetContext::WidgetContext(uint64_t contextId, const ContextFactory::AuthWidge
 
 WidgetContext::~WidgetContext()
 {
-    IAM_LOGI("release WidgetContext");
+    IAM_LOGD("release WidgetContext");
     RemoveDeathRecipient(callerCallback_);
     UnSubscribeAppState();
 }
 
 bool WidgetContext::Start()
 {
-    IAM_LOGI("%{public}s start", description_.c_str());
+    IAM_LOGD("%{public}s start", description_.c_str());
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (hasStarted_) {
         IAM_LOGI("%{public}s context has started, cannot start again", description_.c_str());
@@ -259,13 +259,13 @@ void WidgetContext::AuthResult(int32_t resultCode, int32_t authType, const Attri
     IF_FALSE_LOGE_AND_RETURN(schedule_ != nullptr);
     IF_FALSE_LOGE_AND_RETURN(callerCallback_ != nullptr);
     callerCallback_->SetTraceAuthType(authTypeTmp);
-    IAM_LOGI("call schedule:");
+    IAM_LOGD("call schedule:");
     if (resultCode == ResultCode::SUCCESS || resultCode == ResultCode::COMPLEXITY_CHECK_FAILED) {
         finalResult.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authResultInfo_.token);
         finalResult.GetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, authResultInfo_.credentialDigest);
         finalResult.GetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, authResultInfo_.credentialCount);
         authResultInfo_.authType = authTypeTmp;
-        IAM_LOGI("widget token size: %{public}zu.", authResultInfo_.token.size());
+        IAM_LOGD("widget token size: %{public}zu.", authResultInfo_.token.size());
         if (resultCode != ResultCode::SUCCESS) {
             SetLatestError(resultCode);
         }
@@ -279,7 +279,7 @@ void WidgetContext::AuthResult(int32_t resultCode, int32_t authType, const Attri
 
 void WidgetContext::AuthTipInfo(int32_t tipType, int32_t authType, const Attributes &extraInfo)
 {
-    IAM_LOGI("recv tip: %{public}d, authType: %{public}d", tipType, authType);
+    IAM_LOGD("recv tip: %{public}d, authType: %{public}d", tipType, authType);
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     std::vector<uint8_t> tipInfo;
     bool getTipInfoRet = extraInfo.GetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, tipInfo);
@@ -441,7 +441,7 @@ void WidgetContext::SuccessAuth(AuthType authType)
 
 int32_t WidgetContext::ConnectExtensionAbility(const AAFwk::Want &want, const std::string commandStr)
 {
-    IAM_LOGI("ConnectExtensionAbility start");
+    IAM_LOGD("ConnectExtensionAbility start");
     if (connection_ != nullptr) {
         IAM_LOGE("invalid connection_");
         return ERR_INVALID_OPERATION;
@@ -548,7 +548,7 @@ bool WidgetContext::DisconnectExtension()
 
 void WidgetContext::End(const ResultCode &resultCode)
 {
-    IAM_LOGI("in End, resultCode: %{public}d", static_cast<int32_t>(resultCode));
+    IAM_LOGD("in End, resultCode: %{public}d", static_cast<int32_t>(resultCode));
     StopAllRunTask(resultCode);
     IF_FALSE_LOGE_AND_RETURN(callerCallback_ != nullptr);
     Attributes attr;
@@ -589,7 +589,7 @@ void WidgetContext::StopAllRunTask(const ResultCode &resultCode)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     for (auto &taskInfo : runTaskInfoList_) {
-        IAM_LOGI("stop task");
+        IAM_LOGD("stop task");
         if (taskInfo.task == nullptr) {
             IAM_LOGE("task is null");
             continue;
@@ -598,7 +598,7 @@ void WidgetContext::StopAllRunTask(const ResultCode &resultCode)
     }
     runTaskInfoList_.clear();
     if (resultCode != ResultCode::SUCCESS) {
-        IAM_LOGI("Try to disconnect extesnion");
+        IAM_LOGI("Try to disconnect extension");
         if (!DisconnectExtension()) {
             IAM_LOGE("failed to release launch widget.");
         }

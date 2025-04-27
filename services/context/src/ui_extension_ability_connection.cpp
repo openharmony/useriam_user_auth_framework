@@ -28,7 +28,7 @@ namespace UserAuth {
 void UIExtensionAbilityConnection::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
     const sptr<IRemoteObject> &remoteObject, int32_t resultCode)
 {
-    IAM_LOGI("on ability connected");
+    IAM_LOGD("on ability connected");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (!isConnectionRelease_) {
         IAM_LOGE("connection already release");

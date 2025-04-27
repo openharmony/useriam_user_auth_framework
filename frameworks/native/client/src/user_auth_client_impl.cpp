@@ -179,7 +179,7 @@ void UserAuthClientImpl::GetProperty(int32_t userId, const GetPropertyRequest &r
 void UserAuthClientImpl::GetPropertyById(uint64_t credentialId, const std::vector<Attributes::AttributeKey> &keys,
     const std::shared_ptr<GetPropCallback> &callback)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     if (!callback) {
         IAM_LOGE("get prop callback is nullptr");
         return;

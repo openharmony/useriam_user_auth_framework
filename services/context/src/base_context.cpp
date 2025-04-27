@@ -42,7 +42,7 @@ BaseContext::BaseContext(const std::string &type, uint64_t contextId, std::share
 
 BaseContext::~BaseContext()
 {
-    IAM_LOGI("%{public}s start", GetDescription());
+    IAM_LOGD("%{public}s start", GetDescription());
     RemoveDeathRecipient(callback_);
     UnSubscribeAppState();
 }
@@ -82,7 +82,7 @@ std::string BaseContext::GetCallerName() const
 bool BaseContext::Start()
 {
     std::lock_guard<std::mutex> guard(mutex_);
-    IAM_LOGI("%{public}s start", GetDescription());
+    IAM_LOGD("%{public}s start", GetDescription());
     if (hasStarted_) {
         IAM_LOGI("%{public}s context has started, cannot start again", GetDescription());
         return false;
@@ -93,7 +93,7 @@ bool BaseContext::Start()
 
 bool BaseContext::Stop()
 {
-    IAM_LOGI("%{public}s start", GetDescription());
+    IAM_LOGD("%{public}s start", GetDescription());
     return OnStop();
 }
 
@@ -117,7 +117,7 @@ void BaseContext::OnScheduleStarted()
 
 void BaseContext::OnScheduleProcessed(ExecutorRole src, int32_t moduleType, const std::vector<uint8_t> &acquireMsg)
 {
-    IAM_LOGI("%{public}s start", GetDescription());
+    IAM_LOGD("%{public}s start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
     callback_->OnAcquireInfo(src, moduleType, acquireMsg);
 }

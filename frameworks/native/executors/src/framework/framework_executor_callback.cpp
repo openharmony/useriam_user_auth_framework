@@ -62,7 +62,7 @@ ResultCode FrameworkExecutorCallback::OnBeginExecuteInner(uint64_t scheduleId, s
         commandAttrs.GetInt32Value(Attributes::ATTR_SCHEDULE_MODE, commandId);
     IF_FALSE_LOGE_AND_RETURN_VAL(getScheduleModeRet == true, ResultCode::GENERAL_ERROR);
 
-    IAM_LOGI("%{public}s start process cmd %{public}u", GetDescription(), commandId);
+    IAM_LOGD("%{public}s start process cmd %{public}u", GetDescription(), commandId);
     ResultCode ret = ResultCode::GENERAL_ERROR;
     switch (commandId) {
         case ENROLL:
@@ -78,7 +78,7 @@ ResultCode FrameworkExecutorCallback::OnBeginExecuteInner(uint64_t scheduleId, s
             IAM_LOGE("command id %{public}u is not supported", commandId);
     }
 
-    IAM_LOGI("command id = %{public}u ret = %{public}d", commandId, ret);
+    IAM_LOGD("command id = %{public}u ret = %{public}d", commandId, ret);
     return ret;
 }
 
@@ -98,7 +98,7 @@ ResultCode FrameworkExecutorCallback::OnEndExecuteInner(uint64_t scheduleId, con
 void FrameworkExecutorCallback::OnMessengerReady(const std::shared_ptr<ExecutorMessenger> &messenger,
     const std::vector<uint8_t> &publicKey, const std::vector<uint64_t> &templateIdList)
 {
-    IAM_LOGI("%{public}s start", GetDescription());
+    IAM_LOGD("%{public}s start", GetDescription());
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     auto executor = executor_.lock();
     if (executor == nullptr) {
@@ -123,7 +123,7 @@ ResultCode FrameworkExecutorCallback::OnSetPropertyInner(const Attributes &prope
     bool getAuthPropertyModeRet =
         properties.GetUint32Value(Attributes::ATTR_PROPERTY_MODE, commandId);
     IF_FALSE_LOGE_AND_RETURN_VAL(getAuthPropertyModeRet == true, ResultCode::GENERAL_ERROR);
-    IAM_LOGI("%{public}s start process cmd %{public}u", GetDescription(), commandId);
+    IAM_LOGD("%{public}s start process cmd %{public}u", GetDescription(), commandId);
     ResultCode ret;
     if (commandId == PROPERTY_MODE_DEL) {
         ret = ProcessDeleteTemplateCommand(properties);
@@ -171,7 +171,7 @@ int32_t FrameworkExecutorCallback::OnSendData(uint64_t scheduleId, const Attribu
 ResultCode FrameworkExecutorCallback::OnGetPropertyInner(std::shared_ptr<Attributes> conditions,
     std::shared_ptr<Attributes> values)
 {
-    IAM_LOGI("%{public}s start", GetDescription());
+    IAM_LOGD("%{public}s start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN_VAL(conditions != nullptr, ResultCode::GENERAL_ERROR);
     IF_FALSE_LOGE_AND_RETURN_VAL(values != nullptr, ResultCode::GENERAL_ERROR);
     uint32_t commandId = 0;
@@ -184,7 +184,7 @@ ResultCode FrameworkExecutorCallback::OnGetPropertyInner(std::shared_ptr<Attribu
     }
 
     ResultCode ret = ProcessGetPropertyCommand(conditions, values);
-    IAM_LOGI("command id = %{public}u ret = %{public}d", commandId, ret);
+    IAM_LOGD("command id = %{public}u ret = %{public}d", commandId, ret);
     return ret;
 }
 
@@ -318,7 +318,7 @@ ResultCode FrameworkExecutorCallback::ProcessCustomCommand(const Attributes &pro
 ResultCode FrameworkExecutorCallback::ProcessGetPropertyCommand(std::shared_ptr<Attributes> conditions,
     std::shared_ptr<Attributes> values)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     IF_FALSE_LOGE_AND_RETURN_VAL(conditions != nullptr, ResultCode::GENERAL_ERROR);
     IF_FALSE_LOGE_AND_RETURN_VAL(values != nullptr, ResultCode::GENERAL_ERROR);
     auto executor = executor_.lock();

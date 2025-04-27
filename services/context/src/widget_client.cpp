@@ -127,7 +127,7 @@ void WidgetClient::SendCommand(const WidgetCommand &command)
     }
     nlohmann::json root = command;
     std::string cmdData = root.dump();
-    IAM_LOGI("SendCommand cmdData");
+    IAM_LOGD("SendCommand cmdData");
     widgetCallback_->SendCommand(cmdData);
 }
 
@@ -217,7 +217,7 @@ uint32_t WidgetClient::GetAuthTokenId() const
 
 void WidgetClient::Reset()
 {
-    IAM_LOGI("WidgetClient Reset");
+    IAM_LOGD("WidgetClient Reset");
     widgetParam_.title.clear();
     widgetParam_.navigationButtonText.clear();
     widgetParam_.windowMode = WindowModeType::DIALOG_BOX;

@@ -71,7 +71,7 @@ std::optional<std::vector<uint64_t>> SimpleAuthContext::GetPropertyTemplateIds(
 
 ResultCode SimpleAuthContext::GetPropertyForAuthResult(Authentication::AuthResultInfo &resultInfo)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_.size() == 1, GENERAL_ERROR);
     auto scheduleNode = scheduleList_[0];
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleNode != nullptr, GENERAL_ERROR);
@@ -163,7 +163,7 @@ std::string SimpleAuthContext::GetCallerName() const
 
 bool SimpleAuthContext::OnStart()
 {
-    IAM_LOGI("%{public}s start", GetDescription());
+    IAM_LOGD("%{public}s start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN_VAL(auth_ != nullptr, false);
     bool startRet = auth_->Start(scheduleList_, shared_from_this());
     if (!startRet) {
@@ -266,7 +266,7 @@ bool SimpleAuthContext::SetCredentialDigest(const Authentication::AuthResultInfo
 
 void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInfo &resultInfo) const
 {
-    IAM_LOGI("%{public}s start", GetDescription());
+    IAM_LOGD("%{public}s start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
     Attributes finalResult;
     bool setResultCodeRet = finalResult.SetInt32Value(Attributes::ATTR_RESULT_CODE, resultInfo.result);
@@ -287,10 +287,10 @@ void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInf
     if (resultInfo.result == SUCCESS) {
         bool setUserIdRet = finalResult.SetInt32Value(Attributes::ATTR_USER_ID, resultInfo.userId);
         IF_FALSE_LOGE_AND_RETURN(setUserIdRet == true);
-        IAM_LOGI("matched userId: %{public}d.", resultInfo.userId);
         bool setCredentialIdRet = finalResult.SetUint64Value(Attributes::ATTR_CREDENTIAL_ID, resultInfo.credentialId);
         IF_FALSE_LOGE_AND_RETURN(setCredentialIdRet == true);
-        IAM_LOGI("matched credentialId: %{public}s.", GET_MASKED_STRING(resultInfo.credentialId).c_str());
+        IAM_LOGI("matched userId: %{public}d, credentialId: %{public}s.", resultInfo.userId,
+            GET_MASKED_STRING(resultInfo.credentialId).c_str());
         bool setExpiredRet = finalResult.SetInt64Value(Attributes::ATTR_PIN_EXPIRED_INFO, resultInfo.pinExpiredInfo);
         IF_FALSE_LOGE_AND_RETURN(setExpiredRet == true);
     }

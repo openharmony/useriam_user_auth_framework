@@ -39,13 +39,13 @@ void UserAuthModalInnerCallback::SendCommand(uint64_t contextId, const std::stri
 
 bool UserAuthModalInnerCallback::IsModalInit()
 {
-    IAM_LOGI("get is modal init");
+    IAM_LOGD("get is modal init");
     return false;
 }
 
 bool UserAuthModalInnerCallback::IsModalDestroy()
 {
-    IAM_LOGI("get is modal on destroy");
+    IAM_LOGD("get is modal on destroy");
     return false;
 }
 
