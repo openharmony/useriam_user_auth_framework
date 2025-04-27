@@ -921,14 +921,14 @@ int32_t UserAuthService::CheckAuthWidgetType(const std::vector<AuthType> &authTy
 {
     if (authType.empty() || (authType.size() > MAX_AUTH_TYPE_SIZE)) {
         IAM_LOGE("invalid authType size:%{public}zu", authType.size());
-        return false;
+        return INVALID_PARAMETERS;
     }
     const std::set<AuthType> WIDGET_AUTH_TYPE_VALID_SET = {AuthType::PIN, AuthType::FACE, AuthType::FINGERPRINT,
         AuthType::PRIVATE_PIN};
     for (const auto &iter : authType) {
         if (WIDGET_AUTH_TYPE_VALID_SET.find(iter) == WIDGET_AUTH_TYPE_VALID_SET.end()) {
             IAM_LOGE("authType check fail:%{public}d", static_cast<int32_t>(iter));
-            return false;
+            return TYPE_NOT_SUPPORT;
         }
     }
     std::set<AuthType> typeChecker(authType.begin(), authType.end());
