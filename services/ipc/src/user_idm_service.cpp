@@ -736,7 +736,7 @@ int32_t UserIdmService::GetCredentialInfoSync(int32_t userId, int32_t authType,
         ipcCredInfo.authType = static_cast<int32_t>(iter.authType);
         ipcCredInfo.pinType = static_cast<int32_t>(iter.pinType.value_or(PIN_SIX));
         ipcCredInfo.credentialId = iter.credentialId;
-        ipcCredInfo.templateId = iter.credentialId;
+        ipcCredInfo.templateId = iter.templateId;
         ipcCredentialInfoList.push_back(ipcCredInfo);
     }
 
