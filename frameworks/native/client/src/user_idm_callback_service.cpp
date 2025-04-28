@@ -113,7 +113,7 @@ int32_t IdmGetCredInfoCallbackService::OnCredentialInfos(int32_t resultCode,
         credentialInfo.authType = static_cast<AuthType>(iter.authType);
         credentialInfo.pinType = static_cast<PinSubType>(iter.pinType);
         credentialInfo.credentialId = iter.credentialId;
-        credentialInfo.templateId = iter.credentialId;
+        credentialInfo.templateId = iter.templateId;
         credInfoList.push_back(credentialInfo);
     }
     getCredInfoCallback_->OnCredentialInfo(resultCode, credInfoList);
