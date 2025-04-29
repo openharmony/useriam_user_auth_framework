@@ -43,7 +43,7 @@ constexpr uint32_t MAX_TOKEN_ALLOWABLE_DURATION = 24 * 60 * 60 * 1000;
 /**
  * @brief Defines authentication type.
  */
-constexpr uint32_t MAX_AUTH_TYPE_SIZE = 5;
+constexpr uint32_t MAX_AUTH_TYPE_SIZE = 6;
 enum AuthType : int32_t {
     /** Default authType. */
     INVALID_AUTH_TYPE = -1,
@@ -59,6 +59,8 @@ enum AuthType : int32_t {
     RECOVERY_KEY = 8,
     /** Private pin authentication. */
     PRIVATE_PIN = 16,
+    /** TUI pin authentication. */
+    TUI_PIN = 32,
 };
 
 /**
