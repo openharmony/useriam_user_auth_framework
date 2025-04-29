@@ -84,13 +84,15 @@ private:
     bool resultSet_ = false;
 };
 
-bool CheckAllowableDuration(uint64_t allowableDuration)
+bool ConvertAllowableDuration(double allowableDuration, uint64_t &outAllowableDurationUint64)
 {
-    constexpr const uint64_t maxAllowableDuration = 24 * 60 * 60 * 1000;
-    if (allowableDuration <= 0 || allowableDuration > maxAllowableDuration) {
-        IAM_LOGE("allowableDuration check fail:%{public}" PRIu64, allowableDuration);
+    constexpr const double maxAllowableDuration = 24 * 60 * 60 * 1000;
+    if (std::isnan(allowableDuration) || std::isinf(allowableDuration) ||
+        allowableDuration <= 0 || allowableDuration > maxAllowableDuration) {
+        IAM_LOGE("allowableDuration check fail:%{public}f", allowableDuration);
         return false;
     }
+    outAllowableDurationUint64 = static_cast<uint64_t>(allowableDuration);
     return true;
 }
 
@@ -166,7 +168,6 @@ bool ConvertAuthTokenType(int32_t authTokenType, userAccessCtrl::AuthTokenType &
 
 bool FillAniAuthToken(const std::vector<uint8_t> &extraInfo, userAccessCtrl::AuthToken &authToken)
 {
-    IAM_LOGI("start");
     Attributes attr(extraInfo);
 
     std::vector<uint8_t> localChallenge;
@@ -192,8 +193,10 @@ bool FillAniAuthToken(const std::vector<uint8_t> &extraInfo, userAccessCtrl::Aut
     bool convertAuthTokenTypeRet = ConvertAuthTokenType(localTokenType, authToken.tokenType);
     IF_FALSE_LOGE_AND_RETURN_VAL(convertAuthTokenTypeRet, false);
 
-    bool getUserIdRet = attr.GetInt32Value(Attributes::ATTR_USER_ID, authToken.userId);
+    int32_t userId = 0;
+    bool getUserIdRet = attr.GetInt32Value(Attributes::ATTR_USER_ID, userId);
     IF_FALSE_LOGE_AND_RETURN_VAL(getUserIdRet, false);
+    authToken.userId = userId;
 
     bool getTokenTimeIntervalRet = attr.GetInt64Value(Attributes::ATTR_TOKEN_TIME_INTERVAL, authToken.timeInterval);
     IF_FALSE_LOGE_AND_RETURN_VAL(getTokenTimeIntervalRet, false);
@@ -225,20 +228,21 @@ bool FillAniAuthToken(const std::vector<uint8_t> &extraInfo, userAccessCtrl::Aut
     return true;
 }
 
-ResultCode VerifyAuthTokenSyncInner(array_view<uint8_t> authToken, int32_t allowableDuration,
+ResultCode VerifyAuthTokenSyncInner(array_view<uint8_t> authToken, double allowableDuration,
     userAccessCtrl::AuthToken &authTokenOut)
 {
     int32_t maxWaitTime = 10000; // 10 seconds
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     std::shared_ptr<VerifyAuthTokenCallback> callback = MakeShared<VerifyAuthTokenCallback>();
     IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, ResultCode::GENERAL_ERROR);
 
     std::vector<uint8_t> localAuthToken(authToken.begin(), authToken.end());
-    if (!CheckAuthTokenLen(localAuthToken) || !CheckAllowableDuration(allowableDuration)) {
+    uint64_t allowableDurationUint64 = 0;
+    if (!CheckAuthTokenLen(localAuthToken) || !ConvertAllowableDuration(allowableDuration, allowableDurationUint64)) {
         return ResultCode::INVALID_PARAMETERS;
     }
 
-    UserAccessCtrlClient::GetInstance().VerifyAuthToken(localAuthToken, allowableDuration, callback);
+    UserAccessCtrlClient::GetInstance().VerifyAuthToken(localAuthToken, allowableDurationUint64, callback);
     auto future = callback->GetFuture();
     auto result = future.wait_for(std::chrono::milliseconds(maxWaitTime));
     if (result == std::future_status::timeout) {
@@ -254,7 +258,7 @@ ResultCode VerifyAuthTokenSyncInner(array_view<uint8_t> authToken, int32_t allow
     bool fillAniAuthTokenRet = FillAniAuthToken(verifyAuthTokenResult.extraInfo, authTokenOut);
     IF_FALSE_LOGE_AND_RETURN_VAL(fillAniAuthTokenRet, ResultCode::GENERAL_ERROR);
 
-    IAM_LOGI("success");
+    IAM_LOGD("success");
     return ResultCode::SUCCESS;
 }
 
@@ -287,7 +291,7 @@ void ThrowBusinessError(ResultCode ret)
     set_business_error(static_cast<int32_t>(pair->second.first), pair->second.second);
 }
 
-userAccessCtrl::AuthToken VerifyAuthTokenSync(array_view<uint8_t> authToken, int32_t allowableDuration)
+userAccessCtrl::AuthToken VerifyAuthTokenSync(array_view<uint8_t> authToken, double allowableDuration)
 {
     IAM_LOGI("start");
     userAccessCtrl::AuthToken authTokenOut = {
@@ -310,7 +314,7 @@ userAccessCtrl::AuthToken VerifyAuthTokenSync(array_view<uint8_t> authToken, int
 } // namespace OHOS
 
 namespace {
-userAccessCtrl::AuthToken verifyAuthTokenSync(array_view<uint8_t> authToken, int32_t allowableDuration)
+userAccessCtrl::AuthToken verifyAuthTokenSync(array_view<uint8_t> authToken, double allowableDuration)
 {
     return UserAuth::VerifyAuthTokenSync(authToken, allowableDuration);
 }
