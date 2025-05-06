@@ -15,5 +15,6 @@ group("user_auth_framework_ani") {
   deps = [
     "./user_access_ctrl:user_access_ctrl_ani",
     "./user_auth:user_auth_ani",
+    "./user_auth_extension:user_auth_extension_ani"
   ]
 }
