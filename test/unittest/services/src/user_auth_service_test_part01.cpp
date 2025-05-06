@@ -1178,7 +1178,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCancelAuthOrIdentify_001, TestSize.
     EXPECT_EQ(service.CancelAuthOrIdentify(testContextId, cancelReason), CHECK_PERMISSION_FAILED);
 
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId, cancelReason), GENERAL_ERROR);
+    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId, cancelReason), INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1202,7 +1202,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCancelAuthOrIdentify_002, TestSize.
 
     EXPECT_TRUE(ContextPool::Instance().Insert(context));
 
-    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId, cancelReason), INVALID_CONTEXT_ID);
+    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId, cancelReason), CHECK_PERMISSION_FAILED);
     IpcCommon::SetAccessTokenId(tokenId, true);
 
     EXPECT_EQ(service.CancelAuthOrIdentify(testContextId, cancelReason), GENERAL_ERROR);
