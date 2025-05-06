@@ -882,12 +882,12 @@ int32_t UserAuthService::CancelAuthOrIdentify(uint64_t contextId, int32_t cancel
     auto context = ContextPool::Instance().Select(contextId).lock();
     if (context == nullptr) {
         IAM_LOGE("context not exist");
-        return GENERAL_ERROR;
+        return INVALID_CONTEXT_ID;
     }
 
     if (context->GetTokenId() != IpcCommon::GetAccessTokenId(*this)) {
         IAM_LOGE("failed to check tokenId");
-        return INVALID_CONTEXT_ID;
+        return CHECK_PERMISSION_FAILED;
     }
 
     if (cancelReason == CancelReason::MODAL_CREATE_ERROR || cancelReason == CancelReason::MODAL_RUN_ERROR) {
