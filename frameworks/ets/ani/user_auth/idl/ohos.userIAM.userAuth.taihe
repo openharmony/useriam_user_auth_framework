@@ -12,19 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-@!namespace("@ohos.userIAM.userAuth", "userAuth")
-
-enum UserAuthType : i32 {
-    PIN = 1,
-    FACE = 2,
-    FINGERPRINT = 4,
-    PRIVATE_PIN = 16
-}
-
-enum AuthTrustLevel : i32 {
-    ATL1 = 10000,
-    ATL2 = 20000,
-    ATL3 = 30000,
-    ATL4 = 40000
-}
+ 
+@!namespace("@ohos.userIAM.userAuth")
+ 
+@!sts_inject("""
+import Context from 'application.Context';
+""")
