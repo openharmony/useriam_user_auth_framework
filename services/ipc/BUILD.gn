@@ -65,6 +65,7 @@ ohos_source_set("userauth_services_ipc") {
     "device_manager:devicemanagersdk",
     "drivers_interface_user_auth:libuser_auth_proxy_3.0",
     "dsoftbus:softbus_client",
+    "hdf_core:libhdf_utils",
     "hdf_core:libhdi",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
