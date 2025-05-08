@@ -124,9 +124,7 @@ UserAuthResultCode UserAuthInstanceV10::InitAuthParam(userAuth::AuthParam const 
 UserAuthResultCode UserAuthInstanceV10::InitAuthType(userAuth::AuthParam const &authParam)
 {
     IAM_LOGI("InitAuthType start.");
-    int32_t length = authParam.authType.size();
-    for (int32_t index = 0; index < length; index++) {
-        userAuth::UserAuthType type = authParam.authType[index];
+    for (const auto &type : authParam.authType) {
         if (!UserAuthHelper::CheckUserAuthType(type)) {
             IAM_LOGE("authType is illegal, %{public}d", type.get_value());
             return UserAuthResultCode::TYPE_NOT_SUPPORT;
@@ -281,7 +279,7 @@ UserAuthResultCode UserAuthInstanceV10::InitContext(userAuth::WidgetParam const 
         ani_object uiContext = reinterpret_cast<ani_object>(widgetParam.uiContext.value());
         ani_boolean stageMode = false;
         ani_status status = OHOS::AbilityRuntime::IsStageContext(env, uiContext, stageMode);
-        if (status != ANI_OK || !stageMode) {
+        if (status != ANI_OK) {
             IAM_LOGE("uiContext must be stage mode: %{public}d", status);
             std::string msgStr = "Parameter error. The type of \"uiContext\" must be stage mode.";
             return UserAuthAniHelper::ThrowBusinessError(UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
