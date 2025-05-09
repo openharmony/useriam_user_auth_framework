@@ -30,11 +30,13 @@ ohos_shared_library("userauth") {
   branch_protector_ret = "pac_ret"
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
-  include_dirs = [ "inc" ]
+  include_dirs = [ 
+    "inc",
+    "../../../common/inc",
+  ]
 
   sources = [
     "src/auth_instance_v9.cpp",
-    "src/modal_extension_callback.cpp",
     "src/user_auth_callback_v10.cpp",
     "src/user_auth_callback_v6.cpp",
     "src/user_auth_callback_v8.cpp",
@@ -42,13 +44,15 @@ ohos_shared_library("userauth") {
     "src/user_auth_entry.cpp",
     "src/user_auth_impl.cpp",
     "src/user_auth_instance_v10.cpp",
-    "src/user_auth_modal_callback.cpp",
     "src/user_auth_napi_helper.cpp",
     "src/user_auth_widget_callback_v10.cpp",
     "src/user_auth_widget_mgr_v10.cpp",
   ]
 
-  deps = [ "../../../native/client:userauth_client" ]
+  deps = [
+    "../../../native/client:userauth_client",
+    "../../../common:user_auth_common",
+  ]
 
   external_deps = [
     "ability_base:want",

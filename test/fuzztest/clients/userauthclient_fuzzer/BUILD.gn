@@ -29,7 +29,7 @@ ohos_fuzztest("UserAuthClientFuzzTest") {
 
   include_dirs = [
     "../../../../interfaces/inner_api",
-    "../../../../frameworks/js/napi/user_auth/inc",
+    "../../../../frameworks/common/inc",
     "../../../../frameworks/native/ipc/common_defines",
     "../../../../frameworks/native/ipc/inc",
     "../../../../frameworks/native/common/dfx/inc",

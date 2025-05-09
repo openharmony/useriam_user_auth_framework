@@ -27,6 +27,7 @@
 #include "iam_logger.h"
 #include "iam_ptr.h"
 
+#include "user_auth_helper.h"
 #include "user_auth_client_impl.h"
 #include "user_auth_common_defines.h"
 #include "user_auth_napi_helper.h"
@@ -71,7 +72,7 @@ napi_value UserAuthInstanceV10::GetEnrolledState(napi_env env, napi_callback_inf
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
         return nullptr;
     }
-    if (!UserAuthNapiHelper::CheckUserAuthType(type)) {
+    if (!UserAuthHelper::CheckUserAuthType(type)) {
         IAM_LOGE("CheckUserAuthType fail");
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::TYPE_NOT_SUPPORT));
         return nullptr;
@@ -82,7 +83,7 @@ napi_value UserAuthInstanceV10::GetEnrolledState(napi_env env, napi_callback_inf
     if (code != SUCCESS) {
         IAM_LOGE("failed to get enrolled state %{public}d", code);
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env,
-            UserAuthResultCode(UserAuthNapiHelper::GetResultCodeV10(code))));
+            UserAuthResultCode(UserAuthHelper::GetResultCodeV10(code))));
         return nullptr;
     }
     return DoGetEnrolledStateResult(env, enrolledState);
@@ -178,7 +179,7 @@ UserAuthResultCode UserAuthInstanceV10::InitAuthType(napi_env env, napi_value va
             return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
         }
         IAM_LOGI("napi get authType:%{public}d", value);
-        if (!UserAuthNapiHelper::CheckUserAuthType(value)) {
+        if (!UserAuthHelper::CheckUserAuthType(value)) {
             IAM_LOGE("authType is illegal, %{public}d", value);
             return UserAuthResultCode::TYPE_NOT_SUPPORT;
         }
@@ -210,7 +211,7 @@ UserAuthResultCode UserAuthInstanceV10::InitAuthTrustLevel(napi_env env, napi_va
         std::string msgStr = "Parameter error. The type of \"authTrustLevel\" must be number.";
         return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
-    if (!UserAuthNapiHelper::CheckAuthTrustLevel(authTrustLevel)) {
+    if (!UserAuthHelper::CheckAuthTrustLevel(authTrustLevel)) {
         IAM_LOGE("AuthTrustLevel fail:%{public}u", authTrustLevel);
         return UserAuthResultCode::TRUST_LEVEL_NOT_SUPPORT;
     }
@@ -249,7 +250,7 @@ UserAuthResultCode UserAuthInstanceV10::InitReuseUnlockResult(napi_env env, napi
         return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     authParam_.reuseUnlockResult.reuseDuration = reuseDuration;
-    if (!UserAuthNapiHelper::CheckReuseUnlockResult(authParam_.reuseUnlockResult)) {
+    if (!UserAuthHelper::CheckReuseUnlockResult(authParam_.reuseUnlockResult)) {
         IAM_LOGE("ReuseUnlockResult fail");
         std::string msgStr = "Parameter error. The type of \"reuseUnlockResult\" must be ReuseUnlockResult.";
         return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
@@ -703,7 +704,7 @@ UserAuthResultCode UserAuthInstanceV10::Cancel(napi_env env, napi_callback_info 
     int32_t result = UserAuthClient::GetInstance().CancelAuthentication(contextId_);
     if (result != ResultCode::SUCCESS) {
         IAM_LOGE("CancelAuthentication fail:%{public}d", result);
-        return UserAuthResultCode(UserAuthNapiHelper::GetResultCodeV10(result));
+        return UserAuthResultCode(UserAuthHelper::GetResultCodeV10(result));
     }
     isAuthStarted_ = false;
     return UserAuthResultCode::SUCCESS;

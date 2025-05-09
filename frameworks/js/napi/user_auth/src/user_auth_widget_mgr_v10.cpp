@@ -20,6 +20,7 @@
 #include "iam_logger.h"
 #include "iam_ptr.h"
 
+#include "user_auth_helper.h"
 #include "user_auth_client_impl.h"
 #include "user_auth_widget_callback_v10.h"
 
@@ -73,7 +74,7 @@ UserAuthResultCode UserAuthWidgetMgr::Init(napi_env env, napi_callback_info info
     version_ = version;
     int32_t result = UserAuthClientImpl::Instance().SetWidgetCallback(version_, callback_);
     IAM_LOGI("version SetWidgetCallback result: %{public}d", result);
-    return static_cast<UserAuthResultCode>(UserAuthNapiHelper::GetResultCodeV10(result));
+    return static_cast<UserAuthResultCode>(UserAuthHelper::GetResultCodeV10(result));
 }
 
 std::shared_ptr<JsRefHolder> UserAuthWidgetMgr::GetCallback(napi_env env, napi_value value)
