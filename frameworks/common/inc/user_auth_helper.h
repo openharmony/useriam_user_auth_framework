@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef USER_AUTH_NAPI_HELPER
-#define USER_AUTH_NAPI_HELPER
+#ifndef USER_AUTH_HELPER
+#define USER_AUTH_HELPER
 
 #include <string>
 #include <vector>
