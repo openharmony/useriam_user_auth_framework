@@ -58,6 +58,7 @@ ohos_fuzztest("RemoteExecutorStubFuzzTest") {
     "c_utils:utils",
     "device_manager:devicemanagersdk",
     "drivers_interface_user_auth:libuser_auth_proxy_3.0",
+    "hdf_core:libhdf_utils",
     "hdf_core:libhdi",
     "hilog:libhilog",
     "hitrace:hitrace_meter",

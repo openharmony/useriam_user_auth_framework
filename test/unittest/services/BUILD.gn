@@ -207,6 +207,7 @@ ohos_unittest("iam_services_test") {
     "drivers_interface_user_auth:libuser_auth_proxy_3.0",
     "dsoftbus:softbus_client",
     "googletest:gmock",
+    "hdf_core:libhdf_utils",
     "hdf_core:libhdi",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
