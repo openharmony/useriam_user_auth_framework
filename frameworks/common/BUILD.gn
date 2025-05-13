@@ -41,7 +41,6 @@ ohos_source_set("user_auth_common") {
     "ability_runtime:ability_context_native",
     "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
-    "ability_runtime:ani_base_context",
     "ability_runtime:app_context",
     "ability_runtime:ui_extension",
     "ace_engine:ace_uicontent",
