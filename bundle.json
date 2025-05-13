@@ -54,7 +54,9 @@
         "window_manager",
         "device_manager",
         "dsoftbus",
-        "ets_frontend"
+        "ets_frontend",
+        "hiappevent",
+        "jsoncpp"
       ]
     },
     "build": {

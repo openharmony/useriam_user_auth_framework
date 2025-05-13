@@ -17,6 +17,7 @@
 
 #include "auth_instance_v9.h"
 #include "nlohmann/json.hpp"
+#include "user_auth_api_event_reporter.h"
 #include "user_auth_impl.h"
 #include "user_auth_instance_v10.h"
 #include "user_auth_widget_mgr_v10.h"
@@ -299,36 +300,46 @@ napi_value OffV10(napi_env env, napi_callback_info info)
 napi_value StartV10(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
+    UserAuthApiEventReporter reporter("UserAuthInstance::start");
     UserAuthInstanceV10 *authInstance = nullptr;
     napi_status ret = UnwrapAuthInstanceV10(env, info, &authInstance);
     if (ret != napi_ok) {
         IAM_LOGE("UnwrapAuthInstanceV10 fail:%{public}d", ret);
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
         return nullptr;
     }
     UserAuthResultCode code = authInstance->Start(env, info);
     if (code != UserAuthResultCode::SUCCESS) {
         IAM_LOGE("Start fail:%{public}d", static_cast<int32_t>(code));
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, code));
+        reporter.ReportFailed(code);
+        return nullptr;
     }
+    reporter.ReportSuccess();
     return nullptr;
 }
 
 napi_value CancelV10(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
+    UserAuthApiEventReporter reporter("UserAuthInstance::cancel");
     UserAuthInstanceV10 *authInstance = nullptr;
     napi_status ret = UnwrapAuthInstanceV10(env, info, &authInstance);
     if (ret != napi_ok) {
         IAM_LOGE("UnwrapAuthInstanceV10 fail:%{public}d", ret);
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
         return nullptr;
     }
     UserAuthResultCode code = authInstance->Cancel(env, info);
     if (code != UserAuthResultCode::SUCCESS) {
         IAM_LOGE("Cancel fail:%{public}d", static_cast<int32_t>(code));
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, code));
+        reporter.ReportFailed(code);
+        return nullptr;
     }
+    reporter.ReportSuccess();
     return nullptr;
 }
 
@@ -552,11 +563,13 @@ napi_value UserAuthWidgetMgrV10Class(napi_env env)
 napi_value GetUserAuthInstanceV10(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
+    UserAuthApiEventReporter reporter("getUserAuthInstance");
     napi_value userAuthInstanceV10;
     napi_status ret = napi_new_instance(env, UserAuthInstanceV10Class(env), 0, nullptr, &userAuthInstanceV10);
     if (ret != napi_ok) {
         IAM_LOGE("napi_new_instance fail:%{public}d", ret);
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
         return nullptr;
     }
     UserAuthInstanceV10 *userAuthInstance = nullptr;
@@ -564,21 +577,25 @@ napi_value GetUserAuthInstanceV10(napi_env env, napi_callback_info info)
     if (ret != napi_ok) {
         IAM_LOGE("napi_unwrap fail");
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
         return nullptr;
     }
     if (userAuthInstance == nullptr) {
         IAM_LOGE("userAuthInstanceV10 is null");
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
         return nullptr;
     }
     UserAuthResultCode code = userAuthInstance->Init(env, info);
     if (code != UserAuthResultCode::SUCCESS) {
         IAM_LOGE("Init fail:%{public}d", static_cast<int32_t>(code));
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, code));
+        reporter.ReportFailed(code);
         return nullptr;
     }
 
     IAM_LOGE("GetUserAuthInstanceV10 SUCCESS");
+    reporter.ReportSuccess();
     return userAuthInstanceV10;
 }
 
