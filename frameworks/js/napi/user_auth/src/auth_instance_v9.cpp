@@ -20,6 +20,7 @@
 #include "iam_logger.h"
 #include "iam_ptr.h"
 
+#include "user_auth_helper.h"
 #include "user_auth_client_impl.h"
 
 #define LOG_TAG "USER_AUTH_NAPI"
@@ -52,7 +53,7 @@ UserAuthResultCode AuthInstanceV9::GetAvailableStatus(napi_env env, napi_callbac
         IAM_LOGE("napi_get_value_int32 fail:%{public}d", ret);
         return UserAuthResultCode::GENERAL_ERROR;
     }
-    if (!UserAuthNapiHelper::CheckUserAuthType(type)) {
+    if (!UserAuthHelper::CheckUserAuthType(type)) {
         IAM_LOGE("CheckUserAuthType fail");
         return UserAuthResultCode::TYPE_NOT_SUPPORT;
     }
@@ -62,7 +63,7 @@ UserAuthResultCode AuthInstanceV9::GetAvailableStatus(napi_env env, napi_callbac
         IAM_LOGE("napi_get_value_int32 fail:%{public}d", ret);
         return UserAuthResultCode::GENERAL_ERROR;
     }
-    if (!UserAuthNapiHelper::CheckAuthTrustLevel(level)) {
+    if (!UserAuthHelper::CheckAuthTrustLevel(level)) {
         IAM_LOGE("CheckAuthTrustLevel fail");
         return UserAuthResultCode::TRUST_LEVEL_NOT_SUPPORT;
     }
@@ -139,7 +140,7 @@ UserAuthResultCode AuthInstanceV9::Init(napi_env env, napi_callback_info info)
         IAM_LOGE("GetUint32Value fail:%{public}d", ret);
         return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
-    if (!UserAuthNapiHelper::CheckAuthTrustLevel(authTrustLevel)) {
+    if (!UserAuthHelper::CheckAuthTrustLevel(authTrustLevel)) {
         IAM_LOGE("CheckAuthTrustLevel fail");
         return UserAuthResultCode::TRUST_LEVEL_NOT_SUPPORT;
     }

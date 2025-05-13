@@ -26,6 +26,7 @@
 
 #include "iam_logger.h"
 #include "iam_ptr.h"
+#include "user_auth_helper.h"
 
 #define LOG_TAG "USER_AUTH_NAPI"
 
@@ -155,33 +156,6 @@ int32_t UserAuthNapiHelper::GetResultCodeV9(int32_t result)
         resultCodeV9 <= static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V9_MAX)) {
         return resultCodeV9;
     }
-    return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
-}
-
-int32_t UserAuthNapiHelper::GetResultCodeV10(int32_t result)
-{
-    if (result == CHECK_PERMISSION_FAILED) {
-        return static_cast<int32_t>(UserAuthResultCode::OHOS_CHECK_PERMISSION_FAILED);
-    }
-    if (result == INVALID_PARAMETERS) {
-        return static_cast<int32_t>(UserAuthResultCode::OHOS_INVALID_PARAM);
-    }
-    if (result == CHECK_SYSTEM_APP_FAILED) {
-        return static_cast<int32_t>(UserAuthResultCode::OHOS_CHECK_SYSTEM_APP_FAILED);
-    }
-    if (result == HARDWARE_NOT_SUPPORTED) {
-        return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
-    }
-    if (result > (INT32_MAX - static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V10_MIN))) {
-        return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
-    }
-    int32_t resultCodeV10 = result + static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V10_MIN);
-    if (resultCodeV10 >= static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V10_MIN) &&
-        resultCodeV10 <= static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V10_MAX)) {
-        IAM_LOGI("version GetResultCodeV10 resultCodeV10 result: %{public}d", resultCodeV10);
-        return resultCodeV10;
-    }
-    IAM_LOGE("version GetResultCodeV10 resultCodeV10 error");
     return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
 }
 
@@ -565,42 +539,6 @@ bool UserAuthNapiHelper::CheckAuthType(int32_t authType)
 {
     if (authType != AuthType::FACE && authType != AuthType::FINGERPRINT) {
         IAM_LOGE("authType check fail:%{public}d", authType);
-        return false;
-    }
-    return true;
-}
-
-bool UserAuthNapiHelper::CheckUserAuthType(int32_t authType)
-{
-    if (authType != AuthType::PIN && authType != AuthType::FACE &&
-        authType != AuthType::FINGERPRINT && authType != AuthType::PRIVATE_PIN) {
-        IAM_LOGE("authType check fail:%{public}d", authType);
-        return false;
-    }
-    return true;
-}
-
-bool UserAuthNapiHelper::CheckAuthTrustLevel(uint32_t authTrustLevel)
-{
-    if (authTrustLevel != AuthTrustLevel::ATL1 && authTrustLevel != AuthTrustLevel::ATL2 &&
-        authTrustLevel != AuthTrustLevel::ATL3 && authTrustLevel != AuthTrustLevel::ATL4) {
-        IAM_LOGE("authTrustLevel check fail:%{public}d", authTrustLevel);
-        return false;
-    }
-    return true;
-}
-
-bool UserAuthNapiHelper::CheckReuseUnlockResult(ReuseUnlockResult reuseUnlockResult)
-{
-    if (reuseUnlockResult.reuseMode != ReuseMode::AUTH_TYPE_RELEVANT &&
-        reuseUnlockResult.reuseMode != ReuseMode::AUTH_TYPE_IRRELEVANT &&
-        reuseUnlockResult.reuseMode != ReuseMode::CALLER_IRRELEVANT_AUTH_TYPE_RELEVANT &&
-        reuseUnlockResult.reuseMode != ReuseMode::CALLER_IRRELEVANT_AUTH_TYPE_IRRELEVANT) {
-        IAM_LOGE("reuseMode check fail:%{public}u", reuseUnlockResult.reuseMode);
-        return false;
-    }
-    if (reuseUnlockResult.reuseDuration <= 0 || reuseUnlockResult.reuseDuration > MAX_ALLOWABLE_REUSE_DURATION) {
-        IAM_LOGE("reuseDuration check fail:%{public}" PRIu64, reuseUnlockResult.reuseDuration);
         return false;
     }
     return true;
