@@ -27,6 +27,7 @@
 #include "iam_logger.h"
 #include "iam_ptr.h"
 
+#include "user_auth_api_event_reporter.h"
 #include "user_auth_client_impl.h"
 #include "user_auth_common_defines.h"
 #include "user_auth_napi_helper.h"
@@ -58,22 +59,26 @@ napi_value UserAuthInstanceV10::GetEnrolledState(napi_env env, napi_callback_inf
 {
     napi_value argv[ARGS_ONE] = {nullptr};
     size_t argc = ARGS_ONE;
+    UserAuthApiEventReporter reporter("getEnrolledState");
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
     if (argc != ARGS_ONE) {
         IAM_LOGE("parms error");
         std::string msgStr = "Parameter error. The number of parameters should be 1.";
         napi_throw(env, UserAuthNapiHelper::GenerateErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr));
+        reporter.ReportFailed(UserAuthResultCode::OHOS_INVALID_PARAM);
         return nullptr;
     }
     int32_t type;
     if (UserAuthNapiHelper::GetInt32Value(env, argv[PARAM0], type) != napi_ok) {
         IAM_LOGE("napi_get_value_int32 fail");
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
         return nullptr;
     }
     if (!UserAuthNapiHelper::CheckUserAuthType(type)) {
         IAM_LOGE("CheckUserAuthType fail");
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::TYPE_NOT_SUPPORT));
+        reporter.ReportFailed(UserAuthResultCode::TYPE_NOT_SUPPORT);
         return nullptr;
     }
     AuthType authType = AuthType(type);
@@ -81,14 +86,15 @@ napi_value UserAuthInstanceV10::GetEnrolledState(napi_env env, napi_callback_inf
     int32_t code = UserAuthClientImpl::Instance().GetEnrolledState(API_VERSION_12, authType, enrolledState);
     if (code != SUCCESS) {
         IAM_LOGE("failed to get enrolled state %{public}d", code);
-        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env,
-            UserAuthResultCode(UserAuthNapiHelper::GetResultCodeV10(code))));
+        int32_t resultCode = UserAuthNapiHelper::GetResultCodeV10(code);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode(resultCode)));
+        reporter.ReportFailed(resultCode);
         return nullptr;
     }
-    return DoGetEnrolledStateResult(env, enrolledState);
+    return DoGetEnrolledStateResult(env, enrolledState, reporter);
 }
 
-napi_value UserAuthInstanceV10::DoGetEnrolledStateResult(napi_env env, EnrolledState enrolledState)
+napi_value UserAuthInstanceV10::DoGetEnrolledStateResult(napi_env env, EnrolledState enrolledState, UserAuthApiEventReporter &reporter)
 {
     IAM_LOGD("start");
     napi_value eventInfo;
@@ -96,6 +102,7 @@ napi_value UserAuthInstanceV10::DoGetEnrolledStateResult(napi_env env, EnrolledS
     if (ret != napi_ok) {
         IAM_LOGE("napi_create_object failed %{public}d", ret);
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
         return nullptr;
     }
     int32_t credentialDigest = static_cast<int32_t>(enrolledState.credentialDigest);
@@ -106,15 +113,18 @@ napi_value UserAuthInstanceV10::DoGetEnrolledStateResult(napi_env env, EnrolledS
     if (ret != napi_ok) {
         IAM_LOGE("napi_create_int32 failed %{public}d", ret);
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
         return nullptr;
     }
     ret = UserAuthNapiHelper::SetInt32Property(env, eventInfo, "credentialCount", credentialCount);
     if (ret != napi_ok) {
         IAM_LOGE("napi_create_int32 failed %{public}d", ret);
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
         return nullptr;
     }
     IAM_LOGD("get enrolled state end");
+    reporter.ReportSuccess();
     return eventInfo;
 }
 
