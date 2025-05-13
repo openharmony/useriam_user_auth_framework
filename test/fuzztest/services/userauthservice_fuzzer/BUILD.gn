@@ -58,6 +58,7 @@ ohos_fuzztest("UserAuthServiceFuzzTest") {
     "drivers_interface_user_auth:libuser_auth_proxy_3.0",
     "dsoftbus:softbus_client",
     "eventhandler:libeventhandler",
+    "hdf_core:libhdf_utils",
     "hdf_core:libhdi",
     "hilog:libhilog",
     "ipc:ipc_single",
