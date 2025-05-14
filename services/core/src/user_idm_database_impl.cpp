@@ -108,20 +108,23 @@ int32_t UserIdmDatabaseImpl::DeleteCredentialInfo(int32_t userId, uint64_t crede
         return INVALID_HDI_INTERFACE;
     }
 
-    HdiCredentialInfo hdiInfo = {};
+    HdiCredentialOperateResult hdiResult = {};
     IamHitraceHelper traceHelper("hdi DeleteCredential");
-    int32_t ret = hdi->DeleteCredential(userId, credentialId, authToken, hdiInfo);
+    int32_t ret = hdi->DeleteCredential(userId, credentialId, authToken, hdiResult);
     if (ret != HDF_SUCCESS) {
         IAM_LOGE("failed to delete credential, error code : %{public}d", ret);
         return ret;
     }
 
-    auto info = Common::MakeShared<CredentialInfoImpl>(userId, hdiInfo);
-    if (info == nullptr) {
-        IAM_LOGE("bad alloc");
-        return GENERAL_ERROR;
+    if (hdiResult.operateType == HdiCredentialOperateType::CREDENTIAL_DELETE) {
+        auto info = Common::MakeShared<CredentialInfoImpl>(userId, hdiResult.credentialInfo);
+        if (info == nullptr) {
+            IAM_LOGE("bad alloc");
+            return GENERAL_ERROR;
+        }
+        credInfo = info;
     }
-    credInfo = info;
+
     return SUCCESS;
 }
 
@@ -230,6 +233,36 @@ int32_t UserIdmDatabaseImpl::GetCredentialInfoById(uint64_t credentialId,
     if (credInfo == nullptr) {
         IAM_LOGE("bad alloc");
         return GENERAL_ERROR;
+    }
+
+    return SUCCESS;
+}
+
+int32_t UserIdmDatabaseImpl::ClearUnavailableCredential(int32_t userId,
+    std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos)
+{
+    auto hdi = HdiWrapper::GetHdiInstance();
+    if (hdi == nullptr) {
+        IAM_LOGE("bad hdi");
+        return GENERAL_ERROR;
+    }
+
+    std::vector<HdiCredentialInfo> hdiInfos;
+    std::vector<int32_t> userIds;
+    userIds.push_back(userId);
+    int32_t ret = hdi->ClearUnavailableCredential(userIds, hdiInfos);
+    if (ret != HDF_SUCCESS) {
+        IAM_LOGE("ClearUnavailableCredential failed, error code : %{public}d", ret);
+        return ret;
+    }
+
+    for (const auto &hdiInfo : hdiInfos) {
+        auto infoRet = Common::MakeShared<CredentialInfoImpl>(userId, hdiInfo);
+        if (infoRet == nullptr) {
+            IAM_LOGE("bad alloc");
+            return GENERAL_ERROR;
+        }
+        credInfos.emplace_back(infoRet);
     }
 
     return SUCCESS;

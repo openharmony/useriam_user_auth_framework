@@ -170,6 +170,34 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateWidgetContext_002, TestSize.Lev
     ASSERT_EQ(context, nullptr);
 }
 
+HWTEST_F(ContextFactoryTest, ContextFactoryCreateDeleteContext_001, TestSize.Level0)
+{
+    auto factory = ContextFactory::GetInstance();
+    ASSERT_NE(factory, nullptr);
+    std::vector<uint8_t> token;
+    sptr<IIamCallback> callback(new (std::nothrow) MockIdmCallback());
+    ASSERT_NE(callback, nullptr);
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_DELETE_CREDENTIAL);
+    Deletion::DeleteParam para = {};
+    auto context = factory->CreateDeleteContext(para, contextCallback);
+    ASSERT_NE(context, nullptr);
+    EXPECT_NE(context->GetContextId(), 0U);
+    ASSERT_EQ(context->GetContextType(), CONTEXT_ABANDON);
+}
+
+HWTEST_F(ContextFactoryTest, ContextFactoryCreateDeleteContext_002, TestSize.Level0)
+{
+    auto factory = ContextFactory::GetInstance();
+    ASSERT_NE(factory, nullptr);
+    std::vector<uint8_t> token;
+    // Error: callback is null
+    sptr<IIamCallback> callback(nullptr);
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_DELETE_CREDENTIAL);
+    Deletion::DeleteParam para = {};
+    auto context = factory->CreateDeleteContext(para, contextCallback);
+    ASSERT_EQ(context, nullptr);
+}
+
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

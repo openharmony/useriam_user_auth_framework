@@ -76,6 +76,13 @@ ResultCode IAuthExecutorHdi::SetCachedTemplates(const std::vector<uint64_t> &tem
     return GENERAL_ERROR;
 }
 
+ResultCode IAuthExecutorHdi::Abandon(uint64_t scheduleId, const DeleteParam &param,
+    const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj)
+{
+    IAM_LOGE("method not implemented");
+    return GENERAL_ERROR;
+}
+
 ResultCode IAuthExecutorHdi::NotifyCollectorReady(uint64_t scheduleId)
 {
     IAM_LOGE("method not implemented");

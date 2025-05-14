@@ -79,6 +79,9 @@ private:
         const std::shared_ptr<ContextCallback> &contextCallback);
     int32_t StartEnroll(Enrollment::EnrollmentPara &para,
         const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo, bool needSubscribeAppState);
+    int32_t StartDelete(Deletion::DeleteParam &para, const std::shared_ptr<ContextCallback> &contextCallback,
+        Attributes &extraInfo);
+    void ClearUnavailableCredential(int32_t userId);
     void PublishCommonEvent(int32_t userId, uint64_t credentialId, AuthType authType);
     std::mutex mutex_;
 };

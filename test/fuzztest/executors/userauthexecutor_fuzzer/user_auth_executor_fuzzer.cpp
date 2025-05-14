@@ -166,6 +166,16 @@ public:
         return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
     }
 
+    ResultCode Abandon(uint64_t scheduleId, const DeleteParam &param,
+        const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) override
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (fuzzParcel_ == nullptr) {
+            return ResultCode::GENERAL_ERROR;
+        }
+        return static_cast<ResultCode>(fuzzParcel_->ReadInt32());
+    }
+
     void SetParcel(const std::shared_ptr<Parcel> &parcel)
     {
         std::lock_guard<std::mutex> lock(mutex_);
