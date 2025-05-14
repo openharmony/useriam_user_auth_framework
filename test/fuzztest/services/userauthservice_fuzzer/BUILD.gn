@@ -55,7 +55,7 @@ ohos_fuzztest("UserAuthServiceFuzzTest") {
     "ability_runtime:extension_manager",
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
-    "drivers_interface_user_auth:libuser_auth_proxy_3.0",
+    "drivers_interface_user_auth:libuser_auth_proxy_4.0",
     "dsoftbus:softbus_client",
     "eventhandler:libeventhandler",
     "hdf_core:libhdf_utils",

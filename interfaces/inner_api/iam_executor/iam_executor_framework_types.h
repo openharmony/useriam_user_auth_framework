@@ -124,6 +124,19 @@ struct Property {
     int32_t nextFailLockoutDuration;
 };
 
+/**
+ * @brief Defines Delete parameter.
+ */
+struct DeleteParam {
+    /** Token id. */
+    uint32_t tokenId;
+    /** User id. */
+    int32_t userId;
+    /** Template id. */
+    uint64_t templateId;
+    /** Extra info. */
+    std::vector<uint8_t> extraInfo;
+};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

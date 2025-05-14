@@ -16,6 +16,7 @@
 
 #include "context_callback_impl.h"
 #include "context_pool.h"
+#include "delete_context.h"
 #include "enroll_context.h"
 #include "iam_check.h"
 #include "iam_logger.h"
@@ -119,6 +120,17 @@ std::shared_ptr<Context> ContextFactory::CreateScheduleHolderContext(std::shared
 {
     uint64_t newContextId = ContextPool::GetNewContextId();
     return Common::MakeShared<ScheduleHolderContext>(newContextId, scheduleNode);
+}
+
+std::shared_ptr<Context> ContextFactory::CreateDeleteContext(const Deletion::DeleteParam &para,
+    const std::shared_ptr<ContextCallback> &callback)
+{
+    IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, nullptr);
+    uint64_t newContextId = ContextPool::GetNewContextId();
+    auto deleteImpl = Common::MakeShared<DeleteImpl>(para);
+    IF_FALSE_LOGE_AND_RETURN_VAL(deleteImpl != nullptr, nullptr);
+    deleteImpl->SetAccessTokenId(para.tokenId);
+    return Common::MakeShared<DeleteContext>(newContextId, deleteImpl, callback);
 }
 } // namespace UserAuth
 } // namespace UserIam

@@ -61,6 +61,16 @@ PinSubType CredentialInfoImpl::GetAuthSubType() const
 {
     return static_cast<PinSubType>(info_.authSubType);
 }
+
+bool CredentialInfoImpl::GetAbandonFlag() const
+{
+    return info_.isAbandoned;
+}
+
+int64_t CredentialInfoImpl::GetValidPeriod() const
+{
+    return info_.validityPeriod;
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

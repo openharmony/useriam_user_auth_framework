@@ -64,6 +64,7 @@ private:
     ResultCode ProcessNotifyExecutorReady(const Attributes &properties);
     ResultCode ProcessCustomCommand(const Attributes &properties);
     ResultCode ProcessGetPropertyCommand(std::shared_ptr<Attributes> conditions, std::shared_ptr<Attributes> values);
+    ResultCode ProcessAbandonCommand(uint64_t scheduleId, const Attributes &properties);
     ResultCode FillPropertyToAttribute(const std::vector<Attributes::AttributeKey> &keyList, const Property property,
         std::shared_ptr<Attributes> values);
     const char *GetDescription();

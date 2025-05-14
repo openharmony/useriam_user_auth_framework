@@ -114,6 +114,8 @@ int32_t IdmGetCredInfoCallbackService::OnCredentialInfos(int32_t resultCode,
         credentialInfo.pinType = static_cast<PinSubType>(iter.pinType);
         credentialInfo.credentialId = iter.credentialId;
         credentialInfo.templateId = iter.templateId;
+        credentialInfo.isAbandoned = iter.isAbandoned;
+        credentialInfo.validityPeriod = iter.validityPeriod;
         credInfoList.push_back(credentialInfo);
     }
     getCredInfoCallback_->OnCredentialInfo(resultCode, credInfoList);

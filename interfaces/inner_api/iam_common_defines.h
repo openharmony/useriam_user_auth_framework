@@ -137,6 +137,8 @@ enum ScheduleMode : int32_t {
     AUTH = 1,
     /** The schedule mode is identification. */
     IDENTIFY = 2,
+    /** The schedule mode is abandon. */
+    ABANDON = 4,
 };
 
 /**

@@ -349,6 +349,14 @@ void FuzzGetCredentialInfoSync(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzClearUnavailableCredential(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    int32_t userId = parcel.ReadInt32();
+    g_UserIdmService.ClearUnavailableCredential(userId);
+    IAM_LOGI("end");
+}
+
 using FuzzFunc = decltype(FuzzOpenSession);
 FuzzFunc *g_fuzzFuncs[] = {
     FuzzOpenSession,
@@ -369,6 +377,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzStartEnroll,
     FuzzRegistCredChangeEventListener,
     FuzzGetCredentialInfoSync,
+    FuzzClearUnavailableCredential,
 };
 
 void UserIdmFuzzTest(const uint8_t *data, size_t size)

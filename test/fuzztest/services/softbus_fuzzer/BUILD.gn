@@ -53,7 +53,7 @@ ohos_fuzztest("SoftBusFuzzTest") {
     "c_utils:utils",
     "c_utils:utils",
     "device_manager:devicemanagersdk",
-    "drivers_interface_user_auth:libuser_auth_proxy_3.0",
+    "drivers_interface_user_auth:libuser_auth_proxy_4.0",
     "dsoftbus:softbus_client",
     "eventhandler:libeventhandler",
     "hdf_core:libhdi",
