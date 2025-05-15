@@ -29,13 +29,34 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+using namespace HiviewDFX::HiAppEvent;
+using namespace std::chrono;
 namespace {
 constexpr int32_t REPORT_SUCCESS = 0;
 constexpr int32_t REPORT_FAILED = 1;
 constexpr int64_t INVALID_PROCESSOR_ID = -1;
+void AddEventConfigs(ReportConfig &config)
+{
+    config.eventConfigs.clear();
+    EventConfig event1;
+    event1.domain = "api_diagnostic";
+    event1.name = "api_exec_end";
+    event1.isRealTime = false;
+    config.eventConfigs.push_back(event1);
+
+    EventConfig event2;
+    event2.domain = "api_diagnostic";
+    event2.name = "api_called_stat";
+    event2.isRealTime = true;
+    config.eventConfigs.push_back(event2);
+
+    EventConfig event3;
+    event3.domain = "api_diagnostic";
+    event3.name = "api_called_stat_cnt";
+    event3.isRealTime = true;
+    config.eventConfigs.push_back(event3);
+}
 } // namespace
-using namespace HiviewDFX::HiAppEvent;
-using namespace std::chrono;
 int64_t UserAuthApiEventReporter::processorId_ = INVALID_PROCESSOR_ID;
 
 UserAuthApiEventReporter::UserAuthApiEventReporter(std::string apiName) : apiName_(apiName)
@@ -122,30 +143,8 @@ int64_t UserAuthApiEventReporter::GetProcessorId()
     config.triggerCond.timeout = TRIGGER_COND_TIMEOUT;
     config.triggerCond.row = TRIGGER_COND_ROW;
 
-    config.eventConfigs.clear();
-    {
-        EventConfig event1;
-        event1.domain = "api_diagnostic";
-        event1.name = "api_exec_end";
-        event1.isRealTime = false;
-        config.eventConfigs.push_back(event1);
-    }
+    AddEventConfigs(config);
 
-    {
-        EventConfig event2;
-        event2.domain = "api_diagnostic";
-        event2.name = "api_called_stat";
-        event2.isRealTime = true;
-        config.eventConfigs.push_back(event2);
-    }
-
-    {
-        EventConfig event3;
-        event3.domain = "api_diagnostic";
-        event3.name = "api_called_stat_cnt";
-        event3.isRealTime = true;
-        config.eventConfigs.push_back(event3);
-    }
     int64_t processorId = AppEventProcessorMgr::AddProcessor(config);
     if (processorId < 0) {
         IAM_LOGE("AddProcessor failed, ret = %{public}" PRIi64, processorId);
