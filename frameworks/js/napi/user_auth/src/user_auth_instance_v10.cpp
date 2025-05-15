@@ -94,7 +94,8 @@ napi_value UserAuthInstanceV10::GetEnrolledState(napi_env env, napi_callback_inf
     return DoGetEnrolledStateResult(env, enrolledState, reporter);
 }
 
-napi_value UserAuthInstanceV10::DoGetEnrolledStateResult(napi_env env, EnrolledState enrolledState, UserAuthApiEventReporter &reporter)
+napi_value UserAuthInstanceV10::DoGetEnrolledStateResult(napi_env env, EnrolledState enrolledState,
+    UserAuthApiEventReporter &reporter)
 {
     IAM_LOGD("start");
     napi_value eventInfo;
