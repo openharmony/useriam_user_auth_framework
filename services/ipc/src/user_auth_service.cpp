@@ -1102,7 +1102,7 @@ int32_t UserAuthService::CheckWindowMode(const WidgetParamInner &widgetParam)
 
 uint64_t UserAuthService::StartWidgetContext(const std::shared_ptr<ContextCallback> &contextCallback,
     const AuthParamInner &authParam, const WidgetParamInner &widgetParam, std::vector<AuthType> &validType,
-    ContextFactory::AuthWidgetContextPara &para)
+    ContextFactory::AuthWidgetContextPara &para, const sptr<IModalCallback> &modalCallback)
 {
     Attributes extraInfo;
     para.tokenId = IpcCommon::GetAccessTokenId(*this);
@@ -1113,7 +1113,7 @@ uint64_t UserAuthService::StartWidgetContext(const std::shared_ptr<ContextCallba
         contextCallback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    auto context = ContextFactory::CreateWidgetContext(para, contextCallback);
+    auto context = ContextFactory::CreateWidgetContext(para, contextCallback, modalCallback);
     if (context == nullptr || !Insert2ContextPool(context)) {
         contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget insert context fail");
         contextCallback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
@@ -1230,11 +1230,8 @@ int32_t UserAuthService::StartAuthWidget(AuthParamInner &authParam, WidgetParamI
     }
     ProcessPinExpired(checkRet, authParam, validType, para);
     ProcessWidgetSessionExclusive();
-    if (modalCallback != nullptr && widgetParam.hasContext) {
-        WidgetClient::Instance().SetModalCallback(modalCallback);
-    }
 
-    contextId = StartWidgetContext(contextCallback, authParam, widgetParam, validType, para);
+    contextId = StartWidgetContext(contextCallback, authParam, widgetParam, validType, para, modalCallback);
     if (contextId == BAD_CONTEXT_ID) {
         IAM_LOGE("StartWidgetContext fail");
         return GENERAL_ERROR;
