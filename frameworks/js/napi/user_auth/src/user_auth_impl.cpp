@@ -24,6 +24,7 @@
 #include "iam_ptr.h"
 
 #include "user_auth_napi_helper.h"
+#include "user_auth_api_event_reporter.h"
 #include "user_auth_callback_v6.h"
 #include "user_auth_callback_v8.h"
 #include "user_auth_client_impl.h"
@@ -49,6 +50,7 @@ napi_value UserAuthImpl::GetVersion(napi_env env, napi_callback_info info)
 
 napi_value UserAuthImpl::GetAvailableStatus(napi_env env, napi_callback_info info)
 {
+    UserAuthApiEventReporter reporter("getAvailableStatus");
     napi_value argv[ARGS_TWO] = {nullptr};
     size_t argc = ARGS_TWO;
     napi_value result;
@@ -56,6 +58,7 @@ napi_value UserAuthImpl::GetAvailableStatus(napi_env env, napi_callback_info inf
     if (argc != ARGS_TWO) {
         IAM_LOGE("parms error");
         NAPI_CALL(env, napi_create_int32(env, INVALID_PARAMETERS, &result));
+        reporter.ReportFailed(INVALID_PARAMETERS);
         return result;
     }
     int32_t type;
@@ -68,11 +71,17 @@ napi_value UserAuthImpl::GetAvailableStatus(napi_env env, napi_callback_info inf
     if (checkRet != SUCCESS) {
         IAM_LOGE("CheckAuthTypeAndAuthTrsutLevel failed");
         NAPI_CALL(env, napi_create_int32(env, checkRet, &result));
+        reporter.ReportFailed(checkRet);
         return result;
     }
     int32_t status = UserAuthClientImpl::Instance().GetNorthAvailableStatus(API_VERSION_8, authType, authTrustLevel);
     IAM_LOGI("result = %{public}d", status);
     NAPI_CALL(env, napi_create_int32(env, UserAuthNapiHelper::GetResultCodeV8(status), &result));
+    if (status == SUCCESS) {
+        reporter.ReportSuccess();
+    } else {
+        reporter.ReportFailed(status);
+    }
     return result;
 }
 

@@ -27,6 +27,7 @@
 #include "user_auth_callback_v10.h"
 #include "user_auth_modal_callback.h"
 #include "user_auth_napi_client_impl.h"
+#include "user_auth_api_event_reporter.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -55,7 +56,7 @@ private:
     UserAuthResultCode ProcessWindowMode(napi_env env, napi_value value);
     UserAuthResultCode InitWidgetParam(napi_env env, napi_value value);
     std::shared_ptr<JsRefHolder> GetCallback(napi_env env, napi_value value);
-    static napi_value DoGetEnrolledStateResult(napi_env env, EnrolledState enrolledState);
+    static napi_value DoGetEnrolledStateResult(napi_env env, EnrolledState enrolledState, UserAuthApiEventReporter &reporter);
     UserAuthResultCode ProcessContext(napi_env env, napi_value value);
     bool CheckUIContext(const std::shared_ptr<OHOS::AbilityRuntime::Context> context);
 
