@@ -33,6 +33,7 @@
 #include "context_factory.h"
 #include "in_process_call_wrapper.h"
 #include "iiam_callback.h"
+#include "imodal_callback.h"
 #include "nocopyable.h"
 #include "widget_json.h"
 #include "widget_schedule_node.h"
@@ -50,7 +51,7 @@ class WidgetContext : public WidgetScheduleNodeCallback,
                       public NoCopyable {
 public:
     WidgetContext(uint64_t contextId, const ContextFactory::AuthWidgetContextPara &para,
-        std::shared_ptr<ContextCallback> callback);
+        std::shared_ptr<ContextCallback> callback, const sptr<IModalCallback> &modalCallback);
     ~WidgetContext() override;
 
     // Context API
@@ -134,6 +135,7 @@ private:
     int32_t latestError_ {ResultCode::GENERAL_ERROR};
     ContextFactory::AuthWidgetContextPara para_ {};
     std::shared_ptr<WidgetScheduleNode> schedule_ {nullptr};
+    sptr<IModalCallback> modalCallback_ {nullptr};
     std::recursive_mutex mutex_;
     std::list<TaskInfo> runTaskInfoList_;
     sptr<UIExtensionAbilityConnection> connection_ {nullptr};
