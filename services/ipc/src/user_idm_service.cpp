@@ -523,7 +523,7 @@ int32_t UserIdmService::StartDelete(Deletion::DeleteParam &para,
     if (!context->Start()) {
         IAM_LOGE("failed to start delete");
         contextCallback->OnResult(context->GetLatestError(), extraInfo);
-        return GENERAL_ERROR;
+        return context->GetLatestError();
     }
     return SUCCESS;
 }

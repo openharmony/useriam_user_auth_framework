@@ -36,7 +36,7 @@ constexpr int32_t USER_AUTH_TIP_SINGLE_AUTH_RESULT = 9999;
 constexpr int INVALID_SOCKET_ID = -1;
 constexpr int INVALID_USER_ID = -1;
 constexpr int32_t MAIN_USER_ID = 100;
-constexpr int32_t MAX_USER = 32;
+constexpr int32_t MAX_USER = 5;
 /** Max value of verifyAuthToken allowable duration. */
 constexpr uint32_t MAX_TOKEN_ALLOWABLE_DURATION = 24 * 60 * 60 * 1000;
 
@@ -239,6 +239,8 @@ enum AuthIntent : int {
     SILENT_AUTH = 2,
     /**< The auth intention is question auth. */
     QUESTION_AUTH = 3,
+    /**< The auth intention is abandoned pin auth. */
+    ABANDONED_PIN_AUTH = 4,
 };
 
 constexpr uint64_t INVALID_EXECUTOR_INDEX = 0;

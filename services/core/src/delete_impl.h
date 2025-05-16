@@ -28,7 +28,7 @@ namespace UserIam {
 namespace UserAuth {
 class DeleteImpl final : public Deletion, public NoCopyable {
 public:
-    explicit DeleteImpl(DeleteParam abandonPara);
+    explicit DeleteImpl(DeleteParam deletePara);
     ~DeleteImpl() override;
 
     bool Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
@@ -49,7 +49,7 @@ private:
         std::vector<std::shared_ptr<ScheduleNode>> &scheduleList, std::shared_ptr<ScheduleNodeCallback> callback);
     bool DeleteCredential(int32_t userId, HdiCredentialInfo &credentialInfo, bool &isCredentialDelete);
 
-    DeleteParam abandonPara_;
+    DeleteParam deletePara_;
 
     uint32_t tokenId_ {0};
     uint64_t scheduleId_ {0};

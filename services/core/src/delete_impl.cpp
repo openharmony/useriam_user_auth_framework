@@ -32,7 +32,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-DeleteImpl::DeleteImpl(DeleteParam abandonPara) : abandonPara_(abandonPara)
+DeleteImpl::DeleteImpl(DeleteParam deletePara) : deletePara_(deletePara)
 {
 }
 
@@ -65,13 +65,13 @@ uint32_t DeleteImpl::GetAccessTokenId() const
 
 int32_t DeleteImpl::GetUserId() const
 {
-    return abandonPara_.userId;
+    return deletePara_.userId;
 }
 
 bool DeleteImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
     std::shared_ptr<ScheduleNodeCallback> callback, bool &isCredentialDelete)
 {
-    IAM_LOGE("UserId:%{public}d", abandonPara_.userId);
+    IAM_LOGE("UserId:%{public}d", deletePara_.userId);
     auto hdi = HdiWrapper::GetHdiInstance();
     if (!hdi) {
         IAM_LOGE("bad hdi");
@@ -80,7 +80,7 @@ bool DeleteImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
 
     HdiCredentialOperateResult hdiResult = {};
     IamHitraceHelper traceHelper("hdi DeleteCredential");
-    int32_t ret = hdi->DeleteCredential(abandonPara_.userId, abandonPara_.credentialId, abandonPara_.token,
+    int32_t ret = hdi->DeleteCredential(deletePara_.userId, deletePara_.credentialId, deletePara_.token,
         hdiResult);
     if (ret != HDF_SUCCESS) {
         IAM_LOGE("failed to delete credential, error code : %{public}d", ret);
@@ -88,9 +88,9 @@ bool DeleteImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
     }
 
     if (hdiResult.operateType == HdiCredentialOperateType::CREDENTIAL_DELETE) {
-        return DeleteCredential(abandonPara_.userId, hdiResult.credentialInfo, isCredentialDelete);
+        return DeleteCredential(deletePara_.userId, hdiResult.credentialInfo, isCredentialDelete);
     } else if (hdiResult.operateType == HdiCredentialOperateType::CREDENTIAL_ABANDON) {
-        return StartSchedule(abandonPara_.userId, hdiResult.scheduleInfo, scheduleList, callback);
+        return StartSchedule(deletePara_.userId, hdiResult.scheduleInfo, scheduleList, callback);
     }
 
     return false;
@@ -105,16 +105,16 @@ bool DeleteImpl::Update(const std::vector<uint8_t> &scheduleResult, std::shared_
     }
 
     std::vector<HdiCredentialInfo> credentialInfos;
-    auto result = hdi->UpdateAbandonResult(abandonPara_.userId, scheduleResult, credentialInfos);
+    auto result = hdi->UpdateAbandonResult(deletePara_.userId, scheduleResult, credentialInfos);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi UpdateAbandonResult failed, err is %{public}d, userId is %{public}d", result,
-            abandonPara_.userId);
+            deletePara_.userId);
         SetLatestError(result);
         return false;
     }
     
     if (!credentialInfos.empty()) {
-        info =  Common::MakeShared<CredentialInfoImpl>(abandonPara_.userId, credentialInfos[0]);
+        info =  Common::MakeShared<CredentialInfoImpl>(deletePara_.userId, credentialInfos[0]);
         if (info == nullptr) {
             IAM_LOGE("bad alloc");
             return false;

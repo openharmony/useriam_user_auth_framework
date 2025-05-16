@@ -111,7 +111,7 @@ HWTEST_F(DeleteContextTest, DeleteContextTest_BasicInfo, TestSize.Level0)
     std::shared_ptr<Context> context = oriContext;
 
     ASSERT_EQ(context->GetContextId(), testContestId);
-    ASSERT_EQ(context->GetContextType(), CONTEXT_ABANDON);
+    ASSERT_EQ(context->GetContextType(), CONTEXT_DELETE);
 }
 
 HWTEST_F(DeleteContextTest, DeleteContextTest_Start_001, TestSize.Level0)

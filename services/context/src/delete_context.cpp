@@ -35,7 +35,7 @@ DeleteContext::DeleteContext(uint64_t contextId, std::shared_ptr<Deletion> delet
 
 ContextType DeleteContext::GetContextType() const
 {
-    return CONTEXT_ABANDON;
+    return CONTEXT_DELETE;
 }
 
 uint32_t DeleteContext::GetTokenId() const
@@ -57,7 +57,7 @@ bool DeleteContext::OnStart()
     bool isCredentilaDelete = false;
     bool startRet = deletion_->Start(scheduleList_, shared_from_this(), isCredentilaDelete);
     if (!startRet) {
-        IAM_LOGE("%{public}s abandon start fail", GetDescription());
+        IAM_LOGE("%{public}s delete start fail", GetDescription());
         SetLatestError(deletion_->GetLatestError());
         return startRet;
     }
@@ -99,7 +99,7 @@ bool DeleteContext::OnStop()
     IF_FALSE_LOGE_AND_RETURN_VAL(deletion_ != nullptr, false);
     bool cancelRet = deletion_->Cancel();
     if (!cancelRet) {
-        IAM_LOGE("%{public}s abandon stop fail", GetDescription());
+        IAM_LOGE("%{public}s delete stop fail", GetDescription());
         SetLatestError(deletion_->GetLatestError());
         return cancelRet;
     }
@@ -113,11 +113,11 @@ bool DeleteContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &sche
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleResultAttr != nullptr, false);
     std::vector<uint8_t> scheduleResult;
     bool getResultCodeRet = scheduleResultAttr->GetUint8ArrayValue(Attributes::ATTR_RESULT, scheduleResult);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getResultCodeRet == true, false);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getResultCodeRet, false);
     std::shared_ptr<CredentialInfoInterface> infoToDel;
     bool updateRet = deletion_->Update(scheduleResult, infoToDel);
     if (!updateRet) {
-        IAM_LOGE("%{public}s abandon update fail", GetDescription());
+        IAM_LOGE("%{public}s delete update fail", GetDescription());
         SetLatestError(deletion_->GetLatestError());
         return updateRet;
     }
