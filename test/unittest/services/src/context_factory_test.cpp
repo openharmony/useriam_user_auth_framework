@@ -182,7 +182,7 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateDeleteContext_001, TestSize.Lev
     auto context = factory->CreateDeleteContext(para, contextCallback);
     ASSERT_NE(context, nullptr);
     EXPECT_NE(context->GetContextId(), 0U);
-    ASSERT_EQ(context->GetContextType(), CONTEXT_ABANDON);
+    ASSERT_EQ(context->GetContextType(), CONTEXT_DELETE);
 }
 
 HWTEST_F(ContextFactoryTest, ContextFactoryCreateDeleteContext_002, TestSize.Level0)

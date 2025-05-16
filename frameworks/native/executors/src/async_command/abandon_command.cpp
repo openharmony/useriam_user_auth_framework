@@ -46,19 +46,20 @@ ResultCode AbandonCommand::SendRequest()
 
     uint32_t tokenId = 0;
     bool getTokenIdRet = attributes_->GetUint32Value(Attributes::ATTR_ACCESS_TOKEN_ID, tokenId);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getTokenIdRet == true, ResultCode::GENERAL_ERROR);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getTokenIdRet, ResultCode::GENERAL_ERROR);
 
     std::vector<uint8_t> extraInfo;
     bool getExtraInfoRet = attributes_->GetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, extraInfo);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getExtraInfoRet == true, ResultCode::GENERAL_ERROR);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getExtraInfoRet, ResultCode::GENERAL_ERROR);
 
     int32_t userId;
     bool getUserId = attributes_->GetInt32Value(Attributes::ATTR_USER_ID, userId);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getUserId == true, ResultCode::GENERAL_ERROR);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getUserId, ResultCode::GENERAL_ERROR);
 
     std::vector<uint64_t> templateIds;
     bool getTempalteIds = attributes_->GetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIds);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getTempalteIds == true, ResultCode::GENERAL_ERROR);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getTempalteIds, ResultCode::GENERAL_ERROR);
+    IF_FALSE_LOGE_AND_RETURN_VAL(templateIds.size() != 0, ResultCode::GENERAL_ERROR);
 
     ResultCode ret = hdi->Abandon(scheduleId_, (DeleteParam) { tokenId, userId, templateIds[0], extraInfo},
         shared_from_this());
