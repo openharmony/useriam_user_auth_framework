@@ -17,6 +17,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <filesystem>
 
 #include "iam_logger.h"
 
@@ -27,9 +28,23 @@ namespace UserIam {
 namespace UserAuth {
 bool ConfigParser::Load(const std::string &configPath)
 {
-    std::ifstream file(configPath);
+    std::filesystem::path fsPath(configPath);
+    std::error_code ec;
+    std::filesystem::path canonicalPath = std::filesystem::canonical(fsPath, ec);
+    if (ec) {
+        IAM_LOGE("Failed to get canonical path: %{public}s, error: %{public}s", configPath.c_str(), ec.message().c_str());
+        return false;
+    }
+
+    std::ifstream file(canonicalPath);
     if (!file.is_open()) {
-        IAM_LOGE("Failed to open config file: %{public}s", configPath.c_str());
+        IAM_LOGE("Failed to open config file: %{public}s", canonicalPath.string().c_str());
+        return false;
+    }
+
+    const std::filesystem::path allowedBasePath("/system/etc/useriam");
+    if (canonicalPath.string().find(allowedBasePath.string()) != 0) {
+        IAM_LOGE("Config file path not allowed: %{public}s", canonicalPath.string().c_str());
         return false;
     }
 
@@ -40,7 +55,7 @@ bool ConfigParser::Load(const std::string &configPath)
         isLoaded_ = true;
         return true;
     } catch (const std::exception &e) {
-        IAM_LOGE("Failed to parse config file: %{public}s, error: %{public}s", configPath.c_str(), e.what());
+        IAM_LOGE("Failed to parse config file: %{public}s, error: %{public}s", canonicalPath.string().c_str(), e.what());
         return false;
     }
 }
