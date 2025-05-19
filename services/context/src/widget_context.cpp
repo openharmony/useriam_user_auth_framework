@@ -62,9 +62,10 @@ const std::string SUPPORT_FOLLOW_CALLER_UI = "const.useriam.authWidget.supportFo
 const std::string FIND_PROCESS_NAME = "findnetwork";
 
 WidgetContext::WidgetContext(uint64_t contextId, const ContextFactory::AuthWidgetContextPara &para,
-    std::shared_ptr<ContextCallback> callback)
+    std::shared_ptr<ContextCallback> callback, const sptr<IModalCallback> &modalCallback)
     : contextId_(contextId), description_("UserAuthWidget"), callerCallback_(callback), hasStarted_(false),
-    latestError_(ResultCode::GENERAL_ERROR), para_(para), schedule_(nullptr), connection_(nullptr)
+    latestError_(ResultCode::GENERAL_ERROR), para_(para), schedule_(nullptr), modalCallback_(modalCallback),
+    connection_(nullptr)
 {
     AddDeathRecipient(callerCallback_, contextId_);
     if (!para.isBackgroundApplication) {
@@ -504,7 +505,9 @@ bool WidgetContext::ConnectExtension(const WidgetRotatePara &widgetRotatePara)
     if (para_.widgetParam.hasContext && IsSupportFollowCallerUi()) {
         // As modal application
         // No need do anything, caller death has process; only process timeout for widget.
-        WidgetClient::Instance().LaunchModal(commandData);
+        if (modalCallback_ != nullptr) {
+            modalCallback_->SendCommand(contextId_, commandData);
+        }
         return true;
     }
     // Default as modal system
@@ -526,8 +529,11 @@ bool WidgetContext::DisconnectExtension()
     IAM_LOGI("has context: %{public}d", para_.widgetParam.hasContext);
     if (para_.widgetParam.hasContext && IsSupportFollowCallerUi()) {
         // As modal application release.
-        WidgetClient::Instance().CancelAuth();
-        WidgetClient::Instance().ReleaseModal();
+        schedule_->StopSchedule();
+        if (modalCallback_ != nullptr) {
+            std::string cmdData = "";
+            modalCallback_->SendCommand(contextId_, cmdData);
+        }
         return true;
     }
     // Default as modal system release.
@@ -535,7 +541,7 @@ bool WidgetContext::DisconnectExtension()
         IAM_LOGE("invalid connection handle");
         return false;
     }
-    WidgetClient::Instance().CancelAuth();
+    schedule_->StopSchedule();
     connection_->ReleaseUIExtensionComponent();
     ErrCode ret = AAFwk::ExtensionManagerClient::GetInstance().DisconnectAbility(connection_);
     connection_ = nullptr;
