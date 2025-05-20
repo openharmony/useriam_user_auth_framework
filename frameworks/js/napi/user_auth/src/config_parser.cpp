@@ -15,9 +15,9 @@
 
 #include "config_parser.h"
 
+#include <filesystem>
 #include <fstream>
 #include <sstream>
-#include <filesystem>
 
 #include "iam_logger.h"
 
@@ -32,7 +32,8 @@ bool ConfigParser::Load(const std::string &configPath)
     std::error_code ec;
     std::filesystem::path canonicalPath = std::filesystem::canonical(fsPath, ec);
     if (ec) {
-        IAM_LOGE("Failed to get canonical path: %{public}s, error: %{public}s", configPath.c_str(), ec.message().c_str());
+        IAM_LOGE("Failed to get canonical path: %{public}s, error: %{public}s", configPath.c_str(),
+            ec.message().c_str());
         return false;
     }
 
@@ -55,7 +56,8 @@ bool ConfigParser::Load(const std::string &configPath)
         isLoaded_ = true;
         return true;
     } catch (const std::exception &e) {
-        IAM_LOGE("Failed to parse config file: %{public}s, error: %{public}s", canonicalPath.string().c_str(), e.what());
+        IAM_LOGE("Failed to parse config file: %{public}s, error: %{public}s", canonicalPath.string().c_str(),
+            e.what());
         return false;
     }
 }
