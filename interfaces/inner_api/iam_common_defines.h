@@ -137,6 +137,8 @@ enum ScheduleMode : int32_t {
     AUTH = 1,
     /** The schedule mode is identification. */
     IDENTIFY = 2,
+    /** The schedule mode is abandon. */
+    ABANDON = 4,
 };
 
 /**
@@ -237,6 +239,8 @@ enum AuthIntent : int {
     SILENT_AUTH = 2,
     /**< The auth intention is question auth. */
     QUESTION_AUTH = 3,
+    /**< The auth intention is abandoned pin auth. */
+    ABANDONED_PIN_AUTH = 4,
 };
 
 constexpr uint64_t INVALID_EXECUTOR_INDEX = 0;
