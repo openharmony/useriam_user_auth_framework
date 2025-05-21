@@ -44,6 +44,12 @@ public:
         userAuthInstanceV10_ = MakeShared<UserAuth::UserAuthInstanceV10>();
     }
 
+    UserAuthInstanceImpl(AuthParam const &authParam, WidgetParam const &widgetParam)
+    {
+        userAuthInstanceV10_ = MakeShared<UserAuth::UserAuthInstanceV10>();
+        init(authParam, widgetParam);
+    }
+
     void init(AuthParam const &authParam, WidgetParam const &widgetParam)
     {
         if (userAuthInstanceV10_ == nullptr) {
@@ -108,6 +114,12 @@ public:
     UserAuthWidgetMgrImpl()
     {
         userAuthWidgetMgr_ = MakeShared<UserAuth::UserAuthWidgetMgr>();
+    }
+
+    explict UserAuthWidgetMgrImpl(int32_t version)
+    {
+        userAuthWidgetMgr_ = MakeShared<UserAuth::UserAuthWidgetMgr>();
+        init(version);
     }
 
     void init(int32_t version)
@@ -195,8 +207,7 @@ EnrolledState GetEnrolledState(UserAuthType authType)
 UserAuthInstance GetUserAuthInstance(AuthParam const &authParam, WidgetParam const &widgetParam)
 {
     IAM_LOGI("GetUserAuthInstance begin");
-    auto userAuthInstance = make_holder<UserAuthInstanceImpl, UserAuthInstance>();
-    userAuthInstance->init(authParam, widgetParam);
+    auto userAuthInstance = make_holder<UserAuthInstanceImpl, UserAuthInstance>(authParam, widgetParam);
     return userAuthInstance;
 }
 
@@ -226,8 +237,7 @@ void SendNotice(NoticeType noticeType, string_view eventData)
 UserAuthWidgetMgr GetUserAuthWidgetMgr(double version)
 {
     IAM_LOGI("GetUserAuthWidgetMgr begin");
-    auto userAuthWidgetMgr = make_holder<UserAuthWidgetMgrImpl, UserAuthWidgetMgr>();
-    userAuthWidgetMgr->init(version);
+    auto userAuthWidgetMgr = make_holder<UserAuthWidgetMgrImpl, UserAuthWidgetMgr>(version);
     return userAuthWidgetMgr;
 }
 }  // namespace
