@@ -116,7 +116,7 @@ public:
         userAuthWidgetMgr_ = MakeShared<UserAuth::UserAuthWidgetMgr>();
     }
 
-    explict UserAuthWidgetMgrImpl(int32_t version)
+    explicit UserAuthWidgetMgrImpl(int32_t version)
     {
         userAuthWidgetMgr_ = MakeShared<UserAuth::UserAuthWidgetMgr>();
         init(version);
