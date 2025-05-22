@@ -61,7 +61,7 @@ void WidgetContextTest::TearDown()
 std::shared_ptr<WidgetContext> CreateWidgetContext(uint64_t contextId, ContextFactory::AuthWidgetContextPara para)
 {
     std::shared_ptr<ContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
-    return Common::MakeShared<WidgetContext>(contextId, para, contextCallback);
+    return Common::MakeShared<WidgetContext>(contextId, para, contextCallback, nullptr);
 }
 
 HWTEST_F(WidgetContextTest, WidgetContextTestStart, TestSize.Level0)
@@ -428,7 +428,7 @@ HWTEST_F(WidgetContextTest, WidgetContextTestExecuteAuthList_0001, TestSize.Leve
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
-    auto widgetContext = Common::MakeShared<WidgetContext>(contextId, para, nullptr);
+    auto widgetContext = Common::MakeShared<WidgetContext>(contextId, para, nullptr, nullptr);
     std::set<AuthType> authTypeList;
     widgetContext->ExecuteAuthList(authTypeList, false, AuthIntent::DEFAULT);
     EXPECT_NE(widgetContext, nullptr);
@@ -440,7 +440,7 @@ HWTEST_F(WidgetContextTest, WidgetContextTestExecuteAuthList_0002, TestSize.Leve
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
-    auto widgetContext = Common::MakeShared<WidgetContext>(contextId, para, nullptr);
+    auto widgetContext = Common::MakeShared<WidgetContext>(contextId, para, nullptr, nullptr);
     std::set<AuthType> authTypeList;
     authTypeList.insert(AuthType::PIN);
     widgetContext->ExecuteAuthList(authTypeList, true, AuthIntent::DEFAULT);
@@ -456,7 +456,7 @@ HWTEST_F(WidgetContextTest, WidgetContextTestExecuteAuthList_0003, TestSize.Leve
     para.challenge = {0, 1};
     para.atl = AuthTrustLevel::ATL1;
     auto contextCallback = Common::MakeShared<MockContextCallback>();
-    auto widgetContext = Common::MakeShared<WidgetContext>(contextId, para, contextCallback);
+    auto widgetContext = Common::MakeShared<WidgetContext>(contextId, para, contextCallback, nullptr);
     std::set<AuthType> authTypeList;
     authTypeList.insert(AuthType::PIN);
     widgetContext->ExecuteAuthList(authTypeList, false, AuthIntent::DEFAULT);

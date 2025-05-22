@@ -50,7 +50,7 @@ void WidgetScheduleNodeImplTest::SetUpTestCase()
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
     std::shared_ptr<ContextCallback> callback = Common::MakeShared<MockContextCallback>();
-    widgetContext = Common::MakeShared<WidgetContext>(contextId, para, callback);
+    widgetContext = Common::MakeShared<WidgetContext>(contextId, para, callback, nullptr);
 }
 
 void WidgetScheduleNodeImplTest::TearDownTestCase()

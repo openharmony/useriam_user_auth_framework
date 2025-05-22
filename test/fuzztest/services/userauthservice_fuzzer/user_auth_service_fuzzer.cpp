@@ -448,7 +448,7 @@ void FuzzInsert2ContextPool(Parcel &parcel)
 {
     IAM_LOGI("begin");
     ContextFactory::AuthWidgetContextPara para = {};
-    auto context = ContextFactory::CreateWidgetContext(para, nullptr);
+    auto context = ContextFactory::CreateWidgetContext(para, nullptr, nullptr);
     g_userAuthService.Insert2ContextPool(context);
     IAM_LOGI("end");
 }
@@ -532,7 +532,7 @@ void FuzzStartWidgetContext(Parcel &parcel)
     WidgetParamInner widgetParam = {};
     std::vector<AuthType> validType = {PIN};
     ContextFactory::AuthWidgetContextPara para;
-    g_userAuthService.StartWidgetContext(contextCallback, authParam, widgetParam, validType, para);
+    g_userAuthService.StartWidgetContext(contextCallback, authParam, widgetParam, validType, para, nullptr);
     IAM_LOGI("end");
 }
 

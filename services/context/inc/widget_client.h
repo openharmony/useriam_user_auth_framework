@@ -54,15 +54,10 @@ public:
     void SetSensorInfo(const std::string &info);
     void Reset();
     void ForceStopAuth();
-    void CancelAuth();
 
     // extra info
     void SetChallenge(const std::vector<uint8_t> &challenge);
     void SetCallingBundleName(const std::string &callingBundleName);
-
-    void SetModalCallback(const sptr<IModalCallback> &callback);
-    void LaunchModal(const std::string &commandData);
-    void ReleaseModal();
 
 private:
     WidgetClient() = default;
@@ -82,7 +77,6 @@ private:
     uint32_t authTokenId_ {0};
     std::vector<uint8_t> challenge_ {};
     std::string callingBundleName_ {""};
-    sptr<IModalCallback> modalCallback_ {nullptr};
 };
 } // namespace UserAuth
 } // namespace UserIam
