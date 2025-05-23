@@ -63,7 +63,7 @@ ohos_source_set("userauth_services_ipc") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "device_manager:devicemanagersdk",
-    "drivers_interface_user_auth:libuser_auth_proxy_3.0",
+    "drivers_interface_user_auth:libuser_auth_proxy_4.0",
     "dsoftbus:softbus_client",
     "hdf_core:libhdf_utils",
     "hdf_core:libhdi",

@@ -142,6 +142,8 @@ int32_t UserIdmService::GetCredentialInfoInner(int32_t userId, AuthType authType
         info.templateId = credInfo->GetTemplateId();
         info.authType = credInfo->GetAuthType();
         info.pinType = credInfo->GetAuthSubType();
+        info.isAbandoned = credInfo->GetAbandonFlag();
+        info.validityPeriod = credInfo->GetValidPeriod();
         credInfoList.push_back(info);
     }
     return SUCCESS;
@@ -164,18 +166,29 @@ int32_t UserIdmService::GetCredentialInfo(int32_t userId, int32_t authType,
         credInfoList.clear();
     }
     
+    bool hasAbandonedCredential = false;
     for (auto &iter : credInfoList) {
+        if (iter.isAbandoned && iter.validityPeriod == 0) {
+            hasAbandonedCredential = true;
+            continue;
+        }
         IpcCredentialInfo ipcCredInfo;
         ipcCredInfo.authType = static_cast<int32_t>(iter.authType);
         ipcCredInfo.pinType = static_cast<int32_t>(iter.pinType.value_or(PIN_SIX));
         ipcCredInfo.credentialId = iter.credentialId;
         ipcCredInfo.templateId = iter.templateId;
+        ipcCredInfo.isAbandoned = iter.isAbandoned;
+        ipcCredInfo.validityPeriod = iter.validityPeriod;
         ipcCredInfoList.push_back(ipcCredInfo);
     }
 
     auto retCode = callback->OnCredentialInfos(ret, ipcCredInfoList);
     if (retCode != SUCCESS) {
         IAM_LOGE("OnCredentialInfos fail, ret: %{public}d", retCode);
+    }
+
+    if (hasAbandonedCredential) {
+        ClearUnavailableCredential(userId);
     }
     return ret;
 }
@@ -494,6 +507,27 @@ int32_t UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> &auth
     return SUCCESS;
 }
 
+int32_t UserIdmService::StartDelete(Deletion::DeleteParam &para,
+    const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo)
+{
+    auto context = ContextFactory::CreateDeleteContext(para, contextCallback);
+    if (context == nullptr || !ContextPool::Instance().Insert(context)) {
+        IAM_LOGE("failed to insert context");
+        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
+        return GENERAL_ERROR;
+    }
+    contextCallback->SetTraceRequestContextId(context->GetContextId());
+    auto cleaner = ContextHelper::Cleaner(context);
+    contextCallback->SetCleaner(cleaner);
+
+    if (!context->Start()) {
+        IAM_LOGE("failed to start delete");
+        contextCallback->OnResult(context->GetLatestError(), extraInfo);
+        return context->GetLatestError();
+    }
+    return SUCCESS;
+}
+
 int32_t UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
     const std::vector<uint8_t> &authToken, const sptr<IIamCallback> &idmCallback)
 {
@@ -522,31 +556,14 @@ int32_t UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
 
     std::lock_guard<std::mutex> lock(mutex_);
     CancelCurrentEnrollIfExist();
-
-    std::shared_ptr<CredentialInfoInterface> oldInfo;
-    auto ret = UserIdmDatabase::Instance().DeleteCredentialInfo(userId, credentialId, authToken, oldInfo);
-    if (ret != SUCCESS) {
-        IAM_LOGE("failed to delete CredentialInfo");
-        contextCallback->OnResult(ret, extraInfo);
-        return ret;
-    }
-    if (oldInfo != nullptr) {
-        contextCallback->SetTraceAuthType(oldInfo->GetAuthType());
-    }
-
-    IAM_LOGI("delete credentialInfo success");
-    std::vector<std::shared_ptr<CredentialInfoInterface>> list = {oldInfo};
-    ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(list, "DeleteTemplate");
-    if (ret != SUCCESS) {
-        IAM_LOGE("failed to delete executor info, error code : %{public}d", ret);
-    }
-
-    contextCallback->OnResult(ret, extraInfo);
-    if (oldInfo != nullptr) {
-        PublishCommonEvent(userId, credentialId, oldInfo->GetAuthType());
-    }
-
-    return SUCCESS;
+    std::shared_ptr<CredentialInfoInterface> credInfo;
+    Deletion::DeleteParam deleteParam = {
+        .userId = userId,
+        .credentialId = credentialId,
+        .tokenId = IpcCommon::GetAccessTokenId(*this),
+        .token = authToken,
+    };
+    return StartDelete(deleteParam, contextCallback, extraInfo);
 }
 
 int UserIdmService::Dump(int fd, const std::vector<std::u16string> &args)
@@ -731,15 +748,25 @@ int32_t UserIdmService::GetCredentialInfoSync(int32_t userId, int32_t authType,
         credentialInfoList.clear();
     }
 
+    bool hasAbandonedCredential = false;
     for (auto &iter : credentialInfoList) {
+        if (iter.isAbandoned && iter.validityPeriod == 0) {
+            hasAbandonedCredential = true;
+            continue;
+        }
         IpcCredentialInfo ipcCredInfo;
         ipcCredInfo.authType = static_cast<int32_t>(iter.authType);
         ipcCredInfo.pinType = static_cast<int32_t>(iter.pinType.value_or(PIN_SIX));
         ipcCredInfo.credentialId = iter.credentialId;
         ipcCredInfo.templateId = iter.templateId;
+        ipcCredInfo.isAbandoned = iter.isAbandoned;
+        ipcCredInfo.validityPeriod = iter.validityPeriod;
         ipcCredentialInfoList.push_back(ipcCredInfo);
     }
 
+    if (hasAbandonedCredential) {
+        ClearUnavailableCredential(userId);
+    }
     IAM_LOGI("GetCredentialInfoSync success, credential num:%{public}zu", ipcCredentialInfoList.size());
     return ret;
 }
@@ -797,6 +824,31 @@ int32_t UserIdmService::UnRegistCredChangeEventListener(const sptr<IEventListene
         return result;
     }
     return SUCCESS;
+}
+
+void UserIdmService::ClearUnavailableCredential(int32_t userId)
+{
+    IAM_LOGI("start");
+    Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
+
+    std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
+    int32_t ret = UserIdmDatabase::Instance().ClearUnavailableCredential(userId, credInfos);
+    if (ret != SUCCESS) {
+        IAM_LOGE("clear expired credential fail, ret:%{public}d, userId:%{public}d", ret, userId);
+        return;
+    }
+
+    if (credInfos.empty()) {
+        IAM_LOGI("no abandoned credential");
+        return;
+    }
+
+    ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos, "DeleteTemplate");
+    if (ret != SUCCESS) {
+        IAM_LOGE("failed to delete executor info, error code : %{public}d", ret);
+    }
+
+    return;
 }
 
 int32_t UserIdmService::CallbackEnter([[maybe_unused]] uint32_t code)

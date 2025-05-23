@@ -18,6 +18,7 @@
 #include <mutex>
 #include <sstream>
 
+#include "abandon_command.h"
 #include "auth_command.h"
 #include "collect_command.h"
 #include "custom_command.h"
@@ -73,6 +74,9 @@ ResultCode FrameworkExecutorCallback::OnBeginExecuteInner(uint64_t scheduleId, s
             break;
         case IDENTIFY:
             ret = ProcessIdentifyCommand(scheduleId, commandAttrs);
+            break;
+        case ABANDON:
+            ret = ProcessAbandonCommand(scheduleId, commandAttrs);
             break;
         default:
             IAM_LOGE("command id %{public}u is not supported", commandId);
@@ -352,6 +356,14 @@ ResultCode FrameworkExecutorCallback::ProcessGetPropertyCommand(std::shared_ptr<
     IF_FALSE_LOGE_AND_RETURN_VAL(fillAttributeRet == SUCCESS, ResultCode::GENERAL_ERROR);
 
     return ResultCode::SUCCESS;
+}
+
+ResultCode FrameworkExecutorCallback::ProcessAbandonCommand(uint64_t scheduleId, const Attributes &properties)
+{
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    auto command = Common::MakeShared<AbandonCommand>(executor_, scheduleId, properties, executorMessenger_);
+    IF_FALSE_LOGE_AND_RETURN_VAL(command != nullptr, ResultCode::GENERAL_ERROR);
+    return command->StartProcess();
 }
 
 ResultCode FrameworkExecutorCallback::FillPropertyToAttribute(const std::vector<Attributes::AttributeKey> &keyList,

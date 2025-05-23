@@ -225,13 +225,15 @@ HWTEST_F(UserIdmDatabaseTest, DeleteCredentialInfo002, TestSize.Level0)
     EXPECT_CALL(*mockHdi, DeleteCredential(_, _, _, _)).Times(1);
     ON_CALL(*mockHdi, DeleteCredential)
         .WillByDefault(
-            [](int32_t userId, uint64_t credentialId, const std::vector<uint8_t> &authToken, HdiCredentialInfo &info) {
-                info.authType = static_cast<HdiAuthType>(1);
-                info.credentialId = 10;
-                info.executorIndex = 20;
-                info.executorMatcher = 30;
-                info.executorSensorHint = 40;
-                info.templateId = 50;
+            [](int32_t userId, uint64_t credentialId, const std::vector<uint8_t> &authToken,
+                HdiCredentialOperateResult &operateResult) {
+                operateResult.operateType = HdiCredentialOperateType::CREDENTIAL_DELETE;
+                operateResult.credentialInfo.authType = static_cast<HdiAuthType>(1);
+                operateResult.credentialInfo.credentialId = 10;
+                operateResult.credentialInfo.executorIndex = 20;
+                operateResult.credentialInfo.executorMatcher = 30;
+                operateResult.credentialInfo.executorSensorHint = 40;
+                operateResult.credentialInfo.templateId = 50;
                 return HDF_SUCCESS;
             }
         );

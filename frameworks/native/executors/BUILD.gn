@@ -32,6 +32,7 @@ ohos_shared_library("userauth_executors") {
   }
   branch_protector_ret = "pac_ret"
   sources = [
+    "src/async_command/abandon_command.cpp",
     "src/async_command/async_command_base.cpp",
     "src/async_command/auth_command.cpp",
     "src/async_command/collect_command.cpp",

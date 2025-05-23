@@ -173,6 +173,17 @@ public:
      * @return Return the result success or error code{@link ResultCode}.
      */
     virtual ResultCode NotifyCollectorReady(uint64_t scheduleId);
+
+    /**
+     * @brief Begin abandon.
+     *
+     * @param scheduleId Current abandon schedule ID.
+     * @param param Abandon param.
+     * @param callbackObj Callback of abandon result.
+     * @return Return the result success or error code{@link ResultCode}.
+     */
+    virtual ResultCode Abandon(uint64_t scheduleId, const DeleteParam &param,
+        const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj);
 };
 } // namespace UserAuth
 } // namespace UserIam

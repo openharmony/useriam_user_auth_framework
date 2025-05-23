@@ -67,7 +67,7 @@ public:
     }
 
     int32_t DeleteCredential(int32_t userId, uint64_t credentialId, const std::vector<uint8_t> &authToken,
-        HdiCredentialInfo &info)
+        HdiCredentialOperateResult &operateResult)
     {
         return 0;
     }
@@ -208,6 +208,18 @@ public:
     }
 
     int32_t GetCredentialById(uint64_t credentialId, HdiCredentialInfo &info)
+    {
+        return 0;
+    }
+
+    int32_t UpdateAbandonResult(int32_t userId, const std::vector<uint8_t> &scheduleResult,
+        std::vector<HdiCredentialInfo> &infos)
+    {
+        return 0;
+    }
+
+    int32_t ClearUnavailableCredential(const std::vector<int32_t> &userIds,
+        std::vector<HdiCredentialInfo> &infos)
     {
         return 0;
     }
