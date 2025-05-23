@@ -529,7 +529,9 @@ bool WidgetContext::DisconnectExtension()
     IAM_LOGI("has context: %{public}d", para_.widgetParam.hasContext);
     if (para_.widgetParam.hasContext && IsSupportFollowCallerUi()) {
         // As modal application release.
-        schedule_->StopSchedule();
+        if (schedule_ != nullptr) {
+            schedule_->StopSchedule();
+        }
         if (modalCallback_ != nullptr) {
             std::string cmdData = "";
             modalCallback_->SendCommand(contextId_, cmdData);
@@ -541,7 +543,9 @@ bool WidgetContext::DisconnectExtension()
         IAM_LOGE("invalid connection handle");
         return false;
     }
-    schedule_->StopSchedule();
+    if (schedule_ != nullptr) {
+        schedule_->StopSchedule();
+    }
     connection_->ReleaseUIExtensionComponent();
     ErrCode ret = AAFwk::ExtensionManagerClient::GetInstance().DisconnectAbility(connection_);
     connection_ = nullptr;
