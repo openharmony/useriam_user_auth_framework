@@ -39,11 +39,6 @@ namespace {
 
 class UserAuthInstanceImpl {
 public:
-    UserAuthInstanceImpl()
-    {
-        userAuthInstanceV10_ = MakeShared<UserAuth::UserAuthInstanceV10>();
-    }
-
     UserAuthInstanceImpl(AuthParam const &authParam, WidgetParam const &widgetParam)
     {
         userAuthInstanceV10_ = MakeShared<UserAuth::UserAuthInstanceV10>();
@@ -111,11 +106,6 @@ private:
 
 class UserAuthWidgetMgrImpl {
 public:
-    UserAuthWidgetMgrImpl()
-    {
-        userAuthWidgetMgr_ = MakeShared<UserAuth::UserAuthWidgetMgr>();
-    }
-
     explicit UserAuthWidgetMgrImpl(int32_t version)
     {
         userAuthWidgetMgr_ = MakeShared<UserAuth::UserAuthWidgetMgr>();
