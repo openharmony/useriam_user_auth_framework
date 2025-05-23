@@ -36,6 +36,8 @@ public:
     uint32_t GetExecutorSensorHint() const override;
     uint32_t GetExecutorMatcher() const override;
     PinSubType GetAuthSubType() const override;
+    bool GetAbandonFlag() const override;
+    int64_t GetValidPeriod() const override;
 
 private:
     int32_t userId_;

@@ -41,8 +41,8 @@ public:
     MOCK_METHOD3(UpdateEnrollmentResult, int32_t(int32_t userId, const std::vector<uint8_t> &scheduleResult,
                                              HdiEnrollResultInfo &info));
     MOCK_METHOD1(CancelEnrollment, int32_t(int32_t userId));
-    MOCK_METHOD4(DeleteCredential,
-        int32_t(int32_t userId, uint64_t credentialId, const std::vector<uint8_t> &authToken, HdiCredentialInfo &info));
+    MOCK_METHOD4(DeleteCredential, int32_t(int32_t userId, uint64_t credentialId,
+        const std::vector<uint8_t> &authToken, HdiCredentialOperateResult &operateResult));
     MOCK_METHOD3(GetCredential, int32_t(int32_t userId, int32_t authType, std::vector<HdiCredentialInfo> &infos));
     MOCK_METHOD4(GetUserInfo,
         int32_t(int32_t userId, uint64_t &secureUid, int32_t &pinSubType, std::vector<HdiEnrolledInfo> &infos));
@@ -84,6 +84,10 @@ public:
     MOCK_METHOD4(VerifyAuthToken, int32_t(const std::vector<uint8_t>& tokenIn, uint64_t allowableDuration,
         HdiUserAuthTokenPlain &tokenPlainOut, std::vector<uint8_t>& rootSecret));
     MOCK_METHOD2(GetCredentialById, int32_t(uint64_t credentialId, HdiCredentialInfo &info));
+    MOCK_METHOD3(UpdateAbandonResult, int32_t(int32_t userId, const std::vector<uint8_t> &scheduleResult,
+        std::vector<HdiCredentialInfo> &infos));
+    MOCK_METHOD2(ClearUnavailableCredential, int32_t(const std::vector<int32_t> &userIds,
+        std::vector<HdiCredentialInfo> &infos));
 };
 
 class MockIUserAuthInterface::Holder : public Singleton<MockIUserAuthInterface::Holder> {

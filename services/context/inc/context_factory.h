@@ -23,6 +23,7 @@
 
 #include "singleton.h"
 #include "authentication_impl.h"
+#include "delete_impl.h"
 #include "enrollment_impl.h"
 #include "context.h"
 #include "context_callback.h"
@@ -74,6 +75,8 @@ public:
     static std::shared_ptr<Context> CreateWidgetContext(const AuthWidgetContextPara &para,
         std::shared_ptr<ContextCallback> callback, const sptr<IModalCallback> &modalCallback);
     static std::shared_ptr<Context> CreateScheduleHolderContext(std::shared_ptr<ScheduleNode> scheduleNode);
+    static std::shared_ptr<Context> CreateDeleteContext(const Deletion::DeleteParam &para,
+        const std::shared_ptr<ContextCallback> &callback);
 };
 } // namespace UserAuth
 } // namespace UserIam

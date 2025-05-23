@@ -780,7 +780,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelCredential001, TestSize.Level0)
         )
         .WillOnce(
             [](int32_t result, const std::vector<uint8_t> &extraInfo) {
-                EXPECT_EQ(result, HDF_FAILURE);
+                EXPECT_EQ(result, GENERAL_ERROR);
                 return SUCCESS;
             }
         );
@@ -793,7 +793,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelCredential001, TestSize.Level0)
         CHECK_PERMISSION_FAILED);
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
     EXPECT_EQ(service.DelCredential(testUserId, testCredentialId, testAuthToken, testCallback),
-        HDF_FAILURE);
+        GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -828,13 +828,15 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelCredential003, TestSize.Level0)
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, DeleteCredential(_, _, _, _))
         .WillOnce(
-            [](int32_t userId, uint64_t credentialId, const std::vector<uint8_t> &authToken, HdiCredentialInfo &info) {
-                info.authType = static_cast<HdiAuthType>(1);
-                info.credentialId = 10;
-                info.executorIndex = 20;
-                info.executorMatcher = 30;
-                info.executorSensorHint = 40;
-                info.templateId = 50;
+            [](int32_t userId, uint64_t credentialId, const std::vector<uint8_t> &authToken,
+                HdiCredentialOperateResult &operateResult) {
+                operateResult.operateType = HdiCredentialOperateType::CREDENTIAL_DELETE;
+                operateResult.credentialInfo.authType = static_cast<HdiAuthType>(1);
+                operateResult.credentialInfo.credentialId = 10;
+                operateResult.credentialInfo.executorIndex = 20;
+                operateResult.credentialInfo.executorMatcher = 30;
+                operateResult.credentialInfo.executorSensorHint = 40;
+                operateResult.credentialInfo.templateId = 50;
                 return HDF_SUCCESS;
             }
         );
@@ -1101,6 +1103,61 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfoSync003, TestSize.Le
     int32_t ret = service.GetCredentialInfoSync(testUserId, testAuthType, credentialInfoList);
     EXPECT_EQ(ret, SUCCESS);
     IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserIdmServiceTest, UserIdmServiceClearUnavailableCredential001, TestSize.Level0)
+{
+    UserIdmService service(123123, true);
+    int32_t testUserId = 1;
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, ClearUnavailableCredential(_, _)).WillOnce(Return(HDF_FAILURE));
+    service.ClearUnavailableCredential(testUserId);
+}
+
+HWTEST_F(UserIdmServiceTest, UserIdmServiceClearUnavailableCredential002, TestSize.Level0)
+{
+    UserIdmService service(123123, true);
+    int32_t testUserId = 1;
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, ClearUnavailableCredential(_, _)).Times(1);
+    ON_CALL(*mockHdi, ClearUnavailableCredential)
+        .WillByDefault(
+            [](const std::vector<int32_t>& userIds, std::vector<HdiCredentialInfo>& infos) {
+                return HDF_SUCCESS;
+            }
+        );
+    service.ClearUnavailableCredential(testUserId);
+}
+
+HWTEST_F(UserIdmServiceTest, UserIdmServiceClearUnavailableCredential003, TestSize.Level0)
+{
+    UserIdmService service(123123, true);
+    int32_t testUserId = 1;
+    std::vector<IpcCredentialInfo> credentialInfoList;
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, ClearUnavailableCredential(_, _)).Times(1);
+    ON_CALL(*mockHdi, ClearUnavailableCredential)
+        .WillByDefault(
+            [](const std::vector<int32_t>& userIds, std::vector<HdiCredentialInfo>& infos) {
+                HdiCredentialInfo tempInfo = {
+                    .credentialId = 1,
+                    .executorIndex = 2,
+                    .templateId = 3,
+                    .authType = static_cast<HdiAuthType>(1),
+                    .executorMatcher = 2,
+                    .executorSensorHint = 3,
+                };
+                infos.push_back(tempInfo);
+                return HDF_SUCCESS;
+            }
+        );
+    service.ClearUnavailableCredential(testUserId);
 }
 } // namespace UserAuth
 } // namespace UserIam
