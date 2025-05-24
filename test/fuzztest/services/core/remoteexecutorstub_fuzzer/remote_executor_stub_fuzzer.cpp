@@ -44,9 +44,35 @@ namespace {
 
 auto g_RemoteExecutorStub = MakeShared<RemoteExecutorStub>();
 
+void FillIAttributes(Parcel &parcel, Attributes &attributes)
+{
+    bool fillNull = parcel.ReadBool();
+    if (fillNull) {
+        return;
+    }
+
+    attributes.SetUint64Value(Attributes::ATTR_TEMPLATE_ID, parcel.ReadUint64());
+    attributes.SetUint64Value(Attributes::ATTR_CALLER_UID, parcel.ReadUint64());
+    attributes.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, parcel.ReadUint32());
+    attributes.SetUint32Value(Attributes::ATTR_MSG_TYPE, parcel.ReadUint32());
+    attributes.SetUint32Value(Attributes::ATTR_REMAIN_TIMES, parcel.ReadUint32());
+    attributes.SetUint32Value(Attributes::ATTR_FREEZING_TIME, parcel.ReadUint32());
+    std::vector<uint64_t> templateIdList;
+    FillFuzzUint64Vector(parcel, templateIdList);
+    attributes.SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIdList);
+    std::vector<uint8_t> extraInfo;
+    FillFuzzUint8Vector(parcel, extraInfo);
+    attributes.SetUint64ArrayValue(Attributes::ATTR_EXTRA_INFO, templateIdList);
+    attributes.SetUint64Value(Attributes::ATTR_CALLER_UID, parcel.ReadUint64());
+    attributes.SetUint32Value(Attributes::ATTR_SCHEDULE_MODE, parcel.ReadUint32());
+}
+
 void FuzzTest(Parcel &parcel)
 {
     IAM_LOGI("begin");
+    if (g_RemoteExecutorStub == nullptr) {
+        return;
+    }
     std::vector<uint8_t> uint8Vector;
     FillFuzzUint8Vector(parcel, uint8Vector);
 
@@ -87,16 +113,23 @@ void RemoteExecutorProxyFuzzTest(Parcel &parcel)
 
     std::string srcEndPoint = parcel.ReadString();
     auto request = MakeShared<Attributes>();
+    request->SetUint32Value(Attributes::ATTR_MSG_TYPE, parcel.ReadUint32());
     auto reply = MakeShared<Attributes>();
     remoteExecutorProxy->OnMessage(connectionName, srcEndPoint, request, reply);
     remoteExecutorProxy->OnConnectStatus(connectionName, ConnectStatus::DISCONNECTED);
+    shared_ptr<ExecutorMessenger> messenger = nullptr;
     uint64_t scheduleId = parcel.ReadUint64();
     std::vector<uint8_t> publicKey;
     FillFuzzUint8Vector(parcel, publicKey);
+    std::vector<uint64_t> templateIdList;
+    FillFuzzUint64Vector(parcel, templateIdList);
+    remoteExecutorProxy->OnMessengerReady(messenger, publicKey, templateIdList);
     Attributes command;
+    FillIAttributes(parcel, command);
     remoteExecutorProxy->OnBeginExecute(scheduleId, publicKey, command);
     remoteExecutorProxy->OnEndExecute(scheduleId, command);
     remoteExecutorProxy->OnSendData(scheduleId, command);
+    remoteExecutorProxy->ProcSendDataMsg(command);
     remoteExecutorProxy->OnErrorFinish(scheduleId);
 
     IAM_LOGI("end");
