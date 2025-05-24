@@ -82,7 +82,6 @@ private:
     int32_t StartDelete(Deletion::DeleteParam &para, const std::shared_ptr<ContextCallback> &contextCallback,
         Attributes &extraInfo);
     void ClearUnavailableCredential(int32_t userId);
-    void PublishCommonEvent(int32_t userId, uint64_t credentialId, AuthType authType);
     std::mutex mutex_;
 };
 } // namespace UserAuth

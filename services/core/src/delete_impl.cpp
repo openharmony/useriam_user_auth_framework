@@ -15,6 +15,7 @@
 #include "delete_impl.h"
 
 #include "credential_info_impl.h"
+#include "event_listener_manager.h"
 #include "hdi_wrapper.h"
 #include "iam_hitrace_helper.h"
 #include "iam_logger.h"
@@ -119,6 +120,7 @@ bool DeleteImpl::Update(const std::vector<uint8_t> &scheduleResult, std::shared_
             IAM_LOGE("bad alloc");
             return false;
         }
+        PublishCommonEvent(deletePara_.userId, info->GetCredentialId(), info->GetAuthType());
     }
 
     return true;
@@ -174,7 +176,24 @@ bool DeleteImpl::DeleteCredential(int32_t userId, HdiCredentialInfo &credentialI
         return false;
     }
     isCredentialDelete = true;
+    PublishCommonEvent(userId, info->GetCredentialId(), info->GetAuthType());
     return true;
+}
+
+void DeleteImpl::PublishCommonEvent(int32_t userId, uint64_t credentialId, AuthType authType)
+{
+    std::vector<std::shared_ptr<CredentialInfoInterface>> credentialInfos;
+    int32_t ret = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType, credentialInfos);
+    if (ret != SUCCESS) {
+        IAM_LOGE("get credential fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret, userId, authType);
+        return;
+    }
+    PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, authType, credentialInfos.size());
+    PublishEventAdapter::GetInstance().PublishUpdatedEvent(userId, credentialId);
+    if (authType != PIN) {
+        CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(
+            userId, authType, DEL_CRED, credentialId);
+    }
 }
 } // namespace UserAuth
 } // namespace UserIam
