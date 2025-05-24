@@ -52,6 +52,29 @@ namespace UserAuth {
 namespace {
 constexpr uint32_t OPERATION_TYPE = 1;
 
+void FillIAttributes(Parcel &parcel, Attributes &attributes)
+{
+    bool fillNull = parcel.ReadBool();
+    if (fillNull) {
+        return;
+    }
+
+    attributes.SetUint64Value(Attributes::ATTR_TEMPLATE_ID, parcel.ReadUint64());
+    attributes.SetUint64Value(Attributes::ATTR_CALLER_UID, parcel.ReadUint64());
+    attributes.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, parcel.ReadUint32());
+    attributes.SetUint32Value(Attributes::ATTR_MSG_TYPE, parcel.ReadUint32());
+    attributes.SetUint32Value(Attributes::ATTR_REMAIN_TIMES, parcel.ReadUint32());
+    attributes.SetUint32Value(Attributes::ATTR_FREEZING_TIME, parcel.ReadUint32());
+    std::vector<uint64_t> templateIdList;
+    FillFuzzUint64Vector(parcel, templateIdList);
+    attributes.SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIdList);
+    std::vector<uint8_t> extraInfo;
+    FillFuzzUint8Vector(parcel, extraInfo);
+    attributes.SetUint64ArrayValue(Attributes::ATTR_EXTRA_INFO, templateIdList);
+    attributes.SetUint64Value(Attributes::ATTR_CALLER_UID, parcel.ReadUint64());
+    attributes.SetUint32Value(Attributes::ATTR_SCHEDULE_MODE, parcel.ReadUint32());
+}
+
 void ContextAppStateObserverFuzzTest(Parcel &parcel)
 {
     IAM_LOGI("begin");
@@ -111,6 +134,8 @@ void RemoteAuthContextFuzzTest(Parcel &parcel)
     FillFuzzUint8Vector(parcel, msg);
     remoteAuthContext->SetExecutorInfoMsg(msg);
     remoteAuthContext->OnStart();
+    remoteAuthContext->StartAuth();
+    remoteAuthContext->StartAuthDelayed();
     remoteAuthContext->OnTimeOut();
     std::string connectionName = parcel.ReadString();
     remoteAuthContext->OnConnectStatus(connectionName, ConnectStatus::DISCONNECTED);
@@ -159,7 +184,7 @@ void RemoteAuthInvokerContextFuzzTest(Parcel &parcel)
     std::string srcEndPoint = parcel.ReadString();
     auto request = MakeShared<Attributes>();
     auto reply = MakeShared<Attributes>();
-
+    request->SetUint32Value(Attributes::ATTR_MSG_TYPE, parcel.ReadUint32());
     remoteAuthInvokerContext->OnMessage(connectionName, srcEndPoint, request, reply);
 
     int32_t resultCode = parcel.ReadInt32();
@@ -169,6 +194,10 @@ void RemoteAuthInvokerContextFuzzTest(Parcel &parcel)
 
     remoteAuthInvokerContext->OnStart();
     remoteAuthInvokerContext->OnStop();
+    Attributes extraInfo;
+    FillIAttributes(parcel, extraInfo);
+    remoteAuthInvokerContext->ProcAuthTipMsg(extraInfo);
+    remoteAuthInvokerContext->ProcAuthResultMsg(extraInfo);
     IAM_LOGI("end");
 }
 
@@ -214,24 +243,13 @@ void FuzzGetUserAuthProfile(Parcel &parcel)
     AuthWidgetHelper::GetUserAuthProfile(userId, authType, profile);
 }
 
-void FillIAttributes(Parcel &parcel, Attributes &attributes)
+void FuzzParseAttributes(Parcel &parcel)
 {
-    bool fillNull = parcel.ReadBool();
-    if (fillNull) {
-        return;
-    }
-
-    attributes.SetUint64Value(Attributes::ATTR_TEMPLATE_ID, parcel.ReadUint64());
-    attributes.SetUint64Value(Attributes::ATTR_CALLER_UID, parcel.ReadUint64());
-    attributes.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, parcel.ReadUint32());
-    std::vector<uint64_t> templateIdList;
-    FillFuzzUint64Vector(parcel, templateIdList);
-    attributes.GetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIdList);
-    std::vector<uint8_t> extraInfo;
-    FillFuzzUint8Vector(parcel, extraInfo);
-    attributes.GetUint64ArrayValue(Attributes::ATTR_EXTRA_INFO, templateIdList);
-    attributes.SetUint64Value(Attributes::ATTR_CALLER_UID, parcel.ReadUint64());
-    attributes.SetUint32Value(Attributes::ATTR_SCHEDULE_MODE, parcel.ReadUint32());
+    Attributes extraInfo;
+    FillIAttributes(parcel, extraInfo);
+    AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
+    ContextFactory::AuthProfile profile = {};
+    AuthWidgetHelper::ParseAttributes(extraInfo, authType, profile);
 }
 
 void FuzzCheckValidSolution(Parcel &parcel)
@@ -243,17 +261,30 @@ void FuzzCheckValidSolution(Parcel &parcel)
     AuthWidgetHelper::CheckValidSolution(userId, authTypeList, atl, validTypeList);
 }
 
+void FuzzSetReuseUnlockResult(Parcel &parcel)
+{
+    int32_t apiVersion = parcel.ReadInt32();
+    Attributes extraInfo;
+    FillIAttributes(parcel, extraInfo);
+    HdiReuseUnlockInfo info;
+    AuthWidgetHelper::SetReuseUnlockResult(apiVersion, info, extraInfo);
+}
+
 void FuzzCheckReuseUnlockResult(Parcel &parcel)
 {
     ContextFactory::AuthWidgetContextPara para;
     para.userId = MAIN_USER_ID;
     std::vector<uint8_t> challenge;
     FillFuzzUint8Vector(parcel, challenge);
+    ReuseUnlockResult reuseUnlockResult = {};
+    reuseUnlockResult.isReuse = parcel.ReadBool();
+    reuseUnlockResult.reuseDuration = parcel.ReadUint64();
     AuthParamInner authParam = {
         .userId = parcel.ReadInt32(),
         .challenge = challenge,
         .authType = static_cast<AuthType>(parcel.ReadInt32()),
         .authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32()),
+        .reuseUnlockResult = reuseUnlockResult,
     };
     Attributes extraInfo;
     FillIAttributes(parcel, extraInfo);
@@ -268,7 +299,9 @@ FuzzFunc *g_fuzzFuncs[] = {
     RemoteIamCallbackFuzzTest,
     FuzzAuthWidgetHelper,
     FuzzGetUserAuthProfile,
+    FuzzParseAttributes,
     FuzzCheckValidSolution,
+    FuzzSetReuseUnlockResult,
     FuzzCheckReuseUnlockResult,
 };
 
