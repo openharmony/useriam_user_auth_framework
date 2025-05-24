@@ -771,22 +771,6 @@ int32_t UserIdmService::GetCredentialInfoSync(int32_t userId, int32_t authType,
     return ret;
 }
 
-void UserIdmService::PublishCommonEvent(int32_t userId, uint64_t credentialId, AuthType authType)
-{
-    std::vector<std::shared_ptr<CredentialInfoInterface>> credentialInfos;
-    int32_t ret = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType, credentialInfos);
-    if (ret != SUCCESS) {
-        IAM_LOGE("get credential fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret, userId, authType);
-        return;
-    }
-    PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, authType, credentialInfos.size());
-    PublishEventAdapter::GetInstance().PublishUpdatedEvent(userId, credentialId);
-    if (authType != PIN) {
-        CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(
-            userId, authType, DEL_CRED, credentialId);
-    }
-}
-
 int32_t UserIdmService::RegistCredChangeEventListener(const sptr<IEventListenerCallback> &listener)
 {
     IAM_LOGI("start");
