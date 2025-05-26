@@ -36,16 +36,43 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
-constexpr uint32_t OPERATION_TYPE = 1;
+constexpr uint32_t OPERATION_TYPE = 5;
 
 auto g_ContextCallback = MakeShared<ContextCallbackImpl>(new (std::nothrow) DummyIamCallbackInterface(),
     static_cast<OperationType>(OPERATION_TYPE));
 
+void FillIAttributes(Parcel &parcel, Attributes &attributes)
+{
+    bool fillNull = parcel.ReadBool();
+    if (fillNull) {
+        return;
+    }
+
+    attributes.SetUint64Value(Attributes::ATTR_TEMPLATE_ID, parcel.ReadUint64());
+    attributes.SetUint64Value(Attributes::ATTR_CALLER_UID, parcel.ReadUint64());
+    attributes.SetUint32Value(Attributes::ATTR_PROPERTY_MODE, parcel.ReadUint32());
+    attributes.SetUint32Value(Attributes::ATTR_MSG_TYPE, parcel.ReadUint32());
+    attributes.SetUint32Value(Attributes::ATTR_REMAIN_TIMES, parcel.ReadUint32());
+    attributes.SetUint32Value(Attributes::ATTR_FREEZING_TIME, parcel.ReadUint32());
+    std::vector<uint64_t> templateIdList;
+    FillFuzzUint64Vector(parcel, templateIdList);
+    attributes.SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIdList);
+    std::vector<uint8_t> extraInfo;
+    FillFuzzUint8Vector(parcel, extraInfo);
+    attributes.SetUint64ArrayValue(Attributes::ATTR_EXTRA_INFO, templateIdList);
+    attributes.SetUint64Value(Attributes::ATTR_CALLER_UID, parcel.ReadUint64());
+    attributes.SetUint32Value(Attributes::ATTR_SCHEDULE_MODE, parcel.ReadUint32());
+}
+
 void FillOnResult(Parcel &parcel)
 {
     IAM_LOGI("begin");
+    if (g_ContextCallback == nullptr) {
+        return;
+    }
     int32_t resultCode = parcel.ReadInt32();
     Attributes attributes;
+    FillIAttributes(parcel, attributes);
     g_ContextCallback->OnResult(resultCode, attributes);
     IAM_LOGI("end");
 }
@@ -105,6 +132,9 @@ void FillSet(Parcel &parcel)
     g_ContextCallback->SetTraceIsBackgroundApplication(isBackgroundApplication);
 
     g_ContextCallback->SetCleaner(nullptr);
+    g_ContextCallback->SetTraceLocalUdid(parcel.ReadString());
+    g_ContextCallback->SetTraceRemoteUdid(parcel.ReadString());
+    g_ContextCallback->SetTraceConnectionName(parcel.ReadString());
 
     int32_t callerType = parcel.ReadInt32();
     g_ContextCallback->SetTraceCallerType(callerType);
