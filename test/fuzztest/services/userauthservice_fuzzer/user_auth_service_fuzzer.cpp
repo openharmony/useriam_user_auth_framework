@@ -23,6 +23,7 @@
 
 #include "iam_fuzz_test.h"
 #include "iam_logger.h"
+#include "mock_ipc_common.h"
 #include "user_auth_service.h"
 #include "user_auth_common_defines.h"
 #include "dummy_iam_callback_interface.h"
@@ -162,6 +163,20 @@ public:
 
 UserAuthService g_userAuthService;
 
+void FuzzGetResourseNode(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    g_userAuthService.OnStart();
+    g_userAuthService.OnStop();
+    AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
+    g_userAuthService.GetResourseNode(authType);
+    uint32_t code = parcel.ReadUint32();
+    int32_t result = parcel.ReadInt32();
+    g_userAuthService.CallbackEnter(code);
+    g_userAuthService.CallbackExit(code, result);
+    IAM_LOGI("end");
+}
+
 void FuzzGetEnrolledState(Parcel &parcel)
 {
     IAM_LOGI("begin");
@@ -169,6 +184,9 @@ void FuzzGetEnrolledState(Parcel &parcel)
     int32_t authType = parcel.ReadInt32();
     IpcEnrolledState enrolledState = {};
     g_userAuthService.GetEnrolledState(apiVersion, authType, enrolledState);
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    g_userAuthService.GetEnrolledState(apiVersion, authType, enrolledState);
+    IpcCommon::DeleteAllPermission();
     IAM_LOGI("end");
 }
 
@@ -180,6 +198,7 @@ void FuzzGetAvailableStatusOtherScene(Parcel &parcel)
     int32_t authTrustLevel = parcel.ReadInt32();
     int32_t userId = parcel.ReadInt32();
     g_userAuthService.GetAvailableStatus(apiVersion, userId, pin, authTrustLevel);
+    g_userAuthService.GetAvailableStatus(apiVersion, pin, authTrustLevel);
     IAM_LOGI("end");
 }
 
@@ -191,7 +210,13 @@ void FuzzGetAvailableStatus(Parcel &parcel)
     int32_t authTrustLevel = parcel.ReadInt32();
     int32_t userId = parcel.ReadInt32();
     g_userAuthService.GetAvailableStatus(apiVersion, userId, authType, authTrustLevel);
+    g_userAuthService.GetAvailableStatus(apiVersion, authType, authTrustLevel);
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    g_userAuthService.GetAvailableStatus(apiVersion, userId, authType, authTrustLevel);
+    g_userAuthService.GetAvailableStatus(apiVersion, authType, authTrustLevel);
     FuzzGetAvailableStatusOtherScene(parcel);
+    IpcCommon::DeleteAllPermission();
     IAM_LOGI("end");
 }
 
@@ -213,6 +238,9 @@ void FuzzGetProperty(Parcel &parcel)
         callback = sptr<IGetExecutorPropertyCallback>(new (std::nothrow) DummyGetExecutorPropertyCallback());
     }
     g_userAuthService.GetProperty(userId, authType, keys, callback);
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    g_userAuthService.GetProperty(userId, authType, keys, callback);
+    IpcCommon::DeleteAllPermission();
     IAM_LOGI("end");
 }
 
@@ -230,6 +258,9 @@ void FuzzSetProperty(Parcel &parcel)
     }
 
     g_userAuthService.SetProperty(userId, authType, attributes.Serialize(), callback);
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    g_userAuthService.SetProperty(userId, authType, attributes.Serialize(), callback);
+    IpcCommon::DeleteAllPermission();
     IAM_LOGI("end");
 }
 
@@ -249,6 +280,9 @@ void FuzzAuth(Parcel &parcel)
     }
     uint64_t contextId = 0;
     g_userAuthService.Auth(apiVersion, ipcAuthParamInner, callback, contextId);
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    g_userAuthService.Auth(apiVersion, ipcAuthParamInner, callback, contextId);
+    IpcCommon::DeleteAllPermission();
     IAM_LOGI("end");
 }
 
@@ -268,10 +302,13 @@ void FuzzAuthUser(Parcel &parcel)
         .authTrustLevel = parcel.ReadInt32(),
     };
     IpcRemoteAuthParam remoteAuthParam = {
-        .isHasRemoteAuthParam = false,
+        .isHasRemoteAuthParam = parcel.ReadBool(),
     };
     uint64_t contextId = 0;
     g_userAuthService.AuthUser(param, remoteAuthParam, callback, contextId);
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    g_userAuthService.AuthUser(param, remoteAuthParam, callback, contextId);
+    IpcCommon::DeleteAllPermission();
     IAM_LOGI("end");
 }
 
@@ -287,6 +324,9 @@ void FuzzIdentify(Parcel &parcel)
     }
     uint64_t contextId = 0;
     g_userAuthService.Identify(challenge, authType, callback, contextId);
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    g_userAuthService.Identify(challenge, authType, callback, contextId);
+    IpcCommon::DeleteAllPermission();
     IAM_LOGI("end");
 }
 
@@ -296,6 +336,10 @@ void FuzzCancelAuthOrIdentify(Parcel &parcel)
     uint64_t contextId = parcel.ReadUint64();
     int32_t cancelReason = parcel.ReadInt32();
     g_userAuthService.CancelAuthOrIdentify(contextId, cancelReason);
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    g_userAuthService.CancelAuthOrIdentify(contextId, cancelReason);
+    IpcCommon::DeleteAllPermission();
     IAM_LOGI("end");
 }
 
@@ -304,6 +348,10 @@ void FuzzGetVersion(Parcel &parcel)
     IAM_LOGI("begin");
     int32_t version = -1;
     g_userAuthService.GetVersion(version);
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    g_userAuthService.GetVersion(version);
+    IpcCommon::DeleteAllPermission();
     IAM_LOGI("end");
 }
 
@@ -327,6 +375,9 @@ void FuzzAuthWidget(Parcel &parcel)
     sptr<IModalCallback> testModalCallback(nullptr);
     uint64_t contextId = 0;
     g_userAuthService.AuthWidget(apiVersion, authParam, widgetParam, callback, testModalCallback, contextId);
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    g_userAuthService.AuthWidget(apiVersion, authParam, widgetParam, callback, testModalCallback, contextId);
+    IpcCommon::DeleteAllPermission();
     IAM_LOGI("end");
 }
 
@@ -336,6 +387,11 @@ void FuzzNotice(Parcel &parcel)
     int32_t noticeType = parcel.ReadInt32();
     std::string eventData = parcel.ReadString();
     g_userAuthService.Notice(noticeType, eventData);
+    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    g_userAuthService.Notice(noticeType, eventData);
+    IpcCommon::AddPermission(SUPPORT_USER_AUTH);
+    g_userAuthService.Notice(noticeType, eventData);
+    IpcCommon::DeleteAllPermission();
     IAM_LOGI("end");
 }
 
@@ -348,6 +404,11 @@ void FuzzRegisterWidgetCallback(Parcel &parcel)
         callback = sptr<IWidgetCallback>(new (std::nothrow) DummyWidgetCallback());
     }
     g_userAuthService.RegisterWidgetCallback(version, callback);
+    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    g_userAuthService.RegisterWidgetCallback(version, callback);
+    IpcCommon::AddPermission(SUPPORT_USER_AUTH);
+    g_userAuthService.RegisterWidgetCallback(version, callback);
+    IpcCommon::DeleteAllPermission();
     IAM_LOGI("end");
 }
 
@@ -383,6 +444,9 @@ void FuzzPrepareRemoteAuth(Parcel &parcel)
         callback = sptr<IIamCallback>(new (nothrow) DummyUserAuthCallback());
     }
     g_userAuthService.PrepareRemoteAuth(networkId, callback);
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    g_userAuthService.PrepareRemoteAuth(networkId, callback);
+    IpcCommon::DeleteAllPermission();
     IAM_LOGI("end");
 }
 
@@ -483,7 +547,7 @@ void FuzzAuthRemoteUser(Parcel &parcel)
     std::vector<uint8_t> challenge;
     FillFuzzUint8Vector(parcel, challenge);
     AuthParamInner authParam = {
-        .userId = INVALID_USER_ID,
+        .userId = parcel.ReadInt32(),
         .challenge = challenge,
         .authType = static_cast<AuthType>(parcel.ReadInt32()),
         .authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32()),
@@ -494,7 +558,7 @@ void FuzzAuthRemoteUser(Parcel &parcel)
     std::shared_ptr<ContextCallback> contextCallback = ContextCallback::NewInstance(iamCallback, TRACE_ADD_CREDENTIAL);
     ResultCode failReason = SUCCESS;
     g_userAuthService.AuthRemoteUser(authParam, para, remoteAuthParam, contextCallback, failReason);
-    authParam.authType = PIN;
+    para.authType = PIN;
     g_userAuthService.AuthRemoteUser(authParam, para, remoteAuthParam, contextCallback, failReason);
     IAM_LOGI("end");
 }
@@ -575,6 +639,9 @@ void FuzzGetPropertyById(Parcel &parcel)
         callback = sptr<IGetExecutorPropertyCallback>(new (std::nothrow) DummyGetExecutorPropertyCallback());
     }
     g_userAuthService.GetPropertyById(credentialId, keys, callback);
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    g_userAuthService.GetPropertyById(credentialId, keys, callback);
+    IpcCommon::DeleteAllPermission();
     IAM_LOGI("end");
 }
 
@@ -589,11 +656,16 @@ void FuzzVerifyAuthToken(Parcel &parcel)
         callback = sptr<IVerifyTokenCallback>(new (std::nothrow) DummyVerifyTokenCallback());
     }
     g_userAuthService.VerifyAuthToken(tokenIn, allowableDuration, callback);
+    IpcCommon::AddPermission(USE_USER_ACCESS_MANAGER);
+    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    g_userAuthService.VerifyAuthToken(tokenIn, allowableDuration, callback);
+    IpcCommon::DeleteAllPermission();
     IAM_LOGI("end");
 }
 
 using FuzzFunc = decltype(FuzzGetAvailableStatus);
 FuzzFunc *g_fuzzFuncs[] = {
+    FuzzGetResourseNode,
     FuzzGetEnrolledState,
     FuzzGetAvailableStatus,
     FuzzGetProperty,
