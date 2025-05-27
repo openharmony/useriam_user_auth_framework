@@ -80,6 +80,9 @@ void FillOnResult(Parcel &parcel)
 void FillOnAcquireInfo(Parcel &parcel)
 {
     IAM_LOGI("begin");
+    if (g_ContextCallback == nullptr) {
+        return;
+    }
     ExecutorRole src = static_cast<ExecutorRole>(parcel.ReadInt32());
     int32_t moduleType = parcel.ReadInt32();
     std::vector<uint8_t> acquireMsg;
@@ -91,6 +94,9 @@ void FillOnAcquireInfo(Parcel &parcel)
 void FillSet(Parcel &parcel)
 {
     IAM_LOGI("begin");
+    if (g_ContextCallback == nullptr) {
+        return;
+    }
     std::string callerName;
     FillFuzzString(parcel, callerName);
     g_ContextCallback->SetTraceCallerName(callerName);
@@ -144,6 +150,9 @@ void FillSet(Parcel &parcel)
 void FillProcessAuthResult(Parcel &parcel)
 {
     IAM_LOGI("begin");
+    if (g_ContextCallback == nullptr) {
+        return;
+    }
     int32_t tip = parcel.ReadInt32();
     std::vector<uint8_t> extraInfo;
     FillFuzzUint8Vector(parcel, extraInfo);

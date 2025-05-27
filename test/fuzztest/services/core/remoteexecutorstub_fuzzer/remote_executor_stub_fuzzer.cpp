@@ -87,6 +87,9 @@ void FuzzTest(Parcel &parcel)
     std::string connectionName = parcel.ReadString();
     std::string srcEndPoint = parcel.ReadString();
     auto request = MakeShared<Attributes>();
+    if (request == nullptr) {
+        return;
+    }
     request->SetInt32Value(Attributes::ATTR_MSG_TYPE, parcel.ReadInt32());
     auto reply = MakeShared<Attributes>(uint8Vector);
     g_RemoteExecutorStub->OnMessage(connectionName, srcEndPoint, request, reply);
@@ -105,14 +108,19 @@ void FuzzTest(Parcel &parcel)
 void RemoteExecutorProxyFuzzTest(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    
     std::string connectionName = parcel.ReadString();
     ExecutorInfo regiregisterInfo = {};
     auto remoteExecutorProxy = MakeShared<RemoteExecutorProxy>(connectionName, regiregisterInfo);
+    if (remoteExecutorProxy == nullptr) {
+        return;
+    }
     remoteExecutorProxy->Start();
 
     std::string srcEndPoint = parcel.ReadString();
     auto request = MakeShared<Attributes>();
+    if (request == nullptr) {
+        return;
+    }
     request->SetUint32Value(Attributes::ATTR_MSG_TYPE, parcel.ReadUint32());
     auto reply = MakeShared<Attributes>();
     remoteExecutorProxy->OnMessage(connectionName, srcEndPoint, request, reply);
