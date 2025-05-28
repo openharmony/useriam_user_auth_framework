@@ -827,7 +827,7 @@ void UserIdmService::ClearUnavailableCredential(int32_t userId)
         return;
     }
 
-    ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos, "DeleteTemplate");
+    ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos, "ClearExpiredTemplate");
     if (ret != SUCCESS) {
         IAM_LOGE("failed to delete executor info, error code : %{public}d", ret);
     }

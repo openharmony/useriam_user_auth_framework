@@ -89,7 +89,7 @@ bool DeleteImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
     }
 
     if (hdiResult.operateType == HdiCredentialOperateType::CREDENTIAL_DELETE) {
-        return DeleteCredential(deletePara_.userId, hdiResult.credentialInfo, isCredentialDelete);
+        return DeleteCredential(deletePara_.userId, hdiResult.credentialInfos, isCredentialDelete);
     } else if (hdiResult.operateType == HdiCredentialOperateType::CREDENTIAL_ABANDON) {
         return StartSchedule(deletePara_.userId, hdiResult.scheduleInfo, scheduleList, callback);
     }
@@ -160,23 +160,29 @@ bool DeleteImpl::StartSchedule(int32_t userId, HdiScheduleInfo &info,
     return true;
 }
 
-bool DeleteImpl::DeleteCredential(int32_t userId, HdiCredentialInfo &credentialInfo, bool &isCredentialDelete)
+bool DeleteImpl::DeleteCredential(int32_t userId, std::vector<HdiCredentialInfo> &credentialInfos,
+    bool &isCredentialDelete)
 {
     IAM_LOGI("start");
-    auto info = Common::MakeShared<CredentialInfoImpl>(userId, credentialInfo);
-    if (info == nullptr) {
-        IAM_LOGE("bad alloc");
-        return false;
+    std::vector<std::shared_ptr<CredentialInfoInterface>> list;
+    for (auto credentialInfo : credentialInfos) {
+        auto info = Common::MakeShared<CredentialInfoImpl>(userId, credentialInfo);
+        if (info == nullptr) {
+            IAM_LOGE("bad alloc");
+            return false;
+        }
+        list.push_back(info);
     }
 
-    std::vector<std::shared_ptr<CredentialInfoInterface>> list = {info};
     int32_t ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(list, "DeleteTemplate");
     if (ret != SUCCESS) {
         IAM_LOGE("NotifyExecutorToDeleteTemplates fail, ret:%{public}d", ret);
         return false;
     }
     isCredentialDelete = true;
-    PublishCommonEvent(userId, info->GetCredentialId(), info->GetAuthType());
+    for (auto info : list) {
+        PublishCommonEvent(userId, info->GetCredentialId(), info->GetAuthType());
+    }
     return true;
 }
 
