@@ -254,7 +254,7 @@ ResultCode SoftBusManager::ServiceSocketListen(const int32_t socketId)
     int32_t ret = Listen(socketId, serverQos, QOS_LEN, &listener);
     if (ret != SUCCESS) {
         IAM_LOGE("create listener failed, ret is %{public}d.", ret);
-        return LISTEN_SOCKET_FAILED;
+        return GENERAL_ERROR;
     }
 
     IAM_LOGI("ServiceSocketListen success.");
@@ -304,13 +304,13 @@ ResultCode SoftBusManager::DoServiceSocketInit()
     int32_t socketId = Socket(info);
     if (socketId <= INVALID_SOCKET_ID) {
         IAM_LOGE("create service socket failed.");
-        return CREATE_SOCKET_FAILED;
+        return GENERAL_ERROR;
     }
 
     int ret = ServiceSocketListen(socketId);
     if (ret != SUCCESS) {
         IAM_LOGE("socket listen failed, ret is %{public}d.", ret);
-        return LISTEN_SOCKET_FAILED;
+        return GENERAL_ERROR;
     }
 
     auto serverSocket = SocketFactory::CreateServerSocket(socketId);

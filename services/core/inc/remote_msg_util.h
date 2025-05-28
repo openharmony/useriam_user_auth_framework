@@ -32,7 +32,7 @@ public:
     static bool GetConnectionName(uint64_t contextId, std::string &connectionName);
 
     // QUERY_EXECUTOR_INFO
-    static bool GetQueryExecutorInfoReply(const std::vector<int32_t> authTypes, int32_t executorRole,
+    static ResultCode GetQueryExecutorInfoReply(const std::vector<int32_t> authTypes, int32_t executorRole,
         std::string remoteUdid, Attributes &attr);
     static bool DecodeQueryExecutorInfoReply(const Attributes &attr, std::vector<ExecutorInfo> &executorInfoArray);
 
