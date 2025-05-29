@@ -67,7 +67,6 @@ ohos_unittest("iam_services_test") {
     "../../../services/context/src/delete_context.cpp",
     "../../../services/context/src/enroll_context.cpp",
     "../../../services/context/src/identify_context.cpp",
-    "../../../services/context/src/keyguard_status_listener.cpp",
     "../../../services/context/src/remote_auth_context.cpp",
     "../../../services/context/src/remote_auth_invoker_context.cpp",
     "../../../services/context/src/remote_auth_service.cpp",
@@ -149,7 +148,6 @@ ohos_unittest("iam_services_test") {
     "src/identification_impl_test.cpp",
     "src/identify_context_test.cpp",
     "src/ipc_common_test.cpp",
-    "src/keygurad_status_listener_test.cpp",
     "src/relative_timer_test.cpp",
     "src/remote_auth_context_test.cpp",
     "src/remote_auth_invoker_context_test.cpp",
@@ -206,7 +204,6 @@ ohos_unittest("iam_services_test") {
     "access_token:libtoken_setproc",
     "access_token:libtokenid_sdk",
     "c_utils:utils",
-    "common_event_service:cesfwk_innerkits",
     "device_manager:devicemanagersdk",
     "drivers_interface_user_auth:libuser_auth_proxy_4.0",
     "dsoftbus:softbus_client",
@@ -223,6 +220,7 @@ ohos_unittest("iam_services_test") {
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "screenlock_mgr:screenlock_client",
   ]
 
   configs = [

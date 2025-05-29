@@ -20,7 +20,6 @@
 
 #include "co_auth_service.h"
 #include "driver_state_manager.h"
-#include "keyguard_status_listener.h"
 #include "load_mode_handler.h"
 #include "remote_auth_service.h"
 #include "soft_bus_manager.h"
@@ -104,7 +103,6 @@ void ServiceInitManager::CheckAllServiceStart()
     IAM_LOGI("all service start, init global instance begin");
 
     SoftBusManager::GetInstance().Start();
-    KeyguardStatusListenerManager::GetInstance().RegisterCommonEventListener();
     const bool REMOTE_AUTH_SERVICE_RESULT = RemoteAuthService::GetInstance().Start();
     (void)REMOTE_AUTH_SERVICE_RESULT;
 
@@ -131,7 +129,6 @@ void ServiceInitManager::CheckAllServiceStop()
     IAM_LOGI("all service stop, destroy global instance begin");
 
     SoftBusManager::GetInstance().Stop();
-    KeyguardStatusListenerManager::GetInstance().UnRegisterCommonEventListener();
 
     auto coAuthService = CoAuthService::GetInstance();
     IF_FALSE_LOGE_AND_RETURN(coAuthService != nullptr);
