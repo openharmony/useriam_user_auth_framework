@@ -39,17 +39,13 @@ class ContextAppStateObserverManager {
 
         void SubscribeAppState(const std::shared_ptr<ContextCallback> &callback, const uint64_t contextId);
         void UnSubscribeAppState();
-        void SetScreenLockState(bool screenLockState, int32_t userId);
-        void RemoveScreenLockState(int32_t userId);
-        bool GetScreenLockState(int32_t userId);
+        bool IsScreenLocked();
 
     protected:
         sptr<ApplicationStateObserverStub> appStateObserver_ = nullptr;
 
     private:
         sptr<IAppMgr> GetAppManagerInstance();
-        std::mutex mutex_;
-        std::map<int32_t, bool> screenLockedMap_;
 };
 
 class ContextAppStateObserver : public ApplicationStateObserverStub {

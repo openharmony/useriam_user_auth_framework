@@ -47,7 +47,6 @@ ohos_source_set("userauth_service_context") {
     "src/delete_context.cpp",
     "src/enroll_context.cpp",
     "src/identify_context.cpp",
-    "src/keyguard_status_listener.cpp",
     "src/remote_auth_context.cpp",
     "src/remote_auth_invoker_context.cpp",
     "src/remote_auth_service.cpp",
@@ -89,6 +88,7 @@ ohos_source_set("userauth_service_context") {
     "ipc:ipc_single",
     "napi:ace_napi",
     "samgr:samgr_proxy",
+    "screenlock_mgr:screenlock_client"
   ]
 
   public_configs = [ ":userauth_service_context_config" ]

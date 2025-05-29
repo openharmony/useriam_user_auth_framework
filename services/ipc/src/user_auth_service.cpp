@@ -33,7 +33,6 @@
 #include "iam_time.h"
 #include "ipc_common.h"
 #include "ipc_skeleton.h"
-#include "keyguard_status_listener.h"
 #include "service_init_manager.h"
 #include "soft_bus_manager.h"
 #include "widget_client.h"
