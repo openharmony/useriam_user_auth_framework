@@ -20,6 +20,7 @@
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
+#include "screenlock_manager.h"
 #include "system_ability_definition.h"
 
 #define LOG_TAG "USER_AUTH_SA"
@@ -119,30 +120,16 @@ ContextAppStateObserverManager &ContextAppStateObserverManager::GetInstance()
     return instance;
 }
 
-void ContextAppStateObserverManager::SetScreenLockState(bool screenLockState, int32_t userId)
+bool ContextAppStateObserverManager::IsScreenLocked()
 {
-    std::lock_guard<std::mutex> guard(mutex_);
-    IAM_LOGI("setScreenLockState: %{public}d, userId: %{public}d", screenLockState, userId);
-    screenLockedMap_.insert_or_assign(userId, screenLockState);
-}
-
-bool ContextAppStateObserverManager::GetScreenLockState(int32_t userId)
-{
-    std::lock_guard<std::mutex> guard(mutex_);
-    bool screenLockState = false;
-    auto iter = screenLockedMap_.find(userId);
-    if (iter != screenLockedMap_.end()) {
-        screenLockState = iter->second;
+    auto screenLockInstance = ScreenLock::ScreenLockManager::GetInstance();
+    if (screenLockInstance == nullptr) {
+        IAM_LOGE("screenLockInstance is null");
+        return false;
     }
-    IAM_LOGI("getScreenLockState: %{public}d, userId: %{public}d", screenLockState, userId);
-    return screenLockState;
-}
-
-void ContextAppStateObserverManager::RemoveScreenLockState(int32_t userId)
-{
-    std::lock_guard<std::mutex> guard(mutex_);
-    IAM_LOGI("RemoveScreenLockState userId: %{public}d", userId);
-    screenLockedMap_.erase(userId);
+    bool isScreenLocked = screenLockInstance->IsScreenLocked();
+    IAM_LOGI("IsScreenLocked: %{public}d", isScreenLocked);
+    return isScreenLocked;
 }
 
 ContextAppStateObserver::ContextAppStateObserver(const uint64_t contextId,
@@ -163,7 +150,7 @@ void ContextAppStateObserver::ProcAppStateChanged(int32_t userId)
         IAM_LOGI("context userId is %{public}d, appStateChanged userId is %{public}d", context->GetUserId(), userId);
         return;
     }
-    if (ContextAppStateObserverManager::GetInstance().GetScreenLockState(userId)) {
+    if (ContextAppStateObserverManager::GetInstance().IsScreenLocked()) {
         IAM_LOGI("the screen is currently locked, skip auth cancel");
         return;
     }

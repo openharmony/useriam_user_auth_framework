@@ -487,7 +487,6 @@ int32_t UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> &auth
         contextCallback->OnResult(ret, extraInfo);
         return ret;
     }
-    ContextAppStateObserverManager::GetInstance().RemoveScreenLockState(userId);
     if (!extraInfo.SetUint8ArrayValue(Attributes::ATTR_OLD_ROOT_SECRET, rootSecret)) {
         IAM_LOGE("set rootsecret to extraInfo failed");
         contextCallback->OnResult(ret, extraInfo);
@@ -635,7 +634,6 @@ int32_t UserIdmService::EnforceDelUserInner(int32_t userId, std::shared_ptr<Cont
         IAM_LOGE("failed to enforce delete user, ret:%{public}d", ret);
         return ret;
     }
-    ContextAppStateObserverManager::GetInstance().RemoveScreenLockState(userId);
     SetAuthTypeTrace(credInfos, callbackForTrace);
     ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos, changeReasonTrace);
     if (ret != SUCCESS) {
