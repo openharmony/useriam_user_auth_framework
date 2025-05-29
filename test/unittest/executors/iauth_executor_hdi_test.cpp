@@ -198,6 +198,14 @@ HWTEST_F(IAuthExecutorHdiTest, NotifyCollectorReadyTest, TestSize.Level0)
     EXPECT_EQ(authExecutorHdi->NotifyCollectorReady(scheduleId), GENERAL_ERROR);
 }
 
+HWTEST_F(IAuthExecutorHdiTest, AbandonTest, TestSize.Level0)
+{
+    auto authExecutorHdi = MakeShared<IAuthExecutorHdiMock>();
+    uint64_t scheduleId = 0;
+    DeleteParam param = {};
+    std::shared_ptr<UserAuth::IExecuteCallback> callbackObj = nullptr;
+    EXPECT_EQ(authExecutorHdi->Abandon(scheduleId, param, callbackObj), GENERAL_ERROR);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
