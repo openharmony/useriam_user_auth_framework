@@ -56,7 +56,8 @@
         "dsoftbus",
         "ets_frontend",
         "hiappevent",
-        "jsoncpp"
+        "jsoncpp",
+        "screenlock_mgr"
       ]
     },
     "build": {

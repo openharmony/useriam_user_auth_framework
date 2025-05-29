@@ -473,7 +473,7 @@ bool WidgetContext::IsSupportFollowCallerUi()
 
 void WidgetContext::SetSysDialogZOrder(WidgetCmdParameters &widgetCmdParameters)
 {
-    if (ContextAppStateObserverManager::GetInstance().GetScreenLockState(para_.userId)) {
+    if (ContextAppStateObserverManager::GetInstance().IsScreenLocked()) {
         IAM_LOGI("the screen is currently locked, set zOrder");
         widgetCmdParameters.sysDialogZOrder = SYSDIALOG_ZORDER_UPPER;
     }
