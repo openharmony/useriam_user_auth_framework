@@ -831,12 +831,14 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelCredential003, TestSize.Level0)
             [](int32_t userId, uint64_t credentialId, const std::vector<uint8_t> &authToken,
                 HdiCredentialOperateResult &operateResult) {
                 operateResult.operateType = HdiCredentialOperateType::CREDENTIAL_DELETE;
-                operateResult.credentialInfo.authType = static_cast<HdiAuthType>(1);
-                operateResult.credentialInfo.credentialId = 10;
-                operateResult.credentialInfo.executorIndex = 20;
-                operateResult.credentialInfo.executorMatcher = 30;
-                operateResult.credentialInfo.executorSensorHint = 40;
-                operateResult.credentialInfo.templateId = 50;
+                HdiCredentialInfo credentialInfo = {};
+                credentialInfo.authType = static_cast<HdiAuthType>(1);
+                credentialInfo.credentialId = 10;
+                credentialInfo.executorIndex = 20;
+                credentialInfo.executorMatcher = 30;
+                credentialInfo.executorSensorHint = 40;
+                credentialInfo.templateId = 50;
+                operateResult.credentialInfos.push_back(credentialInfo);
                 return HDF_SUCCESS;
             }
         );
