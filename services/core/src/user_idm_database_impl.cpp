@@ -99,35 +99,6 @@ int32_t UserIdmDatabaseImpl::GetCredentialInfo(int32_t userId, AuthType authType
     return SUCCESS;
 }
 
-int32_t UserIdmDatabaseImpl::DeleteCredentialInfo(int32_t userId, uint64_t credentialId,
-    const std::vector<uint8_t> &authToken, std::shared_ptr<CredentialInfoInterface> &credInfo)
-{
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (hdi == nullptr) {
-        IAM_LOGE("bad hdi");
-        return INVALID_HDI_INTERFACE;
-    }
-
-    HdiCredentialOperateResult hdiResult = {};
-    IamHitraceHelper traceHelper("hdi DeleteCredential");
-    int32_t ret = hdi->DeleteCredential(userId, credentialId, authToken, hdiResult);
-    if (ret != HDF_SUCCESS) {
-        IAM_LOGE("failed to delete credential, error code : %{public}d", ret);
-        return ret;
-    }
-
-    if (hdiResult.operateType == HdiCredentialOperateType::CREDENTIAL_DELETE) {
-        auto info = Common::MakeShared<CredentialInfoImpl>(userId, hdiResult.credentialInfo);
-        if (info == nullptr) {
-            IAM_LOGE("bad alloc");
-            return GENERAL_ERROR;
-        }
-        credInfo = info;
-    }
-
-    return SUCCESS;
-}
-
 int32_t UserIdmDatabaseImpl::DeleteUser(int32_t userId, const std::vector<uint8_t> &authToken,
     std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos, std::vector<uint8_t> &rootSecret)
 {
