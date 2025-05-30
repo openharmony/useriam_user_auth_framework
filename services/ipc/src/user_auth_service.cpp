@@ -685,8 +685,12 @@ int32_t UserAuthService::DoPrepareRemoteAuth(const std::string &networkId)
     auto hdi = HdiWrapper::GetHdiInstance();
     IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, GENERAL_ERROR);
 
-    int32_t ret = hdi->PrepareRemoteAuth(udid);
-    IF_FALSE_LOGE_AND_RETURN_VAL(ret == HDF_SUCCESS, GENERAL_ERROR);
+    int32_t hdiRet = hdi->PrepareRemoteAuth(udid);
+    if (hdiRet == DEVICE_CAPABILITY_NOT_SUPPORT || hdiRet == REMOTE_DEVICE_CONNECTION_FAIL) {
+        IAM_LOGE("prepare remote auth failed, ret: %{public}d", hdiRet);
+        return hdiRet;
+    }
+    IF_FALSE_LOGE_AND_RETURN_VAL(hdiRet == SUCCESS, GENERAL_ERROR);
 
     IAM_LOGI("success");
     return SUCCESS;

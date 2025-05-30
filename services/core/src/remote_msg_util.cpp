@@ -174,20 +174,25 @@ bool RemoteMsgUtil::GetExecutorInfoArrayFromAttributes(const Attributes &attr,
     return true;
 }
 
-bool RemoteMsgUtil::GetQueryExecutorInfoReply(const std::vector<int32_t> authTypes, int32_t executorRole,
+ResultCode RemoteMsgUtil::GetQueryExecutorInfoReply(const std::vector<int32_t> authTypes, int32_t executorRole,
     std::string remoteUdid, Attributes &attr)
 {
+    IF_FALSE_LOGE_AND_RETURN_VAL(authTypes.size() == 1, INVALID_PARAMETERS);
+
     auto hdi = HdiWrapper::GetHdiInstance();
-    IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, false);
-    IF_FALSE_LOGE_AND_RETURN_VAL(authTypes.size() == 1, false);
+    IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, GENERAL_ERROR);
 
     std::vector<uint8_t> signedExecutorInfo;
     int32_t hdiRet = hdi->GetSignedExecutorInfo(authTypes, executorRole, remoteUdid, signedExecutorInfo);
-    IF_FALSE_LOGE_AND_RETURN_VAL(hdiRet == SUCCESS, false);
+    if (hdiRet == DEVICE_CAPABILITY_NOT_SUPPORT || hdiRet == REMOTE_DEVICE_CONNECTION_FAIL) {
+        IAM_LOGE("get signed executor info failed, ret: %{public}d", hdiRet);
+        return (ResultCode)hdiRet;
+    }
+    IF_FALSE_LOGE_AND_RETURN_VAL(hdiRet == SUCCESS, GENERAL_ERROR);
 
     std::string localUdid;
     bool getLocalUdidRet = DeviceManagerUtil::GetInstance().GetLocalDeviceUdid(localUdid);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getLocalUdidRet, false);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getLocalUdidRet, GENERAL_ERROR);
 
     std::vector<ExecutorInfo> executorInfoArray;
     ResourceNodePool::Instance().Enumerate([&](const std::weak_ptr<ResourceNode> &weakNode) {
@@ -212,10 +217,10 @@ bool RemoteMsgUtil::GetQueryExecutorInfoReply(const std::vector<int32_t> authTyp
 
     bool encodeQueryExecutorInfoReplyRet =
         RemoteMsgUtil::EncodeQueryExecutorInfoReply(executorInfoArray, signedExecutorInfo, attr);
-    IF_FALSE_LOGE_AND_RETURN_VAL(encodeQueryExecutorInfoReplyRet, false);
+    IF_FALSE_LOGE_AND_RETURN_VAL(encodeQueryExecutorInfoReplyRet, GENERAL_ERROR);
 
     IAM_LOGI("success");
-    return true;
+    return SUCCESS;
 }
 
 bool RemoteMsgUtil::EncodeAuthParam(const AuthParamInner &authParam, Attributes &attr)

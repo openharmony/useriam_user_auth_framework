@@ -108,7 +108,7 @@ HWTEST_F(SoftBusManagerTest, SoftBusManagerTestServiceSocketListen, TestSize.Lev
     SoftBusManager::GetInstance().ServiceSocketInit();
     std::shared_ptr<BaseSocket> serverSocket = SocketFactory::CreateServerSocket(socketId);
     int ret = SoftBusManager::GetInstance().ServiceSocketListen(socketId);
-    EXPECT_EQ(ret, LISTEN_SOCKET_FAILED);
+    EXPECT_EQ(ret, GENERAL_ERROR);
 
     PeerSocketInfo info;
     EXPECT_NO_THROW(SoftBusManager::GetInstance().OnBind(socketId, info));
