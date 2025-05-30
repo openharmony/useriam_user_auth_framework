@@ -235,10 +235,12 @@ bool RemoteAuthContext::SendQueryExecutorInfoMsg()
         IF_FALSE_LOGE_AND_RETURN(getResultCodeRet);
 
         if (resultCode != SUCCESS) {
-            IAM_LOGE("%{public}s query executor info failed", GetDescription());
+            std::stringstream ss;
+            ss << "RemoteAuthContext SendQueryExecutorInfoMsg QUERY_EXECUTOR_INFO fail " << resultCode;
+            IAM_LOGE("%{public}s %{public}s", GetDescription(), ss.str().c_str());
+            callback_->SetTraceAuthFinishReason(ss.str());
             Attributes attr;
-            callback_->SetTraceAuthFinishReason("RemoteAuthContext SendQueryExecutorInfoMsg QUERY_EXECUTOR_INFO fail");
-            callback_->OnResult(GENERAL_ERROR, attr);
+            callback_->OnResult(resultCode, attr);
             return;
         }
 
@@ -277,7 +279,11 @@ bool RemoteAuthContext::SetupConnection()
 
     ResultCode connectResult =
         RemoteConnectionManager::GetInstance().OpenConnection(connectionName_, collectorNetworkId_, GetTokenId());
-    IF_FALSE_LOGE_AND_RETURN_VAL(connectResult == SUCCESS, false);
+    if (connectResult != SUCCESS) {
+        IAM_LOGE("%{public}s open connection fail %{public}d", GetDescription(), connectResult);
+        SetLatestError(REMOTE_DEVICE_CONNECTION_FAIL);
+        return false;
+    }
 
     IAM_LOGI("%{public}s success", GetDescription());
     return true;
@@ -294,7 +300,7 @@ void RemoteAuthContext::OnConnectStatus(const std::string &connectionName, Conne
     if (connectStatus == ConnectStatus::DISCONNECTED) {
         IAM_LOGI("%{public}s connection is disconnected", GetDescription());
         callback_->SetTraceAuthFinishReason("RemoteAuthContext OnConnectStatus disconnected");
-        callback_->OnResult(ResultCode::GENERAL_ERROR, attr);
+        callback_->OnResult(REMOTE_DEVICE_CONNECTION_FAIL, attr);
         return;
     } else {
         IAM_LOGI("%{public}s connection is connected", GetDescription());

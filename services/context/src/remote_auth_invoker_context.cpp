@@ -15,6 +15,8 @@
 
 #include "remote_auth_invoker_context.h"
 
+#include <sstream>
+
 #include "device_manager_util.h"
 #include "hdi_wrapper.h"
 #include "iam_check.h"
@@ -162,15 +164,17 @@ void RemoteAuthInvokerContext::OnConnectStatus(const std::string &connectionName
     if (connectStatus == ConnectStatus::DISCONNECTED) {
         IAM_LOGI("%{public}s connection is disconnected", GetDescription());
         callback_->SetTraceAuthFinishReason("RemoteAuthInvokerContext OnConnectStatus disconnected");
-        callback_->OnResult(ResultCode::GENERAL_ERROR, attr);
+        callback_->OnResult(REMOTE_DEVICE_CONNECTION_FAIL, attr);
         return;
     } else {
         IAM_LOGI("%{public}s connection is connected", GetDescription());
         bool sendRequestRet = SendRequest();
         if (!sendRequestRet) {
-            IAM_LOGE("%{public}s SendRequest failed", GetDescription());
-            callback_->SetTraceAuthFinishReason("RemoteAuthInvokerContext OnConnectStatus send message fail");
-            callback_->OnResult(GENERAL_ERROR, attr);
+            std::stringstream ss;
+            ss << "RemoteAuthInvokerContext OnConnectStatus send message fail " << GetLatestError();
+            IAM_LOGE("%{public}s %{public}s", GetDescription(), ss.str().c_str());
+            callback_->SetTraceAuthFinishReason(ss.str());
+            callback_->OnResult(GetLatestError(), attr);
             return;
         }
         IAM_LOGI("%{public}s connection is connected processed", GetDescription());
@@ -219,7 +223,11 @@ bool RemoteAuthInvokerContext::OnStart()
 
     ResultCode connectResult =
         RemoteConnectionManager::GetInstance().OpenConnection(connectionName_, verifierNetworkId_, GetTokenId());
-    IF_FALSE_LOGE_AND_RETURN_VAL(connectResult == SUCCESS, false);
+    if (connectResult != SUCCESS) {
+        IAM_LOGE("%{public}s open connection fail %{public}d", GetDescription(), connectResult);
+        SetLatestError(REMOTE_DEVICE_CONNECTION_FAIL);
+        return false;
+    }
 
     IAM_LOGI("%{public}s success", GetDescription());
     return true;
@@ -233,28 +241,23 @@ bool RemoteAuthInvokerContext::SendRequest()
     request_ = Common::MakeShared<Attributes>();
     IF_FALSE_LOGE_AND_RETURN_VAL(request_ != nullptr, false);
 
-    bool setMsgTypeRet = request_->SetInt32Value(Attributes::ATTR_MSG_TYPE, START_REMOTE_AUTH);
-    IF_FALSE_LOGE_AND_RETURN_VAL(setMsgTypeRet, false);
-
     std::vector<int32_t> authTypes = { static_cast<int32_t>(authParam_.authType) };
-    bool getExecutorInfoRet = RemoteMsgUtil::GetQueryExecutorInfoReply(authTypes, COLLECTOR, verifierUdid_, *request_);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getExecutorInfoRet, false);
+    ResultCode getExecutorInfoRet = RemoteMsgUtil::GetQueryExecutorInfoReply(authTypes, COLLECTOR, verifierUdid_,
+        *request_);
+    if (getExecutorInfoRet != SUCCESS) {
+        IAM_LOGE("%{public}s get executor info failed, ret: %{public}d", GetDescription(), getExecutorInfoRet);
+        SetLatestError(getExecutorInfoRet);
+        return false;
+    }
 
+    bool setMsgTypeRet = request_->SetInt32Value(Attributes::ATTR_MSG_TYPE, START_REMOTE_AUTH);
     bool encodeAuthParamRet = RemoteMsgUtil::EncodeAuthParam(authParam_, *request_);
-    IF_FALSE_LOGE_AND_RETURN_VAL(encodeAuthParamRet, false);
-
     bool setTokenIdRet = request_->SetUint32Value(Attributes::ATTR_COLLECTOR_TOKEN_ID, collectorTokenId_);
-    IF_FALSE_LOGE_AND_RETURN_VAL(setTokenIdRet, false);
-
     bool setCallerNameRet = request_->SetStringValue(Attributes::ATTR_CALLER_NAME, callerName_);
-    IF_FALSE_LOGE_AND_RETURN_VAL(setCallerNameRet, false);
-
     bool setCallerTypeRet = request_->SetInt32Value(Attributes::ATTR_CALLER_TYPE, callerType_);
-    IF_FALSE_LOGE_AND_RETURN_VAL(setCallerTypeRet, false);
-
-    bool setCollectorNetworkIdRet =
-        request_->SetStringValue(Attributes::ATTR_COLLECTOR_NETWORK_ID, collectorNetworkId_);
-    IF_FALSE_LOGE_AND_RETURN_VAL(setCollectorNetworkIdRet, false);
+    bool setNetworkIdRet = request_->SetStringValue(Attributes::ATTR_COLLECTOR_NETWORK_ID, collectorNetworkId_);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setMsgTypeRet && encodeAuthParamRet && setTokenIdRet && setCallerNameRet &&
+        setCallerTypeRet && setNetworkIdRet, false);
 
     MsgCallback msgCallback = [weakThis = weak_from_this(), this](const std::shared_ptr<Attributes> &reply) {
         IF_FALSE_LOGE_AND_RETURN(reply != nullptr);

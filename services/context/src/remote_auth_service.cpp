@@ -263,8 +263,9 @@ int32_t RemoteAuthServiceImpl::ProcQueryExecutorInfoRequest(const std::shared_pt
     bool getSrcUdidRet = request->GetStringValue(Attributes::ATTR_MSG_SRC_UDID, srcUdid);
     IF_FALSE_LOGE_AND_RETURN_VAL(getSrcUdidRet, GENERAL_ERROR);
 
-    bool getQueryExecutorInfoRet = RemoteMsgUtil::GetQueryExecutorInfoReply(authTypes, executorRole, srcUdid, *reply);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getQueryExecutorInfoRet, GENERAL_ERROR);
+    ResultCode getQueryExecutorInfoRet = RemoteMsgUtil::GetQueryExecutorInfoReply(authTypes, executorRole,
+        srcUdid, *reply);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getQueryExecutorInfoRet == SUCCESS, getQueryExecutorInfoRet);
 
     IAM_LOGI("success");
     return SUCCESS;
