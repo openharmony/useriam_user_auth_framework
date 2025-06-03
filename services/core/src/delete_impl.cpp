@@ -120,9 +120,8 @@ bool DeleteImpl::Update(const std::vector<uint8_t> &scheduleResult, std::shared_
             IAM_LOGE("bad alloc");
             return false;
         }
-        PublishCommonEvent(deletePara_.userId, info->GetCredentialId(), info->GetAuthType());
     }
-
+    PublishCommonEvent(deletePara_.userId, deletePara_.credentialId, PIN);
     return true;
 }
 
