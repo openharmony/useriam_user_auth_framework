@@ -86,7 +86,8 @@ bool IsTemplateIdListRequired(const std::vector<Attributes::AttributeKey> &keys)
         if (key == Attributes::AttributeKey::ATTR_PIN_SUB_TYPE ||
             key == Attributes::AttributeKey::ATTR_REMAIN_TIMES ||
             key == Attributes::AttributeKey::ATTR_FREEZING_TIME ||
-            key == Attributes::AttributeKey::ATTR_NEXT_FAIL_LOCKOUT_DURATION) {
+            key == Attributes::AttributeKey::ATTR_NEXT_FAIL_LOCKOUT_DURATION ||
+            key == Attributes::AttributeKey::ATTR_CREDENTIAL_LENGTH) {
             return true;
         }
     }

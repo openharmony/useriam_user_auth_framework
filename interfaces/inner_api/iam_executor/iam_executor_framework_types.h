@@ -122,6 +122,8 @@ struct Property {
     std::string sensorInfo;
     /** Next fail lockout duration. */
     int32_t nextFailLockoutDuration;
+    /** credential length. */
+    uint32_t credentialLength;
 };
 
 /**

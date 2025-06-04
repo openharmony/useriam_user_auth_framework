@@ -369,40 +369,45 @@ ResultCode FrameworkExecutorCallback::ProcessAbandonCommand(uint64_t scheduleId,
 ResultCode FrameworkExecutorCallback::FillPropertyToAttribute(const std::vector<Attributes::AttributeKey> &keyList,
     const Property property, std::shared_ptr<Attributes> values)
 {
+    bool ret = false;
     for (auto &key : keyList) {
         switch (key) {
             case Attributes::ATTR_PIN_SUB_TYPE: {
-                bool setAuthSubTypeRet = values->SetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, property.authSubType);
-                IF_FALSE_LOGE_AND_RETURN_VAL(setAuthSubTypeRet == true, ResultCode::GENERAL_ERROR);
+                ret = values->SetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, property.authSubType);
+                IF_FALSE_LOGE_AND_RETURN_VAL(ret, ResultCode::GENERAL_ERROR);
                 break;
             }
             case Attributes::ATTR_FREEZING_TIME: {
-                bool setAuthRemainTimeRet =
-                    values->SetInt32Value(Attributes::ATTR_FREEZING_TIME, property.lockoutDuration);
-                IF_FALSE_LOGE_AND_RETURN_VAL(setAuthRemainTimeRet == true, ResultCode::GENERAL_ERROR);
+                ret = values->SetInt32Value(Attributes::ATTR_FREEZING_TIME, property.lockoutDuration);
+                IF_FALSE_LOGE_AND_RETURN_VAL(ret, ResultCode::GENERAL_ERROR);
                 break;
             }
             case Attributes::ATTR_REMAIN_TIMES: {
-                bool setAuthRemainCountRet =
-                    values->SetInt32Value(Attributes::ATTR_REMAIN_TIMES, property.remainAttempts);
-                IF_FALSE_LOGE_AND_RETURN_VAL(setAuthRemainCountRet == true, ResultCode::GENERAL_ERROR);
+                ret = values->SetInt32Value(Attributes::ATTR_REMAIN_TIMES, property.remainAttempts);
+                IF_FALSE_LOGE_AND_RETURN_VAL(ret, ResultCode::GENERAL_ERROR);
                 break;
             }
             case Attributes::ATTR_ENROLL_PROGRESS: {
-                bool setEnrollProgressRet =
-                    values->SetStringValue(Attributes::ATTR_ENROLL_PROGRESS, property.enrollmentProgress);
-                IF_FALSE_LOGE_AND_RETURN_VAL(setEnrollProgressRet == true, ResultCode::GENERAL_ERROR);
+                ret = values->SetStringValue(Attributes::ATTR_ENROLL_PROGRESS, property.enrollmentProgress);
+                IF_FALSE_LOGE_AND_RETURN_VAL(ret, ResultCode::GENERAL_ERROR);
                 break;
             }
             case Attributes::ATTR_SENSOR_INFO: {
-                bool setSensorInfoRet = values->SetStringValue(Attributes::ATTR_SENSOR_INFO, property.sensorInfo);
-                IF_FALSE_LOGE_AND_RETURN_VAL(setSensorInfoRet == true, ResultCode::GENERAL_ERROR);
+                ret = values->SetStringValue(Attributes::ATTR_SENSOR_INFO, property.sensorInfo);
+                IF_FALSE_LOGE_AND_RETURN_VAL(ret, ResultCode::GENERAL_ERROR);
                 break;
             }
             case Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION: {
-                bool setNextFailLockoutDurationRet = values->SetInt32Value(Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION,
+                ret = values->SetInt32Value(Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION,
                     property.nextFailLockoutDuration);
-                IF_FALSE_LOGE_AND_RETURN_VAL(setNextFailLockoutDurationRet == true, ResultCode::GENERAL_ERROR);
+                IF_FALSE_LOGE_AND_RETURN_VAL(ret, ResultCode::GENERAL_ERROR);
+                break;
+            }
+            case Attributes::ATTR_CREDENTIAL_LENGTH: {
+                if (property.credentialLength != 0) {
+                    ret = values->SetUint32Value(Attributes::ATTR_CREDENTIAL_LENGTH, property.credentialLength);
+                    IF_FALSE_LOGE_AND_RETURN_VAL(ret, ResultCode::GENERAL_ERROR);
+                }
                 break;
             }
             default:
