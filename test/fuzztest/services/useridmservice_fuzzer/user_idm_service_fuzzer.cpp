@@ -344,7 +344,12 @@ void FuzzGetCredentialInfoSync(Parcel &parcel)
     IAM_LOGI("begin");
     int32_t userId = parcel.ReadInt32();
     auto authType = static_cast<AuthType>(parcel.ReadInt32());
-    std::vector<IpcCredentialInfo> credentialInfoList;
+    IpcCredentialInfo info = {};
+    info.authType = static_cast<AuthType>(parcel.ReadInt32());
+    info.credentialId = parcel.ReadUint64();
+    info.templateId = parcel.ReadUint64();
+    info.pinType = static_cast<PinSubType>(parcel.ReadInt32());
+    std::vector<IpcCredentialInfo> credentialInfoList = {info};
     g_UserIdmService.GetCredentialInfoSync(userId, authType, credentialInfoList);
     IAM_LOGI("end");
 }

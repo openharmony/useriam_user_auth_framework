@@ -143,6 +143,11 @@ void FuzzRegister(Parcel &parcel)
 void FuzzOther(Parcel &parcel)
 {
     IAM_LOGI("begin");
+    if (g_coAuthService == nullptr) {
+        return;
+    }
+    g_coAuthService->SetIsReady(true);
+    g_coAuthService->SetAccessTokenReady(true);
     g_coAuthService->OnDriverStart();
 
     auto callback = Common::MakeShared<CoAuthServiceFuzzer>(parcel.ReadInt32(), parcel.ReadInt32(),
@@ -235,9 +240,9 @@ void CoAuthFuzzTest(const uint8_t *data, size_t size)
     Parcel parcel;
     parcel.WriteBuffer(data, size);
     parcel.RewindRead(0);
-    uint32_t index = parcel.ReadUint32() % (sizeof(g_fuzzFuncs) / sizeof(FuzzFunc *));
-    auto fuzzFunc = g_fuzzFuncs[index];
-    fuzzFunc(parcel);
+    for (auto fuzzFunc : g_fuzzFuncs) {
+        fuzzFunc(parcel);
+    }
     return;
 }
 } // namespace
