@@ -1168,23 +1168,23 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceOpenSession, TestSize.Level0)
     UserIdmService service(123123, true);
     int32_t testUserId = 1;
     std::vector<uint8_t> challenge;
-    EXPECT_NE(CHECK_PERMISSION_FAILED, service.OpenSession(testUserId, challenge));
-    EXPECT_NE(CHECK_PERMISSION_FAILED, service.CloseSession(testUserId));
+    EXPECT_EQ(CHECK_PERMISSION_FAILED, service.OpenSession(testUserId, challenge));
+    EXPECT_EQ(CHECK_PERMISSION_FAILED, service.CloseSession(testUserId));
 
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_EQ(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, OpenSession(_, _))
         .WillOnce(Return(HDF_FAILURE))
         .WillRepeatedly(Return(HDF_SUCCESS));
-    EXPECT_NE(GENERAL_ERROR, service.OpenSession(testUserId, challenge));
-    EXPECT_NE(SUCCESS, service.OpenSession(testUserId, challenge));
+    EXPECT_EQ(GENERAL_ERROR, service.OpenSession(testUserId, challenge));
+    EXPECT_EQ(SUCCESS, service.OpenSession(testUserId, challenge));
 
     EXPECT_CALL(*mockHdi, CloseSession(_, _))
         .WillOnce(Return(HDF_FAILURE))
         .WillRepeatedly(Return(HDF_SUCCESS));
-    EXPECT_NE(GENERAL_ERROR, service.CloseSession(testUserId));
-    EXPECT_NE(SUCCESS, service.CloseSession(testUserId));
+    EXPECT_EQ(GENERAL_ERROR, service.CloseSession(testUserId));
+    EXPECT_EQ(SUCCESS, service.CloseSession(testUserId));
 }
 } // namespace UserAuth
 } // namespace UserIam
