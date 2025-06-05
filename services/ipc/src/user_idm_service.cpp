@@ -367,37 +367,31 @@ int32_t UserIdmService::Cancel(int32_t userId)
     }
 
     std::lock_guard<std::mutex> lock(mutex_);
-    return CancelCurrentEnroll(userId);
+    uint32_t tokenId = IpcCommon::GetAccessTokenId(*this);
+    auto contextList = ContextPool::Instance().Select(CONTEXT_ENROLL);
+    int32_t ret = GENERAL_ERROR;
+    for (const auto &context : contextList) {
+        if (auto ctx = context.lock(); ctx != nullptr && userId == ctx->GetUserId() && tokenId == ctx->GetTokenId()) {
+            ctx->Stop();
+            ContextPool::Instance().Delete(ctx->GetContextId());
+            ret = SUCCESS;
+            IAM_LOGI("stop the old context %{public}s", GET_MASKED_STRING(ctx->GetContextId()).c_str());
+        }
+    }
+    return ret;
 }
 
 void UserIdmService::CancelCurrentEnrollIfExist()
 {
-    if (ContextPool::Instance().Select(CONTEXT_ENROLL).size() == 0) {
-        return;
-    }
-
-    IAM_LOGI("cancel current enroll due to new add credential request or delete");
-    CancelCurrentEnroll(INVALID_USER_ID);
-}
-
-int32_t UserIdmService::CancelCurrentEnroll(int32_t userId)
-{
     IAM_LOGD("start");
     auto contextList = ContextPool::Instance().Select(CONTEXT_ENROLL);
-    int32_t ret = GENERAL_ERROR;
     for (const auto &context : contextList) {
         if (auto ctx = context.lock(); ctx != nullptr) {
-            if (userId != INVALID_USER_ID && userId != ctx->GetUserId()) {
-                continue;
-            }
             IAM_LOGI("stop the old context %{public}s", GET_MASKED_STRING(ctx->GetContextId()).c_str());
             ctx->Stop();
             ContextPool::Instance().Delete(ctx->GetContextId());
-            ret = SUCCESS;
         }
     }
-    IAM_LOGI("result %{public}d", ret);
-    return ret;
 }
 
 int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IIamCallback> &idmCallback)
