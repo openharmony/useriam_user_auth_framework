@@ -81,13 +81,13 @@ int32_t UserIdmService::OpenSession(int32_t userId, std::vector<uint8_t> &challe
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi == nullptr) {
         IAM_LOGE("bad hdi");
-        return GENNERAL_ERROR;
+        return GENERAL_ERROR;
     }
     std::lock_guard<std::mutex> lock(mutex_);
     int32_t ret = hdi->OpenSession(userId, challenge);
     if (ret != HDF_SUCCESS) {
         IAM_LOGE("failed to open session, error code:%{public}d", ret);
-        return GENNERAL_ERROR;
+        return GENERAL_ERROR;
     }
     return SUCCESS;
 }
@@ -104,13 +104,13 @@ int32_t UserIdmService::CloseSession(int32_t userId)
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi == nullptr) {
         IAM_LOGE("bad hdi");
-        return GENNERAL_ERROR;
+        return GENERAL_ERROR;
     }
     std::lock_guard<std::mutex> lock(mutex_);
     int32_t ret = hdi->CloseSession(userId);
     if (ret != HDF_SUCCESS) {
         IAM_LOGE("failed to close session, error code:%{public}d", ret);
-        return GENNERAL_ERROR;
+        return GENERAL_ERROR;
     }
     return SUCCESS;
 }
