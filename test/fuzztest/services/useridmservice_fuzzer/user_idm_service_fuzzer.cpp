@@ -310,8 +310,6 @@ void FuzzEnforceDelUserInner(Parcel &parcel)
 void FuzzCancelCurrentEnroll(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    int32_t userId = parcel.ReadInt32();
-    g_UserIdmService.CancelCurrentEnroll(userId);
     g_UserIdmService.CancelCurrentEnrollIfExist();
     IAM_LOGI("end");
 }
