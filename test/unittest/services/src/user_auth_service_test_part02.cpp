@@ -210,7 +210,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_007, TestSize.Level0)
     UserAuthService service;
     int32_t apiVersion = 10;
     std::vector<uint8_t> challenge = {1, 2, 3, 4};
-    std::vector<int32_t> authTypes = {FACE};
+    std::vector<int32_t> authTypes;
     IpcAuthParamInner authParam;
     InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
     IpcWidgetParamInner widgetParam;
@@ -227,9 +227,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_007, TestSize.Level0)
     uint64_t contextId = 0;
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
         contextId);
-    EXPECT_EQ(ret, TYPE_NOT_SUPPORT);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
     EXPECT_NE(contextId, INVALID_CONTEXT_ID);
 
+    authParam.authTypes.push_back(FACE);
     authParam.authTypes.push_back(FACE);
     authParam.authTypes.push_back(FACE);
     authParam.authTypes.push_back(FACE);

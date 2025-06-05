@@ -545,7 +545,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceCancel003, TestSize.Level0)
     EXPECT_TRUE(ContextPool::Instance().Insert(context));
 
     ret = service.Cancel(testUserId);
-    EXPECT_EQ(ret, SUCCESS);
+    EXPECT_EQ(ret, GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1173,14 +1173,13 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceOpenSession, TestSize.Level0)
 
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_EQ(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, OpenSession(_, _))
         .WillOnce(Return(HDF_FAILURE))
         .WillRepeatedly(Return(HDF_SUCCESS));
     EXPECT_EQ(GENERAL_ERROR, service.OpenSession(testUserId, challenge));
     EXPECT_EQ(SUCCESS, service.OpenSession(testUserId, challenge));
 
-    EXPECT_CALL(*mockHdi, CloseSession(_, _))
+    EXPECT_CALL(*mockHdi, CloseSession(_))
         .WillOnce(Return(HDF_FAILURE))
         .WillRepeatedly(Return(HDF_SUCCESS));
     EXPECT_EQ(GENERAL_ERROR, service.CloseSession(testUserId));

@@ -68,7 +68,6 @@ protected:
     void OnStop() override;
 
 private:
-    int32_t CancelCurrentEnroll(int32_t userId);
     void CancelCurrentEnrollIfExist();
     int32_t GetSecInfoInner(int32_t userId, SecUserInfo &secUserInfo);
     int32_t GetCredentialInfoInner(int32_t userId, AuthType authType, std::vector<CredentialInfo> &credInfoList);
