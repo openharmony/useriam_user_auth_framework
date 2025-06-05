@@ -227,7 +227,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_007, TestSize.Level0)
     uint64_t contextId = 0;
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
         contextId);
-    EXPECT_EQ(ret, TYPE_NOT_SUPPORT);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
     EXPECT_NE(contextId, INVALID_CONTEXT_ID);
 
     authParam.authTypes.push_back(FACE);
