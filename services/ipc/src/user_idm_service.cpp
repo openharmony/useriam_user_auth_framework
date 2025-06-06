@@ -38,7 +38,6 @@
 #include "resource_node_utils.h"
 #include "service_init_manager.h"
 #include "user_idm_database.h"
-#include "user_idm_session_controller.h"
 #include "xcollie_helper.h"
 
 #define LOG_TAG "USER_AUTH_SA"
@@ -77,21 +76,19 @@ int32_t UserIdmService::OpenSession(int32_t userId, std::vector<uint8_t> &challe
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
     }
+    CancelCurrentEnrollIfExist();
 
-    auto contextList = ContextPool::Instance().Select(CONTEXT_ENROLL);
-    for (const auto &context : contextList) {
-        if (auto ctx = context.lock(); ctx != nullptr) {
-            IAM_LOGE("force stop the old context ****%{public}hx", static_cast<uint16_t>(ctx->GetContextId()));
-            ctx->Stop();
-            ContextPool::Instance().Delete(ctx->GetContextId());
-        }
-    }
-
-    if (!UserIdmSessionController::Instance().OpenSession(userId, challenge)) {
-        IAM_LOGE("failed to open session");
+    auto hdi = HdiWrapper::GetHdiInstance();
+    if (hdi == nullptr) {
+        IAM_LOGE("bad hdi");
         return GENERAL_ERROR;
     }
-
+    std::lock_guard<std::mutex> lock(mutex_);
+    int32_t ret = hdi->OpenSession(userId, challenge);
+    if (ret != HDF_SUCCESS) {
+        IAM_LOGE("failed to open session, error code:%{public}d", ret);
+        return GENERAL_ERROR;
+    }
     return SUCCESS;
 }
 
@@ -104,8 +101,15 @@ int32_t UserIdmService::CloseSession(int32_t userId)
         return CHECK_PERMISSION_FAILED;
     }
 
-    if (!UserIdmSessionController::Instance().CloseSession(userId)) {
-        IAM_LOGE("failed to get close session");
+    auto hdi = HdiWrapper::GetHdiInstance();
+    if (hdi == nullptr) {
+        IAM_LOGE("bad hdi");
+        return GENERAL_ERROR;
+    }
+    std::lock_guard<std::mutex> lock(mutex_);
+    int32_t ret = hdi->CloseSession(userId);
+    if (ret != HDF_SUCCESS) {
+        IAM_LOGE("failed to close session, error code:%{public}d", ret);
         return GENERAL_ERROR;
     }
     return SUCCESS;
@@ -361,40 +365,32 @@ int32_t UserIdmService::Cancel(int32_t userId)
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
     }
-    if (!UserIdmSessionController::Instance().IsSessionOpened(userId)) {
-        IAM_LOGE("both user id and challenge are invalid");
-        return GENERAL_ERROR;
-    }
 
     std::lock_guard<std::mutex> lock(mutex_);
-    return CancelCurrentEnroll();
+    uint32_t tokenId = IpcCommon::GetAccessTokenId(*this);
+    auto contextList = ContextPool::Instance().Select(CONTEXT_ENROLL);
+    int32_t ret = GENERAL_ERROR;
+    for (const auto &context : contextList) {
+        if (auto ctx = context.lock(); ctx != nullptr && userId == ctx->GetUserId() && tokenId == ctx->GetTokenId()) {
+            if (!ctx->Stop()) {
+                IAM_LOGE("failed stop %{public}s", GET_MASKED_STRING(ctx->GetContextId()).c_str());
+                ret = ctx->GetLatestError();
+            }
+        }
+    }
+    return ret;
 }
 
 void UserIdmService::CancelCurrentEnrollIfExist()
 {
-    if (ContextPool::Instance().Select(CONTEXT_ENROLL).size() == 0) {
-        return;
-    }
-
-    IAM_LOGI("cancel current enroll due to new add credential request or delete");
-    CancelCurrentEnroll();
-}
-
-int32_t UserIdmService::CancelCurrentEnroll()
-{
     IAM_LOGD("start");
     auto contextList = ContextPool::Instance().Select(CONTEXT_ENROLL);
-    int32_t ret = GENERAL_ERROR;
     for (const auto &context : contextList) {
         if (auto ctx = context.lock(); ctx != nullptr) {
             IAM_LOGI("stop the old context %{public}s", GET_MASKED_STRING(ctx->GetContextId()).c_str());
             ctx->Stop();
-            ContextPool::Instance().Delete(ctx->GetContextId());
-            ret = SUCCESS;
         }
     }
-    IAM_LOGI("result %{public}d", ret);
-    return ret;
 }
 
 int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IIamCallback> &idmCallback)
