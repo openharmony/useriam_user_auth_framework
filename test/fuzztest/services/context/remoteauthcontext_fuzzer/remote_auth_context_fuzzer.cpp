@@ -65,6 +65,7 @@ void FillIAttributes(Parcel &parcel, Attributes &attributes)
     attributes.SetUint32Value(Attributes::ATTR_MSG_TYPE, parcel.ReadUint32());
     attributes.SetUint32Value(Attributes::ATTR_REMAIN_TIMES, parcel.ReadUint32());
     attributes.SetUint32Value(Attributes::ATTR_FREEZING_TIME, parcel.ReadUint32());
+    attributes.SetInt32Value(Attributes::ATTR_RESULT, parcel.ReadInt32());
     std::vector<uint64_t> templateIdList;
     FillFuzzUint64Vector(parcel, templateIdList);
     attributes.SetUint64ArrayValue(Attributes::ATTR_TEMPLATE_ID_LIST, templateIdList);
