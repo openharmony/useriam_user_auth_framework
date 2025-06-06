@@ -13,6 +13,7 @@
 
 import("//build/ohos.gni")
 import("//build/test.gni")
+import("../../../user_auth_framework.gni")
 
 ohos_unittest("iam_services_test") {
   sanitize = {
@@ -218,8 +219,13 @@ ohos_unittest("iam_services_test") {
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "screenlock_mgr:screenlock_client",
   ]
+
+  defines = []
+  if (screenlock_client_enable) {
+    external_deps += [ "screenlock_mgr:screenlock_client" ]
+    defines += [ "SCREENLOCK_CLIENT_ENABLE" ]
+  }
 
   configs = [
     "../../../common:iam_log_config",

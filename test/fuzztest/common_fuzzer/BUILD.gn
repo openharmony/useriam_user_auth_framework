@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("../../../user_auth_framework.gni")
 
 if (!defined(global_parts_info) ||
     defined(global_parts_info.account_os_account)) {
@@ -259,8 +260,13 @@ ohos_source_set("userauth_service_context_fuzzer") {
     "init:libbegetutil",
     "ipc:ipc_single",
     "napi:ace_napi",
-    "screenlock_mgr:screenlock_client",
   ]
+
+  defines = []
+  if (screenlock_client_enable) {
+    external_deps += [ "screenlock_mgr:screenlock_client" ]
+    defines += [ "SCREENLOCK_CLIENT_ENABLE" ]
+  }
 
   public_configs =
       [ "../../../services/context:userauth_service_context_config" ]

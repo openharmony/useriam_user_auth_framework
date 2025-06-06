@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("../../user_auth_framework.gni")
 
 config("userauth_service_context_config") {
   include_dirs = [ "inc" ]
@@ -88,8 +89,13 @@ ohos_source_set("userauth_service_context") {
     "ipc:ipc_single",
     "napi:ace_napi",
     "samgr:samgr_proxy",
-    "screenlock_mgr:screenlock_client"
   ]
+
+  defines = []
+  if (screenlock_client_enable) {
+    external_deps += [ "screenlock_mgr:screenlock_client" ]
+    defines += [ "SCREENLOCK_CLIENT_ENABLE" ]
+  }
 
   public_configs = [ ":userauth_service_context_config" ]
 

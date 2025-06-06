@@ -13,4 +13,9 @@
 
 declare_args() {
   user_auth_framework_enable_dynamic_load = false
+  screenlock_client_enable = true
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.theme_screenlock_mgr)) {
+        screenlock_client_enable = false
+  }
 }
