@@ -540,11 +540,12 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceCancel003, TestSize.Level0)
     EXPECT_NE(context, nullptr);
     EXPECT_CALL(*context, GetContextType()).WillRepeatedly(Return(CONTEXT_ENROLL));
     EXPECT_CALL(*context, GetContextId()).WillRepeatedly(Return(2345));
+    EXPECT_CALL(*context, GetUserId()).WillRepeatedly(Return(testUserId));
     EXPECT_CALL(*context, Stop()).WillRepeatedly(Return(true));
     EXPECT_TRUE(ContextPool::Instance().Insert(context));
 
     ret = service.Cancel(testUserId);
-    EXPECT_EQ(ret, SUCCESS);
+    EXPECT_EQ(ret, GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1160,6 +1161,29 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceClearUnavailableCredential003, TestSi
             }
         );
     service.ClearUnavailableCredential(testUserId);
+}
+
+HWTEST_F(UserIdmServiceTest, UserIdmServiceOpenSession, TestSize.Level0)
+{
+    UserIdmService service(123123, true);
+    int32_t testUserId = 1;
+    std::vector<uint8_t> challenge;
+    EXPECT_EQ(CHECK_PERMISSION_FAILED, service.OpenSession(testUserId, challenge));
+    EXPECT_EQ(CHECK_PERMISSION_FAILED, service.CloseSession(testUserId));
+
+    IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_CALL(*mockHdi, OpenSession(_, _))
+        .WillOnce(Return(HDF_FAILURE))
+        .WillRepeatedly(Return(HDF_SUCCESS));
+    EXPECT_EQ(GENERAL_ERROR, service.OpenSession(testUserId, challenge));
+    EXPECT_EQ(SUCCESS, service.OpenSession(testUserId, challenge));
+
+    EXPECT_CALL(*mockHdi, CloseSession(_))
+        .WillOnce(Return(HDF_FAILURE))
+        .WillRepeatedly(Return(HDF_SUCCESS));
+    EXPECT_EQ(GENERAL_ERROR, service.CloseSession(testUserId));
+    EXPECT_EQ(SUCCESS, service.CloseSession(testUserId));
 }
 } // namespace UserAuth
 } // namespace UserIam
