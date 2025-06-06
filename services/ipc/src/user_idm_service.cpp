@@ -373,7 +373,6 @@ int32_t UserIdmService::Cancel(int32_t userId)
     for (const auto &context : contextList) {
         if (auto ctx = context.lock(); ctx != nullptr && userId == ctx->GetUserId() && tokenId == ctx->GetTokenId()) {
             ctx->Stop();
-            ContextPool::Instance().Delete(ctx->GetContextId());
             ret = SUCCESS;
             IAM_LOGI("stop the old context %{public}s", GET_MASKED_STRING(ctx->GetContextId()).c_str());
         }
@@ -389,7 +388,6 @@ void UserIdmService::CancelCurrentEnrollIfExist()
         if (auto ctx = context.lock(); ctx != nullptr) {
             IAM_LOGI("stop the old context %{public}s", GET_MASKED_STRING(ctx->GetContextId()).c_str());
             ctx->Stop();
-            ContextPool::Instance().Delete(ctx->GetContextId());
         }
     }
 }
