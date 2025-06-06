@@ -65,6 +65,7 @@ void FillIAttributes(Parcel &parcel, Attributes &attributes)
     attributes.SetUint64ArrayValue(Attributes::ATTR_EXTRA_INFO, templateIdList);
     attributes.SetUint64Value(Attributes::ATTR_CALLER_UID, parcel.ReadUint64());
     attributes.SetUint32Value(Attributes::ATTR_SCHEDULE_MODE, parcel.ReadUint32());
+    attributes.SetUint64Value(Attributes::ATTR_SCHEDULE_ID, parcel.ReadUint64());
 }
 
 void FuzzTest(Parcel &parcel)
@@ -77,14 +78,16 @@ void FuzzTest(Parcel &parcel)
     FillFuzzUint8Vector(parcel, uint8Vector);
 
     Attributes attr = Attributes();
-    attr.SetUint64Value(Attributes::ATTR_SCHEDULE_ID, parcel.ReadUint64());
+    FillIAttributes(parcel, attr);
     RemoteExecuteTrace trace = {};
     trace.scheduleId = parcel.ReadUint64();
-    trace.connectionName = parcel.ReadString();
+    attr.SetUint64Value(Attributes::ATTR_SCHEDULE_ID, trace.scheduleId);
+    std::string connectionName = parcel.ReadString();
+    trace.connectionName = connectionName;
+    attr.SetStringValue(Attributes::ATTR_CONNECTION_NAME, connectionName);
     trace.operationResult = parcel.ReadInt32();
     g_RemoteExecutorStub->ProcBeginExecuteRequest(attr, trace);
 
-    std::string connectionName = parcel.ReadString();
     std::string srcEndPoint = parcel.ReadString();
     auto request = MakeShared<Attributes>();
     if (request == nullptr) {

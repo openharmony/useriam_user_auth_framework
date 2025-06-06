@@ -312,6 +312,9 @@ void FuzzNapiBeginWidgetAuth(Parcel &parcel)
     auto callback = Common::MakeShared<DummyAuthenticationCallback>();
     std::shared_ptr<UserAuthModalInnerCallback> modalCallback = Common::MakeShared<UserAuthModalInnerCallback>();
     UserAuthNapiClientImpl::Instance().BeginWidgetAuth(apiVersion, authParam, widgetParam, callback, modalCallback);
+    uint64_t contextId = parcel.ReadUint64();
+    int32_t cancelReason = parcel.ReadInt32();
+    UserAuthNapiClientImpl::Instance().CancelAuthentication(contextId, cancelReason);
     IAM_LOGI("end");
 }
 
