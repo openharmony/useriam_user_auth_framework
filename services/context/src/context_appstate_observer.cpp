@@ -20,7 +20,9 @@
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
+#ifdef SCREENLOCK_CLIENT_ENABLE
 #include "screenlock_manager.h"
+#endif
 #include "system_ability_definition.h"
 
 #define LOG_TAG "USER_AUTH_SA"
@@ -122,6 +124,7 @@ ContextAppStateObserverManager &ContextAppStateObserverManager::GetInstance()
 
 bool ContextAppStateObserverManager::IsScreenLocked()
 {
+#ifdef SCREENLOCK_CLIENT_ENABLE
     auto screenLockInstance = ScreenLock::ScreenLockManager::GetInstance();
     if (screenLockInstance == nullptr) {
         IAM_LOGE("screenLockInstance is null");
@@ -130,6 +133,9 @@ bool ContextAppStateObserverManager::IsScreenLocked()
     bool isScreenLocked = screenLockInstance->IsScreenLocked();
     IAM_LOGI("IsScreenLocked: %{public}d", isScreenLocked);
     return isScreenLocked;
+#else
+    return false;
+#endif
 }
 
 ContextAppStateObserver::ContextAppStateObserver(const uint64_t contextId,
