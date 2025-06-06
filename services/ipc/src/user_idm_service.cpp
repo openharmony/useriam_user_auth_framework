@@ -372,9 +372,10 @@ int32_t UserIdmService::Cancel(int32_t userId)
     int32_t ret = GENERAL_ERROR;
     for (const auto &context : contextList) {
         if (auto ctx = context.lock(); ctx != nullptr && userId == ctx->GetUserId() && tokenId == ctx->GetTokenId()) {
-            ctx->Stop();
-            ret = SUCCESS;
-            IAM_LOGI("stop the old context %{public}s", GET_MASKED_STRING(ctx->GetContextId()).c_str());
+            if (!ctx->Stop()) {
+                IAM_LOGE("failed stop %{public}s", GET_MASKED_STRING(ctx->GetContextId()).c_str());
+                ret = ctx->GetLatestError();
+            }
         }
     }
     return ret;
