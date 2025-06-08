@@ -587,6 +587,32 @@ uint64_t UserAuthService::StartRemoteAuthInvokerContext(AuthParamInner authParam
     return context->GetContextId();
 }
 
+uint64_t UserAuthService::StartLocalRemoteAuthContext(Authentication::AuthenticationPara para,
+    LocalRemoteAuthContextParam &localRemoteAuthContextParam, const std::shared_ptr<ContextCallback> &contextCallback)
+{
+    Attributes extraInfo;
+    std::shared_ptr<Context> context = ContextFactory::CreateLocalRemoteAuthContext(para, localRemoteAuthContextParam,
+        contextCallback);
+    if (context == nullptr || !ContextPool::Instance().Insert(context)) {
+        IAM_LOGE("failed to insert context");
+        contextCallback->SetTraceAuthFinishReason("UserAuthService StartLocalRemoteAuthContext insert context fail");
+        contextCallback->OnResult(GENERAL_ERROR, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
+    contextCallback->SetCleaner(ContextHelper::Cleaner(context));
+    contextCallback->SetTraceRequestContextId(context->GetContextId());
+    contextCallback->SetTraceAuthContextId(context->GetContextId());
+
+    if (!context->Start()) {
+        int32_t errorCode = context->GetLatestError();
+        IAM_LOGE("failed to start auth errorCode:%{public}d", errorCode);
+        contextCallback->SetTraceAuthFinishReason("UserAuthService StartLocalRemoteAuthContext start context fail");
+        contextCallback->OnResult(errorCode, extraInfo);
+        return BAD_CONTEXT_ID;
+    }
+    return context->GetContextId();
+}
+
 bool UserAuthService::CheckAuthPermissionAndParam(AuthType authType, AuthTrustLevel authTrustLevel,
     const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo)
 {
@@ -762,33 +788,23 @@ int32_t UserAuthService::PrepareRemoteAuth(const std::string &networkId,
     return SUCCESS;
 }
 
-uint64_t UserAuthService::AuthRemoteUser(AuthParamInner &authParam, Authentication::AuthenticationPara &para,
-    RemoteAuthParam &remoteAuthParam, const std::shared_ptr<ContextCallback> &contextCallback, ResultCode &failReason)
+bool UserAuthService::ProcessAuthParamForRemoteAuth(AuthParamInner &authParam, Authentication::AuthenticationPara &para,
+    RemoteAuthParam &remoteAuthParam, std::string &localNetworkId)
 {
-    IAM_LOGI("start");
-    failReason = GENERAL_ERROR;
-
     if (para.authType != PIN) {
-        IAM_LOGE("Remote auth only support pin auth");
-        failReason = INVALID_PARAMETERS;
-        return BAD_CONTEXT_ID;
+        IAM_LOGE("remote auth only support pin auth");
+        return false;
     }
 
     if (authParam.userId == INVALID_USER_ID) {
         IAM_LOGE("userid must be set for remote auth");
-        failReason = INVALID_PARAMETERS;
-        return BAD_CONTEXT_ID;
+        return false;
     }
-
-    std::string localNetworkId;
-    bool getNetworkIdRet = DeviceManagerUtil::GetInstance().GetLocalDeviceNetWorkId(localNetworkId);
-    IF_FALSE_LOGE_AND_RETURN_VAL(getNetworkIdRet, BAD_CONTEXT_ID);
 
     bool completeRet = CompleteRemoteAuthParam(remoteAuthParam, localNetworkId);
     if (!completeRet) {
         IAM_LOGE("failed to complete remote auth param");
-        failReason = INVALID_PARAMETERS;
-        return BAD_CONTEXT_ID;
+        return false;
     }
 
     if (remoteAuthParam.collectorTokenId.has_value()) {
@@ -797,9 +813,39 @@ uint64_t UserAuthService::AuthRemoteUser(AuthParamInner &authParam, Authenticati
         para.collectorTokenId = para.tokenId;
     }
 
+    return true;
+}
+
+uint64_t UserAuthService::AuthRemoteUser(AuthParamInner &authParam, Authentication::AuthenticationPara &para,
+    RemoteAuthParam &remoteAuthParam, const std::shared_ptr<ContextCallback> &contextCallback, ResultCode &failReason)
+{
+    IAM_LOGI("start");
+
+    std::string localNetworkId;
+    if (!DeviceManagerUtil::GetInstance().GetLocalDeviceNetWorkId(localNetworkId)) {
+        IAM_LOGE("failed to get local network id");
+        failReason = GENERAL_ERROR;
+        return BAD_CONTEXT_ID;
+    }
+
+    if (!ProcessAuthParamForRemoteAuth(authParam, para, remoteAuthParam, localNetworkId)) {
+        IAM_LOGE("failed to check remote auth param");
+        failReason = INVALID_PARAMETERS;
+        return BAD_CONTEXT_ID;
+    }
+
+    failReason = GENERAL_ERROR;
+
+    if (remoteAuthParam.verifierNetworkId.value() == localNetworkId &&
+        remoteAuthParam.collectorNetworkId.value() == localNetworkId) {
+        IAM_LOGI("verifierNetworkId and collectorNetworkId are both local, start local remote auth");
+        LocalRemoteAuthContextParam localRemoteAuthContextParam = {};
+        localRemoteAuthContextParam.collectorNetworkId = remoteAuthParam.collectorNetworkId.value();
+        return StartLocalRemoteAuthContext(para, localRemoteAuthContextParam, contextCallback);
+    }
+
     if (remoteAuthParam.collectorNetworkId.value() == localNetworkId) {
-        RemoteAuthInvokerContextParam remoteAuthInvokerContextParam;
-        remoteAuthInvokerContextParam.connectionName = "";
+        RemoteAuthInvokerContextParam remoteAuthInvokerContextParam = {};
         remoteAuthInvokerContextParam.verifierNetworkId = remoteAuthParam.verifierNetworkId.value();
         remoteAuthInvokerContextParam.collectorNetworkId = remoteAuthParam.collectorNetworkId.value();
         remoteAuthInvokerContextParam.tokenId = para.tokenId;
@@ -810,9 +856,8 @@ uint64_t UserAuthService::AuthRemoteUser(AuthParamInner &authParam, Authenticati
         return StartRemoteAuthInvokerContext(authParam, remoteAuthInvokerContextParam, contextCallback);
     }
 
-    RemoteAuthContextParam remoteAuthContextParam;
+    RemoteAuthContextParam remoteAuthContextParam = {};
     remoteAuthContextParam.authType = authParam.authType;
-    remoteAuthContextParam.connectionName = "";
     remoteAuthContextParam.collectorNetworkId = remoteAuthParam.collectorNetworkId.value();
     remoteAuthContextParam.executorInfoMsg = {};
     int32_t dummyLastError = 0;
@@ -1577,14 +1622,18 @@ bool UserAuthService::CompleteRemoteAuthParam(RemoteAuthParam &remoteAuthParam, 
     }
 
     if (!remoteAuthParam.verifierNetworkId.has_value() && !remoteAuthParam.collectorNetworkId.has_value()) {
-        IAM_LOGE("neither verifierNetworkId nor collectorNetworkId is set");
+        IAM_LOGE("both verifierNetworkId and collectorNetworkId are not set");
         return false;
-    } else if (remoteAuthParam.verifierNetworkId.has_value() && !remoteAuthParam.collectorNetworkId.has_value()) {
-        IAM_LOGI("collectorNetworkId not set, verifierNetworkId set, use local networkId as collectorNetworkId");
-        remoteAuthParam.collectorNetworkId = localNetworkId;
-    } else if (!remoteAuthParam.verifierNetworkId.has_value() && remoteAuthParam.collectorNetworkId.has_value()) {
-        IAM_LOGI("verifierNetworkId not set, collectorNetworkId set, use local networkId as verifierNetworkId");
+    }
+
+    if (!remoteAuthParam.verifierNetworkId.has_value()) {
+        IAM_LOGI("verifierNetworkId not set, use local networkId as verifierNetworkId");
         remoteAuthParam.verifierNetworkId = localNetworkId;
+    }
+
+    if (!remoteAuthParam.collectorNetworkId.has_value()) {
+        IAM_LOGI("collectorNetworkId not set, use local networkId as collectorNetworkId");
+        remoteAuthParam.collectorNetworkId = localNetworkId;
     }
 
     if (remoteAuthParam.verifierNetworkId.value() != localNetworkId &&
@@ -1593,18 +1642,19 @@ bool UserAuthService::CompleteRemoteAuthParam(RemoteAuthParam &remoteAuthParam, 
         return false;
     }
 
-    if (remoteAuthParam.verifierNetworkId.value() == remoteAuthParam.collectorNetworkId.value()) {
-        IAM_LOGE("verifierNetworkId and collectorNetworkId are the same");
+    if (remoteAuthParam.verifierNetworkId.value() == remoteAuthParam.collectorNetworkId.value() &&
+        remoteAuthParam.verifierNetworkId.value() != localNetworkId) {
+        IAM_LOGE("verifierNetworkId and collectorNetworkId are the same and not local networkId");
         return false;
     }
 
-    if (remoteAuthParam.verifierNetworkId == localNetworkId && !remoteAuthParam.collectorTokenId.has_value()) {
-        IAM_LOGE("this device is verifier, collectorTokenId not set");
+    if (remoteAuthParam.collectorNetworkId.value() != localNetworkId && !remoteAuthParam.collectorTokenId.has_value()) {
+        IAM_LOGE("collectorNetworkId is not local networkId, collectorTokenId not set");
         return false;
     }
 
-    if (remoteAuthParam.collectorNetworkId == localNetworkId && !remoteAuthParam.collectorTokenId.has_value()) {
-        IAM_LOGI("this device is collector, update collectorTokenId with caller token id");
+    if (remoteAuthParam.collectorNetworkId.value() == localNetworkId && !remoteAuthParam.collectorTokenId.has_value()) {
+        IAM_LOGI("collectorNetworkId is local networkId, update collectorTokenId with caller token id");
         remoteAuthParam.collectorTokenId = IpcCommon::GetAccessTokenId(*this);
     }
 

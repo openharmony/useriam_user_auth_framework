@@ -68,6 +68,7 @@ ohos_unittest("iam_services_test") {
     "../../../services/context/src/delete_context.cpp",
     "../../../services/context/src/enroll_context.cpp",
     "../../../services/context/src/identify_context.cpp",
+    "../../../services/context/src/local_remote_auth_context.cpp",
     "../../../services/context/src/remote_auth_context.cpp",
     "../../../services/context/src/remote_auth_invoker_context.cpp",
     "../../../services/context/src/remote_auth_service.cpp",
