@@ -16,6 +16,6 @@ declare_args() {
   screenlock_client_enable = true
   if (defined(global_parts_info) &&
       !defined(global_parts_info.theme_screenlock_mgr)) {
-        screenlock_client_enable = false
+    screenlock_client_enable = false
   }
 }
