@@ -719,6 +719,76 @@ UserAuthResultCode UserAuthInstanceV10::Cancel(napi_env env, napi_callback_info 
     isAuthStarted_ = false;
     return UserAuthResultCode::SUCCESS;
 }
+
+UserAuthResultCode UserAuthInstanceV10::ParamReusableAuthResult(napi_env env, napi_callback_info info,
+    WidgetAuthParam &authParam)
+{
+    napi_value argv[ARGS_ONE];
+    size_t argc = ARGS_ONE;
+    napi_status ret = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_get_cb_info fail:%{public}d", ret);
+        return UserAuthResultCode::GENERAL_ERROR;
+    }
+    if (argc != ARGS_ONE) {
+        IAM_LOGE("parms error");
+        std::string msgStr = "Parameter vefification failed. The number of parameters should be 1.";
+        napi_throw(env, UserAuthNapiHelper::GenerateErrorMsg(env, UserAuthResultCode::PARAM_VERIFY_FAILED, msgStr));
+        return UserAuthResultCode::PARAM_VERIFY_FAILED;
+    }
+    UserAuthResultCode errCode = InitAuthParam(env, argv[PARAM0]);
+    if (errCode != UserAuthResultCode::SUCCESS) {
+        IAM_LOGE("AuthParamInner type error, errorCode: %{public}d", errCode);
+        return errCode;
+    }
+    authParam.userId = authParam_.userId;
+    authParam.challenge = authParam_.challenge;
+    authParam.authTypes = authParam_.authTypes;
+    authParam.authTrustLevel = authParam_.authTrustLevel;
+    authParam.reuseUnlockResult.isReuse = authParam_.reuseUnlockResult.isReuse;
+    authParam.reuseUnlockResult.reuseMode = authParam_.reuseUnlockResult.reuseMode;
+    authParam.reuseUnlockResult.reuseDuration = authParam_.reuseUnlockResult.reuseDuration;
+    return UserAuthResultCode::SUCCESS;
+}
+
+napi_value UserAuthInstanceV10::QueryReusableAuthResult(napi_env env, napi_callback_info info)
+{
+    UserAuthApiEventReporter reporter("QueryReusableAuthResult");
+    WidgetAuthParam authParam = {0};
+    UserAuthResultCode errCode = ParamReusableAuthResult(env, info, authParam);
+    if (errCode != UserAuthResultCode::SUCCESS) {
+        IAM_LOGE("AuthParamInner type error, errorCode: %{public}d", errCode);
+        reporter.ReportFailed(errCode);
+        return nullptr;
+    }
+
+    std::vector<uint8_t> extraInfo;
+    int32_t code = UserAuthClientImpl::Instance().QueryReusableAuthResult(authParam, extraInfo);
+    if (code != SUCCESS) {
+        IAM_LOGE("failed to query reuse result %{public}d", code);
+        int32_t resultCode = UserAuthNapiHelper::GetResultCodeV10(code);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode(resultCode)));
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
+        return nullptr;
+    }
+    napi_value eventInfo;
+    napi_status ret = napi_create_object(env, &eventInfo);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_create_object failed %{public}d", ret);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
+        return nullptr;
+    }
+    ret = UserAuthNapiHelper::SetUint8ArrayProperty(env, eventInfo, "extraInfo", extraInfo);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_create_object failed %{public}d", ret);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
+        return nullptr;
+    }
+    reporter.ReportSuccess();
+    return eventInfo;
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

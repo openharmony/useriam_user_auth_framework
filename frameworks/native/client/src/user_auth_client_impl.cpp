@@ -722,6 +722,30 @@ int32_t UserAuthClientImpl::PrepareRemoteAuth(const std::string &networkId,
     return proxy->PrepareRemoteAuth(networkId, wrapper);
 }
 
+int32_t UserAuthClientImpl::QueryReusableAuthResult(const WidgetAuthParam &authParam, std::vector<uint8_t> &extraInfo)
+{
+    IAM_LOGI("start");
+    auto proxy = GetProxy();
+    if (!proxy) {
+        IAM_LOGE("proxy is nullptr");
+        return GENERAL_ERROR;
+    }
+
+    IpcAuthParamInner ipcAuthParamInner = {};
+    ipcAuthParamInner.userId = authParam.userId;
+    ipcAuthParamInner.isUserIdSpecified = true;
+    ipcAuthParamInner.challenge = authParam.challenge;
+    for (auto &authType : authParam.authTypes) {
+        ipcAuthParamInner.authTypes.push_back(static_cast<int32_t>(authType));
+    }
+    ipcAuthParamInner.authTrustLevel = authParam.authTrustLevel,
+    ipcAuthParamInner.reuseUnlockResult.isReuse = authParam.reuseUnlockResult.isReuse;
+    ipcAuthParamInner.reuseUnlockResult.reuseMode = authParam.reuseUnlockResult.reuseMode;
+    ipcAuthParamInner.reuseUnlockResult.reuseDuration = authParam.reuseUnlockResult.reuseDuration;
+
+    return proxy->QueryReusableAuthResult(ipcAuthParamInner, extraInfo);
+}
+
 void UserAuthClientImpl::InitIpcRemoteAuthParam(const std::optional<RemoteAuthParam> &remoteAuthParam,
     IpcRemoteAuthParam &ipcRemoteAuthParam)
 {
@@ -778,6 +802,7 @@ void UserAuthClientImpl::InitIpcAuthParam(const AuthParamInner &authParam,
     ipcAuthParamInner.authTrustLevel = static_cast<uint32_t>(authParam.authTrustLevel);
     ipcAuthParamInner.authIntent = static_cast<int32_t>(authParam.authIntent);
     ipcAuthParamInner.reuseUnlockResult.isReuse = authParam.reuseUnlockResult.isReuse;
+    ipcAuthParamInner.reuseUnlockResult.reuseMode = authParam.reuseUnlockResult.reuseMode;
     ipcAuthParamInner.reuseUnlockResult.reuseDuration = authParam.reuseUnlockResult.reuseDuration;
 }
 

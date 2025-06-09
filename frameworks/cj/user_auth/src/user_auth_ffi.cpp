@@ -84,3 +84,37 @@ int32_t FfiUserAuthCancel(const uint64_t contextId)
 {
     return UserAuthClientImpl::GetInstance().CancelAuthentication(contextId);
 }
+
+int32_t FfiUserAuthQueryReusableAuthResult(int32_t userId, const CjAuthParam &authParam,
+    CjReuseAuthResult *reuseAuthResult)
+{
+    std::vector<AuthType> authTypes;
+    for (int i = 0; i < authParam.authTypesLen; ++i) {
+        authTypes.push_back(AuthType(authParam.authTypes[i]));
+    }
+    WidgetAuthParam authParamInner{
+        .userId = userId,
+        .challenge = std::vector<uint8_t>(authParam.challenge, authParam.challenge + authParam.challengeLen),
+        .authTypes = authTypes,
+        .authTrustLevel = AuthTrustLevel(authParam.authTrustLevel),
+    };
+    if (authParam.isReuse) {
+        authParamInner.reuseUnlockResult = {
+            .isReuse = true,
+            .reuseMode = ReuseMode(authParam.reuseMode),
+            .reuseDuration = authParam.reuseDuration,
+        };
+    }
+
+    std::vector<uint8_t> extraInfo;
+    int32_t ret = UserAuthClientImpl::Instance().QueryReusableAuthResult(authParamInner, extraInfo);
+    if (ret == SUCCESS) {
+        Attributes attributes(extraInfo);
+        std::vector<uint8_t> token;
+        attributes.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, token);
+        reuseAuthResult->token = token.data();
+        reuseAuthResult->tokenLen = static_cast<int64_t>(token.size());
+    }
+
+    return ret;
+}

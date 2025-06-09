@@ -196,7 +196,7 @@ int32_t AuthWidgetHelper::CheckReuseUnlockResult(const ContextFactory::AuthWidge
         authParam.reuseUnlockResult.reuseMode != CALLER_IRRELEVANT_AUTH_TYPE_RELEVANT &&
         authParam.reuseUnlockResult.reuseMode != CALLER_IRRELEVANT_AUTH_TYPE_IRRELEVANT)) {
         IAM_LOGE("CheckReuseUnlockResult invalid param");
-        return INVALID_PARAMETERS;
+        return PARAMETERS_VERIFIED_FAILED;
     }
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi == nullptr) {

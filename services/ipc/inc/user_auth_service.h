@@ -69,6 +69,8 @@ public:
         const sptr<IIamCallback> &userAuthCallback) override;
     int32_t VerifyAuthToken(const std::vector<uint8_t> &tokenIn, uint64_t allowableDuration,
         const sptr<IVerifyTokenCallback> &verifyTokenCallback) override;
+    int32_t QueryReusableAuthResult(const IpcAuthParamInner &ipcAuthParamInner,
+        std::vector<uint8_t> &extraInfo) override;
     int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;
     int32_t CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result) override;
 

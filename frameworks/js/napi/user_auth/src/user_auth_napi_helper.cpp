@@ -172,6 +172,15 @@ int32_t UserAuthNapiHelper::GetResultCodeV10(int32_t result)
     if (result == HARDWARE_NOT_SUPPORTED) {
         return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
     }
+    if (result == AUTH_TOKEN_CHECK_FAILED) {
+        return static_cast<int32_t>(UserAuthResultCode::AUTH_TOKEN_CHECK_FAILED);
+    }
+    if (result == AUTH_TOKEN_EXPIRED) {
+        return static_cast<int32_t>(UserAuthResultCode::AUTH_TOKEN_EXPIRED);
+    }
+    if (result == PARAMETERS_VERIFIED_FAILED) {
+        return static_cast<int32_t>(UserAuthResultCode::PARAM_VERIFIED_FAILED);
+    }
     if (result > (INT32_MAX - static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V10_MIN))) {
         return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
     }
