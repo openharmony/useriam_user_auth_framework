@@ -649,6 +649,35 @@ napi_value CancelAuth(napi_env env, napi_callback_info info)
     return UserAuthImpl::CancelAuth(env, info);
 }
 
+napi_value QueryReusableAuthResult(napi_env env, napi_callback_info info)
+{
+    IAM_LOGI("start");
+    UserAuthApiEventReporter reporter("QueryReusableAuthResult");
+    napi_value userAuthInstanceV10;
+    napi_status ret = napi_new_instance(env, UserAuthInstanceV10Class(env), 0, nullptr, &userAuthInstanceV10);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_new_instance fail:%{public}d", ret);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
+        return nullptr;
+    }
+    UserAuthInstanceV10 *userAuthInstance = nullptr;
+    ret = napi_unwrap(env, userAuthInstanceV10, reinterpret_cast<void **>(&userAuthInstance));
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_unwrap fail");
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
+        return nullptr;
+    }
+    if (userAuthInstance == nullptr) {
+        IAM_LOGE("userAuthInstanceV10 is null");
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
+        return nullptr;
+    }
+    return userAuthInstance->QueryReusableAuthResult(env, info);
+}
+
 napi_value AuthTrustLevelConstructor(napi_env env)
 {
     napi_value authTrustLevel = nullptr;
@@ -1008,6 +1037,7 @@ napi_value UserAuthInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getUserAuthWidgetMgr", UserAuth::GetUserAuthWidgetMgrV10),
         DECLARE_NAPI_FUNCTION("getEnrolledState", UserAuth::GetEnrolledState),
         DECLARE_NAPI_FUNCTION("sendNotice", UserAuth::SendNotice),
+        DECLARE_NAPI_FUNCTION("queryReusableAuthResult", UserAuth::QueryReusableAuthResult),
     };
     status = napi_define_properties(env, exports,
         sizeof(exportFuncs) / sizeof(napi_property_descriptor), exportFuncs);

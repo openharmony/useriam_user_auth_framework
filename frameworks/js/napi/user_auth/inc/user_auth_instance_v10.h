@@ -43,6 +43,7 @@ public:
     UserAuthResultCode Start(napi_env env, napi_callback_info info);
     UserAuthResultCode Cancel(napi_env env, napi_callback_info info);
     static napi_value GetEnrolledState(napi_env env, napi_callback_info info);
+    napi_value QueryReusableAuthResult(napi_env env, napi_callback_info info);
 
 private:
     UserAuthResultCode InitChallenge(napi_env env, napi_value value);
@@ -60,7 +61,8 @@ private:
         UserAuthApiEventReporter &reporter);
     UserAuthResultCode ProcessContext(napi_env env, napi_value value);
     bool CheckUIContext(const std::shared_ptr<OHOS::AbilityRuntime::Context> context);
-
+    UserAuthResultCode ParamReusableAuthResult(napi_env env, napi_callback_info info,
+        WidgetAuthParam &authParam);
     AuthParamInner authParam_ = {};
     UserAuthNapiClientImpl::WidgetParamNapi widgetParam_ = {};
 
