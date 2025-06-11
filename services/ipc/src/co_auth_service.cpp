@@ -123,7 +123,7 @@ void CoAuthService::SetAccessTokenReady(bool isReady)
 {
     std::lock_guard<std::recursive_mutex> guard(mutex_);
     accessTokenReady_ = isReady;
-    IAM_LOGI("Set accesstoken ready %{public}d", accessTokenReady_);
+    IAM_LOGI("Set accesstk ready %{public}d", isReady);
 }
 
 bool CoAuthService::IsFwkReady()
