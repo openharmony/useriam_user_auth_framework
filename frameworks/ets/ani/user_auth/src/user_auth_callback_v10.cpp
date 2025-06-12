@@ -54,6 +54,7 @@ bool UserAuthCallbackV10::DoResultCallback(
     int32_t result, const std::vector<uint8_t> &token, int32_t authType, EnrolledState enrolledState)
 {
     IAM_LOGI("start");
+    std::lock_guard<std::mutex> guard(mutex_);
     if (resultCallback_ == nullptr) {
         IAM_LOGI("resultCallback_ is nullptr.");
         return false;
