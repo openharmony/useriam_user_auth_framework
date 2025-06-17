@@ -166,8 +166,6 @@ UserAuthService g_userAuthService;
 void FuzzGetResourseNode(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    g_userAuthService.OnStart();
-    g_userAuthService.OnStop();
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
     g_userAuthService.GetResourseNode(authType);
     g_userAuthService.ProcessWidgetSessionExclusive();
