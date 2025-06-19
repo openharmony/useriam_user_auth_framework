@@ -41,6 +41,8 @@ public:
     UserAuthResultCode Cancel(napi_env env, napi_callback_info info);
 
 private:
+    static UserAuthResultCode GetAvailableStatusInner(napi_env env, napi_callback_info info);
+
     napi_status InitChallenge(napi_env env, napi_value value);
     std::shared_ptr<JsRefHolder> GetCallback(napi_env env, napi_value value);
 
