@@ -49,13 +49,13 @@ public:
     {
         if (userAuthInstanceV10_ == nullptr) {
             IAM_LOGE("userAuthInstanceV10_ is null");
-            UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::GENERAL_ERROR, "");
+            UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::GENERAL_ERROR);
             return;
         }
         UserAuth::UserAuthResultCode initResult = userAuthInstanceV10_->Init(authParam, widgetParam);
         if (initResult != UserAuth::UserAuthResultCode::SUCCESS) {
             IAM_LOGE("userAuthInstanceV10_ init fail");
-            UserAuth::UserAuthAniHelper::ThrowBusinessError(initResult, "");
+            UserAuth::UserAuthAniHelper::ThrowBusinessError(initResult);
             return;
         }
     }
@@ -64,40 +64,60 @@ public:
     {
         if (userAuthInstanceV10_ == nullptr) {
             IAM_LOGE("userAuthInstanceV10_ is null");
-            UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::GENERAL_ERROR, "");
+            UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::GENERAL_ERROR);
             return;
         }
-        userAuthInstanceV10_->On(type.c_str(), callback);
+        UserAuth::UserAuthResultCode onResult = userAuthInstanceV10_->On(type.c_str(), callback);
+        if (onResult != UserAuth::UserAuthResultCode::SUCCESS) {
+            IAM_LOGE("userAuthInstanceV10_ on fail");
+            UserAuth::UserAuthAniHelper::ThrowBusinessError(onResult);
+            return;
+        }
     }
 
     void off(string_view type, optional_view<IAuthCallback> callback)
     {
         if (userAuthInstanceV10_ == nullptr) {
             IAM_LOGE("userAuthInstanceV10_ is null");
-            UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::GENERAL_ERROR, "");
+            UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::GENERAL_ERROR);
             return;
         }
-        userAuthInstanceV10_->Off(type.c_str(), callback);
+        UserAuth::UserAuthResultCode offResult = userAuthInstanceV10_->Off(type.c_str(), callback);
+        if (offResult != UserAuth::UserAuthResultCode::SUCCESS) {
+            IAM_LOGE("userAuthInstanceV10_ off fail");
+            UserAuth::UserAuthAniHelper::ThrowBusinessError(offResult);
+            return;
+        }
     }
 
     void start()
     {
         if (userAuthInstanceV10_ == nullptr) {
             IAM_LOGE("userAuthInstanceV10_ is null");
-            UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::GENERAL_ERROR, "");
+            UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::GENERAL_ERROR);
             return;
         }
-        userAuthInstanceV10_->Start();
+        UserAuth::UserAuthResultCode startResult = userAuthInstanceV10_->Start();
+        if (startResult != UserAuth::UserAuthResultCode::SUCCESS) {
+            IAM_LOGE("userAuthInstanceV10_ start fail");
+            UserAuth::UserAuthAniHelper::ThrowBusinessError(startResult);
+            return;
+        }
     }
 
     void cancel()
     {
         if (userAuthInstanceV10_ == nullptr) {
             IAM_LOGE("userAuthInstanceV10_ is null");
-            UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::GENERAL_ERROR, "");
+            UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::GENERAL_ERROR);
             return;
         }
-        userAuthInstanceV10_->Cancel();
+        UserAuth::UserAuthResultCode canelResult = userAuthInstanceV10_->Cancel();
+        if (canelResult != UserAuth::UserAuthResultCode::SUCCESS) {
+            IAM_LOGE("userAuthInstanceV10_ cancel fail");
+            UserAuth::UserAuthAniHelper::ThrowBusinessError(canelResult);
+            return;
+        }
     }
 
 private:
@@ -116,13 +136,13 @@ public:
     {
         if (userAuthWidgetMgr_ == nullptr) {
             IAM_LOGE("userAuthWidgetMgr_ is null after MakeShared");
-            UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::GENERAL_ERROR, "");
+            UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::GENERAL_ERROR);
             return;
         }
         UserAuth::UserAuthResultCode initResult = userAuthWidgetMgr_->Init(version);
         if (initResult != UserAuth::UserAuthResultCode::SUCCESS) {
             IAM_LOGE("userAuthWidgetMgr_ init fail");
-            UserAuth::UserAuthAniHelper::ThrowBusinessError(initResult, "");
+            UserAuth::UserAuthAniHelper::ThrowBusinessError(initResult);
             return;
         }
     }
@@ -131,20 +151,30 @@ public:
     {
         if (userAuthWidgetMgr_ == nullptr) {
             IAM_LOGE("userAuthWidgetMgr_ is null after MakeShared");
-            UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::GENERAL_ERROR, "");
+            UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::GENERAL_ERROR);
             return;
         }
-        userAuthWidgetMgr_->On(type.c_str(), callback);
+        UserAuth::UserAuthResultCode onResult = userAuthWidgetMgr_->On(type.c_str(), callback);
+        if (onResult != UserAuth::UserAuthResultCode::SUCCESS) {
+            IAM_LOGE("userAuthWidgetMgr_ on fail");
+            UserAuth::UserAuthAniHelper::ThrowBusinessError(onResult);
+            return;
+        }
     }
 
     void off(string_view type, optional_view<IAuthWidgetCallback> callback)
     {
         if (userAuthWidgetMgr_ == nullptr) {
             IAM_LOGE("userAuthWidgetMgr_ is null after MakeShared");
-            UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::GENERAL_ERROR, "");
+            UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::GENERAL_ERROR);
             return;
         }
-        userAuthWidgetMgr_->Off(type.c_str(), callback);
+        UserAuth::UserAuthResultCode offResult = userAuthWidgetMgr_->Off(type.c_str(), callback);
+        if (offResult != UserAuth::UserAuthResultCode::SUCCESS) {
+            IAM_LOGE("userAuthWidgetMgr_ off fail");
+            UserAuth::UserAuthAniHelper::ThrowBusinessError(offResult);
+            return;
+        }
     }
 
 private:
@@ -156,19 +186,19 @@ void GetAvailableStatus(UserAuthType authType, AuthTrustLevel authTrustLevel)
     IAM_LOGI("GetAvailableStatus begin");
     if (!UserAuth::UserAuthHelper::CheckUserAuthType(authType)) {
         IAM_LOGE("authType check fail:%{public}d", authType.get_value());
-        UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::TYPE_NOT_SUPPORT, "");
+        UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::TYPE_NOT_SUPPORT);
         return;
     }
     if (!UserAuth::UserAuthHelper::CheckAuthTrustLevel(authTrustLevel)) {
         IAM_LOGE("authTrustLevel check fail:%{public}d", authTrustLevel.get_value());
-        UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::TRUST_LEVEL_NOT_SUPPORT, "");
+        UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::TRUST_LEVEL_NOT_SUPPORT);
         return;
     }
     int32_t status = UserAuth::UserAuthClientImpl::Instance().GetNorthAvailableStatus(UserAuth::API_VERSION_9,
         UserAuth::AuthType(authType.get_value()), UserAuth::AuthTrustLevel(authTrustLevel.get_value()));
     IAM_LOGI("result = %{public}d", status);
     if (status == static_cast<int32_t>(UserAuth::UserAuthResultCode::PIN_EXPIRED)) {
-        UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::PIN_EXPIRED, "");
+        UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::PIN_EXPIRED);
         return;
     }
 }
@@ -178,7 +208,7 @@ EnrolledState GetEnrolledState(UserAuthType authType)
     IAM_LOGI("GetEnrolledState begin");
     if (!UserAuth::UserAuthHelper::CheckUserAuthType(authType)) {
         IAM_LOGE("authType check fail:%{public}d", authType.get_value());
-        UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::TYPE_NOT_SUPPORT, "");
+        UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::TYPE_NOT_SUPPORT);
         return {};
     }
     UserAuth::EnrolledState enrolledState = {};
@@ -187,7 +217,7 @@ EnrolledState GetEnrolledState(UserAuthType authType)
     if (code != static_cast<int32_t>(UserAuth::AuthenticationResult::SUCCESS)) {
         IAM_LOGE("failed to get enrolled state %{public}d", code);
         UserAuth::UserAuthAniHelper::ThrowBusinessError(
-            UserAuth::UserAuthResultCode(UserAuth::UserAuthHelper::GetResultCodeV10(code)), "");
+            UserAuth::UserAuthResultCode(UserAuth::UserAuthHelper::GetResultCodeV10(code)));
         return {};
     }
     EnrolledState result{enrolledState.credentialDigest, enrolledState.credentialCount};
@@ -208,8 +238,7 @@ void SendNotice(NoticeType noticeType, string_view eventData)
     IAM_LOGI("recv SendNotice noticeType:%{public}d eventData:%{public}s", type, eventData.c_str());
     if (!UserAuth::UserAuthAniHelper::VerifyNoticeParam(eventData.c_str())) {
         IAM_LOGE("Invalid notice parameter");
-        std::string msgStr = "Parameter error. The value of \"eventData\" for WIDGET_NOTICE must be json string.";
-        UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
+        UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::OHOS_INVALID_PARAM);
         return;
     }
 
@@ -218,7 +247,7 @@ void SendNotice(NoticeType noticeType, string_view eventData)
     if (result != static_cast<int32_t>(UserAuth::ResultCode::SUCCESS)) {
         errCode = UserAuth::UserAuthResultCode(UserAuth::UserAuthHelper::GetResultCodeV10(result));
         IAM_LOGE("SendNotice fail. result: %{public}d, errCode: %{public}d", result, errCode);
-        UserAuth::UserAuthAniHelper::ThrowBusinessError(errCode, "");
+        UserAuth::UserAuthAniHelper::ThrowBusinessError(errCode);
         return;
     }
     IAM_LOGI("end SendNotice");
