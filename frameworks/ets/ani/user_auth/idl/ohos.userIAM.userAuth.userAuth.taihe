@@ -17,7 +17,7 @@
  
 @!sts_inject("""
 static { loadLibrary("userauth_ani"); }
-const MAX_ALLOWABLE_REUSE_DURATION : int = 300000;
+export const MAX_ALLOWABLE_REUSE_DURATION : double = 300000;
 """)
  
 enum UserAuthType : i32 {
