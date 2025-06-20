@@ -155,10 +155,10 @@ UserAuthResultCode UserAuthInstanceV10::InitReuseUnlockResult(userAuth::AuthPara
         authParam_.reuseUnlockResult.isReuse = true;
         authParam_.reuseUnlockResult.reuseMode =
             ReuseMode(static_cast<int32_t>(authParam.reuseUnlockResult->reuseMode.get_value()));
+        authParam_.reuseUnlockResult.reuseDuration = authParam.reuseUnlockResult->reuseDuration;
         if (!UserAuthHelper::CheckReuseUnlockResult(authParam_.reuseUnlockResult)) {
             IAM_LOGE("ReuseUnlockResult fail");
-            std::string msgStr = "Parameter error. The type of \"reuseUnlockResult\" "
-                                 "must be ReuseUnlockResult.";
+            return UserAuthResultCode::OHOS_INVALID_PARAM;
         }
         authParam_.reuseUnlockResult.reuseDuration = authParam.reuseUnlockResult->reuseDuration;
         IAM_LOGI("reuseMode: %{public}u, reuseDuration: %{public}" PRIu64,
@@ -178,8 +178,7 @@ UserAuthResultCode UserAuthInstanceV10::InitUserId(userAuth::AuthParam const &au
         authParam_.userId = authParam.userId.value();
         if (authParam_.userId < 0) {
             IAM_LOGE("userId error.");
-            std::string msgStr = "Parameter error. The \"userId\" must be greater than or equal to 0";
-            return UserAuthAniHelper::ThrowBusinessError(UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
+            return UserAuthResultCode::OHOS_INVALID_PARAM;
         }
         IAM_LOGI("InitUserId userId: %{public}d", authParam_.userId);
     } else {
@@ -224,7 +223,7 @@ UserAuthResultCode UserAuthInstanceV10::InitTitle(userAuth::WidgetParam const &w
     if (title == "" || title.size() > WidgetType::TITLE_MAX) {
         IAM_LOGE("title is invalid. size: %{public}zu", title.size());
         std::string msgStr = "Parameter error. The length of \"title\" connot exceed 500.";
-        return UserAuthAniHelper::ThrowBusinessError(UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
     widgetParam_.title = title;
     return UserAuthResultCode::SUCCESS;
@@ -237,8 +236,7 @@ UserAuthResultCode UserAuthInstanceV10::InitNavigationButtonText(userAuth::Widge
         std::string naviBtnTxt = widgetParam.navigationButtonText->c_str();
         if (naviBtnTxt == "" || naviBtnTxt.size() > WidgetType::BUTTON_MAX) {
             IAM_LOGE("navigation button text is invalid, size: %{public}zu", naviBtnTxt.size());
-            std::string msgStr = "Parameter error. The length of \"navigationButtonText\" connot exceed 60.";
-            return UserAuthAniHelper::ThrowBusinessError(UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
+            return UserAuthResultCode::OHOS_INVALID_PARAM;
         }
         widgetParam_.navigationButtonText = naviBtnTxt;
     }
@@ -258,9 +256,7 @@ UserAuthResultCode UserAuthInstanceV10::InitWindowMode(userAuth::WidgetParam con
                 break;
             default:
                 IAM_LOGE("windowMode type not support.");
-                std::string msgStr = "Parameter error. The type of \"windowMode\" "
-                                     "must be WindowModeType.";
-                return UserAuthAniHelper::ThrowBusinessError(UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
+                return UserAuthResultCode::OHOS_INVALID_PARAM;
         }
         IAM_LOGI("widgetParam title:%{public}s, navBtnText:%{public}s, winMode:%{public}u",
             widgetParam_.title.c_str(),
@@ -281,8 +277,7 @@ UserAuthResultCode UserAuthInstanceV10::InitContext(userAuth::WidgetParam const 
         ani_status status = OHOS::AbilityRuntime::IsStageContext(env, uiContext, stageMode);
         if (status != ANI_OK) {
             IAM_LOGE("uiContext must be stage mode: %{public}d", status);
-            std::string msgStr = "Parameter error. The type of \"uiContext\" must be stage mode.";
-            return UserAuthAniHelper::ThrowBusinessError(UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
+            return UserAuthResultCode::OHOS_INVALID_PARAM;
         }
         auto context = OHOS::AbilityRuntime::GetStageModeContext(env, uiContext);
         if (CheckUIContext(context)) {
@@ -335,8 +330,7 @@ UserAuthResultCode UserAuthInstanceV10::On(std::string type, userAuth::IAuthCall
     static const size_t maxLen = 10;
     if (type.size() <= 0 || type.size() > maxLen) {
         IAM_LOGE("getAuthInstance on GetStrValue fail.");
-        std::string msgStr = "Parameter error. The type of \"type\" must be string.";
-        return UserAuthAniHelper::ThrowBusinessError(UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
     if (type == AUTH_EVENT_RESULT) {
         IAM_LOGI("getAuthInstance on SetResultCallback");
@@ -344,8 +338,7 @@ UserAuthResultCode UserAuthInstanceV10::On(std::string type, userAuth::IAuthCall
         return UserAuthResultCode::SUCCESS;
     } else {
         IAM_LOGE("getAuthInstance on invalid event:%{public}s", type.c_str());
-        std::string msgStr = "Parameter error. The value of \"type\" must be \"result\".";
-        return UserAuthAniHelper::ThrowBusinessError(UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
 }
 
@@ -367,8 +360,7 @@ UserAuthResultCode UserAuthInstanceV10::Off(std::string type, taihe::optional_vi
         return UserAuthResultCode::SUCCESS;
     } else {
         IAM_LOGE("invalid event:%{public}s", type.c_str());
-        std::string msgStr = "Parameter error. The value of \"type\" must be \"result\".";
-        return UserAuthAniHelper::ThrowBusinessError(UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
     return UserAuthResultCode::SUCCESS;
 }
