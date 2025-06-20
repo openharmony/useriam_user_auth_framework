@@ -65,14 +65,13 @@ UserAuthResultCode UserAuthWidgetMgr::On(std::string type, userAuth::IAuthWidget
         IAM_LOGI("SetCommandCallback");
         if (callback_->HasCommandCallback()) {
             IAM_LOGE("command callback has been registerred");
-            return UserAuthAniHelper::ThrowBusinessError(UserAuthResultCode::GENERAL_ERROR, "");
+            return UserAuthResultCode::GENERAL_ERROR;
         }
         callback_->SetCommandCallback(callback);
         return UserAuthResultCode::SUCCESS;
     } else {
         IAM_LOGE("invalid event:%{public}s", type.c_str());
-        std::string msgStr = "Parameter error. The value of \"type\" must be \"command\".";
-        return UserAuthAniHelper::ThrowBusinessError(UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
 }
 
@@ -88,14 +87,13 @@ UserAuthResultCode UserAuthWidgetMgr::Off(
         IAM_LOGI("ClearCommandCallback");
         if (callback_->HasCommandCallback()) {
             IAM_LOGE("no command callback register yet");
-            return UserAuthAniHelper::ThrowBusinessError(UserAuthResultCode::GENERAL_ERROR, "");
+            return UserAuthResultCode::GENERAL_ERROR;
         }
         callback_->ClearCommandCallback();
         return UserAuthResultCode::SUCCESS;
     } else {
         IAM_LOGE("invalid event:%{public}s", type.c_str());
-        std::string msgStr = "Parameter error. The value of \"type\" must be \"command\".";
-        return UserAuthAniHelper::ThrowBusinessError(UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
 }
 }  // namespace UserAuth
