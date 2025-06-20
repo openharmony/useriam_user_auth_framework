@@ -31,7 +31,7 @@ namespace UserIam {
 namespace UserAuth {
 class UserAuthAniHelper {
 public:
-    static UserAuthResultCode ThrowBusinessError(UserAuthResultCode error, std::string message);
+    static UserAuthResultCode ThrowBusinessError(UserAuthResultCode error);
     static bool VerifyNoticeParam(const std::string &eventData);
     static bool ConvertUserAuthType(int32_t userAuthType, userAuth::UserAuthType &userAuthTypeOut);
 

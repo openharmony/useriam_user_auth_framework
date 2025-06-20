@@ -76,7 +76,7 @@ bool UserAuthAniHelper::ConvertUserAuthType(int32_t userAuthType, userAuth::User
     }
 }
 
-UserAuthResultCode UserAuthAniHelper::ThrowBusinessError(UserAuthResultCode error, std::string message)
+UserAuthResultCode UserAuthAniHelper::ThrowBusinessError(UserAuthResultCode error)
 {
     std::string msgStr;
     auto res = g_resultV92Str.find(error);
