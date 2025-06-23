@@ -29,10 +29,12 @@ public:
         const WidgetParamInner &widgetParam, ContextFactory::AuthWidgetContextPara &para);
     static int32_t CheckValidSolution(int32_t userId,
         const std::vector<AuthType> &authTypeList, const AuthTrustLevel &atl, std::vector<AuthType> &validTypeList);
-    static int32_t CheckReuseUnlockResult(const ContextFactory::AuthWidgetContextPara &para,
+    static int32_t GetReuseUnlockResult(const ContextFactory::AuthWidgetContextPara &para,
         const AuthParamInner &authParam, Attributes &extraInfo);
     static bool GetUserAuthProfile(int32_t userId, const AuthType &authType,
         ContextFactory::AuthProfile &profile);
+    static int32_t CheckReuseUnlockResult(const int32_t userId, const AuthParamInner &authParam,
+        HdiReuseUnlockInfo &reuseResultInfo);
 
 #ifndef IAM_TEST_ENABLE
 private:

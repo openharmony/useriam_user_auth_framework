@@ -1274,9 +1274,9 @@ int32_t UserAuthService::AuthWidget(int32_t apiVersion, const IpcAuthParamInner 
         return checkRet;
     }
 
-    if (AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo) == SUCCESS) {
-        IAM_LOGE("check reuse unlock result success");
-        contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget CheckReuseUnlockResult success");
+    if (AuthWidgetHelper::GetReuseUnlockResult(para, authParam, extraInfo) == SUCCESS) {
+        IAM_LOGE("get reuse unlock result success");
+        contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget GetReuseUnlockResult success");
         contextCallback->OnResult(SUCCESS, extraInfo);
         contextId = REUSE_AUTH_RESULT_CONTEXT_ID;
         return SUCCESS;
@@ -1659,46 +1659,30 @@ int32_t UserAuthService::VerifyAuthToken(const std::vector<uint8_t> &tokenIn, ui
 }
 
 int32_t UserAuthService::QueryReusableAuthResult(const IpcAuthParamInner &ipcAuthParamInner,
-    std::vector<uint8_t> &extraInfo)
+    std::vector<uint8_t> &token)
 {
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
     }
-    if (IpcCommon::GetDirectCallerType(*this) != Security::AccessToken::TOKEN_HAP &&
-        !IpcCommon::CheckPermission(*this, IS_SYSTEM_APP)) {
+
+    if (!(IpcCommon::GetDirectCallerType(*this) == Security::AccessToken::TOKEN_HAP &&
+        IpcCommon::CheckPermission(*this, IS_SYSTEM_APP))) {
         IAM_LOGE("caller is not systemApp.");
         return CHECK_SYSTEM_APP_FAILED;
     }
 
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (hdi == nullptr) {
-        IAM_LOGE("hdi interface is nullptr");
-        return GENERAL_ERROR;
-    }
-
-    HdiReuseUnlockParam unlockParam = {};
-    unlockParam.baseParam.userId = ipcAuthParamInner.userId;
-    unlockParam.baseParam.authTrustLevel = ipcAuthParamInner.authTrustLevel;
-    for (auto &type : ipcAuthParamInner.authTypes) {
-        unlockParam.authTypes.emplace_back(static_cast<HdiAuthType>(type));
-    }
-    unlockParam.baseParam.challenge = ipcAuthParamInner.challenge;
-    unlockParam.reuseUnlockResultMode = ipcAuthParamInner.reuseUnlockResult.reuseMode;
-    unlockParam.reuseUnlockResultDuration = ipcAuthParamInner.reuseUnlockResult.reuseDuration;
-
+    AuthParamInner authParam = {};
+    InitAuthParam(ipcAuthParamInner, authParam);
     HdiReuseUnlockInfo reuseResultInfo = {};
-    int32_t result = hdi->CheckReuseUnlockResult(unlockParam, reuseResultInfo);
+    int32_t result = AuthWidgetHelper::CheckReuseUnlockResult(authParam.userId, authParam, reuseResultInfo);
     if (result != SUCCESS) {
         IAM_LOGE("CheckReuseUnlockResult failed result:%{public}d userId:%{public}d", result,
             ipcAuthParamInner.userId);
         return result;
     }
 
-    Attributes attributes;
-    bool setSignatureResult = attributes.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, reuseResultInfo.token);
-    IF_FALSE_LOGE_AND_RETURN_VAL(setSignatureResult == true, GENERAL_ERROR);
-    extraInfo = attributes.Serialize();
+    token = reuseResultInfo.token;
     return SUCCESS;
 }
 

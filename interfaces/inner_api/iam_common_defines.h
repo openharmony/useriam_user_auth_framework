@@ -201,6 +201,8 @@ enum ResultCode : int32_t {
     AUTH_TOKEN_CHECK_FAILED = 15,
     /** The result is fail, because the token is expired. */
     AUTH_TOKEN_EXPIRED = 16,
+    /** The result is fail, because parameters verified failed. */
+    PARAM_VERIFIED_FAILED = 17,
     /** The result is fail, because something wrong from system. */
     SYSTEM_ERROR_CODE_BEGIN = 1000,
     /** The result is fail, because something wrong from ipc. */

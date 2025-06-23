@@ -722,7 +722,7 @@ int32_t UserAuthClientImpl::PrepareRemoteAuth(const std::string &networkId,
     return proxy->PrepareRemoteAuth(networkId, wrapper);
 }
 
-int32_t UserAuthClientImpl::QueryReusableAuthResult(const WidgetAuthParam &authParam, std::vector<uint8_t> &extraInfo)
+int32_t UserAuthClientImpl::QueryReusableAuthResult(const WidgetAuthParam &authParam, std::vector<uint8_t> &token)
 {
     IAM_LOGI("start");
     auto proxy = GetProxy();
@@ -743,7 +743,7 @@ int32_t UserAuthClientImpl::QueryReusableAuthResult(const WidgetAuthParam &authP
     ipcAuthParamInner.reuseUnlockResult.reuseMode = authParam.reuseUnlockResult.reuseMode;
     ipcAuthParamInner.reuseUnlockResult.reuseDuration = authParam.reuseUnlockResult.reuseDuration;
 
-    return proxy->QueryReusableAuthResult(ipcAuthParamInner, extraInfo);
+    return proxy->QueryReusableAuthResult(ipcAuthParamInner, token);
 }
 
 void UserAuthClientImpl::InitIpcRemoteAuthParam(const std::optional<RemoteAuthParam> &remoteAuthParam,

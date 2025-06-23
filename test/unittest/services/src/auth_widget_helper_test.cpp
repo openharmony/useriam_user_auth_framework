@@ -431,24 +431,24 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckValidSolution002, TestSi
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
 
-HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckReuseUnlockResult001, TestSize.Level0)
+HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestGetReuseUnlockResult001, TestSize.Level0)
 {
     ContextFactory::AuthWidgetContextPara para;
     para.userId = 1;
     Attributes extraInfo;
     AuthParamInner authParam;
     authParam.reuseUnlockResult.isReuse = false;
-    EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), INVALID_PARAMETERS);
+    EXPECT_EQ(AuthWidgetHelper::GetReuseUnlockResult(para, authParam, extraInfo), INVALID_PARAMETERS);
 
     authParam.reuseUnlockResult.isReuse = true;
     authParam.reuseUnlockResult.reuseDuration = 0;
-    EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), INVALID_PARAMETERS);
+    EXPECT_EQ(AuthWidgetHelper::GetReuseUnlockResult(para, authParam, extraInfo), INVALID_PARAMETERS);
 
     authParam.reuseUnlockResult.reuseDuration = 6 * 60 * 1000;
-    EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), INVALID_PARAMETERS);
+    EXPECT_EQ(AuthWidgetHelper::GetReuseUnlockResult(para, authParam, extraInfo), INVALID_PARAMETERS);
 }
 
-HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckReuseUnlockResult002, TestSize.Level0)
+HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestGetReuseUnlockResult002, TestSize.Level0)
 {
     ContextFactory::AuthWidgetContextPara para;
     para.userId = 1;
@@ -463,7 +463,7 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckReuseUnlockResult002, Te
     EXPECT_CALL(*mockHdi, CheckReuseUnlockResult(_, _)).Times(5);
     ON_CALL(*mockHdi, CheckReuseUnlockResult)
         .WillByDefault(Return(HDF_FAILURE));
-    EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), HDF_FAILURE);
+    EXPECT_EQ(AuthWidgetHelper::GetReuseUnlockResult(para, authParam, extraInfo), HDF_FAILURE);
     ON_CALL(*mockHdi, CheckReuseUnlockResult)
         .WillByDefault(
             [](const HdiReuseUnlockParam &info, HdiReuseUnlockInfo &reuseInfo) {
@@ -472,20 +472,20 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckReuseUnlockResult002, Te
                 return HDF_SUCCESS;
             }
         );
-    EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), HDF_SUCCESS);
+    EXPECT_EQ(AuthWidgetHelper::GetReuseUnlockResult(para, authParam, extraInfo), HDF_SUCCESS);
     ON_CALL(*mockHdi, CheckReuseUnlockResult)
         .WillByDefault(Return(HDF_SUCCESS));
-    EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), SUCCESS);
+    EXPECT_EQ(AuthWidgetHelper::GetReuseUnlockResult(para, authParam, extraInfo), SUCCESS);
 
     para.sdkVersion = 10001;
     authParam.authTypes.push_back(FINGERPRINT);
     ON_CALL(*mockHdi, CheckReuseUnlockResult).WillByDefault(Return(HDF_SUCCESS));
-    EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), SUCCESS);
+    EXPECT_EQ(AuthWidgetHelper::GetReuseUnlockResult(para, authParam, extraInfo), SUCCESS);
 
     authParam.reuseUnlockResult.isReuse = true;
     authParam.reuseUnlockResult.reuseDuration = 4 * 60 * 1000;
     authParam.reuseUnlockResult.reuseMode = CALLER_IRRELEVANT_AUTH_TYPE_IRRELEVANT;
-    EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), SUCCESS);
+    EXPECT_EQ(AuthWidgetHelper::GetReuseUnlockResult(para, authParam, extraInfo), SUCCESS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
 

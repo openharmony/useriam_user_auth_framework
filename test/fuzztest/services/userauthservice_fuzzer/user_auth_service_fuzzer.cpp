@@ -166,8 +166,6 @@ UserAuthService g_userAuthService;
 void FuzzGetResourseNode(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    g_userAuthService.OnStart();
-    g_userAuthService.OnStop();
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
     g_userAuthService.GetResourseNode(authType);
     g_userAuthService.ProcessWidgetSessionExclusive();
@@ -703,7 +701,7 @@ void FuzzVerifyAuthToken(Parcel &parcel)
 void FuzzQueryReusableAuthResult(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    std::vector<uint8_t> extraInfo;
+    std::vector<uint8_t> token;
     IpcAuthParamInner ipcAuthParamInner = {};
     ipcAuthParamInner.userId = parcel.ReadInt32();
     Common::FillFuzzUint8Vector(parcel, ipcAuthParamInner.challenge);
@@ -714,7 +712,7 @@ void FuzzQueryReusableAuthResult(Parcel &parcel)
     ipcAuthParamInner.reuseUnlockResult.reuseDuration = parcel.ReadUint64();
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
-    g_userAuthService.QueryReusableAuthResult(ipcAuthParamInner, extraInfo);
+    g_userAuthService.QueryReusableAuthResult(ipcAuthParamInner, token);
     IpcCommon::DeleteAllPermission();
     IAM_LOGI("end");
 }

@@ -46,6 +46,7 @@ public:
     static napi_status GetUint8ArrayValue(napi_env env, napi_value value,
         size_t limitLen, std::vector<uint8_t> &array);
     static napi_value Uint64ToNapiUint8Array(napi_env env, uint64_t value);
+    static napi_value Uint8VectorToNapiUint8Array(napi_env env,  std::vector<uint8_t> &value);
     static napi_status SetInt32Property(napi_env env, napi_value obj, const char *name, int32_t value);
     static napi_status SetUint32Property(napi_env env, napi_value obj, const char *name, uint32_t value);
     static napi_status SetUint8ArrayProperty(napi_env env,
@@ -59,6 +60,7 @@ public:
     static int32_t GetResultCodeV8(int32_t result);
     static int32_t GetResultCodeV9(int32_t result);
     static int32_t GetResultCodeV10(int32_t result);
+    static int32_t GetResultCodeV20(int32_t result);
     static bool SetStringPropertyUtf8(
         napi_env env, napi_value object, const std::string &name, const std::string &value);
     static bool GetInt32Array(napi_env env, napi_value obj, std::vector<uint32_t> vec);

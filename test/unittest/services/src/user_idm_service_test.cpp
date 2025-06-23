@@ -81,6 +81,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceOpenSession_002, TestSize.Level0)
 {
     UserIdmService service(123123, true);
     int32_t testUserId = 0;
+    uint64_t contextId = 1;
     std::vector<uint8_t> testChallenge = {1, 2, 3, 4};
 
     std::vector<uint8_t> challenge;
@@ -91,7 +92,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceOpenSession_002, TestSize.Level0)
     auto context = Common::MakeShared<MockContext>();
     EXPECT_NE(context, nullptr);
     EXPECT_CALL(*context, GetContextType()).WillRepeatedly(Return(CONTEXT_ENROLL));
-    EXPECT_CALL(*context, GetContextId()).WillRepeatedly(Return(2345));
+    EXPECT_CALL(*context, GetContextId()).WillRepeatedly(Return(contextId));
     EXPECT_CALL(*context, Stop()).WillRepeatedly(Return(true));
     EXPECT_TRUE(ContextPool::Instance().Insert(context));
 
@@ -106,6 +107,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceOpenSession_002, TestSize.Level0)
     EXPECT_EQ(service.OpenSession(testUserId, challenge), SUCCESS);
     EXPECT_EQ(service.OpenSession(testUserId, challenge), SUCCESS);
     EXPECT_EQ(service.OpenSession(testUserId, challenge), GENERAL_ERROR);
+    EXPECT_TRUE(ContextPool::Instance().Delete(contextId));
 
     IpcCommon::DeleteAllPermission();
 }
@@ -542,7 +544,6 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceCancel003, TestSize.Level0)
     EXPECT_CALL(*context, GetContextId()).WillRepeatedly(Return(2345));
     EXPECT_CALL(*context, GetUserId()).WillRepeatedly(Return(testUserId));
     EXPECT_CALL(*context, Stop()).WillRepeatedly(Return(true));
-    EXPECT_TRUE(ContextPool::Instance().Insert(context));
 
     ret = service.Cancel(testUserId);
     EXPECT_EQ(ret, GENERAL_ERROR);
