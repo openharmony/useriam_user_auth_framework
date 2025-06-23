@@ -408,7 +408,7 @@ void FuzzSetGlobalConfigParam(Parcel &parcel)
 void FuzzQueryReusableAuthResult(Parcel &parcel)
 {
     IAM_LOGI("start");
-    std::vector<uint8_t> extraInfo;
+    std::vector<uint8_t> token;
     WidgetAuthParam authParam = {};
     authParam.userId = parcel.ReadInt32();
     Common::FillFuzzUint8Vector(parcel, authParam.challenge);
@@ -417,7 +417,7 @@ void FuzzQueryReusableAuthResult(Parcel &parcel)
     authParam.reuseUnlockResult.isReuse = parcel.ReadBool();
     authParam.reuseUnlockResult.reuseMode = static_cast<ReuseMode>(parcel.ReadInt32());
     authParam.reuseUnlockResult.reuseDuration = parcel.ReadUint64();
-    UserAuthClientImpl::Instance().QueryReusableAuthResult(authParam, extraInfo);
+    UserAuthClientImpl::Instance().QueryReusableAuthResult(authParam, token);
     IAM_LOGI("end");
 }
 

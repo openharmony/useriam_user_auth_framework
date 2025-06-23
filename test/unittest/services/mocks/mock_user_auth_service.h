@@ -70,7 +70,7 @@ public:
     MOCK_METHOD3(VerifyAuthToken, int32_t(const std::vector<uint8_t> &tokenIn, uint64_t allowableDuration,
         const sptr<IVerifyTokenCallback> &verifyTokenCallback));
     MOCK_METHOD2(QueryReusableAuthResult, int32_t(const IpcAuthParamInner &ipcAuthParamInner,
-        std::vector<uint8_t> &extraInfo));
+        std::vector<uint8_t> &token));
     MOCK_METHOD1(CallbackEnter, int32_t(uint32_t code));
     MOCK_METHOD2(CallbackExit, int32_t(uint32_t code, int32_t result));
 };

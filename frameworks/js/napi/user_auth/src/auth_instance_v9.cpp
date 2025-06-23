@@ -33,56 +33,59 @@ namespace {
     const std::string AUTH_EVENT_TIP = "tip";
 }
 
-UserAuthResultCode AuthInstanceV9::GetAvailableStatus(napi_env env, napi_callback_info info)
+UserAuthResultCode AuthInstanceV9::GetAvailableStatusInner(napi_env env, napi_callback_info info)
 {
-    UserAuthApiEventReporter reporter("getAvailableStatus");
     napi_value argv[ARGS_TWO];
     size_t argc = ARGS_TWO;
     napi_status ret = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (ret != napi_ok) {
         IAM_LOGE("napi_get_cb_info fail:%{public}d", ret);
-        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
         return UserAuthResultCode::GENERAL_ERROR;
     }
     if (argc != ARGS_TWO) {
         IAM_LOGE("invalid param, argc:%{public}zu", argc);
         std::string msgStr = "Parameter error. The number of parameters should be 2.";
-        reporter.ReportFailed(UserAuthResultCode::OHOS_INVALID_PARAM);
         return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     int32_t type;
     ret = napi_get_value_int32(env, argv[PARAM0], &type);
     if (ret != napi_ok) {
         IAM_LOGE("napi_get_value_int32 fail:%{public}d", ret);
-        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
         return UserAuthResultCode::GENERAL_ERROR;
     }
     if (!UserAuthNapiHelper::CheckUserAuthType(type)) {
         IAM_LOGE("CheckUserAuthType fail");
-        reporter.ReportFailed(UserAuthResultCode::TYPE_NOT_SUPPORT);
         return UserAuthResultCode::TYPE_NOT_SUPPORT;
     }
     uint32_t level;
     ret = napi_get_value_uint32(env, argv[PARAM1], &level);
     if (ret != napi_ok) {
         IAM_LOGE("napi_get_value_int32 fail:%{public}d", ret);
-        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
         return UserAuthResultCode::GENERAL_ERROR;
     }
     if (!UserAuthNapiHelper::CheckAuthTrustLevel(level)) {
         IAM_LOGE("CheckAuthTrustLevel fail");
-        reporter.ReportFailed(UserAuthResultCode::TRUST_LEVEL_NOT_SUPPORT);
         return UserAuthResultCode::TRUST_LEVEL_NOT_SUPPORT;
     }
     int32_t status = UserAuthClientImpl::Instance().GetNorthAvailableStatus(API_VERSION_9, AuthType(type),
         AuthTrustLevel(level));
     IAM_LOGI("result = %{public}d", status);
     if (status == PIN_EXPIRED) {
-        reporter.ReportFailed(UserAuthResultCode::PIN_EXPIRED);
         return UserAuthResultCode::PIN_EXPIRED;
     }
-    reporter.ReportSuccess();
     return UserAuthResultCode(UserAuthNapiHelper::GetResultCodeV9(status));
+}
+
+UserAuthResultCode AuthInstanceV9::GetAvailableStatus(napi_env env, napi_callback_info info)
+{
+    UserAuthApiEventReporter reporter("getAvailableStatus");
+    UserAuthResultCode resultCode = GetAvailableStatusInner(env, info);
+    if (resultCode != UserAuthResultCode::SUCCESS) {
+        reporter.ReportFailed(resultCode);
+    } else {
+        reporter.ReportSuccess();
+    }
+    return resultCode;
 }
 
 AuthInstanceV9::AuthInstanceV9(napi_env env) : callback_(Common::MakeShared<UserAuthCallbackV9>(env))

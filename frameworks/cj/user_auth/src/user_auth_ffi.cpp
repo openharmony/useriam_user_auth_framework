@@ -106,12 +106,9 @@ int32_t FfiUserAuthQueryReusableAuthResult(int32_t userId, const CjAuthParam &au
         };
     }
 
-    std::vector<uint8_t> extraInfo;
-    int32_t ret = UserAuthClientImpl::Instance().QueryReusableAuthResult(authParamInner, extraInfo);
+    std::vector<uint8_t> token;
+    int32_t ret = UserAuthClientImpl::Instance().QueryReusableAuthResult(authParamInner, token);
     if (ret == SUCCESS) {
-        Attributes attributes(extraInfo);
-        std::vector<uint8_t> token;
-        attributes.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, token);
         reuseAuthResult->token = token.data();
         reuseAuthResult->tokenLen = static_cast<int64_t>(token.size());
     }

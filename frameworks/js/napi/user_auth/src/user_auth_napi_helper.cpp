@@ -46,6 +46,7 @@ const std::map<UserAuthResultCode, std::string> g_resultV92Str = {
     {UserAuthResultCode::TYPE_NOT_SUPPORT, "Unsupport authentication type."},
     {UserAuthResultCode::TRUST_LEVEL_NOT_SUPPORT, "Unsupport authentication trust level."},
     {UserAuthResultCode::BUSY, "Authentication service is busy."},
+    {UserAuthResultCode::PARAM_VERIFIED_FAILED, "Parameter verification failed."},
     {UserAuthResultCode::LOCKED, "Authentication is lockout."},
     {UserAuthResultCode::NOT_ENROLLED, "Authentication template has not been enrolled."},
     {UserAuthResultCode::CANCELED_FROM_WIDGET, "Authentication is canceled from widget."},
@@ -172,15 +173,6 @@ int32_t UserAuthNapiHelper::GetResultCodeV10(int32_t result)
     if (result == HARDWARE_NOT_SUPPORTED) {
         return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
     }
-    if (result == AUTH_TOKEN_CHECK_FAILED) {
-        return static_cast<int32_t>(UserAuthResultCode::AUTH_TOKEN_CHECK_FAILED);
-    }
-    if (result == AUTH_TOKEN_EXPIRED) {
-        return static_cast<int32_t>(UserAuthResultCode::AUTH_TOKEN_EXPIRED);
-    }
-    if (result == PARAMETERS_VERIFIED_FAILED) {
-        return static_cast<int32_t>(UserAuthResultCode::PARAM_VERIFIED_FAILED);
-    }
     if (result > (INT32_MAX - static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V10_MIN))) {
         return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
     }
@@ -191,6 +183,39 @@ int32_t UserAuthNapiHelper::GetResultCodeV10(int32_t result)
         return resultCodeV10;
     }
     IAM_LOGE("version GetResultCodeV10 resultCodeV10 error");
+    return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
+}
+
+int32_t UserAuthNapiHelper::GetResultCodeV20(int32_t result)
+{
+    if (result == CHECK_PERMISSION_FAILED) {
+        return static_cast<int32_t>(UserAuthResultCode::OHOS_CHECK_PERMISSION_FAILED);
+    }
+    if (result == INVALID_PARAMETERS) {
+        return static_cast<int32_t>(UserAuthResultCode::PARAM_VERIFIED_FAILED);
+    }
+    if (result == CHECK_SYSTEM_APP_FAILED) {
+        return static_cast<int32_t>(UserAuthResultCode::OHOS_CHECK_SYSTEM_APP_FAILED);
+    }
+    if (result == HARDWARE_NOT_SUPPORTED) {
+        return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
+    }
+    if (result == AUTH_TOKEN_CHECK_FAILED) {
+        return static_cast<int32_t>(UserAuthResultCode::AUTH_TOKEN_CHECK_FAILED);
+    }
+    if (result == AUTH_TOKEN_EXPIRED) {
+        return static_cast<int32_t>(UserAuthResultCode::AUTH_TOKEN_EXPIRED);
+    }
+    if (result > (INT32_MAX - static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V16_MIN))) {
+        return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
+    }
+    int32_t resultCodeV16 = result + static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V16_MIN);
+    if (resultCodeV16 >= static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V16_MIN) &&
+        resultCodeV16 <= static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V16_MAX)) {
+        IAM_LOGI("version GetResultCodeV16 resultCodeV16 result: %{public}d", resultCodeV16);
+        return resultCodeV16;
+    }
+    IAM_LOGE("version GetResultCodeV16 resultCodeV16 error");
     return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
 }
 
@@ -375,6 +400,21 @@ napi_value UserAuthNapiHelper::Uint64ToNapiUint8Array(napi_env env, uint64_t val
     size_t length = sizeof(value);
     NAPI_CALL(env, napi_create_arraybuffer(env, length, &data, &arraybuffer));
     if (memcpy_s(data, length, reinterpret_cast<const void *>(&value), length) != EOK) {
+        IAM_LOGE("memcpy_s fail");
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_create_typedarray(env, napi_uint8_array, length, arraybuffer, 0, &result));
+    return result;
+}
+
+napi_value UserAuthNapiHelper::Uint8VectorToNapiUint8Array(napi_env env,  std::vector<uint8_t> &value)
+{
+    void *data = nullptr;
+    napi_value arraybuffer = nullptr;
+    size_t length = value.size();
+    NAPI_CALL(env, napi_create_arraybuffer(env, length, &data, &arraybuffer));
+    if (memcpy_s(data, length, reinterpret_cast<const void *>(value.data()), length) != EOK) {
         IAM_LOGE("memcpy_s fail");
         return nullptr;
     }

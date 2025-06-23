@@ -915,32 +915,32 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetPropertyById002, TestSize.Level0)
 HWTEST_F(UserAuthClientTest, QueryReusableAuthResult001, TestSize.Level0)
 {
     WidgetAuthParam authParam = {};
-    std::vector<uint8_t> extraInfo;
+    std::vector<uint8_t> token;
 
-    int32_t ret = UserAuthClient::GetInstance().QueryReusableAuthResult(authParam, extraInfo);
+    int32_t ret = UserAuthClient::GetInstance().QueryReusableAuthResult(authParam, token);
     EXPECT_EQ(ret, GENERAL_ERROR);
 }
 
 HWTEST_F(UserAuthClientTest, QueryReusableAuthResult002, TestSize.Level0)
 {
     WidgetAuthParam authParam = {};
-    std::vector<uint8_t> extraInfo;
+    std::vector<uint8_t> token;
 
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
     EXPECT_CALL(*service, QueryReusableAuthResult(_, _)).Times(1);
     ON_CALL(*service, QueryReusableAuthResult)
         .WillByDefault(
-            [](const IpcAuthParamInner &ipcAuthParamInner, std::vector<uint8_t> &extraInfo) {
+            [](const IpcAuthParamInner &ipcAuthParamInner, std::vector<uint8_t> &token) {
                 static const uint32_t USER_AUTH_TOKEN_LEN = 148;
-                extraInfo.resize(USER_AUTH_TOKEN_LEN);
+                token.resize(USER_AUTH_TOKEN_LEN);
                 return SUCCESS;
             }
         );
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     sptr<IRemoteObject::DeathRecipient> dr(nullptr);
     CallRemoteObject(service, obj, dr);
-    int32_t ret = UserAuthClient::GetInstance().QueryReusableAuthResult(authParam, extraInfo);
+    int32_t ret = UserAuthClient::GetInstance().QueryReusableAuthResult(authParam, token);
     EXPECT_EQ(ret, SUCCESS);
     EXPECT_NE(dr, nullptr);
     dr->OnRemoteDied(obj);

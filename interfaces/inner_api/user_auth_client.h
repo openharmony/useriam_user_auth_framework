@@ -178,11 +178,11 @@ public:
     /**
      * @brief Query reusable authentication result.
      * @param authParam, authentication paramater for widgetAuth.
-     * @param extraInfo reuse authentication result.
+     * @param extraInfo reuse authentication token.
      *
-     * @return Return prepare remote authentication result(0:success; other:failed).
+     * @return Return query result(0:success; other:failed).
      */
-    virtual int32_t QueryReusableAuthResult(const WidgetAuthParam &authParam, std::vector<uint8_t> &extraInfo) = 0;
+    virtual int32_t QueryReusableAuthResult(const WidgetAuthParam &authParam, std::vector<uint8_t> &token) = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam
