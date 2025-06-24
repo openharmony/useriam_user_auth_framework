@@ -57,7 +57,10 @@
         "ets_frontend",
         "hiappevent",
         "jsoncpp",
-        "screenlock_mgr"
+        "screenlock_mgr",
+        "ffrt",
+        "preferences",
+        "eventhandler"
       ]
     },
     "build": {

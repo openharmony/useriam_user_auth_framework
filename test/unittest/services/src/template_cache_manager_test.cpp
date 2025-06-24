@@ -43,34 +43,6 @@ void TemplateCacheManagerTest::TearDown()
 {
 }
 
-using OsAccountSubscriber = AccountSA::OsAccountSubscriber;
-using OsAccountSubscribeInfo = AccountSA::OsAccountSubscribeInfo;
-using OS_ACCOUNT_SUBSCRIBE_TYPE = AccountSA::OS_ACCOUNT_SUBSCRIBE_TYPE;
-
-class ServiceStatusListener : public OHOS::SystemAbilityStatusChangeStub, public NoCopyable {
-public:
-    static sptr<ServiceStatusListener> GetInstance();
-    static void Subscribe();
-
-    void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
-    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
-
-private:
-    ServiceStatusListener() {};
-    ~ServiceStatusListener() override {};
-};
-
-class OsAccountIdSubscriber : public OsAccountSubscriber, public NoCopyable {
-public:
-    explicit OsAccountIdSubscriber(const OsAccountSubscribeInfo &subscribeInfo);
-    ~OsAccountIdSubscriber() = default;
-
-    static std::shared_ptr<OsAccountIdSubscriber> GetInstance();
-    static void Subscribe();
-    static void Unsubscribe();
-    void OnAccountsChanged(const int& id) override;
-};
-
 HWTEST_F(TemplateCacheManagerTest, TemplateCacheManagerTest_001, TestSize.Level1)
 {
     EXPECT_NO_THROW({
@@ -78,48 +50,6 @@ HWTEST_F(TemplateCacheManagerTest, TemplateCacheManagerTest_001, TestSize.Level1
         TemplateCacheManager::GetInstance().ProcessUserIdChange(1);
         TemplateCacheManager::GetInstance().ProcessUserIdChange(1);
         TemplateCacheManager::GetInstance().UpdateTemplateCache(PIN);
-    });
-}
-
-HWTEST_F(TemplateCacheManagerTest, TemplateCacheManagerTestOnAddSystemAbility, TestSize.Level1)
-{
-    int32_t systemAbilityId = 1;
-    const std::string deviceId = "123";
-    EXPECT_NO_THROW({
-        ServiceStatusListener::GetInstance()->OnAddSystemAbility(systemAbilityId, deviceId);
-    });
-}
-
-HWTEST_F(TemplateCacheManagerTest, TemplateCacheManagerTestOnRemoveSystemAbility_001, TestSize.Level1)
-{
-    int32_t systemAbilityId = 1;
-    const std::string deviceId = "123";
-    EXPECT_NO_THROW({
-        ServiceStatusListener::GetInstance()->OnRemoveSystemAbility(systemAbilityId, deviceId);
-    });
-}
-
-HWTEST_F(TemplateCacheManagerTest, TemplateCacheManagerTestOnRemoveSystemAbility_002, TestSize.Level1)
-{
-    int32_t systemAbilityId = 200;
-    const std::string deviceId = "123";
-    EXPECT_NO_THROW({
-        ServiceStatusListener::GetInstance()->OnAddSystemAbility(systemAbilityId, deviceId);
-    });
-}
-
-HWTEST_F(TemplateCacheManagerTest, TemplateCacheManagerTestUnsubscribe, TestSize.Level1)
-{
-    EXPECT_NO_THROW({
-        OsAccountIdSubscriber::GetInstance()->Unsubscribe();
-    });
-}
-
-HWTEST_F(TemplateCacheManagerTest, TemplateCacheManagerTestOnAccountsChanged, TestSize.Level1)
-{
-    const int id = 1;
-    EXPECT_NO_THROW({
-        OsAccountIdSubscriber::GetInstance()->OnAccountsChanged(id);
     });
 }
 } // namespace UserAuth
