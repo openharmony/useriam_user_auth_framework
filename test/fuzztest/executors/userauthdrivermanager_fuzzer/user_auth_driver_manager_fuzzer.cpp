@@ -223,65 +223,25 @@ void FuzzStart(std::shared_ptr<Parcel> parcel)
     IAM_LOGI("begin");
     // driver manager forbids multiple invoke of Start(), it's config must be valid
     Singleton<UserAuth::DriverManager>::GetInstance().Start(GLOBAL_HDI_NAME_TO_CONFIG);
-    Singleton<UserAuth::DriverManager>::GetInstance().SubscribeHdiDriverStatus();
-    IAM_LOGI("end");
-}
-
-void FuzzOnFrameworkReady(std::shared_ptr<Parcel> parcel)
-{
-    IAM_LOGI("begin");
     Singleton<UserAuth::DriverManager>::GetInstance().OnFrameworkReady();
-    IAM_LOGI("end");
-}
-
-void FuzzOnAllHdiDisconnect(std::shared_ptr<Parcel> parcel)
-{
-    IAM_LOGI("begin");
-    Singleton<UserAuth::DriverManager>::GetInstance().OnAllHdiDisconnect();
-    IAM_LOGI("end");
-}
-
-void FuzzGetDriverByServiceName(std::shared_ptr<Parcel> parcel)
-{
-    IAM_LOGI("begin");
+    Singleton<UserAuth::DriverManager>::GetInstance().SubscribeHdiDriverStatus();
     std::string serviceName;
     parcel->ReadString(serviceName);
     Singleton<UserAuth::DriverManager>::GetInstance().GetDriverByServiceName(serviceName);
-    IAM_LOGI("end");
-}
-
-void FuzzDriverConnect(std::shared_ptr<Parcel> parcel)
-{
-    IAM_LOGI("begin");
     uint32_t index = parcel->ReadUint32() % (sizeof(GLOBAL_SERVICE_NAMES) / sizeof(GLOBAL_SERVICE_NAMES[0]));
     std::shared_ptr<Driver> driver =
         Singleton<UserAuth::DriverManager>::GetInstance().GetDriverByServiceName(GLOBAL_SERVICE_NAMES[index]);
     // Since config is valid, GetDriverByServiceName should never return null.
     // If it happens to be null, let fuzz process crash.
     driver->OnHdiConnect();
-    IAM_LOGI("end");
-}
-
-void FuzzDriverDisconnect(std::shared_ptr<Parcel> parcel)
-{
-    IAM_LOGI("begin");
-    uint32_t index = parcel->ReadUint32() % (sizeof(GLOBAL_SERVICE_NAMES) / sizeof(GLOBAL_SERVICE_NAMES[0]));
-    std::shared_ptr<Driver> driver =
-        Singleton<UserAuth::DriverManager>::GetInstance().GetDriverByServiceName(GLOBAL_SERVICE_NAMES[index]);
-    // Since config is valid, GetDriverByServiceName should never return null.
-    // If it happens to be null, let fuzz process crash.
     driver->OnHdiDisconnect();
+    Singleton<UserAuth::DriverManager>::GetInstance().OnAllHdiDisconnect();
     IAM_LOGI("end");
 }
 
-using FuzzFunc = decltype(FuzzGetDriverByServiceName);
+using FuzzFunc = decltype(FuzzStart);
 FuzzFunc *g_fuzzFuncs[] = {
     FuzzStart,
-    FuzzOnFrameworkReady,
-    FuzzOnAllHdiDisconnect,
-    FuzzGetDriverByServiceName,
-    FuzzDriverConnect,
-    FuzzDriverDisconnect,
 };
 
 void UserAuthDriverManagerFuzzTest(const uint8_t *data, size_t size)
