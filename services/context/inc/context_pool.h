@@ -40,6 +40,7 @@ public:
     virtual std::shared_ptr<ScheduleNode> SelectScheduleNodeByScheduleId(uint64_t scheduleId) = 0;
     virtual bool RegisterContextPoolListener(const std::shared_ptr<ContextPoolListener> &listener) = 0;
     virtual bool DeregisterContextPoolListener(const std::shared_ptr<ContextPoolListener> &listener) = 0;
+    virtual void StartSubscribeOsAccountSaStatus() = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam

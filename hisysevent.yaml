@@ -106,3 +106,8 @@ IS_CREDENTIAL_ENROLLED_MISMATCH:
   AUTH_TYPE: {type: INT32, desc: auth type}
   PREVIOUS_STATUS: {type: BOOL, desc: system param value before update}
   UPDATED_STATUS: {type: BOOL, desc: system param value updated}
+
+SCREENLOCK_STRONG_AUTH:
+  __BASE: {type: SECURITY, level: CRITICAL, tag: UserAuth, desc: screen lock triggers strong authentication}
+  USER_ID: {type: INT32, desc: user id}
+  STRONG_AUTH_REASON: {type: INT32, desc: reason for screenlock activates strong authentication}

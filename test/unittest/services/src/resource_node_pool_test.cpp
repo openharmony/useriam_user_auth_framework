@@ -243,6 +243,30 @@ HWTEST_F(ResourceNodePoolTest, ResourceNodePoolTestEnumerate, TestSize.Level0)
 
     pool.DeleteAll();
 }
+
+HWTEST_F(ResourceNodePoolTest, GetResourceNodeByTypeAndRole, TestSize.Level0)
+{
+    auto &pool = ResourceNodePool::Instance();
+    std::vector<std::weak_ptr<ResourceNode>> pinNodes;
+    std::vector<std::weak_ptr<ResourceNode>> faceNodes;
+    std::vector<std::weak_ptr<ResourceNode>> fingerPrintNodes;
+
+    EXPECT_NO_THROW(pool.GetResourceNodeByTypeAndRole(AuthType::PIN, ALL_IN_ONE, faceNodes));
+    EXPECT_NO_THROW(pool.GetResourceNodeByTypeAndRole(AuthType::FACE, ALL_IN_ONE, faceNodes));
+    EXPECT_NO_THROW(pool.GetResourceNodeByTypeAndRole(AuthType::FINGERPRINT, ALL_IN_ONE, fingerPrintNodes));
+
+    EXPECT_NO_THROW(pool.GetResourceNodeByTypeAndRole(AuthType::PIN, SCHEDULER, faceNodes));
+    EXPECT_NO_THROW(pool.GetResourceNodeByTypeAndRole(AuthType::FACE, SCHEDULER, faceNodes));
+    EXPECT_NO_THROW(pool.GetResourceNodeByTypeAndRole(AuthType::FINGERPRINT, SCHEDULER, fingerPrintNodes));
+
+    EXPECT_NO_THROW(pool.GetResourceNodeByTypeAndRole(AuthType::PIN, COLLECTOR, faceNodes));
+    EXPECT_NO_THROW(pool.GetResourceNodeByTypeAndRole(AuthType::FACE, COLLECTOR, faceNodes));
+    EXPECT_NO_THROW(pool.GetResourceNodeByTypeAndRole(AuthType::FINGERPRINT, COLLECTOR, fingerPrintNodes));
+
+    EXPECT_NO_THROW(pool.GetResourceNodeByTypeAndRole(AuthType::PIN, VERIFIER, faceNodes));
+    EXPECT_NO_THROW(pool.GetResourceNodeByTypeAndRole(AuthType::FACE, VERIFIER, faceNodes));
+    EXPECT_NO_THROW(pool.GetResourceNodeByTypeAndRole(AuthType::FINGERPRINT, VERIFIER, fingerPrintNodes));
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
