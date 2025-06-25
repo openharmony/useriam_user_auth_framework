@@ -28,6 +28,7 @@
 #include "user_auth_callback_v6.h"
 #include "user_auth_callback_v8.h"
 #include "user_auth_client_impl.h"
+#include "user_auth_param_utils.h"
 
 #define LOG_TAG "USER_AUTH_NAPI"
 
@@ -273,6 +274,136 @@ ResultCode UserAuthImpl::CheckAuthTypeAndAuthTrustLevel(AuthType authType, AuthT
         return TRUST_LEVEL_NOT_SUPPORT;
     }
     return SUCCESS;
+}
+
+napi_value UserAuthImpl::GetEnrolledState(napi_env env, napi_callback_info info)
+{
+    napi_value argv[ARGS_ONE] = {nullptr};
+    size_t argc = ARGS_ONE;
+    UserAuthApiEventReporter reporter("getEnrolledState");
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
+    if (argc != ARGS_ONE) {
+        IAM_LOGE("parms error");
+        std::string msgStr = "Parameter error. The number of parameters should be 1.";
+        napi_throw(env, UserAuthNapiHelper::GenerateErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr));
+        reporter.ReportFailed(UserAuthResultCode::OHOS_INVALID_PARAM);
+        return nullptr;
+    }
+    int32_t type;
+    if (UserAuthNapiHelper::GetInt32Value(env, argv[PARAM0], type) != napi_ok) {
+        IAM_LOGE("napi_get_value_int32 fail");
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
+        return nullptr;
+    }
+    if (!UserAuthNapiHelper::CheckUserAuthType(type)) {
+        IAM_LOGE("CheckUserAuthType fail");
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::TYPE_NOT_SUPPORT));
+        reporter.ReportFailed(UserAuthResultCode::TYPE_NOT_SUPPORT);
+        return nullptr;
+    }
+    AuthType authType = AuthType(type);
+    EnrolledState enrolledState = {};
+    int32_t code = UserAuthClientImpl::Instance().GetEnrolledState(API_VERSION_12, authType, enrolledState);
+    if (code != SUCCESS) {
+        IAM_LOGE("failed to get enrolled state %{public}d", code);
+        int32_t resultCode = UserAuthNapiHelper::GetResultCodeV10(code);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode(resultCode)));
+        reporter.ReportFailed(resultCode);
+        return nullptr;
+    }
+    return DoGetEnrolledStateResult(env, enrolledState, reporter);
+}
+
+napi_value UserAuthImpl::DoGetEnrolledStateResult(napi_env env, EnrolledState enrolledState,
+    UserAuthApiEventReporter &reporter)
+{
+    IAM_LOGD("start");
+    napi_value eventInfo;
+    napi_status ret = napi_create_object(env, &eventInfo);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_create_object failed %{public}d", ret);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
+        return nullptr;
+    }
+    int32_t credentialDigest = static_cast<int32_t>(enrolledState.credentialDigest);
+    int32_t credentialCount = static_cast<int32_t>(enrolledState.credentialCount);
+    IAM_LOGI("get enrolled state success, credentialDigest = %{public}d, credentialCount = %{public}d",
+        credentialDigest, credentialCount);
+    ret = UserAuthNapiHelper::SetInt32Property(env, eventInfo, "credentialDigest", credentialDigest);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_create_int32 failed %{public}d", ret);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
+        return nullptr;
+    }
+    ret = UserAuthNapiHelper::SetInt32Property(env, eventInfo, "credentialCount", credentialCount);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_create_int32 failed %{public}d", ret);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
+        return nullptr;
+    }
+    IAM_LOGD("get enrolled state end");
+    reporter.ReportSuccess();
+    return eventInfo;
+}
+
+UserAuthResultCode UserAuthImpl::ParseReusableAuthResultParam(napi_env env, napi_callback_info info,
+    WidgetAuthParam &authParam)
+{
+    napi_value argv[ARGS_ONE];
+    size_t argc = ARGS_ONE;
+    napi_status ret = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_get_cb_info fail:%{public}d", ret);
+        return UserAuthResultCode::GENERAL_ERROR;
+    }
+    if (argc != ARGS_ONE) {
+        IAM_LOGE("parms error");
+        std::string msgStr = "Parameter vefification failed. The number of parameters should be 1.";
+        napi_throw(env, UserAuthNapiHelper::GenerateErrorMsg(env, UserAuthResultCode::PARAM_VERIFIED_FAILED, msgStr));
+        return UserAuthResultCode::PARAM_VERIFIED_FAILED;
+    }
+    AuthParamInner authParamInner = {};
+    UserAuthResultCode errCode = UserAuthParamUtils::InitAuthParam(env, argv[PARAM0], authParamInner);
+    if (errCode != UserAuthResultCode::SUCCESS) {
+        IAM_LOGE("authParamInner type error, errorCode: %{public}d", errCode);
+        return errCode;
+    }
+    authParam.userId = authParamInner.userId;
+    authParam.challenge = authParamInner.challenge;
+    authParam.authTypes = authParamInner.authTypes;
+    authParam.authTrustLevel = authParamInner.authTrustLevel;
+    authParam.reuseUnlockResult.isReuse = authParamInner.reuseUnlockResult.isReuse;
+    authParam.reuseUnlockResult.reuseMode = authParamInner.reuseUnlockResult.reuseMode;
+    authParam.reuseUnlockResult.reuseDuration = authParamInner.reuseUnlockResult.reuseDuration;
+    return UserAuthResultCode::SUCCESS;
+}
+
+napi_value UserAuthImpl::QueryReusableAuthResult(napi_env env, napi_callback_info info)
+{
+    UserAuthApiEventReporter reporter("QueryReusableAuthResult");
+    WidgetAuthParam authParam = {0};
+    UserAuthResultCode errCode = ParseReusableAuthResultParam(env, info, authParam);
+    if (errCode != UserAuthResultCode::SUCCESS) {
+        IAM_LOGE("AuthParamInner type error, errorCode: %{public}d", errCode);
+        reporter.ReportFailed(errCode);
+        return nullptr;
+    }
+
+    std::vector<uint8_t> token;
+    int32_t code = UserAuthClientImpl::Instance().QueryReusableAuthResult(authParam, token);
+    if (code != SUCCESS) {
+        IAM_LOGE("failed to query reuse result %{public}d", code);
+        int32_t resultCode = UserAuthNapiHelper::GetResultCodeV20(code);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode(resultCode)));
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
+        return nullptr;
+    }
+    napi_value eventInfo = UserAuthNapiHelper::Uint8VectorToNapiUint8Array(env, token);
+    return eventInfo;
 }
 } // namespace UserAuth
 } // namespace UserIam

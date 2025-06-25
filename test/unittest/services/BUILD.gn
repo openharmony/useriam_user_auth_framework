@@ -89,16 +89,19 @@ ohos_unittest("iam_services_test") {
     "../../../services/core/src/enrollment_impl.cpp",
     "../../../services/core/src/event_listener_manager.cpp",
     "../../../services/core/src/identification_impl.cpp",
+    "../../../services/core/src/os_accounts_manager_impl.cpp",
     "../../../services/core/src/publish_event_adapter_mock.cpp",
     "../../../services/core/src/remote_executor_proxy.cpp",
     "../../../services/core/src/remote_msg_util.cpp",
     "../../../services/core/src/resource_node_impl.cpp",
     "../../../services/core/src/resource_node_pool_impl.cpp",
     "../../../services/core/src/resource_node_utils.cpp",
+    "../../../services/core/src/risk_event_manager.cpp",
     "../../../services/core/src/schedule_node_builder.cpp",
     "../../../services/core/src/schedule_node_helper.cpp",
     "../../../services/core/src/schedule_node_impl.cpp",
     "../../../services/core/src/schedule_resource_node_listener.cpp",
+    "../../../services/core/src/screenlock_status_listener.cpp",
     "../../../services/core/src/secure_user_info_impl.cpp",
     "../../../services/core/src/system_param_manager.cpp",
     "../../../services/core/src/update_pin_param_impl.cpp",
@@ -148,14 +151,17 @@ ohos_unittest("iam_services_test") {
     "src/identification_impl_test.cpp",
     "src/identify_context_test.cpp",
     "src/ipc_common_test.cpp",
+    "src/os_accounts_manager_test.cpp",
     "src/relative_timer_test.cpp",
     "src/remote_auth_context_test.cpp",
     "src/remote_auth_invoker_context_test.cpp",
     "src/resource_node_pool_test.cpp",
     "src/resource_node_test.cpp",
     "src/resource_node_utils_test.cpp",
+    "src/risk_event_manager_test.cpp",
     "src/schedule_node_helper_test.cpp",
     "src/schedule_node_test.cpp",
+    "src/screenlock_status_listener_test.cpp",
     "src/secure_user_info_test.cpp",
     "src/simple_auth_context_test.cpp",
     "src/soft_bus_base_socket_test.cpp",
@@ -163,6 +169,7 @@ ohos_unittest("iam_services_test") {
     "src/soft_bus_manager_test.cpp",
     "src/soft_bus_server_socket_test.cpp",
     "src/state_machine_test.cpp",
+    "src/strong_auth_status_manager_test.cpp",
     "src/system_ability_listener_test.cpp",
     "src/system_param_manager_test.cpp",
     "src/template_cache_manager_test.cpp",
@@ -223,8 +230,19 @@ ohos_unittest("iam_services_test") {
 
   defines = []
   if (screenlock_client_enable) {
-    external_deps += [ "screenlock_mgr:screenlock_client" ]
-    defines += [ "SCREENLOCK_CLIENT_ENABLE" ]
+    external_deps += [
+      "eventhandler:libeventhandler",
+      "ffrt:libffrt",
+      "preferences:native_preferences",
+      "screenlock_mgr:screenlock_client"
+    ]
+    sources += [
+      "../../../services/core/src/strong_auth_status_manager_impl.cpp",
+    ]
+  } else {
+    sources += [
+      "../../../services/core/src/strong_auth_status_manager_mock.cpp",
+    ]
   }
 
   configs = [

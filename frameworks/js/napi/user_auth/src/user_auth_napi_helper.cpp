@@ -188,17 +188,8 @@ int32_t UserAuthNapiHelper::GetResultCodeV10(int32_t result)
 
 int32_t UserAuthNapiHelper::GetResultCodeV20(int32_t result)
 {
-    if (result == CHECK_PERMISSION_FAILED) {
-        return static_cast<int32_t>(UserAuthResultCode::OHOS_CHECK_PERMISSION_FAILED);
-    }
     if (result == INVALID_PARAMETERS) {
         return static_cast<int32_t>(UserAuthResultCode::PARAM_VERIFIED_FAILED);
-    }
-    if (result == CHECK_SYSTEM_APP_FAILED) {
-        return static_cast<int32_t>(UserAuthResultCode::OHOS_CHECK_SYSTEM_APP_FAILED);
-    }
-    if (result == HARDWARE_NOT_SUPPORTED) {
-        return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
     }
     if (result == AUTH_TOKEN_CHECK_FAILED) {
         return static_cast<int32_t>(UserAuthResultCode::AUTH_TOKEN_CHECK_FAILED);
@@ -206,17 +197,7 @@ int32_t UserAuthNapiHelper::GetResultCodeV20(int32_t result)
     if (result == AUTH_TOKEN_EXPIRED) {
         return static_cast<int32_t>(UserAuthResultCode::AUTH_TOKEN_EXPIRED);
     }
-    if (result > (INT32_MAX - static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V16_MIN))) {
-        return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
-    }
-    int32_t resultCodeV16 = result + static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V16_MIN);
-    if (resultCodeV16 >= static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V16_MIN) &&
-        resultCodeV16 <= static_cast<int32_t>(UserAuthResultCode::RESULT_CODE_V16_MAX)) {
-        IAM_LOGI("version GetResultCodeV16 resultCodeV16 result: %{public}d", resultCodeV16);
-        return resultCodeV16;
-    }
-    IAM_LOGE("version GetResultCodeV16 resultCodeV16 error");
-    return static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR);
+    return GetResultCodeV10(result);
 }
 
 napi_value UserAuthNapiHelper::GenerateBusinessErrorV9(napi_env env, UserAuthResultCode result)

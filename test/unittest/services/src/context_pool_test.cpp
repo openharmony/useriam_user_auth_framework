@@ -265,6 +265,12 @@ HWTEST_F(ContextPoolTest, ContextPoolTestGetNewContextId, TestSize.Level0)
         EXPECT_TRUE(ContextPool::Instance().Delete(contextId));
     }
 }
+
+HWTEST_F(ContextPoolTest, StartSubscribeOsAccountSaStatusTest, TestSize.Level0)
+{
+    EXPECT_NO_THROW(ContextPool::Instance().StartSubscribeOsAccountSaStatus());
+    EXPECT_NO_THROW(ContextPool::Instance().StartSubscribeOsAccountSaStatus());
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

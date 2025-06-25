@@ -61,7 +61,7 @@ napi_value GetAvailableStatus(napi_env env, napi_callback_info info)
 napi_value GetEnrolledState(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
-    return UserAuthInstanceV10::GetEnrolledState(env, info);
+    return UserAuthImpl::GetEnrolledState(env, info);
 }
 
 napi_value GetAvailableStatusV9(napi_env env, napi_callback_info info)
@@ -652,7 +652,7 @@ napi_value CancelAuth(napi_env env, napi_callback_info info)
 napi_value QueryReusableAuthResult(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
-    return UserAuthInstanceV10::QueryReusableAuthResult(env, info);
+    return UserAuthImpl::QueryReusableAuthResult(env, info);
 }
 
 napi_value AuthTrustLevelConstructor(napi_env env)

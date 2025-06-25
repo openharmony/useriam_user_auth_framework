@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef USER_AUTH_PARAM_MGR_H
-#define USER_AUTH_PARAM_MGR_H
+#ifndef USER_AUTH_PARAM_UTILS_H
+#define USER_AUTH_PARAM_UTILS_H
 
 #include <mutex>
 
@@ -29,11 +29,8 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class UserAuthParamMgr : public NoCopyable {
+class UserAuthParamUtils : public NoCopyable {
 public:
-    explicit UserAuthParamMgr(napi_env env);
-    ~UserAuthParamMgr() override = default;
-
     static UserAuthResultCode InitChallenge(napi_env env, napi_value value, AuthParamInner &authParam);
     static UserAuthResultCode InitAuthType(napi_env env, napi_value value, AuthParamInner &authParam);
     static UserAuthResultCode InitAuthTrustLevel(napi_env env, napi_value value, AuthParamInner &authParam);
@@ -56,4 +53,4 @@ public:
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // USER_AUTH_PARAM_MGR_H
+#endif // USER_AUTH_PARAM_UTILS_H

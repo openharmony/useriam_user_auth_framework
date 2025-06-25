@@ -1274,9 +1274,9 @@ int32_t UserAuthService::AuthWidget(int32_t apiVersion, const IpcAuthParamInner 
         return checkRet;
     }
 
-    if (AuthWidgetHelper::GetReuseUnlockResult(para, authParam, extraInfo) == SUCCESS) {
-        IAM_LOGE("get reuse unlock result success");
-        contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget GetReuseUnlockResult success");
+    if (AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo) == SUCCESS) {
+        IAM_LOGE("check reuse unlock result success");
+        contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget CheckReuseUnlockResult success");
         contextCallback->OnResult(SUCCESS, extraInfo);
         contextId = REUSE_AUTH_RESULT_CONTEXT_ID;
         return SUCCESS;
@@ -1675,7 +1675,7 @@ int32_t UserAuthService::QueryReusableAuthResult(const IpcAuthParamInner &ipcAut
     AuthParamInner authParam = {};
     InitAuthParam(ipcAuthParamInner, authParam);
     HdiReuseUnlockInfo reuseResultInfo = {};
-    int32_t result = AuthWidgetHelper::CheckReuseUnlockResult(authParam.userId, authParam, reuseResultInfo);
+    int32_t result = AuthWidgetHelper::QueryReusableAuthResult(authParam.userId, authParam, reuseResultInfo);
     if (result != SUCCESS) {
         IAM_LOGE("CheckReuseUnlockResult failed result:%{public}d userId:%{public}d", result,
             ipcAuthParamInner.userId);

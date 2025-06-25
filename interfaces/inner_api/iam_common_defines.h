@@ -161,6 +161,8 @@ enum PropertyMode : uint32_t {
     PROPERTY_MODE_SET_CACHED_TEMPLATES = 7,
     /** The property mode is notify collector ready. */
     PROPERTY_MODE_NOTIFY_COLLECTOR_READY = 8,
+    /** The property mode is risk event. */
+    PROPERTY_MODE_RISK_EVENT = 9,
 };
 
 /**
@@ -201,8 +203,6 @@ enum ResultCode : int32_t {
     AUTH_TOKEN_CHECK_FAILED = 15,
     /** The result is fail, because the token is expired. */
     AUTH_TOKEN_EXPIRED = 16,
-    /** The result is fail, because parameters verified failed. */
-    PARAM_VERIFIED_FAILED = 17,
     /** The result is fail, because something wrong from system. */
     SYSTEM_ERROR_CODE_BEGIN = 1000,
     /** The result is fail, because something wrong from ipc. */
