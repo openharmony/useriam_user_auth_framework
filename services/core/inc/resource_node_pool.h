@@ -44,6 +44,8 @@ public:
     virtual void Enumerate(std::function<void(const std::weak_ptr<ResourceNode> &)> action) const = 0;
     virtual bool RegisterResourceNodePoolListener(const std::shared_ptr<ResourceNodePoolListener> &listener) = 0;
     virtual bool DeregisterResourceNodePoolListener(const std::shared_ptr<ResourceNodePoolListener> &listener) = 0;
+    virtual void GetResourceNodeByTypeAndRole(AuthType authType,
+        ExecutorRole role, std::vector<std::weak_ptr<ResourceNode>> &authTypeNodes) = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam

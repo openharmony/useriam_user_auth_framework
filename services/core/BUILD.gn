@@ -70,10 +70,12 @@ ohos_source_set("userauth_service_core") {
     "src/resource_node_impl.cpp",
     "src/resource_node_pool_impl.cpp",
     "src/resource_node_utils.cpp",
+    "src/risk_event_manager.cpp",
     "src/schedule_node_builder.cpp",
     "src/schedule_node_helper.cpp",
     "src/schedule_node_impl.cpp",
     "src/schedule_resource_node_listener.cpp",
+    "src/screenlock_status_listener.cpp",
     "src/secure_user_info_impl.cpp",
     "src/system_param_manager.cpp",
     "src/update_pin_param_impl.cpp",
@@ -106,9 +108,34 @@ ohos_source_set("userauth_service_core") {
     "samgr:samgr_proxy",
   ]
 
+  defines = []
+  if (screenlock_client_enable) {
+    external_deps += [
+      "eventhandler:libeventhandler",
+      "ffrt:libffrt",
+      "preferences:native_preferences",
+      "screenlock_mgr:screenlock_client",
+      "window_manager:libdm_lite",
+    ]
+    sources += [
+      "src/strong_auth_status_manager_impl.cpp",
+    ]
+  } else {
+    sources += [
+      "src/strong_auth_status_manager_mock.cpp",
+    ]
+  }
+
   if (has_os_account_part) {
     cflags_cc = [ "-DHAS_OS_ACCOUNT_PART" ]
     external_deps += [ "os_account:os_account_innerkits" ]
+    sources += [
+      "src/os_accounts_manager_impl.cpp",
+    ]
+  } else {
+    sources += [
+      "src/os_accounts_manager_mock.cpp",
+    ]
   }
 
   if (has_notification_common_event_service) {

@@ -19,10 +19,13 @@
 #include "iam_logger.h"
 
 #include "co_auth_service.h"
+#include "context_pool.h"
 #include "driver_state_manager.h"
 #include "load_mode_handler.h"
+#include "os_accounts_manager.h"
 #include "remote_auth_service.h"
 #include "soft_bus_manager.h"
+#include "strong_auth_status_manager.h"
 #include "system_param_manager.h"
 
 #define IAM_LOG_TAG "USER_AUTH_SA"
@@ -109,6 +112,27 @@ void ServiceInitManager::CheckAllServiceStart()
     auto coAuthService = CoAuthService::GetInstance();
     IF_FALSE_LOGE_AND_RETURN(coAuthService != nullptr);
     coAuthService->RegisterAccessTokenListener();
+
+    OsAccountsManager::Instance().StartSubscribe();
+    ContextPool::Instance().StartSubscribeOsAccountSaStatus();
+    StrongAuthStatusManager::Instance().StartSubscribe();
+
+    DriverStateManager::GetInstance().RegisterDriverStartCallback([]() {
+        std::shared_ptr<CoAuthService> instance = CoAuthService::GetInstance();
+        if (instance == nullptr) {
+            IAM_LOGE("CoAuthService instance is null");
+            return;
+        }
+        instance->OnDriverStart();
+    });
+    DriverStateManager::GetInstance().RegisterDriverStopCallback([]() {
+        std::shared_ptr<CoAuthService> instance = CoAuthService::GetInstance();
+        if (instance == nullptr) {
+            IAM_LOGE("CoAuthService instance is null");
+            return;
+        }
+        instance->OnDriverStop();
+    });
 
     DriverStateManager::GetInstance().StartSubscribe();
 

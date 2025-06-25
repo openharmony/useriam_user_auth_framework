@@ -161,6 +161,8 @@ enum PropertyMode : uint32_t {
     PROPERTY_MODE_SET_CACHED_TEMPLATES = 7,
     /** The property mode is notify collector ready. */
     PROPERTY_MODE_NOTIFY_COLLECTOR_READY = 8,
+    /** The property mode is risk event. */
+    PROPERTY_MODE_RISK_EVENT = 9,
 };
 
 /**
