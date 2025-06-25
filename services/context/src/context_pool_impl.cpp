@@ -21,9 +21,12 @@
 #include <singleton.h>
 #include <unordered_map>
 
+#include "system_ability_definition.h"
+
+#include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
-#include "iam_check.h"
+#include "system_ability_listener.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -58,12 +61,14 @@ public:
     std::shared_ptr<ScheduleNode> SelectScheduleNodeByScheduleId(uint64_t scheduleId) override;
     bool RegisterContextPoolListener(const std::shared_ptr<ContextPoolListener> &listener) override;
     bool DeregisterContextPoolListener(const std::shared_ptr<ContextPoolListener> &listener) override;
+    void StartSubscribeOsAccountSaStatus() override;
 
 private:
     void CheckPreemptContext(const std::shared_ptr<Context> &context);
     mutable std::recursive_mutex poolMutex_;
     std::unordered_map<uint64_t, std::shared_ptr<Context>> contextMap_;
     std::set<std::shared_ptr<ContextPoolListener>> listenerSet_;
+    sptr<SystemAbilityListener> accountSaStatusListener_ {nullptr};
 };
 
 void ContextPoolImpl::CheckPreemptContext(const std::shared_ptr<Context> &context)
@@ -205,6 +210,20 @@ bool ContextPoolImpl::DeregisterContextPoolListener(const std::shared_ptr<Contex
 {
     std::lock_guard<std::recursive_mutex> lock(poolMutex_);
     return listenerSet_.erase(listener) == 1;
+}
+
+void ContextPoolImpl::StartSubscribeOsAccountSaStatus()
+{
+    IAM_LOGI("start");
+    std::lock_guard<std::recursive_mutex> lock(poolMutex_);
+    if (accountSaStatusListener_ != nullptr) {
+        return;
+    }
+    accountSaStatusListener_ = SystemAbilityListener::Subscribe(
+        "OsAccountService", SUBSYS_ACCOUNT_SYS_ABILITY_ID_BEGIN,
+        []() {},
+        []() { ContextPool::Instance().CancelAll(); });
+    IF_FALSE_LOGE_AND_RETURN(accountSaStatusListener_ != nullptr);
 }
 
 ContextPool &ContextPool::Instance()

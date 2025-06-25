@@ -39,6 +39,8 @@ public:
     void Enumerate(std::function<void(const std::weak_ptr<ResourceNode> &)> action) const override;
     bool RegisterResourceNodePoolListener(const std::shared_ptr<ResourceNodePoolListener> &listener) override;
     bool DeregisterResourceNodePoolListener(const std::shared_ptr<ResourceNodePoolListener> &listener) override;
+    void GetResourceNodeByTypeAndRole(AuthType authType,
+        ExecutorRole role, std::vector<std::weak_ptr<ResourceNode>> &authTypeNodes) override;
 
 private:
     struct ResourceNodeParam {
@@ -184,6 +186,27 @@ bool ResourceNodePoolImpl::DeregisterResourceNodePoolListener(const std::shared_
 {
     std::lock_guard<std::recursive_mutex> lock(poolMutex_);
     return listenerSet_.erase(listener) == 1;
+}
+
+void ResourceNodePoolImpl::GetResourceNodeByTypeAndRole(AuthType authType,
+    ExecutorRole role, std::vector<std::weak_ptr<ResourceNode>> &authTypeNodes)
+{
+    IAM_LOGI("start");
+    authTypeNodes.clear();
+    ResourceNodePool::Instance().Enumerate(
+        [&authTypeNodes, role, authType](const std::weak_ptr<ResourceNode> &weakNode) {
+            auto node = weakNode.lock();
+            if (node == nullptr) {
+                return;
+            }
+            if (node->GetAuthType() != authType) {
+                return;
+            }
+            if (node->GetExecutorRole() != role) {
+                return;
+            }
+            authTypeNodes.push_back(node);
+        });
 }
 
 ResourceNodePool &ResourceNodePool::Instance()

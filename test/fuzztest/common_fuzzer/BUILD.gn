@@ -135,10 +135,12 @@ ohos_source_set("userauth_service_core_fuzzer") {
     "../../../services/core/src/resource_node_impl.cpp",
     "../../../services/core/src/resource_node_pool_impl.cpp",
     "../../../services/core/src/resource_node_utils.cpp",
+    "../../../services/core/src/risk_event_manager.cpp",
     "../../../services/core/src/schedule_node_builder.cpp",
     "../../../services/core/src/schedule_node_helper.cpp",
     "../../../services/core/src/schedule_node_impl.cpp",
     "../../../services/core/src/schedule_resource_node_listener.cpp",
+    "../../../services/core/src/screenlock_status_listener.cpp",
     "../../../services/core/src/secure_user_info_impl.cpp",
     "../../../services/core/src/update_pin_param_impl.cpp",
     "../../../services/core/src/user_idm_database_impl.cpp",
@@ -178,9 +180,34 @@ ohos_source_set("userauth_service_core_fuzzer") {
     "samgr:samgr_proxy",
   ]
 
+  defines = []
+  if (screenlock_client_enable) {
+    external_deps += [
+      "eventhandler:libeventhandler",
+      "ffrt:libffrt",
+      "preferences:native_preferences",
+      "screenlock_mgr:screenlock_client",
+      "window_manager:libdm_lite",
+    ]
+    sources += [
+      "../../../services/core/src/strong_auth_status_manager_impl.cpp",
+    ]
+  } else {
+    sources += [
+      "../../../services/core/src/strong_auth_status_manager_mock.cpp",
+    ]
+  }
+
   if (has_os_account_part) {
     cflags_cc = [ "-DHAS_OS_ACCOUNT_PART" ]
     external_deps += [ "os_account:os_account_innerkits" ]
+    sources += [
+      "../../../services/core/src/os_accounts_manager_impl.cpp",
+    ]
+  } else {
+    sources += [
+      "../../../services/core/src/os_accounts_manager_mock.cpp",
+    ]
   }
 
   public_configs = [ "../../../services/core:userauth_service_core_config" ]

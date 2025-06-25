@@ -62,6 +62,7 @@ constexpr char STR_IS_BACKGROUND_APPLICATION[] = "IS_BACKGROUND_APPLICATION";
 constexpr char STR_ERROR_CODE[] = "ERROR_CODE";
 constexpr char STR_PREVIOUS_STATUS[] = "PREVIOUS_STATUS";
 constexpr char STR_UPDATED_STATUS[] = "UPDATED_STATUS";
+constexpr char STRONG_AUTH_REASON[] = "STRONG_AUTH_REASON";
 
 static std::string MaskForStringId(const std::string &id)
 {
@@ -239,6 +240,17 @@ void ReportIsCredentialEnrolledMismatch(const IsCredentialEnrolledMismatchTrace 
         STR_AUTH_TYPE, info.authType,
         STR_PREVIOUS_STATUS, info.preStatus,
         STR_UPDATED_STATUS, info.updatedStatus);
+    if (ret != 0) {
+        IAM_LOGE("hisysevent write failed! ret %{public}d", ret);
+    }
+}
+
+void ReportScreenLockStrongAuth(const ScreenLockStrongAuthTrace &info)
+{
+    int32_t ret = HiSysEventWrite(HiSysEvent::Domain::USERIAM_FWK, "SCREENLOCK_STRONG_AUTH",
+        HiSysEvent::EventType::SECURITY,
+        STR_USER_ID, info.userId,
+        STRONG_AUTH_REASON, info.strongAuthReason);
     if (ret != 0) {
         IAM_LOGE("hisysevent write failed! ret %{public}d", ret);
     }

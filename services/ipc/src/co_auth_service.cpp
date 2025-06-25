@@ -38,6 +38,7 @@
 #include "parameter.h"
 #include "relative_timer.h"
 #include "remote_connect_manager.h"
+#include "risk_event_manager.h"
 #include "service_init_manager.h"
 #include "system_param_manager.h"
 #include "template_cache_manager.h"
@@ -75,22 +76,6 @@ CoAuthService::CoAuthService()
     : SystemAbility(SUBSYS_USERIAM_SYS_ABILITY_AUTHEXECUTORMGR, true), CoAuthStub(true)
 {
     IAM_LOGI("CoAuthService init");
-    DriverStateManager::GetInstance().RegisterDriverStartCallback([]() {
-        std::shared_ptr<CoAuthService> instance = CoAuthService::GetInstance();
-        if (instance == nullptr) {
-            IAM_LOGE("CoAuthService instance is null");
-            return;
-        }
-        instance->OnDriverStart();
-    });
-    DriverStateManager::GetInstance().RegisterDriverStopCallback([]() {
-        std::shared_ptr<CoAuthService> instance = CoAuthService::GetInstance();
-        if (instance == nullptr) {
-            IAM_LOGE("CoAuthService instance is null");
-            return;
-        }
-        instance->OnDriverStop();
-    });
 }
 
 void CoAuthService::OnStart()
@@ -179,6 +164,7 @@ int32_t CoAuthService::ProcExecutorRegisterSuccess(std::shared_ptr<ResourceNode>
             callback);
         IAM_LOGI("update template cache after register success");
         TemplateCacheManager::GetInstance().UpdateTemplateCache(resourceNode->GetAuthType());
+        RiskEventManager::GetInstance().SyncRiskEvents();
     });
 
     return SUCCESS;
