@@ -42,15 +42,10 @@ public:
     UserAuthResultCode Off(napi_env env, napi_callback_info info);
     UserAuthResultCode Start(napi_env env, napi_callback_info info);
     UserAuthResultCode Cancel(napi_env env, napi_callback_info info);
-    static napi_value GetEnrolledState(napi_env env, napi_callback_info info);
-    static napi_value QueryReusableAuthResult(napi_env env, napi_callback_info info);
 
 private:
     std::shared_ptr<JsRefHolder> GetCallback(napi_env env, napi_value value);
-    static napi_value DoGetEnrolledStateResult(napi_env env, EnrolledState enrolledState,
-        UserAuthApiEventReporter &reporter);
-    static UserAuthResultCode ParseReusableAuthResultParam(napi_env env, napi_callback_info info,
-        WidgetAuthParam &authParam);
+
     AuthParamInner authParam_ = {};
     UserAuthNapiClientImpl::WidgetParamNapi widgetParam_ = {};
 

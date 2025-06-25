@@ -271,7 +271,7 @@ void FuzzSetReuseUnlockResult(Parcel &parcel)
     AuthWidgetHelper::SetReuseUnlockResult(apiVersion, info, extraInfo);
 }
 
-void FuzzGetReuseUnlockResult(Parcel &parcel)
+void FuzzCheckReuseUnlockResult(Parcel &parcel)
 {
     ContextFactory::AuthWidgetContextPara para;
     para.userId = MAIN_USER_ID;
@@ -289,7 +289,7 @@ void FuzzGetReuseUnlockResult(Parcel &parcel)
     };
     Attributes extraInfo;
     FillIAttributes(parcel, extraInfo);
-    AuthWidgetHelper::GetReuseUnlockResult(para, authParam, extraInfo);
+    AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo);
 }
 
 using FuzzFunc = decltype(ContextAppStateObserverFuzzTest);
@@ -303,7 +303,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzParseAttributes,
     FuzzCheckValidSolution,
     FuzzSetReuseUnlockResult,
-    FuzzGetReuseUnlockResult,
+    FuzzCheckReuseUnlockResult,
 };
 
 void RemoteAuthContextFuzzTest(const uint8_t *data, size_t size)

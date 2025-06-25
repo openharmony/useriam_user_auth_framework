@@ -25,7 +25,6 @@ using OHOS::UserIam::UserAuth::CjUserAuthCallback;
 using OHOS::UserIam::UserAuth::CjUserAuthResult;
 using OHOS::UserIam::UserAuth::CjWidgetParam;
 using OHOS::UserIam::UserAuth::EnrolledState;
-using OHOS::UserIam::UserAuth::CjReuseAuthResult;
 
 #define FFI_EXPORT __attribute__((visibility("default")))
 
@@ -42,9 +41,6 @@ FFI_EXPORT uint64_t FfiUserAuthStart(const CjAuthParam &authParam, const CjWidge
     CjUserAuthCallback *callbackPtr);
 
 FFI_EXPORT int32_t FfiUserAuthCancel(uint64_t contextId);
-
-FFI_EXPORT int32_t FfiUserAuthQueryReusableAuthResult(int32_t userId, const CjAuthParam &authParam,
-    CjReuseAuthResult *reuseAuthResult);
 }
 
 

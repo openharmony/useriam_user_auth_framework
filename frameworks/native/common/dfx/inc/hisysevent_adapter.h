@@ -114,6 +114,11 @@ struct IsCredentialEnrolledMismatchTrace {
     bool updatedStatus = false;
 };
 
+struct ScreenLockStrongAuthTrace {
+    int32_t userId = 0;
+    int32_t strongAuthReason = 0;
+};
+
 void ReportSystemFault(const std::string &timeString, const std::string &moduleName);
 void ReportSecurityTemplateChange(const TemplateChangeTrace &info);
 void ReportBehaviorCredManager(const UserCredManagerTrace &info);
@@ -125,6 +130,7 @@ void ReportRemoteConnectOpen(const RemoteConnectOpenTrace &info);
 void ReportConnectFaultTrace(const RemoteConnectFaultTrace &info);
 void ReportSaLoadDriverFailure(const SaLoadDriverFailureTrace &info);
 void ReportIsCredentialEnrolledMismatch(const IsCredentialEnrolledMismatchTrace &info);
+void ReportScreenLockStrongAuth(const ScreenLockStrongAuthTrace &info);
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

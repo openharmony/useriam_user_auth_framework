@@ -17,6 +17,7 @@
 
 #include "resource_node_fuzzer.h"
 #include "resource_node_pool_fuzzer.h"
+#include "risk_event_manager_fuzzer.h"
 #include "schedule_node_fuzzer.h"
 
 namespace {
@@ -25,6 +26,7 @@ FuzzEntryFunc *g_FuzzFuncList[] = {
     OHOS::UserIam::UserAuth::ScheduleNodeFuzzTest,
     OHOS::UserIam::UserAuth::ResourceNodePoolFuzzTest,
     OHOS::UserIam::UserAuth::ResourceNodeFuzzTest,
+    OHOS::UserIam::UserAuth::RiskEventManagerFuzzTest,
 };
 } // namespace
 

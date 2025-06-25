@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "user_auth_param_mgr.h"
+#include "user_auth_param_utils.h"
 
 #include <algorithm>
 #include <cinttypes>
@@ -35,26 +35,27 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-const std::string AUTH_EVENT_RESULT = "result";
-const std::string AUTH_PARAM_CHALLENGE = "challenge";
-const std::string AUTH_PARAM_AUTHTYPE = "authType";
-const std::string AUTH_PARAM_AUTHTRUSTLEVEL = "authTrustLevel";
-const std::string AUTH_PARAM_REUSEUNLOCKRESULT = "reuseUnlockResult";
-const std::string AUTH_PARAM_USER_ID = "userId";
-const std::string WIDGET_PARAM_TITLE = "title";
-const std::string WIDGET_PARAM_NAVIBTNTEXT = "navigationButtonText";
-const std::string WIDGET_PARAM_WINDOWMODE = "windowMode";
-const std::string WIDGET_PARAM_CONTEXT = "uiContext";
-const std::string NOTICETYPE = "noticeType";
-const std::string REUSEMODE = "reuseMode";
-const std::string REUSEDURATION = "reuseDuration";
+namespace {
+    const std::string AUTH_PARAM_CHALLENGE = "challenge";
+    const std::string AUTH_PARAM_AUTHTYPE = "authType";
+    const std::string AUTH_PARAM_AUTHTRUSTLEVEL = "authTrustLevel";
+    const std::string AUTH_PARAM_REUSEUNLOCKRESULT = "reuseUnlockResult";
+    const std::string AUTH_PARAM_USER_ID = "userId";
+    const std::string WIDGET_PARAM_TITLE = "title";
+    const std::string WIDGET_PARAM_NAVIBTNTEXT = "navigationButtonText";
+    const std::string WIDGET_PARAM_WINDOWMODE = "windowMode";
+    const std::string WIDGET_PARAM_CONTEXT = "uiContext";
+    const std::string NOTICETYPE = "noticeType";
+    const std::string REUSEMODE = "reuseMode";
+    const std::string REUSEDURATION = "reuseDuration";
+}
 
 namespace WidgetType {
     constexpr int32_t TITLE_MAX = 500;
     constexpr int32_t BUTTON_MAX = 60;
 }
 
-UserAuthResultCode UserAuthParamMgr::InitChallenge(napi_env env, napi_value value, AuthParamInner &authParam)
+UserAuthResultCode UserAuthParamUtils::InitChallenge(napi_env env, napi_value value, AuthParamInner &authParam)
 {
     authParam.challenge.clear();
     napi_status ret = UserAuthNapiHelper::CheckNapiType(env, value, napi_null);
@@ -73,7 +74,7 @@ UserAuthResultCode UserAuthParamMgr::InitChallenge(napi_env env, napi_value valu
     return UserAuthResultCode::SUCCESS;
 }
 
-UserAuthResultCode UserAuthParamMgr::InitAuthType(napi_env env, napi_value value, AuthParamInner &authParam)
+UserAuthResultCode UserAuthParamUtils::InitAuthType(napi_env env, napi_value value, AuthParamInner &authParam)
 {
     bool isArray = false;
     napi_is_array(env, value, &isArray);
@@ -119,7 +120,7 @@ UserAuthResultCode UserAuthParamMgr::InitAuthType(napi_env env, napi_value value
     return UserAuthResultCode::SUCCESS;
 }
 
-UserAuthResultCode UserAuthParamMgr::InitAuthTrustLevel(napi_env env, napi_value value, AuthParamInner &authParam)
+UserAuthResultCode UserAuthParamUtils::InitAuthTrustLevel(napi_env env, napi_value value, AuthParamInner &authParam)
 {
     napi_status ret = UserAuthNapiHelper::CheckNapiType(env, value, napi_null);
     if (ret == napi_ok) {
@@ -143,7 +144,7 @@ UserAuthResultCode UserAuthParamMgr::InitAuthTrustLevel(napi_env env, napi_value
     return UserAuthResultCode::SUCCESS;
 }
 
-UserAuthResultCode UserAuthParamMgr::InitReuseUnlockResult(napi_env env, napi_value value, AuthParamInner &authParam)
+UserAuthResultCode UserAuthParamUtils::InitReuseUnlockResult(napi_env env, napi_value value, AuthParamInner &authParam)
 {
     uint32_t reuseMode;
     uint32_t reuseDuration;
@@ -184,7 +185,7 @@ UserAuthResultCode UserAuthParamMgr::InitReuseUnlockResult(napi_env env, napi_va
     return UserAuthResultCode::SUCCESS;
 }
 
-UserAuthResultCode UserAuthParamMgr::InitUserId(napi_env env, napi_value value, AuthParamInner &authParam)
+UserAuthResultCode UserAuthParamUtils::InitUserId(napi_env env, napi_value value, AuthParamInner &authParam)
 {
     napi_status ret = UserAuthNapiHelper::GetInt32Value(env, value, authParam.userId);
     if (ret != napi_ok) {
@@ -201,7 +202,7 @@ UserAuthResultCode UserAuthParamMgr::InitUserId(napi_env env, napi_value value, 
     return UserAuthResultCode::SUCCESS;
 }
  
-UserAuthResultCode UserAuthParamMgr::ProcessAuthTrustLevelAndUserId(napi_env env, napi_value value,
+UserAuthResultCode UserAuthParamUtils::ProcessAuthTrustLevelAndUserId(napi_env env, napi_value value,
     AuthParamInner &authParam)
 {
     if (!UserAuthNapiHelper::HasNamedProperty(env, value, AUTH_PARAM_AUTHTRUSTLEVEL)) {
@@ -227,7 +228,7 @@ UserAuthResultCode UserAuthParamMgr::ProcessAuthTrustLevelAndUserId(napi_env env
     return UserAuthResultCode::SUCCESS;
 }
 
-UserAuthResultCode UserAuthParamMgr::InitAuthParam(napi_env env, napi_value value, AuthParamInner &authParam)
+UserAuthResultCode UserAuthParamUtils::InitAuthParam(napi_env env, napi_value value, AuthParamInner &authParam)
 {
     napi_status ret = UserAuthNapiHelper::CheckNapiType(env, value, napi_null);
     if (ret == napi_ok) {
@@ -272,7 +273,7 @@ UserAuthResultCode UserAuthParamMgr::InitAuthParam(napi_env env, napi_value valu
     return UserAuthResultCode::SUCCESS;
 }
 
-UserAuthResultCode UserAuthParamMgr::ProcessReuseUnlockResult(napi_env env, napi_value value,
+UserAuthResultCode UserAuthParamUtils::ProcessReuseUnlockResult(napi_env env, napi_value value,
     AuthParamInner &authParam)
 {
     if (UserAuthNapiHelper::HasNamedProperty(env, value, AUTH_PARAM_REUSEUNLOCKRESULT)) {
@@ -289,7 +290,7 @@ UserAuthResultCode UserAuthParamMgr::ProcessReuseUnlockResult(napi_env env, napi
     return UserAuthResultCode::SUCCESS;
 }
 
-UserAuthResultCode UserAuthParamMgr::InitWidgetParam(napi_env env, napi_value value,
+UserAuthResultCode UserAuthParamUtils::InitWidgetParam(napi_env env, napi_value value,
     UserAuthNapiClientImpl::WidgetParamNapi &widgetParam, std::shared_ptr<AbilityRuntime::Context> &abilityContext)
 {
     napi_status ret = UserAuthNapiHelper::CheckNapiType(env, value, napi_null);
@@ -333,7 +334,7 @@ UserAuthResultCode UserAuthParamMgr::InitWidgetParam(napi_env env, napi_value va
     return UserAuthResultCode::SUCCESS;
 }
 
-UserAuthResultCode UserAuthParamMgr::ProcessContext(napi_env env, napi_value value,
+UserAuthResultCode UserAuthParamUtils::ProcessContext(napi_env env, napi_value value,
     UserAuthNapiClientImpl::WidgetParamNapi &widgetParam, std::shared_ptr<AbilityRuntime::Context> &abilityContext)
 {
     IAM_LOGI("process uiContext");
@@ -366,7 +367,7 @@ UserAuthResultCode UserAuthParamMgr::ProcessContext(napi_env env, napi_value val
     return UserAuthResultCode::SUCCESS;
 }
 
-UserAuthResultCode UserAuthParamMgr::ProcessWindowMode(napi_env env, napi_value value,
+UserAuthResultCode UserAuthParamUtils::ProcessWindowMode(napi_env env, napi_value value,
     UserAuthNapiClientImpl::WidgetParamNapi &widgetParam)
 {
     if (UserAuthNapiHelper::HasNamedProperty(env, value, WIDGET_PARAM_WINDOWMODE)) {
@@ -397,7 +398,7 @@ UserAuthResultCode UserAuthParamMgr::ProcessWindowMode(napi_env env, napi_value 
     return UserAuthResultCode::SUCCESS;
 }
 
-bool UserAuthParamMgr::CheckUIContext(const std::shared_ptr<AbilityRuntime::Context> context)
+bool UserAuthParamUtils::CheckUIContext(const std::shared_ptr<AbilityRuntime::Context> context)
 {
     if (context == nullptr) {
         IAM_LOGE("get context failed");

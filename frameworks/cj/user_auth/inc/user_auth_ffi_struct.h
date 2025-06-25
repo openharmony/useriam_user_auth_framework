@@ -48,11 +48,6 @@ struct CjUserAuthResult {
     uint16_t credentialCount;
 };
 
-struct CjReuseAuthResult {
-    uint8_t *token;
-    int64_t tokenLen;
-};
-
 class CjUserAuthCallback final : public AuthenticationCallback {
 public:
     CjUserAuthCallback() = default;

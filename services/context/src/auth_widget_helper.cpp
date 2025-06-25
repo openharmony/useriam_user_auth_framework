@@ -184,9 +184,11 @@ int32_t AuthWidgetHelper::SetReuseUnlockResult(int32_t apiVersion, const HdiReus
     return SUCCESS;
 }
 
-int32_t AuthWidgetHelper::CheckReuseUnlockResult(const int32_t userId, const AuthParamInner &authParam,
+int32_t AuthWidgetHelper::QueryReusableAuthResult(const int32_t userId, const AuthParamInner &authParam,
     HdiReuseUnlockInfo &reuseResultInfo)
 {
+    IAM_LOGI("start userId:%{public}d, reuseMode:%{public}u, reuseDuration: %{public}" PRIu64 ".",
+        userId, authParam.reuseUnlockResult.reuseMode, authParam.reuseUnlockResult.reuseDuration);
     if (!authParam.reuseUnlockResult.isReuse || authParam.reuseUnlockResult.reuseDuration == 0 ||
         authParam.reuseUnlockResult.reuseDuration > MAX_ALLOWABLE_REUSE_DURATION ||
         (authParam.reuseUnlockResult.reuseMode != AUTH_TYPE_RELEVANT &&
@@ -215,15 +217,15 @@ int32_t AuthWidgetHelper::CheckReuseUnlockResult(const int32_t userId, const Aut
     return hdi->CheckReuseUnlockResult(unlockParam, reuseResultInfo);
 }
 
-int32_t AuthWidgetHelper::GetReuseUnlockResult(const ContextFactory::AuthWidgetContextPara &para,
+int32_t AuthWidgetHelper::CheckReuseUnlockResult(const ContextFactory::AuthWidgetContextPara &para,
     const AuthParamInner &authParam, Attributes &extraInfo)
 {
     IAM_LOGI("start userId:%{public}d, reuseMode:%{public}u, reuseDuration: %{public}" PRIu64 ".",
         para.userId, authParam.reuseUnlockResult.reuseMode, authParam.reuseUnlockResult.reuseDuration);
     HdiReuseUnlockInfo reuseResultInfo = {};
-    int32_t result = CheckReuseUnlockResult(para.userId, authParam, reuseResultInfo);
+    int32_t result = QueryReusableAuthResult(para.userId, authParam, reuseResultInfo);
     if (result != SUCCESS) {
-        IAM_LOGE("CheckReuseUnlockResult failed result:%{public}d userId:%{public}d", result, para.userId);
+        IAM_LOGE("QueryReusableAuthResult failed result:%{public}d userId:%{public}d", result, para.userId);
         return result;
     }
 
