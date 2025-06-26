@@ -61,7 +61,7 @@ napi_value GetAvailableStatus(napi_env env, napi_callback_info info)
 napi_value GetEnrolledState(napi_env env, napi_callback_info info)
 {
     IAM_LOGI("start");
-    return UserAuthInstanceV10::GetEnrolledState(env, info);
+    return UserAuthImpl::GetEnrolledState(env, info);
 }
 
 napi_value GetAvailableStatusV9(napi_env env, napi_callback_info info)
@@ -649,6 +649,12 @@ napi_value CancelAuth(napi_env env, napi_callback_info info)
     return UserAuthImpl::CancelAuth(env, info);
 }
 
+napi_value QueryReusableAuthResult(napi_env env, napi_callback_info info)
+{
+    IAM_LOGI("start");
+    return UserAuthImpl::QueryReusableAuthResult(env, info);
+}
+
 napi_value AuthTrustLevelConstructor(napi_env env)
 {
     napi_value authTrustLevel = nullptr;
@@ -1008,6 +1014,7 @@ napi_value UserAuthInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getUserAuthWidgetMgr", UserAuth::GetUserAuthWidgetMgrV10),
         DECLARE_NAPI_FUNCTION("getEnrolledState", UserAuth::GetEnrolledState),
         DECLARE_NAPI_FUNCTION("sendNotice", UserAuth::SendNotice),
+        DECLARE_NAPI_FUNCTION("queryReusableAuthResult", UserAuth::QueryReusableAuthResult),
     };
     status = napi_define_properties(env, exports,
         sizeof(exportFuncs) / sizeof(napi_property_descriptor), exportFuncs);

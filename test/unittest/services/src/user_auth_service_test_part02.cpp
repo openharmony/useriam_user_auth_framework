@@ -1698,6 +1698,146 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceVerifyAuthToken005, TestSize.Level0
     EXPECT_EQ(service.VerifyAuthToken(testTokenIn, allowableDuration, callbackInterface), SUCCESS);
     IpcCommon::DeleteAllPermission();
 }
+
+HWTEST_F(UserAuthServiceTest, QueryReusableAuthResult001, TestSize.Level0)
+{
+    UserAuthService service;
+    std::vector<uint8_t> tempChallenge = {};
+    tempChallenge.resize(32);
+    IpcAuthParamInner ipcAuthParamInner = {};
+    ipcAuthParamInner.userId = 1;
+    ipcAuthParamInner.isUserIdSpecified = true;
+    ipcAuthParamInner.challenge = tempChallenge;
+    ipcAuthParamInner.authTrustLevel = ATL3;
+    ipcAuthParamInner.authTypes.push_back(PIN);
+    ipcAuthParamInner.reuseUnlockResult.isReuse = true;
+    ipcAuthParamInner.reuseUnlockResult.reuseMode = AUTH_TYPE_RELEVANT;
+    ipcAuthParamInner.reuseUnlockResult.reuseDuration = 5 * 60 * 1000;
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, CheckReuseUnlockResult(_, _))
+        .WillOnce([](const HdiReuseUnlockParam &info, HdiReuseUnlockInfo &reuseInfo) {
+            static const uint32_t USER_AUTH_TOKEN_LEN = 148;
+            reuseInfo.token.resize(USER_AUTH_TOKEN_LEN);
+            return HDF_SUCCESS;
+        });
+
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    std::vector<uint8_t> token;
+    EXPECT_EQ(service.QueryReusableAuthResult(ipcAuthParamInner, token), SUCCESS);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, QueryReusableAuthResult002, TestSize.Level0)
+{
+    UserAuthService service;
+    std::vector<uint8_t> tempChallenge = {};
+    tempChallenge.resize(32);
+    IpcAuthParamInner ipcAuthParamInner = {};
+    ipcAuthParamInner.userId = 1;
+    ipcAuthParamInner.isUserIdSpecified = true;
+    ipcAuthParamInner.challenge = tempChallenge;
+    ipcAuthParamInner.authTrustLevel = ATL3;
+    ipcAuthParamInner.authTypes.push_back(PIN);
+    ipcAuthParamInner.reuseUnlockResult.isReuse = true;
+    ipcAuthParamInner.reuseUnlockResult.reuseMode = AUTH_TYPE_RELEVANT;
+    ipcAuthParamInner.reuseUnlockResult.reuseDuration = 5 * 60 * 1000;
+
+    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    std::vector<uint8_t> token;
+    EXPECT_EQ(service.QueryReusableAuthResult(ipcAuthParamInner, token), CHECK_PERMISSION_FAILED);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, QueryReusableAuthResult003, TestSize.Level0)
+{
+    UserAuthService service;
+    std::vector<uint8_t> tempChallenge = {};
+    tempChallenge.resize(32);
+    IpcAuthParamInner ipcAuthParamInner = {};
+    ipcAuthParamInner.userId = 1;
+    ipcAuthParamInner.isUserIdSpecified = true;
+    ipcAuthParamInner.challenge = tempChallenge;
+    ipcAuthParamInner.authTrustLevel = ATL3;
+    ipcAuthParamInner.authTypes.push_back(PIN);
+    ipcAuthParamInner.reuseUnlockResult.isReuse = true;
+    ipcAuthParamInner.reuseUnlockResult.reuseMode = AUTH_TYPE_RELEVANT;
+    ipcAuthParamInner.reuseUnlockResult.reuseDuration = 5 * 60 * 1000;
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, CheckReuseUnlockResult(_, _))
+        .WillOnce([](const HdiReuseUnlockParam &info, HdiReuseUnlockInfo &reuseInfo) {
+            static const uint32_t USER_AUTH_TOKEN_LEN = 148;
+            reuseInfo.token.resize(USER_AUTH_TOKEN_LEN);
+            return HDF_SUCCESS;
+        });
+
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    std::vector<uint8_t> token;
+    EXPECT_EQ(service.QueryReusableAuthResult(ipcAuthParamInner, token), SUCCESS);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, QueryReusableAuthResult004, TestSize.Level0)
+{
+    UserAuthService service;
+    std::vector<uint8_t> tempChallenge = {};
+    tempChallenge.resize(32);
+    IpcAuthParamInner ipcAuthParamInner = {};
+    ipcAuthParamInner.userId = 1;
+    ipcAuthParamInner.isUserIdSpecified = true;
+    ipcAuthParamInner.challenge = tempChallenge;
+    ipcAuthParamInner.authTrustLevel = ATL3;
+    ipcAuthParamInner.authTypes.push_back(PIN);
+    ipcAuthParamInner.reuseUnlockResult.isReuse = true;
+    ipcAuthParamInner.reuseUnlockResult.reuseMode = AUTH_TYPE_RELEVANT;
+    ipcAuthParamInner.reuseUnlockResult.reuseDuration = 5 * 60 * 1000;
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, CheckReuseUnlockResult(_, _))
+        .WillOnce([](const HdiReuseUnlockParam &info, HdiReuseUnlockInfo &reuseInfo) {
+            return HDF_FAILURE;
+        });
+
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    std::vector<uint8_t> token;
+    EXPECT_EQ(service.QueryReusableAuthResult(ipcAuthParamInner, token), HDF_FAILURE);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, QueryReusableAuthResult005, TestSize.Level0)
+{
+    UserAuthService service;
+    std::vector<uint8_t> tempChallenge = {};
+    tempChallenge.resize(32);
+    IpcAuthParamInner ipcAuthParamInner = {};
+    ipcAuthParamInner.userId = 1;
+    ipcAuthParamInner.isUserIdSpecified = true;
+    ipcAuthParamInner.challenge = tempChallenge;
+    ipcAuthParamInner.authTrustLevel = ATL3;
+    ipcAuthParamInner.authTypes.push_back(PIN);
+    ipcAuthParamInner.reuseUnlockResult.isReuse = true;
+    ipcAuthParamInner.reuseUnlockResult.reuseMode = AUTH_TYPE_RELEVANT;
+    ipcAuthParamInner.reuseUnlockResult.reuseDuration = 5 * 60 * 1000;
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, CheckReuseUnlockResult(_, _))
+        .WillOnce([](const HdiReuseUnlockParam &info, HdiReuseUnlockInfo &reuseInfo) {
+            return HDF_SUCCESS;
+        });
+
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    std::vector<uint8_t> token;
+    EXPECT_EQ(service.QueryReusableAuthResult(ipcAuthParamInner, token), SUCCESS);
+    IpcCommon::DeleteAllPermission();
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
