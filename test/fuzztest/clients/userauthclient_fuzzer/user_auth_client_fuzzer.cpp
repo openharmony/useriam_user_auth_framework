@@ -405,6 +405,22 @@ void FuzzSetGlobalConfigParam(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzQueryReusableAuthResult(Parcel &parcel)
+{
+    IAM_LOGI("start");
+    std::vector<uint8_t> token;
+    WidgetAuthParam authParam = {};
+    authParam.userId = parcel.ReadInt32();
+    Common::FillFuzzUint8Vector(parcel, authParam.challenge);
+    authParam.authTypes.push_back(static_cast<AuthType>(parcel.ReadInt32()));
+    authParam.authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadUint32());
+    authParam.reuseUnlockResult.isReuse = parcel.ReadBool();
+    authParam.reuseUnlockResult.reuseMode = static_cast<ReuseMode>(parcel.ReadInt32());
+    authParam.reuseUnlockResult.reuseDuration = parcel.ReadUint64();
+    UserAuthClientImpl::Instance().QueryReusableAuthResult(authParam, token);
+    IAM_LOGI("end");
+}
+
 using FuzzFunc = decltype(FuzzClientGetAvailableStatus);
 FuzzFunc *g_fuzzFuncs[] = {
     FuzzClientGetEnrolledState,
@@ -430,6 +446,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzSetPropCallbackServiceOnPropResult,
     FuzzSetGlobalConfigParam,
     FuzzNapiBeginWidgetAuth,
+    FuzzQueryReusableAuthResult,
 };
 
 void UserAuthClientFuzzTest(const uint8_t *data, size_t size)

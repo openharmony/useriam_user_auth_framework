@@ -42,24 +42,9 @@ public:
     UserAuthResultCode Off(napi_env env, napi_callback_info info);
     UserAuthResultCode Start(napi_env env, napi_callback_info info);
     UserAuthResultCode Cancel(napi_env env, napi_callback_info info);
-    static napi_value GetEnrolledState(napi_env env, napi_callback_info info);
 
 private:
-    UserAuthResultCode InitChallenge(napi_env env, napi_value value);
-    UserAuthResultCode InitAuthType(napi_env env, napi_value value);
-    UserAuthResultCode InitAuthTrustLevel(napi_env env, napi_value value);
-    UserAuthResultCode InitReuseUnlockResult(napi_env env, napi_value value);
-    UserAuthResultCode InitUserId(napi_env env, napi_value value);
-    UserAuthResultCode ProcessAuthTrustLevelAndUserId(napi_env env, napi_value value);
-    UserAuthResultCode ProcessReuseUnlockResult(napi_env env, napi_value value);
-    UserAuthResultCode InitAuthParam(napi_env env, napi_value value);
-    UserAuthResultCode ProcessWindowMode(napi_env env, napi_value value);
-    UserAuthResultCode InitWidgetParam(napi_env env, napi_value value);
     std::shared_ptr<JsRefHolder> GetCallback(napi_env env, napi_value value);
-    static napi_value DoGetEnrolledStateResult(napi_env env, EnrolledState enrolledState,
-        UserAuthApiEventReporter &reporter);
-    UserAuthResultCode ProcessContext(napi_env env, napi_value value);
-    bool CheckUIContext(const std::shared_ptr<OHOS::AbilityRuntime::Context> context);
 
     AuthParamInner authParam_ = {};
     UserAuthNapiClientImpl::WidgetParamNapi widgetParam_ = {};

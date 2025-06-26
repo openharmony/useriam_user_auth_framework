@@ -33,6 +33,8 @@ public:
         const AuthParamInner &authParam, Attributes &extraInfo);
     static bool GetUserAuthProfile(int32_t userId, const AuthType &authType,
         ContextFactory::AuthProfile &profile);
+    static int32_t QueryReusableAuthResult(const int32_t userId, const AuthParamInner &authParam,
+        HdiReuseUnlockInfo &reuseResultInfo);
 
 #ifndef IAM_TEST_ENABLE
 private:

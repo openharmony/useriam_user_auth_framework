@@ -1658,6 +1658,34 @@ int32_t UserAuthService::VerifyAuthToken(const std::vector<uint8_t> &tokenIn, ui
     return SUCCESS;
 }
 
+int32_t UserAuthService::QueryReusableAuthResult(const IpcAuthParamInner &ipcAuthParamInner,
+    std::vector<uint8_t> &token)
+{
+    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    if (!(IpcCommon::GetDirectCallerType(*this) == Security::AccessToken::TOKEN_HAP &&
+        IpcCommon::CheckPermission(*this, IS_SYSTEM_APP))) {
+        IAM_LOGE("caller is not systemApp.");
+        return CHECK_SYSTEM_APP_FAILED;
+    }
+
+    AuthParamInner authParam = {};
+    InitAuthParam(ipcAuthParamInner, authParam);
+    HdiReuseUnlockInfo reuseResultInfo = {};
+    int32_t result = AuthWidgetHelper::QueryReusableAuthResult(authParam.userId, authParam, reuseResultInfo);
+    if (result != SUCCESS) {
+        IAM_LOGE("CheckReuseUnlockResult failed result:%{public}d userId:%{public}d", result,
+            ipcAuthParamInner.userId);
+        return result;
+    }
+
+    token = reuseResultInfo.token;
+    return SUCCESS;
+}
+
 void UserAuthService::InitAuthParam(const IpcAuthParamInner &ipcAuthParam, AuthParamInner &authParam)
 {
     authParam.userId = ipcAuthParam.userId;

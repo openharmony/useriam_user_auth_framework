@@ -698,6 +698,25 @@ void FuzzVerifyAuthToken(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzQueryReusableAuthResult(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    std::vector<uint8_t> token;
+    IpcAuthParamInner ipcAuthParamInner = {};
+    ipcAuthParamInner.userId = parcel.ReadInt32();
+    Common::FillFuzzUint8Vector(parcel, ipcAuthParamInner.challenge);
+    ipcAuthParamInner.authTypes.push_back(parcel.ReadInt32());
+    ipcAuthParamInner.authTrustLevel = parcel.ReadUint32();
+    ipcAuthParamInner.reuseUnlockResult.isReuse = parcel.ReadBool();
+    ipcAuthParamInner.reuseUnlockResult.reuseMode = parcel.ReadInt32();
+    ipcAuthParamInner.reuseUnlockResult.reuseDuration = parcel.ReadUint64();
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    g_userAuthService.QueryReusableAuthResult(ipcAuthParamInner, token);
+    IpcCommon::DeleteAllPermission();
+    IAM_LOGI("end");
+}
+
 void FuzzGetAuthTokenAttr(Parcel &parcel)
 {
     IAM_LOGI("begin");
@@ -757,6 +776,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzGetPropertyById,
     FuzzVerifyAuthToken,
     FuzzGetAuthTokenAttr,
+    FuzzQueryReusableAuthResult,
 };
 
 void UserAuthFuzzTest(const uint8_t *data, size_t size)

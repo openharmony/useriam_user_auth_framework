@@ -19,6 +19,8 @@
 #include "auth_common.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
+#include "user_auth_api_event_reporter.h"
+#include "user_auth_common_defines.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -30,7 +32,9 @@ public:
     static napi_value Auth(napi_env env, napi_callback_info info);
     static napi_value Execute(napi_env env, napi_callback_info info);
     static napi_value CancelAuth(napi_env env, napi_callback_info info);
- 
+    static napi_value GetEnrolledState(napi_env env, napi_callback_info info);
+    static napi_value QueryReusableAuthResult(napi_env env, napi_callback_info info);
+
 private:
     UserAuthImpl() = default;
     ~UserAuthImpl() = default;
@@ -40,6 +44,10 @@ private:
     static napi_status ParseExecuteSecureLevel(napi_env env, napi_value value,
         AuthTrustLevel &authTrustLevel, ResultCode &resultCode);
     static ResultCode CheckAuthTypeAndAuthTrustLevel(AuthType authType, AuthTrustLevel authTrustLevel);
+    static napi_value DoGetEnrolledStateResult(napi_env env, EnrolledState enrolledState,
+        UserAuthApiEventReporter &reporter);
+    static UserAuthResultCode ParseReusableAuthResultParam(napi_env env, napi_callback_info info,
+        WidgetAuthParam &authParam);
 };
 } // namespace UserAuth
 } // namespace UserIam
