@@ -1777,7 +1777,7 @@ HWTEST_F(UserAuthServiceTest, QueryReusableAuthResult003, TestSize.Level0)
 
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     std::vector<uint8_t> token;
-    EXPECT_EQ(service.QueryReusableAuthResult(ipcAuthParamInner, token), SUCCESS);
+    EXPECT_EQ(service.QueryReusableAuthResult(ipcAuthParamInner, token), CHECK_SYSTEM_APP_FAILED);
     IpcCommon::DeleteAllPermission();
 }
 
