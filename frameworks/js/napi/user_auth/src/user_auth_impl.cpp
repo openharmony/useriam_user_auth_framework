@@ -366,7 +366,10 @@ UserAuthResultCode UserAuthImpl::ParseReusableAuthResultParam(napi_env env, napi
         napi_throw(env, UserAuthNapiHelper::GenerateErrorMsg(env, UserAuthResultCode::PARAM_VERIFIED_FAILED, msgStr));
         return UserAuthResultCode::PARAM_VERIFIED_FAILED;
     }
-    AuthParamInner authParamInner = {};
+    AuthParamInner authParamInner = {
+        .userId = INVALID_USER_ID,
+        .authTrustLevel = AuthTrustLevel::ATL1,
+    };
     UserAuthResultCode errCode = UserAuthParamUtils::InitAuthParam(env, argv[PARAM0], authParamInner);
     if (errCode != UserAuthResultCode::SUCCESS) {
         IAM_LOGE("authParamInner type error, errorCode: %{public}d", errCode);

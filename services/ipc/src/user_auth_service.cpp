@@ -1674,6 +1674,13 @@ int32_t UserAuthService::QueryReusableAuthResult(const IpcAuthParamInner &ipcAut
 
     AuthParamInner authParam = {};
     InitAuthParam(ipcAuthParamInner, authParam);
+    if (!authParam.isUserIdSpecified) {
+        if (IpcCommon::GetCallingUserId(*this, authParam.userId) != SUCCESS) {
+            IAM_LOGE("failed to get callingUserId");
+            return GENERAL_ERROR;
+        }
+    }
+
     HdiReuseUnlockInfo reuseResultInfo = {};
     int32_t result = AuthWidgetHelper::QueryReusableAuthResult(authParam.userId, authParam, reuseResultInfo);
     if (result != SUCCESS) {
