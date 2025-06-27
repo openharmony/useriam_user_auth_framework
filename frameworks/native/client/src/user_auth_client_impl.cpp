@@ -733,7 +733,7 @@ int32_t UserAuthClientImpl::QueryReusableAuthResult(const WidgetAuthParam &authP
 
     IpcAuthParamInner ipcAuthParamInner = {};
     ipcAuthParamInner.userId = authParam.userId;
-    ipcAuthParamInner.isUserIdSpecified = true;
+    ipcAuthParamInner.isUserIdSpecified = (authParam.userId != INVALID_USER_ID);
     ipcAuthParamInner.challenge = authParam.challenge;
     for (auto &authType : authParam.authTypes) {
         ipcAuthParamInner.authTypes.push_back(static_cast<int32_t>(authType));
