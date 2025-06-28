@@ -52,7 +52,8 @@ const std::map<UserAuthResultCode, std::string> g_resultV92Str = {
     {UserAuthResultCode::CANCELED_FROM_WIDGET, "Authentication is canceled from widget."},
     {UserAuthResultCode::PIN_EXPIRED, "Operation failed because of PIN expired."},
     {UserAuthResultCode::AUTH_TOKEN_CHECK_FAILED, "Operation failed because of authToken integrity check failed."},
-    {UserAuthResultCode::AUTH_TOKEN_EXPIRED, "Operation failed because of authToken has expired."}
+    {UserAuthResultCode::AUTH_TOKEN_EXPIRED, "Operation failed because of authToken has expired."},
+    {UserAuthResultCode::REUSE_AUTH_RESULT_FAILED, "Failed to reuse authentication result."}
 };
 
 struct DeleteRefHolder {
@@ -191,11 +192,8 @@ int32_t UserAuthNapiHelper::GetResultCodeV20(int32_t result)
     if (result == INVALID_PARAMETERS) {
         return static_cast<int32_t>(UserAuthResultCode::PARAM_VERIFIED_FAILED);
     }
-    if (result == AUTH_TOKEN_CHECK_FAILED) {
-        return static_cast<int32_t>(UserAuthResultCode::AUTH_TOKEN_CHECK_FAILED);
-    }
-    if (result == AUTH_TOKEN_EXPIRED) {
-        return static_cast<int32_t>(UserAuthResultCode::AUTH_TOKEN_EXPIRED);
+    if (result == REUSE_AUTH_RESULT_FAILED) {
+        return static_cast<int32_t>(UserAuthResultCode::REUSE_AUTH_RESULT_FAILED);
     }
     return GetResultCodeV10(result);
 }
