@@ -233,7 +233,7 @@ enum ResultCode : int32_t {
 /**
  * @brief The auth intent.
  */
-enum AuthIntent : int {
+enum AuthIntent : int32_t {
     /**< The auth intention is default. */
     DEFAULT = 0,
     /**< The auth intention is unlock. */
