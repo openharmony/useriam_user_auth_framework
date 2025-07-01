@@ -83,27 +83,41 @@ void PublishEventAdapter::PublishCreatedEvent(int32_t userId, uint64_t scheduleI
 void PublishEventAdapter::PublishUpdatedEvent(int32_t userId, uint64_t credentialId)
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    if (userId != userId_ || credentialId != credentialId_) {
+    if (userId != userId_ || credentialId != credChangeEventInfo_.lastCredentialId) {
         IAM_LOGE("Bad Parameter!");
         return;
     }
-    CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(userId, PIN, UPDATE_CRED, credentialId);
+    CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(userId, PIN, UPDATE_CRED,
+        credChangeEventInfo_);
     EventFwk::Want want;
     want.SetAction(USER_PIN_UPDATED_EVENT);
     want.SetParam(TAG_SCHEDULEID, std::to_string(scheduleId_));
     EventFwk::CommonEventData data(want);
     data.SetCode(userId);
     PublishEvent(data, USERIAM_COMMON_EVENT_SAMGR_PERMISSION);
+    ClearPinUpdateCacheInfo();
     return;
 }
 
-void PublishEventAdapter::CachePinUpdateParam(int32_t userId, uint64_t scheduleId, uint64_t credentialId)
+void PublishEventAdapter::CachePinUpdateParam(int32_t userId, uint64_t scheduleId,
+    const CredChangeEventInfo &changeInfo)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     userId_ = userId;
     scheduleId_ = scheduleId;
-    credentialId_ = credentialId;
-    return;
+    credChangeEventInfo_ = changeInfo;
+    credChangeEventInfo_.isSilentCredChange = reEnrollFlag_;
+}
+
+void PublishEventAdapter::CachePinUpdateParam(bool reEnrollFlag)
+{
+    reEnrollFlag_ = reEnrollFlag;
+}
+
+void PublishEventAdapter::ClearPinUpdateCacheInfo()
+{
+    credChangeEventInfo_ = {};
+    reEnrollFlag_ = false;
 }
 
 void PublishEventAdapter::PublishCredentialUpdatedEvent(int32_t userId, int32_t authType, uint32_t credentialCount)

@@ -137,7 +137,7 @@ public:
         return SUCCESS;
     }
     int32_t OnNotifyCredChangeEvent(int32_t userId, int32_t authType, int32_t eventType,
-        uint64_t credentialId) override
+        const IpcCredChangeEventInfo &changeInfo) override
     {
         IAM_LOGI("start");
         return SUCCESS;

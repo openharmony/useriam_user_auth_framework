@@ -81,10 +81,10 @@ public:
      * @param userId The id of user who change cred.
      * @param authType The authentication auth type{@link AuthType}.
      * @param eventType eventType of cred change, such as addCred and updateCred.
-     * @param credentialId The credentialId generated during credChange process.
+     * @param changeInfo The credential change info.
      */
     virtual void OnNotifyCredChangeEvent(int32_t userId, AuthType authType, CredChangeEventType eventType,
-        uint64_t credentialId) = 0;
+        const CredChangeEventInfo &changeInfo) = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam

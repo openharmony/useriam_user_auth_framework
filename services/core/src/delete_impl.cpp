@@ -195,9 +195,10 @@ void DeleteImpl::PublishCommonEvent(int32_t userId, uint64_t credentialId, AuthT
     }
     PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, authType, credentialInfos.size());
     PublishEventAdapter::GetInstance().PublishUpdatedEvent(userId, credentialId);
+    CredChangeEventInfo changeInfo = {deletePara_.callerName, deletePara_.callerType, 0, credentialId, false};
     if (authType != PIN) {
         CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(
-            userId, authType, DEL_CRED, credentialId);
+            userId, authType, DEL_CRED, changeInfo);
     }
 }
 } // namespace UserAuth

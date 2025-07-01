@@ -99,6 +99,22 @@ enum CredChangeEventType : int32_t {
     /** Cred change type is enforce delete user. */
     ENFORCE_DEL_USER = 5,
 };
+
+/**
+ * @brief Cred change info for notify event.
+ */
+struct CredChangeEventInfo {
+    /** The callerName who make cred change. */
+    std::string callerName;
+    /** The callerType who make cred change. */
+    int32_t callerType;
+    /** New credentialId when ADD_CRED or UPDATE_CRED. */
+    uint64_t credentialId {0};
+    /** Deleted credentialId when DEL_CRED or UPDATE_CRED. */
+    uint64_t lastCredentialId {0};
+    /** Is silent cred change. */
+    bool isSilentCredChange {false};
+};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

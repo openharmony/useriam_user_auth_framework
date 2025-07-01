@@ -83,7 +83,7 @@ int32_t UserIdmDatabaseImpl::GetCredentialInfo(int32_t userId, AuthType authType
     std::vector<HdiCredentialInfo> hdiInfos;
     int32_t ret = hdi->GetCredential(userId, static_cast<HdiAuthType>(authType), hdiInfos);
     if (ret != HDF_SUCCESS) {
-        IAM_LOGE("GetCredential failed, error code : %{public}d", ret);
+        IAM_LOGE("GetCredential fail, userId:%{public}d, authType:%{public}d, ret:%{public}d", userId, authType, ret);
         return GENERAL_ERROR;
     }
     credInfos.reserve(hdiInfos.size());

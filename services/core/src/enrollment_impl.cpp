@@ -210,25 +210,40 @@ bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t
         IAM_LOGI("enroll not need to delete old cred");
         info = nullptr;
     }
-    PublishPinEvent(resultInfo.oldInfo.credentialId);
-    PublishCredentialUpdateEvent();
+    PublishCredentialChangeEvent(resultInfo);
     return true;
 }
 
-void EnrollmentImpl::PublishPinEvent(uint64_t credentialId)
+void EnrollmentImpl::PublishCredentialChangeEvent(const HdiEnrollResultInfo &resultInfo)
 {
-    if (!isUpdate_ && enrollPara_.authType != PIN) {
+    CredChangeEventInfo changeInfo = {
+        enrollPara_.callerName, enrollPara_.callerType, resultInfo.credentialId, 0, false};
+    if (isUpdate_ && enrollPara_.authType == PIN) {
+        changeInfo.lastCredentialId = resultInfo.oldInfo.credentialId;
+        PublishEventAdapter::GetInstance().CachePinUpdateParam(enrollPara_.userId, scheduleId_, changeInfo);
+        return;
+    }
+
+    std::vector<std::shared_ptr<CredentialInfoInterface>> credentialInfos;
+    if (UserIdmDatabase::Instance().GetCredentialInfo(
+        enrollPara_.userId, enrollPara_.authType, credentialInfos) != SUCCESS) {
+        IAM_LOGE("get credential fail");
+        return;
+    }
+    PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(enrollPara_.userId,
+        static_cast<int32_t>(enrollPara_.authType), credentialInfos.size());
+
+    if (isUpdate_ && enrollPara_.authType != PIN) {
+        changeInfo.lastCredentialId = resultInfo.oldInfo.credentialId;
         CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(enrollPara_.userId,
-            enrollPara_.authType, ADD_CRED, credentialId);
-    } else if (!isUpdate_ && enrollPara_.authType == PIN) {
+            enrollPara_.authType, UPDATE_CRED, changeInfo);
+    } else if (!isUpdate_ && enrollPara_.authType != PIN) {
+        CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(enrollPara_.userId,
+            enrollPara_.authType, ADD_CRED, changeInfo);
+    } else {
         PublishEventAdapter::GetInstance().PublishCreatedEvent(enrollPara_.userId, scheduleId_);
         CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(enrollPara_.userId,
-            enrollPara_.authType, ADD_CRED, credentialId);
-    } else if (isUpdate_ && enrollPara_.authType == PIN) {
-        PublishEventAdapter::GetInstance().CachePinUpdateParam(enrollPara_.userId, scheduleId_, credentialId);
-    } else {
-        CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(enrollPara_.userId,
-            enrollPara_.authType, UPDATE_CRED, credentialId);
+            enrollPara_.authType, ADD_CRED, changeInfo);
     }
 }
 
@@ -252,27 +267,6 @@ bool EnrollmentImpl::Cancel()
         return false;
     }
     return true;
-}
-
-void EnrollmentImpl::PublishCredentialUpdateEvent()
-{
-    IAM_LOGI("begin to publish credential update event");
-    if (isUpdate_ && enrollPara_.authType == PIN) {
-        IAM_LOGI("pin update");
-        return;
-    }
-
-    std::vector<std::shared_ptr<CredentialInfoInterface>> credentialInfos;
-    int32_t ret =
-        UserIdmDatabase::Instance().GetCredentialInfo(enrollPara_.userId, enrollPara_.authType, credentialInfos);
-    if (ret != SUCCESS) {
-        IAM_LOGE("get credential fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret, enrollPara_.userId,
-            enrollPara_.authType);
-        return;
-    }
-
-    PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(enrollPara_.userId,
-        static_cast<int32_t>(enrollPara_.authType), credentialInfos.size());
 }
 
 bool EnrollmentImpl::StartSchedule(int32_t userId, HdiScheduleInfo &info,

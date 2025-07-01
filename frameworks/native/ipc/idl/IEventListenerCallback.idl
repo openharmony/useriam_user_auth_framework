@@ -12,6 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import UserAuthTypes;
+
 option_stub_hooks on;
 
 interface OHOS.UserIam.UserAuth.IEventListenerCallback {
@@ -19,5 +22,5 @@ interface OHOS.UserIam.UserAuth.IEventListenerCallback {
         [in] String callerName);
 
     [oneway] void OnNotifyCredChangeEvent([in] int userId, [in] int authType, [in] int eventType,
-        [in] unsigned long credentialId);
+        [in] IpcCredChangeEventInfo changeInfo);
 }
