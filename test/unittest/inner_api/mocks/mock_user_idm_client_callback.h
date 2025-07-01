@@ -42,7 +42,7 @@ public:
 class MockCredChangeEventListener final : public CredChangeEventListener {
 public:
     MOCK_METHOD4(OnNotifyCredChangeEvent, void(int32_t userId, AuthType authType, CredChangeEventType eventType,
-        uint64_t credentialId));
+        const CredChangeEventInfo &changeInfo));
 };
 } // namespace UserAuth
 } // namespace UserIam

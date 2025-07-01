@@ -55,7 +55,7 @@ private:
         int32_t OnNotifyAuthSuccessEvent(int32_t userId, int32_t authType, int32_t callerType,
             const std::string &callerName) override;
         int32_t OnNotifyCredChangeEvent(int32_t userId, int32_t authType, int32_t eventType,
-            uint64_t credentialId) override;
+            const IpcCredChangeEventInfo &changeInfo) override;
         int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;
         int32_t CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result) override;
     };

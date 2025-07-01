@@ -110,7 +110,7 @@ public:
         return SUCCESS;
     }
     int32_t OnNotifyCredChangeEvent(int32_t userId, int32_t authType, int32_t eventType,
-        uint64_t credentialId) override
+        const IpcCredChangeEventInfo &changeInfo) override
     {
         IAM_LOGI("start");
         return SUCCESS;
@@ -303,7 +303,12 @@ void FuzzEnforceDelUserInner(Parcel &parcel)
     std::shared_ptr<ContextCallback> callbackForTrace =
         ContextCallback::NewInstance(iamCallback, TRACE_ENFORCE_DELETE_USER);
     std::string changeReasonTrace = parcel.ReadString();
-    g_UserIdmService.EnforceDelUserInner(userId, callbackForTrace, changeReasonTrace);
+    CredChangeEventInfo changeInfo = {};
+    changeInfo.credentialId = parcel.ReadUint64();
+    changeInfo.lastCredentialId = parcel.ReadUint64();
+    changeInfo.callerName = parcel.ReadString();
+    changeInfo.isSilentCredChange = parcel.ReadBool();
+    g_UserIdmService.EnforceDelUserInner(userId, callbackForTrace, changeReasonTrace, changeInfo);
     IAM_LOGI("end");
 }
 

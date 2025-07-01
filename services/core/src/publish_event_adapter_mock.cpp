@@ -42,12 +42,20 @@ void PublishEventAdapter::PublishUpdatedEvent(int32_t userId, uint64_t scheduleI
     (void)scheduleId;
 }
 
-void PublishEventAdapter::CachePinUpdateParam(int32_t userId, uint64_t scheduleId, uint64_t credentialId)
+void PublishEventAdapter::CachePinUpdateParam(int32_t userId, uint64_t scheduleId,
+    const CredChangeEventInfo &changeInfo)
 {
-    userId_ = userId;
-    scheduleId_ = scheduleId;
-    credentialId_ = credentialId;
+    (void)userId;
+    (void)scheduleId;
+    (void)changeInfo;
 }
+
+void PublishEventAdapter::CachePinUpdateParam(bool reEnrollFlag)
+{
+    (void)reEnrollFlag;
+}
+
+void PublishEventAdapter::ClearPinUpdateCacheInfo() {}
 
 void PublishEventAdapter::PublishCredentialUpdatedEvent(int32_t userId, int32_t authType, uint32_t credentialCount)
 {

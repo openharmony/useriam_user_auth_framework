@@ -70,13 +70,13 @@ public:
 class DummyCredChangeEventListener final : public CredChangeEventListener {
 public:
     void OnNotifyCredChangeEvent(int32_t userId, AuthType authType, CredChangeEventType eventType,
-        uint64_t credentialId)
+        const CredChangeEventInfo &changeInfo)
     {
         IAM_LOGI("start");
         static_cast<void>(userId);
         static_cast<void>(authType);
         static_cast<void>(eventType);
-        static_cast<void>(credentialId);
+        static_cast<void>(changeInfo);
     }
 };
 

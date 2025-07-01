@@ -21,6 +21,7 @@
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
+#include "publish_event_adapter.h"
 #include "resource_node.h"
 #include "resource_node_utils.h"
 #include "schedule_node.h"
@@ -197,6 +198,10 @@ void SimpleAuthContext::OnResult(int32_t resultCode, const std::shared_ptr<Attri
     }
     if (GetPropertyForAuthResult(resultInfo) != SUCCESS) {
         IAM_LOGE("GetPropertyForAuthResult failed");
+    }
+
+    if (resultInfo.result == SUCCESS && GetAuthType() == PIN) {
+        PublishEventAdapter::GetInstance().CachePinUpdateParam(resultInfo.reEnrollFlag);
     }
     InvokeResultCallback(resultInfo);
     SendAuthExecutorMsg();

@@ -52,8 +52,7 @@ protected:
 
 private:
     bool GetSecUserId(std::optional<uint64_t> &secUserId);
-    void PublishPinEvent(uint64_t credentialId);
-    void PublishCredentialUpdateEvent();
+    void PublishCredentialChangeEvent(const HdiEnrollResultInfo &changeInfo);
     bool StartSchedule(int32_t userId, HdiScheduleInfo &info,
         std::vector<std::shared_ptr<ScheduleNode>> &scheduleList, std::shared_ptr<ScheduleNodeCallback> callback);
 

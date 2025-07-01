@@ -392,7 +392,7 @@ int32_t UserIdmClientImpl::GetCredentialInfoSync(int32_t userId, AuthType authTy
     auto ret = proxy->GetCredentialInfoSync(userId, authType, ipcCredInfoList);
     if (ret != SUCCESS) {
         IAM_LOGE("GetCredentialInfoSync fail, ret:%{public}d", ret);
-        return GENERAL_ERROR;
+        return ret;
     }
 
     for (auto &iter : ipcCredInfoList) {

@@ -1766,15 +1766,6 @@ HWTEST_F(UserAuthServiceTest, QueryReusableAuthResult003, TestSize.Level0)
     ipcAuthParamInner.reuseUnlockResult.reuseMode = AUTH_TYPE_RELEVANT;
     ipcAuthParamInner.reuseUnlockResult.reuseDuration = 5 * 60 * 1000;
 
-    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, CheckReuseUnlockResult(_, _))
-        .WillOnce([](const HdiReuseUnlockParam &info, HdiReuseUnlockInfo &reuseInfo) {
-            static const uint32_t USER_AUTH_TOKEN_LEN = 148;
-            reuseInfo.token.resize(USER_AUTH_TOKEN_LEN);
-            return HDF_SUCCESS;
-        });
-
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     std::vector<uint8_t> token;
     EXPECT_EQ(service.QueryReusableAuthResult(ipcAuthParamInner, token), CHECK_SYSTEM_APP_FAILED);

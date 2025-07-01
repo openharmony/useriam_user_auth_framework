@@ -76,7 +76,7 @@ class CredChangeEventListenerManager : public EventListenerManager {
 public:
     static CredChangeEventListenerManager &GetInstance();
     void OnNotifyCredChangeEvent(int32_t userId, AuthType authType, CredChangeEventType eventType,
-        uint64_t credentialId);
+        const CredChangeEventInfo &changeInfo);
 };
 } // namespace UserAuth
 } // namespace UserIam

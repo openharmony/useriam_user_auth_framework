@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package OHOS.userIam.UserAuth;
+package OHOS.UserIam.UserAuth;
 
 /**
  * @brief Remote auth parameter.
@@ -187,4 +187,20 @@ struct IpcSecUserInfo {
     unsigned long secureUid;
     /** The user credential enrollment infomation. */
     IpcEnrolledInfo[] enrolledInfo;
+};
+
+/**
+ * @brief Cred change info for notify event.
+ */
+struct IpcCredChangeEventInfo {
+    /** The callerName who make cred change. */
+    String callerName; 
+    /** The callerType who make cred change. */
+    int callerType;
+    /** New credentialId when ADD_CRED or UPDATE_CRED. */
+    unsigned long credentialId;
+    /** Deleted credentialId when DEL_CRED or UPDATE_CRED. */
+    unsigned long lastCredentialId;
+    /** Is silent cred change. */
+    boolean isSilentCredChange;
 };
