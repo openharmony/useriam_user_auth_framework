@@ -37,6 +37,13 @@ struct ResultCallbackV10Holder {
     EnrolledState enrolledState {};
     napi_env env {nullptr};
 };
+
+struct AuthTipInfoCallbackHolder {
+    std::shared_ptr<UserAuthCallbackV10> callback {nullptr};
+    int32_t tipCode {0};
+    int32_t tipType {0};
+    napi_env env {nullptr};
+};
 }
 
 UserAuthCallbackV10::UserAuthCallbackV10(napi_env env) : env_(env)
@@ -74,11 +81,36 @@ bool UserAuthCallbackV10::HasResultCallback()
     return resultCallback_ != nullptr;
 }
 
+void UserAuthCallbackV10::SetTipCallback(const std::shared_ptr<JsRefHolder> &tipCallback)
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    tipCallback_ = tipCallback;
+}
+
+void UserAuthCallbackV10::ClearTipCallback()
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    tipCallback_ = nullptr;
+}
+
+std::shared_ptr<JsRefHolder> UserAuthCallbackV10::GetTipCallback()
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    return tipCallback_;
+}
+
+bool UserAuthCallbackV10::HasTipCallback()
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    return tipCallback_ != nullptr;
+}
+
 napi_status UserAuthCallbackV10::DoResultCallback(int32_t result,
     const std::vector<uint8_t> &token, int32_t authType, EnrolledState enrolledState)
 {
     auto resultCallback = GetResultCallback();
     if (resultCallback == nullptr) {
+        IAM_LOGE("resultCallback is null");
         return napi_ok;
     }
     IAM_LOGD("start");
@@ -119,15 +151,87 @@ napi_status UserAuthCallbackV10::DoResultCallback(int32_t result,
     return UserAuthNapiHelper::CallVoidNapiFunc(env_, resultCallback->Get(), ARGS_ONE, &eventInfo);
 }
 
+napi_status UserAuthCallbackV10::DoTipInfoCallBack(int32_t tipType, uint32_t tipCode)
+{
+    IAM_LOGI("DoTipInfoCallBack start, authType:%{public}d, tipCode:%{public}u", tipType, tipCode);
+    auto tipCallback = GetTipCallback();
+    if (tipCallback == nullptr) {
+        IAM_LOGE("tipCallback is null");
+        return napi_ok;
+    }
+    napi_value authTipInfo;
+    napi_status ret = napi_create_object(env_, &authTipInfo);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_create_object failed %{public}d", ret);
+        return ret;
+    }
+    ret = UserAuthNapiHelper::SetInt32Property(env_, authTipInfo, "tipType", tipType);
+    if (ret != napi_ok) {
+        IAM_LOGE("SetInt32Property tipType failed %{public}d", ret);
+        return ret;
+    }
+    ret = UserAuthNapiHelper::SetInt32Property(env_, authTipInfo, "tipCode", tipCode);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_create_int32 tipCode failed %{public}d", ret);
+        return ret;
+    }
+    ret = UserAuthNapiHelper::CallVoidNapiFunc(env_, tipCallback->Get(), ARGS_ONE, &authTipInfo);
+    if (ret != napi_ok) {
+        IAM_LOGE("CallVoidNapiFunc failed %{public}d", ret);
+        return ret;
+    }
+    return ret;
+}
+
 void UserAuthCallbackV10::OnAcquireInfo(int32_t module, uint32_t acquireInfo,
     const UserIam::UserAuth::Attributes &extraInfo)
 {
+    IAM_LOGI("start, authType:%{public}d, tipCode:%{public}u", module, acquireInfo);
+    uv_loop_s *loop = nullptr;
+    napi_status napiStatus = napi_get_uv_event_loop(env_, &loop);
+    if (napiStatus != napi_ok || loop == nullptr) {
+        IAM_LOGE("napi_get_uv_event_loop fail");
+        return;
+    }
+    std::shared_ptr<AuthTipInfoCallbackHolder> authTipInfoCallbackHolder =
+        Common::MakeShared<AuthTipInfoCallbackHolder>();
+    if (authTipInfoCallbackHolder == nullptr) {
+        IAM_LOGE("resultHolder is null");
+        return;
+    }
+    authTipInfoCallbackHolder->callback = shared_from_this();
+    authTipInfoCallbackHolder->tipType = module;
+    authTipInfoCallbackHolder->tipCode = acquireInfo;
+    authTipInfoCallbackHolder->env = env_;
+    auto task = [authTipInfoCallbackHolder] () {
+        IAM_LOGD("start");
+        if (authTipInfoCallbackHolder == nullptr || authTipInfoCallbackHolder->callback == nullptr) {
+            IAM_LOGE("authTipInfoCallbackHolder is invalid");
+            return;
+        }
+        napi_handle_scope scope = nullptr;
+        napi_open_handle_scope(authTipInfoCallbackHolder->env, &scope);
+        if (scope == nullptr) {
+            IAM_LOGE("scope is invalid");
+            return;
+        }
+        napi_status ret = authTipInfoCallbackHolder->callback->DoTipInfoCallBack(authTipInfoCallbackHolder->tipType,
+                                                                                 authTipInfoCallbackHolder->tipCode);
+        if (ret != napi_ok) {
+            IAM_LOGE("DoTipInfoCallBack ret = %{public}d", ret);
+            return;
+        }
+        napi_close_handle_scope(authTipInfoCallbackHolder->env, scope);
+    };
+    if (napi_send_event(env_, task, napi_eprio_immediate) != napi_status::napi_ok) {
+        IAM_LOGE("napi_send_event: Failed to SendEvent");
+    }
 }
 
 void UserAuthCallbackV10::OnResult(int32_t result, const Attributes &extraInfo)
 {
     IAM_LOGD("start, result:%{public}d", result);
-    uv_loop_s *loop;
+    uv_loop_s *loop = nullptr;
     napi_status napiStatus = napi_get_uv_event_loop(env_, &loop);
     if (napiStatus != napi_ok || loop == nullptr) {
         IAM_LOGE("napi_get_uv_event_loop fail");

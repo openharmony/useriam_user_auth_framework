@@ -50,6 +50,8 @@ public:
     MOCK_METHOD1(SetTraceReuseUnlockResultMode, void(uint32_t reuseUnlockResultMode));
     MOCK_METHOD1(SetTraceReuseUnlockResultDuration, void(uint64_t reuseUnlockResultDuration));
     MOCK_METHOD1(SetCleaner, void(Context::ContextStopCallback callback));
+    MOCK_METHOD4(ParseAuthTipInfo, int32_t(int32_t tip, const std::vector<uint8_t> &extraInfo,
+        int32_t &authResult, int32_t &freezingTime));
     MOCK_METHOD2(ProcessAuthResult, void(int32_t tip, const std::vector<uint8_t> &extraInfo));
     MOCK_METHOD0(GetIamCallback, sptr<IIamCallback>());
     MOCK_METHOD0(GetCallerName, std::string());

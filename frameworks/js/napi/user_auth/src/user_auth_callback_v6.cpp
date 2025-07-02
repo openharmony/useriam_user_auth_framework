@@ -149,7 +149,7 @@ void OnCallbackV6Work(std::shared_ptr<ResultCallbackV6Holder> resultHolder)
 void UserAuthCallbackV6::OnResult(int32_t result, const Attributes &extraInfo)
 {
     IAM_LOGI("start, result:%{public}d", result);
-    uv_loop_s *loop;
+    uv_loop_s *loop = nullptr;
     napi_status napiStatus = napi_get_uv_event_loop(env_, &loop);
     if (napiStatus != napi_ok || loop == nullptr) {
         IAM_LOGE("napi_get_uv_event_loop fail");

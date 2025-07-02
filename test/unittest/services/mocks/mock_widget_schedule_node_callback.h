@@ -35,6 +35,9 @@ public:
     MOCK_METHOD0(EndAuthAsWidgetParaInvalid, void());
     MOCK_METHOD1(StopAuthList, void(const std::vector<AuthType> &authTypeList));
     MOCK_METHOD1(SuccessAuth, void(AuthType authType));
+    MOCK_METHOD1(FailAuth, void(AuthType authType));
+    MOCK_METHOD2(SendAuthTipInfo, void(int32_t authType, int32_t tipInfo));
+    MOCK_METHOD0(SendAuthResult, void());
     MOCK_METHOD4(AuthWidgetReload, bool(uint32_t orientation, uint32_t needRotate, uint32_t alreadyLoad,
         AuthType &rotateAuthType));
     MOCK_METHOD0(AuthWidgetReloadInit, void());

@@ -40,16 +40,22 @@ public:
 
     napi_status DoResultCallback(int32_t result,
         const std::vector<uint8_t> &token, int32_t authType, EnrolledState enrolledState);
+    napi_status DoTipInfoCallBack(int32_t tipType, uint32_t tipCode);
     void SetResultCallback(const std::shared_ptr<JsRefHolder> &resultCallback);
     void ClearResultCallback();
     bool HasResultCallback();
+    void SetTipCallback(const std::shared_ptr<JsRefHolder> &tipCallback);
+    void ClearTipCallback();
+    bool HasTipCallback();
 
 private:
     std::shared_ptr<JsRefHolder> GetResultCallback();
+    std::shared_ptr<JsRefHolder> GetTipCallback();
 
     napi_env env_ = nullptr;
     std::mutex mutex_;
     std::shared_ptr<JsRefHolder> resultCallback_ = nullptr;
+    std::shared_ptr<JsRefHolder> tipCallback_ = nullptr;
 };
 } // namespace UserAuth
 } // namespace UserIam

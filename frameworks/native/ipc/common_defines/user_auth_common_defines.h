@@ -71,6 +71,8 @@ struct AuthParamInner {
     ReuseUnlockResult reuseUnlockResult;
     /** Auth intention. */
     AuthIntent authIntent;
+    /** Skip locked biometric authentication */
+    bool skipLockedBiometricAuth {false};
 };
 
 /**

@@ -49,6 +49,7 @@ bool AuthWidgetHelper::InitWidgetContextParam(const AuthParamInner &authParam, s
     para.challenge = std::move(authParam.challenge);
     para.authTypeList = std::move(validType);
     para.atl = authParam.authTrustLevel;
+    para.skipLockedBiometricAuth = authParam.skipLockedBiometricAuth;
     para.widgetParam = widgetParam;
     if (widgetParam.windowMode == WindowModeType::UNKNOWN_WINDOW_MODE) {
         para.widgetParam.windowMode = WindowModeType::DIALOG_BOX;

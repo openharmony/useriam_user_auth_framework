@@ -49,7 +49,8 @@ public:
         E_COMPLETE_AUTH = 4,
         E_NAVI_PIN_AUTH = 5,
         E_WIDGET_PARA_INVALID = 6,
-        E_WIDGET_RELOAD = 7
+        E_WIDGET_RELOAD = 7,
+        E_STOP_AUTH = 8,
     };
 
     virtual ~WidgetScheduleNode() = default;
@@ -59,11 +60,14 @@ public:
         AuthIntent authIntent) = 0;
     virtual bool StopAuthList(const std::vector<AuthType> &authTypeList) = 0;
     virtual bool SuccessAuth(AuthType authType) = 0;
+    virtual bool FailAuth(AuthType authType) = 0;
     virtual bool NaviPinAuth() = 0;
     virtual bool WidgetParaInvalid() = 0;
     virtual bool WidgetReload(uint32_t orientation, uint32_t needRotate, uint32_t alreadyLoad,
         AuthType &rotateAuthType) = 0;
     virtual void SetCallback(std::shared_ptr<WidgetScheduleNodeCallback> callback) = 0;
+    virtual void SendAuthTipInfo(const std::vector<AuthType> &authTypeList, int32_t tipCode) = 0;
+    virtual void SendAuthResult() = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam

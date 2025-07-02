@@ -59,32 +59,53 @@ void ContextCallbackImpl::OnAcquireInfo(ExecutorRole src, int32_t moduleType,
     iamCallback_->OnAcquireInfo(moduleType, acquireInfo, acquireMsg);
 }
 
-void ContextCallbackImpl::ProcessAuthResult(int32_t tip, const std::vector<uint8_t> &extraInfo)
+int32_t ContextCallbackImpl::ParseAuthTipInfo(int32_t tip, const std::vector<uint8_t> &extraInfo,
+    int32_t &authResult, int32_t &freezingTime)
 {
-    if (tip != USER_AUTH_TIP_SINGLE_AUTH_RESULT) {
-        return;
+    IAM_LOGI("tip:%{public}d", tip);
+    if (tip != USER_AUTH_TIP_SINGLE_AUTH_RESULT || extraInfo.empty()) {
+        return ResultCode::GENERAL_ERROR;
     }
-    if (extraInfo.empty()) {
-        return;
-    }
+
     std::string tipJson(reinterpret_cast<const char *>(extraInfo.data()), extraInfo.size());
     if (!nlohmann::json::accept(tipJson)) {
         IAM_LOGE("invalid format");
-        return;
+        return ResultCode::GENERAL_ERROR;
     }
     IAM_LOGI("tipJson:%{public}s", tipJson.c_str());
     auto root = nlohmann::json::parse(tipJson.c_str());
     if (root.is_null() || root.is_discarded()) {
         IAM_LOGE("root is null");
-        return;
+        return ResultCode::GENERAL_ERROR;
     }
     const std::string tipJsonKeyAuthResult = "authResult";
-    int32_t authResult = 0;
     if (root.find(tipJsonKeyAuthResult) == root.end() || !(root[tipJsonKeyAuthResult].is_number())) {
         IAM_LOGE("authResult is null or is not number");
-        return;
+        return ResultCode::GENERAL_ERROR;
     }
     root.at(tipJsonKeyAuthResult).get_to(authResult);
+    if (authResult == SUCCESS) {
+        IAM_LOGI("authResult is success");
+        return ResultCode::SUCCESS;
+    }
+    const std::string tipJsonKeyFreezTime = "lockoutDuration";
+    if (root.find(tipJsonKeyFreezTime) == root.end() || !(root[tipJsonKeyFreezTime].is_number())) {
+        IAM_LOGE("freezingTime is null or is not number");
+        return ResultCode::GENERAL_ERROR;
+    }
+    root.at(tipJsonKeyFreezTime).get_to(freezingTime);
+    return ResultCode::SUCCESS;
+}
+
+void ContextCallbackImpl::ProcessAuthResult(int32_t tip, const std::vector<uint8_t> &extraInfo)
+{
+    int32_t authResult = SUCCESS;
+    int32_t freezingTime = -1;
+    int32_t ret = ParseAuthTipInfo(tip, extraInfo, authResult, freezingTime);
+    if (ret != SUCCESS) {
+        IAM_LOGE("ParseAuthTipInfo fali, ret:%{public}d", ret);
+        return;
+    }
     if (authResult == SUCCESS) {
         IAM_LOGI("authResult is success");
         return;
