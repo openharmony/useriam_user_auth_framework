@@ -59,6 +59,7 @@ public:
         bool isPinExpired {false};
         bool isOsAccountVerified {false};
         bool isBackgroundApplication {false};
+        bool skipLockedBiometricAuth {false};
     };
 
     static std::shared_ptr<Context> CreateSimpleAuthContext(const Authentication::AuthenticationPara &para,

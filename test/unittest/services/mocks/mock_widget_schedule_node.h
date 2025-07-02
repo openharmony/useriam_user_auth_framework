@@ -30,11 +30,14 @@ public:
         AuthIntent authIntent));
     MOCK_METHOD1(StopAuthList, bool(const std::vector<AuthType> &));
     MOCK_METHOD1(SuccessAuth, bool(AuthType));
+    MOCK_METHOD1(FailAuth, bool(AuthType));
     MOCK_METHOD0(NaviPinAuth, bool());
     MOCK_METHOD0(WidgetParaInvalid, bool());
     MOCK_METHOD1(SetCallback, void(std::shared_ptr<WidgetScheduleNodeCallback>));
     MOCK_METHOD4(WidgetReload, bool(uint32_t orientation, uint32_t needRotate, uint32_t alreadyLoad,
         AuthType &rotateAuthType));
+    MOCK_METHOD2(SendAuthTipInfo, void(const std::vector<AuthType> &authTypeList, int32_t tipCode));
+    MOCK_METHOD0(SendAuthResult, void());
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -50,6 +50,8 @@ constexpr const char *NOTICE_EVENT_USER_NAVIGATION = "EVENT_AUTH_USER_NAVIGATION
 constexpr const char *NOTICE_EVENT_WIDGET_PARA_INVALID = "EVENT_AUTH_WIDGET_PARA_INVALID";
 constexpr const char *NOTICE_EVENT_END = "EVENT_AUTH_END";
 constexpr const char *NOTICE_EVENT_RELOAD = "EVENT_AUTH_RELOAD";
+constexpr const char *EVENT_AUTH_WIDGET_LOADED = "EVENT_AUTH_WIDGET_LOADED";
+constexpr const char *EVENT_AUTH_WIDGET_RELEASED = "EVENT_AUTH_WIDGET_RELEASED";
 
 // For API6
 enum class AuthenticationResult : int32_t {
@@ -117,6 +119,15 @@ enum FingerprintTips {
     FINGERPRINT_AUTH_TIP_TOO_FAST = 4,
     FINGERPRINT_AUTH_TIP_TOO_SLOW = 5,
     FINGERPRINT_AUTH_TIP_MAX = FINGERPRINT_AUTH_TIP_TOO_SLOW,
+};
+
+enum UserAuthTipCode {
+    TIP_CODE_FAIL = 1,
+    TIP_CODE_TIMEOUT = 2,
+    TIP_CODE_TEMPORARILY_LOCKED = 3,
+    TIP_CODE_PERMANENTLY_LOCKED = 4,
+    TIP_CODE_WIDGET_LOADED = 5,
+    TIP_CODE_WIDGET_RELEASED = 6,
 };
 } // namespace UserAuth
 } // namespace UserIam

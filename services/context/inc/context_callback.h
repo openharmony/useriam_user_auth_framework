@@ -95,6 +95,8 @@ public:
     virtual void SetTraceConnectionName(const std::string &connectionName) = 0;
     virtual void SetTraceAuthFinishReason(const std::string &authFinishReason) = 0;
     virtual void SetTraceIsBackgroundApplication(bool isBackgroundApplication) = 0;
+    virtual int32_t ParseAuthTipInfo(int32_t tip, const std::vector<uint8_t> &extraInfo,
+        int32_t &authResult, int32_t &freezingTime) = 0;
     virtual void ProcessAuthResult(int32_t tip, const std::vector<uint8_t> &extraInfo) = 0;
     virtual sptr<IIamCallback> GetIamCallback() = 0;
     virtual std::string GetCallerName() = 0;
