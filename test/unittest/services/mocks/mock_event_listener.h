@@ -30,7 +30,7 @@ public:
     MOCK_METHOD4(OnNotifyAuthSuccessEvent, int32_t(int32_t userId, int32_t authType, int32_t callerType,
         const std::string &callerName));
     MOCK_METHOD4(OnNotifyCredChangeEvent, int32_t(int32_t userId, int32_t authType, int32_t eventType,
-        uint64_t credentialId));
+        const IpcCredChangeEventInfo &changeInfo));
 };
 
 class MockEventListenerService final : public IRemoteStub<IEventListenerCallback> {
@@ -40,7 +40,7 @@ public:
     MOCK_METHOD4(OnNotifyAuthSuccessEvent, int32_t(int32_t userId, int32_t authType, int32_t callerType,
         const std::string &callerName));
     MOCK_METHOD4(OnNotifyCredChangeEvent, int32_t(int32_t userId, int32_t authType, int32_t eventType,
-        uint64_t credentialId));
+        const IpcCredChangeEventInfo &changeInfo));
 };
 } // namespace UserAuth
 } // namespace UserIam

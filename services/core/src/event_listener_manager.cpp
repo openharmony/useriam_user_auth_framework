@@ -170,13 +170,15 @@ CredChangeEventListenerManager &CredChangeEventListenerManager::GetInstance()
 }
 
 void CredChangeEventListenerManager::OnNotifyCredChangeEvent(int32_t userId, AuthType authType,
-    CredChangeEventType eventType, uint64_t credentialId)
+    CredChangeEventType eventType, const CredChangeEventInfo &changeInfo)
 {
     IAM_LOGI("start");
+    IpcCredChangeEventInfo info = {changeInfo.callerName, changeInfo.callerType, changeInfo.credentialId,
+        changeInfo.lastCredentialId, changeInfo.isSilentCredChange};
     auto listenerSetTemp = GetListenerDeathRecipientMap();
     for (auto &iter : listenerSetTemp) {
         if (iter.first != nullptr) {
-            iter.first->OnNotifyCredChangeEvent(userId, authType, eventType, credentialId);
+            iter.first->OnNotifyCredChangeEvent(userId, authType, eventType, info);
         }
     }
 }

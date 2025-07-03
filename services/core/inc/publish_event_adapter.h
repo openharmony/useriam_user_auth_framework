@@ -18,6 +18,7 @@
 
 #include <mutex>
 #include <string>
+#include "user_idm_client_defines.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -29,7 +30,9 @@ public:
     void PublishCreatedEvent(int32_t userId, uint64_t scheduleId);
     void PublishUpdatedEvent(int32_t userId, uint64_t scheduleId);
     void PublishCredentialUpdatedEvent(int32_t userId, int32_t authType, uint32_t credentialCount);
-    void CachePinUpdateParam(int32_t userId, uint64_t scheduleId, uint64_t credentialId);
+    void CachePinUpdateParam(int32_t userId, uint64_t scheduleId, const CredChangeEventInfo &changeInfo);
+    void CachePinUpdateParam(bool reEnrollFlag);
+    void ClearPinUpdateCacheInfo();
 
 private:
     PublishEventAdapter() = default;
@@ -38,7 +41,8 @@ private:
     std::mutex mutex_;
     int32_t userId_ {0};
     uint64_t scheduleId_ {0};
-    uint64_t credentialId_ {0};
+    CredChangeEventInfo credChangeEventInfo_ = {};
+    bool reEnrollFlag_ {false};
 };
 } // namespace UserAuth
 } // namespace UserIam
