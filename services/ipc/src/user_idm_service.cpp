@@ -100,7 +100,6 @@ int32_t UserIdmService::CloseSession(int32_t userId)
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
     }
-
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi == nullptr) {
         IAM_LOGE("bad hdi");
@@ -433,7 +432,8 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IIamCallback> 
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return GENERAL_ERROR;
     }
-    ret = EnforceDelUserInner(userId, contextCallback, "EnforceDeleteUser");
+    CredChangeEventInfo changeInfo = {callerName, callerType, 0, 0, false};
+    ret = EnforceDelUserInner(userId, contextCallback, "EnforceDeleteUser", changeInfo);
     if (ret != SUCCESS) {
         IAM_LOGE("failed to enforce delete user");
         static_cast<void>(extraInfo.SetUint64Value(Attributes::ATTR_CREDENTIAL_ID, 0));
@@ -498,7 +498,8 @@ int32_t UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> &auth
     IAM_LOGI("delete user end");
     PublishEventAdapter::GetInstance().PublishDeletedEvent(userId);
     PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, PIN, 0);
-    CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(userId, PIN, DEL_USER, 0);
+    CredChangeEventInfo changeInfo = {callerName, callerType, 0, 0, false};
+    CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(userId, PIN, DEL_USER, changeInfo);
     return SUCCESS;
 }
 
@@ -556,6 +557,8 @@ int32_t UserIdmService::DelCredential(int32_t userId, uint64_t credentialId,
         .userId = userId,
         .credentialId = credentialId,
         .tokenId = IpcCommon::GetAccessTokenId(*this),
+        .callerName = callerName,
+        .callerType = callerType,
         .token = authToken,
     };
     return StartDelete(deleteParam, contextCallback, extraInfo);
@@ -622,7 +625,7 @@ void UserIdmService::SetAuthTypeTrace(const std::vector<std::shared_ptr<Credenti
 }
 
 int32_t UserIdmService::EnforceDelUserInner(int32_t userId, std::shared_ptr<ContextCallback> callbackForTrace,
-    std::string changeReasonTrace)
+    std::string changeReasonTrace, const CredChangeEventInfo &changeInfo)
 {
     std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
     int32_t ret = UserIdmDatabase::Instance().DeleteUserEnforce(userId, credInfos);
@@ -640,7 +643,7 @@ int32_t UserIdmService::EnforceDelUserInner(int32_t userId, std::shared_ptr<Cont
 
     PublishEventAdapter::GetInstance().PublishDeletedEvent(userId);
     PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, PIN, 0);
-    CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(userId, PIN, ENFORCE_DEL_USER, 0);
+    CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(userId, PIN, ENFORCE_DEL_USER, changeInfo);
     IAM_LOGI("delete user success, userId:%{public}d", userId);
     return SUCCESS;
 }
@@ -679,7 +682,8 @@ int32_t UserIdmService::ClearRedundancyCredentialInner(const std::string &caller
         callbackForTrace->SetTraceCallerType(callerType);
         std::vector<int32_t>::iterator it = std::find(accountInfo.begin(), accountInfo.end(), userId);
         if (it == accountInfo.end()) {
-            ret = EnforceDelUserInner(userId, callbackForTrace, "DeleteRedundancy");
+            CredChangeEventInfo changeInfo = {callerName, callerType, 0, 0, false};
+            ret = EnforceDelUserInner(userId, callbackForTrace, "DeleteRedundancy", changeInfo);
             Attributes extraInfo;
             callbackForTrace->OnResult(ret, extraInfo);
             IAM_LOGE("ClearRedundancytCredential, userId: %{public}d", userId);

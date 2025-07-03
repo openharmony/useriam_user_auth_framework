@@ -33,6 +33,8 @@ public:
         int32_t userId {0};
         uint64_t credentialId {0};
         uint32_t tokenId {0};
+        std::string callerName;
+        int32_t callerType {-1};
         std::vector<uint8_t> token;
     };
 

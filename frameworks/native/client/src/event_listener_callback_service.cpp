@@ -175,10 +175,15 @@ int32_t EventListenerCallbackManager::EventListenerCallbackImpl::OnNotifyAuthSuc
 }
 
 int32_t EventListenerCallbackManager::EventListenerCallbackImpl::OnNotifyCredChangeEvent(int32_t userId,
-    int32_t authType, int32_t eventType, uint64_t credentialId)
+    int32_t authType, int32_t eventType, const IpcCredChangeEventInfo &changeInfo)
 {
     IAM_LOGI("OnNotifyCredChangeEvent, userId:%{public}d, authType:%{public}d, eventType:%{public}d,"
-        "credentialId:%{public}u", userId, authType, eventType, static_cast<uint16_t>(credentialId));
+        "callerName:%{public}s, credId:%{public}u, lastCredId:%{public}u, isSilentCredChange:%{public}u",
+        userId, authType, eventType, changeInfo.callerName.c_str(), static_cast<uint16_t>(changeInfo.credentialId),
+        static_cast<uint16_t>(changeInfo.lastCredentialId), changeInfo.isSilentCredChange);
+    CredChangeEventInfo info = {changeInfo.callerName, changeInfo.callerType, changeInfo.credentialId,
+        changeInfo.lastCredentialId, changeInfo.isSilentCredChange};
+
     auto eventListenerSet =
         EventListenerCallbackManager::GetInstance().GetCredEventListenerSet(static_cast<AuthType>(authType));
     for (const auto &listener : eventListenerSet) {
@@ -187,7 +192,7 @@ int32_t EventListenerCallbackManager::EventListenerCallbackImpl::OnNotifyCredCha
             continue;
         }
         listener->OnNotifyCredChangeEvent(userId, static_cast<AuthType>(authType),
-            static_cast<CredChangeEventType>(eventType), credentialId);
+            static_cast<CredChangeEventType>(eventType), info);
     }
     return SUCCESS;
 }
