@@ -36,7 +36,9 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
-    const std::string AUTH_EVENT_RESULT = "result";
+    const char *AUTH_EVENT_RESULT = "result";
+    const char *AUTH_EVENT_AUTH_TIP = "authTip";
+    const char *PROPERTY_NAME_ON_RESULT = "onResult";
 }
 
 UserAuthInstanceV10::UserAuthInstanceV10(napi_env env) : callback_(Common::MakeShared<UserAuthCallbackV10>(env))
@@ -46,6 +48,7 @@ UserAuthInstanceV10::UserAuthInstanceV10(napi_env env) : callback_(Common::MakeS
     }
     authParam_.authTrustLevel = AuthTrustLevel::ATL1;
     authParam_.userId = INVALID_USER_ID;
+    authParam_.skipLockedBiometricAuth = false;
     widgetParam_.navigationButtonText = "";
     widgetParam_.title = "";
     widgetParam_.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
@@ -86,7 +89,7 @@ UserAuthResultCode UserAuthInstanceV10::Init(napi_env env, napi_callback_info in
     return UserAuthResultCode::SUCCESS;
 }
 
-std::shared_ptr<JsRefHolder> UserAuthInstanceV10::GetCallback(napi_env env, napi_value value)
+std::shared_ptr<JsRefHolder> UserAuthInstanceV10::GetCallback(napi_env env, napi_value value, const char* propertyName)
 {
     napi_status ret = UserAuthNapiHelper::CheckNapiType(env, value, napi_object);
     if (ret != napi_ok) {
@@ -94,12 +97,80 @@ std::shared_ptr<JsRefHolder> UserAuthInstanceV10::GetCallback(napi_env env, napi
         return nullptr;
     }
     napi_value callbackValue;
-    ret = napi_get_named_property(env, value, "onResult", &callbackValue);
+    ret = napi_get_named_property(env, value, propertyName, &callbackValue);
     if (ret != napi_ok) {
         IAM_LOGE("napi_get_named_property fail:%{public}d", ret);
         return nullptr;
     }
     return Common::MakeShared<JsRefHolder>(env, callbackValue);
+}
+
+UserAuthResultCode UserAuthInstanceV10::SetResultCallback(napi_env env, napi_value value)
+{
+    IAM_LOGI("start");
+    std::lock_guard<std::mutex> guard(mutex_);
+    auto callbackRef = GetCallback(env, value, PROPERTY_NAME_ON_RESULT);
+    if (callbackRef == nullptr || !callbackRef->IsValid()) {
+        IAM_LOGE("getAuthInstance on GetCallback fail");
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
+    }
+    if (callback_->HasResultCallback()) {
+        IAM_LOGE("callback has been registerred");
+        return UserAuthResultCode::GENERAL_ERROR;
+    }
+    callback_->SetResultCallback(callbackRef);
+    IAM_LOGI("SetResultCallback success");
+    return UserAuthResultCode::SUCCESS;
+}
+
+UserAuthResultCode UserAuthInstanceV10::ClearResultCallback(napi_env env, size_t argc, napi_value *value)
+{
+    IAM_LOGI("start");
+    std::lock_guard<std::mutex> guard(mutex_);
+    if (argc == ARGS_TWO) {
+        auto callbackRef = GetCallback(env, value[PARAM1], PROPERTY_NAME_ON_RESULT);
+        if (callbackRef == nullptr || !callbackRef->IsValid()) {
+            IAM_LOGE("GetCallback fail");
+            return UserAuthResultCode::OHOS_INVALID_PARAM;
+        }
+    }
+    if (!callback_->HasResultCallback()) {
+        IAM_LOGE("no callback registerred yet");
+        return UserAuthResultCode::GENERAL_ERROR;
+    }
+    callback_->ClearResultCallback();
+    return UserAuthResultCode::SUCCESS;
+}
+
+UserAuthResultCode UserAuthInstanceV10::SetTipCallback(napi_env env, napi_value value)
+{
+    IAM_LOGI("start");
+    std::lock_guard<std::mutex> guard(mutex_);
+    if (callback_->HasTipCallback()) {
+        IAM_LOGE("callback has been registerred");
+        return UserAuthResultCode::GENERAL_ERROR;
+    }
+    auto callbackRef = Common::MakeShared<JsRefHolder>(env, value);
+    if (callbackRef == nullptr || !callbackRef->IsValid()) {
+        IAM_LOGE("malloc tip callback fail");
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
+    }
+    callback_->SetTipCallback(Common::MakeShared<JsRefHolder>(env, value));
+    IAM_LOGI("SetTipCallback success");
+    return UserAuthResultCode::SUCCESS;
+}
+
+UserAuthResultCode UserAuthInstanceV10::ClearTipCallback(napi_env env, size_t argc, napi_value *value)
+{
+    IAM_LOGI("start");
+    std::lock_guard<std::mutex> guard(mutex_);
+    if (!callback_->HasTipCallback()) {
+        IAM_LOGE("no callback registerred yet");
+        return UserAuthResultCode::GENERAL_ERROR;
+    }
+    callback_->ClearTipCallback();
+    IAM_LOGI("UserAuthResultCode off clear tip callback");
+    return UserAuthResultCode::SUCCESS;
 }
 
 UserAuthResultCode UserAuthInstanceV10::On(napi_env env, napi_callback_info info)
@@ -129,20 +200,10 @@ UserAuthResultCode UserAuthInstanceV10::On(napi_env env, napi_callback_info info
         std::string msgStr = "Parameter error. The type of \"type\" must be string.";
         return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
-    auto callbackRef = GetCallback(env, argv[PARAM1]);
-    if (callbackRef == nullptr || !callbackRef->IsValid()) {
-        IAM_LOGE("getAuthInstance on GetCallback fail");
-        std::string msgStr = "Parameter error. The type of \"callback\" must be IAuthCallback.";
-        return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
-    }
-    if (str == AUTH_EVENT_RESULT) {
-        IAM_LOGI("getAuthInstance on SetResultCallback");
-        if (callback_->HasResultCallback()) {
-            IAM_LOGE("callback has been registerred");
-            return UserAuthResultCode::GENERAL_ERROR;
-        }
-        callback_->SetResultCallback(callbackRef);
-        return UserAuthResultCode::SUCCESS;
+    if (strcmp(str, AUTH_EVENT_RESULT) == 0) {
+        return SetResultCallback(env, argv[PARAM1]);
+    } else if (strcmp(str, AUTH_EVENT_AUTH_TIP) == 0) {
+        return SetTipCallback(env, argv[PARAM1]);
     } else {
         IAM_LOGE("getAuthInstance on invalid event:%{public}s", str);
         std::string msgStr = "Parameter error. The value of \"type\" must be \"result\".";
@@ -178,23 +239,10 @@ UserAuthResultCode UserAuthInstanceV10::Off(napi_env env, napi_callback_info inf
         return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
 
-    if (argc == ARGS_TWO) {
-        auto callbackRef = GetCallback(env, argv[PARAM1]);
-        if (callbackRef == nullptr || !callbackRef->IsValid()) {
-            IAM_LOGE("GetCallback fail");
-            std::string msgStr = "Parameter error. The type of \"callback\" must be IAuthCallback.";
-            return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
-        }
-    }
-
-    if (str == AUTH_EVENT_RESULT) {
-        if (!callback_->HasResultCallback()) {
-            IAM_LOGE("no callback registerred yet");
-            return UserAuthResultCode::GENERAL_ERROR;
-        }
-        callback_->ClearResultCallback();
-        IAM_LOGI("UserAuthResultCode off clear result callback");
-        return UserAuthResultCode::SUCCESS;
+    if (strcmp(str, AUTH_EVENT_RESULT) == 0) {
+        return ClearResultCallback(env, argc, argv);
+    } else if (strcmp(str, AUTH_EVENT_AUTH_TIP) == 0) {
+        return ClearTipCallback(env, argc, argv);
     } else {
         IAM_LOGE("invalid event:%{public}s", str);
         std::string msgStr = "Parameter error. The value of \"type\" must be \"result\".";

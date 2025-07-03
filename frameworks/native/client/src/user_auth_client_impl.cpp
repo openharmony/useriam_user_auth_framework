@@ -801,6 +801,7 @@ void UserAuthClientImpl::InitIpcAuthParam(const AuthParamInner &authParam,
     });
     ipcAuthParamInner.authTrustLevel = static_cast<uint32_t>(authParam.authTrustLevel);
     ipcAuthParamInner.authIntent = static_cast<int32_t>(authParam.authIntent);
+    ipcAuthParamInner.skipLockedBiometricAuth = authParam.skipLockedBiometricAuth;
     ipcAuthParamInner.reuseUnlockResult.isReuse = authParam.reuseUnlockResult.isReuse;
     ipcAuthParamInner.reuseUnlockResult.reuseMode = authParam.reuseUnlockResult.reuseMode;
     ipcAuthParamInner.reuseUnlockResult.reuseDuration = authParam.reuseUnlockResult.reuseDuration;

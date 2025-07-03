@@ -36,6 +36,7 @@
 #include "service_init_manager.h"
 #include "soft_bus_manager.h"
 #include "widget_client.h"
+#include "auth_widget_helper.h"
 #include "remote_msg_util.h"
 #include "remote_iam_callback.h"
 #include "remote_auth_service.h"
@@ -671,6 +672,7 @@ int32_t UserAuthService::AuthUser(const IpcAuthParamInner &ipcAuthParamInner,
     para.endAfterFirstFail = false;
     para.sdkVersion = INNER_API_VERSION_10000;
     para.authIntent = authParam.authIntent;
+    para.skipLockedBiometricAuth = authParam.skipLockedBiometricAuth;
     para.isOsAccountVerified = IpcCommon::IsOsAccountVerified(authParam.userId);
     return StartAuthUser(authParam, remoteAuthParam, para, contextCallback, contextId);
 }
@@ -1135,6 +1137,41 @@ uint64_t UserAuthService::StartWidgetContext(const std::shared_ptr<ContextCallba
     return context->GetContextId();
 }
 
+int32_t UserAuthService::CheckSkipLockedBiometricAuth(int32_t userId, const AuthParamInner &authParam,
+    const WidgetParamInner &widgetParam, std::vector<AuthType> &validType)
+{
+    if (!authParam.skipLockedBiometricAuth) {
+        if (validType.empty()) {
+            IAM_LOGE("validType size is 0");
+            return TYPE_NOT_SUPPORT;
+        }
+        return SUCCESS;
+    }
+
+    std::vector<AuthType> authTypeList;
+    for (auto &type : validType) {
+        ContextFactory::AuthProfile profile = {};
+        if (!AuthWidgetHelper::GetUserAuthProfile(userId, type, profile)) {
+            IAM_LOGE("get user auth profile failed");
+            continue;
+        }
+        if (profile.remainTimes != 0 || type == PIN) {
+            authTypeList.push_back(type);
+        }
+    }
+
+    if (authTypeList.empty()) {
+        if (!widgetParam.navigationButtonText.empty()) {
+            IAM_LOGE("authTypeList is null, return cancel from widget");
+            return CANCELED_FROM_WIDGET;
+        }
+        IAM_LOGE("authTypeList is null, return lock");
+        return LOCKED;
+    }
+    validType = std::move(authTypeList);
+    return SUCCESS;
+}
+
 int32_t UserAuthService::CheckValidSolution(int32_t userId, const AuthParamInner &authParam,
     const WidgetParamInner &widgetParam, std::vector<AuthType> &validType)
 {
@@ -1162,11 +1199,7 @@ int32_t UserAuthService::CheckValidSolution(int32_t userId, const AuthParamInner
             return authType != AuthType::PIN && authType != AuthType::PRIVATE_PIN;
             }), validType.end());
     }
-    if (validType.empty()) {
-        IAM_LOGE("validType size is 0");
-        return TYPE_NOT_SUPPORT;
-    }
-    return SUCCESS;
+    return CheckSkipLockedBiometricAuth(userId, authParam, widgetParam, validType);
 }
 
 int32_t UserAuthService::GetCallerInfo(bool isUserIdSpecified, int32_t userId,
@@ -1706,6 +1739,7 @@ void UserAuthService::InitAuthParam(const IpcAuthParamInner &ipcAuthParam, AuthP
     });
     authParam.authTrustLevel = static_cast<AuthTrustLevel>(ipcAuthParam.authTrustLevel);
     authParam.authIntent = static_cast<AuthIntent>(ipcAuthParam.authIntent);
+    authParam.skipLockedBiometricAuth = ipcAuthParam.skipLockedBiometricAuth;
     authParam.reuseUnlockResult.isReuse = ipcAuthParam.reuseUnlockResult.isReuse;
     authParam.reuseUnlockResult.reuseMode = static_cast<ReuseMode>(ipcAuthParam.reuseUnlockResult.reuseMode);
     authParam.reuseUnlockResult.reuseDuration = ipcAuthParam.reuseUnlockResult.reuseDuration;

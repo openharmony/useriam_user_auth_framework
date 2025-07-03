@@ -126,7 +126,7 @@ void UserAuthCallbackV8::OnAcquireInfo(int32_t module, uint32_t acquireInfo,
     const UserIam::UserAuth::Attributes &extraInfo)
 {
     IAM_LOGI("start module:%{public}d acquireInfo:%{public}u", module, acquireInfo);
-    uv_loop_s *loop;
+    uv_loop_s *loop = nullptr;
     napi_status napiStatus = napi_get_uv_event_loop(env_, &loop);
     if (napiStatus != napi_ok || loop == nullptr) {
         IAM_LOGE("napi_get_uv_event_loop fail");
@@ -192,7 +192,7 @@ void OnResultV8Work(std::shared_ptr<ResultCallbackV8Holder> resultHolder)
 void UserAuthCallbackV8::OnResult(int32_t result, const Attributes &extraInfo)
 {
     IAM_LOGI("start, result:%{public}d", UserAuthNapiHelper::GetResultCodeV8(result));
-    uv_loop_s *loop;
+    uv_loop_s *loop = nullptr;
     napi_status napiStatus = napi_get_uv_event_loop(env_, &loop);
     if (napiStatus != napi_ok || loop == nullptr) {
         IAM_LOGE("napi_get_uv_event_loop fail");

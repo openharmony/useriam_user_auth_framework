@@ -58,6 +58,8 @@ std::shared_ptr<FiniteStateMachine> WidgetScheduleNodeImpl::MakeFiniteStateMachi
         [this](FiniteStateMachine &machine, uint32_t event) { OnNaviPinAuth(machine, event); });
     builder->MakeTransition(S_WIDGET_AUTH_RUNNING, E_COMPLETE_AUTH, S_WIDGET_AUTH_FINISHED,
         [this](FiniteStateMachine &machine, uint32_t event) { OnSuccessAuth(machine, event); });
+    builder->MakeTransition(S_WIDGET_AUTH_RUNNING, E_STOP_AUTH, S_WIDGET_AUTH_FINISHED,
+        [this](FiniteStateMachine &machine, uint32_t event) { OnFailAuth(machine, event); });
     builder->MakeTransition(S_WIDGET_AUTH_RUNNING, E_CANCEL_AUTH, S_WIDGET_AUTH_FINISHED,
         [this](FiniteStateMachine &machine, uint32_t event) { OnStopSchedule(machine, event); });
     builder->MakeTransition(S_WIDGET_AUTH_RUNNING, E_NAVI_PIN_AUTH, S_WIDGET_AUTH_FINISHED,
@@ -138,6 +140,14 @@ bool WidgetScheduleNodeImpl::SuccessAuth(AuthType authType)
     return TryKickMachine(E_COMPLETE_AUTH);
 }
 
+bool WidgetScheduleNodeImpl::FailAuth(AuthType authType)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    failAuthType_ = authType;
+    IAM_LOGI("fail %{public}d.", E_STOP_AUTH);
+    return TryKickMachine(E_STOP_AUTH);
+}
+
 bool WidgetScheduleNodeImpl::NaviPinAuth()
 {
     std::lock_guard<std::mutex> lock(mutex_);
@@ -215,6 +225,14 @@ void WidgetScheduleNodeImpl::OnSuccessAuth(FiniteStateMachine &machine, uint32_t
     callback->SuccessAuth(successAuthType_);
 }
 
+void WidgetScheduleNodeImpl::OnFailAuth(FiniteStateMachine &machine, uint32_t event)
+{
+    auto callback = callback_.lock();
+    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+    runningAuthTypeSet_.erase(successAuthType_);
+    callback->FailAuth(failAuthType_);
+}
+
 void WidgetScheduleNodeImpl::OnNaviPinAuth(FiniteStateMachine &machine, uint32_t event)
 {
     auto callback = callback_.lock();
@@ -249,6 +267,24 @@ void WidgetScheduleNodeImpl::OnWidgetReload(FiniteStateMachine &machine, uint32_
         IAM_LOGE("Failed to reload widget, cancel Auth");
         StopSchedule();
     }
+}
+
+void WidgetScheduleNodeImpl::SendAuthTipInfo(const std::vector<AuthType> &authTypeList, int32_t tipCode)
+{
+    auto callback = callback_.lock();
+    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+    IAM_LOGI("send mid auth result");
+    for (auto &authType : authTypeList) {
+        callback->SendAuthTipInfo(authType, tipCode);
+    }
+}
+
+void WidgetScheduleNodeImpl::SendAuthResult()
+{
+    auto callback = callback_.lock();
+    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+    IAM_LOGI("send auth result");
+    callback->SendAuthResult();
 }
 } // namespace UserAuth
 } // namespace UserIam

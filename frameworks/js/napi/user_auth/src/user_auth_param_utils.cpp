@@ -41,6 +41,7 @@ namespace {
     const std::string AUTH_PARAM_AUTHTRUSTLEVEL = "authTrustLevel";
     const std::string AUTH_PARAM_REUSEUNLOCKRESULT = "reuseUnlockResult";
     const std::string AUTH_PARAM_USER_ID = "userId";
+    const std::string AUTH_PARAM_SKIP_LOCKED_BIOMETRIC_AUTH = "skipLockedBiometricAuth";
     const std::string WIDGET_PARAM_TITLE = "title";
     const std::string WIDGET_PARAM_NAVIBTNTEXT = "navigationButtonText";
     const std::string WIDGET_PARAM_WINDOWMODE = "windowMode";
@@ -270,6 +271,11 @@ UserAuthResultCode UserAuthParamUtils::InitAuthParam(napi_env env, napi_value va
         IAM_LOGE("ProcessAuthTrustLevelAndUserId fail:%{public}d", errorCode);
         return errorCode;
     }
+    errorCode = ProcessSkipLockedBiometricAuth(env, value, authParam);
+    if (errorCode != UserAuthResultCode::SUCCESS) {
+        IAM_LOGE("ProcessSkipLockedBiometricAuth fail:%{public}d", errorCode);
+        return errorCode;
+    }
     return UserAuthResultCode::SUCCESS;
 }
 
@@ -424,6 +430,23 @@ bool UserAuthParamUtils::CheckUIContext(const std::shared_ptr<AbilityRuntime::Co
         }
     }
     return true;
+}
+
+UserAuthResultCode UserAuthParamUtils::ProcessSkipLockedBiometricAuth(napi_env env, napi_value value,
+    AuthParamInner &authParam)
+{
+    if (UserAuthNapiHelper::HasNamedProperty(env, value, AUTH_PARAM_SKIP_LOCKED_BIOMETRIC_AUTH)) {
+        napi_value skipLockedBiometricAuth = UserAuthNapiHelper::GetNamedProperty(env, value,
+            AUTH_PARAM_SKIP_LOCKED_BIOMETRIC_AUTH);
+        napi_status ret = UserAuthNapiHelper::GetBoolValue(env, skipLockedBiometricAuth,
+            authParam.skipLockedBiometricAuth);
+        if (ret != napi_ok) {
+            IAM_LOGE("GetBoolValue fail:%{public}d", ret);
+            return UserAuthResultCode::OHOS_INVALID_PARAM;
+        }
+        IAM_LOGI("Init skipLockedBiometricAuth: %{public}d", authParam.skipLockedBiometricAuth);
+    }
+    return UserAuthResultCode::SUCCESS;
 }
 } // namespace UserAuth
 } // namespace UserIam

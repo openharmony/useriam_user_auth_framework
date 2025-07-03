@@ -116,6 +116,11 @@ void WidgetClient::ProcessNotice(const WidgetNotice &notice, std::vector<AuthTyp
         } else {
             schedule_->WidgetReload(notice.orientation, notice.needRotate, notice.alreadyLoad, authTypeList[0]);
         }
+    } else if (notice.event == EVENT_AUTH_WIDGET_LOADED) {
+        schedule_->SendAuthTipInfo(authTypeList, TIP_CODE_WIDGET_LOADED);
+    } else if (notice.event == EVENT_AUTH_WIDGET_RELEASED) {
+        schedule_->SendAuthTipInfo(authTypeList, TIP_CODE_WIDGET_RELEASED);
+        schedule_->SendAuthResult();
     }
 }
 
@@ -132,7 +137,7 @@ void WidgetClient::SendCommand(const WidgetCommand &command)
 }
 
 void WidgetClient::ReportWidgetResult(int32_t result, AuthType authType,
-    int32_t lockoutDuration, int32_t remainAttempts)
+    int32_t lockoutDuration, int32_t remainAttempts, bool skipLockedBiometricAuth)
 {
     WidgetCommand::ExtraInfo extraInfo {
         .callingBundleName = callingBundleName_,
@@ -156,7 +161,8 @@ void WidgetClient::ReportWidgetResult(int32_t result, AuthType authType,
         .title = widgetParam_.title,
         .windowModeType = WinModeType2Str(widgetParam_.windowMode),
         .navigationButtonText = widgetParam_.navigationButtonText,
-        .cmdList = { cmd }
+        .cmdList = { cmd },
+        .skipLockedBiometricAuth = skipLockedBiometricAuth
     };
     for (auto &type : authTypeList_) {
         widgetCmd.typeList.emplace_back(AuthType2Str(type));
@@ -167,7 +173,8 @@ void WidgetClient::ReportWidgetResult(int32_t result, AuthType authType,
     SendCommand(widgetCmd);
 }
 
-void WidgetClient::ReportWidgetTip(int32_t tipType, AuthType authType, std::vector<uint8_t> tipInfo)
+void WidgetClient::ReportWidgetTip(int32_t tipType, AuthType authType, std::vector<uint8_t> tipInfo,
+    bool skipLockedBiometricAuth)
 {
     // sendCommand of CMD_NOTIFY_AUTH_TIP
     WidgetCommand::Cmd cmd {
@@ -179,7 +186,8 @@ void WidgetClient::ReportWidgetTip(int32_t tipType, AuthType authType, std::vect
     };
     WidgetCommand widgetCmd {
         .widgetContextId = widgetContextId_,
-        .cmdList = { cmd }
+        .cmdList = { cmd },
+        .skipLockedBiometricAuth = skipLockedBiometricAuth
     };
     SendCommand(widgetCmd);
 }
@@ -310,7 +318,9 @@ bool WidgetClient::IsValidNoticeType(const WidgetNotice &notice)
         notice.event != NOTICE_EVENT_USER_NAVIGATION &&
         notice.event != NOTICE_EVENT_WIDGET_PARA_INVALID &&
         notice.event != NOTICE_EVENT_RELOAD &&
-        notice.event != NOTICE_EVENT_END) {
+        notice.event != NOTICE_EVENT_END &&
+        notice.event != EVENT_AUTH_WIDGET_LOADED &&
+        notice.event != EVENT_AUTH_WIDGET_RELEASED) {
         return false;
     }
     return true;

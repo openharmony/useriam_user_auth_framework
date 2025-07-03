@@ -15,33 +15,34 @@
 #include "widget_context.h"
 
 #include <algorithm>
+#include "bool_wrapper.h"
+#include "double_wrapper.h"
+#include "int_wrapper.h"
+#include "refbase.h"
 
+#include "ability_connection.h"
+#include "ability_connect_callback.h"
 #include "accesstoken_kit.h"
 #include "auth_widget_helper.h"
 #include "context_helper.h"
 #include "context_pool.h"
 #include "context_death_recipient.h"
+#include "hisysevent_adapter.h"
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
 #include "iam_ptr.h"
 #include "iam_time.h"
+#include "parameters.h"
+#include "relative_timer.h"
 #include "schedule_node.h"
 #include "schedule_node_callback.h"
+#include "string_wrapper.h"
+#include "system_ability_definition.h"
+#include "want_params_wrapper.h"
 #include "widget_schedule_node_impl.h"
 #include "widget_context_callback_impl.h"
 #include "widget_client.h"
-#include "bool_wrapper.h"
-#include "double_wrapper.h"
-#include "int_wrapper.h"
-#include "string_wrapper.h"
-#include "want_params_wrapper.h"
-#include "ability_connection.h"
-#include "ability_connect_callback.h"
-#include "refbase.h"
-#include "hisysevent_adapter.h"
-#include "system_ability_definition.h"
-#include "parameters.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -60,6 +61,7 @@ const std::string TO_INVERTED = "180";
 const std::string TO_PORTRAIT_INVERTED = "270";
 const std::string SUPPORT_FOLLOW_CALLER_UI = "const.useriam.authWidget.supportFollowCallerUi";
 const std::string FIND_PROCESS_NAME = "findnetwork";
+static constexpr uint32_t RESULT_TIMER_LEN_MS = 100;
 
 WidgetContext::WidgetContext(uint64_t contextId, const ContextFactory::AuthWidgetContextPara &para,
     std::shared_ptr<ContextCallback> callback, const sptr<IModalCallback> &modalCallback)
@@ -195,6 +197,7 @@ std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &ch
     para.callerType = para_.callerType;
     para.sdkVersion = para_.sdkVersion;
     para.authIntent = authIntent;
+    para.skipLockedBiometricAuth = para_.skipLockedBiometricAuth;
     para.isOsAccountVerified = para_.isOsAccountVerified;
     auto context = ContextFactory::CreateSimpleAuthContext(para, widgetCallback, true);
     if (context == nullptr || !ContextPool::Instance().Insert(context)) {
@@ -256,26 +259,12 @@ void WidgetContext::AuthResult(int32_t resultCode, int32_t authType, const Attri
         IAM_LOGI("get freezingTime failed.");
     }
     AuthType authTypeTmp = static_cast<AuthType>(authType);
-    WidgetClient::Instance().ReportWidgetResult(resultCode, authTypeTmp, freezingTime, remainTimes);
-    IF_FALSE_LOGE_AND_RETURN(schedule_ != nullptr);
+    WidgetClient::Instance().ReportWidgetResult(resultCode, authTypeTmp, freezingTime, remainTimes,
+        para_.skipLockedBiometricAuth);
     IF_FALSE_LOGE_AND_RETURN(callerCallback_ != nullptr);
     callerCallback_->SetTraceAuthType(authTypeTmp);
     IAM_LOGD("call schedule:");
-    if (resultCode == ResultCode::SUCCESS || resultCode == ResultCode::COMPLEXITY_CHECK_FAILED) {
-        finalResult.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authResultInfo_.token);
-        finalResult.GetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, authResultInfo_.credentialDigest);
-        finalResult.GetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, authResultInfo_.credentialCount);
-        authResultInfo_.authType = authTypeTmp;
-        IAM_LOGD("widget token size: %{public}zu.", authResultInfo_.token.size());
-        if (resultCode != ResultCode::SUCCESS) {
-            SetLatestError(resultCode);
-        }
-        schedule_->SuccessAuth(authTypeTmp);
-    } else {
-        // failed
-        SetLatestError(resultCode);
-        schedule_->StopAuthList({authTypeTmp});
-    }
+    ProcAuthResult(resultCode, authTypeTmp, freezingTime, finalResult);
 }
 
 void WidgetContext::AuthTipInfo(int32_t tipType, int32_t authType, const Attributes &extraInfo)
@@ -285,7 +274,9 @@ void WidgetContext::AuthTipInfo(int32_t tipType, int32_t authType, const Attribu
     std::vector<uint8_t> tipInfo;
     bool getTipInfoRet = extraInfo.GetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, tipInfo);
     IF_FALSE_LOGE_AND_RETURN(getTipInfoRet);
-    WidgetClient::Instance().ReportWidgetTip(tipType, static_cast<AuthType>(authType), tipInfo);
+    WidgetClient::Instance().ReportWidgetTip(tipType, static_cast<AuthType>(authType), tipInfo,
+        para_.skipLockedBiometricAuth);
+    ProcAuthTipInfo(tipType, static_cast<AuthType>(authType), tipInfo);
 }
 
 // WidgetScheduleNodeCallback
@@ -317,7 +308,8 @@ void WidgetContext::ExecuteAuthList(const std::set<AuthType> &authTypeList, bool
         if (!task->Start()) {
             IAM_LOGE("BeginAuthentication failed");
             static const int32_t INVALID_VAL = -1;
-            WidgetClient::Instance().ReportWidgetResult(task->GetLatestError(), authType, INVALID_VAL, INVALID_VAL);
+            WidgetClient::Instance().ReportWidgetResult(task->GetLatestError(), authType, INVALID_VAL, INVALID_VAL,
+                para_.skipLockedBiometricAuth);
             return;
         }
         if (authType == FACE) {
@@ -440,6 +432,13 @@ void WidgetContext::SuccessAuth(AuthType authType)
     End(ResultCode::SUCCESS);
 }
 
+void WidgetContext::FailAuth(AuthType authType)
+{
+    IAM_LOGI("fail auth. authType:%{public}d", static_cast<int32_t>(authType));
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    End(ResultCode::LOCKED);
+}
+
 int32_t WidgetContext::ConnectExtensionAbility(const AAFwk::Want &want, const std::string commandStr)
 {
     IAM_LOGD("ConnectExtensionAbility start");
@@ -498,6 +497,14 @@ bool WidgetContext::ConnectExtension(const WidgetRotatePara &widgetRotatePara)
             para_.authProfileMap[authType] = profile;
         }
     }
+
+    if (IsSingleFaceOrFingerPrintAuth() && para_.skipLockedBiometricAuth &&
+        para_.authProfileMap[para_.authTypeList[0]].remainTimes == 0) {
+        Attributes attr;
+        callerCallback_->OnResult(ResultCode::LOCKED, attr);
+        return true;
+    }
+
     std::string commandData = BuildStartCommand(widgetRotatePara);
     IAM_LOGI("start command: %{public}s", commandData.c_str());
 
@@ -667,6 +674,7 @@ std::string WidgetContext::BuildStartCommand(const WidgetRotatePara &widgetRotat
     widgetCmdParameters.useriamCmdData.typeList = typeList;
     widgetCmdParameters.useriamCmdData.callingAppID = para_.callingAppID;
     widgetCmdParameters.useriamCmdData.userId = para_.userId;
+    widgetCmdParameters.useriamCmdData.skipLockedBiometricAuth = para_.skipLockedBiometricAuth;
     ProcessRotatePara(widgetCmdParameters, widgetRotatePara);
     nlohmann::json root = widgetCmdParameters;
     std::string cmdData = root.dump();
@@ -704,6 +712,212 @@ std::string WidgetContext::GetCallingBundleName()
         return para_.callerName;
     }
     return "";
+}
+
+bool WidgetContext::IsSingleFaceOrFingerPrintAuth()
+{
+    if (!para_.widgetParam.navigationButtonText.empty()) {
+        return false;
+    }
+    if (para_.authTypeList.size() == 1 && (para_.authTypeList[0] == FACE || para_.authTypeList[0] == FINGERPRINT)) {
+        return true;
+    }
+    return false;
+}
+
+bool WidgetContext::IsNavigationAuth()
+{
+    if (para_.widgetParam.navigationButtonText.empty()) {
+        return false;
+    }
+    return true;
+}
+
+void WidgetContext::SendAuthTipInfo(int32_t authType, int32_t tipCode)
+{
+    IAM_LOGI("authType:%{public}d, tipCode:%{public}d", authType, tipCode);
+    Attributes attr;
+    bool setTipInfoRet = attr.SetInt32Value(Attributes::ATTR_TIP_INFO, tipCode);
+    if (!setTipInfoRet) {
+        IAM_LOGE("set tipInfo fail");
+        return;
+    }
+
+    IF_FALSE_LOGE_AND_RETURN(callerCallback_ != nullptr);
+    callerCallback_->OnAcquireInfo(ALL_IN_ONE, authType, attr.Serialize());
+}
+
+UserAuthTipCode WidgetContext::CaclAuthTipCode(int32_t authResult, int32_t freezingTime)
+{
+    UserAuthTipCode tipCode = TIP_CODE_FAIL;
+    if (authResult == ResultCode::TIMEOUT) {
+        tipCode = TIP_CODE_TIMEOUT;
+    } else if (freezingTime == INT32_MAX) {
+        tipCode = TIP_CODE_PERMANENTLY_LOCKED;
+    } else if (freezingTime > 0) {
+        tipCode = TIP_CODE_TEMPORARILY_LOCKED;
+    } else {
+        tipCode = TIP_CODE_FAIL;
+    }
+    return tipCode;
+}
+
+void WidgetContext::ProcAuthResult(int32_t resultCode, AuthType authType, int32_t freezingTime,
+    const Attributes &finalResult)
+{
+    IAM_LOGI("recv task result: %{public}d, authType: %{public}d", resultCode, authType);
+    if (resultCode == ResultCode::SUCCESS || resultCode == ResultCode::COMPLEXITY_CHECK_FAILED) {
+        finalResult.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authResultInfo_.token);
+        finalResult.GetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, authResultInfo_.credentialDigest);
+        finalResult.GetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, authResultInfo_.credentialCount);
+        authResultInfo_.authType = authType;
+        IAM_LOGD("widget token size: %{public}zu.", authResultInfo_.token.size());
+        if (resultCode != ResultCode::SUCCESS) {
+            SetLatestError(resultCode);
+        }
+    } else {
+        SetLatestError(resultCode);
+        SendAuthTipInfo(authType, CaclAuthTipCode(resultCode, freezingTime));
+    }
+    StartOnResultTimer(resultCode, authType, freezingTime);
+}
+
+void WidgetContext::ProcAuthTipInfo(int32_t tip, AuthType authType, const std::vector<uint8_t> &extraInfo)
+{
+    IAM_LOGI("authType:%{public}d, tip:%{public}d", authType, tip);
+    IF_FALSE_LOGE_AND_RETURN(callerCallback_ != nullptr);
+    int32_t resultCode = ResultCode::GENERAL_ERROR;
+    int32_t freezingTime = -1;
+    int32_t ret = callerCallback_->ParseAuthTipInfo(tip, extraInfo, resultCode, freezingTime);
+    if (ret != ResultCode::SUCCESS) {
+        IAM_LOGE("ParseAuthTipInfo fail");
+        return;
+    }
+    if (resultCode == ResultCode::SUCCESS) {
+        return;
+    }
+    SendAuthTipInfo(authType, CaclAuthTipCode(resultCode, freezingTime));
+    StartOnTipTimer(authType, freezingTime);
+}
+
+void WidgetContext::StartOnResultTimer(int32_t resultCode, AuthType authType, int32_t freezingTime)
+{
+    IAM_LOGI("start");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    resultInfo_.resultCode = resultCode;
+    resultInfo_.authType = authType;
+    resultInfo_.freezingTime = freezingTime;
+    if (onResultTimerId_ != 0) {
+        IAM_LOGI("onResult timer is already start");
+        return;
+    }
+
+    onResultTimerId_ = RelativeTimer::GetInstance().Register(
+        [weakSelf = weak_from_this(), resultCode, authType, freezingTime] {
+            auto self = weakSelf.lock();
+            if (self == nullptr) {
+                IAM_LOGE("context is released");
+                return;
+            }
+            self->OnResultTimerTimeOut(resultCode, authType, freezingTime);
+        },
+        RESULT_TIMER_LEN_MS);
+}
+
+void WidgetContext::StopOnResultTimer()
+{
+    IAM_LOGI("start");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (onResultTimerId_ == 0) {
+        IAM_LOGI("onResult timer is already stop");
+        return;
+    }
+
+    RelativeTimer::GetInstance().Unregister(onResultTimerId_);
+    onResultTimerId_ = 0;
+}
+
+void WidgetContext::OnResultTimerTimeOut(int32_t resultCode, AuthType authType, int32_t freezingTime)
+{
+    IAM_LOGI("start");
+    IF_FALSE_LOGE_AND_RETURN(schedule_ != nullptr);
+    if (resultCode == ResultCode::SUCCESS || resultCode == ResultCode::COMPLEXITY_CHECK_FAILED) {
+        schedule_->SuccessAuth(authType);
+    } else {
+        if (para_.skipLockedBiometricAuth && freezingTime > 0) {
+            if (IsSingleFaceOrFingerPrintAuth()) {
+                schedule_->FailAuth(authType);
+            } else if (IsNavigationAuth()) {
+                schedule_->NaviPinAuth();
+            }
+        } else {
+            schedule_->StopAuthList({authType});
+        }
+    }
+}
+
+void WidgetContext::StartOnTipTimer(AuthType authType, int32_t freezingTime)
+{
+    IAM_LOGI("start");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    resultInfo_.resultCode = FAIL;
+    resultInfo_.authType = authType;
+    resultInfo_.freezingTime = freezingTime;
+    if (onTipTimerId_ != 0) {
+        IAM_LOGI("onTip timer is already start");
+        return;
+    }
+
+    onTipTimerId_ = RelativeTimer::GetInstance().Register(
+        [weakSelf = weak_from_this(), authType, freezingTime] {
+            auto self = weakSelf.lock();
+            if (self == nullptr) {
+                IAM_LOGE("context is released");
+                return;
+            }
+            self->OnTipTimerTimeOut(authType, freezingTime);
+        },
+        RESULT_TIMER_LEN_MS);
+}
+
+void WidgetContext::StopOnTipTimer()
+{
+    IAM_LOGI("start");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (onTipTimerId_ == 0) {
+        IAM_LOGI("onTip timer is already stop");
+        return;
+    }
+
+    RelativeTimer::GetInstance().Unregister(onTipTimerId_);
+    onTipTimerId_ = 0;
+}
+
+void WidgetContext::OnTipTimerTimeOut(AuthType authType, int32_t freezingTime)
+{
+    IAM_LOGI("start");
+    IF_FALSE_LOGE_AND_RETURN(schedule_ != nullptr);
+    if (para_.skipLockedBiometricAuth && freezingTime > 0) {
+        if (IsSingleFaceOrFingerPrintAuth()) {
+            schedule_->FailAuth(authType);
+        } else if (IsNavigationAuth()) {
+            schedule_->NaviPinAuth();
+        }
+    }
+}
+
+void WidgetContext::SendAuthResult()
+{
+    IAM_LOGI("start");
+    if (onTipTimerId_ != 0 && resultInfo_.resultCode != SUCCESS) {
+        OnTipTimerTimeOut(resultInfo_.authType, resultInfo_.freezingTime);
+        StopOnTipTimer();
+    }
+
+    if (onResultTimerId_ != 0) {
+        OnResultTimerTimeOut(resultInfo_.resultCode, resultInfo_.authType, resultInfo_.freezingTime);
+        StopOnResultTimer();
+    }
 }
 } // namespace UserAuth
 } // namespace UserIam

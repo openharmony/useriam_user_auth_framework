@@ -43,11 +43,14 @@ public:
         AuthIntent authIntent) override;
     bool StopAuthList(const std::vector<AuthType> &authTypeList) override;
     bool SuccessAuth(AuthType authType) override;
+    bool FailAuth(AuthType authType) override;
     bool NaviPinAuth() override;
     bool WidgetParaInvalid() override;
     bool WidgetReload(uint32_t orientation, uint32_t needRotate, uint32_t alreadyLoad,
         AuthType &rotateAuthType) override;
     void SetCallback(std::shared_ptr<WidgetScheduleNodeCallback> callback) override;
+    void SendAuthTipInfo(const std::vector<AuthType> &authTypeList, int32_t tipCode) override;
+    void SendAuthResult() override;
 
 protected:
     void OnStartSchedule(FiniteStateMachine &machine, uint32_t event);
@@ -59,6 +62,7 @@ protected:
     void OnWidgetParaInvalid(FiniteStateMachine &machine, uint32_t event);
     void OnWidgetReload(FiniteStateMachine &machine, uint32_t event);
     void OnWidgetReloadInit(FiniteStateMachine &machine, uint32_t event);
+    void OnFailAuth(FiniteStateMachine &machine, uint32_t event);
 
 private:
     std::shared_ptr<FiniteStateMachine> MakeFiniteStateMachine();
@@ -71,6 +75,7 @@ private:
     std::shared_ptr<IamHitraceHelper> iamHitraceHelper_ {nullptr};
     std::weak_ptr<WidgetScheduleNodeCallback> callback_;
     AuthType successAuthType_ {0};
+    AuthType failAuthType_ {0};
     std::vector<AuthType> startAuthTypeList_;
     bool endAfterFirstFail_ {false};
     std::vector<AuthType> stopAuthTypeList_;

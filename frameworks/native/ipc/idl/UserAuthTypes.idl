@@ -123,6 +123,8 @@ struct IpcAuthParamInner {
     IpcReuseUnlockResult reuseUnlockResult;
     /** Auth intention. */
     int authIntent;
+    /** Skip locked biometric authentication */
+    boolean skipLockedBiometricAuth;
 };
 
 /**

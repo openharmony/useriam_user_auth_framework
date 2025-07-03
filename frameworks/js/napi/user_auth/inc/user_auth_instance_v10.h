@@ -44,7 +44,11 @@ public:
     UserAuthResultCode Cancel(napi_env env, napi_callback_info info);
 
 private:
-    std::shared_ptr<JsRefHolder> GetCallback(napi_env env, napi_value value);
+    std::shared_ptr<JsRefHolder> GetCallback(napi_env env, napi_value value, const char* propertyName);
+    UserAuthResultCode SetResultCallback(napi_env env, napi_value value);
+    UserAuthResultCode SetTipCallback(napi_env env, napi_value value);
+    UserAuthResultCode ClearResultCallback(napi_env env, size_t argc, napi_value *value);
+    UserAuthResultCode ClearTipCallback(napi_env env, size_t argc, napi_value *value);
 
     AuthParamInner authParam_ = {};
     UserAuthNapiClientImpl::WidgetParamNapi widgetParam_ = {};
