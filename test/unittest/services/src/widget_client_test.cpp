@@ -351,14 +351,14 @@ HWTEST_F(WidgetClientTest, WidgetClientTestReportWidgetResult_0001, TestSize.Lev
 {
     WidgetClient::Instance().Reset();
     WidgetClient::Instance().SetSensorInfo("fake senor info");
-    WidgetClient::Instance().ReportWidgetResult(1, AuthType::FINGERPRINT, 1, 1);
+    WidgetClient::Instance().ReportWidgetResult(1, AuthType::FINGERPRINT, 1, 1, false);
     EXPECT_EQ(WidgetClient::Instance().GetAuthTokenId(), 0);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestReportWidgetResult_0002, TestSize.Level0)
 {
     WidgetClient::Instance().Reset();
-    WidgetClient::Instance().ReportWidgetResult(1, AuthType::FINGERPRINT, 1, 1);
+    WidgetClient::Instance().ReportWidgetResult(1, AuthType::FINGERPRINT, 1, 1, false);
     EXPECT_EQ(WidgetClient::Instance().GetAuthTokenId(), 0);
 }
 
@@ -366,7 +366,7 @@ HWTEST_F(WidgetClientTest, WidgetClientTestReportWidgetResult_0003, TestSize.Lev
 {
     WidgetClient::Instance().Reset();
     WidgetClient::Instance().SetSensorInfo("fake senor info");
-    WidgetClient::Instance().ReportWidgetResult(1, AuthType::PIN, 1, 1);
+    WidgetClient::Instance().ReportWidgetResult(1, AuthType::PIN, 1, 1, false);
     EXPECT_EQ(WidgetClient::Instance().GetAuthTokenId(), 0);
 }
 
@@ -377,7 +377,7 @@ HWTEST_F(WidgetClientTest, WidgetClientTestReportWidgetResult_0004, TestSize.Lev
     authTypeList.emplace_back(AuthType::PIN);
     WidgetClient::Instance().SetAuthTypeList(authTypeList);
     WidgetClient::Instance().SetPinSubType(PinSubType::PIN_NUMBER);
-    WidgetClient::Instance().ReportWidgetResult(1, AuthType::PIN, 1, 1);
+    WidgetClient::Instance().ReportWidgetResult(1, AuthType::PIN, 1, 1, false);
     EXPECT_EQ(WidgetClient::Instance().GetAuthTokenId(), 0);
 }
 
@@ -392,7 +392,7 @@ HWTEST_F(WidgetClientTest, WidgetClientTestReportWidgetResult_0005, TestSize.Lev
     EXPECT_NE(widgetCallback, nullptr);
     EXPECT_CALL(*widgetCallback, SendCommand);
     WidgetClient::Instance().SetWidgetCallback(widgetCallback);
-    WidgetClient::Instance().ReportWidgetResult(1, AuthType::PIN, 1, 1);
+    WidgetClient::Instance().ReportWidgetResult(1, AuthType::PIN, 1, 1, false);
     EXPECT_EQ(WidgetClient::Instance().GetAuthTokenId(), 0);
 }
 
@@ -488,6 +488,34 @@ HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_005, TestSize.Level0)
     WidgetClient::Instance().Reset();
     std::vector<AuthType> authTypeList;
     authTypeList.emplace_back(AuthType::ALL);
+    authTypeList.emplace_back(AuthType::PIN);
+    WidgetClient::Instance().SetAuthTypeList(authTypeList);
+    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    EXPECT_NO_THROW(WidgetClient::Instance().ProcessNotice(widgetNotice, authTypeList));
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_006, TestSize.Level0)
+{
+    WidgetNotice widgetNotice;
+    widgetNotice.widgetContextId = 1;
+    widgetNotice.event = EVENT_AUTH_WIDGET_LOADED;
+    widgetNotice.typeList.push_back("pin");
+    WidgetClient::Instance().Reset();
+    std::vector<AuthType> authTypeList;
+    authTypeList.emplace_back(AuthType::PIN);
+    WidgetClient::Instance().SetAuthTypeList(authTypeList);
+    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    EXPECT_NO_THROW(WidgetClient::Instance().ProcessNotice(widgetNotice, authTypeList));
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_007, TestSize.Level0)
+{
+    WidgetNotice widgetNotice;
+    widgetNotice.widgetContextId = 1;
+    widgetNotice.event = EVENT_AUTH_WIDGET_RELEASED;
+    widgetNotice.typeList.push_back("pin");
+    WidgetClient::Instance().Reset();
+    std::vector<AuthType> authTypeList;
     authTypeList.emplace_back(AuthType::PIN);
     WidgetClient::Instance().SetAuthTypeList(authTypeList);
     WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());

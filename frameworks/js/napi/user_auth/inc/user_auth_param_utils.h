@@ -49,6 +49,8 @@ public:
         UserAuthNapiClientImpl::WidgetParamNapi &widgetParam,
         std::shared_ptr<AbilityRuntime::Context> &abilityContext);
     static bool CheckUIContext(const std::shared_ptr<OHOS::AbilityRuntime::Context> context);
+    static UserAuthResultCode ProcessSkipLockedBiometricAuth(napi_env env, napi_value value,
+        AuthParamInner &authParam);
 };
 } // namespace UserAuth
 } // namespace UserIam

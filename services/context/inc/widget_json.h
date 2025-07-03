@@ -89,6 +89,7 @@ struct WidgetCommand {
     std::string callingProcessName {""};
     std::string widgetContextIdStr {""};
     int32_t userId {-1};
+    bool skipLockedBiometricAuth {false};
 };
 
 void to_json(nlohmann::json &jsonCommand, const WidgetCommand &command);

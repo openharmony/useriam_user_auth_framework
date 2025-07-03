@@ -39,6 +39,7 @@ public:
         int32_t callerType;
         int32_t authIntent;
         bool isOsAccountVerified;
+        bool skipLockedBiometricAuth;
     };
 
     struct AuthResultInfo {

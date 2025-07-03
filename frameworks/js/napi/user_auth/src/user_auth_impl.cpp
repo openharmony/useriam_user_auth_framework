@@ -362,9 +362,9 @@ UserAuthResultCode UserAuthImpl::ParseReusableAuthResultParam(napi_env env, napi
     }
     if (argc != ARGS_ONE) {
         IAM_LOGE("parms error");
-        std::string msgStr = "Parameter vefification failed. The number of parameters should be 1.";
-        napi_throw(env, UserAuthNapiHelper::GenerateErrorMsg(env, UserAuthResultCode::PARAM_VERIFIED_FAILED, msgStr));
-        return UserAuthResultCode::PARAM_VERIFIED_FAILED;
+        std::string msgStr = "Parameter error. The number of parameters should be 1.";
+        napi_throw(env, UserAuthNapiHelper::GenerateErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr));
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
     AuthParamInner authParamInner = {
         .userId = INVALID_USER_ID,

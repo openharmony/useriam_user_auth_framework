@@ -89,7 +89,7 @@ napi_status UserAuthWidgetCallback::DoCommandCallback(const std::string &cmdData
 void UserAuthWidgetCallback::SendCommand(const std::string &cmdData)
 {
     IAM_LOGD("start");
-    uv_loop_s *loop;
+    uv_loop_s *loop = nullptr;
     napi_status napiStatus = napi_get_uv_event_loop(env_, &loop);
     if (napiStatus != napi_ok || loop == nullptr) {
         IAM_LOGE("napi_get_uv_event_loop fail");

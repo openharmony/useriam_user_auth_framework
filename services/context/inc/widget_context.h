@@ -75,12 +75,16 @@ public:
     void EndAuthAsWidgetParaInvalid() override;
     void StopAuthList(const std::vector<AuthType> &authTypeList) override;
     void SuccessAuth(AuthType authType) override;
+    void FailAuth(AuthType authType) override;
     bool AuthWidgetReload(uint32_t orientation, uint32_t needRotate, uint32_t alreadyLoad,
         AuthType &rotateAuthType) override;
     void AuthWidgetReloadInit() override;
 
     void AuthResult(int32_t resultCode, int32_t authType, const Attributes &finalResult);
     void AuthTipInfo(int32_t tipInfo, int32_t authType, const Attributes &extraInfo);
+    void SendAuthResult() override;
+    void SendAuthTipInfo(int32_t authType, int32_t tipInfo) override;
+
 protected:
     virtual bool OnStart();
     virtual void OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr);
@@ -112,6 +116,18 @@ private:
     std::string GetCallingBundleName();
     bool IsSupportFollowCallerUi();
     void SetSysDialogZOrder(WidgetCmdParameters &widgetCmdParameters);
+    bool IsSingleFaceOrFingerPrintAuth();
+    bool IsNavigationAuth();
+    UserAuthTipCode CaclAuthTipCode(int32_t authResult, int32_t freezingTime);
+    void ProcAuthResult(int32_t resultCode, AuthType authType, int32_t freezingTime,
+        const Attributes &finalResult);
+    void ProcAuthTipInfo(int32_t tip, AuthType authType, const std::vector<uint8_t> &extraInfo);
+    void StartOnResultTimer(int32_t resultCode, AuthType authType, int32_t freezingTime);
+    void StopOnResultTimer();
+    void OnResultTimerTimeOut(int32_t resultCode, AuthType authType, int32_t freezingTime);
+    void StartOnTipTimer(AuthType authType, int32_t freezingTime);
+    void StopOnTipTimer();
+    void OnTipTimerTimeOut(AuthType authType, int32_t freezingTime);
 
 private:
     struct TaskInfo {
@@ -125,6 +141,12 @@ private:
         uint64_t credentialDigest;
         uint16_t credentialCount;
         int64_t pinExpiredInfo;
+    };
+
+    struct ResultInfo {
+        int32_t resultCode;
+        AuthType authType;
+        int32_t freezingTime;
     };
 
     uint64_t contextId_ {0};
@@ -142,6 +164,9 @@ private:
     WidgetAuthResultInfo authResultInfo_ {};
     int32_t faceReload_ {0};
     uint32_t widgetAlreadyLoad_ {0};
+    uint32_t onResultTimerId_ {0};
+    uint32_t onTipTimerId_ {0};
+    ResultInfo resultInfo_{0};
 };
 } // namespace UserAuth
 } // namespace UserIam

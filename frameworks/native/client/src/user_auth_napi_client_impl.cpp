@@ -101,6 +101,7 @@ uint64_t UserAuthNapiClientImpl::BeginWidgetAuth(int32_t apiVersion, const AuthP
         .authTypes = authParam.authTypes,
         .authTrustLevel = authParam.authTrustLevel,
         .reuseUnlockResult = authParam.reuseUnlockResult,
+        .skipLockedBiometricAuth = authParam.skipLockedBiometricAuth,
     };
     WidgetParamInner widgetParamInner = {
         .title = widgetParam.title,
@@ -186,6 +187,7 @@ void UserAuthNapiClientImpl::InitIpcAuthParam(const AuthParamInner &authParam,
     });
     ipcAuthParamInner.authTrustLevel = static_cast<int32_t>(authParam.authTrustLevel);
     ipcAuthParamInner.authIntent = static_cast<int32_t>(authParam.authIntent);
+    ipcAuthParamInner.skipLockedBiometricAuth = authParam.skipLockedBiometricAuth;
     ipcAuthParamInner.reuseUnlockResult.isReuse = authParam.reuseUnlockResult.isReuse;
     ipcAuthParamInner.reuseUnlockResult.reuseMode = authParam.reuseUnlockResult.reuseMode;
     ipcAuthParamInner.reuseUnlockResult.reuseDuration = authParam.reuseUnlockResult.reuseDuration;

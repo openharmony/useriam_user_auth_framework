@@ -178,7 +178,7 @@ UserAuthResultCode UserAuthWidgetMgr::Off(napi_env env, napi_callback_info info)
     }
 
     if (type == TYPE_COMMAND) {
-        IAM_LOGI("SetResultCallback");
+        IAM_LOGI("ClearResultCallback");
         if (!callback_->HasCommandCallback()) {
             IAM_LOGE("no command callback register yet");
             return UserAuthResultCode::GENERAL_ERROR;

@@ -39,6 +39,7 @@ public:
     static UserAuthResultCode ThrowErrorMsg(napi_env env, UserAuthResultCode errorCode, std::string errorMsg);
     static bool CheckReuseUnlockResult(ReuseUnlockResult reuseUnlockResult);
     static napi_status CheckNapiType(napi_env env, napi_value value, napi_valuetype type);
+    static napi_status GetBoolValue(napi_env env, napi_value value, bool &out);
     static napi_status GetInt32Value(napi_env env, napi_value value, int32_t &out);
     static napi_status GetUint32Value(napi_env env, napi_value value, uint32_t &out);
     static napi_status GetStrValue(napi_env env, napi_value value, char *out, size_t &len);

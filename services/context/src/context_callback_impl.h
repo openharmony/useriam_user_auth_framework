@@ -50,6 +50,8 @@ public:
     void SetTraceAuthFinishReason(const std::string &authFinishReason) override;
     void SetTraceIsBackgroundApplication(bool isBackgroundApplication) override;
     void SetCleaner(Context::ContextStopCallback callback) override;
+    int32_t ParseAuthTipInfo(int32_t tip, const std::vector<uint8_t> &extraInfo,
+        int32_t &authResult, int32_t &freezingTime) override;
     void ProcessAuthResult(int32_t tip, const std::vector<uint8_t> &extraInfo) override;
     sptr<IIamCallback> GetIamCallback() override;
     std::string GetCallerName() override;

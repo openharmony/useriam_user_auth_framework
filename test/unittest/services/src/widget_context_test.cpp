@@ -608,6 +608,115 @@ HWTEST_F(WidgetContextTest, WidgetContextTestOnResult, TestSize.Level0)
     int32_t resultCode = 2;
     widgetContext->OnResult(resultCode, scheduleResultAttr);
 }
+
+HWTEST_F(WidgetContextTest, WidgetContextTestIsSingleFaceOrFingerPrintAuth_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList.push_back(FACE);
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_TRUE(widgetContext->IsSingleFaceOrFingerPrintAuth());
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestIsSingleFaceOrFingerPrintAuth_002, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList.push_back(FINGERPRINT);
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_TRUE(widgetContext->IsSingleFaceOrFingerPrintAuth());
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestIsSingleFaceOrFingerPrintAuth_003, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList.push_back(FACE);
+    para.widgetParam.navigationButtonText = "111";
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_TRUE(!widgetContext->IsSingleFaceOrFingerPrintAuth());
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestIsSingleFaceOrFingerPrintAuth_004, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList.push_back(FACE);
+    para.authTypeList.push_back(FINGERPRINT);
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_TRUE(!widgetContext->IsSingleFaceOrFingerPrintAuth());
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestIsNavigationAuth_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList.push_back(FACE);
+    para.widgetParam.navigationButtonText = "111";
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_TRUE(widgetContext->IsNavigationAuth());
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestIsNavigationAuth_002, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList.push_back(FACE);
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_TRUE(!widgetContext->IsNavigationAuth());
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestSendAuthTipInfo, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    int32_t authType = FACE;
+    int32_t tipCode = TIP_CODE_FAIL;
+    EXPECT_NO_THROW(widgetContext->SendAuthTipInfo(authType, tipCode));
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestCaclAuthTipCode, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_EQ(widgetContext->CaclAuthTipCode(ResultCode::TIMEOUT, 0), TIP_CODE_TIMEOUT);
+    EXPECT_EQ(widgetContext->CaclAuthTipCode(ResultCode::FAIL, 1), TIP_CODE_TEMPORARILY_LOCKED);
+    EXPECT_EQ(widgetContext->CaclAuthTipCode(ResultCode::FAIL, INT32_MAX), TIP_CODE_PERMANENTLY_LOCKED);
+    EXPECT_EQ(widgetContext->CaclAuthTipCode(ResultCode::FAIL, -1), TIP_CODE_FAIL);
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestProcAuthResult, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    const Attributes attribute;
+    EXPECT_NO_THROW(widgetContext->ProcAuthResult(ResultCode::SUCCESS, PIN, 0, attribute));
+    EXPECT_NO_THROW(widgetContext->ProcAuthResult(ResultCode::COMPLEXITY_CHECK_FAILED, PIN, 0, attribute));
+    EXPECT_NO_THROW(widgetContext->ProcAuthResult(ResultCode::FAIL, PIN, 0, attribute));
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestProcAuthTipInfo, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    std::vector<uint8_t> extraInfo;
+    EXPECT_NO_THROW(widgetContext->ProcAuthTipInfo(USER_AUTH_TIP_SINGLE_AUTH_RESULT, PIN, extraInfo));
+    EXPECT_NO_THROW(widgetContext->ProcAuthTipInfo(0, PIN, extraInfo));
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

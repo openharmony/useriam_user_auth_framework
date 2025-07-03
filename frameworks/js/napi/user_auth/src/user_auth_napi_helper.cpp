@@ -46,7 +46,7 @@ const std::map<UserAuthResultCode, std::string> g_resultV92Str = {
     {UserAuthResultCode::TYPE_NOT_SUPPORT, "Unsupport authentication type."},
     {UserAuthResultCode::TRUST_LEVEL_NOT_SUPPORT, "Unsupport authentication trust level."},
     {UserAuthResultCode::BUSY, "Authentication service is busy."},
-    {UserAuthResultCode::PARAM_VERIFIED_FAILED, "Parameter verification failed."},
+    {UserAuthResultCode::PARAM_VERIFIED_FAILED, "The parameter is out of range."},
     {UserAuthResultCode::LOCKED, "Authentication is lockout."},
     {UserAuthResultCode::NOT_ENROLLED, "Authentication template has not been enrolled."},
     {UserAuthResultCode::CANCELED_FROM_WIDGET, "Authentication is canceled from widget."},
@@ -84,7 +84,7 @@ JsRefHolder::~JsRefHolder()
         return;
     }
     IAM_LOGD("delete reference");
-    uv_loop_s *loop;
+    uv_loop_s *loop = nullptr;
     napi_status napiStatus = napi_get_uv_event_loop(env_, &loop);
     if (napiStatus != napi_ok || loop == nullptr) {
         IAM_LOGE("napi_get_uv_event_loop fail");
@@ -267,6 +267,20 @@ napi_status UserAuthNapiHelper::CheckNapiType(napi_env env, napi_value value, na
         return napi_generic_failure;
     }
     return napi_ok;
+}
+
+napi_status UserAuthNapiHelper::GetBoolValue(napi_env env, napi_value value, bool &out)
+{
+    napi_status result = CheckNapiType(env, value, napi_boolean);
+    if (result != napi_ok) {
+        IAM_LOGE("CheckNapiType fail");
+        return result;
+    }
+    result = napi_get_value_bool(env, value, &out);
+    if (result != napi_ok) {
+        IAM_LOGE("napi_get_value_bool fail");
+    }
+    return result;
 }
 
 napi_status UserAuthNapiHelper::GetInt32Value(napi_env env, napi_value value, int32_t &out)
