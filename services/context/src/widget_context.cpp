@@ -747,7 +747,7 @@ void WidgetContext::SendAuthTipInfo(int32_t authType, int32_t tipCode)
     callerCallback_->OnAcquireInfo(ALL_IN_ONE, authType, attr.Serialize());
 }
 
-UserAuthTipCode WidgetContext::CaclAuthTipCode(int32_t authResult, int32_t freezingTime)
+UserAuthTipCode WidgetContext::GetAuthTipCode(int32_t authResult, int32_t freezingTime)
 {
     UserAuthTipCode tipCode = TIP_CODE_FAIL;
     if (authResult == ResultCode::TIMEOUT) {
@@ -777,7 +777,7 @@ void WidgetContext::ProcAuthResult(int32_t resultCode, AuthType authType, int32_
         }
     } else {
         SetLatestError(resultCode);
-        SendAuthTipInfo(authType, CaclAuthTipCode(resultCode, freezingTime));
+        SendAuthTipInfo(authType, GetAuthTipCode(resultCode, freezingTime));
     }
     StartOnResultTimer(resultCode, authType, freezingTime);
 }
@@ -796,7 +796,7 @@ void WidgetContext::ProcAuthTipInfo(int32_t tip, AuthType authType, const std::v
     if (resultCode == ResultCode::SUCCESS) {
         return;
     }
-    SendAuthTipInfo(authType, CaclAuthTipCode(resultCode, freezingTime));
+    SendAuthTipInfo(authType, GetAuthTipCode(resultCode, freezingTime));
     StartOnTipTimer(authType, freezingTime);
 }
 
@@ -909,6 +909,7 @@ void WidgetContext::OnTipTimerTimeOut(AuthType authType, int32_t freezingTime)
 void WidgetContext::SendAuthResult()
 {
     IAM_LOGI("start");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (onTipTimerId_ != 0 && resultInfo_.resultCode != SUCCESS) {
         OnTipTimerTimeOut(resultInfo_.authType, resultInfo_.freezingTime);
         StopOnTipTimer();

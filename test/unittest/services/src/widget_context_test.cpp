@@ -683,16 +683,16 @@ HWTEST_F(WidgetContextTest, WidgetContextTestSendAuthTipInfo, TestSize.Level0)
     EXPECT_NO_THROW(widgetContext->SendAuthTipInfo(authType, tipCode));
 }
 
-HWTEST_F(WidgetContextTest, WidgetContextTestCaclAuthTipCode, TestSize.Level0)
+HWTEST_F(WidgetContextTest, WidgetContextTestGetAuthTipCode, TestSize.Level0)
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
     auto widgetContext = CreateWidgetContext(contextId, para);
     EXPECT_NE(widgetContext, nullptr);
-    EXPECT_EQ(widgetContext->CaclAuthTipCode(ResultCode::TIMEOUT, 0), TIP_CODE_TIMEOUT);
-    EXPECT_EQ(widgetContext->CaclAuthTipCode(ResultCode::FAIL, 1), TIP_CODE_TEMPORARILY_LOCKED);
-    EXPECT_EQ(widgetContext->CaclAuthTipCode(ResultCode::FAIL, INT32_MAX), TIP_CODE_PERMANENTLY_LOCKED);
-    EXPECT_EQ(widgetContext->CaclAuthTipCode(ResultCode::FAIL, -1), TIP_CODE_FAIL);
+    EXPECT_EQ(widgetContext->GetAuthTipCode(ResultCode::TIMEOUT, 0), TIP_CODE_TIMEOUT);
+    EXPECT_EQ(widgetContext->GetAuthTipCode(ResultCode::FAIL, 1), TIP_CODE_TEMPORARILY_LOCKED);
+    EXPECT_EQ(widgetContext->GetAuthTipCode(ResultCode::FAIL, INT32_MAX), TIP_CODE_PERMANENTLY_LOCKED);
+    EXPECT_EQ(widgetContext->GetAuthTipCode(ResultCode::FAIL, -1), TIP_CODE_FAIL);
 }
 
 HWTEST_F(WidgetContextTest, WidgetContextTestProcAuthResult, TestSize.Level0)
