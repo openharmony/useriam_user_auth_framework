@@ -84,6 +84,10 @@ void UserIamStrongAuthListener::OnStrongAuthChanged(int32_t userId, int32_t stro
             IAM_LOGI("screenlock not in strong auth status");
             return;
         }
+        if (reasonFlag == static_cast<int32_t>(StrongAuthReasonFlags::AFTER_BOOT)) {
+            IAM_LOGI("after boot strong auth omitted");
+            return;
+        }
         RiskEventManager::GetInstance().HandleStrongAuthEvent(userId);
     });
 }
@@ -165,6 +169,9 @@ bool StrongAuthStatusManagerImpl::IsScreenLockStrongAuth(int32_t userId)
     screenLockManager->GetStrongAuth(userId, reasonFlag);
 
     if (reasonFlag == static_cast<int32_t>(StrongAuthReasonFlags::NONE)) {
+        return false;
+    }
+    if (reasonFlag == static_cast<int32_t>(StrongAuthReasonFlags::AFTER_BOOT)) {
         return false;
     }
     return true;
