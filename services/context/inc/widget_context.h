@@ -118,7 +118,7 @@ private:
     void SetSysDialogZOrder(WidgetCmdParameters &widgetCmdParameters);
     bool IsSingleFaceOrFingerPrintAuth();
     bool IsNavigationAuth();
-    UserAuthTipCode CaclAuthTipCode(int32_t authResult, int32_t freezingTime);
+    UserAuthTipCode GetAuthTipCode(int32_t authResult, int32_t freezingTime);
     void ProcAuthResult(int32_t resultCode, AuthType authType, int32_t freezingTime,
         const Attributes &finalResult);
     void ProcAuthTipInfo(int32_t tip, AuthType authType, const std::vector<uint8_t> &extraInfo);

@@ -31,6 +31,12 @@ namespace UserIam {
 namespace UserAuth {
 class UserAuthParamUtils : public NoCopyable {
 public:
+    static UserAuthResultCode InitAuthParam(napi_env env, napi_value value, AuthParamInner &authParam);
+    static UserAuthResultCode InitWidgetParam(napi_env env, napi_value value,
+        UserAuthNapiClientImpl::WidgetParamNapi &widgetParam,
+        std::shared_ptr<AbilityRuntime::Context> &abilityContext);
+
+private:
     static UserAuthResultCode InitChallenge(napi_env env, napi_value value, AuthParamInner &authParam);
     static UserAuthResultCode InitAuthType(napi_env env, napi_value value, AuthParamInner &authParam);
     static UserAuthResultCode InitAuthTrustLevel(napi_env env, napi_value value, AuthParamInner &authParam);
@@ -39,12 +45,8 @@ public:
     static UserAuthResultCode ProcessAuthTrustLevelAndUserId(napi_env env, napi_value value,
         AuthParamInner &authParam);
     static UserAuthResultCode ProcessReuseUnlockResult(napi_env env, napi_value value, AuthParamInner &authParam);
-    static UserAuthResultCode InitAuthParam(napi_env env, napi_value value, AuthParamInner &authParam);
     static UserAuthResultCode ProcessWindowMode(napi_env env, napi_value value,
         UserAuthNapiClientImpl::WidgetParamNapi &widgetParam);
-    static UserAuthResultCode InitWidgetParam(napi_env env, napi_value value,
-        UserAuthNapiClientImpl::WidgetParamNapi &widgetParam,
-        std::shared_ptr<AbilityRuntime::Context> &abilityContext);
     static UserAuthResultCode ProcessContext(napi_env env, napi_value value,
         UserAuthNapiClientImpl::WidgetParamNapi &widgetParam,
         std::shared_ptr<AbilityRuntime::Context> &abilityContext);
