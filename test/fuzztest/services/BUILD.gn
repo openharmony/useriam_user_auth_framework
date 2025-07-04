@@ -21,6 +21,7 @@ group("iam_services_fuzztest") {
     "context/contextcallbackimpl_fuzzer:ContextCallbackImplFuzzTest",
     "context/contextpoolimpl_fuzzer:ContextPoolImplFuzzTest",
     "context/remoteauthcontext_fuzzer:RemoteAuthContextFuzzTest",
+    "context/widgetcontext_fuzzer:WidgetContextFuzzTest",
     "core/remoteexecutorstub_fuzzer:RemoteExecutorStubFuzzTest",
     "servicecore_fuzzer:ServiceCoreFuzzTest",
     "softbus_fuzzer:SoftBusFuzzTest",
