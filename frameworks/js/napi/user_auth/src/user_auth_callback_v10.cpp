@@ -201,7 +201,7 @@ void UserAuthCallbackV10::OnAcquireInfo(int32_t module, uint32_t acquireInfo,
     }
     authTipInfoCallbackHolder->callback = shared_from_this();
     authTipInfoCallbackHolder->tipType = module;
-    authTipInfoCallbackHolder->tipCode = acquireInfo;
+    authTipInfoCallbackHolder->tipCode = static_cast<int32_t>(acquireInfo);
     authTipInfoCallbackHolder->env = env_;
     auto task = [authTipInfoCallbackHolder] () {
         IAM_LOGD("start");
