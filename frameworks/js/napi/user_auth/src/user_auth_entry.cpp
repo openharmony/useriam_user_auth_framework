@@ -18,6 +18,7 @@
 #include "auth_instance_v9.h"
 #include "nlohmann/json.hpp"
 #include "user_auth_api_event_reporter.h"
+#include "user_auth_helper.h"
 #include "user_auth_impl.h"
 #include "user_auth_instance_v10.h"
 #include "user_auth_widget_mgr_v10.h"
@@ -515,7 +516,7 @@ napi_value SendNotice(napi_env env, napi_callback_info info)
 
     int32_t result = UserAuthClientImpl::Instance().Notice(noticeType, eventData);
     if (result != ResultCode::SUCCESS) {
-        errCode = UserAuthResultCode(UserAuthNapiHelper::GetResultCodeV10(result));
+        errCode = UserAuthResultCode(UserAuthHelper::GetResultCodeV10(result));
         IAM_LOGE("SendNotice fail. result: %{public}d, errCode: %{public}d", result, errCode);
         return ResultOfSendNotice(env, errCode);
     }

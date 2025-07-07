@@ -25,6 +25,7 @@
 #include "iam_ptr.h"
 
 #include "user_auth_api_event_reporter.h"
+#include "user_auth_helper.h"
 #include "user_auth_client_impl.h"
 #include "user_auth_common_defines.h"
 #include "user_auth_napi_helper.h"
@@ -258,7 +259,7 @@ UserAuthResultCode UserAuthInstanceV10::Cancel(napi_env env, napi_callback_info 
     int32_t result = UserAuthClient::GetInstance().CancelAuthentication(contextId_);
     if (result != ResultCode::SUCCESS) {
         IAM_LOGE("CancelAuthentication fail:%{public}d", result);
-        return UserAuthResultCode(UserAuthNapiHelper::GetResultCodeV10(result));
+        return UserAuthResultCode(UserAuthHelper::GetResultCodeV10(result));
     }
     isAuthStarted_ = false;
     return UserAuthResultCode::SUCCESS;

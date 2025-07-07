@@ -296,7 +296,7 @@ napi_value UserAuthImpl::GetEnrolledState(napi_env env, napi_callback_info info)
         reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
         return nullptr;
     }
-    if (!UserAuthNapiHelper::CheckUserAuthType(type)) {
+    if (!UserAuthHelper::CheckUserAuthType(type)) {
         IAM_LOGE("CheckUserAuthType fail");
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::TYPE_NOT_SUPPORT));
         reporter.ReportFailed(UserAuthResultCode::TYPE_NOT_SUPPORT);
@@ -307,7 +307,7 @@ napi_value UserAuthImpl::GetEnrolledState(napi_env env, napi_callback_info info)
     int32_t code = UserAuthClientImpl::Instance().GetEnrolledState(API_VERSION_12, authType, enrolledState);
     if (code != SUCCESS) {
         IAM_LOGE("failed to get enrolled state %{public}d", code);
-        int32_t resultCode = UserAuthNapiHelper::GetResultCodeV10(code);
+        int32_t resultCode = UserAuthHelper::GetResultCodeV10(code);
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode(resultCode)));
         reporter.ReportFailed(resultCode);
         return nullptr;
