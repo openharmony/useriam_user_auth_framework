@@ -35,7 +35,7 @@ ohos_shared_library("userauth_client") {
   include_dirs = [
     "inc",
     "../../../interfaces/inner_api",
-    "../../js/napi/user_auth/inc",
+    "../../common/inc",
   ]
 
   sources = [

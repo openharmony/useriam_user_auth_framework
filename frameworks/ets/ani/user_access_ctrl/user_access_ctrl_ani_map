@@ -1,4 +1,4 @@
-# Copyright (c) 2025-2025 Huawei Device Co., Ltd.
+# Copyright (c) 2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -11,12 +11,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-declare_args() {
-  user_auth_framework_enable_dynamic_load = false
-  user_auth_framework_path = "//base/useriam/user_auth_framework"
-  screenlock_client_enable = true
-  if (defined(global_parts_info) &&
-      !defined(global_parts_info.theme_screenlock_mgr)) {
-        screenlock_client_enable = false
-  }
-}
+{
+    global:
+    extern "C++" {
+        ANI_Constructor;
+        taihe*;
+    };
+    local:
+        *;
+};
