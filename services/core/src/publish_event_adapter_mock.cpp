@@ -27,6 +27,11 @@ PublishEventAdapter &PublishEventAdapter::GetInstance()
 
 void PublishEventAdapter::PublishDeletedEvent(int32_t userId)
 {
+    (void)mutex_;
+    (void)userId_;
+    (void)scheduleId_;
+    (void)credChangeEventInfo_;
+    (void)reEnrollFlag_;
     (void)userId;
 }
 
