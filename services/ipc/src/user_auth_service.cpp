@@ -157,7 +157,7 @@ std::shared_ptr<UserAuthService> UserAuthService::GetInstance()
 }
 
 UserAuthService::UserAuthService()
-    : SystemAbility(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true), UserAuthStub(true)
+    : SystemAbility(SUBSYS_USERIAM_SYS_ABILITY_USERAUTH, true), UserAuthStub(false)
 {}
 
 void UserAuthService::OnStart()
