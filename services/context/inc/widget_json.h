@@ -52,6 +52,7 @@ struct WidgetNotice {
 };
 void to_json(nlohmann::json &jsonNotice, const WidgetNotice &notice);
 void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice);
+bool GetProcessName(std::vector<std::string> &processName);
 
 // WidgetCommand
 struct WidgetCommand {
