@@ -43,6 +43,12 @@
 #include "widget_schedule_node_impl.h"
 #include "widget_context_callback_impl.h"
 #include "widget_client.h"
+#include <sys/stat.h>
+#ifdef SCENE_BOARD_ENABLE
+#include "display_manager_lite.h"
+#else
+#include "display_manager.h"
+#endif
 
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -60,7 +66,6 @@ const std::string TO_PORTRAIT = "90";
 const std::string TO_INVERTED = "180";
 const std::string TO_PORTRAIT_INVERTED = "270";
 const std::string SUPPORT_FOLLOW_CALLER_UI = "const.useriam.authWidget.supportFollowCallerUi";
-const std::string FIND_PROCESS_NAME = "findnetwork";
 static constexpr uint32_t RESULT_TIMER_LEN_MS = 100;
 
 WidgetContext::WidgetContext(uint64_t contextId, const ContextFactory::AuthWidgetContextPara &para,
@@ -472,11 +477,17 @@ bool WidgetContext::IsSupportFollowCallerUi()
 
 void WidgetContext::SetSysDialogZOrder(WidgetCmdParameters &widgetCmdParameters)
 {
+    IAM_LOGI("enter");
+    std::vector<std::string> processName;
     if (ContextAppStateObserverManager::GetInstance().IsScreenLocked()) {
         IAM_LOGI("the screen is currently locked, set zOrder");
         widgetCmdParameters.sysDialogZOrder = SYSDIALOG_ZORDER_UPPER;
     }
-    if ((para_.callerName == FIND_PROCESS_NAME) && (para_.callerType == Security::AccessToken::TOKEN_NATIVE)) {
+    if (!GetProcessName(processName)) {
+        IAM_LOGE("getProcessName error");
+        return;
+    }
+    if ((para_.callerName == *processName.begin()) && (para_.callerType == Security::AccessToken::TOKEN_NATIVE)) {
         IAM_LOGI("is on shutdown screen, set zOrder");
         widgetCmdParameters.useriamCmdData.callingProcessName = para_.callerName;
         widgetCmdParameters.sysDialogZOrder = SYSDIALOG_ZORDER_UPPER;

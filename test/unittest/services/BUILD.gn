@@ -226,6 +226,7 @@ ohos_unittest("iam_services_test") {
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "config_policy:configpolicy_util"
   ]
 
   defines = []
