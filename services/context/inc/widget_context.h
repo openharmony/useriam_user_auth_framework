@@ -115,6 +115,7 @@ private:
     bool IsValidRotate(const WidgetRotatePara &widgetRotatePara);
     std::string GetCallingBundleName();
     bool IsSupportFollowCallerUi();
+    bool IsInFollowCallerList();
     void SetSysDialogZOrder(WidgetCmdParameters &widgetCmdParameters);
     bool IsSingleFaceOrFingerPrintAuth();
     bool IsNavigationAuth();
@@ -153,6 +154,7 @@ private:
     std::string description_ {""};
     std::shared_ptr<ContextCallback> callerCallback_ {nullptr};
     bool hasStarted_ {false};
+    bool useModalApplication_ {false};
 
     int32_t latestError_ {ResultCode::GENERAL_ERROR};
     ContextFactory::AuthWidgetContextPara para_ {};
