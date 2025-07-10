@@ -14,9 +14,12 @@
  */
 
 #include <map>
+#include <fstream>
 #include "iam_common_defines.h"
 #include "iam_logger.h"
+#include "directory_ex.h"
 #include "user_auth_common_defines.h"
+#include "config_policy_utils.h"
 #include "widget_json.h"
 
 #define LOG_TAG "USER_AUTH_SA"
@@ -81,6 +84,9 @@ const std::string JSON_CHALLENGE = "challenge";
 const std::string JSON_CALLER_BUNDLE_NAME = "callingBundleName";
 const std::string JSON_CMD_EXTRA_INFO = "extraInfo";
 
+constexpr const char *AUTH_WIDGE_CONFIG_SUFFIX = "etc/auth_widget/auth_widget_config.json";
+const std::string SHWO_WITH_LEVEL_2_WINDOW = "show_with_level_2_window";
+
 const uint32_t DISABLE_ROTATE = 0;
 
 namespace {
@@ -142,6 +148,66 @@ void GetJsonCmd(nlohmann::json &jsonCommand, const WidgetCommand &command)
     jsonCommand[JSON_WIDGET_CALLING_PROCESS_NAME] = command.callingProcessName;
     jsonCommand[JSON_WIDGET_USER_ID] = command.userId;
     jsonCommand[JSON_WIDGET_SKIP_LOCKED_BIOMETRIC_AUTH] = command.skipLockedBiometricAuth;
+}
+
+bool ReadFileIntoJson(const std::string &filePath, nlohmann::json &jsonBuf)
+{
+    IAM_LOGI("ReadFileIntoJson entry");
+    std::string realPath;
+    if (!PathToRealPath(filePath, realPath)) {
+        IAM_LOGE("Path to realPath failed");
+        return false;
+    }
+
+    char errBuf[256];
+    errBuf[0] = '\0';
+    std::fstream in;
+    in.open(realPath, std::ios_base::in);
+    if (!in.is_open()) {
+        strerror_r(errno, errBuf, sizeof(errBuf));
+        IAM_LOGE("file open failed due to %{public}s, errno:%{public}d", errBuf, errno);
+        return false;
+    }
+
+    in.seekg(0, std::ios::end);
+    int64_t size = in.tellg();
+    if (size <= 0) {
+        IAM_LOGE("file empty, errno:%{public}d", errno);
+        in.close();
+        return false;
+    }
+
+    in.seekg(0, std::ios::beg);
+    jsonBuf = nlohmann::json::parse(in, nullptr, false);
+    in.close();
+    if (jsonBuf.is_discarded()) {
+        IAM_LOGE("bad profile file");
+        return false;
+    }
+
+    return true;
+}
+
+bool GetStringArrayFromJson(const nlohmann::json &jsonObject,
+    std::vector<std::string> &exemptedBundleInfos,
+    const std::string &key)
+{
+    if (jsonObject.is_array() && !jsonObject.is_discarded()) {
+        for (const auto &object : jsonObject) {
+            if (!object.is_object()) {
+                IAM_LOGE("is not object");
+                return false;
+            }
+            const auto& objectEnd = object.end();
+            if (object.find(key) != objectEnd) {
+                exemptedBundleInfos = object.at(key).get<std::vector<std::string>>();
+                break;
+            }
+        }
+        return true;
+    }
+    IAM_LOGE("getStringArrayFromJson error");
+    return false;
 }
 }
 
@@ -326,6 +392,33 @@ void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice)
     if (isNumberItem(jsonNotice[JSON_AUTH_PAYLOAD], JSON_AUTH_INTENT)) {
         jsonNotice[JSON_AUTH_PAYLOAD].at(JSON_AUTH_INTENT).get_to(notice.authIntent);
     }
+}
+
+std::string GetConfigRealPath()
+{
+    char buf[MAX_PATH_LEN] = { 0 };
+    char *configPath = GetOneCfgFile(AUTH_WIDGE_CONFIG_SUFFIX, buf, MAX_PATH_LEN);
+    if (configPath == nullptr || configPath[0] == '\0' || strlen(configPath) > MAX_PATH_LEN) {
+        IAM_LOGE("get configPath error");
+        return AUTH_WIDGE_CONFIG_SUFFIX;
+    }
+    return configPath;
+}
+
+bool GetProcessName(std::vector<std::string> &processName)
+{
+    IAM_LOGI("enter");
+    nlohmann::json jsonBuf;
+    std::string configPath = GetConfigRealPath();
+    if (!ReadFileIntoJson(configPath, jsonBuf)) {
+        IAM_LOGE("ReadFileIntoJson failed");
+        return false;
+    }
+    if (!GetStringArrayFromJson(jsonBuf, processName, SHWO_WITH_LEVEL_2_WINDOW)) {
+        IAM_LOGE("GetStringArrayFromJson failed");
+        return false;
+    }
+    return true;
 }
 
 void to_json(nlohmann::json &jsonCommand, const WidgetCommand &command)
