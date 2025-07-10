@@ -744,6 +744,7 @@ napi_value UserAuthResultCodeConstructor(napi_env env)
     napi_value typeNotSupport = nullptr;
     napi_value trustLevelNotSupport = nullptr;
     napi_value busy = nullptr;
+    napi_value paramVerifiedFailed = nullptr;
     napi_value locked = nullptr;
     napi_value notEnrolled = nullptr;
     napi_value canceledFromWidget = nullptr;
@@ -758,6 +759,8 @@ napi_value UserAuthResultCodeConstructor(napi_env env)
     NAPI_CALL(env, napi_create_int32(env,
         static_cast<int32_t>(UserAuthResultCode::TRUST_LEVEL_NOT_SUPPORT), &trustLevelNotSupport));
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::BUSY), &busy));
+    NAPI_CALL(env, napi_create_int32(env,
+        static_cast<int32_t>(UserAuthResultCode::PARAM_VERIFIED_FAILED), &paramVerifiedFailed));
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::LOCKED), &locked));
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::NOT_ENROLLED), &notEnrolled));
     NAPI_CALL(env, napi_create_int32(env,
@@ -769,6 +772,7 @@ napi_value UserAuthResultCodeConstructor(napi_env env)
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "TIMEOUT", timeout));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "TYPE_NOT_SUPPORT", typeNotSupport));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "TRUST_LEVEL_NOT_SUPPORT", trustLevelNotSupport));
+    NAPI_CALL(env, napi_set_named_property(env, resultCode, "INVALID_PARAMETERS", paramVerifiedFailed));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "BUSY", busy));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "LOCKED", locked));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "NOT_ENROLLED", notEnrolled));
