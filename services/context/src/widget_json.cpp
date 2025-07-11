@@ -86,8 +86,10 @@ const std::string JSON_CMD_EXTRA_INFO = "extraInfo";
 
 constexpr const char *AUTH_WIDGE_CONFIG_SUFFIX = "etc/auth_widget/auth_widget_config.json";
 const std::string SHWO_WITH_LEVEL_2_WINDOW = "show_with_level_2_window";
+const std::string FOLLOW_CALLER_WINDOW_WHEN_FOLDED = "follow_caller_window_when_folded";
 
 const uint32_t DISABLE_ROTATE = 0;
+const uint32_t MAX_ERR_BUF_LEN = 256;
 
 namespace {
 void GetJsonPayload(nlohmann::json &jsonPayload, const WidgetCommand::Cmd &cmd)
@@ -159,7 +161,7 @@ bool ReadFileIntoJson(const std::string &filePath, nlohmann::json &jsonBuf)
         return false;
     }
 
-    char errBuf[256];
+    char errBuf[MAX_ERR_BUF_LEN];
     errBuf[0] = '\0';
     std::fstream in;
     in.open(realPath, std::ios_base::in);
@@ -198,7 +200,7 @@ bool GetStringArrayFromJson(const nlohmann::json &jsonObject,
                 IAM_LOGE("is not object");
                 return false;
             }
-            const auto& objectEnd = object.end();
+            const auto &objectEnd = object.end();
             if (object.find(key) != objectEnd) {
                 exemptedBundleInfos = object.at(key).get<std::vector<std::string>>();
                 break;
@@ -415,6 +417,22 @@ bool GetProcessName(std::vector<std::string> &processName)
         return false;
     }
     if (!GetStringArrayFromJson(jsonBuf, processName, SHWO_WITH_LEVEL_2_WINDOW)) {
+        IAM_LOGE("GetStringArrayFromJson failed");
+        return false;
+    }
+    return true;
+}
+
+bool GetFollowCallerList(std::vector<std::string> &processName)
+{
+    IAM_LOGI("enter");
+    nlohmann::json jsonBuf;
+    std::string configPath = GetConfigRealPath();
+    if (!ReadFileIntoJson(configPath, jsonBuf)) {
+        IAM_LOGE("Path to realPath failed");
+        return false;
+    }
+    if (!GetStringArrayFromJson(jsonBuf, processName, FOLLOW_CALLER_WINDOW_WHEN_FOLDED)) {
         IAM_LOGE("GetStringArrayFromJson failed");
         return false;
     }

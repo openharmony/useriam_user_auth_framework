@@ -468,11 +468,40 @@ int32_t WidgetContext::ConnectExtensionAbility(const AAFwk::Want &want, const st
     return ret;
 }
 
+bool WidgetContext::IsInFollowCallerList()
+{
+    IAM_LOGI("enter");
+#ifdef SCENE_BOARD_ENABLE
+    auto foldStatus = Rosen::DisplayManagerLite::GetInstance().GetFoldStatus();
+#else
+    auto foldStatus = Rosen::DisplayManager::GetInstance().GetFoldStatus();
+#endif
+    IAM_LOGI("FoldStatus is %{public}d.", foldStatus);
+    if (foldStatus != Rosen::FoldStatus::FOLDED) {
+        return false;
+    }
+
+    std::string productName = OHOS::system::GetParameter("const.build.product", "");
+    IAM_LOGI("productName is %{public}s.", productName.c_str());
+
+    std::vector<std::string> processName;
+    if (!GetFollowCallerList(processName)) {
+        IAM_LOGE("GetFollowCallerList error");
+        return false;
+    }
+    for (auto it = processName.begin(); it != processName.end(); ++it) {
+        if (productName + "-" == *it) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool WidgetContext::IsSupportFollowCallerUi()
 {
     bool isSupportFollowCallerUi = OHOS::system::GetParameter(SUPPORT_FOLLOW_CALLER_UI, "false") == "true";
     IAM_LOGI("is support follow caller UI: %{public}d", isSupportFollowCallerUi);
-    return isSupportFollowCallerUi;
+    return isSupportFollowCallerUi || IsInFollowCallerList();
 }
 
 void WidgetContext::SetSysDialogZOrder(WidgetCmdParameters &widgetCmdParameters)
@@ -523,6 +552,7 @@ bool WidgetContext::ConnectExtension(const WidgetRotatePara &widgetRotatePara)
     if (para_.widgetParam.hasContext && IsSupportFollowCallerUi()) {
         // As modal application
         // No need do anything, caller death has process; only process timeout for widget.
+        useModalApplication_ = true;
         if (modalCallback_ != nullptr) {
             modalCallback_->SendCommand(contextId_, commandData);
         }
@@ -545,7 +575,8 @@ bool WidgetContext::ConnectExtension(const WidgetRotatePara &widgetRotatePara)
 bool WidgetContext::DisconnectExtension()
 {
     IAM_LOGI("has context: %{public}d", para_.widgetParam.hasContext);
-    if (para_.widgetParam.hasContext && IsSupportFollowCallerUi()) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if ((para_.widgetParam.hasContext && IsSupportFollowCallerUi()) || useModalApplication_) {
         // As modal application release.
         if (schedule_ != nullptr) {
             schedule_->StopSchedule();
