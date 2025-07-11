@@ -819,7 +819,9 @@ void WidgetContext::ProcAuthResult(int32_t resultCode, AuthType authType, int32_
         }
     } else {
         SetLatestError(resultCode);
-        SendAuthTipInfo(authType, GetAuthTipCode(resultCode, freezingTime));
+        if (resultCode != ResultCode::CANCELED) {
+            SendAuthTipInfo(authType, GetAuthTipCode(resultCode, freezingTime));
+        }
     }
     StartOnResultTimer(resultCode, authType, freezingTime);
 }
@@ -838,7 +840,9 @@ void WidgetContext::ProcAuthTipInfo(int32_t tip, AuthType authType, const std::v
     if (resultCode == ResultCode::SUCCESS) {
         return;
     }
-    SendAuthTipInfo(authType, GetAuthTipCode(resultCode, freezingTime));
+    if (resultCode != ResultCode::CANCELED) {
+        SendAuthTipInfo(authType, GetAuthTipCode(resultCode, freezingTime));
+    }
     StartOnTipTimer(authType, freezingTime);
 }
 
