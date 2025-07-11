@@ -717,6 +717,112 @@ HWTEST_F(WidgetContextTest, WidgetContextTestProcAuthTipInfo, TestSize.Level0)
     EXPECT_NO_THROW(widgetContext->ProcAuthTipInfo(USER_AUTH_TIP_SINGLE_AUTH_RESULT, PIN, extraInfo));
     EXPECT_NO_THROW(widgetContext->ProcAuthTipInfo(0, PIN, extraInfo));
 }
+
+HWTEST_F(WidgetContextTest, WidgetContextTestStopOnResultTimer, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_NO_THROW(widgetContext->StopOnResultTimer());
+    widgetContext->onResultTimerId_ = 1;
+    EXPECT_NO_THROW(widgetContext->StopOnResultTimer());
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestOnResultTimerTimeOut, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    int32_t resultCode = 0;
+    AuthType authType = AuthType::ALL;
+    int32_t freezingTime = 0;
+    widgetContext->BuildSchedule();
+    EXPECT_NO_THROW(widgetContext->OnResultTimerTimeOut(resultCode, authType, freezingTime));
+    resultCode = 1;
+    EXPECT_NO_THROW(widgetContext->OnResultTimerTimeOut(resultCode, authType, freezingTime));
+    freezingTime = 1;
+    widgetContext->para_.skipLockedBiometricAuth = true;
+    EXPECT_NO_THROW(widgetContext->OnResultTimerTimeOut(resultCode, authType, freezingTime));
+    widgetContext->para_.widgetParam.navigationButtonText = "1";
+    EXPECT_NO_THROW(widgetContext->OnResultTimerTimeOut(resultCode, authType, freezingTime));
+    widgetContext->para_.widgetParam.navigationButtonText = "";
+    authType = AuthType::FACE;
+    widgetContext->para_.authTypeList.emplace_back(authType);
+    EXPECT_NO_THROW(widgetContext->OnResultTimerTimeOut(resultCode, authType, freezingTime));
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestStopOnTipTimer, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_NO_THROW(widgetContext->StopOnTipTimer());
+    widgetContext->onTipTimerId_ = 1;
+    EXPECT_NO_THROW(widgetContext->StopOnTipTimer());
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestOnTipTimerTimeOut, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    AuthType authType = AuthType::ALL;
+    int32_t freezingTime = 0;
+    widgetContext->BuildSchedule();
+    EXPECT_NO_THROW(widgetContext->OnTipTimerTimeOut(authType, freezingTime));
+    widgetContext->para_.skipLockedBiometricAuth = true;
+    freezingTime = 1;
+    EXPECT_NO_THROW(widgetContext->OnTipTimerTimeOut(authType, freezingTime));
+    widgetContext->para_.widgetParam.navigationButtonText = "1";
+    EXPECT_NO_THROW(widgetContext->OnTipTimerTimeOut(authType, freezingTime));
+    widgetContext->para_.widgetParam.navigationButtonText = "";
+    authType = AuthType::FACE;
+    widgetContext->para_.authTypeList.emplace_back(authType);
+    EXPECT_NO_THROW(widgetContext->OnTipTimerTimeOut(authType, freezingTime));
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestSendAuthResult, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_NO_THROW(widgetContext->SendAuthResult());
+    widgetContext->onTipTimerId_ = 1;
+    widgetContext->resultInfo_.resultCode = 1;
+    EXPECT_NO_THROW(widgetContext->SendAuthResult());
+    widgetContext->onResultTimerId_ = 1;
+    EXPECT_NO_THROW(widgetContext->SendAuthResult());
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestSetSysDialogZOrder, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    WidgetCmdParameters widgetCmdParameters = {};
+    EXPECT_NO_THROW(widgetContext->SetSysDialogZOrder(widgetCmdParameters));
+    widgetContext->para_.callerName = "findnetwork";
+    widgetContext->para_.callerType = Security::AccessToken::TOKEN_NATIVE;
+    EXPECT_NO_THROW(widgetContext->SetSysDialogZOrder(widgetCmdParameters));
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestConnectExtension, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    WidgetContext::WidgetRotatePara widgetRotatePara = {};
+    widgetRotatePara.isReload = true;
+    AuthType authType = AuthType::FACE;
+    widgetContext->para_.authTypeList.emplace_back(authType);
+    EXPECT_NE(widgetContext->ConnectExtension(widgetRotatePara), false);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

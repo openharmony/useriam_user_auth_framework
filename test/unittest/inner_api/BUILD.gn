@@ -25,6 +25,12 @@ ohos_unittest("iam_inner_api_test") {
     blocklist = "../../../cfi_blocklist.txt"
   }
   branch_protector_ret = "pac_ret"
+
+  cflags = [
+    "-DIAM_TEST_ENABLE",
+    "-Dprivate=public",
+    "-Dprotected=public",
+  ]
   include_dirs = [
     "inc",
     "mocks",
@@ -64,6 +70,7 @@ ohos_unittest("iam_inner_api_test") {
     "src/user_idm_callback_service_test.cpp",
     "src/user_idm_client_test.cpp",
     "src/widget_callback_service_test.cpp",
+    "src/event_listener_callback_service_test.cpp"
   ]
 
   configs = [
