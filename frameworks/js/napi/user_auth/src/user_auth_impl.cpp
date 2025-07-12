@@ -23,6 +23,7 @@
 #include "iam_para2str.h"
 #include "iam_ptr.h"
 
+#include "user_auth_helper.h"
 #include "user_auth_napi_helper.h"
 #include "user_auth_api_event_reporter.h"
 #include "user_auth_callback_v6.h"
