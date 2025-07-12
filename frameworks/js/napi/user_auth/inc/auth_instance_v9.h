@@ -20,6 +20,7 @@
 
 #include "nocopyable.h"
 
+#include "napi/native_api.h"
 #include "auth_common.h"
 
 #include "user_auth_callback_v9.h"
