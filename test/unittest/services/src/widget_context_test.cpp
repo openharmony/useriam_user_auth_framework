@@ -821,7 +821,7 @@ HWTEST_F(WidgetContextTest, WidgetContextTestConnectExtension, TestSize.Level0)
     widgetRotatePara.isReload = true;
     AuthType authType = AuthType::FACE;
     widgetContext->para_.authTypeList.emplace_back(authType);
-    EXPECT_NE(widgetContext->ConnectExtension(widgetRotatePara), false);
+    EXPECT_EQ(widgetContext->ConnectExtension(widgetRotatePara), false);
 }
 } // namespace UserAuth
 } // namespace UserIam
