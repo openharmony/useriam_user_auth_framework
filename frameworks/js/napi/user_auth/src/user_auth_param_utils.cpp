@@ -29,6 +29,7 @@
 
 #include "user_auth_common_defines.h"
 #include "user_auth_napi_helper.h"
+#include "user_auth_helper.h"
 
 #define LOG_TAG "USER_AUTH_NAPI"
 
