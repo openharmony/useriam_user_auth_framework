@@ -32,7 +32,7 @@ struct AuthToken {
     authTrustLevel: AuthTrustLevel;
     authType: UserAuthType;
     tokenType: AuthTokenType;
-    userId: f64;
+    userId: i32;
     timeInterval: i64;
     secureUid: Optional<i64>;
     enrolledId: Optional<i64>;
@@ -40,4 +40,4 @@ struct AuthToken {
 }
 
 @gen_promise("verifyAuthToken")
-function verifyAuthTokenSync(authToken: @typedarray Array<u8>, allowableDuration: f64): AuthToken;
+function verifyAuthTokenSync(authToken: @typedarray Array<u8>, allowableDuration: i32): AuthToken;
