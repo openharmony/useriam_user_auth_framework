@@ -919,7 +919,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser004, TestSize.Level0)
     sptr<IIamCallback> callbackInterface = testCallback;
     uint64_t contextId = 0;
     int32_t ret = service.AuthUser(authParam, remoteAuthParam, callbackInterface, contextId);
-    EXPECT_EQ(ret, INVALID_PARAMETERS);
+    EXPECT_EQ(ret, GENERAL_ERROR);
     EXPECT_EQ(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
@@ -977,7 +977,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser006, TestSize.Level0)
     sptr<IIamCallback> callbackInterface = testCallback;
     uint64_t contextId = 0;
     int32_t ret = service.AuthUser(authParam, remoteAuthParam, callbackInterface, contextId);
-    EXPECT_EQ(ret, INVALID_PARAMETERS);
+    EXPECT_EQ(ret, GENERAL_ERROR);
     EXPECT_EQ(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
@@ -1007,7 +1007,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser007, TestSize.Level0)
     sptr<IIamCallback> callbackInterface = testCallback;
     uint64_t contextId = 0;
     int32_t ret = service.AuthUser(authParam, remoteAuthParam, callbackInterface, contextId);
-    EXPECT_EQ(ret, INVALID_PARAMETERS);
+    EXPECT_EQ(ret, GENERAL_ERROR);
     EXPECT_EQ(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
@@ -1277,7 +1277,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCompleteRemoteAuthParam_001, TestSi
     RemoteAuthParam remoteAuthParam = {};
     remoteAuthParam.verifierNetworkId = "1234567891123456789212345678931234567894123456789512345678961234";
     remoteAuthParam.collectorNetworkId = "1234567891123456789212345678931234567894123456789512345678961234";
-    EXPECT_EQ(service.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId), false);
+    EXPECT_EQ(service.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId), true);
 }
 
 HWTEST_F(UserAuthServiceTest, UserAuthServiceCompleteRemoteAuthParam_002, TestSize.Level0)
@@ -1289,7 +1289,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCompleteRemoteAuthParam_002, TestSi
     remoteAuthParam.verifierNetworkId = "123";
     EXPECT_EQ(service.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId), false);
     remoteAuthParam.verifierNetworkId = "1234567891123456789212345678931234567894123456789512345678961234";
-    EXPECT_EQ(service.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId), false);
+    EXPECT_EQ(service.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId), true);
     remoteAuthParam.collectorNetworkId = "123";
     EXPECT_EQ(service.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId), false);
 }
@@ -1300,13 +1300,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCompleteRemoteAuthParam_003, TestSi
     const std::string localNetworkId = "1234567891123456789212345678931234567894123456789512345678961234";
     RemoteAuthParam remoteAuthParam = {};
     remoteAuthParam.collectorNetworkId = "1234567891123456789212345678931234567894123456789512345678961234";
-    EXPECT_EQ(service.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId), false);
+    EXPECT_EQ(service.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId), true);
     remoteAuthParam.verifierNetworkId = "1234567891123456789212345678931234567894123456789512345678961233";
     remoteAuthParam.collectorNetworkId = "1234567891123456789212345678931234567894123456789512345678961233";
     EXPECT_EQ(service.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId), false);
     remoteAuthParam.verifierNetworkId = "1234567891123456789212345678931234567894123456789512345678961234";
     remoteAuthParam.collectorNetworkId = "1234567891123456789212345678931234567894123456789512345678961234";
-    EXPECT_EQ(service.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId), false);
+    EXPECT_EQ(service.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId), true);
     remoteAuthParam.verifierNetworkId = "1234567891123456789212345678931234567894123456789512345678961233";
     remoteAuthParam.collectorNetworkId = "1234567891123456789212345678931234567894123456789512345678961234";
     EXPECT_EQ(service.CompleteRemoteAuthParam(remoteAuthParam, localNetworkId), true);

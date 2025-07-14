@@ -99,8 +99,13 @@ private:
     uint64_t AuthRemoteUser(AuthParamInner &authParam, Authentication::AuthenticationPara &para,
         RemoteAuthParam &remoteAuthParam, const std::shared_ptr<ContextCallback> &contextCallback,
         ResultCode &failReason);
+    bool ProcessAuthParamForRemoteAuth(AuthParamInner &authParam, Authentication::AuthenticationPara &para,
+        RemoteAuthParam &remoteAuthParam, std::string &localNetworkId);
     uint64_t StartRemoteAuthInvokerContext(AuthParamInner authParam,
         RemoteAuthInvokerContextParam &param, const std::shared_ptr<ContextCallback> &contextCallback);
+    uint64_t StartLocalRemoteAuthContext(Authentication::AuthenticationPara para,
+        LocalRemoteAuthContextParam &localRemoteAuthContextParam,
+        const std::shared_ptr<ContextCallback> &contextCallback);
     bool Insert2ContextPool(const std::shared_ptr<Context> &context);
     bool CheckCallerIsSystemApp();
     int32_t CheckAuthPermissionAndParam(int32_t authType, const int32_t &callerType, const std::string &callerName,

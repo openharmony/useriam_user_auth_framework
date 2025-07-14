@@ -48,6 +48,7 @@ ohos_source_set("userauth_service_context") {
     "src/delete_context.cpp",
     "src/enroll_context.cpp",
     "src/identify_context.cpp",
+    "src/local_remote_auth_context.cpp",
     "src/remote_auth_context.cpp",
     "src/remote_auth_invoker_context.cpp",
     "src/remote_auth_service.cpp",
