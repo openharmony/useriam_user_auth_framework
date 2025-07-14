@@ -27,6 +27,7 @@
 #include "enrollment_impl.h"
 #include "context.h"
 #include "context_callback.h"
+#include "local_remote_auth_context.h"
 #include "identification_impl.h"
 #include "imodal_callback.h"
 #include "remote_auth_context.h"
@@ -68,6 +69,8 @@ public:
         RemoteAuthContextParam &remoteAuthContextParam, const std::shared_ptr<ContextCallback> &callback);
     static std::shared_ptr<Context> CreateRemoteAuthInvokerContext(AuthParamInner authParam,
         RemoteAuthInvokerContextParam param, std::shared_ptr<ContextCallback> callback);
+    static std::shared_ptr<Context> CreateLocalRemoteAuthContext(const Authentication::AuthenticationPara &para,
+        LocalRemoteAuthContextParam &localRemoteAuthContextParam, const std::shared_ptr<ContextCallback> &callback);
     static std::shared_ptr<Context> CreateIdentifyContext(const Identification::IdentificationPara &para,
         const std::shared_ptr<ContextCallback> &callback);
     static std::shared_ptr<Context> CreateEnrollContext(const Enrollment::EnrollmentPara &para,

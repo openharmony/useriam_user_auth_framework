@@ -116,6 +116,19 @@ std::shared_ptr<Context> ContextFactory::CreateRemoteAuthInvokerContext(AuthPara
     return Common::MakeShared<RemoteAuthInvokerContext>(newContextId, authParam, param, callback);
 }
 
+std::shared_ptr<Context> ContextFactory::CreateLocalRemoteAuthContext(const Authentication::AuthenticationPara &para,
+    LocalRemoteAuthContextParam &localRemoteAuthContextParam, const std::shared_ptr<ContextCallback> &callback)
+{
+    IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, nullptr);
+
+    uint64_t newContextId = ContextPool::GetNewContextId();
+    auto auth = Common::MakeShared<AuthenticationImpl>(newContextId, para);
+    IF_FALSE_LOGE_AND_RETURN_VAL(auth != nullptr, nullptr);
+    auth->SetChallenge(para.challenge);
+    auth->SetAccessTokenId(para.tokenId);
+    return Common::MakeShared<LocalRemoteAuthContext>(newContextId, auth, localRemoteAuthContextParam, callback);
+}
+
 std::shared_ptr<Context> ContextFactory::CreateScheduleHolderContext(std::shared_ptr<ScheduleNode> scheduleNode)
 {
     uint64_t newContextId = ContextPool::GetNewContextId();
