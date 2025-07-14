@@ -18,6 +18,7 @@
 
 #include "nocopyable.h"
 
+#include "napi/native_api.h"
 #include "auth_common.h"
 #include "user_auth_napi_helper.h"
 #include "user_auth_client.h"
