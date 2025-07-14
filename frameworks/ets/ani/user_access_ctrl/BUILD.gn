@@ -1,0 +1,104 @@
+# Copyright (C) 2025 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/config/components/ets_frontend/ets2abc_config.gni")
+import("//build/ohos.gni")
+import("//build/ohos/taihe_idl/taihe.gni")
+import("../../../../user_auth_framework.gni")
+
+copy_taihe_idl("user_access_ctrl_copy_taihe_idl") {
+  sources = [ "idl/ohos.userIAM.userAccessCtrl.taihe" ]
+  deps = [ "$user_auth_framework_path/frameworks/ets/ani/user_auth:user_auth_copy_taihe_idl" ]
+}
+
+taihe_generated_file_path =
+    "$taihe_file_path/out/useriam/user_auth_frameworks/user_access_ctrl"
+ohos_taihe("user_access_ctrl_taihe") {
+  taihe_generated_file_path = "$taihe_generated_file_path"
+  deps = [ ":user_access_ctrl_copy_taihe_idl" ]
+  outputs = [
+    "$taihe_generated_file_path/src/ohos.userIAM.userAccessCtrl.ani.cpp",
+    "$taihe_generated_file_path/src/ohos.userIAM.userAccessCtrl.abi.c",
+  ]
+}
+
+generate_static_abc("user_access_ctrl_abc") {
+  base_url = "$taihe_generated_file_path"
+  files = [ "$taihe_generated_file_path/@ohos.userIAM.userAccessCtrl.ets" ]
+  is_boot_abc = "True"
+  device_dst_file = "system/framework/ohos.userIAM.userAccessCtrl.abc"
+  dst_file = "$target_out_dir/ohos.userIAM.userAccessCtrl.abc"
+  out_puts = [ "$target_out_dir/ohos.userIAM.userAccessCtrl.abc" ]
+  dependencies = [ ":user_access_ctrl_taihe" ]
+}
+
+ohos_prebuilt_etc("user_access_ctrl_abc_etc") {
+  source = "$target_out_dir/ohos.userIAM.userAccessCtrl.abc"
+  module_install_dir = "framework"
+  deps = [ ":user_access_ctrl_abc" ]
+  part_name = "user_auth_framework"
+  subsystem_name = "useriam"
+}
+
+taihe_shared_library("useraccessctrl_ani") {
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
+  taihe_generated_file_path = "$taihe_generated_file_path"
+  include_dirs = [
+    "${user_auth_framework_path}/common/logs",
+    "${user_auth_framework_path}/common/utils",
+  ]
+
+  sources = get_target_outputs(":user_access_ctrl_taihe")
+
+  sources += [
+    "src/ani_constructor.cpp",
+    "src/ohos.userIAM.userAccessCtrl.impl.cpp",
+  ]
+
+  deps = [
+    ":user_access_ctrl_taihe",
+    "${user_auth_framework_path}/frameworks/native/client:userauth_client",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_single",
+    "runtime_core:ani",
+    "runtime_core:libarkruntime",
+  ]
+
+  if (use_musl) {
+    version_script = "user_access_ctrl_ani_map"
+  }
+
+  part_name = "user_auth_framework"
+  subsystem_name = "useriam"
+}
+
+group("user_access_ctrl_ani") {
+  deps = [
+    ":user_access_ctrl_abc_etc",
+    ":useraccessctrl_ani",
+  ]
+}
