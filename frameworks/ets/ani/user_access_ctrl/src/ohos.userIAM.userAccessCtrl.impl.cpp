@@ -84,12 +84,11 @@ private:
     bool resultSet_ = false;
 };
 
-bool ConvertAllowableDuration(double allowableDuration, uint64_t &outAllowableDurationUint64)
+bool ConvertAllowableDuration(int32_t allowableDuration, uint64_t &outAllowableDurationUint64)
 {
     constexpr const double maxAllowableDuration = 24 * 60 * 60 * 1000;
-    if (std::isnan(allowableDuration) || std::isinf(allowableDuration) ||
-        allowableDuration <= 0 || allowableDuration > maxAllowableDuration) {
-        IAM_LOGE("allowableDuration check fail:%{public}f", allowableDuration);
+    if (allowableDuration <= 0 || allowableDuration > maxAllowableDuration) {
+        IAM_LOGE("allowableDuration check fail:%{public}d", allowableDuration);
         return false;
     }
     outAllowableDurationUint64 = static_cast<uint64_t>(allowableDuration);
@@ -228,7 +227,7 @@ bool FillAniAuthToken(const std::vector<uint8_t> &extraInfo, userAccessCtrl::Aut
     return true;
 }
 
-ResultCode VerifyAuthTokenSyncInner(array_view<uint8_t> authToken, double allowableDuration,
+ResultCode VerifyAuthTokenSyncInner(array_view<uint8_t> authToken, int32_t allowableDuration,
     userAccessCtrl::AuthToken &authTokenOut)
 {
     int32_t maxWaitTime = 10000; // 10 seconds
