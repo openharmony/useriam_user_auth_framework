@@ -388,12 +388,10 @@ UserAuthResultCode UserAuthImpl::ParseReusableAuthResultParam(napi_env env, napi
 
 napi_value UserAuthImpl::QueryReusableAuthResult(napi_env env, napi_callback_info info)
 {
-    UserAuthApiEventReporter reporter("QueryReusableAuthResult");
     WidgetAuthParam authParam = {0};
     UserAuthResultCode errCode = ParseReusableAuthResultParam(env, info, authParam);
     if (errCode != UserAuthResultCode::SUCCESS) {
         IAM_LOGE("AuthParamInner type error, errorCode: %{public}d", errCode);
-        reporter.ReportFailed(errCode);
         return nullptr;
     }
 
@@ -403,11 +401,9 @@ napi_value UserAuthImpl::QueryReusableAuthResult(napi_env env, napi_callback_inf
         IAM_LOGE("failed to query reuse result %{public}d", code);
         int32_t resultCode = UserAuthNapiHelper::GetResultCodeV20(code);
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode(resultCode)));
-        reporter.ReportFailed(UserAuthResultCode(resultCode));
         return nullptr;
     }
-    napi_value eventInfo = UserAuthNapiHelper::Uint8VectorToNapiUint8Array(env, token);
-    return eventInfo;
+    return UserAuthNapiHelper::Uint8VectorToNapiUint8Array(env, token);
 }
 } // namespace UserAuth
 } // namespace UserIam

@@ -24,7 +24,7 @@
 #include "config_parser.h"
 #include "iam_logger.h"
 
-#define LOG_TAG "USER_AUTH_NAPI"
+#define LOG_TAG "USER_AUTH_COMMON"
 
 namespace OHOS {
 namespace UserIam {

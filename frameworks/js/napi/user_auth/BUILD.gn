@@ -37,8 +37,6 @@ ohos_shared_library("userauth") {
 
   sources = [
     "src/auth_instance_v9.cpp",
-    "src/config_parser.cpp",
-    "src/user_auth_api_event_reporter.cpp",
     "src/user_auth_callback_v10.cpp",
     "src/user_auth_callback_v6.cpp",
     "src/user_auth_callback_v8.cpp",
@@ -67,11 +65,9 @@ ohos_shared_library("userauth") {
     "ability_runtime:ui_extension",
     "ace_engine:ace_uicontent",
     "c_utils:utils",
-    "hiappevent:hiappevent_innerapi",
     "hilog:libhilog",
     "ipc:ipc_single",
     "napi:ace_napi",
-    "jsoncpp:jsoncpp",
   ]
 
   configs = [
