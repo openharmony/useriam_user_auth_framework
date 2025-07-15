@@ -27,6 +27,7 @@
 #include "user_auth_common_defines.h"
 #include "user_auth_instance_v10.h"
 #include "user_auth_widget_mgr_v10.h"
+#include "user_auth_api_event_reporter.h"
 
 #define LOG_TAG "USER_AUTH_ANI"
 
@@ -184,13 +185,16 @@ private:
 void GetAvailableStatus(UserAuthType authType, AuthTrustLevel authTrustLevel)
 {
     IAM_LOGI("GetAvailableStatus begin");
+    UserAuth::UserAuthApiEventReporter reporter("getAvailableStatus");
     if (!UserAuth::UserAuthHelper::CheckUserAuthType(authType)) {
         IAM_LOGE("authType check fail:%{public}d", authType.get_value());
+        reporter.ReportFailed(UserAuth::UserAuthResultCode::TYPE_NOT_SUPPORT);
         UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::TYPE_NOT_SUPPORT);
         return;
     }
     if (!UserAuth::UserAuthHelper::CheckAuthTrustLevel(authTrustLevel)) {
         IAM_LOGE("authTrustLevel check fail:%{public}d", authTrustLevel.get_value());
+        reporter.ReportFailed(UserAuth::UserAuthResultCode::TRUST_LEVEL_NOT_SUPPORT);
         UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::TRUST_LEVEL_NOT_SUPPORT);
         return;
     }
@@ -198,16 +202,20 @@ void GetAvailableStatus(UserAuthType authType, AuthTrustLevel authTrustLevel)
         UserAuth::AuthType(authType.get_value()), UserAuth::AuthTrustLevel(authTrustLevel.get_value()));
     IAM_LOGI("result = %{public}d", status);
     if (status == static_cast<int32_t>(UserAuth::UserAuthResultCode::PIN_EXPIRED)) {
+        reporter.ReportFailed(UserAuth::UserAuthResultCode::PIN_EXPIRED);
         UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::PIN_EXPIRED);
         return;
     }
+    reporter.ReportSuccess();
 }
 
 EnrolledState GetEnrolledState(UserAuthType authType)
 {
     IAM_LOGI("GetEnrolledState begin");
+    UserAuth::UserAuthApiEventReporter reporter("getEnrolledState");
     if (!UserAuth::UserAuthHelper::CheckUserAuthType(authType)) {
         IAM_LOGE("authType check fail:%{public}d", authType.get_value());
+        reporter.ReportFailed(UserAuth::UserAuthResultCode::TYPE_NOT_SUPPORT);
         UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::TYPE_NOT_SUPPORT);
         return {};
     }
@@ -216,18 +224,23 @@ EnrolledState GetEnrolledState(UserAuthType authType)
         UserAuth::API_VERSION_12, UserAuth::AuthType(authType.get_value()), enrolledState);
     if (code != static_cast<int32_t>(UserAuth::AuthenticationResult::SUCCESS)) {
         IAM_LOGE("failed to get enrolled state %{public}d", code);
-        UserAuth::UserAuthAniHelper::ThrowBusinessError(
-            UserAuth::UserAuthResultCode(UserAuth::UserAuthHelper::GetResultCodeV10(code)));
+        UserAuth::UserAuthResultCode resultCode = UserAuth::UserAuthResultCode(
+            UserAuth::UserAuthHelper::GetResultCodeV10(code));
+        reporter.ReportFailed(resultCode);
+        UserAuth::UserAuthAniHelper::ThrowBusinessError(resultCode);
         return {};
     }
     EnrolledState result{enrolledState.credentialDigest, enrolledState.credentialCount};
+    reporter.ReportSuccess();
     return result;
 }
 
 UserAuthInstance GetUserAuthInstance(AuthParam const &authParam, WidgetParam const &widgetParam)
 {
     IAM_LOGI("GetUserAuthInstance begin");
+    UserAuth::UserAuthApiEventReporter reporter("getUserAuthInstance");
     auto userAuthInstance = make_holder<UserAuthInstanceImpl, UserAuthInstance>(authParam, widgetParam);
+    reporter.ReportSuccess();
     return userAuthInstance;
 }
 
@@ -253,6 +266,54 @@ void SendNotice(NoticeType noticeType, string_view eventData)
     IAM_LOGI("end SendNotice");
 }
 
+UserAuth::WidgetAuthParam ConvertAuthParamToWidgetAuthParam(AuthParam const &authParam)
+{
+    UserAuth::WidgetAuthParam widgetAuthParam = {};
+    widgetAuthParam.challenge = std::vector<uint8_t>(authParam.challenge.begin(), authParam.challenge.end());
+    widgetAuthParam.authTrustLevel = UserAuth::AuthTrustLevel(authParam.authTrustLevel.get_value());
+
+    for (const auto &type : authParam.authType) {
+        widgetAuthParam.authTypes.push_back(static_cast<UserAuth::AuthType>(type.get_value()));
+    }
+
+    if (authParam.userId.has_value()) {
+        widgetAuthParam.userId = static_cast<int32_t>(authParam.userId.value());
+    } else {
+        widgetAuthParam.userId = UserAuth::INVALID_USER_ID;
+    }
+
+    if (authParam.reuseUnlockResult.has_value()) {
+        widgetAuthParam.reuseUnlockResult.isReuse = true;
+        widgetAuthParam.reuseUnlockResult.reuseMode = static_cast<UserAuth::ReuseMode>(
+            authParam.reuseUnlockResult->reuseMode.get_value());
+        widgetAuthParam.reuseUnlockResult.reuseDuration =
+            static_cast<uint64_t>(authParam.reuseUnlockResult->reuseDuration);
+    } else {
+        widgetAuthParam.reuseUnlockResult.isReuse = false;
+    }
+
+    return widgetAuthParam;
+}
+
+array<uint8_t> QueryReusableAuthResult(AuthParam const &authParam)
+{
+    IAM_LOGI("QueryReusableAuthResult begin");
+
+    UserAuth::WidgetAuthParam widgetAuthParam = ConvertAuthParamToWidgetAuthParam(authParam);
+
+    std::vector<uint8_t> token;
+    int32_t code = UserAuth::UserAuthClientImpl::Instance().QueryReusableAuthResult(widgetAuthParam, token);
+    if (code != UserAuth::SUCCESS) {
+        IAM_LOGE("failed to query reuse result %{public}d", code);
+        UserAuth::UserAuthResultCode resultCode = UserAuth::UserAuthResultCode(
+            UserAuth::UserAuthHelper::GetResultCodeV10(code));
+        UserAuth::UserAuthAniHelper::ThrowBusinessError(resultCode);
+        return {};
+    }
+
+    return taihe::array<uint8_t>(taihe::copy_data_t{}, token.data(), token.size());
+}
+
 UserAuthWidgetMgr GetUserAuthWidgetMgr(int32_t version)
 {
     IAM_LOGI("GetUserAuthWidgetMgr begin");
@@ -265,4 +326,5 @@ TH_EXPORT_CPP_API_GetAvailableStatus(GetAvailableStatus);
 TH_EXPORT_CPP_API_GetEnrolledState(GetEnrolledState);
 TH_EXPORT_CPP_API_GetUserAuthInstance(GetUserAuthInstance);
 TH_EXPORT_CPP_API_SendNotice(SendNotice);
+TH_EXPORT_CPP_API_QueryReusableAuthResult(QueryReusableAuthResult);
 TH_EXPORT_CPP_API_GetUserAuthWidgetMgr(GetUserAuthWidgetMgr);
