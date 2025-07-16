@@ -20,9 +20,11 @@
 #include <memory>
 
 #include "nocopyable.h"
-#include "thread_handler_manager.h"
 
 #include "iam_logger.h"
+#include "iam_ptr.h"
+#include "thread_handler_manager.h"
+#include "xcollie_helper.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -30,6 +32,7 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 using namespace OHOS;
+using namespace OHOS::UserIam::Common;
 ThreadHandlerImpl::ThreadHandlerImpl(std::string name, bool canSuspend) : pool_(name), canSuspend_(canSuspend)
 {
     pool_.Start(1);
@@ -48,6 +51,12 @@ void ThreadHandlerImpl::PostTask(const Task &task)
         return;
     }
     pool_.AddTask(task);
+
+    constexpr uint32_t TASK_BLOCK_MONITOR_TIMEOUT = 20;
+    auto taskBlockMonitor = MakeShared<XCollieHelper>("taskBlockMonitor", TASK_BLOCK_MONITOR_TIMEOUT);
+    pool_.AddTask([taskBlockMonitor] {
+        (void)taskBlockMonitor;
+    });
 }
 
 void ThreadHandlerImpl::EnsureTask(const Task &task)

@@ -56,6 +56,11 @@ void ServerSocket::OnBind(int32_t socketId, PeerSocketInfo info)
         return;
     }
 
+    if (info.networkId == nullptr) {
+        IAM_LOGE("networkId is invalid.");
+        return;
+    }
+
     std::string peerNetworkId(info.networkId);
     AddServerSocket(socketId, peerNetworkId);
 }

@@ -20,10 +20,12 @@
 #include <memory>
 
 #include "nocopyable.h"
-#include "relative_timer.h"
-#include "thread_handler_manager.h"
 
 #include "iam_logger.h"
+#include "iam_ptr.h"
+#include "relative_timer.h"
+#include "thread_handler_manager.h"
+#include "xcollie_helper.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -31,9 +33,18 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 using namespace OHOS;
+using namespace OHOS::UserIam::Common;
 void ThreadHandlerSingletonImpl::PostTask(const Task &task)
 {
     RelativeTimer::GetInstance().Register(task, 0);
+
+    constexpr uint32_t TASK_BLOCK_MONITOR_TIMEOUT = 20;
+    auto taskBlockMonitor = MakeShared<XCollieHelper>("taskBlockMonitor", TASK_BLOCK_MONITOR_TIMEOUT);
+    RelativeTimer::GetInstance().Register(
+        [taskBlockMonitor] {
+            (void)taskBlockMonitor;
+        },
+        0);
 }
 
 void ThreadHandlerSingletonImpl::EnsureTask(const Task &task)

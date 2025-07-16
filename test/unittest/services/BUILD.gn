@@ -130,6 +130,7 @@ ohos_unittest("iam_services_test") {
     "../../../services/remote_connect/src/soft_bus_socket_listener.cpp",
     "mocks/mock_ipc_common.cpp",
     "mocks/mock_iuser_auth_interface.cpp",
+    "mocks/mock_socket.cpp",
     "src/attributes_test.cpp",
     "src/auth_widget_helper_test.cpp",
     "src/authentication_impl_test.cpp",
