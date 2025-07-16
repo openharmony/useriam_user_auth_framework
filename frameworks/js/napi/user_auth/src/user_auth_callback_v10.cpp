@@ -219,6 +219,7 @@ void UserAuthCallbackV10::OnAcquireInfo(int32_t module, uint32_t acquireInfo,
                                                                                  authTipInfoCallbackHolder->tipCode);
         if (ret != napi_ok) {
             IAM_LOGE("DoTipInfoCallBack ret = %{public}d", ret);
+            napi_close_handle_scope(authTipInfoCallbackHolder->env, scope);
             return;
         }
         napi_close_handle_scope(authTipInfoCallbackHolder->env, scope);
