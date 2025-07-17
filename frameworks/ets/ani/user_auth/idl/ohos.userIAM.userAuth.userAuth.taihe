@@ -17,7 +17,7 @@
  
 @!sts_inject("""
 static { loadLibrary("userauth_ani"); }
-export const MAX_ALLOWABLE_REUSE_DURATION : double = 300000;
+export const MAX_ALLOWABLE_REUSE_DURATION : int = 300000;
 """)
  
 enum UserAuthType : i32 {
@@ -68,13 +68,13 @@ enum UserAuthResultCode : i32 {
 }
  
 struct EnrolledState {
-    credentialDigest: f64;
-    credentialCount: f64;
+    credentialDigest: i32;
+    credentialCount: i32;
 }
  
 struct ReuseUnlockResult {
     reuseMode: ReuseMode;
-    reuseDuration: f64;
+    reuseDuration: i32;
 }
  
 struct AuthParam {
@@ -82,7 +82,7 @@ struct AuthParam {
     authType: Array<UserAuthType>;
     authTrustLevel: AuthTrustLevel;
     reuseUnlockResult: Optional<ReuseUnlockResult>;
-    userId: Optional<f64>;
+    userId: Optional<i32>;
 }
  
 struct WidgetParam {
@@ -93,7 +93,7 @@ struct WidgetParam {
 }
  
 struct UserAuthResult {
-    result: f64;
+    result: i32;
     token: Optional<@typedarray Array<u8>>;
     authType: Optional<UserAuthType>;
     enrolledState: Optional<EnrolledState>;
@@ -127,4 +127,4 @@ function GetUserAuthInstance(authParam: AuthParam, widgetParam: WidgetParam): Us
  
 function SendNotice(noticeType: NoticeType, eventData: String): void;
  
-function GetUserAuthWidgetMgr(version: f64): UserAuthWidgetMgr;
+function GetUserAuthWidgetMgr(version: i32): UserAuthWidgetMgr;

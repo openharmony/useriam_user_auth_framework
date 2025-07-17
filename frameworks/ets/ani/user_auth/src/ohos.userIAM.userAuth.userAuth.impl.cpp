@@ -253,7 +253,7 @@ void SendNotice(NoticeType noticeType, string_view eventData)
     IAM_LOGI("end SendNotice");
 }
 
-UserAuthWidgetMgr GetUserAuthWidgetMgr(double version)
+UserAuthWidgetMgr GetUserAuthWidgetMgr(int32_t version)
 {
     IAM_LOGI("GetUserAuthWidgetMgr begin");
     auto userAuthWidgetMgr = make_holder<UserAuthWidgetMgrImpl, UserAuthWidgetMgr>(version);
