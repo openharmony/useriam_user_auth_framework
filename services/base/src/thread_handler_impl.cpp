@@ -33,6 +33,8 @@ namespace UserIam {
 namespace UserAuth {
 using namespace OHOS;
 using namespace OHOS::UserIam::Common;
+constexpr uint32_t TASK_BLOCK_MONITOR_TIMEOUT = 20;
+
 ThreadHandlerImpl::ThreadHandlerImpl(std::string name, bool canSuspend) : pool_(name), canSuspend_(canSuspend)
 {
     pool_.Start(1);
@@ -52,8 +54,11 @@ void ThreadHandlerImpl::PostTask(const Task &task)
     }
     pool_.AddTask(task);
 
-    constexpr uint32_t TASK_BLOCK_MONITOR_TIMEOUT = 20;
     auto taskBlockMonitor = MakeShared<XCollieHelper>("taskBlockMonitor", TASK_BLOCK_MONITOR_TIMEOUT);
+    if (taskBlockMonitor == nullptr) {
+        IAM_LOGE("taskBlockMonitor is nullptr");
+        return;
+    }
     pool_.AddTask([taskBlockMonitor] {
         (void)taskBlockMonitor;
     });
