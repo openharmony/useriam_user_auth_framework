@@ -34,12 +34,18 @@ namespace UserIam {
 namespace UserAuth {
 using namespace OHOS;
 using namespace OHOS::UserIam::Common;
+constexpr uint32_t TASK_BLOCK_MONITOR_TIMEOUT = 20;
+
 void ThreadHandlerSingletonImpl::PostTask(const Task &task)
 {
     RelativeTimer::GetInstance().Register(task, 0);
 
-    constexpr uint32_t TASK_BLOCK_MONITOR_TIMEOUT = 20;
     auto taskBlockMonitor = MakeShared<XCollieHelper>("taskBlockMonitor", TASK_BLOCK_MONITOR_TIMEOUT);
+    if (taskBlockMonitor == nullptr) {
+        IAM_LOGE("taskBlockMonitor is nullptr");
+        return;
+    }
+
     RelativeTimer::GetInstance().Register(
         [taskBlockMonitor] {
             (void)taskBlockMonitor;
