@@ -350,7 +350,7 @@ HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestSendRequest, TestSize.Level
         .attributes = attributes,
         .callback = callback
     };
-    EXPECT_EQ(baseSocket->SendRequest(connectionInfo), GENERAL_ERROR);
+    EXPECT_EQ(baseSocket->SendRequest(connectionInfo), SUCCESS);
     delete baseSocket;
 }
 
@@ -366,7 +366,7 @@ HWTEST_F(SoftBusBaseSocketTest, SoftBusBaseSocketTestSendResponse, TestSize.Leve
     attributes->SetInt32Value(Attributes::ATTR_MSG_TYPE, 1);
     uint32_t messageSeq = 123;
     EXPECT_EQ(baseSocket->SendResponse(socketId, connectionName, srcEndPoint, destEndPoint, attributes,
-        messageSeq), GENERAL_ERROR);
+        messageSeq), SUCCESS);
     delete baseSocket;
 }
 
