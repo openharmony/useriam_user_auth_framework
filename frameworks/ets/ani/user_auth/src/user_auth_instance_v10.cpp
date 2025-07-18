@@ -31,6 +31,7 @@
 #include "user_auth_ani_helper.h"
 #include "user_auth_common_defines.h"
 #include "user_auth_client_impl.h"
+#include "user_auth_api_event_reporter.h"
 
 #define LOG_TAG "USER_AUTH_ANI"
 
@@ -368,14 +369,17 @@ UserAuthResultCode UserAuthInstanceV10::Off(std::string type, taihe::optional_vi
 UserAuthResultCode UserAuthInstanceV10::Start()
 {
     IAM_LOGI("UserAuthInstanceV10 start.");
+    UserAuthApiEventReporter reporter("UserAuthInstance::start");
     if (callback_ == nullptr) {
         IAM_LOGE("callback is null");
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
         return UserAuthResultCode::GENERAL_ERROR;
     }
 
     std::lock_guard<std::mutex> guard(mutex_);
     if (isAuthStarted_) {
         IAM_LOGE("auth already started");
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
         return UserAuthResultCode::GENERAL_ERROR;
     }
 
@@ -383,23 +387,29 @@ UserAuthResultCode UserAuthInstanceV10::Start()
     contextId_ = UserAuthNapiClientImpl::Instance().BeginWidgetAuth(
         API_VERSION_10, authParam_, widgetParam_, callback_, modalCallback_);
     isAuthStarted_ = true;
+    reporter.ReportSuccess();
     return UserAuthResultCode::SUCCESS;
 }
 
 UserAuthResultCode UserAuthInstanceV10::Cancel()
 {
     IAM_LOGI("UserAuthInstanceV10 cancel.");
+    UserAuthApiEventReporter reporter("UserAuthInstance::cancel");
     std::lock_guard<std::mutex> guard(mutex_);
     if (!isAuthStarted_) {
         IAM_LOGE("auth not started");
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
         return UserAuthResultCode::GENERAL_ERROR;
     }
     int32_t result = UserAuthClient::GetInstance().CancelAuthentication(contextId_);
     if (result != ResultCode::SUCCESS) {
         IAM_LOGE("CancelAuthentication fail:%{public}d", result);
-        return UserAuthResultCode(UserAuthHelper::GetResultCodeV10(result));
+        UserAuthResultCode resultCode = UserAuthResultCode(UserAuthHelper::GetResultCodeV10(result));
+        reporter.ReportFailed(resultCode);
+        return resultCode;
     }
     isAuthStarted_ = false;
+    reporter.ReportSuccess();
     return UserAuthResultCode::SUCCESS;
 }
 }  // namespace UserAuth
