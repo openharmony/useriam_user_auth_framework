@@ -128,3 +128,5 @@ function GetUserAuthInstance(authParam: AuthParam, widgetParam: WidgetParam): Us
 function SendNotice(noticeType: NoticeType, eventData: String): void;
  
 function GetUserAuthWidgetMgr(version: i32): UserAuthWidgetMgr;
+
+function QueryReusableAuthResult(authParam: AuthParam): @typedarray Array<u8>;
