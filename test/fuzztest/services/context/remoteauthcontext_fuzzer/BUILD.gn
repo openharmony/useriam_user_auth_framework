@@ -37,6 +37,7 @@ ohos_fuzztest("RemoteAuthContextFuzzTest") {
     "../../../../../services/context/src",
     "../../../../../services/context/inc",
     "../../../../../services/remote_connect/inc",
+    "../../../../../services/remote_connect/default/inc",
     "../../../../../services/ipc/inc",
     "../../../../../interfaces/inner_api",
     "../../../../../frameworks/native/ipc/inc",

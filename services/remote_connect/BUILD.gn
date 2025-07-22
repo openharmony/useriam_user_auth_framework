@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("../../user_auth_framework.gni")
 
 config("userauth_service_remote_connect_config") {
   include_dirs = [ "inc" ]
@@ -32,36 +33,51 @@ ohos_source_set("userauth_service_remote_connect") {
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
-  sources = [
-    "src/device_manager_util.cpp",
-    "src/remote_connect_listener.cpp",
-    "src/remote_connect_listener_manager.cpp",
-    "src/remote_connect_manager.cpp",
-    "src/socket_factory.cpp",
-    "src/soft_bus_base_socket.cpp",
-    "src/soft_bus_client_socket.cpp",
-    "src/soft_bus_manager.cpp",
-    "src/soft_bus_message.cpp",
-    "src/soft_bus_server_socket.cpp",
-    "src/soft_bus_socket_listener.cpp",
-  ]
-
+  sources = []
   deps = [
     "../../frameworks/native/common:attributes",
     "../../frameworks/native/common:dfx",
   ]
+  external_deps = []
 
-  external_deps = [
-    "access_token:libtokensetproc_shared",
-    "c_utils:utils",
-    "device_manager:devicemanagersdk",
-    "dsoftbus:softbus_client",
-    "hilog:libhilog",
-    "init:libbegetutil",
-    "ipc:ipc_single",
-    "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
-  ]
+  if (user_auth_framework_enable_dynamic_load) {
+    sources += [
+      "non_soft_bus/src/device_manager_util.cpp",
+      "non_soft_bus/src/remote_connect_manager.cpp",
+    ]
+
+    external_deps += [
+      "hilog:libhilog",
+      "c_utils:utils",
+    ]
+  } else {
+    sources += [
+      "default/src/device_manager_util.cpp",
+      "default/src/remote_connect_listener.cpp",
+      "default/src/remote_connect_listener_manager.cpp",
+      "default/src/remote_connect_manager.cpp",
+      "default/src/socket_factory.cpp",
+      "default/src/soft_bus_base_socket.cpp",
+      "default/src/soft_bus_client_socket.cpp",
+      "default/src/soft_bus_manager.cpp",
+      "default/src/soft_bus_message.cpp",
+      "default/src/soft_bus_server_socket.cpp",
+      "default/src/soft_bus_socket_listener.cpp",
+    ]
+
+    external_deps += [
+      "access_token:libtokensetproc_shared",
+      "c_utils:utils",
+      "device_manager:devicemanagersdk",
+      "dsoftbus:softbus_client",
+      "hilog:libhilog",
+      "init:libbegetutil",
+      "ipc:ipc_single",
+      "safwk:system_ability_fwk",
+      "samgr:samgr_proxy",
+    ]
+    include_dirs += [ "default/inc" ]
+  }
 
   public_configs = [ ":userauth_service_remote_connect_config" ]
 

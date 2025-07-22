@@ -37,7 +37,7 @@ ohos_fuzztest("WidgetContextFuzzTest") {
     "../../../../../services/context/src",
     "../../../../../services/ipc/inc",
     "../../../../../services/remote_connect/inc",
-    "../../../../../services/remote_connect/src",
+    "../../../../../services/remote_connect/default/inc",
     "../../../../../frameworks/native/ipc/inc",
     "../../../../../frameworks/native/ipc/common_defines",
     "../../../../../frameworks/common/inc",
