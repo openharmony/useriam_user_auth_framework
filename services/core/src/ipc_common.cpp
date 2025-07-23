@@ -283,7 +283,6 @@ bool IpcCommon::CheckDirectCallerAndFirstCallerIfSet(IPCObjectStub &stub, const 
     using namespace Security::AccessToken;
     if ((firstTokenId != 0 && AccessTokenKit::VerifyAccessToken(firstTokenId, permission) != RET_SUCCESS) ||
         AccessTokenKit::VerifyAccessToken(callingTokenId, permission) != RET_SUCCESS) {
-        IAM_LOGE("failed to check permission");
         return false;
     }
     return true;
