@@ -132,7 +132,7 @@ int32_t UserIdmService::GetCredentialInfoInner(int32_t userId, AuthType authType
     }
 
     if (credInfos.empty()) {
-        IAM_LOGE("no cred enrolled");
+        IAM_LOGI("no cred enrolled");
         return NOT_ENROLLED;
     }
     for (const auto &credInfo : credInfos) {
@@ -165,7 +165,11 @@ int32_t UserIdmService::GetCredentialInfo(int32_t userId, int32_t authType,
     std::vector<CredentialInfo> credInfoList;
     int32_t ret = GetCredentialInfoInner(userId, static_cast<AuthType>(authType), credInfoList);
     if (ret != SUCCESS) {
-        IAM_LOGE("GetCredentialInfoInner fail, ret: %{public}d", ret);
+        if (ret == NOT_ENROLLED) {
+            IAM_LOGI("credential is not enrolled");
+        } else {
+            IAM_LOGE("GetCredentialInfoInner fail, ret: %{public}d", ret);
+        }
         credInfoList.clear();
     }
     
