@@ -1503,6 +1503,10 @@ int32_t UserAuthService::GetEnrolledState(int32_t apiVersion, int32_t authType,
     }
     HdiEnrolledState hdiEnrolledState = {};
     int32_t result = hdi->GetEnrolledState(userId, static_cast<HdiAuthType>(authType), hdiEnrolledState);
+    if (result == NOT_ENROLLED) {
+        IAM_LOGI("credential is not enrolled, userId:%{public}d authType:%{public}d", userId, authType);
+        return result;
+    }
     if (result != SUCCESS) {
         IAM_LOGE("failed to get enrolled state,userId:%{public}d authType:%{public}d", userId, authType);
         return result;
