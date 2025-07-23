@@ -228,7 +228,7 @@ ohos_source_set("userauth_service_context_fuzzer") {
   branch_protector_ret = "pac_ret"
   include_dirs = [
     "inc",
-    "../../../frameworks/js/napi/user_auth/inc",
+    "../../../frameworks/common/inc",
   ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
@@ -367,7 +367,7 @@ ohos_source_set("userauth_services_ipc_fuzzer") {
   branch_protector_ret = "pac_ret"
   include_dirs = [
     "../../../services/ipc/inc",
-    "../../../frameworks/js/napi/user_auth/inc",
+    "../../../frameworks/common/inc",
   ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
