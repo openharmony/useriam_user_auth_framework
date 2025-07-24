@@ -28,6 +28,7 @@
 #include "iam_ptr.h"
 
 #include "user_auth_common_defines.h"
+#include "user_auth_helper.h"
 #include "user_auth_napi_helper.h"
 
 #define LOG_TAG "USER_AUTH_NAPI"
@@ -104,7 +105,7 @@ UserAuthResultCode UserAuthParamUtils::InitAuthType(napi_env env, napi_value val
             return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
         }
         IAM_LOGI("napi get authType:%{public}d", value);
-        if (!UserAuthNapiHelper::CheckUserAuthType(value)) {
+        if (!UserAuthHelper::CheckUserAuthType(value)) {
             IAM_LOGE("authType is illegal, %{public}d", value);
             return UserAuthResultCode::TYPE_NOT_SUPPORT;
         }
@@ -136,7 +137,7 @@ UserAuthResultCode UserAuthParamUtils::InitAuthTrustLevel(napi_env env, napi_val
         std::string msgStr = "Parameter error. The type of \"authTrustLevel\" must be number.";
         return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
-    if (!UserAuthNapiHelper::CheckAuthTrustLevel(authTrustLevel)) {
+    if (!UserAuthHelper::CheckAuthTrustLevel(authTrustLevel)) {
         IAM_LOGE("AuthTrustLevel fail:%{public}u", authTrustLevel);
         return UserAuthResultCode::TRUST_LEVEL_NOT_SUPPORT;
     }
@@ -175,7 +176,7 @@ UserAuthResultCode UserAuthParamUtils::InitReuseUnlockResult(napi_env env, napi_
         return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     authParam.reuseUnlockResult.reuseDuration = reuseDuration;
-    if (!UserAuthNapiHelper::CheckReuseUnlockResult(authParam.reuseUnlockResult)) {
+    if (!UserAuthHelper::CheckReuseUnlockResult(authParam.reuseUnlockResult)) {
         IAM_LOGE("ReuseUnlockResult fail");
         std::string msgStr = "Parameter error. The type of \"reuseUnlockResult\" must be ReuseUnlockResult.";
         return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
