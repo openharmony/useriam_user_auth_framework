@@ -22,6 +22,7 @@
 
 #include "ability.h"
 
+#include "napi/native_api.h"
 #include "auth_common.h"
 #include "auth_instance_v9.h"
 #include "user_auth_callback_v10.h"

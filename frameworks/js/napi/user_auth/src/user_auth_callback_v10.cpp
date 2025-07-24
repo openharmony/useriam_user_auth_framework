@@ -21,6 +21,7 @@
 
 #include "iam_ptr.h"
 #include "iam_logger.h"
+#include "user_auth_helper.h"
 #include "user_auth_client_impl.h"
 
 #define LOG_TAG "USER_AUTH_NAPI"
@@ -134,7 +135,7 @@ napi_status UserAuthCallbackV10::DoResultCallback(int32_t result,
         }
     }
 
-    if (UserAuthNapiHelper::CheckUserAuthType(authType)) {
+    if (UserAuthHelper::CheckUserAuthType(authType)) {
         ret = UserAuthNapiHelper::SetInt32Property(env_, eventInfo, "authType", authType);
         if (ret != napi_ok) {
             IAM_LOGE("napi_create_int32 failed %{public}d", ret);
@@ -244,7 +245,7 @@ void UserAuthCallbackV10::OnResult(int32_t result, const Attributes &extraInfo)
         return;
     }
     resultHolder->callback = shared_from_this();
-    resultHolder->result =  UserAuthNapiHelper::GetResultCodeV10(result); // ResultCode -> UserAuthResultCode
+    resultHolder->result =  UserAuthHelper::GetResultCodeV10(result); // ResultCode -> UserAuthResultCode
     resultHolder->env = env_;
     if (!extraInfo.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, resultHolder->token)) {
         IAM_LOGE("ATTR_SIGNATURE is null");

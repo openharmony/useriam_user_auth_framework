@@ -1,0 +1,116 @@
+# Copyright (C) 2025 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/config/components/ets_frontend/ets2abc_config.gni")
+import("//build/ohos.gni")
+import("//build/ohos/taihe_idl/taihe.gni")
+import("../../../../user_auth_framework.gni")
+
+copy_taihe_idl("user_auth_copy_taihe_idl") {
+  sources = [
+    "idl/ohos.userIAM.userAuth.taihe",
+    "idl/ohos.userIAM.userAuth.userAuth.taihe",
+  ]
+}
+
+subsystem_name = "useriam"
+part_name = "user_auth_framework"
+taihe_generated_file_path = "$taihe_file_path/out/$subsystem_name/$part_name"
+
+ohos_taihe("user_auth_taihe") {
+  taihe_generated_file_path = "$taihe_generated_file_path"
+  deps = [ ":user_auth_copy_taihe_idl" ]
+  outputs = [
+    "$taihe_generated_file_path/src/ohos.userIAM.userAuth.userAuth.ani.cpp",
+    "$taihe_generated_file_path/src/ohos.userIAM.userAuth.userAuth.abi.c",
+  ]
+}
+
+taihe_shared_library("userauth_ani") {
+  include_dirs = [ 
+    "inc",
+    "../../../common/inc",
+  ]
+  sources = get_target_outputs(":user_auth_taihe")
+  sources += [
+    "src/ani_constructor.cpp",
+    "src/ohos.userIAM.userAuth.userAuth.impl.cpp",
+    "src/user_auth_ani_helper.cpp",
+    "src/user_auth_callback_v10.cpp",
+    "src/user_auth_instance_v10.cpp",
+    "src/user_auth_widget_callback_v10.cpp",
+    "src/user_auth_widget_mgr_v10.cpp",
+  ]
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:ability_context_native",
+    "ability_runtime:ability_manager",
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:ani_base_context",
+    "ability_runtime:app_context",
+    "ability_runtime:ui_extension",
+    "ace_engine:ace_uicontent",
+    "c_utils:utils",
+    "hiappevent:hiappevent_innerapi",
+    "hilog:libhilog",
+    "ipc:ipc_single",
+    "runtime_core:ani",
+  ]
+
+  sanitize = {
+    integer_overflow = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
+  configs = [
+    "../../../../common:iam_log_config",
+    "../../../../common:iam_utils_config",
+  ]
+
+  deps = [
+    ":user_auth_taihe",
+    "../../../native/client:userauth_client",
+    "../../../common:user_auth_common",
+  ]
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
+  taihe_generated_file_path = "$taihe_generated_file_path"
+  output_extension = "so"
+  part_name = "$part_name"
+  subsystem_name = "$subsystem_name"
+}
+
+generate_static_abc("user_auth") {
+  base_url = "$taihe_generated_file_path"
+  files = [ "$taihe_generated_file_path/@ohos.userIAM.userAuth.ets" ]
+  is_boot_abc = "True"
+  device_dst_file = "system/framework/user_auth.abc"
+  dependencies = [ ":user_auth_taihe" ]
+}
+
+ohos_prebuilt_etc("user_auth_abc_etc") {
+  source = "$target_out_dir/user_auth.abc"
+  module_install_dir = "framework"
+  deps = [ ":user_auth" ]
+  part_name = "$part_name"
+  subsystem_name = "$subsystem_name"
+}
+
+group("user_auth_ani") {
+  deps = [
+    ":user_auth_abc_etc",
+    ":userauth_ani",
+  ]
+}
