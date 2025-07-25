@@ -52,8 +52,11 @@ struct WidgetNotice {
 };
 void to_json(nlohmann::json &jsonNotice, const WidgetNotice &notice);
 void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice);
-bool GetProcessName(std::vector<std::string> &processName);
-bool GetFollowCallerList(std::vector<std::string> &processName);
+void LoadConfigJsonBuffer(nlohmann::json &jsonBuf);
+bool GetProcessName(nlohmann::json &jsonBuf, std::vector<std::string> &processName);
+bool GetFollowCallerList(nlohmann::json &jsonBuf, std::vector<std::string> &processName);
+bool GetSceneboardBundleName(nlohmann::json &jsonBuf, std::string &processName);
+bool GetSceneboardAbilityName(nlohmann::json &jsonBuf, std::string &processName);
 
 // WidgetCommand
 struct WidgetCommand {
