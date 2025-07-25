@@ -169,6 +169,7 @@ private:
     uint32_t onResultTimerId_ {0};
     uint32_t onTipTimerId_ {0};
     ResultInfo resultInfo_{0};
+    nlohmann::json jsonBuf_ = {};
 };
 } // namespace UserAuth
 } // namespace UserIam
