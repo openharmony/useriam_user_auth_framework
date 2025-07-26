@@ -78,6 +78,7 @@ WidgetContext::WidgetContext(uint64_t contextId, const ContextFactory::AuthWidge
     if (!para.isBackgroundApplication) {
         SubscribeAppState(callerCallback_, contextId_);
     }
+    LoadConfigJsonBuffer(jsonBuf_);
 }
 
 WidgetContext::~WidgetContext()
@@ -485,7 +486,7 @@ bool WidgetContext::IsInFollowCallerList()
     IAM_LOGI("productName is %{public}s.", productName.c_str());
 
     std::vector<std::string> processName;
-    if (!GetFollowCallerList(processName)) {
+    if (!GetFollowCallerList(jsonBuf_, processName)) {
         IAM_LOGE("GetFollowCallerList error");
         return false;
     }
@@ -512,7 +513,7 @@ void WidgetContext::SetSysDialogZOrder(WidgetCmdParameters &widgetCmdParameters)
         IAM_LOGI("the screen is currently locked, set zOrder");
         widgetCmdParameters.sysDialogZOrder = SYSDIALOG_ZORDER_UPPER;
     }
-    if (!GetProcessName(processName)) {
+    if (!GetProcessName(jsonBuf_, processName)) {
         IAM_LOGE("getProcessName error");
         return;
     }
@@ -562,6 +563,12 @@ bool WidgetContext::ConnectExtension(const WidgetRotatePara &widgetRotatePara)
     AAFwk::Want want;
     std::string bundleName = "com.ohos.systemui";
     std::string abilityName = "com.ohos.systemui.dialog";
+    if (!GetSceneboardBundleName(jsonBuf_, bundleName)) {
+        IAM_LOGI("GetSceneboardBundleName error");
+    }
+    if (!GetSceneboardAbilityName(jsonBuf_, abilityName)) {
+        IAM_LOGI("GetSceneboardAbilityName error");
+    }
     want.SetElementName(bundleName, abilityName);
     auto ret = ConnectExtensionAbility(want, commandData);
     if (ret != ERR_OK) {

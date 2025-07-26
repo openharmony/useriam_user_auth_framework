@@ -87,6 +87,8 @@ const std::string JSON_CMD_EXTRA_INFO = "extraInfo";
 constexpr const char *AUTH_WIDGE_CONFIG_SUFFIX = "etc/auth_widget/auth_widget_config.json";
 const std::string SHWO_WITH_LEVEL_2_WINDOW = "show_with_level_2_window";
 const std::string FOLLOW_CALLER_WINDOW_WHEN_FOLDED = "follow_caller_window_when_folded";
+const std::string SCENEBOARD_BUNDLE_NAME = "sceneboard_bundle_name";
+const std::string SCENEBOARD_ABILITY_NAME = "sceneboard_ability_name";
 
 const uint32_t DISABLE_ROTATE = 0;
 const uint32_t MAX_ERR_BUF_LEN = 256;
@@ -194,6 +196,10 @@ bool GetStringArrayFromJson(const nlohmann::json &jsonObject,
     std::vector<std::string> &exemptedBundleInfos,
     const std::string &key)
 {
+    if (jsonObject.is_null()) {
+        IAM_LOGE("jsonObject is null");
+        return false;
+    }
     if (jsonObject.is_array() && !jsonObject.is_discarded()) {
         for (const auto &object : jsonObject) {
             if (!object.is_object()) {
@@ -209,6 +215,30 @@ bool GetStringArrayFromJson(const nlohmann::json &jsonObject,
         return true;
     }
     IAM_LOGE("getStringArrayFromJson error");
+    return false;
+}
+
+bool GetStringFromJson(const nlohmann::json &jsonObject, std::string &exemptedBundleInfo,
+    const std::string &key)
+{
+    if (jsonObject.is_null()) {
+        IAM_LOGE("jsonObject is null");
+        return false;
+    }
+    if (jsonObject.is_array() && !jsonObject.is_discarded()) {
+        for (const auto &object : jsonObject) {
+            if (!object.is_object()) {
+                IAM_LOGE("is not object");
+                return false;
+            }
+            const auto &objectEnd = object.end();
+            if (object.find(key) != objectEnd) {
+                exemptedBundleInfo = object.at(key).get<std::string>();
+                return true;
+            }
+        }
+    }
+    IAM_LOGE("getStringFromJson error");
     return false;
 }
 }
@@ -407,15 +437,38 @@ std::string GetConfigRealPath()
     return configPath;
 }
 
-bool GetProcessName(std::vector<std::string> &processName)
+void LoadConfigJsonBuffer(nlohmann::json &jsonBuf)
 {
-    IAM_LOGI("enter");
-    nlohmann::json jsonBuf;
+    IAM_LOGI("LoadConfig start");
     std::string configPath = GetConfigRealPath();
     if (!ReadFileIntoJson(configPath, jsonBuf)) {
         IAM_LOGE("ReadFileIntoJson failed");
+    }
+}
+
+bool GetSceneboardBundleName(nlohmann::json &jsonBuf, std::string &processName)
+{
+    IAM_LOGI("enter");
+    if (!GetStringFromJson(jsonBuf, processName, SCENEBOARD_BUNDLE_NAME)) {
+        IAM_LOGE("GetStringFromJson failed");
         return false;
     }
+    return true;
+}
+
+bool GetSceneboardAbilityName(nlohmann::json &jsonBuf, std::string &processName)
+{
+    IAM_LOGI("enter");
+    if (!GetStringFromJson(jsonBuf, processName, SCENEBOARD_ABILITY_NAME)) {
+        IAM_LOGE("GetStringFromJson failed");
+        return false;
+    }
+    return true;
+}
+
+bool GetProcessName(nlohmann::json &jsonBuf, std::vector<std::string> &processName)
+{
+    IAM_LOGI("enter");
     if (!GetStringArrayFromJson(jsonBuf, processName, SHWO_WITH_LEVEL_2_WINDOW)) {
         IAM_LOGE("GetStringArrayFromJson failed");
         return false;
@@ -423,15 +476,9 @@ bool GetProcessName(std::vector<std::string> &processName)
     return true;
 }
 
-bool GetFollowCallerList(std::vector<std::string> &processName)
+bool GetFollowCallerList(nlohmann::json &jsonBuf, std::vector<std::string> &processName)
 {
     IAM_LOGI("enter");
-    nlohmann::json jsonBuf;
-    std::string configPath = GetConfigRealPath();
-    if (!ReadFileIntoJson(configPath, jsonBuf)) {
-        IAM_LOGE("Path to realPath failed");
-        return false;
-    }
     if (!GetStringArrayFromJson(jsonBuf, processName, FOLLOW_CALLER_WINDOW_WHEN_FOLDED)) {
         IAM_LOGE("GetStringArrayFromJson failed");
         return false;
