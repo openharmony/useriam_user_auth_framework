@@ -1171,7 +1171,6 @@ uint64_t UserAuthService::StartWidgetContext(const std::shared_ptr<ContextCallba
         return BAD_CONTEXT_ID;
     }
     contextCallback->SetTraceRequestContextId(context->GetContextId());
-    contextCallback->SetCleaner(ContextHelper::Cleaner(context));
     if (!context->Start()) {
         int32_t errorCode = context->GetLatestError();
         IAM_LOGE("start widget context fail %{public}d", errorCode);
