@@ -66,7 +66,6 @@ const std::string TO_PORTRAIT = "90";
 const std::string TO_INVERTED = "180";
 const std::string TO_PORTRAIT_INVERTED = "270";
 const std::string SUPPORT_FOLLOW_CALLER_UI = "const.useriam.authWidget.supportFollowCallerUi";
-static constexpr uint32_t RESULT_TIMER_LEN_MS = 100;
 
 WidgetContext::WidgetContext(uint64_t contextId, const ContextFactory::AuthWidgetContextPara &para,
     std::shared_ptr<ContextCallback> callback, const sptr<IModalCallback> &modalCallback)
@@ -669,7 +668,6 @@ void WidgetContext::StopAllRunTask(const ResultCode &resultCode)
             IAM_LOGE("failed to release launch widget.");
         }
     }
-    WidgetClient::Instance().Reset();
 }
 
 void WidgetContext::BuildStartPinSubType(WidgetCmdParameters &widgetCmdParameters)
@@ -815,6 +813,7 @@ void WidgetContext::ProcAuthResult(int32_t resultCode, AuthType authType, int32_
     const Attributes &finalResult)
 {
     IAM_LOGI("recv task result: %{public}d, authType: %{public}d", resultCode, authType);
+    IF_FALSE_LOGE_AND_RETURN(schedule_ != nullptr);
     if (resultCode == ResultCode::SUCCESS || resultCode == ResultCode::COMPLEXITY_CHECK_FAILED) {
         finalResult.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authResultInfo_.token);
         finalResult.GetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, authResultInfo_.credentialDigest);
@@ -824,18 +823,28 @@ void WidgetContext::ProcAuthResult(int32_t resultCode, AuthType authType, int32_
         if (resultCode != ResultCode::SUCCESS) {
             SetLatestError(resultCode);
         }
+        schedule_->SuccessAuth(authType);
     } else {
         SetLatestError(resultCode);
         if (resultCode != ResultCode::CANCELED) {
             SendAuthTipInfo(authType, GetAuthTipCode(resultCode, freezingTime));
         }
+        if (para_.skipLockedBiometricAuth && freezingTime > 0) {
+            if (IsSingleFaceOrFingerPrintAuth()) {
+                schedule_->FailAuth(authType);
+            } else if (IsNavigationAuth()) {
+                schedule_->NaviPinAuth();
+            }
+        } else {
+            schedule_->StopAuthList({authType});
+        }
     }
-    StartOnResultTimer(resultCode, authType, freezingTime);
 }
 
 void WidgetContext::ProcAuthTipInfo(int32_t tip, AuthType authType, const std::vector<uint8_t> &extraInfo)
 {
     IAM_LOGI("authType:%{public}d, tip:%{public}d", authType, tip);
+    IF_FALSE_LOGE_AND_RETURN(schedule_ != nullptr);
     IF_FALSE_LOGE_AND_RETURN(callerCallback_ != nullptr);
     int32_t resultCode = ResultCode::GENERAL_ERROR;
     int32_t freezingTime = -1;
@@ -850,106 +859,6 @@ void WidgetContext::ProcAuthTipInfo(int32_t tip, AuthType authType, const std::v
     if (resultCode != ResultCode::CANCELED) {
         SendAuthTipInfo(authType, GetAuthTipCode(resultCode, freezingTime));
     }
-    StartOnTipTimer(authType, freezingTime);
-}
-
-void WidgetContext::StartOnResultTimer(int32_t resultCode, AuthType authType, int32_t freezingTime)
-{
-    IAM_LOGI("start");
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    resultInfo_.resultCode = resultCode;
-    resultInfo_.authType = authType;
-    resultInfo_.freezingTime = freezingTime;
-    if (onResultTimerId_ != 0) {
-        IAM_LOGI("onResult timer is already start");
-        return;
-    }
-
-    onResultTimerId_ = RelativeTimer::GetInstance().Register(
-        [weakSelf = weak_from_this(), resultCode, authType, freezingTime] {
-            auto self = weakSelf.lock();
-            if (self == nullptr) {
-                IAM_LOGE("context is released");
-                return;
-            }
-            self->OnResultTimerTimeOut(resultCode, authType, freezingTime);
-        },
-        RESULT_TIMER_LEN_MS);
-}
-
-void WidgetContext::StopOnResultTimer()
-{
-    IAM_LOGI("start");
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    if (onResultTimerId_ == 0) {
-        IAM_LOGI("onResult timer is already stop");
-        return;
-    }
-
-    RelativeTimer::GetInstance().Unregister(onResultTimerId_);
-    onResultTimerId_ = 0;
-}
-
-void WidgetContext::OnResultTimerTimeOut(int32_t resultCode, AuthType authType, int32_t freezingTime)
-{
-    IAM_LOGI("start");
-    IF_FALSE_LOGE_AND_RETURN(schedule_ != nullptr);
-    if (resultCode == ResultCode::SUCCESS || resultCode == ResultCode::COMPLEXITY_CHECK_FAILED) {
-        schedule_->SuccessAuth(authType);
-    } else {
-        if (para_.skipLockedBiometricAuth && freezingTime > 0) {
-            if (IsSingleFaceOrFingerPrintAuth()) {
-                schedule_->FailAuth(authType);
-            } else if (IsNavigationAuth()) {
-                schedule_->NaviPinAuth();
-            }
-        } else {
-            schedule_->StopAuthList({authType});
-        }
-    }
-}
-
-void WidgetContext::StartOnTipTimer(AuthType authType, int32_t freezingTime)
-{
-    IAM_LOGI("start");
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    resultInfo_.resultCode = FAIL;
-    resultInfo_.authType = authType;
-    resultInfo_.freezingTime = freezingTime;
-    if (onTipTimerId_ != 0) {
-        IAM_LOGI("onTip timer is already start");
-        return;
-    }
-
-    onTipTimerId_ = RelativeTimer::GetInstance().Register(
-        [weakSelf = weak_from_this(), authType, freezingTime] {
-            auto self = weakSelf.lock();
-            if (self == nullptr) {
-                IAM_LOGE("context is released");
-                return;
-            }
-            self->OnTipTimerTimeOut(authType, freezingTime);
-        },
-        RESULT_TIMER_LEN_MS);
-}
-
-void WidgetContext::StopOnTipTimer()
-{
-    IAM_LOGI("start");
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    if (onTipTimerId_ == 0) {
-        IAM_LOGI("onTip timer is already stop");
-        return;
-    }
-
-    RelativeTimer::GetInstance().Unregister(onTipTimerId_);
-    onTipTimerId_ = 0;
-}
-
-void WidgetContext::OnTipTimerTimeOut(AuthType authType, int32_t freezingTime)
-{
-    IAM_LOGI("start");
-    IF_FALSE_LOGE_AND_RETURN(schedule_ != nullptr);
     if (para_.skipLockedBiometricAuth && freezingTime > 0) {
         if (IsSingleFaceOrFingerPrintAuth()) {
             schedule_->FailAuth(authType);
@@ -959,19 +868,12 @@ void WidgetContext::OnTipTimerTimeOut(AuthType authType, int32_t freezingTime)
     }
 }
 
-void WidgetContext::SendAuthResult()
+void WidgetContext::ClearSchedule()
 {
     IAM_LOGI("start");
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    if (onTipTimerId_ != 0 && resultInfo_.resultCode != SUCCESS) {
-        OnTipTimerTimeOut(resultInfo_.authType, resultInfo_.freezingTime);
-        StopOnTipTimer();
-    }
-
-    if (onResultTimerId_ != 0) {
-        OnResultTimerTimeOut(resultInfo_.resultCode, resultInfo_.authType, resultInfo_.freezingTime);
-        StopOnResultTimer();
-    }
+    WidgetClient::Instance().Reset();
+    auto result = ContextPool::Instance().Delete(GetContextId());
+    IAM_LOGI("context ****%{public}hx deleted %{public}s", static_cast<uint16_t>(contextId_), result ? "succ" : "fail");
 }
 } // namespace UserAuth
 } // namespace UserIam
