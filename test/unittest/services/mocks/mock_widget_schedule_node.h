@@ -37,7 +37,7 @@ public:
     MOCK_METHOD4(WidgetReload, bool(uint32_t orientation, uint32_t needRotate, uint32_t alreadyLoad,
         AuthType &rotateAuthType));
     MOCK_METHOD2(SendAuthTipInfo, void(const std::vector<AuthType> &authTypeList, int32_t tipCode));
-    MOCK_METHOD0(SendAuthResult, void());
+    MOCK_METHOD0(ClearSchedule, bool());
 };
 } // namespace UserAuth
 } // namespace UserIam
