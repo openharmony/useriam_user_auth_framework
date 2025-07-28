@@ -31,9 +31,9 @@ namespace UserAuth {
 
 namespace {
 const std::map<UserAuthResultCode, std::string> g_resultV92Str = {
-    {UserAuthResultCode::OHOS_INVALID_PARAM, "Invalid authentication parameters."},
+    {UserAuthResultCode::OHOS_INVALID_PARAM, "Parameter error."},
     {UserAuthResultCode::OHOS_CHECK_PERMISSION_FAILED, "Permission denied."},
-    {UserAuthResultCode::OHOS_CHECK_SYSTEM_APP_FAILED, "The caller is not a system application."},
+    {UserAuthResultCode::OHOS_CHECK_SYSTEM_APP_FAILED, "Permission denied. Called by non-system application."},
     {UserAuthResultCode::SUCCESS, "Authentication succeeded."},
     {UserAuthResultCode::FAIL, "Authentication failed."},
     {UserAuthResultCode::GENERAL_ERROR, "Unknown errors."},
