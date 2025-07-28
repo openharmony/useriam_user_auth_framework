@@ -498,7 +498,7 @@ HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_006, TestSize.Level0)
 {
     WidgetNotice widgetNotice;
     widgetNotice.widgetContextId = 1;
-    widgetNotice.event = NOTICE_EVENT_AUTH_WIDGET_LOADED;
+    widgetNotice.event = EVENT_AUTH_WIDGET_LOADED;
     widgetNotice.typeList.push_back("pin");
     WidgetClient::Instance().Reset();
     std::vector<AuthType> authTypeList;
@@ -512,21 +512,7 @@ HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_007, TestSize.Level0)
 {
     WidgetNotice widgetNotice;
     widgetNotice.widgetContextId = 1;
-    widgetNotice.event = NOTICE_EVENT_AUTH_WIDGET_RELEASED;
-    widgetNotice.typeList.push_back("pin");
-    WidgetClient::Instance().Reset();
-    std::vector<AuthType> authTypeList;
-    authTypeList.emplace_back(AuthType::PIN);
-    WidgetClient::Instance().SetAuthTypeList(authTypeList);
-    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
-    EXPECT_NO_THROW(WidgetClient::Instance().ProcessNotice(widgetNotice, authTypeList));
-}
-
-HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_008, TestSize.Level0)
-{
-    WidgetNotice widgetNotice;
-    widgetNotice.widgetContextId = 1;
-    widgetNotice.event = NOTICE_EVENT_PROCESS_TERMINATE;
+    widgetNotice.event = EVENT_AUTH_WIDGET_RELEASED;
     widgetNotice.typeList.push_back("pin");
     WidgetClient::Instance().Reset();
     std::vector<AuthType> authTypeList;
