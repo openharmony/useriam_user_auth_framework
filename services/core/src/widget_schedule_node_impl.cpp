@@ -80,17 +80,6 @@ std::shared_ptr<FiniteStateMachine> WidgetScheduleNodeImpl::MakeFiniteStateMachi
     builder->MakeTransition(S_WIDGET_RELOAD_WAITING, E_CANCEL_AUTH, S_WIDGET_WAITING,
         [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetReload(machine, event); });
 
-    builder->MakeTransition(S_WIDGET_INIT, E_WIDGET_RELEASE, S_WIDGET_RELEASED,
-        [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetRelease(machine, event); });
-    builder->MakeTransition(S_WIDGET_WAITING, E_WIDGET_RELEASE, S_WIDGET_RELEASED,
-        [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetRelease(machine, event); });
-    builder->MakeTransition(S_WIDGET_AUTH_RUNNING, E_WIDGET_RELEASE, S_WIDGET_RELEASED,
-        [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetRelease(machine, event); });
-    builder->MakeTransition(S_WIDGET_AUTH_FINISHED, E_WIDGET_RELEASE, S_WIDGET_RELEASED,
-        [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetRelease(machine, event); });
-    builder->MakeTransition(S_WIDGET_RELOAD_WAITING, E_WIDGET_RELEASE, S_WIDGET_RELEASED,
-        [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetRelease(machine, event); });
-
     return builder->Build();
 }
 
@@ -120,12 +109,6 @@ bool WidgetScheduleNodeImpl::StopSchedule()
 {
     std::lock_guard<std::mutex> lock(mutex_);
     return TryKickMachine(E_CANCEL_AUTH);
-}
-
-bool WidgetScheduleNodeImpl::ClearSchedule()
-{
-    std::lock_guard<std::mutex> lock(mutex_);
-    return TryKickMachine(E_WIDGET_RELEASE);
 }
 
 bool WidgetScheduleNodeImpl::StartAuthList(const std::vector<AuthType> &authTypeList, bool endAfterFirstFail,
@@ -286,14 +269,6 @@ void WidgetScheduleNodeImpl::OnWidgetReload(FiniteStateMachine &machine, uint32_
     }
 }
 
-void WidgetScheduleNodeImpl::OnWidgetRelease(FiniteStateMachine &machine, uint32_t event)
-{
-    auto callback = callback_.lock();
-    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
-    IAM_LOGI("clear schedule");
-    callback->ClearSchedule();
-}
-
 void WidgetScheduleNodeImpl::SendAuthTipInfo(const std::vector<AuthType> &authTypeList, int32_t tipCode)
 {
     auto callback = callback_.lock();
@@ -302,6 +277,14 @@ void WidgetScheduleNodeImpl::SendAuthTipInfo(const std::vector<AuthType> &authTy
     for (auto &authType : authTypeList) {
         callback->SendAuthTipInfo(authType, tipCode);
     }
+}
+
+void WidgetScheduleNodeImpl::SendAuthResult()
+{
+    auto callback = callback_.lock();
+    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+    IAM_LOGI("send auth result");
+    callback->SendAuthResult();
 }
 } // namespace UserAuth
 } // namespace UserIam

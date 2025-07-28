@@ -44,7 +44,7 @@ public:
         AuthType &rotateAuthType) = 0;
     virtual void AuthWidgetReloadInit() = 0;
     virtual void SendAuthTipInfo(int32_t authType, int32_t tipInfo) = 0;
-    virtual void ClearSchedule() = 0;
+    virtual void SendAuthResult() = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam

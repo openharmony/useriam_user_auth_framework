@@ -116,12 +116,11 @@ void WidgetClient::ProcessNotice(const WidgetNotice &notice, std::vector<AuthTyp
         } else {
             schedule_->WidgetReload(notice.orientation, notice.needRotate, notice.alreadyLoad, authTypeList[0]);
         }
-    } else if (notice.event == NOTICE_EVENT_AUTH_WIDGET_LOADED) {
+    } else if (notice.event == EVENT_AUTH_WIDGET_LOADED) {
         schedule_->SendAuthTipInfo(authTypeList, TIP_CODE_WIDGET_LOADED);
-    } else if (notice.event == NOTICE_EVENT_AUTH_WIDGET_RELEASED) {
+    } else if (notice.event == EVENT_AUTH_WIDGET_RELEASED) {
         schedule_->SendAuthTipInfo(authTypeList, TIP_CODE_WIDGET_RELEASED);
-    } else if (notice.event == NOTICE_EVENT_PROCESS_TERMINATE) {
-        schedule_->ClearSchedule();
+        schedule_->SendAuthResult();
     }
 }
 
@@ -241,9 +240,12 @@ void WidgetClient::Reset()
 void WidgetClient::ForceStopAuth()
 {
     IAM_LOGE("stop auth process forcely by disconnect");
+    if (widgetContextId_ != 0) {
+        IAM_LOGE("widget context id hasn't been reset");
+        UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "AuthWidget");
+    }
     if (schedule_ != nullptr) {
         schedule_->StopSchedule();
-        schedule_->ClearSchedule();
     }
 }
 
@@ -317,9 +319,8 @@ bool WidgetClient::IsValidNoticeType(const WidgetNotice &notice)
         notice.event != NOTICE_EVENT_WIDGET_PARA_INVALID &&
         notice.event != NOTICE_EVENT_RELOAD &&
         notice.event != NOTICE_EVENT_END &&
-        notice.event != NOTICE_EVENT_AUTH_WIDGET_LOADED &&
-        notice.event != NOTICE_EVENT_AUTH_WIDGET_RELEASED &&
-        notice.event != NOTICE_EVENT_PROCESS_TERMINATE) {
+        notice.event != EVENT_AUTH_WIDGET_LOADED &&
+        notice.event != EVENT_AUTH_WIDGET_RELEASED) {
         return false;
     }
     return true;
