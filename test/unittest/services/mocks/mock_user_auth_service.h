@@ -25,12 +25,13 @@ namespace UserIam {
 namespace UserAuth {
 class MockUserAuthService final : public UserAuthStub {
 public:
-    MOCK_METHOD3(GetEnrolledState, int32_t(int32_t apiVersion, int32_t authType, IpcEnrolledState &ipcEnrolledState));
+    MOCK_METHOD4(GetEnrolledState, int32_t(int32_t apiVersion, int32_t authType,
+        IpcEnrolledState &ipcEnrolledState, int32_t &funcResult));
 
-    MOCK_METHOD4(GetAvailableStatus, int32_t(int32_t apiVersion, int32_t userId, int32_t authType,
-        uint32_t authTrustLevel));
+    MOCK_METHOD5(GetAvailableStatus, int32_t(int32_t apiVersion, int32_t userId, int32_t authType,
+        uint32_t authTrustLevel, int32_t &funcResult));
 
-    int32_t GetAvailableStatus(int32_t apiVersion, int32_t authType, uint32_t authTrustLevel)
+    int32_t GetAvailableStatus(int32_t apiVersion, int32_t authType, uint32_t authTrustLevel, int32_t &funcResult)
     {
         return 0;
     }

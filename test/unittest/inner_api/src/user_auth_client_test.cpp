@@ -64,11 +64,11 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetEnrolledState002, TestSize.Level0)
 
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, GetEnrolledState(_, _, _)).Times(1);
+    EXPECT_CALL(*service, GetEnrolledState(_, _, _, _)).Times(1);
     ON_CALL(*service, GetEnrolledState)
         .WillByDefault(
             [&testApiVersion, &testAuthType, &credentialDigest, &credentialCount](int32_t apiVersion, int32_t authType,
-            IpcEnrolledState &enrolledState) {
+            IpcEnrolledState &enrolledState, int32_t &funcResult) {
                 EXPECT_EQ(apiVersion, testApiVersion);
                 EXPECT_EQ(authType, static_cast<AuthType>(testAuthType));
 
@@ -108,11 +108,11 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetAvailableStatus002, TestSize.Level
 
     auto service = Common::MakeShared<MockUserAuthService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, GetAvailableStatus(_, _, _, _)).Times(1);
+    EXPECT_CALL(*service, GetAvailableStatus(_, _, _, _, _)).Times(1);
     ON_CALL(*service, GetAvailableStatus)
         .WillByDefault(
             [&testApiVersion, &testAuthType, &testAtl](int32_t apiVersion, int32_t userId, int32_t authType,
-                uint32_t authTrustLevel) {
+                uint32_t authTrustLevel, int32_t &funcResult) {
                 return SUCCESS;
             }
         );

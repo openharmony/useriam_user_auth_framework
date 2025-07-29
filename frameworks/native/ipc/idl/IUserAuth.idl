@@ -25,10 +25,10 @@ import IEventListenerCallback;
 option_stub_hooks on;
 
 interface OHOS.UserIam.UserAuth.IUserAuth {
-    void GetAvailableStatus([in] int apiVersion, [in] int userId, [in] int authType,
+    int GetAvailableStatus([in] int apiVersion, [in] int userId, [in] int authType,
         [in] unsigned int authTrustLevel);
 
-    void GetAvailableStatus([in] int apiVersion, [in] int authType, [in] unsigned int authTrustLevel);
+    int GetAvailableStatus([in] int apiVersion, [in] int authType, [in] unsigned int authTrustLevel);
 
     void GetProperty([in] int userId, [in] int authType,
         [in] unsigned int[] keys, [in] IGetExecutorPropertyCallback getExecutorPropertyCallback);
@@ -60,7 +60,7 @@ interface OHOS.UserIam.UserAuth.IUserAuth {
 
     void RegisterWidgetCallback([in] int version, [in] IWidgetCallback widgetCallback);
 
-    void GetEnrolledState([in] int apiVersion, [in] int authType, [out] IpcEnrolledState ipcEnrolledState);
+    int GetEnrolledState([in] int apiVersion, [in] int authType, [out] IpcEnrolledState ipcEnrolledState);
 
     void RegistUserAuthSuccessEventListener([in] IEventListenerCallback listener);
 
