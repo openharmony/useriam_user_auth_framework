@@ -26,7 +26,7 @@ interface OHOS.UserIam.UserAuth.IUserIdm {
 
     void CloseSession([in] int userId);
 
-    void GetCredentialInfo([in] int userId, [in] int authType,
+    int GetCredentialInfo([in] int userId, [in] int authType,
         [in] IIdmGetCredInfoCallback idmGetCredInfoCallback);
 
     void GetSecInfo([in] int userId, [in] IIdmGetSecureUserInfoCallback IdmGetSecureUserInfoCallback);

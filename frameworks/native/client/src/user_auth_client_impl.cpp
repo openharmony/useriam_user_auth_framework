@@ -93,8 +93,19 @@ int32_t UserAuthClientImpl::GetAvailableStatus(AuthType authType, AuthTrustLevel
             ACCESS_BIOMETRIC_PERMISSION
         }));
     }
-    return proxy->GetAvailableStatus(INNER_API_VERSION_10000, static_cast<int32_t>(authType),
-        static_cast<uint32_t>(authTrustLevel));
+
+    int32_t funcResult = SUCCESS;
+    int32_t ret = proxy->GetAvailableStatus(INNER_API_VERSION_10000, static_cast<int32_t>(authType),
+        static_cast<uint32_t>(authTrustLevel), funcResult);
+    if (ret != SUCCESS) {
+        IAM_LOGE("ipc call return fail, ret:%{public}d", ret);
+        return GENERAL_ERROR;
+    }
+    if (funcResult != SUCCESS) {
+        IAM_LOGI("service call return fail, ret:%{public}d", funcResult);
+        return funcResult;
+    }
+    return SUCCESS;
 }
 
 int32_t UserAuthClientImpl::GetNorthAvailableStatus(int32_t apiVersion, AuthType authType,
@@ -109,8 +120,18 @@ int32_t UserAuthClientImpl::GetNorthAvailableStatus(int32_t apiVersion, AuthType
             ACCESS_BIOMETRIC_PERMISSION
         }));
     }
-    return proxy->GetAvailableStatus(apiVersion, static_cast<int32_t>(authType),
-        static_cast<uint32_t>(authTrustLevel));
+    int32_t funcResult = SUCCESS;
+    int32_t ret = proxy->GetAvailableStatus(apiVersion, static_cast<int32_t>(authType),
+        static_cast<uint32_t>(authTrustLevel), funcResult);
+    if (ret != SUCCESS) {
+        IAM_LOGE("ipc call return fail, ret:%{public}d", ret);
+        return GENERAL_ERROR;
+    }
+    if (funcResult != SUCCESS) {
+        IAM_LOGI("service call return fail, ret:%{public}d", funcResult);
+        return funcResult;
+    }
+    return SUCCESS;
 }
 
 int32_t UserAuthClientImpl::GetAvailableStatus(int32_t userId, AuthType authType, AuthTrustLevel authTrustLevel)
@@ -123,8 +144,18 @@ int32_t UserAuthClientImpl::GetAvailableStatus(int32_t userId, AuthType authType
             ACCESS_USER_AUTH_INTERNAL_PERMISSION
         }));
     }
-    return proxy->GetAvailableStatus(INNER_API_VERSION_10000, userId, static_cast<int32_t>(authType),
-        static_cast<uint32_t>(authTrustLevel));
+    int32_t funcResult = SUCCESS;
+    int32_t ret = proxy->GetAvailableStatus(INNER_API_VERSION_10000, userId, static_cast<int32_t>(authType),
+        static_cast<uint32_t>(authTrustLevel), funcResult);
+    if (ret != SUCCESS) {
+        IAM_LOGE("ipc call return fail, ret:%{public}d", ret);
+        return GENERAL_ERROR;
+    }
+    if (funcResult != SUCCESS) {
+        IAM_LOGI("service call return fail, ret:%{public}d", funcResult);
+        return funcResult;
+    }
+    return SUCCESS;
 }
 
 void UserAuthClientImpl::GetProperty(int32_t userId, const GetPropertyRequest &request,
@@ -664,10 +695,15 @@ int32_t UserAuthClientImpl::GetEnrolledState(int32_t apiVersion, AuthType authTy
         }));
     }
     IpcEnrolledState ipcEnrolledState = {};
-    int32_t ret = proxy->GetEnrolledState(apiVersion, static_cast<int32_t>(authType), ipcEnrolledState);
+    int32_t funcResult = SUCCESS;
+    int32_t ret = proxy->GetEnrolledState(apiVersion, static_cast<int32_t>(authType), ipcEnrolledState, funcResult);
     if (ret != SUCCESS) {
-        IAM_LOGE("proxy GetEnrolledState failed");
-        return ret;
+        IAM_LOGE("ipc call return fail, ret:%{public}d", ret);
+        return GENERAL_ERROR;
+    }
+    if (funcResult != SUCCESS) {
+        IAM_LOGI("service call return fail, ret:%{public}d", funcResult);
+        return funcResult;
     }
     enrolledState.credentialCount = ipcEnrolledState.credentialCount;
     enrolledState.credentialDigest = ipcEnrolledState.credentialDigest;

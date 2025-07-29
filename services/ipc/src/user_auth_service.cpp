@@ -187,6 +187,22 @@ bool UserAuthService::CheckAuthTrustLevel(AuthTrustLevel authTrustLevel)
 }
 
 int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, int32_t userId, int32_t authType,
+    uint32_t authTrustLevel, int32_t &funcResult)
+{
+    IAM_LOGD("start");
+    funcResult = GetAvailableStatusImpl(apiVersion, userId, authType, authTrustLevel);
+    return SUCCESS;
+}
+
+int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, int32_t authType, uint32_t authTrustLevel,
+    int32_t &funcResult)
+{
+    IAM_LOGD("start");
+    funcResult = GetAvailableStatusImpl(apiVersion, authType, authTrustLevel);
+    return SUCCESS;
+}
+
+int32_t UserAuthService::GetAvailableStatusImpl(int32_t apiVersion, int32_t userId, int32_t authType,
     uint32_t authTrustLevel)
 {
     IAM_LOGD("start with userId");
@@ -199,10 +215,9 @@ int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, int32_t userId, 
         static_cast<AuthTrustLevel>(authTrustLevel));
 }
 
-int32_t UserAuthService::GetAvailableStatus(int32_t apiVersion, int32_t authType, uint32_t authTrustLevel)
+int32_t UserAuthService::GetAvailableStatusImpl(int32_t apiVersion, int32_t authType, uint32_t authTrustLevel)
 {
     IAM_LOGD("start without userId");
-
     if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION) &&
         !IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
         IAM_LOGE("failed to check permission");
@@ -1475,11 +1490,10 @@ int32_t UserAuthService::RegisterWidgetCallback(int32_t version, const sptr<IWid
     return ResultCode::SUCCESS;
 }
 
-int32_t UserAuthService::GetEnrolledState(int32_t apiVersion, int32_t authType,
+int32_t UserAuthService::GetEnrolledStateImpl(int32_t apiVersion, int32_t authType,
     IpcEnrolledState &ipcEnrolledState)
 {
     IAM_LOGI("start");
-
     if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
@@ -1516,6 +1530,14 @@ int32_t UserAuthService::GetEnrolledState(int32_t apiVersion, int32_t authType,
     if (apiVersion < INNER_API_VERSION_10000) {
         ipcEnrolledState.credentialDigest = hdiEnrolledState.credentialDigest & UINT16_MAX;
     }
+    return SUCCESS;
+}
+
+int32_t UserAuthService::GetEnrolledState(int32_t apiVersion, int32_t authType,
+    IpcEnrolledState &ipcEnrolledState, int32_t &funcResult)
+{
+    IAM_LOGI("start");
+    funcResult = GetEnrolledStateImpl(apiVersion, authType, ipcEnrolledState);
     return SUCCESS;
 }
 

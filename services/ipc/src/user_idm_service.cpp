@@ -152,7 +152,7 @@ int32_t UserIdmService::GetCredentialInfoInner(int32_t userId, AuthType authType
     return SUCCESS;
 }
 
-int32_t UserIdmService::GetCredentialInfo(int32_t userId, int32_t authType,
+int32_t UserIdmService::GetCredentialInfoImpl(int32_t userId, int32_t authType,
     const sptr<IIdmGetCredInfoCallback> &callback)
 {
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
@@ -198,6 +198,13 @@ int32_t UserIdmService::GetCredentialInfo(int32_t userId, int32_t authType,
         ClearUnavailableCredential(userId);
     }
     return ret;
+}
+
+int32_t UserIdmService::GetCredentialInfo(int32_t userId, int32_t authType,
+    const sptr<IIdmGetCredInfoCallback> &callback, int32_t &funcResult)
+{
+    funcResult = GetCredentialInfoImpl(userId, authType, callback);
+    return SUCCESS;
 }
 
 int32_t UserIdmService::GetSecInfoInner(int32_t userId, SecUserInfo &secUserInfo)

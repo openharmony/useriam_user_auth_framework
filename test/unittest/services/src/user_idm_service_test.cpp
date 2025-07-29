@@ -143,11 +143,14 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo001, TestSize.Level0
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).WillOnce(Return(HDF_FAILURE));
-    int32_t ret = service.GetCredentialInfo(testUserId, static_cast<AuthType>(testAuthType), testCallback);
-    EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
+    int32_t funcResult = SUCCESS;
+    int32_t ret = service.GetCredentialInfo(testUserId, static_cast<AuthType>(testAuthType), testCallback, funcResult);
+    EXPECT_EQ(funcResult, CHECK_PERMISSION_FAILED);
+    EXPECT_EQ(ret, SUCCESS);
     IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
-    ret = service.GetCredentialInfo(testUserId, static_cast<AuthType>(testAuthType), testCallback);
-    EXPECT_EQ(ret, GENERAL_ERROR);
+    ret = service.GetCredentialInfo(testUserId, static_cast<AuthType>(testAuthType), testCallback, funcResult);
+    EXPECT_EQ(funcResult, GENERAL_ERROR);
+    EXPECT_EQ(ret, SUCCESS);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -157,8 +160,10 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo002, TestSize.Level0
     int32_t testUserId = 0;
     AuthType testAuthType = PIN;
     sptr<IIdmGetCredInfoCallback> testCallback(nullptr);
-    int32_t ret = service.GetCredentialInfo(testUserId, static_cast<AuthType>(testAuthType), testCallback);
-    EXPECT_EQ(ret, INVALID_PARAMETERS);
+    int32_t funcResult = SUCCESS;
+    int32_t ret = service.GetCredentialInfo(testUserId, static_cast<AuthType>(testAuthType), testCallback, funcResult);
+    EXPECT_EQ(funcResult, INVALID_PARAMETERS);
+    EXPECT_EQ(ret, SUCCESS);
 }
 
 HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo003, TestSize.Level0)
@@ -189,9 +194,12 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo003, TestSize.Level0
             }
         );
     IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
-    int32_t ret = service.GetCredentialInfo(testUserId, static_cast<AuthType>(testAuthType), testCallback);
+    int32_t funcResult = SUCCESS;
+    int32_t ret = service.GetCredentialInfo(testUserId, static_cast<AuthType>(testAuthType), testCallback, funcResult);
+    EXPECT_EQ(funcResult, SUCCESS);
     EXPECT_EQ(ret, SUCCESS);
-    ret = service.GetCredentialInfo(testUserId, static_cast<AuthType>(testAuthType), testCallback);
+    ret = service.GetCredentialInfo(testUserId, static_cast<AuthType>(testAuthType), testCallback, funcResult);
+    EXPECT_EQ(funcResult, SUCCESS);
     EXPECT_EQ(ret, SUCCESS);
     IpcCommon::DeleteAllPermission();
 }
@@ -224,7 +232,9 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfo004, TestSize.Level0
         );
 
     IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
-    int32_t ret = service.GetCredentialInfo(testUserId, static_cast<AuthType>(testAuthType), testCallback);
+    int32_t funcResult = SUCCESS;
+    int32_t ret = service.GetCredentialInfo(testUserId, static_cast<AuthType>(testAuthType), testCallback, funcResult);
+    EXPECT_EQ(funcResult, SUCCESS);
     EXPECT_EQ(ret, SUCCESS);
     IpcCommon::DeleteAllPermission();
 }

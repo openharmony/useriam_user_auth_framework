@@ -42,7 +42,7 @@ public:
     int32_t OpenSession(int32_t userId, std::vector<uint8_t> &challenge) override;
     int32_t CloseSession(int32_t userId) override;
     int32_t GetCredentialInfo(int32_t userId, int32_t authType,
-        const sptr<IIdmGetCredInfoCallback> &idmGetCredInfoCallbac) override;
+        const sptr<IIdmGetCredInfoCallback> &idmGetCredInfoCallback, int32_t &funcResult) override;
     int32_t GetSecInfo(int32_t userId,
         const sptr<IIdmGetSecureUserInfoCallback> &idmGetSecureUserInfoCallback) override;
     int32_t AddCredential(int32_t userId, const IpcCredentialPara &ipcCredentialPara,
@@ -59,13 +59,17 @@ public:
     int32_t RegistCredChangeEventListener(const sptr<IEventListenerCallback> &listener) override;
     int32_t UnRegistCredChangeEventListener(const sptr<IEventListenerCallback> &listener) override;
     int32_t GetCredentialInfoSync(int32_t userId, int32_t authType,
-        std::vector<IpcCredentialInfo> &ipcCredentialInfoList)override;
+        std::vector<IpcCredentialInfo> &ipcCredentialInfoList) override;
     int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;
     int32_t CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result) override;
 
 protected:
     void OnStart() override;
     void OnStop() override;
+
+private:
+    int32_t GetCredentialInfoImpl(int32_t userId, int32_t authType,
+        const sptr<IIdmGetCredInfoCallback> &idmGetCredInfoCallback);
 
 private:
     void CancelCurrentEnrollIfExist();
