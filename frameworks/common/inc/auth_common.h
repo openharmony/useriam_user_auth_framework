@@ -17,6 +17,7 @@
 #define OHOS_USERAUTH_COMMON_H
 
 #include <map>
+#include <string>
 #include <vector>
 
 #include "napi/native_api.h"
@@ -128,6 +129,28 @@ enum UserAuthTipCode {
     TIP_CODE_PERMANENTLY_LOCKED = 4,
     TIP_CODE_WIDGET_LOADED = 5,
     TIP_CODE_WIDGET_RELEASED = 6,
+};
+
+const std::map<UserAuthResultCode, std::string> g_resultV92Str = {
+    {UserAuthResultCode::OHOS_INVALID_PARAM, "Parameter error."},
+    {UserAuthResultCode::OHOS_CHECK_PERMISSION_FAILED, "Permission denied."},
+    {UserAuthResultCode::OHOS_CHECK_SYSTEM_APP_FAILED, "Permission denied. Called by non-system application."},
+    {UserAuthResultCode::SUCCESS, "Authentication succeeded."},
+    {UserAuthResultCode::FAIL, "Authentication failed."},
+    {UserAuthResultCode::GENERAL_ERROR, "Unknown errors."},
+    {UserAuthResultCode::CANCELED, "Authentication canceled."},
+    {UserAuthResultCode::TIMEOUT, "Authentication timeout."},
+    {UserAuthResultCode::TYPE_NOT_SUPPORT, "Unsupport authentication type."},
+    {UserAuthResultCode::TRUST_LEVEL_NOT_SUPPORT, "Unsupport authentication trust level."},
+    {UserAuthResultCode::BUSY, "Authentication service is busy."},
+    {UserAuthResultCode::PARAM_VERIFIED_FAILED, "The parameter is out of range."},
+    {UserAuthResultCode::LOCKED, "Authentication is lockout."},
+    {UserAuthResultCode::NOT_ENROLLED, "Authentication template has not been enrolled."},
+    {UserAuthResultCode::CANCELED_FROM_WIDGET, "Authentication is canceled from widget."},
+    {UserAuthResultCode::PIN_EXPIRED, "Operation failed because of PIN expired."},
+    {UserAuthResultCode::AUTH_TOKEN_CHECK_FAILED, "Operation failed because of authToken integrity check failed."},
+    {UserAuthResultCode::AUTH_TOKEN_EXPIRED, "Operation failed because of authToken has expired."},
+    {UserAuthResultCode::REUSE_AUTH_RESULT_FAILED, "Failed to reuse authentication result."}
 };
 } // namespace UserAuth
 } // namespace UserIam
