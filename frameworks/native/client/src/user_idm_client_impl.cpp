@@ -254,7 +254,17 @@ int32_t UserIdmClientImpl::GetCredentialInfo(int32_t userId, AuthType authType,
         callback->OnCredentialInfo(GENERAL_ERROR, infoList);
         return GENERAL_ERROR;
     }
-    return proxy->GetCredentialInfo(userId, authType, wrapper);
+    int32_t funcResult = SUCCESS;
+    int32_t ret = proxy->GetCredentialInfo(userId, authType, wrapper, funcResult);
+    if (ret != SUCCESS) {
+        IAM_LOGE("ipc call return fail, ret:%{public}d", ret);
+        return GENERAL_ERROR;
+    }
+    if (funcResult != SUCCESS) {
+        IAM_LOGI("service call return fail, ret:%{public}d", funcResult);
+        return funcResult;
+    }
+    return SUCCESS;
 }
 
 int32_t UserIdmClientImpl::GetSecUserInfo(int32_t userId, const std::shared_ptr<GetSecUserInfoCallback> &callback)

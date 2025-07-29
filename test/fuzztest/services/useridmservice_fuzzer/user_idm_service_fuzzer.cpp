@@ -152,7 +152,7 @@ sptr<IIamCallback> GetFuzzIdmCallback(Parcel &parcel)
     return tmp;
 }
 
-UserIdmService g_UserIdmService(SUBSYS_USERIAM_SYS_ABILITY_USERIDM, true);
+UserIdmService g_userIdmService(SUBSYS_USERIAM_SYS_ABILITY_USERIDM, true);
 
 void FuzzOpenSession(Parcel &parcel)
 {
@@ -160,7 +160,7 @@ void FuzzOpenSession(Parcel &parcel)
     int32_t userId = GetFuzzOptionalUserId(parcel);
     std::vector<uint8_t> challenge;
     FillFuzzUint8Vector(parcel, challenge);
-    g_UserIdmService.OpenSession(userId, challenge);
+    g_userIdmService.OpenSession(userId, challenge);
     IAM_LOGI("end");
 }
 
@@ -168,7 +168,7 @@ void FuzzCloseSession(Parcel &parcel)
 {
     IAM_LOGI("begin");
     int32_t userId = GetFuzzOptionalUserId(parcel);
-    g_UserIdmService.CloseSession(userId);
+    g_userIdmService.CloseSession(userId);
     IAM_LOGI("end");
 }
 
@@ -178,7 +178,8 @@ void FuzzGetCredentialInfo(Parcel &parcel)
     int32_t userId = GetFuzzOptionalUserId(parcel);
     int32_t authType = parcel.ReadUint32();
     sptr<IIdmGetCredInfoCallback> callback = GetFuzzIdmGetCredentialInfoCallback(parcel);
-    g_UserIdmService.GetCredentialInfo(userId, authType, callback);
+    int32_t funcResult = SUCCESS;
+    g_userIdmService.GetCredentialInfo(userId, authType, callback, funcResult);
     IAM_LOGI("end");
 }
 
@@ -187,7 +188,7 @@ void FuzzGetSecInfo(Parcel &parcel)
     IAM_LOGI("begin");
     int32_t userId = GetFuzzOptionalUserId(parcel);
     sptr<IIdmGetSecureUserInfoCallback> callback = GetFuzzIdmGetSecureUserInfoCallback(parcel);
-    g_UserIdmService.GetSecInfo(userId, callback);
+    g_userIdmService.GetSecInfo(userId, callback);
     IAM_LOGI("end");
 }
 
@@ -200,7 +201,7 @@ void FuzzAddCredential(Parcel &parcel)
     para.pinType = parcel.ReadInt32();
     FillFuzzUint8Vector(parcel, para.token);
     sptr<IIamCallback> callback = GetFuzzIdmCallback(parcel);
-    g_UserIdmService.AddCredential(userId, para, callback, false);
+    g_userIdmService.AddCredential(userId, para, callback, false);
     IAM_LOGI("end");
 }
 
@@ -213,7 +214,7 @@ void FuzzUpdateCredential(Parcel &parcel)
     para.pinType = parcel.ReadInt32();
     FillFuzzUint8Vector(parcel, para.token);
     sptr<IIamCallback> callback = GetFuzzIdmCallback(parcel);
-    g_UserIdmService.UpdateCredential(userId, para, callback);
+    g_userIdmService.UpdateCredential(userId, para, callback);
     IAM_LOGI("end");
 }
 
@@ -221,7 +222,7 @@ void FuzzCancel(Parcel &parcel)
 {
     IAM_LOGI("begin");
     int32_t userId = parcel.ReadInt32();
-    g_UserIdmService.Cancel(userId);
+    g_userIdmService.Cancel(userId);
     IAM_LOGI("end");
 }
 
@@ -230,7 +231,7 @@ void FuzzEnforceDelUser(Parcel &parcel)
     IAM_LOGI("begin");
     int32_t userId = parcel.ReadInt32();
     sptr<IIamCallback> callback = GetFuzzIdmCallback(parcel);
-    g_UserIdmService.EnforceDelUser(userId, callback);
+    g_userIdmService.EnforceDelUser(userId, callback);
     IAM_LOGI("end");
 }
 
@@ -241,7 +242,7 @@ void FuzzDelUser(Parcel &parcel)
     std::vector<uint8_t> authToken;
     FillFuzzUint8Vector(parcel, authToken);
     sptr<IIamCallback> callback = GetFuzzIdmCallback(parcel);
-    g_UserIdmService.DelUser(userId, authToken, callback);
+    g_userIdmService.DelUser(userId, authToken, callback);
     IAM_LOGI("end");
 }
 
@@ -259,7 +260,7 @@ void FuzzDump(Parcel &parcel)
         for (uint32_t i = 0; i < msg.size(); i++) {
             args.push_back(cmd[msg[i] % CMD_LEN]);
         }
-        g_UserIdmService.Dump(fd, args);
+        g_userIdmService.Dump(fd, args);
         fclose(file);
         remove(fileName.c_str());
     }
@@ -274,7 +275,7 @@ void DelCredential(Parcel &parcel)
     std::vector<uint8_t> authToken;
     FillFuzzUint8Vector(parcel, authToken);
     sptr<IIamCallback> callback = GetFuzzIdmCallback(parcel);
-    g_UserIdmService.DelCredential(userId, credentialId, authToken, callback);
+    g_userIdmService.DelCredential(userId, credentialId, authToken, callback);
     IAM_LOGI("end");
 }
 
@@ -282,7 +283,7 @@ void FuzzClearRedundancyCredential(Parcel &parcel)
 {
     IAM_LOGI("begin");
     sptr<IIamCallback> callback = GetFuzzIdmCallback(parcel);
-    g_UserIdmService.ClearRedundancyCredential(callback);
+    g_userIdmService.ClearRedundancyCredential(callback);
     IAM_LOGI("end");
 }
 
@@ -291,7 +292,7 @@ void FuzzClearRedundancyCredentialInner(Parcel &parcel)
     IAM_LOGI("begin");
     std::string callerName = parcel.ReadString();
     int32_t callerType = parcel.ReadInt32();
-    g_UserIdmService.ClearRedundancyCredentialInner(callerName, callerType);
+    g_userIdmService.ClearRedundancyCredentialInner(callerName, callerType);
     IAM_LOGI("end");
 }
 
@@ -308,14 +309,14 @@ void FuzzEnforceDelUserInner(Parcel &parcel)
     changeInfo.lastCredentialId = parcel.ReadUint64();
     changeInfo.callerName = parcel.ReadString();
     changeInfo.isSilentCredChange = parcel.ReadBool();
-    g_UserIdmService.EnforceDelUserInner(userId, callbackForTrace, changeReasonTrace, changeInfo);
+    g_userIdmService.EnforceDelUserInner(userId, callbackForTrace, changeReasonTrace, changeInfo);
     IAM_LOGI("end");
 }
 
 void FuzzCancelCurrentEnroll(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    g_UserIdmService.CancelCurrentEnrollIfExist();
+    g_userIdmService.CancelCurrentEnrollIfExist();
     IAM_LOGI("end");
 }
 
@@ -326,7 +327,7 @@ void FuzzStartEnroll(Parcel &parcel)
     sptr<IIamCallback> iamCallback = sptr<IIamCallback>(new (nothrow) DummyIamCallbackInterface);
     std::shared_ptr<ContextCallback> contextCallback = ContextCallback::NewInstance(iamCallback, TRACE_ADD_CREDENTIAL);
     Attributes extraInfo;
-    g_UserIdmService.StartEnroll(para, contextCallback, extraInfo, true);
+    g_userIdmService.StartEnroll(para, contextCallback, extraInfo, true);
     IAM_LOGI("end");
 }
 
@@ -338,8 +339,8 @@ void FuzzRegistCredChangeEventListener(Parcel &parcel)
         callback = sptr<IEventListenerCallback>(new (std::nothrow) DummyCredChangeEventListener());
     }
 
-    g_UserIdmService.RegistCredChangeEventListener(callback);
-    g_UserIdmService.UnRegistCredChangeEventListener(callback);
+    g_userIdmService.RegistCredChangeEventListener(callback);
+    g_userIdmService.UnRegistCredChangeEventListener(callback);
     IAM_LOGI("end");
 }
 
@@ -354,7 +355,7 @@ void FuzzGetCredentialInfoSync(Parcel &parcel)
     info.templateId = parcel.ReadUint64();
     info.pinType = static_cast<PinSubType>(parcel.ReadInt32());
     std::vector<IpcCredentialInfo> credentialInfoList = {info};
-    g_UserIdmService.GetCredentialInfoSync(userId, authType, credentialInfoList);
+    g_userIdmService.GetCredentialInfoSync(userId, authType, credentialInfoList);
     IAM_LOGI("end");
 }
 
@@ -362,7 +363,7 @@ void FuzzClearUnavailableCredential(Parcel &parcel)
 {
     IAM_LOGI("begin");
     int32_t userId = parcel.ReadInt32();
-    g_UserIdmService.ClearUnavailableCredential(userId);
+    g_userIdmService.ClearUnavailableCredential(userId);
     IAM_LOGI("end");
 }
 
