@@ -40,8 +40,9 @@ public:
     UserAuthService();
     ~UserAuthService() override = default;
     int32_t GetAvailableStatus(int32_t apiVersion, int32_t userId, int32_t authType,
-        uint32_t authTrustLevel) override;
-    int32_t GetAvailableStatus(int32_t apiVersion, int32_t authType, uint32_t authTrustLevel) override;
+        uint32_t authTrustLevel, int32_t &funcResult) override;
+    int32_t GetAvailableStatus(int32_t apiVersion, int32_t authType, uint32_t authTrustLevel,
+        int32_t &funcResult) override;
     int32_t GetProperty(int32_t userId, int32_t authType, const std::vector<uint32_t> &keys,
         const sptr<IGetExecutorPropertyCallback> &getExecutorPropertyCallback) override;
     int32_t GetPropertyById(uint64_t credentialId, const std::vector<uint32_t> &keys,
@@ -61,7 +62,8 @@ public:
     int32_t GetVersion(int32_t &version) override;
     int32_t Notice(int32_t noticeType, const std::string &eventData) override;
     int32_t RegisterWidgetCallback(int32_t version, const sptr<IWidgetCallback> &widgetCallback) override;
-    int32_t GetEnrolledState(int32_t apiVersion, int32_t authType, IpcEnrolledState &ipcEnrolledState) override;
+    int32_t GetEnrolledState(int32_t apiVersion, int32_t authType, IpcEnrolledState &ipcEnrolledState,
+        int32_t &funcResult) override;
     int32_t RegistUserAuthSuccessEventListener(const sptr<IEventListenerCallback> &listener) override;
     int32_t UnRegistUserAuthSuccessEventListener(const sptr<IEventListenerCallback> &listener) override;
     int32_t SetGlobalConfigParam(const IpcGlobalConfigParam &ipcGlobalConfigParam) override;
@@ -77,6 +79,12 @@ public:
 protected:
     void OnStart() override;
     void OnStop() override;
+
+private:
+    int32_t GetAvailableStatusImpl(int32_t apiVersion, int32_t userId, int32_t authType,
+        uint32_t authTrustLevel);
+    int32_t GetAvailableStatusImpl(int32_t apiVersion, int32_t authType, uint32_t authTrustLevel);
+    int32_t GetEnrolledStateImpl(int32_t apiVersion, int32_t authType, IpcEnrolledState &ipcEnrolledState);
 
 private:
     std::shared_ptr<ContextCallback> GetAuthContextCallback(int32_t apiVersion,

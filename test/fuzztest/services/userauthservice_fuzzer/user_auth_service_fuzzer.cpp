@@ -182,9 +182,10 @@ void FuzzGetEnrolledState(Parcel &parcel)
     int32_t apiVersion = parcel.ReadInt32();
     int32_t authType = parcel.ReadInt32();
     IpcEnrolledState enrolledState = {};
-    g_userAuthService.GetEnrolledState(apiVersion, authType, enrolledState);
+    int32_t funcResult = SUCCESS;
+    g_userAuthService.GetEnrolledState(apiVersion, authType, enrolledState, funcResult);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    g_userAuthService.GetEnrolledState(apiVersion, authType, enrolledState);
+    g_userAuthService.GetEnrolledState(apiVersion, authType, enrolledState, funcResult);
     IpcCommon::DeleteAllPermission();
     IAM_LOGI("end");
 }
@@ -196,8 +197,9 @@ void FuzzGetAvailableStatusOtherScene(Parcel &parcel)
     int32_t pin = 1;
     int32_t authTrustLevel = parcel.ReadInt32();
     int32_t userId = parcel.ReadInt32();
-    g_userAuthService.GetAvailableStatus(apiVersion, userId, pin, authTrustLevel);
-    g_userAuthService.GetAvailableStatus(apiVersion, pin, authTrustLevel);
+    int32_t funcResult = SUCCESS;
+    g_userAuthService.GetAvailableStatus(apiVersion, userId, pin, authTrustLevel, funcResult);
+    g_userAuthService.GetAvailableStatus(apiVersion, pin, authTrustLevel, funcResult);
     IAM_LOGI("end");
 }
 
@@ -208,12 +210,13 @@ void FuzzGetAvailableStatus(Parcel &parcel)
     int32_t authType = parcel.ReadInt32();
     int32_t authTrustLevel = parcel.ReadInt32();
     int32_t userId = parcel.ReadInt32();
-    g_userAuthService.GetAvailableStatus(apiVersion, userId, authType, authTrustLevel);
-    g_userAuthService.GetAvailableStatus(apiVersion, authType, authTrustLevel);
+    int32_t funcResult = SUCCESS;
+    g_userAuthService.GetAvailableStatus(apiVersion, userId, authType, authTrustLevel, funcResult);
+    g_userAuthService.GetAvailableStatus(apiVersion, authType, authTrustLevel, funcResult);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
-    g_userAuthService.GetAvailableStatus(apiVersion, userId, authType, authTrustLevel);
-    g_userAuthService.GetAvailableStatus(apiVersion, authType, authTrustLevel);
+    g_userAuthService.GetAvailableStatus(apiVersion, userId, authType, authTrustLevel, funcResult);
+    g_userAuthService.GetAvailableStatus(apiVersion, authType, authTrustLevel, funcResult);
     FuzzGetAvailableStatusOtherScene(parcel);
     IpcCommon::DeleteAllPermission();
     IAM_LOGI("end");

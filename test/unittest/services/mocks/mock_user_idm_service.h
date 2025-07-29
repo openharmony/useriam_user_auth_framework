@@ -27,8 +27,8 @@ class MockUserIdmService final : public UserIdmStub {
 public:
     MOCK_METHOD2(OpenSession, int32_t(int32_t userId, std::vector<uint8_t> &challenge));
     MOCK_METHOD1(CloseSession, int32_t(int32_t userId));
-    MOCK_METHOD3(GetCredentialInfo, int32_t(int32_t userId, int32_t authType,
-        const sptr<IIdmGetCredInfoCallback> &idmGetCredInfoCallbac));
+    MOCK_METHOD4(GetCredentialInfo, int32_t(int32_t userId, int32_t authType,
+        const sptr<IIdmGetCredInfoCallback> &idmGetCredInfoCallback, int32_t &funcResult));
     MOCK_METHOD2(GetSecInfo, int32_t(int32_t userId,
         const sptr<IIdmGetSecureUserInfoCallback> &idmGetSecureUserInfoCallback));
     MOCK_METHOD4(AddCredential, int32_t(int32_t userId, const IpcCredentialPara &ipcCredentialPara,

@@ -453,11 +453,11 @@ HWTEST_F(UserIdmClientTest, UserIdmClientGetCredentialInfo002, TestSize.Level0)
 
     auto service = Common::MakeShared<MockUserIdmService>();
     EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, GetCredentialInfo(_, _, _)).Times(1);
+    EXPECT_CALL(*service, GetCredentialInfo(_, _, _, _)).Times(1);
     ON_CALL(*service, GetCredentialInfo)
         .WillByDefault(
             [&testUserId, &testAuthType](int32_t userId, int32_t authType,
-                const sptr<IIdmGetCredInfoCallback> &callback) {
+                const sptr<IIdmGetCredInfoCallback> &callback, int32_t &funcResult) {
                 EXPECT_EQ(userId, testUserId);
                 EXPECT_EQ(authType, static_cast<int32_t>(testAuthType));
                 if (callback != nullptr) {
