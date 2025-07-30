@@ -29,6 +29,7 @@ const std::string TAG_USERID = "userId";
 const std::string TAG_AUTHTYPE = "authType";
 const std::string TAG_CREDENTIALCOUNT = "credentialCount";
 const std::string TAG_SCHEDULEID = "scheduleId";
+const std::string TAG_IS_SILENT_CRED_CHANGE = "isSilentCredChange";
 const std::string USER_PIN_CREATED_EVENT = "USER_PIN_CREATED_EVENT";
 const std::string USER_PIN_DELETED_EVENT = "USER_PIN_DELETED_EVENT";
 const std::string USER_PIN_UPDATED_EVENT = "USER_PIN_UPDATED_EVENT";
@@ -92,6 +93,7 @@ void PublishEventAdapter::PublishUpdatedEvent(int32_t userId, uint64_t credentia
     EventFwk::Want want;
     want.SetAction(USER_PIN_UPDATED_EVENT);
     want.SetParam(TAG_SCHEDULEID, std::to_string(scheduleId_));
+    want.SetParam(TAG_IS_SILENT_CRED_CHANGE, std::to_string(credChangeEventInfo_.isSilentCredChange));
     EventFwk::CommonEventData data(want);
     data.SetCode(userId);
     PublishEvent(data, USERIAM_COMMON_EVENT_SAMGR_PERMISSION);
@@ -127,6 +129,11 @@ void PublishEventAdapter::PublishCredentialUpdatedEvent(int32_t userId, int32_t 
     want.SetParam(TAG_USERID, std::to_string(userId));
     want.SetParam(TAG_AUTHTYPE, std::to_string(authType));
     want.SetParam(TAG_CREDENTIALCOUNT, std::to_string(credentialCount));
+    if (authType == AuthType::PIN) {
+        want.SetParam(TAG_IS_SILENT_CRED_CHANGE, std::to_string(credChangeEventInfo_.isSilentCredChange));
+    } else {
+        want.SetParam(TAG_IS_SILENT_CRED_CHANGE, std::to_string(false));
+    }
     EventFwk::CommonEventData data(want);
     data.SetCode(0);
     PublishEvent(data, USERIAM_COMMON_EVENT_PERMISSION);
