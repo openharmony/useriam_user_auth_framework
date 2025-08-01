@@ -50,7 +50,7 @@ public:
         AuthType &rotateAuthType) override;
     void SetCallback(std::shared_ptr<WidgetScheduleNodeCallback> callback) override;
     void SendAuthTipInfo(const std::vector<AuthType> &authTypeList, int32_t tipCode) override;
-    void SendAuthResult() override;
+    bool ClearSchedule() override;
 
 protected:
     void OnStartSchedule(FiniteStateMachine &machine, uint32_t event);
@@ -63,6 +63,7 @@ protected:
     void OnWidgetReload(FiniteStateMachine &machine, uint32_t event);
     void OnWidgetReloadInit(FiniteStateMachine &machine, uint32_t event);
     void OnFailAuth(FiniteStateMachine &machine, uint32_t event);
+    void OnWidgetRelease(FiniteStateMachine &machine, uint32_t event);
 
 private:
     std::shared_ptr<FiniteStateMachine> MakeFiniteStateMachine();

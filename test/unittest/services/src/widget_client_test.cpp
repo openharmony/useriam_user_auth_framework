@@ -85,15 +85,19 @@ std::shared_ptr<WidgetScheduleNode> WidgetClientTest::BuildSchedule()
 HWTEST_F(WidgetClientTest, WidgetClientTestSetWidgetSchedule_0001, TestSize.Level0)
 {
     auto schedule = BuildSchedule();
-    WidgetClient::Instance().SetWidgetSchedule(schedule);
+    uint64_t widgetContextId = 1;
+    WidgetClient::Instance().SetWidgetSchedule(widgetContextId, schedule);
     EXPECT_NE(schedule, nullptr);
+    WidgetClient::Instance().ClearSchedule(widgetContextId);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestSetWidgetSchedule_0002, TestSize.Level0)
 {
     std::shared_ptr<WidgetScheduleNode> nullSchedule(nullptr);
-    WidgetClient::Instance().SetWidgetSchedule(nullSchedule);
+    uint64_t widgetContextId = 1;
+    WidgetClient::Instance().SetWidgetSchedule(widgetContextId, nullSchedule);
     EXPECT_EQ(nullSchedule, nullptr);
+    WidgetClient::Instance().ClearSchedule(widgetContextId);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestSetWidgetParam, TestSize.Level0)
@@ -179,8 +183,9 @@ HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0007, TestSize.Level0)
     WidgetClient::Instance().Reset();
     std::vector<AuthType> authTypeList;
     WidgetClient::Instance().SetAuthTypeList(authTypeList);
-    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    WidgetClient::Instance().SetWidgetSchedule(widgetNotice.widgetContextId, BuildSchedule());
     EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::INVALID_PARAMETERS);
+    WidgetClient::Instance().ClearSchedule(widgetNotice.widgetContextId);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0008, TestSize.Level0)
@@ -194,8 +199,9 @@ HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0008, TestSize.Level0)
     std::vector<AuthType> authTypeList;
     authTypeList.emplace_back(AuthType::PIN);
     WidgetClient::Instance().SetAuthTypeList(authTypeList);
-    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    WidgetClient::Instance().SetWidgetSchedule(widgetNotice.widgetContextId, BuildSchedule());
     EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::INVALID_PARAMETERS);
+    WidgetClient::Instance().ClearSchedule(widgetNotice.widgetContextId);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0009, TestSize.Level0)
@@ -210,8 +216,9 @@ HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0009, TestSize.Level0)
     std::vector<AuthType> authTypeList;
     authTypeList.emplace_back(AuthType::PIN);
     WidgetClient::Instance().SetAuthTypeList(authTypeList);
-    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    WidgetClient::Instance().SetWidgetSchedule(widgetNotice.widgetContextId, BuildSchedule());
     EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::INVALID_PARAMETERS);
+    WidgetClient::Instance().ClearSchedule(widgetNotice.widgetContextId);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0010, TestSize.Level0)
@@ -226,8 +233,9 @@ HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0010, TestSize.Level0)
     std::vector<AuthType> authTypeList;
     authTypeList.emplace_back(AuthType::FACE);
     WidgetClient::Instance().SetAuthTypeList(authTypeList);
-    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
-    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::INVALID_PARAMETERS);
+    WidgetClient::Instance().SetWidgetSchedule(widgetNotice.widgetContextId, BuildSchedule());
+    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::SUCCESS);
+    WidgetClient::Instance().ClearSchedule(widgetNotice.widgetContextId);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0011, TestSize.Level0)
@@ -242,8 +250,9 @@ HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0011, TestSize.Level0)
     std::vector<AuthType> authTypeList;
     authTypeList.emplace_back(AuthType::PIN);
     WidgetClient::Instance().SetAuthTypeList(authTypeList);
-    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    WidgetClient::Instance().SetWidgetSchedule(widgetNotice.widgetContextId, BuildSchedule());
     EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::SUCCESS);
+    WidgetClient::Instance().ClearSchedule(widgetNotice.widgetContextId);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0012, TestSize.Level0)
@@ -258,8 +267,9 @@ HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0012, TestSize.Level0)
     std::vector<AuthType> authTypeList;
     authTypeList.emplace_back(AuthType::PIN);
     WidgetClient::Instance().SetAuthTypeList(authTypeList);
-    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    WidgetClient::Instance().SetWidgetSchedule(widgetNotice.widgetContextId, BuildSchedule());
     EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::SUCCESS);
+    WidgetClient::Instance().ClearSchedule(widgetNotice.widgetContextId);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0013, TestSize.Level0)
@@ -275,8 +285,9 @@ HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0013, TestSize.Level0)
     authTypeList.emplace_back(AuthType::PIN);
     authTypeList.emplace_back(AuthType::FACE);
     WidgetClient::Instance().SetAuthTypeList(authTypeList);
-    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    WidgetClient::Instance().SetWidgetSchedule(widgetNotice.widgetContextId, BuildSchedule());
     EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::SUCCESS);
+    WidgetClient::Instance().ClearSchedule(widgetNotice.widgetContextId);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0014, TestSize.Level0)
@@ -294,8 +305,9 @@ HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0014, TestSize.Level0)
     authTypeList.emplace_back(AuthType::FACE);
     authTypeList.emplace_back(AuthType::FINGERPRINT);
     WidgetClient::Instance().SetAuthTypeList(authTypeList);
-    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    WidgetClient::Instance().SetWidgetSchedule(widgetNotice.widgetContextId, BuildSchedule());
     EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::SUCCESS);
+    WidgetClient::Instance().ClearSchedule(widgetNotice.widgetContextId);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0015, TestSize.Level0)
@@ -310,8 +322,9 @@ HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0015, TestSize.Level0)
     std::vector<AuthType> authTypeList;
     authTypeList.emplace_back(AuthType::PIN);
     WidgetClient::Instance().SetAuthTypeList(authTypeList);
-    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    WidgetClient::Instance().SetWidgetSchedule(widgetNotice.widgetContextId, BuildSchedule());
     EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::SUCCESS);
+    WidgetClient::Instance().ClearSchedule(widgetNotice.widgetContextId);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0016, TestSize.Level0)
@@ -326,8 +339,9 @@ HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0016, TestSize.Level0)
     std::vector<AuthType> authTypeList;
     authTypeList.emplace_back(AuthType::PIN);
     WidgetClient::Instance().SetAuthTypeList(authTypeList);
-    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    WidgetClient::Instance().SetWidgetSchedule(widgetNotice.widgetContextId, BuildSchedule());
     EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::SUCCESS);
+    WidgetClient::Instance().ClearSchedule(widgetNotice.widgetContextId);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0017, TestSize.Level0)
@@ -343,8 +357,9 @@ HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0017, TestSize.Level0)
     std::vector<AuthType> authTypeList;
     authTypeList.emplace_back(AuthType::PIN);
     WidgetClient::Instance().SetAuthTypeList(authTypeList);
-    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
-    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::INVALID_PARAMETERS);
+    WidgetClient::Instance().SetWidgetSchedule(widgetNotice.widgetContextId, BuildSchedule());
+    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, eventData), ResultCode::SUCCESS);
+    WidgetClient::Instance().ClearSchedule(widgetNotice.widgetContextId);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestReportWidgetResult_0001, TestSize.Level0)
@@ -407,8 +422,7 @@ HWTEST_F(WidgetClientTest, WidgetClientTestForceStopAuth_0002, TestSize.Level0)
 {
     uint64_t contextId = 6;
     WidgetClient::Instance().Reset();
-    WidgetClient::Instance().SetWidgetContextId(contextId);
-    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    WidgetClient::Instance().SetWidgetSchedule(contextId, BuildSchedule());
     WidgetClient::Instance().ForceStopAuth();
     EXPECT_EQ(WidgetClient::Instance().GetAuthTokenId(), 0);
 }
@@ -433,8 +447,9 @@ HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_001, TestSize.Level0)
     std::vector<AuthType> authTypeList;
     authTypeList.emplace_back(AuthType::PIN);
     WidgetClient::Instance().SetAuthTypeList(authTypeList);
-    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    WidgetClient::Instance().SetWidgetSchedule(widgetNotice.widgetContextId, BuildSchedule());
     EXPECT_NO_THROW(WidgetClient::Instance().ProcessNotice(widgetNotice, authTypeList));
+    WidgetClient::Instance().ClearSchedule(widgetNotice.widgetContextId);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_002, TestSize.Level0)
@@ -447,8 +462,9 @@ HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_002, TestSize.Level0)
     std::vector<AuthType> authTypeList;
     authTypeList.emplace_back(AuthType::PIN);
     WidgetClient::Instance().SetAuthTypeList(authTypeList);
-    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    WidgetClient::Instance().SetWidgetSchedule(widgetNotice.widgetContextId, BuildSchedule());
     EXPECT_NO_THROW(WidgetClient::Instance().ProcessNotice(widgetNotice, authTypeList));
+    WidgetClient::Instance().ClearSchedule(widgetNotice.widgetContextId);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_003, TestSize.Level0)
@@ -461,8 +477,9 @@ HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_003, TestSize.Level0)
     std::vector<AuthType> authTypeList;
     authTypeList.emplace_back(AuthType::PIN);
     WidgetClient::Instance().SetAuthTypeList(authTypeList);
-    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    WidgetClient::Instance().SetWidgetSchedule(widgetNotice.widgetContextId, BuildSchedule());
     EXPECT_NO_THROW(WidgetClient::Instance().ProcessNotice(widgetNotice, authTypeList));
+    WidgetClient::Instance().ClearSchedule(widgetNotice.widgetContextId);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_004, TestSize.Level0)
@@ -475,8 +492,9 @@ HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_004, TestSize.Level0)
     std::vector<AuthType> authTypeList;
     authTypeList.emplace_back(AuthType::ALL);
     WidgetClient::Instance().SetAuthTypeList(authTypeList);
-    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    WidgetClient::Instance().SetWidgetSchedule(widgetNotice.widgetContextId, BuildSchedule());
     EXPECT_NO_THROW(WidgetClient::Instance().ProcessNotice(widgetNotice, authTypeList));
+    WidgetClient::Instance().ClearSchedule(widgetNotice.widgetContextId);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_005, TestSize.Level0)
@@ -490,36 +508,39 @@ HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_005, TestSize.Level0)
     authTypeList.emplace_back(AuthType::ALL);
     authTypeList.emplace_back(AuthType::PIN);
     WidgetClient::Instance().SetAuthTypeList(authTypeList);
-    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    WidgetClient::Instance().SetWidgetSchedule(widgetNotice.widgetContextId, BuildSchedule());
     EXPECT_NO_THROW(WidgetClient::Instance().ProcessNotice(widgetNotice, authTypeList));
+    WidgetClient::Instance().ClearSchedule(widgetNotice.widgetContextId);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_006, TestSize.Level0)
 {
     WidgetNotice widgetNotice;
     widgetNotice.widgetContextId = 1;
-    widgetNotice.event = EVENT_AUTH_WIDGET_LOADED;
+    widgetNotice.event = NOTICE_EVENT_AUTH_WIDGET_LOADED;
     widgetNotice.typeList.push_back("pin");
     WidgetClient::Instance().Reset();
     std::vector<AuthType> authTypeList;
     authTypeList.emplace_back(AuthType::PIN);
     WidgetClient::Instance().SetAuthTypeList(authTypeList);
-    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    WidgetClient::Instance().SetWidgetSchedule(widgetNotice.widgetContextId, BuildSchedule());
     EXPECT_NO_THROW(WidgetClient::Instance().ProcessNotice(widgetNotice, authTypeList));
+    WidgetClient::Instance().ClearSchedule(widgetNotice.widgetContextId);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_007, TestSize.Level0)
 {
     WidgetNotice widgetNotice;
     widgetNotice.widgetContextId = 1;
-    widgetNotice.event = EVENT_AUTH_WIDGET_RELEASED;
+    widgetNotice.event = NOTICE_EVENT_AUTH_WIDGET_RELEASED;
     widgetNotice.typeList.push_back("pin");
     WidgetClient::Instance().Reset();
     std::vector<AuthType> authTypeList;
     authTypeList.emplace_back(AuthType::PIN);
     WidgetClient::Instance().SetAuthTypeList(authTypeList);
-    WidgetClient::Instance().SetWidgetSchedule(BuildSchedule());
+    WidgetClient::Instance().SetWidgetSchedule(widgetNotice.widgetContextId, BuildSchedule());
     EXPECT_NO_THROW(WidgetClient::Instance().ProcessNotice(widgetNotice, authTypeList));
+    WidgetClient::Instance().ClearSchedule(widgetNotice.widgetContextId);
 }
 
 HWTEST_F(WidgetClientTest, WidgetClientTestSetPinSubType_001, TestSize.Level0)

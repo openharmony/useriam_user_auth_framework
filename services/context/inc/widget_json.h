@@ -49,6 +49,7 @@ struct WidgetNotice {
     std::vector<std::string> typeList {};
     bool endAfterFirstFail {false};
     AuthIntent authIntent {AuthIntent::DEFAULT};
+    int32_t tipCode {0};
 };
 void to_json(nlohmann::json &jsonNotice, const WidgetNotice &notice);
 void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice);
