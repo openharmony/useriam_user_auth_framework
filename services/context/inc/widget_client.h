@@ -35,8 +35,7 @@ public:
     static WidgetClient &Instance();
     ~WidgetClient() = default;
     // sets
-    void SetWidgetSchedule(const std::shared_ptr<WidgetScheduleNode> &schedule);
-    void SetWidgetContextId(uint64_t contextId);
+    void SetWidgetSchedule(uint64_t contextId, const std::shared_ptr<WidgetScheduleNode> &schedule);
     void SetWidgetParam(const WidgetParamInner &param);
     void SetAuthTypeList(const std::vector<AuthType> &authTypeList);
     void SetWidgetCallback(const sptr<IWidgetCallback> &callback);
@@ -66,6 +65,11 @@ private:
     bool GetAuthTypeList(const WidgetNotice &notice, std::vector<AuthType> &authTypeList);
     bool IsValidNoticeType(const WidgetNotice &notice);
     void ProcessNotice(const WidgetNotice &notice, std::vector<AuthType> &authTypeList);
+    void InsertScheduleNode(uint64_t contextId, std::shared_ptr<WidgetScheduleNode> &scheduleNode);
+    void RemoveScheduleNode(uint64_t contextId);
+    std::shared_ptr<WidgetScheduleNode> GetScheduleNode(uint64_t contextId);
+    void ClearSchedule(uint64_t contextId);
+    void WidgetRelease(uint64_t contextId, std::vector<AuthType> &authTypeList);
 
 private:
     std::shared_ptr<WidgetScheduleNode> schedule_ {nullptr};
@@ -78,6 +82,9 @@ private:
     uint32_t authTokenId_ {0};
     std::vector<uint8_t> challenge_ {};
     std::string callingBundleName_ {""};
+    std::recursive_mutex mutex_;
+    /* <contextId_, schedule_> */
+    std::map<uint64_t, std::shared_ptr<WidgetScheduleNode>> scheduleMap_;
 };
 } // namespace UserAuth
 } // namespace UserIam

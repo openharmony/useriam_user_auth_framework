@@ -82,7 +82,7 @@ public:
 
     void AuthResult(int32_t resultCode, int32_t authType, const Attributes &finalResult);
     void AuthTipInfo(int32_t tipInfo, int32_t authType, const Attributes &extraInfo);
-    void SendAuthResult() override;
+    void ClearSchedule() override;
     void SendAuthTipInfo(int32_t authType, int32_t tipInfo) override;
 
 protected:
@@ -123,12 +123,6 @@ private:
     void ProcAuthResult(int32_t resultCode, AuthType authType, int32_t freezingTime,
         const Attributes &finalResult);
     void ProcAuthTipInfo(int32_t tip, AuthType authType, const std::vector<uint8_t> &extraInfo);
-    void StartOnResultTimer(int32_t resultCode, AuthType authType, int32_t freezingTime);
-    void StopOnResultTimer();
-    void OnResultTimerTimeOut(int32_t resultCode, AuthType authType, int32_t freezingTime);
-    void StartOnTipTimer(AuthType authType, int32_t freezingTime);
-    void StopOnTipTimer();
-    void OnTipTimerTimeOut(AuthType authType, int32_t freezingTime);
 
 private:
     struct TaskInfo {
@@ -166,9 +160,6 @@ private:
     WidgetAuthResultInfo authResultInfo_ {};
     int32_t faceReload_ {0};
     uint32_t widgetAlreadyLoad_ {0};
-    uint32_t onResultTimerId_ {0};
-    uint32_t onTipTimerId_ {0};
-    ResultInfo resultInfo_{0};
     nlohmann::json jsonBuf_ = {};
 };
 } // namespace UserAuth
