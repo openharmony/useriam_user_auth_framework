@@ -53,6 +53,7 @@ const std::string JSON_AUTH_VERSION = "version";
 const std::string JSON_AUTH_PAYLOAD = "payload";
 const std::string JSON_AUTH_END_AFTER_FIRST_FAIL = "endAfterFirstFail";
 const std::string JSON_AUTH_INTENT = "authIntent";
+const std::string JSON_AUTH_TIP_CODE = "tipCode";
 const std::string JSON_ORIENTATION = "orientation";
 const std::string JSON_NEED_ROTATE = "needRotate";
 const std::string JSON_ALREADY_LOAD = "alreadyLoad";
@@ -365,7 +366,8 @@ void to_json(nlohmann::json &jsonNotice, const WidgetNotice &notice)
 {
     auto type = nlohmann::json({{JSON_AUTH_TYPE, notice.typeList},
         {JSON_AUTH_END_AFTER_FIRST_FAIL, notice.endAfterFirstFail},
-        {JSON_AUTH_INTENT, notice.authIntent}});
+        {JSON_AUTH_INTENT, notice.authIntent},
+        {JSON_AUTH_TIP_CODE, notice.tipCode}});
     jsonNotice = nlohmann::json({{JSON_WIDGET_CTX_ID, notice.widgetContextId},
         {JSON_AUTH_EVENT, notice.event},
         {JSON_ORIENTATION, notice.orientation},
@@ -423,6 +425,9 @@ void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice)
     }
     if (isNumberItem(jsonNotice[JSON_AUTH_PAYLOAD], JSON_AUTH_INTENT)) {
         jsonNotice[JSON_AUTH_PAYLOAD].at(JSON_AUTH_INTENT).get_to(notice.authIntent);
+    }
+    if (isNumberItem(jsonNotice[JSON_AUTH_PAYLOAD], JSON_AUTH_TIP_CODE)) {
+        jsonNotice[JSON_AUTH_PAYLOAD].at(JSON_AUTH_TIP_CODE).get_to(notice.tipCode);
     }
 }
 

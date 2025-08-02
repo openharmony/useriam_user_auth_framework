@@ -45,10 +45,12 @@ WidgetClient &WidgetClient::Instance()
     return widgetClient;
 }
 
-void WidgetClient::SetWidgetSchedule(const std::shared_ptr<WidgetScheduleNode> &schedule)
+void WidgetClient::SetWidgetSchedule(uint64_t contextId, const std::shared_ptr<WidgetScheduleNode> &schedule)
 {
     IF_FALSE_LOGE_AND_RETURN(schedule != nullptr);
+    widgetContextId_ = contextId;
     schedule_ = schedule;
+    InsertScheduleNode(widgetContextId_, schedule_);
 }
 
 ResultCode WidgetClient::OnNotice(NoticeType type, const std::string &eventData)
@@ -92,6 +94,7 @@ ResultCode WidgetClient::OnNotice(NoticeType type, const std::string &eventData)
 
 void WidgetClient::ProcessNotice(const WidgetNotice &notice, std::vector<AuthType> &authTypeList)
 {
+    IAM_LOGI("start, event:%{public}s", notice.event.c_str());
     if (notice.event == NOTICE_EVENT_AUTH_READY) {
         schedule_->StartAuthList(authTypeList, notice.endAfterFirstFail, notice.authIntent);
     } else if (notice.event == NOTICE_EVENT_CANCEL_AUTH) {
@@ -116,11 +119,14 @@ void WidgetClient::ProcessNotice(const WidgetNotice &notice, std::vector<AuthTyp
         } else {
             schedule_->WidgetReload(notice.orientation, notice.needRotate, notice.alreadyLoad, authTypeList[0]);
         }
-    } else if (notice.event == EVENT_AUTH_WIDGET_LOADED) {
+    } else if (notice.event == NOTICE_EVENT_AUTH_WIDGET_LOADED) {
         schedule_->SendAuthTipInfo(authTypeList, TIP_CODE_WIDGET_LOADED);
-    } else if (notice.event == EVENT_AUTH_WIDGET_RELEASED) {
-        schedule_->SendAuthTipInfo(authTypeList, TIP_CODE_WIDGET_RELEASED);
-        schedule_->SendAuthResult();
+    } else if (notice.event == NOTICE_EVENT_AUTH_WIDGET_RELEASED) {
+        WidgetRelease(notice.widgetContextId, authTypeList);
+    } else if (notice.event == NOTICE_EVENT_PROCESS_TERMINATE) {
+        ClearSchedule(notice.widgetContextId);
+    } else if (notice.event == NOTICE_EVENT_AUTH_SEND_TIP) {
+        schedule_->SendAuthTipInfo(authTypeList, notice.tipCode);
     }
 }
 
@@ -192,11 +198,6 @@ void WidgetClient::ReportWidgetTip(int32_t tipType, AuthType authType, std::vect
     SendCommand(widgetCmd);
 }
 
-void WidgetClient::SetWidgetContextId(uint64_t contextId)
-{
-    widgetContextId_ = contextId;
-}
-
 void WidgetClient::SetWidgetParam(const WidgetParamInner &param)
 {
     widgetParam_ = param;
@@ -225,7 +226,7 @@ uint32_t WidgetClient::GetAuthTokenId() const
 
 void WidgetClient::Reset()
 {
-    IAM_LOGD("WidgetClient Reset");
+    IAM_LOGI("WidgetClient Reset");
     widgetParam_.title.clear();
     widgetParam_.navigationButtonText.clear();
     widgetParam_.windowMode = WindowModeType::DIALOG_BOX;
@@ -239,11 +240,7 @@ void WidgetClient::Reset()
 
 void WidgetClient::ForceStopAuth()
 {
-    IAM_LOGE("stop auth process forcely by disconnect");
-    if (widgetContextId_ != 0) {
-        IAM_LOGE("widget context id hasn't been reset");
-        UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "AuthWidget");
-    }
+    IAM_LOGI("stop auth process forcely by disconnect");
     if (schedule_ != nullptr) {
         schedule_->StopSchedule();
     }
@@ -290,7 +287,7 @@ bool WidgetClient::GetAuthTypeList(const WidgetNotice &notice, std::vector<AuthT
         return false;
     }
     if (tempList.size() == 1 && tempList[0] == AuthType::ALL) {
-        if (notice.event != NOTICE_EVENT_CANCEL_AUTH) {
+        if (notice.event != NOTICE_EVENT_CANCEL_AUTH && notice.event != NOTICE_EVENT_PROCESS_TERMINATE) {
             IAM_LOGE("invalid type all case event type: %{public}s", notice.event.c_str());
             return false;
         }
@@ -298,10 +295,6 @@ bool WidgetClient::GetAuthTypeList(const WidgetNotice &notice, std::vector<AuthT
         return true;
     }
     for (auto &type : tempList) {
-        if (std::find(authTypeList_.begin(), authTypeList_.end(), type) == authTypeList_.end()) {
-            IAM_LOGE("invalid auth type: %{public}d", type);
-            return false;
-        }
         authTypeList.emplace_back(type);
     }
     if (authTypeList.size() == authTypeList_.size() && notice.event == NOTICE_EVENT_CANCEL_AUTH) {
@@ -319,8 +312,10 @@ bool WidgetClient::IsValidNoticeType(const WidgetNotice &notice)
         notice.event != NOTICE_EVENT_WIDGET_PARA_INVALID &&
         notice.event != NOTICE_EVENT_RELOAD &&
         notice.event != NOTICE_EVENT_END &&
-        notice.event != EVENT_AUTH_WIDGET_LOADED &&
-        notice.event != EVENT_AUTH_WIDGET_RELEASED) {
+        notice.event != NOTICE_EVENT_AUTH_WIDGET_LOADED &&
+        notice.event != NOTICE_EVENT_AUTH_WIDGET_RELEASED &&
+        notice.event != NOTICE_EVENT_PROCESS_TERMINATE &&
+        notice.event != NOTICE_EVENT_AUTH_SEND_TIP) {
         return false;
     }
     return true;
@@ -334,6 +329,56 @@ void WidgetClient::SetChallenge(const std::vector<uint8_t> &challenge)
 void WidgetClient::SetCallingBundleName(const std::string &callingBundleName)
 {
     callingBundleName_ = callingBundleName;
+}
+
+void WidgetClient::InsertScheduleNode(uint64_t contextId, std::shared_ptr<WidgetScheduleNode> &scheduleNode)
+{
+    IAM_LOGI("start, contextId:%{public}hx", static_cast<uint16_t>(contextId));
+    IF_FALSE_LOGE_AND_RETURN(scheduleNode != nullptr);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    scheduleMap_.insert(std::pair<uint64_t, std::shared_ptr<WidgetScheduleNode>>(contextId, scheduleNode));
+}
+
+void WidgetClient::RemoveScheduleNode(uint64_t contextId)
+{
+    IAM_LOGI("start, contextId:%{public}hx", static_cast<uint16_t>(contextId));
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    scheduleMap_.erase(contextId);
+}
+
+std::shared_ptr<WidgetScheduleNode> WidgetClient::GetScheduleNode(uint64_t contextId)
+{
+    IAM_LOGI("start, contextId:%{public}hx", static_cast<uint16_t>(contextId));
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::shared_ptr<WidgetScheduleNode> scheduleNode = nullptr;
+    auto iter = scheduleMap_.find(contextId);
+    if (iter != scheduleMap_.end()) {
+        scheduleNode = iter->second;
+        IAM_LOGI("success, contextId:%{public}hx", static_cast<uint16_t>(contextId));
+    }
+    return scheduleNode;
+}
+
+void WidgetClient::ClearSchedule(uint64_t contextId)
+{
+    IAM_LOGI("start, contextId:%{public}hx", static_cast<uint16_t>(contextId));
+    auto schedule = GetScheduleNode(contextId);
+    if (schedule != nullptr) {
+        schedule->ClearSchedule();
+        if (contextId == widgetContextId_) {
+            Reset();
+        }
+        RemoveScheduleNode(contextId);
+    }
+}
+
+void WidgetClient::WidgetRelease(uint64_t contextId, std::vector<AuthType> &authTypeList)
+{
+    IAM_LOGI("start, contextId:%{public}hx", static_cast<uint16_t>(contextId));
+    auto schedule = GetScheduleNode(contextId);
+    if (schedule != nullptr) {
+        schedule->SendAuthTipInfo(authTypeList, TIP_CODE_WIDGET_RELEASED);
+    }
 }
 } // namespace UserAuth
 } // namespace UserIam
