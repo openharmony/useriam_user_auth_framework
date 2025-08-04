@@ -27,6 +27,7 @@ ohos_fuzztest("SoftBusFuzzTest") {
     "-Dprotected=public",
   ]
   include_dirs = [
+    "../../dummy",
     "../../../../services/inner_api",
     "../../../../frameworks/native/ipc/common_defines",
     "../../../../frameworks/native/common/dfx/inc",
@@ -36,7 +37,10 @@ ohos_fuzztest("SoftBusFuzzTest") {
     "../../../../common/logs",
   ]
 
-  sources = [ "soft_bus_fuzzer.cpp" ]
+  sources = [
+    "../../dummy/mock_socket.cpp",
+    "soft_bus_fuzzer.cpp",
+  ]
 
   deps = [
     "../../common_fuzzer:attributes_fuzzer",
