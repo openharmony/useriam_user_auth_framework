@@ -515,10 +515,13 @@ void WidgetContext::SetSysDialogZOrder(WidgetCmdParameters &widgetCmdParameters)
         IAM_LOGE("getProcessName error");
         return;
     }
-    if ((para_.callerName == *processName.begin()) && (para_.callerType == Security::AccessToken::TOKEN_NATIVE)) {
-        IAM_LOGI("is on shutdown screen, set zOrder");
-        widgetCmdParameters.useriamCmdData.callingProcessName = para_.callerName;
-        widgetCmdParameters.sysDialogZOrder = SYSDIALOG_ZORDER_UPPER;
+    for (auto it = processName.begin(); it != processName.end(); ++it) {
+        if ((para_.callerName == *it) && (para_.callerType == Security::AccessToken::TOKEN_NATIVE)) {
+            IAM_LOGI("is on shutdown screen, set zOrder");
+            widgetCmdParameters.useriamCmdData.callingProcessName = para_.callerName;
+            widgetCmdParameters.sysDialogZOrder = SYSDIALOG_ZORDER_UPPER;
+            break;
+        }
     }
 }
 
