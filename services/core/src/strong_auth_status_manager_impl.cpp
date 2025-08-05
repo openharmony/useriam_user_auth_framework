@@ -130,7 +130,7 @@ void StrongAuthStatusManagerImpl::SyncStrongAuthStatusForAllAccounts()
 {
     IAM_LOGI("start");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    auto screenLockManager  = ScreenLockManager::GetInstance();
+    auto screenLockManager = ScreenLockManager::GetInstance();
     IF_FALSE_LOGE_AND_RETURN(screenLockManager != nullptr);
     IF_FALSE_LOGE_AND_RETURN(strongAuthListener_ != nullptr);
 
