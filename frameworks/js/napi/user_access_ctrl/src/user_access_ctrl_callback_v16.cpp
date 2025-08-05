@@ -144,7 +144,7 @@ void UserAccessCtrlCallbackV16::OnResult(int32_t result, const UserAuth::Attribu
     uv_loop_s *loop = nullptr;
     napi_status napiStatus = napi_get_uv_event_loop(env_, &loop);
     if (napiStatus != napi_ok || loop == nullptr) {
-        IAM_LOGE("napi_get_uv_event_loop fail");
+        IAM_LOGE("napi_get_uv_event_loop fail, napiStatus=%{public}d", napiStatus);
         return;
     }
     std::shared_ptr<ResultCallbackV16Holder> resultHolder = Common::MakeShared<ResultCallbackV16Holder>();
