@@ -76,7 +76,7 @@ std::shared_ptr<WidgetContext> CreateWidgetContext(Parcel &parcel)
     para.authTypeList.push_back(static_cast<AuthType>(parcel.ReadInt32()));
     para.atl = static_cast<AuthTrustLevel>(parcel.ReadUint32());
     FillFuzzString(parcel, para.widgetParam.navigationButtonText);
-    para.callerType  = parcel.ReadInt32();
+    para.callerType = parcel.ReadInt32();
     FillFuzzString(parcel, para.callingAppID);
     para.isPinExpired = parcel.ReadBool();
     para.isOsAccountVerified = parcel.ReadBool();
@@ -333,7 +333,7 @@ void FuzzIsValidRotate(Parcel &parcel)
     }
 
     WidgetContext::WidgetRotatePara widgetRotatePara;
-    widgetRotatePara.isReload  = parcel.ReadBool();
+    widgetRotatePara.isReload = parcel.ReadBool();
     widgetRotatePara.orientation = parcel.ReadUint32();
     widgetRotatePara.needRotate = parcel.ReadUint32();
     widgetRotatePara.alreadyLoad = parcel.ReadUint32();
@@ -382,7 +382,7 @@ void FuzzConnectExtension(Parcel &parcel)
         return;
     }
     WidgetContext::WidgetRotatePara widgetRotatePara;
-    widgetRotatePara.isReload  = parcel.ReadBool();
+    widgetRotatePara.isReload = parcel.ReadBool();
     widgetRotatePara.orientation = parcel.ReadUint32();
     widgetRotatePara.needRotate = parcel.ReadUint32();
     widgetRotatePara.alreadyLoad = parcel.ReadUint32();
