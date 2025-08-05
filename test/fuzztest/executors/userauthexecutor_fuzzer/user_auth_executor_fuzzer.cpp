@@ -674,7 +674,7 @@ void FuzzFillPropertyToAttribute(std::shared_ptr<Parcel> parcel)
         Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION,
         Attributes::ATTR_ROOT
     };
-    Property property  = {};
+    Property property = {};
     std::shared_ptr<Attributes> values = UserIam::Common::MakeShared<Attributes>();
     g_frameworkExecutorCallback->FillPropertyToAttribute(keyList, property, values);
     IAM_LOGI("end");
