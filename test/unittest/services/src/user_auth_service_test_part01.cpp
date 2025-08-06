@@ -1612,6 +1612,20 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetPropertyById006, TestSize.Level0
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(2));
     IpcCommon::DeleteAllPermission();
 }
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceProcessAuthParamForRemoteAuth_InvalidAuthType, TestSize.Level0)
+{
+    UserAuthService service;
+    AuthParamInner authParam = {};
+    Authentication::AuthenticationPara para = {};
+    RemoteAuthParam remoteAuthParam = {};
+    std::string localNetworkId = "local123";
+    para.authType = AuthType::FACE;
+    ECPECT_FALSE(service.ProcessAuthParamForRemoteAuth(authParam, para, remoteAuthParam, localNetworkId));
+    para.authType = AuthType::PIN;
+    authParam.userId = -1;
+    ECPECT_FALSE(service.ProcessAuthParamForRemoteAuth(authParam, para, remoteAuthParam, localNetworkId));
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
