@@ -26,6 +26,7 @@
 #include "resource_node_utils.h"
 #include "schedule_node.h"
 #include "schedule_node_callback.h"
+#include "thread_handler_manager.h"
 #include "user_idm_database.h"
 
 #define LOG_TAG "USER_AUTH_SA"
@@ -203,8 +204,8 @@ void SimpleAuthContext::OnResult(int32_t resultCode, const std::shared_ptr<Attri
     if (resultInfo.result == SUCCESS && GetAuthType() == PIN) {
         PublishEventAdapter::GetInstance().CachePinUpdateParam(resultInfo.reEnrollFlag);
     }
-    InvokeResultCallback(resultInfo);
     SendAuthExecutorMsg();
+    InvokeResultCallback(resultInfo);
     IAM_LOGI("%{public}s on result %{public}d finish", GetDescription(), resultInfo.result);
 }
 
@@ -227,12 +228,27 @@ bool SimpleAuthContext::OnStop()
 
 void SimpleAuthContext::SendAuthExecutorMsg()
 {
+    IAM_LOGI("begin");
     IF_FALSE_LOGE_AND_RETURN(auth_ != nullptr);
     auto authExecutorMsgs = auth_->GetAuthExecutorMsgs();
-    for (auto &authExecutorMsg : authExecutorMsgs) {
-        ResourceNodeUtils::SendMsgToExecutor(
-            authExecutorMsg.executorIndex, authExecutorMsg.commandId, authExecutorMsg.msg);
+    auto &threadManager = ThreadHandlerManager::GetInstance();
+
+    for (uint32_t msgIndex = 0; msgIndex < authExecutorMsgs.size(); msgIndex++) {
+        auto authExecutorMsg = authExecutorMsgs[msgIndex];
+        std::string threadName = std::to_string(GetContextId()) + "_msg_" + std::to_string(msgIndex);
+        if (!threadManager.CreateThreadHandler(threadName)) {
+            IAM_LOGE("Failed to create thread handler for executor message");
+            continue;
+        }
+
+        threadManager.PostTask(threadName, [authExecutorMsg, threadName]() {
+            ResourceNodeUtils::SendMsgToExecutor(
+                authExecutorMsg.executorIndex, authExecutorMsg.commandId, authExecutorMsg.msg);
+        });
+
+        threadManager.DestroyThreadHandler(threadName);
     }
+    IAM_LOGI("end");
 }
 
 bool SimpleAuthContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &scheduleResultAttr,

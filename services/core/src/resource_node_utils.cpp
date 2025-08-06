@@ -62,6 +62,7 @@ int32_t ResourceNodeUtils::NotifyExecutorToDeleteTemplates(
 
 void ResourceNodeUtils::SendMsgToExecutor(uint64_t executorIndex, int32_t commandId, const std::vector<uint8_t> &msg)
 {
+    IAM_LOGI("send msg to ****%{public}hx begin", static_cast<uint16_t>(executorIndex));
     auto resourceNode = ResourceNodePool::Instance().Select(executorIndex).lock();
     if (resourceNode == nullptr) {
         IAM_LOGE("failed to find ****%{public}hx", static_cast<uint16_t>(executorIndex));
