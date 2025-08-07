@@ -423,6 +423,17 @@ void FuzzStopAllRunTask(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzGetContextType(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    auto widgetContext = CreateWidgetContext(parcel);
+    if (widgetContext == nullptr) {
+        return;
+    }
+    widgetContext->GetContextType();
+    IAM_LOGI("end");
+}
+
 using FuzzFunc = decltype(FuzzStart);
 FuzzFunc *g_fuzzFuncs[] = {
     FuzzStart,
@@ -445,6 +456,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzConnectExtension,
     FuzzEnd,
     FuzzStopAllRunTask,
+    FuzzGetContextType,
 };
 
 void WidgetContextFuzzTest(const uint8_t *data, size_t size)
