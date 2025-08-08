@@ -69,6 +69,7 @@ private:
     void RemoveScheduleNode(uint64_t contextId);
     std::shared_ptr<WidgetScheduleNode> GetScheduleNode(uint64_t contextId);
     void ClearSchedule(uint64_t contextId);
+    void WidgetLoad(uint64_t contextId, std::vector<AuthType> &authTypeList);
     void WidgetRelease(uint64_t contextId, std::vector<AuthType> &authTypeList);
 
 private:
@@ -85,6 +86,7 @@ private:
     std::recursive_mutex mutex_;
     /* <contextId_, schedule_> */
     std::map<uint64_t, std::shared_ptr<WidgetScheduleNode>> scheduleMap_;
+    std::vector<AuthType> loadedAuthTypeList_ {};
 };
 } // namespace UserAuth
 } // namespace UserIam
