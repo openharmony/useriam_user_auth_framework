@@ -73,16 +73,17 @@ bool ResourceNodePoolImpl::Insert(const std::shared_ptr<ResourceNode> &resource)
     }
 
     auto result = resourceNodeMap_.insert_or_assign(executorIndex, nodeParam);
+    auto tempListenerSet = listenerSet_;
     if (result.second) {
         IAM_LOGI("insert resource node success");
-        for (const auto &listener : listenerSet_) {
+        for (const auto &listener : tempListenerSet) {
             if (listener != nullptr) {
                 listener->OnResourceNodePoolInsert(nodeParam.node);
             }
         }
     } else {
         IAM_LOGI("update resource node success, count: %{public}u", resourceNodeMap_[executorIndex].count);
-        for (const auto &listener : listenerSet_) {
+        for (const auto &listener : tempListenerSet) {
             if (listener != nullptr) {
                 listener->OnResourceNodePoolUpdate(nodeParam.node);
             }
@@ -108,11 +109,12 @@ bool ResourceNodePoolImpl::Delete(uint64_t executorIndex)
     IAM_LOGI("delete resource node");
 
     auto tempResource = iter->second.node;
+    resourceNodeMap_.erase(iter);
     IF_FALSE_LOGE_AND_RETURN_VAL(tempResource != nullptr, false);
     tempResource->DeleteFromDriver();
 
-    resourceNodeMap_.erase(iter);
-    for (const auto &listener : listenerSet_) {
+    auto tempListenerSet = listenerSet_;
+    for (const auto &listener : tempListenerSet) {
         if (listener != nullptr) {
             listener->OnResourceNodePoolDelete(tempResource);
         }
@@ -131,9 +133,10 @@ void ResourceNodePoolImpl::DeleteAll()
         }
     }
     auto tempMap = resourceNodeMap_;
+    auto tempListenerSet = listenerSet_;
     resourceNodeMap_.clear();
     for (auto &node : tempMap) {
-        for (const auto &listener : listenerSet_) {
+        for (const auto &listener : tempListenerSet) {
             if (listener != nullptr) {
                 listener->OnResourceNodePoolDelete(node.second.node);
             }

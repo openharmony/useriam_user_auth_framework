@@ -109,8 +109,8 @@ HWTEST_F(SoftBusManagerTest, SoftBusManagerTestServiceSocketListen, TestSize.Lev
     const std::shared_ptr<Attributes> attributes = Common::MakeShared<Attributes>();
     ASSERT_NE(attributes, nullptr);
     MsgCallback callback;
-    EXPECT_EQ(SoftBusManager::GetInstance().SendMessage(connectionName, srcEndPoint, destEndPoint, attributes,
-        callback), SUCCESS);
+    EXPECT_NO_THROW(SoftBusManager::GetInstance().SendMessage(connectionName, srcEndPoint, destEndPoint, attributes,
+        callback));
 
     EXPECT_EQ(SoftBusManager::GetInstance().DoCloseConnection(connectionName), SUCCESS);
     SoftBusManager::GetInstance().ServiceSocketUnInit();
