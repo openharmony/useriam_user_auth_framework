@@ -723,14 +723,18 @@ napi_value UserAuthResultCodeExtConstructor(napi_env env, napi_value resultCode)
     napi_value pinExpired = nullptr;
     napi_value authTokenCheckFailed = nullptr;
     napi_value authTokenExpired = nullptr;
+    napi_value reuseAuthResultFailed = nullptr;
     NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::PIN_EXPIRED), &pinExpired));
     NAPI_CALL(env, napi_create_int32(env,
         static_cast<int32_t>(UserAuthResultCode::AUTH_TOKEN_CHECK_FAILED), &authTokenCheckFailed));
     NAPI_CALL(env, napi_create_int32(env,
         static_cast<int32_t>(UserAuthResultCode::AUTH_TOKEN_EXPIRED), &authTokenExpired));
+    NAPI_CALL(env, napi_create_int32(env,
+        static_cast<int32_t>(UserAuthResultCode::REUSE_AUTH_RESULT_FAILED), &reuseAuthResultFailed));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "PIN_EXPIRED", pinExpired));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "AUTH_TOKEN_CHECK_FAILED", authTokenCheckFailed));
     NAPI_CALL(env, napi_set_named_property(env, resultCode, "AUTH_TOKEN_EXPIRED", authTokenExpired));
+    NAPI_CALL(env, napi_set_named_property(env, resultCode, "REUSE_AUTH_RESULT_FAILED", reuseAuthResultFailed));
     return resultCode;
 }
 
