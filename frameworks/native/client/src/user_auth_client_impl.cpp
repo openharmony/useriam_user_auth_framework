@@ -851,6 +851,24 @@ void UserAuthClientImpl::InitIpcWidgetParam(const WidgetParamInner &widgetParam,
     ipcWidgetParamInner.windowMode = static_cast<int32_t>(widgetParam.windowMode);
     ipcWidgetParamInner.hasContext = widgetParam.hasContext;
 }
+
+void UserAuthClientImpl::CleanUpResource()
+{
+    IAM_LOGI("start");
+    IF_FALSE_LOGE_AND_RETURN(proxy_ != nullptr);
+    ResetProxy(proxy_->AsObject());
+}
+
+UserAuthClientImpl::~UserAuthClientImpl()
+{
+    IAM_LOGI("start");
+    CleanUpResource();
+}
+
+extern "C" __attribute__((destructor)) void CleanUp()
+{
+    UserAuthClientImpl::Instance().CleanUpResource();
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
