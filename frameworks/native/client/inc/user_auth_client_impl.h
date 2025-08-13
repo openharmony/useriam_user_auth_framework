@@ -67,6 +67,7 @@ public:
     int32_t PrepareRemoteAuth(const std::string &networkId,
         const std::shared_ptr<PrepareRemoteAuthCallback> &callback) override;
     int32_t QueryReusableAuthResult(const WidgetAuthParam &authParam, std::vector<uint8_t> &token) override;
+    void CleanUpResource();
 
 private:
     ResultCode SetPropertyInner(int32_t userId, const SetPropertyRequest &request,
@@ -82,7 +83,7 @@ private:
 
     friend class UserAuthClient;
     UserAuthClientImpl() = default;
-    ~UserAuthClientImpl() override = default;
+    ~UserAuthClientImpl() override;
     class UserAuthImplDeathRecipient : public IRemoteObject::DeathRecipient, public NoCopyable {
     public:
         UserAuthImplDeathRecipient() = default;
