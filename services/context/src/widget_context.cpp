@@ -544,6 +544,7 @@ bool WidgetContext::ConnectExtension(const WidgetRotatePara &widgetRotatePara)
         para_.authProfileMap[para_.authTypeList[0]].remainTimes == 0) {
         Attributes attr;
         callerCallback_->OnResult(ResultCode::LOCKED, attr);
+        UnSubscribeAppState();
         return true;
     }
 
@@ -624,14 +625,14 @@ void WidgetContext::End(const ResultCode &resultCode)
             IAM_LOGE("set auth type failed.");
             callerCallback_->SetTraceAuthFinishReason("WidgetContext End set authType fail");
             callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
-            return;
+            goto EXIT;
         }
         if (authResultInfo_.token.size() > 0) {
             if (!attr.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authResultInfo_.token)) {
                 IAM_LOGE("set signature token failed.");
                 callerCallback_->SetTraceAuthFinishReason("WidgetContext End set token fail");
                 callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
-                return;
+                goto EXIT;
             }
         }
         IAM_LOGI("in End, token size: %{public}zu.", authResultInfo_.token.size());
@@ -639,17 +640,19 @@ void WidgetContext::End(const ResultCode &resultCode)
             IAM_LOGE("set credential digest failed.");
             callerCallback_->SetTraceAuthFinishReason("WidgetContext End set credentialDigest fail");
             callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
-            return;
+            goto EXIT;
         }
         if (!attr.SetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, authResultInfo_.credentialCount)) {
             IAM_LOGE("set credential count failed.");
             callerCallback_->SetTraceAuthFinishReason("WidgetContext End set credentialCount fail");
             callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
-            return;
+            goto EXIT;
         }
     }
     callerCallback_->SetTraceAuthFinishReason("WidgetContext End fail");
     callerCallback_->OnResult(resultCode, attr);
+EXIT:
+    UnSubscribeAppState();
 }
 
 void WidgetContext::StopAllRunTask(const ResultCode &resultCode)
