@@ -40,7 +40,7 @@ public:
     void SetAuthTypeList(const std::vector<AuthType> &authTypeList);
     void SetWidgetCallback(const sptr<IWidgetCallback> &callback);
     void SetAuthTokenId(uint32_t tokenId);
-    uint32_t GetAuthTokenId() const;
+    uint32_t GetAuthTokenId();
 
     // interaction with widget
     ResultCode OnNotice(NoticeType type, const std::string &eventData);

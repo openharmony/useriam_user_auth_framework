@@ -48,6 +48,7 @@ WidgetClient &WidgetClient::Instance()
 void WidgetClient::SetWidgetSchedule(uint64_t contextId, const std::shared_ptr<WidgetScheduleNode> &schedule)
 {
     IF_FALSE_LOGE_AND_RETURN(schedule != nullptr);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     widgetContextId_ = contextId;
     schedule_ = schedule;
     InsertScheduleNode(widgetContextId_, schedule_);
@@ -95,6 +96,7 @@ ResultCode WidgetClient::OnNotice(NoticeType type, const std::string &eventData)
 void WidgetClient::ProcessNotice(const WidgetNotice &notice, std::vector<AuthType> &authTypeList)
 {
     IAM_LOGI("start, event:%{public}s", notice.event.c_str());
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (notice.event == NOTICE_EVENT_AUTH_READY) {
         schedule_->StartAuthList(authTypeList, notice.endAfterFirstFail, notice.authIntent);
     } else if (notice.event == NOTICE_EVENT_CANCEL_AUTH) {
@@ -132,6 +134,7 @@ void WidgetClient::ProcessNotice(const WidgetNotice &notice, std::vector<AuthTyp
 
 void WidgetClient::SendCommand(const WidgetCommand &command)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (widgetCallback_ == nullptr) {
         IAM_LOGE("SendCommand widget callback is null");
         return;
@@ -145,6 +148,7 @@ void WidgetClient::SendCommand(const WidgetCommand &command)
 void WidgetClient::ReportWidgetResult(int32_t result, AuthType authType,
     int32_t lockoutDuration, int32_t remainAttempts, bool skipLockedBiometricAuth)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     WidgetCommand::ExtraInfo extraInfo {
         .callingBundleName = callingBundleName_,
         .challenge = challenge_
@@ -190,6 +194,7 @@ void WidgetClient::ReportWidgetTip(int32_t tipType, AuthType authType, std::vect
         .tipType = tipType,
         .tipInfo = tipInfo
     };
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     WidgetCommand widgetCmd {
         .widgetContextId = widgetContextId_,
         .cmdList = { cmd },
@@ -200,33 +205,39 @@ void WidgetClient::ReportWidgetTip(int32_t tipType, AuthType authType, std::vect
 
 void WidgetClient::SetWidgetParam(const WidgetParamInner &param)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     widgetParam_ = param;
 }
 
 void WidgetClient::SetAuthTypeList(const std::vector<AuthType> &authTypeList)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     authTypeList_ = authTypeList;
 }
 
 void WidgetClient::SetWidgetCallback(const sptr<IWidgetCallback> &callback)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     widgetCallback_ = callback;
 }
 
 void WidgetClient::SetAuthTokenId(uint32_t tokenId)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     authTokenId_ = tokenId;
     IAM_LOGI("WidgetClient SetAuthTokenId authTokenId: %{public}s", GET_MASKED_STRING(authTokenId_).c_str());
 }
 
-uint32_t WidgetClient::GetAuthTokenId() const
+uint32_t WidgetClient::GetAuthTokenId()
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     return authTokenId_;
 }
 
 void WidgetClient::Reset()
 {
     IAM_LOGI("WidgetClient Reset");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     widgetParam_.title.clear();
     widgetParam_.navigationButtonText.clear();
     widgetParam_.windowMode = WindowModeType::DIALOG_BOX;
@@ -241,6 +252,7 @@ void WidgetClient::Reset()
 void WidgetClient::ForceStopAuth()
 {
     IAM_LOGI("stop auth process forcely by disconnect");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (schedule_ != nullptr) {
         schedule_->StopSchedule();
     }
@@ -249,6 +261,7 @@ void WidgetClient::ForceStopAuth()
 
 void WidgetClient::SetPinSubType(const PinSubType &subType)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     pinSubType_ = PIN_SUB_TYPE_SIX;
     switch (subType) {
         case PinSubType::PIN_NUMBER:
@@ -273,11 +286,13 @@ void WidgetClient::SetPinSubType(const PinSubType &subType)
 
 void WidgetClient::SetSensorInfo(const std::string &info)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     sensorInfo_ = info;
 }
 
 bool WidgetClient::GetAuthTypeList(const WidgetNotice &notice, std::vector<AuthType> &authTypeList)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (authTypeList_.empty()) {
         IAM_LOGE("inner auth type list is empty");
         return false;
@@ -324,11 +339,13 @@ bool WidgetClient::IsValidNoticeType(const WidgetNotice &notice)
 
 void WidgetClient::SetChallenge(const std::vector<uint8_t> &challenge)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     challenge_ = challenge;
 }
 
 void WidgetClient::SetCallingBundleName(const std::string &callingBundleName)
 {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     callingBundleName_ = callingBundleName;
 }
 
