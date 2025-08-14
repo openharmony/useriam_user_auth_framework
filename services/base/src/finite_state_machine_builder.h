@@ -43,8 +43,8 @@ public:
 
 private:
     std::string name_;
-    uint32_t initstate_;
-    bool valid_;
+    uint32_t initstate_{0};
+    bool valid_{false};
     FiniteStateMachineImpl::TransitionMap transitionMap_;
     FiniteStateMachineImpl::EnterMap enterMap_;
     FiniteStateMachineImpl::LeaveMap leaveMap_;

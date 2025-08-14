@@ -190,6 +190,7 @@ bool WidgetScheduleNodeImpl::WidgetReload(uint32_t orientation, uint32_t needRot
 
 void WidgetScheduleNodeImpl::SetCallback(std::shared_ptr<WidgetScheduleNodeCallback> callback)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     callback_ = callback;
 }
 

@@ -45,7 +45,7 @@ protected:
     void SetLatestError(int32_t error) override;
 
 private:
-    uint64_t contextId_;
+    uint64_t contextId_{0};
     AuthType authType_;
 
     uint32_t executorIndex_ {0};
