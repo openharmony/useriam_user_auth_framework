@@ -805,10 +805,14 @@ UserAuthTipCode WidgetContext::GetAuthTipCode(int32_t authResult, int32_t freezi
     UserAuthTipCode tipCode = TIP_CODE_FAIL;
     if (authResult == ResultCode::TIMEOUT) {
         tipCode = TIP_CODE_TIMEOUT;
-    } else if (freezingTime == INT32_MAX) {
-        tipCode = TIP_CODE_PERMANENTLY_LOCKED;
+    } else if (authResult == ResultCode::LOCKED) {
+        if (freezingTime == INT32_MAX) {
+            tipCode = TIP_CODE_PERMANENTLY_LOCKED;
+        } else {
+            tipCode = TIP_CODE_TEMPORARILY_LOCKED;
+        }
     } else if (freezingTime > 0) {
-        tipCode = TIP_CODE_TEMPORARILY_LOCKED;
+        tipCode = TIP_CODE_COMPARE_FAIL_WITH_FROZEN;
     } else {
         tipCode = TIP_CODE_FAIL;
     }
