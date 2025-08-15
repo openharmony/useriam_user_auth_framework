@@ -979,6 +979,7 @@ napi_value UserAuthTipCodeConstructor(napi_env env)
     napi_value permanentLocked = nullptr;
     napi_value widgetLoaded = nullptr;
     napi_value widgetReleased = nullptr;
+    napi_value cmpFailWithFrozen = nullptr;
     NAPI_CALL(env, napi_create_object(env, &userAuthTipCode));
     NAPI_CALL(env, napi_create_int32(env, UserAuthTipCode::TIP_CODE_FAIL, &compareFailure));
     NAPI_CALL(env, napi_create_int32(env, UserAuthTipCode::TIP_CODE_TIMEOUT, &timeout));
@@ -986,12 +987,14 @@ napi_value UserAuthTipCodeConstructor(napi_env env)
     NAPI_CALL(env, napi_create_int32(env, UserAuthTipCode::TIP_CODE_PERMANENTLY_LOCKED, &permanentLocked));
     NAPI_CALL(env, napi_create_int32(env, UserAuthTipCode::TIP_CODE_WIDGET_LOADED, &widgetLoaded));
     NAPI_CALL(env, napi_create_int32(env, UserAuthTipCode::TIP_CODE_WIDGET_RELEASED, &widgetReleased));
+    NAPI_CALL(env, napi_create_int32(env, UserAuthTipCode::TIP_CODE_COMPARE_FAIL_WITH_FROZEN, &cmpFailWithFrozen));
     NAPI_CALL(env, napi_set_named_property(env, userAuthTipCode, "COMPARE_FAILURE", compareFailure));
     NAPI_CALL(env, napi_set_named_property(env, userAuthTipCode, "TIMEOUT", timeout));
     NAPI_CALL(env, napi_set_named_property(env, userAuthTipCode, "TEMPORARILY_LOCKED", temporaryLocked));
     NAPI_CALL(env, napi_set_named_property(env, userAuthTipCode, "PERMANENTLY_LOCKED", permanentLocked));
     NAPI_CALL(env, napi_set_named_property(env, userAuthTipCode, "WIDGET_LOADED", widgetLoaded));
     NAPI_CALL(env, napi_set_named_property(env, userAuthTipCode, "WIDGET_RELEASED", widgetReleased));
+    NAPI_CALL(env, napi_set_named_property(env, userAuthTipCode, "COMPARE_FAILURE_WITH_FROZEN", cmpFailWithFrozen));
     return userAuthTipCode;
 }
 

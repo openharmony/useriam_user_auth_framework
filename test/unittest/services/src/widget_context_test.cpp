@@ -690,9 +690,11 @@ HWTEST_F(WidgetContextTest, WidgetContextTestGetAuthTipCode, TestSize.Level0)
     auto widgetContext = CreateWidgetContext(contextId, para);
     EXPECT_NE(widgetContext, nullptr);
     EXPECT_EQ(widgetContext->GetAuthTipCode(ResultCode::TIMEOUT, 0), TIP_CODE_TIMEOUT);
-    EXPECT_EQ(widgetContext->GetAuthTipCode(ResultCode::FAIL, 1), TIP_CODE_TEMPORARILY_LOCKED);
-    EXPECT_EQ(widgetContext->GetAuthTipCode(ResultCode::FAIL, INT32_MAX), TIP_CODE_PERMANENTLY_LOCKED);
+    EXPECT_EQ(widgetContext->GetAuthTipCode(ResultCode::FAIL, 1), TIP_CODE_COMPARE_FAIL_WITH_FROZEN);
+    EXPECT_EQ(widgetContext->GetAuthTipCode(ResultCode::FAIL, INT32_MAX), TIP_CODE_COMPARE_FAIL_WITH_FROZEN);
     EXPECT_EQ(widgetContext->GetAuthTipCode(ResultCode::FAIL, -1), TIP_CODE_FAIL);
+    EXPECT_EQ(widgetContext->GetAuthTipCode(ResultCode::LOCKED, 1), TIP_CODE_TEMPORARILY_LOCKED);
+    EXPECT_EQ(widgetContext->GetAuthTipCode(ResultCode::LOCKED, INT32_MAX), TIP_CODE_PERMANENTLY_LOCKED);
 }
 
 HWTEST_F(WidgetContextTest, WidgetContextTestProcAuthResult, TestSize.Level0)
