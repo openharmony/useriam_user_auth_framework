@@ -113,6 +113,7 @@ void PublishEventAdapter::CachePinUpdateParam(int32_t userId, uint64_t scheduleI
 
 void PublishEventAdapter::CachePinUpdateParam(bool reEnrollFlag)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     reEnrollFlag_ = reEnrollFlag;
 }
 
