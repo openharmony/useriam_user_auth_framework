@@ -131,6 +131,7 @@ enum UserAuthTipCode {
     TIP_CODE_PERMANENTLY_LOCKED = 4,
     TIP_CODE_WIDGET_LOADED = 5,
     TIP_CODE_WIDGET_RELEASED = 6,
+    TIP_CODE_COMPARE_FAIL_WITH_FROZEN = 7,
 };
 
 const std::map<UserAuthResultCode, std::string> g_resultV92Str = {
