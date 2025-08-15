@@ -127,10 +127,6 @@ bool DeleteImpl::Update(const std::vector<uint8_t> &scheduleResult, std::shared_
 
 bool DeleteImpl::Cancel()
 {
-    if (!running_) {
-        return false;
-    }
-    running_ = false;
     return true;
 }
 
@@ -155,7 +151,6 @@ bool DeleteImpl::StartSchedule(int32_t userId, HdiScheduleInfo &info,
     }
 
     scheduleId_ = scheduleList[0]->GetScheduleId();
-    running_ = true;
     return true;
 }
 

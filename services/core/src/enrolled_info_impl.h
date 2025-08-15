@@ -33,7 +33,7 @@ public:
     uint64_t GetEnrolledId() const override;
 
 private:
-    int32_t userId_;
+    int32_t userId_{INVALID_USER_ID};
     HdiEnrolledInfo info_;
 };
 } // namespace UserAuth

@@ -55,7 +55,6 @@ private:
 
     uint32_t tokenId_ {0};
     uint64_t scheduleId_ {0};
-    bool running_ {false};
     int32_t latestError_ = ResultCode::GENERAL_ERROR;
 };
 } // namespace UserAuth

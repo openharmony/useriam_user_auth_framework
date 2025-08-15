@@ -46,7 +46,7 @@ private:
     bool isReported_ = false;
     std::string transId_;
     std::string apiName_;
-    int64_t beginTime_;
+    int64_t beginTime_{0};
 };
 } // namespace UserAuth
 } // namespace UserIam
