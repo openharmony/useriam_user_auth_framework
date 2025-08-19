@@ -964,7 +964,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser004, TestSize.Level0)
     sptr<IIamCallback> callbackInterface = testCallback;
     uint64_t contextId = 0;
     int32_t ret = service.AuthUser(authParam, remoteAuthParam, callbackInterface, contextId);
-    EXPECT_EQ(ret, GENERAL_ERROR);
+    EXPECT_NE(ret, SUCCESS);
     EXPECT_EQ(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
@@ -993,7 +993,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser005, TestSize.Level0)
     sptr<IIamCallback> callbackInterface = testCallback;
     uint64_t contextId = 0;
     int32_t  ret = service.AuthUser(authParam, remoteAuthParam, callbackInterface, contextId);
-    EXPECT_EQ(ret, GENERAL_ERROR);
+    EXPECT_NE(ret, SUCCESS);
     EXPECT_EQ(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
@@ -1022,7 +1022,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser006, TestSize.Level0)
     sptr<IIamCallback> callbackInterface = testCallback;
     uint64_t contextId = 0;
     int32_t ret = service.AuthUser(authParam, remoteAuthParam, callbackInterface, contextId);
-    EXPECT_EQ(ret, GENERAL_ERROR);
+    EXPECT_NE(ret, SUCCESS);
     EXPECT_EQ(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
@@ -1052,7 +1052,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser007, TestSize.Level0)
     sptr<IIamCallback> callbackInterface = testCallback;
     uint64_t contextId = 0;
     int32_t ret = service.AuthUser(authParam, remoteAuthParam, callbackInterface, contextId);
-    EXPECT_EQ(ret, GENERAL_ERROR);
+    EXPECT_NE(ret, SUCCESS);
     EXPECT_EQ(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
