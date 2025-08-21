@@ -71,6 +71,7 @@ public:
     bool GetAttributesValue(AttributeKey key, Impl &array) const;
     std::vector<uint8_t> Serialize() const;
     std::vector<AttributeKey> GetKeys() const;
+    bool HasAttribute(AttributeKey key) const;
 
     static bool EncodeUint32Value(uint32_t src, std::vector<uint8_t> &dst);
     static bool DecodeUint32Value(const std::vector<uint8_t> &src, uint32_t &dst);
@@ -672,6 +673,11 @@ std::vector<Attributes::AttributeKey> Attributes::Impl::GetKeys() const
         keys.push_back(item.first);
     }
     return keys;
+}
+
+bool Attributes::Impl::HasAttribute(AttributeKey key) const
+{
+    return (map_.find(key) != map_.end());
 }
 
 bool Attributes::Impl::EncodeBoolValue(bool src, std::vector<uint8_t> &dst)
@@ -1383,6 +1389,14 @@ std::vector<Attributes::AttributeKey> Attributes::GetKeys() const
         return {};
     }
     return impl_->GetKeys();
+}
+
+bool Attributes::HasAttribute(AttributeKey key) const
+{
+    if (!impl_) {
+        return false;
+    }
+    return impl_->HasAttribute(key);
 }
 } // namespace UserAuth
 } // namespace UserIam
