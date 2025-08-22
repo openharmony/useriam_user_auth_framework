@@ -18,6 +18,7 @@
 
 #include "gtest/gtest.h"
 #include "mock_event_listener.h"
+#include "mock_remote_object.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -62,13 +63,55 @@ HWTEST_F(EventListenerManagerTest, EventListenerManagerTestUnRegistEventListener
     EXPECT_NO_THROW(CredChangeEventListenerManager::GetInstance().UnRegistEventListener(testCallback));
 }
 
-HWTEST_F(EventListenerManagerTest, EventListenerManagerTestRemoveDeathRecipient, TestSize.Level0)
+HWTEST_F(EventListenerManagerTest, EventListenerManagerTestRemoveDeathRecipient_001, TestSize.Level0)
 {
     sptr<IEventListenerCallback> testCallback = new MockEventListener();
     EXPECT_NO_THROW(AuthEventListenerManager::GetInstance().RemoveDeathRecipient(testCallback));
     EXPECT_NO_THROW(AuthEventListenerManager::GetInstance().RemoveDeathRecipient(nullptr));
     EXPECT_NO_THROW(CredChangeEventListenerManager::GetInstance().RemoveDeathRecipient(testCallback));
     EXPECT_NO_THROW(CredChangeEventListenerManager::GetInstance().RemoveDeathRecipient(nullptr));
+}
+
+HWTEST_F(EventListenerManagerTest, EventListenerManagerTestRemoveDeathRecipient_002, TestSize.Level0)
+{
+    auto mockCallbackRemove = new MockEventListener();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject);
+    EXPECT_CALL(*mockCallbackRemove, AsObject())
+        .WillOnce(Return(obj))
+        .WillRepeatedly(Return(obj));
+    
+    AuthEventListenerManager& authEventListenerManager = AuthEventListenerManager::GetInstance();
+    EXPECT_EQ(authEventListenerManager.RemoveDeathRecipient(mockCallbackRemove), SUCCESS);
+}
+
+HWTEST_F(EventListenerManagerTest, EventListenerManagerTestAddDeathRecipient_001, TestSize.Level0)
+{
+    auto mockCallbackAdd = new MockEventListener();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject);
+    EXPECT_CALL(*mockCallbackAdd, AsObject())
+        .WillOnce(Return(obj))
+        .WillRepeatedly(Return(obj));
+
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillOnce(Return(false));
+
+    AuthEventListenerManager& authEventListenerManager = AuthEventListenerManager::GetInstance();
+    EXPECT_EQ(authEventListenerManager.AddDeathRecipient(&authEventListenerManager, mockCallbackAdd), GENERAL_ERROR);
+}
+
+HWTEST_F(EventListenerManagerTest, EventListenerManagerTestAddDeathRecipient_002, TestSize.Level0)
+{
+    auto mockCallbackAdd = new MockEventListener();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject);
+    EXPECT_CALL(*mockCallbackAdd, AsObject())
+        .WillOnce(Return(obj))
+        .WillRepeatedly(Return(obj));
+
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillOnce(Return(true));
+
+    AuthEventListenerManager& authEventListenerManager = AuthEventListenerManager::GetInstance();
+    EXPECT_EQ(authEventListenerManager.AddDeathRecipient(&authEventListenerManager, mockCallbackAdd), SUCCESS);
 }
 } // namespace UserAuth
 } // namespace UserIam
