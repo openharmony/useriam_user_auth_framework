@@ -57,6 +57,7 @@ void WidgetClient::SetWidgetSchedule(uint64_t contextId, const std::shared_ptr<W
 ResultCode WidgetClient::OnNotice(NoticeType type, const std::string &eventData)
 {
     // handle notice from widget
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (type != WIDGET_NOTICE) {
         IAM_LOGE("Invalid notice type");
         return ResultCode::INVALID_PARAMETERS;
