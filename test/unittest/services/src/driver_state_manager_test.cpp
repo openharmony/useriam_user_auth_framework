@@ -68,6 +68,18 @@ HWTEST_F(DriverStateManagerTest, OnDriverStopTest, TestSize.Level0)
     EXPECT_NO_THROW(DriverStateManager::GetInstance().OnDriverStart());
     EXPECT_NO_THROW(DriverStateManager::GetInstance().OnDriverStart());
 }
+
+HWTEST_F(DriverStateManagerTest, RegisterDriverStartCallbackTest, TestSize.Level0)
+{
+    EXPECT_NO_THROW(DriverStateManager::GetInstance().RegisterDriverStartCallback(nullptr));
+    EXPECT_NO_THROW(DriverStateManager::GetInstance().RegisterDriverStartCallback([]() { return; }));
+}
+
+HWTEST_F(DriverStateManagerTest, RegisterDriverStopCallbackTest, TestSize.Level0)
+{
+    EXPECT_NO_THROW(DriverStateManager::GetInstance().RegisterDriverStopCallback(nullptr));
+    EXPECT_NO_THROW(DriverStateManager::GetInstance().RegisterDriverStopCallback([]() { return; }));
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
