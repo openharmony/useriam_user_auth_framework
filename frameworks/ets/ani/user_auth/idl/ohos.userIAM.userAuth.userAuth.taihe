@@ -16,7 +16,7 @@
 @!namespace("@ohos.userIAM.userAuth", "userAuth")
  
 @!sts_inject("""
-static { loadLibrary("userauth_ani"); }
+static { loadLibraryWithPermissionCheck("userauth_ani", "@ohos.userIAM.userAuth"); }
 export const MAX_ALLOWABLE_REUSE_DURATION : int = 300000;
 """)
  
