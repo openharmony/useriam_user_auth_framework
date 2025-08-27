@@ -19,6 +19,7 @@
 
 #include "iam_logger.h"
 #include "securec.h"
+#include "mock_iuser_auth_interface.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -54,6 +55,8 @@ HWTEST_F(RiskEventManagerTest, SetRiskEventPropertyForAuthTypeTest, TestSize.Lev
         AuthType::FACE, RiskEventManager::EventType::SCREENLOCK_STRONG_AUTH));
     EXPECT_NO_THROW(RiskEventManager::GetInstance().SetRiskEventPropertyForAuthType(mainUserId,
         AuthType::PIN, RiskEventManager::EventType::SCREENLOCK_STRONG_AUTH));
+    EXPECT_NO_THROW(RiskEventManager::GetInstance().SetRiskEventPropertyForAuthType(mainUserId,
+        AuthType::PIN, RiskEventManager::EventType::UNKNOWN));
 }
 
 HWTEST_F(RiskEventManagerTest, GetAttributesTest, TestSize.Level0)
@@ -82,6 +85,34 @@ HWTEST_F(RiskEventManagerTest, GetTemplateIdListTest, TestSize.Level0)
         templateIds));
     EXPECT_NO_THROW(RiskEventManager::GetInstance().GetTemplateIdList(inValidUserId, AuthType::PIN,
         templateIds));
+}
+
+HWTEST_F(RiskEventManagerTest, GetTemplateIdListTestFail, TestSize.Level0)
+{
+    int32_t mainUserId = 100;
+    AuthType authType = PIN;
+    std::vector<uint64_t> templateIds;
+    auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
+
+    {
+        EXPECT_CALL(*mock, GetCredential(_, _, _)).WillRepeatedly(Return(NOT_ENROLLED));
+        EXPECT_NO_THROW(RiskEventManager::GetInstance().GetTemplateIdList(mainUserId, authType, templateIds));
+    }
+
+    {
+        EXPECT_CALL(*mock, GetCredential(_, _, _)).WillRepeatedly(Return(1));
+        EXPECT_NO_THROW(RiskEventManager::GetInstance().GetTemplateIdList(mainUserId, authType, templateIds));
+    }
+}
+
+HWTEST_F(RiskEventManagerTest, SetAttributesTestFail, TestSize.Level0)
+{
+    int32_t mainUserId = 100;
+    Attributes attributes;
+    auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_CALL(*mock, GetCredential(_, _, _)).WillRepeatedly(Return(1));
+    EXPECT_NO_THROW(RiskEventManager::GetInstance().SetAttributes(mainUserId, AuthType::FACE,
+        RiskEventManager::EventType::SCREENLOCK_STRONG_AUTH, attributes));
 }
 
 HWTEST_F(RiskEventManagerTest, GetStrongAuthExtraInfoTest, TestSize.Level0)

@@ -271,6 +271,26 @@ HWTEST_F(ContextPoolTest, StartSubscribeOsAccountSaStatusTest, TestSize.Level0)
     EXPECT_NO_THROW(ContextPool::Instance().StartSubscribeOsAccountSaStatus());
     EXPECT_NO_THROW(ContextPool::Instance().StartSubscribeOsAccountSaStatus());
 }
+
+HWTEST_F(ContextPoolTest, CancelAllTest, TestSize.Level0)
+{
+    auto context = Common::MakeShared<MockContext>();
+    EXPECT_NE(context, nullptr);
+    uint64_t contextId = 100;
+
+    EXPECT_CALL(*context, GetContextId()).WillRepeatedly(Return(contextId));
+    EXPECT_TRUE(ContextPool::Instance().Insert(context));
+    {
+        EXPECT_CALL(*context, Stop()).WillRepeatedly(Return(true));
+        EXPECT_NO_THROW(ContextPool::Instance().CancelAll());
+    }
+
+    {
+        EXPECT_CALL(*context, Stop()).WillRepeatedly(Return(false));
+        EXPECT_NO_THROW(ContextPool::Instance().CancelAll());
+    }
+    EXPECT_TRUE(ContextPool::Instance().Delete(contextId));
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

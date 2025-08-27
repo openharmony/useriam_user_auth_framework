@@ -52,6 +52,10 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderWithNullptr, TestSize.Level1)
 {
     auto builder = ScheduleNode::Builder::New(nullptr, nullptr);
     EXPECT_EQ(builder, nullptr);
+    
+    auto faceAllInOne = MockResourceNode::CreateWithExecuteIndex(1, FACE, ALL_IN_ONE);
+    builder = ScheduleNode::Builder::New(faceAllInOne, nullptr);
+    EXPECT_EQ(builder, nullptr);
 }
 
 HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderOneCollectorFailed, TestSize.Level1)
@@ -613,6 +617,44 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeTestSendMessage, TestSize.Level1)
     EXPECT_NE(scheduleNode, nullptr);
     EXPECT_TRUE(scheduleNode->SendMessage(testDstRole, testMsg));
 }
+
+HWTEST_F(ScheduleNodeTest, ScheduleNodeRemotePinSuccess, TestSize.Level1)
+{
+    MockExecutorCallback collector;
+    MockExecutorCallback verifier;
+    EXPECT_CALL(collector, OnBeginExecute(_, _, _)).WillRepeatedly(Return(0));
+    EXPECT_CALL(verifier, OnBeginExecute(_, _, _)).WillRepeatedly(Return(0));
+
+    auto callback = MockScheduleNodeCallback::Create();
+    EXPECT_CALL(*callback, OnScheduleStarted()).Times(1);
+
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    ASSERT_NE(handler, nullptr);
+    {
+        constexpr uint32_t EXECUTOR_INDEX = 0xAAAAAAA;
+        constexpr uint32_t EXECUTOR_MATCHER = 0xDEEDBEEF;
+        constexpr uint32_t SCHEDULE_ID = 0xBEEFABCD;
+        auto pinCollector = MockResourceNode::CreateWithExecuteIndex(EXECUTOR_INDEX, FACE, COLLECTOR, collector);
+        auto pinVerifier = MockResourceNode::CreateWithExecuteIndex(EXECUTOR_INDEX + 1, FACE, VERIFIER, verifier);
+        
+        auto builder = ScheduleNode::Builder::New(pinCollector, pinVerifier);
+        ASSERT_NE(builder, nullptr);
+        builder->SetExecutorMatcher(EXECUTOR_MATCHER);
+        builder->SetThreadHandler(handler);
+        builder->SetScheduleId(SCHEDULE_ID);
+        builder->SetScheduleMode(IDENTIFY);
+        builder->SetScheduleCallback(callback);
+
+        auto scheduleNode = builder->Build();
+        ASSERT_NE(scheduleNode, nullptr);
+
+        EXPECT_TRUE(scheduleNode->StartSchedule());
+        handler->EnsureTask([]() {});
+        EXPECT_EQ(scheduleNode->GetCurrentScheduleState(), ScheduleNode::S_AUTH_PROCESSING);
+    }
+    handler->EnsureTask([]() {});
+}
+
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
