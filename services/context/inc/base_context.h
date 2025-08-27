@@ -68,7 +68,7 @@ private:
     uint64_t contextId_ = INVALID_CONTEXT_ID;
     std::string description_;
     bool hasStarted_ = false;
-    std::mutex mutex_;
+    mutable std::recursive_mutex mutex_;
     int32_t latestError_ = ResultCode::GENERAL_ERROR;
 };
 } // namespace UserAuth
