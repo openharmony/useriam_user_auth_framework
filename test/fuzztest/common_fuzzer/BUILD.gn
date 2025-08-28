@@ -345,6 +345,7 @@ ohos_source_set("userauth_service_remote_connect_fuzzer") {
     "hicollie:libhicollie",
     "hilog:libhilog",
     "init:libbegetutil",
+    "ipc:ipc_single",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
