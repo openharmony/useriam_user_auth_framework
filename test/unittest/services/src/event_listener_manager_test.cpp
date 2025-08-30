@@ -74,10 +74,9 @@ HWTEST_F(EventListenerManagerTest, EventListenerManagerTestRemoveDeathRecipient_
 
 HWTEST_F(EventListenerManagerTest, EventListenerManagerTestRemoveDeathRecipient_002, TestSize.Level0)
 {
-    auto mockCallbackRemove = new MockEventListener();
+    sptr<MockEventListener> mockCallbackRemove = new MockEventListener();
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject);
     EXPECT_CALL(*mockCallbackRemove, AsObject())
-        .WillOnce(Return(obj))
         .WillRepeatedly(Return(obj));
     
     AuthEventListenerManager& authEventListenerManager = AuthEventListenerManager::GetInstance();
@@ -86,10 +85,9 @@ HWTEST_F(EventListenerManagerTest, EventListenerManagerTestRemoveDeathRecipient_
 
 HWTEST_F(EventListenerManagerTest, EventListenerManagerTestAddDeathRecipient_001, TestSize.Level0)
 {
-    auto mockCallbackAdd = new MockEventListener();
+    sptr<MockEventListener> mockCallbackAdd = new MockEventListener();
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject);
     EXPECT_CALL(*mockCallbackAdd, AsObject())
-        .WillOnce(Return(obj))
         .WillRepeatedly(Return(obj));
 
     EXPECT_CALL(*obj, AddDeathRecipient(_))
@@ -101,16 +99,16 @@ HWTEST_F(EventListenerManagerTest, EventListenerManagerTestAddDeathRecipient_001
 
 HWTEST_F(EventListenerManagerTest, EventListenerManagerTestAddDeathRecipient_002, TestSize.Level0)
 {
-    auto mockCallbackAdd = new MockEventListener();
+    sptr<MockEventListener> mockCallbackAdd = new MockEventListener();
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject);
     EXPECT_CALL(*mockCallbackAdd, AsObject())
-        .WillOnce(Return(obj))
         .WillRepeatedly(Return(obj));
 
     EXPECT_CALL(*obj, AddDeathRecipient(_))
-        .WillOnce(Return(true));
+        .WillRepeatedly(Return(true));
 
     AuthEventListenerManager& authEventListenerManager = AuthEventListenerManager::GetInstance();
+    EXPECT_EQ(authEventListenerManager.AddDeathRecipient(&authEventListenerManager, mockCallbackAdd), SUCCESS);
     EXPECT_EQ(authEventListenerManager.AddDeathRecipient(&authEventListenerManager, mockCallbackAdd), SUCCESS);
 }
 } // namespace UserAuth
