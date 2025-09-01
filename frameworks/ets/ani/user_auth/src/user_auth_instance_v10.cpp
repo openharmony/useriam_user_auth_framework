@@ -46,6 +46,7 @@ const std::string AUTH_PARAM_AUTHTYPE = "authType";
 const std::string AUTH_PARAM_AUTHTRUSTLEVEL = "authTrustLevel";
 const std::string AUTH_PARAM_REUSEUNLOCKRESULT = "reuseUnlockResult";
 const std::string AUTH_PARAM_USER_ID = "userId";
+const std::string AUTH_PARAM_SKIP_LOCKED_BIOMETRIC_AUTH = "skipLockedBiometricAuth";
 const std::string WIDGET_PARAM_TITLE = "title";
 const std::string WIDGET_PARAM_NAVIBTNTEXT = "navigationButtonText";
 const std::string WIDGET_PARAM_WINDOWMODE = "windowMode";
@@ -66,6 +67,7 @@ UserAuthInstanceV10::UserAuthInstanceV10() : callback_(Common::MakeShared<UserAu
     }
     authParam_.authTrustLevel = AuthTrustLevel::ATL1;
     authParam_.userId = INVALID_USER_ID;
+    authParam_.skipLockedBiometricAuth = false;
     widgetParam_.navigationButtonText = "";
     widgetParam_.title = "";
     widgetParam_.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
@@ -117,6 +119,12 @@ UserAuthResultCode UserAuthInstanceV10::InitAuthParam(userAuth::AuthParam const 
     errorCode = InitUserId(authParam);
     if (errorCode != UserAuthResultCode::SUCCESS) {
         IAM_LOGE("InitUserId fail:%{public}d", errorCode);
+        return errorCode;
+    }
+
+    errorCode = InitSkipLockedBiometricAuth(authParam);
+    if (errorCode != UserAuthResultCode::SUCCESS) {
+        IAM_LOGE("InitSkipLockedBiometricAuth fail:%{public}d", errorCode);
         return errorCode;
     }
     return UserAuthResultCode::SUCCESS;
@@ -184,6 +192,18 @@ UserAuthResultCode UserAuthInstanceV10::InitUserId(userAuth::AuthParam const &au
         IAM_LOGI("InitUserId userId: %{public}d", authParam_.userId);
     } else {
         IAM_LOGI("propertyName: %{public}s not exists.", AUTH_PARAM_USER_ID.c_str());
+    }
+    return UserAuthResultCode::SUCCESS;
+}
+
+UserAuthResultCode UserAuthInstanceV10::InitSkipLockedBiometricAuth(userAuth::AuthParam const &authParam)
+{
+    IAM_LOGI("InitSkipLockedBiometricAuth start.");
+    if (authParam.skipLockedBiometricAuth.has_value()) {
+        authParam_.skipLockedBiometricAuth = authParam.skipLockedBiometricAuth.value();
+        IAM_LOGI("InitSkipLockedBiometricAuth value: %{public}d", authParam_.skipLockedBiometricAuth);
+    } else {
+        IAM_LOGI("propertyName: %{public}s not exists.", AUTH_PARAM_SKIP_LOCKED_BIOMETRIC_AUTH.c_str());
     }
     return UserAuthResultCode::SUCCESS;
 }

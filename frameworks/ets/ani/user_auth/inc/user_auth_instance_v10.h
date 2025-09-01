@@ -54,6 +54,7 @@ private:
     UserAuthResultCode InitAuthTrustLevel(userAuth::AuthParam const &authParam);
     UserAuthResultCode InitReuseUnlockResult(userAuth::AuthParam const &authParam);
     UserAuthResultCode InitUserId(userAuth::AuthParam const &authParam);
+    UserAuthResultCode InitSkipLockedBiometricAuth(userAuth::AuthParam const &authParam);
     UserAuthResultCode InitTitle(userAuth::WidgetParam const &widgetParam);
     UserAuthResultCode InitNavigationButtonText(userAuth::WidgetParam const &widgetParam);
     UserAuthResultCode InitWindowMode(userAuth::WidgetParam const &widgetParam);
