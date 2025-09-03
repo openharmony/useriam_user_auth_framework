@@ -42,13 +42,14 @@ ohos_source_set("userauth_service_remote_connect") {
 
   if (user_auth_framework_enable_dynamic_load) {
     sources += [
-      "non_soft_bus/src/device_manager_util.cpp",
-      "non_soft_bus/src/remote_connect_manager.cpp",
+      "dynamic/src/device_manager_util.cpp",
+      "dynamic/src/remote_connect_manager.cpp",
     ]
 
     external_deps += [
       "hilog:libhilog",
       "c_utils:utils",
+      "init:libbeget_proxy",
     ]
   } else {
     sources += [

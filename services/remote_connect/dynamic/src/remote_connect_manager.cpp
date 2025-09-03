@@ -85,7 +85,6 @@ void RemoteConnectionManager::Stop()
 {
     IAM_LOGD("Dynamic load mode: skip stop");
 }
-
 } // namespace UserAuth
 } // namespace UserIam
-} // namespace OHOS 
+} // namespace OHOS

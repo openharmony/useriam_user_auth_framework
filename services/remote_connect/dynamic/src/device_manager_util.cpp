@@ -16,8 +16,7 @@
 #include "device_manager_util.h"
 
 #include "iam_logger.h"
-#include <dlfcn.h>
-#include <cstdio>
+#include "parameter.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -42,26 +41,11 @@ bool DeviceManagerUtil::GetNetworkIdByUdid(const std::string &udid, std::string 
     return false;
 }
 
-#define RTLD_LAZY 1
-using PAclGetDevUdid = int (*)(char *, int);
 bool DeviceManagerUtil::GetLocalDeviceUdid(std::string &udid)
 {
-    static const char *BEGET_PROXY_LIB = "libbeget_proxy.z.so";
     constexpr int UDID_LENGTH = 65;
     char udidDevice[UDID_LENGTH] = {0};
-    void *handle = dlopen(BEGET_PROXY_LIB, RTLD_LAZY);
-    if (handle == nullptr) {
-        IAM_LOGI("load begetlib failed %{public}s", dlerror());
-        return false;
-    }
-    PAclGetDevUdid fun = (PAclGetDevUdid)dlsym(handle, "AclGetDevUdid");
-    if (fun == nullptr) {
-        IAM_LOGE("get symbol failed %{public}s", dlerror());
-        dlclose(handle);
-        return false;
-    }
-    int udidRes = fun(udidDevice, UDID_LENGTH);
-    dlclose(handle);
+    int udidRes = AclGetDevUdid(udidDevice, UDID_LENGTH);
     if (udidRes == 0) {
         IAM_LOGI("GetDeviceUdid udidRes == 0");
         std::string udidString(udidDevice, strlen(udidDevice));
@@ -80,4 +64,4 @@ bool DeviceManagerUtil::GetLocalDeviceNetWorkId(std::string &networkId)
 }
 } // namespace UserAuth
 } // namespace UserIam
-} // namespace OHOS 
+} // namespace OHOS

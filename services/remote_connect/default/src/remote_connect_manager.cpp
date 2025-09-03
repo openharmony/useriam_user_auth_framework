@@ -92,7 +92,7 @@ void RemoteConnectionManager::Stop()
 {
     IAM_LOGD("RemoteConnectionManager stop.");
     SoftBusManager::GetInstance().Stop();
-} 
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
