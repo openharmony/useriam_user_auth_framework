@@ -33,6 +33,7 @@ ohos_fuzztest("UserAuthServiceFuzzTest") {
     "../../../../services/context/inc",
     "../../../../services/ipc/inc",
     "../../../../services/remote_connect/inc",
+    "../../../../services/remote_connect/default/inc",
     "../../../../frameworks/native/ipc/inc",
     "../../../../frameworks/native/ipc/common_defines",
     "../../../../common/utils",

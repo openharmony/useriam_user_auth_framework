@@ -81,6 +81,18 @@ ResultCode RemoteConnectionManager::SendMessage(const std::string &connectionNam
     return SoftBusManager::GetInstance().SendMessage(connectionName,
         srcEndPoint, destEndPoint, attributes, callback);
 }
+
+void RemoteConnectionManager::Start()
+{
+    IAM_LOGD("RemoteConnectionManager start.");
+    SoftBusManager::GetInstance().Start();
+}
+
+void RemoteConnectionManager::Stop()
+{
+    IAM_LOGD("RemoteConnectionManager stop.");
+    SoftBusManager::GetInstance().Stop();
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
