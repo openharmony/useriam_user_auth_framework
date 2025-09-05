@@ -17,6 +17,8 @@
 #include "ability_manager_client.h"
 #include "iam_logger.h"
 #include "widget_client.h"
+#include "hisysevent_adapter.h"
+#include "iam_time.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 constexpr int32_t SIGNAL_NUM = 3;
@@ -68,10 +70,15 @@ void UIExtensionAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::Ele
     IAM_LOGI("on ability disconnected");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     connectAbilityHitrace_ = nullptr;
+    if (!isNormalEnd_) {
+        IAM_LOGI("connext terminated abnormally");
+        UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "AuthWidget");
+    }
     if (!isConnectionRelease_) {
         IAM_LOGE("connection already release");
         return;
     }
+
     WidgetClient::Instance().ForceStopAuth();
 }
 
@@ -96,6 +103,12 @@ void UIExtensionAbilityConnection::ReleaseUIExtensionComponent()
     IAM_LOGI("release UIExtensionComponent");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     ReleaseUIExtensionComponentInner();
+}
+
+void UIExtensionAbilityConnection::setIsNormalEnd(bool isNormalEnd)
+{
+    IAM_LOGI("setIsNormalEnd value: %{public}d", isNormalEnd);
+    isNormalEnd_ = isNormalEnd;
 }
 } // namespace UserAuth
 } // namespace UserIam

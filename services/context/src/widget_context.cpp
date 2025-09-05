@@ -652,6 +652,11 @@ void WidgetContext::End(const ResultCode &resultCode)
     }
     callerCallback_->SetTraceAuthFinishReason("WidgetContext End fail");
     callerCallback_->OnResult(resultCode, attr);
+    if (connection_ == nullptr) {
+        IAM_LOGE("invalid connection handle");
+        goto EXIT;
+    }
+    connection_->setIsNormalEnd(true);
 EXIT:
     UnSubscribeAppState();
 }

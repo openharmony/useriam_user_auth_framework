@@ -44,6 +44,7 @@ public:
         const sptr<IRemoteObject> &remoteObject, int32_t resultCode) override;
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int32_t resultCode) override;
     void ReleaseUIExtensionComponent();
+    void setIsNormalEnd(bool isNormalEnd);
 
 private:
     void ReleaseUIExtensionComponentInner();
@@ -53,6 +54,7 @@ private:
     sptr<IRemoteObject> extRemoteObject_ {nullptr};
     std::recursive_mutex mutex_;
     bool isConnectionRelease_ {true};
+    bool isNormalEnd_ {false};
 };
 } // namespace UserAuth
 } // namespace UserIam
