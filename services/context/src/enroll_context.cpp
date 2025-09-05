@@ -55,18 +55,21 @@ bool EnrollContext::OnStart()
 {
     IAM_LOGI("%{public}s start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN_VAL(enroll_ != nullptr, false);
-    bool startRet = enroll_->Start(scheduleList_, shared_from_this());
+    std::vector<std::shared_ptr<ScheduleNode>> scheduleList = {};
+    bool startRet = enroll_->Start(scheduleList, shared_from_this());
     if (!startRet) {
         IAM_LOGE("%{public}s enroll start fail", GetDescription());
         SetLatestError(enroll_->GetLatestError());
         return startRet;
     }
-    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_.size() == 1, false);
-    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_[0] != nullptr, false);
-    bool startScheduleRet = scheduleList_[0]->StartSchedule();
+    SetScheduleList(scheduleList);
+
+    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList.size() == 1, false);
+    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList[0] != nullptr, false);
+    bool startScheduleRet = scheduleList[0]->StartSchedule();
     IF_FALSE_LOGE_AND_RETURN_VAL(startScheduleRet, false);
     IAM_LOGI("%{public}s Schedule:%{public}s Type:%{public}d success", GetDescription(),
-        GET_MASKED_STRING(scheduleList_[0]->GetScheduleId()).c_str(), scheduleList_[0]->GetAuthType());
+        GET_MASKED_STRING(scheduleList[0]->GetScheduleId()).c_str(), scheduleList[0]->GetAuthType());
     return true;
 }
 
@@ -90,8 +93,9 @@ void EnrollContext::OnResult(int32_t resultCode, const std::shared_ptr<Attribute
 bool EnrollContext::OnStop()
 {
     IAM_LOGI("%{public}s start", GetDescription());
-    if (scheduleList_.size() == 1 && scheduleList_[0] != nullptr) {
-        scheduleList_[0]->StopSchedule();
+    auto scheduleList = GetScheduleList();
+    if (scheduleList.size() == 1 && scheduleList[0] != nullptr) {
+        scheduleList[0]->StopSchedule();
     }
 
     IF_FALSE_LOGE_AND_RETURN_VAL(enroll_ != nullptr, false);

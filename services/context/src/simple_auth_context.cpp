@@ -37,8 +37,9 @@ std::optional<std::vector<uint64_t>> SimpleAuthContext::GetPropertyTemplateIds(
     Authentication::AuthResultInfo &resultInfo)
 {
     IAM_LOGI("start");
-    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_.size() == 1, std::nullopt);
-    auto scheduleNode = scheduleList_[0];
+    auto scheduleList = GetScheduleList();
+    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList.size() == 1, std::nullopt);
+    auto scheduleNode = scheduleList[0];
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleNode != nullptr, std::nullopt);
     if (scheduleNode->GetAuthType() != PRIVATE_PIN) {
         return scheduleNode->GetTemplateIdList();
@@ -74,8 +75,9 @@ std::optional<std::vector<uint64_t>> SimpleAuthContext::GetPropertyTemplateIds(
 ResultCode SimpleAuthContext::GetPropertyForAuthResult(Authentication::AuthResultInfo &resultInfo)
 {
     IAM_LOGD("start");
-    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_.size() == 1, GENERAL_ERROR);
-    auto scheduleNode = scheduleList_[0];
+    auto scheduleList = GetScheduleList();
+    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList.size() == 1, GENERAL_ERROR);
+    auto scheduleNode = scheduleList[0];
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleNode != nullptr, GENERAL_ERROR);
     if (scheduleNode->GetAuthType() == PIN) {
         resultInfo.nextFailLockoutDuration = FIRST_LOCKOUT_DURATION_OF_PIN;
@@ -167,18 +169,21 @@ bool SimpleAuthContext::OnStart()
 {
     IAM_LOGD("%{public}s start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN_VAL(auth_ != nullptr, false);
-    bool startRet = auth_->Start(scheduleList_, shared_from_this());
+    std::vector<std::shared_ptr<ScheduleNode>> scheduleList = {};
+    bool startRet = auth_->Start(scheduleList, shared_from_this());
     if (!startRet) {
         IAM_LOGE("%{public}s auth start fail", GetDescription());
         SetLatestError(auth_->GetLatestError());
         return startRet;
     }
-    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_.size() == 1, false);
-    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_[0] != nullptr, false);
-    bool startScheduleRet = scheduleList_[0]->StartSchedule();
+    SetScheduleList(scheduleList);
+
+    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList.size() == 1, false);
+    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList[0] != nullptr, false);
+    bool startScheduleRet = scheduleList[0]->StartSchedule();
     IF_FALSE_LOGE_AND_RETURN_VAL(startScheduleRet, false);
     IAM_LOGI("%{public}s Schedule:%{public}s Type:%{public}d success", GetDescription(),
-        GET_MASKED_STRING(scheduleList_[0]->GetScheduleId()).c_str(), scheduleList_[0]->GetAuthType());
+        GET_MASKED_STRING(scheduleList[0]->GetScheduleId()).c_str(), scheduleList[0]->GetAuthType());
     return true;
 }
 
@@ -212,8 +217,9 @@ void SimpleAuthContext::OnResult(int32_t resultCode, const std::shared_ptr<Attri
 bool SimpleAuthContext::OnStop()
 {
     IAM_LOGI("%{public}s start", GetDescription());
-    if (scheduleList_.size() == 1 && scheduleList_[0] != nullptr) {
-        scheduleList_[0]->StopSchedule();
+    auto scheduleList = GetScheduleList();
+    if (scheduleList.size() == 1 && scheduleList[0] != nullptr) {
+        scheduleList[0]->StopSchedule();
     }
 
     IF_FALSE_LOGE_AND_RETURN_VAL(auth_ != nullptr, false);
