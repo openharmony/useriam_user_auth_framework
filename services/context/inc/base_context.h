@@ -59,8 +59,9 @@ protected:
     virtual bool OnStart() = 0;
     virtual void OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr) = 0;
     virtual bool OnStop() = 0;
+    std::vector<std::shared_ptr<ScheduleNode>> GetScheduleList() const;
+    void SetScheduleList(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList);
     std::shared_ptr<ContextCallback> callback_ = nullptr;
-    std::vector<std::shared_ptr<ScheduleNode>> scheduleList_;
 
 private:
     bool Start() final;
@@ -70,6 +71,7 @@ private:
     bool hasStarted_ = false;
     mutable std::recursive_mutex mutex_;
     int32_t latestError_ = ResultCode::GENERAL_ERROR;
+    std::vector<std::shared_ptr<ScheduleNode>> scheduleList_;
 };
 } // namespace UserAuth
 } // namespace UserIam

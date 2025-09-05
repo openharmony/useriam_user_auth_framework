@@ -177,11 +177,12 @@ bool RemoteAuthContext::StartAuth()
 
     bool startAuthRet = SimpleAuthContext::OnStart();
     IF_FALSE_LOGE_AND_RETURN_VAL(startAuthRet, false);
-    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_.size() == 1, false);
-    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_[0] != nullptr, false);
+    auto scheduleList = GetScheduleList();
+    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList.size() == 1, false);
+    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList[0] != nullptr, false);
 
     IAM_LOGI("%{public}s start remote auth success, connectionName:%{public}s, scheduleId:%{public}s",
-        GetDescription(), connectionName_.c_str(), GET_MASKED_STRING(scheduleList_[0]->GetScheduleId()).c_str());
+        GetDescription(), connectionName_.c_str(), GET_MASKED_STRING(scheduleList[0]->GetScheduleId()).c_str());
     return true;
 }
 
