@@ -24,7 +24,7 @@
 #include "load_mode_handler.h"
 #include "os_accounts_manager.h"
 #include "remote_auth_service.h"
-#include "soft_bus_manager.h"
+#include "remote_connect_manager.h"
 #include "strong_auth_status_manager.h"
 #include "system_param_manager.h"
 
@@ -105,7 +105,7 @@ void ServiceInitManager::CheckAllServiceStart()
 
     IAM_LOGI("all service start, init global instance begin");
 
-    SoftBusManager::GetInstance().Start();
+    RemoteConnectionManager::GetInstance().Start();
     const bool REMOTE_AUTH_SERVICE_RESULT = RemoteAuthService::GetInstance().Start();
     (void)REMOTE_AUTH_SERVICE_RESULT;
 
@@ -152,7 +152,7 @@ void ServiceInitManager::CheckAllServiceStop()
 
     IAM_LOGI("all service stop, destroy global instance begin");
 
-    SoftBusManager::GetInstance().Stop();
+    RemoteConnectionManager::GetInstance().Stop();
 
     auto coAuthService = CoAuthService::GetInstance();
     IF_FALSE_LOGE_AND_RETURN(coAuthService != nullptr);
