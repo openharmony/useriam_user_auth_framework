@@ -20,6 +20,7 @@ group("iam_unittest") {
     "unittest/executors:iam_executors_test",
     "unittest/inner_api:iam_inner_api_test",
     "unittest/services:iam_services_test",
+    "unittest/dynamic:iam_dynamic_test",
   ]
 }
 
