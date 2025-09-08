@@ -18,7 +18,7 @@
 from ohos.userIAM.userAuth.userAuth use AuthTrustLevel, UserAuthType;
 
 @!sts_inject("""
-static { loadLibrary("useraccessctrl_ani.z"); }
+static { loadLibraryWithPermissionCheck("useraccessctrl_ani.z", "@ohos.userIAM.userAccessCtrl"); }
 """)
 
 enum AuthTokenType : i32 {
