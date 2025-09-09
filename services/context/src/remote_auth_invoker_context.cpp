@@ -359,6 +359,8 @@ int32_t RemoteAuthInvokerContext::ProcAuthResultMsgInner(Attributes &message, in
         if (resultCode == ResultCode::SUCCESS) {
             bool setTokenRet = attr.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authResultInfo.token);
             IF_FALSE_LOGE_AND_RETURN_VAL(setTokenRet, ResultCode::GENERAL_ERROR);
+            bool setTokenFromRemoteDevice = attr.SetBoolValue(Attributes::ATTR_TOKEN_FROM_REMOTE_DEVICE, true);
+            IF_FALSE_LOGE_AND_RETURN_VAL(setTokenFromRemoteDevice, ResultCode::GENERAL_ERROR);
             bool setUserId = attr.SetInt32Value(Attributes::ATTR_USER_ID, authResultInfo.userId);
             IF_FALSE_LOGE_AND_RETURN_VAL(setUserId, ResultCode::GENERAL_ERROR);
         }

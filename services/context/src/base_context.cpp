@@ -81,7 +81,7 @@ std::string BaseContext::GetCallerName() const
 
 bool BaseContext::Start()
 {
-    std::lock_guard<std::mutex> guard(mutex_);
+    std::lock_guard<std::recursive_mutex> guard(mutex_);
     IAM_LOGD("%{public}s start", GetDescription());
     if (hasStarted_) {
         IAM_LOGI("%{public}s context has started, cannot start again", GetDescription());
@@ -93,12 +93,14 @@ bool BaseContext::Start()
 
 bool BaseContext::Stop()
 {
+    std::lock_guard<std::recursive_mutex> guard(mutex_);
     IAM_LOGD("%{public}s start", GetDescription());
     return OnStop();
 }
 
 std::shared_ptr<ScheduleNode> BaseContext::GetScheduleNode(uint64_t scheduleId) const
 {
+    std::lock_guard<std::recursive_mutex> guard(mutex_);
     for (auto const &schedule : scheduleList_) {
         if (schedule == nullptr) {
             continue;
