@@ -156,6 +156,7 @@ UserAuthResultCode UserAuthInstanceV10::SetTipCallback(napi_env env, napi_value 
         IAM_LOGE("malloc tip callback fail");
         return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
+    
     callback_->SetTipCallback(callbackRef);
     IAM_LOGI("SetTipCallback success");
     return UserAuthResultCode::SUCCESS;
