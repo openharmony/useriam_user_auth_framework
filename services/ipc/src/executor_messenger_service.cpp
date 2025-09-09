@@ -42,6 +42,7 @@ sptr<ExecutorMessengerService> ExecutorMessengerService::GetInstance()
 
 int32_t ExecutorMessengerService::SendData(uint64_t scheduleId, int32_t dstRole, const std::vector<uint8_t> &msg)
 {
+    IAM_LOGI("start");
     auto scheduleNode = ContextPool::Instance().SelectScheduleNodeByScheduleId(scheduleId);
     if (scheduleNode == nullptr) {
         IAM_LOGE("selected schedule node is nullptr");
@@ -58,6 +59,7 @@ int32_t ExecutorMessengerService::SendData(uint64_t scheduleId, int32_t dstRole,
 int32_t ExecutorMessengerService::Finish(uint64_t scheduleId, int32_t resultCode,
     const std::vector<uint8_t> &finalResult)
 {
+    IAM_LOGI("start");
     auto scheduleNode = ContextPool::Instance().SelectScheduleNodeByScheduleId(scheduleId);
     if (scheduleNode == nullptr) {
         IAM_LOGE("selected schedule node is nullptr");
