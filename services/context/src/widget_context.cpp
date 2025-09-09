@@ -247,6 +247,7 @@ bool WidgetContext::OnStop()
     // response app.cancel()
     IAM_LOGI("%{public}s start", description_.c_str());
     End(ResultCode::CANCELED);
+    WidgetClient::Instance().ClearSchedule(contextId_);
     return true;
 }
 

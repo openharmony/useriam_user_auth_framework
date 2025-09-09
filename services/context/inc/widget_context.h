@@ -117,6 +117,7 @@ private:
     bool IsSupportFollowCallerUi();
     bool IsInFollowCallerList();
     void SetSysDialogZOrder(WidgetCmdParameters &widgetCmdParameters);
+    
     bool IsSingleFaceOrFingerPrintAuth();
     bool IsNavigationAuth();
     UserAuthTipCode GetAuthTipCode(int32_t authResult, int32_t freezingTime);
