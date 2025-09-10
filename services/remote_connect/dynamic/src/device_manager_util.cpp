@@ -46,7 +46,7 @@ bool DeviceManagerUtil::GetLocalDeviceUdid(std::string &udid)
     constexpr int UDID_LENGTH = 65;
     char udidDevice[UDID_LENGTH] = {0};
     int udidRes = AclGetDevUdid(udidDevice, UDID_LENGTH);
-    if (udidRes == 0) {
+    if (udidRes == 0 && strlen(udidDevice) == UDID_LENGTH - 1) {
         IAM_LOGI("GetDeviceUdid udidRes == 0");
         std::string udidString(udidDevice, strlen(udidDevice));
         udid = udidString;
