@@ -37,8 +37,8 @@ ResultCode RemoteConnectionManager::OpenConnection(const std::string &connection
 
 ResultCode RemoteConnectionManager::CloseConnection(const std::string &connectionName)
 {
-    IAM_LOGD("Dynamic load mode: skip close connection");
-    return SUCCESS;
+    IAM_LOGE("Dynamic load mode: skip close connection");
+    return GENERAL_ERROR;
 }
 
 ResultCode RemoteConnectionManager::RegisterConnectionListener(const std::string &connectionName,
@@ -59,13 +59,13 @@ ResultCode RemoteConnectionManager::UnregisterConnectionListener(const std::stri
     const std::string &endPointName)
 {
     IAM_LOGD("Dynamic load mode: skip unregister connection listener");
-    return SUCCESS;
+    return GENERAL_ERROR;
 }
 
 ResultCode RemoteConnectionManager::UnregisterConnectionListener(const std::string &endPointName)
 {
     IAM_LOGD("Dynamic load mode: skip unregister connection listener");
-    return SUCCESS;
+    return GENERAL_ERROR;
 }
 
 ResultCode RemoteConnectionManager::SendMessage(const std::string &connectionName,
