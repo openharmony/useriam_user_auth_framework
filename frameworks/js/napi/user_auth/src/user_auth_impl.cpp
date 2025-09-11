@@ -393,6 +393,7 @@ napi_value UserAuthImpl::QueryReusableAuthResult(napi_env env, napi_callback_inf
     UserAuthResultCode errCode = ParseReusableAuthResultParam(env, info, authParam);
     if (errCode != UserAuthResultCode::SUCCESS) {
         IAM_LOGE("AuthParamInner type error, errorCode: %{public}d", errCode);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode(errCode)));
         reporter.ReportFailed(errCode);
         return nullptr;
     }
