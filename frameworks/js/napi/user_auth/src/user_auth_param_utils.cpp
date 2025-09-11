@@ -91,6 +91,10 @@ UserAuthResultCode UserAuthParamUtils::InitAuthType(napi_env env, napi_value val
         napi_value jsValue = nullptr;
         napi_handle_scope scope = nullptr;
         napi_open_handle_scope(env, &scope);
+        if (scope == nullptr) {
+            IAM_LOGE("scope is invalid");
+            continue;
+        }
         napi_get_element(env, value, i, &jsValue);
         if (jsValue == nullptr) {
             napi_close_handle_scope(env, scope);
