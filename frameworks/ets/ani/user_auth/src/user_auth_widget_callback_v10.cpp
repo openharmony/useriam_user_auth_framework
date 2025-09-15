@@ -50,7 +50,6 @@ bool UserAuthWidgetCallback::HasCommandCallback()
 void UserAuthWidgetCallback::SendCommand(const std::string &cmdData)
 {
     IAM_LOGI("start");
-    std::lock_guard<std::mutex> guard(mutex_);
     if (commandCallback_ == nullptr) {
         IAM_LOGE("commandCallback_ is null");
         return;
