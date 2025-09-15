@@ -59,6 +59,7 @@ ohos_fuzztest("ContextCallbackImplFuzzTest") {
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   external_deps = [
+    "ability_runtime:ability_connect_callback_stub",
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "drivers_interface_user_auth:libuser_auth_proxy_4.0",
