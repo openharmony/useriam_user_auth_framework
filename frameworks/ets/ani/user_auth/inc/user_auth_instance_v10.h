@@ -41,10 +41,12 @@ public:
     ~UserAuthInstanceV10() = default;
 
     UserAuthResultCode Init(userAuth::AuthParam const &authParam, userAuth::WidgetParam const &widgetParam);
-    UserAuthResultCode On(std::string type, userAuth::IAuthCallback const &callback);
-    UserAuthResultCode Off(std::string type, taihe::optional_view<userAuth::IAuthCallback> callback);
+    UserAuthResultCode OnResult(userAuth::IAuthCallback const &callback);
+    UserAuthResultCode OffResult(taihe::optional_view<userAuth::IAuthCallback> callback);
     UserAuthResultCode Start();
     UserAuthResultCode Cancel();
+    UserAuthResultCode onAuthTip(taihe::callback_view<void(userAuth::AuthTipInfo const&)> callback);
+    UserAuthResultCode offAuthTip(taihe::optional_view<taihe::callback<void(userAuth::AuthTipInfo const&)>> callback);
 
 private:
     UserAuthResultCode InitAuthParam(userAuth::AuthParam const &authParam);
