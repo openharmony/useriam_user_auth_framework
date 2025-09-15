@@ -241,18 +241,10 @@ void SimpleAuthContext::SendAuthExecutorMsg()
 
     for (uint32_t msgIndex = 0; msgIndex < authExecutorMsgs.size(); msgIndex++) {
         auto authExecutorMsg = authExecutorMsgs[msgIndex];
-        std::string threadName = std::to_string(GetContextId()) + "_msg_" + std::to_string(msgIndex);
-        if (!threadManager.CreateThreadHandler(threadName)) {
-            IAM_LOGE("Failed to create thread handler for executor message");
-            continue;
-        }
-
-        threadManager.PostTask(threadName, [authExecutorMsg, threadName]() {
+        threadManager.PostTaskOnTemporaryThread("SendExecutorMsg", [authExecutorMsg]() {
             ResourceNodeUtils::SendMsgToExecutor(
                 authExecutorMsg.executorIndex, authExecutorMsg.commandId, authExecutorMsg.msg);
         });
-
-        threadManager.DestroyThreadHandler(threadName);
     }
     IAM_LOGI("end");
 }
