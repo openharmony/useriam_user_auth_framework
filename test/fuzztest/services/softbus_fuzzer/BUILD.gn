@@ -33,6 +33,7 @@ ohos_fuzztest("SoftBusFuzzTest") {
     "../../../../frameworks/native/common/dfx/inc",
     "../../../../services/base/inc",
     "../../../../services/remote_connect/inc",
+    "../../../../services/remote_connect/default/inc",
     "../../../../common/utils",
     "../../../../common/logs",
   ]

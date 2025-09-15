@@ -314,22 +314,25 @@ ohos_source_set("userauth_service_context_fuzzer") {
 }
 
 ohos_source_set("userauth_service_remote_connect_fuzzer") {
-  include_dirs = [ "inc" ]
+  include_dirs = [
+    "inc",
+    "../../../services/remote_connect/default/inc",
+  ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   sources = [
-    "../../../services/remote_connect/src/device_manager_util.cpp",
-    "../../../services/remote_connect/src/remote_connect_listener.cpp",
-    "../../../services/remote_connect/src/remote_connect_listener_manager.cpp",
-    "../../../services/remote_connect/src/remote_connect_manager.cpp",
-    "../../../services/remote_connect/src/socket_factory.cpp",
-    "../../../services/remote_connect/src/soft_bus_base_socket.cpp",
-    "../../../services/remote_connect/src/soft_bus_client_socket.cpp",
-    "../../../services/remote_connect/src/soft_bus_manager.cpp",
-    "../../../services/remote_connect/src/soft_bus_message.cpp",
-    "../../../services/remote_connect/src/soft_bus_server_socket.cpp",
-    "../../../services/remote_connect/src/soft_bus_socket_listener.cpp",
+    "../../../services/remote_connect/default/src/device_manager_util.cpp",
+    "../../../services/remote_connect/default/src/remote_connect_listener.cpp",
+    "../../../services/remote_connect/default/src/remote_connect_listener_manager.cpp",
+    "../../../services/remote_connect/default/src/remote_connect_manager.cpp",
+    "../../../services/remote_connect/default/src/socket_factory.cpp",
+    "../../../services/remote_connect/default/src/soft_bus_base_socket.cpp",
+    "../../../services/remote_connect/default/src/soft_bus_client_socket.cpp",
+    "../../../services/remote_connect/default/src/soft_bus_manager.cpp",
+    "../../../services/remote_connect/default/src/soft_bus_message.cpp",
+    "../../../services/remote_connect/default/src/soft_bus_server_socket.cpp",
+    "../../../services/remote_connect/default/src/soft_bus_socket_listener.cpp",
   ]
 
   deps = [

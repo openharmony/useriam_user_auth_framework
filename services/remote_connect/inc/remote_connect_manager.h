@@ -48,6 +48,8 @@ public:
     ResultCode SendMessage(const std::string &connectionName,
         const std::string &srcEndPoint, const std::string &destEndPoint,
         const std::shared_ptr<Attributes> &attributes, MsgCallback &callback);
+    void Start();
+    void Stop();
 };
 } // namespace UserAuth
 } // namespace UserIam
