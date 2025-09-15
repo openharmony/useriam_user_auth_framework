@@ -81,27 +81,40 @@ std::string BaseContext::GetCallerName() const
 
 bool BaseContext::Start()
 {
-    std::lock_guard<std::recursive_mutex> guard(mutex_);
-    IAM_LOGD("%{public}s start", GetDescription());
-    if (hasStarted_) {
-        IAM_LOGI("%{public}s context has started, cannot start again", GetDescription());
-        return false;
+    {
+        std::lock_guard<std::recursive_mutex> guard(mutex_);
+        IAM_LOGD("%{public}s start", GetDescription());
+        if (hasStarted_) {
+            IAM_LOGI("%{public}s context has started, cannot start again", GetDescription());
+            return false;
+        }
+        hasStarted_ = true;
     }
-    hasStarted_ = true;
     return OnStart();
 }
 
 bool BaseContext::Stop()
 {
-    std::lock_guard<std::recursive_mutex> guard(mutex_);
     IAM_LOGD("%{public}s start", GetDescription());
     return OnStop();
 }
 
-std::shared_ptr<ScheduleNode> BaseContext::GetScheduleNode(uint64_t scheduleId) const
+std::vector<std::shared_ptr<ScheduleNode>> BaseContext::GetScheduleList() const
 {
     std::lock_guard<std::recursive_mutex> guard(mutex_);
-    for (auto const &schedule : scheduleList_) {
+    return scheduleList_;
+}
+
+void BaseContext::SetScheduleList(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList)
+{
+    std::lock_guard<std::recursive_mutex> guard(mutex_);
+    scheduleList_ = scheduleList;
+}
+
+std::shared_ptr<ScheduleNode> BaseContext::GetScheduleNode(uint64_t scheduleId) const
+{
+    auto scheduleList = GetScheduleList();
+    for (auto const &schedule : scheduleList) {
         if (schedule == nullptr) {
             continue;
         }

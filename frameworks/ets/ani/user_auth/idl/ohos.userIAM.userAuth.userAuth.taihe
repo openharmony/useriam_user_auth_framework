@@ -16,7 +16,7 @@
 @!namespace("@ohos.userIAM.userAuth", "userAuth")
  
 @!sts_inject("""
-static { loadLibrary("userauth_ani"); }
+static { loadLibraryWithPermissionCheck("userauth_ani", "@ohos.userIAM.userAuth"); }
 export const MAX_ALLOWABLE_REUSE_DURATION : int = 300000;
 """)
  
@@ -59,12 +59,29 @@ enum UserAuthResultCode : i32 {
     TYPE_NOT_SUPPORT = 12500005,
     TRUST_LEVEL_NOT_SUPPORT = 12500006,
     BUSY = 12500007,
+    INVALID_PARAMETERS = 12500008,
     LOCKED = 12500009,
     NOT_ENROLLED = 12500010,
     CANCELED_FROM_WIDGET = 12500011,
     PIN_EXPIRED = 12500013,
     AUTH_TOKEN_CHECK_FAILED = 12500015,
-    AUTH_TOKEN_EXPIRED = 12500016
+    AUTH_TOKEN_EXPIRED = 12500016,
+    REUSE_AUTH_RESULT_FAILED = 12500017
+}
+
+enum UserAuthTipCode : i32 {
+    COMPARE_FAILURE = 1,
+    TIMEOUT = 2,
+    TEMPORARILY_LOCKED = 3,
+    PERMANENTLY_LOCKED = 4,
+    WIDGET_LOADED = 5,
+    WIDGET_RELEASED = 6,
+    COMPARE_FAILURE_WITH_FROZEN = 7
+}
+
+struct AuthTipInfo {
+    tipType: UserAuthType;
+    tipCode: UserAuthTipCode;
 }
  
 struct EnrolledState {
@@ -83,6 +100,7 @@ struct AuthParam {
     authTrustLevel: AuthTrustLevel;
     reuseUnlockResult: Optional<ReuseUnlockResult>;
     userId: Optional<i32>;
+    skipLockedBiometricAuth: Optional<bool>;
 }
  
 struct WidgetParam {

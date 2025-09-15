@@ -45,15 +45,18 @@ bool IdentifyContext::OnStart()
 {
     IAM_LOGI("%{public}s start", GetDescription());
     IF_FALSE_LOGE_AND_RETURN_VAL(identify_ != nullptr, false);
-    bool startRet = identify_->Start(scheduleList_, shared_from_this());
+    std::vector<std::shared_ptr<ScheduleNode>> scheduleList = {};
+    bool startRet = identify_->Start(scheduleList, shared_from_this());
     if (!startRet) {
         IAM_LOGE("%{public}s identify start fail", GetDescription());
         SetLatestError(identify_->GetLatestError());
         return startRet;
     }
-    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_.size() == 1, false);
-    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList_[0] != nullptr, false);
-    bool startScheduleRet = scheduleList_[0]->StartSchedule();
+    SetScheduleList(scheduleList);
+
+    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList.size() == 1, false);
+    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList[0] != nullptr, false);
+    bool startScheduleRet = scheduleList[0]->StartSchedule();
     IF_FALSE_LOGE_AND_RETURN_VAL(startScheduleRet, false);
     IAM_LOGI("%{public}s success", GetDescription());
     return true;
@@ -78,8 +81,9 @@ void IdentifyContext::OnResult(int32_t resultCode, const std::shared_ptr<Attribu
 bool IdentifyContext::OnStop()
 {
     IAM_LOGI("%{public}s start", GetDescription());
-    if (scheduleList_.size() == 1 && scheduleList_[0] != nullptr) {
-        scheduleList_[0]->StopSchedule();
+    auto scheduleList = GetScheduleList();
+    if (scheduleList.size() == 1 && scheduleList[0] != nullptr) {
+        scheduleList[0]->StopSchedule();
     }
 
     IF_FALSE_LOGE_AND_RETURN_VAL(identify_ != nullptr, false);

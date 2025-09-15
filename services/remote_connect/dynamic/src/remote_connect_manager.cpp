@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,22 +13,17 @@
  * limitations under the License.
  */
 
-#include "securec.h"
-
 #include "remote_connect_manager.h"
-#include "remote_connect_listener.h"
-#include "remote_connect_listener_manager.h"
-#include "soft_bus_manager.h"
-#include "device_manager.h"
+#include "iam_logger.h"
 
 #define LOG_TAG "USER_AUTH_SA"
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-using namespace OHOS::DistributedHardware;
+
 RemoteConnectionManager &RemoteConnectionManager::GetInstance()
 {
-    IAM_LOGD("start.");
     static RemoteConnectionManager instance;
     return instance;
 }
@@ -36,50 +31,59 @@ RemoteConnectionManager &RemoteConnectionManager::GetInstance()
 ResultCode RemoteConnectionManager::OpenConnection(const std::string &connectionName,
     std::string remoteNetworkId, uint32_t tokenId)
 {
-    IAM_LOGD("start.");
-    return SoftBusManager::GetInstance().OpenConnection(connectionName, tokenId, remoteNetworkId);
+    IAM_LOGE("Dynamic load mode: remote connection not supported");
+    return GENERAL_ERROR;
 }
 
 ResultCode RemoteConnectionManager::CloseConnection(const std::string &connectionName)
 {
-    IAM_LOGD("start.");
-    return SoftBusManager::GetInstance().CloseConnection(connectionName);
+    IAM_LOGE("Dynamic load mode: skip close connection");
+    return GENERAL_ERROR;
 }
 
 ResultCode RemoteConnectionManager::RegisterConnectionListener(const std::string &connectionName,
     const std::string &endPointName, const std::shared_ptr<ConnectionListener> &listener)
 {
-    IAM_LOGD("start.");
-    return RemoteConnectListenerManager::GetInstance().RegisterListener(connectionName, endPointName, listener);
+    IAM_LOGE("Dynamic load mode: register connection listener not supported");
+    return GENERAL_ERROR;
 }
 
 ResultCode RemoteConnectionManager::RegisterConnectionListener(const std::string &endPointName,
     const std::shared_ptr<ConnectionListener> &listener)
 {
-    IAM_LOGD("start.");
-    return RemoteConnectListenerManager::GetInstance().RegisterListener(endPointName, listener);
+    IAM_LOGE("Dynamic load mode: register connection listener not supported");
+    return GENERAL_ERROR;
 }
 
 ResultCode RemoteConnectionManager::UnregisterConnectionListener(const std::string &connectionName,
     const std::string &endPointName)
 {
-    IAM_LOGD("start.");
-    return RemoteConnectListenerManager::GetInstance().UnregisterListener(connectionName, endPointName);
+    IAM_LOGD("Dynamic load mode: skip unregister connection listener");
+    return GENERAL_ERROR;
 }
 
 ResultCode RemoteConnectionManager::UnregisterConnectionListener(const std::string &endPointName)
 {
-    IAM_LOGD("start.");
-    return RemoteConnectListenerManager::GetInstance().UnregisterListener(endPointName);
+    IAM_LOGD("Dynamic load mode: skip unregister connection listener");
+    return GENERAL_ERROR;
 }
 
 ResultCode RemoteConnectionManager::SendMessage(const std::string &connectionName,
     const std::string &srcEndPoint, const std::string &destEndPoint,
     const std::shared_ptr<Attributes> &attributes, MsgCallback &callback)
 {
-    IAM_LOGD("start.");
-    return SoftBusManager::GetInstance().SendMessage(connectionName,
-        srcEndPoint, destEndPoint, attributes, callback);
+    IAM_LOGE("Dynamic load mode: send message not supported");
+    return GENERAL_ERROR;
+}
+
+void RemoteConnectionManager::Start()
+{
+    IAM_LOGD("Dynamic load mode: skip start");
+}
+
+void RemoteConnectionManager::Stop()
+{
+    IAM_LOGD("Dynamic load mode: skip stop");
 }
 } // namespace UserAuth
 } // namespace UserIam
