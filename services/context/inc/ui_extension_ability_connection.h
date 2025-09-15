@@ -45,6 +45,7 @@ public:
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int32_t resultCode) override;
     void ReleaseUIExtensionComponent();
     void setIsNormalEnd(bool isNormalEnd);
+    bool GetOnResultEnd();
 
 private:
     void ReleaseUIExtensionComponentInner();

@@ -108,7 +108,14 @@ void UIExtensionAbilityConnection::ReleaseUIExtensionComponent()
 void UIExtensionAbilityConnection::setIsNormalEnd(bool isNormalEnd)
 {
     IAM_LOGI("setIsNormalEnd value: %{public}d", isNormalEnd);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     isNormalEnd_ = isNormalEnd;
+}
+
+bool UIExtensionAbilityConnection::GetOnResultEnd()
+{
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    return isNormalEnd_;
 }
 } // namespace UserAuth
 } // namespace UserIam
