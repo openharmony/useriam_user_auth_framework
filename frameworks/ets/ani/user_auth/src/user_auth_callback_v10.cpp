@@ -50,6 +50,30 @@ bool UserAuthCallbackV10::HasResultCallback()
     return resultCallback_ != nullptr;
 }
 
+void UserAuthCallbackV10::SetTipCallback(taihe::optional<AuthTipCallback> tipCallback)
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    tipCallback_ = Common::MakeShared<taihe::optional<AuthTipCallback>>(tipCallback);
+}
+
+void UserAuthCallbackV10::ClearTipCallback()
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    tipCallback_ = nullptr;
+}
+
+AuthTipCallbackPtr UserAuthCallbackV10::GetTipCallback()
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    return tipCallback_;
+}
+
+bool UserAuthCallbackV10::HasTipCallback()
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    return tipCallback_ != nullptr;
+}
+
 bool UserAuthCallbackV10::DoResultCallback(
     int32_t result, const std::vector<uint8_t> &token, int32_t authType, EnrolledState enrolledState)
 {
@@ -82,9 +106,43 @@ bool UserAuthCallbackV10::DoResultCallback(
     return true;
 }
 
+bool UserAuthCallbackV10::DoTipInfoCallBack(int32_t tipType, uint32_t tipCode)
+{
+    IAM_LOGI("DoTipInfoCallBack start, authType:%{public}d, tipCode:%{public}u", tipType, tipCode);
+    auto tipCallback = GetTipCallback();
+    if (tipCallback == nullptr) {
+        IAM_LOGE("tipCallback is null");
+        return false;
+    }
+    userAuth::AuthTipInfo authTipInfo = {
+        userAuth::UserAuthType::key_t::PIN, userAuth::UserAuthTipCode::key_t::COMPARE_FAILURE};
+    if (UserAuthHelper::CheckUserAuthType(tipType)) {
+        userAuth::UserAuthType tipTypeAni(userAuth::UserAuthType::key_t::PIN);
+        if (!UserAuthAniHelper::ConvertUserAuthType(tipType, tipTypeAni)) {
+            IAM_LOGE("Set authType error. authType: %{public}d", tipType);
+            return false;
+        }
+        authTipInfo.tipType = tipTypeAni;
+
+        userAuth::UserAuthTipCode tipCodeAni(userAuth::UserAuthTipCode::key_t::COMPARE_FAILURE);
+        if (!UserAuthAniHelper::ConvertUserAuthTipCode(tipCode, tipCodeAni)) {
+            IAM_LOGE("Set tipCode error. tipCode: %{public}d", tipCode);
+            return false;
+        }
+        authTipInfo.tipCode = tipCodeAni;
+        (**tipCallback)(authTipInfo);
+        return true;
+    }
+    return false;
+}
+
 void UserAuthCallbackV10::OnAcquireInfo(
     int32_t module, uint32_t acquireInfo, const UserIam::UserAuth::Attributes &extraInfo)
-{}
+{
+    IAM_LOGI("start, authType:%{public}d, tipCode:%{public}u", module, acquireInfo);
+    bool ret = DoTipInfoCallBack(module, acquireInfo);
+    IAM_LOGD("DoResultCallback ret = %{public}d", ret);
+}
 
 void UserAuthCallbackV10::OnResult(int32_t result, const Attributes &extraInfo)
 {

@@ -61,31 +61,31 @@ public:
         }
     }
 
-    void on(string_view type, IAuthCallback const &callback)
+    void onResult(IAuthCallback const &callback)
     {
         if (userAuthInstanceV10_ == nullptr) {
             IAM_LOGE("userAuthInstanceV10_ is null");
             UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::GENERAL_ERROR);
             return;
         }
-        UserAuth::UserAuthResultCode onResult = userAuthInstanceV10_->On(type.c_str(), callback);
+        UserAuth::UserAuthResultCode onResult = userAuthInstanceV10_->OnResult(callback);
         if (onResult != UserAuth::UserAuthResultCode::SUCCESS) {
-            IAM_LOGE("userAuthInstanceV10_ on fail");
+            IAM_LOGE("userAuthInstanceV10_ onResult fail");
             UserAuth::UserAuthAniHelper::ThrowBusinessError(onResult);
             return;
         }
     }
 
-    void off(string_view type, optional_view<IAuthCallback> callback)
+    void offResult(optional_view<IAuthCallback> callback)
     {
         if (userAuthInstanceV10_ == nullptr) {
             IAM_LOGE("userAuthInstanceV10_ is null");
             UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::GENERAL_ERROR);
             return;
         }
-        UserAuth::UserAuthResultCode offResult = userAuthInstanceV10_->Off(type.c_str(), callback);
+        UserAuth::UserAuthResultCode offResult = userAuthInstanceV10_->OffResult(callback);
         if (offResult != UserAuth::UserAuthResultCode::SUCCESS) {
-            IAM_LOGE("userAuthInstanceV10_ off fail");
+            IAM_LOGE("userAuthInstanceV10_ offResult fail");
             UserAuth::UserAuthAniHelper::ThrowBusinessError(offResult);
             return;
         }
@@ -121,6 +121,36 @@ public:
         }
     }
 
+    void onAuthTip(callback_view<void(AuthTipInfo const&)> callback)
+    {
+        if (userAuthInstanceV10_ == nullptr) {
+            IAM_LOGE("userAuthInstanceV10_ is null");
+            UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::GENERAL_ERROR);
+            return;
+        }
+        UserAuth::UserAuthResultCode onResult = userAuthInstanceV10_->onAuthTip(callback);
+        if (onResult != UserAuth::UserAuthResultCode::SUCCESS) {
+            IAM_LOGE("userAuthInstanceV10_ onAuthTip fail");
+            UserAuth::UserAuthAniHelper::ThrowBusinessError(onResult);
+            return;
+        }
+    }
+
+    void offAuthTip(optional_view<callback<void(AuthTipInfo const&)>> callback)
+    {
+        if (userAuthInstanceV10_ == nullptr) {
+            IAM_LOGE("userAuthInstanceV10_ is null");
+            UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::GENERAL_ERROR);
+            return;
+        }
+        UserAuth::UserAuthResultCode offResult = userAuthInstanceV10_->offAuthTip(callback);
+        if (offResult != UserAuth::UserAuthResultCode::SUCCESS) {
+            IAM_LOGE("userAuthInstanceV10_ offAuthTip fail");
+            UserAuth::UserAuthAniHelper::ThrowBusinessError(offResult);
+            return;
+        }
+    }
+
 private:
     std::shared_ptr<UserAuth::UserAuthInstanceV10> userAuthInstanceV10_ = nullptr;
 };
@@ -148,14 +178,14 @@ public:
         }
     }
 
-    void on(string_view type, IAuthWidgetCallback const &callback)
+    void onCommand(IAuthWidgetCallback const &callback)
     {
         if (userAuthWidgetMgr_ == nullptr) {
             IAM_LOGE("userAuthWidgetMgr_ is null after MakeShared");
             UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::GENERAL_ERROR);
             return;
         }
-        UserAuth::UserAuthResultCode onResult = userAuthWidgetMgr_->On(type.c_str(), callback);
+        UserAuth::UserAuthResultCode onResult = userAuthWidgetMgr_->OnCommand(callback);
         if (onResult != UserAuth::UserAuthResultCode::SUCCESS) {
             IAM_LOGE("userAuthWidgetMgr_ on fail");
             UserAuth::UserAuthAniHelper::ThrowBusinessError(onResult);
@@ -163,14 +193,14 @@ public:
         }
     }
 
-    void off(string_view type, optional_view<IAuthWidgetCallback> callback)
+    void offCommand(optional_view<IAuthWidgetCallback> callback)
     {
         if (userAuthWidgetMgr_ == nullptr) {
             IAM_LOGE("userAuthWidgetMgr_ is null after MakeShared");
             UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::GENERAL_ERROR);
             return;
         }
-        UserAuth::UserAuthResultCode offResult = userAuthWidgetMgr_->Off(type.c_str(), callback);
+        UserAuth::UserAuthResultCode offResult = userAuthWidgetMgr_->OffCommand(callback);
         if (offResult != UserAuth::UserAuthResultCode::SUCCESS) {
             IAM_LOGE("userAuthWidgetMgr_ off fail");
             UserAuth::UserAuthAniHelper::ThrowBusinessError(offResult);

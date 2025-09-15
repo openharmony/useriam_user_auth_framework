@@ -38,8 +38,8 @@ public:
     ~UserAuthWidgetMgr() = default;
 
     UserAuthResultCode Init(int32_t version);
-    UserAuthResultCode On(std::string type, userAuth::IAuthWidgetCallback const &callback);
-    UserAuthResultCode Off(std::string type, taihe::optional_view<userAuth::IAuthWidgetCallback> callback);
+    UserAuthResultCode OnCommand(userAuth::IAuthWidgetCallback const &callback);
+    UserAuthResultCode OffCommand(taihe::optional_view<userAuth::IAuthWidgetCallback> callback);
 
 private:
     int32_t version_ = 1;
