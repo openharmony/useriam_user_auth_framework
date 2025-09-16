@@ -429,6 +429,7 @@ UserAuthResultCode UserAuthInstanceV10::onAuthTip(taihe::callback_view<void(user
         taihe::optional<::taihe::callback<void(userAuth::AuthTipInfo const &)>>{std::in_place_t{}, callback});
     return UserAuthResultCode::SUCCESS;
 }
+
 UserAuthResultCode UserAuthInstanceV10::offAuthTip(
     taihe::optional_view<taihe::callback<void(userAuth::AuthTipInfo const &)>> callback)
 {
