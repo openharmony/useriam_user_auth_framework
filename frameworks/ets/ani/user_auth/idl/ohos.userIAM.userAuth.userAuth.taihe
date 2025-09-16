@@ -126,15 +126,17 @@ struct IAuthWidgetCallback {
 }
  
 interface UserAuthInstance {
-    on(type: String, callback: IAuthCallback): void;
-    off(type: String, callback: Optional<IAuthCallback>): void;
+    onResult(callback: IAuthCallback): void;
+    offResult(callback: Optional<IAuthCallback>): void;
     start(): void;
     cancel(): void;
+    onAuthTip(callback: (authTipInfo: AuthTipInfo) => void): void;
+    offAuthTip(callback: Optional<(authTipInfo: AuthTipInfo) => void>): void;
 }
  
 interface UserAuthWidgetMgr {
-    on(type: String, callback: IAuthWidgetCallback): void;
-    off(type: String, callback: Optional<IAuthWidgetCallback>): void;
+    onCommand(callback: IAuthWidgetCallback): void;
+    offCommand(callback: Optional<IAuthWidgetCallback>): void;
 }
  
 function GetAvailableStatus(authType: UserAuthType, authTrustLevel: AuthTrustLevel): void;
