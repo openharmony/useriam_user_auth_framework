@@ -946,6 +946,54 @@ HWTEST_F(UserAuthClientTest, QueryReusableAuthResult002, TestSize.Level0)
     dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
+
+HWTEST_F(UserAuthClientTest, UserAuthClientGetAuthLockState001, TestSize.Level0)
+{
+    AuthType testAuthType = FACE;
+    IpcClientUtils::ResetObj();
+    auto testCallback = Common::MakeShared<MockGetPropCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    UserAuthClientImpl::Instance().GetAuthLockState(testAuthType, testCallback);
+
+    testCallback = nullptr;
+    UserAuthClientImpl::Instance().GetAuthLockState(testAuthType, testCallback);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientGetAuthLockState002, TestSize.Level0)
+{
+    AuthType testAuthType = FACE;
+    auto testCallback = Common::MakeShared<MockGetPropCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    auto service = Common::MakeShared<MockUserAuthService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, GetAuthLockState(_, _))
+        .WillRepeatedly(Return(SUCCESS));
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
+    CallRemoteObject(service, obj, dr);
+    UserAuthClientImpl::Instance().GetAuthLockState(testAuthType, testCallback);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
+    IpcClientUtils::ResetObj();
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientGetAuthLockState003, TestSize.Level0)
+{
+    AuthType testAuthType = PIN;
+    auto testCallback = Common::MakeShared<MockGetPropCallback>();
+    EXPECT_NE(testCallback, nullptr);
+    auto service = Common::MakeShared<MockUserAuthService>();
+    EXPECT_NE(service, nullptr);
+    EXPECT_CALL(*service, GetAuthLockState(_, _))
+        .WillRepeatedly(Return(FAIL));
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
+    CallRemoteObject(service, obj, dr);
+    UserAuthClientImpl::Instance().GetAuthLockState(testAuthType, testCallback);
+    EXPECT_NE(dr, nullptr);
+    dr->OnRemoteDied(obj);
+    IpcClientUtils::ResetObj();
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

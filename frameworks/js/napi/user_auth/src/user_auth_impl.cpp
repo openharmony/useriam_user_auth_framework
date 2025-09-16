@@ -23,6 +23,7 @@
 #include "iam_para2str.h"
 #include "iam_ptr.h"
 
+#include "get_auth_lock_state_helper.h"
 #include "user_auth_helper.h"
 #include "user_auth_napi_helper.h"
 #include "user_auth_api_event_reporter.h"
@@ -409,6 +410,40 @@ napi_value UserAuthImpl::QueryReusableAuthResult(napi_env env, napi_callback_inf
     }
     napi_value eventInfo = UserAuthNapiHelper::Uint8VectorToNapiUint8Array(env, token);
     return eventInfo;
+}
+
+napi_value UserAuthImpl::GetAuthLockState(napi_env env, napi_callback_info info)
+{
+    IAM_LOGI("start");
+    UserAuthApiEventReporter reporter("GetAuthLockState");
+    auto getAuthLockStateAsyncHolder = Common::MakeUnique<GetAuthLockStateHelper::GetAuthLockStateAsyncHolder>();
+    if (getAuthLockStateAsyncHolder == nullptr) {
+        IAM_LOGE("async holder is nullptr.");
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV21(env, UserAuthResultCode::GENERAL_ERROR));
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
+        return nullptr;
+    }
+    std::string msgStr{};
+    if (!GetAuthLockStateHelper::ParseGetAuthLockStateParams(env, info, getAuthLockStateAsyncHolder.get())) {
+        auto resultCode = UserAuthHelper::GetResultCodeV21(getAuthLockStateAsyncHolder->resultCode);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV21(env,
+            static_cast<UserAuthResultCode>(resultCode)));
+        reporter.ReportFailed(getAuthLockStateAsyncHolder->resultCode);
+        return nullptr;
+    }
+
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_create_promise(env, &getAuthLockStateAsyncHolder->deferred, &result));
+    GetAuthLockStateHelper::GetAuthLockStateAsyncHolder *authLockStateHolder = getAuthLockStateAsyncHolder.release();
+    if (!GetAuthLockStateHelper::GetAuthLockStateWork(env, authLockStateHolder)) {
+        delete authLockStateHolder;
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV21(env, UserAuthResultCode::GENERAL_ERROR));
+        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
+        return nullptr;
+    }
+
+    reporter.ReportSuccess();
+    return result;
 }
 } // namespace UserAuth
 } // namespace UserIam

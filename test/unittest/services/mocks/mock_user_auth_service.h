@@ -72,6 +72,8 @@ public:
         const sptr<IVerifyTokenCallback> &verifyTokenCallback));
     MOCK_METHOD2(QueryReusableAuthResult, int32_t(const IpcAuthParamInner &ipcAuthParamInner,
         std::vector<uint8_t> &token));
+    MOCK_METHOD2(GetAuthLockState, int32_t(int32_t authType,
+        const sptr<IGetExecutorPropertyCallback> &getExecutorPropertyCallback));
     MOCK_METHOD1(CallbackEnter, int32_t(uint32_t code));
     MOCK_METHOD2(CallbackExit, int32_t(uint32_t code, int32_t result));
 };

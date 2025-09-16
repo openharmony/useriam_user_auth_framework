@@ -164,6 +164,31 @@ napi_value UserAuthNapiHelper::GenerateBusinessErrorV9(napi_env env, UserAuthRes
     return businessError;
 }
 
+napi_value UserAuthNapiHelper::GenerateBusinessErrorV21(napi_env env, UserAuthResultCode result)
+{
+    napi_value code;
+    std::string msgStr;
+    auto res = g_resultV212Str.find(result);
+    if (res == g_resultV212Str.end()) {
+        IAM_LOGE("result %{public}d not found", static_cast<int32_t>(result));
+        msgStr = g_resultV212Str.at(UserAuthResultCode::GENERAL_ERROR);
+        NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(UserAuthResultCode::GENERAL_ERROR), &code));
+    } else {
+        msgStr = res->second;
+        NAPI_CALL(env, napi_create_int32(env, static_cast<int32_t>(result), &code));
+    }
+    IAM_LOGI("get msg %{public}s", msgStr.c_str());
+
+    napi_value msg;
+    NAPI_CALL(env, napi_create_string_utf8(env, msgStr.c_str(), NAPI_AUTO_LENGTH, &msg));
+
+    napi_value businessError;
+    NAPI_CALL(env, napi_create_error(env, nullptr, msg, &businessError));
+    NAPI_CALL(env, napi_set_named_property(env, businessError, "code", code));
+
+    return businessError;
+}
+
 napi_value UserAuthNapiHelper::GenerateErrorMsg(napi_env env, UserAuthResultCode result, std::string errorMsg)
 {
     napi_value code;
@@ -375,6 +400,22 @@ napi_status UserAuthNapiHelper::CallVoidNapiFunc(napi_env env, napi_ref funcRef,
     ret = napi_call_function(env, undefined, funcVal, argc, argv, &callResult);
     if (ret != napi_ok) {
         IAM_LOGE("napi_call_function failed %{public}d", ret);
+    }
+    return ret;
+}
+
+napi_status UserAuthNapiHelper::SetBoolProperty(napi_env env, napi_value obj, const char *name, int32_t value)
+{
+    napi_value napiValue = nullptr;
+    napi_status ret = napi_get_boolean(env, value, &napiValue);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_get_boolean failed %{public}d", ret);
+        return ret;
+    }
+
+    ret = napi_set_named_property(env, obj, name, napiValue);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_set_named_property failed %{public}d", ret);
     }
     return ret;
 }

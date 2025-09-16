@@ -17,10 +17,12 @@
 #include "ohos.userIAM.userAuth.userAuth.impl.hpp"
 #include "taihe/runtime.hpp"
 #include "stdexcept"
-
+#include "attributes.h"
+#include "iam_check.h"
 #include "iam_ptr.h"
 #include "iam_logger.h"
 #include "auth_common.h"
+#include "auth_lock_state_helper.h"
 #include "user_auth_helper.h"
 #include "user_auth_ani_helper.h"
 #include "user_auth_client_impl.h"
@@ -28,6 +30,7 @@
 #include "user_auth_instance_v10.h"
 #include "user_auth_widget_mgr_v10.h"
 #include "user_auth_api_event_reporter.h"
+#include "user_auth_client_callback.h"
 
 #define LOG_TAG "USER_AUTH_ANI"
 
@@ -350,6 +353,62 @@ UserAuthWidgetMgr GetUserAuthWidgetMgr(int32_t version)
     auto userAuthWidgetMgr = make_holder<UserAuthWidgetMgrImpl, UserAuthWidgetMgr>(version);
     return userAuthWidgetMgr;
 }
+
+UserAuth::UserAuthResultCode GetAuthLockStateSyncInner(UserAuthType authType, userAuth::AuthLockState &authLockState)
+{
+    IAM_LOGI("begin");
+    const int32_t maxWaitTime = 10000;
+    if (!UserAuth::UserAuthHelper::CheckUserAuthType(authType)) {
+        IAM_LOGE("authType check failed:%{public}d", authType.get_value());
+        return UserAuth::UserAuthResultCode::TYPE_NOT_SUPPORT;
+    }
+
+    std::shared_ptr<UserAuth::GetAuthLockStateCallback> callback =
+        MakeShared<UserAuth::GetAuthLockStateCallback>();
+    IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, UserAuth::UserAuthResultCode::GENERAL_ERROR);
+    UserAuth::UserAuthClientImpl::Instance().GetAuthLockState(UserAuth::AuthType(authType.get_value()), callback);
+    auto future = callback->GetFuture();
+    auto result = future.wait_for(std::chrono::milliseconds(maxWaitTime));
+    if (result == std::future_status::timeout) {
+        IAM_LOGE("GetAuthLockState timeout");
+        return UserAuth::UserAuthResultCode::GENERAL_ERROR;
+    }
+
+    UserAuth::GetAuthLockStateResult getAuthLockStateResult = future.get();
+    if (getAuthLockStateResult.resultCode != static_cast<int32_t>(UserAuth::ResultCode::SUCCESS)) {
+        IAM_LOGE("GetAuthLockState failed, resultCode:%{public}d", getAuthLockStateResult.resultCode);
+        return UserAuth::UserAuthResultCode(UserAuth::UserAuthHelper::
+            GetResultCodeV21(getAuthLockStateResult.resultCode));
+    }
+    UserAuth::Attributes attr(getAuthLockStateResult.authLockState);
+    bool getAttrRes = attr.GetInt32Value(UserAuth::Attributes::ATTR_REMAIN_ATTEMPTS,
+        authLockState.remainingAuthAttempts);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getAttrRes, UserAuth::UserAuthResultCode::GENERAL_ERROR);
+    getAttrRes = attr.GetInt32Value(UserAuth::Attributes::ATTR_LOCKOUT_DURATION,
+        authLockState.lockoutDuration);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getAttrRes, UserAuth::UserAuthResultCode::GENERAL_ERROR);
+    authLockState.isLocked = authLockState.lockoutDuration > 0;
+    IAM_LOGD("success");
+    return UserAuth::UserAuthResultCode::SUCCESS;
+}
+
+userAuth::AuthLockState getAuthLockStateSync(UserAuthType authType)
+{
+    IAM_LOGD("begin");
+    UserAuth::UserAuthApiEventReporter reporter("GetAuthLockStateSync");
+    userAuth::AuthLockState authLockState = {};
+    auto res = GetAuthLockStateSyncInner(authType, authLockState);
+    if (res != UserAuth::UserAuthResultCode::SUCCESS) {
+        IAM_LOGE("failed to get auth lock state inner %{public}d", res);
+        reporter.ReportFailed(res);
+        UserAuth::UserAuthAniHelper::ThrowBusinessError(res);
+        return authLockState;
+    }
+
+    IAM_LOGD("success");
+    reporter.ReportSuccess();
+    return authLockState;
+}
 }  // namespace
 
 TH_EXPORT_CPP_API_GetAvailableStatus(GetAvailableStatus);
@@ -358,3 +417,4 @@ TH_EXPORT_CPP_API_GetUserAuthInstance(GetUserAuthInstance);
 TH_EXPORT_CPP_API_SendNotice(SendNotice);
 TH_EXPORT_CPP_API_QueryReusableAuthResult(QueryReusableAuthResult);
 TH_EXPORT_CPP_API_GetUserAuthWidgetMgr(GetUserAuthWidgetMgr);
+TH_EXPORT_CPP_API_getAuthLockStateSync(getAuthLockStateSync);

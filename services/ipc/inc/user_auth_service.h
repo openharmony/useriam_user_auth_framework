@@ -73,6 +73,8 @@ public:
         const sptr<IVerifyTokenCallback> &verifyTokenCallback) override;
     int32_t QueryReusableAuthResult(const IpcAuthParamInner &ipcAuthParamInner,
         std::vector<uint8_t> &token) override;
+    int32_t GetAuthLockState(int32_t authType,
+        const sptr<IGetExecutorPropertyCallback> &getExecutorPropertyCallback) override;
     int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;
     int32_t CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result) override;
 
@@ -140,6 +142,9 @@ private:
     void ProcessPinExpired(int32_t ret, const AuthParamInner &authParam, std::vector<AuthType> &validType,
         ContextFactory::AuthWidgetContextPara &para);
     void ProcessWidgetSessionExclusive();
+    int32_t GetPropertyHelper(int32_t userId, int32_t authType,
+        const std::vector<Attributes::AttributeKey> &keys,
+        const sptr<IGetExecutorPropertyCallback> &getExecutorPropertyCallback);
     int32_t GetPropertyInner(AuthType authType, const std::vector<Attributes::AttributeKey> &keys,
         const sptr<IGetExecutorPropertyCallback> &callback, std::vector<uint64_t> &templateIds);
     int32_t StartAuth(int32_t apiVersion, Authentication::AuthenticationPara &para,

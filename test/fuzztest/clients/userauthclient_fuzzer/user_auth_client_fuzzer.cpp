@@ -155,6 +155,16 @@ void FuzzClientGetProperty(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzClientGetAuthLockState(Parcel &parcel)
+{
+    IAM_LOGI("start");
+    auto authType = static_cast<AuthType>(parcel.ReadInt32());
+    auto callback = Common::MakeShared<DummyGetPropCallback>();
+    UserAuthClientImpl::Instance().GetAuthLockState(authType, callback);
+    UserAuthClientImpl::Instance().GetAuthLockState(authType, nullptr);
+    IAM_LOGI("end");
+}
+
 void FuzzClientSetProperty(Parcel &parcel)
 {
     IAM_LOGI("start");
@@ -423,6 +433,7 @@ void FuzzQueryReusableAuthResult(Parcel &parcel)
 
 using FuzzFunc = decltype(FuzzClientGetAvailableStatus);
 FuzzFunc *g_fuzzFuncs[] = {
+    FuzzClientGetAuthLockState,
     FuzzClientGetEnrolledState,
     FuzzClientGetAvailableStatus,
     FuzzClientGetProperty,
