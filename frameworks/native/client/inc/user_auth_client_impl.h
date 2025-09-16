@@ -59,6 +59,7 @@ public:
     int32_t SetWidgetCallback(int32_t version, const std::shared_ptr<IUserAuthWidgetCallback> &callback);
     int32_t Notice(NoticeType noticeType, const std::string &eventData);
     int32_t GetEnrolledState(int32_t apiVersion, AuthType authType, EnrolledState &enrolledState);
+    void GetAuthLockState(AuthType authType, const std::shared_ptr<GetPropCallback> &callback);
     int32_t RegistUserAuthSuccessEventListener(const std::vector<AuthType> &authTypes,
         const std::shared_ptr<AuthSuccessEventListener> &listener) override;
     int32_t UnRegistUserAuthSuccessEventListener(

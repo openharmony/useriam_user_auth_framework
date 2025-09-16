@@ -62,6 +62,17 @@ int32_t UserAuthHelper::GetResultCodeV20(int32_t result)
     }
     return GetResultCodeV10(result);
 }
+
+int32_t UserAuthHelper::GetResultCodeV21(int32_t result)
+{
+    if (result == TYPE_NOT_SUPPORT) {
+        return static_cast<int32_t>(UserAuthResultCode::TYPE_NOT_SUPPORT);
+    }
+    if (result == NOT_ENROLLED) {
+        return static_cast<int32_t>(UserAuthResultCode::NOT_ENROLLED);
+    }
+    return GetResultCodeV20(result);
+}
  
 bool UserAuthHelper::CheckUserAuthType(int32_t authType)
 {
