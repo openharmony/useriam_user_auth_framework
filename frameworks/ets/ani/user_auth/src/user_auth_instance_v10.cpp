@@ -341,48 +341,32 @@ bool UserAuthInstanceV10::CheckUIContext(const std::shared_ptr<AbilityRuntime::C
     return true;
 }
 
-UserAuthResultCode UserAuthInstanceV10::On(std::string type, userAuth::IAuthCallback const &callback)
+UserAuthResultCode UserAuthInstanceV10::OnResult(userAuth::IAuthCallback const &callback)
 {
-    IAM_LOGI("UserAuthInstanceV10 on.");
+    IAM_LOGI("UserAuthInstanceV10 OnResult.");
     if (callback_ == nullptr) {
-        IAM_LOGE("userAuthInstance on callback is null");
+        IAM_LOGE("userAuthInstance OnResult callback is null");
         return UserAuthResultCode::GENERAL_ERROR;
     }
-    static const size_t maxLen = 10;
-    if (type.size() <= 0 || type.size() > maxLen) {
-        IAM_LOGE("getAuthInstance on GetStrValue fail.");
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
-    }
-    if (type == AUTH_EVENT_RESULT) {
-        IAM_LOGI("getAuthInstance on SetResultCallback");
-        callback_->SetResultCallback(callback);
-        return UserAuthResultCode::SUCCESS;
-    } else {
-        IAM_LOGE("getAuthInstance on invalid event:%{public}s", type.c_str());
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
-    }
+    IAM_LOGI("getAuthInstance OnResult SetResultCallback");
+    callback_->SetResultCallback(callback);
+    return UserAuthResultCode::SUCCESS;
 }
 
-UserAuthResultCode UserAuthInstanceV10::Off(std::string type, taihe::optional_view<userAuth::IAuthCallback> callback)
+UserAuthResultCode UserAuthInstanceV10::OffResult(taihe::optional_view<userAuth::IAuthCallback> callback)
 {
-    IAM_LOGI("UserAuthInstanceV10 off.");
+    IAM_LOGI("UserAuthInstanceV10 OffResult.");
     if (callback_ == nullptr) {
-        IAM_LOGE("userAuthInstance off callback is null");
+        IAM_LOGE("userAuthInstance OffResult callback is null");
         return UserAuthResultCode::GENERAL_ERROR;
     }
 
-    if (type == AUTH_EVENT_RESULT) {
-        if (!callback_->HasResultCallback()) {
-            IAM_LOGE("no callback registerred yet");
-            return UserAuthResultCode::GENERAL_ERROR;
-        }
-        callback_->ClearResultCallback();
-        IAM_LOGI("UserAuthResultCode off clear result callback");
-        return UserAuthResultCode::SUCCESS;
-    } else {
-        IAM_LOGE("invalid event:%{public}s", type.c_str());
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+    if (!callback_->HasResultCallback()) {
+        IAM_LOGE("no callback registerred yet");
+        return UserAuthResultCode::GENERAL_ERROR;
     }
+    callback_->ClearResultCallback();
+    IAM_LOGI("UserAuthResultCode OffResult clear result callback");
     return UserAuthResultCode::SUCCESS;
 }
 
@@ -430,6 +414,36 @@ UserAuthResultCode UserAuthInstanceV10::Cancel()
     }
     isAuthStarted_ = false;
     reporter.ReportSuccess();
+    return UserAuthResultCode::SUCCESS;
+}
+
+UserAuthResultCode UserAuthInstanceV10::onAuthTip(taihe::callback_view<void(userAuth::AuthTipInfo const &)> callback)
+{
+    IAM_LOGI("UserAuthInstanceV10 onAuthTip.");
+    if (callback_ == nullptr) {
+        IAM_LOGE("userAuthInstance onAuthTip callback is null");
+        return UserAuthResultCode::GENERAL_ERROR;
+    }
+    IAM_LOGI("getAuthInstance onAuthTip SetTipCallback");
+    callback_->SetTipCallback(
+        taihe::optional<::taihe::callback<void(userAuth::AuthTipInfo const &)>>{std::in_place_t{}, callback});
+    return UserAuthResultCode::SUCCESS;
+}
+UserAuthResultCode UserAuthInstanceV10::offAuthTip(
+    taihe::optional_view<taihe::callback<void(userAuth::AuthTipInfo const &)>> callback)
+{
+    IAM_LOGI("UserAuthInstanceV10 offAuthTip.");
+    if (callback_ == nullptr) {
+        IAM_LOGE("userAuthInstance offAuthTip callback is null");
+        return UserAuthResultCode::GENERAL_ERROR;
+    }
+
+    if (!callback_->HasTipCallback()) {
+        IAM_LOGE("no callback registerred yet");
+        return UserAuthResultCode::GENERAL_ERROR;
+    }
+    callback_->ClearTipCallback();
+    IAM_LOGI("UserAuthResultCode offAuthTip clear tip callback");
     return UserAuthResultCode::SUCCESS;
 }
 }  // namespace UserAuth

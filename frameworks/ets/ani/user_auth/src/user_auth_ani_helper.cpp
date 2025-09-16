@@ -22,6 +22,7 @@
 
 #include "taihe/runtime.hpp"
 #include "iam_logger.h"
+#include "auth_common.h"
 
 #define LOG_TAG "USER_AUTH_ANI"
 
@@ -52,6 +53,36 @@ bool UserAuthAniHelper::ConvertUserAuthType(int32_t userAuthType, userAuth::User
             return true;
         default:
             IAM_LOGE("invalid userAuthType:%{public}d", userAuthType);
+            return false;
+    }
+}
+
+bool UserAuthAniHelper::ConvertUserAuthTipCode(int32_t userAuthTipCode, userAuth::UserAuthTipCode &userAuthTipCodeOut)
+{
+    switch (userAuthTipCode) {
+        case UserAuthTipCode::TIP_CODE_FAIL:
+            userAuthTipCodeOut = userAuth::UserAuthTipCode::key_t::COMPARE_FAILURE;
+            return true;
+        case UserAuthTipCode::TIP_CODE_TIMEOUT:
+            userAuthTipCodeOut = userAuth::UserAuthTipCode::key_t::TIMEOUT;
+            return true;
+        case UserAuthTipCode::TIP_CODE_TEMPORARILY_LOCKED:
+            userAuthTipCodeOut = userAuth::UserAuthTipCode::key_t::TEMPORARILY_LOCKED;
+            return true;
+        case UserAuthTipCode::TIP_CODE_PERMANENTLY_LOCKED:
+            userAuthTipCodeOut = userAuth::UserAuthTipCode::key_t::PERMANENTLY_LOCKED;
+            return true;
+        case UserAuthTipCode::TIP_CODE_WIDGET_LOADED:
+            userAuthTipCodeOut = userAuth::UserAuthTipCode::key_t::WIDGET_LOADED;
+            return true;
+        case UserAuthTipCode::TIP_CODE_WIDGET_RELEASED:
+            userAuthTipCodeOut = userAuth::UserAuthTipCode::key_t::WIDGET_RELEASED;
+            return true;
+        case UserAuthTipCode::TIP_CODE_COMPARE_FAIL_WITH_FROZEN:
+            userAuthTipCodeOut = userAuth::UserAuthTipCode::key_t::COMPARE_FAILURE_WITH_FROZEN;
+            return true;
+        default:
+            IAM_LOGE("invalid userAuthTipCode:%{public}d", userAuthTipCode);
             return false;
     }
 }

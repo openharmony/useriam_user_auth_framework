@@ -33,6 +33,9 @@ namespace userAuth = ohos::userIAM::userAuth::userAuth;
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+using AuthTipCallback = taihe::callback<void(userAuth::AuthTipInfo const &)>;
+using AuthTipCallbackPtr = std::shared_ptr<taihe::optional<AuthTipCallback>>;
+
 class UserAuthCallbackV10 : public AuthenticationCallback,
                             public std::enable_shared_from_this<UserAuthCallbackV10>,
                             public NoCopyable {
@@ -44,12 +47,18 @@ public:
     void SetResultCallback(const userAuth::IAuthCallback& resultCallback);
     void ClearResultCallback();
     bool HasResultCallback();
+    void SetTipCallback(taihe::optional<AuthTipCallback> tipCallback);
+    void ClearTipCallback();
+    bool HasTipCallback();
 
 private:
     bool DoResultCallback(
         int32_t result, const std::vector<uint8_t>& token, int32_t authType, EnrolledState enrolledState);
+    bool DoTipInfoCallBack(int32_t tipType, uint32_t tipCode);
+    AuthTipCallbackPtr GetTipCallback();
     std::mutex mutex_;
     std::shared_ptr<userAuth::IAuthCallback> resultCallback_ = nullptr;
+    AuthTipCallbackPtr tipCallback_ = nullptr;
 };
 }  // namespace UserAuth
 }  // namespace UserIam

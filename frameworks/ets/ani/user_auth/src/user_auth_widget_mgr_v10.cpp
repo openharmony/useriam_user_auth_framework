@@ -54,47 +54,36 @@ UserAuthResultCode UserAuthWidgetMgr::Init(int32_t version)
     return static_cast<UserAuthResultCode>(UserAuthHelper::GetResultCodeV10(result));
 }
 
-UserAuthResultCode UserAuthWidgetMgr::On(std::string type, userAuth::IAuthWidgetCallback const &callback)
+UserAuthResultCode UserAuthWidgetMgr::OnCommand(userAuth::IAuthWidgetCallback const &callback)
 {
     IAM_LOGI("UserAuthWidgetMgr on");
     if (callback_ == nullptr) {
         IAM_LOGE("callback is null");
         return UserAuthResultCode::GENERAL_ERROR;
     }
-    if (type == TYPE_COMMAND) {
-        IAM_LOGI("SetCommandCallback");
-        if (callback_->HasCommandCallback()) {
-            IAM_LOGE("command callback has been registerred");
-            return UserAuthResultCode::GENERAL_ERROR;
-        }
-        callback_->SetCommandCallback(callback);
-        return UserAuthResultCode::SUCCESS;
-    } else {
-        IAM_LOGE("invalid event:%{public}s", type.c_str());
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+    IAM_LOGI("SetCommandCallback");
+    if (callback_->HasCommandCallback()) {
+        IAM_LOGE("command callback has been registerred");
+        return UserAuthResultCode::GENERAL_ERROR;
     }
+    callback_->SetCommandCallback(callback);
+    return UserAuthResultCode::SUCCESS;
 }
 
-UserAuthResultCode UserAuthWidgetMgr::Off(
-    std::string type, taihe::optional_view<userAuth::IAuthWidgetCallback> callback)
+UserAuthResultCode UserAuthWidgetMgr::OffCommand(taihe::optional_view<userAuth::IAuthWidgetCallback> callback)
 {
     IAM_LOGI("UserAuthWidgetMgr off");
     if (callback_ == nullptr) {
         IAM_LOGE("callback is null");
         return UserAuthResultCode::GENERAL_ERROR;
     }
-    if (type == TYPE_COMMAND) {
-        IAM_LOGI("ClearCommandCallback");
-        if (callback_->HasCommandCallback()) {
-            IAM_LOGE("no command callback register yet");
-            return UserAuthResultCode::GENERAL_ERROR;
-        }
-        callback_->ClearCommandCallback();
-        return UserAuthResultCode::SUCCESS;
-    } else {
-        IAM_LOGE("invalid event:%{public}s", type.c_str());
-        return UserAuthResultCode::OHOS_INVALID_PARAM;
+    if (callback_->HasCommandCallback()) {
+        IAM_LOGE("no command callback register yet");
+        return UserAuthResultCode::GENERAL_ERROR;
     }
+    IAM_LOGI("ClearCommandCallback");
+    callback_->ClearCommandCallback();
+    return UserAuthResultCode::SUCCESS;
 }
 }  // namespace UserAuth
 }  // namespace UserIam
