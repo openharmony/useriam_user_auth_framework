@@ -53,7 +53,11 @@ bool UserAuthCallbackV10::HasResultCallback()
 void UserAuthCallbackV10::SetTipCallback(taihe::optional<AuthTipCallback> tipCallback)
 {
     std::lock_guard<std::mutex> guard(mutex_);
-    tipCallback_ = Common::MakeShared<taihe::optional<AuthTipCallback>>(tipCallback);
+    if (tipCallback) {
+        tipCallback_ = Common::MakeShared<taihe::optional<AuthTipCallback>>(tipCallback);
+    } else {
+        tipCallback_ = nullptr;
+    }
 }
 
 void UserAuthCallbackV10::ClearTipCallback()
