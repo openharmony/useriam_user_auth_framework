@@ -122,6 +122,16 @@ void ThreadHandlerManager::PostTask(const std::string &name, const std::function
     threadHandler->PostTask(task);
 }
 
+void ThreadHandlerManager::PostTaskOnTemporaryThread(const std::string &name, const std::function<void()> &task)
+{
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    static std::atomic<uint32_t> serial = 0;
+    uint32_t thisSerial = serial.fetch_add(1);
+    std::string thread_name = name + "_" + std::to_string(thisSerial);
+    CreateThreadHandler(thread_name);
+    PostTask(thread_name, task);
+    DestroyThreadHandler(thread_name);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

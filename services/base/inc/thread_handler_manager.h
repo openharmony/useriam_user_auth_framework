@@ -37,6 +37,7 @@ public:
     void DeleteThreadHandler(const std::string &name);
     std::shared_ptr<ThreadHandler> GetThreadHandler(const std::string &name);
     void PostTask(const std::string &name, const std::function<void()> &task);
+    void PostTaskOnTemporaryThread(const std::string &name, const std::function<void()> &task);
 
 private:
     std::recursive_mutex mutex_;
