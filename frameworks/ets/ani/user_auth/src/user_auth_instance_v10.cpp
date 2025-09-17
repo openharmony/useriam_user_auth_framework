@@ -56,7 +56,6 @@ const std::string REUSEMODE = "reuseMode";
 const std::string REUSEDURATION = "reuseDuration";
 
 namespace WidgetType {
-constexpr int32_t TITLE_MAX = 500;
 constexpr int32_t BUTTON_MAX = 60;
 }  // namespace WidgetType
 
@@ -241,7 +240,7 @@ UserAuthResultCode UserAuthInstanceV10::InitTitle(userAuth::WidgetParam const &w
 {
     IAM_LOGI("InitTitle start.");
     std::string title = widgetParam.title.c_str();
-    if (title == "" || title.size() > WidgetType::TITLE_MAX) {
+    if (title == "" || title.size() > TITLE_MAX) {
         IAM_LOGE("title is invalid. size: %{public}zu", title.size());
         std::string msgStr = "Parameter error. The length of \"title\" connot exceed 500.";
         return UserAuthResultCode::OHOS_INVALID_PARAM;
