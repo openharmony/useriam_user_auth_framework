@@ -25,6 +25,7 @@
 #include "publish_event_adapter.h"
 #include "resource_node_utils.h"
 #include "schedule_node_helper.h"
+#include "thread_handler_manager.h"
 #include "update_pin_param_impl.h"
 #include "user_idm_database.h"
 
@@ -89,7 +90,8 @@ bool DeleteImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
     }
 
     if (hdiResult.operateType == HdiCredentialOperateType::CREDENTIAL_DELETE) {
-        return DeleteCredential(deletePara_.userId, hdiResult.credentialInfos, isCredentialDelete);
+        isCredentialDelete = true;
+        return DeleteCredential(deletePara_.userId, hdiResult.credentialInfos);
     } else if (hdiResult.operateType == HdiCredentialOperateType::CREDENTIAL_ABANDON) {
         return StartSchedule(deletePara_.userId, hdiResult.scheduleInfo, scheduleList, callback);
     }
@@ -154,8 +156,7 @@ bool DeleteImpl::StartSchedule(int32_t userId, HdiScheduleInfo &info,
     return true;
 }
 
-bool DeleteImpl::DeleteCredential(int32_t userId, std::vector<HdiCredentialInfo> &credentialInfos,
-    bool &isCredentialDelete)
+bool DeleteImpl::DeleteCredential(int32_t userId, std::vector<HdiCredentialInfo> &credentialInfos)
 {
     IAM_LOGI("start");
     std::vector<std::shared_ptr<CredentialInfoInterface>> list;
@@ -168,12 +169,13 @@ bool DeleteImpl::DeleteCredential(int32_t userId, std::vector<HdiCredentialInfo>
         list.push_back(info);
     }
 
-    int32_t ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(list, "DeleteTemplate");
-    if (ret != SUCCESS) {
-        IAM_LOGE("NotifyExecutorToDeleteTemplates fail, ret:%{public}d", ret);
-        return false;
-    }
-    isCredentialDelete = true;
+    ThreadHandlerManager::GetInstance().PostTaskOnTemporaryThread("DeleteTemplate", [list]() {
+        int32_t ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(list, "DeleteTemplate");
+        if (ret != SUCCESS) {
+            IAM_LOGE("NotifyExecutorToDeleteTemplates fail, ret:%{public}d", ret);
+        }
+    });
+
     for (auto info : list) {
         PublishCommonEvent(userId, info->GetCredentialId(), info->GetAuthType());
     }
