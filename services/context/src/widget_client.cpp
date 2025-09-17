@@ -391,6 +391,7 @@ void WidgetClient::ClearSchedule(uint64_t contextId)
                 loadedAuthTypeList_.clear();
             }
         }
+        schedule->StopSchedule();
         schedule->ClearSchedule();
         RemoveScheduleNode(contextId);
     }
