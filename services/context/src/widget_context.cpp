@@ -337,6 +337,10 @@ void WidgetContext::EndAuthAsCancel()
         IAM_LOGE("complexity check failed");
         return End(TRUST_LEVEL_NOT_SUPPORT);
     }
+    if (connection_ != nullptr && connection_->GetOnResultEnd()) {
+        IAM_LOGI("send result end");
+        return;
+    }
     // report CANCELED to App
     End(ResultCode::CANCELED);
 }
