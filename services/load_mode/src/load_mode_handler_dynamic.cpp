@@ -35,6 +35,7 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 constexpr uint32_t WAIT_TIME_FOR_SERVICE_READY = 5000;
+const std::string MANAGE_USER_IDM = "ohos.permission.MANAGE_USER_IDM";
 
 class CredentialUpdatedListener : public EventFwk::CommonEventSubscriber {
 public:
@@ -79,6 +80,7 @@ void LoadModeHandlerDynamic::SubscribeCredentialUpdatedListener()
     EventFwk::MatchingSkills matchSkills;
     matchSkills.AddEvent("USER_CREDENTIAL_UPDATED_EVENT");
     EventFwk::CommonEventSubscribeInfo subscribeInfo(matchSkills);
+    subscribeInfo.SetPermission(MANAGE_USER_IDM);
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (credentialUpdatedListener_ == nullptr) {
         credentialUpdatedListener_ = Common::MakeShared<CredentialUpdatedListener>(subscribeInfo);
