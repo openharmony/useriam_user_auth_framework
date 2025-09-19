@@ -1143,8 +1143,8 @@ int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authP
             return INVALID_PARAMETERS;
         }
     }
-    if (widgetParam.title.empty()) {
-        IAM_LOGE("title is empty");
+    if (widgetParam.title.empty() || widgetParam.title.size() > TITLE_MAX) {
+        IAM_LOGE("title is invalid");
         return INVALID_PARAMETERS;
     }
     return SUCCESS;
