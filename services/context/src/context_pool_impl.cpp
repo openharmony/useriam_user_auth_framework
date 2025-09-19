@@ -76,7 +76,8 @@ void ContextPoolImpl::CheckPreemptContext(const std::shared_ptr<Context> &contex
     if (context->GetContextType() != ContextType::CONTEXT_SIMPLE_AUTH) {
         return;
     }
-    for (auto iter = contextMap_.begin(); iter != contextMap_.end(); iter++) {
+    auto tempContextMap = contextMap_;
+    for (auto iter = tempContextMap.begin(); iter != tempContextMap.end(); iter++) {
         if (iter->second == nullptr) {
             IAM_LOGE("context is nullptr");
             break;
@@ -86,7 +87,7 @@ void ContextPoolImpl::CheckPreemptContext(const std::shared_ptr<Context> &contex
             iter->second->GetUserId() == context->GetUserId()) {
             IAM_LOGE("contextId:%{public}hx is preempted, newContextId:%{public}hx, mapSize:%{public}zu,"
                 "callerName:%{public}s, userId:%{public}d, authType:%{public}d", static_cast<uint16_t>(iter->first),
-                static_cast<uint16_t>(context->GetContextId()), contextMap_.size(), context->GetCallerName().c_str(),
+                static_cast<uint16_t>(context->GetContextId()), tempContextMap.size(), context->GetCallerName().c_str(),
                 context->GetUserId(), context->GetAuthType());
             iter->second->Stop();
             break;
@@ -111,7 +112,8 @@ bool ContextPoolImpl::Insert(const std::shared_ptr<Context> &context)
     if (!result.second) {
         return false;
     }
-    for (const auto &listener : listenerSet_) {
+    auto tempListenerSet = listenerSet_;
+    for (const auto &listener : tempListenerSet) {
         if (listener != nullptr) {
             listener->OnContextPoolInsert(context);
         }
@@ -129,7 +131,8 @@ bool ContextPoolImpl::Delete(uint64_t contextId)
     }
     auto tempContext = iter->second;
     contextMap_.erase(iter);
-    for (const auto &listener : listenerSet_) {
+    auto tempListenerSet = listenerSet_;
+    for (const auto &listener : tempListenerSet) {
         if (listener != nullptr) {
             listener->OnContextPoolDelete(tempContext);
         }
@@ -141,7 +144,8 @@ void ContextPoolImpl::CancelAll() const
 {
     IAM_LOGI("start");
     std::lock_guard<std::recursive_mutex> lock(poolMutex_);
-    for (const auto &context : contextMap_) {
+    auto tempContextMap = contextMap_;
+    for (const auto &context : tempContextMap) {
         if (context.second == nullptr) {
             continue;
         }
