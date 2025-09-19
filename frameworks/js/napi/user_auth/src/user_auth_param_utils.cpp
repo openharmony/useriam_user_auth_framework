@@ -53,7 +53,6 @@ namespace {
 }
 
 namespace WidgetType {
-    constexpr int32_t TITLE_MAX = 500;
     constexpr int32_t BUTTON_MAX = 60;
 }
 
@@ -317,7 +316,7 @@ UserAuthResultCode UserAuthParamUtils::InitWidgetParam(napi_env env, napi_value 
         return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
     std::string title = UserAuthNapiHelper::GetStringPropertyUtf8(env, value, WIDGET_PARAM_TITLE);
-    if (title == "" || title.size() > WidgetType::TITLE_MAX) {
+    if (title == "" || title.size() > TITLE_MAX) {
         IAM_LOGE("title is invalid. size: %{public}zu", title.size());
         std::string msgStr = "Parameter error. The length of \"title\" connot exceed 500.";
         return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
