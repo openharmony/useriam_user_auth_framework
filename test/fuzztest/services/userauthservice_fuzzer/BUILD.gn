@@ -50,6 +50,7 @@ ohos_fuzztest("UserAuthServiceFuzzTest") {
   ]
 
   external_deps = [
+    "ability_runtime:ability_connect_callback_stub",
     "ability_runtime:ability_context_native",
     "ability_runtime:abilitykit_native",
     "ability_runtime:app_manager",
