@@ -23,6 +23,7 @@ ohos_fuzztest("UserAuthExecutorFuzzTest") {
     "-O0",
     "-Wno-unused-variable",
     "-fno-omit-frame-pointer",
+    "-DIAM_TEST_ENABLE",
     "-Dprivate=public",
     "-Dprotected=public",
   ]
