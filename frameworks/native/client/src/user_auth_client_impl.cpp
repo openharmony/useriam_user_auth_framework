@@ -710,6 +710,42 @@ int32_t UserAuthClientImpl::GetEnrolledState(int32_t apiVersion, AuthType authTy
     return SUCCESS;
 }
 
+void UserAuthClientImpl::GetAuthLockState(AuthType authType,
+    const std::shared_ptr<GetPropCallback> &callback)
+{
+    IAM_LOGI("start, authType: %{public}d", authType);
+    if (!callback) {
+        IAM_LOGE("get prop callback is nullptr");
+        return;
+    }
+    auto proxy = GetProxy();
+    if (!proxy) {
+        Attributes extraInfo;
+        int32_t result = LoadModeUtil::GetProxyNullResultCode(__func__, std::vector<std::string>({
+            ACCESS_BIOMETRIC_PERMISSION
+        }));
+        callback->OnResult(result, extraInfo);
+        return;
+    }
+
+    sptr<IGetExecutorPropertyCallback> wrapper(
+        new (std::nothrow) GetExecutorPropertyCallbackService(callback));
+    if (wrapper == nullptr) {
+        IAM_LOGE("failed to create wrapper");
+        Attributes extraInfo;
+        callback->OnResult(GENERAL_ERROR, extraInfo);
+        return;
+    }
+
+    int32_t ret = proxy->GetAuthLockState(static_cast<int32_t>(authType), wrapper);
+    if (ret != SUCCESS) {
+        IAM_LOGE("GetAuthLockState fail, ret:%{public}d", ret);
+        Attributes extraInfo;
+        callback->OnResult(GENERAL_ERROR, extraInfo);
+        return;
+    }
+}
+
 int32_t UserAuthClientImpl::RegistUserAuthSuccessEventListener(const std::vector<AuthType> &authTypes,
     const std::shared_ptr<AuthSuccessEventListener> &listener)
 {

@@ -155,6 +155,14 @@ const std::map<UserAuthResultCode, std::string> g_resultV92Str = {
     {UserAuthResultCode::AUTH_TOKEN_EXPIRED, "Operation failed because of authToken has expired."},
     {UserAuthResultCode::REUSE_AUTH_RESULT_FAILED, "Failed to reuse authentication result."}
 };
+
+const std::map<UserAuthResultCode, std::string> g_resultV212Str = {
+    {UserAuthResultCode::OHOS_CHECK_PERMISSION_FAILED, "Permission denied."},
+    {UserAuthResultCode::GENERAL_ERROR, "General operation error."},
+    {UserAuthResultCode::TYPE_NOT_SUPPORT, "The authentication type is not suppported."},
+    {UserAuthResultCode::PARAM_VERIFIED_FAILED, "The parameter is out of range."},
+    {UserAuthResultCode::NOT_ENROLLED, "Authentication template has not been enrolled."}
+};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

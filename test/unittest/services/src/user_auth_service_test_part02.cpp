@@ -1829,6 +1829,38 @@ HWTEST_F(UserAuthServiceTest, QueryReusableAuthResult005, TestSize.Level0)
     EXPECT_EQ(service.QueryReusableAuthResult(ipcAuthParamInner, token), SUCCESS);
     IpcCommon::DeleteAllPermission();
 }
+
+HWTEST_F(UserAuthServiceTest, GetAuthLockState001, TestSize.Level0)
+{
+    UserAuthService service;
+    AuthType testAuthType = PIN;
+    sptr<MockGetExecutorPropertyCallback> testCallback(nullptr);
+    int32_t ret = service.GetAuthLockState(testAuthType, testCallback);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
+
+    testCallback = sptr<MockGetExecutorPropertyCallback>(new (std::nothrow) MockGetExecutorPropertyCallback());
+    EXPECT_NE(testCallback, nullptr);
+    ret = service.GetAuthLockState(testAuthType, testCallback);
+    EXPECT_EQ(ret, SUCCESS);
+
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    ret = service.GetAuthLockState(testAuthType, testCallback);
+    EXPECT_EQ(ret, SUCCESS);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, GetAuthLockState002, TestSize.Level0)
+{
+    UserAuthService service;
+    AuthType testAuthType = FACE;
+    auto testCallback = sptr<MockGetExecutorPropertyCallback>(new (std::nothrow) MockGetExecutorPropertyCallback());
+    EXPECT_NE(testCallback, nullptr);
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    OHOS::UserIam::UserAuth::IpcCommon::skipFlag_ = true;
+    auto ret = service.GetAuthLockState(testAuthType, testCallback);
+    EXPECT_EQ(ret, SUCCESS);
+    IpcCommon::DeleteAllPermission();
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

@@ -744,6 +744,22 @@ void FuzzGetAuthTokenAttr(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzGetAuthLockState(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    int32_t authType = parcel.ReadInt32();
+
+    sptr<IGetExecutorPropertyCallback> callback(nullptr);
+    if (parcel.ReadBool()) {
+        callback = sptr<IGetExecutorPropertyCallback>(new (std::nothrow) DummyGetExecutorPropertyCallback());
+    }
+    g_userAuthService.GetAuthLockState(authType, callback);
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    g_userAuthService.GetAuthLockState(authType, callback);
+    IpcCommon::DeleteAllPermission();
+    IAM_LOGI("end");
+}
+
 using FuzzFunc = decltype(FuzzGetAvailableStatus);
 FuzzFunc *g_fuzzFuncs[] = {
     FuzzGetResourseNode,
@@ -780,6 +796,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzVerifyAuthToken,
     FuzzGetAuthTokenAttr,
     FuzzQueryReusableAuthResult,
+    FuzzGetAuthLockState,
 };
 
 void UserAuthFuzzTest(const uint8_t *data, size_t size)

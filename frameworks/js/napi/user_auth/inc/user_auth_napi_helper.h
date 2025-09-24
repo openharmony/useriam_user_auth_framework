@@ -33,6 +33,7 @@ class UserAuthNapiHelper {
 public:
     static bool CheckAuthType(int32_t authType);
     static napi_value GenerateBusinessErrorV9(napi_env env, UserAuthResultCode result);
+    static napi_value GenerateBusinessErrorV21(napi_env env, UserAuthResultCode result);
     static napi_value GenerateErrorMsg(napi_env env, UserAuthResultCode result, std::string errorMsg);
     static UserAuthResultCode ThrowErrorMsg(napi_env env, UserAuthResultCode errorCode, std::string errorMsg);
     static napi_status CheckNapiType(napi_env env, napi_value value, napi_valuetype type);
@@ -45,6 +46,7 @@ public:
         size_t limitLen, std::vector<uint8_t> &array);
     static napi_value Uint64ToNapiUint8Array(napi_env env, uint64_t value);
     static napi_value Uint8VectorToNapiUint8Array(napi_env env,  std::vector<uint8_t> &value);
+    static napi_status SetBoolProperty(napi_env env, napi_value obj, const char *name, int32_t value);
     static napi_status SetInt32Property(napi_env env, napi_value obj, const char *name, int32_t value);
     static napi_status SetUint32Property(napi_env env, napi_value obj, const char *name, uint32_t value);
     static napi_status SetUint8ArrayProperty(napi_env env,

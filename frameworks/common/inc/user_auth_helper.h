@@ -31,6 +31,7 @@ public:
     static bool CheckAuthTrustLevel(uint32_t authTrustLevel);
     static int32_t GetResultCodeV10(int32_t result);
     static int32_t GetResultCodeV20(int32_t result);
+    static int32_t GetResultCodeV21(int32_t result);
     static bool CheckReuseUnlockResult(ReuseUnlockResult reuseUnlockResult);
 private:
     UserAuthHelper() = default;
