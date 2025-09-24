@@ -152,12 +152,14 @@ void DriverManager::SubscribeHdiDriverStatus()
 
     hdiServiceStatusListener_ = sptr<HdiServiceStatusListener>(new (std::nothrow) HdiServiceStatusListener(callback));
     IF_FALSE_LOGE_AND_RETURN(hdiServiceStatusListener_ != nullptr);
+#ifndef IAM_TEST_ENABLE
     int32_t ret = servMgr->RegisterServiceStatusListener(hdiServiceStatusListener_, DEVICE_CLASS_USERAUTH);
     if (ret != USERAUTH_SUCCESS) {
         IAM_LOGE("failed to register service status listener");
         hdiServiceStatusListener_ = nullptr;
         return;
     }
+#endif
     IAM_LOGI("success");
 }
 
