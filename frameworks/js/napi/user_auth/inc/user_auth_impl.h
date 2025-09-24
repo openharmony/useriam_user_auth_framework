@@ -34,6 +34,7 @@ public:
     static napi_value CancelAuth(napi_env env, napi_callback_info info);
     static napi_value GetEnrolledState(napi_env env, napi_callback_info info);
     static napi_value QueryReusableAuthResult(napi_env env, napi_callback_info info);
+    static napi_value GetAuthLockState(napi_env env, napi_callback_info info);
 
 private:
     UserAuthImpl() = default;

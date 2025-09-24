@@ -74,4 +74,5 @@ interface OHOS.UserIam.UserAuth.IUserAuth {
         [in] IVerifyTokenCallback verifyTokenCallback);
 
     void QueryReusableAuthResult([in] IpcAuthParamInner ipcAuthParamInner, [out] unsigned char[] token);
+    void GetAuthLockState([in] int authType, [in] IGetExecutorPropertyCallback getExecutorPropertyCallback);
 }

@@ -348,8 +348,18 @@ int32_t UserAuthService::GetProperty(int32_t userId, int32_t authType,
     std::transform(keys.begin(), keys.end(), attrKeys.begin(), [](uint32_t key) {
         return static_cast<Attributes::AttributeKey>(key);
     });
+
+    return GetPropertyHelper(userId, AuthType(authType), attrKeys, getExecutorPropertyCallback);
+}
+
+int32_t UserAuthService::GetPropertyHelper(int32_t userId, int32_t authType,
+    const std::vector<Attributes::AttributeKey> &keys,
+    const sptr<IGetExecutorPropertyCallback> &getExecutorPropertyCallback)
+{
+    IAM_LOGD("start");
+    Attributes values;
     std::vector<uint64_t> templateIds;
-    if (IsTemplateIdListRequired(attrKeys)) {
+    if (IsTemplateIdListRequired(keys)) {
         int32_t ret = GetTemplatesByAuthType(userId, static_cast<AuthType>(authType), templateIds);
         if (ret != SUCCESS) {
             IAM_LOGE("get templates fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret,
@@ -364,7 +374,7 @@ int32_t UserAuthService::GetProperty(int32_t userId, int32_t authType,
         }
     }
 
-    return GetPropertyInner(static_cast<AuthType>(authType), attrKeys, getExecutorPropertyCallback, templateIds);
+    return GetPropertyInner(static_cast<AuthType>(authType), keys, getExecutorPropertyCallback, templateIds);
 }
 
 int32_t UserAuthService::GetPropertyById(uint64_t credentialId, const std::vector<uint32_t> &keys,
@@ -1537,6 +1547,33 @@ int32_t UserAuthService::GetEnrolledState(int32_t apiVersion, int32_t authType,
     IAM_LOGI("start");
     funcResult = GetEnrolledStateImpl(apiVersion, authType, ipcEnrolledState);
     return SUCCESS;
+}
+
+int32_t UserAuthService::GetAuthLockState(int32_t authType,
+    const sptr<IGetExecutorPropertyCallback> &getExecutorPropertyCallback)
+{
+    IAM_LOGD("start");
+    Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
+    IF_FALSE_LOGE_AND_RETURN_VAL(getExecutorPropertyCallback != nullptr, INVALID_PARAMETERS);
+    Attributes values;
+    if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
+        IAM_LOGE("failed to check permission");
+        getExecutorPropertyCallback->OnGetExecutorPropertyResult(CHECK_PERMISSION_FAILED, values.Serialize());
+        return SUCCESS;
+    }
+
+    int32_t userId = INVALID_USER_ID;
+    if (IpcCommon::GetCallingUserId(*this, userId) != SUCCESS) {
+        IAM_LOGE("failed to get callingUserId");
+        getExecutorPropertyCallback->OnGetExecutorPropertyResult(GENERAL_ERROR, values.Serialize());
+        return SUCCESS;
+    }
+    
+    std::vector<Attributes::AttributeKey> attrKeys;
+    attrKeys.push_back(Attributes::ATTR_REMAIN_TIMES);
+    attrKeys.push_back(Attributes::ATTR_FREEZING_TIME);
+
+    return GetPropertyHelper(userId, AuthType(authType), attrKeys, getExecutorPropertyCallback);
 }
 
 int32_t UserAuthService::RegistUserAuthSuccessEventListener(const sptr<IEventListenerCallback> &listener)

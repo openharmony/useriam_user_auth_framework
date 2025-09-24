@@ -88,6 +88,12 @@ struct EnrolledState {
     credentialDigest: i32;
     credentialCount: i32;
 }
+
+struct AuthLockState {
+    isLocked: bool;
+    remainingAuthAttempts: i32;
+    lockoutDuration: i32;
+}
  
 struct ReuseUnlockResult {
     reuseMode: ReuseMode;
@@ -150,3 +156,6 @@ function SendNotice(noticeType: NoticeType, eventData: String): void;
 function GetUserAuthWidgetMgr(version: i32): UserAuthWidgetMgr;
 
 function QueryReusableAuthResult(authParam: AuthParam): @typedarray Array<u8>;
+
+@gen_promise("getAuthLockState")
+function getAuthLockStateSync(authType: UserAuthType): AuthLockState;

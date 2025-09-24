@@ -33,6 +33,7 @@
         OHOS::UserIam::UserAuth::UserAuthNapiClientImpl::BeginWidgetAuth*;
         OHOS::UserIam::UserAuth::UserAuthNapiClientImpl::CancelAuthentication*;
         OHOS::UserIam::UserAuth::UserAuthClientImpl::QueryReusableAuthResult*;
+        OHOS::UserIam::UserAuth::UserAuthClientImpl::GetAuthLockState*;
     };
     local:
         *;

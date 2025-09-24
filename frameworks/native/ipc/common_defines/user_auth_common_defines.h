@@ -86,6 +86,18 @@ struct EnrolledState {
 };
 
 /**
+ * @brief Authentication lock state.
+ */
+struct AuthLockState {
+    /** Authentication lock state. */
+    bool isLocked{0};
+    /** Remain attempts. */
+    int32_t remainingAuthAttempts{5};
+    /** Lockout duration */
+    int32_t lockoutDuration{0};
+};
+
+/**
  * @brief Auth widget parameter.
  */
 struct WidgetParamInner {
