@@ -66,9 +66,11 @@ uint64_t FfiUserAuthStart(const CjAuthParam &authParam, const CjWidgetParam &wid
     }
     WidgetParam widgetInner = {
         .title = widgetParam.title,
-        .navigationButtonText = widgetParam.navigationButtonText ? widgetParam.navigationButtonText : nullptr,
         .windowMode = WindowModeType::UNKNOWN_WINDOW_MODE,
     };
+    if (widgetParam.navigationButtonText != nullptr) {
+        widgetInner.navigationButtonText = widgetParam.navigationButtonText;
+    }
     if (callbackPtr == nullptr) {
         return UserAuthClientImpl::Instance().BeginWidgetAuth(API_VERSION_10, authParamInner, widgetInner,
                                                               std::make_shared<CjUserAuthCallback>());
