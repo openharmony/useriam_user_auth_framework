@@ -66,7 +66,7 @@ uint64_t FfiUserAuthStart(const CjAuthParam &authParam, const CjWidgetParam &wid
     }
     WidgetParam widgetInner = {
         .title = widgetParam.title,
-        .navigationButtonText = widgetParam.navigationButtonText ? widgetParam.navigationButtonText : nullptr,
+        .navigationButtonText = widgetParam.navigationButtonText ? widgetParam.navigationButtonText : "",
         .windowMode = WindowModeType::UNKNOWN_WINDOW_MODE,
     };
     if (callbackPtr == nullptr) {
