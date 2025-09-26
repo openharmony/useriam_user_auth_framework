@@ -119,7 +119,7 @@ bool ParseGetAuthLockStateParams(napi_env env, napi_callback_info info,
 
     if (!UserAuthHelper::CheckUserAuthType(type)) {
         asyncHolder->errMsg = "param check user auth type failed.";
-        asyncHolder->resultCode = ResultCode::INVALID_PARAMETERS;
+        asyncHolder->resultCode = ResultCode::TYPE_NOT_SUPPORT;
         return false;
     }
 
