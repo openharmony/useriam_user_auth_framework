@@ -720,6 +720,26 @@ HWTEST_F(WidgetContextTest, WidgetContextTestProcAuthTipInfo, TestSize.Level0)
     EXPECT_NO_THROW(widgetContext->ProcAuthTipInfo(0, PIN, extraInfo));
 }
 
+HWTEST_F(WidgetContextTest, WidgetContextTestStopOnTerminateTimer, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_NO_THROW(widgetContext->StopOnTerminateTimer());
+    widgetContext->onTerminateTimerId_ = 1;
+    EXPECT_NO_THROW(widgetContext->StopOnTerminateTimer());
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestOnTerminateTimerTimeOut, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    widgetContext->BuildSchedule();
+    EXPECT_NO_THROW(widgetContext->OnTerminateTimerTimeOut(contextId));
+}
+
 HWTEST_F(WidgetContextTest, WidgetContextTestSetSysDialogZOrder, TestSize.Level0)
 {
     uint64_t contextId = 1;

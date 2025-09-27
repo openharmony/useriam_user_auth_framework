@@ -66,6 +66,7 @@ const std::string TO_PORTRAIT = "90";
 const std::string TO_INVERTED = "180";
 const std::string TO_PORTRAIT_INVERTED = "270";
 const std::string SUPPORT_FOLLOW_CALLER_UI = "const.useriam.authWidget.supportFollowCallerUi";
+static constexpr uint32_t TERMINATE_TIMER_LEN_MS = 1000;
 
 WidgetContext::WidgetContext(uint64_t contextId, const ContextFactory::AuthWidgetContextPara &para,
     std::shared_ptr<ContextCallback> callback, const sptr<IModalCallback> &modalCallback)
@@ -83,6 +84,7 @@ WidgetContext::WidgetContext(uint64_t contextId, const ContextFactory::AuthWidge
 WidgetContext::~WidgetContext()
 {
     IAM_LOGD("release WidgetContext");
+    StopOnTerminateTimer();
     RemoveDeathRecipient(callerCallback_);
     UnSubscribeAppState();
 }
@@ -662,6 +664,7 @@ void WidgetContext::End(const ResultCode &resultCode)
     }
     connection_->setIsNormalEnd(true);
 EXIT:
+    StartOnTerminateTimer();
     UnSubscribeAppState();
 }
 
@@ -886,6 +889,47 @@ void WidgetContext::ProcAuthTipInfo(int32_t tip, AuthType authType, const std::v
             schedule_->NaviPinAuth();
         }
     }
+}
+
+void WidgetContext::StartOnTerminateTimer()
+{
+    IAM_LOGI("start");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (onTerminateTimerId_ != 0) {
+        IAM_LOGI("onTerminateTimer is already start");
+        return;
+    }
+    uint64_t contextId = GetContextId();
+    IAM_LOGI("onTerminateTimer start, context ****%{public}hx", static_cast<uint16_t>(contextId));
+    onTerminateTimerId_ = RelativeTimer::GetInstance().Register(
+        [weakSelf = weak_from_this(), contextId] {
+            auto self = weakSelf.lock();
+            if (self == nullptr) {
+                IAM_LOGE("onTerminateTimer, context is released");
+                return;
+            }
+            self->OnTerminateTimerTimeOut(contextId);
+        },
+        TERMINATE_TIMER_LEN_MS);
+}
+
+void WidgetContext::StopOnTerminateTimer()
+{
+    IAM_LOGI("start");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (onTerminateTimerId_ == 0) {
+        IAM_LOGI("onTerminateTimer is already stop");
+        return;
+    }
+
+    RelativeTimer::GetInstance().Unregister(onTerminateTimerId_);
+    onTerminateTimerId_ = 0;
+}
+
+void WidgetContext::OnTerminateTimerTimeOut(uint64_t contextId)
+{
+    IAM_LOGI("start");
+    ClearSchedule();
 }
 
 void WidgetContext::ClearSchedule()
