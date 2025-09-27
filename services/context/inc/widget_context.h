@@ -123,6 +123,9 @@ private:
     void ProcAuthResult(int32_t resultCode, AuthType authType, int32_t freezingTime,
         const Attributes &finalResult);
     void ProcAuthTipInfo(int32_t tip, AuthType authType, const std::vector<uint8_t> &extraInfo);
+    void StartOnTerminateTimer();
+    void StopOnTerminateTimer();
+    void OnTerminateTimerTimeOut(uint64_t contextId);
 
 private:
     struct TaskInfo {
@@ -161,6 +164,7 @@ private:
     int32_t faceReload_ {0};
     uint32_t widgetAlreadyLoad_ {0};
     nlohmann::json jsonBuf_ = {};
+    uint32_t onTerminateTimerId_ {0};
 };
 } // namespace UserAuth
 } // namespace UserIam
