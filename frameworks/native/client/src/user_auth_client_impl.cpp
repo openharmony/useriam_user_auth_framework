@@ -313,8 +313,8 @@ void UserAuthClientImpl::SetProperty(int32_t userId, const SetPropertyRequest &r
 uint64_t UserAuthClientImpl::BeginAuthentication(const AuthParam &authParam,
     const std::shared_ptr<AuthenticationCallback> &callback)
 {
-    IAM_LOGI("start, userId:%{public}d, authType:%{public}d, atl:%{public}u, authIntent:%{public}u,"
-        "remoteAuthParamHasValue:%{public}s", authParam.userId, authParam.authType, authParam.authTrustLevel,
+    HILOG_COMM_INFO("begin auth, userId:%{public}d, authType:%{public}d, atl:%{public}u, authIntent:%{public}u,"
+        " remoteAuthParamHasValue:%{public}s", authParam.userId, authParam.authType, authParam.authTrustLevel,
         authParam.authIntent, Common::GetBoolStr(authParam.remoteAuthParam.has_value()));
     if (authParam.remoteAuthParam.has_value()) {
         IAM_LOGI("verifierNetworkIdHasValue:%{public}s collectorNetworkIdHasValue:%{public}s "
@@ -324,6 +324,12 @@ uint64_t UserAuthClientImpl::BeginAuthentication(const AuthParam &authParam,
             Common::GetBoolStr(authParam.remoteAuthParam->collectorTokenId.has_value()));
     }
 
+    return BeginAuthenticationInner(authParam, callback);
+}
+
+uint64_t UserAuthClientImpl::BeginAuthenticationInner(const AuthParam &authParam,
+    const std::shared_ptr<AuthenticationCallback> &callback)
+{
     if (!callback) {
         IAM_LOGE("auth callback is nullptr");
         return BAD_CONTEXT_ID;
@@ -358,7 +364,10 @@ uint64_t UserAuthClientImpl::BeginAuthentication(const AuthParam &authParam,
     InitIpcRemoteAuthParam(authParam.remoteAuthParam, ipcRemoteAuthParam);
     auto ret = proxy->AuthUser(ipcAuthParamInner, ipcRemoteAuthParam, wrapper, contextId);
     if (ret != SUCCESS) {
-        IAM_LOGE("AuthUser fail, ret:%{public}d", ret);
+        HILOG_COMM_ERROR("auth user fail, ret:%{public}d, userId: %{public}d, authType: %{public}d,"
+            " atl: %{public}u, authIntent: %{public}u, remoteAuthParamHasValue:%{public}s", ret,
+            authParam.userId, authParam.authType, authParam.authTrustLevel, authParam.authIntent,
+            Common::GetBoolStr(authParam.remoteAuthParam.has_value()));
         return BAD_CONTEXT_ID;
     }
     return contextId;
@@ -367,7 +376,8 @@ uint64_t UserAuthClientImpl::BeginAuthentication(const AuthParam &authParam,
 uint64_t UserAuthClientImpl::BeginNorthAuthentication(int32_t apiVersion, const std::vector<uint8_t> &challenge,
     AuthType authType, AuthTrustLevel atl, const std::shared_ptr<AuthenticationCallback> &callback)
 {
-    IAM_LOGI("start, apiVersion:%{public}d authType:%{public}d atl:%{public}u", apiVersion, authType, atl);
+    HILOG_COMM_INFO("begin north auth, apiVersion:%{public}d authType:%{public}d atl:%{public}u",
+        apiVersion, authType, atl);
     if (!callback) {
         IAM_LOGE("auth callback is nullptr");
         return BAD_CONTEXT_ID;
@@ -406,7 +416,8 @@ uint64_t UserAuthClientImpl::BeginNorthAuthentication(int32_t apiVersion, const 
     };
     auto ret = proxy->Auth(apiVersion, authParamInner, wrapper, contextId);
     if (ret != SUCCESS) {
-        IAM_LOGE("Auth fail, ret:%{public}d", ret);
+        HILOG_COMM_ERROR("north auth fail, ret:%{public}d, authType:%{public}d atl:%{public}u,"
+            " ctxId: %{public}s", ret, authType, atl, Common::GetMaskedString(contextId).c_str());
         return BAD_CONTEXT_ID;
     }
     return contextId;
@@ -414,7 +425,7 @@ uint64_t UserAuthClientImpl::BeginNorthAuthentication(int32_t apiVersion, const 
 
 int32_t UserAuthClientImpl::CancelAuthentication(uint64_t contextId)
 {
-    IAM_LOGI("start");
+    HILOG_COMM_INFO("cancel auth, contextId: %{public}hx", static_cast<uint16_t>(contextId));
     auto proxy = GetProxy();
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
@@ -562,7 +573,7 @@ UserAuthClient &UserAuthClient::GetInstance()
 uint64_t UserAuthClientImpl::BeginWidgetAuth(const WidgetAuthParam &authParam, const WidgetParam &widgetParam,
     const std::shared_ptr<AuthenticationCallback> &callback)
 {
-    IAM_LOGI("start, authTypeSize:%{public}zu authTrustLevel:%{public}u", authParam.authTypes.size(),
+    HILOG_COMM_INFO("begin widget auth, authTypeSize:%{public}zu authTrustLevel:%{public}u", authParam.authTypes.size(),
         authParam.authTrustLevel);
     AuthParamInner authParamInner = {
         .userId = authParam.userId,
@@ -584,8 +595,10 @@ uint64_t UserAuthClientImpl::BeginWidgetAuth(const WidgetAuthParam &authParam, c
 uint64_t UserAuthClientImpl::BeginWidgetAuth(int32_t apiVersion, const WidgetAuthParam &authParam,
     const WidgetParam &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback)
 {
-    IAM_LOGI("start, apiVersion:%{public}d authTypeSize:%{public}zu authTrustLevel:%{public}u",
-        apiVersion, authParam.authTypes.size(), authParam.authTrustLevel);
+    HILOG_COMM_INFO("begin widget auth, apiVersion:%{public}d authTypeSize:%{public}zu authTrustLevel:%{public}u,"
+        " reuseUnlockResult.isReuse: %{public}d, resuseMode: %{public}d", apiVersion,
+        authParam.authTypes.size(), authParam.authTrustLevel, authParam.reuseUnlockResult.isReuse,
+        authParam.reuseUnlockResult.reuseMode);
 
     AuthParamInner authParamInner = {
         .isUserIdSpecified = false,
@@ -645,7 +658,8 @@ uint64_t UserAuthClientImpl::BeginWidgetAuthInner(int32_t apiVersion, const Auth
     uint64_t contextId = BAD_CONTEXT_ID;
     auto ret = proxy->AuthWidget(apiVersion, ipcAuthParamInner, ipcWidgetParamInner, wrapper, wrapperModal, contextId);
     if (ret != SUCCESS) {
-        IAM_LOGE("AuthWidget fail, ret:%{public}d", ret);
+        HILOG_COMM_ERROR("auth widget fail, ret:%{public}d, authTypeSize: %{public}zu, authTrustLevel: %{public}u",
+            ret, authParam.authTypes.size(), authParam.authTrustLevel);
         return BAD_CONTEXT_ID;
     }
     return contextId;
@@ -680,7 +694,7 @@ int32_t UserAuthClientImpl::Notice(NoticeType noticeType, const std::string &eve
         IAM_LOGE("proxy is nullptr");
         return GENERAL_ERROR;
     }
-    IAM_LOGI("UserAuthClientImpl::Notice noticeType:%{public}d, eventDat:%{public}s",
+    HILOG_COMM_INFO("auth client notice noticeType:%{public}d, eventDat:%{public}s",
         static_cast<int32_t>(noticeType), eventData.c_str());
     return proxy->Notice(static_cast<int32_t>(noticeType), eventData);
 }
@@ -815,7 +829,14 @@ int32_t UserAuthClientImpl::QueryReusableAuthResult(const WidgetAuthParam &authP
     ipcAuthParamInner.reuseUnlockResult.reuseMode = authParam.reuseUnlockResult.reuseMode;
     ipcAuthParamInner.reuseUnlockResult.reuseDuration = authParam.reuseUnlockResult.reuseDuration;
 
-    return proxy->QueryReusableAuthResult(ipcAuthParamInner, token);
+    auto ret = proxy->QueryReusableAuthResult(ipcAuthParamInner, token);
+    if (ret != SUCCESS) {
+        HILOG_COMM_ERROR("query reuseable auth result: %{public}d, atl: %{public}d, isReuse: %{public}d,"
+            " reuseMode: %{public}d", ret, authParam.authTrustLevel, authParam.reuseUnlockResult.isReuse,
+            authParam.reuseUnlockResult.reuseMode);
+    }
+
+    return ret;
 }
 
 void UserAuthClientImpl::InitIpcRemoteAuthParam(const std::optional<RemoteAuthParam> &remoteAuthParam,

@@ -405,7 +405,7 @@ void UserIdmService::CancelCurrentEnrollIfExist()
 
 int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IIamCallback> &idmCallback)
 {
-    IAM_LOGI("to delete userid: %{public}d", userId);
+    HILOG_COMM_INFO("user idm service to delete userid: %{public}d", userId);
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     IF_FALSE_LOGE_AND_RETURN_VAL(idmCallback != nullptr, INVALID_PARAMETERS);
 
@@ -439,14 +439,14 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IIamCallback> 
         return ret;
     }
     if (userInfo == nullptr) {
-        IAM_LOGE("current userid %{public}d is not existed", userId);
+        HILOG_COMM_ERROR("current userid %{public}d is not existed", userId);
         contextCallback->OnResult(GENERAL_ERROR, extraInfo);
         return GENERAL_ERROR;
     }
     CredChangeEventInfo changeInfo = {callerName, callerType, 0, 0, false};
     ret = EnforceDelUserInner(userId, contextCallback, "EnforceDeleteUser", changeInfo);
     if (ret != SUCCESS) {
-        IAM_LOGE("failed to enforce delete user");
+        HILOG_COMM_ERROR("failed to enforce delete user, ret: %{public}d", ret);
         static_cast<void>(extraInfo.SetUint64Value(Attributes::ATTR_CREDENTIAL_ID, 0));
         contextCallback->OnResult(ret, extraInfo);
         return ret;
@@ -461,6 +461,7 @@ int32_t UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> &auth
     const sptr<IIamCallback> &idmCallback)
 {
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
+    HILOG_COMM_INFO("del user, userId: %{public}d", userId);
     IF_FALSE_LOGE_AND_RETURN_VAL(idmCallback != nullptr, INVALID_PARAMETERS);
 
     Attributes extraInfo;
@@ -490,7 +491,7 @@ int32_t UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> &auth
     std::vector<uint8_t> rootSecret;
     int32_t ret = UserIdmDatabase::Instance().DeleteUser(userId, authToken, credInfos, rootSecret);
     if (ret != SUCCESS) {
-        IAM_LOGE("failed to delete user");
+        HILOG_COMM_ERROR("failed to delete user, userId: %{pblic}d", userId);
         contextCallback->OnResult(ret, extraInfo);
         return ret;
     }
@@ -517,6 +518,8 @@ int32_t UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> &auth
 int32_t UserIdmService::StartDelete(Deletion::DeleteParam &para,
     const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo)
 {
+    HILOG_COMM_INFO("user idm delete, userId: %{public}d, credentialId: %{public}s", para.userId,
+        Common::GetMaskedString(para.credentialId).c_str());
     auto context = ContextFactory::CreateDeleteContext(para, contextCallback);
     if (context == nullptr || !ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
@@ -528,7 +531,7 @@ int32_t UserIdmService::StartDelete(Deletion::DeleteParam &para,
     contextCallback->SetCleaner(cleaner);
 
     if (!context->Start()) {
-        IAM_LOGE("failed to start delete");
+        HILOG_COMM_ERROR("failed to start context delete");
         contextCallback->OnResult(context->GetLatestError(), extraInfo);
         return context->GetLatestError();
     }
@@ -641,7 +644,8 @@ int32_t UserIdmService::EnforceDelUserInner(int32_t userId, std::shared_ptr<Cont
     std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
     int32_t ret = UserIdmDatabase::Instance().DeleteUserEnforce(userId, credInfos);
     if (ret != SUCCESS) {
-        IAM_LOGE("failed to enforce delete user, ret:%{public}d", ret);
+        HILOG_COMM_ERROR("failed to enforce delete user, ret:%{public}d, userId: %{public}d",
+            ret, userId);
         return ret;
     }
     SetAuthTypeTrace(credInfos, callbackForTrace);
@@ -734,7 +738,8 @@ int32_t UserIdmService::ClearRedundancyCredential(const sptr<IIamCallback> &idmC
 
     int32_t ret = ClearRedundancyCredentialInner(callerName, callerType);
     if (ret != SUCCESS) {
-        IAM_LOGE("clearRedundancyCredentialInner fail, ret:%{public}d, ", ret);
+        HILOG_COMM_ERROR("clear redundancy cred fail, ret:%{public}d, callerName: %{public}s,"
+            " callerType: %{public}d", ret, callerName.c_str(), callerType);
     }
     contextCallback->OnResult(ret, extraInfo);
     return ret;

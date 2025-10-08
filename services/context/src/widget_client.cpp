@@ -96,7 +96,8 @@ ResultCode WidgetClient::OnNotice(NoticeType type, const std::string &eventData)
 
 void WidgetClient::ProcessNotice(const WidgetNotice &notice, std::vector<AuthType> &authTypeList)
 {
-    IAM_LOGI("start, event:%{public}s", notice.event.c_str());
+    HILOG_COMM_INFO("widget client, event:%{public}s, authTypeSize: %{public}zu",
+        notice.event.c_str(), authTypeList.size());
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (notice.event == NOTICE_EVENT_AUTH_READY) {
         schedule_->StartAuthList(authTypeList, notice.endAfterFirstFail, notice.authIntent);

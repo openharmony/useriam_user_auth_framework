@@ -58,7 +58,7 @@ bool DeleteContext::OnStart()
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList = {};
     bool startRet = deletion_->Start(scheduleList, shared_from_this(), isCredentilaDelete);
     if (!startRet) {
-        IAM_LOGE("%{public}s delete start fail", GetDescription());
+        HILOG_COMM_ERROR("%{public}s delete start fail", GetDescription());
         SetLatestError(deletion_->GetLatestError());
         return startRet;
     }
@@ -79,10 +79,10 @@ bool DeleteContext::OnStart()
 
 void DeleteContext::OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr)
 {
-    IAM_LOGI("%{public}s receive result code %{public}d", GetDescription(), resultCode);
+    HILOG_COMM_INFO("%{public}s receive result code %{public}d", GetDescription(), resultCode);
     bool updateRet = UpdateScheduleResult(scheduleResultAttr);
     if (!updateRet) {
-        IAM_LOGE("%{public}s UpdateScheduleResult fail", GetDescription());
+        HILOG_COMM_ERROR("%{public}s update schedule res fail", GetDescription());
         if (resultCode == SUCCESS) {
             resultCode = GetLatestError();
         }
@@ -120,7 +120,8 @@ bool DeleteContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &sche
     std::shared_ptr<CredentialInfoInterface> infoToDel;
     bool updateRet = deletion_->Update(scheduleResult, infoToDel);
     if (!updateRet) {
-        IAM_LOGE("%{public}s delete update fail", GetDescription());
+        HILOG_COMM_ERROR("%{public}s delete update fail, res: %{public}d",
+            GetDescription(), updateRet);
         SetLatestError(deletion_->GetLatestError());
         return updateRet;
     }
@@ -130,7 +131,8 @@ bool DeleteContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &sche
         std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos = {infoToDel};
         int32_t ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos, "DeleteForUpdate");
         if (ret != SUCCESS) {
-            IAM_LOGE("failed to notify executor delete template, error code : %{public}d", ret);
+            HILOG_COMM_ERROR("describeInfo: %{public}s failed to notify executor delete template, "
+                "error code : %{public}d", GetDescription(), ret);
         }
     }
 

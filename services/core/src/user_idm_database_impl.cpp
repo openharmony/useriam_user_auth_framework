@@ -21,6 +21,7 @@
 #include "enrolled_info_impl.h"
 #include "hdi_wrapper.h"
 #include "iam_logger.h"
+#include "iam_para2str.h"
 #include "iam_ptr.h"
 #include "iam_hitrace_helper.h"
 #include "iam_common_defines.h"
@@ -112,7 +113,7 @@ int32_t UserIdmDatabaseImpl::DeleteUser(int32_t userId, const std::vector<uint8_
     IamHitraceHelper traceHelper("hdi DeleteUser");
     int32_t ret = hdi->DeleteUser(userId, authToken, hdiInfos, rootSecret);
     if (ret != HDF_SUCCESS) {
-        IAM_LOGE("failed to delete user, error code : %{public}d", ret);
+        HILOG_COMM_ERROR("failed to delete user, error code : %{public}d, userId: %{public}d", ret, userId);
         return ret;
     }
 
@@ -141,7 +142,8 @@ int32_t UserIdmDatabaseImpl::DeleteUserEnforce(int32_t userId,
     IamHitraceHelper traceHelper("hdi EnforceDeleteUser");
     int32_t ret = hdi->EnforceDeleteUser(userId, hdiInfos);
     if (ret != HDF_SUCCESS) {
-        IAM_LOGE("failed to enforce delete user, error code : %{public}d", ret);
+        HILOG_COMM_ERROR("failed to enforce delete user, error code : %{public}d, userId: %{public}d",
+            ret, userId);
         return ret;
     }
 

@@ -81,7 +81,8 @@ void EnrollContext::OnResult(int32_t resultCode, const std::shared_ptr<Attribute
     std::optional<uint64_t> secUserId = std::nullopt;
     bool updateRet = UpdateScheduleResult(scheduleResultAttr, credentialId, pinInfo, secUserId);
     if (!updateRet) {
-        IAM_LOGE("%{public}s UpdateScheduleResult fail", GetDescription());
+        HILOG_COMM_ERROR("%{public}s update schedule result fail, result: %{public}d",
+            GetDescription(), updateRet);
         if (resultCode == SUCCESS) {
             resultCode = GetLatestError();
         }
@@ -101,7 +102,7 @@ bool EnrollContext::OnStop()
     IF_FALSE_LOGE_AND_RETURN_VAL(enroll_ != nullptr, false);
     bool cancelRet = enroll_->Cancel();
     if (!cancelRet) {
-        IAM_LOGE("%{public}s enroll stop fail", GetDescription());
+        HILOG_COMM_ERROR("%{public}s enroll stop fail, result: %{public}d", GetDescription(), cancelRet);
         SetLatestError(enroll_->GetLatestError());
         return cancelRet;
     }
@@ -120,7 +121,7 @@ bool EnrollContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &sche
     std::shared_ptr<CredentialInfoInterface> infoToDel;
     bool updateRet = enroll_->Update(scheduleResult, credentialId, infoToDel, pinInfo, secUserId);
     if (!updateRet) {
-        IAM_LOGE("%{public}s enroll update fail", GetDescription());
+        HILOG_COMM_ERROR("%{public}s enroll update fail, result: %{public}d", GetDescription(), updateRet);
         SetLatestError(enroll_->GetLatestError());
         return updateRet;
     }
@@ -142,7 +143,8 @@ bool EnrollContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &sche
 void EnrollContext::InvokeResultCallback(int32_t resultCode, const uint64_t credentialId,
     const std::shared_ptr<UpdatePinParamInterface> &pinInfo, std::optional<uint64_t> &secUserId) const
 {
-    IAM_LOGI("%{public}s start", GetDescription());
+    HILOG_COMM_INFO("%{public}s invoke result callback, res: %{public}d, credentialId: %{public}s",
+        GetDescription(), resultCode, Common::GetMaskedString(credentialId).c_str());
     IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
     Attributes finalResult;
     if (secUserId.has_value()) {

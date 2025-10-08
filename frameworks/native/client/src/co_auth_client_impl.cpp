@@ -63,7 +63,8 @@ uint64_t CoAuthClientImpl::Register(const ExecutorInfo &info, const std::shared_
     uint64_t executorIndex = INVALID_EXECUTOR_INDEX;
     auto ret = proxy->ExecutorRegister(regInfo, wrapper, executorIndex);
     if (ret != SUCCESS) {
-        IAM_LOGE("ExecutorRegister fail, ret:%{public}d", ret);
+        HILOG_COMM_ERROR("executor register fail, ret:%{public}d, type: %{public}d role: %{public}d, "
+            "esl: %{public}d, acl: %{public}d", ret, info.authType, info.executorRole, info.esl, info.maxTemplateAcl);
         return INVALID_EXECUTOR_INDEX;
     }
 
@@ -81,7 +82,8 @@ void CoAuthClientImpl::Unregister(uint64_t executorIndex)
 
     auto ret = proxy->ExecutorUnregister(executorIndex);
     if (ret != SUCCESS) {
-        IAM_LOGE("ExecutorUnregister fail, ret:%{public}d", ret);
+        HILOG_COMM_ERROR("executor unregister fail, ret:%{public}d, executorInd: ****%{public}hx",
+            ret, static_cast<uint16_t>(executorIndex));
         return;
     }
 }
