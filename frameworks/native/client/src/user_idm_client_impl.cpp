@@ -22,6 +22,7 @@
 #include "load_mode_client_util.h"
 #include "iam_check.h"
 #include "iam_logger.h"
+#include "iam_para2str.h"
 #include "ipc_client_utils.h"
 #include "user_idm_callback_service.h"
 
@@ -42,7 +43,7 @@ std::vector<uint8_t> UserIdmClientImpl::OpenSession(int32_t userId)
     std::vector<uint8_t> challenge;
     auto ret = proxy->OpenSession(userId, challenge);
     if (ret != SUCCESS) {
-        IAM_LOGE("OpenSession ret = %{public}d", ret);
+        HILOG_COMM_ERROR("open session ret = %{public}d, userId: %{public}d", ret, userId);
     }
 
     return challenge;
@@ -58,15 +59,15 @@ void UserIdmClientImpl::CloseSession(int32_t userId)
     }
 
     auto ret = proxy->CloseSession(userId);
-        if (ret != SUCCESS) {
-        IAM_LOGE("CloseSession ret = %{public}d", ret);
+    if (ret != SUCCESS) {
+        HILOG_COMM_ERROR("close session ret = %{public}d, userId: %{public}d", ret, userId);
     }
 }
 
 void UserIdmClientImpl::AddCredential(int32_t userId, const CredentialParameters &para,
     const std::shared_ptr<UserIdmClientCallback> &callback)
 {
-    IAM_LOGI("start, userId:%{public}d, authType:%{public}d, authSubType:%{public}d",
+    HILOG_COMM_INFO("add credential, userId:%{public}d, authType:%{public}d, authSubType:%{public}d",
         userId, para.authType, para.pinType.value_or(PIN_SIX));
     if (!callback) {
         IAM_LOGE("user idm client callback is nullptr");
@@ -93,7 +94,8 @@ void UserIdmClientImpl::AddCredential(int32_t userId, const CredentialParameters
     credPara.token = std::move(para.token);
     auto ret = proxy->AddCredential(userId, credPara, wrapper, false);
     if (ret != SUCCESS) {
-        IAM_LOGE("AddCredential fail, ret:%{public}d", ret);
+        HILOG_COMM_ERROR("add credential fail, ret:%{public}d, userId: %{public}d, authType: %{public}d"
+            "authSubType: %{public}d", ret, userId, para.authType, para.pinType.value_or(PIN_SIX));
         return;
     }
 }
@@ -101,7 +103,7 @@ void UserIdmClientImpl::AddCredential(int32_t userId, const CredentialParameters
 void UserIdmClientImpl::UpdateCredential(int32_t userId, const CredentialParameters &para,
     const std::shared_ptr<UserIdmClientCallback> &callback)
 {
-    IAM_LOGI("start, userId:%{public}d, authType:%{public}d, authSubType:%{public}d",
+    HILOG_COMM_INFO("update credential, userId:%{public}d, authType:%{public}d, authSubType:%{public}d",
         userId, para.authType, para.pinType.value_or(PIN_SIX));
     if (!callback) {
         IAM_LOGE("user idm client callback is nullptr");
@@ -130,14 +132,15 @@ void UserIdmClientImpl::UpdateCredential(int32_t userId, const CredentialParamet
     credPara.token = std::move(para.token);
     auto ret = proxy->UpdateCredential(userId, credPara, wrapper);
     if (ret != SUCCESS) {
-        IAM_LOGE("UpdateCredential fail, ret:%{public}d", ret);
+        HILOG_COMM_INFO("update credential fail, ret:%{public}d, userId: %{public}d, authType: %{public}d"
+            "authSubType: %{public}d", ret, userId, para.authType, para.pinType.value_or(PIN_SIX));
         return;
     }
 }
 
 int32_t UserIdmClientImpl::Cancel(int32_t userId)
 {
-    IAM_LOGI("start, userId:%{public}d", userId);
+    HILOG_COMM_INFO("cancel idm, userId:%{public}d", userId);
     auto proxy = GetProxy();
     if (!proxy) {
         IAM_LOGE("proxy is nullptr");
@@ -150,7 +153,7 @@ int32_t UserIdmClientImpl::Cancel(int32_t userId)
 void UserIdmClientImpl::DeleteCredential(int32_t userId, uint64_t credentialId, const std::vector<uint8_t> &authToken,
     const std::shared_ptr<UserIdmClientCallback> &callback)
 {
-    IAM_LOGI("start, userId:%{public}d", userId);
+    HILOG_COMM_INFO("del credential, userId:%{public}d", userId);
     if (!callback) {
         IAM_LOGE("user idm client callback is nullptr");
         return;
@@ -172,7 +175,8 @@ void UserIdmClientImpl::DeleteCredential(int32_t userId, uint64_t credentialId, 
     }
     auto ret = proxy->DelCredential(userId, credentialId, authToken, wrapper);
     if (ret != SUCCESS) {
-        IAM_LOGE("DelCredential fail, ret:%{public}d", ret);
+        HILOG_COMM_ERROR("del credential fail, ret:%{public}d, userId: %{public}d, credentialId: %{public}s",
+            ret, userId, Common::GetMaskedString(credentialId).c_str());
         return;
     }
 }
@@ -180,7 +184,7 @@ void UserIdmClientImpl::DeleteCredential(int32_t userId, uint64_t credentialId, 
 void UserIdmClientImpl::DeleteUser(int32_t userId, const std::vector<uint8_t> &authToken,
     const std::shared_ptr<UserIdmClientCallback> &callback)
 {
-    IAM_LOGI("start, userId:%{public}d", userId);
+    HILOG_COMM_INFO("del user, userId:%{public}d", userId);
     if (!callback) {
         IAM_LOGE("user idm client callback is nullptr");
         return;
@@ -202,14 +206,14 @@ void UserIdmClientImpl::DeleteUser(int32_t userId, const std::vector<uint8_t> &a
     }
     auto ret = proxy->DelUser(userId, authToken, wrapper);
     if (ret != SUCCESS) {
-        IAM_LOGE("DelUser fail, ret:%{public}d", ret);
+        HILOG_COMM_ERROR("del user fail, ret:%{public}d, userId: %{public}d", ret, userId);
         return;
     }
 }
 
 int32_t UserIdmClientImpl::EraseUser(int32_t userId, const std::shared_ptr<UserIdmClientCallback> &callback)
 {
-    IAM_LOGI("start, userId:%{public}d", userId);
+    HILOG_COMM_INFO("erase user, userId:%{public}d", userId);
     if (!callback) {
         IAM_LOGE("user idm client callback is nullptr");
         return GENERAL_ERROR;
@@ -338,7 +342,7 @@ void UserIdmClientImpl::ResetProxy(const wptr<IRemoteObject> &remote)
 
 void UserIdmClientImpl::ClearRedundancyCredential(const std::shared_ptr<UserIdmClientCallback> &callback)
 {
-    IAM_LOGI("start");
+    HILOG_COMM_INFO("clear redundancy cred");
     if (!callback) {
         IAM_LOGE("ClearRedundancyCredential callback is nullptr");
         return;
@@ -362,7 +366,7 @@ void UserIdmClientImpl::ClearRedundancyCredential(const std::shared_ptr<UserIdmC
 
     auto ret = proxy->ClearRedundancyCredential(wrapper);
     if (ret != SUCCESS) {
-        IAM_LOGE("ClearRedundancyCredential fail, ret:%{public}d", ret);
+        HILOG_COMM_ERROR("clear redundancy cred fail, ret:%{public}d", ret);
         return;
     }
 }

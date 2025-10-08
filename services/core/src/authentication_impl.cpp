@@ -171,7 +171,7 @@ bool AuthenticationImpl::Update(const std::vector<uint8_t> &scheduleResult, Auth
     HdiEnrolledState enrolledState;
     auto result = hdi->UpdateAuthenticationResult(contextId_, scheduleResult, info, enrolledState);
     if (result != HDF_SUCCESS) {
-        IAM_LOGE("hdi UpdateAuthenticationResult failed, err is %{public}d", result);
+        HILOG_COMM_ERROR("hdi update auth result failed, err is %{public}d", result);
         SetLatestError(result);
     }
 
@@ -216,7 +216,7 @@ bool AuthenticationImpl::Cancel()
 
     auto result = hdi->CancelAuthentication(contextId_);
     if (result != HDF_SUCCESS) {
-        IAM_LOGE("hdi CancelAuthentication failed, err is %{public}d", result);
+        HILOG_COMM_ERROR("hdi cancel authentication failed, err is %{public}d", result);
         SetLatestError(result);
         return false;
     }

@@ -255,7 +255,8 @@ bool WidgetContext::OnStop()
 
 void WidgetContext::AuthResult(int32_t resultCode, int32_t authType, const Attributes &finalResult)
 {
-    IAM_LOGI("recv task result: %{public}d, authType: %{public}d", resultCode, authType);
+    HILOG_COMM_INFO("widget context: ****%{public}hx recv task result: %{public}d, authType: %{public}d",
+        static_cast<uint16_t>(contextId_), resultCode, authType);
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     int32_t remainTimes = -1;
     int32_t freezingTime = -1;
@@ -276,7 +277,8 @@ void WidgetContext::AuthResult(int32_t resultCode, int32_t authType, const Attri
 
 void WidgetContext::AuthTipInfo(int32_t tipType, int32_t authType, const Attributes &extraInfo)
 {
-    IAM_LOGD("recv tip: %{public}d, authType: %{public}d", tipType, authType);
+    HILOG_COMM_INFO("widget context: ****%{public}hx recv tip: %{public}d, authType: %{public}d",
+        static_cast<uint16_t>(contextId_), tipType, authType);
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     std::vector<uint8_t> tipInfo;
     bool getTipInfoRet = extraInfo.GetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, tipInfo);
@@ -294,7 +296,8 @@ bool WidgetContext::LaunchWidget()
     widgetRotatePara.isReload = false;
     widgetRotatePara.needRotate = 0;
     if (!ConnectExtension(widgetRotatePara)) {
-        IAM_LOGE("failed to launch widget.");
+        HILOG_COMM_ERROR("widget context: ****%{public}hx, failed to launch widget.",
+            static_cast<uint16_t>(contextId_));
         return false;
     }
     return true;
@@ -313,7 +316,9 @@ void WidgetContext::ExecuteAuthList(const std::set<AuthType> &authTypeList, bool
             continue;
         }
         if (!task->Start()) {
-            IAM_LOGE("BeginAuthentication failed");
+            HILOG_COMM_ERROR("widget context: ****%{public}hx execute auth list failed, authType: %{public}d,"
+                " atl: %{public}d, endAfterFirstFail: %{public}d, authIntent: %{public}d",
+                static_cast<uint16_t>(contextId_), authType, para_.atl, endAfterFirstFail, authIntent);
             static const int32_t INVALID_VAL = -1;
             WidgetClient::Instance().ReportWidgetResult(task->GetLatestError(), authType, INVALID_VAL, INVALID_VAL,
                 para_.skipLockedBiometricAuth);
@@ -340,7 +345,7 @@ void WidgetContext::EndAuthAsCancel()
         return End(TRUST_LEVEL_NOT_SUPPORT);
     }
     if (connection_ != nullptr && connection_->GetOnResultEnd()) {
-        IAM_LOGI("send result end");
+        HILOG_COMM_ERROR("widget context: ****%{public}hx send result end", static_cast<uint16_t>(contextId_));
         return;
     }
     // report CANCELED to App
@@ -367,7 +372,8 @@ void WidgetContext::AuthWidgetReloadInit()
     IAM_LOGI("auth widget reload init");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (!DisconnectExtension()) {
-        IAM_LOGE("failed to release launch widget");
+        HILOG_COMM_ERROR("widget context: ****%{public}hx failed to release launch widget",
+            static_cast<uint16_t>(contextId_));
     }
 }
 
@@ -390,7 +396,8 @@ bool WidgetContext::AuthWidgetReload(uint32_t orientation, uint32_t needRotate, 
         return false;
     }
     if (!ConnectExtension(widgetRotatePara)) {
-        IAM_LOGE("failed to reload widget");
+        HILOG_COMM_ERROR("widget context: ****%{public}hx failed to reload widget",
+            static_cast<uint16_t>(contextId_));
         return false;
     }
     return true;
@@ -452,7 +459,8 @@ void WidgetContext::FailAuth(AuthType authType)
 
 int32_t WidgetContext::ConnectExtensionAbility(const AAFwk::Want &want, const std::string commandStr)
 {
-    IAM_LOGD("ConnectExtensionAbility start");
+    HILOG_COMM_INFO("widget context: ****%{public}hx ConnectExtensionAbility start",
+        static_cast<uint16_t>(contextId_));
     if (connection_ != nullptr) {
         IAM_LOGE("invalid connection_");
         return ERR_INVALID_OPERATION;
@@ -582,7 +590,8 @@ bool WidgetContext::ConnectExtension(const WidgetRotatePara &widgetRotatePara)
     auto ret = ConnectExtensionAbility(want, commandData);
     if (ret != ERR_OK) {
         UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "userauthservice");
-        IAM_LOGE("ConnectExtensionAbility failed.");
+        HILOG_COMM_ERROR("widget context: ****%{public}hx ConnectExtensionAbility failed, ret: %{public}d",
+            static_cast<uint16_t>(contextId_), ret);
         return false;
     }
     return true;
@@ -615,7 +624,8 @@ bool WidgetContext::DisconnectExtension()
     ErrCode ret = AAFwk::ExtensionManagerClient::GetInstance().DisconnectAbility(connection_);
     connection_ = nullptr;
     if (ret != ERR_OK) {
-        IAM_LOGE("disconnect extension ability failed ret: %{public}d.", ret);
+        HILOG_COMM_ERROR("widget context: ****%{public}hx disconnect extension ability failed ret: %{public}d.",
+            static_cast<uint16_t>(contextId_), ret);
         return false;
     }
     return true;
@@ -623,7 +633,8 @@ bool WidgetContext::DisconnectExtension()
 
 void WidgetContext::End(const ResultCode &resultCode)
 {
-    IAM_LOGI("in End, resultCode: %{public}d", static_cast<int32_t>(resultCode));
+    HILOG_COMM_INFO("widget context: ****%{public}hx in End, resultCode: %{public}d",
+        static_cast<uint16_t>(contextId_), static_cast<int32_t>(resultCode));
     StopAllRunTask(resultCode);
     IF_FALSE_LOGE_AND_RETURN(callerCallback_ != nullptr);
     Attributes attr;
@@ -800,7 +811,8 @@ bool WidgetContext::IsNavigationAuth()
 
 void WidgetContext::SendAuthTipInfo(int32_t authType, int32_t tipCode)
 {
-    IAM_LOGI("authType:%{public}d, tipCode:%{public}d", authType, tipCode);
+    HILOG_COMM_INFO("widget context: ****%{public}hx authType:%{public}d, tipCode:%{public}d",
+        static_cast<uint16_t>(contextId_), authType, tipCode);
     Attributes attr;
     bool setTipInfoRet = attr.SetInt32Value(Attributes::ATTR_TIP_INFO, tipCode);
     if (!setTipInfoRet) {
@@ -835,7 +847,8 @@ UserAuthTipCode WidgetContext::GetAuthTipCode(int32_t authResult, int32_t freezi
 void WidgetContext::ProcAuthResult(int32_t resultCode, AuthType authType, int32_t freezingTime,
     const Attributes &finalResult)
 {
-    IAM_LOGI("recv task result: %{public}d, authType: %{public}d", resultCode, authType);
+    HILOG_COMM_INFO("widget context: ****%{public}hx proc recv task result: %{public}d, authType: %{public}d",
+        static_cast<uint16_t>(contextId_), resultCode, authType);
     IF_FALSE_LOGE_AND_RETURN(schedule_ != nullptr);
     if (resultCode == ResultCode::SUCCESS || resultCode == ResultCode::COMPLEXITY_CHECK_FAILED) {
         finalResult.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authResultInfo_.token);
@@ -936,7 +949,8 @@ void WidgetContext::ClearSchedule()
 {
     IAM_LOGI("start");
     auto result = ContextPool::Instance().Delete(GetContextId());
-    IAM_LOGI("context ****%{public}hx deleted %{public}s", static_cast<uint16_t>(contextId_), result ? "succ" : "fail");
+    HILOG_COMM_INFO("widget context ****%{public}hx deleted %{public}s",
+        static_cast<uint16_t>(contextId_), result ? "succ" : "fail");
 }
 } // namespace UserAuth
 } // namespace UserIam

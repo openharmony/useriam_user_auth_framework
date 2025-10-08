@@ -266,6 +266,8 @@ ResultCode FrameworkExecutorCallback::ProcessDeleteTemplateCommand(const Attribu
         info.executorType = executor->GetAuthType();
         UserIam::UserAuth::ReportSecurityTemplateChange(info);
     }
+    HILOG_COMM_INFO("fwk callback proc delete template, templateId: %{public}s",
+        Common::GetMaskedString(templateId).c_str());
     return ret;
 }
 

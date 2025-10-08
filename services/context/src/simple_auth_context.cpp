@@ -189,12 +189,13 @@ bool SimpleAuthContext::OnStart()
 
 void SimpleAuthContext::OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr)
 {
-    IAM_LOGI("%{public}s receive result code %{public}d", GetDescription(), resultCode);
+    HILOG_COMM_INFO("%{public}s receive result code %{public}d", GetDescription(), resultCode);
     Authentication::AuthResultInfo resultInfo = {};
     bool updateRet = UpdateScheduleResult(scheduleResultAttr, resultInfo);
     IAM_LOGI("update result %{public}d, resultInfo result %{public}d", updateRet, resultInfo.result);
     if (!updateRet) {
-        IAM_LOGE("%{public}s UpdateScheduleResult fail", GetDescription());
+        HILOG_COMM_ERROR("%{public}s update schedule result fail, res: %{public}d, resultInfo.result: %{public}d",
+            GetDescription(), updateRet, resultInfo.result);
         if (resultCode == SUCCESS) {
             resultCode = GetLatestError();
         }
@@ -225,7 +226,7 @@ bool SimpleAuthContext::OnStop()
     IF_FALSE_LOGE_AND_RETURN_VAL(auth_ != nullptr, false);
     bool cancelRet = auth_->Cancel();
     if (!cancelRet) {
-        IAM_LOGE("%{public}s auth stop fail", GetDescription());
+        HILOG_COMM_ERROR("%{public}s auth stop fail", GetDescription());
         SetLatestError(auth_->GetLatestError());
         return cancelRet;
     }
@@ -259,7 +260,7 @@ bool SimpleAuthContext::UpdateScheduleResult(const std::shared_ptr<Attributes> &
     IF_FALSE_LOGE_AND_RETURN_VAL(getResultCodeRet == true, false);
     bool updateRet = auth_->Update(scheduleResult, resultInfo);
     if (!updateRet) {
-        IAM_LOGE("%{public}s auth update fail", GetDescription());
+        HILOG_COMM_ERROR("%{public}s auth update fail", GetDescription());
         SetLatestError(auth_->GetLatestError());
         return updateRet;
     }
@@ -285,7 +286,8 @@ bool SimpleAuthContext::SetCredentialDigest(const Authentication::AuthResultInfo
 
 void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInfo &resultInfo) const
 {
-    IAM_LOGD("%{public}s start", GetDescription());
+    HILOG_COMM_INFO("%{public}s invoke result callback, result: %{public}d, reEnrollFlag: %{public}d",
+        GetDescription(), resultInfo.result, resultInfo.reEnrollFlag);
     IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
     Attributes finalResult;
     bool setResultCodeRet = finalResult.SetInt32Value(Attributes::ATTR_RESULT_CODE, resultInfo.result);

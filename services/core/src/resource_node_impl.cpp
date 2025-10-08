@@ -229,7 +229,9 @@ int32_t ResourceNodeImpl::AddToDriver(std::vector<uint64_t> &templateIdList, std
 
     int32_t result = hdi->AddExecutor(hdiInfo, executorIndex_, fwkPublicKey, templateIdList);
     if (result != HDF_SUCCESS) {
-        IAM_LOGE("hdi AddExecutor failed with code %{public}d", result);
+        HILOG_COMM_ERROR("hdi add executor failed with code %{public}d, authType: %{public}d,"
+            " executorRole: %{public}d, esl: %{public}d, acl: %{public}d", result, info_.authType,
+            info_.executorRole, info_.esl, info_.maxTemplateAcl);
         return GENERAL_ERROR;
     }
     addedToDriver_ = true;
@@ -247,7 +249,8 @@ void ResourceNodeImpl::DeleteExecutorFromDriver(uint64_t executorIndex)
 
     auto result = hdi->DeleteExecutor(executorIndex);
     if (result != HDF_SUCCESS) {
-        IAM_LOGE("hdi DeleteExecutor ****%{public}hx with %{public}d", static_cast<uint16_t>(executorIndex), result);
+        HILOG_COMM_ERROR("hdi delete executor ****%{public}hx with %{public}d",
+            static_cast<uint16_t>(executorIndex), result);
         return;
     }
     IAM_LOGI("hdi DeleteExecutor ****%{public}hx success", static_cast<uint16_t>(executorIndex));
