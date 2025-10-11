@@ -439,7 +439,7 @@ std::string GetConfigRealPath()
         IAM_LOGE("get configPath error");
         return AUTH_WIDGE_CONFIG_SUFFIX;
     }
-    return configPath;
+    return std::string(configPath);
 }
 
 void LoadConfigJsonBuffer(nlohmann::json &jsonBuf)
