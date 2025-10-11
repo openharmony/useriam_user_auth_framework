@@ -214,6 +214,7 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_003, TestSize.Level0)
 {
     WidgetCmdParameters widgetCmdParameters;
     widgetCmdParameters.uiExtensionType = "sysDialog/userAuth";
+    widgetCmdParameters.focusState = 0;
     widgetCmdParameters.useriamCmdData.widgetContextId = 1;
     ContextFactory::AuthWidgetContextPara para;
     CreatePara(para);
@@ -253,6 +254,7 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_004, TestSize.Level0)
 {
     WidgetCmdParameters widgetCmdParameters;
     widgetCmdParameters.uiExtensionType = "sysDialog/userAuth";
+    widgetCmdParameters.focusState = 1;
     widgetCmdParameters.useriamCmdData.widgetContextId = 1;
     widgetCmdParameters.useriamCmdData.pinSubType = "pinSubType";
     ContextFactory::AuthWidgetContextPara para;

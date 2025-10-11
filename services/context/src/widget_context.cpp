@@ -59,6 +59,7 @@ constexpr int32_t DEFAULT_VALUE = -1;
 const std::string UI_EXTENSION_TYPE_SET = "sysDialog/userAuth";
 const uint32_t SYSDIALOG_ZORDER_DEFAULT = 1;
 const uint32_t SYSDIALOG_ZORDER_UPPER = 2;
+const uint32_t SYSDIALOG_FOCUS_STATE_ENABLE = 1;
 const uint32_t ORIENTATION_LANDSCAPE = 1;
 const uint32_t ORIENTATION_PORTRAIT_INVERTED = 2;
 const uint32_t ORIENTATION_LANDSCAPE_INVERTED = 3;
@@ -710,6 +711,7 @@ std::string WidgetContext::BuildStartCommand(const WidgetRotatePara &widgetRotat
     widgetCmdParameters.useriamCmdData.navigationButtonText = para_.widgetParam.navigationButtonText;
     BuildStartPinSubType(widgetCmdParameters);
     widgetCmdParameters.sysDialogZOrder = SYSDIALOG_ZORDER_DEFAULT;
+    widgetCmdParameters.focusState = SYSDIALOG_FOCUS_STATE_ENABLE;
     SetSysDialogZOrder(widgetCmdParameters);
     std::vector<std::string> typeList;
     for (auto &item : para_.authProfileMap) {
