@@ -73,6 +73,8 @@ public:
 private:
     ResultCode SetPropertyInner(int32_t userId, const SetPropertyRequest &request,
         const std::shared_ptr<SetPropCallback> &callback);
+    uint64_t BeginAuthenticationInner(const AuthParam &authParam,
+        const std::shared_ptr<AuthenticationCallback> &callback);
     uint64_t BeginWidgetAuthInner(int32_t apiVersion, const AuthParamInner &authParam,
         const WidgetParamInner &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback);
     void InitIpcRemoteAuthParam(const std::optional<RemoteAuthParam> &remoteAuthParam,

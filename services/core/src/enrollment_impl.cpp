@@ -19,6 +19,7 @@
 #include "hdi_wrapper.h"
 #include "iam_hitrace_helper.h"
 #include "iam_logger.h"
+#include "iam_para2str.h"
 #include "iam_ptr.h"
 #include "ipc_common.h"
 #include "load_mode_handler.h"
@@ -180,8 +181,8 @@ bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t
     HdiEnrollResultInfo resultInfo = {};
     auto result = hdi->UpdateEnrollmentResult(enrollPara_.userId, scheduleResult, resultInfo);
     if (result != HDF_SUCCESS) {
-        IAM_LOGE("hdi UpdateEnrollmentResult failed, err is %{public}d, userId is %{public}d", result,
-            enrollPara_.userId);
+        HILOG_COMM_ERROR("hdi update enroll result failed, err is %{public}d, userId is %{public}d"
+            "credentialId: %{public}s", result, enrollPara_.userId, Common::GetMaskedString(credentialId).c_str());
         SetLatestError(result);
         return false;
     }
@@ -262,7 +263,7 @@ bool EnrollmentImpl::Cancel()
 
     auto result = hdi->CancelEnrollment(enrollPara_.userId);
     if (result != HDF_SUCCESS) {
-        IAM_LOGE("hdi CancelEnrollment failed, err is %{public}d", result);
+        HILOG_COMM_ERROR("hdi cancel enrollment failed, err is %{public}d", result);
         SetLatestError(result);
         return false;
     }

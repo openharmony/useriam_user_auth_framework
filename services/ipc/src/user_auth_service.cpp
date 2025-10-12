@@ -563,6 +563,9 @@ int32_t UserAuthService::Auth(int32_t apiVersion, const IpcAuthParamInner &ipcAu
 uint64_t UserAuthService::StartAuthContext(int32_t apiVersion, Authentication::AuthenticationPara para,
     const std::shared_ptr<ContextCallback> &contextCallback, bool needSubscribeAppState)
 {
+    HILOG_COMM_INFO("auth service start context: useId: %{public}d, authType: %{public}d,"
+        " atl: %{public}d, callerName: %{public}s, authIntent: %{public}d, isOsAccountVerified: %{public}d",
+        para.userId, para.authType, para.atl, para.callerName.c_str(), para.authIntent, para.isOsAccountVerified);
     Attributes extraInfo;
     auto context = ContextFactory::CreateSimpleAuthContext(para, contextCallback, needSubscribeAppState);
     if (context == nullptr || !ContextPool::Instance().Insert(context)) {
@@ -1179,6 +1182,10 @@ uint64_t UserAuthService::StartWidgetContext(const std::shared_ptr<ContextCallba
     const AuthParamInner &authParam, const WidgetParamInner &widgetParam, std::vector<AuthType> &validType,
     ContextFactory::AuthWidgetContextPara &para, const sptr<IModalCallback> &modalCallback)
 {
+    HILOG_COMM_INFO("auth service start context useId: %{public}d, authType: %{public}d,"
+        " atl: %{public}d, callerName: %{public}s, isBackgroundApplication %{public}d",
+        authParam.userId, authParam.authType, authParam.authTrustLevel,
+        para.callerName.c_str(), para.isBackgroundApplication);
     Attributes extraInfo;
     para.tokenId = IpcCommon::GetAccessTokenId(*this);
     para.isOsAccountVerified = IpcCommon::IsOsAccountVerified(para.userId);
