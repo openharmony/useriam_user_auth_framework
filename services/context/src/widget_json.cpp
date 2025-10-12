@@ -80,6 +80,7 @@ const std::string JSON_UI_EXT_NODE_ANGLE = "ability.want.params.uiExtNodeAngle";
 const std::string JSON_USER_IAM_CMD_DATA = "useriamCmdData";
 const std::string JSON_SYS_DIALOG_ZORDER = "sysDialogZOrder";
 const std::string JSON_IS_ENABLE_ROTATE = "isEnableRotate";
+const std::string JSON_FOCUS_STATE = "focusState";
 
 const std::string JSON_CHALLENGE = "challenge";
 const std::string JSON_CALLER_BUNDLE_NAME = "callingBundleName";
@@ -505,6 +506,7 @@ void to_json(nlohmann::json &jsWidgetCmdParam, const WidgetCmdParameters &widget
     jsWidgetCmdParam = nlohmann::json({{JSON_UI_EXTENSION_TYPE, widgetCmdParameters.uiExtensionType},
         {JSON_SYS_DIALOG_ZORDER, widgetCmdParameters.sysDialogZOrder},
         {JSON_UI_EXT_NODE_ANGLE, widgetCmdParameters.uiExtNodeAngle},
+        {JSON_FOCUS_STATE, widgetCmdParameters.focusState},
         {JSON_IS_ENABLE_ROTATE, DISABLE_ROTATE},
         {JSON_USER_IAM_CMD_DATA, jsonCommand}
     });

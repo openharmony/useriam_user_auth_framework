@@ -106,6 +106,7 @@ struct WidgetCmdParameters {
     WidgetCommand useriamCmdData {};
     std::string uiExtNodeAngle {""};
     uint32_t sysDialogZOrder {0};
+    uint32_t focusState {1};
 };
 
 void to_json(nlohmann::json &jsonWidgetCmdParams, const WidgetCmdParameters &widgetCmdParameters);
