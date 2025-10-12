@@ -364,7 +364,7 @@ int32_t RemoteAuthInvokerContext::ProcAuthResultMsgInner(Attributes &message, in
             bool setUserId = attr.SetInt32Value(Attributes::ATTR_USER_ID, authResultInfo.userId);
             IF_FALSE_LOGE_AND_RETURN_VAL(setUserId, ResultCode::GENERAL_ERROR);
         }
-        IAM_LOGI("%{public}s parsed auth result: %{public}d, lockout duration %{public}d, "
+        HILOG_COMM_INFO("%{public}s parsed auth result: %{public}d, lockout duration %{public}d, "
                  "remain attempts %{public}d, token size %{public}zu, user id %{public}d",
             GetDescription(), resultCode, authResultInfo.lockoutDuration, authResultInfo.remainAttempts,
             authResultInfo.token.size(), authResultInfo.userId);
