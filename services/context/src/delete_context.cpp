@@ -56,7 +56,8 @@ bool DeleteContext::OnStart()
     IF_FALSE_LOGE_AND_RETURN_VAL(deletion_ != nullptr, false);
     bool isCredentilaDelete = false;
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList = {};
-    bool startRet = deletion_->Start(scheduleList, shared_from_this(), isCredentilaDelete);
+    std::vector<HdiCredentialInfo> credentialInfos = {};
+    bool startRet = deletion_->Start(scheduleList, shared_from_this(), isCredentilaDelete, credentialInfos);
     if (!startRet) {
         HILOG_COMM_ERROR("%{public}s delete start fail", GetDescription());
         SetLatestError(deletion_->GetLatestError());
@@ -66,6 +67,11 @@ bool DeleteContext::OnStart()
 
     if (isCredentilaDelete) {
         InvokeResultCallback(ResultCode::SUCCESS);
+        uint32_t authTypeTrace = 0;
+        for (const auto &credInfo : credentialInfos) {
+            authTypeTrace |= static_cast<uint32_t>(credInfo.authType);
+        }
+        callback_->SetTraceAuthType(static_cast<int32_t>(authTypeTrace));
     } else {
         IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList.size() == 1, false);
         IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList[0] != nullptr, false);
@@ -73,6 +79,7 @@ bool DeleteContext::OnStart()
         IF_FALSE_LOGE_AND_RETURN_VAL(startScheduleRet, false);
         IAM_LOGI("%{public}s Schedule:%{public}s Type:%{public}d success", GetDescription(),
             GET_MASKED_STRING(scheduleList[0]->GetScheduleId()).c_str(), scheduleList[0]->GetAuthType());
+        callback_->SetTraceAuthType(scheduleList[0]->GetAuthType());
     }
     return true;
 }
