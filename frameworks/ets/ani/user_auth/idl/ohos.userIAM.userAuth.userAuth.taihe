@@ -18,6 +18,7 @@
 @!sts_inject("""
 static { loadLibraryWithPermissionCheck("userauth_ani", "@ohos.userIAM.userAuth"); }
 export const MAX_ALLOWABLE_REUSE_DURATION : int = 300000;
+export const PERMANENT_LOCKOUT_DURATION : int = 0x7fffffff;
 """)
  
 enum UserAuthType : i32 {
