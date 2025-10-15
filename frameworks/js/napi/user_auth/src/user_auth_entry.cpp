@@ -1012,6 +1012,14 @@ napi_value ConstantConstructor(napi_env env)
     return staticValue;
 }
 
+napi_value LockoutDurationConstantConstructor(napi_env env)
+{
+    napi_value staticValue = nullptr;
+    const int32_t PERMANENT_LOCKOUT_DURATION = 0x7fffffff;
+    NAPI_CALL(env, napi_create_int32(env, PERMANENT_LOCKOUT_DURATION, &staticValue));
+    return staticValue;
+}
+
 napi_value GetCtor(napi_env env)
 {
     IAM_LOGI("start");
@@ -1078,6 +1086,7 @@ napi_value ConstantsExport(napi_env env, napi_value exports)
 {
     napi_property_descriptor descriptors[] = {
         DECLARE_NAPI_STATIC_PROPERTY("MAX_ALLOWABLE_REUSE_DURATION", ConstantConstructor(env)),
+        DECLARE_NAPI_STATIC_PROPERTY("PERMANENT_LOCKOUT_DURATION", LockoutDurationConstantConstructor(env)),
     };
     NAPI_CALL(env, napi_define_properties(env, exports,
         sizeof(descriptors) / sizeof(napi_property_descriptor), descriptors));
