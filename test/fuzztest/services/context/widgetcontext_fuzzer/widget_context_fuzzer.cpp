@@ -19,6 +19,7 @@
 
 #include "attributes.h"
 #include "context_callback_impl.h"
+#include "context_pool.h"
 #include "iam_fuzz_test.h"
 #include "iam_logger.h"
 #include "iam_common_defines.h"
@@ -66,7 +67,7 @@ public:
 
 std::shared_ptr<WidgetContext> CreateWidgetContext(Parcel &parcel)
 {
-    uint64_t contextId = parcel.ReadUint64();
+    uint64_t contextId = ContextPool::Instance().GetNewContextId();
     ContextFactory::AuthWidgetContextPara para;
     para.userId = parcel.ReadInt32();
     para.sdkVersion = parcel.ReadInt32();
@@ -110,6 +111,25 @@ void FillAttributes(Parcel &parcel, Attributes &attributes)
     attributes.SetUint32Value(Attributes::ATTR_SCHEDULE_MODE, parcel.ReadUint32());
 }
 
+void InitTask(std::shared_ptr<WidgetContext> widgetContext, Parcel &parcel)
+{
+    IAM_LOGI("init task");
+    widgetContext->BuildSchedule();
+    std::vector<uint8_t> challenge;
+    FillFuzzUint8Vector(parcel, challenge);
+    AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
+    AuthTrustLevel authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadUint32());
+    bool endAfterFirstFail = parcel.ReadBool();
+    AuthIntent authIntent = static_cast<AuthIntent>(parcel.ReadInt32());
+    widgetContext->BuildTask(challenge, authType, authTrustLevel, endAfterFirstFail, authIntent);
+}
+
+void ReleaseTask(std::shared_ptr<WidgetContext> widgetContext)
+{
+    IAM_LOGI("release task");
+    widgetContext->Stop();
+}
+
 void FuzzStart(Parcel &parcel)
 {
     IAM_LOGI("begin");
@@ -117,7 +137,9 @@ void FuzzStart(Parcel &parcel)
     if (widgetContext == nullptr) {
         return;
     }
+    InitTask(widgetContext, parcel);
     widgetContext->Start();
+    ReleaseTask(widgetContext);
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
     IAM_LOGI("end");
@@ -130,7 +152,9 @@ void FuzzStop(Parcel &parcel)
     if (widgetContext == nullptr) {
         return;
     }
+    InitTask(widgetContext, parcel);
     widgetContext->Stop();
+    ReleaseTask(widgetContext);
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
     IAM_LOGI("end");
@@ -143,7 +167,8 @@ void FuzzBuildSchedule(Parcel &parcel)
     if (widgetContext == nullptr) {
         return;
     }
-    widgetContext->BuildSchedule();
+    InitTask(widgetContext, parcel);
+    ReleaseTask(widgetContext);
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
     IAM_LOGI("end");
@@ -156,12 +181,14 @@ void FuzzGetAuthContextCallback(Parcel &parcel)
     if (widgetContext == nullptr) {
         return;
     }
+    InitTask(widgetContext, parcel);
 
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
     AuthTrustLevel authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadUint32());
     sptr<IIamCallback> callback(nullptr);
     callback = sptr<IIamCallback>(new (nothrow) DummyUserAuthCallback());
     widgetContext->GetAuthContextCallback(authType, authTrustLevel, callback);
+    ReleaseTask(widgetContext);
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
     IAM_LOGI("end");
@@ -174,6 +201,7 @@ void FuzzBuildTask(Parcel &parcel)
     if (widgetContext == nullptr) {
         return;
     }
+    InitTask(widgetContext, parcel);
 
     std::vector<uint8_t> challenge;
     FillFuzzUint8Vector(parcel, challenge);
@@ -182,6 +210,7 @@ void FuzzBuildTask(Parcel &parcel)
     bool endAfterFirstFail = parcel.ReadBool();
     AuthIntent authIntent = static_cast<AuthIntent>(parcel.ReadInt32());
     widgetContext->BuildTask(challenge, authType, authTrustLevel, endAfterFirstFail, authIntent);
+    ReleaseTask(widgetContext);
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
     IAM_LOGI("end");
@@ -194,8 +223,10 @@ void FuzzOnStart(Parcel &parcel)
     if (widgetContext == nullptr) {
         return;
     }
+    InitTask(widgetContext, parcel);
 
     widgetContext->OnStart();
+    ReleaseTask(widgetContext);
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
     IAM_LOGI("end");
@@ -208,8 +239,10 @@ void FuzzOnStop(Parcel &parcel)
     if (widgetContext == nullptr) {
         return;
     }
+    InitTask(widgetContext, parcel);
 
     widgetContext->OnStop();
+    ReleaseTask(widgetContext);
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
     IAM_LOGI("end");
@@ -222,6 +255,7 @@ void FuzzAuthResult(Parcel &parcel)
     if (widgetContext == nullptr) {
         return;
     }
+    InitTask(widgetContext, parcel);
 
     int32_t resultCode = parcel.ReadInt32();
     int32_t authType = parcel.ReadInt32();
@@ -229,6 +263,7 @@ void FuzzAuthResult(Parcel &parcel)
     FillAttributes(parcel, attribute);
     widgetContext->OnStart();
     widgetContext->AuthResult(resultCode, authType, attribute);
+    ReleaseTask(widgetContext);
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
     IAM_LOGI("end");
@@ -241,6 +276,7 @@ void FuzzAuthTipInfo(Parcel &parcel)
     if (widgetContext == nullptr) {
         return;
     }
+    InitTask(widgetContext, parcel);
 
     int32_t tipType = parcel.ReadInt32();
     int32_t authType = parcel.ReadInt32();
@@ -248,6 +284,7 @@ void FuzzAuthTipInfo(Parcel &parcel)
     FillAttributes(parcel, attribute);
     widgetContext->OnStart();
     widgetContext->AuthTipInfo(tipType, authType, attribute);
+    ReleaseTask(widgetContext);
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
     IAM_LOGI("end");
@@ -260,9 +297,11 @@ void FuzzEndAuthAsCancel(Parcel &parcel)
     if (widgetContext == nullptr) {
         return;
     }
+    InitTask(widgetContext, parcel);
 
     widgetContext->OnStart();
     widgetContext->EndAuthAsCancel();
+    ReleaseTask(widgetContext);
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
     IAM_LOGI("end");
@@ -275,8 +314,10 @@ void FuzzEndAuthAsNaviPin(Parcel &parcel)
     if (widgetContext == nullptr) {
         return;
     }
+    InitTask(widgetContext, parcel);
     widgetContext->OnStart();
     widgetContext->EndAuthAsNaviPin();
+    ReleaseTask(widgetContext);
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
     IAM_LOGI("end");
@@ -289,8 +330,10 @@ void FuzzEndAuthAsWidgetParaInvalid(Parcel &parcel)
     if (widgetContext == nullptr) {
         return;
     }
+    InitTask(widgetContext, parcel);
     widgetContext->OnStart();
     widgetContext->EndAuthAsWidgetParaInvalid();
+    ReleaseTask(widgetContext);
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
     IAM_LOGI("end");
@@ -303,8 +346,10 @@ void FuzzAuthWidgetReloadInit(Parcel &parcel)
     if (widgetContext == nullptr) {
         return;
     }
+    InitTask(widgetContext, parcel);
 
     widgetContext->AuthWidgetReloadInit();
+    ReleaseTask(widgetContext);
     IAM_LOGI("end");
 }
 
@@ -315,12 +360,14 @@ void FuzzAuthWidgetReload(Parcel &parcel)
     if (widgetContext == nullptr) {
         return;
     }
+    InitTask(widgetContext, parcel);
 
     uint32_t orientation = parcel.ReadUint32();
     uint32_t needRotate = parcel.ReadUint32();
     uint32_t alreadyLoad =  parcel.ReadUint32();
     AuthType rotateAuthType = static_cast<AuthType>(parcel.ReadInt32());
     widgetContext->AuthWidgetReload(orientation, needRotate, alreadyLoad, rotateAuthType);
+    ReleaseTask(widgetContext);
     IAM_LOGI("end");
 }
 
@@ -331,6 +378,7 @@ void FuzzIsValidRotate(Parcel &parcel)
     if (widgetContext == nullptr) {
         return;
     }
+    InitTask(widgetContext, parcel);
 
     WidgetContext::WidgetRotatePara widgetRotatePara;
     widgetRotatePara.isReload = parcel.ReadBool();
@@ -339,6 +387,7 @@ void FuzzIsValidRotate(Parcel &parcel)
     widgetRotatePara.alreadyLoad = parcel.ReadUint32();
     widgetRotatePara.rotateAuthType = static_cast<AuthType>(parcel.ReadInt32());
     widgetContext->IsValidRotate(widgetRotatePara);
+    ReleaseTask(widgetContext);
     IAM_LOGI("end");
 }
 
@@ -349,10 +398,12 @@ void FuzzStopAuthList(Parcel &parcel)
     if (widgetContext == nullptr) {
         return;
     }
+    InitTask(widgetContext, parcel);
 
     std::vector<AuthType> authTypeList;
     authTypeList.push_back(static_cast<AuthType>(parcel.ReadInt32()));
     widgetContext->StopAuthList(authTypeList);
+    ReleaseTask(widgetContext);
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
     IAM_LOGI("end");
@@ -365,10 +416,12 @@ void FuzzSuccessAuth(Parcel &parcel)
     if (widgetContext == nullptr) {
         return;
     }
+    InitTask(widgetContext, parcel);
 
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
     widgetContext->OnStart();
     widgetContext->SuccessAuth(authType);
+    ReleaseTask(widgetContext);
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
     IAM_LOGI("end");
@@ -381,6 +434,7 @@ void FuzzConnectExtension(Parcel &parcel)
     if (widgetContext == nullptr) {
         return;
     }
+    InitTask(widgetContext, parcel);
     WidgetContext::WidgetRotatePara widgetRotatePara;
     widgetRotatePara.isReload = parcel.ReadBool();
     widgetRotatePara.orientation = parcel.ReadUint32();
@@ -389,6 +443,7 @@ void FuzzConnectExtension(Parcel &parcel)
     widgetRotatePara.rotateAuthType = static_cast<AuthType>(parcel.ReadInt32());
     widgetContext->ConnectExtension(widgetRotatePara);
     widgetContext->DisconnectExtension();
+    ReleaseTask(widgetContext);
     IAM_LOGI("end");
 }
 
@@ -399,9 +454,11 @@ void FuzzEnd(Parcel &parcel)
     if (widgetContext == nullptr) {
         return;
     }
+    InitTask(widgetContext, parcel);
     widgetContext->OnStart();
     ResultCode resultCode = static_cast<ResultCode>(parcel.ReadInt32());
     widgetContext->End(resultCode);
+    ReleaseTask(widgetContext);
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
 
@@ -415,9 +472,11 @@ void FuzzStopAllRunTask(Parcel &parcel)
     if (widgetContext == nullptr) {
         return;
     }
+    InitTask(widgetContext, parcel);
     widgetContext->OnStart();
     ResultCode resultCode = static_cast<ResultCode>(parcel.ReadInt32());
     widgetContext->StopAllRunTask(resultCode);
+    ReleaseTask(widgetContext);
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
     IAM_LOGI("end");
@@ -430,7 +489,9 @@ void FuzzGetContextType(Parcel &parcel)
     if (widgetContext == nullptr) {
         return;
     }
+    InitTask(widgetContext, parcel);
     widgetContext->GetContextType();
+    ReleaseTask(widgetContext);
     IAM_LOGI("end");
 }
 
