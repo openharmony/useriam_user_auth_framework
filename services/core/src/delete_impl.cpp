@@ -71,7 +71,8 @@ int32_t DeleteImpl::GetUserId() const
 }
 
 bool DeleteImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
-    std::shared_ptr<ScheduleNodeCallback> callback, bool &isCredentialDelete)
+    std::shared_ptr<ScheduleNodeCallback> callback, bool &isCredentialDelete,
+    std::vector<HdiCredentialInfo> &credentialInfos)
 {
     IAM_LOGE("UserId:%{public}d", deletePara_.userId);
     auto hdi = HdiWrapper::GetHdiInstance();
@@ -89,6 +90,7 @@ bool DeleteImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
         return false;
     }
 
+    credentialInfos = hdiResult.credentialInfos;
     if (hdiResult.operateType == HdiCredentialOperateType::CREDENTIAL_DELETE) {
         isCredentialDelete = true;
         return DeleteCredential(deletePara_.userId, hdiResult.credentialInfos);

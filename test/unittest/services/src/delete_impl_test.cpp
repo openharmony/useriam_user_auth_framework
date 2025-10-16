@@ -70,7 +70,8 @@ HWTEST_F(DeleteImplTest, AbandonHdiError, TestSize.Level0)
     auto abandon = std::make_shared<DeleteImpl>(para);
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
     bool isCredentialDelete = false;
-    EXPECT_FALSE(abandon->Start(scheduleList, nullptr, isCredentialDelete));
+    std::vector<HdiCredentialInfo> credentialInfos = {};
+    EXPECT_FALSE(abandon->Start(scheduleList, nullptr, isCredentialDelete, credentialInfos));
 }
 
 HWTEST_F(DeleteImplTest, AbandonHdiEmpty, TestSize.Level0)
@@ -88,7 +89,8 @@ HWTEST_F(DeleteImplTest, AbandonHdiEmpty, TestSize.Level0)
     auto abandon = std::make_shared<DeleteImpl>(para);
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
     bool isCredentialDelete = false;
-    EXPECT_FALSE(abandon->Start(scheduleList, nullptr, isCredentialDelete));
+    std::vector<HdiCredentialInfo> credentialInfos = {};
+    EXPECT_FALSE(abandon->Start(scheduleList, nullptr, isCredentialDelete, credentialInfos));
 }
 
 HWTEST_F(DeleteImplTest, AbandonUpdateHdiError, TestSize.Level0)
@@ -205,7 +207,8 @@ HWTEST_F(DeleteImplTest, DeleteImplTestStart_001, TestSize.Level0)
     auto callback = Common::MakeShared<MockScheduleNodeCallback>();
     EXPECT_NE(callback, nullptr);
     bool isCredentialDelete = false;
-    EXPECT_TRUE(abandon->Start(scheduleList, callback, isCredentialDelete));
+    std::vector<HdiCredentialInfo> credentialInfos = {};
+    EXPECT_TRUE(abandon->Start(scheduleList, callback, isCredentialDelete, credentialInfos));
     EXPECT_TRUE(abandon->Cancel());
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(executorIndex));
 }
@@ -224,7 +227,8 @@ HWTEST_F(DeleteImplTest, DeleteImplTestStart_002, TestSize.Level0)
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
     auto callback = Common::MakeShared<MockScheduleNodeCallback>();
     bool isCredentialDelete = false;
-    EXPECT_FALSE(abandon->Start(scheduleList, callback, isCredentialDelete));
+    std::vector<HdiCredentialInfo> credentialInfos = {};
+    EXPECT_FALSE(abandon->Start(scheduleList, callback, isCredentialDelete, credentialInfos));
 }
 } // namespace UserAuth
 } // namespace UserIam
