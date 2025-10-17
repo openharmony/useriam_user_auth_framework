@@ -66,12 +66,12 @@ bool DeleteContext::OnStart()
     SetScheduleList(scheduleList);
 
     if (isCredentilaDelete) {
-        InvokeResultCallback(ResultCode::SUCCESS);
         uint32_t authTypeTrace = 0;
         for (const auto &credInfo : credentialInfos) {
             authTypeTrace |= static_cast<uint32_t>(credInfo.authType);
         }
         callback_->SetTraceAuthType(static_cast<int32_t>(authTypeTrace));
+        InvokeResultCallback(ResultCode::SUCCESS);
     } else {
         IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList.size() == 1, false);
         IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList[0] != nullptr, false);
