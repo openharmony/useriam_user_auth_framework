@@ -16,6 +16,8 @@
 #ifndef GET_AUTH_LOCK_STATE_HELPER_H
 #define GET_AUTH_LOCK_STATE_HELPER_H
 
+#include <atomic>
+#include <future>
 #include <mutex>
 
 #include "auth_common.h"
@@ -56,16 +58,21 @@ class GetAuthLockStateCallbackV21 : public GetPropCallback,
                                     public std::enable_shared_from_this<GetAuthLockStateCallbackV21>,
                                     public NoCopyable {
 public:
-    GetAuthLockStateCallbackV21() = default;
+    GetAuthLockStateCallbackV21();
     ~GetAuthLockStateCallbackV21() override;
     void OnResult(int32_t result, const UserAuth::Attributes &extraInfo) override;
     void ProcessAuthLockStateResult(
         GetAuthLockStateHelper::GetAuthLockStateAsyncHolder *asyncHolder);
+    void SetResult(ResultCode result);
+    ResultCode WaitResult();
 
 private:
     std::mutex mutex_;
     ResultCode resultCode_ = ResultCode::SUCCESS;
     AuthLockState authLockState_ = {};
+    std::atomic_bool isResultSetted_{false};
+    std::promise<ResultCode> promise_;
+    std::shared_future<ResultCode> future_;
 };
 } // namespace UserAuth
 } // namespace UserIam

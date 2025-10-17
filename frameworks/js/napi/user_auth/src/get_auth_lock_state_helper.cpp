@@ -93,6 +93,13 @@ void GetAuthLockStateExecute(GetAuthLockStateAsyncHolder *asyncHolder)
         return;
     }
     UserAuthClientImpl::Instance().GetAuthLockState(asyncHolder->authType, getAuthLockStateCallback);
+    auto result = getAuthLockStateCallback->WaitResult();
+    if (result != UserAuth::ResultCode::SUCCESS) {
+        asyncHolder->resultCode = result;
+        asyncHolder->status = napi_generic_failure;
+        IAM_LOGE("GetAuthLockState failed.");
+        return;
+    }
     getAuthLockStateCallback->ProcessAuthLockStateResult(asyncHolder);
     IAM_LOGI("end");
 }
@@ -174,6 +181,11 @@ bool GetAuthLockStateWork(napi_env env, GetAuthLockStateAsyncHolder *asyncHolder
 }
 }
 
+GetAuthLockStateCallbackV21::GetAuthLockStateCallbackV21()
+{
+    future_ = promise_.get_future().share();
+}
+
 GetAuthLockStateCallbackV21::~GetAuthLockStateCallbackV21()
 {
 }
@@ -200,24 +212,56 @@ void GetAuthLockStateCallbackV21::OnResult(int32_t result, const UserAuth::Attri
     resultCode_ = static_cast<UserAuth::ResultCode>(result);
     if (resultCode_ != UserAuth::ResultCode::SUCCESS) {
         IAM_LOGE("service resultCode is not success.");
+        SetResult(resultCode_);
         return;
     }
 
     if (!extraInfo.GetInt32Value(UserAuth::Attributes::ATTR_REMAIN_ATTEMPTS,
         authLockState_.remainingAuthAttempts)) {
         IAM_LOGE("ATTR_REMAIN_ATTEMPTS is null");
-        resultCode_ = UserAuth::ResultCode::GENERAL_ERROR;
+        SetResult(UserAuth::ResultCode::GENERAL_ERROR);
         return;
     }
 
     if (!extraInfo.GetInt32Value(UserAuth::Attributes::ATTR_LOCKOUT_DURATION,
         authLockState_.lockoutDuration)) {
         IAM_LOGE("ATTR_LOCKOUT_DURATION is null");
-        resultCode_ = UserAuth::ResultCode::GENERAL_ERROR;
+        SetResult(UserAuth::ResultCode::GENERAL_ERROR);
         return;
     }
     
     authLockState_.isLocked = authLockState_.lockoutDuration > 0;
+    SetResult(resultCode_);
+}
+
+void GetAuthLockStateCallbackV21::SetResult(ResultCode result)
+{
+    bool setted = isResultSetted_.exchange(true);
+    if (setted) {
+        IAM_LOGE("result already setted");
+        return;
+    }
+    resultCode_ = result;
+    promise_.set_value(result);
+}
+
+ResultCode GetAuthLockStateCallbackV21::WaitResult()
+{
+    constexpr int32_t maxWaitTime = 3;
+    std::future_status status = future_.wait_for(std::chrono::seconds(maxWaitTime));
+    if (status == std::future_status::timeout) {
+        IAM_LOGE("wait result timeout");
+        return UserAuth::ResultCode::TIMEOUT;
+    }
+    if (status == std::future_status::deferred) {
+        IAM_LOGE("wait result deferred");
+        return UserAuth::ResultCode::GENERAL_ERROR;
+    }
+    if (status != std::future_status::ready) {
+        IAM_LOGE("wait result exception");
+        return UserAuth::ResultCode::GENERAL_ERROR;
+    }
+    return future_.get();
 }
 } // namespace UserAuth
 } // namespace UserIam
