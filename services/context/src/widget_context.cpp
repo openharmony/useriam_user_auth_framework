@@ -566,6 +566,9 @@ bool WidgetContext::ConnectExtension(const WidgetRotatePara &widgetRotatePara)
 
     std::string commandData = BuildStartCommand(widgetRotatePara);
     IAM_LOGI("start command: %{public}s", commandData.c_str());
+    if (commandData.size() == 0) {
+        return false;
+    }
 
     IAM_LOGI("has context: %{public}d", para_.widgetParam.hasContext);
     if (para_.widgetParam.hasContext && IsSupportFollowCallerUi()) {
@@ -581,12 +584,7 @@ bool WidgetContext::ConnectExtension(const WidgetRotatePara &widgetRotatePara)
     AAFwk::Want want;
     std::string bundleName = "com.ohos.systemui";
     std::string abilityName = "com.ohos.systemui.dialog";
-    if (!GetSceneboardBundleName(jsonBuf_, bundleName)) {
-        IAM_LOGI("GetSceneboardBundleName error");
-    }
-    if (!GetSceneboardAbilityName(jsonBuf_, abilityName)) {
-        IAM_LOGI("GetSceneboardAbilityName error");
-    }
+    ProcessElementName(bundleName, abilityName);
     want.SetElementName(bundleName, abilityName);
     auto ret = ConnectExtensionAbility(want, commandData);
     if (ret != ERR_OK) {
@@ -596,6 +594,16 @@ bool WidgetContext::ConnectExtension(const WidgetRotatePara &widgetRotatePara)
         return false;
     }
     return true;
+}
+
+void WidgetContext::ProcessElementName(std::string &bundleName, std::string &abilityName)
+{
+    if (!GetSceneboardBundleName(jsonBuf_, bundleName)) {
+        IAM_LOGI("GetSceneboardBundleName error");
+    }
+    if (!GetSceneboardAbilityName(jsonBuf_, abilityName)) {
+        IAM_LOGI("GetSceneboardAbilityName error");
+    }
 }
 
 bool WidgetContext::DisconnectExtension()
@@ -754,8 +762,19 @@ std::string WidgetContext::BuildStartCommand(const WidgetRotatePara &widgetRotat
     widgetCmdParameters.useriamCmdData.userId = para_.userId;
     widgetCmdParameters.useriamCmdData.skipLockedBiometricAuth = para_.skipLockedBiometricAuth;
     ProcessRotatePara(widgetCmdParameters, widgetRotatePara);
+    return ProcessCmdData(widgetCmdParameters);
+}
+
+std::string WidgetContext::ProcessCmdData(WidgetCmdParameters &widgetCmdParameters)
+{
     nlohmann::json root = widgetCmdParameters;
-    std::string cmdData = root.dump();
+    std::string cmdData;
+    try {
+        cmdData = root.dump();
+    } catch (const nlohmann::json::exception &e) {
+        cmdData = "";
+        IAM_LOGE("cmd is invalid json, error: %{public}s", e.what());
+    }
     return cmdData;
 }
 

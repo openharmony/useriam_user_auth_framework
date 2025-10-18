@@ -126,6 +126,8 @@ private:
     void StartOnTerminateTimer();
     void StopOnTerminateTimer();
     void OnTerminateTimerTimeOut(uint64_t contextId);
+    std::string ProcessCmdData(WidgetCmdParameters &widgetCmdParameters);
+    void ProcessElementName(std::string &bundleName, std::string &abilityName);
 
 private:
     struct TaskInfo {
