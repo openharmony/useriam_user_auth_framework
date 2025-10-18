@@ -105,11 +105,17 @@ private:
     static bool DecodeUint8ArrayValue(const std::vector<uint8_t> &src, std::vector<uint8_t> &dst);
     static bool DecodeInt32ArrayValue(const std::vector<uint8_t> &src, std::vector<int32_t> &dst);
     static bool CheckAttributeLength(const uint8_t *curr, const uint8_t *end, uint32_t length);
+    static bool ParseAttributes(const uint8_t *&curr, const uint8_t *&end,
+        std::map<Attributes::AttributeKey, std::vector<uint8_t>> &out);
     std::map<AttributeKey, std::vector<uint8_t>> map_;
 };
 
 Attributes::Impl::Impl(const std::vector<uint8_t> &raw)
 {
+    if (raw.empty()) {
+        IAM_LOGE("raw is empty.");
+        return;
+    }
     std::map<Attributes::AttributeKey, std::vector<uint8_t>> out;
 
     const uint8_t *curr = &raw.front();
@@ -125,48 +131,58 @@ Attributes::Impl::Impl(const std::vector<uint8_t> &raw)
             return;
         }
 
-        uint32_t type;
-        if (memcpy_s(&type, sizeof(uint32_t), curr, sizeof(uint32_t)) != EOK) {
-            IAM_LOGE("type copy error");
+        if (!ParseAttributes(curr, end, out)) {
+            IAM_LOGE("ParseAttributes failed.");
             return;
         }
-
-        type = le32toh(type);
-        curr += sizeof(uint32_t);
-        uint32_t length;
-        if (memcpy_s(&length, sizeof(uint32_t), curr, sizeof(uint32_t)) != EOK) {
-            IAM_LOGE("length copy error");
-            return;
-        }
-        length = le32toh(length);
-        curr += sizeof(uint32_t);
-        if (!CheckAttributeLength(curr, end, length)) {
-            IAM_LOGE("check attribute length error");
-            return;
-        }
-
-        std::vector<uint8_t> value(length / sizeof(uint8_t));
-        if (length != 0 && memcpy_s(value.data(), value.size() * sizeof(uint8_t), curr, length) != EOK) {
-            IAM_LOGE("value copy error, length = %{public}u", length);
-            return;
-        }
-
-        auto ret = out.insert_or_assign(static_cast<Attributes::AttributeKey>(type), value);
-        if (!ret.second) {
-            IAM_LOGE("insert_or_assign pair error, type is %{public}u", type);
-            return;
-        }
-
-        if (out.size() > MAX_ATTR_COUNT) {
-            IAM_LOGE("insert_or_assign pair error, size reach max");
-            return;
-        }
-
-        IAM_LOGD("insert_or_assign pair success, type is %{public}u", type);
-        curr += length;
     }
 
     map_.swap(out);
+}
+
+bool Attributes::Impl::ParseAttributes(const uint8_t *&curr, const uint8_t *&end,
+    std::map<Attributes::AttributeKey, std::vector<uint8_t>> &out)
+{
+    uint32_t type;
+    if (memcpy_s(&type, sizeof(uint32_t), curr, sizeof(uint32_t)) != EOK) {
+        IAM_LOGE("type copy error");
+        return false;
+    }
+
+    type = le32toh(type);
+    curr += sizeof(uint32_t);
+    uint32_t length;
+    if (memcpy_s(&length, sizeof(uint32_t), curr, sizeof(uint32_t)) != EOK) {
+        IAM_LOGE("length copy error");
+        return false;
+    }
+    length = le32toh(length);
+    curr += sizeof(uint32_t);
+    if (!CheckAttributeLength(curr, end, length)) {
+        IAM_LOGE("check attribute length error");
+        return false;
+    }
+
+    std::vector<uint8_t> value(length / sizeof(uint8_t));
+    if (length != 0 && memcpy_s(value.data(), value.size() * sizeof(uint8_t), curr, length) != EOK) {
+        IAM_LOGE("value copy error, length = %{public}u", length);
+        return false;
+    }
+
+    auto ret = out.insert_or_assign(static_cast<Attributes::AttributeKey>(type), value);
+    if (!ret.second) {
+        IAM_LOGE("insert_or_assign pair error, type is %{public}u", type);
+        return false;
+    }
+
+    if (out.size() > MAX_ATTR_COUNT) {
+        IAM_LOGE("insert_or_assign pair error, size reach max");
+        return false;
+    }
+
+    IAM_LOGD("insert_or_assign pair success, type is %{public}u", type);
+    curr += length;
+    return true;
 }
 
 Attributes::Impl::Impl(Attributes::Impl &&other) noexcept : map_(std::move(other.map_))
@@ -185,7 +201,7 @@ bool Attributes::Impl::CheckAttributeLength(const uint8_t *curr, const uint8_t *
         IAM_LOGE("length format error, length = %{public}u", length);
         return false;
     }
-    if (length > end - curr) {
+    if (static_cast<std::ptrdiff_t>(length) > end - curr) {
         IAM_LOGE("length too big, length = %{public}u", length);
         return false;
     }
