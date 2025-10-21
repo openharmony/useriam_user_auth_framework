@@ -80,12 +80,8 @@ void UserIamStrongAuthListener::OnStrongAuthChanged(int32_t userId, int32_t stro
         }
         int32_t reasonFlag = static_cast<int32_t>(StrongAuthReasonFlags::NONE);
         ScreenLockManager::GetInstance()->GetStrongAuth(userId, reasonFlag);
-        if (reasonFlag == static_cast<int32_t>(StrongAuthReasonFlags::NONE)) {
-            IAM_LOGI("screenlock not in strong auth status");
-            return;
-        }
-        if (reasonFlag == static_cast<int32_t>(StrongAuthReasonFlags::AFTER_BOOT)) {
-            IAM_LOGI("after boot strong auth omitted");
+        if (reasonFlag != static_cast<int32_t>(StrongAuthReasonFlags::SECURITY_ENHANCEMENT)) {
+            IAM_LOGI("screenlock not in security enhancement");
             return;
         }
         RiskEventManager::GetInstance().HandleStrongAuthEvent(userId);
@@ -168,12 +164,10 @@ bool StrongAuthStatusManagerImpl::IsScreenLockStrongAuth(int32_t userId)
     IF_FALSE_LOGE_AND_RETURN_VAL(screenLockManager != nullptr, false);
     screenLockManager->GetStrongAuth(userId, reasonFlag);
 
-    if (reasonFlag == static_cast<int32_t>(StrongAuthReasonFlags::NONE)) {
+    if (reasonFlag != static_cast<int32_t>(StrongAuthReasonFlags::SECURITY_ENHANCEMENT)) {
         return false;
     }
-    if (reasonFlag == static_cast<int32_t>(StrongAuthReasonFlags::AFTER_BOOT)) {
-        return false;
-    }
+    
     return true;
 }
 
