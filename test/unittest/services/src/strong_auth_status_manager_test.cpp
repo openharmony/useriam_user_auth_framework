@@ -16,6 +16,7 @@
 #include "strong_auth_status_manager_test.h"
 
 #include "strong_auth_status_manager.h"
+#include "screenlock_manager.h"
 
 #include "iam_logger.h"
 #include "securec.h"
@@ -65,6 +66,38 @@ HWTEST_F(StrongAuthStatusManagerTest, IsScreenLockStrongAuthTest, TestSize.Level
     int32_t inValidUserId = -1;
     EXPECT_NO_THROW(StrongAuthStatusManager::Instance().IsScreenLockStrongAuth(mainUserId));
     EXPECT_NO_THROW(StrongAuthStatusManager::Instance().IsScreenLockStrongAuth(inValidUserId));
+}
+
+HWTEST_F(StrongAuthStatusManagerTest, ReasonFlagNotSecurityEnhancementTest01, TestSize.Level0) {
+
+    int32_t testUserId = 100;
+    int32_t testReasonFlag = static_cast<int32_t>(ScreenLock::StrongAuthReasonFlags::NONE);
+    ScreenLock::ScreenLockManager::GetInstance()->RequestStrongAuth(testReasonFlag, testUserId);
+    EXPECT_NO_THROW(StrongAuthStatusManager::Instance().SyncStrongAuthStatusForAllAccounts());
+}
+
+HWTEST_F(StrongAuthStatusManagerTest, ReasonFlagNotSecurityEnhancementTest02, TestSize.Level0) {
+
+    int32_t testUserId = 100;
+    int32_t testReasonFlag = static_cast<int32_t>(ScreenLock::StrongAuthReasonFlags::NONE);
+    ScreenLock::ScreenLockManager::GetInstance()->RequestStrongAuth(testReasonFlag, testUserId);
+    EXPECT_FALSE(StrongAuthStatusManager::Instance().IsScreenLockStrongAuth(testUserId));
+}
+
+HWTEST_F(StrongAuthStatusManagerTest, ReasonFlagIsSecurityEnhancementTest01, TestSize.Level0) {
+
+    int32_t testUserId = 100;
+    int32_t testReasonFlag = static_cast<int32_t>(ScreenLock::StrongAuthReasonFlags::SECURITY_ENHANCEMENT);
+    ScreenLock::ScreenLockManager::GetInstance()->RequestStrongAuth(testReasonFlag, testUserId);
+    EXPECT_NO_THROW(StrongAuthStatusManager::Instance().SyncStrongAuthStatusForAllAccounts());
+}
+
+HWTEST_F(StrongAuthStatusManagerTest, ReasonFlagIsSecurityEnhancementTest02, TestSize.Level0) {
+
+    int32_t testUserId = 100;
+    int32_t testReasonFlag = static_cast<int32_t>(ScreenLock::StrongAuthReasonFlags::SECURITY_ENHANCEMENT);
+    ScreenLock::ScreenLockManager::GetInstance()->RequestStrongAuth(testReasonFlag, testUserId);
+    EXPECT_TRUE(StrongAuthStatusManager::Instance().IsScreenLockStrongAuth(testUserId));
 }
 } // namespace UserAuth
 } // namespace UserIam
