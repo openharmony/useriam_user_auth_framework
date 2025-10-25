@@ -18,6 +18,7 @@
 #include "user_auth_callback_service.h"
 #include "iam_ptr.h"
 #include "mock_user_auth_client_callback.h"
+#include "mock_user_auth_modal_inner_callback.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -113,6 +114,37 @@ HWTEST_F(UserAuthCallbackServiceTest, UserAuthCallbackServiceTest003, TestSize.L
             }
         );
     auto service = Common::MakeShared<UserAuthCallbackService>(identifyCallback);
+    EXPECT_NE(service, nullptr);
+    service->OnResult(testResult, testExtraInfo.Serialize());
+    service->OnAcquireInfo(testModule, testAcquireInfo, testExtraInfo.Serialize());
+}
+
+HWTEST_F(UserAuthCallbackServiceTest, UserAuthCallbackServiceTest004, TestSize.Level0)
+{
+    int32_t testResult = FAIL;
+    Attributes testExtraInfo;
+
+    int32_t testModule = 52334;
+    int32_t testAcquireInfo = 6;
+
+    auto authCallback = Common::MakeShared<MockAuthenticationCallback>();
+    EXPECT_NE(authCallback, nullptr);
+    EXPECT_CALL(*authCallback, OnResult(_, _)).Times(1);
+
+    auto modalInnerCallback = Common::MakeShared<MockUserAuthModalInnerCallback>();
+    EXPECT_NE(modalInnerCallback, nullptr);
+    EXPECT_CALL(*modalInnerCallback, IsModalInit()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*modalInnerCallback, IsModalDestroy()).WillRepeatedly(Return(false));
+
+    EXPECT_CALL(*authCallback, OnAcquireInfo(_, _, _)).Times(1);
+    ON_CALL(*authCallback, OnAcquireInfo)
+        .WillByDefault(
+            [&testModule, &testAcquireInfo](int32_t module, uint32_t acquireInfo, const Attributes &extraInfo) {
+                EXPECT_EQ(module, testModule);
+                EXPECT_EQ(acquireInfo, testAcquireInfo);
+            }
+        );
+    auto service = Common::MakeShared<UserAuthCallbackService>(authCallback, modalInnerCallback);
     EXPECT_NE(service, nullptr);
     service->OnResult(testResult, testExtraInfo.Serialize());
     service->OnAcquireInfo(testModule, testAcquireInfo, testExtraInfo.Serialize());
