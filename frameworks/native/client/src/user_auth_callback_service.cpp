@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include "auth_common.h"
 #include "user_auth_callback_service.h"
 
 #include "callback_manager.h"
@@ -120,6 +121,17 @@ int32_t UserAuthCallbackService::OnAcquireInfo(int32_t module, int32_t acquireIn
     IAM_LOGD("start, module:%{public}d acquireInfo:%{public}d", module, acquireInfo);
     Attributes attribute(extraInfo);
     if (authCallback_ != nullptr) {
+        // only modal extension need to wait modal uec release less than 300ms.
+        if (modalCallback_ != nullptr) {
+            IAM_LOGI("IsModalInit :%{public}d, IsModalDestroy :%{public}d", modalCallback_->IsModalInit(),
+                modalCallback_->IsModalDestroy());
+            if (modalCallback_->IsModalInit() && !modalCallback_->IsModalDestroy() &&
+                acquireInfo == UserAuthTipCode::TIP_CODE_WIDGET_RELEASED) {
+                const uint32_t sleepTime = 300000;
+                usleep(sleepTime);
+                IAM_LOGI("process acquireInfo continue");
+            }
+        }
         authCallback_->OnAcquireInfo(module, acquireInfo, attribute);
     } else if (identifyCallback_ != nullptr) {
         identifyCallback_->OnAcquireInfo(module, acquireInfo, attribute);
