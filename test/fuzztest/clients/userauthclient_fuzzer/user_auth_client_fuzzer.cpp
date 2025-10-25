@@ -119,6 +119,36 @@ public:
     }
 };
 
+class DummyUserAuthModalClientCallback final : public UserAuthModalClientCallback {
+public:
+    void SendCommand(uint64_t contextId, const std::string &cmdData)
+    {
+        IAM_LOGI("start");
+        static_cast<void>(contextId);
+        static_cast<void>(cmdData);
+    }
+
+    bool IsModalInit()
+    {
+        IAM_LOGI("start");
+        return true;
+    }
+
+    bool IsModalDestroy()
+    {
+        IAM_LOGI("start");
+        return false;
+    }
+
+private:
+    void CancelAuthentication(uint64_t contextId, int32_t cancelReason)
+    {
+        IAM_LOGI("start");
+        static_cast<void>(contextId);
+        static_cast<void>(cancelReason);
+    }
+};
+
 void FuzzClientGetEnrolledState(Parcel &parcel)
 {
     IAM_LOGI("start");
@@ -349,6 +379,10 @@ void FuzzNotice(Parcel &parcel)
 auto g_UserAuthCallbackService =
     Common::MakeShared<UserAuthCallbackService>(Common::MakeShared<DummyAuthenticationCallback>());
 
+auto g_UserAuthCallbackServiceForWait =
+    Common::MakeShared<UserAuthCallbackService>(Common::MakeShared<DummyAuthenticationCallback>(),
+        Common::MakeShared<DummyUserAuthModalClientCallback>());
+
 auto g_GetPropCallbackService =
     Common::MakeShared<GetExecutorPropertyCallbackService>(Common::MakeShared<DummyGetPropCallback>());
 
@@ -378,6 +412,20 @@ void FuzzUserAuthCallbackServiceOnAcquireInfo(Parcel &parcel)
     Attributes extraInfo(attr);
     if (g_UserAuthCallbackService != nullptr) {
         g_UserAuthCallbackService->OnAcquireInfo(result, acquireInfo, extraInfo.Serialize());
+    }
+    IAM_LOGI("end");
+}
+
+void FuzzUserAuthCallbackServiceOnAcquireInfoForWait(Parcel &parcel)
+{
+    IAM_LOGI("start");
+    int32_t result = parcel.ReadInt32();
+    int32_t acquireInfo = parcel.ReadInt32();
+    std::vector<uint8_t> attr;
+    Common::FillFuzzUint8Vector(parcel, attr);
+    Attributes extraInfo(attr);
+    if (g_UserAuthCallbackServiceForWait != nullptr) {
+        g_UserAuthCallbackServiceForWait->OnAcquireInfo(result, acquireInfo, extraInfo.Serialize());
     }
     IAM_LOGI("end");
 }
@@ -453,6 +501,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzNotice,
     FuzzUserAuthCallbackServiceOnResult,
     FuzzUserAuthCallbackServiceOnAcquireInfo,
+    FuzzUserAuthCallbackServiceOnAcquireInfoForWait,
     FuzzGetPropCallbackServiceOnPropResult,
     FuzzSetPropCallbackServiceOnPropResult,
     FuzzSetGlobalConfigParam,
