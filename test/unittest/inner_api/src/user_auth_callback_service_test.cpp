@@ -119,22 +119,16 @@ HWTEST_F(UserAuthCallbackServiceTest, UserAuthCallbackServiceTest003, TestSize.L
     service->OnAcquireInfo(testModule, testAcquireInfo, testExtraInfo.Serialize());
 }
 
-HWTEST_F(UserAuthCallbackServiceTest, UserAuthCallbackServiceTest004, TestSize.Level0)
+void UserAuthCallbackServiceTest::OnAcquireInfoForWait(int32_t testAcquireInfo,
+    const std::shared_ptr<UserAuthModalInnerCallback> &modalInnerCallback)
 {
     int32_t testResult = FAIL;
     Attributes testExtraInfo;
-
     int32_t testModule = 52334;
-    int32_t testAcquireInfo = 6;
 
     auto authCallback = Common::MakeShared<MockAuthenticationCallback>();
     EXPECT_NE(authCallback, nullptr);
     EXPECT_CALL(*authCallback, OnResult(_, _)).Times(1);
-
-    auto modalInnerCallback = Common::MakeShared<MockUserAuthModalInnerCallback>();
-    EXPECT_NE(modalInnerCallback, nullptr);
-    EXPECT_CALL(*modalInnerCallback, IsModalInit()).WillRepeatedly(Return(true));
-    EXPECT_CALL(*modalInnerCallback, IsModalDestroy()).WillRepeatedly(Return(false));
 
     EXPECT_CALL(*authCallback, OnAcquireInfo(_, _, _)).Times(1);
     ON_CALL(*authCallback, OnAcquireInfo)
@@ -148,6 +142,100 @@ HWTEST_F(UserAuthCallbackServiceTest, UserAuthCallbackServiceTest004, TestSize.L
     EXPECT_NE(service, nullptr);
     service->OnResult(testResult, testExtraInfo.Serialize());
     service->OnAcquireInfo(testModule, testAcquireInfo, testExtraInfo.Serialize());
+}
+
+HWTEST_F(UserAuthCallbackServiceTest, UserAuthCallbackServiceTest0051, TestSize.Level0)
+{
+    int32_t testAcquireInfo = 6;
+
+    auto modalInnerCallback = Common::MakeShared<MockUserAuthModalInnerCallback>();
+    EXPECT_NE(modalInnerCallback, nullptr);
+    EXPECT_CALL(*modalInnerCallback, IsModalInit()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*modalInnerCallback, IsModalDestroy()).WillRepeatedly(Return(false));
+
+    OnAcquireInfoForWait(testAcquireInfo, modalInnerCallback);
+}
+
+HWTEST_F(UserAuthCallbackServiceTest, UserAuthCallbackServiceTest0052, TestSize.Level0)
+{
+    int32_t testAcquireInfo = 6;
+
+    auto modalInnerCallback = Common::MakeShared<MockUserAuthModalInnerCallback>();
+    EXPECT_NE(modalInnerCallback, nullptr);
+    EXPECT_CALL(*modalInnerCallback, IsModalInit()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*modalInnerCallback, IsModalDestroy()).WillRepeatedly(Return(true));
+
+    OnAcquireInfoForWait(testAcquireInfo, modalInnerCallback);
+}
+
+HWTEST_F(UserAuthCallbackServiceTest, UserAuthCallbackServiceTest0053, TestSize.Level0)
+{
+    int32_t testAcquireInfo = 6;
+
+    auto modalInnerCallback = Common::MakeShared<MockUserAuthModalInnerCallback>();
+    EXPECT_NE(modalInnerCallback, nullptr);
+    EXPECT_CALL(*modalInnerCallback, IsModalInit()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*modalInnerCallback, IsModalDestroy()).WillRepeatedly(Return(true));
+
+    OnAcquireInfoForWait(testAcquireInfo, modalInnerCallback);
+}
+
+HWTEST_F(UserAuthCallbackServiceTest, UserAuthCallbackServiceTest0054, TestSize.Level0)
+{
+    int32_t testAcquireInfo = 6;
+
+    auto modalInnerCallback = Common::MakeShared<MockUserAuthModalInnerCallback>();
+    EXPECT_NE(modalInnerCallback, nullptr);
+    EXPECT_CALL(*modalInnerCallback, IsModalInit()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*modalInnerCallback, IsModalDestroy()).WillRepeatedly(Return(false));
+
+    OnAcquireInfoForWait(testAcquireInfo, modalInnerCallback);
+}
+
+HWTEST_F(UserAuthCallbackServiceTest, UserAuthCallbackServiceTest0055, TestSize.Level0)
+{
+    int32_t testAcquireInfo = 57845;
+    auto modalInnerCallback = Common::MakeShared<MockUserAuthModalInnerCallback>();
+    EXPECT_NE(modalInnerCallback, nullptr);
+    EXPECT_CALL(*modalInnerCallback, IsModalInit()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*modalInnerCallback, IsModalDestroy()).WillRepeatedly(Return(false));
+    OnAcquireInfoForWait(testAcquireInfo, modalInnerCallback);
+}
+
+HWTEST_F(UserAuthCallbackServiceTest, UserAuthCallbackServiceTest0056, TestSize.Level0)
+{
+    int32_t testAcquireInfo = 57845;
+
+    auto modalInnerCallback = Common::MakeShared<MockUserAuthModalInnerCallback>();
+    EXPECT_NE(modalInnerCallback, nullptr);
+    EXPECT_CALL(*modalInnerCallback, IsModalInit()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*modalInnerCallback, IsModalDestroy()).WillRepeatedly(Return(true));
+
+    OnAcquireInfoForWait(testAcquireInfo, modalInnerCallback);
+}
+
+HWTEST_F(UserAuthCallbackServiceTest, UserAuthCallbackServiceTest0057, TestSize.Level0)
+{
+    int32_t testAcquireInfo = 57845;
+
+    auto modalInnerCallback = Common::MakeShared<MockUserAuthModalInnerCallback>();
+    EXPECT_NE(modalInnerCallback, nullptr);
+    EXPECT_CALL(*modalInnerCallback, IsModalInit()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*modalInnerCallback, IsModalDestroy()).WillRepeatedly(Return(true));
+
+    OnAcquireInfoForWait(testAcquireInfo, modalInnerCallback);
+}
+
+HWTEST_F(UserAuthCallbackServiceTest, UserAuthCallbackServiceTest0058, TestSize.Level0)
+{
+    int32_t testAcquireInfo = 57845;
+
+    auto modalInnerCallback = Common::MakeShared<MockUserAuthModalInnerCallback>();
+    EXPECT_NE(modalInnerCallback, nullptr);
+    EXPECT_CALL(*modalInnerCallback, IsModalInit()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*modalInnerCallback, IsModalDestroy()).WillRepeatedly(Return(false));
+
+    OnAcquireInfoForWait(testAcquireInfo, modalInnerCallback);
 }
 
 HWTEST_F(UserAuthCallbackServiceTest, GetExecutorPropertyCallbackServiceTest001, TestSize.Level0)
