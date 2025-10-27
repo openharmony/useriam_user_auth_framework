@@ -17,6 +17,7 @@
 #define USER_AUTH_CALLBACK_SERVICE_TEST_H
 
 #include <gtest/gtest.h>
+#include "user_auth_modal_inner_callback.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -30,6 +31,10 @@ public:
     void SetUp() override;
 
     void TearDown() override;
+
+private:
+    void OnAcquireInfoForWait(int32_t testAcquireInfo,
+        const std::shared_ptr<UserAuthModalInnerCallback> &modalInnerCallback);
 };
 } // namespace UserAuth
 } // namespace UserIam
