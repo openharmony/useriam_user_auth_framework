@@ -184,8 +184,13 @@ bool ReadFileIntoJson(const std::string &filePath, nlohmann::json &jsonBuf)
     }
 
     in.seekg(0, std::ios::beg);
-    jsonBuf = nlohmann::json::parse(in, nullptr, false);
+    std::string content((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
     in.close();
+    if (!nlohmann::json::accept(content)) {
+        IAM_LOGE("invalid JSON format.");
+        return false;
+    }
+    jsonBuf = nlohmann::json::parse(content);
     if (jsonBuf.is_discarded()) {
         IAM_LOGE("bad profile file");
         return false;
@@ -209,7 +214,7 @@ bool GetStringArrayFromJson(const nlohmann::json &jsonObject,
                 return false;
             }
             const auto &objectEnd = object.end();
-            if (object.find(key) != objectEnd) {
+            if (object.find(key) != objectEnd && object[key].is_array()) {
                 exemptedBundleInfos = object.at(key).get<std::vector<std::string>>();
                 break;
             }
@@ -234,7 +239,7 @@ bool GetStringFromJson(const nlohmann::json &jsonObject, std::string &exemptedBu
                 return false;
             }
             const auto &objectEnd = object.end();
-            if (object.find(key) != objectEnd) {
+            if (object.find(key) != objectEnd && object[key].is_string()) {
                 exemptedBundleInfo = object.at(key).get<std::string>();
                 return true;
             }
