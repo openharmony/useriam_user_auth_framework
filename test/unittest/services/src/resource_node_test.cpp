@@ -167,6 +167,56 @@ HWTEST_F(ResourceNodeTest, ResourceNodeTest002, TestSize.Level0)
     EXPECT_EQ(node->SetProperty(properties), SUCCESS);
     EXPECT_EQ(node->GetProperty(condition, values), SUCCESS);
 }
+
+HWTEST_F(ResourceNodeTest, MakeNewResourceTest, TestSize.Level0)
+{
+    ExecutorRegisterInfo info {};
+    info.deviceUdid = "1";
+    std::vector<uint64_t> templateIdList {};
+    std::vector<uint8_t> fwkPublicKey {};
+
+    auto node = ResourceNode::MakeNewResource(info, nullptr, templateIdList, fwkPublicKey);
+    EXPECT_NE(node, nullptr);
+}
+
+HWTEST_F(ResourceNodeTest, MakeNewResourceTest_001, TestSize.Level0)
+{
+    ExecutorRegisterInfo info {};
+    std::vector<uint64_t> templateIdList {};
+    std::vector<uint8_t> fwkPublicKey {};
+
+    auto node = ResourceNode::MakeNewResource(info, nullptr, templateIdList, fwkPublicKey);
+    ASSERT_NE(node, nullptr);
+    uint64_t scheduleId = 0;
+    Attributes data = {};
+    EXPECT_EQ(node->SendData(scheduleId, data), ResultCode::GENERAL_ERROR);
+}
+
+HWTEST_F(ResourceNodeTest, MakeNewResourceTest_002, TestSize.Level0)
+{
+    ExecutorRegisterInfo info {};
+    std::vector<uint64_t> templateIdList {};
+    std::vector<uint8_t> fwkPublicKey {};
+    auto testCallback = Common::MakeShared<MockExecutorCallback>();
+
+    auto node = ResourceNode::MakeNewResource(info, testCallback, templateIdList, fwkPublicKey);
+    ASSERT_NE(node, nullptr);
+    uint64_t scheduleId = 0;
+    Attributes data = {};
+    EXPECT_EQ(node->SendData(scheduleId, data), ResultCode::SUCCESS);
+}
+
+HWTEST_F(ResourceNodeTest, DeleteFromDriverTest_002, TestSize.Level0)
+{
+    ExecutorRegisterInfo info {};
+    std::vector<uint64_t> templateIdList {};
+    std::vector<uint8_t> fwkPublicKey {};
+    auto testCallback = Common::MakeShared<MockExecutorCallback>();
+
+    auto node = ResourceNode::MakeNewResource(info, testCallback, templateIdList, fwkPublicKey);
+    ASSERT_NE(node, nullptr);
+    EXPECT_NO_THROW(node->DeleteFromDriver());
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
