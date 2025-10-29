@@ -142,7 +142,13 @@ void WidgetClient::SendCommand(const WidgetCommand &command)
         return;
     }
     nlohmann::json root = command;
-    std::string cmdData = root.dump();
+    std::string cmdData;
+    try {
+        cmdData = root.dump();
+    } catch (const nlohmann::json::exception &e) {
+        IAM_LOGE("cmd is invalid json, error: %{public}s", e.what());
+        return;
+    }
     IAM_LOGD("SendCommand cmdData");
     widgetCallback_->SendCommand(cmdData);
 }
