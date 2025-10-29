@@ -362,6 +362,11 @@ HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0017, TestSize.Level0)
     WidgetClient::Instance().ClearSchedule(widgetNotice.widgetContextId);
 }
 
+HWTEST_F(WidgetClientTest, WidgetClientTestOnNotice_0018, TestSize.Level0)
+{
+    EXPECT_EQ(WidgetClient::Instance().OnNotice(NoticeType::WIDGET_NOTICE, "123"), ResultCode::INVALID_PARAMETERS);
+}
+
 HWTEST_F(WidgetClientTest, WidgetClientTestReportWidgetResult_0001, TestSize.Level0)
 {
     WidgetClient::Instance().Reset();
