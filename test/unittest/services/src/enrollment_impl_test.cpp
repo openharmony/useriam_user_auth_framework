@@ -270,6 +270,22 @@ HWTEST_F(EnrollmentImplTest, EnrollmentImplTestStart_002, TestSize.Level0)
     enroll->SetIsUpdate(true);
     EXPECT_FALSE(enroll->Start(scheduleList, callback));
     EXPECT_FALSE(enroll->Start(scheduleList, callback));
+
+    enroll = std::make_shared<EnrollmentImpl>(para);
+    enroll->SetIsUpdate(false);
+    EXPECT_FALSE(enroll->Start(scheduleList, callback));
+}
+
+HWTEST_F(EnrollmentImplTest, SetLatestErrorTest, TestSize.Level0)
+{
+    Enrollment::EnrollmentPara para = {};
+    para.userId = 0x11;
+    para.callerName = "com.ohos.test";
+    para.sdkVersion = 11;
+    para.authType = FACE;
+
+    auto enrollment = std::make_shared<EnrollmentImpl>(para);
+    EXPECT_NO_THROW(enrollment->SetLatestError(ResultCode::GENERAL_ERROR));
 }
 } // namespace UserAuth
 } // namespace UserIam

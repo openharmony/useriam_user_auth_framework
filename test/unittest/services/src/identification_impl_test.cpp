@@ -160,6 +160,14 @@ HWTEST_F(IdentificationImplTest, IdentificationTestStart, TestSize.Level0)
 
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(executorIndex));
 }
+
+HWTEST_F(IdentificationImplTest, SetLatestErrorTest, TestSize.Level0)
+{
+    constexpr uint64_t contextId = 0x1234567;
+
+    auto identification = std::make_shared<IdentificationImpl>(contextId, FACE);
+    EXPECT_NO_THROW(identification->SetLatestError(ResultCode::GENERAL_ERROR));
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

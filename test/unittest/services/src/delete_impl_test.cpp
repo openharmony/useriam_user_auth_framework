@@ -230,6 +230,49 @@ HWTEST_F(DeleteImplTest, DeleteImplTestStart_002, TestSize.Level0)
     std::vector<HdiCredentialInfo> credentialInfos = {};
     EXPECT_FALSE(abandon->Start(scheduleList, callback, isCredentialDelete, credentialInfos));
 }
+
+HWTEST_F(DeleteImplTest, SetLatestError_001, TestSize.Level0)
+{
+    std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
+    DeleteImpl::DeleteParam para = {};
+    para.userId = 1;
+    para.credentialId = 1;
+    para.tokenId = 1;
+    para.token = testAuthToken;
+    auto abandon = std::make_shared<DeleteImpl>(para);
+    EXPECT_NO_THROW(abandon->SetLatestError(ResultCode::SUCCESS));
+}
+
+HWTEST_F(DeleteImplTest, StartSchedule_001, TestSize.Level0)
+{
+    std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
+    DeleteImpl::DeleteParam para = {};
+    para.userId = 1;
+    para.credentialId = 1;
+    para.tokenId = 1;
+    para.token = testAuthToken;
+    auto abandon = std::make_shared<DeleteImpl>(para);
+    int32_t userId = 100;
+    HdiScheduleInfo info = {};
+    std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
+    std::shared_ptr<ScheduleNodeCallback> callback;
+    EXPECT_FALSE(abandon->StartSchedule(userId, info, scheduleList, callback));
+}
+
+HWTEST_F(DeleteImplTest, PublishCommonEvent_001, TestSize.Level0)
+{
+    std::vector<uint8_t> testAuthToken = {1, 2, 3, 4};
+    DeleteImpl::DeleteParam para = {};
+    para.userId = 1;
+    para.credentialId = 1;
+    para.tokenId = 1;
+    para.token = testAuthToken;
+    auto abandon = std::make_shared<DeleteImpl>(para);
+    int32_t userId = 100;
+    uint64_t credentialId = 0;
+    AuthType authType = FINGERPRINT;
+    EXPECT_NO_THROW(abandon->PublishCommonEvent(userId, credentialId, authType));
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
