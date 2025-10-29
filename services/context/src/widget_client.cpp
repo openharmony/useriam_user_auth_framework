@@ -72,6 +72,10 @@ ResultCode WidgetClient::OnNotice(NoticeType type, const std::string &eventData)
         IAM_LOGE("OnNotice eventData is not json format");
         return ResultCode::INVALID_PARAMETERS;
     }
+    if (!root.is_object()) {
+        IAM_LOGE("type check failed.");
+        return ResultCode::INVALID_PARAMETERS;
+    }
     WidgetNotice notice = root.get<WidgetNotice>();
     if (notice.widgetContextId == 0) {
         IAM_LOGE("Invalid widget context id");
