@@ -128,6 +128,7 @@ private:
     void OnTerminateTimerTimeOut(uint64_t contextId);
     std::string ProcessCmdData(WidgetCmdParameters &widgetCmdParameters);
     void ProcessElementName(std::string &bundleName, std::string &abilityName);
+    bool HandleAuthSuccessResult(Attributes &attr);
 
 private:
     struct TaskInfo {
@@ -141,6 +142,7 @@ private:
         uint64_t credentialDigest;
         uint16_t credentialCount;
         int64_t pinExpiredInfo;
+        int32_t resultUserId;
     };
 
     struct ResultInfo {
