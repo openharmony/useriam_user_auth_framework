@@ -640,6 +640,44 @@ bool WidgetContext::DisconnectExtension()
     return true;
 }
 
+bool WidgetContext::HandleAuthSuccessResult(Attributes &attr)
+{
+    if (!attr.SetInt32Value(Attributes::ATTR_AUTH_TYPE, authResultInfo_.authType)) {
+        IAM_LOGE("set auth type failed.");
+        callerCallback_->SetTraceAuthFinishReason("WidgetContext End set authType fail");
+        callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
+        return false;
+    }
+    if (authResultInfo_.token.size() > 0) {
+        if (!attr.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authResultInfo_.token)) {
+            IAM_LOGE("set signature token failed.");
+            callerCallback_->SetTraceAuthFinishReason("WidgetContext End set token fail");
+            callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
+            return false;
+        }
+    }
+    IAM_LOGI("in End, token size: %{public}zu.", authResultInfo_.token.size());
+    if (!attr.SetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, authResultInfo_.credentialDigest)) {
+        IAM_LOGE("set credential digest failed.");
+        callerCallback_->SetTraceAuthFinishReason("WidgetContext End set credentialDigest fail");
+        callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
+        return false;
+    }
+    if (!attr.SetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, authResultInfo_.credentialCount)) {
+        IAM_LOGE("set credential count failed.");
+        callerCallback_->SetTraceAuthFinishReason("WidgetContext End set credentialCount fail");
+        callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
+        return false;
+    }
+    if (!attr.SetInt32Value(Attributes::ATTR_USER_ID, authResultInfo_.resultUserId)) {
+        IAM_LOGE("set user id failed.");
+        callerCallback_->SetTraceAuthFinishReason("WidgetContext End set userId fail");
+        callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
+        return false;
+    }
+    return true;
+}
+
 void WidgetContext::End(const ResultCode &resultCode)
 {
     HILOG_COMM_INFO("widget context: ****%{public}hx in End, resultCode: %{public}d",
@@ -648,35 +686,10 @@ void WidgetContext::End(const ResultCode &resultCode)
     IF_FALSE_LOGE_AND_RETURN(callerCallback_ != nullptr);
     Attributes attr;
     if (resultCode == ResultCode::SUCCESS || authResultInfo_.token.size() != 0) {
-        if (!attr.SetInt32Value(Attributes::ATTR_AUTH_TYPE, authResultInfo_.authType)) {
-            IAM_LOGE("set auth type failed.");
-            callerCallback_->SetTraceAuthFinishReason("WidgetContext End set authType fail");
-            callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
-            goto EXIT;
-        }
-        if (authResultInfo_.token.size() > 0) {
-            if (!attr.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, authResultInfo_.token)) {
-                IAM_LOGE("set signature token failed.");
-                callerCallback_->SetTraceAuthFinishReason("WidgetContext End set token fail");
-                callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
-                goto EXIT;
-            }
-        }
-        IAM_LOGI("in End, token size: %{public}zu.", authResultInfo_.token.size());
-        if (!attr.SetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, authResultInfo_.credentialDigest)) {
-            IAM_LOGE("set credential digest failed.");
-            callerCallback_->SetTraceAuthFinishReason("WidgetContext End set credentialDigest fail");
-            callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
-            goto EXIT;
-        }
-        if (!attr.SetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, authResultInfo_.credentialCount)) {
-            IAM_LOGE("set credential count failed.");
-            callerCallback_->SetTraceAuthFinishReason("WidgetContext End set credentialCount fail");
-            callerCallback_->OnResult(ResultCode::GENERAL_ERROR, attr);
+        if (!HandleAuthSuccessResult(attr)) {
             goto EXIT;
         }
     }
-    callerCallback_->SetTraceAuthFinishReason("WidgetContext End fail");
     callerCallback_->OnResult(resultCode, attr);
     if (connection_ == nullptr) {
         IAM_LOGE("invalid connection handle");
