@@ -963,7 +963,7 @@ void WidgetContext::StopOnTerminateTimer()
 void WidgetContext::OnTerminateTimerTimeOut(uint64_t contextId)
 {
     IAM_LOGI("start");
-    ClearSchedule();
+    WidgetClient::Instance().ClearSchedule(contextId);
 }
 
 void WidgetContext::ClearSchedule()
