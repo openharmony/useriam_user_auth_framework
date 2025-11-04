@@ -198,6 +198,30 @@ HWTEST_F(ContextFactoryTest, ContextFactoryCreateDeleteContext_002, TestSize.Lev
     ASSERT_EQ(context, nullptr);
 }
 
+HWTEST_F(ContextFactoryTest, CreateRemoteAuthContext_001, TestSize.Level0)
+{
+    auto factory = ContextFactory::GetInstance();
+    ASSERT_NE(factory, nullptr);
+    Authentication::AuthenticationPara para = {};
+    RemoteAuthContextParam remoteAuthContextParam = {};
+    sptr<IIamCallback> callback(new (std::nothrow) MockUserAuthCallback());
+    ASSERT_NE(callback, nullptr);
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER_ALL);
+    factory->CreateRemoteAuthContext(para, remoteAuthContextParam, contextCallback);
+}
+
+HWTEST_F(ContextFactoryTest, CreateRemoteAuthContext_002, TestSize.Level0)
+{
+    auto factory = ContextFactory::GetInstance();
+    ASSERT_NE(factory, nullptr);
+    Authentication::AuthenticationPara para = {};
+    RemoteAuthContextParam remoteAuthContextParam = {};
+    remoteAuthContextParam.connectionName = "aaa";
+    sptr<IIamCallback> callback(new (std::nothrow) MockUserAuthCallback());
+    ASSERT_NE(callback, nullptr);
+    auto contextCallback = ContextCallback::NewInstance(callback, TRACE_AUTH_USER_ALL);
+    factory->CreateRemoteAuthContext(para, remoteAuthContextParam, contextCallback);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
