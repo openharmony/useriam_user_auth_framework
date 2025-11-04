@@ -125,6 +125,7 @@ void PublishEventAdapter::ClearPinUpdateCacheInfo()
 
 void PublishEventAdapter::PublishCredentialUpdatedEvent(int32_t userId, int32_t authType, uint32_t credentialCount)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     EventFwk::Want want;
     want.SetAction(USER_CREDENTIAL_UPDATED_EVENT);
     want.SetParam(TAG_USERID, std::to_string(userId));
