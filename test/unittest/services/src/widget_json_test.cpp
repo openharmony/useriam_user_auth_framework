@@ -62,10 +62,10 @@ struct TestAuthProfile {
     int32_t freezingTime {0};
 };
 
-void CreatePara(ContextFactory::AuthWidgetContextPara &para)
+void CreatePara(ContextFactory::AuthWidgetContextPara &para, WindowModeType windowModeType)
 {
     para.widgetParam.title = "widgetParam";
-    para.widgetParam.windowMode = DIALOG_BOX;
+    para.widgetParam.windowMode = windowModeType;
     para.widgetParam.navigationButtonText = "navigationButtonText";
     ContextFactory::AuthProfile authProfile;
     para.authProfileMap.insert(pair<AuthType, ContextFactory::AuthProfile>(ALL, authProfile));
@@ -105,11 +105,24 @@ HWTEST_F(WidgetJsonTest, WidgetJsonStr2AuthType_005, TestSize.Level0)
     EXPECT_EQ(Str2AuthType(strAt), ALL);
 }
 
-HWTEST_F(WidgetJsonTest, WidgetJsonAuthType2Str, TestSize.Level0)
+HWTEST_F(WidgetJsonTest, WidgetJsonStr2AuthType_006, TestSize.Level0)
+{
+    std::string strAt = "privatePin";
+    EXPECT_EQ(Str2AuthType(strAt), PRIVATE_PIN);
+}
+
+HWTEST_F(WidgetJsonTest, WidgetJsonAuthType2Str_001, TestSize.Level0)
 {
     AuthType authType = static_cast<AuthType>(100);
     std::string type = AuthType2Str(authType);
     EXPECT_EQ(type, "");
+}
+
+HWTEST_F(WidgetJsonTest, WidgetJsonAuthType2Str_002, TestSize.Level0)
+{
+    AuthType authType = static_cast<AuthType>(16);
+    std::string type = AuthType2Str(authType);
+    EXPECT_EQ(type, "privatePin");
 }
 
 HWTEST_F(WidgetJsonTest, WidgetJsonWinModeType2Str_001, TestSize.Level0)
@@ -139,7 +152,24 @@ HWTEST_F(WidgetJsonTest, WidgetJsonPinSubType2Str_003, TestSize.Level0)
 
 HWTEST_F(WidgetJsonTest, WidgetJsonPinSubType2Str_004, TestSize.Level0)
 {
+    EXPECT_EQ(PinSubType2Str(PinSubType::PIN_FOUR), "PIN_FOUR");
+}
+
+HWTEST_F(WidgetJsonTest, WidgetJsonPinSubType2Str_005, TestSize.Level0)
+{
+    EXPECT_EQ(PinSubType2Str(PinSubType::PIN_PATTERN), "PIN_PATTERN");
+}
+
+HWTEST_F(WidgetJsonTest, WidgetJsonPinSubType2Str_006, TestSize.Level0)
+{
     EXPECT_EQ(PinSubType2Str(PinSubType::PIN_MAX), "PIN_MAX");
+}
+
+HWTEST_F(WidgetJsonTest, WidgetJsonGetFollowCallerList, TestSize.Level0)
+{
+    nlohmann::json jsonBuf;
+    std::vector<std::string> processName;
+    EXPECT_EQ(GetFollowCallerList(jsonBuf, processName), false);
 }
 
 HWTEST_F(WidgetJsonTest, WidgetJsonto_json_001, TestSize.Level0)
@@ -147,7 +177,7 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_001, TestSize.Level0)
     WidgetCommand widgetCommand;
     widgetCommand.widgetContextId = 1;
     ContextFactory::AuthWidgetContextPara para;
-    CreatePara(para);
+    CreatePara(para, DIALOG_BOX);
     widgetCommand.title = para.widgetParam.title;
     widgetCommand.windowModeType = WinModeType2Str(para.widgetParam.windowMode);
     widgetCommand.navigationButtonText = para.widgetParam.navigationButtonText;
@@ -165,6 +195,7 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_001, TestSize.Level0)
             .version = "1",
             .type = AuthType2Str(at)
         };
+        cmd.result = PIN_EXPIRED;
         if (at == AuthType::FINGERPRINT && !profile.sensorInfo.empty()) {
             cmd.sensorInfo = profile.sensorInfo;
         }
@@ -186,7 +217,7 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_002, TestSize.Level0)
     widgetCommand.widgetContextId = 1;
     widgetCommand.pinSubType = "pinSubType";
     ContextFactory::AuthWidgetContextPara para;
-    CreatePara(para);
+    CreatePara(para, FULLSCREEN);
     widgetCommand.title = para.widgetParam.title;
     std::vector<std::string> typeList;
     for (auto &item : para.authProfileMap) {
@@ -217,7 +248,7 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_003, TestSize.Level0)
     widgetCmdParameters.focusState = 0;
     widgetCmdParameters.useriamCmdData.widgetContextId = 1;
     ContextFactory::AuthWidgetContextPara para;
-    CreatePara(para);
+    CreatePara(para, NONE_INTERRUPTION_DIALOG_BOX);
     widgetCmdParameters.useriamCmdData.title = para.widgetParam.title;
     widgetCmdParameters.useriamCmdData.windowModeType = WinModeType2Str(para.widgetParam.windowMode);
     widgetCmdParameters.useriamCmdData.navigationButtonText = para.widgetParam.navigationButtonText;
@@ -258,7 +289,7 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_004, TestSize.Level0)
     widgetCmdParameters.useriamCmdData.widgetContextId = 1;
     widgetCmdParameters.useriamCmdData.pinSubType = "pinSubType";
     ContextFactory::AuthWidgetContextPara para;
-    CreatePara(para);
+    CreatePara(para, DIALOG_BOX);
     widgetCmdParameters.useriamCmdData.title = para.widgetParam.title;
     std::vector<std::string> typeList;
     for (auto &item : para.authProfileMap) {
@@ -269,8 +300,14 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_004, TestSize.Level0)
             .version = "1",
             .type = AuthType2Str(at)
         };
+        WidgetCommand::Cmd cmd1 {
+            .event = CMD_NOTIFY_AUTH_TIP,
+            .version = "1",
+            .type = AuthType2Str(at)
+        };
         cmd.sensorInfo = "sensorInfo";
         widgetCmdParameters.useriamCmdData.cmdList.push_back(cmd);
+        widgetCmdParameters.useriamCmdData.cmdList.push_back(cmd1);
     }
     widgetCmdParameters.useriamCmdData.typeList = typeList;
     nlohmann::json root = widgetCmdParameters;
@@ -365,6 +402,36 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_014, TestSize.Level0)
     auto root = nlohmann::json::parse("{\"payload\":{\"endAfterFirstFail\":true}}", nullptr, false);
     WidgetNotice notice = root.get<WidgetNotice>();
     EXPECT_EQ(notice.endAfterFirstFail, true);
+}
+
+HWTEST_F(WidgetJsonTest, WidgetJsonto_json_015, TestSize.Level0)
+{
+    WidgetCmdParameters widgetCmdParameters;
+    widgetCmdParameters.uiExtensionType = "sysDialog/userAuth";
+    widgetCmdParameters.focusState = 1;
+    widgetCmdParameters.useriamCmdData.widgetContextId = 1;
+    widgetCmdParameters.useriamCmdData.pinSubType = "pinSubType";
+    ContextFactory::AuthWidgetContextPara para;
+    CreatePara(para, DIALOG_BOX);
+    widgetCmdParameters.useriamCmdData.title = para.widgetParam.title;
+    std::vector<std::string> typeList;
+    for (auto &item : para.authProfileMap) {
+        auto &at = item.first;
+        typeList.push_back(AuthType2Str(at));
+        WidgetCommand::Cmd cmd {
+            .event = CMD_NOTIFY_AUTH_TIP,
+            .version = "1",
+            .type = AuthType2Str(at)
+        };
+        cmd.sensorInfo = "sensorInfo";
+        widgetCmdParameters.useriamCmdData.cmdList.push_back(cmd);
+    }
+    widgetCmdParameters.useriamCmdData.typeList = typeList;
+    nlohmann::json root = widgetCmdParameters;
+    std::string cmdData = root.dump();
+    auto result = nlohmann::json::parse(cmdData.c_str());
+    auto uiExtensionType = result["ability.want.params.uiExtensionType"];
+    EXPECT_EQ(uiExtensionType, "sysDialog/userAuth");
 }
 } // namespace UserAuth
 } // namespace UserIam

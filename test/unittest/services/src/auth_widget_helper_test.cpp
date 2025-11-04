@@ -74,6 +74,10 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam001, Te
     para.userId = 1;
     std::vector<AuthType> validType;
     EXPECT_TRUE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
+    AuthParamInner authParam1;
+    authParam1.authTypes.push_back(FACE);
+    authParam1.authTrustLevel = ATL2;
+    AuthWidgetHelper::InitWidgetContextParam(authParam1, validType, widgetParam, para);
 }
 
 HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam002, TestSize.Level0)
