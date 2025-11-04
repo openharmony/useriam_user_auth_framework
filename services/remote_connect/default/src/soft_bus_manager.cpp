@@ -749,6 +749,7 @@ std::shared_ptr<BaseSocket> SoftBusManager::FindClientSocket(const std::string &
 
 std::shared_ptr<BaseSocket> SoftBusManager::GetServerSocket()
 {
+    std::lock_guard<std::recursive_mutex> lock(ServerSocketMutex_);
     return serverSocket_;
 }
 } // namespace UserAuth

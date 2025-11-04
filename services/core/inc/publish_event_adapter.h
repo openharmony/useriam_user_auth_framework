@@ -32,11 +32,11 @@ public:
     void PublishCredentialUpdatedEvent(int32_t userId, int32_t authType, uint32_t credentialCount);
     void CachePinUpdateParam(int32_t userId, uint64_t scheduleId, const CredChangeEventInfo &changeInfo);
     void CachePinUpdateParam(bool reEnrollFlag);
-    void ClearPinUpdateCacheInfo();
 
 private:
     PublishEventAdapter() = default;
     ~PublishEventAdapter() = default;
+    void ClearPinUpdateCacheInfo();
 
     std::mutex mutex_;
     int32_t userId_ {0};
