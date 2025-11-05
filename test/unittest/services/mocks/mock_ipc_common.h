@@ -54,6 +54,8 @@ public:
     static bool GetCallingAppID(IPCObjectStub &stub, std::string &callingAppID);
     static uint32_t GetAccessTokenId(IPCObjectStub &stub);
     static void SetAccessTokenId(uint32_t tokenId, bool isSetTokenId);
+    static void SetSkipCallerFlag(bool isSkip);
+    static void SetSkipAccountVerifiedFlag(bool isSkip);
     static void AddPermission(Permission perm);
     static void DeleteAllPermission();
     static uint32_t GetTokenId(IPCObjectStub &stub);
@@ -67,6 +69,8 @@ private:
     static bool isSetTokenId_;
     static uint32_t tokenId_;
     static bool skipFlag_;
+    static bool skipCallerFlag_;
+    static bool skipAccountVerifiedFlag_;
 };
 } // namespace UserAuth
 } // namespace UserIam

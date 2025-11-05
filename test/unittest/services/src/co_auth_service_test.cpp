@@ -219,6 +219,15 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTestOnDriverStop, TestSize.Level0)
     EXPECT_NO_THROW(service->OnDriverStop());
     EXPECT_NO_THROW(service->OnDriverStop());
 }
+
+HWTEST_F(CoAuthServiceTest, CoAuthServiceTestIsFwkReady, TestSize.Level0)
+{
+    auto service = Common::MakeShared<CoAuthService>();
+    EXPECT_NE(service, nullptr);
+    service->SetIsReady(true);
+    service->SetAccessTokenReady(true);
+    EXPECT_NO_THROW(service->NotifyFwkReady());
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
