@@ -60,6 +60,7 @@ HWTEST_F(ResourceNodePoolTest, ResourceNodePoolGetUniqueInstance, TestSize.Level
 HWTEST_F(ResourceNodePoolTest, ResourceNodePoolInsertNull, TestSize.Level0)
 {
     EXPECT_EQ(ResourceNodePool::Instance().Insert(nullptr), false);
+    ResourceNodePool::Instance().DeleteAll();
 }
 
 HWTEST_F(ResourceNodePoolTest, ResourceNodePoolInsertDuplicateId, TestSize.Level0)
@@ -77,6 +78,7 @@ HWTEST_F(ResourceNodePoolTest, ResourceNodePoolInsertDuplicateId, TestSize.Level
 
     EXPECT_EQ(pool.Delete(EXECUTOR_INDEX), true);
     EXPECT_EQ(pool.Delete(EXECUTOR_INDEX), true);
+    ResourceNodePool::Instance().DeleteAll();
 }
 
 HWTEST_F(ResourceNodePoolTest, ResourceNodePoolDelete, TestSize.Level0)
@@ -88,6 +90,7 @@ HWTEST_F(ResourceNodePoolTest, ResourceNodePoolDelete, TestSize.Level0)
     EXPECT_EQ(pool.Insert(resource), true);
     EXPECT_EQ(pool.Delete(EXECUTOR_INDEX), true);
     EXPECT_EQ(pool.Select(EXECUTOR_INDEX).lock(), nullptr);
+    ResourceNodePool::Instance().DeleteAll();
 }
 
 HWTEST_F(ResourceNodePoolTest, ResourceNodePoolInsertAndDelete, TestSize.Level0)
@@ -112,6 +115,7 @@ HWTEST_F(ResourceNodePoolTest, ResourceNodePoolInsertAndDelete, TestSize.Level0)
     EXPECT_NE(pool.Select(EXECUTOR_INDEX3).lock(), resource3);
     EXPECT_NE(pool.Select(EXECUTOR_INDEX2).lock(), resource2);
     EXPECT_NE(pool.Select(EXECUTOR_INDEX1).lock(), resource1);
+    ResourceNodePool::Instance().DeleteAll();
 }
 
 HWTEST_F(ResourceNodePoolTest, ResourceNodePoolListenerInsert, TestSize.Level0)
@@ -166,6 +170,7 @@ HWTEST_F(ResourceNodePoolTest, ResourceNodePoolListenerInsert, TestSize.Level0)
     EXPECT_EQ(pool.Insert(resource3), true);
     EXPECT_EQ(pool.Delete(EXECUTOR_INDEX3), true);
     EXPECT_EQ(pool.DeregisterResourceNodePoolListener(listener3), true);
+    ResourceNodePool::Instance().DeleteAll();
 }
 
 HWTEST_F(ResourceNodePoolTest, ResourceNodePoolListenerUpdate, TestSize.Level0)
@@ -195,6 +200,7 @@ HWTEST_F(ResourceNodePoolTest, ResourceNodePoolListenerUpdate, TestSize.Level0)
     EXPECT_EQ(pool.Delete(EXECUTOR_INDEX2), true);
 
     EXPECT_EQ(pool.DeregisterResourceNodePoolListener(listener), true);
+    ResourceNodePool::Instance().DeleteAll();
 }
 
 HWTEST_F(ResourceNodePoolTest, ResourceNodePoolTestDelete, TestSize.Level0)
@@ -251,6 +257,10 @@ HWTEST_F(ResourceNodePoolTest, GetResourceNodeByTypeAndRole, TestSize.Level0)
     std::vector<std::weak_ptr<ResourceNode>> faceNodes;
     std::vector<std::weak_ptr<ResourceNode>> fingerPrintNodes;
 
+    const uint64_t EXECUTOR_INDEX1 = 300;
+    auto resource1 = MockResourceNode::CreateWithExecuteIndex(EXECUTOR_INDEX1);
+    EXPECT_EQ(pool.Insert(resource1), true);
+
     EXPECT_NO_THROW(pool.GetResourceNodeByTypeAndRole(AuthType::PIN, ALL_IN_ONE, faceNodes));
     EXPECT_NO_THROW(pool.GetResourceNodeByTypeAndRole(AuthType::FACE, ALL_IN_ONE, faceNodes));
     EXPECT_NO_THROW(pool.GetResourceNodeByTypeAndRole(AuthType::FINGERPRINT, ALL_IN_ONE, fingerPrintNodes));
@@ -266,6 +276,7 @@ HWTEST_F(ResourceNodePoolTest, GetResourceNodeByTypeAndRole, TestSize.Level0)
     EXPECT_NO_THROW(pool.GetResourceNodeByTypeAndRole(AuthType::PIN, VERIFIER, faceNodes));
     EXPECT_NO_THROW(pool.GetResourceNodeByTypeAndRole(AuthType::FACE, VERIFIER, faceNodes));
     EXPECT_NO_THROW(pool.GetResourceNodeByTypeAndRole(AuthType::FINGERPRINT, VERIFIER, fingerPrintNodes));
+    ResourceNodePool::Instance().DeleteAll();
 }
 } // namespace UserAuth
 } // namespace UserIam

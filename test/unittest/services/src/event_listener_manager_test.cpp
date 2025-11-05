@@ -111,6 +111,32 @@ HWTEST_F(EventListenerManagerTest, EventListenerManagerTestAddDeathRecipient_002
     EXPECT_EQ(authEventListenerManager.AddDeathRecipient(&authEventListenerManager, mockCallbackAdd), SUCCESS);
     EXPECT_EQ(authEventListenerManager.AddDeathRecipient(&authEventListenerManager, mockCallbackAdd), SUCCESS);
 }
+
+HWTEST_F(EventListenerManagerTest, OnRemoteDiedTest, TestSize.Level0)
+{
+    AuthEventListenerManager& manager = AuthEventListenerManager::GetInstance();
+    sptr<EventListenerManager::EventListenerDeathRecipient> dr(
+        new (std::nothrow)AuthEventListenerManager::EventListenerDeathRecipient(&manager));
+    wptr<IRemoteObject> remote = nullptr;
+    EXPECT_NO_THROW(dr->OnRemoteDied(remote));
+
+    auto mro = new MockRemoteObject();
+    EXPECT_NO_THROW(dr->OnRemoteDied(mro));
+}
+
+HWTEST_F(EventListenerManagerTest, OnNotifyCredChangeEventTest, TestSize.Level0)
+{
+    EventListenerManager manager = {};
+    sptr<IEventListenerCallback> testCallback = new MockEventListener();
+    CredChangeEventListenerManager::GetInstance().AddDeathRecipient(&manager, testCallback);
+
+    int32_t userId = 0;
+    AuthType authType = AuthType::PIN;
+    CredChangeEventType eventType = {};
+    CredChangeEventInfo changeInfo = {};
+    EXPECT_NO_THROW(CredChangeEventListenerManager::GetInstance()
+        .OnNotifyCredChangeEvent(userId, authType, eventType, changeInfo));
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
