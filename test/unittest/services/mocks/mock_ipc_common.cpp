@@ -33,6 +33,8 @@ std::set<Permission> IpcCommon::permSet_;
 bool IpcCommon::isSetTokenId_ = false;
 uint32_t IpcCommon::tokenId_ = 0;
 bool IpcCommon::skipFlag_ = false;
+bool IpcCommon::skipCallerFlag_ = false;
+bool IpcCommon::skipAccountVerifiedFlag_ = false;
 
 int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, int32_t &userId)
 {
@@ -112,6 +114,16 @@ uint32_t IpcCommon::GetAccessTokenId(IPCObjectStub &stub)
     return tokenId_;
 }
 
+void IpcCommon::SetSkipCallerFlag(bool isSkip)
+{
+    skipCallerFlag_ = isSkip;
+}
+
+void IpcCommon::SetSkipAccountVerifiedFlag(bool isSkip)
+{
+    skipAccountVerifiedFlag_ = isSkip;
+}
+
 void IpcCommon::SetAccessTokenId(uint32_t tokenId, bool isSetTokenId)
 {
     tokenId_ =  tokenId;
@@ -142,6 +154,9 @@ void IpcCommon::SetSkipUserFlag(bool isSkip)
 
 bool IpcCommon::GetCallerName(IPCObjectStub &stub, std::string &callerName, int32_t &callerType)
 {
+    if (skipCallerFlag_) {
+        return false;
+    }
     callerName = "";
     callerType = 0;
     return true;
@@ -160,6 +175,9 @@ bool IpcCommon::CheckForegroundApplication(const std::string &bundleName)
 
 bool IpcCommon::IsOsAccountVerified(int32_t userId)
 {
+    if (skipAccountVerifiedFlag_) {
+        return false;
+    }
     return true;
 }
 
