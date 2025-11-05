@@ -63,6 +63,8 @@ HWTEST_F(UIExtensionAbilityConnectionTest, UIExtensionAbilityConnectionTestOnAbi
     AppExecFwk::ElementName element;
     int32_t resultCode = 1;
     connection->OnAbilityDisconnectDone(element, resultCode);
+    connection->ReleaseUIExtensionComponentInner();
+    connection->OnAbilityDisconnectDone(element, resultCode);
     EXPECT_NE(connection, nullptr);
 }
 

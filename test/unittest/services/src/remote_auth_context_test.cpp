@@ -37,7 +37,7 @@ namespace UserIam {
 namespace UserAuth {
 using namespace testing;
 using namespace testing::ext;
- 
+
 void RemoteAuthContextTest::SetUpTestCase()
 {
 }
@@ -81,6 +81,13 @@ HWTEST_F(RemoteAuthContextTest, RemoteAuthContextTest, TestSize.Level0)
     std::optional<uint32_t> cancelTimerId = 10;
     remoteAuthContext2->cancelTimerId_ = cancelTimerId;
     remoteAuthContext2->needSetupConnection_ = needSetupConnection;
+    auto remoteAuthContext3 = Common::MakeShared<RemoteAuthContext>(
+        contextId, auth, param, contextCallback
+    );
+    std::vector<uint8_t> msg = {};
+    remoteAuthContext3->SetExecutorInfoMsg(msg);
+    remoteAuthContext3->OnTimeOut();
+    remoteAuthContext3->OnConnectStatus(connectionName, ConnectStatus::DISCONNECTED);
     IAM_LOGI("RemoteAuthContextTest end");
 }
 

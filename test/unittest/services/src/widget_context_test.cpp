@@ -64,6 +64,28 @@ std::shared_ptr<WidgetContext> CreateWidgetContext(uint64_t contextId, ContextFa
     return Common::MakeShared<WidgetContext>(contextId, para, contextCallback, nullptr);
 }
 
+HWTEST_F(WidgetContextTest, WidgetContextTestOnTerminateTimerTimeOut_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    widgetContext->BuildSchedule();
+    EXPECT_NO_THROW(widgetContext->OnTerminateTimerTimeOut(contextId));
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestOnTerminateTimerTimeOut_002, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    AuthType authType = ALL;
+    widgetContext->SuccessAuth(authType);
+    widgetContext->IsInFollowCallerList();
+    EXPECT_NE(widgetContext, nullptr);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
 HWTEST_F(WidgetContextTest, WidgetContextTestStart, TestSize.Level0)
 {
     uint64_t contextId = 1;
@@ -359,8 +381,8 @@ HWTEST_F(WidgetContextTest, WidgetContextTestStopAuthList_003, TestSize.Level0)
     std::set<AuthType> authTypeList;
     authTypeList.insert(FACE);
     authTypeList.insert(ALL);
+    widgetContext->BuildSchedule();
     widgetContext->ExecuteAuthList(authTypeList, false, AuthIntent::DEFAULT);
-
     std::vector<AuthType> testTypeList = {ALL, PIN, FACE};
     widgetContext->StopAuthList(testTypeList);
     EXPECT_NE(widgetContext, nullptr);
@@ -474,6 +496,21 @@ HWTEST_F(WidgetContextTest, WidgetContextTestAuthWidgetReloadInit, TestSize.Leve
     EXPECT_NE(widgetContext, nullptr);
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, IsValidRotate, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    WidgetContext::WidgetRotatePara widgetRotatePara;
+    widgetRotatePara.orientation = 3;
+    widgetRotatePara.isReload = 3;
+    widgetRotatePara.needRotate = 3;
+    bool isValidRotate = widgetContext->IsValidRotate(widgetRotatePara);
+    EXPECT_NE(isValidRotate, false);
+    widgetRotatePara.needRotate = 1;
+    widgetContext->IsValidRotate(widgetRotatePara);
 }
 
 HWTEST_F(WidgetContextTest, WidgetContextTestAuthWidgetReload_0001, TestSize.Level0)
@@ -716,6 +753,7 @@ HWTEST_F(WidgetContextTest, WidgetContextTestProcAuthTipInfo, TestSize.Level0)
     auto widgetContext = CreateWidgetContext(contextId, para);
     EXPECT_NE(widgetContext, nullptr);
     std::vector<uint8_t> extraInfo;
+    widgetContext->BuildSchedule();
     EXPECT_NO_THROW(widgetContext->ProcAuthTipInfo(USER_AUTH_TIP_SINGLE_AUTH_RESULT, PIN, extraInfo));
     EXPECT_NO_THROW(widgetContext->ProcAuthTipInfo(0, PIN, extraInfo));
 }
@@ -753,10 +791,11 @@ HWTEST_F(WidgetContextTest, WidgetContextTestSetSysDialogZOrder, TestSize.Level0
     EXPECT_NO_THROW(widgetContext->SetSysDialogZOrder(widgetCmdParameters));
 }
 
-HWTEST_F(WidgetContextTest, WidgetContextTestConnectExtension, TestSize.Level0)
+HWTEST_F(WidgetContextTest, WidgetContextTestConnectExtension_001, TestSize.Level0)
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
+
     auto widgetContext = CreateWidgetContext(contextId, para);
     EXPECT_NE(widgetContext, nullptr);
     WidgetContext::WidgetRotatePara widgetRotatePara = {};

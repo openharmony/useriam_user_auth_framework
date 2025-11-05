@@ -416,6 +416,20 @@ HWTEST_F(WidgetClientTest, WidgetClientTestReportWidgetResult_0005, TestSize.Lev
     EXPECT_EQ(WidgetClient::Instance().GetAuthTokenId(), 0);
 }
 
+HWTEST_F(WidgetClientTest, WidgetClientTestReportWidgetTip, TestSize.Level0)
+{
+    WidgetClient::Instance().Reset();
+    int32_t result = 0;
+    AuthType authType = ALL;
+    int32_t lockoutDuration = 0;
+    int32_t remainAttempts = 0;
+    bool skipLockedBiometricAuth = false;
+
+    WidgetClient::Instance().ReportWidgetResult(result, authType,
+        lockoutDuration, remainAttempts, skipLockedBiometricAuth);
+    EXPECT_EQ(WidgetClient::Instance().GetAuthTokenId(), 0);
+}
+
 HWTEST_F(WidgetClientTest, WidgetClientTestForceStopAuth_0001, TestSize.Level0)
 {
     WidgetClient::Instance().Reset();
@@ -538,6 +552,36 @@ HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_007, TestSize.Level0)
     WidgetNotice widgetNotice;
     widgetNotice.widgetContextId = 1;
     widgetNotice.event = NOTICE_EVENT_AUTH_WIDGET_RELEASED;
+    widgetNotice.typeList.push_back("pin");
+    WidgetClient::Instance().Reset();
+    std::vector<AuthType> authTypeList;
+    authTypeList.emplace_back(AuthType::PIN);
+    WidgetClient::Instance().SetAuthTypeList(authTypeList);
+    WidgetClient::Instance().SetWidgetSchedule(widgetNotice.widgetContextId, BuildSchedule());
+    EXPECT_NO_THROW(WidgetClient::Instance().ProcessNotice(widgetNotice, authTypeList));
+    WidgetClient::Instance().ClearSchedule(widgetNotice.widgetContextId);
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_008, TestSize.Level0)
+{
+    WidgetNotice widgetNotice;
+    widgetNotice.widgetContextId = 1;
+    widgetNotice.event = NOTICE_EVENT_PROCESS_TERMINATE;
+    widgetNotice.typeList.push_back("pin");
+    WidgetClient::Instance().Reset();
+    std::vector<AuthType> authTypeList;
+    authTypeList.emplace_back(AuthType::PIN);
+    WidgetClient::Instance().SetAuthTypeList(authTypeList);
+    WidgetClient::Instance().SetWidgetSchedule(widgetNotice.widgetContextId, BuildSchedule());
+    EXPECT_NO_THROW(WidgetClient::Instance().ProcessNotice(widgetNotice, authTypeList));
+    WidgetClient::Instance().ClearSchedule(widgetNotice.widgetContextId);
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_009, TestSize.Level0)
+{
+    WidgetNotice widgetNotice;
+    widgetNotice.widgetContextId = 1;
+    widgetNotice.event = NOTICE_EVENT_AUTH_SEND_TIP;
     widgetNotice.typeList.push_back("pin");
     WidgetClient::Instance().Reset();
     std::vector<AuthType> authTypeList;
