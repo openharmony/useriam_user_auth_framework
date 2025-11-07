@@ -236,16 +236,62 @@ HWTEST_F(SoftBusManagerTest, SoftBusManagerTestOnClientBytes_001, TestSize.Level
 HWTEST_F(SoftBusManagerTest, SoftBusManagerTestStart, TestSize.Level0)
 {
     EXPECT_NO_THROW({
+        SoftBusManager::GetInstance().Stop();
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
         SoftBusManager::GetInstance().Start();
+    });
+    EXPECT_NO_THROW({
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        SoftBusManager::GetInstance().Start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
         SoftBusManager::GetInstance().Stop();
     });
 }
 
 HWTEST_F(SoftBusManagerTest, SoftBusManagerTestDeviceInit, TestSize.Level0)
 {
+    IAM_LOGI("SoftBusManagerTestDeviceInit begin\n");
     ResultCode ret = SoftBusManager::GetInstance().DeviceInit();
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     EXPECT_EQ(ret, SUCCESS);
     EXPECT_NO_THROW(SoftBusManager::GetInstance().DeviceUnInit());
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    SoftBusManager::GetInstance().UnRegistDeviceManagerListener();
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    SoftBusManager::GetInstance().UnRegistDeviceManagerListener();
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    SoftBusManager::GetInstance().UnRegistSoftBusListener();
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    SoftBusManager::GetInstance().UnRegistSoftBusListener();
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    IAM_LOGI("SoftBusManagerTestDeviceInit end\n");
+}
+
+HWTEST_F(SoftBusManagerTest, SoftBusManagerTestCheckAndCopyStr01, TestSize.Level0)
+{
+    IAM_LOGI("SoftBusManagerTestCheckAndCopyStr01 begin\n");
+    try {
+        EXPECT_NO_THROW(SoftBusManager::GetInstance().RegistSoftBusListener());
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        SoftBusManager::GetInstance().RegistSoftBusListener();
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        SoftBusManager::GetInstance().UnRegistSoftBusListener();
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    } catch (...) {
+        IAM_LOGI("SoftBusManagerTestCheckAndCopyStr01 error null\n");
+    }
+    IAM_LOGI("SoftBusManagerTestCheckAndCopyStr01 end\n");
+}
+
+HWTEST_F(SoftBusManagerTest, SoftBusManagerTestClientSocketInit01, TestSize.Level0)
+{
+    IAM_LOGI("SoftBusManagerTestClientSocketInit01 begin\n");
+    std::string connectionName = "connection1";
+    std::string networkId = "networkId1";
+    const uint32_t NETWORK_ID_MAX_LEN = 270;
+    networkId.resize(NETWORK_ID_MAX_LEN, '1');
+    EXPECT_NO_THROW(SoftBusManager::GetInstance().ClientSocketInit(connectionName, networkId));
+    IAM_LOGI("SoftBusManagerTestClientSocketInit01 end\n");
 }
 } // namespace UserAuth
 } // namespace UserIam

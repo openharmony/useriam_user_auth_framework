@@ -172,7 +172,6 @@ HWTEST_F(SoftBusServerSocketTest, SoftBusServerSocketTestDeleteClientConnection,
     delete serverSocket;
 }
 
-
 HWTEST_F(SoftBusServerSocketTest, SoftBusServerSocketTestGetSocketIdByClientConnectionName, TestSize.Level0)
 {
     int32_t socketId = 1;
@@ -185,6 +184,23 @@ HWTEST_F(SoftBusServerSocketTest, SoftBusServerSocketTestGetSocketIdByClientConn
     result = serverSocket->GetSocketIdByClientConnectionName(connectionName1);
     ASSERT_EQ(result, -1);
     serverSocket->clientConnectionMap_ = {};
+    delete serverSocket;
+}
+
+HWTEST_F(SoftBusServerSocketTest, SoftBusServerSocketTestOnBind01, TestSize.Level0)
+{
+    int32_t socketId = -2;
+    ServerSocket *serverSocket = new ServerSocket(socketId);
+    const std::string connectionName = "connectionName";
+    PeerSocketInfo info;
+    EXPECT_NO_THROW(serverSocket->OnBind(socketId, info));
+    socketId = 1;
+    const int len = 6;
+    std::string networkIdName = "Hello";
+    if (memcpy_s(info.networkId, len, networkIdName.c_str(), networkIdName.size()) != EOK) {
+        IAM_LOGE("memcpy_s networkId failed");;
+    }
+    EXPECT_NO_THROW(serverSocket->OnBind(socketId, info));
     delete serverSocket;
 }
 } // namespace UserAuth

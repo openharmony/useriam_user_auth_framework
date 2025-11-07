@@ -819,6 +819,105 @@ HWTEST_F(AttributesTest, AttributesRawSerializeTest03, TestSize.Level0)
     }
 }
 
+HWTEST_F(AttributesTest, AttributesTest01, TestSize.Level0)
+{
+    IAM_LOGI("AttributesTest01 begin\n");
+    std::vector<uint8_t> extraInfo = {0};
+    Attributes attribute = Attributes(extraInfo);
+    extraInfo.resize(16);
+    EXPECT_NO_THROW(extraInfo.resize(24));
+    attribute.~Attributes();
+    uint64_t attrValue = 0;
+    bool returnBool = attribute.SetUint64Value(Attributes::ATTR_ROOT, attrValue);
+    attribute.SetBoolValue(Attributes::ATTR_ROOT, returnBool);
+    uint32_t uint32Value = 0;
+    attribute.SetUint32Value(Attributes::ATTR_ROOT, uint32Value);
+    uint16_t uint16Value = 0;
+    attribute.SetUint16Value(Attributes::ATTR_ROOT, uint16Value);
+    uint8_t uint8Value = 0;
+    attribute.SetUint8Value(Attributes::ATTR_ROOT, uint8Value);
+    int32_t int32Value = 0;
+    attribute.SetInt32Value(Attributes::ATTR_ROOT, int32Value);
+    int64_t int64Value = 0;
+    attribute.SetInt64Value(Attributes::ATTR_ROOT, int64Value);
+    std::string stringValue = "";
+    attribute.SetStringValue(Attributes::ATTR_ROOT, stringValue);
+    std::vector<uint64_t> uint64ArrayValue = {};
+    attribute.SetUint64ArrayValue(Attributes::ATTR_ROOT, uint64ArrayValue);
+    std::vector<uint32_t> uint32ArrayValue = {};
+    attribute.SetUint32ArrayValue(Attributes::ATTR_ROOT, uint32ArrayValue);
+    std::vector<uint16_t> uint16ArrayValue = {};
+    attribute.SetUint16ArrayValue(Attributes::ATTR_ROOT, uint16ArrayValue);
+    std::vector<uint8_t> uint8ArrayValue = {};
+    attribute.SetUint8ArrayValue(Attributes::ATTR_ROOT, uint8ArrayValue);
+    std::vector<int32_t> int32ArrayValue = {};
+    attribute.SetInt32ArrayValue(Attributes::ATTR_ROOT, int32ArrayValue);
+    Attributes AttributesValue = Attributes(extraInfo);
+    attribute.SetAttributesValue(Attributes::ATTR_ROOT, AttributesValue);
+    IAM_LOGI("AttributesTest01 end\n");
+}
+
+HWTEST_F(AttributesTest, AttributesTest02, TestSize.Level0)
+{
+    IAM_LOGI("AttributesTest02 begin\n");
+    std::vector<uint8_t> extraInfo = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    Attributes attribute = Attributes(extraInfo);
+    extraInfo.push_back(0);
+    attribute = Attributes(extraInfo);
+    attribute.HasAttribute(Attributes::ATTR_ROOT);
+    attribute.~Attributes();
+    bool returnBool = false;
+    Attributes attributeValue = Attributes(extraInfo);
+    std::vector<Attributes> array = {};
+    returnBool = attribute.SetAttributesArrayValue(Attributes::ATTR_ROOT, array);
+    attribute.GetAttributesArrayValue(Attributes::ATTR_ROOT, array);
+    attribute.GetBoolValue(Attributes::ATTR_ROOT, returnBool);
+    uint64_t uint64Value = 0;
+    attribute.GetUint64Value(Attributes::ATTR_ROOT, uint64Value);
+    uint32_t uint32Value = 0;
+    attribute.GetUint32Value(Attributes::ATTR_ROOT, uint32Value);
+    uint16_t uint16Value = 0;
+    attribute.GetUint16Value(Attributes::ATTR_ROOT, uint16Value);
+    uint8_t uint8Value = 0;
+    attribute.GetUint8Value(Attributes::ATTR_ROOT, uint8Value);
+    int32_t int32Value = 0;
+    attribute.GetInt32Value(Attributes::ATTR_ROOT, int32Value);
+    int64_t int64Value = 0;
+    attribute.GetInt64Value(Attributes::ATTR_ROOT, int64Value);
+    std::string stringValue = "";
+    attribute.GetStringValue(Attributes::ATTR_ROOT, stringValue);
+    std::vector<uint64_t> uint64ArrayValue = {};
+    attribute.GetUint64ArrayValue(Attributes::ATTR_ROOT, uint64ArrayValue);
+    std::vector<uint32_t> uint32ArrayValue = {};
+    attribute.GetUint32ArrayValue(Attributes::ATTR_ROOT, uint32ArrayValue);
+    std::vector<uint16_t> uint16ArrayValue = {};
+    attribute.GetUint16ArrayValue(Attributes::ATTR_ROOT, uint16ArrayValue);
+    std::vector<uint8_t> uint8ArrayValue = {};
+    attribute.GetUint8ArrayValue(Attributes::ATTR_ROOT, uint8ArrayValue);
+    std::vector<int32_t> int32ArrayValue = {};
+    attribute.GetInt32ArrayValue(Attributes::ATTR_ROOT, int32ArrayValue);
+    attribute.GetAttributesValue(Attributes::ATTR_ROOT, attributeValue);
+    attribute.GetKeys();
+    attribute.HasAttribute(Attributes::ATTR_ROOT);
+    EXPECT_EQ(returnBool, false);
+    IAM_LOGI("AttributesTest02 end\n");
+}
+
+HWTEST_F(AttributesTest, AttributesTest03, TestSize.Level0)
+{
+    IAM_LOGI("AttributesTest03 begin\n");
+    std::vector<uint8_t> extraInfo = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    Attributes attribute = Attributes(extraInfo);
+    const uint32_t MAX_ATTR_LENGTH = 81921;
+    std::string stringValue = "123";
+    stringValue.resize(MAX_ATTR_LENGTH, '1');
+    extraInfo.resize(MAX_ATTR_LENGTH);
+    uint64_t src = 0x123456789ABCDEF0;
+    attribute.SetUint64Value(Attributes::ATTR_ROOT, src);
+    attribute.SetUint8ArrayValue(Attributes::ATTR_ROOT, extraInfo);
+    attribute.SetStringValue(Attributes::ATTR_ROOT, stringValue);
+    IAM_LOGI("AttributesTest03 end\n");
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
