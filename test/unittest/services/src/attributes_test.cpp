@@ -915,7 +915,8 @@ HWTEST_F(AttributesTest, AttributesTest03, TestSize.Level0)
     uint64_t src = 0x123456789ABCDEF0;
     attribute.SetUint64Value(Attributes::ATTR_ROOT, src);
     attribute.SetUint8ArrayValue(Attributes::ATTR_ROOT, extraInfo);
-    attribute.SetStringValue(Attributes::ATTR_ROOT, stringValue);
+    bool returnBool = attribute.SetStringValue(Attributes::ATTR_ROOT, stringValue);
+    EXPECT_EQ(returnBool, false);
     IAM_LOGI("AttributesTest03 end\n");
 }
 } // namespace UserAuth
