@@ -975,7 +975,8 @@ void WidgetContext::StopOnTerminateTimer()
 
 void WidgetContext::OnTerminateTimerTimeOut(uint64_t contextId)
 {
-    IAM_LOGI("start");
+    IAM_LOGE("start");
+    UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "AuthWidget");
     WidgetClient::Instance().ClearSchedule(contextId);
 }
 
