@@ -47,7 +47,9 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+#ifndef IAM_TEST_ENABLE
 namespace {
+#endif
 const int32_t MINIMUM_VERSION = 0;
 const int32_t CURRENT_VERSION = 1;
 const int32_t USERIAM_IPC_THREAD_NUM = 4;
@@ -137,7 +139,9 @@ std::string GetAuthParamStr(const AuthParamInner &authParam, std::optional<Remot
     return authParamString.str();
 }
 const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(UserAuthService::GetInstance().get());
+#ifndef IAM_TEST_ENABLE
 } // namespace
+#endif
 std::mutex UserAuthService::mutex_;
 std::shared_ptr<UserAuthService> UserAuthService::instance_ = nullptr;
 
