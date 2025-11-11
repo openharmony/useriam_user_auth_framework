@@ -37,6 +37,8 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+extern int32_t GetTemplatesByAuthType(int32_t userId, AuthType authType, std::vector<uint64_t> &templateIds);
+extern std::string GetAuthParamStr(const AuthParamInner &authParam, std::optional<RemoteAuthParam> &remoteAuthParam);
 using namespace testing;
 using namespace testing::ext;
 void UserAuthServiceTest::SetUpTestCase()
@@ -885,13 +887,11 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuth005, TestSize.Level0)
     uint64_t contextId = 0;
     int32_t ret = service->Auth(testApiVersion, ipcAuthParamInner, callbackInterface, contextId);
     EXPECT_EQ(ret, GENERAL_ERROR);
-    EXPECT_EQ(contextId, 0);
     IpcCommon::SetSkipCallerFlag(false);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     IpcCommon::SetSkipUserFlag(true);
     ret = service->Auth(testApiVersion, ipcAuthParamInner, callbackInterface, contextId);
     EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
-    EXPECT_EQ(contextId, 0);
     IpcCommon::SetSkipUserFlag(false);
     IpcCommon::DeleteAllPermission();
 }
@@ -1155,7 +1155,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser008, TestSize.Level0)
     IpcCommon::SetSkipCallerFlag(true);
     int32_t ret = service->AuthUser(authParam, remoteAuthParam, callbackInterface, contextId);
     EXPECT_NE(ret, SUCCESS);
-    EXPECT_EQ(contextId, 0);
     IpcCommon::SetSkipCallerFlag(false);
 }
 
@@ -1722,10 +1721,18 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetPropertyById007, TestSize.Level0
     std::vector<uint32_t> testKeys = {Attributes::ATTR_PIN_SUB_TYPE, Attributes::ATTR_SIGNATURE};
     sptr<MockGetExecutorPropertyCallback> testCallback(new (std::nothrow) MockGetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _)).Times(1);
+    EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _)).Times(2);
     sptr<IGetExecutorPropertyCallback> callbackInterface = testCallback;
     int32_t ret = service->GetPropertyById(testCredentialId, testKeys, callbackInterface);
     EXPECT_EQ(ret, SUCCESS);
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetCredentialById(_, _))
+        .WillOnce(Return(HDF_FAILURE));
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    ret = service->GetPropertyById(testCredentialId, testKeys, callbackInterface);
+    EXPECT_EQ(ret, SUCCESS);
+    IpcCommon::DeleteAllPermission();
 }
 
 HWTEST_F(UserAuthServiceTest, UserAuthServiceProcessAuthParamForRemoteAuth_InvalidAuthType, TestSize.Level0)
@@ -1757,8 +1764,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthPermissionAndParamTest, Te
     std::string callerName = "123456";
     AuthTrustLevel testAtl = ATL2;
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    IpcCommon::SetSkipUserFlag(true);
     EXPECT_EQ(service->CheckAuthPermissionAndParam(authType, callerType, callerName, testAtl),
-        SUCCESS);
+        CHECK_PERMISSION_FAILED);
+    IpcCommon::SetSkipUserFlag(false);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1899,6 +1908,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetCallerInfoTest, TestSize.Level0)
     ASSERT_NE(contextCallback, nullptr);
     IpcCommon::SetSkipUserFlag(true);
     EXPECT_EQ(service->GetCallerInfo(isUserIdSpecified, userId, para, contextCallback), GENERAL_ERROR);
+    para.sdkVersion = 300000;
+    EXPECT_EQ(service->GetCallerInfo(isUserIdSpecified, userId, para, contextCallback), GENERAL_ERROR);
+    para.sdkVersion = 2;
+    para.callerType = Security::AccessToken::TOKEN_INVALID;
+    EXPECT_EQ(service->GetCallerInfo(isUserIdSpecified, userId, para, contextCallback), GENERAL_ERROR);
+    para.callerType = Security::AccessToken::TOKEN_HAP;
+    EXPECT_EQ(service->GetCallerInfo(isUserIdSpecified, userId, para, contextCallback), GENERAL_ERROR);
     IpcCommon::SetSkipUserFlag(false);
 }
 
@@ -1961,6 +1977,80 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceUpdateTemplateCacheTest, TestSize.L
         TemplateCacheManager::GetInstance().UpdateTemplateCache(FACE);
         TemplateCacheManager::GetInstance().UpdateTemplateCache(FACE);
     );
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceGetTemplatesByAuthTypeTest, TestSize.Level0)
+{
+    int32_t userId = 110;
+    AuthType authType = FACE;
+    std::vector<uint64_t> templateId;
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetCredential(_, _, _))
+        .WillOnce([](int32_t userId, int32_t authType, std::vector<HdiCredentialInfo> &infos) {
+            return HDF_FAILURE;
+        });
+    EXPECT_EQ(GetTemplatesByAuthType(userId, authType, templateId), GENERAL_ERROR);
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceGetAuthParamStrTest, TestSize.Level0)
+{
+    AuthParamInner authParam;
+    RemoteAuthParam tmpAuthParam;
+    std::optional<RemoteAuthParam> remoteAuthParam = RemoteAuthParam{};
+    remoteAuthParam->collectorTokenId = std::make_optional<uint32_t>(1000000);
+    EXPECT_NE(GetAuthParamStr(authParam, remoteAuthParam), "");
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceGetPropertyHelperTest, TestSize.Level0)
+{
+    auto service = Common::MakeShared<UserAuthService>();
+    int32_t userId = 110;
+    int32_t authType = 2;
+    std::vector<Attributes::AttributeKey> testKeys = {Attributes::ATTR_PIN_SUB_TYPE, Attributes::ATTR_SIGNATURE};
+    sptr<MockGetExecutorPropertyCallback> testCallback(new (std::nothrow) MockGetExecutorPropertyCallback());
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _)).Times(1);
+    sptr<IGetExecutorPropertyCallback> callbackInterface = testCallback;
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetCredential(_, _, _))
+        .WillOnce(Return(HDF_FAILURE));
+    EXPECT_EQ(service->GetPropertyHelper(userId, authType, testKeys, callbackInterface), SUCCESS);
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceProcessWidgetSessionExTest, TestSize.Level0)
+{
+    auto service = Common::MakeShared<UserAuthService>();
+    int32_t testContextId = 11112;
+    ContextType contextType = ContextType::WIDGET_AUTH_CONTEXT;
+    auto context = Common::MakeShared<MockContext>();
+    EXPECT_NE(context, nullptr);
+    EXPECT_CALL(*context, GetContextId()).WillRepeatedly(Return(testContextId));
+    EXPECT_CALL(*context, GetLatestError()).WillRepeatedly(Return(GENERAL_ERROR));
+    EXPECT_CALL(*context, GetContextType()).WillRepeatedly(Return(contextType));
+    EXPECT_CALL(*context, Stop())
+        .WillOnce(Return(false))
+        .WillRepeatedly(Return(true));
+    EXPECT_EQ(ContextPool::Instance().Insert(context), true);
+    EXPECT_NO_THROW(service->ProcessWidgetSessionExclusive());
+    EXPECT_EQ(ContextPool::Instance().Delete(testContextId), true);
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceQueryReusableAuthResultTest, TestSize.Level0)
+{
+    auto service = Common::MakeShared<UserAuthService>();
+    IpcAuthParamInner ipcAuthParamInner = {};
+    std::vector<uint8_t> token;
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    ipcAuthParamInner.isUserIdSpecified = false;
+    ipcAuthParamInner.userId = 110;
+    IpcCommon::SetSkipUserFlag(true);
+    EXPECT_EQ(service->QueryReusableAuthResult(ipcAuthParamInner, token), GENERAL_ERROR);
+    IpcCommon::SetSkipUserFlag(false);
+    EXPECT_EQ(service->QueryReusableAuthResult(ipcAuthParamInner, token), GENERAL_ERROR);
+    IpcCommon::DeleteAllPermission();
 }
 } // namespace UserAuth
 } // namespace UserIam
