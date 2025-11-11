@@ -1,0 +1,74 @@
+/*
+ * Copyright (C) 2022-2024 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "auth_widget_helper.h"
+
+#include <gtest/gtest.h>
+
+using namespace testing;
+using namespace testing::ext;
+namespace OHOS {
+namespace UserIam {
+namespace UserAuth {
+
+class AuthWidgetHelperTest : public testing::Test {
+public:
+    static void SetUpTestCase();
+
+    static void TearDownTestCase();
+
+    void SetUp() override;
+
+    void TearDown() override;
+};
+
+void AuthWidgetHelperTest::SetUpTestCase()
+{
+}
+
+void AuthWidgetHelperTest::TearDownTestCase()
+{
+}
+
+void AuthWidgetHelperTest::SetUp()
+{
+}
+
+void AuthWidgetHelperTest::TearDown()
+{
+}
+
+HWTEST_F(AuthWidgetHelperTest, BadHdiTest, TestSize.Level0)
+{
+    int32_t userId = 1;
+    std::vector<AuthType> authTypeList;
+    authTypeList.push_back(FACE);
+    authTypeList.push_back(ALL);
+    authTypeList.push_back(PIN);
+    authTypeList.push_back(FINGERPRINT);
+    AuthTrustLevel atl = ATL3;
+    std::vector<AuthType> validTypeList;
+    EXPECT_NE(AuthWidgetHelper::CheckValidSolution(userId, authTypeList, atl, validTypeList), SUCCESS);
+
+    AuthParamInner authParam = {};
+    authParam.reuseUnlockResult.isReuse = true;
+    authParam.reuseUnlockResult.reuseDuration = 1;
+    authParam.reuseUnlockResult.reuseMode = AUTH_TYPE_RELEVANT;
+    HdiReuseUnlockInfo reuseResultInfo = {};
+    EXPECT_NE(AuthWidgetHelper::QueryReusableAuthResult(userId, authParam, reuseResultInfo), SUCCESS);
+}
+} // namespace UserAuth
+} // namespace UserIam
+} // namespace OHOS
