@@ -381,7 +381,7 @@ int32_t UserIdmService::Cancel(int32_t userId)
     auto contextList = ContextPool::Instance().Select(CONTEXT_ENROLL);
     int32_t ret = GENERAL_ERROR;
     for (const auto &context : contextList) {
-        if (auto ctx = context.lock(); ctx != nullptr && userId == ctx->GetUserId() && tokenId == ctx->GetTokenId()) {
+        if (auto ctx = context.lock(); ctx != nullptr && tokenId == ctx->GetTokenId()) {
             if (!ctx->Stop()) {
                 IAM_LOGE("failed stop %{public}s", GET_MASKED_STRING(ctx->GetContextId()).c_str());
                 ret = ctx->GetLatestError();
