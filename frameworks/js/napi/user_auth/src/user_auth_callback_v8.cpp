@@ -161,7 +161,8 @@ void UserAuthCallbackV8::OnAcquireInfo(int32_t module, uint32_t acquireInfo,
         }
         napi_close_handle_scope(acquireHolder->env, scope);
     };
-    if (napi_status::napi_ok != napi_send_event(env_, task, napi_eprio_immediate)) {
+    if (napi_status::napi_ok != napi_send_event(env_, task, napi_eprio_immediate,
+        "UserAuthNapi::UserAuthCallbackV8::OnAcquireInfo")) {
         IAM_LOGE("napi_send_event: Failed to SendEvent");
     }
 }
@@ -226,7 +227,8 @@ void UserAuthCallbackV8::OnResult(int32_t result, const Attributes &extraInfo)
     auto task = [resultHolder] () {
         OnResultV8Work(resultHolder);
     };
-    if (napi_status::napi_ok != napi_send_event(env_, task, napi_eprio_immediate)) {
+    if (napi_status::napi_ok != napi_send_event(env_, task, napi_eprio_immediate,
+        "UserAuthNapi::UserAuthCallbackV::OnResult")) {
         IAM_LOGE("napi_send_event: Failed to SendEvent");
     }
 }
