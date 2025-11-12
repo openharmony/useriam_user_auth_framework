@@ -170,6 +170,9 @@ bool IpcCommon::GetCallingAppID(IPCObjectStub &stub, std::string &callingAppID)
 
 bool IpcCommon::CheckForegroundApplication(const std::string &bundleName)
 {
+    if (skipFlag_) {
+        return false;
+    }
     return true;
 }
 
