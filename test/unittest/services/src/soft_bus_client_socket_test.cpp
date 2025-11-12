@@ -109,6 +109,18 @@ HWTEST_F(SoftBusClientSocketTest, SoftBusClientSocketTestSendKeepAliveMessage, T
     EXPECT_NO_THROW(clientSocket->SendKeepAliveMessage());
     delete clientSocket;
 }
+
+HWTEST_F(SoftBusClientSocketTest, SoftBusClientSocketTestOnShutdown, TestSize.Level0)
+{
+    int32_t socketId = 1;
+    ClientSocketTest *clientSocket = new ClientSocketTest(socketId);
+    std::string connectionName = clientSocket->GetConnectionName();
+    clientSocket->SetNetworkId("");
+    ShutdownReason reason = SHUTDOWN_REASON_UNKNOWN;
+    EXPECT_NO_THROW(clientSocket->OnShutdown(socketId, reason));
+    clientSocket->SetNetworkId(connectionName);
+    delete clientSocket;
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
