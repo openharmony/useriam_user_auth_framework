@@ -173,7 +173,8 @@ void UserAuthCallbackV6::OnResult(int32_t result, const Attributes &extraInfo)
     auto task = [resultHolder] () {
         OnCallbackV6Work(resultHolder);
     };
-    if (napi_status::napi_ok != napi_send_event(env_, task, napi_eprio_immediate)) {
+    if (napi_status::napi_ok != napi_send_event(env_, task, napi_eprio_immediate,
+        "UserAuthNapi::UserAuthCallbackV6::OnResult")) {
         IAM_LOGE("napi_send_event: Failed to SendEvent");
     }
 }
