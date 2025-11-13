@@ -24,6 +24,7 @@
 #include "iam_ptr.h"
 #include "remote_auth_context.h"
 #include "remote_auth_invoker_context.h"
+#include "remote_connect_listener_manager.h"
 #include "remote_iam_callback.h"
 #include "context_appstate_observer.h"
 #include "auth_widget_helper.h"
@@ -194,6 +195,36 @@ HWTEST_F(RemoteAuthContextTest, OnConnectStatusTest, TestSize.Level0)
     EXPECT_NO_THROW(remoteAuthContext->OnConnectStatus(connectionName, ConnectStatus::DISCONNECTED));
     EXPECT_NO_THROW(remoteAuthContext->OnConnectStatus(connectionName, ConnectStatus::CONNECTED));
     IAM_LOGI("OnConnectStatusTest end");
+}
+
+HWTEST_F(RemoteAuthContextTest, SetupConnectionTest01, TestSize.Level0)
+{
+    IAM_LOGI("SetupConnectionTest01 start");
+    uint64_t contextId = 100;
+    std::shared_ptr<Authentication> auth;
+    RemoteAuthContextParam param;
+    param.authType = ALL;
+    std::string connectionName = "test6";
+    std::string collectorNetworkId = "6";
+    param.connectionName = connectionName;
+    param.collectorNetworkId = collectorNetworkId;
+    param.executorInfoMsg = {};
+    std::shared_ptr<MockContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
+    std::vector<uint8_t> executorInfoMsg = {6, 7, 8};
+    param.executorInfoMsg = executorInfoMsg;
+    auto remoteAuthContext = Common::MakeShared<RemoteAuthContext>(
+        contextId, auth, param, contextCallback
+    );
+    EXPECT_NO_THROW(remoteAuthContext->SetupConnection());
+    EXPECT_NO_THROW(remoteAuthContext->SetupConnection());
+    std::string endPointName = "RemoteAuthContext";
+    RemoteConnectListenerManager::GetInstance().FindListener(connectionName, endPointName);
+    RemoteConnectListenerManager::GetInstance().OnConnectionUp(connectionName);
+    RemoteConnectListenerManager::GetInstance().OnConnectionDown(connectionName);
+    connectionName = "test555";
+    RemoteConnectListenerManager::GetInstance().OnConnectionUp(connectionName);
+    RemoteConnectListenerManager::GetInstance().OnConnectionDown(connectionName);
+    IAM_LOGI("SetupConnectionTest01 end");
 }
 } // namespace UserAuth
 } // namespace UserIam
