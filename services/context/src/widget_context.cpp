@@ -67,7 +67,11 @@ const std::string TO_PORTRAIT = "90";
 const std::string TO_INVERTED = "180";
 const std::string TO_PORTRAIT_INVERTED = "270";
 const std::string SUPPORT_FOLLOW_CALLER_UI = "const.useriam.authWidget.supportFollowCallerUi";
+#ifndef IAM_TEST_ENABLE
 static constexpr uint32_t TERMINATE_TIMER_LEN_MS = 3000;
+#else
+static constexpr uint32_t TERMINATE_TIMER_LEN_MS = 1000;
+#endif
 
 WidgetContext::WidgetContext(uint64_t contextId, const ContextFactory::AuthWidgetContextPara &para,
     std::shared_ptr<ContextCallback> callback, const sptr<IModalCallback> &modalCallback)

@@ -200,6 +200,20 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImplWidgetReload_0003, Te
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
 }
+
+HWTEST_F(WidgetScheduleNodeImplTest, OnWidgetReload_001, TestSize.Level0)
+{
+    auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
+    ASSERT_NE(schedule, nullptr);
+    schedule->SetCallback(widgetContext);
+    schedule->StartSchedule();
+    auto machine = schedule->MakeFiniteStateMachine();
+    uint32_t event = 1;
+    EXPECT_NO_THROW(schedule->OnWidgetReload(*machine, event));
+    widgetContext->LaunchWidget();
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
