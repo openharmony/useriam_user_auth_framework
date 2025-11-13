@@ -1,0 +1,126 @@
+# Copyright (c) 2025 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//build/test.gni")
+import("../../../user_auth_framework.gni")
+
+ohos_unittest("iam_services_core_test") {
+  project_path = "./../../../"
+
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = project_path + "cfi_blocklist.txt"
+  }
+  branch_protector_ret = "pac_ret"
+
+  cflags = [
+    "-DIAM_TEST_ENABLE",
+    "-Dprivate=public",
+    "-Dprotected=public",
+  ]
+
+  include_dirs = [
+    project_path + "services/context/inc",
+    project_path + "services/core/inc",
+    project_path + "interfaces/inner_api",
+    project_path + "services/core/src",
+    project_path + "services/base/inc",
+    project_path + "services/load_mode/inc",
+    project_path + "services/remote_connect/inc",
+  ]
+
+  include_dirs += [ "../mocks/inc" ]
+
+  sources = [
+    project_path + "common/utils/xcollie_helper.cpp",
+    project_path + "services/base/src/finite_state_machine_builder.cpp",
+    project_path + "services/base/src/finite_state_machine_impl.cpp",
+    project_path + "services/base/src/relative_timer.cpp",
+    project_path + "services/base/src/thread_handler_impl.cpp",
+    project_path + "services/base/src/thread_handler_manager.cpp",
+    project_path + "services/base/src/thread_handler_singleton_impl.cpp",
+    project_path + "services/context/src/auth_widget_helper.cpp",
+    project_path + "services/core/src/authentication_impl.cpp",
+    project_path + "services/core/src/delete_impl.cpp",
+    project_path + "services/core/src/enrollment_impl.cpp",
+    project_path + "services/core/src/identification_impl.cpp",
+    project_path + "services/core/src/user_idm_database_impl.cpp",
+    project_path + "services/core/src/resource_node_utils.cpp",
+    project_path + "services/core/src/schedule_node_builder.cpp",
+    project_path + "services/core/src/schedule_node_helper.cpp",
+    project_path + "services/core/src/schedule_node_impl.cpp",
+    project_path + "services/core/src/schedule_resource_node_listener.cpp",
+    project_path + "services/core/src/credential_info_impl.cpp",
+    project_path + "services/core/src/publish_event_adapter_mock.cpp",
+    project_path + "services/core/src/event_listener_manager.cpp",
+    project_path + "services/core/src/update_pin_param_impl.cpp",
+    project_path + "services/core/src/enrolled_info_impl.cpp",
+    project_path + "services/core/src/secure_user_info_impl.cpp",
+    project_path + "services/core/src/user_info_impl.cpp",
+    project_path + "services/core/src/resource_node_pool_impl.cpp",
+    project_path + "frameworks/native/common/attributes/src/attributes.cpp",
+    project_path + "frameworks/native/common/dfx/src/iam_hitrace_helper.cpp",
+  ]
+
+  sources += [
+    "src/auth_widget_helper_test.cpp",
+    "src/authentication_impl_test.cpp",
+    "src/delete_impl_test.cpp",
+    "src/enrollment_impl_test.cpp",
+    "src/identification_impl_test.cpp",
+    "src/user_idm_database_test.cpp",
+  ]
+
+  sources += [
+    "../mocks/src/mock_hdi_wrapper.cpp",
+    "../services/mocks/mock_ipc_common.cpp",
+  ]
+
+  configs = [
+    project_path + "common:iam_log_config",
+    project_path + "common:iam_utils_config",
+    project_path + "frameworks/native/ipc:userauth_client_ipc_config",
+    project_path + "frameworks/native/common:dfx_config",
+  ]
+
+  deps = [ project_path + "frameworks/native/ipc:userauth_client_ipc" ]
+
+  external_deps = [
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:app_manager",
+    "access_token:libaccesstoken_sdk",
+    "c_utils:utils",
+    "drivers_interface_user_auth:libuser_auth_proxy_4.0",
+    "googletest:gmock",
+    "hdf_core:libhdi",
+    "hicollie:libhicollie",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "init:libbeget_proxy",
+    "init:libbegetutil",
+    "ipc:ipc_single",
+  ]
+
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
+  module_out_path = "user_auth_framework/user_auth_framework"
+
+  subsystem_name = "useriam"
+  part_name = "user_auth_framework"
+}
