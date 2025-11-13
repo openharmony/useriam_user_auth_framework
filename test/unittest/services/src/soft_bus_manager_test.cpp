@@ -15,6 +15,7 @@
 
 #include "soft_bus_manager_test.h"
 #include "soft_bus_manager.h"
+#include "soft_bus_socket_listener.h"
 #include "socket_factory.h"
 #include "socket.h"
 #include "remote_connect_listener_manager.h"
@@ -292,6 +293,74 @@ HWTEST_F(SoftBusManagerTest, SoftBusManagerTestClientSocketInit01, TestSize.Leve
     networkId.resize(NETWORK_ID_MAX_LEN, '1');
     EXPECT_NO_THROW(SoftBusManager::GetInstance().ClientSocketInit(connectionName, networkId));
     IAM_LOGI("SoftBusManagerTestClientSocketInit01 end\n");
+}
+
+HWTEST_F(SoftBusManagerTest, SoftBusSocketListener01, TestSize.Level0)
+{
+    IAM_LOGI("SoftBusSocketListener01 begin\n");
+    int32_t socketId = 1;
+    PeerSocketInfo info;
+    info.pkgName = strdup("pkgName");
+    bool retBool = SoftBusSocketListener::OnNegotiate(socketId, info);
+    EXPECT_EQ(retBool, false);
+    info.pkgName = strdup("ohos.useriam");
+    retBool = SoftBusSocketListener::OnNegotiate(socketId, info);
+    socketId = -2;
+    retBool = SoftBusSocketListener::OnNegotiate(socketId, info);
+    EXPECT_EQ(retBool, false);
+    IAM_LOGI("SoftBusSocketListener01 end\n");
+}
+
+HWTEST_F(SoftBusManagerTest, SoftBusSocketListener02, TestSize.Level0)
+{
+    IAM_LOGI("SoftBusSocketListener02 begin\n");
+    int32_t socketId = 1;
+    PeerSocketInfo info;
+    info.pkgName = strdup("pkgName");
+    SoftBusSocketListener::OnBind(socketId, info);
+    info.pkgName = strdup("ohos.useriam");
+    SoftBusSocketListener::OnBind(socketId, info);
+    socketId = -2;
+    EXPECT_NO_THROW(SoftBusSocketListener::OnBind(socketId, info));
+    IAM_LOGI("SoftBusSocketListener02 end\n");
+}
+
+HWTEST_F(SoftBusManagerTest, SoftBusSocketListener03, TestSize.Level0)
+{
+    IAM_LOGI("SoftBusSocketListener03 begin\n");
+    int32_t socketId = 1;
+    ShutdownReason reason = SHUTDOWN_REASON_LOCAL;
+    SoftBusSocketListener::OnShutdown(socketId, reason);
+    socketId = -2;
+    EXPECT_NO_THROW(SoftBusSocketListener::OnShutdown(socketId, reason));
+    IAM_LOGI("SoftBusSocketListener03 end\n");
+}
+
+HWTEST_F(SoftBusManagerTest, SoftBusSocketListener04, TestSize.Level0)
+{
+    IAM_LOGI("SoftBusSocketListener04 begin\n");
+    int32_t socketId = 1;
+    const void *data = new char[10];
+    uint32_t dataLen = 3;
+    const uint32_t MAX_DATA_LEN = 4096;
+    SoftBusSocketListener::OnClientBytes(socketId, data, dataLen);
+    dataLen = MAX_DATA_LEN + 1;
+    SoftBusSocketListener::OnClientBytes(socketId, data, dataLen);
+    socketId = -2;
+    EXPECT_NO_THROW(SoftBusSocketListener::OnClientBytes(socketId, data, dataLen));
+    IAM_LOGI("SoftBusSocketListener04 end\n");
+}
+
+HWTEST_F(SoftBusManagerTest, SoftBusSocketListener05, TestSize.Level0)
+{
+    IAM_LOGI("SoftBusSocketListener05 begin\n");
+    int32_t socketId = 1;
+    const void *data = new char[10];
+    uint32_t dataLen = 3;
+    SoftBusSocketListener::OnServerBytes(socketId, data, dataLen);
+    socketId = -2;
+    EXPECT_NO_THROW(SoftBusSocketListener::OnServerBytes(socketId, data, dataLen));
+    IAM_LOGI("SoftBusSocketListener05 end\n");
 }
 } // namespace UserAuth
 } // namespace UserIam
