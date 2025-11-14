@@ -55,6 +55,36 @@ void SimpleAuthContextTest::TearDown()
 {
 }
 
+HWTEST_F(SimpleAuthContextTest, GetPropertyTemplateIds, TestSize.Level0)
+{
+    Authentication::AuthResultInfo resultInfo;
+    resultInfo.sdkVersion = 0;
+    resultInfo.remoteAuthResultMsg = std::vector<uint8_t>(2);
+    const uint64_t testContestId = 2;
+    std::shared_ptr<Authentication> auth = nullptr;
+    std::shared_ptr<MockContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
+    auto oriContext = Common::MakeShared<SimpleAuthContext>(testContestId, auth, contextCallback, true);
+    ASSERT_NE(oriContext, nullptr);
+    oriContext->GetPropertyTemplateIds(resultInfo);
+    Attributes finalResult;
+    oriContext->SetCredentialDigest(resultInfo, finalResult);
+    oriContext->InvokeResultCallback(resultInfo);
+}
+
+HWTEST_F(SimpleAuthContextTest, InvokeResultCallback, TestSize.Level0)
+{
+    Authentication::AuthResultInfo resultInfo;
+    resultInfo.sdkVersion = 0;
+    const uint64_t testContestId = 2;
+    std::shared_ptr<Authentication> auth = nullptr;
+    std::shared_ptr<MockContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
+    auto oriContext = Common::MakeShared<SimpleAuthContext>(testContestId, auth, contextCallback, true);
+    ASSERT_NE(oriContext, nullptr);
+    oriContext->GetPropertyTemplateIds(resultInfo);
+    Attributes finalResult;
+    oriContext->SetCredentialDigest(resultInfo, finalResult);
+}
+
 HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_NullHdi, TestSize.Level0)
 {
     const uint64_t testContestId = 2;

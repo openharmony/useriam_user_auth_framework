@@ -47,7 +47,7 @@ void TraceTest::TearDown()
 {
 }
 
-HWTEST_F(TraceTest, CopyMetaDataToTraceInfo, TestSize.Level0)
+HWTEST_F(TraceTest, CopyMetaDataToTraceInfo_001, TestSize.Level0)
 {
     Trace *trace = new Trace();
     EXPECT_NE(trace, nullptr);
@@ -61,7 +61,20 @@ HWTEST_F(TraceTest, CopyMetaDataToTraceInfo, TestSize.Level0)
     trace->CopyMetaDataToTraceInfo(metaData, info);
 }
 
-HWTEST_F(TraceTest, ProcessUserAuthFwkEvent, TestSize.Level0)
+HWTEST_F(TraceTest, CopyMetaDataToTraceInfo_002, TestSize.Level0)
+{
+    Trace *trace = new Trace();
+    EXPECT_NE(trace, nullptr);
+    ContextCallbackNotifyListener::MetaData metaData;
+    TraceFlag flag = TRACE_FLAG_DEFAULT;
+    UserAuthTrace info;
+    metaData.remoteUdid = "1";
+    metaData.localUdid = "1";
+    metaData.connectionName = "1";
+    trace->CopyMetaDataToTraceInfo(metaData, info);
+}
+
+HWTEST_F(TraceTest, ProcessUserAuthFwkEvent_001, TestSize.Level0)
 {
     Trace *trace = new Trace();
     EXPECT_NE(trace, nullptr);
@@ -75,6 +88,16 @@ HWTEST_F(TraceTest, ProcessUserAuthFwkEvent, TestSize.Level0)
     metaData.connectionName = "";
     metaData.authFinishReason = std::nullopt;
     TraceFlag flag = TRACE_FLAG_DEFAULT;
+    trace->ProcessUserAuthFwkEvent(metaData, flag);
+}
+
+HWTEST_F(TraceTest, ProcessUserAuthFwkEvent_002, TestSize.Level0)
+{
+    Trace *trace = new Trace();
+    EXPECT_NE(trace, nullptr);
+    ContextCallbackNotifyListener::MetaData metaData;
+    TraceFlag flag = TRACE_FLAG_DEFAULT;
+    metaData.callerName = "TEST";
     trace->ProcessUserAuthFwkEvent(metaData, flag);
 }
 } // namespace UserAuth

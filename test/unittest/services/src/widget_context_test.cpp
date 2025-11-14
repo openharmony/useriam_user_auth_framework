@@ -22,6 +22,7 @@
 #include "schedule_node_impl.h"
 #include "widget_context_callback_impl.h"
 #include "relative_timer.h"
+#include <map>
 
 using namespace testing;
 using namespace testing::ext;
@@ -498,7 +499,7 @@ HWTEST_F(WidgetContextTest, WidgetContextTestAuthWidgetReloadInit, TestSize.Leve
     handler->EnsureTask([]() {});
 }
 
-HWTEST_F(WidgetContextTest, IsValidRotate, TestSize.Level0)
+HWTEST_F(WidgetContextTest, IsValidRotate_001, TestSize.Level0)
 {
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
@@ -507,6 +508,21 @@ HWTEST_F(WidgetContextTest, IsValidRotate, TestSize.Level0)
     widgetRotatePara.orientation = 3;
     widgetRotatePara.isReload = 3;
     widgetRotatePara.needRotate = 3;
+    bool isValidRotate = widgetContext->IsValidRotate(widgetRotatePara);
+    EXPECT_NE(isValidRotate, false);
+    widgetRotatePara.needRotate = 1;
+    widgetContext->IsValidRotate(widgetRotatePara);
+}
+
+HWTEST_F(WidgetContextTest, IsValidRotate_002, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    WidgetContext::WidgetRotatePara widgetRotatePara;
+    widgetRotatePara.orientation = 3;
+    widgetRotatePara.isReload = 3;
+    widgetRotatePara.needRotate = 0;
     bool isValidRotate = widgetContext->IsValidRotate(widgetRotatePara);
     EXPECT_NE(isValidRotate, false);
     widgetRotatePara.needRotate = 1;
@@ -803,6 +819,42 @@ HWTEST_F(WidgetContextTest, WidgetContextTestConnectExtension_001, TestSize.Leve
     AuthType authType = AuthType::FACE;
     widgetContext->para_.authTypeList.emplace_back(authType);
     EXPECT_EQ(widgetContext->ConnectExtension(widgetRotatePara), false);
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestConnectExtension_002, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    std::map<AuthType, ContextFactory::AuthProfile> authProfileMap;
+    ContextFactory::AuthProfile authProfile;
+    authProfile.remainTimes = 0;
+    authProfileMap.insert(std::make_pair(FACE, authProfile));
+    std::vector<AuthType> authTypeList = { FACE };
+    para.authProfileMap = authProfileMap;
+    para.skipLockedBiometricAuth = true;
+    para.widgetParam.hasContext = true;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    WidgetContext::WidgetRotatePara widgetRotatePara = {};
+    widgetRotatePara.isReload = true;
+    AuthType authType = AuthType::FACE;
+    widgetContext->para_.authTypeList.emplace_back(authType);
+    EXPECT_EQ(widgetContext->ConnectExtension(widgetRotatePara), false);
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestDisconnectExtension, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    widgetContext->useModalApplication_ = true;
+    widgetContext->DisconnectExtension();
+    WidgetContext::WidgetRotatePara widgetRotatePara;
+    widgetContext->para_.isPinExpired = true;
+    widgetContext->BuildStartCommand(widgetRotatePara);
+    widgetContext->para_.callerType = 9;
+    widgetContext->GetCallerName();
 }
 } // namespace UserAuth
 } // namespace UserIam

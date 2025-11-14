@@ -405,6 +405,34 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam009, Te
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
 
+HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam010, TestSize.Level0)
+{
+    AuthParamInner authParam;
+    authParam.authTypes.push_back(FACE);
+    authParam.authTrustLevel = ATL2;
+    WidgetParamInner widgetParam;
+    widgetParam.title = "使用密码验证";
+    widgetParam.navigationButtonText = "确定";
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 1;
+    std::vector<AuthType> validType = authParam.authTypes;
+    EXPECT_FALSE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
+}
+
+HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam011, TestSize.Level0)
+{
+    AuthParamInner authParam;
+    authParam.authTypes.push_back(TUI_PIN);
+    authParam.authTrustLevel = ATL2;
+    WidgetParamInner widgetParam;
+    widgetParam.title = "使用密码验证";
+    widgetParam.navigationButtonText = "确定";
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 1;
+    std::vector<AuthType> validType = authParam.authTypes;
+    EXPECT_FALSE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
+}
+
 HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckValidSolution001, TestSize.Level0)
 {
     int32_t userId = 1;

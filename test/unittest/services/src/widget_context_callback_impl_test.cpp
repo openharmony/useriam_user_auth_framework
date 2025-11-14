@@ -67,6 +67,7 @@ HWTEST_F(WidgetContextCallbackImplTest, WidgetContextCallbackImplOnResult_001, T
     ASSERT_NE(contextCallback, nullptr);
     int32_t result = 1;
     Attributes extraInfo;
+    contextCallback->widgetContext_ = std::weak_ptr<WidgetContext>();
     contextCallback->OnResult(result, extraInfo.Serialize());
     ASSERT_EQ(para.tokenId, 0);
 }
@@ -96,6 +97,7 @@ HWTEST_F(WidgetContextCallbackImplTest, WidgetContextCallbackImplOnAcquireInfo_0
     int32_t module = 0;
     int32_t acquireInfo = 0;
     Attributes extraInfo;
+    contextCallback->widgetContext_ = std::weak_ptr<WidgetContext>();
     contextCallback->OnAcquireInfo(module, acquireInfo, extraInfo.Serialize());
 
     sptr<IRemoteObject> object = contextCallback->AsObject();
