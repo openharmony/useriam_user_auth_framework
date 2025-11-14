@@ -57,11 +57,37 @@ void UIExtensionAbilityConnectionTest::TearDown()
 {
 }
 
-HWTEST_F(UIExtensionAbilityConnectionTest, UIExtensionAbilityConnectionTestOnAbilityDisconnectDone, TestSize.Level0)
+HWTEST_F(UIExtensionAbilityConnectionTest, UIExtensionAbilityConnectionTestOnAbilityDisconnectDone_001, TestSize.Level0)
 {
     auto connection = new UIExtensionAbilityConnection("connection");
     AppExecFwk::ElementName element;
     int32_t resultCode = 1;
+    connection->OnAbilityDisconnectDone(element, resultCode);
+    connection->ReleaseUIExtensionComponentInner();
+    connection->OnAbilityDisconnectDone(element, resultCode);
+    EXPECT_NE(connection, nullptr);
+}
+
+HWTEST_F(UIExtensionAbilityConnectionTest, UIExtensionAbilityConnectionTestOnAbilityDisconnectDone_002, TestSize.Level0)
+{
+    auto connection = new UIExtensionAbilityConnection("connection");
+    AppExecFwk::ElementName element;
+    int32_t resultCode = 1;
+    connection->isNormalEnd_ = false;
+    connection->isConnectionRelease_ = true;
+    connection->OnAbilityDisconnectDone(element, resultCode);
+    connection->ReleaseUIExtensionComponentInner();
+    connection->OnAbilityDisconnectDone(element, resultCode);
+    EXPECT_NE(connection, nullptr);
+}
+
+HWTEST_F(UIExtensionAbilityConnectionTest, UIExtensionAbilityConnectionTestOnAbilityDisconnectDone_003, TestSize.Level0)
+{
+    auto connection = new UIExtensionAbilityConnection("connection");
+    AppExecFwk::ElementName element;
+    int32_t resultCode = 1;
+    connection->isNormalEnd_ = true;
+    connection->isConnectionRelease_ = false;
     connection->OnAbilityDisconnectDone(element, resultCode);
     connection->ReleaseUIExtensionComponentInner();
     connection->OnAbilityDisconnectDone(element, resultCode);
