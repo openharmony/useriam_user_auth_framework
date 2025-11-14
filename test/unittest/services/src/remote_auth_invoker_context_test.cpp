@@ -56,6 +56,20 @@ void RemoteAuthInvokerContextTest::TearDown()
 {
 }
  
+HWTEST_F(RemoteAuthInvokerContextTest, OnStartTest, TestSize.Level1)
+{
+    IAM_LOGI("OnStartTest start");
+    uint64_t contextId = 100;
+    AuthParamInner authParam = {};
+    RemoteAuthInvokerContextParam param = {};
+    std::shared_ptr<MockContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
+    auto remoteAuthInvokerContext = Common::MakeShared<RemoteAuthInvokerContext>(
+        contextId, authParam, param, contextCallback
+    );
+    EXPECT_NO_THROW(remoteAuthInvokerContext->OnStart());
+    IAM_LOGI("OnStartTest end");
+}
+
 HWTEST_F(RemoteAuthInvokerContextTest, OnMessageTest, TestSize.Level1)
 {
     IAM_LOGI("OnMessageTest start");

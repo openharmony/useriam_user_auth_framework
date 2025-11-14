@@ -60,7 +60,6 @@ HWTEST_F(ContextPoolTest, ContextPoolGetUniqueInstance, TestSize.Level0)
 HWTEST_F(ContextPoolTest, ContextPoolInsertNull, TestSize.Level0)
 {
     auto &pool = ContextPool::Instance();
-    ;
     EXPECT_EQ(pool.Insert(nullptr), false);
 }
 
