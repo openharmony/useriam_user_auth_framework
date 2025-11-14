@@ -88,7 +88,8 @@ JsRefHolder::~JsRefHolder()
             return;
         }
     };
-    if (napi_status::napi_ok != napi_send_event(env_, task, napi_eprio_immediate)) {
+    if (napi_status::napi_ok != napi_send_event(env_, task, napi_eprio_immediate,
+        "UserAuthNapi::JsRefHolder::~JsRefHolder")) {
         IAM_LOGE("napi_send_event: Failed to SendEvent");
     }
 }

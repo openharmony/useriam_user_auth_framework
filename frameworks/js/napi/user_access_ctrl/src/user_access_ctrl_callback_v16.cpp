@@ -176,7 +176,8 @@ void UserAccessCtrlCallbackV16::OnResult(int32_t result, const UserAuth::Attribu
         }
         napi_close_handle_scope(resultHolder->env, scope);
     };
-    if (napi_status::napi_ok != napi_send_event(env_, task, napi_eprio_immediate)) {
+    if (napi_status::napi_ok != napi_send_event(env_, task, napi_eprio_immediate,
+        "UserAuthNapi::UserAccessCtrlCallbackV16::OnResult")) {
         IAM_LOGE("napi_send_event: Failed to SendEvent");
     }
 }

@@ -45,6 +45,25 @@ struct AuthTipInfoCallbackHolder {
     int32_t tipType {0};
     napi_env env {nullptr};
 };
+
+void OnResultV10Work(std::shared_ptr<ResultCallbackV10Holder> resultHolder)
+{
+    IAM_LOGD("start");
+    if (resultHolder == nullptr || resultHolder->callback == nullptr) {
+        IAM_LOGE("resultHolder is invalid");
+        return;
+    }
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(resultHolder->env, &scope);
+    if (scope == nullptr) {
+        IAM_LOGE("scope is invalid");
+        return;
+    }
+    napi_status ret = resultHolder->callback->DoResultCallback(resultHolder->result, resultHolder->token,
+        resultHolder->authType, resultHolder->enrolledState);
+    IAM_LOGD("DoResultCallback ret = %{public}d", ret);
+    napi_close_handle_scope(resultHolder->env, scope);
+}
 }
 
 UserAuthCallbackV10::UserAuthCallbackV10(napi_env env) : env_(env)
@@ -225,7 +244,8 @@ void UserAuthCallbackV10::OnAcquireInfo(int32_t module, uint32_t acquireInfo,
         }
         napi_close_handle_scope(authTipInfoCallbackHolder->env, scope);
     };
-    if (napi_send_event(env_, task, napi_eprio_immediate) != napi_status::napi_ok) {
+    if (napi_send_event(env_, task, napi_eprio_immediate,
+        "UserAuthNapi::UserAuthCallbackV10::OnAcquireInfo") != napi_status::napi_ok) {
         IAM_LOGE("napi_send_event: Failed to SendEvent");
     }
 }
@@ -261,23 +281,10 @@ void UserAuthCallbackV10::OnResult(int32_t result, const Attributes &extraInfo)
     }
     IAM_LOGI("result token size: %{public}zu.", resultHolder->token.size());
     auto task = [resultHolder] () {
-        IAM_LOGD("start");
-        if (resultHolder == nullptr || resultHolder->callback == nullptr) {
-            IAM_LOGE("resultHolder is invalid");
-            return;
-        }
-        napi_handle_scope scope = nullptr;
-        napi_open_handle_scope(resultHolder->env, &scope);
-        if (scope == nullptr) {
-            IAM_LOGE("scope is invalid");
-            return;
-        }
-        napi_status ret = resultHolder->callback->DoResultCallback(resultHolder->result, resultHolder->token,
-            resultHolder->authType, resultHolder->enrolledState);
-        IAM_LOGD("DoResultCallback ret = %{public}d", ret);
-        napi_close_handle_scope(resultHolder->env, scope);
+        OnResultV10Work(resultHolder);
     };
-    if (napi_status::napi_ok != napi_send_event(env_, task, napi_eprio_immediate)) {
+    if (napi_status::napi_ok != napi_send_event(env_, task, napi_eprio_immediate,
+        "UserAuthNapi::UserAuthCallbackV10::OnResult")) {
         IAM_LOGE("napi_send_event: Failed to SendEvent");
     }
 }
