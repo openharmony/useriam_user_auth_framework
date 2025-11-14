@@ -592,6 +592,35 @@ HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_009, TestSize.Level0)
     WidgetClient::Instance().ClearSchedule(widgetNotice.widgetContextId);
 }
 
+HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_010, TestSize.Level0)
+{
+    WidgetNotice widgetNotice;
+    widgetNotice.widgetContextId = 1;
+    widgetNotice.typeList.push_back("pin");
+    WidgetClient::Instance().Reset();
+    std::vector<AuthType> authTypeList;
+    authTypeList.emplace_back(AuthType::PIN);
+    WidgetClient::Instance().SetAuthTypeList(authTypeList);
+    WidgetClient::Instance().SetWidgetSchedule(widgetNotice.widgetContextId, BuildSchedule());
+    EXPECT_NO_THROW(WidgetClient::Instance().ProcessNotice(widgetNotice, authTypeList));
+    WidgetClient::Instance().ClearSchedule(widgetNotice.widgetContextId);
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestProcessNotice_011, TestSize.Level0)
+{
+    WidgetNotice widgetNotice;
+    widgetNotice.widgetContextId = 1;
+    widgetNotice.event = "xxx";
+    widgetNotice.typeList.push_back("pin");
+    WidgetClient::Instance().Reset();
+    std::vector<AuthType> authTypeList;
+    authTypeList.emplace_back(AuthType::PIN);
+    WidgetClient::Instance().SetAuthTypeList(authTypeList);
+    WidgetClient::Instance().SetWidgetSchedule(widgetNotice.widgetContextId, BuildSchedule());
+    EXPECT_NO_THROW(WidgetClient::Instance().ProcessNotice(widgetNotice, authTypeList));
+    WidgetClient::Instance().ClearSchedule(widgetNotice.widgetContextId);
+}
+
 HWTEST_F(WidgetClientTest, WidgetClientTestSetPinSubType_001, TestSize.Level0)
 {
     WidgetClient::Instance().Reset();
@@ -602,6 +631,14 @@ HWTEST_F(WidgetClientTest, WidgetClientTestSetPinSubType_002, TestSize.Level0)
 {
     WidgetClient::Instance().Reset();
     EXPECT_NO_THROW(WidgetClient::Instance().SetPinSubType(PinSubType::PIN_PATTERN));
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestSetPinSubType_003, TestSize.Level0)
+{
+    uint64_t contextId = 99999;
+    std::vector<AuthType> authTypeList = {};
+    EXPECT_NO_THROW(WidgetClient::Instance().WidgetLoad(contextId, authTypeList));
+    WidgetClient::Instance().WidgetRelease(contextId, authTypeList);
 }
 } // namespace UserAuth
 } // namespace UserIam
