@@ -63,6 +63,7 @@ public:
     static bool CheckForegroundApplication(const std::string &bundleName);
     static bool IsOsAccountVerified(int32_t userId);
     static int32_t GetDirectCallerType(IPCObjectStub &stub);
+    static void SetSkipActiveUserIdCallerFlag(bool isSkip);
 
 private:
     static std::set<Permission> permSet_;
@@ -71,6 +72,7 @@ private:
     static bool skipFlag_;
     static bool skipCallerFlag_;
     static bool skipAccountVerifiedFlag_;
+    static bool skipActiveUserIdFlag_;
 };
 } // namespace UserAuth
 } // namespace UserIam
