@@ -35,6 +35,7 @@ uint32_t IpcCommon::tokenId_ = 0;
 bool IpcCommon::skipFlag_ = false;
 bool IpcCommon::skipCallerFlag_ = false;
 bool IpcCommon::skipAccountVerifiedFlag_ = false;
+bool IpcCommon::skipActiveUserIdFlag_ = false;
 
 int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, int32_t &userId)
 {
@@ -47,6 +48,9 @@ int32_t IpcCommon::GetCallingUserId(IPCObjectStub &stub, int32_t &userId)
 
 int32_t IpcCommon::GetActiveUserId(std::optional<int32_t> &userId)
 {
+    if (skipActiveUserIdFlag_) {
+        return GENERAL_ERROR;
+    }
     if (userId.has_value() && userId.value() != 0) {
         return SUCCESS;
     }
@@ -68,6 +72,9 @@ int32_t IpcCommon::GetActiveUserId(std::optional<int32_t> &userId)
 
 int32_t IpcCommon::GetAllUserId(std::vector<int32_t> &userIds)
 {
+    if (skipCallerFlag_) {
+        return GENERAL_ERROR;
+    }
 #ifdef HAS_OS_ACCOUNT_PART
     std::vector<OHOS::AccountSA::OsAccountInfo> accountInfos = {};
     ErrCode ret = AccountSA::OsAccountManager::QueryAllCreatedOsAccounts(accountInfos);
@@ -122,6 +129,11 @@ void IpcCommon::SetSkipCallerFlag(bool isSkip)
 void IpcCommon::SetSkipAccountVerifiedFlag(bool isSkip)
 {
     skipAccountVerifiedFlag_ = isSkip;
+}
+
+void IpcCommon::SetSkipActiveUserIdCallerFlag(bool isSkip)
+{
+    skipActiveUserIdFlag_ = isSkip;
 }
 
 void IpcCommon::SetAccessTokenId(uint32_t tokenId, bool isSetTokenId)
