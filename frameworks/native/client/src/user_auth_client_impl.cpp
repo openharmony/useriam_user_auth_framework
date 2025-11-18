@@ -544,7 +544,6 @@ void UserAuthClientImpl::UserAuthImplDeathRecipient::OnRemoteDied(const wptr<IRe
         return;
     }
     CallbackManager::GetInstance().OnServiceDeath();
-    EventListenerCallbackManager::GetInstance().OnServiceDeath();
     UserAuthClientImpl::Instance().ResetProxy(remote);
 }
 
@@ -714,22 +713,26 @@ int32_t UserAuthClientImpl::RegistUserAuthSuccessEventListener(const std::vector
     const std::shared_ptr<AuthSuccessEventListener> &listener)
 {
     IAM_LOGI("start");
-
     auto proxy = GetProxy();
-    IF_FALSE_LOGE_AND_RETURN_VAL(proxy != nullptr, GENERAL_ERROR);
-
-    return EventListenerCallbackManager::GetInstance().AddUserAuthSuccessEventListener(proxy, authTypes, listener);
+    auto registFunc = [proxy](const sptr<IEventListenerCallback>& listenerImpl) -> int32_t {
+        IF_FALSE_LOGE_AND_RETURN_VAL(proxy != nullptr, GENERAL_ERROR);
+        return proxy->RegistUserAuthSuccessEventListener(listenerImpl);
+    };
+    return EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().RegisterListener(
+        registFunc, authTypes, listener);
 }
 
 int32_t UserAuthClientImpl::UnRegistUserAuthSuccessEventListener(
     const std::shared_ptr<AuthSuccessEventListener> &listener)
 {
     IAM_LOGI("start");
-
     auto proxy = GetProxy();
-    IF_FALSE_LOGE_AND_RETURN_VAL(proxy != nullptr, GENERAL_ERROR);
-
-    return EventListenerCallbackManager::GetInstance().RemoveUserAuthSuccessEventListener(proxy, listener);
+    auto unRegistFunc = [proxy](const sptr<IEventListenerCallback>& listenerImpl) -> int32_t {
+        IF_FALSE_LOGE_AND_RETURN_VAL(proxy != nullptr, GENERAL_ERROR);
+        return proxy->UnRegistUserAuthSuccessEventListener(listenerImpl);
+    };
+    return EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().UnRegisterListener(
+        unRegistFunc, listener);
 }
 
 int32_t UserAuthClientImpl::PrepareRemoteAuth(const std::string &networkId,
