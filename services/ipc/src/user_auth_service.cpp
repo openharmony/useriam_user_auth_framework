@@ -1772,7 +1772,7 @@ int32_t UserAuthService::VerifyAuthToken(const std::vector<uint8_t> &tokenIn, ui
     IF_FALSE_LOGE_AND_RETURN_VAL(verifyTokenCallback != nullptr, INVALID_PARAMETERS);
 
     Attributes extraInfo;
-    if (tokenIn.size() == 0 || tokenIn.data() == nullptr || allowableDuration > MAX_TOKEN_ALLOWABLE_DURATION) {
+    if (tokenIn.size() == 0 || tokenIn.data() == nullptr) {
         IAM_LOGE("bad parameter");
         verifyTokenCallback->OnVerifyTokenResult(INVALID_PARAMETERS, extraInfo.Serialize());
         return INVALID_PARAMETERS;
