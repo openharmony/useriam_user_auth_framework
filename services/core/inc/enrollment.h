@@ -39,6 +39,7 @@ public:
         std::string callerName;
         int32_t sdkVersion;
         int32_t callerType;
+        std::string additionalInfo;
     };
 
     virtual ~Enrollment() = default;

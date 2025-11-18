@@ -333,6 +333,7 @@ int32_t UserIdmService::AddCredential(int32_t userId, const IpcCredentialPara &i
     para.sdkVersion = INNER_API_VERSION_10000;
     para.callerName = callerName;
     para.callerType = callerType;
+    para.additionalInfo = ipcCredentialPara.additionalInfo;
     bool needSubscribeAppState = !IpcCommon::CheckPermission(*this, USER_AUTH_FROM_BACKGROUND);
     return StartEnroll(para, contextCallback, extraInfo, needSubscribeAppState);
 }

@@ -80,6 +80,8 @@ struct CredentialParameters {
     std::optional<PinSubType> pinType {};
     /** Auth token. */
     std::vector<uint8_t> token {};
+    /** Additional info. */
+    std::string addtionalInfo;
 };
 
 /**
