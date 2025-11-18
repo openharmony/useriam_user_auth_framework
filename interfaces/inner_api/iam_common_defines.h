@@ -37,8 +37,6 @@ constexpr int INVALID_SOCKET_ID = -1;
 constexpr int INVALID_USER_ID = -1;
 constexpr int32_t MAIN_USER_ID = 100;
 constexpr int32_t MAX_USER = 5;
-/** Max value of verifyAuthToken allowable duration. */
-constexpr uint32_t MAX_TOKEN_ALLOWABLE_DURATION = 24 * 60 * 60 * 1000;
 const int32_t TITLE_MAX = 500;
 
 /**

@@ -50,7 +50,7 @@ public:
      * @brief Verify token and return the plainText.
      *
      * @param tokenIn Token signed by userAuth.
-     * @param allowableDuration Allowable duration of token, between 0 and MAX_TOKEN_ALLOWABLE_DURATION.
+     * @param allowableDuration Allowable duration of token.
      * @param callback Callback of verify auth token result.
      *
      * @return Return get result(0:success; other:failed).
