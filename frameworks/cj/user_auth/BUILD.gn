@@ -43,7 +43,6 @@ ohos_shared_library("cj_userauth_ffi") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:cj_bind_native",
-    "samgr:samgr_proxy",
   ]
 
   innerapi_tags = [ "platformsdk" ]
