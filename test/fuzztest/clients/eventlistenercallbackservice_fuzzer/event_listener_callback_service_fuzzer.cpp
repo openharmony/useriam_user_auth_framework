@@ -63,13 +63,8 @@ void FuzzAddEventListener(Parcel &parcel)
     std::vector<AuthType> authTypeList;
     authTypeList.emplace_back(authType);
     auto listener = Common::MakeShared<DummyAuthSuccessEventListener>();
-    auto registFunc = [](const sptr<IEventListenerCallback>& listenerImpl) -> int32_t {
-        return SUCCESS;
-    };
-    EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().RegisterListener(
-        registFunc, authTypeList, listener);
-    EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().UnRegisterListener(
-        registFunc, listener);
+    EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().RegisterListener(authTypeList, listener);
+    EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().UnRegisterListener(listener);
     EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().GetEventListenerSet(AuthType::PIN);
     IAM_LOGI("end");
 }
@@ -82,17 +77,13 @@ void FuzzOnNotifyAuthSuccessEvent(Parcel &parcel)
     std::string callerName = "";
     Common::FillFuzzString(parcel, callerName);
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
-    auto subManage = EventListenerCallbackManager<AuthSuccessEventListener>::EventListenerCallbackImpl::GetInstance();
+    auto subManage = EventListenerCallbackService::GetInstance();
     subManage->OnNotifyAuthSuccessEvent(userId, authType, callerType, callerName);
 
     std::vector<AuthType> authTypeList;
     authTypeList.emplace_back(authType);
     auto listener = Common::MakeShared<DummyAuthSuccessEventListener>();
-    auto registFunc = [](const sptr<IEventListenerCallback>& listenerImpl) -> int32_t {
-        return SUCCESS;
-    };
-    EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().RegisterListener(
-        registFunc, authTypeList, listener);
+    EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().RegisterListener(authTypeList, listener);
     subManage->OnNotifyAuthSuccessEvent(userId, authType, callerType, callerName);
     IAM_LOGI("end");
 }
@@ -104,17 +95,13 @@ void FuzzOnNotifyCredChangeEvent(Parcel &parcel)
     int32_t callerType = parcel.ReadInt32();
     IpcCredChangeEventInfo info = {};
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
-    auto subManage = EventListenerCallbackManager<CredChangeEventListener>::EventListenerCallbackImpl::GetInstance();
+    auto subManage = EventListenerCallbackService::GetInstance();
     subManage->OnNotifyCredChangeEvent(userId, authType, callerType, info);
 
     std::vector<AuthType> authTypeList;
     authTypeList.emplace_back(authType);
     auto listener = Common::MakeShared<DummyCredChangeEventListener>();
-    auto registFunc = [](const sptr<IEventListenerCallback>& listenerImpl) -> int32_t {
-        return SUCCESS;
-    };
-    EventListenerCallbackManager<CredChangeEventListener>::GetInstance().RegisterListener(
-        registFunc, authTypeList, listener);
+    EventListenerCallbackManager<CredChangeEventListener>::GetInstance().RegisterListener(authTypeList, listener);
     subManage->OnNotifyCredChangeEvent(userId, authType, callerType, info);
     IAM_LOGI("end");
 }

@@ -46,33 +46,18 @@ void EventListenerCallbackServiceTest::TearDown()
 
 HWTEST_F(EventListenerCallbackServiceTest, RegisterListenerTest, TestSize.Level0)
 {
-    auto registFunc = [](const sptr<IEventListenerCallback>& listenerImpl) -> int32_t {
-        return SUCCESS;
-    };
     std::vector<AuthType> authTypes = {AuthType::PIN};
-    auto ret = EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().RegisterListener(registFunc,
+    auto ret = EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().RegisterListener(
         authTypes, nullptr);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
-    ret = EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().UnRegisterListener(registFunc,
-        nullptr);
+    ret = EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().UnRegisterListener(nullptr);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
 
     auto tmpListener = Common::MakeShared<MockAuthSuccessEventListener>();
-    ret = EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().RegisterListener(registFunc,
-        authTypes, tmpListener);
-    EXPECT_EQ(ret, SUCCESS);
-    ret = EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().UnRegisterListener(registFunc,
-        tmpListener);
-    EXPECT_EQ(ret, SUCCESS);
-
-    auto registFuncFail = [](const sptr<IEventListenerCallback>& listenerImpl) -> int32_t {
-        return GENERAL_ERROR;
-    };
-    ret = EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().RegisterListener(registFuncFail,
+    ret = EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().RegisterListener(
         authTypes, tmpListener);
     EXPECT_EQ(ret, GENERAL_ERROR);
-    ret = EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().UnRegisterListener(registFuncFail,
-        tmpListener);
+    ret = EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().UnRegisterListener(tmpListener);
     EXPECT_EQ(ret, GENERAL_ERROR);
     EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().GetEventListenerSet(AuthType::PIN);
 }
