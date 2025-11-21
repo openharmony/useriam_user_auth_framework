@@ -125,7 +125,6 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
         .userId = enrollPara_.userId,
         .userType = userType,
         .authSubType = enrollPara_.pinType,
-        .additionalInfo = enrollPara_.additionalInfo,
     };
     IamHitraceHelper traceHelper("hdi BeginEnrollment");
     auto result = hdi->BeginEnrollment(authToken_, param, info);
