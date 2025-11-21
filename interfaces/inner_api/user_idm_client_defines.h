@@ -81,7 +81,7 @@ struct CredentialParameters {
     /** Auth token. */
     std::vector<uint8_t> token {};
     /** Additional info. */
-    std::string addtionalInfo;
+    std::string additionalInfo;
 };
 
 /**
