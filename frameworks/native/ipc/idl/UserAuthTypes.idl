@@ -162,7 +162,7 @@ struct IpcCredentialPara {
     /** Auth token. */
     unsigned char[] token;
     /** Additional info. */
-    String addtionalInfo;
+    String additionalInfo;
 };
 
 /**
