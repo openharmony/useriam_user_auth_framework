@@ -92,6 +92,7 @@ void UserIdmClientImpl::AddCredential(int32_t userId, const CredentialParameters
     credPara.authType = static_cast<int32_t>(para.authType);
     credPara.pinType = static_cast<int32_t>(para.pinType.value_or(PIN_SIX));
     credPara.token = std::move(para.token);
+    credPara.additionalInfo = std::move(para.additionalInfo);
     auto ret = proxy->AddCredential(userId, credPara, wrapper, false);
     if (ret != SUCCESS) {
         HILOG_COMM_ERROR("add credential fail, ret:%{public}d, userId: %{public}d, authType: %{public}d"
@@ -130,6 +131,7 @@ void UserIdmClientImpl::UpdateCredential(int32_t userId, const CredentialParamet
     credPara.authType = static_cast<int32_t>(para.authType);
     credPara.pinType = static_cast<int32_t>(para.pinType.value_or(PIN_SIX));
     credPara.token = std::move(para.token);
+    credPara.additionalInfo = std::move(para.additionalInfo);
     auto ret = proxy->UpdateCredential(userId, credPara, wrapper);
     if (ret != SUCCESS) {
         HILOG_COMM_INFO("update credential fail, ret:%{public}d, userId: %{public}d, authType: %{public}d"

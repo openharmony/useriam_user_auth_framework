@@ -92,8 +92,8 @@ int32_t EnrollmentImpl::GetUserId() const
 bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
     std::shared_ptr<ScheduleNodeCallback> callback)
 {
-    IAM_LOGE("UserId:%{public}d, AuthType:%{public}d, pinSubType:%{public}d", enrollPara_.userId, enrollPara_.authType,
-        enrollPara_.pinType);
+    IAM_LOGE("UserId:%{public}d, AuthType:%{public}d, pinSubType:%{public}d, additionalInfo:%{public}zu",
+        enrollPara_.userId, enrollPara_.authType, enrollPara_.pinType, enrollPara_.additionalInfo.size());
     auto hdi = HdiWrapper::GetHdiInstance();
     if (!hdi) {
         IAM_LOGE("bad hdi");
