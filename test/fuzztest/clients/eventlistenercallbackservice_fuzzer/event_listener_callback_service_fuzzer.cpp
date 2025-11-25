@@ -56,103 +56,16 @@ public:
     }
 };
 
-void FuzzAddUserAuthSuccessEventListener(Parcel &parcel)
+void FuzzAddEventListener(Parcel &parcel)
 {
     IAM_LOGI("begin");
-    UserAuthClientImpl &impl = UserAuthClientImpl::Instance();
-    auto proxy = impl.GetProxy();
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
     std::vector<AuthType> authTypeList;
     authTypeList.emplace_back(authType);
     auto listener = Common::MakeShared<DummyAuthSuccessEventListener>();
-    EventListenerCallbackManager &manage = EventListenerCallbackManager::GetInstance();
-    manage.AddUserAuthSuccessEventListener(proxy, authTypeList, listener);
-    IAM_LOGI("end");
-}
-
-void FuzzRemoveUserAuthSuccessEventListener(Parcel &parcel)
-{
-    IAM_LOGI("begin");
-    UserAuthClientImpl &impl = UserAuthClientImpl::Instance();
-    auto proxy = impl.GetProxy();
-    AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
-    std::vector<AuthType> authTypeList;
-    authTypeList.emplace_back(authType);
-    auto listener = Common::MakeShared<DummyAuthSuccessEventListener>();
-    EventListenerCallbackManager &manage = EventListenerCallbackManager::GetInstance();
-    manage.AddUserAuthSuccessEventListener(proxy, authTypeList, listener);
-    manage.RemoveUserAuthSuccessEventListener(proxy, listener);
-    IAM_LOGI("end");
-}
-
-void FuzzAddCredChangeEventListener(Parcel &parcel)
-{
-    IAM_LOGI("begin");
-    UserIdmClientImpl &impl = UserIdmClientImpl::Instance();
-    auto proxy = impl.GetProxy();
-    AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
-    std::vector<AuthType> authTypeList;
-    authTypeList.emplace_back(authType);
-    auto listener = Common::MakeShared<DummyCredChangeEventListener>();
-    EventListenerCallbackManager &manage = EventListenerCallbackManager::GetInstance();
-    manage.AddCredChangeEventListener(proxy, authTypeList, listener);
-    IAM_LOGI("end");
-}
-
-void FuzzRemoveCredChangeEventListener(Parcel &parcel)
-{
-    IAM_LOGI("begin");
-    UserIdmClientImpl &impl = UserIdmClientImpl::Instance();
-    auto proxy = impl.GetProxy();
-    AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
-    std::vector<AuthType> authTypeList;
-    authTypeList.emplace_back(authType);
-    auto listener = Common::MakeShared<DummyCredChangeEventListener>();
-    EventListenerCallbackManager &manage = EventListenerCallbackManager::GetInstance();
-    manage.AddCredChangeEventListener(proxy, authTypeList, listener);
-    manage.RemoveCredChangeEventListener(proxy, listener);
-    IAM_LOGI("end");
-}
-
-void FuzzOnServiceDeath(Parcel &parcel)
-{
-    IAM_LOGI("begin");
-    EventListenerCallbackManager &manage = EventListenerCallbackManager::GetInstance();
-    manage.OnServiceDeath();
-    IAM_LOGI("end");
-}
-
-void FuzzGetAuthEventListenerSet(Parcel &parcel)
-{
-    IAM_LOGI("begin");
-    EventListenerCallbackManager &manage = EventListenerCallbackManager::GetInstance();
-    AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
-    manage.GetAuthEventListenerSet(authType);
-
-    UserAuthClientImpl &impl = UserAuthClientImpl::Instance();
-    auto proxy = impl.GetProxy();
-    std::vector<AuthType> authTypeList;
-    authTypeList.emplace_back(authType);
-    auto listener = Common::MakeShared<DummyAuthSuccessEventListener>();
-    manage.AddUserAuthSuccessEventListener(proxy, authTypeList, listener);
-    manage.GetAuthEventListenerSet(authType);
-    IAM_LOGI("end");
-}
-
-void FuzzGetCredEventListenerSet(Parcel &parcel)
-{
-    IAM_LOGI("begin");
-    EventListenerCallbackManager &manage = EventListenerCallbackManager::GetInstance();
-    AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
-    manage.GetCredEventListenerSet(authType);
-
-    UserIdmClientImpl &impl = UserIdmClientImpl::Instance();
-    auto proxy = impl.GetProxy();
-    std::vector<AuthType> authTypeList;
-    authTypeList.emplace_back(authType);
-    auto listener = Common::MakeShared<DummyCredChangeEventListener>();
-    manage.AddCredChangeEventListener(proxy, authTypeList, listener);
-    manage.GetCredEventListenerSet(authType);
+    EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().RegisterListener(authTypeList, listener);
+    EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().UnRegisterListener(listener);
+    EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().GetEventListenerSet(AuthType::PIN);
     IAM_LOGI("end");
 }
 
@@ -164,16 +77,13 @@ void FuzzOnNotifyAuthSuccessEvent(Parcel &parcel)
     std::string callerName = "";
     Common::FillFuzzString(parcel, callerName);
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
-    EventListenerCallbackManager &manage = EventListenerCallbackManager::GetInstance();
-    auto subManage = manage.authEventListenerCallbackImpl_;
+    auto subManage = EventListenerCallbackService::GetInstance();
     subManage->OnNotifyAuthSuccessEvent(userId, authType, callerType, callerName);
 
-    UserAuthClientImpl &impl = UserAuthClientImpl::Instance();
-    auto proxy = impl.GetProxy();
     std::vector<AuthType> authTypeList;
     authTypeList.emplace_back(authType);
     auto listener = Common::MakeShared<DummyAuthSuccessEventListener>();
-    manage.AddUserAuthSuccessEventListener(proxy, authTypeList, listener);
+    EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().RegisterListener(authTypeList, listener);
     subManage->OnNotifyAuthSuccessEvent(userId, authType, callerType, callerName);
     IAM_LOGI("end");
 }
@@ -185,29 +95,20 @@ void FuzzOnNotifyCredChangeEvent(Parcel &parcel)
     int32_t callerType = parcel.ReadInt32();
     IpcCredChangeEventInfo info = {};
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
-    EventListenerCallbackManager &manage = EventListenerCallbackManager::GetInstance();
-    auto subManage = manage.credEventListenerCallbackImpl_;
+    auto subManage = EventListenerCallbackService::GetInstance();
     subManage->OnNotifyCredChangeEvent(userId, authType, callerType, info);
 
-    UserIdmClientImpl &impl = UserIdmClientImpl::Instance();
-    auto proxy = impl.GetProxy();
     std::vector<AuthType> authTypeList;
     authTypeList.emplace_back(authType);
     auto listener = Common::MakeShared<DummyCredChangeEventListener>();
-    manage.AddCredChangeEventListener(proxy, authTypeList, listener);
+    EventListenerCallbackManager<CredChangeEventListener>::GetInstance().RegisterListener(authTypeList, listener);
     subManage->OnNotifyCredChangeEvent(userId, authType, callerType, info);
     IAM_LOGI("end");
 }
 
-using FuzzFunc = decltype(FuzzAddUserAuthSuccessEventListener);
+using FuzzFunc = decltype(FuzzAddEventListener);
 FuzzFunc *g_fuzzFuncs[] = {
-    FuzzAddUserAuthSuccessEventListener,
-    FuzzRemoveUserAuthSuccessEventListener,
-    FuzzAddCredChangeEventListener,
-    FuzzRemoveCredChangeEventListener,
-    FuzzOnServiceDeath,
-    FuzzGetAuthEventListenerSet,
-    FuzzGetCredEventListenerSet,
+    FuzzAddEventListener,
     FuzzOnNotifyAuthSuccessEvent,
     FuzzOnNotifyCredChangeEvent,
 };
