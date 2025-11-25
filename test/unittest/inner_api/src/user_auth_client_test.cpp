@@ -734,35 +734,7 @@ void UserAuthClientTest::CallRemoteObject(const std::shared_ptr<MockUserAuthServ
         });
 }
 
-HWTEST_F(UserAuthClientTest, UserAuthClientRegistUserAuthSuccessEventListener001, TestSize.Level0)
-{
-    std::vector<AuthType> authTypeList;
-    authTypeList.push_back(AuthType::PIN);
-    authTypeList.push_back(AuthType::FACE);
-    authTypeList.push_back(AuthType::FINGERPRINT);
-
-    auto testCallback = Common::MakeShared<MockAuthSuccessEventListener>();
-    EXPECT_NE(testCallback, nullptr);
-
-    auto service = Common::MakeShared<MockUserAuthService>();
-    EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, RegistUserAuthSuccessEventListener(_)).Times(1);
-    ON_CALL(*service, RegistUserAuthSuccessEventListener)
-        .WillByDefault(
-            [](const sptr<IEventListenerCallback> &callback) {
-                return SUCCESS;
-            }
-        );
-    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
-    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
-    CallRemoteObject(service, obj, dr);
-    int32_t ret = UserAuthClientImpl::Instance().RegistUserAuthSuccessEventListener(authTypeList, testCallback);
-    EXPECT_EQ(ret, SUCCESS);
-    dr->OnRemoteDied(obj);
-    IpcClientUtils::ResetObj();
-}
-
-HWTEST_F(UserAuthClientTest, UserAuthClientRegistUserAuthSuccessEventListener002, TestSize.Level0)
+HWTEST_F(UserAuthClientTest, UserAuthClientRegistUserAuthSuccessEventListener, TestSize.Level0)
 {
     std::vector<AuthType> authTypeList;
     authTypeList.push_back(AuthType::PIN);
@@ -770,58 +742,20 @@ HWTEST_F(UserAuthClientTest, UserAuthClientRegistUserAuthSuccessEventListener002
     authTypeList.push_back(AuthType::FINGERPRINT);
 
     int32_t ret = UserAuthClientImpl::Instance().RegistUserAuthSuccessEventListener(authTypeList, nullptr);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
+
+    auto testCallback = Common::MakeShared<MockAuthSuccessEventListener>();
+    ret = UserAuthClientImpl::Instance().RegistUserAuthSuccessEventListener(authTypeList, testCallback);
     EXPECT_EQ(ret, GENERAL_ERROR);
 }
 
-HWTEST_F(UserAuthClientTest, UserAuthClientRegistUserAuthSuccessEventListener003, TestSize.Level0)
-{
-    std::vector<AuthType> authTypeList;
-    authTypeList.push_back(AuthType::PIN);
-    authTypeList.push_back(AuthType::FACE);
-    authTypeList.push_back(AuthType::FINGERPRINT);
-
-    auto testCallback = Common::MakeShared<MockAuthSuccessEventListener>();
-    EXPECT_NE(testCallback, nullptr);
-
-    int32_t ret = UserAuthClientImpl::Instance().RegistUserAuthSuccessEventListener(authTypeList, testCallback);
-    EXPECT_EQ(ret, GENERAL_ERROR);
-}
-
-HWTEST_F(UserAuthClientTest, UserAuthClientUnRegistUserAuthSuccessEventListener001, TestSize.Level0)
-{
-    auto testCallback = Common::MakeShared<MockAuthSuccessEventListener>();
-    EXPECT_NE(testCallback, nullptr);
-
-    auto service = Common::MakeShared<MockUserAuthService>();
-    EXPECT_NE(service, nullptr);
-    EXPECT_CALL(*service, UnRegistUserAuthSuccessEventListener(_)).Times(1);
-    ON_CALL(*service, UnRegistUserAuthSuccessEventListener)
-        .WillByDefault(
-            [](const sptr<IEventListenerCallback> &callback) {
-                return SUCCESS;
-            }
-        );
-    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
-    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
-    CallRemoteObject(service, obj, dr);
-    int32_t ret = UserAuthClientImpl::Instance().UnRegistUserAuthSuccessEventListener(testCallback);
-    EXPECT_EQ(ret, SUCCESS);
-    dr->OnRemoteDied(obj);
-    IpcClientUtils::ResetObj();
-}
-
-HWTEST_F(UserAuthClientTest, UserAuthClientUnRegistUserAuthSuccessEventListener002, TestSize.Level0)
+HWTEST_F(UserAuthClientTest, UserAuthClientUnRegistUserAuthSuccessEventListener, TestSize.Level0)
 {
     int32_t ret = UserAuthClientImpl::Instance().UnRegistUserAuthSuccessEventListener(nullptr);
-    EXPECT_EQ(ret, GENERAL_ERROR);
-}
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
 
-HWTEST_F(UserAuthClientTest, UserAuthClientUnRegistUserAuthSuccessEventListener003, TestSize.Level0)
-{
     auto testCallback = Common::MakeShared<MockAuthSuccessEventListener>();
-    EXPECT_NE(testCallback, nullptr);
-
-    int32_t ret = UserAuthClientImpl::Instance().UnRegistUserAuthSuccessEventListener(testCallback);
+    ret = UserAuthClientImpl::Instance().UnRegistUserAuthSuccessEventListener(testCallback);
     EXPECT_EQ(ret, GENERAL_ERROR);
 }
 

@@ -29,44 +29,40 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class EventListenerCallbackManager {
+class EventListenerCallbackService : public EventListenerCallbackStub {
 public:
-    static EventListenerCallbackManager &GetInstance();
-    int32_t AddUserAuthSuccessEventListener(const sptr<IUserAuth> &proxy, const std::vector<AuthType> &authTypes,
-        const std::shared_ptr<AuthSuccessEventListener> &listener);
-    int32_t RemoveUserAuthSuccessEventListener(const sptr<IUserAuth> &proxy,
-        const std::shared_ptr<AuthSuccessEventListener> &listener);
-    int32_t AddCredChangeEventListener(const sptr<IUserIdm> &proxy, const std::vector<AuthType> &authTypes,
-        const std::shared_ptr<CredChangeEventListener> &listener);
-    int32_t RemoveCredChangeEventListener(const sptr<IUserIdm> &proxy,
-        const std::shared_ptr<CredChangeEventListener> &listener);
-    void OnServiceDeath();
+    static sptr<EventListenerCallbackService> GetInstance();
 
-protected:
-    std::set<std::shared_ptr<AuthSuccessEventListener>> GetAuthEventListenerSet(AuthType authType);
-    std::set<std::shared_ptr<CredChangeEventListener>> GetCredEventListenerSet(AuthType authType);
+    int32_t OnNotifyAuthSuccessEvent(int32_t userId, int32_t authType, int32_t callerType,
+        const std::string &callerName) override;
+    int32_t OnNotifyCredChangeEvent(int32_t userId, int32_t authType, int32_t eventType,
+        const IpcCredChangeEventInfo &changeInfo) override;
+    int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;
+    int32_t CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result) override;
 
 private:
-    class EventListenerCallbackImpl : public EventListenerCallbackStub {
-    public:
-        explicit EventListenerCallbackImpl() = default;
-        ~EventListenerCallbackImpl() override = default;
+    EventListenerCallbackService() = default;
+    ~EventListenerCallbackService() override = default;
+};
 
-        int32_t OnNotifyAuthSuccessEvent(int32_t userId, int32_t authType, int32_t callerType,
-            const std::string &callerName) override;
-        int32_t OnNotifyCredChangeEvent(int32_t userId, int32_t authType, int32_t eventType,
-            const IpcCredChangeEventInfo &changeInfo) override;
-        int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;
-        int32_t CallbackExit([[maybe_unused]] uint32_t code, [[maybe_unused]] int32_t result) override;
-    };
+template<typename T>
+class EventListenerCallbackManager {
+public:
+    static EventListenerCallbackManager<T> &GetInstance();
 
-    EventListenerCallbackManager() = default;
+    int32_t RegisterListener(const std::vector<AuthType> &authTypes, const std::shared_ptr<T> &listener);
+    int32_t UnRegisterListener(const std::shared_ptr<T> &listener);
+    int32_t RegisterListenerDispatcher(sptr<IRemoteObject> proxy, sptr<EventListenerCallbackService> listenerImpl);
+    int32_t UnRegisterListenerDispatcher(sptr<IRemoteObject> proxy, sptr<EventListenerCallbackService> listenerImpl);
+    std::set<std::shared_ptr<T>> GetEventListenerSet(AuthType authType);
+    bool IsExistEventListener();
+
+private:
+    EventListenerCallbackManager();
     ~EventListenerCallbackManager() = default;
-    sptr<EventListenerCallbackImpl> authEventListenerCallbackImpl_ = nullptr;
-    sptr<EventListenerCallbackImpl> credEventListenerCallbackImpl_ = nullptr;
+
     std::recursive_mutex eventListenerMutex_;
-    std::map<AuthType, std::set<std::shared_ptr<AuthSuccessEventListener>>> authEventListenerMap_ = {};
-    std::map<AuthType, std::set<std::shared_ptr<CredChangeEventListener>>> credEventListenerMap_ = {};
+    std::map<AuthType, std::set<std::shared_ptr<T>>> eventListenerMap_ = {};
 };
 } // namespace UserAuth
 } // namespace UserIam

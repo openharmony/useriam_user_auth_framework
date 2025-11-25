@@ -44,20 +44,22 @@ void EventListenerCallbackServiceTest::TearDown()
 {
 }
 
-HWTEST_F(EventListenerCallbackServiceTest, GetAuthEventListenerSetTest, TestSize.Level0)
+HWTEST_F(EventListenerCallbackServiceTest, RegisterListenerTest, TestSize.Level0)
 {
-    int32_t authType = 1;
-    auto manager = &EventListenerCallbackManager::GetInstance();
-    auto eventListenerSet = manager->GetAuthEventListenerSet(static_cast<AuthType>(authType));
-    EXPECT_EQ(eventListenerSet.size(), 0);
-}
+    std::vector<AuthType> authTypes = {AuthType::PIN};
+    auto ret = EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().RegisterListener(
+        authTypes, nullptr);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
+    ret = EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().UnRegisterListener(nullptr);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
 
-HWTEST_F(EventListenerCallbackServiceTest, GetCredEventListenerSetTest, TestSize.Level0)
-{
-    int32_t authType = 1;
-    auto manager = &EventListenerCallbackManager::GetInstance();
-    auto eventListenerSet = manager->GetCredEventListenerSet(static_cast<AuthType>(authType));
-    EXPECT_EQ(eventListenerSet.size(), 0);
+    auto tmpListener = Common::MakeShared<MockAuthSuccessEventListener>();
+    ret = EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().RegisterListener(
+        authTypes, tmpListener);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+    ret = EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().UnRegisterListener(tmpListener);
+    EXPECT_EQ(ret, GENERAL_ERROR);
+    EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().GetEventListenerSet(AuthType::PIN);
 }
 } // namespace UserAuth
 } // namespace UserIam

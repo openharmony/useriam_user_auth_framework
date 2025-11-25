@@ -377,21 +377,13 @@ int32_t UserIdmClientImpl::RegistCredChangeEventListener(const std::vector<AuthT
     const std::shared_ptr<CredChangeEventListener> &listener)
 {
     IAM_LOGI("start");
-
-    auto proxy = GetProxy();
-    IF_FALSE_LOGE_AND_RETURN_VAL(proxy != nullptr, GENERAL_ERROR);
-
-    return EventListenerCallbackManager::GetInstance().AddCredChangeEventListener(proxy, authTypes, listener);
+    return EventListenerCallbackManager<CredChangeEventListener>::GetInstance().RegisterListener(authTypes, listener);
 }
 
 int32_t UserIdmClientImpl::UnRegistCredChangeEventListener(const std::shared_ptr<CredChangeEventListener> &listener)
 {
     IAM_LOGI("start");
-
-    auto proxy = GetProxy();
-    IF_FALSE_LOGE_AND_RETURN_VAL(proxy != nullptr, GENERAL_ERROR);
-
-    return EventListenerCallbackManager::GetInstance().RemoveCredChangeEventListener(proxy, listener);
+    return EventListenerCallbackManager<CredChangeEventListener>::GetInstance().UnRegisterListener(listener);
 }
 
 int32_t UserIdmClientImpl::GetCredentialInfoSync(int32_t userId, AuthType authType,
@@ -432,7 +424,6 @@ void UserIdmClientImpl::UserIdmImplDeathRecipient::OnRemoteDied(const wptr<IRemo
         return;
     }
     CallbackManager::GetInstance().OnServiceDeath();
-    EventListenerCallbackManager::GetInstance().OnServiceDeath();
     UserIdmClientImpl::Instance().ResetProxy(remote);
 }
 
