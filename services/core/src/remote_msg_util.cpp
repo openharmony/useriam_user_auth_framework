@@ -20,7 +20,6 @@
 #include <sstream>
 #include <string>
 
-#include "device_manager.h"
 #include "device_manager_util.h"
 #include "hdi_wrapper.h"
 #include "iam_check.h"
