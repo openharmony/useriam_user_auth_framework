@@ -512,6 +512,11 @@ int32_t UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> &auth
     PublishEventAdapter::GetInstance().PublishDeletedEvent(userId);
     PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, PIN, 0);
     CredChangeEventInfo changeInfo = {callerName, callerType, 0, 0, false};
+    for (auto cred : credInfos) {
+        if (cred->GetAuthType() == PIN && !cred->GetAbandonFlag()) {
+            changeInfo.lastCredentialId = cred->GetCredentialId();
+        }
+    }
     CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(userId, PIN, DEL_USER, changeInfo);
     return SUCCESS;
 }
@@ -640,7 +645,7 @@ void UserIdmService::SetAuthTypeTrace(const std::vector<std::shared_ptr<Credenti
 }
 
 int32_t UserIdmService::EnforceDelUserInner(int32_t userId, std::shared_ptr<ContextCallback> callbackForTrace,
-    std::string changeReasonTrace, const CredChangeEventInfo &changeInfo)
+    std::string changeReasonTrace, CredChangeEventInfo &changeInfo)
 {
     std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
     int32_t ret = UserIdmDatabase::Instance().DeleteUserEnforce(userId, credInfos);
@@ -659,6 +664,11 @@ int32_t UserIdmService::EnforceDelUserInner(int32_t userId, std::shared_ptr<Cont
 
     PublishEventAdapter::GetInstance().PublishDeletedEvent(userId);
     PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, PIN, 0);
+    for (auto cred : credInfos) {
+        if (cred->GetAuthType() == PIN && !cred->GetAbandonFlag()) {
+            changeInfo.lastCredentialId = cred->GetCredentialId();
+        }
+    }
     CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(userId, PIN, ENFORCE_DEL_USER, changeInfo);
     IAM_LOGI("delete user success, userId:%{public}d", userId);
     return SUCCESS;
