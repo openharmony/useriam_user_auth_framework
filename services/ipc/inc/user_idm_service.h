@@ -76,7 +76,7 @@ private:
     int32_t GetSecInfoInner(int32_t userId, SecUserInfo &secUserInfo);
     int32_t GetCredentialInfoInner(int32_t userId, AuthType authType, std::vector<CredentialInfo> &credInfoList);
     int32_t EnforceDelUserInner(int32_t userId, std::shared_ptr<ContextCallback> callbackForTrace,
-        std::string changeReasonTrace, const CredChangeEventInfo &changeInfo);
+        std::string changeReasonTrace, CredChangeEventInfo &changeInfo);
     int32_t ClearRedundancyCredentialInner(const std::string &callerName, int32_t callerType);
     void SetAuthTypeTrace(const std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos,
         const std::shared_ptr<ContextCallback> &contextCallback);
