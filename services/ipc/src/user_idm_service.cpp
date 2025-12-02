@@ -460,7 +460,7 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IIamCallback> 
 
 void UserIdmService::PostProcessForDelete(int32_t userId,
     std::vector<std::shared_ptr<CredentialInfoInterface> credInfos,
-    std::string changeReasonTrace,  CredChangeEventType eventType, CredChangeEventInfo &changeInfo)
+    std::string changeReasonTrace, CredChangeEventType eventType, CredChangeEventInfo &changeInfo)
 {
     int32_t ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos, changeReasonTrace);
     if (ret != SUCCESS) {
@@ -668,7 +668,7 @@ int32_t UserIdmService::EnforceDelUserInner(int32_t userId, std::shared_ptr<Cont
         return ret;
     }
     SetAuthTypeTrace(credInfos, callbackForTrace);
-    PostProcessForDelete(userId, credInfos, "DeleteUser", DEL_USER, changeInfo);
+    PostProcessForDelete(userId, credInfos, changeReasonTrace, DEL_USER, changeInfo);
     return SUCCESS;
 }
 

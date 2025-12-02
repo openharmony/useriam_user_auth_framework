@@ -77,8 +77,6 @@ private:
     int32_t GetCredentialInfoInner(int32_t userId, AuthType authType, std::vector<CredentialInfo> &credInfoList);
     void PostProcessForDelete(int32_t userId, std::vector<std::shared_ptr<CredentialInfoInterface> credInfos,
         std::string changeReasonTrace,  CredChangeEventType eventType, CredChangeEventInfo &changeInfo)
-    int32_t DelUserInner(int32_t userId, const std::vector<uint8_t> &authToken,
-        CredChangeEventInfo &changeInfo, const std::shared_ptr<ContextCallback> &contextCallback);
     int32_t ClearRedundancyCredentialInner(const std::string &callerName, int32_t callerType);
     void SetAuthTypeTrace(const std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos,
         const std::shared_ptr<ContextCallback> &contextCallback);
