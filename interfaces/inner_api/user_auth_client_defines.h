@@ -192,6 +192,18 @@ struct GlobalConfigParam {
     /** Specified authTypes. Should not empty. */
     std::vector<AuthType> authTypes;
 };
+
+/**
+ * @brief Auth success event info.
+ */
+struct AuthSuccessEventInfo {
+    /** The callerName who auth success. */
+    std::string callerName;
+    /** The callerType who auth success. */
+    int32_t callerType;
+    /** Is widget auth. */
+    bool isWidgetAuth {false};
+};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

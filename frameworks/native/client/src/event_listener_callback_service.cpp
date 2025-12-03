@@ -23,11 +23,10 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-int32_t EventListenerCallbackService::OnNotifyAuthSuccessEvent(int32_t userId, int32_t authType, int32_t callerType,
-    const std::string &callerName)
+int32_t EventListenerCallbackService::OnNotifyAuthSuccessEvent(int32_t userId, int32_t authType,
+    const IpcAuthSuccessEventInfo &eventInfo)
 {
-    IAM_LOGI("OnNotifyAuthSuccessEvent, userId:%{public}d, authType:%{public}d, callerName:%{public}s,"
-        "callerType:%{public}d", userId, authType, callerName.c_str(), callerType);
+    IAM_LOGI("OnNotifyAuthSuccessEvent, userId:%{public}d, authType:%{public}d", userId, authType);
 
     auto eventListenerSet = EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().GetEventListenerSet(
         static_cast<AuthType>(authType));
@@ -36,7 +35,8 @@ int32_t EventListenerCallbackService::OnNotifyAuthSuccessEvent(int32_t userId, i
             IAM_LOGE("authListener is nullptr");
             continue;
         }
-        listener->OnNotifyAuthSuccessEvent(userId, static_cast<AuthType>(authType), callerType, callerName);
+        listener->OnNotifyAuthSuccessEvent(userId, static_cast<AuthType>(authType), {eventInfo.callerName,
+            eventInfo.callerType, eventInfo.isWidgetAuth});
     }
     return SUCCESS;
 }
