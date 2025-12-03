@@ -99,11 +99,10 @@ public:
      *
      * @param userId The id of user who initiates authentication.
      * @param authType The authentication auth type{@link AuthType}.
-     * @param callerType The caller type who initiates authentication.
-     * @param callerName The caller name who initiates authentication.
+     * @param eventInfo Auth success event info.
      */
-    virtual void OnNotifyAuthSuccessEvent(int32_t userId, AuthType authType, int32_t callerType,
-        const std::string &callerName) = 0;
+    virtual void OnNotifyAuthSuccessEvent(int32_t userId, AuthType authType,
+        const AuthSuccessEventInfo &eventInfo) = 0;
 };
 
 class PrepareRemoteAuthCallback {

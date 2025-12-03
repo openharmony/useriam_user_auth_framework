@@ -208,3 +208,15 @@ struct IpcCredChangeEventInfo {
     /** Is silent cred change. */
     boolean isSilentCredChange;
 };
+
+/**
+ * @brief Auth success event info.
+ */
+struct IpcAuthSuccessEventInfo {
+    /** The callerName who auth success. */
+    String callerName;
+    /** The callerType who auth success. */
+    int callerType;
+    /** Is widget auth. */
+    boolean isWidgetAuth;
+};
