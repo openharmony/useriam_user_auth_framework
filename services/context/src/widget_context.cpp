@@ -211,6 +211,7 @@ std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &ch
     para.authIntent = authIntent;
     para.skipLockedBiometricAuth = para_.skipLockedBiometricAuth;
     para.isOsAccountVerified = para_.isOsAccountVerified;
+    para.credentialIdList = para_.credentialIdList;
     auto context = ContextFactory::CreateSimpleAuthContext(para, widgetCallback, true);
     if (context == nullptr || !ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
