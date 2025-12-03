@@ -62,6 +62,7 @@ ohos_fuzztest("UserIdmServiceFuzzTest") {
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "drivers_interface_user_auth:libuser_auth_proxy_4.0",
+    "drivers_interface_user_auth:libuser_auth_proxy_4.1",
     "hdf_core:libhdf_utils",
     "hdf_core:libhdi",
     "hilog:libhilog",

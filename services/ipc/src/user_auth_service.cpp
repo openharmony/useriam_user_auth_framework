@@ -730,6 +730,7 @@ int32_t UserAuthService::AuthUser(const IpcAuthParamInner &ipcAuthParamInner,
     para.sdkVersion = INNER_API_VERSION_10000;
     para.authIntent = authParam.authIntent;
     para.skipLockedBiometricAuth = authParam.skipLockedBiometricAuth;
+    para.credentialIdList = authParam.credentialIdList;
     para.isOsAccountVerified = IpcCommon::IsOsAccountVerified(authParam.userId);
     return StartAuthUser(authParam, remoteAuthParam, para, contextCallback, contextId);
 }
@@ -1862,6 +1863,7 @@ void UserAuthService::InitAuthParam(const IpcAuthParamInner &ipcAuthParam, AuthP
     authParam.authTrustLevel = static_cast<AuthTrustLevel>(ipcAuthParam.authTrustLevel);
     authParam.authIntent = static_cast<AuthIntent>(ipcAuthParam.authIntent);
     authParam.skipLockedBiometricAuth = ipcAuthParam.skipLockedBiometricAuth;
+    authParam.credentialIdList = ipcAuthParam.credentialIdList;
     authParam.reuseUnlockResult.isReuse = ipcAuthParam.reuseUnlockResult.isReuse;
     authParam.reuseUnlockResult.reuseMode = static_cast<ReuseMode>(ipcAuthParam.reuseUnlockResult.reuseMode);
     authParam.reuseUnlockResult.reuseDuration = ipcAuthParam.reuseUnlockResult.reuseDuration;

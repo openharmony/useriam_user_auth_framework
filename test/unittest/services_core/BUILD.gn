@@ -107,6 +107,7 @@ ohos_unittest("iam_services_core_test") {
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "drivers_interface_user_auth:libuser_auth_proxy_4.0",
+    "drivers_interface_user_auth:libuser_auth_proxy_4.1",
     "googletest:gmock",
     "hdf_core:libhdi",
     "hicollie:libhicollie",

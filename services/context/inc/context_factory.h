@@ -61,6 +61,7 @@ public:
         bool isOsAccountVerified {false};
         bool isBackgroundApplication {false};
         bool skipLockedBiometricAuth {false};
+        std::vector<uint64_t> credentialIdList {};
     };
 
     static std::shared_ptr<Context> CreateSimpleAuthContext(const Authentication::AuthenticationPara &para,

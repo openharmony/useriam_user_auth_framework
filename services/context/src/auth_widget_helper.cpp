@@ -54,6 +54,7 @@ bool AuthWidgetHelper::InitWidgetContextParam(const AuthParamInner &authParam, s
     if (widgetParam.windowMode == WindowModeType::UNKNOWN_WINDOW_MODE) {
         para.widgetParam.windowMode = WindowModeType::DIALOG_BOX;
     }
+    para.credentialIdList = authParam.credentialIdList;
     return true;
 }
 
