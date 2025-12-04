@@ -147,8 +147,7 @@ void ContextCallbackImpl::HandleAuthSuccessResult(int32_t resultCode, const Attr
         metaData_.operationType != TRACE_AUTH_USER_BEHAVIOR)) {
         return;
     }
-    if (!metaData_.authType.has_value() || !metaData_.callerType.has_value() || !metaData_.callerName.has_value() ||
-        !metaData_.sdkVersion.has_value()) {
+    if (!metaData_.authType.has_value() || !metaData_.callerType.has_value() || !metaData_.callerName.has_value()) {
         IAM_LOGE("bad metaData");
         return;
     }
@@ -158,8 +157,8 @@ void ContextCallbackImpl::HandleAuthSuccessResult(int32_t resultCode, const Attr
         return;
     }
     AuthSuccessEventInfo eventInfo = {metaData_.callerName.value(), metaData_.callerType.value(), false};
-    if (metaData_.sdkVersion.value() < INNER_API_VERSION_10000 || metaData_.sdkVersion.value() == INNER_API_VERSION_20000) {
-        eventInfo.isWidgetAuth = true;
+    if (metaData_.isWidgetAuth.has_value()) {
+        eventInfo.isWidgetAuth = metaData_.isWidgetAuth.value();
     }
     AuthEventListenerManager::GetInstance().OnNotifyAuthSuccessEvent(userId,
         static_cast<AuthType>(metaData_.authType.value()), eventInfo);
@@ -258,6 +257,11 @@ void ContextCallbackImpl::SetTraceAuthFinishReason(const std::string &authFinish
 void ContextCallbackImpl::SetTraceIsBackgroundApplication(bool isBackgroundApplication)
 {
     metaData_.isBackgroundApplication = isBackgroundApplication;
+}
+
+void ContextCallbackImpl::SetTraceIsWidgetAuth(bool isWidgetAuth)
+{
+    metaData_.isWidgetAuth = isWidgetAuth;
 }
 
 void ContextCallbackImpl::SetCleaner(Context::ContextStopCallback callback)

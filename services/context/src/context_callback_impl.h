@@ -49,6 +49,7 @@ public:
     void SetTraceConnectionName(const std::string &connectionName) override;
     void SetTraceAuthFinishReason(const std::string &authFinishReason) override;
     void SetTraceIsBackgroundApplication(bool isBackgroundApplication) override;
+    void SetTraceIsWidgetAuth(bool isWidgetAuth) override;
     void SetCleaner(Context::ContextStopCallback callback) override;
     int32_t ParseAuthTipInfo(int32_t tip, const std::vector<uint8_t> &extraInfo,
         int32_t &authResult, int32_t &freezingTime) override;
