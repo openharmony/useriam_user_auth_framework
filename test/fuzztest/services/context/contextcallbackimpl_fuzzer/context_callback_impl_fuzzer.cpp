@@ -137,6 +137,9 @@ void FillSet(Parcel &parcel)
     bool isBackgroundApplication = parcel.ReadBool();
     g_ContextCallback->SetTraceIsBackgroundApplication(isBackgroundApplication);
 
+    bool isWidgetAuth = parcel.ReadBool();
+    g_ContextCallback->SetTraceIsWidgetAuth(isWidgetAuth);
+
     g_ContextCallback->SetCleaner(nullptr);
     g_ContextCallback->SetTraceLocalUdid(parcel.ReadString());
     g_ContextCallback->SetTraceRemoteUdid(parcel.ReadString());

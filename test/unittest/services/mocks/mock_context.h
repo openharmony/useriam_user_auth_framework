@@ -62,6 +62,7 @@ public:
     MOCK_METHOD1(SetTraceConnectionName, void(const std::string &connectionName));
     MOCK_METHOD1(SetTraceAuthFinishReason, void(const std::string &authFinishReason));
     MOCK_METHOD1(SetTraceIsBackgroundApplication, void(const bool isBackgroundApplication));
+    MOCK_METHOD1(SetTraceIsWidgetAuth, void(const bool isWidgetAuth));
 };
 
 class MockContext final : public Context {

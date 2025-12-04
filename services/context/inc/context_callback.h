@@ -57,6 +57,7 @@ public:
         std::optional<std::string> connectionName;
         std::optional<std::string> authFinishReason;
         std::optional<bool> isBackgroundApplication;
+        std::optional<bool> isWidgetAuth;
     };
     using Notify = std::function<void(const MetaData &metaData, TraceFlag flag)>;
     static ContextCallbackNotifyListener &GetInstance();
@@ -95,6 +96,7 @@ public:
     virtual void SetTraceConnectionName(const std::string &connectionName) = 0;
     virtual void SetTraceAuthFinishReason(const std::string &authFinishReason) = 0;
     virtual void SetTraceIsBackgroundApplication(bool isBackgroundApplication) = 0;
+    virtual void SetTraceIsWidgetAuth(bool isWidgetAuth) = 0;
     virtual int32_t ParseAuthTipInfo(int32_t tip, const std::vector<uint8_t> &extraInfo,
         int32_t &authResult, int32_t &freezingTime) = 0;
     virtual void ProcessAuthResult(int32_t tip, const std::vector<uint8_t> &extraInfo) = 0;
