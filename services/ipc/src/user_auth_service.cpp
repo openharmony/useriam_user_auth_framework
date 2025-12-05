@@ -39,6 +39,7 @@
 #include "remote_msg_util.h"
 #include "remote_iam_callback.h"
 #include "remote_auth_service.h"
+#include "thread_handler_manager.h"
 #include "device_manager_util.h"
 #include "xcollie_helper.h"
 
@@ -977,10 +978,11 @@ int32_t UserAuthService::CancelAuthOrIdentify(uint64_t contextId, int32_t cancel
         UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "AuthWidget");
     }
 
-    if (!context->Stop()) {
-        IAM_LOGE("failed to cancel auth or identify");
-        return context->GetLatestError();
-    }
+    ThreadHandlerManager::GetInstance().PostTaskOnTemporaryThread("cancelAuth", [context]() {
+        if (!context->Stop()) {
+            IAM_LOGE("failed to cancel auth or identify, ret%{public}d", context->GetLatestError());
+        }
+    });
 
     return SUCCESS;
 }
