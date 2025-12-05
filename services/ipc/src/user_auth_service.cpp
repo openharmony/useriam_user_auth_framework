@@ -978,32 +978,14 @@ int32_t UserAuthService::CancelAuthOrIdentify(uint64_t contextId, int32_t cancel
         UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "AuthWidget");
     }
 
-    ThreadHandlerManager::GetInstance().PostTaskOnTemporaryThread("cancelAuth", [this, contextId]() {
-        bool ret = CancelAuthOrIdentifyAsyn(contextId);
-        if (ret != SUCCESS) {
-            IAM_LOGE("CancelAuthOrIdentifyAsyn fail");
+    ThreadHandlerManager::GetInstance().PostTaskOnTemporaryThread("cancelAuth", [context]() {
+        if (!context->Stop()) {
+            IAM_LOGE("failed to cancel auth or identify, ret%{public}d", context->GetLatestError());
         }
     });
 
     return SUCCESS;
 }
-
-bool UserAuthService::CancelAuthOrIdentifyAsyn(uint64_t contextId)
-{
-    auto context = ContextPool::Instance().Select(contextId).lock();
-    if (context == nullptr) {
-        IAM_LOGE("context not exist");
-        return false;
-    }
-
-    if (!context->Stop()) {
-        IAM_LOGE("failed to cancel auth or identify, ret%{public}d", context->GetLastestError());
-        return false;
-    }
-
-    return true;
-}
-
 
 int32_t UserAuthService::GetVersion(int32_t &version)
 {
