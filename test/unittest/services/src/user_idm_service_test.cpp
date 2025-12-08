@@ -350,7 +350,7 @@ static void MockForAddCredentialHdi(std::shared_ptr<Context> &context, std::prom
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, BeginEnrollment(_, _, _))
-        .WillOnce([&context](const std::vector<uint8_t> &authToken, const HdiEnrollParam &param,
+        .WillOnce([&context](const std::vector<uint8_t> &authToken, const HdiEnrollParamExt &param,
             HdiScheduleInfo &info) {
             info.executorIndexes.push_back(testExecutorIndex);
             std::vector<uint8_t> executorMessages;

@@ -116,7 +116,7 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
         IAM_LOGE("ConvertATokenTypeToCallerType failed, ATokenType:%{public}d", enrollPara_.callerType);
         return false;
     }
-    HdiEnrollParam param = {
+    HdiEnrollParamExt param = {
         .authType = static_cast<HdiAuthType>(enrollPara_.authType),
         .executorSensorHint = executorSensorHint_,
         .callerName = enrollPara_.callerName,

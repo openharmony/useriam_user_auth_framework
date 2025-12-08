@@ -63,7 +63,7 @@ struct AuthParam {
     /** Remote auth parameter. */
     std::optional<RemoteAuthParam> remoteAuthParam;
     /** Used to specify the credential Ids for authentication. */
-    std::optional<std::vector<uint64_t>> credentialIdList;
+    std::vector<uint64_t> credentialIdList;
 };
 
 /**
