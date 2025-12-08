@@ -89,7 +89,7 @@ std::vector<Authentication::AuthExecutorMsg> AuthenticationImpl::GetAuthExecutor
     return authExecutorMsgs_;
 }
 
-bool AuthenticationImpl::GetAuthParam(HdiAuthParam &param)
+bool AuthenticationImpl::GetAuthParam(HdiAuthParamExt &param)
 {
     HdiCallerType callerType = ConvertATokenTypeToCallerType(authPara_.callerType);
     if (callerType == HDI_CALLER_TYPE_INVALID) {
@@ -125,7 +125,7 @@ bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
         IAM_LOGE("bad hdi");
         return false;
     }
-    HdiAuthParam param = {};
+    HdiAuthParamExt param = {};
     if (!GetAuthParam(param)) {
         IAM_LOGE("GetAuthParam failed");
         return false;

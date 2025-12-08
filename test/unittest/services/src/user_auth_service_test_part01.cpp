@@ -784,8 +784,8 @@ static void MockForUserAuthHdi(std::shared_ptr<Context> &context, std::promise<v
     const uint32_t testExecutorIndex = 60;
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _))
-        .WillRepeatedly([&context](uint64_t contextId, const HdiAuthParam &param,
+    EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _))
+        .WillRepeatedly([&context](uint64_t contextId, const HdiAuthParamExt &param,
             std::vector<HdiScheduleInfo> &scheduleInfos) {
             HdiScheduleInfo scheduleInfo = {};
             scheduleInfo.authType = HdiAuthType::FACE;

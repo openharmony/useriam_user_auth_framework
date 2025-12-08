@@ -202,7 +202,7 @@ HWTEST_F(EnrollmentImplTest, EnrollmentImplTestStart_001, TestSize.Level0)
         .WillOnce(Return(HDF_FAILURE));
     EXPECT_CALL(*mockHdi, BeginEnrollment(_, _, _))
         .WillRepeatedly(
-            [](const std::vector<uint8_t> &authToken, const HdiEnrollParam &param,
+            [](const std::vector<uint8_t> &authToken, const HdiEnrollParamExt &param,
                 HdiScheduleInfo &info) {
                 info.authType = HdiAuthType::FACE;
                 info.executorMatcher = 10;

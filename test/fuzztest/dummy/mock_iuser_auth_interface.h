@@ -141,7 +141,18 @@ public:
         return 0;
     }
 
+    int32_t BeginEnrollmentExt(const std::vector<uint8_t> &authToken, const HdiEnrollParamExt &param, HdiScheduleInfo &info)
+    {
+        return 0;
+    }
+
     int32_t BeginAuthentication(uint64_t contextId, const HdiAuthParam &param,
+        std::vector<HdiScheduleInfo> &scheduleInfos)
+    {
+        return 0;
+    }
+
+    int32_t BeginAuthenticationExt(uint64_t contextId, const HdiAuthParamExt &param,
         std::vector<HdiScheduleInfo> &scheduleInfos)
     {
         return 0;

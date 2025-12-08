@@ -359,7 +359,7 @@ uint64_t UserAuthClientImpl::BeginAuthenticationInner(const AuthParam &authParam
         .authType = static_cast<int32_t>(authParam.authType),
         .authTrustLevel = static_cast<int32_t>(authParam.authTrustLevel),
         .authIntent = static_cast<int32_t>(authParam.authIntent),
-        .credentialIdList = authParam.credentialIdList;
+        .credentialIdList = authParam.credentialIdList,
     };
     IpcRemoteAuthParam ipcRemoteAuthParam = {};
     InitIpcRemoteAuthParam(authParam.remoteAuthParam, ipcRemoteAuthParam);
@@ -887,7 +887,7 @@ void UserAuthClientImpl::InitIpcAuthParam(const AuthParamInner &authParam,
     ipcAuthParamInner.authTrustLevel = static_cast<uint32_t>(authParam.authTrustLevel);
     ipcAuthParamInner.authIntent = static_cast<int32_t>(authParam.authIntent);
     ipcAuthParamInner.skipLockedBiometricAuth = authParam.skipLockedBiometricAuth;
-    ipcAuthParamInner.credentialIdList = authParam.credentialIdList;
+    ipcAuthParamInner.credentialIdList = authParam.credentialIdList,
     ipcAuthParamInner.reuseUnlockResult.isReuse = authParam.reuseUnlockResult.isReuse;
     ipcAuthParamInner.reuseUnlockResult.reuseMode = authParam.reuseUnlockResult.reuseMode;
     ipcAuthParamInner.reuseUnlockResult.reuseDuration = authParam.reuseUnlockResult.reuseDuration;

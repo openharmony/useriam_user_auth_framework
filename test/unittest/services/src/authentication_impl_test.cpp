@@ -263,9 +263,9 @@ HWTEST_F(AuthenticationImplTest, AuthenticationImplTestStart, TestSize.Level0)
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, CancelAuthentication(_)).Times(0)
         .WillOnce(Return(HDF_SUCCESS)).WillOnce(Return(HDF_FAILURE));
-    EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _))
+    EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _))
         .WillRepeatedly(
-            [](uint64_t contextId, const HdiAuthParam &param, std::vector<HdiScheduleInfo> &scheduleInfos) {
+            [](uint64_t contextId, const HdiAuthParamExt &param, std::vector<HdiScheduleInfo> &scheduleInfos) {
                 HdiScheduleInfo scheduleInfo = {};
                 scheduleInfo.authType = HdiAuthType::FACE;
                 scheduleInfo.executorMatcher = 10;
