@@ -71,7 +71,7 @@ HWTEST_F(AuthenticationImplTest, AuthenticationHdiError, TestSize.Level0)
     para.authType = FACE;
     para.atl = ATL3;
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_CALL(*mock, BeginAuthentication(contextId, _, _)).WillRepeatedly(Return(1));
+    EXPECT_CALL(*mock, BeginAuthenticationExt(contextId, _, _)).WillRepeatedly(Return(1));
 
     auto authentication = std::make_shared<AuthenticationImpl>(contextId, para);
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
@@ -89,7 +89,7 @@ HWTEST_F(AuthenticationImplTest, AuthenticationHdiEmpty, TestSize.Level0)
     para.atl = ATL3;
 
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_CALL(*mock, BeginAuthentication(contextId, _, _)).WillRepeatedly(Return(0));
+    EXPECT_CALL(*mock, BeginAuthenticationExt(contextId, _, _)).WillRepeatedly(Return(0));
 
     auto authentication = std::make_shared<AuthenticationImpl>(contextId, para);
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
@@ -126,7 +126,7 @@ HWTEST_F(AuthenticationImplTest, AuthenticationInvalidExecutor, TestSize.Level0)
     };
 
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_CALL(*mock, BeginAuthentication(contextId, _, _)).WillRepeatedly(DoAll(WithArg<2>(fillInfoList),
+    EXPECT_CALL(*mock, BeginAuthenticationExt(contextId, _, _)).WillRepeatedly(DoAll(WithArg<2>(fillInfoList),
         Return(0)));
 
     auto authentication = std::make_shared<AuthenticationImpl>(contextId, para);

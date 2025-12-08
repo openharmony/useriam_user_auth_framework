@@ -849,7 +849,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_023, TestSize.Level0)
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
-    EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _)).Times(0);
+    EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _)).Times(0);
     EXPECT_CALL(*mockHdi, CheckReuseUnlockResult(_, _)).Times(1);
     ON_CALL(*mockHdi, CheckReuseUnlockResult)
         .WillByDefault(
@@ -884,7 +884,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_024, TestSize.Level0)
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
-    EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _)).Times(0);
+    EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _)).Times(0);
     sptr<IModalCallback> testModalCallback(nullptr);
     uint64_t contextId = 0;
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
@@ -910,7 +910,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_025, TestSize.Level0)
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
-    EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _)).Times(0);
+    EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _)).Times(0);
     ON_CALL(*mockHdi, GetValidSolution)
         .WillByDefault(
             [](int32_t userId, const std::vector<int32_t>& authTypes, uint32_t authTrustLevel,
@@ -943,7 +943,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_026, TestSize.Level0)
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
-    EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _)).Times(0);
+    EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _)).Times(0);
     ON_CALL(*mockHdi, GetValidSolution)
         .WillByDefault(
             [](int32_t userId, const std::vector<int32_t>& authTypes, uint32_t authTrustLevel,
@@ -978,7 +978,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_027, TestSize.Level0)
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
-    EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _)).Times(0);
+    EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _)).Times(0);
     ON_CALL(*mockHdi, GetValidSolution)
         .WillByDefault(
             [](int32_t userId, const std::vector<int32_t>& authTypes, uint32_t authTrustLevel,
@@ -1013,7 +1013,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_028, TestSize.Level0)
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
-    EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _)).Times(0);
+    EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _)).Times(0);
     ON_CALL(*mockHdi, GetValidSolution)
         .WillByDefault(
             [](int32_t userId, const std::vector<int32_t>& authTypes, uint32_t authTrustLevel,
@@ -1049,7 +1049,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_029, TestSize.Level0)
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
-    EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _)).Times(0);
+    EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _)).Times(0);
     ON_CALL(*mockHdi, GetValidSolution)
         .WillByDefault(
             [](int32_t userId, const std::vector<int32_t>& authTypes, uint32_t authTrustLevel,
@@ -1085,7 +1085,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_030, TestSize.Level0)
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
-    EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _)).Times(0);
+    EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _)).Times(0);
     ON_CALL(*mockHdi, GetValidSolution)
         .WillByDefault(
             [](int32_t userId, const std::vector<int32_t>& authTypes, uint32_t authTrustLevel,
@@ -1120,7 +1120,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_031, TestSize.Level0)
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
-    EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _)).Times(0);
+    EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _)).Times(0);
     sptr<IModalCallback> testModalCallback(nullptr);
     uint64_t contextId = 0;
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
@@ -1146,7 +1146,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_032, TestSize.Level0)
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
-    EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _)).Times(0);
+    EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _)).Times(0);
     sptr<IModalCallback> testModalCallback(nullptr);
     uint64_t contextId = 0;
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
@@ -1172,7 +1172,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_033, TestSize.Level0)
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
-    EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _)).Times(0);
+    EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _)).Times(0);
     sptr<IModalCallback> testModalCallback(nullptr);
     uint64_t contextId = 0;
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
