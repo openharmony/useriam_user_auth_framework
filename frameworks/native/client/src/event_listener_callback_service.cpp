@@ -28,7 +28,7 @@ int32_t EventListenerCallbackService::OnNotifyAuthSuccessEvent(int32_t userId, i
 {
     auto eventListenerSet = EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().GetEventListenerSet(
         static_cast<AuthType>(authType));
-    IAM_LOGI("OnNotifyAuthSuccessEvent, userId:%{public}d, authType:%{public}d, callerName:%{public}s"
+    IAM_LOGI("OnNotifyAuthSuccessEvent, userId:%{public}d, authType:%{public}d, callerName:%{public}s,"
         "listenerSize:%{public}zu", userId, authType, callerName.c_str(), eventListenerSet.size());
     for (const auto &listener : eventListenerSet) {
         if (listener == nullptr) {
