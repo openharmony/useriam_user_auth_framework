@@ -28,12 +28,13 @@ int32_t EventListenerCallbackService::OnNotifyAuthSuccessEvent(int32_t userId, i
 {
     auto eventListenerSet = EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().GetEventListenerSet(
         static_cast<AuthType>(authType));
+    IAM_LOGI("OnNotifyAuthSuccessEvent, userId:%{public}d, authType:%{public}d, callerName:%{public}s"
+        "listenerSize:%{public}zu", userId, authType, callerName.c_str(), eventListenerSet.size());
     for (const auto &listener : eventListenerSet) {
         if (listener == nullptr) {
             IAM_LOGE("authListener is nullptr");
             continue;
         }
-        IAM_LOGI("OnNotifyAuthSuccessEvent, userId:%{public}d, authType:%{public}d", userId, authType);
         listener->OnNotifyAuthSuccessEvent(userId, static_cast<AuthType>(authType), {eventInfo.callerName,
             eventInfo.callerType, eventInfo.isWidgetAuth});
     }
@@ -45,15 +46,15 @@ int32_t EventListenerCallbackService::OnNotifyCredChangeEvent(int32_t userId, in
 {
     auto eventListenerSet = EventListenerCallbackManager<CredChangeEventListener>::GetInstance().GetEventListenerSet(
         static_cast<AuthType>(authType));
+    IAM_LOGI("OnNotifyCredChangeEvent, userId:%{public}d, authType:%{public}d, eventType:%{public}d,"
+        "callerName:%{public}s, credId:%{public}u, lastCredId:%{public}u, isSilent:%{public}u, size:%{public}zu",
+        userId, authType, eventType, changeInfo.callerName.c_str(), static_cast<uint16_t>(changeInfo.credentialId),
+        static_cast<uint16_t>(changeInfo.lastCredentialId), changeInfo.isSilentCredChange, eventListenerSet.size());
     for (const auto &listener : eventListenerSet) {
         if (listener == nullptr) {
             IAM_LOGE("credListener is nullptr");
             continue;
         }
-        IAM_LOGI("OnNotifyCredChangeEvent, userId:%{public}d, authType:%{public}d, eventType:%{public}d,"
-            "callerName:%{public}s, credId:%{public}u, lastCredId:%{public}u, isSilentCredChange:%{public}u",
-            userId, authType, eventType, changeInfo.callerName.c_str(), static_cast<uint16_t>(changeInfo.credentialId),
-            static_cast<uint16_t>(changeInfo.lastCredentialId), changeInfo.isSilentCredChange);
         listener->OnNotifyCredChangeEvent(userId, static_cast<AuthType>(authType),
             static_cast<CredChangeEventType>(eventType), {changeInfo.callerName, changeInfo.callerType,
             changeInfo.credentialId, changeInfo.lastCredentialId, changeInfo.isSilentCredChange});
