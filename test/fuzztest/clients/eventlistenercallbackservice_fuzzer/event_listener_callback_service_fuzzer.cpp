@@ -32,14 +32,12 @@ namespace UserAuth {
 namespace {
 class DummyAuthSuccessEventListener final : public AuthSuccessEventListener {
 public:
-    void OnNotifyAuthSuccessEvent(int32_t userId, AuthType authType, int32_t callerType,
-        const std::string &callerName) override
+    void OnNotifyAuthSuccessEvent(int32_t userId, AuthType authType, const AuthSuccessEventInfo &info) override
     {
         IAM_LOGI("start");
         static_cast<void>(userId);
         static_cast<void>(authType);
-        static_cast<void>(callerType);
-        static_cast<void>(callerName);
+        static_cast<void>(info);
     }
 };
 
@@ -73,18 +71,18 @@ void FuzzOnNotifyAuthSuccessEvent(Parcel &parcel)
 {
     IAM_LOGI("begin");
     int32_t userId = parcel.ReadInt32();
-    int32_t callerType = parcel.ReadInt32();
-    std::string callerName = "";
-    Common::FillFuzzString(parcel, callerName);
+    IpcAuthSuccessEventInfo info = {};
+    info.callerType = parcel.ReadInt32();
+    Common::FillFuzzString(parcel, info.callerName);
     AuthType authType = static_cast<AuthType>(parcel.ReadInt32());
     auto subManage = EventListenerCallbackService::GetInstance();
-    subManage->OnNotifyAuthSuccessEvent(userId, authType, callerType, callerName);
+    subManage->OnNotifyAuthSuccessEvent(userId, authType, info);
 
     std::vector<AuthType> authTypeList;
     authTypeList.emplace_back(authType);
     auto listener = Common::MakeShared<DummyAuthSuccessEventListener>();
     EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().RegisterListener(authTypeList, listener);
-    subManage->OnNotifyAuthSuccessEvent(userId, authType, callerType, callerName);
+    subManage->OnNotifyAuthSuccessEvent(userId, authType, info);
     IAM_LOGI("end");
 }
 

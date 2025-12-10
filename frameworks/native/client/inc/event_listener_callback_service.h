@@ -33,8 +33,8 @@ class EventListenerCallbackService : public EventListenerCallbackStub {
 public:
     static sptr<EventListenerCallbackService> GetInstance();
 
-    int32_t OnNotifyAuthSuccessEvent(int32_t userId, int32_t authType, int32_t callerType,
-        const std::string &callerName) override;
+    int32_t OnNotifyAuthSuccessEvent(int32_t userId, int32_t authType,
+        const IpcAuthSuccessEventInfo &eventInfo) override;
     int32_t OnNotifyCredChangeEvent(int32_t userId, int32_t authType, int32_t eventType,
         const IpcCredChangeEventInfo &changeInfo) override;
     int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;
