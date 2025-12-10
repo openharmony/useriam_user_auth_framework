@@ -62,8 +62,6 @@ struct AuthParam {
     AuthIntent authIntent;
     /** Remote auth parameter. */
     std::optional<RemoteAuthParam> remoteAuthParam;
-    /** Used to specify the credential Ids for authentication. */
-    std::vector<uint64_t> credentialIdList;
 };
 
 /**

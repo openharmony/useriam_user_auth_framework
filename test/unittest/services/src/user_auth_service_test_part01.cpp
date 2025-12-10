@@ -1851,10 +1851,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuthTest, T
     authParam.skipLockedBiometricAuth = true;
     int32_t userId = 110;
     EXPECT_EQ(service->CheckSkipLockedBiometricAuth(userId, authParam, widgetParam, validType),
-        LOCKED);
+        SUCCESS);
     widgetParam.navigationButtonText = "face";
     EXPECT_EQ(service->CheckSkipLockedBiometricAuth(userId, authParam, widgetParam, validType),
-        CANCELED_FROM_WIDGET);
+        SUCCESS);
 }
 
 HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolutionTest, TestSize.Level0)

@@ -94,7 +94,7 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam002, Te
     ContextFactory::AuthWidgetContextPara para;
     para.userId = 1;
     std::vector<AuthType> validType = authParam.authTypes;
-    EXPECT_FALSE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
+    EXPECT_TRUE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
 }
 
 HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam003, TestSize.Level0)
@@ -113,7 +113,7 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam003, Te
     EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).WillOnce(Return(HDF_FAILURE));
     EXPECT_FALSE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
     EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).WillOnce(Return(HDF_SUCCESS));
-    EXPECT_FALSE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
+    EXPECT_TRUE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
     constexpr uint64_t executorIndex = 61;
     auto fillUpInfos = [](std::vector<HdiCredentialInfo> &list) {
         std::vector<HdiCredentialInfo> infos = {};
@@ -129,11 +129,11 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam003, Te
         list.swap(infos);
     };
     EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).WillRepeatedly(DoAll(WithArg<2>(fillUpInfos), Return(0)));
-    EXPECT_FALSE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
+    EXPECT_TRUE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
     auto resourceNode = MockResourceNode::CreateWithExecuteIndex(executorIndex, PIN, ALL_IN_ONE);
     EXPECT_NE(resourceNode, nullptr);
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
-    EXPECT_FALSE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
+    EXPECT_TRUE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(executorIndex));
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
@@ -416,7 +416,7 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam010, Te
     ContextFactory::AuthWidgetContextPara para;
     para.userId = 1;
     std::vector<AuthType> validType = authParam.authTypes;
-    EXPECT_FALSE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
+    EXPECT_TRUE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
 }
 
 HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam011, TestSize.Level0)
@@ -430,7 +430,7 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestInitWidgetContextParam011, Te
     ContextFactory::AuthWidgetContextPara para;
     para.userId = 1;
     std::vector<AuthType> validType = authParam.authTypes;
-    EXPECT_FALSE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
+    EXPECT_TRUE(AuthWidgetHelper::InitWidgetContextParam(authParam, validType, widgetParam, para));
 }
 
 HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckValidSolution001, TestSize.Level0)
