@@ -156,8 +156,12 @@ void ContextCallbackImpl::HandleAuthSuccessResult(int32_t resultCode, const Attr
         IAM_LOGE("get userId failed");
         return;
     }
+    AuthSuccessEventInfo eventInfo = {metaData_.callerName.value(), metaData_.callerType.value(), false};
+    if (metaData_.isWidgetAuth.has_value()) {
+        eventInfo.isWidgetAuth = metaData_.isWidgetAuth.value();
+    }
     AuthEventListenerManager::GetInstance().OnNotifyAuthSuccessEvent(userId,
-        static_cast<AuthType>(metaData_.authType.value()), metaData_.callerType.value(), metaData_.callerName.value());
+        static_cast<AuthType>(metaData_.authType.value()), eventInfo);
 }
 
 void ContextCallbackImpl::SetTraceUserId(int32_t userId)
@@ -253,6 +257,11 @@ void ContextCallbackImpl::SetTraceAuthFinishReason(const std::string &authFinish
 void ContextCallbackImpl::SetTraceIsBackgroundApplication(bool isBackgroundApplication)
 {
     metaData_.isBackgroundApplication = isBackgroundApplication;
+}
+
+void ContextCallbackImpl::SetTraceIsWidgetAuth(bool isWidgetAuth)
+{
+    metaData_.isWidgetAuth = isWidgetAuth;
 }
 
 void ContextCallbackImpl::SetCleaner(Context::ContextStopCallback callback)

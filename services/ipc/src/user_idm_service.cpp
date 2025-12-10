@@ -458,6 +458,33 @@ int32_t UserIdmService::EnforceDelUser(int32_t userId, const sptr<IIamCallback> 
     return SUCCESS;
 }
 
+void UserIdmService::PostProcessForDelete(int32_t userId,
+    std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos,
+    std::string changeReasonTrace, CredChangeEventType eventType, CredChangeEventInfo &changeInfo)
+{
+    int32_t ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos, changeReasonTrace);
+    if (ret != SUCCESS) {
+        IAM_LOGE("failed to delete executor info, err:%{public}d", ret);
+    }
+
+    PublishEventAdapter::GetInstance().PublishDeletedEvent(userId);
+    bool isExistPin = false;
+    for (auto cred : credInfos) {
+        if (cred->GetAuthType() == PIN && cred->GetAbandonFlag()) {
+            continue;
+        }
+        if (cred->GetAuthType() == PIN) {
+            isExistPin = true;
+        }
+        changeInfo.lastCredentialId = cred->GetCredentialId();
+        CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(
+            userId, cred->GetAuthType(), eventType, changeInfo);
+    }
+    if (isExistPin) {
+        PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, PIN, 0);
+    }
+}
+
 int32_t UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> &authToken,
     const sptr<IIamCallback> &idmCallback)
 {
@@ -503,16 +530,8 @@ int32_t UserIdmService::DelUser(int32_t userId, const std::vector<uint8_t> &auth
     }
     SetAuthTypeTrace(credInfos, contextCallback);
     contextCallback->OnResult(ret, extraInfo);
-
-    ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos, "DeleteUser");
-    if (ret != SUCCESS) {
-        IAM_LOGE("failed to delete executor info, error code : %{public}d", ret);
-    }
-    IAM_LOGI("delete user end");
-    PublishEventAdapter::GetInstance().PublishDeletedEvent(userId);
-    PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, PIN, 0);
     CredChangeEventInfo changeInfo = {callerName, callerType, 0, 0, false};
-    CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(userId, PIN, DEL_USER, changeInfo);
+    PostProcessForDelete(userId, credInfos, "DeleteUser", DEL_USER, changeInfo);
     return SUCCESS;
 }
 
@@ -640,7 +659,7 @@ void UserIdmService::SetAuthTypeTrace(const std::vector<std::shared_ptr<Credenti
 }
 
 int32_t UserIdmService::EnforceDelUserInner(int32_t userId, std::shared_ptr<ContextCallback> callbackForTrace,
-    std::string changeReasonTrace, const CredChangeEventInfo &changeInfo)
+    std::string changeReasonTrace, CredChangeEventInfo &changeInfo)
 {
     std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
     int32_t ret = UserIdmDatabase::Instance().DeleteUserEnforce(userId, credInfos);
@@ -650,17 +669,7 @@ int32_t UserIdmService::EnforceDelUserInner(int32_t userId, std::shared_ptr<Cont
         return ret;
     }
     SetAuthTypeTrace(credInfos, callbackForTrace);
-    ret = ResourceNodeUtils::NotifyExecutorToDeleteTemplates(credInfos, changeReasonTrace);
-    if (ret != SUCCESS) {
-        IAM_LOGE("failed to delete executor info, error code : %{public}d", ret);
-        // The caller doesn't need to care executor delete result.
-        return SUCCESS;
-    }
-
-    PublishEventAdapter::GetInstance().PublishDeletedEvent(userId);
-    PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, PIN, 0);
-    CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(userId, PIN, ENFORCE_DEL_USER, changeInfo);
-    IAM_LOGI("delete user success, userId:%{public}d", userId);
+    PostProcessForDelete(userId, credInfos, changeReasonTrace, DEL_USER, changeInfo);
     return SUCCESS;
 }
 
