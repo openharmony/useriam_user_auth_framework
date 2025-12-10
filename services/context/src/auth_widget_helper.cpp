@@ -71,7 +71,7 @@ bool AuthWidgetHelper::GetUserAuthProfile(int32_t userId, const AuthType &authTy
     }
     if (credentialInfos.empty() || credentialInfos[0] == nullptr) {
         IAM_LOGE("user %{public}d has no credential type %{public}d", userId, authType);
-        return false;
+        return true;
     }
     uint64_t executorIndex = credentialInfos[0]->GetExecutorIndex();
     auto resourceNode = ResourceNodePool::Instance().Select(executorIndex).lock();

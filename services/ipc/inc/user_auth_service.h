@@ -161,6 +161,7 @@ private:
     void InitWidgetParam(const IpcWidgetParamInner &ipcWidgetParam, WidgetParamInner &widgetParam);
     int32_t CheckSkipLockedBiometricAuth(int32_t userId, const AuthParamInner &authParam,
         const WidgetParamInner &widgetParam, std::vector<AuthType> &validType);
+    std::vector<AuthType> GetAuthTypesFromCredentialIds(const AuthParamInner &authParam);
     static std::mutex mutex_;
     static std::shared_ptr<UserAuthService> instance_;
 };

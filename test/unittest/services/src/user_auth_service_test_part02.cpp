@@ -921,8 +921,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_025, TestSize.Level0)
     sptr<IModalCallback> testModalCallback(nullptr);
     uint64_t contextId = 0;
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
-    EXPECT_EQ(ret, GENERAL_ERROR);
-    EXPECT_EQ(contextId, BAD_CONTEXT_ID);
+    EXPECT_EQ(ret, SUCCESS);
+    EXPECT_NE(contextId, BAD_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1026,8 +1026,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_028, TestSize.Level0)
     sptr<IModalCallback> testModalCallback(nullptr);
     uint64_t contextId = 0;
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
-    EXPECT_EQ(ret, GENERAL_ERROR);
-    EXPECT_EQ(contextId, BAD_CONTEXT_ID);
+    EXPECT_EQ(ret, SUCCESS);
+    EXPECT_NE(contextId, BAD_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1062,8 +1062,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_029, TestSize.Level0)
     sptr<IModalCallback> testModalCallback(nullptr);
     uint64_t contextId = 0;
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
-    EXPECT_EQ(ret, GENERAL_ERROR);
-    EXPECT_EQ(contextId, BAD_CONTEXT_ID);
+    EXPECT_EQ(ret, SUCCESS);
+    EXPECT_NE(contextId, BAD_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 

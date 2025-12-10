@@ -141,7 +141,8 @@ public:
         return 0;
     }
 
-    int32_t BeginEnrollmentExt(const std::vector<uint8_t> &authToken, const HdiEnrollParamExt &param, HdiScheduleInfo &info)
+    int32_t BeginEnrollmentExt(const std::vector<uint8_t> &authToken, const HdiEnrollParamExt &param,
+        HdiScheduleInfo &info)
     {
         return 0;
     }

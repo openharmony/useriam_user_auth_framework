@@ -33,6 +33,7 @@
 #include "ipc_skeleton.h"
 #include "iam_common_defines.h"
 #include "load_mode_handler.h"
+#include "nlohmann/json.hpp"
 #include "publish_event_adapter.h"
 #include "resource_node_pool.h"
 #include "resource_node_utils.h"
@@ -294,6 +295,32 @@ int32_t UserIdmService::StartEnroll(Enrollment::EnrollmentPara &para,
     return SUCCESS;
 }
 
+bool UserIdmService::GetNeedSubscribeAppState(std::string jsonText, const char *key)
+{
+    if (IpcCommon::CheckPermission(*this, USER_AUTH_FROM_BACKGROUND)) {
+        IAM_LOGE("check permission success, no need subscribe app state");
+        return false;
+    }
+    if (jsonText.size() == 0) {
+        IAM_LOGE("jsonText size is 0, need subscribe app state");
+        return true;
+    }
+
+    auto root = nlohmann::json::parse(jsonText.c_str());
+    if (root.is_null() || root.is_discarded()) {
+        IAM_LOGE("root is nullptr, need subscribe app state");
+        return true;
+    }
+    if (root.find(key) == root.end() || !(root[key].is_boolean())) {
+        IAM_LOGE("%{public}s not found or not boolean", key);
+        return true;
+    }
+    
+    bool isEnrollBackGround = false;
+    root.at(key).get_to(isEnrollBackGround);
+    return !isEnrollBackGround;
+}
+
 int32_t UserIdmService::AddCredential(int32_t userId, const IpcCredentialPara &ipcCredentialPara,
     const sptr<IIamCallback> &idmCallback, bool isUpdate)
 {
@@ -334,7 +361,7 @@ int32_t UserIdmService::AddCredential(int32_t userId, const IpcCredentialPara &i
     para.callerName = callerName;
     para.callerType = callerType;
     para.additionalInfo = ipcCredentialPara.additionalInfo;
-    bool needSubscribeAppState = !IpcCommon::CheckPermission(*this, USER_AUTH_FROM_BACKGROUND);
+    bool needSubscribeAppState = GetNeedSubscribeAppState(para.additionalInfo, "isEnrollBackground");
     return StartEnroll(para, contextCallback, extraInfo, needSubscribeAppState);
 }
 
