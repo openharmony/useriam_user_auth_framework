@@ -71,7 +71,7 @@ HWTEST_F(AuthenticationImplTest, AuthenticationHdiError, TestSize.Level0)
     para.authType = FACE;
     para.atl = ATL3;
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_CALL(*mock, BeginAuthentication(contextId, _, _)).WillRepeatedly(Return(1));
+    EXPECT_CALL(*mock, BeginAuthenticationExt(contextId, _, _)).WillRepeatedly(Return(1));
 
     auto authentication = std::make_shared<AuthenticationImpl>(contextId, para);
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
@@ -89,7 +89,7 @@ HWTEST_F(AuthenticationImplTest, AuthenticationHdiEmpty, TestSize.Level0)
     para.atl = ATL3;
 
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_CALL(*mock, BeginAuthentication(contextId, _, _)).WillRepeatedly(Return(0));
+    EXPECT_CALL(*mock, BeginAuthenticationExt(contextId, _, _)).WillRepeatedly(Return(0));
 
     auto authentication = std::make_shared<AuthenticationImpl>(contextId, para);
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
@@ -126,7 +126,7 @@ HWTEST_F(AuthenticationImplTest, AuthenticationInvalidExecutor, TestSize.Level0)
     };
 
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_CALL(*mock, BeginAuthentication(contextId, _, _)).WillRepeatedly(DoAll(WithArg<2>(fillInfoList),
+    EXPECT_CALL(*mock, BeginAuthenticationExt(contextId, _, _)).WillRepeatedly(DoAll(WithArg<2>(fillInfoList),
         Return(0)));
 
     auto authentication = std::make_shared<AuthenticationImpl>(contextId, para);
@@ -263,9 +263,9 @@ HWTEST_F(AuthenticationImplTest, AuthenticationImplTestStart, TestSize.Level0)
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, CancelAuthentication(_)).Times(0)
         .WillOnce(Return(HDF_SUCCESS)).WillOnce(Return(HDF_FAILURE));
-    EXPECT_CALL(*mockHdi, BeginAuthentication(_, _, _))
+    EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _))
         .WillRepeatedly(
-            [](uint64_t contextId, const HdiAuthParam &param, std::vector<HdiScheduleInfo> &scheduleInfos) {
+            [](uint64_t contextId, const HdiAuthParamExt &param, std::vector<HdiScheduleInfo> &scheduleInfos) {
                 HdiScheduleInfo scheduleInfo = {};
                 scheduleInfo.authType = HdiAuthType::FACE;
                 scheduleInfo.executorMatcher = 10;

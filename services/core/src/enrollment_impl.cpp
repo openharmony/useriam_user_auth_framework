@@ -116,7 +116,7 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
         IAM_LOGE("ConvertATokenTypeToCallerType failed, ATokenType:%{public}d", enrollPara_.callerType);
         return false;
     }
-    HdiEnrollParam param = {
+    HdiEnrollParamExt param = {
         .authType = static_cast<HdiAuthType>(enrollPara_.authType),
         .executorSensorHint = executorSensorHint_,
         .callerName = enrollPara_.callerName,
@@ -125,9 +125,10 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
         .userId = enrollPara_.userId,
         .userType = userType,
         .authSubType = enrollPara_.pinType,
+        .additionalInfo = enrollPara_.additionalInfo,
     };
     IamHitraceHelper traceHelper("hdi BeginEnrollment");
-    auto result = hdi->BeginEnrollment(authToken_, param, info);
+    auto result = hdi->BeginEnrollmentExt(authToken_, param, info);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi BeginEnrollment failed, err is %{public}d", result);
         SetLatestError(result);

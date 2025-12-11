@@ -51,7 +51,7 @@ protected:
     void SetLatestError(int32_t error) override;
 
 private:
-    bool GetAuthParam(HdiAuthParam &param);
+    bool GetAuthParam(HdiAuthParamExt &param);
     uint64_t contextId_;
     AuthenticationPara authPara_;
     bool endAfterFirstFail_ {false};

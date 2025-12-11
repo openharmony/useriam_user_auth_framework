@@ -65,8 +65,12 @@ public:
     MOCK_METHOD1(GetAllExtUserInfo, int32_t(std::vector<ExtUserInfo> &userInfos));
     MOCK_METHOD3(BeginEnrollment,
         int32_t(const std::vector<uint8_t> &authToken, const HdiEnrollParam &param, HdiScheduleInfo &info));
+    MOCK_METHOD3(BeginEnrollmentExt,
+        int32_t(const std::vector<uint8_t> &authToken, const HdiEnrollParamExt &param, HdiScheduleInfo &info));
     MOCK_METHOD3(BeginAuthentication,
         int32_t(uint64_t contextId, const HdiAuthParam &param, std::vector<HdiScheduleInfo> &scheduleInfos));
+    MOCK_METHOD3(BeginAuthenticationExt,
+        int32_t(uint64_t contextId, const HdiAuthParamExt &param, std::vector<HdiScheduleInfo> &scheduleInfos));
     MOCK_METHOD3(GetEnrolledState, int32_t(int32_t userId, int32_t authType, HdiEnrolledState &hdiEnrolledState));
     MOCK_METHOD4(UpdateAuthenticationResult, int32_t(uint64_t contextId,
         const std::vector<uint8_t> &scheduleResult, HdiAuthResultInfo &info, HdiEnrolledState &enrolledState));

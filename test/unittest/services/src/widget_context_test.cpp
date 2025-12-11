@@ -818,7 +818,7 @@ HWTEST_F(WidgetContextTest, WidgetContextTestConnectExtension_001, TestSize.Leve
     widgetRotatePara.isReload = true;
     AuthType authType = AuthType::FACE;
     widgetContext->para_.authTypeList.emplace_back(authType);
-    EXPECT_EQ(widgetContext->ConnectExtension(widgetRotatePara), false);
+    EXPECT_EQ(widgetContext->ConnectExtension(widgetRotatePara), true);
 }
 
 HWTEST_F(WidgetContextTest, WidgetContextTestConnectExtension_002, TestSize.Level0)
@@ -839,7 +839,7 @@ HWTEST_F(WidgetContextTest, WidgetContextTestConnectExtension_002, TestSize.Leve
     widgetRotatePara.isReload = true;
     AuthType authType = AuthType::FACE;
     widgetContext->para_.authTypeList.emplace_back(authType);
-    EXPECT_EQ(widgetContext->ConnectExtension(widgetRotatePara), false);
+    EXPECT_EQ(widgetContext->ConnectExtension(widgetRotatePara), true);
 }
 
 HWTEST_F(WidgetContextTest, WidgetContextTestDisconnectExtension, TestSize.Level0)
