@@ -130,8 +130,8 @@ public:
         return tmp;
     }
 
-    int32_t OnNotifyAuthSuccessEvent(int32_t userId, int32_t authType, int32_t callerType,
-        const std::string &callerName) override
+    int32_t OnNotifyAuthSuccessEvent(int32_t userId, int32_t authType,
+        const IpcAuthSuccessEventInfo &info) override
     {
         IAM_LOGI("start");
         return SUCCESS;

@@ -125,7 +125,7 @@ struct IpcAuthParamInner {
     int authIntent;
     /** Skip locked biometric authentication */
     boolean skipLockedBiometricAuth;
-    /** Used to specify the credential Ids for authentication. */
+    /** Used to specify the credential Ids for authentication */
     unsigned long[] credentialIdList;
 };
 
@@ -209,4 +209,16 @@ struct IpcCredChangeEventInfo {
     unsigned long lastCredentialId;
     /** Is silent cred change. */
     boolean isSilentCredChange;
+};
+
+/**
+ * @brief Auth success event info.
+ */
+struct IpcAuthSuccessEventInfo {
+    /** The callerName who auth success. */
+    String callerName;
+    /** The callerType who auth success. */
+    int callerType;
+    /** Is widget auth. */
+    boolean isWidgetAuth;
 };

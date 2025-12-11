@@ -18,6 +18,7 @@
 
 #include "iuser_auth.h"
 #include "iuser_idm.h"
+#include "user_auth_client_defines.h"
 #include "user_idm_client_defines.h"
 #include "event_listener_callback_stub.h"
 #include <map>
@@ -68,8 +69,7 @@ private:
 class AuthEventListenerManager : public EventListenerManager {
 public:
     static AuthEventListenerManager &GetInstance();
-    void OnNotifyAuthSuccessEvent(int32_t userId, AuthType authType, int32_t callerType,
-        const std::string &callerName);
+    void OnNotifyAuthSuccessEvent(int32_t userId, AuthType authType, const AuthSuccessEventInfo &eventInfo);
 };
 
 class CredChangeEventListenerManager : public EventListenerManager {

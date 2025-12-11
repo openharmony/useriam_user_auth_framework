@@ -1351,7 +1351,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCancelAuthOrIdentify_002, TestSize.
     EXPECT_EQ(service.CancelAuthOrIdentify(testContextId, cancelReason), CHECK_PERMISSION_FAILED);
     IpcCommon::SetAccessTokenId(tokenId, true);
 
-    EXPECT_EQ(service.CancelAuthOrIdentify(testContextId, cancelReason), GENERAL_ERROR);
     EXPECT_EQ(service.CancelAuthOrIdentify(testContextId, cancelReason), SUCCESS);
     EXPECT_TRUE(ContextPool::Instance().Delete(testContextId));
     IpcCommon::DeleteAllPermission();

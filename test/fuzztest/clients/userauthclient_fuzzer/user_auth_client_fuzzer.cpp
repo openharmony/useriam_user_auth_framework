@@ -109,13 +109,12 @@ public:
 
 class DummyAuthSuccessEventListener final : public AuthSuccessEventListener {
 public:
-    void OnNotifyAuthSuccessEvent(int32_t userId, AuthType authType, int32_t callerType, const std::string &callerName)
+    void OnNotifyAuthSuccessEvent(int32_t userId, AuthType authType, const AuthSuccessEventInfo &info) override
     {
         IAM_LOGI("start");
         static_cast<void>(userId);
         static_cast<void>(authType);
-        static_cast<void>(callerType);
-        static_cast<void>(callerName);
+        static_cast<void>(info);
     }
 };
 
