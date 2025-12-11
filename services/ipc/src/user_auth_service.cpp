@@ -16,6 +16,7 @@
 #include "user_auth_service.h"
 #include "hisysevent_adapter.h"
 
+#include <algorithm>
 #include <cinttypes>
 
 #include "accesstoken_kit.h"
@@ -731,6 +732,7 @@ int32_t UserAuthService::AuthUser(const IpcAuthParamInner &ipcAuthParamInner,
     para.sdkVersion = INNER_API_VERSION_10000;
     para.authIntent = authParam.authIntent;
     para.skipLockedBiometricAuth = authParam.skipLockedBiometricAuth;
+    para.credentialIdList = authParam.credentialIdList;
     para.isOsAccountVerified = IpcCommon::IsOsAccountVerified(authParam.userId);
     return StartAuthUser(authParam, remoteAuthParam, para, contextCallback, contextId);
 }
@@ -1253,11 +1255,35 @@ int32_t UserAuthService::CheckSkipLockedBiometricAuth(int32_t userId, const Auth
     return SUCCESS;
 }
 
+std::vector<AuthType> UserAuthService::GetAuthTypesFromCredentialIds(const AuthParamInner &authParam)
+{
+    if (authParam.credentialIdList.empty()) {
+        return authParam.authTypes;
+    }
+
+    auto credList = authParam.credentialIdList;
+    std::sort(credList.begin(), credList.end());
+    credList.erase(std::unique(credList.begin(), credList.end()), credList.end());
+ 
+    std::vector<AuthType> authTypeList = {};
+    for (auto credId : credList) {
+        std::shared_ptr<CredentialInfoInterface> credInfo;
+        int32_t ret = UserIdmDatabase::Instance().GetCredentialInfoById(credId, credInfo);
+        if (ret != SUCCESS) {
+            IAM_LOGE("GetCredentialInfoById failed, %{public}d", ret);
+            continue;
+        }
+        authTypeList.push_back(credInfo->GetAuthType());
+    }
+    return authTypeList;
+}
+
 int32_t UserAuthService::CheckValidSolution(int32_t userId, const AuthParamInner &authParam,
     const WidgetParamInner &widgetParam, std::vector<AuthType> &validType)
 {
+    std::vector<AuthType> authTypes = GetAuthTypesFromCredentialIds(authParam);
     int32_t ret = AuthWidgetHelper::CheckValidSolution(
-        userId, authParam.authTypes, authParam.authTrustLevel, validType);
+        userId, authTypes, authParam.authTrustLevel, validType);
     if (ret != SUCCESS) {
         IAM_LOGE("CheckValidSolution fail %{public}d", ret);
         return ret;
@@ -1864,6 +1890,7 @@ void UserAuthService::InitAuthParam(const IpcAuthParamInner &ipcAuthParam, AuthP
     authParam.authTrustLevel = static_cast<AuthTrustLevel>(ipcAuthParam.authTrustLevel);
     authParam.authIntent = static_cast<AuthIntent>(ipcAuthParam.authIntent);
     authParam.skipLockedBiometricAuth = ipcAuthParam.skipLockedBiometricAuth;
+    authParam.credentialIdList = ipcAuthParam.credentialIdList;
     authParam.reuseUnlockResult.isReuse = ipcAuthParam.reuseUnlockResult.isReuse;
     authParam.reuseUnlockResult.reuseMode = static_cast<ReuseMode>(ipcAuthParam.reuseUnlockResult.reuseMode);
     authParam.reuseUnlockResult.reuseDuration = ipcAuthParam.reuseUnlockResult.reuseDuration;

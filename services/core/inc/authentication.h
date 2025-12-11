@@ -40,6 +40,7 @@ public:
         int32_t authIntent;
         bool isOsAccountVerified;
         bool skipLockedBiometricAuth;
+        std::vector<uint64_t> credentialIdList;
     };
 
     struct AuthResultInfo {

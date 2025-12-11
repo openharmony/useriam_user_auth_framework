@@ -87,6 +87,7 @@ private:
     int32_t StartDelete(Deletion::DeleteParam &para, const std::shared_ptr<ContextCallback> &contextCallback,
         Attributes &extraInfo);
     void ClearUnavailableCredential(int32_t userId);
+    bool GetNeedSubscribeAppState(std::string jsonText, const char *key);
     std::mutex mutex_;
 };
 } // namespace UserAuth
