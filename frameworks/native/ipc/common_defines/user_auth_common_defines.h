@@ -73,7 +73,7 @@ struct AuthParamInner {
     AuthIntent authIntent;
     /** Skip locked biometric authentication */
     bool skipLockedBiometricAuth {false};
-    /** Used to specify the credential Ids for authentication. */
+    /** Used to specify the credential Ids for authentication */
     std::vector<uint64_t> credentialIdList;
 };
 

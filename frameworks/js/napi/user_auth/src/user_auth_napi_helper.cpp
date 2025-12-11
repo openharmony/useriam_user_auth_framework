@@ -24,6 +24,7 @@
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
 
+#include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
 #include "user_auth_helper.h"
@@ -351,6 +352,46 @@ napi_status UserAuthNapiHelper::GetUint8ArrayValue(napi_env env, napi_value valu
         return napi_generic_failure;
     }
     return result;
+}
+
+napi_status UserAuthNapiHelper::GetInt32ArrayValue(napi_env env, napi_value value, std::vector<uint64_t> &array)
+{
+    napi_status result = napi_ok;
+    bool isArray = false;
+    result = napi_is_array(env, value, &isArray);
+    if (result != napi_ok || !isArray) {
+        IAM_LOGE("napi_is_array fail");
+        return napi_invalid_arg;
+    }
+    uint32_t outLength;
+    result = napi_get_array_length(env, value, &outLength);
+    IF_FALSE_LOGE_AND_RETURN_VAL((result == napi_ok), result);
+    IAM_LOGI("outLength:%{public}d", outLength);
+    array.clear();
+    array.reserve(outLength);
+    const int32_t checkLen = 2;
+    if (outLength != checkLen) {
+        return napi_invalid_arg;
+    }
+    int32_t high = 0;
+    int32_t low = 0;
+    for (uint32_t i = 0; i < outLength; i++) {
+        napi_value element;
+        result = napi_get_element(env, value, i, &element);
+        IF_FALSE_LOGE_AND_RETURN_VAL((result == napi_ok), result);
+        int32_t out = 0;
+        result = GetInt32Value(env, element, out);
+        IF_FALSE_LOGE_AND_RETURN_VAL((result == napi_ok), result);
+        if (i == 1) {
+            high = out;
+        } else {
+            low = out;
+        }
+    }
+    const int32_t highLevel = 32;
+    uint64_t dest = (static_cast<uint64_t>(static_cast<uint32_t>(high)) << highLevel) | static_cast<uint32_t>(low);
+    array.push_back(dest);
+    return napi_ok;
 }
 
 napi_value UserAuthNapiHelper::Uint64ToNapiUint8Array(napi_env env, uint64_t value)

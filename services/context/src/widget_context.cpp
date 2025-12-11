@@ -79,6 +79,7 @@ WidgetContext::WidgetContext(uint64_t contextId, const ContextFactory::AuthWidge
     latestError_(ResultCode::GENERAL_ERROR), para_(para), schedule_(nullptr), modalCallback_(modalCallback),
     connection_(nullptr)
 {
+    callback->SetTraceIsWidgetAuth(true);
     AddDeathRecipient(callerCallback_, contextId_);
     if (!para.isBackgroundApplication) {
         SubscribeAppState(callerCallback_, contextId_);

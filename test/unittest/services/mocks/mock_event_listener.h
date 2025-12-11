@@ -27,8 +27,8 @@ namespace UserAuth {
 class MockEventListener final : public IEventListenerCallback {
 public:
     MOCK_METHOD0(AsObject, sptr<IRemoteObject>());
-    MOCK_METHOD4(OnNotifyAuthSuccessEvent, int32_t(int32_t userId, int32_t authType, int32_t callerType,
-        const std::string &callerName));
+    MOCK_METHOD3(OnNotifyAuthSuccessEvent, int32_t(int32_t userId, int32_t authType,
+        const IpcAuthSuccessEventInfo &eventInfo));
     MOCK_METHOD4(OnNotifyCredChangeEvent, int32_t(int32_t userId, int32_t authType, int32_t eventType,
         const IpcCredChangeEventInfo &changeInfo));
 };
@@ -37,8 +37,8 @@ class MockEventListenerService final : public IRemoteStub<IEventListenerCallback
 public:
     MOCK_METHOD4(OnRemoteRequest,
         int32_t(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
-    MOCK_METHOD4(OnNotifyAuthSuccessEvent, int32_t(int32_t userId, int32_t authType, int32_t callerType,
-        const std::string &callerName));
+    MOCK_METHOD3(OnNotifyAuthSuccessEvent, int32_t(int32_t userId, int32_t authType,
+        const IpcAuthSuccessEventInfo &eventInfo));
     MOCK_METHOD4(OnNotifyCredChangeEvent, int32_t(int32_t userId, int32_t authType, int32_t eventType,
         const IpcCredChangeEventInfo &changeInfo));
 };

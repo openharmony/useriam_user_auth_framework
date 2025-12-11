@@ -150,14 +150,15 @@ AuthEventListenerManager &AuthEventListenerManager::GetInstance()
     return authEventListenerManager;
 }
 
-void AuthEventListenerManager::OnNotifyAuthSuccessEvent(int32_t userId, AuthType authType, int32_t callerType,
-    const std::string &callerName)
+void AuthEventListenerManager::OnNotifyAuthSuccessEvent(int32_t userId, AuthType authType,
+    const AuthSuccessEventInfo &eventInfo)
 {
     IAM_LOGI("start");
     auto listenerSetTemp = GetListenerDeathRecipientMap();
     for (auto &iter : listenerSetTemp) {
         if (iter.first != nullptr) {
-            iter.first->OnNotifyAuthSuccessEvent(userId, authType, callerType, callerName);
+            iter.first->OnNotifyAuthSuccessEvent(userId, authType,
+                {eventInfo.callerName, eventInfo.callerType, eventInfo.isWidgetAuth});
         }
     }
 }

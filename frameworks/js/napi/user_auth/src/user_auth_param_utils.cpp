@@ -43,6 +43,7 @@ namespace {
     const std::string AUTH_PARAM_REUSEUNLOCKRESULT = "reuseUnlockResult";
     const std::string AUTH_PARAM_USER_ID = "userId";
     const std::string AUTH_PARAM_SKIP_LOCKED_BIOMETRIC_AUTH = "skipLockedBiometricAuth";
+    const std::string AUTH_PARAM_CREDENTIAL_ID_LIST = "credentialIdList";
     const std::string WIDGET_PARAM_TITLE = "title";
     const std::string WIDGET_PARAM_NAVIBTNTEXT = "navigationButtonText";
     const std::string WIDGET_PARAM_WINDOWMODE = "windowMode";
@@ -280,6 +281,11 @@ UserAuthResultCode UserAuthParamUtils::InitAuthParam(napi_env env, napi_value va
         IAM_LOGE("ProcessSkipLockedBiometricAuth fail:%{public}d", errorCode);
         return errorCode;
     }
+    errorCode = ProcessCredentialIdList(env, value, authParam);
+    if (errorCode != UserAuthResultCode::SUCCESS) {
+        IAM_LOGE("ProcessCredentialIdList fail:%{public}d", errorCode);
+        return errorCode;
+    }
     return UserAuthResultCode::SUCCESS;
 }
 
@@ -449,6 +455,23 @@ UserAuthResultCode UserAuthParamUtils::ProcessSkipLockedBiometricAuth(napi_env e
             return UserAuthResultCode::OHOS_INVALID_PARAM;
         }
         IAM_LOGI("Init skipLockedBiometricAuth: %{public}d", authParam.skipLockedBiometricAuth);
+    }
+    return UserAuthResultCode::SUCCESS;
+}
+
+UserAuthResultCode UserAuthParamUtils::ProcessCredentialIdList(napi_env env, napi_value value,
+    AuthParamInner &authParam)
+{
+    if (UserAuthNapiHelper::HasNamedProperty(env, value, AUTH_PARAM_CREDENTIAL_ID_LIST)) {
+        napi_value credentialIdList = UserAuthNapiHelper::GetNamedProperty(env, value,
+            AUTH_PARAM_CREDENTIAL_ID_LIST);
+        napi_status ret =
+            UserAuthNapiHelper::GetInt32ArrayValue(env, credentialIdList, authParam.credentialIdList);
+        if (ret != napi_ok) {
+            IAM_LOGE("GetInt32ArrayValue fail:%{public}d", ret);
+            return UserAuthResultCode::OHOS_INVALID_PARAM;
+        }
+        IAM_LOGI("Init credentialIdList.size(): %{public}zu", authParam.credentialIdList.size());
     }
     return UserAuthResultCode::SUCCESS;
 }
