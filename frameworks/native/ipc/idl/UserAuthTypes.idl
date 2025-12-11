@@ -125,6 +125,8 @@ struct IpcAuthParamInner {
     int authIntent;
     /** Skip locked biometric authentication */
     boolean skipLockedBiometricAuth;
+    /** Used to specify the credential Ids for authentication */
+    unsigned long[] credentialIdList;
 };
 
 /**

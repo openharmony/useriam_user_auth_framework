@@ -53,6 +53,8 @@ private:
     static bool CheckUIContext(const std::shared_ptr<OHOS::AbilityRuntime::Context> context);
     static UserAuthResultCode ProcessSkipLockedBiometricAuth(napi_env env, napi_value value,
         AuthParamInner &authParam);
+    static UserAuthResultCode ProcessCredentialIdList(napi_env env, napi_value value,
+        AuthParamInner &authParam);
 };
 } // namespace UserAuth
 } // namespace UserIam
