@@ -129,7 +129,7 @@ int32_t UserIdmService::GetCredentialInfoInner(int32_t userId, AuthType authType
     if (ret != SUCCESS) {
         IAM_LOGE("get credential fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret,
             userId, authType);
-        return GENERAL_ERROR;
+        return ret;
     }
 
     if (credInfos.empty()) {
@@ -153,6 +153,22 @@ int32_t UserIdmService::GetCredentialInfoInner(int32_t userId, AuthType authType
     return SUCCESS;
 }
 
+int32_t UserIdmService::ConvertGetCredentialResult(int32_t resultCode, bool isNotEnrollReturnSuccess)
+{
+    if (resultCode == SUCCESS) {
+        return SUCCESS;
+    }
+    if (resultCode == NOT_ENROLLED) {
+        return isNotEnrollReturnSuccess ? SUCCESS : NOT_ENROLLED;
+    }
+
+    IAM_LOGE("GetCredentialInfo fail, resultCode: %{public}d", resultCode);
+    if (resultCode == INVALID_PARAMETERS || resultCode == CHECK_PERMISSION_FAILED) {
+        return resultCode;
+    }
+    return GENERAL_ERROR;
+}
+
 int32_t UserIdmService::GetCredentialInfoImpl(int32_t userId, int32_t authType,
     const sptr<IIdmGetCredInfoCallback> &callback)
 {
@@ -166,14 +182,10 @@ int32_t UserIdmService::GetCredentialInfoImpl(int32_t userId, int32_t authType,
     std::vector<CredentialInfo> credInfoList;
     int32_t ret = GetCredentialInfoInner(userId, static_cast<AuthType>(authType), credInfoList);
     if (ret != SUCCESS) {
-        if (ret == NOT_ENROLLED) {
-            IAM_LOGI("credential is not enrolled");
-        } else {
-            IAM_LOGE("GetCredentialInfoInner fail, ret: %{public}d", ret);
-        }
+        ret = ConvertGetCredentialResult(ret, false);
         credInfoList.clear();
     }
-    
+
     bool hasAbandonedCredential = false;
     for (auto &iter : credInfoList) {
         if (iter.isAbandoned && iter.validityPeriod == 0) {
@@ -303,6 +315,10 @@ bool UserIdmService::GetNeedSubscribeAppState(std::string jsonText, const char *
     }
     if (jsonText.size() == 0) {
         IAM_LOGE("jsonText size is 0, need subscribe app state");
+        return true;
+    }
+    if (!nlohmann::json::accept(jsonText)) {
+        IAM_LOGE("the text is not json, need subscribe app state");
         return true;
     }
 
@@ -789,13 +805,8 @@ int32_t UserIdmService::GetCredentialInfoSync(int32_t userId, int32_t authType,
     Common::XCollieHelper xcollie(__FUNCTION__, Common::API_CALL_TIMEOUT);
     std::vector<CredentialInfo> credentialInfoList;
     int32_t ret = GetCredentialInfoInner(userId, static_cast<AuthType>(authType), credentialInfoList);
-    if (ret == NOT_ENROLLED) {
-        credentialInfoList.clear();
-        ret = SUCCESS;
-    }
-
     if (ret != SUCCESS) {
-        IAM_LOGE("GetCredentialInfoInner fail, ret: %{public}d", ret);
+        ret = ConvertGetCredentialResult(ret, true);
         credentialInfoList.clear();
     }
 

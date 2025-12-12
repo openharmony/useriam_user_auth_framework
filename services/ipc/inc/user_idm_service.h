@@ -88,6 +88,7 @@ private:
         Attributes &extraInfo);
     void ClearUnavailableCredential(int32_t userId);
     bool GetNeedSubscribeAppState(std::string jsonText, const char *key);
+    int32_t ConvertGetCredentialResult(int32_t resultCode, bool isNotEnrollReturnSuccess);
     std::mutex mutex_;
 };
 } // namespace UserAuth
