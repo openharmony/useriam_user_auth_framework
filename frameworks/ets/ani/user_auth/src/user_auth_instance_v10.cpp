@@ -217,22 +217,30 @@ UserAuthResultCode UserAuthInstanceV10::InitSkipLockedBiometricAuth(userAuth::Au
 UserAuthResultCode UserAuthInstanceV10::InitCredentialIdList(userAuth::AuthParam const &authParam)
 {
     IAM_LOGI("InitCredentialIdList start.");
-    if (authParam.credentialIdList.has_value()) {
-        auto credentialIdList = authParam.credentialIdList.value();
-        authParam_.credentialIdList.clear();
-        authParam_.credentialIdList.reserve(1);
-        const int32_t checkLen = 2;
-        if (credentialIdList.size() != checkLen) {
+    if (!authParam.credentialIdList.has_value()) {
+        IAM_LOGI("propertyName: %{public}s not exists.", AUTH_PARAM_CREDENTIAL_ID_LIST.c_str());
+        return UserAuthResultCode::SUCCESS;
+    }
+    auto credentialIdList = authParam.credentialIdList.value();
+    if (credentialIdList.size() > MAX_CREDENTIAL_ID_LIST_SIZE) {
+        IAM_LOGE("bad credentialIdList.size():%{public}zu", credentialIdList.size());
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
+    }
+    authParam_.credentialIdList.clear();
+    authParam_.credentialIdList.reserve(credentialIdList.size());
+    for (auto credentialId: credentialIdList) {
+        if (credentialId.size() != (sizeof(uint64_t) / sizeof(uint8_t))) {
+            IAM_LOGE("credentialId.size():%{public}zu", credentialId.size());
             return UserAuthResultCode::OHOS_INVALID_PARAM;
         }
-        const int32_t highLevel = 32;
-        uint64_t dest = (static_cast<uint64_t>(static_cast<uint32_t>(credentialIdList[1])) << highLevel) |
-            static_cast<uint32_t>(credentialIdList[0]);
+        uint64_t dest = 0;
+        if (memcpy_s(&dest, sizeof(uint64_t), credentialId.data(), sizeof(uint64_t)) != EOK) {
+            IAM_LOGE("memcpy_s fail");
+            return UserAuthResultCode::OHOS_INVALID_PARAM;
+        }
         authParam_.credentialIdList.push_back(dest);
-        IAM_LOGI("InitCredentialIdList.size(): %{public}zu", authParam_.credentialIdList.size());
-    } else {
-        IAM_LOGI("propertyName: %{public}s not exists.", AUTH_PARAM_CREDENTIAL_ID_LIST.c_str());
     }
+    IAM_LOGI("InitCredentialIdList.size(): %{public}zu", authParam_.credentialIdList.size());
     return UserAuthResultCode::SUCCESS;
 }
 
