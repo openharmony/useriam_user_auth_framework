@@ -108,7 +108,7 @@ struct AuthParam {
     reuseUnlockResult: Optional<ReuseUnlockResult>;
     userId: Optional<i32>;
     skipLockedBiometricAuth: Optional<bool>;
-    credentialIdList: Optional<Array<i32>>;
+    credentialIdList: Optional<Array<@typedarray Array<u8>>>;
 }
  
 struct WidgetParam {

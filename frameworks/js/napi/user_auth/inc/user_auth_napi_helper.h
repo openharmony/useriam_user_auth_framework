@@ -44,7 +44,8 @@ public:
     static napi_status GetFunctionRef(napi_env env, napi_value value, napi_ref &ref);
     static napi_status GetUint8ArrayValue(napi_env env, napi_value value,
         size_t limitLen, std::vector<uint8_t> &array);
-    static napi_status GetInt32ArrayValue(napi_env env, napi_value value, std::vector<uint64_t> &array);
+    static napi_status GetUint64VectorFromUint8ArrayArrayValue(napi_env env, napi_value value, uint32_t limitLen,
+        std::vector<uint64_t> &array);
     static napi_value Uint64ToNapiUint8Array(napi_env env, uint64_t value);
     static napi_value Uint8VectorToNapiUint8Array(napi_env env,  std::vector<uint8_t> &value);
     static napi_status SetBoolProperty(napi_env env, napi_value obj, const char *name, int32_t value);
@@ -63,6 +64,7 @@ public:
     static bool SetStringPropertyUtf8(
         napi_env env, napi_value object, const std::string &name, const std::string &value);
     static bool GetInt32Array(napi_env env, napi_value obj, std::vector<uint32_t> vec);
+    static bool ConvertSizeToUint32(size_t in, uint32_t &out);
 private:
     UserAuthNapiHelper() = default;
     ~UserAuthNapiHelper() = default;
