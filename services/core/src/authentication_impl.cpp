@@ -181,7 +181,7 @@ bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
     IamHitraceHelper traceHelper("hdi BeginAuthentication");
     if (!BeginAuthenticationV4_0(callerType, infos)) {
         if (!BeginAuthenticationV4_1(callerType, infos)) {
-            IAM_LOGE("BeginAuthentication fail");
+            IAM_LOGE("BeginAuthentication failed");
             return false;
         }
     }
