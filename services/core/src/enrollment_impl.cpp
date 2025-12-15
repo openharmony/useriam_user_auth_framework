@@ -89,7 +89,7 @@ int32_t EnrollmentImpl::GetUserId() const
 }
 
 bool EnrollmentImpl::BeginEnrollmentV4_1(int32_t userType, HdiCallerType callerType,
-    HdiScheduleInfo &infos)
+    HdiScheduleInfo &info)
 {
     auto hdi_4_1 = HdiWrapper::GetHdiInstanceV4_1();
     if (!hdi_4_1) {
@@ -108,7 +108,7 @@ bool EnrollmentImpl::BeginEnrollmentV4_1(int32_t userType, HdiCallerType callerT
         .authSubType = enrollPara_.pinType,
         .additionalInfo = enrollPara_.additionalInfo,
     };
-    auto result = hdi_4_1->BeginEnrollmentExt(authToken_, param, infos);
+    auto result = hdi_4_1->BeginEnrollmentExt(authToken_, param, info);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi_4_1 BeginEnrollment failed, err is %{public}d", result);
         SetLatestError(result);
@@ -118,7 +118,7 @@ bool EnrollmentImpl::BeginEnrollmentV4_1(int32_t userType, HdiCallerType callerT
 }
 
 bool EnrollmentImpl::BeginEnrollmentV4_0(int32_t userType, HdiCallerType callerType,
-    HdiScheduleInfo &infos)
+    HdiScheduleInfo &info)
 {
     if (enrollPara_.additionalInfo.size() != 0) {
         IAM_LOGE("additionalInfo size: %{public}zu, v4_0 not support", enrollPara_.additionalInfo.size());
@@ -140,7 +140,7 @@ bool EnrollmentImpl::BeginEnrollmentV4_0(int32_t userType, HdiCallerType callerT
         .userType = userType,
         .authSubType = enrollPara_.pinType,
     };
-    auto result = hdi_4_0->BeginEnrollmentExt(authToken_, param, infos);
+    auto result = hdi_4_0->BeginEnrollmentExt(authToken_, param, info);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi_4_0 BeginEnrollment failed, err is %{public}d", result);
         SetLatestError(result);
@@ -321,14 +321,14 @@ bool EnrollmentImpl::StartSchedule(int32_t userId, HdiScheduleInfo &info,
     std::vector<std::shared_ptr<ScheduleNode>> &scheduleList, std::shared_ptr<ScheduleNodeCallback> callback)
 {
     IAM_LOGI("start");
-    std::vector<HdiScheduleInfo> infos = {};
-    infos.emplace_back(info);
+    std::vector<HdiScheduleInfo> info = {};
+    info.emplace_back(info);
 
     ScheduleNodeHelper::NodeOptionalPara para;
     para.tokenId = tokenId_;
     para.userId = userId;
 
-    if (!ScheduleNodeHelper::BuildFromHdi(infos, callback, scheduleList, para)) {
+    if (!ScheduleNodeHelper::BuildFromHdi(info, callback, scheduleList, para)) {
         IAM_LOGE("BuildFromHdi failed");
         return false;
     }
