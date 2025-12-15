@@ -154,7 +154,7 @@ bool AuthenticationImpl::BeginAuthenticationV4_0(HdiCallerType callerType,
 
     auto result = hdi_4_0->BeginAuthentication(contextId_, param, infos);
     if (result != HDF_SUCCESS) {
-        IAM_LOGE("hdi_4_0 BeginAuthentication failed, err is %{public}d", result);
+        IAM_LOGE("hdi BeginAuthentication failed, err is %{public}d", result);
         SetLatestError(result);
         return false;
     }
@@ -179,8 +179,8 @@ bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
     }
     std::vector<HdiScheduleInfo> infos;
     IamHitraceHelper traceHelper("hdi BeginAuthentication");
-    if (!BeginAuthenticationV4_0(callerType, infos)) {
-        if (!BeginAuthenticationV4_1(callerType, infos)) {
+    if (!BeginAuthenticationV4_1(callerType, infos)) {
+        if (!BeginAuthenticationV4_0(callerType, infos)) {
             IAM_LOGE("BeginAuthentication failed");
             return false;
         }
