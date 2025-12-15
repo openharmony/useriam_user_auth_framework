@@ -110,7 +110,7 @@ bool EnrollmentImpl::BeginEnrollmentV4_1(int32_t userType, HdiCallerType callerT
     };
     auto result = hdi_4_1->BeginEnrollmentExt(authToken_, param, info);
     if (result != HDF_SUCCESS) {
-        IAM_LOGE("hdi_4_1 BeginEnrollment failed, err is %{public}d", result);
+        IAM_LOGE("hdi BeginEnrollment failed, err is %{public}d", result);
         SetLatestError(result);
         return false;
     }
@@ -129,7 +129,6 @@ bool EnrollmentImpl::BeginEnrollmentV4_0(int32_t userType, HdiCallerType callerT
         IAM_LOGE("bad hdi");
         return false;
     }
-
     HdiEnrollParam param = {
         .authType = static_cast<HdiAuthType>(enrollPara_.authType),
         .executorSensorHint = executorSensorHint_,
@@ -142,7 +141,7 @@ bool EnrollmentImpl::BeginEnrollmentV4_0(int32_t userType, HdiCallerType callerT
     };
     auto result = hdi_4_0->BeginEnrollment(authToken_, param, info);
     if (result != HDF_SUCCESS) {
-        IAM_LOGE("hdi_4_0 BeginEnrollment failed, err is %{public}d", result);
+        IAM_LOGE("hdi BeginEnrollment failed, err is %{public}d", result);
         SetLatestError(result);
         return false;
     }
