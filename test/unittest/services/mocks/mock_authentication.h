@@ -30,7 +30,8 @@ public:
     MOCK_METHOD1(SetAccessTokenId, void(uint32_t tokenId));
     MOCK_METHOD1(SetEndAfterFirstFail, void(bool endAfterFirstFail));
     MOCK_METHOD1(SetCollectorUdid, void(std::string &collectorUdid));
-
+    MOCK_METHOD2(BeginAuthenticationv4_0, bool(HdiCallerType callerType, std::vector<HdiScheduleInfo> &infos));
+    MOCK_METHOD2(BeginAuthenticationV4_1, bool(HdiCallerType callerType, std::vector<HdiScheduleInfo> &infos));
     MOCK_METHOD2(Start,
         bool(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList, std::shared_ptr<ScheduleNodeCallback> callback));
     MOCK_METHOD2(Update, bool(const std::vector<uint8_t> &scheduleResult, AuthResultInfo &resultInfo));

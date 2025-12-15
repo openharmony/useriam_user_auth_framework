@@ -32,6 +32,12 @@ public:
     void SetEndAfterFirstFail(bool endAfterFirstFail){};
     void SetCollectorUdid(std::string &collectorUdid){};
     void SetLatestError(int32_t error){};
+    bool BeginAuthenticationV4_0(HdiCallerType callerType, std::vector<HdiScheduleInfo> &infos) {
+        return true;
+    };
+    bool BeginAuthenticationV4_1(HdiCallerType callerType, std::vector<HdiScheduleInfo> &infos) {
+        return true;
+    };
     bool Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
         std::shared_ptr<ScheduleNodeCallback> callback)
         {
