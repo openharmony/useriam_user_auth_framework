@@ -32,6 +32,8 @@ public:
     MOCK_METHOD1(SetIsUpdate, void(bool isUpdate));
     MOCK_METHOD2(Start,
         bool(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList, std::shared_ptr<ScheduleNodeCallback> callback));
+    MOCK_METHOD3(BeginEnrollmentV4_0, bool(int32_t userType, HdiCallerType callerType, HdiScheduleInfo &info));
+    MOCK_METHOD3(BeginEnrollmentV4_1, bool(int32_t userType, HdiCallerType callerType, HdiScheduleInfo &info));
     MOCK_METHOD5(Update, bool(const std::vector<uint8_t> &scheduleResult, uint64_t &credentialId,
                             std::shared_ptr<CredentialInfoInterface> &info,
                             std::shared_ptr<UpdatePinParamInterface> &pinInfo,
@@ -40,8 +42,6 @@ public:
     MOCK_CONST_METHOD0(GetAccessTokenId, uint32_t());
     MOCK_CONST_METHOD0(GetLatestError, int32_t());
     MOCK_CONST_METHOD0(GetUserId, int32_t());
-    MOCK_METHOD3(BeginEnrollmentV4_0, bool(int32_t userType, HdiCallerType callerType, HdiScheduleInfo &infos));
-    MOCK_METHOD3(BeginEnrollmentV4_1, bool(int32_t userType, HdiCallerType callerType, HdiScheduleInfo &infos));
 
 protected:
     MOCK_METHOD1(SetLatestError, void(int32_t error));
