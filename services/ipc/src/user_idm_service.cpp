@@ -313,6 +313,7 @@ bool UserIdmService::GetNeedSubscribeAppState(std::string jsonText, const char *
         IAM_LOGE("check permission success, no need subscribe app state");
         return false;
     }
+
     if (jsonText.size() == 0) {
         IAM_LOGE("jsonText size is 0, need subscribe app state");
         return true;

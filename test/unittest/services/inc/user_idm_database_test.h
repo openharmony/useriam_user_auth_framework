@@ -22,13 +22,13 @@ namespace UserIam {
 namespace UserAuth {
 class UserIdmDatabaseTest : public testing::Test {
 public:
-    static void SetUpTestCase();
+    static void SetUpTestCase() const;
 
-    static void TearDownTestCase();
+    static void TearDownTestCase() const;
 
-    void SetUp() override;
+    void SetUp() const override;
 
-    void TearDown() override;
+    void TearDown() const override;
 };
 } // namespace UserAuth
 } // namespace UserIam

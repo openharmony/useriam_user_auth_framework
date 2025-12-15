@@ -26,7 +26,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockIUserAuthInterface final : public IUserAuthInterface {
+class MockIUserAuthInterface final : public IUserAuthInterfaceV4_1 {
 public:
     class Holder;
     int32_t Init(const std::string &deviceUdid)
@@ -156,6 +156,9 @@ public:
     int32_t BeginAuthenticationExt(uint64_t contextId, const HdiAuthParamExt &param,
         std::vector<HdiScheduleInfo> &scheduleInfos)
     {
+        static_cast<void>(contextId);
+        static_cast<void>(param);
+        static_cast<void>(scheduleInfos);
         return 0;
     }
 

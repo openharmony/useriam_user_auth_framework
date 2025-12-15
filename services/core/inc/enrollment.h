@@ -21,6 +21,7 @@
 #include <optional>
 
 #include "credential_info_interface.h"
+#include "hdi_wrapper.h"
 #include "update_pin_param_interface.h"
 #include "schedule_node.h"
 
