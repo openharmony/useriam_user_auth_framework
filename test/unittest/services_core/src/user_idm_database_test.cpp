@@ -34,19 +34,19 @@ public:
     void TearDown() override;
 };
 
-void UserIdmDatabaseTest::SetUpTestCase() const
+void UserIdmDatabaseTest::SetUpTestCase()
 {
 }
 
-void UserIdmDatabaseTest::TearDownTestCase() const
+void UserIdmDatabaseTest::TearDownTestCase()
 {
 }
 
-void UserIdmDatabaseTest::SetUp() const
+void UserIdmDatabaseTest::SetUp()
 {
 }
 
-void UserIdmDatabaseTest::TearDown() const
+void UserIdmDatabaseTest::TearDown()
 {
 }
 
