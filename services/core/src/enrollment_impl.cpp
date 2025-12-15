@@ -321,14 +321,14 @@ bool EnrollmentImpl::StartSchedule(int32_t userId, HdiScheduleInfo &info,
     std::vector<std::shared_ptr<ScheduleNode>> &scheduleList, std::shared_ptr<ScheduleNodeCallback> callback)
 {
     IAM_LOGI("start");
-    std::vector<HdiScheduleInfo> info = {};
-    info.emplace_back(info);
+    std::vector<HdiScheduleInfo> infos = {};
+    infos.emplace_back(info);
 
     ScheduleNodeHelper::NodeOptionalPara para;
     para.tokenId = tokenId_;
     para.userId = userId;
 
-    if (!ScheduleNodeHelper::BuildFromHdi(info, callback, scheduleList, para)) {
+    if (!ScheduleNodeHelper::BuildFromHdi(infos, callback, scheduleList, para)) {
         IAM_LOGE("BuildFromHdi failed");
         return false;
     }
