@@ -140,7 +140,7 @@ bool EnrollmentImpl::BeginEnrollmentV4_0(int32_t userType, HdiCallerType callerT
         .userType = userType,
         .authSubType = enrollPara_.pinType,
     };
-    auto result = hdi_4_0->BeginEnrollmentExt(authToken_, param, info);
+    auto result = hdi_4_0->BeginEnrollment(authToken_, param, info);
     if (result != HDF_SUCCESS) {
         IAM_LOGE("hdi_4_0 BeginEnrollment failed, err is %{public}d", result);
         SetLatestError(result);
