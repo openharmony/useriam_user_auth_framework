@@ -152,8 +152,8 @@ bool EnrollmentImpl::BeginEnrollmentV4_0(int32_t userType, HdiCallerType callerT
 bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
     std::shared_ptr<ScheduleNodeCallback> callback)
 {
-    IAM_LOGE("UserId:%{public}d, AuthType:%{public}d, pinSubType:%{public}d, additionalInfo:%{public}zu",
-        enrollPara_.userId, enrollPara_.authType, enrollPara_.pinType, enrollPara_.additionalInfo.size());
+    IAM_LOGE("UserId:%{public}d, AuthType:%{public}d, pinSubType:%{public}d", enrollPara_.userId, enrollPara_.authType,
+        enrollPara_.pinType);
 
     // cache secUserId first in case of update
     if (isUpdate_ && !GetSecUserId(secUserId_)) {
