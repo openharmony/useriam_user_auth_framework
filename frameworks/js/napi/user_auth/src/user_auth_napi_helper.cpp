@@ -354,7 +354,8 @@ napi_status UserAuthNapiHelper::GetUint8ArrayValue(napi_env env, napi_value valu
     return result;
 }
 
-napi_status UserAuthNapiHelper::GetInt32ArrayValue(napi_env env, napi_value value, std::vector<uint64_t> &array)
+napi_status UserAuthNapiHelper::GetUint64VectorFromUint8ArrayArrayValue(napi_env env, napi_value value,
+    uint32_t limitLen, std::vector<uint64_t> &array)
 {
     napi_status result = napi_ok;
     bool isArray = false;
@@ -367,30 +368,41 @@ napi_status UserAuthNapiHelper::GetInt32ArrayValue(napi_env env, napi_value valu
     result = napi_get_array_length(env, value, &outLength);
     IF_FALSE_LOGE_AND_RETURN_VAL((result == napi_ok), result);
     IAM_LOGI("outLength:%{public}d", outLength);
+    IF_FALSE_LOGE_AND_RETURN_VAL((outLength <= limitLen), napi_invalid_arg);
     array.clear();
     array.reserve(outLength);
-    const int32_t checkLen = 2;
-    if (outLength != checkLen) {
-        return napi_invalid_arg;
-    }
-    int32_t high = 0;
-    int32_t low = 0;
     for (uint32_t i = 0; i < outLength; i++) {
         napi_value element;
         result = napi_get_element(env, value, i, &element);
         IF_FALSE_LOGE_AND_RETURN_VAL((result == napi_ok), result);
-        int32_t out = 0;
-        result = GetInt32Value(env, element, out);
-        IF_FALSE_LOGE_AND_RETURN_VAL((result == napi_ok), result);
-        if (i == 1) {
-            high = out;
-        } else {
-            low = out;
+        bool isTypedarray = false;
+        result = napi_is_typedarray(env, element, &isTypedarray);
+        if (result != napi_ok || !isTypedarray) {
+            IAM_LOGE("napi_is_typedarray fail");
+            return napi_invalid_arg;
         }
+        napi_typedarray_type type;
+        size_t length;
+        void *data;
+        napi_value buffer;
+        size_t offset;
+        result = napi_get_typedarray_info(env, element, &type, &length, &data, &buffer, &offset);
+        IF_FALSE_LOGE_AND_RETURN_VAL((result == napi_ok), result);
+        if (type != napi_uint8_array) {
+            IAM_LOGE("type:%{public}d != napi_uint8_array", type);
+            return napi_invalid_arg;
+        }
+        if (length != (sizeof(uint64_t) / sizeof(uint8_t))) {
+            IAM_LOGE("length:%{public}zu", length);
+            return napi_invalid_arg;
+        }
+        uint64_t dest = 0;
+        if (memcpy_s(&dest, sizeof(uint64_t), data, sizeof(uint64_t)) != EOK) {
+            IAM_LOGE("memcpy_s fail");
+            return napi_invalid_arg;
+        }
+        array.push_back(dest);
     }
-    const int32_t highLevel = 32;
-    uint64_t dest = (static_cast<uint64_t>(static_cast<uint32_t>(high)) << highLevel) | static_cast<uint32_t>(low);
-    array.push_back(dest);
     return napi_ok;
 }
 
@@ -633,6 +645,16 @@ bool UserAuthNapiHelper::CheckAuthType(int32_t authType)
         IAM_LOGE("authType check fail:%{public}d", authType);
         return false;
     }
+    return true;
+}
+
+bool UserAuthNapiHelper::ConvertSizeToUint32(size_t in, uint32_t &out)
+{
+    if (in > UINT32_MAX) {
+        IAM_LOGE("bad size");
+        return false;
+    }
+    out = static_cast<uint32_t>(in);
     return true;
 }
 } // namespace UserAuth

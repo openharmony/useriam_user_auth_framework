@@ -45,6 +45,8 @@ constexpr int32_t API_VERSION_9 = 9;
 constexpr int32_t API_VERSION_10 = 10;
 constexpr int32_t API_VERSION_12 = 12;
 
+constexpr size_t MAX_CREDENTIAL_ID_LIST_SIZE = 200;
+
 constexpr const char *NOTICE_EVENT_AUTH_READY = "EVENT_AUTH_TYPE_READY";
 constexpr const char *NOTICE_EVENT_CANCEL_AUTH = "EVENT_AUTH_USER_CANCEL";
 constexpr const char *NOTICE_EVENT_USER_NAVIGATION = "EVENT_AUTH_USER_NAVIGATION";
