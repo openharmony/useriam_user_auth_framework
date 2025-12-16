@@ -17,6 +17,7 @@
 #define DUMMY_AUTHENTICATION_H
 
 #include "authentication.h"
+#include "hdi_wrapper.h"
 
 #undef private
 
