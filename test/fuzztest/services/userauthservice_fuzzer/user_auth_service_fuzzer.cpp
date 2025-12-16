@@ -134,6 +134,9 @@ public:
         const IpcAuthSuccessEventInfo &info) override
     {
         IAM_LOGI("start");
+        static_cast<void>(userId);
+        static_cast<void>(authType);
+        static_cast<void>(info);
         return SUCCESS;
     }
     int32_t OnNotifyCredChangeEvent(int32_t userId, int32_t authType, int32_t eventType,

@@ -28,7 +28,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class MockIUserAuthInterface final : public IUserAuthInterface {
+class MockIUserAuthInterface final : public IUserAuthInterfaceV4_1 {
 public:
     class Holder;
     MOCK_METHOD1(Init, int32_t(const std::string &deviceUdid));

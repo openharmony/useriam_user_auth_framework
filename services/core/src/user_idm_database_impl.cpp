@@ -85,7 +85,7 @@ int32_t UserIdmDatabaseImpl::GetCredentialInfo(int32_t userId, AuthType authType
     int32_t ret = hdi->GetCredential(userId, static_cast<HdiAuthType>(authType), hdiInfos);
     if (ret != HDF_SUCCESS) {
         IAM_LOGE("GetCredential fail, userId:%{public}d, authType:%{public}d, ret:%{public}d", userId, authType, ret);
-        return GENERAL_ERROR;
+        return ret;
     }
     credInfos.reserve(hdiInfos.size());
     for (const auto &hdiInfo : hdiInfos) {
