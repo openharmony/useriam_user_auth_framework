@@ -16,6 +16,7 @@
 
 #include "credential_info_impl.h"
 #include "event_listener_manager.h"
+#include "hdi_wrapper.h"
 #include "iam_hitrace_helper.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
