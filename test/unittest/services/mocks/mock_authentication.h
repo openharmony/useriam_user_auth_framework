@@ -18,6 +18,7 @@
 #include <gmock/gmock.h>
 
 #include "authentication.h"
+#include "hdi_wrapper.h"
 
 namespace OHOS {
 namespace UserIam {
