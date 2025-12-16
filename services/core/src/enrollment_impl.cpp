@@ -89,16 +89,72 @@ int32_t EnrollmentImpl::GetUserId() const
     return enrollPara_.userId;
 }
 
-bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
-    std::shared_ptr<ScheduleNodeCallback> callback)
+bool EnrollmentImpl::BeginEnrollmentV4_1(int32_t userType, HdiCallerType callerType,
+    HdiScheduleInfo &info)
 {
-    IAM_LOGE("UserId:%{public}d, AuthType:%{public}d, pinSubType:%{public}d, additionalInfo:%{public}zu",
-        enrollPara_.userId, enrollPara_.authType, enrollPara_.pinType, enrollPara_.additionalInfo.size());
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (!hdi) {
+    auto hdi_4_1 = HdiWrapper::GetHdiInstanceV4_1();
+    if (!hdi_4_1) {
         IAM_LOGE("bad hdi");
         return false;
     }
+
+    HdiEnrollParamExt param = {
+        .authType = static_cast<HdiAuthType>(enrollPara_.authType),
+        .executorSensorHint = executorSensorHint_,
+        .callerName = enrollPara_.callerName,
+        .callerType = callerType,
+        .apiVersion = enrollPara_.sdkVersion,
+        .userId = enrollPara_.userId,
+        .userType = userType,
+        .authSubType = enrollPara_.pinType,
+        .additionalInfo = enrollPara_.additionalInfo,
+    };
+    auto result = hdi_4_1->BeginEnrollmentExt(authToken_, param, info);
+    if (result != HDF_SUCCESS) {
+        IAM_LOGE("hdi BeginEnrollment failed, err is %{public}d", result);
+        SetLatestError(result);
+        return false;
+    }
+    return true;
+}
+
+bool EnrollmentImpl::BeginEnrollmentV4_0(int32_t userType, HdiCallerType callerType,
+    HdiScheduleInfo &info)
+{
+    if (enrollPara_.additionalInfo.size() != 0) {
+        IAM_LOGE("additionalInfo size: %{public}zu, v4_0 not support", enrollPara_.additionalInfo.size());
+        return false;
+    }
+    auto hdi_4_0 = HdiWrapper::GetHdiInstance();
+    if (!hdi_4_0) {
+        IAM_LOGE("bad hdi");
+        return false;
+    }
+    HdiEnrollParam param = {
+        .authType = static_cast<HdiAuthType>(enrollPara_.authType),
+        .executorSensorHint = executorSensorHint_,
+        .callerName = enrollPara_.callerName,
+        .callerType = callerType,
+        .apiVersion = enrollPara_.sdkVersion,
+        .userId = enrollPara_.userId,
+        .userType = userType,
+        .authSubType = enrollPara_.pinType,
+    };
+    auto result = hdi_4_0->BeginEnrollment(authToken_, param, info);
+    if (result != HDF_SUCCESS) {
+        IAM_LOGE("hdi BeginEnrollment failed, err is %{public}d", result);
+        SetLatestError(result);
+        return false;
+    }
+    return true;
+}
+
+bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
+    std::shared_ptr<ScheduleNodeCallback> callback)
+{
+    IAM_LOGE("UserId:%{public}d, AuthType:%{public}d, pinSubType:%{public}d", enrollPara_.userId, enrollPara_.authType,
+        enrollPara_.pinType);
+
     // cache secUserId first in case of update
     if (isUpdate_ && !GetSecUserId(secUserId_)) {
         IAM_LOGE("get and cache secUserId fail");
@@ -116,23 +172,13 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
         IAM_LOGE("ConvertATokenTypeToCallerType failed, ATokenType:%{public}d", enrollPara_.callerType);
         return false;
     }
-    HdiEnrollParamExt param = {
-        .authType = static_cast<HdiAuthType>(enrollPara_.authType),
-        .executorSensorHint = executorSensorHint_,
-        .callerName = enrollPara_.callerName,
-        .callerType = callerType,
-        .apiVersion = enrollPara_.sdkVersion,
-        .userId = enrollPara_.userId,
-        .userType = userType,
-        .authSubType = enrollPara_.pinType,
-        .additionalInfo = enrollPara_.additionalInfo,
-    };
+
     IamHitraceHelper traceHelper("hdi BeginEnrollment");
-    auto result = hdi->BeginEnrollmentExt(authToken_, param, info);
-    if (result != HDF_SUCCESS) {
-        IAM_LOGE("hdi BeginEnrollment failed, err is %{public}d", result);
-        SetLatestError(result);
-        return false;
+    if (!BeginEnrollmentV4_0(userType, callerType, info)) {
+        if (!BeginEnrollmentV4_1(userType, callerType, info)) {
+            IAM_LOGE("BeginEnrollment failed");
+            return false;
+        }
     }
 
     return StartSchedule(enrollPara_.userId, info, scheduleList, callback);

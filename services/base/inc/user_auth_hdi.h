@@ -43,7 +43,8 @@ static inline HdiCallerType ConvertATokenTypeToCallerType(int32_t in)
     return it->second;
 }
 
-using IUserAuthInterface = OHOS::HDI::UserAuth::V4_1::IUserAuthInterface;
+using IUserAuthInterface = OHOS::HDI::UserAuth::V4_0::IUserAuthInterface;
+using IUserAuthInterfaceV4_1 = OHOS::HDI::UserAuth::V4_1::IUserAuthInterface;
 using HdiAuthType = OHOS::HDI::UserAuth::V4_1::AuthType;
 using HdiExecutorRole = OHOS::HDI::UserAuth::V4_1::ExecutorRole;
 using HdiExecutorSecureLevel = OHOS::HDI::UserAuth::V4_1::ExecutorSecureLevel;
