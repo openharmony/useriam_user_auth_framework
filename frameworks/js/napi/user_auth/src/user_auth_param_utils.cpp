@@ -465,10 +465,15 @@ UserAuthResultCode UserAuthParamUtils::ProcessCredentialIdList(napi_env env, nap
     if (UserAuthNapiHelper::HasNamedProperty(env, value, AUTH_PARAM_CREDENTIAL_ID_LIST)) {
         napi_value credentialIdList = UserAuthNapiHelper::GetNamedProperty(env, value,
             AUTH_PARAM_CREDENTIAL_ID_LIST);
-        napi_status ret =
-            UserAuthNapiHelper::GetInt32ArrayValue(env, credentialIdList, authParam.credentialIdList);
+        uint32_t outSize = 0;
+        if (!UserAuthNapiHelper::ConvertSizeToUint32(MAX_CREDENTIAL_ID_LIST_SIZE, outSize)) {
+            IAM_LOGE("ConvertSizeToUint32 fail");
+            return UserAuthResultCode::OHOS_INVALID_PARAM;
+        }
+        napi_status ret = UserAuthNapiHelper::GetUint64VectorFromUint8ArrayArrayValue(env, credentialIdList,
+            outSize, authParam.credentialIdList);
         if (ret != napi_ok) {
-            IAM_LOGE("GetInt32ArrayValue fail:%{public}d", ret);
+            IAM_LOGE("GetUint64VectorFromUint8ArrayArrayValue fail:%{public}d", ret);
             return UserAuthResultCode::OHOS_INVALID_PARAM;
         }
         IAM_LOGI("Init credentialIdList.size(): %{public}zu", authParam.credentialIdList.size());
