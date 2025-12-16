@@ -87,6 +87,7 @@ bool DeleteImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
         hdiResult);
     if (ret != HDF_SUCCESS) {
         IAM_LOGE("failed to delete credential, error code : %{public}d", ret);
+        SetLatestError(ret);
         return false;
     }
 
