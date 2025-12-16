@@ -42,8 +42,6 @@ void FuzzSoftBusManagerSecond(Parcel &parcel)
     IAM_LOGI("start");
     SoftBusManager::GetInstance().GetServerSocket();
     SoftBusManager::GetInstance().Stop();
-    SoftBusManager::GetInstance().RegistDeviceManagerListener();
-    SoftBusManager::GetInstance().UnRegistDeviceManagerListener();
     SoftBusManager::GetInstance().RegistSoftBusListener();
     SoftBusManager::GetInstance().UnRegistSoftBusListener();
     SoftBusManager::GetInstance().DeviceInit();
