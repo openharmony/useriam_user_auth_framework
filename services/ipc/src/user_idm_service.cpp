@@ -38,6 +38,7 @@
 #include "resource_node_pool.h"
 #include "resource_node_utils.h"
 #include "service_init_manager.h"
+#include "system_param_manager.h"
 #include "user_idm_database.h"
 #include "xcollie_helper.h"
 
@@ -69,6 +70,21 @@ void UserIdmService::OnStop()
     ServiceInitManager::GetInstance().OnIdmServiceStop();
 }
 
+std::string UserIdmService::GetSessionInfoMasked(std::vector<uint8_t> &challenge)
+{
+    std::ostringstream sessionInfo;
+    // Only the first two bytes are processed as the mask result
+    constexpr size_t SESSION_INFO_LEN = 2;
+    constexpr int32_t UINT8_HEX_WITH = 2;
+    size_t bytesToProcess = std::min(challenge.size(), SESSION_INFO_LEN);
+    for (size_t i = 0; i < bytesToProcess; i++) {
+        // Formatting
+        sessionInfo << std::hex << std::setw(UINT8_HEX_WITH) << std::setfill('0');
+        sessionInfo << static_cast<uint16_t>(challenge[i]);
+    }
+    return sessionInfo.str();
+}
+
 int32_t UserIdmService::OpenSession(int32_t userId, std::vector<uint8_t> &challenge)
 {
     IAM_LOGI("start");
@@ -90,6 +106,10 @@ int32_t UserIdmService::OpenSession(int32_t userId, std::vector<uint8_t> &challe
         IAM_LOGE("failed to open session, error code:%{public}d", ret);
         return GENERAL_ERROR;
     }
+
+    std::string sessionInfo = GetSessionInfoMasked(challenge);
+    IAM_LOGI("set sessionInfo:%{public}s", sessionInfo.c_str());
+    SystemParamManager::GetInstance().SetParam(IDM_SESSION_INFO, sessionInfo);
     return SUCCESS;
 }
 
