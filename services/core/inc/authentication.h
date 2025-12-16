@@ -19,7 +19,6 @@
 #include <cstdint>
 #include <memory>
 
-#include "hdi_wrapper.h"
 #include "schedule_node.h"
 
 namespace OHOS {
