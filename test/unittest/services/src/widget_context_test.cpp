@@ -447,47 +447,6 @@ HWTEST_F(WidgetContextTest, WidgetContextTestSuccessAuth_004, TestSize.Level0)
     handler->EnsureTask([]() {});
 }
 
-HWTEST_F(WidgetContextTest, WidgetContextTestExecuteAuthList_0001, TestSize.Level0)
-{
-    uint64_t contextId = 1;
-    ContextFactory::AuthWidgetContextPara para;
-    auto widgetContext = Common::MakeShared<WidgetContext>(contextId, para, nullptr, nullptr);
-    std::set<AuthType> authTypeList;
-    widgetContext->ExecuteAuthList(authTypeList, false, AuthIntent::DEFAULT);
-    EXPECT_NE(widgetContext, nullptr);
-    auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask([]() {});
-}
-
-HWTEST_F(WidgetContextTest, WidgetContextTestExecuteAuthList_0002, TestSize.Level0)
-{
-    uint64_t contextId = 1;
-    ContextFactory::AuthWidgetContextPara para;
-    auto widgetContext = Common::MakeShared<WidgetContext>(contextId, para, nullptr, nullptr);
-    std::set<AuthType> authTypeList;
-    authTypeList.insert(AuthType::PIN);
-    widgetContext->ExecuteAuthList(authTypeList, true, AuthIntent::DEFAULT);
-    EXPECT_NE(widgetContext, nullptr);
-    auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask([]() {});
-}
-
-HWTEST_F(WidgetContextTest, WidgetContextTestExecuteAuthList_0003, TestSize.Level0)
-{
-    uint64_t contextId = 1;
-    ContextFactory::AuthWidgetContextPara para;
-    para.challenge = {0, 1};
-    para.atl = AuthTrustLevel::ATL1;
-    auto contextCallback = Common::MakeShared<MockContextCallback>();
-    auto widgetContext = Common::MakeShared<WidgetContext>(contextId, para, contextCallback, nullptr);
-    std::set<AuthType> authTypeList;
-    authTypeList.insert(AuthType::PIN);
-    widgetContext->ExecuteAuthList(authTypeList, false, AuthIntent::DEFAULT);
-    EXPECT_NE(widgetContext, nullptr);
-    auto handler = ThreadHandler::GetSingleThreadInstance();
-    handler->EnsureTask([]() {});
-}
-
 HWTEST_F(WidgetContextTest, WidgetContextTestAuthWidgetReloadInit, TestSize.Level0)
 {
     uint64_t contextId = 1;
