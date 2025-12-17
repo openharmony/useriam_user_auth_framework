@@ -820,8 +820,8 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelCredential001, TestSize.Level0)
         )
         .WillOnce(
             [](int32_t result, const std::vector<uint8_t> &extraInfo) {
-                EXPECT_EQ(result, GENERAL_ERROR);
-                return NOT_ENROLLED;
+                EXPECT_EQ(result, NOT_ENROLLED);
+                return SUCCESS;
             }
         );
 
