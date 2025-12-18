@@ -191,7 +191,7 @@ export class UserAuthIcon extends ViewPU {
                 this.info('get userAuth instance success.');
                 b.on('result', {
                     onResult: (m1) => {
-                        this.info(`userAuthInstance callback result = ${JSON.stringify(m1)}.`);
+                        this.info(`userAuthInstance callback result = ${m1.result}.`);
                         this.onAuthResult(m1);
                         b.off('result');
                     }
@@ -225,6 +225,7 @@ export class UserAuthIcon extends ViewPU {
             SymbolGlyph.fontSize(this.iconHeight);
             SymbolGlyph.fontColor([this.iconColor]);
             SymbolGlyph.onClick(() => this.onclick());
+            SymbolGlyph.draggable(false);
         }, SymbolGlyph);
         Column.pop();
         Row.pop();
