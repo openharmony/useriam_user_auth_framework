@@ -220,10 +220,8 @@ ohos_unittest("iam_services_test") {
     "access_token:libtoken_setproc",
     "access_token:libtokenid_sdk",
     "c_utils:utils",
-    "device_manager:devicemanagersdk",
     "drivers_interface_user_auth:libuser_auth_proxy_4.0",
     "drivers_interface_user_auth:libuser_auth_proxy_4.1",
-    "dsoftbus:softbus_client",
     "googletest:gmock",
     "hdf_core:libhdf_utils",
     "hdf_core:libhdi",
@@ -239,6 +237,13 @@ ohos_unittest("iam_services_test") {
     "samgr:samgr_proxy",
     "config_policy:configpolicy_util"
   ]
+
+  if (!user_auth_framework_enable_dynamic_load) {
+    external_deps += [
+      "device_manager:devicemanagersdk",
+      "dsoftbus:softbus_client",
+    ]
+  }
 
   defines = []
   if (screenlock_client_enable) {
