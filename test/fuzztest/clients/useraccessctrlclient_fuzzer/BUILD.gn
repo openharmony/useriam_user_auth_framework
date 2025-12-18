@@ -64,6 +64,7 @@ ohos_fuzztest("UserAccessCtrlClientFuzzTest") {
     "../../common_fuzzer:attributes_fuzzer",
     "../../common_fuzzer:dfx_fuzzer",
     "../../common_fuzzer:iam_test_fuzzer",
+    "../../../../frameworks/native/client:userauth_client",
   ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
@@ -84,7 +85,6 @@ ohos_fuzztest("UserAccessCtrlClientFuzzTest") {
     "napi:ace_napi",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "user_auth_framework:userauth_client",
   ]
 
   subsystem_name = "useriam"

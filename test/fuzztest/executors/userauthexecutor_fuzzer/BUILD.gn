@@ -68,6 +68,7 @@ ohos_fuzztest("UserAuthExecutorFuzzTest") {
     "../../common_fuzzer:dfx_fuzzer",
     "../../common_fuzzer:iam_test_fuzzer",
     "../../common_fuzzer:iam_utils_fuzzer",
+    "../../../../frameworks/native/client:userauth_client",
   ]
 
   external_deps = [
@@ -78,7 +79,6 @@ ohos_fuzztest("UserAuthExecutorFuzzTest") {
     "init:libbegetutil",
     "ipc:ipc_single",
     "samgr:samgr_proxy",
-    "user_auth_framework:userauth_client",
   ]
 
   subsystem_name = "useriam"
