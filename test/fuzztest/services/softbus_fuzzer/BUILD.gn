@@ -13,6 +13,7 @@
 
 import("//build/ohos.gni")
 import("//build/test.gni")
+import("../../../../user_auth_framework.gni")
 
 ohos_fuzztest("SoftBusFuzzTest") {
   branch_protector_ret = "pac_ret"
@@ -58,10 +59,8 @@ ohos_fuzztest("SoftBusFuzzTest") {
     "access_token:libtoken_setproc",
     "c_utils:utils",
     "c_utils:utils",
-    "device_manager:devicemanagersdk",
     "drivers_interface_user_auth:libuser_auth_proxy_4.0",
     "drivers_interface_user_auth:libuser_auth_proxy_4.1",
-    "dsoftbus:softbus_client",
     "eventhandler:libeventhandler",
     "hdf_core:libhdi",
     "hilog:libhilog",
@@ -73,6 +72,13 @@ ohos_fuzztest("SoftBusFuzzTest") {
     "samgr:samgr_proxy",
     "samgr:samgr_proxy",
   ]
+
+  if (!user_auth_framework_enable_dynamic_load) {
+    external_deps += [
+      "device_manager:devicemanagersdk",
+      "dsoftbus:softbus_client"
+    ]
+  }
 
   subsystem_name = "useriam"
   part_name = "user_auth_framework"

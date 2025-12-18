@@ -84,8 +84,6 @@ ohos_fuzztest("RemoteAuthContextFuzzTest") {
     "ability_runtime:extension_manager",
     "access_token:libaccesstoken_sdk",
     "access_token:libtoken_setproc",
-    "device_manager:devicemanagersdk",
-    "dsoftbus:softbus_client",
     "hitrace:hitrace_meter",
     "init:libbegetutil",
     "napi:ace_napi",

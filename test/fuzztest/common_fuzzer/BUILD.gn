@@ -167,7 +167,6 @@ ohos_source_set("userauth_service_core_fuzzer") {
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
     "c_utils:utils",
-    "device_manager:devicemanagersdk",
     "drivers_interface_user_auth:libuser_auth_proxy_4.0",
     "drivers_interface_user_auth:libuser_auth_proxy_4.1",
     "hdf_core:libhdf_utils",
@@ -319,42 +318,59 @@ ohos_source_set("userauth_service_context_fuzzer") {
 ohos_source_set("userauth_service_remote_connect_fuzzer") {
   include_dirs = [
     "inc",
-    "../../../services/remote_connect/default/inc",
+    "../../../services/remote_connect/inc",
   ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
-  sources = [
-    "../../../services/remote_connect/default/src/device_manager_util.cpp",
-    "../../../services/remote_connect/default/src/remote_connect_listener.cpp",
-    "../../../services/remote_connect/default/src/remote_connect_listener_manager.cpp",
-    "../../../services/remote_connect/default/src/remote_connect_manager.cpp",
-    "../../../services/remote_connect/default/src/socket_factory.cpp",
-    "../../../services/remote_connect/default/src/soft_bus_base_socket.cpp",
-    "../../../services/remote_connect/default/src/soft_bus_client_socket.cpp",
-    "../../../services/remote_connect/default/src/soft_bus_manager.cpp",
-    "../../../services/remote_connect/default/src/soft_bus_message.cpp",
-    "../../../services/remote_connect/default/src/soft_bus_server_socket.cpp",
-    "../../../services/remote_connect/default/src/soft_bus_socket_listener.cpp",
-  ]
+  sources = []
+  external_deps = []
 
   deps = [
     "../common_fuzzer:attributes_fuzzer",
     "../common_fuzzer:dfx_fuzzer",
   ]
 
-  external_deps = [
-    "access_token:libtoken_setproc",
-    "c_utils:utils",
-    "device_manager:devicemanagersdk",
-    "dsoftbus:softbus_client",
-    "hicollie:libhicollie",
-    "hilog:libhilog",
-    "init:libbegetutil",
-    "ipc:ipc_single",
-    "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
-  ]
+  if (user_auth_framework_enable_dynamic_load) {
+    sources += [
+      "dynamic/src/device_manager_util.cpp",
+      "dynamic/src/remote_connect_manager.cpp",
+    ]
+
+    external_deps += [
+      "hilog:libhilog",
+      "c_utils:utils",
+      "init:libbeget_proxy",
+    ]
+  } else {
+    sources = [
+      "../../../services/remote_connect/default/src/device_manager_util.cpp",
+      "../../../services/remote_connect/default/src/remote_connect_listener.cpp",
+      "../../../services/remote_connect/default/src/remote_connect_listener_manager.cpp",
+      "../../../services/remote_connect/default/src/remote_connect_manager.cpp",
+      "../../../services/remote_connect/default/src/socket_factory.cpp",
+      "../../../services/remote_connect/default/src/soft_bus_base_socket.cpp",
+      "../../../services/remote_connect/default/src/soft_bus_client_socket.cpp",
+      "../../../services/remote_connect/default/src/soft_bus_manager.cpp",
+      "../../../services/remote_connect/default/src/soft_bus_message.cpp",
+      "../../../services/remote_connect/default/src/soft_bus_server_socket.cpp",
+      "../../../services/remote_connect/default/src/soft_bus_socket_listener.cpp",
+    ]
+
+    external_deps = [
+      "access_token:libtoken_setproc",
+      "c_utils:utils",
+      "device_manager:devicemanagersdk",
+      "dsoftbus:softbus_client",
+      "hicollie:libhicollie",
+      "hilog:libhilog",
+      "init:libbegetutil",
+      "ipc:ipc_single",
+      "safwk:system_ability_fwk",
+      "samgr:samgr_proxy",
+    ]
+    include_dirs += [ "../../../services/remote_connect/default/inc" ]
+  }
 
   public_configs = [
     "../../../services/remote_connect:userauth_service_remote_connect_config",
@@ -407,10 +423,8 @@ ohos_source_set("userauth_services_ipc_fuzzer") {
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "device_manager:devicemanagersdk",
     "drivers_interface_user_auth:libuser_auth_proxy_4.0",
     "drivers_interface_user_auth:libuser_auth_proxy_4.1",
-    "dsoftbus:softbus_client",
     "hdf_core:libhdf_utils",
     "hdf_core:libhdi",
     "hicollie:libhicollie",
