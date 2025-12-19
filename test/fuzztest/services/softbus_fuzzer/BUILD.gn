@@ -17,7 +17,7 @@ import("../../../../user_auth_framework.gni")
 
 ohos_fuzztest("SoftBusFuzzTest") {
   branch_protector_ret = "pac_ret"
-  module_out_path = "user_auth_framework/user_auth"
+  module_out_path = "user_auth_framework/user_auth/concurrent"
   fuzz_config_file = "../softbus_fuzzer"
   cflags = [
     "-g",
