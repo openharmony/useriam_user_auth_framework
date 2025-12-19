@@ -15,7 +15,7 @@ import("//build/ohos.gni")
 import("//build/test.gni")
 
 ohos_fuzztest("UserAccessCtrlClientFuzzTest") {
-  module_out_path = "user_auth_framework/user_auth"
+  module_out_path = "user_auth_framework/user_auth/concurrent"
   fuzz_config_file = "../useraccessctrlclient_fuzzer"
 
   cflags = [

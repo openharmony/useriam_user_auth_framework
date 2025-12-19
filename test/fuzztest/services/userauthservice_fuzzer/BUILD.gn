@@ -16,7 +16,7 @@ import("//build/test.gni")
 
 ohos_fuzztest("UserAuthServiceFuzzTest") {
   branch_protector_ret = "pac_ret"
-  module_out_path = "user_auth_framework/user_auth"
+  module_out_path = "user_auth_framework/user_auth/concurrent"
   fuzz_config_file = "../userauthservice_fuzzer"
   cflags = [
     "-g",
