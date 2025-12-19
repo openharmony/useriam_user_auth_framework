@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+/*
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,16 +12,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+ 
+import {
+  BusinessError,
+  Column,
+  Component,
+  Dimension,
+  Prop,
+  ResourceColor,
+  Row,
+  State,
+  SymbolGlyph,
+  $r,
+} from '@kit.ArkUI';
 import hiLog from '@ohos.hilog';
 import userAuth from '@ohos.userIAM.userAuth';
 
-const DOMAIN: number = 0x0007;
+const DOMAIN: int = 0x0007;
 const TAG: string = 'useriam_auth_icon';
-const ICON_UNAVAILABLE: number = 0;
-const ICON_AVAILABLE: number = 1;
-const TIMEOUT_MILLISECONDS: number = 5000;
-const INVALID_PARAMETERS: number = 401;
+const ICON_UNAVAILABLE: int = 0;
+const ICON_AVAILABLE: int = 1;
+const TIMEOUT_MILLISECONDS: int = 5000;
+const INVALID_PARAMETERS: int = 401;
 const FACE_ICON_RESOURCE: string = 'sys.symbol.face';
 const FINGERPRINT_ICON_RESOURCE: string = 'sys.symbol.touchid';
 
@@ -44,7 +56,7 @@ export struct UserAuthIcon {
     challenge: new Uint8Array(),
     authType: [],
     authTrustLevel: userAuth.AuthTrustLevel.ATL1
-  };
+  } as userAuth.AuthParam;
   /**
    * Set auth widget parameter.
    *
@@ -54,7 +66,7 @@ export struct UserAuthIcon {
    */
   widgetParam: userAuth.WidgetParam = {
     title: ''
-  };
+  } as userAuth.WidgetParam;
   /**
    * Set the height of the icon, width and height ratio 1:1.
    *
@@ -63,7 +75,7 @@ export struct UserAuthIcon {
    * @syscap SystemCapability.UserIAM.UserAuth.Core
    * @since 12
    */
-  iconHeight?: Dimension = 64;
+  iconHeight?: Dimension = 64.0;
   /**
    * Set the color of the icon.
    *
@@ -72,8 +84,8 @@ export struct UserAuthIcon {
    * @syscap SystemCapability.UserIAM.UserAuth.Core
    * @since 12
    */
-  iconColor?: ResourceColor = $r('sys.color.ohos_id_color_activated');
-  authFlag: number = ICON_UNAVAILABLE;
+  @Prop iconColor: ResourceColor = $r('sys.color.ohos_id_color_activated');
+  authFlag: int = ICON_UNAVAILABLE;
   @State imageSource: string = '';
   /**
    * The authentication result code is returned through the callback.
@@ -109,7 +121,7 @@ export struct UserAuthIcon {
       return;
     }
     if (authTypes.includes(userAuth.UserAuthType.FACE) && authTypes.includes(userAuth.UserAuthType.FINGERPRINT) &&
-      authTypes.includes(userAuth.UserAuthType.PIN)) {
+    authTypes.includes(userAuth.UserAuthType.PIN)) {
       // Handle the situation where the authTypes parameter contains face, fingerprint, and PIN types at the same time.
       this.handleAllAuthTypeCase(authTrustLevel);
       return;
@@ -188,7 +200,7 @@ export struct UserAuthIcon {
     this.info(`after init image source, imageSource = ${this.imageSource}.`);
   }
 
-   onclick(): void {
+  onclick(): void {
     this.info('start handle click event.');
     if (this.onIconClick !== undefined) {
       this.info('click event has response.');
@@ -198,17 +210,17 @@ export struct UserAuthIcon {
       try {
         let userAuthInstance: userAuth.UserAuthInstance =
           userAuth.getUserAuthInstance(this.authParam, this.widgetParam);
-        let timer: number = setTimeout(() => {
+        let timer: int = setTimeout(() => {
           this.error('auth timeout.');
           userAuthInstance.cancel();
           this.onAuthResult({ result: userAuth.UserAuthResultCode.GENERAL_ERROR });
         }, TIMEOUT_MILLISECONDS)
         this.info('get userAuth instance success.');
-        userAuthInstance.on('result', {
-          onResult: (result) => {
-            this.info(`userAuthInstance callback result = ${result.result}.`);
-            this.onAuthResult(result);
-            userAuthInstance.off('result');
+        userAuthInstance.onResult({
+          onResult: (result: userAuth.UserAuthResult) => {
+              this.info(`userAuthInstance callback result = ${result.result}.`);
+              this.onAuthResult(result);
+              userAuthInstance.offResult();
           }
         });
         this.info('auth before start.');
@@ -217,8 +229,10 @@ export struct UserAuthIcon {
         clearTimeout(timer);
       } catch (error) {
         if (error) {
-          this.error(`auth catch error, code: ${error.code}, message: ${error.message}`);
-          this.onAuthResult({ result: error.code });
+          let code: int = (error as BusinessError).code;
+          let message: string = (error as BusinessError).message;
+          this.error(`auth catch error, code: ${code}, message: ${message}`);
+          this.onAuthResult({ result: code });
           return;
         }
         this.error('auth error.');
