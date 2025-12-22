@@ -122,6 +122,7 @@ ResultCode SoftBusManager::RegistDeviceManagerListener()
         return SUCCESS;
     }
 
+#ifndef IAM_TEST_ENABLE
     deviceManagerServiceListener_ = SystemAbilityListener::Subscribe(
         "device_manager", DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID,
         []() {
@@ -134,7 +135,7 @@ ResultCode SoftBusManager::RegistDeviceManagerListener()
         IAM_LOGE("deviceManagerServiceListener_ is nullptr.");
         return GENERAL_ERROR;
     }
-
+#endif
     IAM_LOGI("RegistDeviceManagerListener success.");
     return SUCCESS;
 }
