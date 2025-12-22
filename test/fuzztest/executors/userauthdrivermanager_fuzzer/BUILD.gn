@@ -67,6 +67,7 @@ ohos_fuzztest("UserAuthDriverManagerFuzzTest") {
     "../../common_fuzzer:dfx_fuzzer",
     "../../common_fuzzer:iam_test_fuzzer",
     "../../common_fuzzer:iam_utils_fuzzer",
+    "../../../../frameworks/native/client:userauth_client",
   ]
 
   external_deps = [
@@ -77,7 +78,6 @@ ohos_fuzztest("UserAuthDriverManagerFuzzTest") {
     "init:libbegetutil",
     "ipc:ipc_single",
     "samgr:samgr_proxy",
-    "user_auth_framework:userauth_client",
   ]
 
   subsystem_name = "useriam"
