@@ -32,6 +32,7 @@ public:
     void PostTask(const Task &task) override;
     void EnsureTask(const Task &task) override;
     void Suspend() override;
+    void Stop() override;
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -69,6 +69,11 @@ void ThreadHandlerSingletonImpl::Suspend()
 {
     IAM_LOGE("can not suspend");
 }
+
+void ThreadHandlerSingletonImpl::Stop()
+{
+    IAM_LOGE("can not Stop");
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
