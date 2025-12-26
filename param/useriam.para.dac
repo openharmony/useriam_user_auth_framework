@@ -18,3 +18,4 @@ useriam.isCredentialChecked=useriam:useriam:0755
 useriam.isPinFunctionReady=useriam:useriam:0755
 useriam.startSa=useriam:useriam:0755
 useriam.stopSa=useriam:useriam:0755
+useriam.credentialUpdatedEvent=useriam:useriam:0755
