@@ -124,6 +124,7 @@ ohos_source_set("userauth_service_core_fuzzer") {
   sources = [
     "../../../services/core/src/authentication_impl.cpp",
     "../../../services/core/src/credential_info_impl.cpp",
+    "../../../services/core/src/credential_updated_manager.cpp",
     "../../../services/core/src/delete_impl.cpp",
     "../../../services/core/src/driver_state_manager.cpp",
     "../../../services/core/src/enrolled_info_impl.cpp",
