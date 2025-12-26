@@ -136,7 +136,7 @@ void ThreadHandlerManager::PostTaskOnTemporaryThread(const std::string &name, co
 void ThreadHandlerManager::WaitStop()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    IAM_LOGI("Waiting for all threads to complete, count: %zu", threadHandlerMap_.size());
+    IAM_LOGI("Waiting for all threads to complete, count: %{public}zu", threadHandlerMap_.size());
     for (auto &[name, threadHandler] : threadHandlerMap_) {
         threadHandler->Stop();
         IAM_LOGI("thread handler %{public}s destroy.", name.c_str());
