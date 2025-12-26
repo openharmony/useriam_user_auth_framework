@@ -132,6 +132,23 @@ void ThreadHandlerManager::PostTaskOnTemporaryThread(const std::string &name, co
     PostTask(thread_name, task);
     DestroyThreadHandler(thread_name);
 }
+
+void ThreadHandlerManager::WaitStop()
+{
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    IAM_LOGI("Waiting for all threads to complete, count: %zu", threadHandlerMap_.size());
+    for (auto &[name, threadHandler] : threadHandlerMap_) {
+        threadHandler->Stop();
+        IAM_LOGI("thread handler %{public}s destroy.", name.c_str());
+    }
+    threadHandlerMap_.clear();
+}
+
+extern "C" __attribute__((destructor)) void WaitForAllThreadsBeforeExit()
+{
+    IAM_LOGI("WaitForAllThreads before exit.");
+    ThreadHandlerManager::GetInstance().WaitStop();
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

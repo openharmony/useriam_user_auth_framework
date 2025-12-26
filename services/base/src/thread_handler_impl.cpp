@@ -86,6 +86,12 @@ void ThreadHandlerImpl::Suspend()
     isSuspended_ = true;
 }
 
+void ThreadHandlerImpl::Stop()
+{
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    pool_.Stop();
+}
+
 std::shared_ptr<ThreadHandler> ThreadHandler::GetSingleThreadInstance()
 {
     return ThreadHandlerManager::GetInstance().GetThreadHandler(SINGLETON_THREAD_NAME);
