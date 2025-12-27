@@ -21,6 +21,7 @@
 #include "context_appstate_observer.h"
 #include "context_helper.h"
 #include "context_pool.h"
+#include "credential_updated_manager.h"
 #include "event_listener_manager.h"
 #include "hdi_wrapper.h"
 #include "iam_callback_proxy.h"
@@ -545,7 +546,7 @@ void UserIdmService::PostProcessForDelete(int32_t userId,
             userId, cred->GetAuthType(), eventType, changeInfo);
     }
     if (isExistPin) {
-        PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, PIN, 0);
+        CredentialUpdatedManager::GetInstance().ProcessUserDeleted(userId, eventType);
     }
 }
 
