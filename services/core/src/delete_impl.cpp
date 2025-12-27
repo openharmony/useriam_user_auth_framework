@@ -15,6 +15,7 @@
 #include "delete_impl.h"
 
 #include "credential_info_impl.h"
+#include "credential_updated_manager.h"
 #include "event_listener_manager.h"
 #include "hdi_wrapper.h"
 #include "iam_hitrace_helper.h"
@@ -125,7 +126,7 @@ bool DeleteImpl::Update(const std::vector<uint8_t> &scheduleResult, std::shared_
             return false;
         }
     }
-    PublishCommonEvent(deletePara_.userId, deletePara_.credentialId, PIN);
+    CredentialUpdatedManager::GetInstance().ProcessCredentialDeleted(deletePara_, deletePara_.credentialId, PIN);
     return true;
 }
 
@@ -178,27 +179,14 @@ bool DeleteImpl::DeleteCredential(int32_t userId, std::vector<HdiCredentialInfo>
         }
     });
 
-    for (auto info : list) {
-        PublishCommonEvent(userId, info->GetCredentialId(), info->GetAuthType());
+    for (const auto &info: list) {
+        if (info == nullptr) {
+            continue;
+        }
+        CredentialUpdatedManager::GetInstance().ProcessCredentialDeleted(deletePara_, info->GetCredentialId(),
+            info->GetAuthType());
     }
     return true;
-}
-
-void DeleteImpl::PublishCommonEvent(int32_t userId, uint64_t credentialId, AuthType authType)
-{
-    std::vector<std::shared_ptr<CredentialInfoInterface>> credentialInfos;
-    int32_t ret = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType, credentialInfos);
-    if (ret != SUCCESS) {
-        IAM_LOGE("get credential fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret, userId, authType);
-        return;
-    }
-    PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, authType, credentialInfos.size());
-    PublishEventAdapter::GetInstance().PublishUpdatedEvent(userId, credentialId);
-    CredChangeEventInfo changeInfo = {deletePara_.callerName, deletePara_.callerType, 0, credentialId, false};
-    if (authType != PIN) {
-        CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(
-            userId, authType, DEL_CRED, changeInfo);
-    }
 }
 } // namespace UserAuth
 } // namespace UserIam
