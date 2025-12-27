@@ -175,12 +175,6 @@ StrongAuthStatusManager &StrongAuthStatusManager::Instance()
 {
     return StrongAuthStatusManagerImpl::GetInstance();
 }
-
-extern "C" __attribute__((destructor)) void CleanupStrongAuthListenerBeforeExit()
-{
-    IAM_LOGI("CleanupStrongAuthListener Before Exit.");
-    StrongAuthStatusManagerImpl::GetInstance().UnRegisterStrongAuthListener();
-}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
