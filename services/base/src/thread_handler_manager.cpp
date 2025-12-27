@@ -143,12 +143,6 @@ void ThreadHandlerManager::WaitStop()
     }
     threadHandlerMap_.clear();
 }
-
-extern "C" __attribute__((destructor)) void WaitForAllThreadsBeforeExit()
-{
-    IAM_LOGI("WaitForAllThreads before exit.");
-    ThreadHandlerManager::GetInstance().WaitStop();
-}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
