@@ -49,7 +49,6 @@ private:
     bool StartSchedule(int32_t userId, HdiScheduleInfo &info,
         std::vector<std::shared_ptr<ScheduleNode>> &scheduleList, std::shared_ptr<ScheduleNodeCallback> callback);
     bool DeleteCredential(int32_t userId, std::vector<HdiCredentialInfo> &credentialInfo);
-    void PublishCommonEvent(int32_t userId, uint64_t credentialId, AuthType authType);
 
     DeleteParam deletePara_;
 

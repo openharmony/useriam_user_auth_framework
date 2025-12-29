@@ -71,6 +71,12 @@ CallbackManager &CallbackManager::GetInstance()
     static CallbackManagerImpl impl;
     return impl;
 }
+
+extern "C" __attribute__((destructor)) void RemoveAllCallbackBeforeExit()
+{
+    IAM_LOGI("RemoveCallback before exit.");
+    CallbackManager::GetInstance().OnServiceDeath();
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

@@ -34,6 +34,7 @@ inline const char *IS_PIN_FUNCTION_READY_KEY = "useriam.isPinFunctionReady";
 inline const char *STOP_SA_KEY = "useriam.stopSa";
 inline const char *START_SA_KEY = "useriam.startSa";
 inline const char *IDM_SESSION_INFO = "useriam.idmSessionInfo";
+inline const char *CREDENTIAL_UPDATED_EVENT_KEY = "useriam.credentialUpdatedEvent";
 
 class SystemParamManager {
 public:
