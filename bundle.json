@@ -62,8 +62,7 @@
         "preferences",
         "eventhandler",
         "config_policy",
-        "runtime_core",
-        "ace_ets2bundle"
+        "runtime_core"
       ]
     },
     "build": {
