@@ -27,6 +27,7 @@
 #include "user_auth_service.h"
 #include "user_auth_common_defines.h"
 #include "dummy_iam_callback_interface.h"
+#include "thread_handler_manager.h"
 
 #undef private
 
@@ -821,5 +822,14 @@ void UserAuthFuzzTest(const uint8_t *data, size_t size)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     OHOS::UserIam::UserAuth::UserAuthFuzzTest(data, size);
+    return 0;
+}
+
+extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv)
+{
+    std::atexit([]() {
+        IAM_LOGI("atexit handler: calling WaitForAllThreadsBeforeExit");
+        OHOS::UserIam::UserAuth::ThreadHandlerManager::GetInstance().WaitStop();
+    });
     return 0;
 }
