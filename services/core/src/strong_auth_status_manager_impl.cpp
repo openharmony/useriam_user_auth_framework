@@ -52,6 +52,8 @@ public:
 class StrongAuthStatusManagerImpl final
     : public StrongAuthStatusManager, public Singleton<StrongAuthStatusManagerImpl> {
 public:
+    ~StrongAuthStatusManagerImpl();
+
     void RegisterStrongAuthListener() override;
     void UnRegisterStrongAuthListener() override;
     void StartSubscribe() override;
@@ -86,6 +88,12 @@ void UserIamStrongAuthListener::OnStrongAuthChanged(int32_t userId, int32_t stro
         }
         RiskEventManager::GetInstance().HandleStrongAuthEvent(userId);
     });
+}
+
+StrongAuthStatusManagerImpl::~StrongAuthStatusManagerImpl()
+{
+    IAM_LOGD("start");
+    UnRegisterStrongAuthListener();
 }
 
 void StrongAuthStatusManagerImpl::RegisterStrongAuthListener()
