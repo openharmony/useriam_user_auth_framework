@@ -45,6 +45,12 @@ WidgetClient &WidgetClient::Instance()
     return widgetClient;
 }
 
+WidgetClient::~WidgetClient()
+{
+    IAM_LOGD("start.");
+    ForceStopAuth();
+}
+
 void WidgetClient::SetWidgetSchedule(uint64_t contextId, const std::shared_ptr<WidgetScheduleNode> &schedule)
 {
     IF_FALSE_LOGE_AND_RETURN(schedule != nullptr);

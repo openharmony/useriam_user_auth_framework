@@ -40,6 +40,12 @@ ThreadHandlerManager::ThreadHandlerManager()
         Common::MakeShared<ThreadHandlerSingletonImpl>());
 }
 
+ThreadHandlerManager::~ThreadHandlerManager()
+{
+    IAM_LOGD("start.");
+    WaitStop();
+}
+
 bool ThreadHandlerManager::CreateThreadHandler(const std::string &name)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);

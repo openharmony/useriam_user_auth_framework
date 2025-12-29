@@ -33,7 +33,7 @@ namespace UserAuth {
 class WidgetClient {
 public:
     static WidgetClient &Instance();
-    ~WidgetClient() = default;
+    ~WidgetClient();
     // sets
     void SetWidgetSchedule(uint64_t contextId, const std::shared_ptr<WidgetScheduleNode> &schedule);
     void SetWidgetParam(const WidgetParamInner &param);
