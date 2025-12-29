@@ -19,6 +19,10 @@
 #include "resource_node_pool_fuzzer.h"
 #include "risk_event_manager_fuzzer.h"
 #include "schedule_node_fuzzer.h"
+#include "iam_logger.h"
+#include "strong_auth_status_manager.h"
+
+#define LOG_TAG "USER_AUTH_SA"
 
 namespace {
 using FuzzEntryFunc = decltype(OHOS::UserIam::UserAuth::ScheduleNodeFuzzTest);
@@ -39,5 +43,14 @@ extern "C" int32_t LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     uint32_t index = parcel.ReadUint32() % (sizeof(g_FuzzFuncList) / sizeof(FuzzEntryFunc *));
     auto fuzzEntryFunc = g_FuzzFuncList[index];
     fuzzEntryFunc(parcel);
+    return 0;
+}
+
+extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv)
+{
+    std::atexit([]() {
+        IAM_LOGI("atexit handler: calling CleanupStrongAuthListenerBeforeExit");
+        OHOS::UserIam::UserAuth::StrongAuthStatusManager::Instance().UnRegisterStrongAuthListener();
+    });
     return 0;
 }
