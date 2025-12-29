@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,37 +13,25 @@
  * limitations under the License.
  */
 
-#ifndef IAM_THREAD_HANDLER_IMPL_H
-#define IAM_THREAD_HANDLER_IMPL_H
+#ifndef IAM_CREDENTIAL_UPDATED_MANAGER_TEST_H
+#define IAM_CREDENTIAL_UPDATED_MANAGER_TEST_H
 
-#include <mutex>
-
-#include "nocopyable.h"
-
-#include "thread_handler.h"
-#include "thread_pool.h"
+#include <gmock/gmock.h>
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class ThreadHandlerImpl : public ThreadHandler, NoCopyable {
+class CredentialUpdatedManagerTest : public testing::Test {
 public:
-    ThreadHandlerImpl(std::string name, bool canSuspend);
-    ~ThreadHandlerImpl() override;
-    void PostTask(const Task &task) override;
-    void EnsureTask(const Task &task) override;
-    void Suspend() override;
-    void Stop() override;
+    static void SetUpTestCase();
 
-private:
-    OHOS::ThreadPool pool_;
-    bool canSuspend_ = false;
+    static void TearDownTestCase();
 
-    std::recursive_mutex mutex_;
-    bool isSuspended_ = false;
+    void SetUp() override;
+
+    void TearDown() override;
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-
-#endif // IAM_THREAD_HANDLER_IMPL_H
+#endif // IAM_CREDENTIAL_UPDATED_MANAGER_TEST_H

@@ -58,6 +58,7 @@ ohos_source_set("userauth_service_core") {
   sources = [
     "src/authentication_impl.cpp",
     "src/credential_info_impl.cpp",
+    "src/credential_updated_manager.cpp",
     "src/delete_impl.cpp",
     "src/driver_state_manager.cpp",
     "src/enrolled_info_impl.cpp",

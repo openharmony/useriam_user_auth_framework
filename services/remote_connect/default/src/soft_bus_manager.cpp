@@ -753,6 +753,12 @@ std::shared_ptr<BaseSocket> SoftBusManager::GetServerSocket()
     std::lock_guard<std::recursive_mutex> lock(ServerSocketMutex_);
     return serverSocket_;
 }
+
+extern "C" __attribute__((destructor)) void UnRegistListenerBeforeExit()
+{
+    IAM_LOGI("UnRegistListenerBeforeExit before exit.");
+    SoftBusManager::GetInstance().Stop();
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
