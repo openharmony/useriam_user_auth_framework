@@ -62,6 +62,7 @@ SoftBusManager::SoftBusManager()
 SoftBusManager::~SoftBusManager()
 {
     IAM_LOGD("start.");
+    Stop();
 }
 
 SoftBusManager &SoftBusManager::GetInstance()

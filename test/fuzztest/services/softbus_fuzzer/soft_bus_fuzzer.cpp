@@ -217,12 +217,3 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     OHOS::UserIam::UserAuth::SoftBusFuzzTest(data, size);
     return 0;
 }
-
-extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv)
-{
-    std::atexit([]() {
-        IAM_LOGI("atexit handler: calling UnRegistListenerBeforeExit");
-        OHOS::UserIam::UserAuth::SoftBusManager::GetInstance().Stop();
-    });
-    return 0;
-}

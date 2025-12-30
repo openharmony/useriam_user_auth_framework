@@ -37,7 +37,6 @@
 #include "context_appstate_observer.h"
 #include "auth_widget_helper.h"
 #include "remote_auth_service.h"
-#include "thread_handler_manager.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -326,14 +325,5 @@ void RemoteAuthContextFuzzTest(const uint8_t *data, size_t size)
 extern "C" int32_t LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     OHOS::UserIam::UserAuth::RemoteAuthContextFuzzTest(data, size);
-    return 0;
-}
-
-extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv)
-{
-    std::atexit([]() {
-        IAM_LOGI("atexit handler: calling WaitForAllThreadsBeforeExit");
-        OHOS::UserIam::UserAuth::ThreadHandlerManager::GetInstance().WaitStop();
-    });
     return 0;
 }

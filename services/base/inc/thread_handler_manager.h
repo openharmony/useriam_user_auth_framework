@@ -30,7 +30,7 @@ class ThreadHandlerManager {
 public:
     static ThreadHandlerManager &GetInstance();
     ThreadHandlerManager();
-    ~ThreadHandlerManager() = default;
+    ~ThreadHandlerManager();
 
     bool CreateThreadHandler(const std::string &name);
     void DestroyThreadHandler(const std::string &name);

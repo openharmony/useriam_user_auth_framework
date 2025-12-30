@@ -22,7 +22,6 @@
 #include "iam_fuzz_test.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
-#include "callback_manager.h"
 
 #define LOG_TAG "USER_AUTH_SDK"
 
@@ -77,14 +76,5 @@ void UserAccessCtrlClientFuzzTest(const uint8_t *data, size_t size)
 extern "C" int32_t LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     OHOS::UserIam::UserAuth::UserAccessCtrlClientFuzzTest(data, size);
-    return 0;
-}
-
-extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv)
-{
-    std::atexit([]() {
-        IAM_LOGI("atexit handler: calling OnServiceDeath");
-        OHOS::UserIam::UserAuth::CallbackManager::GetInstance().OnServiceDeath();
-    });
     return 0;
 }
