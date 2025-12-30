@@ -35,10 +35,16 @@ public:
 private:
     friend class CallbackManager;
     CallbackManagerImpl() = default;
-    ~CallbackManagerImpl() override = default;
+    ~CallbackManagerImpl() override;
     std::mutex mutex_;
     std::map<uintptr_t, CallbackAction> callbackActionMap_;
 };
+
+CallbackManagerImpl::~CallbackManagerImpl()
+{
+    IAM_LOGD("start");
+    OnServiceDeath();
+}
 
 void CallbackManagerImpl::AddCallback(uintptr_t key, CallbackAction &action)
 {

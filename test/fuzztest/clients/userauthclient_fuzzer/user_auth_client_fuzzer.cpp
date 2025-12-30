@@ -26,7 +26,6 @@
 #include "user_auth_callback_service.h"
 #include "user_auth_modal_inner_callback.h"
 #include "user_auth_napi_client_impl.h"
-#include "callback_manager.h"
 
 #define LOG_TAG "USER_AUTH_SDK"
 
@@ -528,14 +527,5 @@ void UserAuthClientFuzzTest(const uint8_t *data, size_t size)
 extern "C" int32_t LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     OHOS::UserIam::UserAuth::UserAuthClientFuzzTest(data, size);
-    return 0;
-}
-
-extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv)
-{
-    std::atexit([]() {
-        IAM_LOGI("atexit handler: calling RemoveAllCallbackBeforeExit");
-        OHOS::UserIam::UserAuth::CallbackManager::GetInstance().OnServiceDeath();
-    });
     return 0;
 }
