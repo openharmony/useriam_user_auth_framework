@@ -29,15 +29,15 @@ public:
     void ProcessCredentialDeleted(const Deletion::DeleteParam &deletePara, uint64_t credentialId, AuthType authType);
     void ProcessCredentialEnrolled(const Enrollment::EnrollmentPara &enrollPara, const HdiEnrollResultInfo &resultInfo,
         bool isUpdate, uint64_t scheduleId);
-    void ProcessUserDeleted(int32_t userId, CredChangeEventType eventType);
+    void ProcessUserDeleted(int32_t userId);
 
 private:
     CredentialUpdatedManager() = default;
     ~CredentialUpdatedManager() = default;
 
-    void SaveCredentialUpdatedEvent(int32_t userId, AuthType authType, CredChangeEventType eventType, uint32_t count);
+    void SaveCredentialUpdatedEvent(int32_t userId, AuthType authType, uint32_t credentialCount);
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // IAM_CREDENTIAL_UPDATED_MANAGER
+#endif // IAM_CREDENTIAL_UPDATED_MANAGER

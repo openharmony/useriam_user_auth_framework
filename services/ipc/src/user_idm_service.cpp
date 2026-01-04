@@ -546,7 +546,7 @@ void UserIdmService::PostProcessForDelete(int32_t userId,
             userId, cred->GetAuthType(), eventType, changeInfo);
     }
     if (isExistPin) {
-        CredentialUpdatedManager::GetInstance().ProcessUserDeleted(userId, eventType);
+        CredentialUpdatedManager::GetInstance().ProcessUserDeleted(userId);
     }
 }
 

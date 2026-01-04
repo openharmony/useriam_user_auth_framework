@@ -31,8 +31,7 @@ namespace UserAuth {
 namespace {
 const std::string USER_ID_KEY = "userId";
 const std::string AUTH_TYPE_KEY = "authType";
-const std::string CRE_CHANGE_EVENT_TYPE_KEY = "credChangeEventType";
-const std::string CURRENT_CRED_COUNT_KEY = "currentCredCount";
+const std::string CREDENTIAL_COUNT_KEY = "count";
 } // namespace
 
 CredentialUpdatedManager &CredentialUpdatedManager::GetInstance()
@@ -53,16 +52,14 @@ void CredentialUpdatedManager::ProcessCredentialDeleted(const Deletion::DeletePa
         return;
     }
 
-    uint32_t currentCredCount = credentialInfos.size();
-    PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(deletePara.userId, authType, currentCredCount);
+    uint32_t credentialCount = credentialInfos.size();
+    PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(deletePara.userId, authType, credentialCount);
+    SaveCredentialUpdatedEvent(deletePara.userId, authType, credentialCount);
     PublishEventAdapter::GetInstance().PublishUpdatedEvent(deletePara.userId, credentialId);
     CredChangeEventInfo changeInfo = {deletePara.callerName, deletePara.callerType, 0, credentialId, false};
     if (authType != PIN) {
         CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(deletePara.userId, authType, DEL_CRED,
             changeInfo);
-        SaveCredentialUpdatedEvent(deletePara.userId, authType, DEL_CRED, currentCredCount);
-    } else {
-        SaveCredentialUpdatedEvent(deletePara.userId, authType, UPDATE_CRED, currentCredCount);
     }
 }
 
@@ -85,50 +82,43 @@ void CredentialUpdatedManager::ProcessCredentialEnrolled(const Enrollment::Enrol
         return;
     }
 
-    uint32_t currentCredCount = credentialInfos.size();
+    uint32_t credentialCount = credentialInfos.size();
     PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(enrollPara.userId,
-        static_cast<int32_t>(enrollPara.authType), currentCredCount);
-
+        static_cast<int32_t>(enrollPara.authType), credentialCount);
+    SaveCredentialUpdatedEvent(enrollPara.userId, enrollPara.authType, credentialCount);
     if (isUpdate && enrollPara.authType != PIN) {
         changeInfo.lastCredentialId = resultInfo.oldInfo.credentialId;
         CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(enrollPara.userId, enrollPara.authType,
             UPDATE_CRED, changeInfo);
-        SaveCredentialUpdatedEvent(enrollPara.userId, enrollPara.authType, UPDATE_CRED, currentCredCount);
     } else if (!isUpdate && enrollPara.authType != PIN) {
         CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(enrollPara.userId, enrollPara.authType,
             ADD_CRED, changeInfo);
-        SaveCredentialUpdatedEvent(enrollPara.userId, enrollPara.authType, ADD_CRED, currentCredCount);
     } else {
         PublishEventAdapter::GetInstance().PublishCreatedEvent(enrollPara.userId, scheduleId);
         CredChangeEventListenerManager::GetInstance().OnNotifyCredChangeEvent(enrollPara.userId, enrollPara.authType,
             ADD_CRED, changeInfo);
-        SaveCredentialUpdatedEvent(enrollPara.userId, enrollPara.authType, ADD_CRED, currentCredCount);
     }
 }
 
-void CredentialUpdatedManager::ProcessUserDeleted(int32_t userId, CredChangeEventType eventType)
+void CredentialUpdatedManager::ProcessUserDeleted(int32_t userId)
 {
     IAM_LOGI("ProcessUserDeleted called, userId:%{public}d, authType:%{public}d", userId, PIN);
     PublishEventAdapter::GetInstance().PublishCredentialUpdatedEvent(userId, PIN, 0);
-    SaveCredentialUpdatedEvent(userId, PIN, eventType, 0);
+    SaveCredentialUpdatedEvent(userId, PIN, 0);
 }
 
 // When publishing the credential updated event, it is necessary to write the event to system parameters.
-void CredentialUpdatedManager::SaveCredentialUpdatedEvent(int32_t userId, AuthType authType,
-    CredChangeEventType eventType, uint32_t count)
+void CredentialUpdatedManager::SaveCredentialUpdatedEvent(int32_t userId, AuthType authType, uint32_t credentialCount)
 {
-    IAM_LOGI(
-        "save credential updated event, userId:%{public}d, authType:%{public}d, "
-        "credChangeEventType:%{public}d, currentCreCount:%{public}d",
-        userId, authType, eventType, count);
+    IAM_LOGI("save credential updated event, userId:%{public}d, authType:%{public}d, credentialCount:%{public}u",
+        userId, authType, credentialCount);
     auto eventJson = nlohmann::json {
         {USER_ID_KEY, userId},
         {AUTH_TYPE_KEY, authType},
-        {CRE_CHANGE_EVENT_TYPE_KEY, eventType},
-        {CURRENT_CRED_COUNT_KEY, count}
+        {CREDENTIAL_COUNT_KEY, credentialCount}
     };
     std::string event = eventJson.dump();
-    SystemParamManager::GetInstance().SetParam(CREDENTIAL_UPDATED_EVENT_KEY, event);
+    SystemParamManager::GetInstance().SetParam(CREDENTIAL_UPDATED_KEY, event);
 }
 } // namespace UserAuth
 } // namespace UserIam
