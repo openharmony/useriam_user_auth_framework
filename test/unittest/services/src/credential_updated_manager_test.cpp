@@ -61,7 +61,7 @@ HWTEST_F(CredentialUpdatedManagerTest, ProcessCredentialDeletedTest, TestSize.Le
     deletePara.callerType = TEST_CALLER_TYPE;
 
     auto& instance = CredentialUpdatedManager::GetInstance();
-    EXPECT_NO_THROW(instance.ProcessCredentialDeleted(deletePara, TEST_CREDENTIAL_ID, PIN));
+    EXPECT_NO_THROW(instance.ProcessCredentialDeleted(deletePara, TEST_CREDENTIAL_ID, FACE));
 }
 
 HWTEST_F(CredentialUpdatedManagerTest, ProcessCredentialEnrolledTest, TestSize.Level0)
@@ -87,7 +87,7 @@ HWTEST_F(CredentialUpdatedManagerTest, ProcessCredentialEnrolledTest, TestSize.L
 HWTEST_F(CredentialUpdatedManagerTest, ProcessUserDeletedTest, TestSize.Level0)
 {
     auto& instance = CredentialUpdatedManager::GetInstance();
-    EXPECT_NO_THROW(instance.ProcessUserDeleted(TEST_USER_ID, DEL_USER));
+    EXPECT_NO_THROW(instance.ProcessUserDeleted(TEST_USER_ID));
 }
 } // namespace UserAuth
 } // namespace UserIam
