@@ -23,9 +23,9 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-int32_t IDriverManager::Start(const std::map<std::string, HdiConfig> &hdiName2Config)
+int32_t IDriverManager::Start(const std::map<std::string, HdiConfig> &hdiName2Config, bool hasHdi)
 {
-    return Singleton<UserAuth::DriverManager>::GetInstance().Start(hdiName2Config);
+    return Singleton<UserAuth::DriverManager>::GetInstance().Start(hdiName2Config, hasHdi);
 }
 } // namespace UserAuth
 } // namespace UserIam

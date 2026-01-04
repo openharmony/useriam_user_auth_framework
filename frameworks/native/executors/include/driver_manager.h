@@ -35,7 +35,7 @@ class DriverManager : public Singleton<DriverManager> {
 public:
     DriverManager();
     ~DriverManager() override = default;
-    int32_t Start(const std::map<std::string, HdiConfig> &hdiName2Config);
+    int32_t Start(const std::map<std::string, HdiConfig> &hdiName2Config, bool hasHdi);
     void OnFrameworkReady();
     void OnFrameworkDown();
     void OnAllHdiDisconnect();

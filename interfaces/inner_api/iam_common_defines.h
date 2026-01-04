@@ -42,7 +42,7 @@ const int32_t TITLE_MAX = 500;
 /**
  * @brief Defines authentication type.
  */
-constexpr uint32_t MAX_AUTH_TYPE_SIZE = 6;
+constexpr uint32_t MAX_AUTH_TYPE_SIZE = 7;
 enum AuthType : int32_t {
     /** Default authType. */
     INVALID_AUTH_TYPE = -1,
@@ -60,6 +60,8 @@ enum AuthType : int32_t {
     PRIVATE_PIN = 16,
     /** TUI pin authentication. */
     TUI_PIN = 32,
+    /** Companion device authentication. */
+    COMPANION_DEVICE = 64,
 };
 
 /**

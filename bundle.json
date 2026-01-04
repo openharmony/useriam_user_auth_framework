@@ -126,6 +126,9 @@
             "header_files": [],
             "header_base": "//base/useriam/user_auth_framework/frameworks/cj/user_auth/inc"
           }
+        },
+        {
+          "name": "//base/useriam/user_auth_framework/frameworks/ets/ani/user_auth:userauth_ani"
         }
       ],
       "test": [

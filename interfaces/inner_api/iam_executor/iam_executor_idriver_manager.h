@@ -60,7 +60,7 @@ public:
      * @param hdiName2Config Hardware device interface name and config.
      * @return Return the result success or not.
      */
-    static int32_t Start(const std::map<std::string, HdiConfig> &hdiName2Config);
+    static int32_t Start(const std::map<std::string, HdiConfig> &hdiName2Config, bool hasHdi = true);
 };
 } // namespace UserAuth
 } // namespace UserIam
