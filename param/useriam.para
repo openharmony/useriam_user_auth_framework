@@ -18,4 +18,4 @@ useriam.isCredentialChecked=false
 useriam.isPinFunctionReady=false
 useriam.startSa=false
 useriam.stopSa=false
-useriam.credentialUpdatedEvent
+useriam.credUpdated=""
