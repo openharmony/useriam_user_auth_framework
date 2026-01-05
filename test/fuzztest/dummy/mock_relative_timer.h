@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,25 +13,25 @@
  * limitations under the License.
  */
 
-#ifndef IAM_THREAD_HANDLER_H
-#define IAM_THREAD_HANDLER_H
+#ifndef MOCK_IAM_RELATIVE_TIMER_H
+#define MOCK_IAM_RELATIVE_TIMER_H
 
-#include <functional>
+#include "singleton.h"
+#include "timer.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class ThreadHandler {
+class RelativeTimer final : public Singleton<RelativeTimer> {
 public:
-    using Task = std::function<void(void)>;
-    virtual ~ThreadHandler() = default;
-    virtual void PostTask(const Task &task) = 0;
-    virtual void EnsureTask(const Task &task) = 0;
-    virtual void Suspend() = 0;
-    static std::shared_ptr<ThreadHandler> GetSingleThreadInstance();
+    using TimerCallback = std::function<void()>;
+    RelativeTimer();
+    ~RelativeTimer() override;
+    uint32_t Register(const TimerCallback &callback, uint32_t ms);
+    void Unregister(uint32_t timerId);
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
 
-#endif // IAM_THREAD_HANDLER_H
+#endif // MOCK_IAM_RELATIVE_TIMER_H

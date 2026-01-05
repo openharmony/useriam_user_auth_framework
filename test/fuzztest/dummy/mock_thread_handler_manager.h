@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef IAM_THREAD_HANDLER_MANAGER_H
-#define IAM_THREAD_HANDLER_MANAGER_H
+#ifndef MOCK_IAM_THREAD_HANDLER_MANAGER_H
+#define MOCK_IAM_THREAD_HANDLER_MANAGER_H
 
 #include <map>
 #include <mutex>
@@ -39,13 +39,9 @@ public:
     void PostTask(const std::string &name, const std::function<void()> &task);
     void PostTaskOnTemporaryThread(const std::string &name, const std::function<void()> &task);
     void Stop();
-
-private:
-    std::recursive_mutex mutex_;
-    std::map<std::string, std::shared_ptr<ThreadHandler>> threadHandlerMap_;
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
 
-#endif // IAM_THREAD_HANDLER_MANAGER_H
+#endif // MOCK_IAM_THREAD_HANDLER_MANAGER_H

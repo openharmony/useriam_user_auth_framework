@@ -42,7 +42,6 @@ ThreadHandlerImpl::ThreadHandlerImpl(std::string name, bool canSuspend) : pool_(
 
 ThreadHandlerImpl::~ThreadHandlerImpl()
 {
-    pool_.Stop();
 }
 
 void ThreadHandlerImpl::PostTask(const Task &task)
@@ -84,12 +83,6 @@ void ThreadHandlerImpl::Suspend()
         return;
     }
     isSuspended_ = true;
-}
-
-void ThreadHandlerImpl::Stop()
-{
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    pool_.Stop();
 }
 
 std::shared_ptr<ThreadHandler> ThreadHandler::GetSingleThreadInstance()
