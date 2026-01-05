@@ -13,6 +13,14 @@
 
 import("//build/config/features.gni")
 import("//build/test.gni")
+import("../../../../user_auth_framework.gni")
+
+if (!defined(global_parts_info) ||
+    defined(global_parts_info.account_os_account)) {
+  has_os_account_part = true
+} else {
+  has_os_account_part = false
+}
 
 ohos_fuzztest("UserAuthServiceFuzzTest") {
   branch_protector_ret = "pac_ret"
@@ -27,7 +35,9 @@ ohos_fuzztest("UserAuthServiceFuzzTest") {
     "-DIAM_TEST_ENABLE",
     "-Dprotected=public",
   ]
+
   include_dirs = [
+    "../inc",
     "../../../../services/base/inc",
     "../../../../services/core/inc",
     "../../../../services/core/src",
@@ -37,17 +47,62 @@ ohos_fuzztest("UserAuthServiceFuzzTest") {
     "../../../../services/remote_connect/default/inc",
     "../../../../frameworks/native/ipc/inc",
     "../../../../frameworks/native/ipc/common_defines",
+    "../../../../frameworks/common/inc",
     "../../../../common/utils",
     "../../../../common/logs",
     "../../dummy",
   ]
 
-  sources = [ "user_auth_service_fuzzer.cpp" ]
+  remove_configs = [ "//build/config/compiler:no_exceptions" ]
+
+  sources = [
+    "../../../../services/context/src/auth_widget_helper.cpp",
+    "../../../../services/context/src/base_context.cpp",
+    "../../../../services/context/src/context_appstate_observer.cpp",
+    "../../../../services/context/src/context_callback_impl.cpp",
+    "../../../../services/context/src/context_death_recipient.cpp",
+    "../../../../services/context/src/context_factory.cpp",
+    "../../../../services/context/src/context_helper.cpp",
+    "../../../../services/context/src/context_pool_impl.cpp",
+    "../../../../services/context/src/delete_context.cpp",
+    "../../../../services/context/src/enroll_context.cpp",
+    "../../../../services/context/src/identify_context.cpp",
+    "../../../../services/context/src/local_remote_auth_context.cpp",
+    "../../../../services/context/src/remote_auth_context.cpp",
+    "../../../../services/context/src/remote_auth_invoker_context.cpp",
+    "../../../../services/context/src/remote_auth_service.cpp",
+    "../../../../services/context/src/remote_executor_stub.cpp",
+    "../../../../services/context/src/remote_iam_callback.cpp",
+    "../../../../services/context/src/schedule_holder_context.cpp",
+    "../../../../services/context/src/simple_auth_context.cpp",
+    "../../../../services/context/src/trace.cpp",
+    "../../../../services/context/src/ui_extension_ability_connection.cpp",
+    "../../../../services/context/src/widget_context_callback_impl.cpp",
+    "../../../../services/context/src/widget_json.cpp",
+    "../../../../services/core/src/system_param_manager.cpp",
+    "../../../../services/load_mode/src/load_mode_handler.cpp",
+    "../../../../services/load_mode/src/load_mode_handler_default.cpp",
+    "../../../../services/ipc/src/co_auth_service.cpp",
+    "../../../../services/ipc/src/executor_messenger_service.cpp",
+    "../../../../services/ipc/src/hdi_message_callback_service.cpp",
+    "../../../../services/ipc/src/service_init_manager.cpp",
+    "../../../../services/ipc/src/template_cache_manager.cpp",
+    "../../../../services/ipc/src/user_auth_service.cpp",
+    "../../../../services/ipc/src/user_idm_service.cpp",
+    "../../dummy/mock_ipc_common.cpp",
+    "../../dummy/mock_widget_client.cpp",
+    "../../dummy/mock_widget_context.cpp",
+    "user_auth_service_fuzzer.cpp",
+  ]
 
   deps = [
     "../../common_fuzzer:attributes_fuzzer",
     "../../common_fuzzer:iam_test_fuzzer",
-    "../../common_fuzzer:userauth_services_ipc_fuzzer",
+    "../../common_fuzzer:dfx_fuzzer",
+    "../../common_fuzzer:iam_utils_fuzzer",
+    "../../common_fuzzer:userauth_service_remote_connect_fuzzer",
+    "../../common_fuzzer:userauth_service_core_fuzzer",
+    "../../../../frameworks/native/ipc:userauth_service_ipc_fuzzer",
   ]
 
   external_deps = [
@@ -56,6 +111,7 @@ ohos_fuzztest("UserAuthServiceFuzzTest") {
     "ability_runtime:abilitykit_native",
     "ability_runtime:app_manager",
     "ability_runtime:extension_manager",
+    "ability_runtime:extensionkit_native",
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "drivers_interface_user_auth:libuser_auth_proxy_4.0",
@@ -67,6 +123,42 @@ ohos_fuzztest("UserAuthServiceFuzzTest") {
     "ipc:ipc_single",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "common_event_service:cesfwk_innerkits",
+    "hicollie:libhicollie",
+    "hitrace:hitrace_meter",
+    "init:libbegetutil",
+    "napi:ace_napi",
+    "ability_base:base",
+    "ability_base:want",
+    "ability_base:zuri",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "config_policy:configpolicy_util",
+  ]
+
+  defines = []
+  if (screenlock_client_enable) {
+    external_deps += [ "screenlock_mgr:screenlock_client" ]
+    defines += [ "SCREENLOCK_CLIENT_ENABLE" ]
+  }
+
+  if (has_os_account_part) {
+    cflags_cc = [ "-DHAS_OS_ACCOUNT_PART" ]
+    external_deps += [ "os_account:os_account_innerkits" ]
+  }
+
+  public_configs = [
+    "../../../../frameworks/native/ipc:userauth_client_ipc_config",
+    "../../../../services/context:userauth_service_context_config",
+  ]
+
+  configs = [
+    "../../../../services/base:userauth_service_base_config",
+    "../../../../common:iam_log_config",
+    "../../../../services/core:userauth_service_core_config",
+    "../../../../services/remote_connect:userauth_service_remote_connect_config",
+    "../../../../services/load_mode:userauth_service_load_mode_config",
+    "../../../../common:iam_utils_config",
   ]
 
   subsystem_name = "useriam"

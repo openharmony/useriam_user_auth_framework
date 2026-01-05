@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,25 +13,35 @@
  * limitations under the License.
  */
 
-#ifndef IAM_THREAD_HANDLER_H
-#define IAM_THREAD_HANDLER_H
+#include "mock_relative_timer.h"
 
-#include <functional>
+#include "iam_logger.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class ThreadHandler {
-public:
-    using Task = std::function<void(void)>;
-    virtual ~ThreadHandler() = default;
-    virtual void PostTask(const Task &task) = 0;
-    virtual void EnsureTask(const Task &task) = 0;
-    virtual void Suspend() = 0;
-    static std::shared_ptr<ThreadHandler> GetSingleThreadInstance();
-};
+#define LOG_TAG "USER_AUTH_SA"
+
+RelativeTimer::RelativeTimer()
+{
+    IAM_LOGI("start.");
+}
+
+RelativeTimer::~RelativeTimer()
+{
+    IAM_LOGI("start.");
+}
+
+uint32_t RelativeTimer::Register(const TimerCallback &callback, uint32_t ms)
+{
+    IAM_LOGI("start.");
+    return 0;
+}
+
+void RelativeTimer::Unregister(uint32_t timerId)
+{
+    IAM_LOGI("start.");
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-
-#endif // IAM_THREAD_HANDLER_H

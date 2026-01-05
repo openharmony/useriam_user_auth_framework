@@ -32,7 +32,6 @@ public:
     MOCK_METHOD1(PostTask, void(const Task &task));
     MOCK_METHOD1(EnsureTask, void(const Task &task));
     MOCK_METHOD0(Suspend, void());
-    MOCK_METHOD0(Stop, void());
     static std::shared_ptr<ThreadHandler> InvokeDirectly()
     {
         using namespace testing;
