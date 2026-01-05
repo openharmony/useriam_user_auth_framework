@@ -58,7 +58,7 @@ DriverManager::DriverManager()
     SubscribeFrameworkReadyEvent();
 }
 
-int32_t DriverManager::Start(const std::map<std::string, HdiConfig> &hdiName2Config)
+int32_t DriverManager::Start(const std::map<std::string, HdiConfig> &hdiName2Config, bool hasHdi)
 {
     IAM_LOGI("start");
     if (!HdiConfigIsValid(hdiName2Config)) {
@@ -80,8 +80,12 @@ int32_t DriverManager::Start(const std::map<std::string, HdiConfig> &hdiName2Con
             continue;
         }
         serviceName2Driver_[hdiName] = driver;
-        auto service = servMgr->GetService(hdiName.c_str());
-        if (service != nullptr) {
+        if (hasHdi) {
+            auto service = servMgr->GetService(hdiName.c_str());
+            if (service != nullptr) {
+                driver->OnHdiConnect();
+            }
+        } else {
             driver->OnHdiConnect();
         }
         if (isFwkReady) {

@@ -63,14 +63,14 @@ HWTEST_F(DriverManagerUnitTest, DriverManagerTest_001, TestSize.Level0)
     config.id = 10;
     config.driver = nullptr;
     std::map<std::string, HdiConfig> hdiName2Config;
-    EXPECT_EQ(DriverManager::GetInstance().Start(hdiName2Config), USERAUTH_SUCCESS);
+    EXPECT_EQ(DriverManager::GetInstance().Start(hdiName2Config, true), USERAUTH_SUCCESS);
     hdiName2Config.emplace(serviceName, config);
-    EXPECT_EQ(DriverManager::GetInstance().Start(hdiName2Config), USERAUTH_ERROR);
+    EXPECT_EQ(DriverManager::GetInstance().Start(hdiName2Config, true), USERAUTH_ERROR);
     EXPECT_EQ(DriverManager::GetInstance().GetDriverByServiceName(serviceName), nullptr);
     config.driver = Common::MakeShared<MockIAuthDriverHdi>();
-    EXPECT_EQ(DriverManager::GetInstance().Start(hdiName2Config), USERAUTH_ERROR);
+    EXPECT_EQ(DriverManager::GetInstance().Start(hdiName2Config, true), USERAUTH_ERROR);
     DriverManager::GetInstance().GetDriverByServiceName(serviceName);
-    EXPECT_EQ(DriverManager::GetInstance().Start(hdiName2Config), USERAUTH_ERROR);
+    EXPECT_EQ(DriverManager::GetInstance().Start(hdiName2Config, true), USERAUTH_ERROR);
     DriverManager::GetInstance().OnFrameworkReady();
     DriverManager::GetInstance().SubscribeHdiDriverStatus();
     DriverManager::GetInstance().OnAllHdiDisconnect();
@@ -116,7 +116,7 @@ HWTEST_F(DriverManagerUnitTest, DriverManagerTest_004, TestSize.Level0)
     EXPECT_EQ(DriverManager::GetInstance().HdiConfigIsValid(hdiName2Config), true);
     std::shared_ptr<Driver> mockDriver = Common::MakeShared<Driver>(serviceName, config);
     DriverManager::GetInstance().serviceName2Driver_.emplace(serviceName, mockDriver);
-    EXPECT_EQ(DriverManager::GetInstance().Start(hdiName2Config), USERAUTH_SUCCESS);
+    EXPECT_EQ(DriverManager::GetInstance().Start(hdiName2Config, true), USERAUTH_SUCCESS);
     EXPECT_NE(DriverManager::GetInstance().GetDriverByServiceName(serviceName), nullptr);
     DriverManager::GetInstance().OnFrameworkReady();
     DriverManager::GetInstance().SubscribeHdiDriverStatus();
@@ -133,7 +133,7 @@ HWTEST_F(DriverManagerUnitTest, DriverManagerTest_005, TestSize.Level0)
     hdiName2Config.emplace(serviceName, config);
     EXPECT_EQ(DriverManager::GetInstance().HdiConfigIsValid(hdiName2Config), true);
     DriverManager::GetInstance().serviceName2Driver_.emplace(serviceName, nullptr);
-    EXPECT_EQ(DriverManager::GetInstance().Start(hdiName2Config), USERAUTH_SUCCESS);
+    EXPECT_EQ(DriverManager::GetInstance().Start(hdiName2Config, true), USERAUTH_SUCCESS);
     EXPECT_NE(DriverManager::GetInstance().GetDriverByServiceName(serviceName), nullptr);
     DriverManager::GetInstance().OnFrameworkReady();
     DriverManager::GetInstance().SubscribeHdiDriverStatus();
@@ -151,7 +151,7 @@ HWTEST_F(DriverManagerUnitTest, DriverManager_OnFrameworkDownTest_001, TestSize.
     hdiName2Config.emplace(serviceName, config);
     EXPECT_EQ(DriverManager::GetInstance().HdiConfigIsValid(hdiName2Config), true);
     DriverManager::GetInstance().serviceName2Driver_.emplace(serviceName, nullptr);
-    EXPECT_EQ(DriverManager::GetInstance().Start(hdiName2Config), USERAUTH_SUCCESS);
+    EXPECT_EQ(DriverManager::GetInstance().Start(hdiName2Config, true), USERAUTH_SUCCESS);
     config.driver->OnFrameworkDown();
     DriverManager::GetInstance().OnFrameworkDown();
     for (auto const &pair : DriverManager::GetInstance().serviceName2Driver_) {
