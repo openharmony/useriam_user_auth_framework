@@ -222,7 +222,7 @@ void FuzzStart(std::shared_ptr<Parcel> parcel)
 {
     IAM_LOGI("begin");
     // driver manager forbids multiple invoke of Start(), it's config must be valid
-    Singleton<UserAuth::DriverManager>::GetInstance().Start(GLOBAL_HDI_NAME_TO_CONFIG);
+    Singleton<UserAuth::DriverManager>::GetInstance().Start(GLOBAL_HDI_NAME_TO_CONFIG, true);
     Singleton<UserAuth::DriverManager>::GetInstance().OnFrameworkReady();
     Singleton<UserAuth::DriverManager>::GetInstance().SubscribeHdiDriverStatus();
     std::string serviceName;
