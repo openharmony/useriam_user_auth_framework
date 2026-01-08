@@ -39,9 +39,11 @@ ohos_fuzztest("ServiceCoreFuzzTest") {
     "../../../../services/context/inc",
     "../../../../common/utils",
     "../../../../common/logs",
+    "../../dummy",
   ]
 
   sources = [
+    "../../dummy/mock_common_event_manager.cpp",
     "src/resource_node_fuzzer.cpp",
     "src/resource_node_pool_fuzzer.cpp",
     "src/risk_event_manager_fuzzer.cpp",
@@ -64,7 +66,6 @@ ohos_fuzztest("ServiceCoreFuzzTest") {
     "access_token:libaccesstoken_sdk",
     "access_token:libtoken_setproc",
     "c_utils:utils",
-    "common_event_service:cesfwk_innerkits",
     "hdf_core:libhdi",
     "hilog:libhilog",
     "ipc:ipc_core",
