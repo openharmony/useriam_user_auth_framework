@@ -141,6 +141,36 @@ HWTEST_F(DriverManagerUnitTest, DriverManagerTest_005, TestSize.Level0)
     DriverManager::GetInstance().OnAllHdiDisconnect();
 }
 
+HWTEST_F(DriverManagerUnitTest, DriverManagerTest_006, TestSize.Level0)
+{
+    std::string serviceName = "mockDriverwer";
+    std::string serviceName1 = "mockDriverxxxxx";
+
+    HdiConfig config = {};
+    config.id = 1690;
+    config.driver = Common::MakeShared<MockIAuthDriverHdi>();
+    std::map<std::string, HdiConfig> hdiName2Config;
+    EXPECT_EQ(IDriverManager::Start(hdiName2Config), USERAUTH_SUCCESS);
+    hdiName2Config.emplace(serviceName, config);
+    DriverManager::GetInstance().serviceName2Driver_.emplace(serviceName1, nullptr);
+    IDriverManager::Start(hdiName2Config, true);
+}
+
+HWTEST_F(DriverManagerUnitTest, DriverManagerTest_007, TestSize.Level0)
+{
+    std::string serviceName = "mockDriverwer1";
+    std::string serviceName1 = "mockDriverxxxxx1";
+
+    HdiConfig config = {};
+    config.id = 16900;
+    config.driver = Common::MakeShared<MockIAuthDriverHdi>();
+    std::map<std::string, HdiConfig> hdiName2Config;
+    EXPECT_EQ(IDriverManager::Start(hdiName2Config), USERAUTH_SUCCESS);
+    hdiName2Config.emplace(serviceName, config);
+    DriverManager::GetInstance().serviceName2Driver_.emplace(serviceName1, nullptr);
+    IDriverManager::Start(hdiName2Config, false);
+}
+
 HWTEST_F(DriverManagerUnitTest, DriverManager_OnFrameworkDownTest_001, TestSize.Level0)
 {
     std::string serviceName = "mockDriver";
