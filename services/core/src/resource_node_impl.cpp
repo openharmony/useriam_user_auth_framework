@@ -234,6 +234,7 @@ int32_t ResourceNodeImpl::AddToDriver(std::vector<uint64_t> &templateIdList, std
             info_.executorRole, info_.esl, info_.maxTemplateAcl);
         return GENERAL_ERROR;
     }
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     addedToDriver_ = true;
     IAM_LOGI("hdi AddExecutor ****%{public}hx success", static_cast<uint16_t>(executorIndex_));
     return SUCCESS;
