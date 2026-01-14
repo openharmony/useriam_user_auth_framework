@@ -820,20 +820,20 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelCredential001, TestSize.Level0)
         )
         .WillOnce(
             [](int32_t result, const std::vector<uint8_t> &extraInfo) {
-                EXPECT_EQ(result, GENERAL_ERROR);
+                EXPECT_EQ(result, NOT_ENROLLED);
                 return SUCCESS;
             }
         );
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, DeleteCredential(_, _, _, _)).WillOnce(Return(HDF_FAILURE));
+    EXPECT_CALL(*mockHdi, DeleteCredential(_, _, _, _)).WillOnce(Return(NOT_ENROLLED));
 
     EXPECT_EQ(service.DelCredential(testUserId, testCredentialId, testAuthToken, testCallback),
         CHECK_PERMISSION_FAILED);
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
     EXPECT_EQ(service.DelCredential(testUserId, testCredentialId, testAuthToken, testCallback),
-        GENERAL_ERROR);
+        NOT_ENROLLED);
     IpcCommon::DeleteAllPermission();
 }
 
