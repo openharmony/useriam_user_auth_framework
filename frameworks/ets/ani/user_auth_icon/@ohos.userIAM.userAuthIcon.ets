@@ -18,7 +18,7 @@ import {
   Column,
   Component,
   Dimension,
-  Prop,
+  PropRef,
   ResourceColor,
   Row,
   State,
@@ -84,7 +84,7 @@ export struct UserAuthIcon {
    * @syscap SystemCapability.UserIAM.UserAuth.Core
    * @since 12
    */
-  @Prop iconColor: ResourceColor = $r('sys.color.ohos_id_color_activated');
+  @PropRef iconColor: ResourceColor = $r('sys.color.ohos_id_color_activated');
   authFlag: int = ICON_UNAVAILABLE;
   @State imageSource: string = '';
   /**
