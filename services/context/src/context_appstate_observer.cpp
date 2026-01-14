@@ -24,6 +24,7 @@
 #include "screenlock_manager.h"
 #endif
 #include "system_ability_definition.h"
+#include "widget_json.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 namespace OHOS {
@@ -156,10 +157,15 @@ void ContextAppStateObserver::ProcAppStateChanged(int32_t userId)
         IAM_LOGI("context userId is %{public}d, appStateChanged userId is %{public}d", context->GetUserId(), userId);
         return;
     }
-    if (ContextAppStateObserverManager::GetInstance().IsScreenLocked()) {
-        IAM_LOGI("the screen is currently locked, skip auth cancel");
+
+    nlohmann::json jsonBuf = {};
+    LoadConfigJsonBuffer(jsonBuf);
+    std::string sceneboardName = "";
+    if (GetSceneboardBundleName(jsonBuf, sceneboardName) && sceneboardName == context->GetCallerName()) {
+        IAM_LOGI("the caller is %{public}s, skip", sceneboardName.c_str());
         return;
     }
+
     if (!context->Stop()) {
         IAM_LOGE("failed to cancel enroll or auth");
         return;
