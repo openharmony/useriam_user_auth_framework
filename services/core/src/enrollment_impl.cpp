@@ -175,8 +175,8 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
     }
 
     IamHitraceHelper traceHelper("hdi BeginEnrollment");
-    if (!BeginEnrollmentV4_0(userType, callerType, info)) {
-        if (!BeginEnrollmentV4_1(userType, callerType, info)) {
+    if (!BeginEnrollmentV4_1(userType, callerType, info)) {
+        if (!BeginEnrollmentV4_0(userType, callerType, info)) {
             IAM_LOGE("BeginEnrollment failed");
             return false;
         }
