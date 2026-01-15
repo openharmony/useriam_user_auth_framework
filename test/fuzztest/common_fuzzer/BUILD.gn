@@ -80,11 +80,11 @@ ohos_source_set("userauth_service_base_fuzzer") {
     "../../../services/base/src/finite_state_machine_builder.cpp",
     "../../../services/base/src/finite_state_machine_impl.cpp",
     "../../../services/base/src/relative_timer.cpp",
-    "../../../services/base/src/system_ability_listener.cpp",
     "../../../services/base/src/thread_handler_impl.cpp",
     "../../../services/base/src/thread_handler_manager.cpp",
     "../../../services/base/src/thread_handler_singleton_impl.cpp",
     "../dummy/mock_iuser_auth_interface.cpp",
+    "../dummy/mock_system_ability_listener.cpp",
   ]
 
   external_deps = [

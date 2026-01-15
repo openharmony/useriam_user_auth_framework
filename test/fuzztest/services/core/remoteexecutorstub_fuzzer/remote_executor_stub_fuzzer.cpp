@@ -156,6 +156,35 @@ void RemoteMsgUtilFuzzTest(Parcel &parcel)
     Attributes attr;
     RemoteMsgUtil::EncodeAuthParam(authParam, attr);
     RemoteMsgUtil::DecodeAuthParam(attr, authParam);
+
+    std::vector<ExecutorInfo> executorInfoArray1(1);
+    std::vector<uint8_t> signedRemoteExecutorInfo1;
+    Attributes attr1 = {};
+    RemoteMsgUtil::EncodeQueryExecutorInfoReply(executorInfoArray1, signedRemoteExecutorInfo1, attr1);
+
+    ExecutorInfo executorInfo2 = {};
+    Attributes attr2 = {};
+    std::vector<uint8_t> signedRemoteExecutorInfo2;
+    RemoteMsgUtil::SetExecutorInfoToAttributes(executorInfo2, attr2);
+    RemoteMsgUtil::GetExecutorInfoFromAttributes(attr2, signedRemoteExecutorInfo2, executorInfo2);
+
+    ExecutorInfo executorInfo3 = {};
+    Attributes attr3 = {};
+    std::vector<uint8_t> signedRemoteExecutorInfo3;
+    RemoteMsgUtil::SetExecutorInfoToAttributes(executorInfo3, attr3);
+    RemoteMsgUtil::GetExecutorInfoFromAttributes(attr3, signedRemoteExecutorInfo3, executorInfo3);
+
+    ExecutorInfo executorInfo4 = {};
+    Attributes attr4 = {};
+    std::vector<uint8_t> signedRemoteExecutorInfo4;
+    RemoteMsgUtil::SetExecutorInfoToAttributes(executorInfo4, attr4);
+    RemoteMsgUtil::GetExecutorInfoFromAttributes(attr4, signedRemoteExecutorInfo4, executorInfo4);
+
+    ExecutorInfo executorInfo5 = {};
+    Attributes attr5 = {};
+    std::vector<uint8_t> signedRemoteExecutorInfo5;
+    RemoteMsgUtil::SetExecutorInfoToAttributes(executorInfo5, attr5);
+    RemoteMsgUtil::GetExecutorInfoFromAttributes(attr5, signedRemoteExecutorInfo5, executorInfo5);
     IAM_LOGI("end");
 }
 
