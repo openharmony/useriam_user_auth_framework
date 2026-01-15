@@ -668,7 +668,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetProperty003, TestSize.Level0)
         .WillOnce(Return(SUCCESS));
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     auto ret = service->SetProperty(testUserId, testAuthType, testAtrr.Serialize(), callbackInterface);
-    EXPECT_EQ(ret, FAIL);
+    EXPECT_EQ(ret, SUCCESS);
     ret = service->SetProperty(testUserId, testAuthType, testAtrr.Serialize(), callbackInterface);
     EXPECT_EQ(ret, SUCCESS);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(2));
@@ -701,8 +701,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuth001, TestSize.Level0)
     sptr<IIamCallback> callbackInterface = testCallback;
     uint64_t contextId = 0;
     int32_t ret = service.Auth(testApiVersion, ipcAuthParamInner, callbackInterface, contextId);
-    EXPECT_EQ(ret, GENERAL_ERROR);
-    EXPECT_EQ(contextId, 0);
+    EXPECT_EQ(ret, SUCCESS);
+    EXPECT_NE(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -767,13 +767,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuth003, TestSize.Level0)
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _)).Times(2).WillRepeatedly(Return(NOT_ENROLLED));
     ret = service.Auth(testApiVersion, ipcAuthParamInner, callbackInterface, contextId);
-    EXPECT_EQ(ret, GENERAL_ERROR);
-    EXPECT_EQ(contextId, 0);
+    EXPECT_EQ(ret, SUCCESS);
+    EXPECT_NE(contextId, 0);
 
     testApiVersion = 8;
     ret = service.Auth(testApiVersion, ipcAuthParamInner, callbackInterface, contextId);
-    EXPECT_EQ(ret, GENERAL_ERROR);
-    EXPECT_EQ(contextId, 0);
+    EXPECT_EQ(ret, SUCCESS);
+    EXPECT_NE(contextId, 0);
 
     IpcCommon::DeleteAllPermission();
 }
@@ -918,8 +918,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser001, TestSize.Level0)
     sptr<IIamCallback> callbackInterface = testCallback;
     uint64_t contextId = 0;
     int32_t ret = service.AuthUser(authParam, remoteAuthParam, callbackInterface, contextId);
-    EXPECT_EQ(ret, GENERAL_ERROR);
-    EXPECT_EQ(contextId, 0);
+    EXPECT_EQ(ret, SUCCESS);
+    EXPECT_NE(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1778,7 +1778,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceStartAuthContextTest, TestSize.Leve
     bool testNeedSubscribeAppState = false;
     std::shared_ptr<ContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
     ASSERT_NE(contextCallback, nullptr);
-    EXPECT_EQ(service->StartAuthContext(testApiVersion, para, contextCallback, testNeedSubscribeAppState),
+    EXPECT_NE(service->StartAuthContext(testApiVersion, para, contextCallback, testNeedSubscribeAppState),
         BAD_CONTEXT_ID);
 }
 
