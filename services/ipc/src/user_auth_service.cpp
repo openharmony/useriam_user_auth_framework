@@ -349,13 +349,17 @@ int32_t UserAuthService::GetProperty(int32_t userId, int32_t authType,
         return SUCCESS;
     }
 
-    std::vector<Attributes::AttributeKey> attrKeys;
-    attrKeys.resize(keys.size());
-    std::transform(keys.begin(), keys.end(), attrKeys.begin(), [](uint32_t key) {
-        return static_cast<Attributes::AttributeKey>(key);
-    });
+    ThreadHandlerManager::GetInstance().PostTaskOnTemporaryThread("GetProperty", [this, userId, authType,
+        keys, getExecutorPropertyCallback]() {
+            std::vector<Attributes::AttributeKey> attrKeys;
+            attrKeys.resize(keys.size());
+            std::transform(keys.begin(), keys.end(), attrKeys.begin(), [](uint32_t key) {
+                return static_cast<Attributes::AttributeKey>(key);
+            });
 
-    return GetPropertyHelper(userId, AuthType(authType), attrKeys, getExecutorPropertyCallback);
+            (void)GetPropertyHelper(userId, AuthType(authType), attrKeys, getExecutorPropertyCallback);
+    });
+    return SUCCESS;
 }
 
 int32_t UserAuthService::GetPropertyHelper(int32_t userId, int32_t authType,
@@ -397,28 +401,34 @@ int32_t UserAuthService::GetPropertyById(uint64_t credentialId, const std::vecto
         return SUCCESS;
     }
 
-    std::shared_ptr<CredentialInfoInterface> credInfo;
-    std::vector<uint64_t> templateIds;
-    int32_t ret = UserIdmDatabase::Instance().GetCredentialInfoById(credentialId, credInfo);
-    if (ret != SUCCESS) {
-        IAM_LOGE("get credentialInfp fail, ret:%{public}d", ret);
-        getExecutorPropertyCallback->OnGetExecutorPropertyResult(ret, values.Serialize());
-        return SUCCESS;
-    }
-    if (credInfo == nullptr) {
-        IAM_LOGE("credential is nullptr");
-        getExecutorPropertyCallback->OnGetExecutorPropertyResult(GENERAL_ERROR, values.Serialize());
-        return SUCCESS;
-    }
+    ThreadHandlerManager::GetInstance().PostTaskOnTemporaryThread("GetPropertyById",
+        [this, credentialId, keys, getExecutorPropertyCallback]() {
+            std::shared_ptr<CredentialInfoInterface> credInfo;
+            std::vector<uint64_t> templateIds;
+            Attributes attrValues;
+            int32_t ret = UserIdmDatabase::Instance().GetCredentialInfoById(credentialId, credInfo);
+            if (ret != SUCCESS) {
+                IAM_LOGE("get credentialInfp fail, ret:%{public}d", ret);
+                getExecutorPropertyCallback->OnGetExecutorPropertyResult(ret, attrValues.Serialize());
+                return;
+            }
+            if (credInfo == nullptr) {
+                IAM_LOGE("credential is nullptr");
+                getExecutorPropertyCallback->OnGetExecutorPropertyResult(GENERAL_ERROR, attrValues.Serialize());
+                return;
+            }
 
-    std::vector<Attributes::AttributeKey> attrKeys;
-    attrKeys.resize(keys.size());
-    std::transform(keys.begin(), keys.end(), attrKeys.begin(), [](uint32_t key) {
-        return static_cast<Attributes::AttributeKey>(key);
+            std::vector<Attributes::AttributeKey> attrKeys;
+            attrKeys.resize(keys.size());
+            std::transform(keys.begin(), keys.end(), attrKeys.begin(), [](uint32_t key) {
+                return static_cast<Attributes::AttributeKey>(key);
+            });
+            AuthType authType = credInfo->GetAuthType();
+            templateIds.push_back(credInfo->GetTemplateId());
+            (void)GetPropertyInner(authType, attrKeys, getExecutorPropertyCallback, templateIds);
     });
-    AuthType authType = credInfo->GetAuthType();
-    templateIds.push_back(credInfo->GetTemplateId());
-    return GetPropertyInner(authType, attrKeys, getExecutorPropertyCallback, templateIds);
+
+    return SUCCESS;
 }
 
 int32_t UserAuthService::SetProperty(int32_t userId, int32_t authType, const std::vector<uint8_t> &attributes,
@@ -436,28 +446,32 @@ int32_t UserAuthService::SetProperty(int32_t userId, int32_t authType, const std
         return CHECK_PERMISSION_FAILED;
     }
 
-    std::vector<std::weak_ptr<ResourceNode>> authTypeNodes;
-    GetResourceNodeByTypeAndRole(static_cast<AuthType>(authType), ALL_IN_ONE, authTypeNodes);
-    if (authTypeNodes.size() != 1) {
-        IAM_LOGE("auth type %{public}d resource node num %{public}zu is not expected",
-            authType, authTypeNodes.size());
-        setExecutorPropertyCallback->OnSetExecutorPropertyResult(GENERAL_ERROR);
-        return SUCCESS;
-    }
+    ThreadHandlerManager::GetInstance().PostTaskOnTemporaryThread("setProperty", [this, userId, authType,
+        attributes, setExecutorPropertyCallback]() {
+            std::vector<std::weak_ptr<ResourceNode>> authTypeNodes;
+            GetResourceNodeByTypeAndRole(static_cast<AuthType>(authType), ALL_IN_ONE, authTypeNodes);
+            if (authTypeNodes.size() != 1) {
+                IAM_LOGE("auth type %{public}d resource node num %{public}zu is not expected",
+                    authType, authTypeNodes.size());
+                setExecutorPropertyCallback->OnSetExecutorPropertyResult(GENERAL_ERROR);
+                return;
+            }
 
-    auto resourceNode = authTypeNodes[0].lock();
-    if (resourceNode == nullptr) {
-        IAM_LOGE("resourceNode is nullptr");
-        setExecutorPropertyCallback->OnSetExecutorPropertyResult(GENERAL_ERROR);
-        return SUCCESS;
-    }
-    const Attributes properties(attributes);
-    int32_t result = resourceNode->SetProperty(properties);
-    if (result != SUCCESS) {
-        IAM_LOGE("set property failed, result = %{public}d", result);
-    }
-    setExecutorPropertyCallback->OnSetExecutorPropertyResult(result);
-    return result;
+            auto resourceNode = authTypeNodes[0].lock();
+            if (resourceNode == nullptr) {
+                IAM_LOGE("resourceNode is nullptr");
+                setExecutorPropertyCallback->OnSetExecutorPropertyResult(GENERAL_ERROR);
+                return;
+            }
+            const Attributes properties(attributes);
+            int32_t result = resourceNode->SetProperty(properties);
+            if (result != SUCCESS) {
+                IAM_LOGE("set property failed, result = %{public}d", result);
+            }
+            setExecutorPropertyCallback->OnSetExecutorPropertyResult(result);
+    });
+
+    return SUCCESS;
 }
 
 std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(int32_t apiVersion,
@@ -584,13 +598,18 @@ uint64_t UserAuthService::StartAuthContext(int32_t apiVersion, Authentication::A
     contextCallback->SetTraceAuthContextId(context->GetContextId());
     contextCallback->SetCleaner(ContextHelper::Cleaner(context));
 
-    if (!context->Start()) {
-        int32_t errorCode = context->GetLatestError();
-        IAM_LOGE("failed to start auth apiVersion:%{public}d errorCode:%{public}d", apiVersion, errorCode);
-        contextCallback->SetTraceAuthFinishReason("UserAuthService Auth start context fail");
-        contextCallback->OnResult(errorCode, extraInfo);
-        return BAD_CONTEXT_ID;
-    }
+    ThreadHandlerManager::GetInstance().PostTaskOnTemporaryThread("startAuth", [context,
+        apiVersion, contextCallback]() {
+            if (!context->Start()) {
+                int32_t errorCode = context->GetLatestError();
+                IAM_LOGE("failed to start auth apiVersion:%{public}d errorCode:%{public}d", apiVersion, errorCode);
+                contextCallback->SetTraceAuthFinishReason("UserAuthService Auth start context fail");
+                Attributes tmpExtraInfo;
+                contextCallback->OnResult(errorCode, tmpExtraInfo);
+                return;
+            }
+    });
+
     return context->GetContextId();
 }
 
