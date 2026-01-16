@@ -12,9 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 import {
-  BusinessError,
   Column,
   Component,
   Dimension,
@@ -25,6 +24,7 @@ import {
   SymbolGlyph,
   $r,
 } from '@kit.ArkUI';
+import { BusinessError } from '@ohos.base';
 import hiLog from '@ohos.hilog';
 import userAuth from '@ohos.userIAM.userAuth';
 
