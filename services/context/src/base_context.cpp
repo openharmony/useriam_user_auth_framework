@@ -21,6 +21,7 @@
 #include "iam_logger.h"
 #include "iam_para2str.h"
 #include "system_ability_definition.h"
+#include "widget_json.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 namespace OHOS {
@@ -35,6 +36,17 @@ BaseContext::BaseContext(const std::string &type, uint64_t contextId, std::share
     ss << "Context(type:" << type << ", contextId:" << GET_MASKED_STRING(contextId_) << ")";
     description_ = ss.str();
     AddDeathRecipient(callback_, contextId_);
+
+#ifndef IAM_TEST_ENABLE
+    nlohmann::json jsonBuf = {};
+    LoadConfigJsonBuffer(jsonBuf);
+    std::string sceneboardName = "";
+    if (GetSceneboardBundleName(jsonBuf, sceneboardName) && sceneboardName == callback->GetCallerName()) {
+        IAM_LOGI("the caller is %{public}s, skip", sceneboardName.c_str());
+        needSubscribeAppState = false;
+    }
+#endif
+
     if (needSubscribeAppState) {
         SubscribeAppState(callback_, contextId_);
     }

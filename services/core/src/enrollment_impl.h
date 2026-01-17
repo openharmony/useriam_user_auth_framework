@@ -54,8 +54,6 @@ private:
     bool GetSecUserId(std::optional<uint64_t> &secUserId);
     bool StartSchedule(int32_t userId, HdiScheduleInfo &info,
         std::vector<std::shared_ptr<ScheduleNode>> &scheduleList, std::shared_ptr<ScheduleNodeCallback> callback);
-    bool BeginEnrollmentV4_0(int32_t userType, HdiCallerType callerType, HdiScheduleInfo &info);
-    bool BeginEnrollmentV4_1(int32_t userType, HdiCallerType callerType, HdiScheduleInfo &info);
 
     EnrollmentPara enrollPara_;
     std::vector<uint8_t> authToken_;

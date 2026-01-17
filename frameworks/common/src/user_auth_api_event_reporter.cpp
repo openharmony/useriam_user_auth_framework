@@ -17,6 +17,7 @@
 
 #include <chrono>
 #include <cinttypes>
+#include <thread>
 
 #include "app_event.h"
 #include "app_event_processor_mgr.h"
@@ -82,33 +83,34 @@ void UserAuthApiEventReporter::ReportFailed(int32_t resultCode)
 
 void UserAuthApiEventReporter::Report(int32_t result, int32_t errCode)
 {
-    const char *kitName = "UserAuthenticationKit";
-
     if (isReported_) {
         IAM_LOGI("already reported");
         return;
     }
     isReported_ = true;
 
-    int64_t processorId = GetProcessorId();
-    if (processorId <= 0) {
-        IAM_LOGE("GetProcessorId failed");
-        return;
-    }
+    std::thread([transId = transId_, apiName = apiName_, beginTime = beginTime_, result, errCode] () {
+        const char *kitName = "UserAuthenticationKit";
+        int64_t processorId = GetProcessorId();
+        if (processorId <= 0) {
+            IAM_LOGE("GetProcessorId failed");
+            return;
+        }
 
-    int64_t endTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-    HiviewDFX::HiAppEvent::Event event("api_diagnostic", "api_exec_end", HiviewDFX::HiAppEvent::BEHAVIOR);
-    event.AddParam("trans_id", transId_);
-    event.AddParam("api_name", apiName_);
-    event.AddParam("sdk_name", kitName);
-    event.AddParam("begin_time", beginTime_);
-    event.AddParam("end_time", endTime);
-    event.AddParam("result", result);
-    event.AddParam("error_code", errCode);
-    int ret = Write(event);
-    IAM_LOGI(
-        "WriteEndEvent transId:%{public}s, apiName:%{public}s, result:%{public}d, errCode:%{public}d, ret:%{public}d",
-        transId_.c_str(), apiName_.c_str(), result, errCode, ret);
+        int64_t endTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+        HiviewDFX::HiAppEvent::Event event("api_diagnostic", "api_exec_end", HiviewDFX::HiAppEvent::BEHAVIOR);
+        event.AddParam("trans_id", transId);
+        event.AddParam("api_name", apiName);
+        event.AddParam("sdk_name", kitName);
+        event.AddParam("begin_time", beginTime);
+        event.AddParam("end_time", endTime);
+        event.AddParam("result", result);
+        event.AddParam("error_code", errCode);
+        int ret = Write(event);
+        IAM_LOGI(
+            "WriteEndEvent transId:%{public}s, apiName:%{public}s, result:%{public}d, errCode:%{public}d, "
+            "ret:%{public}d", transId.c_str(), apiName.c_str(), result, errCode, ret);
+    }).detach();
 }
 
 int64_t UserAuthApiEventReporter::GetProcessorId()

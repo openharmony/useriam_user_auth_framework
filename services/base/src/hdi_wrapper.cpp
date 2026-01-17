@@ -32,19 +32,6 @@ std::shared_ptr<IUserAuthInterface> HdiWrapper::GetHdiInstance()
     return Common::SptrToStdSharedPtr<IUserAuthInterface>(hdi);
 }
 
-std::shared_ptr<IUserAuthInterfaceV4_1> HdiWrapper::GetHdiInstanceV4_1()
-{
-    auto hdi_4_0 = IUserAuthInterface::Get();
-    if (!hdi_4_0) {
-        return nullptr;
-    }
-    auto hdi_4_1 = IUserAuthInterfaceV4_1::CastFrom(hdi_4_0);
-    if (!hdi_4_1) {
-        return nullptr;
-    }
-    return Common::SptrToStdSharedPtr<IUserAuthInterfaceV4_1>(hdi_4_1);
-}
-
 sptr<IRemoteObject> HdiWrapper::GetHdiRemoteObjInstance()
 {
     auto hdi = IUserAuthInterface::Get();
