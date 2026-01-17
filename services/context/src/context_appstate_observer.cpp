@@ -24,7 +24,6 @@
 #include "screenlock_manager.h"
 #endif
 #include "system_ability_definition.h"
-#include "widget_json.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 namespace OHOS {
@@ -155,14 +154,6 @@ void ContextAppStateObserver::ProcAppStateChanged(int32_t userId)
     }
     if (context->GetUserId() != userId) {
         IAM_LOGI("context userId is %{public}d, appStateChanged userId is %{public}d", context->GetUserId(), userId);
-        return;
-    }
-
-    nlohmann::json jsonBuf = {};
-    LoadConfigJsonBuffer(jsonBuf);
-    std::string sceneboardName = "";
-    if (GetSceneboardBundleName(jsonBuf, sceneboardName) && sceneboardName == context->GetCallerName()) {
-        IAM_LOGI("the caller is %{public}s, skip", sceneboardName.c_str());
         return;
     }
 
