@@ -21,8 +21,6 @@
 
 #include "iremote_object.h"
 #include "user_auth_hdi.h"
-#include "v4_0/user_auth_interface_proxy.h"
-#include "v4_1/user_auth_interface_proxy.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -30,7 +28,6 @@ namespace UserAuth {
 class HdiWrapper {
 public:
     static std::shared_ptr<IUserAuthInterface> GetHdiInstance();
-    static std::shared_ptr<IUserAuthInterfaceV4_1> GetHdiInstanceV4_1();
     static sptr<IRemoteObject> GetHdiRemoteObjInstance();
 };
 } // namespace UserAuth

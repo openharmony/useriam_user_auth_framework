@@ -89,16 +89,14 @@ std::vector<Authentication::AuthExecutorMsg> AuthenticationImpl::GetAuthExecutor
     return authExecutorMsgs_;
 }
 
-bool AuthenticationImpl::BeginAuthenticationV4_1(HdiCallerType callerType,
-    std::vector<HdiScheduleInfo> &infos)
+bool AuthenticationImpl::GetAuthParam(HdiAuthParamExt &param)
 {
-    auto hdi_4_1 = HdiWrapper::GetHdiInstanceV4_1();
-    if (!hdi_4_1) {
-        IAM_LOGE("bad hdi");
+    HdiCallerType callerType = ConvertATokenTypeToCallerType(authPara_.callerType);
+    if (callerType == HDI_CALLER_TYPE_INVALID) {
+        IAM_LOGE("ConvertATokenTypeToCallerType failed, ATokenType:%{public}d", authPara_.callerType);
         return false;
     }
-
-    HdiAuthParamExt param = {
+    param = {
         .baseParam = {
             .userId = authPara_.userId,
             .authTrustLevel = authPara_.atl,
@@ -114,50 +112,6 @@ bool AuthenticationImpl::BeginAuthenticationV4_1(HdiCallerType callerType,
         .collectorUdid = collectorUdid_,
         .credentialIdList = authPara_.credentialIdList,
     };
-
-    auto result = hdi_4_1->BeginAuthenticationExt(contextId_, param, infos);
-    if (result != HDF_SUCCESS) {
-        IAM_LOGE("hdi_4_1 BeginAuthentication failed, err is %{public}d", result);
-        SetLatestError(result);
-        return false;
-    }
-    return true;
-}
-
-bool AuthenticationImpl::BeginAuthenticationV4_0(HdiCallerType callerType,
-    std::vector<HdiScheduleInfo> &infos)
-{
-    if (authPara_.credentialIdList.size() != 0) {
-        IAM_LOGE("credentialIdList size: %{public}zu, v4_0 not support", authPara_.credentialIdList.size());
-        return false;
-    }
-    auto hdi_4_0 = HdiWrapper::GetHdiInstance();
-    if (!hdi_4_0) {
-        IAM_LOGE("bad hdi");
-        return false;
-    }
-    HdiAuthParam param = {
-        .baseParam = {
-            .userId = authPara_.userId,
-            .authTrustLevel = authPara_.atl,
-            .executorSensorHint = executorSensorHint_,
-            .challenge = challenge_,
-            .callerName = authPara_.callerName,
-            .callerType = callerType,
-            .apiVersion = authPara_.sdkVersion,
-        },
-        .authType = authPara_.authType,
-        .authIntent = authPara_.authIntent,
-        .isOsAccountVerified = authPara_.isOsAccountVerified,
-        .collectorUdid = collectorUdid_,
-    };
-
-    auto result = hdi_4_0->BeginAuthentication(contextId_, param, infos);
-    if (result != HDF_SUCCESS) {
-        IAM_LOGE("hdi BeginAuthentication failed, err is %{public}d", result);
-        SetLatestError(result);
-        return false;
-    }
     return true;
 }
 
@@ -171,21 +125,20 @@ bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
         IAM_LOGE("bad hdi");
         return false;
     }
-
-    HdiCallerType callerType = ConvertATokenTypeToCallerType(authPara_.callerType);
-    if (callerType == HDI_CALLER_TYPE_INVALID) {
-        IAM_LOGE("ConvertATokenTypeToCallerType failed, ATokenType:%{public}d", authPara_.callerType);
+    HdiAuthParamExt param = {};
+    if (!GetAuthParam(param)) {
+        IAM_LOGE("GetAuthParam failed");
         return false;
     }
+
     std::vector<HdiScheduleInfo> infos;
     IamHitraceHelper traceHelper("hdi BeginAuthentication");
-    if (!BeginAuthenticationV4_1(callerType, infos)) {
-        if (!BeginAuthenticationV4_0(callerType, infos)) {
-            IAM_LOGE("BeginAuthentication failed");
-            return false;
-        }
+    auto result = hdi->BeginAuthenticationExt(contextId_, param, infos);
+    if (result != HDF_SUCCESS) {
+        IAM_LOGE("hdi BeginAuthentication failed, err is %{public}d", result);
+        SetLatestError(result);
+        return false;
     }
-
     if (infos.empty()) {
         IAM_LOGE("hdi BeginAuthentication failed, infos is empty");
         return false;

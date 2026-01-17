@@ -23,11 +23,6 @@ std::shared_ptr<IUserAuthInterface> HdiWrapper::GetHdiInstance()
     return nullptr;
 }
 
-std::shared_ptr<IUserAuthInterfaceV4_1> HdiWrapper::GetHdiInstanceV4_1()
-{
-    return nullptr;
-}
-
 sptr<IRemoteObject> HdiWrapper::GetHdiRemoteObjInstance()
 {
     return nullptr;
