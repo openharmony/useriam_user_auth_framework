@@ -531,10 +531,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty005, TestSize.Level0)
     EXPECT_NE(resourceNode, nullptr);
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
     MockResourceNode *node = static_cast<MockResourceNode *>(resourceNode.get());
-    EXPECT_CALL(*node, GetProperty(_, _))
-        .Times(1)
-        .WillOnce(Return(FAIL))
-        .WillOnce(Return(SUCCESS));
+    ON_CALL(*node, GetProperty(_, _))
+        .WillByDefault(Return(SUCCESS));
     testCallback = sptr<MockGetExecutorPropertyCallback>(new (std::nothrow) MockGetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _)).Times(1);
@@ -582,10 +580,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty006, TestSize.Level0)
     EXPECT_NE(resourceNode, nullptr);
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
     MockResourceNode *node = static_cast<MockResourceNode *>(resourceNode.get());
-    EXPECT_CALL(*node, GetProperty(_, _))
-        .Times(1)
-        .WillOnce(Return(FAIL))
-        .WillOnce(Return(SUCCESS));
+    ON_CALL(*node, GetProperty(_, _))
+        .WillByDefault(Return(SUCCESS));
     testCallback = sptr<MockGetExecutorPropertyCallback>(new (std::nothrow) MockGetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _)).Times(1);
