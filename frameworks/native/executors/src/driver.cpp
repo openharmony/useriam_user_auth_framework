@@ -66,6 +66,8 @@ void Driver::OnHdiConnect()
 
     if (!isFwkReady_) {
         IAM_LOGE("fwk not ready, skip");
+        IAM_LOGE("fwk not ready, check param value first");
+        IAM_LOGE("wait for modify");
         return;
     }
 
