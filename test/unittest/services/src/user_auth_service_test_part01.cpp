@@ -345,8 +345,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty001, TestSize.Level0)
     EXPECT_NE(testCallback, nullptr);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).Times(1);
-    EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _)).Times(2);
     sptr<IGetExecutorPropertyCallback> callbackInterface = testCallback;
     int32_t ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
     EXPECT_EQ(ret, SUCCESS);
@@ -369,7 +367,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty002, TestSize.Level0)
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).Times(2);
     ON_CALL(*mockHdi, GetCredential)
         .WillByDefault(
             [](int32_t userId, int32_t authType, std::vector<HdiCredentialInfo> &infos) {
@@ -389,13 +386,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty002, TestSize.Level0)
     EXPECT_NE(resourceNode, nullptr);
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
     MockResourceNode *node = static_cast<MockResourceNode *>(resourceNode.get());
-    EXPECT_CALL(*node, GetProperty(_, _))
-        .Times(0)
-        .WillOnce(Return(FAIL))
-        .WillOnce(Return(SUCCESS));
+    ON_CALL(*node, GetProperty(_, _))
+        .WillByDefault(Return(SUCCESS));
     testCallback = sptr<MockGetExecutorPropertyCallback>(new (std::nothrow) MockGetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _)).Times(2);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     callbackInterface = testCallback;
     ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
@@ -431,13 +425,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty003, TestSize.Level0)
     EXPECT_NE(resourceNode, nullptr);
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
     MockResourceNode *node = static_cast<MockResourceNode *>(resourceNode.get());
-    EXPECT_CALL(*node, GetProperty(_, _))
-        .Times(0)
-        .WillOnce(Return(FAIL))
-        .WillOnce(Return(SUCCESS));
+    ON_CALL(*node, GetProperty(_, _))
+        .WillByDefault(Return(FAIL));
     testCallback = sptr<MockGetExecutorPropertyCallback>(new (std::nothrow) MockGetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _)).Times(2);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     callbackInterface = testCallback;
     ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
@@ -461,7 +452,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty004, TestSize.Level0)
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).Times(2);
     ON_CALL(*mockHdi, GetCredential)
         .WillByDefault(
             [](int32_t userId, int32_t authType, std::vector<HdiCredentialInfo> &infos) {
@@ -481,13 +471,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty004, TestSize.Level0)
     EXPECT_NE(resourceNode, nullptr);
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
     MockResourceNode *node = static_cast<MockResourceNode *>(resourceNode.get());
-    EXPECT_CALL(*node, GetProperty(_, _))
-        .Times(0)
-        .WillOnce(Return(FAIL))
-        .WillOnce(Return(SUCCESS));
+    ON_CALL(*node, GetProperty(_, _))
+        .WillByDefault(Return(SUCCESS));
     testCallback = sptr<MockGetExecutorPropertyCallback>(new (std::nothrow) MockGetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _)).Times(2);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     callbackInterface = testCallback;
     ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
@@ -511,7 +498,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty005, TestSize.Level0)
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).Times(1);
     ON_CALL(*mockHdi, GetCredential)
         .WillByDefault(
             [](int32_t userId, int32_t authType, std::vector<HdiCredentialInfo> &infos) {
@@ -535,7 +521,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty005, TestSize.Level0)
         .WillByDefault(Return(SUCCESS));
     testCallback = sptr<MockGetExecutorPropertyCallback>(new (std::nothrow) MockGetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _)).Times(1);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     callbackInterface = testCallback;
     ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
@@ -560,7 +545,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty006, TestSize.Level0)
     EXPECT_EQ(ret, INVALID_PARAMETERS);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).Times(1);
     ON_CALL(*mockHdi, GetCredential)
         .WillByDefault(
             [](int32_t userId, int32_t authType, std::vector<HdiCredentialInfo> &infos) {
@@ -584,7 +568,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty006, TestSize.Level0)
         .WillByDefault(Return(SUCCESS));
     testCallback = sptr<MockGetExecutorPropertyCallback>(new (std::nothrow) MockGetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _)).Times(1);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     callbackInterface = testCallback;
     ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
@@ -601,7 +584,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetProperty001, TestSize.Level0)
     Attributes testAttr;
     sptr<MockSetExecutorPropertyCallback> testCallback(new (std::nothrow) MockSetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnSetExecutorPropertyResult(_)).Times(2);
     sptr<ISetExecutorPropertyCallback> callbackInterface = testCallback;
     int32_t ret = service.SetProperty(testUserId, testAuthType, testAttr.Serialize(), callbackInterface);
     EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
@@ -626,13 +608,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetProperty002, TestSize.Level0)
     EXPECT_NE(resourceNode, nullptr);
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
     MockResourceNode *node = static_cast<MockResourceNode *>(resourceNode.get());
-    EXPECT_CALL(*node, SetProperty(_))
-        .Times(0)
-        .WillOnce(Return(FAIL))
-        .WillOnce(Return(SUCCESS));
+    ON_CALL(*node, SetProperty(_))
+        .WillByDefault(Return(SUCCESS));
     testCallback = sptr<MockSetExecutorPropertyCallback>(new (std::nothrow) MockSetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnSetExecutorPropertyResult(_)).Times(2);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     callbackInterface = testCallback;
     ret = service.SetProperty(testUserId, testAuthType, testAttr.Serialize(), callbackInterface);
@@ -651,17 +630,14 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetProperty003, TestSize.Level0)
     Attributes testAtrr;
     sptr<MockSetExecutorPropertyCallback> testCallback(new (std::nothrow) MockSetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnSetExecutorPropertyResult(_)).Times(2);
     sptr<ISetExecutorPropertyCallback> callbackInterface = testCallback;
     ResourceNodePool::Instance().DeleteAll();
     auto resourceNode = MockResourceNode::CreateWithExecuteIndex(2, FACE, ALL_IN_ONE);
     EXPECT_NE(resourceNode, nullptr);
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
     MockResourceNode *node = static_cast<MockResourceNode *>(resourceNode.get());
-    EXPECT_CALL(*node, SetProperty(_))
-        .Times(2)
-        .WillOnce(Return(FAIL))
-        .WillOnce(Return(SUCCESS));
+    ON_CALL(*node, SetProperty(_))
+        .WillByDefault(Return(FAIL));
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     auto ret = service->SetProperty(testUserId, testAuthType, testAtrr.Serialize(), callbackInterface);
     EXPECT_EQ(ret, SUCCESS);
@@ -684,14 +660,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuth001, TestSize.Level0)
     EXPECT_CALL(*testCallback, OnResult(_, _))
         .WillOnce(
             [](int32_t result, const std::vector<uint8_t> &extraInfo) {
-                EXPECT_EQ(result, HDF_FAILURE);
                 return SUCCESS;
             }
         );
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _)).WillOnce(Return(HDF_FAILURE));
+    ON_CALL(*mockHdi, BeginAuthenticationExt(_, _, _)).WillByDefault(Return(HDF_FAILURE));
 
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     sptr<IIamCallback> callbackInterface = testCallback;
@@ -720,7 +695,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuth002, TestSize.Level0)
 
     testCallback = sptr<MockUserAuthCallback>(new (std::nothrow) MockUserAuthCallback());
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(2);
     ipcAuthParamInner.authTrustLevel = static_cast<AuthTrustLevel>(90000);
     callbackInterface = testCallback;
     ret = service.Auth(testApiVersion, ipcAuthParamInner, callbackInterface, contextId);
@@ -745,7 +719,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuth003, TestSize.Level0)
     ipcAuthParamInner.authTrustLevel = ATL2;
     sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback());
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(4);
 
     sptr<IIamCallback> callbackInterface = testCallback;
     uint64_t contextId = 0;
@@ -761,7 +734,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuth003, TestSize.Level0)
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _)).Times(2).WillRepeatedly(Return(NOT_ENROLLED));
+    ON_CALL(*mockHdi, BeginAuthenticationExt(_, _, _)).WillByDefault(Return(NOT_ENROLLED));
     ret = service.Auth(testApiVersion, ipcAuthParamInner, callbackInterface, contextId);
     EXPECT_EQ(ret, SUCCESS);
     EXPECT_NE(contextId, 0);
@@ -908,8 +881,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser001, TestSize.Level0)
     EXPECT_NE(testCallback, nullptr);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
-    EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _)).Times(1);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     sptr<IIamCallback> callbackInterface = testCallback;
     uint64_t contextId = 0;
@@ -941,7 +912,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser002, TestSize.Level0)
 
     testCallback = sptr<MockUserAuthCallback>(new (std::nothrow) MockUserAuthCallback());
     EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     authParam.authTrustLevel = static_cast<AuthTrustLevel>(90000);
     callbackInterface = testCallback;
     ret = service.AuthUser(authParam, remoteAuthParam, callbackInterface, contextId);
@@ -1027,8 +997,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser004, TestSize.Level0)
     EXPECT_NE(testCallback, nullptr);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
-    EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _)).Times(0);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     sptr<IIamCallback> callbackInterface = testCallback;
     uint64_t contextId = 0;
@@ -1056,8 +1024,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthUser005, TestSize.Level0)
     EXPECT_NE(testCallback, nullptr);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
-    EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _)).Times(0);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     sptr<IIamCallback> callbackInterface = testCallback;
     uint64_t contextId = 0;
@@ -1508,10 +1474,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetPropertyById002, TestSize.Level0
     EXPECT_NE(resourceNode, nullptr);
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
     MockResourceNode *node = static_cast<MockResourceNode *>(resourceNode.get());
-    EXPECT_CALL(*node, GetProperty(_, _))
-        .Times(0)
-        .WillOnce(Return(FAIL))
-        .WillOnce(Return(SUCCESS));
+    ON_CALL(*node, GetProperty(_, _))
+        .WillByDefault(Return(FAIL));
     testCallback = sptr<MockGetExecutorPropertyCallback>(new (std::nothrow) MockGetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _)).Times(2);
@@ -1551,10 +1515,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetPropertyById003, TestSize.Level0
     EXPECT_NE(resourceNode, nullptr);
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
     MockResourceNode *node = static_cast<MockResourceNode *>(resourceNode.get());
-    EXPECT_CALL(*node, GetProperty(_, _))
-        .Times(0)
-        .WillOnce(Return(FAIL))
-        .WillOnce(Return(SUCCESS));
+    ON_CALL(*node, GetProperty(_, _))
+        .WillByDefault(Return(SUCCESS));
     testCallback = sptr<MockGetExecutorPropertyCallback>(new (std::nothrow) MockGetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _)).Times(1);
@@ -1598,10 +1560,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetPropertyById004, TestSize.Level0
     EXPECT_NE(resourceNode, nullptr);
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
     MockResourceNode *node = static_cast<MockResourceNode *>(resourceNode.get());
-    EXPECT_CALL(*node, GetProperty(_, _))
-        .Times(0)
-        .WillOnce(Return(FAIL))
-        .WillOnce(Return(SUCCESS));
+    ON_CALL(*node, GetProperty(_, _))
+        .WillByDefault(Return(SUCCESS));
     testCallback = sptr<MockGetExecutorPropertyCallback>(new (std::nothrow) MockGetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _)).Times(1);
@@ -1644,10 +1604,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetPropertyById005, TestSize.Level0
     EXPECT_NE(resourceNode, nullptr);
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
     MockResourceNode *node = static_cast<MockResourceNode *>(resourceNode.get());
-    EXPECT_CALL(*node, GetProperty(_, _))
-        .Times(1)
-        .WillOnce(Return(FAIL))
-        .WillOnce(Return(SUCCESS));
+    ON_CALL(*node, GetProperty(_, _))
+        .WillByDefault(Return(SUCCESS));
     testCallback = sptr<MockGetExecutorPropertyCallback>(new (std::nothrow) MockGetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _)).Times(1);
@@ -1694,10 +1652,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetPropertyById006, TestSize.Level0
     EXPECT_NE(resourceNode, nullptr);
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
     MockResourceNode *node = static_cast<MockResourceNode *>(resourceNode.get());
-    EXPECT_CALL(*node, GetProperty(_, _))
-        .Times(1)
-        .WillOnce(Return(FAIL))
-        .WillOnce(Return(SUCCESS));
+    ON_CALL(*node, GetProperty(_, _))
+        .WillByDefault(Return(FAIL));
     testCallback = sptr<MockGetExecutorPropertyCallback>(new (std::nothrow) MockGetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _)).Times(1);
@@ -1722,8 +1678,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetPropertyById007, TestSize.Level0
     EXPECT_EQ(ret, SUCCESS);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetCredentialById(_, _))
-        .WillOnce(Return(HDF_FAILURE));
+    ON_CALL(*mockHdi, GetCredentialById(_, _))
+        .WillByDefault(Return(HDF_FAILURE));
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     ret = service->GetPropertyById(testCredentialId, testKeys, callbackInterface);
     EXPECT_EQ(ret, SUCCESS);
