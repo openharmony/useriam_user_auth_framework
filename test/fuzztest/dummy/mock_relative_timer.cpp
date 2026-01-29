@@ -32,7 +32,7 @@ RelativeTimer::~RelativeTimer()
     IAM_LOGI("start.");
 }
 
-uint32_t RelativeTimer::Register(const TimerCallback &callback, uint32_t ms)
+uint32_t RelativeTimer::Register(const TimerCallback &callback, uint32_t ms, bool once)
 {
     IAM_LOGI("start.");
     return 0;
