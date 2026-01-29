@@ -72,6 +72,8 @@ ohos_source_set("iam_utils") {
 
   sources = [
     "utils/iam_time.cpp",
+    "utils/relative_timer.cpp",
+    "utils/system_param_manager.cpp",
     "utils/xcollie_helper.cpp",
   ]
 
@@ -79,6 +81,7 @@ ohos_source_set("iam_utils") {
     "c_utils:utils",
     "hicollie:libhicollie",
     "hilog:libhilog",
+    "init:libbegetutil",
   ]
 
   public_configs = [

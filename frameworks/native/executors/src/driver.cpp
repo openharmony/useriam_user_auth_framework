@@ -21,6 +21,8 @@
 #include "iam_ptr.h"
 #include "iam_executor_iauth_driver_hdi.h"
 #include "iam_executor_iauth_executor_hdi.h"
+#include "relative_timer.h"
+#include "system_param_manager.h"
 
 #define LOG_TAG "USER_AUTH_EXECUTOR"
 
@@ -34,7 +36,7 @@ Driver::Driver(const std::string &serviceName, HdiConfig hdiConfig) : serviceNam
 void Driver::OnHdiConnect()
 {
     IAM_LOGI("start");
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (hdiConnected_) {
         IAM_LOGI("already connected skip");
         return;
@@ -64,20 +66,55 @@ void Driver::OnHdiConnect()
         IAM_LOGI("add executor %{public}s success", executor->GetDescription());
     }
 
-    if (!isFwkReady_) {
-        IAM_LOGE("fwk not ready, skip");
-        IAM_LOGE("fwk not ready, check param value first");
-        IAM_LOGE("wait for modify");
+    if (isFwkReady_) {
+        RegisterExecutors();
         return;
     }
 
-    RegisterExecutors();
+    EnsureRegisterExecutors();
+}
+
+void Driver::EnsureRegisterExecutors()
+{
+    IAM_LOGI("start");
+    if (SystemParamManager::GetInstance().GetParam(FWK_READY_KEY, FALSE_STR) == TRUE_STR) {
+        IAM_LOGI("fwk ready, start register executors first");
+        OnFrameworkReady();
+        return;
+    }
+
+    if (checkFwkReadyTimerId_ != std::nullopt) {
+        IAM_LOGI("fwk ready timer has existed, no need start again");
+        return;
+    }
+    const uint32_t RETRY_CHECK_INTERVAL = 20000; //20s
+    checkFwkReadyTimerId_ = RelativeTimer::GetInstance().Register(
+        [weakSelf = std::weak_ptr<Driver>(shared_from_this())]() {
+            if (SystemParamManager::GetInstance().GetParam(FWK_READY_KEY, FALSE_STR) == TRUE_STR) {
+                IAM_LOGI("fwk ready, call OnFrameworkReady");
+                auto self = weakSelf.lock();
+                if (self != nullptr) {
+                    self->OnFrameworkReady();
+                }
+            }
+    }, RETRY_CHECK_INTERVAL, false);
+}
+
+void Driver::StopFwkReadyTimer()
+{
+    if (!checkFwkReadyTimerId_) {
+        IAM_LOGI("fwk ready timer has stopped.");
+        return;
+    }
+
+    RelativeTimer::GetInstance().Unregister(checkFwkReadyTimerId_.value());
+    checkFwkReadyTimerId_ = std::nullopt;
 }
 
 void Driver::OnHdiDisconnect()
 {
     IAM_LOGI("start");
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     hdiConnected_ = false;
     for (const auto &executor : executorList_) {
         if (executor == nullptr) {
@@ -96,7 +133,8 @@ void Driver::OnHdiDisconnect()
 void Driver::OnFrameworkDown()
 {
     IAM_LOGI("start");
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    StopFwkReadyTimer();
     isFwkReady_ = false;
     IF_FALSE_LOGE_AND_RETURN(hdiConfig_.driver != nullptr);
     hdiConfig_.driver->OnFrameworkDown();
@@ -106,12 +144,13 @@ void Driver::OnFrameworkDown()
 void Driver::OnFrameworkReady()
 {
     IAM_LOGI("start");
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (isFwkReady_) {
         IAM_LOGI("already fwk ready, skip");
         return;
     }
     isFwkReady_ = true;
+    StopFwkReadyTimer();
     if (!hdiConnected_) {
         IAM_LOGE("hdi not connected, skip");
         return;

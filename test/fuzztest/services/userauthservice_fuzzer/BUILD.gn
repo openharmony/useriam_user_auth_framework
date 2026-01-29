@@ -79,7 +79,6 @@ ohos_fuzztest("UserAuthServiceFuzzTest") {
     "../../../../services/context/src/ui_extension_ability_connection.cpp",
     "../../../../services/context/src/widget_context_callback_impl.cpp",
     "../../../../services/context/src/widget_json.cpp",
-    "../../../../services/core/src/system_param_manager.cpp",
     "../../../../services/load_mode/src/load_mode_handler.cpp",
     "../../../../services/load_mode/src/load_mode_handler_default.cpp",
     "../../../../services/ipc/src/co_auth_service.cpp",

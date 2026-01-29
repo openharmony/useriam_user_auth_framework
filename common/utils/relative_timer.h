@@ -13,36 +13,28 @@
  * limitations under the License.
  */
 
-#include "relative_timer.h"
+#ifndef IAM_RELATIVE_TIMER_H
+#define IAM_RELATIVE_TIMER_H
 
-#include "iam_logger.h"
+#include "singleton.h"
+#include "timer.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-#define LOG_TAG "USER_AUTH_SA"
+class RelativeTimer final : public Singleton<RelativeTimer> {
+public:
+    using TimerCallback = std::function<void()>;
+    RelativeTimer();
+    ~RelativeTimer() override;
+    uint32_t Register(const TimerCallback &callback, uint32_t ms, bool once = true);
+    void Unregister(uint32_t timerId);
 
-RelativeTimer::RelativeTimer() : timer_("iam_relative_timer")
-{
-    timer_.Setup();
-    IAM_LOGI("relative timer setup");
-}
-
-RelativeTimer::~RelativeTimer()
-{
-    timer_.Shutdown();
-    IAM_LOGI("relative timer shutdown");
-}
-
-uint32_t RelativeTimer::Register(const TimerCallback &callback, uint32_t ms)
-{
-    return timer_.Register(callback, ms, true);
-}
-
-void RelativeTimer::Unregister(uint32_t timerId)
-{
-    return timer_.Unregister(timerId);
-}
+private:
+    Utils::Timer timer_;
+};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
+
+#endif // IAM_RELATIVE_TIMER_H

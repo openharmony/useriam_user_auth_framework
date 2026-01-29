@@ -27,7 +27,7 @@ public:
     using TimerCallback = std::function<void()>;
     RelativeTimer();
     ~RelativeTimer() override;
-    uint32_t Register(const TimerCallback &callback, uint32_t ms);
+    uint32_t Register(const TimerCallback &callback, uint32_t ms, bool once = true);
     void Unregister(uint32_t timerId);
 };
 } // namespace UserAuth
