@@ -48,10 +48,8 @@ ohos_unittest("iam_services_core_test") {
   include_dirs += [ "../mocks/inc" ]
 
   sources = [
-    project_path + "common/utils/xcollie_helper.cpp",
     project_path + "services/base/src/finite_state_machine_builder.cpp",
     project_path + "services/base/src/finite_state_machine_impl.cpp",
-    project_path + "services/base/src/relative_timer.cpp",
     project_path + "services/base/src/thread_handler_impl.cpp",
     project_path + "services/base/src/thread_handler_manager.cpp",
     project_path + "services/base/src/thread_handler_singleton_impl.cpp",
@@ -63,7 +61,6 @@ ohos_unittest("iam_services_core_test") {
     project_path + "services/core/src/identification_impl.cpp",
     project_path + "services/core/src/user_idm_database_impl.cpp",
     project_path + "services/core/src/resource_node_utils.cpp",
-    project_path + "services/core/src/system_param_manager.cpp",
     project_path + "services/core/src/schedule_node_builder.cpp",
     project_path + "services/core/src/schedule_node_helper.cpp",
     project_path + "services/core/src/schedule_node_impl.cpp",
@@ -101,7 +98,10 @@ ohos_unittest("iam_services_core_test") {
     project_path + "frameworks/native/common:dfx_config",
   ]
 
-  deps = [ project_path + "frameworks/native/ipc:userauth_client_ipc" ]
+  deps = [
+    project_path + "frameworks/native/ipc:userauth_client_ipc",
+    "../../../common:iam_utils",
+  ]
 
   external_deps = [
     "ability_runtime:abilitykit_native",

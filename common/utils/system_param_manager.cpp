@@ -40,9 +40,9 @@ SystemParamManager &SystemParamManager::GetInstance()
 
 std::string SystemParamManager::GetParam(const std::string &key, const std::string &defaultValue)
 {
-    constexpr uint32_t MAX_VALUE_LEN = 128;
-    char valueBuffer[MAX_VALUE_LEN] = { 0 };
-    int32_t ret = GetParameter(key.c_str(), defaultValue.c_str(), valueBuffer, MAX_VALUE_LEN);
+    constexpr uint32_t maxValueLen = 128;
+    char valueBuffer[maxValueLen] = { 0 };
+    int32_t ret = GetParameter(key.c_str(), defaultValue.c_str(), valueBuffer, maxValueLen);
     if (ret < 0) {
         IAM_LOGE("get param failed, key %{public}s, ret %{public}d, use default value %{public}s", key.c_str(), ret,
             defaultValue.c_str());

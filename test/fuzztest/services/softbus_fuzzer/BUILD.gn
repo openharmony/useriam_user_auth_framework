@@ -41,6 +41,8 @@ ohos_fuzztest("SoftBusFuzzTest") {
   ]
 
   sources = [
+    "../../../../common/utils/iam_time.cpp",
+    "../../../../common/utils/xcollie_helper.cpp",
     "../../dummy/mock_socket.cpp",
     "../../dummy/mock_system_ability_listener.cpp",
     "../../dummy/mock_relative_timer.cpp",
@@ -52,7 +54,6 @@ ohos_fuzztest("SoftBusFuzzTest") {
   deps = [
     "../../common_fuzzer:attributes_fuzzer",
     "../../common_fuzzer:iam_test_fuzzer",
-    "../../common_fuzzer:iam_utils_fuzzer",
     "../../common_fuzzer:userauth_service_remote_connect_fuzzer",
   ]
 
@@ -69,6 +70,7 @@ ohos_fuzztest("SoftBusFuzzTest") {
     "hdf_core:libhdi",
     "hilog:libhilog",
     "hilog:libhilog",
+    "hicollie:libhicollie",
     "init:libbegetutil",
     "ipc:ipc_single",
     "safwk:system_ability_fwk",
