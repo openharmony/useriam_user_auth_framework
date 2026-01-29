@@ -27,7 +27,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class Driver : public NoCopyable {
+class Driver : public std::enable_shared_from_this<Driver>, public NoCopyable {
 public:
     Driver(const std::string &serviceName, HdiConfig hdiConfig);
     ~Driver() override = default;
@@ -39,12 +39,15 @@ public:
 
 private:
     void RegisterExecutors();
+    void EnsureRegisterExecutors();
+    void StopFwkReadyTimer();
 
-    std::mutex mutex_;
+    std::recursive_mutex mutex_;
     std::string serviceName_;
     HdiConfig hdiConfig_;
     bool hdiConnected_ = false;
     bool isFwkReady_ = false;
+    std::optional<int32_t> checkFwkReadyTimerId_ = std::nullopt;
     std::vector<std::shared_ptr<Executor>> executorList_;
 };
 } // namespace UserAuth

@@ -36,7 +36,6 @@ ohos_source_set("userauth_service_base") {
     "src/finite_state_machine_builder.cpp",
     "src/finite_state_machine_impl.cpp",
     "src/hdi_wrapper.cpp",
-    "src/relative_timer.cpp",
     "src/system_ability_listener.cpp",
     "src/thread_handler_impl.cpp",
     "src/thread_handler_manager.cpp",
