@@ -88,6 +88,39 @@ ohos_fuzztest("UserAuthServiceFuzzTest") {
     "../../../../services/ipc/src/template_cache_manager.cpp",
     "../../../../services/ipc/src/user_auth_service.cpp",
     "../../../../services/ipc/src/user_idm_service.cpp",
+    "../../../../services/core/src/authentication_impl.cpp",
+    "../../../../services/core/src/credential_info_impl.cpp",
+    "../../../../services/core/src/credential_updated_manager.cpp",
+    "../../../../services/core/src/delete_impl.cpp",
+    "../../../../services/core/src/driver_state_manager.cpp",
+    "../../../../services/core/src/enrolled_info_impl.cpp",
+    "../../../../services/core/src/enrollment_impl.cpp",
+    "../../../../services/core/src/event_listener_manager.cpp",
+    "../../../../services/core/src/identification_impl.cpp",
+    "../../../../services/core/src/publish_event_adapter_mock.cpp",
+    "../../../../services/core/src/remote_executor_proxy.cpp",
+    "../../../../services/core/src/remote_msg_util.cpp",
+    "../../../../services/core/src/resource_node_impl.cpp",
+    "../../../../services/core/src/resource_node_pool_impl.cpp",
+    "../../../../services/core/src/resource_node_utils.cpp",
+    "../../../../services/core/src/risk_event_manager.cpp",
+    "../../../../services/core/src/schedule_node_builder.cpp",
+    "../../../../services/core/src/schedule_node_helper.cpp",
+    "../../../../services/core/src/schedule_node_impl.cpp",
+    "../../../../services/core/src/schedule_resource_node_listener.cpp",
+    "../../../../services/core/src/screenlock_status_listener.cpp",
+    "../../../../services/core/src/secure_user_info_impl.cpp",
+    "../../../../services/core/src/update_pin_param_impl.cpp",
+    "../../../../services/core/src/user_idm_database_impl.cpp",
+    "../../../../services/core/src/user_info_impl.cpp",
+    "../../../../services/core/src/widget_schedule_node_impl.cpp",
+    "../../../../services/base/src/finite_state_machine_builder.cpp",
+    "../../../../services/base/src/finite_state_machine_impl.cpp",
+    "../../../../services/base/src/thread_handler_impl.cpp",
+    "../../../../services/base/src/thread_handler_singleton_impl.cpp",
+    "../../dummy/mock_thread_handler_manager.cpp",
+    "../../dummy/mock_iuser_auth_interface.cpp",
+    "../../dummy/mock_system_ability_listener.cpp",
     "../../dummy/mock_ipc_common.cpp",
     "../../dummy/mock_widget_client.cpp",
     "../../dummy/mock_widget_context.cpp",
@@ -100,8 +133,8 @@ ohos_fuzztest("UserAuthServiceFuzzTest") {
     "../../common_fuzzer:dfx_fuzzer",
     "../../common_fuzzer:iam_utils_fuzzer",
     "../../common_fuzzer:userauth_service_remote_connect_fuzzer",
-    "../../common_fuzzer:userauth_service_core_fuzzer",
     "../../../../frameworks/native/ipc:userauth_service_ipc_fuzzer",
+    "../../../../frameworks/native/client:userauth_client",
   ]
 
   external_deps = [
@@ -133,22 +166,47 @@ ohos_fuzztest("UserAuthServiceFuzzTest") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "config_policy:configpolicy_util",
+    "access_token:libtokenid_sdk",
+    "init:libbeget_proxy",
+    "ipc:ipc_core",
   ]
 
   defines = []
   if (screenlock_client_enable) {
-    external_deps += [ "screenlock_mgr:screenlock_client" ]
+    external_deps += [
+      "screenlock_mgr:screenlock_client",
+      "eventhandler:libeventhandler",
+      "ffrt:libffrt",
+      "preferences:native_preferences",
+      "screenlock_mgr:screenlock_client",
+      "window_manager:libdm_lite",
+    ]
+    sources += [
+      "../../../../services/core/src/strong_auth_status_manager_impl.cpp",
+    ]
     defines += [ "SCREENLOCK_CLIENT_ENABLE" ]
+  } else {
+    sources += [
+      "../../../../services/core/src/strong_auth_status_manager_mock.cpp",
+    ]
   }
 
   if (has_os_account_part) {
     cflags_cc = [ "-DHAS_OS_ACCOUNT_PART" ]
     external_deps += [ "os_account:os_account_innerkits" ]
+    sources += [
+      "../../../../services/core/src/os_accounts_manager_impl.cpp",
+    ]
+  } else {
+    sources += [
+      "../../../../services/core/src/os_accounts_manager_mock.cpp",
+    ]
   }
 
   public_configs = [
     "../../../../frameworks/native/ipc:userauth_client_ipc_config",
     "../../../../services/context:userauth_service_context_config",
+    "../../../../services/core:userauth_service_core_config",
   ]
 
   configs = [
