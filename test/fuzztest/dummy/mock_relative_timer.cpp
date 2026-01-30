@@ -35,12 +35,16 @@ RelativeTimer::~RelativeTimer()
 uint32_t RelativeTimer::Register(const TimerCallback &callback, uint32_t ms, bool once)
 {
     IAM_LOGI("start.");
+    (void)callback;
+    (void)ms;
+    (void)once;
     return 0;
 }
 
 void RelativeTimer::Unregister(uint32_t timerId)
 {
     IAM_LOGI("start.");
+    (void)timerId;
 }
 } // namespace UserAuth
 } // namespace UserIam
