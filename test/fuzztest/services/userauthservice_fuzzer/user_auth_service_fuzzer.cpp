@@ -166,7 +166,12 @@ public:
 
 void EnsureTask()
 {
-    ThreadHandler::GetSingleThreadInstance()->EnsureTask([]() {});
+    auto instance = ThreadHandler::GetSingleThreadInstance();
+    if (!instance) {
+        IAM_LOGE("GetSingleThreadInstance failed");
+        return;
+    }
+    instance->EnsureTask([]() {});
 }
 
 UserAuthService g_userAuthService;
