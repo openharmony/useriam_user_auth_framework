@@ -1786,6 +1786,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckCallerPermissionForUserIdTest,
 {
     auto service = Common::MakeShared<UserAuthService>();
     AuthParamInner paramInner = {};
+    paramInner.isUserIdSpecified = true;
     IpcCommon::SetSkipUserFlag(true);
     EXPECT_EQ(service->CheckCallerPermissionForUserId(paramInner), GENERAL_ERROR);
     IpcCommon::SetSkipUserFlag(false);
