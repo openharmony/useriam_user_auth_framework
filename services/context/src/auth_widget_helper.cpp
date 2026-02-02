@@ -35,7 +35,7 @@ bool AuthWidgetHelper::InitWidgetContextParam(const AuthParamInner &authParam, s
 {
     for (auto &authType : validType) {
         ContextFactory::AuthProfile profile;
-        if (!GetUserAuthProfile(para.userId, authType, profile)) {
+        if (!GetUserAuthProfile(para.userId, authType, profile, authParam.credentialIdList)) {
             IAM_LOGE("get user auth profile failed");
             return false;
         }
@@ -58,21 +58,46 @@ bool AuthWidgetHelper::InitWidgetContextParam(const AuthParamInner &authParam, s
     return true;
 }
 
+bool AuthWidgetHelper::GetAuthCredentialList(int32_t userId, const AuthType &authType,
+    const std::vector<uint64_t> &credentialIdList,
+    std::vector<std::shared_ptr<CredentialInfoInterface>> &credentialInfos)
+{
+    if (credentialIdList.empty()) {
+        int32_t ret = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType, credentialInfos);
+        if (ret != SUCCESS) {
+            IAM_LOGE("get credential fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret,
+                userId, authType);
+            return false;
+        }
+        return true;
+    }
+
+    for (auto credId : credentialIdList) {
+        std::shared_ptr<CredentialInfoInterface> credInfo;
+        int32_t ret = UserIdmDatabase::Instance().GetCredentialInfoById(credId, credInfo);
+        if (ret != SUCCESS) {
+            IAM_LOGE("get GetCredentialInfoById fail, ret:%{public}d", ret);
+            return false;
+        }
+        credentialInfos.push_back(credInfo);
+    }
+    return true;
+}
+
 bool AuthWidgetHelper::GetUserAuthProfile(int32_t userId, const AuthType &authType,
-    ContextFactory::AuthProfile &profile)
+    ContextFactory::AuthProfile &profile, std::vector<uint64_t> credentialIdList)
 {
     Attributes values;
     std::vector<std::shared_ptr<CredentialInfoInterface>> credentialInfos;
-    int32_t ret = UserIdmDatabase::Instance().GetCredentialInfo(userId, authType, credentialInfos);
-    if (ret != SUCCESS) {
-        IAM_LOGE("get credential fail, ret:%{public}d, userId:%{public}d, authType:%{public}d", ret,
-            userId, authType);
+    if (!GetAuthCredentialList(userId, authType, credentialIdList, credentialInfos)) {
+        IAM_LOGE("GetAuthCredentialList fail");
         return false;
     }
     if (credentialInfos.empty() || credentialInfos[0] == nullptr) {
         IAM_LOGE("user %{public}d has no credential type %{public}d", userId, authType);
         return true;
     }
+
     uint64_t executorIndex = credentialInfos[0]->GetExecutorIndex();
     auto resourceNode = ResourceNodePool::Instance().Select(executorIndex).lock();
     if (resourceNode == nullptr) {

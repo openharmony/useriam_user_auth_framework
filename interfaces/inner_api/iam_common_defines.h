@@ -38,6 +38,7 @@ constexpr int INVALID_USER_ID = -1;
 constexpr int32_t MAIN_USER_ID = 100;
 constexpr int32_t MAX_USER = 5;
 const int32_t TITLE_MAX = 500;
+const int32_t MAX_USER_CREDENTIAL_SIZE = 100;
 
 /**
  * @brief Defines authentication type.

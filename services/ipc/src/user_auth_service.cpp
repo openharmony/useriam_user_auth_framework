@@ -1119,6 +1119,14 @@ int32_t UserAuthService::CheckCallerPermissionForPrivatePin(const AuthParamInner
 
 int32_t UserAuthService::CheckCallerPermissionForUserId(const AuthParamInner &authParam)
 {
+    if (!authParam.isUserIdSpecified) {
+        if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
+            IAM_LOGE("CheckPermission failed");
+            return CHECK_PERMISSION_FAILED;
+        }
+        return SUCCESS;
+    }
+
     // inner api caller
     if (IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         return SUCCESS;
@@ -1140,6 +1148,10 @@ int32_t UserAuthService::CheckCallerPermissionForUserId(const AuthParamInner &au
 int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authParam,
     const WidgetParamInner &widgetParam, bool isBackgroundApplication)
 {
+    if (authParam.credentialIdList.size() > MAX_USER_CREDENTIAL_SIZE) {
+        IAM_LOGE("bad credentialIdList size:%{public}zu", authParam.credentialIdList.size());
+        return INVALID_PARAMETERS;
+    }
     int32_t checkRet = CheckWindowMode(widgetParam);
     if (checkRet != SUCCESS) {
         IAM_LOGE("CheckWindowMode failed");
@@ -1149,11 +1161,7 @@ int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authP
         IAM_LOGE("CheckCallerPermissionForPrivatePin failed");
         return CHECK_PERMISSION_FAILED;
     }
-    if (!authParam.isUserIdSpecified && !IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
-        IAM_LOGE("CheckPermission failed");
-        return CHECK_PERMISSION_FAILED;
-    }
-    if (authParam.isUserIdSpecified && CheckCallerPermissionForUserId(authParam) != SUCCESS) {
+    if (CheckCallerPermissionForUserId(authParam) != SUCCESS) {
         IAM_LOGE("CheckPermission failed");
         return CHECK_PERMISSION_FAILED;
     }
@@ -1253,7 +1261,7 @@ int32_t UserAuthService::CheckSkipLockedBiometricAuth(int32_t userId, const Auth
     std::vector<AuthType> authTypeList;
     for (auto &type : validType) {
         ContextFactory::AuthProfile profile = {};
-        if (!AuthWidgetHelper::GetUserAuthProfile(userId, type, profile)) {
+        if (!AuthWidgetHelper::GetUserAuthProfile(userId, type, profile, authParam.credentialIdList)) {
             IAM_LOGE("get user auth profile failed");
             continue;
         }
