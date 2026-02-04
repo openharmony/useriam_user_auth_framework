@@ -367,6 +367,15 @@ void FuzzClearUnavailableCredential(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzGetSessionInfoMasked(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    std::vector<uint8_t> challenge;
+    FillFuzzUint8Vector(parcel, challenge);
+    g_userIdmService.GetSessionInfoMasked(challenge);
+    IAM_LOGI("end");
+}
+
 using FuzzFunc = decltype(FuzzOpenSession);
 FuzzFunc *g_fuzzFuncs[] = {
     FuzzOpenSession,
@@ -388,6 +397,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzRegistCredChangeEventListener,
     FuzzGetCredentialInfoSync,
     FuzzClearUnavailableCredential,
+    FuzzGetSessionInfoMasked
 };
 
 void UserIdmFuzzTest(const uint8_t *data, size_t size)
