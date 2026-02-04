@@ -198,7 +198,7 @@ void FuzzGetEnrolledState(Parcel &parcel)
     IpcEnrolledState enrolledState = {};
     int32_t funcResult = SUCCESS;
     g_userAuthService.GetEnrolledState(apiVersion, authType, enrolledState, funcResult);
-    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     g_userAuthService.GetEnrolledState(apiVersion, authType, enrolledState, funcResult);
     IpcCommon::DeleteAllPermission();
     EnsureTask();
@@ -279,6 +279,7 @@ void FuzzSetProperty(Parcel &parcel)
 
     g_userAuthService.SetProperty(userId, authType, attributes.Serialize(), callback);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     g_userAuthService.SetProperty(userId, authType, attributes.Serialize(), callback);
     IpcCommon::DeleteAllPermission();
     EnsureTask();
@@ -499,6 +500,10 @@ void FuzzSetGlobalConfigParam(Parcel &parcel)
     param.value.pinExpiredPeriod = parcel.ReadUint64();
     param.type = parcel.ReadInt32();
     g_userAuthService.SetGlobalConfigParam(param);
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    IpcCommon::AddPermission(ENTERPRISE_DEVICE_MGR);
+    g_userAuthService.SetGlobalConfigParam(param);
+    IpcCommon::DeleteAllPermission();
     EnsureTask();
     IAM_LOGI("end");
 }
@@ -693,6 +698,44 @@ void FuzzStartRemoteAuthInvokerContext(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzProcessAuthParamForRemoteAuth(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    AuthParamInner authParam = {};
+    Authentication::AuthenticationPara param = {};
+    RemoteAuthParam remoteAuthParam = {};
+    std::string localNetworkId = "1234567890123456789012345678901234567890123456789012345678901234";
+    g_userAuthService.ProcessAuthParamForRemoteAuth(authParam, param, remoteAuthParam, localNetworkId);
+    EnsureTask();
+    IAM_LOGI("end");
+}
+
+void FuzzCheckAuthPermissionAndParam(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    int32_t authType = parcel.ReadInt32();
+    int32_t callerType = parcel.ReadInt32();
+    std::string callerName = parcel.ReadString();
+    AuthTrustLevel authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32());
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    g_userAuthService.CheckAuthPermissionAndParam(authType, callerType, callerName, authTrustLevel);
+    IpcCommon::DeleteAllPermission();
+    EnsureTask();
+    IAM_LOGI("end");
+}
+
+void FuzzStartLocalRemoteAuthContext(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    Authentication::AuthenticationPara para;
+    LocalRemoteAuthContextParam localRemoteAuthContextParam;
+        sptr<IIamCallback> iamCallback = sptr<IIamCallback>(new (nothrow) DummyIamCallbackInterface);
+    std::shared_ptr<ContextCallback> contextCallback = ContextCallback::NewInstance(iamCallback, TRACE_ADD_CREDENTIAL);
+    g_userAuthService.StartLocalRemoteAuthContext(para, localRemoteAuthContextParam, contextCallback);
+    EnsureTask();
+    IAM_LOGI("end");
+}
+
 void FuzzStartAuth(Parcel &parcel)
 {
     IAM_LOGI("begin");
@@ -759,6 +802,7 @@ void FuzzQueryReusableAuthResult(Parcel &parcel)
     ipcAuthParamInner.reuseUnlockResult.isReuse = parcel.ReadBool();
     ipcAuthParamInner.reuseUnlockResult.reuseMode = parcel.ReadInt32();
     ipcAuthParamInner.reuseUnlockResult.reuseDuration = parcel.ReadUint64();
+    g_userAuthService.QueryReusableAuthResult(ipcAuthParamInner, token);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     g_userAuthService.QueryReusableAuthResult(ipcAuthParamInner, token);
@@ -861,6 +905,9 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzQueryReusableAuthResult,
     FuzzGetAuthLockState,
     FuzzProcessPinExpired,
+    FuzzProcessAuthParamForRemoteAuth,
+    FuzzCheckAuthPermissionAndParam,
+    FuzzStartLocalRemoteAuthContext
 };
 
 void UserAuthFuzzTest(const uint8_t *data, size_t size)
