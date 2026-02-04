@@ -23,6 +23,7 @@
 #include "iam_fuzz_test.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
+#include "mock_ipc_common.h"
 #include "user_idm_service.h"
 #include "dummy_iam_callback_interface.h"
 
@@ -180,6 +181,18 @@ void FuzzGetCredentialInfo(Parcel &parcel)
     sptr<IIdmGetCredInfoCallback> callback = GetFuzzIdmGetCredentialInfoCallback(parcel);
     int32_t funcResult = SUCCESS;
     g_userIdmService.GetCredentialInfo(userId, authType, callback, funcResult);
+    IAM_LOGI("end");
+}
+
+void FuzzGetCredentialInfoInner(Parcel &parcel)
+{
+    IAM_LOGI("begin");
+    int32_t userId = GetFuzzOptionalUserId(parcel);
+    auto authType = static_cast<AuthType>(parcel.ReadUint32());
+    std::vector<CredentialInfo> credInfoList;
+    IpcCommon::AddPermission(USE_USER_IDM_PERMISSION);
+    g_userIdmService.GetCredentialInfoInner(userId, authType, credInfoList);
+    IpcCommon::DeleteAllPermission();
     IAM_LOGI("end");
 }
 
@@ -397,7 +410,8 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzRegistCredChangeEventListener,
     FuzzGetCredentialInfoSync,
     FuzzClearUnavailableCredential,
-    FuzzGetSessionInfoMasked
+    FuzzGetSessionInfoMasked,
+    FuzzGetCredentialInfoInner
 };
 
 void UserIdmFuzzTest(const uint8_t *data, size_t size)
