@@ -156,7 +156,6 @@ ohos_fuzztest("RemoteAuthContextFuzzTest") {
     "access_token:libtoken_setproc",
     "c_utils:utils",
     "config_policy:configpolicy_util",
-    "common_event_service:cesfwk_innerkits",
     "drivers_interface_user_auth:libuser_auth_proxy_4.0",
     "drivers_interface_user_auth:libuser_auth_proxy_4.1",
     "eventhandler:libeventhandler",
