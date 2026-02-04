@@ -83,25 +83,6 @@ void FuzzHandleStrongAuthEvent(Parcel &parcel)
     IAM_LOGI("end");
 }
 
-void FuzzScreenlockStatusListener(Parcel &parcel)
-{
-    IAM_LOGI("begin");
-    EventFwk::MatchingSkills matchingSkills;
-    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_LOCKED);
-    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED);
-
-    EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
-    auto subscriber = std::make_shared<ScreenlockStatusListener>(subscribeInfo);
-    EventFwk::Want want;
-    want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_LOCKED);
-    EventFwk::CommonEventData data(want);
-    subscriber->OnReceiveEvent(data);
-    want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED);
-    EventFwk::CommonEventData data1(want);
-    subscriber->OnReceiveEvent(data1);
-    IAM_LOGI("end");
-}
-
 void FuzzStrongAuthStatusManager(Parcel &parcel)
 {
     IAM_LOGI("begin");
@@ -136,7 +117,6 @@ RiskEventManagerFuzzFunc *g_RiskEventManagerFuzzFuncs[] = {
     FuzzRiskEventManagerMain,
     FuzzGetTemplateIdList,
     FuzzHandleStrongAuthEvent,
-    FuzzScreenlockStatusListener,
     FuzzStrongAuthStatusManager,
     FuzzOsAccountsManager,
 };
