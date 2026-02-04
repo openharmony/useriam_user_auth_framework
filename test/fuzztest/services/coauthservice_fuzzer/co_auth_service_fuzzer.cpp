@@ -222,6 +222,30 @@ void FuzzUnRegisterAccessTokenListener(Parcel &parcel)
     IAM_LOGI("FuzzNotifyFwkReady end");
 }
 
+void FuzzInitExecutorRegisterInfo(Parcel &parcel)
+{
+    IAM_LOGI("FuzzInitExecutorRegisterInfo begin");
+    IpcExecutorRegisterInfo ipcExecutorRegisterInfo = {};
+    ipcExecutorRegisterInfo.authType = static_cast<AuthType>(parcel.ReadUint32());
+    ExecutorRegisterInfo executorRegisterInfo = {};
+    g_coAuthService->InitExecutorRegisterInfo(ipcExecutorRegisterInfo, executorRegisterInfo);
+    IAM_LOGI("FuzzInitExecutorRegisterInfo end");
+}
+
+void FuzzCallbackEnter(Parcel &parcel)
+{
+    IAM_LOGI("FuzzCallbackEnter begin");
+    g_coAuthService->CallbackEnter(parcel.ReadUint32());
+    IAM_LOGI("FuzzCallbackEnter end");
+}
+
+void FuzzCallbackExit(Parcel &parcel)
+{
+    IAM_LOGI("FuzzCallbackExit begin");
+    g_coAuthService->CallbackExit(parcel.ReadUint32(), parcel.ReadInt32());
+    IAM_LOGI("FuzzCallbackExit end");
+}
+
 using FuzzFunc = decltype(FuzzRegister);
 FuzzFunc *g_fuzzFuncs[] = {
     FuzzRegister,
@@ -231,6 +255,9 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzOther,
     FuzzNotifyFwkReady,
     FuzzUnRegisterAccessTokenListener,
+    FuzzInitExecutorRegisterInfo,
+    FuzzCallbackEnter,
+    FuzzCallbackExit,
 };
 
 void CoAuthFuzzTest(const uint8_t *data, size_t size)
