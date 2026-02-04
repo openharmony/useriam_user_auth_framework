@@ -80,6 +80,54 @@ uint64_t FfiUserAuthStart(const CjAuthParam &authParam, const CjWidgetParam &wid
     return UserAuthClientImpl::Instance().BeginWidgetAuth(API_VERSION_10, authParamInner, widgetInner, callback);
 }
 
+// 新增 V2 接口：通过 callbackMgrId 间接调用仓颉回调，避免野指针
+uint64_t FfiUserAuthStartV2(const CjAuthParam &authParam, const CjWidgetParam &widgetParam,
+    int64_t callbackMgrId)
+{
+    constexpr int32_t API_VERSION_10 = 10;
+    
+    // 1. 转换认证类型参数
+    std::vector<AuthType> authTypes;
+    for (int i = 0; i < authParam.authTypesLen; ++i) {
+        authTypes.push_back(AuthType(authParam.authTypes[i]));
+    }
+    
+    // 2. 构造内部认证参数
+    WidgetAuthParam authParamInner{
+        .userId = INVALID_USER_ID,
+        .challenge = std::vector<uint8_t>(authParam.challenge, authParam.challenge + authParam.challengeLen),
+        .authTypes = authTypes,
+        .authTrustLevel = AuthTrustLevel(authParam.authTrustLevel),
+    };
+    
+    // 3. 处理复用解锁结果配置
+    if (authParam.isReuse) {
+        authParamInner.reuseUnlockResult = {
+            .isReuse = true,
+            .reuseMode = ReuseMode(authParam.reuseMode),
+            .reuseDuration = authParam.reuseDuration,
+        };
+    }
+
+    // 4. 构造 Widget 参数
+    WidgetParam widgetInner = {
+        .title = widgetParam.title,
+        .navigationButtonText = widgetParam.navigationButtonText ? widgetParam.navigationButtonText : "",
+        .windowMode = WindowModeType::UNKNOWN_WINDOW_MODE,
+    };
+
+    // 5. 创建 Callback 对象，lambda 捕获 callbackMgrId
+    auto callbackPtr = std::make_shared<CjUserAuthCallback>(
+        [callbackMgrId](CjUserAuthResult result) -> void {
+            // 通过外部 C 函数桥接到仓颉侧
+            CangjieInvokeCallback(result, callbackMgrId);
+        }
+    );
+
+    // 6. 传递给底层框架，返回 contextId
+    return UserAuthClientImpl::Instance().BeginWidgetAuth(API_VERSION_10, authParamInner, widgetInner, callbackPtr);
+}
+
 int32_t FfiUserAuthCancel(const uint64_t contextId)
 {
     return UserAuthClientImpl::GetInstance().CancelAuthentication(contextId);
