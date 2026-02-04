@@ -809,6 +809,20 @@ void FuzzGetAuthLockState(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzProcessPinExpired(Parcel &parcel)
+{
+    IAM_LOGI("FuzzProcessPinExpired begin");
+    int32_t ret = parcel.ReadInt32();
+    AuthParamInner authParam = {};
+    std::vector<AuthType> validType = {};
+    ContextFactory::AuthWidgetContextPara para = {};
+    g_userAuthService.ProcessPinExpired(ret, authParam, validType, para);
+    authParam.authType = AuthType::PRIVATE_PIN;
+    g_userAuthService.ProcessPinExpired(PIN_EXPIRED, authParam, validType, para);
+    EnsureTask();
+    IAM_LOGI("FuzzProcessPinExpired end");
+}
+
 using FuzzFunc = decltype(FuzzGetAvailableStatus);
 FuzzFunc *g_fuzzFuncs[] = {
     FuzzGetResourseNode,
@@ -846,6 +860,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzGetAuthTokenAttr,
     FuzzQueryReusableAuthResult,
     FuzzGetAuthLockState,
+    FuzzProcessPinExpired,
 };
 
 void UserAuthFuzzTest(const uint8_t *data, size_t size)
