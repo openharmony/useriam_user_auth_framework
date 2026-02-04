@@ -534,6 +534,25 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestParseAttributes001, TestSize.
     authType = ALL;
     EXPECT_EQ(AuthWidgetHelper::ParseAttributes(attributes, authType, authProfile), true);
 }
+
+HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestGetAuthCredentialList, TestSize.Level0)
+{
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).WillOnce(Return(HDF_FAILURE));
+    int32_t userId = 100;
+    AuthType authType = PIN;
+    std::vector<uint64_t> credentialIdList = {};
+    std::vector<std::shared_ptr<CredentialInfoInterface>> credentialInfos = {};
+    EXPECT_EQ(AuthWidgetHelper::GetAuthCredentialList(userId, authType, credentialIdList, credentialInfos), false);
+    EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).WillOnce(Return(HDF_SUCCESS));
+    EXPECT_EQ(AuthWidgetHelper::GetAuthCredentialList(userId, authType, credentialIdList, credentialInfos), true);
+
+    credentialIdList.push_back(1);
+    EXPECT_CALL(*mockHdi, GetCredentialById(_, _)).WillOnce(Return(HDF_FAILURE));
+    EXPECT_EQ(AuthWidgetHelper::GetAuthCredentialList(userId, authType, credentialIdList, credentialInfos), false);
+    EXPECT_CALL(*mockHdi, GetCredentialById(_, _)).WillOnce(Return(HDF_SUCCESS));
+    EXPECT_EQ(AuthWidgetHelper::GetAuthCredentialList(userId, authType, credentialIdList, credentialInfos), true);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

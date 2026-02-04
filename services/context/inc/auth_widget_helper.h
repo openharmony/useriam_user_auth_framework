@@ -32,7 +32,7 @@ public:
     static int32_t CheckReuseUnlockResult(const ContextFactory::AuthWidgetContextPara &para,
         const AuthParamInner &authParam, Attributes &extraInfo);
     static bool GetUserAuthProfile(int32_t userId, const AuthType &authType,
-        ContextFactory::AuthProfile &profile);
+        ContextFactory::AuthProfile &profile, std::vector<uint64_t> credentialIdList);
     static int32_t QueryReusableAuthResult(const int32_t userId, const AuthParamInner &authParam,
         HdiReuseUnlockInfo &reuseResultInfo);
 
@@ -43,6 +43,9 @@ private:
         ContextFactory::AuthProfile &profile);
     static int32_t SetReuseUnlockResult(int32_t apiVersion, const HdiReuseUnlockInfo &info,
         Attributes &extraInfo);
+    static bool GetAuthCredentialList(int32_t userId, const AuthType &authType,
+        const std::vector<uint64_t> &credentialIdList,
+        std::vector<std::shared_ptr<CredentialInfoInterface>> &credentialInfos);
 };
 } // namespace UserAuth
 } // namespace UserIam
