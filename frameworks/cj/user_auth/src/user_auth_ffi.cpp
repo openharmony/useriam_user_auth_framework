@@ -19,6 +19,7 @@
 #include "user_auth_ffi.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
+#define LOG_TAG "USER_AUTH_NAPI"
 
 using namespace OHOS::UserIam::UserAuth;
 
@@ -82,11 +83,11 @@ uint64_t FfiUserAuthStart(const CjAuthParam &authParam, const CjWidgetParam &wid
     return UserAuthClientImpl::Instance().BeginWidgetAuth(API_VERSION_10, authParamInner, widgetInner, callback);
 }
 
-// 新增 V2 接口：通过 callbackMgrId 间接调用仓颉回调，避免野指针
+// 新增 V2 接口：通过回调函数指针 + callbackMgrId，避免野指针
 uint64_t FfiUserAuthStartV2(const CjAuthParam &authParam, const CjWidgetParam &widgetParam,
-    int64_t callbackMgrId)
+    void (*callback)(CjUserAuthResult, int64_t), int64_t callbackMgrId)
 {
-    IAM_LOGI("FfiUserAuthStartV2: callbackMgrId=%{public}" PRId64, callbackMgrId);
+    IAM_LOGI("FfiUserAuthStartV2: callbackMgrId=%ld", callbackMgrId);
     constexpr int32_t API_VERSION_10 = 10;
     
     // 1. 转换认证类型参数
@@ -119,23 +120,21 @@ uint64_t FfiUserAuthStartV2(const CjAuthParam &authParam, const CjWidgetParam &w
         .windowMode = WindowModeType::UNKNOWN_WINDOW_MODE,
     };
 
-    // 5. 创建 Callback 对象，lambda 捕获 callbackMgrId
-    auto callbackPtr = std::make_shared<CjUserAuthCallback>(
-        [callbackMgrId](CjUserAuthResult result) -> void {
-            // 通过外部 C 函数桥接到仓颉侧
-            IAM_LOGI("Lambda callback: callbackMgrId=%{public}" PRId64 ", result=%{public}d", callbackMgrId, result.result);
-            InvokeCallback(result, callbackMgrId);
-        }
-    );
+    // // 5. 创建 Callback 对象，lambda 捕获 callbackMgrId
+    // auto callbackPtr = std::make_shared<CjUserAuthCallback>(
+    //     [callbackMgrId](CjUserAuthResult result) -> void {
+    //         // 通过外部 C 函数桥接到仓颉侧
+    //         IAM_LOGI("Lambda callback: callbackMgrId=%{public}" PRId64 ", result=%{public}d", callbackMgrId, result.result);
+    //         InvokeCallback(result, callbackMgrId);
+    //     }
+    // );
 
+     // 5. 创建 Callback 对象，通过 CJLambda 包装仓颉回调
+    auto cjCallback = CJLambda::Create(callback, callbackMgrId);
+    auto callbackPtr = std::make_shared<CjUserAuthCallback>(cjCallback);
+    IAM_LOGI("FfiUserAuthStartV2: success");
     // 6. 传递给底层框架，返回 contextId
     return UserAuthClientImpl::Instance().BeginWidgetAuth(API_VERSION_10, authParamInner, widgetInner, callbackPtr);
-}
-
-// 弱符号空实现：C++ 单独编译时使用，最终链接时被仓颉侧实现覆盖
-extern "C" __attribute__((weak)) void InvokeCallback(CjUserAuthResult result, int64_t callbackMgrId)
-{
-    // 空实现，实际由仓颉侧提供
 }
 
 int32_t FfiUserAuthCancel(const uint64_t contextId)
