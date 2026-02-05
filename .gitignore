@@ -1,9 +1,6 @@
 #vscode
 .vscode
 
-#format
-.clang-format
-
 # Prerequisites
 *.d
 

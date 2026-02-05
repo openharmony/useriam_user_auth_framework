@@ -15,8 +15,14 @@
 
 #include "load_mode_handler_default.h"
 
+#include "iservice_registry.h"
+#include "os_account_manager.h"
+#include "system_ability_definition.h"
+
+#include "iam_check.h"
 #include "iam_logger.h"
 #include "system_param_manager.h"
+#include "user_idm_database.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 
@@ -42,6 +48,7 @@ void LoadModeHandlerDefault::OnFwkReady()
 {
     IAM_LOGI("fwk ready");
     SystemParamManager::GetInstance().SetParamTwice(FWK_READY_KEY, FALSE_STR, TRUE_STR);
+    CheckStartCompanionDeviceSa();
 }
 
 void LoadModeHandlerDefault::OnExecutorRegistered(AuthType authType, ExecutorRole executorRole)
@@ -58,7 +65,11 @@ void LoadModeHandlerDefault::OnExecutorUnregistered(AuthType authType, ExecutorR
 
 void LoadModeHandlerDefault::OnCredentialUpdated(AuthType authType)
 {
-    (void)authType;
+    if (authType != AuthType::COMPANION_DEVICE) {
+        return;
+    }
+    IAM_LOGI("on credential updated authType %{public}d", authType);
+    CheckStartCompanionDeviceSa();
 }
 
 void LoadModeHandlerDefault::OnPinAuthServiceReady()
@@ -95,6 +106,63 @@ void LoadModeHandlerDefault::CancelCheckServiceReadyTimer()
 
 void LoadModeHandlerDefault::TriggerAllServiceStart()
 {
+}
+
+std::optional<bool> LoadModeHandlerDefault::AnyUserHasCompanionDeviceCredential()
+{
+    std::vector<AccountSA::OsAccountInfo> osAccountInfo;
+    ErrCode errCode = AccountSA::OsAccountManager::QueryAllCreatedOsAccounts(osAccountInfo);
+    if (errCode != ERR_OK) {
+        IAM_LOGE("QueryAllCreatedOsAccounts fail, errCode = %{public}d", errCode);
+        return std::nullopt;
+    }
+
+    for (auto &info : osAccountInfo) {
+        int32_t userId = info.GetLocalId();
+        std::vector<std::shared_ptr<CredentialInfoInterface>> credInfos;
+        int32_t getCredRet =
+            UserIdmDatabase::Instance().GetCredentialInfo(userId, AuthType::COMPANION_DEVICE, credInfos);
+        if (getCredRet != SUCCESS) {
+            IAM_LOGI("failed to get credential info ret %{public}d", getCredRet);
+            continue;
+        }
+
+        if (!credInfos.empty()) {
+            IAM_LOGI("user %{public}d companion device credential number %{public}zu", userId, credInfos.size());
+            return true;
+        }
+        IAM_LOGI("user %{public}d has no companion device credential", userId);
+    }
+    return false;
+}
+
+void LoadModeHandlerDefault::CheckStartCompanionDeviceSa()
+{
+    auto samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    IF_FALSE_LOGE_AND_RETURN(samgr != nullptr);
+
+    sptr<IRemoteObject> object = samgr->GetSystemAbility(SUBSYS_USERIAM_SYS_ABILITY_COMPANIONDEVICEAUTH);
+    if (object != nullptr) {
+        IAM_LOGI("companion device sa already started");
+        return;
+    }
+
+    SystemParamManager::GetInstance().SetParam(CDA_IS_FUNCTION_READY_KEY, FALSE_STR);
+
+    auto hasCredentialRet = AnyUserHasCompanionDeviceCredential();
+    if (!hasCredentialRet.has_value()) {
+        IAM_LOGE("fail to check companion device credential");
+        return;
+    }
+
+    bool hasCompanionDeviceCredential = hasCredentialRet.value();
+    if (!hasCompanionDeviceCredential) {
+        IAM_LOGI("no user has companion device credential");
+        return;
+    }
+
+    SystemParamManager::GetInstance().SetParamTwice(CDA_START_SA_KEY, FALSE_STR, TRUE_STR);
+    IAM_LOGI("start companion device sa");
 }
 } // namespace UserAuth
 } // namespace UserIam
