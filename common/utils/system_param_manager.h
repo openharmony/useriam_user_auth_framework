@@ -35,6 +35,8 @@ inline const char *STOP_SA_KEY = "useriam.stopSa";
 inline const char *START_SA_KEY = "useriam.startSa";
 inline const char *IDM_SESSION_INFO = "useriam.idmSessionInfo";
 inline const char *CREDENTIAL_UPDATED_KEY = "useriam.credUpdated";
+inline const char *CDA_START_SA_KEY = "companiondeviceauth.startSa";
+inline const char *CDA_IS_FUNCTION_READY_KEY = "companiondeviceauth.isFunctionReady";
 
 class SystemParamManager {
 public:

@@ -45,3 +45,11 @@ ohos_prebuilt_etc("useriam.init") {
   subsystem_name = "useriam"
   part_name = "user_auth_framework"
 }
+
+group("useriam_init_group") {
+  if (user_auth_framework_has_ext) {
+    deps = []
+  } else {
+    deps = [ ":useriam.init" ]
+  }
+}

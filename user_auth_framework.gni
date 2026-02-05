@@ -20,3 +20,7 @@ declare_args() {
     screenlock_client_enable = false
   }
 }
+
+user_auth_framework_has_ext =
+    defined(global_parts_info) &&
+    defined(global_parts_info.useriam_user_auth_framework_ext)
