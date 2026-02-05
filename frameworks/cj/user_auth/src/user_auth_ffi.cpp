@@ -130,9 +130,17 @@ uint64_t FfiUserAuthStartV2(const CjAuthParam &authParam, const CjWidgetParam &w
     // );
 
      // 5. 创建 Callback 对象，通过 CJLambda 包装仓颉回调
-    auto cjCallback = CJLambda::Create(callback, callbackMgrId);
-    auto callbackPtr = std::make_shared<CjUserAuthCallback>(cjCallback);
-    IAM_LOGI("FfiUserAuthStartV2: success");
+    // callback 的签名是 void (*)(CjUserAuthResult, int64_t)，需要适配为单参数回调
+    auto cjCallbackV2 = CJLambda::Create(callback);  // 双参数回调
+    
+    // 创建适配器：捕获 callbackMgrId，适配为单参数回调
+    auto cjCallbackAdapter = [cjCallbackV2, callbackMgrId](CjUserAuthResult result) {
+        // 调用双参数回调，传递 callbackMgrId
+        cjCallbackV2(result, callbackMgrId);
+    };
+    
+    auto callbackPtr = std::make_shared<CjUserAuthCallback>(cjCallbackAdapter);
+     IAM_LOGI("FfiUserAuthStartV2: success");
     // 6. 传递给底层框架，返回 contextId
     return UserAuthClientImpl::Instance().BeginWidgetAuth(API_VERSION_10, authParamInner, widgetInner, callbackPtr);
 }
