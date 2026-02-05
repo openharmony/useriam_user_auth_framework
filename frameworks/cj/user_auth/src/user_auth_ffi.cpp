@@ -120,7 +120,7 @@ uint64_t FfiUserAuthStartV2(const CjAuthParam &authParam, const CjWidgetParam &w
     auto callbackPtr = std::make_shared<CjUserAuthCallback>(
         [callbackMgrId](CjUserAuthResult result) -> void {
             // 通过外部 C 函数桥接到仓颉侧
-            CangjieInvokeCallback(result, callbackMgrId);
+            InvokeCallback(result, callbackMgrId);
         }
     );
 
