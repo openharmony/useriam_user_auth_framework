@@ -17,6 +17,8 @@
 #include "user_auth_client_impl.h"
 
 #include "user_auth_ffi.h"
+#include "iam_logger.h"
+#include "iam_ptr.h"
 
 using namespace OHOS::UserIam::UserAuth;
 
@@ -84,6 +86,7 @@ uint64_t FfiUserAuthStart(const CjAuthParam &authParam, const CjWidgetParam &wid
 uint64_t FfiUserAuthStartV2(const CjAuthParam &authParam, const CjWidgetParam &widgetParam,
     int64_t callbackMgrId)
 {
+    IAM_LOGI("FfiUserAuthStartV2: callbackMgrId=%{public}" PRId64, callbackMgrId);
     constexpr int32_t API_VERSION_10 = 10;
     
     // 1. 转换认证类型参数
@@ -120,6 +123,7 @@ uint64_t FfiUserAuthStartV2(const CjAuthParam &authParam, const CjWidgetParam &w
     auto callbackPtr = std::make_shared<CjUserAuthCallback>(
         [callbackMgrId](CjUserAuthResult result) -> void {
             // 通过外部 C 函数桥接到仓颉侧
+            IAM_LOGI("Lambda callback: callbackMgrId=%{public}" PRId64 ", result=%{public}d", callbackMgrId, result.result);
             InvokeCallback(result, callbackMgrId);
         }
     );

@@ -14,6 +14,9 @@
  */
 
 #include "user_auth_ffi.h"
+#include "iam_logger.h"
+#include "iam_ptr.h"
+
 
 using namespace OHOS::UserIam::UserAuth;
 
@@ -25,7 +28,8 @@ void CjUserAuthCallback::OnAcquireInfo(const int32_t module, const uint32_t acqu
 }
 
 void CjUserAuthCallback::OnResult(const int32_t result, const Attributes &extraInfo)
-{
+{   
+    IAM_LOGI("OnResult: after calling start");
     if (this->onResult_ == nullptr) {
         return;
     }
@@ -45,5 +49,7 @@ void CjUserAuthCallback::OnResult(const int32_t result, const Attributes &extraI
     extraInfo.GetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, ret.credentialDigest);
     extraInfo.GetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, ret.credentialCount);
 
+    IAM_LOGI("OnResult: before calling onResult_, result=%{public}d, tokenLen=%{public}" PRId64, ret.result, ret.tokenLen);
     this->onResult_(ret);
+    IAM_LOGI("OnResult: after calling onResult_");
 }
