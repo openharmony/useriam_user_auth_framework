@@ -128,6 +128,12 @@ uint64_t FfiUserAuthStartV2(const CjAuthParam &authParam, const CjWidgetParam &w
     return UserAuthClientImpl::Instance().BeginWidgetAuth(API_VERSION_10, authParamInner, widgetInner, callbackPtr);
 }
 
+// 弱符号空实现：C++ 单独编译时使用，最终链接时被仓颉侧实现覆盖
+extern "C" __attribute__((weak)) void InvokeCallback(CjUserAuthResult result, int64_t callbackMgrId)
+{
+    // 空实现，实际由仓颉侧提供
+}
+
 int32_t FfiUserAuthCancel(const uint64_t contextId)
 {
     return UserAuthClientImpl::GetInstance().CancelAuthentication(contextId);
