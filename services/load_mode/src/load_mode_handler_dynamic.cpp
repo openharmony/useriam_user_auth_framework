@@ -15,12 +15,12 @@
 
 #include "load_mode_handler_dynamic.h"
 
+#include "os_account_manager.h"
 #include "system_ability_definition.h"
 
 #include "driver_load_manager.h"
 #include "driver_state_manager.h"
 #include "hisysevent_adapter.h"
-#include "os_account_manager.h"
 #include "relative_timer.h"
 #include "service_unload_manager.h"
 #include "system_param_manager.h"

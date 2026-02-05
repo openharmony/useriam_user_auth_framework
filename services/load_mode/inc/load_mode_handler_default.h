@@ -19,6 +19,7 @@
 #include "load_mode_handler.h"
 
 #include <mutex>
+#include <optional>
 
 namespace OHOS {
 namespace UserIam {
@@ -44,6 +45,9 @@ public:
     void StartSubscribe() override;
 
 private:
+    std::optional<bool> AnyUserHasCompanionDeviceCredential();
+    void CheckStartCompanionDeviceSa();
+
     bool isSubscribed_ = false;
     std::recursive_mutex mutex_;
 };
