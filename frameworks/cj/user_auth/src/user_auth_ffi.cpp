@@ -89,13 +89,13 @@ uint64_t FfiUserAuthStartV2(const CjAuthParam &authParam, const CjWidgetParam &w
 {
     IAM_LOGI("FfiUserAuthStartV2: callbackMgrId=%ld", callbackMgrId);
     constexpr int32_t API_VERSION_10 = 10;
-    
+
     // 1. 转换认证类型参数
     std::vector<AuthType> authTypes;
     for (int i = 0; i < authParam.authTypesLen; ++i) {
         authTypes.push_back(AuthType(authParam.authTypes[i]));
     }
-    
+
     // 2. 构造内部认证参数
     WidgetAuthParam authParamInner{
         .userId = INVALID_USER_ID,
@@ -103,7 +103,7 @@ uint64_t FfiUserAuthStartV2(const CjAuthParam &authParam, const CjWidgetParam &w
         .authTypes = authTypes,
         .authTrustLevel = AuthTrustLevel(authParam.authTrustLevel),
     };
-    
+
     // 3. 处理复用解锁结果配置
     if (authParam.isReuse) {
         authParamInner.reuseUnlockResult = {
@@ -120,22 +120,10 @@ uint64_t FfiUserAuthStartV2(const CjAuthParam &authParam, const CjWidgetParam &w
         .windowMode = WindowModeType::UNKNOWN_WINDOW_MODE,
     };
 
-    // // 5. 创建 Callback 对象，lambda 捕获 callbackMgrId
-    // auto callbackPtr = std::make_shared<CjUserAuthCallback>(
-    //     [callbackMgrId](CjUserAuthResult result) -> void {
-    //         // 通过外部 C 函数桥接到仓颉侧
-    //         IAM_LOGI("Lambda callback: callbackMgrId=%{public}" PRId64 ", result=%{public}d", callbackMgrId, result.result);
-    //         InvokeCallback(result, callbackMgrId);
-    //     }
-    // );
-
      // 5. 创建 Callback 对象，通过 CJLambda 包装仓颉回调
-    // callback 的签名是 void (*)(CjUserAuthResult, int64_t)，需要适配为单参数回调
     auto cjCallbackV2 = CJLambda::Create(callback);  // 双参数回调
     
-    // 创建适配器：捕获 callbackMgrId，适配为单参数回调
     auto cjCallbackAdapter = [cjCallbackV2, callbackMgrId](CjUserAuthResult result) {
-        // 调用双参数回调，传递 callbackMgrId
         cjCallbackV2(result, callbackMgrId);
     };
     
