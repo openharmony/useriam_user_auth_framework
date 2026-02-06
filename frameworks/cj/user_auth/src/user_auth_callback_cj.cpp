@@ -50,7 +50,6 @@ void CjUserAuthCallback::OnResult(const int32_t result, const Attributes &extraI
              ret.result, ret.tokenLen, ret.token);
 
     extraInfo.GetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, ret.credentialDigest);
-
     extraInfo.GetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, ret.credentialCount);
     
     this->onResult_(ret);
