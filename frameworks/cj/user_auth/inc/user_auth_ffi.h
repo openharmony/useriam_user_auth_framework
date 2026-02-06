@@ -43,8 +43,7 @@ FFI_EXPORT uint64_t FfiUserAuthStart(const CjAuthParam &authParam, const CjWidge
 FFI_EXPORT int32_t FfiUserAuthCancel(uint64_t contextId);
 
 // V2 接口：解决野指针问题，通过 callbackMgrId 间接调用仓颉回调
-FFI_EXPORT uint64_t FfiUserAuthStartV2(const CjAuthParam &authParam, const CjWidgetParam &widgetParam,
-    void (*callback)(CjUserAuthResult, int64_t), int64_t callbackMgrId);    
+FFI_EXPORT uint64_t FfiUserAuthStartV2(const CjAuthParam* authParam, const CjWidgetParam* widgetParam, int64_t callbackId, int64_t callbackMgrId);   
 
 }
 
