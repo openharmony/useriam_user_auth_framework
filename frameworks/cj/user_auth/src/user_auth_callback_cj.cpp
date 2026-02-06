@@ -36,41 +36,32 @@ void CjUserAuthCallback::OnResult(const int32_t result, const Attributes &extraI
     }
 
     std::vector<uint8_t> token;
-    extraInfo.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, token);
+    bool hasToken = extraInfo.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, token);
+    IAM_LOGI("OnResult: GetUint8ArrayValue(ATTR_SIGNATURE) returned %s, token.size=%zu", 
+             hasToken ? "true" : "false", token.size());
     int32_t authType{0};
-    extraInfo.GetInt32Value(Attributes::ATTR_AUTH_TYPE, authType);
-
-    // 创建 token 的堆拷贝，避免悬空指针
-    uint8_t* tokenCopy = nullptr;
-    int64_t tokenLen = static_cast<int64_t>(token.size());
-    IAM_LOGI("OnResult: token size=%ld, preparing heap copy", tokenLen);
-    
-    if (tokenLen > 0) {
-        tokenCopy = new uint8_t[tokenLen];
-        std::copy(token.begin(), token.end(), tokenCopy);
-        IAM_LOGI("OnResult: token copied to heap, address=%p", tokenCopy);
-    } else {
-        IAM_LOGI("OnResult: token is empty, no heap allocation");
-    }
+    bool hasAuthType = extraInfo.GetInt32Value(Attributes::ATTR_AUTH_TYPE, authType);
+    IAM_LOGI("OnResult: GetInt32Value(ATTR_AUTH_TYPE) returned %s, authType=%d", 
+             hasAuthType ? "true" : "false", authType);
 
     CjUserAuthResult ret = {
         .result = result,
-        .token = tokenCopy,  // 使用堆拷贝
-        .tokenLen = tokenLen,
+        .token = token.data(),
+        .tokenLen = static_cast<int64_t>(token.size()),
         .authType = static_cast<uint32_t>(authType),
     };
-
-    extraInfo.GetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, ret.credentialDigest);
-    extraInfo.GetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, ret.credentialCount);
-
     IAM_LOGI("OnResult: before calling onResult_, result=%d, tokenLen=%ld, token=%p", 
              ret.result, ret.tokenLen, ret.token);
-    this->onResult_(ret);
-    IAM_LOGI("OnResult: after calling onResult_, about to delete tokenCopy=%p", tokenCopy);
+
+    bool hasDigest = extraInfo.GetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, ret.credentialDigest);
+    IAM_LOGI("OnResult: GetUint64Value(ATTR_CREDENTIAL_DIGEST) returned %s, credentialDigest=%ld", 
+             hasDigest ? "true" : "false", ret.credentialDigest);
+
+    bool hasCount = extraInfo.GetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, ret.credentialCount);
+    IAM_LOGI("OnResult: GetUint16Value(ATTR_CREDENTIAL_COUNT) returned %s, credentialCount=%u", 
+             hasCount ? "true" : "false", ret.credentialCount);
     
-    // 仓颉侧已经拷贝完数据，释放堆内存
-    if (tokenCopy != nullptr) {
-        delete[] tokenCopy;
-        IAM_LOGI("OnResult: tokenCopy deleted successfully");
-    }
+    this->onResult_(ret);
+    IAM_LOGI("OnResult: after calling onResult_");
+    
 }
