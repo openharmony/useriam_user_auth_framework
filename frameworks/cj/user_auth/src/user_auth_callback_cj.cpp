@@ -36,13 +36,9 @@ void CjUserAuthCallback::OnResult(const int32_t result, const Attributes &extraI
     }
 
     std::vector<uint8_t> token;
-    bool hasToken = extraInfo.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, token);
-    IAM_LOGI("OnResult: GetUint8ArrayValue(ATTR_SIGNATURE) returned %s, token.size=%zu", 
-             hasToken ? "true" : "false", token.size());
+    extraInfo.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, token);
     int32_t authType{0};
-    bool hasAuthType = extraInfo.GetInt32Value(Attributes::ATTR_AUTH_TYPE, authType);
-    IAM_LOGI("OnResult: GetInt32Value(ATTR_AUTH_TYPE) returned %s, authType=%d", 
-             hasAuthType ? "true" : "false", authType);
+    extraInfo.GetInt32Value(Attributes::ATTR_AUTH_TYPE, authType);
 
     CjUserAuthResult ret = {
         .result = result,
@@ -53,13 +49,9 @@ void CjUserAuthCallback::OnResult(const int32_t result, const Attributes &extraI
     IAM_LOGI("OnResult: before calling onResult_, result=%d, tokenLen=%ld, token=%p", 
              ret.result, ret.tokenLen, ret.token);
 
-    bool hasDigest = extraInfo.GetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, ret.credentialDigest);
-    IAM_LOGI("OnResult: GetUint64Value(ATTR_CREDENTIAL_DIGEST) returned %s, credentialDigest=%ld", 
-             hasDigest ? "true" : "false", ret.credentialDigest);
+    extraInfo.GetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, ret.credentialDigest);
 
-    bool hasCount = extraInfo.GetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, ret.credentialCount);
-    IAM_LOGI("OnResult: GetUint16Value(ATTR_CREDENTIAL_COUNT) returned %s, credentialCount=%u", 
-             hasCount ? "true" : "false", ret.credentialCount);
+    extraInfo.GetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, ret.credentialCount);
     
     this->onResult_(ret);
     IAM_LOGI("OnResult: after calling onResult_");
