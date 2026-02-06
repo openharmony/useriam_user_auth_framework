@@ -92,31 +92,31 @@ FFI_EXPORT uint64_t FfiUserAuthStartV2(const CjAuthParam* authParam, const CjWid
 
     // 1. 转换认证类型参数
     std::vector<AuthType> authTypes;
-    for (int i = 0; i < authParam.authTypesLen; ++i) {
-        authTypes.push_back(AuthType(authParam.authTypes[i]));
+    for (int i = 0; i < authParam -> authTypesLen; ++i) {
+        authTypes.push_back(AuthType(authParam -> authTypes[i]));
     }
 
     // 2. 构造内部认证参数
     WidgetAuthParam authParamInner{
         .userId = INVALID_USER_ID,
-        .challenge = std::vector<uint8_t>(authParam.challenge, authParam.challenge + authParam.challengeLen),
+        .challenge = std::vector<uint8_t>(authParam -> challenge, authParam -> challenge + authParam -> challengeLen),
         .authTypes = authTypes,
-        .authTrustLevel = AuthTrustLevel(authParam.authTrustLevel),
+        .authTrustLevel = AuthTrustLevel(authParam -> authTrustLevel),
     };
 
     // 3. 处理复用解锁结果配置
-    if (authParam.isReuse) {
+    if (authParam -> isReuse) {
         authParamInner.reuseUnlockResult = {
             .isReuse = true,
-            .reuseMode = ReuseMode(authParam.reuseMode),
-            .reuseDuration = authParam.reuseDuration,
+            .reuseMode = ReuseMode(authParam -> reuseMode),
+            .reuseDuration = authParam -> reuseDuration,
         };
     }
 
     // 4. 构造 Widget 参数
     WidgetParam widgetInner = {
-        .title = widgetParam.title,
-        .navigationButtonText = widgetParam.navigationButtonText ? widgetParam.navigationButtonText : "",
+        .title = widgetParam -> title,
+        .navigationButtonText = widgetParam -> navigationButtonText ? widgetParam -> navigationButtonText : "",
         .windowMode = WindowModeType::UNKNOWN_WINDOW_MODE,
     };
 
