@@ -85,7 +85,7 @@ uint64_t FfiUserAuthStart(const CjAuthParam &authParam, const CjWidgetParam &wid
 
 // 新增 V2 接口：通过回调函数指针 + callbackMgrId，避免野指针
 FFI_EXPORT uint64_t FfiUserAuthStartV2(const CjAuthParam* authParam, const CjWidgetParam* widgetParam, 
-    int64_t callbackId, int64_t callbackMgrId);
+    int64_t callbackId, int64_t callbackMgrId)
 {
     IAM_LOGI("FfiUserAuthStartV2: callbackMgrId=%ld", callbackMgrId);
     constexpr int32_t API_VERSION_10 = 10;

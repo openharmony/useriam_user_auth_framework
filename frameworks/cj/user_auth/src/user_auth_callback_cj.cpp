@@ -30,7 +30,8 @@ void CjUserAuthCallback::OnAcquireInfo(const int32_t module, const uint32_t acqu
 
 void CjUserAuthCallback::OnResult(const int32_t result, const Attributes &extraInfo)
 {
-   if (this->onResult_ == nullptr) {
+
+    if (this->onResult_ == nullptr) {
         return;
     }
 
