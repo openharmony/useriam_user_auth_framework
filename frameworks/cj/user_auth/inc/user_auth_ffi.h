@@ -46,6 +46,4 @@ FFI_EXPORT uint64_t FfiUserAuthStartV2(const CjAuthParam* authParam, const CjWid
     int64_t callbackId, int64_t callbackMgrId);
 
 }
-
-
 #endif // USER_AUTH_FFI_H
