@@ -87,8 +87,7 @@ uint64_t FfiUserAuthStart(const CjAuthParam &authParam, const CjWidgetParam &wid
 FFI_EXPORT uint64_t FfiUserAuthStartV2(const CjAuthParam* authParam, const CjWidgetParam* widgetParam,
     int64_t callbackId, int64_t callbackMgrId)
 {
-    IAM_LOGI("FfiUserAuthStartV2: callbackMgrId=%{public}" PRId64 ", callbackId=%{public}" PRId64,
-        callbackMgrId, callbackId);
+    IAM_LOGI("FfiUserAuthStartV2: start");
     constexpr int32_t API_VERSION_10 = 10;
 
     // 1. 转换认证类型参数
