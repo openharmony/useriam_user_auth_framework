@@ -45,8 +45,6 @@ void CjUserAuthCallback::OnResult(const int32_t result, const Attributes &extraI
         .tokenLen = static_cast<int64_t>(token.size()),
         .authType = static_cast<uint32_t>(authType),
     };
-    IAM_LOGI("OnResult: before calling onResult_, result=%d, tokenLen=%ld, token=%p", 
-             ret.result, ret.tokenLen, ret.token);
 
     extraInfo.GetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, ret.credentialDigest);
     extraInfo.GetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, ret.credentialCount);
