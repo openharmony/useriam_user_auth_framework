@@ -14,6 +14,10 @@
  */
 
 #include "user_auth_ffi.h"
+#include "iam_logger.h"
+#include "iam_ptr.h"
+#define LOG_TAG "USER_AUTH_NAPI"
+
 
 using namespace OHOS::UserIam::UserAuth;
 
@@ -44,6 +48,6 @@ void CjUserAuthCallback::OnResult(const int32_t result, const Attributes &extraI
 
     extraInfo.GetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, ret.credentialDigest);
     extraInfo.GetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, ret.credentialCount);
-
     this->onResult_(ret);
+    IAM_LOGI("OnResult: after calling onResult_");
 }
