@@ -384,6 +384,10 @@ UserAuthResultCode UserAuthInstanceV10::OnResult(userAuth::IAuthCallback const &
         IAM_LOGE("userAuthInstance OnResult callback is null");
         return UserAuthResultCode::GENERAL_ERROR;
     }
+    if (callback_->HasResultCallback()) {
+        IAM_LOGE("callback has been registered");
+        return UserAuthResultCode::GENERAL_ERROR;
+    }
     IAM_LOGI("getAuthInstance OnResult SetResultCallback");
     callback_->SetResultCallback(callback);
     return UserAuthResultCode::SUCCESS;
@@ -458,6 +462,10 @@ UserAuthResultCode UserAuthInstanceV10::onAuthTip(taihe::callback_view<void(user
     IAM_LOGI("UserAuthInstanceV10 onAuthTip.");
     if (callback_ == nullptr) {
         IAM_LOGE("userAuthInstance onAuthTip callback is null");
+        return UserAuthResultCode::GENERAL_ERROR;
+    }
+    if (callback_->HasTipCallback()) {
+        IAM_LOGE("callback has been registered");
         return UserAuthResultCode::GENERAL_ERROR;
     }
     IAM_LOGI("getAuthInstance onAuthTip SetTipCallback");
