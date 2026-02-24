@@ -141,7 +141,7 @@ void LoadModeHandlerDefault::CheckStartCompanionDeviceSa()
     auto samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     IF_FALSE_LOGE_AND_RETURN(samgr != nullptr);
 
-    sptr<IRemoteObject> object = samgr->GetSystemAbility(SUBSYS_USERIAM_SYS_ABILITY_COMPANIONDEVICEAUTH);
+    sptr<IRemoteObject> object = samgr->CheckSystemAbility(SUBSYS_USERIAM_SYS_ABILITY_COMPANIONDEVICEAUTH);
     if (object != nullptr) {
         IAM_LOGI("companion device sa already started");
         return;
