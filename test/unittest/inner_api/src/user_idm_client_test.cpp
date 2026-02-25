@@ -556,7 +556,7 @@ HWTEST_F(UserIdmClientTest, UserIdmClientRegistCredChangeEventListenerSuccess, T
         .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
             service->OnRemoteRequest(code, data, reply, option);
             return OHOS::NO_ERROR;
-        })
+        });
 
     ON_CALL(*service, RegistCredChangeEventListener)
         .WillByDefault(
