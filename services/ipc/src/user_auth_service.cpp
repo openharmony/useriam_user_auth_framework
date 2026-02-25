@@ -1265,6 +1265,7 @@ int32_t UserAuthService::CheckSkipLockedBiometricAuth(int32_t userId, const Auth
             IAM_LOGE("get user auth profile failed");
             continue;
         }
+
         if (profile.remainTimes != 0 || type == PIN || type == PRIVATE_PIN) {
             authTypeList.push_back(type);
         }
