@@ -183,8 +183,8 @@ bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t
     HdiEnrollResultInfo resultInfo = {};
     auto result = hdi->UpdateEnrollmentResult(enrollPara_.userId, scheduleResult, resultInfo);
     if (result != HDF_SUCCESS) {
-        HILOG_COMM_ERROR("hdi update enroll result failed, err is %{public}d, userId is %{public}d"
-            "credentialId: %{public}s", result, enrollPara_.userId, Common::GetMaskedString(credentialId).c_str());
+        HILOG_COMM_ERROR("hdi update enroll result failed, err is %{public}d, userId is %{public}d,"
+            " credentialId: %{public}s", result, enrollPara_.userId, Common::GetMaskedString(credentialId).c_str());
         SetLatestError(result);
         return false;
     }
