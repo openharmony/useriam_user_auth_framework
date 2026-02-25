@@ -16,7 +16,6 @@
 #include "modal_extension_callback.h"
 
 #include "ability.h"
-#include "system_ability_definition.h"
 #include "ui_holder_extension_context.h"
 
 #include "iam_logger.h"
