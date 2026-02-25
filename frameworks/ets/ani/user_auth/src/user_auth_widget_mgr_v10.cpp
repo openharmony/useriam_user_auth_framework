@@ -78,7 +78,7 @@ UserAuthResultCode UserAuthWidgetMgr::OffCommand(taihe::optional_view<userAuth::
         return UserAuthResultCode::GENERAL_ERROR;
     }
     if (!callback_->HasCommandCallback()) {
-        IAM_LOGE("no command callback registered yet");
+        IAM_LOGE("no command callback register yet");
         return UserAuthResultCode::GENERAL_ERROR;
     }
     IAM_LOGI("ClearCommandCallback");
