@@ -156,7 +156,6 @@ void ContextAppStateObserver::ProcAppStateChanged(int32_t userId)
         IAM_LOGI("context userId is %{public}d, appStateChanged userId is %{public}d", context->GetUserId(), userId);
         return;
     }
-
     if (!context->Stop()) {
         IAM_LOGE("failed to cancel enroll or auth");
         return;
