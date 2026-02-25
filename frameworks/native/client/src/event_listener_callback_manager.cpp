@@ -204,7 +204,7 @@ void IamServiceListener<T>::OnAddSystemAbility(int32_t systemAbilityId, const st
     IF_FALSE_LOGE_AND_RETURN(proxy->IsProxyObject());
 
     auto listenerImpl = EventListenerCallbackService::GetInstance();
-    IF_FALSE_LOGE_AND_RETURN_VAL(listenerImpl != nullptr);
+    IF_FALSE_LOGE_AND_RETURN(listenerImpl != nullptr);
     EventListenerCallbackManager<T>::GetInstance().RegisterListenerDispatcher(proxy, listenerImpl);
 }
 
