@@ -1242,9 +1242,9 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthPermissionAndParam_003, Te
     int32_t ret = service.CheckAuthPermissionAndParam(authParam, widgetParam, true);
     EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
 
-     authParam.credentialIdList.resize(MAX_USER_CREDENTIAL_SIZE + 1);
- 	     ret = service.CheckAuthPermissionAndParam(authParam, widgetParam, true);
- 	     EXPECT_EQ(ret, INVALID_PARAMETERS);
+    authParam.credentialIdList.resize(MAX_USER_CREDENTIAL_SIZE + 1);
+    ret = service.CheckAuthPermissionAndParam(authParam, widgetParam, true);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
     IpcCommon::DeleteAllPermission();
 }
 
