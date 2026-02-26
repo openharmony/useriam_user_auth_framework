@@ -241,7 +241,8 @@ void FuzzGetUserAuthProfile(Parcel &parcel)
     int32_t userId = MAIN_USER_ID;
     AuthType authType = PIN;
     ContextFactory::AuthProfile profile = {};
-    AuthWidgetHelper::GetUserAuthProfile(userId, authType, profile);
+    std::vector<uint64_t> credIds = {};
+    AuthWidgetHelper::GetUserAuthProfile(userId, authType, profile, credIds);
 }
 
 void FuzzParseAttributes(Parcel &parcel)
