@@ -749,6 +749,54 @@ HWTEST_F(UserAuthClientTest, UserAuthClientRegistUserAuthSuccessEventListener, T
     EXPECT_EQ(ret, GENERAL_ERROR);
 }
 
+HWTEST_F(UserAuthClientTest, UserAuthClientRegistUserAuthSuccessEventListenerSuccess, TestSize.Level0)
+{
+    auto service = Common::MakeShared<MockUserAuthService>();
+    EXPECT_NE(service, nullptr);
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    EXPECT_NE(obj, nullptr);
+    IpcClientUtils::SetObj(obj);
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    ON_CALL(*obj, SendRequest)
+        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            service->OnRemoteRequest(code, data, reply, option);
+            return OHOS::NO_ERROR;
+        });
+
+    ON_CALL(*service, RegistUserAuthSuccessEventListener)
+        .WillByDefault(
+            [](const sptr<IEventListenerCallback> &listener) {
+                return SUCCESS;
+            }
+        );
+
+    std::vector<AuthType> authTypeList = {AuthType::PIN};
+    auto testCallback = Common::MakeShared<MockAuthSuccessEventListener>();
+    int32_t ret = UserAuthClientImpl::Instance().RegistUserAuthSuccessEventListener(authTypeList, testCallback);
+    EXPECT_EQ(ret, SUCCESS);
+
+    auto listenerImpl = EventListenerCallbackService::GetInstance();
+    int32_t userId = 100;
+    int32_t authType = 1;
+    int32_t callerType = 1;
+    IpcCredChangeEventInfo eventInfo = {};
+    listenerImpl->OnNotifyCredChangeEvent(userId, authType, callerType, eventInfo);
+    uint32_t ipcCode = 1;
+    listenerImpl->CallbackEnter(ipcCode);
+    listenerImpl->CallbackExit(ipcCode, SUCCESS);
+    ret = UserAuthClientImpl::Instance().UnRegistUserAuthSuccessEventListener(testCallback);
+    EXPECT_EQ(ret, SUCCESS);
+    ON_CALL(*service, UnRegistUserAuthSuccessEventListener)
+        .WillByDefault(
+            [](const sptr<IEventListenerCallback> &listener) {
+                return SUCCESS;
+            }
+        );
+    ret = UserAuthClientImpl::Instance().UnRegistUserAuthSuccessEventListener(testCallback);
+    EXPECT_EQ(ret, SUCCESS);
+    IpcClientUtils::ResetObj();
+}
+
 HWTEST_F(UserAuthClientTest, UserAuthClientUnRegistUserAuthSuccessEventListener, TestSize.Level0)
 {
     int32_t ret = UserAuthClientImpl::Instance().UnRegistUserAuthSuccessEventListener(nullptr);
@@ -789,6 +837,19 @@ HWTEST_F(UserAuthClientTest, UserAuthClientGetNorthAvailableStatus, TestSize.Lev
     AuthTrustLevel testAtl = ATL1;
     int32_t ret = UserAuthClientImpl::Instance().GetNorthAvailableStatus(testApiVersion, testAuthType, testAtl);
     EXPECT_EQ(ret, GENERAL_ERROR);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthClientInitIpcRemoteAuthParam, TestSize.Level0)
+{
+    std::optional<RemoteAuthParam> remoteAuthParam = {};
+    RemoteAuthParam param = {};
+    param.verifierNetworkId = "123";
+    param.collectorNetworkId = "1233324321423412344134";
+    remoteAuthParam = param;
+    IpcRemoteAuthParam ipcRemoteAuthParam = {
+        .isHasRemoteAuthParam = true,
+    };
+    EXPECT_NO_THROW(UserAuthClientImpl::Instance().InitIpcRemoteAuthParam(remoteAuthParam, ipcRemoteAuthParam));
 }
 
 HWTEST_F(UserAuthClientTest, UserAuthClientGetPropertyById001, TestSize.Level0)
