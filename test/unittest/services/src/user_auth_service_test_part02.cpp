@@ -1227,13 +1227,13 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthPermissionAndParam_003, Te
 {
     UserAuthService service;
     std::vector<uint8_t> challenge = {1};
-    const AuthParamInner authParam = {
+    AuthParamInner authParam = {
         .challenge = challenge,
         .authTypes = {PIN, FACE, PRIVATE_PIN},
         .authTrustLevel = ATL2,
         .isUserIdSpecified = true,
     };
-    const WidgetParamInner widgetParam = {
+    WidgetParamInner widgetParam = {
         .title = "使用密码验证",
         .navigationButtonText = "navigationButtonText",
         .windowMode = WindowModeType::UNKNOWN_WINDOW_MODE,
@@ -1241,6 +1241,10 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthPermissionAndParam_003, Te
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     int32_t ret = service.CheckAuthPermissionAndParam(authParam, widgetParam, true);
     EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
+
+    authParam.credentialIdList.resize(MAX_USER_CREDENTIAL_SIZE + 1);
+    ret = service.CheckAuthPermissionAndParam(authParam, widgetParam, true);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
     IpcCommon::DeleteAllPermission();
 }
 
