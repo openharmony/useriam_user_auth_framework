@@ -544,6 +544,54 @@ HWTEST_F(UserIdmClientTest, UserIdmClientRegistCredChangeEventListener, TestSize
     EXPECT_EQ(ret, GENERAL_ERROR);
 }
 
+HWTEST_F(UserIdmClientTest, UserIdmClientRegistCredChangeEventListenerSuccess, TestSize.Level0)
+{
+    auto service = Common::MakeShared<MockUserIdmService>();
+    EXPECT_NE(service, nullptr);
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    EXPECT_NE(obj, nullptr);
+    IpcClientUtils::SetObj(obj);
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    ON_CALL(*obj, SendRequest)
+        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            service->OnRemoteRequest(code, data, reply, option);
+            return OHOS::NO_ERROR;
+        });
+
+    ON_CALL(*service, RegistCredChangeEventListener)
+        .WillByDefault(
+            [](const sptr<IEventListenerCallback> &listener) {
+                return SUCCESS;
+            }
+        );
+
+    std::vector<AuthType> authTypeList = {AuthType::PIN};
+    auto testCallback = Common::MakeShared<MockCredChangeEventListener>();
+    int32_t ret = UserIdmClient::GetInstance().RegistCredChangeEventListener(authTypeList, testCallback);
+    EXPECT_EQ(ret, SUCCESS);
+
+    auto listenerImpl = EventListenerCallbackService::GetInstance();
+    int32_t userId = 100;
+    int32_t authType = 1;
+    int32_t callerType = 1;
+    IpcCredChangeEventInfo eventInfo = {};
+    listenerImpl->OnNotifyCredChangeEvent(userId, authType, callerType, eventInfo);
+    uint32_t ipcCode = 1;
+    listenerImpl->CallbackEnter(ipcCode);
+    listenerImpl->CallbackExit(ipcCode, SUCCESS);
+    ret = UserIdmClient::GetInstance().UnRegistCredChangeEventListener(testCallback);
+    EXPECT_EQ(ret, SUCCESS);
+    ON_CALL(*service, UnRegistCredChangeEventListener)
+        .WillByDefault(
+            [](const sptr<IEventListenerCallback> &listener) {
+                return SUCCESS;
+            }
+        );
+    ret = UserIdmClient::GetInstance().UnRegistCredChangeEventListener(testCallback);
+    EXPECT_EQ(ret, SUCCESS);
+    IpcClientUtils::ResetObj();
+}
+
 HWTEST_F(UserIdmClientTest, UserIdmClientUnRegistCredChangeEventListener, TestSize.Level0)
 {
     int32_t ret = UserIdmClient::GetInstance().UnRegistCredChangeEventListener(nullptr);
