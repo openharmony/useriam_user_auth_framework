@@ -554,7 +554,7 @@ bool WidgetContext::ConnectExtension(const WidgetRotatePara &widgetRotatePara)
     if (widgetRotatePara.isReload) {
         for (auto &authType : para_.authTypeList) {
             ContextFactory::AuthProfile profile;
-            if (!AuthWidgetHelper::GetUserAuthProfile(para_.userId, authType, profile)) {
+            if (!AuthWidgetHelper::GetUserAuthProfile(para_.userId, authType, profile, para_.credentialIdList)) {
                 IAM_LOGE("get user authType:%{public}d profile failed", static_cast<int32_t>(authType));
                 return false;
             }
