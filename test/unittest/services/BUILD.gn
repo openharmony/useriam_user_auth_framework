@@ -156,6 +156,7 @@ ohos_unittest("iam_services_test") {
     "src/identification_impl_test.cpp",
     "src/identify_context_test.cpp",
     "src/ipc_common_test.cpp",
+    "src/load_mode_handler_default_test.cpp",
     "src/os_accounts_manager_test.cpp",
     "src/relative_timer_test.cpp",
     "src/remote_auth_context_test.cpp",
