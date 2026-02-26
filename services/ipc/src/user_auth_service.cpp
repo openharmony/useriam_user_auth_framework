@@ -1161,7 +1161,7 @@ int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authP
         IAM_LOGE("CheckCallerPermissionForPrivatePin failed");
         return CHECK_PERMISSION_FAILED;
     }
-     if (CheckCallerPermissionForUserId(authParam) != SUCCESS) {
+    if (CheckCallerPermissionForUserId(authParam) != SUCCESS) {
         IAM_LOGE("CheckPermission failed");
         return CHECK_PERMISSION_FAILED;
     }
