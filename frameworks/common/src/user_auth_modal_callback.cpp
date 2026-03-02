@@ -16,7 +16,6 @@
 #include "user_auth_modal_callback.h"
 
 #include "ability.h"
-#include "system_ability_definition.h"
 #include "ui_holder_extension_context.h"
 #include "want.h"
 
