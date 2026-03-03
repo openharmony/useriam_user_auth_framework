@@ -41,7 +41,8 @@ FFI_EXPORT uint64_t FfiUserAuthStart(const CjAuthParam &authParam, const CjWidge
     CjUserAuthCallback *callbackPtr);
 
 FFI_EXPORT int32_t FfiUserAuthCancel(uint64_t contextId);
+
+FFI_EXPORT uint64_t FfiUserAuthStartV2(const CjAuthParam* authParam, const CjWidgetParam* widgetParam,
+    int64_t callbackId, int64_t callbackMgrId);
 }
-
-
 #endif // USER_AUTH_FFI_H
