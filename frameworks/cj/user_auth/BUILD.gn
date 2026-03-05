@@ -32,6 +32,11 @@ ohos_shared_library("cj_userauth_ffi") {
     "../../../interfaces/inner_api",
   ]
 
+  configs = [
+    "../../../common:iam_log_config",
+    "../../../common:iam_utils_config",
+  ]
+
   sources = [
     "src/user_auth_callback_cj.cpp",
     "src/user_auth_ffi.cpp",
