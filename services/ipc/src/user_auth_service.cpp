@@ -598,16 +598,23 @@ uint64_t UserAuthService::StartAuthContext(int32_t apiVersion, Authentication::A
     contextCallback->SetTraceAuthContextId(context->GetContextId());
     contextCallback->SetCleaner(ContextHelper::Cleaner(context));
 
-    ThreadHandlerManager::GetInstance().PostTaskOnTemporaryThread("startAuth", [context,
-        apiVersion, contextCallback]() {
-            if (!context->Start()) {
-                int32_t errorCode = context->GetLatestError();
-                IAM_LOGE("failed to start auth apiVersion:%{public}d errorCode:%{public}d", apiVersion, errorCode);
-                contextCallback->SetTraceAuthFinishReason("UserAuthService Auth start context fail");
-                Attributes tmpExtraInfo;
-                contextCallback->OnResult(errorCode, tmpExtraInfo);
-                return;
-            }
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    IF_FALSE_LOGE_AND_RETURN_VAL(handler != nullptr, BAD_CONTEXT_ID);
+    std::weak_ptr<Context> weakContext = context;
+    std::weak_ptr<ContextCallback> weakContextCallback = contextCallback;
+    handler->PostTask([weakContext, weakContextCallback, apiVersion]() {
+        auto sharedContext = weakContext.lock();
+        IF_FALSE_LOGE_AND_RETURN(sharedContext != nullptr);
+        auto sharedContextCallback = weakContextCallback.lock();
+        IF_FALSE_LOGE_AND_RETURN(sharedContextCallback != nullptr);
+        if (!sharedContext->Start()) {
+            int32_t errorCode = sharedContext->GetLatestError();
+            IAM_LOGE("failed to start auth apiVersion:%{public}d errorCode:%{public}d", apiVersion, errorCode);
+            sharedContextCallback->SetTraceAuthFinishReason("UserAuthService Auth start context fail");
+            Attributes tmpExtraInfo;
+            sharedContextCallback->OnResult(errorCode, tmpExtraInfo);
+            return;
+        }
     });
 
     return context->GetContextId();
