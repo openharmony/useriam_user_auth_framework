@@ -59,7 +59,6 @@ int32_t EventListenerCallbackManager<T>::RegisterListener(const std::vector<Auth
     if (!IsExistEventListener()) {
         auto proxy = IpcClientUtils::GetRemoteObject(SystemAbilityId<T>::id);
         IF_FALSE_LOGE_AND_RETURN_VAL(proxy != nullptr, GENERAL_ERROR);
-        IF_FALSE_LOGE_AND_RETURN_VAL(proxy->IsProxyObject(), GENERAL_ERROR);
 
         auto listenerImpl = EventListenerCallbackService::GetInstance();
         IF_FALSE_LOGE_AND_RETURN_VAL(listenerImpl != nullptr, GENERAL_ERROR);
@@ -104,7 +103,6 @@ int32_t EventListenerCallbackManager<T>::UnRegisterListener(const std::shared_pt
     if (!IsExistEventListener()) {
         auto proxy = IpcClientUtils::GetRemoteObject(SystemAbilityId<T>::id);
         IF_FALSE_LOGE_AND_RETURN_VAL(proxy != nullptr, GENERAL_ERROR);
-        IF_FALSE_LOGE_AND_RETURN_VAL(proxy->IsProxyObject(), GENERAL_ERROR);
 
         auto listenerImpl = EventListenerCallbackService::GetInstance();
         IF_FALSE_LOGE_AND_RETURN_VAL(listenerImpl != nullptr, GENERAL_ERROR);
@@ -201,7 +199,6 @@ void IamServiceListener<T>::OnAddSystemAbility(int32_t systemAbilityId, const st
 
     auto proxy = IpcClientUtils::GetRemoteObject(SystemAbilityId<T>::id);
     IF_FALSE_LOGE_AND_RETURN(proxy != nullptr);
-    IF_FALSE_LOGE_AND_RETURN(proxy->IsProxyObject());
 
     auto listenerImpl = EventListenerCallbackService::GetInstance();
     IF_FALSE_LOGE_AND_RETURN(listenerImpl != nullptr);

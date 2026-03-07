@@ -408,7 +408,9 @@ int32_t UserIdmClientImpl::GetCredentialInfoSync(int32_t userId, AuthType authTy
         credentialInfo.authType = static_cast<AuthType>(iter.authType);
         credentialInfo.pinType = static_cast<PinSubType>(iter.pinType);
         credentialInfo.credentialId = iter.credentialId;
-        credentialInfo.templateId = iter.credentialId;
+        credentialInfo.templateId = iter.templateId;
+        credentialInfo.isAbandoned = iter.isAbandoned;
+        credentialInfo.validityPeriod = iter.validityPeriod;
         credentialInfoList.push_back(credentialInfo);
     }
 
