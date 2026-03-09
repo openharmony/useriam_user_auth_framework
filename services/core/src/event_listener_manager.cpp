@@ -66,19 +66,23 @@ int32_t EventListenerManager::AddDeathRecipient(EventListenerManager *manager,
     }
 
     auto iter = std::find_if(listenerDeathRecipientMap_.begin(), listenerDeathRecipientMap_.end(),
-        FinderMap(listener->AsObject()));
+        FinderMap(obj));
     if (iter != listenerDeathRecipientMap_.end()) {
         IAM_LOGE("deathRecipient is already registed");
         return SUCCESS;
     }
 
-    sptr<DeathRecipient> dr(new (std::nothrow) EventListenerDeathRecipient(manager));
-    if ((dr == nullptr) || (!obj->AddDeathRecipient(dr))) {
-        IAM_LOGE("AddDeathRecipient failed");
-        return GENERAL_ERROR;
+    if (obj->IsProxyObject()) {
+        sptr<DeathRecipient> dr(new (std::nothrow) EventListenerDeathRecipient(manager));
+        if ((dr == nullptr) || (!obj->AddDeathRecipient(dr))) {
+            IAM_LOGE("AddDeathRecipient failed");
+            return GENERAL_ERROR;
+        }
+        listenerDeathRecipientMap_.emplace(listener, dr);
+    } else {
+        listenerDeathRecipientMap_.emplace(listener, nullptr);
     }
 
-    listenerDeathRecipientMap_.emplace(listener, dr);
     IAM_LOGI("AddDeathRecipient success, listenerSize:%{public}zu", listenerDeathRecipientMap_.size());
     return SUCCESS;
 }
@@ -95,19 +99,17 @@ int32_t EventListenerManager::RemoveDeathRecipient(const sptr<IEventListenerCall
     }
 
     auto iter = std::find_if(listenerDeathRecipientMap_.begin(), listenerDeathRecipientMap_.end(),
-        FinderMap(listener->AsObject()));
+        FinderMap(obj));
     if (iter == listenerDeathRecipientMap_.end()) {
         IAM_LOGE("deathRecipient is not registed");
         return SUCCESS;
     }
 
     sptr<DeathRecipient> deathRecipient = iter->second;
-    if (deathRecipient == nullptr) {
-        IAM_LOGE("deathRecipient is nullptr");
-        return GENERAL_ERROR;
+    if (deathRecipient != nullptr) {
+        obj->RemoveDeathRecipient(deathRecipient);
     }
 
-    obj->RemoveDeathRecipient(deathRecipient);
     listenerDeathRecipientMap_.erase(iter);
     IAM_LOGI("RemoveDeathRecipient success, listenerSize:%{public}zu", listenerDeathRecipientMap_.size());
     return SUCCESS;
