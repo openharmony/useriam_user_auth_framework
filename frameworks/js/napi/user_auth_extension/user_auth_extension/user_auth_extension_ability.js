@@ -17,11 +17,11 @@ let UIExtensionAbility = requireNapi('app.ability.UIExtensionAbility');
 
 class UserAuthExtensionAbility extends UIExtensionAbility {
   onCreate(launchParam, want) {
-    console.log('onCreate, want:' + want.abilityName);
+    console.log('onCreate, want:' + want?.abilityName);
   }
 
   onRequest(want, startId) {
-    console.log('onRequest, want:' + want.abilityName + ', startId:' + startId);
+    console.log('onRequest, want:' + want?.abilityName + ', startId:' + startId);
   }
 
   onLoadContent() {
