@@ -674,6 +674,9 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuth001, TestSize.Level0)
     int32_t ret = service.Auth(testApiVersion, ipcAuthParamInner, callbackInterface, contextId);
     EXPECT_EQ(ret, SUCCESS);
     EXPECT_NE(contextId, 0);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    ASSERT_NE(handler, nullptr);
+    handler->EnsureTask([]() {});
     IpcCommon::DeleteAllPermission();
 }
 
@@ -706,6 +709,9 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuth002, TestSize.Level0)
     ret = service.Auth(testApiVersion, ipcAuthParamInner, callbackInterface, contextId);
     EXPECT_EQ(ret, TYPE_NOT_SUPPORT);
     EXPECT_EQ(contextId, 0);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    ASSERT_NE(handler, nullptr);
+    handler->EnsureTask([]() {});
     IpcCommon::DeleteAllPermission();
 }
 
@@ -744,6 +750,9 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuth003, TestSize.Level0)
     EXPECT_EQ(ret, SUCCESS);
     EXPECT_NE(contextId, 0);
 
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    ASSERT_NE(handler, nullptr);
+    handler->EnsureTask([]() {});
     IpcCommon::DeleteAllPermission();
 }
 
@@ -839,6 +848,9 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuth004, TestSize.Level0)
     promise.get_future().get();
 
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(60));
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    ASSERT_NE(handler, nullptr);
+    handler->EnsureTask([]() {});
     IpcCommon::DeleteAllPermission();
 }
 
