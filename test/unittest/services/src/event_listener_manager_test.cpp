@@ -83,6 +83,7 @@ HWTEST_F(EventListenerManagerTest, EventListenerManagerTestRemoveDeathRecipient_
     EXPECT_EQ(authEventListenerManager.RemoveDeathRecipient(mockCallbackRemove), SUCCESS);
 }
 
+// IsProxyObject() returns true, AddDeathRecipient fails
 HWTEST_F(EventListenerManagerTest, EventListenerManagerTestAddDeathRecipient_001, TestSize.Level0)
 {
     sptr<MockEventListener> mockCallbackAdd = new MockEventListener();
@@ -90,6 +91,8 @@ HWTEST_F(EventListenerManagerTest, EventListenerManagerTestAddDeathRecipient_001
     EXPECT_CALL(*mockCallbackAdd, AsObject())
         .WillRepeatedly(Return(obj));
 
+    EXPECT_CALL(*obj, IsProxyObject())
+        .WillRepeatedly(Return(true));
     EXPECT_CALL(*obj, AddDeathRecipient(_))
         .WillOnce(Return(false));
 
@@ -97,6 +100,7 @@ HWTEST_F(EventListenerManagerTest, EventListenerManagerTestAddDeathRecipient_001
     EXPECT_EQ(authEventListenerManager.AddDeathRecipient(&authEventListenerManager, mockCallbackAdd), GENERAL_ERROR);
 }
 
+// IsProxyObject() returns true, AddDeathRecipient succeeds
 HWTEST_F(EventListenerManagerTest, EventListenerManagerTestAddDeathRecipient_002, TestSize.Level0)
 {
     sptr<MockEventListener> mockCallbackAdd = new MockEventListener();
@@ -104,12 +108,82 @@ HWTEST_F(EventListenerManagerTest, EventListenerManagerTestAddDeathRecipient_002
     EXPECT_CALL(*mockCallbackAdd, AsObject())
         .WillRepeatedly(Return(obj));
 
+    EXPECT_CALL(*obj, IsProxyObject())
+        .WillRepeatedly(Return(true));
     EXPECT_CALL(*obj, AddDeathRecipient(_))
         .WillRepeatedly(Return(true));
 
     AuthEventListenerManager& authEventListenerManager = AuthEventListenerManager::GetInstance();
     EXPECT_EQ(authEventListenerManager.AddDeathRecipient(&authEventListenerManager, mockCallbackAdd), SUCCESS);
     EXPECT_EQ(authEventListenerManager.AddDeathRecipient(&authEventListenerManager, mockCallbackAdd), SUCCESS);
+}
+
+// IsProxyObject() returns false (same process stub), should NOT call AddDeathRecipient
+HWTEST_F(EventListenerManagerTest, EventListenerManagerTestAddDeathRecipient_SameProcess, TestSize.Level0)
+{
+    sptr<MockEventListener> mockCallbackAdd = new MockEventListener();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject);
+    EXPECT_CALL(*mockCallbackAdd, AsObject())
+        .WillRepeatedly(Return(obj));
+
+    // Same process stub: IsProxyObject() returns false
+    EXPECT_CALL(*obj, IsProxyObject())
+        .WillRepeatedly(Return(false));
+    // AddDeathRecipient should NOT be called for same process stub
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .Times(0);
+
+    CredChangeEventListenerManager& manager = CredChangeEventListenerManager::GetInstance();
+    EXPECT_EQ(manager.AddDeathRecipient(&manager, mockCallbackAdd), SUCCESS);
+}
+
+// Remove listener that was registered with IsProxyObject() = false (same process stub)
+HWTEST_F(EventListenerManagerTest, EventListenerManagerTestRemoveDeathRecipient_SameProcess, TestSize.Level0)
+{
+    sptr<MockEventListener> mockCallback = new MockEventListener();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject);
+    EXPECT_CALL(*mockCallback, AsObject())
+        .WillRepeatedly(Return(obj));
+
+    // Same process stub: IsProxyObject() returns false
+    EXPECT_CALL(*obj, IsProxyObject())
+        .WillRepeatedly(Return(false));
+    // AddDeathRecipient should NOT be called for same process stub
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .Times(0);
+    // RemoveDeathRecipient should NOT be called when deathRecipient is nullptr
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_))
+        .Times(0);
+
+    CredChangeEventListenerManager& manager = CredChangeEventListenerManager::GetInstance();
+    // Register with same process stub
+    EXPECT_EQ(manager.AddDeathRecipient(&manager, mockCallback), SUCCESS);
+    // Remove should succeed without calling RemoveDeathRecipient
+    EXPECT_EQ(manager.RemoveDeathRecipient(mockCallback), SUCCESS);
+}
+
+// Remove listener that was registered with IsProxyObject() = true (proxy object)
+HWTEST_F(EventListenerManagerTest, EventListenerManagerTestRemoveDeathRecipient_Proxy, TestSize.Level0)
+{
+    sptr<MockEventListener> mockCallback = new MockEventListener();
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject);
+    EXPECT_CALL(*mockCallback, AsObject())
+        .WillRepeatedly(Return(obj));
+
+    // Proxy object: IsProxyObject() returns true
+    EXPECT_CALL(*obj, IsProxyObject())
+        .WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillRepeatedly(Return(true));
+    // RemoveDeathRecipient SHOULD be called for proxy object
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_))
+        .WillOnce(Return(true));
+
+    AuthEventListenerManager& manager = AuthEventListenerManager::GetInstance();
+    // Register with proxy object
+    EXPECT_EQ(manager.AddDeathRecipient(&manager, mockCallback), SUCCESS);
+    // Remove should call RemoveDeathRecipient
+    EXPECT_EQ(manager.RemoveDeathRecipient(mockCallback), SUCCESS);
 }
 
 HWTEST_F(EventListenerManagerTest, OnRemoteDiedTest, TestSize.Level0)
