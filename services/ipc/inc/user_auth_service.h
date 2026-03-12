@@ -94,7 +94,7 @@ private:
         const sptr<IIamCallback> &callback);
     std::shared_ptr<ContextCallback> GetAuthContextCallback(int32_t apiVersion, const AuthParamInner &authParam,
         const WidgetParamInner &widgetParam, const sptr<IIamCallback> &callback);
-    bool CheckAuthTrustLevel(AuthTrustLevel authTrustLevel);
+    bool CheckAuthTrustLevel(AuthTrustLevel authTrustLevel, int32_t authType);
     bool CheckSingeFaceOrFinger(const std::vector<AuthType> &authType);
     bool CheckPrivatePinEnroll(const std::vector<AuthType> &authType, std::vector<AuthType> &validType);
     int32_t CheckAuthWidgetType(const std::vector<AuthType> &authType);
