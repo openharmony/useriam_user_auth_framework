@@ -181,8 +181,12 @@ void UserAuthService::OnStop()
     ServiceInitManager::GetInstance().OnUserAuthServiceStop();
 }
 
-bool UserAuthService::CheckAuthTrustLevel(AuthTrustLevel authTrustLevel)
+bool UserAuthService::CheckAuthTrustLevel(AuthTrustLevel authTrustLevel, int32_t authType)
 {
+    if (authType == AuthType::COMPANION_DEVICE) {
+        IAM_LOGI("authType is %{public}d, omit atl check", authType);
+        return true;
+    }
     if ((authTrustLevel != ATL1) && (authTrustLevel != ATL2) &&
         (authTrustLevel != ATL3) && (authTrustLevel != ATL4)) {
         IAM_LOGE("authTrustLevel not support %{public}u", authTrustLevel);
@@ -244,7 +248,7 @@ int32_t UserAuthService::GetAvailableStatusImpl(int32_t apiVersion, int32_t auth
 int32_t UserAuthService::GetAvailableStatusInner(int32_t apiVersion, int32_t userId, AuthType authType,
     AuthTrustLevel authTrustLevel)
 {
-    if (!CheckAuthTrustLevel(authTrustLevel)) {
+    if (!CheckAuthTrustLevel(authTrustLevel, authType)) {
         IAM_LOGE("authTrustLevel is not in correct range");
         return TRUST_LEVEL_NOT_SUPPORT;
     }
@@ -511,7 +515,7 @@ int32_t UserAuthService::CheckAuthPermissionAndParam(int32_t authType, const int
         IAM_LOGE("authType not support");
         return TYPE_NOT_SUPPORT;
     }
-    if (!CheckAuthTrustLevel(authTrustLevel)) {
+    if (!CheckAuthTrustLevel(authTrustLevel, authType)) {
         IAM_LOGE("authTrustLevel is not in correct range");
         return TRUST_LEVEL_NOT_SUPPORT;
     }
@@ -675,7 +679,7 @@ uint64_t UserAuthService::StartLocalRemoteAuthContext(Authentication::Authentica
 bool UserAuthService::CheckAuthPermissionAndParam(AuthType authType, AuthTrustLevel authTrustLevel,
     const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo)
 {
-    if (!CheckAuthTrustLevel(authTrustLevel)) {
+    if (!CheckAuthTrustLevel(authTrustLevel, authType)) {
         IAM_LOGE("authTrustLevel is not in correct range");
         contextCallback->SetTraceAuthFinishReason("UserAuthService AuthUser CheckAuthTrustLevel fail");
         contextCallback->OnResult(TRUST_LEVEL_NOT_SUPPORT, extraInfo);
@@ -1181,7 +1185,7 @@ int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authP
         IAM_LOGE("CheckAuthWidgetType fail.");
         return ret;
     }
-    if (!CheckAuthTrustLevel(authParam.authTrustLevel)) {
+    if (!CheckAuthTrustLevel(authParam.authTrustLevel, authParam.authType)) {
         IAM_LOGE("authTrustLevel is not in correct range");
         return ResultCode::TRUST_LEVEL_NOT_SUPPORT;
     }
