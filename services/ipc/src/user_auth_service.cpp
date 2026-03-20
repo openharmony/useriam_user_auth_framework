@@ -1010,7 +1010,9 @@ int32_t UserAuthService::CancelAuthOrIdentify(uint64_t contextId, int32_t cancel
         UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "AuthWidget");
     }
 
-    ThreadHandlerManager::GetInstance().PostTaskOnTemporaryThread("cancelAuth", [context]() {
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    IF_FALSE_LOGE_AND_RETURN_VAL(handler != nullptr, GENERAL_ERROR);
+    handler->PostTask([context]() {
         if (!context->Stop()) {
             IAM_LOGE("failed to cancel auth or identify, ret%{public}d", context->GetLatestError());
         }
