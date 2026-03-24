@@ -37,6 +37,7 @@ public:
         std::optional<bool> endAfterFirstFail;
         int32_t authIntent;
         int32_t userId;
+        std::string additionalInfo;
     };
 
     static bool BuildFromHdi(const std::vector<HdiScheduleInfo> &infos, std::shared_ptr<ScheduleNodeCallback> callback,

@@ -57,6 +57,7 @@ public:
         std::vector<uint8_t> verifierMessage;
         int32_t authIntent {0};
         int32_t userId {0};
+        std::string additionalInfo;
     };
     explicit ScheduleNodeImpl(ScheduleInfo &info);
     ~ScheduleNodeImpl() override;

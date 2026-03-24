@@ -210,6 +210,8 @@ public:
          * The value type is bool.
          */
         ATTR_TOKEN_FROM_REMOTE_DEVICE = 100093,
+        /** Additional info from caller, the value type is string. */
+        ATTR_ADDITIONAL_INFO = 100094,
     };
 
     /**

@@ -249,6 +249,7 @@ bool EnrollmentImpl::StartSchedule(int32_t userId, HdiScheduleInfo &info,
     ScheduleNodeHelper::NodeOptionalPara para;
     para.tokenId = tokenId_;
     para.userId = userId;
+    para.additionalInfo = enrollPara_.additionalInfo;
 
     if (!ScheduleNodeHelper::BuildFromHdi(infos, callback, scheduleList, para)) {
         IAM_LOGE("BuildFromHdi failed");

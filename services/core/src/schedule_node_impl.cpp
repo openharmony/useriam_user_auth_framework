@@ -81,6 +81,10 @@ void ScheduleNodeImpl::GetScheduleAttribute(bool isVerifier, Attributes &attribu
             attribute.SetUint64Value(Attributes::ATTR_TEMPLATE_ID, *info_.templateIdList.begin());
         }
     }
+
+    if (!info_.additionalInfo.empty()) {
+        attribute.SetStringValue(Attributes::ATTR_ADDITIONAL_INFO, info_.additionalInfo);
+    }
 }
 
 uint64_t ScheduleNodeImpl::GetScheduleId() const

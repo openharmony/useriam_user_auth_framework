@@ -171,6 +171,36 @@ HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestScheduleInfoToExecutors_0
         verifierMessage));
     ResourceNodePool::Instance().DeleteAll();
 }
+
+HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestWithAdditionalInfo, TestSize.Level0)
+{
+    std::vector<HdiScheduleInfo> scheduleInfoList;
+    HdiScheduleInfo scheduleInfo = {};
+    scheduleInfo.authType = HdiAuthType::FACE;
+    scheduleInfo.executorMatcher = 10;
+    scheduleInfo.executorIndexes.push_back(60);
+    scheduleInfo.executorMessages.push_back({6});
+    scheduleInfo.scheduleId = 20;
+    scheduleInfo.scheduleMode = HdiScheduleMode::ENROLL;
+    scheduleInfo.templateIds.push_back(30);
+    scheduleInfoList.push_back(scheduleInfo);
+
+    auto resourceNode = MockResourceNode::CreateWithExecuteIndex(60, FACE, ALL_IN_ONE);
+    EXPECT_NE(resourceNode, nullptr);
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
+
+    auto callback = Common::MakeShared<MockScheduleNodeCallback>();
+    EXPECT_NE(callback, nullptr);
+    std::vector<std::shared_ptr<ScheduleNode>> scheduleNodeList;
+    ScheduleNodeHelper::NodeOptionalPara para = {};
+    para.additionalInfo = "test_additional_info_for_enrollment";
+    para.authIntent = 0;
+    para.userId = 100;
+
+    EXPECT_TRUE(ScheduleNodeHelper::BuildFromHdi(scheduleInfoList, callback, scheduleNodeList, para));
+    EXPECT_EQ(scheduleNodeList.size(), 1);
+    ResourceNodePool::Instance().DeleteAll();
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
