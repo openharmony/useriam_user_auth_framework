@@ -71,6 +71,34 @@ HWTEST_F(EnrollmentImplTest, BadHdiTest, TestSize.Level0)
     enrollment->running_ = true;
     EXPECT_FALSE(enrollment->Cancel());
 }
+
+HWTEST_F(EnrollmentImplTest, EnrollmentParaWithAdditionalInfoTest, TestSize.Level0)
+{
+    Enrollment::EnrollmentPara para = {};
+    para.userId = 0x11;
+    para.callerName = "com.ohos.test";
+    para.sdkVersion = 11;
+    para.authType = FACE;
+    para.additionalInfo = "test_additional_info_for_enrollment";
+
+    auto enrollment = std::make_shared<EnrollmentImpl>(para);
+    EXPECT_NE(enrollment, nullptr);
+    EXPECT_EQ(enrollment->GetUserId(), 0x11);
+}
+
+HWTEST_F(EnrollmentImplTest, EnrollmentParaWithEmptyAdditionalInfoTest, TestSize.Level0)
+{
+    Enrollment::EnrollmentPara para = {};
+    para.userId = 0x12;
+    para.callerName = "com.ohos.test";
+    para.sdkVersion = 11;
+    para.authType = PIN;
+    para.additionalInfo = "";
+
+    auto enrollment = std::make_shared<EnrollmentImpl>(para);
+    EXPECT_NE(enrollment, nullptr);
+    EXPECT_EQ(enrollment->GetUserId(), 0x12);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

@@ -287,6 +287,76 @@ HWTEST_F(EnrollmentImplTest, SetLatestErrorTest, TestSize.Level0)
     auto enrollment = std::make_shared<EnrollmentImpl>(para);
     EXPECT_NO_THROW(enrollment->SetLatestError(ResultCode::GENERAL_ERROR));
 }
+
+HWTEST_F(EnrollmentImplTest, EnrollmentWithAdditionalInfoTest, TestSize.Level0)
+{
+    Enrollment::EnrollmentPara para = {};
+    para.userId = 0x11;
+    para.callerName = "com.ohos.test";
+    para.sdkVersion = 11;
+    para.authType = FACE;
+    para.additionalInfo = "test_additional_info_for_enrollment";
+
+    auto enrollment = std::make_shared<EnrollmentImpl>(para);
+    EXPECT_NE(enrollment, nullptr);
+    EXPECT_EQ(enrollment->GetUserId(), 0x11);
+}
+
+HWTEST_F(EnrollmentImplTest, EnrollmentWithEmptyAdditionalInfoTest, TestSize.Level0)
+{
+    Enrollment::EnrollmentPara para = {};
+    para.userId = 0x12;
+    para.callerName = "com.ohos.test";
+    para.sdkVersion = 11;
+    para.authType = PIN;
+    para.additionalInfo = "";
+
+    auto enrollment = std::make_shared<EnrollmentImpl>(para);
+    EXPECT_NE(enrollment, nullptr);
+    EXPECT_EQ(enrollment->GetUserId(), 0x12);
+}
+
+HWTEST_F(EnrollmentImplTest, EnrollmentStartWithAdditionalInfoTest, TestSize.Level0)
+{
+    Enrollment::EnrollmentPara para = {};
+    para.userId = 0x13;
+    para.callerName = "com.ohos.test";
+    para.sdkVersion = 11;
+    para.authType = FACE;
+    para.additionalInfo = "additional_info_for_start_test";
+    constexpr uint64_t executorIndex = 61;
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, BeginEnrollmentExt(_, _, _))
+        .WillRepeatedly(
+            [](const std::vector<uint8_t> &authToken, const HdiEnrollParamExt &param,
+                HdiScheduleInfo &info) {
+                EXPECT_EQ(param.additionalInfo, "additional_info_for_start_test");
+                info.authType = HdiAuthType::FACE;
+                info.executorMatcher = 10;
+                info.executorIndexes.push_back(61);
+                std::vector<uint8_t> executorMessages;
+                executorMessages.resize(1);
+                info.executorMessages.push_back(executorMessages);
+                info.scheduleId = 21;
+                info.scheduleMode = HdiScheduleMode::ENROLL;
+                info.templateIds.push_back(31);
+                return HDF_SUCCESS;
+            }
+        );
+    auto resourceNode = MockResourceNode::CreateWithExecuteIndex(executorIndex, FACE, ALL_IN_ONE);
+    EXPECT_NE(resourceNode, nullptr);
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
+    auto enroll = std::make_shared<EnrollmentImpl>(para);
+    EXPECT_NE(enroll, nullptr);
+    std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
+    auto callback = Common::MakeShared<MockScheduleNodeCallback>();
+    EXPECT_NE(callback, nullptr);
+    EXPECT_TRUE(enroll->Start(scheduleList, callback));
+
+    EXPECT_TRUE(ResourceNodePool::Instance().Delete(executorIndex));
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
