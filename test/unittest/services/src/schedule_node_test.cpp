@@ -15,6 +15,7 @@
 
 #include "schedule_node_test.h"
 
+#include "attributes.h"
 #include "iam_ptr.h"
 #include "schedule_node.h"
 
@@ -244,6 +245,142 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderOtherParametersNoTemplate, TestSiz
         EXPECT_EQ(scheduleNode->GetScheduleMode(), IDENTIFY);
         EXPECT_FALSE(scheduleNode->GetTemplateIdList().has_value());
     }
+}
+
+HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderWithAdditionalInfo, TestSize.Level1)
+{
+    {
+        constexpr uint32_t EXECUTOR_MATCHER = 0xDEEDBEEF;
+        constexpr uint32_t SCHEDULE_ID = 0xBEEFABCD;
+        const std::string ADDITIONAL_INFO = "test_additional_info_12345";
+        auto faceAllInOne = MockResourceNode::CreateWithExecuteIndex(1, FACE, ALL_IN_ONE);
+        auto builder = ScheduleNode::Builder::New(faceAllInOne, faceAllInOne);
+        ASSERT_NE(builder, nullptr);
+        builder->SetExecutorMatcher(EXECUTOR_MATCHER);
+        builder->SetScheduleId(SCHEDULE_ID);
+        builder->SetScheduleMode(ENROLL);
+        builder->SetAdditionalInfo(ADDITIONAL_INFO);
+
+        auto scheduleNode = builder->Build();
+        ASSERT_NE(scheduleNode, nullptr);
+
+        EXPECT_EQ(scheduleNode->GetCollectorExecutor().lock(), faceAllInOne);
+        EXPECT_EQ(scheduleNode->GetVerifyExecutor().lock(), faceAllInOne);
+        EXPECT_EQ(scheduleNode->GetAuthType(), FACE);
+        EXPECT_EQ(scheduleNode->GetExecutorMatcher(), EXECUTOR_MATCHER);
+        EXPECT_EQ(scheduleNode->GetScheduleId(), SCHEDULE_ID);
+        EXPECT_EQ(scheduleNode->GetScheduleMode(), ENROLL);
+    }
+}
+
+HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderWithEmptyAdditionalInfo, TestSize.Level1)
+{
+    {
+        constexpr uint32_t EXECUTOR_MATCHER = 0xDEEDBEEF;
+        constexpr uint32_t SCHEDULE_ID = 0xBEEFABCD;
+        const std::string EMPTY_ADDITIONAL_INFO = "";
+        auto faceAllInOne = MockResourceNode::CreateWithExecuteIndex(1, FACE, ALL_IN_ONE);
+        auto builder = ScheduleNode::Builder::New(faceAllInOne, faceAllInOne);
+        ASSERT_NE(builder, nullptr);
+        builder->SetExecutorMatcher(EXECUTOR_MATCHER);
+        builder->SetScheduleId(SCHEDULE_ID);
+        builder->SetScheduleMode(ENROLL);
+        builder->SetAdditionalInfo(EMPTY_ADDITIONAL_INFO);
+
+        auto scheduleNode = builder->Build();
+        ASSERT_NE(scheduleNode, nullptr);
+    }
+}
+
+HWTEST_F(ScheduleNodeTest, ScheduleNodeAdditionalInfoInAttribute, TestSize.Level1)
+{
+    MockExecutorCallback executor;
+    const std::string TEST_ADDITIONAL_INFO = "test_additional_info_for_attribute";
+    EXPECT_CALL(executor, OnBeginExecute(_, _, _))
+        .WillOnce([&TEST_ADDITIONAL_INFO](uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
+            const std::vector<uint8_t> &command) {
+            // Deserialize the command to verify additionalInfo
+            auto attr = Common::MakeShared<Attributes>(command);
+            EXPECT_NE(attr, nullptr);
+            std::string additionalInfo;
+            bool hasAdditionalInfo = attr->GetStringValue(Attributes::ATTR_ADDITIONAL_INFO, additionalInfo);
+            EXPECT_TRUE(hasAdditionalInfo);
+            EXPECT_EQ(additionalInfo, TEST_ADDITIONAL_INFO);
+            return 0;
+        });
+
+    auto callback = MockScheduleNodeCallback::Create();
+    EXPECT_CALL(*callback, OnScheduleStarted()).Times(1);
+
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    ASSERT_NE(handler, nullptr);
+    {
+        constexpr uint32_t EXECUTOR_INDEX = 0xAAAAAAA;
+        constexpr uint32_t EXECUTOR_MATCHER = 0xDEEDBEEF;
+        constexpr uint32_t SCHEDULE_ID = 0xBEEFABCD;
+        auto faceAllInOne = MockResourceNode::CreateWithExecuteIndex(EXECUTOR_INDEX, FACE, ALL_IN_ONE, executor);
+        auto builder = ScheduleNode::Builder::New(faceAllInOne, faceAllInOne);
+        ASSERT_NE(builder, nullptr);
+        builder->SetExecutorMatcher(EXECUTOR_MATCHER);
+        builder->SetThreadHandler(handler);
+        builder->SetScheduleId(SCHEDULE_ID);
+        builder->SetScheduleMode(ENROLL);
+        builder->SetScheduleCallback(callback);
+        builder->SetAdditionalInfo(TEST_ADDITIONAL_INFO);
+
+        auto scheduleNode = builder->Build();
+        ASSERT_NE(scheduleNode, nullptr);
+
+        EXPECT_TRUE(scheduleNode->StartSchedule());
+        handler->EnsureTask([]() {});
+        EXPECT_EQ(scheduleNode->GetCurrentScheduleState(), ScheduleNode::S_AUTH_PROCESSING);
+    }
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(ScheduleNodeTest, ScheduleNodeEmptyAdditionalInfoNotInAttribute, TestSize.Level1)
+{
+    MockExecutorCallback executor;
+    EXPECT_CALL(executor, OnBeginExecute(_, _, _))
+        .WillOnce([](uint64_t scheduleId, const std::vector<uint8_t> &publicKey,
+            const std::vector<uint8_t> &command) {
+            // Deserialize the command to verify additionalInfo is not set when empty
+            auto attr = Common::MakeShared<Attributes>(command);
+            EXPECT_NE(attr, nullptr);
+            std::string additionalInfo;
+            bool hasAdditionalInfo = attr->GetStringValue(Attributes::ATTR_ADDITIONAL_INFO, additionalInfo);
+            // Empty string should not be set in attribute
+            EXPECT_FALSE(hasAdditionalInfo);
+            return 0;
+        });
+
+    auto callback = MockScheduleNodeCallback::Create();
+    EXPECT_CALL(*callback, OnScheduleStarted()).Times(1);
+
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    ASSERT_NE(handler, nullptr);
+    {
+        constexpr uint32_t EXECUTOR_INDEX = 0xAAAAAAA;
+        constexpr uint32_t EXECUTOR_MATCHER = 0xDEEDBEEF;
+        constexpr uint32_t SCHEDULE_ID = 0xBEEFABCD;
+        auto faceAllInOne = MockResourceNode::CreateWithExecuteIndex(EXECUTOR_INDEX, FACE, ALL_IN_ONE, executor);
+        auto builder = ScheduleNode::Builder::New(faceAllInOne, faceAllInOne);
+        ASSERT_NE(builder, nullptr);
+        builder->SetExecutorMatcher(EXECUTOR_MATCHER);
+        builder->SetThreadHandler(handler);
+        builder->SetScheduleId(SCHEDULE_ID);
+        builder->SetScheduleMode(ENROLL);
+        builder->SetScheduleCallback(callback);
+        builder->SetAdditionalInfo(""); // Empty additional info
+
+        auto scheduleNode = builder->Build();
+        ASSERT_NE(scheduleNode, nullptr);
+
+        EXPECT_TRUE(scheduleNode->StartSchedule());
+        handler->EnsureTask([]() {});
+        EXPECT_EQ(scheduleNode->GetCurrentScheduleState(), ScheduleNode::S_AUTH_PROCESSING);
+    }
+    handler->EnsureTask([]() {});
 }
 
 HWTEST_F(ScheduleNodeTest, ScheduleNodeStartAllInOneFailed, TestSize.Level1)

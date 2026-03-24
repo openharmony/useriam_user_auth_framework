@@ -48,6 +48,8 @@ std::shared_ptr<ScheduleNode> GetScheduleNode(Parcel &parcel)
     std::vector<uint64_t> templateIdList;
     Common::FillFuzzUint64Vector(parcel, templateIdList);
     g_Builder->SetTemplateIdList(templateIdList);
+    std::string additionalInfo = parcel.ReadString();
+    g_Builder->SetAdditionalInfo(additionalInfo);
 
     g_ScheduleNode = g_Builder->Build();
     return g_ScheduleNode;

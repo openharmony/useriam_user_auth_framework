@@ -65,6 +65,8 @@ struct EnrollParam {
     std::vector<uint8_t> extraInfo;
     /** User id. */
     int32_t userId;
+    /** Additional info. */
+    std::string additionalInfo;
 };
 
 /**
