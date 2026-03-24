@@ -136,6 +136,12 @@ std::shared_ptr<Builder> ScheduleNodeBuilder::SetUserId(int32_t userId)
     return shared_from_this();
 }
 
+std::shared_ptr<Builder> ScheduleNodeBuilder::SetAdditionalInfo(const std::string &additionalInfo)
+{
+    info_.additionalInfo = additionalInfo;
+    return shared_from_this();
+}
+
 std::shared_ptr<ScheduleNode> ScheduleNodeBuilder::Build()
 {
     if (!CheckParameters()) {
