@@ -63,6 +63,18 @@ void ServiceUnloadManager::StartSubscribe()
     bool startSa = SystemParamManager::GetInstance().GetParam(START_SA_KEY, FALSE_STR) == TRUE_STR;
     OnStartSaChange(startSa);
 
+    auto isCredentialCheckedListener = [](const std::string &value) {
+        bool isCredentialChecked = false;
+        if (value == TRUE_STR) {
+            isCredentialChecked = true;
+        }
+        ServiceUnloadManager::GetInstance().OnCredentialCheckedChange(isCredentialChecked);
+    };
+    SystemParamManager::GetInstance().WatchParam(IS_CREDENTIAL_CHECKED_KEY, isCredentialCheckedListener);
+    bool isCredentialChecked = SystemParamManager::GetInstance().GetParam(IS_CREDENTIAL_CHECKED_KEY, FALSE_STR) ==
+        TRUE_STR;
+    OnCredentialCheckedChange(isCredentialChecked);
+
     isSubscribed_ = true;
 }
 
@@ -91,9 +103,7 @@ void ServiceUnloadManager::OnIsPinEnrolledChange(bool isPinEnrolled)
         IAM_LOGI("isPinEnrolled is true, stop timer");
         StopTimer();
     } else {
-        bool isCredentialChecked = SystemParamManager::GetInstance().GetParam(IS_CREDENTIAL_CHECKED_KEY, FALSE_STR) ==
-            TRUE_STR;
-        if (isCredentialChecked) {
+        if (isCredentialChecked_) {
             IAM_LOGI("isPinEnrolled is false, isCredentialChecked is true, start timer");
             RestartTimer();
         } else {
@@ -114,14 +124,12 @@ void ServiceUnloadManager::OnStartSaChange(bool startSa)
         return;
     }
 
-    bool isCredentialChecked = SystemParamManager::GetInstance().GetParam(IS_CREDENTIAL_CHECKED_KEY, FALSE_STR) ==
-        TRUE_STR;
-    if (startSa && !isPinEnrolled_ && isCredentialChecked) {
+    if (startSa && !isPinEnrolled_ && isCredentialChecked_) {
         IAM_LOGI("start sa and isPinEnrolled is false, start timer");
         RestartTimer();
     } else {
         IAM_LOGI("start sa %{public}d, isPinEnrolled %{public}d, isCredentialChecked %{public}d, not start timer",
-            startSa, isPinEnrolled_, isCredentialChecked);
+            startSa, isPinEnrolled_, isCredentialChecked_);
     }
 }
 
@@ -146,15 +154,33 @@ void ServiceUnloadManager::StopTimer()
     timerId_ = std::nullopt;
 }
 
+void ServiceUnloadManager::OnCredentialCheckedChange(bool isCredentialChecked)
+{
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (isCredentialChecked_ == isCredentialChecked) {
+        return;
+    }
+    IAM_LOGI("isCredentialChecked change from %{public}d to %{public}d", isCredentialChecked_, isCredentialChecked);
+    isCredentialChecked_ = isCredentialChecked;
+
+    if (isCredentialChecked && !isPinEnrolled_ && startSa_) {
+        IAM_LOGI("isCredentialChecked change to true, start timer");
+        RestartTimer();
+    }
+}
+
 void ServiceUnloadManager::OnFwkReady(bool &isStopSa)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     isStopSa = false;
-    isPinEnrolled_ = SystemParamManager::GetInstance().GetParam(IS_PIN_ENROLLED_KEY, FALSE_STR) == TRUE_STR;
-    if (isPinEnrolled_) {
+    bool isPinEnrolled = SystemParamManager::GetInstance().GetParam(IS_PIN_ENROLLED_KEY, FALSE_STR) == TRUE_STR;
+    if (isPinEnrolled) {
         IAM_LOGI("fwk ready, isPinEnrolled is true, sa should be running");
         return;
     }
+
+    bool checked = SystemParamManager::GetInstance().GetParam(IS_CREDENTIAL_CHECKED_KEY, FALSE_STR) == TRUE_STR;
+    OnCredentialCheckedChange(checked);
 
     if (timerId_ != std::nullopt) {
         IAM_LOGI("fwk ready, timer is running, wait timer timeout");
