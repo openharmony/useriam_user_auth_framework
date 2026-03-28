@@ -28,6 +28,7 @@ public:
     void OnTimeout();
     void OnIsPinEnrolledChange(bool isPinEnrolled);
     void OnStartSaChange(bool startSa);
+    void OnCredentialCheckedChange(bool isCredentialChecked);
     void OnFwkReady(bool &isStopSa);
     void StartSubscribe();
 
@@ -42,6 +43,7 @@ private:
     std::optional<int32_t> timerId_ = std::nullopt;
     bool isPinEnrolled_ = false;
     bool startSa_ = false;
+    bool isCredentialChecked_ = false;
 };
 } // namespace UserAuth
 } // namespace UserIam
