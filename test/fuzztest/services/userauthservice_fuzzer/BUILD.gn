@@ -56,6 +56,7 @@ ohos_fuzztest("UserAuthServiceFuzzTest") {
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   sources = [
+    "../../../../frameworks/common/src/user_auth_helper.cpp",
     "../../../../services/context/src/auth_widget_helper.cpp",
     "../../../../services/context/src/base_context.cpp",
     "../../../../services/context/src/context_appstate_observer.cpp",
