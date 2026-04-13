@@ -277,8 +277,8 @@ UserAuthResultCode UserAuthInstanceV10::InitTitle(userAuth::WidgetParam const &w
 {
     IAM_LOGI("InitTitle start.");
     std::string title = widgetParam.title.c_str();
-    if (title == "" || title.size() > TITLE_MAX) {
-        IAM_LOGE("title is invalid. size: %{public}zu", title.size());
+    if (title == "" || UserAuthHelper::GetUtf8CharCount(title) > TITLE_MAX) {
+        IAM_LOGE("title is invalid. size: %{public}zu", UserAuthHelper::GetUtf8CharCount(title));
         std::string msgStr = "Parameter error. The length of \"title\" connot exceed 500.";
         return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
@@ -291,8 +291,9 @@ UserAuthResultCode UserAuthInstanceV10::InitNavigationButtonText(userAuth::Widge
     IAM_LOGI("InitNavigationButtonText start.");
     if (widgetParam.navigationButtonText.has_value()) {
         std::string naviBtnTxt = widgetParam.navigationButtonText->c_str();
-        if (naviBtnTxt == "" || naviBtnTxt.size() > WidgetType::BUTTON_MAX) {
-            IAM_LOGE("navigation button text is invalid, size: %{public}zu", naviBtnTxt.size());
+        if (naviBtnTxt == "" || UserAuthHelper::GetUtf8CharCount(naviBtnTxt) > WidgetType::BUTTON_MAX) {
+            IAM_LOGE("navigation button text is invalid, size: %{public}zu",
+                UserAuthHelper::GetUtf8CharCount(naviBtnTxt));
             return UserAuthResultCode::OHOS_INVALID_PARAM;
         }
         widgetParam_.navigationButtonText = naviBtnTxt;

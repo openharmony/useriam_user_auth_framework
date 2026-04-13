@@ -33,6 +33,7 @@ public:
     static int32_t GetResultCodeV20(int32_t result);
     static int32_t GetResultCodeV21(int32_t result);
     static bool CheckReuseUnlockResult(ReuseUnlockResult reuseUnlockResult);
+    static size_t GetUtf8CharCount(const std::string &str);
 private:
     UserAuthHelper() = default;
     ~UserAuthHelper() = default;

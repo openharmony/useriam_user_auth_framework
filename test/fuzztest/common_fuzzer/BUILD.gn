@@ -413,6 +413,7 @@ ohos_source_set("userauth_services_ipc_fuzzer") {
     "../../../services/ipc/src/template_cache_manager.cpp",
     "../../../services/ipc/src/user_auth_service.cpp",
     "../../../services/ipc/src/user_idm_service.cpp",
+    "../../../frameworks/common/src/user_auth_helper.cpp",
     "../dummy/mock_ipc_common.cpp",
   ]
 

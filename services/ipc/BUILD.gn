@@ -47,6 +47,7 @@ ohos_source_set("userauth_services_ipc") {
     "src/template_cache_manager.cpp",
     "src/user_auth_service.cpp",
     "src/user_idm_service.cpp",
+    "../../frameworks/common/src/user_auth_helper.cpp"
   ]
 
   deps = [

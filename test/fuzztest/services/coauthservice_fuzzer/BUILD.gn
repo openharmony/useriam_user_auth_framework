@@ -52,6 +52,7 @@ ohos_fuzztest("CoAuthServiceFuzzTest") {
   ]
 
   sources = [    
+    "../../../../frameworks/common/src/user_auth_helper.cpp",
     "../../../../services/ipc/src/co_auth_service.cpp",
     "../../../../services/ipc/src/executor_messenger_service.cpp",
     "../../../../services/ipc/src/hdi_message_callback_service.cpp",
