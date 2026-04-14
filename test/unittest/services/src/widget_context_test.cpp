@@ -18,6 +18,8 @@
 #include <future>
 
 #include "mock_context.h"
+#include "mock_widget_schedule_node.h"
+#include "widget_schedule_node_impl.h"
 
 #include "schedule_node_impl.h"
 #include "widget_context_callback_impl.h"
@@ -946,6 +948,564 @@ HWTEST_F(WidgetContextTest, WidgetContextTestHandleAuthSuccessResult_0004, TestS
     Attributes attr;
     bool result = widgetContext->HandleAuthSuccessResult(attr);
     EXPECT_TRUE(result);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestIsSingleCompanionDeviceAuth_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {AuthType::COMPANION_DEVICE};
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_TRUE(widgetContext->Start());
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestIsSingleCompanionDeviceAuth_002, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {AuthType::COMPANION_DEVICE, AuthType::FACE};
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_TRUE(widgetContext->Start());
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestIsSingleCompanionDeviceAuth_003, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {AuthType::FACE};
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_TRUE(widgetContext->Start());
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestDirectAuth_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {AuthType::COMPANION_DEVICE};
+    ContextFactory::AuthProfile authProfile;
+    authProfile.pinSubType = 0;
+    authProfile.sensorInfo = "";
+    authProfile.remainTimes = -1;
+    authProfile.freezingTime = 0;
+    para.authProfileMap[AuthType::COMPANION_DEVICE] = authProfile;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    widgetContext->BuildSchedule();
+    EXPECT_TRUE(widgetContext->Start());
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestExecuteAuthListEmpty_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    widgetContext->BuildSchedule();
+    EXPECT_TRUE(widgetContext->Start());
+    std::set<AuthType> emptyAuthTypeList;
+    widgetContext->ExecuteAuthList(emptyAuthTypeList, false, AuthIntent::DEFAULT);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestCompanionDeviceSuccess_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {AuthType::COMPANION_DEVICE};
+    ContextFactory::AuthProfile authProfile;
+    authProfile.pinSubType = 0;
+    authProfile.sensorInfo = "";
+    authProfile.remainTimes = -1;
+    authProfile.freezingTime = 0;
+    para.authProfileMap[AuthType::COMPANION_DEVICE] = authProfile;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_TRUE(widgetContext->Start());
+    widgetContext->SuccessAuth(AuthType::COMPANION_DEVICE);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestCompanionDeviceFail_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {AuthType::COMPANION_DEVICE};
+    ContextFactory::AuthProfile authProfile;
+    authProfile.pinSubType = 0;
+    authProfile.sensorInfo = "";
+    authProfile.remainTimes = -1;
+    authProfile.freezingTime = 0;
+    para.authProfileMap[AuthType::COMPANION_DEVICE] = authProfile;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_TRUE(widgetContext->Start());
+    widgetContext->FailAuth(AuthType::COMPANION_DEVICE);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestCompanionDeviceStop_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {AuthType::COMPANION_DEVICE};
+    ContextFactory::AuthProfile authProfile;
+    authProfile.pinSubType = 0;
+    authProfile.sensorInfo = "";
+    authProfile.remainTimes = -1;
+    authProfile.freezingTime = 0;
+    para.authProfileMap[AuthType::COMPANION_DEVICE] = authProfile;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_TRUE(widgetContext->Start());
+    widgetContext->Stop();
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestMixedAuthWithCompanionDevice_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {AuthType::COMPANION_DEVICE, AuthType::PIN};
+    ContextFactory::AuthProfile authProfile;
+    authProfile.pinSubType = 0;
+    authProfile.sensorInfo = "";
+    authProfile.remainTimes = -1;
+    authProfile.freezingTime = 0;
+    para.authProfileMap[AuthType::COMPANION_DEVICE] = authProfile;
+    para.authProfileMap[AuthType::PIN] = authProfile;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_TRUE(widgetContext->Start());
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextMixedAuthType_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {AuthType::COMPANION_DEVICE, AuthType::PIN};
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_TRUE(widgetContext->Start());
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextOtherAuthTypes_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {AuthType::PIN};
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_TRUE(widgetContext->Start());
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextEmptyAuthTypeList_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {};
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_TRUE(widgetContext->Start());
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextDirectAuthMode_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {AuthType::COMPANION_DEVICE};
+    para.widgetParam.title = "test_title";
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_TRUE(widgetContext->Start());
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextWidgetAuthMode_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {AuthType::FACE, AuthType::FINGERPRINT};
+    para.widgetParam.title = "test_title";
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_TRUE(widgetContext->Start());
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+class TestableWidgetContext : public WidgetContext {
+public:
+    TestableWidgetContext(uint64_t contextId, const ContextFactory::AuthWidgetContextPara &para,
+        std::shared_ptr<ContextCallback> callback, const sptr<IModalCallback> &modalCallback)
+        : WidgetContext(contextId, para, callback, modalCallback) {}
+
+    void SetSchedule(std::shared_ptr<WidgetScheduleNode> schedule)
+    {
+        schedule_ = schedule;
+    }
+
+    std::shared_ptr<WidgetScheduleNode> GetSchedule()
+    {
+        return schedule_;
+    }
+
+protected:
+    bool BuildSchedule() override
+    {
+        if (schedule_ != nullptr) {
+            return true;
+        }
+        schedule_ = Common::MakeShared<WidgetScheduleNodeImpl>();
+        if (schedule_ == nullptr) {
+            return false;
+        }
+        schedule_->SetCallback(shared_from_this());
+        return true;
+    }
+};
+
+HWTEST_F(WidgetContextTest, WidgetContextStartDirectAuthFail_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {AuthType::COMPANION_DEVICE};
+
+    std::shared_ptr<ContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
+    auto testableContext = Common::MakeShared<TestableWidgetContext>(contextId, para, contextCallback, nullptr);
+    EXPECT_NE(testableContext, nullptr);
+
+    auto mockSchedule = Common::MakeShared<MockWidgetScheduleNode>();
+    EXPECT_NE(mockSchedule, nullptr);
+    EXPECT_CALL(*mockSchedule, StartDirectAuth()).WillOnce(Return(false));
+    EXPECT_CALL(*mockSchedule, SetCallback(_)).Times(AnyNumber());
+
+    testableContext->SetSchedule(mockSchedule);
+
+    EXPECT_FALSE(testableContext->Start());
+
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextStartScheduleFail_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {AuthType::FACE};
+
+    std::shared_ptr<ContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
+    auto testableContext = Common::MakeShared<TestableWidgetContext>(contextId, para, contextCallback, nullptr);
+    EXPECT_NE(testableContext, nullptr);
+
+    auto mockSchedule = Common::MakeShared<MockWidgetScheduleNode>();
+    EXPECT_NE(mockSchedule, nullptr);
+    EXPECT_CALL(*mockSchedule, StartSchedule()).WillOnce(Return(false));
+    EXPECT_CALL(*mockSchedule, SetCallback(_)).Times(AnyNumber());
+
+    testableContext->SetSchedule(mockSchedule);
+
+    EXPECT_FALSE(testableContext->Start());
+
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextIsSingleCompanionDeviceAuthFail_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {AuthType::PIN};
+
+    std::shared_ptr<ContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
+    auto testableContext = Common::MakeShared<TestableWidgetContext>(contextId, para, contextCallback, nullptr);
+    EXPECT_NE(testableContext, nullptr);
+
+    auto mockSchedule = Common::MakeShared<MockWidgetScheduleNode>();
+    EXPECT_NE(mockSchedule, nullptr);
+    EXPECT_CALL(*mockSchedule, StartSchedule()).WillOnce(Return(true));
+    EXPECT_CALL(*mockSchedule, SetCallback(_)).Times(AnyNumber());
+
+    testableContext->SetSchedule(mockSchedule);
+
+    EXPECT_TRUE(testableContext->Start());
+
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestAttributesGetFail_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    Attributes finalResult;
+    widgetContext->AuthResult(ResultCode::FAIL, PIN, finalResult);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestAttributesGetFail_002, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    Attributes finalResult;
+    finalResult.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, -1);
+    finalResult.SetInt32Value(Attributes::ATTR_FREEZING_TIME, -1);
+    widgetContext->AuthResult(ResultCode::LOCKED, PIN, finalResult);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestAttributesGetFail_003, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    Attributes extraInfo;
+    std::vector<uint8_t> invalidTipInfo;
+    extraInfo.SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, invalidTipInfo);
+    EXPECT_NO_THROW(widgetContext->AuthTipInfo(USER_AUTH_TIP_SINGLE_AUTH_RESULT, PIN, extraInfo));
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestBuildTaskFail_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.challenge = {1, 2, 3};
+    para.atl = ATL2;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    widgetContext->BuildSchedule();
+    std::set<AuthType> authTypeList = {AuthType::FACE};
+    widgetContext->ExecuteAuthList(authTypeList, false, AuthIntent::DEFAULT);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestHandleAuthSuccessResultFail_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    Attributes attr;
+    widgetContext->authResultInfo_.authType = PIN;
+    widgetContext->authResultInfo_.credentialDigest = 0;
+    widgetContext->authResultInfo_.credentialCount = 0;
+    widgetContext->authResultInfo_.resultUserId = 0;
+    bool result = widgetContext->HandleAuthSuccessResult(attr);
+    EXPECT_TRUE(result);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestStopAllRunTask_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    widgetContext->BuildSchedule();
+    widgetContext->Start();
+    std::set<AuthType> authTypeList = {AuthType::PIN};
+    widgetContext->ExecuteAuthList(authTypeList, false, AuthIntent::DEFAULT);
+    widgetContext->StopAllRunTask(ResultCode::FAIL);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestGetCallerName_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.callerName = "test_caller";
+    para.callerType = Security::AccessToken::TOKEN_HAP;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    std::string callerName = widgetContext->GetCallerName();
+    EXPECT_EQ(callerName, "test_caller");
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestGetCallerName_002, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.callerName = "test_native_caller";
+    para.callerType = Security::AccessToken::TOKEN_NATIVE;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    std::string callerName = widgetContext->GetCallerName();
+    // TOKEN_NATIVE returns the callerName directly (not bundle name)
+    EXPECT_EQ(callerName, "test_native_caller");
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestBuildStartCommand_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {AuthType::PIN, AuthType::FACE};
+    ContextFactory::AuthProfile pinProfile;
+    pinProfile.pinSubType = 1;
+    pinProfile.remainTimes = 3;
+    pinProfile.freezingTime = 30000;
+    para.authProfileMap[AuthType::PIN] = pinProfile;
+
+    ContextFactory::AuthProfile faceProfile;
+    faceProfile.sensorInfo = "";
+    faceProfile.remainTimes = -1;
+    faceProfile.freezingTime = 0;
+    para.authProfileMap[AuthType::FACE] = faceProfile;
+
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    WidgetContext::WidgetRotatePara widgetRotatePara;
+    widgetRotatePara.isReload = false;
+    widgetRotatePara.needRotate = 0;
+    widgetRotatePara.orientation = 0;
+    std::string command = widgetContext->BuildStartCommand(widgetRotatePara);
+    EXPECT_NE(command, "");
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestProcessCmdData_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    WidgetCmdParameters widgetCmdParameters;
+    widgetCmdParameters.uiExtensionType = "sysDialog/userAuth";
+    widgetCmdParameters.useriamCmdData.widgetContextId = contextId;
+    std::string cmdData = widgetContext->ProcessCmdData(widgetCmdParameters);
+    EXPECT_NE(cmdData, "");
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestIsValidRotate_003, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    WidgetContext::WidgetRotatePara widgetRotatePara;
+    widgetRotatePara.orientation = 0;
+    widgetRotatePara.needRotate = 0;
+    widgetRotatePara.isReload = false;
+    bool isValid = widgetContext->IsValidRotate(widgetRotatePara);
+    EXPECT_TRUE(isValid);
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestEndDifferentResultCodes_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    widgetContext->BuildSchedule();
+    widgetContext->Start();
+    EXPECT_NO_THROW(widgetContext->EndAuthAsCancel());
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestEndDifferentResultCodes_002, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    widgetContext->BuildSchedule();
+    widgetContext->Start();
+    EXPECT_NO_THROW(widgetContext->EndAuthAsNaviPin());
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestEndDifferentResultCodes_003, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    widgetContext->BuildSchedule();
+    widgetContext->Start();
+    EXPECT_NO_THROW(widgetContext->EndAuthAsWidgetParaInvalid());
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestIsSingleCompanionDeviceAuth_EmptyList_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {};
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    EXPECT_TRUE(widgetContext->Start());
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestIsSingleCompanionDeviceAuth_SizeZero_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList.clear();
+    para.widgetParam.title = "test_title";
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    widgetContext->BuildSchedule();
+    EXPECT_TRUE(widgetContext->Start());
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestDirectAuthWithEmptyList_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {};
+    ContextFactory::AuthProfile authProfile;
+    authProfile.pinSubType = 0;
+    authProfile.sensorInfo = "";
+    authProfile.remainTimes = -1;
+    authProfile.freezingTime = 0;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    widgetContext->BuildSchedule();
+    EXPECT_TRUE(widgetContext->Start());
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
 }

@@ -53,10 +53,12 @@ public:
         E_WIDGET_RELOAD = 7,
         E_STOP_AUTH = 8,
         E_WIDGET_RELEASE = 9,
+        E_START_DIRECT_AUTH = 10,
     };
 
     virtual ~WidgetScheduleNode() = default;
     virtual bool StartSchedule() = 0;
+    virtual bool StartDirectAuth() = 0;
     virtual bool StopSchedule() = 0;
     virtual bool StartAuthList(const std::vector<AuthType> &authTypeList, bool endAfterFirstFail,
         AuthIntent authIntent) = 0;

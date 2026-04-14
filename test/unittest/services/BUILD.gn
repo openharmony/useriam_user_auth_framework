@@ -192,6 +192,8 @@ ohos_unittest("iam_services_test") {
     "src/update_pin_param_test.cpp",
     "src/user_auth_service_test_part01.cpp",
     "src/user_auth_service_test_part02.cpp",
+    "src/user_auth_service_test_part03.cpp",
+    "src/user_auth_service_test_part04.cpp",
     "src/user_idm_database_test.cpp",
     "src/user_idm_service_test.cpp",
     "src/user_info_test.cpp",

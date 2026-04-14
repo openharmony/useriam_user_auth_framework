@@ -792,6 +792,52 @@ HWTEST_F(ScheduleNodeTest, ScheduleNodeRemotePinSuccess, TestSize.Level1)
     handler->EnsureTask([]() {});
 }
 
+HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderSetTitleAndAuthScene, TestSize.Level1)
+{
+    auto faceAllInOne = MockResourceNode::CreateWithExecuteIndex(1, FACE, ALL_IN_ONE);
+    auto builder = ScheduleNode::Builder::New(faceAllInOne, faceAllInOne);
+    ASSERT_NE(builder, nullptr);
+    
+    builder->SetTitle("test_widget_title");
+    builder->SetAuthScene(AuthScene::AUTH_SCENE_WIDGET_AUTH_NO_DISTURB);
+    builder->SetExecutorMatcher(10);
+    builder->SetScheduleId(20);
+    builder->SetScheduleMode(AUTH);
+    
+    auto scheduleNode = builder->Build();
+    ASSERT_NE(scheduleNode, nullptr);
+}
+
+HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderSetDefaultAuthScene, TestSize.Level1)
+{
+    auto faceAllInOne = MockResourceNode::CreateWithExecuteIndex(1, FACE, ALL_IN_ONE);
+    auto builder = ScheduleNode::Builder::New(faceAllInOne, faceAllInOne);
+    ASSERT_NE(builder, nullptr);
+    
+    builder->SetAuthScene(AuthScene::AUTH_SCENE_DEFAULT);
+    builder->SetExecutorMatcher(10);
+    builder->SetScheduleId(20);
+    builder->SetScheduleMode(AUTH);
+    
+    auto scheduleNode = builder->Build();
+    ASSERT_NE(scheduleNode, nullptr);
+}
+
+HWTEST_F(ScheduleNodeTest, ScheduleNodeBuilderEmptyTitle, TestSize.Level1)
+{
+    auto faceAllInOne = MockResourceNode::CreateWithExecuteIndex(1, FACE, ALL_IN_ONE);
+    auto builder = ScheduleNode::Builder::New(faceAllInOne, faceAllInOne);
+    ASSERT_NE(builder, nullptr);
+    
+    builder->SetTitle("");
+    builder->SetExecutorMatcher(10);
+    builder->SetScheduleId(20);
+    builder->SetScheduleMode(AUTH);
+    
+    auto scheduleNode = builder->Build();
+    ASSERT_NE(scheduleNode, nullptr);
+}
+
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

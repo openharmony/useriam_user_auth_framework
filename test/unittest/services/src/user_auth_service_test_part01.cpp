@@ -341,8 +341,12 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty001, TestSize.Level0)
     int32_t testUserId = 123;
     AuthType testAuthType = PIN;
     std::vector<uint32_t> testKeys = {Attributes::ATTR_PIN_SUB_TYPE, Attributes::ATTR_SIGNATURE};
+    std::promise<void> promise1, promise2;
     sptr<MockGetExecutorPropertyCallback> testCallback(new (std::nothrow) MockGetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _))
+        .WillOnce([&promise1](auto result, auto &extraInfo) { promise1.set_value(); return SUCCESS; })
+        .WillOnce([&promise2](auto result, auto &extraInfo) { promise2.set_value(); return SUCCESS; });
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     sptr<IGetExecutorPropertyCallback> callbackInterface = testCallback;
@@ -351,6 +355,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty001, TestSize.Level0)
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
     EXPECT_EQ(ret, SUCCESS);
+    promise1.get_future().get();
+    promise2.get_future().get();
     IpcCommon::DeleteAllPermission();
 }
 
@@ -367,35 +373,30 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty002, TestSize.Level0)
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    ON_CALL(*mockHdi, GetCredential)
-        .WillByDefault(
-            [](int32_t userId, int32_t authType, std::vector<HdiCredentialInfo> &infos) {
-                HdiCredentialInfo tempInfo = {
-                    .credentialId = 1,
-                    .executorIndex = 2,
-                    .templateId = 3,
-                    .authType = static_cast<HdiAuthType>(1),
-                    .executorMatcher = 2,
-                    .executorSensorHint = 3,
-                };
-                infos.push_back(tempInfo);
-                return HDF_SUCCESS;
-            }
-        );
+    ON_CALL(*mockHdi, GetCredential).WillByDefault([](auto userId, auto authType, auto &infos) {
+        infos.push_back({.credentialId = 1, .executorIndex = 2, .templateId = 3,
+            .authType = static_cast<HdiAuthType>(1), .executorMatcher = 2, .executorSensorHint = 3});
+        return HDF_SUCCESS;
+    });
     auto resourceNode = MockResourceNode::CreateWithExecuteIndex(2);
     EXPECT_NE(resourceNode, nullptr);
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
     MockResourceNode *node = static_cast<MockResourceNode *>(resourceNode.get());
-    ON_CALL(*node, GetProperty(_, _))
-        .WillByDefault(Return(SUCCESS));
+    ON_CALL(*node, GetProperty(_, _)).WillByDefault(Return(SUCCESS));
+    std::promise<void> promise1, promise2;
     testCallback = sptr<MockGetExecutorPropertyCallback>(new (std::nothrow) MockGetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _))
+        .WillOnce([&promise1](auto result, auto &extraInfo) { promise1.set_value(); return SUCCESS; })
+        .WillOnce([&promise2](auto result, auto &extraInfo) { promise2.set_value(); return SUCCESS; });
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     callbackInterface = testCallback;
     ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
     EXPECT_EQ(ret, SUCCESS);
     ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
     EXPECT_EQ(ret, SUCCESS);
+    promise1.get_future().get();
+    promise2.get_future().get();
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(2));
     IpcCommon::DeleteAllPermission();
 }
@@ -427,14 +428,27 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty003, TestSize.Level0)
     MockResourceNode *node = static_cast<MockResourceNode *>(resourceNode.get());
     ON_CALL(*node, GetProperty(_, _))
         .WillByDefault(Return(FAIL));
+    std::promise<void> promise1;
+    std::promise<void> promise2;
     testCallback = sptr<MockGetExecutorPropertyCallback>(new (std::nothrow) MockGetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _))
+        .WillOnce([&promise1](int32_t result, const std::vector<uint8_t> &extraInfo) {
+            promise1.set_value();
+            return SUCCESS;
+        })
+        .WillOnce([&promise2](int32_t result, const std::vector<uint8_t> &extraInfo) {
+            promise2.set_value();
+            return SUCCESS;
+        });
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     callbackInterface = testCallback;
     ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
     EXPECT_EQ(ret, SUCCESS);
     ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
     EXPECT_EQ(ret, SUCCESS);
+    promise1.get_future().get();
+    promise2.get_future().get();
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(2));
     IpcCommon::DeleteAllPermission();
 }
@@ -452,35 +466,31 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty004, TestSize.Level0)
 
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    ON_CALL(*mockHdi, GetCredential)
-        .WillByDefault(
-            [](int32_t userId, int32_t authType, std::vector<HdiCredentialInfo> &infos) {
-                HdiCredentialInfo tempInfo = {
-                    .credentialId = 1,
-                    .executorIndex = 2,
-                    .templateId = 3,
-                    .authType = static_cast<HdiAuthType>(1),
-                    .executorMatcher = 2,
-                    .executorSensorHint = 3,
-                };
-                infos.push_back(tempInfo);
-                return HDF_SUCCESS;
-            }
-        );
+    ON_CALL(*mockHdi, GetCredential).WillByDefault([](int32_t userId, int32_t authType,
+        std::vector<HdiCredentialInfo> &infos) {
+        infos.push_back({.credentialId = 1, .executorIndex = 2, .templateId = 3,
+            .authType = static_cast<HdiAuthType>(1), .executorMatcher = 2, .executorSensorHint = 3});
+        return HDF_SUCCESS;
+    });
     auto resourceNode = MockResourceNode::CreateWithExecuteIndex(2, FACE, ALL_IN_ONE);
     EXPECT_NE(resourceNode, nullptr);
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
     MockResourceNode *node = static_cast<MockResourceNode *>(resourceNode.get());
-    ON_CALL(*node, GetProperty(_, _))
-        .WillByDefault(Return(SUCCESS));
+    ON_CALL(*node, GetProperty(_, _)).WillByDefault(Return(SUCCESS));
+    std::promise<void> promise1, promise2;
     testCallback = sptr<MockGetExecutorPropertyCallback>(new (std::nothrow) MockGetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _))
+        .WillOnce([&promise1](auto result, auto &extraInfo) { promise1.set_value(); return SUCCESS; })
+        .WillOnce([&promise2](auto result, auto &extraInfo) { promise2.set_value(); return SUCCESS; });
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     callbackInterface = testCallback;
     ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
     EXPECT_EQ(ret, SUCCESS);
     ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
     EXPECT_EQ(ret, SUCCESS);
+    promise1.get_future().get();
+    promise2.get_future().get();
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(2));
     IpcCommon::DeleteAllPermission();
 }
@@ -519,12 +529,19 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty005, TestSize.Level0)
     MockResourceNode *node = static_cast<MockResourceNode *>(resourceNode.get());
     ON_CALL(*node, GetProperty(_, _))
         .WillByDefault(Return(SUCCESS));
+    std::promise<void> promise;
     testCallback = sptr<MockGetExecutorPropertyCallback>(new (std::nothrow) MockGetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _))
+        .WillOnce([&promise](int32_t result, const std::vector<uint8_t> &extraInfo) {
+            promise.set_value();
+            return SUCCESS;
+        });
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     callbackInterface = testCallback;
     ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
     EXPECT_EQ(ret, SUCCESS);
+    promise.get_future().get();
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(2));
     IpcCommon::DeleteAllPermission();
 }
@@ -545,33 +562,31 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceGetProperty006, TestSize.Level0)
     EXPECT_EQ(ret, INVALID_PARAMETERS);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    ON_CALL(*mockHdi, GetCredential)
-        .WillByDefault(
-            [](int32_t userId, int32_t authType, std::vector<HdiCredentialInfo> &infos) {
-                HdiCredentialInfo tempInfo = {
-                    .credentialId = 1,
-                    .executorIndex = 2,
-                    .templateId = 3,
-                    .authType = static_cast<HdiAuthType>(2),
-                    .executorMatcher = 2,
-                    .executorSensorHint = 3,
-                };
-                infos.push_back(tempInfo);
-                return HDF_SUCCESS;
-            }
-        );
+ON_CALL(*mockHdi, GetCredential).WillByDefault([](int32_t userId, int32_t authType,
+        std::vector<HdiCredentialInfo> &infos) {
+        infos.push_back({.credentialId = 1, .executorIndex = 2, .templateId = 3,
+            .authType = static_cast<HdiAuthType>(1), .executorMatcher = 2, .executorSensorHint = 3});
+        return HDF_SUCCESS;
+    });
     auto resourceNode = MockResourceNode::CreateWithExecuteIndex(2, FACE, ALL_IN_ONE);
     EXPECT_NE(resourceNode, nullptr);
     EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
     MockResourceNode *node = static_cast<MockResourceNode *>(resourceNode.get());
     ON_CALL(*node, GetProperty(_, _))
         .WillByDefault(Return(SUCCESS));
+    std::promise<void> promise;
     testCallback = sptr<MockGetExecutorPropertyCallback>(new (std::nothrow) MockGetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnGetExecutorPropertyResult(_, _))
+        .WillOnce([&promise](int32_t result, const std::vector<uint8_t> &extraInfo) {
+            promise.set_value();
+            return SUCCESS;
+        });
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     callbackInterface = testCallback;
     ret = service.GetProperty(testUserId, testAuthType, testKeys, callbackInterface);
     EXPECT_EQ(ret, SUCCESS);
+    promise.get_future().get();
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(2));
     IpcCommon::DeleteAllPermission();
 }
@@ -582,14 +597,27 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetProperty001, TestSize.Level0)
     int32_t testUserId = 124;
     AuthType testAuthType = PIN;
     Attributes testAttr;
+    std::promise<void> promise1;
+    std::promise<void> promise2;
     sptr<MockSetExecutorPropertyCallback> testCallback(new (std::nothrow) MockSetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnSetExecutorPropertyResult(_))
+        .WillOnce([&promise1](int32_t result) {
+            promise1.set_value();
+            return SUCCESS;
+        })
+        .WillOnce([&promise2](int32_t result) {
+            promise2.set_value();
+            return SUCCESS;
+        });
     sptr<ISetExecutorPropertyCallback> callbackInterface = testCallback;
     int32_t ret = service.SetProperty(testUserId, testAuthType, testAttr.Serialize(), callbackInterface);
     EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     ret = service.SetProperty(testUserId, testAuthType, testAttr.Serialize(), callbackInterface);
     EXPECT_EQ(ret, SUCCESS);
+    promise1.get_future().get();
+    promise2.get_future().get();
     IpcCommon::DeleteAllPermission();
 }
 
@@ -610,14 +638,27 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetProperty002, TestSize.Level0)
     MockResourceNode *node = static_cast<MockResourceNode *>(resourceNode.get());
     ON_CALL(*node, SetProperty(_))
         .WillByDefault(Return(SUCCESS));
+    std::promise<void> promise1;
+    std::promise<void> promise2;
     testCallback = sptr<MockSetExecutorPropertyCallback>(new (std::nothrow) MockSetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnSetExecutorPropertyResult(_))
+        .WillOnce([&promise1](int32_t result) {
+            promise1.set_value();
+            return SUCCESS;
+        })
+        .WillOnce([&promise2](int32_t result) {
+            promise2.set_value();
+            return SUCCESS;
+        });
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     callbackInterface = testCallback;
     ret = service.SetProperty(testUserId, testAuthType, testAttr.Serialize(), callbackInterface);
     EXPECT_EQ(ret, SUCCESS);
     ret = service.SetProperty(testUserId, testAuthType, testAttr.Serialize(), callbackInterface);
     EXPECT_EQ(ret, SUCCESS);
+    promise1.get_future().get();
+    promise2.get_future().get();
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(2));
     IpcCommon::DeleteAllPermission();
 }
@@ -628,8 +669,19 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetProperty003, TestSize.Level0)
     int32_t testUserId = 124;
     AuthType testAuthType = FACE;
     Attributes testAtrr;
+    std::promise<void> promise1;
+    std::promise<void> promise2;
     sptr<MockSetExecutorPropertyCallback> testCallback(new (std::nothrow) MockSetExecutorPropertyCallback());
     EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnSetExecutorPropertyResult(_))
+        .WillOnce([&promise1](int32_t result) {
+            promise1.set_value();
+            return SUCCESS;
+        })
+        .WillOnce([&promise2](int32_t result) {
+            promise2.set_value();
+            return SUCCESS;
+        });
     sptr<ISetExecutorPropertyCallback> callbackInterface = testCallback;
     ResourceNodePool::Instance().DeleteAll();
     auto resourceNode = MockResourceNode::CreateWithExecuteIndex(2, FACE, ALL_IN_ONE);
@@ -643,6 +695,8 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetProperty003, TestSize.Level0)
     EXPECT_EQ(ret, SUCCESS);
     ret = service->SetProperty(testUserId, testAuthType, testAtrr.Serialize(), callbackInterface);
     EXPECT_EQ(ret, SUCCESS);
+    promise1.get_future().get();
+    promise2.get_future().get();
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(2));
     IpcCommon::DeleteAllPermission();
 }

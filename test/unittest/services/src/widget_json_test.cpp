@@ -433,6 +433,27 @@ HWTEST_F(WidgetJsonTest, WidgetJsonto_json_015, TestSize.Level0)
     auto uiExtensionType = result["ability.want.params.uiExtensionType"];
     EXPECT_EQ(uiExtensionType, "sysDialog/userAuth");
 }
+
+HWTEST_F(WidgetJsonTest, WidgetJsonStr2AuthType_CompanionDevice_001, TestSize.Level0)
+{
+    std::string strAt = "companionDevice";
+    EXPECT_EQ(Str2AuthType(strAt), AuthType::COMPANION_DEVICE);
+}
+
+HWTEST_F(WidgetJsonTest, WidgetJsonAuthType2Str_CompanionDevice_001, TestSize.Level0)
+{
+    AuthType authType = AuthType::COMPANION_DEVICE;
+    std::string type = AuthType2Str(authType);
+    EXPECT_EQ(type, "companionDevice");
+}
+
+HWTEST_F(WidgetJsonTest, WidgetJsonAuthTypeRoundTrip_CompanionDevice_001, TestSize.Level0)
+{
+    AuthType authType = AuthType::COMPANION_DEVICE;
+    std::string typeStr = AuthType2Str(authType);
+    AuthType convertedAuthType = Str2AuthType(typeStr);
+    EXPECT_EQ(convertedAuthType, AuthType::COMPANION_DEVICE);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

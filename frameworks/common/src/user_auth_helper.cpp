@@ -77,7 +77,8 @@ int32_t UserAuthHelper::GetResultCodeV21(int32_t result)
 bool UserAuthHelper::CheckUserAuthType(int32_t authType)
 {
     if (authType != AuthType::PIN && authType != AuthType::FACE &&
-        authType != AuthType::FINGERPRINT && authType != AuthType::PRIVATE_PIN) {
+        authType != AuthType::FINGERPRINT && authType != AuthType::PRIVATE_PIN &&
+        authType != AuthType::COMPANION_DEVICE) {
         IAM_LOGE("authType check fail:%{public}d", authType);
         return false;
     }
